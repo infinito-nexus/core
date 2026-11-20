@@ -10,12 +10,14 @@ reaches the caller.
 The two terminal verdicts are split by the task's current state, because that is
 what says whether docker ever ran the container. A task rejected or left
 unschedulable never started, so docker has already judged the spec unrunnable
-and the verdict needs no clock. A task that failed did run, and a crash loop
-waiting out a dependency is indistinguishable from one that never converges, so
-only the grace-gated strike counter may end it - never on the newest row alone,
-and never on errors left below a finished attempt. That counter is armed off the
-service's own ``UpdatedAt``, so an unreadable epoch has to keep the caller
-waiting rather than arm it.
+and the verdict needs no clock, unless its pull only failed to dial the
+registry: a registry task rescheduled during a node flap refuses connections for
+seconds, which says nothing about the spec. A task that failed did run, and a
+crash loop waiting out a dependency is indistinguishable from one that never
+converges, so only the grace-gated strike counter may end it - never on the
+newest row alone, and never on errors left below a finished attempt. That
+counter is armed off the service's own ``UpdatedAt``, so an unreadable epoch has
+to keep the caller waiting rather than arm it.
 
 A service whose ``UpdateStatus`` latched or rolled back is terminal on its own,
 without any task row: swarm will not leave that state until the next stack
@@ -310,6 +312,35 @@ class TestStackReady(unittest.TestCase):
         self.assertEqual(proc.returncode, 2)
         self.assertIn("No such image", proc.stderr)
         self.assertIn("stuck: demo_reg", proc.stderr)
+
+    def test_a_rejection_that_never_reached_the_registry_waits_for_the_grace(
+        self,
+    ) -> None:
+        refused = (
+            'Get "http://mgr-01:5000/v2/": dial tcp 192.168.244.10:5000: '
+            "connect: connection refused"
+        )
+        rows = (
+            f"demo_proxy.3|Rejected less than a second ago|{refused}\n"
+            f"demo_proxy.3|Rejected 4 seconds ago|{refused}\n"
+            f"demo_proxy.3|Rejected 7 seconds ago|{refused}\n"
+        )
+        waiting = self._run(
+            "demo_proxy 2/3\n",
+            f"demo_proxy.3 desired=Ready current=Rejected error={refused}\n",
+            rows,
+            churning=90,
+        )
+        self.assertEqual(waiting.returncode, 1)
+        self.assertNotIn("stuck:", waiting.stderr)
+        past_grace = self._run(
+            "demo_proxy 2/3\n",
+            f"demo_proxy.3 desired=Ready current=Rejected error={refused}\n",
+            rows,
+            churning=600,
+        )
+        self.assertEqual(past_grace.returncode, 2)
+        self.assertIn("stuck: demo_proxy", past_grace.stderr)
 
     def test_an_unschedulable_task_is_terminal_without_any_grace(self) -> None:
         proc = self._run(
