@@ -15,6 +15,10 @@
     path: "{{ HEALTH_RUNTIME_CACHE_DIR }}"
     state: directory
     mode: "0700"
+  register: sys_ctl_hlth_runtime_cache_dir
+  retries: 3
+  delay: 2
+  until: sys_ctl_hlth_runtime_cache_dir is succeeded
 
 - name: 📁 Create the report and findings log directories
   ansible.builtin.file:
@@ -24,6 +28,10 @@
   loop:
     - "{{ DIR_HEALTH_RUNTIME_REPORT }}"
     - "{{ DIR_HEALTH_RUNTIME_LOG }}"
+  register: sys_ctl_hlth_runtime_dirs
+  retries: 3
+  delay: 2
+  until: sys_ctl_hlth_runtime_dirs is succeeded
 
 - name: 📁 Create the node-exporter textfile directory
   ansible.builtin.file:
