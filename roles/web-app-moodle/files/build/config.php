@@ -1,5 +1,4 @@
 <?php
-// nocheck: mirrored-unit-test - env-driven Moodle configuration; the file assigns globals and calls Moodle's setup.php, it exposes no unit
 // Env-driven Moodle config. Single source of truth for defaults is
 // env.j2 (rendered by Ansible into .env/env). All MOODLE_* env vars
 // MUST be set; missing values fail fast.
@@ -45,6 +44,8 @@ $CFG->localcachedir        = moodle_env('MOODLE_LOCALCACHEDIR');
 $CFG->admin                = 'admin';
 $CFG->directorypermissions = 02770;
 $CFG->routerconfigured     = true;
+
+$CFG->session_handler_class = '\core\session\database';
 
 $CFG->reverseproxy = moodle_env_bool('MOODLE_REVERSEPROXY');
 $CFG->sslproxy     = moodle_env_bool('MOODLE_SSLPROXY');
