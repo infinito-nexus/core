@@ -89,8 +89,6 @@ GITEA_WORKSPACES_ORGANIZATION_BODY:
   visibility: private
   repo_admin_change_team_access: false
 GITEA_WORKSPACES_STORE_BODY:
-  login_name: "{{ GITEA_WORKSPACES_STORE_USERNAME }}"
-  source_id: 0
   admin: false
   max_repo_creation: 0
 

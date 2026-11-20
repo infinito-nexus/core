@@ -86,6 +86,28 @@ def _tasks(path):
     return load_yaml_str(read_text(str(path))) or []
 
 
+def _store_body():
+    return load_yaml_str(read_text(str(VARS)))["GITEA_WORKSPACES_STORE_BODY"]
+
+
+def _bot_refuses(body):
+    """
+    Args:
+        body: an ``EditUserOption`` body for ``PATCH /admin/users/<bot>``.
+
+    Returns:
+        Whether Gitea 28 answers it with "a bot account cannot have a password
+        or authentication source": ``UpdateAuth`` in services/user/update.go
+        refuses a bot a non-empty password or login_name and a non-zero
+        source_id.
+    """
+    return bool(
+        body.get("password")
+        or int(body.get("source_id") or 0) != 0
+        or body.get("login_name")
+    )
+
+
 def _flat(tasks):
     flat = []
     for task in tasks:
@@ -188,6 +210,29 @@ class TestWorkspaceSwitch(unittest.TestCase):
         rows = _replace(_healthy_rows(), "account", STORE, "4", d="-1")
         plan = _mod.gitea_workspaces_plan(_mod.gitea_workspaces_snapshot(rows), STORE)
         self.assertTrue(plan["align_account"])
+
+    def test_the_store_body_carries_nothing_gitea_refuses_a_bot(self):
+        self.assertFalse(_bot_refuses(_store_body()))
+
+    def test_negative_control_an_auth_field_for_the_bot_is_caught(self):
+        for field, value in (
+            ("login_name", STORE),
+            ("source_id", 1),
+            ("password", "secret"),
+        ):
+            with self.subTest(field=field):
+                self.assertTrue(_bot_refuses({**_store_body(), field: value}))
+
+    def test_the_store_body_aligns_a_new_bot_account(self):
+        rows = _replace(_healthy_rows(), "account", STORE, "4", c="1", d="-1")
+        snapshot = _mod.gitea_workspaces_snapshot(rows)
+        body = _store_body()
+        snapshot["account"].update(
+            is_admin=body["admin"], max_repo_creation=body["max_repo_creation"]
+        )
+        plan = _mod.gitea_workspaces_plan(snapshot, STORE)
+        self.assertFalse(plan["align_account"])
+        self.assertEqual(plan["refuse"], [])
 
     def test_an_account_the_deploy_did_not_create_is_refused(self):
         rows = _swap(
