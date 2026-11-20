@@ -152,10 +152,16 @@ test("administrator: Fider lists biber with the name claim and the visitor role"
 
   const admin = await signIn(adminUsername, adminPassword);
   try {
-    const usersResponse = await admin.page.request.get(`${expectedFiderBaseUrl}/api/v1/users`);
+    const usersResponse = await admin.page.request.get(
+      `${expectedFiderBaseUrl}/api/v1/users?query=${encodeURIComponent(biberFullName)}&limit=100`,
+    );
     expect(usersResponse.status(), "the administrator MUST list the Fider users").toBe(200);
-    const users = await usersResponse.json();
-    const biberAccount = users.find((user) => user.name === biberFullName);
+    const listing = await usersResponse.json();
+    expect(
+      Array.isArray(listing?.users),
+      `Fider MUST answer a page of users (got the keys ${JSON.stringify(Object.keys(listing ?? {}))})`,
+    ).toBe(true);
+    const biberAccount = listing.users.find((user) => user.name === biberFullName);
     expect(biberAccount, `json_user_name_path MUST read the name claim, so a user named "${biberFullName}" exists`).toBeTruthy();
     expect(biberAccount.role, "biber holds no role group, so the deploy keeps the visitor role").toBe("visitor");
   } finally {
