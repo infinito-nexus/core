@@ -7,7 +7,6 @@ $pa = "$IP/extensions/PluggableAuth/extension.json";
 $oidc = "$IP/extensions/OpenIDConnect/extension.json";
 $oidcVendor = "$IP/extensions/OpenIDConnect/vendor/autoload.php";
 
-// Exception: ExtensionRegistry caches per replica, for a day, whether vendor/autoload.php existed when it first saw OpenIDConnect queued.
 if ( file_exists( $pa ) && file_exists( $oidc ) && file_exists( $oidcVendor ) ) {
 
     {% if 'web-svc-logout' in CURRENT_PLAY_APPLICATIONS %}
