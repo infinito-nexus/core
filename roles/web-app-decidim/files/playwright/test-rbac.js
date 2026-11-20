@@ -16,10 +16,21 @@ const superAdminUsername = decodeDotenvQuotedValue(process.env.SUPER_ADMIN_USERN
 const superAdminPassword = decodeDotenvQuotedValue(process.env.SUPER_ADMIN_PASSWORD || "");
 const userManagerGroupPath = decodeDotenvQuotedValue(process.env.RBAC_USER_MANAGER_GROUP_PATH || "");
 
-async function reachesAdminArea(page, baseUrl) {
-  await gotoOnion(page, `${baseUrl}/admin/`, { waitUntil: "domcontentloaded" });
+/**
+ * Args:
+ *   page: Playwright page of a signed-in Decidim session.
+ *   baseUrl: origin of the Decidim instance.
+ *
+ * Returns: "granted" when /admin/ renders the administration, "refused" for the 404 Decidim renders in place at /admin for a user without an admin role (its route constraint), otherwise "HTTP <status> at <path>".
+ */
+async function adminAreaAccess(page, baseUrl) {
+  const response = await gotoOnion(page, `${baseUrl}/admin/`, { waitUntil: "domcontentloaded" });
   await page.waitForLoadState("networkidle", { timeout: resolveTimeout(30_000) }).catch(() => {});
-  return new URL(page.url()).pathname.startsWith("/admin");
+  const status = response ? response.status() : 0;
+  const landedOn = new URL(page.url()).pathname;
+  if (landedOn.startsWith("/admin") && response?.ok()) return "granted";
+  if (landedOn.startsWith("/admin") && status === 404) return "refused";
+  return `HTTP ${status} at ${landedOn}`;
 }
 
 exports.register = function (shared) {
@@ -53,9 +64,9 @@ exports.register = function (shared) {
       const promoted = await signInAsBiber();
       try {
         expect(
-          await reachesAdminArea(promoted.page, shared.env.baseUrl),
+          await adminAreaAccess(promoted.page, shared.env.baseUrl),
           "the user-manager group MUST grant the user_manager role on the OIDC login",
-        ).toBe(true);
+        ).toBe("granted");
       } finally {
         await promoted.context.close().catch(() => {});
       }
@@ -84,9 +95,9 @@ exports.register = function (shared) {
     const demoted = await signInAsBiber();
     try {
       expect(
-        await reachesAdminArea(demoted.page, shared.env.baseUrl),
+        await adminAreaAccess(demoted.page, shared.env.baseUrl),
         "leaving the user-manager group MUST revoke the user_manager role on the next OIDC login",
-      ).toBe(false);
+      ).toBe("refused");
     } finally {
       await demoted.context.close().catch(() => {});
     }
