@@ -45,11 +45,18 @@
           {{ JELLYFIN_OIDC_CLIENT_SECRET if JELLYFIN_SSO_ENABLED | bool else '' }}
       ansible.builtin.include_tasks: 00_core/auth.yml
 
+    - name: "🔍 Resolve the {{ application_id }} network namespace for the corporate design"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+      vars:
+        netns_output_prefix: JELLYFIN
+
     - name: "🎨 Apply the corporate design of {{ application_id }}"
       vars:
-        jellyfin_design_authorization: 'MediaBrowser Token="{{ jellyfin_design_session.json.AccessToken }}"'
+        jellyfin_design_headers:
+          Authorization: 'MediaBrowser Token="{{ ((jellyfin_design_session.stdout | from_json).content | from_json).AccessToken }}"'
+        jellyfin_design_branding: "{{ (jellyfin_design_branding_answer.stdout | from_json).content | from_json }}"
         jellyfin_design_title: "{{ JELLYFIN_SETTINGS.server_name | default(false) }}"
-        jellyfin_design_css_current: "{{ jellyfin_design_branding.json.get('CustomCss') or '' }}"
+        jellyfin_design_css_current: "{{ jellyfin_design_branding.get('CustomCss') or '' }}"
         jellyfin_design_css_foreign: "{{ jellyfin_design_css_current | regex_replace(JELLYFIN_DESIGN_CSS_PATTERN, '') | trim }}"
         jellyfin_design_urls: "{{ lookup('design', application_id).relative_urls }}"
         jellyfin_design_css_block: "{{ (JELLYFIN_DESIGN_CSS_OPEN ~ (lookup('template', 'branding.css.j2') | trim) ~ JELLYFIN_DESIGN_CSS_CLOSE) if JELLYFIN_DESIGN_ENABLED
@@ -59,6 +66,7 @@
         file: utils/design.yml
         apply:
           delegate_to: "{{ JELLYFIN_HOST_NODE }}"
+          become: true
           no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🖼️ Keep the profile images of {{ application_id }} on the directory photos"

@@ -54,44 +54,58 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: true
 
+- name: "🔍 Resolve the {{ application_id }} network namespace for host-side API calls"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+  vars:
+    netns_output_prefix: JELLYFIN
+
 - name: "🛂 Jellyfin auth | Trust the forwarded headers of the front proxy"
   delegate_to: "{{ JELLYFIN_HOST_NODE }}"
+  become: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   vars:
-    jellyfin_proxy_authorization: 'MediaBrowser Token="{{ jellyfin_proxy_session.json.AccessToken }}"'
+    jellyfin_proxy_headers:
+      Authorization: 'MediaBrowser Token="{{ ((jellyfin_proxy_session.stdout | from_json).content | from_json).AccessToken }}"'
+    jellyfin_network: "{{ (jellyfin_network_answer.stdout | from_json).content | from_json }}"
   block:
     - name: "🔑 Sign in to {{ application_id }} for its network configuration"
-      uri_retry:
-        url: "{{ JELLYFIN_API }}/Users/AuthenticateByName"
-        method: POST
-        headers:
-          X-Emby-Authorization: "{{ JELLYFIN_API_CLIENT }}"
-        body_format: json
-        body:
-          Username: "{{ JELLYFIN_ADMIN_USERNAME }}"
-          Pw: "{{ JELLYFIN_ADMIN_PASSWORD }}"
+      ansible.builtin.command:
+        argv: "{{ JELLYFIN_NETNS_PYTHON }}"
+        stdin: "{{ lookup('http_request_program', {'Username': JELLYFIN_ADMIN_USERNAME, 'Pw': JELLYFIN_ADMIN_PASSWORD} | to_json, headers={'X-Emby-Authorization':
+          JELLYFIN_API_CLIENT}) }}"
+      environment:
+        HTTP_METHOD: POST
+        HTTP_URL: "{{ JELLYFIN_API }}/Users/AuthenticateByName"
       register: jellyfin_proxy_session
-      until: jellyfin_proxy_session.status == 200
+      until: jellyfin_proxy_session.rc == 0 and (jellyfin_proxy_session.stdout | from_json).status == 200
       retries: 60
       delay: 5
+      changed_when: false
 
     - name: "📖 Read the network configuration of {{ application_id }}"
-      uri_retry:
-        url: "{{ JELLYFIN_API }}/System/Configuration/network"
-        headers:
-          Authorization: "{{ jellyfin_proxy_authorization }}"
-      register: jellyfin_network
+      ansible.builtin.command:
+        argv: "{{ JELLYFIN_NETNS_PYTHON }}"
+        stdin: "{{ lookup('http_request_program', '', headers=jellyfin_proxy_headers) }}"
+      environment:
+        HTTP_METHOD: GET
+        HTTP_URL: "{{ JELLYFIN_API }}/System/Configuration/network"
+      register: jellyfin_network_answer
+      until: jellyfin_network_answer.rc == 0 and (jellyfin_network_answer.stdout | from_json).status == 200
+      retries: 30
+      delay: 2
+      changed_when: false
 
     - name: "🛂 Trust X-Forwarded-* from the private proxy networks"
-      uri_retry:
-        url: "{{ JELLYFIN_API }}/System/Configuration/network"
-        method: POST
-        headers:
-          Authorization: "{{ jellyfin_proxy_authorization }}"
-        body_format: json
-        body: "{{ jellyfin_network.json | combine({'KnownProxies': NETWORK_TRUSTED_PROXY_CIDRS}) }}"
-        status_code: [200, 204]
-      when: jellyfin_network.json.KnownProxies != NETWORK_TRUSTED_PROXY_CIDRS
+      ansible.builtin.command:
+        argv: "{{ JELLYFIN_NETNS_PYTHON }}"
+        stdin: "{{ lookup('http_request_program', jellyfin_network | combine({'KnownProxies': NETWORK_TRUSTED_PROXY_CIDRS}) | to_json, headers=jellyfin_proxy_headers)
+          }}"
+      environment:
+        HTTP_METHOD: POST
+        HTTP_URL: "{{ JELLYFIN_API }}/System/Configuration/network"
+      register: jellyfin_network_written
+      failed_when: jellyfin_network_written.rc != 0 or (jellyfin_network_written.stdout | from_json).status not in [200, 204]
+      when: jellyfin_network.KnownProxies != NETWORK_TRUSTED_PROXY_CIDRS
       changed_when: true
 
 - name: "♻️ Jellyfin auth | Final restart to apply auth configuration (compose)"
