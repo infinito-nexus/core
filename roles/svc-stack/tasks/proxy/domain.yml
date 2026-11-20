@@ -15,7 +15,11 @@
   loop_control:
     loop_var: front_proxy_domain
   vars:
+    application_id: "{{ front_proxy_application_id }}"
     domain: "{{ front_proxy_domain }}"
+    http_port: "{{ front_proxy_http_port }}"
+    proxy_service_key: "{{ front_proxy_service_key }}"
+    proxy_internal_port: "{{ front_proxy_internal_port }}"
     front_proxy_service_key: >-
       {{
         front_proxy_vhost.service_key

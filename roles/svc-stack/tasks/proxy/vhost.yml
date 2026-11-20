@@ -40,11 +40,6 @@
     diff_paths:
       - "{{ lookup('nginx', 'files.lua', front_proxy_domain) }}"
   vars:
-    application_id: "{{ front_proxy_application_id }}"
-    domain: "{{ front_proxy_domain }}"
-    http_port: "{{ front_proxy_http_port }}"
-    proxy_service_key: "{{ front_proxy_service_key }}"
-    proxy_internal_port: "{{ front_proxy_internal_port }}"
     webserver_extra_configuration: >-
       {{ (lookup('template', front_proxy_extra_template) | default('', true)) if front_proxy_extra_template else front_proxy_extra_configuration }}
     webserver_websocket_location: "{{ front_proxy_websocket_location }}"
