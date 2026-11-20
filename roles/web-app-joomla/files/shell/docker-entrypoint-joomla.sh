@@ -62,14 +62,8 @@ release() {
 run_setup() {
   local log
   log="$(mktemp)"
-  # Exception: since docker-joomla 327d05a9f1 the stock entrypoint skips its
-  # setup for -v/-V/-h/-t/-T; `apache2 -l` still runs it and then returns.
   { "${stock}" apache2 -l 2>&1 | tee "${log}"; } &
   wait "$!"
-  # Exception: Joomla's installer deletes installation/ while it still holds
-  # installation/joomla.php open; NFS keeps that file as a .nfs silly rename,
-  # so a complete install reports failure and the stock entrypoint keeps its
-  # marker.
   if [ -s "${config}" ] && [ -d "${marker}" ] &&
     grep -q 'Unable to delete installation folder' "${log}" &&
     ! grep -qE 'Failed to (correct ownership|restore configuration)|Refusing to change permissions' "${log}"; then
