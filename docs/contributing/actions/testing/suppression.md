@@ -153,6 +153,16 @@ Some Python files use Ruff-compatible uppercase `# noqa` codes. Ruff and related
 | `F401`   | Imported but unused         | Re-export modules or import-probe tests where import success is the assertion.                                                 |
 | `SLF001` | Private member access       | Test-only introspection of parser or object internals when the public surface does not expose the needed state.                |
 
+## Addon-Carrier Variant 🧩
+
+[test_addons_variant_pinning.py](../../../../tests/lint/ansible/services/test_addons_variant_pinning.py) makes every variant from 2 on alias variant 1's static-off addon set. One variant per role MAY keep the static addons on instead, for example when they move off variant 0 into their own round to fit the job budget. It carries `# nocheck: addons-variant-pinning <reason>` on its own `addons:` line, the only line the lint reads the marker from, and is then exempt from that rule:
+
+```yaml
+  addons: {} # nocheck: addons-variant-pinning v15 carries the static addons moved off v0 for the job budget
+```
+
+The reason MUST be at least `MIN_REASON_CHARS` (10) characters long. The marker fails on variant 0 or 1, because variant 1 owns the static-off set; on a second marked variant in the same role; while variant 0 still installs the static addons, because variant 0 then carries them already; and on a variant that pins every static addon off, because such a carrier carries nothing. The per-addon opt-out in the head of `meta/addons/<id>.yml` is a separate placement of the same key.
+
 ## Adding a new rule 🆕
 
 1. Pick a kebab-case `<rule>` identifier.

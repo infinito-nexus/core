@@ -17,7 +17,7 @@ In this deployment Weblate is the memory behind the translation gateway. [`web-s
 
 ## Administration
 
-The container's entrypoint provisions the administrator as the Weblate user `admin`; `WEBLATE_ADMIN_NAME` is its display name only. The role reads that account's API token out of Weblate's own database after the deploy and writes it to `sys-token-store` under `administrator` / `web-app-weblate`.
+The container's entrypoint provisions the administrator as the Weblate user `admin`; `WEBLATE_ADMIN_NAME` is its display name only. The role reads that account's API token out of Weblate's own database after the deploy and writes it to `sys-token-store` under `administrator` / `web-app-weblate`. With SSO on, [`files/python/adopt_admin.py`](files/python/adopt_admin.py) binds that account to the administrator's Keycloak user id, the `sub` claim, because Weblate 2026.11 refuses to link a signed-out OIDC sign-in to an existing account by e-mail unless `REGISTRATION_REBIND` is on.
 
 ## Networks
 

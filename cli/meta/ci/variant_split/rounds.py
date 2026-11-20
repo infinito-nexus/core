@@ -19,8 +19,8 @@ from utils.roles.applications.topics import overridden_providers, provider_of
 from utils.roles.applications.variant_pins import (
     PIN,
     VariantPinError,
-    _reciprocal_index,
     _service_key_lines,
+    intended_index,
 )
 from utils.roles.mapping import (
     ROLE_FILE_META_MCP,
@@ -131,7 +131,7 @@ def pinned_keys(role: str, roles_dir: str) -> dict[int, dict[str, tuple[str, str
 def pin_findings(
     role: str, *, roles_dir: str, variants_per_app: Mapping[str, list]
 ) -> list[dict[str, Any]]:
-    """Every pin *role* declares, with the variant that reciprocates it.
+    """Every pin *role* declares, with the variant its target is written to select.
 
     Args:
         role: the carrier role.
@@ -142,9 +142,10 @@ def pin_findings(
     for index, pins in sorted(pinned_keys(role, roles_dir).items()):
         for partner, (target, key) in sorted(pins.items()):
             try:
-                reciprocal: int | str = _reciprocal_index(
+                reciprocal: int | str = intended_index(
                     partner,
                     role,
+                    target,
                     roles_dir=roles_dir,
                     variants_per_app=variants_per_app,
                 )
