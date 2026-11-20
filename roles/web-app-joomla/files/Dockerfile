@@ -16,5 +16,6 @@ COPY ${JOOMLA_ENTRYPOINT_SCRIPT_HOST_REL} ${JOOMLA_ENTRYPOINT_SCRIPT_DOCKER}
 RUN chmod +x "${JOOMLA_ENTRYPOINT_SCRIPT_DOCKER}" \
     && ln -sf "${JOOMLA_ENTRYPOINT_SCRIPT_DOCKER}" /usr/local/bin/entrypoint-joomla
 
+ENV JOOMLA_STOCK_ENTRYPOINT=/entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/entrypoint-joomla"]
 CMD ["apache2-foreground"]
