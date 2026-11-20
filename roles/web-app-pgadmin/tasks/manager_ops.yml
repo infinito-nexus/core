@@ -49,5 +49,6 @@
     rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/reconcile_oauth2_roles.py') }}"
     rbac_sync_modules: []
     rbac_sync_env: {}
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: PGADMIN_RBAC_ADMINISTRATORS, role: administrator, field: "" }

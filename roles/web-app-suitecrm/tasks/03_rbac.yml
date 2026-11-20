@@ -17,5 +17,6 @@
     rbac_sync_modules: []
     rbac_sync_env:
       SUITECRM_RBAC_PROTECTED: "{{ [SUITECRM_ADMIN_USERNAME] | to_json }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: SUITECRM_RBAC_ADMINS, role: administrator, field: username }

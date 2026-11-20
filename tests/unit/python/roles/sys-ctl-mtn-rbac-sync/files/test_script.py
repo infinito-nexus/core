@@ -1,3 +1,4 @@
+import base64
 import contextlib
 import io
 import json
@@ -26,6 +27,8 @@ DEPLOYED_MODULES = {
     "backup_maintenance": PROJECT_ROOT
     / "roles/svc-bkp-volume-2-local/files/python/baudolo/maintenance.py",
     "mailbox_seed": SCRIPT.parent / "mailbox_seed.py",
+    "member_reader": SCRIPT.parent / "member_reader.py",
+    "hook_runner": SCRIPT.parent / "hook_runner.py",
 }
 LDAP = {
     "uri": "ldap://127.0.0.1:389",
@@ -70,6 +73,23 @@ def load_module():
     return module
 
 
+BASE_HOST_SCRIPT = b"""import json
+import os
+
+print(json.loads(os.environ["RBAC_SYNC_LDAP"])["uri"])
+"""
+
+
+def read_text_now(path):
+    """Read a file the runner removes again right after the hook ran, bypassing the read cache.
+
+    Args:
+        path: the file's path.
+    """
+    with Path(path).open(encoding="utf-8") as handle:
+        return json.load(handle)
+
+
 def backup_window(applications, until):
     """Return a maintenance document of svc-bkp-volume-2-local that started at the epoch.
 
@@ -108,9 +128,15 @@ class FakeRun:
         self.stdout = stdout
         self.stderr = stderr
         self.calls = []
+        self.handed = []
 
     def __call__(self, argv, **kwargs):
         self.calls.append((argv, kwargs))
+        path = kwargs.get("env", {}).get("RBAC_SYNC_MEMBERS_FILE")
+        if path:
+            self.handed.append(
+                (path, oct(Path(path).stat().st_mode & 0o777), read_text_now(path))
+            )
         if argv[1] == "ps":
             found = self.containers.get(argv[3], "")
             return subprocess.CompletedProcess(argv, 0, stdout=found + "\n", stderr="")
@@ -138,6 +164,19 @@ class StubDirectory:
 
     def close(self):
         self.closed = True
+
+
+class UsersDirectory:
+    def __init__(self, entries):
+        self.entries = entries
+        self.searches = []
+
+    def search(self, base, scope, search_filter, attributes):
+        self.searches.append(attributes)
+        return self.entries
+
+    def close(self):
+        pass
 
 
 class MailboxDirectory:
@@ -202,179 +241,6 @@ class Workspace:
 
     def close(self):
         self.tmp.cleanup()
-
-
-class DirectoryMembersTests(unittest.TestCase):
-    def setUp(self):
-        self.mod = load_module()
-
-    def test_members_take_the_first_value_and_are_sorted(self):
-        group = "cn=web-app-weblate-reviewer,ou=roles,dc=example,dc=org"
-        directory = StubDirectory(
-            {
-                group: [
-                    ("uid=bob", {"uid": ["bob"], "mail": ["bob@example.org"]}),
-                    (
-                        "uid=alice",
-                        {
-                            "uid": ["alice", "al"],
-                            "mail": [ALICE["email"]],
-                            "cn": [ALICE["name"]],
-                            "entryuuid": [ALICE_UUID],
-                        },
-                    ),
-                    ("uid=ghost", {"mail": ["ghost@example.org"]}),
-                ]
-            }
-        )
-
-        members = self.mod.directory_members(
-            directory, LDAP, "web-app-weblate", "reviewer"
-        )
-
-        self.assertEqual(
-            members,
-            [
-                ALICE,
-                {"username": "bob", "email": "bob@example.org", "name": "", "uuid": ""},
-            ],
-        )
-        self.assertEqual(directory.searches[0][0], LDAP["users_dn"])
-        self.assertEqual(directory.searches[0][2], ["uid", "mail", "cn", "entryUUID"])
-
-    def test_the_users_role_lists_every_account_with_a_login(self):
-        mod = self.mod
-        captured = []
-
-        class Directory:
-            def search(self, base, scope, search_filter, attributes):
-                captured.append(search_filter)
-                return [("uid=carol", {"uid": ["carol"]})]
-
-        members = mod.directory_members(
-            Directory(), LDAP, "web-app-nextcloud", "@users"
-        )
-
-        self.assertEqual(
-            members, [{"username": "carol", "email": "", "name": "", "uuid": ""}]
-        )
-        self.assertEqual(captured, [mod.present("uid")])
-
-
-class RoleGroupTests(unittest.TestCase):
-    def setUp(self):
-        self.mod = load_module()
-
-    def test_a_role_name_is_a_role_of_the_hooks_application(self):
-        self.assertEqual(
-            self.mod.role_group("web-app-erpnext", "manager"),
-            ("web-app-erpnext", "manager"),
-        )
-
-    def test_a_group_path_names_a_role_of_another_application(self):
-        for path in (
-            "/roles/web-app-consumer/auditor",
-            "roles/web-app-consumer/auditor/",
-        ):
-            with self.subTest(path=path):
-                self.assertEqual(
-                    self.mod.role_group("web-app-erpnext", path),
-                    ("web-app-consumer", "auditor"),
-                )
-
-    def test_a_group_path_searches_the_group_of_its_application(self):
-        group = "cn=web-app-consumer-auditor,ou=roles,dc=example,dc=org"
-        directory = StubDirectory(
-            {group: [("uid=alice", {"uid": ["alice"], "mail": [ALICE["email"]]})]}
-        )
-
-        members = self.mod.directory_members(
-            directory,
-            LDAP,
-            *self.mod.role_group("web-app-erpnext", "/roles/web-app-consumer/auditor"),
-        )
-
-        self.assertEqual(
-            members,
-            [{"username": "alice", "email": ALICE["email"], "name": "", "uuid": ""}],
-        )
-
-    def test_a_path_of_another_shape_fails(self):
-        for path in (
-            "/roles/web-app-consumer",
-            "/roles/web-app-consumer/t.example/auditor",
-        ):
-            with self.subTest(path=path), self.assertRaises(ValueError):
-                self.mod.role_group("web-app-erpnext", path)
-
-
-class MembersEnvTests(unittest.TestCase):
-    def setUp(self):
-        self.mod = load_module()
-        self.members = {"administrator": [ALICE], "reviewer": []}
-
-    def test_the_wildcard_passes_every_role(self):
-        env = self.mod.members_env(hook(), self.members)
-        self.assertEqual(json.loads(env["RBAC_MEMBERS"]), self.members)
-
-    def test_a_field_passes_that_field_of_one_role(self):
-        entries = [
-            {"name": "ADMINS", "role": "administrator", "field": "username"},
-            {"name": "REVIEWERS", "role": "reviewer", "field": ""},
-        ]
-        env = self.mod.members_env(hook(members_env=entries), self.members)
-        self.assertEqual(json.loads(env["ADMINS"]), ["alice"])
-        self.assertEqual(json.loads(env["REVIEWERS"]), [])
-
-
-class ExecTests(unittest.TestCase):
-    def setUp(self):
-        self.mod = load_module()
-
-    def test_values_never_reach_argv(self):
-        argv = self.mod.exec_argv(
-            CONTAINER_BIN, hook(user="weblate"), "abc", {"SECRET": "s3cr3t"}
-        )
-        self.assertEqual(
-            argv,
-            [
-                CONTAINER_BIN,
-                "exec",
-                "-i",
-                "--user",
-                "weblate",
-                "-e",
-                "SECRET",
-                "abc",
-                "weblate",
-                "shell",
-            ],
-        )
-        self.assertNotIn("s3cr3t", " ".join(argv))
-
-    def test_compose_and_swarm_select_the_container_differently(self):
-        run = FakeRun(
-            {
-                "name=^/weblate$": "c1",
-                "label=com.docker.swarm.service.name=s_w": "c2 s_w.1.taskid",
-            }
-        )
-        swarm = hook(container={"swarm_service": "s_w"})
-        self.assertEqual(self.mod.local_container("/c", hook(), run, False), "c1")
-        self.assertEqual(self.mod.local_container("/c", swarm, run, False), "c2")
-        self.assertEqual(
-            self.mod.local_container(
-                "/c", hook(container={"name": "absent"}), run, False
-            ),
-            "",
-        )
-
-    def test_the_timer_only_runs_on_the_node_of_task_slot_one(self):
-        run = FakeRun({"label=com.docker.swarm.service.name=s_w": "c3 s_w.2.taskid"})
-        swarm = hook(container={"swarm_service": "s_w"})
-
-        self.assertEqual(self.mod.local_container("/c", swarm, run, False), "")
-        self.assertEqual(self.mod.local_container("/c", swarm, run, True), "c3")
 
 
 class MainTests(unittest.TestCase):
@@ -518,8 +384,221 @@ class MainTests(unittest.TestCase):
         self.assertEqual(kwargs["input"], b"")
         self.assertEqual(kwargs["env"]["RBAC_SYNC_CID"], "c9")
         self.assertEqual(kwargs["env"]["RBAC_SYNC_CONTAINER_BIN"], CONTAINER_BIN)
-        self.assertEqual(json.loads(kwargs["env"]["RBAC_SYNC_LDAP"]), LDAP)
         self.assertIn("RBAC_MEMBERS", kwargs["env"])
+
+    def test_a_host_hook_gets_its_members_in_a_private_file_and_no_directory(self):
+        group = "cn=web-app-mattermost-administrator,ou=roles,dc=example,dc=org"
+        directory = StubDirectory({group: [("uid=alice", {"uid": ["alice"]})]})
+        host_hook = hook(
+            application_id="web-app-mattermost",
+            kind="host",
+            attributes=[],
+            argv=[],
+            script="main.py",
+            container={"name": "mattermost"},
+        )
+        workspace = Workspace([host_hook], LDAP)
+        run = FakeRun({"name=^/mattermost$": "c9"})
+        try:
+            code, _, _ = self.run_main(
+                ["--directory", str(workspace.path)], run, lambda uri: directory
+            )
+            hook_dir = workspace.hook_dir("web-app-mattermost")
+            left_in_hook_dir = sorted(path.name for path in hook_dir.iterdir())
+        finally:
+            workspace.close()
+
+        self.assertEqual(code, 0)
+        env = run.runs()[0][1]["env"]
+        self.assertNotIn("RBAC_SYNC_LDAP", env)
+        ((path, mode, handed),) = run.handed
+        self.assertEqual(mode, "0o600")
+        self.assertEqual(
+            handed,
+            {
+                "administrator": [
+                    {"username": "alice", "email": "", "name": "", "uuid": ""}
+                ],
+                "reviewer": [],
+            },
+        )
+        self.assertFalse(Path(path).exists())
+        self.assertFalse(str(hook_dir) in path)
+        self.assertEqual(left_in_hook_dir, ["hook.json", "last_run.json"])
+
+    def test_a_container_hook_gets_no_members_file(self):
+        workspace = Workspace([hook()], LDAP)
+        run = FakeRun({"name=^/weblate$": "c1"})
+        try:
+            self.run_main(
+                ["--directory", str(workspace.path)], run, lambda uri: StubDirectory({})
+            )
+        finally:
+            workspace.close()
+
+        self.assertEqual(run.handed, [])
+        self.assertNotIn("RBAC_SYNC_MEMBERS_FILE", run.runs()[0][1]["env"])
+
+    def test_the_members_file_is_removed_when_the_hook_times_out(self):
+        host_hook = hook(kind="host", attributes=[], argv=[], script="main.py")
+        workspace = Workspace([host_hook], LDAP)
+        seen = []
+
+        def hanging(argv, **kwargs):
+            if argv[1] == "ps":
+                return subprocess.CompletedProcess(argv, 0, stdout="c1\n", stderr="")
+            seen.append(kwargs["env"]["RBAC_SYNC_MEMBERS_FILE"])
+            raise subprocess.TimeoutExpired(argv, 5)
+
+        try:
+            code, _, stderr = self.run_main(
+                ["--directory", str(workspace.path)],
+                hanging,
+                lambda uri: StubDirectory({}),
+            )
+        finally:
+            workspace.close()
+
+        self.assertEqual(code, 1)
+        self.assertIn("TimeoutExpired", stderr)
+        self.assertFalse(Path(seen[0]).exists())
+
+    def test_the_timer_reads_the_attributes_a_hook_declares(self):
+        photo = bytes([0xFF, 0xD8, 0x80, 0x00])
+        directory = UsersDirectory(
+            [
+                (
+                    "uid=carol",
+                    {
+                        "uid": ["carol"],
+                        "street": ["Hauptstraße 1"],
+                        "jpegphoto": [photo.decode("utf-8", "surrogateescape")],
+                    },
+                )
+            ]
+        )
+        host_hook = hook(
+            application_id="web-app-nextcloud",
+            kind="host",
+            roles=["@users"],
+            attributes=["street", "jpegPhoto", "l"],
+            argv=[],
+            script="main.py",
+            container={"name": "nextcloud"},
+        )
+        workspace = Workspace([host_hook], LDAP)
+        run = FakeRun({"name=^/nextcloud$": "c4"})
+        try:
+            code, _, _ = self.run_main(
+                ["--directory", str(workspace.path)], run, lambda uri: directory
+            )
+        finally:
+            workspace.close()
+
+        self.assertEqual(code, 0)
+        self.assertEqual(
+            directory.searches,
+            [["uid", "mail", "cn", "entryUUID", "street", "jpegPhoto", "l"]],
+        )
+        ((_, _, handed),) = run.handed
+        self.assertEqual(
+            handed["@users"][0]["attributes"],
+            {
+                "street": base64.b64encode("Hauptstraße 1".encode()).decode(),
+                "jpegPhoto": base64.b64encode(photo).decode(),
+                "l": "",
+            },
+        )
+
+    def test_a_hook_registered_before_attributes_existed_still_runs(self):
+        legacy = hook()
+        workspace = Workspace([legacy], LDAP)
+        run = FakeRun({"name=^/weblate$": "c1"})
+        try:
+            code, _, _ = self.run_main(
+                ["--directory", str(workspace.path)], run, lambda uri: StubDirectory({})
+            )
+        finally:
+            workspace.close()
+
+        self.assertNotIn("attributes", legacy)
+        self.assertEqual(code, 0)
+        self.assertEqual(
+            json.loads(run.runs()[0][1]["env"]["RBAC_MEMBERS"]),
+            {"administrator": [], "reviewer": []},
+        )
+
+    def test_a_host_hook_registered_before_attributes_still_reads_the_directory(self):
+        legacy = hook(
+            application_id="web-app-nextcloud",
+            kind="host",
+            roles=["@users"],
+            argv=[],
+            script="main.py",
+            container={"name": "nextcloud"},
+        )
+        workspace = Workspace(
+            [legacy], LDAP, files={("web-app-nextcloud", "main.py"): BASE_HOST_SCRIPT}
+        )
+        seen = []
+
+        def execute(argv, **kwargs):
+            if argv[1] == "ps":
+                return subprocess.CompletedProcess(argv, 0, stdout="c4\n", stderr="")
+            seen.append(kwargs["env"])
+            return subprocess.run(argv, check=kwargs.pop("check"), **kwargs)
+
+        try:
+            code, stdout, stderr = self.run_main(
+                ["--directory", str(workspace.path)],
+                execute,
+                lambda uri: UsersDirectory([]),
+            )
+        finally:
+            workspace.close()
+
+        self.assertEqual((code, stderr), (0, ""))
+        self.assertIn(f"[web-app-nextcloud] {LDAP['uri']}", stdout)
+        (env,) = seen
+        self.assertNotIn("RBAC_SYNC_MEMBERS_FILE", env)
+
+    def test_the_deploy_hands_a_host_hook_the_members_it_received(self):
+        members = {
+            "@users": [{**ALICE, "attributes": {"street": "TWFpbiBTdCAx"}}],
+        }
+        host_hook = hook(
+            application_id="web-app-nextcloud",
+            kind="host",
+            roles=["@users"],
+            attributes=["street"],
+            argv=[],
+            script="main.py",
+            container={"swarm_service": "nextcloud_app"},
+        )
+        workspace = Workspace([host_hook], None)
+        members_file = workspace.path / "given.json"
+        members_file.write_text(json.dumps(members))
+        run = FakeRun(
+            {"label=com.docker.swarm.service.name=nextcloud_app": "c5 x.2.task"}
+        )
+        try:
+            code, _, _ = self.run_main(
+                [
+                    "--directory",
+                    str(workspace.path),
+                    "--only",
+                    "web-app-nextcloud",
+                    "--members-file",
+                    str(members_file),
+                ],
+                run,
+                None,
+            )
+        finally:
+            workspace.close()
+
+        self.assertEqual(code, 0)
+        self.assertEqual(run.handed[0][2], members)
 
     def test_a_hook_without_a_local_container_is_skipped(self):
         workspace = Workspace([hook()], LDAP)
@@ -799,6 +878,70 @@ class MainTests(unittest.TestCase):
         stderr = io.StringIO()
         with contextlib.redirect_stderr(stderr), self.assertRaises(SystemExit):
             self.mod.main(["--directory", "/x", "--members-file", "/y"])
+
+    def test_a_hook_whose_members_cannot_be_read_fails_alone(self):
+        directory_error = self.mod.DirectoryError
+
+        class SizeLimited:
+            def search(self, base, scope, search_filter, attributes):
+                if b"jpegPhoto" in search_filter:
+                    raise directory_error("search answered result code 4")
+                return []
+
+            def close(self):
+                pass
+
+        photos = hook(
+            application_id="web-app-jellyfin",
+            kind="host",
+            roles=["@users:jpegPhoto"],
+            attributes=["jpegPhoto"],
+            argv=[],
+            script="main.py",
+            container={"name": "jellyfin"},
+        )
+        workspace = Workspace([photos, hook()], LDAP)
+        run = FakeRun({"name=^/jellyfin$": "c7", "name=^/weblate$": "c1"})
+        try:
+            code, _, stderr = self.run_main(
+                ["--directory", str(workspace.path)], run, lambda uri: SizeLimited()
+            )
+        finally:
+            workspace.close()
+
+        self.assertEqual(code, 1)
+        self.assertIn(
+            "[web-app-jellyfin] FAILED reading its members: DirectoryError", stderr
+        )
+        self.assertIn("FAILED hooks: web-app-jellyfin", stderr)
+        self.assertEqual(
+            [
+                kwargs["env"].get("RBAC_SYNC_CID") or argv[-3]
+                for argv, kwargs in run.runs()
+            ],
+            ["c1"],
+        )
+
+    def test_a_hook_that_removes_its_members_file_still_succeeds(self):
+        host_hook = hook(kind="host", attributes=[], argv=[], script="main.py")
+        workspace = Workspace([host_hook], LDAP)
+
+        def tidy(argv, **kwargs):
+            if argv[1] == "ps":
+                return subprocess.CompletedProcess(argv, 0, stdout="c1\n", stderr="")
+            Path(kwargs["env"]["RBAC_SYNC_MEMBERS_FILE"]).unlink()
+            return subprocess.CompletedProcess(argv, 0, stdout=b"", stderr=b"")
+
+        try:
+            code, _, stderr = self.run_main(
+                ["--directory", str(workspace.path)],
+                tidy,
+                lambda uri: StubDirectory({}),
+            )
+        finally:
+            workspace.close()
+
+        self.assertEqual((code, stderr), (0, ""))
 
 
 class MailboxTests(unittest.TestCase):

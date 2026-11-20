@@ -20,6 +20,7 @@
       MOBILIZON_CLI: /bin/mobilizon
       MOBILIZON_RBAC_BOOTSTRAP: "{{ lookup('users', 'platform_administrator').email }}"
       MOBILIZON_RBAC_PROVIDER: "{{ MOBILIZON_OIDC_PROVIDER }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: RBAC_ADMINISTRATORS, role: administrator, field: email }
       - { name: RBAC_MODERATORS, role: moderator, field: email }

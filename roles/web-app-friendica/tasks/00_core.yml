@@ -6,6 +6,7 @@
   vars:
     rbac_members_application_id: "{{ application_id }}"
     rbac_members_role: administrator
+    rbac_members_attributes: []
 
 - name: "👥 Keep the Friendica administrator members for the admin email list"
   ansible.builtin.set_fact:

@@ -23,6 +23,7 @@
       MAILU_CURL_READ: "{{ 30 | curl }}"
       MAILU_CURL_WRITE: "{{ 30 | curl(retries=0) }}"
       MAILU_RBAC_KEEP: "{{ [lookup('users', 'platform_administrator').username] | to_json }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: RBAC_ADMINISTRATORS, role: administrator, field: username }
       - { name: RBAC_DOMAIN_MANAGERS, role: domain-manager, field: username }

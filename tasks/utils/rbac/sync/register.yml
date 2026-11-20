@@ -32,9 +32,9 @@
     mode: "0600"
   loop: >-
     {{
-      ([{'name': rbac_sync_script_name, 'content': rbac_sync_script}] if (rbac_sync_script | length > 0) else [])
+      [{'name': 'hook.json', 'content': rbac_sync_hook | to_nice_json}]
+      + ([{'name': rbac_sync_script_name, 'content': rbac_sync_script}] if (rbac_sync_script | length > 0) else [])
       + rbac_sync_modules
-      + [{'name': 'hook.json', 'content': rbac_sync_hook | to_nice_json}]
     }}
   loop_control:
     label: "{{ item.name }}"
@@ -44,6 +44,7 @@
       application_id: "{{ rbac_sync_application_id }}"
       kind: "{{ rbac_sync_kind }}"
       roles: "{{ rbac_sync_roles }}"
+      attributes: "{{ rbac_sync_attributes }}"
       container: >-
         {{
           {'swarm_service': rbac_sync_swarm_service}
@@ -100,6 +101,6 @@
     stdin: "{{ rbac_sync_members | to_json }}"
   register: rbac_sync_run
   changed_when: rbac_sync_run.stdout is search('(?<![A-Z])CHANGED')
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  no_log: "{{ (MASK_CREDENTIALS_IN_LOGS | bool) or (rbac_sync_attributes | length > 0) }}"
   delegate_to: "{{ RBAC_SYNC_HOST_NODE }}"
   run_once: true

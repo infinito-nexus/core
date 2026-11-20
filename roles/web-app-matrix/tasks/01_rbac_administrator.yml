@@ -23,5 +23,6 @@
       MATRIX_ADMIN_PASSWORD: "{{ MATRIX_ADMINISTRATOR_PASSWORD }}"
       MATRIX_RBAC_PROTECTED_MXIDS: "{{ MATRIX_RBAC_PROTECTED_MXIDS | to_json }}"
       MATRIX_RBAC_PAGE_SIZE: "{{ MATRIX_RBAC_USER_PAGE_SIZE | string }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: RBAC_ADMINISTRATORS, role: administrator, field: username }

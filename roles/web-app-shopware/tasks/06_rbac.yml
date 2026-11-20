@@ -19,6 +19,7 @@
       SHOPWARE_RBAC_PROTECTED: >-
         {{ [lookup('users', 'platform_administrator').username, lookup('users', 'platform_administrator').email] | to_json }}
       ACL_EDITOR_ROLE_NAME: "{{ SHOPWARE_ACL_EDITOR_ROLE_NAME }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: RBAC_ADMINISTRATORS, role: administrator, field: "" }
       - { name: RBAC_EDITORS, role: editor, field: "" }

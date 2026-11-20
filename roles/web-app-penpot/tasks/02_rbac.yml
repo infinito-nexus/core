@@ -29,5 +29,6 @@
       PENPOT_RBAC_TEAM_ID: "{{ PENPOT_RBAC_TEAM_ID }}"
       PENPOT_RBAC_TEAM_NAME: "{{ PENPOT_RBAC_TEAM_NAME }}"
       PENPOT_RBAC_TEAM_ROLES: "{{ PENPOT_RBAC_TEAM_ROLES | to_json }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: RBAC_MEMBERS, role: "*", field: "" }

@@ -18,5 +18,6 @@
     rbac_sync_env:
       MAGENTO_RBAC_ROOT: "{{ MAGENTO_ROOT }}"
       MAGENTO_RBAC_PROTECTED: "{{ [MAGENTO_ADMIN_USERNAME] | to_json }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: MAGENTO_RBAC_ADMINS, role: administrator, field: username }

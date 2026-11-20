@@ -39,4 +39,5 @@
       RBAC_TEAMS: "{{ PRETIX_RBAC_TEAMS | to_json }}"
       ORGANIZER_NAME: "{{ PRETIX_ORGANIZER_NAME }}"
       ORGANIZER_SLUG: "{{ PRETIX_ORGANIZER_SLUG }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env: []

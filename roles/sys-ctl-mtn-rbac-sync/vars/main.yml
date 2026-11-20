@@ -8,6 +8,8 @@ RBAC_SYNC_RUNNER_FILES:
   - { src: roles/svc-db-openldap/files/python/ldap/mailbox.py, dest: ldap_mailbox.py, mode: "0644" }
   - { src: roles/svc-bkp-volume-2-local/files/python/baudolo/maintenance.py, dest: backup_maintenance.py, mode: "0644" }
   - { src: roles/sys-ctl-mtn-rbac-sync/files/python/mailbox_seed.py, dest: mailbox_seed.py, mode: "0644" }
+  - { src: roles/sys-ctl-mtn-rbac-sync/files/python/member_reader.py, dest: member_reader.py, mode: "0644" }
+  - { src: roles/sys-ctl-mtn-rbac-sync/files/python/hook_runner.py, dest: hook_runner.py, mode: "0644" }
 RBAC_SYNC_LDAP_ENABLED: "{{ STACK_HOST in (groups['svc-db-openldap'] | default([])) }}"
 RBAC_SYNC_LDAP_URI: "{{ LDAP.SERVER.SOCKET_URI }}"
 RBAC_SYNC_DIRECTORY_HOST: "{{ 'svc-db-openldap' in group_names }}"

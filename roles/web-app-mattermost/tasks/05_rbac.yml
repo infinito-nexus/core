@@ -19,5 +19,6 @@
     rbac_sync_env:
       MATTERMOST_MMCTL: "{{ MATTERMOST_MMCTL }}"
       MATTERMOST_RBAC_KEEP: "{{ [lookup('users', 'platform_administrator').username] | to_json }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: RBAC_ADMINISTRATORS, role: administrator, field: "" }

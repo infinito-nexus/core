@@ -4,9 +4,13 @@ Files:
     state.json: digest of the photo pushed per account, in the working directory.
 
 Environment:
-    RBAC_SYNC_LDAP: JSON directory settings the runner exports.
+    RBAC_SYNC_MEMBERS_FILE: JSON ``{"@users:<photo attribute>": [members]}`` the
+        runner hands over, every account that holds a photo with the photo
+        base64-encoded under ``attributes``; a member without ``attributes``
+        counts as one without a photo.
     LDAP_PHOTO_ATTRIBUTE: attribute that holds the photo.
-    JELLYFIN_API: Jellyfin's local URL on the node.
+    RBAC_SYNC_CONTAINER_BIN, RBAC_SYNC_CID: how to reach the Jellyfin container.
+    JELLYFIN_API: Jellyfin's URL inside its container.
     JELLYFIN_API_CLIENT: value of the ``X-Emby-Authorization`` header.
     JELLYFIN_ADMIN_USERNAME, JELLYFIN_ADMIN_PASSWORD: the local administrator.
 
@@ -18,70 +22,93 @@ import base64
 import hashlib
 import json
 import os
-import urllib.request
+import subprocess
 from pathlib import Path
 
-from ldap_client import SCOPE_ONE_LEVEL, Connection, present, raw
-
 STATE_FILE = Path("state.json")
+USERS_ROLE = "@users"
+TIMEOUT_SECONDS = "60"
 
 
-def directory_photos(environ, connect):
+def directory_photos(environ):
     """Return ``{username: photo octets}`` of every account that has a photo.
 
     Args:
         environ: the process environment.
-        connect: ``ldap_client.Connection`` or a stand-in.
     """
-    ldap = json.loads(environ["RBAC_SYNC_LDAP"])
-    login = ldap["attributes"]["id"]
     photo = environ["LDAP_PHOTO_ATTRIBUTE"]
-    connection = connect(ldap["uri"])
-    try:
-        entries = connection.search(
-            ldap["users_dn"], SCOPE_ONE_LEVEL, present(photo), [login, photo]
-        )
-    finally:
-        connection.close()
-    photos = {}
-    for _, values in entries:
-        logins = values.get(login.lower())
-        images = values.get(photo.lower())
-        if logins and images:
-            photos[logins[0]] = raw(images[0])
-    return photos
+    members = json.loads(
+        Path(environ["RBAC_SYNC_MEMBERS_FILE"]).read_text(encoding="utf-8")
+    )[f"{USERS_ROLE}:{photo}"]
+    encoded = {
+        member["username"]: member["attributes"][photo]
+        for member in members
+        if "attributes" in member
+    }
+    return {
+        username: base64.b64decode(value)
+        for username, value in encoded.items()
+        if value
+    }
 
 
-def api(environ, opener, path, method, body, headers):
-    """Return the raw answer of one Jellyfin API request.
+def api(environ, run, path, method, body, headers):
+    """Return the body of one Jellyfin API answer, requested inside the container.
 
     Args:
         environ: the process environment.
-        opener: ``urllib.request.urlopen`` or a stand-in.
+        run: ``subprocess.run`` or a stand-in.
         path: path below the API URL.
         method: the HTTP method.
         body: the request body, or None.
         headers: the request headers.
     """
-    request = urllib.request.Request(  # noqa: S310 - JELLYFIN_API is the node-local Jellyfin port
-        environ["JELLYFIN_API"] + path, data=body, headers=headers, method=method
+    config = [
+        f"url = {json.dumps(environ['JELLYFIN_API'] + path)}",
+        f"request = {json.dumps(method)}",
+        *(
+            f"header = {json.dumps(f'{name}: {value}', ensure_ascii=False)}"
+            for name, value in headers.items()
+        ),
+    ]
+    if body is not None:
+        config.append(f"data-binary = {json.dumps(body, ensure_ascii=False)}")
+    argv = [
+        environ["RBAC_SYNC_CONTAINER_BIN"],
+        "exec",
+        "-i",
+        environ["RBAC_SYNC_CID"],
+        "curl",
+        "-sS",
+        "-f",
+        "--max-time",
+        TIMEOUT_SECONDS,
+        "-K",
+        "-",
+    ]
+    result = run(
+        argv,
+        input="\n".join(config) + "\n",
+        capture_output=True,
+        text=True,
+        check=False,
     )
-    with opener(request, timeout=60) as response:
-        return response.read()
+    if result.returncode != 0:
+        raise SystemExit(
+            f"curl exited {result.returncode} on {method} {path}: {result.stderr.strip()}"
+        )
+    return result.stdout
 
 
-def main(
-    environ, opener=urllib.request.urlopen, connect=Connection, state_file=STATE_FILE
-):
+def main(environ, run=subprocess.run, state_file=STATE_FILE):
     """Push every changed directory photo and print the result.
 
     Args:
         environ: the process environment.
-        opener: ``urllib.request.urlopen`` or a stand-in.
-        connect: ``ldap_client.Connection`` or a stand-in.
+        run: ``subprocess.run`` or a stand-in.
         state_file: where the pushed digests are remembered.
     """
-    photos = directory_photos(environ, connect)
+    photos = directory_photos(environ)
     pushed = (
         json.loads(state_file.read_text(encoding="utf-8"))
         if state_file.exists()
@@ -94,7 +121,7 @@ def main(
     session = json.loads(
         api(
             environ,
-            opener,
+            run,
             "/Users/AuthenticateByName",
             "POST",
             json.dumps(
@@ -102,16 +129,14 @@ def main(
                     "Username": environ["JELLYFIN_ADMIN_USERNAME"],
                     "Pw": environ["JELLYFIN_ADMIN_PASSWORD"],
                 }
-            ).encode(),
+            ),
             client,
         )
     )
     authorization = {"Authorization": f'MediaBrowser Token="{session["AccessToken"]}"'}
     accounts = {
         user["Name"]: user["Id"]
-        for user in json.loads(
-            api(environ, opener, "/Users", "GET", None, authorization)
-        )
+        for user in json.loads(api(environ, run, "/Users", "GET", None, authorization))
     }
     lines = []
     for username, image in sorted(photos.items()):
@@ -120,10 +145,10 @@ def main(
             continue
         api(
             environ,
-            opener,
+            run,
             f"/UserImage?userId={accounts[username]}",
             "POST",
-            base64.b64encode(image),
+            base64.b64encode(image).decode(),
             {**authorization, "Content-Type": "image/jpeg"},
         )
         pushed[username] = digest

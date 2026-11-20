@@ -27,5 +27,6 @@
       STALWART_ADMIN_PASSWORD: "{{ STALWART_ADMIN_PASSWORD }}"
       STALWART_DOMAIN: "{{ STALWART_DOMAIN }}"
       STALWART_RBAC_KEEP: "{{ [STALWART_ADMIN_USER, lookup('users', 'platform_administrator').username] | unique | to_json }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: RBAC_ADMINISTRATORS, role: administrator, field: username }

@@ -17,5 +17,6 @@
     rbac_sync_modules: []
     rbac_sync_env:
       OPENPROJECT_ADMIN_SPARED: "{{ OPENPROJECT_ADMIN_SPARED_LOGINS | to_json }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: OPENPROJECT_ADMIN_MEMBERS, role: administrator, field: username }

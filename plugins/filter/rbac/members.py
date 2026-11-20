@@ -2,7 +2,7 @@
 
 {{ lookup('users') | rbac_members('web-app-gitlab', 'administrator') }}
 -> [{"username": "alice", "email": "alice@example.org", "name": "Alice Liddell"}]
-{{ ldap_search_result.results | rbac_ldap_members('uid', 'mail', 'cn', 'entryUUID') }}
+{{ ldap_search_result.results | rbac_ldap_members('uid', 'mail', 'cn', 'entryUUID', []) }}
 -> [{"username": "alice", "email": "alice@example.org", "name": "Alice Liddell", "uuid": "..."}]
 """
 
@@ -75,26 +75,33 @@ def rbac_ldap_members(
     mail_attribute: str,
     name_attribute: str,
     uuid_attribute: str,
-) -> list[dict[str, str]]:
+    extra: Iterable[str],
+) -> list[dict[str, Any]]:
     """Args:
         entries: the ``results`` list of ``community.general.ldap_search``.
         id_attribute: the login attribute, ``LDAP.USER.ATTRIBUTES.ID``.
         mail_attribute: the mail attribute, ``LDAP.USER.ATTRIBUTES.MAIL``.
         name_attribute: the full name attribute, ``LDAP.USER.ATTRIBUTES.FULLNAME``.
         uuid_attribute: the immutable entry id, ``LDAP.USER.ATTRIBUTES.UUID``.
+        extra: further attributes the search returned base64-encoded through
+            ``base64_attributes``; every member carries their first values under
+            ``attributes``, and no such map when empty.
 
     Returns:
         The members found by the search, sorted by username.
     """
-    members = [
-        {
+    names = list(extra)
+    members = []
+    for entry in entries or []:
+        member: dict[str, Any] = {
             "username": _single(entry.get(id_attribute)),
             "email": _single(entry.get(mail_attribute)),
             "name": _single(entry.get(name_attribute)),
             "uuid": _single(entry.get(uuid_attribute)),
         }
-        for entry in entries or []
-    ]
+        if names:
+            member["attributes"] = {name: _single(entry.get(name)) for name in names}
+        members.append(member)
     return sorted(
         (member for member in members if member["username"]),
         key=lambda member: member["username"],

@@ -9,7 +9,8 @@ Args:
         under the applied mailbox layout, ``mailbox.json``.
     --only: run only the hook of this application.
     --members-file: JSON ``{role: [{username, email, name, uuid}]}`` used instead of
-        a directory lookup; requires ``--only``, and a missing container is
+        a directory lookup, each member with an ``attributes`` map when the hook
+        declares attributes; requires ``--only``, and a missing container is
         then an error rather than a skip.
 
 Output:
@@ -19,9 +20,7 @@ Output:
 """
 
 import argparse
-import hashlib
 import json
-import os
 import subprocess
 import sys
 import time
@@ -29,267 +28,14 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from backup_maintenance import active
-from ldap_client import (
-    SCOPE_ONE_LEVEL,
-    Connection,
-    DirectoryError,
-    SocketMissingError,
-    equality,
-    present,
-)
+from hook_runner import run_hook, unchanged_since
+from ldap_client import Connection, DirectoryError, SocketMissingError
 from mailbox_seed import read_mailbox, seed_mailboxes
+from member_reader import hook_members
 
-ALL_ROLES = "*"
 DIRECTORY_APPLICATION = "svc-db-openldap"
-USERS_ROLE = "@users"
 HOOK_FILE = "hook.json"
-LAST_RUN_FILE = "last_run.json"
 MAILBOX_FILE = "mailbox.json"
-
-
-def first(values):
-    """Args:
-        values: the attribute values, possibly missing.
-
-    Returns:
-        The first value of the attribute, or an empty string.
-    """
-    return str(values[0]) if values else ""
-
-
-def role_group(application_id, role):
-    """Args:
-        application_id: the hook's application.
-        role: a role of that application, ``@users``, or the group path
-            ``/<root>/<application>/<role>`` of a role of any application.
-
-    Returns:
-        ``(application, role)`` of the directory group that holds the role's
-        members.
-    """
-    if "/" not in role:
-        return application_id, role
-    segments = role.strip("/").split("/")
-    if len(segments) != 3:
-        raise ValueError(f"{role!r} is no group path /<root>/<application>/<role>")
-    return segments[1], segments[2]
-
-
-def directory_members(connection, ldap, application_id, role):
-    """Args:
-        connection: an open ``ldap_client.Connection``.
-        ldap: the ``ldap`` block of ``config.json``.
-        application_id: the application the role belongs to.
-        role: the role name; ``@users`` stands for every account of the users OU.
-
-    Returns:
-        The accounts of the role, shaped like ``rbac_ldap_members``, each with the
-        first value of every attribute.
-    """
-    attributes = ldap["attributes"]
-    if role == USERS_ROLE:
-        search_filter = present(attributes["id"])
-    else:
-        search_filter = equality(
-            attributes["member_of"], f"cn={application_id}-{role},{ldap['roles_dn']}"
-        )
-    entries = connection.search(
-        ldap["users_dn"],
-        SCOPE_ONE_LEVEL,
-        search_filter,
-        [attributes["id"], attributes["mail"], attributes["name"], attributes["uuid"]],
-    )
-    members = [
-        {
-            "username": first(values.get(attributes["id"].lower())),
-            "email": first(values.get(attributes["mail"].lower())),
-            "name": first(values.get(attributes["name"].lower())),
-            "uuid": first(values.get(attributes["uuid"].lower())),
-        }
-        for _, values in entries
-    ]
-    return sorted(
-        (member for member in members if member["username"]),
-        key=lambda member: member["username"],
-    )
-
-
-def members_env(hook, members):
-    """Return the environment variables that carry the members into the hook.
-
-    Args:
-        hook: the parsed hook.
-        members: ``{role: [members]}`` of the hook's application.
-    """
-    env = {}
-    for entry in hook["members_env"]:
-        if entry["role"] == ALL_ROLES:
-            value = {role: members[role] for role in hook["roles"]}
-        elif entry["field"]:
-            value = [member[entry["field"]] for member in members[entry["role"]]]
-        else:
-            value = members[entry["role"]]
-        env[entry["name"]] = json.dumps(value)
-    return env
-
-
-def local_container(container_bin, hook, run, any_slot):
-    """Return the id of the hook's running container on this node, or an empty string.
-
-    Args:
-        container_bin: path of the ``container`` wrapper.
-        hook: the parsed hook.
-        run: ``subprocess.run`` or a stand-in.
-        any_slot: whether a swarm container of any task slot qualifies; false restricts it to task slot 1.
-    """
-    target = hook["container"]
-    if "swarm_service" in target:
-        selector = f"label=com.docker.swarm.service.name={target['swarm_service']}"
-    else:
-        selector = f"name=^/{target['name']}$"
-    found = run(
-        [
-            container_bin,
-            "ps",
-            "--filter",
-            selector,
-            "--filter",
-            "status=running",
-            "--format",
-            '{{.ID}} {{.Label "com.docker.swarm.task.name"}}',
-        ],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    for line in found.stdout.splitlines():
-        cid, _, task = line.strip().partition(" ")
-        if not cid:
-            continue
-        if "swarm_service" not in target or any_slot:
-            return cid
-        if task.split(".")[1:2] == ["1"]:
-            return cid
-    return ""
-
-
-def exec_argv(container_bin, hook, cid, env_names):
-    """Return the ``container exec`` argv.
-
-    Args:
-        container_bin: path of the ``container`` wrapper.
-        hook: the parsed hook.
-        cid: the container id.
-        env_names: names of the variables forwarded into the container, passed as ``-e NAME`` without values.
-    """
-    argv = [container_bin, "exec", "-i"]
-    if hook["user"]:
-        argv += ["--user", hook["user"]]
-    for name in sorted(env_names):
-        argv += ["-e", name]
-    return [*argv, cid, *hook["argv"]]
-
-
-def invocation(config, hook_dir, hook, cid, forwarded):
-    """Return ``(argv, stdin, extra environment)`` of one hook run.
-
-    Args:
-        config: the parsed ``config.json``.
-        hook_dir: the directory of the hook.
-        hook: the parsed hook.
-        cid: the container id.
-        forwarded: the hook's environment and member variables.
-    """
-    if hook["kind"] == "host":
-        extra = {
-            "RBAC_SYNC_CID": cid,
-            "RBAC_SYNC_CONTAINER_BIN": config["container_bin"],
-            "RBAC_SYNC_LDAP": json.dumps(config["ldap"]),
-        }
-        return [sys.executable, str(hook_dir / hook["script"])], b"", extra
-    stdin = (hook_dir / hook["script"]).read_bytes() if hook["script"] else b""
-    return exec_argv(config["container_bin"], hook, cid, forwarded), stdin, {}
-
-
-def digest(hook, members):
-    """Return the digest of everything a hook run depends on.
-
-    Args:
-        hook: the parsed hook.
-        members: ``{role: [members]}`` of the hook's application.
-    """
-    payload = json.dumps({"hook": hook, "members": members}, sort_keys=True)
-    return hashlib.sha256(payload.encode()).hexdigest()
-
-
-def unchanged_since(hook_dir, hook, members, now, refresh_seconds):
-    """Return whether the last successful run saw the same inputs recently enough to skip.
-
-    Args:
-        hook_dir: the directory of the hook.
-        hook: the parsed hook.
-        members: ``{role: [members]}`` of the hook's application.
-        now: the current time in seconds.
-        refresh_seconds: age after which a hook runs even with unchanged inputs.
-    """
-    state = hook_dir / LAST_RUN_FILE
-    if not hook["skip_unchanged"] or not state.exists():
-        return False
-    last = json.loads(state.read_text(encoding="utf-8"))
-    return (
-        last["digest"] == digest(hook, members) and now - last["at"] < refresh_seconds
-    )
-
-
-def run_hook(config, hook_dir, hook, members, required, run, now):
-    """Run one hook and return ``ran``, ``skipped`` or ``failed``.
-
-    Args:
-        config: the parsed ``config.json``.
-        hook_dir: the directory of the hook.
-        hook: the parsed hook.
-        members: ``{role: [members]}`` of the hook's application.
-        required: whether a missing container is a failure.
-        run: ``subprocess.run`` or a stand-in.
-        now: the current time in seconds, recorded after a successful run.
-    """
-    application_id = hook["application_id"]
-    cid = local_container(config["container_bin"], hook, run, required)
-    if not cid:
-        if required:
-            print(
-                f"[{application_id}] no running container on this node", file=sys.stderr
-            )
-            return "failed"
-        print(f"[{application_id}] SKIPPED no running container on this node")
-        return "skipped"
-    forwarded = {
-        name: value if isinstance(value, str) else json.dumps(value)
-        for name, value in {**hook["env"], **members_env(hook, members)}.items()
-    }
-    argv, stdin, extra = invocation(config, hook_dir, hook, cid, forwarded)
-    result = run(
-        argv,
-        input=stdin,
-        capture_output=True,
-        cwd=str(hook_dir),
-        env={**os.environ, **forwarded, **extra},
-        timeout=config["timeout_seconds"],
-        check=False,
-    )
-    for line in result.stdout.decode("utf-8", "replace").splitlines():
-        print(f"[{application_id}] {line}")
-    if result.returncode != 0:
-        for line in result.stderr.decode("utf-8", "replace").splitlines():
-            print(f"[{application_id}] {line}", file=sys.stderr)
-        print(
-            f"[{application_id}] FAILED exit code {result.returncode}", file=sys.stderr
-        )
-        return "failed"
-    (hook_dir / LAST_RUN_FILE).write_text(
-        json.dumps({"digest": digest(hook, members), "at": now}), encoding="utf-8"
-    )
-    return "ran"
 
 
 def paused(hook):
@@ -447,12 +193,16 @@ def main(argv, run=subprocess.run, connect=Connection, clock=time.time):
             if paused(hook):
                 print(f"[{hook['application_id']}] SKIPPED paused by app-control")
                 continue
-            members = {
-                role: directory_members(
-                    connection, ldap, *role_group(hook["application_id"], role)
+            try:
+                members = hook_members(connection, ldap, hook)
+            except (DirectoryError, OSError, ValueError) as error:
+                print(
+                    f"[{hook['application_id']}] FAILED reading its members: "
+                    f"{type(error).__name__}: {error}",
+                    file=sys.stderr,
                 )
-                for role in hook["roles"]
-            }
+                failed.append(hook["application_id"])
+                continue
             now = clock()
             if unchanged_since(hook_dir, hook, members, now, config["refresh_seconds"]):
                 print(

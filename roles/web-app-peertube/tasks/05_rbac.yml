@@ -39,6 +39,7 @@
       PEERTUBE_ROOT_USERNAME: "{{ PEERTUBE_ROOT_USERNAME }}"
       PEERTUBE_RBAC_ROLE_IDS: "{{ PEERTUBE_ROLE_IDS | to_json }}"
       PEERTUBE_OIDC_PLUGIN: "{{ PEERTUBE_OIDC_PLUGIN }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: RBAC_MEMBERS, role: "*", field: "" }
 

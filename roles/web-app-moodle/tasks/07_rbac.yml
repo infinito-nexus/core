@@ -21,6 +21,7 @@
       MOODLE_RBAC_BOOTSTRAP: "{{ MOODLE_ADMIN_USERNAME }}"
       MOODLE_RBAC_PROTECTED: "{{ MOODLE_RBAC_PROTECTED_USERNAMES | to_json }}"
       MOODLE_RBAC_SYSTEM_ROLES: "{{ MOODLE_RBAC_SYSTEM_ROLES | to_json }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: MOODLE_RBAC_SITEADMINS, role: administrator, field: "" }
       - { name: MOODLE_RBAC_MEMBERS, role: "*", field: "" }

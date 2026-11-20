@@ -104,6 +104,7 @@
     rbac_sync_env:
       PROXMOX_REALM: "{{ PROXMOX_REALM }}"
       PROXMOX_GROUP: "{{ PROXMOX_ADMIN_GROUP }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: PROXMOX_RBAC_ADMINISTRATORS, role: administrator, field: "" }
 

@@ -30,5 +30,6 @@
       LISTMONK_RBAC_PROTECTED: "{{ [LISTMONK_ADMIN_USERNAME] | to_json }}"
       LISTMONK_RBAC_ADMIN_ROLE: "{{ LISTMONK_RBAC_ADMIN_ROLE }}"
       LISTMONK_RBAC_ADMIN_ROLE_ID: "{{ LISTMONK_SUPER_ADMIN_ROLE_ID | string }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: RBAC_MEMBERS, role: "*", field: "" }

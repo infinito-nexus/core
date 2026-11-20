@@ -9,7 +9,7 @@ rbac_users = _module.rbac_users
 rbac_ldap_members = _module.rbac_ldap_members
 
 APP = "web-app-gitlab"
-ATTRIBUTES = ("uid", "mail", "cn", "entryUUID")
+ATTRIBUTES = ("uid", "mail", "cn", "entryUUID", [])
 
 
 class TestRbacMembers(unittest.TestCase):
@@ -114,6 +114,25 @@ class TestRbacLdapMembers(unittest.TestCase):
 
     def test_no_entries_yield_no_members(self):
         self.assertEqual(rbac_ldap_members(None, *ATTRIBUTES), [])
+
+    def test_declared_attributes_ride_along_and_missing_ones_become_empty(self):
+        entries = [
+            {"uid": "amy", "street": "TWFpbiBTdCAx", "jpegPhoto": ["/9g=", "AA=="]}
+        ]
+
+        members = rbac_ldap_members(
+            entries, "uid", "mail", "cn", "entryUUID", ["street", "jpegPhoto", "l"]
+        )
+
+        self.assertEqual(
+            members[0]["attributes"],
+            {"street": "TWFpbiBTdCAx", "jpegPhoto": "/9g=", "l": ""},
+        )
+
+    def test_without_declared_attributes_members_keep_their_shape(self):
+        self.assertNotIn(
+            "attributes", rbac_ldap_members([{"uid": "amy"}], *ATTRIBUTES)[0]
+        )
 
 
 if __name__ == "__main__":

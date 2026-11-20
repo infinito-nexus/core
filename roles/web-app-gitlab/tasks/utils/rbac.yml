@@ -17,6 +17,7 @@
     rbac_sync_modules: []
     rbac_sync_env:
       GITLAB_RBAC_KEEP_ADMINS: "{{ [GITLAB_ROOT_USERNAME, GITLAB_ADMIN_USERNAME] | to_json }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: GITLAB_RBAC_ADMINISTRATORS, role: administrator, field: "" }
       - { name: GITLAB_RBAC_EXTERNALS, role: external, field: "" }

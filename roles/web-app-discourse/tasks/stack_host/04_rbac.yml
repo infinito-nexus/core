@@ -17,6 +17,7 @@
     rbac_sync_modules: []
     rbac_sync_env:
       DISCOURSE_RBAC_KEPT_ADMINISTRATORS: "{{ [lookup('users', 'platform_administrator').username] | to_json }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: DISCOURSE_RBAC_ADMINISTRATORS, role: administrator, field: "" }
       - { name: DISCOURSE_RBAC_MODERATORS, role: moderator, field: "" }

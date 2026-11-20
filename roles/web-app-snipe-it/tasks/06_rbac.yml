@@ -20,6 +20,7 @@
       SNIPE_IT_RBAC_PROTECTED: "{{ SNIPE_IT_RBAC_PROTECTED_USERNAMES | to_json }}"
       SNIPE_IT_RBAC_USER_GROUP: "{{ SNIPE_IT_RBAC_USER_GROUP }}"
       SNIPE_IT_RBAC_USER_PERMISSIONS: "{{ SNIPE_IT_RBAC_USER_PERMISSIONS | to_json }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: SNIPE_IT_RBAC_ADMINISTRATORS, role: administrator, field: "" }
       - { name: SNIPE_IT_RBAC_USERS, role: user, field: "" }

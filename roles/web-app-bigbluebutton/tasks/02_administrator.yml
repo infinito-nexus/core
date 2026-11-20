@@ -69,5 +69,6 @@
     rbac_sync_modules: []
     rbac_sync_env:
       RBAC_PROTECTED_EMAILS: "{{ [lookup('users', 'platform_administrator').email] | to_json }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: RBAC_ADMIN_EMAILS, role: administrator, field: email }

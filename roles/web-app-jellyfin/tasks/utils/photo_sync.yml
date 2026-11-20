@@ -6,7 +6,7 @@
     rbac_sync_enabled: "{{ (JELLYFIN_LDAP_ENABLED | bool) and ('svc-db-openldap' in group_names) }}"
     rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
     rbac_sync_skip_unchanged: false
-    rbac_sync_roles: []
+    rbac_sync_roles: ["@users:{{ LDAP.USER.ATTRIBUTES.PHOTO }}"]
     rbac_sync_service_key: jellyfin
     rbac_sync_service_name: ""
     rbac_sync_container: "{{ JELLYFIN_NAME }}"
@@ -14,8 +14,8 @@
     rbac_sync_user: ""
     rbac_sync_argv: []
     rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/photo_sync.py') }}"
-    rbac_sync_modules:
-      - { name: ldap_client.py, content: "{{ lookup('file', lookup('path_absolute', 'roles/svc-db-openldap/files/python/ldap/client.py')) }}" }
+    rbac_sync_modules: []
+    rbac_sync_attributes: ["{{ LDAP.USER.ATTRIBUTES.PHOTO }}"]
     rbac_sync_env:
       LDAP_PHOTO_ATTRIBUTE: "{{ LDAP.USER.ATTRIBUTES.PHOTO }}"
       JELLYFIN_API: "{{ JELLYFIN_API }}"

@@ -20,6 +20,7 @@
       HA_USERNAME: "{{ HOMEASSISTANT_ADMIN_USERNAME }}"
       HA_PASSWORD: "{{ HOMEASSISTANT_ADMIN_PASSWORD }}"
       HA_AUTH_STORE: "{{ HOMEASSISTANT_AUTH_STORE }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: HA_ADMIN_MEMBERS, role: administrator, field: username }
       - { name: HA_USER_MEMBERS, role: user, field: username }

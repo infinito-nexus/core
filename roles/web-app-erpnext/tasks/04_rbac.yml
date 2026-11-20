@@ -25,5 +25,6 @@
       DIRECTORY_PROVIDER_NAME: "{{ ERPNEXT_RBAC_DIRECTORY_PROVIDER_NAME }}"
       DIRECTORY_IDS_JSON: "{{ ERPNEXT_LDAP_ENABLED | bool | to_json }}"
       DIRECTORY_UUID_ATTRIBUTE: "{{ LDAP.USER.ATTRIBUTES.UUID }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: ROLE_MEMBERS_JSON, role: "*", field: "" }

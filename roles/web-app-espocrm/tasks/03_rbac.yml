@@ -23,6 +23,7 @@
       ESPOCRM_RBAC_MEMBER_OF: "{{ ESPOCRM_LDAP_MEMBER_OF_ATTRIBUTE }}"
       ESPOCRM_RBAC_PROTECTED: "{{ [ESPOCRM_ADMIN_USERNAME] | to_json }}"
       ESPOCRM_RBAC_CLAIM: "{{ RBAC.GROUP.CLAIM }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: ESPOCRM_RBAC_ADMINS, role: administrator, field: username }
       - { name: ESPOCRM_RBAC_MEMBERS, role: "*", field: "" }

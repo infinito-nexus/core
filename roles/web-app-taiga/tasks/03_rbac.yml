@@ -17,5 +17,6 @@
     rbac_sync_modules: []
     rbac_sync_env:
       TAIGA_RBAC_KEPT_SUPERUSERS: "{{ [TAIGA_SUPERUSER_NAME] | to_json }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: TAIGA_RBAC_ADMINISTRATORS, role: administrator, field: "" }

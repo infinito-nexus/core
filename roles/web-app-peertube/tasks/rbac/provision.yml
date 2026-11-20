@@ -9,6 +9,7 @@
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync/collect_role.yml') }}"
   vars:
     rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_attributes: []
   loop: "{{ PEERTUBE_RBAC_ROLES }}"
   loop_control:
     loop_var: rbac_sync_role

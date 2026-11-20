@@ -19,5 +19,6 @@
       WEBLATE_RBAC_SUPERUSER_ROLE: "{{ WEBLATE_RBAC_SUPERUSER_ROLE }}"
       WEBLATE_RBAC_TEAMS: "{{ WEBLATE_RBAC_TEAMS | to_json }}"
       WEBLATE_RBAC_PROTECTED: "{{ [WEBLATE_ADMIN_USERNAME] | to_json }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: RBAC_MEMBERS, role: "*", field: "" }

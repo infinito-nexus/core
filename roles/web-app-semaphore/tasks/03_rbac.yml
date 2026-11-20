@@ -28,5 +28,6 @@
       SEMAPHORE_RBAC_KEPT: "{{ SEMAPHORE_RBAC_KEPT_ADMINISTRATORS | to_json }}"
       SEMAPHORE_RBAC_PROJECT: "{{ SEMAPHORE_PROJECT_NAME }}"
       SEMAPHORE_RBAC_DEPLOY_PROJECT: "{{ SEMAPHORE_DEPLOY_PROJECT_NAME }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: RBAC_MEMBERS, role: "*", field: "" }

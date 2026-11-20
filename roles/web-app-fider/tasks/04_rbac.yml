@@ -27,5 +27,6 @@
       PGPASSWORD: "{{ lookup('database', application_id, 'password') }}"
       FIDER_RBAC_ROLE_IDS: "{{ FIDER_ROLE_IDS | to_json }}"
       FIDER_RBAC_BOOTSTRAP_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: RBAC_MEMBERS, role: "*", field: "" }

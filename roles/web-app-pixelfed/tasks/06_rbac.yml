@@ -20,5 +20,6 @@
       PIXELFED_DB_USER: "{{ lookup('database', application_id, 'username') }}"
       PIXELFED_DB_NAME: "{{ PIXELFED_DB_NAME }}"
       PIXELFED_RBAC_KEPT: "{{ [PIXELFED_ADMIN_USERNAME] | to_json }}"
+    rbac_sync_attributes: []
     rbac_sync_members_env:
       - { name: RBAC_ADMINISTRATORS, role: administrator, field: "" }
