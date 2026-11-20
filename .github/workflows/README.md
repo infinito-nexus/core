@@ -367,6 +367,18 @@ a verdict comes back as the exact `role#variant@mode+tor` it was given, instead
 of waiting for the regular line to reach it. Use it to finish a run that was
 cancelled with most of its matrix still pending.
 
+`i8cianyon` drops the axes everywhere: `trigger --failed --any-axes` puts every
+role that did not come out green (hard-failed, cancelled, aborted or still
+running) and every priority entry the source run never deployed on the priority
+line by bare role name, with `chunk_gate: false` like `i8cifailon`. Like any
+bare priority entry, each role then runs in every variant and in every deploy
+mode, network and mesh state the run offers, while distro, filesystem and
+architecture rotate afresh, so a mostly cancelled run can need more chunk blocks
+than [call-orchestrator.yml](call-orchestrator.yml) declares, which the planner
+refuses. Green roles stay off the priority line. `--any-axes` refuses
+`--strict` and `--roles-only`: the first would leave the unfinished roles out,
+the second is already covered.
+
 ## Cancellation
 
 ```mermaid
