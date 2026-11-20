@@ -78,6 +78,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    env:
+      FORK_TARGET_BUILD: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository }}
 
     steps:
       - name: ⬇️ Checkout trusted workflow repo (helpers)
@@ -158,7 +160,8 @@ jobs:
           INFINITO_DISTROS: ${{ join(fromJson(needs.pools.outputs.matrix), ' ') }}
           IMAGE_ARCH: ${{ matrix.architecture }}
           IMAGE_DIGEST_DIR: build/image-digests
-          USE_NIX_TOKEN: ${{ !(github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository) }}
+          USE_NIX_TOKEN: ${{ env.FORK_TARGET_BUILD != 'true' }}
+          EXPORT_BUILD_CACHE: ${{ env.FORK_TARGET_BUILD != 'true' }}
           NIX_GITHUB_TOKEN: ${{ github.token }}
           MAX_ATTEMPTS: "7"
           RETRY_DELAY_SECONDS: "20"
