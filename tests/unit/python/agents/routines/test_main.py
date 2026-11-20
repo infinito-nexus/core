@@ -552,7 +552,7 @@ def _alive(pid: int) -> bool:
     try:
         with Path(f"/proc/{pid}/stat").open(encoding="utf-8") as handle:
             stat = handle.read()
-    except FileNotFoundError:
+    except (FileNotFoundError, ProcessLookupError):
         return False
     return stat.rsplit(")", 1)[1].split()[0] != "Z"
 

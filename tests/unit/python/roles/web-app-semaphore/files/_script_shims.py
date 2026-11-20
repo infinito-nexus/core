@@ -168,7 +168,7 @@ def agent_alive(pid):
         stat = Path(f"/proc/{pid}/stat").read_text(
             encoding="utf-8"
         )  # nocheck: cache-read procfs
-    except FileNotFoundError:
+    except (FileNotFoundError, ProcessLookupError):
         return False
     return stat.rsplit(")", 1)[1].split()[0] != "Z"
 
