@@ -13,6 +13,7 @@ JOOMLA_CONFIG_FILE: "/var/www/html/configuration.php"
 JOOMLA_INSTALLER_CLI_FILE: "/var/www/html/installation/joomla.php"
 JOOMLA_CLI_FILE: "/var/www/html/cli/joomla.php"
 JOOMLA_INIT_READY_FILE: "/var/www/html/.infinito-init.ready"
+JOOMLA_INIT_LOCK_STALE_SECONDS: 180
 JOOMLA_CLI_EXTENSION_ENABLE_SINCE: "6.1.0"
 
 JOOMLA_DOCROOT: "{{ lookup('volume', application_id, 'data').target }}"

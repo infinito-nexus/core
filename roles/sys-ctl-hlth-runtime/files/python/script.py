@@ -1295,6 +1295,8 @@ ENGINE_ENV = {
 TRIVY_COMMON = (
     "--cache-dir",
     CACHE,
+    "--timeout",
+    f"{JOB_TIMEOUT_SECONDS}s",
     "--disable-telemetry",
     "--skip-version-check",
     "--quiet",
