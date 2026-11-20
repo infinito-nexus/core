@@ -10,11 +10,13 @@
     - compose-build
     - compose-up
 
-- name: "📄 Render the role catalogue and settings of '{{ application_id }}'"
-  stack_host_template:
-    src: "config.json.j2"
-    dest: "{{ ACCESS_REQUEST_CONFIG_HOST }}"
-    mode: "0644"
+- name: "🔁 Recreate '{{ application_id }}' to load the settings its stage rewrote"
+  ansible.builtin.debug:
+    msg: "{{ ACCESS_REQUEST_CONFIG_HOST }} changed"
+  changed_when: true
+  when:
+    - access_request_config_changed is defined
+    - access_request_config_changed | bool
   notify:
     - compose-up
 
