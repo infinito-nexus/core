@@ -40,6 +40,18 @@ def _needs(job: dict) -> list[str]:
     return [needs] if isinstance(needs, str) else list(needs)
 
 
+def _offenders(name: str, document) -> list[str]:
+    offenders: list[str] = []
+    for job_id, job in (document.get("jobs") or {}).items():
+        if not isinstance(job, dict) or not _checks_out_pull_request_code(job):
+            continue
+        if _GATE_JOB not in _needs(job):
+            offenders.append(f"{name}: {job_id}: does not need it")
+        elif _GATE_BYPASS.search(str(job.get("if", ""))):
+            offenders.append(f"{name}: {job_id}: runs past a failed gate")
+    return offenders
+
+
 class TestWorkflowForkCheckoutGated(unittest.TestCase):
     def test_pull_request_checkouts_under_pull_request_target_need_the_gate(
         self,
@@ -47,15 +59,8 @@ class TestWorkflowForkCheckoutGated(unittest.TestCase):
         offenders: list[str] = []
         for path in sorted(_WORKFLOWS_DIR.glob("*.y*ml")):
             document = load_yaml_any(str(path), default_if_missing={}) or {}
-            if not _listens_to_pull_request_target(document):
-                continue
-            for job_id, job in (document.get("jobs") or {}).items():
-                if not isinstance(job, dict) or not _checks_out_pull_request_code(job):
-                    continue
-                if _GATE_JOB not in _needs(job):
-                    offenders.append(f"{path.name}: {job_id}: does not need it")
-                elif _GATE_BYPASS.search(str(job.get("if", ""))):
-                    offenders.append(f"{path.name}: {job_id}: runs past a failed gate")
+            if _listens_to_pull_request_target(document):
+                offenders.extend(_offenders(path.name, document))
 
         if offenders:
             self.fail(
