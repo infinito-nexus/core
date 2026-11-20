@@ -15,6 +15,11 @@
         if rbac_sync_mode == 'swarm' else ''
       }}
 
+- name: "🔧 Use the stack host's swarm service for {{ rbac_sync_application_id }}"
+  ansible.builtin.set_fact:
+    rbac_sync_swarm_service: "{{ hostvars[STACK_HOST].rbac_sync_swarm_service }}"
+  when: rbac_sync_mode == 'swarm'
+
 - name: "📁 Create the RBAC hook directory of {{ rbac_sync_application_id }}"
   ansible.builtin.file:
     path: "{{ [ DIR_RBAC_SYNC, 'hooks', rbac_sync_application_id ] | path_join }}"
