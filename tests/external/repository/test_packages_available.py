@@ -5,8 +5,9 @@ parallel instead of installing anything, so the whole registry is checked
 in seconds rather than one container build per package.
 
 A package that the index positively reports as absent fails the test. A
-network or index error is reported as a warning, because an unreachable
-mirror says nothing about the declaration.
+package whose declaration exempts it (a third-party repository or a virtual
+name) is reported as a warning. Any other package whose index stays
+unreachable after the retries also fails the test.
 """
 
 from __future__ import annotations
