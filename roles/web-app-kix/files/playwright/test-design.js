@@ -60,6 +60,7 @@ const MENU_ENTRY = `${MENU} ul.main-menu li`;
 const MENU_SELECTED = `${MENU} li.active`;
 const MOBILE_MENU = ".mobile-main-menu-container";
 const LISTED = "/admin?moduleId=ticket-states";
+const DOCKED = { width: 1680, height: 1050 };
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -244,6 +245,8 @@ exports.register = function (shared) {
 
   test("design: the signed-in interface takes frame, surfaces, dividers and text from the palette", async ({ page }) => {
     shared.skipUnlessServiceEnabled("design");
+    // KIX floats a shown sidebar over the content between 1141 and 1600 px, where it covers the table cell the hover needs.
+    await page.setViewportSize(DOCKED);
     await signIn(page);
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
