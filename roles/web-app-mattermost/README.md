@@ -96,6 +96,8 @@ Key settings in `meta/services.yml` and `meta/server.yml`:
 
 `mmctl plugin enable` only writes `PluginSettings.PluginStates` and exits 0; the server activates the bundle afterwards and logs an activation refusal instead of returning it. A `config.archive` must therefore point at a release whose `plugin.json` carries a `min_server_version` the deployed `services.mattermost.ref` satisfies, otherwise the deploy stays green and the plugin never appears in `/api/v4/plugins` under `active`.
 
+The version updater never reads `min_server_version`, so `update.match` holds `mattermost-plugin-gitlab` on `v1.` and `mattermost-plugin-jira` on `v4.` while `services.mattermost.ref` is below 12.0.0: gitlab v2.0.0 and jira v5.0.0 and every later release declare `min_server_version` 12.0.0, which the pinned v11 server refuses to activate. Drop both holds with the 12.x server bump; `tests/unit/python/roles/web-app-mattermost/test_plugin_server_gate.py` enforces that coupling. The Jira hold has no deploy effect today, because that addon carries no `config.archive`, would install by `plugin_id` from the marketplace and is never enabled; it only stops the updater from proposing an unusable pin.
+
 | Addon | Mechanism | Default state | Bridges |
 |-------|-----------|---------------|---------|
 | `mattermost-plugin-gitlab` | `plugin` | on while `services.gitlab.enabled` | `gitlab` |

@@ -10,6 +10,7 @@ update:
   monitored: true
   catalog: github-releases
   upstream_id: mattermost/mattermost-plugin-jira
+  match: "v4."
 config:
   plugin_id: jira
   partner_url: "{{ lookup('tls', 'web-app-jira', 'url.base') }}"
