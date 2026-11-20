@@ -40,6 +40,13 @@ odoo:
       enabled: true
   image: odoo
   version: "19.0"
+  hold:
+    version: "19.0"
+    reason: >-
+      OCA publishes no 20.x of fs_storage, fs_attachment or fs_attachment_s3
+      (files/pip/requirements-no-deps.txt); Odoo 20 marks their 19.0 releases
+      uninstallable and the objstore setup fails on the missing fs_storage
+      relation
   custom: true
   name: odoo
   min_storage: 897MB
