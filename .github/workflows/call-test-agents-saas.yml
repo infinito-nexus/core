@@ -252,6 +252,11 @@ jobs:
           source scripts/meta/env/load.sh
           echo "${VENV}/bin" >> "${GITHUB_PATH}"
 
+      - name: 🔨 Build the deploy image from this checkout
+        timeout-minutes: 60
+        shell: bash
+        run: ./scripts/github/runner/build_deploy_image.sh
+
       - name: 📦 Preseed large images (Ollama) by host pull and load
         shell: bash
         run: make agents-preseed
