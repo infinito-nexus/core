@@ -28,12 +28,24 @@
   background-color: var(--design-surface-active);
 }
 
-.oc-button-primary-filled:hover:not([disabled], .no-hover) {
+#exitAnchor {
+  --oc-button-color: var(--design-primary);
+  --oc-button-on-color: var(--design-on-primary);
+}
+:is(.oc-button-primary-filled, #exitAnchor):hover:not([disabled], .no-hover) {
   filter: none;
   background-color: var(--design-primary-hover);
 }
-.oc-button-primary-filled:active:not([disabled]) {
+:is(.oc-button-primary-filled, #exitAnchor):active:not([disabled]) {
   background-color: var(--design-primary-active);
+}
+
+.oc-checkbox:checked:not(:disabled) {
+  border-color: var(--design-primary);
+  background-color: var(--design-primary);
+}
+.oc-checkbox[type="checkbox"]:is(:checked, :indeterminate):not(:disabled)::before {
+  background-color: var(--design-on-primary);
 }
 
 #oc-topbar {

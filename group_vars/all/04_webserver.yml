@@ -24,6 +24,9 @@ WEBSERVER_PROXY_WORKER_CONNECTIONS: "{{ lookup('config', 'svc-prx-openresty', 's
 
 WEBSERVER_PROXY_WORKER_RLIMIT_NOFILE: "{{ (WEBSERVER_PROXY_WORKER_CONNECTIONS | int) * 2 }}"
 
+# HTTP/2 on every TLS vhost. Off because OpenResty 1.31.8.x bundles nginx 1.31.8, which CVE-2026-123007 and CVE-2026-123633 hit only with HTTP/2 on; set true once OpenResty ships nginx >= 1.31.9.
+WEBSERVER_HTTP2_ENABLED: false
+
 # Response security headers of every vhost; an app overrides any key under `security_headers` in its meta/server.yml.
 WEBSERVER_SECURITY_HEADERS:
   nosniff: false # X-Content-Type-Options: nosniff

@@ -13,7 +13,7 @@ from utils.env.writer import write_dotenv
 
 from . import PROJECT_ROOT as REPO_ROOT
 
-HOST_OWNED_KEY = "INFINITO_DOTENV_HOST_OWNED"  # nocheck: dotenv-host-owned-marker  Reason: set only by compose.yml inside the runner container; not a configuration key, a .env entry could freeze the host .env
+HOST_OWNED_KEY = "INFINITO_DOTENV_HOST_OWNED"  # nocheck: dotenv-host-owned-marker  Reason: set only by compose.yml inside the runner container and by the act wrapper when it binds the checkout; not a configuration key, a .env entry could freeze the host .env
 
 
 def main(argv: list[str] | None = None) -> int:

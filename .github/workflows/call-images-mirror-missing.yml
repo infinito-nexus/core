@@ -91,6 +91,8 @@ jobs:
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
+        with:
+          persist-credentials: false
 
       - name: 🔍 Resolve GHCR namespace and repository
         id: vars
@@ -98,6 +100,10 @@ jobs:
         env:
           GHCR_NAMESPACE_INPUT: ${{ inputs.ghcr_namespace || '' }}
         run: bash scripts/meta/resolve/ghcr/namespace_and_repository.sh
+
+      - name: 🔗 Check symlinks out as plain files (optional)
+        if: ${{ inputs.source_repository != '' && inputs.source_ref != '' }}
+        run: git config --global core.symlinks false
 
       - name: ⬇️ Checkout source repo for scan (optional)
         if: ${{ inputs.source_repository != '' && inputs.source_ref != '' }}
@@ -109,6 +115,12 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
           allow-unsafe-pr-checkout: ${{ inputs.allow_unsafe_checkout }}
+
+      - name: 🔗 Refuse symlinks in the scanned source (optional)
+        if: ${{ inputs.source_repository != '' && inputs.source_ref != '' }}
+        env:
+          SOURCE_PATH: ${{ inputs.source_path }}
+        run: bash scripts/github/gate/no_symlinks.sh "${SOURCE_PATH}"
 
       - name: 🔧 Setup Python
         uses: actions/setup-python@v6
