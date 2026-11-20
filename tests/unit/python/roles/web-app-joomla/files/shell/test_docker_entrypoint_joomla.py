@@ -97,7 +97,7 @@ class TestJoomlaEntrypoint(unittest.TestCase):
             "STUB_RM_FAIL": "0",
         }
 
-    def spawn(self, name="calls", **env):
+    def spawn(self, name, **env):
         log = self.root / f"{name}.log"
         log.touch()
         with (self.root / f"{name}.err").open("a") as err:
@@ -117,13 +117,13 @@ class TestJoomlaEntrypoint(unittest.TestCase):
         process.wait()
 
     def run_entrypoint(self, **env):
-        return self.spawn(**env).wait(timeout=60)
+        return self.spawn("calls", **env).wait(timeout=60)
 
     def text(self, name):
         path = self.root / name
         return path.read_text(encoding="utf-8")  # nocheck: cache-read tempdir
 
-    def calls(self, name="calls"):
+    def calls(self, name):
         return self.text(f"{name}.log").splitlines()
 
     def wait_for(self, path):
@@ -143,12 +143,12 @@ class TestJoomlaEntrypoint(unittest.TestCase):
     def assert_site_down(self):
         self.assertTrue(self.marker.is_dir())
         self.assertFalse(self.ready.exists())
-        self.assertNotIn(SERVE, self.calls())
+        self.assertNotIn(SERVE, self.calls("calls"))
 
     def test_a_fresh_volume_is_set_up_once_before_the_server_starts(self):
         self.assertEqual(self.run_entrypoint(), 0)
-        self.assertEqual(self.calls().count("init"), 1)
-        self.assertEqual(self.calls()[-1], SERVE)
+        self.assertEqual(self.calls("calls").count("init"), 1)
+        self.assertEqual(self.calls("calls")[-1], SERVE)
         self.assertTrue(self.ready.exists())
         self.assertFalse(self.lock.exists())
 
@@ -159,7 +159,7 @@ class TestJoomlaEntrypoint(unittest.TestCase):
         self.assertTrue((self.webroot / "robots.txt").is_file())
         self.assertFalse(self.marker.exists())
         self.assertFalse(self.pending.exists())
-        self.assertEqual(self.calls()[-1], SERVE)
+        self.assertEqual(self.calls("calls")[-1], SERVE)
 
     def test_an_install_crash_after_the_config_was_written_keeps_the_site_down(self):
         self.assertNotEqual(self.run_entrypoint(STUB_INSTALL="crash"), 0)
@@ -181,14 +181,14 @@ class TestJoomlaEntrypoint(unittest.TestCase):
     def test_a_restart_after_a_database_outage_sets_the_site_up(self):
         self.assertNotEqual(self.run_entrypoint(STUB_DB="down"), 0)
         self.assertEqual(self.run_entrypoint(), 0)
-        self.assertEqual(self.calls().count("init"), 1)
-        self.assertEqual(self.calls()[-1], SERVE)
+        self.assertEqual(self.calls("calls").count("init"), 1)
+        self.assertEqual(self.calls("calls")[-1], SERVE)
 
     def test_an_existing_installation_starts_without_setup(self):
         (self.webroot / "configuration.php").write_text("<?php\n")
         self.assertEqual(self.run_entrypoint(), 0)
-        self.assertNotIn("init", self.calls())
-        self.assertEqual(self.calls()[-1], SERVE)
+        self.assertNotIn("init", self.calls("calls"))
+        self.assertEqual(self.calls("calls")[-1], SERVE)
 
     def test_a_follower_starts_only_after_the_leader_finished(self):
         leader = self.spawn("leader", STUB_FINISH_DELAY="3")
@@ -213,8 +213,8 @@ class TestJoomlaEntrypoint(unittest.TestCase):
         hour_ago = time.time() - 3600
         os.utime(self.lock, (hour_ago, hour_ago))
         self.assertEqual(self.run_entrypoint(), 0)
-        self.assertEqual(self.calls().count("init"), 1)
-        self.assertEqual(self.calls()[-1], SERVE)
+        self.assertEqual(self.calls("calls").count("init"), 1)
+        self.assertEqual(self.calls("calls")[-1], SERVE)
 
     def test_a_stuck_volume_names_the_manual_step_instead_of_starting(self):
         self.leave_stuck_volume()
@@ -230,7 +230,7 @@ class TestJoomlaEntrypoint(unittest.TestCase):
         self.assertFalse((self.webroot / "installation").exists())
         self.assertTrue((self.webroot / "robots.txt").is_file())
         self.assertFalse(self.marker.exists())
-        self.assertEqual(self.calls()[-1], SERVE)
+        self.assertEqual(self.calls("calls")[-1], SERVE)
 
     def test_a_failed_folder_removal_is_retried_on_the_next_start(self):
         failed = self.run_entrypoint(STUB_INSTALL="nfs", STUB_RM_FAIL="1")
@@ -240,11 +240,11 @@ class TestJoomlaEntrypoint(unittest.TestCase):
         self.assertEqual(self.run_entrypoint(), 0)
         self.assertFalse((self.webroot / "installation").exists())
         self.assertFalse(self.marker.exists())
-        self.assertEqual(self.calls().count("init"), 1)
-        self.assertEqual(self.calls()[-1], SERVE)
+        self.assertEqual(self.calls("calls").count("init"), 1)
+        self.assertEqual(self.calls("calls")[-1], SERVE)
 
     def test_sigterm_during_setup_releases_the_lock(self):
-        leader = self.spawn(STUB_SETUP_DELAY="10")
+        leader = self.spawn("calls", STUB_SETUP_DELAY="10")
         self.wait_for(self.lock / "owner")
         leader.send_signal(signal.SIGTERM)
         self.assertEqual(leader.wait(timeout=30), 143)

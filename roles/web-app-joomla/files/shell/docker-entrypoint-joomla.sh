@@ -69,7 +69,7 @@ run_setup() {
   # Exception: Joomla's installer deletes installation/ while it still holds
   # installation/joomla.php open; NFS keeps that file as a .nfs silly rename,
   # so a complete install reports failure and the stock entrypoint keeps its
-  # marker. The pending note lets any later start finish that cleanup.
+  # marker.
   if [ -s "${config}" ] && [ -d "${marker}" ] &&
     grep -q 'Unable to delete installation folder' "${log}" &&
     ! grep -qE 'Failed to (correct ownership|restore configuration)|Refusing to change permissions' "${log}"; then
