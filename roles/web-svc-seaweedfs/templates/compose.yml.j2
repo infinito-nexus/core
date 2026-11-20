@@ -1,5 +1,6 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 
+  {% set service_update_order = 'stop-first' %}
   {% set service_name = 'seaweedfs' %}
   {{ service_name }}:
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
