@@ -128,7 +128,7 @@ gitaly:
   # nocheck: default-placement-manager  the repositories live on a node-local volume (meta/volumes.yml nfs: false, gitaly does not support NFS), which a reschedule leaves behind on the old node
   placement: manager
   image: registry.gitlab.com/gitlab-org/build/cng/gitaly
-  version: v19.6.0
+  version: v19.6.1
   healthcheck:
     test: ["CMD", "/scripts/healthcheck"]
   name: gitlab-gitaly
