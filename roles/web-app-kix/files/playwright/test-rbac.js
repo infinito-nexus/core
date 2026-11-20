@@ -80,6 +80,7 @@ exports.register = function (shared) {
         try {
           const page = await adminContext.newPage();
           await shared.runKixDirectoryLogin(page, shared.env.adminUsername, shared.env.adminPassword);
+          await shared.skipSetupAssistant(page);
 
           await gotoOnion(page, `${shared.env.appBaseUrl}/organisations`, { waitUntil: "domcontentloaded" });
           const streetCell = page.getByText(contact.Street).first();
