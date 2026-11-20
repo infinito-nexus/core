@@ -7,6 +7,7 @@ swarm_stack_converge_retries: 600
 database_password: "{{ lookup('config', application_id, 'secrets.credentials.database_password') }}" # nocheck: lookup-config-path
 
 SNIPE_IT_URL: "{{ lookup('tls', application_id, 'url.base') }}"
+SNIPE_IT_DOMAIN: "{{ lookup('domain', application_id) }}"
 SNIPE_IT_CONTAINER: "{{ lookup('config', application_id, 'services.snipe-it.name') }}"
 SNIPE_IT_IMAGE: "{{ lookup('config', application_id, 'services.snipe-it.image') }}"
 SNIPE_IT_VERSION: "{{ lookup('config', application_id, 'services.snipe-it.version') }}"
@@ -70,6 +71,7 @@ SNIPEIT_MCP_UPSTREAM_URL: "http://{{ SNIPEIT_MCP_UPSTREAM_HOST }}:{{ SNIPEIT_MCP
 SNIPEIT_MCP_CONTRACT:
   provider: "{{ application_id }}"
   upstream_url: "{{ SNIPEIT_MCP_UPSTREAM_URL }}"
+  upstream_host: "{{ SNIPE_IT_DOMAIN }}"
   auth_subject: "{{ lookup('config', application_id, 'mcp.auth_subject') }}"
   mutating_tools_enabled: "{{ lookup('config', application_id, 'mcp.tools.mutating_tools_enabled') | bool }}"
   tools: "{{ lookup('file', 'mcp/tools.json') | from_json }}"
