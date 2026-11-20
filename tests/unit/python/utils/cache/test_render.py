@@ -10,8 +10,8 @@ from __future__ import annotations
 import stat
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from utils.cache.hosts import host_records
 from utils.cache.render import _write, upstreams_conf
