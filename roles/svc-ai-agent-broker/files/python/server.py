@@ -19,6 +19,7 @@ Environment:
     KEYCLOAK_REALM:           realm of the platform users.
     KEYCLOAK_ADMIN_USERNAME:  master-realm administrator.
     KEYCLOAK_ADMIN_PASSWORD:  its password.
+    KEYCLOAK_EMAIL_ATTRIBUTE: user attribute the realm's email claim is mapped from.
     IDLE_STOP:                ``true`` stops idle agents.
     IDLE_MINUTES:             idle time before a stop.
     MAX_RUNNING:              bound on concurrently running agents.
@@ -102,6 +103,7 @@ ACCESS = Keycloak(
     ENV["KEYCLOAK_ADMIN_USERNAME"],
     ENV["KEYCLOAK_ADMIN_PASSWORD"],
     timeout=15,
+    email_attribute=ENV["KEYCLOAK_EMAIL_ATTRIBUTE"],
 )
 
 

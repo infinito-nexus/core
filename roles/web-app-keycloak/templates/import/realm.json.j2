@@ -947,7 +947,7 @@
           "config": {
             "introspection.token.claim": "true",
             "userinfo.token.claim": "true",
-            "user.attribute": "{{ KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE if KEYCLOAK_EMAIL_MAILBOX | bool else 'email' }}",
+            "user.attribute": "{{ OIDC.EMAIL.CLAIM_SOURCE }}",
             "id.token.claim": "true",
             "access.token.claim": "true",
             "claim.name": "email",

@@ -240,7 +240,7 @@ CONTEXT = {
     "KEYCLOAK_EMAIL_DOMAIN": "example.com",
     "KEYCLOAK_EMAIL_SECONDARY_PATTERN": secondary_pattern("example.com"),
     "KEYCLOAK_EMAIL_POLICY_ATTRIBUTE": ROLE_VARS["KEYCLOAK_EMAIL_POLICY_ATTRIBUTE"],
-    "KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE": ROLE_VARS["KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE"],
+    "KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE": OIDC_VARS["_oidc_email_mailbox_attribute"],
     "KEYCLOAK_REGISTRATION_ALLOWED": ROLE_VARS["KEYCLOAK_REGISTRATION_ALLOWED"],
     "KEYCLOAK_ADMIN_EVENTS_EXPIRATION": ADMIN_EVENTS_DAYS * 86400,
     **usage_context(),
@@ -253,6 +253,7 @@ CONTEXT = {
             "USERNAME": "preferred_username",
             "NEXTCLOUD_UID": OIDC_VARS["defaults_oidc"]["ATTRIBUTES"]["NEXTCLOUD_UID"],
         },
+        "EMAIL": {"CLAIM_SOURCE": "email"},
     },
     "LDAP": {
         "DN": {
@@ -783,7 +784,14 @@ class TestLogoutTrustBoundary(unittest.TestCase):
         )
 
 
-MAILBOX = {"KEYCLOAK_EMAIL_POLICY": "mailbox", "KEYCLOAK_EMAIL_MAILBOX": True}
+MAILBOX = {
+    "KEYCLOAK_EMAIL_POLICY": "mailbox",
+    "KEYCLOAK_EMAIL_MAILBOX": True,
+    "OIDC": {
+        **CONTEXT["OIDC"],
+        "EMAIL": {"CLAIM_SOURCE": OIDC_VARS["_oidc_email_mailbox_attribute"]},
+    },
+}
 SMTP = {"KEYCLOAK_EMAIL_SMTP": True}
 LDAP_PROVIDER = "org.keycloak.storage.UserStorageProvider"
 

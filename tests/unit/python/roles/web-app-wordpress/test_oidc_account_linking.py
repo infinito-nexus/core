@@ -31,7 +31,7 @@ ROLE_VARS = ROLE / ROLE_FILE_VARS_MAIN
 REALM = PROJECT_ROOT / "roles/web-app-keycloak/templates/import/realm.json.j2"
 OIDC_VARS = PROJECT_ROOT / "group_vars/all/11_oidc.yml"
 EMAIL_CLAIM = re.compile(
-    r'"user\.attribute":\s*"(?:email|\{\{[^"]* else \'email\' \}\})",'
+    r'"user\.attribute":\s*"(?:email|\{\{[^"]* else \'email\' \}\}|\{\{ OIDC\.EMAIL\.CLAIM_SOURCE \}\})",'
     r'[^{}]*?"claim\.name":\s*"(?P<claim>[^"]+)"'
 )
 SUBJECT_META_KEY = "openid-connect-generic-subject-identity"
