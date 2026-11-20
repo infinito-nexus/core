@@ -19,9 +19,6 @@ import unittest
 import unittest.mock as mock
 
 from cli.administration.deploy.development.inventory import (
-    _build_services_overrides_for_round as build_services_overrides_for_round,
-)
-from cli.administration.deploy.development.inventory import (
     plan_dev_inventory_matrix,
     prune_orphans_after_disable,
 )
@@ -34,6 +31,7 @@ from utils.cache.applications import get_variants
 from utils.cache.files import PROJECT_ROOT
 from utils.github.variant import network
 from utils.github.variant.pools import MODES
+from utils.roles.applications.variants import services_overrides_for_round
 from utils.tests.swarm.derive_includes import derive_includes
 
 ROLES = PROJECT_ROOT / "roles"
@@ -136,7 +134,7 @@ def _deployed(app: str, index: int, mode: str, tokens: str) -> frozenset[str]:
             include=include,
             primary_apps=[app] if app not in disabled else [],
             disabled_app_ids=disabled,
-            services_overrides=build_services_overrides_for_round(
+            services_overrides=services_overrides_for_round(
                 roles_dir=str(ROLES),
                 round_index=index,
                 primary_app_variants={app: variants.get(app, index)},
