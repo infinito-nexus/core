@@ -60,7 +60,7 @@ openbao:
   pids_limit: 512
   min_storage: 60MB
   image: openbao/openbao
-  version: "2.7.2"
+  version: "2.7.3"
   custom: true
   backup:
     stop_required: true
