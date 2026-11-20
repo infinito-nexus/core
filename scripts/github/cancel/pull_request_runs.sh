@@ -24,7 +24,8 @@ validate_force_cancel_after
 # A fork PR's runs carry an empty `pull_requests` array, so the branch matcher
 # is all that is left — and it cannot tell two pull requests apart that share a
 # head repository and head branch. Rather than cancel the wrong one, drop the
-# matcher for as long as the head is ambiguous.
+# branch and head-sha matchers for as long as the head is ambiguous: anyone may
+# open a pull request from another fork's branch and close it to cancel its runs.
 disable_ambiguous_branch_fallback() {
 	local rivals
 	local -a query
@@ -55,6 +56,7 @@ disable_ambiguous_branch_fallback() {
 	if [[ "${rivals}" != "0" ]]; then
 		echo "Branch fallback disabled: ${rivals} other open pull request(s) share ${PR_HEAD_REPOSITORY%%/*}:${PR_HEAD_REF}"
 		PR_HEAD_REF=""
+		PR_HEAD_SHA=""
 	fi
 }
 
@@ -88,7 +90,15 @@ run_ids="$(
           | select(.event == "pull_request" or .event == "pull_request_target")
           | select(
               any(.pull_requests[]?; (.number // -1) == $pr_number)
-              or ($pr_head_sha != "" and (.head_sha // "") == $pr_head_sha)
+              or (
+                $pr_head_sha != ""
+                and (.head_sha // "") == $pr_head_sha
+                and all(.pull_requests[]?; (.number // $pr_number) == $pr_number)
+                and (
+                  (.head_repository.full_name // "") == $pr_head_repository
+                  or ((.display_title // "") | test("PR #\($pr_number)( |$)"))
+                )
+              )
               or (
                 $pr_head_ref != ""
                 and all(.pull_requests[]?; (.number // $pr_number) == $pr_number)

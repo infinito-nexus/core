@@ -1944,6 +1944,20 @@ class TestCommands(TestCase):
         step = SCRIPT.trivy_step(self.layout, "trivy:1", self.container, _config(), [])
         self.assertIn("/var/run/docker.sock:/var/run/docker.sock:ro", step.argv)
 
+    def test_every_trivy_run_ends_only_at_the_job_bound(self):
+        steps = [
+            SCRIPT.trivy_step(self.layout, "trivy:1", self.container, _config(), []),
+            SCRIPT.trivy_step(self.layout, "trivy:1", self.host, _config(), []),
+            *SCRIPT.db_steps("trivy", self.layout, "trivy:1"),
+        ]
+        for step in steps:
+            with self.subTest(step=step.label):
+                self.assertIn("--timeout", step.argv)
+                self.assertEqual(
+                    step.argv[step.argv.index("--timeout") + 1],
+                    f"{SCRIPT.JOB_TIMEOUT_SECONDS}s",
+                )
+
     def test_the_host_scan_skips_the_excluded_paths(self):
         step = SCRIPT.trivy_step(self.layout, "trivy:1", self.host, _config(), [])
         self.assertEqual(

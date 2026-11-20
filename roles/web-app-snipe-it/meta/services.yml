@@ -61,7 +61,7 @@ snipe-it:
       enabled: true
     swarm:
       enabled: true
-  version: v8.8.3-alpine
+  version: v8.8.4-alpine
   custom: true
   name: snipe-it
   image: snipe/snipe-it
@@ -85,11 +85,6 @@ snipe-it:
     - web-app-stalwart
     - web-app-mailu
   lifecycle: beta
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "v8.8.3-alpine"
-        until: 2026-11-30
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
