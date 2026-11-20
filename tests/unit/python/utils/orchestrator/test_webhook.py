@@ -13,11 +13,13 @@ from utils.orchestrator.webhook import (
     Event,
     intake,
     refetch_path,
+    served_repositories,
     verify_signature,
 )
 
 SECRET = b"s3cr3t"
 REPO = {"full_name": "infinito-nexus/core", "default_branch": "main"}
+SERVED = frozenset({"infinito-nexus/core", "infinito-nexus/.github"})
 SHA = "a" * 40
 
 
@@ -68,7 +70,7 @@ class TestRefetch(unittest.TestCase):
             }
         )
         self.assertEqual(
-            intake("workflow_run", body, fetch),
+            intake("workflow_run", body, fetch, SERVED),
             Event("workflow_run_failed", "infinito-nexus/core", False),
         )
         self.assertEqual(calls, [path])
@@ -87,7 +89,7 @@ class TestRefetch(unittest.TestCase):
                 }
             }
         )
-        self.assertIsNone(intake("workflow_run", body, fetch))
+        self.assertIsNone(intake("workflow_run", body, fetch, SERVED))
 
     def test_a_forged_author_association_is_overruled_by_the_fetch(self) -> None:
         body = {
@@ -104,7 +106,7 @@ class TestRefetch(unittest.TestCase):
             }
         )
         self.assertEqual(
-            intake("issues", body, fetch),
+            intake("issues", body, fetch, SERVED),
             Event("issue_opened", "infinito-nexus/core", True),
         )
 
@@ -118,7 +120,7 @@ class TestRefetch(unittest.TestCase):
                 }
             }
         )
-        self.assertTrue(intake("workflow_run", body, fetch).outsider)
+        self.assertTrue(intake("workflow_run", body, fetch, SERVED).outsider)
 
     def test_a_lockfile_change_on_the_default_branch_is_a_scoped_trigger(
         self,
@@ -136,7 +138,7 @@ class TestRefetch(unittest.TestCase):
             }
         )
         self.assertEqual(
-            intake("push", body, fetch),
+            intake("push", body, fetch, SERVED),
             Event(
                 "dependency_manifest_changed",
                 "infinito-nexus/core",
@@ -178,7 +180,7 @@ class TestRefetch(unittest.TestCase):
         )
         for kind, body in cases:
             with self.subTest(kind=kind, body=body):
-                self.assertIsNone(refetch_path(kind, body))
+                self.assertIsNone(refetch_path(kind, body, SERVED))
 
     def test_a_dot_segment_repository_name_is_never_fetched(self) -> None:
         for name in ("../core", "./..", "infinito-nexus/..", "./core", "/core", "a/"):
@@ -188,7 +190,38 @@ class TestRefetch(unittest.TestCase):
                 "issue": {"number": 1},
             }
             with self.subTest(name=name):
-                self.assertIsNone(refetch_path("issues", body))
+                with self.assertRaises(ValueError):
+                    served_repositories({"maintainer": {"repositories": [name]}})
+                self.assertIsNone(refetch_path("issues", body, SERVED))
+
+    def test_only_github_entries_are_served(self) -> None:
+        agents = {
+            "maintainer": {
+                "repositories": [
+                    "infinito-nexus/core",
+                    "github/maintainer:acme/tools",
+                    "gitea/maintainer:acme/widgets",
+                    "gitlab/maintainer:acme/gears",
+                ]
+            },
+            "planner": {"repositories": ["infinito-nexus/core"]},
+        }
+        self.assertEqual(
+            served_repositories(agents),
+            frozenset({"infinito-nexus/core", "acme/tools"}),
+        )
+
+    def test_a_non_integral_id_is_never_fetched(self) -> None:
+        for number in (float("inf"), float("nan"), True, -1, 0, 1.5, "12", None):
+            body = {
+                "action": "opened",
+                "repository": REPO,
+                "issue": {"number": number},
+            }
+            fetch, calls = _fetcher({})
+            with self.subTest(number=number):
+                self.assertIsNone(intake("issues", body, fetch, SERVED))
+                self.assertEqual(calls, [])
 
     def test_a_dotted_repository_name_is_still_fetched(self) -> None:
         body = {
@@ -197,8 +230,45 @@ class TestRefetch(unittest.TestCase):
             "issue": {"number": 3},
         }
         self.assertEqual(
-            refetch_path("issues", body), "/repos/infinito-nexus/.github/issues/3"
+            refetch_path("issues", body, SERVED),
+            "/repos/infinito-nexus/.github/issues/3",
         )
+
+    def test_a_repository_no_agent_role_lists_is_never_fetched(self) -> None:
+        bodies = (
+            (
+                "workflow_run",
+                {
+                    "action": "completed",
+                    "repository": {"full_name": "stranger/secrets"},
+                    "workflow_run": {"id": 4711},
+                },
+            ),
+            (
+                "issues",
+                {
+                    "action": "opened",
+                    "repository": {"full_name": "Infinito-Nexus/Core"},
+                    "issue": {"number": 1},
+                },
+            ),
+            (
+                "push",
+                {
+                    "ref": "refs/heads/main",
+                    "after": SHA,
+                    "repository": {
+                        "full_name": "stranger/secrets",
+                        "default_branch": "main",
+                    },
+                },
+            ),
+        )
+        for kind, body in bodies:
+            fetch, calls = _fetcher({})
+            with self.subTest(kind=kind, name=body["repository"]["full_name"]):
+                self.assertIsNone(intake(kind, body, fetch, SERVED))
+                self.assertEqual(calls, [])
 
 
 if __name__ == "__main__":

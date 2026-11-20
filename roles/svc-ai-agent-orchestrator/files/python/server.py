@@ -33,7 +33,9 @@ Environment:
     CHANNELS:                   JSON list of channels in priority order.
     CRON_ENTRIES:               JSON list of the deployed revision's cron entries,
                                 each tagged with the ``role`` it belongs to.
-    AGENTS:                     JSON object of every role's ``triggers`` and ``owner``.
+    AGENTS:                     JSON object of every role's ``triggers``, ``owner``
+                                and ``repositories``; a webhook is re-fetched only
+                                for a repository some role lists.
     BOARD_URL:                  origin of the OpenProject board every agent uses.
     GITHUB_TOKEN:               token the re-fetch of a GitHub event reads with;
                                 absent, a webhook is audited but not acted on.
@@ -85,6 +87,7 @@ CHANNELS = json.loads(ENV["CHANNELS"] or "[]")
 AGENTS = json.loads(ENV["AGENTS"] or "{}")
 TRIGGERS = {role: agent["triggers"] for role, agent in AGENTS.items()}
 OWNERS = {role: agent["owner"] for role, agent in AGENTS.items()}
+REPOSITORIES = webhook.served_repositories(AGENTS)
 ROUTINE_ROLE = {
     entry["routine"]: entry.get("role") or entry["routine"] for entry in CRON_ENTRIES
 }
@@ -326,17 +329,19 @@ class Handler(BaseHTTPRequestHandler):
         )
 
     def _act_on(self, provider, body):
-        if provider != "github" or not GITHUB_TOKEN:
+        if provider != webhook.GITHUB or not GITHUB_TOKEN:
             return []
+        kind = first_header(self.headers, EVENT_HEADERS)
         try:
             payload = json.loads(body)
-            event = webhook.intake(
-                first_header(self.headers, EVENT_HEADERS), payload, github_fetch
-            )
+            event = webhook.intake(kind, payload, github_fetch, REPOSITORIES)
         except (OSError, ValueError, TypeError) as error:
             log("webhook_refetch_failed", provider=provider, error=type(error).__name__)
             return []
-        return start_event(event) if event is not None else []
+        if event is None:
+            log("webhook_not_acted_on", provider=provider, kind=kind)
+            return []
+        return start_event(event)
 
     def _owner_action(self, action):
         payload = self._payload()

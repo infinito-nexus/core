@@ -12,10 +12,10 @@
   loop_control:
     label: "{{ item }}"
 
-- name: "🎯 Collect the triggers and the owner of every agent role"
+- name: "🎯 Collect the triggers, the owner and the repositories of every agent role"
   ansible.builtin.set_fact:
     AGENT_ORCHESTRATOR_AGENTS: "{{ AGENT_ORCHESTRATOR_AGENTS | combine({item: {'triggers': lookup('agent_config', item, 'triggers'), 'owner': lookup('agent_config',
-      item, 'owner')}}) }}"
+      item, 'owner'), 'repositories': lookup('agent_config', item, 'repositories')}}) }}"
   loop: "{{ AGENT_ORCHESTRATOR_AGENT_ROLES }}"
   loop_control:
     label: "{{ item }}"

@@ -14,15 +14,16 @@ from __future__ import annotations
 import hashlib
 import hmac
 import re
-import string
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from utils.agents.accounts import repository_entry
 from utils.digests import COMMIT
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterable, Mapping
 
+GITHUB = "github"
 SIGNATURE_PREFIX = "sha256="
 TRUSTED_ASSOCIATIONS = frozenset({"OWNER", "MEMBER", "COLLABORATOR"})
 MANIFEST = re.compile(
@@ -72,41 +73,61 @@ def refetch_required() -> bool:
     return True
 
 
-_NAME_CHARACTERS = frozenset(string.ascii_letters + string.digits + "_.-")
+def served_repositories(agents: Mapping[str, Mapping]) -> frozenset[str]:
+    """Return the ``owner/name`` of every GitHub repository an agent role
+    lists: an entry naming no account, or one naming a ``github/`` account.
+
+    Args:
+        agents: every role's configuration, each with its ``repositories``.
+
+    Raises:
+        ValueError: an entry is malformed or has an all-dot segment.
+    """
+    served = set()
+    for agent in agents.values():
+        for raw in agent["repositories"]:
+            entry = repository_entry(raw)
+            account = entry["account"]
+            if account is None or account.partition("/")[0] == GITHUB:
+                served.add(str(entry["repo"]))
+    return frozenset(served)
 
 
-def _repository_name(name: object) -> bool:
-    parts = name.split("/") if isinstance(name, str) else []
-    return len(parts) == 2 and all(
-        part and part not in (".", "..") and set(part) <= _NAME_CHARACTERS
-        for part in parts
-    )
+def _served(name: object, served: Iterable[str]) -> str | None:
+    return next((repository for repository in served if repository == name), None)
 
 
-def _path(kind: str, body: dict) -> str | None:
+def _id(value: object) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+        raise ValueError(f"{value!r} is no positive integer id")
+    return int(value)
+
+
+def _path(kind: str, body: dict, served: Iterable[str]) -> str | None:
     repository = body["repository"]
-    name = repository["full_name"]
-    if not _repository_name(name):
+    name = _served(repository["full_name"], served)
+    if name is None:
         return None
     action = body.get("action")
     if kind == "workflow_run" and action == "completed":
-        return f"/repos/{name}/actions/runs/{int(body['workflow_run']['id'])}"
+        return f"/repos/{name}/actions/runs/{_id(body['workflow_run']['id'])}"
     if kind == "issues" and action == "opened":
-        return f"/repos/{name}/issues/{int(body['issue']['number'])}"
+        return f"/repos/{name}/issues/{_id(body['issue']['number'])}"
     if kind == "pull_request" and action == "opened":
-        return f"/repos/{name}/pulls/{int(body['pull_request']['number'])}"
+        return f"/repos/{name}/pulls/{_id(body['pull_request']['number'])}"
     if kind == "dependabot_alert" and action == "created":
-        return f"/repos/{name}/dependabot/alerts/{int(body['alert']['number'])}"
+        return f"/repos/{name}/dependabot/alerts/{_id(body['alert']['number'])}"
     if (
         kind == "push"
         and body.get("ref") == f"refs/heads/{repository['default_branch']}"
-        and COMMIT.fullmatch(body["after"])
     ):
-        return f"/repos/{name}/commits/{body['after']}"
+        after = body["after"]
+        if re.fullmatch(COMMIT, after):
+            return f"/repos/{name}/commits/{after}"
     return None
 
 
-def refetch_path(kind: str, body: dict) -> str | None:
+def refetch_path(kind: str, body: dict, served: Iterable[str]) -> str | None:
     """Return the GitHub API path that re-fetches the object a webhook names,
     or ``None`` for an event the orchestrator does not act on. Only ids are
     read from the body; every fact a trigger decides on comes from the fetch.
@@ -114,9 +135,12 @@ def refetch_path(kind: str, body: dict) -> str | None:
     Args:
         kind: the ``X-GitHub-Event`` header.
         body: the parsed, signature-checked webhook body.
+        served: the ``owner/name`` of every repository the agent roles list;
+            a body naming any other is never fetched, and the path carries
+            the listed value, not the body's.
     """
     try:
-        return _path(kind, body)
+        return _path(kind, body, served)
     except (KeyError, TypeError, ValueError):
         return None
 
@@ -172,6 +196,7 @@ def intake(
     kind: str,
     body: dict,
     fetch: Callable[[str], dict],
+    served: Iterable[str],
 ) -> Event | None:
     """Re-fetch the object a signature-checked, fresh webhook names and
     return the trigger it raises.
@@ -180,8 +205,9 @@ def intake(
         kind: the ``X-GitHub-Event`` header.
         body: the parsed webhook body.
         fetch: GETs an API path from the provider and returns the JSON.
+        served: the ``owner/name`` of every repository the agent roles list.
     """
-    path = refetch_path(kind, body)
+    path = refetch_path(kind, body, served)
     if path is None:
         return None
     return classify(kind, path, fetch(path))

@@ -20,7 +20,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping
 
-_SLUG = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
+_SEGMENT = r"(?!\.+(?:/|\Z))[A-Za-z0-9_.-]+"
+_SLUG = re.compile(rf"{_SEGMENT}/{_SEGMENT}")
 
 
 def available_accounts(
@@ -63,10 +64,10 @@ def repository_entry(entry: str) -> dict[str, str | None]:
         entry: ``<owner>/<name>`` or ``<provider>/<label>:<owner>/<name>``.
 
     Raises:
-        ValueError: the entry has neither shape.
+        ValueError: the entry has neither shape, or a segment is all dots.
     """
     account, _, repo = str(entry).rpartition(":")
-    if not _SLUG.match(repo) or (account and not _SLUG.match(account)):
+    if not _SLUG.fullmatch(repo) or (account and not _SLUG.fullmatch(account)):
         raise ValueError(
             f"repositories entry {entry!r}: expected "
             "[<provider>/<label>:]<owner>/<name>"

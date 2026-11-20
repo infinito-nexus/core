@@ -55,6 +55,7 @@ AGENT_ORCHESTRATOR_LIBS:
   - utils/orchestrator/channels.py
   - utils/orchestrator/instance_api.py
   - utils/agents/__init__.py
+  - utils/agents/accounts.py
   - utils/agents/naming.py
   - utils/cache/__init__.py
   - utils/cache/files.py

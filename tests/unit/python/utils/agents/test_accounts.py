@@ -85,6 +85,26 @@ class TestRepositoryEntries(unittest.TestCase):
             with self.subTest(entry=bad), self.assertRaises(ValueError):
                 repository_entry(bad)
 
+    def test_dot_segments_and_a_trailing_newline_are_refused(self):
+        for bad in (
+            "owner/..",
+            "../core",
+            "./core",
+            "owner/.",
+            ".../x",
+            "infinito-nexus/core\n",
+            "github/..:infinito-nexus/core",
+            "github/maintainer\n:infinito-nexus/core",
+        ):
+            with self.subTest(entry=bad), self.assertRaises(ValueError):
+                repository_entry(bad)
+
+    def test_a_dotted_name_that_is_not_all_dots_is_kept(self):
+        self.assertEqual(
+            repository_entry("infinito-nexus/.github"),
+            {"repo": "infinito-nexus/.github", "account": None},
+        )
+
 
 class TestRepositoryAccounts(unittest.TestCase):
     GRANTS = (GITHUB, GITEA)
