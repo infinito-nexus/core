@@ -98,6 +98,7 @@ FULL = "full"
 PRESENCE = "presence"
 PART_SUFFIX = ".part"
 PACKAGE_METADATA = "metadata.json"
+USER_AGENT = "infinito-nexus-artefact-store"
 
 
 class ArtefactError(Exception):
@@ -152,8 +153,9 @@ def download(url: str, dest: Path, timeout: int) -> None:
         dest: the file the response body is written to.
         timeout: seconds a read may stall.
     """
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})  # noqa: S310 https or cache-base url the manifest contract already checked
     with (
-        urllib.request.urlopen(url, timeout=timeout) as response,  # noqa: S310 https or cache-base url the manifest contract already checked
+        urllib.request.urlopen(request, timeout=timeout) as response,  # noqa: S310 https or cache-base url the manifest contract already checked
         dest.open("wb") as handle,
     ):
         for block in iter(lambda: response.read(CHUNK), b""):

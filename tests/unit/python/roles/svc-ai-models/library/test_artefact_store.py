@@ -281,5 +281,23 @@ class TestVerify(unittest.TestCase):
             _MOD.store(self.root, [_record("a")], None, full=True)
 
 
+class TestDownload(unittest.TestCase):
+    def test_a_fetch_names_the_store_as_its_user_agent(self) -> None:
+        sent = []
+
+        def urlopen(request, timeout):
+            sent.append((request.full_url, request.get_header("User-agent"), timeout))
+            return io.BytesIO(BODY)
+
+        with (
+            tempfile.TemporaryDirectory() as tmp,
+            patch.object(_MOD.urllib.request, "urlopen", urlopen),
+        ):
+            dest = Path(tmp) / "part"
+            _MOD.download(URL, dest, 7)
+            self.assertEqual(_MOD.mismatch(dest, SHA256, len(BODY), full=True), "")
+        self.assertEqual(sent, [(URL, "infinito-nexus-artefact-store", 7)])
+
+
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
