@@ -104,6 +104,16 @@ class TestValues(unittest.TestCase):
                 self.assertIn("relay", str(caught.exception))
                 self.assertNotIn("mail.relay", str(caught.exception))
 
+    def test_a_when_that_stayed_template_text_names_its_field_but_no_value(self):
+        unrendered = "{{ lookup('objstore', 'web-app-odoo', 'enabled') | bool }}"
+        broken = {**APPLICATION, "design": {"enabled": unrendered, "title": "x"}}
+
+        with self.assertRaises(SourceError) as caught:
+            values("general", FORMS, broken, USERS)
+
+        self.assertIn("general.title.when design.enabled", str(caught.exception))
+        self.assertNotIn("lookup", str(caught.exception))
+
     def test_an_optional_field_whose_source_is_false_stays_out(self):
         for title, expected in (("Fixture", {"title": "Fixture"}), (False, {})):
             with self.subTest(title=title):

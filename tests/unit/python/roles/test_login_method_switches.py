@@ -4,9 +4,10 @@ Every render goes through the role's real ``vars/main.yml`` and the real
 ``config`` lookup, with the override in ``applications`` the way an inventory
 sets it, and the deployed roles in ``group_names`` picking the mode.
 
-The merged applications payload skips its eager render of every application:
-that render costs seconds per inventory, and the ``config`` lookup renders the
-one value it returns itself. The module drops the payloads it cached that way.
+The merged applications payload skips its eager render of every application
+beyond ``group_names`` membership: that render costs seconds per inventory, and
+the ``config`` lookup renders the one value it returns itself. The module drops
+the payloads it cached that way.
 """
 
 from __future__ import annotations
@@ -22,6 +23,7 @@ from ansible.template import Templar, trust_as_template
 
 from tests.lint.ansible.services import test_login_methods as lint
 from utils.cache import applications as applications_cache
+from utils.cache.base import _group_membership
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.reset import _reset_rendered_caches_for_tests
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
@@ -35,12 +37,29 @@ LDAP = ("svc-db-openldap",)
 NATIVE = ()
 
 
-def _unrendered(value: Any, **_context: Any) -> Any:
+def _membership_only(
+    value: Any, *, variables: Mapping[str, Any], **_context: Any
+) -> Any:
+    """Resolve only the ``group_names`` membership scalars, as the eager render
+    does first.
+
+    Args:
+        value: the application payload the eager render would template.
+        variables: the scope it would render in.
+    """
+    if isinstance(value, dict):
+        return {
+            key: _membership_only(item, variables=variables)
+            for key, item in value.items()
+        }
+    if isinstance(value, str):
+        member = _group_membership(value, variables)
+        return value if member is None else member
     return value
 
 
 _EAGER_RENDER = mock.patch.object(
-    applications_cache, "_render_with_templar", new=_unrendered
+    applications_cache, "_render_with_templar", new=_membership_only
 )
 
 

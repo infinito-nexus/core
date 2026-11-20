@@ -39,8 +39,10 @@ _PATH = re.compile(r"^[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)+$")
 
 
 class SourceError(KeyError):
-    """A ``source`` or ``when`` path names nothing in the inventory; the
-    message never repeats the path."""
+    """A ``source`` or ``when`` path names nothing in the inventory, whose
+    message never repeats the path, or a ``when`` still holds template text,
+    whose message names the form, the field and the ``when`` path but never
+    its value."""
 
 
 def iter_fields(forms: Mapping[str, Any]) -> Iterator[tuple[str, str, Mapping]]:
@@ -363,11 +365,18 @@ def inventory_path(role: str, source: str) -> str:
     return f"applications.{role}.{source}"
 
 
-def _applies(spec: Mapping, application: Mapping, users: Mapping) -> bool:
+def _applies(
+    form: str, field: str, spec: Mapping, application: Mapping, users: Mapping
+) -> bool:
     if "when" in spec:
-        holds = boolean(
-            resolve(when_path(spec["when"]), application, users), strict=False
-        )
+        path = when_path(spec["when"])
+        condition = resolve(path, application, users)
+        if _holds_template(condition):
+            raise SourceError(
+                f"{form}.{field}.when {path} still holds template text, so the "
+                "applications render failed on it"
+            )
+        holds = boolean(condition, strict=False)
         if holds == spec["when"].startswith(NEGATION):
             return False
     return not (
@@ -446,15 +455,16 @@ def locks(
 
     Raises:
         SourceError: when a ``when``, the ``source`` of an ``optional`` field
-            or a record ``source`` names nothing in the inventory, or the
-            record ids are no list of strings.
+            or a record ``source`` names nothing in the inventory, a ``when``
+            value still holds template text, or the record ids are no list of
+            strings.
     """
     enforced = [
         (form, forms[form]["path"], field, spec)
         for form, field, spec in iter_fields(forms)
         if spec.get("mode") == "enforced"
         and renders_lock(forms[form])
-        and _applies(spec, application, users)
+        and _applies(form, field, spec, application, users)
     ]
     profile: dict[str, list[str]] = {}
     for _form, page, _field, spec in enforced:

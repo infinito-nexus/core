@@ -49,9 +49,9 @@ def values(
         ``false`` are left out.
 
     Raises:
-        SourceError: when a ``source`` or ``when`` names nothing, a source
-            value still holds template text, or a ``map`` holds no entry for
-            the source value.
+        SourceError: when a ``source`` or ``when`` names nothing, a source or
+            ``when`` value still holds template text, or a ``map`` holds no
+            entry for the source value.
     """
     return {
         field: _value(field, spec, application, users)
@@ -59,5 +59,5 @@ def values(
         if name == form
         and not is_sso_source(spec.get("source"))
         and (mode is None or spec.get("mode") == mode)
-        and _applies(spec, application, users)
+        and _applies(name, field, spec, application, users)
     }

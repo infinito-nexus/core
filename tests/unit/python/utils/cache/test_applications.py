@@ -19,6 +19,12 @@ import unittest.mock as mock
 from pathlib import Path
 
 from ansible.parsing.dataloader import DataLoader
+from ansible.parsing.vault import (
+    EncryptedString,
+    VaultLib,
+    VaultSecret,
+    VaultSecretsContext,
+)
 from ansible.template import Templar
 
 from utils.cache import applications as cache_apps
@@ -576,6 +582,60 @@ class TestNestedLookupsReuseTheUnrenderedView(unittest.TestCase):
             self.assertEqual(
                 rendered["web-app-foo"]["services"]["foo"]["image"], "rendered"
             )
+
+    def test_a_nested_lookup_reads_an_inventory_vault_value_as_plaintext(self):
+        secrets = [("default", VaultSecret(b"unit-test-vault-password"))]
+        ciphertext = VaultLib(secrets).encrypt("a/b+c=d").decode()
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_roles(Path(tmp))
+            _write(
+                roles / "web-app-foo" / ROLE_FILE_META_SERVICES,
+                """
+                foo:
+                  image: "pre-{{ nested }}"
+                """,
+            )
+            variables = {
+                "applications": {
+                    "web-app-foo": {
+                        "secrets": {
+                            "credentials": {
+                                "key": EncryptedString(ciphertext=ciphertext)
+                            }
+                        }
+                    }
+                }
+            }
+            nested_views = []
+
+            class _NestingTemplar:
+                def __init__(self) -> None:
+                    self.available_variables: dict = {}
+
+                def template(self, value, **_kwargs):
+                    nested_views.extend(
+                        cache_apps.get_merged_applications(
+                            variables=scope, roles_dir=roles, templar=self
+                        )
+                        for scope in (
+                            self.available_variables,
+                            {**self.available_variables, "DOMAIN_PRIMARY": "other"},
+                        )
+                    )
+                    return "rendered"
+
+            with mock.patch.object(
+                VaultSecretsContext, "_current", VaultSecretsContext(secrets)
+            ):
+                cache_apps.get_merged_applications(
+                    variables=variables, roles_dir=roles, templar=_NestingTemplar()
+                )
+
+            self.assertGreaterEqual(len(nested_views), 2)
+            for view in nested_views:
+                key = view["web-app-foo"]["secrets"]["credentials"]["key"]
+                self.assertIsInstance(key, str)
+                self.assertEqual("a/b+c=d", key)
 
 
 class TestRecursiveMetaWalk(unittest.TestCase):

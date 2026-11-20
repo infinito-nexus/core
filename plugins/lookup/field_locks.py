@@ -61,17 +61,20 @@ class LookupModule(LookupBase):
         managed = application.get("forms")
         if not isinstance(managed, Mapping) or not managed:
             managed = {}
-        entries = (
-            forms.locks(
-                application_id,
-                managed,
-                application,
-                self._spot("users", [], variables, **kwargs),
-                forms.role_credentials(ROLES_DIR / application_id),
+        try:
+            entries = (
+                forms.locks(
+                    application_id,
+                    managed,
+                    application,
+                    self._spot("users", [], variables, **kwargs),
+                    forms.role_credentials(ROLES_DIR / application_id),
+                )
+                if managed
+                else []
             )
-            if managed
-            else []
-        )
+        except forms.SourceError as exc:
+            raise AnsibleError(f"field_locks: {application_id}: {exc}") from exc
         return [
             {
                 "locks": entries,

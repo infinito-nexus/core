@@ -6,6 +6,7 @@ The ``applications`` and ``users`` SPOT lookups are stubbed; the role's
 
 from __future__ import annotations
 
+import copy
 import tempfile
 import unittest
 import unittest.mock as mock
@@ -142,6 +143,24 @@ class TestFieldLocks(unittest.TestCase):
         )["locks"]
 
         self.assertTrue(entries[0]["secret"])
+
+    def test_a_when_that_stayed_template_text_fails_naming_the_application(self):
+        application = copy.deepcopy(_application(profile=False, managed=True))
+        application["services"]["mail"] = {
+            "relay": "relay.example.test",
+            "enabled": "{{ lookup('email', APP) }}",
+        }
+        application["forms"]["general"]["fields"]["relay"]["when"] = (
+            "services.mail.enabled"
+        )
+
+        with self.assertRaises(AnsibleError) as caught:
+            self._run(application)
+
+        message = str(caught.exception)
+        self.assertIn(f"field_locks: {APP}", message)
+        self.assertIn("general.relay.when services.mail.enabled", message)
+        self.assertNotIn("lookup", message)
 
     def test_one_application_id_is_required(self):
         with self.assertRaises(AnsibleError):

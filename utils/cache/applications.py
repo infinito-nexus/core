@@ -26,6 +26,7 @@ from .addons import META_ADDONS_DIR, load_addons_dir
 from .base import (
     _RENDER_GUARD,
     _cache_key,
+    _decrypt_ansible_encrypted_strings,
     _deep_merge,
     _render_with_templar,
     _resolve_override_mapping,
@@ -382,8 +383,9 @@ def get_merged_applications(
     """Return the applications payload for *variables*, cached per key.
 
     A re-entrant call returns the unrendered payload, memoised on the render
-    guard. ``forms`` and ``volumes`` stay unrendered. Each application renders
-    with ``application_id`` bound to its own id.
+    guard with every vault value decrypted, so a nested lookup reads the same
+    plaintext credential. ``forms`` and ``volumes`` stay unrendered; each
+    application renders with ``application_id`` bound to its own id.
     """
     from .users import get_merged_users
 
@@ -415,10 +417,12 @@ def get_merged_applications(
         payloads = getattr(_RENDER_GUARD, "nested_payloads", None)
         if payloads is None:
             payloads = _RENDER_GUARD.nested_payloads = {}
-        payloads[cache_key] = merged
-        return merged
+        payloads[cache_key] = _decrypt_ansible_encrypted_strings(merged)
+        return payloads[cache_key]
 
-    _RENDER_GUARD.nested_payloads = {cache_key: copy.deepcopy(merged)}
+    _RENDER_GUARD.nested_payloads = {
+        cache_key: _decrypt_ansible_encrypted_strings(merged)
+    }
 
     for app_cfg in merged.values():
         if isinstance(app_cfg, dict):
