@@ -17,6 +17,7 @@ export INFINITO_PARENT_IMAGE
 : "${IMAGE_DIGEST_DIR:?Missing IMAGE_DIGEST_DIR}"
 : "${GITHUB_REPOSITORY:?Missing GITHUB_REPOSITORY}"
 : "${USE_NIX_TOKEN:?Missing USE_NIX_TOKEN}"
+: "${EXPORT_BUILD_CACHE:?Missing EXPORT_BUILD_CACHE}"
 : "${INFINITO_PARENT_IMAGE:?Missing INFINITO_PARENT_IMAGE; source scripts/meta/env/load.sh}"
 : "${INFINITO_SRC_DIR:?Missing INFINITO_SRC_DIR; source scripts/meta/env/load.sh}"
 : "${INFINITO_VENV_DIR:?Missing INFINITO_VENV_DIR; source scripts/meta/env/load.sh}"
@@ -39,6 +40,13 @@ else
 	echo "pull_request_target on fork detected: skipping NIX_CONFIG token build-arg."
 fi
 
+cache_to_arg=()
+if [[ "${EXPORT_BUILD_CACHE}" == "true" ]]; then
+	cache_to_arg=(--cache-to "type=registry,mode=max,ref=${cache_ref}")
+else
+	echo "Fork-sourced build: importing ${cache_ref} without exporting to it."
+fi
+
 while true; do
 	echo "=== Build & push attempt ${attempt}/${max_attempts} ==="
 
@@ -56,7 +64,7 @@ while true; do
 		--build-arg "INFINITO_DOCKER_CLI_INSTALL_SCRIPT=${INFINITO_DOCKER_CLI_INSTALL_SCRIPT:?source scripts/meta/env/load.sh}" \
 		"${nix_arg[@]}" \
 		--cache-from "type=registry,ref=${cache_ref}" \
-		--cache-to "type=registry,mode=max,ref=${cache_ref}" \
+		"${cache_to_arg[@]}" \
 		"${BUILD_CONTEXT_DIR}"; then
 		echo "Build & push succeeded on attempt ${attempt}/${max_attempts}."
 		break

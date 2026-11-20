@@ -36,7 +36,7 @@ meta:
     swarm:
       enabled: true
   image: ghcr.io/infinito-nexus/meta
-  version: v2.0.4
+  version: 2.1.0
   name: meta
   min_storage: 1040MB
   ports:

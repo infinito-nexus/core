@@ -217,9 +217,11 @@ require_tool mountpoint util-linux || decline "mountpoint is unavailable"
 case "${FSTYPE}" in
 ext4)
 	require_tool mkfs.ext4 e2fsprogs || decline "mkfs.ext4 is unavailable"
+	MOUNT_OPTIONS=discard
 	;;
 btrfs)
 	require_tool mkfs.btrfs btrfs-progs || decline "btrfs-progs is unavailable"
+	MOUNT_OPTIONS=discard=async
 	;;
 zfs)
 	require_tool zpool zfsutils-linux zfs zfs-utils ||
@@ -279,7 +281,7 @@ while [ -z "${LOOP}" ] && [ "${attempt}" -lt 16 ]; do
 	if [ -n "${candidate}" ] && [ ! -b "${candidate}" ]; then
 		mknod "${candidate}" b 7 "${candidate#/dev/loop}" 2>/dev/null || candidate=""
 	fi
-	if attached="$(losetup --find --show "${IMAGE}" 2>/dev/null)"; then
+	if attached="$(losetup --direct-io=on --find --show "${IMAGE}" 2>/dev/null)"; then
 		LOOP="${attached}"
 	fi
 done
@@ -295,7 +297,7 @@ if [ "${FSTYPE}" = zfs ]; then
 	zfs create -o mountpoint="${MOUNT}/docker" "${POOL}/docker"
 else
 	"mkfs.${FSTYPE}" -q "${LOOP}"
-	mount -t "${FSTYPE}" "${LOOP}" "${MOUNT}"
+	mount -t "${FSTYPE}" -o "${MOUNT_OPTIONS}" "${LOOP}" "${MOUNT}"
 	arm_autoclear "${LOOP}" "${MOUNT}"
 	if [ "${FSTYPE}" = btrfs ]; then
 		btrfs subvolume create "${MOUNT}/docker" >/dev/null
