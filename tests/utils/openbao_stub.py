@@ -123,6 +123,7 @@ class OpenBaoStub:
             )
         )
         context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        context.minimum_version = ssl.TLSVersion.TLSv1_2
         context.load_cert_chain(str(scratch / "leaf.pem"), str(scratch / "leaf.key"))
         stub = self
 

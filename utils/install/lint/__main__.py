@@ -226,7 +226,7 @@ def _exclusive(repo_root: Path):
     """
     lock = repo_root / _LOCK
     lock.parent.mkdir(parents=True, exist_ok=True)
-    handle = os.open(lock, os.O_RDONLY | os.O_CREAT, 0o666)
+    handle = os.open(lock, os.O_RDONLY | os.O_CREAT, 0o644)
     try:
         fcntl.flock(handle, fcntl.LOCK_EX)
         yield

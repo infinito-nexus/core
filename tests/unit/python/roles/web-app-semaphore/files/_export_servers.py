@@ -61,6 +61,7 @@ def server_context(scratch: Path, ca_key: Any, ca_cert: Any) -> ssl.SSLContext:
         )
     )
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.minimum_version = ssl.TLSVersion.TLSv1_2
     context.load_cert_chain(str(scratch / "leaf.pem"), str(scratch / "leaf.key"))
     return context
 

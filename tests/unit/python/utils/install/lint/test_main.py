@@ -6,6 +6,7 @@ import contextlib
 import functools
 import os
 import re
+import stat
 import subprocess
 import sys
 import threading
@@ -305,6 +306,19 @@ class TestConcurrentRuns(unittest.TestCase):
         self.assertEqual(codes, [0] * _RUNS)
         self.assertEqual(installer.most, 1)
         self.assertEqual(installer.calls, _RUNS)
+
+    def test_the_lock_is_readable_but_never_writable_by_other_uids(self) -> None:
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            previous = os.umask(0)
+            try:
+                with cli._exclusive(root):
+                    pass
+            finally:
+                os.umask(previous)
+            mode = stat.S_IMODE((root / cli._LOCK).stat().st_mode)
+        self.assertEqual(mode & 0o022, 0)
+        self.assertEqual(mode & 0o044, 0o044)
 
 
 def _recipe(makefile: str, target: str) -> list[str]:

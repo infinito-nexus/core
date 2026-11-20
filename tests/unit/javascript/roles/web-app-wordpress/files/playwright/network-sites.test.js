@@ -1,12 +1,19 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const path = require("node:path");
+const Module = require("node:module");
+
+const loadModule = Module._load;
+Module._load = function (request, ...rest) {
+  return request === "@playwright/test" ? {} : loadModule.call(this, request, ...rest);
+};
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../../../../..");
 const { networkSites, networkTenants, canonicalMainOrigin } = require(
   path.join(PROJECT_ROOT, "roles/web-app-wordpress/files/playwright/network-sites.js"),
 );
 const { DOMAIN } = require(path.join(PROJECT_ROOT, "tests/unit/javascript/utils/domain.js"));
+const { escapeRegex } = require(path.join(PROJECT_ROOT, "roles/test-e2e-playwright/files/personas/utils/dom.js"));
 
 const NODE = "b5abfs7uwr23x6vbjxqjatyscpmkm6qkmkla7eyapdi4zpwtrz6o4nqd.onion";
 const LABELS = ["blog", "biberblog", "biber.blog"];
@@ -52,7 +59,7 @@ test("both passes reach the main site on the canonical network, where the own si
 
 test("a network site without a per-site group fails loudly", () => {
   const env = { networkBaseUrls: BASE_URLS, rbacGroupMapJson: groupMap(SITES.slice(0, 2)), canonicalDomain: SITES[0] };
-  assert.throws(() => networkTenants(env), new RegExp(`no per-site group for ${SITES[2].replace(/\./g, "\\.")}`));
+  assert.throws(() => networkTenants(env), new RegExp(`no per-site group for ${escapeRegex(SITES[2])}`));
 });
 
 test("a canonical domain outside the network fails loudly", () => {

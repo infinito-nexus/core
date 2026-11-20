@@ -90,7 +90,7 @@ class TestInfraSubnetIsolated(unittest.TestCase):
     def test_no_network_the_repository_declares_overlaps_it(self) -> None:
         texts = list(_repository_texts(PROJECT_ROOT))
         names = {name for name, _text in texts}
-        self.assertTrue({"default.env", "compose/infra.yml"} <= names)
+        self.assertLessEqual({"default.env", "compose/infra.yml"}, names)
         self.assertTrue(collisions(IPv4Network("172.30.0.0/24"), texts))
         self.assertEqual(collisions(self.subnet, texts), [])
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 import shutil
 import subprocess
+import sys
 import unittest
 from functools import cache
 from pathlib import Path
@@ -36,7 +37,7 @@ _LOOP_OR_PIPE_BEFORE = re.compile(
     r"(?:\b(?:while|until)[ \t]+(?:![ \t]+)?|(?<!\|)\|[ \t]*)"
     r"(?:[A-Za-z_]\w*=\S*[ \t]+)*$"
 )
-_REDIRECT_AFTER = re.compile(r"(?:[ \t]*\d*>&?\S+)*[ \t]*\d*<")
+_REDIRECT_AFTER = re.compile(r"(?:(?:[ \t]+\d*)?>>?[^\s<>]++)*[ \t]*\d*<")
 
 _MAY_BE_EMPTY: dict[tuple[str, str], str] = {
     ("roles/web-app-espocrm/tasks/01_patch_config.yml", "CONFIG_VALUE"): (
@@ -252,8 +253,26 @@ class TestUnguardedReads(unittest.TestCase):
             'read -r first rest <<< "$value"\n'
             "IFS= read -r from_file < /etc/hostname\n"
             'read -r comm 2>/dev/null <"/proc/$pid/comm" || return 1\n'
+            'read -r appended >>/var/log/x.log 2>&1 <"$file"\n'
+            'read -r chained>/dev/null>&2<"$file"\n'
         )
         self.assertEqual(unguarded_reads(script, None), [])
+
+    def test_a_long_redirection_tail_is_judged_in_linear_time(self) -> None:
+        for tail in (">" + "!>" * 64, " 1>11" * 64, ">&1" * 64):
+            with self.subTest(tail=tail[:8]):
+                judged = subprocess.run(
+                    [
+                        sys.executable,
+                        "-c",
+                        "import re, sys; re.compile(sys.argv[1]).match(sys.argv[2])",
+                        _REDIRECT_AFTER.pattern,
+                        tail,
+                    ],
+                    check=False,
+                    timeout=10,
+                )
+                self.assertEqual(judged.returncode, 0)
 
     def test_the_guarded_forms_pass(self) -> None:
         folded = (

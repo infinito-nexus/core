@@ -50,11 +50,6 @@ _RETRY_LOG = (
     f"ok: [localhost]\n{_ROLE_LOG}"
 )
 _MARKER = f"TASK [{_ROLE} :"
-_JUNIT = (
-    '<testsuite><testcase name="admin signs in">'
-    '<failure message="expected 200, got 500">trace</failure>'
-    "</testcase></testsuite>"
-)
 _ROUTINES = {
     "compose": {
         "module": compose,

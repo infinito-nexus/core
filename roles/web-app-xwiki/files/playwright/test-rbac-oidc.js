@@ -3,6 +3,7 @@ const { resolveTimeout, isSplitRealmOidc } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const {
   decodeDotenvQuotedValue,
+  escapeRegex,
   gotoOnion,
   keycloakAdminAddUserToGroup,
   keycloakAdminSetUserAttributes,
@@ -97,7 +98,7 @@ test("biber: administrator group membership maps onto XWikiAdminGroup at OIDC lo
         await adminPageStatus(page),
         `${env.biberUsername} holds ${env.administratorGroupPath}, so ${ADMIN_PATH} MUST open after the OIDC login`,
       ).toBeLessThan(400);
-      await expect(page).toHaveURL(new RegExp(ADMIN_PATH.replace(/\//g, "\\/")));
+      await expect(page).toHaveURL(new RegExp(escapeRegex(ADMIN_PATH)));
     });
 
     if (joined) {

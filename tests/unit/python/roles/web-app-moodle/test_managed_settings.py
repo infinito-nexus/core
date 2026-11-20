@@ -332,9 +332,9 @@ class TestForcedSettings(unittest.TestCase):
         for tasks_file, form, _sink_name, _hidden in CASES:
             with self.subTest(form=form):
                 task = _task(tasks_file, f"Converge the {form}")
-                self.assertTrue(
-                    CREDENTIALS[form]
-                    <= set(_render(task["vars"]["moodle_plugin_form_hidden"]))
+                self.assertLessEqual(
+                    CREDENTIALS[form],
+                    set(_render(task["vars"]["moodle_plugin_form_hidden"])),
                 )
 
     def test_a_plugin_is_forced_only_while_its_service_is_on(self):

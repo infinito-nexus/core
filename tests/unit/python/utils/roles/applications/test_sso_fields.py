@@ -51,7 +51,7 @@ class TestAttributes(unittest.TestCase):
     ):
         named = sso_fields.attributes()
 
-        self.assertTrue({"USERNAME", "EMAIL", "NAME", "LOCALE"} <= set(named))
+        self.assertLessEqual({"USERNAME", "EMAIL", "NAME", "LOCALE"}, set(named))
         self.assertEqual("email", named["EMAIL"])
         self.assertNotIn("email", named)
 

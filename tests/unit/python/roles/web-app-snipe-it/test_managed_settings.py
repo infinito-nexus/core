@@ -194,7 +194,7 @@ class TestFieldMap(unittest.TestCase):
         columns = load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN))[
             "SNIPE_IT_LDAP_PROFILE_COLUMNS"
         ]
-        self.assertTrue(set(columns) <= set(_forms()["ldap"]["fields"]))
+        self.assertLessEqual(set(columns), set(_forms()["ldap"]["fields"]))
 
     def test_the_field_map_holds_exactly_the_profile_columns(self):
         columns = load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN))[
