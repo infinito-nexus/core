@@ -6,4 +6,4 @@ status_codes:
     - 403
 vhosts:
   default:
-    extra_template: nginx/metrics_deny.conf.j2
+    extra_template: nginx/vhost_extra.conf.j2

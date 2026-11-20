@@ -1,0 +1,7 @@
+{% include 'roles/web-app-jenkins/templates/nginx/metrics_deny.conf.j2' %}
+{% if JENKINS_OIDC_ENABLED | bool %}
+
+{% with sso_proxy_enabled = false, proxy_lua_enabled = false, location = '= /login', webserver_location_extra_configuration = 'return 302 /securityRealm/commenceLogin$is_args$args;' %}
+{% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
+{% endwith %}
+{% endif %}

@@ -289,7 +289,9 @@ test("rbac: membership in the developer group lets biber create and build a job 
 
       await gotoOnion(page, `${baseUrl}/view/all/newJob`, { waitUntil: "domcontentloaded" });
       await page.locator("input#name").fill(jobName);
-      await page.locator("li.hudson_model_FreeStyleProject").first().click();
+      const freestyle = page.locator("input[name='mode'][value='hudson.model.FreeStyleProject']");
+      await page.locator("label").filter({ has: freestyle }).click();
+      await expect(freestyle, "the freestyle project type must be the selected item type").toBeChecked();
       await page.locator("#ok-button").click({ timeout: resolveTimeout(30_000) });
       await expect
         .poll(() => page.url(), {
