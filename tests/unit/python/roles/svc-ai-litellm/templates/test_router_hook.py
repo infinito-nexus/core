@@ -31,6 +31,7 @@ from . import PROJECT_ROOT
 
 TEMPLATE = PROJECT_ROOT / "roles/svc-ai-litellm/templates/router_hook.py.j2"
 ALIAS = "auto"
+RAW_MODEL_NAME_KEY = "_complexity_router_return_raw_model_name"
 TODAY = "2026-09-24"
 S1_URL = "http://s1:8000"
 
@@ -86,6 +87,7 @@ def _stub_litellm():
     if "litellm" in sys.modules:
         return
     package = types.ModuleType("litellm")
+    constants = types.ModuleType("litellm.constants")
     integrations = types.ModuleType("litellm.integrations")
     custom_logger = types.ModuleType("litellm.integrations.custom_logger")
 
@@ -93,8 +95,10 @@ def _stub_litellm():
         pass
 
     custom_logger.CustomLogger = CustomLogger
+    constants.RETURN_RAW_MODEL_NAME_METADATA_KEY = RAW_MODEL_NAME_KEY
     package.model_cost = {}
     sys.modules["litellm"] = package
+    sys.modules["litellm.constants"] = constants
     sys.modules["litellm.integrations"] = integrations
     sys.modules["litellm.integrations.custom_logger"] = custom_logger
 
@@ -580,6 +584,35 @@ class TestLoudFailure(HookCase, unittest.TestCase):
             {"model": ALIAS, "messages": [{"content": "hi"}]},
         )
         self.assertEqual(verdict["model"], "big")
+
+    def test_a_routed_answer_keeps_the_name_of_the_route_it_came_from(self) -> None:
+        verdict = self.route(
+            [local("big", context=99999)],
+            {
+                "model": ALIAS,
+                "messages": [{"content": "hi"}],
+                "metadata": {"user": "u"},
+            },
+        )
+        self.assertEqual(verdict["metadata"], {"user": "u", RAW_MODEL_NAME_KEY: True})
+
+    def test_the_flag_stays_out_of_the_metadata_a_provider_receives(self) -> None:
+        verdict = self.route(
+            [local("big", context=99999)],
+            {
+                "model": ALIAS,
+                "messages": [{"content": "hi"}],
+                "metadata": {"user": "u"},
+                "litellm_metadata": {},
+            },
+        )
+        self.assertEqual(verdict["litellm_metadata"], {RAW_MODEL_NAME_KEY: True})
+        self.assertEqual(verdict["metadata"], {"user": "u"})
+
+    def test_a_rejected_request_carries_no_flag(self) -> None:
+        data = {"model": ALIAS, "messages": [{"content": "x" * 9000}], "metadata": {}}
+        self.route([local("tiny", context=1)], data)
+        self.assertNotIn(RAW_MODEL_NAME_KEY, data["metadata"])
 
 
 class TestConventionalStrategy(HookCase, unittest.TestCase):

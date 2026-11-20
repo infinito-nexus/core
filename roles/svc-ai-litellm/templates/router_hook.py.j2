@@ -34,6 +34,7 @@ import urllib.request
 from datetime import date
 
 import litellm
+from litellm.constants import RETURN_RAW_MODEL_NAME_METADATA_KEY
 from litellm.integrations.custom_logger import CustomLogger
 from infinito_decider import Decider, History, Sampler, record_of
 
@@ -529,6 +530,13 @@ def decide(candidates, need, text="", weights=None, strategy=None, tally=None):
     return decide_weighted(candidates, ROUTER_WEIGHTS if weights is None else weights)
 
 
+def keep_served_model(data):
+    bucket = "litellm_metadata" if isinstance(data.get("litellm_metadata"), dict) else "metadata"
+    if not isinstance(data.get(bucket), dict):
+        data[bucket] = {}
+    data[bucket][RETURN_RAW_MODEL_NAME_METADATA_KEY] = True
+
+
 async def collect(router, data, candidates, width):
     """Ask the first *width* candidates the same question.
 
@@ -614,6 +622,7 @@ class SystemOneRouter(CustomLogger):
                 f"Answering from a substitute decider would make the alias mean "
                 f"something the caller did not ask for"
             )
+        keep_served_model(data)
         if SAMPLE_ENABLED and len(candidates) > 1 and self._sampler.due():
             await self._compare(llm_router, data, candidates, text, request_class)
         return data
