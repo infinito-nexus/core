@@ -13,7 +13,8 @@ Two call forms:
     - ``path``           the legacy ``path:`` field, ``''`` if absent
     - ``type``           one of ``volume`` | ``bind`` | ``config`` | ``secret``
                          | ``tmpfs``, defaults to ``volume``
-    - ``source``         for binds / configs / secrets, ``''`` if absent
+    - ``source``         for binds / configs / secrets, ``''`` if absent,
+                         rendered in the caller's templating context
     - ``nfs``            NFS opt-in (bool or dict), ``None`` if absent
     - ``mounts``         the raw mounts list, ``[]`` if absent
     - ``targets``        ``{service: container path}`` built from ``mounts``
@@ -47,6 +48,7 @@ from ansible.plugins.lookup import LookupBase
 
 # nocheck: lookup-cache-import
 from utils.cache.applications import get_application_defaults, get_canonical_volumes
+from utils.templating.ansible import _trust_as_template
 
 
 class LookupModule(LookupBase):
@@ -98,7 +100,7 @@ class LookupModule(LookupBase):
             "docker_name": docker_name,
             "path": entry.get("path", ""),
             "type": entry.get("type", "volume"),
-            "source": entry.get("source", ""),
+            "source": self._render_source(application_id, name, entry),
             "nfs": entry.get("nfs", None),
             "mounts": mounts,
             "targets": _targets(mounts),
@@ -108,6 +110,31 @@ class LookupModule(LookupBase):
             resolved["target"] = next(iter(distinct))
         resolved.update({key: entry[key] for key in ("uid", "gid") if key in entry})
         return [resolved]
+
+    def _render_source(
+        self, application_id: str, name: str, entry: dict[str, Any]
+    ) -> str:
+        """Args:
+            application_id: the role the entry belongs to.
+            name: the entry's semantic name.
+            entry: the raw ``meta/volumes.yml`` entry.
+
+        Returns:
+            The entry's ``source``, rendered with the caller's templar when it
+            holds Jinja, since Ansible never renders the Jinja inside a lookup
+            result.
+        """
+        source = str(entry.get("source", ""))
+        templar = getattr(self, "_templar", None)
+        if templar is None or not ("{{" in source or "{%" in source):
+            return source
+        try:
+            return str(templar.template(_trust_as_template(source)))
+        except AnsibleError as exc:
+            raise AnsibleError(
+                f"volume lookup: cannot render the source of {name!r} of "
+                f"{application_id!r}: {exc}"
+            ) from exc
 
 
 def _targets(mounts: Any) -> dict[str, str]:
