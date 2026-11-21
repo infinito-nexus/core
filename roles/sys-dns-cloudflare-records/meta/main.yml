@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments
+  description: Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, NS, TXT, SRV, DS) across apps and environments
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

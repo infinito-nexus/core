@@ -3,3 +3,11 @@
   ansible.builtin.debug:
     msg: "{{ SEMAPHORE_DNS_LIVE.message }}"
   run_once: true
+
+- name: "🌐 Delegate the knot subzone from its parent zone on Cloudflare"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/flavors/dns/knot/delegate.yml"
+  when:
+    - IS_STACK_HOST | bool
+    - DNS_PROVIDER == 'cloudflare'
+    - groups.get('svc-dns-knot', []) | length > 0
+    - hostvars[groups['svc-dns-knot'] | first].run_once_svc_dns_knot is defined

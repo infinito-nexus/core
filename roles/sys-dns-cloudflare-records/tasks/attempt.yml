@@ -11,5 +11,5 @@
         file: judge.yml
       vars:
         _cf_judged: >-
-          {{ _cf_a.results + _cf_cname.results
+          {{ _cf_a.results + _cf_cname.results + _cf_ds.results
              + (_cf_srv.results | selectattr('item.ignore_errors', 'defined') | rejectattr('item.ignore_errors') | list) }}

@@ -121,6 +121,40 @@ def srv_rr(service, port, priority=20, target="mail.example.org", **extra):
     )
 
 
+SUBZONE = f"ws.{ZONE}"
+DIGEST = "1F987CC6583E92DF0890718C42A5D1F2B3C4D5E6F708192A3B4C5D6E7F801234"
+OLD_JUDGED_TYPES = ("A", "AAAA", "CNAME", "MX", "TXT", "SRV")
+
+
+def ns(target, **extra):
+    return {"type": "NS", "zone": ZONE, "name": "ws", "value": target, **extra}
+
+
+def ds(**extra):
+    return {
+        "type": "DS",
+        "zone": ZONE,
+        "name": "ws",
+        "key_tag": 2371,
+        "algorithm": 13,
+        "hash_type": 2,
+        "value": DIGEST,
+        "solo": True,
+        **extra,
+    }
+
+
+def ds_rr(**data):
+    fields = {
+        "key_tag": 2371,
+        "algorithm": 13,
+        "digest_type": 2,
+        "digest": DIGEST.lower(),
+        **data,
+    }
+    return rr("DS", SUBZONE, " ".join(map(str, fields.values())), data=fields)
+
+
 class TestCloudflareRecordsConverged(unittest.TestCase):
     def test_converged_records_cost_one_zone_read_whatever_their_number(self):
         records = [a(f"*.app{i}") for i in range(20)] + [
@@ -537,6 +571,56 @@ class TestCloudflareRecordsConverged(unittest.TestCase):
         )
         self.assertEqual(run_split([record], _FakeCloudflare([[quoted, other]]))[0], [])
 
+    def test_ns_records_of_one_name_are_judged_each_by_its_target(self):
+        records = [ns("NS1.ws.Example.org."), ns("ns2.ws.example.org")]
+        zone = [
+            rr("NS", SUBZONE, "ns1.ws.example.org"),
+            rr("NS", SUBZONE, "ns2.ws.example.org", id="ns2"),
+        ]
+
+        self.assertEqual(run_split(records, _FakeCloudflare([zone]))[0], [])
+        self.assertEqual(
+            run_split(records, _FakeCloudflare([zone[:1]]))[0], records[1:]
+        )
+
+    def test_ds_is_compared_by_its_data_with_the_digest_in_any_case(self):
+        record = ds()
+        drifts = {
+            "key tag": [ds_rr(key_tag=40002)],
+            "algorithm": [ds_rr(algorithm=8)],
+            "digest type": [ds_rr(digest_type=1)],
+            "digest": [ds_rr(digest="00" * 32)],
+            "a second DS beside a solo one": [ds_rr(), ds_rr(key_tag=40002)],
+            "missing": [],
+        }
+
+        self.assertEqual(run_split([record], _FakeCloudflare([[ds_rr()]]))[0], [])
+        for case, zone in drifts.items():
+            with self.subTest(case=case):
+                self.assertEqual(
+                    run_split([record], _FakeCloudflare([zone]))[0], [record]
+                )
+
+    def test_absent_or_incomplete_ns_and_ds_stay_pending_without_a_read(self):
+        records = [
+            ns("ns1.ws.example.org", state="absent"),
+            ds(state="absent"),
+            ds(key_tag="tag"),
+            {k: v for k, v in ds().items() if k != "hash_type"},
+        ]
+        cloudflare = _FakeCloudflare([[]])
+
+        self.assertEqual(run_split(records, cloudflare)[0], records)
+        self.assertEqual(cloudflare.calls, [])
+
+    def test_negative_control_the_old_check_judged_no_ns_or_ds(self):
+        records = [ns("ns1.ws.example.org"), ds()]
+        zone = [rr("NS", SUBZONE, "ns1.ws.example.org"), ds_rr()]
+
+        with patch.object(plugin, "JUDGED_TYPES", OLD_JUDGED_TYPES):
+            self.assertEqual(run_split(records, _FakeCloudflare([zone]))[0], records)
+        self.assertEqual(run_split(records, _FakeCloudflare([zone]))[0], [])
+
 
 class _FakeTask:
     def __init__(self, args):
@@ -599,17 +683,18 @@ class TestApplyDefaultsMatchThePlugin(unittest.TestCase):
     def test_the_defaults_apply_hands_the_module_are_the_ones_the_plugin_predicts(self):
         tasks = load_yaml_any(str(ROLE / "tasks" / "apply.yml"))
         a_args = _task(tasks, "📌 Apply A/AAAA")["community.general.cloudflare_dns"]
-        cname_args = _task(tasks, "📌 Apply CNAME/MX/TXT")[
+        cname_args = _task(tasks, "📌 Apply CNAME/MX/NS/TXT")[
             "community.general.cloudflare_dns"
         ]
         srv_args = _task(tasks, "📌 Apply SRV")["community.general.cloudflare_dns"]
+        ds_args = _task(tasks, "📌 Apply DS")["community.general.cloudflare_dns"]
 
         def default(text, field):
             match = re.search(rf"item\.{field} \| default\(([^)]*)\)", text)
             self.assertIsNotNone(match, f"{field} default not found in {text!r}")
             return load_yaml_str(match.group(1))
 
-        for args in (a_args, cname_args, srv_args):
+        for args in (a_args, cname_args, srv_args, ds_args):
             self.assertEqual(default(args["ttl"], "ttl"), plugin.APPLY_TTL)
             self.assertEqual(default(args["state"], "state"), plugin.APPLY_STATE)
             self.assertEqual(default(args["solo"], "solo"), plugin.APPLY_SOLO)
@@ -625,6 +710,11 @@ class TestApplyDefaultsMatchThePlugin(unittest.TestCase):
         self.assertEqual(a_args["content"], "{{ item.content }}")
         self.assertEqual(cname_args["value"], "{{ item.value }}")
         self.assertEqual(srv_args["value"], "{{ item.value }}")
+        self.assertNotIn("proxied", ds_args)
+        self.assertNotIn("priority", ds_args)
+        self.assertEqual(ds_args["value"], "{{ item.value }}")
+        for field in plugin.DS_DATA.values():
+            self.assertEqual(ds_args[field], f"{{{{ item.{field} }}}}")
 
     def test_the_first_attempt_queues_only_what_the_plugin_left_pending(self):
         tasks = load_yaml_any(str(ROLE / ROLE_FILE_TASKS_MAIN))

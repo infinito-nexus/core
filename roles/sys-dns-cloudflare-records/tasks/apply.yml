@@ -14,7 +14,7 @@
     proxied: "{{ item.proxied | default(false) }}"
     ttl: "{{ item.ttl | default(1) }}"
     state: "{{ item.state | default('present') }}"
-    solo: "{{ item.solo | default(false) }}"
+    solo: "{{ item.solo | default(false) and item.state | default('present') == 'present' }}"
     timeout: "{{ lookup('timeout', cloudflare_request_timeout | int) | int }}"
   loop: "{{ _cf_pending | selectattr('type','in',['A','AAAA']) | list }}"
   loop_control: { label: "{{ item.type }} {{ item.name }} -> {{ item.content }}" }
@@ -26,7 +26,7 @@
   register: _cf_a
   changed_when: false
 
-- name: 📌 Apply CNAME/MX/TXT
+- name: 📌 Apply CNAME/MX/NS/TXT
   community.general.cloudflare_dns:
     api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
     zone: "{{ item.zone }}"
@@ -36,9 +36,9 @@
     ttl: "{{ item.ttl | default(1) }}"
     priority: "{{ (item.type == 'MX') | ternary(item.priority | default(10), omit) }}"
     state: "{{ item.state | default('present') }}"
-    solo: "{{ item.solo | default(false) }}"
+    solo: "{{ item.solo | default(false) and item.state | default('present') == 'present' }}"
     timeout: "{{ lookup('timeout', cloudflare_request_timeout | int) | int }}"
-  loop: "{{ _cf_pending | selectattr('type','in',['CNAME','MX','TXT']) | list }}"
+  loop: "{{ _cf_pending | selectattr('type','in',['CNAME','MX','NS','TXT']) | list }}"
   loop_control: { label: "{{ item.type }} {{ item.name }} -> {{ item.value }}" }
   ignore_errors: true
   # rationale: async; judge.yml reaps and judges every job of this attempt before the next attempt or the rest of the play
@@ -46,6 +46,30 @@
   poll: 0
   no_log: "{{ cloudflare_no_log | bool }}"
   register: _cf_cname
+  changed_when: false
+
+- name: 📌 Apply DS
+  community.general.cloudflare_dns:
+    api_token: "{{ lookup('api', 'cloudflare.api_token') }}"
+    zone: "{{ item.zone }}"
+    type: DS
+    name: "{{ item.name }}"
+    key_tag: "{{ item.key_tag }}"
+    algorithm: "{{ item.algorithm }}"
+    hash_type: "{{ item.hash_type }}"
+    value: "{{ item.value }}"
+    ttl: "{{ item.ttl | default(1) }}"
+    state: "{{ item.state | default('present') }}"
+    solo: "{{ item.solo | default(false) and item.state | default('present') == 'present' }}"
+    timeout: "{{ lookup('timeout', cloudflare_request_timeout | int) | int }}"
+  loop: "{{ _cf_pending | selectattr('type','equalto','DS') | list }}"
+  loop_control: { label: "DS {{ item.name }} -> {{ item.key_tag }}" }
+  ignore_errors: true
+  # rationale: async; judge.yml reaps and judges every job of this attempt before the next attempt or the rest of the play
+  async: "{{ lookup('timeout', cloudflare_attempt_timeout | int) | int }}"
+  poll: 0
+  no_log: "{{ cloudflare_no_log | bool }}"
+  register: _cf_ds
   changed_when: false
 
 - name: 📌 Apply SRV
@@ -62,7 +86,7 @@
     value: "{{ item.value }}"
     ttl: "{{ item.ttl | default(1) }}"
     state: "{{ item.state | default('present') }}"
-    solo: "{{ item.solo | default(false) }}"
+    solo: "{{ item.solo | default(false) and item.state | default('present') == 'present' }}"
     timeout: "{{ lookup('timeout', cloudflare_request_timeout | int) | int }}"
   loop: "{{ _cf_pending | selectattr('type','equalto','SRV') | list }}"
   loop_control: { label: "SRV {{ item.service }}.{{ item.proto }} {{ item.name }} -> {{ item.value }}:{{ item.port }}" }
