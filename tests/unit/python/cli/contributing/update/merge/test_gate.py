@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 
 from cli.contributing.update.merge import gate
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 REPO = "infinito-nexus/core"
 
@@ -24,7 +25,7 @@ def check(**overrides):
         "name": "🧹 Lint",
         "status": "completed",
         "conclusion": "success",
-        "details_url": "https://github.com/o/r/actions/runs/1/job/2",
+        "details_url": "https://github.example/o/r/actions/runs/1/job/2",
     }
     run.update(overrides)
     return run
@@ -75,7 +76,7 @@ class TestCheckRefusals(unittest.TestCase):
         )
 
     def test_only_the_own_run_left_refuses(self):
-        own = check(details_url="https://github.com/o/r/actions/runs/9/job/3")
+        own = check(details_url="https://github.example/o/r/actions/runs/9/job/3")
         self.assertEqual(
             gate.check_refusals([own], [], own_run_id=9),
             ["no check run on the head commit"],
@@ -92,8 +93,8 @@ class TestCheckRefusals(unittest.TestCase):
 class TestRoles(unittest.TestCase):
     def test_changed_roles_reads_the_role_directory(self):
         paths = [
-            "roles/web-app-nextcloud/meta/services.yml",
-            "roles/sys-lint/meta/services.yml",
+            f"roles/web-app-nextcloud/{ROLE_FILE_META_SERVICES}",
+            f"roles/sys-lint/{ROLE_FILE_META_SERVICES}",
             "pyproject.toml",
             "docs/roles/web-app-matomo.md",
         ]

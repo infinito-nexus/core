@@ -7,6 +7,7 @@ import zipfile
 from unittest.mock import Mock
 
 from cli.contributing.update.merge import github
+from utils.roles.mapping import ROLE_FILE_META_MAIN
 
 REPO = "infinito-nexus/core"
 SHA = "b" * 40
@@ -43,8 +44,8 @@ class TestReads(unittest.TestCase):
     def test_changed_paths_keep_the_old_name_of_a_rename(self):
         files = [
             {
-                "filename": "roles/web-app-new/meta/main.yml",
-                "previous_filename": "roles/web-app-old/meta/main.yml",
+                "filename": f"roles/web-app-new/{ROLE_FILE_META_MAIN}",
+                "previous_filename": f"roles/web-app-old/{ROLE_FILE_META_MAIN}",
             },
             {"filename": "pyproject.toml", "previous_filename": None},
         ]
@@ -52,8 +53,8 @@ class TestReads(unittest.TestCase):
         self.assertEqual(
             github.changed_paths(gh, REPO, 5),
             [
-                "roles/web-app-new/meta/main.yml",
-                "roles/web-app-old/meta/main.yml",
+                f"roles/web-app-new/{ROLE_FILE_META_MAIN}",
+                f"roles/web-app-old/{ROLE_FILE_META_MAIN}",
                 "pyproject.toml",
             ],
         )

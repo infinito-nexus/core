@@ -263,6 +263,17 @@ class TestLimits(unittest.TestCase):
         self.assertEqual(5, len(policy.truncate_results(contract(), list(range(50)))))
 
 
+class TestRequestLength(unittest.TestCase):
+    def test_a_missing_header_announces_no_body(self):
+        self.assertEqual(policy.request_length(None), 0)
+
+    def test_a_numeric_header_is_the_byte_count(self):
+        self.assertEqual(policy.request_length("12"), 12)
+
+    def test_a_non_numeric_header_is_negative(self):
+        self.assertLess(policy.request_length("abc"), 0)
+
+
 class TestDeclaredArguments(unittest.TestCase):
     """A published input schema is enforced, not merely advertised.
 
