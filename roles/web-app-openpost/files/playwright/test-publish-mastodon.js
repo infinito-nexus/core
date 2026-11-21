@@ -6,7 +6,7 @@ exports.register = function (shared) {
     shared.skipUnlessServiceEnabled("sso");
     shared.skipUnlessServiceEnabled("mastodon");
     shared.skipOnOnionSibling("mastodon");
-    test.setTimeout(resolveTimeout(300_000)); // two Keycloak logins, Mastodon OAuth approval and the publishing worker round-trip
+    test.setTimeout(resolveTimeout(300_000));
     const marker = `openpost-e2e ${Date.now()}`;
 
     await shared.signInViaOidc(page, shared.env.adminUsername, shared.env.adminPassword, "administrator");
