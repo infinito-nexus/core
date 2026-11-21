@@ -7,13 +7,14 @@
 
 ## Overview
 
-This custom role serves [[ title ]] as a static site of the Infinito.Nexus family under `[[ domain ]]`, without a container: OpenResty serves `files/site/` and the page rendered from `templates/index.html.j2`.
+This custom role serves [[ title ]] as a static site of the Infinito.Nexus family under `[[ domain ]]`, without a container: OpenResty serves `files/site/` and the pages rendered from `templates/index.html.j2`, one per language under `/<code>/`.
 It was rendered by `python -m cli.contributing.role.skeleton` and is deployed through the custom role path: an inventory declares `[[ application_id ]]` with its source repository, and core pulls it into `roles/` before the deploy.
 
 ## Features
 
 - **Brand kit:** The page links `tokens.css` and `brand.css` of `[[ brand ]]` and renders header, nav and footer on the server; the nav lists the sites of `services.brand.nav` in the brand role's config that the deployment holds.
 - **Cosmos background:** The sky script and `<cosmos-sky>` render only while `lookup('design', application_id).cosmos` names a provider, so a deployment without one, or `services.cosmos.enabled: false` in `meta/services.yml`, keeps the page plain.
+- **Translations:** The page's strings live in `locale/[[ entity ]].yml`, with one catalog per language of core's `meta/languages.yml` in `locale/<code>/LC_MESSAGES/[[ entity ]].po`. Every language of that file is served under `/<code>/` with its `lang` and `dir`, a string its catalog leaves untranslated falls back to English, and every page links all of them through `hreflang`.
 - **Platform integration:** Matomo tracking, the dashboard tile, the Prometheus metrics and the docs link follow the services deployed beside the role.
 
 ## Review
@@ -22,7 +23,7 @@ The skeleton is a starting point. Before the role goes live, review these parts:
 
 - **Content:** `templates/index.html.j2` holds the title and the description only. Add the site's content inside `main`, and its styles to `files/site/style.css`.
 - **Motif:** The logo shows `motif-[[ name ]]` of the brand kit's `motifs.svg`. Add that motif to `[[ brand ]]`, or point the logo at an existing one.
-- **Translations:** The page renders in the host language only. Its strings move into gettext catalogs once the shared translation stack serves them.
+- **Translations:** Every string the content adds belongs in `locale/[[ entity ]].yml` and is read in `templates/index.html.j2` as `t.<key>`. After a change, run `make i18n-extract root=<role directory> domain=[[ entity ]]`, then `make i18n-translate root=<role directory> domain=[[ entity ]]` to fill the catalogs through the shared translation gateway.
 - **CSP:** `meta/csp.yml` starts without any allowance. Add the sources the content really needs, each with its reason.
 - **Playwright coverage beyond the baseline:** `files/playwright/playwright.spec.js` checks reachability, TLS, the brand kit links and the cosmos gate only.
 

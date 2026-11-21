@@ -2,18 +2,27 @@ from __future__ import annotations
 
 import contextlib
 import ipaddress
+import re
 import tempfile
 import unittest
 import unittest.mock as mock
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+
+import jinja2
+from jinja2.nativetypes import NativeEnvironment
 
 from cli.build.docs.readme import schema
 from cli.build.docs.readme.generate import MANAGED_SECTIONS
 from cli.build.docs.readme.sections import h2_titles
 from cli.contributing.role.skeleton import render as skeleton
 from cli.contributing.role.skeleton.manifest import validate
+from tests.lint.repository.test_i18n_catalogs import inspect as lint_catalog
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any, load_yaml_str
+from utils.i18n.catalog import build_template, catalog_path, read_catalog, write_catalog
+from utils.i18n.extract import keyed_messages
+from utils.i18n.keyed import keyed_catalogue
+from utils.i18n.languages import catalog_languages, load_languages
 from utils.roles.mapping import (
     ROLE_FILE_META_CSP,
     ROLE_FILE_META_DOMAINS,
@@ -53,11 +62,43 @@ BASE_FILES = {
     ROLE_FILE_VARS_MAIN,
 }
 UNSWEPT_FLAGS = {"docs", "semaphore", "tor", "container_backup"}
+DOMAIN = "builder"
+STATIC_SOURCE = f"locale/{DOMAIN}.yml"
+TRANSLATED = ("ar", "de")
+SITE = "https://builder.example.org/"
+ROOT = "/www"
+HREFLANG = re.compile(r'<link rel="alternate" hreflang="([^"]+)" href="([^"]+)">')
+HTML_TAG = re.compile(r"<html [^>]*>")
+VHOST_LANGUAGE = re.compile(
+    r'location ~ "(.+?)"\s*\{\s*root [^;]+;\s*try_files (\S+) =404;'
+)
+PAGE_SCOPE = {
+    "BUILDER_BRAND_URL": "/brand/v1",
+    "BUILDER_COSMOS": "",
+    "BUILDER_NAV": [],
+    "BUILDER_ROOT": ROOT,
+    "HOST_CS": "utf-8",
+    "application_id": "web-app-cst-builder",
+    "service_provider": {
+        "platform": {"titel": "Platform", "favicon": "/favicon.ico"},
+        "company": {"titel": "Company"},
+    },
+}
+CATALOGUE_LOOP = [
+    {
+        "stack_host_template": {
+            "dest": "{{ [ BUILDER_ROOT, 'index.' ~ page.key ~ '.html'] | path_join }}"
+        },
+        "loop": "{{ BUILDER_I18N | dict2items }}",
+        "loop_control": {"loop_var": "page"},
+    }
+]
 STATIC_FILES = {
     ROLE_FILE_README,
     "files/playwright/.nocheck",
     ROLE_FILE_PLAYWRIGHT_SPEC,
     "files/site/style.css",
+    STATIC_SOURCE,
     ROLE_FILE_META_CSP,
     ROLE_FILE_META_DOMAINS,
     ROLE_FILE_META_INFO,
@@ -103,6 +144,108 @@ def _static(description="Site that turns applications into Infinito.Nexus roles"
     if errors:
         raise AssertionError(errors)
     return manifest
+
+
+def _catalogs(codes):
+    return {f"locale/{code}/LC_MESSAGES/{DOMAIN}.po" for code in codes}
+
+
+def _messages(catalog) -> set[tuple[str | None, str]]:
+    return {(message.context, message.id) for message in catalog if message.id}
+
+
+def _translate(role_dir: Path, code: str) -> None:
+    path = catalog_path(role_dir, code, DOMAIN)
+    catalog = read_catalog(path)
+    for message in catalog:
+        if message.id:
+            message.string = f"{code}: {message.id}"
+    write_catalog(path, catalog)
+
+
+def _regex_replace(value: str, pattern: str, replacement: str) -> str:
+    return re.sub(pattern, replacement, value)
+
+
+def _lookup(kind: str, *_terms: str) -> str:
+    return {"tls": SITE}[kind]
+
+
+def _dict2items(mapping: dict) -> list[dict]:
+    return [{"key": key, "value": value} for key, value in mapping.items()]
+
+
+def _path_join(parts: list[str]) -> str:
+    return str(PurePosixPath(*parts))
+
+
+def _deploy_variables(role_dir: Path) -> dict:
+    return {
+        **PAGE_SCOPE,
+        "lookup": _lookup,
+        "BUILDER_I18N": keyed_catalogue(
+            PROJECT_ROOT,
+            lambda key: f"{DOMAIN}:{key}",
+            load_yaml_any(str(role_dir / STATIC_SOURCE)),
+            role_dir,
+            DOMAIN,
+        ),
+        "BUILDER_LANGUAGES": load_languages(PROJECT_ROOT),
+    }
+
+
+def _page_scopes(tasks: list[dict], variables: dict) -> dict[str, dict]:
+    env = NativeEnvironment(
+        undefined=jinja2.StrictUndefined,
+        autoescape=jinja2.select_autoescape(default_for_string=False),
+    )
+    env.filters.update(dict2items=_dict2items, path_join=_path_join)
+    scope = dict(variables)
+    pages = {}
+    for task in tasks:
+        facts = task.get("ansible.builtin.set_fact", {})
+        scope |= {
+            name: env.from_string(value).render(**scope)
+            for name, value in facts.items()
+        }
+        template = task.get("stack_host_template")
+        if template:
+            loop_var = task["loop_control"]["loop_var"]
+            for item in env.from_string(task["loop"]).render(**scope):
+                item_scope = {**scope, loop_var: item}
+                dest = env.from_string(template["dest"]).render(**item_scope)
+                pages[dest] = item_scope
+    return pages
+
+
+def _pages(role_dir: Path) -> dict[str, str]:
+    env = jinja2.Environment(
+        undefined=jinja2.StrictUndefined,
+        autoescape=jinja2.select_autoescape(default_for_string=False),
+    )
+    env.filters["regex_replace"] = _regex_replace
+    template = env.from_string(read_text(str(role_dir / "templates" / "index.html.j2")))
+    tasks = load_yaml_any(str(role_dir / "tasks" / "00_core.yml"))
+    return {
+        dest: template.render(**scope)
+        for dest, scope in _page_scopes(tasks, _deploy_variables(role_dir)).items()
+    }
+
+
+def _page_facts(page: str, description: str) -> tuple[str, dict[str, str], bool]:
+    return (
+        HTML_TAG.search(page)[0],
+        dict(HREFLANG.findall(page)),
+        f"<p>{description}</p>" in page,
+    )
+
+
+def _served(conf: str, request: str) -> str | None:
+    pattern, target = VHOST_LANGUAGE.search(conf).groups()
+    hit = re.fullmatch(pattern.replace("(?<", "(?P<"), request)
+    if hit is None:
+        return None
+    return ROOT + re.sub(r"\$(\w+)", lambda name: hit[name[1]], target)
 
 
 def _full():
@@ -391,7 +534,10 @@ class TestStaticKind(_RenderCase):
             for path in role_dir.rglob("*")  # nocheck: project-walk  tempdir role
             if path.is_file()
         }
-        self.assertEqual((STATIC_FILES, 0), (written, port.call_count))
+        codes = catalog_languages(load_languages(PROJECT_ROOT))
+        self.assertEqual(
+            (STATIC_FILES | _catalogs(codes), 0), (written, port.call_count)
+        )
 
     def test_every_rendered_yaml_file_parses(self):
         for path, text in self.files(_static()).items():
@@ -443,23 +589,16 @@ class TestStaticKind(_RenderCase):
         self.assertEqual(2, page.count("{% if BUILDER_COSMOS %}"))
         self.assertLess(page.index("{% if BUILDER_COSMOS %}"), page.index("cosmos.js"))
 
-    def test_the_page_writes_the_software_name_through_its_variables(self):
-        cases = {
-            "Site that turns applications into Infinito.Nexus roles": (
-                "{{ SOFTWARE_NAME }}"
+    def test_the_page_spells_no_software_name_and_the_catalog_keeps_the_text(self):
+        manifest = _static()
+        files = self.files(manifest)
+        self.assertEqual(
+            (0, {"description": manifest.description}),
+            (
+                files["templates/index.html.j2"].lower().count(SOFTWARE_NAME.lower()),
+                load_yaml_str(files[STATIC_SOURCE]),
             ),
-            "Site that hosts the infinito.nexus press kit": "{{ SOFTWARE_DOMAIN }}",
-        }
-        for description, variable in cases.items():
-            with self.subTest(description=description):
-                page = self.files(_static(description))["templates/index.html.j2"]
-                self.assertEqual(
-                    (0, 2),
-                    (
-                        page.lower().count(SOFTWARE_NAME.lower()),
-                        page.count(variable),
-                    ),
-                )
+        )
 
     def test_the_site_meets_the_web_app_service_contracts(self):
         text = self.files(_static())[ROLE_FILE_META_SERVICES]
@@ -508,6 +647,134 @@ class TestStaticKind(_RenderCase):
         ]
         titles = h2_titles(self.files(_static())["README.md"])
         self.assertEqual(required, [title for title in titles if title in required])
+
+
+class TestStaticTranslations(_RenderCase):
+    def setUp(self) -> None:
+        super().setUp()
+        loaded = load_languages(PROJECT_ROOT)
+        patcher = mock.patch.object(
+            skeleton,
+            "load_languages",
+            return_value={code: loaded[code] for code in ("en", *TRANSLATED)},
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_every_language_ships_one_catalog_of_the_role_domain(self):
+        files = self.files(_static())
+        self.assertEqual(
+            {STATIC_SOURCE} | _catalogs(TRANSLATED),
+            {path for path in files if path.startswith("locale/")},
+        )
+
+    def test_every_catalog_passes_the_core_catalog_lint(self):
+        role_dir = self.render(_static())
+        for code in TRANSLATED:
+            with self.subTest(code=code):
+                found = lint_catalog(
+                    (code, DOMAIN, str(catalog_path(role_dir, code, DOMAIN)))
+                )
+                self.assertEqual(
+                    (0, [], [], [], [], []),
+                    (
+                        found.uncompilable,
+                        found.markup,
+                        found.quoted,
+                        found.spans,
+                        found.merged,
+                        found.loose,
+                    ),
+                )
+
+    def test_every_catalog_holds_what_i18n_extract_writes_for_its_language(self):
+        manifest = _static()
+        role_dir = self.render(manifest)
+        source = {(f"{DOMAIN}:description", manifest.description)}
+        extracted = _messages(build_template(keyed_messages(role_dir, DOMAIN), DOMAIN))
+        for code in TRANSLATED:
+            with self.subTest(code=code):
+                catalog = read_catalog(catalog_path(role_dir, code, DOMAIN))
+                self.assertEqual(
+                    (code, source, source),
+                    (catalog.locale_identifier, extracted, _messages(catalog)),
+                )
+
+    def test_a_translated_string_replaces_its_source_and_the_rest_fall_back(self):
+        manifest = _static()
+        role_dir = self.render(manifest)
+        _translate(role_dir, "ar")
+        pages = _pages(role_dir)
+        arabic, german = pages[f"{ROOT}/index.ar.html"], pages[f"{ROOT}/index.de.html"]
+        self.assertEqual(
+            (True, True, '<html lang="ar" dir="rtl">'),
+            (
+                f"<p>ar: {manifest.description}</p>" in arabic,
+                f"<p>{manifest.description}</p>" in german,
+                HTML_TAG.search(arabic)[0],
+            ),
+        )
+
+    def test_the_role_reads_its_catalogs_and_the_languages_of_core(self):
+        variables = load_yaml_str(self.files(_static())[ROLE_FILE_VARS_MAIN])
+        self.assertEqual(
+            (
+                "{{ lookup('i18n_catalogue', 'builder', [role_path, 'locale', 'builder.yml'] | path_join, catalogs=role_path) }}",
+                "{{ lookup('file', lookup('path_absolute', 'meta/languages.yml')) | from_yaml }}",
+            ),
+            (variables["BUILDER_I18N"], variables["BUILDER_LANGUAGES"]),
+        )
+
+    def test_the_container_kind_renders_no_catalog_and_no_hreflang(self):
+        files = self.files(_full())
+        self.assertEqual(
+            ([], []),
+            (
+                [path for path in files if path.startswith("locale/")],
+                [path for path, text in files.items() if "hreflang" in text],
+            ),
+        )
+
+
+class TestStaticPages(_RenderCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.manifest = _static()
+        self.role_dir = self.render(self.manifest)
+        self.languages = load_languages(PROJECT_ROOT)
+
+    def test_a_fresh_render_serves_a_page_for_every_language_of_core(self):
+        pages = _pages(self.role_dir)
+        conf = read_text(str(self.role_dir / "templates" / "proxy.conf.j2"))
+        served = {_served(conf, f"/{code}/") for code in self.languages}
+        self.assertEqual(
+            (len(self.languages), served, True),
+            (len(pages), set(pages), "index index.en.html;" in conf),
+        )
+
+    def test_every_page_carries_its_lang_dir_and_hreflang_to_every_sibling(self):
+        pages = _pages(self.role_dir)
+        links = {code: f"{SITE}{code}/" for code in self.languages}
+        self.assertEqual(
+            {
+                code: (
+                    f'<html lang="{code}" dir="{language["direction"]}">',
+                    {"x-default": SITE, **links},
+                    True,
+                )
+                for code, language in self.languages.items()
+            },
+            {
+                code: _page_facts(
+                    pages[f"{ROOT}/index.{code}.html"], self.manifest.description
+                )
+                for code in self.languages
+            },
+        )
+
+    def test_a_loop_over_the_catalogue_alone_serves_only_the_source_language(self):
+        scopes = _page_scopes(CATALOGUE_LOOP, _deploy_variables(self.role_dir))
+        self.assertEqual([f"{ROOT}/index.en.html"], sorted(scopes))
 
 
 if __name__ == "__main__":

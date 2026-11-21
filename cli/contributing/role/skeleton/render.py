@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-import functools
 import ipaddress
 import json
 import os
-import re
 import shutil
 import tempfile
 from pathlib import Path
@@ -22,6 +20,7 @@ from utils.cache import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.distros import galaxy_platforms
+from utils.i18n.languages import SOURCE_LANGUAGE, catalog_languages, load_languages
 from utils.licensing.rights import table
 from utils.meta.port_bands import PortBandsError
 from utils.meta.scan import iter_role_dirs, iter_subnets
@@ -33,11 +32,15 @@ if TYPE_CHECKING:
     from cli.contributing.role.skeleton.manifest import Manifest
 
 TEMPLATE_DIR = PROJECT_ROOT / "templates" / "roles" / "skeleton"
-GENERAL_FILE = PROJECT_ROOT / "group_vars" / "all" / "00_general.yml"
 NETWORKS_FILE = PROJECT_ROOT / "group_vars" / "all" / "08_networks.yml"
 STACK_BRIDGE = PROJECT_ROOT / "roles" / "svc-stack" / "files" / "bridge.yml"
 VERBATIM = {"tasks/utils/stack.yml": STACK_BRIDGE}
 SUFFIX = ".tmpl"
+ENTITY_SEGMENT = "__entity__"
+CODE_SEGMENT = "__code__"
+PO_ESCAPES = str.maketrans(
+    {"\\": "\\\\", "\t": "\\t", "\r": "\\r", "\n": "\\n", '"': '\\"'}
+)
 SUBNET_CLIENTS = 254
 PORT_SCOPE = "local"
 PORT_CATEGORY = "http"
@@ -195,32 +198,8 @@ def _title(name: str) -> str:
     return " ".join(part.capitalize() for part in name.split("-"))
 
 
-@functools.cache
-def _software_name() -> str:
-    return str(load_yaml_any(str(GENERAL_FILE))["SOFTWARE_NAME"])
-
-
-def _identity(text: str) -> str:
-    """Write the software's name in *text* as the Jinja variable that holds it.
-
-    Args:
-        text: manifest text a rendered Jinja template inlines.
-
-    Returns:
-        *text* with every case-insensitive match of ``SOFTWARE_NAME`` replaced
-        by ``{{ SOFTWARE_DOMAIN }}`` when the match is lower case, else by
-        ``{{ SOFTWARE_NAME }}``.
-    """
-    return re.sub(
-        re.escape(_software_name()),
-        lambda match: (
-            "{{ SOFTWARE_DOMAIN }}"
-            if match.group(0).islower()
-            else "{{ SOFTWARE_NAME }}"
-        ),
-        str(text),
-        flags=re.IGNORECASE,
-    )
+def _po_string(value: Any) -> str:
+    return f'"{str(value).translate(PO_ESCAPES)}"'
 
 
 def context(manifest: Manifest, local_port: int, subnet: str) -> dict[str, Any]:
@@ -232,13 +211,18 @@ def context(manifest: Manifest, local_port: int, subnet: str) -> dict[str, Any]:
         subnet: the allocated role subnet.
     """
     role = application_id(manifest)
+    entity = entity_name(role)
+    prefix = entity.upper().replace("-", "_")
     return {
         "kind": manifest.kind,
         "name": manifest.name,
         "brand": BRAND_ROLE,
         "application_id": role,
-        "entity": entity_name(role),
-        "prefix": entity_name(role).upper().replace("-", "_"),
+        "entity": entity,
+        "prefix": prefix,
+        "lower_prefix": prefix.lower(),
+        "languages": catalog_languages(load_languages(PROJECT_ROOT)),
+        "source_language": SOURCE_LANGUAGE,
         "run_once": "run_once_" + role.replace("-", "_"),
         "title": _title(manifest.name),
         "domain": canonical_domain(manifest),
@@ -280,8 +264,18 @@ def _environment() -> jinja2.Environment:
         autoescape=jinja2.select_autoescape(),
     )
     env.filters["yaml"] = _yaml_scalar
-    env.filters["identity"] = _identity
+    env.filters["po"] = _po_string
     return env
+
+
+def _targets(relative: str, variables: dict[str, Any]) -> dict[str, dict[str, str]]:
+    path = relative.removesuffix(SUFFIX).replace(ENTITY_SEGMENT, variables["entity"])
+    if CODE_SEGMENT not in path:
+        return {path: {}}
+    return {
+        path.replace(CODE_SEGMENT, code): {"code": code}
+        for code in variables["languages"]
+    }
 
 
 def render_files(variables: dict[str, Any]) -> dict[str, str]:
@@ -292,16 +286,21 @@ def render_files(variables: dict[str, Any]) -> dict[str, str]:
 
     Returns:
         Role-relative path to file content; a template that renders blank is
-        left out, which is how a file exists only for some manifests. Every
-        ``VERBATIM`` file is copied unchanged from core.
+        left out, which is how a file exists only for some manifests. A
+        ``__entity__`` path segment becomes the role's entity name, and a
+        template under ``__code__`` renders once per code of ``languages``,
+        with ``code`` set. Every ``VERBATIM`` file is copied unchanged from
+        core.
     """
     env = _environment()
     out: dict[str, str] = {}
     for source in sorted(TEMPLATE_DIR.rglob(f"*{SUFFIX}")):
         relative = source.relative_to(TEMPLATE_DIR).as_posix()
-        text = env.get_template(relative).render(**variables)
-        if text.strip():
-            out[relative.removesuffix(SUFFIX)] = text
+        template = env.get_template(relative)
+        for path, extra in _targets(relative, variables).items():
+            text = template.render(**variables, **extra)
+            if text.strip():
+                out[path] = text
     for relative, source in VERBATIM.items():
         out[relative] = read_text(str(source))
     return out

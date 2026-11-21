@@ -1,15 +1,23 @@
 [% if kind == "static" %]
+{% set lang = [[ lower_prefix ]]_language.key %}
+{% set t = [[ lower_prefix ]]_strings[lang] if lang in [[ lower_prefix ]]_strings else [[ lower_prefix ]]_strings['[[ source_language ]]'] %}
+{% set site_url = lookup('tls', application_id, 'url.base') %}
 <!DOCTYPE html>
-<html lang="{{ HOST_LL }}">
+<html lang="{{ lang }}" dir="{{ [[ lower_prefix ]]_language.value.direction }}">
 <head>
   <meta charset="{{ HOST_CS }}">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>[[ title ]] · {{ service_provider.platform.titel }}</title>
-  <meta name="description" content="[[ description | e | identity ]]">
+  <meta name="description" content="{{ t.description | e }}">
+  <link rel="canonical" href="{{ site_url }}{{ lang }}/">
+  <link rel="alternate" hreflang="x-default" href="{{ site_url }}">
+{% for code in [[ lower_prefix ]]_languages | sort %}
+  <link rel="alternate" hreflang="{{ code }}" href="{{ site_url }}{{ code }}/">
+{% endfor %}
   <link rel="icon" href="{{ service_provider.platform.favicon }}">
   <link rel="stylesheet" href="{{ [[ prefix ]]_BRAND_URL }}/tokens.css">
   <link rel="stylesheet" href="{{ [[ prefix ]]_BRAND_URL }}/brand.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/style.css">
 {% if [[ prefix ]]_COSMOS %}
   <script type="module" src="{{ lookup('cdn', [[ prefix ]]_COSMOS).relative_urls.role.release.js }}/cosmos.js"></script>
 {% endif %}
@@ -20,7 +28,7 @@
   <cosmos-sky cookie-domain="{{ DOMAIN_PRIMARY }}"{% if hotkey %} hotkey="{{ hotkey | e }}"{% endif %}></cosmos-sky>
 {% endif %}
   <header class="brand-header">
-    <a class="brand-logo" href="{{ lookup('tls', application_id, 'url.base') }}">
+    <a class="brand-logo" href="{{ site_url }}{{ lang }}/">
       <svg class="brand-motif" data-motif="[[ name ]]" viewBox="0 0 32 32" aria-hidden="true"><use href="{{ [[ prefix ]]_BRAND_URL }}/motifs.svg#motif-[[ name ]]"/><use class="brand-motif-motion" href="{{ [[ prefix ]]_BRAND_URL }}/motifs.svg#motif-[[ name ]]-motion"/></svg>
       <span>[[ title ]]</span>
     </a>
@@ -30,7 +38,7 @@
         <li><a href="{{ lookup('tls', app, 'url.base') }}"{% if app == application_id %} aria-current="page"{% endif %}>{{ app | regex_replace('^web-app-(cst-)?', '') | replace('-', ' ') | title }}</a></li>
 {% endfor %}
 {% if application_id not in [[ prefix ]]_NAV %}
-        <li><a href="{{ lookup('tls', application_id, 'url.base') }}" aria-current="page">[[ title ]]</a></li>
+        <li><a href="{{ site_url }}{{ lang }}/" aria-current="page">[[ title ]]</a></li>
 {% endif %}
       </ul>
     </nav>
@@ -39,7 +47,7 @@
   <main class="site-main">
     <section class="brand-panel">
       <h1>[[ title ]]</h1>
-      <p>[[ description | e | identity ]]</p>
+      <p>{{ t.description | e }}</p>
     </section>
   </main>
   <footer class="brand-footer">

@@ -15,20 +15,30 @@ from utils.cache import PROJECT_ROOT
 from utils.cache.files import iter_project_files, read_text
 
 SPARSE = PROJECT_ROOT / "cli" / "contributing" / "role" / "skeleton" / "sparse.txt"
-MANIFEST = json.dumps(
-    {
-        "name": "skeleton-sparse-probe",
-        "description": "Probe application rendered inside a sparse checkout",
-        "homepage": "https://example.org/",
-        "license": "MIT",
-        "image": "ghcr.io/example/probe:1.0.0",
-        "port": 8080,
-        "database": "postgres",
-        "login": "oidc",
-        "features": ["email", "redis"],
-        "volumes": ["/data"],
-    }
-)
+MANIFESTS = {
+    "web-app-cst-skeleton-sparse-probe": json.dumps(
+        {
+            "name": "skeleton-sparse-probe",
+            "description": "Probe application rendered inside a sparse checkout",
+            "homepage": "https://example.org/",
+            "license": "MIT",
+            "image": "ghcr.io/example/probe:1.0.0",
+            "port": 8080,
+            "database": "postgres",
+            "login": "oidc",
+            "features": ["email", "redis"],
+            "volumes": ["/data"],
+        }
+    ),
+    "web-app-cst-skeleton-sparse-site": json.dumps(
+        {
+            "kind": "static",
+            "name": "skeleton-sparse-site",
+            "description": "Probe static site rendered inside a sparse checkout",
+            "license": "MIT",
+        }
+    ),
+}
 PROBE = """
 import contextlib, io, sys
 from cli.contributing.role.skeleton.__main__ import main
@@ -99,41 +109,49 @@ class TestSparse(unittest.TestCase):
         )
 
     def test_every_module_a_render_loads_is_listed(self):
-        loaded = subprocess.run(
-            [sys.executable, "-c", PROBE, str(self.tmp), MANIFEST],
-            cwd=PROJECT_ROOT,
-            env=_env(),
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout.splitlines()
         prefix = f"{PROJECT_ROOT}/"
-        modules = {
-            path.removeprefix(prefix) for path in loaded if path.startswith(prefix)
-        }
-        self.assertEqual([], sorted(path for path in modules if not _listed(path)))
+        for role, manifest in MANIFESTS.items():
+            with self.subTest(role=role):
+                loaded = subprocess.run(
+                    [sys.executable, "-c", PROBE, str(self.tmp), manifest],
+                    cwd=PROJECT_ROOT,
+                    env=_env(),
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                ).stdout.splitlines()
+                modules = {
+                    path.removeprefix(prefix)
+                    for path in loaded
+                    if path.startswith(prefix)
+                }
+                self.assertEqual(
+                    [], sorted(path for path in modules if not _listed(path))
+                )
 
     def test_a_render_inside_a_sparse_checkout_succeeds(self):
-        result = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "cli.contributing.role.skeleton",
-                "render",
-                "--target",
-                str(self.tmp / "out"),
-            ],
-            cwd=self.core,
-            env=_env(),
-            input=MANIFEST,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        role_dir = self.tmp / "out" / "web-app-cst-skeleton-sparse-probe"
-        self.assertEqual(
-            (0, f"{role_dir}\n", ""), (result.returncode, result.stdout, result.stderr)
-        )
+        for role, manifest in MANIFESTS.items():
+            with self.subTest(role=role):
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        "-m",
+                        "cli.contributing.role.skeleton",
+                        "render",
+                        "--target",
+                        str(self.tmp / "out"),
+                    ],
+                    cwd=self.core,
+                    env=_env(),
+                    input=manifest,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                self.assertEqual(
+                    (0, f"{self.tmp / 'out' / role}\n", ""),
+                    (result.returncode, result.stdout, result.stderr),
+                )
 
     def test_the_sparse_checkout_serves_the_renderer_itself(self):
         templates = subprocess.run(
