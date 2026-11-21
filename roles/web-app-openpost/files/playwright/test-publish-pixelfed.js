@@ -5,7 +5,7 @@ exports.register = function (shared) {
   test("administrator: connects the local Pixelfed account through the OOB code flow and publishes an image to it", async ({ page }) => {
     shared.skipUnlessServiceEnabled("pixelfed");
     shared.skipOnOnionSibling("pixelfed");
-    test.setTimeout(resolveTimeout(300_000)); // Pixelfed sign-in, OAuth approval, media upload and the publishing worker round-trip
+    test.setTimeout(resolveTimeout(300_000));
     const label = "break-glass administrator";
     const marker = `openpost-e2e-pixelfed ${Date.now()}`;
 
