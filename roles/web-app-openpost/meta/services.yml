@@ -28,7 +28,7 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
-# nocheck: playwright-service-flag - DB engine, covered by the role's CLI test
+# nocheck: playwright-service-flag
 postgres:
   bond: 1
   enabled: true # nocheck: dynamic-flag
@@ -42,17 +42,17 @@ mastodon:
   bond: 1
   enabled: "{{ 'web-app-mastodon' in group_names }}"
   shared: "{{ 'web-app-mastodon' in group_names }}"
-# nocheck: playwright-service-flag - publishing target reached through the relay, covered by the role's CLI test
+# nocheck: playwright-service-flag
 pixelfed:
   bond: 0.5
   enabled: "{{ 'web-app-pixelfed' in group_names }}"
   shared: "{{ 'web-app-pixelfed' in group_names }}"
-# nocheck: playwright-service-flag - publishing target reached through the relay, covered by the role's CLI test
+# nocheck: playwright-service-flag
 peertube:
   bond: 0.5
   enabled: "{{ 'web-app-peertube' in group_names }}"
   shared: "{{ 'web-app-peertube' in group_names }}"
-# nocheck: playwright-service-flag  self-provider
+# nocheck: playwright-service-flag
 openpost:
   # nocheck: single-replica  one `all` process schedules and publishes; split web and worker scaling is out of scope
   replicas: 1
@@ -93,8 +93,7 @@ openpost:
     - web-app-pixelfed
     - web-app-peertube
   lifecycle: beta
-# nocheck: playwright-service-flag  egress sidecar, covered by the role's CLI test
-# nocheck: dynamic-flag  the relay is part of this role and runs whenever OpenPost runs; no other role's presence decides it
+# nocheck: playwright-service-flag, dynamic-flag
 relay:
   enabled: true
   shared: false
@@ -114,8 +113,7 @@ relay:
     internal:
       http: 80
       https: 443
-# nocheck: playwright-service-flag  CI provider simulator, covered by the role's CLI test
-# nocheck: dynamic-flag  a test fixture switched on by one variant only; no other role's presence decides it
+# nocheck: playwright-service-flag, dynamic-flag
 simulator:
   enabled: false
   shared: false
@@ -151,7 +149,7 @@ simulator:
     - tiktok
     - linkedin
 
-# nocheck: dynamic-flag  a sidecar of this role, provided by no other role; it runs exactly while the simulator does
+# nocheck: dynamic-flag
 provider:
   enabled: "{{ lookup('config', 'web-app-openpost', 'services.simulator.enabled') | bool }}"
   custom: true
@@ -178,7 +176,7 @@ provider:
     - www.linkedin.com
     - api.linkedin.com
 
-# nocheck: dynamic-flag  a sidecar of this role, provided by no other role; it runs exactly while routes are configured
+# nocheck: dynamic-flag
 crossposter:
   enabled: "{{ (lookup('config', 'web-app-openpost', 'services.crossposter.routes') | length) > 0 }}"
   custom: true
@@ -210,8 +208,8 @@ tor:
   bond: 0.5
   enabled: "{{ 'svc-net-tor' in group_names }}"
   shared: true # nocheck: dynamic-flag
-# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
-container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+# nocheck: playwright-service-flag, dynamic-flag
+container_backup: # nocheck: bond-baseline
   bond: 1
   enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
   shared: true
