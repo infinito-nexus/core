@@ -4,7 +4,8 @@ import argparse
 import json
 import sys
 
-from utils.stacks import load, makefile_calls, problems, resolve
+from utils.stacks.declaration import load, problems, resolve
+from utils.stacks.makefile import makefile_calls
 
 
 def main(argv: list[str] | None = None) -> int:
