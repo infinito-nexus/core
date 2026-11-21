@@ -10,7 +10,7 @@ Repository variables are set under **Settings → Secrets and variables → Acti
 |---|---|---|---|
 | `CI_SYNC_MAIN_SOURCE_REPOSITORY` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml) | Syncs `main` from `infinito-nexus/core` before CI scope discovery | `<owner>/<repo>` to use another source, or `false`, empty, or the current repository to skip |
 | `CI_RUN_ON_MAIN` | [entry-push-latest.yml](../../../../../.github/workflows/entry-push-latest.yml) | Pushes to `main` skip CI | `true` to run CI on `main` pushes too |
-| `CI_ENABLE_AUTO_UPDATES` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml) | Update jobs skipped; Dependabot PRs auto-closed | `true` to allow update PRs (workflow-driven and Dependabot) |
+| `CI_ENABLE_AUTO_UPDATES` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-open-dependabot-close.yml](../../../../../.github/workflows/entry-pr-open-dependabot-close.yml), [entry-pr-change-dependabot-label.yml](../../../../../.github/workflows/entry-pr-change-dependabot-label.yml), [entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) | Update jobs skipped; Dependabot PRs auto-closed; no update PR is labelled or merged automatically | `true` to allow update PRs (workflow-driven and Dependabot) and their automatic merge |
 | `CI_ENABLE_AUTO_TRANSLATIONS` | [entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml) | Pull requests against `main` open no translation PRs | `true` to machine-translate the entries a PR leaves empty or fuzzy, one PR per language |
 | `PLAYWRIGHT_KEEP_ALL` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | Playwright keeps trace, screenshot and video only when a test fails | `true` to keep them for every test (passing runs included); the workflow forwards it as `INFINITO_PLAYWRIGHT_KEEP` |
 | `API_OPENAI_KEY` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | The gateway publishes no `openai/*` model, and the CLI test asserts their absence | An OpenAI key, to deploy and test the route |
@@ -159,6 +159,19 @@ Dependabot cannot read repository variables itself, so [entry-pr-open-dependabot
 | *(not set / empty)* | Skipped ✓ | Auto-closed on open ✓ |
 | `true` | Run ✓ | Stay open ✓ |
 | any other value | Skipped ✓ | Auto-closed on open ✓ |
+
+The same guard sits on [entry-pr-change-dependabot-label.yml](../../../../../.github/workflows/entry-pr-change-dependabot-label.yml), which labels Dependabot PRs `update` plus `major`, `minor` or `patch`, and on [entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml), which merges an update PR once CI proved it. With the variable unset, neither labels nor merges anything.
+
+### Automatic merge 🔀
+
+An update PR merges itself only when all of these hold; otherwise the job prints the failing condition and the PR waits for a manual merge:
+
+1. Its `🔀 Pull Request` run of the `pull_request` event concluded `success`.
+2. `infinito-nexus-updater[bot]` opened it from `update/*`, or `dependabot[bot]` from `dependabot/*`, in this repository, against the default branch, not as a draft, and it carries the `update` label.
+3. Every latest check run on its head commit completed as `success`, `skipped` or `neutral`, and every commit status is `success`. A check still running counts as not green; no later run retries the merge.
+4. Every role under `roles/<role>/` the PR changes appears in the `role` column of a `role-runtimes-*` artifact of that run. A PR that changes no role needs no artifact; a missing artifact proves nothing.
+
+The merge goes through `PUT /repos/{owner}/{repo}/pulls/{number}/merge` with `merge_method=merge` and the tested head `sha`, so a commit pushed after the run makes it fail instead of merging untested code. `gh pr merge` is not used because it refuses a PR the ruleset still blocks before the server can apply the App's bypass. The App MUST be a bypass actor of the `Main` ruleset in `pull_request` mode; without that the merge step fails and the PR stays open.
 
 ## `INFINITO_PLAYWRIGHT_KEEP` 🎬
 
