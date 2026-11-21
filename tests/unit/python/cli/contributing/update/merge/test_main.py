@@ -11,6 +11,7 @@ from unittest.mock import patch
 
 import cli.contributing.update.merge.__main__ as merge_main
 from cli.contributing.update.merge import github
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 REPO = "infinito-nexus/core"
 SHA = "a" * 40
@@ -97,7 +98,7 @@ def green_gh(**overrides):
         "prs": [pull_request()],
         "checks": [check()],
         "statuses": [{"context": "codecov", "state": "success"}],
-        "files": ["roles/web-app-nextcloud/meta/services.yml"],
+        "files": [f"roles/web-app-nextcloud/{ROLE_FILE_META_SERVICES}"],
         "artifacts": {
             "role-runtimes-web-app-nextcloud": role_runtimes(
                 "web-app-nextcloud", "svc-db-postgres"
