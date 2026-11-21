@@ -5,19 +5,19 @@ security:
   sinks: [WAZUH_SECURITY]
   fields:
     admin_group:
-      source: services.wazuh.security.admin_group
+      source: services.wazuh.backend_roles.admin_group
       mode: enforced
       selector: "[data-test-subj='role-mapping-list']"
       type: text
       label: Backend role mapped onto all_access
     analyst_group:
-      source: services.wazuh.security.analyst_group
+      source: services.wazuh.backend_roles.analyst_group
       mode: enforced
       selector: "[data-test-subj='role-mapping-list']"
       type: text
       label: Backend role mapped onto security_analyst
     readonly_group:
-      source: services.wazuh.security.readonly_group
+      source: services.wazuh.backend_roles.readonly_group
       mode: enforced
       selector: "[data-test-subj='role-mapping-list']"
       type: text

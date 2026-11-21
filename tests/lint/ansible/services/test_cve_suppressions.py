@@ -28,7 +28,12 @@ from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.security.pipeline import pipeline
-from utils.security.suppressions import RULE, SuppressionError, parse_entries
+from utils.security.suppressions import (
+    RULE,
+    SuppressionError,
+    parse_entries,
+    service_suppressions,
+)
 
 from . import PROJECT_ROOT
 
@@ -206,6 +211,18 @@ class TestCveSuppressions(unittest.TestCase):
             text = read_text(str(path))
             if "suppressions:" in text or "unmatched_os:" in text:
                 found += problems(text, str(path.relative_to(PROJECT_ROOT)), today)
+        self.assertEqual(found, [], "\n".join(found))
+
+    def test_every_service_security_block_holds_suppressions(self) -> None:
+        found = []
+        for path in sorted(
+            (PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}")
+        ):
+            role = path.relative_to(PROJECT_ROOT / "roles").parts[0]
+            try:
+                service_suppressions(load_yaml_str(read_text(str(path))), role)
+            except SuppressionError as error:
+                found.append(str(error))
         self.assertEqual(found, [], "\n".join(found))
 
     def test_services_on_one_upstream_image_tag_share_its_suppression(self) -> None:

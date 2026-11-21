@@ -66,7 +66,7 @@ wazuh:
     - web-app-keycloak
     - svc-db-openldap
   lifecycle: beta
-  security:
+  backend_roles:
     admin_group: "/{{ lookup('rbac_group_path', application_id='web-app-wazuh', role='administrator') }}"
     analyst_group: "/{{ lookup('rbac_group_path', application_id='web-app-wazuh', role='security-analyst') }}"
     readonly_group: "/{{ lookup('rbac_group_path', application_id='web-app-wazuh', role='readonly-auditor') }}"
