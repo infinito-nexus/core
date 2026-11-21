@@ -1,4 +1,4 @@
-"""The gpu gate of web-svc-libretranslate.
+"""The gpu gate of svc-ai-libretranslate-engine.
 
 `lookup('config', ...)` returned false for the same declaration the service
 carries, which silently shipped a CPU image twice. The image tag and the
@@ -19,8 +19,9 @@ from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
-ROLE = "web-svc-libretranslate"
-SERVICE = "libretranslate"
+ROLE = "svc-ai-libretranslate-engine"
+SERVICE = "libretranslate-engine"
+GATE = "LIBRETRANSLATE_ENGINE_GPU"
 ROLE_DIR = Path(PROJECT_ROOT) / "roles" / ROLE
 VARS = ROLE_DIR / ROLE_FILE_VARS_MAIN
 SERVICES = ROLE_DIR / ROLE_FILE_META_SERVICES
@@ -63,21 +64,21 @@ class TestGpuGate(unittest.TestCase):
         self.assertTrue(self.services[SERVICE].get("gpu"))
 
     def test_the_gate_asks_the_gpu_lookup_for_this_service(self) -> None:
-        expression = load_yaml(str(VARS))["LIBRETRANSLATE_GPU"]
+        expression = load_yaml(str(VARS))[GATE]
 
         _rendered, asked = self._render(expression, True)
 
         self.assertIn(("gpu", (ROLE, SERVICE)), asked)
 
     def test_a_yes_from_the_lookup_opens_the_gate(self) -> None:
-        expression = load_yaml(str(VARS))["LIBRETRANSLATE_GPU"]
+        expression = load_yaml(str(VARS))[GATE]
 
         rendered, _asked = self._render(expression, True)
 
         self.assertTrue(_ansible_bool(rendered))
 
     def test_a_no_from_the_lookup_keeps_the_gate_closed(self) -> None:
-        expression = load_yaml(str(VARS))["LIBRETRANSLATE_GPU"]
+        expression = load_yaml(str(VARS))[GATE]
 
         rendered, _asked = self._render(expression, False)
 

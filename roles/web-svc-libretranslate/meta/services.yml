@@ -4,9 +4,8 @@
 libretranslate:
   name: libretranslate
   healthcheck:
-    test: ["CMD-SHELL", "./venv/bin/python scripts/healthcheck.py"]
-    # nocheck: healthcheck-timing-override  the probe starts a venv interpreter, which does not finish inside the 5s default
-    timeout: 10s
+    flavor: http
+    path: languages
   modes:
     compose:
       enabled: true
@@ -15,15 +14,9 @@ libretranslate:
   bond: 1
   enabled: true
   shared: true
-  image: libretranslate/libretranslate
-  version: v1.9.6
-  version_variants:
-    - "-cuda"
-  custom: true
-  min_storage: 402MB
-  load_only: []
-  directions: both
-  model_store: true
+  image: nginx
+  version: 1.31.9-alpine
+  min_storage: 128MB
   ports:
     local:
       http: 8045
@@ -34,16 +27,15 @@ libretranslate:
   proxy:
     service_key: libretranslate
   lifecycle: beta
-  cpus: "1.0"
-  mem_reservation: 256m
-  mem_limit: 1g
-  pids_limit: 512
-  gpu: true
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "v1.9.6"
-        until: 2026-11-30
+  cpus: "0.2"
+  mem_reservation: 64m
+  mem_limit: 128m
+  pids_limit: 128
+libretranslate-engine:
+  bond: 1
+  mandatory: true
+  enabled: "{{ 'svc-ai-libretranslate-engine' in group_names }}"
+  shared: "{{ 'svc-ai-libretranslate-engine' in group_names }}"
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"

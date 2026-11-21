@@ -27,6 +27,7 @@ LIBRETRANSLATE_ENGINE_MODELS_DIR: "{{ lookup('config', application_id, 'services
 LIBRETRANSLATE_ENGINE_UID: "{{ 0 if LIBRETRANSLATE_ENGINE_APP_USER == 'root' else 1032 }}"
 LIBRETRANSLATE_ENGINE_THREADS: "{{ [(lookup('cpus', application_id, 'libretranslate-engine') | float) | round(0, 'ceil') | int, 1] | max }}"
 LIBRETRANSLATE_ENGINE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'libretranslate-engine') }}"
+LIBRETRANSLATE_ENGINE_FRONT_ID: web-svc-libretranslate
 
 LIBRETRANSLATE_ENGINE_CACHE_CA_FILE: /opt/package-frontend-ca.crt
 LIBRETRANSLATE_ENGINE_CACHE_CA_INSTALLER: roles/svc-cache-package/files/shell/ca.sh

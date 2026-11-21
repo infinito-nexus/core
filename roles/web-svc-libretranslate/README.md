@@ -1,12 +1,12 @@
 # LibreTranslate
 
-This role deploys **LibreTranslate** as a containerized web service using Docker Compose.
+This role serves **LibreTranslate** on a public domain as a front for [svc-ai-libretranslate-engine](../svc-ai-libretranslate-engine/README.md), the one role that runs a LibreTranslate container.
 It is designed to integrate seamlessly into the Infinito.Nexus stack, including optional Redis and database backends, CSP handling, and analytics integration.
 
 ## Description
 
 LibreTranslate is an open-source machine translation API that can be self-hosted.
-This role provides a standardized, reproducible deployment with optional extensions such as Redis caching, database persistence, and Matomo tracking.
+This role adds what a browser and an MCP client need around the engine: a vhost, single sign-on, CSP handling, the corporate design, analytics and the MCP adapter. A small nginx forwarder in its own stack hands every request to the engine, so the vhost, the single sign-on sidecar and the MCP adapter reach the interface under the same name in compose and in swarm.
 
 The role follows Infinito.Nexus conventions:
 
@@ -25,8 +25,7 @@ The role follows Infinito.Nexus conventions:
 
 ## Features
 
-- LibreTranslate service deployment
-- Configurable container image and version
+- Front for the LibreTranslate engine, which owns the image, the models, the GPU and the model store
 - Optional Redis backend
 - Optional database backend
 - Optional Matomo analytics integration
@@ -52,8 +51,8 @@ All configuration is handled via `meta/services.yml` (services map at file root)
 
 Key sections include:
 
-- `services.libretranslate`: image and version
-- `cache: artefacts:` of [svc-ai-libretranslate-engine](../svc-ai-libretranslate-engine/README.md): with `services.libretranslate.model_store: true` and pins covering the pairs `load_only` and `directions` select, the image no longer bakes them; the container reads only the selected packages, one read-only bind each in `ARGOS_PACKAGES_DIR`, and the MiniSBD files from the [model store](../svc-ai-models/README.md), seeds only that selection and refuses to start on a node that lacks it. Otherwise the image bakes them as before, as the engine's README describes for the selection rule.
+- `services.libretranslate`: the nginx forwarder ([templates/nginx.conf.j2](templates/nginx.conf.j2)) that the vhost, the single sign-on origin and the MCP adapter address
+- `services.libretranslate-engine`: the engine this front forwards to; `load_only`, `directions`, `loading_model`, `model_store` and `gpu` are set on [svc-ai-libretranslate-engine](../svc-ai-libretranslate-engine/README.md), whose lazy path serves every selection the store's pins do not cover
 - `services.redis`: enable Redis backend
 - `services.matomo`: enable analytics
 - `domains`: canonical and alias domains

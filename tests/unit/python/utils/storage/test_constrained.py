@@ -142,24 +142,28 @@ class TestClosureStorage(unittest.TestCase):
             self.measure(["web-app-shop", "web-app-odd"], {})
 
 
+def _write_selecting_roles(roles_dir: Path) -> None:
+    for role, entity, size in (
+        ("svc-ai-alpha", "alpha", "1GB"),
+        ("web-svc-beta", "beta", "2GB"),
+    ):
+        (roles_dir / role / ROLE_FILE_VARS_MAIN).parent.mkdir(parents=True)
+        (roles_dir / role / ROLE_FILE_META_SERVICES).parent.mkdir(parents=True)
+        (roles_dir / role / ROLE_FILE_VARS_MAIN).write_text(
+            f"application_id: {role}\n", encoding="utf-8"
+        )
+        (roles_dir / role / ROLE_FILE_META_SERVICES).write_text(
+            f"{entity}:\n  enabled: true\n  cpus: 1\n  min_storage: {size}\n"
+            "  directions: both\n  load_only: [en, de]\n  model_store: true\n",
+            encoding="utf-8",
+        )
+
+
 class TestClosureSelection(unittest.TestCase):
     def setUp(self) -> None:
         self._tmp = tempfile.TemporaryDirectory()
         roles_dir = Path(self._tmp.name) / "roles"
-        for role, entity, size in (
-            ("svc-ai-alpha", "alpha", "1GB"),
-            ("web-svc-beta", "beta", "2GB"),
-        ):
-            (roles_dir / role / ROLE_FILE_VARS_MAIN).parent.mkdir(parents=True)
-            (roles_dir / role / ROLE_FILE_META_SERVICES).parent.mkdir(parents=True)
-            (roles_dir / role / ROLE_FILE_VARS_MAIN).write_text(
-                f"application_id: {role}\n", encoding="utf-8"
-            )
-            (roles_dir / role / ROLE_FILE_META_SERVICES).write_text(
-                f"{entity}:\n  enabled: true\n  cpus: 1\n  min_storage: {size}\n"
-                "  directions: both\n  load_only: [en, de]\n  model_store: true\n",
-                encoding="utf-8",
-            )
+        _write_selecting_roles(roles_dir)
         self.measure = closure_storage(roles_dir)
 
     def tearDown(self) -> None:
@@ -273,13 +277,15 @@ class TestLibretranslateSelection(unittest.TestCase):
         )
 
     def test_two_consumers_selecting_one_digest_count_it_once(self) -> None:
-        round_variants = {_ENGINE: 0, _WEB: 0}
-        with mock.patch.object(constrained, "selection_storage_bytes", return_value=0):
-            declared = required_storage_bytes([_ENGINE, _WEB], round_variants)
-        self.assertEqual(
-            required_storage_bytes([_ENGINE, _WEB], round_variants) - declared,
-            _bytes(_chosen("en_de", "de_en")),
-        )
+        en_de = _bytes(_chosen("en_de", "de_en"))
+        with tempfile.TemporaryDirectory() as tmp:
+            _write_selecting_roles(Path(tmp) / "roles")
+            with mock.patch.object(constrained, "PROJECT_ROOT", Path(tmp)):
+                alone = required_storage_bytes(["svc-ai-alpha"])
+                both = required_storage_bytes(["svc-ai-alpha", "web-svc-beta"])
+        self.assertGreater(en_de, 0)
+        self.assertEqual(alone, 1 * _GB + en_de)
+        self.assertEqual(both, 3 * _GB + en_de)
 
     def test_a_full_selection_counts_every_pinned_record(self) -> None:
         self.assertEqual(len(_chosen()), 180)
@@ -343,7 +349,7 @@ class TestLibretranslateSelection(unittest.TestCase):
             in read_text(str(roles_dir / role / ROLE_FILE_VARS_MAIN))
         }
         self.assertEqual(declaring, seeding)
-        self.assertEqual(declaring, {_ENGINE, _WEB})
+        self.assertEqual(declaring, {_ENGINE})
 
     def test_a_broken_pin_is_refused_only_when_a_consumer_runs(self) -> None:
         broken = ValueError("svc-ai-x/model: broken pin")
@@ -396,15 +402,12 @@ class TestLibretranslateSelection(unittest.TestCase):
                 _bytes(_chosen()),
             )
 
-    def test_every_consumer_hands_the_selection_the_engine_records(self) -> None:
-        roles_dir = Path(PROJECT_ROOT) / "roles"
-        sources = {
-            role: read_text(str(roles_dir / role / ROLE_FILE_VARS_MAIN))
-            for role in (_ENGINE, _WEB)
-        }
-        self.assertIn(f"application_id: {ENGINE}\n", sources[_ENGINE])
-        self.assertIn("lookup('cache_artefacts', application_id)", sources[_ENGINE])
-        self.assertIn(f"lookup('cache_artefacts', '{ENGINE}')", sources[_WEB])
+    def test_the_engine_hands_its_selection_its_own_records(self) -> None:
+        source = read_text(
+            str(Path(PROJECT_ROOT) / "roles" / _ENGINE / ROLE_FILE_VARS_MAIN)
+        )
+        self.assertIn(f"application_id: {ENGINE}\n", source)
+        self.assertIn("lookup('cache_artefacts', application_id)", source)
 
 
 class TestDockerRootFreeBytes(unittest.TestCase):

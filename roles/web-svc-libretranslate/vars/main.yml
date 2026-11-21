@@ -4,14 +4,14 @@ application_id: web-svc-libretranslate # ID of the application
 entity_name: "{{ application_id | entity_name }}"
 
 LIBRETRANSLATE_SERVICE: "{{ entity_name }}"
-LIBRETRANSLATE_IMAGE: "{{ lookup('config', application_id, 'services.libretranslate.image') }}"
-LIBRETRANSLATE_GPU: "{{ lookup('gpu', application_id, 'libretranslate') }}"
-LIBRETRANSLATE_VERSION: "{{ lookup('config', application_id, 'services.libretranslate.version') ~ ('-cuda' if LIBRETRANSLATE_GPU | bool else '') }}"
-LIBRETRANSLATE_LOAD_ONLY: "{{ lookup('config', application_id, 'services.libretranslate.load_only') | join(',') }}"
-LIBRETRANSLATE_DIRECTIONS: "{{ lookup('config', application_id, 'services.libretranslate.directions') }}"
-LIBRETRANSLATE_APP_USER: "{{ 'root' if LIBRETRANSLATE_GPU | bool else 'libretranslate' }}"
-LIBRETRANSLATE_THREADS: "{{ [(lookup('cpus', application_id, 'libretranslate') | float) | round(0, 'ceil') | int, 1] | max }}"
+LIBRETRANSLATE_PORT: "{{ lookup('config', application_id, 'services.libretranslate.ports.internal.http') }}"
 LIBRETRANSLATE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'libretranslate') }}"
+LIBRETRANSLATE_NGINX_CONF_PATH: "{{ [lookup('container', application_id, 'directories.volumes'), 'nginx.conf'] | path_join }}"
+
+LIBRETRANSLATE_BACKEND_ID: svc-ai-libretranslate-engine
+LIBRETRANSLATE_BACKEND_HOST: "{{ lookup('config', LIBRETRANSLATE_BACKEND_ID, 'services.libretranslate-engine.name') }}"
+LIBRETRANSLATE_BACKEND_PORT: "{{ lookup('config', LIBRETRANSLATE_BACKEND_ID, 'services.libretranslate-engine.ports.internal.http') }}"
+
 LIBRETRANSLATE_MCP_ENABLED: "{{ lookup('config', application_id, 'services.libretranslatemcp.enabled') | bool }}"
 LIBRETRANSLATE_MCP_SERVICE_KEY: "libretranslatemcp"
 LIBRETRANSLATE_MCP_CONTAINER: "{{ lookup('config', application_id, 'services.libretranslatemcp.name') }}"
@@ -19,7 +19,7 @@ LIBRETRANSLATE_MCP_PORT: "{{ lookup('config', application_id, 'services.libretra
 LIBRETRANSLATE_MCP_BEARER: "{{ lookup('config', application_id, 'secrets.credentials.mcp_bearer') }}"
 LIBRETRANSLATE_MCP_INSTANCE_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'mcp'] | path_join }}"
 LIBRETRANSLATE_MCP_UPSTREAM_HOST: "{{ entity_name }}"
-LIBRETRANSLATE_MCP_UPSTREAM_PORT: "{{ lookup('config', application_id, 'services.libretranslate.ports.internal.http') }}"
+LIBRETRANSLATE_MCP_UPSTREAM_PORT: "{{ LIBRETRANSLATE_PORT }}"
 LIBRETRANSLATE_MCP_UPSTREAM_URL: "http://{{ LIBRETRANSLATE_MCP_UPSTREAM_HOST }}:{{ LIBRETRANSLATE_MCP_UPSTREAM_PORT }}"
 LIBRETRANSLATE_MCP_CONTRACT:
   provider: "{{ application_id }}"
@@ -30,15 +30,3 @@ LIBRETRANSLATE_MCP_CONTRACT:
   limits: "{{ lookup('config', application_id, 'mcp.limits') }}"
   schema_sha256: "{{ lookup('config', application_id, 'mcp.tools.schema_sha256') }}"
 LIBRETRANSLATE_MCP_UPSTREAM_KEY: ""
-
-LIBRETRANSLATE_ARTEFACTS: "{{ lookup('cache_artefacts', 'svc-ai-libretranslate-engine').values() | list }}"
-LIBRETRANSLATE_HOME: "{{ '/root' if LIBRETRANSLATE_APP_USER == 'root' else ['/home', LIBRETRANSLATE_APP_USER] | path_join }}"
-LIBRETRANSLATE_MODEL_STORE: "{{ lookup('config', application_id, 'services.libretranslate.model_store') | bool }}"
-LIBRETRANSLATE_STORE: "{{ LIBRETRANSLATE_ARTEFACTS | libretranslate_store(AI_MODELS_STORE_PATH, LIBRETRANSLATE_HOME, LIBRETRANSLATE_DIRECTIONS, LIBRETRANSLATE_LOAD_ONLY,
-  LIBRETRANSLATE_MODEL_STORE | bool) }}"
-LIBRETRANSLATE_STORED: "{{ LIBRETRANSLATE_STORE.stored }}"
-LIBRETRANSLATE_BAKE_MODELS: "{{ 'false' if (LIBRETRANSLATE_STORED | bool) else 'true' }}"
-LIBRETRANSLATE_STORE_MOUNTS: "{{ LIBRETRANSLATE_STORE.mounts }}"
-
-LIBRETRANSLATE_CACHE_CA_FILE: /opt/package-frontend-ca.crt
-LIBRETRANSLATE_CACHE_CA_INSTALLER: roles/svc-cache-package/files/shell/ca.sh

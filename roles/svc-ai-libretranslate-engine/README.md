@@ -4,8 +4,12 @@ This role deploys **LibreTranslate** as a plain translation engine, without a
 public vhost, reverse proxy, MCP adapter or analytics. Callers reach it over
 the container network and talk to its HTTP API directly.
 
-Use `web-svc-libretranslate` instead when the deployment needs a public
-domain, single sign-on, CSP handling or the MCP adapter.
+This is the only role that runs a LibreTranslate container.
+`web-svc-libretranslate` adds a public domain, single sign-on, CSP handling
+and the MCP adapter in front of it and forwards every request here, so the
+deployment keeps one image, one model selection and one
+`prefetch_models.py`. When the front's design is enabled, this role sets
+the interface title to the front's design title.
 
 ## Description
 
@@ -78,13 +82,13 @@ does without the store.
 `ARGOS_PACKAGES_DIR` holds one read-only bind per selected package, so
 `load_only` and `directions` keep their meaning although LibreTranslate applies
 `load_only` only while fewer than two packages are installed. The MiniSBD
-models, about 18 MB, are mounted whole. `web-svc-libretranslate` reads the same
-entries.
+models, about 18 MB, are mounted whole.
 
 The CI variants keep `model_store: false` for `build` and `task`, so those
 paths stay deployed; `lazy` with the store off is covered only by the unit
-render of `tests/unit/python/roles/web-svc-libretranslate/test_store_gate.py`,
-since the lazy variant now runs the store.
+render of `tests/unit/python/roles/svc-ai-libretranslate-engine/test_store_gate.py`,
+since the lazy variant now runs the store. The same file proves that the
+lazy path serves every selection the pins do not cover.
 
 ## GPU
 
