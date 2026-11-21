@@ -249,7 +249,7 @@ jobs:
           UPDATE_BRANCH_PREFIX: update/repository-refs
           UPDATE_COMMIT_MESSAGE: "update(repos): bump git refs to latest tags and commits"
           UPDATE_PR_TITLE: "update(repos): bump git refs to latest tags and commits"
-          UPDATE_PR_BODY: "Automated update of git `ref:` values in `roles/*/meta/services.yml` and `roles/*/meta/addons/*.yml`. A semver ref moves to the latest upstream tag (`git ls-remote --tags`), a commit SHA to the tip of the default branch (`git ls-remote <repository> HEAD`)."
+          UPDATE_PR_BODY: "Automated update of git `ref:` values in `roles/*/meta/services.yml` and `roles/*/meta/addons/*.yml`. A semver ref moves to the latest upstream tag (`git ls-remote --tags`), a commit SHA to the newest release tag that contains it, or to the tip of the default branch (`git ls-remote <repository> HEAD`) when no release does."
           UPDATE_BASE_BRANCH: main
         run: bash scripts/github/update/open/role_prs.sh roles
 

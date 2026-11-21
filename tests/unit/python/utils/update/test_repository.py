@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import subprocess
 import tempfile
 import unittest
@@ -18,6 +19,8 @@ from utils.update.repository import (
     git_ls_remote_head,
     git_ref_resolves,
     is_commit_sha,
+    latest_release,
+    release_contains,
     suppressed_ref_lines,
     update_config_refs,
     walk_repo_ref_pairs,
@@ -373,10 +376,41 @@ def _write_role(
     return config
 
 
-def _find(root: Path, ls_remote: _LsRemote) -> list[RepositoryRefUpdate]:
+class _Contains:
+    """Stand-in for :func:`release_contains`.
+
+    Args:
+        answer: what every call reports; ``None`` fails any call.
+    """
+
+    def __init__(self, answer: bool | None) -> None:
+        self.answer = answer
+        self.calls: list[tuple[str, str, str]] = []
+
+    def __call__(self, url: str, sha: str, tag: str) -> bool:
+        if self.answer is None:
+            raise AssertionError(f"release_contains({url}, {sha}, {tag}) called")
+        self.calls.append((url, sha, tag))
+        return self.answer
+
+
+def _find(
+    root: Path, ls_remote: _LsRemote, contains: _Contains | None = None
+) -> list[RepositoryRefUpdate]:
+    """Run :func:`find_outdated_updates` against stand-ins.
+
+    Args:
+        root: the repository root holding ``roles/``.
+        ls_remote: answers every ``git ls-remote``.
+        contains: answers :func:`release_contains`; ``None`` asserts it is
+            never called.
+    """
+    if contains is None:
+        contains = _Contains(answer=None)
     with (
         unittest.mock.patch.object(module, "resolve_max_fetch_workers", return_value=2),
         unittest.mock.patch.object(module.subprocess, "run", side_effect=ls_remote),
+        unittest.mock.patch.object(module, "release_contains", side_effect=contains),
     ):
         return find_outdated_updates(root)
 
@@ -410,6 +444,69 @@ class TestIsCommitSha(unittest.TestCase):
         self.assertFalse(is_commit_sha(OLD_SHA + "0"))
         self.assertFalse(is_commit_sha("main"))
         self.assertFalse(is_commit_sha("v1.0.0"))
+
+
+class TestLatestRelease(unittest.TestCase):
+    def test_the_newest_unflavored_semver_tag_wins(self) -> None:
+        self.assertEqual(
+            latest_release(["v0.1.0", "v0.1.1", "v0.2.0-rc.1", "nightly"]), "v0.1.1"
+        )
+        self.assertEqual(latest_release(["6.8.0", "6.9.0", "6.10.0"]), "6.10.0")
+
+    def test_no_release_tag_yields_none(self) -> None:
+        self.assertIsNone(latest_release([]))
+        self.assertIsNone(latest_release(["v1.0.0-rc.1", "nightly"]))
+
+
+_ISOLATED_GIT = {"GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_NOSYSTEM": "1"}
+
+
+class TestReleaseContains(unittest.TestCase):
+    def setUp(self) -> None:
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        upstream = Path(tmp.name) / "upstream"
+        upstream.mkdir()
+        self.env = {
+            **{k: v for k, v in os.environ.items() if not k.startswith("GIT_")},
+            **_ISOLATED_GIT,
+            "GIT_AUTHOR_NAME": "test",
+            "GIT_AUTHOR_EMAIL": "test@example.invalid",
+            "GIT_COMMITTER_NAME": "test",
+            "GIT_COMMITTER_EMAIL": "test@example.invalid",
+        }
+        self._git(upstream, "init", "--quiet")
+        self.released = self._commit(upstream, "released")
+        self._git(upstream, "tag", "-a", "v1.0.0", "-m", "v1.0.0")
+        self.unreleased = self._commit(upstream, "after the release")
+        self.url = upstream.as_uri()
+
+    def _git(self, cwd: Path, *args: str) -> str:
+        return subprocess.run(
+            ["git", *args],
+            cwd=cwd,
+            env=self.env,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+
+    def _commit(self, repo: Path, message: str) -> str:
+        self._git(repo, "commit", "--quiet", "--allow-empty", "-m", message)
+        return self._git(repo, "rev-parse", "HEAD")
+
+    def _contains(self, sha: str, tag: str) -> bool:
+        with unittest.mock.patch.dict(os.environ, _ISOLATED_GIT):
+            return release_contains(self.url, sha, tag)
+
+    def test_a_commit_the_release_carries_is_contained(self) -> None:
+        self.assertTrue(self._contains(self.released, "v1.0.0"))
+
+    def test_a_commit_after_the_release_is_not_contained(self) -> None:
+        self.assertFalse(self._contains(self.unreleased, "v1.0.0"))
+
+    def test_a_missing_tag_proves_nothing(self) -> None:
+        self.assertFalse(self._contains(self.released, "v9.9.9"))
 
 
 class TestGitLsRemoteHead(unittest.TestCase):
@@ -508,6 +605,54 @@ class TestCommitShaPins(unittest.TestCase):
                 written, SHA_PINNED.replace(f'"{OLD_SHA}"', f'"{TIP_SHA}"')
             )
 
+    def test_a_sha_contained_in_the_newest_release_moves_to_that_tag(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            config = _write_role(root, SHA_PINNED)
+            ls_remote = _LsRemote(
+                heads={SHA_REPO: TIP_SHA},
+                tags={SHA_REPO: ["v1.0.0", "v1.2.0", "v2.0.0-rc.1"]},
+            )
+            contains = _Contains(answer=True)
+
+            updates = _find(root, ls_remote, contains)
+
+            self.assertEqual([u.latest for u in updates], ["v1.2.0"])
+            self.assertEqual(contains.calls, [(SHA_REPO, OLD_SHA, "v1.2.0")])
+            self.assertEqual(ls_remote.calls, [("--tags", SHA_REPO)])
+            apply_updates(updates)
+            written = config.read_text()  # nocheck: cache-read  just rewritten here
+            self.assertIn('ref: "v1.2.0"', written)
+
+    def test_a_sha_newer_than_the_newest_release_follows_the_tip(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            _write_role(root, SHA_PINNED)
+            ls_remote = _LsRemote(
+                heads={SHA_REPO: TIP_SHA}, tags={SHA_REPO: ["v1.0.0", "v1.2.0"]}
+            )
+
+            updates = _find(root, ls_remote, _Contains(answer=False))
+
+            self.assertEqual([u.latest for u in updates], [TIP_SHA])
+            self.assertEqual(
+                sorted(ls_remote.calls), [("--tags", SHA_REPO), (SHA_REPO, "HEAD")]
+            )
+
+    def test_a_sha_whose_upstream_has_only_flavored_tags_follows_the_tip(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            _write_role(root, SHA_PINNED)
+            ls_remote = _LsRemote(
+                heads={SHA_REPO: TIP_SHA}, tags={SHA_REPO: ["v2.0.0-rc.1"]}
+            )
+
+            self.assertEqual([u.latest for u in _find(root, ls_remote)], [TIP_SHA])
+
     def test_a_current_sha_is_left_alone(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
@@ -576,7 +721,7 @@ class TestCommitShaPins(unittest.TestCase):
             )
 
             self.assertEqual(_find(root, ls_remote), [])
-            self.assertEqual(len(ls_remote.calls), 2)
+            self.assertEqual(len(ls_remote.calls), 3)
 
     def test_each_repository_is_queried_once_per_lookup_kind(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -595,7 +740,7 @@ class TestCommitShaPins(unittest.TestCase):
 
             self.assertEqual(
                 sorted(ls_remote.calls),
-                [("--tags", TAG_REPO), (SHA_REPO, "HEAD")],
+                [("--tags", TAG_REPO), ("--tags", SHA_REPO), (SHA_REPO, "HEAD")],
             )
             self.assertEqual(
                 sorted((u.entry.entity_path, u.latest) for u in updates),
