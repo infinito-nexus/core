@@ -3,7 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
   test("administrator: break-glass password login reaches the instance administration", async ({ page }) => {
-    test.setTimeout(resolveTimeout(90_000)); // cold SvelteKit bundle plus the instance settings fetch
+    test.setTimeout(resolveTimeout(90_000));
     expect(shared.env.breakglassEmail, "BREAKGLASS_EMAIL must be set").toBeTruthy();
     expect(shared.env.breakglassPassword, "BREAKGLASS_PASSWORD must be set").toBeTruthy();
 
