@@ -19,7 +19,7 @@ def _env(*, port, tls, start_tls, auth):
         "SMTP_PORT": str(port),
         "SMTP_TLS": str(tls).lower(),
         "SMTP_START_TLS": str(start_tls).lower(),
-        "SMTP_AUTH": str(auth).lower(),
+        "SMTP_AUTH_ENABLED": str(auth).lower(),
         "SMTP_USER": "no-reply@infinito.example",
         "SMTP_PASS": "submission-token",
     }

@@ -278,30 +278,10 @@ def call_upstream_mcp(name, arguments):
         parsed, status = exchange(envelope)
 
     if isinstance(parsed, dict) and parsed.get("error"):
-        raise UpstreamError(
+        raise passthrough.UpstreamError(
             f"upstream_error: {str(parsed['error'])[:200]}", status=status
         )
     return parsed.get("result") if isinstance(parsed, dict) else None
-
-
-class UpstreamError(ValueError):
-    def __init__(self, message, status):
-        super().__init__(message)
-        self.code = status
-
-
-def upstream_status(error):
-    """Return the status the provider answered with, 0 when it never answered.
-
-    Args:
-        error: the exception raised while calling the provider.
-
-    The caller cannot otherwise tell a provider that is still starting from one
-    that refuses the adapter's credential, and those need opposite reactions:
-    the first is worth waiting for, the second never resolves.
-    """
-    code = getattr(error, "code", None)
-    return int(code) if isinstance(code, int) else 0
 
 
 def tool_descriptors():
@@ -491,7 +471,7 @@ class Handler(BaseHTTPRequestHandler):
                     "error": {
                         "code": -32000,
                         "message": "upstream_error",
-                        "data": {"upstream_status": upstream_status(error)},
+                        "data": {"upstream_status": passthrough.upstream_status(error)},
                     },
                 },
             )

@@ -23,6 +23,7 @@ final class ConfigTest extends TestCase
         'MOODLE_EGRESS_ALLOWED_PORTS' => '443',
         'MOODLE_INTERNAL_HOST' => 'moodle',
         'MOODLE_OBJECTFS_ENABLED' => 'false',
+        'MOODLE_FORCED_PLUGIN_SETTINGS' => 'e30=',
     ];
 
     private string $root;
