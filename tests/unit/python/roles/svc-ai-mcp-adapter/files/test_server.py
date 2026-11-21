@@ -288,5 +288,35 @@ class TestConcurrencyCeiling(unittest.TestCase):
         self.assertEqual(200, recorder.status)
 
 
+class TestContentLength(unittest.TestCase):
+    def setUp(self):
+        self.module = load()
+
+    def _handle(self, content_length):
+        handler = self.module.Handler.__new__(self.module.Handler)
+        recorder = Recorder()
+        handler.send_response = recorder.send_response
+        handler.send_header = recorder.send_header
+        handler.end_headers = recorder.end_headers
+        handler.wfile = type("W", (), {"write": lambda _s, _data: None})()
+        handler.path = self.module.ENDPOINT
+        reads = []
+        handler.rfile = type(
+            "R", (), {"read": lambda _s, n: reads.append(n) or b"{}"}
+        )()
+        handler.headers = {
+            "Content-Length": content_length,
+            "Authorization": "Bearer real",
+        }
+        handler.do_POST()
+        return recorder.status, reads
+
+    def test_a_negative_length_is_refused_before_any_read(self):
+        self.assertEqual(self._handle("-1"), (400, []))
+
+    def test_a_non_numeric_length_is_refused_before_any_read(self):
+        self.assertEqual(self._handle("abc"), (400, []))
+
+
 if __name__ == "__main__":
     unittest.main()
