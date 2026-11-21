@@ -32,6 +32,10 @@ async function adminOverviewStatus(page, shared) {
   return response ? response.status() : 0;
 }
 
+function adminSettingsNavigationLink(page) {
+  return page.locator("#app-navigation-vue").locator('a[href*="/settings/admin/"]').first();
+}
+
 async function logoutFromShell(page, shared) {
   await gotoOnion(page, shared.env.nextcloudBaseUrl, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
   await shared.waitForVisibleCandidate(
@@ -91,7 +95,7 @@ exports.register = function (shared) {
           })
           .toBe(200);
         await expect(
-          biberPage.locator('a[href*="/settings/admin/"]').first(),
+          adminSettingsNavigationLink(biberPage),
           "the administration settings navigation must render for a member of the administrator role group",
         ).toBeVisible({ timeout: resolveTimeout(30_000) });
         await logoutFromShell(biberPage, shared);
