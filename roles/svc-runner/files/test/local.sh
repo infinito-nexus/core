@@ -28,6 +28,19 @@ if ! docker exec "${RUNNER_PROJECT_PREFIX}-1" docker version >/dev/null 2>&1; th
 fi
 echo "OK: DooD socket accessible inside ${RUNNER_PROJECT_PREFIX}-1"
 
+if [[ "${RUNNER_FLAVOR:-}" == "local" ]]; then
+    IFS=: read -r -a _roots <<<"${RUNNER_WORKTREE_ROOTS:?}"
+    for i in $(seq 1 "${RUNNER_COUNT}"); do
+        for root in "${_roots[@]}"; do
+            if ! container exec "${RUNNER_PROJECT_PREFIX}-${i}" test -d "${root}"; then
+                echo "FAIL: worktree root ${root} is not mounted in ${RUNNER_PROJECT_PREFIX}-${i}"
+                exit 1
+            fi
+        done
+    done
+    echo "OK: every worktree root is mounted at its host path in every runner"
+fi
+
 if [[ "${DEPLOY_IS_UPDATE:-false}" == "true" ]]; then
     echo "Skipping full deploy on the update pass (validated on the first pass)"
     echo "ALL LOCAL CHECKS PASSED (DinD)"
@@ -36,9 +49,16 @@ fi
 
 _iso_src="${RUNNER_INSTALL_DIR}/1/nested-src"
 echo "DinD mode: running full reinstall deploy inside ${RUNNER_PROJECT_PREFIX}-1..."
-container exec --user root "${RUNNER_PROJECT_PREFIX}-1" mkdir -p "${RUNNER_SRC_DIR}"
-# nocheck: container-cp - DinD runner container runs on this host, checkout is local
-container cp "${RUNNER_SRC_DIR}/." "${RUNNER_PROJECT_PREFIX}-1:${RUNNER_SRC_DIR}"
+if [[ "${RUNNER_FLAVOR:-}" == "local" ]]; then
+    if ! container exec "${RUNNER_PROJECT_PREFIX}-1" test -d "${RUNNER_SRC_DIR}"; then
+        echo "FAIL: ${RUNNER_SRC_DIR} lies outside the worktree roots ${RUNNER_WORKTREE_ROOTS} of ${RUNNER_PROJECT_PREFIX}-1"
+        exit 1
+    fi
+else
+    container exec --user root "${RUNNER_PROJECT_PREFIX}-1" mkdir -p "${RUNNER_SRC_DIR}"
+    # nocheck: container-cp - DinD runner container runs on this host, checkout is local
+    container cp "${RUNNER_SRC_DIR}/." "${RUNNER_PROJECT_PREFIX}-1:${RUNNER_SRC_DIR}"
+fi
 container exec --user root "${RUNNER_PROJECT_PREFIX}-1" \
     bash -c "rm -rf ${_iso_src} && mkdir -p ${_iso_src} && tar -C ${RUNNER_SRC_DIR} --exclude='./.env' --exclude='./compose/coredns/Corefile' --exclude='./.venvs' --exclude='./venv' --exclude='./build' --exclude='*/node_modules' --exclude='*/__pycache__' -cf - . | tar -C ${_iso_src} -xf - && chown -R github-runner:github-runner ${_iso_src}"
 container exec "${RUNNER_PROJECT_PREFIX}-1" bash -c "cd ${_iso_src} && make install"

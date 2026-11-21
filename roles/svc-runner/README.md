@@ -22,6 +22,7 @@ The `RUNNER_DISTRIBUTION` variable selects distro-specific package installation 
 - **Multi-distro:** Supports Debian, Ubuntu (`apt`), Arch Linux (`pacman`), and Fedora/EL (`dnf`) via distro-specific task files.
 - **Idempotent:** The compose stack lives in the default instance directory and runs through the default compose handlers; re-running the deploy recreates the containers when their image, compose file or instance environment changed, without manual cleanup.
 - **CI workflow ready:** All deploy-test workflows route to GitHub-hosted runners by default; set `CI_SELF_HOSTED_RUNNER_COUNT` to overflow jobs to your runners.
+- **Two flavors:** `services.runner.flavor` selects `github` (the default, everything this page describes) or `local`, which registers nowhere, needs no PAT, checks nothing out and mounts the worktree roots at their host paths instead; see [Local flavor](#local-flavor).
 
 ## End-to-end guide
 
@@ -135,6 +136,8 @@ python -m cli.administration.deploy.runner <hostname> \
 | `RUNNER_PROJECT_PREFIX` | `runner` | Prefix for per-instance Docker Compose project names and `INFINITO_RUNNER_PREFIX`. |
 | `RUNNER_SYSCTL_OWNER` | `runner` | Owner name under which [sys-sysctl](../sys-sysctl/) writes the runner-host kernel tuning to `/etc/sysctl.d/99-runner.conf`. |
 | `RUNNER_SYSCTL_PARAMETERS` | three `fs.inotify.*` limits and `vm.max_map_count: 262144` | Inotify limits for parallel runner containers, and the memory-map floor Wazuh, OpenSearch and Elasticsearch need inside DiD; host-global, so skipped inside a container. |
+| `RUNNER_FLAVOR` | `meta/services.yml` (`github`) | `services.runner.flavor`: `github` registers every instance with GitHub; `local` renders no registration, no PAT and no checkout ref, skips the GitHub runner binary and mounts `RUNNER_WORKTREE_ROOTS`. Any other value fails the deploy. |
+| `RUNNER_WORKTREE_ROOTS` | `meta/services.yml` (`[]`) | `services.runner.worktree_roots`: absolute directories every `local` instance mounts read-only at its host path. The `local` flavor fails the deploy without one, and on a root that is `/`, holds `:`, or is a home directory (`/root`, `/home/<user>`, `/Users/<user>`, `/var/home/<user>`) or a parent of one. |
 
 `RUNNER_DISTRIBUTION` is **required** and has no default; it is passed automatically by the CLI.
 
@@ -145,7 +148,7 @@ The role self-validates via the scripts in `files/test/`, discovered and run by 
 - **`local.sh` — fully local, no external GitHub.** Checks the runner containers are healthy and the DooD socket works, then `container cp`s the repo into a runner, **builds the Infinito image locally**, and deploys `web-app-dashboard` (all other services disabled) inside a **sealed, throwaway Docker daemon** that shares the runner's network namespace. The sandbox is torn down on exit, so the host stack is never touched and **no GitHub/GHCR access is required**. On the update pass the heavy deploy is skipped (it is validated once on the first pass).
 - **`external.sh` — real job-pickup smoke test (optional).** Uses `RUNNER_API_TOKEN` to confirm the runners registered and are online via the GitHub API, dispatches a smoke workflow, and polls it to completion. Skipped automatically when no token is present.
 
-In short: `local.sh` proves the runner can build and deploy entirely on its own hardware; `external.sh` proves it can receive real jobs from GitHub.
+In short: `local.sh` proves the runner can build and deploy entirely on its own hardware; `external.sh` proves it can receive real jobs from GitHub. Under the `local` flavor `test.sh` skips the runner binary and `external.sh`, `local.sh` checks that every worktree root is mounted in every runner, and the nested deploy reads the checkout from its mounted root instead of copying it into the runner.
 
 ## Runner Topology
 
@@ -210,6 +213,47 @@ Because no stack service exists, the swarm test gates that poll
 (`has_swarm_service` in `scripts/tests/deploy/swarm/utils/_context.sh` finds
 no service of the stack); the deploy itself, the registry distribution
 chain and the CLI e2e suite run in full.
+
+### Local flavor
+
+The `local` flavor serves a local runner pool that works on the host's
+worktrees and registers with no GitHub repository. An inventory selects it on
+the role's service entity:
+
+```yaml
+applications:
+  svc-runner:
+    services:
+      runner:
+        flavor: local
+        worktree_roots:
+          - /home/<user>/Repositories/github.com/infinito-nexus/core
+          - /home/<user>/.local/share/worktrees
+```
+
+Each instance keeps its per-instance DinD environment (compose project,
+prefix, subnet `172.30.<N>.0/24` and Docker volume), but its `.env` carries
+none of the registration variables (`RUNNER_NAME`, `RUNNER_LABELS`,
+`RUNNER_GITHUB_OWNER`, `RUNNER_GITHUB_REPO`, `RUNNER_API_TOKEN`), the role
+downloads no GitHub runner binary, and the e2e environment carries no
+`GITHUB_TOKEN` and no `RUNNER_GIT_REF` but `RUNNER_FLAVOR` and
+`RUNNER_WORKTREE_ROOTS`. Every root of `worktree_roots` is
+mounted read-only at its host path, so a worktree's `.git` file resolves into
+the primary checkout as it does on the host. The staged entrypoint
+(`files/shell/entrypoint-local.sh`) registers nowhere and keeps the container
+idle; it takes no job by itself. Without the key, every inventory renders the
+`github` flavor byte-identical to the role before the flavor existed.
+
+```mermaid
+flowchart LR
+    subgraph host [infra runner]
+        roots[(worktree roots<br/>host paths, read-only)]
+        r1[runner-1<br/>local flavor] -->|/var/run/docker.sock| dockerd[(inner dockerd)]
+        rn[runner-N<br/>local flavor] -->|/var/run/docker.sock| dockerd
+        roots --> r1
+        roots --> rn
+    end
+```
 
 ## Further Resources
 

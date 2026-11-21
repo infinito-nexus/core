@@ -357,7 +357,7 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation, 
 
 ### Phase 8: Runner pool
 
-- [ ] `svc-runner` with the flavor `github` renders today's files byte-identical; with `local` it renders no registration, no PAT and no checkout step, and mounts the worktree roots at their host paths. `[unit]`
+- [x] `svc-runner` with the flavor `github` renders today's files byte-identical; with `local` it renders no registration, no PAT and no checkout step, and mounts the worktree roots at their host paths. `[unit]` (`tests/unit/python/roles/svc-runner/test_local_flavor.py` against the `fixtures/github.json` snapshot of today's render)
 - [ ] The infra inventory deploys one runner stack with N `local` runners into the infra runner; `make runner-status` lists N idle runners afterwards. `[host]`
 - [x] `make runner-count` prints N and its RAM, CPU and disk terms, computed from the calibration file and the host values; the disk term subtracts the sum over the caches of `max(0, cap - current use)` and the floor from the free disk, never the full cap sum; N is at least 1, and `INFINITO_RUNNER_COUNT` overrides it. `[unit]`
 - [ ] The calibration file records the measured full deploy it comes from (applications, commit, date, peak memory, CPU, disk growth), and a lint fails on a budget without that record. `[unit]`

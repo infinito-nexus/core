@@ -23,6 +23,8 @@ runner:
   image_tag: latest
   install_dir: /opt/github-runner
   cpus: 2
+  flavor: github
+  worktree_roots: []
 
 # nocheck: dynamic-flag
 buildkit:

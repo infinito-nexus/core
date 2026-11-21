@@ -1,16 +1,10 @@
-import json
+import importlib
 import posixpath
 import re
 import unittest
-from importlib.util import module_from_spec, spec_from_file_location
-
-from ansible.module_utils.parsing.convert_bool import boolean
-from jinja2 import Environment, FunctionLoader, StrictUndefined, select_autoescape
 
 from utils import PROJECT_ROOT
-from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any, load_yaml_str
-from utils.roles.entity.name import entity_name
 from utils.roles.mapping import (
     ROLE_FILE_DEFAULTS_MAIN,
     ROLE_FILE_META_SERVICES,
@@ -18,14 +12,16 @@ from utils.roles.mapping import (
     ROLE_FILE_VARS_MAIN,
 )
 
-ROLE = PROJECT_ROOT / "roles" / "svc-runner"
+_render = importlib.import_module("tests.unit.python.roles.svc-runner._render")
+_environment = _render.environment
+_condition = _render.condition
+
+ROLE = _render.ROLE
 COMPOSE_ROLE = PROJECT_ROOT / "roles" / "sys-svc-compose"
 SYSCTL_ROLE = PROJECT_ROOT / "roles" / "sys-sysctl"
 NODE_TASKS = "04_node.yml"
 LEGACY_SYSCTL_CONF = "/etc/sysctl.d/99-github-runner.conf"
 IDENTIFIER = re.compile(r"\b[A-Za-z_][A-Za-z0-9_]*\b")
-REAL_LOOKUPS = ("compose_only", "compose_restart", "compose_replicas")
-ABSENT_LOOKUPS = ("database", "objstore", "engine", "sso")
 INCLUDE_MODULES = ("include_role", "ansible.builtin.include_role")
 INCLUDE_TASKS_MODULES = ("include_tasks", "ansible.builtin.include_tasks")
 FLUSH_MODULES = ("meta", "ansible.builtin.meta")
@@ -33,9 +29,6 @@ FILE_MODULES = ("file", "ansible.builtin.file")
 COPY_MODULES = ("copy", "ansible.builtin.copy")
 DEBUG_MODULES = ("debug", "ansible.builtin.debug")
 TEMPLATE_MODULES = ("template", "ansible.builtin.template")
-LOG_LABEL = load_yaml_any(str(PROJECT_ROOT / "group_vars/all/22_logging.yml"))[
-    "DOCKER_LOG_LABEL"
-]
 
 
 def _tasks(name):
@@ -65,51 +58,9 @@ def _strings(node):
         yield node
 
 
-def _path_join(parts):
-    return posixpath.join(*parts)
-
-
 class _Changed:
     def __init__(self, changed):
         self.changed = changed
-
-
-def _is_changed(value):
-    return bool(value.changed)
-
-
-def _environment(loader=None):
-    environment = Environment(
-        loader=loader,
-        undefined=StrictUndefined,
-        trim_blocks=True,
-        lstrip_blocks=True,
-        autoescape=select_autoescape(default_for_string=False),
-    )
-    environment.filters["entity_name"] = entity_name
-    environment.filters["path_join"] = _path_join
-    environment.filters["bool"] = boolean
-    environment.filters["to_json"] = json.dumps
-    environment.tests["changed"] = _is_changed
-    return environment
-
-
-def _condition(expression, **variables):
-    template = "{% if " + expression + " %}yes{% else %}no{% endif %}"
-    return _environment().from_string(template).render(**variables) == "yes"
-
-
-def _lookup_class(name):
-    spec = spec_from_file_location(
-        f"svc_runner_layout_{name}", PROJECT_ROOT / "plugins" / "lookup" / f"{name}.py"
-    )
-    module = module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module.LookupModule
-
-
-def _project_template(name):
-    return read_text(str(PROJECT_ROOT / name))
 
 
 class TestRunnerInstanceLayout(unittest.TestCase):
@@ -252,48 +203,10 @@ class TestRunnerInstanceLayout(unittest.TestCase):
 
 
 class TestRunnerComposeRender(unittest.TestCase):
-    def setUp(self):
-        self.vars = load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN))
-
     def render(self, swarm):
-        variables = {
-            "application_id": self.vars["application_id"],
-            "compose_mode_force": self.vars.get("compose_mode_force", ""),
-            "DEPLOYMENT_MODE": "swarm" if swarm else "compose",
-            "DOCKER_LOG_LABEL": LOG_LABEL,
-            "IS_SWARM_MODE": swarm,
-            "RUNNER_COUNT": 2,
-            "RUNNER_IMAGE_REF": ("manager:5000/" if swarm else "")
-            + "infinito-runner:latest",
-            "RUNNER_INSTALL_DIR": "/opt/github-runner",
-            "RUNNER_DOCKER_BASE": "/mnt/docker",
-            "RUNNER_BASE_IMAGE": "ubuntu:26.04",
-            "RUNNER_UID": 900,
-            "RUNNER_GID": 900,
-            "_runner_docker_gid": "999",
-        }
-        environment = _environment(FunctionLoader(_project_template))
-
-        def lookup(name, *terms, **kwargs):
-            if name == "template":
-                return environment.get_template(terms[0]).render(variables)
-            if name in REAL_LOOKUPS:
-                return _lookup_class(name)().run(
-                    list(terms), variables=variables, **kwargs
-                )[0]
-            if name in ABSENT_LOOKUPS:
-                return False
-            if name == "container_networks":
-                return "networks:\n  default: {}"
-            if name == "compose_networks":
-                return "networks:\n  default:\n    name: runner"
-            if name == "compose_volumes":
-                return ""
-            raise AssertionError(f"unexpected lookup {name}")
-
-        environment.globals["lookup"] = lookup
-        template = read_text(str(ROLE / ROLE_FILE_TEMPL_COMPOSE))
-        return load_yaml_str(environment.from_string(template).render(variables))
+        return load_yaml_str(
+            _render.render(_render.COMPOSE, _render.flavor_of({}), swarm=swarm)
+        )
 
     def test_compose_mode_builds_the_runner_image_from_the_instance_dir(self):
         services = self.render(swarm=False)["services"]

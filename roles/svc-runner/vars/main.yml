@@ -25,3 +25,17 @@ RUNNER_GITHUB_REPO: "{{ (lookup('env', 'GITHUB_REPOSITORY') | split('/') | last)
   }}"
 RUNNER_API_TOKEN: "{{ lookup('env', 'GH_TOKEN') | default(lookup('env', 'GITHUB_TOKEN'), true) }}"
 RUNNER_GIT_REF: "{{ lookup('env', 'GITHUB_REF_NAME') | default('main', true) }}"
+RUNNER_FLAVOR: "{{ lookup('config', application_id, 'services.runner.flavor') }}"
+RUNNER_FLAVORS:
+  github:
+    entrypoint: shell/entrypoint.sh
+    registers_with_github: true
+    mounts_worktrees: false
+  local:
+    entrypoint: shell/entrypoint-local.sh
+    registers_with_github: false
+    mounts_worktrees: true
+RUNNER_ENTRYPOINT: "{{ RUNNER_FLAVORS[RUNNER_FLAVOR].entrypoint }}"
+RUNNER_REGISTERS_WITH_GITHUB: "{{ RUNNER_FLAVORS[RUNNER_FLAVOR].registers_with_github }}"
+RUNNER_MOUNTS_WORKTREES: "{{ RUNNER_FLAVORS[RUNNER_FLAVOR].mounts_worktrees }}"
+RUNNER_WORKTREE_ROOTS: "{{ lookup('config', application_id, 'services.runner.worktree_roots') }}"

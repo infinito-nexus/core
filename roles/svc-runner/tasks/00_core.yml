@@ -1,6 +1,47 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: 🧭 Validate the runner flavor
+  ansible.builtin.assert:
+    that:
+      - RUNNER_FLAVOR in RUNNER_FLAVORS
+    fail_msg: >-
+      services.runner.flavor '{{ RUNNER_FLAVOR }}' must be one of
+      {{ RUNNER_FLAVORS | list | join(', ') }}
+    quiet: true
+
+- name: 🧭 Validate the worktree roots the runner flavor mounts
+  ansible.builtin.assert:
+    that:
+      - >-
+        RUNNER_WORKTREE_ROOTS is sequence
+        and RUNNER_WORKTREE_ROOTS is not string
+        and RUNNER_WORKTREE_ROOTS is not mapping
+        and RUNNER_WORKTREE_ROOTS | length > 0
+        and RUNNER_WORKTREE_ROOTS | reject('string') | list | length == 0
+        and RUNNER_WORKTREE_ROOTS | reject('match', '/[^/]') | list | length == 0
+        and RUNNER_WORKTREE_ROOTS | select('search', '(^|/)[.][.]?(/|$)')
+        | list | length == 0
+        and RUNNER_WORKTREE_ROOTS | select('search', ':') | list | length == 0
+        and RUNNER_WORKTREE_ROOTS | map('regex_replace', '/+', '/')
+        | map('regex_replace', '/$', '')
+        | select('match', '/(root|home(/[^/]+)?|Users(/[^/]+)?|var(/home(/[^/]+)?)?)$')
+        | list | length == 0
+      - >-
+        RUNNER_SRC_DIR is match('/[^/]')
+        and RUNNER_SRC_DIR is not search('(^|/)[.][.]?(/|$)')
+        and RUNNER_SRC_DIR is match('(' ~
+        (RUNNER_WORKTREE_ROOTS | map('regex_replace', '/+$', '')
+        | map('regex_escape') | join('|')) ~ ')(/|$)')
+    fail_msg: >-
+      the {{ RUNNER_FLAVOR }} flavor mounts its worktree roots and needs
+      services.runner.worktree_roots as a list of absolute directories other
+      than /, without ':' and neither a home directory nor a parent of one,
+      that holds its checkout {{ RUNNER_SRC_DIR }}
+      (roots: {{ RUNNER_WORKTREE_ROOTS | to_json }})
+    quiet: true
+  when: RUNNER_MOUNTS_WORKTREES | bool
+
 - name: 🐳 Ensure Docker is installed and running
   ansible.builtin.include_role:
     name: sys-svc-container
@@ -48,26 +89,29 @@
     group: "{{ RUNNER_USER }}"
     mode: "0755"
 
-- name: 🔍 Fetch latest GitHub Actions runner version tag
-  uri_retry:
-    url: https://api.github.com/repos/actions/runner/releases/latest
-    return_content: true
-  register: _runner_latest_release
-  delegate_to: localhost
-  become: false
-  changed_when: false
+- name: 📦 Provide the GitHub Actions runner binary
+  when: RUNNER_REGISTERS_WITH_GITHUB | bool
+  block:
+    - name: 🔍 Fetch latest GitHub Actions runner version tag
+      uri_retry:
+        url: https://api.github.com/repos/actions/runner/releases/latest
+        return_content: true
+      register: _runner_latest_release
+      delegate_to: localhost
+      become: false
+      changed_when: false
 
-- name: 🏷️ Set resolved runner version
-  set_fact:
-    runner_resolved_version: "{{ _runner_latest_release.json.tag_name | regex_replace('^v', '') }}"
+    - name: 🏷️ Set resolved runner version
+      set_fact:
+        runner_resolved_version: "{{ _runner_latest_release.json.tag_name | regex_replace('^v', '') }}"
 
-- name: ⬇️ Download GitHub Actions runner binary
-  get_url_retry:
-    url: "https://github.com/actions/runner/releases/download/v{{ runner_resolved_version }}/actions-runner-linux-x64-{{ runner_resolved_version }}.tar.gz"
-    dest: "{{ RUNNER_INSTALL_DIR }}/actions-runner.tar.gz"
-    owner: "{{ RUNNER_USER }}"
-    group: "{{ RUNNER_USER }}"
-    mode: "0644"
+    - name: ⬇️ Download GitHub Actions runner binary
+      get_url_retry:
+        url: "https://github.com/actions/runner/releases/download/v{{ runner_resolved_version }}/actions-runner-linux-x64-{{ runner_resolved_version }}.tar.gz"
+        dest: "{{ RUNNER_INSTALL_DIR }}/actions-runner.tar.gz"
+        owner: "{{ RUNNER_USER }}"
+        group: "{{ RUNNER_USER }}"
+        mode: "0644"
 
 - name: 🔍 Find existing runner instance directories
   find:
@@ -163,7 +207,7 @@
 
 - name: 📄 Stage the runner entrypoint into the build context
   stack_host_copy:
-    src: shell/entrypoint.sh
+    src: "{{ RUNNER_ENTRYPOINT }}"
     dest: "{{ [lookup('container', application_id, 'directories.instance'), 'entrypoint.sh'] | path_join }}"
     mode: "0755"
   notify:

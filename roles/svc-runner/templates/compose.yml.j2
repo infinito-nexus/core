@@ -21,6 +21,11 @@
       - "{{ RUNNER_INSTALL_DIR }}/{{ i }}:{{ RUNNER_INSTALL_DIR }}/{{ i }}"
       - /var/run/docker.sock:/var/run/docker.sock
       - "{{ RUNNER_DOCKER_BASE }}/{{ i }}:{{ RUNNER_DOCKER_BASE }}/{{ i }}"
+      {% if RUNNER_MOUNTS_WORKTREES | bool %}
+      {% for root in RUNNER_WORKTREE_ROOTS %}
+      - "{{ root }}:{{ root }}:ro"
+      {% endfor %}
+      {% endif %}
     group_add:
       - "{{ _runner_docker_gid }}"
     {{ lookup('container_networks', node_local=True) | indent(4) }}
