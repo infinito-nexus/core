@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -515,22 +516,46 @@ class TestMainGuard(unittest.TestCase):
         self.assertEqual(gh.calls[0][:2], ["run", "download"])
         self.assertIn(f"opened {NGINX_TITLE}", actions)
 
-    def guarded(self, job):
-        step = next(
+    @staticmethod
+    def report_job():
+        workflow = PROJECT_ROOT / ".github" / "workflows" / "call-orchestrator.yml"
+        return load_yaml(str(workflow))["jobs"]["report-main-failures"]
+
+    @staticmethod
+    def sync_step(job):
+        return next(
             step
             for step in job["steps"]
             if "runtime_vulnerabilities" in step.get("run", "")
         )
+
+    def guarded(self, job):
         return (
             "github.ref == 'refs/heads/main'" in job["if"]
-            and '--ref "${GITHUB_REF}"' in step["run"]
+            and '--ref "${GITHUB_REF}"' in self.sync_step(job)["run"]
         )
 
     def test_the_workflow_job_runs_only_on_main_and_hands_the_ref_on(self):
-        workflow = PROJECT_ROOT / ".github" / "workflows" / "call-orchestrator.yml"
-        job = load_yaml(str(workflow))["jobs"]["report-main-failures"]
+        job = self.report_job()
         self.assertTrue(self.guarded(job))
         self.assertFalse(self.guarded({**job, "if": "${{ always() }}"}))
+
+    @staticmethod
+    def sync_runs(condition, results):
+        wanted = re.findall(r"contains\(needs\.\*\.result, '(\w+)'\)", condition)
+        return not wanted or any(result in wanted for result in results)
+
+    def test_the_sync_runs_only_after_a_deploy_chunk_ran(self):
+        job = self.report_job()
+        condition = self.sync_step(job)["if"]
+        skipped = ["skipped"] * len(job["needs"])
+        self.assertFalse(self.sync_runs(condition, skipped))
+        for result in ("success", "failure", "cancelled"):
+            self.assertTrue(self.sync_runs(condition, [result, *skipped[1:]]))
+
+    def test_negative_control_an_unguarded_sync_runs_without_any_deploy(self):
+        skipped = ["skipped"] * len(self.report_job()["needs"])
+        self.assertTrue(self.sync_runs("${{ !cancelled() }}", skipped))
 
 
 if __name__ == "__main__":

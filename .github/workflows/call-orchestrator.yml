@@ -521,7 +521,7 @@ jobs:
         if: ${{ !cancelled() }}
         run: grep '^INFINITO_GHCR_MIRROR_PREFIX=' default.env >> "$GITHUB_ENV"
       - name: 🛡️ Open, update and close the runtime vulnerability issues
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && (contains(needs.*.result, 'success') || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 -m cli.meta.ci.runtime_vulnerabilities --run-id "${{ github.run_id }}" --repo "${{ github.repository }}" --ref "${GITHUB_REF}" --dir "${RUNNER_TEMP}/rescue-diagnostics"

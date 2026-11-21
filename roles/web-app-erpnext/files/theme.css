@@ -265,6 +265,22 @@ html .es-button[data-theme="red"] {
   --bt-disabled-border: var(--design-border);
 }
 
+html .es-alert[data-theme="red"]:not([data-variant="outline"]) {
+  background: var(--design-danger-subtle);
+}
+
+html .es-alert[data-theme="yellow"]:not([data-variant="outline"]) {
+  background: var(--design-warning-subtle);
+}
+
+html .es-alert[data-theme="blue"]:not([data-variant="outline"]) {
+  background: var(--design-info-subtle);
+}
+
+html .es-alert[data-theme="green"]:not([data-variant="outline"]) {
+  background: var(--design-success-subtle);
+}
+
 html .body-sidebar .standard-sidebar-item:not(.active-sidebar):has(a:not(.section-break)):hover {
   background-color: var(--design-surface-hover);
 }
@@ -287,6 +303,10 @@ html .btn.btn-primary-light:hover,
 html .filter-button:has(> .filter-label:not(.hidden)):hover {
   background-color: var(--design-surface-hover);
   color: var(--design-text);
+}
+
+html .es-button.filter-button:has(> .filter-label:not(.hidden)) {
+  --bt-fill-bg: var(--design-surface-active);
 }
 
 html .btn.btn-danger {

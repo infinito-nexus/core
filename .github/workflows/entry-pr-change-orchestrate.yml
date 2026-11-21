@@ -190,8 +190,27 @@ jobs:
           PR_MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha || '' }}
         run: ./scripts/meta/resolve/pr/merge_ref.sh
 
-  build-ci-images-fork:
+  fork-trust-gate:
+    name: 🛡️ Gate fork trust
     needs: prepare-fork-merge-ref
+    runs-on: ubuntu-26.04
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: 🛡️ Require the maintainer Trusted label
+        shell: bash
+        env:
+          TRUSTED: ${{ needs.prepare-fork-merge-ref.outputs.trusted }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: bash scripts/github/gate/trusted_label.sh
+
+  build-ci-images-fork:
+    needs:
+      - prepare-fork-merge-ref
+      - fork-trust-gate
     permissions:
       contents: read
       packages: write
@@ -205,7 +224,9 @@ jobs:
       allow_unsafe_checkout: true
 
   images-mirror-missing-fork:
-    needs: prepare-fork-merge-ref
+    needs:
+      - prepare-fork-merge-ref
+      - fork-trust-gate
     permissions:
       contents: read
       packages: write
