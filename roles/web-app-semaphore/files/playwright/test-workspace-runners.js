@@ -25,11 +25,15 @@ const {
   DEPLOY_RUN_MS,
   bare,
   commitInventory,
+  corePicks,
   deployToSharedTarget,
   expectSucceeded,
   fixtureWorkspaceKey,
+  namedTemplate,
   openbaoOrigin,
+  pickedCore,
   probeLines,
+  requireWorkspaces,
   runProbe,
   runTemplate,
   sharedTargetAddress,
@@ -168,6 +172,29 @@ const EGRESS_SCRIPT = [
   "done",
   "",
 ].join("\n");
+const TWIN_FUNCTIONS = [
+  "report() {",
+  "  if \"${@:3}\"; then printf 'PROBE %s %s allowed 0\\n' \"$1\" \"$2\"; else printf 'PROBE %s %s refused 1\\n' \"$1\" \"$2\"; fi",
+  "}",
+  "readable() {",
+  '  head -c 1 "$1" >/dev/null 2>&1',
+  "}",
+  "holds() {",
+  '  grep -qxF "$1" <<<"$2"',
+  "}",
+  "ends_in() {",
+  '  grep -qE "/$1\\$" <<<"$2"',
+  "}",
+  "in_project() {",
+  '  [ "$(basename "$(dirname "${PWD}")")" = "project_$1" ]',
+  "}",
+  "environments() {",
+  "  cat /proc/[0-9]*/environ 2>/dev/null | tr '\\0' '\\n'",
+  "}",
+  "salted() {",
+  "  { printf '%s' \"$1\"; cat \"$2\" 2>/dev/null; } | sha256sum | cut -d ' ' -f 1",
+  "}",
+];
 const ISOLATION_SCRIPT = [
   "set -u",
   'origin="$1" own_role="$2" other_role="$3" other_path="$4" other_state="$5" other_runner="$6"',
@@ -195,8 +222,73 @@ const ISOLATION_SCRIPT = [
   "code=\"$(curl -s -o /dev/null -w '%{num_connects}' --connect-timeout 5 --max-time 5 --noproxy '*' \"telnet://${other_runner}:80\" </dev/null 2>/dev/null)\"",
   'verdict runner-other-direct "${code}" 1',
   "curl -s -o /dev/null \"${proxy[@]}\" \"${tls[@]}\" --max-time 20 -X POST -H @- \"${origin}/v1/auth/token/revoke-self\" <<<\"X-Vault-Token: ${token}\" 2>/dev/null || true",
+  ...TWIN_FUNCTIONS,
+  'token_file="$7" workspaces_dir="$8" own_project="$9" other_project="${10}" own_workspace="${11}" other_workspace="${12}" salt="${13}" other_digest="${14}"',
+  'own_digest="$(salted "${salt}" "${token_file}")"',
+  'found="$(python3 - "${salt}" "${own_digest}" "${other_digest}" 2>/dev/null <<\'PY\'',
+  "import hashlib",
+  "import os",
+  "import stat",
+  "import sys",
+  "salt = sys.argv[1].encode()",
+  "wanted = set(sys.argv[2:])",
+  'skip = {"/proc", "/sys", "/dev"}',
+  'for root, dirs, files in os.walk("/"):',
+  "    dirs[:] = [name for name in dirs if os.path.join(root, name) not in skip]",
+  "    for name in files:",
+  "        path = os.path.join(root, name)",
+  "        try:",
+  "            info = os.lstat(path)",
+  "            if not stat.S_ISREG(info.st_mode) or not 0 < info.st_size <= 4096:",
+  "                continue",
+  '            with open(path, "rb") as handle:',
+  "                digest = hashlib.sha256(salt + handle.read()).hexdigest()",
+  "        except OSError:",
+  "            continue",
+  "        if digest in wanted:",
+  "            print(digest)",
+  "PY",
+  ')"',
+  'report isolation token-own readable "${token_file}"',
+  'report isolation token-own-search holds "${own_digest}" "${found}"',
+  'report isolation token-other-search holds "${other_digest}" "${found}"',
+  'report isolation hostdir-own test -e "${workspaces_dir}/${own_role}"',
+  'report isolation hostdir-other test -e "${workspaces_dir}/${other_role}"',
+  "dirs=\"$(find / \\( -path /proc -o -path /sys -o -path /dev \\) -prune -o -type d -name 'project_*' -print 2>/dev/null)\"",
+  'report isolation taskdir-own ends_in "project_${own_project}" "${dirs}"',
+  'report isolation taskdir-other ends_in "project_${other_project}" "${dirs}"',
+  'report isolation env-own holds "WORKSPACE=${own_workspace}" "$(environments)"',
+  'report isolation env-other holds "WORKSPACE=${other_workspace}" "$(environments)"',
   "",
 ].join("\n");
+const HOLDER_SCRIPT = [
+  "set -u",
+  ...TWIN_FUNCTIONS,
+  'salt="$1" own_workspace="$2" own_project="$3" token_file="$4" hold="$5"',
+  'report holder token-own readable "${token_file}"',
+  "printf 'PROBE holder token-digest %s\\n' \"$(salted \"${salt}\" \"${token_file}\")\"",
+  'report holder taskdir-own in_project "${own_project}"',
+  'report holder env-own holds "WORKSPACE=${own_workspace}" "$(environments)"',
+  "printf 'PROBE holder ready 0\\n'",
+  'sleep "${hold}"',
+  "",
+].join("\n");
+const HOLDER_OWN = ["token-own", "taskdir-own", "env-own"];
+const PROBE_TEMPLATE = "probe";
+const SALTED_DIGEST = /^[0-9a-f]{64}$/;
+const ISOLATION_OWN = ["token-own", "token-own-search", "taskdir-own", "env-own"];
+const ISOLATION_OTHER = [
+  "login-other",
+  "read-other",
+  "state-other",
+  "runner-other-proxy",
+  "runner-other-direct",
+  "token-other-search",
+  "hostdir-own",
+  "hostdir-other",
+  "taskdir-other",
+  "env-other",
+];
 const AGENT_LEFTOVER_SCRIPT = [
   "set -u",
   "found=\"$(find /tmp \"${HOME}\" \"$(dirname \"${PWD}\")\" \\( -name agent.sock -o -name known_hosts \\) 2>/dev/null | grep -c .)\"",
@@ -536,6 +628,10 @@ function splitVerdict(line) {
   return [check, verdict.join(" ")];
 }
 
+function hostPort(address, port) {
+  return address.includes(":") ? `[${address}]:${port}` : `${address}:${port}`;
+}
+
 function hostSurvey(template, probe) {
   const host = { HOST: probe.host, HOST_KEY: probe.hostKey };
   const surveys = {
@@ -592,14 +688,6 @@ exports.register = function (shared) {
     const [gateway] = probeLines(run, "gateway");
     expect(["default", "subnet"], `${what}: the probe must find the runner's gateway, it found ${gateway}`).toContain(gateway);
     return Object.fromEntries(probeLines(run, "egress").map(splitVerdict));
-  }
-
-  function requireWorkspaces() {
-    test.skip(
-      !strictFlag(process.env.SEMAPHORE_WORKSPACES_ENABLED, "SEMAPHORE_WORKSPACES_ENABLED"),
-      "SEMAPHORE_WORKSPACES_ENABLED=false: the inventory declares no services.semaphore.workspaces",
-    );
-    shared.skipUnlessServiceEnabled("sso");
   }
 
   async function projectIdsNamed(page, name) {
@@ -687,9 +775,55 @@ exports.register = function (shared) {
     return awaitTask(page, projectId, await startTask(page, projectId, templateId, survey, extra), runMs, what);
   }
 
+  /**
+   * Args:
+   *   fixture: the result of `withWorkspace` whose runner holds the task.
+   *   args: the positional arguments of `HOLDER_SCRIPT`.
+   *   cleanup: the `cleanup` of that `withWorkspace`, which stops the task.
+   *   what: the run the failure messages name.
+   *
+   * Returns:
+   *   `held`, `{<check>: "<verdict> <code>"}` the holder printed before it
+   *   started to wait, and the `taskId` that keeps waiting.
+   */
+  async function holdInWorkspace(fixture, args, cleanup, what) {
+    const projectId = fixture.result.project_id;
+    const template = await namedTemplate(shared, fixture.page, projectId, PROBE_TEMPLATE);
+    const survey = { PROBE_SCRIPT: HOLDER_SCRIPT, PROBE_ARGS: args.join(" ") };
+    const taskId = await startTask(fixture.page, projectId, template.id, survey, {});
+    cleanup(async () => {
+      await shared.stopUnfinishedTask(fixture.page, projectId, taskId);
+      await awaitTask(fixture.page, projectId, taskId, PROBE_TASK_MS, what);
+    });
+    let held = {};
+    await expect
+      .poll(
+        async () => {
+          const task = await shared.api(fixture.page, "GET", `/project/${projectId}/tasks/${taskId}`);
+          const output = await shared.api(fixture.page, "GET", `/project/${projectId}/tasks/${taskId}/output`);
+          held = Object.fromEntries(probeLines({ lines: output.map((entry) => entry.output) }, "holder").map(splitVerdict));
+          return TASK_FINISHED.has(task.status) || held.ready === "0";
+        },
+        {
+          timeout: resolveTimeout(TASK_START_MS + PROBE_TASK_MS),
+          intervals: [5_000],
+          message: `${what} (task ${taskId}) must start to hold`,
+        },
+      )
+      .toBe(true);
+    expect(held.ready, `${what}: task ${taskId} ended before it held`).toBe("0");
+    return { held, taskId };
+  }
+
   function applySurvey(workspace, version, targets) {
     skipWithoutPlatformHost();
-    return { WORKSPACE: workspace, WORKSPACE_ACTION: "apply", WORKSPACE_CORE_VERSION: version, WORKSPACE_TARGETS: targets };
+    return {
+      WORKSPACE: workspace,
+      WORKSPACE_ACTION: "apply",
+      WORKSPACE_CORE_VERSION: version,
+      WORKSPACE_TARGETS: targets,
+      WORKSPACE_PLATFORM_TOKENS: "false",
+    };
   }
 
   function applyRun(page, ops, workspace, version, targets) {
@@ -1113,7 +1247,7 @@ exports.register = function (shared) {
       const ops = await operations(page);
       await withWorkspaces(page, ops, 1, async ({ workspaces: [workspace] }) => {
         const alias = `ws-${workspace}`;
-        const { run, result } = await applied(page, ops, workspace, "latest", "");
+        const { run, result } = await applied(page, ops, workspace, pickedCore(), "");
         expect(result.alias, `${LABEL}: ${run.what} must name the alias ${alias}`).toBe(alias);
         expect(await projectIdsNamed(page, alias), `${LABEL}: exactly the project ${alias} the result names must exist`).toEqual([
           result.project_id,
@@ -1135,9 +1269,9 @@ exports.register = function (shared) {
       const ops = await operations(page);
       await withWorkspaces(page, ops, 1, async ({ workspaces: [workspace] }) => {
         const alias = `ws-${workspace}`;
-        const first = await applied(page, ops, workspace, "latest", "");
+        const first = await applied(page, ops, workspace, pickedCore(), "");
         const before = await awaitRunnerOnline(page, alias);
-        const second = await applied(page, ops, workspace, "latest", "");
+        const second = await applied(page, ops, workspace, pickedCore(), "");
         expect(second.result, `${LABEL}: the second apply must report the result of the first`).toEqual(first.result);
         const after = await awaitRunnerOnline(page, alias);
         expect(after, `${LABEL}: the second apply must keep the runner row of ${alias}`).toMatchObject({
@@ -1166,7 +1300,7 @@ exports.register = function (shared) {
       const ops = await operations(page);
       await withWorkspaces(page, ops, 1, async ({ workspaces: [workspace], done }) => {
         const alias = `ws-${workspace}`;
-        await applied(page, ops, workspace, "latest", "");
+        await applied(page, ops, workspace, pickedCore(), "");
         await awaitRunnerOnline(page, alias);
         const run = await destroyed(page, ops, workspace, done);
         expectStep(run, `Align the runner row of ${alias}`, ["changed"]);
@@ -1186,7 +1320,7 @@ exports.register = function (shared) {
       const ops = await operations(page);
       await withWorkspaces(page, ops, 1, async ({ workspaces: [workspace], done, cleanup }) => {
         const alias = `ws-${workspace}`;
-        await applied(page, ops, workspace, "latest", "");
+        await applied(page, ops, workspace, pickedCore(), "");
         await awaitRunnerOnline(page, alias);
         const twin = await plantTwin(page.request, workspace);
         cleanup(() => deleteOrganization(page.request, twin));
@@ -1217,30 +1351,33 @@ exports.register = function (shared) {
       await shared.logout(page, LABEL);
     });
 
-    test("workspace runner: each workspace runs its selected core version", async ({ page }) => {
+    test("workspace runner: each workspace runs its selected core version", async ({ browser }) => {
       requireWorkspaces();
-      test.setTimeout(resolveTimeout(BASE_MS + RUNNER_ONLINE_MS + 4 * WORKSPACE_TASK_MS));
-      const versions = decodeDotenvJsonList(
-        process.env.SEMAPHORE_WORKSPACE_CORE_VERSIONS_JSON,
-        "SEMAPHORE_WORKSPACE_CORE_VERSIONS_JSON",
-      );
-      expect(versions, `${LABEL}: the changelog must release two core versions`).toHaveLength(2);
-      await signIn(page);
-      const ops = await operations(page);
-      await withWorkspaces(page, ops, 2, async ({ workspaces }) => {
-        const runnerIds = [];
-        for (const [index, workspace] of workspaces.entries()) {
-          const { result } = await applied(page, ops, workspace, versions[index], "");
-          const row = await awaitRunnerOnline(page, result.alias);
-          expect(
-            { project_id: row.project_id, tags: row.tags },
-            `${LABEL}: the workspace on core ${versions[index]} must run on its own runner ${result.alias}`,
-          ).toEqual({ project_id: result.project_id, tags: [result.alias] });
-          runnerIds.push(row.id);
-        }
-        expect(new Set(runnerIds).size, `${LABEL}: the two workspaces must run on two runners`).toBe(2);
+      test.setTimeout(resolveTimeout(BASE_MS + 2 * RUNNER_ONLINE_MS + 6 * WORKSPACE_TASK_MS));
+      const picks = corePicks();
+      expect(
+        new Set(picks.map(([version]) => version)).size,
+        `${LABEL}: the specs pick the own build or two distinct releases at or above the floor`,
+      ).toBe(picks.length);
+      const selected = [picks[0], picks[picks.length - 1]];
+      await withWorkspace(shared, browser, LABEL, "", async (first) => {
+        await withWorkspace(shared, browser, LABEL, "", async (second) => {
+          const runnerIds = [];
+          for (const [index, fixture] of [first, second].entries()) {
+            const [version, declares] = selected[index];
+            const ops = await operations(fixture.page);
+            const { run, result } = await applied(fixture.page, ops, fixture.workspace, version, "");
+            expectStep(run, `Assert the runner of ${result.alias} runs core ${declares}`, ["ok"]);
+            const row = await awaitRunnerOnline(fixture.page, result.alias);
+            expect(
+              { project_id: row.project_id, tags: row.tags },
+              `${LABEL}: the workspace on core ${version} must run on its own runner ${result.alias}`,
+            ).toEqual({ project_id: result.project_id, tags: [result.alias] });
+            runnerIds.push(row.id);
+          }
+          expect(new Set(runnerIds).size, `${LABEL}: the two workspaces must run on two runners`).toBe(2);
+        });
       });
-      await shared.logout(page, LABEL);
     });
 
     test("workspace runner: a task finds nothing the previous task wrote", async ({ browser }) => {
@@ -1294,16 +1431,25 @@ exports.register = function (shared) {
       await withWorkspace(shared, browser, LABEL, listed, async (fixture) => {
         const verdicts = await egressVerdicts(fixture, [`proxy:listed=${listed}`, `proxy:unlisted=${UNLISTED_PUBLIC}`]);
         expect(verdicts["proxy-listed"], `${LABEL}: the listed target ${listed} must answer through the proxy`).toBe("allowed 200");
-        expect(verdicts["proxy-unlisted"], `${LABEL}: the proxy must refuse the unlisted ${UNLISTED_PUBLIC}`).toMatch(/^refused /);
+        expect(verdicts["proxy-unlisted"], `${LABEL}: the proxy itself must refuse the unlisted ${UNLISTED_PUBLIC}`).toBe("refused 403");
       });
     });
 
     test("workspace egress: metadata address and host gateway stay closed", async ({ browser }) => {
       requireWorkspaces();
       test.setTimeout(resolveTimeout(BASE_MS + 2 * WORKSPACE_TASK_MS + PROBE_TASK_MS));
+      const hosts = decodeDotenvJsonList(
+        process.env.SEMAPHORE_WORKSPACE_HOST_ADDRESSES_JSON,
+        "SEMAPHORE_WORKSPACE_HOST_ADDRESSES_JSON",
+      );
+      expect(hosts.length, `${LABEL}: the deploy must name the host's own addresses`).toBeGreaterThan(0);
       await withWorkspace(shared, browser, LABEL, "", async (fixture) => {
         const openbao = new URL(openbaoOrigin());
-        const closed = [`metadata=${METADATA}`, ...GATEWAY_PORTS.map((port) => `gateway-${port}=GATEWAY:${port}`)];
+        const closed = [
+          `metadata=${METADATA}`,
+          ...GATEWAY_PORTS.map((port) => `gateway-${port}=GATEWAY:${port}`),
+          ...hosts.flatMap((address) => GATEWAY_PORTS.map((port) => `host-${address}-${port}=${hostPort(address, port)}`)),
+        ];
         const entries = ["proxy", "direct"].flatMap((via) => closed.map((check) => `${via}:${check}`));
         const verdicts = await egressVerdicts(fixture, [`proxy:openbao=${openbao.hostname}:${openbao.port || 443}`, ...entries]);
         expect(verdicts["proxy-openbao"], `${LABEL}: the proxy must pass OpenBao, so its refusals below mean something`).toBe(
@@ -1318,12 +1464,28 @@ exports.register = function (shared) {
 
     test("workspace isolation: a task of one workspace reads nothing of another", async ({ browser }) => {
       requireWorkspaces();
-      test.setTimeout(resolveTimeout(BASE_MS + 4 * WORKSPACE_TASK_MS + PROBE_TASK_MS));
+      test.setTimeout(resolveTimeout(BASE_MS + 4 * WORKSPACE_TASK_MS + 3 * PROBE_TASK_MS));
       const state = new URL(requireDotenvValue(process.env.PROVISION_STATE_ENDPOINT, "PROVISION_STATE_ENDPOINT")).origin;
+      const tokenFile = requireDotenvValue(process.env.SEMAPHORE_RUNNER_TOKEN_FILE, "SEMAPHORE_RUNNER_TOKEN_FILE");
+      const workspacesDir = requireDotenvValue(process.env.SEMAPHORE_WORKSPACES_DIR, "SEMAPHORE_WORKSPACES_DIR");
       await withWorkspace(shared, browser, LABEL, "", async (a) => {
-        await withWorkspace(shared, browser, LABEL, "", async (b) => {
+        await withWorkspace(shared, browser, LABEL, "", async (b, cleanup) => {
           const reference = await stageWorkspaceKey(b, throwawaySshKey().privateKey);
           const [mount, ...path] = reference.openbao.split("#")[0].split("/");
+          const salt = crypto.randomBytes(16).toString("hex");
+          const holder = `${LABEL}: the holder task of ${b.result.alias}`;
+          const { held, taskId: heldTask } = await holdInWorkspace(
+            b,
+            [salt, b.workspace, b.result.project_id, tokenFile, Math.ceil(resolveTimeout(2 * PROBE_TASK_MS) / 1000)],
+            cleanup,
+            holder,
+          );
+          for (const check of HOLDER_OWN) {
+            expect(held[check], `${holder}: ${check} must find B's own while A probes, so A's probe of it means something`).toBe(
+              "allowed 0",
+            );
+          }
+          expect(held["token-digest"], `${holder}: must report the salted digest of B's token`).toMatch(SALTED_DIGEST);
           const what = `${LABEL}: the isolation probe of ${a.result.alias} against ${b.result.alias}`;
           const run = await runProbe(
             shared,
@@ -1337,15 +1499,28 @@ exports.register = function (shared) {
               `${mount}/data/${path.join("/")}`,
               `${state}/${b.result.alias}-state/`,
               `semaphore-${b.result.alias}-runner-1`,
+              tokenFile,
+              workspacesDir,
+              a.result.project_id,
+              b.result.project_id,
+              a.workspace,
+              b.workspace,
+              salt,
+              held["token-digest"],
             ],
             what,
           );
           expectSucceeded(run, what);
+          const holding = await shared.api(b.page, "GET", `/project/${b.result.project_id}/tasks/${heldTask}`);
+          expect(TASK_FINISHED.has(holding.status), `${holder}: task ${heldTask} must still run when A's probe ends`).toBe(false);
           const verdicts = Object.fromEntries(probeLines(run, "isolation").map(splitVerdict));
           expect(verdicts["login-own"], `${what}: the login with its own role must pass, so the refusals below mean something`).toBe(
             "allowed 200",
           );
-          for (const check of ["login-other", "read-other", "state-other", "runner-other-proxy", "runner-other-direct"]) {
+          for (const check of ISOLATION_OWN) {
+            expect(verdicts[check], `${what}: ${check} must find A's own, so the same probe of B's means something`).toBe("allowed 0");
+          }
+          for (const check of ISOLATION_OTHER) {
             expect(verdicts[check], `${what}: ${check} must be refused`).toMatch(/^refused /);
           }
         });
@@ -1400,7 +1575,7 @@ exports.register = function (shared) {
       await signIn(page);
       const ops = await operations(page);
       await withWorkspaces(page, ops, 1, async ({ workspaces: [workspace] }) => {
-        const { result } = await applied(page, ops, workspace, "latest", "");
+        const { result } = await applied(page, ops, workspace, pickedCore(), "");
         expect(Object.keys(result).sort(), `${LABEL}: the result of apply must hold exactly its five keys`).toEqual(RESULT_KEYS);
         expect(sshPublicShape(result.read_key), `${LABEL}: read_key must be one bare ed25519 public key`).toEqual({
           type: "ssh-ed25519",
@@ -1435,7 +1610,7 @@ exports.register = function (shared) {
       await signIn(page);
       const ops = await operations(page);
       await withWorkspaces(page, ops, 1, async ({ workspaces: [workspace], cleanup }) => {
-        const { result } = await applied(page, ops, workspace, "latest", "");
+        const { result } = await applied(page, ops, workspace, pickedCore(), "");
         const owner = await createMember(page, "owner", cleanup);
         const viewer = await createMember(page, "viewer", cleanup);
         const operator = await createMember(page, "operator", cleanup);
@@ -1473,7 +1648,7 @@ exports.register = function (shared) {
       await signIn(page);
       const ops = await operations(page);
       await withWorkspaces(page, ops, 1, async ({ workspaces: [workspace], cleanup }) => {
-        const { result } = await applied(page, ops, workspace, "latest", "");
+        const { result } = await applied(page, ops, workspace, pickedCore(), "");
         const member = await createMember(page, "first", cleanup);
         const added = await membersOk(page, ops, workspace, "add", { WORKSPACE_MEMBER: member.id });
         expectLine(added, `semaphore user ${member.id} created`);
@@ -1509,7 +1684,7 @@ exports.register = function (shared) {
       await signIn(page);
       const ops = await operations(page);
       await withWorkspaces(page, ops, 1, async ({ workspaces: [workspace], cleanup }) => {
-        const { result } = await applied(page, ops, workspace, "latest", "");
+        const { result } = await applied(page, ops, workspace, pickedCore(), "");
         const owner = await createMember(page, "owner", cleanup);
         const member = await createMember(page, "leaver", cleanup);
         await membersOk(page, ops, workspace, "add", { WORKSPACE_MEMBER: owner.id });
@@ -1548,8 +1723,8 @@ exports.register = function (shared) {
       await signIn(page);
       const ops = await operations(page);
       await withWorkspaces(page, ops, 1, async ({ workspaces: [workspace], cleanup }) => {
-        await applied(page, ops, workspace, "latest", "");
-        const applyId = await startTask(page, ops.projectId, ops.workspace, applySurvey(workspace, "latest", ""), {});
+        await applied(page, ops, workspace, pickedCore(), "");
+        const applyId = await startTask(page, ops.projectId, ops.workspace, applySurvey(workspace, pickedCore(), ""), {});
         cleanup(() => awaitTask(page, ops.projectId, applyId, WORKSPACE_TASK_MS, `the second apply of ${workspace}`));
         await expect
           .poll(async () => (await shared.api(page, "GET", `/project/${ops.projectId}/tasks/${applyId}`)).status, {
@@ -1588,7 +1763,7 @@ exports.register = function (shared) {
         commit: ZERO_COMMIT,
       };
       await withWorkspaces(page, ops, 1, async ({ workspaces: [workspace], cleanup }) => {
-        const { result } = await applied(page, ops, workspace, "latest", "");
+        const { result } = await applied(page, ops, workspace, pickedCore(), "");
         const owner = await createMember(page, "owner", cleanup);
         await membersOk(page, ops, workspace, "add", { WORKSPACE_MEMBER: owner.id });
         expect(await memberRoles(page, result.project_id), `${LABEL}: the owner must hold task_runner`).toEqual({
@@ -1629,7 +1804,7 @@ exports.register = function (shared) {
       const ops = await operations(page);
       await withWorkspaces(page, ops, 1, async ({ workspaces: [workspace], done, cleanup }) => {
         const alias = `ws-${workspace}`;
-        await applied(page, ops, workspace, "latest", "");
+        await applied(page, ops, workspace, pickedCore(), "");
         const twin = await plantTwin(page.request, workspace);
         cleanup(() => deleteOrganization(page.request, twin));
         const stopped = await destroyRun(page, ops, workspace);
@@ -1675,7 +1850,7 @@ exports.register = function (shared) {
       const ops = await operations(page);
       await withWorkspaces(page, ops, 1, async ({ workspaces: [workspace], done }) => {
         const alias = `ws-${workspace}`;
-        await applied(page, ops, workspace, "latest", "");
+        await applied(page, ops, workspace, pickedCore(), "");
         expectLine(await destroyed(page, ops, workspace, done), `deleted organization ${alias}`);
         const retried = await destroyed(page, ops, workspace, done);
         expectLine(retried, `gone organization ${alias}`);
@@ -1701,7 +1876,7 @@ exports.register = function (shared) {
       await signIn(page);
       const ops = await operations(page);
       await withWorkspaces(page, ops, 1, async ({ workspaces: [workspace], cleanup }) => {
-        const { result } = await applied(page, ops, workspace, "latest", "");
+        const { result } = await applied(page, ops, workspace, pickedCore(), "");
         const owner = await createMember(page, "owner", cleanup);
         const member = await createMember(page, "leaver", cleanup);
         await membersOk(page, ops, workspace, "add", { WORKSPACE_MEMBER: owner.id });
@@ -1757,7 +1932,7 @@ exports.register = function (shared) {
       await signIn(page);
       const ops = await operations(page);
       await withWorkspaces(page, ops, 1, async ({ workspaces: [workspace], cleanup }) => {
-        const { result } = await applied(page, ops, workspace, "latest", `${address}:22`);
+        const { result } = await applied(page, ops, workspace, pickedCore(), `${address}:22`);
         const deploy = result.templates.deploy;
         const [owner, file] = new URL(deploy.git_url).pathname.replace(/^\//, "").split("/");
         const repository = `${owner}/${file.replace(/\.git$/, "")}`;
@@ -1810,7 +1985,7 @@ exports.register = function (shared) {
       await signIn(page);
       const ops = await operations(page);
       await withWorkspaces(page, ops, 1, async ({ workspaces: [workspace] }) => {
-        const { result } = await applied(page, ops, workspace, "latest", "");
+        const { result } = await applied(page, ops, workspace, pickedCore(), "");
         const account = await soleSemaphoreUser(
           page,
           requireDotenvValue(process.env.SEMAPHORE_STORE_USERNAME, "SEMAPHORE_STORE_USERNAME"),
@@ -1818,7 +1993,7 @@ exports.register = function (shared) {
         expect(account.admin, `${LABEL}: the store's account must not be a Semaphore admin`).toBe(false);
         const guestIn = new Set([
           ops.projectId,
-          result.templates[`provision ${result.alias}`].project_id,
+          result.templates[`unlock ${result.alias}`].project_id,
           result.templates[`export ${result.alias}`].project_id,
         ]);
         const held = {};
@@ -1900,7 +2075,7 @@ exports.register = function (shared) {
       await signIn(page);
       const ops = await operations(page);
       await withWorkspaces(page, ops, 1, async ({ workspaces: [workspace], cleanup }) => {
-        const { result } = await applied(page, ops, workspace, "latest", "");
+        const { result } = await applied(page, ops, workspace, pickedCore(), "");
         const account = await soleSemaphoreUser(
           page,
           requireDotenvValue(process.env.SEMAPHORE_STORE_USERNAME, "SEMAPHORE_STORE_USERNAME"),
@@ -1937,10 +2112,10 @@ exports.register = function (shared) {
       await withWorkspaces(page, ops, 1, async ({ workspaces: [workspace], cleanup }) => {
         const unmarked = await plantUnmarked(page.request, workspace);
         cleanup(() => deleteOrganization(page.request, unmarked));
-        const failedApply = await applyRun(page, ops, workspace, "latest", "");
+        const failedApply = await applyRun(page, ops, workspace, pickedCore(), "");
         expectStatus(failedApply, "error");
         await deleteOrganization(page.request, unmarked);
-        const { run: apply, result } = await applied(page, ops, workspace, "latest", "");
+        const { run: apply, result } = await applied(page, ops, workspace, pickedCore(), "");
         const sync = await membersOk(page, ops, workspace, "sync", {});
         const plantedName = `pw-ws-manager-${crypto.randomBytes(4).toString("hex")}`;
         cleanup(() => deleteSemaphoreUsers(page, plantedName));
@@ -1978,7 +2153,7 @@ exports.register = function (shared) {
         commit: ZERO_COMMIT,
       };
       await withWorkspaces(page, ops, 1, async ({ workspaces: [workspace], cleanup }) => {
-        const { result } = await applied(page, ops, workspace, "latest", "");
+        const { result } = await applied(page, ops, workspace, pickedCore(), "");
         const owner = await createMember(page, "owner", cleanup);
         await membersOk(page, ops, workspace, "add", { WORKSPACE_MEMBER: owner.id });
         expect(await memberRoles(page, result.project_id), `${LABEL}: the owner must hold task_runner`).toEqual({

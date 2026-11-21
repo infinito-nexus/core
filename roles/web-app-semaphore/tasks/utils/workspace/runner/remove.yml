@@ -22,7 +22,7 @@
   ansible.builtin.shell: |
     set -o pipefail
     container image ls --format '{{ SEMAPHORE_RUNNER_LIST_FORMAT }}' \
-      | grep -F ':{{ semaphore_workspace_alias }}-v' \
+      | { grep -F ':{{ SEMAPHORE_WORKSPACE_RUNNER_TAG_PREFIX }}' || [ "$?" -eq 1 ]; } \
       | xargs --no-run-if-empty container image rm
   args:
     executable: /bin/bash

@@ -1676,7 +1676,7 @@ async function knotUpdate(key, zone, changes) {
 
 exports.register = function (shared) {
   test("provision: the deploy domain equals the provision fqdn", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     const provider = anyProvider();
     test.setTimeout(resolveTimeout(BASE_MS + SERVER_MS + DEPLOY_LINE_MS));
     const host = privateTargetAddress();
@@ -1715,7 +1715,7 @@ exports.register = function (shared) {
   });
 
   test("provision runner: tofu reports the pinned version", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     const pinned = pinnedOpentofu();
     expect(atLeast(pinned, MINIMUM_OPENTOFU), `${LABEL}: the pinned OpenTofu ${pinned} must be ${MINIMUM_OPENTOFU.join(".")} or newer`).toBe(true);
     test.setTimeout(resolveTimeout(BASE_MS + PROBE_MS));
@@ -1732,14 +1732,14 @@ exports.register = function (shared) {
   });
 
   test("provision: proxmox creates and destroys a server", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     requireProvider("proxmox");
     test.setTimeout(resolveTimeout(BASE_MS + SERVER_MS));
     expect(await serverLifecycle(shared, browser, "proxmox"), `${LABEL}: the destroy of the proxmox server must delete its state and lock`).toEqual([]);
   });
 
   test("provision: a second writer waits for the lock", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     const provider = anyProvider();
     test.setTimeout(resolveTimeout(BASE_MS + 2 * PROVISION_MS + DESTROY_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture, cleanup) => {
@@ -1780,7 +1780,7 @@ exports.register = function (shared) {
   });
 
   test("provision: unlock clears only a stale lock", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     const provider = anyProvider();
     test.setTimeout(resolveTimeout(BASE_MS + 2 * UNLOCK_MS + PROVISION_MS + DESTROY_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture, cleanup) => {
@@ -1812,14 +1812,14 @@ exports.register = function (shared) {
   });
 
   test("provision: incus creates and destroys a server", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     requireProvider("incus");
     test.setTimeout(resolveTimeout(BASE_MS + SERVER_MS));
     expect(await serverLifecycle(shared, browser, "incus"), `${LABEL}: the destroy of the incus server must delete its state and lock`).toEqual([]);
   });
 
   test("dns: a BYO record is created once and removed", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     requireDnsLive();
     test.setTimeout(resolveTimeout(BASE_MS + 5 * DNS_MS + 4 * RECORD_MS));
     const host = privateTargetAddress();
@@ -1848,7 +1848,7 @@ exports.register = function (shared) {
   });
 
   test("dns: remove deletes only its own record", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     requireDnsLive();
     test.setTimeout(resolveTimeout(BASE_MS + 5 * DNS_MS + 4 * RECORD_MS));
     const host = privateTargetAddress();
@@ -1875,7 +1875,7 @@ exports.register = function (shared) {
   });
 
   test("dns: a taken name is refused", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     requireDnsLive();
     const provider = anyProvider();
     test.setTimeout(resolveTimeout(BASE_MS + 3 * DNS_MS + PROVISION_MS + DESTROY_MS + 4 * RECORD_MS));
@@ -1924,7 +1924,7 @@ exports.register = function (shared) {
   });
 
   test("dns: unlock clears a stale record lock", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     requireDnsLive();
     test.setTimeout(resolveTimeout(BASE_MS + UNLOCK_MS));
     const host = privateTargetAddress();
@@ -1941,7 +1941,7 @@ exports.register = function (shared) {
   });
 
   test("provision: the record lies in the workspace's zone", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     const provider = anyProvider();
     test.setTimeout(resolveTimeout(BASE_MS + SERVER_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture, cleanup) => {
@@ -1962,7 +1962,7 @@ exports.register = function (shared) {
   });
 
   test("provision: a route53 key runs the whole record lifecycle", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     const flavor = dnsFlavor();
     test.skip(flavor !== "route53", `PROVISION_DNS_FLAVOR=${flavor}: services.semaphore.workspaces.dns.flavor is not route53`);
     requireDnsLive();
@@ -2015,7 +2015,7 @@ exports.register = function (shared) {
   }
 
   test("provision: the state is encrypted with the workspace key", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     const provider = anyProvider();
     test.setTimeout(resolveTimeout(2 * BASE_MS + 2 * PROVISION_MS + DESTROY_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture, cleanup) => {
@@ -2048,7 +2048,7 @@ exports.register = function (shared) {
   });
 
   test("provision: no unencrypted state without the key", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     const provider = anyProvider();
     test.setTimeout(resolveTimeout(BASE_MS + PROVISION_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture) => {
@@ -2080,7 +2080,7 @@ exports.register = function (shared) {
   });
 
   test("provision isolation: a workspace task reads no provision secret", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     test.setTimeout(resolveTimeout(BASE_MS + PROBE_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture) => {
       const paths = PROVISION_PATHS(fixture.workspace);
@@ -2096,7 +2096,7 @@ exports.register = function (shared) {
   });
 
   test("provision isolation: a workspace task reads no customer token", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     test.setTimeout(resolveTimeout(BASE_MS + PROBE_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture) => {
       const path = `${TENANT_MOUNT}/data/${CUSTOMER_TOKEN_PATH(fixture.workspace, "hetzner")}`;
@@ -2106,7 +2106,7 @@ exports.register = function (shared) {
   });
 
   test("provision isolation: a provider template's task token logs in to its own provider role only", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     const kinds = [...ALL_PROVIDERS.map((provider) => ["provision", provider]), ["destroy", ALL_PROVIDERS[0]]];
     test.setTimeout(resolveTimeout(BASE_MS + kinds.length * PROBE_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture) => {
@@ -2129,7 +2129,7 @@ exports.register = function (shared) {
   });
 
   test("provision isolation: a provision task reads no foreign provider secret", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     test.setTimeout(resolveTimeout(BASE_MS + PROVIDERS.length * PROBE_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture) => {
       for (const provider of PROVIDERS) {
@@ -2144,7 +2144,7 @@ exports.register = function (shared) {
   });
 
   test("provision rights: the store runs and reads its granted templates and changes none", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     test.setTimeout(resolveTimeout(BASE_MS + 2 * PROVISION_MS + 10 * REQUEST_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture) => {
       const token = await storeSemaphoreToken(fixture.context);
@@ -2184,7 +2184,7 @@ exports.register = function (shared) {
   });
 
   test("provision rights: destroy removes the grants", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     test.setTimeout(resolveTimeout(BASE_MS + 10 * REQUEST_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture) => {
       const token = await storeSemaphoreToken(fixture.context);
@@ -2209,7 +2209,7 @@ exports.register = function (shared) {
   });
 
   test("provision rights: apply creates the dns template with its grant", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     test.setTimeout(resolveTimeout(BASE_MS + 10 * REQUEST_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture) => {
       const identity = platformTemplate(fixture, "dns");
@@ -2227,7 +2227,7 @@ exports.register = function (shared) {
   });
 
   test("provision rights: apply creates the zone template with its grant", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     test.setTimeout(resolveTimeout(BASE_MS + 10 * REQUEST_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture) => {
       const identity = platformTemplate(fixture, "zone");
@@ -2245,7 +2245,7 @@ exports.register = function (shared) {
   });
 
   test("zone: a zone is created once, shown and deleted", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     const domain = requireZoneLive();
     test.setTimeout(resolveTimeout(BASE_MS + 5 * ZONE_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture, cleanup) => {
@@ -2281,7 +2281,7 @@ exports.register = function (shared) {
   });
 
   test("zone: a foreign zone is refused", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     const domain = requireZoneLive();
     test.setTimeout(resolveTimeout(BASE_MS + 4 * ZONE_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture, cleanup) => {
@@ -2307,7 +2307,7 @@ exports.register = function (shared) {
   });
 
   test("dns: the record state is encrypted", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     requireDnsLive();
     test.setTimeout(resolveTimeout(BASE_MS + 2 * DNS_MS));
     const host = privateTargetAddress();
@@ -2323,7 +2323,7 @@ exports.register = function (shared) {
   });
 
   test("provision: a route53 key changes only its own names", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     const flavor = dnsFlavor();
     test.skip(flavor !== "route53", `PROVISION_DNS_FLAVOR=${flavor}: services.semaphore.workspaces.dns.flavor is not route53`);
     requireDnsLive();
@@ -2351,7 +2351,7 @@ exports.register = function (shared) {
   });
 
   test("provision: route53 and the state backend keep their own keys", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     const flavor = dnsFlavor();
     test.skip(flavor !== "route53", `PROVISION_DNS_FLAVOR=${flavor}: services.semaphore.workspaces.dns.flavor is not route53`);
     requireDnsLive();
@@ -2379,7 +2379,7 @@ exports.register = function (shared) {
   }
 
   test("provision: a knot key changes only its own names", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     requireKnot();
     test.setTimeout(resolveTimeout(BASE_MS + 2 * DNS_MS + 4 * RECORD_MS + 10 * REQUEST_MS));
     const host = privateTargetAddress();
@@ -2415,7 +2415,7 @@ exports.register = function (shared) {
   });
 
   test("dns: without the taken-name check a create loses the other line's record", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     requireKnot();
     test.setTimeout(resolveTimeout(BASE_MS + 2 * DNS_MS + 4 * RECORD_MS + 10 * REQUEST_MS));
     const host = privateTargetAddress();
@@ -2449,7 +2449,7 @@ exports.register = function (shared) {
  */
 exports.registerScs = function (shared) {
   test("provision: scs runs in the customer's own project", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     const credential = scsTestCredential();
     const [offer] = catalogOffers("scs", SCS_REGION_KEYS);
     test.skip(

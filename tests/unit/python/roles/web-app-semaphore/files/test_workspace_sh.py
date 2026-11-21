@@ -49,6 +49,8 @@ PROVIDERS = json.loads(
 )["providers"]
 PRIVATE = "203.0.113.0/24"
 TARGET = "203.0.113.10:22"
+OWN_TAG = "ci-0123abcd"
+OWN_BUILD = f"registry.local:5000/infinito-nexus/core:{OWN_TAG}"
 WORKSPACES = "Infinito.Nexus Workspaces"
 SECOND_READ_KEY = {
     "private": "-----BEGIN OPENSSH PRIVATE KEY-----\nread2\n-----END OPENSSH PRIVATE KEY-----",
@@ -196,6 +198,9 @@ class ScriptCase:
             "WORKSPACE_TARGETS": TARGET,
             "WORKSPACE_PLATFORM_TOKENS": "false",
             "WORKSPACE_PRIVATE_TARGETS": json.dumps([PRIVATE]),
+            "WORKSPACE_CORE_FLOOR": "17.0.0",
+            "WORKSPACE_OWN_BUILD": "",
+            "WORKSPACE_OWN_BUILD_VERSION": "",
             "DEPLOY_VAULT_PASSWORD": "vaultpassword",
             "DEPLOY_LOGIN": "root",
             "DEPLOY_KNOWN_HOSTS": "",
@@ -250,6 +255,36 @@ class WorkspaceScriptTests(ScriptCase, unittest.TestCase):
                 {"WORKSPACE_CORE_VERSION": "v17.0.0"},
                 (),
                 "neither latest nor a version",
+            ),
+            (
+                "release below the floor",
+                {"WORKSPACE_CORE_VERSION": "16.2.0"},
+                (),
+                "16.2.0 predates the workspace runner, which ships from 17.0.0 on",
+            ),
+            (
+                "release while none ships the runner",
+                {"WORKSPACE_CORE_VERSION": "17.0.0", "WORKSPACE_CORE_FLOOR": ""},
+                (),
+                "17.0.0 predates the workspace runner, which ships in no release yet",
+            ),
+            (
+                "latest below the floor",
+                {"WORKSPACE_CORE_FLOOR": "17.1.0"},
+                (),
+                "latest finds no release of the workspace runner",
+            ),
+            (
+                "malformed floor",
+                {"WORKSPACE_CORE_FLOOR": "v17.0.0"},
+                (),
+                "WORKSPACE_CORE_FLOOR 'v17.0.0' is no version",
+            ),
+            (
+                "own build on production",
+                {"WORKSPACE_CORE_VERSION": OWN_TAG},
+                (),
+                f"{OWN_TAG!r} is neither latest nor a version",
             ),
             (
                 "pair without port",
@@ -351,6 +386,7 @@ class WorkspaceScriptTests(ScriptCase, unittest.TestCase):
         self.assertEqual(variables["WORKSPACE"], WORKSPACE_ID)
         self.assertEqual(variables["WORKSPACE_ACTION"], "apply")
         self.assertEqual(variables["WORKSPACE_CORE_VERSION"], "17.0.0")
+        self.assertEqual(variables["WORKSPACE_CORE_BASE"], "")
         self.assertEqual(
             variables["WORKSPACE_TARGETS"],
             [{"host": "203.0.113.10", "port": 22, "address": "203.0.113.10"}],
@@ -361,6 +397,23 @@ class WorkspaceScriptTests(ScriptCase, unittest.TestCase):
         run = self.run_script({"WORKSPACE_PLATFORM_TOKENS": "true"})
         self.assertEqual(run.returncode, 0, run.stderr)
         self.assertIs(self.recorded()["variables"]["WORKSPACE_PLATFORM_TOKENS"], True)
+
+    def test_a_dev_or_ci_apply_builds_on_the_own_build_it_selects(self):
+        for selected, floor in ((OWN_TAG, ""), ("latest", "17.0.0")):
+            with self.subTest(selected=selected):
+                self.record.unlink(missing_ok=True)
+                run = self.run_script(
+                    {
+                        "WORKSPACE_CORE_VERSION": selected,
+                        "WORKSPACE_CORE_FLOOR": floor,
+                        "WORKSPACE_OWN_BUILD": OWN_BUILD,
+                        "WORKSPACE_OWN_BUILD_VERSION": "17.1.0",
+                    }
+                )
+                self.assertEqual(run.returncode, 0, run.stderr)
+                variables = self.recorded()["variables"]
+                self.assertEqual(variables["WORKSPACE_CORE_VERSION"], "17.1.0")
+                self.assertEqual(variables["WORKSPACE_CORE_BASE"], OWN_BUILD)
 
     def test_apply_ends_with_its_result(self):
         run = self.run_script()

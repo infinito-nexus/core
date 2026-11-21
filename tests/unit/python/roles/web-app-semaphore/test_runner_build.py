@@ -407,6 +407,20 @@ class TestPrune(unittest.TestCase):
         self.assertNotIn(workspace_base, pruned)
         self.assertIn(unused_base, pruned)
 
+    def test_the_prune_keeps_a_workspace_runner_on_an_own_build(self) -> None:
+        workspace_runner = (
+            "semaphore_custom:ws-0b6f1c2e-3d4a-4b5c-8d6e-7f8091a2b3c4-dev-older"
+        )
+        workspace_base = f"{SOFTWARE_IMAGE}:dev-older"
+        own = resolve(
+            primary=[ROLE],
+            tag=NEW,
+            listed=(*self.LISTED, workspace_runner, workspace_base),
+        )
+        pruned = own["SEMAPHORE_RUNNER_PRUNED_IMAGES"]
+        self.assertNotIn(workspace_runner, pruned)
+        self.assertNotIn(workspace_base, pruned)
+
     def test_a_pulled_base_image_is_not_listed(self) -> None:
         own = resolve(primary=[ROLE], tag=NEW, image_build=False)
         self.assertEqual(

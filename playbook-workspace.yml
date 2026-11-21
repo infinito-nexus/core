@@ -2,7 +2,8 @@
 # Param: WORKSPACE              - the workspace id, a lowercase UUID
 # Param: WORKSPACE_ACTION       - apply or destroy
 # Param: WORKSPACE_RESULT_FILE  - file the operation writes its result to for workspace.sh
-# Param: WORKSPACE_CORE_VERSION - apply only: the released core version of the workspace runner, without v
+# Param: WORKSPACE_CORE_VERSION - apply only: the core version the tree of the workspace runner declares, without v
+# Param: WORKSPACE_CORE_BASE    - apply only: the own build of a dev or CI deploy the runner builds on, empty for a release
 # Param: WORKSPACE_TARGETS      - apply only: the pinned targets of the workspace, [{host, port, address}]
 # Param: WORKSPACE_PLATFORM_TOKENS - apply only: true or false, whether the provider policies of the workspace read the platform provider tokens
 - name: "Run one workspace operation on the platform hosts"

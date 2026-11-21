@@ -30,6 +30,7 @@ RUN --network=none bash "${INFINITO_SRC_DIR}/roles/web-app-semaphore/files/shell
 
 FROM ${SEMAPHORE_RUNNER_BASE_IMAGE}
 
+ARG SEMAPHORE_RUNNER_BASE_IMAGE
 ARG SEMAPHORE_RUNNER_USER
 ARG SEMAPHORE_RUNNER_UID
 ARG SEMAPHORE_RUNNER_GID
@@ -69,10 +70,17 @@ RUN groupadd --gid "${SEMAPHORE_RUNNER_GID}" "${SEMAPHORE_RUNNER_USER}" \
     && chmod -R a+rX /usr/share/ansible/collections \
     && install -d -o "${SEMAPHORE_RUNNER_UID}" -g "${SEMAPHORE_RUNNER_GID}" -m 0700 "${SEMAPHORE_RUNNER_TMP}"
 
+RUN install -d -m 0755 /usr/local/share/semaphore-runner \
+    && awk -F '"' '/^\[/ { section = $0 } section == "[project]" && /^version[[:space:]]*=/ { print $2; exit }' \
+        "${INFINITO_SRC_DIR}/pyproject.toml" > /usr/local/share/semaphore-runner/core-version \
+    && test -s /usr/local/share/semaphore-runner/core-version \
+    && install -m 0644 "${INFINITO_SRC_DIR}/CHANGELOG.md" /usr/local/share/semaphore-runner/CHANGELOG.md
+
 # nocheck: healthcheck-timing-override  NONE drops the systemd probe of the Infinito.Nexus base image; the runner runs no systemd and opens no port
 HEALTHCHECK NONE
 STOPSIGNAL SIGTERM
-LABEL nexus.infinito.semaphore.runner.dockerfile="${SEMAPHORE_RUNNER_DOCKERFILE_DIGEST}" \
+LABEL nexus.infinito.semaphore.runner.base="${SEMAPHORE_RUNNER_BASE_IMAGE}" \
+      nexus.infinito.semaphore.runner.dockerfile="${SEMAPHORE_RUNNER_DOCKERFILE_DIGEST}" \
       nexus.infinito.semaphore.runner.repository="${SEMAPHORE_RUNNER_REPOSITORY_DIGEST}" \
       nexus.infinito.semaphore.runner.inputs="${SEMAPHORE_RUNNER_INPUTS_DIGEST}"
 USER ${SEMAPHORE_RUNNER_UID}:${SEMAPHORE_RUNNER_GID}

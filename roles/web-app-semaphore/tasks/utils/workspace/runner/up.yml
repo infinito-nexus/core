@@ -1,4 +1,42 @@
 ---
+- name: "🏗️ Build the runner image of {{ semaphore_workspace_alias }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - compose
+      - -f
+      - "{{ semaphore_workspace_dir }}/compose.yml"
+      - build
+  register: semaphore_workspace_build
+  changed_when: false
+
+- name: "🔎 Read the core version the runner image of {{ semaphore_workspace_alias }} declares"
+  ansible.builtin.command:
+    argv:
+      - container
+      - run
+      - --rm
+      - --pull
+      - never
+      - --network
+      - none
+      - --entrypoint
+      - cat
+      - "{{ lookup('image', application_id, SEMAPHORE_RUNNER_SERVICE, version=SEMAPHORE_WORKSPACE_RUNNER_IMAGE_TAG) }}"
+      - /usr/local/share/semaphore-runner/core-version
+  environment:
+    CA_CONTAINER_ENABLED: "0"
+  register: semaphore_workspace_core_version
+  changed_when: false
+
+- name: "🛡️ Assert the runner of {{ semaphore_workspace_alias }} runs core {{ WORKSPACE_CORE_VERSION }}"
+  ansible.builtin.assert:
+    that: semaphore_workspace_core_version.stdout | trim == WORKSPACE_CORE_VERSION | string
+    fail_msg: >-
+      The runner image of {{ semaphore_workspace_alias }} declares core {{ semaphore_workspace_core_version.stdout | trim }},
+      the workspace selected {{ WORKSPACE_CORE_VERSION }}
+    quiet: true
+
 - name: "🚀 Bring up the runner and egress of {{ semaphore_workspace_alias }}"
   ansible.builtin.command:
     argv:
@@ -8,7 +46,7 @@
       - "{{ semaphore_workspace_dir }}/compose.yml"
       - up
       - -d
-      - --build
+      - --no-build
       - --remove-orphans
   register: semaphore_workspace_up
   changed_when: semaphore_workspace_up.stderr is search('(Created|Recreated|Started|Removed)')

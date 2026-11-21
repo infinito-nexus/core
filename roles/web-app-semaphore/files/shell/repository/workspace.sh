@@ -2,7 +2,9 @@
 # Env of the survey:
 #   WORKSPACE               the workspace id, a lowercase UUID the store chose
 #   WORKSPACE_ACTION        apply or destroy
-#   WORKSPACE_CORE_VERSION  apply only: a released version like 17.0.0, or latest
+#   WORKSPACE_CORE_VERSION  apply only: a released version like 17.0.0 at or above
+#                           WORKSPACE_CORE_FLOOR, latest, or the tag of
+#                           WORKSPACE_OWN_BUILD
 #   WORKSPACE_TARGETS       apply only: comma-separated <host>:<port> pairs, empty
 #                           for a workspace without servers
 #   WORKSPACE_PLATFORM_TOKENS  apply only: true or false, whether the provider roles
@@ -14,6 +16,9 @@
 #   DEPLOY_KNOWN_HOSTS         known_hosts lines pinning the platform host keys
 #   WORKSPACE_INVENTORY_FILE   the inventory file of the platform inventory checkout
 #   WORKSPACE_PRIVATE_TARGETS  JSON list of the networks a target may lie in beside public ones
+#   WORKSPACE_CORE_FLOOR       the first release that ships the workspace runner, empty while none does
+#   WORKSPACE_OWN_BUILD        the image of the deploying core on a dev or CI deploy, empty on production
+#   WORKSPACE_OWN_BUILD_VERSION  the version WORKSPACE_OWN_BUILD declares, empty on production
 #   SSH_AUTH_SOCK              agent holding the deploy key
 #   BAO_ADDR, BAO_CACERT       the OpenBao the pre-flight of the inventory's references logs in to
 #   BAO_FIXTURE_ROLE           the jwt role workspace-fixture while the deploy fixture is on, else empty

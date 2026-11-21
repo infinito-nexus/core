@@ -19,6 +19,8 @@ from .test_export_config import EMAIL, VARS, stubbed, templar
 ROLE = PROJECT_ROOT / "roles" / "web-app-semaphore"
 WORKSPACE_PY = ROLE / "files" / "python" / "workspace.py"
 TEMPLATES = ROLE / "templates" / "workspace"
+PLAYWRIGHT_ENV = ROLE / "templates" / "playwright.env.j2"
+HOST_ADDRESSES = "SEMAPHORE_WORKSPACE_HOST_ADDRESSES_JSON"
 VOLUMES = load_yaml_str(read_text(str(ROLE / ROLE_FILE_META_VOLUMES)))
 HOSTS_FILE = VOLUMES["semaphore_egress_hosts"]["mounts"][0]["target"]
 PLATFORM = [
@@ -187,6 +189,72 @@ def egress_closed(host, nodes, declared=None):
             if declared is None
             else trust_as_template(declared)
         )
+
+
+def host_addresses_line():
+    """Returns:
+    The ``HOST_ADDRESSES`` line of ``templates/playwright.env.j2``.
+    """
+    return next(
+        entry
+        for entry in read_text(str(PLAYWRIGHT_ENV)).splitlines()
+        if entry.startswith(f"{HOST_ADDRESSES}=")
+    )
+
+
+def host_address_findings(line=None):
+    """Args:
+    line: the env line to render, that of ``templates/playwright.env.j2`` when None.
+
+    Returns:
+        Every address of ``NODES`` a render on one node of the two-node swarm
+        leaves unprobed, every probed address the egress proxy leaves open,
+        and every render that probes an address twice.
+    """
+    addresses = {
+        address
+        for facts in NODES.values()
+        for family in ("all_ipv4_addresses", "all_ipv6_addresses")
+        for address in facts[family]
+    }
+    findings = []
+    for host in NODES:
+        probed = probed_host_addresses(host, line=line)
+        findings += [
+            f"a render on {host} leaves {address} unprobed"
+            for address in sorted(addresses - set(probed))
+        ]
+        findings += [
+            f"a render on {host} probes {address}, which the proxy leaves open"
+            for address in sorted(set(probed) - set(egress_closed(host, NODES)))
+        ]
+        if len(probed) != len(set(probed)):
+            findings.append(f"a render on {host} probes an address twice")
+    return findings
+
+
+def probed_host_addresses(host, enabled=True, line=None):
+    """Args:
+    host: the inventory host the Playwright env renders on.
+    enabled: ``SEMAPHORE_WORKSPACES_ENABLED``.
+    line: the env line to render, that of ``templates/playwright.env.j2`` when None.
+
+    Returns:
+        The host addresses the egress spec probes as closed, rendered on a
+        node of the two-node swarm of ``NODES``.
+    """
+    if line is None:
+        line = host_addresses_line()
+    expression = line.partition("=")[2].removesuffix(" | to_json | dotenv_quote }}")
+    variables = {
+        "inventory_hostname": host,
+        "groups": {SWARM_GROUP: list(NODES)},
+        "hostvars": {name: {"ansible_facts": facts} for name, facts in NODES.items()},
+        "SEMAPHORE_WORKSPACES_ENABLED": enabled,
+    }
+    engine = Templar(loader=DataLoader(), variables=variables)
+    with stubbed({"node_hosts": NodeHosts()}):
+        return engine.template(trust_as_template(f"{expression} }}}}"))
 
 
 def closed_findings(declared=None):
@@ -420,6 +488,24 @@ class TestWorkspaceEgress(unittest.TestCase):
                 "a render on manager leaves 2001:db8::20 open",
                 "a render on worker leaves 192.0.2.10 open",
                 "a render on worker leaves 2001:db8::10 open",
+            ],
+        )
+
+    def test_the_spec_probes_every_node_address_the_proxy_closes(self):
+        self.assertEqual(host_address_findings(), [])
+        self.assertEqual(probed_host_addresses("manager", enabled=False), [])
+
+    def test_negative_control_an_ipv4_only_probe_list_misses_the_ipv6_addresses(self):
+        line = host_addresses_line()
+        planted = line.replace("all_ipv6_addresses", "all_ipv4_addresses")
+        self.assertNotEqual(planted, line)
+        self.assertEqual(
+            host_address_findings(planted),
+            [
+                "a render on manager leaves 2001:db8::10 unprobed",
+                "a render on manager leaves 2001:db8::20 unprobed",
+                "a render on worker leaves 2001:db8::10 unprobed",
+                "a render on worker leaves 2001:db8::20 unprobed",
             ],
         )
 

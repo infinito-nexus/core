@@ -1,7 +1,36 @@
 from __future__ import annotations
 
+from functools import cache
+from importlib.util import module_from_spec, spec_from_file_location
+from pathlib import Path
+
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+WORKSPACE_PY = Path(__file__).resolve().parents[1] / "files" / "python" / "workspace.py"
+
+
+@cache
+def _workspace():
+    spec = spec_from_file_location("semaphore_workspace_py", str(WORKSPACE_PY))
+    module = module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def semaphore_workspace_releases(changelog: str, floor: str) -> list[str]:
+    """Args:
+        changelog: the ``CHANGELOG.md`` the platform runner image holds.
+        floor: ``SEMAPHORE_WORKSPACE_CORE_FLOOR``.
+
+    Returns:
+        The releases ``workspace.py`` accepts for that changelog and floor,
+        newest first, through its own parse and floor.
+    """
+    if not changelog.strip():
+        raise ValueError("the platform runner image holds an empty CHANGELOG.md")
+    workspace = _workspace()
+    return workspace.shipping_releases(workspace.parse_releases(changelog), floor)
 
 
 def semaphore_ssh_keypair(comment: str) -> dict[str, str]:
@@ -99,6 +128,7 @@ class FilterModule:
         return {
             "semaphore_ssh_keypair": semaphore_ssh_keypair,
             "semaphore_targets_env": semaphore_targets_env,
+            "semaphore_workspace_releases": semaphore_workspace_releases,
             "semaphore_workspace_neighbours": semaphore_workspace_neighbours,
             "semaphore_workspace_uid": semaphore_workspace_uid,
             "semaphore_workspace_uid_findings": semaphore_workspace_uid_findings,

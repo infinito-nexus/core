@@ -1,6 +1,7 @@
 """Args:
 operation <result file>: reads WORKSPACE, WORKSPACE_ACTION,
-    WORKSPACE_CORE_VERSION, WORKSPACE_TARGETS, WORKSPACE_PLATFORM_TOKENS
+    WORKSPACE_CORE_VERSION, WORKSPACE_CORE_FLOOR, WORKSPACE_OWN_BUILD,
+    WORKSPACE_OWN_BUILD_VERSION, WORKSPACE_TARGETS, WORKSPACE_PLATFORM_TOKENS
     (``true`` or ``false``, the store's switch for the platform provider
     secrets), WORKSPACE_PRIVATE_TARGETS (a JSON list of CIDRs) and
     INFINITO_SRC_DIR, and prints the extra variables of the workspace playbook
@@ -70,35 +71,89 @@ def released_versions(source):
     Returns:
         Every version its changelog releases, newest first.
     """
-    text = (Path(source) / "CHANGELOG.md").read_text(encoding="utf-8")
+    return parse_releases((Path(source) / "CHANGELOG.md").read_text(encoding="utf-8"))
+
+
+def parse_releases(text):
+    """Args:
+    text: a ``CHANGELOG.md``.
+
+    Returns:
+        Every version it releases, newest first.
+    """
     versions = {match.group(1) for match in RELEASE.finditer(text)}
-    return sorted(
-        versions, key=lambda v: tuple(int(p) for p in v.split(".")), reverse=True
-    )
+    return sorted(versions, key=release_key, reverse=True)
 
 
-def core_version(value, released):
+def shipping_releases(released, floor):
+    """Args:
+    released: :func:`parse_releases`.
+    floor: ``WORKSPACE_CORE_FLOOR``, empty while no release ships the
+        workspace runner.
+
+    Returns:
+        The releases at or above the floor, newest first; none without one.
+    """
+    return [v for v in released if floor and release_key(v) >= release_key(floor)]
+
+
+def release_key(version):
+    """Args:
+    version: a version like 17.0.0.
+
+    Returns:
+        Its parts as integers, which order releases.
+    """
+    return tuple(int(part) for part in version.split("."))
+
+
+def core_version(value, released, floor, own_build, own_version):
     """Args:
     value: ``WORKSPACE_CORE_VERSION`` as the store sent it.
     released: :func:`released_versions`.
+    floor: ``WORKSPACE_CORE_FLOOR``, the first release that ships the
+        workspace runner; empty while no release does.
+    own_build: ``WORKSPACE_OWN_BUILD``, the image of the deploying core on a
+        dev or CI deploy; empty on production.
+    own_version: ``WORKSPACE_OWN_BUILD_VERSION``, the version that image
+        declares.
 
     Returns:
-        The released version the workspace runner builds on; ``latest`` is
-        the newest one.
+        ``(version, base)``: the version the core tree of the workspace runner
+        declares, and the own build it builds on, empty for a release. The
+        tag of the own build selects it, and so does ``latest`` while an own
+        build is set, since a dev or CI deploy tests the deploying core;
+        without one ``latest`` is the newest release at or above the floor.
     """
-    if value == LATEST:
-        if not released:
+    if floor and not VERSION.match(floor):
+        raise RefusalError(f"WORKSPACE_CORE_FLOOR {floor!r} is no version like 17.0.0")
+    if own_build and value in (LATEST, own_build.rpartition(":")[2]):
+        if not VERSION.match(own_version):
             raise RefusalError(
-                "WORKSPACE_CORE_VERSION latest finds no released version"
+                f"WORKSPACE_OWN_BUILD_VERSION {own_version!r} is no version like 17.0.0"
             )
-        return released[0]
+        return own_version, own_build
+    shipped = f"ships from {floor} on" if floor else "ships in no release yet"
+    shipping = shipping_releases(released, floor)
+    if value == LATEST:
+        if not shipping:
+            raise RefusalError(
+                "WORKSPACE_CORE_VERSION latest finds no release of the workspace "
+                f"runner, which {shipped}"
+            )
+        return shipping[0], ""
     if not VERSION.match(value or ""):
         raise RefusalError(
             f"WORKSPACE_CORE_VERSION {value!r} is neither latest nor a version like 17.0.0"
         )
     if value not in released:
         raise RefusalError(f"WORKSPACE_CORE_VERSION {value} is no released version")
-    return value
+    if value not in shipping:
+        raise RefusalError(
+            f"WORKSPACE_CORE_VERSION {value} predates the workspace runner, "
+            f"which {shipped}"
+        )
+    return value, ""
 
 
 def parse_targets(value):
@@ -212,9 +267,12 @@ def operation(env, result_file, resolver=resolve):
             f"WORKSPACE_PLATFORM_TOKENS {env.get('WORKSPACE_PLATFORM_TOKENS')!r} "
             f"is neither true nor false"
         )
-    version = core_version(
+    version, base = core_version(
         env.get("WORKSPACE_CORE_VERSION", ""),
         released_versions(env["INFINITO_SRC_DIR"]),
+        env.get("WORKSPACE_CORE_FLOOR", ""),
+        env.get("WORKSPACE_OWN_BUILD", ""),
+        env.get("WORKSPACE_OWN_BUILD_VERSION", ""),
     )
     private = json.loads(env.get("WORKSPACE_PRIVATE_TARGETS") or "[]")
     pinned = pin_targets(
@@ -222,6 +280,7 @@ def operation(env, result_file, resolver=resolve):
     )
     return {
         **variables,
+        "WORKSPACE_CORE_BASE": base,
         "WORKSPACE_CORE_VERSION": version,
         "WORKSPACE_TARGETS": pinned,
         "WORKSPACE_PLATFORM_TOKENS": platform_tokens,

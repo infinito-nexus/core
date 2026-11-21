@@ -3,7 +3,7 @@ const dns = require("node:dns");
 const zlib = require("node:zlib");
 const { expect, test } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { apiFetchOnion, decodeDotenvQuotedValue, requireDotenvValue } = require("./personas");
+const { apiFetchOnion, decodeDotenvJsonList, decodeDotenvQuotedValue, requireDotenvValue } = require("./personas");
 const { ANSI, TASK_FINISHED, WORKSPACE_RUN_MS, WORKSPACE_TEMPLATE, strictFlag } = require("./personas/utils/workspace");
 
 const TASK_POLL_INTERVAL_MS = 5_000;
@@ -12,7 +12,6 @@ const ROTATION_RUN_MS = 10 * 60_000;
 const OUTPUT_TAIL_LINES = 30;
 const ERROR_BODY_CHARS = 300;
 const ROTATION_TEMPLATE = "rotate store credentials";
-const LATEST_CORE_VERSION = "latest";
 const PLATFORM_TOKENS = "true";
 const PLATFORM_MOUNT = "platform";
 const STORE_GITEA_PATH = "store/gitea";
@@ -399,6 +398,27 @@ function workspacesProjectName() {
 }
 
 /**
+ * Returns:
+ *   The `[WORKSPACE_CORE_VERSION, declared version]` pairs the specs apply
+ *   workspaces with: the two newest releases at or above the floor, else the
+ *   own build of the deploying core by its tag.
+ */
+function corePicks() {
+  const picks = decodeDotenvJsonList(process.env.SEMAPHORE_WORKSPACE_CORE_PICKS_JSON, "SEMAPHORE_WORKSPACE_CORE_PICKS_JSON");
+  expect(picks.length, "SEMAPHORE_WORKSPACE_CORE_PICKS_JSON must pick the own build or two releases").toBeGreaterThan(0);
+  return picks;
+}
+
+/**
+ * Returns:
+ *   The `WORKSPACE_CORE_VERSION` of the first pick of `corePicks`, which every
+ *   spec applies a workspace with unless it tests the selection itself.
+ */
+function pickedCore() {
+  return corePicks()[0][0];
+}
+
+/**
  * Args:
  *   shared: the role's shared helpers.
  *   page: a page carrying the administrator session.
@@ -453,7 +473,7 @@ async function openWorkspace(shared, browser, fixture, targets, label) {
     {
       WORKSPACE: fixture.workspace,
       WORKSPACE_ACTION: "apply",
-      WORKSPACE_CORE_VERSION: LATEST_CORE_VERSION,
+      WORKSPACE_CORE_VERSION: pickedCore(),
       WORKSPACE_TARGETS: targets,
       WORKSPACE_PLATFORM_TOKENS: PLATFORM_TOKENS,
     },
@@ -535,13 +555,13 @@ async function closeWorkspace(shared, fixture, label) {
   }
 }
 
-/**
- * Args:
- *   shared: the role's shared helpers.
- */
-function requireWorkspaces(shared) {
-  skipUnlessWorkspaces();
-  shared.skipUnlessServiceEnabled("sso");
+function requireWorkspaces() {
+  const raw = process.env.SEMAPHORE_WORKSPACES_SKIP;
+  if (raw === undefined) {
+    throw new Error("SEMAPHORE_WORKSPACES_SKIP is unset: playwright.env must carry the skip reason, empty when the workspace specs run");
+  }
+  const reason = decodeDotenvQuotedValue(raw);
+  test.skip(reason !== "", `SEMAPHORE_WORKSPACES_SKIP: ${reason}`);
 }
 
 /**
@@ -1550,6 +1570,7 @@ module.exports = {
   closeWorkspace,
   commitInventory,
   commitWorkspaceFile,
+  corePicks,
   deployToSharedTarget,
   destroyWorkspace,
   expectLockedTemplate,
@@ -1565,6 +1586,7 @@ module.exports = {
   namedTemplates,
   openWorkspace,
   outputTail,
+  pickedCore,
   probeLines,
   readKdbx,
   readTar,

@@ -8,6 +8,28 @@
       delegate_to: "{{ STACK_HOST }}"
       run_once: true
 
+- name: "🔎 Read the changelog the platform runner image checks workspace releases against"
+  ansible.builtin.command:
+    argv:
+      - container
+      - run
+      - --rm
+      - --pull
+      - never
+      - --network
+      - none
+      - --entrypoint
+      - cat
+      - "{{ SEMAPHORE_RUNNER_IMAGE }}"
+      - "{{ SEMAPHORE_RUNNER_CHANGELOG_FILE }}"
+  environment:
+    CA_CONTAINER_ENABLED: "0"
+  register: semaphore_runner_changelog
+  changed_when: false
+  failed_when: semaphore_runner_changelog.rc != 0 or semaphore_runner_changelog.stdout | trim | length == 0
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
 - name: "🗂️ Check and write the provision catalogs of this deployment"
   include_tasks:
     file: utils/catalog.yml
@@ -37,3 +59,12 @@
 
 - name: "🛂 Converge the Semaphore accounts with the role groups"
   include_tasks: 03_rbac.yml
+
+- name: "🕒 Mark the journal of the stack host before the E2E run writes to it"
+  ansible.builtin.command:
+    argv:
+      - date
+      - "+%s"
+  register: semaphore_journal_mark
+  changed_when: false
+  when: IS_STACK_HOST | bool

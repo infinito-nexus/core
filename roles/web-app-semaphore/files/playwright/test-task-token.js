@@ -137,7 +137,7 @@ exports.register = function (shared) {
   });
 
   test("task token: a task receives a token for its own project and template", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     test.setTimeout(resolveTimeout(2 * WORKSPACE_MS + PROBE_MS + 20 * REQUEST_MS));
     await workspaces.withWorkspace(shared, browser, TOKEN_LABEL, "", async (fixture) => {
       const identity = provisionIdentity(fixture);
@@ -183,7 +183,7 @@ exports.register = function (shared) {
   });
 
   test("locked template: run-time overrides do not reach the script", async ({ browser }) => {
-    workspaces.requireWorkspaces(shared);
+    workspaces.requireWorkspaces();
     test.setTimeout(resolveTimeout(2 * WORKSPACE_MS + PROBE_MS + 20 * REQUEST_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture, cleanup) => {
       const project = provisionIdentity(fixture).project_id;
