@@ -51,7 +51,7 @@ snipe-it:
   backup:
     stop_required: false
   healthcheck:
-    test: ["CMD", "wget", "-q", "-O-", "http://localhost/health"]
+    test: ["CMD", "wget", "-q", "-O-", "--header", "Host: {{ lookup('domain', 'web-app-snipe-it') }}", "http://localhost/health"]
     retries: 12
   enabled: true
   shared: true
