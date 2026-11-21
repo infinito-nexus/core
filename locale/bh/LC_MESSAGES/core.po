@@ -726,10 +726,8 @@ msgctxt "category:sys.dns:description"
 msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
 msgstr ""
 
-# CNAME, MX, TXT, SRV) को संवर्द्धित करने से संबंधित (A/AAAA, CNAME, MX, TXT,
-# SRV) के साथ आपातकालिक सेटिंग्स और परिधि
 msgctxt "role:sys-dns-cloudflare-records:description"
-msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
+msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, NS, TXT, SRV, DS) across apps and environments"
 msgstr ""
 
 # translated-by: libretranslate

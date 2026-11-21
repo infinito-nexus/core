@@ -3,11 +3,12 @@ from __future__ import annotations
 import contextlib
 import io
 import json
+import shutil
 import unittest
 import unittest.mock as mock
 from pathlib import Path
 
-from ._fake_provision import TempCase, load
+from ._fake_provision import harness_directory, load
 
 zone = load("provision.zone")
 VALUES_FILE = load("provision.session").VALUES_FILE
@@ -30,9 +31,10 @@ class PlantedSession:
         self.destroyed = True
 
 
-class TestZoneDeleteWrite(TempCase):
+class TestZoneDeleteWrite(unittest.TestCase):
     def setUp(self):
-        super().setUp()
+        self.root = harness_directory()
+        self.addCleanup(shutil.rmtree, self.root, ignore_errors=True)
         self.task = self.root / "task"
         self.other = self.root / "other-run"
         for directory in (self.task, self.other):

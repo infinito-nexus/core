@@ -59,12 +59,12 @@ STAGING = "staging.example.org"
 STAGING_ZONE = f"ws.{STAGING}"
 CO_UK = "example.co.uk"
 CO_UK_ZONE = f"ws.{CO_UK}"
-KNOT_GUARD = "groups.get('svc-dns-knot', []) | length > 0"
+KNOT_GUARD = "(groups.get('svc-dns-knot') or []) | length > 0"
 GATES = (
     "IS_STACK_HOST | bool",
     "DNS_PROVIDER == 'cloudflare'",
     KNOT_GUARD,
-    "run_once_svc_dns_knot is defined",
+    "run_once_svc_dns_knot) is defined",
 )
 STACK_HOST = {"IS_STACK_HOST": True, "DNS_PROVIDER": "cloudflare"}
 INCLUDE_TASKS = "ansible.builtin.include_tasks"
@@ -158,9 +158,10 @@ def r4_layout(tasks):
         ``knot.yml`` as round 4 laid it out: the tasks of ``knot/delegate.yml``
         inline in a block that carries the gate of the include.
     """
-    (block,) = delegate_tasks()
     return [
-        {**block, "when": task["when"]} if delegate_includes([task]) else task
+        {**delegation_step(), "when": task["when"]}
+        if delegate_includes([task])
+        else task
         for task in tasks
     ]
 
@@ -266,13 +267,17 @@ def gate_open(conditions, context):
 
 
 def delegation_step():
-    (step,) = delegate_tasks()
-    return step
+    """Returns:
+    The delegation as one step: the ``vars`` the include in ``knot.yml``
+    hands over and the tasks of ``knot/delegate.yml`` as its ``block``.
+    """
+    (include,) = delegate_includes(flavor_tasks()["knot"])
+    return {"vars": include["vars"], "block": delegate_tasks()}
 
 
 def step_context(step, keys, zone, zones):
     """Args:
-        step: the block of ``tasks/flavors/dns/knot/delegate.yml``.
+        step: the delegation step, as ``delegation_step`` builds it.
         keys: the keys ``keymgr -j <zone> list`` prints on the primary.
         zone: the subzone of the knot flavor.
         zones: ``(name, status)`` of every Cloudflare zone the token reads.
@@ -307,7 +312,7 @@ def step_context(step, keys, zone, zones):
 
 def r4_clock(step):
     """Args:
-        step: the block of ``knot/delegate.yml``.
+        step: the delegation step, as ``delegation_step`` builds it.
 
     Returns:
         The block with the clock of round 4, ``now(utc=true).timestamp()``.

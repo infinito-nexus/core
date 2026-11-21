@@ -719,10 +719,9 @@ msgctxt "category:sys.dns:description"
 msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
 msgstr "DNS provisores, registres, i gerenciació rDNS (Cloudflare, Hetzner, etc.)."
 
-# translated-by: ollama
 msgctxt "role:sys-dns-cloudflare-records:description"
-msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
-msgstr "Data-driven role para gerir récords DNS Cloudflare (A/AAAA, CNAME, MX, TXT, SRV) nas apps e ambientes"
+msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, NS, TXT, SRV, DS) across apps and environments"
+msgstr ""
 
 msgctxt "category:svc.db:description"
 msgid "Database applications (DBMS, LDAP, Redis, etc.)"

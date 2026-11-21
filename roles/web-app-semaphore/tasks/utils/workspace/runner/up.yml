@@ -10,7 +10,7 @@
   register: semaphore_workspace_build
   changed_when: false
 
-- name: "🔎 Read the core version the runner image of {{ semaphore_workspace_alias }} declares"
+- name: "🔎 Read the core version of the {{ semaphore_workspace_alias }} runner image"
   ansible.builtin.command:
     argv:
       - container
@@ -29,7 +29,7 @@
   register: semaphore_workspace_core_version
   changed_when: false
 
-- name: "🛡️ Assert the runner of {{ semaphore_workspace_alias }} runs core {{ WORKSPACE_CORE_VERSION }}"
+- name: "🛡️ Assert {{ semaphore_workspace_alias }} runs core {{ WORKSPACE_CORE_VERSION }}"
   ansible.builtin.assert:
     that: semaphore_workspace_core_version.stdout | trim == WORKSPACE_CORE_VERSION | string
     fail_msg: >-

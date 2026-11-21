@@ -108,6 +108,8 @@ class TestCloseOpen(unittest.TestCase):
     def test_negative_control_without_the_check_a_hidden_directory_stays_open(self):
         with mock.patch.object(hardening, "hidden", return_value=[]):
             findings = self.hidden_findings()
+        if os.access(self.base / "srv", os.R_OK):
+            self.skipTest("this process lists a 0311 directory, so no walk misses it")
         self.assertEqual(
             findings, [f"{self.base / 'srv' / 'drop'} stays writable for every uid"]
         )

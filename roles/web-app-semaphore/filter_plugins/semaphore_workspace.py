@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from functools import cache
 from importlib.util import module_from_spec, spec_from_file_location
-from pathlib import Path
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
-WORKSPACE_PY = Path(__file__).resolve().parents[1] / "files" / "python" / "workspace.py"
+from utils import PROJECT_ROOT
+
+WORKSPACE_PY = PROJECT_ROOT / "roles/web-app-semaphore/files/python/workspace.py"
 
 
 @cache

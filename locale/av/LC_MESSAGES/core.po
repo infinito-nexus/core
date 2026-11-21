@@ -788,11 +788,8 @@ msgctxt "category:sys.dns:description"
 msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
 msgstr ""
 
-# translated-by: libretranslate
-# ræðulegar (A/AAAA, CNAME, MX, TXT, SRV) á önnur bæði stafafélagar og
-# málvinstir
 msgctxt "role:sys-dns-cloudflare-records:description"
-msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
+msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, NS, TXT, SRV, DS) across apps and environments"
 msgstr ""
 
 # translated-by: libretranslate

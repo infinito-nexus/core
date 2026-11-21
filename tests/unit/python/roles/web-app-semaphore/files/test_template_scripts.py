@@ -18,8 +18,8 @@ SCRIPTS = (
     ("usage.sh", ()),
     ("app-control.sh", ("stop", "all")),
     ("probe.sh", ()),
-    ("provision.sh", ()),
-    ("destroy.sh", ()),
+    ("provision.sh", ("hetzner",)),
+    ("destroy.sh", ("hetzner",)),
     ("dns.sh", ()),
     ("unlock.sh", ()),
 )

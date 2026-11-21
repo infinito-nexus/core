@@ -48,7 +48,13 @@ def _render(expression, variables):
         Its native value under the Ansible core filters.
     """
     environment = NativeEnvironment(undefined=jinja2.StrictUndefined)
-    environment.filters.update(CoreFilters().filters())
+    environment.filters.update(
+        {
+            name: function
+            for name, function in CoreFilters().filters().items()
+            if name not in environment.filters
+        }
+    )
     return environment.from_string(str(expression)).render(**variables)
 
 

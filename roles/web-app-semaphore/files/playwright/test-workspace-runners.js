@@ -127,7 +127,7 @@ const LEFTOVER_READ_SCRIPT = [
   "",
 ].join("\n");
 const SSH_PORT = 22;
-const UNLISTED_PUBLIC = "1.1.1.1:443";
+const UNLISTED_PUBLIC = "203.0.113.1:443";
 const METADATA = "169.254.169.254:80";
 const GATEWAY_PORTS = [22, 80, 443];
 const HOST_KEY_ERROR = "Host key verification failed";
@@ -1367,7 +1367,7 @@ exports.register = function (shared) {
             const [version, declares] = selected[index];
             const ops = await operations(fixture.page);
             const { run, result } = await applied(fixture.page, ops, fixture.workspace, version, "");
-            expectStep(run, `Assert the runner of ${result.alias} runs core ${declares}`, ["ok"]);
+            expectStep(run, `Assert ${result.alias} runs core ${declares}`, ["ok"]);
             const row = await awaitRunnerOnline(fixture.page, result.alias);
             expect(
               { project_id: row.project_id, tags: row.tags },

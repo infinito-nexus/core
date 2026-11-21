@@ -69,16 +69,19 @@ class TestBackend(TempCase):
     def test_values_are_escaped_for_hcl(self):
         self.assertEqual(session._hcl('a${b}%{c}"'), '"a$${b}%%{c}\\""')
 
-    def test_the_backend_file_is_private_and_written_once(self):
+    def test_the_backend_file_is_private_and_a_rewrite_replaces_it(self):
         keys = {**STATE_KEYS, "secret_key": "s${x}"}
-        path = session.write_backend(self.root, self.config, "b", "SO/1.tfstate", keys)
-        self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o640)
-        text = path.read_text(encoding="utf-8")  # nocheck: cache-read tempdir
-        self.assertIn('secret_key = "s$${x}"\n', text)
-        self.assertIn('endpoints = {\n  s3 = "https://s3.example.org"\n}\n', text)
-        self.assertNotIn("custom_ca_bundle", text)
-        with self.assertRaises(FileExistsError):
-            session.write_backend(self.root, self.config, "b", "k", keys)
+        paths = set()
+        for key in ("SO/1.tfstate", "k"):
+            path = session.write_backend(self.root, self.config, "b", key, keys)
+            paths.add(path)
+            self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o640)
+            text = path.read_text(encoding="utf-8")  # nocheck: cache-read tempdir
+            self.assertIn(f'key = "{key}"\n', text)
+            self.assertIn('secret_key = "s$${x}"\n', text)
+            self.assertIn('endpoints = {\n  s3 = "https://s3.example.org"\n}\n', text)
+            self.assertNotIn("custom_ca_bundle", text)
+        self.assertEqual(len(paths), 1)
 
     def test_a_ca_file_reaches_the_backend(self):
         config = {**self.config, "cafile": "/etc/ssl/ca.pem"}

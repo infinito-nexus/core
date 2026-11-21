@@ -54,6 +54,10 @@ def deploy_config(provisioning):
     return {ENABLED: True, "services.semaphore": {"deploy": {}, "workspaces": {}}}
 
 
+class DeployError(Exception):
+    pass
+
+
 class LazyContext(Context):
     def resolve_or_missing(self, key):
         found = super().resolve_or_missing(key)
@@ -126,15 +130,15 @@ class RoleEnvironment(Environment):
             return VolumeLookup().run(list(terms))[0]
         if name == "config":
             if terms[1] not in self.config:
-                raise LookupError(f"{terms[1]}, which the deploy does not set")
+                raise DeployError(f"{terms[1]}, which the deploy does not set")
             return self.config[terms[1]]
         if name == "domain":
             if terms[0] not in self.declared:
-                raise LookupError(f"{terms[0]}, which no role declares")
+                raise DeployError(f"{terms[0]}, which no role declares")
             return f"{terms[0]}.{DOMAIN}"
         if name == "tls" and terms[1:] == ("url.origin",):
             return f"https://{terms[0]}"
-        raise LookupError(f"lookup('{name}'), which the test does not model")
+        raise DeployError(f"lookup('{name}'), which the test does not model")
 
 
 def rendered(source, variables, provisioning):
@@ -182,7 +186,7 @@ def render_findings(source, variables, provisioning):
         env = rendered(source, variables, provisioning)
     except UndefinedError as error:
         return [f"the env names {error.message}"]
-    except LookupError as error:
+    except DeployError as error:
         return [f"the env reads {error.args[0]}"]
     if not provisioning:
         return []

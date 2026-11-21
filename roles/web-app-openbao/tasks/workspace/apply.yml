@@ -60,7 +60,7 @@
   register: openbao_workspace_zone_policy
   changed_when: "'OPENBAO_CHANGED' in openbao_workspace_zone_policy.stdout"
 
-- name: "📜 Write the transit policy of ws-{{ WORKSPACE }} and the token role that alone mints its child token"
+- name: "📜 Write the transit policy and the token role of ws-{{ WORKSPACE }}"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i {{ OPENBAO_LOCAL_CID | quote }}
     sh -c 'set -e;
@@ -100,7 +100,7 @@
 - name: "🧹 Prune the provider roles and policies of ws-{{ WORKSPACE }} the table dropped"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i {{ OPENBAO_LOCAL_CID | quote }}
-    sh -s -- {{ OPENBAO_JWT_MOUNT | quote }} ws-{{ WORKSPACE }} {{ OPENBAO_PROVISION_SECRETS | list | map('quote') | join(' ') }}
+    sh -s -- {{ OPENBAO_JWT_MOUNT | quote }} ws-{{ WORKSPACE }} {{ OPENBAO_PROVISION_PROVIDER_NAMES | map('quote') | join(' ') }}
   args:
     stdin: "{{ lookup('file', 'shell/prune-provider-access.sh') }}"
   register: openbao_workspace_provider_prune

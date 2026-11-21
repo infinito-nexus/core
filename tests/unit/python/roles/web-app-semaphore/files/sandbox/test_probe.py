@@ -114,6 +114,8 @@ class TestProbeClasses(unittest.TestCase):
         hidden.mkdir()
         hidden.chmod(0o333)
         self.addCleanup(hidden.chmod, 0o700)
+        if os.access(hidden, os.R_OK):
+            self.skipTest("this process lists a 0333 directory, so no walk misses it")
         walk = os.walk(self.root)  # nocheck: project-walk
         listed = [Path(directory) for directory, _names, _files in walk]
         self.assertEqual(listed, [self.root])

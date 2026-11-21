@@ -6,8 +6,12 @@
 
 - name: "🌐 Delegate the knot subzone from its parent zone on Cloudflare"
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/flavors/dns/knot/delegate.yml"
+  vars:
+    semaphore_knot_hosts: "{{ groups['svc-dns-knot'] }}"
+    semaphore_knot_zone: "{{ SEMAPHORE_DNS.zone | lower }}"
+    semaphore_knot_keymgr: "keymgr -c {{ lookup('volume', 'svc-dns-knot', 'conf').target }}"
   when:
     - IS_STACK_HOST | bool
     - DNS_PROVIDER == 'cloudflare'
-    - groups.get('svc-dns-knot', []) | length > 0
-    - hostvars[groups['svc-dns-knot'] | first].run_once_svc_dns_knot is defined
+    - (groups.get('svc-dns-knot') or []) | length > 0
+    - (hostvars[groups['svc-dns-knot'] | first].run_once_svc_dns_knot) is defined

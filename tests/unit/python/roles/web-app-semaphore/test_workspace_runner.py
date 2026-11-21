@@ -474,7 +474,7 @@ CORE_READ_ARGV = [
     "cat",
 ]
 CORE_READ_ENVIRONMENT = {"CA_CONTAINER_ENABLED": "0"}
-SPEC_STEP = "`Assert the runner of ${result.alias} runs core ${declares}`"
+SPEC_STEP = "`Assert ${result.alias} runs core ${declares}`"
 SELECTED = "17.0.0"
 OTHER = "16.2.3"
 CORE_CHECK_CONTEXT = {
@@ -538,7 +538,7 @@ def core_version_findings(tasks, image, spec):
         for task in tasks
     ]
     registers = [task.get("register") for task in tasks]
-    step = f"Assert the runner of {ALIAS} runs core {SELECTED}"
+    step = f"Assert {ALIAS} runs core {SELECTED}"
     checks = [at for at, name in enumerate(names) if step in name]
     findings = []
     if f'expectStep(run, {SPEC_STEP}, ["ok"]);' not in spec:
@@ -965,7 +965,7 @@ class TestWorkspaceRunner(unittest.TestCase):
         self.assertNotEqual(unspecified, spec)
         read = next(at for at, t in enumerate(tasks) if t.get("register") == CORE_CHECK)
         up = next(at for at, t in enumerate(tasks) if t.get("register") == CORE_UP)
-        step = f"Assert the runner of {ALIAS} runs core {SELECTED}"
+        step = f"Assert {ALIAS} runs core {SELECTED}"
         passed_both = {SELECTED: True, OTHER: True}
         platform = CORE_CHECK_CONTEXT["SEMAPHORE_RUNNER_IMAGE"]
         egress = f"web-app-semaphore/egress:{IMAGE_TAG}"

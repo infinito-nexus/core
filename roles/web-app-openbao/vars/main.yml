@@ -177,3 +177,4 @@ OPENBAO_PROVISION_SECRETS:
       - "{{ OPENBAO_PLATFORM_MOUNT }}/data/provision/incus-*"
       - "{{ OPENBAO_TENANT_MOUNT }}/data/{workspace}-provision/incus"
     workspace: []
+OPENBAO_PROVISION_PROVIDER_NAMES: "{{ OPENBAO_PROVISION_SECRETS | list }}"

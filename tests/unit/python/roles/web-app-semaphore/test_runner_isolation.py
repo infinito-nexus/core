@@ -668,7 +668,9 @@ class TestRunnerIsolation(unittest.TestCase):
         )
 
     def test_negative_control_a_root_user_is_reported(self):
-        drifted = self.dockerfile.replace("ENTRYPOINT", "USER root\nENTRYPOINT", 1)
+        drifted = self.dockerfile.replace(
+            "\nENTRYPOINT ", "\nUSER root\nENTRYPOINT ", 1
+        )
         self.assertEqual(
             runner_user_findings(drifted, self.variables, self.volumes),
             [f"the last USER is ['root'], expected {RUNNER_USER}"],

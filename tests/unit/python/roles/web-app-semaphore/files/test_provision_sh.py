@@ -71,7 +71,9 @@ DIRECT_TOFU_AT = "    command = arguments[0]\n"
 DIRECT_TOFU = (
     DIRECT_TOFU_AT + "    import subprocess\n"
     "    done = subprocess.run(\n"
-    '        ["tofu", *arguments], cwd=task, env=environment, text=True,\n'
+    '        ["tofu", *arguments], cwd=task, text=True,\n'
+    "        env={**environment, **{k: v for k, v in __import__('os').environ.items()"
+    " if k.startswith('FAKE_TOFU_')}},\n"
     "        stdout=subprocess.PIPE if capture else None,\n"
     "    )\n"
     '    return done.stdout or ""\n'
@@ -306,7 +308,7 @@ class TestCheckout(ProvisionCase):
                 env["TF_CLI_CONFIG_FILE"],
                 str(self.sandbox.core / "opentofu" / "tofurc"),
             )
-            self.assertTrue(cwd.is_relative_to(self.sandbox.tmp))
+            self.assertTrue(cwd.is_relative_to(self.sandbox.spawner.root))
             self.assertNotEqual(cwd, self.sandbox.checkout)
             texts = call["texts"]
             for name in ("main.tf.json", "variables.tf.json", "outputs.tf.json"):
@@ -923,7 +925,11 @@ class TestTheTofuToken(ProvisionCase):
 
     def test_negative_control_a_tofu_started_by_provision_itself_is_found(self):
         self.plant("python/provision/opentofu.py", (DIRECT_TOFU_AT, DIRECT_TOFU))
-        result = self.sandbox.run("provision-incus")
+        result = self.sandbox.run(
+            "provision-incus",
+            FAKE_TOFU_LOG=str(self.sandbox.log),
+            FAKE_TOFU_PLAN=str(self.sandbox.plan),
+        )
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(
             descent_findings(self.sandbox.calls()),

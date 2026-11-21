@@ -371,7 +371,12 @@ class TestThePruneWiring(unittest.TestCase):
         for task in (apply, destroy):
             with self.subTest(task=task["name"]):
                 self.assertEqual(task["args"]["stdin"], stdin)
-        table = "{{ OPENBAO_PROVISION_SECRETS | list | map('quote') | join(' ') }}"
+        variables = load_yaml_any(str(ROLE_DIR / ROLE_FILE_VARS_MAIN))
+        self.assertEqual(
+            variables["OPENBAO_PROVISION_PROVIDER_NAMES"],
+            "{{ OPENBAO_PROVISION_SECRETS | list }}",
+        )
+        table = "{{ OPENBAO_PROVISION_PROVIDER_NAMES | map('quote') | join(' ') }}"
         workspace = "ws-{{ WORKSPACE }}"
         applied = apply["ansible.builtin.shell"].rstrip()
         self.assertTrue(applied.endswith(f"{workspace} {table}"))

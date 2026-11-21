@@ -110,7 +110,7 @@ class TestRecordState(DnsCase):
         init = self.call("init")
         self.assertIn(f'bucket = "{WORKSPACE}-state"\n', init["backend"]["text"])
         self.assertIn('key = "SO-2026/1.dns.tfstate"\n', init["backend"]["text"])
-        self.assertEqual(init["backend"]["mode"], 0o600)
+        self.assertEqual(init["backend"]["mode"], 0o640)
         versions = json.loads(init["texts"]["versions.tf.json"])
         self.assertIs(versions["terraform"]["backend"]["s3"]["use_lockfile"], True)
         self.assertEqual(

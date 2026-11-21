@@ -736,10 +736,9 @@ msgctxt "category:sys.dns:description"
 msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
 msgstr "دال - مقدِّمي الخدمات والسجلات وإدارة النظم العالمية لسواتل الملاحة (Cloudflare, Hetzner, etc.)."
 
-# translated-by: libretranslate
 msgctxt "role:sys-dns-cloudflare-records:description"
-msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
-msgstr "دال - دور إدارة سجلات كلودفلور د. (A/AAAAA, CNAME, MX, TXT, SRV) عبر التطبيقات والبيئات"
+msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, NS, TXT, SRV, DS) across apps and environments"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.db:description"

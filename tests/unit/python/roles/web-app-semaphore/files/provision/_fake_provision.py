@@ -87,14 +87,15 @@ def environ(pid):
     except PermissionError:
         return None
     return dict(e.decode().split("=", 1) for e in raw.split(b"\\0") if e)
-requester = int(pathlib.Path(os.environ["FAKE_TOFU_LOG"] + ".requester").read_text(encoding="utf-8"))
+requested = pathlib.Path(os.environ["FAKE_TOFU_LOG"] + ".requester")
+requester = int(requested.read_text(encoding="utf-8")) if requested.is_file() else 0
 ancestors = []
 parent = os.getppid()
 while parent > 1:
     ancestors.append(parent)
     stat_line = pathlib.Path(f"/proc/{{parent}}/stat").read_bytes()
     parent = int(stat_line.rsplit(b")", 1)[1].split()[1])
-runner = environ(requester)
+runner = environ(requester) if requester else None
 record["requester"] = requester
 record["ancestors"] = ancestors
 record["runner_env"] = None if runner is None else sorted(runner)

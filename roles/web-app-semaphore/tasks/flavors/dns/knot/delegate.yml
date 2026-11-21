@@ -1,74 +1,68 @@
 ---
-- name: "🌐 Write the delegation of the knot subzone into its parent zone"
+- name: "🔑 Read the keys of {{ semaphore_knot_zone }} on the knot primary"
+  ansible.builtin.shell: >
+    container exec {{ lookup('container_address', 'svc-dns-knot', 'knot') }}
+    {{ semaphore_knot_keymgr }} -j {{ semaphore_knot_zone | quote }} list
+  register: semaphore_knot_keys
+  delegate_to: "{{ semaphore_knot_hosts | first }}"
+  changed_when: false
+
+- name: "🔏 Read the DS records of {{ semaphore_knot_zone }} on the knot primary"
+  ansible.builtin.shell: >
+    container exec {{ lookup('container_address', 'svc-dns-knot', 'knot') }}
+    {{ semaphore_knot_keymgr }} {{ semaphore_knot_zone | quote }} ds
+  register: semaphore_knot_ds
+  delegate_to: "{{ semaphore_knot_hosts | first }}"
+  changed_when: false
+
+- name: "🔎 Find the Cloudflare zones above {{ semaphore_knot_zone }}"
+  uri_retry:
+    url: "{{ SEMAPHORE_CLOUDFLARE_ZONES_URL }}?name={{ semaphore_knot_parent }}"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ lookup('api', 'cloudflare.api_token') }}"
+    return_content: true
+  loop: "{{ semaphore_knot_zone | knot_parent_candidates }}"
+  loop_control:
+    loop_var: semaphore_knot_parent
+  register: semaphore_knot_parents
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🗝️ Pick the current KSK and the parent zone of {{ semaphore_knot_zone }}"
+  ansible.builtin.set_fact:
+    semaphore_knot_ksk: "{{ semaphore_knot_zone | knot_ksk(semaphore_knot_keys.stdout, now().timestamp() | int) }}"
+    semaphore_knot_parent_zone: >-
+      {{ semaphore_knot_zone | knot_parent_zone(dict(
+           semaphore_knot_parents.results | map(attribute='semaphore_knot_parent')
+           | zip(semaphore_knot_parents.results | map(attribute='json.result')))) }}
+
+- name: "🧮 Build the NS, glue and DS records of {{ semaphore_knot_zone }}"
+  ansible.builtin.set_fact:
+    semaphore_knot_delegation: >-
+      {{ semaphore_knot_zone | knot_delegation(
+           semaphore_knot_parent_zone,
+           dict(semaphore_knot_hosts | zip(semaphore_knot_hosts | map('extract', hostvars, ['networks', 'internet', 'ip4']))),
+           semaphore_knot_zone | knot_ds(semaphore_knot_ksk, semaphore_knot_ds.stdout)) }}
+
+- name: "📌 Delegate {{ semaphore_knot_zone }} by NS and glue records"
+  ansible.builtin.include_role:
+    name: sys-dns-cloudflare-records
   vars:
-    semaphore_knot_hosts: "{{ groups['svc-dns-knot'] }}"
-    semaphore_knot_zone: "{{ SEMAPHORE_DNS.zone | lower }}"
-    semaphore_knot_keymgr: "keymgr -c {{ lookup('volume', 'svc-dns-knot', 'conf').target }}"
-  block:
-    - name: "🔑 Read the keys of {{ semaphore_knot_zone }} on the knot primary"
-      ansible.builtin.shell: >
-        container exec {{ lookup('container_address', 'svc-dns-knot', 'knot') }}
-        {{ semaphore_knot_keymgr }} -j {{ semaphore_knot_zone | quote }} list
-      register: semaphore_knot_keys
-      delegate_to: "{{ semaphore_knot_hosts | first }}"
-      changed_when: false
+    cloudflare_records: "{{ semaphore_knot_delegation | rejectattr('type', 'equalto', 'DS') | list }}"
 
-    - name: "🔏 Read the DS records of {{ semaphore_knot_zone }} on the knot primary"
-      ansible.builtin.shell: >
-        container exec {{ lookup('container_address', 'svc-dns-knot', 'knot') }}
-        {{ semaphore_knot_keymgr }} {{ semaphore_knot_zone | quote }} ds
-      register: semaphore_knot_ds
-      delegate_to: "{{ semaphore_knot_hosts | first }}"
-      changed_when: false
+- name: "🔏 Publish the DS of the current KSK of {{ semaphore_knot_zone }}"
+  ansible.builtin.include_role:
+    name: sys-dns-cloudflare-records
+  vars:
+    cloudflare_records: "{{ semaphore_knot_delegation | selectattr('type', 'equalto', 'DS') | list }}"
 
-    - name: "🔎 Find the Cloudflare zones above {{ semaphore_knot_zone }}"
-      uri_retry:
-        url: "{{ SEMAPHORE_CLOUDFLARE_ZONES_URL }}?name={{ semaphore_knot_parent }}"
-        method: GET
-        headers:
-          Authorization: "Bearer {{ lookup('api', 'cloudflare.api_token') }}"
-        return_content: true
-      loop: "{{ semaphore_knot_zone | knot_parent_candidates }}"
-      loop_control:
-        loop_var: semaphore_knot_parent
-      register: semaphore_knot_parents
-      changed_when: false
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
-    - name: "🗝️ Pick the current KSK and the parent zone of {{ semaphore_knot_zone }}"
-      ansible.builtin.set_fact:
-        semaphore_knot_ksk: "{{ semaphore_knot_zone | knot_ksk(semaphore_knot_keys.stdout, now().timestamp() | int) }}"
-        semaphore_knot_parent_zone: >-
-          {{ semaphore_knot_zone | knot_parent_zone(dict(
-               semaphore_knot_parents.results | map(attribute='semaphore_knot_parent')
-               | zip(semaphore_knot_parents.results | map(attribute='json.result')))) }}
-
-    - name: "🧮 Build the NS, glue and DS records of {{ semaphore_knot_zone }}"
-      ansible.builtin.set_fact:
-        semaphore_knot_delegation: >-
-          {{ semaphore_knot_zone | knot_delegation(
-               semaphore_knot_parent_zone,
-               dict(semaphore_knot_hosts | zip(semaphore_knot_hosts | map('extract', hostvars, ['networks', 'internet', 'ip4']))),
-               semaphore_knot_zone | knot_ds(semaphore_knot_ksk, semaphore_knot_ds.stdout)) }}
-
-    - name: "📌 Delegate {{ semaphore_knot_zone }} by NS and glue through the Cloudflare records role"
-      ansible.builtin.include_role:
-        name: sys-dns-cloudflare-records
-      vars:
-        cloudflare_records: "{{ semaphore_knot_delegation | rejectattr('type', 'equalto', 'DS') | list }}"
-
-    - name: "🔏 Publish the DS of the current KSK of {{ semaphore_knot_zone }} through the Cloudflare records role"
-      ansible.builtin.include_role:
-        name: sys-dns-cloudflare-records
-      vars:
-        cloudflare_records: "{{ semaphore_knot_delegation | selectattr('type', 'equalto', 'DS') | list }}"
-
-    - name: "✅ Confirm to knot that the parent zone holds the DS of the ready KSK of {{ semaphore_knot_zone }}"
-      ansible.builtin.shell: >
-        container exec {{ lookup('container_address', 'svc-dns-knot', 'knot') }}
-        knotc zone-ksk-submitted {{ semaphore_knot_zone | quote }}
-      register: semaphore_knot_submission
-      delegate_to: "{{ semaphore_knot_hosts | first }}"
-      changed_when: (semaphore_knot_submission | knot_submission) == 'confirmed'
-      failed_when: (semaphore_knot_submission | knot_submission) == 'failed'
-      when: not (semaphore_knot_ksk.submitted | bool)
+- name: "✅ Confirm the parent DS of the ready KSK of {{ semaphore_knot_zone }} to knot"
+  ansible.builtin.shell: >
+    container exec {{ lookup('container_address', 'svc-dns-knot', 'knot') }}
+    knotc zone-ksk-submitted {{ semaphore_knot_zone | quote }}
+  register: semaphore_knot_submission
+  delegate_to: "{{ semaphore_knot_hosts | first }}"
+  changed_when: (semaphore_knot_submission | knot_submission) == 'confirmed'
+  failed_when: (semaphore_knot_submission | knot_submission) == 'failed'
+  when: not (semaphore_knot_ksk.submitted | bool)

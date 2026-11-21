@@ -57,9 +57,11 @@
     - name: "🗂️ Provision the project whose templates pause and resume the applications"
       include_tasks: utils/project.yml
 
-    - name: "🛡️ Prove the OpenTofu sandbox of the provision runner"
-      include_tasks: utils/provision/sandbox.yml
-      when: "'provision' in (SEMAPHORE_PLATFORM_RUNNERS_ACTIVE | map(attribute='key'))"
+- name: "🛡️ Prove the OpenTofu sandbox of the provision runner"
+  include_tasks: utils/provision/sandbox.yml
+  when:
+    - IS_STACK_HOST | bool
+    - "'provision' in (SEMAPHORE_PLATFORM_RUNNERS_ACTIVE | map(attribute='key'))"
 
 - name: "🛂 Converge the Semaphore accounts with the role groups"
   include_tasks: 03_rbac.yml
