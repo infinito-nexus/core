@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 from utils.cache.files import read_text
+from utils.i18n.catalog import build_template
 from utils.i18n.extract import (
     access_request_context,
     category_context,
@@ -12,6 +13,7 @@ from utils.i18n.extract import (
     core_source,
     docs_sources,
     keyed_messages,
+    keyed_translatable,
     logout_context,
     menu_context,
     paused_context,
@@ -283,6 +285,35 @@ class TestKeyedMessages(unittest.TestCase):
 
         self.assertEqual(
             messages, [("team:title", "The team"), ("team:built", "Built:")]
+        )
+
+
+class TestKeyedTranslatable(unittest.TestCase):
+    def _template(self, source: str) -> list[str]:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write(root, "locale/meta.yml", source)
+            template = build_template(
+                keyed_messages(root, "meta"),
+                "meta",
+                keyed_translatable(root, "meta"),
+            )
+        return [message.context for message in template if message.id]
+
+    def test_a_marked_key_stays_in_the_template_although_it_reads_as_a_token(self):
+        self.assertEqual(
+            self._template(
+                "# nocheck: untranslatable\nresources.cpu: CPU\n"
+                "resources.ram: RAM\nresources.disk: Disk space\n"
+            ),
+            ["meta:resources.cpu", "meta:resources.disk"],
+            "the marker keeps only the key below it; RAM stays a token",
+        )
+
+    def test_without_the_marker_the_same_key_vanishes_from_the_template(self):
+        self.assertEqual(
+            self._template("resources.cpu: CPU\nresources.disk: Disk space\n"),
+            ["meta:resources.disk"],
         )
 
 

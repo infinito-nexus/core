@@ -24,7 +24,7 @@ from utils.software import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Collection, Iterable, Iterator
 
 LOCALE_DIR = Path("locale")
 PROJECT = "infinito-nexus"
@@ -156,7 +156,11 @@ def new_catalog(domain: str, code: str | None = None) -> Catalog:
     )
 
 
-def build_template(messages: Iterable[tuple[str, str]], domain: str) -> Catalog:
+def build_template(
+    messages: Iterable[tuple[str, str]],
+    domain: str,
+    translatable: Collection[str] = frozenset(),
+) -> Catalog:
     """Return a template catalog holding the translatable part of ``messages``.
 
     This is the ``core`` domain's counterpart to the sphinx transform the
@@ -167,10 +171,12 @@ def build_template(messages: Iterable[tuple[str, str]], domain: str) -> Catalog:
     Args:
         messages: ``(msgctxt, msgid)`` pairs; ``msgctxt`` may be ``None``.
         domain: gettext domain.
+        translatable: contexts kept although :func:`untranslatable` drops
+            their message; see :func:`utils.i18n.extract.keyed_translatable`.
     """
     template = new_catalog(domain)
     for context, msgid in messages:
-        if not untranslatable(msgid):
+        if context in translatable or not untranslatable(msgid):
             template.add(msgid, context=context)
     return template
 

@@ -36,7 +36,12 @@ from utils.i18n.catalog import (
     write_catalog,
 )
 from utils.i18n.client import BATCH_SIZE, LibreTranslate
-from utils.i18n.extract import core_messages, docs_template, keyed_messages
+from utils.i18n.extract import (
+    core_messages,
+    docs_template,
+    keyed_messages,
+    keyed_translatable,
+)
 from utils.i18n.gateway import server
 from utils.i18n.languages import (
     DOMAINS,
@@ -91,7 +96,11 @@ def extract(domains: list[str], root: Path | None) -> int:
     target = PROJECT_ROOT if root is None else root
     for domain in domains:
         if root is not None:
-            template = build_template(keyed_messages(root, domain), domain)
+            template = build_template(
+                keyed_messages(root, domain),
+                domain,
+                keyed_translatable(root, domain),
+            )
         elif domain == "core":
             template = build_template(core_messages(PROJECT_ROOT), domain)
         else:

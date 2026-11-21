@@ -12,6 +12,7 @@ import tempfile
 from functools import lru_cache
 from pathlib import Path
 
+from utils.annotations.suppress import is_suppressed_for_key
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.i18n.catalog import LOCALE_DIR, read_catalog
@@ -19,6 +20,7 @@ from utils.i18n.spans import matches
 from utils.roles.custom import is_custom
 from utils.roles.mapping import ROLE_FILE_META_MAIN, ROLE_FILE_META_RBAC
 
+UNTRANSLATABLE_SUPPRESSION = "untranslatable"
 CATEGORIES_FILE = Path("meta") / "categories.yml"
 MENU_FILE = Path("roles") / "web-app-dashboard" / "vars" / "menu_categories.yml"
 LOGOUT_FILE = Path("roles") / "web-app-keycloak" / "files" / "logout_i18n.yml"
@@ -291,6 +293,31 @@ def keyed_messages(root: Path, domain: str) -> list[tuple[str, str]]:
         (f"{domain}:{key}", _text(text))
         for key, text in _load(root / LOCALE_DIR / f"{domain}.yml").items()
     ]
+
+
+def keyed_translatable(root: Path, domain: str) -> frozenset[str]:
+    """Return the contexts a ``# nocheck: untranslatable`` marker keeps.
+
+    The marker sits on a key's line of ``locale/<domain>.yml`` or the line
+    above it and keeps that message in the template although
+    :func:`utils.i18n.untranslatable.untranslatable` would drop it, e.g. the
+    label ``Matrix`` of a view rather than the app. It is read from the raw
+    lines because the cached YAML loader drops comments.
+
+    Args:
+        root: directory holding ``locale/``.
+        domain: gettext domain of ``locale/<domain>.yml``.
+
+    Returns:
+        The ``<domain>:<key>`` contexts of the marked keys.
+    """
+    path = root / LOCALE_DIR / f"{domain}.yml"
+    lines = read_text(str(path)).splitlines()
+    return frozenset(
+        f"{domain}:{key}"
+        for key in _load(path)
+        if is_suppressed_for_key(lines, key, UNTRANSLATABLE_SUPPRESSION)
+    )
 
 
 def _extraction_sources(root: Path) -> list[str]:
