@@ -102,5 +102,24 @@ class TestPlan(unittest.TestCase):
         self.assertEqual(chunks.plan([], [], size=80, blocks=3, budget=211), [])
 
 
+class TestChunkBeyondTheBudget(unittest.TestCase):
+    def test_the_whole_budget_goes_into_one_regular_chunk(self) -> None:
+        plan = chunks.plan([], list(range(500)), size=2000, blocks=4, budget=203)
+        self.assertEqual([len(c) for c in plan], [203])
+
+    def test_a_short_priority_chunk_strands_no_row_of_the_budget(self) -> None:
+        plan = chunks.plan(
+            list(range(7)), list(range(100, 600)), size=2000, blocks=4, budget=203
+        )
+        self.assertEqual([len(c) for c in plan], [7, 196])
+        self.assertEqual(plan[0], list(range(7)))
+
+    def test_priority_beyond_the_budget_fills_one_chunk_up_to_the_cap(self) -> None:
+        plan = chunks.plan(
+            list(range(300)), list(range(50)), size=2000, blocks=4, budget=203
+        )
+        self.assertEqual([len(c) for c in plan], [203])
+
+
 if __name__ == "__main__":
     unittest.main()

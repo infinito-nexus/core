@@ -44,6 +44,9 @@ fi
 
 git commit -m "${UPDATE_COMMIT_MESSAGE}"
 
+UPDATE_LEVEL="$(python3 -m utils.update.level HEAD~1 HEAD)"
+echo "Update level: ${UPDATE_LEVEL}"
+
 fingerprint_ref() {
 	local ref="$1"
 	shift
@@ -115,6 +118,8 @@ git push --force \
 	"https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" \
 	"HEAD:refs/heads/${BRANCH}"
 
+python3 -m cli.contributing.update.label --repo "${REPO}" --ensure-only
+
 PR_NUMBER="$(
 	gh pr list \
 		--repo "${REPO}" \
@@ -129,7 +134,9 @@ if [[ -n "${PR_NUMBER}" ]]; then
 	gh pr edit "${PR_NUMBER}" \
 		--repo "${REPO}" \
 		--title "${UPDATE_PR_TITLE}" \
-		--body "${UPDATE_PR_BODY}"
+		--body "${UPDATE_PR_BODY}" \
+		--add-label update \
+		--add-label "${UPDATE_LEVEL}"
 else
 	echo "Creating PR for ${BRANCH}"
 	PR_URL="$(
@@ -138,7 +145,9 @@ else
 			--title "${UPDATE_PR_TITLE}" \
 			--body "${UPDATE_PR_BODY}" \
 			--base "${UPDATE_BASE_BRANCH}" \
-			--head "${OWNER}:${BRANCH}"
+			--head "${OWNER}:${BRANCH}" \
+			--label update \
+			--label "${UPDATE_LEVEL}"
 	)"
 	PR_NUMBER="${PR_URL##*/}"
 	echo "Created PR #${PR_NUMBER}: ${PR_URL}"

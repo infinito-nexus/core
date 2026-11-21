@@ -12,8 +12,10 @@ sub-entity, plugin map, an addon's ``config``, ...) that declares BOTH
 
 - a semver ref moves to the newest tag of the same depth and flavor,
   read with ``git ls-remote --tags <repository>``;
-- a full 40-hex commit SHA moves to the tip of the repository's default
-  branch, read with ``git ls-remote <repository> HEAD``.
+- a full 40-hex commit SHA moves to the newest release tag when that tag
+  contains it, else to the tip of the repository's default branch, read
+  with ``git ls-remote <repository> HEAD``; a pin never moves back to an
+  older release.
 
 Branches (`master`, `main`, `stable`) and short SHAs are skipped.
 
@@ -33,6 +35,7 @@ from __future__ import annotations
 import concurrent.futures
 import re
 import subprocess
+import tempfile
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -58,6 +61,7 @@ if TYPE_CHECKING:
 _NOCHECK_MARKER = "repository-version"
 
 _COMMIT_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
+_FETCH_TIMEOUT_SECONDS = 120
 
 _REF_VALUE_RE = re.compile(
     r"^(?P<prefix>\s*ref\s*:\s*)"
@@ -139,6 +143,64 @@ def _ls_remote(*args: str) -> str | None:
     if proc.returncode != 0:
         return None
     return proc.stdout
+
+
+def latest_release(tags: list[str]) -> str | None:
+    """Return the newest unflavored semver tag, so ``-rc.1`` never wins.
+
+    Args:
+        tags: tag names of one repository.
+    """
+    return max(
+        (tag for tag in tags if is_semver(tag) and not version_flavor(tag)),
+        key=version_key,
+        default=None,
+    )
+
+
+def _git_succeeds(git_dir: str, *args: str) -> bool:
+    try:
+        proc = subprocess.run(
+            ["git", *args],
+            cwd=git_dir,
+            capture_output=True,
+            text=True,
+            timeout=_FETCH_TIMEOUT_SECONDS,
+            check=False,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return False
+    return proc.returncode == 0
+
+
+def release_contains(url: str, sha: str, tag: str) -> bool:
+    """Report whether release *tag* of *url* contains commit *sha*, so a pin
+    never moves back to a release older than itself.
+
+    Args:
+        url: the upstream repository.
+        sha: the pinned commit.
+        tag: the release tag the pin would move to.
+
+    Returns:
+        ``True`` only when a treeless fetch of the tag proves *sha* its
+        ancestor; a failed fetch proves nothing and yields ``False``.
+    """
+    ref = f"refs/tags/{tag}"
+    with tempfile.TemporaryDirectory() as git_dir:
+        return (
+            _git_succeeds(git_dir, "init", "--bare", "--quiet")
+            and _git_succeeds(
+                git_dir,
+                "fetch",
+                "--quiet",
+                "--no-tags",
+                "--filter=tree:0",
+                url,
+                f"{ref}:{ref}",
+            )
+            and _git_succeeds(git_dir, "merge-base", "--is-ancestor", sha, ref)
+        )
 
 
 def git_ls_remote_head(url: str) -> str | None:
@@ -294,6 +356,7 @@ def _target_ref(
     entry: RepositoryRefEntry,
     repo_tags: dict[str, list[str]],
     repo_heads: dict[str, str | None],
+    released: dict[tuple[str, str], str],
 ) -> str | None:
     """Return the ref *entry* should move to, or ``None`` when it stays.
 
@@ -302,8 +365,13 @@ def _target_ref(
         repo_tags: tag names per repository, empty when the lookup failed.
         repo_heads: default-branch tip per repository, ``None`` when the
             lookup failed.
+        released: the newest release tag per ``(repository, sha)`` pin that
+            the tag contains.
     """
     if is_commit_sha(entry.ref):
+        release = released.get((entry.repository, entry.ref))
+        if release:
+            return release
         tip = repo_heads.get(entry.repository)
         return tip if tip and tip != entry.ref else None
     tags = repo_tags.get(entry.repository, [])
@@ -322,23 +390,44 @@ def _target_ref(
 def find_outdated_updates(repo_root: Path) -> list[RepositoryRefUpdate]:
     """Cross-reference every collected entry against its upstream and
     return the entries that are behind: a semver ref older than the latest
-    tag with the same depth and flavor (``git ls-remote --tags``), or a
-    commit SHA that is not the default branch's tip
-    (``git ls-remote <repository> HEAD``)."""
+    tag with the same depth and flavor (``git ls-remote --tags``), a commit
+    SHA contained in its upstream's newest release tag
+    (:func:`release_contains`), or any other commit SHA that is not the
+    default branch's tip (``git ls-remote <repository> HEAD``)."""
     entries = collect_entries(repo_root)
-    sha_repos = sorted({e.repository for e in entries if is_commit_sha(e.ref)})
-    tag_repos = sorted({e.repository for e in entries if not is_commit_sha(e.ref)})
+    repos = sorted({e.repository for e in entries})
     with concurrent.futures.ThreadPoolExecutor(
         max_workers=resolve_max_fetch_workers()
     ) as pool:
-        tags = pool.map(git_ls_remote_tags, tag_repos)
+        tags = pool.map(git_ls_remote_tags, repos)
+        repo_tags: dict[str, list[str]] = dict(zip(repos, tags, strict=True))
+        candidates = sorted(
+            {
+                (e.repository, e.ref, release)
+                for e in entries
+                if is_commit_sha(e.ref)
+                and (release := latest_release(repo_tags[e.repository]))
+            }
+        )
+        contained = pool.map(lambda c: release_contains(*c), candidates)
+        released = {
+            (repo, sha): tag
+            for (repo, sha, tag), ok in zip(candidates, contained, strict=True)
+            if ok
+        }
+        sha_repos = sorted(
+            {
+                e.repository
+                for e in entries
+                if is_commit_sha(e.ref) and (e.repository, e.ref) not in released
+            }
+        )
         heads = pool.map(git_ls_remote_head, sha_repos)
-        repo_tags: dict[str, list[str]] = dict(zip(tag_repos, tags, strict=True))
         repo_heads: dict[str, str | None] = dict(zip(sha_repos, heads, strict=True))
 
     updates: list[RepositoryRefUpdate] = []
     for entry in entries:
-        target = _target_ref(entry, repo_tags, repo_heads)
+        target = _target_ref(entry, repo_tags, repo_heads, released)
         if target:
             updates.append(RepositoryRefUpdate(entry=entry, latest=target))
     return updates
