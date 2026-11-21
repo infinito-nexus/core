@@ -1,5 +1,5 @@
 ---
-# nocheck: clearnet-variant-tor  PeerTube is a publishing target OpenPost reaches server-side through its relay; the onion round never advertises it
+# nocheck: clearnet-variant-tor
 # nocheck: sso-variant-tor  variant 0 runs clearnet only: OpenPost reaches an onion Keycloak only through Tor's SOCKS port, which svc-net-tor opens to the internal ranges and not to the role subnet 192.88.99.0/24
 - services:
     container_backup:
@@ -86,7 +86,7 @@
       enabled: true
       shared: true
     simulator:
-      enabled: true # nocheck: variants-static-override  CI provider simulator the first two rounds switch on
+      enabled: true # nocheck: variants-static-override
     sso:
       enabled: true
       shared: true
@@ -96,7 +96,7 @@
 - services:
     container_backup:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      shared: false # nocheck: variants-static-override
     crossposter:
       poll_interval_seconds: 15
       retry:
@@ -176,7 +176,7 @@
       enabled: false
       shared: false
     simulator:
-      enabled: true # nocheck: variants-static-override  CI provider simulator the crossposter's Pixelfed and PeerTube routes deliver to
+      enabled: true # nocheck: variants-static-override
     sso:
       enabled: false
       shared: false
@@ -186,7 +186,7 @@
 - services:
     container_backup:
       enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      shared: false # nocheck: variants-static-override
     design:
       enabled: false
       shared: false
