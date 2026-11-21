@@ -34,11 +34,72 @@ PATH_NAMES = (
 )
 REGISTRIES_KEY = "INFINITO_CACHE_REGISTRIES"
 CACHE_ROLES = ("svc-registry-cache", "svc-cache-package")
+OPT_IN_ROLES = {
+    "INFINITO_INFRA_SEMAPHORE": "web-app-semaphore",
+    "INFINITO_INFRA_CHECKMK": "web-app-checkmk",
+}
+OPT_IN_VALUES = ("", "true", "false")
+PRUNE_MODULE = "cli.administration.infra"
+PRUNE_ACTION = "inventory-prune"
 CACHE_SERVICES = {
     "registry": ("svc-registry-cache", "cache"),
     "package": ("svc-cache-package", "package"),
     "frontend": ("svc-cache-package", "frontend"),
 }
+
+
+def infra_roles(env: Mapping[str, str]) -> tuple[str, ...]:
+    """Args:
+        env: environment holding the opt-in of every optional infra role.
+
+    Returns:
+        The cache roles, then each role of :data:`OPT_IN_ROLES` whose opt-in
+        is ``true``; an unset or ``false`` opt-in adds nothing.
+
+    Raises:
+        ValueError: an opt-in is set to anything but ``true`` or ``false``.
+    """
+    return (*CACHE_ROLES, *(role for role, on in _opt_ins(env).items() if on))
+
+
+def opted_out(env: Mapping[str, str]) -> tuple[str, ...]:
+    """Args:
+        env: environment holding the opt-in of every optional infra role.
+
+    Returns:
+        Each role of :data:`OPT_IN_ROLES` whose opt-in is unset or ``false``.
+
+    Raises:
+        ValueError: an opt-in is set to anything but ``true`` or ``false``.
+    """
+    return tuple(role for role, on in _opt_ins(env).items() if not on)
+
+
+def _opt_ins(env: Mapping[str, str]) -> dict[str, bool]:
+    values = {key: (env.get(key) or "").strip() for key in OPT_IN_ROLES}
+    invalid = [
+        f"{key}={value!r}"
+        for key, value in values.items()
+        if value not in OPT_IN_VALUES
+    ]
+    if invalid:
+        raise ValueError(f"[infra] {', '.join(invalid)}: set true or false")
+    return {role: values[key] == "true" for key, role in OPT_IN_ROLES.items()}
+
+
+def drop_roles(inventory: dict, roles: Sequence[str]) -> list[str]:
+    """Args:
+        inventory: an ``all.children`` inventory mapping, changed in place.
+        roles: the application ids whose groups go.
+
+    Returns:
+        The roles whose group was present and is removed.
+    """
+    children = (inventory.get("all") or {}).get("children") or {}
+    dropped = [role for role in roles if role in children]
+    for role in dropped:
+        del children[role]
+    return dropped
 
 
 def render_inventory(root: Path, env: Mapping[str, str]) -> Path:
@@ -130,6 +191,7 @@ def deploy_commands(
     vars_file: Path,
     inventory_dir: Path,
     roles: Sequence[str],
+    pruned: Sequence[str] = (),
 ) -> list[list[str]]:
     """Args:
         argv: compose call of the infra stack.
@@ -137,6 +199,8 @@ def deploy_commands(
         vars_file: rendered host vars, below ``checkout``.
         inventory_dir: inventory the runner provisions and deploys.
         roles: application ids the inventory includes.
+        pruned: application ids whose groups leave the inventory between the
+            provision and the deploy.
 
     Returns:
         The commands that deploy ``roles`` inside the runner. The runner image
@@ -159,6 +223,19 @@ def deploy_commands(
             "--vars-file",
             str(vars_file),
         ],
+        *(
+            [
+                [
+                    *python,
+                    PRUNE_MODULE,
+                    PRUNE_ACTION,
+                    str(inventory_dir / "devices.yml"),
+                    *pruned,
+                ]
+            ]
+            if pruned
+            else []
+        ),
         [
             *python,
             "cli.administration.deploy.dedicated",

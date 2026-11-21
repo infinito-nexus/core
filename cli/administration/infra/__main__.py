@@ -16,6 +16,7 @@ from cli.administration.deploy.development.stack import infra_compose_argv
 from utils.cache.evict import CacheConfigError
 from utils.cache.eviction.docker import build_cache_usage, run_command
 from utils.cache.files import PROJECT_ROOT
+from utils.cache.yaml import dump_yaml, load_yaml
 from utils.env.handlers.infinito.cache.paths import base, machine
 from utils.env.handlers.infinito.cache.pin import ROOT_KEY as PIN_ROOT_KEY
 from utils.infra import (
@@ -45,10 +46,13 @@ from utils.infra import (
     write_bridge,
 )
 from utils.infra_inventory import (
-    CACHE_ROLES,
     CACHE_SERVICES,
+    PRUNE_ACTION,
     cache_container,
     deploy_commands,
+    drop_roles,
+    infra_roles,
+    opted_out,
     render_inventory,
     unmounted,
 )
@@ -164,13 +168,14 @@ def _projects() -> list[str]:
 
 
 def _installs(argv: list[str], primary: Path) -> list[list[str]]:
+    roles, pruned = infra_roles(os.environ), opted_out(os.environ)
     vars_file = render_inventory(PROJECT_ROOT, os.environ)
     unit_dir = base().joinpath(*UNIT_DIR)
     python = f"{os.environ[VENV_KEY]}/bin/python"
     idle = {key: os.environ[key] for key in (GRACE_KEY, STAMP_DIR_KEY)}
     write_units(unit_dir, idle_units(primary, python, idle))
     return [
-        *deploy_commands(argv, PROJECT_ROOT, vars_file, INVENTORY_DIR, CACHE_ROLES),
+        *deploy_commands(argv, PROJECT_ROOT, vars_file, INVENTORY_DIR, roles, pruned),
         *timer_installs(argv, unit_dir),
         EVICT,
     ]
@@ -189,7 +194,15 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="make infra-*")
     parser.add_argument(
         "action",
-        choices=(*LIFECYCLE, *OUTER_TOOLS, "tools-inside", ATTACH, DOCKER, CACHE_NAME),
+        choices=(
+            *LIFECYCLE,
+            *OUTER_TOOLS,
+            "tools-inside",
+            ATTACH,
+            DOCKER,
+            CACHE_NAME,
+            PRUNE_ACTION,
+        ),
     )
     parser.add_argument("--takeover", action="store_true")
     parser.add_argument("rest", nargs=argparse.REMAINDER)
@@ -198,11 +211,20 @@ def main(argv: list[str] | None = None) -> int:
     if args.action in STARTING and not Profile().cache_stack_enabled():
         print("[infra] INFINITO_CACHE_STACK is off; no infra runner", file=sys.stderr)
         return 0
+    if args.action in STARTING:
+        try:
+            infra_roles(os.environ)
+        except ValueError as exc:
+            raise SystemExit(str(exc)) from exc
     if args.action == CACHE_NAME:
         if args.rest[:1] not in ([kind] for kind in CACHE_SERVICES):
             parser.error(f"{CACHE_NAME} takes one of {', '.join(CACHE_SERVICES)}")
         print(cache_container(PROJECT_ROOT, args.rest[0]))
         return 0
+    if args.action == PRUNE_ACTION:
+        if not args.rest:
+            parser.error(f"{PRUNE_ACTION} takes the inventory file, then the roles")
+        return _prune(Path(args.rest[0]), args.rest[1:])
     if args.action == ATTACH:
         return _attach()
     if args.action == "status":
@@ -234,6 +256,15 @@ def main(argv: list[str] | None = None) -> int:
         takeover=taking,
         bridge=bridge,
     )
+
+
+def _prune(inventory: Path, roles: list[str]) -> int:
+    content = load_yaml(inventory, default_if_missing={})
+    dropped = drop_roles(content, roles)
+    if dropped:
+        dump_yaml(inventory, content)
+        print(f"[infra] {inventory}: dropped {', '.join(dropped)}", file=sys.stderr)
+    return 0
 
 
 def _up(

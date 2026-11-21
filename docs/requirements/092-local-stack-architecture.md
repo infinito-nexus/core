@@ -375,7 +375,7 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation, 
 
 ### Phase 9: Opt-in integrations
 
-- [ ] Without the opt-in variables, the infra inventory holds neither `web-app-semaphore` nor `web-app-checkmk`. `[unit]`
+- [x] Without the opt-in variables, the infra inventory holds neither `web-app-semaphore` nor `web-app-checkmk`. `[unit]` (`tests/unit/python/utils/inventory/test_infra_optin.py`: the include list, the prune of a role an earlier opt-in provisioned and the refusal of a bad value before the runner is prepared, with the opt-in ignored in `infra_roles` and in the `_installs` wiring, a prune that deletes nothing and a skipped refusal as negative controls)
 - [ ] With `INFINITO_INFRA_SEMAPHORE=true`, every pool runner is listed on Semaphore's Runners page, and a Semaphore deploy task runs through the job entry on a pool runner that runs no make job at the same time. `[host]`
 - [ ] With `INFINITO_INFRA_CHECKMK=true`, Checkmk lists one service per pool runner with its state, one per held job with its age, one per cache with its fill against the cap and one for the disk floor; a cache above its cap and free disk below the floor turn their service critical. `[host]`
 - [x] A held job's service is OK below 24 h, warning from 24 h and critical from 7 d, and `INFINITO_HELD_JOB_WARN_AGE` and `INFINITO_HELD_JOB_CRIT_AGE` move both thresholds. `[unit]`

@@ -72,6 +72,8 @@ The runner takes these values from the checkout that runs `make infra-up` or `ma
 | `INFINITO_WORKTREE_ROOTS` | [default.env](../../../default.env) | empty: the primary checkout and `~/.local/share/worktrees` | colon-separated absolute directories the runner and the shared test runner mount read-only at their host paths |
 | `INFINITO_TOOLS_IDLE_GRACE` | `make dotenv` | `2h` | `<count><s\|m\|h\|d>` the tools stay up after the last tools target ended |
 | `INFINITO_TOOLS_STAMP_DIR` | `make dotenv` | `<INFINITO_INFRA_CACHE_DIR>/tools` | machine-wide directory every tools target stamps its runs in |
+| `INFINITO_INFRA_SEMAPHORE` | [default.env](../../../default.env) | `false` | `true` adds `web-app-semaphore` to the roles `make infra-up` and `make infra-update` deploy into the runner; unset or `false` leaves it out, any other value is refused |
+| `INFINITO_INFRA_CHECKMK` | [default.env](../../../default.env) | `false` | `true` adds `web-app-checkmk` to the roles `make infra-up` and `make infra-update` deploy into the runner; unset or `false` leaves it out, any other value is refused |
 
 `make dotenv` also writes `INFINITO_INFRA_RUNNER_IP` into `INFINITO_CACHE_REGISTRY_IP`, `INFINITO_CACHE_PACKAGE_IP` and `INFINITO_CACHE_PACKAGE_FRONTEND_IP`, since the aliases `infinito-registry-cache`, `infinito-package-cache` and `infinito-package-cache-frontend` all resolve to the runner.
 
