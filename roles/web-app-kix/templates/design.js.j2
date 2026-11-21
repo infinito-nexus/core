@@ -4,12 +4,14 @@
   var title = {{ design.title | to_json }};
   var tail = " · " + title;
   var stock = /^KIX \d+$/;
+  // KIX titles its sign-in page with a translated "Welcome to KIX", so the route, not the text, marks it as stock.
+  var signIn = /(^|\/)auth\/?$/.test(location.pathname);
   function brand() {
     var current = document.title;
-    if (current === title || current.slice(-tail.length) === tail) {
+    if (current === title || (!signIn && current.slice(-tail.length) === tail)) {
       return;
     }
-    document.title = current === "" || stock.test(current) ? title : current + tail;
+    document.title = signIn || current === "" || stock.test(current) ? title : current + tail;
   }
   new MutationObserver(brand).observe(document.head, { childList: true, subtree: true, characterData: true });
   brand();
