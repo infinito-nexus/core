@@ -40,7 +40,7 @@ if ($wanted !== []) {
         $target[$field] = $name;
     }
     $block = OPEN . " infinito-design:" . base64_encode(json_encode($previous)) . " " . CLOSE . "\n"
-        . $wanted["custom_css"] . "\n" . OPEN . " /infinito-design " . CLOSE . "\n";
+        . OPEN . " /infinito-design " . CLOSE . "\n";
 }
 $target["custom_css"] = $block . $foreign === "" ? null : $block . $foreign;
 

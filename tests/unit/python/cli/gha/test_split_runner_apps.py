@@ -12,11 +12,25 @@ from . import PROJECT_ROOT
 SCRIPT = PROJECT_ROOT / "scripts" / "github" / "split_runner_apps.sh"
 
 
-def _run(apps: list, self_hosted_count: int) -> dict:
+def _fresh_step_env(**values: str) -> dict[str, str]:
+    """The environment of a new CI step: nothing the env loader exported.
+
+    Args:
+        values: keys the step sets itself, as a workflow ``env:`` would.
+
+    Returns:
+        The process environment without ``INFINITO_*`` keys, plus *values*.
+    """
+    env = {k: v for k, v in os.environ.items() if not k.startswith("INFINITO_")}
+    env.update(values)
+    return env
+
+
+def _run(apps: list, self_hosted_count: int, env: dict[str, str] | None = None) -> dict:
     with tempfile.NamedTemporaryFile(mode="r", suffix=".env", delete=False) as out_f:
         out_path = out_f.name
     try:
-        env = os.environ.copy()
+        env = os.environ.copy() if env is None else dict(env)
         env["APPS_JSON"] = json.dumps(apps)
         env["CI_SELF_HOSTED_RUNNER_COUNT"] = str(self_hosted_count)
         env["GITHUB_OUTPUT"] = out_path
@@ -59,6 +73,17 @@ class TestSplitRunnerApps(unittest.TestCase):
         out = _run(["only-app"], 5)
         combined = out["apps_github"] + out["apps_self_hosted"]
         self.assertEqual(combined, ["only-app"])
+
+    def test_an_empty_concurrency_splits_like_an_unset_one(self):
+        apps = list(range(40))
+        self.assertEqual(
+            _run(apps, 20, _fresh_step_env(INFINITO_CI_CONCURRENCY="")),
+            _run(apps, 20, _fresh_step_env()),
+        )
+
+    def test_a_set_concurrency_drives_the_split(self):
+        out = _run(list(range(40)), 20, _fresh_step_env(INFINITO_CI_CONCURRENCY="500"))
+        self.assertEqual(len(out["apps_github"]), 40 * 500 // (500 + 20))
 
 
 if __name__ == "__main__":
