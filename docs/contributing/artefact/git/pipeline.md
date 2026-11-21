@@ -127,6 +127,8 @@ The `test-workspace` stage runs the workspace workflow listed in the `Infrastruc
 
 The final `done` job aggregates all deploy, install, and development gates. CI is considered green only when this job succeeds.
 
+A green `done` does not prove a deploy, since a skipped chunk passes it too. For an update PR the green run therefore hands over to [entry-pr-green-update-merge.yml](../../../../.github/workflows/entry-pr-green-update-merge.yml), which merges only when the run's `role-runtimes-*` artifacts list every role the PR changes; see the automatic merge section of [configuration.md](../../tools/github/actions/configuration.md).
+
 ## Concurrency 🔀
 
 - PR pipelines use `cancel-in-progress: true` so only the newest run per PR and event type is active. The group does not always reap a long orchestrator sweep, which then leaves the newer run parked on `pending`; [entry-cancel-superseded.yml](../../../../.github/workflows/entry-cancel-superseded.yml) cancels those leftovers through the API, see [cancel/README.md](../../../../scripts/github/cancel/README.md).

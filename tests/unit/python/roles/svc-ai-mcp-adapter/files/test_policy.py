@@ -111,6 +111,28 @@ class TestLoadContract(unittest.TestCase):
         )
 
 
+class TestUpstreamHost(unittest.TestCase):
+    def test_an_undeclared_host_keeps_the_url_host(self):
+        self.assertEqual("", policy.upstream_host(contract()))
+
+    def test_a_declared_host_is_returned(self):
+        loaded = policy.load_contract(
+            json.dumps(contract(upstream_host="assets.example.org"))
+        )
+        self.assertEqual("assets.example.org", policy.upstream_host(loaded))
+
+    def test_a_host_with_a_port_is_accepted(self):
+        self.assertEqual(
+            "assets.example.org:8443",
+            policy.upstream_host(contract(upstream_host="assets.example.org:8443")),
+        )
+
+    def test_a_malformed_host_is_refused_at_startup(self):
+        for host in ("", "assets.example.org\r\nX-Injected: 1", "a.org/path", 7):
+            with self.subTest(host=host), self.assertRaises(policy.ContractError):
+                policy.load_contract(json.dumps(contract(upstream_host=host)))
+
+
 class TestDrift(unittest.TestCase):
     def test_a_matching_hash_passes(self):
         policy.assert_no_drift(contract())
@@ -188,6 +210,17 @@ class TestLimits(unittest.TestCase):
 
     def test_results_are_truncated_to_the_contract_ceiling(self):
         self.assertEqual(5, len(policy.truncate_results(contract(), list(range(50)))))
+
+
+class TestRequestLength(unittest.TestCase):
+    def test_a_missing_header_announces_no_body(self):
+        self.assertEqual(policy.request_length(None), 0)
+
+    def test_a_numeric_header_is_the_byte_count(self):
+        self.assertEqual(policy.request_length("12"), 12)
+
+    def test_a_non_numeric_header_is_negative(self):
+        self.assertLess(policy.request_length("abc"), 0)
 
 
 class TestDeclaredArguments(unittest.TestCase):
