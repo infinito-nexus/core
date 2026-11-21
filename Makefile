@@ -250,11 +250,11 @@ compose-network-recreate: install
 
 .PHONY: compose-playwright
 # Rerun a role-local Playwright spec against the live running stack (no redeploy).
-# Usage: make compose-playwright role=<role> [pw="--grep <pattern>"] [keep=true]
+# Usage: make compose-playwright role=<role> [pw="--grep <pattern>"] [keep=true] [secrets=<rendered playwright.secrets.j2 file in the container>]
 # Example: make compose-playwright role=web-app-dashboard pw="--grep icons" keep=true
 compose-playwright:
 	@: $${role:?role=<role> required, e.g. role=web-app-dashboard}
-	@cmd='$(if $(keep),INFINITO_PLAYWRIGHT_KEEP=$(keep) )bash scripts/tests/e2e/rerun-spec.sh $(role) $(pw)' \
+	@cmd='$(if $(keep),INFINITO_PLAYWRIGHT_KEEP=$(keep) )$(if $(secrets),PLAYWRIGHT_SPEC_SECRETS_FILE=$(secrets) )bash scripts/tests/e2e/rerun-spec.sh $(role) $(pw)' \
 	 bash scripts/tests/deploy/local/exec/container.sh
 
 .PHONY: compose-restart
@@ -852,13 +852,13 @@ swarm-exec:
 .PHONY: swarm-playwright
 # Rerun a role-local Playwright spec against the live swarm-test cluster (no redeploy).
 # Note: nodes hold a frozen bootstrap copy (not a compose-style mount), so the working-tree's modified+untracked files are copied into the node before rerunning via the same rerun-spec.sh engine as compose-playwright; solve ALL of a role's tests (no pw= narrowing) before any redeploy.
-# Usage: make swarm-playwright role=<role> name=<cluster-id> [pw="--grep <pattern>"] [keep=true] [node=<container>]
+# Usage: make swarm-playwright role=<role> name=<cluster-id> [pw="--grep <pattern>"] [keep=true] [node=<container>] [secrets=<rendered playwright.secrets.j2 file on the node>]
 # Example: make swarm-playwright role=web-svc-logout name=web-app-baserow pw="--grep baserow" keep=true
 swarm-playwright:
 	@: $${role:?role=<role> required, e.g. role=web-svc-logout}
 	@test -n '$(name)' || { echo 'name=<cluster-id> required (the app id when no name= was passed to swarm-zombie)'; exit 2; }
 	@node='$(or $(node),$(name)-swarm-mgr-01)' bash scripts/tests/deploy/act/copy_worktree_to_node.sh
-	@node='$(or $(node),$(name)-swarm-mgr-01)' cmd="cd $${INFINITO_NODE_SRC_DIR:?} && TEST_E2E_PLAYWRIGHT_NETWORK_HOST=true $(if $(keep),INFINITO_PLAYWRIGHT_KEEP=$(keep) )bash scripts/tests/e2e/rerun-spec.sh $(role) $(pw)" bash scripts/tests/deploy/act/exec/node.sh
+	@node='$(or $(node),$(name)-swarm-mgr-01)' cmd="cd $${INFINITO_NODE_SRC_DIR:?} && TEST_E2E_PLAYWRIGHT_NETWORK_HOST=true $(if $(keep),INFINITO_PLAYWRIGHT_KEEP=$(keep) )$(if $(secrets),PLAYWRIGHT_SPEC_SECRETS_FILE=$(secrets) )bash scripts/tests/e2e/rerun-spec.sh $(role) $(pw)" bash scripts/tests/deploy/act/exec/node.sh
 
 .PHONY: swarm-shell
 # Drop into an interactive shell on one of the swarm-test DinD nodes.

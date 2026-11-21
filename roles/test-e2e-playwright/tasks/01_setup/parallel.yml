@@ -18,6 +18,7 @@
   ansible.builtin.set_fact:
     _playwright_submitted: []
     _playwright_serial_roles: []
+    _playwright_spec_secrets_runs: []
 
 - name: 📋 Ship the parallel scheduler
   ansible.builtin.copy:
@@ -80,6 +81,24 @@
       changed_when: false
       failed_when: false
       when: _playwright_submitted | length > 0
+
+    - name: 🫥 Mask the spec secrets in every file of each staged run, also after a kill
+      ansible.builtin.command:
+        # nocheck: task-argv-secret Reason: each item is the run dir, stage dir and reports dir paths the point task of 03_run_pass/spec_secrets.yml appends, never a value
+        argv: "{{ ['python3', TEST_E2E_PLAYWRIGHT_MASKER, 'scrub'] + playwright_spec_secrets_run + ['container'] }}"
+      loop: "{{ _playwright_spec_secrets_runs }}"
+      loop_control:
+        loop_var: playwright_spec_secrets_run
+      changed_when: false
+
+    - name: 🧹 Remove the spec secrets of every staged run
+      ansible.builtin.file:
+        path: "{{ playwright_spec_secrets_run | first }}"
+        state: absent
+      loop: "{{ _playwright_spec_secrets_runs }}"
+      loop_control:
+        loop_var: playwright_spec_secrets_run
+      failed_when: false
 
     - name: 📥 Read each handed-over run's job and result
       ansible.builtin.slurp:

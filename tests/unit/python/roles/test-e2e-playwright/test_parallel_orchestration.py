@@ -28,10 +28,13 @@ from utils.roles.mapping import (
 
 from . import PROJECT_ROOT, ROLE, role_task
 
+QUEUE_TASKS = "03_run_pass/queue.yml"
 AFTER_STAGING = (
     "🔏 Seal the job list so the scheduler drains and exits",
     "⏳ Wait for the scheduler to drain the job list",
     "🧹 Remove any handed-over container the scheduler did not stop",
+    "🫥 Mask the spec secrets in every file of each staged run, also after a kill",
+    "🧹 Remove the spec secrets of every staged run",
     "📥 Read each handed-over run's job and result",
     "🧭 Leave the runs whose dependency never ran here to the serial runner",
     "📝 Report and archive each handed-over run",
@@ -227,7 +230,7 @@ class TestParallelOrchestration(unittest.TestCase):
                 for app, job in zip(apps[1:], names, strict=True)
                 for name in (job, f"{app}.result.json")
             ]
-        leave = role_task("03_run_pass.yml", "📝 Leave")["ansible.builtin.set_fact"]
+        leave = role_task(QUEUE_TASKS, "📝 Leave")["ansible.builtin.set_fact"]
         serial = native(
             leave["_playwright_serial_roles"],
             _playwright_serial_roles=[],
@@ -406,9 +409,9 @@ class TestParallelOrchestration(unittest.TestCase):
         self,
     ):
         probe = role_task("03_run_pass.yml", "⏳ Wait until the onion")
-        queue = role_task("03_run_pass.yml", "📮")
-        remember = role_task("03_run_pass.yml", "📝 Remember")
-        leave = role_task("03_run_pass.yml", "📝 Leave")
+        queue = role_task(QUEUE_TASKS, "📮")
+        remember = role_task(QUEUE_TASKS, "📝 Remember")
+        leave = role_task(QUEUE_TASKS, "📝 Leave")
         skipped = {"skipped": True, "changed": False}
         self.assertTrue(
             conditional(
@@ -481,7 +484,7 @@ class TestParallelContainerFlags(unittest.TestCase):
         return module
 
     def _flags(self):
-        return role_task("03_run_pass.yml", "📮")["vars"]["_playwright_parallel_flags"]
+        return role_task(QUEUE_TASKS, "📮")["vars"]["_playwright_parallel_flags"]
 
     def test_every_parallel_flag_carries_its_value_in_one_token(self):
         flags = self._flags()
