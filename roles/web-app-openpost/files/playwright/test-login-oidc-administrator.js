@@ -4,7 +4,7 @@ const { resolveTimeout } = require("./timeouts");
 exports.register = function (shared) {
   test("administrator: Keycloak login provisions an instance admin who reaches the instance administration", async ({ page }) => {
     shared.skipUnlessServiceEnabled("sso");
-    test.setTimeout(resolveTimeout(120_000)); // OIDC round-trip via Keycloak plus just-in-time provisioning
+    test.setTimeout(resolveTimeout(120_000));
     expect(shared.env.adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
     expect(shared.env.adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
 
