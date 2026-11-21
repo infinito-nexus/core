@@ -300,9 +300,9 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation, 
 ### Phase 3: Shared image
 
 - [x] [local.sh](../../scripts/meta/resolve/image/local.sh) returns a tag whose name part is the same in every worktree and whose hash covers the Dockerfile, every file the toolchain stage copies, the build arguments and the parent image digest. `[unit]`
-- [ ] The hashed file set is derived from the toolchain stage's `COPY` sources; a lint fails when the stage reads a repository path at build time that is not in the set. `[unit]`
+- [x] The hashed file set is derived from the toolchain stage's `COPY` sources; a lint fails when the stage reads a repository path at build time that is not in the set. `[unit]`
 - [x] Two checkouts with identical inputs resolve the same tag; a change to a file outside the set leaves the tag unchanged; a change inside the set, to a build argument or to the parent digest changes it. `[unit]`
-- [ ] The local build context holds exactly the input set: a 1 GB file under `.claude/worktrees/`, `.worktrees/` or an untracked directory leaves the context size the build reports unchanged. `[unit]`
+- [x] The local build context holds exactly the input set: a 1 GB file under `.claude/worktrees/`, `.worktrees/` or an untracked directory leaves the context size the build reports unchanged. `[unit]`
 - [ ] The published image is the toolchain stage plus a final stage that copies the tree, and its build passes in CI. `[ci]`
 - [ ] A second worktree with the same inputs runs `make build-missing` without building. `[host]`
 - [x] `make build-cleanup` removes local toolchain images that no registered worktree resolves and no container runs, and keeps the others. `[unit]`
@@ -341,7 +341,7 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation, 
 ### Phase 6: Tools in the infra runner
 
 - [ ] `make i18n-translate`, `make i18n-tune` and `make test-oracle` deploy or start the tools services in the infra runner through the infra inventory, with the limits their roles define; the caches keep running. `[host]`
-- [x] The tools services stop once `INFINITO_TOOLS_IDLE_GRACE` (default `2h`) has passed since the last tools target ended, never while one runs, and a tools target inside the grace finds them running. `[unit]` (`tests/unit/python/utils/inventory/test_tools_idle_grace.py` for the stop decision with a live run and a stamp inside the grace as negative controls; `tests/unit/python/utils/test_infra.py` `TestIdleTimer` and `TestToolsCommands` for the timer inside the runner that stops only the tools projects)
+- [x] The tools services stop once `INFINITO_TOOLS_IDLE_GRACE` (default `2h`) has passed since the last tools target ended, never while one runs, and a tools target inside the grace finds them running. `[unit]` (`tests/unit/python/utils/inventory/test_tools_idle_grace.py` for the stop decision with a live run and a stamp inside the grace as negative controls; `tests/unit/python/utils/test_infra_tools.py` `TestIdleTimer` and `TestToolsCommands` for the timer inside the runner that stops only the tools projects)
 - [x] No checkout's compose project has a `tools` service: `compose/tools.override.yml` (removed) and its layering in `env.py` are gone. `[unit]` (`tests/unit/python/cli/administration/deploy/development/test_env_compose_file_args.py`; `tests/unit/python/utils/i18n/test_libretranslate.py` `TestDeployGoesThroughTheInfraRunner`)
 - [ ] `make i18n-pause` and `make i18n-resume` pause and resume only the tools services; the registry mirror answers during a pause. `[host]`
 - [ ] The tools keep their models under `models/` across a stop and a start without a new download. `[host]`

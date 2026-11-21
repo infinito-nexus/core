@@ -25,15 +25,15 @@ The operator filed this follow-up on 2026-11-14, to be built after the IAM store
 
 ### Inputs
 
-- [ ] `PROVIDER_TOKEN=workspace` on an `scs` region reads `tenant/data/ws-<id>-provision/providers/scs` and hands OpenTofu its two fields with the `auth_url` and region of the catalog region (`test_scs_workspace_credential_uses_the_catalog_endpoint` in `tests/unit/python/roles/web-app-semaphore/files/test_provision.py`).
-- [ ] A missing or empty field, and a record that carries `auth_url` or `region_name`, refuse the run before OpenTofu starts, naming the field (`test_scs_workspace_credential_refuses_a_foreign_endpoint` in `test_provision.py`, with a planted record whose `auth_url` would be used as its negative control).
-- [ ] `PROVIDER_TOKEN=workspace` never falls back to the platform credential of `scs`, and `platform` never reads the customer's record (`test_scs_sources_never_fall_back` in `test_provision.py`).
+- [x] `PROVIDER_TOKEN=workspace` on an `scs` region reads `tenant/data/ws-<id>-provision/providers/scs` and hands OpenTofu its two fields with the `auth_url` and region of the catalog region (`test_scs_workspace_credential_uses_the_catalog_endpoint` in `tests/unit/python/roles/web-app-semaphore/files/test_provision.py`).
+- [x] A missing or empty field, and a record that carries `auth_url` or `region_name`, refuse the run before OpenTofu starts, naming the field (`test_scs_workspace_credential_refuses_a_foreign_endpoint` in `test_provision.py`, with a planted record whose `auth_url` would be used as its negative control).
+- [x] `PROVIDER_TOKEN=workspace` never falls back to the platform credential of `scs`, and `platform` never reads the customer's record (`test_scs_sources_never_fall_back` in `test_provision.py`).
 
 ### Contract
 
-- [ ] An unrestricted credential, one scoped to no project or to more than one, and one that expires within the run's time budget each refuse the run before any write, naming the rule, and the output carries no part of the secret (`test_scs_credential_contract` in `tests/unit/python/roles/web-app-semaphore/files/provision/test_keystone.py`).
+- [x] An unrestricted credential, one scoped to no project or to more than one, and one that expires within the run's time budget each refuse the run before any write, naming the rule, and the output carries no part of the secret (`test_scs_credential_contract` in `tests/unit/python/roles/web-app-semaphore/files/provision/test_keystone.py`).
 - [ ] Under credentials of a test project, a `provision` with a valid customer credential creates the server in that project and `destroy` removes it (`provision: scs runs in the customer's own project` in `roles/web-app-semaphore/files/playwright/test-provision.js`).
 
 ### Documentation
 
-- [ ] The [README](../../roles/web-app-semaphore/README.md) documents the `scs` customer credential, its path, its two fields, the endpoint rule and the contract (`roles/web-app-semaphore/README.md`).
+- [x] The [README](../../roles/web-app-semaphore/README.md) documents the `scs` customer credential, its path, its two fields, the endpoint rule and the contract (`roles/web-app-semaphore/README.md`).

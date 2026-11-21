@@ -24,30 +24,30 @@ Binding; not reopened by this document.
 
 ### Removal
 
-- [ ] The directory client of 101, the `directory` template of 123 and the OpenBao binding of 125 are gone with their tasks, scripts, credentials, variants, specs and tests, and the three requirement files are deleted; no file outside `docs/requirements/` names `directory_client`, `directory_client_secret` or the `directory` template.
+- [x] The directory client of 101, the `directory` template of 123 and the OpenBao binding of 125 are gone with their tasks, scripts, credentials, variants, specs and tests, and the three requirement files are deleted; no file outside `docs/requirements/` names `directory_client`, `directory_client_secret` or the `directory` template.
 - [x] 102, 103, 105 and 107 no longer refer to 101, 123 or 125; where they named the directory operations, they name this requirement.
 
 ### Usage client
 
-- [ ] With the switch on, the deploy creates the client `usage` and grants its service account exactly `view-users`; a second deploy changes nothing; with the switch off, the deploy deletes it. A negative control that grants `manage-users` must fail (`test_the_usage_client_holds_view_users_only` and its control in `tests/unit/python/roles/web-app-keycloak/test_usage_client_tasks.py`).
+- [x] With the switch on, the deploy creates the client `usage` and grants its service account exactly `view-users`; a second deploy changes nothing; with the switch off, the deploy deletes it. A negative control that grants `manage-users` must fail (`test_the_usage_client_holds_view_users_only` and its control in `tests/unit/python/roles/web-app-keycloak/test_usage_client_tasks.py`).
 - [ ] On a deployed instance, a client-credentials token of `usage` lists users and gets `403` on creating, changing and deleting a user and on `PUT /admin/realms/<realm>` (`usage client: reads users and changes nothing` in `roles/web-app-keycloak/files/playwright/test-usage-client.js`).
 
 ### Count
 
-- [ ] The count includes enabled users and skips disabled users, service-account users and the `master` realm administrator; a negative control that counts every user must fail (`test_the_count_is_active_people_only` and its control in `tests/unit/python/roles/web-app-keycloak/files/test_usage.py`).
-- [ ] The last output line has exactly `workspace`, `counted_at` and `hosts`, each host entry exactly `host`, `realm` and `active_users` (`test_usage_ends_with_its_result` in `tests/unit/python/roles/web-app-semaphore/files/test_usage_sh.py`).
-- [ ] Neither the task token nor the usage client secret appears in the stdout, stderr, argv or environment of a run, a refused run or a failed run; a control that prints the secret must fail (`test_usage_prints_no_secret` and its control in `test_usage_sh.py`).
+- [x] The count includes enabled users and skips disabled users, service-account users and the `master` realm administrator; a negative control that counts every user must fail (`test_the_count_is_active_people_only` and its control in `tests/unit/python/roles/web-app-keycloak/files/test_usage.py`).
+- [x] The last output line has exactly `workspace`, `counted_at` and `hosts`, each host entry exactly `host`, `realm` and `active_users` (`test_usage_ends_with_its_result` in `tests/unit/python/roles/web-app-semaphore/files/test_usage_sh.py`).
+- [x] Neither the task token nor the usage client secret appears in the stdout, stderr, argv or environment of a run, a refused run or a failed run; a control that prints the secret must fail (`test_usage_prints_no_secret` and its control in `test_usage_sh.py`).
 - [ ] On an instance deployed to the shared target through the workspace's `deploy` template with the usage client on, the count equals its enabled people, rises by one after a probe user is created and falls back after the probe user is disabled (`usage: counts the active people of the instance` in `roles/web-app-semaphore/files/playwright/test-workspace-usage.js`).
 
 ### Template and schedule
 
 - [ ] `workspace apply` creates exactly one locked `usage` template per workspace project with no survey and no argument, and one daily schedule for it; a second `apply` changes nothing and `destroy` removes both (`test_the_usage_template_is_fixed` and its control in `tests/unit/python/roles/web-app-semaphore/files/test_project.py`; `usage: apply schedules the daily count` in `test-workspace-usage.js`).
 - [ ] A `usage` task reads `credentials.usage_client_secret` from its own workspace's tenant path, and a `usage` task of another workspace and the store's AppRole are refused on it (`usage login: a usage task reads only its own workspace's secret` in `roles/web-app-semaphore/files/playwright/test-workspace-logins.js`).
-- [ ] A `usage` task for a host whose inventory turns the usage client off reports that host with `active_users` null and makes no call to it (`test_a_host_without_the_usage_client_is_reported_unmeasured` in `test_usage_sh.py`).
+- [x] A `usage` task for a host whose inventory turns the usage client off reports that host with `active_users` null and makes no call to it (`test_a_host_without_the_usage_client_is_reported_unmeasured` in `test_usage_sh.py`).
 
 ### Documentation
 
-- [ ] The [web-app-semaphore README](../../roles/web-app-semaphore/README.md) documents the `usage` template, its schedule and its output line; the [web-app-keycloak README](../../roles/web-app-keycloak/README.md) documents the usage client switch.
+- [x] The [web-app-semaphore README](../../roles/web-app-semaphore/README.md) documents the `usage` template, its schedule and its output line; the [web-app-keycloak README](../../roles/web-app-keycloak/README.md) documents the usage client switch.
 
 ## Tests
 
