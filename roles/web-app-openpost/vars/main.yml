@@ -5,7 +5,8 @@ container_port: "{{ lookup('config', application_id, 'services.openpost.ports.in
 OPENPOST_NAME: "{{ lookup('config', application_id, 'services.openpost.name') }}"
 OPENPOST_RELAY_NAME: "{{ lookup('config', application_id, 'services.relay.name') }}"
 OPENPOST_URL: "{{ lookup('tls', application_id, 'url.origin') }}"
-OPENPOST_LOCAL_URL: "http://{{ DOCKER_REACH_HOST if IS_COMPOSE_MODE else '127.0.0.1' }}:{{ lookup('config', application_id, 'services.openpost.ports.local.http') }}"
+OPENPOST_LOCAL_HOST: "{{ DOCKER_REACH_HOST if IS_COMPOSE_MODE else '127.0.0.1' }}"
+OPENPOST_LOCAL_URL: "http://{{ OPENPOST_LOCAL_HOST }}:{{ lookup('config', application_id, 'services.openpost.ports.local.http') }}"
 OPENPOST_API_HEADERS:
   Host: "{{ lookup('domain', application_id) }}"
   X-Forwarded-Proto: "{{ OPENPOST_URL | urlsplit('scheme') }}"
@@ -86,7 +87,7 @@ OPENPOST_PROVIDER_BUILD_CONTEXT: "{{ [lookup('container', application_id, 'direc
 OPENPOST_PROVIDER_IMAGE: "openpost_provider_custom"
 OPENPOST_PROVIDER_BASE_IMAGE: "{{ OPENPOST_PROVIDER.image }}"
 OPENPOST_PROVIDER_BASE_VERSION: "{{ OPENPOST_PROVIDER.version }}"
-OPENPOST_PROVIDER_LOCAL_URL: "http://{{ DOCKER_REACH_HOST if IS_COMPOSE_MODE else '127.0.0.1' }}:{{ OPENPOST_PROVIDER.ports.local.http }}"
+OPENPOST_PROVIDER_LOCAL_URL: "http://{{ OPENPOST_LOCAL_HOST }}:{{ OPENPOST_PROVIDER.ports.local.http }}"
 OPENPOST_PROVIDER_BROWSER_URL: "http://{{ 'host.docker.internal' if IS_COMPOSE_MODE else '127.0.0.1' }}:{{ OPENPOST_PROVIDER.ports.local.http }}"
 OPENPOST_LINKEDIN_CALLBACK: "{{ OPENPOST_URL }}/api/v1/accounts/linkedin/callback"
 OPENPOST_SIMULATOR_KEYSTORE_PASSWORD: "password"
