@@ -29,11 +29,14 @@ LIMITS = {
 }
 
 
-def load():
+def load(**overrides):
     """Import the adapter server the way the image lays it out.
 
     ``server.py`` imports ``policy`` as a sibling, so its own directory has to
     be importable before the module body runs.
+
+    Args:
+        overrides: contract keys added to or replacing the default contract.
     """
     spec = importlib.util.spec_from_file_location("adapter_server", MODULE_PATH)
     module = importlib.util.module_from_spec(spec)
@@ -48,6 +51,7 @@ def load():
             "tools": TOOLS,
             "limits": LIMITS,
             "schema_sha256": policy.schema_digest(TOOLS),
+            **overrides,
         }
         env = {
             "ADAPTER_CONTRACT": json.dumps(contract),
@@ -178,6 +182,33 @@ class TestFixedTarget(unittest.TestCase):
             "following one would hand the upstream credential to whoever the "
             "upstream named",
         )
+
+
+class TestUpstreamHost(unittest.TestCase):
+    def _sent(self, module):
+        seen = {}
+
+        def fake_open(request, **_kwargs):
+            seen["host"] = request.get_header("Host")
+            seen["url"] = request.full_url
+            return FakeResponse()
+
+        spec = module.CONTRACT["tools"]["example_list"]
+        with patch.object(module.OPENER, "open", fake_open):
+            module.call_upstream(spec["method"], spec["path"], {})
+        return seen
+
+    def test_a_declared_upstream_host_is_sent_as_the_host_header(self):
+        seen = self._sent(load(upstream_host="assets.example.org"))
+        self.assertEqual("assets.example.org", seen["host"])
+        self.assertEqual("http://example:80/api/things", seen["url"])
+
+    def test_without_upstream_host_no_host_header_is_forced(self):
+        self.assertIsNone(self._sent(load())["host"])
+
+    def test_a_malformed_upstream_host_refuses_to_start(self):
+        with self.assertRaises(ValueError):
+            load(upstream_host="assets.example.org\r\nX-Injected: 1")
 
 
 class TestConcurrencyCeiling(unittest.TestCase):

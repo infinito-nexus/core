@@ -5,7 +5,7 @@
     cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
       IFS= read -r SMTP_PASS && export SMTP_PASS && container exec -i
       -e SITE_NAME -e MAIL_FROM_NAME -e MAIL_FROM_ADDRESS
-      -e SMTP_HOST -e SMTP_PORT -e SMTP_USER -e SMTP_PASS
+      -e SMTP_HOST -e SMTP_PORT -e SMTP_TLS -e SMTP_START_TLS -e SMTP_AUTH -e SMTP_USER -e SMTP_PASS
       {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
       {{ ERPNEXT_BENCH_PYTHON }}
     stdin: |-
@@ -18,6 +18,9 @@
     MAIL_FROM_ADDRESS: "{{ ERPNEXT_MAIL.username | default('') }}"
     SMTP_HOST: "{{ ERPNEXT_MAIL.host | default('') }}"
     SMTP_PORT: "{{ ERPNEXT_MAIL.port | default(587) }}"
+    SMTP_TLS: "{{ ERPNEXT_MAIL.tls | bool | string | lower }}"
+    SMTP_START_TLS: "{{ ERPNEXT_MAIL.start_tls | bool | string | lower }}"
+    SMTP_AUTH: "{{ ERPNEXT_MAIL.auth | bool | string | lower }}"
     SMTP_USER: "{{ ERPNEXT_MAIL.username | default('') }}"
   when: ERPNEXT_MAIL.host is defined and (ERPNEXT_MAIL.host | length > 0)
   register: erpnext_email_apply

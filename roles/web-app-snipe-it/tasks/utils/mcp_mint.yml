@@ -29,6 +29,7 @@
       -e MCP_USER={{ SNIPEIT_MCP_UPSTREAM_USER | quote }}
       -e MCP_PASSWORD
       -e MCP_TOKEN_NAME={{ SNIPEIT_MCP_UPSTREAM_TOKEN_NAME | quote }}
+      -e MCP_API_HOST={{ SNIPE_IT_DOMAIN | quote }}
       -e MCP_CURRENT_TOKEN
       {{ SNIPEIT_IDENTITY_LOCAL_CID | quote }}
       php

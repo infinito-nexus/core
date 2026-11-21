@@ -112,6 +112,28 @@ class TestLoadContract(unittest.TestCase):
         )
 
 
+class TestUpstreamHost(unittest.TestCase):
+    def test_an_undeclared_host_keeps_the_url_host(self):
+        self.assertEqual("", policy.upstream_host(contract()))
+
+    def test_a_declared_host_is_returned(self):
+        loaded = policy.load_contract(
+            json.dumps(contract(upstream_host="assets.example.org"))
+        )
+        self.assertEqual("assets.example.org", policy.upstream_host(loaded))
+
+    def test_a_host_with_a_port_is_accepted(self):
+        self.assertEqual(
+            "assets.example.org:8443",
+            policy.upstream_host(contract(upstream_host="assets.example.org:8443")),
+        )
+
+    def test_a_malformed_host_is_refused_at_startup(self):
+        for host in ("", "assets.example.org\r\nX-Injected: 1", "a.org/path", 7):
+            with self.subTest(host=host), self.assertRaises(policy.ContractError):
+                policy.load_contract(json.dumps(contract(upstream_host=host)))
+
+
 class TestDrift(unittest.TestCase):
     def test_a_matching_hash_passes(self):
         policy.assert_no_drift(contract())

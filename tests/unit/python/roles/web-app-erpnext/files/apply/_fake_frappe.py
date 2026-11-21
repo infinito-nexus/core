@@ -51,6 +51,7 @@ CHILD_TABLES = {"Fiscal Year": ("companies",), "User": ("roles", "social_logins"
 NAME_FIELDS = {
     "Company": "company_name",
     "Customer Group": "customer_group_name",
+    "Email Account": "email_account_name",
     "Fiscal Year": "year",
     "Item Group": "item_group_name",
     "Price List": "price_list_name",
@@ -149,6 +150,17 @@ class FakeDoc:
     def insert(self, ignore_permissions=False):
         self._values["name"] = self._frappe.insert(self.doctype, self._values)
         return self
+
+    def is_new(self):
+        return not self._values.get("name")
+
+    def db_insert(self):
+        return self.insert()
+
+    def db_update(self):
+        self._frappe.records[self.doctype][self._values["name"]] = copy.deepcopy(
+            self._values
+        )
 
     def save(self, ignore_permissions=False):
         if self._single:
