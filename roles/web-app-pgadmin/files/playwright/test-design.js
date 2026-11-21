@@ -10,6 +10,7 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm } = require("./personas");
+const { watchMasterPasswordPrompt } = require("./pgadmin-client");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
@@ -77,9 +78,10 @@ async function signInWithOauth2(page) {
 
 /**
  * Args:
- *   page: Playwright page; ends signed in on /browser/ with the menu bar and the tree rendered, through the internal form while the native method is on and through OAuth2 otherwise.
+ *   page: Playwright page; ends signed in on /browser/ with the menu bar and the tree rendered and no master password dialog open, through the internal form while the native method is on and through OAuth2 otherwise.
  */
 async function signIn(page) {
+  const settleMasterPassword = watchMasterPasswordPrompt(page);
   await openLogin(page);
   if (page.url().includes("/login")) {
     if (internalLogin) {
@@ -96,6 +98,7 @@ async function signIn(page) {
   }
   await expect(page.locator(MENU_BAR)).toBeVisible({ timeout: resolveTimeout(60_000) });
   await expect(page.locator(TREE).first()).toBeVisible({ timeout: resolveTimeout(30_000) });
+  await settleMasterPassword();
 }
 
 async function onBrowser(page) {

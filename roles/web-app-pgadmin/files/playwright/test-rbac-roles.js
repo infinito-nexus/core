@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm } = require("./personas");
 const keycloakAdmin = require("./personas/utils/keycloak");
+const { requestUserList } = require("./pgadmin-client");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -149,11 +150,8 @@ test("rbac: membership in the user group signs biber in with the pgAdmin User ro
       expect(account.authSource, "biber MUST be signed in through OAuth2").toBe("oauth2");
       expect(account.isAdmin, "a user-group member MUST NOT be a pgAdmin Administrator").toBe("false");
       expect(account.email, "pgAdmin MUST take the account email from the OIDC email claim").toBe(env.biberEmail);
-      const users = await page.request.get(`${env.appBaseUrl}/user_management/user/`, {
-        failOnStatusCode: false,
-        maxRedirects: 0,
-      });
-      expect(users.status(), "a pgAdmin User MUST NOT reach the user management").toBeGreaterThanOrEqual(400);
+      const users = await requestUserList(page, env.appBaseUrl);
+      expect(users.status(), "the Administrator role check MUST refuse a pgAdmin User the user management").toBe(403);
     } finally {
       await ctx.close().catch(() => {});
     }
@@ -168,9 +166,6 @@ test("rbac: the administrator group member signs in through OAuth2 as a pgAdmin 
   const account = await currentUser(page);
   expect(account.authSource, "the administrator MUST be signed in through OAuth2").toBe("oauth2");
   expect(account.isAdmin, "the deploy-time reconcile MUST grant the administrator group member the Administrator role").toBe("true");
-  const users = await page.request.get(`${env.appBaseUrl}/user_management/user/`, {
-    failOnStatusCode: false,
-    maxRedirects: 0,
-  });
+  const users = await requestUserList(page, env.appBaseUrl);
   expect(users.status(), "a pgAdmin Administrator MUST reach the user management").toBe(200);
 });
