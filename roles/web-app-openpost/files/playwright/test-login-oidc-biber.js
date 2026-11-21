@@ -4,7 +4,7 @@ const { resolveTimeout } = require("./timeouts");
 exports.register = function (shared) {
   test("biber: Keycloak login opens the composer but never the organisation workspace", async ({ page }) => {
     shared.skipUnlessServiceEnabled("sso");
-    test.setTimeout(resolveTimeout(120_000)); // OIDC round-trip via Keycloak plus just-in-time provisioning
+    test.setTimeout(resolveTimeout(120_000));
     expect(shared.env.biberUsername, "BIBER_USERNAME must be set").toBeTruthy();
     expect(shared.env.biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();
 
