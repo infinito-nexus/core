@@ -7,8 +7,9 @@ Usage in any service template:
     {{ lookup('container_networks') | indent(4) }}
 
 Pass ``provider_self_alias=False`` for a sidecar service that must not carry the
-provider's own alias, and ``own_network_only=True`` for one that must not
-inherit the networks its provider joins as a consumer.
+provider's own alias, ``own_network_only=True`` for one that must not
+inherit the networks its provider joins as a consumer, and ``aliases=[...]``
+for names this one service answers to on the role's default network.
 """
 
 from __future__ import annotations
@@ -41,6 +42,15 @@ class LookupModule(LookupBase):
                 "container_networks lookup: application_id is required in variables"
             )
 
+        aliases = kwargs.get("aliases")
+        if aliases is not None and (
+            not isinstance(aliases, list)
+            or not all(isinstance(alias, str) and alias for alias in aliases)
+        ):
+            raise AnsibleError(
+                "container_networks lookup: aliases must be a list of non-empty strings"
+            )
+
         return [
             render_container_networks(
                 application_id=str(application_id),
@@ -52,5 +62,6 @@ class LookupModule(LookupBase):
                 provider_self_alias=bool(kwargs.get("provider_self_alias", True)),
                 node_local=bool(kwargs.get("node_local", False)),
                 own_network_only=bool(kwargs.get("own_network_only", False)),
+                aliases=aliases,
             )
         ]

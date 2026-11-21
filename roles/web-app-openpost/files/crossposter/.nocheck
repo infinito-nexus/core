@@ -1,0 +1,1 @@
+# nocheck: role-files-layout - Docker build context of the crossposter sidecar; the Dockerfile copies the importable crossposter package as one tree, so its modules cannot be split by language.
