@@ -17,12 +17,12 @@ The security check (infinito-nexus/security, requirement 004) needs its administ
 
 ## Acceptance Criteria
 
-- [ ] `services.erpnext.group_roles` exists in the core role's config with an empty default and is documented in the [web-app-erpnext README](../../roles/web-app-erpnext/README.md) next to `api_bot.extra_roles`.
-- [ ] On sign-in, a directory-owned account in a mapped group holds every mapped role afterwards; a unit test on the fake Frappe site proves it.
-- [ ] After the account leaves the group, the next sign-in or RBAC sync revokes the mapped roles and keeps every role granted outside the mapping; a unit test proves it with a staff account holding an unmanaged role.
-- [ ] A mapped role the site lacks is created as an empty Role before the grant; a unit test proves it.
-- [ ] Accounts that are not directory-owned (service, API, website, customer accounts) are never changed; a unit test proves it.
-- [ ] The reserved-prefix lint of 067 passes, and no file under `roles/web-app-erpnext` names a consumer group or role.
+- [x] `services.erpnext.group_roles` exists in the core role's config with an empty default and is documented in the [web-app-erpnext README](../../roles/web-app-erpnext/README.md) next to `api_bot.extra_roles`.
+- [x] On sign-in, a directory-owned account in a mapped group holds every mapped role afterwards; a unit test on the fake Frappe site proves it.
+- [x] After the account leaves the group, the next sign-in or RBAC sync revokes the mapped roles and keeps every role granted outside the mapping; a unit test proves it with a staff account holding an unmanaged role.
+- [x] A mapped role the site lacks is created as an empty Role before the grant; a unit test proves it.
+- [x] Accounts that are not directory-owned (service, API, website, customer accounts) are never changed; a unit test proves it.
+- [x] The reserved-prefix lint of 067 passes, and no file under `roles/web-app-erpnext` names a consumer group or role.
 - [ ] A deploy with an entry `{group: /<RBAC>/web-app-cst-security-check/administrator, roles: [Security Check Editor]}` in the inventory gives a member of that group the role after sign-in, proven by a check against a deployed site.
 
 ## Cross-linking

@@ -327,6 +327,23 @@ class TestConverge(_LoginCase, unittest.TestCase):
         self.assertEqual(self._role_names(ALICE), [MAPPED_ROLE, "Customer"])
         self.assertEqual(self.frappe.grants(ALICE), {MAPPED_ROLE})
 
+    def test_a_group_mapped_to_two_roles_grants_both(self) -> None:
+        second = "Audit Viewer"
+        self.frappe.site_roles.update({MAPPED_ROLE, second})
+        self.frappe.seed(ALICE, ("keycloak", "alice"), email=ALICE, enabled=1)
+        settings = {**SETTINGS, "group_roles": {MAPPED_GROUP: [MAPPED_ROLE, second]}}
+
+        lines = self.login["converge"](_info(ALICE, MAPPED_GROUP), settings, "")
+
+        self.assertCountEqual(
+            lines,
+            [
+                f"CHANGED {ALICE} granted {MAPPED_ROLE}",
+                f"CHANGED {ALICE} granted {second}",
+            ],
+        )
+        self.assertEqual(self.frappe.grants(ALICE), {MAPPED_ROLE, second})
+
     def test_a_mapped_role_the_site_lacks_is_created_before_the_grant(self) -> None:
         self.frappe.seed(ALICE, ("keycloak", "alice"), email=ALICE, enabled=1)
 
