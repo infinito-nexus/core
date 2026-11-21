@@ -12,7 +12,7 @@ The adapter authenticates two kinds of callers in `roles/svc-ai-mcp-adapter/file
 
 | Path | Authentication | Consumer in the audit record |
 |------|----------------|------------------------------|
-| Agent, `X-Infinito-Agent` set | The agent's own bearer from `ADAPTER_AGENT_TOKENS`, compared in constant time by `authorize_agent` in `policy.py` | The agent name |
+| Agent, `X-Infinito-Agent` set | The agent's own bearer from `ADAPTER_AGENT_TOKENS`, compared in constant time by `authorize_agent` in `auth.py` | The agent name |
 | Client, no agent header | The one shared `ADAPTER_BEARER` of the provider, through `authorize_client` | `X-Infinito-Consumer` as the caller sends it, else `unknown` |
 
 - No client in core sends `X-Infinito-Consumer`: a grep over `roles/` finds it only in `server.py`. Every non-agent call is therefore audited as `unknown`.
@@ -61,7 +61,7 @@ flowchart LR
 - [ ] A client call whose bearer equals the derived bearer of a consumer in `ADAPTER_CLIENTS` is dispatched, and its audit record names that consumer (unit test in `tests/unit/python/roles/svc-ai-mcp-adapter/files/test_server.py`).
 - [ ] A client call naming another consumer in `X-Infinito-Consumer` is audited under the consumer its bearer resolves to, never under the header's value (unit test).
 - [ ] The provider's base bearer, a bearer derived for a consumer outside `ADAPTER_CLIENTS` and an empty `ADAPTER_CLIENTS` each answer `401` on the client path (unit tests).
-- [ ] The presented bearer is compared with every admitted consumer's bearer through `hmac.compare_digest`, with no early exit on a match (unit test in `tests/unit/python/roles/svc-ai-mcp-adapter/files/test_policy.py`).
+- [ ] The presented bearer is compared with every admitted consumer's bearer through `hmac.compare_digest`, with no early exit on a match (unit test in `tests/unit/python/roles/svc-ai-mcp-adapter/files/test_auth.py`).
 - [ ] A derived consumer bearer sent together with `X-Infinito-Agent` answers `401`, and every existing agent path test passes unchanged.
 - [ ] `server.py` no longer reads `X-Infinito-Consumer` (grep).
 
@@ -82,7 +82,7 @@ flowchart LR
 
 ## Tests
 
-- Unit: `test_server.py` and `test_policy.py` under `tests/unit/python/roles/svc-ai-mcp-adapter/files/` start the handler with a fixed base bearer and `ADAPTER_CLIENTS`, then check the dispatch, the audit consumer and the refusals above.
+- Unit: `test_server.py` and `test_auth.py` under `tests/unit/python/roles/svc-ai-mcp-adapter/files/` start the handler with a fixed base bearer and `ADAPTER_CLIENTS`, then check the dispatch, the audit consumer and the refusals above.
 - Unit: `test_mcp_client_bearer.py` checks the derivation against a fixed HMAC vector and the unchanged result for a native provider.
 - Lint: the client bearer lint fails on any client template that renders a provider's base bearer.
 - Negative controls, each run and then restored:

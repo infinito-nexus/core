@@ -31,6 +31,10 @@
         dest: "{{ [mcp_adapter_instance_dir, 'Dockerfile'] | path_join }}"
         mode: "0644"
         notify: []
+      - src: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/files/python/auth.py') }}"
+        dest: "{{ [mcp_adapter_instance_dir, 'auth.py'] | path_join }}"
+        mode: "0644"
+        notify: []
       - src: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/files/python/firewall.py') }}"
         dest: "{{ [mcp_adapter_instance_dir, 'firewall.py'] | path_join }}"
         mode: "0644"

@@ -17,7 +17,6 @@ testable without a live upstream.
 from __future__ import annotations
 
 import hashlib
-import hmac
 import json
 import re
 from datetime import datetime
@@ -43,7 +42,6 @@ DENY_UNKNOWN_TOOL = "unknown_tool"
 DENY_MUTATION = "mutation_not_enabled"
 DENY_REQUEST_TOO_LARGE = "request_too_large"
 DENY_SCHEMA_DRIFT = "schema_drift"
-DENY_UNAUTHENTICATED = "unauthenticated"
 DENY_TOO_MANY_REQUESTS = "too_many_concurrent_requests"
 DENY_UNKNOWN_ARGUMENT = "undeclared_argument"
 DENY_MISSING_ARGUMENT = "missing_required_argument"
@@ -337,41 +335,6 @@ def listed_tools(contract: Mapping[str, Any]) -> list[str]:
         contract: the loaded contract.
     """
     return sorted(contract["tools"])
-
-
-def authorize_client(expected: str, presented: str) -> None:
-    """Refuse a caller that did not present the adapter's own bearer.
-
-    Args:
-        expected: the bearer this instance was issued.
-        presented: the ``Authorization`` header value the caller sent.
-
-    The upstream credential authenticates the adapter *to* the provider. It
-    says nothing about who called the adapter, which is exactly the gap the
-    project-owned MCP sidecars leave open.
-    """
-    prefix = "Bearer "
-    token = presented[len(prefix) :] if presented.startswith(prefix) else ""
-    if (
-        not expected
-        or not token
-        or not hmac.compare_digest(token.encode(), expected.encode())
-    ):
-        raise PermissionError(DENY_UNAUTHENTICATED)
-
-
-def authorize_agent(tokens: Mapping[str, str], agent: str, presented: str) -> None:
-    """Refuse a caller whose bearer is not the token of the agent it names.
-
-    Args:
-        tokens: agent account name to the token issued to that agent.
-        agent: the agent the caller names in ``X-Infinito-Agent``.
-        presented: the ``Authorization`` header value the caller sent.
-
-    The bearer is compared against the named agent's token only, in constant
-    time, so one agent's token never authenticates another agent.
-    """
-    authorize_client(tokens.get(agent, ""), presented)
 
 
 def authorize_call(

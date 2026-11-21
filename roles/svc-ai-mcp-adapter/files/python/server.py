@@ -37,6 +37,7 @@ import urllib.request
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+import auth
 import firewall
 import passthrough
 import policy
@@ -399,13 +400,13 @@ class Handler(BaseHTTPRequestHandler):
         agent = self.headers.get(AGENT_HEADER, "")
         try:
             if agent:
-                policy.authorize_agent(
+                auth.authorize_agent(
                     AGENT_TOKENS, agent, self.headers.get("Authorization", "")
                 )
             else:
-                policy.authorize_client(BEARER, self.headers.get("Authorization", ""))
+                auth.authorize_client(BEARER, self.headers.get("Authorization", ""))
         except PermissionError:
-            self._respond(401, {"error": policy.DENY_UNAUTHENTICATED})
+            self._respond(401, {"error": auth.DENY_UNAUTHENTICATED})
             return
 
         length = policy.request_length(self.headers.get("Content-Length"))
