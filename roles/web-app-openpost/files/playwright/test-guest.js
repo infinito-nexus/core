@@ -6,7 +6,7 @@ const { isServiceEnabled } = require("./service-gating");
 
 exports.register = function (shared) {
   test("guest: login serves CSP, refuses wrong and empty credentials, never reaches the desk", async ({ page }) => {
-    test.setTimeout(resolveTimeout(90_000)); // optional Keycloak round-trip for the IdP rejection
+    test.setTimeout(resolveTimeout(90_000));
     const response = await shared.gotoLogin(page);
     expect(response, "Expected an OpenPost login response").toBeTruthy();
     expect(response.status(), "Expected the OpenPost login status to be < 400").toBeLessThan(400);
