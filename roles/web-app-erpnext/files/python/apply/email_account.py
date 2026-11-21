@@ -1,5 +1,3 @@
-# nocheck: mirrored-unit-test - imports frappe at module level and runs inside `bench
-# execute`; the framework is not installable outside the ERPNext image
 import os
 
 import frappe
@@ -9,6 +7,9 @@ MAIL_FROM_NAME = os.environ["MAIL_FROM_NAME"]
 MAIL_FROM_ADDRESS = os.environ["MAIL_FROM_ADDRESS"]
 SMTP_HOST = os.environ["SMTP_HOST"]
 SMTP_PORT = int(os.environ["SMTP_PORT"])
+SMTP_TLS = os.environ["SMTP_TLS"] == "true"
+SMTP_START_TLS = os.environ["SMTP_START_TLS"] == "true"
+SMTP_AUTH = os.environ["SMTP_AUTH"] == "true"
 SMTP_USER = os.environ["SMTP_USER"]
 SMTP_PASS = os.environ["SMTP_PASS"]
 
@@ -27,7 +28,8 @@ def upsert_outbound_account():
     ea.enable_incoming = 0
     ea.smtp_server = SMTP_HOST
     ea.smtp_port = SMTP_PORT
-    ea.use_tls = 1
+    ea.use_ssl_for_outgoing = int(SMTP_TLS and not SMTP_START_TLS)
+    ea.use_tls = int(SMTP_TLS and SMTP_START_TLS)
     ea.login_id_is_different = 1
     ea.login_id = SMTP_USER
     ea.password = SMTP_PASS
@@ -35,7 +37,7 @@ def upsert_outbound_account():
     ea.flags.ignore_permissions = True
     ea.flags.ignore_validate = True
     ea.flags.no_check_in_db = True
-    ea.no_smtp_authentication = 0
+    ea.no_smtp_authentication = int(not SMTP_AUTH)
     ea.flags.ignore_links = True
     ea.flags.ignore_mandatory = True
     try:
