@@ -63,6 +63,8 @@ DURATION_UNITS = {
 
 READ_METHODS = frozenset({"GET", "HEAD"})
 
+HOST_PATTERN = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?(?::[0-9]{1,5})?")
+
 
 class ContractError(ValueError):
     """The rendered contract is not one this adapter may serve."""
@@ -90,6 +92,30 @@ def upstream_url(base: str, path_key: str = "", path_suffix: str = "") -> str:
     if path_suffix:
         parts.append(path_suffix.strip("/"))
     return "/".join(parts)
+
+
+def upstream_host(contract: Mapping[str, Any]) -> str:
+    """
+    Args:
+        contract: the loaded contract.
+
+    Returns:
+        ``upstream_host`` as declared, or "" when the contract declares none
+        and the request keeps the host of ``upstream_url``.
+
+    Raises:
+        ContractError: ``upstream_host`` is declared but is not a host name,
+            optionally followed by a port.
+    """
+    host = contract.get("upstream_host")
+    if host is None:
+        return ""
+    if not isinstance(host, str) or not HOST_PATTERN.fullmatch(host):
+        raise ContractError(
+            f"contract upstream_host {host!r} must be a host name, "
+            f"optionally followed by a port"
+        )
+    return host
 
 
 def load_contract(raw: str) -> dict[str, Any]:
@@ -145,6 +171,8 @@ def load_contract(raw: str) -> dict[str, Any]:
 
     if not str(contract.get("schema_sha256") or "").startswith(SHA256_PREFIX):
         raise ContractError("contract must pin tools.schema_sha256")
+
+    upstream_host(contract)
 
     return contract
 
@@ -361,6 +389,23 @@ def authorize_call(
     assert_range(spec, name, arguments, contract["limits"]["result_items"])
 
     return method, str(spec["path"])
+
+
+def request_length(header: str | None) -> int:
+    """
+    Args:
+        header: the raw ``Content-Length`` value, ``None`` when the client sent
+            none.
+
+    Returns:
+        the announced body size in bytes; ``0`` without a header, since RFC 9112
+        reads such a request as bodiless; a negative number when the value is
+        negative or no integer.
+    """
+    try:
+        return int(header or 0)
+    except ValueError:
+        return -1
 
 
 def clamp_page(contract: Mapping[str, Any], requested: Any) -> int:

@@ -61,6 +61,7 @@ UPSTREAM_URL = policy.upstream_url(
     os.environ.get("ADAPTER_UPSTREAM_PATH_KEY", ""),
     os.environ.get("ADAPTER_UPSTREAM_PATH_SUFFIX", ""),
 )
+UPSTREAM_HOST = policy.upstream_host(CONTRACT)
 PORT = int(os.environ["ADAPTER_PORT"])
 
 policy.assert_no_drift(CONTRACT)
@@ -80,6 +81,30 @@ def log(event):
     """
     sys.stdout.write(json.dumps(event, separators=(",", ":")) + "\n")
     sys.stdout.flush()
+
+
+def upstream_headers():
+    """
+    Returns:
+        ``Host`` when the contract declares ``upstream_host``, then the
+        credential header when ``ADAPTER_UPSTREAM_KEY`` is set, in that order.
+    """
+    headers = {}
+    if UPSTREAM_HOST:
+        headers["Host"] = UPSTREAM_HOST
+    if UPSTREAM_KEY:
+        headers[UPSTREAM_AUTH_HEADER] = UPSTREAM_AUTH_FORMAT.format(key=UPSTREAM_KEY)
+    return headers
+
+
+def add_upstream_headers(request):
+    """
+    Args:
+        request: the ``urllib.request.Request`` that receives
+            :func:`upstream_headers`.
+    """
+    for name, value in upstream_headers().items():
+        request.add_header(name, value)
 
 
 def call_upstream(method, path, arguments):
@@ -107,10 +132,7 @@ def call_upstream(method, path, arguments):
         f"{UPSTREAM_URL}{resolved}", method=method
     )
     request.add_header("Accept", "application/json")
-    if UPSTREAM_KEY:
-        request.add_header(
-            UPSTREAM_AUTH_HEADER, UPSTREAM_AUTH_FORMAT.format(key=UPSTREAM_KEY)
-        )
+    add_upstream_headers(request)
 
     with OPENER.open(
         request, timeout=CONTRACT["limits"]["timeout_seconds"]
@@ -147,10 +169,7 @@ def post_upstream(envelope):
     request.add_header("MCP-Protocol-Version", PROTOCOL_VERSION)
     if UPSTREAM_SESSION["id"]:
         request.add_header(SESSION_HEADER, UPSTREAM_SESSION["id"])
-    if UPSTREAM_KEY:
-        request.add_header(
-            UPSTREAM_AUTH_HEADER, UPSTREAM_AUTH_FORMAT.format(key=UPSTREAM_KEY)
-        )
+    add_upstream_headers(request)
 
     with OPENER.open(
         request, timeout=CONTRACT["limits"]["timeout_seconds"]
@@ -174,14 +193,9 @@ def sse_session():
     adapter rather than being reopened per call.
     """
     if SSE["session"] is None:
-        headers = {}
-        if UPSTREAM_KEY:
-            headers[UPSTREAM_AUTH_HEADER] = UPSTREAM_AUTH_FORMAT.format(
-                key=UPSTREAM_KEY
-            )
         SSE["session"] = sse.SseSession(
             UPSTREAM_URL,
-            headers=headers,
+            headers=upstream_headers(),
             timeout=CONTRACT["limits"]["timeout_seconds"],
         ).open()
     return SSE["session"]
@@ -399,7 +413,10 @@ class Handler(BaseHTTPRequestHandler):
             self._respond(401, {"error": policy.DENY_UNAUTHENTICATED})
             return
 
-        length = int(self.headers.get("Content-Length") or 0)
+        length = policy.request_length(self.headers.get("Content-Length"))
+        if length < 0:
+            self._respond(400, {"error": "invalid_content_length"})
+            return
         if length > CONTRACT["limits"]["request_bytes"]:
             self._respond(413, {"error": policy.DENY_REQUEST_TOO_LARGE})
             return
