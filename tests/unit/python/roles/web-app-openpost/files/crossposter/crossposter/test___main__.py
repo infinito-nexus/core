@@ -74,7 +74,7 @@ class TestHealth(CliFixture, unittest.TestCase):
     def test_waiting_for_provisioning_stays_healthy(self) -> None:
         pause = cli.wait_for_configuration(str(self.config), ValueError("no token yet"))
         self.assertEqual(pause, 60)
-        written = self.heartbeat.read_text()  # nocheck: cache-read  tempdir file
+        written = self.heartbeat.read_text()  # nocheck: cache-read
         self.assertTrue(written.strip().endswith("waiting"))
         self.assertEqual(cli.command_health(str(self.config)), 0)
 
