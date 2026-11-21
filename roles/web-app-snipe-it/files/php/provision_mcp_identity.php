@@ -18,6 +18,7 @@
  *     MCP_PASSWORD:      password to pin on it.
  *     MCP_TOKEN_NAME:    personal access token name to converge.
  *     MCP_CURRENT_TOKEN: token the adapter holds today, or "" for none.
+ *     MCP_API_HOST:      APP_URL host the loopback API probe sends as Host.
  */
 
 // nocheck: mirrored-unit-test - boots Snipe-IT's Laravel kernel through
@@ -35,6 +36,11 @@ $username = getenv("MCP_USER");
 $password = getenv("MCP_PASSWORD");
 $tokenName = getenv("MCP_TOKEN_NAME");
 $currentToken = trim((string) getenv("MCP_CURRENT_TOKEN"));
+$apiHost = trim((string) getenv("MCP_API_HOST"));
+if ($apiHost === "") {
+    fwrite(STDERR, "MCP_API_HOST is not set\n");
+    exit(1);
+}
 
 $permissions = json_encode([
     "self.api" => "1",
@@ -42,12 +48,13 @@ $permissions = json_encode([
     "licenses.view" => "1",
 ]);
 
-function apiStatus(string $token): int
+function apiStatus(string $token, string $host): int
 {
     $probe = curl_init("http://127.0.0.1/api/v1/hardware?limit=1");
     curl_setopt_array($probe, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HTTPHEADER => [
+            "Host: " . $host,
             "Authorization: Bearer " . $token,
             "Accept: application/json",
         ],
@@ -57,7 +64,7 @@ function apiStatus(string $token): int
     return (int) curl_getinfo($probe, CURLINFO_HTTP_CODE);
 }
 
-if ($currentToken !== "" && apiStatus($currentToken) === 200) {
+if ($currentToken !== "" && apiStatus($currentToken, $apiHost) === 200) {
     echo "UNCHANGED\n";
     echo $currentToken . "\n";
     exit(0);
@@ -118,7 +125,7 @@ $changed = $changed || $revoked > 0;
 
 $token = $user->createToken($tokenName)->accessToken;
 
-$status = apiStatus($token);
+$status = apiStatus($token, $apiHost);
 if ($status !== 200) {
     fwrite(STDERR, "Snipe-IT's own API answered {$status} to the token it just minted\n");
     exit(1);
