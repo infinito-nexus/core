@@ -202,5 +202,22 @@ class TestContainerBackupOnRealRoles(unittest.TestCase):
         self.assertLess(self.ranking[0].storage_bytes, self.ranking[-1].storage_bytes)
 
 
+class TestRoundVariantsCache(unittest.TestCase):
+    def test_a_second_roles_tree_is_planned_on_its_own(self) -> None:
+        def plan(*, roles_dir: str, **_: object) -> list[tuple]:
+            return [(0, "plan", {"web-app-cached": len(roles_dir)}, (), ())]
+
+        with mock.patch.object(
+            host_rows, "plan_dev_inventory_matrix", side_effect=plan
+        ):
+            with mock.patch.object(host_rows, "ROLES_DIR", Path("/a")):
+                first = host_rows.round_variants("web-app-cached", 0)
+            with mock.patch.object(host_rows, "ROLES_DIR", Path("/a/bb")):
+                second = host_rows.round_variants("web-app-cached", 0)
+        self.assertEqual(
+            (first, second), ({"web-app-cached": 2}, {"web-app-cached": 5})
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

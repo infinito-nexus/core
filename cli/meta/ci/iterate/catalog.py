@@ -19,7 +19,7 @@ from contextlib import contextmanager, redirect_stderr
 from functools import cached_property
 from typing import TYPE_CHECKING, NamedTuple
 
-from cli.meta.ci.host_rows import ROLES_DIR, swarm_closure
+from cli.meta.ci.host_rows import ROLES_DIR, round_variants, swarm_closure
 from cli.meta.ci.swarm_preflight import free_space
 from cli.meta.roles.applications.complexity.model import (
     compute_complexity_rows,
@@ -166,8 +166,12 @@ class Catalog:
 
     def compose_declared(self, app: str, variant: int) -> int:
         """Return the min_storage a compose deploy of the row declares, the
-        figure ``STORAGE_CONSTRAINED`` compares."""
-        return required_storage_bytes([app], {app: variant})
+        figure ``STORAGE_CONSTRAINED`` compares.
+
+        Raises:
+            SystemExit: the app declares no such variant.
+        """
+        return required_storage_bytes([app], round_variants(app, variant))
 
     def free_bytes(self) -> int:
         """Return the free space a deploy can grow into.

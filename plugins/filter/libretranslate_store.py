@@ -11,6 +11,8 @@ PACKAGE_PREFIX = "translate-"
 MODEL_CODES = {"zh-hans": "zh", "zh-hant": "zt", "pt-br": "pb"}
 PACKAGES = (".local", "share", "argos-translate", "packages")
 MIN_PACKAGES = 2
+SELECTION_KEYS = ("directions", "load_only", "model_store")
+ENGINE = "svc-ai-libretranslate-engine"
 
 
 def _kinds(records: list[dict]) -> tuple[list[dict], list[dict]]:
@@ -25,9 +27,13 @@ def _kinds(records: list[dict]) -> tuple[list[dict], list[dict]]:
 
 def _pair(record: dict) -> tuple[str, str]:
     name = posixpath.basename(str(record["upstream"]))
-    source, _, target = (
-        name[: name.rindex("-")].removeprefix(PACKAGE_PREFIX).partition("_")
-    )
+    stem, dash, _ = name.rpartition("-")
+    source, _, target = stem.removeprefix(PACKAGE_PREFIX).partition("_")
+    if not (dash and stem.startswith(PACKAGE_PREFIX) and source and target):
+        raise ValueError(
+            f"{record['name']}: {name} is no "
+            f"{PACKAGE_PREFIX}<source>_<target>-<version> package"
+        )
     return source, target
 
 
@@ -138,6 +144,40 @@ def libretranslate_store(
             ),
         ],
     }
+
+
+def libretranslate_selection(records: list[dict], service: dict) -> list[dict]:
+    """
+    Args:
+        records: cache_artefacts records of any roles; only those of ENGINE
+            count, the records every consumer's vars hand
+            `libretranslate_store`.
+        service: the configuration of a LibreTranslate consumer's service,
+            which declares every key of SELECTION_KEYS; its role's vars hand
+            them to `libretranslate_store` as *directions*, *load_only*
+            joined by commas, and *enabled*.
+
+    Returns:
+        The Argos packages and MiniSBD models the consumer seeds as its
+        selection, the ``artefacts`` `libretranslate_store` answers for it.
+
+    Raises:
+        TypeError: ``model_store`` is no boolean or ``load_only`` no list,
+            which only the role's ``| bool`` and ``| join`` could read.
+        ValueError: an Argos record names no package pair.
+    """
+    enabled, load_only = service["model_store"], service["load_only"]
+    if not isinstance(enabled, bool):
+        raise TypeError(f"model_store {enabled!r} is no boolean")
+    if not isinstance(load_only, list):
+        raise TypeError(f"load_only {load_only!r} is no list")
+    argos, minisbd = _selection(
+        [record for record in records if record.get("role") == ENGINE],
+        str(service["directions"]),
+        ",".join(str(code) for code in load_only),
+        enabled,
+    )
+    return [*argos, *minisbd]
 
 
 def libretranslate_unselected(records: list[dict]) -> list[dict]:

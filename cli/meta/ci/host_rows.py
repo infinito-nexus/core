@@ -22,6 +22,7 @@ nearly every row as heavy.
 from __future__ import annotations
 
 import argparse
+import functools
 import json
 import sys
 from typing import TYPE_CHECKING, NamedTuple
@@ -94,13 +95,37 @@ def swarm_closure(app: str, variant: int) -> Closure:
     Raises:
         SystemExit: the app declares no such variant.
     """
-    plan = plan_dev_inventory_matrix(
-        roles_dir=str(ROLES_DIR), primary_apps=[app], base_inventory_dir="plan"
-    )
+    variants = round_variants(app, variant)
+    return Closure(tuple(derive_includes(app, variants=variants)), variants)
+
+
+def round_variants(app: str, variant: int) -> dict[str, int]:
+    """
+    Args:
+        app: the row's application id.
+        variant: the row's variant index, the round index of its deploy.
+
+    Returns:
+        The variant every role runs in that round, the map the dev deploy
+        plans for it and hands its storage sum.
+
+    Raises:
+        SystemExit: the app declares no such variant.
+    """
+    plan = _plan(str(ROLES_DIR), app)
     if not 0 <= variant < len(plan):
         raise SystemExit(f"{app}#{variant}: the role declares {len(plan)} variant(s)")
-    round_variants = dict(plan[variant][2])
-    return Closure(tuple(derive_includes(app, variants=round_variants)), round_variants)
+    return dict(plan[variant])
+
+
+@functools.cache
+def _plan(roles_dir: str, app: str) -> tuple[dict[str, int], ...]:
+    return tuple(
+        entry[2]
+        for entry in plan_dev_inventory_matrix(
+            roles_dir=roles_dir, primary_apps=[app], base_inventory_dir="plan"
+        )
+    )
 
 
 CLOSURES: dict[str, Callable[[str, int], Closure]] = {"swarm": swarm_closure}

@@ -2,13 +2,20 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
 
+from cli.meta.ci.host_rows import round_variants
 from cli.meta.ci.iterate import budget
+from cli.meta.ci.iterate.catalog import Catalog
+from utils.storage import constrained
 
 from ._catalog_fixture import GIB, FakeCatalog
 
 CSV = "round,rounds_total,pass,pass_mode,role,seconds,hosts\n"
+ENGINE = "svc-ai-libretranslate-engine"
+TRANSLATE = "web-svc-translate"
+EN_DE = {"directions": "both", "load_only": ["en", "de"], "model_store": True}
 
 
 def _rows():
@@ -51,6 +58,29 @@ class TestDeclared(unittest.TestCase):
     def test_tier_takes_its_heaviest_row(self) -> None:
         self.assertEqual(
             self.summary["footprint"]["tiers"]["T2"]["max_declared_bytes"], 2 * GIB
+        )
+
+
+class TestComposeRoundVariants(unittest.TestCase):
+    def test_a_compose_row_is_priced_under_its_round_variants(self) -> None:
+        variants = round_variants(TRANSLATE, 0)
+        self.assertEqual(variants[ENGINE], 0)
+        with mock.patch.object(constrained, "selection_storage_bytes", return_value=0):
+            base = constrained.required_storage_bytes([TRANSLATE], variants)
+        priced = Catalog().compose_declared(TRANSLATE, 0)
+        self.assertEqual(
+            priced - base, constrained.selection_storage_bytes([(ENGINE, EN_DE)])
+        )
+        self.assertLess(priced - base, GIB)
+
+    def test_negative_control_the_row_variant_alone_prices_every_pair(
+        self,
+    ) -> None:
+        alone = {TRANSLATE: 0}
+        with mock.patch.object(constrained, "selection_storage_bytes", return_value=0):
+            base = constrained.required_storage_bytes([TRANSLATE], alone)
+        self.assertGreater(
+            constrained.required_storage_bytes([TRANSLATE], alone) - base, 17 * GIB
         )
 
 
