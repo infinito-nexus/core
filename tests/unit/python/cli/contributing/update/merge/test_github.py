@@ -4,7 +4,7 @@ import io
 import json
 import unittest
 import zipfile
-from unittest import mock
+from unittest.mock import Mock
 
 from cli.contributing.update.merge import github
 
@@ -26,7 +26,7 @@ def archive(members):
 
 class TestReads(unittest.TestCase):
     def test_items_paginates_and_parses_one_object_per_line(self):
-        gh = mock.Mock(return_value=lines({"a": 1}, {"a": 2}) + b"\n")
+        gh = Mock(return_value=lines({"a": 1}, {"a": 2}) + b"\n")
         self.assertEqual(github.items(gh, "repos/x", ".[]"), [{"a": 1}, {"a": 2}])
         gh.assert_called_once_with(["api", "--paginate", "repos/x", "--jq", ".[]"])
 
@@ -36,7 +36,7 @@ class TestReads(unittest.TestCase):
             {"number": 2, "state": "closed", "head": {"sha": SHA}},
             {"number": 3, "state": "open", "head": {"sha": "c" * 40}},
         ]
-        gh = mock.Mock(return_value=lines(*prs))
+        gh = Mock(return_value=lines(*prs))
         found = github.open_pull_requests(gh, REPO, SHA)
         self.assertEqual([pr["number"] for pr in found], [1])
 
@@ -48,7 +48,7 @@ class TestReads(unittest.TestCase):
             },
             {"filename": "pyproject.toml", "previous_filename": None},
         ]
-        gh = mock.Mock(return_value=lines(*files))
+        gh = Mock(return_value=lines(*files))
         self.assertEqual(
             github.changed_paths(gh, REPO, 5),
             [

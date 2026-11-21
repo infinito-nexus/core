@@ -4,7 +4,7 @@ import io
 import subprocess
 import unittest
 from contextlib import redirect_stdout
-from unittest import mock
+from unittest.mock import patch
 
 import cli.contributing.update.label.__main__ as label_main
 
@@ -114,14 +114,14 @@ class TestMain(unittest.TestCase):
     def test_main_reports_when_nothing_changes(self):
         gh = FakeGh({"update", "major"}, {"update", "major"})
         out = io.StringIO()
-        with mock.patch.object(label_main, "run_gh", gh), redirect_stdout(out):
+        with patch.object(label_main, "run_gh", gh), redirect_stdout(out):
             code = label_main.main(["--repo", REPO, "--pr", "4", "--update-type", ""])
         self.assertEqual((code, out.getvalue()), (0, "#4 already carries its labels\n"))
 
     def test_ensure_only_creates_the_missing_labels_and_touches_no_pr(self):
         gh = FakeGh({"update", "minor"}, set())
         out = io.StringIO()
-        with mock.patch.object(label_main, "run_gh", gh), redirect_stdout(out):
+        with patch.object(label_main, "run_gh", gh), redirect_stdout(out):
             code = label_main.main(["--repo", REPO, "--ensure-only"])
         created = [w[2] for w in gh.writes if w[:2] == ["label", "create"]]
         self.assertEqual((code, created), (0, ["major", "patch"]))

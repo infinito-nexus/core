@@ -7,7 +7,7 @@ import unittest
 import zipfile
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
-from unittest import mock
+from unittest.mock import patch
 
 import cli.contributing.update.merge.__main__ as merge_main
 from cli.contributing.update.merge import github
@@ -207,7 +207,7 @@ class TestMain(unittest.TestCase):
                 str(output),
             ]
             stdout = io.StringIO()
-            with mock.patch.object(github, "run_gh", gh), redirect_stdout(stdout):
+            with patch.object(github, "run_gh", gh), redirect_stdout(stdout):
                 code = merge_main.main(argv)
             with output.open(encoding="utf-8") as handle:
                 return code, handle.read(), stdout.getvalue()
