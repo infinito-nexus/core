@@ -82,7 +82,7 @@ exports.register = function (shared) {
       shared.env.appBaseUrl.includes(".onion"),
       "LinkedIn cannot redirect a member back to an onion OpenPost origin",
     );
-    test.setTimeout(resolveTimeout(480_000)); // fake sign-up and consent, Mastodon sign-in, the crossposter's poll interval and the publishing worker
+    test.setTimeout(resolveTimeout(480_000));
     const label = "administrator";
     const stamp = Date.now();
     const marker = `cp-linkedin-${stamp}`;
