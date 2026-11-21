@@ -105,6 +105,9 @@ on:
 permissions:
   contents: read
 
+env:
+  INFINITO_CI_CONCURRENCY: ${{ vars.INFINITO_CI_CONCURRENCY }}
+
 jobs:
   validation:
     name: ✅ Validation
