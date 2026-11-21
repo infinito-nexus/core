@@ -10,6 +10,7 @@ container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~
 container_websocket_port: 8072
 
 ODOO_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.version') }}"
+ODOO_SERIES: "{{ ODOO_VERSION | regex_search('^[0-9]+[.][0-9]+') }}"
 ODOO_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.image') }}"
 ODOO_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.name') }}"
 ODOO_SERVICE: "{{ entity_name }}"

@@ -106,6 +106,20 @@
     or 'invalid module names' in (objstore_install.stdout ~ objstore_install.stderr)
   when: ODOO_OBJSTORE_ENABLED | bool
 
+- name: "🛑 Fail when fs_attachment_s3 is not installed for the Odoo series of the image"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select/installed-module.sql"
+    named_args:
+      module: "fs_attachment_s3"
+    expect_rows: true
+  register: fs_attachment_s3_installed
+  failed_when: >-
+    fs_attachment_s3_installed.rows | length == 0
+    or not fs_attachment_s3_installed.rows[0][1].startswith(ODOO_SERIES ~ '.')
+  when: ODOO_OBJSTORE_ENABLED | bool
+
 - name: "📦 Install auth_ldap module for LDAP support"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
