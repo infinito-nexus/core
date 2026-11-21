@@ -28,8 +28,8 @@ storage_optimizer = load_optimizer_module()
 class TestHealthCheckLogic(unittest.TestCase):
     def setUp(self):
         patcher = patch("storage_optimizer.time.sleep", return_value=None)
-        self.sleep_patcher = patcher.start()
-        self.addCleanup(self.sleep_patcher.stop)
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
     @patch("storage_optimizer.run_command")
     def test_has_healthcheck_true(self, mock_run):
