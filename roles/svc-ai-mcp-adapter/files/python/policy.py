@@ -391,6 +391,23 @@ def authorize_call(
     return method, str(spec["path"])
 
 
+def request_length(header: str | None) -> int:
+    """
+    Args:
+        header: the raw ``Content-Length`` value, ``None`` when the client sent
+            none.
+
+    Returns:
+        the announced body size in bytes; ``0`` without a header, since RFC 9112
+        reads such a request as bodiless; a negative number when the value is
+        negative or no integer.
+    """
+    try:
+        return int(header or 0)
+    except ValueError:
+        return -1
+
+
 def clamp_page(contract: Mapping[str, Any], requested: Any) -> int:
     """Return a page size no larger than the contract allows.
 

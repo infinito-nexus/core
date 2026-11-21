@@ -1,0 +1,69 @@
+name: "🔄 Update: Merge proven PRs"
+run-name: "🔄 Merge check for ${{ github.event.workflow_run.head_branch }}"
+
+on:
+  workflow_run:
+    workflows: ["🔀 Pull Request"]
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  merge:
+    name: 🔀 Merge a proven update PR
+    if: >-
+      vars.CI_ENABLE_AUTO_UPDATES == 'true'
+      && github.event.workflow_run.event == 'pull_request'
+      && github.event.workflow_run.conclusion == 'success'
+      && (startsWith(github.event.workflow_run.head_branch, 'update/')
+      || startsWith(github.event.workflow_run.head_branch, 'dependabot/'))
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      checks: read
+      contents: read
+      pull-requests: read
+      statuses: read
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v7.0.0
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+
+      - name: 🔧 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: 🔎 Check the merge gate
+        id: gate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          OWN_RUN_ID: ${{ github.run_id }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+        run: >-
+          python3 -m cli.contributing.update.merge
+          --repo "$REPOSITORY" --sha "$HEAD_SHA" --run-id "$RUN_ID"
+          --own-run-id "$OWN_RUN_ID" --base "$BASE_BRANCH" --output "$GITHUB_OUTPUT"
+
+      - name: ⚙️ Generate app token
+        if: steps.gate.outputs.merge == 'true'
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ secrets.BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
+
+      - name: 🔀 Merge the update PR at its tested head
+        if: steps.gate.outputs.merge == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.gate.outputs.pr }}
+          HEAD_SHA: ${{ steps.gate.outputs.sha }}
+        run: gh api --method PUT "repos/${REPOSITORY}/pulls/${PR_NUMBER}/merge" -f merge_method=merge -f sha="${HEAD_SHA}"

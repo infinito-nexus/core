@@ -413,7 +413,10 @@ class Handler(BaseHTTPRequestHandler):
             self._respond(401, {"error": policy.DENY_UNAUTHENTICATED})
             return
 
-        length = int(self.headers.get("Content-Length") or 0)
+        length = policy.request_length(self.headers.get("Content-Length"))
+        if length < 0:
+            self._respond(400, {"error": "invalid_content_length"})
+            return
         if length > CONTRACT["limits"]["request_bytes"]:
             self._respond(413, {"error": policy.DENY_REQUEST_TOO_LARGE})
             return
