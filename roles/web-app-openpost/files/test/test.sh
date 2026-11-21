@@ -17,7 +17,7 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 python3 -E -s "${here}/probe.py"
 rc=$?
 
-# nocheck: container-exec-resolver, shell-download-retry  address resolved by the caller; a single attempt is the point of a refusal probe
+# nocheck: container-exec-resolver, shell-download-retry
 unmapped="$(container exec "${OPENPOST_CONTAINER}" wget -S -T 10 -O /dev/null "https://relay:${OPENPOST_RELAY_PORT}/" 2>&1)"
 case "${unmapped}" in
 *"HTTP/"*)
