@@ -79,6 +79,15 @@
   register: openbao_tenancy_policy
   changed_when: "'OPENBAO_CHANGED' in openbao_tenancy_policy.stdout"
 
+- name: "🧹 Retire the shared provision policy and the roles that still name it"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -s -- {{ OPENBAO_JWT_MOUNT | quote }}
+  args:
+    stdin: "{{ lookup('file', 'shell/drop-shared-provision.sh') }}"
+  register: openbao_shared_provision_drop
+  changed_when: "'OPENBAO_CHANGED' in openbao_shared_provision_drop.stdout"
+
 - name: "🎫 Bind rotate store credentials once Semaphore reports its ids"
   when: semaphore_store_rotation_identity is defined
   block:

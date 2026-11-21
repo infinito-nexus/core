@@ -188,7 +188,7 @@ class TestInputs(ZoneCase):
 
     def test_negative_control_a_template_that_reads_the_checkout_is_caught(self):
         self.sandbox.tfvars({"dns_label": CHECKOUT_MARKER})
-        self.sandbox.run("provision")
+        self.sandbox.run("provision-incus")
         self.assertIn(
             "tofu init stages values.tfvars.json",
             checkout_findings(self.sandbox.calls()),

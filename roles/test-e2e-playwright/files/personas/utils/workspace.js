@@ -34,11 +34,18 @@ function strictFlag(raw, name) {
  *   action: the WORKSPACE_ACTION of the `workspace` template.
  *
  * Returns:
- *   The survey answers of that action; apply runs the latest core without targets.
+ *   The survey answers of that action; apply runs the latest core without
+ *   targets and without the platform provider secrets.
  */
 function workspaceSurvey(workspace, action) {
   return action === "apply"
-    ? { WORKSPACE: workspace, WORKSPACE_ACTION: action, WORKSPACE_CORE_VERSION: "latest", WORKSPACE_TARGETS: "" }
+    ? {
+        WORKSPACE: workspace,
+        WORKSPACE_ACTION: action,
+        WORKSPACE_CORE_VERSION: "latest",
+        WORKSPACE_TARGETS: "",
+        WORKSPACE_PLATFORM_TOKENS: "false",
+      }
     : { WORKSPACE: workspace, WORKSPACE_ACTION: action };
 }
 

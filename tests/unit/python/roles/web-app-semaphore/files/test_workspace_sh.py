@@ -42,6 +42,11 @@ IDS = (
     "inventory_id",
     "environment_id",
 )
+PROVIDERS = json.loads(
+    read_text(
+        str(PROJECT_ROOT / "roles/web-app-semaphore/files/opentofu/credentials.json")
+    )
+)["providers"]
 PRIVATE = "203.0.113.0/24"
 TARGET = "203.0.113.10:22"
 WORKSPACES = "Infinito.Nexus Workspaces"
@@ -189,6 +194,7 @@ class ScriptCase:
             "WORKSPACE_ACTION": "apply",
             "WORKSPACE_CORE_VERSION": "latest",
             "WORKSPACE_TARGETS": TARGET,
+            "WORKSPACE_PLATFORM_TOKENS": "false",
             "WORKSPACE_PRIVATE_TARGETS": json.dumps([PRIVATE]),
             "DEPLOY_VAULT_PASSWORD": "vaultpassword",
             "DEPLOY_LOGIN": "root",
@@ -287,6 +293,28 @@ class WorkspaceScriptTests(ScriptCase, unittest.TestCase):
                 (),
                 "WORKSPACE_TARGETS is not taken by destroy",
             ),
+            (
+                "apply without the platform switch",
+                {"WORKSPACE_PLATFORM_TOKENS": ""},
+                (),
+                "WORKSPACE_PLATFORM_TOKENS '' is neither true nor false",
+            ),
+            (
+                "non-boolean platform switch",
+                {"WORKSPACE_PLATFORM_TOKENS": "yes"},
+                (),
+                "WORKSPACE_PLATFORM_TOKENS 'yes' is neither true nor false",
+            ),
+            (
+                "destroy with the platform switch",
+                {
+                    "WORKSPACE_ACTION": "destroy",
+                    "WORKSPACE_CORE_VERSION": "",
+                    "WORKSPACE_TARGETS": "",
+                },
+                (),
+                "WORKSPACE_PLATFORM_TOKENS is not taken by destroy",
+            ),
             ("argument", {}, ("extra",), "unexpected argument 'extra'"),
         ]
         for name, env, args, message in cases:
@@ -327,6 +355,12 @@ class WorkspaceScriptTests(ScriptCase, unittest.TestCase):
             variables["WORKSPACE_TARGETS"],
             [{"host": "203.0.113.10", "port": 22, "address": "203.0.113.10"}],
         )
+        self.assertIs(variables["WORKSPACE_PLATFORM_TOKENS"], False)
+
+    def test_apply_hands_the_granted_platform_switch_as_true(self):
+        run = self.run_script({"WORKSPACE_PLATFORM_TOKENS": "true"})
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertIs(self.recorded()["variables"]["WORKSPACE_PLATFORM_TOKENS"], True)
 
     def test_apply_ends_with_its_result(self):
         run = self.run_script()
@@ -363,6 +397,7 @@ class WorkspaceScriptTests(ScriptCase, unittest.TestCase):
                 "WORKSPACE_ACTION": "destroy",
                 "WORKSPACE_CORE_VERSION": "",
                 "WORKSPACE_TARGETS": "",
+                "WORKSPACE_PLATFORM_TOKENS": "",
             },
             result=json.dumps(written),
         )
@@ -518,10 +553,14 @@ class ApplyResultTests(unittest.TestCase):
                 "workspaces_project_id": workspaces,
                 "members_template_id": self.api.templates(workspaces)["members"]["id"],
                 "provision_project_id": self.api.project_id("Infinito.Nexus Provision"),
-                "provision_templates": {
-                    name: provision[f"{name} {ALIAS}"]["id"]
-                    for name in ("provision", "destroy", "unlock")
+                "provider_templates": {
+                    provider: {
+                        action: provision[f"{action}-{provider} {ALIAS}"]["id"]
+                        for action in ("provision", "destroy")
+                    }
+                    for provider in PROVIDERS
                 },
+                "unlock_template_id": provision[f"unlock {ALIAS}"]["id"],
                 "dns_template_id": provision[f"dns {ALIAS}"]["id"],
                 "zone_template_id": provision[f"zone {ALIAS}"]["id"],
                 "export_project_id": self.api.project_id("Infinito.Nexus Export"),
@@ -675,7 +714,7 @@ class ExportSourceTests(unittest.TestCase):
     def test_the_export_runs_from_the_runner_image_like_its_scheduled_siblings(self):
         result = apply(self.mod, self.api)
         self.assertEqual(export_source_findings(self.api, result), [])
-        provision = result["templates"][f"provision {ALIAS}"]
+        provision = result["templates"][f"provision-incus {ALIAS}"]
         self.assertTrue(provision["git_url"].startswith("ssh://"))
 
     def test_a_reapply_moves_an_export_off_the_workspace_repository(self):
@@ -767,19 +806,19 @@ class DestroyTests(unittest.TestCase):
 
     def plant(self):
         """Returns:
-        ``(active, kept)``: a queued ``provision ws-<id>`` and a running
+        ``(active, kept)``: a queued ``provision-incus ws-<id>`` and a running
         ``deploy`` task of the workspace, and a finished task of it, a running
         task of another workspace and the running ``workspace`` task of the
         destroy itself.
         """
         templates = self.applied["templates"]
-        provision = templates[f"provision {ALIAS}"]
+        provision = templates[f"provision-incus {ALIAS}"]
         deploy = templates["deploy"]
         workspace = templates["workspace"]
         foreign = self.api.call(
             "POST",
             f"/project/{provision['project_id']}/templates",
-            {"name": "provision ws-other"},
+            {"name": "provision-incus ws-other"},
         )
         kept = [
             self.api.add_task(deploy["project_id"], deploy["template_id"], "success"),

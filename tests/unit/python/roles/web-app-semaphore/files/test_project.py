@@ -612,30 +612,35 @@ class LockedTemplateTests(unittest.TestCase):
         tags = runner_tags(self.api)
         self.assertEqual(
             sorted({body["name"].split(" ")[0] for body in self.bodies}),
-            [
-                "announce",
-                "backup",
-                "deploy",
-                "destroy",
-                "dns",
-                "export",
-                "members",
-                "provision",
-                "prune",
-                "release",
-                "restart",
-                "resume",
-                "rotate",
-                "start",
-                "stop",
-                "suspend",
-                "unlock",
-                "update",
-                "usage",
-                "user",
-                "workspace",
-                "zone",
-            ],
+            sorted(
+                [
+                    "announce",
+                    "backup",
+                    "deploy",
+                    "dns",
+                    "export",
+                    "members",
+                    "prune",
+                    "release",
+                    "restart",
+                    "resume",
+                    "rotate",
+                    "start",
+                    "stop",
+                    "suspend",
+                    "unlock",
+                    "update",
+                    "usage",
+                    "user",
+                    "workspace",
+                    "zone",
+                    *(
+                        name
+                        for name, (_, arguments, _) in PROVISION_WRAPPERS.items()
+                        if arguments
+                    ),
+                ]
+            ),
         )
         for body in self.bodies:
             with self.subTest(template=body["name"]):
@@ -919,6 +924,22 @@ class LockedTemplateTests(unittest.TestCase):
         workspaces = self.api.project_id(platform_spec()["workspaces"]["project"])
         return copy.deepcopy(self.api.templates(workspaces)["members"])
 
+    def workspace_template(self):
+        workspaces = self.api.project_id(platform_spec()["workspaces"]["project"])
+        return copy.deepcopy(self.api.templates(workspaces)["workspace"])
+
+    def test_the_workspace_survey_takes_the_platform_switch(self):
+        self.assertEqual(workspace_survey(self.workspace_template()), WORKSPACE_SURVEY)
+
+    def test_negative_control_a_workspace_survey_without_the_switch(self):
+        workspace = self.workspace_template()
+        workspace["survey_vars"] = [
+            v
+            for v in workspace["survey_vars"]
+            if v["name"] != "WORKSPACE_PLATFORM_TOKENS"
+        ]
+        self.assertNotEqual(workspace_survey(workspace), WORKSPACE_SURVEY)
+
     def test_the_members_survey_takes_the_suspension_flag(self):
         members = self.members_template()
         self.assertEqual(members_survey_findings(members), [])
@@ -1024,17 +1045,20 @@ class LockedTemplateTests(unittest.TestCase):
         provision = self.api.project_id(workspace_spec()["provision"]["project"])
         return copy.deepcopy(self.api.templates(provision))
 
-    def test_each_provision_template_runs_its_own_wrapper_without_arguments(self):
+    def test_each_provision_template_runs_its_own_wrapper_with_its_own_argument(self):
         self.assertEqual(provision_findings(self.provision_templates()), [])
 
     def test_negative_control_destroy_through_the_provision_wrapper(self):
         templates = self.provision_templates()
-        destroy = templates[f"destroy {ALIAS}"]
+        destroy = templates[f"destroy-incus {ALIAS}"]
         destroy["playbook"] = destroy["playbook"].replace("destroy.sh", "provision.sh")
-        destroy["arguments"] = json.dumps(["destroy"])
+        destroy["arguments"] = json.dumps(["hetzner"])
         self.assertEqual(
             provision_findings(templates),
-            [f"destroy runs {destroy['playbook']}", 'destroy passes ["destroy"]'],
+            [
+                f"destroy-incus runs {destroy['playbook']}",
+                'destroy-incus passes ["hetzner"]',
+            ],
         )
 
     def workspace_identities(self):
@@ -1047,7 +1071,7 @@ class LockedTemplateTests(unittest.TestCase):
         identities = self.workspace_identities()
         self.assertEqual(identity_findings(self.api, identities), [])
         self.assertEqual(
-            identities[f"provision {ALIAS}"]["environment_variables"],
+            identities[f"provision-incus {ALIAS}"]["environment_variables"],
             [
                 "WORKSPACE",
                 "WORKSPACE_DNS_ZONE",
@@ -1064,7 +1088,9 @@ class LockedTemplateTests(unittest.TestCase):
             json.loads(environment["env"]).values()
         )
         findings = identity_findings(self.api, self.workspace_identities())
-        self.assertIn(f"provision {ALIAS} names a value: ws.example.org", findings)
+        self.assertIn(
+            f"provision-incus {ALIAS} names a value: ws.example.org", findings
+        )
 
     def test_the_identity_records_the_shape_of_the_live_template(self):
         for name, identity in self.workspace_identities().items():
@@ -1090,14 +1116,22 @@ class LockedTemplateTests(unittest.TestCase):
                 self.assertEqual(bool(identity["survey_variables"]), name != "usage")
 
 
+ORDER_SURVEY = ["SALES_ORDER", "LINE", "PROVIDER_TOKEN"]
+PROVIDERS = tuple(
+    json.loads(read_text(str(ROLE / "files/opentofu/credentials.json")))["providers"]
+)
 PROVISION_WRAPPERS = {
-    "provision": ("provision.sh", ["SALES_ORDER", "LINE", "PROVIDER_TOKEN"]),
-    "destroy": ("destroy.sh", ["SALES_ORDER", "LINE", "PROVIDER_TOKEN"]),
-    "unlock": ("unlock.sh", ["SALES_ORDER", "LINE"]),
-    "dns": ("dns.sh", ["DNS_ACTION", "SALES_ORDER", "LINE", "HOST", "DNS_LABEL"]),
-    "zone": ("zone.sh", ["ZONE_ACTION", "SALES_ORDER", "LINE", "DOMAIN"]),
+    **{
+        f"{action}-{provider}": (f"{action}.sh", [provider], ORDER_SURVEY)
+        for action in ("provision", "destroy")
+        for provider in PROVIDERS
+    },
+    "unlock": ("unlock.sh", [], ["SALES_ORDER", "LINE"]),
+    "dns": ("dns.sh", [], ["DNS_ACTION", "SALES_ORDER", "LINE", "HOST", "DNS_LABEL"]),
+    "zone": ("zone.sh", [], ["ZONE_ACTION", "SALES_ORDER", "LINE", "DOMAIN"]),
 }
 REFUSES_ARGUMENTS = "any argument is refused"
+PINS_THE_PROVIDER = "the provider the template"
 
 
 def provision_findings(templates):
@@ -1106,19 +1140,21 @@ def provision_findings(templates):
 
     Returns:
         Every provision template of ``ALIAS`` whose wrapper, arguments or
-        survey drifted, and every wrapper whose header takes arguments.
+        survey drifted, and every wrapper whose header does not say which
+        argument it takes.
     """
     findings = []
-    for name, (script, survey) in PROVISION_WRAPPERS.items():
+    for name, (script, arguments, survey) in PROVISION_WRAPPERS.items():
         body = templates[f"{name} {ALIAS}"]
         if (body["app"], body["playbook"]) != (SCRIPTS["script_app"], script):
             findings.append(f"{name} runs {body['playbook']}")
-        if json.loads(body["arguments"]) != []:
+        if json.loads(body["arguments"]) != arguments:
             findings.append(f"{name} passes {body['arguments']}")
         if survey_names(body) != survey:
             findings.append(f"{name} survey drifted: {survey_names(body)}")
-        if REFUSES_ARGUMENTS not in read_text(str(SCRIPTS_DIR / script)):
-            findings.append(f"{script} takes arguments")
+        header = PINS_THE_PROVIDER if arguments else REFUSES_ARGUMENTS
+        if header not in read_text(str(SCRIPTS_DIR / script)):
+            findings.append(f"{script} lacks {header!r}")
     return findings
 
 
@@ -1163,6 +1199,17 @@ MEMBERS_SURVEY = [
     ("WORKSPACE_ROLE", False, "env"),
     ("WORKSPACE_SUSPENDED", True, "env"),
 ]
+WORKSPACE_SURVEY = [
+    ("WORKSPACE", True, "env"),
+    ("WORKSPACE_ACTION", True, "env"),
+    ("WORKSPACE_CORE_VERSION", False, "env"),
+    ("WORKSPACE_TARGETS", False, "env"),
+    ("WORKSPACE_PLATFORM_TOKENS", False, "env"),
+]
+
+
+def workspace_survey(body):
+    return [(v["name"], v["required"], v["target"]) for v in body["survey_vars"]]
 
 
 def members_survey_findings(body):
@@ -1554,18 +1601,18 @@ class RelativePlaybookTests(unittest.TestCase):
             ],
             [
                 (SCRIPTS["script_app"], script)
-                for script, _ in PROVISION_WRAPPERS.values()
+                for script, _, _ in PROVISION_WRAPPERS.values()
             ],
         )
 
     def test_a_reapply_moves_a_template_stored_with_an_absolute_playbook(self):
         self.apply()
-        self.provision_template("provision")["playbook"] = (
+        self.provision_template("provision-incus")["playbook"] = (
             "/opt/app-control/provision.sh"
         )
         self.apply()
         self.assertEqual(
-            self.provision_template("provision")["playbook"], "provision.sh"
+            self.provision_template("provision-incus")["playbook"], "provision.sh"
         )
 
     def test_the_script_app_is_registered_and_handed_to_every_converge(self):

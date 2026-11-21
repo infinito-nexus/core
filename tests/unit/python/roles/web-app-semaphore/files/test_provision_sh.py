@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import fcntl
+import importlib
 import json
+import os
 import socket
 import unittest
 from pathlib import Path
@@ -9,6 +11,8 @@ from pathlib import Path
 from utils.cache.files import read_text
 
 from .provision._fake_provision import (
+    CHILD_TOKEN,
+    CREDENTIALS,
     CUSTOMER_TOKEN,
     FILES,
     KEYSTONE_SUBJECT,
@@ -46,6 +50,119 @@ KEPT_OBJECTS = (
     f"{WORKSPACE}-state/SO-2026/2.tfstate",
     f"{WORKSPACE}-state/SO-2026/1.dns.tfstate",
 )
+POLICIES = importlib.import_module(
+    "tests.unit.python.roles.web-app-openbao.test_policies"
+)
+FOREIGN_DNS_TOKEN = "platform/data/provision/cloudflare/example.net"
+SOURCES = ("secrets", "workspace_secrets")
+TRANSIT_CHILD = {
+    "role": f"{WORKSPACE}-transit-child",
+    "policies": [f"{WORKSPACE}-transit"],
+    "ttl": "7200s",
+    "renewable": False,
+    "no_default_policy": True,
+}
+WRAPPER_EXEC = "exec env -u SEMAPHORE_JWT python3"
+UNDUMPABLE_CALL = "    undumpable()\n"
+MAIN_BLOCK = 'if __name__ == "__main__":'
+AFTER_UNDUMPABLE = ("task_token(TASK_JWT_FD)", "main(sys.argv")
+KEPT_TOKEN_REFUSAL = "    if TASK_JWT in os.environ:\n"
+
+
+def dump_order_findings(text):
+    """Args:
+        text: the source of ``provision.py``.
+
+    Returns:
+        One finding per step of the entry point that reads the task token or
+        starts the run, and so the login, before the process is undumpable.
+    """
+    block = text[text.index(MAIN_BLOCK) :]
+    if UNDUMPABLE_CALL not in block:
+        return ["the entry point never calls undumpable()"]
+    first = block.index(UNDUMPABLE_CALL)
+    return [
+        f"{step} runs before undumpable()"
+        for step in AFTER_UNDUMPABLE
+        if block.index(step) < first
+    ]
+
+
+def supervisor_findings(calls):
+    """Args:
+        calls: the recorded ``tofu`` calls of a run.
+
+    Returns:
+        One finding per variable the supervisor of a call holds with a value
+        its ``tofu`` lacks; the supervisor is dumpable, so every provider
+        plugin of the call reads its environment.
+    """
+    return [
+        f"the supervisor of tofu {call['argv'][0]} holds {name}"
+        for call in calls
+        for name, value in (call["supervisor_env"] or {}).items()
+        if call["env"].get(name) != value
+    ]
+
+
+def logins_of(provider):
+    return [f"{WORKSPACE}-provision-{provider}"]
+
+
+def concrete(path):
+    return path.format(workspace=WORKSPACE, zone=ZONE, host="target")
+
+
+STATE_PATH = concrete(CREDENTIALS["state"]["path"])
+
+
+def provider_reads(provider, kinds):
+    """Args:
+        provider: a provider of ``credentials.json``.
+        kinds: the secret lists of the provider whose paths count.
+
+    Returns:
+        Every OpenBao path the run of a line on that provider reads for it.
+    """
+    spec = CREDENTIALS["providers"][provider]
+    return {concrete(secret["path"]) for kind in kinds for secret in spec.get(kind, [])}
+
+
+def run_reads():
+    """Returns:
+    The paths every provision run reads whatever its provider: the state
+    keys, the snapshot record and the DNS credential of each flavor.
+    """
+    dns = {concrete(entry["path"]) for entry in CREDENTIALS["dns"].values()}
+    return {concrete(CREDENTIALS["state"]["path"]), SNAPSHOT_RECORD, *dns}
+
+
+def tofu_reach(provider, granted, source=None):
+    """Args:
+        provider: the provider of the line.
+        granted: the store's switch ``WORKSPACE_PLATFORM_TOKENS``.
+        source: a policy template text that replaces the role's own file.
+
+    Returns:
+        Every path of ``credentials.json``, of the snapshot record and of a
+        foreign zone's DNS token that the token of the line's provider role
+        reads.
+    """
+    every = (
+        run_reads()
+        | {concrete(CREDENTIALS["zone"]["path"]), FOREIGN_DNS_TOKEN}
+        | {
+            path
+            for name in CREDENTIALS["providers"]
+            for path in provider_reads(name, SOURCES)
+        }
+    )
+    grants = POLICIES.parse(
+        POLICIES.provision_policy(
+            WORKSPACE.removeprefix("ws-"), provider, granted, ZONE, source
+        )
+    )
+    return {path for path in every if "read" in POLICIES.effective(grants, path)}
 
 
 def key_findings(call, keys, allowed_aws):
@@ -107,15 +224,15 @@ class TestCheckout(ProvisionCase):
                 path = self.sandbox.checkout / relative
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text("planted", encoding="utf-8")
-                self.assert_refused(self.sandbox.run("provision"), relative)
+                self.assert_refused(self.sandbox.run("provision-incus"), relative)
                 path.unlink()
-        clean = self.sandbox.run("provision")
+        clean = self.sandbox.run("provision-incus")
         self.assertEqual(clean.returncode, 0, clean.stderr)
         self.assertEqual(self.sandbox.commands(), ["init", "apply", "output"])
 
     def test_destroy_refuses_infrastructure_code_in_the_checkout(self):
         (self.sandbox.checkout / "main.tf").write_text("planted", encoding="utf-8")
-        self.assert_refused(self.sandbox.run("destroy"), "main.tf")
+        self.assert_refused(self.sandbox.run("destroy-incus"), "main.tf")
 
     def test_provision_refuses_each_malformed_tfvars(self):
         cases = {
@@ -127,41 +244,41 @@ class TestCheckout(ProvisionCase):
         for case, values in cases.items():
             with self.subTest(case=case):
                 self.sandbox.tfvars(values)
-                self.assert_refused(self.sandbox.run("provision"))
+                self.assert_refused(self.sandbox.run("provision-incus"))
         self.sandbox.tfvars().write_text('name = "SO-2026-1"\n', encoding="utf-8")
-        self.assert_refused(self.sandbox.run("provision"), "is no JSON document")
+        self.assert_refused(self.sandbox.run("provision-incus"), "is no JSON document")
 
     def test_a_tfvars_file_of_another_line_is_refused(self):
         self.sandbox.tfvars().unlink()
         self.assert_refused(
-            self.sandbox.run("provision"), "provision/SO-2026-1.tfvars.json"
+            self.sandbox.run("provision-incus"), "provision/SO-2026-1.tfvars.json"
         )
         self.sandbox.tfvars({"name": "SO-2026-2"})
-        self.assert_refused(self.sandbox.run("provision"), "not 'SO-2026-1'")
+        self.assert_refused(self.sandbox.run("provision-incus"), "not 'SO-2026-1'")
 
     def test_provision_reads_the_mounted_catalog_only(self):
         planted = {"cloud": {"sizes": {"huge": {}}, "regions": {"mars": {}}}}
         image_root = self.sandbox.core / "opentofu" / "roots" / "incus"
         for directory in (self.sandbox.checkout, image_root):
             (directory / "catalog.json").write_text(json.dumps(planted))
-        result = self.sandbox.run("provision")
+        result = self.sandbox.run("provision-incus")
         self.assertEqual(result.returncode, 0, result.stderr)
         mounted = self.sandbox.catalogs / "incus.json"
         text = mounted.read_text()  # nocheck: cache-read tempdir
         self.assertEqual(self.call("apply")["texts"]["catalog.json"], text)
         self.sandbox.tfvars({"size": "huge", "region": "mars"})
-        self.assert_refused(self.sandbox.run("provision"), "region 'mars'")
+        self.assert_refused(self.sandbox.run("provision-incus"), "region 'mars'")
         self.sandbox.tfvars()
         (self.sandbox.catalogs / "incus.json").write_text("{}")
         self.assert_refused(
-            self.sandbox.run("provision"),
+            self.sandbox.run("provision-incus"),
             "no catalog offers region 'default'",
             "incus",
         )
 
     def test_provision_runs_the_image_module_with_a_clean_tf_env(self):
         result = self.sandbox.run(
-            "provision",
+            "provision-incus",
             TF_CLI_ARGS="-destroy",
             TF_CLI_ARGS_apply="-refresh=false",
             TF_VAR_name="injected",
@@ -198,7 +315,7 @@ class TestCheckout(ProvisionCase):
         )
 
     def test_provision_takes_the_provider_settings_from_openbao(self):
-        result = self.sandbox.run("provision")
+        result = self.sandbox.run("provision-incus")
         self.assertEqual(result.returncode, 0, result.stderr)
         call = self.call("apply")
         env = call["env"]
@@ -209,7 +326,7 @@ class TestCheckout(ProvisionCase):
         self.assertEqual(
             call["texts"]["credentials/servercerts/target.crt"], "SERVER-CERT"
         )
-        self.assertEqual(env["BAO_TOKEN"], TOKEN)
+        self.assertEqual(env["BAO_TOKEN"], CHILD_TOKEN)
         self.assertEqual(env["DNS_UPDATE_SERVER"], "127.0.0.1")
         encryption = json.loads(env["TF_ENCRYPTION"])
         self.assertEqual(
@@ -222,7 +339,7 @@ class TestCheckout(ProvisionCase):
 
 class TestState(ProvisionCase):
     def test_the_state_key_is_sales_order_and_line(self):
-        result = self.sandbox.run("provision")
+        result = self.sandbox.run("provision-incus")
         self.assertEqual(result.returncode, 0, result.stderr)
         init = self.call("init")
         backend = init["backend"]["text"]
@@ -237,7 +354,7 @@ class TestState(ProvisionCase):
             "SALES_ORDER": ("1SO", "S" * 57, "SO_2026", ""),
             "LINE": ("1-2", "1234567", "x", "", "0", "007"),
         }
-        for script in ("provision", "destroy", "unlock"):
+        for script in ("provision-incus", "destroy-incus", "unlock"):
             for name, values in cases.items():
                 for value in values:
                     with self.subTest(script=script, name=name, value=value):
@@ -245,7 +362,7 @@ class TestState(ProvisionCase):
                         self.assert_refused(result, name)
 
     def test_provision_writes_workspace_json_from_the_environment(self):
-        result = self.sandbox.run("provision")
+        result = self.sandbox.run("provision-incus")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(
             json.loads(self.call("init")["texts"]["workspace.json"]),
@@ -260,13 +377,13 @@ class TestState(ProvisionCase):
             for value in values:
                 with self.subTest(name=name, value=value):
                     self.assert_refused(
-                        self.sandbox.run("provision", **{name: value}), name
+                        self.sandbox.run("provision-incus", **{name: value}), name
                     )
         for key in ("zone", "workspace"):
             with self.subTest(key=key):
                 self.sandbox.tfvars({key: "chosen-by-the-checkout"})
                 self.assert_refused(
-                    self.sandbox.run("provision"), key, "is not a known key"
+                    self.sandbox.run("provision-incus"), key, "is not a known key"
                 )
 
     def test_the_task_directory_is_removed_on_every_exit(self):
@@ -274,7 +391,7 @@ class TestState(ProvisionCase):
             with self.subTest(fail=fail):
                 self.sandbox.log.unlink(missing_ok=True)
                 self.sandbox.set_plan({"state": [], "outputs": {}, "fail": fail})
-                result = self.sandbox.run("provision")
+                result = self.sandbox.run("provision-incus")
                 self.assertEqual(result.returncode, code, result.stderr)
                 for call in self.sandbox.calls():
                     task = Path(call["cwd"])
@@ -287,7 +404,7 @@ class TestState(ProvisionCase):
 class TestBackendKeys(ProvisionCase):
     def test_backend_keys_come_from_a_private_file(self):
         result = self.sandbox.run(
-            "provision", AWS_ACCESS_KEY_ID="planted", AWS_PROFILE="planted"
+            "provision-incus", AWS_ACCESS_KEY_ID="planted", AWS_PROFILE="planted"
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         for call in self.sandbox.calls():
@@ -324,7 +441,7 @@ class TestRoute53Keys(ProvisionCase):
     def test_route53_sets_only_the_iam_user_keys(self):
         self.sandbox.platform.objects[STATE_OBJECT] = b"encrypted"
         self.sandbox.set_plan({"state": ["hcloud_server.server"], "outputs": {}})
-        result = self.sandbox.run("provision")
+        result = self.sandbox.run("provision-incus")
         self.assertEqual(result.returncode, 0, result.stderr)
         allowed = {
             "AWS_ACCESS_KEY_ID": ROUTE53_KEYS["access_key"],
@@ -339,7 +456,7 @@ class TestTakenName(ProvisionCase):
         self.sandbox.dns.records[(f"app.{WORKSPACE}.{ZONE}", 1)] = [
             socket.inet_aton("198.51.100.7")
         ]
-        result = self.sandbox.run("provision")
+        result = self.sandbox.run("provision-incus")
         self.assertEqual(result.returncode, 2, result.stderr)
         self.assertIn("already holds an A, AAAA or CNAME record", result.stderr)
         self.assertEqual(self.sandbox.commands(), ["init"])
@@ -353,7 +470,7 @@ class TestTakenName(ProvisionCase):
         self.sandbox.dns.records[(f"app.{WORKSPACE}.{ZONE}", 1)] = [
             socket.inet_aton("192.0.2.10")
         ]
-        result = self.sandbox.run("provision")
+        result = self.sandbox.run("provision-incus")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self.sandbox.commands(), ["init", "state", "apply", "output"])
         self.assertEqual(self.sandbox.dns.questions, [])
@@ -399,7 +516,7 @@ class TestKeySnapshot(ProvisionCase):
     def test_a_missing_snapshot_record_refuses_before_any_state_write(self):
         self.sandbox.platform.objects[STATE_OBJECT] = b"encrypted"
         del self.sandbox.platform.secrets[SNAPSHOT_RECORD]
-        for script in ("provision", "destroy"):
+        for script in ("provision-incus", "destroy-incus"):
             with self.subTest(script=script):
                 self.assert_no_state_write(script, "has no backup")
 
@@ -409,7 +526,7 @@ class TestKeySnapshot(ProvisionCase):
             "key_created_at": "1763000005",
             "snapshot_at": "1763000000",
         }
-        for script in ("provision", "destroy"):
+        for script in ("provision-incus", "destroy-incus"):
             with self.subTest(script=script):
                 self.assert_no_state_write(script, "predates the transit key")
 
@@ -425,7 +542,7 @@ class TestKeySnapshot(ProvisionCase):
         )
         self.assertNotEqual(planted, text)
         (self.sandbox.core / "python" / "provision" / "session.py").write_text(planted)
-        result = self.sandbox.run("provision")
+        result = self.sandbox.run("provision-incus")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("apply", self.sandbox.commands())
 
@@ -434,10 +551,10 @@ class TestKeySnapshot(ProvisionCase):
             "key_created_at": "yesterday",
             "snapshot_at": "1763000000",
         }
-        self.assert_no_state_write("provision", "has no backup")
+        self.assert_no_state_write("provision-incus", "has no backup")
 
     def test_a_snapshot_after_the_key_admits_the_write(self):
-        result = self.sandbox.run("provision")
+        result = self.sandbox.run("provision-incus")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn(SNAPSHOT_RECORD, self.sandbox.platform.reads)
         self.assertIn("apply", self.sandbox.commands())
@@ -450,16 +567,76 @@ class TestKeySnapshot(ProvisionCase):
 
 class TestArguments(ProvisionCase):
     def test_each_script_refuses_an_extra_argument(self):
-        for script in ("provision", "destroy", "unlock", "dns"):
+        for script in ("provision-incus", "destroy-incus", "unlock", "dns"):
             with self.subTest(script=script):
                 self.assert_refused(
                     self.sandbox.run(script, "-destroy"),
                     "unexpected argument '-destroy'",
                 )
 
+    def test_provision_and_destroy_refuse_a_missing_or_unknown_provider(self):
+        for template in ("provision", "destroy", "provision-aws", "destroy-aws"):
+            with self.subTest(template=template):
+                self.assert_refused(self.sandbox.run(template), "pins no provider")
+                self.assertEqual(self.sandbox.platform.logins, [])
+
+    def test_a_provision_of_a_line_on_another_provider_is_refused_before_login(self):
+        self.assert_refused(
+            self.sandbox.run("provision-hetzner"),
+            "line SO-2026-1 is on incus, but this template pins hetzner",
+        )
+        self.assertEqual(self.sandbox.platform.logins, [])
+
+    def test_negative_control_without_the_pin_a_foreign_line_reaches_apply(self):
+        text = read_text(str(FILES / "python" / "provision.py"))
+        planted = text.replace(
+            '        require_pinned(pinned, selected[0], values["name"])\n', ""
+        )
+        self.assertNotEqual(planted, text)
+        (self.sandbox.core / "python" / "provision.py").write_text(planted)
+        result = self.sandbox.run("provision-hetzner")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("apply", self.sandbox.commands())
+
+    def test_a_destroy_of_a_line_recorded_on_another_provider_is_refused(self):
+        objects = self.sandbox.platform.objects
+        objects[STATE_OBJECT] = b"encrypted"
+        objects[RECORD_OBJECT] = self.provision_record()
+        self.assert_refused(
+            self.sandbox.run("destroy-hetzner"),
+            "line SO-2026-1 is on incus, but this template pins hetzner",
+        )
+        self.assertEqual(
+            self.sandbox.platform.logins, [f"{WORKSPACE}-provision-hetzner"]
+        )
+        self.assertEqual(self.sandbox.platform.reads, [STATE_PATH])
+        self.assertEqual(self.sandbox.platform.children, [])
+        self.assertEqual(self.sandbox.platform.revoked, [TOKEN])
+        self.assertIn(STATE_OBJECT, objects)
+        self.assertIn(RECORD_OBJECT, objects)
+
+    def test_negative_control_a_session_opened_before_the_pin_reads_the_dns_secret(
+        self,
+    ):
+        text = read_text(str(FILES / "python" / "provision.py"))
+        held = "    ):\n        if selected is None and session.holds_nothing"
+        planted = text.replace(
+            held,
+            "    ):\n        session.open(reach)\n"
+            "        if selected is None and session.holds_nothing",
+        )
+        self.assertNotEqual(planted, text)
+        (self.sandbox.core / "python" / "provision.py").write_text(planted)
+        objects = self.sandbox.platform.objects
+        objects[STATE_OBJECT] = b"encrypted"
+        objects[RECORD_OBJECT] = self.provision_record()
+        self.assert_refused(self.sandbox.run("destroy-hetzner"), "pins hetzner")
+        self.assertNotEqual(self.sandbox.platform.reads, [STATE_PATH])
+        self.assertNotEqual(self.sandbox.platform.children, [])
+
     def test_destroy_destroys_with_the_checkout_values(self):
         self.sandbox.platform.objects[STATE_OBJECT] = b"encrypted"
-        result = self.sandbox.run("destroy")
+        result = self.sandbox.run("destroy-incus")
         self.assertEqual(result.returncode, 0, result.stderr)
         destroy = self.call("destroy")
         self.assertEqual(
@@ -489,7 +666,7 @@ class TestProviderToken(ProvisionCase):
         self.sandbox.tfvars({"size": "cx22", "region": "fsn1"})
 
     def apply_env(self, token):
-        result = self.sandbox.run("provision", PROVIDER_TOKEN=token)
+        result = self.sandbox.run("provision-hetzner", PROVIDER_TOKEN=token)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertNotIn(CUSTOMER_TOKEN, result.stdout + result.stderr)
         for call in self.sandbox.calls():
@@ -501,9 +678,9 @@ class TestProviderToken(ProvisionCase):
         self.assertEqual(env["HCLOUD_TOKEN"], "hcloud-platform-token")
         self.assertNotIn(CUSTOMER_PATH, self.sandbox.platform.reads)
 
-    def test_a_provision_run_logs_in_with_the_provision_role_only(self):
+    def test_a_provision_run_logs_in_with_its_provider_role_only(self):
         self.apply_env("platform")
-        self.assertEqual(self.sandbox.platform.logins, [f"{WORKSPACE}-provision"])
+        self.assertEqual(self.sandbox.platform.logins, logins_of("hetzner"))
 
     def test_workspace_takes_the_customer_token_only(self):
         env = self.apply_env("workspace")
@@ -518,14 +695,14 @@ class TestProviderToken(ProvisionCase):
                 if planted is not None:
                     secrets[CUSTOMER_PATH] = planted
                 self.assert_refused(
-                    self.sandbox.run("provision", PROVIDER_TOKEN="workspace"),
+                    self.sandbox.run("provision-hetzner", PROVIDER_TOKEN="workspace"),
                     CUSTOMER_PATH,
                     "holds no token",
                 )
 
     def test_destroy_takes_the_same_token_as_provision(self):
         self.sandbox.platform.objects[STATE_OBJECT] = b"encrypted"
-        result = self.sandbox.run("destroy", PROVIDER_TOKEN="workspace")
+        result = self.sandbox.run("destroy-hetzner", PROVIDER_TOKEN="workspace")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self.call("destroy")["env"]["HCLOUD_TOKEN"], CUSTOMER_TOKEN)
 
@@ -533,7 +710,7 @@ class TestProviderToken(ProvisionCase):
         for value in (None, "", "customer", "Platform"):
             with self.subTest(value=value):
                 self.assert_refused(
-                    self.sandbox.run("provision", PROVIDER_TOKEN=value),
+                    self.sandbox.run("provision-hetzner", PROVIDER_TOKEN=value),
                     "PROVIDER_TOKEN",
                 )
 
@@ -563,7 +740,7 @@ class TestProviderToken(ProvisionCase):
 
     def test_a_bad_scs_credential_refuses_before_any_write(self):
         keystone = self.scs_line(keystone_record() | {"unrestricted": True})
-        result = self.sandbox.run("provision", PROVIDER_TOKEN="workspace")
+        result = self.sandbox.run("provision-scs", PROVIDER_TOKEN="workspace")
         self.assert_refused(
             result, "refused: the application credential is unrestricted"
         )
@@ -578,7 +755,7 @@ class TestProviderToken(ProvisionCase):
 
     def test_negative_control_a_good_scs_credential_writes_and_applies(self):
         keystone = self.scs_line(keystone_record())
-        result = self.sandbox.run("provision", PROVIDER_TOKEN="workspace")
+        result = self.sandbox.run("provision-scs", PROVIDER_TOKEN="workspace")
         self.assertEqual(result.returncode, 0, result.stderr)
         env = self.call("apply")["env"]
         self.assertEqual(env["OS_AUTH_URL"], keystone.auth_url)
@@ -590,10 +767,206 @@ class TestProviderToken(ProvisionCase):
     def test_a_provider_without_customer_tokens_refuses_workspace(self):
         self.sandbox.tfvars({"size": "demo", "region": "default"})
         self.assert_refused(
-            self.sandbox.run("provision", PROVIDER_TOKEN="workspace"),
+            self.sandbox.run("provision-incus", PROVIDER_TOKEN="workspace"),
             "PROVIDER_TOKEN",
             "incus takes no customer token",
         )
+
+
+class TestTheTofuToken(ProvisionCase):
+    def test_the_tofu_token_reaches_the_line_provider_only(self):
+        for provider in CREDENTIALS["providers"]:
+            with self.subTest(provider=provider):
+                self.assertEqual(
+                    tofu_reach(provider, True),
+                    run_reads() | provider_reads(provider, SOURCES),
+                )
+        result = self.sandbox.run("provision-incus")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.sandbox.platform.logins, logins_of("incus"))
+
+    def test_without_the_store_switch_the_token_reads_the_customer_token_only(self):
+        for provider in CREDENTIALS["providers"]:
+            with self.subTest(provider=provider):
+                self.assertEqual(
+                    tofu_reach(provider, False),
+                    run_reads() | provider_reads(provider, ("workspace_secrets",)),
+                )
+
+    def test_negative_control_a_planted_wildcard_reaches_other_providers(self):
+        source = (
+            read_text(str(POLICIES.PROVISION_POLICY)) + "\n" + POLICIES.WILDCARD + "\n"
+        )
+        reach = tofu_reach("incus", True, source)
+        self.assertNotEqual(reach, run_reads() | provider_reads("incus", SOURCES))
+        self.assertIn("platform/data/provision/hetzner", reach)
+
+    def tofu_tokens(self):
+        return {call["env"].get("BAO_TOKEN") for call in self.sandbox.calls()}
+
+    def test_tofu_holds_a_transit_child_token_never_the_role_token(self):
+        result = self.sandbox.run("provision-incus")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.tofu_tokens(), {CHILD_TOKEN})
+        self.assertEqual(self.sandbox.platform.children, [TRANSIT_CHILD])
+
+    def test_negative_control_a_session_handing_tofu_the_role_token_fails(self):
+        path = self.sandbox.core / "python" / "provision" / "session.py"
+        text = read_text(str(FILES / "python" / "provision" / "session.py"))
+        planted = text.replace('"BAO_TOKEN": transit,', '"BAO_TOKEN": self.bao.token,')
+        self.assertNotEqual(planted, text)
+        path.write_text(planted)
+        result = self.sandbox.run("provision-incus")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.tofu_tokens(), {TOKEN})
+
+    def plant(self, relative, *replacements):
+        """Args:
+        relative: a file below ``files`` of the role, replaced in the
+            sandbox.
+        replacements: ``(old, new)`` pairs, each of which must change it.
+        """
+        text = read_text(str(FILES / relative))
+        for old, new in replacements:
+            planted = text.replace(old, new)
+            self.assertNotEqual(planted, text, old)
+            text = planted
+        (self.sandbox.core / relative).write_text(text)
+
+    def plant_dumpable(self, *replacements):
+        self.plant("python/provision.py", (UNDUMPABLE_CALL, ""), *replacements)
+
+    def runner_environments(self):
+        environments = [call["runner_env"] for call in self.sandbox.calls()]
+        self.assertTrue(environments)
+        return environments
+
+    def refused_destroy_beside_a_failed_revoke(self):
+        self.sandbox.platform.revoke_status = 500
+        objects = self.sandbox.platform.objects
+        objects[STATE_OBJECT] = b"encrypted"
+        objects[RECORD_OBJECT] = self.provision_record()
+        return self.sandbox.run("destroy-hetzner")
+
+    def test_the_run_revokes_its_role_token_and_with_it_the_child(self):
+        result = self.sandbox.run("provision-incus")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.sandbox.platform.revoked, [TOKEN])
+
+    def test_negative_control_a_session_without_the_revoke_leaves_the_token(self):
+        path = self.sandbox.core / "python" / "provision" / "session.py"
+        text = read_text(str(FILES / "python" / "provision" / "session.py"))
+        planted = text.replace("        bao.revoke()\n", "        pass\n")
+        self.assertNotEqual(planted, text)
+        path.write_text(planted)
+        result = self.sandbox.run("provision-incus")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.sandbox.platform.revoked, [])
+
+    def test_a_failed_revoke_keeps_the_refusal_of_the_run(self):
+        self.assert_refused(
+            self.refused_destroy_beside_a_failed_revoke(),
+            "refused: line SO-2026-1 is on incus, but this template pins hetzner",
+            "the revoke of the role token after the run's own error: OpenBao POST "
+            "auth/token/revoke-self: HTTP 500",
+        )
+        self.assertEqual(self.sandbox.platform.revoked, [])
+
+    def test_negative_control_an_unguarded_revoke_replaces_the_refusal(self):
+        self.plant(
+            "python/provision/session.py",
+            ("        revoke_after_failure(bao)\n", "        bao.revoke()\n"),
+        )
+        result = self.refused_destroy_beside_a_failed_revoke()
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("failed: OpenBao POST auth/token/revoke-self", result.stderr)
+        self.assertNotIn("pins hetzner", result.stderr)
+
+    def test_the_python_process_is_undumpable_before_the_login(self):
+        text = read_text(str(FILES / "python" / "provision.py"))
+        self.assertEqual(dump_order_findings(text), [])
+        if os.geteuid() == 0:
+            self.skipTest("root reads the environ of an undumpable process")
+        result = self.sandbox.run("provision-incus")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        environments = self.runner_environments()
+        self.assertEqual([e for e in environments if e is not None], [])
+
+    def test_negative_control_a_dumpable_process_is_found(self):
+        text = read_text(str(FILES / "python" / "provision.py"))
+        held = "    jwt = task_token(TASK_JWT_FD)\n"
+        moved = text.replace(UNDUMPABLE_CALL, "").replace(
+            held, held + UNDUMPABLE_CALL, 1
+        )
+        self.assertNotEqual(dump_order_findings(moved), [])
+        if os.geteuid() == 0:
+            self.skipTest("root reads the environ of a dumpable process too")
+        self.plant_dumpable()
+        result = self.sandbox.run("provision-incus")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn(None, self.runner_environments())
+
+    def test_the_supervisor_holds_no_variable_tofu_lacks(self):
+        result = self.sandbox.run("provision-incus")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        calls = self.sandbox.calls()
+        self.assertTrue(calls)
+        self.assertNotIn(None, [call["supervisor_env"] for call in calls])
+        self.assertEqual(supervisor_findings(calls), [])
+
+    def test_negative_control_a_supervisor_that_keeps_a_variable_from_tofu(self):
+        self.plant(
+            "python/tofu_supervisor.py",
+            (
+                "subprocess.call(argv[2:])",
+                'subprocess.call(argv[2:], env={**os.environ, "BAO_TOKEN": ""})',
+            ),
+        )
+        result = self.sandbox.run("provision-incus")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(
+            supervisor_findings(self.sandbox.calls()),
+            [
+                f"the supervisor of tofu {command} holds BAO_TOKEN"
+                for command in self.sandbox.commands()
+            ],
+        )
+
+    def test_the_task_token_never_reaches_the_python_environment(self):
+        self.plant_dumpable()
+        result = self.sandbox.run("provision-incus")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.sandbox.platform.logins, logins_of("incus"))
+        for environment in self.runner_environments():
+            self.assertIn("WORKSPACE", environment)
+            self.assertNotIn("SEMAPHORE_JWT", environment)
+        for script in ("provision", "destroy", "unlock", "dns", "zone"):
+            with self.subTest(script=script):
+                wrapper = FILES / "shell" / "repository" / f"{script}.sh"
+                self.assertIn(WRAPPER_EXEC, read_text(str(wrapper)))
+
+    def test_negative_control_a_token_kept_in_the_environment_is_seen(self):
+        self.plant_dumpable((KEPT_TOKEN_REFUSAL, "    if False:\n"))
+        self.plant("shell/repository/provision.sh", (WRAPPER_EXEC, "exec python3"))
+        result = self.sandbox.run("provision-incus")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for environment in self.runner_environments():
+            self.assertIn("SEMAPHORE_JWT", environment)
+
+    def test_negative_control_a_wrapper_that_keeps_the_token_is_refused(self):
+        self.plant("shell/repository/provision.sh", (WRAPPER_EXEC, "exec python3"))
+        self.assert_refused(
+            self.sandbox.run("provision-incus"), "SEMAPHORE_JWT is in the environment"
+        )
+        self.assertEqual(self.sandbox.platform.logins, [])
+
+    def test_destroy_takes_the_provider_role_of_the_recorded_line(self):
+        objects = self.sandbox.platform.objects
+        objects[STATE_OBJECT] = b"encrypted"
+        objects[RECORD_OBJECT] = self.provision_record()
+        result = self.sandbox.run("destroy-incus")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.sandbox.platform.logins, logins_of("incus"))
 
 
 class TestStateCleanup(ProvisionCase):
@@ -606,7 +979,7 @@ class TestStateCleanup(ProvisionCase):
 
     def test_destroy_deletes_the_state_and_its_lock_after_tofu_destroy(self):
         objects = self.plant()
-        result = self.sandbox.run("destroy")
+        result = self.sandbox.run("destroy-incus")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(sorted(objects), sorted(KEPT_OBJECTS))
         deletes = [
@@ -622,7 +995,7 @@ class TestStateCleanup(ProvisionCase):
     def test_negative_control_a_failed_destroy_keeps_the_state(self):
         objects = self.plant()
         self.sandbox.set_plan({"state": [], "outputs": {}, "fail": "destroy"})
-        result = self.sandbox.run("destroy")
+        result = self.sandbox.run("destroy-incus")
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertIn(STATE_OBJECT, objects)
         self.assertIn(RECORD_OBJECT, objects)
@@ -633,7 +1006,7 @@ class TestStateCleanup(ProvisionCase):
 
 class TestProvisionRecord(ProvisionCase):
     def provision(self):
-        result = self.sandbox.run("provision")
+        result = self.sandbox.run("provision-incus")
         self.assertEqual(result.returncode, 0, result.stderr)
         return result
 
@@ -658,7 +1031,7 @@ class TestProvisionRecord(ProvisionCase):
         catalogs["hetzner"]["cloud"] = catalogs["incus"]["cloud"]
 
     def assert_destroyed_with(self, recorded):
-        result = self.sandbox.run("destroy")
+        result = self.sandbox.run("destroy-incus")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertNotIn("live catalogs", result.stdout)
         texts = self.call("destroy")["texts"]
@@ -683,7 +1056,7 @@ class TestProvisionRecord(ProvisionCase):
 
     def test_a_failed_apply_still_leaves_the_record(self):
         self.sandbox.set_plan({"state": [], "outputs": {}, "fail": "apply"})
-        result = self.sandbox.run("provision")
+        result = self.sandbox.run("provision-incus")
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertIn(RECORD_OBJECT, self.sandbox.platform.objects)
 
@@ -699,7 +1072,7 @@ class TestProvisionRecord(ProvisionCase):
         recorded = self.sandbox.platform.objects[RECORD_OBJECT]
         self.change_catalogs(self.switch_to_hetzner)
         self.assert_refused(
-            self.sandbox.run("provision"),
+            self.sandbox.run("provision-hetzner"),
             "line SO-2026-1 was provisioned with incus",
             "the live catalogs now pick hetzner",
         )
@@ -712,7 +1085,7 @@ class TestProvisionRecord(ProvisionCase):
         self.assertNotEqual(planted, text)
         (self.sandbox.core / "python" / "provision.py").write_text(planted)
         self.change_catalogs(self.switch_to_hetzner)
-        result = self.sandbox.run("provision")
+        result = self.sandbox.run("provision-hetzner")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("apply", self.sandbox.commands())
 
@@ -751,11 +1124,11 @@ class TestProvisionRecord(ProvisionCase):
                 del self.sandbox.platform.objects[RECORD_OBJECT]
                 self.sandbox.platform.objects[STATE_OBJECT] = b"encrypted"
                 self.change_catalogs(change)
-                self.assert_refused(self.sandbox.run("destroy"), words)
+                self.assert_refused(self.sandbox.run("destroy-incus"), words)
 
     def test_destroy_without_a_record_falls_back_to_the_live_catalogs(self):
         self.sandbox.platform.objects[STATE_OBJECT] = b"encrypted"
-        result = self.sandbox.run("destroy")
+        result = self.sandbox.run("destroy-incus")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn(
             "SO-2026/1.provision.json is missing, so the destroy takes incus "
@@ -769,7 +1142,7 @@ class TestProvisionRecord(ProvisionCase):
         self.change_catalogs(self.offer_the_region_twice)
         for attempt in ("refund", "retry"):
             with self.subTest(attempt=attempt):
-                result = self.sandbox.run("destroy")
+                result = self.sandbox.run("destroy-incus")
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(
                     json.loads(result.stdout.splitlines()[-1]),
@@ -795,13 +1168,13 @@ class TestProvisionRecord(ProvisionCase):
         for document, words in cases.items():
             with self.subTest(document=document):
                 self.sandbox.platform.objects[RECORD_OBJECT] = document
-                self.assert_refused(self.sandbox.run("destroy"), words)
+                self.assert_refused(self.sandbox.run("destroy-incus"), words)
 
     def test_destroy_ends_with_the_addresses_it_destroyed(self):
         addresses = ["module.dns.dns_a_record_set.record[0]", "incus_instance.server"]
         self.sandbox.platform.objects[STATE_OBJECT] = b"encrypted"
         self.sandbox.set_plan({"state": addresses, "outputs": {}})
-        result = self.sandbox.run("destroy")
+        result = self.sandbox.run("destroy-incus")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(
             json.loads(result.stdout.splitlines()[-1]),
@@ -814,7 +1187,7 @@ class TestProvisionRecord(ProvisionCase):
         self.sandbox.set_plan(
             {"state": ["incus_instance.server"], "outputs": {}, "survivors": True}
         )
-        result = self.sandbox.run("destroy")
+        result = self.sandbox.run("destroy-incus")
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertIn("still holds resources after tofu destroy", result.stderr)
         self.assertIn(STATE_OBJECT, self.sandbox.platform.objects)

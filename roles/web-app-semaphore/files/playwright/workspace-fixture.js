@@ -13,6 +13,7 @@ const OUTPUT_TAIL_LINES = 30;
 const ERROR_BODY_CHARS = 300;
 const ROTATION_TEMPLATE = "rotate store credentials";
 const LATEST_CORE_VERSION = "latest";
+const PLATFORM_TOKENS = "true";
 const PLATFORM_MOUNT = "platform";
 const STORE_GITEA_PATH = "store/gitea";
 const REPOSITORY_BRANCH = "main";
@@ -454,6 +455,7 @@ async function openWorkspace(shared, browser, fixture, targets, label) {
       WORKSPACE_ACTION: "apply",
       WORKSPACE_CORE_VERSION: LATEST_CORE_VERSION,
       WORKSPACE_TARGETS: targets,
+      WORKSPACE_PLATFORM_TOKENS: PLATFORM_TOKENS,
     },
     label,
   );

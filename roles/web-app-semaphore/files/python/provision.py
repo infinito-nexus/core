@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import ctypes
 import fcntl
 import functools
 import json
@@ -12,9 +13,10 @@ import tempfile
 from pathlib import Path
 
 from provision import inputs, opentofu, provider_env, remote
-from provision.session import OPENTOFU, VALUES_FILE, Session
+from provision.session import OPENTOFU, VALUES_FILE, opened
 
 TEMPLATES = ("provision", "destroy", "unlock", "dns", "zone")
+ORDER_TEMPLATES = ("provision", "destroy")
 PROVISION_ROLE = "provision"
 ZONE_ROLE = "zone"
 ZONE_STATE = "{sales_order}/{line}.zone.tfstate"
@@ -22,6 +24,10 @@ ZONE_LOCK = "{workspace}.{sales_order}-{line}.zone"
 ZONE_OUTPUTS = ("zone", "zone_id", "status", "name_servers")
 ZONE_RESOURCE = "cloudflare_zone.zone"
 LOCKS = "provision-locks"
+TASK_JWT = "SEMAPHORE_JWT"
+TASK_JWT_FD = 3
+PR_GET_DUMPABLE = 3
+PR_SET_DUMPABLE = 4
 RECORD = "{sales_order}/{line}.provision.json"
 
 
@@ -98,6 +104,45 @@ def stage(task, root, flavor, workspace):
     (task / "workspace.json").write_text(json.dumps(workspace), encoding="utf-8")
 
 
+def provider_role(provider):
+    """Args:
+        provider: the provider the template pins.
+
+    Returns:
+        The suffix of the workspace's task token role that binds the template
+        and whose policy reads that provider's secrets and no other provider's.
+    """
+    return f"{PROVISION_ROLE}-{provider}"
+
+
+def pinned_provider(template, arguments, providers):
+    """Args:
+        template: the template the wrapper names.
+        arguments: the arguments after it.
+        providers: the providers of ``credentials.json``.
+
+    Returns:
+        ``(provider, rest)``: the provider a provision or destroy template
+        pins as its locked first argument, None for any other template, and
+        the arguments after it.
+    """
+    if template not in ORDER_TEMPLATES:
+        return None, arguments
+    if not arguments or arguments[0] not in providers:
+        raise inputs.RefusedError(
+            f"the {template} template pins no provider of {', '.join(providers)}"
+        )
+    return arguments[0], arguments[1:]
+
+
+def require_pinned(pinned, provider, line):
+    if provider != pinned:
+        raise inputs.RefusedError(
+            f"line {line} is on {provider}, but this template pins {pinned}; "
+            f"run the {provider} template of the workspace"
+        )
+
+
 def live_provider(config, interface, values):
     catalogs = inputs.load_catalogs(config["catalogs"], interface)
     provider = inputs.select_provider(catalogs, values)
@@ -126,7 +171,7 @@ def provision_provider(session, key, selected, line):
     return selected
 
 
-def order(template, env, checkout, interface, credentials, config):
+def order(template, pinned, env, checkout, interface, credentials, config):
     sales_order, line = inputs.order_line(env, interface)
     workspace = inputs.workspace_document(env, interface, config["flavor"])
     name = workspace["workspace"]
@@ -135,11 +180,12 @@ def order(template, env, checkout, interface, credentials, config):
     if template == "unlock":
         with workspace_lock(name, True), task_directory() as task:
             stage(task, OPENTOFU / "records", config["flavor"], workspace)
-            session = Session(
-                env, config, credentials, workspace, task, key, reach, PROVISION_ROLE
-            )
-            session.init()
-            session.unlock()
+            with opened(
+                env, config, credentials, workspace, task, key, PROVISION_ROLE
+            ) as session:
+                session.open(reach)
+                session.init()
+                session.unlock()
         return
     source = inputs.provider_token(env, interface)
     refused = inputs.refused_files(checkout)
@@ -151,11 +197,15 @@ def order(template, env, checkout, interface, credentials, config):
     selected = None
     if template == "provision":
         selected = live_provider(config, interface, values)
+        require_pinned(pinned, selected[0], values["name"])
     record_key = RECORD.format(sales_order=sales_order, line=line)
-    with workspace_lock(name, False), task_directory() as task:
-        session = Session(
-            env, config, credentials, workspace, task, key, reach, PROVISION_ROLE
-        )
+    with (
+        workspace_lock(name, False),
+        task_directory() as task,
+        opened(
+            env, config, credentials, workspace, task, key, provider_role(pinned)
+        ) as session,
+    ):
         if selected is None and session.holds_nothing(record_key):
             print(json.dumps(session.forget()))
             return
@@ -163,10 +213,12 @@ def order(template, env, checkout, interface, credentials, config):
             provider, catalog = destroy_provider(
                 session, record_key, config, interface, values
             )
+            require_pinned(pinned, provider, values["name"])
         else:
             provider, catalog = provision_provider(
                 session, record_key, selected, values["name"]
             )
+        session.open(reach)
         stage(task, OPENTOFU / "roots" / provider, config["flavor"], workspace)
         (task / "catalog.json").write_text(json.dumps(catalog), encoding="utf-8")
         (task / VALUES_FILE).write_text(json.dumps(values), encoding="utf-8")
@@ -193,19 +245,22 @@ def record(env, interface, credentials, config):
         values = {key: request[key] for key in ("dns_label", "host", "cname")}
         (task / VALUES_FILE).write_text(json.dumps(values), encoding="utf-8")
         reach = credentials["dns"][config["flavor"]]
-        session = Session(
-            env, config, credentials, workspace, task, key, reach, PROVISION_ROLE
-        )
-        session.init()
-        if request["action"] == "create":
-            unclaimed = functools.partial(session.refuse_taken, request["dns_label"])
-            print(json.dumps(session.apply(unclaimed)))
-        elif request["action"] == "unlock":
-            session.unlock()
-        elif session.empty():
-            print(json.dumps(session.forget()))
-        else:
-            print(json.dumps(session.destroy()))
+        with opened(
+            env, config, credentials, workspace, task, key, PROVISION_ROLE
+        ) as session:
+            session.open(reach)
+            session.init()
+            if request["action"] == "create":
+                unclaimed = functools.partial(
+                    session.refuse_taken, request["dns_label"]
+                )
+                print(json.dumps(session.apply(unclaimed)))
+            elif request["action"] == "unlock":
+                session.unlock()
+            elif session.empty():
+                print(json.dumps(session.forget()))
+            else:
+                print(json.dumps(session.destroy()))
 
 
 def reached_field(session, reach, field):
@@ -367,11 +422,12 @@ def zone_lifecycle(env, interface, credentials, config):
         )
         values = task / VALUES_FILE
         values.write_text(json.dumps({"domain": domain}), "utf-8")
-        session = Session(
-            env, config, credentials, workspace, task, key, reach, ZONE_ROLE
-        )
-        session.init()
-        handler(session, reach, values, domain)
+        with opened(
+            env, config, credentials, workspace, task, key, ZONE_ROLE
+        ) as session:
+            session.open(reach)
+            session.init()
+            handler(session, reach, values, domain)
 
 
 def _terminate(signum, _frame):
@@ -388,22 +444,25 @@ def _over_budget(_signum, _frame):
 def dispatch(template, extra, env, checkout):
     if template not in TEMPLATES:
         raise inputs.RefusedError(f"names no template of {', '.join(TEMPLATES)}")
-    if extra:
-        raise inputs.RefusedError(f"unexpected argument {extra[0]!r}")
     interface = json.loads((OPENTOFU / "interface.json").read_text("utf-8"))
     credentials = json.loads((OPENTOFU / "credentials.json").read_text("utf-8"))
+    pinned, extra = pinned_provider(template, extra, credentials["providers"])
+    if extra:
+        raise inputs.RefusedError(f"unexpected argument {extra[0]!r}")
     config = configuration(env)
     if template == "dns":
         record(env, interface, credentials, config)
     elif template == "zone":
         zone_lifecycle(env, interface, credentials, config)
     else:
-        order(template, env, checkout, interface, credentials, config)
+        order(template, pinned, env, checkout, interface, credentials, config)
 
 
 def main(argv, env, checkout):
     """Args:
-        argv: ``[script, template, *extra]``; the wrapper names the template.
+        argv: ``[script, template, *extra]``; the wrapper names the template,
+            and a provision or destroy template pins its provider as the
+            first of ``extra``.
         env: the task environment.
         checkout: the workspace checkout Semaphore runs the template in.
 
@@ -429,6 +488,42 @@ def main(argv, env, checkout):
     return 0
 
 
+def task_token(descriptor):
+    """Args:
+        descriptor: the file descriptor the wrapper hands the task token on.
+
+    Returns:
+        The task token, read once; the descriptor is closed after it.
+    """
+    with os.fdopen(descriptor, encoding="utf-8") as handle:
+        return handle.read().strip()
+
+
+def undumpable():
+    """Returns:
+        Once the process is no longer dumpable, so a process of the same uid,
+        an OpenTofu plugin among them, reads neither its memory nor its
+        environment through ``/proc``; ``execve`` gives OpenTofu its own flag.
+
+    Raises:
+        OSError: the kernel refused or kept the process dumpable.
+    """
+    libc = ctypes.CDLL(None, use_errno=True)
+    if libc.prctl(PR_SET_DUMPABLE, 0, 0, 0, 0) != 0:
+        raise OSError(ctypes.get_errno(), "prctl(PR_SET_DUMPABLE, 0) failed")
+    if libc.prctl(PR_GET_DUMPABLE, 0, 0, 0, 0) != 0:
+        raise OSError("prctl(PR_SET_DUMPABLE, 0) left the process dumpable")
+
+
 if __name__ == "__main__":
     signal.signal(signal.SIGTERM, _terminate)
-    sys.exit(main(sys.argv, dict(os.environ), Path.cwd()))
+    undumpable()
+    if TASK_JWT in os.environ:
+        print(
+            f"provision.py: refused: {TASK_JWT} is in the environment; the "
+            f"wrapper hands it on descriptor {TASK_JWT_FD}",
+            file=sys.stderr,
+        )
+        sys.exit(2)
+    jwt = task_token(TASK_JWT_FD)
+    sys.exit(main(sys.argv, {**os.environ, TASK_JWT: jwt}, Path.cwd()))

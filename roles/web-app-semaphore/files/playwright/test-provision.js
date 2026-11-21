@@ -49,7 +49,7 @@ const PROVISION_SCRIPT = "roles/web-app-semaphore/files/shell/repository/provisi
 const LOGIN_PROBE_SCRIPT = [
   "set -uo pipefail",
   'export SALES_ORDER="$1" LINE="$2" PROVIDER_TOKEN="$3"',
-  `"\${INFINITO_SRC_DIR}/${PROVISION_SCRIPT}"`,
+  `"\${INFINITO_SRC_DIR}/${PROVISION_SCRIPT}" "$4"`,
   "printf 'PROBE exit %s\\n' \"$?\"",
   "",
 ].join("\n");
@@ -66,7 +66,8 @@ const JWT_MOUNT = "jwt";
 const STORE_SEMAPHORE_PATH = "store/semaphore";
 const GUEST = "guest";
 const RUN_AND_READ = 1 | 128;
-const PLATFORM_KINDS = ["provision", "destroy", "unlock", "dns", "zone"];
+const ORDER_ACTIONS = ["provision", "destroy"];
+const SHARED_KINDS = ["unlock", "dns", "zone"];
 const ZONE_MS = 10 * 60_000;
 const ZONE_KEYS = ["name_servers", "status", "zone", "zone_id"];
 const ENVELOPE_KEYS = ["encrypted_data", "encryption_version"];
@@ -84,6 +85,20 @@ const PROVISION_PATHS = (workspace) => [
   `${PLATFORM_MOUNT}/data/provision/cloudflare-zones`,
 ];
 const CUSTOMER_TOKEN_PATH = (workspace, provider) => `ws-${workspace}-provision/providers/${provider}`;
+const ALL_PROVIDERS = ["hetzner", "ionos", "scs", "proxmox", "incus"];
+const PROBE_HOST = "probe";
+const FOREIGN_ZONE = "example.net";
+const PROBE_RUN_FIELDS = ["app", "playbook", "arguments", "repository_id", "inventory_id", "survey_vars"];
+const FOREIGN_PROVIDER_PATHS = (workspace, provider) => [
+  ...ALL_PROVIDERS.filter((other) => other !== provider).flatMap((other) => [
+    `${PLATFORM_MOUNT}/data/provision/${other}`,
+    `${PLATFORM_MOUNT}/data/provision/${other}-${PROBE_HOST}`,
+    `${TENANT_MOUNT}/data/ws-${workspace}-provision/${other}`,
+    `${TENANT_MOUNT}/data/${CUSTOMER_TOKEN_PATH(workspace, other)}`,
+  ]),
+  `${PLATFORM_MOUNT}/data/provision/cloudflare-zones`,
+  `${PLATFORM_MOUNT}/data/provision/cloudflare/${FOREIGN_ZONE}`,
+];
 const SCS_REGION_KEYS = ["auth_url", "region", "network"];
 const SCS_COMPUTE = "compute";
 const SCS_INTERFACE = "public";
@@ -111,6 +126,24 @@ const ISOLATION_PROBE_SCRIPT = [
   `curl -sS -o /dev/null ${CURL_CA} -X POST -H "X-Vault-Token: \${token}" "\${origin}/v1/auth/token/revoke-self"`,
   "",
 ].join("\n");
+const LOGIN_STATUS_SCRIPT = [
+  "set -euo pipefail",
+  'origin="$1"; cafile="$2"; shift 2',
+  'cacert=(); if [ -f "${cafile}" ]; then cacert=(--cacert "${cafile}"); fi',
+  'answer="$(mktemp)"',
+  'for role in "$@"; do',
+  "  body=$(python3 -c 'import json, os, sys; print(json.dumps({\"role\": sys.argv[1], \"jwt\": os.environ[\"SEMAPHORE_JWT\"]}))' \"${role}\")",
+  `  status=$(printf '%s' "\${body}" | curl -sS ${CURL_CA} -o "\${answer}" -w '%{http_code}' -X POST -H 'Content-Type: application/json' --data @- "\${origin}/v1/auth/${JWT_MOUNT}/login")`,
+  "  printf 'PROBE login %s %s\\n' \"${role}\" \"${status}\"",
+  '  if [ "${status}" = 200 ]; then',
+  `    token=$(python3 -c 'import json, sys; print(json.load(sys.stdin)["auth"]["client_token"])' < "\${answer}")`,
+  `    curl -sS -o /dev/null ${CURL_CA} -X POST -H "X-Vault-Token: \${token}" "\${origin}/v1/auth/token/revoke-self"`,
+  "  fi",
+  "done",
+  'rm -f "${answer}"',
+  "",
+].join("\n");
+const LOGIN_REFUSED = ["400", "403"];
 
 /**
  * Args:
@@ -549,15 +582,15 @@ function pinnedOpentofu() {
  *
  * Returns:
  *   Every catalog region of the provider that names each of the keys, as
- *   `flavor`, `region`, its catalog entry `place` and the first `size` of
- *   the flavor.
+ *   `provider`, `flavor`, `region`, its catalog entry `place` and the first
+ *   `size` of the flavor.
  */
 function catalogOffers(provider, keys) {
   const catalog = JSON.parse(requireDotenvValue(process.env.PROVISION_CATALOGS_JSON, "PROVISION_CATALOGS_JSON"))[provider] || {};
   return Object.entries(catalog).flatMap(([flavor, entry]) =>
     Object.entries(entry.regions || {})
       .filter(([, place]) => keys.every((key) => Boolean(place[key])))
-      .map(([region, place]) => ({ flavor, region, place, size: Object.keys(entry.sizes || {})[0] })),
+      .map(([region, place]) => ({ provider, flavor, region, place, size: Object.keys(entry.sizes || {})[0] })),
   );
 }
 
@@ -684,10 +717,12 @@ function templateOf(fixture, name) {
 /**
  * Args:
  *   fixture: the result of `workspaces.openWorkspace`.
- *   kind: provision, destroy, unlock, dns or zone.
+ *   kind: unlock, dns, zone, or `<action>-<provider>` for the provision and
+ *     destroy template of one provider.
  *
  * Returns:
- *   The identity of the workspace's template of that kind in the provision project.
+ *   The identity of the workspace's template of that kind in the provision
+ *   project. Every template there runs with the same environment and runner.
  */
 function platformTemplate(fixture, kind) {
   return templateOf(fixture, `${kind} ws-${fixture.workspace}`);
@@ -695,9 +730,35 @@ function platformTemplate(fixture, kind) {
 
 /**
  * Args:
+ *   action: provision or destroy.
+ *   order: an order line `commitValues` committed, which names its provider.
+ *
+ * Returns:
+ *   The kind of the template of that action that pins the line's provider.
+ */
+function orderKind(action, order) {
+  expect(order.provider, `${LABEL}: ${order.name} must name the provider its values were committed for`).toBeTruthy();
+  return `${action}-${order.provider}`;
+}
+
+/**
+ * Args:
+ *   fixture: the result of `workspaces.openWorkspace`.
+ *   action: provision or destroy.
+ *   order: an order line `commitValues` committed.
+ *
+ * Returns:
+ *   The identity of the template of `orderKind`.
+ */
+function orderTemplate(fixture, action, order) {
+  return platformTemplate(fixture, orderKind(action, order));
+}
+
+/**
+ * Args:
  *   shared: the role's shared helpers.
  *   fixture: the result of `workspaces.openWorkspace`.
- *   kind: provision, destroy, unlock, dns or zone.
+ *   kind: a kind of `platformTemplate`.
  *   survey: the survey answers.
  *   runMs: the longest the task may run, before timeout scaling.
  *   what: the run the failure messages name.
@@ -719,7 +780,7 @@ async function runPlatform(shared, fixture, kind, survey, runMs, what) {
  *   `zone` and `zoneId` of the environment workspace apply wrote for the provision templates.
  */
 async function workspaceDns(shared, fixture) {
-  const identity = platformTemplate(fixture, "provision");
+  const identity = platformTemplate(fixture, "unlock");
   const environment = await shared.api(fixture.page, "GET", `/project/${identity.project_id}/environment/${identity.environment_id}`);
   const variables = JSON.parse(environment.env || "{}");
   expect(variables.WORKSPACE, `${LABEL}: the provision environment must name the workspace ws-${fixture.workspace}`).toBe(
@@ -739,8 +800,11 @@ async function workspaceDns(shared, fixture) {
  *
  * Returns:
  *   The commit that carries `provision/<SALES_ORDER>-<LINE>.tfvars.json`.
+ *   The order takes the offer's `provider`, the one its provision and
+ *   destroy templates pin.
  */
 function commitValues(fixture, order, offer) {
+  order.provider = offer.provider;
   return workspaces.commitWorkspaceFile(
     fixture,
     `provision/${order.name}.tfvars.json`,
@@ -804,7 +868,7 @@ async function provision(shared, fixture, order) {
  *   The outputs of a successful provision.
  */
 async function provisionWith(shared, fixture, order, survey) {
-  const run = await runPlatform(shared, fixture, "provision", survey, PROVISION_MS, `provision of ${order.name} in ws-${fixture.workspace}`);
+  const run = await runPlatform(shared, fixture, orderKind("provision", order), survey, PROVISION_MS, `provision of ${order.name} in ws-${fixture.workspace}`);
   workspaces.expectSucceeded(run, run.what);
   return outputsOf(run);
 }
@@ -833,7 +897,7 @@ async function destroy(shared, fixture, order) {
  *   The successful destroy run.
  */
 async function destroyWith(shared, fixture, order, survey) {
-  const run = await runPlatform(shared, fixture, "destroy", survey, DESTROY_MS, `destroy of ${order.name} in ws-${fixture.workspace}`);
+  const run = await runPlatform(shared, fixture, orderKind("destroy", order), survey, DESTROY_MS, `destroy of ${order.name} in ws-${fixture.workspace}`);
   workspaces.expectSucceeded(run, run.what);
   return run;
 }
@@ -1244,7 +1308,7 @@ async function serverLifecycle(shared, browser, provider) {
     await commitValues(fixture, order, offer);
     cleanup(() => destroy(shared, fixture, order));
     expect(
-      platformTemplate(fixture, "provision").environment_variables.filter((name) => INSECURE.test(name)),
+      orderTemplate(fixture, "provision", order).environment_variables.filter((name) => INSECURE.test(name)),
       `${LABEL}: the provision template of ws-${fixture.workspace} must carry no variable that turns certificate checks off`,
     ).toEqual([]);
     const target = await serverTarget(fixture, provider, offer);
@@ -1358,16 +1422,13 @@ function expectEncryptedState(text, plaintexts, what) {
  */
 async function workspaceProbe(shared, fixture, paths) {
   const control = OWN_TENANT_PATH(fixture.workspace);
-  const provision = platformTemplate(fixture, "provision");
-  const provisionEnvironment = await shared.api(fixture.page, "GET", `/project/${provision.project_id}/environment/${provision.environment_id}`);
-  const provisionVariables = JSON.parse(provisionEnvironment.env || "{}");
   const what = `${LABEL}: isolation probe in ws-${fixture.workspace}`;
   const run = await workspaces.runProbe(
     shared,
     fixture,
     fixture.result.project_id,
     ISOLATION_PROBE_SCRIPT,
-    [provisionVariables.BAO_ADDR || openbaoOrigin(), provisionVariables.PROVISION_CA_FILE || NO_CA_FILE, `ws-${fixture.workspace}`, control, ...paths],
+    [...(await openbaoReach(shared, fixture)), `ws-${fixture.workspace}`, control, ...paths],
     what,
   );
   workspaces.expectSucceeded(run, what);
@@ -1375,6 +1436,96 @@ async function workspaceProbe(shared, fixture, paths) {
   expect(own, `${what}: the token of ws-${fixture.workspace} must reach its own tenant path ${control}`).toBe("404");
   expect(Object.keys(statuses).sort(), `${what}: the probe must report one OpenBao status per path`).toEqual([...paths].sort());
   return { names: probeLines(run, "env"), statuses, what };
+}
+
+/**
+ * Args:
+ *   shared: the role's shared helpers.
+ *   fixture: the result of `workspaces.openWorkspace`.
+ *
+ * Returns:
+ *   `[origin, cafile]` of OpenBao as the provision environment names them,
+ *   the first two arguments of the probe scripts.
+ */
+async function openbaoReach(shared, fixture) {
+  const identity = platformTemplate(fixture, "unlock");
+  const environment = await shared.api(fixture.page, "GET", `/project/${identity.project_id}/environment/${identity.environment_id}`);
+  const variables = JSON.parse(environment.env || "{}");
+  return [variables.BAO_ADDR || openbaoOrigin(), variables.PROVISION_CA_FILE || NO_CA_FILE];
+}
+
+/**
+ * Args:
+ *   shared: the role's shared helpers.
+ *   fixture: the result of `workspaces.openWorkspace`.
+ *   kind: the `platformTemplate` kind whose task token the probe carries.
+ *   script: the probe script.
+ *   args: its arguments.
+ *   what: the run the failure messages name.
+ *
+ * Returns:
+ *   The finished task. The template runs the probe script of its project
+ *   for this one task, so the task token names that template, and gets its
+ *   own run definition back afterwards.
+ */
+async function asTemplate(shared, fixture, kind, script, args, what) {
+  const identity = platformTemplate(fixture, kind);
+  const project = identity.project_id;
+  const original = await shared.api(fixture.page, "GET", `/project/${project}/templates/${identity.template_id}`);
+  const probe = await workspaces.namedTemplate(shared, fixture.page, project, `probe ${fixture.result.alias}`);
+  await shared.api(fixture.page, "PUT", `/project/${project}/templates/${original.id}`, {
+    ...original,
+    ...Object.fromEntries(PROBE_RUN_FIELDS.map((field) => [field, probe[field]])),
+  });
+  try {
+    return await workspaces.runTemplate(shared, fixture.page, project, original.id, { PROBE_SCRIPT: script, PROBE_ARGS: args.join(" ") }, PROBE_MS, what);
+  } finally {
+    await shared.api(fixture.page, "PUT", `/project/${project}/templates/${original.id}`, original);
+  }
+}
+
+/**
+ * Args:
+ *   shared: the role's shared helpers.
+ *   fixture: the result of `workspaces.openWorkspace`.
+ *   provider: the provider whose provision template carries the task token.
+ *   paths: the OpenBao API paths the probe reads.
+ *
+ * Returns:
+ *   `statuses`, the HTTP status OpenBao answered a task of the provider's
+ *   provision template, logged in with that provider's role, per path,
+ *   after the state keys of the workspace answered 200.
+ */
+async function provisionProbe(shared, fixture, provider, paths) {
+  const control = `${TENANT_MOUNT}/data/ws-${fixture.workspace}-provision/s3`;
+  const role = `ws-${fixture.workspace}-provision-${provider}`;
+  const what = `${LABEL}: provision-${provider} task of ws-${fixture.workspace} logged in as ${role}`;
+  const args = [...(await openbaoReach(shared, fixture)), role, control, ...paths];
+  const run = await asTemplate(shared, fixture, `provision-${provider}`, ISOLATION_PROBE_SCRIPT, args, what);
+  workspaces.expectSucceeded(run, what);
+  const { [control]: own, ...statuses } = Object.fromEntries(probeLines(run, "status").map((line) => line.split(" ")));
+  expect(own, `${what}: the token of ${role} must read the state keys ${control}`).toBe("200");
+  expect(Object.keys(statuses).sort(), `${what}: the probe must report one OpenBao status per path`).toEqual([...paths].sort());
+  return { statuses, what };
+}
+
+/**
+ * Args:
+ *   shared: the role's shared helpers.
+ *   fixture: the result of `workspaces.openWorkspace`.
+ *   kind: the `platformTemplate` kind whose task token the probe carries.
+ *   roles: the task token roles of the jwt mount the probe logs in to.
+ *
+ * Returns:
+ *   `logins`, the HTTP status OpenBao answered the task token per role.
+ */
+async function loginProbe(shared, fixture, kind, roles) {
+  const what = `${LABEL}: ${kind} task of ws-${fixture.workspace} logging in to each provision role`;
+  const run = await asTemplate(shared, fixture, kind, LOGIN_STATUS_SCRIPT, [...(await openbaoReach(shared, fixture)), ...roles], what);
+  workspaces.expectSucceeded(run, what);
+  const logins = Object.fromEntries(probeLines(run, "login").map((line) => line.split(" ")));
+  expect(Object.keys(logins).sort(), `${what}: the probe must report one login status per role`).toEqual([...roles].sort());
+  return { logins, what };
 }
 
 function u16(value) {
@@ -1569,7 +1720,7 @@ exports.register = function (shared) {
     expect(atLeast(pinned, MINIMUM_OPENTOFU), `${LABEL}: the pinned OpenTofu ${pinned} must be ${MINIMUM_OPENTOFU.join(".")} or newer`).toBe(true);
     test.setTimeout(resolveTimeout(BASE_MS + PROBE_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture) => {
-      const identity = platformTemplate(fixture, "provision");
+      const identity = platformTemplate(fixture, "unlock");
       const what = `${LABEL}: tofu version on the runner ${identity.runner_tag}`;
       const run = await workspaces.runProbe(shared, fixture, identity.project_id, "tofu version", [], what);
       workspaces.expectSucceeded(run, what);
@@ -1597,7 +1748,7 @@ exports.register = function (shared) {
       await commitValues(fixture, order, offer);
       cleanup(() => destroy(shared, fixture, order));
       const target = await serverTarget(fixture, provider, offer);
-      const identity = platformTemplate(fixture, "provision");
+      const identity = orderTemplate(fixture, "provision", order);
       const ids = [
         await workspaces.startTask(shared, fixture.page, identity.project_id, identity.template_id, providerSurvey(order)),
         await workspaces.startTask(shared, fixture.page, identity.project_id, identity.template_id, providerSurvey(order)),
@@ -1646,7 +1797,7 @@ exports.register = function (shared) {
 
       await commitValues(fixture, running, await placement(fixture.context, provider));
       cleanup(() => destroy(shared, fixture, running));
-      const identity = platformTemplate(fixture, "provision");
+      const identity = orderTemplate(fixture, "provision", running);
       const taskId = await workspaces.startTask(shared, fixture.page, identity.project_id, identity.template_id, providerSurvey(running));
       try {
         await awaitLine(shared, fixture.page, identity.project_id, taskId, new RegExp(INITIALIZED), PROVISION_MS, `${LABEL}: provision of ${running.name}`);
@@ -1755,7 +1906,14 @@ exports.register = function (shared) {
 
       await commitValues(fixture, server, await placement(fixture.context, provider));
       cleanup(() => destroy(shared, fixture, server));
-      const provisioned = await runPlatform(shared, fixture, "provision", providerSurvey(server), PROVISION_MS, `${LABEL}: provision of ${server.name} on ${fqdn}`);
+      const provisioned = await runPlatform(
+        shared,
+        fixture,
+        orderKind("provision", server),
+        providerSurvey(server),
+        PROVISION_MS,
+        `${LABEL}: provision of ${server.name} on ${fqdn}`,
+      );
       workspaces.expectRefused(provisioned, refusal, provisioned.what);
       expect(
         await state.exists(`${server.salesOrder}/${server.line}.tfstate`),
@@ -1877,7 +2035,7 @@ exports.register = function (shared) {
         const run = await runPlatform(
           shared,
           other,
-          "provision",
+          orderKind("provision", order),
           providerSurvey(order),
           PROVISION_MS,
           `${LABEL}: provision of ${order.name} in ws-${other.workspace} over the state of ws-${fixture.workspace}`,
@@ -1896,8 +2054,8 @@ exports.register = function (shared) {
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture) => {
       const order = orderLine(freshSalesOrder(), "1");
       await commitValues(fixture, order, await placement(fixture.context, provider));
-      const identity = platformTemplate(fixture, "provision");
-      const what = `${LABEL}: provision of ${order.name} from the probe ws-${fixture.workspace}, which the OpenBao role ws-${fixture.workspace}-provision does not bind`;
+      const identity = orderTemplate(fixture, "provision", order);
+      const what = `${LABEL}: provision of ${order.name} from the probe ws-${fixture.workspace}, which the OpenBao role ws-${fixture.workspace}-provision-${order.provider} does not bind`;
       const survey = providerSurvey(order);
       const run = {
         ...(await workspaces.runProbe(
@@ -1905,7 +2063,7 @@ exports.register = function (shared) {
           fixture,
           identity.project_id,
           LOGIN_PROBE_SCRIPT,
-          [survey.SALES_ORDER, survey.LINE, survey.PROVIDER_TOKEN],
+          [survey.SALES_ORDER, survey.LINE, survey.PROVIDER_TOKEN, order.provider],
           what,
         )),
         what,
@@ -1947,20 +2105,59 @@ exports.register = function (shared) {
     });
   });
 
+  test("provision isolation: a provider template's task token logs in to its own provider role only", async ({ browser }) => {
+    workspaces.requireWorkspaces(shared);
+    const kinds = [...ALL_PROVIDERS.map((provider) => ["provision", provider]), ["destroy", ALL_PROVIDERS[0]]];
+    test.setTimeout(resolveTimeout(BASE_MS + kinds.length * PROBE_MS));
+    await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture) => {
+      const roles = [
+        `ws-${fixture.workspace}-provision`,
+        `ws-${fixture.workspace}-zone`,
+        ...ALL_PROVIDERS.map((provider) => `ws-${fixture.workspace}-provision-${provider}`),
+      ];
+      for (const [action, provider] of kinds) {
+        const own = `ws-${fixture.workspace}-provision-${provider}`;
+        const { logins, what } = await loginProbe(shared, fixture, `${action}-${provider}`, roles);
+        expect(logins[own], `${what}: the task token of ${action}-${provider} must log in to ${own}`).toBe("200");
+        for (const role of roles.filter((candidate) => candidate !== own)) {
+          expect(LOGIN_REFUSED, `${what}: OpenBao must refuse the task token of ${action}-${provider} on ${role}, it answered ${logins[role]}`).toContain(
+            logins[role],
+          );
+        }
+      }
+    });
+  });
+
+  test("provision isolation: a provision task reads no foreign provider secret", async ({ browser }) => {
+    workspaces.requireWorkspaces(shared);
+    test.setTimeout(resolveTimeout(BASE_MS + PROVIDERS.length * PROBE_MS));
+    await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture) => {
+      for (const provider of PROVIDERS) {
+        const paths = FOREIGN_PROVIDER_PATHS(fixture.workspace, provider);
+        const probe = await provisionProbe(shared, fixture, provider, paths);
+        expect(
+          probe.statuses,
+          `${probe.what}: OpenBao must answer 403 on every secret of another provider, on the zone token and on the DNS token of another zone`,
+        ).toEqual(Object.fromEntries(paths.map((path) => [path, "403"])));
+      }
+    });
+  });
+
   test("provision rights: the store runs and reads its granted templates and changes none", async ({ browser }) => {
     workspaces.requireWorkspaces(shared);
     test.setTimeout(resolveTimeout(BASE_MS + 2 * PROVISION_MS + 10 * REQUEST_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture) => {
       const token = await storeSemaphoreToken(fixture.context);
       const store = (method, path, data) => asStore(shared, fixture.context, token, method, path, data);
-      const identity = platformTemplate(fixture, "provision");
+      const kind = `provision-${ALL_PROVIDERS[0]}`;
+      const identity = platformTemplate(fixture, kind);
       const project = identity.project_id;
       const order = orderLine(freshSalesOrder(), "1");
       const started = await store("POST", `/project/${project}/tasks`, {
         template_id: identity.template_id,
         environment: JSON.stringify(providerSurvey(order)),
       });
-      await workspaces.expectStatus(started, [200, 201], `${LABEL}: the store's task of provision ws-${fixture.workspace}`);
+      await workspaces.expectStatus(started, [200, 201], `${LABEL}: the store's task of ${kind} ws-${fixture.workspace}`);
       const taskId = (await started.json()).id;
       try {
         await workspaces.awaitTask(shared, fixture.page, project, taskId, PROVISION_MS, `${LABEL}: the store's task ${taskId}`);
@@ -1991,7 +2188,8 @@ exports.register = function (shared) {
     test.setTimeout(resolveTimeout(BASE_MS + 10 * REQUEST_MS));
     await workspaces.withWorkspace(shared, browser, LABEL, "", async (fixture) => {
       const token = await storeSemaphoreToken(fixture.context);
-      const identities = PLATFORM_KINDS.map((kind) => platformTemplate(fixture, kind));
+      const kinds = [...ORDER_ACTIONS.flatMap((action) => ALL_PROVIDERS.map((provider) => `${action}-${provider}`)), ...SHARED_KINDS];
+      const identities = kinds.map((kind) => platformTemplate(fixture, kind));
       for (const identity of identities) {
         expect(await grantsOf(fixture.page, identity), `${LABEL}: apply must grant ${GUEST} run and read on template ${identity.template_id}`).toEqual([
           [GUEST, RUN_AND_READ],
@@ -2003,7 +2201,7 @@ exports.register = function (shared) {
         template_id: provisionIdentity.template_id,
         environment: JSON.stringify(providerSurvey(orderLine(freshSalesOrder(), "1"))),
       });
-      await workspaces.expectStatus(refused, [403, 404], `${LABEL}: the store's task of provision ws-${fixture.workspace} after destroy`);
+      await workspaces.expectStatus(refused, [403, 404], `${LABEL}: the store's task of ${kinds[0]} ws-${fixture.workspace} after destroy`);
       for (const identity of identities) {
         expect(await grantsOf(fixture.page, identity), `${LABEL}: destroy must leave no grant on template ${identity.template_id}`).toEqual([]);
       }

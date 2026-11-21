@@ -4,6 +4,7 @@
 # Param: WORKSPACE_RESULT_FILE  - file the operation writes its result to for workspace.sh
 # Param: WORKSPACE_CORE_VERSION - apply only: the released core version of the workspace runner, without v
 # Param: WORKSPACE_TARGETS      - apply only: the pinned targets of the workspace, [{host, port, address}]
+# Param: WORKSPACE_PLATFORM_TOKENS - apply only: true or false, whether the provider policies of the workspace read the platform provider tokens
 - name: "Run one workspace operation on the platform hosts"
   hosts: all
   any_errors_fatal: true

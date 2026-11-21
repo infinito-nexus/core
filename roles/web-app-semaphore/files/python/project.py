@@ -155,6 +155,7 @@ WORKSPACES_TEMPLATES = (
             ("WORKSPACE_ACTION", True),
             ("WORKSPACE_CORE_VERSION", False),
             ("WORKSPACE_TARGETS", False),
+            ("WORKSPACE_PLATFORM_TOKENS", False),
         ),
     },
     {
@@ -194,17 +195,19 @@ WORKSPACES_SCHEDULED_TEMPLATES = (
     },
 )
 PROVIDER_SURVEY = (("PROVIDER_TOKEN", True),)
+PROVISION_PROVIDERS = ("hetzner", "incus", "ionos", "proxmox", "scs")
+ORDER_ACTIONS = ("provision", "destroy")
 PROVISION_TEMPLATES = (
-    {
-        "name": "provision",
-        "script": "provision.sh",
-        "survey": ORDER_SURVEY + PROVIDER_SURVEY,
-    },
-    {
-        "name": "destroy",
-        "script": "destroy.sh",
-        "survey": ORDER_SURVEY + PROVIDER_SURVEY,
-    },
+    *(
+        {
+            "name": f"{action}-{provider}",
+            "script": f"{action}.sh",
+            "arguments": [provider],
+            "survey": ORDER_SURVEY + PROVIDER_SURVEY,
+        }
+        for action in ORDER_ACTIONS
+        for provider in PROVISION_PROVIDERS
+    ),
     {
         "name": "unlock",
         "script": "unlock.sh",
@@ -1802,7 +1805,7 @@ def ensure_probe(api, project_id, name, scripts, refs, changes):
     )
 
 
-def apply_workspace(api, spec, changes):
+def apply_workspace(api, spec, changes, sleep):
     """Args:
     api: the client.
     spec: ``workspace`` (``id``, ``alias``, ``project_hint``), ``store``
@@ -1815,6 +1818,8 @@ def apply_workspace(api, spec, changes):
         only in a test runtime, where every project of the workspace gets
         the locked probe template.
     changes: the change log this call appends to.
+    sleep: ``time.sleep`` or a stand-in, for the stop of a pruned template's
+        tasks.
 
     Returns:
         ``result``, the object the operation prints as its last line, and
@@ -1911,7 +1916,9 @@ def apply_workspace(api, spec, changes):
             ensure_grant(api, platform_id, template_id, GUEST, changes)
             ids.setdefault(kind, {})[entry["name"]] = template_id
             runs.append((platform_id, template_id))
+        kept = {f"{entry['name']} {alias}" for entry in PLATFORM_TEMPLATES[kind]}
         if spec["probe"] is True:
+            kept.add(f"{PROBE_TEMPLATE['name']} {alias}")
             ensure_probe(
                 api,
                 platform_id,
@@ -1920,6 +1927,7 @@ def apply_workspace(api, spec, changes):
                 project_refs,
                 changes,
             )
+        prune_workspace_templates(api, platform_id, alias, kept, changes, sleep)
     for platform_id, key in stale:
         delete_quietly(
             api,
@@ -1943,16 +1951,44 @@ def apply_workspace(api, spec, changes):
                 "template_id"
             ],
             "provision_project_id": platform["provision"],
-            "provision_templates": {
-                name: ids["provision"][name]
-                for name in ("provision", "destroy", "unlock")
+            "provider_templates": {
+                provider: {
+                    action: ids["provision"][f"{action}-{provider}"]
+                    for action in ORDER_ACTIONS
+                }
+                for provider in PROVISION_PROVIDERS
             },
+            "unlock_template_id": ids["provision"]["unlock"],
             "dns_template_id": ids["provision"]["dns"],
             "zone_template_id": ids["provision"]["zone"],
             "export_project_id": platform["export"],
             "export_template_id": ids["export"]["export"],
         },
     }
+
+
+def prune_workspace_templates(api, project_id, alias, kept, changes, sleep):
+    """Remove the templates of a workspace that an earlier template set left,
+    once :func:`stop_tasks` stopped their unfinished tasks.
+
+    Args:
+        api: the client.
+        project_id: a platform project.
+        alias: ``ws-<id>``, the end of each template name of the workspace there.
+        kept: the names of the workspace's templates there that stay.
+        changes: the change log this call appends to.
+        sleep: ``time.sleep`` or a stand-in.
+    """
+    path = f"/project/{project_id}/templates"
+    pruned = [
+        template
+        for template in api.call("GET", path)
+        if template["name"].endswith(f" {alias}") and template["name"] not in kept
+    ]
+    stop_tasks(api, [(project_id, t["id"]) for t in pruned], changes, sleep)
+    for template in pruned:
+        api.call("DELETE", f"{path}/{template['id']}")
+        changes.append(f"template {template['name']} of project {project_id} removed")
 
 
 def delete_quietly(api, path, what, changes):
@@ -2022,7 +2058,7 @@ def wait_until_finished(api, tasks, sleep):
     ids = ", ".join(str(task_id) for _, task_id in pending)
     raise ApiError(
         f"the tasks {ids} are still unfinished {STOP_TIMEOUT} seconds after their "
-        "stop, so destroy keeps the workspace's projects"
+        "stop, so the templates they run are kept"
     )
 
 
@@ -2149,7 +2185,7 @@ def run_workspace(api, spec, sleep):
         return changes, {
             "result": {"workspace": spec["workspace"]["id"], "stopped_tasks": stopped}
         }
-    applied = apply_workspace(api, spec, changes)
+    applied = apply_workspace(api, spec, changes, sleep)
     return changes, applied
 
 

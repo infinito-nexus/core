@@ -5,6 +5,8 @@
 #   WORKSPACE_CORE_VERSION  apply only: a released version like 17.0.0, or latest
 #   WORKSPACE_TARGETS       apply only: comma-separated <host>:<port> pairs, empty
 #                           for a workspace without servers
+#   WORKSPACE_PLATFORM_TOKENS  apply only: true or false, whether the provider roles
+#                              of the workspace may read the platform secrets
 #
 # Env of the Workspaces project (the deploy project's inventory, key and environment):
 #   DEPLOY_VAULT_PASSWORD      vault password of the platform inventory, a Semaphore secret

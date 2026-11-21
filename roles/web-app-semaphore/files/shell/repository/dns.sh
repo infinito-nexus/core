@@ -9,9 +9,11 @@
 #   WORKSPACE, WORKSPACE_DNS_ZONE,
 #   WORKSPACE_DNS_ZONE_ID,
 #   WORKSPACE_TARGETS              the values workspace apply wrote
-#   SEMAPHORE_JWT                  the task token the OpenBao login takes
+#   SEMAPHORE_JWT                  the task token the OpenBao login takes, handed
+#                                  to provision.py on descriptor 3, never in its
+#                                  environment
 #   BAO_ADDR, PROVISION_*          the settings of the provision runner
 set -euo pipefail
 
 here="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
-exec python3 -E -s "${here}/../../python/provision.py" dns "$@"
+exec env -u SEMAPHORE_JWT python3 -E -s "${here}/../../python/provision.py" dns "$@" 3<<<"${SEMAPHORE_JWT-}"

@@ -5,8 +5,10 @@ import unittest
 from .test_policies import (
     INVITE_METADATA,
     effective,
+    own_policy,
     parse,
     planted,
+    provision_secrets,
     render,
     template_source,
 )
@@ -20,7 +22,7 @@ OTHER_METADATA = (
     "platform/metadata/provision/hetzner",
     "platform/metadata/export/s3",
 )
-TASK_POLICIES = ("tenant", "provision-shared", "tenant-export", "export-shared")
+TASK_POLICIES = ("tenant", "tenant-export", "export-shared")
 
 
 def staging_findings(
@@ -56,7 +58,10 @@ def staging_findings(
 
 
 def task_grants() -> dict[str, dict[str, set[str]]]:
-    return {name: parse(render(name)) for name in TASK_POLICIES}
+    grants = {name: parse(render(name)) for name in TASK_POLICIES}
+    for provider in ("", *provision_secrets()):
+        grants[f"ws-0a-provision-{provider}"] = parse(own_policy(provider, True))
+    return grants
 
 
 ERASURE_PROBES = {

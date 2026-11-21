@@ -38,6 +38,35 @@ STORE_GRANTS = {
 }
 INVITE_METADATA = "platform/metadata/store/invites/ws-0a/3f2a"
 ZONE_TOKEN = "platform/data/provision/cloudflare-zones"
+OWN_ZONE = "ws.example.org"
+OWN_DNS_TOKEN = f"platform/data/provision/cloudflare/{OWN_ZONE}"
+FOREIGN_DNS_TOKEN = "platform/data/provision/cloudflare/example.net"
+PROBE_HOST = "echoserver"
+PROVISION_BASE = {
+    "tenant/data/ws-0a-provision/s3": {"read"},
+    "tenant/data/ws-0a-provision/dns": {"read"},
+    OWN_DNS_TOKEN: {"read"},
+    "auth/token/create/ws-0a-transit-child": {"update"},
+    "platform/data/provision/transit/ws-0a": {"read"},
+}
+TRANSIT_GRANTS = {
+    "transit/datakey/plaintext/ws-0a-provision": {"update"},
+    "transit/decrypt/ws-0a-provision": {"update"},
+}
+TRANSIT_POLICY = ROLE_DIR / "templates/workspace/transit_policy.hcl.j2"
+FOREIGN_WORKSPACE_PATHS = (
+    "tenant/data/ws-0b-provision/s3",
+    "tenant/data/ws-0b-provision/providers/hetzner",
+    "transit/decrypt/ws-0b-provision",
+    "platform/data/provision/transit/ws-0b",
+    "auth/token/create",
+    "auth/token/create/ws-0b-transit-child",
+    FOREIGN_DNS_TOKEN,
+    ZONE_TOKEN,
+)
+BARE_TOKEN_CREATE = 'path "auth/token/create" {\n  capabilities = ["update"]\n}'
+WILDCARD = 'path "platform/data/provision/*" {\n  capabilities = ["read"]\n}'
+PROVISION_POLICY = ROLE_DIR / "templates/workspace/provision_policy.hcl.j2"
 FOREIGN_METADATA = (
     "platform/metadata/store/semaphore",
     "platform/metadata/store/gitea",
@@ -152,6 +181,120 @@ def zone_policy(workspace: str) -> str:
     return env.from_string(source).render(**literal_vars(), WORKSPACE=workspace)
 
 
+def transit_policy(workspace: str, source: str | None = None) -> str:
+    """
+    Args:
+        workspace: the workspace id without its ``ws-`` prefix.
+        source: a template text that replaces the role's own file.
+
+    Returns:
+        The policy of the child token OpenTofu gets for that workspace.
+    """
+    text = source if source is not None else read_text(str(TRANSIT_POLICY))
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    return env.from_string(text).render(**literal_vars(), WORKSPACE=workspace)
+
+
+def transit_findings(grants: dict[str, set[str]]) -> list[str]:
+    """
+    Args:
+        grants: the capabilities of the transit policy per path pattern.
+
+    Returns:
+        Every grant beyond the workspace's own transit datakey and decrypt,
+        and every request path of another kind the policy reaches.
+    """
+    findings = [
+        f"{pattern}: {sorted(caps)}"
+        for pattern, caps in grants.items()
+        if TRANSIT_GRANTS.get(pattern) != caps
+    ]
+    findings.extend(
+        f"{path}: {sorted(effective(grants, path))}"
+        for path in (*PROVISION_BASE, *FOREIGN_WORKSPACE_PATHS, ZONE_TOKEN)
+        if effective(grants, path)
+    )
+    return findings
+
+
+def provision_secrets() -> dict[str, dict[str, list[str]]]:
+    """
+    Returns:
+        ``OPENBAO_PROVISION_SECRETS`` with its mounts rendered, the path
+        templates of each provider's platform and workspace secrets.
+    """
+    table = load_yaml_any(str(ROLE_DIR / ROLE_FILE_VARS_MAIN))[
+        "OPENBAO_PROVISION_SECRETS"
+    ]
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    return {
+        provider: {
+            kind: [env.from_string(path).render(**literal_vars()) for path in paths]
+            for kind, paths in sources.items()
+        }
+        for provider, sources in table.items()
+    }
+
+
+def provision_policy(
+    workspace: str,
+    provider: str,
+    granted: bool,
+    zone: str,
+    source: str | None = None,
+) -> str:
+    """
+    Args:
+        workspace: the workspace id without its ``ws-`` prefix.
+        provider: the provider of the role, empty for the provider-free role.
+        granted: the store's switch ``WORKSPACE_PLATFORM_TOKENS``.
+        zone: ``workspace_dns.zone`` of the workspace.
+        source: a template text that replaces the role's own file.
+
+    Returns:
+        The provision policy ``workspace apply`` writes for that role.
+    """
+    text = source if source is not None else read_text(str(PROVISION_POLICY))
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    return env.from_string(text).render(
+        **literal_vars(),
+        WORKSPACE=workspace,
+        OPENBAO_PROVISION_SECRETS=provision_secrets(),
+        WORKSPACE_PLATFORM_TOKENS=granted,
+        workspace_dns={"zone": zone},
+        openbao_provider=provider,
+    )
+
+
+def own_policy(provider: str, granted: bool, source: str | None = None) -> str:
+    return provision_policy("0a", provider, granted, OWN_ZONE, source)
+
+
+def provider_paths(provider: str, kind: str) -> list[str]:
+    """
+    Args:
+        provider: a provider of ``OPENBAO_PROVISION_SECRETS``.
+        kind: ``platform`` or ``workspace``.
+
+    Returns:
+        A concrete request path of ``ws-0a`` for each of the provider's path
+        templates.
+    """
+    return [
+        path.replace("{workspace}", "ws-0a").replace("*", PROBE_HOST)
+        for path in provision_secrets()[provider][kind]
+    ]
+
+
 def parse(rendered: str) -> dict[str, set[str]]:
     parsed = {
         match["path"]: set(re.findall(r'"([^"]+)"', match["caps"]))
@@ -248,37 +391,24 @@ class TestTheTenantPolicy(unittest.TestCase):
                 self.assertIn(f"aliases.{JWT_ACCESSOR}.metadata.role", pattern)
                 self.assertNotIn("ws-", pattern)
 
-    def test_the_provision_role_reads_the_shared_provision_secrets_only(self) -> None:
-        self.assertEqual(
-            parse(render("provision-shared")),
-            {
-                "platform/data/provision/*": {"read"},
-                ZONE_TOKEN: {"deny"},
-            },
-        )
+    def test_the_provider_free_provision_role_reads_no_provider_secret(self) -> None:
+        for granted in (False, True):
+            with self.subTest(granted=granted):
+                self.assertEqual(parse(own_policy("", granted)), PROVISION_BASE)
 
     def test_only_the_zone_role_reads_the_zone_token(self) -> None:
         readers = {
             policy: effective(parse(render(policy)), ZONE_TOKEN)
-            for policy in (
-                "provision-shared",
-                "tenant",
-                "tenant-export",
-                "export-shared",
-                "store",
-            )
+            for policy in ("tenant", "tenant-export", "export-shared", "store")
         }
+        for provider in ("", *provision_secrets()):
+            readers[f"ws-0a-provision-{provider}"] = effective(
+                parse(own_policy(provider, True)), ZONE_TOKEN
+            )
         readers["ws-0a-zone"] = effective(parse(zone_policy("0a")), ZONE_TOKEN)
         self.assertEqual(
-            readers,
-            {
-                "provision-shared": {"deny"},
-                "tenant": set(),
-                "tenant-export": set(),
-                "export-shared": set(),
-                "store": set(),
-                "ws-0a-zone": {"read"},
-            },
+            {policy: caps for policy, caps in readers.items() if caps},
+            {"ws-0a-zone": {"read"}},
         )
 
     def test_the_zone_policy_reaches_its_own_workspace_and_the_zone_token_only(
@@ -288,8 +418,7 @@ class TestTheTenantPolicy(unittest.TestCase):
             parse(zone_policy("0a")),
             {
                 "tenant/data/ws-0a-provision/s3": {"read"},
-                "transit/datakey/plaintext/ws-0a-provision": {"update"},
-                "transit/decrypt/ws-0a-provision": {"update"},
+                "auth/token/create/ws-0a-transit-child": {"update"},
                 "platform/data/provision/transit/ws-0a": {"read"},
                 ZONE_TOKEN: {"read"},
             },
@@ -298,6 +427,8 @@ class TestTheTenantPolicy(unittest.TestCase):
     def test_the_zone_policy_reads_no_other_workspace_or_provider(self) -> None:
         grants = parse(zone_policy("0a"))
         for path in (
+            "auth/token/create",
+            "auth/token/create/ws-0b-transit-child",
             "tenant/data/ws-0b-provision/s3",
             "tenant/data/ws-0a-provision/proxmox",
             "tenant/data/ws-0a/x",
@@ -308,6 +439,117 @@ class TestTheTenantPolicy(unittest.TestCase):
         ):
             with self.subTest(path=path):
                 self.assertEqual(effective(grants, path), set())
+
+
+def foreign_findings(grants: dict[str, set[str]], provider: str) -> list[str]:
+    """
+    Args:
+        grants: the capabilities of a provider role's policy per path pattern.
+        provider: the provider of that role.
+
+    Returns:
+        Every secret of another provider, of another workspace or of another
+        zone the policy reaches, and a missing read of its own zone's token.
+    """
+    foreign = [
+        path
+        for other in provision_secrets()
+        if other != provider
+        for kind in ("platform", "workspace")
+        for path in provider_paths(other, kind)
+    ]
+    findings = [
+        f"{path}: {sorted(effective(grants, path))}"
+        for path in (*foreign, *FOREIGN_WORKSPACE_PATHS)
+        if effective(grants, path)
+    ]
+    if effective(grants, OWN_DNS_TOKEN) != {"read"}:
+        findings.append(f"{OWN_DNS_TOKEN}: the run cannot reach its own zone")
+    return findings
+
+
+class TestTheProvisionPolicies(unittest.TestCase):
+    def test_a_provision_run_reads_its_own_provider_only(self) -> None:
+        for provider in provision_secrets():
+            for granted in (False, True):
+                with self.subTest(provider=provider, granted=granted):
+                    grants = parse(own_policy(provider, granted))
+                    self.assertEqual(foreign_findings(grants, provider), [])
+
+    def test_control_a_planted_wildcard_reaches_every_provider(self) -> None:
+        source = read_text(str(PROVISION_POLICY)) + "\n" + WILDCARD + "\n"
+        findings = foreign_findings(parse(own_policy("incus", True, source)), "incus")
+        self.assertIn("platform/data/provision/hetzner: ['read']", findings)
+
+    def test_control_a_bare_token_create_mints_any_child(self) -> None:
+        source = read_text(str(PROVISION_POLICY)) + "\n" + BARE_TOKEN_CREATE + "\n"
+        for provider in ("", *provision_secrets()):
+            with self.subTest(provider=provider):
+                findings = foreign_findings(
+                    parse(own_policy(provider, True, source)), provider
+                )
+                self.assertIn("auth/token/create: ['update']", findings)
+
+    def test_the_policy_names_the_zone_of_the_apply_only(self) -> None:
+        grants = parse(provision_policy("0a", "hetzner", True, "example.net"))
+        self.assertEqual(effective(grants, FOREIGN_DNS_TOKEN), {"read"})
+        self.assertEqual(effective(grants, OWN_DNS_TOKEN), set())
+
+    def test_the_platform_secrets_need_the_store_switch(self) -> None:
+        for provider in provision_secrets():
+            denied = parse(own_policy(provider, False))
+            granted = parse(own_policy(provider, True))
+            for path in provider_paths(provider, "platform"):
+                with self.subTest(provider=provider, path=path):
+                    self.assertEqual(effective(denied, path), set())
+                    self.assertEqual(effective(granted, path), {"read"})
+            for path in provider_paths(provider, "workspace"):
+                with self.subTest(provider=provider, path=path):
+                    self.assertEqual(effective(denied, path), {"read"})
+                    self.assertEqual(effective(granted, path), {"read"})
+
+    def test_control_a_policy_that_ignores_the_switch_fails(self) -> None:
+        original = read_text(str(PROVISION_POLICY))
+        source = original.replace(" if WORKSPACE_PLATFORM_TOKENS else []", "")
+        self.assertNotEqual(source, original)
+        denied = parse(own_policy("hetzner", False, source))
+        self.assertEqual(effective(denied, "platform/data/provision/hetzner"), {"read"})
+
+    def test_a_provider_policy_adds_only_its_provider_to_the_run(self) -> None:
+        for provider in provision_secrets():
+            with self.subTest(provider=provider):
+                grants = parse(own_policy(provider, True))
+                extra = {
+                    path: caps
+                    for path, caps in grants.items()
+                    if path not in PROVISION_BASE
+                }
+                expected = {
+                    path.replace("{workspace}", "ws-0a"): {"read"}
+                    for kind in ("platform", "workspace")
+                    for path in provision_secrets()[provider][kind]
+                }
+                self.assertEqual(extra, expected)
+
+
+class TestTheTransitPolicy(unittest.TestCase):
+    def test_the_child_token_reaches_its_own_transit_key_only(self) -> None:
+        self.assertEqual(transit_findings(parse(transit_policy("0a"))), [])
+
+    def test_control_a_planted_wildcard_reaches_a_secret(self) -> None:
+        source = read_text(str(TRANSIT_POLICY)) + "\n" + WILDCARD + "\n"
+        findings = transit_findings(parse(transit_policy("0a", source)))
+        self.assertIn("platform/data/provision/*: ['read']", findings)
+
+    def test_no_role_policy_reaches_the_transit_key_itself(self) -> None:
+        policies = [
+            own_policy(provider, True) for provider in ("", *provision_secrets())
+        ]
+        policies.append(zone_policy("0a"))
+        for policy in policies:
+            for path in TRANSIT_GRANTS:
+                with self.subTest(path=path):
+                    self.assertEqual(effective(parse(policy), path), set())
 
 
 class TestThePlatformReaders(unittest.TestCase):

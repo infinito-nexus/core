@@ -113,7 +113,6 @@ OPENBAO_JWT_CONFIG:
 OPENBAO_JWT_TOKEN_TTL: "{{ lookup('config', application_id, 'services.openbao.workspaces.token_ttl') }}"
 OPENBAO_TENANCY_POLICIES:
   - tenant
-  - provision-shared
   - store
   - tenant-export
   - export-shared
@@ -152,3 +151,29 @@ OPENBAO_RAFT_SNAPSHOT_DIR: "{{ [DIR_BACKUPS, application_id, 'raft'] | path_join
 OPENBAO_TRANSIT_RECORD_PREFIX: "provision/transit"
 OPENBAO_ZONE_TOKEN_PATH: "provision/cloudflare-zones"
 OPENBAO_OWNER_RECORD_PREFIX: "export/owners"
+OPENBAO_PROVISION_SECRETS:
+  hetzner:
+    platform:
+      - "{{ OPENBAO_PLATFORM_MOUNT }}/data/provision/hetzner"
+    workspace:
+      - "{{ OPENBAO_TENANT_MOUNT }}/data/{workspace}-provision/providers/hetzner"
+  ionos:
+    platform:
+      - "{{ OPENBAO_PLATFORM_MOUNT }}/data/provision/ionos"
+    workspace:
+      - "{{ OPENBAO_TENANT_MOUNT }}/data/{workspace}-provision/providers/ionos"
+  scs:
+    platform:
+      - "{{ OPENBAO_TENANT_MOUNT }}/data/{workspace}-provision/scs"
+    workspace:
+      - "{{ OPENBAO_TENANT_MOUNT }}/data/{workspace}-provision/providers/scs"
+  proxmox:
+    platform:
+      - "{{ OPENBAO_PLATFORM_MOUNT }}/data/provision/proxmox-*"
+      - "{{ OPENBAO_TENANT_MOUNT }}/data/{workspace}-provision/proxmox"
+    workspace: []
+  incus:
+    platform:
+      - "{{ OPENBAO_PLATFORM_MOUNT }}/data/provision/incus-*"
+      - "{{ OPENBAO_TENANT_MOUNT }}/data/{workspace}-provision/incus"
+    workspace: []

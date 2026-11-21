@@ -114,7 +114,7 @@ class OpenBao:
         )
         if status == 404 and missing_ok:
             return None
-        if status != 200:
+        if status not in (200, 204):
             raise RemoteError(f"OpenBao {method} {path}: HTTP {status}")
         return json.loads(payload or b"{}")
 
@@ -141,6 +141,37 @@ class OpenBao:
         answer = self._call("POST", "auth/jwt/login", {"role": role, "jwt": jwt})
         self.token = answer["auth"]["client_token"]
         return self.token
+
+    def child(self, role, policy, ttl):
+        """Args:
+            role: the token role whose ``allowed_policies`` name ``policy``.
+            policy: the one policy the child token carries, without ``default``.
+            ttl: its lifetime, e.g. ``7200s``.
+
+        Returns:
+            A non-renewable child of the client token, which OpenBao revokes
+            together with it.
+        """
+        answer = self._call(
+            "POST",
+            f"auth/token/create/{role}",
+            {
+                "policies": [policy],
+                "ttl": ttl,
+                "renewable": False,
+                "no_default_policy": True,
+            },
+        )
+        return answer["auth"]["client_token"]
+
+    def revoke(self):
+        """Returns:
+        Once OpenBao revoked the client token and every child it created; a
+        client without a token revokes nothing.
+        """
+        if self.token:
+            self._call("POST", "auth/token/revoke-self", {})
+            self.token = ""
 
     def read(self, path, fields):
         """Args:

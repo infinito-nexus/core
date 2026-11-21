@@ -11,7 +11,7 @@ The store's requirement 062 (`infinito-nexus/gui: docs/requirements/062-slim-sto
 ### Today
 
 - A provisioned line gets its record from the root module's `dns` module in the same OpenTofu state as its server, so `tofu destroy` removes both ([104](104-runner-image-opentofu-and-root-modules.md) decisions 3 and 5). A BYO line has no server state, so nothing creates or removes its record.
-- The provision project holds `provision ws-<id>`, `destroy ws-<id>` and `unlock ws-<id>`, which the store runs through `guest` and one grant per template (104 decisions 1 and 10). Only the provision runner holds the DNS credentials (104 decision 1).
+- The provision project holds `provision-<provider> ws-<id>` and `destroy-<provider> ws-<id>` per provider ([133](133-provision-secrets-per-template.md)) and `unlock ws-<id>`, which the store runs through `guest` and one grant per template (104 decisions 1 and 10). Only the provision runner holds the DNS credentials (104 decision 1).
 - `workspace apply` writes `WORKSPACE_TARGETS`, the target pairs it pinned, into the `deploy` template's environment, and `deploy.sh` refuses a `HOST` outside them ([103](103-semaphore-pin-task-jwt-and-locked-templates.md) decision 7).
 
 ### Upstream

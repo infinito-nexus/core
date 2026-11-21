@@ -335,8 +335,23 @@ class TestMain(unittest.TestCase):
         }
         cases = {
             "names no template": (["provision.py"], valid),
-            "unexpected argument 'x'": (["provision.py", "destroy", "x"], valid),
-            "PROVISION_CATALOG_DIR is missing": (["provision.py", "destroy"], valid),
+            "the destroy template pins no provider": (
+                ["provision.py", "destroy"],
+                valid,
+            ),
+            "pins no provider of": (["provision.py", "provision", "x"], valid),
+            "unexpected argument 'x'": (
+                ["provision.py", "destroy", "incus", "x"],
+                valid,
+            ),
+            "unexpected argument 'incus'": (
+                ["provision.py", "unlock", "incus"],
+                valid,
+            ),
+            "PROVISION_CATALOG_DIR is missing": (
+                ["provision.py", "destroy", "incus"],
+                valid,
+            ),
             "is no DNS flavor": (
                 ["provision.py", "dns"],
                 {**valid, "PROVISION_DNS_FLAVOR": "bind"},

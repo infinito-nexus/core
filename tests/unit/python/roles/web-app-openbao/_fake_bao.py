@@ -103,6 +103,68 @@ def config(verb, args):
     save(state)
 
 
+def rendered(value):
+    if isinstance(value, dict):
+        return "map[" + " ".join(key + ":" + rendered(value[key]) for key in sorted(value)) + "]"
+    if isinstance(value, list):
+        return "[" + " ".join(rendered(item) for item in value) + "]"
+    return str(value)
+
+
+def auth(verb, args):
+    state = load()
+    held = state.setdefault("roles", {})
+    path = positional(args)[0]
+    if verb == "list":
+        if os.environ.get("FAKE_BAO_DENY") == "1":
+            denied(path)
+        prefix = path + "/"
+        names = sorted(name[len(prefix):] for name in held if name.startswith(prefix))
+        if not names:
+            missing(path)
+        print("Keys")
+        print("----")
+        for name in names:
+            print(name)
+        return
+    if path not in held:
+        missing(path)
+    if verb == "read":
+        print(rendered(held[path][option(args, "-field")]))
+        return
+    if verb == "delete":
+        del held[path]
+        state.setdefault("removed", []).append(path)
+        save(state)
+        return
+    sys.exit(95)
+
+
+def policy(args):
+    state = load()
+    held = state.setdefault("policies", [])
+    verb = args[0]
+    if verb == "list":
+        for name in sorted(held):
+            print(name)
+        return
+    name = positional(args[1:])[0]
+    if os.environ.get("FAKE_BAO_POLICY_DENY") == "1":
+        denied("sys/policies/acl/" + name)
+    if name not in held:
+        sys.stderr.write("No policy named: " + name + "\\n")
+        sys.exit(2)
+    if verb == "read":
+        print("path \\"" + name + "\\" {}")
+        return
+    if verb == "delete":
+        held.remove(name)
+        state.setdefault("removed", []).append("policy/" + name)
+        save(state)
+        return
+    sys.exit(96)
+
+
 def raft(args):
     mode = os.environ.get("FAKE_BAO_SNAPSHOT", "ok")
     if mode == "fail":
@@ -116,6 +178,10 @@ def raft(args):
 def main(args):
     if args[0] == "kv":
         kv(args[1:])
+    elif args[0] == "policy":
+        policy(args[1:])
+    elif args[0] in ("list", "read", "delete") and args[-1].startswith("auth/"):
+        auth(args[0], args[1:])
     elif args[0] in ("read", "write"):
         config(args[0], args[1:])
     elif args[:3] == ["operator", "raft", "snapshot"]:
@@ -163,6 +229,23 @@ def write_state(scratch: Path, kv: dict[str, dict[str, list[str]]]) -> None:
     )
 
 
+def write_access(
+    scratch: Path, roles: dict[str, dict[str, object]], policies: list[str]
+) -> None:
+    """
+    Args:
+        scratch: the directory ``install`` placed the fakes in.
+        roles: per role path from ``auth/`` on, the fields ``bao read -field``
+            prints the way the Go CLI does: a list as ``[a b]``, a map as
+            ``map[key:value]``.
+        policies: the names ``bao policy list`` prints.
+    """
+    state = read_state(scratch)
+    state["roles"] = roles
+    state["policies"] = policies
+    (scratch / "state.json").write_text(json.dumps(state), encoding="utf-8")
+
+
 def read_state(scratch: Path) -> dict:
     return json.loads(
         (scratch / "state.json").read_text(encoding="utf-8")  # nocheck: cache-read
@@ -170,13 +253,14 @@ def read_state(scratch: Path) -> dict:
 
 
 def run(
-    command: list[str], env: dict[str, str], stdin: str = ""
+    command: list[str], env: dict[str, str], stdin: str = "", cwd: Path | None = None
 ) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         command,
         input=stdin,
         capture_output=True,
         check=False,
+        cwd=cwd,
         env=env,
         text=True,
         timeout=60,

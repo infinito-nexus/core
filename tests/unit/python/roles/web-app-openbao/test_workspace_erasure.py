@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -18,6 +19,14 @@ ROLE_DIR = PROJECT_ROOT / "roles/web-app-openbao"
 SCRIPT = ROLE_DIR / "files/shell/erase-tree.sh"
 A = "ws-0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d"
 B = "ws-9f8e7d6c-5b4a-4c3d-8e2f-1a0b9c8d7e6f"
+TOKEN_ROLE = {
+    "allowed_policies": "$p",
+    "disallowed_policies": "default",
+    "orphan": "false",
+    "renewable": "false",
+    "token_explicit_max_ttl": "{{ OPENBAO_JWT_TOKEN_TTL.provision }}",
+    "token_no_default_policy": "true",
+}
 SEEDED = {
     "tenant": {
         f"{A}/ssh": ["v1", "v2", "v3"],
@@ -40,6 +49,36 @@ def erase(scratch: Path, prefix: str, **env: str) -> Any:
 
 def destroy_tasks() -> list[dict[str, Any]]:
     return load_yaml_any(str(ROLE_DIR / "tasks/workspace/destroy.yml"))
+
+
+def transit_task_shell() -> str:
+    apply = load_yaml_any(str(ROLE_DIR / "tasks/workspace/apply.yml"))
+    return next(
+        task["ansible.builtin.shell"]
+        for task in apply
+        if task.get("register") == "openbao_workspace_transit_policy"
+    )
+
+
+def token_role_findings(shell: str) -> list[str]:
+    """
+    Args:
+        shell: the command of the apply task that writes the transit policy.
+
+    Returns:
+        A missing write of the token role ``ws-<id>-transit-child``, and each
+        field of it that differs from ``TOKEN_ROLE`` or that it adds.
+    """
+    if "r=auth/token/roles/$p-child;" not in shell:
+        return ["no token role ws-<id>-transit-child"]
+    written = shell.split("bao write $r ", 1)[1].split(" >/dev/null", 1)[0]
+    fields = dict(re.findall(r"(\w+)=(\{\{ [^}]+ \}\}|\S+)", written))
+    differing = [
+        f"{key}={fields.get(key)}"
+        for key, value in TOKEN_ROLE.items()
+        if fields.get(key) != value
+    ]
+    return differing + [f"{key} added" for key in fields if key not in TOKEN_ROLE]
 
 
 def guard_passes(**facts: Any) -> bool:
@@ -223,22 +262,64 @@ class TestTheDestroyOrder(unittest.TestCase):
                 "{{ OPENBAO_JWT_MOUNT }}/role/ws-{{ WORKSPACE }}-provision",
                 "{{ OPENBAO_JWT_MOUNT }}/role/ws-{{ WORKSPACE }}-zone",
                 "{{ OPENBAO_JWT_EXPORT_MOUNT }}/role/ws-{{ WORKSPACE }}",
+                "token/roles/ws-{{ WORKSPACE }}-transit-child",
             ],
         )
 
-    def test_destroy_deletes_the_zone_policy_apply_writes(self) -> None:
-        def policy_of(tasks: list[dict[str, Any]], register: str) -> str:
-            shell = next(task for task in tasks if task.get("register") == register)
-            return shell["ansible.builtin.shell"]
+    def test_apply_writes_the_token_role_that_alone_mints_the_child(self) -> None:
+        self.assertEqual(token_role_findings(transit_task_shell()), [])
+
+    def test_control_a_renewable_token_role_is_found(self) -> None:
+        shell = transit_task_shell()
+        planted = shell.replace("renewable=false", "renewable=true")
+        self.assertNotEqual(planted, shell)
+        self.assertEqual(token_role_findings(planted), ["renewable=true"])
+
+    def test_destroy_deletes_the_zone_and_transit_policies_apply_writes(self) -> None:
+        def task_of(tasks: list[dict[str, Any]], register: str) -> dict[str, Any]:
+            return next(task for task in tasks if task.get("register") == register)
 
         apply = load_yaml_any(str(ROLE_DIR / "tasks/workspace/apply.yml"))
+        for suffix, register in (
+            ("zone", "openbao_workspace_zone_policy"),
+            ("transit", "openbao_workspace_transit_policy"),
+        ):
+            with self.subTest(policy=suffix):
+                self.assertIn(
+                    f"p=ws-{{{{ WORKSPACE }}}}-{suffix};",
+                    task_of(apply, register)["ansible.builtin.shell"],
+                )
+        deleted = task_of(destroy_tasks(), "openbao_workspace_zone_policy_delete")
+        self.assertEqual(deleted["loop"], ["zone", "transit"])
         self.assertIn(
-            "p=ws-{{ WORKSPACE }}-zone;",
-            policy_of(apply, "openbao_workspace_zone_policy"),
+            "p=ws-{{ WORKSPACE }}-{{ item }};", deleted["ansible.builtin.shell"]
         )
-        deleted = policy_of(destroy_tasks(), "openbao_workspace_zone_policy_delete")
-        self.assertIn("p=ws-{{ WORKSPACE }}-zone;", deleted)
+        self.assertIn("bao policy delete $p", deleted["ansible.builtin.shell"])
+
+    def test_destroy_deletes_the_provision_policy_apply_writes(self) -> None:
+        apply = load_yaml_any(str(ROLE_DIR / "tasks/workspace/apply.yml"))
+        written = next(
+            task
+            for task in apply
+            if task.get("register") == "openbao_workspace_provision_policy"
+        )
+        self.assertIn(
+            "p=ws-{{ WORKSPACE }}-provision{{", written["ansible.builtin.shell"]
+        )
+        deleted = next(
+            task["ansible.builtin.shell"]
+            for task in destroy_tasks()
+            if task.get("register") == "openbao_workspace_provision_policy_delete"
+        )
+        self.assertIn("p=ws-{{ WORKSPACE }}-provision;", deleted)
         self.assertIn("bao policy delete $p", deleted)
+
+    def test_the_key_goes_after_the_provider_roles(self) -> None:
+        registers = [task.get("register") for task in destroy_tasks()]
+        self.assertLess(
+            registers.index("openbao_workspace_provider_role_delete"),
+            registers.index("openbao_workspace_key_delete"),
+        )
 
 
 if __name__ == "__main__":

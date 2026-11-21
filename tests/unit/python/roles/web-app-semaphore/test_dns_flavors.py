@@ -38,7 +38,7 @@ APPLY_DIR = ROLE_DIR / "tasks" / "flavors" / "dns" / "workspace"
 DNS_STEPS = ROLE_DIR / "tasks" / "utils" / "workspace" / "dns.yml"
 RUNNER_SQL = ROLE_DIR / "templates" / "sql" / "workspace" / "runner.sql.j2"
 PROVISION = "Infinito.Nexus Provision"
-TEMPLATES = ("provision", "destroy", "dns")
+TEMPLATES = ("provision-hetzner", "destroy-hetzner", "provision-incus", "dns")
 FLAVOR_VALUES = {
     "knot": {"zone": "ws.example.org", "zone_id": ""},
     "route53": {"zone": "ws.example.org", "zone_id": "Z0123456789ABCDEFGHIJ"},

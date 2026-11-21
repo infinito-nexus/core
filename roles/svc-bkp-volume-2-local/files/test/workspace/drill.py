@@ -193,6 +193,7 @@ def workspace(action, workspace_id, result):
     variables = {"WORKSPACE": workspace_id, "WORKSPACE_ACTION": action}
     if action == "apply":
         variables["WORKSPACE_CORE_VERSION"] = "latest"
+        variables["WORKSPACE_PLATFORM_TOKENS"] = "true"
     succeeded, lines = api.run(project_id, template_id, variables, f"{result}.log")
     if not succeeded:
         raise DrillError(

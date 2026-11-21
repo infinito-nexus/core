@@ -149,7 +149,7 @@ class WorkspaceStopTests(unittest.TestCase):
         templates = self.mod.run_workspace(self.api, workspace_spec(), lambda s: None)[
             1
         ]["result"]["templates"]
-        provision = templates[f"provision {ALIAS}"]
+        provision = templates[f"provision-incus {ALIAS}"]
         deploy = templates["deploy"]
         self.active = [
             self.api.add_task(

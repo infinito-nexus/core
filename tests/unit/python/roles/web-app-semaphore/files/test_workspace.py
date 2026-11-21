@@ -12,6 +12,26 @@ from utils.cache.files import read_text
 from ._semaphore_fake import CHANGELOG, PYTHON_DIR, WORKSPACE_ID, load_workspace
 
 
+def apply_env(source, **overrides):
+    """Args:
+    source: a core tree with a changelog.
+    overrides: inputs to set, None to leave one out.
+
+    Returns:
+        The environment of an ``apply`` without servers.
+    """
+    env = {
+        "WORKSPACE": WORKSPACE_ID,
+        "WORKSPACE_ACTION": "apply",
+        "WORKSPACE_CORE_VERSION": "latest",
+        "WORKSPACE_TARGETS": "",
+        "WORKSPACE_PLATFORM_TOKENS": "false",
+        "INFINITO_SRC_DIR": str(source),
+        **overrides,
+    }
+    return {name: value for name, value in env.items() if value is not None}
+
+
 def accepts_empty_targets(module, source):
     """Args:
     module: :func:`load_workspace`, possibly patched.
@@ -21,15 +41,8 @@ def accepts_empty_targets(module, source):
         True when ``apply`` takes an empty ``WORKSPACE_TARGETS`` as a workspace
         without servers.
     """
-    env = {
-        "WORKSPACE": WORKSPACE_ID,
-        "WORKSPACE_ACTION": "apply",
-        "WORKSPACE_CORE_VERSION": "latest",
-        "WORKSPACE_TARGETS": "",
-        "INFINITO_SRC_DIR": str(source),
-    }
     try:
-        variables = module.operation(env, "/nonexistent/result.json")
+        variables = module.operation(apply_env(source), "/nonexistent/result.json")
     except module.RefusalError:
         return False
     return variables["WORKSPACE_TARGETS"] == []
@@ -56,6 +69,54 @@ class WorkspaceOperationTests(unittest.TestCase):
 
         with mock.patch.object(module, "parse_targets", refusing):
             self.assertFalse(accepts_empty_targets(module, self.src))
+
+
+class PlatformTokensTests(unittest.TestCase):
+    def setUp(self):
+        scratch = tempfile.TemporaryDirectory()
+        self.addCleanup(scratch.cleanup)
+        self.src = Path(scratch.name)
+        (self.src / "CHANGELOG.md").write_text(CHANGELOG, encoding="utf-8")
+        self.module = load_workspace()
+
+    def operation(self, **overrides):
+        return self.module.operation(
+            apply_env(self.src, **overrides), "/nonexistent/result.json"
+        )
+
+    def test_apply_hands_the_store_switch_to_the_playbook_as_a_boolean(self):
+        for value, expected in (("true", True), ("false", False)):
+            with self.subTest(value=value):
+                handed = self.operation(WORKSPACE_PLATFORM_TOKENS=value)
+                self.assertIs(handed["WORKSPACE_PLATFORM_TOKENS"], expected)
+
+    def test_negative_control_an_apply_without_the_switch_is_refused(self):
+        with self.assertRaisesRegex(
+            self.module.RefusalError, "WORKSPACE_PLATFORM_TOKENS None is neither"
+        ):
+            self.operation(WORKSPACE_PLATFORM_TOKENS=None)
+
+    def test_negative_control_a_non_boolean_switch_is_refused(self):
+        for value in ("", "True", "1", "yes", "on"):
+            with (
+                self.subTest(value=value),
+                self.assertRaisesRegex(
+                    self.module.RefusalError, "is neither true nor false"
+                ),
+            ):
+                self.operation(WORKSPACE_PLATFORM_TOKENS=value)
+
+    def test_destroy_takes_no_switch(self):
+        env = {
+            "WORKSPACE": WORKSPACE_ID,
+            "WORKSPACE_ACTION": "destroy",
+            "WORKSPACE_PLATFORM_TOKENS": "true",
+        }
+        with self.assertRaisesRegex(
+            self.module.RefusalError,
+            "WORKSPACE_PLATFORM_TOKENS is not taken by destroy",
+        ):
+            self.module.operation(env, "/nonexistent/result.json")
 
 
 def hostname_pattern_beside(interface_pattern):

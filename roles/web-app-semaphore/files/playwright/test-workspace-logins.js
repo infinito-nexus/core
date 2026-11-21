@@ -347,11 +347,11 @@ exports.register = function (shared) {
       const entry = `GET ${PLATFORM}/data/${hostKey()}`;
       const run = await probe(a, a.result.project_id, [`login=jwt/ws-${a.workspace}`, entry.replace(" ", "=")], "the deploy token of A");
       expectCall(run, entry, "403", "the deploy token of A on its pinned host key");
-      for (const [kind, role] of [
-        ["provision", `jwt/ws-${a.workspace}-provision`],
-        ["export", `jwt-export/ws-${a.workspace}`],
+      for (const [template, role, kind] of [
+        ["unlock", `jwt/ws-${a.workspace}-provision`, "provision"],
+        ["export", `jwt-export/ws-${a.workspace}`, "export"],
       ]) {
-        const project = platformProject(a, kind);
+        const project = platformProject(a, template);
         const refused = await probe(a, project.project_id, [`login=${role}`, entry.replace(" ", "=")], `the ${kind} probe of A`);
         expectLogin(refused, role, "refused", `a task of the ${kind} project of A outside its bound template`);
         expectCall(refused, entry, "403", `the ${kind} probe of A on the pinned host key`);

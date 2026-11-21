@@ -29,9 +29,16 @@ FILES = ROLE / "files"
 INTERFACE = json.loads(read_text(str(FILES / "opentofu" / "interface.json")))
 CREDENTIALS = json.loads(read_text(str(FILES / "opentofu" / "credentials.json")))
 WORKSPACE = "ws-4f1c2a3e-1b2c-4d5e-8f90-0123456789ab"
+ROLES = (
+    f"{WORKSPACE}-provision",
+    f"{WORKSPACE}-zone",
+    *(f"{WORKSPACE}-provision-{provider}" for provider in CREDENTIALS["providers"]),
+)
 ZONE = "ws.example.org"
 JWT = "header.claims.signature-of-the-task"
 TOKEN = "bao-token-of-the-task"
+CHILD_TOKEN = "bao-transit-child-of-the-task"
+TOKEN_CREATE = "/v1/auth/token/create/"
 STATE_KEYS = {"access_key": "STATEACCESSKEY0001", "secret_key": "state-secret-0001"}
 ROUTE53_KEYS = {"access_key": "ROUTE53ACCESS0001", "secret_key": "route53-secret-01"}
 TSIG = "dHNpZy1zZWNyZXQtb2YtdGhlLXdvcmtzcGFjZQ=="
@@ -71,6 +78,16 @@ texts = {{
     if path.is_file() and path.suffix in (".json", ".hcl", ".tfbackend", ".crt", ".key")
 }}
 record = {{"argv": args, "cwd": str(cwd), "env": dict(os.environ), "texts": texts}}
+def environ(pid):
+    try:
+        raw = pathlib.Path(f"/proc/{{pid}}/environ").read_bytes()
+    except PermissionError:
+        return None
+    return dict(e.decode().split("=", 1) for e in raw.split(b"\\0") if e)
+stat_line = pathlib.Path(f"/proc/{{os.getppid()}}/stat").read_bytes()
+runner = environ(int(stat_line.rsplit(b")", 1)[1].split()[1]))
+record["supervisor_env"] = environ(os.getppid())
+record["runner_env"] = None if runner is None else sorted(runner)
 for arg in args:
     if arg.startswith("-backend-config="):
         path = pathlib.Path(arg.split("=", 1)[1])
@@ -276,11 +293,28 @@ class _Handler(BaseHTTPRequestHandler):
         if (
             self.path == "/v1/auth/jwt/login"
             and body.get("jwt") == JWT
-            and body.get("role") in (f"{WORKSPACE}-provision", f"{WORKSPACE}-zone")
+            and body.get("role") in ROLES
         ):
             self.server.logins.append(body["role"])
             payload = {"auth": {"client_token": TOKEN}}
             self._send(200, json.dumps(payload).encode())
+            return
+        if self.path == "/v1/auth/jwt/login":
+            self._send(400)
+            return
+        if self.headers.get("X-Vault-Token") != TOKEN:
+            self._send(403)
+            return
+        if self.path.startswith(TOKEN_CREATE):
+            role = self.path.removeprefix(TOKEN_CREATE)
+            self.server.children.append({"role": role, **body})
+            payload = {"auth": {"client_token": CHILD_TOKEN}}
+            self._send(200, json.dumps(payload).encode())
+            return
+        if self.path == "/v1/auth/token/revoke-self":
+            if self.server.revoke_status == 204:
+                self.server.revoked.append(TOKEN)
+            self._send(self.server.revoke_status)
             return
         self._send(400)
 
@@ -365,6 +399,9 @@ class FakePlatform(ThreadingHTTPServer):
         self.zones = {}
         self.reads = []
         self.logins = []
+        self.children = []
+        self.revoked = []
+        self.revoke_status = 204
         self.s3_requests = []
         self.cloudflare_requests = []
         self.cloudflare_answer = None
@@ -625,20 +662,26 @@ class Sandbox:
         env.update(overrides)
         return {name: value for name, value in env.items() if value is not None}
 
-    def run(self, script, *arguments, **overrides):
+    def run(self, template, *arguments, **overrides):
         """Args:
-            script: ``provision``, ``destroy``, ``unlock``, ``dns`` or ``zone``.
+            template: the kind of the template whose script runs: ``unlock``,
+                ``dns``, ``zone``, or ``provision-<provider>`` and
+                ``destroy-<provider>``, whose script takes the provider as
+                its locked first argument, as ``workspace apply`` sets it.
             arguments: extra arguments, which every script refuses.
             overrides: environment values to set, None to drop one.
 
         Returns:
             The finished process; :meth:`calls` then holds its calls only.
         """
+        script, _, provider = template.partition("-")
+        locked = [provider] if provider else []
         self.log.unlink(missing_ok=True)
         return subprocess.run(
             [
                 "bash",
                 str(self.core / "shell" / "repository" / f"{script}.sh"),
+                *locked,
                 *arguments,
             ],
             cwd=self.checkout,

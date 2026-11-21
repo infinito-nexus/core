@@ -10,7 +10,7 @@ The operator filed this follow-up on 2026-11-14, to be built after the IAM store
 
 ### Today
 
-- `provision ws-<id>` and `destroy ws-<id>` take `PROVIDER_TOKEN`, `platform` or `workspace` (Store ask 28). Under `workspace`, `hetzner` and `ionos` read the customer's token at `tenant/data/ws-<id>-provision/providers/<provider>`, field `token`, and neither source falls back to the other (`provider_secrets` in `roles/web-app-semaphore/files/python/provision/provider_env.py`, `workspace_secrets` in `roles/web-app-semaphore/files/opentofu/credentials.json`).
+- `provision-<provider> ws-<id>` and `destroy-<provider> ws-<id>` ([133](133-provision-secrets-per-template.md)) take `PROVIDER_TOKEN`, `platform` or `workspace` (Store ask 28). Under `workspace`, `hetzner` and `ionos` read the customer's token at `tenant/data/ws-<id>-provision/providers/<provider>`, field `token`, and neither source falls back to the other (`provider_secrets` in `roles/web-app-semaphore/files/python/provision/provider_env.py`, `workspace_secrets` in `roles/web-app-semaphore/files/opentofu/credentials.json`).
 - `scs` has no `workspace_secrets`, so `PROVIDER_TOKEN=workspace` on `scs` refuses before OpenTofu starts. Its `platform` source reads `auth_url`, `region_name`, `application_credential_id` and `application_credential_secret` from `tenant/data/ws-<id>-provision/scs`.
 - A region of the catalog names its provider and its sizes ([118](118-provision-catalog-per-deployment.md)); the root modules are listed in [104](104-runner-image-opentofu-and-root-modules.md).
 

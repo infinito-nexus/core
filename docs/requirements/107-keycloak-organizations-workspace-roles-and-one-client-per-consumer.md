@@ -70,7 +70,7 @@ The core realm runs with v2 on (`realm.json.j2`), and that does not change the a
 
    | Store operation | Template and action | Project | Survey variables | Store's right |
    | --- | --- | --- | --- | --- |
-   | Create a workspace: organization, marker, five groups, five client roles, project and runner | `workspace` `apply`, which now also creates the organization | Workspaces | `WORKSPACE`, `WORKSPACE_ACTION`, `WORKSPACE_CORE_VERSION`, `WORKSPACE_TARGETS` | `guest` with a run grant on `workspace` (102 decision 3) |
+   | Create a workspace: organization, marker, five groups, five client roles, project and runner | `workspace` `apply`, which now also creates the organization | Workspaces | `WORKSPACE`, `WORKSPACE_ACTION`, `WORKSPACE_CORE_VERSION`, `WORKSPACE_TARGETS`, `WORKSPACE_PLATFORM_TOKENS` (required on `apply`, [133](133-provision-secrets-per-template.md)) | `guest` with a run grant on `workspace` (102 decision 3) |
    | Make the creator the first `Owner` | `members` `add` (new) | Workspaces | `WORKSPACE`, `MEMBERS_ACTION`, `WORKSPACE_SUSPENDED`, `WORKSPACE_MEMBER` | `guest` with a run grant on `members` |
    | Invite by address, a new or an existing user; the store first stages the address and the role in OpenBao under a key of its own (decision 9) | `members` `invite` (new) | Workspaces | `WORKSPACE`, `MEMBERS_ACTION`, `WORKSPACE_SUSPENDED`, `INVITE_KEY` | as above |
    | Revoke a pending invitation | `members` `uninvite` (new) | Workspaces | `WORKSPACE`, `MEMBERS_ACTION`, `WORKSPACE_SUSPENDED`, `INVITE_KEY` | as above |

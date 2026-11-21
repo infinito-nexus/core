@@ -1,9 +1,10 @@
 """Args:
 operation <result file>: reads WORKSPACE, WORKSPACE_ACTION,
-    WORKSPACE_CORE_VERSION, WORKSPACE_TARGETS, WORKSPACE_PRIVATE_TARGETS (a
-    JSON list of CIDRs) and INFINITO_SRC_DIR, and prints the extra variables
-    of the workspace playbook as JSON; exit code 2 with the refusal on
-    standard error.
+    WORKSPACE_CORE_VERSION, WORKSPACE_TARGETS, WORKSPACE_PLATFORM_TOKENS
+    (``true`` or ``false``, the store's switch for the platform provider
+    secrets), WORKSPACE_PRIVATE_TARGETS (a JSON list of CIDRs) and
+    INFINITO_SRC_DIR, and prints the extra variables of the workspace playbook
+    as JSON; exit code 2 with the refusal on standard error.
 result <operation file> <result file>: prints the result the playbook wrote
     as one JSON line.
 """
@@ -32,6 +33,12 @@ PAIR = re.compile(
 )
 ACTIONS = ("apply", "destroy")
 LATEST = "latest"
+PLATFORM_TOKENS = {"true": True, "false": False}
+APPLY_ONLY = (
+    "WORKSPACE_CORE_VERSION",
+    "WORKSPACE_TARGETS",
+    "WORKSPACE_PLATFORM_TOKENS",
+)
 RESULT_KEYS = ("alias", "project_id", "read_key", "templates", "workspace")
 DESTROY_KEYS = ("stopped_tasks", "workspace")
 TEMPLATE_KEYS = (
@@ -195,10 +202,16 @@ def operation(env, result_file, resolver=resolve):
         "WORKSPACE_RESULT_FILE": result_file,
     }
     if action == "destroy":
-        for name in ("WORKSPACE_CORE_VERSION", "WORKSPACE_TARGETS"):
+        for name in APPLY_ONLY:
             if env.get(name):
                 raise RefusalError(f"{name} is not taken by destroy")
         return variables
+    platform_tokens = PLATFORM_TOKENS.get(env.get("WORKSPACE_PLATFORM_TOKENS"))
+    if platform_tokens is None:
+        raise RefusalError(
+            f"WORKSPACE_PLATFORM_TOKENS {env.get('WORKSPACE_PLATFORM_TOKENS')!r} "
+            f"is neither true nor false"
+        )
     version = core_version(
         env.get("WORKSPACE_CORE_VERSION", ""),
         released_versions(env["INFINITO_SRC_DIR"]),
@@ -211,6 +224,7 @@ def operation(env, result_file, resolver=resolve):
         **variables,
         "WORKSPACE_CORE_VERSION": version,
         "WORKSPACE_TARGETS": pinned,
+        "WORKSPACE_PLATFORM_TOKENS": platform_tokens,
     }
 
 

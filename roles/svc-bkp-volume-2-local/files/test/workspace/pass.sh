@@ -91,7 +91,7 @@ prepare() {
     done
     mapfile -t IDS <"${STATE}/ids"
     echo "workspace drill: step 1 created the workspaces ${IDS[*]}"
-    drill task "${STATE}/result-${IDS[0]}.json" provision "${STATE}/provision-before.log"
+    drill task "${STATE}/result-${IDS[0]}.json" "provision-incus ws-${IDS[0]}" "${STATE}/provision-before.log"
     echo "workspace drill: step 2 provisioned one server of ${IDS[0]} through the Incus e2e target"
     drill state "${IDS[@]}" >"${STATE}/before.json"
     echo "workspace drill: recorded what the backup must bring back"
@@ -111,7 +111,7 @@ prove() {
     echo "workspace drill: restore took $(( $(date +%s) - started ))s"
     drill state "${IDS[@]}" >"${STATE}/after.json"
     drill check "${STATE}/before.json" "${STATE}/after.json"
-    drill task "${STATE}/result-${IDS[0]}.json" provision "${STATE}/provision-after.log"
+    drill task "${STATE}/result-${IDS[0]}.json" "provision-incus ws-${IDS[0]}" "${STATE}/provision-after.log"
     echo "workspace drill: a workspace task clones its repository with the key stored in Semaphore"
     if ! grep -qE "${NO_CHANGE}" "${STATE}/provision-after.log"; then
         echo "FAIL: workspace drill: tofu reports a change after the restore, see ${STATE}/provision-after.log"
@@ -126,7 +126,7 @@ controls() {
     blank_env semaphore SEMAPHORE_ACCESS_KEY_ENCRYPTION
     wait_healthy semaphore
     rm -f "${STATE}/control-clone.log"
-    if drill task "${STATE}/result-${IDS[0]}.json" provision "${STATE}/control-clone.log"; then
+    if drill task "${STATE}/result-${IDS[0]}.json" "provision-incus ws-${IDS[0]}" "${STATE}/control-clone.log"; then
         echo "FAIL: workspace drill: the task cloned without the access key encryption key"
         exit 1
     fi
@@ -161,7 +161,7 @@ controls() {
 
 cleanup() {
     local ws
-    drill task "${STATE}/result-${IDS[0]}.json" destroy "${STATE}/destroy.log"
+    drill task "${STATE}/result-${IDS[0]}.json" "destroy-incus ws-${IDS[0]}" "${STATE}/destroy.log"
     for ws in "${IDS[@]}"; do
         drill workspace destroy "${ws}" "${STATE}/destroy-${ws}"
     done

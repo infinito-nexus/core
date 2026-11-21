@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import contextlib
 import json
 import re
+import sys
 from pathlib import Path
 
 from provision import inputs, provider_env, remote
@@ -16,6 +18,8 @@ BACKEND_FILE = "backend.tfbackend"
 VALUES_FILE = "values.tfvars.json"
 RESOLV_CONF = Path("/etc/resolv.conf")
 SNAPSHOT_RECORD = "platform/data/provision/transit/{workspace}"
+TRANSIT_POLICY = "{workspace}-transit"
+TRANSIT_ROLE = "{workspace}-transit-child"
 SNAPSHOT_FIELDS = ("key_created_at", "snapshot_at")
 LOCK_ID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
 
@@ -105,31 +109,73 @@ def require_snapshot(bao, workspace):
         )
 
 
+@contextlib.contextmanager
+def opened(env, config, credentials, workspace, task, key, role):
+    """Args:
+        env, config, credentials, workspace, task, key: as for :class:`Session`.
+        role: the suffix of the workspace's task token role the run logs in
+            with once: ``provision-<provider>`` for the provision and destroy
+            templates, which pin the provider, ``provision`` for unlock and
+            dns, ``zone`` for zone.
+
+    Returns:
+        A :class:`Session` on the logged-in role token, which OpenBao revokes
+        with every child of it on every exit of the block Python handles; a
+        SIGKILL leaves the role token until its ``token_ttl`` and the child
+        until :data:`provider_env.RUN_BUDGET`.
+    """
+    bao = remote.OpenBao(config["openbao"], config["cafile"])
+    bao.login(f"{workspace['workspace']}-{role}", inputs.required(env, "SEMAPHORE_JWT"))
+    try:
+        yield Session(bao, env, config, credentials, workspace, task, key)
+    except BaseException:
+        revoke_after_failure(bao)
+        raise
+    with remote.alarm_deferred():
+        bao.revoke()
+
+
+def revoke_after_failure(bao):
+    """Args:
+        bao: the OpenBao client of a run whose block raised.
+
+    Returns:
+        Once OpenBao revoked its role token, or once stderr names the error
+        the revoke or its deferred budget alarm raised, so the exception of
+        the block stays the one the run ends with; a SystemExit or
+        KeyboardInterrupt during the revoke still ends the run.
+    """
+    try:
+        with remote.alarm_deferred():
+            bao.revoke()
+    except Exception as failure:
+        print(
+            f"the revoke of the role token after the run's own error: {failure}",
+            file=sys.stderr,
+        )
+
+
 class Session:
     """Args:
+    bao: the OpenBao client, logged in with the run's role token.
     env: the task environment.
     config: the result of :func:`configuration`.
     credentials: the decoded ``credentials.json``.
     workspace: the ``workspace.json`` document.
     task: the task directory holding the staged root.
     key: the state key in the workspace bucket.
-    reach: the ``{path, env}`` entry of ``credentials.json`` whose fields
-        the root's provider reads from the environment.
-    role: the suffix of the workspace's task token role the run logs in
-        with, :data:`PROVISION_ROLE` or :data:`ZONE_ROLE`.
     """
 
-    def __init__(self, env, config, credentials, workspace, task, key, reach, role):
+    def __init__(self, bao, env, config, credentials, workspace, task, key):
         self.workspace = workspace["workspace"]
         self.zone = workspace["dns"]["zone"]
         self.bucket_name = f"{self.workspace}-state"
         self.key = key
         self.task = task
         self.config = config
-        self.bao = remote.OpenBao(config["openbao"], config["cafile"])
-        token = self.bao.login(
-            f"{self.workspace}-{role}", inputs.required(env, "SEMAPHORE_JWT")
-        )
+        self.env = env
+        self.credentials = credentials
+        self.bao = bao
         state = credentials["state"]
         keys = provider_env.mapped(
             self.bao, state["path"].format(workspace=self.workspace), state["backend"]
@@ -142,15 +188,35 @@ class Session:
             config["cafile"],
         )
         self.backend = write_backend(task, config, self.bucket_name, key, keys)
+        self.reached = {}
+        self.environment = {}
+
+    def open(self, reach):
+        """Args:
+            reach: the ``{path, env}`` entry of ``credentials.json`` whose
+                fields the root's provider reads from the environment.
+
+        Returns:
+            The session, once it read that credential and set the environment
+            of every OpenTofu call: ``BAO_TOKEN`` there is a child token of
+            the token role ``ws-<id>-transit-child`` that carries
+            ``ws-<id>-transit`` alone, the transit key of the workspace's
+            state, never the role token of the run.
+        """
         self.reached = provider_env.mapped(
             self.bao,
             reach["path"].format(workspace=self.workspace, zone=self.zone),
             reach["env"],
         )
-        cleared = credential_names(credentials)
+        transit = self.bao.child(
+            TRANSIT_ROLE.format(workspace=self.workspace),
+            TRANSIT_POLICY.format(workspace=self.workspace),
+            f"{int(provider_env.RUN_BUDGET.total_seconds())}s",
+        )
+        cleared = credential_names(self.credentials)
         self.environment = {
             name: value
-            for name, value in env.items()
+            for name, value in self.env.items()
             if not name.startswith(CLEARED_PREFIXES)
             and name not in cleared
             and name not in CLEARED_NAMES
@@ -159,12 +225,13 @@ class Session:
             "TF_INPUT": "0",
             "TF_CLI_CONFIG_FILE": str(OPENTOFU / "tofurc"),
             "TF_ENCRYPTION": encryption(self.workspace),
-            "BAO_ADDR": config["openbao"],
-            "BAO_TOKEN": token,
+            "BAO_ADDR": self.config["openbao"],
+            "BAO_TOKEN": transit,
             **self.reached,
         }
-        if config["cafile"]:
-            self.environment["BAO_CACERT"] = config["cafile"]
+        if self.config["cafile"]:
+            self.environment["BAO_CACERT"] = self.config["cafile"]
+        return self
 
     def add_provider(self, provider, spec, region, source):
         context = {

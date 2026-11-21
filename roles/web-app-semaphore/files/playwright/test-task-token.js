@@ -113,10 +113,10 @@ function probeValue(run, kind, what) {
  *   fixture: the result of `workspaces.openWorkspace`.
  *
  * Returns:
- *   The identity apply returned for provision ws-<id>, whose project holds the probe ws-<id>.
+ *   The identity apply returned for unlock ws-<id>, whose provision project holds the probe ws-<id>.
  */
 function provisionIdentity(fixture) {
-  const name = `provision ws-${fixture.workspace}`;
+  const name = `unlock ws-${fixture.workspace}`;
   const identity = fixture.result.templates[name];
   expect(identity, `${TOKEN_LABEL}: workspace apply must return the template "${name}"`).toBeTruthy();
   return identity;
