@@ -49,7 +49,7 @@ def _prune(
     )
 
 
-class _Fixture(unittest.TestCase):
+class _Fixture:
     def setUp(self) -> None:
         caches = (reach._round_of, reach._networks, reach._runs)
         for fn in caches:
@@ -86,7 +86,7 @@ class _Fixture(unittest.TestCase):
             self.addCleanup(patch.stop)
 
 
-class TestRuns(_Fixture):
+class TestRuns(_Fixture, unittest.TestCase):
     def test_a_network_without_disable_runs_the_whole_round(self) -> None:
         self.assertEqual(
             reach._runs("roles", APP, 3, frozenset({"multi"})),
@@ -107,7 +107,7 @@ class TestRuns(_Fixture):
         )
 
 
-class TestNetworks(_Fixture):
+class TestNetworks(_Fixture, unittest.TestCase):
     def test_the_networks_are_those_of_every_tested_mode(self) -> None:
         self.assertEqual(
             reach._networks("roles", APP, 0, frozenset({"compose", "swarm"})),
@@ -122,7 +122,7 @@ class TestNetworks(_Fixture):
         self.assertTrue(self.row_states.call_args.kwargs["pulls_tor"])
 
 
-class TestRounds(_Fixture):
+class TestRounds(_Fixture, unittest.TestCase):
     def test_the_modes_are_the_tested_ones(self) -> None:
         row = SimpleNamespace(
             name=APP, variant=None, test_compose=True, test_swarm=False, test_host=True
