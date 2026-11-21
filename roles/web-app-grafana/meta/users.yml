@@ -1,0 +1,6 @@
+---
+platform_administrator: {}
+web-app-grafana-breakglass:
+  username: grafana-breakglass
+  accounts: []
+  description: Local Grafana administrator for break-glass access while Keycloak is unavailable; never provisioned in LDAP or Keycloak

@@ -12,8 +12,9 @@ const {
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, requireDotenvValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
+const { signInThroughOidc, uiSessionToken } = require("./_oidc-sign-in");
 
-const base = normalizeBaseUrl(requireDotenvValue(process.env.OPENBAO_BASE_URL, "OPENBAO_BASE_URL"));
+const base =normalizeBaseUrl(requireDotenvValue(process.env.OPENBAO_BASE_URL, "OPENBAO_BASE_URL"));
 const kvMount = requireDotenvValue(process.env.OPENBAO_KV_MOUNT, "OPENBAO_KV_MOUNT");
 const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
 const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
@@ -23,8 +24,6 @@ const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "")
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 
 const MODES = ["light", "dark"];
-const NO_PASSWORD_SIGN_IN =
-  "neither LDAP nor the userpass fallback carries a password sign-in (OPENBAO_PASSWORD_AUTH_MOUNT is empty); test-oidc-login.js asserts the OIDC round-trip";
 const SIGN_IN_FORM = "#auth-form";
 const SIGN_IN_BOX = ".login-form";
 const SUBMIT = "#auth-submit";
@@ -164,9 +163,14 @@ async function openSignIn(page, method) {
 
 /**
  * Args:
- *   page: Playwright page that ends signed in as the platform administrator through the password method the deployment provisions.
+ *   page: Playwright page that ends signed in as the platform administrator through the password method the deployment provisions, or through the OIDC method and Keycloak when it provisions none.
  */
 async function signIn(page) {
+  if (!passwordMount) {
+    await signInThroughOidc(page, adminUsername, adminPassword);
+    await expect(page.locator(HOME_LINK)).toBeVisible({ timeout: resolveTimeout(30_000) });
+    return;
+  }
   await openSignIn(page, passwordMount);
   const form = page.locator(SIGN_IN_FORM);
   await expect(form.locator("#password")).toBeEditable({ timeout: resolveTimeout(10_000) });
@@ -276,44 +280,49 @@ async function assertHostedPopupFocus(page, mode) {
 /**
  * Args:
  *   request: Playwright API context that writes the showcase secrets the lists and detail views show, when they are missing.
+ *   token: OpenBao token of the signed-in administrator session the writes run under; it stays valid for the UI.
  */
-async function seedShowcase(request) {
-  const login = await request.post(`${base}/v1/auth/${passwordMount}/login/${encodeURIComponent(adminUsername)}`, {
-    data: { password: adminPassword },
-    timeout: resolveTimeout(30_000),
-  });
-  expect(login.status(), "the administrator must obtain a token for seeding the showcase").toBe(200);
-  const headers = { "X-Vault-Token": (await login.json()).auth.client_token };
-  try {
-    for (const [path, data] of Object.entries(SHOWCASE)) {
-      const existing = await request.get(`${base}/v1/${kvMount}/metadata/${path}`, {
-        headers,
-        failOnStatusCode: false,
-        timeout: resolveTimeout(30_000),
-      });
-      if (existing.status() === 404) {
-        const created = await request.post(`${base}/v1/${kvMount}/data/${path}`, {
-          headers,
-          data: { data },
-          timeout: resolveTimeout(30_000),
-        });
-        expect(created.ok(), `seeding the showcase secret ${path}`).toBe(true);
-      }
-    }
-  } finally {
-    await request.post(`${base}/v1/auth/token/revoke-self`, {
+async function seedShowcase(request, token) {
+  expect(token, "the signed-in administrator session must hold a token for seeding the showcase").toBeTruthy();
+  const headers = { "X-Vault-Token": token };
+  for (const [path, data] of Object.entries(SHOWCASE)) {
+    const existing = await request.get(`${base}/v1/${kvMount}/metadata/${path}`, {
       headers,
       failOnStatusCode: false,
       timeout: resolveTimeout(30_000),
     });
+    if (existing.status() === 404) {
+      const created = await request.post(`${base}/v1/${kvMount}/data/${path}`, {
+        headers,
+        data: { data },
+        timeout: resolveTimeout(30_000),
+      });
+      expect(created.ok(), `seeding the showcase secret ${path}`).toBe(true);
+    }
   }
 }
 
 function signInViews() {
   const token = `${base}/ui/vault/auth?with=token`;
   const password = `${base}/ui/vault/auth?with=${passwordMount}`;
-  return [
+  const tokenViews = [
     { name: "sign-in", url: token, prepare: shown(SIGN_IN_FORM) },
+    {
+      name: "sign-in-error",
+      url: token,
+      prepare: async (page) => {
+        await shown(SIGN_IN_FORM)(page);
+        await page.locator(`${SIGN_IN_FORM} input[name='token']`).fill("not-a-real-token");
+        await page.locator(SUBMIT).click();
+        await shown(".auth-form .message")(page);
+      },
+    },
+  ];
+  if (!passwordMount) {
+    return tokenViews;
+  }
+  return [
+    ...tokenViews,
     { name: "sign-in-password", url: password, prepare: shown(`${SIGN_IN_FORM} #username`) },
     {
       name: "sign-in-focus",
@@ -338,16 +347,6 @@ function signInViews() {
         await shown(SIGN_IN_FORM)(page);
         await page.locator(MORE_OPTIONS).click();
         await shown("#custom-path")(page);
-      },
-    },
-    {
-      name: "sign-in-error",
-      url: token,
-      prepare: async (page) => {
-        await shown(SIGN_IN_FORM)(page);
-        await page.locator(`${SIGN_IN_FORM} input[name='token']`).fill("not-a-real-token");
-        await page.locator(SUBMIT).click();
-        await shown(".auth-form .message")(page);
       },
     },
   ];
@@ -387,7 +386,7 @@ function signedInViews() {
     view("kv-configuration", `secrets/${kvMount}/configuration`, ".info-table-row"),
     view("auth-methods", "access", ROW),
     view("auth-method-enable", "settings/auth/enable", HEADING),
-    view("auth-method-configuration", `access/${passwordMount}/configuration`, ".info-table-row"),
+    view("auth-method-configuration", `access/${passwordMount || "oidc"}/configuration`, ".info-table-row"),
     view("entities", "access/identity/entities", HEADING),
     view("groups", "access/identity/groups", ROW),
     view("group-create", "access/identity/groups/create", "form"),
@@ -484,7 +483,7 @@ test("design: the signed-in interface takes frame, surfaces, primary action and 
   page,
 }) => {
   skipUnlessServiceEnabled("design");
-  test.skip(!passwordMount, NO_PASSWORD_SIGN_IN);
+  test.setTimeout(resolveTimeout(240_000));
   await signIn(page);
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
@@ -526,7 +525,7 @@ test("design: the internal engines toggle takes track, knob, checked state and f
   page,
 }) => {
   skipUnlessServiceEnabled("design");
-  test.skip(!passwordMount, NO_PASSWORD_SIGN_IN);
+  test.setTimeout(resolveTimeout(240_000));
   await signIn(page);
   for (const mode of MODES) {
     const state = `internal engines toggle ${mode}`;
@@ -555,7 +554,7 @@ test("design: the internal engines toggle takes track, knob, checked state and f
 
 test("design: the browser console and the code editor keep surface and text from the palette", async ({ page }) => {
   skipUnlessServiceEnabled("design");
-  test.skip(!passwordMount, NO_PASSWORD_SIGN_IN);
+  test.setTimeout(resolveTimeout(240_000));
   await signIn(page);
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
@@ -620,7 +619,7 @@ test("design: the sidebar shows the generated logo and signed-in pages keep the 
 }) => {
   skipUnlessServiceEnabled("design");
   test.skip(!logoUrl && !title, "logo and title replacement are disabled for this role");
-  test.skip(!passwordMount, NO_PASSWORD_SIGN_IN);
+  test.setTimeout(resolveTimeout(240_000));
 
   await signIn(page);
   await gotoOnion(page, `${base}/ui/vault/policies/acl`);
@@ -642,14 +641,13 @@ test("design: the sidebar shows the generated logo and signed-in pages keep the 
 test("design: gallery of sign-in, secrets, access, policies, tools and menus", async ({ page, request }) => {
   skipUnlessServiceEnabled("design");
   test.skip(!galleryEnabled(), "INFINITO_PLAYWRIGHT_KEEP is not true");
-  test.skip(!passwordMount, NO_PASSWORD_SIGN_IN);
   test.setTimeout(resolveTimeout(2_400_000));
 
   await openSignIn(page, "token");
   const signedOutFailure = await captureDesignGallery(page, signInViews()).catch((error) => error);
 
-  await seedShowcase(request);
   await signIn(page);
+  await seedShowcase(request, await uiSessionToken(page));
   await captureDesignGallery(page, signedInViews());
   if (signedOutFailure) throw signedOutFailure;
 });

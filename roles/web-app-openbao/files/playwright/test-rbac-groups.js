@@ -5,7 +5,7 @@ const {
   normalizeBaseUrl,
   requireDotenvValue,
 } = require("./personas");
-const { skipUnlessServiceEnabled, isServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled, isServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const baseUrl = normalizeBaseUrl(requireDotenvValue(process.env.OPENBAO_BASE_URL, "OPENBAO_BASE_URL"));
@@ -168,8 +168,9 @@ const TIER_CAPABILITIES = {
 test.describe("rbac: the OpenBao tiers follow LDAP group membership", () => {
   test.describe.configure({ mode: "serial" });
 
-  test("rbac: biber starts outside every OpenBao role group", async ({ request }) => {
+  test("biber: starts outside every OpenBao role group", async ({ request }) => {
     skipUnlessServiceEnabled("ldap");
+    skipUnlessServiceDisabled("sso");
 
     const { policies, token } = await loginAsBiber(request);
     for (const role of RBAC_ROLES) {
@@ -188,11 +189,12 @@ test.describe("rbac: the OpenBao tiers follow LDAP group membership", () => {
   });
 
   for (const role of RBAC_ROLES) {
-    test(`rbac: LAM granting the ${role} group hands biber that tier, and revoking takes it back`, async ({
+    test(`biber: LAM granting the ${role} group hands biber that tier, and revoking takes it back`, async ({
       page,
       request,
     }) => {
       skipUnlessServiceEnabled("ldap");
+      skipUnlessServiceDisabled("sso");
       test.skip(!isServiceEnabled("lam"), "LAM not deployed (LAM_SERVICE_ENABLED=false)");
       test.setTimeout(resolveTimeout(180_000));
 

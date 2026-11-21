@@ -1,0 +1,15 @@
+---
+# Param knot_host: inventory host whose workspace key registry is read.
+# Output knot_workspace_keys: {ws-<id>: base64 TSIG secret}, {} on a host without registry.
+- name: "📖 Read the workspace keys of {{ KNOT_ZONE }} on {{ knot_host }}"
+  ansible.builtin.slurp:
+    src: "{{ KNOT_KEYS_FILE }}"
+  register: knot_keys_read
+  failed_when:
+    - knot_keys_read is failed
+    - "'not found' not in (knot_keys_read.msg | default(''))"
+  delegate_to: "{{ knot_host }}"
+
+- name: "🔑 Keep the workspace keys of {{ KNOT_ZONE }}"
+  ansible.builtin.set_fact:
+    knot_workspace_keys: "{{ (knot_keys_read.content | b64decode | from_json) if knot_keys_read.content is defined else {} }}"

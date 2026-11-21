@@ -1,6 +1,7 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvQuotedValue, findFirstVisibleCandidate, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { isAddonEnabled } = require("./addon-gating");
 const { isServiceEnabled } = require("./service-gating");
 const {
   getNextcloudShellCandidates,
@@ -31,16 +32,18 @@ const nextcloudOidcEnabled = isServiceEnabled("sso");
 const nextcloudLdapEnabled = isServiceEnabled("ldap");
 const nextcloudLoginFlavor = !nextcloudOidcEnabled
   ? "native"
-  : nextcloudLdapEnabled
-    ? "oidc_login"
-    : "sociallogin";
+  : isAddonEnabled("user_oidc")
+    ? "user_oidc"
+    : nextcloudLdapEnabled
+      ? "oidc_login"
+      : "sociallogin";
 
 function getNextcloudSocialLoginCandidates(target) {
   return [
     {
       kind: "social-login",
       locator: target.locator(
-        'a[href*="/apps/sociallogin/"], a[href*="/custom_oidc/"], a[href*="/apps/oidc_login/"], a.oidc-button, button[formaction*="/apps/sociallogin/"], button[formaction*="/custom_oidc/"]'
+        'a[href*="/apps/sociallogin/"], a[href*="/custom_oidc/"], a[href*="/apps/oidc_login/"], a[href*="/apps/user_oidc/login/"], a.oidc-button, button[formaction*="/apps/sociallogin/"], button[formaction*="/custom_oidc/"]'
       )
     },
     {
@@ -54,8 +57,8 @@ function getNextcloudSocialLoginCandidates(target) {
   ];
 }
 
-async function attemptStandaloneNextcloudLogin(adminPage, username, password) {
-  const loginUrl = new URL("login", nextcloudBaseUrl).toString();
+async function attemptStandaloneNextcloudLogin(adminPage, username, password, baseUrl) {
+  const loginUrl = new URL("login", baseUrl).toString();
   const usernameField = adminPage.getByRole("textbox", { name: nextcloudUsernameFieldPattern });
   const passwordField = adminPage.locator('input[name="password"], input[type="password"]').first();
   const signInButton = adminPage.getByRole("button", { name: nextcloudCredentialSubmitPattern });
@@ -83,13 +86,14 @@ async function attemptStandaloneNextcloudLogin(adminPage, username, password) {
         "Timed out waiting for the Nextcloud native credential form or an already-authenticated shell";
       break;
     case "sociallogin":
+    case "user_oidc":
       flavorCandidates = [
         ...socialLoginCandidates,
         ...credentialCandidates,
         ...standaloneShellCandidates
       ];
       timeoutMessage =
-        "Timed out waiting for the Nextcloud social-login entry, the Keycloak credential form, or an already-authenticated shell";
+        `Timed out waiting for the Nextcloud ${nextcloudLoginFlavor} entry, the Keycloak credential form, or an already-authenticated shell`;
       break;
     case "oidc_login":
     default:
@@ -117,12 +121,16 @@ async function attemptStandaloneNextcloudLogin(adminPage, username, password) {
 
   if (initialState.kind === "social-login") {
     await initialState.locator.click({ timeout: resolveTimeout(5_000) });
-    await waitForVisibleCandidate(
+    const handover = await waitForVisibleCandidate(
       adminPage,
       [...credentialCandidates, ...standaloneShellCandidates],
       resolveTimeout(60_000),
       "Timed out waiting for the Keycloak credential form after following the Nextcloud social-login entry"
     );
+    if (handover.kind === "shell") {
+      await dismissBlockingNextcloudModals(adminPage, adminPage);
+      return;
+    }
   }
 
   const effectiveUsername = username;
@@ -182,14 +190,19 @@ async function logoutStandaloneNextcloud(adminPage) {
   await adminPage.waitForLoadState("networkidle", { timeout: resolveTimeout(45_000) }).catch(() => {});
 }
 
-async function loginToStandaloneNextcloud(adminPage, username = loginUsername, password = loginPassword) {
+async function loginToStandaloneNextcloud(
+  adminPage,
+  username = loginUsername,
+  password = loginPassword,
+  baseUrl = nextcloudBaseUrl
+) {
   try {
-    await attemptStandaloneNextcloudLogin(adminPage, username, password);
+    await attemptStandaloneNextcloudLogin(adminPage, username, password, baseUrl);
     return;
   } catch (first) {
     await adminPage.waitForTimeout(resolveTimeout(5_000));
     try {
-      await attemptStandaloneNextcloudLogin(adminPage, username, password);
+      await attemptStandaloneNextcloudLogin(adminPage, username, password, baseUrl);
     } catch (second) {
       second.message += `\n\nThe first attempt failed with: ${first.message}`;
       throw second;
@@ -220,9 +233,7 @@ module.exports = {
     xwikiBaseUrl,
     nextcloudUsernameFieldPattern,
     nextcloudCredentialSubmitPattern,
-    nextcloudOidcEnabled,
     nextcloudLdapEnabled,
-    nextcloudLoginFlavor,
   },
   getNextcloudShellCandidates,
   waitForFirstVisible,

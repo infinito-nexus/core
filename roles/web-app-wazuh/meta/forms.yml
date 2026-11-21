@@ -1,0 +1,53 @@
+---
+security:
+  path: /app/security-dashboards-plugin
+  native: true
+  sinks: [WAZUH_SECURITY]
+  fields:
+    admin_group:
+      source: services.wazuh.backend_roles.admin_group
+      mode: enforced
+      selector: "[data-test-subj='role-mapping-list']"
+      type: text
+      label: Backend role mapped onto all_access
+    analyst_group:
+      source: services.wazuh.backend_roles.analyst_group
+      mode: enforced
+      selector: "[data-test-subj='role-mapping-list']"
+      type: text
+      label: Backend role mapped onto security_analyst
+    readonly_group:
+      source: services.wazuh.backend_roles.readonly_group
+      mode: enforced
+      selector: "[data-test-subj='role-mapping-list']"
+      type: text
+      label: Backend role mapped onto readonly_auditor and kibana_read_only
+dashboard:
+  path: /app/
+  native: true
+  sinks: [WAZUH_DASHBOARD]
+  fields:
+    default_route:
+      source: services.wazuh.ui.default_route
+      mode: enforced
+      selector: "[data-test-subj='advancedSetting-editField-defaultRoute']"
+      type: text
+      label: Default route
+    api_url:
+      source: services.wazuh.ui.api_url
+      mode: enforced
+      selector: "[data-test-subj='wz-api-table']"
+      type: url
+      label: Server API URL
+    api_port:
+      source: services.wazuh.ui.api_port
+      mode: enforced
+      selector: "[data-test-subj='wz-api-table']"
+      type: number
+      label: Server API port
+    api_username:
+      source: services.wazuh.ui.api_username
+      mode: enforced
+      selector: "[data-test-subj='wz-api-table']"
+      type: text
+      label: Server API user

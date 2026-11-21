@@ -1,9 +1,27 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "📣 Report the managed LAM settings the next container start overwrites"
+  ansible.builtin.include_tasks: 01_forms_drift.yml
+  when: IS_STACK_HOST | bool
+
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
-    name: sys-stk-full
+    name: svc-stack
+    tasks_from: consumer.yml
+
+- name: "🎬 Stage the LAM entrypoint and its PHP helper into the compose build context"
+  stack_host_copy:
+    src: "{{ item.src }}"
+    dest: "{{ [lookup('container', application_id, 'directories.instance'), item.dest] | path_join }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { src: "shell/entrypoint.sh", dest: "entrypoint.sh", mode: "0755" }
+    - { src: "php/login_search.php", dest: "login_search.php", mode: "0644" }
+  notify:
+    - compose-build
+    - compose-up
+  when: IS_STACK_HOST | bool
 
 - name: "🎨 Render the in-house stylesheet and script of {{ application_id }}"
   ansible.builtin.include_tasks:

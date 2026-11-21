@@ -14,15 +14,65 @@
   ansible.builtin.include_tasks: 02_bench_bootstrap/create_site.yml
   when: erpnext_site_probe.rc != 0
 
-- name: "🔑 Realign the Administrator password with the declared one"
+- name: "🔍 find the apps whose image version is newer than the site's"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e SITE_NAME
+      {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
+      {{ ERPNEXT_BENCH_PYTHON }}
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/pending_migration.py') }}"
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
+  environment:
+    SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
+  register: erpnext_pending_migration
+  changed_when: false
+
+- name: "🔍 probe for the marker an unfinished migration leaves behind"
+  ansible.builtin.shell: |
+    set -eo pipefail
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ERPNEXT_BACKEND_LOCAL_CID | quote }} \
+      test -e {{ ERPNEXT_MIGRATE_MARKER | quote }}
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
+  register: erpnext_migrate_marker
+  changed_when: false
+  failed_when: erpnext_migrate_marker.rc not in [0, 1]
+
+- name: "🚚 bench migrate '{{ ERPNEXT_SITE_NAME }}' onto the image's versions"
   ansible.builtin.shell: |
     set -euo pipefail
     # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i -e ADMIN_PASSWORD {{ ERPNEXT_BACKEND_LOCAL_CID | quote }} bash -c '
-      bench --site {{ ERPNEXT_SITE_NAME }} set-admin-password "$ADMIN_PASSWORD"
+    container exec -e MIGRATE_MARKER {{ ERPNEXT_BACKEND_LOCAL_CID | quote }} bash -euc '
+      touch "$MIGRATE_MARKER"
+      bench --site {{ ERPNEXT_SITE_NAME }} migrate
+      rm "$MIGRATE_MARKER"
     '
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
   environment:
-    ADMIN_PASSWORD: "{{ ERPNEXT_INITIAL_ADMIN_PASSWORD }}"
+    MIGRATE_MARKER: "{{ ERPNEXT_MIGRATE_MARKER }}"
+  register: erpnext_migrate
+  changed_when: true
+  timeout: "{{ lookup('timeout', 1800) | int }}"
+  when: >-
+    (erpnext_pending_migration.stdout_lines | last | from_json).pending | length > 0
+    or erpnext_migrate_marker.rc == 0
+
+- name: "🔄 Restart Frappe so every process runs on the migrated schema"
+  ansible.builtin.include_tasks: 02_bench_bootstrap/restart_frappe.yml
+  when: erpnext_migrate is changed
+
+- name: "🔑 Realign the Administrator password with the declared one"
+  ansible.builtin.shell:
+    cmd: |
+      set -euo pipefail
+      IFS= read -r ADMIN_PASSWORD || :; : "${ADMIN_PASSWORD:?arrived empty on stdin}"
+      export ADMIN_PASSWORD
+      # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i -e ADMIN_PASSWORD {{ ERPNEXT_BACKEND_LOCAL_CID | quote }} bash -c '
+        bench --site {{ ERPNEXT_SITE_NAME }} set-admin-password "$ADMIN_PASSWORD"
+      '
+    stdin: "{{ ERPNEXT_INITIAL_ADMIN_PASSWORD }}"
   delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -55,25 +105,29 @@
   register: erpnext_company_apply
   changed_when: erpnext_company_apply.rc == 0 and (erpnext_company_apply.stdout_lines | last | from_json).created | length > 0
 
-- name: "📌 apply API-bot user + bypass setup wizard"
+- name: "📌 apply or retire the API-bot user + bypass setup wizard"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.shell:
     cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      IFS= read -r API_BOT_PASSWORD && IFS= read -r API_KEY_SECRET && : "${API_BOT_PASSWORD:?arrived empty on stdin}" && : "${API_KEY_SECRET:?arrived empty on stdin}"
+      && export API_BOT_PASSWORD API_KEY_SECRET &&
       container exec -i
-      -e SITE_NAME -e API_BOT_LOGIN -e API_BOT_EMAIL -e API_BOT_FIRSTNAME -e API_BOT_LASTNAME -e API_BOT_PASSWORD -e API_KEY_SECRET
+      -e SITE_NAME -e API_BOT_ENABLED -e API_BOT_LOGIN -e API_BOT_EMAIL -e API_BOT_FIRSTNAME -e API_BOT_LASTNAME -e API_BOT_PASSWORD -e API_KEY_SECRET
       -e API_BOT_EXTRA_ROLES_JSON -e COUNTRY -e CURRENCY -e SERVER_SCRIPTS_ENABLED
       {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
       {{ ERPNEXT_BENCH_PYTHON }}
-    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/api_bot.py') }}"
+    stdin: |-
+      {{ ERPNEXT_API_BOT_PASSWORD }}
+      {{ ERPNEXT_API_KEY_SECRET }}
+      {{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/api_bot.py') }}
   delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
   environment:
     SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
+    API_BOT_ENABLED: "{{ ERPNEXT_API_BOT_ENABLED }}"
     API_BOT_LOGIN: "{{ ERPNEXT_API_BOT_USER.username }}"
     API_BOT_EMAIL: "{{ ERPNEXT_API_BOT_USER.email }}"
     API_BOT_FIRSTNAME: "{{ ERPNEXT_API_BOT_USER.firstname }}"
     API_BOT_LASTNAME: "{{ ERPNEXT_API_BOT_USER.lastname }}"
-    API_BOT_PASSWORD: "{{ ERPNEXT_API_BOT_PASSWORD }}"
-    API_KEY_SECRET: "{{ ERPNEXT_API_KEY_SECRET }}"
     API_BOT_EXTRA_ROLES_JSON: "{{ ERPNEXT_API_BOT_EXTRA_ROLES | to_json }}"
     COUNTRY: "{{ ERPNEXT_COMPANY_COUNTRY }}"
     CURRENCY: "{{ (erpnext_company_apply.stdout_lines | last | from_json).currency }}"
@@ -95,6 +149,13 @@
   register: erpnext_server_scripts_apply
   changed_when: (erpnext_server_scripts_apply.stdout_lines | last | from_json).changed
 
-- name: "🔄 Restart Frappe so every worker reads the new server_script_enabled"
+- name: "🔍 Check that the Frappe processes run with the declared site config"
+  ansible.builtin.include_tasks: 02_bench_bootstrap/site_config_revision.yml
+  vars:
+    erpnext_site_config_record: false
+
+- name: "🔄 Restart Frappe on a new server_script_enabled or common site config"
   ansible.builtin.include_tasks: 02_bench_bootstrap/restart_frappe.yml
-  when: erpnext_server_scripts_apply is changed
+  when: >-
+    erpnext_server_scripts_apply is changed
+    or not (erpnext_site_config_revision.stdout_lines | last | from_json).current

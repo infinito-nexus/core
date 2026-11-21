@@ -1,0 +1,92 @@
+{% set openbao_workspace = 'ws-' ~ WORKSPACE %}
+[
+  {
+    "mount": {{ OPENBAO_JWT_MOUNT | to_json }},
+    "name": {{ openbao_workspace | to_json }},
+    "body": {
+      "role_type": "jwt",
+      "bound_audiences": [{{ OPENBAO_JWT_AUDIENCE | to_json }}],
+      "user_claim": "sub",
+      "bound_claims_type": "string",
+      "bound_claims": {
+        "project_id": {{ workspace_semaphore.project_id | to_json }}
+      },
+      "token_policies": ["tenant"],
+      "token_ttl": {{ OPENBAO_JWT_TOKEN_TTL.deploy | to_json }},
+      "token_max_ttl": {{ OPENBAO_JWT_TOKEN_TTL.deploy | to_json }}
+    }
+  },
+  {
+    "mount": {{ OPENBAO_JWT_MOUNT | to_json }},
+    "name": {{ (openbao_workspace ~ '-provision') | to_json }},
+    "body": {
+      "role_type": "jwt",
+      "bound_audiences": [{{ OPENBAO_JWT_AUDIENCE | to_json }}],
+      "user_claim": "sub",
+      "bound_claims_type": "string",
+      "bound_claims": {
+        "project_id": {{ workspace_semaphore.provision_project_id | to_json }},
+        "template_id": [
+          {{ workspace_semaphore.provision_templates.provision | to_json }},
+          {{ workspace_semaphore.provision_templates.destroy | to_json }},
+          {{ workspace_semaphore.provision_templates.unlock | to_json }},
+          {{ workspace_semaphore.dns_template_id | to_json }}
+        ]
+      },
+      "token_policies": ["tenant", "provision-shared"],
+      "token_ttl": {{ OPENBAO_JWT_TOKEN_TTL.provision | to_json }},
+      "token_max_ttl": {{ OPENBAO_JWT_TOKEN_TTL.provision | to_json }}
+    }
+  },
+  {
+    "mount": {{ OPENBAO_JWT_EXPORT_MOUNT | to_json }},
+    "name": {{ openbao_workspace | to_json }},
+    "body": {
+      "role_type": "jwt",
+      "bound_audiences": [{{ OPENBAO_JWT_AUDIENCE | to_json }}],
+      "user_claim": "sub",
+      "bound_claims_type": "string",
+      "bound_claims": {
+        "project_id": {{ workspace_semaphore.export_project_id | to_json }},
+        "template_id": [{{ workspace_semaphore.export_template_id | to_json }}]
+      },
+      "token_policies": ["tenant-export", "export-shared"],
+      "token_ttl": {{ OPENBAO_JWT_TOKEN_TTL.export | to_json }},
+      "token_max_ttl": {{ OPENBAO_JWT_TOKEN_TTL.export | to_json }}
+    }
+  },
+  {
+    "mount": {{ OPENBAO_JWT_MOUNT | to_json }},
+    "name": "members",
+    "body": {
+      "role_type": "jwt",
+      "bound_audiences": [{{ OPENBAO_JWT_AUDIENCE | to_json }}],
+      "user_claim": "sub",
+      "bound_claims_type": "string",
+      "bound_claims": {
+        "project_id": {{ workspace_semaphore.workspaces_project_id | to_json }},
+        "template_id": [{{ workspace_semaphore.members_template_id | to_json }}]
+      },
+      "token_policies": ["members"],
+      "token_ttl": {{ OPENBAO_JWT_TOKEN_TTL.deploy | to_json }},
+      "token_max_ttl": {{ OPENBAO_JWT_TOKEN_TTL.deploy | to_json }}
+    }
+  },
+  {
+    "mount": {{ OPENBAO_JWT_MOUNT | to_json }},
+    "name": {{ (openbao_workspace ~ '-zone') | to_json }},
+    "body": {
+      "role_type": "jwt",
+      "bound_audiences": [{{ OPENBAO_JWT_AUDIENCE | to_json }}],
+      "user_claim": "sub",
+      "bound_claims_type": "string",
+      "bound_claims": {
+        "project_id": {{ workspace_semaphore.provision_project_id | to_json }},
+        "template_id": [{{ workspace_semaphore.zone_template_id | to_json }}]
+      },
+      "token_policies": [{{ (openbao_workspace ~ '-zone') | to_json }}],
+      "token_ttl": {{ OPENBAO_JWT_TOKEN_TTL.provision | to_json }},
+      "token_max_ttl": {{ OPENBAO_JWT_TOKEN_TTL.provision | to_json }}
+    }
+  }
+]

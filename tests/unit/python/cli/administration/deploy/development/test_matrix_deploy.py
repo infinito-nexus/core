@@ -5,7 +5,7 @@ variant-closure (``include``); between rounds the wrapper wipes the union
 deploy.handler reads the running container name strictly via
 cli.administration.deploy.development.common.resolve_container (which is
 sourced from scripts/meta/env/load.sh, the single SPOT for the formula).
-That resolver is patched for the whole test module instead of duplicating
+That resolver is patched for every test instead of duplicating
 the formula or hard-coding INFINITO_CONTAINER in os.environ. The tests
 below do not assert on the returned value; the sentinel is purely an
 opaque fixture string.
@@ -18,13 +18,22 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-_RESOLVE_CONTAINER_PATCHER = patch(
-    "cli.administration.deploy.development.deploy.cli.resolve_container",
-    return_value="<unit-test fixture>",
-)
-_RESOLVE_CONTAINER_PATCHER.start()
+from cli.administration.deploy.development.deploy import handler
 
-from cli.administration.deploy.development.deploy import handler  # noqa: E402
+RESET_TARGET = "cli.administration.deploy.development.deploy.cli.reset_stack_target"
+
+
+class _HandlerTestCase(unittest.TestCase):
+    def setUp(self) -> None:
+        for patcher in (
+            patch(
+                "cli.administration.deploy.development.deploy.cli.resolve_container",
+                return_value="<unit-test fixture>",
+            ),
+            patch(RESET_TARGET),
+        ):
+            patcher.start()
+            self.addCleanup(patcher.stop)
 
 
 def _args(
@@ -68,7 +77,7 @@ def _make_compose_mock() -> MagicMock:
     return compose
 
 
-class TestHandlerMatrixDeploy(unittest.TestCase):
+class TestHandlerMatrixDeploy(_HandlerTestCase):
     @patch(
         "cli.administration.deploy.development.deploy.cli._purge_app_entities",
         autospec=True,
@@ -185,7 +194,8 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
         ]
         run_deploy_mock.return_value = 0
 
-        rc = handler(_args(apps=["web-app-multi", "web-app-keycloak"]))
+        with patch(RESET_TARGET) as reset_mock:
+            rc = handler(_args(apps=["web-app-multi", "web-app-keycloak"]))
 
         self.assertEqual(rc, 0)
         self.assertEqual(run_deploy_mock.call_count, 2)
@@ -197,6 +207,10 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
         self.assertEqual(
             sorted(purge_mock.call_args.kwargs["app_ids"]),
             ["web-app-keycloak", "web-app-multi"],
+        )
+        self.assertEqual(
+            reset_mock.call_args_list,
+            [((make_compose_mock.return_value,),)] * 2,
         )
 
     @patch(
@@ -367,7 +381,7 @@ class TestHandlerMatrixDeploy(unittest.TestCase):
         purge_mock.assert_not_called()
 
 
-class TestHandlerVariantPin(unittest.TestCase):
+class TestHandlerVariantPin(_HandlerTestCase):
     """`--variant <idx>` (or variant env-var) pins the deploy to one
     specific round's folder, skipping inter-round cleanup. Use case:
     redeploying one variant without iterating the whole matrix."""
@@ -443,7 +457,7 @@ class TestHandlerVariantPin(unittest.TestCase):
         run_deploy_mock.assert_not_called()
 
 
-class TestHandlerFullCycle(unittest.TestCase):
+class TestHandlerFullCycle(_HandlerTestCase):
     """`--full-cycle` runs an async re-deploy IMMEDIATELY after each
     round's sync deploy (Pass 2 stays co-located with Pass 1 on the
     same variant). Without `--full-cycle` only Pass 1 runs per round."""
@@ -499,7 +513,7 @@ class TestHandlerFullCycle(unittest.TestCase):
                 (
                     "/srv/inv-0",
                     {
-                        "ASYNC_ENABLED": True,
+                        "DEPLOY_IS_UPDATE": True,
                         "VARIANT_INDEX": 0,
                         "PRIMARY_APPS": ["web-app-multi"],
                     },
@@ -508,7 +522,7 @@ class TestHandlerFullCycle(unittest.TestCase):
                 (
                     "/srv/inv-1",
                     {
-                        "ASYNC_ENABLED": True,
+                        "DEPLOY_IS_UPDATE": True,
                         "VARIANT_INDEX": 1,
                         "PRIMARY_APPS": ["web-app-multi"],
                     },
@@ -517,6 +531,44 @@ class TestHandlerFullCycle(unittest.TestCase):
         )
         purge_mock.assert_called_once()
         self.assertEqual(purge_mock.call_args.kwargs["app_ids"], ["web-app-multi"])
+
+    @patch(
+        "cli.administration.deploy.development.deploy.cli._purge_app_entities",
+        autospec=True,
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli._run_deploy", autospec=True
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.plan_dev_inventory_matrix",
+        autospec=True,
+    )
+    @patch(
+        "cli.administration.deploy.development.deploy.cli.make_compose", autospec=True
+    )
+    def test_full_cycle_resets_the_target_before_every_pass(
+        self,
+        make_compose_mock: MagicMock,
+        plan_mock: MagicMock,
+        run_deploy_mock: MagicMock,
+        purge_mock: MagicMock,
+    ) -> None:
+        compose = _make_compose_mock()
+        make_compose_mock.return_value = compose
+        plan_mock.return_value = [
+            _entry(0, "/srv/inv-0", {"web-app-multi": 0}),
+            _entry(1, "/srv/inv-1", {"web-app-multi": 1}),
+        ]
+        events = []
+        run_deploy_mock.side_effect = lambda *_a, **_k: events.append("deploy") or 0
+
+        with patch(
+            RESET_TARGET, side_effect=lambda stack: events.append(("reset", stack))
+        ):
+            rc = handler(_args(apps=["web-app-multi"], full_cycle=True))
+
+        self.assertEqual(rc, 0)
+        self.assertEqual(events, [("reset", compose), "deploy"] * 4)
 
     @patch(
         "cli.administration.deploy.development.deploy.cli._purge_app_entities",
@@ -596,7 +648,7 @@ class TestHandlerFullCycle(unittest.TestCase):
                 (
                     "/srv/inv-1",
                     {
-                        "ASYNC_ENABLED": True,
+                        "DEPLOY_IS_UPDATE": True,
                         "VARIANT_INDEX": 1,
                         "PRIMARY_APPS": ["web-app-multi"],
                     },

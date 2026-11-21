@@ -19,14 +19,21 @@
 
 - name: "🛠️ Decommission, finalize and test while the timers are still locked"
   block:
-    - name: "🧹 Decommission the compose stacks of roles no longer active on this host"
-      include_role:
-        name: sys-svc-compose
-        tasks_from: decommission.yml
+    - name: "🧹 Decommission what roles no longer active on this host left behind"
       when:
-        - MODE_CLEANUP | bool
-        - IS_COMPOSE_MODE | bool
+        - CLEANUP | bool
         - lookup('deployment').whitelist | length == 0
+      block:
+        - name: "🧹 Decommission the compose stacks of roles no longer active on this host"
+          include_role:
+            name: sys-svc-compose
+            tasks_from: decommission.yml
+          when: IS_COMPOSE_MODE | bool
+
+        - name: "🧹 Drop the garbage collector manifests of roles no longer active on this host"
+          include_role:
+            name: sys-ctl-cln-apps
+            tasks_from: decommission.yml
 
     - name: "🛠️ Finalize services"
       include_role:
@@ -41,3 +48,21 @@
       include_role:
         name: sys-service-terminator
         tasks_from: 02_unlock.yml
+
+- name: "⏯️ Apply the persisted pause state of every application as the last step"
+  include_role:
+    name: sys-svc-app-control
+  when:
+    - IS_STACK_HOST | bool
+    - run_once_sys_svc_compose is defined
+
+- name: "🗂️ Sync Semaphore's stop and start templates with the apps app-control holds"
+  include_role:
+    name: web-app-semaphore
+    tasks_from: utils/project.yml
+  vars:
+    application_id: web-app-semaphore
+  when:
+    - IS_STACK_HOST | bool
+    - run_once_sys_svc_compose is defined
+    - "'web-app-semaphore' in group_names"

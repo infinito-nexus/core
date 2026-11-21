@@ -1,5 +1,6 @@
 ---
-enabled: "{{ lookup('config', 'web-app-jenkins', 'services.sso.enabled') | bool }}"
+enabled: "{{ (lookup('config', 'web-app-jenkins', 'services.sso.enabled') | bool) and (lookup('config', 'web-app-jenkins', 'services.jenkins.login.method.sso.enabled')
+  | bool) }}"
 required: true
 mechanism: plugin
 source: upstream

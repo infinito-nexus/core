@@ -1,0 +1,11 @@
+---
+- name: "📂 For '{{ application_id }}': serve its vhosts from the OpenResty host"
+  ansible.builtin.include_tasks:
+    file: consumer/front.yml
+    apply:
+      delegate_to: "{{ (groups['svc-prx-openresty'] | default([]))[0] | default(inventory_hostname) }}"
+      run_once: true
+  when: (groups['svc-prx-openresty'] | default([])) | length > 0
+
+- name: "🧩 For '{{ application_id }}': load docker and db"
+  ansible.builtin.include_tasks: consumer/back.yml

@@ -1,0 +1,24 @@
+{# Param: logout_consumer_id names the application whose vhost receives the seal; every includer sets it. #}
+{% if lookup('config', logout_consumer_id, 'services.sso.oidc.backchannel_logout_gate', False) | bool %}
+{% set _seal_digest = lookup('config', logout_consumer_id, 'secrets.credentials.logout_gate_key') | hash('sha256') %}
+{% set _seal_directives %}
+  limit_except POST {
+    deny all;
+  }
+  access_by_lua_block {
+    local key = ngx.var.http_x_logout_gate_key
+    if not key then
+      return ngx.exit(ngx.HTTP_FORBIDDEN)
+    end
+    local digest = require("resty.sha256"):new()
+    digest:update(key)
+    if require("resty.string").to_hex(digest:final()) ~= "{{ _seal_digest }}" then
+      return ngx.exit(ngx.HTTP_FORBIDDEN)
+    end
+  }
+  proxy_set_header X-Logout-Gate-Key "";
+{% endset %}
+{% with location = '= ' ~ lookup('config', logout_consumer_id, 'services.sso.oidc.backchannel_logout_path'), sso_proxy_enabled = false, webserver_location_extra_configuration = _seal_directives %}
+{% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
+{% endwith %}
+{% endif %}

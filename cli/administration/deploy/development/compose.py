@@ -6,22 +6,18 @@ import subprocess
 import time
 from pathlib import Path
 
-from utils.cache.render import ROLE_DIR as CACHE_ROLE_DIR
+from utils.cache import pin
 from utils.cache.render import render_artifacts
 from utils.env.handlers.infinito.cache.conf import KEY as CACHE_CONF_KEY
 from utils.env.handlers.infinito.cache.conf import RELATIVE as CACHE_CONF
+from utils.infra import INFRA_UP
 
 from .coredns import CoreDNSCorefileRenderer
 from .docker_root import cleanup_docker_root
-from .env import compose_file_args
 from .network import detect_outer_network_mtu
 from .proc import run_streaming
 from .profile import Profile
-from .runner_mirror import env_image
-
-CACHE_ROLE_SHELL_DIR = CACHE_ROLE_DIR / "files" / "shell"
-
-INIT_IMAGE_KEY = "INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE"
+from .stack import compose_argv
 
 PACMAN_CACHE_SCRIPT = "/usr/local/bin/pacman-cache.sh"
 PACMAN_CONF = "/etc/pacman.conf"
@@ -76,7 +72,7 @@ class Compose:
         text: bool = True,
         extra_env: dict[str, str] | None = None,
     ) -> subprocess.CompletedProcess:
-        cmd = ["docker", "compose", *compose_file_args(), *args]
+        cmd = [*compose_argv(self.repo_root), *args]
         env = self._base_env()
         if extra_env:
             env.update({k: str(v) for k, v in extra_env.items()})
@@ -130,64 +126,14 @@ class Compose:
         if last_exc is not None:
             raise last_exc
 
-    def _bootstrap_package_cache(self, env: dict[str, str]) -> None:
-        """Run the host-side Nexus bootstrap helper. Idempotent."""
-        helper = CACHE_ROLE_SHELL_DIR / "bootstrap.sh"
-        print(">>> Bootstrapping package-cache proxy repos")
-        r = subprocess.run(
-            [str(helper)],
-            cwd=self.repo_root,
-            env=env,
-            check=False,
-            text=True,
-        )
-        if r.returncode != 0:
-            print(
-                f">>> WARNING: package-cache bootstrap exited rc={r.returncode}; "
-                f"re-run {helper} manually or inspect docker logs infinito-package-cache"
-            )
-
-    def _generate_package_frontend_certs(self, env: dict[str, str]) -> None:
-        """Generate frontend CA + leaf certs before nginx starts."""
-        helper = CACHE_ROLE_SHELL_DIR / "certs.sh"
-        if self.profile.image_mirror_enabled():
-            env = {
-                **env,
-                INIT_IMAGE_KEY: env_image(self.repo_root, INIT_IMAGE_KEY),
-            }
-        print(">>> Generating package-cache-frontend CA + per-hostname certs")
-        subprocess.run(
-            [str(helper)],
-            cwd=self.repo_root,
-            env=env,
-            check=True,
-            text=True,
-        )
-
-    def _apply_shared_cache(self, env: dict[str, str]) -> None:
-        """Serve this checkout's cache declarations from the shared stack.
-
-        The owner creates the proxy repositories and the certificates while
-        it brings its own containers up. An instance that only joins the
-        network starts none of them, so without this its `cache:` entries
-        exist on disk and nowhere else: the hijacked hostname resolves to a
-        frontend that has no server block for it.
+    def _ensure_infra(self, env: dict[str, str]) -> None:
         """
-        helper = self.repo_root / "scripts" / "system" / "cache" / "apply.sh"
-        print(">>> Applying this checkout's cache declarations to the shared stack")
-        r = subprocess.run(
-            ["bash", str(helper)],
-            cwd=self.repo_root,
-            env=env,
-            check=False,
-            text=True,
-        )
-        if r.returncode != 0:
-            print(
-                f">>> WARNING: cache apply exited rc={r.returncode}; the shared "
-                "frontend keeps serving the map it already had. Start the owning "
-                f"stack and re-run `make cache-apply` ({helper})."
-            )
+        Raises:
+            CalledProcessError: `make infra-up` refused or failed, so no stack
+                is pointed at caches that do not answer yet.
+        """
+        print(">>> Ensuring the machine-wide infra runner serves the caches")
+        subprocess.run(INFRA_UP, cwd=self.repo_root, env=env, check=True)
 
     def _install_package_frontend_ca_in_runner(self) -> None:
         """Install the frontend CA in the runner trust store. Idempotent."""
@@ -245,7 +191,8 @@ class Compose:
         reaches `extends: compose.cache-consumer.yml` with the file absent.
         """
         conf = Path(os.environ.get(CACHE_CONF_KEY, "") or (self.repo_root / CACHE_CONF))
-        for path in render_artifacts(self.repo_root, conf):
+        served = pin.served_hosts(os.environ)
+        for path in render_artifacts(self.repo_root, conf, served):
             print(f"[compose] cache file generated at: {path}")
 
     def up(self, *, run_entry_init: bool = True) -> None:
@@ -273,19 +220,14 @@ class Compose:
         args: list[str] = ["up", "-d"]
         if no_build:
             args.append("--no-build")
-        if self.profile.owns_cache_stack():
-            self._generate_package_frontend_certs(env)
-            args += ["registry-cache", "package-cache", "package-cache-frontend"]
+        if self.profile.cache_stack_enabled():
+            self._ensure_infra(env)
         args += ["coredns", "infinito"]
 
         self._compose_up_with_retries(args, attempts=6, delay_s=30)
 
         self.wait_for_healthy()
 
-        if self.profile.owns_cache_stack():
-            self._bootstrap_package_cache(env)
-        elif self.profile.cache_stack_enabled():
-            self._apply_shared_cache(env)
         if self.profile.cache_stack_enabled():
             self._install_package_frontend_ca_in_runner()
             if self.profile.shared_package_cache():

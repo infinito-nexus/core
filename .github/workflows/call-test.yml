@@ -2,6 +2,12 @@ name: "🧪 Test"
 
 on:
   workflow_call:
+    inputs:
+      role_skeleton:
+        description: "True renders the role skeleton sample roles into roles/ before the suite runs."
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
 
 permissions:
@@ -28,10 +34,24 @@ jobs:
           cache: pip
           cache-dependency-path: pyproject.toml
 
+      - name: 🤖 Install the pinned Codex CLI
+        continue-on-error: true
+        timeout-minutes: 5
+        shell: bash
+        run: make install-codex
+
+      - name: 🧩 Render the role skeleton sample roles
+        if: ${{ inputs.role_skeleton }}
+        shell: bash
+        run: make role-skeleton-samples
+
       - name: ▶️ Run the full test suite via make
         shell: bash
         run: |
           set -euo pipefail
+          vmstat -w 15 &
+          monitor_pid=$!
+          trap 'kill "${monitor_pid}" 2>/dev/null || :' EXIT
           make test 2>&1 | tee /tmp/test-output.txt
 
       - name: 📊 Per-test summary from junit reports

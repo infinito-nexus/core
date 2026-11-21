@@ -5,7 +5,7 @@
   ansible.builtin.assert:
     that: ["lookup('api', 'cloudflare.api_token') | length > 0"]
   no_log: "{{ cloudflare_no_log | bool }}"
-  when: MODE_ASSERT | bool
+  when: lookup('validate', 'sys-dns-cloudflare-records') | bool
 
 - name: 🔎 Read each zone once, set aside the records it already holds
   cloudflare_records_converged:

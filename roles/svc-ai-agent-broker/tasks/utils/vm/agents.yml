@@ -1,0 +1,33 @@
+---
+- name: "📋 Start the agent list of {{ inventory_hostname }}"
+  ansible.builtin.set_fact:
+    vm_capacity_agents: {}
+
+- name: "📋 Collect the merged agent configs {{ inventory_hostname }} may serve"
+  ansible.builtin.set_fact:
+    vm_capacity_agents: >-
+      {{ vm_capacity_agents | combine({item: {
+           'runtime': lookup('agent_config', item, 'runtime'),
+           'lifecycle': lookup('agent_config', item, 'lifecycle'),
+           'firewall_roles': lookup('agent_config', item, 'firewall_roles'),
+           'workspace': lookup('agent_config', item, 'workspace')}}) }}
+  loop: "{{ query('fileglob', [lookup('path_absolute', 'agents/roles'), '*', 'agent.yml'] | path_join) | map('dirname') | map('basename') | sort }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: "🛑 Refuse an agent VM workspace whose target runs no hypervisor of its kind"
+  ansible.builtin.assert:
+    that:
+      - vm_capacity_stray | length == 0
+    fail_msg: >-
+      No hypervisor host serves these agents, so their VMs would never start
+      and no capacity check or login notice covers them:
+      {{ vm_capacity_stray | join('; ') }}. Set workspace.target to the
+      inventory name of a host that runs svc-virt-incus or web-app-proxmox.
+    quiet: true
+  run_once: true
+  vars:
+    vm_capacity_stray: >-
+      {{ vm_capacity_agents | agent_vm_stray_targets({
+           'incus': groups.get('svc-virt-incus') or [],
+           'proxmox': groups.get('web-app-proxmox') or []}) }}

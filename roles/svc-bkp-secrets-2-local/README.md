@@ -25,7 +25,7 @@ encrypted device automatically.
 ```mermaid
 flowchart TD
     TIMER["systemd timer<br>SYS_SCHEDULE_BACKUP_SECRETS_TO_LOCAL"] --> UNIT
-    PRELOAD["sys-service-loader preload<br>MODE_BACKUP, before the app pass<br>(force_flush_instant + state started)"] --> UNIT
+    PRELOAD["sys-service-loader preload<br>BACKUP, before the app pass<br>(force_flush_instant + state started)"] --> UNIT
     UNIT["svc-bkp-secrets-2-local.&lt;version&gt;.&lt;domain&gt;.service"] --> LOCK["ExecStartPre: sys-lock against the manipulation group"]
     LOCK --> SCRIPT["ExecStart: script &lt;backups_dir&gt; backup-secrets-to-local<br>secrets= ca= acme= certbot= sources"]
     SCRIPT --> SOURCES["per-source rsync snapshots<br>--link-dest previous generation (hard links)<br>optional sources skipped when absent"]

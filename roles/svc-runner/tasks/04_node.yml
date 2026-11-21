@@ -1,0 +1,35 @@
+---
+- name: 📁 Prepare the node-local runner instance and probe its containers
+  compose_instance_prepare:
+    directories: "{{ lookup('container', application_id, 'directories').values() | list }}"
+    mode: "0755"
+    instance: "{{ lookup('container', application_id, 'directories.instance') }}"
+    pending_marker: "{{ RUNNER_COMPOSE_UP_PENDING_MARKER }}"
+    running_check: true
+  register: _runner_node_instance
+
+- name: 📄 Render the node-local runner compose file
+  template: # nocheck: stack-host-template, stack-host-consumer (node-local runner: each swarm node renders its own RUNNER_COUNT and docker GID)
+    src: compose.yml.j2
+    dest: "{{ lookup('container', application_id, 'files.compose') }}"
+    mode: "0640"
+    lstrip_blocks: true
+  register: _runner_node_compose
+  notify: compose-up
+
+- name: 📌 Mark the node-local compose up pending until it succeeds
+  ansible.builtin.copy:
+    content: ""
+    dest: "{{ RUNNER_COMPOSE_UP_PENDING_MARKER }}"
+    mode: "0640"
+  when: _runner_node_compose is changed
+
+- name: 🔔 Start the node-local runner stack when it is down or its compose up is pending
+  ansible.builtin.debug:
+    msg: "Compose project '{{ application_id | entity_name }}' on {{ inventory_hostname }} runs no container or left a compose up pending"
+  changed_when: true
+  notify: compose-up
+  when: >-
+    _runner_node_instance.pending
+    or (_runner_node_instance.running is not none
+        and (_runner_node_instance.running.stdout | trim) == "")

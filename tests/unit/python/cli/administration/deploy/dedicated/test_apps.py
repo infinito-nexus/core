@@ -11,8 +11,12 @@ from cli.administration.deploy.dedicated import apps
 
 
 class TestValidateApplicationIds(unittest.TestCase):
-    def test_no_ids_does_nothing(self):
-        apps.validate_application_ids("/etc/inventories/github-ci/devices.yml", [])
+    @unittest.mock.patch("utils.roles.validation.deploy_id.ValidDeployId")
+    def test_no_ids_does_nothing(self, mock_vdi_cls):
+        self.assertIsNone(
+            apps.validate_application_ids("/etc/inventories/github-ci/devices.yml", [])
+        )
+        mock_vdi_cls.assert_not_called()
 
     @unittest.mock.patch("utils.roles.validation.deploy_id.ValidDeployId")
     def test_invalid_ids_raise_system_exit(self, mock_vdi_cls):

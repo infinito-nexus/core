@@ -1,7 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { skipUnlessServiceEnabled } = require("./service-gating");
 const { MAPACHE, assertCspMetaParity, assertCspResponseHeader, attachDiagnostics, decodeDotenvQuotedValue, expectNoCspViolations, gotoOnion, installCspViolationObserver, normalizeBaseUrl, requireDotenvValue, runAdminFlow, runBiberFlow, runGuestFlow, safeSkipUnlessEnabled } = require("./personas");
 const { provisionKeycloakUser } = require("./admin-console");
 test.use({ ignoreHTTPSErrors: true });
@@ -56,7 +55,9 @@ const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const domainPrimary = decodeDotenvQuotedValue(process.env.DOMAIN_PRIMARY);
 const mapachePassword = decodeDotenvQuotedValue(process.env.MAPACHE_PASSWORD);
+const emailMailbox = requireDotenvValue(process.env.KEYCLOAK_EMAIL_POLICY, "KEYCLOAK_EMAIL_POLICY") === "mailbox";
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
+const logoutPanelEnabled = requireDotenvValue(process.env.KEYCLOAK_LOGOUT_PANEL_ENABLED, "KEYCLOAK_LOGOUT_PANEL_ENABLED") === "true";
 
 test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1100 });
@@ -195,12 +196,15 @@ test("super administrator onboards mapache in the admin console and mapache sign
   expect(mapachePassword, "MAPACHE_PASSWORD must be set in the Playwright env file").toBeTruthy();
 
   const mapacheUsername = MAPACHE.username;
+  const mapacheEmail = emailMailbox ? `${mapacheUsername}@example.org` : `${mapacheUsername}@${domainPrimary}`;
+  const emailLabel = emailMailbox ? /^secondary email/i : /^email$/i;
   await provisionKeycloakUser(browser, {
     baseUrl: issuerBaseUrl,
     realm: realmName,
     adminUsername: superAdminUsername,
     adminPassword: superAdminPassword,
-    user: { ...MAPACHE, email: `${MAPACHE.username}@${domainPrimary}` },
+    user: { ...MAPACHE, email: mapacheEmail },
+    emailLabel,
     password: mapachePassword,
   });
 
@@ -225,12 +229,20 @@ test("super administrator onboards mapache in the admin console and mapache sign
 
   await expect(page.locator("body")).toContainText(/personal\s*info|account|profile|signing\s*in/i, { timeout: resolveTimeout(60_000) });
 
+  if (emailMailbox) {
+    // The mailbox attribute reads LDAP `mail`, which a timer job sets after the admin console creates the user, so only the secondary address is deterministic here.
+    await expect(
+      page.getByLabel(emailLabel).first(),
+      "Under the mailbox policy the account console MUST show the external address as the secondary email"
+    ).toHaveValue(mapacheEmail, { timeout: resolveTimeout(60_000) });
+  }
+
   await keycloakSignOutFromAccountConsole(page);
 
   await expectNoCspViolations(page, diagnostics, "keycloak normal-realm account (mapache)");
 });
 
-test("normal-realm biber logs in through account interface and logs out", async ({ page }) => {
+test("biber: normal-realm biber logs in through account interface and logs out", async ({ page }) => {
   safeSkipUnlessEnabled("ldap");
   const diagnostics = attachDiagnostics(page);
 
@@ -293,8 +305,8 @@ test("normal-realm biber logs in through account interface and logs out", async 
 //     console and logs out"   → administrator persona equivalent.
 //   - "normal-realm administrator logs in through account interface
 //     and logs out"            → administrator persona via account UI.
-//   - "normal-realm biber logs in through account interface and logs
-//     out"                     → biber persona via account UI.
+//   - "biber: normal-realm biber logs in through account interface and
+//     logs out"                → biber persona via account UI.
 //
 // No generic persona scenarios are emitted; the auth-provider role is
 // part of the auth-less / circular-dependency persona-collapse
@@ -305,7 +317,7 @@ test("normal-realm biber logs in through account interface and logs out", async 
 // roles/test-e2e-playwright/files/personas/{guest,biber,admin}.js.
 
 test("the logout panel carries the German catalogue from the core translations", async ({ page }) => {
-  skipUnlessServiceEnabled("javascript");
+  test.skip(!logoutPanelEnabled, "KEYCLOAK_LOGOUT_PANEL_ENABLED=false");
   const expected = JSON.parse(decodeDotenvQuotedValue(process.env.LOGOUT_PANEL_DE_JSON || "") || "{}");
   expect(expected.checking, "LOGOUT_PANEL_DE_JSON must carry the German logout strings").toBeTruthy();
   const realmName = decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME || "");
@@ -318,6 +330,7 @@ test("the logout panel carries the German catalogue from the core translations",
     .toBe(true);
   const catalogue = await page.evaluate(() => window.__INFINITO_LOGOUT__.i18n);
   expect(catalogue.de, "Expected the German strings of core.po in the served panel").toEqual(expected);
+  await page.locator("#kc-logout").click({ timeout: resolveTimeout(30_000) });
   await expect(page.locator("#infinito-logout-status")).toBeVisible({ timeout: resolveTimeout(30_000) });
 });
 
@@ -334,3 +347,8 @@ test("administrator: app → keycloak → admin action → logout", async ({ pag
 });
 
 require("./test-design").register();
+require("./test-console-rbac").register();
+require("./test-email-policy").register();
+require("./test-usage-client").register();
+require("./test-managed-client-lock").register();
+require("./test-organizations").register();

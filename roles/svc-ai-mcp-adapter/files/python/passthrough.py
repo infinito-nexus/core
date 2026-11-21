@@ -222,3 +222,23 @@ def missing_upstream_tools(
     """
     served = {tool.get("name") for tool in upstream_tools if isinstance(tool, dict)}
     return sorted(name for name in contract["tools"] if name not in served)
+
+
+class UpstreamError(ValueError):
+    def __init__(self, message: str, status: int) -> None:
+        super().__init__(message)
+        self.code = status
+
+
+def upstream_status(error: BaseException) -> int:
+    """Return the status the provider answered with, 0 when it never answered.
+
+    Args:
+        error: the exception raised while calling the provider.
+
+    The caller cannot otherwise tell a provider that is still starting from one
+    that refuses the adapter's credential, and those need opposite reactions:
+    the first is worth waiting for, the second never resolves.
+    """
+    code = getattr(error, "code", None)
+    return int(code) if isinstance(code, int) else 0

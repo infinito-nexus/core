@@ -1,0 +1,19 @@
+{% include 'roles/sys-svc-container/templates/env.j2' %}
+
+UPSTASH_REDIS_REST_URL={{ WORLDMONITOR_REST_URL | dotenv_quote }}
+UPSTASH_REDIS_REST_TOKEN={{ WORLDMONITOR_REDIS_TOKEN | dotenv_quote }}
+WM_SESSION_SECRET={{ WORLDMONITOR_SESSION_SECRET | dotenv_quote }}
+LOCAL_API_PORT=46123
+LOCAL_API_MODE=docker
+LOCAL_API_CLOUD_FALLBACK=false
+WM_TRUSTED_PROXY_CIDRS={{ WORLDMONITOR_TRUSTED_PROXY_CIDRS | join(',') | dotenv_quote }}
+WS_RELAY_URL={{ WORLDMONITOR_RELAY_URL | dotenv_quote }}
+WORLDMONITOR_VALID_KEYS=
+RELAY_SHARED_SECRET={{ WORLDMONITOR_RELAY_SHARED_SECRET | dotenv_quote }}
+WORLDMONITOR_RELAY_KEY={{ WORLDMONITOR_RELAY_KEY | dotenv_quote }}
+LLM_API_URL={{ WORLDMONITOR_LLM_API_URL | dotenv_quote }}
+LLM_API_KEY={{ WORLDMONITOR_LLM_API_KEY | dotenv_quote }}
+LLM_MODEL={{ WORLDMONITOR_LLM_MODEL | dotenv_quote }}
+{% for name, value in WORLDMONITOR_API_KEYS.items() %}
+{{ name }}={{ value | dotenv_quote }}
+{% endfor %}

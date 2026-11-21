@@ -10,7 +10,7 @@ const {
   tokenValue,
 } = require("./design");
 const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, escapeRegex, gotoOnion, requireDotenvValue } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const designTitle = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
@@ -136,7 +136,7 @@ exports.register = function (shared) {
 
   test("design: the administrator signs in through the WordPress form when no identity provider is deployed", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(isServiceEnabled("sso"), "with sso the sign-in page redirects to the identity provider");
+    skipUnlessServiceDisabled("sso");
     await shared.wpAdminLogin(page);
     await openAdmin(page, "index.php", ADMIN_BAR);
     await expect(page.locator("#wp-admin-bar-my-account")).toBeVisible();
@@ -250,7 +250,7 @@ exports.register = function (shared) {
 
   test("design: the sign-in page takes card, text, logo and the primary action from the palette", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(isServiceEnabled("sso"), "with sso the sign-in page redirects to the identity provider");
+    skipUnlessServiceDisabled("sso");
     await gotoOnion(page, `${base}/wp-login.php`);
     await shown(page, SIGN_IN_SUBMIT);
     await expect(page.locator("body")).toHaveClass(new RegExp(`admin-color-${SCHEME}`));

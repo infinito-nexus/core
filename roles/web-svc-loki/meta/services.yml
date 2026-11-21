@@ -1,0 +1,122 @@
+---
+# nocheck: tor-contract — the ingest endpoint must never answer on an onion address, so the role declares no tor service and meta/networks.yml keeps it on clearnet
+# nocheck: playwright-service-flag — central log store provider entity
+# nocheck: image-healthcheck  the Loki image ships no shell or HTTP client; tasks/00_core.yml polls /ready through the local port instead
+loki:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  without the object store the chunk store and the TSDB index live on the node-local data volume, which cannot move to NFS
+  placement: manager
+  # nocheck: single-replica
+  replicas: 1
+  bond: 1
+  enabled: true
+  shared: true
+  image: grafana/loki
+  version: "3.7.9"
+  name: loki
+  # nocheck: min-storage-headroom  Reason: budgets the node-local chunk store, TSDB index and WAL of every application's logs over the retention window, which dwarfs the 35 MB image.
+  min_storage: 10GB
+  cpus: "1.0"
+  mem_reservation: 512m
+  mem_limit: 2g
+  pids_limit: 1024
+  tenant: infinito
+  retention:
+    access: 7d
+    application: 7d
+    system: 7d
+    security: 7d
+  garbage_collector:
+    type: native
+    setting: "retention per stream class, rendered as limits_config.retention_period and retention_stream with compactor.retention_enabled in templates/loki.yaml.j2"
+  ingestion:
+    rate_mb: 16
+    burst_mb: 64
+  wal:
+    disk_full_threshold: 0.90 # Fraction of the data filesystem above which Loki refuses every push
+  alerting:
+    critical_pattern: "(?i)\\b(critical|fatal|panic)\\b"
+    window: 5m
+  ports:
+    internal:
+      loki: 3100
+    local:
+      loki: 3310
+    onion:
+      # nocheck: onion-flag  the log store API is internal; Grafana reads it over the shared network and nothing may query or push it through the node onion
+      loki: false
+  run_after:
+    - web-svc-seaweedfs
+  lifecycle: alpha
+# nocheck: image-healthcheck  the Alloy image ships no HTTP client; Loki's /ready probe gates the stack and the gateway restarts with it
+gateway:
+  image: grafana/alloy
+  version: "v1.21.3"
+  name: loki-gateway
+  cpus: "0.5"
+  mem_reservation: 128m
+  mem_limit: 512m
+  pids_limit: 256
+  ports:
+    internal:
+      push: 3500
+    local:
+      push: 3311
+    onion:
+      # nocheck: onion-flag  the authenticated ingest endpoint is served on the clearnet vhost only and must never be reachable on an onion address
+      push: false
+# nocheck: playwright-service-flag — ingest-only vhost without a Playwright surface; Prometheus scrapes its vhost metrics and the ruler reaches Alertmanager through this bond
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+  ready_path: ready
+# nocheck: playwright-service-flag — object store, no Playwright surface
+seaweedfs:
+  bond: 1
+  enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
+  shared: "{{ 'web-svc-seaweedfs' in group_names }}"
+# nocheck: playwright-service-flag — object store, no Playwright surface
+minio:
+  enabled: false # nocheck: dynamic-flag
+  shared: false # nocheck: dynamic-flag
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
+# nocheck: design-off  Reason: push API endpoint only, so there is no HTML surface the shared stylesheet could reach
+design:
+  enabled: false
+  shared: false
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

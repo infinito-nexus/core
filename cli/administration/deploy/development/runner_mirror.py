@@ -56,13 +56,3 @@ def write_override(repo_root: Path, layered: list[str]) -> str:
     dump_yaml(staging, {"services": services})
     staging.replace(target)
     return OVERRIDE
-
-
-def env_image(repo_root: Path, key: str) -> str:
-    """Return the mirror reference for an image ``default.env`` declares.
-
-    Args:
-        repo_root: repository root holding ``default.env``.
-        key: the ``default.env`` key naming the image.
-    """
-    return mirrored_images(repo_root)[("default.env", key)]

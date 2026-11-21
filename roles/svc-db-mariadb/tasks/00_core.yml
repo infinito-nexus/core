@@ -60,8 +60,8 @@
       ansible.builtin.shell:
         cmd: >-
           container exec -i {{ MARIADB_CONTAINER_ADDRESS }}
-          sh -c 'mariadb {% if MARIADB_EXPOSE_LOCAL %}-h127.0.0.1 -P3306{% endif %}
-          -uroot -p"$MARIADB_ROOT_PASSWORD"'
+          sh -c 'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" exec mariadb
+          {% if MARIADB_EXPOSE_LOCAL %}-h127.0.0.1 -P3306{% endif %} -uroot'
         stdin: "{{ lookup('file', role_path ~ '/files/sql/health_probe.sql') }}"
       register: mariadb_login_desired
       delegate_to: "{{ STACK_HOST }}"
@@ -85,8 +85,8 @@
   ansible.builtin.shell:
     cmd: >-
       container exec -i {{ MARIADB_CONTAINER_ADDRESS }}
-      sh -c 'mariadb {% if MARIADB_EXPOSE_LOCAL %}-h127.0.0.1 -P3306{% endif %}
-      -uroot -p"$MARIADB_ROOT_PASSWORD"'
+      sh -c 'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" exec mariadb
+      {% if MARIADB_EXPOSE_LOCAL %}-h127.0.0.1 -P3306{% endif %} -uroot'
     stdin: "{{ lookup('file', role_path ~ '/files/sql/health_probe.sql') }}"
   register: mariadb_cli
   delegate_to: "{{ STACK_HOST }}"
@@ -111,4 +111,6 @@
   delay: 5
   until: mariadb_ready is succeeded
   changed_when: false
-  when: MARIADB_EXPOSE_LOCAL | bool
+  when:
+    - IS_COMPOSE_MODE | bool
+    - MARIADB_EXPOSE_LOCAL | bool

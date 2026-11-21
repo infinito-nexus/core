@@ -25,6 +25,7 @@ set -euo pipefail
 : "${BKP_TEST_PYTHON:?}"
 : "${BKP_TEST_REPO_ROOT:?}"
 : "${BKP_TEST_SCRATCH_IMAGE:?}"
+: "${BKP_TEST_WORKSPACES:?}"
 : "${DR_TOKEN:?}"
 : "${REPO_DIR:?}"
 : "${NEWEST_GENERATION:?}"
@@ -200,6 +201,7 @@ mark_torn_down() {
 }
 trap mark_torn_down EXIT
 
+RESTORE_STARTED="$(date +%s)"
 echo "Stopping every subject of this host..."
 for project in "${PROJECTS[@]}"; do
     compose --chdir "${PROJECT_DIR[${project}]}" --project "${project}" down --remove-orphans
@@ -371,3 +373,11 @@ fi
 trap - EXIT
 rm -f "${TORN_DOWN_MARKER}"
 echo "OK: all restored containers healthy"
+
+if [[ "${BKP_TEST_WORKSPACES}" == "true" ]]; then
+    bash "${DIR}/workspace/pass.sh" prove "${RESTORE_STARTED}"
+    echo "workspace drill: one generation restores every workspace"
+    bash "${DIR}/workspace/pass.sh" controls
+    echo "workspace drill: a missing inventory secret fails the restore"
+    bash "${DIR}/workspace/pass.sh" cleanup
+fi

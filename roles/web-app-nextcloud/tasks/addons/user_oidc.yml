@@ -1,0 +1,29 @@
+---
+- name: "🔐 Register or converge the Keycloak provider of user_oidc"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "🔍 Look the Keycloak provider of user_oidc up by its identifier"
+      ansible.builtin.command:
+        cmd: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} user_oidc:provider {{ NEXTCLOUD_USER_OIDC_PROVIDER | quote }}"
+      register: nextcloud_user_oidc_provider_state
+      changed_when: false
+      failed_when: false
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "🔐 Upsert the Keycloak provider of user_oidc"
+      ansible.builtin.shell:
+        cmd: >-
+          IFS= read -r NC_USER_OIDC_CLIENT_SECRET || :; : "${NC_USER_OIDC_CLIENT_SECRET:?arrived empty on stdin}" && export NC_USER_OIDC_CLIENT_SECRET &&
+          container exec -i -u {{ NEXTCLOUD_DOCKER_USER }}
+          -e NC_USER_OIDC_CLIENT_SECRET
+          {{ NEXTCLOUD_LOCAL_CID | quote }}
+          {{ NEXTCLOUD_INTERNAL_OCC_COMMAND }} user_oidc:provider {{ NEXTCLOUD_USER_OIDC_PROVIDER | quote }}
+          --clientsecret-env=NC_USER_OIDC_CLIENT_SECRET
+          {{ NEXTCLOUD_USER_OIDC_OPTIONS | map('quote') | join(' ') }} >&2 &&
+          {{ NEXTCLOUD_DOCKER_EXEC_OCC }} user_oidc:provider {{ NEXTCLOUD_USER_OIDC_PROVIDER | quote }}
+        stdin: "{{ OIDC.CLIENT.SECRET }}"
+      register: nextcloud_user_oidc_provider
+      changed_when: >-
+        nextcloud_user_oidc_provider_state.rc != 0
+        or nextcloud_user_oidc_provider.stdout != nextcloud_user_oidc_provider_state.stdout
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

@@ -8,6 +8,10 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.design.branding import asset_urls, resolve_branding
+from utils.design.cosmos import cosmos_provider
+from utils.roles.applications.services.registry import (
+    build_service_registry_from_roles_dir,
+)
 
 ASSET_DIR = "design"
 
@@ -26,6 +30,7 @@ class LookupModule(LookupBase):
       dest   CDN directory the generated assets are written to
       urls   {"favicon_ico": url, "<slot>": {"png": url, "svg": url}}
       relative_urls  the same tree as host-relative URLs every vhost serves
+      cosmos the role drawing the cosmos sky behind this role, or ""
     """
 
     def _sub(self, name: str, terms: list, variables: dict[str, Any]) -> Any:
@@ -64,5 +69,10 @@ class LookupModule(LookupBase):
                 "dest": str(Path(cdn["role"]["release"]["img"]) / ASSET_DIR),
                 "urls": asset_urls(base_url, branding["slots"]),
                 "relative_urls": asset_urls(relative_base, branding["slots"]),
+                "cosmos": cosmos_provider(
+                    applications,
+                    application_id,
+                    build_service_registry_from_roles_dir(Path(str(root)) / "roles"),
+                ),
             }
         ]

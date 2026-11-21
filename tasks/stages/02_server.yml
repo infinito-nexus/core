@@ -7,7 +7,9 @@
     - user-root # Manage root SSH access and root account hardening
     - sys-svc-sshd # Configure the SSH daemon for remote administration
     - sys-svc-journalctl # Configure persistent systemd-journald logging
+    - sys-svc-log-collector
     - sys-ctl-hlth-disc-space # Monitor disk usage and alert on low free space
+    - sys-ctl-cln-apps
     - sys-ctl-cln-disc-space # Reclaim disk space by cleaning temporary system data
     - sys-ctl-hlth-btrfs # Check Btrfs filesystem health and error counters
     - sys-ctl-rpr-btrfs-balancer # Install and configure automatic Btrfs balancing
@@ -46,13 +48,24 @@
 
 - name: "🔍 Probe the vhosts the server roles queued, in one parallel batch"
   ansible.builtin.include_role:
-    name: sys-stk-front-proxy
+    name: svc-stack
     tasks_from: deferred_probe.yml
+  vars:
+    front_proxy_probe_phases: [entered, preload, server, late]
 
 - name: "🔌 Converge every MCP client from the complete provider set"
   include_role:
     name: sys-svc-mcp-reconcile
   when: lookup('roles_with_service', 'mcp', topic='mcp', direction='client') | length > 0
+
+- name: "⏯️ Install app-control and its Semaphore SSH account on the stack host"
+  include_role:
+    name: sys-svc-app-control
+    tasks_from: 00_core.yml
+  when:
+    - IS_STACK_HOST | bool
+    - run_once_sys_svc_compose is defined
+    - run_once_sys_svc_app_control is not defined
 
 - name: "⏳ Reap the image pre-pull before the E2E run"
   ansible.builtin.include_role:

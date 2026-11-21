@@ -1,39 +1,35 @@
 """Guard: forbid raw `docker` / `docker compose` / `docker-compose` CLI
-invocations in role tasks, vars, templates, and bundled shell scripts
-under ``roles/``.
+invocations across the repository.
 
 The project ships a `container` / `compose` wrapper around the underlying
 engine so that swapping Docker for Podman (or another OCI runtime) does
-not require a sweep of every role. This test fails when a file under
-``roles/`` calls the raw CLI in a place that should go through the
-wrapper. Bootstrap scripts and CI workflows live outside ``roles/`` and
-are intentionally out of scope: the wrapper is not yet (or never) on
-their PATH.
+not require a sweep of every role. This test fails when a file calls the
+raw CLI in a place that should go through the wrapper.
 
-Four forms are detected:
+Scope
+-----
+* Every file ``git ls-files`` lists (plus untracked, non-ignored files)
+  is scanned for single-line shell invocations (start of line / after a
+  shell separator) like `docker exec ...`, `sudo docker run ...`,
+  `docker compose up`, `docker-compose up`. Files matching
+  ``WHITELIST_SUFFIXES`` / ``WHITELIST_FILENAMES`` /
+  ``WHITELIST_PATH_FRAGMENTS`` are skipped, except role sources.
+* Role sources (``roles/**`` with a ``SCAN_EXTENSIONS`` suffix) are always
+  scanned, and their YAML files additionally for:
 
-1. Single-line shell invocations (start of line / after a shell separator)
-   like `docker exec ...`, `sudo docker run ...`, `docker compose up`,
-   `docker-compose up`.
+  1. Ansible argv-lists split across lines::
 
-2. Ansible argv-lists split across lines:
+         ansible.builtin.command:
+           argv:
+             - docker
+             - exec
+             - "{{ FOO_CONTAINER }}"
 
-       ansible.builtin.command:
-         argv:
-           - docker
-           - exec
-           - "{{ FOO_CONTAINER }}"
+  2. Inline shell/command scalars like
+     `ansible.builtin.shell: "docker exec ..."`.
 
-3. Inline shell/command scalars like
-   `ansible.builtin.shell: "docker exec ..."`.
-
-4. The native `community.docker.docker_container_exec` Ansible module.
-   It executes a command inside an already-running container — a 1:1
-   replacement for `compose exec`/`container exec` exists, and pinning
-   to Docker via this module defeats engine-swappability. Other
-   `community.docker.*` modules (network create, host_info,
-   container start/stop with image+args) are deeper engine integrations
-   without clean wrapper equivalents and are intentionally not flagged.
+The ``community.docker.docker_*`` module ban lives in
+``tests/lint/ansible/roles/test_no_raw_docker_module.py``.
 
 Suppression
 -----------
@@ -42,29 +38,18 @@ Use the unified marker grammar (rule key ``raw-docker``) documented at
 
 * File-level: ``# nocheck: raw-docker`` anywhere in the first 30 lines
   excludes the whole file. Reserve this for places where the wrapper
-  is genuinely unavailable (CI workflow files on hosted runners,
-  bootstrap scripts that install the wrapper itself).
+  is genuinely unavailable (bootstrap scripts that install the wrapper
+  itself, scripts that run on a bare host).
 * Per-line: ``# nocheck: raw-docker`` on the offending line or the
   line directly above suppresses that single finding.
-
-File enumeration and content reading both go through
-``utils.cache.files``, so:
-
-* The set of files to scan respects ``.gitignore`` (no other ignore
-  lists).
-* The full project-tree walk is memoised process-wide via
-  ``iter_non_ignored_files``'s ``lru_cache``.
-* File contents are memoised via ``read_text``'s ``lru_cache``. Repeat
-  runs inside the same process (e.g. a pytest session that re-uses
-  imported modules) avoid both the re-walk and the re-read.
 """
 
 from __future__ import annotations
 
-import os
 import re
 import unittest
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from utils.annotations.suppress import (
@@ -72,7 +57,7 @@ from utils.annotations.suppress import (
     is_suppressed_in_head,
 )
 from utils.cache import PROJECT_ROOT
-from utils.cache.files import iter_non_ignored_files, read_text
+from utils.cache.files import iter_non_ignored_files, read_text, repository_files
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -85,6 +70,40 @@ class Finding:
     line: str
     rule: str
     suggestion: str
+
+
+WHITELIST_SUFFIXES: tuple[str, ...] = (
+    ".md",
+    ".po",
+    ".js",
+    ".json",
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".svg",
+    ".ico",
+    ".pdf",
+    ".lock",
+)
+
+WHITELIST_FILENAMES: tuple[str, ...] = ("LICENSE",)
+
+WHITELIST_PATH_FRAGMENTS: tuple[str, ...] = (
+    "/.git/",
+    "/.venv/",
+    "/.mypy_cache/",
+    "/.pytest_cache/",
+    "/node_modules/",
+    "/dist/",
+    "/build/",
+    "/.github/",
+    "/scripts/",
+    "/.tox/",
+    "/cli/",
+    "infinito_nexus.egg-info/",
+    "/playbooks/update/files/",
+)
 
 
 _CMD_PREFIX = r"""
@@ -203,9 +222,35 @@ RE_YAML_KEY_DOCKER_INLINE = re.compile(
     re.IGNORECASE,
 )
 
-RE_YAML_COMMUNITY_DOCKER_MODULE = re.compile(
-    r"""^\s*(?:-\s*)?(?P<module>community\.docker\.docker_container_exec)\s*:""",
-)
+SCAN_EXTENSIONS: tuple[str, ...] = (".yml", ".yaml", ".j2", ".sh")
+
+SCAN_PATH_PREFIX: str = "roles/"
+
+SUPPRESS_RULE: str = "raw-docker"
+HEAD_SCAN_LINES: int = 30
+
+
+def git_ls_files(root: Path) -> list[Path]:
+    try:
+        return [root / p for p in repository_files(untracked=True)]
+    except Exception:
+        return [Path(path_str) for path_str in iter_non_ignored_files()]
+
+
+def is_whitelisted(path: Path, root: Path) -> bool:
+    rel = path.relative_to(root).as_posix()
+
+    if path.name in WHITELIST_FILENAMES:
+        return True
+    if any(rel.endswith(suf) for suf in WHITELIST_SUFFIXES):
+        return True
+
+    rel_wrapped = f"/{rel}/"
+    return bool(any(fragment in rel_wrapped for fragment in WHITELIST_PATH_FRAGMENTS))
+
+
+def is_role_source(rel: str) -> bool:
+    return rel.startswith(SCAN_PATH_PREFIX) and rel.endswith(SCAN_EXTENSIONS)
 
 
 def _line_no_at(text: str, offset: int) -> int:
@@ -247,30 +292,12 @@ def _scan_yaml_argv_and_inline(text: str, rel: str) -> list[Finding]:
                 )
             )
 
-    for idx, line in enumerate(text.splitlines(), start=1):
-        match = RE_YAML_COMMUNITY_DOCKER_MODULE.search(line)
-        if match:
-            findings.append(
-                Finding(
-                    file=rel,
-                    line_no=idx,
-                    line=line.rstrip("\n"),
-                    rule="community.docker module",
-                    suggestion=(
-                        f"Replace '{match.group('module')}' with an "
-                        "'ansible.builtin.command'/'shell' invocation of the "
-                        "'container' / 'compose' wrapper so the engine stays "
-                        "swappable."
-                    ),
-                )
-            )
-
     return findings
 
 
 def scan_text(text: str, rel: str) -> list[Finding]:
     """Apply every rule to `text`. `rel` is the project-relative POSIX
-    path used for diagnostic messages and YAML-rule gating."""
+    path used for diagnostic messages and role-YAML rule gating."""
     findings: list[Finding] = []
     seen_offenders = set()
 
@@ -289,7 +316,7 @@ def scan_text(text: str, rel: str) -> list[Finding]:
                 seen_offenders.add(idx)
                 break
 
-    if rel.endswith(YAML_SUFFIXES):
+    if rel.startswith(SCAN_PATH_PREFIX) and rel.endswith(YAML_SUFFIXES):
         for finding in _scan_yaml_argv_and_inline(text, rel):
             if finding.line_no in seen_offenders:
                 continue
@@ -297,6 +324,23 @@ def scan_text(text: str, rel: str) -> list[Finding]:
             seen_offenders.add(finding.line_no)
 
     return findings
+
+
+def scan_file(path: Path, rel: str) -> list[Finding]:
+    try:
+        text = read_text(str(path))
+    except (OSError, UnicodeDecodeError):
+        return []
+    lines = text.splitlines()
+    if is_suppressed_in_head(lines, SUPPRESS_RULE, scan_lines=HEAD_SCAN_LINES):
+        return []
+    return [
+        finding
+        for finding in scan_text(text, rel)
+        if not is_suppressed_at(
+            lines, finding.line_no, SUPPRESS_RULE, mode="same-or-above"
+        )
+    ]
 
 
 def format_findings(findings: Sequence[Finding]) -> str:
@@ -315,9 +359,6 @@ def format_findings(findings: Sequence[Finding]) -> str:
     lines.append("- 'docker <cmd> ...'              -> 'container <cmd> ...'")
     lines.append("- 'docker compose <verb> ...'     -> 'compose <verb> ...'")
     lines.append("- 'docker-compose <verb> ...'     -> 'compose <verb> ...'")
-    lines.append(
-        "- 'community.docker.docker_container_exec: ...' -> 'compose exec' / 'container exec' via ansible.builtin.command."
-    )
     lines.append("")
     lines.append("Findings:")
     for f in findings:
@@ -326,36 +367,21 @@ def format_findings(findings: Sequence[Finding]) -> str:
     return "\n".join(lines)
 
 
-SCAN_EXTENSIONS: tuple[str, ...] = (".yml", ".yaml", ".j2", ".sh")
-
-SCAN_PATH_PREFIX: str = "roles/"
-
-SUPPRESS_RULE: str = "raw-docker"
-HEAD_SCAN_LINES: int = 30
+def collect_findings(root: Path) -> list[Finding]:
+    findings: list[Finding] = []
+    for path in git_ls_files(root):
+        if not path.is_file():
+            continue
+        rel = path.relative_to(root).as_posix()
+        if not is_role_source(rel) and is_whitelisted(path, root):
+            continue
+        findings.extend(scan_file(path, rel))
+    return findings
 
 
 class TestNoRawDockerCommands(unittest.TestCase):
-    def test_no_raw_docker_commands_in_roles(self) -> None:
-        findings: list[Finding] = []
-        project_root_str = str(PROJECT_ROOT)
-        for path in iter_non_ignored_files(extensions=SCAN_EXTENSIONS):
-            rel = os.path.relpath(path, project_root_str).replace(os.sep, "/")
-            if not rel.startswith(SCAN_PATH_PREFIX):
-                continue
-            try:
-                text = read_text(path)
-            except (OSError, UnicodeDecodeError):
-                continue
-            lines = text.splitlines()
-            if is_suppressed_in_head(lines, SUPPRESS_RULE, scan_lines=HEAD_SCAN_LINES):
-                continue
-            for finding in scan_text(text, rel):
-                if is_suppressed_at(
-                    lines, finding.line_no, SUPPRESS_RULE, mode="same-or-above"
-                ):
-                    continue
-                findings.append(finding)
-
+    def test_no_raw_docker_commands_in_repo(self) -> None:
+        findings = collect_findings(PROJECT_ROOT)
         if findings:
             self.fail(format_findings(findings))
 

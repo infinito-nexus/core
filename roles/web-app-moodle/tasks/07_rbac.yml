@@ -1,0 +1,27 @@
+---
+- name: "🛂 Converge the system roles and site administrators of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ MOODLE_OIDC_ENABLED | bool or MOODLE_LDAP_ENABLED | bool }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: "{{ ['administrator'] + MOODLE_RBAC_SYSTEM_ROLES }}"
+    rbac_sync_service_key: "{{ entity_name }}"
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ MOODLE_CONTAINER }}"
+    rbac_sync_kind: container
+    rbac_sync_user: "{{ MOODLE_RUNTIME_USER }}"
+    rbac_sync_argv: [php]
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/php/provision/rbac.php') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      MOODLE_CONFIG: "{{ MOODLE_CONFIG }}"
+      MOODLE_RBAC_ACCOUNT_AUTH: "{{ MOODLE_RBAC_ACCOUNT_AUTH }}"
+      MOODLE_RBAC_BOOTSTRAP: "{{ MOODLE_ADMIN_USERNAME }}"
+      MOODLE_RBAC_PROTECTED: "{{ MOODLE_RBAC_PROTECTED_USERNAMES | to_json }}"
+      MOODLE_RBAC_SYSTEM_ROLES: "{{ MOODLE_RBAC_SYSTEM_ROLES | to_json }}"
+    rbac_sync_attributes: []
+    rbac_sync_members_env:
+      - { name: MOODLE_RBAC_SITEADMINS, role: administrator, field: "" }
+      - { name: MOODLE_RBAC_MEMBERS, role: "*", field: "" }

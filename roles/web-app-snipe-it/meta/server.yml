@@ -1,0 +1,4 @@
+---
+vhosts:
+  default:
+    location_extra_template: nginx/sso_proxy_header.conf.j2

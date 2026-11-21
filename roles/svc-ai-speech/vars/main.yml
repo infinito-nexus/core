@@ -1,0 +1,13 @@
+---
+application_id: "svc-ai-speech"
+entity_name: "{{ application_id | entity_name }}"
+
+SPEECH_SERVICE: "{{ entity_name }}"
+SPEECH_CONTAINER: "{{ lookup('config', application_id, 'services.speech.name') }}"
+SPEECH_PORT: "{{ lookup('config', application_id, 'services.speech.ports.internal.http') }}"
+SPEECH_LANGUAGE: "{{ lookup('config', application_id, 'services.speech.language') }}"
+SPEECH_THREADS: "{{ [(lookup('cpus', application_id, 'speech') | float) | round(0, 'ceil') | int, 1] | max }}"
+SPEECH_INFERENCE_PATH: "{{ lookup('config', application_id, 'services.speech.api_path') }}/audio/transcriptions"
+SPEECH_ARTEFACTS: "{{ lookup('cache_artefacts', application_id).values() | list }}"
+SPEECH_MODEL_FILE: "{{ [AI_MODELS_STORE_PATH, (SPEECH_ARTEFACTS | first).tree] | path_join }}"
+SPEECH_STORE_MOUNTS: "{{ [AI_MODELS_STORE_PATH ~ ':' ~ AI_MODELS_STORE_PATH ~ ':ro'] }}"

@@ -17,9 +17,9 @@ STOCK_BACKEND = "funkwhale_api.common.storage.ASCIIS3Boto3Storage"
 def _run() -> tuple[dict, dict]:
     """
     Returns:
-        The globals of the settings module run over a stand-in for config.settings.production, and that stand-in's STORAGES before the run.
+        The globals of the settings module run over a stand-in for config.settings.infinito, and that stand-in's STORAGES before the run.
     """
-    production = ModuleType("config.settings.production")
+    production = ModuleType("config.settings.infinito")
     production.STORAGES = {
         "default": {"BACKEND": STOCK_BACKEND, "OPTIONS": {"object_parameters": {}}},
         "staticfiles": {
@@ -32,7 +32,7 @@ def _run() -> tuple[dict, dict]:
     modules = {
         "config": ModuleType("config"),
         "config.settings": ModuleType("config.settings"),
-        "config.settings.production": production,
+        "config.settings.infinito": production,
     }
     with unittest.mock.patch.dict(sys.modules, modules):
         return runpy.run_path(str(MODULE_PATH)), original

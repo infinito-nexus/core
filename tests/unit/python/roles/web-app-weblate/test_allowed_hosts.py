@@ -63,6 +63,8 @@ def render_env(siblings: list[str]) -> dict[str, str]:
         HOST_TIMEZONE="UTC",
         WEBLATE_SITE_TITLE="Translations",
         WEBLATE_REGISTRATION_OPEN=False,
+        WEBLATE_LOGIN_NATIVE=True,
+        WEBLATE_LOGIN_2FA_ENFORCED=False,
         WEBLATE_ADMIN_PASSWORD=PLACEHOLDER,
         WEBLATE_DATABASE_HOST="db",
         WEBLATE_DATABASE_PORT=5432,

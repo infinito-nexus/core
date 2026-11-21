@@ -84,7 +84,7 @@ function menuTriggerCandidatesOn(scope) {
     scope.locator(
 
       // #user-icon-btn: OpenSearch/Kibana Dashboards' user-avatar trigger has no accessible name or aria-haspopup, so it needs an explicit id selector.
-      "[data-bs-toggle='dropdown'], .dropdown-toggle, [aria-haspopup='menu'], [aria-haspopup='true'], [data-region='user-menu-toggle'], .user-menu-toggle, .usermenu, [aria-label*='user menu' i], [aria-label*='account' i], [data-testid*='user' i]:not(input):not(textarea):not(select), #user-icon-btn",
+      "[data-bs-toggle='dropdown'], .dropdown-toggle, [aria-haspopup='menu'], [aria-haspopup='true'], [data-region='user-menu-toggle'], .user-menu-toggle, .usermenu, [aria-label*='user menu' i], [aria-label*='account' i], [data-testid*='user' i]:not(input):not(textarea):not(select), #user-icon-btn, .ui.dropdown:has(img.avatar)",
 
 
     ),

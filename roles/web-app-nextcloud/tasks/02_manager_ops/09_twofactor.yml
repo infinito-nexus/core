@@ -1,0 +1,41 @@
+---
+- name: "🔍 Read the enforcement state"
+  ansible.builtin.command:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} twofactorauth:enforce"
+  register: nextcloud_twofactor_state
+  changed_when: false
+
+- name: "📋 Read the apps Nextcloud has enabled"
+  ansible.builtin.command:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} app:list --output=json"
+  register: nextcloud_twofactor_apps
+  changed_when: false
+
+- name: "🔍 Read whether the deploy owns the enforcement"
+  ansible.builtin.command:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get {{ NEXTCLOUD_TWOFACTOR_OWNER }}"
+  register: nextcloud_twofactor_owner
+  changed_when: false
+  failed_when: nextcloud_twofactor_owner.rc not in [0, 1]
+
+- name: "🔐 Switch the enforcement to login.method.2fa.enforced"
+  ansible.builtin.command:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} twofactorauth:enforce {{ '--on' if NEXTCLOUD_LOGIN_2FA_ENFORCED | bool else '--off' }}"
+  register: nextcloud_twofactor_switch
+  when: >-
+    (NEXTCLOUD_LOGIN_2FA_ENFORCED | bool and nextcloud_twofactor_app_enabled | bool and not nextcloud_twofactor_enforced_now | bool)
+    or (not NEXTCLOUD_LOGIN_2FA_ENFORCED | bool and nextcloud_twofactor_enforced_now | bool
+        and ((nextcloud_twofactor_owned | bool and nextcloud_twofactor_enforced_for_all_now | bool) or nextcloud_twofactor_providers | length == 0))
+  changed_when: true
+
+- name: "🏷️ Mark the enforcement as the deploy's own"
+  ansible.builtin.command:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:set {{ NEXTCLOUD_TWOFACTOR_OWNER }} --value=yes"
+  when: nextcloud_twofactor_switch is changed and NEXTCLOUD_LOGIN_2FA_ENFORCED | bool
+  changed_when: true
+
+- name: "🏷️ Release the ownership marker of the enforcement"
+  ansible.builtin.command:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:delete {{ NEXTCLOUD_TWOFACTOR_OWNER }}"
+  when: nextcloud_twofactor_owned | bool and not NEXTCLOUD_LOGIN_2FA_ENFORCED | bool
+  changed_when: true

@@ -33,7 +33,7 @@ test("addon infinito-http-onion-socks: server-side OIDC against an onion issuer 
 
     await gotoOnion(
       page,
-      `${shared.env.wpBaseUrl}/wp-admin/plugins.php?plugin_status=mustuse`,
+      shared.wpPluginsScreenUrl("?plugin_status=mustuse"),
       { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) }
     );
 

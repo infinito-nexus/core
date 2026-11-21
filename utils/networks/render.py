@@ -14,7 +14,8 @@ discovered into the service_registry by ``discover_role_services``. Keys:
 * ``aliases``: list of DNS aliases. Default: ``[entity_name]`` for shared_net, ``[]`` for default_net
 * ``consumer``: optional override
    * ``kind``: ``services_flags`` (default) | ``database`` | ``mcp_client``
-     | ``web_facing`` | ``onion_sso``. ``mcp_client`` admits a role only when
+     | ``web_facing``, or a list of them.
+     ``mcp_client`` admits a role only when
      its ``mcp.direction`` is ``client`` or ``both`` AND it declares
      ``services.<own-entity>.mcp_consumer: true`` without the provider
      refusing it through ``mcp_consumer: false`` on that same entry, so a
@@ -25,9 +26,19 @@ discovered into the service_registry by ``discover_role_services``. Keys:
    * ``key``: services.<key>.* lookup base. Default: provides or entity_name
    * ``flags``: list of flags to AND. Default: ``[enabled, shared]``
       (``services_flags`` only)
-   * ``provider`` / ``provider_key``: for ``onion_sso``, the app whose
-      ``services.<provider_key>.enabled`` must also hold. Default provider_key
-      ``tor``
+* ``stream_relay``: ``switch`` (a config path on the provider), ``ports``
+   (the ``ports.public`` protocols the reverse proxy listens on and publishes
+   in host mode, through ``lookup('stream_relay_ports')``) and ``subnet`` (the
+   relay network's block, taken from the role subnet pool like
+   ``local.subnet``). All three are required.
+   While the switch is true and the reverse proxy's own overlay applies in the
+   mode, the provider and the reverse proxy join ``<entity>-relay`` and no
+   other role does, independent of ``modes`` and ``topology``. The provider
+   carries its entity name as alias there. That network is not a role network:
+   :func:`compute_external_network_roles` leaves it out, so neither the
+   pre-created role overlays nor ``proxy_hops`` change with the switch. A
+   switch that is on in a mode of ``UNPROVEN_STREAM_RELAY_MODES`` fails every
+   network lookup of the provider and the reverse proxy.
 * ``proxy_resolvable``: beacon flag - the harvested aliases get attached to
    every ``default_net`` provider and every ``collect_proxy_resolvable``
    provider in the same mode.
@@ -45,6 +56,7 @@ if TYPE_CHECKING:
 
 
 from utils.networks.attachments import (
+    STREAM_RELAY,
     _coerce_bool,
     _compute_attachments,
     _is_consumer,
@@ -52,8 +64,12 @@ from utils.networks.attachments import (
     _shared_network_key,
     _suppress_default,
 )
+from utils.networks.proxy import REVERSE_PROXY_APPLICATION_ID
+
+BRIDGE_MTU_OPTION = "com.docker.network.driver.mtu"
 
 __all__ = [
+    "BRIDGE_MTU_OPTION",
     "_coerce_bool",
     "_compute_attachments",
     "_is_consumer",
@@ -124,10 +140,66 @@ def compute_external_network_roles(
     for att in attachments:
         if att["is_provider"] and att["topology"] == "default_net":
             continue
+        if att["topology"] == STREAM_RELAY:
+            continue
         role = att["role"]
         if role not in roles:
             roles.append(role)
     return roles
+
+
+def _bridge_mtu_lines(bridge_mtu: int | None) -> list[str]:
+    """
+    Args:
+        bridge_mtu: MTU of the bridge network being rendered, or None.
+
+    Returns:
+        Its ``driver_opts`` lines, or none when ``bridge_mtu`` is None.
+    """
+    if bridge_mtu is None:
+        return []
+    return ["    driver_opts:", f'      {BRIDGE_MTU_OPTION}: "{bridge_mtu}"']
+
+
+def _close_networks(
+    lines: list[str],
+    internal: tuple[str, ...],
+    deployment_mode: str,
+    swarm_encrypted: bool,
+    bridge_mtu: int | None = None,
+) -> str:
+    """
+    Args:
+        lines: the ``networks:`` block rendered so far.
+        internal: role-private networks to define after it, each without a
+            route out.
+        deployment_mode: compose or swarm.
+        swarm_encrypted: encrypt the overlay of each internal network.
+        bridge_mtu: MTU each internal bridge carries; None leaves Docker's
+            1500.
+
+    Returns:
+        The whole block, or ``""`` when it defines no network.
+    """
+    for name in internal:
+        _check_internal_name(name)
+        lines.append(f"  {name}:")
+        if deployment_mode == "swarm":
+            lines.append("    driver: overlay")
+            lines.append("    driver_opts:")
+            lines.append(f'      encrypted: "{"true" if swarm_encrypted else "false"}"')
+        else:
+            lines.append("    driver: bridge")
+            lines.extend(_bridge_mtu_lines(bridge_mtu))
+        lines.append("    internal: true")
+    if len(lines) == 1:
+        return ""
+    return "\n".join(lines) + "\n"
+
+
+def _check_internal_name(name: str) -> None:
+    if not name or name == "default" or not name.replace("-", "").isalnum():
+        raise ValueError(f"no valid internal network name: {name!r}")
 
 
 def render_compose_networks(
@@ -140,9 +212,41 @@ def render_compose_networks(
     lookup_database: Callable[[str, str], Any],
     swarm_encrypted: bool = True,
     node_local: bool = False,
+    internal: tuple[str, ...] = (),
+    internal_only: bool = False,
+    bridge_mtu: int | None = None,
 ) -> str:
+    """
+    Args:
+        application_id: role the compose file belongs to.
+        deployment_mode: compose or swarm.
+        registry: service registry built from the merged applications.
+        entity_name: role id to entity name.
+        lookup_config: config value accessor.
+        lookup_database: database value accessor.
+        swarm_encrypted: encrypt the swarm overlays.
+        node_local: render as compose regardless of deployment_mode.
+        internal: role-private networks without a route out, defined after
+            the role's own networks.
+        internal_only: define the ``internal`` networks alone, for a compose
+            project of its own whose ``default`` network compose creates.
+        bridge_mtu: MTU every bridge network carries, ``default`` and
+            ``internal`` alike, the nested daemon's MTU under
+            Docker-in-Docker; None leaves Docker's 1500.
+
+    Returns:
+        The top-level ``networks:`` block, or ``""`` when it holds none.
+    """
     if node_local:
         deployment_mode = "compose"
+    if internal_only:
+        lines = ["networks:"]
+        if deployment_mode != "swarm" and bridge_mtu is not None:
+            lines.append("  default:")
+            lines.extend(_bridge_mtu_lines(bridge_mtu))
+        return _close_networks(
+            lines, tuple(internal), deployment_mode, swarm_encrypted, bridge_mtu
+        )
     attachments, _ = _compute_attachments(
         registry, application_id, deployment_mode, lookup_config, lookup_database
     )
@@ -150,7 +254,7 @@ def render_compose_networks(
     for att in attachments:
         if att["is_provider"] and att["topology"] == "default_net":
             continue
-        lines.append(f"  {entity_name(att['role'])}:")
+        lines.append(f"  {att.get('network') or entity_name(att['role'])}:")
         lines.append("    external: true")
 
     own_entity = entity_name(application_id)
@@ -173,23 +277,24 @@ def render_compose_networks(
                     lines.append("      driver: default")
                     lines.append("      config:")
                     lines.append(f"        - subnet: {subnet}")
-        elif is_own_shared_net_provider:
-            lines.append("    driver: bridge")
         else:
-            subnet = lookup_config(application_id, "networks.local.subnet", "")
-            if subnet:
-                if own_entity:
-                    lines.append(f"    name: {own_entity}")
+            if is_own_shared_net_provider:
                 lines.append("    driver: bridge")
-                lines.append("    ipam:")
-                lines.append("      driver: default")
-                lines.append("      config:")
-                lines.append(f"        - subnet: {subnet}")
+            else:
+                subnet = lookup_config(application_id, "networks.local.subnet", "")
+                if subnet:
+                    if own_entity:
+                        lines.append(f"    name: {own_entity}")
+                    lines.append("    driver: bridge")
+                    lines.append("    ipam:")
+                    lines.append("      driver: default")
+                    lines.append("      config:")
+                    lines.append(f"        - subnet: {subnet}")
+            lines.extend(_bridge_mtu_lines(bridge_mtu))
 
-    if len(lines) == 1:
-        return ""
-
-    return "\n".join(lines) + "\n"
+    return _close_networks(
+        lines, tuple(internal), deployment_mode, swarm_encrypted, bridge_mtu
+    )
 
 
 def render_container_networks(
@@ -203,7 +308,37 @@ def render_container_networks(
     provider_self_alias: bool = True,
     node_local: bool = False,
     own_network_only: bool = False,
+    reverse_proxy: bool = False,
+    internal: str | None = None,
+    egress: bool = False,
 ) -> str:
+    """
+    Args:
+        application_id: role the service belongs to.
+        deployment_mode: compose or swarm.
+        registry: service registry built from the merged applications.
+        entity_name: role id to entity name.
+        lookup_config: config value accessor.
+        lookup_database: database value accessor.
+        provider_self_alias: carry the provider's own alias.
+        node_local: render as compose regardless of deployment_mode.
+        own_network_only: join only the networks the role provides.
+        reverse_proxy: with ``own_network_only``, also join the reverse
+            proxy's network, for a service a vhost forwards to.
+        internal: a role-private network without a route out, which the
+            service then joins in place of every role network.
+        egress: with ``internal``, also join ``default``, without an alias,
+            as the one route out of the internal network's members.
+
+    Returns:
+        The per-service ``networks:`` attachment, or ``""`` for none.
+    """
+    if internal is not None:
+        _check_internal_name(internal)
+        lines = ["networks:", f"  {internal}: {{}}"]
+        if egress:
+            lines.append("  default: {}")
+        return "\n" + "\n".join(lines)
     if node_local:
         deployment_mode = "compose"
     attachments, default_aliases = _compute_attachments(
@@ -213,9 +348,13 @@ def render_container_networks(
     for att in attachments:
         if att["is_provider"] and att["topology"] == "default_net":
             continue
-        if own_network_only and not att["is_provider"]:
+        if (
+            own_network_only
+            and not att["is_provider"]
+            and not (reverse_proxy and att["role"] == REVERSE_PROXY_APPLICATION_ID)
+        ):
             continue
-        lines.append(f"  {entity_name(att['role'])}:")
+        lines.append(f"  {att.get('network') or entity_name(att['role'])}:")
         aliases = att["aliases"]
         if att["is_provider"] and not provider_self_alias:
             aliases = []

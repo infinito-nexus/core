@@ -42,6 +42,11 @@
     tor:
       enabled: true
 - services:
+    espocrm:
+      login:
+        method:
+          2fa:
+            enforced: false
     docs:
       enabled: true
       shared: true
@@ -80,6 +85,11 @@
     tor:
       enabled: true
 - services:
+    espocrm:
+      login:
+        method:
+          2fa:
+            enforced: false
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

@@ -14,18 +14,15 @@
   vars:
     wordpress_oidc_local_issuer: "{{ lookup('tls', 'web-app-keycloak', 'url.origin') ~ '/realms/' ~ OIDC.CLIENT.REALM }}"
 
-- name: "📌 WP OIDC: write the settings to every site of the network"
+- name: "📌 WP OIDC: delete the stored settings of every site, the container serves them"
   ansible.builtin.shell:
     cmd: >
       container exec -i --user {{ WORDPRESS_USER | quote }}
-      -e WP_OIDC_SETTINGS
       {{ WORDPRESS_CONTAINER_ADDRESS }}
       wp eval-file - --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
     stdin: "{{ lookup('file', 'php/oidc/settings.php') }}"
-  environment:
-    WP_OIDC_SETTINGS: "{{ lookup('config', application_id, 'addons.daggerhart-openid-connect-generic.config.oidc_settings') | to_json | b64encode }}"
-  changed_when: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: wp_oidc_stored_settings
+  changed_when: "'CHANGED' in wp_oidc_stored_settings.stdout"
 
 - name: "🔍 WP OIDC: resolve the Keycloak hosting node and container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"

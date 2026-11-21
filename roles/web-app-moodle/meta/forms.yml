@@ -1,0 +1,858 @@
+---
+auth_oidc:
+  path: /admin/settings.php?section=auth
+  native: true
+  sinks: [MOODLE_OIDC_SETTINGS]
+  fields:
+    idptype:
+      source: services.moodle.auth_oidc.idptype
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_idptype"
+      type: select
+    clientauthmethod:
+      source: services.moodle.auth_oidc.clientauthmethod
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_clientauthmethod"
+      type: select
+    clientid:
+      source: services.moodle.auth_oidc.clientid
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_clientid"
+      type: text
+    authendpoint:
+      source: services.moodle.auth_oidc.authendpoint
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_authendpoint"
+      type: url
+    tokenendpoint:
+      source: services.moodle.auth_oidc.exchange_endpoint
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_tokenendpoint"
+      type: url
+    bindingusernameclaim:
+      source: services.moodle.auth_oidc.username_claim
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_bindingusernameclaim"
+      type: select
+    single_sign_off:
+      source: services.moodle.auth_oidc.single_sign_off
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_single_sign_off"
+      type: checkbox
+    logouturi:
+      source: services.moodle.auth_oidc.logouturi
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_logouturi"
+      type: url
+    opname:
+      source: services.moodle.auth_oidc.opname
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_opname"
+      type: text
+    icon:
+      source: services.moodle.auth_oidc.icon
+      when: services.sso.enabled
+      mode: enforced
+      selector: "input[name=\"s_auth_oidc_icon\"]"
+      type: text
+    field_map_firstname:
+      source: services.moodle.auth_oidc.claims.firstname
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_firstname"
+      type: text
+    field_lock_firstname:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_firstname"
+      type: select
+    field_updatelocal_firstname:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_firstname"
+      type: select
+    field_map_lastname:
+      source: services.moodle.auth_oidc.claims.lastname
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_lastname"
+      type: text
+    field_lock_lastname:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_lastname"
+      type: select
+    field_updatelocal_lastname:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_lastname"
+      type: select
+    field_map_middlename:
+      source: services.moodle.auth_oidc.claims.middlename
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_middlename"
+      type: text
+    field_lock_middlename:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_middlename"
+      type: select
+    field_updatelocal_middlename:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_middlename"
+      type: select
+    field_map_alternatename:
+      source: services.moodle.auth_oidc.claims.alternatename
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_alternatename"
+      type: text
+    field_lock_alternatename:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_alternatename"
+      type: select
+    field_updatelocal_alternatename:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_alternatename"
+      type: select
+    field_map_email:
+      source: services.moodle.auth_oidc.claims.email
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_email"
+      type: text
+    field_lock_email:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_email"
+      type: select
+    field_updatelocal_email:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_email"
+      type: select
+    field_map_phone1:
+      source: services.moodle.auth_oidc.claims.phone1
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_phone1"
+      type: text
+    field_lock_phone1:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_phone1"
+      type: select
+    field_updatelocal_phone1:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_phone1"
+      type: select
+    field_map_phone2:
+      source: services.moodle.auth_oidc.claims.phone2
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_phone2"
+      type: text
+    field_lock_phone2:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_phone2"
+      type: select
+    field_updatelocal_phone2:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_phone2"
+      type: select
+    field_map_address:
+      source: services.moodle.auth_oidc.claims.address
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_address"
+      type: text
+    field_lock_address:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_address"
+      type: select
+    field_updatelocal_address:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_address"
+      type: select
+    field_map_city:
+      source: services.moodle.auth_oidc.claims.city
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_city"
+      type: text
+    field_lock_city:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_city"
+      type: select
+    field_updatelocal_city:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_city"
+      type: select
+    field_map_country:
+      source: services.moodle.auth_oidc.claims.country
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_country"
+      type: text
+    field_lock_country:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_country"
+      type: select
+    field_updatelocal_country:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_country"
+      type: select
+    field_map_institution:
+      source: services.moodle.auth_oidc.claims.institution
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_institution"
+      type: text
+    field_lock_institution:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_institution"
+      type: select
+    field_updatelocal_institution:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_institution"
+      type: select
+    field_map_department:
+      source: services.moodle.auth_oidc.claims.department
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_department"
+      type: text
+    field_lock_department:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_department"
+      type: select
+    field_updatelocal_department:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_department"
+      type: select
+    field_map_description:
+      source: services.moodle.auth_oidc.claims.description
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_description"
+      type: text
+    field_lock_description:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_description"
+      type: select
+    field_updatelocal_description:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_description"
+      type: select
+    field_map_idnumber:
+      source: services.moodle.auth_oidc.claims.idnumber
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_idnumber"
+      type: text
+    field_lock_idnumber:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_idnumber"
+      type: select
+    field_updatelocal_idnumber:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_idnumber"
+      type: select
+    field_map_url:
+      source: services.moodle.auth_oidc.claims.url
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_url"
+      type: text
+    field_lock_url:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_url"
+      type: select
+    field_updatelocal_url:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_url"
+      type: select
+    field_map_lang:
+      source: services.moodle.auth_oidc.claims.lang
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_lang"
+      type: text
+    field_lock_lang:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_lang"
+      type: select
+    field_updatelocal_lang:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_lang"
+      type: select
+    field_map_timezone:
+      source: services.moodle.auth_oidc.claims.timezone
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_timezone"
+      type: text
+    field_lock_timezone:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_timezone"
+      type: select
+    field_updatelocal_timezone:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_timezone"
+      type: select
+    field_map_firstnamephonetic:
+      source: services.moodle.auth_oidc.claims.firstnamephonetic
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_firstnamephonetic"
+      type: text
+    field_lock_firstnamephonetic:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_firstnamephonetic"
+      type: select
+    field_updatelocal_firstnamephonetic:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_firstnamephonetic"
+      type: select
+    field_map_lastnamephonetic:
+      source: services.moodle.auth_oidc.claims.lastnamephonetic
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_map_lastnamephonetic"
+      type: text
+    field_lock_lastnamephonetic:
+      source: services.moodle.auth_oidc.lock
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_lock_lastnamephonetic"
+      type: select
+    field_updatelocal_lastnamephonetic:
+      source: services.moodle.auth_oidc.update
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_s_auth_oidc_field_updatelocal_lastnamephonetic"
+      type: select
+auth_ldap:
+  path: /admin/settings.php?section=authsettingldap
+  native: true
+  sinks: [MOODLE_LDAP_SETTINGS]
+  fields:
+    host_url:
+      source: services.moodle.auth_ldap.host_url
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_host_url"
+      type: text
+    ldap_version:
+      source: services.moodle.auth_ldap.ldap_version
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_ldap_version"
+      type: select
+    start_tls:
+      source: services.moodle.auth_ldap.start_tls
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_start_tls"
+      type: select
+    bind_dn:
+      source: services.moodle.auth_ldap.admin_dn
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_bind_dn"
+      type: text
+    user_type:
+      source: services.moodle.auth_ldap.user_type
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_user_type"
+      type: select
+    contexts:
+      source: services.moodle.auth_ldap.contexts
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_contexts"
+      type: text
+    search_sub:
+      source: services.moodle.auth_ldap.search_sub
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_search_sub"
+      type: select
+    user_attribute:
+      source: services.moodle.auth_ldap.user_attribute
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_user_attribute"
+      type: text
+    memberattribute:
+      source: services.moodle.auth_ldap.memberattribute
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_memberattribute"
+      type: text
+    memberattribute_isdn:
+      source: services.moodle.auth_ldap.memberattribute_isdn
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_memberattribute_isdn"
+      type: select
+    objectclass:
+      source: services.moodle.auth_ldap.objectclass
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_objectclass"
+      type: text
+    auth_user_create:
+      source: services.sso.enabled
+      map: { true: 0, false: 1 }
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_auth_user_create"
+      type: select
+    creators:
+      source: services.moodle.auth_ldap.creators
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_creators"
+      type: text
+    managercontext:
+      source: services.moodle.auth_ldap.managercontext
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_managercontext"
+      type: text
+    coursecreatorcontext:
+      source: services.moodle.auth_ldap.coursecreatorcontext
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_coursecreatorcontext"
+      type: text
+    removeuser:
+      source: services.moodle.auth_ldap.removeuser
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_removeuser"
+      type: select
+    sync_suspended:
+      source: services.moodle.auth_ldap.sync_suspended
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_sync_suspended"
+      type: select
+    field_map_firstname:
+      source: services.moodle.auth_ldap.attributes.firstname
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_firstname"
+      type: text
+    field_lock_firstname:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_firstname"
+      type: select
+    field_updatelocal_firstname:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_firstname"
+      type: select
+    field_map_lastname:
+      source: services.moodle.auth_ldap.attributes.lastname
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_lastname"
+      type: text
+    field_lock_lastname:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_lastname"
+      type: select
+    field_updatelocal_lastname:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_lastname"
+      type: select
+    field_map_middlename:
+      source: services.moodle.auth_ldap.attributes.middlename
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_middlename"
+      type: text
+    field_lock_middlename:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_middlename"
+      type: select
+    field_updatelocal_middlename:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_middlename"
+      type: select
+    field_map_alternatename:
+      source: services.moodle.auth_ldap.attributes.alternatename
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_alternatename"
+      type: text
+    field_lock_alternatename:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_alternatename"
+      type: select
+    field_updatelocal_alternatename:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_alternatename"
+      type: select
+    field_map_email:
+      source: services.moodle.auth_ldap.attributes.email
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_email"
+      type: text
+    field_lock_email:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_email"
+      type: select
+    field_updatelocal_email:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_email"
+      type: select
+    field_map_phone1:
+      source: services.moodle.auth_ldap.attributes.phone1
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_phone1"
+      type: text
+    field_lock_phone1:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_phone1"
+      type: select
+    field_updatelocal_phone1:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_phone1"
+      type: select
+    field_map_phone2:
+      source: services.moodle.auth_ldap.attributes.phone2
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_phone2"
+      type: text
+    field_lock_phone2:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_phone2"
+      type: select
+    field_updatelocal_phone2:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_phone2"
+      type: select
+    field_map_address:
+      source: services.moodle.auth_ldap.attributes.address
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_address"
+      type: text
+    field_lock_address:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_address"
+      type: select
+    field_updatelocal_address:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_address"
+      type: select
+    field_map_city:
+      source: services.moodle.auth_ldap.attributes.city
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_city"
+      type: text
+    field_lock_city:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_city"
+      type: select
+    field_updatelocal_city:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_city"
+      type: select
+    field_map_country:
+      source: services.moodle.auth_ldap.attributes.country
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_country"
+      type: text
+    field_lock_country:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_country"
+      type: select
+    field_updatelocal_country:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_country"
+      type: select
+    field_map_institution:
+      source: services.moodle.auth_ldap.attributes.institution
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_institution"
+      type: text
+    field_lock_institution:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_institution"
+      type: select
+    field_updatelocal_institution:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_institution"
+      type: select
+    field_map_department:
+      source: services.moodle.auth_ldap.attributes.department
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_department"
+      type: text
+    field_lock_department:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_department"
+      type: select
+    field_updatelocal_department:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_department"
+      type: select
+    field_map_description:
+      source: services.moodle.auth_ldap.attributes.description
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_description"
+      type: text
+    field_lock_description:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_description"
+      type: select
+    field_updatelocal_description:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_description"
+      type: select
+    field_map_idnumber:
+      source: services.moodle.auth_ldap.attributes.idnumber
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_idnumber"
+      type: text
+    field_lock_idnumber:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_idnumber"
+      type: select
+    field_updatelocal_idnumber:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_idnumber"
+      type: select
+    field_map_url:
+      source: services.moodle.auth_ldap.attributes.url
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_url"
+      type: text
+    field_lock_url:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_url"
+      type: select
+    field_updatelocal_url:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_url"
+      type: select
+    field_map_lang:
+      source: services.moodle.auth_ldap.attributes.lang
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_lang"
+      type: text
+    field_lock_lang:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_lang"
+      type: select
+    field_updatelocal_lang:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_lang"
+      type: select
+    field_map_firstnamephonetic:
+      source: services.moodle.auth_ldap.attributes.firstnamephonetic
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_firstnamephonetic"
+      type: text
+    field_lock_firstnamephonetic:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_firstnamephonetic"
+      type: select
+    field_updatelocal_firstnamephonetic:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_firstnamephonetic"
+      type: select
+    field_map_lastnamephonetic:
+      source: services.moodle.auth_ldap.attributes.lastnamephonetic
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_lastnamephonetic"
+      type: text
+    field_lock_lastnamephonetic:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_lastnamephonetic"
+      type: select
+    field_updatelocal_lastnamephonetic:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_lastnamephonetic"
+      type: select
+    field_map_timezone:
+      source: services.moodle.auth_ldap.attributes.timezone
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_map_timezone"
+      type: text
+    field_lock_timezone:
+      source: services.moodle.auth_ldap.lock
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_lock_timezone"
+      type: select
+    field_updatelocal_timezone:
+      source: services.moodle.auth_ldap.update
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#id_s_auth_ldap_field_updatelocal_timezone"
+      type: select

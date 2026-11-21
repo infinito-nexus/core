@@ -30,6 +30,7 @@
     system_service_timer_enabled: true
     system_service_on_calendar: "{{ SYS_SCHEDULE_CLEANUP_FAILED_BACKUPS }}"
     system_service_copy_files: false
+    system_service_force_linear_sync: false
     system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"
     system_service_tpl_exec_start_pre: '{{ BIN_LOCK }} {{ SYS_SERVICE_GROUP_MANIPULATION | join(" ")  }} --ignore {{ SYS_SERVICE_GROUP_CLEANUP| join(" ") }} --timeout
       "{{ SYS_TIMEOUT_CLEANUP_SERVICES }}"'

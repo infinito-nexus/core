@@ -1,0 +1,26 @@
+---
+- name: "🛂 snipe-it: converge every account to the role groups"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: true
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: false
+    rbac_sync_roles: [administrator, user]
+    rbac_sync_service_key: "{{ SNIPE_IT_SERVICE }}"
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ SNIPE_IT_CONTAINER }}"
+    rbac_sync_kind: container
+    rbac_sync_user: ""
+    rbac_sync_argv: [php]
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/php/apply/rbac_sync.php') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      SNIPE_IT_RBAC_LDAP_SYNC: "{{ SNIPE_IT_LDAP_ENABLED | bool | to_json }}"
+      SNIPE_IT_RBAC_PROTECTED: "{{ SNIPE_IT_RBAC_PROTECTED_USERNAMES | to_json }}"
+      SNIPE_IT_RBAC_USER_GROUP: "{{ SNIPE_IT_RBAC_USER_GROUP }}"
+      SNIPE_IT_RBAC_USER_PERMISSIONS: "{{ SNIPE_IT_RBAC_USER_PERMISSIONS | to_json }}"
+    rbac_sync_attributes: []
+    rbac_sync_members_env:
+      - { name: SNIPE_IT_RBAC_ADMINISTRATORS, role: administrator, field: "" }
+      - { name: SNIPE_IT_RBAC_USERS, role: user, field: "" }

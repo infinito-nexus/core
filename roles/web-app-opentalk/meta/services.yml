@@ -1,13 +1,16 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-playwright — S3 holds only recordings/whiteboard exports; needs the recorder service + a live multi-party meeting, so no single-user UI action deterministically triggers an S3 write
 # nocheck: dynamic-flag — OpenTalk has no no-auth mode (controller/recorder require the OIDC client), so sso is a hard dependency.
-sso:
+sso: # nocheck: login-methods  Reason: the frontend is a public-client OIDC single-page app with no form, no local accounts and no no-auth mode, so Keycloak is the only way in
   bond: 1
   enabled: true # nocheck: dynamic-flag
   shared: true
   flavor: oidc
   oidc:
     plugin: ""
+    frontend_client_id: opentalk-frontend
+    backchannel_logout_path: /v1/auth/logout
 # nocheck: dynamic-flag — LDAP is disabled for this role; the literal false is intentional, not group-gated.
 ldap:
   enabled: false # nocheck: dynamic-flag
@@ -26,8 +29,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag — infrastructural sub-component (TURN/STUN)
 coturn:
   bond: 1
@@ -219,3 +222,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

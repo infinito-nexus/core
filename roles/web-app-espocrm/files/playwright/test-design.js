@@ -12,7 +12,7 @@ const {
 const { apiGetOnion, clickOidcLoginLink, decodeDotenvQuotedValue, gotoOnion, performKeycloakLogin } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
-const { awaitSession } = require("./_shared");
+const { awaitSession, espoApi } = require("./_shared");
 
 const SEED_PREFIX = "Design showcase";
 const WIDE_VIEWPORT = { width: 1440, height: 900 };
@@ -76,31 +76,6 @@ async function signIn(page) {
 async function openSignedIn(page, route, ready) {
   await gotoOnion(page, `${baseUrl()}/#${route}`);
   await expect(page.locator(ready).first()).toBeVisible({ timeout: resolveTimeout(30_000) });
-}
-
-async function espoApi(page, method, path, data) {
-  return page.evaluate(
-    async ([verb, route, body]) => {
-      const key = Object.keys(localStorage).find((name) => /user-auth$/.test(name));
-      const raw = key ? localStorage.getItem(key) : "";
-      const auth = raw.startsWith('"') ? JSON.parse(raw) : raw;
-      const response = await fetch(`api/v1/${route}`, {
-        method: verb,
-        headers: {
-          "Content-Type": "application/json",
-          "Espo-Authorization": auth,
-          "Espo-Authorization-By-Token": "true",
-        },
-        body: body === undefined ? undefined : JSON.stringify(body),
-      });
-      return {
-        status: response.status,
-        json: response.ok ? await response.json() : null,
-        error: response.ok ? "" : response.headers.get("X-Status-Reason") || (await response.text()).slice(0, 200),
-      };
-    },
-    [method, path, data],
-  );
 }
 
 async function currentUserId(page) {

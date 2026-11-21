@@ -1,0 +1,136 @@
+---
+team_organizers:
+  path: /control/organizer/
+  sinks: [PRETIX_TEAM_ORGANIZERS]
+  record:
+    selector: "#id_name"
+    source: services.pretix.teams.organizers.names
+  fields:
+    all_events:
+      source: services.pretix.teams.organizers.all_events
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_all_events"
+      type: checkbox
+      map: { true: true, false: false }
+      label: All events (including newly created ones)
+    all_event_permissions:
+      source: services.pretix.teams.organizers.all_event_permissions
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_all_event_permissions"
+      type: checkbox
+      map: { true: true, false: false }
+      label: All event permissions
+    limit_event_permissions:
+      source: services.pretix.teams.organizers.limit_event_permissions
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'input[type="radio"][name^="event_"]'
+      type: select
+      label: Event permissions
+    all_organizer_permissions:
+      source: services.pretix.teams.organizers.all_organizer_permissions
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_all_organizer_permissions"
+      type: checkbox
+      map: { true: true, false: false }
+      label: All organizer permissions
+    limit_organizer_permissions:
+      source: services.pretix.teams.organizers.limit_organizer_permissions
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'input[type="radio"][name^="organizer_"]'
+      type: select
+      label: Organizer permissions
+team_checkin:
+  path: /control/organizer/
+  sinks: [PRETIX_TEAM_CHECKIN]
+  record:
+    selector: "#id_name"
+    source: services.pretix.teams.checkin.names
+  fields:
+    all_events:
+      source: services.pretix.teams.checkin.all_events
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_all_events"
+      type: checkbox
+      map: { true: true, false: false }
+      label: All events (including newly created ones)
+    all_event_permissions:
+      source: services.pretix.teams.checkin.all_event_permissions
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_all_event_permissions"
+      type: checkbox
+      map: { true: true, false: false }
+      label: All event permissions
+    limit_event_permissions:
+      source: services.pretix.teams.checkin.limit_event_permissions
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'input[type="radio"][name^="event_"]'
+      type: select
+      label: Event permissions
+    all_organizer_permissions:
+      source: services.pretix.teams.checkin.all_organizer_permissions
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#id_all_organizer_permissions"
+      type: checkbox
+      map: { true: true, false: false }
+      label: All organizer permissions
+    limit_organizer_permissions:
+      source: services.pretix.teams.checkin.limit_organizer_permissions
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'input[type="radio"][name^="organizer_"]'
+      type: select
+      label: Organizer permissions
+team_mcp:
+  path: /control/organizer/
+  sinks: [PRETIX_TEAM_MCP]
+  record:
+    selector: "#id_name"
+    source: services.pretix.teams.mcp.names
+  fields:
+    all_events:
+      source: services.pretix.teams.mcp.all_events
+      when: services.pretixmcp.enabled
+      mode: seeded
+      selector: "#id_all_events"
+      type: checkbox
+      map: { true: true, false: false }
+      label: All events (including newly created ones)
+    all_event_permissions:
+      source: services.pretix.teams.mcp.all_event_permissions
+      when: services.pretixmcp.enabled
+      mode: seeded
+      selector: "#id_all_event_permissions"
+      type: checkbox
+      map: { true: true, false: false }
+      label: All event permissions
+    limit_event_permissions:
+      source: services.pretix.teams.mcp.limit_event_permissions
+      when: services.pretixmcp.enabled
+      mode: seeded
+      selector: 'input[type="radio"][name^="event_"]'
+      type: select
+      label: Event permissions
+    all_organizer_permissions:
+      source: services.pretix.teams.mcp.all_organizer_permissions
+      when: services.pretixmcp.enabled
+      mode: seeded
+      selector: "#id_all_organizer_permissions"
+      type: checkbox
+      map: { true: true, false: false }
+      label: All organizer permissions
+    limit_organizer_permissions:
+      source: services.pretix.teams.mcp.limit_organizer_permissions
+      when: services.pretixmcp.enabled
+      mode: seeded
+      selector: 'input[type="radio"][name^="organizer_"]'
+      type: select
+      label: Organizer permissions

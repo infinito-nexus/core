@@ -1,0 +1,27 @@
+---
+# include-gated: when: preflight_container_cli.stat.exists
+- name: "🔍 Check whether the docker daemon has a config file"
+  ansible.builtin.stat:
+    path: /etc/docker/daemon.json
+  register: preflight_daemon_json_file
+
+- name: "🔍 Read the docker daemon config"
+  ansible.builtin.slurp:
+    src: /etc/docker/daemon.json
+  register: preflight_daemon_json
+  when: preflight_daemon_json_file.stat.exists
+
+- name: "🛑 Fail when a docker address pool overlaps a range of the deploy"
+  ansible.builtin.assert:
+    that: preflight_pool_errors | length == 0
+    quiet: true
+    fail_msg: >-
+      Pre-flight: {{ preflight_pool_errors | join('; ') }}.
+      Move default-address-pools in /etc/docker/daemon.json to {{ NETWORK_DOCKER_ADDRESS_POOLS | to_json }},
+      remove the networks docker addressed from the old pool and restart docker, then deploy again.
+  vars:
+    preflight_pool_errors: >-
+      {{ lookup('address_pool_overlaps',
+                (preflight_daemon_json.content | b64decode) if preflight_daemon_json_file.stat.exists else '{}',
+                group_names,
+                {'NETWORK_MESH_POOL': NETWORK_MESH_POOL, 'NETWORK_TOR_VIRTUAL_CIDR': NETWORK_TOR_VIRTUAL_CIDR}) }}

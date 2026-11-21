@@ -1,0 +1,11 @@
+ARG ACCESS_REQUEST_IMAGE
+ARG ACCESS_REQUEST_VERSION
+
+FROM ${ACCESS_REQUEST_IMAGE}:${ACCESS_REQUEST_VERSION}
+
+COPY ./access-request/python/ /app/
+
+ENV PYTHONPATH=/app
+WORKDIR /app
+
+CMD ["python", "-m", "access_request"]

@@ -1,0 +1,26 @@
+table inet {{ FIREWALL_TABLE }}
+delete table inet {{ FIREWALL_TABLE }}
+table inet {{ FIREWALL_TABLE }} {
+{% for family in ['ipv4', 'ipv6'] %}
+  set api_{{ family }} {
+    type {{ family }}_addr
+    flags interval
+{% if INCUS_API_SOURCES[family] | length > 0 %}
+    elements = { {{ INCUS_API_SOURCES[family] | join(', ') }} }
+{% endif %}
+  }
+
+{% endfor %}
+  chain input {
+    type filter hook input priority -150; policy accept;
+    meta nfproto ipv4 tcp dport {{ INCUS_API_PORT }} ip saddr != @api_ipv4 drop
+    meta nfproto ipv6 tcp dport {{ INCUS_API_PORT }} ip6 saddr != @api_ipv6 drop
+  }
+
+  chain forward {
+    type filter hook forward priority -150; policy accept;
+    iifname "{{ INCUS_WORKSPACES.bridge_prefix }}*" oifname "{{ INCUS_WORKSPACES.bridge_prefix }}*" drop
+    iifname "{{ INCUS_WORKSPACES.bridge_prefix }}*" oifname "{{ INCUS_NETWORK.name }}" drop
+    iifname "{{ INCUS_NETWORK.name }}" oifname "{{ INCUS_WORKSPACES.bridge_prefix }}*" drop
+  }
+}

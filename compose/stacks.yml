@@ -1,0 +1,114 @@
+---
+# Param stacks: every local stack, keyed by name.
+# Param class: always-on, on-demand or long-lived (092, Lifecycle classes).
+# Param needs: the stacks it runs against, started before it.
+# Param targets: the make targets whose own recipe reaches it; a target that
+#   only calls other targets inherits their stacks through the Makefile.
+# Param stops: the make targets that stop, pause or remove it and start no
+#   stack.
+# Param override: the stack its targets start instead when INFINITO_STACK_NAME
+#   names one (092, Stack override and slots).
+# Param unaddressed: the make targets that load a compose helper and address
+#   no stack, or only report the state of one.
+stacks:
+  cache:
+    class: always-on
+    needs: []
+    targets:
+      - act-workflow
+      - agents-integration
+      - agents-verify
+      - cache-apply
+      - cache-declare
+      - cache-evict
+      - infra-up
+      - infra-update
+      - swarm-role-sync
+      - swarm-zombie
+    stops:
+      - clean-cache
+      - infra-down
+  tools:
+    class: on-demand
+    needs:
+      - cache
+    targets:
+      - i18n-resume
+      - i18n-translate
+      - i18n-tune
+      - test-oracle
+    stops:
+      - i18n-pause
+  test-runner:
+    class: long-lived
+    override: deploy
+    needs:
+      - cache
+    targets:
+      - autoformat
+      - autoformat-restage
+      - install-lint
+      - install-lint-force
+      - lint
+      - lint-action
+      - lint-ansible
+      - lint-css
+      - lint-dockerfile
+      - lint-file
+      - lint-javascript
+      - lint-makefile
+      - lint-markdown
+      - lint-mermaid
+      - lint-packages
+      - lint-php
+      - lint-playwright
+      - lint-python
+      - lint-role
+      - lint-ruby
+      - lint-shellcheck
+      - lint-sql
+      - test-external
+      - test-integration
+      - test-lint
+      - test-oracle
+      - test-performance
+      - test-session
+      - test-unit-javascript
+      - test-unit-php
+      - test-unit-python
+      - test-unit-ruby
+    stops:
+      - test-runner-down
+  deploy:
+    class: on-demand
+    needs:
+      - cache
+    targets:
+      - compose-app-exec
+      - compose-app-logs
+      - compose-app-restart
+      - compose-deploy
+      - compose-exec
+      - compose-inner-run
+      - compose-inventory-refresh
+      - compose-network-recreate
+      - compose-playwright
+      - compose-restart
+      - compose-role-sync
+      - compose-target-reset
+      - compose-up
+      - design-gallery
+      - design-palette
+      - design-sync
+      - network-refresh
+      - roundtrip
+    stops:
+      - compose-down
+      - compose-stop
+      - system-purge
+      - worktree-down
+unaddressed:
+  - i18n-extract
+  - i18n-prune
+  - i18n-retry
+  - infra-status

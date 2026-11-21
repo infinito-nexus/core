@@ -25,6 +25,7 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_VOLUMES
 from . import PROJECT_ROOT
 
 TEMPLATE = PROJECT_ROOT / "roles/svc-ai-litellm/templates/config.yaml.j2"
+OPENROUTER_BASE = "https://openrouter.ai/api/v1"  # nocheck: url
 REMOTE_MODELS = load_yaml(
     PROJECT_ROOT / "roles/svc-ai-litellm" / ROLE_FILE_META_SERVICES
 )["litellm"]["remote_models"]
@@ -47,6 +48,9 @@ LMSTUDIO_ONLY = {"alias": "mistral:latest", "name": "mistral-7b-instruct-v0.3"}
 
 OLLAMA_URL = "http://ollama:11434"
 LMSTUDIO_URL = "http://lmstudio:1234"
+
+UI_SSO_GROUP = "/roles/web-app-litellm/administrator"
+UI_SSO_CLAIM = "groups"
 
 
 def _ansible_bool(value):
@@ -75,6 +79,7 @@ def render(
     router_alias="",
     measured_speed=None,
     logo_url="",
+    ui_sso=False,
 ):
     """The rendered config as a parsed mapping.
 
@@ -88,6 +93,7 @@ def render(
         measured_speed: alias -> tokens per second from the last deploy's
             measurement; empty means nothing has been measured yet.
         logo_url: LITELLM_UI_LOGO_URL; empty while the admin UI shows no corporate logo.
+        ui_sso: LITELLM_UI_SSO; whether the admin UI signs in through Keycloak.
     """
     env = Environment(
         undefined=StrictUndefined,
@@ -111,6 +117,9 @@ def render(
         LITELLM_ROUTER_ALIAS=router_alias,
         LITELLM_MEASURED_SPEED=measured_speed or {},
         LITELLM_UI_LOGO_URL=logo_url,
+        LITELLM_UI_SSO=str(ui_sso),
+        LITELLM_UI_SSO_GROUP=UI_SSO_GROUP,
+        RBAC={"GROUP": {"CLAIM": UI_SSO_CLAIM}},
     )
     return yaml.safe_load(
         rendered
@@ -197,6 +206,28 @@ class TestUiTheme(unittest.TestCase):
         self.assertNotIn("ui_theme_config", render()["litellm_settings"])
 
 
+class TestUiAccessMode(unittest.TestCase):
+    def test_sso_admits_only_the_administrator_group(self) -> None:
+        self.assertEqual(
+            render(ui_sso=True)["general_settings"]["ui_access_mode"],
+            {
+                "type": "restricted_sso_group",
+                "restricted_sso_group": UI_SSO_GROUP,
+                "sso_group_jwt_field": UI_SSO_CLAIM,
+            },
+        )
+
+    def test_without_sso_the_ui_access_mode_is_absent(self) -> None:
+        self.assertNotIn("ui_access_mode", render()["general_settings"])
+
+
+class TestSpendLogs(unittest.TestCase):
+    def test_spend_logs_keep_the_usage_but_no_prompt_or_reply(self) -> None:
+        settings = render()["general_settings"]
+        self.assertIs(settings.get("store_prompts_in_spend_logs"), False)
+        self.assertNotIn("disable_spend_logs", settings)
+
+
 class TestNoBackend(unittest.TestCase):
     def test_the_model_list_is_empty(self) -> None:
         self.assertEqual(render()["model_list"], [])
@@ -221,6 +252,52 @@ class TestNoBackend(unittest.TestCase):
 
 
 class TestConfiguredRemoteModels(unittest.TestCase):
+    def test_openrouter_transport_keeps_the_upstream_namespace_and_credential_owner(
+        self,
+    ) -> None:
+        declaration = {
+            "alias": "openrouter/free",
+            "model": "openai/openrouter/free",
+            "provider": "openrouter",
+            "api_base": OPENROUTER_BASE,
+            "traits": {"local": False},
+        }
+        config = render(keys={"openrouter": "sk-or-test"}, remote_models=[declaration])
+        entry = config["model_list"][0]
+        params = entry["litellm_params"]
+        self.assertEqual(entry["model_name"], "openrouter/free")
+        self.assertEqual(params["model"], "openai/openrouter/free")
+        self.assertEqual(params["api_base"], OPENROUTER_BASE)
+        self.assertEqual(params["api_key"], "os.environ/OPENROUTER_API_KEY")
+        self.assertIs(entry["model_info"]["traits"]["local"], False)
+
+    def test_explicit_endpoint_requires_an_explicit_locality(self) -> None:
+        with self.assertRaisesRegex(ValueError, "traits.local"):
+            render(
+                keys={"openrouter": "sk-or-test"},
+                remote_models=[{**BONSAI, "api_base": OPENROUTER_BASE}],
+            )
+
+    def test_empty_endpoint_is_not_silently_replaced_by_a_vendor_default(self) -> None:
+        for value in ("", None, 123):
+            with (
+                self.subTest(value=value),
+                self.assertRaisesRegex(ValueError, "api_base"),
+            ):
+                render(
+                    keys={"openrouter": "sk-or-test"},
+                    remote_models=[
+                        {**BONSAI, "api_base": value, "traits": {"local": False}}
+                    ],
+                )
+
+    def test_shipped_openrouter_auto_uses_the_compatible_transport(self) -> None:
+        config = render(keys={"openrouter": "sk-or-test"})
+        entry = config["model_list"][0]
+        self.assertEqual(entry["litellm_params"]["model"], "openai/openrouter/auto")
+        self.assertEqual(entry["litellm_params"]["api_base"], OPENROUTER_BASE)
+        self.assertIs(entry["model_info"]["traits"]["local"], False)
+
     def test_an_added_model_shares_its_provider_key(self) -> None:
         published = routes(
             render(

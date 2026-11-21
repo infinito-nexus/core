@@ -35,6 +35,8 @@ if [[ -f "scripts/meta/env/load.sh" ]]; then
 	# shellcheck source=scripts/meta/env/load.sh
 	source "scripts/meta/env/load.sh"
 fi
+# shellcheck source=scripts/meta/compose.sh
+source scripts/meta/compose.sh
 
 log() {
 	echo ">>> $*"
@@ -122,7 +124,7 @@ purge_docker() {
 		return 0
 	fi
 
-	run_step "Stopping compose stack and removing volumes" docker compose down --volumes --remove-orphans
+	run_step "Stopping compose stack and removing volumes" infinito_compose down --volumes --remove-orphans
 	run_step "Pruning Docker system" docker system prune -a --volumes -f
 	run_step "Pruning Docker containers" docker container prune -f
 	run_step "Pruning Docker images" docker image prune -a -f
@@ -208,8 +210,8 @@ purge_windows() {
 
 log "Running low-hardware cleanup from ${REPO_ROOT}"
 
-purge_git_state
 purge_docker
+purge_git_state
 purge_host_caches
 purge_windows
 

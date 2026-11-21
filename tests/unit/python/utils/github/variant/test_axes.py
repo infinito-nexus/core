@@ -301,6 +301,52 @@ class TestNetworkStates(unittest.TestCase):
         )
         self.assertEqual(entry["disable"], "web-svc-relay")
 
+    def test_a_swarm_row_disables_the_compose_only_partners_it_deploys(self) -> None:
+        deployed = ["svc-ai-litellm", "svc-ai-freellmapi", "svc-db-postgres"]
+        self.assertEqual(
+            network.disabled_services("multi", deployed, mode="swarm"),
+            "svc-ai-freellmapi",
+        )
+        self.assertEqual(
+            network.disabled_services("clearnet", deployed, mode="swarm"),
+            "tor svc-ai-freellmapi",
+        )
+        for mode in ("compose", "host", None):
+            with self.subTest(mode=mode):
+                self.assertEqual(
+                    network.disabled_services("multi", deployed, mode=mode), ""
+                )
+
+    def test_host_only_roles_without_a_stack_stay_in_a_swarm_row(self) -> None:
+        self.assertEqual(
+            network.disabled_services(
+                "multi", ["svc-net-wireguard", "svc-opt-swapfile"], mode="swarm"
+            ),
+            "",
+        )
+
+    def test_the_swarm_entry_carries_the_compose_only_token(self) -> None:
+        deployed = ["svc-ai-litellm", "svc-ai-freellmapi"]
+        entries = _assign(
+            [
+                _row(
+                    "web-app-c",
+                    0,
+                    ("compose", "swarm"),
+                    pin_network="clearnet",
+                    priority=True,
+                    services=deployed,
+                )
+            ],
+            sweep=0,
+            network_input="auto",
+            variants_per_app=_VARIANTS,
+        )
+        self.assertEqual(
+            {e["mode"]: e["disable"] for e in entries},
+            {"compose": "tor", "swarm": "tor svc-ai-freellmapi"},
+        )
+
 
 class TestCombinations(unittest.TestCase):
     def test_two_modes_on_the_network_axis_yield_six_runs(self) -> None:
@@ -520,6 +566,29 @@ class TestAssign(unittest.TestCase):
             compose["label"].startswith(to_emoji("compose") + to_emoji("tor"))
         )
         self.assertEqual(axes.parse_label(host["label"]).mode, "host")
+
+    def test_every_mode_carries_the_same_axis_slots_and_a_host_rides_direct(
+        self,
+    ) -> None:
+        entries = _assign(
+            [
+                _row("web-app-a", 0, ("host",)),
+                _row("web-app-a", 0, ("compose",), pin_network="tor"),
+                _row("web-app-a", 0, ("swarm",)),
+            ],
+            sweep=0,
+            network_input="auto",
+            variants_per_app=_VARIANTS,
+        )
+        prefixes = {
+            entry["mode"]: entry["label"].split(display_names().encode("web-app-a"))[0]
+            for entry in entries
+        }
+        self.assertEqual({"host", "compose", "swarm"}, set(prefixes))
+        self.assertEqual(
+            1, len({len(prefix.replace("️", "")) for prefix in prefixes.values()})
+        )
+        self.assertIn(to_emoji("direct"), prefixes["host"])
 
     def test_the_provider_row_never_takes_the_clearnet_state(self) -> None:
         provider = network.tor_provider()

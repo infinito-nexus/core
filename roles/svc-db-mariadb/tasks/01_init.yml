@@ -24,7 +24,9 @@
         login_host: "{{ MARIADB_HOST }}"
         login_port: "{{ MARIADB_PORT }}"
         config_file: ""
-  when: MARIADB_EXPOSE_LOCAL | bool
+  when:
+    - IS_COMPOSE_MODE | bool
+    - MARIADB_EXPOSE_LOCAL | bool
 
 - block:
     - name: "📁 Create database: {{ database_name }} (container via mariadb CLI)"
@@ -32,7 +34,7 @@
         cmd: >-
           container exec -i
           {{ MARIADB_CONTAINER_ADDRESS }}
-          sh -c 'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD"'
+          sh -c 'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" exec mariadb -uroot'
         stdin: |
           SET @db_name   := '{{ database_name }}';
           SET @charset   := '{{ MARIADB_ENCODING }}';
@@ -51,7 +53,7 @@
         cmd: >-
           container exec -i
           {{ MARIADB_CONTAINER_ADDRESS }}
-          sh -c 'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD"'
+          sh -c 'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" exec mariadb -uroot'
         stdin: |
           SET @db_user := '{{ database_username }}';
           SET @db_pwd  := '{{ database_password | replace("'", "''") }}';
@@ -64,4 +66,4 @@
       delegate_to: "{{ STACK_HOST }}"
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       changed_when: false
-  when: not (MARIADB_EXPOSE_LOCAL | bool)
+  when: not (IS_COMPOSE_MODE | bool and MARIADB_EXPOSE_LOCAL | bool)

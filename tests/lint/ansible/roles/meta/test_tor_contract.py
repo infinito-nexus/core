@@ -36,7 +36,11 @@ import yaml
 from utils.annotations.suppress import line_has_rule
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
-from utils.roles.mapping import ROLE_FILE_META_SERVER, ROLE_FILE_META_SERVICES
+from utils.roles.mapping import (
+    ROLE_FILE_META_DOMAINS,
+    ROLE_FILE_META_SERVER,
+    ROLE_FILE_META_SERVICES,
+)
 
 from . import PROJECT_ROOT
 
@@ -74,6 +78,21 @@ def _has_canonical_domain(server: Any) -> bool:
     return bool(canonical)
 
 
+def _declares_no_domain(domains: Any) -> bool:
+    """Whether ``meta/domains.yml`` opts the role out of every domain.
+
+    Args:
+        domains: the parsed ``meta/domains.yml``.
+
+    Returns:
+        ``True`` when it carries ``canonical`` as an empty list or mapping.
+    """
+    if not isinstance(domains, dict) or "canonical" not in domains:
+        return False
+    canonical = domains["canonical"]
+    return isinstance(canonical, (list, dict)) and not canonical
+
+
 def _is_present(value: Any) -> bool:
     if isinstance(value, bool):
         return True
@@ -95,7 +114,9 @@ class TestTorRoleContract(unittest.TestCase):
                 or _has_canonical_domain(server)
             ):
                 continue
-            if role_name == "svc-net-tor":
+            if role_name == "svc-net-tor" or _declares_no_domain(
+                _load_yaml(role_dir / ROLE_FILE_META_DOMAINS)
+            ):
                 continue
 
             services_path = role_dir / ROLE_FILE_META_SERVICES

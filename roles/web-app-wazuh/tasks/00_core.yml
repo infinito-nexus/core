@@ -3,9 +3,8 @@
 
 - name: "🧩 load docker for {{ application_id }}"
   include_role:
-    name: sys-stk-backend
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer/back.yml
 
 - name: "📁 Ensure {{ WAZUH_CERTS_DIR_HOST }} exists for the cert-generator bind mount"
   ansible.builtin.file:
@@ -19,6 +18,24 @@
     dest: "{{ WAZUH_CERTS_CONFIG_HOST }}"
     mode: "0644"
   notify: compose-up
+
+- name: "📥 Read the security and dashboard files a previous deploy left"
+  ansible.builtin.slurp: # nocheck: stack-host-consumer (delegated to STACK_HOST with run_once)
+    src: "{{ [WAZUH_INSTANCE_DIR, item] | path_join }}"
+  loop:
+    - roles_mapping.yml
+    - opensearch_dashboards.yml
+    - wazuh.yml
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  register: wazuh_rendered_held
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📣 Report the managed security and dashboard settings the render overwrites"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current: "{{ wazuh_rendered_held.results | wazuh_rendered }}"
 
 - name: "📄 Render Wazuh config files bind-mounted into manager/indexer/dashboard"
   stack_host_template:
@@ -77,56 +94,59 @@
     - IS_SWARM_MODE
 
 - name: "🔧 Set vm.max_map_count for the Wazuh indexer (OpenSearch requirement)"
-  ansible.posix.sysctl:
-    name: vm.max_map_count
-    value: "262144"
-    state: present
-    reload: true
-    sysctl_file: "{{ WAZUH_SYSCTL_CONF }}"
-  when: not (DOCKER_IN_CONTAINER | bool)
+  ansible.builtin.include_role:
+    name: sys-sysctl
+  vars:
+    sys_sysctl_owner: "{{ WAZUH_SYSCTL_OWNER }}"
+    sys_sysctl_parameters: "{{ WAZUH_SYSCTL_PARAMETERS }}"
 
 - name: "🔄 Flush compose-up before front-proxy can shadow application_id"
   ansible.builtin.meta: flush_handlers
 
 - name: "📂 Include front proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-front-proxy
+    name: svc-stack
+    tasks_from: consumer/front.yml
+
+- name: "🔍 Resolve the Wazuh indexer hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
   vars:
-    http_port: "{{ WAZUH_DASHBOARD_HTTP_PORT }}"
-    webserver_proxy_service_key: "{{ 'dashboard' if IS_SWARM_MODE else (application_id | entity_name) }}"
-    proxy_internal_port: "{{ WAZUH_DASHBOARD_INTERNAL_PORT if IS_SWARM_MODE else '' }}"
+    resolve_service_key: indexer
+    resolve_output_prefix: WAZUH_INDEXER
+    resolve_compose_cid: "{{ WAZUH_INDEXER_CONTAINER }}"
 
 - name: "⏳ Wait for Wazuh indexer to answer HTTPS requests (security plugin loaded)"
-  uri_retry:
-    url: "{{ WAZUH_INDEXER_INTERNAL_API_URL }}/_cluster/health"
-    method: GET
-    validate_certs: false
-    status_code: [200, 401]
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  WAZUH_INDEXER_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec {{ WAZUH_INDEXER_LOCAL_CID | quote }}
+      {{ lookup('timeout', 30) | curl }} -k -o /dev/null -w '%{http_code}'
+      {{ (WAZUH_INDEXER_INTERNAL_API_URL ~ '/_cluster/health') | quote }}
   register: wazuh_indexer_ready
-  until: wazuh_indexer_ready is succeeded
+  until: (wazuh_indexer_ready.stdout | trim) in ['200', '401']
   retries: 60
   delay: 5
+  changed_when: false
+  delegate_to: "{{ WAZUH_INDEXER_HOST_NODE }}"
 
 - name: "🔄 Apply Wazuh indexer security config via securityadmin.sh"
   include_tasks: 01_securityadmin.yml
 
 - name: "✅ Confirm indexer admin credentials are live post-securityadmin.sh"
-  uri_retry:
-    url: "{{ WAZUH_INDEXER_INTERNAL_API_URL }}/_cluster/health"
-    method: GET
-    user: "{{ WAZUH_INDEXER_ADMIN_USERNAME }}"
-    password: "{{ WAZUH_INDEXER_ADMIN_PASSWORD }}"
-    force_basic_auth: true
-    validate_certs: false
-    status_code: 200
-    return_content: true
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  WAZUH_INDEXER_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec -i {{ WAZUH_INDEXER_LOCAL_CID | quote }}
+      {{ lookup('timeout', 30) | curl }} -fS -k -H @-
+      {{ (WAZUH_INDEXER_INTERNAL_API_URL ~ '/_cluster/health') | quote }}
+    stdin: "Authorization: Basic {{ (WAZUH_INDEXER_ADMIN_USERNAME ~ ':' ~ WAZUH_INDEXER_ADMIN_PASSWORD) | b64encode }}"
   register: wazuh_indexer_health
   until: >-
-    wazuh_indexer_health.json is defined and
-    wazuh_indexer_health.json.status in ['green', 'yellow']
+    wazuh_indexer_health.rc == 0 and
+    (wazuh_indexer_health.stdout | from_json).status in ['green', 'yellow']
   retries: 30
   delay: 5
+  changed_when: false
+  delegate_to: "{{ WAZUH_INDEXER_HOST_NODE }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "🔐 Map the platform administrators onto the Wazuh API administrator role"
+- name: "🔐 Map the platform role groups onto the Wazuh API roles"
   include_tasks: 02_api_administrators.yml

@@ -5,6 +5,9 @@
 # variant pinning every dynamic services.yml flag to true so the
 # matrix exercises the in-group_names branch of web-app-gitea.
 - services:
+    gitea:
+      workspaces:
+        enabled: true
     docs:
       enabled: false
       shared: false
@@ -99,6 +102,12 @@
       enabled: true
       shared: true
 - services:
+    gitea:
+      login:
+        method:
+          2fa:
+            # nocheck: login-methods  Reason: test-2fa-enrollment.js proves here that an account without a second factor reaches no repository until it enrolls one; no MCP consumer deploys in this round, so no MCP account loses its repositories
+            enforced: true
     docs:
       enabled: true
       shared: true

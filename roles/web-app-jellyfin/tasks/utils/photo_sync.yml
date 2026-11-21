@@ -1,0 +1,25 @@
+---
+- name: "🖼️ Push the directory photos of the Jellyfin accounts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ (JELLYFIN_LDAP_ENABLED | bool) and ('svc-db-openldap' in group_names) }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: false
+    rbac_sync_roles: ["@users:{{ LDAP.USER.ATTRIBUTES.PHOTO }}"]
+    rbac_sync_service_key: jellyfin
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ JELLYFIN_NAME }}"
+    rbac_sync_kind: host
+    rbac_sync_user: ""
+    rbac_sync_argv: []
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/photo_sync.py') }}"
+    rbac_sync_modules: []
+    rbac_sync_attributes: ["{{ LDAP.USER.ATTRIBUTES.PHOTO }}"]
+    rbac_sync_env:
+      LDAP_PHOTO_ATTRIBUTE: "{{ LDAP.USER.ATTRIBUTES.PHOTO }}"
+      JELLYFIN_API: "{{ JELLYFIN_API }}"
+      JELLYFIN_API_CLIENT: "{{ JELLYFIN_API_CLIENT }}"
+      JELLYFIN_ADMIN_USERNAME: "{{ JELLYFIN_ADMIN_USERNAME }}"
+      JELLYFIN_ADMIN_PASSWORD: "{{ JELLYFIN_ADMIN_PASSWORD }}"
+    rbac_sync_members_env: []

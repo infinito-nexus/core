@@ -21,14 +21,14 @@
     - name: "📖 Read the corporate logo set of {{ application_id }}"
       ansible.builtin.slurp:
         src: "{{ [MATOMO_DESIGN_DIR, item] | path_join }}"
-      loop: "{{ MATOMO_DESIGN_ASSETS if design_branding.logo is string else [] }}"
+      loop: "{{ MATOMO_DESIGN_ASSETS if lookup('design', application_id).logo is string else [] }}"
       register: matomo_design_assets
 
 - name: "🎨 Sync the {{ MATOMO_DESIGN_THEME }} theme of {{ application_id }}"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
       container exec -i --user www-data {{ MATOMO_LOCAL_CID | quote }}
-      sh -c {{ lookup('file', 'shell/design_sync.sh') | quote }} design_sync
+      sh -c {{ lookup('file', 'shell/plugin_sync.sh') | quote }} plugin_sync
       {{ ('present' if MATOMO_DESIGN_ENABLED | bool else 'absent') | quote }}
       {{ MATOMO_DESIGN_THEME | quote }}
     stdin: "{{ lookup('template', 'design_plugin.j2') if MATOMO_DESIGN_ENABLED | bool else '' }}"

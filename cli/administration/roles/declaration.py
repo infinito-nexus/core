@@ -10,18 +10,29 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
+from typing import TYPE_CHECKING
 from urllib.parse import urlsplit
 
 from utils.cache.yaml import TaggedValue
-from utils.roles.custom import CUSTOM_KEY, PREFIX, SOURCE_KEY, is_custom
+from utils.digests import COMMIT, SHA256
+from utils.roles.custom import (
+    CUSTOM_KEY,
+    MANIFEST_FILE,
+    PREFIX,
+    SOURCE_KEY,
+    is_custom,
+)
 from utils.roles.entity.name import get_entity_name
 
 from .inventory import read_inventory
 
+if TYPE_CHECKING:
+    from collections.abc import Collection
+
 SOURCE_FIELDS: tuple[str, ...] = ("url", "version", "path")
+PINNED_BY: str = f"pinned by {MANIFEST_FILE}"
 
 _JINJA = re.compile(r"{{|{%|{#")
-_FULL_SHA = re.compile(r"^(?:[0-9a-f]{40}|[0-9a-f]{64})$")
 _GIT_URL = re.compile(r"^(?:(?:https|ssh)://\S+|(?:[\w.-]+@)?[\w.-]+:(?!//)\S+)$")
 _CONFLICT = object()
 
@@ -35,11 +46,14 @@ class Source:
         version: tag or full commit SHA; ``None`` copies the working tree
             of a local directory.
         path: the role directory inside the repository.
+        pinned_commit: the full commit SHA the manifest says ``version``
+            resolves to; ``None`` for an inventory declaration.
     """
 
     url: str
     version: str | None
     path: str
+    pinned_commit: str | None = None
 
     @property
     def local(self) -> bool:
@@ -47,7 +61,9 @@ class Source:
 
     @property
     def commit(self) -> bool:
-        return self.version is not None and bool(_FULL_SHA.match(self.version))
+        return self.version is not None and any(
+            pattern.fullmatch(self.version) for pattern in (COMMIT, SHA256)
+        )
 
     def describe(self) -> str:
         """Return the source as the pull reports it, without the resolved commit."""
@@ -55,9 +71,19 @@ class Source:
             return f"{self.url} {self.path} (working tree)"
         return f"{self.url} {self.path} @ {self.version}"
 
+    def provenance(self, commit: str) -> str:
+        """Args:
+            commit: the commit ``version`` resolved to.
+
+        Returns:
+            The marker's ``source`` line for this source at *commit*.
+        """
+        pinned = f" {PINNED_BY}" if self.pinned_commit else ""
+        return f"{self.describe()} (commit {commit}){pinned}"
+
 
 def read_declarations(
-    inventory: Path, roles_dir: Path
+    inventory: Path, roles_dir: Path, pinned: Collection[str] = ()
 ) -> tuple[dict[str, Source], list[str]]:
     """Return the declared custom roles and every declaration error.
 
@@ -66,6 +92,9 @@ def read_declarations(
             ``group_vars``/``host_vars`` that set application values, or
             an inventory directory.
         roles_dir: the core ``roles/`` the custom roles are placed in.
+        pinned: the groups the manifest pins; such a group needs neither
+            ``custom: true`` nor a ``source`` in the inventory, and a
+            ``source`` alone overrides the pin.
 
     Returns:
         ``({group: Source}, errors)``; each error names its group, or the
@@ -82,30 +111,48 @@ def read_declarations(
         }
         if any(value is _CONFLICT for value in values.values()):
             continue
-        custom = values.get(CUSTOM_KEY)
-        if reason := _unrendered(custom):
-            errors.append(
-                f"{group}: applications.{group}.{CUSTOM_KEY} {reason}; the pull never renders it"
-            )
-            continue
-        if custom is not True:
+        if not _declares(group, values, pinned, errors):
             continue
         marked.add(group)
-        if not is_custom(group):
-            errors.append(
-                f"{group}: {CUSTOM_KEY}: true marks a group outside the {PREFIX} prefix"
-            )
-            continue
-        source = _source(group, values.get(SOURCE_KEY), errors)
+        source = _declared_source(group, values, pinned, errors)
         if source is not None:
             declared[group] = source
     errors.extend(
         f"{group}: inventory group without applications.{group}.{CUSTOM_KEY}: true"
         for group in sorted(groups)
-        if is_custom(group) and group not in marked
+        if is_custom(group) and group not in marked and group not in pinned
     )
-    errors.extend(_entity_collisions(declared, roles_dir))
+    errors.extend(entity_collisions(declared, roles_dir))
     return declared, errors
+
+
+def _declares(
+    group: str, values: dict[str, object], pinned: Collection[str], errors: list[str]
+) -> bool:
+    custom = values.get(CUSTOM_KEY)
+    if reason := unrendered(custom):
+        errors.append(
+            f"{group}: applications.{group}.{CUSTOM_KEY} {reason}; the pull never renders it"
+        )
+        return False
+    return custom is True or (
+        custom is None and group in pinned and SOURCE_KEY in values
+    )
+
+
+def _declared_source(
+    group: str, values: dict[str, object], pinned: Collection[str], errors: list[str]
+) -> Source | None:
+    if not is_custom(group):
+        errors.append(
+            f"{group}: {CUSTOM_KEY}: true marks a group outside the {PREFIX} prefix"
+        )
+        return None
+    raw = values.get(SOURCE_KEY)
+    if raw is None and group in pinned:
+        return None
+    prefix = f"{group}: applications.{group}.{SOURCE_KEY}"
+    return parse_source(group, raw, prefix, errors)
 
 
 def _collect(documents: dict[str, object]) -> dict[str, dict[str, dict[str, object]]]:
@@ -137,7 +184,13 @@ def _agreed(
     return _CONFLICT
 
 
-def _unrendered(value: object) -> str | None:
+def unrendered(value: object) -> str | None:
+    """Args:
+        value: a raw declaration value, loaded without rendering.
+
+    Returns:
+        Why the pull refuses to read *value* unrendered, or ``None``.
+    """
     if isinstance(value, TaggedValue):
         return f"holds a {value.tag} value"
     if isinstance(value, str):
@@ -145,12 +198,23 @@ def _unrendered(value: object) -> str | None:
     if isinstance(value, dict):
         value = list(value.values())
     if isinstance(value, list):
-        return next(filter(None, map(_unrendered, value)), None)
+        return next(filter(None, map(unrendered, value)), None)
     return None
 
 
-def _source(group: str, raw: object, errors: list[str]) -> Source | None:
-    prefix = f"{group}: applications.{group}.{SOURCE_KEY}"
+def parse_source(
+    group: str, raw: object, prefix: str, errors: list[str]
+) -> Source | None:
+    """Args:
+        group: the custom role's group.
+        raw: the raw ``url``/``version``/``path`` mapping.
+        prefix: names the mapping in every error, e.g.
+            ``<group>: applications.<group>.source``.
+        errors: receives every error found.
+
+    Returns:
+        The source, or ``None`` when *raw* holds an error.
+    """
     if raw is None:
         errors.append(f"{prefix} is missing")
         return None
@@ -170,7 +234,7 @@ def _source(group: str, raw: object, errors: list[str]) -> Source | None:
         value = raw.get(name)
         if value is None:
             continue
-        if reason := _unrendered(value):
+        if reason := unrendered(value):
             errors.append(f"{prefix}.{name} {reason}; the pull never renders it")
         elif not isinstance(value, str) or not value.strip():
             errors.append(f"{prefix}.{name} must be a non-empty string")
@@ -197,7 +261,7 @@ def _source(group: str, raw: object, errors: list[str]) -> Source | None:
 
 
 def _url_errors(prefix: str, url: str) -> list[str]:
-    if _embeds_credentials(url):
+    if embeds_credentials(url):
         return [
             (
                 f"{prefix}.url embeds credentials; authenticate through the SSH "
@@ -211,7 +275,13 @@ def _url_errors(prefix: str, url: str) -> list[str]:
     return []
 
 
-def _embeds_credentials(url: str) -> bool:
+def embeds_credentials(url: str) -> bool:
+    """Args:
+        url: a ``source.url``.
+
+    Returns:
+        Whether *url* carries a password, or a user outside ``ssh://``.
+    """
     if "://" not in url:
         return False
     try:
@@ -235,7 +305,14 @@ def _path_errors(group: str, prefix: str, path: PurePosixPath) -> list[str]:
     return []
 
 
-def _entity_collisions(declared: dict[str, Source], roles_dir: Path) -> list[str]:
+def entity_collisions(declared: dict[str, Source], roles_dir: Path) -> list[str]:
+    """Args:
+        declared: the custom roles by group.
+        roles_dir: the core ``roles/`` holding the in-tree roles.
+
+    Returns:
+        One error per custom role whose entity name an in-tree role holds.
+    """
     in_tree = {
         get_entity_name(role.name): role.name
         for role in sorted(roles_dir.iterdir())

@@ -1,18 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
-  vars:
-    mcp_adapter_instance_dir: "{{ FIDER_MCP_INSTANCE_DIR }}"
-  when: FIDER_MCP_ENABLED | bool
-
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: true
-
 - name: "🧱 Rebuild the MCP adapter of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
   when: FIDER_MCP_ENABLED | bool
@@ -33,3 +21,6 @@
 - name: "🎨 Fider | Corporate design"
   include_tasks: 03_design.yml
   when: IS_STACK_HOST | bool
+
+- name: "🛂 Fider | Map the role groups onto the user roles"
+  include_tasks: 04_rbac.yml

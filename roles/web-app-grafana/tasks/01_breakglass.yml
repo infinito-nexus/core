@@ -1,0 +1,45 @@
+---
+- name: "🔍 Resolve the Grafana container on '{{ grafana_instance.network }}'"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ 'grafana' | labelled(grafana_instance.label, '-') }}"
+    resolve_service_name: "{{ lookup('container_service', application_id, 'grafana') | labelled(grafana_instance.label, '-') }}"
+    resolve_output_prefix: GRAFANA
+    resolve_compose_cid: "{{ GRAFANA_INSTANCE_CONTAINER }}"
+
+- name: "🔍 Resolve the Grafana network namespace on '{{ grafana_instance.network }}'"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+  vars:
+    netns_output_prefix: GRAFANA
+
+- name: "⏳ Wait for /api/health of Grafana on '{{ grafana_instance.network }}'"
+  ansible.builtin.command:
+    argv: "{{ GRAFANA_NETNS_PYTHON }}"
+    stdin: "{{ lookup('http_request_program', '') }}"
+  environment:
+    HTTP_METHOD: GET
+    HTTP_URL: "{{ GRAFANA_INSTANCE_NETNS_URL }}/api/health"
+  register: grafana_health
+  until: grafana_health.rc == 0 and (grafana_health.stdout | from_json).status == 200
+  retries: 60
+  delay: 5
+  changed_when: false
+  delegate_to: "{{ GRAFANA_HOST_NODE }}"
+  become: true
+
+- name: "🔐 Align the break-glass password on '{{ grafana_instance.network }}'"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ GRAFANA_LOCAL_CID }}" # nocheck: container-exec-resolver  resolve_host_cid above resolved the instance's own task on GRAFANA_HOST_NODE
+      - grafana
+      - cli
+      - admin
+      - reset-admin-password
+      - --password-from-stdin
+    stdin: "{{ GRAFANA_BREAKGLASS_PASSWORD }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ GRAFANA_HOST_NODE }}"

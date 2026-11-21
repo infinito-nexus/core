@@ -1,0 +1,49 @@
+---
+# nocheck: garbage-collector-required  the server deletes each upload and its converted WAV when the request ends; no other leftovers known
+# nocheck: playwright-service-flag  speech-to-text engine consumed over the container network, without a browser surface
+speech:
+  # nocheck: architecture-pin  Reason: the main-<commit> tag of ghcr.io/ggml-org/whisper.cpp lists only linux/amd64; upstream publishes arm64 under a separate main-arm64-<commit> tag, which one version pin cannot select per node
+  architectures:
+    - amd64
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  bond: 1
+  enabled: true
+  shared: true
+  image: ghcr.io/ggml-org/whisper.cpp
+  # nocheck: docker-version  upstream tags its CPU image only as main-<commit>; this commit is release v1.9.5
+  version: main-d1be6fde11ac6e0407606b4e42fe72d34add8037
+  name: speech
+  healthcheck:
+    flavor: http_status
+    path: health
+  api_path: /v1
+  language: auto
+  request_timeout: 3600
+  # nocheck: min-storage-headroom  Reason: the extracted image plus the upload and its 16 kHz WAV, about 450 MB per recorded hour, which the server writes to /tmp while it transcribes
+  min_storage: 2GB
+  cpus: "4.0"
+  mem_reservation: 1g
+  mem_limit: 3g
+  pids_limit: 256
+  ports:
+    internal:
+      http: 8080
+  lifecycle: alpha
+
+# nocheck: variants-coverage the role has a single variant, and the guide edge is not a dimension of it: a second round would differ only by the README replay
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started

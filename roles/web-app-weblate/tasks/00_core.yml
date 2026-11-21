@@ -3,11 +3,10 @@
 
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer.yml
 
-- name: "🐍 Stage the settings override that serves Weblate on every network sibling"
+- name: "🐍 Stage the settings override for network siblings and SSO subject links"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
   vars:
@@ -24,10 +23,22 @@
         dest: "{{ WEBLATE_NETWORK_MIDDLEWARE_HOST }}"
         mode: "0644"
         notify: ["compose-up"]
+      - src: "{{ lookup('path_absolute', 'roles/web-app-weblate/files/python/weblate_infinito/tasks.py') }}"
+        dest: "{{ WEBLATE_TWO_FACTOR_TASKS_HOST }}"
+        mode: "0644"
+        notify: ["compose-up"]
 
 - name: "🚿 Flush handlers so Weblate starts with the settings override mounted"
   meta: flush_handlers
 
-- name: "🔑 Hand the gateway the token it reads the memory with"
-  ansible.builtin.include_tasks: utils/token.yml
+- name: "🧩 Converge the backend-side state of Weblate"
   when: IS_STACK_HOST | bool
+  block:
+    - name: "🔑 Hand the gateway the token it reads the memory with"
+      ansible.builtin.include_tasks: utils/token.yml
+
+    - name: "🔐 Converge the second-factor enforcement of the teams and projects"
+      ansible.builtin.include_tasks: utils/two_factor.yml
+
+- name: "👥 Map the role groups onto superusers and site teams"
+  ansible.builtin.include_tasks: utils/rbac.yml

@@ -1,0 +1,21 @@
+---
+- name: "🎨 Report the drift and stage the corporate design of {{ application_id }}"
+  ansible.builtin.include_tasks: 09_design/stage.yml
+  when: WORDPRESS_DESIGN_ENABLED | bool
+
+- name: "🎨 Apply or withdraw the corporate design of {{ application_id }}"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i --user {{ WORDPRESS_USER | quote }}
+      -e {{ ('WORDPRESS_DESIGN=' ~ (WORDPRESS_DESIGN_CONFIG | to_json | b64encode)) | quote }}
+      {{ WORDPRESS_CONTAINER_ADDRESS }}
+      wp eval-file - --path={{ WORDPRESS_DOCKER_HTML_PATH | quote }}
+    stdin: "{{ lookup('file', 'php/design.php') }}"
+  register: wordpress_design
+  changed_when: wordpress_design.stdout_lines | last != 'unchanged'
+
+- name: "🧹 Remove the rendered corporate logo set of {{ application_id }}"
+  ansible.builtin.file:
+    path: "{{ WORDPRESS_DESIGN_HOST_DIR }}"
+    state: absent
+  when: not (WORDPRESS_DESIGN_ENABLED | bool)

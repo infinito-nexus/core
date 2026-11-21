@@ -12,8 +12,10 @@ VARS = ROLE / ROLE_FILE_VARS_MAIN
 RBAC = ROLE / ROLE_FILE_META_RBAC
 NATIVE = ROLE / "files/ruby/apply/administrator.rb"
 TEMPLATE = ROLE / "templates/zz/oidc/group_role_mapping.rb.j2"
-GRANTS_KEY = "ZAMMAD_OIDC_ROLE_GRANTS"
+GRANTS_KEY = "ZAMMAD_RBAC_ROLE_GRANTS"
 MAP_KEY = "ZAMMAD_OIDC_GROUP_ROLE_MAP"
+LDAP_MAP_KEY = "ZAMMAD_LDAP_GROUP_ROLE_MAP"
+LDAP_APPLY = ROLE / "files/ruby/apply/ldap_source.rb"
 ADMIN_ROLE = "administrator"
 MACHINE_ROLES = {"mcp"}
 
@@ -83,6 +85,53 @@ class TestOidcGroupRoleMap(unittest.TestCase):
                 f"never resolves its path, while {GRANTS_KEY} declares roles for it",
             )
 
+    def test_every_granted_role_resolves_its_ldap_group_dn(self) -> None:
+        variables = role_vars()
+        expression = variables[LDAP_MAP_KEY]
+        self.assertIsInstance(
+            expression,
+            str,
+            f"{VARS}: {LDAP_MAP_KEY} must stay one Jinja expression, because Ansible "
+            "leaves mapping keys untemplated and a literal '{{ ... }}' DN matches no group",
+        )
+        self.assertRegex(
+            expression,
+            r"(?s)\A\{\{.*\}\}\Z",
+            f"{VARS}: {LDAP_MAP_KEY} must be the bare expression; a stray character turns "
+            "the mapping into its Python repr and JSON.parse in ldap_source.rb then fails",
+        )
+        for role in variables[GRANTS_KEY]:
+            self.assertIn(
+                f"'-{role},' ~ LDAP.DN.OU.ROLES",
+                expression,
+                f"{VARS}: {LDAP_MAP_KEY} grants nothing to the '{role}' LDAP role group "
+                f"while {GRANTS_KEY} declares roles for it, so the LDAP import hands that "
+                "member the signup role and overrides the OIDC grant until the next sign-in",
+            )
+
+    def test_the_ldap_import_matches_what_net_ldap_hands_over(self) -> None:
+        source = read_text(str(LDAP_APPLY))
+        self.assertIn(
+            "transform_keys(&:downcase)",
+            source,
+            "Net::LDAP::Entry downcases every attribute name and Zammad's FlatKeys mapping "
+            "looks the source key up verbatim, so a camelCase key such as givenName or "
+            "telephoneNumber never copies its value",
+        )
+        self.assertIn(
+            "dn.downcase",
+            source,
+            "Ldap::Group#user_roles reads group_role_map[entry.dn.downcase], so a DN key "
+            "kept in its original case maps no member onto any role",
+        )
+        self.assertIn(
+            '"sigup_roles"',
+            source,
+            "with a group_role_map in place, unassigned_users 'skip_sync' skips or "
+            "deactivates every directory user outside the mapped groups, which locks the "
+            "customers of an open helpdesk out; Zammad spells the signup choice sigup_roles",
+        )
+
     def test_every_rbac_role_a_person_can_hold_has_a_grant(self) -> None:
         self.assertEqual(
             declared_rbac_roles() - MACHINE_ROLES,
@@ -123,6 +172,42 @@ class TestOidcGroupRoleMap(unittest.TestCase):
         self.assertIn("Role.where(active: true,", source, reason)
         self.assertIn("missing.any?", source, reason)
         self.assertIn("is_a?(Hash)", source, reason)
+
+    def test_the_profile_sync_requests_the_scopes_its_claims_need(self) -> None:
+        variables = role_vars()
+        scopes = variables["ZAMMAD_OIDC_SCOPE"].split()
+        for scope in ("openid", "profile", "email", "phone", "address"):
+            self.assertIn(
+                scope,
+                scopes,
+                f"{VARS}: ZAMMAD_OIDC_SCOPE must request '{scope}'; Keycloak emits "
+                "phone_number and address only for a client that asks for their optional "
+                "scope, so the profile sync would never see them",
+            )
+        for field, claim in variables["ZAMMAD_OIDC_PROFILE_CLAIMS"].items():
+            self.assertRegex(
+                claim,
+                r"\A\{\{ OIDC\.ATTRIBUTES\.[A-Z_]+ \}\}\Z",
+                f"{VARS}: the claim of the Zammad field '{field}' must come from the "
+                "OIDC.ATTRIBUTES SPOT",
+            )
+
+    def test_a_refused_profile_write_does_not_break_the_sign_in(self) -> None:
+        source = read_text(str(TEMPLATE))
+        for hook in ("find_from_hash", "create_from_hash"):
+            body = source.split(f"define_method(:{hook})", 1)[1].split("end", 1)[0]
+            self.assertIn(
+                "_zammad_apply_oidc_profile!",
+                body,
+                f"{TEMPLATE}: {hook} must apply the OIDC profile, or a profile change in "
+                "Keycloak reaches Zammad only through the LDAP import",
+            )
+        self.assertIn(
+            "user.restore_attributes",
+            source,
+            "the profile sync runs inside SessionsController#create_omniauth; a refused "
+            "save must be rescued and rolled back instead of answering the sign-in with 500",
+        )
 
     def test_a_refused_role_write_does_not_break_the_sign_in(self) -> None:
         source = read_text(str(TEMPLATE))

@@ -1,0 +1,37 @@
+---
+- name: "🗂️ Converge the projects with the admin API token"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/admin.yml"
+  vars:
+    semaphore_admin_before: "{{ role_path }}/tasks/utils/project/inputs.yml"
+    semaphore_admin_tasks: "{{ role_path }}/tasks/utils/project/sync.yml"
+
+- name: "🏃 Align one runner row per platform project"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ SEMAPHORE_DATABASE_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - psql
+      - -U
+      - "{{ lookup('database', application_id, 'username') }}"
+      - -d
+      - "{{ lookup('database', application_id, 'name') }}"
+      - -v
+      - ON_ERROR_STOP=1
+      - -qtA
+    stdin: "{{ lookup('template', 'sql/project/runners.sql.j2') }}"
+  register: semaphore_project_runners
+  changed_when: semaphore_project_runners.stdout is search('(?<![A-Z])CHANGED')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ SEMAPHORE_DATABASE_HOST_NODE }}"
+
+- name: "✅ Fail unless platform projects and their runners pair up one to one"
+  ansible.builtin.assert:
+    that:
+      - semaphore_project_runner_findings | length == 0
+    fail_msg: "{{ semaphore_project_runner_findings | join('; ') }}"
+    quiet: true
+  vars:
+    semaphore_project_runner_findings: >-
+      {{ semaphore_project_runners.stdout_lines | semaphore_runner_findings(SEMAPHORE_PLATFORM_RUNNERS_ACTIVE) }}

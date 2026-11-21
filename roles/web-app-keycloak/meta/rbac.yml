@@ -1,0 +1,11 @@
+---
+roles:
+  user-manager:
+    description: Keycloak user manager (create, edit and assign groups to users in the application realm)
+    realm_management: ["view-users", "query-users", "query-groups", "manage-users"]
+  auditor:
+    description: Keycloak auditor (read-only view of the application realm, its users and events)
+    realm_management: ["view-realm", "view-users", "query-users", "query-groups", "view-clients", "view-events"]
+  impersonator:
+    description: Keycloak impersonator (signs in as another user of the application realm)
+    realm_management: ["impersonation", "view-users", "query-users"]

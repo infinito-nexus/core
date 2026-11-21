@@ -17,23 +17,15 @@
   run_once: true
 
 - name: "👤 Create the account the MCP clients authenticate as"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -u
-      - "{{ NEXTCLOUD_DOCKER_USER }}"
-      - -e
-      - OC_PASS
-      - "{{ NEXTCLOUD_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - php
-      - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
-      - user:add
-      - --password-from-env
-      - "--display-name={{ NEXTCLOUD_MCP_USER_DISPLAY_NAME }}"
-      - "{{ NEXTCLOUD_MCP_USERNAME }}"
-  environment:
-    OC_PASS: "{{ NEXTCLOUD_MCP_USER_PASSWORD }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      IFS= read -r OC_PASS || :; : "${OC_PASS:?arrived empty on stdin}" && export OC_PASS && container exec
+      -u {{ NEXTCLOUD_DOCKER_USER | quote }} -e OC_PASS
+      {{ NEXTCLOUD_LOCAL_CID | quote }}
+      php {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} user:add --password-from-env
+      --display-name={{ NEXTCLOUD_MCP_USER_DISPLAY_NAME | quote }}
+      {{ NEXTCLOUD_MCP_USERNAME | quote }}
+    stdin: "{{ NEXTCLOUD_MCP_USER_PASSWORD }}"
   when: NEXTCLOUD_MCP_USERNAME not in (nextcloud_mcp_accounts.stdout | from_json)
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -41,22 +33,14 @@
   run_once: true
 
 - name: "🔑 Set the account's password to the one this deployment declares"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -u
-      - "{{ NEXTCLOUD_DOCKER_USER }}"
-      - -e
-      - OC_PASS
-      - "{{ NEXTCLOUD_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - php
-      - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
-      - user:resetpassword
-      - --password-from-env
-      - "{{ NEXTCLOUD_MCP_USERNAME }}"
-  environment:
-    OC_PASS: "{{ NEXTCLOUD_MCP_USER_PASSWORD }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      IFS= read -r OC_PASS || :; : "${OC_PASS:?arrived empty on stdin}" && export OC_PASS && container exec
+      -u {{ NEXTCLOUD_DOCKER_USER | quote }} -e OC_PASS
+      {{ NEXTCLOUD_LOCAL_CID | quote }}
+      php {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} user:resetpassword --password-from-env
+      {{ NEXTCLOUD_MCP_USERNAME | quote }}
+    stdin: "{{ NEXTCLOUD_MCP_USER_PASSWORD }}"
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
@@ -104,23 +88,15 @@
   run_once: true
 
 - name: "🔑 Mint an app password for the MCP clients"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -u
-      - "{{ NEXTCLOUD_DOCKER_USER }}"
-      - -e
-      - NC_PASS
-      - "{{ NEXTCLOUD_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - php
-      - "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
-      - user:auth-tokens:add
-      - "{{ NEXTCLOUD_MCP_USERNAME }}"
-      - --password-from-env
-      - "--name={{ NEXTCLOUD_MCP_TOKEN_NAME }}"
-  environment:
-    NC_PASS: "{{ NEXTCLOUD_MCP_USER_PASSWORD }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      IFS= read -r NC_PASS || :; : "${NC_PASS:?arrived empty on stdin}" && export NC_PASS && container exec
+      -u {{ NEXTCLOUD_DOCKER_USER | quote }} -e NC_PASS
+      {{ NEXTCLOUD_LOCAL_CID | quote }}
+      php {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} user:auth-tokens:add
+      {{ NEXTCLOUD_MCP_USERNAME | quote }} --password-from-env
+      --name={{ NEXTCLOUD_MCP_TOKEN_NAME | quote }}
+    stdin: "{{ NEXTCLOUD_MCP_USER_PASSWORD }}"
   register: nextcloud_mcp_token_mint
   changed_when: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

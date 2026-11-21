@@ -10,7 +10,7 @@ Every workflow MUST follow the schema `"[Emoji] Category: Subject (Qualifier)"`,
 
 - You MUST quote the `name:` value in double quotes because the colon (`:`) in the name is a reserved YAML character.
 - You MUST place the emoji before the category, never after.
-- You MUST NOT add emojis to `docs/agents/` files, but workflow `name:` fields are not agent files and MUST use emojis.
+- You MUST NOT add emojis to `agents/` files, but workflow `name:` fields are not agent files and MUST use emojis.
 - The qualifier in parentheses is OPTIONAL. Use it only when two workflows share the same category and subject.
 - A workflow with a `workflow_dispatch` trigger MUST keep its `name:` at or below 25 characters, enforced by [test_workflow_dispatch_name_length.py](../../../../../tests/lint/repository/test_workflow_dispatch_name_length.py). The dispatch menu lists those names in one narrow column, where a longer one is truncated. Move the explanatory wording into `run-name:`, which carries no such limit.
 
@@ -82,7 +82,7 @@ Set an option back to `false` only when a new host-side step in the same workflo
 
 Some GitHub-hosted runners have a 72 GB root disk plus a second, unformatted NVMe disk. [mount_spare_disk.sh](../../../../../scripts/github/runner/mount_spare_disk.sh) formats that disk as ext4 and mounts it at `/mnt`. The nested Docker volume (`/mnt/docker`) and the loop image of [docker_dataroot.sh](../../../../../scripts/tests/deploy/utils/filesystem/docker_dataroot.sh) (`/mnt/docker-fs.img`) then land on it.
 
-When `/mnt` has at least `MIN_FREE_GB` free and more than `/`, [relocate_docker_dataroot.sh](../../../../../scripts/github/runner/relocate_docker_dataroot.sh) stops Docker and containerd, bind-mounts `/mnt/containerd` over `/var/lib/containerd` (images, container layers, the swarm node containers), sets the Docker data-root to `/mnt/docker-host` (named volumes), restarts both and verifies that containerd's metadata and the Docker root sit on `/mnt`. Before the stop it fails if Docker already holds containers, images, volumes or build cache, if another containerd namespace holds containers or tasks, if containerd shims run, or if `daemon.json` cannot be read as JSON. Any failure after the stop, and a cancel, unmounts the bind, restores `daemon.json`, restarts both daemons and fails the step. It refuses under act and changes nothing on a runner that is not GitHub-hosted. Every decline prints a `::notice::` annotation. [run.py](../../../../../utils/tests/swarm/run.py) then watches the free space of both `/` and `/var/lib/containerd`.
+When `/mnt` has at least `MIN_FREE_GB` free and more than `/`, [relocate_docker_dataroot.sh](../../../../../scripts/github/runner/relocate_docker_dataroot.sh) stops Docker and containerd, bind-mounts `/mnt/containerd` over `/var/lib/containerd` (images, container layers, the swarm node containers), sets the Docker data-root to `/mnt/docker-host` (named volumes), restarts both and verifies that containerd's metadata and the Docker root sit on `/mnt`. Before the stop it fails if Docker already holds containers, images, volumes or build cache, if another containerd namespace holds containers or tasks, if containerd shims run, or if `daemon.json` cannot be read as JSON. Any failure after the stop, and a cancel, unmounts the bind, restores `daemon.json`, restarts both daemons and fails the step. It refuses under act and changes nothing on a runner that is not GitHub-hosted. Every decline prints a `::notice::` annotation and no runner-state dump, because a decline changes nothing: the swap step right after it dumps that same state. A successful relocation dumps the new state. [run.py](../../../../../utils/tests/swarm/run.py) then watches the free space of both `/` and `/var/lib/containerd`.
 
 Step order: spare disk, relocation, swap. With containerd on `/mnt`, the swapfile goes to `/`.
 
@@ -105,6 +105,20 @@ Workflow step invocations, in this order and gated alike:
   shell: bash
   run: ./scripts/github/runner/relocate_docker_dataroot.sh 75
 ```
+
+The image build job of [call-images-build-ci.yml](../../../../../.github/workflows/call-images-build-ci.yml) runs the same two steps before its first Docker write, so buildkit's state volume and the buildkit image land on `/mnt` too. It drops the runner's preinstalled Docker images first (`docker image prune --all --force`, gated alike), because the relocation refuses while images exist. It keeps the runner's own swap and skips `enlarge_swap.sh`, so its own step runs [dump_state.sh](../../../../../scripts/github/runner/dump_state.sh) right after the relocation.
+
+`dump_state.sh` lists the 15 largest directories two levels deep on `/` and `/mnt`. A single `du` over a cold runner disk waits on one metadata read at a time, so parallel `du -xs` runs over every second-level directory first fill the inode cache. The serial `du` that prints the listing then reads warm, and its output stays the same.
+
+## Disk guard 🛑
+
+The Actions worker writes its own diagnostics log to `/`. When `/` runs full the worker dies, the job log is lost and no `always()` step runs ([#1377](https://github.com/infinito-nexus/core/issues/1377)). The image build therefore runs under [disk/guard.sh](../../../../../scripts/github/runner/disk/guard.sh):
+
+```yaml
+run: ./scripts/github/runner/disk/guard.sh / 6 10 -- ./scripts/image/push_all.sh
+```
+
+The guard reads the free space on `/` at start and then every 10 seconds. It checks once a second whether the build is still running, so the step ends within a second of the build, and a cancel reaches the build just as fast. Below 6 GB it prints an `::error::` annotation and a `DISK-GUARD` disk pressure report, stops the build's whole process group and fails the step with exit code 75. The per-distro build logs, the post-build pressure report and the cleanup then still run.
 
 ## Swap 💾
 

@@ -12,14 +12,19 @@ This role deploys OpenCloud using Docker Compose in single-binary mode and expos
 
 - **Sovereign File Sync and Share:** Self-host file sync, shares, and collaborative spaces under your own domain.
 - **Single Sign-On:** Users authenticate once via Keycloak and reuse the session across the platform.
-- **Central User Directory:** Users and groups are read from a shared OpenLDAP backend, so accounts stay consistent across apps.
-- **Auto-Provisioning:** New OIDC users are created on first login with username equal to the LDAP `uid`, and group claims drive role assignment.
+- **Central User Directory:** Users and groups are read from a shared OpenLDAP backend, so accounts stay consistent across apps, and the display name comes from the directory full name.
+- **Role Mapping:** With SSO, every login sets the OpenCloud role from the Keycloak realm roles: members of the `administrator`, `spaceadmin` and `guest` role groups become `admin`, `spaceadmin` and `user-light`, and every other realm user signs in as `user` through `default-roles-<realm>`. Without SSO, every account signs in as `user`.
+- **Login methods:** `services.opencloud.login.method` declares `sso`, `ldap` and `native`. `sso` renders the `OC_OIDC_ISSUER` block of `templates/env.j2`, which points OpenCloud Web and the proxy at Keycloak. `ldap` and `native` both keep the built-in identity provider running (`OC_EXCLUDE_RUN_SERVICES=idp` is set only while both are off); it authenticates against the directory when `svc-db-openldap` is deployed and against the built-in IDM accounts otherwise, so LDAP mode admits no local account. OpenCloud has no own second factor and no self-registration. **Break-glass:** with SSO on no browser path admits the built-in `admin` account; administer the instance through the `opencloud` CLI inside the container, or set `login.method.sso.enabled: false` and `login.method.native.enabled: true` in the inventory and redeploy to get the built-in sign-in back.
 - **OpenTalk Cross-Launch:** Start a video meeting in OpenTalk from a file context without re-authenticating when `web-app-opentalk` is deployed alongside.
 - **Coexists with Nextcloud:** Runs in parallel with `web-app-nextcloud` on a distinct canonical hostname.
 
 ## Developer Notes
 
 See [IAM.md](docs/IAM.md) for OIDC discovery and verification commands, and [LDAP.md](docs/LDAP.md) for the directory binding and schema mapping. Open follow-up items are tracked in [TODO.md](TODO.md).
+
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to. A follow-up tightens them.
 
 ## Further Resources
 

@@ -18,7 +18,7 @@ const {
   performKeycloakLogin,
   requireDotenvValue,
 } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 test.use({ ignoreHTTPSErrors: true });
@@ -229,7 +229,7 @@ test("design: corporate tokens apply in light and dark mode", async ({ page }) =
 });
 
 test("design: the provisioned administrator signs in natively and reaches the admin dashboard", async ({ page }) => {
-  test.skip(ssoEnabled, "with sso OMNIAUTH_ONLY hides the native form; the identity provider owns the password");
+  skipUnlessServiceDisabled("sso");
   await signIn(page);
   await gotoOnion(page, `${base}/admin/dashboard`);
   await expect(page).toHaveURL(/\/admin\/dashboard/);
@@ -304,7 +304,7 @@ test("design: the administration divides rows with the border token", async ({ p
 
 test("design: the sign-in page takes surface, primary action and text from the palette", async ({ page }) => {
   skipUnlessServiceEnabled("design");
-  test.skip(ssoEnabled, "with sso OMNIAUTH_ONLY hides the native form");
+  skipUnlessServiceDisabled("sso");
   await gotoOnion(page, `${base}/auth/sign_in`);
   await shown(LOGIN_EMAIL)(page);
   for (const mode of MODES) {

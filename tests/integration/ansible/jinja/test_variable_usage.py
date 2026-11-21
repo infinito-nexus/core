@@ -63,6 +63,9 @@ class TestTopLevelVariableUsage(unittest.TestCase):
             "ansible_python_interpreter",
             "ansible_shell_executable",
         }
+        self.scanned_files = tuple(
+            iter_project_files_with_content(extensions=self.valid_extensions)
+        )
 
     def get_top_level_keys(self, file_path):
         try:
@@ -87,14 +90,11 @@ class TestTopLevelVariableUsage(unittest.TestCase):
     def find_usage_in_project(self, varname, definition_path):
         """
         Search the whole project for varname, skipping only the single
-        declaration line in definition_path. Walk and file contents are
-        served from the process-level cache in utils.cache.files.
+        declaration line in definition_path.
         """
         decl_line = self.find_declaration_line(definition_path, varname)
 
-        for path, content in iter_project_files_with_content(
-            extensions=self.valid_extensions
-        ):
+        for path, content in self.scanned_files:
             if varname not in content:
                 continue
 

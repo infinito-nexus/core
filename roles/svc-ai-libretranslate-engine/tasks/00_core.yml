@@ -44,6 +44,24 @@
     - compose-build
     - compose-up
 
+# nocheck: ansible-repeated-when-run  a block guard would be evaluated inside svc-ai-models, whose vars bind its own application_id
+- name: "📦 Seed the model store before {{ application_id }} starts"
+  ansible.builtin.include_role:
+    name: svc-ai-models
+    tasks_from: utils/seed.yml
+  vars:
+    models_seeded: "{{ LIBRETRANSLATE_ENGINE_STORE.artefacts }}"
+  when: LIBRETRANSLATE_ENGINE_STORED | bool
+
+- name: "🛑 Refuse to start {{ application_id }} without its artefacts in the store"
+  ansible.builtin.include_role:
+    name: svc-ai-models
+    tasks_from: utils/require.yml
+  vars:
+    models_consumer: "{{ application_id }}"
+    models_required: "{{ LIBRETRANSLATE_ENGINE_STORE.artefacts }}"
+  when: LIBRETRANSLATE_ENGINE_STORED | bool
+
 - name: "🚿 Flush compose handlers for {{ application_id }}"
   ansible.builtin.meta: flush_handlers
 

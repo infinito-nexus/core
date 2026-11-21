@@ -198,6 +198,7 @@ class TestPacmanCacheLayering(unittest.TestCase):
     def test_a_host_cache_that_is_not_mounted_fails(self) -> None:
         done = layer(self.conf, self.shared, str(self.tmp / "missing"))
         self.assertNotEqual(done.returncode, 0)
+        self.assertIn("is not mounted", done.stderr)
         self.assertEqual(self._text(), CONF)
         self.assertFalse((self.tmp / HOOK).exists())
 
@@ -206,6 +207,7 @@ class TestPacmanCacheLayering(unittest.TestCase):
         self.conf.write_text(conf)
         done = layer(self.conf, self.shared, str(self.host))
         self.assertNotEqual(done.returncode, 0)
+        self.assertIn("sets HookDir", done.stderr)
         self.assertEqual(self._text(), conf)
         self.assertFalse(self.shared.exists())
 
@@ -217,6 +219,7 @@ class TestPacmanCacheLayering(unittest.TestCase):
             check=False,
         )
         self.assertNotEqual(done.returncode, 0)
+        self.assertIn("usage: pacman.sh", done.stderr)
 
 
 if __name__ == "__main__":

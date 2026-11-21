@@ -105,6 +105,40 @@ class TestLayout(unittest.TestCase):
         self.assertEqual(argv[argv.index("--controller-mesh") + 1], "alpha")
 
 
+PVE = "t-swarm-pve-01"
+PVE_IP = "192.168.244.15"
+
+
+class TestProxmoxHostMesh(unittest.TestCase):
+    def _argv(self, with_host: bool) -> list[str]:
+        env = {
+            "INFINITO_SWARM_VPN": "true",
+            "INFINITO_SWARM_MESHES": EXAMPLE,
+            "PROXMOX_NODE": PVE,
+            "INFINITO_SWARM_PROXMOX_IP": PVE_IP,
+        }
+        with (
+            tempfile.TemporaryDirectory() as td,
+            mock.patch.dict("os.environ", env, clear=False),
+            mock.patch.object(mesh_steps, "run_step", return_value=0) as step,
+        ):
+            if with_host:
+                (Path(td) / mesh_steps.PROXMOX_INVENTORY).write_text("all: {}\n")
+            self.assertEqual(mesh_steps.write_mesh(inv_dir=td), 0)
+            argv = step.call_args.args[0]
+            return [arg.replace(td, "<inv>") for arg in argv]
+
+    def test_the_proxmox_host_joins_the_mesh_with_its_lab_address(self):
+        argv = self._argv(with_host=True)
+        self.assertIn(f"<inv>/{mesh_steps.PROXMOX_INVENTORY}", argv)
+        self.assertIn(f"{PVE}={PVE_IP}", argv)
+
+    def test_negative_control_a_round_without_the_profile_leaves_it_out(self):
+        argv = self._argv(with_host=False)
+        self.assertNotIn(f"<inv>/{mesh_steps.PROXMOX_INVENTORY}", argv)
+        self.assertNotIn(f"{PVE}={PVE_IP}", argv)
+
+
 LINKS = """[
   {"ifname": "alpha", "addr_info": [{"local": "10.100.10.11", "prefixlen": 24}]},
   {"ifname": "swarm", "addr_info": [{"local": "10.100.0.11", "prefixlen": 24}]},

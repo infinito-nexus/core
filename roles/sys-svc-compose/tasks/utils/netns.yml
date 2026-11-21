@@ -1,0 +1,38 @@
+---
+# Set <prefix>_NETNS_ENTER, an argv prefix that runs a host binary inside the
+# network namespace of a container already resolved by swarm/resolve_host_cid.yml,
+# and <prefix>_NETNS_PYTHON, that prefix running host python3 on stdin.
+# Run them on <prefix>_HOST_NODE with become.
+#
+# Param: netns_output_prefix - prefix of resolve_host_cid; reads <prefix>_HOST_NODE / <prefix>_LOCAL_CID
+- name: "🔍 netns | resolve the network namespace pid for {{ netns_output_prefix }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - inspect
+      - --type
+      - container
+      - --format
+      - "{{ '{{.State.Pid}}' }}"
+      - "{{ lookup('vars', netns_output_prefix ~ '_LOCAL_CID') }}" # nocheck: container-exec-resolver
+  register: _netns_pid
+  until: _netns_pid.rc == 0 and (_netns_pid.stdout | trim | int) > 0
+  retries: 30
+  delay: 2
+  changed_when: false
+  delegate_to: "{{ lookup('vars', netns_output_prefix ~ '_HOST_NODE') }}"
+
+- name: "🔧 netns | set {{ netns_output_prefix }}_NETNS_ENTER and _NETNS_PYTHON"
+  ansible.builtin.set_fact:
+    "{{ netns_output_prefix }}_NETNS_ENTER":
+      - nsenter
+      - --target
+      - "{{ _netns_pid.stdout | trim }}"
+      - --net
+    "{{ netns_output_prefix }}_NETNS_PYTHON":
+      - nsenter
+      - --target
+      - "{{ _netns_pid.stdout | trim }}"
+      - --net
+      - python3
+      - "-"

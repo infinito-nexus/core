@@ -186,6 +186,8 @@ ROLE_FILE_META_SECRETS = "meta/secrets.yml"
 ROLE_FILE_META_INFO = "meta/info.yml"
 ROLE_FILE_META_LICENSE = "meta/license.yml"
 ROLE_FILE_META_USERS = "meta/users.yml"
+ROLE_FILE_META_ACCOUNT = "meta/account.yml"
+ROLE_FILE_META_FORMS = "meta/forms.yml"
 ROLE_FILE_META_TESTS = "meta/tests.yml"
 
 ROLE_DIR_META_ADDONS = "meta/addons"
@@ -381,6 +383,29 @@ ROLE_FILES: dict[str, dict[str, object]] = {
             "Reserved-username declarations consumed by the user-management layer."
         ),
         "types": _all(mandatory=False),
+    },
+    ROLE_FILE_META_ACCOUNT: {
+        "description": (
+            "Account policy of the application's own user account: the "
+            "username length ceiling and accepted pattern, the upstream source "
+            "proving both, and whether an agent may hold an account there."
+        ),
+        "types": [
+            {"type": ROLE_TYPE_APPLICATION, "mandatory": False, "entries": []},
+            *_all(allowed=False),
+        ],
+    },
+    ROLE_FILE_META_FORMS: {
+        "description": (
+            "Managed fields of the application's admin forms: per form the "
+            "page path, per field the inventory source, the mode (enforced or "
+            "seeded) and the input selector. The SPOT both the convergence and "
+            "the in-app lock read."
+        ),
+        "types": [
+            {"type": ROLE_TYPE_APPLICATION, "mandatory": False, "entries": []},
+            *_all(allowed=False),
+        ],
     },
     ROLE_FILE_PLAYWRIGHT_SPEC: {
         "description": (

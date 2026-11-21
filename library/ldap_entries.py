@@ -6,7 +6,8 @@ Args:
     bind_pw: password of bind_dn.
     state: create adds every missing entry and leaves existing ones alone,
         like community.general.ldap_entry; present adds the attribute values
-        an entry lacks and exact makes each listed attribute hold exactly the
+        an entry lacks, missing sets only the attributes an entry holds no
+        value of, and exact makes each listed attribute hold exactly the
         given values, like community.general.ldap_attrs.
     entries: list of {dn, attributes}; attributes maps a name to a value or a
         list of values.
@@ -36,7 +37,7 @@ ARGUMENT_SPEC = {
     "state": {
         "type": "str",
         "required": True,
-        "choices": ["create", "present", "exact"],
+        "choices": ["create", "present", "missing", "exact"],
     },
     "entries": {
         "type": "list",
@@ -88,6 +89,14 @@ def present_changes(conn, dn, attributes):
     return changes
 
 
+def missing_changes(conn, dn, attributes):
+    return [
+        (ldap.MOD_ADD, name, encode(value))
+        for name, value in attributes.items()
+        if not current_values(conn, dn, name)
+    ]
+
+
 def exact_changes(conn, dn, attributes):
     changes = []
     for name, value in attributes.items():
@@ -104,6 +113,13 @@ def exact_changes(conn, dn, attributes):
     return changes
 
 
+CHANGES = {
+    "present": present_changes,
+    "missing": missing_changes,
+    "exact": exact_changes,
+}
+
+
 def apply(conn, state, dn, attributes, check_mode):
     if state == "create":
         if exists(conn, dn):
@@ -112,9 +128,7 @@ def apply(conn, state, dn, attributes, check_mode):
             encoded = {name: encode(value) for name, value in attributes.items()}
             conn.add_s(dn, ldap.modlist.addModlist(encoded))
         return True
-    changes = (present_changes if state == "present" else exact_changes)(
-        conn, dn, attributes
-    )
+    changes = CHANGES[state](conn, dn, attributes)
     if changes and not check_mode:
         conn.modify_s(dn, changes)
     return bool(changes)

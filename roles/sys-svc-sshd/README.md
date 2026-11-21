@@ -6,6 +6,7 @@ This Ansible role configures the OpenSSH daemon (`sshd`) by deploying a template
 
 ## Overview
 
+- Installs the OpenSSH server through the deploy-start package batch and keeps the daemon enabled and running
 - Renders `sshd_config.j2` into `/etc/ssh/sshd_config` with customizable options
 - Sets file ownership (`root:root`) and permissions (`0644`)
 - Automatically reloads and restarts the SSH service via a systemd handler
@@ -18,7 +19,8 @@ Key variable: `SYS_SVC_SSHD_PERMIT_ROOT_LOGIN` (default: `"no"`) sets `PermitRoo
 ## Features
 
 - **Templated Configuration:** Delivers a Jinja2-based `sshd_config` with variables for debug logging, PAM support, and password-auth overrides.
-- **Security Defaults:** Disables password authentication and root login; enforces public-key authentication; conditionally sets `LogLevel` to `DEBUG3` when `MODE_DEBUG` is true.
+- **Security Defaults:** Disables password authentication and root login; enforces public-key authentication; conditionally sets `LogLevel` to `DEBUG3` when `services.svc-sshd.debug.enabled` is true, which falls back to `DEBUG` via `lookup('debug')`.
+- **Role drop-ins:** The last line of `sshd_config` includes `DIR_SSHD_DROPINS/*.conf` (`/etc/infinito.nexus/sshd/`), where other roles place their `Match` blocks, such as `svc-virt-showroom` for its jump user. Because sshd keeps the first value it reads, a drop-in cannot override a global setting above it. The distribution's `/etc/ssh/sshd_config.d/` stays unread.
 - **Systemd Integration:** Handles daemon reload and service restart seamlessly on configuration changes.
 - **Idempotency:** Ensures tasks run only once per play by setting the `run_once_sys_svc_sshd` fact.
 

@@ -679,13 +679,13 @@ def render_override(
                     f"{ca_container} itself"
                 )
             has_sh = sh_state is not False
-            img_ep = normalize_entrypoint(raw_ep)
-            img_cmd = normalize_cmd(raw_cmd)
+            img_ep = list(raw_ep)
+            img_cmd = list(raw_cmd)
 
         final_ep = svc_ep or escape_compose_vars(img_ep)
         final_cmd = svc_cmd or escape_compose_vars(img_cmd)
 
-        if _is_shell_form(final_ep):
+        if _is_shell_form(final_ep) and len(final_ep) == 2:
             final_cmd = [_shell_payload(final_cmd)]
 
         effective_cmd = final_ep + final_cmd

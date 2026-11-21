@@ -13,11 +13,14 @@ database volume, 2 when the generation carries no manifest, 64 on bad usage.
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
 from utils.recovery import layout as fallback
 from utils.recovery.layout import MANIFEST_FILE, MANIFEST_SCHEMA
+
+LAYOUT_NAMES = ("files_dir", "sql_dir", "dump_suffix", "cluster_suffix")
 
 
 def read(generation_dir: Path | str) -> dict | None:
@@ -54,10 +57,32 @@ def layout_of(generation_dir: Path | str) -> dict[str, str]:
     is walked with the names that version used. Generations older than the
     manifest cannot say, and only for those does the fallback in
     :mod:`utils.recovery.layout` apply.
+
+    Raises:
+        ValueError: the manifest is unreadable, or it lacks one of
+            :data:`LAYOUT_NAMES` or states one that is not a single relative
+            path segment.
     """
     document = read(generation_dir)
     if document is not None and document.get("layout"):
-        return document["layout"]
+        names = document["layout"]
+        source = Path(generation_dir) / MANIFEST_FILE
+        if not isinstance(names, dict):
+            raise ValueError(f"{source} states layout {names!r}, which is no mapping")
+        for field in LAYOUT_NAMES:
+            if field not in names:
+                raise ValueError(f"{source} states no layout {field}")
+            name = names[field]
+            if (
+                not isinstance(name, str)
+                or name in ("", os.path.curdir, os.path.pardir)
+                or name != Path(name).name
+            ):
+                raise ValueError(
+                    f"{source} states layout {field}={name!r}, "
+                    "which is not one relative path segment"
+                )
+        return names
     return {
         "files_dir": fallback.FILES_DIR,
         "sql_dir": fallback.SQL_DIR,
@@ -73,7 +98,9 @@ def dump_suffixes(suffix: str) -> tuple[str, ...]:
 
     Returns:
         *suffix*, then the plain name it compresses when it ends in
-        ``COMPRESSED_SUFFIX``, the pair ``baudolo-restore`` tries.
+        ``COMPRESSED_SUFFIX``: the pair ``baudolo-restore`` tries, so a dump
+        written before baudolo 8 is still found where the layout states the
+        compressed name.
     """
     return tuple(
         dict.fromkeys((suffix, suffix.removesuffix(fallback.COMPRESSED_SUFFIX)))

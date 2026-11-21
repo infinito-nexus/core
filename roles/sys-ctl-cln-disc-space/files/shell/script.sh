@@ -9,30 +9,10 @@
 # Required environment:
 #   SYS_SERVICE_CLEANUP_BACKUPS           systemd unit name to start for backup cleanup
 #   SYS_SERVICE_CLEANUP_DOCKER            systemd unit name to start for docker cleanup
-#   DEPLOYMENT_MODE                       'swarm' or 'compose'
-#   BIN_RESOLVE_CONTAINER_ID              path to the resolver helper script
-#   NEXTCLOUD_APPLICATION_CONTAINER       bare nextcloud container name (compose mode)
-#   NEXTCLOUD_APPLICATION_STACK           swarm stack name for nextcloud
-#   NEXTCLOUD_APPLICATION_SERVICE_KEY     swarm service key for nextcloud
-#   MASTODON_APPLICATION_CONTAINER        bare mastodon container name (compose mode)
-#   MASTODON_APPLICATION_STACK            swarm stack name for mastodon
-#   MASTODON_APPLICATION_SERVICE_KEY      swarm service key for mastodon
-#   MASTODON_CLEANUP_DAYS                 age cutoff for mastodon media cleanup (days)
-
-# Print the address usable as `container exec <addr>`: in swarm mode the
-# runtime container ID resolved by BIN_RESOLVE_CONTAINER_ID; otherwise
-# the bare compose name. Systemd Environment= entries are literal text,
-# so any subshell substitution must happen here at script-run time.
-resolve_container_address() {
-  stack="$1"
-  service_key="$2"
-  bare_name="$3"
-  if [ "${DEPLOYMENT_MODE:-compose}" = "swarm" ]; then
-    "${BIN_RESOLVE_CONTAINER_ID}" "${stack}" "${service_key}"
-  else
-    printf '%s' "${bare_name}"
-  fi
-}
+#   SYS_SERVICE_CLEANUP_APPS_SCRIPT       sys-ctl-cln-apps dispatcher, run here in pressure mode
+#   GARBAGE_COLLECTOR_MANIFEST_DIR        read by the dispatcher
+#   GARBAGE_COLLECTOR_APP_TIMEOUT         read by the dispatcher
+#   BIN_RESOLVE_CONTAINER_ID              read by the dispatcher
 
 minimum_percent_cleanup_disc_space="$1"
 force_freeing=false
@@ -63,28 +43,9 @@ if [ "$force_freeing" = true ]; then
       systemctl start "${SYS_SERVICE_CLEANUP_DOCKER}" || exit 3
     fi
 
-    if [ -n "${NEXTCLOUD_APPLICATION_CONTAINER}" ] \
-        && container ps -a --format '{{.Names}}' \
-           | grep -Eq "(^|_)${NEXTCLOUD_APPLICATION_CONTAINER}(\.[0-9]+\.|$)" ; then
-      nc_addr=$(resolve_container_address \
-        "${NEXTCLOUD_APPLICATION_STACK}" \
-        "${NEXTCLOUD_APPLICATION_SERVICE_KEY}" \
-        "${NEXTCLOUD_APPLICATION_CONTAINER}") || exit 4
-      echo "cleaning up docker nextcloud" &&
-      container exec -u www-data "${nc_addr}" /var/www/html/occ files:cleanup || exit 4
-      container exec -u www-data "${nc_addr}" /var/www/html/occ trashbin:cleanup --all-users || exit 5
-      container exec -u www-data "${nc_addr}" /var/www/html/occ versions:cleanup || exit 6
-    fi
-
-    if [ -n "${MASTODON_APPLICATION_CONTAINER}" ] \
-        && container ps -a --format '{{.Names}}' \
-           | grep -Eq "(^|_)${MASTODON_APPLICATION_CONTAINER}(\.[0-9]+\.|$)" ; then
-      md_addr=$(resolve_container_address \
-        "${MASTODON_APPLICATION_STACK}" \
-        "${MASTODON_APPLICATION_SERVICE_KEY}" \
-        "${MASTODON_APPLICATION_CONTAINER}") || exit 8
-      echo "Cleaning up Mastodon media cache (older than ${MASTODON_CLEANUP_DAYS} days)" &&
-      container exec -u root "${md_addr}" bash -lc "bin/tootctl media remove --days=${MASTODON_CLEANUP_DAYS}" || exit 8
+    if [ -x "${SYS_SERVICE_CLEANUP_APPS_SCRIPT}" ]; then
+      echo "running the application garbage collectors in pressure mode" &&
+      "${SYS_SERVICE_CLEANUP_APPS_SCRIPT}" pressure || exit 4
     fi
   fi
 

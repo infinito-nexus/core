@@ -1,30 +1,35 @@
 window.addEventListener("DOMContentLoaded", function () {
-    var injected = false;
+{% if MATTERMOST_OIDC_ENABLED | bool %}
+    var SSO_ENTRY = "a[href*='/oauth/gitlab/']";
+    var NATIVE_FORM = [
+        ".login-body-card-form > .Input_container",
+        ".login-body-card-form > .login-body-card-form-link",
+        ".login-body-card-form > #saveSetting",
+    ].join(", ");
 
-    var observer = new MutationObserver(function () {
-        // Rename if Mattermost ever renders the GitLab button natively
-        document.querySelectorAll("a[href*='/oauth/gitlab/']").forEach(function (el) {
+    function run() {
+        document.querySelectorAll(SSO_ENTRY).forEach(function (el) {
             if (el.textContent.trim() === "GitLab") {
                 el.textContent = "SSO with {{ SOFTWARE_NAME }}";
             }
         });
 
-        // Inject SSO button when login form is present but no native SSO button rendered
-        if (injected) return;
-        if (!document.getElementById("input_loginId")) return;
-        if (document.querySelector("a[href*='/oauth/gitlab/']")) return;
-
         var btn = document.getElementById("saveSetting");
-        if (!btn) return;
+        if (document.getElementById("input_loginId") && btn && !document.querySelector(SSO_ENTRY)) {
+            var a = document.createElement("a");
+            a.href = "/oauth/gitlab/login";
+            a.textContent = "SSO with {{ SOFTWARE_NAME }}";
+            a.className = "btn btn-primary login-body-card-form-button-submit large";
+            a.style.cssText = "display:flex;align-items:center;justify-content:center;width:100%;box-sizing:border-box;margin:20px 0 0 0;";
+            btn.parentNode.insertBefore(a, btn.nextSibling);
+        }
 
-        var a = document.createElement("a");
-        a.href = "/oauth/gitlab/login";
-        a.textContent = "SSO with {{ SOFTWARE_NAME }}";
-        a.className = "btn btn-primary login-body-card-form-button-submit large";
-        a.style.cssText = "display:flex;align-items:center;justify-content:center;width:100%;box-sizing:border-box;margin:20px 0 0 0;";
-        btn.parentNode.insertBefore(a, btn.nextSibling);
-        injected = true;
-    });
+        document.querySelectorAll(NATIVE_FORM).forEach(function (el) {
+            el.style.setProperty("display", "none", "important");
+        });
+    }
 
-    observer.observe(document.body, { childList: true, subtree: true });
+    run();
+    new MutationObserver(run).observe(document.body, { childList: true, subtree: true });
+{% endif %}
 });

@@ -17,6 +17,9 @@
       svc-ai-lmstudio) alongside the broker, or configure a provider key on svc-ai-litellm."
     quiet: true
 
+- name: "📋 Collect the agent configs and refuse a VM target without hypervisor"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-agent-broker/tasks/utils/vm/agents.yml') }}"
+
 - name: "⚠️ Report a platform this model cannot serve"
   ansible.builtin.debug:
     msg: "{{ item }} is not offered: it refuses any model below {{ AGENT_BROKER_PLATFORMS_DECLARED[item].min_context }} tokens and '{{ AGENT_BROKER_MODEL }}' declares

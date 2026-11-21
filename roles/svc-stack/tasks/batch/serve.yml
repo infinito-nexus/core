@@ -1,0 +1,49 @@
+---
+# Param: stack_batch_items - the batch items to serve, each with id, role, phase, tls_mode and errors: the plan of the host or one late item.
+- name: "🛑 Refuse every batch item that cannot join the front batch"
+  ansible.builtin.assert:
+    that:
+      - stack_batch_items | selectattr('errors') | list | length == 0
+    fail_msg: >-
+      These roles cannot join the front batch:
+      {% for item in stack_batch_items | selectattr('errors') %}{{ item.id }}: {{ item.errors | join('; ') }}. {% endfor %}
+    quiet: true
+
+- name: "🛡️ P0 | Run the stack guard of every batch item before any vhost renders"
+  ansible.builtin.include_role:
+    name: "{{ stack_batch_item.role }}"
+    tasks_from: utils/stack/guard.yml
+    public: false
+  loop: "{{ stack_batch_items }}"
+  loop_control:
+    loop_var: stack_batch_item
+    label: "{{ stack_batch_item.id }}"
+  vars:
+    application_id: "{{ stack_batch_item.id }}"
+    stack_batch_consumer: "{{ stack_batch_item.id }}"
+  when: lookup('path_absolute', 'roles', stack_batch_item.role, 'tasks/utils/stack/guard.yml') is file
+
+- name: "🧱 Serve the fronts of the batch from the OpenResty host"
+  ansible.builtin.include_tasks:
+    file: batch/run.yml
+    apply:
+      delegate_to: "{{ (groups['svc-prx-openresty'] | default([]))[0] | default(inventory_hostname) }}"
+      run_once: true
+  when:
+    - stack_batch_items | length > 0
+    - (groups['svc-prx-openresty'] | default([])) | length > 0
+
+- name: "⏳ Take the late fronts the batch deferred"
+  ansible.builtin.set_fact:
+    stack_batch_deferring: "{{ stack_batch_deferred }}"
+    stack_batch_deferred: []
+  changed_when: false
+
+- name: "🧱 Serve each deferred late front as its own one-item batch"
+  ansible.builtin.include_tasks: batch/serve.yml
+  loop: "{{ stack_batch_deferring }}"
+  loop_control:
+    loop_var: stack_batch_deferred_item
+    label: "{{ stack_batch_deferred_item.id }}"
+  vars:
+    stack_batch_items: "{{ [stack_batch_deferred_item] }}"

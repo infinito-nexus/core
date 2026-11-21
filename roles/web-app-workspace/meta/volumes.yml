@@ -1,0 +1,24 @@
+---
+workspace_data:
+  type: volume
+  mounts:
+    - service: workspace
+      target: /home/workspace
+
+workspace_connection_token:
+  type: secret
+  source: "{{ [ lookup('container', 'web-app-workspace', 'directories.instance'), 'connection-token' ] | path_join }}"
+  mode: "0400"
+  uid: 1000
+  gid: 1000
+  mounts:
+    - service: workspace
+      target: /run/secrets/workspace-connection-token
+      when: "{{ not (lookup('sso', 'web-app-workspace', 'is_proxy_gated') | bool) }}"
+
+workspace_tmp:
+  type: tmpfs
+  mounts:
+    - service: workspace
+      target: /tmp
+      mode: "1777"

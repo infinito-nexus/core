@@ -1,0 +1,13 @@
+---
+- name: 🛡️ Merge the file-search guard into the desktop user's editor settings
+  ansible.builtin.command:
+    argv:
+      - "{{ ansible_facts.python.executable }}"
+      - -c
+      - "{{ lookup('file', lookup('path_absolute', 'roles/dsk-code/files/python/code_settings.py')) }}"
+      - "{{ code_user_settings }}"
+    stdin: "{{ code_python_guard | to_json }}"
+  become: true
+  become_user: "{{ code_user }}"
+  register: code_python_guard_result
+  changed_when: "(code_python_guard_result.stdout | trim) == 'CHANGED'"

@@ -21,5 +21,6 @@
     system_service_on_calendar: "{{ SYS_SCHEDULE_ANIMATION_KEYBOARD_COLOR }}"
     system_service_timer_enabled: true
     system_service_timer_persistent: true
+    system_service_force_linear_sync: false
 
 - include_tasks: utils/once/flag.yml

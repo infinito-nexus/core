@@ -1,0 +1,9 @@
+---
+cache:
+  artefacts:
+    llama-3.2-1b-instruct:
+      url:
+        https://huggingface.co/lmstudio-community/Llama-3.2-1B-Instruct-GGUF/resolve/199151125cf15a129ab3b548b26afeed976df066/Llama-3.2-1B-Instruct-Q4_K_M.gguf
+      revision: "199151125cf15a129ab3b548b26afeed976df066"
+      sha256: "f7ede42862ceca07ad1c88a97b67520019c4ac7e5ced250d2e696fa62ab189af"
+      bytes: "807690688"

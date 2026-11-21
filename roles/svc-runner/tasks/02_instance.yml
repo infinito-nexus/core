@@ -19,7 +19,9 @@
     remote_src: true
     owner: "{{ RUNNER_USER }}"
     group: "{{ RUNNER_USER }}"
-  when: not _runner_binary_stat.stat.exists
+  when:
+    - RUNNER_REGISTERS_WITH_GITHUB | bool
+    - not _runner_binary_stat.stat.exists
 
 - name: 🔍 Find runner configuration for instance {{ runner_instance }}
   ansible.builtin.find:
@@ -46,3 +48,4 @@
     owner: "{{ RUNNER_USER }}"
     group: "{{ RUNNER_USER }}"
     mode: "0600"
+  notify: compose-up

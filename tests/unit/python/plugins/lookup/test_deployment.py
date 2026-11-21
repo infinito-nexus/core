@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import patch
 
+from ansible.errors import AnsibleError
+
 from plugins.lookup import deployment
 from plugins.lookup.deployment import LookupModule
 
@@ -24,6 +26,7 @@ class TestDeploymentLookup(unittest.TestCase):
             set(result[0].keys()),
             {
                 "whitelist",
+                "primary",
                 "running",
                 "groups",
                 "inventory",
@@ -210,6 +213,82 @@ class TestDeploymentLookup(unittest.TestCase):
             },
         )
         self.assertEqual(result[0]["whitelist"], ["app1", "app2"])
+
+    @patch("plugins.lookup.deployment.list_invokable_app_ids")
+    def test_primary_reads_the_json_text_of_the_matrix_deploy(self, mock_list):
+        mock_list.return_value = []
+        result = LookupModule().run(
+            [],
+            variables={
+                "PRIMARY_APPS": '["web-app-gitea","web-app-lam"]',
+                "APPLICATIONS_WHITELIST": "web-app-semaphore,web-app-gitea,web-app-lam",
+                "group_names": ["web-app-semaphore", "web-app-gitea", "web-app-lam"],
+            },
+        )
+        self.assertEqual(result[0]["primary"], ["web-app-gitea", "web-app-lam"])
+        self.assertEqual(
+            result[0]["running"], ["web-app-semaphore", "web-app-gitea", "web-app-lam"]
+        )
+
+    @patch("plugins.lookup.deployment.list_invokable_app_ids")
+    def test_primary_takes_the_whitelist_without_primary_apps(self, mock_list):
+        mock_list.return_value = []
+        result = LookupModule().run(
+            [],
+            variables={
+                "PRIMARY_APPS": [],
+                "APPLICATIONS_WHITELIST": "web-app-gitea",
+                "group_names": ["web-app-semaphore", "web-app-gitea"],
+            },
+        )
+        self.assertEqual(result[0]["primary"], ["web-app-gitea"])
+
+    @patch("plugins.lookup.deployment.list_invokable_app_ids")
+    def test_primary_takes_every_group_without_any_selection(self, mock_list):
+        mock_list.return_value = []
+        result = LookupModule().run(
+            [],
+            variables={
+                "PRIMARY_APPS": [],
+                "APPLICATIONS_WHITELIST": [],
+                "group_names": ["web-app-semaphore", "web-app-gitea"],
+            },
+        )
+        self.assertEqual(result[0]["primary"], ["web-app-semaphore", "web-app-gitea"])
+
+    @patch("plugins.lookup.deployment.list_invokable_app_ids")
+    def test_primary_apps_that_are_no_json_list_fail_naming_the_value(self, mock_list):
+        mock_list.return_value = []
+        for raw in (
+            '["web-app-gitea",',
+            "web-app-gitea,web-app-lam",
+            '"web-app-gitea"',
+        ):
+            deployment._reset_cache_for_tests()
+            with self.subTest(raw=raw), self.assertRaises(AnsibleError) as raised:
+                LookupModule().run(
+                    [],
+                    variables={"PRIMARY_APPS": raw, "group_names": ["web-app-gitea"]},
+                )
+            self.assertIn(repr(raw), str(raised.exception))
+
+    @patch("plugins.lookup.deployment.list_invokable_app_ids")
+    def test_the_whitelist_is_not_json_decoded(self, mock_list):
+        mock_list.return_value = []
+        result = LookupModule().run(
+            [],
+            variables={"APPLICATIONS_WHITELIST": '["a","b"]', "group_names": []},
+        )
+        self.assertEqual(result[0]["whitelist"], ['["a"', '"b"]'])
+
+    @patch("plugins.lookup.deployment.list_invokable_app_ids")
+    def test_cache_key_separates_primary_apps(self, mock_list):
+        mock_list.return_value = []
+        base = {"APPLICATIONS_WHITELIST": "a,b", "group_names": ["a", "b"]}
+        first = LookupModule().run([], variables={**base, "PRIMARY_APPS": '["a"]'})
+        second = LookupModule().run([], variables={**base, "PRIMARY_APPS": '["b"]'})
+        self.assertEqual(first[0]["primary"], ["a"])
+        self.assertEqual(second[0]["primary"], ["b"])
 
     @patch("plugins.lookup.deployment.list_invokable_app_ids")
     def test_deployed_uses_running_in_ephemeral_runtime(self, mock_list):

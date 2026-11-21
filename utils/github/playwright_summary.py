@@ -115,14 +115,14 @@ def _extract_records(cases: list[ET.Element]) -> list[tuple[str, str, str, float
     return records
 
 
-_PASS_NAMES = ("sync", "async")
+_PASS_NAMES = ("initial", "update")
 
 
 def _path_info(path: Path) -> tuple[str, str, str]:
     """Extract ``(app, variant, pass)`` from the JUnit file's location.
 
     The role archives each run into
-    ``<app_id>/variant-<N>/<sync|async>/playwright-junit.xml``. Legacy
+    ``<app_id>/variant-<N>/<initial|update>/playwright-junit.xml``. Legacy
     layouts without the variant or pass nesting fall back to empty
     strings for the missing dimensions so the renderer can still emit
     a row.

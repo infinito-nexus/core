@@ -11,29 +11,66 @@ a {
 
 .navbar {
     border-radius: var(--design-radius);
-    box-shadow: var(--design-shadow-1);
 }
 
-main,
-header,
-footer {
-    box-shadow: none;
+:root {
+    --portui-frame-border: var(--design-primary);
+    --portui-frame-radius: var(--design-radius-lg);
+    --portui-shadow-frame: var(--design-shadow-2);
+    --portui-shadow-card: var(--design-shadow-1);
+    --portui-shadow-card-hover: var(--design-shadow-3);
+    --portui-shadow-popup: var(--design-shadow-2);
+    --dashboard-frame-surface: color-mix(in srgb, var(--design-primary) 22%, var(--design-surface-1));
+}
+
+.portui-frame-top,
+.portui-frame-bottom,
+.portui-frame-top header,
+.portui-frame-bottom footer,
+.portui-frame-top nav.navbar,
+.portui-frame-bottom nav.navbar {
+    background-color: var(--dashboard-frame-surface) !important;
+    color: var(--design-text);
+}
+
+.portui-frame-top nav.navbar {
+    border-top: 2px solid var(--design-primary);
+}
+
+.portui-frame-bottom nav.navbar {
+    border-bottom: 2px solid var(--design-primary);
 }
 
 .card {
     transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.card:hover {
+.card:hover,
+.card:focus-within {
     filter: none;
     border-color: var(--design-primary);
-    box-shadow: var(--design-shadow-3);
+}
+
+:focus-visible {
+    outline: 2px solid var(--design-primary);
+    outline-offset: 2px;
+}
+
+input[type="search"]:focus {
+    border-color: var(--design-primary);
+    box-shadow: 0 0 0 0.2rem rgba(var(--design-primary-rgb), 0.35);
 }
 
 .card-img-top img[src$='.svg'],
 .card-img-top svg,
 .card-img-top i {
     filter: brightness(0) invert(var(--design-invert));
+}
+
+.card:hover .card-img-top i,
+.card:focus-within .card-img-top i {
+    filter: none;
+    color: var(--design-primary);
 }
 
 .navbar-toggler {

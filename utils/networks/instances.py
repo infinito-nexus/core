@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from utils.networks.reachability import network, network_of
-from utils.tls_common import iter_domains, norm_domain, serving_network
+from utils.tls.common import iter_domains, norm_domain, serving_network
 
 
 def network_instances(app_domains: Any) -> list[dict[str, str]]:
@@ -43,7 +43,7 @@ def vhost_label(app_domains: Any, domain: Any) -> str:
 
     Returns:
         The ``network_instances`` label of the network the application's own
-        lookups resolve for ``domain`` (``utils.tls_common.serving_network``),
+        lookups resolve for ``domain`` (``utils.tls.common.serving_network``),
         ``""`` for an application without domains.
     """
     served = [norm_domain(item) for item in iter_domains(app_domains)]

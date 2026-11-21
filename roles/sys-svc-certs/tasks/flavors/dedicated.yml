@@ -7,7 +7,7 @@
 
 - name: "📜 receive certificate for '{{ domain }}'"
   command: >-
-    certbot certonly  --agree-tos  --email {{ lookup('users', 'platform_administrator').email }}
+    certbot certonly  --agree-tos  --email {{ lookup('users', 'platform_administrator').secondary_email or lookup('users', 'platform_administrator').email }}
     --non-interactive  {% if CERTBOT_ACME_CHALLENGE_METHOD != "webroot" %}
     --dns-{{ CERTBOT_ACME_CHALLENGE_METHOD }}
     --dns-{{ CERTBOT_ACME_CHALLENGE_METHOD }}-credentials {{ CERTBOT_CREDENTIALS_FILE }}
@@ -18,9 +18,12 @@
     {% if wildcard_domain is defined and ( wildcard_domain | bool ) %}
     -d {{ DOMAIN_PRIMARY }}  -d *.{{ DOMAIN_PRIMARY }}
     {% else %}
-    -d {{ domain }}
+    -d {{ domain | quote }}
+    {% if domain.startswith('*.') %}
+    --cert-name {{ lookup('cert', domain, 'cert_id') | quote }}
     {% endif %}
-    {{ '--test-cert' if MODE_DUMMY | bool else '' }}
+    {% endif %}
+    {{ '--test-cert' if DUMMY | bool else '' }}
   register: certbot_result
   changed_when: "'Certificate not yet due for renewal' not in certbot_result.stdout"
   when: not cert_check.exists

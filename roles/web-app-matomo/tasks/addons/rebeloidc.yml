@@ -1,0 +1,63 @@
+---
+- name: "🧩 Sync the {{ MATOMO_OIDC_PLUGIN }} plugin ({{ MATOMO_OIDC_STATE }})"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec --user www-data {{ MATOMO_LOCAL_CID | quote }}
+      sh -c {{ lookup('file', 'shell/oidc_plugin_sync.sh') | quote }} oidc_plugin_sync
+      {{ MATOMO_OIDC_STATE | quote }}
+      {{ MATOMO_OIDC_PLUGIN | quote }}
+      {{ MATOMO_OIDC_PLUGIN_SOURCE | quote }}
+  register: matomo_oidc_plugin_sync
+  changed_when: "'CHANGED' in matomo_oidc_plugin_sync.stdout"
+
+- name: "🔎 Read the stored sign-in plugin settings meta/forms.yml manages"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      IFS= read -r MATOMO_CONFIG_SECTIONS || :; : "${MATOMO_CONFIG_SECTIONS:?arrived empty on stdin}" && export MATOMO_CONFIG_SECTIONS &&
+      container exec -i --user www-data -e MATOMO_CONFIG_SECTIONS -e MATOMO_CONFIG_GENERAL
+      -e MATOMO_CONFIG_MODE=read -e MATOMO_CONFIG_FORM_FIELDS
+      {{ MATOMO_LOCAL_CID | quote }} php
+    stdin: |-
+      {{ MATOMO_CONFIG_SECTIONS | to_json }}
+      {{ lookup('file', 'php/config_converge.php') }}
+  environment:
+    MATOMO_CONFIG_GENERAL: "{{ MATOMO_OIDC_GENERAL | to_json }}"
+    MATOMO_CONFIG_FORM_FIELDS: "{{ {MATOMO_OIDC_PLUGIN: MATOMO_OIDC_SETTINGS | list} | to_json }}"
+  register: matomo_oidc_stored
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📣 Report the managed sign-in plugin settings the converge reverts"
+  include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current:
+      rebeloidc: "{{ (matomo_oidc_stored.stdout_lines | last | from_json).settings[MATOMO_OIDC_PLUGIN] | default({}) }}"
+
+- name: "🔐 Converge the sign-in plugin settings ({{ MATOMO_OIDC_STATE }})"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      IFS= read -r MATOMO_CONFIG_SECTIONS || :; : "${MATOMO_CONFIG_SECTIONS:?arrived empty on stdin}" && export MATOMO_CONFIG_SECTIONS &&
+      container exec -i --user www-data -e MATOMO_CONFIG_SECTIONS -e MATOMO_CONFIG_GENERAL
+      {{ MATOMO_LOCAL_CID | quote }} php
+    stdin: |-
+      {{ MATOMO_CONFIG_SECTIONS | to_json }}
+      {{ lookup('file', 'php/config_converge.php') }}
+  environment:
+    MATOMO_CONFIG_GENERAL: "{{ MATOMO_OIDC_GENERAL | to_json }}"
+  register: matomo_oidc_config
+  changed_when: "'CHANGED' in matomo_oidc_config.stdout"
+  when: >-
+    (matomo_oidc_stored.stdout_lines | last | from_json).settings | length > 0
+    or (matomo_oidc_stored.stdout_lines | last | from_json).hidden > 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛂 Sync the {{ MATOMO_RBAC_LOGIN_PLUGIN }} plugin ({{ MATOMO_OIDC_STATE }})"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec -i --user www-data {{ MATOMO_LOCAL_CID | quote }}
+      sh -c {{ lookup('file', 'shell/plugin_sync.sh') | quote }} plugin_sync
+      {{ MATOMO_OIDC_STATE | quote }}
+      {{ MATOMO_RBAC_LOGIN_PLUGIN | quote }}
+    stdin: "{{ lookup('template', 'rbac_login_plugin.j2') if MATOMO_OIDC_ENABLED | bool else '' }}"
+  register: matomo_rbac_login_sync
+  changed_when: "'CHANGED' in matomo_rbac_login_sync.stdout"

@@ -5,9 +5,6 @@ entity_name: "{{ application_id | entity_name }}"
 container_port: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
 container_hostname: "{{ lookup('container_hostname', application_id) }}"
 
-BOOKWYRM_REGISTRATION_OPEN: "{{ lookup('config', application_id, 'services.bookwyrm.registration_open') | string | lower }}"
-BOOKWYRM_ALLOW_INVITE_REQUESTS: "{{ lookup('config', application_id, 'services.bookwyrm.allow_invite_request') | string | lower }}"
-
 BOOKWYRM_SECRET_KEY: "{{ lookup('config', application_id, 'secrets.credentials.secret_key') }}"
 
 BOOKWYRM_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
@@ -18,6 +15,7 @@ BOOKWYRM_DESIGN_IMAGES:
   favicon: "favicon.ico"
 BOOKWYRM_THEME_NAME: "Corporate Design"
 BOOKWYRM_THEME_PATH: "css/themes/infinito.scss"
+BOOKWYRM_SITE: "{{ lookup('form_values', application_id, 'site') }}"
 
 BOOKWYRM_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 BOOKWYRM_HOSTNAME: "{{ lookup('domain', application_id) }}"
@@ -35,6 +33,13 @@ BOOKWYRM_OIDC_JWKS_URL: "{{ OIDC.CLIENT.CERTS }}"
 BOOKWYRM_OIDC_SCOPES: "openid,email,profile"
 BOOKWYRM_OIDC_UNIQUE_ATTRIBUTE: "{{ OIDC.ATTRIBUTES.USERNAME }}"
 BOOKWYRM_SSO_PROXY_GATED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
+BOOKWYRM_SSO_GROUP_MAP: >-
+  {{ {
+    '/' ~ lookup('rbac_group_path', application_id=application_id, role='administrator'): 'admin',
+    '/' ~ lookup('rbac_group_path', application_id=application_id, role='owner'): 'owner',
+    '/' ~ lookup('rbac_group_path', application_id=application_id, role='moderator'): 'moderator',
+    '/' ~ lookup('rbac_group_path', application_id=application_id, role='editor'): 'editor'
+  } }}
 
 BOOKWYRM_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.name') }}"
 BOOKWYRM_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~'.image') }}"

@@ -6,7 +6,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from plugins.lookup.tor_ports import _as_bool, collect_exposed_ports
+from plugins.lookup.tor_ports import collect_exposed_ports, tor_enabled
 
 
 def is_reachable(applications: dict[str, Any], application_id: str) -> bool:
@@ -19,14 +19,9 @@ def is_reachable(applications: dict[str, Any], application_id: str) -> bool:
     port forward, so a client picking the Tor transport from that flag alone
     dials a port with no HiddenServicePort and no host publish.
     """
-    config = (applications or {}).get(application_id) or {}
-    services = config.get("services") if isinstance(config, dict) else None
-    if not isinstance(services, dict):
-        return False
-    tor = services.get("tor")
-    if not (isinstance(tor, dict) and _as_bool(tor.get("enabled"))):
-        return False
-    return bool(collect_exposed_ports(applications, [application_id]))
+    return tor_enabled(applications, application_id) and bool(
+        collect_exposed_ports(applications, [application_id])
+    )
 
 
 class LookupModule(LookupBase):

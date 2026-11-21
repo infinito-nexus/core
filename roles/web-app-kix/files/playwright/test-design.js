@@ -17,6 +17,13 @@ const {
   requireDotenvValue,
 } = require("./personas");
 const { resolveTimeout } = require("./timeouts");
+const {
+  animationsSettled,
+  openView,
+  reached,
+  selectors: { CONTENT, HEADER, SETUP_STEPS },
+  skipSetupAssistant,
+} = require("./_shared");
 
 const platformUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
 const platformPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
@@ -28,9 +35,6 @@ const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 
 const MODES = ["light", "dark"];
 const FOCUS_WALK_LIMIT = 40;
-const SETUP_STEP_LIMIT = 12;
-const REROUTE_PATIENCE_MS = 10_000;
-const BOOT_PATIENCE_MS = 20_000;
 const SIGN_IN = ".login-dialog";
 const SIGN_IN_HEADER = `${SIGN_IN} .dialog-header`;
 const SIGN_IN_LOGO = `${SIGN_IN_HEADER} #kix-logo img`;
@@ -38,16 +42,11 @@ const USERNAME = `${SIGN_IN} input[name="username"]`;
 const PASSWORD = `${SIGN_IN} input[name="password"]`;
 const SUBMIT = `${SIGN_IN} .dialog-buttons button.special-button`;
 const SIGN_IN_ERROR = `${SIGN_IN} .dialog-message-area .message-error`;
-const HEADER = "#kix-header";
 const HEADER_LOGO = `${HEADER} #logo`;
 const FRAMES = `${HEADER}, .sidebar-widget > .widget-header, .lane-widget > .widget-header, .dialog-widget > .widget-header`;
 const MENU_OPENER = `${HEADER} > .left .header-icon`;
 const SHELL = ".app-wrapper";
-const CONTENT = ".content-wrapper";
 const TICKETS = `${CONTENT} .ticket-dashboard`;
-const SETUP_STEPS = `${CONTENT} .setup-steps`;
-const SETUP_STEP = `${SETUP_STEPS} .step`;
-const SETUP_PENDING_STEP = `${SETUP_STEP}:not(.completed):not(.skipped)`;
 const WIDGET_HEADER = `${CONTENT} .content-widget > .widget-header`;
 const WIDGET_BODY = `${CONTENT} .content-widget > .widget-content`;
 const TABLE = `${CONTENT} .table-container > .kix-table`;
@@ -61,32 +60,12 @@ const MENU_ENTRY = `${MENU} ul.main-menu li`;
 const MENU_SELECTED = `${MENU} li.active`;
 const MOBILE_MENU = ".mobile-main-menu-container";
 const LISTED = "/admin?moduleId=ticket-states";
+const DOCKED = { width: 1680, height: 1050 };
 
 test.use({ ignoreHTTPSErrors: true });
 
 function escapeRegExp(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-/**
- * Args:
- *   page: Playwright page whose finite animations and transitions must have ended.
- */
-async function animationsSettled(page) {
-  await expect
-    .poll(
-      () =>
-        page.evaluate(() =>
-          document
-            .getAnimations()
-            .some(
-              (animation) =>
-                animation.playState === "running" && animation.effect?.getComputedTiming().iterations !== Infinity,
-            ),
-        ),
-      { timeout: resolveTimeout(15_000), message: "every finite animation of the page must have ended" },
-    )
-    .toBe(false);
 }
 
 function shown(selector) {
@@ -122,25 +101,6 @@ exports.register = function (shared) {
 
   /**
    * Args:
-   *   page: signed-in Playwright page; ends with every step of the setup assistant skipped, so the app opens the view a URL names.
-   */
-  async function skipSetupAssistant(page) {
-    await openView(page, "/admin?moduleId=setup-assistant", SETUP_STEP);
-    for (let step = 0; step < SETUP_STEP_LIMIT && (await page.locator(SETUP_PENDING_STEP).count()) > 0; step += 1) {
-      const pending = await page.locator(SETUP_PENDING_STEP).count();
-      await page.locator(`${CONTENT} button.kix-button.form-button`, { hasText: /skip/i }).click();
-      await expect
-        .poll(() => page.locator(SETUP_PENDING_STEP).count(), {
-          timeout: resolveTimeout(30_000),
-          message: `a skipped setup step must leave fewer than the ${pending} open ones`,
-        })
-        .toBeLessThan(pending);
-    }
-    await expect(page.locator(SETUP_PENDING_STEP), "every setup step must be completed or skipped").toHaveCount(0);
-  }
-
-  /**
-   * Args:
    *   page: Playwright page that ends signed in as the administrator of the app itself, past the setup assistant.
    */
   async function signIn(page) {
@@ -150,67 +110,6 @@ exports.register = function (shared) {
     await page.locator(SUBMIT).click();
     await expect(page.locator(HEADER)).toBeVisible({ timeout: resolveTimeout(90_000) });
     await skipSetupAssistant(page);
-  }
-
-  /**
-   * Args:
-   *   page: Playwright page that ends on one view of the signed-in interface.
-   *   path: route of the view below the base URL.
-   *   ready: selector that is visible once the view rendered.
-   */
-  async function openView(page, path, ready) {
-    await gotoOnion(page, `${base}${path}`);
-    await reached(path, ready)(page);
-  }
-
-  /**
-   * A full load that routes into a context the app registers late, the administration among them, falls back to the
-   * first open tab or Home, so a load that landed elsewhere is routed again inside the loaded app until the view shows,
-   * through a popstate that carries a state because the app ignores one without. Chromium at times fails the large app
-   * bundle out of its HTTP cache (net::ERR_FAILED, the request never sent), which leaves the app on its loading screen,
-   * so a load that shows no app header after a while is reloaded.
-   *
-   * Args:
-   *   path: route of the view below the base URL.
-   *   ready: selector that is visible once the view rendered.
-   *   reroute: whether a load that landed elsewhere is routed again; false keeps a replaced view a failure.
-   *
-   * Returns:
-   *   A step that ends on the view with its animations settled.
-   */
-  function reached(path, ready, reroute = true) {
-    const requested = new URL(path, base).pathname;
-    return async (page) => {
-      let loaded = Date.now();
-      let rerouted = 0;
-      await expect
-        .poll(
-          async () => {
-            if (!(await page.locator(HEADER).isVisible())) {
-              if (Date.now() - loaded > BOOT_PATIENCE_MS) {
-                await page.reload();
-                loaded = Date.now();
-                rerouted = 0;
-              }
-              return false;
-            }
-            const here = new URL(page.url()).pathname === requested;
-            if (here && (await page.locator(ready).first().isVisible())) return true;
-            if (reroute && (!here || (rerouted && Date.now() - rerouted > REROUTE_PATIENCE_MS))) {
-              rerouted = Date.now();
-              await page.evaluate((target) => {
-                const state = { route: target };
-                history.pushState(state, "", target);
-                dispatchEvent(new PopStateEvent("popstate", { state }));
-              }, path);
-            }
-            return false;
-          },
-          { timeout: resolveTimeout(60_000), message: `${path} must open the view that shows ${ready}` },
-        )
-        .toBe(true);
-      await animationsSettled(page);
-    };
   }
 
   /**
@@ -346,6 +245,8 @@ exports.register = function (shared) {
 
   test("design: the signed-in interface takes frame, surfaces, dividers and text from the palette", async ({ page }) => {
     shared.skipUnlessServiceEnabled("design");
+    // KIX floats a shown sidebar over the content between 1141 and 1600 px, where it covers the table cell the hover needs.
+    await page.setViewportSize(DOCKED);
     await signIn(page);
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
@@ -497,7 +398,7 @@ exports.register = function (shared) {
   test("design: gallery of sign-in, dashboards, forms, details and administration", async ({ page }) => {
     shared.skipUnlessServiceEnabled("design");
     test.skip(!galleryEnabled(), "INFINITO_PLAYWRIGHT_KEEP is not true");
-    test.skip(shared.env.ssoEnabled, "the gallery signs in with the local administrator of an SSO-less deployment");
+    shared.skipUnlessServiceDisabled("sso");
     test.setTimeout(resolveTimeout(2_400_000));
 
     await signIn(page);

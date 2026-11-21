@@ -388,8 +388,10 @@ def main(argv=None) -> int:
     rows = report_rows(judged, sources)
     report = Path(args.report)
     report.parent.mkdir(parents=True, exist_ok=True)
+    pinned = sorted({ref.source for ref in refs})
     report.write_text(
-        json.dumps({"findings": rows, "errors": errors}, indent=2), encoding="utf-8"
+        json.dumps({"findings": rows, "errors": errors, "pinned": pinned}, indent=2),
+        encoding="utf-8",
     )
     for verdict in judged:
         line = f"{verdict.where()}: {verdict.detail()}"

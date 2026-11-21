@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { gotoOnion } = require("./personas");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const moodleLdapBackedProfileFields = [
   "firstname", "lastname", "middlename", "alternatename",
@@ -13,10 +14,9 @@ const moodleLdapBackedProfileFields = [
 
 exports.register = function (shared) {
   test.describe("moodle profile fields are read-only", () => {
-    test.skip(!shared.env.ldapEnabled, "LDAP shared service disabled");
-    test.skip(shared.env.ssoEnabled, "covered by variant 1 LDAP-only run");
-
-    test("biber profile-edit form locks all 19 Moodle profile-mapping fields", async ({ page }) => {
+    test("biber: profile-edit form locks all 19 Moodle profile-mapping fields", async ({ page }) => {
+      skipUnlessServiceEnabled("ldap");
+      skipUnlessServiceDisabled("sso");
       await gotoOnion(page, `${shared.env.moodleBaseUrl}/login/index.php`);
       await page.locator("input[name='username'], input#username").first().fill(shared.env.biberUsername);
       const passwordInput = page.locator(".toggle-sensitive-wrapper input[name='password'], .toggle-sensitive-wrapper input#password").first();

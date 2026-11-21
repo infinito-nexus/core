@@ -7,8 +7,8 @@
   git:
     repo: "{{ compose_repository_url }}"
     dest: "{{ compose_repository_path }}"
-    version: "{{ compose_repository_ref | default('main') }}"
-    refspec: "{{ compose_repository_refspec or omit }}"
+    version: "{{ compose_repository_ref }}"
+    refspec: "{{ COMPOSE_REPOSITORY_REFSPEC or omit }}"
     depth: 1
     update: true
     recursive: "{{ compose_repository_recursive | default(true) }}"
@@ -22,3 +22,23 @@
     - compose-build
     - compose-up
   become: true
+
+- name: "🧱 Read the Dockerfiles the '{{ application_id }}' build takes from the clone"
+  ansible.builtin.slurp:
+    src: "{{ [compose_repository_path, item.value] | path_join }}"
+  loop: "{{ compose_repository_dockerfiles | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  register: compose_repository_dockerfile_reads
+  become: true
+
+- name: "🧱 Refuse a '{{ application_id }}' clone whose FROM lines use undeclared bases"
+  ansible.builtin.assert:
+    that: compose_repository_foreign_bases | length == 0
+    fail_msg: "The clone's FROM lines name {{ compose_repository_foreign_bases | join(', ') }}, outside the bases in services.stack.checkout.build.bases ({{ compose_repository_bases.values()
+      | join(', ') }}). Declare the new base there first."
+    quiet: true
+  vars:
+    compose_repository_foreign_bases: "{{ compose_repository_dockerfile_reads.results | map(attribute='content') | map('b64decode') | list | dockerfile_foreign_bases(compose_repository_bases.values()
+      | list) }}"
+  when: compose_repository_dockerfiles | length > 0

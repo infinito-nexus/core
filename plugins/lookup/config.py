@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import Any
 
 from ansible.errors import AnsibleError
@@ -11,6 +12,7 @@ from utils.cache.base import _render_with_templar
 
 # nocheck: lookup-cache-import (config resolves user values via the users SPOT)
 from utils.cache.users import get_merged_users
+from utils.openbao_client import OpenBaoError, resolve, resolve_users
 from utils.roles.applications.config import get
 
 
@@ -92,15 +94,20 @@ class LookupModule(LookupBase):
                         f"lookup('config', ...): missing user path '{config_path}'."
                     )
                 value = value[part]
-            return [
-                _render_with_templar(
-                    value,
-                    templar=templar,
-                    variables=variables,
-                    raw_applications=applications,
-                    raw_users=users,
+            value = _render_with_templar(
+                value,
+                templar=templar,
+                variables=variables,
+                raw_applications=applications,
+                raw_users=users,
+            )
+            try:
+                value = resolve_users(
+                    value, (canonical_user_key, *user_path[2:]), os.environ
                 )
-            ]
+            except OpenBaoError as exc:
+                raise AnsibleError(f"lookup('config', ...): {exc}") from None
+            return [value]
 
         value = get(
             applications=applications,
@@ -117,5 +124,10 @@ class LookupModule(LookupBase):
             variables=variables,
             raw_applications=applications,
         )
+
+        try:
+            value = resolve(value, config_path, application_id, os.environ)
+        except OpenBaoError as exc:
+            raise AnsibleError(f"lookup('config', ...): {exc}") from None
 
         return [value]

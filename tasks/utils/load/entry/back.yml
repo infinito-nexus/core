@@ -1,0 +1,31 @@
+---
+# Param: entry_role - the role the caller enters right after the entry.
+# Param: entry_application_id - the application_id the caller binds for that role.
+# Param: entry_domain - true when the caller also binds domain for that role.
+- name: "🛡️ Run the stack guard of '{{ entry_application_id }}' before its backend"
+  ansible.builtin.include_role:
+    name: "{{ entry_role }}"
+    tasks_from: utils/stack/guard.yml
+    public: false
+  loop: "{{ [entry_application_id] }}"
+  loop_control:
+    loop_var: stack_batch_consumer
+  vars:
+    application_id: "{{ stack_batch_consumer }}"
+  when: lookup('path_absolute', 'roles', entry_role, 'tasks/utils/stack/guard.yml') is file
+
+- name: "🧰 Run the stack stage of '{{ entry_application_id }}' before its backend"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/load/entry/step.yml') }}"
+  vars:
+    entry_tasks_from: utils/stack/stage.yml
+  when: lookup('path_absolute', 'roles', entry_role, 'tasks/utils/stack/stage.yml') is file
+
+- name: "🧩 Run the backend of '{{ entry_application_id }}' through its stack bridge"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/load/entry/step.yml') }}"
+  vars:
+    entry_tasks_from: utils/stack.yml
+
+- name: "🏷️ Record the backend of '{{ entry_application_id }}' as run"
+  ansible.builtin.set_fact:
+    stack_backend_entered: "{{ stack_backend_entered | combine({entry_application_id: true}) }}"
+  changed_when: false

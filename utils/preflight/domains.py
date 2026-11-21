@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-ONION_SUFFIX = ".onion"
+from utils.networks.reachability import CLEARNET, network_of
 
 
 def _flatten(value: Any) -> list[str]:
@@ -25,10 +25,10 @@ def clearnet_domains(domains: Any) -> list[str]:
             list of them or a mapping onto them, or a list of such values.
 
     Returns:
-        Every domain that is not a ``.onion`` address, lower-cased, without a
-        trailing dot, sorted and without duplicates.
+        Every domain the network registry places on the clearnet, lower-cased,
+        without a trailing dot, sorted and without duplicates.
     """
     cleaned = {domain.strip().rstrip(".").lower() for domain in _flatten(domains)}
     return sorted(
-        domain for domain in cleaned if domain and not domain.endswith(ONION_SUFFIX)
+        domain for domain in cleaned if domain and network_of(domain) == CLEARNET
     )

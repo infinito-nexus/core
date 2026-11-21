@@ -11,13 +11,52 @@ JENKINS_CASC_FILE: "{{ [ lookup('container', application_id, 'directories.instan
 
 JENKINS_PLUGIN_ADDONS: "{{ lookup('config', application_id, 'addons') | dict2items | selectattr('value.enabled') | sort(attribute='key') | list }}"
 
-JENKINS_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+JENKINS_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.jenkins.login.method.sso.enabled') | bool }}"
 JENKINS_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+JENKINS_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.jenkins.login.method.ldap.enabled') | bool }}"
+JENKINS_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.jenkins.login.method.native.enabled') | bool }}"
+JENKINS_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.jenkins.login.method.registration.enabled') | bool }}"
 
 JENKINS_LOOPBACK_URL: "http://localhost:{{ lookup('config', application_id, 'services.jenkins.ports.internal.http') }}"
 
+JENKINS_AUTHORIZATION_ROLES:
+  - name: admin
+    rbac_role: administrator
+    description: "Administrators"
+    permissions:
+      - "Overall/Administer"
+  - name: developer
+    rbac_role: developer
+    description: "Developers: create, configure, build and delete jobs"
+    permissions:
+      - "Overall/Read"
+      - "Job/Build"
+      - "Job/Cancel"
+      - "Job/Configure"
+      - "Job/Create"
+      - "Job/Delete"
+      - "Job/Discover"
+      - "Job/Read"
+      - "Job/Workspace"
+      - "Run/Delete"
+      - "Run/Replay"
+      - "Run/Update"
+      - "View/Configure"
+      - "View/Create"
+      - "View/Delete"
+      - "View/Read"
+  - name: viewer
+    rbac_role: viewer
+    description: "Viewers: read jobs and builds"
+    permissions:
+      - "Overall/Read"
+      - "Job/Discover"
+      - "Job/Read"
+      - "View/Read"
+
 JENKINS_MCP_ENABLED: "{{ lookup('config', application_id, 'services.jenkinsmcp.enabled') | bool }}"
 JENKINS_MCP_USERNAME: "{{ lookup('config', application_id, 'mcp.credential.owner') }}"
+JENKINS_MCP_RBAC_ROLE: "{{ 'developer' if (lookup('config', application_id, 'mcp.tools.mutating_tools_enabled') | bool) else 'viewer' }}"
 JENKINS_MCP_TOKEN_NAME: "infinito-mcp"
 JENKINS_MCP_TOKEN_FILE: "/var/jenkins_home/secrets/infinito-mcp.token"
 JENKINS_MCP_IDENTITY_URL: "{{ JENKINS_LOOPBACK_URL }}/whoAmI/api/json"

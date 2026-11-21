@@ -1,0 +1,38 @@
+{%- set wordpress_rbac = namespace(map={}) -%}
+{%- if WORDPRESS_MULTISITE_ENABLED | bool -%}
+{%- for wordpress_rbac_tenant in WORDPRESS_SITE_DOMAINS -%}
+{%- for wordpress_rbac_role in WORDPRESS_RBAC_SITE_ROLES -%}
+{%- set wordpress_rbac.map = wordpress_rbac.map | combine({
+      '/' ~ lookup('rbac_group_path', application_id=application_id, role=wordpress_rbac_role, tenant=wordpress_rbac_tenant):
+        {'role': wordpress_rbac_role, 'tenant': wordpress_rbac_tenant | lower}
+    }) -%}
+{%- endfor -%}
+{%- endfor -%}
+{%- for wordpress_rbac_role in WORDPRESS_RBAC_SITE_ROLES -%}
+{%- set wordpress_rbac_global_role = 'global-' ~ wordpress_rbac_role -%}
+{%- if wordpress_rbac_global_role in WORDPRESS_RBAC_CONFIG.roles -%}
+{%- set wordpress_rbac.map = wordpress_rbac.map | combine({
+      '/' ~ lookup('rbac_group_path', application_id=application_id, role=wordpress_rbac_global_role):
+        {'role': wordpress_rbac_role}
+    }) -%}
+{%- endif -%}
+{%- endfor -%}
+{%- set wordpress_rbac.map = wordpress_rbac.map | combine({
+      '/' ~ lookup('rbac_group_path', application_id=application_id, role=WORDPRESS_RBAC_NETWORK_ADMIN_ROLE):
+        {'network': true}
+    }) -%}
+{%- if WORDPRESS_SITE_OWNER_ENABLED | bool -%}
+{%- set wordpress_rbac.map = wordpress_rbac.map | combine({
+      '/' ~ lookup('rbac_group_path', application_id=application_id, role=WORDPRESS_RBAC_SITE_OWNER_ROLE):
+        {'site_owner': true}
+    }) -%}
+{%- endif -%}
+{%- else -%}
+{%- for wordpress_rbac_role in WORDPRESS_RBAC_SITE_ROLES -%}
+{%- set wordpress_rbac.map = wordpress_rbac.map | combine({
+      '/' ~ lookup('rbac_group_path', application_id=application_id, role=wordpress_rbac_role):
+        {'role': wordpress_rbac_role}
+    }) -%}
+{%- endfor -%}
+{%- endif -%}
+{{ wordpress_rbac.map | to_json }}

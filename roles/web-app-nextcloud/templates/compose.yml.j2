@@ -4,8 +4,7 @@
     {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
     {{ lookup('container_image', application_id, 'proxy') }}
     {{ lookup('compose_only', 'container_name', NEXTCLOUD_PROXY_CONTAINER) }}
-    logging:
-      driver: journald
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
     {{ lookup('compose_restart') }}
     {{ lookup('container_ports', ['nextcloud', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
@@ -161,8 +160,7 @@
     {{ lookup('compose_only', 'container_name', NEXTCLOUD_CRON_CONTAINER) }}
     {{ lookup('container_image', application_id, 'nextcloud') }}
     {{ lookup('compose_restart') }}
-    logging:
-      driver: journald
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     entrypoint: /cron.sh
     sysctls:
@@ -186,8 +184,7 @@
     {{ lookup('compose_only', 'container_name', NEXTCLOUD_TASKPROCESSING_CONTAINER) }}
     {{ lookup('container_image', application_id, 'nextcloud') }}
     {{ lookup('compose_restart') }}
-    logging:
-      driver: journald
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     entrypoint: ["su", "{{ NEXTCLOUD_DOCKER_USER }}", "-s", "/bin/sh", "-c", "while true; do php {{ NEXTCLOUD_INTERNAL_OCC_COMMAND }} taskprocessing:worker -t 60 || sleep 10; done"]
     sysctls:
@@ -231,6 +228,39 @@
       - "{{ NEXTCLOUD_RECORDING_PORT }}"
     {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+  {% endif %}
+
+  {% if NEXTCLOUD_NOTIFY_PUSH_ENABLED | bool %}
+  {% set service_name = NEXTCLOUD_NOTIFY_PUSH_SERVICE %}
+  {% set container_port = NEXTCLOUD_NOTIFY_PUSH_PORT %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'nextcloud') }}
+    {{ lookup('compose_only', 'container_name', NEXTCLOUD_NOTIFY_PUSH_CONTAINER) }}
+    init: true
+    user: "{{ NEXTCLOUD_DOCKER_USER_ID }}:{{ NEXTCLOUD_DOCKER_USER_ID }}"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    entrypoint: ["{{ NEXTCLOUD_NOTIFY_PUSH_LAUNCHER }}", "run"]
+    environment: # nocheck: compose-environment-from-env-file the shared env.j2 binds NEXTCLOUD_URL to the public URL, which these keys override with the internal proxy URL, and PORT, DATABASE_URL and REDIS_URL there would reach every other service that loads it
+      PORT: "{{ container_port }}"
+      NOTIFY_PUSH_APP_DIRECTORY: "{{ NEXTCLOUD_NOTIFY_PUSH_APP_DIRECTORY }}"
+      NEXTCLOUD_URL: "{{ NEXTCLOUD_NOTIFY_PUSH_NEXTCLOUD_URL }}"
+      DATABASE_URL: {{ lookup('database', application_id, 'url_full') | to_json | replace('$', '$$') }}
+      REDIS_URL: {{ lookup('engine', 'redis', application_id, 'url') | to_json | replace('$', '$$') }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    expose:
+      - "{{ container_port }}"
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {% if IS_COMPOSE_MODE %}
+    {{ lookup('container_networks', provider_self_alias=False) | from_yaml | combine({'networks': {NEXTCLOUD_NOTIFY_PUSH_NETWORK: {'ipv4_address': NEXTCLOUD_NOTIFY_PUSH_ADDRESS}}}, recursive=True) | to_nice_yaml(indent=2) | indent(4) }}
+    {% else %}
+    {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
+    {% endif %}
   {% endif %}
 
   {% if NEXTCLOUD_MCP_ENABLED | bool %}

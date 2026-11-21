@@ -63,7 +63,15 @@ def _tls(variables, application_id, key):
     return BASE_URL[application_id][network_of(variables["domain"])]
 
 
+DEBUG_SWITCHES = {
+    ("sys-front-inj-logout", "services.logout.debug"),
+    ("sys-front-inj-matomo", "services.matomo.debug"),
+}
+
+
 def _config(variables, application_id, key, default):
+    if (application_id, key) in DEBUG_SWITCHES:
+        return default
     if (application_id, key) != ("svc-net-tor", "services.tor.node"):
         raise AssertionError(f"unexpected config key: {application_id!r} {key!r}")
     return variables["_tor_node"]
@@ -136,7 +144,7 @@ def _variants(injector: str) -> list[dict]:
             base = {
                 "domain": APP_DOMAIN[network],
                 "application_id": "web-app-nextcloud",
-                "MODE_DEBUG": debug,
+                "DEBUG": debug,
                 "DOMAIN_PRIMARY": DOMAIN,
             }
             if injector == "logout":
@@ -169,14 +177,14 @@ BROKEN = {
     "logout": {
         "domain": APP_DOMAIN[TOR],
         "application_id": "x",
-        "MODE_DEBUG": False,
+        "DEBUG": False,
         "_canonical": DOMAIN,
     },
     "dashboard": {"domain": APP_DOMAIN[TOR], "_tor_node": ""},
     "matomo": {
         "domain": APP_DOMAIN[CLEARNET],
         "matomo_tracking_scope": "root",
-        "MODE_DEBUG": False,
+        "DEBUG": False,
     },
 }
 

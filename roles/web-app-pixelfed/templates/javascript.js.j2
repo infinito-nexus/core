@@ -1,0 +1,25 @@
+{% include 'roles/sys-front-inj-javascript/templates/profile_lock.js.j2' %}
+(function () {
+  function hide(element) {
+    element.style.setProperty("display", "none", "important");
+  }
+
+  function run() {
+{% if not (PIXELFED_LOGIN_NATIVE | bool) %}
+    if (new URLSearchParams(window.location.search).get("fallback") !== "local") {
+      document.querySelectorAll('form[action$="/login"]').forEach(hide);
+    }
+{% endif %}
+{% if not (PIXELFED_LOGIN_2FA | bool) %}
+    document.querySelectorAll('a[href$="/settings/security/2fa/setup"]').forEach(function (link) {
+      hide(link.closest(".list-group") || link);
+    });
+{% endif %}
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run, { once: true });
+  } else {
+    run();
+  }
+})();

@@ -14,3 +14,6 @@ POSTMARKS_REF: "{{ lookup('config', application_id, 'services.postmarks.ref') }}
 
 POSTMARKS_SSO_PROXY_GATED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
 POSTMARKS_SSO_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+
+POSTMARKS_SITE_NAME: "{{ lookup('design', application_id).label if lookup('config', application_id, 'services.design.enabled') | bool else lookup('design', application_id).name
+  }}"

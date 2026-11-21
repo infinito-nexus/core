@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 191
+  username_pattern: .+
+  source: https://github.com/grokability/snipe-it/blob/v8.8.3/app/Models/User.php#L155
+  agent_reachable: true

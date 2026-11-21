@@ -24,11 +24,17 @@ This deployment simplifies LDAP management by presenting a modern web interface 
 - **Flexible Environment Configuration:**  
   Customize your installation using environment variables and templated configuration files to match your infrastructure needs.
 
+- **Directory login with group-based write access:** behind the oauth2-proxy gate, sign in with your directory user name (`LDAP_LOGIN_ATTR`, rendered from `LDAP.USER.ATTRIBUTES.ID`) and your password. phpLDAPadmin binds as your own entry for every request, and the `svc-db-openldap` ACL grants write access, `userPassword` included, to members of the `web-app-phpldapadmin` administrator group. Other accounts get read access and cannot read or set foreign passwords.
+
 ## Other Resources
 
 - [phpLDAPadmin Docker Container Documentation](https://github.com/leenooks/phpLDAPadmin/wiki/Docker-Container)
 - [Official phpldapadmin Homepage](https://github.com/leenooks/phpLDAPadmin)
 
+## LDAP coverage
+
+No Playwright scenario gates on `ldap`. [`meta/services.yml`](./meta/services.yml) pins `ldap.enabled` to `true`, because phpLDAPadmin is a client of the `svc-db-openldap` directory and has no variant without it, so a deploy with `disable=ldap` never ships this role. Every sign-in at phpLDAPadmin's own form is the LDAP bind itself: [`files/playwright/test-directory-login.js`](./files/playwright/test-directory-login.js) drives that bind as the administrator's own directory entry. With `sso` on, `biber` holds no phpLDAPadmin role and is denied at the oauth2-proxy gate before the form; a `biber` bind with `sso` off is not covered yet.
+
 ## Persona contract opt-outs
 
-phpLDAPadmin authenticates with an LDAP bind DN and the OpenLDAP `administrator_database_password`, not with the Keycloak `administrator` username/password pair, so the `administrator` persona has no in-app credential once it is through the oauth2-proxy. [`meta/services.yml`](./meta/services.yml) additionally admits only the `web-app-phpldapadmin` administrator RBAC group to that proxy (`sso.oauth2.allowed_groups`), and `biber` carries an empty role list, so it is denied before phpLDAPadmin is reached. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`; the `guest` persona and the baseline assertions run unconditionally.
+phpLDAPadmin keeps its own directory login behind the oauth2-proxy, and the shared admin flow does not fill it after the Keycloak round trip. [`files/playwright/test-directory-login.js`](./files/playwright/test-directory-login.js) signs the platform administrator in with its directory user name and password instead. [`meta/services.yml`](./meta/services.yml) admits only the `web-app-phpldapadmin` administrator RBAC group to that proxy (`sso.oauth2.allowed_groups`), and `biber` carries an empty role list, so it is denied before phpLDAPadmin is reached; the same spec asserts that denial. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`; the `guest` persona and the baseline assertions run unconditionally.

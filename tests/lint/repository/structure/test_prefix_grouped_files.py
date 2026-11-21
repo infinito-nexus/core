@@ -6,7 +6,8 @@ share a common leading prefix delimited by ``_`` or ``-`` (e.g.
 LONGEST token run common to the whole group (the least common denominator),
 not every delimiter position: ``swarm_registry_sync.py`` and
 ``swarm_secret_rotate.py`` group under ``swarm``, never under
-``swarm_registry``.
+``swarm_registry``. Under ``make lint-file`` or ``make lint-role`` only the
+directories that hold a scoped file are scanned.
 
 A group of ``MIN_GROUP_SIZE`` or more such files fails the test with the
 instruction to move them into a subfolder named after the shared prefix
@@ -29,13 +30,12 @@ the directory to exempt the whole folder.
 from __future__ import annotations
 
 import re
-import subprocess
 import unittest
 from collections import defaultdict
 from pathlib import Path, PurePosixPath
 
 from utils.annotations.suppress import is_suppressed_anywhere, is_suppressed_in_head
-from utils.cache.files import read_text
+from utils.cache.files import in_lint_scope, read_text, repository_files
 
 from . import PROJECT_ROOT
 
@@ -72,16 +72,10 @@ def _flatness_is_forced(directory: PurePosixPath) -> bool:
 _DELIMITERS = re.compile(r"[_-]")
 
 
-def _tracked_files(root: Path) -> list[PurePosixPath]:
-    output = subprocess.check_output(
-        ["git", "-c", "safe.directory=*", "-C", str(root), "ls-files", "-z"],
-        stderr=subprocess.STDOUT,
-    )
-    return [
-        PurePosixPath(rel)
-        for rel in output.decode("utf-8", errors="replace").split("\0")
-        if rel
-    ]
+def _tracked_files() -> list[PurePosixPath]:
+    tracked = [PurePosixPath(rel) for rel in repository_files()]
+    scoped = {path.parent for path in tracked if in_lint_scope(path.as_posix())}
+    return [path for path in tracked if path.parent in scoped]
 
 
 def _dir_opts_out(root: Path, directory: str) -> bool:
@@ -152,7 +146,7 @@ def find_prefix_groups(
             if name.startswith((".", "_")):
                 continue
             tokens = _tokens(name)
-            if len(tokens) < 2:
+            if not tokens:
                 continue
             if tokens[0].lower() in SKIP_FIRST_TOKENS:
                 continue
@@ -177,7 +171,7 @@ def find_prefix_groups(
 
 class TestPrefixGroupedFiles(unittest.TestCase):
     def test_prefix_groups_belong_in_subfolders(self) -> None:
-        findings = find_prefix_groups(_tracked_files(PROJECT_ROOT))
+        findings = find_prefix_groups(_tracked_files())
 
         if findings:
             lines = []
@@ -198,6 +192,23 @@ class TestPrefixGroupedFiles(unittest.TestCase):
                 "prefix, move the existing files into the folder too.\n"
                 + "\n".join(lines)
             )
+
+    def test_a_stem_file_anchors_its_group(self) -> None:
+        tracked = [
+            PurePosixPath(f"sample/{name}")
+            for name in ("playbook.yml", "playbook-sync.yml", "playbook-workspace.yml")
+        ]
+        self.assertEqual(find_prefix_groups(tracked, Path("/nonexistent")), [])
+
+    def test_negative_control_a_group_without_its_stem_file_fails(self) -> None:
+        tracked = [
+            PurePosixPath(f"sample/{name}")
+            for name in ("playbook-sync.yml", "playbook-workspace.yml")
+        ]
+        self.assertEqual(
+            find_prefix_groups(tracked, Path("/nonexistent")),
+            [("sample", "playbook", ["playbook-sync.yml", "playbook-workspace.yml"])],
+        )
 
 
 if __name__ == "__main__":

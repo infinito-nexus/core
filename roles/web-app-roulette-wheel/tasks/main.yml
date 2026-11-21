@@ -1,9 +1,3 @@
 ---
-- name: "🧩 load docker, proxy for '{{ application_id }}'"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: true
-    compose_repository_url: "{{ ROULETTE_REPOSITORY }}"
-    compose_repository_pull: true
-    compose_repository_ref: "{{ ROULETTE_REF }}"
+- include_tasks: 00_core.yml
+  when: run_once_web_app_roulette_wheel is not defined

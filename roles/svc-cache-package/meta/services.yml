@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  Nexus blobstore carries only a soft quota (blobstore_max) that alerts; no cleanup task is configured yet
 # nocheck: dynamic-flag
 node:
   enabled: true
@@ -36,8 +37,10 @@ package:
     internal:
       http: 8081
   blobstore_max: 40g
+  max_idle_days: 30
   content_max_age_min: 8640
   metadata_max_age_min: 0
+  data_path: ""
   lifecycle: beta
 # nocheck: dynamic-flag  the bootstrap has no group of its own; it runs exactly when the cache it provisions comes up
 bootstrap:
@@ -85,9 +88,13 @@ frontend:
   mem_limit: 256m
   pids_limit: 256
   ports:
+    # nocheck: inventory-open-subtree  the frontend publishes no host port by default; an inventory serving the cache to other hosts lists the protocols to publish
+    local: {}
     internal:
       http: 80
       https: 443
+  ca_path: "{{ [lookup('container', 'svc-cache-package', 'directories.config'), 'ca'] | path_join }}"
+  certs_path: "{{ [lookup('container', 'svc-cache-package', 'directories.config'), 'certs'] | path_join }}"
   lifecycle: beta
   security:
     suppressions:
@@ -104,3 +111,11 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  package cache the other roles' builds pull through, so pausing it would break their deploys
+  status: started

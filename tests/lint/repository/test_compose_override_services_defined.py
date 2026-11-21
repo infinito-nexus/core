@@ -15,7 +15,7 @@ from typing import ClassVar
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 
-BASES = ("compose.yml",)
+BASES = ("compose.yml", "compose/infra.yml")
 OVERRIDES = ("compose/*.override.yml", "i18n/*.override.yml")
 
 

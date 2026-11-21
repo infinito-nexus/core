@@ -7,6 +7,7 @@ import unicodedata
 from typing import TYPE_CHECKING
 
 from utils.cache.yaml import dump_yaml_str
+from utils.roles import lifecycle
 from utils.symbol_glossary import to_emoji
 
 if TYPE_CHECKING:
@@ -40,18 +41,7 @@ def _variant_cell(row: ComplexityRow) -> str:
     return "" if row.variant is None else str(row.variant)
 
 
-_LIFECYCLE_STAGES = (
-    "planned",
-    "pre-alpha",
-    "alpha",
-    "beta",
-    "rc",
-    "stable",
-    "maintenance",
-    "deprecated",
-    "eol",
-)
-_LIFECYCLE_SYMBOLS: dict[str, str] = {s: to_emoji(s) for s in _LIFECYCLE_STAGES}
+_LIFECYCLE_SYMBOLS: dict[str, str] = {s: to_emoji(s) for s in lifecycle.statuses()}
 
 _HEADER_NAMES = (
     "row",
@@ -130,15 +120,7 @@ _COLUMN_DOC: dict[str, str] = {
 }
 
 _LIFECYCLE_DOC: dict[str, str] = {
-    "planned": "on the roadmap, no code yet",
-    "pre-alpha": "scaffolding, too unstable to test",
-    "alpha": "deploys end-to-end with a smoke spec",
-    "beta": "documented integrations tested",
-    "rc": "burn-in on production, intends stable",
-    "stable": "shipped in a release without a hotfix",
-    "maintenance": "stable coverage, feature-frozen",
-    "deprecated": "kept for compatibility, untested, do not adopt",
-    "eol": "end of life: shipped but not tested or maintained",
+    name: status.description for name, status in lifecycle.load().statuses.items()
 }
 
 
@@ -155,15 +137,15 @@ def _symbol_legend(names: list[str], rows: list[ComplexityRow]) -> list[str]:
     ]
     flags = [("✅", "true", "the flag is set"), ("❌", "false", "the flag is not set")]
     present = {r.lifecycle for r in rows}
-    lifecycle = [
-        (symbol, stage, _LIFECYCLE_DOC.get(stage, ""))
+    stages = [
+        (symbol, stage, _LIFECYCLE_DOC[stage])
         for stage, symbol in _LIFECYCLE_SYMBOLS.items()
         if stage in present
     ]
 
     groups = [("Columns", columns), ("Flags", flags)]
-    if lifecycle:
-        groups.append(("Lifecycle", lifecycle))
+    if stages:
+        groups.append(("Lifecycle", stages))
 
     entries = [entry for _, group in groups for entry in group]
     label_w = max(len(label) for _, label, _ in entries)

@@ -6,10 +6,14 @@ from types import SimpleNamespace
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from utils import PROJECT_ROOT
+from utils.cache.yaml import load_yaml_any
 from utils.domains.default_primary import default_domain_primary
 
 TEMPLATES = Path(PROJECT_ROOT) / "roles" / "sys-svc-container" / "templates"
 DOMAIN = default_domain_primary()
+LOGGING = load_yaml_any(
+    str(Path(PROJECT_ROOT) / "group_vars" / "all" / "22_logging.yml")
+)
 
 
 def _ansible_bool(value):
@@ -40,6 +44,7 @@ BASE = {
     "IS_STACK_HOST": False,
     "DOCKER_IN_CONTAINER": True,
     "DOMAIN_PRIMARY": DOMAIN,
+    "DOCKER_LOG_LABEL": LOGGING["DOCKER_LOG_LABEL"],
     "KATA_SHIM_BINARY": "/usr/bin/containerd-shim-kata-v2",
     "RUNSC_SHIM_BINARY": "/usr/local/bin/runsc",
     "NVIDIA_RUNTIME_BINARY": "/usr/bin/nvidia-container-runtime",

@@ -131,6 +131,39 @@ class PresentTests(unittest.TestCase):
         self.assertEqual(directory.modified, [])
 
 
+class MissingTests(unittest.TestCase):
+    def test_an_attribute_without_value_is_added(self):
+        directory = _Directory({DN: {"objectClass": [b"person"]}})
+        self.assertTrue(
+            _MOD.apply(
+                directory,
+                "missing",
+                DN,
+                {"infinitoSecondaryMail": "alice@example.net"},
+                False,
+            )
+        )
+        self.assertEqual(
+            directory.modified,
+            [(DN, [(0, "infinitoSecondaryMail", [b"alice@example.net"])])],
+        )
+
+    def test_a_held_value_is_never_replaced(self):
+        directory = _Directory(
+            {DN: {"infinitoSecondaryMail": [b"confirmed@example.net"]}}
+        )
+        self.assertFalse(
+            _MOD.apply(
+                directory,
+                "missing",
+                DN,
+                {"infinitoSecondaryMail": "inventory@example.net"},
+                False,
+            )
+        )
+        self.assertEqual(directory.modified, [])
+
+
 class ExactTests(unittest.TestCase):
     def test_differing_values_are_replaced(self):
         directory = _Directory({DN: {"objectClass": [b"person", b"nextcloudUser"]}})

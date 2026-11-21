@@ -14,7 +14,7 @@ This role will:
 - **Optionally** include a wildcard redirect template (experimental) ⭐️  
 - **Clean up** leftover configs when running in cleanup mode 🧹  
 
-All tasks are guarded by “run once” facts and `MODE_CLEANUP` flags to avoid unintended re-runs or stale files.
+All tasks are guarded by “run once” facts and `CLEANUP` flags to avoid unintended re-runs or stale files.
 
 ## Purpose
 
@@ -25,5 +25,6 @@ Ensure that any request to `www.example.com` automatically and permanently redir
 - **Auto-Discovery**: Scans your NGINX `servers` directory for `.conf` files. 🔍  
 - **Dynamic Redirects**: Builds `source: "www.domain"` → `target: "domain"` mappings on the fly. 🔧  
 - **Wildcard Redirect**: Includes a templated wildcard server block for `www.*` domains (toggleable). ✨  
-- **Cleanup Mode**: Removes the wildcard config file when `CERTBOT_FLAVOR` is set to `dedicated` and `MODE_CLEANUP` is enabled. 🗑️
-- **Debug Output**: Optional `MODE_DEBUG` gives detailed variable dumps for troubleshooting. 🐛  
+- **Cleanup Mode**: Removes the wildcard config file when `CERTBOT_FLAVOR` is set to `dedicated` and `CLEANUP` is enabled. 🗑️
+- **Cloudflare Edge Flavor**: With `DNS_PROVIDER: cloudflare` and the `edge` flavor, every mapping whose source and target are clearnet names becomes a Cloudflare redirect rule. Every other mapping, such as one with an onion end, gets its redirect from the origin through `web-opt-rdr-domains`: an onion name has no Cloudflare zone and is never sent to the Cloudflare API. ☁️
+- **Debug Output**: Optional `DEBUG` gives detailed variable dumps for troubleshooting. 🐛  

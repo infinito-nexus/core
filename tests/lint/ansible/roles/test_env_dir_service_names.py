@@ -27,9 +27,12 @@ writes per-consumer database env files from there.
 
 Service names come from the ``{% set service_name = ... %}`` lines of the
 role's compose templates, resolved through ``vars/main.yml`` and
-``defaults/main.yml`` when the value is a variable. A name this lint cannot
-resolve is reported rather than skipped, because an unresolved name would
-make every file in the directory look unmatched.
+``defaults/main.yml`` when the value is a variable. Inside
+``{% for item in LIST %}``, ``set service_name = item.key`` stands for the
+``key`` of every entry of ``LIST``; a list the role computes through
+``selectattr``, ``rejectattr`` or ``list`` stands for its source list. A name
+this lint cannot resolve is reported rather than skipped, because an
+unresolved name would make every file in the directory look unmatched.
 
 Suppress a genuine exception with ``# nocheck: env-dir-service-name`` or
 ``# nocheck: env-dir-base-include`` in the env file.
@@ -60,7 +63,18 @@ RULE = "env-dir-service-name"
 BASE_RULE = "env-dir-base-include"
 ENV_DIR = "templates/env"
 
-_SET_SERVICE_RE = re.compile(r"\{%-?\s*set\s+service_name\s*=\s*(?P<expr>.+?)\s*-?%\}")
+_BLOCK_RE = re.compile(
+    r"\{%-?\s*(?:for\s+(?P<targets>[\w\s,]+?)\s+in\s+(?P<iterable>.+?)"
+    r"|(?P<endfor>endfor)"
+    r"|set\s+service_name\s*=\s*(?P<expr>.+?))\s*-?%\}"
+)
+_ATTRIBUTE_RE = re.compile(r"^(?P<item>[A-Za-z_]\w*)\.(?P<key>[A-Za-z_]\w*)$")
+_REFERENCE_RE = re.compile(r"^\{\{\s*(?P<name>[A-Za-z_]\w*)\s*\}\}$")
+_LIST_SOURCE_RE = re.compile(
+    r"^(?P<name>[A-Za-z_]\w*)"
+    r"(?:\s*\|\s*(?:(?:selectattr|rejectattr)\([^)]*\)|list))*$"
+)
+_MAX_INDIRECTION = 5
 _LABELLED_RE = re.compile(
     r"^['\"](?P<base>[\w-]+)['\"]\s*\|\s*labelled\([^,]+,\s*['\"](?P<separator>[^'\"]*)['\"]\s*\)$"
 )
@@ -123,15 +137,120 @@ def _resolve(expr: str, variables: dict[str, object], role: Path) -> set[str]:
         }
     literal = _LITERAL_RE.match(expr)
     if literal:
-        expr = literal.group("value").strip()
-    elif _IDENTIFIER_RE.match(expr) and not _ENTITY_RE.match(expr):
-        value = variables.get(expr)
-        if not isinstance(value, str):
-            return set()
-        expr = value.strip()
-    if _ENTITY_RE.match(expr):
+        return _resolve_value(literal.group("value"), variables, role)
+    if _IDENTIFIER_RE.match(expr) and not _ENTITY_RE.match(expr):
+        return _resolve_value(variables.get(expr), variables, role)
+    return _resolve_value(expr, variables, role)
+
+
+def _resolve_value(
+    value: object, variables: dict[str, object], role: Path, depth: int = 0
+) -> set[str]:
+    """Return the service name a vars value stands for, empty when unresolvable.
+
+    Args:
+        value: a value from the role's vars, or the text of a literal.
+        variables: the role's merged vars and defaults.
+        role: the role directory.
+        depth: the number of ``{{ NAME }}`` references already followed.
+    """
+    if not isinstance(value, str):
+        return set()
+    value = value.strip()
+    if _ENTITY_RE.match(value):
         return {entity_name(role.name)}
-    return set() if "{{" in expr else {expr}
+    reference = _REFERENCE_RE.match(value)
+    if reference and depth < _MAX_INDIRECTION:
+        return _resolve_value(
+            variables.get(reference.group("name")), variables, role, depth + 1
+        )
+    return set() if "{{" in value else {value}
+
+
+def _loop_items(
+    iterable: object, variables: dict[str, object], depth: int = 0
+) -> list[object] | None:
+    """Return the entries a ``for`` loop iterates, None when unresolvable.
+
+    Args:
+        iterable: the loop's iterable expression, or a vars value it names.
+        variables: the role's merged vars and defaults.
+        depth: the number of names already followed.
+    """
+    if isinstance(iterable, list):
+        return iterable
+    if not isinstance(iterable, str) or depth >= _MAX_INDIRECTION:
+        return None
+    text = iterable.strip()
+    if text.startswith("{{") and text.endswith("}}"):
+        text = text[2:-2].strip()
+    source = _LIST_SOURCE_RE.match(text)
+    if not source:
+        return None
+    return _loop_items(variables.get(source.group("name")), variables, depth + 1)
+
+
+def _resolve_in_loops(
+    expr: str,
+    loops: list[tuple[str, str]],
+    variables: dict[str, object],
+    role: Path,
+) -> set[str]:
+    """Resolve *expr*, reading ``item.key`` through the enclosing ``for`` loops.
+
+    Args:
+        expr: the right-hand side of a ``set service_name`` statement.
+        loops: the targets and iterable of every enclosing loop, outermost first.
+        variables: the role's merged vars and defaults.
+        role: the role directory.
+    """
+    attribute = _ATTRIBUTE_RE.match(expr.strip())
+    if not attribute:
+        return _resolve(expr, variables, role)
+    for targets, iterable in reversed(loops):
+        if targets != attribute.group("item"):
+            continue
+        items = _loop_items(iterable, variables)
+        if not items:
+            return set()
+        names: set[str] = set()
+        for item in items:
+            value = item.get(attribute.group("key")) if isinstance(item, dict) else None
+            resolved = _resolve_value(value, variables, role)
+            if not resolved:
+                return set()
+            names |= resolved
+        return names
+    return set()
+
+
+def _template_service_names(
+    text: str, variables: dict[str, object], role: Path
+) -> tuple[set[str], set[str]]:
+    """Return the service names of one compose template and its unresolved ones.
+
+    Args:
+        text: the compose template.
+        variables: the role's merged vars and defaults.
+        role: the role directory.
+    """
+    resolved: set[str] = set()
+    unresolved: set[str] = set()
+    loops: list[tuple[str, str]] = []
+    for match in _BLOCK_RE.finditer(text):
+        if match.group("targets") is not None:
+            loops.append((match.group("targets").strip(), match.group("iterable")))
+        elif match.group("endfor"):
+            if loops:
+                loops.pop()
+        else:
+            expr = match.group("expr")
+            names = _resolve_in_loops(expr, loops, variables, role)
+            if names:
+                resolved |= names
+            else:
+                unresolved.add(expr)
+    return resolved, unresolved
 
 
 def _service_names(role: Path) -> tuple[set[str], set[str]]:
@@ -144,13 +263,9 @@ def _service_names(role: Path) -> tuple[set[str], set[str]]:
     resolved: set[str] = set()
     unresolved: set[str] = set()
     for path in _compose_templates(role):
-        for match in _SET_SERVICE_RE.finditer(read_text(str(path))):
-            expr = match.group("expr")
-            names = _resolve(expr, variables, role)
-            if names:
-                resolved |= names
-            else:
-                unresolved.add(expr)
+        names, missing = _template_service_names(read_text(str(path)), variables, role)
+        resolved |= names
+        unresolved |= missing
     return resolved, unresolved
 
 
@@ -322,6 +437,74 @@ class TestServiceNameResolution(unittest.TestCase):
 
         self.assertEqual(set(), unresolved)
         self.assertIn("elasticsearch", services)
+
+    def test_semaphore_resolves_every_runner_of_its_loop(self) -> None:
+        services, unresolved = _service_names(PROJECT_ROOT / "roles/web-app-semaphore")
+
+        self.assertEqual(set(), unresolved)
+        self.assertLessEqual(
+            {"task-runner", "deploy-runner", "export-runner"}, services
+        )
+        self.assertNotIn("runner.service", services)
+
+    def test_a_filtered_list_resolves_to_its_source_entries(self) -> None:
+        role = PROJECT_ROOT / "roles/web-app-semaphore"
+        text = (
+            "{% for runner in ACTIVE %}{% set service_name = runner.service %}"
+            "{% endfor %}"
+        )
+        variables = {
+            "ACTIVE": "{{ RUNNERS | selectattr('enabled') | list }}",
+            "RUNNERS": [{"service": "{{ MAIN }}"}, {"service": "side"}],
+            "MAIN": "main",
+        }
+
+        self.assertEqual(
+            ({"main", "side"}, set()), _template_service_names(text, variables, role)
+        )
+
+    def test_negative_control_a_loop_entry_without_the_key_stays_unresolved(
+        self,
+    ) -> None:
+        role = PROJECT_ROOT / "roles/web-app-semaphore"
+        text = (
+            "{% for runner in RUNNERS %}{% set service_name = runner.service %}"
+            "{% endfor %}"
+        )
+        variables = {"RUNNERS": [{"service": "main"}, {"name": "side"}]}
+
+        self.assertEqual(
+            (set(), {"runner.service"}),
+            _template_service_names(text, variables, role),
+        )
+
+    def test_negative_control_an_attribute_no_loop_binds_stays_unresolved(
+        self,
+    ) -> None:
+        role = PROJECT_ROOT / "roles/web-app-semaphore"
+        text = (
+            "{% for other in RUNNERS %}{% endfor %}"
+            "{% set service_name = runner.service %}"
+        )
+        variables = {"RUNNERS": [{"service": "main"}]}
+
+        self.assertEqual(
+            (set(), {"runner.service"}),
+            _template_service_names(text, variables, role),
+        )
+
+    def test_negative_control_a_mapping_filter_stays_unresolved(self) -> None:
+        role = PROJECT_ROOT / "roles/web-app-semaphore"
+        text = (
+            "{% for runner in RUNNERS | map(attribute='x') %}"
+            "{% set service_name = runner.service %}{% endfor %}"
+        )
+        variables = {"RUNNERS": [{"service": "main"}]}
+
+        self.assertEqual(
+            (set(), {"runner.service"}),
+            _template_service_names(text, variables, role),
+        )
 
     def test_the_rule_catches_a_name_that_matches_no_service(self) -> None:
         role = PROJECT_ROOT / "roles/web-app-zammad"

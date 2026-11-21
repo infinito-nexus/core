@@ -3,10 +3,11 @@
 ``sys-front-inj-design`` builds the per-app stylesheet by rendering
 ``templates/css/app.css.j2`` - a ``:root{}`` block of ``--design-url-*``,
 ``--design-slot-*`` and ``--design-url-app-*`` declarations - and appending the
-role's sheet and, when the role ships a logo, its ``files/logo.css``. The sheet
-is whichever of ``templates/style.css.j2`` and ``files/style.css`` the
+role's sheet and, when the role ships a logo, its ``files/logo.css``, and, while
+a cosmos provider is active, its ``templates/cosmos.css.j2``. The sheet is
+whichever of ``templates/style.css.j2`` and ``files/style.css`` the
 ``first_found`` in that role's ``tasks/main.yml`` resolves, in that order.
-Those three files are the only ones that block reaches.
+Those four files are the only ones that block reaches.
 
 A sheet the role deploys on its own path never sees it. Reading a design
 custom property there is invisible: an undefined custom property makes the
@@ -36,7 +37,12 @@ if TYPE_CHECKING:
 
 ROLES = PROJECT_ROOT / "roles"
 GLOBAL_SLOTS_ROLE = "web-svc-design"
-COMPOSED = ("templates/style.css.j2", "files/style.css", "files/logo.css")
+COMPOSED = (
+    "templates/style.css.j2",
+    "files/style.css",
+    "files/logo.css",
+    "templates/cosmos.css.j2",
+)
 KINDS = ("png", "svg")
 DIMENSIONS = ("width", "height")
 FAVICON = "favicon-ico"

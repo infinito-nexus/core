@@ -6,13 +6,11 @@ WAZUH_MANAGER_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id,
 
 WAZUH_INDEXER_CONTAINER: "{{ lookup('config', application_id, 'services.indexer.name') }}"
 WAZUH_INDEXER_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'indexer') }}"
-WAZUH_INDEXER_HTTP_PORT: "{{ lookup('config', application_id, 'services.indexer.ports.local.http') }}"
 WAZUH_INDEXER_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.indexer.ports.internal.http') }}"
 WAZUH_INDEXER_URL: "https://{{ WAZUH_INDEXER_CONTAINER }}:{{ WAZUH_INDEXER_INTERNAL_PORT }}"
 WAZUH_INDEXER_HEAP: "{{ lookup('service_memory_mb', application_id, 'indexer', 0.5) }}m"
 
 WAZUH_DASHBOARD_CONTAINER: "{{ lookup('config', application_id, 'services.console.name') }}"
-WAZUH_DASHBOARD_HTTP_PORT: "{{ lookup('config', application_id, 'services.console.ports.local.http') }}"
 WAZUH_DASHBOARD_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.console.ports.internal.http') }}"
 
 WAZUH_CERTS_GENERATOR_CONTAINER: "{{ lookup('config', application_id, 'services.certs_generator.name') }}"
@@ -47,9 +45,11 @@ WAZUH_CERTS_REQUIRED_FILES:
 WAZUH_INDEXER_CERTS_DIR_CONTAINER: "/usr/share/wazuh-indexer/config/certs" # nocheck: container-var-name-lookup  in-container path, not a container name
 WAZUH_INDEXER_SECURITY_DIR_CONTAINER: "/usr/share/wazuh-indexer/config/opensearch-security" # nocheck: container-var-name-lookup  in-container path, not a container name
 
-WAZUH_SYSCTL_CONF: "/etc/sysctl.d/99-wazuh-indexer.conf"
+WAZUH_SYSCTL_OWNER: "wazuh-indexer"
+WAZUH_SYSCTL_PARAMETERS:
+  vm.max_map_count: "262144"
 
-WAZUH_INDEXER_INTERNAL_API_URL: "https://{{ DOCKER_REACH_HOST }}:{{ WAZUH_INDEXER_HTTP_PORT }}"
+WAZUH_INDEXER_INTERNAL_API_URL: "https://127.0.0.1:{{ WAZUH_INDEXER_INTERNAL_PORT }}"
 
 WAZUH_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
 WAZUH_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
@@ -66,14 +66,17 @@ WAZUH_DASHBOARD_SERVICE_USERNAME: "{{ lookup('users', 'web-app-wazuh-dashboard')
 WAZUH_DASHBOARD_SERVICE_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.dashboard_service_password') }}"
 WAZUH_DASHBOARD_SERVICE_HASH: "{{ WAZUH_DASHBOARD_SERVICE_PASSWORD | bcrypt_hash(application_id ~ ':dashboard-service') }}"
 
-WAZUH_WUI_USERNAME: "{{ lookup('users', 'web-app-wazuh-api').username }}"
+WAZUH_WUI_USERNAME: "{{ WAZUH_DASHBOARD.api_username }}"
 WAZUH_WUI_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.wazuh_wui_password') }}"
 
 WAZUH_CLUSTER_KEY: "{{ lookup('config', application_id, 'secrets.credentials.manager_cluster_key') }}"
 
-WAZUH_RBAC_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
-WAZUH_RBAC_ANALYST_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='security-analyst') }}"
-WAZUH_RBAC_READONLY_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='readonly-auditor') }}"
+WAZUH_SECURITY: "{{ lookup('form_values', application_id, 'security') }}"
+WAZUH_DASHBOARD: "{{ lookup('form_values', application_id, 'dashboard') }}"
+
+WAZUH_RBAC_ADMIN_GROUP: "{{ WAZUH_SECURITY.admin_group }}"
+WAZUH_RBAC_ANALYST_GROUP: "{{ WAZUH_SECURITY.analyst_group }}"
+WAZUH_RBAC_READONLY_GROUP: "{{ WAZUH_SECURITY.readonly_group }}"
 
 WAZUH_RBAC_ADMIN_LDAP_CN: "{{ application_id }}-administrator"
 WAZUH_API_ADMIN_RULE: "infinito_administrators"
@@ -83,3 +86,17 @@ WAZUH_API_ADMIN_BACKEND_ROLES:
   - "{{ WAZUH_RBAC_ADMIN_LDAP_CN }}"
 WAZUH_RBAC_ANALYST_LDAP_CN: "{{ application_id }}-security-analyst"
 WAZUH_RBAC_READONLY_LDAP_CN: "{{ application_id }}-readonly-auditor"
+WAZUH_API_HOST_ID: "default"
+WAZUH_API_READONLY_RULE: "infinito_readonly"
+WAZUH_API_READONLY_BACKEND_ROLES:
+  - "{{ WAZUH_RBAC_ANALYST_GROUP }}"
+  - "{{ WAZUH_RBAC_ANALYST_LDAP_CN }}"
+  - "{{ WAZUH_RBAC_READONLY_GROUP }}"
+  - "{{ WAZUH_RBAC_READONLY_LDAP_CN }}"
+WAZUH_API_ROLE_MAPPINGS:
+  - rule: "{{ WAZUH_API_ADMIN_RULE }}"
+    api_role: administrator
+    backend_roles: "{{ WAZUH_API_ADMIN_BACKEND_ROLES }}"
+  - rule: "{{ WAZUH_API_READONLY_RULE }}"
+    api_role: readonly
+    backend_roles: "{{ WAZUH_API_READONLY_BACKEND_ROLES }}"

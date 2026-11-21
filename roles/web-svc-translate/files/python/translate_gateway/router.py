@@ -6,11 +6,15 @@ import asyncio
 import time
 from collections import Counter
 
+from infinito_decider import record_of
+
 from .errors import EngineRefusedError, MangledTermError, NoBackendError
+from .ledger import Ledger
 from .signature import signature
 
 SYSTEM_ONE = "system_one"
 PREFERENCE = "preference"
+STRATEGIES = (SYSTEM_ONE, PREFERENCE)
 CHOICE_INSTRUCTIONS = "Which engine should answer this translation request?"
 MARKUP_CHARACTERS = "[]{}`*()"
 
@@ -42,6 +46,10 @@ def saturated(tally, minimum, share):
     return max(leaders)[1] if leaders else None
 
 
+def _counted(count, singular, plural):
+    return f"{count} {singular if count == 1 else plural}"
+
+
 class Router:
     """Routes one translation, and records what the comparison concluded.
 
@@ -51,14 +59,20 @@ class Router:
         decider: the System One client, or None to route without one.
         history: the learning log, or None to decide without a record.
         cache: the translation store, or None to answer every request afresh.
-        sampler: decides when to compare instead of answering.
+        sampler: decides when an open signature is compared instead of
+            answered.
+        resampler: decides when a settled signature is compared again, or
+            None to keep a settled signature on its leader for good.
         order: the preference order used when no decider is deployed.
         question: the typed-choice question the verdict is asked under.
         saturation: ``(minimum comparisons, winning share)``.
         strategy: ``system_one`` asks the decider which engine answers,
-            ``preference`` takes the declared order.
+            ``preference`` takes the declared order; any other value raises
+            ``ValueError``, so a misspelt strategy never routes as either.
         failures: the failure log, or None to forget an outage at every
             restart.
+        rejections: the rejection log, or None to forget which engine mangled
+            which language pair.
         failure_threshold: consecutive failures after which an engine leaves
             the candidate set.
         pairs: ``{engine: catalogued pairs}`` stated in the criteria lines.
@@ -72,24 +86,31 @@ class Router:
         history=None,
         cache=None,
         sampler=None,
+        resampler=None,
         order=(),
         question="translation-verdict",
         saturation=(10, 0.8),
         strategy=PREFERENCE,
         failures=None,
+        rejections=None,
         failure_threshold=3,
         pairs=None,
     ):
+        if strategy not in STRATEGIES:
+            raise ValueError(
+                f"router strategy {strategy!r} is not one of {', '.join(STRATEGIES)}"
+            )
         self._engines = dict(engines)
         self._decider = decider
-        self._history = history
-        self._cache = cache
+        self._ledger = Ledger(
+            history=history, cache=cache, failures=failures, rejections=rejections
+        )
         self._sampler = sampler
+        self._resampler = resampler
         self._order = tuple(order)
         self._question = question
         self._saturation = saturation
         self._strategy = strategy
-        self._failures = failures
         self._failure_threshold = failure_threshold
         self._pairs = dict(pairs or {})
         self._latency = {}
@@ -115,33 +136,6 @@ class Router:
         ranked = [name for name in self._order if name in serving]
         return ranked + sorted(set(serving) - set(ranked))
 
-    async def _tally(self, request_class):
-        """What earlier comparisons concluded, empty when the log cannot answer."""
-        if self._history is None:
-            return {}
-        try:
-            return await self._history.wins(request_class)
-        except Exception:
-            return {}
-
-    async def _speeds(self, request_class):
-        """Average milliseconds per engine, empty when the log cannot answer."""
-        if self._history is None:
-            return {}
-        try:
-            return await self._history.speed(request_class)
-        except Exception:
-            return {}
-
-    async def _streaks(self):
-        """Consecutive failures per engine, empty when the log cannot answer."""
-        if self._failures is None:
-            return {}
-        try:
-            return await self._failures.streaks()
-        except Exception:
-            return {}
-
     async def _ask_one(self, engine, source, target, text, protected=(), fmt="text"):
         started = time.monotonic()
         try:
@@ -149,32 +143,28 @@ class Router:
                 self._engines[engine].translate, source, target, text, protected, fmt
             )
         except Exception as exc:
-            await self._failed(engine)
+            await self._ledger.failed(engine)
             raise EngineRefusedError(f"{engine} refused the request: {exc}") from exc
         self._latency[engine] = int((time.monotonic() - started) * 1000)
-        await self._cleared(engine)
+        await self._ledger.cleared(engine)
         return answer
 
-    async def _failed(self, engine):
-        if self._failures is None:
-            return
-        try:
-            await self._failures.failed(engine)
-        except Exception:
-            return
+    def _criteria(self, offered, tally, speeds, failures, rejections):
+        """One line per engine, stating only measured or catalogued facts.
 
-    async def _cleared(self, engine):
-        if self._failures is None:
-            return
-        try:
-            await self._failures.cleared(engine)
-        except Exception:
-            return
+        A lost comparison, a failure and a rejected answer each get a clause
+        of their own: an engine that is down, one that translates worse and
+        one that mangles this pair's protected spans call for three different
+        decisions.
 
-    def _criteria(self, offered, tally, speeds=None):
-        """One line per engine, stating only measured or catalogued facts."""
+        Args:
+            offered: the engines the decider chooses between.
+            tally: ``{engine: (won, seen)}`` for the request's signature.
+            speeds: ``{engine: average milliseconds}`` for the signature.
+            failures: ``{engine: failures without an answer}``.
+            rejections: ``{engine: answers rejected for this language pair}``.
+        """
         criteria = {}
-        timings = speeds or {}
         for engine in offered:
             facts = ["runs in this cluster"]
             pairs = self._pairs.get(engine)
@@ -183,13 +173,22 @@ class Router:
                 if pairs
                 else "declares no language catalogue"
             )
-            if engine in timings:
-                facts.append(f"averages {timings[engine]} ms on requests like this")
+            if engine in speeds:
+                facts.append(f"averages {speeds[engine]} ms on requests like this")
             elif engine in self._latency:
                 facts.append(f"answered the last request in {self._latency[engine]} ms")
-            won, seen = tally.get(engine, (0, 0))
-            if seen:
-                facts.append(f"won {won} of {seen} comparisons like this")
+            earlier = record_of(engine, tally)
+            if earlier:
+                facts.append(earlier)
+            if failures.get(engine):
+                facts.append(
+                    f"failed to answer {_counted(failures[engine], 'request', 'requests')}"
+                )
+            if rejections.get(engine):
+                facts.append(
+                    f"had {_counted(rejections[engine], 'answer', 'answers')} "
+                    "rejected for this language pair"
+                )
             criteria[engine] = "; ".join(facts)
         return criteria
 
@@ -203,14 +202,20 @@ class Router:
         if self._decider is None or len(offered) < 2:
             return None
         state = f"{source or 'auto'} to {target}: {text}"
-        speeds = await self._speeds(signature(source, target, text))
+        criteria = self._criteria(
+            offered,
+            tally,
+            await self._ledger.speeds(signature(source, target, text)),
+            await self._ledger.failure_totals(),
+            await self._ledger.rejection_counts(source, target),
+        )
         try:
             answer = await asyncio.to_thread(
                 self._decider.ask,
                 state,
                 self._question,
                 CHOICE_INSTRUCTIONS,
-                self._criteria(offered, tally, speeds),
+                criteria,
             )
         except Exception:
             return None
@@ -246,12 +251,17 @@ class Router:
         than a verdict on the engines: keeping the filter there would answer no
         request ever again, and nothing would clear a streak because nothing
         would be asked.
+
+        A settled signature skips the decider, and only the resampler can
+        put it to a comparison again; without that a verdict the engines have
+        since outgrown would hold for good, because a settled signature writes
+        no further rows that could unsettle it.
         """
         serving = self.candidates(source, target, exclude)
         if not serving:
             raise NoBackendError(f"no engine serves {source or 'auto'} to {target}")
 
-        streaks = await self._streaks()
+        streaks = await self._ledger.streaks()
         offered = [
             engine
             for engine in serving
@@ -260,15 +270,15 @@ class Router:
         offered = offered or serving
 
         request_class = signature(source, target, text)
-        tally = await self._tally(request_class)
+        tally = await self._ledger.tally(request_class)
 
         settled = saturated(tally, *self._saturation)
+        gate = self._sampler if settled is None else self._resampler
         comparing = (
             len(offered) > 1
-            and settled is None
             and self._decider is not None
-            and self._sampler is not None
-            and self._sampler.due()
+            and gate is not None
+            and gate.due()
         )
         if comparing:
             return await self._compare(
@@ -308,7 +318,7 @@ class Router:
         refused = []
         mangled = []
         for name in [engine, *[o for o in offered if o != engine]]:
-            cached = await self._cached(name, source, target, text, fmt)
+            cached = await self._cached(name, source, target, text, protected, fmt)
             if cached is not None:
                 return name, cached
             try:
@@ -319,8 +329,9 @@ class Router:
             missing = self._mangled(answer, protected, text)
             if missing:
                 mangled.append(f"{name} dropped {', '.join(missing)}")
+                await self._ledger.rejected(name, source, target)
                 continue
-            await self._store(name, source, target, text, answer, fmt)
+            await self._ledger.store(name, source, target, text, answer, fmt, protected)
             return name, answer
         if mangled and not refused:
             raise MangledTermError("; ".join(mangled))
@@ -331,9 +342,15 @@ class Router:
     async def _compare(
         self, offered, request_class, source, target, text, protected=(), fmt="text"
     ):
+        """Judge the offered engines' answers, reusing the ones already cached."""
         replies = {}
+        fresh = []
         mangled = []
         for name in offered:
+            cached = await self._cached(name, source, target, text, protected, fmt)
+            if cached is not None:
+                replies[name] = cached
+                continue
             try:
                 answer = await self._ask_one(name, source, target, text, protected, fmt)
             except EngineRefusedError:
@@ -341,8 +358,10 @@ class Router:
             missing = self._mangled(answer, protected, text)
             if missing:
                 mangled.append(f"{name} dropped {', '.join(missing)}")
+                await self._ledger.rejected(name, source, target)
                 continue
             replies[name] = answer
+            fresh.append(name)
         if not replies and mangled:
             raise MangledTermError("; ".join(mangled))
         if not replies:
@@ -355,10 +374,17 @@ class Router:
             winner = verdict or next(
                 (name for name in self._order if name in replies), next(iter(replies))
             )
-        for name, answer in replies.items():
-            await self._store(name, source, target, text, answer, fmt)
+        for name in fresh:
+            await self._ledger.store(
+                name, source, target, text, replies[name], fmt, protected
+            )
         if judged:
-            await self._record(request_class, winner, sorted(replies))
+            await self._ledger.record(
+                request_class,
+                winner,
+                sorted(replies),
+                {name: self._latency[name] for name in fresh if name in self._latency},
+            )
         return winner, replies[winner]
 
     async def _judged(self, text, replies):
@@ -380,26 +406,16 @@ class Router:
             return None
         return winner if winner in replies else None
 
-    async def _record(self, request_class, winner, offered):
-        if self._history is None:
-            return
-        try:
-            await self._history.record(request_class, winner, offered, self._latency)
-        except Exception:
-            return
+    async def _cached(self, engine, source, target, text, protected, fmt):
+        """The stored answer, or None when there is none or it no longer holds.
 
-    async def _cached(self, engine, source, target, text, fmt="text"):
-        if self._cache is None:
-            return None
-        try:
-            return await self._cache.get(engine, source, target, text, fmt)
-        except Exception:
-            return None
-
-    async def _store(self, engine, source, target, text, answer, fmt="text"):
-        if self._cache is None:
-            return
-        try:
-            await self._cache.set(engine, source, target, text, answer, fmt)
-        except Exception:
-            return
+        A stored answer passes the same check as a fresh one: it may predate
+        the glossary term or the check it now breaks. One that fails is
+        counted against its engine and dropped, so the engine is asked again
+        and its passing answer replaces the stale one.
+        """
+        cached = await self._ledger.cached(engine, source, target, text, fmt, protected)
+        if cached is None or not self._mangled(cached, protected, text):
+            return cached
+        await self._ledger.rejected(engine, source, target)
+        return None

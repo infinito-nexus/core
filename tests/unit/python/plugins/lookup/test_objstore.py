@@ -11,6 +11,12 @@ import unittest.mock as mock
 from typing import ClassVar
 
 from ansible.errors import AnsibleError
+from ansible.parsing.vault import (
+    EncryptedString,
+    VaultLib,
+    VaultSecret,
+    VaultSecretsContext,
+)
 
 from . import PROJECT_ROOT
 
@@ -198,6 +204,37 @@ class ObjstoreLookupTests(unittest.TestCase):
             "http://foo:a%2Fb%2Bc%3Dd@seaweedfs-central:8334",
         )
         self.assertEqual(out["url"], "http://seaweedfs-central:8334")
+
+    def test_a_vaulted_secret_key_resolves_like_a_rendered_one(self):
+        secrets = [("default", VaultSecret(b"unit-test-vault-password"))]
+        ciphertext = VaultLib(secrets).encrypt("a/b+c=d").decode()
+        applications = {
+            "web-app-foo": {
+                "services": {"seaweedfs": {"enabled": True, "shared": True}},
+                "secrets": {
+                    "credentials": {
+                        "objstore_secret_key": EncryptedString(ciphertext=ciphertext)
+                    }
+                },
+            },
+            "web-svc-seaweedfs": {
+                "services": {
+                    "seaweedfs": {"name": "seaweedfs-central", "api_port": 8334}
+                },
+            },
+        }
+
+        with mock.patch.object(
+            VaultSecretsContext, "_current", VaultSecretsContext(secrets)
+        ):
+            out = self._run(["web-app-foo"], applications)[0]
+
+        self.assertIs(True, out["enabled"])
+        self.assertEqual(
+            out["credentialed_url"],
+            "http://foo:a%2Fb%2Bc%3Dd@seaweedfs-central:8334",
+        )
+        self.assertIsInstance(out["secret_key"], str)
 
     def test_credentialed_url_is_empty_without_an_engine(self):
         applications = {"web-app-foo": {"services": {}}}

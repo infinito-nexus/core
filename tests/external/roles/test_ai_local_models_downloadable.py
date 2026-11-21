@@ -16,14 +16,15 @@ the pin is a defect in the repository and does fail.
 from __future__ import annotations
 
 import concurrent.futures
-import re
 import unittest
 from urllib.parse import urlsplit
 
 import requests
 
+from plugins.filter.litellm.local_model import declared_local_models
 from utils.annotations.message import warning
 from utils.cache.yaml import load_yaml_any
+from utils.digests import SHA256
 
 from . import PROJECT_ROOT
 
@@ -32,13 +33,12 @@ _HUGGINGFACE_PREFIX = "https://huggingface.co/"
 _USER_AGENT = "infinito-nexus-model-pin-check"
 _TIMEOUT_SECONDS = 20
 _MAX_WORKERS = 4
-_SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 
 def _models() -> list[dict]:
     data = load_yaml_any(str(PROJECT_ROOT / _AI_VARS_FILE)) or {}
-    entries = data.get("AI_LOCAL_MODELS") if isinstance(data, dict) else None
-    return [entry for entry in (entries or []) if isinstance(entry, dict)]
+    entries = declared_local_models(data) if isinstance(data, dict) else []
+    return [entry for entry in entries if isinstance(entry, dict)]
 
 
 def _repo_path(entry: dict) -> str:
@@ -146,7 +146,7 @@ class TestAiLocalModelsDownloadable(unittest.TestCase):
                 unpinned.append(f"{alias}: 'repo' is not '<publisher>/<repo>'")
             if not isinstance(file_name, str) or not file_name:
                 unpinned.append(f"{alias}: 'file' is missing")
-            if not isinstance(digest, str) or not _SHA256.match(digest):
+            if not isinstance(digest, str) or not SHA256.fullmatch(digest):
                 unpinned.append(f"{alias}: 'sha256' is not 64 hex characters")
             size = entry.get("bytes")
             if not isinstance(size, int) or size <= 0:

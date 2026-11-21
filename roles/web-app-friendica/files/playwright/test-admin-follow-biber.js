@@ -23,13 +23,10 @@ const { resolveTimeout } = require("./timeouts");
 // would skip the pending row even after a successful POST.)
 
 exports.register = function (shared) {
-  test("friendica: administrator can follow biber", async ({ browser }) => {
-    shared.skipUnlessServiceEnabled("ldap");
-
-    await shared.provisionBiberAccount(browser);
+  async function followBiber(browser, login) {
+    await shared.provisionBiberAccount(browser, login);
 
     const baseUrl = shared.trimmedBaseUrl();
-    const login = shared.pickLoginPath();
 
     const adminContext = await browser.newContext({ ignoreHTTPSErrors: true });
     try {
@@ -86,5 +83,10 @@ exports.register = function (shared) {
     } finally {
       await adminContext.close().catch(() => {});
     }
+  }
+
+  test("administrator: follows biber on friendica", async ({ browser }) => {
+    shared.skipUnlessServiceEnabled("ldap");
+    await followBiber(browser, shared.loginViaFriendica);
   });
 };

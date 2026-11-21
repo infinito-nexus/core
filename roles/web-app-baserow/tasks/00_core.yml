@@ -1,18 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🎬 Stage the MCP adapter build context for {{ application_id }}"
-  include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
-  vars:
-    mcp_adapter_instance_dir: "{{ BASEROW_MCP_INSTANCE_DIR }}"
-  when: BASEROW_MCP_ENABLED | bool
-
-- name: "🧩 For '{{ application_id }}': load docker, db and proxy"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-
 - name: "🎬 Stage trusted-header SSO build-context files for {{ application_id }}"
   stack_host_copy:
     src: "{{ item.src }}"
@@ -21,6 +9,7 @@
   loop:
     - { src: "sso/infinito_sso.py", dest: "infinito_sso.py" }
     - { src: "sso/settings_patch.py", dest: "settings_patch.py" }
+    - { src: "sso/infinito_sso_subject/", dest: "infinito_sso_subject/" }
   notify:
     - compose-build
     - compose-up

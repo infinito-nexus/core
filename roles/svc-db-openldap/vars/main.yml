@@ -3,7 +3,8 @@ application_id: "svc-db-openldap"
 entity_name: "{{ application_id | entity_name }}"
 
 OPENLDAP_PORT: "{{ lookup('config', application_id, 'services.openldap.ports.local.ldap') }}"
-OPENLDAP_SERVER_URI: "ldap://{{ DOCKER_REACH_HOST }}:{{ OPENLDAP_PORT }}"
+OPENLDAP_SOCKET_PATH_HOST: "{{ [lookup('container', application_id, 'directories.volumes'), 'run'] | path_join }}"
+OPENLDAP_SERVER_URI: "{{ LDAP.SERVER.SOCKET_URI }}"
 
 OPENLDAP_CONFIG_URI: "ldapi:///"
 
@@ -35,6 +36,20 @@ OPENLDAP_PROVISION_USERS: "{{ lookup('config', application_id, 'services.openlda
 OPENLDAP_PROVISION_GROUPS: "{{ lookup('config', application_id, 'services.openldap.provision.groups') }}"
 OPENLDAP_PROVISION_UPDATE: "{{ lookup('config', application_id, 'services.openldap.provision.update') }}"
 OPENLDAP_USERS: "{{ lookup('users_non_reserved') }}"
+OPENLDAP_MAIL_DOMAIN: "{{ DOMAIN_PRIMARY }}"
+OPENLDAP_EMAIL_MAILBOX: >-
+  {{ lookup('config', 'web-app-keycloak', 'services.keycloak.email.policy') == 'mailbox'
+     and lookup('config', 'web-app-keycloak', 'services.ldap.enabled') | bool }}
+OPENLDAP_KEYCLOAK_DEPLOYED: "{{ (groups['web-app-keycloak'] | default([]) | length) > 0 }}"
+OPENLDAP_USER_AUXILIARY_CLASSES: >-
+  {{ (LDAP.USER.OBJECTS.AUXILIARY | dict2items
+      | rejectattr('key', 'equalto', 'INFINITO_MAILBOX_USER')
+      | map(attribute='value') | list)
+     + ([LDAP.USER.OBJECTS.AUXILIARY.INFINITO_MAILBOX_USER] if OPENLDAP_EMAIL_MAILBOX | bool else []) }}
+OPENLDAP_SECONDARY_ADDRESSES: "{{ OPENLDAP_USERS | dict2items | map(attribute='value') | items2dict(key_name='username', value_name='secondary_email') }}"
+OPENLDAP_DIRECTORY_EDITOR_GROUP_DNS:
+  - "cn=web-app-lam-administrator,{{ LDAP.DN.OU.ROLES }}"
+  - "cn=web-app-phpldapadmin-administrator,{{ LDAP.DN.OU.ROLES }}"
 
 OPENLDAP_PYTHON_HEADER_PACKAGE_TEMPLATES_BY_OS_FAMILY:
   Debian:

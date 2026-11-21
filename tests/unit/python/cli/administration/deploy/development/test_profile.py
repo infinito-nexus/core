@@ -2,16 +2,15 @@
 
 from __future__ import annotations
 
-import contextlib
-import io
 import os
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from cli.administration.deploy.development import profile
 from cli.administration.deploy.development.profile import Profile
+from utils.env.handlers.infinito.cache import paths
+from utils.infra import OWNER_NAME
 
 _BLANK_CI_ENV = {
     "GITHUB_ACTIONS": "",
@@ -19,7 +18,6 @@ _BLANK_CI_ENV = {
     "CI": "",
     "INFINITO_INSTANCE": "0",
     "INFINITO_GIT_COMMON_DIR": "",
-    "INFINITO_CACHE_NETWORK": "",
     "INFINITO_CACHE_STACK": "",
     "INFINITO_GHCR_MIRROR": "",
 }
@@ -61,17 +59,7 @@ class TestProfileIsCI(unittest.TestCase):
         self.assertFalse(Profile().is_ci())
 
 
-class _WithoutInfraOwner(unittest.TestCase):
-    def setUp(self) -> None:
-        patcher = patch(
-            "cli.administration.deploy.development.profile.infra_owns_cache",
-            return_value=False,
-        )
-        patcher.start()
-        self.addCleanup(patcher.stop)
-
-
-class TestProfileCacheStackEnabled(_WithoutInfraOwner):
+class TestProfileCacheStackEnabled(unittest.TestCase):
     @patch.dict(os.environ, _BLANK_CI_ENV, clear=False)
     def test_active_locally_when_no_ci_signal_set(self) -> None:
         self.assertTrue(Profile().cache_stack_enabled())
@@ -95,7 +83,7 @@ class TestProfileCacheStackEnabled(_WithoutInfraOwner):
 _ON_CI = {**_BLANK_CI_ENV, "GITHUB_ACTIONS": "true"}
 
 
-class TestProfileDeclaredCapabilities(_WithoutInfraOwner):
+class TestProfileDeclaredCapabilities(unittest.TestCase):
     @patch.dict(os.environ, {**_ON_CI, "INFINITO_CACHE_STACK": "true"}, clear=False)
     def test_declaration_wins_over_the_ci_default(self) -> None:
         p = Profile()
@@ -171,79 +159,18 @@ class TestProfileInstance(unittest.TestCase):
         self.assertEqual(Profile().instance(), 0)
 
 
-class TestProfileOwnsCacheStack(_WithoutInfraOwner):
+class TestProfileHasNoCacheOwner(unittest.TestCase):
+    def test_no_checkout_owns_or_shares_a_cache_stack(self) -> None:
+        self.assertFalse(hasattr(Profile(), "owns_cache_stack"))
+        self.assertFalse(hasattr(Profile(), "shared_cache_network"))
+
     @patch.dict(os.environ, _BLANK_CI_ENV, clear=False)
-    def test_owns_the_stack_when_no_network_was_handed_over(self) -> None:
-        self.assertTrue(Profile().owns_cache_stack())
-
-    @patch.dict(
-        os.environ, {**_BLANK_CI_ENV, "INFINITO_CACHE_NETWORK": "primary_default"}
-    )
-    def test_shares_instead_of_owning_when_a_network_is_named(self) -> None:
-        p = Profile()
-        self.assertFalse(p.owns_cache_stack())
-        self.assertTrue(p.cache_stack_enabled())
-
-    @patch.dict(os.environ, {**_BLANK_CI_ENV, "INFINITO_INSTANCE": "7"}, clear=False)
-    def test_a_stray_slot_alone_does_not_give_the_stack_away(self) -> None:
-        self.assertTrue(Profile().owns_cache_stack())
-
-    @patch.dict(os.environ, {**_BLANK_CI_ENV, "CI": "true"}, clear=False)
-    def test_ci_never_owns_the_stack(self) -> None:
-        self.assertFalse(Profile().owns_cache_stack())
-
-
-class TestProfileInfraOwner(unittest.TestCase):
-    def setUp(self) -> None:
-        tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(tmp.cleanup)
-        self.base = Path(tmp.name)
-        patcher = patch.object(profile.paths, "base", return_value=self.base)
-        patcher.start()
-        self.addCleanup(patcher.stop)
-        profile._NOTICED.clear()
-        self.addCleanup(profile._NOTICED.clear)
-
-    def _mark_owner(self) -> None:
-        (self.base / "infra.owner").write_text("infinito-infra\n", encoding="utf-8")
-
-    def test_infra_owns_cache_follows_the_marker_file(self) -> None:
-        self.assertFalse(profile.infra_owns_cache())
-        self._mark_owner()
-        self.assertTrue(profile.infra_owns_cache())
-
-    def test_a_directory_named_like_the_marker_is_not_the_marker(self) -> None:
-        (self.base / "infra.owner").mkdir()
-        self.assertFalse(profile.infra_owns_cache())
-
-    @patch.dict(os.environ, {**_BLANK_CI_ENV, "INFINITO_CACHE_STACK": "true"})
-    def test_marker_switches_the_stack_off_despite_the_declaration(self) -> None:
-        self._mark_owner()
-        p = Profile()
-        with contextlib.redirect_stderr(io.StringIO()):
-            self.assertFalse(p.cache_stack_enabled())
-            self.assertFalse(p.owns_cache_stack())
-
-    @patch.dict(os.environ, _BLANK_CI_ENV)
-    def test_notice_is_printed_once_per_process(self) -> None:
-        self._mark_owner()
-        stderr = io.StringIO()
-        with contextlib.redirect_stderr(stderr):
-            Profile().cache_stack_enabled()
-            Profile().cache_stack_enabled()
-        self.assertEqual(stderr.getvalue().count("NOTICE"), 1)
-        self.assertIn("infra.owner", stderr.getvalue())
-
-    @patch.dict(os.environ, {**_BLANK_CI_ENV, "INFINITO_CACHE_STACK": "true"})
-    def test_without_the_marker_the_declaration_still_applies(self) -> None:
-        stderr = io.StringIO()
-        with contextlib.redirect_stderr(stderr):
-            self.assertTrue(Profile().cache_stack_enabled())
-        self.assertEqual(stderr.getvalue(), "")
-
-    @patch.dict(os.environ, _BLANK_CI_ENV)
-    def test_without_the_marker_local_default_is_unchanged(self) -> None:
-        self.assertTrue(Profile().cache_stack_enabled())
+    def test_the_infra_owner_marker_keeps_the_infra_runner_on(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            (base / OWNER_NAME).write_text("infinito-infra\n", encoding="utf-8")
+            with patch.object(paths, "base", return_value=base):
+                self.assertTrue(Profile().cache_stack_enabled())
 
 
 if __name__ == "__main__":  # pragma: no cover

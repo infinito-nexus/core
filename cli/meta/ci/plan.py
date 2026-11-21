@@ -147,9 +147,10 @@ def cells(
 
 def _title(plan: list[list[dict[str, str]]], sweep: int) -> str:
     sizes = ", ".join(str(len(chunk)) for chunk in plan) or "-"
+    budget = slots.describe(slots.available())
     return (
         f"sweep {sweep} · chunk size {slots.chunk_size()} "
-        f"· {len(plan)} chunk(s) [{sizes}] · budget {slots.available()}"
+        f"· {len(plan)} chunk(s) [{sizes}] · budget {budget}"
     )
 
 

@@ -1,0 +1,480 @@
+{% set AREAS = {
+  "general": {
+    "label": "General",
+    "when": "changes spanning several areas",
+    "lead": "Briefly describe the change and the effect it has.",
+    "examples": [],
+    "feature": "Adds or extends functionality",
+    "fix": "Repairs broken or incorrect behavior",
+    "affected": "Affected Components",
+    "components": [
+      "Primary role(s), module(s) or file(s):",
+      "Related services, timers, packages, inventories, or workflows:",
+    ],
+    "subset": ["sys-version", "svc-db-postgres"],
+    "details": [
+      "What problem does this solve?",
+      "How does it integrate with the existing stack?",
+      "Were variables, defaults, and shared logic kept DRY?",
+      "Are there migration or compatibility implications?",
+      "Which alternatives were considered?",
+    ],
+    "checks": [
+      ["fresh-deploy", "Fresh deploy or targeted rerun tested"],
+      ["idempotency", "Idempotency verified"],
+      ["tests", "Relevant tests or lints run"],
+    ],
+    "security": "Affected auth, TLS, permissions, secrets, services, or exposed surfaces:",
+    "risk": "Risk reduction, new exposure, migration, or compatibility considerations:",
+    "focus": [
+      "Highest-risk files, roles, or flows:",
+      "Idempotency, compatibility, or rollout concerns:",
+      "Specific feedback requested from reviewers:",
+    ],
+    "notes": "Add any reviewer context for rollout, compatibility, or follow-up work.",
+    "integrations": [],
+    "files": [],
+    "registered": [],
+  },
+  "server": {
+    "label": "Server",
+    "when": "`web-*` roles",
+    "lead": "Briefly describe the `web-*` change and the expected user-facing outcome.",
+    "examples": [
+      "Add a new `web-app-*` role",
+      "Fix a broken login, bootstrap, or integration flow in an existing `web-*` role",
+      "Introduce SSO or mail integration for an existing `web-*` role",
+      "Extend bootstrap or deployment behavior for a server-facing application",
+    ],
+    "feature": "Adds or extends server functionality",
+    "fix": "Repairs broken or incorrect server behavior",
+    "affected": "Affected Roles and Services",
+    "components": [
+      "Primary `web-*` role(s):",
+      "Related `web-svc-*`, `sys-front-*`, `svc-db-*`, auth, mail, proxy, or storage role(s):",
+    ],
+    "subset": ["web-app-nextcloud", "web-app-matomo", "sys-version"],
+    "details": [
+      "What problem does this solve?",
+      "Which upstream image or service version was used or changed?",
+      "How do login, logout, proxying, storage, or mail integration behave after this change?",
+      "Which alternatives were considered?",
+    ],
+    "checks": [
+      ["target", "Deployment target and distro documented"],
+      ["playwright", "Playwright test run documented"],
+      ["login", "Login flow tested"],
+      ["logout", "Logout flow tested"],
+      ["screenshot", "Screenshot attached when the change is user-visible"],
+    ],
+    "security": "Affected auth, TLS, permissions, secrets, headers, or exposed surfaces:",
+    "risk": "Risk reduction, new exposure, or compatibility considerations:",
+    "focus": [
+      "Highest-risk files, roles, or flows:",
+      "Migration, rollback, or security-sensitive concerns:",
+      "Specific feedback requested from reviewers:",
+    ],
+    "notes": "Add any reviewer context that is useful for deployment, rollback, or follow-up work.",
+    "integrations": ["Dashboard", "Matomo", "OIDC", "LDAP", "Logout"],
+    "files": [
+      ["readme", "`README.md`", "Usually", "Documents role-specific usage, setup notes, and contributor context."],
+      ["meta-main", "`meta/main.yml`", "Usually", "Declares Ansible Galaxy info and `dependencies:`. No project-internal `run_after:` / `lifecycle:` (those live on the primary entity in `meta/services.yml`)."],
+      ["vars-main", "`vars/main.yml`", "Usually", "Defines the shared fixed role variables as the main source of truth."],
+      ["meta-services", "`meta/services.yml`", "Usually", "Per-entity service config (file root IS the services map keyed by `<entity_name>`). Holds image/version, `ports.{internal,local,public}`, `run_after`/`lifecycle` on the primary entity, plus inlined per-service settings."],
+      ["meta-server", "`meta/server.yml`", "Usually", "Server-level config (file root IS `applications.<app>.server`). CSP, `domains`, `status_codes`, plus the per-role `networks.local.{subnet,dns_resolver}`."],
+      ["meta-rbac", "`meta/rbac.yml`", "When the role declares RBAC", "RBAC declarations (file root IS `applications.<app>.rbac`)."],
+      ["meta-volumes", "`meta/volumes.yml`", "When the role declares Compose volumes", "Volumes map (file root IS the volumes map; no `compose:`/`volumes:` wrapper)."],
+      ["meta-secrets", "`meta/secrets.yml`", "When the role declares credentials", "Credential schema with optional `default:` field."],
+      ["tasks-main", "`tasks/main.yml`", "Usually", "Acts as the role entry point and includes the main task flow."],
+      ["compose", "`templates/compose.yml.j2`", "For containerized app roles", "Defines the service, volume, environment, port, and network wiring."],
+      ["env", "`templates/env.j2`", "When the app uses environment files", "Renders the app environment configuration."],
+      ["style", "`files/style.css` plus optional `files/logo.css`, or `templates/style.css.j2` when it needs Jinja", "When the role injects custom branding or theming", "Defines the role-local CSS overrides that adapt the UI to the repository design system. See [Contributing `style.css`](../docs/contributing/artefact/files/role/style.css.md)."],
+      ["javascript", "`templates/javascript.js.j2` or `files/javascript.js`", "When the role injects custom frontend behavior", "Defines the role-local JavaScript that adapts UI behavior or integration glue in the browser. See [Contributing `javascript.js`](../docs/contributing/artefact/files/role/javascript.js.md)."],
+      ["meta-users", "`meta/users.yml`", "When the role bootstraps users or identities", "Role-local user definitions (file root IS the users map; no `users:` wrapper)."],
+      ["dockerfile", "`files/Dockerfile`", "When a custom image is required", "Provides a custom image build path. Prefer this over `Dockerfile.j2`."],
+      ["playwright-env", "`templates/playwright.env.j2`", "When Playwright coverage is included", "Configures the Playwright test environment. See [`playwright.env.j2` skill](../agents/skills/i8-file-role-playwright-env/SKILL.md)."],
+      ["playwright-spec", "`files/playwright/playwright.spec.js`", "When Playwright coverage is included", "Defines the Playwright login and logout test flow. See [Contributing `playwright.spec.js`](../docs/contributing/artefact/files/role/playwright.specs.js.md)."],
+    ],
+    "registered": [
+      ["ports", "Per-entity ports in `meta/services.yml.<entity>.ports.{internal,local,public}`", "When the app exposes a service", "Confirms that the app's host-bound ports are declared on the entity that exposes them. Use `cli meta ports suggest` to pick free slots inside the appropriate `PORT_BANDS.<scope>.<category>` from `group_vars/all/08_networks.yml`."],
+      ["subnet", "Per-role subnet in `meta/server.yml.networks.local.subnet`", "When the app communicates over container networks", "Confirms that the role's docker network CIDR is declared. Use `cli meta networks suggest --clients N` to pick a free subnet."],
+    ],
+  },
+  "workstation": {
+    "label": "Workstation",
+    "when": "`dsk-*` roles",
+    "lead": "Briefly describe the `dsk-*` change and the user workflow it affects.",
+    "examples": [
+      "Add a new desktop application role",
+      "Fix broken workstation setup, launch, or package behavior",
+      "Improve package setup for an existing workstation role",
+      "Extend desktop integration, shell tooling, or user defaults",
+    ],
+    "feature": "Adds or extends workstation functionality",
+    "fix": "Repairs broken or incorrect workstation behavior",
+    "affected": "Affected Roles and Platforms",
+    "components": [
+      "Primary `dsk-*` role(s):",
+      "Related `dev-*`, `drv-*`, `user-*`, or `sys-*` role(s):",
+      "Distro(s) and desktop environment(s) tested:",
+    ],
+    "subset": ["dsk-firefox", "sys-version"],
+    "details": [
+      "What user problem does this solve?",
+      "Which package, package source, or integration was added or changed?",
+      "How does this behave on the tested distro(s)?",
+      "Which alternatives were considered?",
+    ],
+    "checks": [
+      ["install", "Installation tested"],
+      ["startup", "Application startup tested"],
+      ["workflow", "Basic workflow tested"],
+      ["screenshot", "Screenshot attached for user-visible changes"],
+    ],
+    "security": "Affected permissions, package trust, secrets, or exposed surfaces:",
+    "risk": "Risk reduction, new exposure, or compatibility considerations:",
+    "focus": [
+      "Highest-risk files, roles, or flows:",
+      "Distro-specific or packaging concerns:",
+      "Specific feedback requested from reviewers:",
+    ],
+    "notes": "Add any reviewer context for packages, distro-specific behavior, or follow-up work.",
+    "integrations": [],
+    "files": [],
+    "registered": [],
+  },
+  "system": {
+    "label": "System",
+    "when": "`sys-*`, `svc-*`, `dev-*`, `drv-*`, `pkgmgr`, `update-*`, or `user-*`",
+    "lead": "Briefly describe the system-level change.",
+    "examples": [
+      "Add a new `sys-*`, `svc-*`, `dev-*`, `drv-*`, `pkgmgr`, `update-*`, or `user-*` capability",
+      "Fix broken shared infrastructure, package, service, or automation behavior",
+      "Extend a shared service, package, timer, or maintenance workflow",
+      "Introduce a new infrastructure, shared abstraction, or automation building block",
+    ],
+    "feature": "Adds or extends shared system functionality",
+    "fix": "Repairs broken or incorrect shared system behavior",
+    "affected": "Affected Components",
+    "components": [
+      "Primary role(s) or module(s):",
+      "Related services, timers, packages, inventories, or workflows:",
+      "Distro(s) tested:",
+    ],
+    "subset": ["sys-version", "svc-db-postgres"],
+    "details": [
+      "What capability was introduced?",
+      "How does this integrate with the existing stack?",
+      "Were variables, defaults, and shared logic kept DRY?",
+      "Are there architecture, migration, or compatibility implications?",
+      "Which alternatives were considered?",
+    ],
+    "checks": [
+      ["fresh-deploy", "Fresh deploy or targeted rerun tested"],
+      ["idempotency", "Idempotency verified"],
+      ["health", "Service health, timers, or package behavior verified"],
+      ["cross-distro", "Cross-distro notes documented"],
+    ],
+    "security": "Affected auth, TLS, permissions, secrets, services, or exposed surfaces:",
+    "risk": "Risk reduction, new exposure, migration, or compatibility considerations:",
+    "focus": [
+      "Highest-risk files, roles, or flows:",
+      "Idempotency, compatibility, or rollout concerns:",
+      "Specific feedback requested from reviewers:",
+    ],
+    "notes": "Add any reviewer context for rollout, compatibility, or operational follow-up.",
+    "integrations": [],
+    "files": [],
+    "registered": [],
+  },
+  "pipeline": {
+    "label": "Pipeline",
+    "when": "CI/CD and workflows",
+    "lead": "Briefly describe the CI/CD or pipeline change and the expected effect.",
+    "examples": [
+      "Add a new workflow or reusable workflow",
+      "Fix flaky CI, release, or image automation behavior",
+      "Improve workflow permissions, observability, or execution flow",
+    ],
+    "feature": "Adds or extends CI/CD functionality",
+    "fix": "Repairs broken or incorrect CI/CD behavior",
+    "affected": "Affected Components",
+    "components": [
+      "Workflow file(s):",
+      "Related scripts, actions, jobs, or images:",
+      "Fork, PR, release, or scheduled paths affected:",
+    ],
+    "subset": ["web-app-nextcloud", "sys-version"],
+    "details": [
+      "What pipeline problem or capability does this address?",
+      "How do triggers, permissions, concurrency, or artifacts behave after this change?",
+      "Are fork, secret, or release paths affected?",
+      "Which alternatives were considered?",
+    ],
+    "checks": [
+      ["script", "Local or targeted script validation performed"],
+      ["fork-run", "Workflow run in fork or equivalent validation"],
+      ["logs", "Relevant logs or run links attached"],
+      ["failure-path", "Failure-path or retry behavior checked"],
+    ],
+    "security": "Affected permissions, secrets, tokens, artifacts, or release surfaces:",
+    "risk": "Risk reduction, new exposure, fork-safety, or compatibility considerations:",
+    "focus": [
+      "Highest-risk workflows, jobs, or scripts:",
+      "Permissions, fork-safety, release, or security-sensitive concerns:",
+      "Specific feedback requested from reviewers:",
+    ],
+    "notes": "Add any reviewer context for rollout, fork behavior, release impact, or follow-up work.",
+    "integrations": [],
+    "files": [],
+    "registered": [],
+  },
+  "agents": {
+    "label": "Agents",
+    "when": "only `AGENTS.md` or `agents/*`",
+    "lead": "Briefly describe the change to the agent instruction files and the expected effect.",
+    "examples": [
+      "Add a new repository rule to `AGENTS.md`",
+      "Fix contradictory guidance between `AGENTS.md` and `agents/*`",
+      "Improve instruction clarity for `AGENTS.md`",
+    ],
+    "feature": "Adds or extends agent guidance or workflow support",
+    "fix": "Repairs incorrect, unclear, or conflicting agent guidance",
+    "affected": "Affected Files",
+    "components": [
+      "`AGENTS.md`:",
+      "`roles/<role>/AGENTS.md`:",
+      "`agents/*`:",
+      "Any other related instruction or documentation files:",
+    ],
+    "subset": none,
+    "details": [
+      "What instruction, workflow, or policy changed?",
+      "Why is this guidance needed or why was the previous guidance insufficient?",
+      "How does this interact with `AGENTS.md` as the repository-wide source of truth?",
+      "Which alternatives were considered?",
+    ],
+    "checks": [
+      ["conflicts", "Conflicting or ambiguous guidance checked"],
+      ["consistency", "Consistency between `AGENTS.md`, `roles/<role>/AGENTS.md`, and `agents/*` verified"],
+      ["paths", "Examples, workflows, or affected contributor paths reviewed"],
+    ],
+    "security": "Affected permissions, destructive actions, secrets, or safety guardrails:",
+    "risk": "Risk reduction, new exposure, or compatibility considerations:",
+    "focus": [
+      "Highest-risk instructions, assumptions, or policy changes:",
+      "Cross-file consistency or contradiction concerns:",
+      "Specific feedback requested from reviewers:",
+    ],
+    "notes": "Add any reviewer context for rollout, policy interpretation, or follow-up work.",
+    "integrations": [],
+    "files": [],
+    "registered": [],
+  },
+  "documentation": {
+    "label": "Documentation",
+    "when": "only `.md` or `.rst` files outside `AGENTS.md` and `agents/*`",
+    "lead": "Briefly describe the documentation-only change and the expected benefit.",
+    "examples": [
+      "Add missing setup instructions",
+      "Fix incorrect or outdated documentation",
+      "Restructure guides for better discoverability",
+    ],
+    "feature": "Adds or extends documentation content",
+    "fix": "Repairs incorrect, outdated, or unclear documentation",
+    "affected": "Affected Documentation",
+    "components": [
+      "Main files or sections changed:",
+      "Target audience: developer, administrator, user, contributor, or reviewer",
+      "Related code, workflow, or feature areas:",
+    ],
+    "subset": none,
+    "details": [
+      "What information was added, removed, corrected, or reorganized?",
+      "What problem in the previous documentation does this solve?",
+      "Does this change affect contributor, operator, or user behavior?",
+      "Which alternatives were considered?",
+    ],
+    "checks": [
+      ["accuracy", "Technical accuracy checked against the current implementation"],
+      ["wording", "Broken wording, stale steps, or missing context reviewed"],
+      ["links", "Links, paths, commands, or references verified"],
+    ],
+    "security": "Affected permissions, secrets, safety guidance, or exposed surfaces:",
+    "risk": "Risk reduction, new exposure, or compatibility considerations:",
+    "focus": [
+      "Highest-risk statements, commands, or assumptions:",
+      "Accuracy, clarity, or audience-fit concerns:",
+      "Specific feedback requested from reviewers:",
+    ],
+    "notes": "Add any reviewer context for follow-up docs work, migration notes, or open questions.",
+    "integrations": [],
+    "files": [],
+    "registered": [],
+  },
+} %}
+{% macro box(on) %}[{{ "x" if on else " " }}]{% endmacro %}
+{% macro file_rows(rows, selected, root) %}
+| Check | Item | When to include | Purpose |
+|---|---|---|---|
+{% for id, item, when, purpose in rows %}
+| {{ box(id in selected) }} | {{ item }} | {{ when }} | {{ purpose | replace("](../", "](" ~ root) }} |
+{% endfor %}
+{% endmacro %}
+{% set area = AREAS[scope] %}
+{% set human = audience == "human" %}
+{% set root = "../../" if human and scope != "general" else "../" %}
+{% if human and scope == "general" %}
+# Pull Request
+
+GitHub offers no template chooser for pull requests. Pick the template of your change: append its parameter to this page's address and reload, for example `?quick_pull=1&template=server.md`.
+
+| Parameter | Change |
+|---|---|
+{% for key, entry in AREAS.items() if key != "general" %}
+| `template={{ key }}.md` | {{ entry.label }}: {{ entry.when }} |
+{% endfor %}
+
+{# nocheck: software-identity external Matrix room id survives a rename #}
+Need help? [Support and Contact](../SUPPORT.md) · Matrix: `#public:infinito.nexus`
+{% else %}
+# {{ title if title is not none else area.label ~ " Pull Request" }}
+{% if not human %}
+
+Area: {{ area.label }} ({{ area.when }})
+{% endif %}
+
+## Summary
+
+{% if summary is not none %}
+{{ summary }}
+{% else %}
+{{ area.lead }}
+{% if area.examples %}
+
+Examples:
+
+{% for example in area.examples %}
+- {{ example }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% if closes %}
+
+{% for number in closes %}
+Closes #{{ number }}
+{% endfor %}
+{% endif %}
+
+## Change Type
+
+Intent:
+
+- {{ box(intent == "feature") }} **Feature** - {{ area.feature }}
+- {{ box(intent == "fix") }} **Fix** - {{ area.fix }}
+
+Semantic version impact:
+
+- {{ box(semver == "major") }} **Major** - Breaking change
+- {{ box(semver == "minor") }} **Minor** - New backwards-compatible feature
+- {{ box(semver == "patch") }} **Patch** - Small improvement or compatible adjustment
+
+## {{ area.affected }}
+
+{% for item in (components if components else area.components) %}
+- {{ item }}
+{% endfor %}
+{% if area.integrations %}
+
+### Preferred Integrations
+
+Integrate the change into these services when possible:
+
+{% for name in area.integrations %}
+- {{ box(name in integrations) }} {{ name }}
+{% endfor %}
+{% endif %}
+{% if area.subset is not none %}
+
+## Roles (optional `🧩 Subset` CI scope)
+
+Read only when a maintainer applies the **🧩 Subset** label: CI then deploys exactly these roles instead of the diff-derived set, and each MUST be an existing `roles/<id>` directory. See [pipeline.md]({{ root }}docs/contributing/artefact/git/pipeline.md#subset-label-).
+
+```yaml
+roles:
+{% for role in roles %}
+  - {{ role }}
+{% else %}
+{% for role in area.subset %}
+  # - {{ role }}
+{% endfor %}
+{% endfor %}
+```
+{% endif %}
+
+## Change Details
+
+{% if details is not none %}
+{{ details }}
+{% else %}
+Explain what changed and why, covering:
+
+{% for point in area.details %}
+- {{ point }}
+{% endfor %}
+{% endif %}
+
+## Validation
+
+{% for id, label in area.checks %}
+- {{ box(id in checks) }} {{ label }}
+{% endfor %}
+- {{ box(dod) }} The Definition of Done and [CONTRIBUTING.md]({{ root }}CONTRIBUTING.md) were applied
+
+### Test Evidence
+
+{{ evidence if evidence is not none else "List the commands that were run and their results." }}
+{% if area.files %}
+
+### File Checklist
+
+Check the relevant rows and explain intentional omissions in `Additional Notes`.
+
+{{ file_rows(area.files, files, root) }}
+#### Registered
+
+{{ file_rows(area.registered, files, root) }}
+{%- endif %}
+{% if score_table is not none %}
+
+## Score
+
+{{ score_table }}
+{% endif %}
+
+## Security Impact
+
+- {{ box(security_impact == false) }} No relevant security impact
+- {{ box(security_impact == true) }} Security impact present
+{% if security_notes is not none %}
+
+{{ security_notes }}
+{% elif security_impact is none %}
+
+If security impact is present, explain:
+
+- {{ area.security }}
+- {{ area.risk }}
+- Security-specific validation performed:
+{% endif %}
+
+## Review Focus
+
+{% for item in (review_focus if review_focus else area.focus) %}
+- {{ item }}
+{% endfor %}
+
+## Additional Notes
+
+{{ notes if notes is not none else area.notes }}
+{% endif %}

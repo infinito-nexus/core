@@ -40,6 +40,11 @@
       enabled: true
 
 - services:
+    weblate:
+      login:
+        method:
+          2fa:
+            enforced: false
     docs:
       enabled: true
       shared: true

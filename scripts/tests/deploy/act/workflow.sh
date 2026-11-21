@@ -16,6 +16,14 @@ set -euo pipefail
 : "${ACT_ENV:=}"
 : "${INFINITO_VULNERABILITY_DB_HOST_PATH:?INFINITO_VULNERABILITY_DB_HOST_PATH is not set; run 'make dotenv' to generate the .env single source of truth}"
 
+_act_shared_cache=""
+if [[ -n "${INFINITO_CACHE_SHARED_HOST_PATH:-}" ]] &&
+	"${PYTHON:?source scripts/meta/env/load.sh or invoke via make}" -m cli.administration.infra docker inspect \
+		"$("${PYTHON}" -m cli.administration.infra cache-name frontend)" >/dev/null 2>&1; then
+	_act_shared_cache="${INFINITO_CACHE_SHARED_HOST_PATH}"
+	ACT_CONTAINER_OPTIONS+=" -v '${_act_shared_cache}:${_act_shared_cache}'"
+fi
+
 if [[ "${ACT_PLATFORM_IMAGE}" == local/act-runner-fixed:latest ]] &&
 	! docker image inspect "${ACT_PLATFORM_IMAGE}" >/dev/null 2>&1; then
 	bash "$(dirname "${BASH_SOURCE[0]}")/build_runner_image.sh"
@@ -36,8 +44,7 @@ fi
 echo "=== act: workflow=${ACT_WORKFLOW} event=${ACT_EVENT} job=${ACT_JOB:-<all>} matrix=${ACT_MATRIX:-<none>} inputs=${ACT_INPUTS:-<none>} ==="
 
 # TODO: drop this sanitize step once act's schema knows `queue` --
-# report https://github.com/nektos/act/issues/6095,
-# fix in review https://github.com/nektos/act/pull/6152.
+# upstream: https://github.com/nektos/act/pull/6152
 _act_queue_re='^[[:space:]]*queue:[[:space:]]*(single|max)[[:space:]]*$'
 _act_sanitized="$(mktemp -d)"
 trap 'rm -rf "${_act_sanitized}"' EXIT
@@ -48,6 +55,11 @@ if [[ -d "${ACT_WORKFLOW}" ]]; then
 		-exec sed -i -E "/${_act_queue_re}/d" {} +
 else
 	grep -vE "${_act_queue_re}" "${ACT_WORKFLOW}" >"${_act_workflow}"
+fi
+_act_pip_cache_re="^([[:space:]]*cache:[[:space:]]*)[\"']?pip[\"']?[[:space:]]*$"
+if [[ -n "${_act_shared_cache}" ]]; then
+	find "${_act_sanitized}" -type f -name '*.y*ml' \
+		-exec sed -i -E "s/${_act_pip_cache_re}/\\1\"\"/" {} +
 fi
 
 cmd=(act "${ACT_EVENT}" -W "${_act_workflow}")
@@ -82,6 +94,9 @@ if [[ -n "${ACT_ENV}" ]]; then
 			cmd+=(--env "${pair}")
 		fi
 	done
+fi
+if [[ -n "${_act_shared_cache}" ]]; then
+	cmd+=(--env "PIP_CACHE_DIR=${_act_shared_cache}/pip")
 fi
 mkdir -p "${INFINITO_VULNERABILITY_DB_HOST_PATH}"
 cmd+=(--container-options "${ACT_CONTAINER_OPTIONS} --volume ${INFINITO_VULNERABILITY_DB_HOST_PATH}:${INFINITO_VULNERABILITY_DB_HOST_PATH}")

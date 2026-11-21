@@ -1,5 +1,4 @@
 import unittest
-from pathlib import Path
 
 from utils.cache.files import read_text
 from utils.roles.applications.services.registry import (
@@ -7,7 +6,6 @@ from utils.roles.applications.services.registry import (
     load_applications_from_roles_dir,
     ordered_primary_service_entries,
 )
-from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
 
 from . import PROJECT_ROOT
 
@@ -52,23 +50,15 @@ class TestFrontendServiceSpot(unittest.TestCase):
         self.assertLess(
             self._index("web-app-stalwart"), self._index("web-app-keycloak")
         )
-        self.assertLess(self._index("web-app-mailu"), self._index("web-app-keycloak"))
+        self.assertLess(self._index("web-app-email"), self._index("web-app-keycloak"))
 
     def test_front_proxy_falls_back_to_canonical_port_and_domain(self):
-        content = read_text(
-            str(Path(f"roles/sys-stk-front-proxy/{ROLE_FILE_TASKS_MAIN}"))
-        )
+        tasks = self.roles_dir / "svc-stack" / "tasks"
+        vhost = read_text(str(tasks / "proxy" / "domain.yml"))
+        self.assertIn("lookup('config', front_proxy_application_id,", vhost)
+        self.assertIn(".ports.local.http", vhost)
         self.assertIn(
-            "lookup('config', application_id,",
-            content,
-        )
-        self.assertIn(
-            ".ports.local.http",
-            content,
-        )
-        self.assertIn(
-            "domain | default(lookup('domain', application_id))",
-            content,
+            "lookup('domain', application_id)", read_text(str(tasks / "proxy.yml"))
         )
 
 

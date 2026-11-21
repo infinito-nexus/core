@@ -12,9 +12,10 @@
         LIBRETRANSLATE_LOAD_ONLY: "{{ LIBRETRANSLATE_LOAD_ONLY }}"
         LIBRETRANSLATE_DIRECTIONS: "{{ LIBRETRANSLATE_DIRECTIONS }}"
         APP_USER: "{{ LIBRETRANSLATE_APP_USER }}"
+        LIBRETRANSLATE_BAKE_MODELS: "{{ LIBRETRANSLATE_BAKE_MODELS }}"
     {{ lookup('container_image', application_id, 'libretranslate') }}
     {{ lookup('compose_only', 'container_name', LIBRETRANSLATE_CONTAINER_ADDRESS) }}
-    volumes: []
+    volumes: {{ LIBRETRANSLATE_STORE_MOUNTS | to_json }}
     {{ lookup('container_ports', ['libretranslate', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}

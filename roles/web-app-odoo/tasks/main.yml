@@ -1,12 +1,4 @@
 ---
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-    webserver_vhost_flavour: "ws_generic"
-    webserver_websocket_location: "/websocket"
-
 - name: "📦 Stage the pip requirements into the build context of '{{ application_id }}'"
   stack_host_copy:
     src: "pip/"

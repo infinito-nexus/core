@@ -66,7 +66,7 @@ ROLES: dict[str, dict[str, object]] = {
                 },
             },
             {
-                "name": "Serve a vhost the way sys-stk-front-proxy does",
+                "name": "Serve a vhost the way svc-stack does",
                 "ansible.builtin.include_role": {"name": "probe-front-proxy"},
             },
         ],
@@ -126,7 +126,7 @@ def _play(mode: str, resolver: Path, work: Path) -> dict:
             "IS_COMPOSE_MODE": not swarm,
             "IS_SWARM_MODE": swarm,
             "IS_STACK_HOST": False,
-            "MODE_DEBUG": swarm,
+            "DEBUG": swarm,
             "STACK_HOST": "localhost",
             "BIN_RESOLVE_CONTAINER_ID": str(resolver),
             "notify_restart": swarm,

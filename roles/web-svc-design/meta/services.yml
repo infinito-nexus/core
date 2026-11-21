@@ -1,4 +1,6 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
+# nocheck: openresty-vhost  web-opt-rdr-domains redirects the domain to web-svc-cdn, the stack renders no vhost for it
 # nocheck: playwright-service-flag — self-provider
 design:
   modes:
@@ -46,6 +48,13 @@ cdn:
   shared: true
 # nocheck: playwright-service-flag — provider role; no consumer surface to gate
 # nocheck: dynamic-flag
+# nocheck: shared-provider a custom role pulled from its own repository registers the key; without it the key resolves to no role and nothing changes
+cosmos:
+  bond: 0.5
+  enabled: true
+  shared: true
+# nocheck: playwright-service-flag — provider role; no consumer surface to gate
+# nocheck: dynamic-flag
 matomo:
   enabled: false
   shared: false
@@ -67,3 +76,11 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  the role runs no container, so Semaphore has nothing to pause
+  status: started

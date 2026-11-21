@@ -321,7 +321,8 @@ def _restore(argv: list[str], password: str) -> str:
     Args:
         argv: one baudolo-restore call carrying ``--db-password-stdin``.
         password: sent on stdin followed by one newline, which
-            ``--db-password-stdin`` strips again.
+            ``--db-password-stdin`` strips again, so a password that itself
+            ends in a newline stays intact.
 
     Returns:
         The call's output.

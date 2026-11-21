@@ -22,3 +22,4 @@ The purpose of this role is to provide an effortless way to deploy a central Ela
 - **Per-Consumer Isolation:** Each consumer gets a role and user scoped to its own `<entity>-*` index namespace.
 - **Enhanced Security:** The service is bound to `127.0.0.1:9200`, restricting access and enhancing security.
 - **Seamless Docker Integration:** Works harmoniously with Docker Compose and other roles in your infrastructure.
+- **Memory-map floor:** hands `vm.max_map_count: 262144` (`ELASTICSEARCH_SYSCTL_PARAMETERS`) to [sys-sysctl](../sys-sysctl/), which persists it in `/etc/sysctl.d/99-elasticsearch.conf`; the key is host-global, so it is skipped inside a container.

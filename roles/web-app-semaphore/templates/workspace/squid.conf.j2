@@ -1,0 +1,23 @@
+{# Param semaphore_workspace_platform: [{host, port}] of Semaphore, Gitea and OpenBao on their front-proxy ports. #}
+{# Param semaphore_workspace_targets: WORKSPACE_TARGETS as workspace.py pinned them, [{host, port, address}]. #}
+{# Param semaphore_workspace_closed: the networks and host addresses no target reaches. #}
+http_port 3128
+hosts_file {{ SEMAPHORE_EGRESS_HOSTS_FILE }}
+cache deny all
+access_log stdio:/dev/stdout
+cache_log stdio:/dev/stderr
+pid_filename /run/squid.pid
+acl CONNECT method CONNECT
+{% for pair in semaphore_workspace_platform %}
+acl platform_{{ loop.index }}_host dstdomain {{ pair.host }}
+acl platform_{{ loop.index }}_port port {{ pair.port | int }}
+http_access allow CONNECT platform_{{ loop.index }}_host platform_{{ loop.index }}_port
+{% endfor %}
+acl closed dst {{ semaphore_workspace_closed | join(' ') }}
+http_access deny closed
+{% for target in semaphore_workspace_targets %}
+acl target_{{ loop.index }}_address dst {{ target.address }}
+acl target_{{ loop.index }}_port port {{ target.port | int }}
+http_access allow CONNECT target_{{ loop.index }}_address target_{{ loop.index }}_port
+{% endfor %}
+http_access deny all

@@ -1,0 +1,30 @@
+---
+- name: "🪪 Refresh the LDAP attributes and addresses of the Nextcloud accounts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ (NEXTCLOUD_USER_LDAP_ENABLED | bool) and ('svc-db-openldap' in group_names) }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: ["@users"]
+    rbac_sync_service_key: "{{ NEXTCLOUD_SERVICE }}"
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ NEXTCLOUD_CONTAINER }}"
+    rbac_sync_kind: host
+    rbac_sync_user: ""
+    rbac_sync_argv: []
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/ldap_refresh.py') }}"
+    rbac_sync_modules:
+      - { name: ldap_user_mapping.php, content: "{{ lookup('file', role_path ~ '/files/php/utils/ldap_user_mapping.php') }}" }
+    rbac_sync_attributes:
+      - "{{ LDAP.USER.ATTRIBUTES.STREET }}"
+      - "{{ LDAP.USER.ATTRIBUTES.POSTAL_CODE }}"
+      - "{{ LDAP.USER.ATTRIBUTES.LOCALITY }}"
+      - "{{ LDAP.USER.ATTRIBUTES.REGION }}"
+      - "{{ LDAP.USER.ATTRIBUTES.COUNTRY }}"
+    rbac_sync_env:
+      NEXTCLOUD_USER: "{{ NEXTCLOUD_DOCKER_USER }}"
+      NEXTCLOUD_OCC: "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
+      NEXTCLOUD_ADDRESS_ATTRIBUTES: "{{ rbac_sync_attributes | to_json }}"
+      NEXTCLOUD_LDAP_USER_LISTING: "{{ 'true' if (lookup('config', application_id, 'addons.user_ldap.config.user_directory.enabled') | bool) else 'false' }}"
+    rbac_sync_members_env: []

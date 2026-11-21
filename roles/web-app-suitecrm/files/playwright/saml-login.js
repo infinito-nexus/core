@@ -1,6 +1,78 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { gotoOnion, performKeycloakLoginForm } = require("./personas");
+const {
+  decodeDotenvQuotedValue,
+  gotoOnion,
+  keycloakAdminAddUserToGroup,
+  keycloakRemoveUserFromGroupViaRest,
+  normalizeBaseUrl,
+  performKeycloakLoginForm,
+} = require("./personas");
+
+const keycloak = {
+  baseUrl: normalizeBaseUrl(process.env.KEYCLOAK_BASE_URL || ""),
+  realm: decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME || ""),
+  username: decodeDotenvQuotedValue(process.env.SUPER_ADMIN_USERNAME || ""),
+  password: decodeDotenvQuotedValue(process.env.SUPER_ADMIN_PASSWORD || ""),
+};
+
+const rbacGroups = {
+  administrator: decodeDotenvQuotedValue(process.env.RBAC_ADMINISTRATOR_GROUP_PATH || ""),
+  user: decodeDotenvQuotedValue(process.env.RBAC_USER_GROUP_PATH || ""),
+};
+
+/**
+ * Keep a Keycloak user in role groups for the duration of `body`, then take it out again.
+ *
+ * Args:
+ *   browser: Playwright browser, used for an isolated admin REST context.
+ *   username: Keycloak user name to add to the groups.
+ *   groupPaths: group paths with a leading slash, e.g. RBAC_USER_GROUP_PATH.
+ *   body: async callback receiving `leave(groupPath)`, which takes the user out of one group early.
+ */
+async function withUserInGroups(browser, username, groupPaths, body) {
+  for (const groupPath of groupPaths) {
+    expect(groupPath, "the RBAC group path must be rendered").toBeTruthy();
+  }
+  expect(keycloak.baseUrl && keycloak.realm && keycloak.username && keycloak.password, "the Keycloak admin credentials must be rendered").toBeTruthy();
+  const admin = await browser.newContext({ ignoreHTTPSErrors: true });
+  const joined = new Set();
+  const leave = async (groupPath) => {
+    await keycloakRemoveUserFromGroupViaRest(
+      admin.request,
+      keycloak.baseUrl,
+      keycloak.realm,
+      keycloak.username,
+      keycloak.password,
+      groupPath,
+      username,
+    );
+    joined.delete(groupPath);
+  };
+  try {
+    for (const groupPath of groupPaths) {
+      if (
+        await keycloakAdminAddUserToGroup(
+          admin.request,
+          keycloak.baseUrl,
+          keycloak.realm,
+          groupPath,
+          username,
+          keycloak.username,
+          keycloak.password,
+        )
+      ) {
+        joined.add(groupPath);
+      }
+    }
+    await body(leave, admin.request);
+  } finally {
+    for (const groupPath of [...joined]) {
+      await leave(groupPath).catch((err) => console.warn(`Cleanup removal of ${username} from ${groupPath} failed: ${err}`));
+    }
+    await admin.close().catch(() => {});
+  }
+}
 
 /**
  * Hand the unauthenticated app over to Keycloak and submit the Keycloak form.
@@ -98,4 +170,33 @@ async function samlLoginTo(page, appBaseUrl, username, password, url) {
   return sessionStatus(page, appBaseUrl);
 }
 
-module.exports = { samlLogin, samlLoginTo };
+/**
+ * Args:
+ *   page: Playwright page holding a SuiteCRM session.
+ *   appBaseUrl: base URL of SuiteCRM without a trailing slash.
+ *
+ * Returns true when the legacy Administration panel renders its System Settings entry, false
+ * when SuiteCRM refuses the module with "You do not have permission to access this module".
+ */
+async function holdsAdministration(page, appBaseUrl) {
+  const response = await page.request.get(`${appBaseUrl}/legacy/index.php?module=Administration&action=index`, {
+    timeout: resolveTimeout(60_000),
+  });
+  expect(response.status(), "the legacy Administration module must answer").toBeLessThan(500);
+  const body = await response.text();
+  const refused = /You do not have permission to access this module/i.test(body);
+  const panel = /id=['"]configphp_settings['"]/i.test(body);
+  expect(refused !== panel, "the Administration response must be either the panel or the refusal").toBe(true);
+  return panel;
+}
+
+module.exports = {
+  holdsAdministration,
+  keycloak,
+  postAssertion,
+  rbacGroups,
+  samlLogin,
+  samlLoginTo,
+  sessionStatus,
+  withUserInGroups,
+};

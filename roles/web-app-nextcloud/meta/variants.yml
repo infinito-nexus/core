@@ -105,6 +105,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -246,6 +249,9 @@
       shared: true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -340,6 +346,9 @@
       shared: true
     litellm:
       enabled: false
+    speech:
+      enabled: true
+      shared: true
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -434,6 +443,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -528,6 +540,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: true
       shared: true
@@ -622,6 +637,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -716,6 +734,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -810,6 +831,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -827,6 +851,11 @@
   addons: *addons_static_off
 # Variant 8: peertube - clearnet, because the OIDC plugin rejects a plaintext onion issuer
 - services:
+    nextcloud:
+      login:
+        method:
+          2fa:
+            enforced: false
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -904,6 +933,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -998,6 +1030,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1092,6 +1127,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1109,6 +1147,11 @@
   addons: *addons_static_off
 # Variant 11: bigbluebutton - clearnet, because bigbluebutton rides no node onion
 - services:
+    nextcloud:
+      login:
+        method:
+          2fa:
+            enforced: false
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1186,6 +1229,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1280,6 +1326,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1295,7 +1344,7 @@
       enabled: false
       shared: false
   addons: *addons_static_off
-# Variant 13: litellm
+# Variant 13: litellm, signed in through user_oidc and Nextcloud's own Keycloak client
 - services:
     container_backup:
       enabled: false
@@ -1303,6 +1352,8 @@
     sso:
       enabled: true
       shared: true
+      oidc:
+        plugin: user_oidc
     coturn:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1374,6 +1425,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: true
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1391,6 +1445,11 @@
   addons: *addons_static_off
 # Variant 14: docs - the README replay alone, because together with a partner it outruns the job budget
 - services:
+    nextcloud:
+      login:
+        method:
+          2fa:
+            enforced: false
     docs:
       enabled: true
       shared: true
@@ -1471,6 +1530,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1489,6 +1551,11 @@
   addons: *addons_static_off
 # Variant 15: the static addons, moved off variant 0 because together with the baseline they outrun the job budget
 - services:
+    nextcloud:
+      login:
+        method:
+          2fa:
+            enforced: false
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1566,6 +1633,9 @@
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
       enabled: false
+    speech:
+      enabled: false
+      shared: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

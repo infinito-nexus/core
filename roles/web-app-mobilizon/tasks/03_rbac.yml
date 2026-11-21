@@ -1,0 +1,26 @@
+---
+- name: "🛂 MOBILIZON | Converge the roles of the Keycloak accounts on the role groups"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ MOBILIZON_OIDC_ENABLED | bool }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: [administrator, moderator]
+    rbac_sync_service_key: mobilizon
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ mobilizon_container }}"
+    rbac_sync_kind: host
+    rbac_sync_user: ""
+    rbac_sync_argv: []
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/rbac_sync.py') }}"
+    rbac_sync_modules:
+      - { name: rbac.exs, content: "{{ lookup('file', role_path ~ '/files/elixir/rbac.exs') }}" }
+    rbac_sync_env:
+      MOBILIZON_CLI: /bin/mobilizon
+      MOBILIZON_RBAC_BOOTSTRAP: "{{ lookup('users', 'platform_administrator').email }}"
+      MOBILIZON_RBAC_PROVIDER: "{{ MOBILIZON_OIDC_PROVIDER }}"
+    rbac_sync_attributes: []
+    rbac_sync_members_env:
+      - { name: RBAC_ADMINISTRATORS, role: administrator, field: email }
+      - { name: RBAC_MODERATORS, role: moderator, field: email }

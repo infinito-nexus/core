@@ -24,18 +24,20 @@ database:
     cp_min: 5
     cp_max: {{ POSTGRES_ALLOWED_AVG_CONNECTIONS }}
 log_config:                     "{{ MATRIX_SYNAPSE_LOG_PATH_CONTAINER }}"
-media_store_path:               "/data/media_store"
+media_store_path:               "{{ MATRIX_SYNAPSE_MEDIA_STORE_PATH }}"
 registration_shared_secret:     "{{ MATRIX_REGISTRATION_SHARED_SECRET }}"
 report_stats:                   true
 enable_metrics:                 {{ lookup('config', application_id, 'services.prometheus.native_metrics.enabled', False) | bool | lower }}
 macaroon_secret_key:            "{{ lookup('config', application_id, 'secrets.credentials.macaroon_secret_key') }}"
 form_secret:                    "{{ lookup('config', application_id, 'secrets.credentials.form_secret') }}"
-signing_key_path:               "/data/{{ MATRIX_SYNAPSE_DOMAIN }}.signing.key"
+signing_key_path:               "{{ MATRIX_SYNAPSE_SIGNING_KEY_PATH }}"
 web_client_location:            "{{ lookup('tls', application_id, 'protocols.web') }}://{{ lookup('domains', application_id).element }}"
 public_baseurl:                 "{{ MATRIX_SYNAPSE_URL }}"
 trusted_key_servers:
   - server_name: "matrix.org"
 admin_contact: 'mailto:{{ lookup('users', 'platform_administrator').email }}'
+enable_registration: {{ MATRIX_LOGIN_REGISTRATION | bool | lower }}
+registrations_require_3pid: {{ (['email'] if MATRIX_LOGIN_REGISTRATION | bool else []) | to_json }}
 
 rc_joins:
   local:
@@ -80,15 +82,18 @@ oidc_providers:
 {% if MATRIX_OIDC_HOST_IS_ONION | bool %}
     skip_verification: true
 {% endif %}
-    client_id:      "{{ OIDC.CLIENT.ID }}"
+    client_id:      "{{ MATRIX_OIDC_CLIENT_ID }}"
     client_secret:  "{{ OIDC.CLIENT.SECRET }}"
-    scopes: ["openid", "profile"]
+    scopes: ["openid", "profile", "email"]
     allow_existing_users: true
     user_mapping_provider:
       config:
         localpart_template: "{% raw %}{{ user.{% endraw %}{{ OIDC.ATTRIBUTES.USERNAME }}{% raw %}}}{% endraw %}"
-        display_name_template: "{% raw %}{{ user.name }}{% endraw %}"
+        display_name_template: "{% raw %}{{ user.{% endraw %}{{ OIDC.ATTRIBUTES.NAME }}{% raw %}}}{% endraw %}"
+        email_template: "{% raw %}{{ user.{% endraw %}{{ OIDC.ATTRIBUTES.EMAIL }}{% raw %}}}{% endraw %}"
     backchannel_logout_enabled: true
+sso:
+  update_profile_information: true
 {% endif %}
 
 {% if MATRIX_BRIDGES | length > 0 %}

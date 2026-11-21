@@ -2,4 +2,23 @@
 {% set _logout_label = (LOGOUT_INSTANCES | selectattr('network', 'equalto', domain | network_of) | first).label %}
 {% set http_port = lookup('config', application_id, 'services.logout.ports.local.' ~ ('http' | labelled(_logout_label, '_'))) %}
 {% set proxy_service_key = 'logout' | labelled(_logout_label, '-') %}
+{% set webserver_extra_configuration %}
+sub_filter '{{ LOGOUT_CONDUCTOR_BOOTSTRAP_UPSTREAM }}' '{{ lookup('asset', application_id, 'bootstrap', '') }}';
+sub_filter_once off;
+
+location ^~ /backchannel/ {
+    limit_except POST {
+        deny all;
+    }
+    client_max_body_size 16k;
+    {{ lookup('proxy_pass', application_id, proxy_service_key, 'http', local_port=http_port, internal_port=proxy_internal_port) }}
+    {% include 'roles/sys-svc-proxy/templates/headers/forwarded_base.conf.j2' %}
+    proxy_http_version 1.1;
+
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
+
+    add_header Cache-Control "no-store" always;
+}
+{% endset %}
 {% include 'roles/sys-svc-proxy/templates/vhost/basic.conf.j2' %}

@@ -18,33 +18,24 @@
     resolve_compose_cid: "{{ JELLYFIN_MCP_CONTAINER }}"
 
 - name: "🔑 Converge the read-only Jellyfin user the MCP adapter authenticates as"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - "JELLYFIN_BASE={{ JELLYFIN_MCP_UPSTREAM_URL }}"
-      - -e
-      - "JELLYFIN_ADMIN_USER={{ JELLYFIN_ADMIN_USERNAME }}"
-      - -e
-      - JELLYFIN_ADMIN_PASSWORD
-      - -e
-      - "MCP_USER={{ JELLYFIN_MCP_UPSTREAM_USER }}"
-      - -e
-      - MCP_PASSWORD
-      - -e
-      - "MCP_DEVICE_ID={{ JELLYFIN_MCP_UPSTREAM_DEVICE_ID }}"
-      - -e
-      - MCP_CURRENT_TOKEN
-      - "{{ JELLYFIN_IDENTITY_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - python3
-      - "-"
-    stdin: "{{ lookup('file', 'python/provision_mcp_identity.py') }}"
-  environment:
-    JELLYFIN_ADMIN_PASSWORD: "{{ JELLYFIN_ADMIN_PASSWORD }}"
-    MCP_PASSWORD: "{{ JELLYFIN_MCP_UPSTREAM_PASSWORD }}"
-    MCP_CURRENT_TOKEN: "{{ MCP_UPSTREAM_CURRENT_KEY }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      IFS= read -r ADMIN_PASSWORD && IFS= read -r MCP_PASSWORD && IFS= read -r MCP_TOKEN && : "${ADMIN_PASSWORD:?arrived empty on stdin}" && : "${MCP_PASSWORD:?arrived
+      empty on stdin}" && export ADMIN_PASSWORD MCP_PASSWORD MCP_TOKEN && container exec -i
+      -e JELLYFIN_BASE={{ JELLYFIN_MCP_UPSTREAM_URL | quote }}
+      -e JELLYFIN_ADMIN_USER={{ JELLYFIN_ADMIN_USERNAME | quote }}
+      -e ADMIN_PASSWORD
+      -e MCP_USER={{ JELLYFIN_MCP_UPSTREAM_USER | quote }}
+      -e MCP_PASSWORD
+      -e MCP_DEVICE_ID={{ JELLYFIN_MCP_UPSTREAM_DEVICE_ID | quote }}
+      -e MCP_TOKEN
+      {{ JELLYFIN_IDENTITY_LOCAL_CID | quote }}
+      python3 -
+    stdin: |-
+      {{ JELLYFIN_ADMIN_PASSWORD }}
+      {{ JELLYFIN_MCP_UPSTREAM_PASSWORD }}
+      {{ MCP_UPSTREAM_CURRENT_KEY }}
+      {{ lookup('file', 'python/provision_mcp_identity.py') }}
   register: jellyfin_mcp_identity
   retries: 30
   delay: 10

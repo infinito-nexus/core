@@ -19,6 +19,7 @@
     lab_wrk2: "{{ lookup('env', 'WRK2') }}"
     lab_nfs: "{{ lookup('env', 'NFS_SERVER') }}"
     lab_backup: "{{ lookup('env', 'BACKUP_NODE') }}"
+    lab_proxmox: "{{ lookup('env', 'PROXMOX_NODE') }}"
     lab_domain: "{{ lookup('env', 'INFINITO_DOMAIN') }}"
     lab_export_base: "{{ lookup('env', 'NFS_EXPORT_BASE') }}"
     lab_node_src: "{{ lookup('env', 'INFINITO_NODE_SRC_DIR') }}"
@@ -34,7 +35,7 @@
     lab_dataroot_size: "{{ '60G' if lab_is_mgr else '30G' }}"
     lab_shared_cache: "{{ lookup('env', 'INFINITO_CACHE_SHARED_HOST_PATH') }}"
     lab_host_pacman_cache: "{{ lookup('env', 'INFINITO_CACHE_HOST_PACMAN_PATH') }}"
-    lab_no_proxy: "{{ (NETWORK_LOOPBACK_HOSTS + ['infinito-registry-cache', lab_mgr, lab_wrk1, lab_wrk2, lab_nfs, lab_backup, 'gcr.io', 'storage.googleapis.com',
+    lab_no_proxy: "{{ (NETWORK_LOOPBACK_HOSTS + ['infinito-registry-cache', lab_mgr, lab_wrk1, lab_wrk2, lab_nfs, lab_backup, lab_proxmox, 'gcr.io', 'storage.googleapis.com',
       'googleusercontent.com']) | join(',') }}"
   tasks:
     - name: require the lab manager IP (lookup('env') yields '' for a missing key, and an empty dnsmasq address= is valid syntax)
@@ -141,7 +142,7 @@
         HOSTS_ENTRY_IP: "{{ lab_domain_target }}"
       timeout: 60
       register: lab_hosts_entries
-      when: lab_is_mgr or inventory_hostname in [lab_nfs, lab_backup]
+      when: lab_is_mgr or inventory_hostname in [lab_nfs, lab_backup, lab_proxmox]
       delegate_to: localhost
       changed_when: false
 
@@ -152,7 +153,7 @@
         block: "{{ lab_hosts_entries.stdout }}"
         unsafe_writes: true
       timeout: 30
-      when: lab_is_mgr or inventory_hostname in [lab_nfs, lab_backup]
+      when: lab_is_mgr or inventory_hostname in [lab_nfs, lab_backup, lab_proxmox]
 
     - name: own the whole dnsmasq config (the packaging appends --local-service unconditionally and only an interface, except-interface, listen-address or auth-server directive resets it; without that reset a failed interface re-enumeration empties dnsmasq's local-subnet list and it rejects every query, loopback included, until an address event rebuilds it)
       template: # nocheck: stack-host-template - lab node system config, every DNS node writes its own /etc/dnsmasq.conf and IS_STACK_HOST does not exist in this play

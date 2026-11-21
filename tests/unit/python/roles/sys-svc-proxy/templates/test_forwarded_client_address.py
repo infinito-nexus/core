@@ -7,6 +7,7 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoes
 
 from plugins.filter.on_off import on_off
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_META_SERVER
 
 from . import PROJECT_ROOT
 
@@ -44,14 +45,13 @@ class TestForwardedClientAddress(unittest.TestCase):
         self.assertNotIn('Forwarded "', render(proxy_forwarded_client_address=False))
 
     def test_stalwart_opts_its_vhost_in(self):
-        tasks = load_yaml_any(PROJECT_ROOT / "roles/web-app-stalwart/tasks/00_core.yml")
-        full_stack = [
-            task
-            for task in tasks
-            if (task.get("include_role") or {}).get("name") == "sys-stk-full"
-        ]
-        self.assertEqual(len(full_stack), 1)
-        self.assertIs(full_stack[0]["vars"]["proxy_forwarded_client_address"], True)
+        vhosts = load_yaml_any(
+            PROJECT_ROOT / "roles/web-app-stalwart" / ROLE_FILE_META_SERVER
+        )["vhosts"]
+        self.assertIs(vhosts["default"]["vars"]["proxy_forwarded_client_address"], True)
+        self.assertNotIn(
+            "proxy_forwarded_client_address", vhosts["webmail"].get("vars", {})
+        )
 
 
 if __name__ == "__main__":

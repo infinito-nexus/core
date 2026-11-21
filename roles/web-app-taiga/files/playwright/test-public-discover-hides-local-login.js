@@ -2,6 +2,10 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { gotoOnion } = require("./personas");
 
+const formOffered =
+  process.env.LOGIN_METHOD_NATIVE_ENABLED === "true" || process.env.LOGIN_METHOD_LDAP_ENABLED === "true";
+const registrationOffered = process.env.LOGIN_METHOD_REGISTRATION_ENABLED === "true";
+
 exports.register = function (shared) {
   test("taiga public discover hides local login fields when oidc is active", async ({ page }) => {
     shared.skipUnlessServiceEnabled("sso");
@@ -27,37 +31,46 @@ exports.register = function (shared) {
           async () => page.locator("input[name='username'], input#username").first().isVisible().catch(() => false),
           {
             timeout: resolveTimeout(10_000),
-            message: "Expected the local Taiga username field to stay hidden when OIDC is active",
+            message: "Expected the local Taiga username field to follow defaultLoginEnabled (login.method.native or ldap)",
           },
         )
-        .toBe(false);
+        .toBe(formOffered);
       await expect
         .poll(
           async () => page.locator("input[name='password'], input#password").first().isVisible().catch(() => false),
           {
             timeout: resolveTimeout(10_000),
-            message: "Expected the local Taiga password field to stay hidden when OIDC is active",
+            message: "Expected the local Taiga password field to follow defaultLoginEnabled (login.method.native or ldap)",
           },
         )
-        .toBe(false);
+        .toBe(formOffered);
       await expect
         .poll(
           async () => page.getByText(/^or login with$/i).first().isVisible().catch(() => false),
           {
             timeout: resolveTimeout(10_000),
-            message: "Expected the legacy Taiga OIDC helper text to stay hidden when OIDC is active",
+            message: "Expected the Taiga alternative-login label to follow defaultLoginEnabled",
           },
         )
-        .toBe(false);
+        .toBe(formOffered);
       await expect
         .poll(
           async () => page.getByText(/^forgot it\?$/i).first().isVisible().catch(() => false),
           {
             timeout: resolveTimeout(10_000),
-            message: "Expected the legacy Taiga password reset helper text to stay hidden when OIDC is active",
+            message: "Expected the Taiga password reset link to follow defaultLoginEnabled",
           },
         )
-        .toBe(false);
+        .toBe(formOffered);
+      await expect
+        .poll(
+          async () => page.getByText(/not registered yet/i).first().isVisible().catch(() => false),
+          {
+            timeout: resolveTimeout(10_000),
+            message: "Expected the Taiga sign-up invitation to follow publicRegisterEnabled (login.method.registration)",
+          },
+        )
+        .toBe(registrationOffered);
 
       await authState.locator.click({ timeout: resolveTimeout(30_000) });
       await expect

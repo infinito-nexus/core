@@ -15,13 +15,14 @@
  * user on first sign-in, and issues n8n's own session cookie directly.
  *
  * Security: the header named by N8N_FORWARD_AUTH_HEADER (Remote-Email) is
- * trusted unconditionally. This is only safe because any client-supplied
- * copy of it is blanked by
- * roles/sys-svc-proxy/templates/headers/untrusted_identity_strips.conf.j2
- * before openresty re-sets it from the oauth2-proxy auth_request response,
- * and n8n's published port is bound to the host's loopback interface
- * (DOCKER_BIND_HOST), so only openresty on the same host can reach it
- * directly — external clients cannot bypass the proxy to forge the header.
+ * trusted unconditionally, so openresty is the only trust boundary: every
+ * front-proxy location blanks a client-supplied copy through
+ * roles/sys-svc-proxy/templates/headers/untrusted_identity_strips.conf.j2,
+ * and the gated one re-sets it from the oauth2-proxy auth_request response.
+ * Anything that reaches n8n's published port without passing openresty can
+ * forge it: that port is bound to DOCKER_BIND_HOST (0.0.0.0 under
+ * DOCKER_IN_CONTAINER) and, in swarm, published on every node through the
+ * routing mesh.
  *
  * Adapted from https://github.com/PavelSozonov/n8n-community-sso (MIT
  * License, Copyright (c) 2025 n8n Community SSO Demo). Differences from
@@ -31,6 +32,13 @@
  *     roles/web-app-keycloak/templates/sso_proxy/following_directives.conf.j2,
  *     instead of the raw client Authorization header (which a client can
  *     set to anything and is not part of this platform's trust chain).
+ *   - an account is found by the access token's `sub` in n8n's
+ *     auth_identity table (providerType `oidc`), never by email, and the
+ *     sign-in is refused unless the token's `email_verified` is true. The
+ *     platform administrator (N8N_SSO_OWNER_USERNAME, matched against
+ *     X-Forwarded-Preferred-Username) always lands on the instance owner.
+ *     An account that holds no auth identity is never reached by SSO; the
+ *     deploy binds existing accounts (files/javascript/reconcile/sso_identities.js).
  *   - the upstream demo's `/logout` route is dropped: this platform's own
  *     `/oauth2/sign_out` (oauth2-proxy) and n8n's native `/signout` already
  *     cover logout (see roles/web-app-n8n/files/playwright/_shared.js).
@@ -63,8 +71,24 @@ module.exports = {
 
         const ignoreAuth = /^\/(assets|healthz|webhook|rest\/oauth2-credential|health)/;
         const cookieName = 'n8n-auth';
+        const ownerUsername = process.env.N8N_SSO_OWNER_USERNAME;
+        const identityProvider = 'oidc';
 
         const UserRepo = this.dbCollections.User;
+        const AuthIdentityRepo = n8nRequire('@n8n/di').Container.get(n8nRequire('@n8n/db').AuthIdentityRepository);
+
+        const headerValue = (value) => String(Array.isArray(value) ? value[0] : value || '').trim();
+
+        const findSsoUser = async (username, subject) => {
+          if (username === ownerUsername) {
+            return UserRepo.findOne({ where: { role: { slug: 'global:owner' } }, relations: ['role'] });
+          }
+          const identity = await AuthIdentityRepo.findOne({ where: { providerId: subject, providerType: identityProvider } });
+          if (identity) {
+            return UserRepo.findOne({ where: { id: identity.userId }, relations: ['role'] });
+          }
+          return null;
+        };
 
         const { stack } = app.router;
         const idx = stack.findIndex((l) => l?.name === 'cookieParser');
@@ -82,46 +106,55 @@ module.exports = {
 
             // Read email from the trusted header, and optional given/family
             // names from the trusted access token forwarded alongside it.
-            const emailHeader = req.headers[headerName.toLowerCase()];
-            const accessToken = req.headers['x-forwarded-access-token'] || '';
-            let firstName = '';
-            let lastName = '';
+            const userEmail = headerValue(req.headers[headerName.toLowerCase()]);
+            const username = headerValue(req.headers['x-forwarded-preferred-username']);
+            const accessToken = headerValue(req.headers['x-forwarded-access-token']);
+            let claims = {};
 
             if (accessToken) {
               try {
-                const parts = String(accessToken).split('.');
+                const parts = accessToken.split('.');
                 if (parts.length === 3) {
-                  const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
-                  firstName = payload.given_name || '';
-                  lastName = payload.family_name || '';
-                  logger.debug(`Extracted from access token: firstName="${firstName}", lastName="${lastName}"`);
+                  claims = JSON.parse(Buffer.from(parts[1], 'base64').toString());
                 }
               } catch (e) {
                 logger.debug(`Failed to decode access token: ${e.message}`);
               }
             }
 
-            // If the forward-auth header with email is missing — do nothing
-            if (!emailHeader) {
-              logger.debug(`No ${headerName} header found, skipping SSO auto-login`);
+            if (!userEmail || !username) {
+              logger.debug(`No ${headerName} or X-Forwarded-Preferred-Username header found, skipping SSO auto-login`);
               return next();
             }
 
-            const userEmail = Array.isArray(emailHeader) ? emailHeader[0] : String(emailHeader).trim();
-            const userFirstName = Array.isArray(firstName) ? firstName[0] : String(firstName).trim();
-            const userLastName = Array.isArray(lastName) ? lastName[0] : String(lastName).trim();
-
-            if (!userEmail) {
-              logger.debug(`Empty ${headerName} header, skipping SSO auto-login`);
-              return next();
+            const subject = headerValue(claims.sub);
+            if (claims.email_verified !== true || !subject) {
+              logger.info(`SSO auto-login refused for ${username}: the access token carries no subject or no verified email`);
+              res.statusCode = 403;
+              res.end('Your account has no verified email address.');
+              return;
             }
 
-            logger.info(`SSO auto-login attempt for email: ${userEmail}`);
+            const userFirstName = headerValue(claims.given_name);
+            const userLastName = headerValue(claims.family_name);
 
-            let user = await UserRepo.findOne({
-              where: { email: userEmail },
-              relations: ['role'],
-            });
+            logger.info(`SSO auto-login attempt for ${username}`);
+
+            let user = await findSsoUser(username, subject);
+
+            if (!user && username === ownerUsername) {
+              logger.error('The instance owner does not exist; cannot sign the platform administrator in.');
+              res.statusCode = 503;
+              res.end('The n8n instance owner is not set up yet.');
+              return;
+            }
+
+            if (!user && (await UserRepo.findOne({ where: { email: userEmail } }))) {
+              logger.info(`SSO auto-login refused for ${username}: ${userEmail} belongs to another n8n account`);
+              res.statusCode = 409;
+              res.end('Your email address belongs to another n8n account.');
+              return;
+            }
 
             if (!user) {
               const hashed = await hash(randomBytes(16).toString('hex'), 10);
@@ -136,6 +169,7 @@ module.exports = {
 
               const created = await UserRepo.createUserWithProject(userData);
               user = created.user;
+              await AuthIdentityRepo.save(AuthIdentityRepo.create({ userId: user.id, providerId: subject, providerType: identityProvider }));
 
               logger.info(`Created new user: ${userEmail} (${userFirstName} ${userLastName}) via SSO`);
             } else {

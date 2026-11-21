@@ -79,6 +79,18 @@ class TestChunksOf(unittest.TestCase):
             "budget fills, or the rows a short priority chunk leaves go unplanned",
         )
 
+    def test_an_unlimited_budget_plans_every_regular_row(self) -> None:
+        entries = [
+            _entry(f"web-app-{index:02d}", "0", "compose") for index in range(25)
+        ]
+        with (
+            mock.patch.object(matrix.slots, "chunk_size", return_value=10),
+            mock.patch.object(matrix.slots, "chunk_blocks", return_value=3),
+            mock.patch.object(matrix.slots, "available", return_value=None),
+        ):
+            chunks = matrix.chunks_of(entries, 0)
+        self.assertEqual([len(chunk) for chunk in chunks], [10, 10, 5])
+
     def test_priority_chunks_are_sorted_on_their_own(self) -> None:
         entries = [
             _entry("web-app-z", "0", "compose", priority=True),

@@ -123,6 +123,34 @@ adminopenauth_yaml:
     - service: scheduler
       target: *var_www_html_config_packages_adminopenauth_yaml_target
 
+adminopenauth_role_gate:
+  type: config
+  source: "{{ [lookup('container', 'web-app-shopware', 'directories.config'), 'AdminOpenAuthRoleGate.php'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: init
+      target: &var_www_html_src_infinitorbac_adminopenauthrolegate_php_target /var/www/html/src/InfinitoRbac/AdminOpenAuthRoleGate.php
+    - service: web
+      target: *var_www_html_src_infinitorbac_adminopenauthrolegate_php_target
+    - service: worker
+      target: *var_www_html_src_infinitorbac_adminopenauthrolegate_php_target
+    - service: scheduler
+      target: *var_www_html_src_infinitorbac_adminopenauthrolegate_php_target
+
+static_config_lock:
+  type: config
+  source: "{{ [lookup('container', 'web-app-shopware', 'directories.config'), 'StaticSystemConfigLock.php'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: init
+      target: &var_www_html_src_infinitorbac_staticsystemconfiglock_php_target /var/www/html/src/InfinitoRbac/StaticSystemConfigLock.php
+    - service: web
+      target: *var_www_html_src_infinitorbac_staticsystemconfiglock_php_target
+    - service: worker
+      target: *var_www_html_src_infinitorbac_staticsystemconfiglock_php_target
+    - service: scheduler
+      target: *var_www_html_src_infinitorbac_staticsystemconfiglock_php_target
+
 php_hardening:
   type: config
   source: "{{ FILE_PHP_HARDENING_INI }}"

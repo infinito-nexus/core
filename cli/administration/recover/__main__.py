@@ -130,13 +130,12 @@ def main(argv: list[str] | None = None) -> int:
             service_backup=not args.no_safety_backup,
         )
     if args.type == "device" and recoverers.is_remote(args.source):
-        returncode, _ = remote.run(
+        return remote.run_kept(
             args.source,
             preview=args.preview,
             service_backup=not args.no_safety_backup,
             passphrase_stdin=not sys.stdin.isatty(),
         )
-        return returncode
     recoverer = recoverers.RECOVERERS[args.type]
     try:
         cmd = recoverer.command(

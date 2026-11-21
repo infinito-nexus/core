@@ -7,14 +7,13 @@ const shared = require("../_shared");
 
 test.use({ ignoreHTTPSErrors: true });
 
-const MUST_USE_SCREEN = "/wp-admin/plugins.php?plugin_status=mustuse";
 const PROFILE_SCREEN = "/wp-admin/profile.php";
 const PLUGIN_NAME = "Infinito.Nexus Corporate Design";
 const ANY_SCHEME = "#color-picker input[name='admin_color']";
 const CORPORATE_SCHEME = "#color-picker input[name='admin_color'][value='infinito']";
 
 async function openMustUseScreen(page) {
-  await gotoOnion(page, `${shared.env.wpBaseUrl}${MUST_USE_SCREEN}`);
+  await gotoOnion(page, shared.wpPluginsScreenUrl("?plugin_status=mustuse"));
   await expect(
     page.locator("#the-list"),
     "the Must-Use plugins screen lists the mu-plugin under the Plugin Name its header declares",
@@ -55,6 +54,6 @@ test("addon infinito-design: the mu-plugin stays installed and registers no admi
   await openProfileScreen(page);
   await expect(
     page.locator(CORPORATE_SCHEME),
-    "08_design.yml withdrew the design, so files/php/design.php deleted the infinito_design option and the mu-plugin must register no corporate admin color scheme",
+    "09_design.yml withdrew the design, so files/php/design.php deleted the infinito_design option and the mu-plugin must register no corporate admin color scheme",
   ).toHaveCount(0, { timeout: resolveTimeout(10_000) });
 });

@@ -19,7 +19,9 @@ TEMPLATE = (
 )
 
 
-def _render(*, sso_enabled: bool = True, socks_proxy: str = "") -> str:
+def _render(
+    *, sso_enabled: bool = True, socks_proxy: str = "", login_native: bool = False
+) -> str:
     env = Environment(
         trim_blocks=True,
         lstrip_blocks=True,
@@ -29,6 +31,7 @@ def _render(*, sso_enabled: bool = True, socks_proxy: str = "") -> str:
     env.filters["bool"] = bool
     return env.from_string(read_text(TEMPLATE)).render(
         STALWART_SSO_ENABLED=sso_enabled,
+        STALWART_LOGIN_NATIVE=login_native,
         STALWART_OIDC_SOCKS_PROXY=socks_proxy,
         STALWART_WEBMAIL_OIDC_CLIENT_ID="roundcube",
         OIDC={
@@ -59,6 +62,14 @@ class TestRoundcubeOauthConfig(unittest.TestCase):
 
     def test_a_clearnet_issuer_gets_no_proxy_at_all(self):
         self.assertNotIn("http_client", _render())
+
+    def test_the_login_form_hands_over_to_keycloak_while_native_is_off(self):
+        self.assertIn("$config['oauth_login_redirect'] = true;", _render())
+
+    def test_the_native_login_method_keeps_the_login_form(self):
+        self.assertIn(
+            "$config['oauth_login_redirect'] = false;", _render(login_native=True)
+        )
 
     def test_nothing_is_emitted_without_sso(self):
         rendered = _render(sso_enabled=False, socks_proxy="socks5h://tor:9050")

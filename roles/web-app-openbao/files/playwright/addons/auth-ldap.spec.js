@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { normalizeBaseUrl, decodeDotenvQuotedValue, requireDotenvValue } = require("../personas");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("../service-gating");
 const { resolveTimeout } = require("../timeouts");
 
 const baseUrl = normalizeBaseUrl(requireDotenvValue(process.env.OPENBAO_BASE_URL, "OPENBAO_BASE_URL"));
@@ -9,8 +10,10 @@ const adminPassword = decodeDotenvQuotedValue(requireDotenvValue(process.env.ADM
 
 test.use({ ignoreHTTPSErrors: true });
 
-test("addon auth-ldap: the ldap mount is served by the external plugin", async ({ request }) => {
+test("administrator: addon auth-ldap serves the ldap mount from the external plugin", async ({ request }) => {
   skipUnlessAddonEnabled("auth-ldap");
+  skipUnlessServiceEnabled("ldap");
+  skipUnlessServiceDisabled("sso");
 
   const login = await request.post(
     `${baseUrl}/v1/auth/ldap/login/${encodeURIComponent(adminUsername)}`,

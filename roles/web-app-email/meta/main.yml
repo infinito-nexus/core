@@ -1,0 +1,32 @@
+---
+# nocheck: info-media
+# nocheck: playwright-spec web-app-email renders no surface; mail delivery is asserted by the spec of the provider it selects
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: Mail server wrapper that consumers depend on, dispatching to the configured mail provider role
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  galaxy_tags:
+    - email
+    - mail server
+    - wrapper
+  issue_tracker_url: https://s.infinito.nexus/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all

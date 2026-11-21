@@ -46,10 +46,35 @@
         _playwright_budget_timeouts: "{{ (_playwright_budget_timeouts | default([])) + [application_id] }}"
       when: "'for the test suite to run' in (_playwright_run.stdout | default(''))"
 
+- name: 🔍 Look for a post-pass check of '{{ application_id }}'
+  ansible.builtin.stat:
+    path: "{{ TEST_E2E_PLAYWRIGHT_POST_PASS_CHECK }}"
+  register: _playwright_post_pass_check
+  delegate_to: localhost
+  become: false
+  when: _playwright_pass_started | string | length > 0
+
+- name: 🧪 Run the post-pass check of '{{ application_id }}'
+  when: _playwright_post_pass_check.stat.exists | default(false)
+  block:
+    - name: 🧪 Check what the pass of '{{ application_id }}' left behind
+      ansible.builtin.include_tasks: "{{ TEST_E2E_PLAYWRIGHT_POST_PASS_CHECK }}"
+      vars:
+        playwright_pass_started: "{{ _playwright_pass_started | float }}"
+  rescue:
+    - name: "💬 Show why the post-pass check failed" # nocheck: rescue-recovery a failed check is recorded in _playwright_failures like a failed spec, so the remaining passes still run, the flake retry reruns this pass and the final fail task of orchestrate.yml fails the run
+      ansible.builtin.debug:
+        msg: "{{ application_id }}: {{ ansible_failed_result.msg | default('the post-pass check failed') }}"
+      changed_when: false
+
+    - name: 📝 Record the failed post-pass check
+      ansible.builtin.set_fact:
+        _playwright_failures: "{{ ((_playwright_failures | default([])) + [application_id]) | unique }}"
+
 - name: 🗄️ Archive Playwright reports for this variant + pass
   ansible.builtin.script: >-
     {{ role_path }}/files/archive_playwright_reports.sh
     {{ _playwright_pass_reports_dir | quote }}
     {{ VARIANT_INDEX | int }}
-    {{ ASYNC_ENABLED | bool | string | lower }}
+    {{ DEPLOY_IS_UPDATE | bool | string | lower }}
   changed_when: true

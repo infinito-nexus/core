@@ -32,6 +32,10 @@ async function beforeEach({ page }) {
 async function loginThroughBroker(page) {
   expect(adminUsername, "ADMIN_USERNAME must be set when OIDC is enabled").toBeTruthy();
   expect(adminPassword, "ADMIN_PASSWORD must be set when OIDC is enabled").toBeTruthy();
+  await loginThroughBrokerAs(page, adminUsername, adminPassword);
+}
+
+async function loginThroughBrokerAs(page, username, password) {
   expect(oidcIssuerUrl, "OIDC_ISSUER_URL must be set when OIDC is enabled").toBeTruthy();
 
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
@@ -46,7 +50,7 @@ async function loginThroughBroker(page) {
     })
     .toContain(expectedOidcAuthUrl);
 
-  await performKeycloakLoginForm(page, adminUsername, adminPassword);
+  await performKeycloakLoginForm(page, username, password);
 
   await expect
     .poll(() => page.url(), {
@@ -74,9 +78,13 @@ module.exports = {
     adminHandle,
     adminHandleReserved,
     pdsBaseUrl,
+    biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME || ""),
+    biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD || ""),
+    biberFullName: decodeDotenvQuotedValue(process.env.BIBER_FULL_NAME || ""),
   },
   skipUnlessServiceEnabled,
   loginThroughBroker,
+  loginThroughBrokerAs,
   performKeycloakLoginForm,
   runAdminFlow,
   runBiberFlow,

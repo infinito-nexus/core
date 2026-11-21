@@ -49,6 +49,11 @@
           - -lc
           - |
             set -o pipefail
+            IFS= read -r J_DB_PASSWORD
+            IFS= read -r J_ADMIN_PASSWORD
+            : "${J_DB_PASSWORD:?arrived empty on stdin}"
+            : "${J_ADMIN_PASSWORD:?arrived empty on stdin}"
+            export J_DB_PASSWORD J_ADMIN_PASSWORD
             container exec {{ JOOMLA_LOCAL_CID | quote }} rm -f "{{ JOOMLA_CONFIG_FILE }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
             exec container exec --user "{{ JOOMLA_WEB_USER }}" \
               -e J_CLI -e J_DB_TYPE -e J_DB_HOST -e J_DB_USER -e J_DB_PASSWORD \
@@ -67,16 +72,17 @@
                   "--admin-email=$J_ADMIN_EMAIL" \
                   --no-interaction \
                   "--site-name=$J_SITE_NAME"'
+        stdin: |-
+          {{ lookup('database', application_id, 'password') }}
+          {{ JOOMLA_USER_PASSWORD }}
       environment:
         J_CLI: "{{ JOOMLA_INSTALLER_CLI_FILE }}"
         J_DB_TYPE: "{{ JOOMLA_DB_CONNECTOR }}"
         J_DB_HOST: "{{ lookup('database', application_id, 'host') }}"
         J_DB_USER: "{{ lookup('database', application_id, 'username') }}"
-        J_DB_PASSWORD: "{{ lookup('database', application_id, 'password') }}"
         J_DB_NAME: "{{ lookup('database', application_id, 'name') }}"
         J_ADMIN_USER: "{{ JOOMLA_USER }}"
         J_ADMIN_USERNAME: "{{ JOOMLA_USER_NAME }}"
-        J_ADMIN_PASSWORD: "{{ JOOMLA_USER_PASSWORD }}"
         J_ADMIN_EMAIL: "{{ JOOMLA_USER_EMAIL }}"
         J_SITE_NAME: "{{ JOOMLA_SITE_NAME }}"
       register: j_install

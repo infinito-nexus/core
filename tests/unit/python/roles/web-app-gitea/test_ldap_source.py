@@ -274,13 +274,14 @@ class TestLdapBindPasswordOffArgv(unittest.TestCase):
             self.assertIn("-e GITEA_LDAP_BIND_PASSWORD", task["shell"])
             self.assertIn('--bind-password "$GITEA_LDAP_BIND_PASSWORD"', task["shell"])
 
-    def test_the_password_is_only_expanded_by_the_inner_shell(self) -> None:
+    def test_the_host_shell_expands_the_password_only_in_its_empty_guard(self) -> None:
+        guard = ': "${GITEA_LDAP_BIND_PASSWORD:?arrived empty on stdin}"'
         for task in self._manage_tasks():
             host, inner = task["shell"].split("sh -lc '", 1)
-            self.assertNotIn("$GITEA_LDAP_BIND_PASSWORD", host)
-            self.assertNotIn("${GITEA_LDAP_BIND_PASSWORD", host)
+            self.assertIn(guard, host)
+            self.assertNotIn("$GITEA_LDAP_BIND_PASSWORD", host.replace(guard, ""))
+            self.assertNotIn("${GITEA_LDAP_BIND_PASSWORD", host.replace(guard, ""))
             self.assertIn('"$GITEA_LDAP_BIND_PASSWORD"', inner)
-            self.assertIn('"${GITEA_LDAP_BIND_PASSWORD:?', inner)
 
     def test_the_shared_args_keep_the_inner_quoting_intact(self) -> None:
         self.assertFalse(any("'" in arg for arg in role_vars()["GITEA_LDAP_AUTH_ARGS"]))

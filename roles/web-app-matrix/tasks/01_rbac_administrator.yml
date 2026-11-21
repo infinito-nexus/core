@@ -1,0 +1,28 @@
+---
+- name: "👑 Reconcile the Synapse admin flag with the administrator role"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: true
+    rbac_sync_mode: "{{ compose_mode_force or DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: [administrator]
+    rbac_sync_service_key: "{{ MATRIX_MDAD_SERVICE_KEY if compose_mode_force == 'compose' else 'synapse' }}"
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ MATRIX_MDAD_CONTAINER if compose_mode_force == 'compose' else MATRIX_SYNAPSE_NAME }}"
+    rbac_sync_kind: "{{ 'container' if rbac_sync_mode == 'swarm' else 'host' }}"
+    rbac_sync_user: ""
+    rbac_sync_argv: "{{ ['python3', '-'] if rbac_sync_mode == 'swarm' else [] }}"
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/rbac_sync.py') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      # nocheck: swarm-loopback-port exec  under swarm the hook runs inside the Synapse container, which it reaches on Synapse's internal port
+      MATRIX_SYNAPSE_URL: "{{ MATRIX_SYNAPSE_CONTAINER_URL if rbac_sync_mode == 'swarm' else MATRIX_SYNAPSE_LOOPBACK_URL }}"
+      MATRIX_SERVER_NAME: "{{ MATRIX_SERVER_NAME }}"
+      MATRIX_ADMIN_USERNAME: "{{ MATRIX_ADMINISTRATOR_USERNAME }}"
+      MATRIX_ADMIN_PASSWORD: "{{ MATRIX_ADMINISTRATOR_PASSWORD }}"
+      MATRIX_RBAC_PROTECTED_MXIDS: "{{ MATRIX_RBAC_PROTECTED_MXIDS | to_json }}"
+      MATRIX_RBAC_PAGE_SIZE: "{{ MATRIX_RBAC_USER_PAGE_SIZE | string }}"
+    rbac_sync_attributes: []
+    rbac_sync_members_env:
+      - { name: RBAC_ADMINISTRATORS, role: administrator, field: username }

@@ -97,6 +97,30 @@ class TestDeclaredModels(unittest.TestCase):
         self.assertEqual(params["api_key"], "os.environ/OPENROUTER_API_KEY")
         self.assertEqual(params["model"], REMOTE["model"])
 
+    def test_a_remote_route_without_its_own_bound_leaves_the_client_limit(
+        self,
+    ) -> None:
+        params = by_alias(routes(declared=[REMOTE]))[REMOTE["alias"]]["params"]
+        self.assertNotIn("max_tokens", params)
+
+    def test_local_and_mock_routes_keep_the_shared_output_bound(self) -> None:
+        built = by_alias(
+            routes(ollama=[SHARED], lmstudio=[LMSTUDIO_ONLY], declared=[MOCK])
+        )
+        for alias in (SHARED["alias"], LMSTUDIO_ONLY["alias"], MOCK["alias"]):
+            with self.subTest(alias=alias):
+                self.assertEqual(built[alias]["params"]["max_tokens"], 512)
+
+    def test_a_remote_route_may_declare_its_own_output_bound(self) -> None:
+        declared = dict(REMOTE, max_output_tokens=64000)
+        params = by_alias(routes(declared=[declared]))[REMOTE["alias"]]["params"]
+        self.assertEqual(params["max_tokens"], 64000)
+
+    def test_an_invalid_output_bound_aborts_instead_of_falling_back(self) -> None:
+        for bound in (0, -1, None, "64000", True, 1.5):
+            with self.subTest(bound=bound), self.assertRaises(ValueError):
+                routes(declared=[dict(REMOTE, max_output_tokens=bound)])
+
     def test_a_mock_answers_from_its_own_response(self) -> None:
         params = by_alias(routes(declared=[MOCK]))[MOCK["alias"]]["params"]
         self.assertEqual(params["mock_response"], MOCK["response"])

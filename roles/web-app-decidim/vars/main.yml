@@ -17,6 +17,11 @@ DECIDIM_OIDC_AUTHORIZE_URL: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
 DECIDIM_OIDC_TOKEN_URL: "{{ OIDC.CLIENT.TOKEN_URL }}"
 DECIDIM_OIDC_USER_INFO_URL: "{{ OIDC.CLIENT.USER_INFO_URL }}"
 
+DECIDIM_LOGIN_SSO: "{{ lookup('config', application_id, 'services.decidim.login.method.sso.enabled') | bool }}"
+DECIDIM_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.decidim.login.method.native.enabled') | bool }}"
+DECIDIM_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.decidim.login.method.registration.enabled') | bool }}"
+DECIDIM_ORGANIZATION: "{{ lookup('form_values', application_id, 'organization') }}"
+
 DECIDIM_ORGANIZATION_NAME: "{{ lookup('design', application_id).label }}"
 
 DECIDIM_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"

@@ -20,7 +20,6 @@ class TestVarsPassedAreUsed(unittest.TestCase):
     - Consider a var "used" if it appears in ANY of:
         • Jinja output blocks:     {{ ... var_name ... }}
         • Jinja statement blocks:  {% ... var_name ... %}
-          (robust against inner '}' / '%' via tempered regex)
         • Ansible expressions in YAML:
             - when: <expr>          (string or list of strings)
             - loop: <expr>
@@ -132,7 +131,7 @@ class TestVarsPassedAreUsed(unittest.TestCase):
     def _collect_ansible_expressions(self) -> list[str]:
         """
         Return a flat list of strings taken from Ansible expression-bearing fields:
-        - when / failed_when / changed_when / until: <str> or [<str>, ...]
+        - when / failed_when / changed_when / until / that: <str> or [<str>, ...]
         - loop: <str>
         - with_*: <str>
         """
@@ -142,7 +141,13 @@ class TestVarsPassedAreUsed(unittest.TestCase):
             for doc in docs:
                 for mapping in self._walk_mapping(doc):
                     for key, val in list(mapping.items()):
-                        if key in ("when", "failed_when", "changed_when", "until"):
+                        if key in (
+                            "when",
+                            "failed_when",
+                            "changed_when",
+                            "until",
+                            "that",
+                        ):
                             if isinstance(val, str):
                                 exprs.append(val)
                             elif isinstance(val, list):
@@ -154,31 +159,53 @@ class TestVarsPassedAreUsed(unittest.TestCase):
                             exprs.append(val)
         return exprs
 
-    def _used_in_jinja_blocks(self, var_name: str, text: str) -> bool:
-        """
-        Detect var usage inside Jinja blocks, excluding function/macro calls like `var_name(...)`.
-        We use a tempered regex to avoid stopping at the first '}}'/'%}' and a negative lookahead
-        `(?!\\s*\\()` after the token.
-        """
-        token = r"\b" + re.escape(var_name) + r"\b(?!\s*\()"
+    USED_TOKEN: ClassVar[re.Pattern[str]] = re.compile(r"\b(\w+)\b(?!\s*\()")
+    BLOCK_SEPARATOR: ClassVar[str] = "\x00"
 
-        pat_output = re.compile(
-            r"{{(?:(?!}}).)*" + token + r"(?:(?!}}).)*}}",
-            re.DOTALL,
-        )
-        pat_stmt = re.compile(
-            r"{%(?:(?!%}).)*" + token + r"(?:(?!%}).)*%}",
-            re.DOTALL,
-        )
-        return pat_output.search(text) is not None or pat_stmt.search(text) is not None
-
-    def _used_in_ansible_exprs(self, var_name: str, exprs: list[str]) -> bool:
+    @staticmethod
+    def _block_bodies(text: str, opener: str, closer: str) -> Iterable[str]:
         """
-        Detect var usage in Ansible expressions (when/loop/with_*),
+        Args:
+            text: the concatenated YAML and Jinja sources.
+            opener: ``{{`` or ``{%``.
+            closer: ``}}`` or ``%}``.
+
+        Yields:
+            The text between each opener and the first closer after it.
+        """
+        start = text.find(opener)
+        while start != -1:
+            end = text.find(closer, start + len(opener))
+            if end == -1:
+                return
+            yield text[start + len(opener) : end]
+            start = text.find(opener, end - 1)
+
+    def _tokens_used_in_jinja_blocks(self, text: str) -> set[str]:
+        """
+        Every token used inside a Jinja block, excluding function/macro calls
+        like `var_name(...)`: a block runs from its opener to the first closer
+        after it, and a token followed by `(` does not count.
+
+        Args:
+            text: the concatenated YAML and Jinja sources.
+        """
+        bodies = self.BLOCK_SEPARATOR.join(
+            body
+            for opener, closer in (("{{", "}}"), ("{%", "%}"))
+            for body in self._block_bodies(text, opener, closer)
+        )
+        return set(self.USED_TOKEN.findall(bodies))
+
+    def _tokens_used_in_ansible_exprs(self, exprs: list[str]) -> set[str]:
+        """
+        Every token used in an Ansible expression (when/loop/with_*),
         excluding function/macro calls like `var_name(...)`.
+
+        Args:
+            exprs: the expression strings of the YAML files.
         """
-        pat = re.compile(r"\b" + re.escape(var_name) + r"\b(?!\s*\()")
-        return any(pat.search(e) for e in exprs)
+        return set(self.USED_TOKEN.findall(self.BLOCK_SEPARATOR.join(exprs)))
 
     def test_vars_passed_are_used_in_yaml_or_jinja(self):
         vars_passed, vars_locations = self._collect_vars_passed_with_locations()
@@ -188,14 +215,13 @@ class TestVarsPassedAreUsed(unittest.TestCase):
             "Check the repo root path in this test.",
         )
 
-        all_text = self._concat_texts()
-        ansible_exprs = self._collect_ansible_expressions()
+        used_tokens = self._tokens_used_in_jinja_blocks(
+            self._concat_texts()
+        ) | self._tokens_used_in_ansible_exprs(self._collect_ansible_expressions())
 
         unused: list[str] = []
         for var_name in sorted(vars_passed):
-            used = self._used_in_jinja_blocks(
-                var_name, all_text
-            ) or self._used_in_ansible_exprs(var_name, ansible_exprs)
+            used = var_name in used_tokens
             if not used and var_name != "ansible_python_interpreter":
                 unused.append(var_name)
 

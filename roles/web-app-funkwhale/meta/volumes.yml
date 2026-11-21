@@ -50,6 +50,20 @@ front_nginx_conf:
       target: /etc/nginx/templates/default.conf.template
       when: "{{ lookup('objstore', 'web-app-funkwhale', 'enabled') | bool }}"
 
+settings_module:
+  type: config
+  source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'settings.py'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: api
+      target: &app_config_settings_infinito_target /app/config/settings/infinito.py
+    - service: celeryworker
+      target: *app_config_settings_infinito_target
+    - service: celerybeat
+      target: *app_config_settings_infinito_target
+    - service: migrate
+      target: *app_config_settings_infinito_target
+
 same_origin_settings:
   type: config
   source: "{{ [lookup('container', 'web-app-funkwhale', 'directories.config'), 'same_origin', 'settings.py'] | path_join }}"

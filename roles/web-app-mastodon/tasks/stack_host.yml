@@ -1,0 +1,30 @@
+---
+- name: "🧹 Cleanup Mastodon caches when CLEANUP is true"
+  include_tasks: 04_cleanup.yml
+  when: CLEANUP | bool
+
+- name: "📂 Include administrator routines for '{{ application_id }}'"
+  include_tasks:
+    file: 05_administrator.yml
+    apply:
+      delegate_to: "{{ MASTODON_HOST_NODE }}"
+
+- name: "🔍 Resolve the node and container of the database of '{{ application_id }}'"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: postgres
+    resolve_service_name: "{{ lookup('database', application_id, 'service_name') if IS_SWARM_MODE else '' }}"
+    resolve_output_prefix: MASTODON_DATABASE
+    resolve_compose_cid: "{{ lookup('database', application_id, 'container') }}"
+
+- name: "🎨 Include the design carriers of '{{ application_id }}'"
+  include_tasks:
+    file: 06_design.yml
+    apply:
+      delegate_to: "{{ MASTODON_HOST_NODE }}"
+
+- name: "🚪 Include the sign-in methods of '{{ application_id }}'"
+  include_tasks:
+    file: 07_login_methods.yml
+    apply:
+      delegate_to: "{{ MASTODON_HOST_NODE }}"

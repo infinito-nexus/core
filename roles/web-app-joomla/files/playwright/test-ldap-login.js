@@ -1,34 +1,38 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { decodeDotenvQuotedValue, normalizeBaseUrl, gotoOnion } = require("./personas");
+const { signInToSite, signOutOfSite } = require("./joomla-session");
 
 const joomlaBaseUrl = normalizeBaseUrl(process.env.JOOMLA_BASE_URL);
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
+const biberUsername = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
+const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
+const biberEmail = decodeDotenvQuotedValue(process.env.BIBER_EMAIL);
 
 test.use({ ignoreHTTPSErrors: true });
 
-// Log out via the universal logout endpoint. Every app's nginx vhost intercepts
-// `location = /logout` and proxies it to web-svc-logout. Using `waitUntil: 'commit'`
-// avoids ERR_ABORTED from the multi-domain redirect chain.
-async function joomlaLogout(page, baseUrl) {
-  await gotoOnion(page, `${baseUrl.replace(/\/$/, "")}/logout`, { waitUntil: "commit" }).catch(() => {});
+async function joomlaAdministratorLogout(page) {
+  const menu = page.locator(".header-profile .dropdown-toggle").first();
+  await menu.click({ timeout: resolveTimeout(30_000) });
+  await page
+    .locator(".header-profile .dropdown-menu")
+    .getByRole("link", { name: /log\s*out/i })
+    .first()
+    .click({ timeout: resolveTimeout(30_000) });
 }
 
-test("LDAP: Joomla core LDAP plugin authenticates the administrator at /administrator (LDAP variant)", async ({ page }) => {
-  // In the LDAP variant (variant 1 of meta/variants.yml), the OIDC
-  // service flag is off and Joomla's core LDAP authentication plugin
-  // is the integrated login path against svc-db-openldap. This
-  // scenario exercises that path.
+test("administrator: Joomla core LDAP plugin authenticates at /administrator (LDAP variant)", async ({ page }) => {
   expect(joomlaBaseUrl, "JOOMLA_BASE_URL must be set in the Playwright env file").toBeTruthy();
   expect(adminUsername, "ADMIN_USERNAME must be set in the Playwright env file").toBeTruthy();
   expect(adminPassword, "ADMIN_PASSWORD must be set in the Playwright env file").toBeTruthy();
   await page.context().clearCookies();
   skipUnlessServiceEnabled("ldap");
+  skipUnlessServiceDisabled("sso");
   const expectedJoomlaBaseUrl = joomlaBaseUrl.replace(/\/$/, "");
 
-  await gotoOnion(page, `${expectedJoomlaBaseUrl}/administrator`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${expectedJoomlaBaseUrl}/administrator/index.php?fallback=local`, { waitUntil: "domcontentloaded" });
 
   const usernameField = page.locator("input[name='username']");
   const passwordField = page.locator("input[name='passwd']");
@@ -40,15 +44,9 @@ test("LDAP: Joomla core LDAP plugin authenticates the administrator at /administ
     page.locator("button[type='submit'], input[type='submit']").first().click({ timeout: resolveTimeout(30_000) }),
   ]);
 
-  // Body class on Joomla 5.x admin is `option-com_cpanel`; older releases used
-  // `com_cpanel`. Match both, plus any `option-com_*` so first-login redirects
-  // through `com_postinstall` don't false-fail the post-login assertion.
   const controlPanelMarker = page
     .locator("body.com_cpanel, body[class*='option-com_'], #sidebarmenu, nav[aria-label='Main menu'], a[href*='option=com_cpanel']")
     .first();
-  // Race the success marker against Joomla's "Username and password do not
-  // match" error. Without it, bad credentials make the test hang for the full
-  // timeout per retry; with it, we fail fast with the actual error in the trace.
   const loginErrorAlert = page
     .locator(".alert-warning, .alert-danger, joomla-alert, [role='alert']")
     .filter({ hasText: /Username and password do not match|Login failed|invalid|incorrect/i })
@@ -63,10 +61,35 @@ test("LDAP: Joomla core LDAP plugin authenticates the administrator at /administ
       }),
   ]);
 
-  await joomlaLogout(page, expectedJoomlaBaseUrl);
+  await joomlaAdministratorLogout(page);
 
-  // After logout, /administrator must render the login form again rather than
-  // the control panel.
-  await gotoOnion(page, `${expectedJoomlaBaseUrl}/administrator`, { waitUntil: "domcontentloaded" }).catch(() => {});
   await expect(page.locator("input[name='username']")).toBeVisible({ timeout: resolveTimeout(15_000) });
+});
+
+test("biber: signs in through the core LDAP plugin with the directory uid and mail, then signs out", async ({ page }) => {
+  skipUnlessServiceEnabled("ldap");
+  skipUnlessServiceDisabled("sso");
+  test.setTimeout(resolveTimeout(120_000));
+  expect(joomlaBaseUrl, "JOOMLA_BASE_URL must be set in the Playwright env file").toBeTruthy();
+  expect(biberUsername, "BIBER_USERNAME must be set in the Playwright env file").toBeTruthy();
+  expect(biberPassword, "BIBER_PASSWORD must be set in the Playwright env file").toBeTruthy();
+  expect(biberEmail, "BIBER_EMAIL must be set in the Playwright env file").toBeTruthy();
+  await page.context().clearCookies();
+
+  await signInToSite(page, joomlaBaseUrl, biberUsername, biberPassword);
+  await gotoOnion(page, `${joomlaBaseUrl}/index.php?option=com_users&view=profile&layout=edit`);
+  await expect(
+    page.locator("#jform_username"),
+    "plg_authentication_ldap must create the account under the directory login attribute",
+  ).toHaveValue(biberUsername, { timeout: resolveTimeout(30_000) });
+  await expect(
+    page.locator("#jform_email1"),
+    "plg_authentication_ldap must take the account email from the directory mail attribute",
+  ).toHaveValue(biberEmail, { timeout: resolveTimeout(30_000) });
+  await expect(
+    page.locator("#jform_name"),
+    "plg_authentication_ldap must take the account name from the directory full-name attribute",
+  ).not.toHaveValue("", { timeout: resolveTimeout(30_000) });
+
+  await signOutOfSite(page, joomlaBaseUrl);
 });

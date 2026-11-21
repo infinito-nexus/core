@@ -1,0 +1,25 @@
+---
+# nocheck: required-by-coverage — tasks/stages/01_constructor.yml includes the pre-flight on every host, so no consumer has to require it
+preflight:
+  lifecycle: beta
+  checks:
+    inventory:
+      enabled: true
+    kernel:
+      enabled: true
+    clock:
+      enabled: true
+    disk:
+      enabled: true
+    networks:
+      enabled: true
+    containers:
+      enabled: true
+    volumes:
+      enabled: true
+    pools:
+      enabled: true
+    ports:
+      enabled: true
+    domains:
+      enabled: true

@@ -1,0 +1,32 @@
+---
+- name: "🧩 Create realm role '{{ item.role }}'"
+  ansible.builtin.shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} create roles -r {{ KEYCLOAK_REALM | quote }} -s name={{ item.role | quote }}
+  loop: "{{ KEYCLOAK_REALM_ROLE_GRANTS }}"
+  loop_control:
+    label: "{{ item.role }}"
+  register: kc_realm_role_create
+  changed_when: kc_realm_role_create.rc == 0
+  failed_when: kc_realm_role_create.rc != 0 and ('exists' not in (kc_realm_role_create.stderr | lower))
+
+- name: "⬇️ Resolve the RBAC group '{{ item.group_path }}'"
+  ansible.builtin.shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} get {{ ('group-by-path' ~ item.group_path) | quote }}
+    -r {{ KEYCLOAK_REALM | quote }} --fields id --format json
+  loop: "{{ KEYCLOAK_REALM_ROLE_GRANTS }}"
+  loop_control:
+    label: "{{ item.group_path }}"
+  register: kc_realm_role_groups
+  retries: 5
+  delay: 10
+  until: kc_realm_role_groups.rc == 0
+  changed_when: false
+
+- name: "🛂 Grant realm role '{{ item.item.role }}' to its RBAC group"
+  ansible.builtin.shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} add-roles -r {{ KEYCLOAK_REALM | quote }}
+    --gid {{ (item.stdout | kcadm_json).id | quote }} --rolename {{ item.item.role | quote }}
+  loop: "{{ kc_realm_role_groups.results }}"
+  loop_control:
+    label: "{{ item.item.group_path }}"
+  changed_when: true

@@ -21,7 +21,7 @@ from ansible.plugins.lookup import LookupBase
 
 from plugins.filter.cookie_scope import domain_strings
 from utils.templating.ansible import render_ansible_strict
-from utils.tls_common import is_onion_domain
+from utils.tls.common import is_onion_domain
 
 TOR_APPLICATION_ID = "svc-net-tor"
 

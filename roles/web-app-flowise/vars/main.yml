@@ -7,7 +7,7 @@ http_port: "{{ lookup('config', application_id, 'services.flowise.ports.local.ht
 
 FLOWISE_CONTAINER: "{{ lookup('config', application_id, 'services.flowise.name') }}"
 FLOWISE_PORT_INTERNAL: 3000
-FLOWISE_INTERNAL_URL: "http://{{ DOCKER_REACH_HOST }}:{{ http_port }}"
+FLOWISE_INTERNAL_URL: "http://127.0.0.1:{{ FLOWISE_PORT_INTERNAL }}"
 FLOWISE_NODE_MODULES: /opt/flowise/node_modules
 FLOWISE_BUILD_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'build'] | path_join }}"
 FLOWISE_NPM_VERSION: "{{ lookup('config', application_id, 'services.flowise.npm_version') }}"
@@ -17,7 +17,7 @@ FLOWISE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enable
 
 FLOWISE_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') }}"
 FLOWISE_LITELLM_URL: "{{ LITELLM_BASE_LOCAL_URL }}"
-FLOWISE_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+FLOWISE_LITELLM_API_KEY: "{{ lookup('litellm_api_key', application_id) }}"
 
 FLOWISE_QDRANT_API_KEY: "{{ lookup('engine', 'qdrant', application_id, 'password') }}"
 FLOWISE_QDRANT_INTERNAL_URL: "{{ lookup('engine', 'qdrant', application_id, 'url') }}"

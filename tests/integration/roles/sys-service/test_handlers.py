@@ -174,7 +174,6 @@ def _run(work: Path) -> tuple[str, dict[str, int], dict[str, list[str]]]:
     dump_yaml(
         extra_vars,
         {
-            "ASYNC_ENABLED": True,
             "system_service_id": "probe",
             "system_service_name": UNIT,
             "system_service_scope": "user",

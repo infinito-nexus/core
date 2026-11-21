@@ -426,6 +426,13 @@ class TestJanusConfig(unittest.TestCase):
         self.assertNotEqual(_settings(rendered), STOCK_JANUS)
 
 
+def _configure_flags(dockerfile: str) -> list[str]:
+    configure = re.search(r"/src/configure((?: --[\w-]+)*);", dockerfile)
+    if configure is None:
+        raise AssertionError("the Janus build runs no /src/configure")
+    return configure.group(1).split()
+
+
 class TestTalkDockerfiles(unittest.TestCase):
     AIO_JANUS_BUILD_PACKAGES: ClassVar[list[str]] = [
         "ca-certificates",
@@ -459,9 +466,14 @@ class TestTalkDockerfiles(unittest.TestCase):
             '--depth=1 --single-branch --branch "v1.4.0" /src',
             rendered,
         )
-        self.assertIn(
-            "/src/configure --disable-rabbitmq --disable-mqtt --disable-boringssl",
-            rendered,
+        self.assertEqual(
+            _configure_flags(rendered),
+            [
+                "--disable-rabbitmq",
+                "--disable-mqtt",
+                "--disable-boringssl",
+                "--disable-rest",
+            ],
         )
         build_stage = rendered.split("\nFROM ")[1]
         for package in self.AIO_JANUS_BUILD_PACKAGES:
@@ -520,6 +532,13 @@ class TestTalkDockerfiles(unittest.TestCase):
                     rendered.split("\nFROM ")[-1].replace("COPY --from=build", ""),
                 )
                 self.assertNotIn("SECRET", rendered)
+
+    def test_negative_control_a_janus_build_with_the_rest_transport_is_reported(
+        self,
+    ):
+        drifted = _build("Janus").replace(" --disable-rest;", ";")
+        self.assertNotEqual(drifted, _build("Janus"))
+        self.assertNotIn("--disable-rest", _configure_flags(drifted))
 
     def test_negative_control_an_arg_compose_does_not_pass_fails_the_build(self):
         with self.assertRaisesRegex(AssertionError, "JANUS_UNPASSED"):

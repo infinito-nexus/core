@@ -1,31 +1,42 @@
 ---
-- name: "👤 Register the Flowise instance owner before a visitor can claim it"
-  uri_retry:
-    url: "{{ FLOWISE_INTERNAL_URL }}/api/v1/account/register"
-    method: POST
-    headers:
-      x-request-from: internal
-    body_format: json
-    body:
-      user:
-        email: "{{ FLOWISE_API_BOT_USER.email }}"
-        name: "{{ FLOWISE_API_BOT_USER.username }}"
-        credential: "{{ FLOWISE_API_BOT_PASSWORD }}"
-    status_code: [200, 201, 400]
-    return_content: true
-  register: flowise_owner
-  changed_when: flowise_owner.status in [200, 201]
-  failed_when: >-
-    flowise_owner.status not in [200, 201]
-    and (flowise_owner.status != 400 or 'only have one organization' not in flowise_owner.content)
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-
 - name: "🔍 Resolve {{ application_id }} hosting node + container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
   vars:
     resolve_service_key: "{{ entity_name }}"
     resolve_output_prefix: FLOWISE
     resolve_compose_cid: "{{ FLOWISE_CONTAINER }}"
+
+- name: "🔍 Resolve the Flowise network namespace for host-side API calls"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+  vars:
+    netns_output_prefix: FLOWISE
+
+- name: "👤 Register the Flowise instance owner before a visitor can claim it"
+  ansible.builtin.command:
+    argv: "{{ FLOWISE_NETNS_PYTHON }}"
+    stdin: >-
+      {{ lookup('http_request_program', {'user': {
+        'email': FLOWISE_API_BOT_USER.email,
+        'name': FLOWISE_API_BOT_USER.username,
+        'credential': FLOWISE_API_BOT_PASSWORD,
+      }} | to_json, headers={'x-request-from': 'internal'}) }}
+  environment:
+    HTTP_METHOD: POST
+    HTTP_URL: "{{ FLOWISE_INTERNAL_URL }}/api/v1/account/register"
+  register: flowise_owner
+  retries: 30
+  delay: 5
+  until: flowise_owner.rc == 0 and (flowise_owner.stdout | from_json).status in [200, 201, 400]
+  changed_when: flowise_owner.rc == 0 and (flowise_owner.stdout | from_json).status in [200, 201]
+  failed_when: >-
+    flowise_owner.rc != 0
+    or ((flowise_owner.stdout | from_json).status not in [200, 201]
+    and ((flowise_owner.stdout | from_json).status != 400
+    or 'only have one organization' not in (flowise_owner.stdout | from_json).content))
+  delegate_to: "{{ FLOWISE_HOST_NODE }}"
+  become: true
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔐 Converge the password of the Flowise instance owner"
   ansible.builtin.command:

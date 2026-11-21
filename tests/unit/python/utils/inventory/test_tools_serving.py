@@ -16,7 +16,7 @@ ENGINE_LANGUAGES = b'[{"code": "de"}, {"code": "en"}]'
 class TestServing(unittest.TestCase):
     def _run(self, answers: dict[str, bytes | None], roles: tuple[str, ...]) -> bool:
         with (
-            patch.object(tools, "host_url", lambda root, role, key: f"http://{role}"),
+            patch.object(tools, "lane_url", lambda root, role, key: f"http://{role}"),
             patch.object(tools, "_answers", answers.get),
         ):
             return serving(ROOT, ["de"], roles)

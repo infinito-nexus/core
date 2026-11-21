@@ -14,6 +14,7 @@ import ipaddress
 from typing import TYPE_CHECKING
 
 from utils.cache.yaml import load_yaml_any
+from utils.networks import STREAM_RELAY
 from utils.roles.mapping import ROLE_FILE_META_NETWORKS, ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
@@ -97,22 +98,37 @@ def iter_relay_ranges() -> Iterable[tuple[str, str, int, int]]:
                 yield (role_dir.name, entity_name, start, end)
 
 
+def _subnet_at(node: object, *keys: str) -> str | None:
+    for key in keys:
+        if not isinstance(node, dict):
+            return None
+        node = node.get(key)
+    return node if isinstance(node, str) else None
+
+
 def iter_subnets() -> Iterable[tuple[str, ipaddress.IPv4Network]]:
-    """Yield ``(role, subnet)`` for every role that declares a local subnet."""
+    """Yield ``(owner, subnet)`` for every subnet a role pins.
+
+    ``owner`` is the role for its ``local.subnet`` and ``<role>:stream_relay``
+    for the subnet of its stream relay network, so the allocator and the pool
+    lint see both.
+    """
     for role_dir in iter_role_dirs():
         networks = _load_yaml(role_dir / ROLE_FILE_META_NETWORKS)
-        if not isinstance(networks, dict):
-            continue
-        local = networks.get("local")
-        if not isinstance(local, dict):
-            continue
-        subnet_str = local.get("subnet")
-        if not isinstance(subnet_str, str):
-            continue
-        try:
-            yield role_dir.name, ipaddress.IPv4Network(subnet_str.strip())
-        except (ipaddress.AddressValueError, ValueError):
-            continue
+        pinned = (
+            (role_dir.name, _subnet_at(networks, "local", "subnet")),
+            (
+                f"{role_dir.name}:{STREAM_RELAY}",
+                _subnet_at(networks, "overlay", STREAM_RELAY, "subnet"),
+            ),
+        )
+        for owner, subnet_str in pinned:
+            if subnet_str is None:
+                continue
+            try:
+                yield owner, ipaddress.IPv4Network(subnet_str.strip())
+            except (ipaddress.AddressValueError, ValueError):
+                continue
 
 
 def occupied_ports_for(scope: str, category: str) -> list[int]:

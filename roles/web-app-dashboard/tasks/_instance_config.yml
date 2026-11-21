@@ -16,9 +16,10 @@
   when: DASHBOARD_SIMPLEICONS_ENABLED | bool
   changed_when: false
 
-- name: "👥 Group docker cards for the {{ dashboard_instance.network }} instance"
+- name: "👥 Group cards into folders for the {{ dashboard_instance.network }} instance"
   set_fact:
-    portfolio_menu_data: "{{ lookup('docker_cards_grouped', portfolio_cards, portfolio_menu_categories) }}"
+    portfolio_menu_data: >-
+      {{ lookup('docker_cards_grouped', portfolio_cards | with_added(dashboard_first_seen), portfolio_menu_categories) }}
 
 - name: "📄 Render {{ DASHBOARD_CONFIG_YML_DEST | basename }} (local + swarm peers)"
   ansible.builtin.include_tasks:

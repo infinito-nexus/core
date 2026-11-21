@@ -1,0 +1,51 @@
+---
+- name: "📌 apply OIDC settings in Zammad (post-bootstrap; idempotent)"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.shell:
+    cmd: |
+      set -euo pipefail
+      container exec -i \
+        -e ZAMMAD_FQDN -e ZAMMAD_HTTP_TYPE \
+        -e OIDC_BUTTON_TEXT -e OIDC_CLIENT_ID -e OIDC_ISSUER_URL \
+        -e OIDC_SCOPE -e OIDC_UID_FIELD -e OIDC_ADMIN_LOGIN \
+        {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
+        bundle exec rails r -
+    stdin: "{{ lookup('file', 'ruby/apply/oidc_settings.rb') }}"
+  environment:
+    ZAMMAD_FQDN: "{{ ZAMMAD_HOSTNAME }}"
+    ZAMMAD_HTTP_TYPE: "{{ ZAMMAD_WEB_PROTOCOL }}"
+    OIDC_BUTTON_TEXT: "{{ OIDC.BUTTON_TEXT }}"
+    OIDC_CLIENT_ID: "{{ ZAMMAD_OIDC_CLIENT_ID }}"
+    OIDC_ISSUER_URL: "{{ OIDC.CLIENT.ISSUER_URL }}"
+    OIDC_SCOPE: "{{ ZAMMAD_OIDC_SCOPE }}"
+    OIDC_UID_FIELD: "{{ OIDC.ATTRIBUTES.USERNAME }}"
+    OIDC_ADMIN_LOGIN: "{{ ZAMMAD_ADMINISTRATOR.username }}"
+  register: zammad_oidc_apply
+  changed_when: false
+
+- name: "🔑 Read the Keycloak directory users"
+  ansible.builtin.include_role:
+    name: web-app-keycloak
+    tasks_from: utils/directory_users.yml
+  vars:
+    keycloak_directory_usernames: []
+
+- name: "🔗 Authorize every account whose login and verified email match its Keycloak user"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.shell:
+    cmd: |
+      set -euo pipefail
+      container exec -i \
+        -e ZAMMAD_SSO_DIRECTORY_USERS \
+        {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
+        bundle exec rails r -
+    stdin: "{{ lookup('file', 'ruby/apply/sso_authorizations.rb') }}"
+  environment:
+    ZAMMAD_SSO_DIRECTORY_USERS: "{{ keycloak_directory_users | to_json }}"
+  register: zammad_sso_authorizations
+  changed_when: zammad_sso_authorizations.stdout_lines | last == 'changed'
+
+- name: "📋 Report the accounts left unbound"
+  ansible.builtin.debug:
+    msg: "{{ zammad_sso_authorizations.stdout_lines | select('match', '^skipped ') | list }}"
+  when: zammad_sso_authorizations.stdout_lines | select('match', '^skipped ') | list | length > 0

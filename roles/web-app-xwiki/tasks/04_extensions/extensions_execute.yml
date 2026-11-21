@@ -1,21 +1,18 @@
 ---
 - name: "▶️ XWIKI | Execute installer page"
-  uri_retry:
-    url: "{{ XWIKI_DOCKER_REACH_URL }}/bin/view/XWiki/InstallExtensions?xpage=plain"
-    method: GET
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [200]
-    return_content: true
-    timeout: "{{ lookup('timeout', 300) | int }}"
-  register: _exec_page
-  retries: 12
-  delay: 20
-  until:
-    - _exec_page is succeeded
-    - (_exec_page.content | default('')) is not search('WARN::')
-  changed_when: false
+  include_tasks: ../utils/http.yml
+  vars:
+    xwiki_http_method: GET
+    xwiki_http_url: "{{ XWIKI_INTERNAL_URL }}/bin/view/XWiki/InstallExtensions?xpage=plain"
+    xwiki_http_headers: "{{ XWIKI_SUPERADMIN_AUTH_HEADERS }}"
+    xwiki_http_body: ""
+    xwiki_http_status: [200]
+    xwiki_http_retry_markers: ["WARN::"]
+    xwiki_http_retries: 12
+    xwiki_http_delay: 20
+    xwiki_http_timeout: "{{ lookup('timeout', 300) | int }}"
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _exec_page
 
 - name: "✅ XWIKI | Assert installer output has no errors"
   assert:

@@ -13,6 +13,10 @@ this lint pins both:
   what a compromised container can do, and its length (which grows with the
   realm's registered origins) re-enters the upstream's header-size limit.
 
+``web-app-keycloak`` names the header without consuming it, since it emits the
+header through the gate, and so does one file of ``test-e2e-playwright``: the
+shared forged-identity helper, which forges it as a client request header.
+
 Suppression (see ``docs/contributing/actions/testing/suppression.md``):
 
 * ``# nocheck: sso-access-token-optin`` in the head of ``meta/services.yml``,
@@ -38,6 +42,10 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 _RULE = "sso-access-token-optin"
+_SENDERS = frozenset({"web-app-keycloak"})
+_SENDER_FILES = frozenset(
+    {"test-e2e-playwright/files/personas/utils/forged-identity.js"}
+)
 
 ROLES_DIR = PROJECT_ROOT / "roles"
 GATE = PROJECT_ROOT / (
@@ -103,7 +111,11 @@ def _reading_roles() -> set[str]:
     for path, content in iter_project_files_with_content(
         extensions=tuple(_TEXT_SUFFIXES), exclude_tests=True
     ):
-        if not path.startswith(prefix) or path.endswith(meta_name):
+        if (
+            not path.startswith(prefix)
+            or path.endswith(meta_name)
+            or path[len(prefix) :] in _SENDER_FILES
+        ):
             continue
         for line in content.splitlines():
             if _HEADER_RE.search(line) and not _EMITS_RE.search(line):
@@ -127,7 +139,7 @@ class TestSsoAccessTokenOptIn(unittest.TestCase):
                 cls.declared.add(role.name)
             if text and is_suppressed_in_head(text.splitlines(), _RULE):
                 cls.suppressed.add(role.name)
-        cls.readers = _reading_roles() - {"web-app-keycloak"}
+        cls.readers = _reading_roles() - _SENDERS
 
     def test_every_reader_of_the_token_declares_the_opt_in(self) -> None:
         missing = sorted(self.readers - self.declared - self.suppressed)
@@ -147,6 +159,10 @@ class TestSsoAccessTokenOptIn(unittest.TestCase):
             "role(s) declaring `pass_access_token: true` with no reference to "
             f"the header: {unused}",
         )
+
+    def test_every_sender_file_exists_and_names_the_header(self) -> None:
+        for rel in sorted(_SENDER_FILES):
+            self.assertRegex(read_text(str(ROLES_DIR / rel)), _HEADER_RE, rel)
 
     def test_the_scan_finds_the_known_reader(self) -> None:
         self.assertIn("web-app-n8n", self.readers)

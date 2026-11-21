@@ -22,4 +22,4 @@ config:
       value: "system"
     - name: discourse_logs
       key: logs-enabled
-      value: "{{ MODE_DEBUG }}"
+      value: "{{ lookup('debug', 'web-app-wordpress') }}"

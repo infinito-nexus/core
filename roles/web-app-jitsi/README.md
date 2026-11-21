@@ -6,14 +6,19 @@
 
 ## Overview
 
-This role deploys the official `jitsi/{web,prosody,jicofo,jvb}` images as a single-domain Jitsi Meet stack. Authentication is bridged to the central Keycloak via JWT (prosody validates RS256 tokens whose issuer is the realm's OIDC endpoint), and to OpenLDAP through the prosody image's own `AUTH_TYPE=ldap` path (`mod_auth_cyrus` against the saslauthd the `LDAP_*` variables of [env.j2](./templates/env.j2) configure) in the LDAP-only matrix variant. The web container sits behind the central openresty reverse proxy at `meet.{{ DOMAIN_PRIMARY }}`; the media plane (jvb) publishes UDP `10000/udp` on the host.
+This role deploys the official `jitsi/{web,prosody,jicofo,jvb}` images as a single-domain Jitsi Meet stack. With SSO enabled, the oauth2-proxy gate admits every realm user to the vhost. With `services.keycloak_adapter.enabled` also true, the role builds the [nordeck jitsi-keycloak-adapter](https://github.com/nordeck/jitsi-keycloak-adapter) (Apache-2.0) and switches prosody to `AUTH_TYPE=jwt`. In the LDAP-only variant, prosody uses the image's own `AUTH_TYPE=ldap` path (`mod_auth_cyrus` against the saslauthd the `LDAP_*` variables of [env.j2](./templates/env.j2) configure). The web container sits behind the central openresty reverse proxy at `meet.{{ DOMAIN_PRIMARY }}`; the media plane (jvb) publishes UDP `10000/udp` on the host.
 
 ## Features
 
-- **JWT-bridged SSO:** Prosody validates Keycloak-issued RS256 tokens via JWKS so the OIDC client controls room moderation rights.
-- **LDAP direct-bind variant:** `meta/variants.yml` V3 sets `AUTH_TYPE=ldap`, so prosody binds against `svc-db-openldap` through saslauthd for a non-OIDC LDAP-only deploy.
-- **Three persona surfaces:** `guest` lands on the public landing without a room, `biber` joins a JWT-issued room, `administrator` is moderator with token-gated kick/lock.
+- **SSO gate:** With `services.sso.enabled`, oauth2-proxy admits every realm user to the vhost.
+- **Moderators from Keycloak:** With `services.keycloak_adapter.enabled` (on in variant 0), Jitsi's `TOKEN_AUTH_URL` sends the "I am the host" step to the adapter. The adapter signs an HS256 JWT for every realm user; `context.user.moderator` is true only for members of the `web-app-jitsi` `administrator` group. Prosody's `token_affiliation` module makes them owners and every other token holder a named member, and `ENABLE_AUTO_OWNER=false` keeps jicofo from promoting the first participant, so a non-moderator joins under their Keycloak name and waits in the lobby for a moderator.
+- **LDAP direct-bind variant:** `meta/variants.yml` V3 sets `AUTH_TYPE=ldap`, so prosody binds against `svc-db-openldap` through saslauthd with `LDAP_FILTER` built from `LDAP.FILTERS.USERS.ALL` and `LDAP.USER.ATTRIBUTES.ID`.
+- **Three persona surfaces:** `guest` lands on the public landing without a room, `biber` and `administrator` reach the prejoin lobby behind the SSO gate.
 - **Self-contained Prosody:** Component secrets for jicofo, jvb, jigasi and jibri are pre-generated via `meta/secrets.yml` so XMPP auth is stable across redeploys.
+
+### Keycloak adapter
+
+The adapter is built from the upstream sources at `services.keycloak_adapter.ref` on the multi-arch `denoland/deno` image, with the role's own [context.ts](./templates/keycloak_adapter/context.ts.j2) baked in. [forwarded_scheme.ts](./files/keycloak_adapter/forwarded_scheme.ts) rewrites the upstream `adapter.ts` at build time so the `redirect_uri` carries the scheme from `X-Forwarded-Proto` instead of a hard-coded `https`, and fails the build when upstream moves one of the three rewritten lines. The web container serves `/oidc/{redirect,auth,tokenize}` through [nginx.conf.j2](./templates/keycloak_adapter/nginx.conf.j2) and the callback page `/static/oidc-adapter.html` from [oidc-adapter.html.j2](./templates/keycloak_adapter/oidc-adapter.html.j2). Enabling the switch on an existing inventory needs the `jwt_app_secret` credential, so regenerate the inventory first.
 
 ## Developer Notes
 

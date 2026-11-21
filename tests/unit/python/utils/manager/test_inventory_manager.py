@@ -777,11 +777,16 @@ class TestSuppliedValueValidation(TestCase):
     }
 
     def test_a_matching_value_passes(self):
-        validate_supplied_value("credentials.api_key", "sk-abcd1234", self.SCHEMA)
+        self.assertIsNone(
+            validate_supplied_value("credentials.api_key", "sk-abcd1234", self.SCHEMA)
+        )
 
     def test_an_empty_value_is_not_configured_and_passes(self):
-        validate_supplied_value("credentials.api_key", "", self.SCHEMA)
-        validate_supplied_value("credentials.api_key", None, self.SCHEMA)
+        for value in ("", None):
+            with self.subTest(value=value):
+                self.assertIsNone(
+                    validate_supplied_value("credentials.api_key", value, self.SCHEMA)
+                )
 
     def test_a_value_failing_the_pattern_aborts(self):
         with self.assertRaises(SystemExit):
@@ -800,12 +805,20 @@ class TestSuppliedValueValidation(TestCase):
             validate_supplied_value("credentials.x", "v", {"type": "uuid"})
 
     def test_a_schema_declaring_neither_accepts_anything(self):
-        validate_supplied_value("credentials.x", "anything", {"description": "free"})
+        for value in ("anything", 8080, ["a"]):
+            with self.subTest(value=value):
+                self.assertIsNone(
+                    validate_supplied_value(
+                        "credentials.x", value, {"description": "free"}
+                    )
+                )
 
     def test_an_unrendered_template_is_not_a_value(self):
         for value in ("{{ API.openai.api_key }}", "{% if x %}a{% endif %}"):
             with self.subTest(value=value):
-                validate_supplied_value("credentials.api_key", value, self.SCHEMA)
+                self.assertIsNone(
+                    validate_supplied_value("credentials.api_key", value, self.SCHEMA)
+                )
 
 
 class TestProviderKeyPattern(TestCase):

@@ -13,6 +13,59 @@ const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 
 /**
+ * Authenticate one account against whichever security realm the current
+ * variant selected, without asserting what the account may see afterwards.
+ *
+ * Args:
+ *   page: the Playwright page to drive.
+ *   username: the account's login name.
+ *   password: the account's password.
+ */
+async function loginAs(page, username, password) {
+  expect(baseUrl, "JENKINS_BASE_URL must be set").toBeTruthy();
+  expect(username, "the login name must be set").toBeTruthy();
+  expect(password, "the password must be set").toBeTruthy();
+
+  if (isServiceEnabled("sso")) {
+    await gotoOnion(page, `${baseUrl}/`);
+    await performKeycloakLoginForm(page, username, password);
+  } else {
+    await gotoOnion(page, `${baseUrl}/login`);
+    const user = page.locator("input[name='j_username']").first();
+    await expect(user).toBeVisible({ timeout: resolveTimeout(60_000) });
+    await user.fill(username);
+    await page.locator("input[name='j_password']").first().fill(password);
+    await page
+      .locator("button[name='Submit'], input[type='submit']")
+      .first()
+      .click({ timeout: resolveTimeout(30_000) });
+  }
+
+  await expect
+    .poll(async () => (await whoAmI(page)).name, {
+      timeout: resolveTimeout(60_000),
+      message: `Expected Jenkins to report ${username} as the current user after login`,
+    })
+    .toBe(username);
+}
+
+/**
+ * Return the controller's view of the current session from /whoAmI, which
+ * Jenkins serves without the Overall/Read permission.
+ *
+ * Args:
+ *   page: a Playwright page whose context carries the Jenkins session.
+ */
+async function whoAmI(page) {
+  const response = await page.request.get(`${baseUrl}/whoAmI/api/json`, {
+    failOnStatusCode: false,
+    timeout: resolveTimeout(30_000),
+  });
+  if (!response.ok()) return { name: "", authorities: [] };
+  return response.json();
+}
+
+/**
  * Authenticate as the administrator against whichever security realm the
  * current variant selected.
  *
@@ -20,24 +73,7 @@ const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
  *   page: the Playwright page to drive.
  */
 async function loginAsAdministrator(page) {
-  expect(baseUrl, "JENKINS_BASE_URL must be set").toBeTruthy();
-  expect(adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
-  expect(adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
-
-  if (isServiceEnabled("sso")) {
-    await gotoOnion(page, `${baseUrl}/`);
-    await performKeycloakLoginForm(page, adminUsername, adminPassword);
-  } else {
-    await gotoOnion(page, `${baseUrl}/login`);
-    const user = page.locator("input[name='j_username']").first();
-    await expect(user).toBeVisible({ timeout: resolveTimeout(60_000) });
-    await user.fill(adminUsername);
-    await page.locator("input[name='j_password']").first().fill(adminPassword);
-    await page
-      .locator("button[name='Submit'], input[type='submit']")
-      .first()
-      .click({ timeout: resolveTimeout(30_000) });
-  }
+  await loginAs(page, adminUsername, adminPassword);
 
   const landing = await gotoOnion(page, `${baseUrl}/`);
   expect(
@@ -68,4 +104,4 @@ async function fetchPluginRecord(page, shortName) {
   return (payload.plugins || []).find((plugin) => plugin.shortName === shortName);
 }
 
-module.exports = { baseUrl, fetchPluginRecord, loginAsAdministrator };
+module.exports = { baseUrl, fetchPluginRecord, loginAs, loginAsAdministrator, whoAmI };

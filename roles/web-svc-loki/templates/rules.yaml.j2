@@ -1,0 +1,27 @@
+groups:
+  - name: infinito-log-content
+    rules:
+      - alert: {{ LOKI_ALERTING_RULE_NAME }}
+        expr: >-
+          sum by (application, host) (count_over_time({log_class="application"} |~ {{ LOKI_ALERTING_PATTERN | to_json }} [{{ LOKI_ALERTING_WINDOW }}])) > 0
+        for: 0m
+        labels:
+          severity: warning
+          source: loki-ruler
+        annotations:
+          summary: {% raw %}"{{ $labels.application }} wrote a critical line on {{ $labels.host }}"{% endraw %}
+
+          description: {{ ("A line of the application log class matched " ~ LOKI_ALERTING_PATTERN ~ " within " ~ LOKI_ALERTING_WINDOW ~ ".") | to_json }}
+  - name: infinito-managed-fields
+    rules:
+      - alert: {{ LOKI_DRIFT_RULE_NAME }}
+        expr: >-
+          sum by (application, host) (count_over_time({identifier={{ FORMS_DRIFT_IDENTIFIER | to_json }}} [{{ LOKI_ALERTING_WINDOW }}])) > 0
+        for: 0m
+        labels:
+          severity: warning
+          source: loki-ruler
+        annotations:
+          summary: {% raw %}"{{ $labels.application }} overwrote a managed field on {{ $labels.host }}"{% endraw %}
+
+          description: {{ ("A deploy overwrote a managed field of meta/forms.yml that differed from its source within " ~ LOKI_ALERTING_WINDOW ~ "; the deploy log names the field.") | to_json }}

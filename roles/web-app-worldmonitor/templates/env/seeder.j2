@@ -1,0 +1,12 @@
+{% include 'roles/sys-svc-container/templates/env.j2' %}
+
+UPSTASH_REDIS_REST_URL={{ WORLDMONITOR_REST_URL | dotenv_quote }}
+UPSTASH_REDIS_REST_TOKEN={{ WORLDMONITOR_REDIS_TOKEN | dotenv_quote }}
+SEED_TIMEOUT={{ WORLDMONITOR_SEEDER_TIMEOUT_SECONDS }}
+WORLDMONITOR_SEED_INTERVAL_SECONDS={{ WORLDMONITOR_SEEDER_INTERVAL_SECONDS }}
+LLM_API_URL={{ WORLDMONITOR_LLM_API_URL | dotenv_quote }}
+LLM_API_KEY={{ WORLDMONITOR_LLM_API_KEY | dotenv_quote }}
+LLM_MODEL={{ WORLDMONITOR_LLM_MODEL | dotenv_quote }}
+{% for name, value in WORLDMONITOR_API_KEYS.items() %}
+{{ name }}={{ value | dotenv_quote }}
+{% endfor %}

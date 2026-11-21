@@ -1,12 +1,12 @@
-"""Lint guard: the project-local iteration skills under ``skills/`` and the
-iteration procedure docs under ``docs/agents/action/iteration/`` stay in
-one-to-one correspondence.
+"""Lint guard: the project-local iteration skills under ``agents/skills/`` and
+the iteration routines under ``agents/routines/iterate/`` stay in one-to-one
+correspondence.
 
-Each ``skills/i8-iteration-<name>/SKILL.md`` is a thin wrapper whose
-only job is to route the agent to the matching
-``docs/agents/action/iteration/<name>.md`` (the single source of truth).
-This test fails if a wrapper points at a missing doc, if an iteration doc
-has no wrapper, or if a wrapper lacks the required frontmatter.
+Each ``agents/skills/i8-iterate-<name>/SKILL.md`` is a thin wrapper whose only
+job is to route the agent to the matching ``agents/routines/iterate/<name>.py``
+routine (the single source of truth). This test fails if a wrapper points at a
+missing routine, if an iteration routine has no wrapper, or if a wrapper lacks
+the required frontmatter or its routing line.
 """
 
 from __future__ import annotations
@@ -17,13 +17,13 @@ import unittest
 from tests.lint.repository.documentation import PROJECT_ROOT
 from utils.cache.files import read_text
 
-SKILLS_DIR = PROJECT_ROOT / "skills"
-ITERATION_DIR = PROJECT_ROOT / "docs" / "agents" / "action" / "iteration"
+SKILLS_DIR = PROJECT_ROOT / "agents" / "skills"
+ROUTINES_DIR = PROJECT_ROOT / "agents" / "routines" / "iterate"
 PREFIX = "i8-iterate-"
 
 
-def _iteration_doc_names() -> set[str]:
-    return {md.stem for md in ITERATION_DIR.glob("*.md") if md.name != "README.md"}
+def _iteration_routine_names() -> set[str]:
+    return {py.stem for py in ROUTINES_DIR.glob("*.py") if py.stem != "__init__"}
 
 
 def _iteration_skill_names() -> set[str]:
@@ -34,24 +34,24 @@ def _iteration_skill_names() -> set[str]:
 
 
 class TestIterationSkillsConsistent(unittest.TestCase):
-    def test_every_iteration_doc_has_a_skill(self):
-        docs = _iteration_doc_names()
+    def test_every_iteration_routine_has_a_skill(self):
+        routines = _iteration_routine_names()
         skills = _iteration_skill_names()
-        missing = sorted(docs - skills)
+        missing = sorted(routines - skills)
         self.assertFalse(
             missing,
-            f"iteration docs without a skills/{PREFIX}<name>/SKILL.md wrapper: "
-            f"{missing}",
+            f"iteration routines without an agents/skills/{PREFIX}<name>/SKILL.md "
+            f"wrapper: {missing}",
         )
 
-    def test_every_iteration_skill_has_a_doc(self):
-        docs = _iteration_doc_names()
+    def test_every_iteration_skill_has_a_routine(self):
+        routines = _iteration_routine_names()
         skills = _iteration_skill_names()
-        orphaned = sorted(skills - docs)
+        orphaned = sorted(skills - routines)
         self.assertFalse(
             orphaned,
             f"iteration skills without a matching "
-            f"docs/agents/action/iteration/<name>.md: {orphaned}",
+            f"agents/routines/iterate/<name>.py: {orphaned}",
         )
 
     def test_every_iteration_skill_wrapper_is_valid(self):
@@ -70,9 +70,9 @@ class TestIterationSkillsConsistent(unittest.TestCase):
                     "description:", frontmatter, "frontmatter missing description"
                 )
                 self.assertIn(
-                    f"docs/agents/action/iteration/{name}.md",
+                    f"python -m agents.routines show iterate_{name}",
                     text,
-                    "skill body must route to its iteration doc",
+                    "skill body must route to its iteration routine",
                 )
 
 

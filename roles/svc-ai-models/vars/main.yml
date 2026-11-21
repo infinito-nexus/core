@@ -1,0 +1,12 @@
+---
+application_id: "svc-ai-models"
+
+MODELS_STORE_PATH: "{{ AI_MODELS_STORE_PATH }}"
+MODELS_ARTEFACT_BASE: "{{ lookup('config', 'svc-ai-models', 'services.models.artefact_base') }}"
+MODELS_FETCH_TIMEOUT: "{{ lookup('config', 'svc-ai-models', 'services.models.timeout') }}"
+MODELS_DEPLOYED_ROLES: "{{ ((lookup('applications_current_play').keys() | list) + ['svc-ai-models']) | unique | list }}"
+MODELS_ARTEFACTS: >-
+  {{ lookup('cache_artefacts', *MODELS_DEPLOYED_ROLES, base=MODELS_ARTEFACT_BASE).values() | list | libretranslate_unselected }}
+MODELS_SEED_NODES: >-
+  {{ ((groups['svc-swarm-manager'] | default([])) + (groups['svc-swarm-node'] | default([]))) | unique | list
+     if IS_SWARM_MODE else [inventory_hostname] }}

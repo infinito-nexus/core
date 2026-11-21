@@ -1,11 +1,4 @@
 ---
-- name: "🧩 load docker, proxy for '{{ application_id }}'"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-    compose_repository_pull: false
-
 - name: "🎨 Web manifest of {{ application_id }}"
   include_tasks: 01_manifest.yml
   when: IS_STACK_HOST | bool

@@ -1,0 +1,64 @@
+---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
+agent-orchestrator:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  bond: 1
+  enabled: true
+  shared: true
+  backup:
+    stop_required: true
+  image: python
+  # nocheck: docker-version  base of a self-built stdlib-only image, not the served application
+  version: "3.13.15-slim"
+  custom: true
+  ca_client: true
+  name: agent-orchestrator
+  min_storage: 130MB
+  cpus: "0.5"
+  mem_reservation: 64m
+  mem_limit: 256m
+  pids_limit: 256
+  healthcheck:
+    flavor: http_status
+    path: health
+  ports:
+    internal:
+      http: 8080
+  request_timeout: 1800
+  poll_interval: 120
+  publicly_reachable: false
+  checkpoint_retention_days: 30
+  cron_entries: []
+  board_url: "{{ lookup('tls', 'web-app-openproject', 'url.origin') }}"
+  run_after:
+    - svc-db-postgres
+    - svc-ai-litellm
+  lifecycle: beta
+
+postgres:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-postgres' in group_names }}"
+
+# nocheck: playwright-service-flag, dynamic-flag  every model node is relayed through the gateway, so the orchestrator never runs without it
+litellm:
+  bond: 1
+  enabled: true
+  shared: "{{ LITELLM_SHARED }}"
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started

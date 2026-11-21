@@ -1,31 +1,6 @@
 ---
-- name: "📄 Render the container config overrides for {{ application_id }}"
-  ansible.builtin.include_tasks:
-    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
-  vars:
-    role_templates:
-      - src: "nginx-default.conf.j2"
-        dest: "{{ MAGENTO_NGINX_CONF_PATH }}"
-        mode: "0444"
-        notify: []
-      - src: "php-fpm.conf.j2"
-        dest: "{{ MAGENTO_PHP_FPM_CONF_PATH }}"
-        mode: "0444"
-        notify: []
-
-- name: "🧩 load docker, db/redis/proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: true
-
 - name: "🏗️ Set up Magento on the stack host"
+  include_tasks: 00_core/stack_host.yml
   when: IS_STACK_HOST | bool
-  block:
-    - name: "🏗️ Bootstrap and install Magento"
-      include_tasks: 01_setup.yml
-
-    - name: "🎨 Apply the corporate design"
-      include_tasks: 03_design.yml
 
 - include_tasks: utils/once/flag.yml

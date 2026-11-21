@@ -3,7 +3,7 @@
 # Dump host disk diagnostics before the Playwright runner starts so OOM
 # / no-space failures (e.g. on GitHub-hosted runners) leave a usable
 # audit trail. Invoked from
-# roles/test-e2e-playwright/tasks/02_run_one.yml when MODE_DEBUG is true.
+# roles/test-e2e-playwright/tasks/02_run_one.yml when the role's debug switch is on.
 set -o pipefail
 
 echo "== findmnt -T /mnt/docker =="

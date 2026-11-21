@@ -46,6 +46,10 @@ class TableNameTestCase(unittest.TestCase):
             with self.subTest(name=name), self.assertRaises(ValueError):
                 History(FakeClient(), name)
 
+    def test_a_trailing_newline_is_refused(self) -> None:
+        with self.assertRaises(ValueError):
+            History(FakeClient(), "infinito_router_history\n")
+
     def test_the_ddl_and_index_carry_the_table(self) -> None:
         history = History(FakeClient(), "infinito_router_history")
 

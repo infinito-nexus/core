@@ -17,6 +17,11 @@ exports.register = function (shared) {
     await gotoOnion(page, `${shared.env.semaphoreBaseUrl}/users`, { waitUntil: "domcontentloaded" });
     await expect(page, "administrator must not be bounced to login on /users").not.toHaveURL(/\/auth\/login/);
     await expect(page.locator("body")).toContainText(/users|new user|admin/i, { timeout: resolveTimeout(60_000) });
+    const account = await shared.currentUser(page);
+    expect(
+      account.admin,
+      `the administrator persona holds the administrator group, so the account MUST carry the Semaphore admin flag (account: ${JSON.stringify(account)})`,
+    ).toBe(true);
 
     await shared.logout(page, "administrator");
   });

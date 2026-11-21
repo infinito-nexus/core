@@ -200,6 +200,61 @@ class TestRenderComposeNetworks(unittest.TestCase):
             "a bare 'networks:' key is not a list and compose refuses the file",
         )
 
+    def _proxied_sidecar(self, deployment_mode, **kwargs):
+        registry = {
+            "openresty": {
+                "role": "svc-prx-openresty",
+                "entity_name": "openresty",
+                "overlay": {
+                    "modes": ["swarm"],
+                    "topology": "shared_net",
+                    "consumer": {"kind": "web_facing"},
+                },
+            },
+            "loki": {
+                "role": "web-svc-loki",
+                "entity_name": "loki",
+                "overlay": {"modes": ["compose", "swarm"], "topology": "shared_net"},
+            },
+            "seaweedfs": {
+                "role": "web-svc-seaweedfs",
+                "entity_name": "seaweedfs",
+                "overlay": {"modes": ["compose", "swarm"], "topology": "shared_net"},
+            },
+        }
+        return render_container_networks(
+            application_id="web-svc-loki",
+            deployment_mode=deployment_mode,
+            registry=registry,
+            entity_name=_entity_name,
+            lookup_config=_const_lookup_config(
+                **{
+                    "services.seaweedfs.enabled": True,
+                    "services.seaweedfs.shared": True,
+                }
+            ),
+            lookup_database=_const_lookup_database(),
+            own_network_only=True,
+            provider_self_alias=False,
+            **kwargs,
+        )
+
+    def test_reverse_proxy_keeps_the_proxy_network_under_own_network_only(self):
+        rendered = self._proxied_sidecar("swarm", reverse_proxy=True)
+        self.assertIn("loki:", rendered)
+        self.assertIn("openresty:", rendered)
+        self.assertNotIn("seaweedfs:", rendered)
+        self.assertNotIn("aliases:", rendered)
+
+    def test_negative_control_own_network_only_drops_the_proxy_network(self):
+        self.assertNotIn("openresty:", self._proxied_sidecar("swarm"))
+
+    def test_reverse_proxy_adds_nothing_where_the_proxy_has_no_overlay(self):
+        self.assertEqual(
+            self._proxied_sidecar("compose", reverse_proxy=True),
+            self._proxied_sidecar("compose"),
+        )
+
     def test_node_local_swarm_renders_bridge(self):
         rendered = render_compose_networks(
             application_id="svc-runner",

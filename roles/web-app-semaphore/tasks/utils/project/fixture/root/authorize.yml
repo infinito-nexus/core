@@ -1,0 +1,34 @@
+---
+- name: "✅ Fail when the fixture key equals the app-control, deploy or target key"
+  ansible.builtin.assert:
+    that:
+      - semaphore_fixture_root_findings | length == 0
+    fail_msg: "{{ semaphore_fixture_root_findings | join('; ') }}"
+    quiet: true
+  vars:
+    semaphore_fixture_root_findings: >-
+      {{ SEMAPHORE_DEPLOY_FIXTURE_ROOT_PUBLIC_KEY | semaphore_fixture_key_findings({
+           'app-control': SEMAPHORE_APP_CONTROL_PRIVATE_KEY | ssh_public_key,
+           'deploy': SEMAPHORE_DEPLOY_PRIVATE_KEY | ssh_public_key,
+           'target': semaphore_deploy_fixture_holder_key,
+         }) }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 Write the fixture key as the one key root may sign in with"
+  ansible.builtin.copy:
+    content: "{{ SEMAPHORE_DEPLOY_FIXTURE_ROOT_PUBLIC_KEY }}\n"
+    dest: "{{ SEMAPHORE_DEPLOY_FIXTURE_ROOT_KEYS_FILE }}"
+    owner: root
+    group: root
+    mode: "0644"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧱 Let root sign in over SSH with the fixture key alone"
+  stack_host_template:
+    src: sshd/fixture_root.conf.j2
+    dest: "{{ SEMAPHORE_DEPLOY_FIXTURE_ROOT_DROPIN }}"
+    owner: root
+    group: root
+    mode: "0644"
+    validate: /usr/sbin/sshd -t -f %s
+  notify: sshd-restart

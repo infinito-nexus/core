@@ -1,4 +1,9 @@
 ---
+- name: "🔧 Set docker.service's journald rate limit before Docker first starts"
+  include_role:
+    name: sys-svc-journalctl
+    tasks_from: utils/docker_rate_limit.yml
+
 - name: 📖 Read PID 1 process name
   ansible.builtin.slurp:
     src: /proc/1/comm
@@ -77,7 +82,7 @@
 
 - name: "✅ Assert that required services are available"
   include_tasks: "01_assert_requirements.yml"
-  when: MODE_ASSERT | bool
+  when: lookup('validate', 'sys-svc-container') | bool
 
 - name: "🧩 Load docker in docker procedures"
   include_tasks: "02_docker_in_docker.yml"
@@ -130,9 +135,11 @@
     load_app_id: "svc-opt-swapfile"
   when: run_once_svc_opt_swapfile is not defined
 
-- name: "📂 Load reset tasks when MODE_RESET is enabled"
+- name: "📂 Load reset tasks when RESET is enabled"
   include_tasks: "03_reset.yml"
-  when: MODE_RESET | bool
+  when: RESET | bool
+
+- include_tasks: utils/once/flag.yml
 
 - name: "🧭 Route docker cleanup/health deps through service-loader"
   ansible.builtin.include_role:
@@ -144,5 +151,3 @@
       - sys-ctl-hlth-container
       - sys-ctl-hlth-runtime
       - sys-ctl-hlth-volumes
-
-- include_tasks: utils/once/flag.yml

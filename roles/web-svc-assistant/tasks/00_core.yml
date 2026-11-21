@@ -1,0 +1,90 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🔑 Check the gateway contract of '{{ application_id }}'"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+
+- name: "🧩 load docker, db and proxy for '{{ application_id }}'"
+  include_role:
+    name: svc-stack
+    tasks_from: consumer.yml
+
+- name: "🎬 Stage the assistant into the build context of '{{ application_id }}'"
+  stack_host_copy:
+    src: "python/"
+    dest: "{{ [ASSISTANT_BUILD_DIR, 'python'] | path_join }}/"
+    directory_mode: "0755"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "📁 Create the directory of the shared secret patterns"
+  ansible.builtin.file:
+    path: "{{ ASSISTANT_REDACT_DIR }}"
+    state: directory
+    mode: "0755"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🧩 Stage the repository's secret patterns beside the assistant"
+  stack_host_copy:
+    src: "{{ ASSISTANT_REDACT_SOURCE }}"
+    dest: "{{ [ASSISTANT_REDACT_DIR, 'redact.py'] | path_join }}"
+    mode: "0644"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "📦 Stage the assistant's requirements into the build context"
+  stack_host_copy:
+    src: requirements.txt
+    dest: "{{ [ASSISTANT_BUILD_DIR, 'requirements.txt'] | path_join }}"
+    mode: "0644"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "📚 Stage the platform documentation into the knowledge directory"
+  stack_host_copy:
+    src: "{{ ASSISTANT_PLATFORM_DOCS }}/"
+    dest: "{{ [ASSISTANT_KNOWLEDGE_HOST, 'platform'] | path_join }}/"
+    directory_mode: "0755"
+
+- name: "📚 Stage the README of every role deployed on this host"
+  stack_host_copy:
+    src: "{{ lookup('path_absolute', 'roles/' ~ item ~ '/README.md') }}"
+    dest: "{{ [ASSISTANT_KNOWLEDGE_HOST, 'roles', item, 'README.md'] | path_join }}"
+    mode: "0644"
+  loop: "{{ ASSISTANT_DEPLOYED_ROLES }}"
+
+- name: "📚 Stage every tenant document source of the inventory"
+  stack_host_copy:
+    src: "{{ item.path }}/"
+    dest: "{{ [ASSISTANT_KNOWLEDGE_HOST, 'tenant', item.name] | path_join }}/"
+    directory_mode: "0755"
+  loop: "{{ ASSISTANT_INDEX.tenant_sources }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: "🗂️ Write the knowledge source manifest"
+  stack_host_template:
+    src: sources.json.j2
+    dest: "{{ [ASSISTANT_KNOWLEDGE_HOST, 'sources.json'] | path_join }}"
+    mode: "0644"
+
+- name: "🚿 Flush compose handlers for '{{ application_id }}'"
+  ansible.builtin.meta: flush_handlers
+
+- name: "🔍 Resolve the node and container of '{{ application_id }}'"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: ASSISTANT
+    resolve_compose_cid: "{{ ASSISTANT_CONTAINER_ADDRESS }}"
+
+- name: "🧠 Rebuild the knowledge index of '{{ application_id }}'"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ ASSISTANT_LOCAL_CID | quote }} python -m assistant
+  delegate_to: "{{ ASSISTANT_HOST_NODE }}"
+  run_once: true
+  changed_when: true

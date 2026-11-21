@@ -33,7 +33,7 @@ def load_yaml_mapping_tolerant(path: Path) -> dict:
     """Read a YAML file as a mapping; non-mapping or unparseable content
     silently collapses to ``{}``. Backed by the shared YAML cache.
 
-    Used for inventory-style files (devices.yml, host_vars/*.yml) where
+    Used for inventory-style files (``devices.yml``, ``host_vars/*.yml``) where
     the caller wants tolerance, not strictness.
     """
     if not path.exists():

@@ -1,21 +1,4 @@
 ---
-- name: "📂 Include role sys-stk-front-proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-front-proxy
-  loop: "{{ JOOMLA_DOMAINS }}"
-  loop_control:
-    loop_var: front_proxy_vhost
-  vars:
-    domain: "{{ front_proxy_vhost }}"
-    http_port: "{{ lookup('config', application_id, 'services.joomla.ports.local.http') }}"
-    webserver_client_max_body_size: "{{ JOOMLA_POST_MAX_SIZE }}"
-
-- name: "🧩 load docker and db for {{ application_id }}"
-  include_role:
-    name: sys-stk-backend
-  vars:
-    compose_handlers_flush: false
-
 - name: 📂 Include PHP Config tasks
   include_tasks: 01_config.yml
 

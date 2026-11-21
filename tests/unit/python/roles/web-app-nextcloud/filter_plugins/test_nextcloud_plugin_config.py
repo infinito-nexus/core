@@ -218,10 +218,21 @@ class TestNextcloudOccConfigSetBatch(unittest.TestCase):
             ),
             [
                 {
-                    "argv": ["config:app:set", "deck", "k", "--value", "-1"],
+                    "argv": ["config:app:set", "deck", "k", "--value=-1"],
                     "label": "deck/k",
                 }
             ],
+        )
+
+    def test_a_value_starting_with_a_dash_stays_in_the_option_token(self):
+        batch = nextcloud_occ_config_set_batch(
+            [
+                {"appid": "a", "configkey": "secret", "type": None, "value": "-K3y"},
+                {"appid": "a", "configkey": "empty", "type": None, "value": ""},
+            ]
+        )
+        self.assertEqual(
+            [call["argv"][3:] for call in batch], [["--value=-K3y"], ["--value="]]
         )
 
     def test_a_typed_entry_sets_its_type_without_a_prompt(self):
@@ -236,8 +247,7 @@ class TestNextcloudOccConfigSetBatch(unittest.TestCase):
                 "k",
                 "--no-interaction",
                 "--type=array",
-                "--value",
-                "[]",
+                "--value=[]",
             ],
         )
 

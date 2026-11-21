@@ -16,6 +16,8 @@ For administration commands see [Administration.md](./Administration.md). For DN
 - **Containerized deployment:** Run PDS, social-app, and the login-broker through Docker Compose with the project's standard role-meta wiring.
 - **Native Keycloak SSO:** Sit a `web-app-keycloak`'s SSO-proxy sidecar sidecar in front of the broker so unauthenticated visitors are redirected to Keycloak before they ever reach the web client.
 - **PDS auto-provisioning:** Have the broker call `com.atproto.server.createAccount` on first login and cache the resulting handle and DID per Keycloak username.
+- **Open sign-in:** Admit every realm user through the oauth2-proxy; no role group is required.
+- **Display name sync:** Write the `name` claim of the forwarded access token as `displayName` of the `app.bsky.actor.profile` record on every handoff.
 - **Encrypted app-password cache:** Keep the synthesised PDS app-password in a process-local map only as AES-256-GCM ciphertext, with the key sourced from the project's credentials vault.
 - **Pinned upstream client:** Build the `social-app` web client from a pinned tag so the broker's `BSKY_STORAGE` handoff stays in sync with the upstream persistence schema.
 
@@ -23,11 +25,11 @@ For administration commands see [Administration.md](./Administration.md). For DN
 
 OIDC integration follows the variant A+ pattern documented in requirement 013: `web-app-keycloak`'s SSO-proxy sidecar is the gate, the in-role login-broker is the session-handoff agent, and the official `social-app` web client is the user-facing UI.
 
-The broker MUST receive `X-Forwarded-User`, `X-Forwarded-Preferred-Username`, and `X-Forwarded-Email` from `oauth2-proxy`. On a user's first authenticated visit the broker calls the PDS `com.atproto.server.createAccount` endpoint with a synthesised app-password, encrypts that password with AES-256-GCM under a key from the project's credentials vault, and records handle, DID and ciphertext in the broker volume keyed by Keycloak username. Subsequent visits, also after a broker restart, decrypt the stored password in-broker, exchange it for a PDS session via `com.atproto.server.createSession`, and seed `localStorage["BSKY_STORAGE"]` so the social-app finds an authenticated session at boot. The handle is the username without prefix, `i8-<username>` for a name the PDS reserves, and a handle the user picks in a form when the username exceeds the PDS limit of 18 characters.
+The broker MUST receive `X-Forwarded-Preferred-Username` and `X-Forwarded-Email` from `oauth2-proxy`, and keys every account on `X-Forwarded-Preferred-Username` alone: it never reads `X-Forwarded-User`, which carries the e-mail address. On a user's first authenticated visit the broker calls the PDS `com.atproto.server.createAccount` endpoint with a synthesised app-password, encrypts that password with AES-256-GCM under a key from the project's credentials vault, and records handle, DID and ciphertext in the broker volume keyed by Keycloak username. Subsequent visits, also after a broker restart, decrypt the stored password in-broker, exchange it for a PDS session via `com.atproto.server.createSession`, and seed `localStorage["BSKY_STORAGE"]` so the social-app finds an authenticated session at boot. The handle is the username without prefix, `i8-<username>` for a name the PDS reserves, and a handle the user picks in a form when the username exceeds the PDS limit of 18 characters.
 
 LDAP rides the same broker path: Keycloak federates LDAP via `svc-db-openldap` and the broker reads the resulting Keycloak headers via `oauth2-proxy`. Direct LDAP-to-PDS sync is NOT supported, the Keycloak federation layer is the single authority for user identity.
 
-RBAC stays gating-only because the PDS has no in-app role concept beyond "account exists / does not exist". Membership in the `/roles/web-app-bluesky` Keycloak group lets a user past the oauth2-proxy gate. The documented SSO/RBAC exception per [lifecycle.md](../../docs/contributing/design/role/services/lifecycle.md) covers the in-app authorisation tier.
+The gate is open: every realm user passes the oauth2-proxy and gets a PDS account on the first visit. The PDS has no in-app role concept beyond "account exists / does not exist", so no role group maps into Bluesky. The documented SSO/RBAC exception per [lifecycle.md](../../docs/contributing/design/role/services/lifecycle.md) covers the in-app authorisation tier.
 
 ## Developer Notes
 

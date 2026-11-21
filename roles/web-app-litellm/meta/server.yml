@@ -1,0 +1,5 @@
+---
+vhosts:
+  default:
+    http_port: "{{ lookup('config', 'svc-ai-litellm', 'services.litellm.ports.local.http') }}"
+    internal_port: "{{ lookup('config', 'svc-ai-litellm', 'services.litellm.ports.internal.http') }}"

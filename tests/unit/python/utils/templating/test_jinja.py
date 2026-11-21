@@ -17,6 +17,7 @@ from utils.templating.jinja import (
     looks_like_jinja,
     render_jinja2_strict_recursive,
     render_strict,
+    rendered_or_raise,
 )
 
 
@@ -136,6 +137,26 @@ class TestJinjaStrict(unittest.TestCase):
             max_passes=20,
         )
         self.assertEqual(ok, "ok")
+
+    def test_rendered_or_raise_renders_only_template_text(self):
+        calls = []
+
+        def render(value):
+            calls.append(value)
+            return False
+
+        self.assertIs(rendered_or_raise("{{ FLAG }}", render, where="t"), False)
+        self.assertEqual(rendered_or_raise("plain", render, where="t"), "plain")
+        self.assertIs(rendered_or_raise(True, render, where="t"), True)
+        self.assertEqual(calls, ["{{ FLAG }}"])
+
+    def test_rendered_or_raise_fails_on_template_text_without_repeating_it(self):
+        for render in (None, lambda value: value):
+            with self.subTest(render=render):
+                with self.assertRaises(AnsibleError) as ctx:
+                    rendered_or_raise("{{ SECRET }}", render, where="app flag")
+                self.assertIn("app flag", str(ctx.exception))
+                self.assertNotIn("SECRET", str(ctx.exception))
 
 
 if __name__ == "__main__":

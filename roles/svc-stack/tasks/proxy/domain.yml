@@ -1,0 +1,86 @@
+---
+- name: 📂 Include dependencies
+  include_role:
+    name: "sys-svc-nss"
+  when: not (run_once_sys_svc_nss | default(false) | bool)
+
+- name: 🥾 Bootstrap Frontend Base
+  ansible.builtin.include_role:
+    name: sys-stk-front-base
+
+# nocheck: swarm-loopback-port overlay  the default port only feeds proxy_pass, which reaches the app over the overlay in swarm
+- name: "🌐 Serve every network sibling of the vhost"
+  ansible.builtin.include_tasks: proxy/vhost.yml
+  loop: "{{ lookup('network_siblings', front_proxy_vhost.domain) }}"
+  loop_control:
+    loop_var: front_proxy_domain
+  vars:
+    application_id: "{{ front_proxy_application_id }}"
+    domain: "{{ front_proxy_domain }}"
+    http_port: "{{ front_proxy_http_port }}"
+    proxy_service_key: "{{ front_proxy_service_key }}"
+    proxy_internal_port: "{{ front_proxy_internal_port }}"
+    front_proxy_service_key: >-
+      {{
+        front_proxy_vhost.service_key
+        | default(
+            lookup('config', front_proxy_application_id,
+              'services.' ~ (front_proxy_application_id | entity_name) ~ '.proxy.service_key',
+              front_proxy_application_id | entity_name
+            )
+          )
+      }}
+    front_proxy_http_port: >-
+      {{
+        front_proxy_vhost.http_port
+        | default(
+            lookup('config', front_proxy_application_id,
+              'services.' ~ (front_proxy_application_id | entity_name) ~ '.ports.local.http',
+              ''
+            )
+          )
+      }}
+    front_proxy_internal_port: >-
+      {{
+        front_proxy_vhost.internal_port
+        | default(
+            lookup('config', front_proxy_application_id,
+              'services.' ~ (front_proxy_application_id | entity_name) ~ '.proxy.internal_port',
+              ''
+            )
+          )
+      }}
+    front_proxy_vhost_flavour: "{{ front_proxy_vhost.flavour | default('basic') }}"
+    front_proxy_websocket_location: "{{ front_proxy_vhost.websocket_location | default('') }}"
+    front_proxy_client_max_body_size: >-
+      {{
+        front_proxy_vhost.client_max_body_size
+        | default(lookup('config', front_proxy_application_id, 'server.client_max_body_size', '100m'))
+      }}
+    front_proxy_extra_configuration: "{{ front_proxy_vhost.extra_configuration | default('') }}"
+    front_proxy_extra_template: >-
+      {{
+        ((front_proxy_application_id | abs_role_path_by_application_id) ~ '/templates/' ~ front_proxy_vhost.extra_template)
+        if front_proxy_vhost.extra_template is defined else ''
+      }}
+    front_proxy_location_extra_template: >-
+      {{
+        ((front_proxy_application_id | abs_role_path_by_application_id) ~ '/templates/' ~ front_proxy_vhost.location_extra_template)
+        if front_proxy_vhost.location_extra_template is defined else ''
+      }}
+    front_proxy_template_vars: "{{ front_proxy_vhost.vars | default({}) }}"
+    front_proxy_domain_conf_dst_resolved: "{{ lookup('nginx', 'files.domain', front_proxy_domain) }}"
+    front_proxy_probe:
+      url: "{{ lookup('tls', front_proxy_domain, 'url.base') | replace('://*.', '://' ~ front_proxy_wildcard_probe_label ~ '.') }}"
+      status_codes: "{{ lookup('applications') | accepted_status_codes(front_proxy_application_id, lookup('tls', front_proxy_domain, 'domain')) }}"
+    front_proxy_probe_url: "{{ front_proxy_probe.url }}"
+    front_proxy_status_codes: "{{ front_proxy_probe.status_codes }}"
+    front_proxy_application_template: "{{ front_proxy_application_id | abs_role_path_by_application_id }}/templates/proxy.conf.j2"
+    front_proxy_template_src: >-
+      {{
+        front_proxy_application_template
+        if (
+          lookup('fileglob', front_proxy_application_template, wantlist=True) | length
+        ) > 0
+        else "roles/sys-svc-proxy/templates/vhost/%s.conf.j2" | format(front_proxy_vhost_flavour)
+      }}

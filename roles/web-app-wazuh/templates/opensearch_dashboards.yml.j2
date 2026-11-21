@@ -8,7 +8,7 @@ opensearch.ssl.certificateAuthorities: ["/usr/share/wazuh-dashboard/certs/root-c
 opensearch.requestHeadersWhitelist: ["securitytenant", "Authorization"]
 opensearch_security.multitenancy.enabled: false
 opensearch_security.readonly_mode.roles: ["kibana_read_only"]
-uiSettings.overrides.defaultRoute: /app/home
+uiSettings.overrides.defaultRoute: {{ WAZUH_DASHBOARD.default_route }}
 opensearch_security.cookie.ttl: 900000
 opensearch_security.session.ttl: 900000
 opensearch_security.session.keepalive: true

@@ -1,0 +1,111 @@
+---
+# Param rbac_sync_*: the parameters of tasks/utils/rbac/sync.yml.
+# Output rbac_sync_run: the deploy-time run; its stdout carries CHANGED when the hook wrote something.
+
+- name: "⏱️ Load the RBAC sync runner"
+  ansible.builtin.include_role:
+    name: sys-ctl-mtn-rbac-sync
+  when: run_once_sys_ctl_mtn_rbac_sync is not defined
+
+- name: "🔧 Name the swarm service the hook of {{ rbac_sync_application_id }} acts on"
+  ansible.builtin.set_fact:
+    rbac_sync_swarm_service: >-
+      {{
+        (rbac_sync_service_name or lookup('container_service', rbac_sync_application_id, rbac_sync_service_key))
+        if rbac_sync_mode == 'swarm' else ''
+      }}
+
+- name: "🔧 Use the stack host's swarm service for {{ rbac_sync_application_id }}"
+  ansible.builtin.set_fact:
+    rbac_sync_swarm_service: "{{ hostvars[STACK_HOST].rbac_sync_swarm_service }}"
+  when: rbac_sync_mode == 'swarm'
+
+- name: "📁 Create the RBAC hook directory of {{ rbac_sync_application_id }}"
+  ansible.builtin.file:
+    path: "{{ [ DIR_RBAC_SYNC, 'hooks', rbac_sync_application_id ] | path_join }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: "📋 Register the RBAC hook files of {{ rbac_sync_application_id }}"
+  ansible.builtin.copy:
+    content: "{{ item.content }}"
+    dest: "{{ [ DIR_RBAC_SYNC, 'hooks', rbac_sync_application_id, item.name ] | path_join }}"
+    owner: root
+    group: root
+    mode: "0600"
+  loop: >-
+    {{
+      [{'name': 'hook.json', 'content': rbac_sync_hook | to_nice_json}]
+      + ([{'name': rbac_sync_script_name, 'content': rbac_sync_script}] if (rbac_sync_script | length > 0) else [])
+      + rbac_sync_modules
+    }}
+  loop_control:
+    label: "{{ item.name }}"
+  vars:
+    rbac_sync_script_name: "{{ 'main.py' if rbac_sync_kind == 'host' else 'script' }}"
+    rbac_sync_hook:
+      application_id: "{{ rbac_sync_application_id }}"
+      kind: "{{ rbac_sync_kind }}"
+      roles: "{{ rbac_sync_roles }}"
+      attributes: "{{ rbac_sync_attributes }}"
+      container: >-
+        {{
+          {'swarm_service': rbac_sync_swarm_service}
+          if rbac_sync_mode == 'swarm' else {'name': rbac_sync_container}
+        }}
+      user: "{{ rbac_sync_user }}"
+      argv: "{{ rbac_sync_argv }}"
+      script: "{{ rbac_sync_script_name if (rbac_sync_script | length > 0) else '' }}"
+      env: "{{ rbac_sync_env }}"
+      members_env: "{{ rbac_sync_members_env }}"
+      skip_unchanged: "{{ rbac_sync_skip_unchanged | bool }}"
+      paused_marker: >-
+        {{
+          ([ lookup('container', rbac_sync_application_id, 'directories.instance'), APP_CONTROL_STATE_FILE ] | path_join)
+          if (lookup('config', rbac_sync_application_id, 'services.semaphore.control') | bool) else ''
+        }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "👥 Start the member map of {{ rbac_sync_application_id }}"
+  ansible.builtin.set_fact:
+    rbac_sync_members: {}
+
+- name: "👥 Resolve the members of every role of {{ rbac_sync_application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync/collect_role.yml') }}"
+  loop: "{{ rbac_sync_roles }}"
+  loop_control:
+    loop_var: rbac_sync_role
+
+- name: "🔍 Resolve the swarm node of {{ rbac_sync_application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ rbac_sync_service_key }}"
+    resolve_service_name: "{{ rbac_sync_swarm_service }}"
+    resolve_output_prefix: RBAC_SYNC
+    resolve_compose_cid: "{{ rbac_sync_container }}"
+  when: rbac_sync_mode == 'swarm'
+
+- name: "🔍 Run the compose hook of {{ rbac_sync_application_id }} on the stack host"
+  ansible.builtin.set_fact:
+    RBAC_SYNC_HOST_NODE: "{{ STACK_HOST }}"
+  when: rbac_sync_mode == 'compose'
+
+- name: "🛂 Reconcile the role mapping of {{ rbac_sync_application_id }}"
+  ansible.builtin.command:
+    argv:
+      - "{{ ansible_python_interpreter }}"
+      - "{{ 'sys-ctl-mtn-rbac-sync' | get_service_script_path('py') }}"
+      - --directory
+      - "{{ DIR_RBAC_SYNC }}"
+      - --only
+      - "{{ rbac_sync_application_id }}"
+      - --members-file
+      - /dev/stdin
+    stdin: "{{ rbac_sync_members | to_json }}"
+  register: rbac_sync_run
+  changed_when: rbac_sync_run.stdout is search('(?<![A-Z])CHANGED')
+  no_log: "{{ (MASK_CREDENTIALS_IN_LOGS | bool) or (rbac_sync_attributes | length > 0) }}"
+  delegate_to: "{{ RBAC_SYNC_HOST_NODE }}"
+  run_once: true

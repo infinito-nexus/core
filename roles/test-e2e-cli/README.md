@@ -20,10 +20,12 @@ A tested role declares its CLI-test settings under `cli:` in its own `meta/tests
 |---|---|
 | `timeout` | Seconds for the test script, for a test that legitimately outlasts `TEST_E2E_CLI_TIMEOUT` |
 | `container_service_key` | Service key whose container the test runs against |
-| `once` | `true` runs the test in the sync pass only, so `full_cycle` does not run it a second time |
+| `once` | `true` runs the test in the first pass only, so the update pass of `full_cycle` does not run it a second time |
 
 ```yaml
 cli:
   once: true
   timeout: 14400
 ```
+
+The script runs with `CLI_DEADLINE` exported, the epoch second the harness kills it. A script that retries budgets against it, so it can still print its own verdict before the harness ends it.

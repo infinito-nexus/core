@@ -119,6 +119,11 @@
       enabled: true
       shared: true
 - services:
+    zammad:
+      login:
+        method:
+          2fa:
+            enforced: false
     docs:
       enabled: true
       shared: true

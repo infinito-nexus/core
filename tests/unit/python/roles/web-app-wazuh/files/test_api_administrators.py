@@ -18,6 +18,20 @@ ENV = {
     "API_PASSWORD": "s3cret",
     "WAZUH_RBAC_RULE_NAME": "infinito_administrators",
     "WAZUH_RBAC_BACKEND_ROLES": json.dumps(ROLES),
+    "WAZUH_RBAC_API_ROLE": "administrator",
+}
+READONLY_ROLES = [
+    "/roles/web-app-wazuh/security-analyst",
+    "web-app-wazuh-security-analyst",
+    "/roles/web-app-wazuh/readonly-auditor",
+    "web-app-wazuh-readonly-auditor",
+]
+READONLY_RULE = {"OR": [{"FIND": {"backend_roles": role}} for role in READONLY_ROLES]}
+READONLY_ENV = {
+    **ENV,
+    "WAZUH_RBAC_RULE_NAME": "infinito_readonly",
+    "WAZUH_RBAC_BACKEND_ROLES": json.dumps(READONLY_ROLES),
+    "WAZUH_RBAC_API_ROLE": "readonly",
 }
 
 
@@ -55,11 +69,11 @@ class FakeApi:
         return io.BytesIO(json.dumps({"data": data}).encode())
 
 
-def _run(api: FakeApi) -> str:
+def _run(api: FakeApi, env: dict[str, str]) -> str:
     out = io.StringIO()
     with (
         patch("urllib.request.urlopen", api),
-        patch.dict("os.environ", ENV),
+        patch.dict("os.environ", env),
         redirect_stdout(out),
     ):
         runpy.run_path(str(SCRIPT_PATH), run_name="__main__")
@@ -78,7 +92,7 @@ class TestApiAdministrators(unittest.TestCase):
             ],
             admin_rules=[2],
         )
-        self.assertEqual(_run(api), "CHANGED")
+        self.assertEqual(_run(api, ENV), "CHANGED")
         self.assertEqual(
             api.writes[0],
             (
@@ -96,7 +110,7 @@ class TestApiAdministrators(unittest.TestCase):
             rules=[{"id": 100, "name": "infinito_administrators", "rule": RULE}],
             admin_rules=[2, 100],
         )
-        self.assertEqual(_run(api), "OK")
+        self.assertEqual(_run(api, ENV), "OK")
         self.assertEqual(api.writes, [])
 
     def test_a_drifted_rule_is_rewritten_in_place(self):
@@ -110,7 +124,7 @@ class TestApiAdministrators(unittest.TestCase):
             ],
             admin_rules=[100],
         )
-        self.assertEqual(_run(api), "CHANGED")
+        self.assertEqual(_run(api, ENV), "CHANGED")
         self.assertEqual(api.writes, [("PUT", "/security/rules/100", {"rule": RULE})])
 
     def test_an_unlinked_rule_is_linked_to_the_administrator_role(self):
@@ -118,17 +132,33 @@ class TestApiAdministrators(unittest.TestCase):
             rules=[{"id": 100, "name": "infinito_administrators", "rule": RULE}],
             admin_rules=[2],
         )
-        self.assertEqual(_run(api), "CHANGED")
+        self.assertEqual(_run(api, ENV), "CHANGED")
         self.assertEqual(
             api.writes[0][:2], ("POST", "/security/roles/1/rules?rule_ids=100")
         )
+
+    def test_the_readonly_rule_is_linked_to_the_readonly_role_only(self):
+        api = FakeApi(rules=[], admin_rules=[])
+        self.assertEqual(_run(api, READONLY_ENV), "CHANGED")
+        self.assertEqual(
+            api.writes[0],
+            (
+                "POST",
+                "/security/rules",
+                {"name": "infinito_readonly", "rule": READONLY_RULE},
+            ),
+        )
+        self.assertEqual(
+            api.writes[1][:2], ("POST", "/security/roles/2/rules?rule_ids=100")
+        )
+        self.assertEqual(len(api.writes), 2)
 
     def test_the_api_account_authenticates_with_basic_auth_from_the_environment(self):
         api = FakeApi(
             rules=[{"id": 100, "name": "infinito_administrators", "rule": RULE}],
             admin_rules=[100],
         )
-        _run(api)
+        _run(api, ENV)
         self.assertEqual(
             api.basic, "Basic " + base64.b64encode(b"wazuh-wui:s3cret").decode()
         )

@@ -1,10 +1,17 @@
 ---
-- name: ▶️ Execute OIDC Setup Routine
-  include_tasks:
-    file: setup/oidc.yml
-    apply:
-      delegate_to: "{{ GITEA_HOST_NODE }}"
+- name: 🔐 Report and converge the OAuth2 auth source
   when: GITEA_OIDC_ENABLED | bool
+  block:
+    - name: 📣 Report the managed OAuth2 auth source settings the OIDC setup reverts
+      include_tasks: setup/drift.yml
+      vars:
+        gitea_auth_drift_form: oauth_source
+        gitea_auth_drift_id: ""
+    - name: ▶️ Execute OIDC Setup Routine
+      include_tasks:
+        file: setup/oidc.yml
+        apply:
+          delegate_to: "{{ GITEA_HOST_NODE }}"
 - name: ▶️ Execute LDAP Setup Routine
   include_tasks: setup/ldap.yml
   when: GITEA_LDAP_ENABLED | bool
@@ -14,3 +21,6 @@
 - name: ▶️ Execute Theme Removal Routine
   include_tasks: setup/theme_removal.yml
   when: not (GITEA_DESIGN_ENABLED | bool)
+- name: ▶️ Execute Workspaces Setup Routine
+  include_tasks: setup/workspaces.yml
+  when: GITEA_WORKSPACES_ENABLED | bool

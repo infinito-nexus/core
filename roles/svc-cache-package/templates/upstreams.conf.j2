@@ -7,6 +7,11 @@
   Nexus answers 5xx while a remote is unreachable, and the named location
   retries the same path against the sibling. 404 stays unguarded, because a
   missing file is missing on both remotes and apt probes for them constantly.
+
+  The artefact base server is the port 80 default_server: a consumer of
+  INFINITO_ARTEFACT_BASE addresses the frontend by its address, which no
+  server_name names, and nginx would hand that request to the image's
+  default.conf instead.
 #}
 proxy_http_version 1.1;
 proxy_set_header Host              $host;
@@ -18,6 +23,7 @@ proxy_buffering on;
 proxy_request_buffering off;
 proxy_read_timeout {{ CACHE_PACKAGE_READ_TIMEOUT }};
 proxy_connect_timeout {{ CACHE_PACKAGE_CONNECT_TIMEOUT }};
+add_header {{ CACHE_PACKAGE_BACKEND_MARKER }} $upstream_header_time always;
 
 resolver {{ CACHE_PACKAGE_RESOLVER }} ipv6=off valid=30s;
 {% for host in CACHE_PACKAGE_UPSTREAMS %}
@@ -70,3 +76,19 @@ server {
 }
 {% endfor %}
 {% endfor %}
+{% set artefact_hosts = CACHE_PACKAGE_UPSTREAMS | selectattr('tls') | list
+     + CACHE_PACKAGE_UPSTREAMS | selectattr('hijack', 'sameas', false) | list %}
+{% if artefact_hosts %}
+
+server {
+	listen 80 default_server;
+{% for host in artefact_hosts %}
+	location /{{ host.host }}/ {
+{% if host.read_timeout %}
+		proxy_read_timeout {{ host.read_timeout }};
+{% endif %}
+		proxy_pass {{ CACHE_PACKAGE_BACKEND }}/repository/{{ CACHE_PACKAGE_REPOS[host.repo].name }}/;
+	}
+{% endfor %}
+}
+{% endif %}

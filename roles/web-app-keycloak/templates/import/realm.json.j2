@@ -6,7 +6,7 @@
   "defaultSignatureAlgorithm": "RS256",
   "revokeRefreshToken": false,
   "refreshTokenMaxReuse": 0,
-  "accessTokenLifespan": 300,
+  "accessTokenLifespan": {{ KEYCLOAK_REALM_ACCESS_TOKEN_LIFESPAN | int }},
   "accessTokenLifespanForImplicitFlow": 900,
   "ssoSessionIdleTimeout": 1800,
   "ssoSessionMaxLifespan": 36000,
@@ -28,10 +28,10 @@
   "oauth2DevicePollingInterval": 5,
   "enabled": true,
   "sslRequired": "external",
-  "registrationAllowed": false,
+  "registrationAllowed": {{ KEYCLOAK_REGISTRATION_ALLOWED | bool | to_json }},
   "registrationEmailAsUsername": false,
   "rememberMe": true,
-  "verifyEmail": false,
+  "verifyEmail": {{ KEYCLOAK_EMAIL_VERIFY | bool | to_json }},
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
   "resetPasswordAllowed": true,
@@ -397,13 +397,13 @@
     "password"
   ],
   "passwordPolicy": "length(16) and notEmail(undefined) and upperCase(1) and lowerCase(1) and digits(1) and specialChars(1)",
-  "otpPolicyType": "totp",
-  "otpPolicyAlgorithm": "HmacSHA1",
-  "otpPolicyInitialCounter": 0,
-  "otpPolicyDigits": 6,
-  "otpPolicyLookAheadWindow": 1,
-  "otpPolicyPeriod": 30,
-  "otpPolicyCodeReusable": false,
+  "otpPolicyType": {{ KEYCLOAK_REALM_OTP_POLICY_TYPE | to_json }},
+  "otpPolicyAlgorithm": {{ KEYCLOAK_REALM_OTP_POLICY_ALGORITHM | to_json }},
+  "otpPolicyInitialCounter": {{ KEYCLOAK_REALM_OTP_POLICY_INITIAL_COUNTER | to_json }},
+  "otpPolicyDigits": {{ KEYCLOAK_REALM_OTP_POLICY_DIGITS | to_json }},
+  "otpPolicyLookAheadWindow": {{ KEYCLOAK_REALM_OTP_POLICY_LOOK_AHEAD_WINDOW | to_json }},
+  "otpPolicyPeriod": {{ KEYCLOAK_REALM_OTP_POLICY_PERIOD | to_json }},
+  "otpPolicyCodeReusable": {{ KEYCLOAK_REALM_OTP_POLICY_CODE_REUSABLE | bool | to_json }},
   "otpSupportedApplications": [
     "totpAppFreeOTPName",
     "totpAppGoogleName",
@@ -447,17 +447,62 @@
       "totp": false,
       "serviceAccountClientId": "{{ KEYCLOAK_REALM }}",
       "disableableCredentialTypes": [],
-      "requiredActions": [
-{% if KEYCLOAK_REALM_TOTP_ENABLED | bool %}
-        "CONFIGURE_TOTP"
-{% endif %}
-      ],
+      "requiredActions": [],
       "realmRoles": [
         "default-roles-{{ KEYCLOAK_REALM }}"
       ],
       "notBefore": 0,
       "groups": []
     }
+{% if KEYCLOAK_USAGE_CLIENT_ENABLED | bool %}
+    ,{
+      "username": "{{ KEYCLOAK_USAGE_SERVICE_ACCOUNT }}",
+      "emailVerified": false,
+      "enabled": true,
+      "totp": false,
+      "serviceAccountClientId": "{{ KEYCLOAK_USAGE_CLIENT_ID }}",
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "default-roles-{{ KEYCLOAK_REALM }}"
+      ],
+      "clientRoles": {{ {KEYCLOAK_CONSOLE_ROLE_CLIENT: KEYCLOAK_USAGE_CLIENT_ROLES} | to_json }},
+      "notBefore": 0,
+      "groups": []
+    }
+{% endif %}
+{% if KEYCLOAK_ORGANIZATIONS_ENABLED | bool %}
+    ,{
+      "username": "{{ KEYCLOAK_WORKSPACE_MEMBERS_SERVICE_ACCOUNT }}",
+      "emailVerified": false,
+      "enabled": true,
+      "totp": false,
+      "serviceAccountClientId": "{{ KEYCLOAK_WORKSPACE_MEMBERS_CLIENT_ID }}",
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "default-roles-{{ KEYCLOAK_REALM }}"
+      ],
+      "clientRoles": {{ {KEYCLOAK_CONSOLE_ROLE_CLIENT: KEYCLOAK_WORKSPACE_MEMBERS_CLIENT_ROLES} | to_json }},
+      "notBefore": 0,
+      "groups": []
+    }
+    ,{
+      "username": "{{ KEYCLOAK_EXPORT_SERVICE_ACCOUNT }}",
+      "emailVerified": false,
+      "enabled": true,
+      "totp": false,
+      "serviceAccountClientId": "{{ KEYCLOAK_EXPORT_CLIENT_ID }}",
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "default-roles-{{ KEYCLOAK_REALM }}"
+      ],
+      "clientRoles": {{ {KEYCLOAK_CONSOLE_ROLE_CLIENT: KEYCLOAK_EXPORT_CLIENT_ROLES} | to_json }},
+      "notBefore": 0,
+      "groups": []
+    }
+{% endif %}
   ],
   "scopeMappings": [
     {
@@ -791,8 +836,22 @@
       ]
     },
     {% include "clients/default.json.j2" %}
+{% if KEYCLOAK_USAGE_CLIENT_ENABLED | bool %}
+    ,{% include "clients/usage.json.j2" %}
+{% endif %}
+{% if KEYCLOAK_ORGANIZATIONS_ENABLED | bool %}
+    ,{% include "clients/workspaces.json.j2" %}
+    ,{% include "clients/workspace_members.json.j2" %}
+    ,{% include "clients/export.json.j2" %}
+{% if KEYCLOAK_STORE_FIXTURE_ENABLED | bool %}
+    ,{% include "clients/store_fixture.json.j2" %}
+{% endif %}
+{% endif %}
 {% for kc_client_app in KEYCLOAK_DECLARED_CLIENT_APPS %}
     ,{% include 'roles/' ~ kc_client_app ~ '/templates/keycloak/clients.json.j2' %}
+{% endfor %}
+{% for kc_proxy_client in KEYCLOAK_PROXY_CLIENTS %}
+    ,{% include "clients/proxy.json.j2" %}
 {% endfor %}
 {% include "clients/saml.json.j2" %}
   ],
@@ -888,13 +947,30 @@
           "config": {
             "introspection.token.claim": "true",
             "userinfo.token.claim": "true",
-            "user.attribute": "email",
+            "user.attribute": "{{ OIDC.EMAIL.CLAIM_SOURCE }}",
             "id.token.claim": "true",
             "access.token.claim": "true",
             "claim.name": "email",
             "jsonType.label": "String"
           }
         },
+{% if KEYCLOAK_EMAIL_MAILBOX | bool %}
+        {
+          "name": "email verified",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "claim.value": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "email_verified",
+            "jsonType.label": "boolean"
+          }
+        }
+{% else %}
         {
           "name": "email verified",
           "protocol": "openid-connect",
@@ -910,6 +986,7 @@
             "jsonType.label": "boolean"
           }
         }
+{% endif %}
       ]
     },
     {
@@ -1084,6 +1161,9 @@
     },
     {% include "scopes/rbac.json.j2" %},
     {% include "scopes/nextcloud.json.j2" %},
+    {% if KEYCLOAK_ORGANIZATIONS_ENABLED | bool %}
+    {% include "scopes/workspace_roles.json.j2" %},
+    {% endif %}
     {% if KEYCLOAK_MOODLE_ENABLED | bool %}
     {% include "scopes/moodle.json.j2" %},
     {% endif %}
@@ -1477,7 +1557,7 @@
     "jboss-logging"
   ],
   "enabledEventTypes": [],
-  "adminEventsEnabled": false,
+  "adminEventsEnabled": true,
   "adminEventsDetailsEnabled": false,
   "identityProviders": [],
   "identityProviderMappers": [],
@@ -1691,7 +1771,7 @@
         {
           "authenticator": "organization",
           "authenticatorFlow": false,
-          "requirement": "ALTERNATIVE",
+          "requirement": "{{ KEYCLOAK_ORGANIZATION_EXECUTION }}",
           "priority": 20,
           "autheticatorFlow": false,
           "userSetupAllowed": false
@@ -2246,17 +2326,15 @@
     }
   ],
   "requiredActions": [
-{% if KEYCLOAK_REALM_TOTP_ENABLED | bool %}
     {
       "alias": "CONFIGURE_TOTP",
       "name": "Configure OTP",
       "providerId": "CONFIGURE_TOTP",
-      "enabled": true,
-      "defaultAction": true,
+      "enabled": {{ KEYCLOAK_REALM_TOTP_ENABLED | bool | to_json }},
+      "defaultAction": {{ KEYCLOAK_REALM_TOTP_ENFORCED | bool | to_json }},
       "priority": 10,
       "config": {}
     },
-{% endif %}
     {
       "alias": "TERMS_AND_CONDITIONS",
       "name": "Terms and Conditions",
@@ -2283,6 +2361,17 @@
       "defaultAction": false,
       "priority": 40,
       "config": {}
+    },
+    {
+      "alias": "UPDATE_EMAIL",
+      "name": "Update Email",
+      "providerId": "UPDATE_EMAIL",
+      "enabled": {{ KEYCLOAK_EMAIL_UPDATE_ENABLED | bool | to_json }},
+      "defaultAction": false,
+      "priority": 45,
+      "config": {
+        "verifyEmail": "true"
+      }
     },
     {
       "alias": "VERIFY_EMAIL",
@@ -2369,13 +2458,15 @@
     "parRequestUriLifespan": "60",
     "clientSessionMaxLifespan": "0",
     "frontendUrl": "",
-    "acr.loa.map": "{}"
+    "acr.loa.map": "{}",
+    "adminEventsExpiration": "{{ KEYCLOAK_ADMIN_EVENTS_EXPIRATION }}",
+    "{{ KEYCLOAK_EMAIL_POLICY_ATTRIBUTE }}": "{{ KEYCLOAK_EMAIL_POLICY }}"
   },
   "keycloakVersion": "26.1.2",
   "userManagedAccessAllowed": true,
-  "organizationsEnabled": false,
+  "organizationsEnabled": {{ 'true' if KEYCLOAK_ORGANIZATIONS_ENABLED | bool else 'false' }},
   "verifiableCredentialsEnabled": false,
-  "adminPermissionsEnabled": false,
+  "adminPermissionsEnabled": true,
   "clientProfiles": {
     "profiles": []
   },

@@ -1,0 +1,33 @@
+{
+  "clientId": "{{ KEYCLOAK_WORKSPACES_CLIENT_ID }}",
+  "name": "Workspaces",
+  "description": "Holds the <workspace id>:<role> client roles that workspace apply maps onto the role groups of each workspace organization; no flow is enabled.",
+  "surrogateAuthRequired": false,
+  "enabled": true,
+  "alwaysDisplayInConsole": false,
+  "clientAuthenticatorType": "client-secret",
+  "redirectUris": [],
+  "webOrigins": [],
+  "notBefore": 0,
+  "bearerOnly": false,
+  "consentRequired": false,
+  "standardFlowEnabled": false,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": false,
+  "serviceAccountsEnabled": false,
+  "publicClient": false,
+  "frontchannelLogout": false,
+  "protocol": "openid-connect",
+  "attributes": {
+    "realm_client": "false",
+    "oidc.ciba.grant.enabled": "false",
+    "oauth2.device.authorization.grant.enabled": "false",
+    "standard.token.exchange.enabled": "false",
+    "display.on.consent.screen": "false"
+  },
+  "authenticationFlowBindingOverrides": {},
+  "fullScopeAllowed": false,
+  "nodeReRegistrationTimeout": -1,
+  "defaultClientScopes": [],
+  "optionalClientScopes": []
+}

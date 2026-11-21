@@ -1,6 +1,13 @@
 ---
 # Matrix-deploy variant overrides for web-app-odoo.
 # See docs/contributing/artefact/files/role/variants.md for the file format.
+#
+# nocheck: variant-limit: variant 3 proves Odoo's enforced second factor, and no
+# existing variant can carry it. auth_totp.policy all_required holds every password
+# sign-in at a mailed code, the administrator's included, and no spec reads that mail
+# without SSO. Variant 1 carries the only run of the Nextcloud integration addon,
+# variant 2 the only runs of Odoo's own LDAP sign-ins, and variant 0 runs SSO, where
+# the second factor is off (operator approval 2026-11-13).
 
 # variant pinning every dynamic services.yml flag to true so the
 # matrix exercises the in-group_names branch of web-app-odoo.
@@ -47,6 +54,11 @@
     tor:
       enabled: true
 - services:
+    odoo:
+      login:
+        method:
+          2fa:
+            enforced: false
     docs:
       enabled: true
       shared: true
@@ -90,6 +102,11 @@
     tor:
       enabled: true
 - services:
+    odoo:
+      login:
+        method:
+          2fa:
+            enforced: false
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -118,6 +135,48 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    seaweedfs:
+      enabled: false
+      shared: false
+    tor:
+      enabled: true
+- services:
+    odoo:
+      login:
+        method:
+          2fa:
+            # nocheck: login-methods  Reason: test-2fa-enforcement.js proves here that the administrator's password sign-in stops at the mailed code; the other administrator sign-ins skip in this variant and run in variant 1
+            enforced: true
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    design:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    dashboard:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    email:
+      enabled: true
+      shared: true
+    logout:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    matomo:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    nextcloud:
+      enabled: false
+      shared: false
+    sso:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    prometheus:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    ldap:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     seaweedfs:

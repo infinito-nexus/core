@@ -57,18 +57,18 @@ class TestCategoryGlyph(unittest.TestCase):
             wrong.append(f"{'-'.join(path)}: {glyph!r} ({len(glyph)} cp, {name})")
         self.assertEqual([], wrong, f"Not a single Egyptian hieroglyph: {wrong}")
 
-    def test_glyph_is_unique_among_siblings(self):
-        """Sibling scope, not tree scope: the labels are path fragments and
-        repeat across branches on purpose (web-svc and svc both carry 𓊵)."""
+    def test_glyph_is_unique_across_the_tree(self):
+        """A job title carries the deepest category's glyph alone, so one
+        glyph has to name one category wherever it sits in the tree."""
         seen = {}
         collisions = []
 
         for path, attrs in self.categories:
-            key = (path[:-1], attrs.get("glyph"))
+            glyph = attrs.get("glyph")
             name = "-".join(path)
-            if key in seen:
-                collisions.append(f"{attrs.get('glyph')}: {seen[key]} vs {name}")
-            seen[key] = name
+            if glyph in seen:
+                collisions.append(f"{glyph}: {seen[glyph]} vs {name}")
+            seen[glyph] = name
 
         self.assertEqual([], collisions, f"Duplicate glyph labels: {collisions}")
 

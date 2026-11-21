@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -19,12 +20,18 @@ tor:
   shared: true # nocheck: dynamic-flag
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 ldap:
   bond: 1
   enabled: true # nocheck: dynamic-flag
@@ -34,12 +41,18 @@ sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oauth2
+  header_trust:
+    proxy_secret: sso_proxy_secret
+    switch: "lookup('sso', application_id, 'is_proxy_gated')"
+    files: [meta/services.yml]
   oauth2:
     origin:
       host: fusiondirectory
       port: 80
     allowed_groups:
       - "{{ lookup('rbac_group_path', application_id='web-app-fusiondirectory', role='administrator') }}"
+      - "{{ lookup('rbac_group_path', application_id='web-app-fusiondirectory', role='user-manager') }}"
+      - "{{ lookup('rbac_group_path', application_id='web-app-fusiondirectory', role='self-service') }}"
 # nocheck: playwright-service-flag  self-provider
 fusiondirectory:
   enabled: false
@@ -54,6 +67,14 @@ fusiondirectory:
       enabled: true
   image: nfrastack/fusiondirectory
   version: "1.5"
+  config:
+    login_method: "{{ 'LoginHTTPHeader' if (lookup('config', 'web-app-fusiondirectory', 'services.sso.enabled') | bool and lookup('config', 'web-app-fusiondirectory',
+      'services.sso.flavor') == 'oauth2') else 'LoginPost' }}"
+    http_header: X_FORWARDED_PREFERRED_USERNAME
+    theme: breezy
+    timezone: "{{ HOST_TIMEZONE }}"
+    user_rdn: "{{ LDAP.DN.OU.USERS | regex_replace(',.*$', '') }}"
+    group_rdn: "{{ LDAP.DN.OU.GROUPS | regex_replace(',.*$', '') }}"
   # nocheck: single-replica  PHP stores its sessions in container-local files and the 1.5 image carries no redis or memcached extension to move them to a shared store; lifting this pin needs the image rebuilt on upstream's php8 release, see TODO.md
   replicas: 1
   name: fusiondirectory
@@ -69,8 +90,7 @@ fusiondirectory:
   run_after:
     - web-app-matomo
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
     - svc-db-openldap
   lifecycle: eol
   min_storage: 379MB
@@ -98,3 +118,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

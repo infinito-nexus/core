@@ -10,7 +10,10 @@ Three rules are enforced:
    * a bare ``Path(__file__).…parents`` chain (no ``[N]`` index)
      used to iterate upward in search of the root,
    * any chain of ``..`` segments (string literals or ``os.pardir``
-     references) used to walk up to the root,
+     references) used to walk up to the root; a ``..`` literal that is
+     an operand of an ``==``, ``!=``, ``in`` or ``not in`` test, or an
+     element of the tuple, list or set on the right of ``in`` /
+     ``not in``, guards against a path segment and builds no path,
    * a function such as ``repo_root()`` / ``project_root()`` (or
      their underscore-prefixed ``_repo_root`` / ``_project_root``
      siblings) that searches upward for ``pyproject.toml``.
@@ -47,7 +50,9 @@ package container to import from. See
 
 from __future__ import annotations
 
+import ast
 import re
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -105,9 +110,72 @@ _INIT_PROJECT_ROOT_RE = re.compile(
     r"Path\(\s*__file__\s*\)\s*\.resolve\(\)\.parents\[\s*(\d+)\s*\]"
 )
 
+_TEST_OPS = (ast.Eq, ast.NotEq, ast.In, ast.NotIn)
+_MEMBERSHIP_OPS = (ast.In, ast.NotIn)
+_LITERAL_COLLECTIONS = (ast.Tuple, ast.List, ast.Set)
+
 
 def _is_init_file(path: Path) -> bool:
     return path.name == "__init__.py"
+
+
+def _tested_literals(text: str) -> frozenset[tuple[int, int]]:
+    """Args:
+        text: the source of a Python file.
+
+    Returns:
+        ``(line, UTF-8 column)`` of every string literal that is an operand of
+        an ``==``, ``!=``, ``in`` or ``not in`` test, or an element of the
+        tuple, list or set literal on the right of ``in`` / ``not in``.
+    """
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return frozenset()
+    found: set[tuple[int, int]] = set()
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Compare):
+            continue
+        operands = [node.left, *node.comparators]
+        for index, op in enumerate(node.ops):
+            if not isinstance(op, _TEST_OPS):
+                continue
+            right = operands[index + 1]
+            candidates = [operands[index], right]
+            if isinstance(op, _MEMBERSHIP_OPS) and isinstance(
+                right, _LITERAL_COLLECTIONS
+            ):
+                candidates.extend(right.elts)
+            found.update(
+                (candidate.lineno, candidate.col_offset)
+                for candidate in candidates
+                if isinstance(candidate, ast.Constant)
+                and isinstance(candidate.value, str)
+            )
+    return frozenset(found)
+
+
+def _only_tested(
+    pattern: re.Pattern[str],
+    target: str,
+    raw: str,
+    lineno: int,
+    tested: frozenset[tuple[int, int]],
+) -> bool:
+    """Args:
+        pattern: the ``".."`` rule.
+        target: the line with docstrings and comments blanked.
+        raw: the same line as written.
+        lineno: its line number.
+        tested: :func:`_tested_literals` of the file.
+
+    Returns:
+        Whether every ``".."`` literal on the line is a tested literal.
+    """
+    return all(
+        (lineno, len(raw[: match.start()].encode("utf-8"))) in tested
+        for match in pattern.finditer(target)
+    )
 
 
 def _strip_strings_and_comments(text: str) -> str:
@@ -198,6 +266,7 @@ def _scan_file(path: Path) -> list[str]:
     code_lines = _strip_strings_and_comments(text).splitlines()
     no_docs_lines = _strip_docs_and_comments(text).splitlines()
     failures: list[str] = []
+    tested: frozenset[tuple[int, int]] | None = None
 
     is_init = _is_init_file(path)
 
@@ -208,6 +277,11 @@ def _scan_file(path: Path) -> list[str]:
             target = stripped if scan_mode == "stripped" else no_docs
             if not pattern.search(target):
                 continue
+            if scan_mode == "no_docs":
+                if tested is None:
+                    tested = _tested_literals(text)
+                if _only_tested(pattern, target, raw_lines[lineno - 1], lineno, tested):
+                    continue
             if is_init and _INIT_PROJECT_ROOT_RE.match(stripped):
                 continue
             if is_suppressed_at(raw_lines, lineno, SUPPRESS_RULE, mode="same-or-above"):
@@ -277,6 +351,37 @@ class TestProjectRootImport(unittest.TestCase):
                 f"{len(offenders)} project-root violation(s):\n"
                 + "\n".join(f"  - {o}" for o in offenders)
             )
+
+    def test_a_parent_literal_in_a_membership_or_equality_test_passes(self) -> None:
+        source = """if part in (".", "..") or part not in [".."] or part in {".."}:
+    refused = name == ".." or "../" != prefix or ".." in parts
+"""
+        self.assertEqual(_scan_source(source), [])
+
+    def test_a_parent_literal_that_builds_a_path_still_fails(self) -> None:
+        sources = (
+            """ROOT = HERE / ".."\n""",
+            """ROOT = os.path.join(HERE, "../..")\n""",
+            """UP = HERE / ".." if part == "." else HERE\n""",
+            """UP = part == ".." and HERE / ".."\n""",
+            """for part in ("..", ".."):\n    HERE = HERE / part\n""",
+        )
+        for source in sources:
+            with self.subTest(source=source):
+                self.assertEqual(len(_scan_source(source)), 1, source)
+
+
+def _scan_source(source: str) -> list[str]:
+    """Args:
+        source: the content of a planted Python file.
+
+    Returns:
+        The :func:`_scan_file` failures of that file.
+    """
+    with tempfile.TemporaryDirectory() as scratch:
+        planted = Path(scratch) / "planted.py"
+        planted.write_text(source, encoding="utf-8")
+        return _scan_file(planted)
 
 
 if __name__ == "__main__":  # pragma: no cover

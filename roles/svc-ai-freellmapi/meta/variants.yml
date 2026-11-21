@@ -1,0 +1,11 @@
+---
+- services:
+    docs:
+      enabled: true
+      shared: true
+    container_backup:
+      enabled: true
+    mock:
+      enabled: true # nocheck: variants-static-override  the test upstream must stay literally off in production, so only the matrix round switches it on
+    freellmapi:
+      mem_limit: 512m

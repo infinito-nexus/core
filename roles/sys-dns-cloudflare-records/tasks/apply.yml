@@ -21,7 +21,7 @@
   ignore_errors: true
   # rationale: async; judge.yml reaps and judges every job of this attempt before the next attempt or the rest of the play
   async: "{{ lookup('timeout', cloudflare_attempt_timeout | int) | int }}"
-  poll: "{{ ASYNC_ENABLED | bool | ternary(0, 1) }}"
+  poll: 0
   no_log: "{{ cloudflare_no_log | bool }}"
   register: _cf_a
   changed_when: false
@@ -43,7 +43,7 @@
   ignore_errors: true
   # rationale: async; judge.yml reaps and judges every job of this attempt before the next attempt or the rest of the play
   async: "{{ lookup('timeout', cloudflare_attempt_timeout | int) | int }}"
-  poll: "{{ ASYNC_ENABLED | bool | ternary(0, 1) }}"
+  poll: 0
   no_log: "{{ cloudflare_no_log | bool }}"
   register: _cf_cname
   changed_when: false
@@ -69,7 +69,7 @@
   ignore_errors: true
   # rationale: async; judge.yml reaps and judges the jobs of every SRV record that opted out of best effort
   async: "{{ lookup('timeout', cloudflare_attempt_timeout | int) | int }}"
-  poll: "{{ ASYNC_ENABLED | bool | ternary(0, 1) }}"
+  poll: 0
   no_log: "{{ cloudflare_no_log | bool }}"
   register: _cf_srv
   changed_when: false

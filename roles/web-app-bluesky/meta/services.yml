@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -13,8 +14,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: dynamic-flag - LDAP is disabled for this role; the literal false is intentional, not group-gated.
 ldap:
   enabled: false
@@ -24,12 +25,15 @@ sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oauth2
+  header_trust:
+    proxy_secret: false
+    switch: "services.web.enabled and services.sso.enabled"
+    files: [files/login-broker/server.js]
   oauth2:
+    pass_access_token: true
     origin:
       host: broker
       port: 8080
-    allowed_groups:
-      - "{{ lookup('rbac_group_path', application_id='web-app-bluesky', role='administrator') }}"
     # nocheck: shared
     # nocheck: dynamic-flag
     # nocheck: playwright-service-flag - internal sub-component (multi-entity role)
@@ -77,6 +81,7 @@ view:
   mem_limit: 256m
   pids_limit: 256
 pds:
+  name: bluesky-pds
   backup:
     stop_required: true
   image: ghcr.io/bluesky-social/pds
@@ -162,8 +167,7 @@ bluesky:
   run_after:
     - web-app-matomo
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
   min_storage: 1GB
   cpus: "0.5"
@@ -188,3 +192,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

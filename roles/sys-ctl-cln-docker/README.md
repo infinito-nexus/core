@@ -16,7 +16,7 @@ Optimized for maintaining a clean and efficient Docker environment, this role:
 
   - The anonymous volume cleanup service.
   - `container system prune -a -f` while a filesystem exceeds `SIZE_PERCENT_CLEANUP_DISC_SPACE`, otherwise `container system prune -f`.
-- Allows forced execution during maintenance runs (`MODE_CLEANUP`).
+- Allows forced execution during maintenance runs (`CLEANUP`).
 
 ## Purpose
 
@@ -34,7 +34,7 @@ Regular pruning ensures:
 - **Size-Gated Docker Prune:** Removes every unused image and the build cache with `container system prune -a -f` only while a filesystem exceeds `SIZE_PERCENT_CLEANUP_DISC_SPACE`; below it, `container system prune -f` removes stopped containers, unused networks, dangling images and dangling build cache.
 - **Systemd Integration:** Registers a systemd unit and timer for automated cleanup.
 - **Scheduled Execution:** Runs daily (or as configured) based on `SYS_SCHEDULE_CLEANUP_DOCKER`.
-- **Force Execution Mode:** When `MODE_CLEANUP=true`, cleanup is executed immediately.
+- **Force Execution Mode:** When `CLEANUP=true`, cleanup is executed immediately.
 - **Safe Execution:** Includes validation for missing services and Docker availability.
 
 ## Script Behavior

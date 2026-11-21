@@ -42,6 +42,7 @@ from typing import TYPE_CHECKING
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
+from utils.digests import COMMIT
 from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
 from utils.update.base import (
     declares_source,
@@ -60,7 +61,6 @@ if TYPE_CHECKING:
 
 _NOCHECK_MARKER = "repository-version"
 
-_COMMIT_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 _FETCH_TIMEOUT_SECONDS = 120
 
 _REF_VALUE_RE = re.compile(
@@ -120,7 +120,7 @@ def is_commit_sha(value: str) -> bool:
     Args:
         value: a `ref:` value.
     """
-    return _COMMIT_SHA_RE.match(value) is not None
+    return COMMIT.fullmatch(value) is not None
 
 
 def _ls_remote(*args: str) -> str | None:
@@ -217,22 +217,33 @@ def git_ls_remote_head(url: str) -> str | None:
 def git_ls_remote_tags(url: str) -> list[str]:
     """Return tag names from ``git ls-remote --tags``, stripped of the
     ``refs/tags/`` prefix and the ``^{}`` peeled-tag marker."""
+    return sorted(git_ls_remote_tag_commits(url))
+
+
+def git_ls_remote_tag_commits(url: str) -> dict[str, str]:
+    """Args:
+        url: the repository ``git ls-remote --tags`` reads.
+
+    Returns:
+        ``{tag: object}`` without the ``refs/tags/`` prefix, where an
+        annotated tag maps to the commit its ``^{}`` line peels it to;
+        empty when the lookup fails.
+    """
     stdout = _ls_remote("--tags", url)
     if stdout is None:
-        return []
-    tags: set[str] = set()
+        return {}
+    direct: dict[str, str] = {}
+    peeled: dict[str, str] = {}
     for line in stdout.splitlines():
         parts = line.split("\t")
-        if len(parts) != 2:
+        if len(parts) != 2 or not parts[1].startswith("refs/tags/"):
             continue
-        name = parts[1]
-        if not name.startswith("refs/tags/"):
-            continue
-        name = name[len("refs/tags/") :]
+        name = parts[1][len("refs/tags/") :]
+        target = peeled if name.endswith("^{}") else direct
         name = name.removesuffix("^{}")
         if name:
-            tags.add(name)
-    return sorted(tags)
+            target[name] = parts[0]
+    return {**direct, **peeled}
 
 
 def git_ref_resolves(url: str, ref: str) -> bool | None:

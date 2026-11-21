@@ -85,3 +85,28 @@
     query_file: "{{ role_path }}/files/sql/activate-tenants.sql"
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: true
+
+- name: "⬇️ Fider | Read whether the tenant offers the email code sign-in"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select/email-auth.sql"
+    expect_rows: true
+  register: fider_email_auth_stored
+  changed_when: false
+
+- name: "📣 Fider | Report the managed authentication fields the write reverts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current:
+      authentication: "{{ fider_email_auth_stored.rows[0][0] | from_json }}"
+
+- name: "✉️ Fider | Offer the email code sign-in as login.method.native says"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/email-auth.sql"
+    named_args:
+      allowed: "{{ FIDER_AUTHENTICATION.is_email_auth_allowed | bool | string | lower }}"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: fider_email_auth
+  changed_when: (fider_email_auth.rows[0][0] | int) > 0

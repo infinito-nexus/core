@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-playwright
 sso:
   bond: 1
@@ -20,8 +21,8 @@ matomo:
 # nocheck: playwright-service-flag
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: shared
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag
@@ -68,11 +69,23 @@ gitlab:
       ssh: false
   proxy:
     service_key: workhorse
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-gitlab', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-gitlab', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-gitlab', '2fa') }}"
+        enforced: true
+      passkey:
+        enabled: "{{ lookup('login_method', 'web-app-gitlab', 'passkey') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-gitlab', 'registration') }}"
   run_after:
     - web-app-matomo
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
 webservice:
   backup:
@@ -182,6 +195,12 @@ design:
     logo:
       width: 112
       height: 112
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag — role-injected script that hides the sign-in entries of switched-off login methods GitLab has no setting for, covered by files/playwright/test-login-methods.js
+javascript:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -206,8 +225,8 @@ gitlabmcp:
   enabled: "{{ lookup('config', 'web-app-gitlab', 'mcp.enabled') | bool }}"
   shared: false
   image: python
-  # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
-  version: "3.13.15-slim"
+  version: "3.13.18-slim"
+  follow: requires-python
   custom: true
   name: gitlabmcp
   cpus: "0.25"
@@ -217,11 +236,6 @@ gitlabmcp:
   ports:
     internal:
       http: 8080
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "3.13.15-slim"
-        until: 2026-11-30
 # nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
 openwebui:
   bond: 0.5
@@ -266,3 +280,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

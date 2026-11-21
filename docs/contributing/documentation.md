@@ -30,6 +30,7 @@ You MUST use [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119) keywords in all 
 - You MUST NOT use the full URL as link text. Use the domain name, `here`, or the filename instead. Never use the full path.
 - After `See`, you MUST use the domain name as link text, not `here`. `here` is only acceptable when the surrounding sentence reads naturally with it (e.g. `More information [here](...)`).
 - For communication links such as Matrix, email, or phone, you MUST show only the value itself as link text, without any protocol prefix or URL wrapper.
+- A reference to a file of this repository MUST name the file only, never a line: no `path:123`, no `:45-67`, no `#L12` anchor. Line numbers go stale on every edit of the file. Where a reader needs more precision, name the test, function, task or key instead.
 
 | Type | MUST NOT | MUST |
 |---|---|---|
@@ -53,7 +54,7 @@ You MUST use [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119) keywords in all 
 
 - You SHOULD place emojis after the headline text to visually highlight headings and improve scannability.
 - You MUST NOT place emojis before the headline text, as this interferes with heading hierarchy rendering in some tools.
-- You MUST NOT add emojis to headlines in `docs/agents/` files, as these are machine-readable instruction files where emojis interfere with parsing.
+- You MUST NOT add emojis to headlines in `agents/` files, as these are machine-readable instruction files where emojis interfere with parsing.
 
 ## Documentation Structure 🗂️
 

@@ -1,8 +1,12 @@
 (function () {
   const config = window.__INFINITO_LOGOUT__ || {};
   const origin = config.origin || "";
+  const everywhere = config.everywhere || "";
+  const torSuffix = config.tor_suffix || "";
   const CATALOGUE = config.i18n || {};
   const LOGOUT_PATH = "/protocol/openid-connect/logout";
+  const CONFIRM_ID = "kc-logout";
+  const EVERYWHERE_ID = "kc-logout-everywhere";
   const START_GRACE = 20000;
   const SWEEP_LIMIT = 60000;
   const BUSY = "var(--design-warning)";
@@ -72,7 +76,7 @@
   }
 
   function pace() {
-    if (window.location.hostname.slice(-6) === ".onion") {
+    if (torSuffix && window.location.hostname.endsWith(torSuffix)) {
       return ` ${s.pace_tor}`;
     }
     return ` ${s.pace}`;
@@ -208,6 +212,22 @@
     }
   }
 
+  function offerChoices(confirm) {
+    if (!everywhere || document.getElementById(EVERYWHERE_ID)) { return; }
+    if (confirm.tagName === "INPUT") {
+      confirm.value = s.choice_device;
+    } else {
+      confirm.textContent = s.choice_device;
+    }
+    const link = document.createElement("a");
+    link.id = EVERYWHERE_ID;
+    link.href = everywhere;
+    link.textContent = s.choice_everywhere;
+    link.className = String(confirm.className || "").replace(/\bpf-m-primary\b/, "pf-m-secondary");
+    link.style.cssText = "margin-top:.75rem";
+    (confirm.form || confirm).insertAdjacentElement("afterend", link);
+  }
+
   window.addEventListener("message", function (event) {
     if (event.origin !== origin) { return; }
     const report = event.data;
@@ -217,6 +237,11 @@
 
   if (window.location.pathname.indexOf(LOGOUT_PATH) !== -1) {
     ready(function () {
+      const confirm = document.getElementById(CONFIRM_ID);
+      if (confirm) {
+        offerChoices(confirm);
+        return;
+      }
       say(s.checking, s.keep_closed + pace(), BUSY);
       window.addEventListener("beforeunload", hold);
       startTimer = setTimeout(noStart, START_GRACE);

@@ -14,6 +14,8 @@ This package contains the in-process cache layers Infinito.Nexus uses to keep CL
 | [tokens.py](tokens.py) | The token store the users are hydrated from: `resolve_tokens_file`, `load_store_users`, the `sys_token_store_users` fact and the digest the users cache and users carrier keys share (`store_signature`). |
 | `users/` | User definitions, token store hydration, alias materialization, `get_user_defaults`, `get_merged_users` (package; `users/placeholders.py` substitutes `DOMAIN_PRIMARY` / `ORGANIZATION` / `SOFTWARE_NAME` ahead of the templar render pass). |
 | [domains.py](domains.py) | Canonical-domains map derived from the merged applications view: `get_merged_domains`. A read issued while the applications render is in progress (the re-entry guard is set) sees the unrendered view, so it is cached under its own key and never answers a later read. |
+| [evict.py](evict.py) | Nothing in process: the on-disk cache bounds behind `make cache-evict` and `make cache-status`, which measure each local cache, check the disk floor, sweep the shared folders and the models and evict the Nexus blob store. See [cache.md](../../docs/contributing/environment/cache.md). |
+| `eviction/` | The pieces `evict.py` builds on: the shared and model cache units with their link grouping ([units.py](eviction/units.py)), the Nexus REST client and its `.env` reader ([nexus.py](eviction/nexus.py)), and the Docker build-cache and running-tool probes ([docker.py](eviction/docker.py)). |
 | [`__init__.py`](__init__.py) | Owns `PROJECT_ROOT` and `ROLES_DIR` and imports nothing, so every module can read them without importing a cache. |
 | [reset.py](reset.py) | Owns the `_reset_cache_for_tests()` orchestrator that clears every cache plus the shared fingerprint memo in one call. |
 

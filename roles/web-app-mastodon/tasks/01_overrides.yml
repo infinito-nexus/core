@@ -38,3 +38,11 @@
         dest: "{{ MASTODON_OIDC_HTTP_DISCOVERY_FILE }}"
         mode: "0644"
       notify: compose-up
+
+- name: "📦 MASTODON | Install the OIDC groups-to-role initializer"
+  ansible.builtin.copy:
+    src: "ruby/zz_oidc_role_sync.rb"
+    dest: "{{ MASTODON_OIDC_ROLE_SYNC_FILE }}"
+    mode: "0644"
+  when: MASTODON_OIDC_ENABLED | bool
+  notify: compose-up

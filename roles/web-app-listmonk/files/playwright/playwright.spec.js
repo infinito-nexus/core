@@ -15,6 +15,8 @@ test.use({ ignoreHTTPSErrors: true });
 
 require("./test-mcp-guest").register();
 require("./test-design").register();
+require("./test-rbac-gate").register();
+require("./test-login-methods").register();
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
 const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");

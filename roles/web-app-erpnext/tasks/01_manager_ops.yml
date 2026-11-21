@@ -24,14 +24,97 @@
 - name: "🥾 bench bootstrap"
   include_tasks: 02_bench_bootstrap.yml
 
+- name: "🛂 Install the sign-in role mapping app and its settings"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e SITE_NAME -e LOGIN_RBAC_APP -e LOGIN_RBAC_SETTINGS_JSON
+      {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
+      {{ ERPNEXT_BENCH_PYTHON }}
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/login/rbac.py') }}"
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
+  environment:
+    SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
+    LOGIN_RBAC_APP: "{{ ERPNEXT_LOGIN_RBAC_APP }}"
+    LOGIN_RBAC_SETTINGS_JSON: "{{ ERPNEXT_LOGIN_RBAC_SETTINGS | to_json }}"
+  register: erpnext_login_rbac_apply
+  changed_when: "'CHANGED' in erpnext_login_rbac_apply.stdout"
+  timeout: "{{ lookup('timeout', 600) | int }}"
+
+- name: "🔍 Probe for the restart a staged sign-in app left pending"
+  ansible.builtin.stat:
+    path: "{{ ERPNEXT_LOGIN_RBAC_RESTART_MARKER }}"
+  register: erpnext_login_rbac_restart_marker
+
+- name: "🔄 Restart Frappe so all workers load the sign-in app first"
+  when: erpnext_login_rbac_restart_marker.stat.exists or ('CHANGED installed ' ~ ERPNEXT_LOGIN_RBAC_APP) in erpnext_login_rbac_apply.stdout
+  block:
+    - name: "🔄 Restart every Frappe process"
+      ansible.builtin.include_tasks: 02_bench_bootstrap/restart_frappe.yml
+
+    - name: "📌 Clear the pending restart of the sign-in app"
+      ansible.builtin.file:
+        path: "{{ ERPNEXT_LOGIN_RBAC_RESTART_MARKER }}"
+        state: absent
+
 - name: "🔧 configure OIDC"
   include_tasks: addons/social_login_key.yml
   when: ERPNEXT_OIDC_ENABLED
 - name: "🔧 configure LDAP"
   include_tasks: 03_ldap.yml
   when: ERPNEXT_LDAP_ENABLED
+- name: "⚠️ Hold the 2FA enforcement while no mail delivers the OTP setup"
+  ansible.builtin.debug:
+    msg: >-
+      services.erpnext.login.method.2fa.enforced is true, but web-app-email is not deployed.
+      ERPNext mails every account its first OTP setup link, so enforcing without mail would
+      lock every account out of the web login, Administrator included. The deploy keeps
+      the two_factor_auth flag of Role All off until web-app-email joins the deployment.
+  when: ERPNEXT_LOGIN_2FA_ENFORCEMENT | bool and not ERPNEXT_EMAIL_ENABLED | bool
+- name: "⬇️ Read the login settings ERPNext holds"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e SITE_NAME -e LOGIN_MODE -e SYSTEM_SETTINGS -e WEBSITE_SETTINGS -e LOGIN_2FA -e LOGIN_2FA_ENFORCED
+      {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
+      {{ ERPNEXT_BENCH_PYTHON }}
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/login/methods.py') }}"
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
+  environment:
+    SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
+    LOGIN_MODE: read
+    SYSTEM_SETTINGS: "{{ ERPNEXT_SYSTEM_SETTINGS | to_json }}"
+    WEBSITE_SETTINGS: "{{ ERPNEXT_WEBSITE_SETTINGS | to_json }}"
+    LOGIN_2FA: "{{ ERPNEXT_LOGIN_2FA | string | lower }}"
+    LOGIN_2FA_ENFORCED: "{{ ERPNEXT_LOGIN_2FA_ENFORCED | string | lower }}"
+  register: erpnext_login_settings_stored
+  changed_when: false
+- name: "📣 Report the login settings the write reverts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current: "{{ erpnext_login_settings_stored.stdout_lines | last | from_json }}"
+- name: "🚪 apply the login methods of the sign-in page"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e SITE_NAME -e LOGIN_MODE -e SYSTEM_SETTINGS -e WEBSITE_SETTINGS -e LOGIN_2FA -e LOGIN_2FA_ENFORCED
+      {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
+      {{ ERPNEXT_BENCH_PYTHON }}
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/login/methods.py') }}"
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
+  environment:
+    SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
+    LOGIN_MODE: converge
+    SYSTEM_SETTINGS: "{{ ERPNEXT_SYSTEM_SETTINGS | to_json }}"
+    WEBSITE_SETTINGS: "{{ ERPNEXT_WEBSITE_SETTINGS | to_json }}"
+    LOGIN_2FA: "{{ ERPNEXT_LOGIN_2FA | string | lower }}"
+    LOGIN_2FA_ENFORCED: "{{ ERPNEXT_LOGIN_2FA_ENFORCED | string | lower }}"
+  register: erpnext_login_methods_apply
+  changed_when: false
 - name: "🔧 configure outbound email"
   include_tasks: addons/email_account.yml
   when: ERPNEXT_EMAIL_ENABLED
 - name: "🎨 converge corporate design"
-  include_tasks: 04_design.yml
+  include_tasks: 05_design.yml
+- name: "🧮 pin the rounding settings"
+  include_tasks: 06_rounding.yml

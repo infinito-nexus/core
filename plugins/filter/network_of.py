@@ -20,11 +20,6 @@ def network_suffix(name: str) -> str:
     return network(name).suffix or ""
 
 
-def network_suffixes(names) -> dict[str, str]:
-    """Return ``{name: suffix}`` for every network in ``names`` that has one."""
-    return {name: suffix for name in names if (suffix := network_suffix(name))}
-
-
 def in_network(domains, name: str) -> list[str]:
     """Return the entries of ``domains`` that belong to the network ``name``."""
     return [domain for domain in domains if network_of(domain) == name]
@@ -36,7 +31,6 @@ class FilterModule:
             "network_of": network_of,
             "network_sibling": network_sibling,
             "network_suffix": network_suffix,
-            "network_suffixes": network_suffixes,
             "in_network": in_network,
             "network_instances": network_instances,
             "vhost_label": vhost_label,

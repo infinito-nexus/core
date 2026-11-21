@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import io
+import re
 import tarfile
 import unittest
 import unittest.mock
@@ -11,7 +12,8 @@ from yaml.constructor import ConstructorError
 
 from cli.administration.roles.paths import WORK_DIR
 from cli.administration.roles.pull import command
-from utils.cache import ROLES_DIR
+from utils.cache import PROJECT_ROOT, ROLES_DIR
+from utils.cache.files import read_text
 from utils.roles.custom import CustomRoleError
 
 
@@ -76,9 +78,20 @@ class TestPullCommand(unittest.TestCase):
         self.assertEqual(1, exit_.exception.code)
         self.assertIn("web-app-cst-demo: refused", err.getvalue())
 
-    def test_inventory_argument_is_required(self):
-        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
-            command.main([])
+    @unittest.mock.patch.object(command, "pull", return_value=[])
+    def test_without_an_inventory_only_the_manifest_is_pulled(self, pull):
+        self.assertEqual(0, command.main([]))
+        pull.assert_called_once_with(None, ROLES_DIR, WORK_DIR)
+
+
+class TestMakeTargetsPullFirst(unittest.TestCase):
+    def test_test_and_lint_pull_the_pinned_roles_before_their_suites(self):
+        makefile = read_text(str(PROJECT_ROOT / "Makefile"))
+        for target in ("test", "lint"):
+            with self.subTest(target=target):
+                header = re.search(rf"(?m)^{target}:(.*)$", makefile)
+                self.assertIsNotNone(header)
+                self.assertIn("roles-pull", header[1].split())
 
 
 if __name__ == "__main__":

@@ -1,0 +1,31 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: openbao
+    resolve_output_prefix: OPENBAO
+    resolve_compose_cid: "{{ OPENBAO_NAME }}"
+
+- name: "🔐 Log in with the Ansible AppRole"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    bao write -field=token auth/approle/login
+    role_id={{ OPENBAO_APPROLE_ROLE_ID | quote }} secret_id=-
+  args:
+    stdin: "{{ OPENBAO_APPROLE_SECRET_ID }}"
+    stdin_add_newline: false
+  register: openbao_workspace_login
+  changed_when: false
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔧 Store the AppRole token in the container token helper"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    bao login -no-print -
+  args:
+    stdin: "{{ openbao_workspace_login.stdout | trim }}"
+    stdin_add_newline: false
+  changed_when: false
+  delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

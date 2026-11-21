@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -31,8 +32,8 @@ prometheus:
 # nocheck: playwright-service-flag - email not used by Jitsi room flow
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
@@ -146,6 +147,32 @@ jvb:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "stable-11031"
         until: 2026-11-30
+# nocheck: dynamic-flag  operator switch for the JWT moderator path; vars/main.yml also requires services.sso.enabled, so the adapter never runs without Keycloak
+# nocheck: dockerfile-custom  built from the upstream nordeck/jitsi-keycloak-adapter sources at `ref` on the multi-arch Deno image, because the published ghcr.io image is amd64-only and its stock context.ts issues a moderator token to every realm user
+keycloak_adapter:
+  enabled: false
+  shared: false
+  name: jitsi-keycloak-adapter
+  image: denoland/deno
+  version: "2.8.3"
+  custom: true
+  repository: https://github.com/nordeck/jitsi-keycloak-adapter.git
+  ref: v20260623
+  update:
+    - key: ref
+      type: git_tags
+      repository: https://github.com/nordeck/jitsi-keycloak-adapter.git
+      match: "v"
+  healthcheck:
+    flavor: http_status
+    path: health
+  ports:
+    internal:
+      http: 9000
+  cpus: "0.25"
+  mem_reservation: 64m
+  mem_limit: 256m
+  pids_limit: 128
 
 # nocheck: playwright-service-flag
 tor:
@@ -156,3 +183,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

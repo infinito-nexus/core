@@ -1,0 +1,26 @@
+---
+- name: "🛂 Regroup, enable or disable the directory accounts of the hub"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ HOMEASSISTANT_LDAP_ENABLED | bool }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: [administrator, user]
+    rbac_sync_service_key: "{{ entity_name }}"
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ HOMEASSISTANT_CONTAINER }}"
+    rbac_sync_kind: container
+    rbac_sync_user: ""
+    rbac_sync_argv: [python3, "-"]
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/align_ldap_users.py') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      HA_PORT: "{{ HOMEASSISTANT_PORT_INTERNAL | string }}"
+      HA_USERNAME: "{{ HOMEASSISTANT_ADMIN_USERNAME }}"
+      HA_PASSWORD: "{{ HOMEASSISTANT_ADMIN_PASSWORD }}"
+      HA_AUTH_STORE: "{{ HOMEASSISTANT_AUTH_STORE }}"
+    rbac_sync_attributes: []
+    rbac_sync_members_env:
+      - { name: HA_ADMIN_MEMBERS, role: administrator, field: username }
+      - { name: HA_USER_MEMBERS, role: user, field: username }

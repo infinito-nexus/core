@@ -324,5 +324,46 @@ class TestEdgeCheckPerRound(unittest.TestCase):
         self.assertEqual(result["local"]["keys"], [])
 
 
+UNLIMITED = {
+    "available": None,
+    "chunk_count": 4,
+    "chunk_size": 80,
+    "entry_overhead": 18,
+    "job_timeout_minutes": 355,
+    "reserved": 37,
+    "rows_per_sweep": 320,
+    "waves": 4,
+}
+
+
+def _unlimited(snap: dict) -> dict:
+    return {**snap, "budget": dict(UNLIMITED)}
+
+
+class TestUnlimitedBudget(unittest.TestCase):
+    def test_a_split_without_a_job_limit_spills_nothing(self) -> None:
+        result = compare.verdict(
+            _unlimited(_before()),
+            _unlimited(_after()),
+            old=["app#0"],
+            split=["app#0", "app#3"],
+        )
+        facts = result["axes"]["per_sweep"]["0"]
+        self.assertEqual((facts["spill_before"], facts["spill_after"]), (0, 0))
+        self.assertTrue(result["kept"], compare.render(result))
+
+    def test_negative_control_a_capped_side_still_spills_past_its_budget(
+        self,
+    ) -> None:
+        result = compare.verdict(
+            _unlimited(_before()),
+            _after(budget=2),
+            old=["app#0"],
+            split=["app#0", "app#3"],
+        )
+        facts = result["axes"]["per_sweep"]["0"]
+        self.assertEqual((facts["spill_before"], facts["spill_after"]), (0, 1))
+
+
 if __name__ == "__main__":
     unittest.main()

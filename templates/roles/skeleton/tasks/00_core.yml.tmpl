@@ -1,0 +1,17 @@
+---
+- include_tasks: utils/once/flag.yml
+[% if kind == "static" %]
+
+- name: "🖼️ Copy the site assets of '{{ application_id }}'"
+  stack_host_copy:
+    src: site/
+    dest: "{{ [[ prefix ]]_ROOT }}/"
+    mode: "0644"
+    directory_mode: "0755"
+
+- name: "🌍 Render the front page of '{{ application_id }}'"
+  stack_host_template:
+    src: index.html.j2
+    dest: "{{ [ [[ prefix ]]_ROOT, 'index.html'] | path_join }}"
+    mode: "0644"
+[% endif %]

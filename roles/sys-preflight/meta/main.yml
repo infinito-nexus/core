@@ -1,0 +1,32 @@
+---
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: Probes that stop a deploy before it changes a host that cannot take it
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags:
+    - preflight
+    - validation
+    - docker
+    - system
+  issue_tracker_url: https://s.infinito.nexus/issues
+dependencies: []

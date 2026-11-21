@@ -1,0 +1,118 @@
+---
+- name: "🏷️ Pin the Semaphore runner to the Infinito.Nexus image of this deploy"
+  ansible.builtin.assert:
+    that:
+      - SOFTWARE_IMAGE | length > 0
+      - SOFTWARE_IMAGE_TAG | length > 0
+      - SOFTWARE_IMAGE_TAG != 'latest'
+    fail_msg: >-
+      The Semaphore runner is built on '{{ SOFTWARE_IMAGE }}:{{ SOFTWARE_IMAGE_TAG }}'. It needs the Infinito.Nexus
+      image and the tag of the current deploy (CI ci-<sha>, local dev-<sha>, production v<version>), never latest.
+    quiet: true
+
+- name: "🔎 Look for the compose file the stack host deployed Semaphore from"
+  ansible.builtin.stat:
+    path: "{{ lookup('container', application_id, 'files.compose') }}"
+    get_checksum: false
+  register: semaphore_runner_compose_file
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🔎 Read the runner the stack host deployed"
+  ansible.builtin.slurp:
+    src: "{{ semaphore_runner_compose_file.stat.path }}"
+  register: semaphore_runner_compose
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  when: semaphore_runner_compose_file.stat.exists
+
+- name: "🔎 Read the runner inputs label and check its base image is still held"
+  ansible.builtin.command:
+    argv:
+      - container
+      - image
+      - inspect
+      - --format
+      - "{{ SEMAPHORE_RUNNER_INPUTS_FORMAT }}"
+      - "{{ SEMAPHORE_RUNNER_DEPLOYED.image }}"
+      - "{{ SEMAPHORE_RUNNER_DEPLOYED.build.args[SEMAPHORE_RUNNER_BASE_ARG] }}"
+  register: semaphore_runner_held
+  changed_when: false
+  failed_when: semaphore_runner_held.rc != 0 and 'No such image' not in semaphore_runner_held.stderr
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  when: SEMAPHORE_RUNNER_DEPLOYED | length > 0
+
+- name: "⚠️ Warn that the kept runner runs another Infinito.Nexus image than this deploy"
+  ansible.builtin.debug:
+    msg: >-
+      The Semaphore runner keeps '{{ SEMAPHORE_RUNNER_IMAGE }}' on '{{ SEMAPHORE_RUNNER_BASE_IMAGE }}' while this deploy
+      runs '{{ SOFTWARE_IMAGE }}:{{ SOFTWARE_IMAGE_TAG }}'. Its app-control and foreign-server templates run that older
+      checkout until a deploy names web-app-semaphore or changes the runner inputs.
+  run_once: true
+  when: SEMAPHORE_RUNNER_IMAGE_TAG != SOFTWARE_IMAGE_TAG
+
+- name: "🏗️ Build the runner base image on the stack host from this checkout"
+  ansible.builtin.command:
+    argv:
+      - bash
+      - "{{ lookup('path_absolute', 'scripts/image/build.sh') }}"
+      - --missing
+      - --tag
+      - "{{ SEMAPHORE_RUNNER_BASE_IMAGE }}"
+      - --label
+      - "{{ CONTAINER_PRUNE_KEEP_LABEL }}"
+    chdir: "{{ lookup('path_absolute') }}"
+  environment:
+    INFINITO_DISTRO: "{{ SOFTWARE_IMAGE | basename }}"
+  register: semaphore_runner_base_build
+  changed_when: "'Image already exists' not in semaphore_runner_base_build.stdout"
+  timeout: "{{ lookup('timeout', 3600) | int }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  when: SOFTWARE_IMAGE_BUILD | bool
+
+- name: "📦 Stage the Semaphore runner build context"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "{{ SEMAPHORE_RUNNER_DOCKERFILE }}"
+        dest: "{{ [ SEMAPHORE_RUNNER_BUILD_DIR, 'Dockerfile' ] | path_join }}"
+        mode: "0644"
+        notify: []
+
+- name: "🎟️ Stage the token file of each platform runner"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "runner.token.j2"
+        dest: "{{ semaphore_platform_runner.token_file_host }}"
+        owner: "{{ SEMAPHORE_RUNNER_UID }}"
+        group: "{{ SEMAPHORE_RUNNER_GID }}"
+        mode: "0400"
+        notify: []
+  loop: "{{ SEMAPHORE_PLATFORM_RUNNERS_ACTIVE }}"
+  loop_control:
+    loop_var: semaphore_platform_runner
+    label: "{{ semaphore_platform_runner.service }}"
+
+- name: "🧱 Stage the egress proxy of the export runner"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    semaphore_workspace_platform: "{{ SEMAPHORE_EXPORT_PROXY }}"
+    semaphore_workspace_targets: []
+    semaphore_workspace_closed: "{{ SEMAPHORE_EGRESS_CLOSED }}"
+    role_templates:
+      - src: "workspace/squid.conf.j2"
+        dest: "{{ [ SEMAPHORE_EXPORT_EGRESS_DIR, 'squid.conf' ] | path_join }}"
+        mode: "0644"
+        notify: []
+      - src: "workspace/hosts.j2"
+        dest: "{{ [ SEMAPHORE_EXPORT_EGRESS_DIR, 'hosts' ] | path_join }}"
+        mode: "0644"
+        notify: []
+  when: SEMAPHORE_EXPORT_RUNNER_ENABLED | bool

@@ -211,6 +211,7 @@ MCP_ADAPTER_KEYS = frozenset(
         "scope",
         "upstream_transport",
         "upstream_path",
+        "upstream_credential",
     }
 )
 
@@ -308,22 +309,39 @@ def admits_mcp_consumer(provider_services: object, consumer_id: str) -> bool:
     return True
 
 
+def declared_mcp_consumers(services_by_role: dict[str, object]) -> list[str]:
+    """Return the role ids that mark themselves MCP clients, in mapping order.
+
+    Args:
+        services_by_role: every role's ``services`` mapping, keyed by role id.
+    """
+    return [
+        role_id
+        for role_id, services in services_by_role.items()
+        if declares_mcp_consumer(role_id, services)
+    ]
+
+
 def derive_allowed_consumers(
-    provider_id: str, services_by_role: dict[str, object]
+    provider_id: str,
+    services_by_role: dict[str, object],
+    consumers: list[str] | None = None,
 ) -> list[str]:
     """Return the client application ids a provider admits, sorted.
 
     Args:
         provider_id: the provider's ``application_id``.
         services_by_role: every role's ``services`` mapping, keyed by role id.
+        consumers: ``declared_mcp_consumers(services_by_role)``, passed by a
+            caller that resolves every provider against the same mapping.
     """
     provider_services = services_by_role.get(provider_id)
+    if consumers is None:
+        consumers = declared_mcp_consumers(services_by_role)
     return sorted(
         role_id
-        for role_id, services in services_by_role.items()
-        if role_id != provider_id
-        and declares_mcp_consumer(role_id, services)
-        and admits_mcp_consumer(provider_services, role_id)
+        for role_id in consumers
+        if role_id != provider_id and admits_mcp_consumer(provider_services, role_id)
     )
 
 
@@ -358,14 +376,13 @@ def derive_mcp_presence(applications: dict[str, Any]) -> dict[str, Any]:
         for role_id, config in applications.items()
         if isinstance(config, dict)
     }
+    consumers = declared_mcp_consumers(services_by_role)
     for role_id, block in blocks.items():
         direction = str(block.get("direction") or "").lower()
         peers: set[str] = set()
         if direction in ("server", "both"):
-            peers |= set(derive_allowed_consumers(role_id, services_by_role))
-        if direction in ("client", "both") and declares_mcp_consumer(
-            role_id, services_by_role.get(role_id)
-        ):
+            peers |= set(derive_allowed_consumers(role_id, services_by_role, consumers))
+        if direction in ("client", "both") and role_id in consumers:
             peers |= {
                 peer
                 for peer, peer_block in blocks.items()

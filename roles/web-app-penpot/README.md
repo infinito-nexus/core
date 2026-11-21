@@ -35,32 +35,22 @@ handoff features.
 - Shared asset libraries and components, version history.
 - Export (SVG, PDF, images) and developer handoff (CSS/code) via the exporter.
 - Real-time collaboration over WebSockets through the proxy.
+- **Identity attributes:** the OIDC e-mail and name claims and the LDAP username, e-mail, full name and user query come from the platform `OIDC.ATTRIBUTES` and `LDAP.USER.ATTRIBUTES`; every realm user may sign in.
+- **Shared platform team:** Penpot has no instance administrator, only roles per team, so the role groups map onto one team named after `ORGANIZATION` that the platform administrator owns: `administrator` members are team admins, `editor` members editors and `viewer` members viewers; a profile outside all three leaves the team the way Penpot's own leave does. [files/sql/rbac/reconcile.sql](./files/sql/rbac/reconcile.sql) runs in the database as an RBAC hook of [sys-ctl-mtn-rbac-sync](../sys-ctl-mtn-rbac-sync/) at every deploy and on its timer; it creates the team once the administrator's profile exists and matches members by e-mail, so a member joins on the first run after their first sign-in.
+- **Directory full names:** the same hook sets the full name of every Penpot profile whose e-mail the directory holds to the directory's name, because Penpot takes the name from OIDC or LDAP only when it registers the profile.
 
 ## Identity
 
-Login methods are toggled through `PENPOT_FLAGS` and configured by Ansible:
+`services.penpot.login.method.*` in [meta/services.yml](./meta/services.yml) drives the login flags in `PENPOT_FLAGS` ([vars/main.yml](./vars/main.yml)):
 
-- **OIDC** via [`web-app-keycloak`](../web-app-keycloak/) — enabled when the
-  `sso` service is active (`flavor: oidc`, native in-app "OpenID" login). Adds
-  `enable-login-with-oidc`.
-- **LDAP** via [`svc-db-openldap`](../svc-db-openldap/) — enabled when the
-  `ldap` service is active. Adds `enable-login-with-ldap`.
-- **Native** local email/password login is *off* once OIDC is the login path
-  (forces SSO), *on* otherwise — derived from the `sso` service flag. `PENPOT_FLAGS`
-  renders `enable-login-with-password` / `disable-login-with-password` accordingly
-  (no JS injection needed — Penpot disables the password form natively). When
-  native login is on, the role bootstraps a local password for the `administrator`
-  profile via the backend PREPL (`enable-prepl-server`) in `tasks/main.yml` —
-  `create-profile` for a fresh profile, `update-profile` to set the password when
-  a federated login already created it; the bootstrap is skipped under OIDC.
+- **`sso`:** `enable-login-with-oidc` (the in-app "OpenID" entry to [`web-app-keycloak`](../web-app-keycloak/)) together with `enable-oidc-registration`, so a first OIDC login creates its Penpot profile while local self-registration stays closed.
+- **`ldap`:** `enable-login-with-ldap`, the "LDAP" button on the login form that binds against [`svc-db-openldap`](../svc-db-openldap/). Under SSO it is off and LDAP accounts sign in through the Keycloak federation.
+- **`native`:** `enable-login-with-password` or `disable-login-with-password`. Penpot keeps the email and password fields for the LDAP button, but without this flag no local password signs in. When it is on, `tasks/main.yml` bootstraps a local password for the `administrator` profile through the backend PREPL (`create-profile` for a fresh profile, `update-profile` when a federated login already created it).
+- **`registration`:** `enable-registration` or `disable-registration`, the local "Create an account" path. Penpot accepts a local sign-up only while `native` is on as well.
 
-**Self-registration** is *on* when OIDC is enabled and *off* otherwise — also
-derived from the `sso` service flag. Penpot routes first-time OIDC logins through
-the registration path (a disabled flag makes the callback fail with
-`?error=registration-disabled` for not-yet-provisioned users), so registration
-must stay on wherever OIDC is. Native admin is bootstrapped and LDAP
-self-provisions without it. `PENPOT_FLAGS` renders `enable-registration` /
-`disable-registration` accordingly.
+Penpot has no second factor and no passkey, so the role declares neither.
+
+**Break-glass:** Penpot has no instance administrator, only team roles. While SSO is on, the backend PREPL (`enable-prepl-server`) that `tasks/01_administrator.yml` drives manages profiles from the CLI.
 
 ## Storage & scalability
 
@@ -120,8 +110,9 @@ globs every `*.js` under `files/playwright/`):
   skipped when `sso` is enabled (native login is disabled under OIDC).
 - `test-login-oidc-admin.js` — OIDC via Keycloak, administrator.
 - `test-login-oidc-biber.js` — OIDC via Keycloak, `biber` (non-admin RBAC).
-- `test-login-ldap-admin.js` — OpenLDAP bind, administrator.
-- `test-login-ldap-biber.js` — OpenLDAP bind, `biber` (non-admin RBAC).
+- `test-login-ldap-admin.js` — OpenLDAP bind, administrator; runs with `ldap` on and `sso` off.
+- `test-login-ldap-biber.js` — OpenLDAP bind, `biber` (non-admin RBAC); runs with `ldap` on and `sso` off.
+- `test-login-methods.js` — with `sso` on, the login page shows the OpenID entry and only the password, LDAP and registration entries whose `LOGIN_METHOD_*_ENABLED` flag is on.
 - `playwright.spec.js` — orchestrator: TLS baseline, project creation, image
   asset upload, and the `guest`/`biber`/`administrator` personas. The `biber` /
   `administrator` personas are declared blocked via `PERSONA_*_BLOCKED`
@@ -133,6 +124,10 @@ Login/project/asset scenarios gate on the relevant service via
 `skipUnlessServiceEnabled`, so a deploy reports them `skipped` (not `failed`)
 when that service is disabled. Validated live against a Penpot + Keycloak +
 OpenLDAP deploy.
+
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to. A follow-up tightens them.
 
 ## Further Resources
 

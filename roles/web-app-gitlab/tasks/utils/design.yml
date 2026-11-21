@@ -24,4 +24,4 @@
       delegate_to: "{{ STACK_HOST }}"
       run_once: true
       register: gitlab_design_files
-      when: design_branding.logo is string
+      when: lookup('design', application_id).logo is string

@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: playwright-service-flag — translation engine without a browser surface of its own
 nllb-engine:
   backup:
@@ -21,7 +22,7 @@ nllb-engine:
   shared: true
   # nocheck: dockerfile-custom  upstream publishes model weights and no server, so the role builds one
   image: python
-  # nocheck: docker-version  base of the self-built inference server, held on the 3.13 minor tag (patches still arrive) because files/shell/build.sh pins torch 2.9.1, which has no cp315 wheel; see TODO.md
+  # nocheck: docker-version  base of the self-built inference server, held on the 3.13 minor tag (patches still arrive) because the torch release AI_TORCH_VERSION in group_vars/all/16_ai.yml pins has no cp315 wheel; see TODO.md
   version: "3.13-slim"
   custom: true
   gpu: true
@@ -50,3 +51,11 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started

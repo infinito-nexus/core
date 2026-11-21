@@ -1,0 +1,10 @@
+set $infinito_sso_identity_forged "";
+if ($http_{{ FUSIONDIRECTORY_HTTP_HEADER_NAME | lower }}) {
+    set $infinito_sso_identity_forged "1";
+}
+if ($http_{{ FUSIONDIRECTORY_SSO_PROXY_HEADER | lower | replace('-', '_') }} = "{{ FUSIONDIRECTORY_SSO_PROXY_SECRET }}") {
+    set $infinito_sso_identity_forged "";
+}
+if ($infinito_sso_identity_forged) {
+    return 403;
+}

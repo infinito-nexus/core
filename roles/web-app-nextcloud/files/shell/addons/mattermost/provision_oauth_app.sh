@@ -2,7 +2,7 @@
 # Idempotently ensure a Mattermost OAuth 2.0 service-provider application exists
 # for the Nextcloud integration_mattermost connector and print its credentials.
 #
-# Runs on the Mattermost node's host, driving the REST API via the published localhost port.
+# Runs on the Mattermost node's host inside the Mattermost container's network namespace.
 # Emits exactly two machine-parseable lines on success:
 #   CLIENT_ID=<id>
 #   CLIENT_SECRET=<secret>
@@ -26,9 +26,10 @@ if [ -n "${MM_TOKEN:-}" ]; then
   token="${MM_TOKEN}"
 else
   token="$(
-    curl --connect-timeout 5 --max-time 30 -sS -i -X POST "${api}/users/login" \
+    printf '{"login_id":"%s","password":"%s"}' "${MM_ADMIN_LOGIN}" "${MM_ADMIN_PASS}" \
+    | curl --connect-timeout 5 --max-time 30 -sS -i -X POST "${api}/users/login" \
       -H 'Content-Type: application/json' \
-      -d "$(printf '{"login_id":"%s","password":"%s"}' "${MM_ADMIN_LOGIN}" "${MM_ADMIN_PASS}")" \
+      -d @- \
     | tr -d '\r' \
     | awk 'tolower($1)=="token:"{print $2; exit}'
   )"
@@ -39,10 +40,13 @@ if [ -z "${token}" ]; then
   exit 1
 fi
 
-auth="Authorization: Bearer ${token}"
+auth_header() {
+  printf 'Authorization: Bearer %s\n' "${token}"
+}
 
 existing="$(
-  curl --connect-timeout 5 --max-time 30 -sS -H "${auth}" "${api}/oauth/apps?page=0&per_page=200" \
+  auth_header \
+  | curl --connect-timeout 5 --max-time 30 -sS -H @- "${api}/oauth/apps?page=0&per_page=200" \
   | python3 -c 'import json,os,sys
 name=os.environ["MM_APP_NAME"]
 try:
@@ -61,8 +65,9 @@ if [ -n "${existing}" ]; then
   client_secret="${existing#*	}"
 else
   created="$(
-    curl --connect-timeout 5 --max-time 30 -sS -X POST "${api}/oauth/apps" \
-      -H "${auth}" -H 'Content-Type: application/json' \
+    auth_header \
+    | curl --connect-timeout 5 --max-time 30 -sS -X POST "${api}/oauth/apps" \
+      -H @- -H 'Content-Type: application/json' \
       -d "$(python3 -c 'import json,os
 base=os.environ["NC_BASE_URL"].rstrip("/")
 path=os.environ["NC_REDIRECT_PATH"]

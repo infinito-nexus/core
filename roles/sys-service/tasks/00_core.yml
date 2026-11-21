@@ -12,6 +12,6 @@
 
 - name: "♻️ reset (if enabled) for {{ role_name}}"
   include_tasks: 03_reset.yml
-  when: MODE_RESET | bool
+  when: RESET | bool
 
 - include_tasks: utils/once/flag.yml

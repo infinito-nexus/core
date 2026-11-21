@@ -69,9 +69,9 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         )
 
         modes: dict[str, Any] = {
-            "MODE_CLEANUP": True,
-            "MODE_ASSERT": True,
-            "MODE_DEBUG": True,
+            "CLEANUP": True,
+            "VALIDATE": True,
+            "DEBUG": True,
         }
 
         inventory_path = "/etc/inventories/github-ci/devices.yml"
@@ -79,9 +79,15 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         allowed_apps = ["web-app-foo", "web-app-bar"]
         password_file = "/etc/inventories/github-ci/.password"
 
-        with unittest.mock.patch(
-            "cli.administration.deploy.dedicated.runner.assert_services_disabled_inventory_consistency_from_env"
-        ) as mock_services_disabled_guard:
+        with (
+            unittest.mock.patch(
+                "cli.administration.deploy.dedicated.runner.assert_services_disabled_inventory_consistency_from_env"
+            ) as mock_services_disabled_guard,
+            unittest.mock.patch(
+                "cli.administration.deploy.dedicated.runner.check_enabled",
+                return_value=True,
+            ),
+        ):
             runner.run_ansible_playbook(
                 repo_root=repo_root,
                 playbook_path=playbook_path,
@@ -104,7 +110,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
 
         self.assertFalse(
             was_called(["make", "clean"]),
-            "MODE_CLEANUP tidies the deployed system, so it must not git-clean "
+            "CLEANUP tidies the deployed system, so it must not git-clean "
             "the control checkout and delete the inventory being deployed",
         )
         self.assertTrue(was_called(["make", "setup"]), "Expected 'make setup'")
@@ -150,7 +156,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         modes_index = len(last_cmd) - 1 - last_cmd[::-1].index("-e")
         self.assertEqual(
             json.loads(last_cmd[modes_index + 1]),
-            {"MODE_CLEANUP": True, "MODE_ASSERT": True, "MODE_DEBUG": True},
+            {"CLEANUP": True, "VALIDATE": True, "DEBUG": True},
         )
 
         self.assertIn("--vault-password-file", last_cmd)
@@ -160,7 +166,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
 
         self.assertTrue(
             any(arg.startswith("-vvv") for arg in last_cmd),
-            "Expected at least -vvv because MODE_DEBUG=True",
+            "Expected at least -vvv because DEBUG=True",
         )
 
         self.assertNotIn("text", last_kw)
@@ -180,9 +186,9 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         )
 
         modes: dict[str, Any] = {
-            "MODE_CLEANUP": False,
-            "MODE_ASSERT": False,
-            "MODE_DEBUG": False,
+            "CLEANUP": False,
+            "VALIDATE": False,
+            "DEBUG": False,
         }
 
         inventory_path = "/etc/inventories/github-ci/devices.yml"
@@ -193,7 +199,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
             "-e",
             "APPLICATIONS_WHITELIST=override-app",
             "-e",
-            "MODE_DEBUG=true",
+            "DEBUG=true",
         ]
 
         with unittest.mock.patch(
@@ -238,9 +244,9 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         )
 
         modes: dict[str, Any] = {
-            "MODE_CLEANUP": False,
-            "MODE_ASSERT": False,
-            "MODE_DEBUG": False,
+            "CLEANUP": False,
+            "VALIDATE": False,
+            "DEBUG": False,
         }
 
         with (
@@ -280,7 +286,7 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
                 any("validate/__main__.py" in part for part in call_cmd)
                 for call_cmd, _kw in calls
             ),
-            "Inventory validation should be skipped when MODE_ASSERT is False",
+            "Inventory validation should be skipped when VALIDATE is False",
         )
 
     @unittest.mock.patch("subprocess.run")
@@ -303,9 +309,9 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
                 inventory_validator_path="/repo/cli/administration/inventory/validate/__main__.py",
                 inventory="/etc/inventories/github-ci/devices.yml",
                 modes={
-                    "MODE_CLEANUP": False,
-                    "MODE_ASSERT": True,
-                    "MODE_DEBUG": False,
+                    "CLEANUP": False,
+                    "VALIDATE": True,
+                    "DEBUG": False,
                 },
                 limit=None,
                 allowed_applications=None,
@@ -320,6 +326,75 @@ class TestRunAnsiblePlaybook(unittest.TestCase):
         self.assertFalse(
             any(call_cmd and call_cmd[0] == _ANSIBLE_PLAYBOOK for call_cmd, _ in calls)
         )
+
+
+class TestInventoryValidationSwitches(unittest.TestCase):
+    def setUp(self) -> None:
+        for target, kwargs in (
+            ("deploy_ansible_playbook", {"return_value": _ANSIBLE_PLAYBOOK}),
+            ("assert_services_disabled_inventory_consistency_from_env", {}),
+        ):
+            patcher = unittest.mock.patch(
+                f"cli.administration.deploy.dedicated.runner.{target}", **kwargs
+            )
+            patcher.start()
+            self.addCleanup(patcher.stop)
+        self.calls: list[list[str]] = []
+
+    def _record(self, cmd, *args, **kwargs):
+        self.calls.append(list(cmd))
+        return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+    def _deploy(self, modes: dict[str, Any], check: unittest.mock.Mock) -> None:
+        with (
+            unittest.mock.patch("subprocess.run", side_effect=self._record),
+            unittest.mock.patch(
+                "cli.administration.deploy.dedicated.runner.check_enabled", check
+            ),
+        ):
+            runner.run_ansible_playbook(
+                repo_root="/repo",
+                playbook_path="/repo/playbook.yml",
+                inventory_validator_path="/repo/validate/__main__.py",
+                inventory="/etc/inventories/github-ci/devices.yml",
+                modes=modes,
+                skip_build=True,
+            )
+
+    def _validated(self) -> bool:
+        return any("/repo/validate/__main__.py" in cmd for cmd in self.calls)
+
+    def _deployed(self) -> bool:
+        return any(cmd[0] == _ANSIBLE_PLAYBOOK for cmd in self.calls)
+
+    def test_validation_runs_when_assert_is_not_given(self):
+        check = unittest.mock.Mock(return_value=True)
+        self._deploy({}, check)
+        self.assertTrue(self._validated())
+        check.assert_called_once_with("inventory", Path("/repo") / "roles")
+
+    def test_the_inventory_switch_off_skips_validation_but_still_deploys(self):
+        self._deploy({"VALIDATE": True}, unittest.mock.Mock(return_value=False))
+        self.assertFalse(self._validated())
+        self.assertTrue(self._deployed())
+
+    def test_assert_false_skips_validation_without_reading_the_switch(self):
+        check = unittest.mock.Mock(return_value=True)
+        self._deploy({"VALIDATE": False}, check)
+        self.assertFalse(self._validated())
+        check.assert_not_called()
+        self.assertTrue(self._deployed())
+
+    def test_an_unreadable_switch_stops_the_run_before_ansible(self):
+        check = unittest.mock.Mock(side_effect=TypeError("must be true or false"))
+        with (
+            unittest.mock.patch.object(runner.sys, "stderr", io.StringIO()) as err,
+            self.assertRaises(SystemExit) as ctx,
+        ):
+            self._deploy({}, check)
+        self.assertEqual(ctx.exception.code, 1)
+        self.assertIn("must be true or false", err.getvalue())
+        self.assertFalse(self._deployed())
 
 
 class TestDeployAnsiblePlaybook(unittest.TestCase):
@@ -391,7 +466,7 @@ class TestDeployAnsiblePlaybook(unittest.TestCase):
                 playbook_path=f"{repo_root}/playbook.yml",
                 inventory_validator_path=f"{repo_root}/validate/__main__.py",
                 inventory=f"{repo_root}/devices.yml",
-                modes={"MODE_ASSERT": True},
+                modes={"VALIDATE": True},
                 skip_build=False,
             )
         self.assertEqual(ctx.exception.code, 1)

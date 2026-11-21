@@ -7,11 +7,14 @@ from pathlib import Path
 from utils.i18n.catalog import (
     build_template,
     merge,
+    new_catalog,
     read_catalog,
+    render,
     translations,
     write_catalog,
 )
 from utils.i18n.translate import pending
+from utils.software import SOFTWARE_LICENSE
 
 
 class TestBuildTemplate(unittest.TestCase):
@@ -168,6 +171,19 @@ class TestTranslations(unittest.TestCase):
         fuzzy.flags.add("fuzzy")
 
         self.assertEqual(translations(catalog), {("a", "Done"): "Fertig"})
+
+
+class TestRenderHeader(unittest.TestCase):
+    def test_a_role_catalog_defers_to_the_licence_of_its_repository(self):
+        rendered = render(new_catalog("team", "de")).decode("utf-8")
+
+        self.assertNotIn(SOFTWARE_LICENSE, rendered)
+        self.assertIn("licence of the repository that holds it", rendered)
+
+    def test_a_core_catalog_names_the_core_licence(self):
+        rendered = render(new_catalog("core", "de")).decode("utf-8")
+
+        self.assertIn(SOFTWARE_LICENSE, rendered)
 
 
 if __name__ == "__main__":

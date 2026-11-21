@@ -19,4 +19,9 @@ mcp-web-app-zammad:
   lastname: MCP
   accounts: []
   description: Account the Zammad MCP token belongs to; a read-only agent rather than the initial administrator
+access-request-zammad:
+  firstname: Access
+  lastname: Request
+  accounts: []
+  description: Zammad agent the access-request service files its tickets as; holds the token of web-svc-access-request (NOT an OIDC user)
 platform_administrator: {}

@@ -3,5 +3,4 @@
   include_tasks: preload_service.yml
   when:
     - lookup('vars', service_run_once_var, default='__missing__') == '__missing__'
-    - (service_key in _required_service_ids) or (service_role in group_names)
-    - (_preload_closure | length == 0) or (service_role in _preload_closure)
+    - service_key | service_preloaded(service_role, _required_service_ids, group_names, _preload_closure)

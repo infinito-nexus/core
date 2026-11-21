@@ -15,6 +15,11 @@ This role deploys Funkwhale using Docker. It orchestrates multiple services (inc
 - **Centralized Data Management:** Benefit from integrated PostgreSQL and Redis, ensuring smooth and efficient operation.
 - **Customizable Media Handling:** Configure media roots, static assets, and music directories tailored to your deployment.
 - **User-Friendly Configuration:** Manage your instance effortlessly using environment variables and Docker Compose templates.
+- **Role Groups:** Every LDAP sign-in refreshes name and email from the directory and sets the account flags from the role groups: `administrator` grants superuser and staff, `moderator`, `librarian` and `settings-manager` grant the moderation, library and settings permission. A user outside a group loses its flag at the next sign-in. The settings module [templates/settings.py.j2](./templates/settings.py.j2) extends `config.settings.production`.
+
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to. A follow-up tightens them.
 
 ## Persona contract opt-outs
 

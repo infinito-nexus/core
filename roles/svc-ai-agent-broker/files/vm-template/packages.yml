@@ -1,0 +1,56 @@
+---
+version: "1"
+distribution: debian
+release: trixie
+repositories:
+  - main
+  - contrib
+snapshot: "20261101T000000Z"
+apt:
+  - btrfs-progs
+  - ca-certificates
+  - cryptsetup
+  - curl
+  - docker.io
+  - git
+  - linux-headers-amd64
+  - linux-image-amd64
+  - nfs-common
+  - nodejs
+  - npm
+  - qemu-guest-agent
+  - systemd-boot
+  - zfs-dkms
+  - zfsutils-linux
+runtimes:
+  claude-code:
+    role: dsk-gnt-claude
+    entity: claude
+    binary: claude
+    sha256: ""
+  codex:
+    role: dsk-gnt-codex
+    entity: codex
+    binary: codex
+    sha256: ""
+  pi:
+    role: dsk-gnt-pi
+    entity: pi
+    binary: pi
+    sha256: ""
+tools:
+  act:
+    version: "0.2.80"
+    url: "https://github.com/nektos/act/releases/download/v{version}/act_Linux_x86_64.tar.gz"
+    sha256: ""
+    binary: act
+probes:
+  - docker info
+  - claude --version
+  - codex --version
+  - pi --version
+  - zpool version
+  - mkfs.btrfs -V
+  - cryptsetup --version
+  - mount.nfs -V
+  - act --version

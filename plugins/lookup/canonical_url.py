@@ -32,7 +32,7 @@ from ansible.plugins.lookup import LookupBase
 
 from utils.domains.primary_domain import get_primary_domain
 from utils.roles.entity.name import entity_name
-from utils.tls_common import (
+from utils.tls.common import (
     align_domain_to_consumer,
     as_str,
     require,

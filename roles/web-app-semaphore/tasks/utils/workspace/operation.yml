@@ -1,0 +1,94 @@
+---
+# Param: semaphore_project_token       the admin API token of tasks/utils/admin.yml
+# Param: semaphore_workspace_hint_query  the runner hint tasks/utils/workspace/locate.yml read
+- name: "🎟️ Hold the runner hint and one read key candidate"
+  ansible.builtin.set_fact:
+    semaphore_workspace_hint: "{{ (semaphore_workspace_hint_query.stdout_lines | select('match', '^HINT ') | map('regex_replace', '^HINT ', '') | map('int') | list
+      + [None]) | first }}"
+    semaphore_workspace_read_key: "{{ semaphore_workspace_alias | semaphore_ssh_keypair }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🗂️ {{ WORKSPACE_ACTION | capitalize }} {{ semaphore_workspace_alias }} projects"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ SEMAPHORE_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - python3
+      - -c
+      - "{{ lookup('file', 'python/project.py') }}"
+    stdin: "{{ semaphore_workspace_spec | to_json }}"
+  vars:
+    semaphore_workspace_targets: "{{ (WORKSPACE_TARGETS if WORKSPACE_ACTION == 'apply' else []) | semaphore_targets_env }}"
+    semaphore_workspace_provision_values:
+      WORKSPACE: "{{ semaphore_workspace_alias }}"
+      WORKSPACE_DNS_ZONE: "{{ workspace_dns.zone if WORKSPACE_ACTION == 'apply' else '' }}"
+      WORKSPACE_DNS_ZONE_ID: "{{ workspace_dns.zone_id if WORKSPACE_ACTION == 'apply' else '' }}"
+      WORKSPACE_TARGETS: "{{ semaphore_workspace_targets }}"
+    semaphore_workspace_spec:
+      url: "{{ SEMAPHORE_API_URL }}"
+      token: "{{ semaphore_project_token }}"
+      probe: "{{ SEMAPHORE_DEPLOY_FIXTURE_ENABLED | bool }}"
+      workspace:
+        id: "{{ WORKSPACE }}"
+        alias: "{{ semaphore_workspace_alias }}"
+        action: "{{ WORKSPACE_ACTION }}"
+        project_hint: "{{ semaphore_workspace_hint }}"
+      store:
+        username: "{{ SEMAPHORE_STORE_ACCOUNT.username }}"
+      repository:
+        url: "{{ SEMAPHORE_WORKSPACE_REPOSITORY_URL }}"
+        branch: "{{ SEMAPHORE_WORKSPACES_REPOSITORY_BRANCH }}"
+      read_key: "{{ semaphore_workspace_read_key }}"
+      scripts:
+        name: "{{ SEMAPHORE_WORKSPACES_SCRIPTS_NAME }}"
+        path: "{{ SEMAPHORE_RUNNER_REPOSITORY }}"
+        script_app: "{{ SEMAPHORE_SCRIPT_APP_ID }}"
+        deploy_script: "{{ SEMAPHORE_DEPLOY_SCRIPT }}"
+        deploy_app: "{{ SEMAPHORE_DEPLOY_APP_ID }}"
+        inventory_file: "{{ SEMAPHORE_DEPLOY_INVENTORY_FILE }}"
+      environment:
+        BAO_ADDR: "{{ SEMAPHORE_WORKSPACES_VARIABLES.BAO_ADDR }}"
+        BAO_CACERT: "{{ SEMAPHORE_WORKSPACES_VARIABLES.BAO_CACERT }}"
+        BAO_ROLE: "{{ semaphore_workspace_alias }}"
+        WORKSPACE: "{{ WORKSPACE }}"
+        WORKSPACE_DNS_ZONE: "{{ workspace_dns.zone if WORKSPACE_ACTION == 'apply' else '' }}"
+        WORKSPACE_TARGETS: "{{ semaphore_workspace_targets }}"
+        WORKSPACE_INVENTORY_FILE: "{{ SEMAPHORE_DEPLOY_INVENTORY_FILE }}"
+      workspaces:
+        project: "{{ SEMAPHORE_WORKSPACES_PROJECT_NAME }}"
+      provision:
+        project: "{{ SEMAPHORE_PROVISION_PROJECT_NAME }}"
+        runner_tag: "{{ SEMAPHORE_PLATFORM_RUNNER_TAGS.provision }}"
+        environment: "{{ SEMAPHORE_PROVISION_VARIABLES | combine(semaphore_workspace_provision_values) }}"
+      export:
+        project: "{{ SEMAPHORE_EXPORT_PROJECT_NAME }}"
+        runner_tag: "{{ SEMAPHORE_PLATFORM_RUNNER_TAGS.export }}"
+        environment: "{{ SEMAPHORE_EXPORT_VARIABLES | combine({'WORKSPACE': semaphore_workspace_alias}) }}"
+  register: semaphore_workspace_converge
+  changed_when: semaphore_workspace_converge.stdout is search('(?<![A-Z])CHANGED')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ SEMAPHORE_HOST_NODE }}"
+
+- name: "🛑 Remove the runner of the destroyed workspace"
+  when: WORKSPACE_ACTION == 'destroy'
+  block:
+    - name: "📦 Hold what destroy of {{ semaphore_workspace_alias }} returned"
+      ansible.builtin.set_fact:
+        semaphore_workspace_destroyed: >-
+          {{ (semaphore_workspace_converge.stdout_lines | select('match', '^RESULT ') | first)[7:] | from_json }}
+
+    - name: "🛑 Remove the runner of {{ semaphore_workspace_alias }}"
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/workspace/runner.yml"
+
+- name: "🏃 Run the runner the applied workspace returned"
+  when: WORKSPACE_ACTION == 'apply'
+  block:
+    - name: "📦 Hold what apply of {{ semaphore_workspace_alias }} returned"
+      ansible.builtin.set_fact:
+        semaphore_workspace_applied: >-
+          {{ (semaphore_workspace_converge.stdout_lines | select('match', '^RESULT ') | first)[7:] | from_json }}
+
+    - name: "🏃 Run the runner of {{ semaphore_workspace_alias }}"
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/workspace/runner.yml"

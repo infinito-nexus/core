@@ -1,0 +1,20 @@
+---
+application_id: "svc-stack"
+front_proxy_wildcard_probe_label: "infinito-probe"
+front_proxy_probe_status_codes: "{{ front_proxy_status_codes + front_proxy_upstream_down_status_codes }}"
+front_proxy_vhost_changed: "{{ nginx_conf.changed and front_proxy_domain_conf_dst_resolved in nginx_conf.changed_paths }}"
+front_proxy_deferred_due: >-
+  {{
+    front_proxy_deferred_probes
+    | dict2items
+    | selectattr('value.phase', 'in', front_proxy_probe_phases)
+    | items2dict
+  }}
+front_proxy_deferred_urls: "{{ dict(front_proxy_deferred_due.keys() | zip(front_proxy_deferred_due.values() | map(attribute='url'))) }}"
+front_proxy_deferred_answers: >-
+  {{
+    front_proxy_deferred_due.values()
+    | map(attribute='status_codes')
+    | flatten
+    | union(front_proxy_upstream_down_status_codes)
+  }}

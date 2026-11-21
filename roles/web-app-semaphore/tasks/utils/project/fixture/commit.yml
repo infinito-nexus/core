@@ -1,0 +1,127 @@
+---
+- name: "🔑 Hand the provisioner the vault password of the inventory"
+  ansible.builtin.copy:
+    content: "{{ SEMAPHORE_DEPLOY_VAULT_PASSWORD }}"
+    dest: "{{ semaphore_deploy_fixture_password_file }}"
+    mode: "0400"
+  delegate_to: localhost
+  become: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🗂️ Provision an inventory that deploys to the shared target"
+  ansible.builtin.command:
+    argv:
+      - "{{ ansible_playbook_python }}"
+      - -m
+      - cli.administration.inventory.provision
+      - "{{ semaphore_deploy_fixture_inventory }}"
+      - --host
+      - "{{ SEMAPHORE_DEPLOY_FIXTURE_HOST }}"
+      - --include
+      - "{{ SEMAPHORE_DEPLOY_FIXTURE_APPLICATION }}"
+      - --vault-password-file
+      - "{{ semaphore_deploy_fixture_password_file }}"
+      - --vars
+      - "{{ SEMAPHORE_DEPLOY_FIXTURE_VARS | to_json }}"
+    chdir: "{{ lookup('path_absolute') }}"
+  changed_when: true
+  delegate_to: localhost
+  become: false
+
+- name: "📝 Write the Workspaces inventory and the platform host_vars beside it"
+  ansible.builtin.copy:
+    content: "{{ semaphore_deploy_fixture_platform_file.content }}"
+    dest: "{{ [semaphore_deploy_fixture_inventory, semaphore_deploy_fixture_platform_file.path] | path_join }}"
+    mode: "0600"
+  loop: "{{ semaphore_deploy_fixture_platform_files }}"
+  loop_control:
+    loop_var: semaphore_deploy_fixture_platform_file
+  delegate_to: localhost
+  become: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📖 Read the inventories of the deploy template and the Workspaces project"
+  ansible.builtin.slurp:
+    src: "{{ [semaphore_deploy_fixture_inventory, semaphore_deploy_fixture_inventory_file] | path_join }}"
+  loop:
+    - "{{ SEMAPHORE_DEPLOY_INVENTORY_FILE }}"
+    - "{{ SEMAPHORE_WORKSPACES_INVENTORY_FILE }}"
+  loop_control:
+    loop_var: semaphore_deploy_fixture_inventory_file
+  register: semaphore_deploy_fixture_inventories
+  delegate_to: localhost
+  become: false
+
+- name: "✅ Fail unless the platform host lies in the Workspaces inventory alone"
+  ansible.builtin.assert:
+    that:
+      - semaphore_deploy_fixture_inventory_findings | length == 0
+    fail_msg: "{{ semaphore_deploy_fixture_inventory_findings | join('; ') }}"
+    quiet: true
+  vars:
+    semaphore_deploy_fixture_inventory_findings: >-
+      {{ semaphore_deploy_fixture_inventories.results[0].content | b64decode
+         | semaphore_fixture_inventory_findings(semaphore_deploy_fixture_inventories.results[1].content | b64decode,
+             SEMAPHORE_DEPLOY_FIXTURE_PLATFORM_HOST, SEMAPHORE_DEPLOY_FIXTURE_HOST) }}
+
+- name: "🔎 Collect the files of the provisioned inventory"
+  ansible.builtin.find:
+    paths: "{{ semaphore_deploy_fixture_inventory }}"
+    recurse: true
+    hidden: false
+    file_type: file
+  register: semaphore_deploy_fixture_found
+  delegate_to: localhost
+  become: false
+
+- name: "📖 Read the files of the provisioned inventory"
+  ansible.builtin.slurp:
+    src: "{{ semaphore_deploy_fixture_path }}"
+  loop: "{{ semaphore_deploy_fixture_found.files | map(attribute='path') | sort }}"
+  loop_control:
+    loop_var: semaphore_deploy_fixture_path
+  register: semaphore_deploy_fixture_files
+  delegate_to: localhost
+  become: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🏷️ Open the commit with the marker that names the inputs of this inventory"
+  ansible.builtin.set_fact:
+    semaphore_deploy_fixture_commit:
+      - operation: create
+        path: "{{ SEMAPHORE_DEPLOY_FIXTURE_MARKER }}"
+        content: "{{ SEMAPHORE_DEPLOY_FIXTURE_FINGERPRINT | b64encode }}"
+
+- name: "📝 Add every inventory file to the commit"
+  ansible.builtin.set_fact:
+    semaphore_deploy_fixture_commit: >-
+      {{ semaphore_deploy_fixture_commit + [{
+           'operation': 'create',
+           'path': semaphore_deploy_fixture_file.source | relpath(semaphore_deploy_fixture_inventory),
+           'content': semaphore_deploy_fixture_file.content
+         }] }}
+  loop: "{{ semaphore_deploy_fixture_files.results }}"
+  loop_control:
+    loop_var: semaphore_deploy_fixture_file
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📤 Commit the inventory to the repository"
+  ansible.builtin.command:
+    argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
+    stdin: >-
+      {{ lookup('http_request_program', {
+        'branch': SEMAPHORE_DEPLOY_REPOSITORY_BRANCH,
+        'message': 'Inventories of the shared target and the platform host',
+        'files': semaphore_deploy_fixture_commit,
+      } | to_json, headers=SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS) }}
+  environment:
+    HTTP_METHOD: POST
+    HTTP_URL: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}/contents"
+  register: semaphore_deploy_fixture_push
+  retries: 30
+  delay: 2
+  until: semaphore_deploy_fixture_push.rc == 0 and (semaphore_deploy_fixture_push.stdout | from_json).status == 201
+  changed_when: true
+  delegate_to: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
+  become: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

@@ -28,6 +28,7 @@
 
 - name: "▶️ Run Moodle install (idempotent)"
   shell: >
+    IFS= read -r MOODLE_ADMIN_PASSWORD || :; : "${MOODLE_ADMIN_PASSWORD:?arrived empty on stdin}" && export MOODLE_ADMIN_PASSWORD &&
     container exec --user {{ MOODLE_RUNTIME_USER }} -e MOODLE_ADMIN_PASSWORD
     {{ MOODLE_CONTAINER_ADDRESS }}
     sh -lc 'php {{ MOODLE_CLI_DIR }}/install_database.php
@@ -37,8 +38,8 @@
     --adminemail="{{ MOODLE_ADMIN_EMAIL }}"
     --fullname="{{ MOODLE_SITE_TITLE }}"
     --shortname=Academy'
-  environment:
-    MOODLE_ADMIN_PASSWORD: "{{ MOODLE_ADMIN_PASSWORD }}"
+  args:
+    stdin: "{{ MOODLE_ADMIN_PASSWORD }}"
   register: moodle_install
   retries: 20
   delay: 15
@@ -51,6 +52,12 @@
     - "'Database tables already present' not in moodle_install.stderr"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "📋 Sync the local_mfaenforce plugin from the image into the code volume"
+  ansible.builtin.shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    cp -aT {{ MOODLE_MFA_ENFORCE_PLUGIN_SOURCE_DIR | quote }} {{ MOODLE_MFA_ENFORCE_PLUGIN_DIR | quote }}
+  changed_when: false
+
 - name: "⬆️ Upgrade the Moodle database to the release in the code volume"
   shell: >
     container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
@@ -62,14 +69,14 @@
   when: not (MOODLE_OIDC_ENABLED | bool)
   # nocheck: password-quote  the token is upstream's CLI filename, not a credential
   shell: >
+    IFS= read -r MOODLE_ADMIN_PASSWORD || :; : "${MOODLE_ADMIN_PASSWORD:?arrived empty on stdin}" && export MOODLE_ADMIN_PASSWORD &&
     container exec --user {{ MOODLE_RUNTIME_USER }} -e MOODLE_ADMIN_PASSWORD
     {{ MOODLE_CONTAINER_ADDRESS }}
-    sh -lc 'php {{ [MOODLE_CLI_DIR, 'reset_password.php'] | path_join }}
+    sh -lc 'printf "%s\n" "$MOODLE_ADMIN_PASSWORD" | php {{ [MOODLE_CLI_DIR, 'reset_password.php'] | path_join }}
     --username="{{ MOODLE_ADMIN_USERNAME }}"
-    --password="$MOODLE_ADMIN_PASSWORD"
     --ignore-password-policy'
-  environment:
-    MOODLE_ADMIN_PASSWORD: "{{ MOODLE_ADMIN_PASSWORD }}"
+  args:
+    stdin: "{{ MOODLE_ADMIN_PASSWORD }}"
   register: moodle_admin_password
   changed_when: moodle_admin_password.rc == 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -96,9 +103,25 @@
   include_tasks: 04_oidc.yml
   when: MOODLE_OIDC_ENABLED | bool
 
+- name: "🚪 Converge the Moodle login methods"
+  include_tasks: 05_login_methods.yml
+
 - name: "🔧 Configure auth_ldap (sync-only in variant 0, primary login in variant 1)"
-  include_tasks: 05_ldap_sync.yml
+  include_tasks: 06_ldap_sync.yml
   when: MOODLE_LDAP_ENABLED | bool
+
+- name: "🔧 Hand every account but guest to auth_oidc, LDAP-synced ones included"
+  when: MOODLE_OIDC_ENABLED | bool
+  shell: >
+    IFS= read -r MYSQL_PWD || :; : "${MYSQL_PWD:?arrived empty on stdin}" && export MYSQL_PWD &&
+    container exec -e MYSQL_PWD {{ MOODLE_DB_CONTAINER_ADDRESS }}
+    mariadb -u {{ lookup('database', application_id, 'username') }}
+    -e "UPDATE {{ lookup('database', application_id, 'name') }}.mdl_user SET auth = 'oidc' WHERE username != 'guest';"
+  args:
+    executable: /bin/bash
+    stdin: "{{ lookup('database', application_id, 'password') }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🤖 Bind the native AI surface to the platform gateway"
   include_tasks: utils/ai_gateway.yml
@@ -109,7 +132,7 @@
   when: MOODLE_MCP_ENABLED | bool
 
 - name: "🎨 Align the Boost theme with the corporate design"
-  include_tasks: 06_design.yml
+  include_tasks: 08_design.yml
 
 - name: "📧 Verify the relay accepts Moodle's mail"
   when: lookup('config', application_id, 'services.email.enabled', false) | bool

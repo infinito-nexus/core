@@ -4,11 +4,12 @@ import re
 
 from ansible.errors import AnsibleFilterError
 
+from utils.digests import SHA256
+
 _PARTS = ("MAJOR", "MINOR", "PATCH")
 _BRIDGE_KEYS = ("version", "sha256", "plugins")
 _VERSION = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
 _DATABASE_VERSION = re.compile(r"^database-version=(\S+)$", re.MULTILINE)
-_SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _PLUGIN = re.compile(r"^[a-z0-9_-]+/[a-z0-9_-]+$")
 
 
@@ -74,7 +75,7 @@ def _bridges_by_major(bridges) -> dict[int, dict]:
                 f"a Joomla bridge release needs exactly {', '.join(_BRIDGE_KEYS)}: {bridge}"
             )
         version = _parse(bridge["version"])
-        if not _SHA256.match(str(bridge["sha256"])):
+        if not SHA256.fullmatch(str(bridge["sha256"])):
             raise AnsibleFilterError(
                 f"Joomla bridge {_render(version)} carries no SHA-256 of its update package"
             )

@@ -19,6 +19,9 @@
     lmstudio:
       enabled: false
       shared: false
+    freellmapi:
+      enabled: true
+      shared: true
     postgres:
       shared: true
     litellm:
@@ -35,6 +38,9 @@
     docs:
       enabled: false
       shared: false
+    freellmapi:
+      enabled: false
+      shared: false
     postgres:
       shared: false
     ollama:
@@ -44,8 +50,8 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     s1:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
     litellm:
       router:
         speed:
@@ -67,6 +73,9 @@
       bond: 0.5
       enabled: true
       shared: true
+    freellmapi:
+      enabled: false
+      shared: false
     postgres:
       shared: true
     s1:

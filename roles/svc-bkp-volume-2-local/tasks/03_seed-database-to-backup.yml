@@ -13,7 +13,7 @@
       database_host: "{{ database_host | default('undefined') }}"
       database_port: "{{ database_port | default('undefined') }}"
       database_username: "{{ database_username | default('undefined') }}"
-  when: MODE_DEBUG | bool
+  when: lookup('debug', 'svc-bkp-volume-2-local') | bool
   changed_when: false
 
 - name: "✅ BKP | Assert required database variables are explicitly passed"

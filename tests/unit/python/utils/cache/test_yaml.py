@@ -157,7 +157,11 @@ class TestInvalidate(unittest.TestCase):
         self.assertIsNot(first, second)
 
     def test_invalidate_unknown_path_is_noop(self):
+        path = self.tmp / "x.yml"
+        path.write_text("v: 1\n", encoding="utf-8")
+        cached = load_yaml(path)
         invalidate(self.tmp / "never-loaded.yml")
+        self.assertIs(cached, load_yaml(path))
 
 
 class TestLoadYamlTagged(unittest.TestCase):

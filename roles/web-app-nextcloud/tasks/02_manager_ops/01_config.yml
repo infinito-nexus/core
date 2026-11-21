@@ -1,11 +1,17 @@
 ---
-- name: "⏳ Wait until Nextcloud is reachable on its local HTTP port"
-  wait_for:
-    host: "{{ DOCKER_REACH_HOST }}"
-    port: "{{ lookup('config', application_id, 'services.nextcloud.ports.local.http') }}"
-    timeout: "{{ lookup('timeout', 120) | int }}"
-    delay: 2
-    state: started
+- name: "🔍 Resolve the proxy hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ NEXTCLOUD_PROXY_SERVICE }}"
+    resolve_output_prefix: NEXTCLOUD_PROXY
+    resolve_compose_cid: "{{ NEXTCLOUD_PROXY_CONTAINER }}"
+
+- name: "⏳ Wait until the Nextcloud proxy accepts TCP"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/wait_container_port.yml') }}"
+  vars:
+    wait_output_prefix: NEXTCLOUD_PROXY
+    wait_port: "{{ container_port }}"
+    wait_timeout: "{{ lookup('timeout', 120) }}"
 
 - name: ⏳ Wait until Nextcloud is installed (occ status)
   shell: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} status"

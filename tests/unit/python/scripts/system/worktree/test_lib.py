@@ -110,7 +110,9 @@ def _shim(bin_dir: Path, name: str, body: str) -> None:
     shim.chmod(0o755)
 
 
-def _next_slot(tmp: str, slots: list[int], subnets: tuple[str, ...] = ()) -> str:
+def _next_slot(
+    tmp: str, slots: list[int], subnets: tuple[str, ...], docker_exit: int
+) -> str:
     root = Path(tmp)
     lines = []
     for index, slot in enumerate(slots):
@@ -129,6 +131,7 @@ def _next_slot(tmp: str, slots: list[int], subnets: tuple[str, ...] = ()) -> str
     _shim(
         bin_dir,
         "docker",
+        f"[ {docker_exit} = 0 ] || exit {docker_exit}\n"
         f'if [ "$2" = ls ]; then echo n1; else cat "{networks}"; fi',
     )
     env = {**os.environ, "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}"}
@@ -145,23 +148,27 @@ def _next_slot(tmp: str, slots: list[int], subnets: tuple[str, ...] = ()) -> str
 class TestWorktreeNextSlot(unittest.TestCase):
     def test_reuses_the_lowest_free_slot(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
-            self.assertEqual(_next_slot(tmp, [0, 1, 2, 4, 9]), "3")
+            self.assertEqual(_next_slot(tmp, [0, 1, 2, 4, 9], (), 0), "3")
 
     def test_an_unpinned_primary_alone_gets_slot_one(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
-            self.assertEqual(_next_slot(tmp, [0]), "1")
+            self.assertEqual(_next_slot(tmp, [0], (), 0), "1")
 
     def test_skips_a_slot_whose_compose_subnet_a_network_holds(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
-            self.assertEqual(_next_slot(tmp, [0, 1], ("172.30.2.0/24",)), "3")
+            self.assertEqual(_next_slot(tmp, [0, 1], ("172.30.2.0/24",), 0), "3")
 
     def test_skips_a_slot_whose_swarm_lab_subnet_a_network_holds(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
-            self.assertEqual(_next_slot(tmp, [0], ("10.160.1.0/24",)), "2")
+            self.assertEqual(_next_slot(tmp, [0], ("10.160.1.0/24",), 0), "2")
 
     def test_a_longer_slot_number_does_not_hold_its_prefix(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
-            self.assertEqual(_next_slot(tmp, [0], ("172.30.10.0/24",)), "1")
+            self.assertEqual(_next_slot(tmp, [0], ("172.30.10.0/24",), 0), "1")
+
+    def test_a_failing_docker_keeps_the_worktree_pick(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(_next_slot(tmp, [0], ("172.30.1.0/24",), 1), "1")
 
     def test_the_prefixes_match_the_pins_up_sh_writes(self) -> None:
         result = subprocess.run(
@@ -183,7 +190,7 @@ class TestWorktreeNextSlot(unittest.TestCase):
 
     def test_a_full_range_reports_past_the_last_valid_slot(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
-            self.assertEqual(_next_slot(tmp, list(range(255))), "255")
+            self.assertEqual(_next_slot(tmp, list(range(255)), (), 0), "255")
 
     def test_the_last_slot_keeps_a_valid_bind_ip(self) -> None:
         result = subprocess.run(

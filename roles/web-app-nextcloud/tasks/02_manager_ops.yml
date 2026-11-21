@@ -66,6 +66,20 @@
       delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
   when: NEXTCLOUD_DESIGN_ENABLED | bool
 
+- name: "🔐 Converge the second-factor enforcement to Nextcloud's own 2fa"
+  include_tasks:
+    file: 02_manager_ops/09_twofactor.yml
+    apply:
+      delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
+  vars:
+    nextcloud_twofactor_enforced_now: "{{ nextcloud_twofactor_state.stdout is not search('is not enforced') }}"
+    nextcloud_twofactor_enforced_for_all_now: "{{ nextcloud_twofactor_state.stdout | trim == NEXTCLOUD_TWOFACTOR_ENFORCED_FOR_ALL }}"
+    nextcloud_twofactor_enabled_apps: "{{ (nextcloud_twofactor_apps.stdout | from_json).enabled }}"
+    nextcloud_twofactor_app_enabled: "{{ NEXTCLOUD_TWOFACTOR_APP in nextcloud_twofactor_enabled_apps }}"
+    nextcloud_twofactor_providers: "{{ (nextcloud_twofactor_enabled_apps | select('match', 'twofactor_') | list + nextcloud_twofactor_enabled_apps | select('in',
+      NEXTCLOUD_TWOFACTOR_PROVIDER_APPS) | list) | reject('eq', 'twofactor_backupcodes') | list }}"
+    nextcloud_twofactor_owned: "{{ nextcloud_twofactor_owner.stdout | trim == 'yes' }}"
+
 - name: "🔌 Provision the MCP server surface"
   include_tasks: utils/mcp.yml
   when: NEXTCLOUD_MCP_ENABLED | bool

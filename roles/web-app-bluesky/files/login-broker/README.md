@@ -50,6 +50,7 @@ synthesised app-password.
 | `HANDOFF_COOKIE_NAME`             | Override the cookie name (default `bsky_handoff_done`).                   |
 | `HANDOFF_COOKIE_MAX_AGE`          | Cookie lifetime in seconds (default `3300`, roughly 55 minutes).          |
 | `INSECURE_TLS`                    | If `true`, skip TLS verification on outbound calls (for local CA).        |
+| `OIDC_NAME_CLAIM`                 | Access token claim the broker writes as `displayName` of the `app.bsky.actor.profile` record. |
 
 ## Handle form
 
@@ -82,10 +83,14 @@ User-facing texts live in `messages.js`, keyed, with `{placeholder}` tokens.
 
 ## Forwarded identity
 
-The upstream `oauth2-proxy` MUST set `X-Forwarded-User` (or
-`X-Forwarded-Preferred-Username`) and `X-Forwarded-Email` on every
-request that reaches the broker. Without `X-Forwarded-User`, the
-broker returns HTTP 401, there is no anonymous fallback by design.
+The upstream `oauth2-proxy` MUST set `X-Forwarded-Preferred-Username`
+and `X-Forwarded-Email` on every request that reaches the broker. The
+broker keys every account on `X-Forwarded-Preferred-Username` alone and
+never reads `X-Forwarded-User`, which carries the e-mail address.
+Without `X-Forwarded-Preferred-Username`, the broker returns HTTP 401,
+there is no anonymous fallback by design.
+
+On every handoff the broker reads `OIDC_NAME_CLAIM` from `X-Forwarded-Access-Token` and writes it as `displayName` into the user's `app.bsky.actor.profile` record, keeping the other fields of the record. The broker removes `X-Forwarded-Access-Token` from every request it proxies to social-app.
 
 ## Failure modes
 

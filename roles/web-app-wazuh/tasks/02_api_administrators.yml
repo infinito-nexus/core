@@ -1,16 +1,21 @@
 ---
-- name: "🔐 Grant the Wazuh API administrator role to the platform administrators"
+- name: "🔐 Grant the Wazuh API role '{{ item.api_role }}' to its platform backend roles"
   ansible.builtin.shell:
     cmd: >-
       container exec -i
       -e WAZUH_RBAC_RULE_NAME
       -e WAZUH_RBAC_BACKEND_ROLES
+      -e WAZUH_RBAC_API_ROLE
       {{ WAZUH_MANAGER_CONTAINER_ADDRESS }}
       /var/ossec/framework/python/bin/python3 -
     stdin: "{{ lookup('file', 'python/api_administrators.py') }}"
   environment:
-    WAZUH_RBAC_RULE_NAME: "{{ WAZUH_API_ADMIN_RULE }}"
-    WAZUH_RBAC_BACKEND_ROLES: "{{ WAZUH_API_ADMIN_BACKEND_ROLES | to_json }}"
+    WAZUH_RBAC_RULE_NAME: "{{ item.rule }}"
+    WAZUH_RBAC_BACKEND_ROLES: "{{ item.backend_roles | to_json }}"
+    WAZUH_RBAC_API_ROLE: "{{ item.api_role }}"
+  loop: "{{ WAZUH_API_ROLE_MAPPINGS }}"
+  loop_control:
+    label: "{{ item.rule }} -> {{ item.api_role }}"
   register: wazuh_api_administrators
   changed_when: wazuh_api_administrators.stdout == 'CHANGED'
   retries: 30

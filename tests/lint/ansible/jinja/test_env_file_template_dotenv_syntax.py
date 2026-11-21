@@ -29,22 +29,11 @@ from pathlib import Path
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files_with_content
 
-from . import PROJECT_ROOT
+from . import PROJECT_ROOT, is_env_template
 
 _RULE = "env-file-dotenv-syntax"
 
 _YAML_COLON_ASSIGN = re.compile(r"^\s*[A-Z][A-Z0-9_]*\s*:\s*\S")
-
-
-def _is_scan_target(rel_path: str) -> bool:
-    if not rel_path.startswith("roles/"):
-        return False
-    if "/templates/" not in rel_path:
-        return False
-    if not rel_path.endswith(".j2"):
-        return False
-    base = Path(rel_path).name
-    return ".env" in base or base.endswith("env.j2")
 
 
 class TestEnvFileTemplateDotenvSyntax(unittest.TestCase):
@@ -55,7 +44,7 @@ class TestEnvFileTemplateDotenvSyntax(unittest.TestCase):
             exclude_tests=True,
         ):
             rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()
-            if not _is_scan_target(rel):
+            if not is_env_template(rel):
                 continue
             lines = content.splitlines()
             for idx, line in enumerate(lines):

@@ -1,0 +1,4 @@
+---
+canonical:
+  workspace: workspace.{{ DOMAIN_PRIMARY }}
+aliases: []

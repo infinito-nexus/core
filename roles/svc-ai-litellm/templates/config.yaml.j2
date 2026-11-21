@@ -47,3 +47,10 @@ litellm_settings:
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY
   database_url: os.environ/DATABASE_URL
+  store_prompts_in_spend_logs: false
+{% if LITELLM_UI_SSO | bool %}
+  ui_access_mode:
+    type: restricted_sso_group
+    restricted_sso_group: {{ LITELLM_UI_SSO_GROUP | to_json }}
+    sso_group_jwt_field: {{ RBAC.GROUP.CLAIM | to_json }}
+{% endif %}

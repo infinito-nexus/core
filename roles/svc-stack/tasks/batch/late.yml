@@ -1,0 +1,19 @@
+---
+# Param: stack_late_application_id - the application id whose front the front batch did not plan.
+# Param: stack_late_role - the role entered with that application id.
+- name: "🗂️ Plan the late front of '{{ stack_late_application_id }}'"
+  ansible.builtin.set_fact:
+    stack_batch_late: "{{ lookup('stack_batch', stack_late_application_id, role=stack_late_role) }}"
+  changed_when: false
+
+- name: "⏳ Defer the late front of '{{ stack_late_application_id }}' until the batch ends"
+  ansible.builtin.set_fact:
+    stack_batch_deferred: "{{ stack_batch_deferred + stack_batch_late }}"
+  changed_when: false
+  when: stack_batch_running | bool
+
+- name: "🧱 Serve the late front of '{{ stack_late_application_id }}' with one more reload"
+  ansible.builtin.include_tasks: batch/serve.yml
+  vars:
+    stack_batch_items: "{{ stack_batch_late }}"
+  when: not (stack_batch_running | bool)

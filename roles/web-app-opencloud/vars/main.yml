@@ -11,7 +11,35 @@ OPENCLOUD_URL: "{{ lookup('tls', application_id, 'url.origin') }}"
 OPENCLOUD_DOMAIN: "{{ lookup('domain', application_id) }}"
 
 OPENCLOUD_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+OPENCLOUD_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.clients.web') }}"
 OPENCLOUD_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+OPENCLOUD_LOGIN_SSO: "{{ (OPENCLOUD_OIDC_ENABLED | bool) and (lookup('config', application_id, 'services.opencloud.login.method.sso.enabled') | bool) }}"
+OPENCLOUD_LOGIN_LDAP: "{{ (OPENCLOUD_LDAP_ENABLED | bool) and (lookup('config', application_id, 'services.opencloud.login.method.ldap.enabled') | bool) }}"
+OPENCLOUD_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.opencloud.login.method.native.enabled') | bool }}"
+OPENCLOUD_BUILTIN_IDP_ENABLED: "{{ (OPENCLOUD_LOGIN_LDAP | bool) or (OPENCLOUD_LOGIN_NATIVE | bool) }}"
+
+OPENCLOUD_PROXY_CONFIG_PATH: "{{ [lookup('volume', application_id, 'config').target, 'proxy.yaml'] | path_join }}"
+OPENCLOUD_ROLE_ASSIGNMENT:
+  role_assignment:
+    driver: oidc
+    oidc_role_mapper:
+      role_claim: realm_access.roles
+      role_mapping:
+        - role_name: admin
+          claim_value: "{{ application_id }}-administrator"
+        - role_name: spaceadmin
+          claim_value: "{{ application_id }}-spaceadmin"
+        - role_name: user-light
+          claim_value: "{{ application_id }}-guest"
+        - role_name: user
+          claim_value: "default-roles-{{ OIDC.CLIENT.REALM }}"
+OPENCLOUD_COMMAND: >-
+  if [ -n "$$OPENCLOUD_PROXY_CONFIG" ];
+  then printf '%s\n' "$$OPENCLOUD_PROXY_CONFIG" > {{ OPENCLOUD_PROXY_CONFIG_PATH | quote }};
+  else rm -f {{ OPENCLOUD_PROXY_CONFIG_PATH | quote }};
+  fi;
+  opencloud init || true;
+  opencloud server
 
 OPENCLOUD_ADMIN_USERNAME: "admin"
 OPENCLOUD_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
@@ -22,6 +50,7 @@ OPENCLOUD_JWT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.
 OPENCLOUD_TRANSFER_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.transfer_secret') }}"
 
 OPENCLOUD_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
+OPENCLOUD_THEME: "{{ lookup('form_values', application_id, 'theme') }}"
 OPENCLOUD_DESIGN_THEME_ID: "infinito"
 OPENCLOUD_DESIGN_THEME_DIR: "/var/lib/opencloud/web/assets/themes/{{ OPENCLOUD_DESIGN_THEME_ID }}"
 OPENCLOUD_DESIGN_THEME_URL_PATH: "themes/{{ OPENCLOUD_DESIGN_THEME_ID }}"

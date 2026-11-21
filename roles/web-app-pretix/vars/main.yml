@@ -5,7 +5,13 @@ container_hostname: "{{ lookup('container_hostname', application_id) }}"
 PRETIX_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 PRETIX_HOSTNAME: "{{ container_hostname }}"
 
-PRETIX_NATIVE_ADMIN_EMAIL: "{{ '' if PRETIX_OIDC_ENABLED | bool else lookup('users', 'platform_administrator').email }}"
+PRETIX_NATIVE_ADMIN: "{{ lookup('users', 'web-app-pretix-breakglass' if PRETIX_OIDC_ENABLED | bool else 'platform_administrator') }}"
+
+PRETIX_LOGIN_SSO: "{{ lookup('config', application_id, 'services.pretix.login.method.sso.enabled') | bool }}"
+PRETIX_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.pretix.login.method.native.enabled') | bool }}"
+PRETIX_LOGIN_2FA: "{{ lookup('config', application_id, 'services.pretix.login.method.2fa.enabled') | bool }}"
+PRETIX_LOGIN_2FA_ENFORCED: "{{ PRETIX_LOGIN_2FA | bool and lookup('config', application_id, 'services.pretix.login.method.2fa.enforced') | bool }}"
+PRETIX_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.pretix.login.method.registration.enabled') | bool }}"
 
 PRETIX_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 PRETIX_DESIGN_PALETTE: "{{ lookup('design_palette', lookup('config', 'web-svc-design', 'services.design.colors.base')).light }}"
@@ -30,7 +36,22 @@ PRETIX_OIDC_UNIQUE_ATTRIBUTE: "{{ OIDC.ATTRIBUTES.USERNAME }}"
 PRETIX_OIDC_STAFF_SCOPE: "{{ RBAC.GROUP.CLAIM }}"
 PRETIX_OIDC_STAFF_VALUE: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 PRETIX_OIDC_PLUGIN_VERSION: "{{ lookup('config', application_id, 'addons.pretix-oidc.version') }}"
-PRETIX_OIDC_ONION_ISSUER: "{{ lookup('tls', 'web-app-keycloak', 'domain').endswith('.onion') }}"
+PRETIX_ORGANIZER_NAME: "{{ lookup('design', application_id).label }}"
+PRETIX_ORGANIZER_SLUG: "{{ application_id | entity_name }}"
+PRETIX_TEAM_ORGANIZERS: "{{ lookup('form_values', application_id, 'team_organizers') }}"
+PRETIX_TEAM_CHECKIN: "{{ lookup('form_values', application_id, 'team_checkin') }}"
+PRETIX_TEAM_MCP: "{{ lookup('form_values', application_id, 'team_mcp') }}"
+PRETIX_TEAM_NAMES:
+  team_organizers: "{{ lookup('config', application_id, 'services.pretix.teams.organizers.names') | first }}"
+  team_checkin: "{{ lookup('config', application_id, 'services.pretix.teams.checkin.names') | first }}"
+PRETIX_RBAC_TEAMS:
+  - >-
+    {{ PRETIX_TEAM_ORGANIZERS | combine({'name': PRETIX_TEAM_NAMES.team_organizers,
+    'group': '/' ~ lookup('rbac_group_path', application_id=application_id, role='organizer')}) }}
+  - >-
+    {{ PRETIX_TEAM_CHECKIN | combine({'name': PRETIX_TEAM_NAMES.team_checkin,
+    'group': '/' ~ lookup('rbac_group_path', application_id=application_id, role='checkin')}) }}
+PRETIX_OIDC_ONION_ISSUER: "{{ (lookup('tls', 'web-app-keycloak', 'domain') | network_of) == 'tor' }}"
 PRETIX_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if PRETIX_OIDC_ONION_ISSUER | bool else '' }}"
 PRETIX_OIDC_PROXY_EXCLUDED_HOSTS: "{{ lookup('proxy_excluded_hosts', application_id) + [PRETIX_MCP_UPSTREAM_HOST] }}"
 PRETIX_ALLOW_PRIVATE_NETWORKS: "{{ (ENVIRONMENT | lower) == 'development' }}"
@@ -40,11 +61,8 @@ PRETIX_REDIS_CACHE_DB: 1
 PRETIX_REDIS_BROKER_DB: 0
 PRETIX_REDIS_RESULT_DB: 2
 
-PRETIX_SOURCE_REPOSITORY: "{{ lookup('config', application_id, 'services.pretix.source_repository') }}"
-PRETIX_SOURCE_VERSION: "{{ lookup('config', application_id, 'services.pretix.source_version') }}"
-PRETIX_SOURCE_DIR: "{{ [lookup('container', application_id, 'directories.services'), 'pretix'] | path_join }}"
+PRETIX_SOURCE_VERSION: "{{ lookup('config', 'web-app-pretix', 'services.pretix.source_version') }}"
 PRETIX_SOURCE_DOCKERFILE_NAME: "Dockerfile.infinito"
-PRETIX_SOURCE_DOCKERFILE: "{{ [PRETIX_SOURCE_DIR, PRETIX_SOURCE_DOCKERFILE_NAME] | path_join }}"
 PRETIX_BASE_IMAGE: "{{ lookup('config', application_id, 'services.pretix.image') }}"
 PRETIX_BASE_VERSION: "{{ lookup('config', application_id, 'services.pretix.version') }}"
 PRETIX_CONTAINER: "{{ lookup('config', application_id, 'services.pretix.name') }}"
@@ -66,6 +84,6 @@ PRETIX_MCP_CONTRACT:
   limits: "{{ lookup('config', application_id, 'mcp.limits') }}"
   schema_sha256: "{{ lookup('config', application_id, 'mcp.tools.schema_sha256') }}"
 PRETIX_MCP_UPSTREAM_KEY: "{{ lookup('config', application_id, 'secrets.credentials.mcp_upstream_token') }}"
-PRETIX_MCP_UPSTREAM_TEAM: "mcp-readonly"
+PRETIX_MCP_UPSTREAM_TEAM: "{{ lookup('config', application_id, 'services.pretix.teams.mcp.names') | first }}"
 PRETIX_MCP_UPSTREAM_AUTH_HEADER: "Authorization"
 PRETIX_MCP_UPSTREAM_AUTH_FORMAT: "Token {key}"

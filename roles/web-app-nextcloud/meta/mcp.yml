@@ -13,6 +13,7 @@ credential:
   key: mcp_bearer
 adapter:
   type: mcp_passthrough
+  upstream_credential: true
   upstream_transport: streamable_http
   specification_path: roles/web-app-nextcloud/files/mcp/tools.json
   specification_sha256: sha256:1b9a603d452bf350bdc36fdc0f64b5fda82e01bb6a0cbbdf3dc9e400831474ab

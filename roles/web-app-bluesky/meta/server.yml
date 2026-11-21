@@ -3,3 +3,21 @@ config_upstream_url: https://app-config.workers.bsky.app/config # nocheck: url
 geolocation_upstream_url: https://ip.bsky.app/geolocation # nocheck: url
 status_codes:
   web: [405, 302]
+vhosts:
+  api:
+    service_key: pds
+    http_port: "{{ lookup('config', 'web-app-bluesky', 'services.api.ports.local.http') }}"
+    internal_port: "{{ lookup('config', 'web-app-bluesky', 'services.api.ports.internal.http') }}"
+  web:
+    enabled: "{{ lookup('config', 'web-app-bluesky', 'services.web.enabled') }}"
+    service_key: "{{ 'broker' if (lookup('config', 'web-app-bluesky', 'services.sso.enabled') | bool) else 'web' }}"
+    http_port: "{{ lookup('config', 'web-app-bluesky', 'services.broker.ports.local.http') if (lookup('config', 'web-app-bluesky', 'services.sso.enabled') | bool)
+      else lookup('config', 'web-app-bluesky', 'services.web.ports.local.http') }}"
+    internal_port: "{{ lookup('config', 'web-app-bluesky', 'services.broker.ports.internal.http') if (lookup('config', 'web-app-bluesky', 'services.sso.enabled')
+      | bool) else lookup('config', 'web-app-bluesky', 'services.web.ports.internal.http') }}"
+    extra_template: extra_locations.conf.j2
+  view:
+    enabled: "{{ lookup('config', 'web-app-bluesky', 'services.view.enabled') }}"
+    service_key: view
+    http_port: "{{ lookup('config', 'web-app-bluesky', 'services.view.ports.local.http') }}"
+    internal_port: "{{ lookup('config', 'web-app-bluesky', 'services.view.ports.internal.http') }}"

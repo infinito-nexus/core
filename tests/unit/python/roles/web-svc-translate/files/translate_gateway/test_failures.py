@@ -39,6 +39,10 @@ class TableNameTestCase(unittest.TestCase):
             with self.subTest(name=name), self.assertRaises(ValueError):
                 FailureLog(FakeClient(), name)
 
+    def test_a_trailing_newline_is_refused(self) -> None:
+        with self.assertRaises(ValueError):
+            FailureLog(FakeClient(), "translate_failures\n")
+
 
 class CountingTestCase(unittest.TestCase):
     def test_a_failure_lengthens_the_streak_and_the_total(self) -> None:
@@ -61,12 +65,36 @@ class CountingTestCase(unittest.TestCase):
         self.assertEqual(params, ("alpha",))
 
     def test_streaks_reads_only_engines_that_are_failing(self) -> None:
-        client = FakeClient(rows=[{"engine": "alpha", "streak": 4}])
+        client = FakeClient(
+            rows=[
+                {"engine": "alpha", "streak": 4, "total": 9},
+                {"engine": "beta", "streak": 0, "total": 2},
+            ]
+        )
 
         self.assertEqual(
             run(FailureLog(client, "translate_failures").streaks()), {"alpha": 4}
         )
-        self.assertIn("WHERE streak > 0", client.executed[-1][0])
+
+    def test_counts_keep_the_total_of_an_engine_that_recovered(self) -> None:
+        """The criteria line states every failure, not only the current streak."""
+        client = FakeClient(
+            rows=[
+                {"engine": "alpha", "streak": 4, "total": 9},
+                {"engine": "beta", "streak": 0, "total": 2},
+            ]
+        )
+
+        self.assertEqual(
+            run(FailureLog(client, "translate_failures").counts()),
+            {"alpha": (4, 9), "beta": (0, 2)},
+        )
+        self.assertIn("FROM translate_failures WHERE total > 0", client.executed[-1][0])
+
+    def test_counts_of_an_empty_log_are_empty(self) -> None:
+        self.assertEqual(
+            run(FailureLog(FakeClient(rows=None), "translate_failures").counts()), {}
+        )
 
     def test_the_table_is_created_once(self) -> None:
         client = FakeClient(rows=[])

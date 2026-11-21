@@ -1,29 +1,36 @@
 ---
 - name: "📦 bench new-site --install-app erpnext '{{ ERPNEXT_SITE_NAME }}'"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  ansible.builtin.shell: |
-    set -euo pipefail
-    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i \
-      -e DB_ROOT_USER -e DB_ROOT_PASSWORD -e ADMIN_PASSWORD \
-      {{ ERPNEXT_BACKEND_LOCAL_CID | quote }} bash -c '
-        bench new-site \
-          --no-mariadb-socket \
-          --db-host="{{ ERPNEXT_DB_HOST }}" \
-          --db-port="{{ ERPNEXT_DB_PORT }}" \
-          --mariadb-user-host-login-scope=% \
-          --db-root-username="$DB_ROOT_USER" \
-          --db-root-password="$DB_ROOT_PASSWORD" \
-          --admin-password="$ADMIN_PASSWORD" \
-          --install-app erpnext \
-          --set-default \
-          {{ ERPNEXT_SITE_NAME }}
-      '
+  ansible.builtin.shell:
+    cmd: |
+      set -euo pipefail
+      IFS= read -r DB_ROOT_PASSWORD
+      IFS= read -r ADMIN_PASSWORD
+      : "${DB_ROOT_PASSWORD:?arrived empty on stdin}"
+      : "${ADMIN_PASSWORD:?arrived empty on stdin}"
+      export DB_ROOT_PASSWORD ADMIN_PASSWORD
+      # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i \
+        -e DB_ROOT_USER -e DB_ROOT_PASSWORD -e ADMIN_PASSWORD \
+        {{ ERPNEXT_BACKEND_LOCAL_CID | quote }} bash -c '
+          bench new-site \
+            --no-mariadb-socket \
+            --db-host="{{ ERPNEXT_DB_HOST }}" \
+            --db-port="{{ ERPNEXT_DB_PORT }}" \
+            --mariadb-user-host-login-scope=% \
+            --db-root-username="$DB_ROOT_USER" \
+            --db-root-password="$DB_ROOT_PASSWORD" \
+            --admin-password="$ADMIN_PASSWORD" \
+            --install-app erpnext \
+            --set-default \
+            {{ ERPNEXT_SITE_NAME }}
+        '
+    stdin: |-
+      {{ ERPNEXT_DB_ROOT_PASSWORD }}
+      {{ ERPNEXT_INITIAL_ADMIN_PASSWORD }}
   delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
   environment:
     DB_ROOT_USER: "{{ ERPNEXT_DB_ROOT_USER }}"
-    DB_ROOT_PASSWORD: "{{ ERPNEXT_DB_ROOT_PASSWORD }}"
-    ADMIN_PASSWORD: "{{ ERPNEXT_INITIAL_ADMIN_PASSWORD }}"
   register: erpnext_new_site
   changed_when: true
   timeout: "{{ lookup('timeout', 1800) | int }}"

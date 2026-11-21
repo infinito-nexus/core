@@ -20,7 +20,7 @@
     {{ lookup('compose_only', 'container_name', LTENGINE_CONTAINER) }}
     expose:
       - "{{ LTENGINE_PORT }}"
-    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name, extra_volumes=LTENGINE_STORE_MOUNTS) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_networks') | indent(4) }}

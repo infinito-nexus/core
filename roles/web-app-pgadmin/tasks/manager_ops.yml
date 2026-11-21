@@ -15,7 +15,7 @@
     cmd: >-
       IFS= read -r PGADMIN_ADMIN_PASSWORD_B64
       || { echo '[FAIL] no administrator password line arrived on stdin.' >&2; exit 1; };
-      export PGADMIN_ADMIN_PASSWORD_B64 &&
+      : "${PGADMIN_ADMIN_PASSWORD_B64:?arrived empty on stdin}" && export PGADMIN_ADMIN_PASSWORD_B64 &&
       container exec -i
       -e PGADMIN_ADMIN_EMAIL -e PGADMIN_ADMIN_PASSWORD_B64 -e PGADMIN_SQLITE_PATH
       {{ PGADMIN_CONTAINER_ADDRESS }} /venv/bin/python3 -
@@ -31,3 +31,24 @@
     pgadmin_admin_realign.rc != 0
     or pgadmin_admin_realign.stdout is search('\[FAIL\]')
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛂 Promote the administrator members and demote every other OAuth2 account"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ PGADMIN_OIDC_ENABLED | bool }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: [administrator]
+    rbac_sync_service_key: "{{ entity_name }}"
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ PGADMIN_CONTAINER }}"
+    rbac_sync_kind: container
+    rbac_sync_user: ""
+    rbac_sync_argv: [/venv/bin/python3, "-"]
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/reconcile_oauth2_roles.py') }}"
+    rbac_sync_modules: []
+    rbac_sync_env: {}
+    rbac_sync_attributes: []
+    rbac_sync_members_env:
+      - { name: PGADMIN_RBAC_ADMINISTRATORS, role: administrator, field: "" }

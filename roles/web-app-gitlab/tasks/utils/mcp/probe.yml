@@ -1,26 +1,18 @@
 ---
 - name: "🩺 Ask the instance whether the stored token still authenticates"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - "GITLAB_MCP_HOST={{ GITLAB_WORKHORSE_SERVICE_NAME }}"
-      - -e
-      - "GITLAB_MCP_PORT={{ GITLAB_WORKHORSE_PORT }}"
-      - -e
-      - "GITLAB_MCP_PATH={{ GITLAB_MCP_PATH }}"
-      - -e
-      - "GITLAB_MCP_PROTOCOL_VERSION={{ GITLAB_MCP_PROTOCOL_VERSION }}"
-      - -e
-      - GITLAB_MCP_TOKEN
-      - "{{ GITLAB_MCP_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - ruby
-      - "-"
-    stdin: "{{ lookup('file', 'ruby/probe_mcp_token.rb') }}"
-  environment:
-    GITLAB_MCP_TOKEN: "{{ gitlab_mcp_token }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      IFS= read -r GITLAB_MCP_TOKEN && : "${GITLAB_MCP_TOKEN:?arrived empty on stdin}" && export GITLAB_MCP_TOKEN && container exec -i
+      -e GITLAB_MCP_HOST={{ GITLAB_WORKHORSE_SERVICE_NAME | quote }}
+      -e GITLAB_MCP_PORT={{ GITLAB_WORKHORSE_PORT | quote }}
+      -e GITLAB_MCP_PATH={{ GITLAB_MCP_PATH | quote }}
+      -e GITLAB_MCP_PROTOCOL_VERSION={{ GITLAB_MCP_PROTOCOL_VERSION | quote }}
+      -e GITLAB_MCP_TOKEN
+      {{ GITLAB_MCP_LOCAL_CID | quote }}
+      ruby -
+    stdin: |-
+      {{ gitlab_mcp_token }}
+      {{ lookup('file', 'ruby/probe_mcp_token.rb') }}
   register: gitlab_mcp_probe
   retries: 30
   delay: 10

@@ -1,0 +1,34 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+  {% set service_name = LOG_COLLECTOR_ENTITY %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, service_name) }}
+    {{ lookup('compose_only', 'container_name', LOG_COLLECTOR_CONTAINER, node_local=True) }}
+    {{ lookup('compose_restart', node_local=True) }}
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
+{% filter indent(4, True) %}
+{% include 'roles/sys-svc-container/templates/resource.yml.j2' %}
+{% endfilter %}
+    user: "0:0"
+    env_file:
+      - "{{ LOG_COLLECTOR_ENV_FILE }}"
+    command:
+      - run
+      - --server.http.listen-addr=127.0.0.1:12345
+      - --storage.path={{ LOG_COLLECTOR_STORAGE_CONTAINER }}
+      - --disable-reporting
+      - {{ LOG_COLLECTOR_CONFIG_CONTAINER }}
+    # nocheck: compose-inline-mount-section  node-local reads of the host journal and machine id, plus the pipeline and position store this host keeps for itself; none of them is a stack volume meta/volumes.yml could distribute
+    volumes:
+      - "{{ LOG_COLLECTOR_JOURNAL_PATH }}:{{ LOG_COLLECTOR_JOURNAL_PATH }}:ro"
+      - "/run/log/journal:/run/log/journal:ro"
+      - "/etc/machine-id:/etc/machine-id:ro"
+      - "{{ LOG_COLLECTOR_CONFIG_HOST }}:{{ LOG_COLLECTOR_CONFIG_CONTAINER }}:ro"
+      - "{{ [LOG_COLLECTOR_DIR, 'data'] | path_join }}:{{ LOG_COLLECTOR_STORAGE_CONTAINER }}"
+      {% if LOG_COLLECTOR_CA_ENABLED | bool %}
+      - "{{ CA_TRUST.cert_host }}:{{ CA_TRUST.cert_host }}:ro"
+      {% endif %}
+    {{ lookup('container_extra_hosts', extra_hosts=([LOG_COLLECTOR_PUSH_DOMAIN ~ ':host-gateway'] if IS_STACK_HOST | bool else [])) | indent(4) }}
+    {% if IS_SWARM_MODE %}
+    deploy:
+      {{ lookup('compose_replicas', 1) }}
+    {% endif %}

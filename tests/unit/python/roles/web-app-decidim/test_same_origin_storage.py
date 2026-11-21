@@ -165,6 +165,8 @@ def _render_env(origin: str, objstore: dict) -> dict[str, str]:
             return "x"
         if name == "email":
             return {"enabled": False}
+        if name == "debug":
+            return False
         raise AssertionError(f"env.j2 renders an unexpected lookup {name}{terms}")
 
     env.globals["lookup"] = lookup
@@ -177,7 +179,6 @@ def _render_env(origin: str, objstore: dict) -> dict[str, str]:
         application_id=APP,
         HOST_TIMEZONE="UTC",
         ENVIRONMENT="production",
-        MODE_DEBUG=False,
         DECIDIM_SECRET_KEY_BASE="kb",
         DECIDIM_ORGANIZATION_NAME="Org",
         DECIDIM_OIDC_ENABLED=False,

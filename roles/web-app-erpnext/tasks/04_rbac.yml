@@ -1,0 +1,30 @@
+---
+- name: "🛂 Converge the ERPNext roles and accounts on the role groups"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ ERPNEXT_OIDC_ENABLED | bool or ERPNEXT_LDAP_ENABLED | bool }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: false
+    rbac_sync_roles: "{{ ERPNEXT_RBAC_GRANTS | list }}"
+    rbac_sync_service_key: backend
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ ERPNEXT_BACKEND_CONTAINER }}"
+    rbac_sync_kind: container
+    rbac_sync_user: ""
+    rbac_sync_argv: "{{ ERPNEXT_BENCH_PYTHON_ARGV }}"
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/apply/rbac_roles.py') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
+      ROLE_GRANTS_JSON: "{{ ERPNEXT_RBAC_CORE_GRANTS | to_json }}"
+      GROUP_ROLES_JSON: "{{ ERPNEXT_RBAC_GROUP_GRANTS | to_json }}"
+      PROTECTED_USERS_JSON: "{{ ERPNEXT_RBAC_PROTECTED_USERS | to_json }}"
+      PROTECTED_OWNERS_JSON: "{{ ERPNEXT_RBAC_PROTECTED_OWNERS | to_json }}"
+      SSO_PROVIDER_NAME: "{{ ERPNEXT_SSO_PROVIDER_NAME }}"
+      DIRECTORY_PROVIDER_NAME: "{{ ERPNEXT_RBAC_DIRECTORY_PROVIDER_NAME }}"
+      DIRECTORY_IDS_JSON: "{{ ERPNEXT_LDAP_ENABLED | bool | to_json }}"
+      DIRECTORY_UUID_ATTRIBUTE: "{{ LDAP.USER.ATTRIBUTES.UUID }}"
+    rbac_sync_attributes: []
+    rbac_sync_members_env:
+      - { name: ROLE_MEMBERS_JSON, role: "*", field: "" }

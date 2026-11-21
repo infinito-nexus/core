@@ -127,6 +127,19 @@
     - swarm-deploy
   when: IS_SWARM_MODE | bool
 
+- name: "🐝 swarm: pre-create the stream relay overlays for the stack"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create/relay.yml') }}"
+    apply:
+      run_once: true
+      delegate_to: "{{ STACK_HOST }}"
+  loop: "{{ lookup('stream_relay_networks') if IS_SWARM_MODE | bool else [] }}"
+  loop_control:
+    loop_var: stream_relay
+  listen:
+    - compose-up
+    - swarm-deploy
+
 - name: "✅ swarm: validate stack file via docker stack config"
   ansible.builtin.shell: |
     set -euo pipefail
@@ -140,7 +153,9 @@
   listen:
     - compose-up
     - swarm-deploy
-  when: MODE_ASSERT_LOCAL | bool
+  when:
+    - lookup('validate', 'sys-svc-compose') | bool
+    - IS_STACK_HOST | bool
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
 

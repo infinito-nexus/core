@@ -23,7 +23,7 @@ listen:
       "/bosh": mod_bosh
       "/ws": ejabberd_http_ws
 
-{% if lookup('config', application_id, 'services.ldap.enabled') | bool %}
+{% if XMPP_LDAP_ENABLED | bool %}
 auth_method:
   - ldap
 
@@ -33,8 +33,8 @@ ldap_port: {{ lookup('config', 'svc-db-openldap', 'services.openldap.ports.local
 ldap_rootdn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
 ldap_password: "{{ LDAP.BIND_CREDENTIAL }}"
 ldap_base: "{{ LDAP.DN.OU.USERS }}"
-ldap_uids: ["uid"]
-ldap_filter: "(objectClass=inetOrgPerson)"
+ldap_uids: ["{{ LDAP.USER.ATTRIBUTES.ID }}"]
+ldap_filter: "{{ LDAP.FILTERS.USERS.ALL }}"
 {% else %}
 auth_method:
   - internal
@@ -47,7 +47,15 @@ shaper:
 acl:
   admin:
     user:
-      - "{{ lookup('users', 'platform_administrator').username }}@{{ XMPP_DOMAIN }}"
+{% for username in XMPP_ADMIN_USERNAMES %}
+      - "{{ username }}@{{ XMPP_DOMAIN }}"
+{% endfor %}
+
+access_rules:
+  announce:
+    allow: admin
+  configure:
+    allow: admin
 
 modules:
   mod_admin_extra: {}
@@ -67,4 +75,17 @@ modules:
     access: deny
   mod_roster: {}
   mod_stream_mgmt: {}
+{% if XMPP_LDAP_ENABLED | bool %}
+  mod_vcard:
+    db_type: ldap
+    ldap_vcard_map:
+      NICKNAME: {"%s": ["{{ LDAP.USER.ATTRIBUTES.ID }}"]}
+      FN: {"%s": ["{{ LDAP.USER.ATTRIBUTES.FULLNAME }}"]}
+      GIVEN: {"%s": ["{{ LDAP.USER.ATTRIBUTES.FIRSTNAME }}"]}
+      FAMILY: {"%s": ["{{ LDAP.USER.ATTRIBUTES.SURNAME }}"]}
+      EMAIL: {"%s": ["{{ LDAP.USER.ATTRIBUTES.MAIL }}"]}
+      TEL: {"%s": ["{{ LDAP.USER.ATTRIBUTES.PHONE }}"]}
+      PHOTO: {"%s": ["{{ LDAP.USER.ATTRIBUTES.PHOTO }}"]}
+{% else %}
   mod_vcard: {}
+{% endif %}

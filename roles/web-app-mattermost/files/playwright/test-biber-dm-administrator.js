@@ -1,11 +1,12 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 
 const { performKeycloakLoginForm } = require("./personas");
 
 exports.register = function (shared) {
   test("mattermost: biber sends direct message to administrator, administrator receives it", async ({ browser }) => {
-    test.skip(!shared.oidcEnabled, "OIDC shared service disabled");
+    skipUnlessServiceEnabled("sso");
 
     const oidcAuthUrl = shared.expectedOidcAuthUrl();
     const baseUrl = shared.expectedMattermostBaseUrl();

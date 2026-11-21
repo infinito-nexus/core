@@ -1,5 +1,6 @@
 ---
-enabled: "{{ lookup('config', 'web-app-matrix', 'services.matrix.plugins.chatgpt') | bool }}"
+enabled: "{{ (lookup('config', 'web-app-matrix', 'services.litellm.enabled') | bool) and (lookup('config', 'web-app-matrix', 'services.matrix.plugins.chatgpt') |
+  bool) }}"
 required: false
 mechanism: addon
 source: upstream

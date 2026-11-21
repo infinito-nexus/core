@@ -1,38 +1,3 @@
-"""Flag a ``compose_handlers_flush: false`` task that is immediately
-followed by a manual ``meta: flush_handlers`` task.
-
-Rationale
-=========
-``sys-svc-compose``'s ``utils/up.yml`` flushes the compose handlers (and
-runs the post-deploy steps) itself when the including role sets
-``compose_handlers_flush: true``. A role that instead passes
-``compose_handlers_flush: false`` and then, as the very next task, does
-its own ``meta: flush_handlers`` has just reimplemented that flush by
-hand::
-
-    - name: "🧩 load docker, db and proxy for {{ application_id }}"
-      include_role:
-        name: sys-stk-full
-      vars:
-        compose_handlers_flush: false
-
-    - name: "🚿 Flush compose handlers for {{ application_id }}"
-      ansible.builtin.meta: flush_handlers
-
-Drop the manual flush and set ``compose_handlers_flush: true``.
-
-This is adjacency-scoped on purpose: when real work sits between the
-include and the flush (a ``notify`` that must fire first, a network
-pre-create, a conditional override) the deferred manual flush is
-legitimate and MUST stay ``false``. Only the back-to-back form is
-redundant.
-
-Per-line opt-out
-================
-Add ``# nocheck: redundant-compose-handlers-flush`` on the
-``meta: flush_handlers`` line or the line immediately above.
-"""
-
 from __future__ import annotations
 
 import itertools

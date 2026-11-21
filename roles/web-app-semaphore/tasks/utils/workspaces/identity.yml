@@ -1,0 +1,125 @@
+---
+# Param: semaphore_project_token - an admin API token that stays valid while this file runs
+# Param: SEMAPHORE_LOCAL_CID     - the Semaphore container, from resolve_host_cid.yml
+# Param: SEMAPHORE_HOST_NODE     - the node that runs it, from resolve_host_cid.yml
+# Sets: semaphore_workspaces_identity - project_id and templates (workspace, members, user) of the Workspaces project, on every play host
+# Sets: semaphore_store_rotation_identity - project_id and template_id of rotate store credentials, on every play host
+# Sets: semaphore_task_entities_identity - project_id and template_id of prune task entities, on every play host
+# Sets: semaphore_export_schedule_identity - project_id of the export project and the ids of its scheduled templates by name, on every play host
+# Sets: semaphore_fixture_reader_identity - project_id and template_id of the workspace template, on every play host, only while SEMAPHORE_DEPLOY_FIXTURE_ENABLED
+- name: "🪪 Read the identity of the Workspaces project"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ SEMAPHORE_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - python3
+      - -c
+      - "{{ lookup('file', 'python/project.py') }}"
+      - workspaces-identity
+    stdin: "{{ semaphore_workspaces_identity_spec | to_json }}"
+  vars:
+    semaphore_workspaces_identity_spec:
+      url: "{{ SEMAPHORE_API_URL }}"
+      token: "{{ semaphore_project_token }}"
+      workspaces:
+        project: "{{ SEMAPHORE_WORKSPACES_PROJECT_NAME }}"
+  register: semaphore_workspaces_identity_read
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ SEMAPHORE_HOST_NODE }}"
+
+- name: "🪪 Read the identity of rotate store credentials"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ SEMAPHORE_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - python3
+      - -c
+      - "{{ lookup('file', 'python/project.py') }}"
+      - store-rotation-identity
+    stdin: "{{ semaphore_workspaces_identity_spec | to_json }}"
+  vars:
+    semaphore_workspaces_identity_spec:
+      url: "{{ SEMAPHORE_API_URL }}"
+      token: "{{ semaphore_project_token }}"
+      workspaces:
+        project: "{{ SEMAPHORE_WORKSPACES_PROJECT_NAME }}"
+  register: semaphore_store_rotation_identity_read
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ SEMAPHORE_HOST_NODE }}"
+
+- name: "🪪 Read the identity of prune task entities"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ SEMAPHORE_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - python3
+      - -c
+      - "{{ lookup('file', 'python/project.py') }}"
+      - task-entities-identity
+    stdin: "{{ semaphore_workspaces_identity_spec | to_json }}"
+  vars:
+    semaphore_workspaces_identity_spec:
+      url: "{{ SEMAPHORE_API_URL }}"
+      token: "{{ semaphore_project_token }}"
+      workspaces:
+        project: "{{ SEMAPHORE_WORKSPACES_PROJECT_NAME }}"
+  register: semaphore_task_entities_identity_read
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ SEMAPHORE_HOST_NODE }}"
+
+- name: "🪪 Read the identity of the scheduled export templates"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ SEMAPHORE_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - python3
+      - -c
+      - "{{ lookup('file', 'python/project.py') }}"
+      - export-schedule-identity
+    stdin: "{{ semaphore_export_schedule_identity_spec | to_json }}"
+  vars:
+    semaphore_export_schedule_identity_spec:
+      url: "{{ SEMAPHORE_API_URL }}"
+      token: "{{ semaphore_project_token }}"
+      workspaces:
+        export:
+          project: "{{ SEMAPHORE_EXPORT_PROJECT_NAME }}"
+  register: semaphore_export_schedule_identity_read
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ SEMAPHORE_HOST_NODE }}"
+
+- name: "📤 Hand the Workspaces project identity to every host for the roles that follow"
+  ansible.builtin.set_fact:
+    semaphore_workspaces_identity: "{{ semaphore_workspaces_identity_read.stdout | from_json }}"
+    semaphore_store_rotation_identity: "{{ semaphore_store_rotation_identity_read.stdout | from_json }}"
+    semaphore_task_entities_identity: "{{ semaphore_task_entities_identity_read.stdout | from_json }}"
+    semaphore_export_schedule_identity: "{{ semaphore_export_schedule_identity_read.stdout | from_json }}"
+  delegate_to: "{{ semaphore_workspaces_identity_host }}"
+  delegate_facts: true
+  loop: "{{ ansible_play_hosts_all }}"
+  loop_control:
+    loop_var: semaphore_workspaces_identity_host
+
+- name: "🧪 Hand the fixture reader the ids of the workspace template"
+  ansible.builtin.set_fact:
+    semaphore_fixture_reader_identity:
+      project_id: "{{ semaphore_workspaces_identity.project_id }}"
+      template_id: "{{ semaphore_workspaces_identity.templates.workspace.template_id }}"
+  delegate_to: "{{ semaphore_workspaces_identity_host }}"
+  delegate_facts: true
+  loop: "{{ ansible_play_hosts_all }}"
+  loop_control:
+    loop_var: semaphore_workspaces_identity_host
+  when: SEMAPHORE_DEPLOY_FIXTURE_ENABLED | bool

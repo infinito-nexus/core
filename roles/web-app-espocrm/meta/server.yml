@@ -1,0 +1,6 @@
+---
+vhosts:
+  default:
+    client_max_body_size: "100m"
+    flavour: "ws_generic"
+    websocket_location: "/ws"

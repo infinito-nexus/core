@@ -14,6 +14,7 @@ const { CHOSEN_LABEL_PATTERN, PDS_HANDLE_LABEL_MAX, PDS_HANDLE_LABEL_MIN } = req
 const DOMAIN = "example.test";
 const PUBLIC_HOST = "web.bluesky.example.test";
 const ADMIN_PASSWORD = "stub-admin-password";
+const HANDOFF_COOKIE = "bsky_handoff_done";
 const KEY = Buffer.alloc(32, 7);
 const ROTATED_KEY = Buffer.alloc(32, 9);
 
@@ -84,41 +85,70 @@ function freePort() {
   });
 }
 
-async function startBroker(pdsPort, storePath, key) {
+function tempStorePath() {
+  return path.join(fs.mkdtempSync(path.join(os.tmpdir(), "broker-server-")), "accounts.json");
+}
+
+function encryptionKey(key) {
+  return `base64:${key.toString("base64")}`;
+}
+
+async function spawnBroker(env) {
   const port = await freePort();
   const child = spawn(process.execPath, [SERVER], {
     env: {
       PATH: process.env.PATH,
       BROKER_PORT: String(port),
-      SOCIAL_APP_URL: "http://127.0.0.1:9",
-      PDS_URL: "https://api.bluesky.example.test",
-      PDS_INTERNAL_URL: `http://127.0.0.1:${pdsPort}`,
       PDS_HANDLE_DOMAIN: DOMAIN,
-      PDS_ADMIN_PASSWORD: ADMIN_PASSWORD,
-      BLUESKY_BRIDGE_ENCRYPTION_KEY: `base64:${key.toString("base64")}`,
-      BROKER_STORE_PATH: storePath,
       SITE_TITLE: "Bluesky",
+      OIDC_NAME_CLAIM: "name",
+      ...env,
     },
     stdio: ["ignore", "pipe", "pipe"],
+  });
+  let stderr = "";
+  child.stderr.on("data", (chunk) => {
+    stderr += chunk;
   });
   await new Promise((resolve, reject) => {
     child.stdout.on("data", (chunk) => {
       if (chunk.toString().includes("listening")) resolve();
     });
-    child.on("exit", (code) => reject(new Error(`broker exited with ${code}`)));
+    child.on("exit", (code) => reject(new Error(`broker exited with ${code}: ${stderr}`)));
   });
   return { child, port };
 }
 
+function startBroker(pdsPort, storePath, key) {
+  return spawnBroker({
+    SOCIAL_APP_URL: "http://127.0.0.1:9",
+    PDS_URL: "https://api.bluesky.example.test",
+    PDS_INTERNAL_URL: `http://127.0.0.1:${pdsPort}`,
+    PDS_ADMIN_PASSWORD: ADMIN_PASSWORD,
+    BLUESKY_BRIDGE_ENCRYPTION_KEY: encryptionKey(key),
+    BROKER_STORE_PATH: storePath,
+  });
+}
+
+function startProxyBroker(socialAppPort) {
+  return spawnBroker({
+    SOCIAL_APP_URL: `http://127.0.0.1:${socialAppPort}`,
+    PDS_URL: "http://127.0.0.1:9",
+    BLUESKY_BRIDGE_ENCRYPTION_KEY: encryptionKey(KEY),
+    BROKER_STORE_PATH: tempStorePath(),
+  });
+}
+
 function stopBroker(broker) {
   return new Promise((resolve) => {
+    broker.child.removeAllListeners("exit");
     broker.child.once("exit", resolve);
     broker.child.kill();
   });
 }
 
-function request(broker, { method = "GET", requestPath = "/", user, email, origin, form }) {
-  const headers = { Host: PUBLIC_HOST, "X-Forwarded-Host": PUBLIC_HOST };
+function request(broker, { method = "GET", requestPath = "/", user, email, origin, form, headers: extra }) {
+  const headers = { Host: PUBLIC_HOST, "X-Forwarded-Host": PUBLIC_HOST, ...extra };
   if (user) headers["X-Forwarded-Preferred-Username"] = user;
   if (email) headers["X-Forwarded-Email"] = email;
   if (origin) headers.Origin = origin;
@@ -137,6 +167,17 @@ function request(broker, { method = "GET", requestPath = "/", user, email, origi
     if (body) req.write(body);
     req.end();
   });
+}
+
+async function startUpstream() {
+  const received = [];
+  const server = http.createServer((req, res) => {
+    received.push({ url: req.url, headers: req.headers });
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end("social-app");
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  return { server, port: server.address().port, received };
 }
 
 function formFields(html) {
@@ -166,7 +207,7 @@ let broker;
 
 test.before(async () => {
   pds = await startPds();
-  storePath = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "broker-server-")), "accounts.json");
+  storePath = tempStorePath();
   broker = await startBroker(pds.port, storePath, KEY);
 });
 
@@ -324,6 +365,66 @@ test("a password the PDS no longer accepts is reset in place", async () => {
   assert.equal(res.status, 200);
   assert.equal(pds.calls.createAccount, before);
   assert.ok(pds.calls.adminUpdatePassword.includes("did:plc:i8-administrator"));
+});
+
+test("the login broker in front of social-app", async (t) => {
+  const upstream = await startUpstream();
+  const proxy = await startProxyBroker(upstream.port);
+  t.after(async () => {
+    await stopBroker(proxy);
+    upstream.server.close();
+  });
+
+  await t.test("drops X-Forwarded-Access-Token before it proxies to social-app", async () => {
+    const response = await request(proxy, {
+      requestPath: "/profile?tab=posts",
+      headers: { Cookie: `${HANDOFF_COOKIE}=1`, "X-Forwarded-Access-Token": "header.payload.signature" },
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body, "social-app");
+    const forwarded = upstream.received.at(-1);
+    assert.equal(forwarded.url, "/profile?tab=posts");
+    assert.equal("x-forwarded-access-token" in forwarded.headers, false);
+  });
+
+  await t.test("keeps the forwarded identity and points Host at social-app", async () => {
+    await request(proxy, {
+      headers: {
+        Cookie: `${HANDOFF_COOKIE}=1`,
+        "X-Forwarded-Access-Token": "header.payload.signature",
+        "X-Forwarded-User": "biber",
+        "X-Forwarded-Email": "biber@example.org",
+      },
+    });
+
+    const forwarded = upstream.received.at(-1);
+    assert.equal(forwarded.headers["x-forwarded-user"], "biber");
+    assert.equal(forwarded.headers["x-forwarded-email"], "biber@example.org");
+    assert.equal(forwarded.headers.host, `127.0.0.1:${upstream.port}`);
+  });
+
+  await t.test("refuses a handoff without a forwarded user and proxies nothing", async () => {
+    const before = upstream.received.length;
+
+    const response = await request(proxy, {
+      headers: { "X-Forwarded-Access-Token": "header.payload.signature" },
+    });
+
+    assert.equal(response.status, 401);
+    assert.match(response.body, /Missing X-Forwarded-Preferred-Username/);
+    assert.equal(upstream.received.length, before);
+  });
+});
+
+test("an X-Forwarded-User without the preferred username is refused and provisions nothing", async () => {
+  const before = pds.calls.createAccount;
+  const res = await request(broker, {
+    headers: { "X-Forwarded-User": "administrator@example.test", "X-Forwarded-Email": "administrator@example.test" },
+  });
+  assert.equal(res.status, 401);
+  assert.match(res.body, /Missing X-Forwarded-Preferred-Username/);
+  assert.equal(pds.calls.createAccount, before);
 });
 
 test("a rotated encryption key resets the stored password in place and re-encrypts it", async () => {

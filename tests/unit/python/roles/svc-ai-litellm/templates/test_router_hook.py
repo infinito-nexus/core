@@ -31,6 +31,7 @@ from . import PROJECT_ROOT
 
 TEMPLATE = PROJECT_ROOT / "roles/svc-ai-litellm/templates/router_hook.py.j2"
 ALIAS = "auto"
+RAW_MODEL_NAME_KEY = "_complexity_router_return_raw_model_name"
 TODAY = "2026-09-24"
 S1_URL = "http://s1:8000"
 
@@ -86,6 +87,7 @@ def _stub_litellm():
     if "litellm" in sys.modules:
         return
     package = types.ModuleType("litellm")
+    constants = types.ModuleType("litellm.constants")
     integrations = types.ModuleType("litellm.integrations")
     custom_logger = types.ModuleType("litellm.integrations.custom_logger")
 
@@ -93,8 +95,10 @@ def _stub_litellm():
         pass
 
     custom_logger.CustomLogger = CustomLogger
+    constants.RETURN_RAW_MODEL_NAME_METADATA_KEY = RAW_MODEL_NAME_KEY
     package.model_cost = {}
     sys.modules["litellm"] = package
+    sys.modules["litellm.constants"] = constants
     sys.modules["litellm.integrations"] = integrations
     sys.modules["litellm.integrations.custom_logger"] = custom_logger
 
@@ -515,6 +519,21 @@ class TestLocalOnly(HookCase, unittest.TestCase):
         routes = [local("home", context=99999), remote("big", context=99999)]
         self.assertEqual(self.route(self.hook, self.SECRET, routes)["model"], "home")
 
+    def test_remote_openai_endpoint_does_not_bypass_local_only_routing(self) -> None:
+        external = local(
+            "openrouter/free",
+            model="openai/openrouter/free",
+            context=99999,
+            traits={"local": False},
+        )
+        external["litellm_params"]["api_base"] = (
+            "https://openrouter.ai/api/v1"  # nocheck: url
+        )
+        routes = [local("tiny", context=10), external]
+        verdict = self.route(load(remote_fallback=True), self.SECRET, routes)
+        self.assertIsInstance(verdict, str)
+        self.assertIn("structured secret", verdict)
+
     def test_by_default_a_big_prompt_does_not_leave_the_cluster(self) -> None:
         routes = [local("tiny", context=10), remote("big", context=99999)]
         verdict = self.route(self.hook, self.BIG, routes)
@@ -565,6 +584,35 @@ class TestLoudFailure(HookCase, unittest.TestCase):
             {"model": ALIAS, "messages": [{"content": "hi"}]},
         )
         self.assertEqual(verdict["model"], "big")
+
+    def test_a_routed_answer_keeps_the_name_of_the_route_it_came_from(self) -> None:
+        verdict = self.route(
+            [local("big", context=99999)],
+            {
+                "model": ALIAS,
+                "messages": [{"content": "hi"}],
+                "metadata": {"user": "u"},
+            },
+        )
+        self.assertEqual(verdict["metadata"], {"user": "u", RAW_MODEL_NAME_KEY: True})
+
+    def test_the_flag_stays_out_of_the_metadata_a_provider_receives(self) -> None:
+        verdict = self.route(
+            [local("big", context=99999)],
+            {
+                "model": ALIAS,
+                "messages": [{"content": "hi"}],
+                "metadata": {"user": "u"},
+                "litellm_metadata": {},
+            },
+        )
+        self.assertEqual(verdict["litellm_metadata"], {RAW_MODEL_NAME_KEY: True})
+        self.assertEqual(verdict["metadata"], {"user": "u"})
+
+    def test_a_rejected_request_carries_no_flag(self) -> None:
+        data = {"model": ALIAS, "messages": [{"content": "x" * 9000}], "metadata": {}}
+        self.route([local("tiny", context=1)], data)
+        self.assertNotIn(RAW_MODEL_NAME_KEY, data["metadata"])
 
 
 class TestConventionalStrategy(HookCase, unittest.TestCase):

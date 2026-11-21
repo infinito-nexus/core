@@ -87,8 +87,10 @@ exports.register = function (shared) {
     for (const mode of ["light", "dark"]) {
       await page.emulateMedia({ colorScheme: mode });
       await assertToken(page, "body", "background-color", "--design-surface-1", `dashboard page ${mode}`);
-      await assertToken(page, "header.header", "background-color", "--design-surface-2", `dashboard header ${mode}`);
-      await assertToken(page, ".navbar.menu-header", "background-color", "--design-surface-2", `dashboard navbar ${mode}`);
+      await assertToken(page, "header.header", "background-color", "--dashboard-frame-surface", `dashboard header ${mode}`);
+      await assertToken(page, ".navbar.menu-header", "background-color", "--dashboard-frame-surface", `dashboard navbar ${mode}`);
+      await assertToken(page, ".portui-frame-top", "border-left-color", "--design-primary", `dashboard header frame ${mode}`);
+      await assertToken(page, ".portui-frame-bottom", "border-right-color", "--design-primary", `dashboard footer frame ${mode}`);
       await assertToken(page, ".navbar.menu-header", "color", "--design-text", `dashboard navbar text ${mode}`);
       await assertToken(page, "#scroll-thumb", "background-color", "--design-neutral-400", `dashboard scroll thumb ${mode}`);
     }
@@ -114,6 +116,7 @@ exports.register = function (shared) {
   }) => {
     skipUnlessServiceEnabled("design");
     await openPortal(page);
+    await shared.revealCard(page, "web-app-keycloak");
     test.skip((await page.locator(".card").count()) === 0, "this deployment renders no card");
     const inverts = {};
     for (const mode of ["light", "dark"]) {
@@ -241,7 +244,7 @@ exports.register = function (shared) {
       {
         name: "cards",
         url: `${base}/`,
-        prepare: (page) => page.locator(".card").last().scrollIntoViewIfNeeded({ timeout: resolveTimeout(10_000) }),
+        prepare: (page) => page.locator(".card:visible").last().scrollIntoViewIfNeeded({ timeout: resolveTimeout(10_000) }),
       },
       { name: "card-hover", url: `${base}/`, prepare: (page) => hoverIfVisible(page.locator(".card").first()) },
       {

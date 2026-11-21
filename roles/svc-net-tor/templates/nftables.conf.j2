@@ -14,10 +14,62 @@ table inet {{ FIREWALL_TABLE }} {
     elements = { {{ NETWORK_INTERNAL_CIDRS | join(', ') }} }
   }
 
-{% set _tcp_guarded = TOR_EGRESS_GUARDED_PORTS | selectattr('protocol', 'equalto', 'tcp') | map(attribute='port') | unique | list %}
-{% set _udp_guarded = TOR_EGRESS_GUARDED_PORTS | selectattr('protocol', 'equalto', 'udp') | map(attribute='port') | unique | list %}
+{% set _routes = TOR_NODE_ROUTES %}
+{% set _ports = TOR_EGRESS_GUARDED_PORTS + TOR_CHUTNEY_GUARDED_PORTS %}
+{% set _guarded = _ports if _routes else (_ports | rejectattr('router') | list) %}
+{% set _tcp_guarded = _guarded | selectattr('protocol', 'equalto', 'tcp') | map(attribute='port') | unique | list %}
+{% set _udp_guarded = _guarded | selectattr('protocol', 'equalto', 'udp') | map(attribute='port') | unique | list %}
+{% set _all = _routes and TOR_EGRESS_ROUTE == 'all' %}
+{% set _listed = _routes and (TOR_EGRESS_PLAN.tor_listed or _all) %}
+{% set _dns = '{ ' ~ (TOR_EGRESS_RESOLVER_PORTS | join(', ')) ~ ' }' %}
+{% set _literal = [('tor_v4', 'ipv4_addr'), ('tor_v6', 'ipv6_addr'), ('direct_v4', 'ipv4_addr'), ('direct_v6', 'ipv6_addr')] %}
+{% if _all %}
+{% set _literal = _literal + [('direct_except_v4', 'ipv4_addr'), ('direct_except_v6', 'ipv6_addr')] %}
+{% endif %}
+{% if _listed %}
+{% for _name, _type in _literal %}
+  set {{ _name }} {
+    type {{ _type }}
+    flags interval
+    auto-merge
+{% if TOR_EGRESS_PLAN.sets[_name] | length > 0 %}
+    elements = { {{ TOR_EGRESS_PLAN.sets[_name] | join(', ') }} }
+{% endif %}
+  }
+
+{% endfor %}
+{% endif %}
+{% if _all %}
+{% for _name, _type in [('tor_dns_v4', 'ipv4_addr'), ('tor_dns_v6', 'ipv6_addr'), ('direct_dns_v4', 'ipv4_addr'), ('direct_dns_v6', 'ipv6_addr')] %}
+  set {{ _name }} {
+    type {{ _type }}
+    flags timeout
+    timeout {{ TOR_EGRESS_NFTSET_TIMEOUT }}
+  }
+
+{% endfor %}
+  set resolvers {
+    type ipv4_addr
+    flags interval
+    auto-merge
+    elements = { {{ TOR_EGRESS_RESOLVER_CIDRS | join(', ') }} }
+  }
+
+  set nonroutable_v4 {
+    type ipv4_addr
+    flags interval
+    elements = { {{ TOR_EGRESS_NONROUTABLE_IPV4 | join(', ') }} }
+  }
+
+  set local_v6 {
+    type ipv6_addr
+    flags interval
+    elements = { {{ TOR_EGRESS_LOCAL_IPV6 | join(', ') }} }
+  }
+
+{% endif %}
   chain guard {
-{% for entry in TOR_EGRESS_GUARDED_PORTS %}
+{% for entry in _guarded %}
     ip saddr != @{{ entry.admitted }} {{ entry.protocol }} dport {{ entry.port }} drop
 {% endfor %}
 {% if _tcp_guarded | length > 0 %}
@@ -36,17 +88,145 @@ table inet {{ FIREWALL_TABLE }} {
   chain forward {
     type filter hook forward priority -10; policy accept;
     jump guard
+{% if _listed %}
+    jump egress_forward
+{% endif %}
   }
+{% if _routes %}
 
   chain output {
     type nat hook output priority -150; policy accept;
     ip daddr {{ TOR_EGRESS_VIRTUAL_NET_IPV4 }} meta l4proto tcp redirect to :{{ TOR_TRANS_PORT }}
+{% if _all %}
+    meta skuid {{ TOR_EGRESS_SOCKET_UID }} meta skgid {{ TOR_EGRESS_SOCKET_GID }} return
+    meta skuid {{ TOR_DNSMASQ_UID }} return
+{% endif %}
+{% if _listed %}
+    ip daddr @tor_v4 meta l4proto tcp redirect to :{{ TOR_TRANS_PORT }}
+{% endif %}
+{% if _all %}
+    ip daddr @tor_dns_v4 meta l4proto tcp redirect to :{{ TOR_TRANS_PORT }}
+    fib daddr type local return
+    ip daddr @internal return
+    ip daddr @nonroutable_v4 return
+    meta l4proto tcp th dport {{ _dns }} return
+    ip daddr @direct_except_v4 meta l4proto tcp redirect to :{{ TOR_TRANS_PORT }}
+    ip daddr @direct_v4 return
+    ip daddr @direct_dns_v4 return
+    meta nfproto ipv4 meta l4proto tcp redirect to :{{ TOR_TRANS_PORT }}
+{% endif %}
   }
-{% if TOR_CONTAINER_DNS_HOST | length > 0 %}
+{% endif %}
+{% if _listed %}
+
+  chain egress_output {
+    type filter hook output priority -10; policy accept;
+{# nocheck: firewall-fragment-accept  skips the tor drops below #}
+    ct direction reply accept
+{# nocheck: firewall-fragment-accept  skips the tor drops below #}
+    fib daddr type local accept
+{% if _all %}
+{# nocheck: firewall-fragment-accept  skips the resolver drops and the final drop #}
+    ct state related meta l4proto { icmp, ipv6-icmp } accept
+{# nocheck: firewall-fragment-accept  skips the resolver drops and the final drop #}
+    meta skuid {{ TOR_EGRESS_SOCKET_UID }} meta skgid {{ TOR_EGRESS_SOCKET_GID }} accept
+{% for _ns in TOR_DNS_UPSTREAMS %}
+{# nocheck: firewall-fragment-accept  skips the resolver drops and the final drop #}
+    meta skuid {{ TOR_DNSMASQ_UID }} {{ 'ip6' if ':' in _ns else 'ip' }} daddr {{ _ns }} meta l4proto { tcp, udp } th dport {{ TOR_DNSMASQ_PORT }} accept
+{% endfor %}
+    ip daddr != @resolvers meta l4proto { tcp, udp } th dport {{ _dns }} drop
+    meta nfproto ipv6 meta l4proto { tcp, udp } th dport {{ _dns }} drop
+{% endif %}
+    ip daddr @tor_v4 drop
+    ip6 daddr @tor_v6 drop
+{% if _all %}
+    ip daddr @tor_dns_v4 drop
+    ip6 daddr @tor_dns_v6 drop
+{# nocheck: firewall-fragment-accept  skips the final drop #}
+    ct mark {{ TOR_EGRESS_CT_MARK }} accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
+    ip daddr @internal accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
+    ip daddr @nonroutable_v4 accept
+    ip daddr @direct_except_v4 drop
+    ip6 daddr @direct_except_v6 drop
+{# nocheck: firewall-fragment-accept  skips the final drop #}
+    ip daddr @direct_v4 accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
+    ip daddr @direct_dns_v4 ct mark set {{ TOR_EGRESS_CT_MARK }} accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
+    ip6 daddr @local_v6 accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
+    icmpv6 type { nd-neighbor-solicit, nd-neighbor-advert, nd-router-solicit, nd-router-advert } accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
+    ip6 daddr @direct_v6 accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
+    ip6 daddr @direct_dns_v6 ct mark set {{ TOR_EGRESS_CT_MARK }} accept
+    drop
+{% endif %}
+  }
+
+  chain egress_forward {
+{# nocheck: firewall-fragment-accept  skips the tor drops below #}
+    ct direction reply accept
+{% if _all %}
+{# nocheck: firewall-fragment-accept  skips the tor drops and the final drop #}
+    ct state related meta l4proto { icmp, ipv6-icmp } accept
+{% endif %}
+    ip daddr @tor_v4 drop
+    ip6 daddr @tor_v6 drop
+{% if _all %}
+    ip daddr @tor_dns_v4 drop
+    ip6 daddr @tor_dns_v6 drop
+{# nocheck: firewall-fragment-accept  skips the resolver drops and the final drop #}
+    ct mark {{ TOR_EGRESS_CT_MARK }} accept
+    ip saddr @containers ip daddr != @resolvers meta l4proto { tcp, udp } th dport {{ _dns }} drop
+    meta nfproto ipv6 meta l4proto { tcp, udp } th dport {{ _dns }} drop
+{# nocheck: firewall-fragment-accept  skips the final drop #}
+    ip daddr @internal accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
+    ip daddr @nonroutable_v4 accept
+    ip daddr @direct_except_v4 drop
+    ip6 daddr @direct_except_v6 drop
+{# nocheck: firewall-fragment-accept  skips the final drop #}
+    ip daddr @direct_v4 accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
+    ip daddr @direct_dns_v4 ct mark set {{ TOR_EGRESS_CT_MARK }} accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
+    ip6 daddr @local_v6 accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
+    ip6 daddr @direct_v6 accept
+{# nocheck: firewall-fragment-accept  skips the final drop #}
+    ip6 daddr @direct_dns_v6 ct mark set {{ TOR_EGRESS_CT_MARK }} accept
+    drop
+{% endif %}
+  }
+{% endif %}
+{% if _routes and TOR_CONTAINER_DNS_HOST | length > 0 %}
 
   chain prerouting {
     type nat hook prerouting priority -150; policy accept;
     ip daddr {{ TOR_EGRESS_VIRTUAL_NET_IPV4 }} meta l4proto tcp dnat ip to {{ TOR_CONTAINER_DNS_HOST }}:{{ TOR_TRANS_PORT }}
+{% if _listed %}
+    ip saddr @containers ip daddr @tor_v4 meta l4proto tcp dnat ip to {{ TOR_CONTAINER_DNS_HOST }}:{{ TOR_TRANS_PORT }}
+{% endif %}
+{% if _all %}
+    ip saddr @containers jump egress_prerouting
+{% endif %}
   }
+{% if _all %}
+
+  chain egress_prerouting {
+    ip daddr @tor_dns_v4 meta l4proto tcp dnat ip to {{ TOR_CONTAINER_DNS_HOST }}:{{ TOR_TRANS_PORT }}
+    fib daddr type local return
+    ip daddr @internal return
+    ip daddr @nonroutable_v4 return
+    meta l4proto tcp th dport {{ _dns }} return
+    ip daddr @direct_except_v4 meta l4proto tcp dnat ip to {{ TOR_CONTAINER_DNS_HOST }}:{{ TOR_TRANS_PORT }}
+    ip daddr @direct_v4 return
+    ip daddr @direct_dns_v4 return
+    meta nfproto ipv4 meta l4proto tcp dnat ip to {{ TOR_CONTAINER_DNS_HOST }}:{{ TOR_TRANS_PORT }}
+  }
+{% endif %}
 {% endif %}
 }

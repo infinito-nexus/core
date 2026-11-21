@@ -1,0 +1,494 @@
+#
+# Shared strict resolution helpers for Infinito.Nexus TLS/cert lookups.
+
+from __future__ import annotations
+
+import threading
+from typing import TYPE_CHECKING, Any
+
+from ansible.errors import AnsibleError
+
+from utils.domains.application_domain_index import resolve_app_id_for_domain
+from utils.networks.reachability import TOR, is_network, network, network_of
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+AVAILABLE_FLAVORS = {"letsencrypt", "self_signed"}
+REDIRECT_SERVING_APP = "web-opt-rdr-domains"
+
+
+def as_str(value: Any) -> str:
+    if value is None:
+        return ""
+    return str(value).strip()
+
+
+def norm_domain(value: Any) -> str:
+    return as_str(value).lower()
+
+
+def require(variables: dict, name: str, expected_type: type | tuple[type, ...]) -> Any:
+    if name not in variables:
+        raise AnsibleError(f"tls_common: required variable '{name}' is missing")
+    value = variables[name]
+    if not isinstance(value, expected_type):
+        raise AnsibleError(
+            f"tls_common: variable '{name}' must be {expected_type}, got {type(value).__name__}"
+        )
+    return value
+
+
+def get_path(data: Any, path: str, default: Any = None) -> Any:
+    if not isinstance(data, dict):
+        return default
+    cur: Any = data
+    for part in path.split("."):
+        if not isinstance(cur, dict) or part not in cur:
+            return default
+        cur = cur[part]
+    return cur
+
+
+def want_get(data: Any, dotted: str) -> Any:
+    if not dotted:
+        return data
+    cur: Any = data
+    for part in dotted.split("."):
+        if not isinstance(cur, dict) or part not in cur:
+            raise AnsibleError(f"want='{dotted}' not found (missing '{part}')")
+        cur = cur[part]
+    return cur
+
+
+def iter_domains(value: Any) -> Iterable[str]:
+    """
+    Flatten domains from the global domains mapping entry.
+
+    Supports:
+
+      - str
+      - list[str]
+      - dict[str, str]   (only one level, legacy behavior)
+    """
+    if isinstance(value, str):
+        if value.strip():
+            yield value.strip()
+        return
+
+    if isinstance(value, dict):
+        for v in value.values():
+            if isinstance(v, str) and v.strip():
+                yield v.strip()
+        return
+
+    if isinstance(value, list):
+        for v in value:
+            if isinstance(v, str) and v.strip():
+                yield v.strip()
+        return
+
+
+def uniq_preserve(items: Iterable[str]) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for it in items:
+        s = as_str(it)
+        if not s:
+            continue
+        s = norm_domain(s)
+        if s in seen:
+            continue
+        seen.add(s)
+        out.append(s)
+    return out
+
+
+def resolve_app_id_from_domain(domains: dict, domain: str, *, err_prefix: str) -> str:
+    """
+    Legacy reverse-lookup from the *global* domains mapping.
+    This does NOT know about per-app aliases/canonicals stored in applications.
+    """
+    needle = norm_domain(domain)
+    matches: list[str] = []
+
+    for app_id, val in domains.items():
+        matches.extend(
+            str(app_id) for d in iter_domains(val) if norm_domain(d) == needle
+        )
+
+    if not matches:
+        raise AnsibleError(
+            f"{err_prefix}: domain '{domain}' not found in domains mapping"
+        )
+
+    if len(matches) > 1:
+        raise AnsibleError(
+            f"{err_prefix}: domain '{domain}' is ambiguous, matches applications {matches}"
+        )
+
+    return matches[0]
+
+
+def resolve_primary_domain_from_app(
+    domains: dict, app_id: str, *, err_prefix: str
+) -> str:
+    if app_id not in domains:
+        raise AnsibleError(
+            f"{err_prefix}: application_id '{app_id}' not found in domains mapping"
+        )
+
+    val = domains[app_id]
+
+    if isinstance(val, str):
+        if not val:
+            raise AnsibleError(f"{err_prefix}: domains['{app_id}'] is empty")
+        return val
+
+    if isinstance(val, dict):
+        try:
+            first_val = next(iter(val.values()))
+        except StopIteration:
+            raise AnsibleError(
+                f"{err_prefix}: domains['{app_id}'] dict is empty"
+            ) from None
+        if not isinstance(first_val, str) or not first_val:
+            raise AnsibleError(f"{err_prefix}: invalid primary domain for '{app_id}'")
+        return first_val
+
+    if isinstance(val, list):
+        if not val:
+            raise AnsibleError(f"{err_prefix}: domains['{app_id}'] list is empty")
+        first = val[0]
+        if not isinstance(first, str) or not first:
+            raise AnsibleError(f"{err_prefix}: invalid primary domain for '{app_id}'")
+        return first
+
+    raise AnsibleError(
+        f"{err_prefix}: domains['{app_id}'] has unsupported type {type(val).__name__}"
+    )
+
+
+def collect_domains_for_app(
+    domains: dict, app_id: str, *, err_prefix: str
+) -> list[str]:
+    if app_id not in domains:
+        raise AnsibleError(
+            f"{err_prefix}: application_id '{app_id}' not found in domains mapping"
+        )
+    return uniq_preserve(list(iter_domains(domains[app_id])))
+
+
+def collect_domains_global(domains: dict) -> list[str]:
+    all_items: list[str] = []
+    for val in domains.values():
+        all_items.extend(list(iter_domains(val)))
+    return uniq_preserve(all_items)
+
+
+def redirect_targets(variables: dict) -> dict[str, str]:
+    """
+    Returns {source: target} from CURRENT_PLAY_REDIRECT_DOMAINS, both normalized;
+    empty until the constructor has set the fact.
+    """
+    mappings = variables.get("CURRENT_PLAY_REDIRECT_DOMAINS") or []
+    return {norm_domain(m["source"]): norm_domain(m["target"]) for m in mappings}
+
+
+def wildcard_certificate_available(app: dict, variables: dict) -> bool:
+    """Tell whether a wildcard vhost name of one application gets a certificate.
+
+    Args:
+        app: the application's configuration, whose ``server.tls`` overrides
+            ``TLS_ENABLED`` and ``TLS_MODE``.
+        variables: host variables carrying ``TLS_ENABLED`` and ``TLS_MODE``, and
+            for ``letsencrypt`` also ``CERTBOT_FLAVOR`` and
+            ``CERTBOT_ACME_CHALLENGE_METHOD``.
+
+    Returns:
+        True without TLS and with self-signed certificates; for ``letsencrypt``
+        only with the ``wildcard`` flavor on a DNS challenge, because the HTTP
+        challenge cannot prove a wildcard.
+    """
+    enabled = resolve_enabled(app, bool(require(variables, "TLS_ENABLED", (bool, int))))
+    mode = resolve_mode(
+        app,
+        enabled,
+        as_str(require(variables, "TLS_MODE", str)),
+        err_prefix="tls_common",
+    )
+    if mode in {"off", "self_signed"}:
+        return True
+    flavor = as_str(require(variables, "CERTBOT_FLAVOR", str))
+    challenge = as_str(require(variables, "CERTBOT_ACME_CHALLENGE_METHOD", str))
+    return flavor == "wildcard" and challenge != "webroot"
+
+
+def is_domain_term(term: str, forced_mode: str, *, err_prefix: str) -> bool:
+    """Tell whether a lookup term names a domain rather than an application id.
+
+    Args:
+        term: The lookup term.
+        forced_mode: "auto" (a dot makes it a domain), "domain" or "app".
+        err_prefix: Prefix of the error raised for an unknown mode.
+
+    Returns:
+        True when the term is a domain.
+    """
+    forced = as_str(forced_mode).lower()
+    if forced not in {"auto", "domain", "app"}:
+        raise AnsibleError(f"{err_prefix}: mode must be one of: auto, domain, app")
+    if forced == "auto":
+        return "." in as_str(term)
+    return forced == "domain"
+
+
+def resolve_term(
+    term: str,
+    *,
+    domains: dict,
+    applications: dict | None = None,
+    redirects: dict[str, str] | None = None,
+    served: dict[str, str] | None = None,
+    forced_mode: str,
+    err_prefix: str,
+    _following: bool = False,
+) -> tuple[str, str]:
+    """
+    Returns (app_id, primary_domain) where primary_domain is normalized lower-case.
+
+    term can be:
+
+      - application_id
+      - domain (canonical or alias)
+
+    forced_mode: "auto" | "domain" | "app"
+
+    Behavior::
+
+      1) If term is a domain and exists in the global domains mapping -> primary_domain = that term (normalized).
+      2) If term is a domain and only exists in applications[*].domains -> map to app_id,
+         and primary_domain = canonical primary from global domains mapping (first entry).
+      3) If term is a domain found in neither but is a source in redirects (see
+         redirect_targets), such as an AUTO_BUILD_ALIASES alias -> resolve its target,
+         following a chain of redirects; a source is used once, so a cycle fails.
+      4) If that chain ends on a domain this host does not serve, such as a redirect
+         to another host, and REDIRECT_SERVING_APP is in domains -> map the source to
+         REDIRECT_SERVING_APP, with the source itself as primary_domain.
+      5) If term is a served name (see utils.domains.served.served_owners) -> map it to
+         the application serving it, with the name itself as primary_domain.
+    """
+    t = as_str(term)
+    if not t:
+        raise AnsibleError(f"{err_prefix}: term is empty")
+
+    if is_domain_term(t, forced_mode, err_prefix=err_prefix):
+        try:
+            app_id_legacy = resolve_app_id_from_domain(
+                domains, t, err_prefix=err_prefix
+            )
+            return str(app_id_legacy), norm_domain(t)
+        except AnsibleError:
+            pass
+
+        apps = applications or {}
+        if not isinstance(apps, dict):
+            raise AnsibleError(
+                f"{err_prefix}: applications must be dict when resolving domain terms"
+            )
+
+        app_id = resolve_app_id_for_domain(apps, t)
+        served_by = (served or {}).get(norm_domain(t))
+        if not app_id and served_by:
+            return served_by, norm_domain(t)
+        if not app_id and t.lower().startswith("www."):
+            bare = t[4:]
+            try:
+                app_id_legacy = resolve_app_id_from_domain(
+                    domains, bare, err_prefix=err_prefix
+                )
+                return str(app_id_legacy), norm_domain(bare)
+            except AnsibleError:
+                pass
+            app_id = resolve_app_id_for_domain(apps, bare)
+        target = (redirects or {}).get(norm_domain(t))
+        if not app_id and target and target != norm_domain(t):
+            try:
+                return resolve_term(
+                    target,
+                    domains=domains,
+                    applications=applications,
+                    redirects={
+                        source: dest
+                        for source, dest in (redirects or {}).items()
+                        if source != norm_domain(t)
+                    },
+                    forced_mode="domain",
+                    err_prefix=err_prefix,
+                    _following=True,
+                )
+            except AnsibleError:
+                if _following or REDIRECT_SERVING_APP not in domains:
+                    raise
+                return REDIRECT_SERVING_APP, norm_domain(t)
+        if not app_id:
+            raise AnsibleError(
+                f"{err_prefix}: domain '{t}' not found (domains/applications)"
+            )
+
+        primary = norm_domain(
+            resolve_primary_domain_from_app(domains, str(app_id), err_prefix=err_prefix)
+        )
+        return str(app_id), primary
+
+    app_id = t
+    primary = norm_domain(
+        resolve_primary_domain_from_app(domains, app_id, err_prefix=err_prefix)
+    )
+    return app_id, primary
+
+
+def is_onion_domain(domain: Any) -> bool:
+    """True if the domain belongs to the Tor network."""
+    return is_network(domain, TOR)
+
+
+def resolve_enabled(
+    app: dict, enabled_default: bool, *, primary_domain: str = ""
+) -> bool:
+    if not network(network_of(primary_domain)).tls:
+        return False
+    override = get_path(app, "server.tls.enabled", None)
+    return enabled_default if override is None else bool(override)
+
+
+def issuer_applications() -> tuple[str, ...]:
+    """Applications that publish one URL to every consumer: the SSO provider,
+    whose issuer every client pins."""
+    from utils import PROJECT_ROOT
+    from utils.roles.applications.services.registry import (
+        build_service_registry_from_roles_dir,
+    )
+
+    entry = build_service_registry_from_roles_dir(PROJECT_ROOT / "roles").get("sso")
+    role = (entry or {}).get("role")
+    return (role,) if role else ()
+
+
+_VHOST_GUARD = threading.local()
+
+
+def _vhost_domain(variables: dict | None, templar: Any) -> str:
+    raw = (variables or {}).get("domain")
+    if not isinstance(raw, str) or not raw.strip():
+        return ""
+    if "{{" in raw or "{%" in raw:
+        if templar is None or getattr(_VHOST_GUARD, "active", False):
+            return ""
+        _VHOST_GUARD.active = True
+        try:
+            raw = templar.template(raw)
+        finally:
+            _VHOST_GUARD.active = False
+    return norm_domain(raw)
+
+
+def serving_network(served: list[str], vhost: str) -> str:
+    """Return the network an application's lookups resolve for a vhost.
+
+    Args:
+        served: the application's normalised domains, at least one.
+        vhost: the normalised vhost being rendered, empty when none is.
+
+    Returns:
+        The network of ``vhost`` when ``served`` holds it, else the network of
+        ``served[0]``.
+    """
+    return network_of(vhost if vhost in served else served[0])
+
+
+def _consumer_network(
+    domains: dict, consumer_id: str, variables: dict | None, templar: Any
+) -> str | None:
+    consumer_domains = [norm_domain(d) for d in iter_domains(domains.get(consumer_id))]
+    if not consumer_domains:
+        return None
+    return serving_network(consumer_domains, _vhost_domain(variables, templar))
+
+
+def align_domain_to_consumer(
+    domains: dict,
+    app_id: str,
+    primary_domain: str,
+    *,
+    consumer: str = "",
+    variables: dict | None = None,
+    templar: Any = None,
+) -> str:
+    """Return the target's domain in the network its consumer is served on.
+
+    Args:
+        domains: the host's merged domain map.
+        app_id: the target application.
+        primary_domain: the target's canonical domain.
+        consumer: consuming application; empty reads ``variables['application_id']``.
+        variables: lookup scope; its ``domain`` names the vhost being rendered.
+        templar: renders templated ``application_id`` and ``domain`` values.
+
+    Returns:
+        The target's first domain in the consumer's network, which is the
+        network of the vhost being rendered when that vhost belongs to the
+        consumer, else the network of the consumer's primary domain.
+        ``primary_domain`` when the target is the SSO provider, the consumer
+        is unknown, or the target has no domain in that network.
+    """
+    if app_id in issuer_applications():
+        return primary_domain
+    raw = consumer or (variables or {}).get("application_id", "")
+    if templar is not None and isinstance(raw, str) and raw:
+        raw = templar.template(raw)
+    wanted = _consumer_network(domains, as_str(raw), variables, templar)
+    if wanted is None or network_of(primary_domain) == wanted:
+        return primary_domain
+    for candidate in iter_domains(domains.get(app_id)):
+        if network_of(candidate) == wanted:
+            return candidate
+    return primary_domain
+
+
+def resolve_mode(
+    app: dict, enabled: bool, mode_default: str, *, err_prefix: str
+) -> str:
+    if not enabled:
+        return "off"
+    override = get_path(app, "server.tls.mode", None)
+    if not (isinstance(override, str) and override.strip()):
+        override = get_path(app, "server.tls.flavor", None)
+    if isinstance(override, str) and override.strip():
+        mode = override.strip()
+    else:
+        mode = mode_default
+
+    if mode not in AVAILABLE_FLAVORS:
+        raise AnsibleError(
+            f"{err_prefix}: TLS_MODE/server.tls.flavor must be one of {sorted(AVAILABLE_FLAVORS)}, got '{mode}'"
+        )
+    return mode
+
+
+def resolve_le_name(app: dict, domain: str) -> str:
+    override = get_path(app, "server.tls.letsencrypt_cert_name", "")
+    name = as_str(override)
+    return name or domain
+
+
+def override_san_list(app: dict) -> list[str] | None:
+    raw = get_path(app, "server.tls.domains_san", None)
+    if raw is None:
+        return None
+    if isinstance(raw, str):
+        s = raw.strip()
+        return [s] if s else []
+    if isinstance(raw, list):
+        return [str(x).strip() for x in raw if str(x).strip()]
+    return []

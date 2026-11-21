@@ -10,7 +10,7 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { signInAsAdmin } = require("./sign-in");
 const { resolveTimeout } = require("./timeouts");
 
@@ -265,7 +265,7 @@ exports.register = function () {
 
   test("design: the sign-in page keeps the logo on the frame and paints its buttons from the palette", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(isServiceEnabled("sso"), "the sign-in page is the identity provider's");
+    skipUnlessServiceDisabled("sso");
     await gotoOnion(page, `${baseUrl()}/login`);
     await ready(page, "#login-account-name");
     for (const mode of ["light", "dark"]) {
@@ -344,10 +344,11 @@ exports.register = function () {
     test.setTimeout(resolveTimeout(900_000));
     const base = baseUrl();
     const failures = [];
-    await captureDesignGallery(page, [
-      { name: "login", url: `${base}/login`, prepare: (v) => ready(v, "#login-account-name") },
-      { name: "signup", url: `${base}/signup`, prepare: (v) => ready(v, "body.signup-page input:visible") },
-    ]).catch((error) => failures.push(error.message));
+    const signedOutViews = [{ name: "login", url: `${base}/login`, prepare: (v) => ready(v, "#login-account-name") }];
+    if (process.env.LOGIN_METHOD_REGISTRATION_ENABLED === "true") {
+      signedOutViews.push({ name: "signup", url: `${base}/signup`, prepare: (v) => ready(v, "body.signup-page input:visible") });
+    }
+    await captureDesignGallery(page, signedOutViews).catch((error) => failures.push(error.message));
     await signInAsAdmin(page);
     const topicId = await seedShowcase(page);
     const views = signedInViews(base, env("ADMIN_USERNAME"), topicId).map((view) => ({

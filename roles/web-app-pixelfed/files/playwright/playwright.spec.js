@@ -19,7 +19,9 @@ test.afterAll(shared.afterAll);
 
 require("./test-oidc-login-biber").register(shared);
 require("./test-oidc-login-administrator").register(shared);
+require("./test-rbac-admin-flag").register(shared);
 require("./test-native-login-administrator").register(shared);
+require("./test-login-methods").register(shared);
 require("./test-guest-persona").register(shared);
 require("./test-biber-persona").register(shared);
 require("./test-administrator-persona").register(shared);

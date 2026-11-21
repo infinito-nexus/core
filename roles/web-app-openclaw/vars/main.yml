@@ -6,16 +6,35 @@ http_port: "{{ lookup('config', application_id, 'services.openclaw.ports.local.h
 
 OPENCLAW_CONTAINER: "{{ lookup('config', application_id, 'services.openclaw.name') }}"
 OPENCLAW_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.openclaw.ports.internal.http') }}"
+OPENCLAW_CONFIG: "{{ lookup('form_values', application_id, 'config') }}"
+OPENCLAW_CONFIG_FORM_PATHS:
+  trustedProxies: [gateway, trustedProxies]
+  mode: [gateway, auth, mode]
+  userHeader: [gateway, auth, trustedProxy, userHeader]
+  primary: [agents, defaults, model, primary]
+  baseUrl: [models, providers, "{{ OPENCLAW_LITELLM_PROVIDER }}", baseUrl]
+  servers: [mcp, servers, "*", url]
 OPENCLAW_URL: "{{ lookup('tls', application_id, 'url.origin') }}"
 OPENCLAW_CONTROL_UI_ORIGINS: "{{ lookup('network_urls', OPENCLAW_URL) }}"
 OPENCLAW_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'openclaw.json' ] | path_join }}"
-OPENCLAW_MCP_SERVERS: "{{ MCP_DISCOVERED_SERVERS if (lookup('config', application_id, 'mcp.enabled') | bool) else [] }}"
+OPENCLAW_MCP_SERVERS: "{{ (OPENCLAW_CONFIG.servers | mcp_with_credentials(MCP_DISCOVERED_SERVERS)) if 'servers' in OPENCLAW_CONFIG else [] }}"
+OPENCLAW_GATEWAY_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.gateway_token') }}"
+
+OPENCLAW_TRUSTED_PROXY_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
+OPENCLAW_TRUSTED_PROXY_MODE: "{{ OPENCLAW_CONFIG.mode }}"
+OPENCLAW_TRUSTED_PROXY_USER_HEADER: "{{ OPENCLAW_CONFIG.userHeader }}"
+OPENCLAW_TRUSTED_PROXY_SECRET_HEADER_PREFIX: "x-infinito-sso-proxy"
+OPENCLAW_TRUSTED_PROXY_SECRET_HEADER: "{{ OPENCLAW_TRUSTED_PROXY_SECRET_HEADER_PREFIX }}-{{ lookup('config', application_id, 'secrets.credentials.sso_proxy_secret')
+  }}"
+OPENCLAW_TRUSTED_PROXY_REQUIRED_HEADERS: ["x-forwarded-user", "{{ OPENCLAW_TRUSTED_PROXY_SECRET_HEADER }}"]
+OPENCLAW_TRUSTED_PROXY_SOURCES: "{{ OPENCLAW_CONFIG.trustedProxies }}"
 
 OPENCLAW_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') }}"
-OPENCLAW_LITELLM_BASE_URL: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
-OPENCLAW_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+OPENCLAW_LITELLM_BASE_URL: "{{ OPENCLAW_CONFIG.baseUrl }}"
+OPENCLAW_LITELLM_API_KEY: "{{ lookup('litellm_api_key', application_id) }}"
+OPENCLAW_LITELLM_PRIMARY: "{{ OPENCLAW_CONFIG.primary }}"
 OPENCLAW_LITELLM_PROVIDER: litellm
-OPENCLAW_LITELLM_MODEL: "{{ LITELLM_CHAT_MODEL }}"
+OPENCLAW_LITELLM_MODEL: "{{ OPENCLAW_LITELLM_PRIMARY.split('/', 1) | last }}"
 
 OPENCLAW_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 OPENCLAW_DESIGN_DIR: "{{ [ lookup('container', application_id, 'directories.config'), 'design' ] | path_join }}"

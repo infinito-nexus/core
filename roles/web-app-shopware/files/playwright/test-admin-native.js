@@ -9,13 +9,15 @@ const {
 } = require("./personas");
 const { performKeycloakLogin } = require("./personas/utils/keycloak");
 const { confirmKeycloakLogoutIfPrompted } = require("./personas/utils/logout");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 
 const appBaseUrl = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME || "");
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || "");
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || "");
 const ssoEnabled = (process.env.SSO_SERVICE_ENABLED || "").toLowerCase() === "true";
-const logoutEnabled = (process.env.LOGOUT_SERVICE_ENABLED || "").toLowerCase() === "true";
+const nativeEnabled = process.env.LOGIN_METHOD_NATIVE_ENABLED === "true";
+const SSO_BUTTON = "a.heptacom-admin-open-auth--button";
 const logoutBaseUrl = normalizeBaseUrl(process.env.LOGOUT_URL || "");
 
 async function signIn(page) {
@@ -29,7 +31,7 @@ async function signIn(page) {
     expect(canonicalDomain, "CANONICAL_DOMAIN must be set").toBeTruthy();
 
     const ssoButton = page
-      .locator("a.heptacom-admin-open-auth--button")
+      .locator(SSO_BUTTON)
       .filter({ hasText: /keycloak/i })
       .first();
     await expect(
@@ -115,19 +117,17 @@ test("administrator: admin login → catalogue → in-app logout", async ({ page
   await gotoOnion(page, `${appBaseUrl}/admin`, { waitUntil: "domcontentloaded" });
 
   await expect(
-    page.locator("input[type='password']:visible").first(),
-    "after logout the administration must fall back to its login form",
+    page.locator(nativeEnabled ? "input[type='password']:visible" : SSO_BUTTON).first(),
+    "after logout the administration must fall back to its login page",
   ).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
 test("administrator: the admin session outlives a logout whose sweep never lands", async ({
   page,
 }) => {
+  skipUnlessServiceEnabled("sso");
+  skipUnlessServiceEnabled("logout");
   test.setTimeout(resolveTimeout(180_000));
-  test.skip(
-    !ssoEnabled || !logoutEnabled,
-    "the sweep only exists where Keycloak frames web-svc-logout",
-  );
 
   const conductorOrigin = logoutBaseUrl ? new URL(logoutBaseUrl).origin : "";
   const isConductor = (url) =>

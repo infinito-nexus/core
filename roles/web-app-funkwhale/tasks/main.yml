@@ -1,9 +1,17 @@
 ---
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
+    name: svc-stack
+    tasks_from: consumer.yml
+
+- name: "🐍 Render the Django settings module of {{ application_id }}"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
   vars:
-    webserver_extra_configuration: "client_max_body_size 512M;"
+    role_templates:
+      - src: "settings.py.j2"
+        dest: "{{ FUNKWHALE_SETTINGS_HOST }}"
+        mode: "0444"
 
 - name: "🪣 Serve the object store from the origin of {{ application_id }}"
   when: FUNKWHALE_OBJSTORE_ENABLED | bool

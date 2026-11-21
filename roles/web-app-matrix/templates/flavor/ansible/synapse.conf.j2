@@ -4,8 +4,10 @@
 {% if MATRIX_CONFERENCING_ELEMENT_CALL %}
 
   location ^~ {{ MATRIX_LIVEKIT_PATH }}/ {
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
     {% include 'roles/sys-svc-proxy/templates/headers/forwarded.conf.j2' %}
     {{ lookup('proxy_pass', application_id, 'matrix', 'http', tail='/', local_port=MATRIX_LIVEKIT_PORT, internal_port=MATRIX_LIVEKIT_CONTAINER_PORT) }}
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
 
     proxy_http_version 1.1;
     proxy_set_header   Upgrade    $proxy_upgrade;
@@ -15,8 +17,10 @@
   }
 
   location ^~ {{ MATRIX_LIVEKIT_JWT_PATH }}/ {
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
     {% include 'roles/sys-svc-proxy/templates/headers/forwarded.conf.j2' %}
     {{ lookup('proxy_pass', application_id, 'matrix', 'http', tail='/', local_port=MATRIX_LIVEKIT_JWT_PORT, internal_port=MATRIX_LIVEKIT_JWT_CONTAINER_PORT) }}
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
   }
 {% endif %}
 {% endset %}

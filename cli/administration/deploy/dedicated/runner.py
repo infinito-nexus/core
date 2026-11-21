@@ -20,6 +20,7 @@ from cli.administration.inventory.provision.services.disabler import (
 from cli.meta.roles.services.called import verify as verify_required_system_services
 from cli.meta.runtime import detect_runtime
 from utils.cache.files import read_text
+from utils.preflight.switches import PREFLIGHT_ROLE, check_enabled
 
 from .proc import run, run_make
 
@@ -69,6 +70,24 @@ def deploy_ansible_playbook(repo_root: str) -> str:
     return str(ansible_playbook)
 
 
+def _inventory_check_enabled(repo_root: str) -> bool:
+    """
+    Read the inventory switch of the pre-flight role.
+
+    Args:
+      repo_root: checkout whose roles/ holds the pre-flight role
+    Returns:
+      whether the inventory validation is switched on
+    Exits:
+      1 when the switch is missing or not a literal boolean
+    """
+    try:
+        return check_enabled("inventory", Path(repo_root) / "roles")
+    except (OSError, TypeError, ValueError) as exc:
+        print(f"\n[ERROR] {exc}\n", file=sys.stderr)
+        sys.exit(1)
+
+
 def run_ansible_playbook(
     *,
     repo_root: str,
@@ -108,9 +127,15 @@ def run_ansible_playbook(
         print(f"\n[ERROR] {exc}\n", file=sys.stderr)
         sys.exit(1)
 
-    if modes.get("MODE_ASSERT") is False:
+    if modes.get("VALIDATE") is False:
         print(
-            "\n🔍 Inventory assertion explicitly disabled (MODE_ASSERT=false)\n",
+            "\n🔍 Inventory assertion explicitly disabled (VALIDATE=false)\n",
+            flush=True,
+        )
+    elif not _inventory_check_enabled(repo_root):
+        print(
+            f"\n🔍 Inventory assertion switched off in {PREFLIGHT_ROLE} "
+            "(checks.inventory.enabled=false)\n",
             flush=True,
         )
     else:
@@ -146,7 +171,7 @@ def run_ansible_playbook(
     if diff:
         cmd.append("--diff")
 
-    if modes.get("MODE_DEBUG", False):
+    if modes.get("DEBUG", False):
         verbose = max(verbose, 3)
 
     if verbose:

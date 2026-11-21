@@ -69,6 +69,7 @@ RUN ansible-galaxy collection install \
       ansible.posix
 
 COPY daemon.json /etc/docker/daemon.json
+COPY journald-forward.conf /etc/systemd/journald.conf.d/forward-console.conf
 COPY bootstrap.sh /usr/local/bin/matrix-mdad-bootstrap
 COPY bootstrap.service /etc/systemd/system/matrix-mdad-bootstrap.service
 COPY hostpin.sh /usr/local/bin/matrix-mdad-hostpin

@@ -26,6 +26,7 @@ from . import PROJECT_ROOT, is_main_compose_template
 
 _RULE = "compose-profiles-without-swarm-gate"
 
+# upstream: https://github.com/docker/cli/issues/3178
 _PROFILES = re.compile(r"^\s*profiles:\s*$")
 _IF = re.compile(r"\{%\s*if\s+(?P<expr>.+?)\s*%\}")
 _ELIF = re.compile(r"\{%\s*elif\s+(?P<expr>.+?)\s*%\}")

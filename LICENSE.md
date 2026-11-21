@@ -15,4 +15,12 @@ is strictly prohibited without explicit written permission from the copyright ho
 
 Redistribution of modified versions is not permitted without permission.
 
+## Deployed software
+
+Infinito.Nexus deploys third-party software. It neither contains nor distributes that software: each deployment fetches it from its upstream sources (container images, packages, repositories) onto the target host, and the licence of each deployed application applies to it. This licence covers Infinito.Nexus itself: its roles, scripts, templates and configuration.
+
+## Extensions of deployed software
+
+Some roles install files into a deployed application to extend it, such as plugins, add-ons, hooks or initializers that the application loads into its own process. Where the licence of that application requires such an extension to be licensed under it or under a compatible licence, those files are additionally licensed under the licence of that application, for that combination only. This grant does not extend to any other part of Infinito.Nexus.
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.

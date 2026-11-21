@@ -24,3 +24,9 @@ cache:
       repo: raw-crates-static
     huggingface.co:
       repo: raw-huggingface
+  artefacts:
+    gemma3-1b--gemma-3-1b-it-q4_0.gguf:
+      url: https://huggingface.co/libretranslate/gemma3/resolve/6fe79f08be723393097d346c558ec8b579023837/gemma-3-1b-it-q4_0.gguf
+      revision: "6fe79f08be723393097d346c558ec8b579023837"
+      sha256: "95e5b8d891cd6a794f66c2a6fb59a41e9562b4660560b854274eceffb628b22a"
+      bytes: "1003541152"

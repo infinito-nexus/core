@@ -1,0 +1,1 @@
+nocheck: role-files-layout CLI discovery requires files/test/test.sh and stages the Python test asset beside it.

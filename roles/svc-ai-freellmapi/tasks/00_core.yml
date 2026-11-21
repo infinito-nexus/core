@@ -1,0 +1,59 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🔐 Validate the persistent FreeLLMAPI encryption key"
+  ansible.builtin.assert:
+    that:
+      - FREELLMAPI_ENCRYPTION_KEY is match('^[0-9a-fA-F]{64}$')
+      - FREELLMAPI_STARTUP_CONFIG is mapping
+    fail_msg: >-
+      Set applications.svc-ai-freellmapi.secrets.credentials.encryption_key to a vaulted
+      64-character hex key and services.freellmapi.startup_config to a mapping.
+      Provision the role credentials once and preserve them across updates.
+    quiet: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔐 Validate platform administrator credentials for dashboard setup"
+  ansible.builtin.assert:
+    that:
+      - FREELLMAPI_ADMIN.email is string
+      - FREELLMAPI_ADMIN.email is match('^[^@\s]+@[^@\s]+$')
+      - FREELLMAPI_ADMIN.password is string
+      - FREELLMAPI_ADMIN.password | length >= 8
+    fail_msg: >-
+      FreeLLMAPI first-account setup requires a platform_administrator email
+      and a plaintext password of at least eight characters from the users lookup.
+    quiet: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧪 Stage the deterministic test upstream"
+  when: FREELLMAPI_MOCK_ENABLED | bool
+  block:
+    - include_tasks: utils/load/handlers.yml
+      vars:
+        handler_role_name: "sys-svc-compose"
+
+    - name: "📁 Create the configuration directory for the test upstream"
+      ansible.builtin.file:
+        path: "{{ FREELLMAPI_MOCK_SCRIPT_HOST | dirname }}"
+        state: directory
+        mode: "0755"
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+
+    - name: "🧩 Stage the test upstream server script"
+      stack_host_copy:
+        src: "{{ lookup('path_absolute', 'roles/svc-ai-freellmapi/files/javascript/mock_upstream.js') }}"
+        dest: "{{ FREELLMAPI_MOCK_SCRIPT_HOST }}"
+        mode: "0444"
+      notify:
+        - compose-up
+        - container-recreate
+
+- name: "🔧 Setup container network for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
+  vars:
+    compose_handlers_flush: true
+
+- name: "🔐 Reconcile the platform administrator on every deploy"
+  ansible.builtin.include_tasks: 01_admin.yml

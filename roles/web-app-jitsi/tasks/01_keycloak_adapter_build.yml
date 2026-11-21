@@ -1,0 +1,21 @@
+---
+- name: "📁 Create the keycloak_adapter build context of {{ application_id }}"
+  ansible.builtin.file:
+    path: "{{ JITSI_KEYCLOAK_ADAPTER_BUILD_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: "📄 Stage the keycloak_adapter Dockerfile and scheme patch of {{ application_id }}"
+  stack_host_copy:
+    src: "keycloak_adapter/{{ item }}"
+    dest: "{{ [JITSI_KEYCLOAK_ADAPTER_BUILD_DIR, item] | path_join }}"
+    mode: "0644"
+  loop:
+    - Dockerfile
+    - forwarded_scheme.ts
+
+- name: "📄 Stage the keycloak_adapter moderator context of {{ application_id }}"
+  stack_host_template:
+    src: keycloak_adapter/context.ts.j2
+    dest: "{{ [JITSI_KEYCLOAK_ADAPTER_BUILD_DIR, 'context.ts'] | path_join }}"
+    mode: "0644"

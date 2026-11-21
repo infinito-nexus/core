@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 lmstudio:
   healthcheck:
     flavor: curl
@@ -33,9 +34,6 @@ lmstudio:
     internal:
       http: 1234
   preload_models: "{{ AI_LOCAL_MODELS }}"
-  preload_async_time: 3600
-  preload_floor_seconds: 600
-  preload_min_bytes_per_second: 1000000
   lifecycle: beta
 
 # nocheck: playwright-service-flag, dynamic-flag
@@ -49,3 +47,11 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started

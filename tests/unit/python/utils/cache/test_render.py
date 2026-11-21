@@ -12,12 +12,28 @@ import tempfile
 import unittest
 import unittest.mock as mock
 from pathlib import Path
+from urllib.parse import urlsplit
 
-from utils.cache.hosts import host_records
-from utils.cache.render import _write, upstreams_conf
+from utils.cache.files import read_text
+from utils.cache.hosts import host_records, hosts_serving, repo_records
+from utils.cache.render import _write, cache_consumer_yml, upstreams_conf
+from utils.distros import distro_family
+
+from . import PROJECT_ROOT
 
 OLLAMA_HOST = "registry.ollama.ai"
 OLLAMA_REPO = "raw-ollama-registry"
+APT_FAMILY = "Debian"
+APT_FLAVOR = "apt"
+HTTP_PORT = 80
+FRONTEND_IP = "${INFINITO_CACHE_PACKAGE_FRONTEND_IP}"
+STOCK_SOURCES = {
+    # nocheck: url the bare GET on the redirector returns 404; the apt paths under dists/ resolve
+    "debian": ("http://deb.debian.org/debian", "http://deb.debian.org/debian-security"),
+    "ubuntu": ("http://archive.ubuntu.com/ubuntu", "http://security.ubuntu.com/ubuntu"),
+}
+APT_SOURCES = "/etc/apt/sources.list"
+SWARM_OVERRIDE = PROJECT_ROOT / "compose" / "swarm" / "cache.override.yml"
 
 
 class TestWrite(unittest.TestCase):
@@ -87,6 +103,72 @@ class TestOllamaRegistry(unittest.TestCase):
         self.assertIn("location / {", block)
         self.assertIn(f"/repository/{OLLAMA_REPO}/;", block)
         self.assertNotIn("location /v2/", block)
+
+
+class TestServedByThePin(unittest.TestCase):
+    def setUp(self) -> None:
+        self.own = host_records()
+        self.apt = hosts_serving("apt-debian")[0].host
+        self.changed = OLLAMA_HOST
+        self.kept = next(
+            name
+            for name, record in self.own.items()
+            if name not in (self.apt, self.changed) and record["hijack"]
+        )
+
+    def _served(self) -> dict:
+        served = {
+            name: dict(record) for name, record in self.own.items() if name != self.apt
+        }
+        served[self.changed]["read_timeout"] = "changed"
+        return served
+
+    def test_a_host_the_pin_lacks_or_declares_differently_is_not_hijacked(
+        self,
+    ) -> None:
+        rendered = cache_consumer_yml(self._served())
+        self.assertNotIn(f'"{self.apt}:', rendered)
+        self.assertNotIn(f'"{self.changed}:', rendered)
+        self.assertIn(f'"{self.kept}:', rendered)
+        self.assertIn(f'"{self.apt}:', cache_consumer_yml())
+        self.assertEqual(cache_consumer_yml(), cache_consumer_yml(self.own))
+
+    def test_an_unreadable_pin_hijacks_no_host(self) -> None:
+        rendered = cache_consumer_yml({})
+        self.assertNotIn(":${INFINITO_CACHE_PACKAGE_FRONTEND_IP}", rendered)
+        self.assertIn("infinito-registry-cache:", rendered)
+
+
+class TestRunnerAptSources(unittest.TestCase):
+    def test_no_runner_mounts_an_apt_source_beside_its_own(self) -> None:
+        self.assertNotIn(APT_SOURCES, cache_consumer_yml())
+        self.assertNotIn(APT_SOURCES, read_text(str(SWARM_OVERRIDE)))
+
+    def test_the_stock_sources_of_every_apt_runner_reach_an_apt_repository(
+        self,
+    ) -> None:
+        apt_runners = {
+            name for name, family in distro_family().items() if family == APT_FAMILY
+        }
+        self.assertEqual(set(STOCK_SOURCES), apt_runners)
+        consumer = cache_consumer_yml()
+        hosts = host_records()
+        repos = repo_records()
+        for distro, uris in STOCK_SOURCES.items():
+            for uri in uris:
+                parts = urlsplit(uri)
+                with self.subTest(distro=distro, uri=uri):
+                    self.assertIn(f'"{parts.hostname}:{FRONTEND_IP}"', consumer)
+                    record = hosts[parts.hostname]
+                    self.assertIn(
+                        HTTP_PORT, [entry["port"] for entry in record["listen"]]
+                    )
+                    routes = {
+                        route["path"]: route["repo"] for route in record["routes"]
+                    }
+                    self.assertEqual(
+                        repos[routes[f"{parts.path}/"]]["flavor"], APT_FLAVOR
+                    )
 
 
 def _servers(http2: bool | str) -> tuple[list[str], list[str]]:

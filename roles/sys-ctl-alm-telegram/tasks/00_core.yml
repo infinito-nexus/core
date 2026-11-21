@@ -9,7 +9,7 @@
       Please provide non‑empty values for:
         - TELEGRAM_BOT_TOKEN   # Your Telegram bot’s API token
         - TELEGRAM_CHAT_ID     # The Telegram chat ID to send messages to
-  when: MODE_ASSERT | bool
+  when: lookup('validate', 'sys-ctl-alm-telegram') | bool
 
 - include_role:
     name: sys-service

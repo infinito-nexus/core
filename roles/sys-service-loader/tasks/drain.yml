@@ -1,0 +1,24 @@
+---
+- name: "📂 Close the preload context before the post-load flush"
+  ansible.builtin.set_fact:
+    service_loader_preloading: false
+  changed_when: false
+
+- name: "🛑 Refuse a post-load role whose stack backend never ran"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/load/entry.yml') }}"
+  loop: "{{ service_loader_post_run | unique }}"
+  loop_control:
+    loop_var: post_run_role
+  vars:
+    entry_role: "{{ post_run_role }}"
+    entry_application_id: "{{ post_run_role }}"
+    entry_domain: false
+    entry_post_run: true
+  when: STACK_ENTRY_PENDING | bool
+
+- name: "▶️ Run service-loader post-load roles"
+  ansible.builtin.include_role:
+    name: "{{ post_run_role }}"
+  loop: "{{ service_loader_post_run | unique }}"
+  loop_control:
+    loop_var: post_run_role

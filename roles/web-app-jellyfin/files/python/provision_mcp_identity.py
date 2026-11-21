@@ -14,11 +14,11 @@ Prints the access token on stdout, prefixed by CHANGED or UNCHANGED.
 Environment:
     JELLYFIN_BASE:           server base URL.
     JELLYFIN_ADMIN_USER:     administrator to act as.
-    JELLYFIN_ADMIN_PASSWORD: that administrator's password.
+    ADMIN_PASSWORD:          that administrator's password.
     MCP_USER:                username to converge.
     MCP_PASSWORD:            password to pin on it.
     MCP_DEVICE_ID:           stable device id, so re-runs reuse one session.
-    MCP_CURRENT_TOKEN:       token the adapter holds today, or "" for none.
+    MCP_TOKEN:               token the adapter holds today, or "" for none.
 """
 
 from __future__ import annotations
@@ -31,11 +31,11 @@ import urllib.request
 
 BASE = os.environ["JELLYFIN_BASE"].rstrip("/")
 ADMIN_USER = os.environ["JELLYFIN_ADMIN_USER"]
-ADMIN_PASSWORD = os.environ["JELLYFIN_ADMIN_PASSWORD"]
+ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
 MCP_USER = os.environ["MCP_USER"]
 MCP_PASSWORD = os.environ["MCP_PASSWORD"]
 DEVICE_ID = os.environ["MCP_DEVICE_ID"]
-CURRENT_TOKEN = os.environ.get("MCP_CURRENT_TOKEN", "").strip()
+CURRENT_TOKEN = os.environ.get("MCP_TOKEN", "").strip()
 
 TIMEOUT = 30
 CLIENT = (

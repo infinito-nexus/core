@@ -44,8 +44,29 @@
   register: _playwright_scheduler
   changed_when: false
 
+- name: 🔍 Look for the RBAC hooks of the roles under test
+  ansible.builtin.stat:
+    path: "{{ TEST_E2E_PLAYWRIGHT_RBAC_HOOK_DIR }}"
+  vars:
+    application_id: "{{ playwright_role_id }}"
+  register: _playwright_rbac_hooks
+  become: true
+  loop: "{{ TEST_E2E_PLAYWRIGHT_APPS }}"
+  loop_control:
+    loop_var: playwright_role_id
+    label: "{{ playwright_role_id }}"
+
 - name: 📦 Stage each role and hand its run to the scheduler
+  vars:
+    _playwright_rbac_hooked: "{{ _playwright_rbac_hooks.results | selectattr('stat.exists') | list | length > 0 }}"
   block:
+    - name: "🔁 Start the RBAC sync on its test interval"
+      ansible.builtin.command:
+        argv: "{{ TEST_E2E_PLAYWRIGHT_RBAC_SYNC_START }}"
+      changed_when: true
+      become: true
+      when: _playwright_rbac_hooked | bool
+
     - name: ▶️ Stage Playwright for each detected role
       ansible.builtin.include_tasks: 02_run_one.yml
       vars:
@@ -72,6 +93,13 @@
       retries: "{{ ((TEST_E2E_PLAYWRIGHT_PARALLEL_BUDGET | int) / (TEST_E2E_PLAYWRIGHT_PARALLEL_WAIT_DELAY | int)) | round(0, 'ceil') | int }}"
       delay: "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_WAIT_DELAY }}"
       failed_when: false
+
+    - name: "⏹️ Stop the RBAC sync test interval"
+      ansible.builtin.command:
+        argv: "{{ TEST_E2E_PLAYWRIGHT_RBAC_SYNC_STOP }}"
+      changed_when: true
+      become: true
+      when: _playwright_rbac_hooked | bool
 
     - name: 🧹 Remove any handed-over container the scheduler did not stop
       ansible.builtin.command:
@@ -110,6 +138,7 @@
           {{ (_playwright_result_read.content | b64decode | from_json)
              if _playwright_result_read.content is defined
              else {'stderr': 'no result: the scheduler ended before this run finished'} }}
+        _playwright_pass_started: "{{ (_playwright_run.ended_at - _playwright_run.seconds) if _playwright_run.ended_at is defined else '' }}"
       loop: "{{ _playwright_submitted }}"
       loop_control:
         loop_var: playwright_submitted

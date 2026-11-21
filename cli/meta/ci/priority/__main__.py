@@ -58,7 +58,18 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Hard failures come back as role names instead of their exact axes.",
     )
+    p.add_argument(
+        "--any-axes",
+        action="store_true",
+        help=(
+            "Every role that was not green and every never-deployed priority "
+            "entry comes back as a bare role name; excludes --strict and "
+            "--roles-only."
+        ),
+    )
     args = p.parse_args(argv)
+    if args.any_axes and (args.strict or args.roles_only):
+        p.error("--any-axes cannot be combined with --strict or --roles-only")
 
     resolved = _source(args.run)
     if resolved is None:
@@ -68,7 +79,11 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     source, repo = resolved
     failed, untriggered = selections.retrigger_entries(
-        source, repo, strict=args.strict, roles_only=args.roles_only
+        source,
+        repo,
+        strict=args.strict,
+        roles_only=args.roles_only,
+        any_axes=args.any_axes,
     )
     entries = sorted(set(failed) | set(untriggered))
     if not entries:

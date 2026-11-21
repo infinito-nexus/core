@@ -3,9 +3,8 @@
 
 - name: "🧩 For '{{ application_id }}': load docker and compose"
   include_role:
-    name: sys-stk-backend
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer/back.yml
 
 - name: "✅ Ensure volumes directory exists"
   ansible.builtin.file:
@@ -22,15 +21,7 @@
 - name: "▶️ Start the SeaweedFS console stack"
   ansible.builtin.meta: flush_handlers
 
-- name: "📂 Include role sys-stk-front-proxy for '{{ application_id }}'"
+- name: "📂 Include role svc-stack for '{{ application_id }}'"
   include_role:
-    name: sys-stk-front-proxy
-  vars:
-    domain: "{{ seaweedfs_console.domain }}"
-    http_port: "{{ SEAWEEDFS_SSO_PORT_PUBLIC }}"
-  loop:
-    - domain: "{{ SEAWEEDFS_FILER_DOMAIN }}"
-    - domain: "{{ SEAWEEDFS_MASTER_DOMAIN }}"
-  loop_control:
-    loop_var: seaweedfs_console
-    label: "{{ seaweedfs_console.domain }}"
+    name: svc-stack
+    tasks_from: consumer/front.yml

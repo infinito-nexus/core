@@ -1,0 +1,47 @@
+---
+# Matrix-deploy variant overrides for this role.
+# See docs/contributing/artefact/files/role/variants.md for the file format.
+
+- services:
+    sso:
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    dashboard:
+      enabled: true
+      shared: true
+    design:
+      enabled: true
+      shared: true
+    docs:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: true
+      shared: true
+    tor:
+      enabled: true
+
+- services:
+    sso:
+      enabled: false
+      shared: false
+    logout:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    design:
+      enabled: false
+      shared: false
+    docs:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: false
+      shared: false
+    tor:
+      enabled: true

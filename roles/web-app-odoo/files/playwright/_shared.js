@@ -1,6 +1,7 @@
-const { expect } = require("@playwright/test");
+const { expect, test } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvQuotedValue, performKeycloakLoginForm, gotoOnion } = require("./personas");
+const { decodeDotenvQuotedValue, performKeycloakLoginForm, gotoOnion, requireDotenvValue } = require("./personas");
+const { networkOf } = require("./personas/utils/network");
 const { isServiceEnabled } = require("./service-gating");
 
 const env = {
@@ -10,9 +11,26 @@ const env = {
   adminPassword: decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD || ""),
 };
 
-const onionOptions = /\bhttps?:\/\/[^/,\s"']+\.onion\b/i.test(env.odooBaseUrl)
-  ? { channel: "chromium", serviceWorkers: "block" }
-  : {};
+const loginMethods = {
+  ldap: process.env.LOGIN_METHOD_LDAP_ENABLED === "true",
+  native: process.env.LOGIN_METHOD_NATIVE_ENABLED === "true",
+  odooCom: process.env.LOGIN_METHOD_ODOO_COM_ENABLED === "true",
+  passkey: process.env.LOGIN_METHOD_PASSKEY_ENABLED === "true",
+  registration: process.env.LOGIN_METHOD_REGISTRATION_ENABLED === "true",
+};
+
+const twoFactorEnforced = process.env.LOGIN_METHOD_2FA_ENFORCED === "true";
+
+const BREAKGLASS_LOGIN_PATH = "/web/login?fallback=local";
+
+const networkSuffixes = JSON.parse(
+  requireDotenvValue(process.env.PLAYWRIGHT_NETWORK_SUFFIXES, "PLAYWRIGHT_NETWORK_SUFFIXES"),
+);
+
+const onionOptions =
+  networkOf(new URL(env.odooBaseUrl).hostname, networkSuffixes) !== "clearnet"
+    ? { serviceWorkers: "block" }
+    : {};
 
 function baseUrl() {
   return env.odooBaseUrl.replace(/\/$/, "");
@@ -39,8 +57,8 @@ async function clickOdooSsoButton(locator) {
   }
 }
 
-async function nativeLoginToOdoo(page, expectedBaseUrl, webClient) {
-  await gotoOnion(page, `${expectedBaseUrl}/web/login`, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
+async function submitAdminPassword(page, expectedBaseUrl) {
+  await gotoOnion(page, `${expectedBaseUrl}${BREAKGLASS_LOGIN_PATH}`, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
   await page.locator('input[name="login"]').fill(env.adminUsername);
   await page.locator('input[name="password"]').fill(env.adminPassword);
   await page
@@ -48,6 +66,11 @@ async function nativeLoginToOdoo(page, expectedBaseUrl, webClient) {
     .getByRole("button", { name: /log\s*in/i })
     .first()
     .click({ timeout: resolveTimeout(30_000) });
+}
+
+async function nativeLoginToOdoo(page, expectedBaseUrl, webClient) {
+  test.skip(twoFactorEnforced, "LOGIN_METHOD_2FA_ENFORCED=true holds the administrator's password sign-in at the mailed code, which test-2fa-enforcement.js asserts");
+  await submitAdminPassword(page, expectedBaseUrl);
   await gotoOnion(page, `${expectedBaseUrl}/odoo`, { waitUntil: "domcontentloaded", timeout: resolveTimeout(60_000) });
   await expect(
     webClient,
@@ -156,9 +179,14 @@ async function openModule(page, modulePath) {
 
 module.exports = {
   env,
+  loginMethods,
+  twoFactorEnforced,
+  BREAKGLASS_LOGIN_PATH,
   onionOptions,
   baseUrl,
   clickOdooSsoButton,
+  submitAdminPassword,
+  nativeLoginToOdoo,
   loginToOdoo,
   authenticatedContext,
   openModule,

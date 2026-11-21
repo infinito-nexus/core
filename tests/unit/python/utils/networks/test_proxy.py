@@ -8,7 +8,9 @@ from utils.networks.proxy import (
     REVERSE_PROXY_APPLICATION_ID,
     proxy_hops,
     render_proxy_pass,
+    render_stream_proxy_pass,
     resolve_upstream,
+    resolve_upstream_scheme,
 )
 
 _APP = "web-app-nextcloud"
@@ -214,6 +216,111 @@ class TestRenderProxyPassGuards(unittest.TestCase):
     def test_empty_authority_raises(self):
         with self.assertRaises(ValueError):
             render_proxy_pass("", "swarm")
+
+    def test_unknown_scheme_raises(self):
+        with self.assertRaises(ValueError):
+            render_proxy_pass("127.0.0.1:7992", "compose", scheme="ftp")
+
+
+def _scheme_apps(scheme: object) -> dict:
+    return {
+        "web-app-proxmox": {
+            "services": {
+                "proxmox": {
+                    "upstream_scheme": scheme,
+                    "ports": {"local": {"http": 7992}, "internal": {"http": 8006}},
+                },
+            },
+        },
+    }
+
+
+class TestUpstreamScheme(unittest.TestCase):
+    def test_unset_scheme_stays_plaintext(self):
+        self.assertEqual(
+            resolve_upstream_scheme(_apps(), "web-app-baserow", "baserow"), "http"
+        )
+
+    def test_declared_https_reaches_the_frontend(self):
+        apps = _scheme_apps("https")
+        for service_key in ("proxmox", "", None):
+            self.assertEqual(
+                resolve_upstream_scheme(apps, "web-app-proxmox", service_key),
+                "https",
+                service_key,
+            )
+
+    def test_sidecars_stay_plaintext(self):
+        self.assertEqual(
+            resolve_upstream_scheme(
+                _scheme_apps("https"), "web-app-proxmox", "sso-proxy"
+            ),
+            "http",
+        )
+
+    def test_declared_scheme_is_case_insensitive(self):
+        self.assertEqual(
+            resolve_upstream_scheme(
+                _scheme_apps("HTTPS"), "web-app-proxmox", "proxmox"
+            ),
+            "https",
+        )
+
+    def test_unknown_declared_scheme_raises(self):
+        with self.assertRaises(ValueError):
+            resolve_upstream_scheme(_scheme_apps("ftp"), "web-app-proxmox", "proxmox")
+
+    def test_compose_renders_the_scheme(self):
+        self.assertEqual(
+            render_proxy_pass("127.0.0.1:7992", "compose", scheme="https"),
+            "proxy_pass https://127.0.0.1:7992;",
+        )
+
+    def test_swarm_renders_the_scheme(self):
+        self.assertEqual(
+            render_proxy_pass("proxmox:8006", "swarm", scheme="https"),
+            'set $proxy_pass_upstream "proxmox:8006";\n'
+            "    proxy_pass https://$proxy_pass_upstream$request_uri;",
+        )
+
+    def test_default_scheme_is_http(self):
+        self.assertTrue(
+            render_proxy_pass("127.0.0.1:8017", "compose").startswith(
+                "proxy_pass http://"
+            )
+        )
+
+
+class TestRenderStreamProxyPass(unittest.TestCase):
+    def test_swarm_proxies_to_a_variable_resolved_per_connection(self):
+        self.assertEqual(
+            render_stream_proxy_pass("openldap:389", "swarm", False),
+            'set $proxy_pass_upstream "openldap:389";\n'
+            "    proxy_pass $proxy_pass_upstream;",
+        )
+
+    def test_compose_proxies_to_the_literal_authority(self):
+        self.assertEqual(
+            render_stream_proxy_pass("127.0.0.1:389", "compose", False),
+            "proxy_pass 127.0.0.1:389;",
+        )
+
+    def test_a_host_gateway_upstream_stays_literal_in_swarm(self):
+        self.assertEqual(
+            render_stream_proxy_pass("host.docker.internal:389", "swarm", True),
+            "proxy_pass host.docker.internal:389;",
+        )
+
+    def test_no_form_carries_an_http_scheme(self):
+        for mode in ("compose", "swarm"):
+            with self.subTest(mode=mode):
+                self.assertNotIn(
+                    "http://", render_stream_proxy_pass("openldap:389", mode, False)
+                )
+
+    def test_empty_authority_raises(self):
+        with self.assertRaises(ValueError):
+            render_stream_proxy_pass("", "swarm", False)
 
 
 class TestProxyHopsCompose(unittest.TestCase):

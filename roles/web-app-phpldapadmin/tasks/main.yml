@@ -1,4 +1,3 @@
 ---
-- name: "🧩 load docker, proxy for '{{ application_id }}'"
-  include_role:
-    name: sys-stk-full
+- include_tasks: 00_core.yml
+  when: run_once_web_app_phpldapadmin is not defined

@@ -3,6 +3,9 @@
     {{ lookup('mcp_servers') }}
     -> {"selected": [...], "rejected": [...]}
 
+    {{ lookup('mcp_servers', credentials=false) }}
+    -> the same, each selected entry reduced to ``PUBLIC_KEYS``
+
 Discovery is an intersection, not a list. A provider names the clients it
 admits in ``allowed_consumers``; a client names the transports and auth
 schemes it can present. Only a pair that satisfies both, and whose provider
@@ -52,6 +55,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from ansible.errors import AnsibleError
+from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
@@ -73,6 +77,8 @@ FATAL_REJECTIONS = frozenset(
 )
 
 RECONCILE_STRICT_VAR = "MCP_RECONCILE_STRICT"
+
+PUBLIC_KEYS = ("id", "url", "auth", "transport", "tools", "mutating")
 
 
 def endpoint_url(endpoint: Mapping[str, Any]) -> str:
@@ -129,7 +135,7 @@ def build_mcp_discovery(
     servers: Sequence[Mapping[str, Any]] | None,
     consumer_id: str,
     consumer: Mapping[str, Any],
-    credentials: Mapping[str, tuple[str, str, str]],
+    credentials: Mapping[str, tuple[str, str, str]] | None,
 ) -> dict[str, list[dict[str, Any]]]:
     """Return the selected and rejected MCP servers for one client role.
 
@@ -138,7 +144,9 @@ def build_mcp_discovery(
         consumer_id: ``application_id`` of the client doing the discovery.
         consumer: the client's own ``mcp`` block, carrying
             ``supported_transports`` and ``supported_auths``.
-        credentials: resolved ``(token, owner, login)`` per provider role id.
+        credentials: resolved ``(token, owner, login)`` per provider role id;
+            ``None`` skips both credential checks and reduces each selected
+            entry to ``PUBLIC_KEYS``.
     """
     supported_transports = set(consumer.get("supported_transports") or [])
     supported_auths = set(consumer.get("supported_auths") or [])
@@ -184,24 +192,25 @@ def build_mcp_discovery(
             )
             continue
 
-        token, owner, login = credentials.get(server_id, ("", "", ""))
-        if not token:
-            reject(
-                server_id,
-                REJECT_CREDENTIAL,
-                f"{server_id} declares owner {owner!r} but no secret resolved; "
-                f"a provider never borrows the administrator's token",
-            )
-            continue
+        token, owner, login = (credentials or {}).get(server_id, ("", "", ""))
+        if credentials is not None:
+            if not token:
+                reject(
+                    server_id,
+                    REJECT_CREDENTIAL,
+                    f"{server_id} declares owner {owner!r} but no secret resolved; "
+                    f"a provider never borrows the administrator's token",
+                )
+                continue
 
-        previous = seen_owners.get((owner, token))
-        if previous is not None:
-            raise AnsibleError(
-                f"mcp_servers: {server_id!r} and {previous!r} resolve to the "
-                f"same credential owned by {owner!r}. Every provider needs its "
-                f"own principal so revoking one cannot disarm the others."
-            )
-        seen_owners[(owner, token)] = server_id
+            previous = seen_owners.get((owner, token))
+            if previous is not None:
+                raise AnsibleError(
+                    f"mcp_servers: {server_id!r} and {previous!r} resolve to the "
+                    f"same credential owned by {owner!r}. Every provider needs its "
+                    f"own principal so revoking one cannot disarm the others."
+                )
+            seen_owners[(owner, token)] = server_id
 
         endpoint = server.get("endpoint") or {}
         if not endpoint.get("port") or not endpoint.get("path"):
@@ -225,19 +234,22 @@ def build_mcp_discovery(
             )
             continue
 
+        entry = {
+            "id": server_id,
+            "url": endpoint_url(endpoint),
+            "token": token,
+            "auth": auth,
+            "auth_subject": server.get("auth_subject"),
+            "owner": owner,
+            "login": login,
+            "tools": tools,
+            "mutating": mutating,
+            "transport": transport.replace("_", "-"),
+        }
         selected.append(
-            {
-                "id": server_id,
-                "url": endpoint_url(endpoint),
-                "token": token,
-                "auth": auth,
-                "auth_subject": server.get("auth_subject"),
-                "owner": owner,
-                "login": login,
-                "tools": tools,
-                "mutating": mutating,
-                "transport": transport.replace("_", "-"),
-            }
+            entry
+            if credentials is not None
+            else {key: entry[key] for key in PUBLIC_KEYS}
         )
 
     return {"selected": selected, "rejected": rejected}
@@ -311,10 +323,15 @@ class LookupModule(LookupBase):
         self,
         terms: Sequence[Any] | None,
         variables: dict[str, Any] | None = None,
+        credentials: Any = True,
         **kwargs: Any,
     ) -> list[Any]:
         if terms:
             raise AnsibleError("mcp_servers: expected no terms, lookup('mcp_servers')")
+        try:
+            with_credentials = boolean(credentials, strict=True)
+        except TypeError as exc:
+            raise AnsibleError("mcp_servers: credentials must be a boolean") from exc
 
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
         templar = getattr(self, "_templar", None)
@@ -335,19 +352,23 @@ class LookupModule(LookupBase):
         applications = lookup_loader.get(
             "applications", loader=self._loader, templar=templar
         ).run([], variables=vars_)[0]
-        users = lookup_loader.get("users", loader=self._loader, templar=templar).run(
-            [], variables=vars_
-        )[0]
 
         consumer = (applications.get(consumer_id) or {}).get("mcp") or {}
 
-        credentials: dict[str, tuple[str, str, str]] = {}
-        for server in servers:
-            server_id = str(server.get("id") or "")
-            role_credentials = role_credentials_of(applications, server_id)
-            credentials[server_id] = resolve_credential(server, users, role_credentials)
+        resolved: dict[str, tuple[str, str, str]] | None = None
+        if with_credentials:
+            users = lookup_loader.get(
+                "users", loader=self._loader, templar=templar
+            ).run([], variables=vars_)[0]
+            resolved = {}
+            for server in servers:
+                server_id = str(server.get("id") or "")
+                role_credentials = role_credentials_of(applications, server_id)
+                resolved[server_id] = resolve_credential(
+                    server, users, role_credentials
+                )
 
-        discovery = build_mcp_discovery(servers, consumer_id, consumer, credentials)
+        discovery = build_mcp_discovery(servers, consumer_id, consumer, resolved)
         assert_authorized_are_renderable(
             discovery, strict=bool(vars_.get(RECONCILE_STRICT_VAR))
         )

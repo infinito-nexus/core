@@ -102,20 +102,16 @@ def _finalize_phase() -> list[dict]:
     ]
 
 
+def _decommissions(task: dict) -> bool:
+    return any(_includes([nested], "decommission.yml") for nested in _walk([task]))
+
+
 def _destructor_block() -> dict:
-    return next(
-        task
-        for task in _stage()
-        if "block" in task and _includes(task["block"], "decommission.yml")
-    )
+    return next(task for task in _stage() if "block" in task and _decommissions(task))
 
 
 def _destructor_task() -> dict:
-    return next(
-        task
-        for task in _destructor_block()["block"]
-        if _includes([task], "decommission.yml")
-    )
+    return next(task for task in _destructor_block()["block"] if _decommissions(task))
 
 
 def _prepared_tasks() -> list[dict]:
@@ -208,8 +204,9 @@ class TestComposeDecommission(unittest.TestCase):
             "ansible_connection": "local",
             "ansible_python_interpreter": sys.executable,
             "DIR_COMPOSITIONS": f"{root}/",
+            "DIR_GARBAGE_COLLECTOR_MANIFESTS": f"{self.work / name / 'garbage-collector'}/",
             "BIN_COMPOSE": str(self.fake_compose),
-            "MODE_CLEANUP": True,
+            "CLEANUP": True,
             "DEPLOYMENT_MODE": "compose",
             "IS_COMPOSE_MODE": True,
             "APPLICATIONS_WHITELIST": [],
@@ -334,6 +331,17 @@ class TestComposeDecommission(unittest.TestCase):
         )
         self.assertFalse((root / "mailu").exists())
 
+    def test_the_stage_drops_the_garbage_collector_manifests_of_inactive_roles(self):
+        manifests = self.work / "garbage-collector-host" / "garbage-collector"
+        for application_id in ("web-app-mailu", "web-app-grouped", "web-app-closure"):
+            (manifests / application_id).mkdir(parents=True)
+
+        self._assert_ok(self._stage_play("garbage-collector-host")[1])
+        self.assertEqual(
+            sorted(entry.name for entry in manifests.iterdir()),
+            ["web-app-closure", "web-app-grouped"],
+        )
+
     def test_a_failing_phase_still_unlocks_the_timers_and_fails_the_play(self):
         cases = {
             "decommission": ([], "0123456789ab"),
@@ -354,7 +362,11 @@ class TestComposeDecommission(unittest.TestCase):
     def test_the_timers_unlock_even_when_the_decommission_fails(self):
         stage = _stage()
         block = _destructor_block()
-        self.assertIs(stage[-1], block)
+        position = next(index for index, task in enumerate(stage) if task is block)
+        self.assertEqual(
+            [task["include_role"]["name"] for task in stage[position + 1 :]],
+            ["sys-svc-app-control", "web-app-semaphore"],
+        )
         self.assertTrue(_includes(block["always"], "02_unlock.yml"))
         self.assertFalse(
             _includes([task for task in stage if task is not block], "02_unlock.yml")
@@ -379,7 +391,7 @@ class TestComposeDecommission(unittest.TestCase):
         root, open_values = self._open_host()
         gated = {
             "whitelisted": {"APPLICATIONS_WHITELIST": ["web-app-grouped"]},
-            "cleanup_off": {"MODE_CLEANUP": False},
+            "cleanup_off": {"CLEANUP": False},
             "swarm": {"DEPLOYMENT_MODE": "swarm", "IS_COMPOSE_MODE": False},
         }
         hosts = {"open": open_values}

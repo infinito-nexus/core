@@ -1,0 +1,4 @@
+---
+roles:
+  agent-user:
+    description: May start a personal workspace IDE instance through svc-ai-agent-broker

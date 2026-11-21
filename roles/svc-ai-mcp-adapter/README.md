@@ -49,6 +49,10 @@ The deployment renders one `ADAPTER_CONTRACT` JSON document per instance:
 
 An optional `upstream_host` is sent as the `Host` header of every upstream request, for a provider that answers only its canonical domain; without it the request carries the host of `upstream_url`.
 
+## Agent callers
+
+A caller that names an agent in `X-Infinito-Agent` MUST present that agent's own bearer from `ADAPTER_AGENT_TOKENS`, compared in constant time; another agent's token and the shared `ADAPTER_BEARER` are refused with `401`. Its `tools/call` is then decided by the agent's compiled firewall policy from `ADAPTER_AGENT_POLICIES` (the `mcp_policy` surface of [compile.py](../../utils/firewall/compile.py)) on the target `<provider>/<tool>`, deny over ask over allow, an unmatched call denied. A refusal answers `403` with `firewall_refused: <verdict> by <rule>`, naming the matched rule.
+
 ## Endpoints
 
 | Path | Method | Purpose |
@@ -70,6 +74,10 @@ The adapter presents `ADAPTER_UPSTREAM_KEY` to the provider in the header named 
 | Jellyfin | `X-Emby-Token` | `{key}` |
 
 An empty `ADAPTER_UPSTREAM_KEY` sends no header at all.
+
+## Instance staging
+
+The svc-stack backend [tasks/backend.yml](../svc-stack/tasks/backend.yml) stages [tasks/instance.yml](tasks/instance.yml) into `<instance>/mcp` before compose, for every consumer whose `meta/mcp.yml` declares `implementation: adapter` and whose `services.<endpoint.service_key>.enabled` holds. `adapter.upstream_credential: true` in that file also creates the empty `upstream.env` the sidecar reads a captured credential from. A role outside the svc-stack backend, such as svc-db-qdrant, still includes `tasks/instance.yml` itself.
 
 ## Image
 

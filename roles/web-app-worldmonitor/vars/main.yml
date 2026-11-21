@@ -1,0 +1,65 @@
+---
+application_id: "web-app-worldmonitor"
+entity_name: "{{ application_id | entity_name }}"
+domain: "{{ lookup('domain', application_id) }}"
+http_port: "{{ lookup('config', application_id, 'services.worldmonitor.ports.local.http') }}"
+
+WORLDMONITOR_CONTAINER: "{{ lookup('config', application_id, 'services.worldmonitor.name') }}"
+WORLDMONITOR_REF: "{{ lookup('config', application_id, 'services.worldmonitor.ref') }}"
+WORLDMONITOR_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.worldmonitor.ports.internal.http') }}"
+WORLDMONITOR_DOCKERFILES: "{{ lookup('config', application_id, 'services.stack.checkout.build.dockerfiles') }}"
+WORLDMONITOR_APP_DOCKERFILE: "{{ WORLDMONITOR_DOCKERFILES['worldmonitor'] }}"
+WORLDMONITOR_SEEDER_TARGET: "builder"
+
+WORLDMONITOR_RELAY_CONTAINER: "{{ lookup('config', application_id, 'services.ais-relay.name') }}"
+WORLDMONITOR_RELAY_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.ais-relay.ports.internal.http') }}"
+WORLDMONITOR_RELAY_DOCKERFILE: "{{ WORLDMONITOR_DOCKERFILES['ais-relay'] }}"
+
+WORLDMONITOR_REST_CONTAINER: "{{ lookup('config', application_id, 'services.redis-rest.name') }}"
+WORLDMONITOR_REST_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.redis-rest.ports.internal.http') }}"
+WORLDMONITOR_REST_CONTEXT: "{{ [compose_repository_path, WORLDMONITOR_DOCKERFILES['redis-rest'] | dirname] | path_join }}"
+WORLDMONITOR_REST_DOCKERFILE: "{{ WORLDMONITOR_DOCKERFILES['redis-rest'] | basename }}"
+
+WORLDMONITOR_NODE_FROM: "{{ lookup('config', application_id, 'services.stack.checkout.build.bases.node') }}"
+WORLDMONITOR_NODE_IMAGE: "{{ lookup('image', application_id, 'node', tag_only=True) }}"
+
+WORLDMONITOR_CACHE_CONTAINER: "{{ lookup('config', application_id, 'services.cache.name') }}"
+WORLDMONITOR_CACHE_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.cache.ports.internal.redis') }}"
+
+WORLDMONITOR_SEEDER_CONTAINER: "{{ lookup('config', application_id, 'services.seeder.name') }}"
+WORLDMONITOR_SEEDER_INTERVAL_SECONDS: "{{ lookup('config', application_id, 'services.seeder.interval_seconds') }}"
+WORLDMONITOR_SEEDER_TIMEOUT_SECONDS: "{{ lookup('config', application_id, 'services.seeder.timeout_seconds') }}"
+
+WORLDMONITOR_APP_URL: "http://worldmonitor:{{ WORLDMONITOR_PORT_INTERNAL }}"
+WORLDMONITOR_RELAY_URL: "http://ais-relay:{{ WORLDMONITOR_RELAY_PORT_INTERNAL }}"
+WORLDMONITOR_REST_URL: "http://redis-rest:{{ WORLDMONITOR_REST_PORT_INTERNAL }}"
+WORLDMONITOR_CACHE_URL: "redis://:{{ WORLDMONITOR_REDIS_PASSWORD }}@cache:{{ WORLDMONITOR_CACHE_PORT_INTERNAL }}"
+
+WORLDMONITOR_RELAY_SHARED_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.relay_shared_secret') }}"
+WORLDMONITOR_RELAY_KEY: "{{ lookup('config', application_id, 'secrets.credentials.relay_key') }}"
+WORLDMONITOR_REDIS_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.redis_password') }}"
+WORLDMONITOR_REDIS_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.redis_token') }}"
+WORLDMONITOR_SESSION_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.session_secret') }}"
+
+# Swarm overlays, the front proxy's included, draw from Docker's default 10.0.0.0/8 pool because svc-swarm-node initializes the swarm without default-addr-pool.
+WORLDMONITOR_TRUSTED_PROXY_CIDRS: "{{ [NETWORK_ROLE_SUBNET_POOL] if (IS_COMPOSE_MODE | bool) else [NETWORK_PRIVATE_CIDRS.class_a] }}"
+
+WORLDMONITOR_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
+WORLDMONITOR_LLM_API_URL: "{{ (LITELLM_OPENAI_BASE_LOCAL_URL ~ '/chat/completions') if (WORLDMONITOR_LITELLM_ENABLED | bool) else '' }}"
+WORLDMONITOR_LLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') if (WORLDMONITOR_LITELLM_ENABLED | bool) else '' }}"
+WORLDMONITOR_LLM_MODEL: "{{ LITELLM_CHAT_MODEL if (WORLDMONITOR_LITELLM_ENABLED | bool) else '' }}"
+
+WORLDMONITOR_API_KEYS:
+  FINNHUB_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.finnhub_api_key') }}"
+  ALPHA_VANTAGE_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.alpha_vantage_api_key') }}"
+  FRED_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.fred_api_key') }}"
+  EIA_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.eia_api_key') }}"
+  ACLED_EMAIL: "{{ lookup('config', application_id, 'secrets.credentials.acled_email') }}"
+  ACLED_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.acled_password') }}"
+  ACLED_ACCESS_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.acled_access_token') }}"
+  NASA_FIRMS_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.nasa_firms_api_key') }}"
+  AVIATIONSTACK_API: "{{ lookup('config', application_id, 'secrets.credentials.aviationstack_api') }}"
+  TRAVELPAYOUTS_API_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.travelpayouts_api_token') }}"
+  AISSTREAM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.aisstream_api_key') }}"
+  CLOUDFLARE_API_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.cloudflare_api_token') }}"
+WORLDMONITOR_RELAY_API_KEY_NAMES: ["AISSTREAM_API_KEY", "FINNHUB_API_KEY"]

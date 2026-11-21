@@ -1,0 +1,62 @@
+---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
+# nocheck: playwright-service-flag
+email:
+  modes:
+    host:
+      enabled: true
+  bond: 1
+  enabled: true
+  shared: true
+  provider: web-app-stalwart
+  run_after:
+    - web-app-stalwart
+  lifecycle: beta
+  min_storage: "50MB"
+  cpus: "0.1"
+  mem_reservation: "32m"
+  mem_limit: "64m"
+  pids_limit: 64
+# nocheck: playwright-service-flag
+# nocheck: variants-coverage
+stalwart:
+  bond: 1
+  enabled: "{{ 'web-app-stalwart' in group_names }}"
+  shared: "{{ 'web-app-stalwart' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: logout
+logout:
+  enabled: false
+  shared: false
+# nocheck: dynamic-flag
+# nocheck: dashboard
+dashboard:
+  enabled: false
+  shared: false
+# nocheck: dynamic-flag
+# nocheck: sso
+sso:
+  enabled: false
+  shared: false
+# nocheck: dynamic-flag
+# nocheck: design-off  Reason: the wrapper renders no page, so there is no UI to design
+design:
+  enabled: false
+  shared: false
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+  scrape: false # nocheck: prometheus-scrape
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  wrapper without a stack of its own; Semaphore controls the provider role it loads
+  status: started

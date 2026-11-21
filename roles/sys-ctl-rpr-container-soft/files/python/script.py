@@ -170,8 +170,25 @@ def get_compose_project_info(container: str) -> tuple[str, str]:
     return project, workdir
 
 
+def paused(project_path: str, state_file: str) -> bool:
+    """Return whether app-control paused the compose project in ``project_path``.
+
+    Args:
+        project_path: the compose project directory.
+        state_file: the name of the app-control state marker inside it.
+    """
+    marker = os.path.join(project_path, state_file)
+    if not os.path.isfile(marker):
+        return False
+    with open(marker, encoding="utf-8") as handle:
+        return handle.read().strip() == "stopped"
+
+
 def main(
-    base_directory: str, manipulation_services: list[str], timeout: int | None
+    base_directory: str,
+    manipulation_services: list[str],
+    timeout: int | None,
+    state_file: str,
 ) -> int:
     _ = base_directory
     errors = 0
@@ -210,6 +227,9 @@ def main(
             continue
 
         project_path = os.path.dirname(compose_file_path)
+        if paused(project_path, state_file):
+            print(f"Skipping {project}: paused by app-control.")
+            continue
         try:
             print(
                 "Restarting unhealthy/exited container via project:", compose_file_path
@@ -260,10 +280,15 @@ if __name__ == "__main__":
         help="Maximum time in seconds to wait for manipulation services before continuing. (Default 1min)",
     )
     parser.add_argument(
+        "--state-file",
+        required=True,
+        help="Name of the app-control state marker; a project it marks stopped stays down.",
+    )
+    parser.add_argument(
         "base_directory",
         type=str,
         help="(Unused in STRICT mode) Base directory where Docker Compose configurations are located.",
     )
     args = parser.parse_args()
     services = normalize_services_arg(args.manipulation, args.manipulation_string)
-    raise SystemExit(main(args.base_directory, services, args.timeout))
+    raise SystemExit(main(args.base_directory, services, args.timeout, args.state_file))

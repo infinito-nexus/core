@@ -1,7 +1,7 @@
 # nocheck: mirrored-unit-test - an Odoo addon manifest, a bare dict literal the registry reads; there is no behaviour to exercise
 {  # noqa: B018  Odoo addon manifests are bare dict expressions at module level by design
     "name": "OAuth HTTPS & Configurable UID",
-    "version": "1.8.0",
+    "version": "1.9.0",
     "category": "Authentication",
     "summary": "Force HTTPS redirect URIs and configurable OIDC UID field for OAuth",
     "description": """
@@ -36,19 +36,29 @@ Configuration:
 Set ODOO_OIDC_UID_FIELD environment variable to the OIDC claim to use for user
 identification. The deploy renders it from OIDC.ATTRIBUTES.USERNAME.
 
+3. Roles and Profile from the Identity Provider
+-----------------------------------------------
+Every sign-in reads the groups claim (ODOO_OIDC_GROUP_CLAIM) and refuses a
+user that holds none of the declared roles (ODOO_RBAC_ROLES), the platform
+administrator excepted. The managed Odoo groups of the user are replaced with
+the groups its roles grant, and the profile claims (ODOO_OIDC_*_CLAIM) are
+written to name, email, phone, language and time zone.
+
 Features:
 ---------
 * Forces OAuth redirect URIs to use web.base.url
 * Configurable OIDC UID field via environment variable
+* Role-based sign-in and group sync from the groups claim
+* Profile sync from the OIDC claims on every sign-in
 * Works correctly behind reverse proxies with TLS termination
 * Consistent with infinito.nexus OIDC identity standards
     """,
     "author": "evangelostsak",
     "website": "https://infinito.nexus",
-    "depends": ["auth_oauth"],
+    "depends": ["auth_oauth", "infinito_rbac"],
     "data": [],
     "installable": True,
     "auto_install": False,
     "application": False,
-    "license": "LGPL-3",
+    "license": "Other proprietary",
 }

@@ -5,7 +5,8 @@ The declarations live under ``cache: hosts:`` in every role's
 inventory may correct or extend them; see `utils.cache.inventory`.
 
 Returns one dict per host, sorted by host, carrying ``host``, ``repo``,
-``routes``, ``listen``, ``read_timeout`` and ``passthrough``.
+``routes``, ``listen``, ``tls``, ``read_timeout``, ``passthrough`` and
+``hijack``.
 """
 
 from __future__ import annotations

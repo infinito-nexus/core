@@ -1,0 +1,24 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🎬 Stage the service into the build context of '{{ application_id }}'"
+  stack_host_copy:
+    src: "python/"
+    dest: "{{ [ACCESS_REQUEST_BUILD_DIR, 'python'] | path_join }}/"
+    directory_mode: "0755"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🔁 Recreate '{{ application_id }}' to load the settings its stage rewrote"
+  ansible.builtin.debug:
+    msg: "{{ ACCESS_REQUEST_CONFIG_HOST }} changed"
+  changed_when: true
+  when:
+    - access_request_config_changed is defined
+    - access_request_config_changed | bool
+  notify:
+    - compose-up
+
+- name: "🚿 Flush compose handlers for '{{ application_id }}'"
+  ansible.builtin.meta: flush_handlers

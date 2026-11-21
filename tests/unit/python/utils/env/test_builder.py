@@ -140,9 +140,17 @@ class TestBuildContext(unittest.TestCase):
 class TestBuildEnvOrchestration(unittest.TestCase):
     """End-to-end smoke of build_env against a minimal static map.
 
-    Mocks ``detect_gha_act`` so we don't depend on the host env, and
-    mocks the inventory helper so the test never shells out.
+    Mocks ``detect_gha_act`` and the host distro detection so we don't
+    depend on the host env, and mocks the inventory helper so the test
+    never shells out.
     """
+
+    def setUp(self) -> None:
+        host_distro = patch(
+            "utils.env.handlers.infinito.distro.host_distro", return_value=""
+        )
+        host_distro.start()
+        self.addCleanup(host_distro.stop)
 
     def _clean_env(self) -> dict[str, str]:
         return {"PATH": "/usr/bin"}
@@ -289,14 +297,14 @@ class TestBuildEnvOrchestration(unittest.TestCase):
         ):
             sample = {
                 "INFINITO_BIND_IP": "127.0.0.1",
-                "INFINITO_MEM_LIMIT": "0",
+                "INFINITO_OOM_SCORE_ADJ": "800",
                 "INFINITO_DISTRO": "debian",
             }
             for k in sample:
                 self.assertIn(k, PASSTHROUGH_STATIC_KEYS)
             eb = build_env(sample, repo_root=Path("/repo"))
         self.assertEqual(eb.values["INFINITO_BIND_IP"], "127.0.0.1")
-        self.assertEqual(eb.values["INFINITO_MEM_LIMIT"], "0")
+        self.assertEqual(eb.values["INFINITO_OOM_SCORE_ADJ"], "800")
 
 
 if __name__ == "__main__":

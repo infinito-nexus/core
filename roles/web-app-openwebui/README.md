@@ -2,7 +2,7 @@
 
 ## Description
 
-**Open WebUI** provides a clean, fast chat interface for working with local AI models (e.g., via Ollama). It delivers a ChatGPT-like experience on your own infrastructure to keep prompts and data private.
+**Open WebUI** provides a clean, fast chat interface for working with AI models through the platform's model gateway [`svc-ai-litellm`](../svc-ai-litellm/). It delivers a ChatGPT-like experience on your own infrastructure to keep prompts and data private.
 
 ## Overview
 
@@ -22,10 +22,19 @@ applications:
 ## Features
 
 - Familiar multi-chat interface with quick model switching
-- Supports local backends (Ollama) and OpenAI-compatible APIs
+- Reaches every model, local or remote, through the `svc-ai-litellm` gateway's OpenAI-compatible API
 - Optional **offline mode** for air-gapped environments
 - File/paste input for summaries and extraction (model dependent)
 - Suitable for teams: predictable, private, reproducible
+- **Profile Sync:** With SSO, every OIDC login copies the display name and the e-mail address from Keycloak's `name` and `email` claims into the Open WebUI account; an e-mail another account already holds is left unchanged
+- **Login methods:** Each sign-in method follows `services.openwebui.login.method.<method>.enabled` in `meta/services.yml` and is rendered into `templates/env.j2`:
+  - `sso`: the `OAUTH_*` and `OPENID_*` block of the role's own Keycloak client.
+  - `ldap`: `ENABLE_LDAP` and the `LDAP_*` connection.
+  - `native`: `ENABLE_LOGIN_FORM`. With it off, the sign-in page shows only the Keycloak entry; with `ldap` on it shows the LDAP form without the e-mail toggle. `ENABLE_PASSWORD_AUTH` keeps its default `true`, because the LDAP form and the break-glass path sign in through the password endpoints, so the e-mail sign-in stays reachable through `/auth?form=1` and `POST /api/v1/auths/signin`: the form is shared.
+  - `registration`: `ENABLE_SIGNUP`. Keycloak accounts are still created at their first sign-in through `ENABLE_OAUTH_SIGNUP`.
+  - Open WebUI has no second factor and no passkey of its own, so neither is declared.
+- **Back-channel logout:** With SSO, Open WebUI signs in through its own public Keycloak client `services.sso.oidc.clients.web`, rendered by [templates/keycloak/clients.json.j2](./templates/keycloak/clients.json.j2), with PKCE (`S256`) and without a client secret. Keycloak sends the client's logout tokens to `/oauth/backchannel-logout`, which `ENABLE_OAUTH_BACKCHANNEL_LOGOUT` turns on, and Open WebUI checks their signature, issuer, audience, event and `nonce` itself. Open WebUI revokes per user, not per session: a logout token deletes every OAuth session of that user and writes a `revoked_at` stamp to Redis, which refuses every Open WebUI token of that user issued before it. A logout on one device therefore also ends Open WebUI on every other device and network of that user, "Log out on this device" included. The stamp lives 30 days. An Open WebUI token lives `JWT_EXPIRES_IN`, which the role sets to the realm's longest SSO session (`ssoSessionMaxLifespan`, 10 h) instead of the upstream 4 weeks, so the stamp outlives every token it refuses. `ENABLE_PERSISTENT_CONFIG=false` keeps that value: a lifetime changed in the admin settings holds only until the next restart. Redis is the shared `svc-db-redis` when the inventory deploys it and a container of this role otherwise. Both run with `allkeys-lru`, and the role's own container keeps no data across a restart, so memory pressure or a restart can drop a stamp before the tokens it refuses expire.
+- **Break-glass:** With SSO on, the platform administrator is a Keycloak account without a local password. The local administrator sets one from inside the `open-webui` container with [files/python/administrator.py](./files/python/administrator.py) (`OPENWEBUI_ADMIN_EMAIL`, `OPENWEBUI_ADMIN_NAME`, `OPENWEBUI_ADMIN_PASSWORD` in the environment, piped into `python3 -`, as `tasks/utils/admin.yml` does without SSO), then signs in at `/auth?form=1`.
 - With `svc-ai-agent-broker` deployed, lists `hermes` and `openclaw` only to members of the matching `agent-user` group and grants every LiteLLM model to all users; a `svc-ai-litellm` deploy re-grants the gateway models in a running Open WebUI
 - Retrieval, web search and code execution come from platform services (`svc-ai-tika`, `svc-ai-searxng`, `svc-ai-jupyter`, `svc-db-qdrant`) rather than from a third-party API, each switched on per deployment
 - `services.openwebui.embedding_model`, `.image_model`, `.speech_to_text_model` and `.text_to_speech_model` route embeddings, images, speech recognition and speech synthesis through the gateway; an embedding model set here also replaces the sentence-transformer the image otherwise downloads from Hugging Face on first start

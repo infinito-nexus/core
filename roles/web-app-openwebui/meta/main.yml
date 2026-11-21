@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Kevin Veen-Birkenbach
-  description: Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama
+  description: Self-hosted chat interface for interacting with local and private AI models through the platform's model gateway
   license: Infinito.Nexus Community License (Non-Commercial)
   company: |
     Kevin Veen-Birkenbach

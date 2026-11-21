@@ -19,14 +19,14 @@ total ------------------------------------------------------------------ 93.00s
 """
 
 SEGMENTED_LOG = """\
-=== matrix-deploy: round 1/2 inv=/x-0 variants={'web-app-keycloak': 0} apps=['web-app-keycloak'] PASS 1 (sync) ===
+=== matrix-deploy: round 1/2 inv=/x-0 variants={'web-app-keycloak': 0} apps=['web-app-keycloak'] PASS 1 (initial) ===
 TASK [web-app-keycloak : deploy] ***************
 ok: [mgr]
 web-app-keycloak ------------------------------------------------------- 40.00s
 total ------------------------------------------------------------------ 40.00s
-=== matrix-deploy: round 1/2 inv=/x-0 variants={'web-app-keycloak': 0} apps=['web-app-keycloak'] PASS 2 (async) ===
+=== matrix-deploy: round 1/2 inv=/x-0 variants={'web-app-keycloak': 0} apps=['web-app-keycloak'] PASS 2 (update) ===
 web-app-keycloak -------------------------------------------------------- 5.00s
-=== matrix-deploy: round 2/2 inv=/x-1 variants={'web-app-keycloak': 1} apps=['web-app-keycloak'] PASS 1 (sync) ===
+=== matrix-deploy: round 2/2 inv=/x-1 variants={'web-app-keycloak': 1} apps=['web-app-keycloak'] PASS 1 (initial) ===
 TASK [web-app-keycloak : deploy] ***************
 skipping: [mgr]
 web-app-keycloak ------------------------------------------------------- 12.00s
@@ -66,11 +66,11 @@ class TestLogParse(unittest.TestCase):
         self.assertEqual(
             labels,
             [
-                "Round 1/2 · PASS 1 (sync)",
-                "Round 1/2 · PASS 1 (sync)",
-                "Round 1/2 · PASS 2 (async)",
-                "Round 2/2 · PASS 1 (sync)",
-                "Round 2/2 · PASS 1 (sync)",
+                "Round 1/2 · PASS 1 (initial)",
+                "Round 1/2 · PASS 1 (initial)",
+                "Round 1/2 · PASS 2 (update)",
+                "Round 2/2 · PASS 1 (initial)",
+                "Round 2/2 · PASS 1 (initial)",
             ],
         )
         round1_pass1 = {
@@ -207,13 +207,13 @@ class TestRender(unittest.TestCase):
 
     def test_table_has_label_and_role(self):
         out = render.render(self.segmented, "table")
-        self.assertIn("Round 1/2 · PASS 1 (sync)", out)
+        self.assertIn("Round 1/2 · PASS 1 (initial)", out)
         self.assertIn("web-app-keycloak", out)
 
     def test_markdown_segmented_per_variant(self):
         out = render.render(self.segmented, "markdown")
         self.assertIn("## ⏱️ Role runtimes per variant (matrix round)", out)
-        self.assertIn("### Round 2/2 · PASS 1 (sync)", out)
+        self.assertIn("### Round 2/2 · PASS 1 (initial)", out)
 
     def test_markdown_combined_single_table(self):
         out = render.render(self.combined, "markdown")
@@ -229,7 +229,7 @@ class TestRender(unittest.TestCase):
     def test_json_parses(self):
         payload = json.loads(render.render(self.segmented, "json"))
         self.assertEqual(payload[0]["role"], "web-app-keycloak")
-        self.assertEqual(payload[0]["pass_mode"], "sync")
+        self.assertEqual(payload[0]["pass_mode"], "initial")
 
 
 _JOB_URL = "https://github.com/o/r/actions/runs/123/job/456"  # nocheck: url
@@ -265,7 +265,7 @@ class TestMain(unittest.TestCase):
         rc = main([log, "--format", "csv", "--output", out])
         self.assertEqual(rc, 0)
         content = read_text(out)
-        self.assertIn("1,2,1,sync,web-app-keycloak,40.00", content)
+        self.assertIn("1,2,1,initial,web-app-keycloak,40.00", content)
 
     def test_markdown_to_stdout(self):
         log = _write(SEGMENTED_LOG)
@@ -274,7 +274,7 @@ class TestMain(unittest.TestCase):
         with redirect_stdout(buf):
             rc = main([log, "--format", "markdown"])
         self.assertEqual(rc, 0)
-        self.assertIn("### Round 1/2 · PASS 1 (sync)", buf.getvalue())
+        self.assertIn("### Round 1/2 · PASS 1 (initial)", buf.getvalue())
 
     def test_csv_source_autodetected(self):
         log = _write(SEGMENTED_LOG)

@@ -20,6 +20,7 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar, trust_as_template
 
 from utils.cache.applications import get_application_defaults
+from utils.cache.base import _fingerprint_scope
 from utils.cache.files import PROJECT_ROOT, read_text
 
 _TEMPLATE = PROJECT_ROOT / "roles/web-app-openwebui/templates/playwright.env.j2"
@@ -47,7 +48,8 @@ def _render(server_ids: tuple[str, ...]) -> str:
         ],
     }
     templar = Templar(loader=DataLoader(), variables=variables)
-    return templar.template(trust_as_template(block.group(0)))
+    with _fingerprint_scope():
+        return templar.template(trust_as_template(block.group(0)))
 
 
 def _rendered_map(server_ids: tuple[str, ...]) -> dict:

@@ -1,15 +1,22 @@
 ---
 application_id: svc-runner
+compose_mode_force: compose
 RUNNER_USER: "{{ lookup('users', 'github-runner').username }}"
 RUNNER_UID: "{{ lookup('users', 'github-runner').uid }}"
 RUNNER_GID: "{{ lookup('users', 'github-runner').gid }}"
 RUNNER_DOCKER_BASE: "{{ lookup('config', application_id, 'services.runner.docker_base') }}"
 RUNNER_PROJECT_PREFIX: "{{ lookup('config', application_id, 'services.runner.project_prefix') }}"
-RUNNER_SYSCTL_CONF: "{{ lookup('config', application_id, 'services.runner.sysctl_conf') }}"
+RUNNER_SYSCTL_OWNER: "{{ application_id | entity_name }}"
+RUNNER_SYSCTL_PARAMETERS:
+  fs.inotify.max_user_instances: "8192"
+  fs.inotify.max_user_watches: "524288"
+  fs.inotify.max_queued_events: "65536"
+  vm.max_map_count: "262144"
 RUNNER_IMAGE_NAME: "{{ lookup('config', application_id, 'services.runner.image_name') }}"
 RUNNER_IMAGE_TAG: "{{ lookup('config', application_id, 'services.runner.image_tag') }}"
 RUNNER_IMAGE_REF: "{{ SWARM_REGISTRY_PREFIX }}{{ RUNNER_IMAGE_NAME }}:{{ RUNNER_IMAGE_TAG }}"
 RUNNER_INSTALL_DIR: "{{ lookup('config', application_id, 'services.runner.install_dir') }}"
+RUNNER_COMPOSE_UP_PENDING_MARKER: "{{ [lookup('container', application_id, 'directories.instance'), '.compose-up-pending'] | path_join }}"
 RUNNER_CPUS: "{{ lookup('cpus', application_id, 'runner') | int }}"
 RUNNER_BASE_IMAGE: "{{ lookup('config', application_id, 'services.runner.image') }}:{{ lookup('config', application_id, 'services.runner.version') }}"
 RUNNER_DOCKER_GID_FALLBACK: "{{ lookup('config', application_id, 'services.runner.docker_gid_fallback') }}"
@@ -18,3 +25,17 @@ RUNNER_GITHUB_REPO: "{{ (lookup('env', 'GITHUB_REPOSITORY') | split('/') | last)
   }}"
 RUNNER_API_TOKEN: "{{ lookup('env', 'GH_TOKEN') | default(lookup('env', 'GITHUB_TOKEN'), true) }}"
 RUNNER_GIT_REF: "{{ lookup('env', 'GITHUB_REF_NAME') | default('main', true) }}"
+RUNNER_FLAVOR: "{{ lookup('config', application_id, 'services.runner.flavor') }}"
+RUNNER_FLAVORS:
+  github:
+    entrypoint: shell/entrypoint.sh
+    registers_with_github: true
+    mounts_worktrees: false
+  local:
+    entrypoint: shell/entrypoint-local.sh
+    registers_with_github: false
+    mounts_worktrees: true
+RUNNER_ENTRYPOINT: "{{ RUNNER_FLAVORS[RUNNER_FLAVOR].entrypoint }}"
+RUNNER_REGISTERS_WITH_GITHUB: "{{ RUNNER_FLAVORS[RUNNER_FLAVOR].registers_with_github }}"
+RUNNER_MOUNTS_WORKTREES: "{{ RUNNER_FLAVORS[RUNNER_FLAVOR].mounts_worktrees }}"
+RUNNER_WORKTREE_ROOTS: "{{ lookup('config', application_id, 'services.runner.worktree_roots') }}"

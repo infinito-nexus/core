@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -6,6 +7,9 @@ sso:
   flavor: oidc
   oidc:
     plugin: ""
+    clients:
+      web: opencloud-web
+    backchannel_logout_path: /backchannel_logout
 ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"
@@ -24,8 +28,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 opencloud:
   healthcheck:
     flavor: wget
@@ -39,6 +43,10 @@ opencloud:
   name: opencloud
   image: opencloudeu/opencloud
   version: 9.1.1
+  theme:
+    name: "{{ lookup('design', 'web-app-opencloud').label }}"
+    slogan: "{{ lookup('design', 'web-app-opencloud').label }}"
+    logo: "{{ lookup('design', 'web-app-opencloud').logo }}"
   min_storage: 276MB
   # nocheck: default-placement-manager  opencloud_data holds NFS-hostile engine state: NATS JetStream store (events, micro registry, posixfs id cache), bleve search index, idm.boltdb, posixfs xattr metadata; upstream says search cannot scale, so the volume must stay node-local
   placement: manager
@@ -56,6 +64,14 @@ opencloud:
   run_after:
     - web-app-keycloak
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-opencloud', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-opencloud', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-opencloud', 'native') }}"
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
@@ -90,3 +106,24 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  flush: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

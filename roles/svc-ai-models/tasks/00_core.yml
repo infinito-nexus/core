@@ -1,0 +1,7 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "⬇️ Seed the artefacts of every deployed role"
+  ansible.builtin.include_tasks: utils/seed.yml
+  vars:
+    models_seeded: "{{ MODELS_ARTEFACTS }}"

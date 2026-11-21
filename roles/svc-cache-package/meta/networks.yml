@@ -65,6 +65,9 @@ cache:
     raw-githubusercontent:
       flavor: raw
       upstream: https://raw.githubusercontent.com/
+    raw-nixos-cache:
+      flavor: raw
+      upstream: https://cache.nixos.org/
     raw-packagist:
       flavor: raw
       upstream: https://repo.packagist.org/ # nocheck: url the metadata paths under p2/ resolve; the bare root has no index

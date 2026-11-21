@@ -1,0 +1,16 @@
+---
+- name: "📁 Create the provision catalog directory on the stack host"
+  ansible.builtin.file:
+    path: "{{ SEMAPHORE_WORKSPACE_CATALOG_DIR_HOST }}"
+    state: directory
+    mode: "0755"
+
+- name: "🗂️ Write each checked provision catalog for the runner's read-only mount"
+  ansible.builtin.copy:
+    content: "{{ semaphore_catalog.value | to_nice_json }}\n"
+    dest: "{{ [SEMAPHORE_WORKSPACE_CATALOG_DIR_HOST, semaphore_catalog.key ~ '.json'] | path_join }}"
+    mode: "0644"
+  loop: "{{ SEMAPHORE_WORKSPACE_CATALOGS | dict2items }}"
+  loop_control:
+    loop_var: semaphore_catalog
+    label: "{{ semaphore_catalog.key }}"

@@ -52,8 +52,7 @@ exports.register = function (shared) {
 
   function skipUnlessUiServed() {
     skipUnlessServiceEnabled("design");
-    test.skip(!env.frontendEnabled, "frontend disabled (headless backend node)");
-    test.skip(!env.ssoEnabled, "SSO disabled: the front proxy answers 403 on both UI domains");
+    skipUnlessServiceEnabled("sso");
   }
 
   /**

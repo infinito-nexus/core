@@ -25,6 +25,8 @@ DOCS_I18N_PRELOAD_PATHS: "{{ (DOCS_I18N_PRELOAD_LANGUAGES | reject('eq', HOST_LL
   HOST_LL) | map('regex_replace', '.+', '') | list) }}"
 DOCS_PORT: "{{ lookup('config', application_id, 'services.docs.ports.internal.http') }}"
 DOCS_LOCAL_BASE_URL: "http://{{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.docs.ports.local.http') }}"
+DOCS_NETNS_BASE_URL: "http://127.0.0.1:{{ DOCS_PORT }}"
+DOCS_TEST_SRC_DIR: "{{ lookup('path_absolute') }}"
 DOCS_DATA_DIR: "/data"
 DOCS_TOOLING_DIR: "{{ [ lookup('container', application_id, 'directories.instance'), 'sphinx' ] | path_join }}"
 DOCS_SNAPSHOT_DIR: "/snapshot"
@@ -39,6 +41,7 @@ DOCS_SNAPSHOT_PATHS:
   - SECURITY.md
   - SUPPORT.md
   - TODO.md
+  - agents
   - aliases
   - ansible.cfg
   - assets
@@ -58,7 +61,6 @@ DOCS_SNAPSHOT_PATHS:
   - pyproject.toml
   - roles
   - scripts
-  - skills
   - tasks
   - templates
   - tests

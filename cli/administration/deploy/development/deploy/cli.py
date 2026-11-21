@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import os
+from pathlib import Path
 
 from cli.administration.deploy.development.common import (
     make_compose,
@@ -13,6 +14,7 @@ from cli.administration.deploy.development.inventory import (
     plan_dev_inventory_matrix,
     prune_orphans_after_disable,
 )
+from cli.administration.deploy.development.target import reset_stack_target
 from cli.administration.deploy.development.variant_select import (
     add_variant_args,
     apply_variant_filter,
@@ -26,6 +28,7 @@ from utils.roles.applications.variants import (
     services_overrides_for_round as build_services_overrides_for_round,
 )
 
+from .devices import decline, missing_devices, required_devices
 from .drill import _maybe_recover_drill
 from .purge import _purge_app_entities
 from .rotate import _rotate_credentials
@@ -77,10 +80,10 @@ def add_parser(sub: argparse._SubParsersAction) -> None:
         default=_env_full_cycle(),
         help=(
             "After each round's regular deploy, immediately re-run the "
-            "deploy with `-e ASYNC_ENABLED=true` (the async update pass). "
+            "deploy with `-e DEPLOY_IS_UPDATE=true` (the update pass). "
             "Pass 1 + Pass 2 stay co-located on the SAME variant so the "
-            "async re-deploy always runs against the host state the "
-            "matching sync deploy just produced. Defaults to the "
+            "re-deploy always runs against the host state the "
+            "matching first deploy just produced. Defaults to the "
             "full_cycle environment variable (true|false) when set."
         ),
     )
@@ -165,6 +168,12 @@ def handler(args: argparse.Namespace) -> int:
         else:
             round_deploy_ids = list(include_roles)
 
+        needs = required_devices(Path(roles_dir), round_deploy_ids)
+        missing = missing_devices(compose, list(needs))
+        if missing:
+            decline(needs, missing, f"{round_index + 1}/{len(plan)}")
+            return 0
+
         if plan_index > 0:
             purge_targets = [
                 role for role in purge_roles if role not in disabled_app_ids
@@ -191,7 +200,8 @@ def handler(args: argparse.Namespace) -> int:
             f"matrix-deploy: round {round_index + 1}/{len(plan)} "
             f"inv={inv_dir} variants={round_variants} apps={round_deploy_ids}"
         )
-        print(f"=== {pass_label} PASS 1 (sync) ===")
+        reset_stack_target(compose)
+        print(f"=== {pass_label} PASS 1 (initial) ===")
         rc = run_pass({"VARIANT_INDEX": round_index, "PRIMARY_APPS": primary_app_ids})
         if rc != 0:
             return rc
@@ -201,10 +211,11 @@ def handler(args: argparse.Namespace) -> int:
             _rotate_credentials(
                 compose, inventory_dir=inv_dir, round_variants=round_variants
             )
-            print(f"=== {pass_label} PASS 2 (async) ===")
+            reset_stack_target(compose)
+            print(f"=== {pass_label} PASS 2 (update) ===")
             rc = run_pass(
                 {
-                    "ASYNC_ENABLED": True,
+                    "DEPLOY_IS_UPDATE": True,
                     "VARIANT_INDEX": round_index,
                     "PRIMARY_APPS": primary_app_ids,
                 }

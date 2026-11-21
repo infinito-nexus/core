@@ -16,13 +16,20 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from utils.cache import files as files_module
+from utils.cache import gitignore as gitignore_module
 from utils.cache.files import (
     _reset,
+    is_translation_catalog,
+    iter_non_ignored_files,
     iter_project_files,
     iter_project_files_with_content,
     read_text,
 )
-from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_TASKS_MAIN
+from utils.roles.mapping import (
+    ROLE_FILE_HANDLERS_MAIN,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_TASKS_MAIN,
+)
 
 
 def _touch(path: Path, content: str = "") -> Path:
@@ -214,6 +221,98 @@ class TestReset(_ProjectRootFixture, unittest.TestCase):
         self.assertEqual(read_text(str(self.root / "x.txt")), "v1-changed")
 
 
+class TestNonIgnoredIndex(_ProjectRootFixture, unittest.TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.addCleanup(gitignore_module._reset)
+        _touch(self.root / ".gitignore", "ignored/\n*.log\n")
+        for rel in ("kept.txt", "ignored/x.txt", "a.log", "tests/t.py", "docs/d.md"):
+            _touch(self.root / rel)
+
+    def _rels(self, **kwargs) -> set[str]:
+        return {
+            Path(path).relative_to(self.root).as_posix()
+            for path in iter_non_ignored_files(**kwargs)
+        }
+
+    def test_gitignored_paths_are_left_out_and_the_filters_apply(self) -> None:
+        self.assertEqual(
+            self._rels(), {".gitignore", "kept.txt", "tests/t.py", "docs/d.md"}
+        )
+        self.assertEqual(
+            self._rels(exclude_tests=True, exclude_dirs=("docs",)),
+            {".gitignore", "kept.txt"},
+        )
+        self.assertEqual(self._rels(extensions=(".py",)), {"tests/t.py"})
+
+    def test_the_gitignore_match_runs_once_for_every_caller(self) -> None:
+        with patch.object(
+            files_module,
+            "is_path_gitignored",
+            wraps=files_module.is_path_gitignored,
+        ) as matcher:
+            self._rels()
+            self._rels(exclude_tests=True)
+            self._rels(extensions=(".md",))
+        self.assertEqual(matcher.call_count, len(list(iter_project_files())))
+
+    def test_the_index_holds_paths_only(self) -> None:
+        yielded = tuple(iter_non_ignored_files())
+        self.assertEqual(files_module._non_ignored_files.cache_info().currsize, 1)
+        cached = files_module._non_ignored_files(
+            str(self.root),
+            str(self.root),
+            gitignore_module.load_gitignore_patterns(str(self.root)),
+        )
+        self.assertEqual(cached, yielded)
+        self.assertTrue(all(isinstance(path, str) for path in cached))
+
+    def test_a_reloaded_gitignore_is_matched_afresh(self) -> None:
+        self.assertIn("kept.txt", self._rels())
+        _touch(self.root / ".gitignore", "ignored/\n*.log\nkept.txt\n")
+        gitignore_module._reset()
+        self.assertNotIn("kept.txt", self._rels())
+
+
+class TestTranslationCatalogs(_ProjectRootFixture, unittest.TestCase):
+    CATALOG = "locale/de/LC_MESSAGES/docs.po"
+
+    def setUp(self) -> None:
+        super().setUp()
+        _touch(self.root / self.CATALOG, 'msgid "x"\n')
+        _touch(self.root / "docs/a.md", "doc")
+
+    def test_only_po_files_of_the_locale_tree_are_catalogs(self) -> None:
+        self.assertTrue(is_translation_catalog(self.CATALOG))
+        for rel in (
+            "docs/locale.po",
+            "roles/web-app-x/locale/de.po",
+            "locale/de/LC_MESSAGES/docs.mo",
+            "locales/de/docs.po",
+        ):
+            with self.subTest(rel=rel):
+                self.assertFalse(is_translation_catalog(rel))
+
+    def test_a_content_scan_leaves_the_catalogs_unread(self) -> None:
+        with patch.object(
+            files_module, "read_text", wraps=files_module.read_text
+        ) as reader:
+            found = [path for path, _ in iter_project_files_with_content()]
+        self.assertEqual(found, [str(self.root / "docs/a.md")])
+        self.assertNotIn(
+            str(self.root / self.CATALOG), [c.args[0] for c in reader.call_args_list]
+        )
+
+    def test_a_scan_that_opts_in_reads_the_catalogs(self) -> None:
+        found = dict(iter_project_files_with_content(include_catalogs=True))
+        self.assertEqual(found[str(self.root / self.CATALOG)], 'msgid "x"\n')
+        self.assertIn(str(self.root / "docs/a.md"), found)
+
+    def test_the_path_walks_keep_listing_the_catalogs(self) -> None:
+        self.assertIn(str(self.root / self.CATALOG), set(iter_project_files()))
+        self.assertIn(str(self.root / self.CATALOG), set(iter_non_ignored_files()))
+
+
 class TestRepositoryFiles(_ProjectRootFixture, unittest.TestCase):
     TRACKED = f"roles/web-app-nextcloud/{ROLE_FILE_TASKS_MAIN}"
     CUSTOM = f"roles/web-app-cst-demo/{ROLE_FILE_TASKS_MAIN}"
@@ -229,7 +328,7 @@ class TestRepositoryFiles(_ProjectRootFixture, unittest.TestCase):
         _touch(self.root / self.TRACKED, "- y")
         _touch(self.root / self.CUSTOM, "- x")
         _touch(self.root / "roles/web-app-cst-demo/__pycache__/x.pyc", "")
-        with self._git(f"{self.TRACKED}\0".encode(), b""):
+        with self._git(f"{self.TRACKED}\0".encode(), b"", b""):
             self.assertEqual(
                 (self.CUSTOM, self.TRACKED),
                 files_module.repository_files(),
@@ -238,27 +337,34 @@ class TestRepositoryFiles(_ProjectRootFixture, unittest.TestCase):
     def test_lists_only_the_tracked_files_without_placed_custom_roles(self) -> None:
         _touch(self.root / self.TRACKED, "- y")
         _touch(self.root / "build/install.stamp", "")
-        with self._git(f"{self.TRACKED}\0".encode(), b""):
+        with self._git(f"{self.TRACKED}\0".encode(), b"", b""):
             self.assertEqual((self.TRACKED,), files_module.repository_files())
 
     def test_leaves_out_a_tracked_file_deleted_in_the_worktree(self) -> None:
         gone = "roles/web-app-nextcloud/filter_plugins/gone.py"
         with self._git(
-            f"{self.TRACKED}\0{gone}\0".encode(), f"{gone}\0".encode()
+            f"{self.TRACKED}\0{gone}\0".encode(), f"{gone}\0".encode(), b""
         ) as run:
             self.assertEqual((self.TRACKED,), files_module.repository_files())
         self.assertEqual(["--deleted"], run.call_args_list[1].args[0][-1:])
 
-    def test_untracked_adds_the_files_gitignore_does_not_exclude(self) -> None:
+    def test_default_adds_the_files_gitignore_does_not_exclude(self) -> None:
         with self._git(f"{self.TRACKED}\0".encode(), b"", b"new.py\0") as run:
             self.assertEqual(
                 ("new.py", self.TRACKED),
-                files_module.repository_files(untracked=True),
+                files_module.repository_files(),
             )
         self.assertEqual(
             ["--others", "--exclude-standard"],
             run.call_args_list[2].args[0][-2:],
         )
+
+    def test_negative_control_tracked_only_leaves_a_new_file_out(self) -> None:
+        with self._git(f"{self.TRACKED}\0".encode(), b"") as run:
+            self.assertEqual(
+                (self.TRACKED,), files_module.repository_files(untracked=False)
+            )
+        self.assertEqual(len(run.call_args_list), 2)
 
     def test_a_git_failure_propagates(self) -> None:
         with (
@@ -270,6 +376,36 @@ class TestRepositoryFiles(_ProjectRootFixture, unittest.TestCase):
             self.assertRaises(subprocess.CalledProcessError),
         ):
             files_module.repository_files()
+
+
+class TestLintScope(unittest.TestCase):
+    def _scope(self, value: str):
+        return patch.dict(files_module.os.environ, {files_module.LINT_SCOPE_ENV: value})
+
+    def test_unset_scope_keeps_every_path(self) -> None:
+        with patch.dict(files_module.os.environ, clear=True):
+            self.assertTrue(
+                files_module.in_lint_scope(f"roles/a/{ROLE_FILE_TASKS_MAIN}")
+            )
+
+    def test_a_role_scope_keeps_its_files_only(self) -> None:
+        with self._scope("roles/web-app-a/"):
+            self.assertEqual(
+                [
+                    files_module.in_lint_scope(rel)
+                    for rel in (
+                        f"roles/web-app-a/{ROLE_FILE_HANDLERS_MAIN}",
+                        f"roles/web-app-ab/{ROLE_FILE_HANDLERS_MAIN}",
+                        "default.env",
+                    )
+                ],
+                [True, False, False],
+            )
+
+    def test_a_file_scope_keeps_that_file(self) -> None:
+        with self._scope("default.env Makefile"):
+            self.assertEqual(files_module.lint_scope(), ("default.env", "Makefile"))
+            self.assertTrue(files_module.in_lint_scope("Makefile"))
 
 
 class TestWalkIsKeyedOnTheRoot(_ProjectRootFixture, unittest.TestCase):

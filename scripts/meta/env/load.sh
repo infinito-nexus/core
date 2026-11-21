@@ -47,7 +47,7 @@ if [[ -n "${VENV:-}" && -d "${VENV%/}/bin" ]]; then
 fi
 
 _infinito_env_mtime="$(stat -c %Y "${_infinito_env_dotenv}" 2>/dev/null || echo 0)"
-if [[ "${INFINITO_ENV_LOADED:-}" == "1" && "${INFINITO_ENV_LOADED_FILE:-}" == "${_infinito_env_dotenv}" && "${INFINITO_ENV_LOADED_MTIME:-}" == "${_infinito_env_mtime}" && "${INFINITO_ENV_LOADED_DISTRO:-}" == "${INFINITO_DISTRO:-}" ]]; then # nocheck: env-loader-internal-guard
+if [[ "${INFINITO_ENV_LOADED:-}" == "1" && "${INFINITO_ENV_LOADED_FILE:-}" == "${_infinito_env_dotenv}" && "${INFINITO_ENV_LOADED_MTIME:-}" == "${_infinito_env_mtime}" && "${INFINITO_ENV_LOADED_DISTRO:-}" == "${INFINITO_DISTRO:-}" && "${INFINITO_ENV_LOADED_STACK:-}" == "${INFINITO_STACK_NAME:-}" ]]; then # nocheck: env-loader-internal-guard
 	unset _infinito_env_repo_root _infinito_env_dotenv _infinito_env_mtime
 	return 0
 fi
@@ -58,6 +58,9 @@ fi
 
 if [[ -n "${INFINITO_ENV_LOADED_DISTRO:-}" && "${INFINITO_ENV_LOADED_DISTRO}" != "${INFINITO_DISTRO:-}" ]]; then # nocheck: env-loader-internal-guard
 	unset INFINITO_CONTAINER INFINITO_PARENT_IMAGE INFINITO_IMAGE
+fi
+if [[ "${INFINITO_ENV_LOADED:-}" == "1" && "${INFINITO_ENV_LOADED_STACK:-}" != "${INFINITO_STACK_NAME:-}" ]]; then # nocheck: env-loader-internal-guard
+	unset INFINITO_CONTAINER INFINITO_RUNNER_PREFIX
 fi
 
 _infinito_env_source="${_infinito_env_dotenv}"
@@ -137,6 +140,11 @@ for _infinito_env_key in "${!_infinito_env_preserved[@]}"; do
 done
 unset _infinito_env_key _infinito_env_preserved
 
+if [[ -n "${INFINITO_STACK_NAME:-}" ]]; then
+	export INFINITO_RUNNER_PREFIX="infinito-${INFINITO_STACK_NAME}"
+	export INFINITO_CONTAINER="infinito_nexus_${INFINITO_STACK_NAME//[.-]/_}"
+fi
+
 if [[ -z "${REQUESTS_CA_BUNDLE:-}" ]]; then
 	for _infinito_env_ca in ${INFINITO_CA_BUNDLE_CANDIDATES}; do
 		if [[ -r "${_infinito_env_ca}" ]]; then
@@ -153,4 +161,5 @@ export INFINITO_ENV_LOADED_FILE="${_infinito_env_dotenv}"
 _infinito_env_mtime="$(stat -c %Y "${_infinito_env_dotenv}" 2>/dev/null || echo 0)"
 export INFINITO_ENV_LOADED_MTIME="${_infinito_env_mtime}"
 export INFINITO_ENV_LOADED_DISTRO="${INFINITO_DISTRO:-}"
+export INFINITO_ENV_LOADED_STACK="${INFINITO_STACK_NAME:-}" # nocheck: env-loader-internal-guard
 unset _infinito_env_repo_root _infinito_env_dotenv _infinito_env_mtime

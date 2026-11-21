@@ -56,11 +56,15 @@ OPENBAO_PKI_ISSUING_URL: "{{ OPENBAO_BASE_URL }}/v1/{{ OPENBAO_PKI_MOUNT }}/ca"
 OPENBAO_PKI_CRL_URL: "{{ OPENBAO_BASE_URL }}/v1/{{ OPENBAO_PKI_MOUNT }}/crl"
 
 OPENBAO_OIDC_ISSUER: "{{ OIDC.CLIENT.ISSUER_URL }}"
-OPENBAO_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
-OPENBAO_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
+OPENBAO_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.clients.web') }}"
+OPENBAO_OIDC_CLIENT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.oidc_client_secret') }}"
 OPENBAO_OIDC_USER_CLAIM: "{{ OIDC.ATTRIBUTES.USERNAME }}"
-OPENBAO_OIDC_GROUPS_CLAIM: "groups"
+OPENBAO_OIDC_GROUPS_CLAIM: "{{ RBAC.GROUP.CLAIM }}"
+OPENBAO_OIDC_CLAIM_MAPPINGS:
+  - "{{ OIDC.ATTRIBUTES.EMAIL }}={{ OIDC.ATTRIBUTES.EMAIL }}"
+  - "{{ OIDC.ATTRIBUTES.NAME }}={{ OIDC.ATTRIBUTES.NAME }}"
 OPENBAO_OIDC_DEFAULT_ROLE: "default"
+OPENBAO_OIDC_LISTING_VISIBILITY: "{{ 'unauth' if OPENBAO_LOGIN_SSO | bool else 'hidden' }}"
 
 OPENBAO_OIDC_REDIRECT_URIS: >-
   {{ lookup('network_urls', OPENBAO_BASE_URL)
@@ -70,15 +74,81 @@ OPENBAO_OIDC_REDIRECT_URIS: >-
 OPENBAO_LDAP_URL: "ldap://{{ LDAP.SERVER.DOMAIN }}:{{ LDAP.SERVER.PORT }}"
 OPENBAO_LDAP_USER_ATTR: "{{ LDAP.USER.ATTRIBUTES.ID }}"
 
-OPENBAO_USERPASS_ENABLED: "{{ not (OPENBAO_SSO_ENABLED | bool) and not (OPENBAO_LDAP_ENABLED | bool) }}"
+OPENBAO_LOGIN_SSO: "{{ lookup('config', application_id, 'services.openbao.login.method.sso.enabled') | bool }}"
+OPENBAO_LOGIN_LDAP: "{{ (OPENBAO_LDAP_ENABLED | bool) and (lookup('config', application_id, 'services.openbao.login.method.ldap.enabled') | bool) }}"
+OPENBAO_USERPASS_ENABLED: "{{ lookup('config', application_id, 'services.openbao.login.method.native.enabled') | bool }}"
 OPENBAO_USERPASS_MOUNT: "userpass"
 OPENBAO_USERPASS_MARKER: "infinito-nexus-managed"
 OPENBAO_USERPASS_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
 OPENBAO_USERPASS_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 OPENBAO_USERPASS_POLICY: "administrator"
-OPENBAO_PASSWORD_AUTH_MOUNT: "{{ 'ldap' if OPENBAO_LDAP_ENABLED | bool else (OPENBAO_USERPASS_MOUNT if OPENBAO_USERPASS_ENABLED | bool else '') }}"
+OPENBAO_PASSWORD_AUTH_MOUNT: "{{ 'ldap' if OPENBAO_LOGIN_LDAP | bool else (OPENBAO_USERPASS_MOUNT if OPENBAO_USERPASS_ENABLED | bool else '') }}"
 
 OPENBAO_RBAC_ROLES:
   - administrator
   - operator
   - reader
+
+OPENBAO_WORKSPACES_ENABLED: "{{ lookup('config', application_id, 'services.semaphore.enabled') | bool }}"
+OPENBAO_TENANT_MOUNT: "tenant"
+OPENBAO_TENANT_MAX_VERSIONS: 1
+OPENBAO_PLATFORM_MOUNT: "platform"
+OPENBAO_TRANSIT_MOUNT: "transit"
+OPENBAO_KV_TENANCY_MOUNTS:
+  - "{{ OPENBAO_TENANT_MOUNT }}"
+  - "{{ OPENBAO_PLATFORM_MOUNT }}"
+OPENBAO_JWT_MOUNT: "jwt"
+OPENBAO_JWT_EXPORT_MOUNT: "jwt-export"
+OPENBAO_JWT_MOUNTS:
+  - "{{ OPENBAO_JWT_MOUNT }}"
+  - "{{ OPENBAO_JWT_EXPORT_MOUNT }}"
+OPENBAO_JWT_AUDIENCE: "{{ lookup('config', application_id, 'services.openbao.workspaces.audience') }}"
+OPENBAO_JWT_ISSUER: "{{ lookup('tls', 'web-app-semaphore', 'url.origin') }}"
+OPENBAO_JWT_JWKS_URL: "{{ OPENBAO_JWT_ISSUER }}/.well-known/jwks.json"
+OPENBAO_JWT_CA_REQUIRED: "{{ (TLS_MODE | lower) == 'self_signed' }}"
+OPENBAO_JWT_CONFIG:
+  jwks_url: "{{ OPENBAO_JWT_JWKS_URL }}"
+  bound_issuer: "{{ OPENBAO_JWT_ISSUER }}"
+  jwks_ca_pem: "{{ (openbao_jwt_ca.content | b64decode) if (OPENBAO_JWT_CA_REQUIRED | bool) else '' }}"
+OPENBAO_JWT_TOKEN_TTL: "{{ lookup('config', application_id, 'services.openbao.workspaces.token_ttl') }}"
+OPENBAO_TENANCY_POLICIES:
+  - tenant
+  - provision-shared
+  - store
+  - tenant-export
+  - export-shared
+  - members
+  - store-credentials
+  - task-entities
+OPENBAO_STORE_CREDENTIALS_ROLE: "store-credentials"
+OPENBAO_TASK_ENTITIES_ROLE: "task-entities"
+OPENBAO_FIXTURE_POLICY: "fixture"
+OPENBAO_FIXTURE_ROLE: "workspace-fixture"
+OPENBAO_FIXTURE_PREFIX: "fixture"
+OPENBAO_FIXTURE_WORKSPACE_KEY: "workspace-ssh"
+OPENBAO_EXPORT_SCHEDULE_ROLES:
+  announce-owners: "announce owners"
+  prune-exports: "prune exports"
+OPENBAO_STORE_SEMAPHORE_PATH: "store/semaphore"
+OPENBAO_STORE_GITEA_PATH: "store/gitea"
+OPENBAO_STORE_APPROLE: "store"
+OPENBAO_STORE_APPROLE_CONFIG: "{{ lookup('config', application_id, 'services.openbao.workspaces.store') }}"
+OPENBAO_STORE_ROLE_ID: "{{ lookup('config', application_id, 'secrets.credentials.store_approle_role_id') }}"
+OPENBAO_STORE_SECRET_ID: "{{ lookup('config', application_id, 'secrets.credentials.store_approle_secret_id') }}"
+OPENBAO_STORE_WORKSPACES_PATH: "store/semaphore/workspaces"
+OPENBAO_PLAYWRIGHT_APPROLE: "playwright"
+OPENBAO_PLAYWRIGHT_ENABLED: "{{ RUNTIME in ['dev', 'act', 'github'] and OPENBAO_WORKSPACES_ENABLED | bool }}"
+OPENBAO_PLAYWRIGHT_CONFIG: "{{ lookup('config', application_id, 'services.openbao.workspaces.playwright') }}"
+OPENBAO_PLAYWRIGHT_ROLE_ID: "{{ lookup('config', application_id, 'secrets.credentials.playwright_approle_role_id') }}"
+OPENBAO_PLAYWRIGHT_SECRET_ID: "{{ lookup('config', application_id, 'secrets.credentials.playwright_approle_secret_id') }}"
+OPENBAO_PLAYWRIGHT_LOGINS:
+  semaphore:
+    username: "{{ lookup('users', 'web-app-semaphore-breakglass').username }}"
+    password: "{{ lookup('users', 'web-app-semaphore-breakglass').password }}"
+  store:
+    role_id: "{{ OPENBAO_STORE_ROLE_ID }}"
+    secret_id: "{{ OPENBAO_STORE_SECRET_ID }}"
+OPENBAO_RAFT_SNAPSHOT_DIR: "{{ [DIR_BACKUPS, application_id, 'raft'] | path_join }}"
+OPENBAO_TRANSIT_RECORD_PREFIX: "provision/transit"
+OPENBAO_ZONE_TOKEN_PATH: "provision/cloudflare-zones"
+OPENBAO_OWNER_RECORD_PREFIX: "export/owners"

@@ -18,7 +18,7 @@ More background:
 
 ## Overview
 
-This role deploys Coturn via Docker Compose using the `sys-stk-semi-stateless` stack.  
+This role deploys Coturn via Docker Compose through the shared [svc-stack](../svc-stack/README.md) service.  
 It automatically configures:
 
 - TURN and STUN listening ports

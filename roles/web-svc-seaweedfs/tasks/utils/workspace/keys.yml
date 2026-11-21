@@ -1,0 +1,67 @@
+---
+# Param: seaweedfs_ws                 - the names of the workspace (filter seaweedfs_workspace)
+# Param: _seaweedfs_ws_record_stat    - stat result of the workspace's record in identities.d
+# Param: _seaweedfs_ws_record_read    - slurp result of that record when it exists
+# Returns: seaweedfs_ws_record, the record the identity is built from
+- name: "🔍 Resolve the OpenBao node and container"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: openbao
+    resolve_service_name: "{{ lookup('container_service', SEAWEEDFS_OPENBAO_ID, 'openbao') if IS_SWARM_MODE else '' }}"
+    resolve_output_prefix: SEAWEEDFS_OPENBAO
+    resolve_compose_cid: "{{ lookup('config', SEAWEEDFS_OPENBAO_ID, 'services.openbao.name') }}"
+
+- name: "🔐 Log in to OpenBao with the platform AppRole"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ SEAWEEDFS_OPENBAO_LOCAL_CID | quote }}
+    bao write -field=token auth/approle/login -
+  args:
+    stdin: >-
+      {{ {'role_id': lookup('config', SEAWEEDFS_OPENBAO_ID, 'secrets.credentials.approle_role_id'),
+          'secret_id': lookup('config', SEAWEEDFS_OPENBAO_ID, 'secrets.credentials.approle_secret_id')} | to_json }}
+  register: _seaweedfs_openbao_login
+  changed_when: false
+  delegate_to: "{{ SEAWEEDFS_OPENBAO_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 Take the keys of the record, else those of OpenBao, else new ones"
+  vars:
+    _seaweedfs_ws_openbao_path: "{{ seaweedfs_ws.identity }}/s3"
+  block:
+    - name: "🔍 Read the keys OpenBao holds for the provision runner"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i {{ SEAWEEDFS_OPENBAO_LOCAL_CID | quote }}
+        sh -c 'IFS= read -r BAO_TOKEN || :; : "${BAO_TOKEN:?arrived empty on stdin}"; export BAO_TOKEN;
+        bao kv get -mount={{ SEAWEEDFS_WORKSPACE_OPENBAO_MOUNT }} -format=json {{ _seaweedfs_ws_openbao_path }}'
+      args:
+        stdin: "{{ _seaweedfs_openbao_login.stdout | trim }}"
+      register: _seaweedfs_openbao_read
+      changed_when: false
+      failed_when: >-
+        _seaweedfs_openbao_read.rc != 0
+        and 'No value found' not in _seaweedfs_openbao_read.stderr
+      delegate_to: "{{ SEAWEEDFS_OPENBAO_HOST_NODE }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "🔧 Keep the keys of the record, else those of OpenBao, else new ones"
+      ansible.builtin.set_fact:
+        seaweedfs_ws_record: >-
+          {{ (_seaweedfs_ws_record_read.content | b64decode | from_json)
+             if _seaweedfs_ws_record_stat.stat.exists
+             else (({'workspace': WORKSPACE} | combine((_seaweedfs_openbao_read.stdout | from_json).data.data))
+                   if _seaweedfs_openbao_read.rc == 0
+                   else (WORKSPACE | seaweedfs_workspace_credentials)) }}
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "💾 Store the keys in identities.d and in OpenBao"
+      include_tasks: utils/workspace/keys_store.yml
+  always:
+    - name: "🧹 Revoke the OpenBao token of this apply"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i {{ SEAWEEDFS_OPENBAO_LOCAL_CID | quote }}
+        sh -c 'IFS= read -r BAO_TOKEN || :; : "${BAO_TOKEN:?arrived empty on stdin}"; export BAO_TOKEN; bao token revoke -self >/dev/null'
+      args:
+        stdin: "{{ _seaweedfs_openbao_login.stdout | trim }}"
+      changed_when: false
+      delegate_to: "{{ SEAWEEDFS_OPENBAO_HOST_NODE }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

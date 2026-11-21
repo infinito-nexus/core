@@ -1,0 +1,85 @@
+---
+- name: "🔎 Egress router | Read the dnsmasq main PID"
+  ansible.builtin.command:
+    argv: [systemctl, show, --property=MainPID, --value, dnsmasq]
+  register: _tor_dnsmasq_pid
+  changed_when: false
+
+- name: "🔎 Egress router | Read the dnsmasq process status"
+  ansible.builtin.slurp:
+    src: "/proc/{{ _tor_dnsmasq_pid.stdout | trim }}/status"
+  register: _tor_dnsmasq_status
+
+- name: "🔎 Egress router | Take the effective UID of dnsmasq"
+  ansible.builtin.set_fact:
+    TOR_DNSMASQ_UID: "{{ _tor_dnsmasq_status.content | b64decode | regex_search('(?m)^Uid:\\s+\\d+\\s+(\\d+)', '\\1') | first }}"
+
+- name: "✅ Egress router | Refuse a dnsmasq that resolves as root or nobody"
+  ansible.builtin.assert:
+    that:
+      - TOR_DNSMASQ_UID | int not in [0, 65534]
+    fail_msg: >-
+      dnsmasq runs as UID {{ TOR_DNSMASQ_UID }}, and route all admits upstream
+      DNS for the dnsmasq user only. Admitting root or nobody would admit
+      every process running as that user.
+
+- name: "🔎 Egress router | List the processes running as the dnsmasq UID"
+  ansible.builtin.command:
+    argv: [pgrep, -u, "{{ TOR_DNSMASQ_UID }}"]
+  register: _tor_dnsmasq_uid_pids
+  changed_when: false
+  failed_when: _tor_dnsmasq_uid_pids.rc not in [0, 1]
+
+- name: "🔎 Egress router | List the dnsmasq processes"
+  ansible.builtin.command:
+    argv: [pgrep, -x, dnsmasq]
+  register: _tor_dnsmasq_pids
+  changed_when: false
+
+- name: "✅ Egress router | Refuse a dnsmasq UID other processes share"
+  ansible.builtin.assert:
+    that:
+      - (_tor_dnsmasq_uid_pids.stdout_lines | difference(_tor_dnsmasq_pids.stdout_lines)) | length == 0
+    fail_msg: >-
+      Processes other than dnsmasq run as UID {{ TOR_DNSMASQ_UID }}
+      ({{ _tor_dnsmasq_uid_pids.stdout_lines | difference(_tor_dnsmasq_pids.stdout_lines) | join(', ') }}),
+      and route all would let them resolve in clearnet. Give dnsmasq a user
+      of its own.
+
+- name: "🔀 Egress router | Take systemd-resolved out of host name lookups"
+  ansible.builtin.lineinfile:
+    path: /etc/nsswitch.conf
+    regexp: "^(hosts:.*?)\\s+resolve(?:\\s+\\[[^\\]]*\\])?(\\s.*)?$"
+    line: "\\1\\2"
+    backrefs: true
+
+- name: "🔎 Egress router | Detect systemd-resolved"
+  ansible.builtin.stat:
+    path: /run/systemd/resolve
+  register: _tor_resolved
+
+- name: "📝 Egress router | Point systemd-resolved at dnsmasq with no fallback"
+  when: _tor_resolved.stat.exists
+  block:
+    - name: "📁 Egress router | Ensure the systemd-resolved drop-in directory exists"
+      ansible.builtin.file:
+        path: "{{ TOR_RESOLVED_DROPIN | dirname }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: "📝 Egress router | Render the systemd-resolved drop-in"
+      ansible.builtin.template: # nocheck: stack-host-template (per-host resolver config in /etc/systemd)
+        src: resolved-tor-egress.conf.j2
+        dest: "{{ TOR_RESOLVED_DROPIN }}"
+        owner: root
+        group: root
+        mode: "0644"
+      register: _tor_resolved_dropin
+
+    - name: "🚀 Egress router | Restart systemd-resolved on a changed drop-in"
+      ansible.builtin.systemd:
+        name: systemd-resolved
+        state: restarted
+      when: _tor_resolved_dropin is changed

@@ -1,0 +1,207 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🛑 Refuse a distribution Incus is not provisioned on"
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] in INCUS_OS_FAMILIES
+    fail_msg: >-
+      svc-virt-incus installs Incus on the {{ INCUS_OS_FAMILIES | join(', ') }}
+      families only, and {{ inventory_hostname }} runs
+      {{ ansible_facts['os_family'] }}. Put the agent VMs on such a host, or on
+      web-app-proxmox.
+    quiet: true
+
+- name: "🛡️ Prove hardware virtualization for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/assert/kvm.yml') }}"
+  vars:
+    assert_kvm_consumer: "{{ application_id }}"
+
+- name: "🛑 Refuse a storage driver without copy-on-write clones"
+  ansible.builtin.assert:
+    that:
+      - INCUS_STORAGE_POOL.driver in INCUS_COW_DRIVERS
+    fail_msg: >-
+      services.incus.storage_pool.driver is '{{ INCUS_STORAGE_POOL.driver }}'.
+      Every agent VM is a clone of the template, and the dir driver copies the
+      whole disk per clone instead of sharing its blocks. Use btrfs, zfs or
+      lvm (thin pool).
+    quiet: true
+
+- name: "🛑 Refuse workspaces without a routed subnet"
+  ansible.builtin.assert:
+    that:
+      - (not (INCUS_WORKSPACES.enabled | bool)) or ((INCUS_WORKSPACES.subnet.ipv4 | length > 0) and (INCUS_WORKSPACES.subnet.ipv6 | length > 0))
+    fail_msg: >-
+      services.incus.workspaces.enabled is on, but services.incus.workspaces.subnet
+      names ipv4 '{{ INCUS_WORKSPACES.subnet.ipv4 }}' and ipv6 '{{ INCUS_WORKSPACES.subnet.ipv6 }}'.
+      Every workspace bridge routes its own slice of both, without NAT. Name the
+      IPv4 and the IPv6 subnet the provider routes to {{ inventory_hostname }}.
+    quiet: true
+
+- name: "🔍 Look for a running Incus daemon on {{ inventory_hostname }}"
+  ansible.builtin.stat:
+    path: "{{ INCUS_STORAGE_PATH }}/unix.socket"
+  register: svc_virt_incus_socket
+
+- name: "🔍 Read what the running Incus daemon already holds"
+  when: svc_virt_incus_socket.stat.exists
+  become: true
+  block:
+    - name: "🔍 Read the agent VMs that run in {{ INCUS_PROJECT }}"
+      ansible.builtin.command: incus list --all-projects --format json
+      register: svc_virt_incus_instances
+      changed_when: false
+
+    - name: "🔍 Read the space the agent storage pool already holds"
+      ansible.builtin.command: incus storage info {{ INCUS_STORAGE_POOL.name }} --bytes
+      register: svc_virt_incus_pool_info
+      changed_when: false
+      failed_when: false
+
+- name: "🧮 Prove {{ inventory_hostname }} can hold its agent VMs"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-agent-broker/tasks/utils/vm/capacity.yml') }}"
+  vars:
+    vm_capacity_kind: incus
+    vm_capacity_warm_pool: "{{ INCUS_AGENTS.warm_pool }}"
+    vm_capacity_reserve: "{{ INCUS_AGENTS.reserve }}"
+    vm_capacity_running_memory: >-
+      {{ (svc_virt_incus_instances.stdout | from_json
+          | selectattr('project', 'equalto', INCUS_PROJECT)
+          | selectattr('status', 'equalto', 'Running')
+          | map(attribute='state.memory.usage') | map('int') | sum)
+         if svc_virt_incus_socket.stat.exists else 0 }}
+    vm_capacity_storage_path: "{{ INCUS_STORAGE_PATH }}"
+    vm_capacity_pool_size: "{{ INCUS_STORAGE_POOL.size }}"
+    vm_capacity_pool_used: >-
+      {{ (svc_virt_incus_pool_info.stdout | from_yaml).info['space used'] | int
+         if (svc_virt_incus_socket.stat.exists and svc_virt_incus_pool_info.rc == 0) else 0 }}
+    vm_capacity_own_disk: 0
+    vm_capacity_overhead:
+      cpus: 0
+      memory: 0
+    vm_capacity_limits: {}
+
+- name: "🚀 Start the Incus daemon"
+  ansible.builtin.systemd_service:
+    name: incus.socket
+    enabled: true
+    state: started
+  become: true
+
+- name: "🔍 Read the Incus configuration before the preseed"
+  ansible.builtin.command: incus admin init --dump
+  register: svc_virt_incus_before
+  changed_when: false
+  become: true
+
+- name: "🧱 Apply the agent bridge and the storage pool"
+  ansible.builtin.command:
+    cmd: incus admin init --preseed
+    stdin: "{{ INCUS_PRESEED | to_nice_yaml }}"
+  register: svc_virt_incus_preseed
+  changed_when: false
+  become: true
+
+- name: "🔍 Report whether the preseed changed the Incus configuration"
+  ansible.builtin.command: incus admin init --dump
+  register: svc_virt_incus_after
+  changed_when: svc_virt_incus_after.stdout != svc_virt_incus_before.stdout
+  become: true
+
+- name: "🔍 Read the API listener and the join token expiry"
+  ansible.builtin.command:
+    argv: [incus, config, get, "{{ item.key }}"]
+  loop: "{{ INCUS_SERVER_CONFIG | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  register: svc_virt_incus_server_config
+  changed_when: false
+  become: true
+
+- name: "🔐 Reconcile the API listener and the join token expiry"
+  ansible.builtin.command:
+    argv: "{{ ['incus', 'config'] + (['set', item.item.key, item.item.value] if item.item.value | length > 0 else ['unset', item.item.key]) }}"
+  loop: "{{ svc_virt_incus_server_config.results }}"
+  loop_control:
+    label: "{{ item.item.key }}"
+  when: (item.stdout | trim) != (item.item.value | string)
+  changed_when: true
+  become: true
+
+- name: "🛡️ Admit the API from its sources only and keep workspace bridges apart"
+  ansible.builtin.include_role:
+    name: svc-net-firewall
+  vars:
+    FIREWALL_FRAGMENT_ROLE: svc-virt-incus
+  when: (INCUS_API.enabled | bool) or (INCUS_WORKSPACES.enabled | bool)
+
+- name: "📇 Record the API endpoint and the server certificate in OpenBao"
+  when:
+    - INCUS_API.enabled | bool
+    - (groups.get('web-app-openbao') or []) | length > 0
+  block:
+    - name: "🔍 Read the server certificate of {{ inventory_hostname }}"
+      ansible.builtin.command:
+        argv: [incus, query, /1.0]
+      register: svc_virt_incus_server
+      changed_when: false
+      become: true
+
+    - name: "📇 Store the fingerprint the provision runner pins"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/web-app-openbao/tasks/utils/kv.yml') }}"
+      vars:
+        openbao_kv_state: present
+        openbao_kv_mount: "{{ INCUS_PROVISION_MOUNT }}"
+        openbao_kv_path: "{{ INCUS_PROVISION_PATH }}"
+        openbao_kv_data:
+          endpoint: "{{ INCUS_API_ENDPOINT }}"
+          fingerprint: "{{ (svc_virt_incus_server.stdout | from_json).environment.certificate_fingerprint }}"
+          certificate: "{{ (svc_virt_incus_server.stdout | from_json).environment.certificate }}"
+
+- name: "🔍 Read the projects of the agent instance"
+  ansible.builtin.command: incus project list --format csv --columns n
+  register: svc_virt_incus_projects
+  changed_when: false
+  become: true
+
+- name: "🗂️ Create the agent project"
+  ansible.builtin.command: incus project create {{ INCUS_PROJECT }}
+  when: INCUS_PROJECT not in svc_virt_incus_projects.stdout_lines
+  changed_when: true
+  become: true
+
+- name: "🔍 Read the restrictions and limits of {{ INCUS_PROJECT }}"
+  ansible.builtin.command: incus project get {{ INCUS_PROJECT }} {{ item.key }}
+  loop: "{{ INCUS_PROJECT_CONFIG | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  register: svc_virt_incus_project_config
+  changed_when: false
+  become: true
+
+- name: "🔐 Reconcile the restrictions and limits of {{ INCUS_PROJECT }}"
+  ansible.builtin.command: >-
+    incus project set {{ INCUS_PROJECT }} {{ item.item.key }}={{ item.item.value }}
+  loop: "{{ svc_virt_incus_project_config.results }}"
+  loop_control:
+    label: "{{ item.item.key }}"
+  when: (item.stdout | trim) != (item.item.value | string)
+  changed_when: true
+  become: true
+
+- name: "🔍 Read the secure boot setting of {{ INCUS_PROJECT }}"
+  ansible.builtin.command: >-
+    incus profile get default security.secureboot --project {{ INCUS_PROJECT }}
+  register: svc_virt_incus_secureboot
+  changed_when: false
+  become: true
+
+- name: "🔐 Set secure boot for the agent VMs of {{ INCUS_PROJECT }}"
+  ansible.builtin.command: >-
+    incus profile set default
+    security.secureboot={{ INCUS_AGENTS.secure_boot | bool | string | lower }}
+    --project {{ INCUS_PROJECT }}
+  when: (svc_virt_incus_secureboot.stdout | trim) != (INCUS_AGENTS.secure_boot | bool | string | lower)
+  changed_when: true
+  become: true

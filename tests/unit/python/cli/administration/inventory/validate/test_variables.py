@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from cli.administration.inventory.validate.variables import (
+    _PLUGIN_READ,
     declared_variables,
     read_variables,
     validate_inventory_variables,
@@ -38,6 +39,28 @@ class TestValidateInventoryVariables(unittest.TestCase):
     def test_a_moved_credential_names_its_new_path(self):
         errors = self.errors("host_vars/echo.yml", "CLOUDFLARE_API_TOKEN: x\n")
         self.assertIn("move its value to API.cloudflare.api_token", errors[0])
+
+    def test_a_hand_set_mail_provider_names_the_wrapper_override(self):
+        (self.root / "host_vars" / "echo.yml").write_text(
+            "MAIL_PROVIDER: web-app-mailu\n", encoding="utf-8"
+        )
+        errors = validate_inventory_variables(
+            self.root, KNOWN | {"MAIL_PROVIDER"}, MOVED
+        )
+        self.assertEqual(len(errors), 1)
+        self.assertIn("'MAIL_PROVIDER' is derived", errors[0])
+        self.assertIn("applications.web-app-email.services.email.provider", errors[0])
+
+    def test_a_marker_does_not_admit_a_hand_set_mail_provider(self):
+        text = "MAIL_PROVIDER: web-app-mailu # nocheck: inventory-variable\n"
+        self.assertEqual(len(self.errors("host_vars/echo.yml", text)), 1)
+
+    def test_the_wrapper_override_passes(self):
+        text = (
+            "applications:\n  web-app-email:\n    services:\n      email:\n"
+            "        provider: web-app-mailu\n"
+        )
+        self.assertEqual(self.errors("host_vars/echo.yml", text), [])
 
     def test_ansible_variables_pass(self):
         text = "ansible_host: x\nansible_become_password: y\n"
@@ -78,6 +101,16 @@ class TestReadVariables(unittest.TestCase):
     def test_plugin_reads_count(self):
         self.assertIn("networks", self.read)
         self.assertIn("SYSTEM_EMAIL_DOMAIN", self.read)
+
+    def test_a_read_through_an_empty_mapping_guard_counts(self):
+        source = (
+            'a = (variables or {}).get("API")\n'
+            "b = ( available_variables or {} )['NETWORK_MODE']\n"
+            'c = variables.get("networks")\n'
+        )
+        self.assertEqual(
+            ["API", "NETWORK_MODE", "networks"], _PLUGIN_READ.findall(source)
+        )
 
     def test_the_email_lookup_names_count(self):
         self.assertIn("SYSTEM_EMAIL_HOST", self.read)

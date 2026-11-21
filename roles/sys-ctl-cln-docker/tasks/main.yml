@@ -22,9 +22,9 @@
         system_service_force_linear_sync: false
 
         system_service_suppress_flush: "{{ SYS_CTL_CLN_DOCKER_SERVICE_ROLE_DEPLOY | bool }}"
-        system_service_force_flush_instant: "{{ (SYS_CTL_CLN_DOCKER_SERVICE_ROLE_DEPLOY | bool) if (SYS_CTL_CLN_DOCKER_SERVICE_ROLE_DEPLOY | bool) else (MODE_CLEANUP
-          | bool) }}"
-        system_service_force_flush_final: "{{ MODE_CLEANUP | bool }}"
+        system_service_force_flush_instant: "{{ (SYS_CTL_CLN_DOCKER_SERVICE_ROLE_DEPLOY | bool) if (SYS_CTL_CLN_DOCKER_SERVICE_ROLE_DEPLOY | bool) else (CLEANUP |
+          bool) }}"
+        system_service_force_flush_final: "{{ CLEANUP | bool }}"
 
     - include_tasks: utils/once/flag.yml
   when: run_once_sys_ctl_cln_docker is not defined

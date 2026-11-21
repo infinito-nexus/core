@@ -1,0 +1,87 @@
+{# Param sso_proxy_application_id: the gated application whose oauth2-proxy serves this page. #}
+{# Param access_request_role: role id the request page preselects; empty for the application's least-privileged role. #}
+{% set _texts = lookup('i18n_catalogue', 'access_request', 'roles/web-svc-access-request/files/access_request_i18n.yml') %}
+{% set _keys = ['forbidden_title', 'forbidden_text', 'forbidden_action', 'forbidden_back', 'signin_action', 'dir'] %}
+{% set _catalogue = {} %}
+{% for _code, _strings in _texts.items() %}
+{% set _ = _catalogue.update({_code: _strings | dict2items | selectattr('key', 'in', _keys) | list | items2dict}) %}
+{% endfor %}
+{% set _query = {'application': sso_proxy_application_id} | combine({'role': access_request_role} if access_request_role else {}) %}
+{% set _request_url = lookup('tls', 'web-svc-access-request', 'url.base') ~ '?' ~ (_query | urlencode) %}
+{% raw %}{{define "error.html"}}{% endraw %}
+<!DOCTYPE html>
+<html lang="en" charset="utf-8">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>{% raw %}{{.StatusCode}} {{.Title}}{% endraw %}</title>
+<link rel="stylesheet" href="{% raw %}{{.ProxyPrefix}}{% endraw %}/static/css/bulma.min.css">
+<link rel="stylesheet" href="{% raw %}{{.ProxyPrefix}}{% endraw %}/static/css/all.min.css">
+<style>
+  body { height: 100vh; }
+  .error-box { margin: 1.25rem auto; max-width: 600px; }
+  .status-code { font-size: 12rem; font-weight: 600; }
+</style>
+</head>
+<body class="has-background-light">
+<section class="section">
+  <div class="box block error-box has-text-centered">
+    <div class="status-code">{% raw %}{{.StatusCode}}{% endraw %}</div>
+{% raw %}    {{ if and (eq .StatusCode 403) (eq .Message "You do not have permission to access this resource.") }}{% endraw %}
+
+    <div class="block" id="access-request">
+      <h1 class="subtitle is-3" data-i18n="forbidden_title">{{ _texts.en.forbidden_title }}</h1>
+      <p data-i18n="forbidden_text">{{ _texts.en.forbidden_text }}</p>
+    </div>
+    <div class="columns">
+      <div class="column">
+        <a class="button is-primary is-fullwidth" id="request-access" href="{{ _request_url }}" data-i18n="forbidden_action">{{ _texts.en.forbidden_action }}</a>
+      </div>
+      <div class="column">
+        <a class="button is-light is-fullwidth" href="{% raw %}{{.Redirect}}{% endraw %}" data-i18n="forbidden_back">{{ _texts.en.forbidden_back }}</a>
+      </div>
+    </div>
+{% raw %}    {{ else }}
+    <div class="block">
+      <h1 class="subtitle is-1">{{.Title}}</h1>
+    </div>
+    {{ if .Message }}<div class="content">{{.Message}}</div>{{ end }}
+    {{ if .RequestID }}<div class="content">Request ID: {{.RequestID}}</div>{{ end }}
+    {{ if .Redirect }}
+    <hr>
+    <div class="columns">
+      <div class="column">
+        <form method="GET" action="{{.Redirect}}">
+          <button type="submit" class="button is-danger is-fullwidth"{% endraw %} data-i18n="forbidden_back">{{ _texts.en.forbidden_back }}</button>
+{% raw %}        </form>
+      </div>
+      <div class="column">
+        <form method="GET" action="{{.ProxyPrefix}}/sign_in">
+          <input type="hidden" name="rd" value="{{.Redirect}}">
+          <button type="submit" class="button is-primary is-fullwidth"{% endraw %} data-i18n="signin_action">{{ _texts.en.signin_action }}</button>
+{% raw %}        </form>
+      </div>
+    </div>
+    {{ end }}
+    {{ end }}{% endraw %}
+    <script>
+      (function () {
+        var catalogue = {{ _catalogue | to_inline_js }};
+        var tags = [navigator.language || "", document.documentElement.lang];
+        var texts = catalogue.en;
+        for (var i = 0; i < tags.length; i += 1) {
+          var tag = String(tags[i]).toLowerCase();
+          if (catalogue[tag]) { texts = catalogue[tag]; break; }
+          if (catalogue[tag.split("-")[0]]) { texts = catalogue[tag.split("-")[0]]; break; }
+        }
+        document.documentElement.dir = texts.dir;
+        document.querySelectorAll("[data-i18n]").forEach(function (node) {
+          node.textContent = texts[node.getAttribute("data-i18n")];
+        });
+      })();
+    </script>
+  </div>
+</section>
+</body>
+</html>
+{% raw %}{{end}}{% endraw %}

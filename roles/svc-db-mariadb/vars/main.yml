@@ -21,6 +21,6 @@ MARIADB_HEALTH_IDENTITY_FILE: "{{ [ MARIADB_VOLUMES_DIR, 'ensure_health_identity
 MARIADB_HEALTH_IDENTITY_TARGET: "{{ lookup('volume', application_id, 'health_identity').target }}"
 
 MARIADB_EXPOSED: "{{ lookup('config', application_id, 'services.mariadb.exposed') | bool }}"
-MARIADB_EXPOSE_LOCAL: "{{ MARIADB_EXPOSED | bool or not DOCKER_IN_CONTAINER | bool }}"
+MARIADB_EXPOSE_LOCAL: "{{ MARIADB_EXPOSED | bool or (IS_COMPOSE_MODE | bool and not DOCKER_IN_CONTAINER | bool) }}"
 
 MARIADB_ALLOW_RESET_WITHOUT_PREVIOUS: true

@@ -11,11 +11,12 @@
         NLLB_BASE_VERSION: "{{ NLLB_BASE_VERSION }}"
         NLLB_GPU: "{{ NLLB_GPU | bool | lower }}"
         NLLB_MODELS_DIR: "{{ NLLB_MODELS_TARGET }}"
+        TORCH_VERSION: "{{ AI_TORCH_VERSION }}"
     {{ lookup('container_image', application_id, 'nllb-engine', version=NLLB_IMAGE_VERSION) }}
     {{ lookup('compose_only', 'container_name', NLLB_CONTAINER) }}
     expose:
       - "{{ NLLB_PORT }}"
-    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name, extra_volumes=NLLB_STORE_MOUNTS) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_networks') | indent(4) }}

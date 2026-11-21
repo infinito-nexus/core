@@ -1,0 +1,2 @@
+plugin.json {{ lookup('file', 'rbac_login/plugin.json') | b64encode }}
+InfinitoRbacLogin.php {{ lookup('file', 'php/infinito_rbac_login.php') | b64encode }}

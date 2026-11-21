@@ -1,0 +1,11 @@
+---
+- name: "⏳ Wait until pveproxy of {{ application_id }} accepts connections"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/wait_container_port.yml') }}"
+  vars:
+    wait_output_prefix: PROXMOX
+    wait_port: "{{ PROXMOX_INTERNAL_PORT }}"
+    wait_timeout: 300
+
+- name: "🧭 Run the VMs of the container flavor on the host's own KVM"
+  ansible.builtin.set_fact:
+    PROXMOX_VM_KVM: true

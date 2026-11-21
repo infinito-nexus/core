@@ -1,0 +1,214 @@
+---
+ldap:
+  path: /admin/ldap
+  sinks: [SNIPE_IT_LDAP_SETTINGS]
+  fields:
+    ldap_enabled:
+      source: services.ldap.enabled
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_enabled"
+      type: checkbox
+      map: { true: 1, false: 0 }
+      label: LDAP integration
+    is_ad:
+      source: services.snipe-it.ldap.is_ad
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#is_ad"
+      type: checkbox
+      label: Active Directory
+    ldap_pw_sync:
+      source: services.snipe-it.ldap.ldap_pw_sync
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_pw_sync"
+      type: checkbox
+      label: LDAP password sync
+    ad_domain:
+      source: services.snipe-it.ldap.ad_domain
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ad_domain"
+      type: text
+      label: Active Directory domain
+    ldap_server:
+      source: services.snipe-it.ldap.ldap_server
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_server"
+      type: text
+      label: LDAP server
+    ldap_uname:
+      source: services.snipe-it.ldap.ldap_uname
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_uname"
+      type: text
+      label: LDAP bind username
+    ldap_basedn:
+      source: services.snipe-it.ldap.ldap_basedn
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_basedn"
+      type: text
+      label: Base bind DN
+    ldap_filter:
+      source: services.snipe-it.ldap.ldap_filter
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_filter"
+      type: text
+      label: LDAP filter
+    ldap_auth_filter_query:
+      source: services.snipe-it.ldap.ldap_auth_filter_query
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_auth_filter_query"
+      type: text
+      label: LDAP authentication query
+    ldap_username_field:
+      source: services.snipe-it.ldap.ldap_username_field
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_username_field"
+      type: text
+      label: Username field
+    ldap_lname_field:
+      source: services.snipe-it.ldap.ldap_lname_field
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_lname_field"
+      type: text
+      label: Last name field
+    ldap_fname_field:
+      source: services.snipe-it.ldap.ldap_fname_field
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_fname_field"
+      type: text
+      label: First name field
+    ldap_display_name:
+      source: services.snipe-it.ldap.ldap_display_name
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_display_name"
+      type: text
+      label: Display name field
+    ldap_emp_num:
+      source: services.snipe-it.ldap.ldap_emp_num
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_emp_num"
+      type: text
+      label: Employee number field
+    ldap_dept:
+      source: services.snipe-it.ldap.ldap_dept
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_dept"
+      type: text
+      label: Department field
+    ldap_email:
+      source: services.snipe-it.ldap.ldap_email
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_email"
+      type: text
+      label: Email field
+    ldap_phone_field:
+      source: services.snipe-it.ldap.ldap_phone_field
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_phone"
+      type: text
+      label: Telephone number field
+    ldap_mobile:
+      source: services.snipe-it.ldap.ldap_mobile
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_mobile"
+      type: text
+      label: Mobile field
+    ldap_jobtitle:
+      source: services.snipe-it.ldap.ldap_jobtitle
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_jobtitle"
+      type: text
+      label: Job title field
+    ldap_address:
+      source: services.snipe-it.ldap.ldap_address
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_address"
+      type: text
+      label: Address field
+    ldap_city:
+      source: services.snipe-it.ldap.ldap_city
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_city"
+      type: text
+      label: City field
+    ldap_state:
+      source: services.snipe-it.ldap.ldap_state
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_state"
+      type: text
+      label: State field
+    ldap_zip:
+      source: services.snipe-it.ldap.ldap_zip
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_zip"
+      type: text
+      label: Postal code field
+    ldap_country:
+      source: services.snipe-it.ldap.ldap_country
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#ldap_country"
+      type: text
+      label: Country field
+    custom_forgot_pass_url:
+      source: services.snipe-it.ldap.reset_url
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#custom_forgot_pass_url"
+      type: url
+      label: Password reset URL
+remote_user:
+  path: /admin/security
+  sinks: [SNIPE_IT_REMOTE_USER_SETTINGS]
+  fields:
+    login_remote_user_enabled:
+      source: services.sso.enabled
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'input[type="checkbox"][name="login_remote_user_enabled"]'
+      type: checkbox
+      map: { true: 1, false: 0 }
+      label: Remote user login
+    login_remote_user_header_name:
+      source: services.snipe-it.remote_user.login_remote_user_header_name
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'input[name="login_remote_user_header_name"]'
+      type: text
+      label: Remote user header
+    login_remote_user_custom_logout_url:
+      source: services.snipe-it.remote_user.login_remote_user_custom_logout_url
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'input[name="login_remote_user_custom_logout_url"]'
+      type: url
+      label: Remote user logout URL
+    login_common_disabled:
+      source: services.snipe-it.remote_user.login_common_disabled
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'input[type="checkbox"][name="login_common_disabled"]'
+      type: checkbox
+      label: Disable other login mechanisms

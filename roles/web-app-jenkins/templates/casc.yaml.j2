@@ -19,40 +19,56 @@ jenkins:
           wellKnownOpenIDConfigurationUrl: "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"
           scopesOverride: "openid profile email"
       userNameField: "{{ OIDC.ATTRIBUTES.USERNAME }}"
-      groupsFieldName: "groups"
+      fullNameFieldName: "{{ OIDC.ATTRIBUTES.NAME }}"
+      emailFieldName: "{{ OIDC.ATTRIBUTES.EMAIL }}"
+      groupsFieldName: "{{ RBAC.GROUP.CLAIM }}"
       logoutFromOpenidProvider: true
       rootURLFromRequest: true
-{% elif JENKINS_LDAP_ENABLED | bool %}
+{% elif JENKINS_LOGIN_LDAP | bool %}
   securityRealm:
     ldap:
       configurations:
         - server: "ldap://{{ lookup('config', 'svc-db-openldap', 'services.openldap.name') }}:{{ lookup('config', 'svc-db-openldap', 'services.openldap.ports.local.ldap') }}"
           rootDN: "{{ LDAP.DN.ROOT }}"
           userSearchBase: "{{ LDAP.OU.USERS }}"
-          userSearch: "uid={0}"
-          groupSearchBase: "{{ LDAP.OU.GROUPS }}"
+          userSearch: "{{ LDAP.USER.ATTRIBUTES.ID }}={0}"
+          groupSearchBase: "{{ LDAP.OU.ROLES }}"
+          displayNameAttributeName: "{{ LDAP.USER.ATTRIBUTES.FULLNAME }}"
+          mailAddressAttributeName: "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
           managerDN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
           managerPasswordSecret: "{{ LDAP.BIND_CREDENTIAL }}"
 {% else %}
   securityRealm:
     local:
-      allowsSignup: false
+      allowsSignup: {{ JENKINS_LOGIN_REGISTRATION | bool | lower }}
+{% if JENKINS_LOGIN_NATIVE | bool %}
       users:
         - id: "{{ lookup('users', 'platform_administrator').username }}"
           password: "{{ lookup('users', 'platform_administrator').password }}"
+{% endif %}
 {% endif %}
 
   authorizationStrategy:
     roleBased:
       roles:
         global:
-          - name: "admin"
-            description: "Administrators"
-            permissions:
-              - "Overall/Administer"
+{% for jenkins_role in JENKINS_AUTHORIZATION_ROLES %}
+          - name: "{{ jenkins_role.name }}"
+            description: "{{ jenkins_role.description }}"
+            permissions: {{ jenkins_role.permissions | to_json }}
             entries:
+{% if jenkins_role.rbac_role == 'administrator' %}
               - user: "{{ lookup('users', 'platform_administrator').username }}"
-              - group: "authenticated"
+{% endif %}
+{% if JENKINS_MCP_ENABLED | bool and jenkins_role.rbac_role == JENKINS_MCP_RBAC_ROLE %}
+              - user: "{{ JENKINS_MCP_USERNAME }}"
+{% endif %}
+{% if JENKINS_OIDC_ENABLED | bool %}
+              - group: "/{{ lookup('rbac_group_path', application_id=application_id, role=jenkins_role.rbac_role) }}"
+{% else %}
+              - group: "{{ application_id }}-{{ jenkins_role.rbac_role }}"
+{% endif %}
+{% endfor %}
 unclassified:
   location:
     url: "{{ lookup('tls', application_id, 'url.base') }}"

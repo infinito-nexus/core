@@ -1,10 +1,14 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-required - OpenBao keeps every secret, policy and PKI object in its own encrypted raft store on {{ lookup('volume', 'web-app-openbao', 'data').target }}; it has no S3/object-store surface.
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oidc
+  oidc:
+    clients:
+      web: openbao-web
 ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"
@@ -13,6 +17,12 @@ logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
   shared: "{{ 'web-svc-logout' in group_names }}"
+# nocheck: dynamic-flag  the UI logout must revoke the token on every deployment, with or without a co-deployed logout role
+# nocheck: playwright-service-flag  runtime logout hook without a probe-able surface flag, asserted by test-logout.js
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 dashboard:
   bond: 1
   enabled: "{{ 'web-app-dashboard' in group_names }}"
@@ -81,7 +91,34 @@ openbao:
   run_after:
     - web-app-keycloak
     - svc-db-openldap
+    - web-app-semaphore
+  workspaces:
+    audience: openbao
+    token_ttl:
+      deploy: 4h
+      provision: 4h
+      export: 1h
+    store:
+      secret_id_ttl: 720h
+      token_ttl: 1h
+      token_max_ttl: 4h
+    playwright:
+      secret_id_ttl: 168h
+      token_ttl: 15m
+      token_max_ttl: 30m
+      mount: platform
+      logins:
+        semaphore: playwright/semaphore
+        store: playwright/store
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-openbao', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-openbao', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-openbao', 'native') }}"
 # nocheck: playwright-service-flag  build-stage image of the LDAP auth plugin binary, never deployed as a container
 # nocheck: dynamic-flag  build-stage image, not group-gated
 auth-ldap:
@@ -106,3 +143,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology; the workspace mounts gated on this flag need a deployed Semaphore that no variant round of this role deploys, so only the false polarity runs here
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

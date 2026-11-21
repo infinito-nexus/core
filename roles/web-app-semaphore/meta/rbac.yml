@@ -1,2 +1,6 @@
 ---
-roles: {}
+roles:
+  operator:
+    description: Can pause and resume the deployed applications through the stop and start templates of the Infinito.Nexus project
+  user:
+    description: Can sign in to Semaphore through LDAP and work in the projects they are a member of

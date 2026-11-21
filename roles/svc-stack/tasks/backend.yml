@@ -1,0 +1,80 @@
+---
+# Param: stack_consumer_id - application_id of the consumer whose config this backend reads; every include site sets it.
+- name: "🐛 DEBUG | SVC-STACK | Application context"
+  ansible.builtin.debug:
+    msg:
+      - "application_id={{ application_id }}"
+      - "database_consumer_id={{ stack_backend_database_consumer_id }}"
+      - "database_enabled={{ stack_backend_database_enabled }}"
+      - "sso_proxy_enabled={{ lookup('sso', application_id, 'is_proxy_gated') }}"
+  when: lookup('debug', 'svc-stack') | bool
+
+- name: "🔌 For '{{ application_id }}': stage the MCP adapter instance"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
+  vars:
+    mcp_adapter_instance_dir: "{{ [lookup('container', application_id, 'directories.instance'), 'mcp'] | path_join }}"
+    mcp_adapter_upstream_key: "{{ lookup('config', stack_consumer_id, 'mcp.adapter.upstream_credential', false) | bool }}"
+  when:
+    - lookup('config', stack_consumer_id, 'mcp.implementation', '') == 'adapter'
+    - lookup('config', stack_consumer_id, 'services.' ~ lookup('config', stack_consumer_id, 'mcp.endpoint.service_key') ~ '.enabled', false) | bool
+
+- name: "🧩 For '{{ application_id }}': Load central RDBMS"
+  include_role:
+    name: sys-svc-rdbms
+    public: false
+  vars:
+    database_consumer_id: "{{ stack_backend_database_consumer_id }}"
+  when: stack_backend_database_enabled | bool
+
+- name: "🧩 '{{ application_id }}': load per-consumer central object store"
+  include_role:
+    name: sys-svc-objstore
+    public: false
+  vars:
+    objstore_consumer_id: "{{ application_id }}"
+  when:
+    - lookup('objstore', application_id, 'enabled') | bool
+    - lookup('objstore', application_id, 'shared') | bool
+    - application_id != lookup('objstore', application_id, 'id')
+
+- name: "🧩 For '{{ application_id }}': Load central engines (per-consumer provisioning)"
+  include_role:
+    name: sys-svc-engine
+    public: false
+  vars:
+    engine_consumer_id: "{{ application_id }}"
+
+- name: "🧩 For '{{ application_id }}': Load sys-svc-compose"
+  include_role:
+    name: sys-svc-compose
+  vars:
+    compose_handlers_flush: false
+    database_consumer_id: "{{ stack_backend_database_consumer_id }}"
+    compose_repository_url: "{{ stack_backend_checkout_url }}"
+    compose_repository_ref: "{{ lookup('config', stack_consumer_id, 'services.stack.checkout.ref', '') }}"
+    compose_repository_recursive: "{{ stack_backend_checkout_recursive }}"
+    compose_repository_bases: "{{ stack_backend_checkout_bases }}"
+    compose_repository_dockerfiles: "{{ stack_backend_checkout_dockerfiles }}"
+
+- name: "📄 For '{{ application_id }}': render the Keycloak SSO-proxy sidecar config"
+  include_tasks: "{{ lookup('path_absolute', 'roles/web-app-keycloak/tasks/sso_proxy.yml') }}"
+  vars:
+    sso_proxy_application_id: "{{ stack_batch_consumer }}"
+  when: lookup('sso', application_id, 'is_proxy_gated') | bool
+
+- name: "📂 For '{{ application_id }}': re-own the compose handler topics before the flush"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+    tasks_from: none.yml
+    handlers_from: main
+
+- name: "🚿 flush compose and SSO proxy"
+  meta: flush_handlers
+  when: stack_backend_flush | bool
+
+- name: "🔑 For '{{ application_id }}': realign a dedicated postgres"
+  include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-rdbms/tasks/utils/realign_dedicated_db.yml') }}"
+    apply:
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true

@@ -1,9 +1,11 @@
+import os
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
 import yaml
 
-from utils.cache.files import read_text
+from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_str
 
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[5]
@@ -15,6 +17,7 @@ __all__ = [
     "load_role_meta",
     "pin_line",
     "role_dirs",
+    "role_files",
     "variant_spans",
 ]
 
@@ -22,6 +25,28 @@ __all__ = [
 def role_dirs() -> list[Path]:
     """Every role directory under ``roles/``, sorted by name."""
     return sorted(path for path in ROLES_DIR.iterdir() if path.is_dir())
+
+
+@lru_cache(maxsize=1)
+def _files_by_role() -> dict[str, tuple[Path, ...]]:
+    prefix = f"{ROLES_DIR}{os.sep}"
+    grouped: dict[str, list[Path]] = {}
+    for path in iter_project_files():
+        if path.startswith(prefix):
+            role = path[len(prefix) :].split(os.sep, 1)[0]
+            grouped.setdefault(role, []).append(Path(path))
+    return {role: tuple(sorted(paths)) for role, paths in grouped.items()}
+
+
+def role_files(role: Path) -> tuple[Path, ...]:
+    """
+    Args:
+        role: a role directory under ``roles/``.
+
+    Returns:
+        Every file of the role, sorted.
+    """
+    return _files_by_role().get(role.name, ())
 
 
 def variant_spans(lines: list[str]) -> list[range]:

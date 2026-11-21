@@ -1,0 +1,15 @@
+---
+SYS_SYSCTL_CORE_HANDLER: "/usr/lib/systemd/systemd-coredump"
+SYS_SYSCTL_CORE_PIPE: "|{{ SYS_SYSCTL_CORE_HANDLER }} %P %u %g %s %t %c %h %d %F"
+SYS_SYSCTL_CORE_DIR: "{{ [DIR_VAR_LIB, 'coredump'] | path_join }}"
+SYS_SYSCTL_CORE_DIR_MODE: "1733"
+SYS_SYSCTL_DROPIN_DIR_MODE: "0755"
+SYS_SYSCTL_CORE_FILE: "{{ [SYS_SYSCTL_CORE_DIR, 'core.%e.%p.%t'] | path_join }}"
+SYS_SYSCTL_CORE_PATTERN: "{{ SYS_SYSCTL_CORE_PIPE if sys_sysctl_core_handler.stat.exists else SYS_SYSCTL_CORE_FILE }}"
+SYS_SYSCTL_NAMESPACED: "^(net\\..+|kernel\\.(shm[a-z_]+|msg[a-z_]+|sem|sem_next_id|hostname|domainname)|fs\\.mqueue\\..+)$"
+SYS_SYSCTL_OWNER_PATTERN: "^[a-z0-9][a-z0-9-]*$"
+SYS_SYSCTL_OWNER_RESERVED: ["sysctl"]
+sys_sysctl_file: "/etc/sysctl.d/99-{{ sys_sysctl_owner }}.conf"
+sys_sysctl_items: "{{ sys_sysctl_parameters | dict2items }}"
+sys_sysctl_writable: "{{ (sys_sysctl_items | selectattr('key', 'match', SYS_SYSCTL_NAMESPACED) | list) if (DOCKER_IN_CONTAINER | bool) else sys_sysctl_items }}"
+sys_sysctl_skipped: "{{ sys_sysctl_items | rejectattr('key', 'in', sys_sysctl_writable | map(attribute='key') | list) | list }}"

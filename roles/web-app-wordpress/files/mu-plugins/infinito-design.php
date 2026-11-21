@@ -2,7 +2,7 @@
 // nocheck: mirrored-unit-test - registers WordPress hooks at load from the infinito_design option; every body only runs inside a booted WordPress request
 /**
  * Plugin Name: Infinito.Nexus Corporate Design
- * Description: Registers the corporate admin color scheme, styles the sign-in page and hands the design tokens to the editor canvas, from the infinito_design option the deploy writes.
+ * Description: Registers the corporate admin color scheme, styles the sign-in page, hands the design tokens to the editor canvas and keeps the site icon, the site logo and the global styles the deploy wrote for every other writer, from the infinito_design option the deploy writes.
  */
 
 if (!defined('ABSPATH')) {
@@ -87,4 +87,23 @@ if (!defined('ABSPATH')) {
             wp_enqueue_style('infinito-design-tokens-' . $index, $url, [], null);
         }
     });
+
+    foreach ($design['logos'] as $option => $id) {
+        add_filter('pre_update_option_' . $option, static function ($value) use ($id) {
+            return defined('NEXUS_DESIGN_WRITER') ? $value : $id;
+        }, PHP_INT_MAX);
+    }
+
+    add_filter('wp_insert_post_data', static function (array $data) use ($design): array {
+        if (defined('NEXUS_DESIGN_WRITER') || $data['post_type'] !== 'wp_global_styles') {
+            return $data;
+        }
+        foreach ($design['global_styles'] as $theme => $styles) {
+            if ($data['post_name'] === 'wp-global-styles-' . urlencode((string) $theme)) {
+                $data['post_content'] = wp_slash(wp_json_encode($styles));
+            }
+        }
+
+        return $data;
+    }, PHP_INT_MAX);
 })();

@@ -1,6 +1,7 @@
 import re
 
 from utils.cache.yaml import dump_yaml_str, load_yaml_str
+from utils.templating.ansible import to_plain
 
 
 def _port_host_ip(port):
@@ -17,6 +18,7 @@ def compose_mods(
     yml_text,
     compose_repository_path,
     env_file,
+    container_logging,
     publish_host,
     extra_hosts=None,
     pinned=None,
@@ -29,6 +31,10 @@ def compose_mods(
             all repo-relative ``./`` paths are rewritten against it because
             the final file lives in the instance dir, not the clone.
         env_file: env file broadcast to every service via ``env_file``.
+        container_logging: the rendered logging contract
+            (``roles/sys-svc-container/templates/logging.yml.j2``) as a
+            mapping with ``labels`` and ``logging``; its labels are merged
+            into and its logging block replaces every service's own.
         publish_host: host address the reverse proxy reaches the stack on
             (``services.bigbluebutton.upstream_host``). Port bindings the
             upstream file pins to any other host address are dropped: they
@@ -56,6 +62,9 @@ def compose_mods(
         flags=re.MULTILINE,
     )
 
+    contract_labels = container_logging["labels"]
+    contract_logging = container_logging["logging"]
+
     data = load_yaml_str(yml_text) or {}
     services = data.get("services", {}) or {}
 
@@ -64,6 +73,17 @@ def compose_mods(
             continue
 
         svc["env_file"] = [env_file]
+
+        labels = svc.get("labels")
+        if isinstance(labels, list):
+            labels = {
+                key: value
+                for key, _, value in (str(entry).partition("=") for entry in labels)
+            }
+        elif not isinstance(labels, dict):
+            labels = {}
+        svc["labels"] = {**labels, **contract_labels}
+        svc["logging"] = dict(contract_logging)
 
         if isinstance(svc.get("ports"), list):
             svc["ports"] = [
@@ -87,7 +107,7 @@ def compose_mods(
             svc.pop("build")
 
     data["services"] = services
-    return dump_yaml_str(data)
+    return dump_yaml_str(to_plain(data))
 
 
 class FilterModule:

@@ -12,14 +12,20 @@ This role deploys OpenClaw as a gateway container behind the reverse proxy on it
 
 - **Agent gateway:** The container runs the OpenClaw gateway bound to the LAN interface on port 18789, with an HTTP health check against `/healthz`.
 - **Isolating runtime:** The compose service is pinned to Kata Containers where `/dev/kvm` and the Kata shim are available, and to gVisor otherwise.
-- **Single sign-on:** When Keycloak is deployed, an OAuth2 proxy sits in front of the gateway and admits only members of the administrator group of this application.
-- **Gateway token:** A generated gateway token guards the Control UI and the API, and the Control UI accepts its domain in every network the gateway is served on, such as the clearnet domain and its onion sibling, as its allowed origins.
-- **Reverse-proxy trust:** `gateway.trustedProxies` carries the project-wide trusted-proxy CIDRs. Without them the gateway answers a Control UI WebSocket that arrives with forwarded headers from an untrusted source with `trusted_proxy_untrusted_source` and closes it before the pairing step, which the Control UI reports as a network failure rather than as a pairing prompt.
+- **Single sign-on:** When Keycloak is deployed, an OAuth2 proxy sits in front of the gateway and admits only members of the `administrator` and `mcp` role groups of this application (`sso.oauth2.allowed_groups` in `meta/services.yml`). Every other Keycloak user, biber included, gets a 403 from the proxy.
+- **Trusted-proxy authentication:** With single sign-on, the gateway runs in `gateway.auth.mode: "trusted-proxy"`. It reads the signed-in user from the `X-Forwarded-Preferred-Username` header the front proxy sets from the OAuth2 proxy response, requires `X-Forwarded-User` and the secret header only the front proxy sends, and leaves `gateway.auth.trustedProxy.allowUsers` empty: the OAuth2 proxy admits only the role groups in `sso.oauth2.allowed_groups`, so a user added to such a group in Keycloak reaches the gateway at the next sign-in. The Control UI needs no gateway token in this mode; device pairing still applies to every new browser.
+- **Gateway token:** Without single sign-on, a generated gateway token guards the Control UI and the API. With single sign-on, the same secret is the gateway password (`OPENCLAW_GATEWAY_PASSWORD`) for the CLI inside the container, which reaches the gateway over loopback. The Control UI accepts its domain in every network the gateway is served on, such as the clearnet domain and its onion sibling, as its allowed origins.
+- **Reverse-proxy trust:** `gateway.trustedProxies` carries only the address space the front proxy connects from: the role subnet pool (`NETWORK_ROLE_SUBNET_POOL`) in both deployment modes. In compose mode the proxy reaches the gateway through a role network gateway; in swarm mode it reaches the gateway through the load-balancer address of a role overlay, and every role overlay carries the subnet its role pins in `meta/networks.yml`, a block of the same pool. Loopback and the other private ranges are no longer trusted. Without the proxy's source the gateway answers a Control UI WebSocket that arrives with forwarded headers with `trusted_proxy_untrusted_source` and closes it before the pairing step, which the Control UI reports as a network failure rather than as a pairing prompt.
+- **Proxy-owned secret header:** the vhost sends a header named `x-infinito-sso-proxy-<sso_proxy_secret>` with every request, and `gateway.auth.trustedProxy.requiredHeaders` lists it next to `x-forwarded-user`. A client that reaches the gateway port directly, including a process on the host that connects to the published port, cannot name that header, so the gateway answers its forged identity headers with 401. The gateway sends no failure reason to the client. `files/test/test.sh` asserts the refusal on the published port.
 - **Corporate design:** With the design service deployed, the Control UI renders the corporate palette, logo and title in light and dark mode. See [Control UI](#control-ui).
 - **Model gateway key:** With the LiteLLM Gateway deployed, that gateway provisions a per-consumer virtual key aliased to this application.
 - **MCP client contract:** With Home Assistant deployed, the role declares the MCP client side of the platform contract as an internal streamable-HTTP client with a read-only tool policy. The MCP server list itself lives in `openclaw.json`, not in the container environment.
 - **Persistent state:** Memory and workspace live in a volume mounted at `/home/node/.openclaw`, with the rendered `openclaw.json` mounted into it, and are included in the container volume backup when that service is deployed.
 - **Compose and Swarm:** The role deploys in both modes and renders the gateway configuration file for the local host and the swarm peers.
+
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to. A follow-up tightens them.
 
 ## Further Resources
 
@@ -29,12 +35,14 @@ This role deploys OpenClaw as a gateway container behind the reverse proxy on it
 
 ### Sign-in
 
-The Control UI asks for the gateway token and pairs every new browser once:
+The Control UI pairs every new browser once:
 
-1. Open the canonical domain and paste `applications.web-app-openclaw.secrets.credentials.gateway_token` into **Gateway Token**, then select **Connect**.
+1. Open the canonical domain. With single sign-on, sign in at Keycloak and select **Connect**. Without single sign-on, paste `applications.web-app-openclaw.secrets.credentials.gateway_token` into **Gateway Token**, then select **Connect**.
 2. List the pending request on the host of the container: `container exec openclaw node dist/index.js devices list`.
 3. Approve it: `container exec openclaw node dist/index.js devices approve <requestId>`.
 4. Select **Connect** again.
+
+To admit another user with single sign-on, add them to the `administrator` or `mcp` role group of `web-app-openclaw` in Keycloak and deploy this role again.
 
 ### Corporate design
 
@@ -70,7 +78,8 @@ rendering, so no entry carries a credential the server would reject.
 
 OpenClaw exposes no administrator-visible list of configured MCP servers, so the
 configured set is proven by a CLI test instead:
-[`files/test/test.sh`](./files/test/test.sh) probes the agent's `mcp` surface and
+[`files/test/test.sh`](./files/test/test.sh) first lists the gateway's devices
+through the in-container CLI, which proves the CLI credential, then probes the agent's `mcp` surface and
 fails when the exec itself fails or the output carries a `failed to start server`
 line. The Playwright spec covers the complementary case, that the gateway
 holding the MCP credentials refuses an unauthenticated caller.

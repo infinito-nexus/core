@@ -1,51 +1,174 @@
 ---
 portfolio_menu_categories:
 
-  Community:
-    description: "Tools to manage the community"
+  Communication & Collaboration:
+    description: "Chat, mail, meetings, shared files and project work."
+    icon: "fa-solid fa-comments"
+    children:
+      Chat & Messaging:
+        description: "Instant messaging and team chat."
+        icon: "fa-solid fa-comment-dots"
+        tags:
+          - chat
+          - communication
+          - matrix
+          - xmpp
+          - mattermost
+      Mail:
+        description: "Email servers and webmail."
+        icon: "fa-solid fa-envelope"
+        tags:
+          - mail
+          - email
+          - mailu
+          - stalwart
+      Meetings:
+        description: "Video conferences and live events."
+        icon: "fa-solid fa-video"
+        tags:
+          - video
+          - bigbluebutton
+          - jitsi
+          - opentalk
+      Cloud & Office:
+        description: "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
+        icon: "fa-solid fa-cloud"
+        tags:
+          - nextcloud
+          - owncloud
+          - opencloud
+          - cloud
+          - etherpad
+      Project Management:
+        description: "Project Management Tools"
+        icon: "fa-solid fa-chart-line"
+        tags:
+          - project
+          - kanban
+          - openproject
+          - taiga
+          - jira
+
+  Community & Social:
+    description: "Social networks, forums and events for your community."
     icon: "fa-solid fa-users"
-    tags:
-      - community
-      - forum
-      - learning
-      - newsletter
-      - discourse
-      - listmonk
-      - mybb
-      - mobilizon
-      - friendica
+    children:
+      Social Media:
+        description: "Social Media Tools"
+        icon: "fa-solid fa-share-nodes"
+        tags:
+          - microblog
+          - video platform
+          - streaming platform
+          - music platform
+          - social network
+          - bluesky
+          - funkwhale
+          - mastodon
+          - peertube
+          - pixelfed
+          - friendica
+          - bookwyrm
+      Community:
+        description: "Tools to manage the community"
+        icon: "fa-solid fa-people-group"
+        tags:
+          - community
+          - forum
+          - newsletter
+          - discourse
+          - listmonk
+          - mybb
+          - friendica
+      Events:
+        description: "Event and ticket management tools"
+        icon: "fa-solid fa-ticket-alt"
+        tags:
+          - events
+          - ticketing
+          - attendize
+          - mobilizon
+          - pretix
 
-  Education:
-    description: "Learning platforms, classroom collaboration tools, and digital education environments."
-    icon: "fa-solid fa-graduation-cap"
-    tags:
-      - education
-      - learning
-      - classroom
-      - lms
-      - school
-      - university
-      - moodle
+  Business:
+    description: "Customers, finance, sales and assets of your organization."
+    icon: "fa-solid fa-briefcase"
+    children:
+      Customer Relationship:
+        description: "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
+        icon: "fa-solid fa-address-book"
+        tags:
+          - crm
+          - customer
+          - support
+          - espocrm
+      Finance & Accounting:
+        description: "Financial and accounting software"
+        icon: "fa-solid fa-dollar-sign"
+        tags:
+          - finance
+          - accounting
+          - invoices
+          - akaunting
+      Commerce:
+        description: "Platforms for building and managing online shops, product catalogs, and digital sales channels, including payment, inventory, and customer features."
+        icon: "fa-solid fa-cart-shopping"
+        tags:
+          - commerce
+          - ecommerce
+          - sales
+          - shop
+          - store
+          - shopware
+          - magento
+          - pretix
+      Marketing:
+        description: "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
+        icon: "fa-solid fa-bullhorn"
+        tags:
+          - marketing
+          - newsletter
+          - campaigns
+          - listmonk
+      Asset Management:
+        description: "Tools to inventory, track, and manage hardware and software assets across your organization."
+        icon: "fas fa-cubes"
+        tags:
+          - snipe-it
 
-  Help:
-    description: "Central help resources, including documentation, support tools, and guidance."
-    icon: "fa-solid fa-circle-question"
-    tags:
-      - sphinx
-      - dashboard
-      - navigation
-      - presentation
-      - portfolio
-      - mig
-
-  Marketing:
-    description: "Tools for email campaigns, audience engagement, automation, and digital marketing workflows."
-    icon: "fa-solid fa-bullhorn"
-    tags:
-      - marketing
-      - newsletter
-      - campaigns
-      - listmonk
+  Knowledge & Content:
+    description: "Websites, documentation and learning."
+    icon: "fa-solid fa-book-open"
+    children:
+      Content Management:
+        description: "Content Management Systems (CMS) and web publishing platforms"
+        icon: "fa-solid fa-file-alt"
+        tags:
+          - cms
+          - blogging
+          - publishing
+          - website
+          - joomla
+          - wordpress
+          - blog
+      Documentation:
+        description: "Documentation and Wiki Applications"
+        icon: "fa fa-book"
+        tags:
+          - confluence
+          - xwiki
+          - mediawiki
+      Education:
+        description: "Learning platforms, classroom collaboration tools, and digital education environments."
+        icon: "fa-solid fa-graduation-cap"
+        tags:
+          - education
+          - learning
+          - classroom
+          - lms
+          - school
+          - university
+          - moodle
 
   Artificial Intelligence:
     description: "AI tools and frameworks for running, managing, and experimenting with models."
@@ -60,34 +183,86 @@ portfolio_menu_categories:
       - qdrant
       - litellm
 
-  Project Management:
-    description: "Project Management Tools"
-    icon: "fa-solid fa-chart-line"
-    tags:
-      - project
-      - kanban
-      - openproject
-      - taiga
-      - jira
+  Administration:
+    description: "Users, servers, infrastructure and development."
+    icon: "fa-solid fa-screwdriver-wrench"
+    children:
+      User Management:
+        description: "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
+        icon: "fa-solid fa-user-shield"
+        tags:
+          - iam
+          - identity-management
+          - authentication
+          - access-control
+          - sso
+          - keycloak
+          - lam
+          - ldap
+          - fusiondirectory
+          - user-management
+      Server Administration:
+        description: "Administration tools for servers"
+        icon: "fas fa-building"
+        tags:
+          - elk
+          - mariadb
+          - pgadmin
+          - phpldapadmin
+          - phpmyadmin
+          - postgres
+      Analytics:
+        description: "Tools to measure, visualize, and optimize website performance and user behavior through data-driven insights."
+        icon: "fas fa-chart-line"
+        tags:
+          - matomo
+          - analytics
+          - monitoring
+      Infrastructure:
+        description: "Infrastructure and networking tools"
+        icon: "fa-solid fa-network-wired"
+        tags:
+          - infrastructure
+          - networking
+          - proxy
+          - turn
+          - stun
+          - coturn
+          - oauth2-proxy
+          - registry
+      Storage:
+        description: "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data, including object storage compatible
+          with Amazon S3 APIs."
+        icon: "fa-solid fa-database"
+        tags:
+          - storage
+          - object-storage
+          - s3
+          - minio
+          - datasets
+      Development:
+        description: "Development and CI/CD tools"
+        icon: "fa-solid fa-code-branch"
+        tags:
+          - development
+          - version control
+          - ci/cd
+          - git
+          - gitea
+          - gitlab
+          - jenkins
+      Tools:
+        description: "Helpful Tools"
+        icon: "fas fa-tools"
+        tags:
+          - tools
+          - utility
+          - baserow
+          - compose
+          - repository-setup
+          - yourls
 
-  Social Media:
-    description: "Social Media Tools"
-    icon: "fa-solid fa-share-nodes"
-    tags:
-      - microblog
-      - video platform
-      - streaming platform
-      - music platform
-      - social network
-      - bluesky
-      - funkwhale
-      - mastodon
-      - peertube
-      - pixelfed
-      - friendica
-      - bookwyrm
-
-  Games:
+  Leisure:
     description: "Gaming platforms and entertainment applications."
     icon: "fa-solid fa-gamepad"
     tags:
@@ -97,183 +272,18 @@ portfolio_menu_categories:
       - game
       - roulette
 
-  Communication:
-    description: "Tools for communication"
-    icon: "fa-solid fa-comments"
+  Help:
+    description: "Central help resources, including documentation, support tools, and guidance."
+    icon: "fa-solid fa-circle-question"
     tags:
-      - chat
-      - communication
-      - video
-      - mail
-      - email
-      - bigbluebutton
-      - etherpad
-      - mailu
-      - matrix
-      - xmpp
+      - sphinx
+      - dashboard
+      - navigation
+      - presentation
+      - portfolio
+      - mig
 
-  Cloud:
-    description: "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
-    icon: "fa-solid fa-cloud"
-    tags:
-      - nextcloud
-      - owncloud
-      - cloud
-
-  User Management:
-    description: "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
-    icon: "fa-solid fa-user-shield"
-    tags:
-      - iam
-      - identity-management
-      - authentication
-      - access-control
-      - sso
-      - keycloak
-      - lam
-      - ldap
-      - fusiondirectory
-      - user-management
-
-  Customer Relationship:
-    description: "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
-    icon: "fa-solid fa-address-book"
-    tags:
-      - crm
-      - customer
-      - marketing
-      - support
-      - espocrm
-
-  Server Administration:
-    description: "Administration Tools für servers"
-    icon: "fas fa-building"
-    tags:
-      - elk
-      - mariadb
-      - pgadmin
-      - phpldapadmin
-      - phpmyadmin
-      - postgres
-
-  Sales:
-    description: "Applications for e-commerce, ticketing, and sales management."
-    icon: "fa-solid fa-shopping-cart"
-    tags:
-      - sales
-      - ecommerce
-      - shop
-      - store
-      - ticketing
-      - pretix
-      - magento
-
-  Tools:
-    description: "Helpful Tools"
-    icon: "fas fa-tools"
-    tags:
-      - tools
-      - utility
-      - baserow
-      - compose
-      - repository-setup
-      - yourls
-
-  Documentation:
-    description: "Documentation and Wiki Applications"
-    icon: "fa fa-book"
-    tags:
-      - confluence
-      - xwiki
-      - mediawiki
-
-  Finance & Accounting:
-    description: "Financial and accounting software"
-    icon: "fa-solid fa-dollar-sign"
-    tags:
-      - finance
-      - accounting
-      - invoices
-      - akaunting
-      - snipe-it
-
-  Events:
-    description: "Event and ticket management tools"
-    icon: "fa-solid fa-ticket-alt"
-    tags:
-      - events
-      - ticketing
-      - attendize
-
-  Infrastructure:
-    description: "Infrastructure and networking tools"
-    icon: "fa-solid fa-network-wired"
-    tags:
-      - infrastructure
-      - networking
-      - proxy
-      - turn
-      - stun
-      - coturn
-      - oauth2-proxy
-      - registry
-
-  Development:
-    description: "Development and CI/CD tools"
-    icon: "fa-solid fa-code-branch"
-    tags:
-      - development
-      - version control
-      - ci/cd
-      - git
-      - gitea
-      - gitlab
-      - jenkins
-
-  Analytics:
-    description: "Tools to measure, visualize, and optimize website performance and user behavior through data-driven insights."
-    icon: "fas fa-chart-line"
-    tags:
-      - matomo
-
-  Asset Management:
-    description: "Tools to inventory, track, and manage hardware and software assets across your organization."
-    icon: "fas fa-cubes"
-    tags:
-      - snipe-it
-
-  Content Management:
-    description: "Content Management Systems (CMS) and web publishing platforms"
-    icon: "fa-solid fa-file-alt"
-    tags:
-      - cms
-      - blogging
-      - publishing
-      - website
-      - joomla
-      - wordpress
-      - blog
-
-  Commerce:
-    description: "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-    icon: "fa-solid fa-cart-shopping"
-    tags:
-      - commerce
-      - ecommerce
-      - shopware
-      - shop
-      - sales
-      - store
-      - magento
-      - pretix
-
-  Storage:
-    description: "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with
-      Amazon S3 APIs."
-    icon: "fa-solid fa-database"
-    tags:
-      - storage
-      - object-storage
-      - s3
-      - minio
-      - datasets
+  Other:
+    description: "Applications without a matching folder."
+    icon: "fa-solid fa-question"
+    fallback: true

@@ -1,10 +1,15 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-required - Checkmk Raw bundles its own monitoring core + RRD storage on a single OMD-site volume; it has no object-store surface.
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oauth2
+  header_trust:
+    proxy_secret: false
+    switch: services.sso.enabled
+    files: [files/shell/configure-sso.sh]
   oauth2:
     origin:
       host: checkmk
@@ -12,7 +17,10 @@ sso:
     acl:
       whitelist:
         - /cmk/check_mk/api/
-# nocheck: playwright-service-flag - identity backend (LDAP connection synced into the site); login is driven through the oauth2 gate, so there is no separate LDAP Playwright surface.
+    allowed_groups:
+      - "{{ lookup('rbac_group_path', application_id='web-app-checkmk', role='administrator') }}"
+      - "{{ lookup('rbac_group_path', application_id='web-app-checkmk', role='user') }}"
+      - "{{ lookup('rbac_group_path', application_id='web-app-checkmk', role='guest') }}"
 ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"
@@ -31,8 +39,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
@@ -118,8 +126,8 @@ checkmkmcp:
   enabled: "{{ lookup('config', 'web-app-checkmk', 'mcp.enabled') | bool }}"
   shared: false
   image: python
-  # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
-  version: "3.13.15-slim"
+  version: "3.13.18-slim"
+  follow: requires-python
   custom: true
   name: checkmkmcp
   cpus: "0.25"
@@ -129,11 +137,6 @@ checkmkmcp:
   ports:
     internal:
       http: 8080
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "3.13.15-slim"
-        until: 2026-11-30
 # nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
 openwebui:
   bond: 0.5
@@ -160,3 +163,24 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  flush: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

@@ -1,0 +1,171 @@
+(function () {
+  const LOCKS = {{ lookup('field_locks', application_id).locks | to_inline_js }};
+  const CATALOGUE = {{ lookup('template', 'roles/sys-front-inj-javascript/templates/profile_lock_catalogue.json.j2') }};
+  const BANNER = "infinito-managed-fields";
+  const TYPED = ["text", "search", "url", "tel", "email", "password", "date", "month", "week", "time", "datetime-local", "number"];
+  const UNPOSTED = ["button", "submit", "reset", "image", "file"];
+  let scheduled = false;
+  let locked = [];
+
+  function speak() {
+    const tags = [document.documentElement.lang, navigator.language];
+    for (let i = 0; i < tags.length; i += 1) {
+      const tag = String(tags[i] || "").toLowerCase();
+      if (CATALOGUE[tag]) { return CATALOGUE[tag]; }
+      const base = tag.split("-")[0];
+      if (CATALOGUE[base]) { return CATALOGUE[base]; }
+    }
+    return CATALOGUE.en;
+  }
+
+  function onPage(page) {
+    const route = page.indexOf("#") === -1 ? "" : location.hash;
+    return (location.pathname + location.search + route).indexOf(page) === 0;
+  }
+
+  function editing(entry) {
+    if (!entry.record) { return ""; }
+    const field = document.querySelector(entry.record.selector);
+    return field && entry.record.values.indexOf(field.value) !== -1 ? field.value : null;
+  }
+
+  function toggles(field) {
+    return field.tagName === "INPUT" && (field.type === "radio" || field.type === "checkbox");
+  }
+
+  function typed(field) {
+    return field.tagName === "TEXTAREA" || (field.tagName === "INPUT" && TYPED.indexOf(field.type) !== -1);
+  }
+
+  function lockProperty(field) {
+    return typed(field) ? "readOnly" : "disabled";
+  }
+
+  function posts(field) {
+    return field.tagName === "SELECT" || (field.tagName === "INPUT" && UNPOSTED.indexOf(field.type) === -1);
+  }
+
+  function submitted(field) {
+    if (field.tagName === "SELECT") {
+      return Array.prototype.map.call(field.selectedOptions || [], function (option) { return option.value; });
+    }
+    return !toggles(field) || field.checked ? [field.value] : [];
+  }
+
+  function carry(field) {
+    if (!field.name || lockProperty(field) !== "disabled" || !posts(field)) { return; }
+    field.infinitoCarriers = submitted(field).map(function (value) {
+      const carrier = document.createElement("input");
+      carrier.type = "hidden";
+      carrier.name = field.name;
+      carrier.value = value;
+      field.insertAdjacentElement("afterend", carrier);
+      return carrier;
+    });
+  }
+
+  function release(field) {
+    const warning = field.infinitoWarning;
+    if (field.infinitoHeld) { field[lockProperty(field)] = false; }
+    (field.infinitoCarriers || []).forEach(function (carrier) { carrier.remove(); });
+    [field, field.parentElement].concat(Array.prototype.slice.call(field.labels || [])).forEach(function (target) {
+      if (target && warning && target.title === warning) { target.title = ""; }
+    });
+    field.removeAttribute("aria-readonly");
+    field.style.cursor = "";
+    field.infinitoHeld = false;
+    field.infinitoCarriers = [];
+    field.infinitoWarning = "";
+    field.infinitoRecord = undefined;
+  }
+
+  function unlock(entry, field) {
+    if (!field.infinitoWarning || !window.confirm(speak().unlock)) { return; }
+    entry.unlocked = field.infinitoRecord;
+    document.querySelectorAll(entry.selector).forEach(function (control) { release(control); });
+  }
+
+  function lock(field, entry, warning) {
+    const labels = Array.prototype.slice.call(field.labels || []);
+    if (!field[lockProperty(field)]) {
+      field[lockProperty(field)] = true;
+      field.infinitoHeld = true;
+      carry(field);
+    }
+    field.infinitoWarning = warning;
+    if (entry.secret && field.tagName === "INPUT" && typed(field)) { field.type = "password"; }
+    field.setAttribute("aria-readonly", "true");
+    field.title = warning;
+    field.style.cursor = "not-allowed";
+    labels.forEach(function (label) { label.title = warning; });
+    if (field.parentElement) { field.parentElement.title = warning; }
+    if (entry.path === null || field.infinitoUnlockable) { return; }
+    field.infinitoUnlockable = true;
+    [field].concat(labels).forEach(function (target) {
+      target.addEventListener("dblclick", function () { unlock(entry, field); });
+    });
+  }
+
+  function banner(text, anchor) {
+    let element = document.getElementById(BANNER);
+    if (!text) {
+      if (element) { element.remove(); }
+      return;
+    }
+    if (element && element.textContent === text) { return; }
+    if (!element) {
+      element = document.createElement("div");
+      element.id = BANNER;
+      element.setAttribute("role", "note");
+      element.style.cssText = "margin:0.5em 0;padding:0.5em 1em;border:1px solid;border-radius:4px";
+      const parent = anchor ? anchor.parentNode : document.body;
+      parent.insertBefore(element, anchor || document.body.firstChild);
+    }
+    element.textContent = text;
+  }
+
+  function run() {
+    scheduled = false;
+    const messages = speak();
+    const managed = [];
+    const current = [];
+    let anchor = null;
+    LOCKS.forEach(function (entry) {
+      const key = onPage(entry.page) ? editing(entry) : null;
+      if (key !== entry.unlocked) { entry.unlocked = undefined; }
+      if (key === null) { return; }
+      const warning = entry.path === null ? messages.locked : messages.managed + " " + entry.path;
+      const fields = document.querySelectorAll(entry.selector);
+      if (entry.path !== null && fields.length) {
+        managed.push(entry.label + ": " + entry.path);
+        anchor = anchor || fields[0].form || null;
+      }
+      if (key === entry.unlocked) { return; }
+      fields.forEach(function (field) {
+        current.push(field);
+        field.infinitoRecord = key;
+        if (field.title !== warning) { lock(field, entry, warning); }
+      });
+    });
+    locked.forEach(function (field) {
+      if (current.indexOf(field) === -1) { release(field); }
+    });
+    locked = current;
+    banner(managed.length ? messages.banner + " " + managed.join("; ") : "", anchor);
+  }
+
+  function schedule() {
+    if (scheduled) { return; }
+    scheduled = true;
+    requestAnimationFrame(run);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run, { once: true });
+  } else {
+    run();
+  }
+
+  new MutationObserver(schedule).observe(document.documentElement, { childList: true, subtree: true });
+  window.addEventListener("hashchange", schedule);
+})();

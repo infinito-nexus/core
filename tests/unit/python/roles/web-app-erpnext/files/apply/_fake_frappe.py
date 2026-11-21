@@ -10,17 +10,44 @@ from __future__ import annotations
 
 import copy
 import datetime as dt
+import importlib
+import importlib.util
 import io
 import os
+import re
 import runpy
 import sys
 from contextlib import redirect_stdout
 from types import ModuleType, SimpleNamespace
 from unittest.mock import patch
 
+from ldap3.utils import conv as ldap_conv
+
+from . import PROJECT_ROOT
+
+APP_TESTS = (
+    PROJECT_ROOT
+    / "tests/unit/python/roles/web-app-erpnext/files/infinito_rbac/infinito_rbac"
+)
+_app_tests_spec = importlib.util.spec_from_file_location(
+    "erpnext_infinito_rbac_tests",
+    APP_TESTS / "__init__.py",
+    submodule_search_locations=[str(APP_TESTS)],
+)
+_app_tests = importlib.util.module_from_spec(_app_tests_spec)
+sys.modules[_app_tests_spec.name] = _app_tests
+_app_tests_spec.loader.exec_module(_app_tests)
+app_modules = importlib.import_module(f"{_app_tests_spec.name}._app").app_modules
+
 TODAY = dt.date(2026, 10, 22)
 COUNTRY_CURRENCIES = {"Germany": "EUR", "United States": "USD"}
-CHILD_TABLES = {"Fiscal Year": ("companies",), "User": ("roles",)}
+DIRECTORY_FIELDS = {
+    "base_dn": "cn=administrator,dc=infinito,dc=example",
+    "ldap_search_path_user": "ou=users,dc=infinito,dc=example",
+    "ldap_username_field": "uid",
+    "ldap_email_field": "mail",
+}
+CHILD_TABLES = {"Fiscal Year": ("companies",), "User": ("roles", "social_logins")}
 NAME_FIELDS = {
     "Company": "company_name",
     "Customer Group": "customer_group_name",
@@ -66,6 +93,8 @@ def _matches(record, filters):
             operator, operand = expected
             if value is None:
                 return False
+            if operator == "in" and value not in operand:
+                return False
             if operator == "<=" and not value <= operand:
                 return False
             if operator == ">=" and not value >= operand:
@@ -95,8 +124,28 @@ class FakeDoc:
     def get(self, name):
         return self._values.get(name)
 
+    def set(self, name, value):
+        self._values[name] = value
+
     def append(self, table, row):
         self._values[table].append(SimpleNamespace(**row))
+
+    def update(self, values):
+        self._values.update(values)
+        return self
+
+    def add_roles(self, *roles):
+        held = {row.role for row in self._values["roles"]}
+        for role in roles:
+            if role not in held:
+                self.append("roles", {"role": role})
+        self.save()
+
+    def remove_roles(self, *roles):
+        self._values["roles"] = [
+            row for row in self._values["roles"] if row.role not in roles
+        ]
+        self.save()
 
     def insert(self, ignore_permissions=False):
         self._values["name"] = self._frappe.insert(self.doctype, self._values)
@@ -116,6 +165,7 @@ class FakeDoc:
     def save(self, ignore_permissions=False):
         if self._single:
             self._frappe.singles[self.doctype] = copy.deepcopy(self._values)
+            self._frappe.saved.append(self.doctype)
         elif self._values.get("name"):
             self._frappe.records[self.doctype][self._values["name"]] = copy.deepcopy(
                 self._values
@@ -123,6 +173,50 @@ class FakeDoc:
         else:
             self.insert(ignore_permissions)
         return self
+
+
+class FakeConnection:
+    def __init__(self, frappe):
+        self._frappe = frappe
+        self.entries = []
+
+    def search(self, search_base, search_filter, attributes):
+        """Args:
+        search_base: the user search path.
+        search_filter: ``(|(attribute=value)...)``; every entry any term names
+            matches.
+        attributes: the attributes to return.
+        """
+        self._frappe.ldap_searches.append(search_filter)
+        if self._frappe.outage:
+            raise OSError("socket receive error from ldap://openldap:389")
+        assert search_filter.startswith("(|")
+        terms = re.findall(r"\(([^()|=]+)=([^()]*)\)", search_filter)
+        self.entries = [
+            SimpleNamespace(
+                entry_attributes_as_dict={
+                    name: [entry[name]] for name in attributes if name in entry
+                }
+            )
+            for entry in self._frappe.directory
+            if any(entry.get(name) == value for name, value in terms)
+        ]
+
+    def unbind(self):
+        self._frappe.unbinds += 1
+
+
+class FakeLDAPSettings(FakeDoc):
+    def __getattr__(self, name):
+        value = super().__getattr__(name)
+        return DIRECTORY_FIELDS.get(name) if value is None else value
+
+    def get_password(self, raise_exception=True):
+        return "bind-password"
+
+    def connect_to_ldap(self, base_dn, password, read_only=True):
+        assert (base_dn, password) == (self.base_dn, "bind-password")
+        return FakeConnection(self._frappe)
 
 
 class FakeDb:
@@ -157,6 +251,13 @@ class FakeDb:
     def set_value(self, doctype, name, fieldname, value):
         self._table(doctype)[name][fieldname] = value
 
+    def get_single_value(self, doctype, fieldname):
+        return self._frappe.singles.get(doctype, {}).get(fieldname)
+
+    def set_single_value(self, doctype, fieldname, value):
+        self._frappe.singles.setdefault(doctype, {})[fieldname] = value
+        self._frappe.calls.append(("set_single_value", doctype, fieldname))
+
     def commit(self):
         self.committed = True
 
@@ -175,9 +276,18 @@ class FakeFrappe:
         self.records = {}
         self.singles = {}
         self.defaults = {}
+        self.default_rows = []
+        self.session = SimpleNamespace(user="Administrator")
         self.doctypes = {"System Settings", "Global Defaults"}
         self.tables = set()
+        self.apps_info = []
         self.calls = []
+        self.saved = []
+        self.directory = []
+        self.ldap_searches = []
+        self.outage = False
+        self.unbinds = 0
+        self.logged = []
         self.db = FakeDb(self)
 
     def seed(self, doctype, name, **values):
@@ -205,15 +315,70 @@ class FakeFrappe:
 
     def get_single(self, doctype):
         values = copy.deepcopy(self.singles.get(doctype, {}))
-        return FakeDoc(self, doctype, values, single=True)
+        kind = FakeLDAPSettings if doctype == "LDAP Settings" else FakeDoc
+        return kind(self, doctype, values, single=True)
 
     def new_doc(self, doctype):
         return FakeDoc(self, doctype, {})
 
+    def generate_hash(self):
+        return "generated-hash"
+
+    def logger(self, name):
+        def record(message, *args):
+            self.logged.append((name, message % args if args else message))
+
+        return SimpleNamespace(info=record, warning=record, error=record)
+
+    def _rows(self, doctype):
+        if doctype == "Has Role":
+            return [
+                {"parent": name, "parenttype": "User", "role": row.role}
+                for name, user in self.db._table("User").items()
+                for row in user.get("roles", [])
+            ]
+        if doctype == "User Social Login":
+            return [
+                {
+                    "parent": name,
+                    "parenttype": "User",
+                    "provider": row.provider,
+                    "userid": row.userid,
+                }
+                for name, user in self.db._table("User").items()
+                for row in user.get("social_logins", [])
+            ]
+        if doctype == "DefaultValue":
+            return [dict(row) for row in self.default_rows]
+        return list(self.db._table(doctype).values())
+
+    def rename_doc(self, doctype, old, new, *, show_alert=True):
+        """Rename a record the way ``frappe.rename_doc`` renames a User.
+
+        Args:
+            doctype: the record's doctype.
+            old: the record's current name.
+            new: the record's new name.
+            show_alert: whether Frappe would flash the rename to the session.
+
+        Returns:
+            The new name.
+        """
+        table = self.db._table(doctype)
+        if old not in table:
+            raise LinkValidationError(f"Can't rename {old} because it doesn't exist")
+        if new in table:
+            raise DuplicateEntryError(f"Another {doctype} with name {new} exists")
+        record = table.pop(old)
+        record["name"] = new
+        if doctype == "User":
+            record["email"] = new
+        table[new] = record
+        self.calls.append(("rename_doc", doctype, old, new, show_alert))
+        return new
+
     def get_all(self, doctype, filters=None, pluck=None):
-        rows = [
-            r for r in self.db._table(doctype).values() if _matches(r, filters or {})
-        ]
+        rows = [r for r in self._rows(doctype) if _matches(r, filters or {})]
         return [row[pluck] for row in rows] if pluck else rows
 
     def insert(self, doctype, values):
@@ -291,12 +456,30 @@ class FakeFrappe:
         geo.country_info = country_info
         utils = ModuleType("frappe.utils")
         utils.getdate = lambda: TODAY
+        utils.get_installed_apps_info = lambda: self.apps_info
+        password = ModuleType("frappe.utils.password")
+        password.remove_encrypted_password = self.remove_encrypted_password
+        utils.password = password
         return {
             "frappe": self,
             "frappe.geo": geo,
             "frappe.geo.country_info": country_info,
             "frappe.utils": utils,
+            "frappe.utils.password": password,
+            ldap_conv.__name__: ldap_conv,
+            **app_modules(self),
         }
+
+    def remove_encrypted_password(self, doctype, name, fieldname="password"):
+        """Drop a stored password field the way ``frappe.utils.password`` does.
+
+        Args:
+            doctype: the record's doctype.
+            name: the record's name.
+            fieldname: the password field to drop.
+        """
+        self.records[doctype][name].pop(fieldname, None)
+        self.calls.append(("remove_encrypted_password", doctype, name, fieldname))
 
 
 def run_script(path, frappe, env):

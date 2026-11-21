@@ -60,6 +60,16 @@ def _tenant_posts(tasks: list) -> list:
     ]
 
 
+def _without_rbac_hook(tasks: list) -> list:
+    return [
+        task
+        for task in tasks
+        if not str(task.get("ansible.builtin.include_tasks", "")).endswith(
+            "'tasks/utils/rbac/sync.yml') }}"
+        )
+    ]
+
+
 def _configures_keycloak(tasks: list) -> bool:
     return any(
         str(task.get("database_query", {}).get("query_file", "")).endswith(
@@ -96,7 +106,7 @@ class TestTenantBootstrapGate(unittest.TestCase):
             for mode in MODES:
                 with self.subTest(sso=sso, mode=mode):
                     tasks = _run_tasks(sso=sso, stack_host=False, mode=mode, tenants=0)
-                    self.assertEqual(tasks, [])
+                    self.assertEqual(_without_rbac_hook(tasks), [])
 
 
 if __name__ == "__main__":

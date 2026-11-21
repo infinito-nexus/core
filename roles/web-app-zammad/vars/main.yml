@@ -1,5 +1,8 @@
 ---
 application_id: "web-app-zammad"
+ZAMMAD_SYSCTL_OWNER: "{{ application_id | entity_name }}"
+ZAMMAD_SYSCTL_PARAMETERS:
+  vm.max_map_count: "262144"
 entity_name: "{{ application_id | entity_name }}"
 
 ZAMMAD_PRECHECK_SERVICE: "precheck"
@@ -71,15 +74,49 @@ ZAMMAD_OIDC_GROUP_ROLE_MAP_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_oidc_group_rol
 ZAMMAD_OIDC_HTTP_DISCOVERY_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_oidc_http_discovery.rb"
 ZAMMAD_NETWORK_ORIGINS_HOST_PATH: "{{ ZAMMAD_VOLUMES_DIR }}zz_network_origins.rb"
 ZAMMAD_NETWORK_BASE_URLS: "{{ lookup('network_urls', lookup('tls', application_id, 'url.base')) }}"
-ZAMMAD_OIDC_ROLE_GRANTS:
+ZAMMAD_RBAC_ROLE_GRANTS:
   administrator: ["Admin", "Agent"]
   agent: ["Agent"]
   customer: ["Customer"]
 ZAMMAD_OIDC_GROUP_ROLE_MAP: >-
   {{ {
-       '/' ~ lookup('rbac_group_path', application_id=application_id, role='administrator'): ZAMMAD_OIDC_ROLE_GRANTS.administrator,
-       '/' ~ lookup('rbac_group_path', application_id=application_id, role='agent'): ZAMMAD_OIDC_ROLE_GRANTS.agent,
-       '/' ~ lookup('rbac_group_path', application_id=application_id, role='customer'): ZAMMAD_OIDC_ROLE_GRANTS.customer,
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='administrator'): ZAMMAD_RBAC_ROLE_GRANTS.administrator,
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='agent'): ZAMMAD_RBAC_ROLE_GRANTS.agent,
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='customer'): ZAMMAD_RBAC_ROLE_GRANTS.customer,
+     } }}
+ZAMMAD_OIDC_SCOPE: "openid email profile phone address"
+ZAMMAD_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.clients.web') }}"
+ZAMMAD_OIDC_PROFILE_CLAIMS:
+  firstname: "{{ OIDC.ATTRIBUTES.GIVEN_NAME }}"
+  lastname: "{{ OIDC.ATTRIBUTES.FAMILY_NAME }}"
+  email: "{{ OIDC.ATTRIBUTES.EMAIL }}"
+  phone: "{{ OIDC.ATTRIBUTES.PHONE_NUMBER }}"
+ZAMMAD_OIDC_ADDRESS_FIELDS:
+  street: "{{ OIDC.ADDRESS_CLAIMS.STREET }}"
+  zip: "{{ OIDC.ADDRESS_CLAIMS.POSTAL_CODE }}"
+  city: "{{ OIDC.ADDRESS_CLAIMS.LOCALITY }}"
+  country: "{{ OIDC.ADDRESS_CLAIMS.COUNTRY }}"
+ZAMMAD_LDAP_GROUP_ROLE_MAP: >-
+  {{ {
+       'cn=' ~ application_id ~ '-administrator,' ~ LDAP.DN.OU.ROLES: ZAMMAD_RBAC_ROLE_GRANTS.administrator,
+       'cn=' ~ application_id ~ '-agent,' ~ LDAP.DN.OU.ROLES: ZAMMAD_RBAC_ROLE_GRANTS.agent,
+       'cn=' ~ application_id ~ '-customer,' ~ LDAP.DN.OU.ROLES: ZAMMAD_RBAC_ROLE_GRANTS.customer,
+     } }}
+ZAMMAD_LDAP_GROUP_FILTER: "(|{% for flavor in LDAP.RBAC.FLAVORS %}(objectClass={{ flavor }}){% endfor %})"
+ZAMMAD_LDAP_USER_ATTRIBUTES: >-
+  {{ {
+       LDAP.USER.ATTRIBUTES.ID: 'login',
+       LDAP.USER.ATTRIBUTES.FIRSTNAME: 'firstname',
+       LDAP.USER.ATTRIBUTES.SURNAME: 'lastname',
+       LDAP.USER.ATTRIBUTES.MAIL: 'email',
+       LDAP.USER.ATTRIBUTES.PHONE: 'phone',
+       LDAP.USER.ATTRIBUTES.MOBILE: 'mobile',
+       LDAP.USER.ATTRIBUTES.DEPARTMENT: 'department',
+       LDAP.USER.ATTRIBUTES.STREET: 'street',
+       LDAP.USER.ATTRIBUTES.POSTAL_CODE: 'zip',
+       LDAP.USER.ATTRIBUTES.LOCALITY: 'city',
+       LDAP.USER.ATTRIBUTES.COUNTRY: 'country',
+       LDAP.USER.ATTRIBUTES.DESCRIPTION: 'note',
      } }}
 
 ZAMMAD_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')  | bool }}"
@@ -87,7 +124,18 @@ ZAMMAD_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabl
 ZAMMAD_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled')  | bool }}"
 ZAMMAD_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
 
-ZAMMAD_MAIL: "{{ lookup('email', application_id) if ZAMMAD_EMAIL_ENABLED else {} }}"
+ZAMMAD_LOGIN_SSO: "{{ lookup('config', application_id, 'services.zammad.login.method.sso.enabled') | bool }}"
+ZAMMAD_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.zammad.login.method.ldap.enabled') | bool }}"
+ZAMMAD_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.zammad.login.method.native.enabled') | bool }}"
+ZAMMAD_LOGIN_2FA: "{{ lookup('config', application_id, 'services.zammad.login.method.2fa.enabled') | bool }}"
+ZAMMAD_LOGIN_2FA_ENFORCED: "{{ ZAMMAD_LOGIN_2FA | bool and lookup('config', application_id, 'services.zammad.login.method.2fa.enforced') | bool }}"
+ZAMMAD_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.zammad.login.method.registration.enabled') | bool }}"
+ZAMMAD_SECURITY: "{{ lookup('form_values', application_id, 'security') }}"
+ZAMMAD_LDAP_SOURCE: "{{ lookup('form_values', application_id, 'ldap') }}"
+ZAMMAD_EMAIL_CHANNEL: "{{ lookup('form_values', application_id, 'email') }}"
+
+ZAMMAD_MAIL_GROUP_NAME: "Users"
+ZAMMAD_LDAP_SOURCE_NAME: "{{ ORGANIZATION }} svc-db-openldap"
 ZAMMAD_HELPDESK_USER: "{{ lookup('users', 'helpdesk') if ZAMMAD_EMAIL_ENABLED else {} }}"
 ZAMMAD_HELPDESK_EMAIL: "{{ ZAMMAD_HELPDESK_USER.email | default('') }}"
 ZAMMAD_HELPDESK_PASS: "{{ (ZAMMAD_HELPDESK_USER.tokens | default({})).get(MAIL_PROVIDER, '') }}"
@@ -117,7 +165,13 @@ ZAMMAD_MCP_UPSTREAM_TOKEN_LABEL: "infinito-mcp"
 ZAMMAD_MCP_UPSTREAM_AUTH_HEADER: "Authorization"
 ZAMMAD_MCP_UPSTREAM_AUTH_FORMAT: "Token token={key}"
 
+ZAMMAD_ACCESS_REQUEST_ENABLED: "{{ 'web-svc-access-request' in group_names }}"
+ZAMMAD_ACCESS_REQUEST_ACCOUNT: "{{ lookup('users', 'access-request-zammad') }}"
+ZAMMAD_ACCESS_REQUEST_GROUP: "{{ lookup('config', 'web-svc-access-request', 'services.access-request.zammad_group') }}"
+ZAMMAD_ACCESS_REQUEST_TOKEN: "{{ lookup('config', 'web-svc-access-request', 'secrets.credentials.zammad_api_token') }}"
+ZAMMAD_ACCESS_REQUEST_TOKEN_LABEL: "infinito-access-request"
+
 ZAMMAD_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
 ZAMMAD_LITELLM_BASE_URL: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
 ZAMMAD_LITELLM_MODEL: "{{ LITELLM_CHAT_MODEL }}"
-ZAMMAD_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+ZAMMAD_LITELLM_API_KEY: "{{ lookup('litellm_api_key', application_id) }}"

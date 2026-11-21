@@ -1,0 +1,54 @@
+---
+- services:
+    proxmox:
+      flavor: vm
+    docs:
+      enabled: false
+      shared: false
+    sso:
+      enabled: true
+      shared: true
+    logout:
+      enabled: true
+      shared: true
+    dashboard:
+      enabled: true
+      shared: true
+    design:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+    container_backup:
+      enabled: true
+    semaphore:
+      enabled: true
+      shared: true
+- services:
+    proxmox:
+      flavor: container
+    docs:
+      enabled: true
+      shared: true
+    sso:
+      enabled: true
+      shared: true
+    logout:
+      enabled: false
+      shared: false
+    dashboard:
+      enabled: false
+      shared: false
+    design:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+    semaphore:
+      enabled: false
+      shared: false

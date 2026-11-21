@@ -1,17 +1,23 @@
 ---
+- name: "🔍 Resolve the n8n container and its network namespace"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/resolve.yml"
+
 - name: "🔌 Provision the managed MCP trigger workflow"
-  ansible.builtin.command:
-    argv:
-      - python3
-      - "-"
-    stdin: "{{ lookup('file', 'python/provision/mcp.py') }}"
+  ansible.builtin.shell:
+    cmd: >-
+      IFS= read -r N8N_OWNER_PASSWORD && IFS= read -r N8N_MCP_TOKEN &&
+      : "${N8N_OWNER_PASSWORD:?arrived empty on stdin}" && : "${N8N_MCP_TOKEN:?arrived empty on stdin}" &&
+      export N8N_OWNER_PASSWORD N8N_MCP_TOKEN && exec {{ N8N_NETNS_PYTHON | map('quote') | join(' ') }}
+    stdin: |-
+      {{ N8N_OWNER_PASSWORD }}
+      {{ N8N_MCP_TOKEN }}
+      {{ lookup('file', 'python/provision/mcp.py') }}
   environment:
-    N8N_BASE: "{{ N8N_INTERNAL_API_URL }}"
+    N8N_BASE: "{{ N8N_NETNS_API_URL }}"
+    NO_PROXY: "{{ NETWORK_LOOPBACK_HOSTS | join(',') }}"
     N8N_OWNER_EMAIL: "{{ N8N_OWNER_EMAIL }}"
-    N8N_OWNER_PASSWORD: "{{ N8N_OWNER_PASSWORD }}"
     N8N_API_KEY_NAME: "{{ N8N_MCP_API_KEY_NAME }}"
     N8N_MCP_PATH: "{{ N8N_MCP_WEBHOOK_PATH }}"
-    N8N_MCP_TOKEN: "{{ N8N_MCP_TOKEN }}"
     N8N_MCP_WORKFLOW: "{{ N8N_MCP_WORKFLOW_NAME }}"
     N8N_MCP_CREDENTIAL: "{{ N8N_MCP_CREDENTIAL_NAME }}"
   register: n8n_mcp_provision
@@ -20,7 +26,8 @@
   until: n8n_mcp_provision.rc == 0
   changed_when: n8n_mcp_provision.stdout.startswith('CHANGED')
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  delegate_to: "{{ STACK_HOST }}"
+  delegate_to: "{{ N8N_HOST_NODE }}"
+  become: true
   run_once: true
 
 - name: "💾 Persist the MCP bearer so clients can read it"
@@ -33,23 +40,27 @@
     sys_token_store_token: "{{ N8N_MCP_TOKEN }}"
 
 - name: "🔌 Reconcile the managed agent over every discovered MCP provider"
-  ansible.builtin.command:
-    argv:
-      - python3
-      - "-"
-    stdin: "{{ lookup('file', 'python/provision/client.py') }}"
+  ansible.builtin.shell:
+    cmd: >-
+      IFS= read -r N8N_OWNER_PASSWORD && IFS= read -r N8N_MCP_PROVIDERS &&
+      : "${N8N_OWNER_PASSWORD:?arrived empty on stdin}" && : "${N8N_MCP_PROVIDERS:?arrived empty on stdin}" &&
+      export N8N_OWNER_PASSWORD N8N_MCP_PROVIDERS && exec {{ N8N_NETNS_PYTHON | map('quote') | join(' ') }}
+    stdin: |-
+      {{ N8N_OWNER_PASSWORD }}
+      {{ N8N_MCP_PROVIDERS | to_json }}
+      {{ lookup('file', 'python/provision/client.py') }}
   environment:
     N8N_AI_CREDENTIAL: "{{ N8N_LITELLM_CREDENTIAL_NAME }}"
     N8N_API_KEY_NAME: "{{ N8N_MCP_API_KEY_NAME }}"
-    N8N_BASE: "{{ N8N_INTERNAL_API_URL }}"
+    N8N_BASE: "{{ N8N_NETNS_API_URL }}"
+    NO_PROXY: "{{ NETWORK_LOOPBACK_HOSTS | join(',') }}"
     N8N_CHAT_MODEL: "{{ LITELLM_CHAT_MODEL }}"
     N8N_CLIENT_WORKFLOW: "{{ N8N_MCP_CLIENT_WORKFLOW_NAME }}"
-    N8N_MCP_PROVIDERS: "{{ N8N_MCP_PROVIDERS | to_json }}"
     N8N_OWNER_EMAIL: "{{ N8N_OWNER_EMAIL }}"
-    N8N_OWNER_PASSWORD: "{{ N8N_OWNER_PASSWORD }}"
   register: n8n_client_provision
   changed_when: n8n_client_provision.stdout.startswith('CHANGED')
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  delegate_to: "{{ STACK_HOST }}"
+  delegate_to: "{{ N8N_HOST_NODE }}"
+  become: true
   run_once: true
   when: N8N_LITELLM_ENABLED | bool

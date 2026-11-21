@@ -1,12 +1,5 @@
 ---
-- name: "🧩 Load docker and front proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-  vars:
-    domain: "{{ lookup('domain', application_id) }}"
-    http_port: "{{ lookup('config', application_id, 'services.postmarks.ports.local.http') }}"
-
-- name: "🎬 Stage trusted-header SSO build-context files for {{ application_id }}"
+- name: "🎬 Stage the build-context patches for {{ application_id }}"
   stack_host_copy:
     src: "{{ item.src }}"
     dest: "{{ [ lookup('container', application_id, 'directories.instance'), item.dest ] | path_join }}"
@@ -14,6 +7,7 @@
   loop:
     - { src: "sso/header_auth.js", dest: "header_auth.js" }
     - { src: "sso/patch_server.js", dest: "patch_server.js" }
+    - { src: "javascript/patch_site_name.js", dest: "patch_site_name.js" }
   notify:
     - compose-build
     - compose-up

@@ -11,7 +11,5 @@ update:
   upstream_id: freedomtranslate-wp
 config:
   options:
-    - name: freedomtranslate_service
-      value: libretranslate
-    - name: freedomtranslate_api_url
-      value: "{{ lookup('tls', 'web-svc-translate', 'url.origin') ~ '/translate' }}"
+    freedomtranslate_service: libretranslate
+    freedomtranslate_api_url: "{{ lookup('tls', 'web-svc-translate', 'url.origin') ~ '/translate' }}"

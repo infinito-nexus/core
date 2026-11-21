@@ -1,7 +1,10 @@
 ---
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
+- name: "👥 Resolve the administrator members of {{ application_id }}"
+  ansible.builtin.include_tasks: utils/rbac/members.yml
+  vars:
+    rbac_members_application_id: "{{ application_id }}"
+    rbac_members_role: administrator
+    rbac_members_attributes: []
 
 - name: "📄 Render ejabberd configuration"
   stack_host_template:

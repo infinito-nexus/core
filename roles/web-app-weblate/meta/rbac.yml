@@ -1,0 +1,6 @@
+---
+roles:
+  reviewer:
+    description: Reviews and approves translations in every project through Weblate's Reviewers team
+  manager:
+    description: Administers every project through Weblate's Managers team, without site-wide superuser rights

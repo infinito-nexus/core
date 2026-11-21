@@ -1,0 +1,7 @@
+---
+vhosts:
+  default:
+    vars:
+      aca_headers: '"Origin, X-Requested-With, Content-Type, Accept, Authorization" always'
+      aca_methods: "'GET, OPTIONS' always"
+      aca_origin: "* always"

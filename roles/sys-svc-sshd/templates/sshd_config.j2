@@ -1,4 +1,4 @@
-LogLevel {{ 'DEBUG3' if MODE_DEBUG | bool else 'INFO' }}
+LogLevel {{ 'DEBUG3' if lookup('debug', 'sys-svc-sshd') | bool else 'INFO' }}
 PermitRootLogin {{ SYS_SVC_SSHD_PERMIT_ROOT_LOGIN }}
 PubkeyAuthentication yes
 AuthorizedKeysFile	.ssh/authorized_keys
@@ -13,3 +13,4 @@ Subsystem	sftp /usr/lib/ssh/sftp-server
 {% else %}
 Subsystem	sftp /usr/lib/openssh/sftp-server
 {% endif %}
+Include {{ DIR_SSHD_DROPINS }}/*.conf

@@ -47,6 +47,9 @@ _EXTENSIONS = (".yml", ".yaml")
 _INVOCATION = re.compile(r"\bcontainer\s+(?:exec|run)\b")
 _FORWARDED = re.compile(r"-e\s+([A-Z_][A-Z0-9_]*)(?![=\w])")
 _SHELL_KEYS = ("shell", "ansible.builtin.shell", "command", "ansible.builtin.command")
+_EMPTY_GUARD = re.compile(
+    r'(^|\|\||&&|[;|({\n])(\s*):\s+"\$\{[A-Z_][A-Z0-9_]*:\?[^}"]*\}"(?=[\s;&|)]|$)'
+)
 
 
 def _unquoted_expansions(text: str) -> set[str]:
@@ -59,9 +62,7 @@ def _unquoted_expansions(text: str) -> set[str]:
         Every ``NAME`` of a ``$NAME`` or ``${NAME}`` the host shell would
         expand: every occurrence that is neither inside single quotes nor
         preceded by a backslash. A backslash matters here because escaping
-        the dollar is the other way to defer expansion to the inner shell,
-        and ``roles/web-app-wordpress/tasks/01_patch_config.yml`` relies on
-        exactly that.
+        the dollar is the other way to defer expansion to the inner shell.
     """
     names: set[str] = set()
     quoted = False
@@ -80,6 +81,21 @@ def _unquoted_expansions(text: str) -> set[str]:
                 names.add(match.group(1))
         index += 1
     return names
+
+
+def _host_expanded(command: str) -> set[str]:
+    """Return the variables the host shell writes into an argv.
+
+    Args:
+        command: the command as the host shell receives it.
+
+    Returns:
+        ``_unquoted_expansions`` of the command once every empty-stdin guard
+        ``: "${NAME:?…}"`` in command position is taken out: the ``:``
+        builtin discards its argument and execs nothing, so that expansion
+        reaches no argv.
+    """
+    return _unquoted_expansions(_EMPTY_GUARD.sub(r"\1\2:", command))
 
 
 def _shell_scalars(node):
@@ -115,6 +131,33 @@ def _shell_scalars(node):
             yield from _shell_scalars(item)
 
 
+class TestHostExpanded(unittest.TestCase):
+    def test_an_empty_stdin_guard_reaches_no_argv(self) -> None:
+        command = (
+            'IFS= read -r X || :; : "${X:?arrived empty on stdin}" && export X && '
+            "container exec -i -e X c sh -lc 'tool \"$X\"'"
+        )
+        semicolon = (
+            'IFS= read -r X || :; : "${X:?arrived empty on stdin}"; export X; '
+            "container exec -i -e X c sh -lc 'tool \"$X\"'"
+        )
+        self.assertEqual(_host_expanded(command), set())
+        self.assertEqual(_host_expanded(semicolon), set())
+
+    def test_a_host_expansion_beside_the_guard_still_counts(self) -> None:
+        guarded = (
+            'IFS= read -r X || :; : "${X:?arrived empty on stdin}" && export X && '
+            'container exec -i -e X c tool --password "$X"'
+        )
+        bare = 'container exec -i -e X c tool --password "${X:?}"'
+        flag_colon = 'container exec -i -e X c tool --flag: "${X:?empty}"'
+        argument = 'container exec -i -e X c tool : "${X:?empty}"'
+        self.assertEqual(_host_expanded(guarded), {"X"})
+        self.assertEqual(_host_expanded(bare), {"X"})
+        self.assertEqual(_host_expanded(flag_colon), {"X"})
+        self.assertEqual(_host_expanded(argument), {"X"})
+
+
 class TestContainerEnvExpandsInContainer(unittest.TestCase):
     def test_a_forwarded_variable_is_not_expanded_by_the_host(self) -> None:
         findings: list[tuple[str, str]] = []
@@ -132,9 +175,7 @@ class TestContainerEnvExpandsInContainer(unittest.TestCase):
             for command in _shell_scalars(doc):
                 if not _INVOCATION.search(command):
                     continue
-                leaked = set(_FORWARDED.findall(command)) & _unquoted_expansions(
-                    command
-                )
+                leaked = set(_FORWARDED.findall(command)) & _host_expanded(command)
                 if not leaked:
                     continue
                 line_no = next(

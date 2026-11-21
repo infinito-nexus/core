@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -66,6 +67,16 @@ jenkins:
   version: 2.580.2-lts
   custom: true
   name: jenkins
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-jenkins', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-jenkins', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-jenkins', 'native') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-jenkins', 'registration') }}"
   ports:
     local:
       http: 8070
@@ -92,8 +103,8 @@ jenkinsmcp:
   enabled: "{{ lookup('config', 'web-app-jenkins', 'mcp.enabled') | bool }}"
   shared: false
   image: python
-  # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
-  version: "3.13.15-slim"
+  version: "3.13.18-slim"
+  follow: requires-python
   custom: true
   name: jenkinsmcp
   cpus: "0.25"
@@ -106,11 +117,6 @@ jenkinsmcp:
   ports:
     internal:
       http: 8080
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "3.13.15-slim"
-        until: 2026-11-30
 # nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
 design:
   bond: 1
@@ -156,3 +162,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

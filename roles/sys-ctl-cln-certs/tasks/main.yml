@@ -2,4 +2,4 @@
 - include_tasks: 00_core.yml
   when:
     - run_once_sys_ctl_cln_certs is not defined
-    - (MODE_CLEANUP | bool) and not (MODE_RESET | bool)
+    - (CLEANUP | bool) and not (RESET | bool)

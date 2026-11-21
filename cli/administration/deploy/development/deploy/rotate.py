@@ -15,7 +15,7 @@ ROTATION_EXEMPT = ("administrator",)
 def _rotate_credentials(
     compose: Compose, *, inventory_dir: str, round_variants: dict[str, int]
 ) -> None:
-    """Regenerate the round's inventory credentials before the async pass.
+    """Regenerate the round's inventory credentials before the update pass.
 
     Args:
         compose: the development stack the inventory lives in.

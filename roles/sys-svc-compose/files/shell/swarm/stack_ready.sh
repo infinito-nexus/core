@@ -73,7 +73,7 @@ has_fatal_task() {
 			if (ended[$1]) next
 			newest = !seen[$1]++
 			if ($3 == "") { if (!newest) ended[$1] = 1; next }
-			if (newest && $2 ~ /^(Rejected|Pending)/) fatal = 1
+			if (newest && $2 ~ /^(Rejected|Pending)/ && $3 !~ /dial tcp .*(connection refused|i\/o timeout|no route to host)/) fatal = 1
 			if (++errs[$1] >= 3 && grace) fatal = 1
 		}
 		END { exit fatal ? 0 : 1 }

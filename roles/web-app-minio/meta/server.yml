@@ -2,3 +2,8 @@
 status_codes:
   api: 400
   console: 200
+vhosts:
+  console:
+    http_port: "{{ lookup('config', 'web-app-minio', 'services.console.ports.local.http') }}"
+  api:
+    http_port: "{{ lookup('config', 'web-app-minio', 'services.api.ports.local.http') }}"

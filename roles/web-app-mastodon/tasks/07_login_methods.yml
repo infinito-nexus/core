@@ -1,0 +1,30 @@
+---
+- name: "⬇️ Read the managed registration settings Mastodon holds"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ [role_path, 'files/sql/select/settings.sql'] | path_join }}"
+    named_args:
+      fields: "{{ MASTODON_REGISTRATIONS | list | to_json }}"
+    expect_rows: true
+  register: mastodon_registrations_stored
+  changed_when: false
+  delegate_to: "{{ MASTODON_DATABASE_HOST_NODE }}"
+
+- name: "📣 Report the managed registration settings the write reverts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current:
+      registrations: >-
+        {{ dict(mastodon_registrations_stored.rows | map('first')
+           | zip(mastodon_registrations_stored.rows | map('last') | map('from_yaml'))) }}
+
+- name: 🚪 Align the registrations mode with the registration login method
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i -u root
+    -e MASTODON_REGISTRATIONS_MODE={{ MASTODON_REGISTRATIONS.registrations_mode | quote }}
+    {{ MASTODON_LOCAL_CID | quote }}
+    bundle exec rails runner -
+  args:
+    stdin: "{{ lookup('file', 'ruby/ensure/registrations_mode.rb') }}"
+  register: mastodon_registrations_mode
+  changed_when: mastodon_registrations_mode.stdout_lines | last == 'changed'

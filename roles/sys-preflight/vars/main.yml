@@ -1,0 +1,2 @@
+---
+SYS_PREFLIGHT_CHECKS: "{{ lookup('config', 'sys-preflight', 'services.preflight.checks') }}"

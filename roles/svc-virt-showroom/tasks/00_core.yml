@@ -1,0 +1,180 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🛑 Refuse a distribution the showroom does not provision Incus on"
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] in SHOWROOM_OS_FAMILIES
+    fail_msg: >-
+      svc-virt-showroom installs Incus on the {{ SHOWROOM_OS_FAMILIES | join(', ') }}
+      families only, and {{ inventory_hostname }} runs
+      {{ ansible_facts['os_family'] }}. Put the showroom on such a host.
+    quiet: true
+
+- name: "🛑 Refuse projects whose memory exceeds the showroom budget"
+  ansible.builtin.assert:
+    that:
+      - showroom_budget_refusals | length == 0
+    fail_msg: "{{ showroom_budget_refusals | join(' ') }}"
+    quiet: true
+  vars:
+    showroom_budget_refusals: "{{ SHOWROOM_PROJECTS | showroom_budget_errors(SHOWROOM_BUDGET_MEMORY) }}"
+
+- name: "🔍 Look for the KVM device on {{ inventory_hostname }}"
+  ansible.builtin.stat:
+    path: /dev/kvm
+  register: svc_virt_showroom_kvm
+
+- name: "🛑 Refuse virtual machine projects on a host without hardware virtualization"
+  ansible.builtin.assert:
+    that:
+      - showroom_kvm_refusals | length == 0
+    fail_msg: "{{ showroom_kvm_refusals | join(' ') }}"
+    quiet: true
+  vars:
+    showroom_kvm_refusals: >-
+      {{ SHOWROOM_PROJECTS | showroom_kvm_errors(svc_virt_showroom_kvm.stat.exists and svc_virt_showroom_kvm.stat.ischr) }}
+
+- name: "🛑 Refuse project domains the certificate and DNS machinery does not know"
+  ansible.builtin.assert:
+    that:
+      - (SHOWROOM_PROJECTS | showroom_domains) == (SHOWROOM_CANONICAL_DOMAINS | sort)
+    fail_msg: >-
+      The domains of services.showroom.projects
+      ({{ SHOWROOM_PROJECTS | showroom_domains | join(', ') }}) differ from
+      applications.{{ application_id }}.domains.canonical
+      ({{ SHOWROOM_CANONICAL_DOMAINS | sort | join(', ') }}). The certificate
+      and DNS records are issued from domains.canonical before any role runs,
+      so list every project domain there too.
+    quiet: true
+
+- name: "🚀 Start the Incus daemon"
+  ansible.builtin.systemd_service:
+    name: incus.socket
+    enabled: true
+    state: started
+  become: true
+
+- name: "🔍 Read the Incus configuration before the preseed"
+  ansible.builtin.command: incus admin init --dump
+  register: svc_virt_showroom_before
+  changed_when: false
+  become: true
+
+- name: "🧱 Apply the showroom bridge and the storage pool"
+  ansible.builtin.command:
+    cmd: incus admin init --preseed
+    stdin: "{{ SHOWROOM_PRESEED | to_nice_yaml }}"
+  changed_when: false
+  become: true
+
+- name: "🔍 Report whether the preseed changed the Incus configuration"
+  ansible.builtin.command: incus admin init --dump
+  register: svc_virt_showroom_after
+  changed_when: svc_virt_showroom_after.stdout != svc_virt_showroom_before.stdout
+  become: true
+
+- name: "🔍 Read the Incus projects"
+  ansible.builtin.command: incus project list --format csv --columns n
+  register: svc_virt_showroom_projects
+  changed_when: false
+  become: true
+
+- name: "🗂️ Create the project of every showroom server"
+  ansible.builtin.command:
+    argv:
+      - incus
+      - project
+      - create
+      - "{{ item.project }}"
+  loop: "{{ SHOWROOM_INSTANCES }}"
+  loop_control:
+    label: "{{ item.project }}"
+  when: item.project not in svc_virt_showroom_projects.stdout_lines
+  changed_when: true
+  become: true
+
+- name: "🧱 Let the showroom bridge past Docker's FORWARD drop on every Docker start"
+  ansible.builtin.include_role:
+    name: sys-service
+  vars:
+    system_service_state: started
+    system_service_tpl_after: docker.service
+    system_service_tpl_wanted_by: docker.service
+    system_service_tpl_exec_start: "{{ system_service_script_exec }} {{ SHOWROOM_BRIDGE }}"
+
+- name: "🔍 Read the instances of every project"
+  ansible.builtin.command: incus list --all-projects --format json
+  register: svc_virt_showroom_list
+  changed_when: false
+  become: true
+
+- name: "🖥️ Create the server of every project"
+  ansible.builtin.command:
+    argv: >-
+      {{ ['incus', 'create', item.image, item.name, '--project', item.project]
+         + (['--vm'] if item.vm else []) }}
+    stdin: "{{ item | showroom_creation_yaml }}"
+  loop: "{{ SHOWROOM_INSTANCES }}"
+  loop_control:
+    label: "{{ item.project }}/{{ item.name }}"
+  when: >-
+    (svc_virt_showroom_list.stdout | from_json
+     | selectattr('project', 'equalto', item.project)
+     | selectattr('name', 'equalto', item.name) | list | length) == 0
+  changed_when: true
+  become: true
+
+- name: "🔍 Read the limits and the address of every server"
+  ansible.builtin.command:
+    argv: >-
+      {{ ['incus', 'config']
+         + (['device', 'get', item.name, item.device, item.key] if item.device else ['get', item.name, item.key])
+         + ['--project', item.project] }}
+  loop: "{{ SHOWROOM_INSTANCES | showroom_settings }}"
+  loop_control:
+    label: "{{ item.project }}/{{ item.name }} {{ item.device }} {{ item.key }}"
+  register: svc_virt_showroom_settings
+  changed_when: false
+  become: true
+
+- name: "🔧 Reconcile the limits and the address of every server"
+  ansible.builtin.command:
+    argv: >-
+      {{ ['incus', 'config']
+         + (['device', 'set', item.item.name, item.item.device, item.item.key ~ '=' ~ item.item.value]
+            if item.item.device else ['set', item.item.name, item.item.key ~ '=' ~ item.item.value])
+         + ['--project', item.item.project] }}
+  loop: "{{ svc_virt_showroom_settings.results }}"
+  loop_control:
+    label: "{{ item.item.project }}/{{ item.item.name }} {{ item.item.device }} {{ item.item.key }}"
+  when: (item.stdout | trim) != (item.item.value | string)
+  changed_when: true
+  become: true
+
+- name: "▶️ Start every server that is not running"
+  ansible.builtin.command:
+    argv:
+      - incus
+      - start
+      - "{{ item.name }}"
+      - --project
+      - "{{ item.project }}"
+  loop: "{{ SHOWROOM_INSTANCES }}"
+  loop_control:
+    label: "{{ item.project }}/{{ item.name }}"
+  when: >-
+    (svc_virt_showroom_list.stdout | from_json
+     | selectattr('project', 'equalto', item.project)
+     | selectattr('name', 'equalto', item.name)
+     | selectattr('status', 'equalto', 'Running') | list | length) == 0
+  changed_when: true
+  become: true
+
+- name: "🌐 Serve every project domain through the host's reverse proxy"
+  ansible.builtin.include_role:
+    name: svc-stack
+    tasks_from: consumer/front.yml
+  when: SHOWROOM_CANONICAL_DOMAINS | length > 0
+
+- include_tasks: 01_access.yml

@@ -9,7 +9,7 @@ SMTP_HOST = os.environ["SMTP_HOST"]
 SMTP_PORT = int(os.environ["SMTP_PORT"])
 SMTP_TLS = os.environ["SMTP_TLS"] == "true"
 SMTP_START_TLS = os.environ["SMTP_START_TLS"] == "true"
-SMTP_AUTH = os.environ["SMTP_AUTH"] == "true"
+SMTP_AUTH_ENABLED = os.environ["SMTP_AUTH_ENABLED"] == "true"
 SMTP_USER = os.environ["SMTP_USER"]
 SMTP_PASS = os.environ["SMTP_PASS"]
 
@@ -37,7 +37,7 @@ def upsert_outbound_account():
     ea.flags.ignore_permissions = True
     ea.flags.ignore_validate = True
     ea.flags.no_check_in_db = True
-    ea.no_smtp_authentication = int(not SMTP_AUTH)
+    ea.no_smtp_authentication = int(not SMTP_AUTH_ENABLED)
     ea.flags.ignore_links = True
     ea.flags.ignore_mandatory = True
     try:

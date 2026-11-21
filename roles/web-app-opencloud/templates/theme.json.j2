@@ -1,9 +1,8 @@
-{% set design = lookup('design', application_id) %}
-{% set assets = (OPENCLOUD_DESIGN_THEME_URL_PATH if design.logo is string else OPENCLOUD_UPSTREAM_THEME_URL_PATH) ~ '/assets/' %}
+{% set assets = (OPENCLOUD_DESIGN_THEME_URL_PATH if (OPENCLOUD_THEME.logo | default(false)) is string else OPENCLOUD_UPSTREAM_THEME_URL_PATH) ~ '/assets/' %}
 {
   "common": {
-    "name": {{ design.label | to_json }},
-    "slogan": {{ design.label | to_json }},
+    "name": {{ OPENCLOUD_THEME.name | to_json }},
+    "slogan": {{ OPENCLOUD_THEME.slogan | to_json }},
     "logo": {{ (assets ~ 'logo.svg') | to_json }},
     "urls": {
       "accessDeniedHelp": "",

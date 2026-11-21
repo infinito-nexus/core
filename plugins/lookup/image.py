@@ -199,4 +199,8 @@ class LookupModule(LookupBase):
             return [image_ref]
 
         prefix = _swarm_prefix(vars_, templar)
-        return [f"{prefix}{image_ref}"]
+        if prefix:
+            return [f"{prefix}{image_ref}"]
+        return lookup_loader.get(
+            "registry_vendors", loader=self._loader, templar=templar
+        ).run([image_ref], variables=vars_)

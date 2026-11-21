@@ -42,3 +42,12 @@ oidc_http_discovery:
     - service: migrate
       target: *opt_mastodon_config_initializers_00_oidc_http_discovery_rb_target
       when: "{{ not (lookup('tls', 'web-app-mastodon', 'enabled') | bool) }}"
+
+oidc_role_sync:
+  type: config
+  source: "{{ [lookup('container', 'web-app-mastodon', 'directories.instance'), 'overrides', 'zz_oidc_role_sync.rb'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: mastodon
+      target: /opt/mastodon/config/initializers/zz_oidc_role_sync.rb
+      when: "{{ lookup('config', 'web-app-mastodon', 'services.sso.enabled') | bool }}"

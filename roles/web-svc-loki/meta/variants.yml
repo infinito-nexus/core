@@ -1,0 +1,27 @@
+---
+- services:
+    loki:
+      wal:
+        disk_full_threshold: 0.99
+    docs:
+      enabled: false
+      shared: false
+    seaweedfs:
+      enabled: true
+      shared: true
+    prometheus:
+      enabled: true
+      shared: true
+- services:
+    loki:
+      wal:
+        disk_full_threshold: 0.99
+    docs:
+      enabled: true
+      shared: true
+    seaweedfs:
+      enabled: false
+      shared: false
+    prometheus:
+      enabled: false
+      shared: false

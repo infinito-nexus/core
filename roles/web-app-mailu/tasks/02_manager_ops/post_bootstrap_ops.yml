@@ -2,16 +2,21 @@
 - name: ⏳ Wait for Mailu Redis
   include_tasks: ../04_wait_for_redis.yml
 
+- name: "👥 Resolve the administrator members of {{ application_id }}"
+  include_tasks: utils/rbac/members.yml
+  vars:
+    rbac_members_application_id: "{{ application_id }}"
+    rbac_members_role: administrator
+    rbac_members_attributes: []
+
+- name: "👥 Keep the administrator members of {{ application_id }}"
+  ansible.builtin.set_fact:
+    mailu_rbac_administrators: "{{ rbac_members }}"
+
 - name: "📁 Create Mailu accounts"
   include_tasks: ../05_manage_user.yml
   vars:
-    mailu_action: >-
-      {{
-        (
-          'administrator' in (user_item.value.get('roles', []))
-        )
-        | ternary('admin','user')
-      }}
+    mailu_action: "{{ ((user_item.value.username | lower) in MAILU_RBAC_ADMIN_USERNAMES) | ternary('admin', 'user') }}"
     mailu_user_key: "{{ user_item.key }}"
     mailu_user_name: "{{ user_item.value.username }}"
     mailu_user_password: "{{ user_item.value.password }}"
@@ -22,6 +27,9 @@
   loop_control:
     loop_var: user_item
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "👑 Reconcile Mailu global administrators and domain managers"
+  include_tasks: rbac_reconcile.yml
 
 - name: "📁 Create Mailu forward aliases"
   include_tasks: ../utils/manage/alias.yml

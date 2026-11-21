@@ -1,0 +1,69 @@
+{
+  "locals": {
+    "catalog": "${jsondecode(file(\"${path.module}/catalog.json\"))[var.flavor]}",
+    "size": "${local.catalog.sizes[var.size]}",
+    "region": "${local.catalog.regions[var.region]}",
+    "workspace_file": "${path.module}/workspace.json",
+    "workspace": "${fileexists(local.workspace_file) ? jsondecode(file(local.workspace_file)) : {workspace = \"ws-missing\", dns = {zone = \"invalid\", zone_id = \"\"}}}",
+    "mode": "${local.region.kvm ? \"kvm\" : \"emulated\"}",
+    "cpu_type": "${local.region.kvm ? \"x86-64-v2-AES\" : \"qemu64\"}",
+    "ipv4": ["${[for address in flatten(proxmox_virtual_environment_vm.server.ipv4_addresses) : address if address != \"127.0.0.1\"][0]}"],
+    "ipv6": []
+  },
+  "resource": {
+    "proxmox_virtual_environment_vm": {
+      "server": {
+        "name": "${var.name}",
+        "node_name": "${local.region.node}",
+        "pool_id": "${local.workspace.workspace}",
+        "tags": ["${var.flavor}"],
+        "started": true,
+        "stop_on_destroy": true,
+        "clone": [{
+          "vm_id": "${local.region.templates[local.mode]}",
+          "node_name": "${local.region.node}",
+          "datastore_id": "${local.region.storage}",
+          "full": true
+        }],
+        "cpu": [{"cores": "${local.size.vcpus}", "type": "${local.cpu_type}"}],
+        "memory": [{"dedicated": "${local.size.memory_mib}"}],
+        "disk": [{
+          "datastore_id": "${local.region.storage}",
+          "interface": "scsi0",
+          "size": "${local.size.disk_gib}"
+        }],
+        "network_device": [{
+          "bridge": "${local.region.bridge}",
+          "model": "virtio",
+          "enabled": true,
+          "disconnected": false,
+          "firewall": false,
+          "mac_address": null,
+          "mtu": null,
+          "queues": null,
+          "rate_limit": null,
+          "trunks": null,
+          "vlan_id": null
+        }],
+        "agent": [{"enabled": true}],
+        "initialization": [{
+          "datastore_id": "${local.region.storage}",
+          "ip_config": [{"ipv4": [{"address": "dhcp"}]}],
+          "user_account": [{"username": "root", "keys": ["${var.ssh_public_key}"]}]
+        }],
+        "lifecycle": [{"precondition": [{"condition": "${fileexists(local.workspace_file)}", "error_message": "workspace.json is missing beside the root module."}]}]
+      }
+    }
+  },
+  "module": {
+    "dns": {
+      "source": "./modules/dns",
+      "zone": "${local.workspace.dns.zone}",
+      "zone_id": "${local.workspace.dns.zone_id}",
+      "name": "${var.dns_label}.${local.workspace.workspace}",
+      "ipv4": "${local.ipv4}",
+      "ipv6": "${local.ipv6}",
+      "cname": ""
+    }
+  }
+}

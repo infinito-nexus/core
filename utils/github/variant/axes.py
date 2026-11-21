@@ -87,10 +87,7 @@ from utils.github.variant.pools import (
     rotate,
     runner_of,
 )
-from utils.github.variant.vpn import (
-    VPN_DEPLOY_MODES,
-    rotated_vpn,
-)
+from utils.github.variant.vpn import rotated_vpn
 from utils.networks.reachability import NODE_MODES
 from utils.roles.display import display_names
 from utils.symbol_glossary import to_emoji
@@ -216,7 +213,8 @@ def assign(
         ``NETWORK_MODE`` the deploy runs with, ``vpn`` whether a swarm row
         runs meshed, and ``disable`` carries the provider tokens the deploy
         drill switches off; a ``clearnet`` row disables the Tor provider so no
-        dependency edge can pull it back into the closure.
+        dependency edge can pull it back into the closure, and a ``swarm`` row
+        disables the compose-only partners its variant deploys.
     """
     codec = display_names()
     entries: list[dict[str, str]] = []
@@ -317,11 +315,7 @@ def assign(
             glyphs = (
                 to_emoji(mode)
                 + (to_emoji(state) if mode in NETWORK_DEPLOY_MODES else LOCAL_GLYPH)
-                + (
-                    to_emoji("vpn" if meshed else "direct")
-                    if mode in VPN_DEPLOY_MODES or mode == "compose"
-                    else ""
-                )
+                + to_emoji("vpn" if meshed else "direct")
                 + to_emoji(distro)
                 + to_emoji(filesystem)
                 + to_emoji(architecture)
@@ -342,7 +336,9 @@ def assign(
                     "enforce_filesystem": "true"
                     if pin_filesystem is not None or len(filesystems) == 1
                     else "false",
-                    "disable": disabled_services(state, row.get("services", ())),
+                    "disable": disabled_services(
+                        state, row.get("services", ()), mode=mode
+                    ),
                     "priority": "true" if priority else "false",
                     "instructions": "",
                     "id": str(row.get("id", 0)),

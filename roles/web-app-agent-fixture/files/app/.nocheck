@@ -1,0 +1,1 @@
+# nocheck: role-files-layout - this tree is a deployed web-application document root served by nginx; its assets are addressed by their in-app paths (html/, static/, static/thirdparty/, config/), so sorting files by language extension into files/javascript/ etc. would break both the served layout and the seeded fixture findings this role carries for the agents analyser scenarios.

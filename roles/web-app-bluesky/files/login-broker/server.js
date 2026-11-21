@@ -12,7 +12,7 @@
  *       ▼
  *     oauth2-proxy ── (Keycloak OIDC) ──► Keycloak realm
  *       │
- *       │  forward + X-Forwarded-User / X-Forwarded-Email
+ *       │  forward + X-Forwarded-Preferred-Username / X-Forwarded-Email
  *       ▼
  *     login-broker (this process)
  *       │
@@ -86,11 +86,15 @@ const CONFIG = {
   handoffCookieMaxAgeSec: parseInt(process.env.HANDOFF_COOKIE_MAX_AGE || "3300", 10),
   insecureTls: (process.env.INSECURE_TLS || "").toLowerCase() === "true",
   siteTitle: requireEnv("SITE_TITLE"),
+  nameClaim: requireEnv("OIDC_NAME_CLAIM"),
   storePath: requireEnv("BROKER_STORE_PATH"),
   logoutPath: "/sso/logout",
   chooseHandlePath: "/sso/handle",
   handleTokenTtlSec: 3600
 };
+
+const PROFILE_COLLECTION = "app.bsky.actor.profile";
+const DISPLAY_NAME_MAX_GRAPHEMES = 64;
 
 function requireEnv(name) {
   const value = process.env[name];
@@ -378,6 +382,50 @@ async function ensurePdsSession({ kcUsername, kcEmail, chosenLabel }) {
   };
 }
 
+function tokenClaims(token) {
+  const parts = String(token || "").split(".");
+  if (parts.length !== 3) return {};
+  try {
+    const claims = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
+    return claims && typeof claims === "object" ? claims : {};
+  } catch {
+    return {};
+  }
+}
+
+function displayNameFromRequest(req) {
+  const claims = tokenClaims(req.headers["x-forwarded-access-token"]);
+  const name = String(claims[CONFIG.nameClaim] || "").trim();
+  return Array.from(name).slice(0, DISPLAY_NAME_MAX_GRAPHEMES).join("");
+}
+
+async function syncProfileDisplayName(session, displayName) {
+  if (!displayName) return false;
+  const query = `repo=${encodeURIComponent(session.did)}&collection=${PROFILE_COLLECTION}&rkey=self`;
+  const current = await fetchJson("GET", `${CONFIG.pdsInternalUrl}/xrpc/com.atproto.repo.getRecord?${query}`);
+  const exists = current.status === 200 && current.body && current.body.value;
+  if (!exists && !(current.body && current.body.error === "RecordNotFound")) {
+    throw new Error(`PDS getRecord failed: status=${current.status} body=${current.raw}`);
+  }
+  const record = exists ? current.body.value : { $type: PROFILE_COLLECTION };
+  if (record.displayName === displayName) return false;
+  const body = {
+    repo: session.did,
+    collection: PROFILE_COLLECTION,
+    rkey: "self",
+    record: Object.assign({}, record, { $type: PROFILE_COLLECTION, displayName })
+  };
+  if (exists) body.swapRecord = current.body.cid;
+  const res = await fetchJson("POST", `${CONFIG.pdsInternalUrl}/xrpc/com.atproto.repo.putRecord`, {
+    headers: { Authorization: `Bearer ${session.accessJwt}` },
+    body
+  });
+  if (res.status < 200 || res.status >= 300) {
+    throw new Error(`PDS putRecord failed: status=${res.status} body=${res.raw}`);
+  }
+  return true;
+}
+
 // --- HTTP server ----------------------------------------------------
 
 function escapeHtml(v) {
@@ -587,6 +635,7 @@ function proxyToSocialApp(req, res) {
   const lib = isHttps ? https : http;
   const headers = Object.assign({}, req.headers);
   headers.host = upstream.host;
+  delete headers["x-forwarded-access-token"];
   const upstreamReq = lib.request({
     method: req.method,
     hostname: upstream.hostname,
@@ -607,7 +656,7 @@ function proxyToSocialApp(req, res) {
 const server = http.createServer(async (req, res) => {
   const reqId = Math.random().toString(36).slice(2, 8);
   const reqStart = Date.now();
-  console.log(`[broker:${reqId}] ${logSafe(req.method)} ${logSafe(req.url)} from=${logSafe(req.headers["x-forwarded-for"] || "?")} fwd-user=${logSafe(req.headers["x-forwarded-user"] || req.headers["x-forwarded-preferred-username"] || "-")}`);
+  console.log(`[broker:${reqId}] ${logSafe(req.method)} ${logSafe(req.url)} from=${logSafe(req.headers["x-forwarded-for"] || "?")} fwd-user=${logSafe(req.headers["x-forwarded-preferred-username"] || "-")}`);
   try {
     const requestUrl = new URL(req.url, "http://internal");
     const path = requestUrl.pathname;
@@ -637,11 +686,11 @@ const server = http.createServer(async (req, res) => {
     // Need a fresh handoff. The OIDC identity comes from oauth2-proxy
     // forwarded headers — without them the broker cannot proceed and
     // the request is rejected.
-    const kcUsername = (req.headers["x-forwarded-preferred-username"] || req.headers["x-forwarded-user"] || "").toString();
+    const kcUsername = (req.headers["x-forwarded-preferred-username"] || "").toString();
     const kcEmail = (req.headers["x-forwarded-email"] || "").toString();
     if (!kcUsername) {
-      console.log(`[broker:${reqId}] missing X-Forwarded-User → 401 (${Date.now() - reqStart}ms)`);
-      endHtml(res, 401, `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><title>${escapeHtml(CONFIG.siteTitle)} login required</title></head><body><p>Missing X-Forwarded-User from oauth2-proxy. Refusing handoff.</p></body></html>`);
+      console.log(`[broker:${reqId}] missing X-Forwarded-Preferred-Username → 401 (${Date.now() - reqStart}ms)`);
+      endHtml(res, 401, `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/><title>${escapeHtml(CONFIG.siteTitle)} login required</title></head><body><p>Missing X-Forwarded-Preferred-Username from oauth2-proxy. Refusing handoff.</p></body></html>`);
       return;
     }
 
@@ -671,6 +720,8 @@ const server = http.createServer(async (req, res) => {
         return;
       }
       console.log(`[broker:${reqId}] chosen handle ${logSafe(chosenSession.handle)} ready (${Date.now() - reqStart}ms)`);
+      const chosenProfileChanged = await syncProfileDisplayName(chosenSession, displayNameFromRequest(req));
+      console.log(`[broker:${reqId}] profile displayName ${chosenProfileChanged ? "updated" : "unchanged"} (${Date.now() - reqStart}ms)`);
       endHtml(res, 200, renderHandoff(chosenSession, "/"));
       return;
     }
@@ -685,6 +736,8 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     console.log(`[broker:${reqId}] PDS session ready did=${logSafe(session.did)} handle=${logSafe(session.handle)} hasAccessJwt=${!!session.accessJwt} (${Date.now() - reqStart}ms)`);
+    const profileChanged = await syncProfileDisplayName(session, displayNameFromRequest(req));
+    console.log(`[broker:${reqId}] profile displayName ${profileChanged ? "updated" : "unchanged"} (${Date.now() - reqStart}ms)`);
     const html = renderHandoff(session, requestUrl.pathname + (requestUrl.search || ""));
     endHtml(res, 200, html);
     console.log(`[broker:${reqId}] handoff HTML sent (${Date.now() - reqStart}ms)`);

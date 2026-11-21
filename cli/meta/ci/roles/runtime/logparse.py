@@ -15,7 +15,7 @@ LINE_RE = re.compile(
 )
 SEGMENT_RE = re.compile(
     r"matrix-deploy: round (?P<round>\d+)/(?P<rounds>\d+).*?"
-    r"PASS (?P<pass>\d+) \((?P<mode>sync|async)\)"
+    r"PASS (?P<pass>\d+) \((?P<mode>[a-z]+)\)"
 )
 ROLES_RECAP_RE = re.compile(r"^ROLES RECAP \*+")
 OTHER_RECAP_RE = re.compile(r"^(TASKS|PLAY|PLAYBOOK) RECAP \*+")

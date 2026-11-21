@@ -1,0 +1,8 @@
+---
+roles:
+  manager:
+    description: Odoo business manager (internal user with the Sales, Accounting, Inventory and Project administrator rights)
+  user:
+    description: Odoo internal user (backend access with the default rights of the installed apps)
+  portal:
+    description: Odoo portal user (customer portal only, no backend access)

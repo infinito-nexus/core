@@ -1,0 +1,45 @@
+---
+# Param: xwiki_http_method           - request method
+# Param: xwiki_http_url              - absolute URL below XWIKI_INTERNAL_URL
+# Param: xwiki_http_headers          - request headers mapping
+# Param: xwiki_http_body             - request body; '' sends none
+# Param: xwiki_http_status           - statuses that end the retries; any other fails the task once the retries run out
+# Param: xwiki_http_retry_markers    - content substrings that force another attempt
+# Param: xwiki_http_retries          - retries
+# Param: xwiki_http_delay            - delay seconds between attempts
+# Param: xwiki_http_timeout          - request timeout seconds
+# Param: xwiki_http_follow_redirects - 'safe' follows GET/HEAD redirects, 'none' answers with the redirect
+# Param: xwiki_http_result           - fact that receives the answer of files/python/http_call.py
+# Param: XWIKI_HOST_NODE / XWIKI_NETNS_PYTHON - set by utils/flush_config.yml
+- name: "🌐 XWIKI | {{ xwiki_http_method }} {{ xwiki_http_url }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  block:
+    - name: "🌐 XWIKI | send {{ xwiki_http_method }} {{ xwiki_http_url }}"
+      ansible.builtin.command:
+        argv: "{{ XWIKI_NETNS_PYTHON }}"
+        stdin: |-
+          HEADERS_B64 = {{ xwiki_http_headers | to_json | b64encode | to_json }}
+          BODY_B64 = {{ xwiki_http_body | string | b64encode | to_json }}
+          {{ lookup('file', lookup('path_absolute', 'roles/web-app-xwiki/files/python/http_call.py')) }}
+      environment:
+        HTTP_METHOD: "{{ xwiki_http_method }}"
+        HTTP_URL: "{{ xwiki_http_url }}"
+        HTTP_FOLLOW_REDIRECTS: "{{ xwiki_http_follow_redirects }}"
+        HTTP_TIMEOUT: "{{ xwiki_http_timeout }}"
+      register: _xwiki_http
+      retries: "{{ xwiki_http_retries }}"
+      delay: "{{ xwiki_http_delay }}"
+      until:
+        - _xwiki_http.rc == 0
+        - (_xwiki_http.stdout | from_json).status in xwiki_http_status
+        - xwiki_http_retry_markers | select('in', (_xwiki_http.stdout | from_json).content) | list | length == 0
+      changed_when: >-
+        xwiki_http_method == 'DELETE'
+        and _xwiki_http.rc == 0
+        and (_xwiki_http.stdout | from_json).status != 404
+      delegate_to: "{{ XWIKI_HOST_NODE }}"
+      become: true
+
+    - name: "🔧 XWIKI | keep the answer as {{ xwiki_http_result }}"
+      ansible.builtin.set_fact:
+        "{{ xwiki_http_result }}": "{{ _xwiki_http.stdout | from_json }}"

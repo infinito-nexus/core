@@ -21,13 +21,14 @@ from utils.cache.hosts import (
     repo_named,
     repo_records,
 )
+from utils.cache.pin import agreed
 from utils.cache.yaml import load_yaml_any
-from utils.distros import distro_names
 from utils.roles.mapping import ROLE_FILE_META_VOLUMES, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from pathlib import Path
 
 ROLE = "svc-cache-package"
@@ -110,9 +111,33 @@ def upstreams_conf() -> str:
     )
 
 
-def cache_consumer_yml() -> str:
-    """Return the compose override that points every cached host at the frontend."""
-    return _render(CONSUMER_TEMPLATE, CACHE_PACKAGE_HOSTNAMES=list(host_records()))
+def _served(served: Mapping[str, dict] | None) -> set[str]:
+    """Args:
+        served: the host records the pinned checkout declares, None for no pin.
+
+    Returns:
+        The declared hosts the frontend serves: all of them without a pin,
+        else the ones the pin declares identically.
+    """
+    own = host_records()
+    return set(own) if served is None else agreed(own, dict(served))
+
+
+def cache_consumer_yml(served: Mapping[str, dict] | None = None) -> str:
+    """Return the compose override that points every served host at the frontend.
+
+    Args:
+        served: the host records the pinned checkout declares, None for no pin.
+    """
+    hosts = _served(served)
+    return _render(
+        CONSUMER_TEMPLATE,
+        CACHE_PACKAGE_HOSTNAMES=[
+            host
+            for host, record in host_records().items()
+            if host in hosts and record["hijack"]
+        ],
+    )
 
 
 def pip_conf() -> str:
@@ -145,27 +170,6 @@ def npmrc() -> str:
     )
 
 
-def apt_list(distro: str) -> str:
-    """Return one distribution's apt source, empty where it does not use apt.
-
-    Args:
-        distro: the value INFINITO_DISTRO carries.
-    """
-    name = f"apt-{distro}"
-    repo = repo_named(name)
-    hosts = hosts_serving(name)
-    source = ""
-    if repo and hosts:
-        entry = hosts[0]
-        path = entry.path_of(name).rstrip("/")
-        source = f"{entry.scheme()}://{entry.host}{path}"
-    return _render(
-        "apt.list.jinja",
-        CACHE_PACKAGE_APT_SOURCE=source,
-        CACHE_PACKAGE_APT_SUITE=repo.distribution if repo else "",
-    )
-
-
 def _write(target: Path, content: str) -> Path:
     """Write ``content`` to ``target``, replacing a file it cannot overwrite.
 
@@ -173,11 +177,6 @@ def _write(target: Path, content: str) -> Path:
     leaves a file the host may no longer write while the directory stays the
     host's. Unlinking needs the directory, not the file, which is why
     replacing the inode gets through where overwriting does not.
-
-    The replacement happens only after a refusal, never by default:
-    ``compose/swarm/cache.override.yml`` bind-mounts an apt list into a
-    container by inode, and swapping one that was writable anyway would leave
-    that mount reading the file nobody updates any more.
 
     Args:
         target: the generated file.
@@ -192,27 +191,24 @@ def _write(target: Path, content: str) -> Path:
     return target
 
 
-def render_artifacts(repo_root: Path, conf_path: Path) -> list[Path]:
-    """Write every generated cache file and return what was written.
-
-    A worktree configured to follow the primary checkout reads that
-    checkout's map without writing it: rendering there would push this
-    branch's declarations into another tree, which is the isolation the
-    setting exists to provide.
-
+def render_artifacts(
+    repo_root: Path, conf_path: Path, served: Mapping[str, dict] | None = None
+) -> list[Path]:
+    """
     Args:
         repo_root: the checkout being generated for.
         conf_path: where INFINITO_CACHE_PACKAGE_FRONTEND_CONF points.
+        served: the host records the pinned checkout declares, None for no
+            pin file; only those hosts are hijacked to the frontend.
+
+    Returns:
+        Every generated file that was written.
     """
     consumer_dir = repo_root / "compose" / "package-cache"
     written = [
-        _write(repo_root / CONSUMER, cache_consumer_yml()),
+        _write(repo_root / CONSUMER, cache_consumer_yml(served)),
         _write(consumer_dir / "pip.conf", pip_conf()),
         _write(consumer_dir / "npmrc", npmrc()),
-    ]
-    written += [
-        _write(consumer_dir / "apt" / f"{distro}.list", apt_list(distro))
-        for distro in distro_names()
     ]
     if conf_path.is_relative_to(repo_root):
         written.append(_write(conf_path, upstreams_conf()))

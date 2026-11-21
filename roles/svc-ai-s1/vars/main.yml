@@ -25,4 +25,10 @@ S1_JEFF_REPOSITORY: "{{ lookup('config', application_id, 'services.s1.jeff.repos
 S1_JEFF_REF: "{{ lookup('config', application_id, 'services.s1.jeff.ref') }}"
 S1_JEFF_MODEL_REPO: "{{ lookup('config', application_id, 'services.s1.jeff.model_repo') }}"
 S1_JEFF_MODEL_PATH: "{{ [S1_MODEL_ROOT, S1_JEFF_MODEL_REPO | basename] | path_join }}"
+S1_ARTEFACTS: "{{ lookup('cache_artefacts', application_id).values() | list }}"
+S1_STORED: "{{ (S1_ARTEFACTS | length > 0) and S1_FLAVOR != 'laya' }}"
+S1_JEFF_MODEL_SOURCE: >-
+  {{ ([AI_MODELS_STORE_PATH, (S1_ARTEFACTS | first).root] | path_join)
+     if (S1_STORED | bool) else S1_JEFF_MODEL_PATH }}
+S1_STORE_MOUNTS: "{{ [AI_MODELS_STORE_PATH ~ ':' ~ AI_MODELS_STORE_PATH ~ ':ro'] if (S1_STORED | bool) else [] }}"
 S1_JEFF_IMAGE_MODEL_PATH: "{{ [S1_IMAGE_MODEL_ROOT, S1_JEFF_MODEL_REPO | basename] | path_join }}"

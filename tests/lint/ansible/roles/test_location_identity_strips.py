@@ -32,12 +32,16 @@ import unittest
 
 from utils.annotations.suppress import is_suppressed_in_head
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.roles.header_trust import TRUSTED_IDENTITY_HEADERS
 
 _RULE = "location-identity-strip"
 
 LOCATION_DIR = PROJECT_ROOT / "roles/sys-svc-proxy/templates/location"
 
 STRIP_INCLUDE = "roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2"
+UNTRUSTED_STRIP_INCLUDE = (
+    "roles/sys-svc-proxy/templates/headers/untrusted_identity_strips.conf.j2"
+)
 
 _PROXIES_RE = re.compile(r"proxy_pass|lookup\(\s*['\"]proxy_pass['\"]")
 
@@ -96,6 +100,24 @@ class TestLocationIdentityStrips(unittest.TestCase):
             "X-Forwarded-Access-Token",
             "X-Forwarded-Preferred-Username",
         ):
+            with self.subTest(header=header):
+                self.assertIn(f'proxy_set_header {header} ""', content)
+
+    def test_the_untrusted_strips_cover_every_role_trusted_header(self) -> None:
+        """Checkmk and OpenProject trust X-Remote-User, n8n Remote-Email. The SSO
+        branch overwrites X-Forwarded-*, so only the others rely on this file."""
+        content = read_text(str(PROJECT_ROOT / UNTRUSTED_STRIP_INCLUDE))
+        for header in TRUSTED_IDENTITY_HEADERS:
+            if header.startswith("X-Forwarded-"):
+                continue
+            with self.subTest(header=header):
+                self.assertIn(f'proxy_set_header {header} ""', content)
+
+    def test_the_identity_strips_cover_every_role_trusted_header(self) -> None:
+        content = read_text(str(PROJECT_ROOT / STRIP_INCLUDE)) + read_text(
+            str(PROJECT_ROOT / UNTRUSTED_STRIP_INCLUDE)
+        )
+        for header in TRUSTED_IDENTITY_HEADERS:
             with self.subTest(header=header):
                 self.assertIn(f'proxy_set_header {header} ""', content)
 

@@ -3,3 +3,6 @@ locations:
   admin: /admin/
 status_codes:
   default: 301
+vhosts:
+  default:
+    extra_template: redirect.conf.j2

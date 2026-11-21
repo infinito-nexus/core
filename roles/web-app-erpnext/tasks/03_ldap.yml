@@ -2,20 +2,37 @@
 - name: "📌 apply LDAP Settings doctype"
   ansible.builtin.shell:
     cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      container exec -i
-      -e SITE_NAME -e LDAP_HOST -e LDAP_PORT -e LDAP_BASE_DN
+      IFS= read -r LDAP_BIND_PW && : "${LDAP_BIND_PW:?arrived empty on stdin}" && export LDAP_BIND_PW && container exec -i
+      -e SITE_NAME -e LDAP_HOST -e LDAP_PORT -e LDAP_BASE_DN -e LDAP_ROLES_DN
       -e LDAP_BIND_DN -e LDAP_BIND_PW -e LDAP_UID_ATTR
+      -e LDAP_MAIL_ATTR -e LDAP_FIRSTNAME_ATTR -e LDAP_SURNAME_ATTR -e LDAP_PHONE_ATTR -e LDAP_MOBILE_ATTR
+      -e LDAP_MEMBER_OF_ATTR -e LDAP_GROUP_OBJECTCLASS -e LDAP_GROUP_MEMBER_ATTR
+      -e ROLE_GRANTS_JSON -e GROUP_ROLES_JSON -e LDAP_LOGIN_ENABLED
       {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
       {{ ERPNEXT_BENCH_PYTHON }}
-    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/ldap_source.py') }}"
+    stdin: |-
+      {{ LDAP.BIND_CREDENTIAL }}
+      {{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/ldap_source.py') }}
   delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
   environment:
     SITE_NAME: "{{ ERPNEXT_SITE_NAME }}"
     LDAP_HOST: "{{ LDAP.SERVER.DOMAIN }}"
     LDAP_PORT: "{{ LDAP.SERVER.PORT }}"
     LDAP_BASE_DN: "{{ LDAP.DN.OU.USERS }}"
+    LDAP_ROLES_DN: "{{ LDAP.DN.OU.ROLES }}"
     LDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
-    LDAP_BIND_PW: "{{ LDAP.BIND_CREDENTIAL }}"
     LDAP_UID_ATTR: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+    LDAP_MAIL_ATTR: "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
+    LDAP_FIRSTNAME_ATTR: "{{ LDAP.USER.ATTRIBUTES.FIRSTNAME }}"
+    LDAP_SURNAME_ATTR: "{{ LDAP.USER.ATTRIBUTES.SURNAME }}"
+    LDAP_PHONE_ATTR: "{{ LDAP.USER.ATTRIBUTES.PHONE }}"
+    LDAP_MOBILE_ATTR: "{{ LDAP.USER.ATTRIBUTES.MOBILE }}"
+    LDAP_MEMBER_OF_ATTR: "{{ ERPNEXT_LDAP_MEMBER_OF_ATTRIBUTE }}"
+    LDAP_GROUP_OBJECTCLASS: "{{ ERPNEXT_LDAP_GROUP_OBJECTCLASS }}"
+    LDAP_GROUP_MEMBER_ATTR: "{{ ERPNEXT_LDAP_GROUP_MEMBER_ATTRIBUTE }}"
+    ROLE_GRANTS_JSON: "{{ ERPNEXT_RBAC_CORE_GRANTS | to_json }}"
+    GROUP_ROLES_JSON: "{{ ERPNEXT_RBAC_GROUP_GRANTS | to_json }}"
+    LDAP_LOGIN_ENABLED: "{{ ERPNEXT_LOGIN_LDAP | string | lower }}"
   register: erpnext_ldap_apply
   changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

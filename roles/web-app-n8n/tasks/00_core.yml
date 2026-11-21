@@ -3,9 +3,8 @@
 
 - name: "🧩 Load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🪝 Stage n8n SSO auto-provisioning hook on stack host and swarm peers"
   ansible.builtin.include_tasks:
@@ -21,29 +20,38 @@
 - name: "🚿 Flush handlers so '{{ N8N_CONTAINER }}' restarts with the SSO hook mounted"
   meta: flush_handlers
 
-- name: "⏳ Wait for n8n HTTP endpoint"
-  wait_for:
-    host: "{{ DOCKER_REACH_HOST }}"
-    port: "{{ N8N_HTTP_PORT }}"
-    delay: 5
-    timeout: "{{ lookup('timeout', 300) | int }}"
+- name: "🔍 Resolve the n8n container and its network namespace"
+  ansible.builtin.include_tasks: utils/resolve.yml
 
 - name: "🔎 Wait for n8n health check to pass"
-  uri_retry:
-    url: "{{ N8N_INTERNAL_API_URL }}/healthz/readiness"
-    method: GET
-    status_code: 200
-    return_content: false
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - "{{ N8N_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - wget
+      - -q
+      - -O
+      - /dev/null
+      - "{{ N8N_NETNS_API_URL }}/healthz/readiness"
   register: n8n_health
-  until: n8n_health.status == 200
+  until: n8n_health.rc == 0
   retries: 60
   delay: 5
+  changed_when: false
+  delegate_to: "{{ N8N_HOST_NODE }}"
 
 - name: "👤 Bootstrap n8n owner account"
   include_tasks:
     file: 01_bootstrap.yml
     apply:
       run_once: true
+
+- name: "🔗 Bind the existing n8n accounts to their Keycloak subject"
+  include_tasks: 02_sso.yml
+  when:
+    - N8N_SSO_ENABLED | bool
+    - IS_STACK_HOST | bool
 
 - name: "🤖 Bind the native AI surface to the platform gateway"
   include_tasks:

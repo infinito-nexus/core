@@ -188,6 +188,19 @@
       delegate_to: "{{ OPENBAO_HOST_NODE }}"
   when: OPENBAO_PKI_ENABLED | bool
 
+- name: "🏢 Configure the workspace mounts, task token logins and the store AppRole"
+  ansible.builtin.include_tasks:
+    file: 07_workspaces.yml
+    apply:
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  when: OPENBAO_WORKSPACES_ENABLED | bool
+
+- name: "🎭 Reconcile the read-only AppRole of the Playwright specs"
+  ansible.builtin.include_tasks:
+    file: 08_playwright.yml
+    apply:
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
 - name: "♻️ Re-pin the AppRole and record what this deploy applied"
   ansible.builtin.include_tasks: 06_rotate.yml
 

@@ -6,7 +6,7 @@ import unittest.mock as mock
 
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
-import utils.tls_common as _tls_common
+import utils.tls.common as _tls_common
 from plugins.lookup.tls import LookupModule
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str

@@ -5,29 +5,34 @@
   include_tasks: utils/rest_session.yml
 
 - name: "⬆️ XWIKI | PUT checker page XWiki.CheckExtension"
-  uri_retry:
-    url: "{{ [XWIKI_REST_XWIKI_PAGES, 'CheckExtension'] | url_join }}"
-    method: PUT
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [200, 201, 202, 204]
-    headers: "{{ xwiki_rest_headers_write }}"
-    body: "{{ lookup('file', 'xml/check_extension_page.xml') }}"
-  register: _put_checker
-  changed_when: false
+  include_tasks: utils/http.yml
+  vars:
+    xwiki_http_method: PUT
+    xwiki_http_url: "{{ [XWIKI_REST_XWIKI_PAGES, 'CheckExtension'] | url_join }}"
+    xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+    xwiki_http_body: "{{ lookup('file', 'xml/check_extension_page.xml') }}"
+    xwiki_http_status: [200, 201, 202, 204]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _put_checker
 
 - name: "🔎 XWIKI | Check installed via Groovy for {{ ext_id }}"
-  uri_retry:
-    url: "{{ XWIKI_DOCKER_REACH_URL }}/bin/view/XWiki/CheckExtension?xpage=plain&id={{ ext_id | urlencode }}"
-    method: GET
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [200]
-    return_content: true
-  register: _check_output
-  changed_when: false
+  include_tasks: utils/http.yml
+  vars:
+    xwiki_http_method: GET
+    xwiki_http_url: "{{ XWIKI_INTERNAL_URL }}/bin/view/XWiki/CheckExtension?xpage=plain&id={{ ext_id | urlencode }}"
+    xwiki_http_headers: "{{ XWIKI_SUPERADMIN_AUTH_HEADERS }}"
+    xwiki_http_body: ""
+    xwiki_http_status: [200]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _check_output
 
 - name: "💾 XWIKI | Save Groovy check result for {{ ext_id }}"
   set_fact:
@@ -36,13 +41,16 @@
       raw: "{{ _check_output.content }}"
 
 - name: "🗑️ XWIKI | Delete checker page"
-  uri_retry:
-    url: "{{ [XWIKI_REST_XWIKI_PAGES, 'CheckExtension'] | url_join }}"
-    method: DELETE
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [204, 200, 202, 404]
-    headers: "{{ xwiki_rest_headers_write }}"
-  register: _delete_checker
-  changed_when: _delete_checker.status != 404
+  include_tasks: utils/http.yml
+  vars:
+    xwiki_http_method: DELETE
+    xwiki_http_url: "{{ [XWIKI_REST_XWIKI_PAGES, 'CheckExtension'] | url_join }}"
+    xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+    xwiki_http_body: ""
+    xwiki_http_status: [204, 200, 202, 404]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _delete_checker

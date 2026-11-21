@@ -31,7 +31,7 @@ async function waitForFirstVisible(page, locators, timeout = resolveTimeout(60_0
 }
 
 const serverErrorByPage = new WeakMap();
-const LOGIN_CALLBACK = /\/apps\/(?:sociallogin|oidc_login)\//;
+const LOGIN_CALLBACK = /\/apps\/(?:sociallogin|oidc_login|user_oidc)\//;
 
 function trackServerErrors(page) {
   if (serverErrorByPage.has(page)) {

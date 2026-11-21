@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Usage: archive_playwright_reports.sh <reports_dir> <variant_index> <async_enabled>
+# Usage: archive_playwright_reports.sh <reports_dir> <variant_index> <update_pass>
 #
 # Move playwright-junit.xml / playwright-report/ / test-results/ and the
 # parallel scheduler's run-parallel/ (output and result of the run) from
-# <reports_dir> into <reports_dir>/variant-N/{sync|async}/ so subsequent
+# <reports_dir> into <reports_dir>/variant-N/{initial|update}/ so subsequent
 # invocations of the test-e2e-playwright role cannot overwrite them.
 # Idempotent: an existing slot is replaced rather than refused.
 
 if [ "$#" -ne 3 ]; then
-	echo "usage: $0 <reports_dir> <variant_index> <async_enabled>" >&2
+	echo "usage: $0 <reports_dir> <variant_index> <update_pass>" >&2
 	exit 2
 fi
 
 reports_dir="$1"
 variant_index="$2"
-async_enabled="$3"
+update_pass="$3"
 
-case "$async_enabled" in
-true | True | TRUE | 1) pass="async" ;;
-*) pass="sync" ;;
+case "$update_pass" in
+true | True | TRUE | 1) pass="update" ;;
+*) pass="initial" ;;
 esac
 
 subdir="variant-${variant_index}/${pass}"

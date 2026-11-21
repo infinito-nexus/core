@@ -1,0 +1,88 @@
+---
+- name: "🛑 Refuse to erase ws-{{ WORKSPACE }} while it still holds OpenTofu state"
+  ansible.builtin.assert:
+    that:
+      - workspace_state_objects is integer
+      - workspace_state_objects == 0
+    fail_msg: >-
+      workspace destroy keeps the roles, secrets and transit key of ws-{{ WORKSPACE }}
+      while workspace_state_objects is not 0: the provision destroy needs them to
+      remove the servers and states first.
+    quiet: true
+
+- name: "🎫 Delete the task token roles of ws-{{ WORKSPACE }}"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p=auth/{{ item }};
+    held=;
+    bao read $p >/dev/null 2>&1 && held=1;
+    bao delete $p >/dev/null;
+    [ -z "$held" ] || echo OPENBAO_CHANGED'
+  loop:
+    - "{{ OPENBAO_JWT_MOUNT }}/role/ws-{{ WORKSPACE }}"
+    - "{{ OPENBAO_JWT_MOUNT }}/role/ws-{{ WORKSPACE }}-provision"
+    - "{{ OPENBAO_JWT_MOUNT }}/role/ws-{{ WORKSPACE }}-zone"
+    - "{{ OPENBAO_JWT_EXPORT_MOUNT }}/role/ws-{{ WORKSPACE }}"
+  register: openbao_workspace_role_delete
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_role_delete.stdout"
+
+- name: "📜 Delete the zone policy of ws-{{ WORKSPACE }}"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p=ws-{{ WORKSPACE }}-zone;
+    held=;
+    bao policy read $p >/dev/null 2>&1 && held=1;
+    bao policy delete $p >/dev/null;
+    [ -z "$held" ] || echo OPENBAO_CHANGED'
+  register: openbao_workspace_zone_policy_delete
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_zone_policy_delete.stdout"
+
+- name: "🧹 Erase every version of every secret of ws-{{ WORKSPACE }}"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -s -- {{ OPENBAO_TENANT_MOUNT | quote }} {{ item | quote }}
+  args:
+    stdin: "{{ lookup('file', 'shell/erase-tree.sh') }}"
+  loop:
+    - "ws-{{ WORKSPACE }}/"
+    - "ws-{{ WORKSPACE }}-provision/"
+  register: openbao_workspace_erase
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_erase.stdout"
+
+- name: "👥 Drop the pinned Owner group of ws-{{ WORKSPACE }}"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p={{ OPENBAO_OWNER_RECORD_PREFIX }}/ws-{{ WORKSPACE }};
+    held=;
+    bao kv metadata get -mount={{ OPENBAO_PLATFORM_MOUNT }} $p >/dev/null 2>&1 && held=1;
+    bao kv metadata delete -mount={{ OPENBAO_PLATFORM_MOUNT }} $p >/dev/null;
+    [ -z "$held" ] || echo OPENBAO_CHANGED'
+  register: openbao_workspace_owner_delete
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_owner_delete.stdout"
+
+- name: "🔐 Delete the transit key ws-{{ WORKSPACE }}-provision after its states"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    k={{ OPENBAO_TRANSIT_MOUNT }}/keys/ws-{{ WORKSPACE }}-provision;
+    out=$(bao read $k 2>&1) || { case "$out" in *"No value found"*) exit 0 ;; esac; echo "$out" >&2; exit 1; };
+    bao write $k/config deletion_allowed=true >/dev/null;
+    bao delete $k >/dev/null;
+    echo OPENBAO_CHANGED'
+  register: openbao_workspace_key_delete
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_key_delete.stdout"
+
+- name: "🧾 Drop the snapshot record of the deleted key"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p={{ OPENBAO_TRANSIT_RECORD_PREFIX }}/ws-{{ WORKSPACE }};
+    held=;
+    bao kv metadata get -mount={{ OPENBAO_PLATFORM_MOUNT }} $p >/dev/null 2>&1 && held=1;
+    bao kv metadata delete -mount={{ OPENBAO_PLATFORM_MOUNT }} $p >/dev/null;
+    [ -z "$held" ] || echo OPENBAO_CHANGED'
+  register: openbao_workspace_record_delete
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_record_delete.stdout"

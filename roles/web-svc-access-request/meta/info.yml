@@ -1,0 +1,4 @@
+---
+# nocheck: info-media no upstream project: the service ships with this role
+logo:
+  class: fa-solid fa-user-shield

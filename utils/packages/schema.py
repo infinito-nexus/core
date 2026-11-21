@@ -32,7 +32,9 @@ repo shipped as a package such as ``epel-release``, ``enable_existing`` to
 switch on a repo the distro already ships, ``pacman_section`` to uncomment
 a section of ``pacman.conf`` such as ``multilib``, ``copr``/``ppa`` for a
 community repository, or ``managed_externally`` when the role sets it up
-itself.
+itself. ``chroot`` next to ``copr`` names the COPR chroot to enable, such as
+``rhel+epel-10-x86_64``, when the project builds none of the chroots
+``community.general.copr`` derives from the host.
 
 ``source: flatpak`` takes application ids rather than package names and
 pulls them from a Flatpak remote::

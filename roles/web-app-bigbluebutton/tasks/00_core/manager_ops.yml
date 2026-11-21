@@ -53,6 +53,9 @@
 - name: "🎨 Setup corporate design"
   include_tasks: "../03_design.yml"
 
+- name: "🚪 Converge the sign-in methods"
+  include_tasks: "../04_login_methods.yml"
+
 - name: "🔧 Pin search_path on immutable_lower_unaccent in every database"
   ansible.builtin.shell: # nocheck: compose_mode_force role
     cmd: >-

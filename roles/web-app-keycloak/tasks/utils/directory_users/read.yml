@@ -1,0 +1,76 @@
+---
+- name: "🔢 Keycloak directory | Count the users of realm '{{ KEYCLOAK_REALM }}'"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ KEYCLOAK_LOCAL_CID }}" # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      - "{{ KEYCLOAK_KCADM }}"
+      - get
+      - users/count
+      - -r
+      - "{{ KEYCLOAK_REALM }}"
+  register: keycloak_directory_count
+  changed_when: false
+  delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+  when: keycloak_directory_usernames | length == 0
+
+- name: "📄 Keycloak directory | Read every user page by page"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ KEYCLOAK_LOCAL_CID }}" # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      - "{{ KEYCLOAK_KCADM }}"
+      - get
+      - users
+      - -r
+      - "{{ KEYCLOAK_REALM }}"
+      - --offset
+      - "{{ keycloak_directory_offset }}"
+      - --limit
+      - "{{ keycloak_directory_page }}"
+      - --fields
+      - "{{ keycloak_directory_fields }}"
+  loop: >-
+    {{ range(0, keycloak_directory_count.stdout_lines | map('trim') | select('match', '^[0-9]+$') | last | int, keycloak_directory_page) | list
+       if keycloak_directory_usernames | length == 0 else [] }}
+  loop_control:
+    loop_var: keycloak_directory_offset
+  register: keycloak_directory_pages
+  changed_when: false
+  delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+
+- name: "🔍 Keycloak directory | Look up each named user"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ KEYCLOAK_LOCAL_CID }}" # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      - "{{ KEYCLOAK_KCADM }}"
+      - get
+      - users
+      - -r
+      - "{{ KEYCLOAK_REALM }}"
+      - -q
+      - "username={{ keycloak_directory_username }}"
+      - -q
+      - exact=true
+      - --fields
+      - "{{ keycloak_directory_fields }}"
+  loop: "{{ keycloak_directory_usernames }}"
+  loop_control:
+    loop_var: keycloak_directory_username
+  register: keycloak_directory_named
+  changed_when: false
+  delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+
+- name: "📌 Keycloak directory | Store the users found"
+  ansible.builtin.set_fact:
+    keycloak_directory_users: >-
+      {{ (keycloak_directory_pages.results + keycloak_directory_named.results)
+         | map(attribute='stdout') | map('kcadm_json') | list
+         | kc_directory_users(keycloak_directory_usernames) }}

@@ -91,13 +91,14 @@ def _settings_module(objstore_enabled: bool) -> str:
     Returns:
         FUNKWHALE_DJANGO_SETTINGS_MODULE as vars/main.yml renders it.
     """
-    expression = load_yaml(str(ROLE / ROLE_FILE_VARS_MAIN))[
-        "FUNKWHALE_DJANGO_SETTINGS_MODULE"
-    ]
+    role_vars = load_yaml(str(ROLE / ROLE_FILE_VARS_MAIN))
     return (
         _environment()
-        .from_string(expression)
-        .render(FUNKWHALE_OBJSTORE_ENABLED=objstore_enabled)
+        .from_string(role_vars["FUNKWHALE_DJANGO_SETTINGS_MODULE"])
+        .render(
+            FUNKWHALE_OBJSTORE_ENABLED=objstore_enabled,
+            FUNKWHALE_SETTINGS_MODULE=role_vars["FUNKWHALE_SETTINGS_MODULE"],
+        )
     )
 
 
@@ -115,6 +116,8 @@ def _render_env(domain: str, objstore: dict) -> dict[str, str]:
     def lookup(name: str, *terms, **_kwargs):
         if name == "objstore":
             return objstore[terms[1]]
+        if name == "debug":
+            return False
         if name == "domain":
             return domain
         if name == "tls":
@@ -131,7 +134,6 @@ def _render_env(domain: str, objstore: dict) -> dict[str, str]:
     rendered = env.get_template(f"roles/{APP}/templates/env.j2").render(
         application_id=APP,
         HOST_TIMEZONE="UTC",
-        MODE_DEBUG=False,
         FUNKWHALE_MUSIC_DIR="/var/lib/funkwhale/music",
         FUNKWHALE_MEDIA_DIR="/var/lib/funkwhale/media",
         FUNKWHALE_STATIC_DIR="/var/lib/funkwhale/static",
@@ -183,8 +185,8 @@ class TestFunkwhaleSameOriginEnv(unittest.TestCase):
 
         self.assertEqual(values["DJANGO_SETTINGS_MODULE"], "same_origin_settings")
 
-    def test_without_the_object_store_the_stock_settings_run(self):
-        self.assertEqual(_settings_module(False), "config.settings.production")
+    def test_without_the_object_store_the_role_settings_run(self):
+        self.assertEqual(_settings_module(False), "config.settings.infinito")
 
 
 class TestFunkwhaleFrontNginx(unittest.TestCase):

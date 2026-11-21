@@ -811,6 +811,66 @@ class TestComposeCaInject(unittest.TestCase):
             "if ! grep -qF INFINITO_TAIGA_AUTH_CONFIG /taiga-back/settings/config.py ; then cat /taiga-back/settings/config.append.py >> /taiga-back/settings/config.py ; fi ; exec /taiga-back/docker/entrypoint.sh",
         )
 
+    def _wrapped_command(self, services: dict, image_meta: tuple) -> list:
+        """
+        Args:
+            services: the composed services, each on image ``img:1``.
+            image_meta: the inspected ``(readable, entrypoint, cmd, has_sh)``.
+
+        Returns:
+            The command the override hands the CA wrapper for service ``svc``.
+        """
+        with patch.object(
+            self.m, "gather_image_meta", return_value={"img:1": image_meta}
+        ):
+            doc = self.m.render_override(
+                services,
+                {"svc": ["docker", "compose", "-p", "p", "-f", "compose.yml"]},
+                cwd=Path("/tmp"),
+                env={},
+                ca_host="/host/ca.crt",
+                wrapper_host="/host/with-ca-trust.sh",
+                ca_container=CA_CERT_CONTAINER,
+                wrapper_container=CA_WRAPPER_CONTAINER,
+                trust_name="infinito.local",
+            )
+        out = doc["services"]["svc"]
+        self.assertEqual(out.get("entrypoint"), [CA_WRAPPER_CONTAINER])
+        return out.get("command")
+
+    def test_render_override_splits_an_image_cmd_after_a_three_word_shell_entrypoint(
+        self,
+    ):
+        services = {"svc": {"image": "img:1"}}
+        self.assertEqual(
+            self._wrapped_command(
+                services, (True, ["bash", "-c", "exec run"], ["--flag", "x y"], True)
+            ),
+            ["bash", "-c", "exec run", "--flag", "x y"],
+        )
+
+    def test_render_override_keeps_a_tokenized_shell_image_cmd_as_is(self):
+        services = {"svc": {"image": "img:1"}}
+        self.assertEqual(
+            self._wrapped_command(
+                services, (True, [], ["sh", "-c", "s", "x", "y"], True)
+            ),
+            ["sh", "-c", "s", "x", "y"],
+        )
+
+    def test_render_override_keeps_the_positional_args_of_an_image_shell_entrypoint(
+        self,
+    ):
+        script = 'exec "${OPENVSCODE_SERVER_ROOT}/bin/openvscode-server" "$@"'
+        args = ["--port", "3000", "--default-folder", "/w"]
+        services = {"svc": {"image": "img:1", "command": args}}
+        self.assertEqual(
+            self._wrapped_command(
+                services, (True, ["/bin/sh", "-c", script, "--"], [], True)
+            ),
+            ["/bin/sh", "-c", script.replace("$", "$$"), "--", *args],
+        )
+
     def test_render_override_gathers_each_unique_image_once(self):
         """Image metadata is gathered once per unique image, not per service."""
         services = {

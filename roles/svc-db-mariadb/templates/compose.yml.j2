@@ -14,6 +14,7 @@
 
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {% if MARIADB_EXPOSE_LOCAL %}
+    {# nocheck: swarm-loopback-port exec  renders under swarm only with services.mariadb.exposed (variant 0 sets it), where container_ports publishes it in host mode for the node onion when svc-net-tor is deployed, pinned to the stack host, and the prerouting chain of the swarm node baseline drops every packet to it that does not arrive on lo; tasks/00_core.yml waits and tasks/01_init.yml provisions inside the container and applications connect by service name #}
     {{ lookup('container_ports', ['mariadb', 'mariadb', DOCKER_BIND_HOST]) | indent(4) }}
     {% endif %}
     {{ lookup('container_volumes', service_name) | indent(4) }}

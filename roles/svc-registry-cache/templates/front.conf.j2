@@ -1,0 +1,30 @@
+server {
+	listen {{ REGISTRY_CACHE_FRONT_LISTEN_PORT }} ssl;
+	ssl_certificate     {{ REGISTRY_CACHE_FRONT_TLS_TARGET }}/{{ REGISTRY_CACHE_FRONT_CERT_NAME }};
+	ssl_certificate_key {{ REGISTRY_CACHE_FRONT_TLS_TARGET }}/{{ REGISTRY_CACHE_FRONT_KEY_NAME }};
+	resolver {{ REGISTRY_CACHE_FRONT_RESOLVER }} ipv6=off valid=30s;
+	proxy_http_version 1.1;
+	proxy_buffering off;
+
+	if ($request_method !~ ^(GET|HEAD)$) {
+		return 405;
+	}
+
+	location = /v2/ {
+		default_type application/json;
+		add_header Docker-Distribution-API-Version registry/2.0 always;
+		return 200 '{}';
+	}
+{% for vendor, vendor_service in REGISTRY_CACHE_VENDOR_SERVICES.items() %}
+
+	location /v2/{{ vendor }}/ {
+		set $vendor_backend {{ vendor_service }}:{{ REGISTRY_CACHE_VENDOR_PORT }};
+		rewrite ^/v2/{{ vendor | regex_escape }}/(.*)$ /v2/$1 break;
+		proxy_pass http://$vendor_backend;
+	}
+{% endfor %}
+
+	location / {
+		return 404;
+	}
+}

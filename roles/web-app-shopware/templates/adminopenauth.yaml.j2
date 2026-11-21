@@ -7,3 +7,26 @@ services:
         timeout: 15
         headers:
           Accept: application/json
+  App\InfinitoRbac\AdminOpenAuthRoleGate:
+    class: 'App\InfinitoRbac\AdminOpenAuthRoleGate'
+    tags:
+      - name: kernel.event_listener
+        event: 'Heptacom\AdminOpenAuth\Http\Route\Support\UserRedirectReceivedEvent'
+        method: __invoke
+        priority: -100
+  App\InfinitoRbac\StaticSystemConfigLock:
+    class: 'App\InfinitoRbac\StaticSystemConfigLock'
+    arguments:
+      - '%shopware.system_config%'
+    tags:
+      - name: kernel.event_listener
+        event: kernel.response
+        method: __invoke
+{% if SHOPWARE_OIDC_PLUGIN_SETTINGS %}
+shopware:
+  system_config:
+    default:
+{% for shopware_plugin_field, shopware_plugin_value in SHOPWARE_OIDC_PLUGIN_SETTINGS.items() %}
+      {{ (SHOPWARE_OIDC_PLUGIN ~ '.config.' ~ shopware_plugin_field) | to_json }}: {{ shopware_plugin_value | to_json }}
+{% endfor %}
+{% endif %}

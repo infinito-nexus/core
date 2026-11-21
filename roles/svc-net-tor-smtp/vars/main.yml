@@ -11,3 +11,4 @@ TOR_SMTP_SOCKS_HOST: "{{ TOR_SMTP_SOCKS.split(':')[0] }}"
 TOR_SMTP_SOCKS_PORT: "{{ TOR_SMTP_SOCKS.split(':')[1] }}"
 
 TOR_SMTP_HELO: "{{ DOMAIN_PRIMARY }}"
+TOR_SMTP_RECIPIENT_SUFFIX: "{{ 'tor' | network_suffix }}"

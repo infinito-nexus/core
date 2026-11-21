@@ -1,2 +1,3 @@
 ---
 system_service_id: sys-ctl-hlth-container
+SYS_CTL_HLTH_CONTAINER_SCRIPT_DIR: "{{ [DIR_SCRIPTS_SYSTEMCTL, system_service_id] | path_join }}"

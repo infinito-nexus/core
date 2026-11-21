@@ -1,0 +1,47 @@
+---
+- name: "⏳ Wait until the Proxmox VE guest answers on the guest channel"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec {{ PROXMOX_LOCAL_CID | quote }} pve-guest pveversion
+  register: proxmox_guest_version
+  until: proxmox_guest_version.rc == 0
+  retries: "{{ PROXMOX_GUEST_WAIT_RETRIES }}"
+  delay: 10
+  changed_when: false
+  delegate_to: "{{ PROXMOX_HOST_NODE }}"
+  when: IS_STACK_HOST | bool
+
+- name: "🛑 Refuse a guest that does not run the pinned Proxmox VE release"
+  ansible.builtin.assert:
+    that:
+      - proxmox_guest_version.stdout is match('pve-manager/' ~ (PROXMOX_VE.iso.file | proxmox_iso_release | regex_escape) ~ '\.')
+    fail_msg: >-
+      The guest of {{ application_id }} reports {{ proxmox_guest_version.stdout | trim }},
+      but services.proxmox.ve.iso pins {{ PROXMOX_VE.iso.file }}. A guest keeps the
+      release it was installed from, so remove the proxmox_guest volume to install
+      the pinned release anew, or upgrade the guest in place.
+    quiet: true
+
+- name: "🔍 Read the identity digests the first boot of the guest recorded"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec {{ PROXMOX_LOCAL_CID | quote }} pve-guest cat {{ PROXMOX_FIRST_BOOT_DIGESTS_FILE | quote }}
+  register: proxmox_first_boot_digests
+  changed_when: false
+  failed_when: >-
+    proxmox_first_boot_digests.rc != 0
+    and proxmox_first_boot_digests.stderr is not search('No such file or directory')
+  delegate_to: "{{ PROXMOX_HOST_NODE }}"
+  when: IS_STACK_HOST | bool
+
+- name: "🔍 Read whether the KVM module of {{ inventory_hostname }} nests guests"
+  ansible.builtin.command:
+    argv: [cat, /sys/module/kvm_intel/parameters/nested, /sys/module/kvm_amd/parameters/nested]
+  register: proxmox_nested_parameter
+  changed_when: false
+  failed_when: false
+  delegate_to: "{{ PROXMOX_HOST_NODE }}"
+
+- name: "🧭 Run the VMs inside the guest with KVM only when the host nests it"
+  ansible.builtin.set_fact:
+    PROXMOX_VM_KVM: "{{ proxmox_nested_parameter.stdout | proxmox_nested }}"

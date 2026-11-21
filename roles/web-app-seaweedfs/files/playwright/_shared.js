@@ -1,6 +1,5 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { isServiceEnabled } = require("./service-gating");
 const { decodeDotenvJsonList, decodeDotenvQuotedValue } = require("./personas");
 
 const env = {
@@ -10,7 +9,6 @@ const env = {
   adminPassword: decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD),
   biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
-  ssoEnabled: isServiceEnabled("sso"),
   consumerBuckets: decodeDotenvJsonList(
     process.env.SEAWEEDFS_CONSUMER_BUCKETS_JSON,
     "SEAWEEDFS_CONSUMER_BUCKETS_JSON"

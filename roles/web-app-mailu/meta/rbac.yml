@@ -2,3 +2,5 @@
 roles:
   bot:
     description: Bot/service account with an API token (e.g. email send/receive)
+  domain-manager:
+    description: Mailu domain manager of the mail domain (manages its users, aliases and relays)

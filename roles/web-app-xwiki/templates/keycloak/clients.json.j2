@@ -1,0 +1,54 @@
+{% set xwiki_kc_origin = lookup('tls', 'web-app-xwiki', 'url.origin') %}
+{% set xwiki_kc_origins = lookup('network_urls', xwiki_kc_origin) %}
+{% set xwiki_kc_redirects = xwiki_kc_origins | map('regex_replace', '$', '/*') | list %}
+{
+  "clientId": "{{ lookup('config', 'web-app-xwiki', 'services.sso.oidc.clients.web') }}",
+  "name": "XWiki",
+  "description": "Confidential XWiki client whose back-channel logout tokens reach XWiki through the logout gate. Reuses the shared client secret.",
+  "enabled": true,
+  "surrogateAuthRequired": false,
+  "alwaysDisplayInConsole": false,
+  "clientAuthenticatorType": "client-secret",
+  "secret": "{{ OIDC.CLIENT.SECRET }}",
+  "redirectUris": {{ xwiki_kc_redirects | to_json }},
+  "webOrigins": {{ xwiki_kc_origins | to_json }},
+  "notBefore": 0,
+  "bearerOnly": false,
+  "consentRequired": false,
+  "standardFlowEnabled": true,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": false,
+  "serviceAccountsEnabled": false,
+  "publicClient": false,
+  "frontchannelLogout": false,
+  "protocol": "openid-connect",
+  "attributes": {
+    "post.logout.redirect.uris": "{{ xwiki_kc_redirects | join('##') }}",
+    "backchannel.logout.url": "{{ lookup('tls', 'web-svc-logout', 'url.origin') ~ '/backchannel/web-app-xwiki' }}",
+    "backchannel.logout.session.required": "true",
+    "backchannel.logout.revoke.offline.tokens": "false",
+    "oauth2.device.authorization.grant.enabled": "false",
+    "oidc.ciba.grant.enabled": "false",
+    "display.on.consent.screen": "false"
+  },
+  "authenticationFlowBindingOverrides": {},
+  "fullScopeAllowed": true,
+  "nodeReRegistrationTimeout": -1,
+  "defaultClientScopes": [
+    "web-origins",
+    "acr",
+    "roles",
+    "profile",
+    "basic",
+    "email",
+    "openid",
+    "{{ KEYCLOAK_RBAC_GROUP_CLAIM }}"
+  ],
+  "optionalClientScopes": [
+    "address",
+    "phone",
+    "organization",
+    "offline_access",
+    "microprofile-jwt"
+  ]
+}

@@ -1,0 +1,80 @@
+---
+- name: "🧮 Give ws-{{ WORKSPACE }} its slice of the routed subnets"
+  ansible.builtin.set_fact:
+    svc_virt_incus_ws_bridge: "{{ WORKSPACE | incus_workspace_network(INCUS_WORKSPACES, svc_virt_incus_state.results[0].stdout | from_json) }}"
+
+- name: "🌐 Create the bridge of ws-{{ WORKSPACE }}"
+  ansible.builtin.command:
+    argv: "{{ ['incus', 'network', 'create', svc_virt_incus_ws_bridge.name, '--type', 'bridge'] + svc_virt_incus_ws_bridge.settings }}"
+  when: not svc_virt_incus_ws_bridge.exists
+  changed_when: true
+  become: true
+
+- name: "🌐 Reconcile the bridge of ws-{{ WORKSPACE }}"
+  ansible.builtin.command:
+    argv: "{{ ['incus', 'network', 'set', svc_virt_incus_ws_bridge.name] + svc_virt_incus_ws_bridge.settings }}"
+  when:
+    - svc_virt_incus_ws_bridge.exists
+    - not svc_virt_incus_ws_bridge.converged
+  changed_when: true
+  become: true
+
+- name: "🗂️ Create the project ws-{{ WORKSPACE }}"
+  ansible.builtin.command:
+    argv: [incus, project, create, "{{ svc_virt_incus_ws_project }}"]
+  when: svc_virt_incus_ws_project not in (svc_virt_incus_ws_projects | map(attribute='name') | list)
+  changed_when: true
+  become: true
+
+- name: "🔐 Reconcile the restrictions and limits of ws-{{ WORKSPACE }}"
+  ansible.builtin.command:
+    argv: [incus, project, set, "{{ svc_virt_incus_ws_project }}", "{{ item.key }}={{ item.value }}"]
+  loop: "{{ svc_virt_incus_ws_bridge.name | incus_workspace_project(INCUS_WORKSPACES, INCUS_WORKSPACE_RESTRICTIONS) | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  when: >-
+    ((svc_virt_incus_ws_projects | selectattr('name', 'equalto', svc_virt_incus_ws_project)
+      | map(attribute='config') | first | default({})).get(item.key, '') | string) != item.value
+  changed_when: true
+  become: true
+
+- name: "🔍 Read the default profile of ws-{{ WORKSPACE }}"
+  ansible.builtin.command:
+    argv: [incus, query, "/1.0/profiles/default?project={{ svc_virt_incus_ws_project }}"]
+  register: svc_virt_incus_ws_profile
+  changed_when: false
+  become: true
+
+- name: "🧩 Give the instances of ws-{{ WORKSPACE }} their size, disk and filtered NIC"
+  ansible.builtin.command:
+    argv: [incus, profile, edit, default, --project, "{{ svc_virt_incus_ws_project }}"]
+    stdin: "{{ svc_virt_incus_ws_profile_wanted | to_nice_yaml }}"
+  vars:
+    svc_virt_incus_ws_profile_wanted: "{{ WORKSPACE | incus_workspace_profile(svc_virt_incus_ws_bridge.name, INCUS_STORAGE_POOL.name, INCUS_WORKSPACES) }}"
+  when: >-
+    (svc_virt_incus_ws_profile.stdout | from_json).config != svc_virt_incus_ws_profile_wanted.config
+    or (svc_virt_incus_ws_profile.stdout | from_json).devices != svc_virt_incus_ws_profile_wanted.devices
+    or (svc_virt_incus_ws_profile.stdout | from_json).description != svc_virt_incus_ws_profile_wanted.description
+  changed_when: true
+  become: true
+
+- name: "🔍 Look up the client key of ws-{{ WORKSPACE }} in OpenBao"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/web-app-openbao/tasks/utils/kv.yml') }}"
+  vars:
+    openbao_kv_state: read
+    openbao_kv_mount: "{{ INCUS_TENANT_MOUNT }}"
+    openbao_kv_path: "ws-{{ WORKSPACE }}-provision/incus"
+    openbao_kv_data: {}
+
+- name: "🧾 Decide whether ws-{{ WORKSPACE }} needs a new client certificate"
+  ansible.builtin.set_fact:
+    svc_virt_incus_ws_issue: >-
+      {{ not (svc_virt_incus_ws_trust | length == 1
+              and svc_virt_incus_ws_trust[0].restricted | bool
+              and svc_virt_incus_ws_trust[0].projects == [svc_virt_incus_ws_project]
+              and (openbao_kv_current.key | default('')) | length > 0
+              and svc_virt_incus_ws_trust[0].fingerprint == (openbao_kv_current.fingerprint | default(''))) }}
+
+- name: "🔑 Issue the restricted client certificate of ws-{{ WORKSPACE }}"
+  ansible.builtin.include_tasks: certificate.yml
+  when: svc_virt_incus_ws_issue | bool

@@ -8,16 +8,29 @@
 - name: "🚿 flush compose for '{{ application_id }}'"
   meta: flush_handlers
 
+- name: "🔍 Resolve the XWiki hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: XWIKI
+    resolve_compose_cid: "{{ XWIKI_CONTAINER }}"
+
+- name: "🔍 Resolve the XWiki network namespace for host-side REST calls"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+  vars:
+    netns_output_prefix: XWIKI
+
 - name: "⏳ Wait until XWiki REST is ready (no DW redirect)"
-  uri_retry:
-    url: "{{ XWIKI_REST_BASE }}"
-    status_code: [200, 401]
-    return_content: false
-    follow_redirects: none
-  register: xwiki_rest_up
-  changed_when: false
-  retries: 120
-  delay: 5
-  until:
-    - xwiki_rest_up is succeeded
-    - (xwiki_rest_up.redirected is not defined) or (not xwiki_rest_up.redirected)
+  include_tasks: http.yml
+  vars:
+    xwiki_http_method: GET
+    xwiki_http_url: "{{ XWIKI_REST_BASE }}"
+    xwiki_http_headers: {}
+    xwiki_http_body: ""
+    xwiki_http_status: [200, 401]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 120
+    xwiki_http_delay: 5
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "none"
+    xwiki_http_result: xwiki_rest_up

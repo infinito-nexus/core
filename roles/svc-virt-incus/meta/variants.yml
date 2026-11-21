@@ -1,0 +1,27 @@
+---
+- services:
+    incus:
+      api:
+        enabled: true
+        allowed_sources:
+          - "{{ NETWORK_PRIVATE_CIDRS.class_a }}"
+          - "{{ NETWORK_PRIVATE_CIDRS.class_b }}"
+          - "{{ NETWORK_PRIVATE_CIDRS.class_c }}"
+      workspaces:
+        enabled: true
+        subnet:
+          ipv4: "198.51.100.0/24"
+          ipv6: "2001:db8:62::/48"
+    docs:
+      enabled: false
+      shared: false
+    semaphore:
+      enabled: true
+      shared: true
+- services:
+    docs:
+      enabled: true
+      shared: true
+    semaphore:
+      enabled: false
+      shared: false

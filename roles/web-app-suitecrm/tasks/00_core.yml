@@ -1,12 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🧩 Load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-
 - name: "👔 SuiteCRM manager-side operations and corporate design"
   when: IS_STACK_HOST | bool
   block:
@@ -15,3 +9,6 @@
 
     - name: "🎨 SuiteCRM corporate design (legacy theme, logo, favicon, system name)"
       include_tasks: 02_design.yml
+
+- name: "🛂 Reconcile the SuiteCRM admin flag with the administrator group"
+  include_tasks: 03_rbac.yml

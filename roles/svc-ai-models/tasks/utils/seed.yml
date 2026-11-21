@@ -1,0 +1,15 @@
+---
+# Param models_seeded: the records to fetch, verify and unpack into every node's store, each with name, url, sha256 and bytes, plus tree and unpack with unpacked_bytes where the record carries them; each is fetched under MODELS_ARTEFACT_BASE whatever base it was looked up with.
+- name: "⬇️ Seed every node's model store before any consumer starts"
+  artefact_store:
+    path: "{{ MODELS_STORE_PATH }}"
+    artefacts: >-
+      {{ lookup('cache_artefacts', base=MODELS_ARTEFACT_BASE) | dict2items
+         | selectattr('key', 'in', models_seeded | map(attribute='name') | list)
+         | map(attribute='value') | list }}
+    timeout: "{{ lookup('timeout', MODELS_FETCH_TIMEOUT | int) | int }}"
+  delegate_to: "{{ models_node }}"
+  loop: "{{ MODELS_SEED_NODES }}"
+  loop_control:
+    loop_var: models_node
+    label: "{{ models_node }}"

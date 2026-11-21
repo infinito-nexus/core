@@ -34,12 +34,6 @@ Access is protected by SSO. Users must be members of the `web-app-pihole-adminis
 - `web-app-keycloak` — for SSO/OIDC authentication
 - `svc-db-openldap` — for LDAP group synchronization
 
-## Configuration
-
-| Variable | Description | Default |
-|---|---|---|
-| `pihole.upstream_dns` | Upstream DNS servers | `{{ NETWORK_PUBLIC_DNS_RESOLVERS }}` |
-
 ## Variants
 
 | Variant | Description |

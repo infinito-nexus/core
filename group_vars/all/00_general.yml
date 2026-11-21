@@ -6,6 +6,9 @@ SOFTWARE_NAME: "Infinito.Nexus" # Name of the software
 SOFTWARE_DOMAIN: "{{ SOFTWARE_NAME | lower }}" # Software domain
 SOFTWARE_URL: "https://{{ SOFTWARE_DOMAIN }}" # Url of the software provicer
 SOFTWARE_REPOSITORY: "https://github.com/infinito-nexus/core.git"
+SOFTWARE_IMAGE: "{{ 'ghcr.io/' ~ (SOFTWARE_REPOSITORY | urlsplit('path') | regex_replace('^/', '') | regex_replace('[.]git$', '') | lower) }}" # Registry path of the published Infinito.Nexus image; the path without a distro serves the default distro
+SOFTWARE_IMAGE_TAG: "v{{ lookup('version') }}" # Tag of the Infinito.Nexus image of this deploy: the release of the checkout that runs it
+SOFTWARE_IMAGE_BUILD: false # Build SOFTWARE_IMAGE:SOFTWARE_IMAGE_TAG on the stack host from this checkout instead of pulling it
 
 ORGANIZATION: "{{ SOFTWARE_NAME }}"
 INVENTOR: "Kevin Veen-Birkenbach" # Author of the software
@@ -13,10 +16,13 @@ INVENTOR: "Kevin Veen-Birkenbach" # Author of the software
 ENVIRONMENT: "production" # Possible values: production, development
 RUNTIME: "host" # Where does this instance run in? Valid: act, github, dev, host
 STORAGE_CONSTRAINED: false # Storage constraint means that Infinito.Nexus prefers free storage space over cache
+CONTAINER_PRUNE_KEEP_LABEL: "nexus.infinito.prune=keep" # Image label the storage-constrained prune never removes, for locally built FROM-only base images
 
 MASK_CREDENTIALS_IN_LOGS: true
 
-IAM_USERNAME_MAX_LENGTH: 20 # Discourse refuses a longer one with ActiveRecord::RecordInvalid, and it is the tightest consumer
+IAM_USERNAME_MAX_LENGTH: "{{ lookup('account_policy', 'username_max_length') }}" # human username ceiling: smallest username_max_length of any roles/*/meta/account.yml
+IAM_ACCOUNT_MAX_LENGTH: "{{ lookup('account_policy', 'account_max_length') }}" # agent account ceiling: smallest username_max_length of an agent_reachable role
+IAM_USERNAME_PATTERNS: "{{ lookup('account_policy', 'username_patterns') }}" # every role's username_pattern; a username must match all of them
 IAM_PLATFORM_ADMIN_USER_KEY: "platform_administrator" # the account every application administers itself with, as declared in roles/user-administrator/meta/users.yml
 IAM_HOST_ADMIN_USER_KEY: "administrator" # the host account; only roles/user-administrator may consume it
 
@@ -49,7 +55,7 @@ DNS_PROVIDER: "localhost" # The DNS Provider\Registrar for the domain -> Legit v
 
 HOSTING_PROVIDER: "localhost" # Provider which hosts the server -> hetzner
 
-MAIL_PROVIDER: "web-app-stalwart" # Active mail provider role. Set to web-app-mailu to use Mailu instead of Stalwart.
+MAIL_PROVIDER: "{{ lookup('mail_provider') }}" # Active mail provider role id
 
 MAIL_PRODUCTION_HOST: "" # Public FQDN of a reachable mail server; when set, the provider asserts its live DNS/TLS/SMTP hard facts.
 MAIL_PRODUCTION_RESOLVER: "" # Resolver those assertions query; empty uses the host's /etc/resolv.conf.
@@ -62,13 +68,13 @@ DOCKER_PUBLIC_BIND_HOST: "{{ '0.0.0.0' if DOCKER_IN_CONTAINER | bool else networ
 DOCKER_REACH_HOST: "127.0.0.1" # Default localhost, will be overwritten if DOCKER_IN_CONTAINER with Docker Bridge Gateway
 BUILDKIT_ENABLED: true # When falsy the compose wrapper forces the legacy builder (DOCKER_BUILDKIT=0); needed in offline/sandbox-blocked registries
 
-ASYNC_ENABLED: "{{ not MODE_DEBUG | bool }}" # Activate async, deactivated for debugging
-ASYNC_TIME: "{{ 300 if ASYNC_ENABLED | bool else omit }}" # Run for max 5min
-ASYNC_POLL: "{{ 0 if ASYNC_ENABLED | bool else 10 }}" # Don't wait for task
+ASYNC_TIME: 300 # Run for max 5min
+ASYNC_POLL: 0 # Don't wait for task
 
 APPLICATIONS_WHITELIST: [] # nocheck: unused-var
 
 PRIMARY_APPS: [] # Apps this deploy was asked for; the rest of the round is their dependency closure.
+DEPLOY_IS_UPDATE: false # True on the second deploy of a full-cycle round, which runs again on the state the first one left
 
 RBAC:
   GROUP:

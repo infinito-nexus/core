@@ -38,6 +38,13 @@
     {% endwith %}
   {% endif %}
 
+  {% for gate in lookup('sso', application_id, 'oauth2_restricted_locations') %}
+    {% set sso_proxy_auth_uri = gate.auth_uri %}
+    {% with sso_proxy_enabled = true, location = gate.location, webserver_location_extra_configuration = _gated_extra %}
+      {% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
+    {% endwith %}
+  {% endfor %}
+
 {% else %}
   {% set sso_proxy_enabled = false %}
   {% set location = "/" %}

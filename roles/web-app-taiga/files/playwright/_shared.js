@@ -6,7 +6,16 @@ const { resolveTimeout } = require("./timeouts");
 
 const { expect } = require("@playwright/test");
 const { assertToken } = require("./design");
-const { decodeDotenvQuotedValue, escapeRegex, gotoOnion, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const {
+  decodeDotenvQuotedValue,
+  escapeRegex,
+  gotoOnion,
+  normalizeBaseUrl,
+  runAdminFlow,
+  runBiberFlow,
+  runGuestFlow,
+} = require("./personas");
+const keycloakAdmin = require("./personas/utils/keycloak");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const loginUsername = decodeDotenvQuotedValue(process.env.LOGIN_USERNAME);
@@ -18,6 +27,22 @@ const ssoEnabled = isServiceEnabled("sso");
 const ssoFlavor = decodeDotenvQuotedValue(process.env.SSO_FLAVOR) || "oidc";
 const taigaOauth2Enabled = ssoEnabled && ssoFlavor === "oauth2";
 const taigaOidcEnabled = ssoEnabled && ssoFlavor === "oidc";
+const rbacEnv = {
+  adminUsername: decodeDotenvQuotedValue(process.env.ADMIN_USERNAME),
+  biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
+  biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
+  biberFullName: decodeDotenvQuotedValue(process.env.BIBER_FULL_NAME),
+  adminPassword: decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD),
+  keycloakBaseUrl: normalizeBaseUrl(process.env.KEYCLOAK_BASE_URL),
+  realmName: decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME),
+  keycloakAdminRealm: decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_REALM),
+  keycloakAdminCliClientId: decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_CLI_CLIENT_ID),
+  superAdminUsername: decodeDotenvQuotedValue(process.env.SUPER_ADMIN_USERNAME),
+  superAdminPassword: decodeDotenvQuotedValue(process.env.SUPER_ADMIN_PASSWORD),
+  adminGroupPath: decodeDotenvQuotedValue(process.env.RBAC_ADMIN_GROUP_PATH),
+  userGroupPath: decodeDotenvQuotedValue(process.env.RBAC_USER_GROUP_PATH),
+  pluginRbac: decodeDotenvQuotedValue(process.env.TAIGA_OIDC_PLUGIN_RBAC) === "true",
+};
 
 async function findFirstVisible(locators) {
   for (const locator of locators) {
@@ -235,7 +260,7 @@ async function loginToTaigaForVariant(page) {
   return loginToTaigaNative(page);
 }
 
-async function loginToTaiga(page) {
+async function submitTaigaLogin(page, username, password) {
   const taigaUrls = getTaigaUrls();
 
   // Navigate directly to Taiga's login route. Hitting `/` auto-redirects to
@@ -303,9 +328,9 @@ async function loginToTaiga(page) {
   );
 
   await expect(usernameField.first()).toBeVisible({ timeout: resolveTimeout(60_000) });
-  await usernameField.first().fill(loginUsername);
+  await usernameField.first().fill(username);
   await expect(passwordField.first()).toBeEditable({ timeout: resolveTimeout(30_000) });
-  await passwordField.first().fill(loginPassword);
+  await passwordField.first().fill(password);
   await signInButton.first().click({ timeout: resolveTimeout(30_000) });
 
   await expect
@@ -314,6 +339,12 @@ async function loginToTaiga(page) {
       message: `Expected Taiga to redirect back after Keycloak login: ${taigaUrls.expectedTaigaBaseUrl}`
     })
     .toContain(taigaUrls.expectedTaigaBaseUrl);
+
+  return taigaUrls;
+}
+
+async function loginToTaigaAs(page, username, password) {
+  const taigaUrls = await submitTaigaLogin(page, username, password);
 
   if (taigaOauth2Enabled) {
     await waitForOauth2ProxyCookie(
@@ -332,6 +363,182 @@ async function loginToTaiga(page) {
   );
 
   return taigaUrls;
+}
+
+async function loginToTaiga(page) {
+  return loginToTaigaAs(page, loginUsername, loginPassword);
+}
+
+async function readTaigaToken(page) {
+  const raw = await page.evaluate(() => window.localStorage.getItem("token"));
+  if (!raw) {
+    return null;
+  }
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return raw;
+  }
+}
+
+async function expectTaigaOidcLoginRefused(page, username, password) {
+  const taigaUrls = await submitTaigaLogin(page, username, password);
+
+  await expect
+    .poll(() => page.url(), {
+      timeout: resolveTimeout(60_000),
+      message: `Expected Taiga to send ${username} back to its login route after the refused OIDC callback`
+    })
+    .toContain(`${taigaUrls.expectedTaigaBaseUrl}/login`);
+  await expect
+    .poll(async () => Boolean(await findFirstVisible(getOidcEntryLocators(page))), {
+      timeout: resolveTimeout(30_000),
+      message: `Expected the Taiga OIDC entry point to be offered again after refusing ${username}`
+    })
+    .toBe(true);
+  expect(
+    await readTaigaToken(page),
+    `${username} MUST NOT receive a Taiga auth token without a Taiga role group`
+  ).toBeNull();
+}
+
+async function taigaApiGet(page, path) {
+  const token = await readTaigaToken(page);
+  expect(token, "Expected Taiga to store an auth token after the OIDC login").toBeTruthy();
+  const response = await page.request.get(`${getTaigaUrls().expectedTaigaBaseUrl}/api/v1/${path}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  expect(response.ok(), `Taiga API /api/v1/${path} answered ${response.status()}`).toBe(true);
+  return response.json();
+}
+
+async function isTaigaSuperuser(page, otherUsername) {
+  const other = await taigaApiGet(page, `users/by_username?username=${encodeURIComponent(otherUsername)}`);
+  return Object.prototype.hasOwnProperty.call(other, "email");
+}
+
+function withDeadline(promise, ms, label) {
+  let timer;
+  const deadline = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`${label} exceeded ${ms} ms`)), ms);
+  });
+  return Promise.race([promise, deadline]).finally(() => clearTimeout(timer));
+}
+
+function keycloakAdminOpts() {
+  return { adminRealm: rbacEnv.keycloakAdminRealm, adminClientId: rbacEnv.keycloakAdminCliClientId };
+}
+
+function addToGroup(request, username, groupPath) {
+  return keycloakAdmin.keycloakAdminAddUserToGroup(
+    request,
+    rbacEnv.keycloakBaseUrl,
+    rbacEnv.realmName,
+    groupPath,
+    username,
+    rbacEnv.superAdminUsername,
+    rbacEnv.superAdminPassword,
+    keycloakAdminOpts()
+  );
+}
+
+function removeFromGroup(request, username, groupPath) {
+  return keycloakAdmin.keycloakRemoveUserFromGroupViaRest(
+    request,
+    rbacEnv.keycloakBaseUrl,
+    rbacEnv.realmName,
+    rbacEnv.superAdminUsername,
+    rbacEnv.superAdminPassword,
+    groupPath,
+    username,
+    keycloakAdminOpts()
+  );
+}
+
+async function withUserInGroup(browser, username, groupPath, fn) {
+  const adminCtx = await browser.newContext({ ignoreHTTPSErrors: true });
+  let added = false;
+  try {
+    added = await addToGroup(adminCtx.request, username, groupPath);
+    return await fn();
+  } finally {
+    if (added) {
+      await withDeadline(
+        removeFromGroup(adminCtx.request, username, groupPath),
+        resolveTimeout(30_000),
+        `Removing ${username} from ${groupPath}`
+      ).catch((err) => console.warn(`Cleanup removal of ${username} from ${groupPath} failed: ${err}`));
+    }
+    await adminCtx.close().catch(() => {});
+  }
+}
+
+async function withUserOutOfGroup(browser, username, groupPath, fn) {
+  const adminCtx = await browser.newContext({ ignoreHTTPSErrors: true });
+  let wasMember = false;
+  try {
+    wasMember = !(await addToGroup(adminCtx.request, username, groupPath));
+    await removeFromGroup(adminCtx.request, username, groupPath);
+    return await fn();
+  } finally {
+    if (wasMember) {
+      await withDeadline(
+        addToGroup(adminCtx.request, username, groupPath),
+        resolveTimeout(30_000),
+        `Restoring ${username} in ${groupPath}`
+      ).catch((err) => console.warn(`Cleanup restore of ${username} in ${groupPath} failed: ${err}`));
+    }
+    await adminCtx.close().catch(() => {});
+  }
+}
+
+function withBiberInGroup(browser, groupPath, fn) {
+  return withUserInGroup(browser, rbacEnv.biberUsername, groupPath, fn);
+}
+
+async function taigaLdapLogin(request, username, password) {
+  const response = await request.post(`${getTaigaUrls().expectedTaigaBaseUrl}/api/v1/auth`, {
+    data: { type: "ldap", username, password },
+    timeout: resolveTimeout(30_000)
+  });
+  const body = await response.json().catch(() => ({}));
+  return { status: response.status(), authToken: body.auth_token || null };
+}
+
+async function withBiberAttributes(browser, attributes, fn) {
+  const adminCtx = await browser.newContext({ ignoreHTTPSErrors: true });
+  let previous = null;
+  try {
+    previous = await keycloakAdmin.keycloakAdminSetUserAttributes(
+      adminCtx.request,
+      rbacEnv.keycloakBaseUrl,
+      rbacEnv.realmName,
+      rbacEnv.biberUsername,
+      attributes,
+      rbacEnv.superAdminUsername,
+      rbacEnv.superAdminPassword,
+      keycloakAdminOpts()
+    );
+    return await fn();
+  } finally {
+    if (previous) {
+      await withDeadline(
+        keycloakAdmin.keycloakAdminSetUserAttributes(
+          adminCtx.request,
+          rbacEnv.keycloakBaseUrl,
+          rbacEnv.realmName,
+          rbacEnv.biberUsername,
+          previous,
+          rbacEnv.superAdminUsername,
+          rbacEnv.superAdminPassword,
+          keycloakAdminOpts()
+        ),
+        resolveTimeout(30_000),
+        `Restoring the attributes of ${rbacEnv.biberUsername}`
+      ).catch((err) => console.warn(`Cleanup restore of biber attributes failed: ${err}`));
+    }
+    await adminCtx.close().catch(() => {});
+  }
 }
 
 async function logoutFromTaiga(page, session) {
@@ -459,6 +666,10 @@ function beforeEach() {
 }
 
 async function loginToTaigaNative(page) {
+  return loginToTaigaNativeAs(page, loginUsername, loginPassword);
+}
+
+async function submitTaigaNativeLogin(page, username, password) {
   const taigaUrls = getTaigaUrls();
 
   // Variant where neither OIDC nor oauth2 is enabled: Taiga shows its own
@@ -475,10 +686,16 @@ async function loginToTaigaNative(page) {
   );
 
   await expect(usernameField.first()).toBeVisible({ timeout: resolveTimeout(60_000) });
-  await usernameField.first().fill(loginUsername);
+  await usernameField.first().fill(username);
   await expect(passwordField.first()).toBeEditable({ timeout: resolveTimeout(30_000) });
-  await passwordField.first().fill(loginPassword);
+  await passwordField.first().fill(password);
   await signInButton.first().click({ timeout: resolveTimeout(30_000) });
+
+  return taigaUrls;
+}
+
+async function loginToTaigaNativeAs(page, username, password) {
+  const taigaUrls = await submitTaigaNativeLogin(page, username, password);
 
   await waitForAuthenticatedTaigaShell(
     page,
@@ -487,6 +704,23 @@ async function loginToTaigaNative(page) {
   );
 
   return taigaUrls;
+}
+
+async function expectTaigaNativeLoginRefused(page, username, password) {
+  const loginResponsePromise = page.waitForResponse(
+    (response) => response.url().includes("/api/v1/auth") && response.request().method() === "POST",
+    { timeout: resolveTimeout(120_000) }
+  );
+  const taigaUrls = await submitTaigaNativeLogin(page, username, password);
+  const loginResponse = await loginResponsePromise.catch(() => null);
+
+  expect(loginResponse, `Expected Taiga to answer the login POST of ${username}`).not.toBeNull();
+  expect(
+    loginResponse.ok(),
+    `Taiga MUST refuse the LDAP login of ${username} without a Taiga role group (got ${loginResponse.status()})`
+  ).toBe(false);
+  await expect(page).toHaveURL(new RegExp(`^${escapeRegex(taigaUrls.expectedTaigaBaseUrl)}/login`));
+  expect(await readTaigaToken(page), `${username} MUST NOT receive a Taiga auth token`).toBeNull();
 }
 
 async function logoutFromTaigaNative(page, session) {
@@ -504,9 +738,19 @@ async function logoutFromTaigaNative(page, session) {
 }
 
 module.exports = {
-  env: { taigaOauth2Enabled, taigaOidcEnabled },
+  env: { taigaOidcEnabled, ...rbacEnv },
   skipUnlessServiceEnabled,
   loginToTaiga,
+  loginToTaigaAs,
+  expectTaigaOidcLoginRefused,
+  expectTaigaNativeLoginRefused,
+  taigaApiGet,
+  isTaigaSuperuser,
+  withBiberInGroup,
+  withUserInGroup,
+  withUserOutOfGroup,
+  withBiberAttributes,
+  taigaLdapLogin,
   logoutFromTaiga,
   loginToTaigaNative,
   loginToTaigaForVariant,

@@ -1,0 +1,42 @@
+---
+# Param: stack_batch_letsencrypt - true when a planned role serves its vhosts with letsencrypt, so the host certificates and their renewal are warmed up too.
+- name: "🔥 Warm up 'sys-svc-webserver-https'"
+  ansible.builtin.include_role:
+    name: sys-svc-webserver-https
+  when: run_once_sys_svc_webserver_https is not defined
+
+- name: "🔥 Warm up 'sys-svc-container'"
+  ansible.builtin.include_role:
+    name: sys-svc-container
+  when: run_once_sys_svc_container is not defined
+
+- name: "🔥 Warm up the OpenResty manager setup of 'sys-svc-webserver-core'"
+  ansible.builtin.include_role:
+    name: sys-svc-webserver-core
+  when: run_once_sys_svc_webserver_core is not defined
+
+- name: "🔥 Warm up the host certificates of 'sys-svc-certs'"
+  ansible.builtin.include_role:
+    name: sys-svc-certs
+    tasks_from: once.yml
+  when:
+    - run_once_sys_svc_certs is not defined
+    - stack_batch_letsencrypt | bool
+
+- name: "🔥 Warm up 'sys-ctl-mtn-cert-renew'"
+  ansible.builtin.include_role:
+    name: sys-ctl-mtn-cert-renew
+  when:
+    - run_once_sys_ctl_mtn_cert_renew is not defined
+    - stack_batch_letsencrypt | bool
+
+- name: "🔥 Warm up 'sys-svc-nss'"
+  ansible.builtin.include_role:
+    name: sys-svc-nss
+  when: run_once_sys_svc_nss is not defined
+
+- name: "🔥 Warm up the frontend base and the redirect domains of 'sys-stk-front-base'"
+  ansible.builtin.include_role:
+    name: sys-stk-front-base
+    tasks_from: once.yml
+  when: run_once_sys_stk_front_base is not defined

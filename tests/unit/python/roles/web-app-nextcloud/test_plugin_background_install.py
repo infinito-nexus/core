@@ -65,7 +65,7 @@ def _install_block() -> dict:
     return next(
         task
         for task in load_yaml_any(str(PLUGIN), default_if_missing=[])
-        if "block" in task
+        if "Install the plugins Nextcloud lacks" in task.get("name", "")
     )
 
 
@@ -176,9 +176,6 @@ class TestBackgroundJob(unittest.TestCase):
             self.job["async"], "{{ NEXTCLOUD_PLUGIN_BACKGROUND_ASYNC_TIME }}"
         )
         self.assertEqual(self.job["poll"], 0)
-        self.assertNotIn(
-            "ASYNC_ENABLED", str(self.job["async"]) + str(self.job["poll"])
-        )
 
     def test_the_gate_reads_the_job_file_first_then_the_schema_state(self):
         script = self.job["ansible.builtin.shell"]

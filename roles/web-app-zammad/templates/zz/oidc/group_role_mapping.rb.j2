@@ -4,6 +4,9 @@ OIDC_GROUP_ROLE_MAP    = JSON.parse({{ ZAMMAD_OIDC_GROUP_ROLE_MAP | to_json | to
 OIDC_GROUP_CLAIM       = {{ RBAC.GROUP.CLAIM | to_json }}.freeze
 OIDC_PROVIDER_NAME     = "openid_connect".freeze
 OIDC_DEFAULT_ROLE_NAME = "Customer".freeze
+OIDC_PROFILE_CLAIMS    = JSON.parse({{ ZAMMAD_OIDC_PROFILE_CLAIMS | to_json | to_json }}).freeze
+OIDC_ADDRESS_CLAIM     = {{ OIDC.ATTRIBUTES.ADDRESS | to_json }}.freeze
+OIDC_ADDRESS_FIELDS    = JSON.parse({{ ZAMMAD_OIDC_ADDRESS_FIELDS | to_json | to_json }}).freeze
 
 Rails.application.config.after_initialize do
   unless OIDC_GROUP_ROLE_MAP.is_a?(Hash)
@@ -18,6 +21,57 @@ Rails.application.config.after_initialize do
       groups ||= auth_hash&.dig("info",  OIDC_GROUP_CLAIM)
       groups ||= auth_hash&.dig("extra", "raw_info", OIDC_GROUP_CLAIM)
       groups.nil? ? nil : Array(groups)
+    end
+
+    define_method(:_zammad_oidc_profile) do |auth_hash|
+      raw = auth_hash&.dig("extra", "raw_info")
+      return {} unless raw.respond_to?(:to_h)
+
+      raw = raw.to_h.transform_keys(&:to_s)
+      profile = OIDC_PROFILE_CLAIMS.each_with_object({}) do |(field, claim), fields|
+        fields[field] = raw[claim].to_s if raw.key?(claim)
+      end
+      address = raw[OIDC_ADDRESS_CLAIM]
+      return profile unless address.respond_to?(:to_h)
+
+      address = address.to_h.transform_keys(&:to_s)
+      OIDC_ADDRESS_FIELDS.each do |field, member|
+        profile[field] = address[member].to_s if address.key?(member)
+      end
+      profile
+    end
+
+    define_method(:_zammad_apply_oidc_profile!) do |user, auth_hash|
+      return unless user
+      return unless auth_hash
+      return unless (auth_hash["provider"] || auth_hash[:provider]).to_s == OIDC_PROVIDER_NAME
+
+      profile = _zammad_oidc_profile(auth_hash)
+      email = profile["email"].to_s.downcase
+      if email.empty?
+        profile.delete("email")
+      elsif User.where.not(id: user.id).exists?(email: email)
+        Rails.logger.error { "zz_oidc_group_role_mapping: another Zammad user holds #{email}, kept the e-mail of user #{user.id}" }
+        profile.delete("email")
+      end
+      user.assign_attributes(profile)
+      return unless user.changed?
+
+      begin
+        user.save!
+      rescue StandardError => e
+        user.restore_attributes
+        Rails.logger.error { "zz_oidc_group_role_mapping: Zammad refused the profile of user #{user.id}: #{e.message}" }
+      end
+    end
+
+    define_method(:_zammad_oidc_directory_user) do |auth_hash|
+      return unless (auth_hash["provider"] || auth_hash[:provider]).to_s == OIDC_PROVIDER_NAME
+
+      uid = (auth_hash["uid"] || auth_hash[:uid]).to_s.downcase
+      return if uid.empty?
+
+      User.where("source LIKE ?", "Ldap::%").find_by(login: uid)
     end
 
     define_method(:_zammad_apply_oidc_roles!) do |user, auth_hash|
@@ -72,12 +126,14 @@ Rails.application.config.after_initialize do
 
     define_method(:find_from_hash) do |hash|
       authorization = super(hash)
+      _zammad_apply_oidc_profile!(authorization&.user, hash)
       _zammad_apply_oidc_roles!(authorization&.user, hash)
       authorization
     end
 
     define_method(:create_from_hash) do |hash, user = nil|
-      authorization = super(hash, user)
+      authorization = super(hash, user || _zammad_oidc_directory_user(hash))
+      _zammad_apply_oidc_profile!(authorization&.user, hash)
       _zammad_apply_oidc_roles!(authorization&.user, hash)
       authorization
     end

@@ -9,6 +9,16 @@
 # checks.
 set -euo pipefail
 
+# Param infra_docker ARGS: docker ARGS on the infra runner's daemon, where the caches run.
+# Param infra_cache NAME: the container name of the registry, package or frontend cache.
+infra_docker() {
+	"${PYTHON:?source scripts/meta/env/load.sh}" -m cli.administration.infra docker "$@"
+}
+
+infra_cache() {
+	"${PYTHON:?source scripts/meta/env/load.sh}" -m cli.administration.infra cache-name "$1"
+}
+
 # Map runtime image to the Nexus proxy repo that proxies its system
 # package manager. Empty string means no system-level proxy is wired
 # for that runtime (e.g. Arch / Manjaro use pacman, which is not
@@ -35,7 +45,7 @@ nexus_repo_requests() {
 	else
 		pattern="\"(GET|HEAD|POST|PUT) /repository/[^/ ]+/"
 	fi
-	docker exec infinito-package-cache sh -c \
+	infra_docker exec "$(infra_cache package)" sh -c \
 		"grep -cE '${pattern}' /nexus-data/log/request.log 2>/dev/null || echo 0" \
 		2>/dev/null | awk '{print $1+0}'
 }
@@ -44,7 +54,7 @@ nexus_repo_requests() {
 # STALE). Both HIT and MISS prove the cache layer is engaged; counting
 # only HITs misses cold deploys where everything is a first pull.
 registry_cache_flows() {
-	docker logs infinito-registry-cache 2>&1 |
+	infra_docker logs "$(infra_cache registry)" 2>&1 |
 		grep -cE '"upstream_cache_status":"(HIT|MISS|REVALIDATED|UPDATING|STALE)"' ||
 		true
 }
@@ -164,7 +174,7 @@ probe_caches() {
 	else
 		read -r proxy_repo upstream_path <<<"${probe_target}"
 		echo "[probe] package-cache: GET /repository/${proxy_repo}/${upstream_path}"
-		if ! docker exec infinito-package-cache curl \
+		if ! infra_docker exec "$(infra_cache package)" curl \
 			--silent --fail --show-error --max-time 60 \
 			--output /dev/null \
 			"http://localhost:8081/repository/${proxy_repo}/${upstream_path}"; then
@@ -176,7 +186,7 @@ probe_caches() {
 	fi
 
 	echo "[probe] registry-cache: GET /ca.crt"
-	if ! docker exec infinito-registry-cache wget \
+	if ! infra_docker exec "$(infra_cache registry)" wget \
 		--quiet --tries=1 --timeout=10 \
 		--output-document=/dev/null \
 		"http://127.0.0.1:3128/ca.crt"; then
@@ -202,20 +212,18 @@ probe_did_inner_build() {
 		return 0
 	fi
 
-	local network="${COMPOSE_NETWORK:-}"
+	local network="${COMPOSE_NETWORK:-}" frontend
+	frontend="$(infra_cache frontend)"
 	if [[ -z "${network}" ]]; then
-		network="$(docker inspect -f \
-			'{{range $k,$_ := .NetworkSettings.Networks}}{{$k}}{{"\n"}}{{end}}' \
-			infinito-package-cache-frontend 2>/dev/null |
-			head -n1)"
+		network="$("${PYTHON:?source scripts/meta/env/load.sh}" -m cli.administration.infra attach)"
 	fi
 	if [[ -z "${network}" ]]; then
-		echo "[FAIL] DiD probe: could not discover compose network for" \
-			"infinito-package-cache-frontend (container missing or not connected)" >&2
+		echo "[FAIL] DiD probe: the infra runner attached no network" \
+			"(INFINITO_CACHE_STACK off or the runner refused to start)" >&2
 		exit 1
 	fi
 	local before after delta tmpdir tag rc=0
-	before="$(docker logs infinito-package-cache-frontend 2>&1 | wc -l)"
+	before="$(infra_docker logs "${frontend}" 2>&1 | wc -l)"
 
 	tmpdir="$(mktemp -d)"
 	cat >"${tmpdir}/Dockerfile" <<-'EOF'
@@ -240,7 +248,7 @@ probe_did_inner_build() {
 		exit 1
 	fi
 
-	after="$(docker logs infinito-package-cache-frontend 2>&1 | wc -l)"
+	after="$(infra_docker logs "${frontend}" 2>&1 | wc -l)"
 	delta=$((after - before))
 	if [[ "${delta}" -le 0 ]]; then
 		echo "[FAIL] DiD probe: build succeeded but frontend logged no new requests" >&2

@@ -1,13 +1,26 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: true
-    webserver_location_extra_configuration: "{{ SEMAPHORE_LOCATION_CONFIGURATION }}"
-    webserver_extra_configuration: "{{ SEMAPHORE_OIDC_LOGIN_LOCATION }}"
+- name: "🧹 Remove the runner images of {{ application_id }} this deploy replaced"
+  include_tasks:
+    file: utils/runner/prune.yml
+    apply:
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+
+- name: "🗂️ Check and write the provision catalogs of this deployment"
+  include_tasks:
+    file: utils/catalog.yml
+    apply:
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+
+- name: "🌐 Run the tasks of the deployment's DNS flavor"
+  include_tasks: "flavors/dns/{{ SEMAPHORE_DNS_FLAVOR }}.yml"
+
+- name: "🔐 Hand the zone token and the workspace export logins to OpenBao"
+  include_tasks: utils/workspaces/openbao.yml
+  when: SEMAPHORE_WORKSPACES_ENABLED | bool
 
 - name: "🧑‍💼 Run the Semaphore account operations on the stack host"
   when: IS_STACK_HOST | bool
@@ -18,3 +31,9 @@
 
     - name: "🔑 Carry the break-glass password into Semaphore on every deploy"
       include_tasks: 02_breakglass.yml
+
+    - name: "🗂️ Provision the project whose templates pause and resume the applications"
+      include_tasks: utils/project.yml
+
+- name: "🛂 Converge the Semaphore accounts with the role groups"
+  include_tasks: 03_rbac.yml

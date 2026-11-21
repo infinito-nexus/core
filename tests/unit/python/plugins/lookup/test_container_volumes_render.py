@@ -121,6 +121,33 @@ class TestContainerVolumesConfigSecret(unittest.TestCase):
             },
         )
 
+    def test_secret_owner_reaches_a_non_root_container(self) -> None:
+        meta = {
+            "token": {
+                "type": "secret",
+                "source": "/opt/compose/app/token",
+                "mode": "0400",
+                "uid": 64101,
+                "gid": 64101,
+                "mounts": [{"service": "app", "target": "/run/secrets/token"}],
+            }
+        }
+        data = _parse(container_volumes(_apps(meta), "my-app", "app"))
+        self.assertEqual(
+            data,
+            {
+                "secrets": [
+                    {
+                        "source": "token",
+                        "target": "/run/secrets/token",
+                        "uid": "64101",
+                        "gid": "64101",
+                        "mode": 0o400,
+                    }
+                ]
+            },
+        )
+
 
 class TestContainerVolumesTmpfs(unittest.TestCase):
     def test_tmpfs_size_renders_as_the_byte_count_the_long_form_takes(self) -> None:

@@ -1,0 +1,13 @@
+---
+- name: "🔐 Hand the login of the export client to OpenBao"
+  ansible.builtin.include_role:
+    name: web-app-openbao
+    tasks_from: utils/kv.yml
+  vars:
+    openbao_kv_state: present
+    openbao_kv_mount: "{{ KEYCLOAK_EXPORT_CLIENT_LOGIN.mount }}"
+    openbao_kv_path: "{{ KEYCLOAK_EXPORT_CLIENT_LOGIN.path }}"
+    openbao_kv_data: "{{ KEYCLOAK_EXPORT_CLIENT_LOGIN.data }}"
+  when:
+    - KEYCLOAK_ORGANIZATIONS_ENABLED | bool
+    - (groups.get('web-app-openbao') or []) | length > 0

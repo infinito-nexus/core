@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  host network configuration; holds no growing application data
 # nocheck: playwright-service-flag  host packet filter, no container and no web surface
 firewall:
   modes:
@@ -20,3 +21,11 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  the role runs no container, so Semaphore has nothing to pause
+  status: started

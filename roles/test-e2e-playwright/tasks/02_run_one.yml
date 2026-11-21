@@ -54,7 +54,7 @@
   ansible.builtin.file:
     path: "{{ _playwright_stage_dir }}"
     state: directory
-    mode: "0755"
+    mode: "0700"
 
 - name: 📁 Create staging tests directory
   ansible.builtin.file:
@@ -101,7 +101,7 @@
 - name: 📊 Collect host disk diagnostics before Playwright
   ansible.builtin.script: "{{ role_path }}/files/dump_disk_diagnostics.sh"
   changed_when: false
-  when: MODE_DEBUG | bool
+  when: lookup('debug', 'test-e2e-playwright') | bool
 
 - name: 🎲 Pick the network this role is tested on
   ansible.builtin.set_fact:
@@ -110,13 +110,15 @@
          | combine({application_id: lookup('domain', application_id)
                    if lookup('config', application_id, 'networks.reachability.handover', False)
                    else lookup('network_siblings', lookup('domain', application_id)) | random}) }}
-  when: application_id not in _playwright_network_picks
+  when:
+    - application_id in lookup('domains')
+    - application_id not in _playwright_network_picks
 
 - name: 🌈 Run Playwright on the picked network
   ansible.builtin.include_tasks: 03_run_pass.yml
   vars:
-    _playwright_passes: "{{ lookup('network_siblings', lookup('domain', application_id)) }}"
-    _playwright_pass_domain: "{{ _playwright_network_picks[application_id] }}"
+    _playwright_passes: "{{ lookup('network_siblings', lookup('domain', application_id)) if application_id in lookup('domains') else [''] }}"
+    _playwright_pass_domain: "{{ _playwright_network_picks[application_id] if application_id in lookup('domains') else '' }}"
     _playwright_pass_reports_dir: >-
       {{ _playwright_reports_dir if _playwright_pass_domain == _playwright_passes[0]
          else _playwright_reports_dir ~ '+' ~ (_playwright_pass_domain | network_of) }}

@@ -1,0 +1,55 @@
+(function () {
+  const hideNative = {{ (not (PRETIX_LOGIN_NATIVE | bool)) | to_json }};
+  const hideTwoFactor = {{ (not (PRETIX_LOGIN_2FA | bool)) | to_json }};
+
+  function hide(element) {
+    if (element) {
+      element.style.setProperty("display", "none", "important");
+    }
+  }
+
+  function hideNativeLogin() {
+    const path = window.location.pathname;
+    if (path !== "/control/login" && path !== "/control/login/") {
+      return;
+    }
+    if (new URLSearchParams(window.location.search).get("backend") === "native") {
+      return;
+    }
+    const form = document.querySelector("form.form-signin");
+    if (!form) {
+      return;
+    }
+    form.querySelectorAll(".nav-pills a[href*='backend=native']").forEach((link) => hide(link.closest("li")));
+    if (!form.querySelector("input[name='password']")) {
+      return;
+    }
+    form.querySelectorAll(".form-group:not(.buttons)").forEach(hide);
+    form.querySelectorAll(".buttons button[type='submit'], .buttons .btn-link").forEach(hide);
+  }
+
+  function hideTwoFactorEnrollment() {
+    document.querySelectorAll("a[href$='/control/settings/2fa/']").forEach((link) => {
+      const group = link.closest(".form-group");
+      if (group && group.querySelector(".label-default")) {
+        hide(group);
+      }
+    });
+  }
+
+  function run() {
+    if (hideNative) {
+      hideNativeLogin();
+    }
+    if (hideTwoFactor) {
+      hideTwoFactorEnrollment();
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run, { once: true });
+  } else {
+    run();
+  }
+})();
+{% include 'roles/sys-front-inj-javascript/templates/profile_lock.js.j2' %}

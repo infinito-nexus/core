@@ -14,7 +14,9 @@ test.beforeEach(() => {
 require("./test-tls");
 require("./test-sso");
 require("./test-oidc-provisioning");
+require("./test-rbac-admin");
 require("./test-login-native");
+require("./test-login-methods");
 require("./test-mailflow");
 require("./test-onion-mailflow");
 require("./test-personas");

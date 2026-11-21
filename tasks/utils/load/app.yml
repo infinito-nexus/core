@@ -4,17 +4,37 @@
     msg:
       application_id: "{{ application_id | default('undefined') }}"
       load_app_id: "{{ load_app_id }}"
-  when: MODE_DEBUG | bool
+  when: DEBUG | bool
 
-- name: "📥 Loading {{ load_app_id }}'"
-  include_role:
-    name: "{{ load_app_id }}"
-    public: false
-  vars:
-    application_id: "{{ load_app_id }}"
-    domain: "{{ lookup('domain', load_app_id) }}"
+- name: "📥 Load {{ load_app_id }} on its hosts"
   when:
     - groups[load_app_id] is not defined or inventory_hostname in groups[load_app_id]
+  block:
+    - name: "🧩 Run the stack backend {{ load_app_id }} enters with"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/load/entry.yml') }}"
+      vars:
+        entry_role: "{{ load_app_id }}"
+        entry_application_id: "{{ load_app_id }}"
+        entry_domain: "{{ load_app_id in lookup('domains') }}"
+        entry_post_run: false
+      when: STACK_ENTRY_PENDING | bool
+
+    - name: "📥 Loading {{ load_app_id }}'"
+      include_role:
+        name: "{{ load_app_id }}"
+        public: false
+      vars:
+        application_id: "{{ load_app_id }}"
+        domain: "{{ lookup('domain', load_app_id) }}"
+      when: load_app_id in lookup('domains')
+
+    - name: "📥 Loading {{ load_app_id }}' without a domain"
+      include_role:
+        name: "{{ load_app_id }}"
+        public: false
+      vars:
+        application_id: "{{ load_app_id }}"
+      when: load_app_id not in lookup('domains')
 
 - name: "🧊 Carry the applications SPOT past nested {{ load_app_id }}"
   applications_carrier: {}

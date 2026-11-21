@@ -18,7 +18,7 @@
 
 - name: "♻️ reset (if enabled) for {{ role_name}}"
   include_tasks: 02_reset.yml
-  when: MODE_RESET | bool
+  when: RESET | bool
 
 - name: ✅ Ensure databases.csv exists (root only)
   ansible.builtin.file:
@@ -55,10 +55,53 @@
 - include_tasks: 04_snapshot_subject.yml
   when: BKP_VOLUME_2_LOCAL_SNAPSHOT_MODE != 'never'
 
-- name: "📁 create {{ BKP_VOLUME_2_LOCAL_SNAPSHOT_BIN }}"
+- name: "📁 create {{ BKP_VOLUME_2_LOCAL_SNAPSHOT_DIR }}"
+  ansible.builtin.file:
+    path: "{{ BKP_VOLUME_2_LOCAL_SNAPSHOT_DIR }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "📁 create the launcher modules in {{ BKP_VOLUME_2_LOCAL_SNAPSHOT_DIR }}"
   ansible.builtin.copy:
-    src: python/baudolo_snapshot.py
+    src: "python/baudolo/{{ svc_bkp_volume_2_local_snapshot_module.key }}"
+    dest: "{{ [BKP_VOLUME_2_LOCAL_SNAPSHOT_DIR, svc_bkp_volume_2_local_snapshot_module.key] | path_join }}"
+    owner: root
+    group: root
+    mode: "{{ svc_bkp_volume_2_local_snapshot_module.value }}"
+  loop: "{{ BKP_VOLUME_2_LOCAL_SNAPSHOT_MODULES | dict2items }}"
+  loop_control:
+    loop_var: svc_bkp_volume_2_local_snapshot_module
+    label: "{{ svc_bkp_volume_2_local_snapshot_module.key }}"
+
+- name: "🔗 link {{ BKP_VOLUME_2_LOCAL_SNAPSHOT_BIN }} to the launcher"
+  ansible.builtin.file:
+    src: "{{ [BKP_VOLUME_2_LOCAL_SNAPSHOT_DIR, 'snapshot.py'] | path_join }}"
     dest: "{{ BKP_VOLUME_2_LOCAL_SNAPSHOT_BIN }}"
+    state: link
+    force: true
+
+- name: "📁 create {{ BKP_VOLUME_2_LOCAL_MAINTENANCE_BIN }}"
+  ansible.builtin.copy:
+    src: python/baudolo/maintenance.py
+    dest: "{{ BKP_VOLUME_2_LOCAL_MAINTENANCE_BIN }}"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "📁 Recreate {{ DIR_MAINTENANCE }} at every boot"
+  ansible.builtin.copy:
+    content: "d {{ DIR_MAINTENANCE }} 0755 root root -\n"
+    dest: "{{ BKP_VOLUME_2_LOCAL_MAINTENANCE_TMPFILES }}"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: "📁 Ensure {{ DIR_MAINTENANCE }} exists"
+  ansible.builtin.file:
+    path: "{{ DIR_MAINTENANCE }}"
+    state: directory
     owner: root
     group: root
     mode: "0755"
@@ -70,11 +113,13 @@
     system_service_copy_files: false
     system_service_timer_enabled: true
     system_service_force_linear_sync: true
-    system_service_force_flush_instant: "{{ MODE_BACKUP | bool }}"
+    system_service_force_flush_instant: "{{ BACKUP | bool }}"
     system_service_force_flush_final: false
-    system_service_state: "{{ 'started' if MODE_BACKUP | bool else omit }}"
+    system_service_state: "{{ 'started' if BACKUP | bool else omit }}"
     system_service_on_calendar: "{{ SYS_SCHEDULE_BACKUP_CONTAINER_TO_LOCAL }}"
     system_service_tpl_exec_start_pre: '{{ BIN_LOCK }} {{ SYS_SERVICE_GROUP_MANIPULATION | join(" ")  }} --ignore {{ SYS_SERVICE_BACKUP_VOLUME_2_LOCAL }} --timeout
       "{{ SYS_TIMEOUT_BACKUP_SERVICES }}"'
     system_service_tpl_exec_start: "/bin/sh -c '{{ BKP_VOLUME_2_LOCAL_EXEC }}'"
+    system_service_tpl_exec_start_post: "{{ BKP_VOLUME_2_LOCAL_MAINTENANCE_CLEAR }}"
+    system_service_tpl_exec_stop_post: "{{ BKP_VOLUME_2_LOCAL_MAINTENANCE_CLEAR }}"
     system_service_tpl_on_failure: "{{ SYS_SERVICE_ON_FAILURE_COMPOSE }}"

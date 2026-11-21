@@ -1,0 +1,5 @@
+---
+# nocheck: info-media no official demo video
+logo:
+  class: fas fa-microphone-lines
+homepage: https://github.com/ggml-org/whisper.cpp

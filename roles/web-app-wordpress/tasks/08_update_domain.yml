@@ -1,0 +1,46 @@
+---
+- name: ⬇️ Get current 'home' URL
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp option get home --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  register: wp_home
+  changed_when: false
+  failed_when: false
+
+- name: "⚙️ Converge the managed site address of the WordPress site"
+  include_tasks: utils/options.yml
+  vars:
+    wordpress_options: "{{ WORDPRESS_ADDRESS }}"
+    wordpress_options_command: option
+
+- name: 🔍 Search-replace old → new URLs in DB (single site)
+  vars:
+    wp_old_url_norm: "{{ wp_home.stdout | regex_replace('/+$','') }}"
+    wp_new_url_norm: "{{ WORDPRESS_ADDRESS.home }}"
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp search-replace "{{ wp_old_url_norm }}" "{{ wp_new_url_norm }}"
+    --skip-columns=guid --all-tables-with-prefix --precise
+    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  register: wp_sr_domain
+  changed_when: "('Success: Made 0 replacements.' not in wp_sr_domain.stdout) | bool"
+
+- name: 📐 Normalize scheme to https if needed (http → https)
+  vars:
+    domain_only: "{{ WORDPRESS_ADDRESS.home | regex_replace('^https?://','') }}"
+    http_url: "http://{{ domain_only }}"
+    https_url: "https://{{ domain_only }}"
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp search-replace "{{ http_url }}" "{{ https_url }}"
+    --skip-columns=guid --all-tables-with-prefix --precise
+    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  register: wp_sr_scheme
+  changed_when: "('Success: Made 0 replacements.' not in wp_sr_scheme.stdout) | bool"
+  when: lookup('tls', application_id, 'enabled') | bool
+
+- name: 🚿 Flush caches and rewrite rules
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }} bash -lc
+    "wp cache flush --path={{ WORDPRESS_DOCKER_HTML_PATH }} &&
+     wp rewrite flush --hard --path={{ WORDPRESS_DOCKER_HTML_PATH }}"

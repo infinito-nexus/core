@@ -1,0 +1,7 @@
+---
+realm_roles: true
+roles:
+  spaceadmin:
+    description: Manages every project space in OpenCloud, including its members and quota
+  guest:
+    description: Signs in to OpenCloud as a guest without a personal space, working only in the spaces and shares opened to them

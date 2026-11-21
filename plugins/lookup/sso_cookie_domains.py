@@ -26,7 +26,7 @@ from ansible.plugins.lookup import LookupBase
 
 from plugins.filter.cookie_scope import common_dns_suffix, domain_strings
 from utils.domains.primary_domain import get_domain
-from utils.tls_common import is_onion_domain
+from utils.tls.common import is_onion_domain
 
 IDP_APPLICATION_ID = "web-app-keycloak"
 

@@ -19,6 +19,12 @@ It walks every `roles/*/meta/server.yml`, collects occupied `networks.local.subn
 | `--count K`         | no       | `1`     | How many free subnets to return.                                                                  |
 | `--block <cidr>`    | no       | n/a     | Force suggestions inside a specific umbrella block (e.g. `--block 192.168.101.0/24`). Default is the union of currently used /24 umbrella blocks for the chosen prefix length. |
 
+### Counting `--clients` for a swarm role 🐝
+
+A swarm overlay spends one VIP per service, one address per task and one load-balancer attachment per node, and a service without explicit `replicas` runs one task per host of the role.
+`--clients` MUST cover that sum on the target swarm plus room for rolling updates and reschedules, not the container count of a compose deploy.
+[test_role_subnet_swarm_capacity.py](../../../../tests/lint/ansible/roles/meta/test_role_subnet_swarm_capacity.py) fails every swarm role whose subnet holds fewer addresses than [swarm_capacity.py](../../../../utils/networks/swarm_capacity.py) computes as a lower bound: one VIP and its replicas per literally enabled `meta/services.yml` entry with `mem_limit`, plus one attachment per host, on the swarm lab of `default.env` (the manager plus one node per `INFINITO_SWARM_WRK<N>_NAME`; one host for a role placed on the manager).
+
 ## Behaviour 🧮
 
 1. Translate `--clients N` to the smallest CIDR prefix that fits (≤14 → `/28`, ≤30 → `/27`, ≤62 → `/26`, ≤126 → `/25`, ≤254 → `/24`, …).

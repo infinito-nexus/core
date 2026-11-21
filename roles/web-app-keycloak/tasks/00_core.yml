@@ -3,7 +3,7 @@
 
 - name: "📂 Load cleanup routine for '{{ application_id }}'"
   include_tasks: 01_cleanup.yml
-  when: MODE_CLEANUP | bool
+  when: CLEANUP | bool
 
 - name: "📂 Load init routine for '{{ application_id }}'"
   include_tasks: 02_init.yml
@@ -16,6 +16,14 @@
   when: KEYCLOAK_LOGOUT_PANEL_ENABLED | bool
   notify: reload-openresty
 
+- name: "📄 Deploy the managed client field lock for '{{ application_id }}'"
+  stack_host_template:
+    src: field-lock.js.j2
+    dest: "{{ KEYCLOAK_FIELD_LOCK_FILE }}"
+    mode: "0644"
+  when: KEYCLOAK_JAVASCRIPT_ENABLED | bool
+  notify: reload-openresty
+
 - name: "🎨 Load the corporate theme routine for '{{ application_id }}'"
   include_tasks: utils/theme.yml
 
@@ -25,13 +33,8 @@
 
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: true
-    webserver_extra_configuration: >-
-      {{ lookup('template', 'nginx/helper_iframes.conf.j2')
-         ~ (lookup('template', 'nginx/admin_allowlist.conf.j2') if KEYCLOAK_ADMIN_NETWORKS | length > 0 else '')
-         ~ (lookup('template', 'nginx/logout_panel.conf.j2') if KEYCLOAK_LOGOUT_PANEL_ENABLED | bool else '') }}
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "👔 Keycloak manager-side operations (file deploys + container exec)"
   include_tasks: 03_manager_ops.yml

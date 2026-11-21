@@ -1,22 +1,28 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: dynamic-flag - the gateway is a single shared instance, never deployed per consumer
 litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oidc
+  oidc:
+    clients:
+      web: zammad-web
+    backchannel_logout_path: /auth/openid_connect/backchannel_logout
+    backchannel_logout_gate: true
 ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"
   shared: "{{ 'svc-db-openldap' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -53,6 +59,12 @@ design:
     apple-touch-icon:
       width: 180
       height: 180
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 # nocheck: shared
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag - DB engine, covered by role-local integration tests
@@ -99,10 +111,37 @@ zammad:
       http: 8077
   run_after:
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
     - web-svc-seaweedfs
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-zammad', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-zammad', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-zammad', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-zammad', '2fa') }}"
+        enforced: true
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-zammad', 'registration') }}"
+    password_form: >-
+      {{ lookup('config', 'web-app-zammad', 'services.zammad.login.method.native.enabled') | bool
+         or lookup('config', 'web-app-zammad', 'services.zammad.login.method.ldap.enabled') | bool }}
+  ldap_source:
+    host: "{{ LDAP.SERVER.DOMAIN }}"
+    port: "{{ LDAP.SERVER.PORT | int }}"
+  email_channel:
+    inbound_host: "{{ lookup('config', 'web-app-zammad', 'services.zammad.email_channel.outbound_host') }}"
+    inbound_port: 143
+    outbound_host: >-
+      {{ lookup('email', 'web-app-zammad', key='host')
+         if lookup('config', 'web-app-zammad', 'services.email.enabled') | bool else '' }}
+    outbound_port: >-
+      {{ lookup('email', 'web-app-zammad', key='port') | int
+         if lookup('config', 'web-app-zammad', 'services.email.enabled') | bool else 0 }}
   cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 2g
@@ -209,8 +248,8 @@ zammadmcp:
   enabled: "{{ lookup('config', 'web-app-zammad', 'mcp.enabled') | bool }}"
   shared: false
   image: python
-  # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
-  version: "3.13.15-slim"
+  version: "3.13.18-slim"
+  follow: requires-python
   custom: true
   name: zammadmcp
   cpus: "0.25"
@@ -220,11 +259,6 @@ zammadmcp:
   ports:
     internal:
       http: 8080
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "3.13.15-slim"
-        until: 2026-11-30
 # nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
 openwebui:
   bond: 0.5
@@ -251,3 +285,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

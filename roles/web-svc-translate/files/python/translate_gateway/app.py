@@ -1,7 +1,5 @@
 """HTTP routes of the translation gateway, in LibreTranslate's shapes."""
 
-# nocheck: mirrored-unit-test - the routes need FastAPI, which only the gateway image installs; the routing they expose is covered by test_router/test_gateway and the Playwright spec drives the HTTP surface against the live stack
-
 from __future__ import annotations
 
 import asyncio
@@ -15,6 +13,8 @@ NAME = "Infinito.Nexus Translation Gateway"
 UNPROCESSABLE = 422
 UNAVAILABLE = 503
 BATCH_CONCURRENCY = 8
+AUTO = "auto"
+DETECTED_CONFIDENCE = 1
 
 
 async def _payload(request: Request) -> dict:
@@ -57,6 +57,49 @@ def create_app(gateway, engines, *, detector=None):
             return detector
         return next((e for e in engines.values() if hasattr(e, "detect")), None)
 
+    async def _candidate(engine, text):
+        language = await asyncio.to_thread(engine.detect, text)
+        return {"language": language, "confidence": DETECTED_CONFIDENCE}
+
+    async def _detected(texts):
+        """Args:
+            texts: the strings whose language the caller left to ``auto``.
+
+        Returns:
+            One ``{"language", "confidence"}`` candidate per string, or None
+            when no backend detects or detection failed.
+        """
+        engine = _detector()
+        if engine is None:
+            return None
+        limit = asyncio.Semaphore(BATCH_CONCURRENCY)
+
+        async def _one(text):
+            async with limit:
+                return await _candidate(engine, text)
+
+        try:
+            return list(await asyncio.gather(*(_one(text) for text in texts)))
+        except (OSError, ValueError):
+            return None
+
+    async def _reply(content, source, text):
+        """Args:
+            content: the ``translatedText`` body answered so far.
+            source: the source language the caller sent.
+            text: the caller's ``q``, a string or a list of strings.
+
+        Returns:
+            The response, carrying ``detectedLanguage`` for an ``auto`` source
+            the way LibreTranslate does.
+        """
+        if source == AUTO:
+            batch = isinstance(text, list)
+            detected = await _detected(text if batch else [text])
+            if detected is not None:
+                content["detectedLanguage"] = detected if batch else detected[0]
+        return JSONResponse(content=content)
+
     @app.api_route("/", methods=["GET", "HEAD"], include_in_schema=False)
     async def _root() -> JSONResponse:
         """Name the service and where its schema lives.
@@ -98,7 +141,9 @@ def create_app(gateway, engines, *, detector=None):
             engine, answer = await gateway.translate(
                 source, target, text, fmt=fmt, protected=protected, exclude=exclude
             )
-            return JSONResponse(content={"translatedText": answer, "engine": engine})
+            return await _reply(
+                {"translatedText": answer, "engine": engine}, source, text
+            )
 
         if len(protected) == len(text) and all(
             isinstance(entry, list) for entry in protected
@@ -116,11 +161,13 @@ def create_app(gateway, engines, *, detector=None):
             exclude=exclude,
             partial=bool(body.get("partial")),
         )
-        return JSONResponse(
-            content={
+        return await _reply(
+            {
                 "translatedText": [answer for _, answer in answered],
                 "engine": [engine for engine, _ in answered],
-            }
+            },
+            source,
+            text,
         )
 
     @app.post("/detect")
@@ -137,9 +184,7 @@ def create_app(gateway, engines, *, detector=None):
                 status_code=UNAVAILABLE,
                 content={"error": "no backend offers language detection"},
             )
-        return JSONResponse(
-            content=[{"language": engine.detect(text), "confidence": 1}]
-        )
+        return JSONResponse(content=[await _candidate(engine, text)])
 
     async def _pairs_of(engine):
         """What *engine* offers: its declaration, else what it reports itself.
@@ -170,7 +215,7 @@ def create_app(gateway, engines, *, detector=None):
             catalogue.setdefault(source, []).append(target)
         return JSONResponse(
             content=[
-                {"code": code, "targets": targets}
+                {"code": code, "name": code, "targets": targets}
                 for code, targets in sorted(catalogue.items())
             ]
         )

@@ -8,6 +8,7 @@ set -euo pipefail
 
 : "${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD:?Source scripts/meta/env/load.sh first}"
 : "${INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX:?Source scripts/meta/env/load.sh first}"
+: "${INFINITO_CACHE_MAX_IDLE_DAYS:?Source scripts/meta/env/load.sh first}"
 : "${INFINITO_CACHE_PACKAGE_MAX_AGE_MIN:?Source scripts/meta/env/load.sh first}"
 : "${INFINITO_CACHE_PACKAGE_METADATA_MAX_AGE_MIN:?Source scripts/meta/env/load.sh first}"
 : "${INFINITO_CACHE_UPSTREAMS:?Source scripts/meta/env/load.sh first}"
@@ -18,9 +19,13 @@ set -euo pipefail
 
 CACHE_CONTENT_MAX_AGE_MIN="${INFINITO_CACHE_PACKAGE_MAX_AGE_MIN}"
 CACHE_METADATA_MAX_AGE_MIN="${INFINITO_CACHE_PACKAGE_METADATA_MAX_AGE_MIN}"
+CACHE_MAX_IDLE_DAYS="${INFINITO_CACHE_MAX_IDLE_DAYS}"
+CLEANUP_POLICY="infinito-idle"
 
 PKGCACHE_CONTAINER="${INFINITO_CACHE_PACKAGE_CONTAINER}"
 NEXUS_REST="http://${INFINITO_CACHE_PACKAGE_REST_HOST}:${INFINITO_CACHE_PACKAGE_PORT}/service/rest"
+NEXUS_EXTDIRECT="http://${INFINITO_CACHE_PACKAGE_REST_HOST}:${INFINITO_CACHE_PACKAGE_PORT}/service/extdirect"
+CSRF_TOKEN="infinito-bootstrap"
 
 BOOTSTRAP_DONE_FILE="/nexus-data/.infinito-bootstrap-done"
 NEXUS_ADMIN_PW_FILE="/nexus-data/.infinito-admin-password"
@@ -44,6 +49,19 @@ local)
 esac
 
 nexus_curl() { nexus_exec curl "$@"; }
+nexus_curl_stdin() { nexus_exec_stdin curl "$@"; }
+
+curl_option() {
+	local value="${2//\\/\\\\}"
+	printf '%s = "%s"\n' "$1" "${value//\"/\\\"}"
+}
+
+# Param: $1 the user:password pair, curl reads it from a config on stdin; the rest curl's arguments
+nexus_curl_auth() {
+	local credentials="$1"
+	shift
+	curl_option user "${credentials}" | nexus_curl_stdin -K - "$@"
+}
 
 wait_for_nexus() {
 	local _attempt
@@ -74,11 +92,13 @@ rotate_admin_password() {
 	fi
 
 	log "Rotating admin password from default '${NEXUS_DEFAULT_PASSWORD}'"
-	if ! nexus_curl -fsS -u "admin:${NEXUS_DEFAULT_PASSWORD}" \
+	if ! {
+		curl_option user "admin:${NEXUS_DEFAULT_PASSWORD}"
+		curl_option data-raw "${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD}"
+	} | nexus_curl_stdin -K - -fsS \
 		-H "Content-Type: text/plain" \
-		-X PUT "${NEXUS_REST}/v1/security/users/admin/change-password" \
-		--data-binary "${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD}"; then
-		if nexus_curl -fsS -o /dev/null -u "admin:${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD}" \
+		-X PUT "${NEXUS_REST}/v1/security/users/admin/change-password"; then
+		if nexus_curl_auth "admin:${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD}" -fsS -o /dev/null \
 			"${NEXUS_REST}/v1/repositories" >/dev/null 2>&1; then
 			log "Default rotation rejected but configured password authenticates; assuming previous bootstrap, marking done"
 		else
@@ -98,8 +118,7 @@ ensure_blobstore() {
 	local payload
 	payload="$(printf '{"name":"default","path":"default","softQuota":{"type":"spaceUsedQuota","limit":%d}}' "${quota_mb}")"
 	local code
-	code="$(nexus_curl -sS -o /dev/null -w '%{http_code}' \
-		-u "${ADMIN_USER}:${ADMIN_PASS}" \
+	code="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -sS -o /dev/null -w '%{http_code}' \
 		-H "Content-Type: application/json" \
 		-X POST "${NEXUS_REST}/v1/blobstores/file" \
 		--data "${payload}" || true)"
@@ -116,16 +135,14 @@ ensure_blobstore() {
 ensure_repo() {
 	local format="$1" kind="$2" name="$3" payload="$4"
 	local code
-	code="$(nexus_curl -sS -o /dev/null -w '%{http_code}' \
-		-u "${ADMIN_USER}:${ADMIN_PASS}" \
+	code="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -sS -o /dev/null -w '%{http_code}' \
 		-H "Content-Type: application/json" \
 		-X POST "${NEXUS_REST}/v1/repositories/${format}/${kind}" \
 		--data "${payload}" || true)"
 	case "${code}" in
 	201 | 204) log "${format} ${kind} ${name} created (HTTP ${code})" ;;
 	400 | 409)
-		code="$(nexus_curl -sS -o /dev/null -w '%{http_code}' \
-			-u "${ADMIN_USER}:${ADMIN_PASS}" \
+		code="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -sS -o /dev/null -w '%{http_code}' \
 			-H "Content-Type: application/json" \
 			-X PUT "${NEXUS_REST}/v1/repositories/${format}/${kind}/${name}" \
 			--data "${payload}" || true)"
@@ -156,7 +173,7 @@ ensure_proxy_repo() { ensure_repo "$1" proxy "$2" "$3"; }
 # cannot determine. A `.gguf` model has no mapping, so strict validation
 # turns every such fetch into a dead URL.
 ensure_all_proxies() {
-	local common='"proxy":{"contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"negativeCache":{"enabled":true,"timeToLive":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"httpClient":{"blocked":false,"autoBlock":false}'
+	local common='"proxy":{"contentMaxAge":'"${CACHE_CONTENT_MAX_AGE_MIN}"',"metadataMaxAge":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"negativeCache":{"enabled":true,"timeToLive":'"${CACHE_METADATA_MAX_AGE_MIN}"'},"httpClient":{"blocked":false,"autoBlock":false},"cleanup":{"policyNames":["'"${CLEANUP_POLICY}"'"]}'
 
 	local record name flavor url distribution depth content_max_age content extra strict storage
 
@@ -165,7 +182,7 @@ ensure_all_proxies() {
 		content="${content_max_age:-${CACHE_CONTENT_MAX_AGE_MIN}}"
 		strict=true
 		case "${flavor}" in
-		apt) extra=',"apt":{"distribution":"'"${distribution}"'","flat":false}' ;;
+		apt) extra=',"apt":{"distribution":"'"${distribution}"'","flat":false,"enforceDistribution":false}' ;;
 		yum) extra=',"yum":{"repodataDepth":'"${depth}"'}' ;;
 		raw)
 			extra=',"raw":{"contentDisposition":"ATTACHMENT"}'
@@ -179,11 +196,84 @@ ensure_all_proxies() {
 	done
 }
 
+ensure_cleanup_policy() {
+	local payload code
+	payload='{"name":"'"${CLEANUP_POLICY}"'","format":"*","criteriaLastDownloaded":'"${CACHE_MAX_IDLE_DAYS}"'}'
+	code="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -sS -o /dev/null -w '%{http_code}' \
+		-H "Content-Type: application/json" \
+		-X POST "${NEXUS_REST}/internal/cleanup-policies" \
+		--data "${payload}" || true)"
+	case "${code}" in
+	200 | 201 | 204) log "cleanup policy ${CLEANUP_POLICY} created (HTTP ${code})" ;;
+	400 | 409)
+		code="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -sS -o /dev/null -w '%{http_code}' \
+			-H "Content-Type: application/json" \
+			-X PUT "${NEXUS_REST}/internal/cleanup-policies/${CLEANUP_POLICY}" \
+			--data "${payload}" || true)"
+		case "${code}" in
+		200 | 204) log "cleanup policy ${CLEANUP_POLICY} updated (HTTP ${code})" ;;
+		*)
+			log "unexpected HTTP ${code} updating cleanup policy ${CLEANUP_POLICY}"
+			return 1
+			;;
+		esac
+		;;
+	*)
+		log "unexpected HTTP ${code} creating cleanup policy ${CLEANUP_POLICY}"
+		return 1
+		;;
+	esac
+}
+
+# Param: $1 the Nexus task type
+task_scheduled() {
+	local listing
+	listing="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -fsS "${NEXUS_REST}/v1/tasks?type=$1" || true)"
+	grep -q '"id"' <<<"${listing}"
+}
+
+ensure_cleanup_task() {
+	local _attempt
+	for _attempt in $(seq 1 30); do
+		if task_scheduled repository.cleanup; then
+			log "task repository.cleanup scheduled by Nexus"
+			return 0
+		fi
+		sleep 2
+	done
+	log "Nexus lists no repository.cleanup task; it schedules one daily at startup and no API creates it"
+	return 1
+}
+
+ensure_compact_task() {
+	local payload response
+	if task_scheduled blobstore.compact; then
+		log "task blobstore.compact already scheduled"
+		return 0
+	fi
+	payload='{"action":"coreui_Task","method":"create","type":"rpc","tid":1,"data":[{"enabled":true,"name":"infinito compact default","typeId":"blobstore.compact","alertEmail":"","notificationCondition":"FAILURE","schedule":"advanced","timeZoneOffset":"+00:00","cronExpression":"0 0 2 * * ?","properties":{"blobstoreName":"default","blobsOlderThan":"0"}}]}'
+	response="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -sS \
+		-H "Content-Type: application/json" \
+		-H "NX-ANTI-CSRF-TOKEN: ${CSRF_TOKEN}" \
+		-H "Cookie: NX-ANTI-CSRF-TOKEN=${CSRF_TOKEN}" \
+		-X POST "${NEXUS_EXTDIRECT}" \
+		--data "${payload}" || true)"
+	if ! grep -q '"success":true' <<<"${response}"; then
+		log "Nexus refused the blobstore.compact task: ${response}"
+		return 1
+	fi
+	log "task blobstore.compact created"
+}
+
+ensure_eviction_tasks() {
+	ensure_cleanup_task
+	ensure_compact_task
+}
+
 ensure_eula_accepted() {
 	local code
 	# shellcheck disable=SC1112
-	code="$(nexus_curl -sS -o /dev/null -w '%{http_code}' \
-		-u "${ADMIN_USER}:${ADMIN_PASS}" \
+	code="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -sS -o /dev/null -w '%{http_code}' \
 		-H "Content-Type: application/json" \
 		-X POST "${NEXUS_REST}/v1/system/eula" \
 		--data '{"accepted":true,"disclaimer":"Use of Sonatype Nexus Repository - Community Edition is governed by the End User License Agreement at https://links.sonatype.com/products/nxrm/ce-eula. By returning the value from ‘accepted:false’ to ‘accepted:true’, you acknowledge that you have read and agree to the End User License Agreement at https://links.sonatype.com/products/nxrm/ce-eula."}' || true)"
@@ -198,8 +288,7 @@ ensure_eula_accepted() {
 
 ensure_anonymous_access() {
 	local code
-	code="$(nexus_curl -sS -o /dev/null -w '%{http_code}' \
-		-u "${ADMIN_USER}:${ADMIN_PASS}" \
+	code="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -sS -o /dev/null -w '%{http_code}' \
 		-H "Content-Type: application/json" \
 		-X PUT "${NEXUS_REST}/v1/security/anonymous" \
 		--data '{"enabled":true,"userId":"anonymous","realmName":"NexusAuthorizingRealm"}' || true)"
@@ -218,7 +307,9 @@ main() {
 	ensure_eula_accepted
 	ensure_anonymous_access
 	ensure_blobstore
+	ensure_cleanup_policy
 	ensure_all_proxies
+	ensure_eviction_tasks
 	log "bootstrap done"
 }
 

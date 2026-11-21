@@ -32,7 +32,7 @@
           if: "is_local_domain(rcpt_domain)"
           then: "'local'"
         "1":
-          if: "ends_with(rcpt_domain, '.onion')"
+          if: "ends_with(rcpt_domain, '{{ 'tor' | network_suffix }}')"
           then: "'{{ STALWART_ONION_ROUTE_NAME }}'"
       else: "'mx'"
 

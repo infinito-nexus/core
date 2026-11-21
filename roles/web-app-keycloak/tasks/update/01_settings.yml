@@ -5,14 +5,44 @@
     fail_msg: "The realm dictionary of '{{ KEYCLOAK_REALM }}' declares no client {{ KEYCLOAK_SETTINGS_MISSING_CLIENT_IDS | join(', ') }}"
     quiet: true
 
+- name: "⬇️ Read the managed client fields the converge would overwrite"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/utils/rest_script.yml"
+    apply:
+      delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+  vars:
+    rest_script: realm/settings.py
+    rest_script_env:
+      KC_MODE: read
+    rest_script_stdin: "{{ KEYCLOAK_SETTINGS_READ_SPEC | to_json }}"
+    rest_script_ok_rcs: [0, 1]
+    rest_script_changed: "(?!)"
+    rest_script_register: kc_settings_held
+
+- name: "⚠️ Report a failed read of the managed client fields"
+  ansible.builtin.fail:
+    msg: "{{ (kc_settings_held.stdout_lines | select('match', '^listing-failed ') | list) + kc_settings_held.stderr_lines }}"
+  when: kc_settings_held.rc != 0
+
+- name: "📣 Report the managed client fields the converge reverts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current:
+      client: "{{ kc_settings_form_record.value }}"
+  loop: "{{ kc_settings_held.stdout | from_json | dict2items }}"
+  loop_control:
+    loop_var: kc_settings_form_record
+    label: "{{ kc_settings_form_record.key }}"
+
 - name: "🔄 Converge client scopes, clients and realm mail settings over REST"
   ansible.builtin.include_tasks:
     file: "{{ role_path }}/tasks/utils/rest_script.yml"
     apply:
       delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
   vars:
-    rest_script: realm_settings.py
-    rest_script_env: {}
+    rest_script: realm/settings.py
+    rest_script_env:
+      KC_MODE: converge
     rest_script_stdin: "{{ KEYCLOAK_SETTINGS_SPEC | to_json }}"
     rest_script_ok_rcs: [0, 1]
     rest_script_changed: "(created|updated)=[1-9]"

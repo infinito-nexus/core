@@ -25,17 +25,39 @@ ODOO_ENTRYPOINT_SCRIPT_HOST_REL: "volumes/{{ ODOO_ENTRYPOINT_SCRIPT_FILE }}"
 ODOO_ENTRYPOINT_SCRIPT_DOCKER: "{{ [ '/usr/local/bin/', ODOO_ENTRYPOINT_SCRIPT_FILE ] | path_join }}"
 ODOO_INIT_MODULES: "{{ ODOO_MODULES_CORE | join(',') }}"
 ODOO_UPDATE_MARKER: "/var/lib/odoo/.odoo-update-pending"
+ODOO_LANGUAGE: "{{ HOST_LL_CC }}"
+ODOO_LANGUAGE_SCRIPT: "{{ [role_path, 'files/python/apply/language.py'] | path_join }}"
+ODOO_SIGNUP_PORTAL_SCRIPT: "{{ [role_path, 'files/python/apply/signup_portal.py'] | path_join }}"
+ODOO_TWO_FACTOR_POLICY_SCRIPT: "{{ [role_path, 'files/python/apply/two_factor_policy.py'] | path_join }}"
 
 ODOO_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 
 ODOO_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 ODOO_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
-ODOO_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enabled') }}"
-ODOO_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') }}"
 
-ODOO_OBJSTORE_STORAGE_CODE: "{{ lookup('objstore', application_id, 'engine') }}"
-ODOO_OBJSTORE_STORAGE_NAME: "Infinito Object Store"
-ODOO_OBJSTORE_BUCKET: "{{ lookup('objstore', application_id, 'bucket') }}"
+ODOO_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.odoo.login.method.ldap.enabled') | bool }}"
+ODOO_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.odoo.login.method.native.enabled') | bool }}"
+ODOO_LOGIN_2FA: "{{ lookup('config', application_id, 'services.odoo.login.method.2fa.enabled') | bool }}"
+ODOO_LOGIN_2FA_ENFORCEMENT: "{{ ODOO_LOGIN_2FA | bool and lookup('config', application_id, 'services.odoo.login.method.2fa.enforced') | bool }}"
+ODOO_LOGIN_2FA_STATE: >-
+  {{ 'off' if not (ODOO_LOGIN_2FA | bool)
+     else ('offer' if not (ODOO_LOGIN_2FA_ENFORCEMENT | bool)
+     else ('enforce' if (ODOO_EMAIL_ENABLED | bool) else 'hold')) }}
+ODOO_LOGIN_2FA_POLICY: "all_required"
+ODOO_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') | bool }}"
+ODOO_LOGIN_PASSKEY: "{{ lookup('config', application_id, 'services.odoo.login.method.passkey.enabled') | bool }}"
+ODOO_LOGIN_ODOO_COM: "{{ lookup('config', application_id, 'services.odoo.login.method.odoo_com.enabled') | bool }}"
+ODOO_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.odoo.login.method.registration.enabled') | bool }}"
+ODOO_LOGIN_FORM: "{{ ODOO_LOGIN_NATIVE | bool or ODOO_LOGIN_LDAP | bool }}"
+ODOO_SIGNUP_SETTINGS: "{{ lookup('form_values', application_id, 'general') }}"
+ODOO_BASE_URL: "{{ lookup('form_values', application_id, 'base_url') | combine(lookup('form_values', application_id, 'base_url_freeze')) }}"
+ODOO_OAUTH_PROVIDER: "{{ lookup('form_values', application_id, 'oauth_provider') }}"
+ODOO_LDAP_DIRECTORY: "{{ lookup('form_values', application_id, 'ldap_directory') }}"
+ODOO_OBJSTORE_SETTINGS: "{{ lookup('form_values', application_id, 'attachment_storage') }}"
+ODOO_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enabled') }}"
+ODOO_OBJSTORE_ENABLED: "{{ lookup('config', application_id, 'services.odoo.objstore.managed') }}"
+
+ODOO_OBJSTORE_STORAGE_CODE: "{{ lookup('config', application_id, 'services.odoo.objstore.codes') | first }}"
 ODOO_OBJSTORE_OPTIONS:
   key: "{{ lookup('objstore', application_id, 'access_key') }}"
   secret: "{{ lookup('objstore', application_id, 'secret_key') }}"
@@ -80,34 +102,37 @@ ODOO_SMTP_USER: "{{ ODOO_EMAIL.username }}"
 ODOO_SMTP_PASSWORD: "{{ ODOO_EMAIL.password }}"
 ODOO_SMTP_SSL: "{{ lookup('tls', application_id, 'enabled') }}"
 
-ODOO_LDAP_SERVER: "{{ LDAP.SERVER.DOMAIN }}"
-ODOO_LDAP_PORT: "{{ LDAP.SERVER.PORT }}"
-ODOO_LDAP_BASE_DN: "{{ LDAP.DN.OU.USERS }}"
+ODOO_LDAP_MANAGED: "{{ lookup('config', application_id, 'services.odoo.directory.managed') }}"
+ODOO_LDAP_SERVER: "{{ lookup('config', application_id, 'services.odoo.directory.servers') | first }}"
 ODOO_LDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
 ODOO_LDAP_BIND_PASSWORD: "{{ LDAP.BIND_CREDENTIAL }}"
-ODOO_LDAP_FILTER: "({{ ODOO_LDAP_USER_ATTR }}=%s)"
-ODOO_LDAP_USER_ATTR: "{{ LDAP.USER.ATTRIBUTES.ID }}"
-ODOO_LDAP_CREATE_USER: true
-ODOO_LDAP_TLS: "{{ LDAP.SERVER.SECURITY in ['TLS', 'SSL'] }}"
 
 ODOO_LDAP_CONFIG:
   name: "OpenLDAP"
   sequence: 1
   company_id: 1
   ldap_server: "{{ ODOO_LDAP_SERVER }}"
-  ldap_server_port: "{{ ODOO_LDAP_PORT }}"
   ldap_binddn: "{{ ODOO_LDAP_BIND_DN }}"
   ldap_password: "{{ ODOO_LDAP_BIND_PASSWORD }}"
-  ldap_base: "{{ ODOO_LDAP_BASE_DN }}"
-  ldap_filter: "{{ ODOO_LDAP_FILTER }}"
-  create_user: "{{ ODOO_LDAP_CREATE_USER | lower }}"
-  ldap_tls: "{{ ODOO_LDAP_TLS | lower }}"
 
 ODOO_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
 ODOO_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
 ODOO_OIDC_ISSUER_URL: "{{ OIDC.CLIENT.ISSUER_URL }}"
-ODOO_OIDC_AUTHORIZE_URL: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
 ODOO_OIDC_TOKEN_URL: "{{ OIDC.CLIENT.TOKEN_URL }}"
-ODOO_OIDC_USERINFO_URL: "{{ OIDC.CLIENT.USER_INFO_URL }}"
 ODOO_OIDC_JWKS_URI: "{{ OIDC.CLIENT.CERTS }}"
 ODOO_OIDC_UID_FIELD: "{{ OIDC.ATTRIBUTES.USERNAME }}"
+
+ODOO_LDAP_ATTR_MEMBER_OF: "{{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}"
+
+ODOO_RBAC_ROLE_GROUPS:
+  administrator:
+    - base.group_system
+  manager:
+    - sales_team.group_sale_manager
+    - account.group_account_manager
+    - stock.group_stock_manager
+    - project.group_project_manager
+  user:
+    - base.group_user
+  portal:
+    - base.group_portal

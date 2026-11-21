@@ -1,10 +1,11 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-required — Discourse's aws-sdk-s3 defaults a custom endpoint to virtual-host addressing and exposes no force_path_style option, incompatible with SeaweedFS path-style without a global SeaweedFS virtual-host/wildcard-DNS change affecting all consumers; uploads stay on the local volume
 # nocheck: playwright-service-flag, dynamic-flag - shared gateway consumer; inference wiring is covered by the gateway role, and the gateway is a single shared instance
 litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 # nocheck: playwright-service-flag — static-asset provider, no Playwright surface
 asset:
   bond: 1
@@ -33,8 +34,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
   bond: 1
@@ -86,8 +87,23 @@ discourse:
   mem_reservation: 1g
   mem_limit: 4g
   pids_limit: 1024
-  local_login_enabled: "{{ not (lookup('config', 'web-app-discourse', 'services.sso.enabled') | bool) or (lookup('config', 'web-app-discourse', 'services.ldap.enabled')
-    | bool) }}"
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-discourse', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-discourse', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-discourse', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-discourse', '2fa') }}"
+        enforced: true
+      passkey:
+        enabled: "{{ lookup('login_method', 'web-app-discourse', 'passkey') }}"
+      email:
+        enabled: "{{ lookup('login_method', 'web-app-discourse', 'email') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-discourse', 'registration') }}"
   site_settings:
     max_post_length: 150000
 # nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
@@ -164,3 +180,24 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  flush: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

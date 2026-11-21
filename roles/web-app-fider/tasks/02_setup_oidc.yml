@@ -1,14 +1,34 @@
 ---
+- name: "⬇️ Fider | Read the managed fields of the Keycloak OAuth provider"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/select/oauth-provider.sql"
+    expect_rows: true
+  register: fider_oauth_provider_stored
+  changed_when: false
+
+- name: "📣 Fider | Report the managed OAuth provider fields the write reverts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current:
+      oauth_provider: "{{ fider_oauth_provider_stored.rows[0][0] | from_json }}"
+
 - name: "🔧 Fider | Configure Keycloak as OIDC provider in database"
   database_query:
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/configure-oidc-provider.sql"
     named_args:
-      display_name: "{{ SOFTWARE_NAME }} SSO"
-      client_id: "{{ OIDC.CLIENT.ID }}"
+      display_name: "{{ FIDER_OAUTH_PROVIDER.display_name }}"
+      status: "{{ FIDER_OAUTH_PROVIDER.status }}"
+      client_id: "{{ FIDER_OAUTH_PROVIDER.client_id }}"
       client_secret: "{{ OIDC.CLIENT.SECRET }}"
-      authorize_url: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
-      token_url: "{{ OIDC.CLIENT.TOKEN_URL }}"
-      profile_url: "{{ OIDC.CLIENT.USER_INFO_URL }}"
+      authorize_url: "{{ FIDER_OAUTH_PROVIDER.authorize_url }}"
+      token_url: "{{ FIDER_OAUTH_PROVIDER.token_url }}"
+      profile_url: "{{ FIDER_OAUTH_PROVIDER.profile_url }}"
+      scope: "{{ FIDER_OAUTH_PROVIDER.scope }}"
+      json_user_id_path: "{{ FIDER_OAUTH_PROVIDER.json_user_id_path }}"
+      json_user_name_path: "{{ FIDER_OAUTH_PROVIDER.json_user_name_path }}"
+      json_user_email_path: "{{ FIDER_OAUTH_PROVIDER.json_user_email_path }}"
+      is_trusted: "{{ FIDER_OAUTH_PROVIDER.is_trusted }}"
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: true

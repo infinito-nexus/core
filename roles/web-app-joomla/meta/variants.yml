@@ -32,6 +32,9 @@
     sso:
       enabled: true
       shared: true
+    ldap:
+      enabled: false
+      shared: false
     prometheus:
       enabled: true
       shared: true
@@ -41,6 +44,11 @@
     tor:
       enabled: true
 - services:
+    joomla:
+      login:
+        method:
+          2fa:
+            enforced: false
     docs:
       enabled: true
       shared: true
@@ -50,6 +58,9 @@
     sso:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    ldap:
+      enabled: true
+      shared: true
     dashboard:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

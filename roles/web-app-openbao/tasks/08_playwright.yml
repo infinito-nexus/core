@@ -1,0 +1,33 @@
+---
+- name: "🎭 Grant the Playwright specs their read-only AppRole while the test runner runs"
+  ansible.builtin.include_tasks:
+    file: utils/playwright.yml
+    apply:
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  when: OPENBAO_PLAYWRIGHT_ENABLED | bool
+
+- name: "🧹 Withdraw the Playwright AppRole outside the test runtimes"
+  when: not (OPENBAO_PLAYWRIGHT_ENABLED | bool)
+  block:
+    - name: "🧹 Delete the Playwright AppRole and its policy"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec {{ OPENBAO_LOCAL_CID | quote }}
+        sh -c 'set -e; changed=;
+        if bao read auth/approle/role/{{ OPENBAO_PLAYWRIGHT_APPROLE }} >/dev/null 2>&1;
+        then bao delete auth/approle/role/{{ OPENBAO_PLAYWRIGHT_APPROLE }} >/dev/null; changed=1; fi;
+        if bao policy read {{ OPENBAO_PLAYWRIGHT_APPROLE | quote }} >/dev/null 2>&1;
+        then bao policy delete {{ OPENBAO_PLAYWRIGHT_APPROLE | quote }} >/dev/null; changed=1; fi;
+        [ -z "$changed" ] || echo OPENBAO_CHANGED'
+      register: openbao_playwright_withdrawn
+      changed_when: "'OPENBAO_CHANGED' in openbao_playwright_withdrawn.stdout"
+
+    - name: "🧹 Delete the logins handed to the Playwright AppRole"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec {{ OPENBAO_LOCAL_CID | quote }}
+        sh -c 'bao kv get -mount={{ OPENBAO_PLAYWRIGHT_CONFIG.mount | quote }} {{ item.value | quote }} >/dev/null 2>&1 || exit 0;
+        bao kv metadata delete -mount={{ OPENBAO_PLAYWRIGHT_CONFIG.mount | quote }} {{ item.value | quote }} >/dev/null && echo OPENBAO_CHANGED'
+      loop: "{{ OPENBAO_PLAYWRIGHT_CONFIG.logins | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      register: openbao_playwright_logins_deleted
+      changed_when: "'OPENBAO_CHANGED' in openbao_playwright_logins_deleted.stdout"

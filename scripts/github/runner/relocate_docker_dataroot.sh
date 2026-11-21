@@ -15,9 +15,10 @@ CONTAINERD_TARGET=/mnt/containerd
 DAEMON_JSON=/etc/docker/daemon.json
 
 # Param: $1 why Docker and containerd stay on /
+# A decline changes nothing, so it dumps no runner state: the swap step of the
+# deploy jobs and the explicit dump of the image build job print that state.
 decline() {
 	echo "::notice::relocate_docker_dataroot.sh left Docker and containerd on /: $1"
-	"$DUMP" "docker-relocate skipped ($1)"
 	exit 0
 }
 

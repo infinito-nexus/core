@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple
 
 from utils.cache.files import read_text
-from utils.roles.custom import CustomRoleError, manifest_version
+from utils.roles.custom import MANIFEST_FILE, CustomRoleError, manifest_version
 
 if TYPE_CHECKING:
     from .declaration import Source
@@ -134,6 +134,7 @@ def stage(group: str, source: Source, target: Path) -> Staged:
             .decode()
             .strip()
         )
+        _check_pin(group, source, commit)
         tree = f"{commit}:{source.path}"
         kind = _git(
             scratch,
@@ -158,7 +159,16 @@ def stage(group: str, source: Source, target: Path) -> Staged:
         raise CustomRoleError(
             f"{group}: source.path holds an entry the pull refuses to unpack: {exc}"
         ) from exc
-    return Staged(f"{source.describe()} (commit {commit})", version)
+    return Staged(source.provenance(commit), version)
+
+
+def _check_pin(group: str, source: Source, commit: str) -> None:
+    if source.pinned_commit not in (None, commit):
+        raise CustomRoleError(
+            f"{group}: tag {source.version} resolves to commit {commit}, but "
+            f"{MANIFEST_FILE} pins commit {source.pinned_commit}; the pull "
+            "refuses a tag that no longer names the pinned commit"
+        )
 
 
 def _local_text(path: Path) -> str | None:

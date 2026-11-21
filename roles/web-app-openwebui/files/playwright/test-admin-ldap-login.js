@@ -2,11 +2,10 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const { expectNoCspViolations } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
 
 exports.register = function (shared) {
   test("administrator: openwebui LDAP login and logout", async ({ page }) => {
-    skipUnlessServiceEnabled("ldap");
+    shared.skipUnlessLdapLogin();
     const diagnostics = shared.attachDiagnostics(page);
 
     await shared.signInViaLdap(

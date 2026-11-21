@@ -1,33 +1,23 @@
 ---
 - name: "🔑 Mint the long-lived token and create the MCP config entry"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - "HA_PORT={{ HOMEASSISTANT_PORT_INTERNAL }}"
-      - -e
-      - "HA_USERNAME={{ HOMEASSISTANT_ADMIN_USERNAME }}"
-      - -e
-      - HA_PASSWORD
-      - -e
-      - "HA_TOKEN_CLIENT_NAME={{ HOMEASSISTANT_TOKEN_CLIENT_NAME }}"
-      - -e
-      - "HA_SERVICE_USERNAME={{ HOMEASSISTANT_MCP_ACCOUNT_USERNAME }}"
-      - -e
-      - HA_SERVICE_PASSWORD
-      - -e
-      - "HA_SERVICE_NAME={{ HOMEASSISTANT_MCP_ACCOUNT_NAME }}"
-      - -e
-      - "HA_SERVICE_GROUP={{ HOMEASSISTANT_MCP_ACCOUNT_GROUP }}"
-      - "{{ HOMEASSISTANT_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - python3
-      - "-"
-    stdin: "{{ lookup('file', 'python/provision.py') }}"
-  environment:
-    HA_PASSWORD: "{{ HOMEASSISTANT_ADMIN_PASSWORD }}"
-    HA_SERVICE_PASSWORD: "{{ HOMEASSISTANT_MCP_ACCOUNT_PASSWORD }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      IFS= read -r HA_PASSWORD && IFS= read -r HA_SERVICE_PASSWORD && : "${HA_PASSWORD:?arrived empty on stdin}" && : "${HA_SERVICE_PASSWORD:?arrived empty on stdin}"
+      && export HA_PASSWORD HA_SERVICE_PASSWORD && container exec -i
+      -e HA_PORT={{ HOMEASSISTANT_PORT_INTERNAL | quote }}
+      -e HA_USERNAME={{ HOMEASSISTANT_ADMIN_USERNAME | quote }}
+      -e HA_PASSWORD
+      -e HA_TOKEN_CLIENT_NAME={{ HOMEASSISTANT_TOKEN_CLIENT_NAME | quote }}
+      -e HA_SERVICE_USERNAME={{ HOMEASSISTANT_MCP_ACCOUNT_USERNAME | quote }}
+      -e HA_SERVICE_PASSWORD
+      -e HA_SERVICE_NAME={{ HOMEASSISTANT_MCP_ACCOUNT_NAME | quote }}
+      -e HA_SERVICE_GROUP={{ HOMEASSISTANT_MCP_ACCOUNT_GROUP | quote }}
+      {{ HOMEASSISTANT_LOCAL_CID | quote }}
+      python3 -
+    stdin: |-
+      {{ HOMEASSISTANT_ADMIN_PASSWORD }}
+      {{ HOMEASSISTANT_MCP_ACCOUNT_PASSWORD }}
+      {{ lookup('file', 'python/provision.py') }}
   register: homeassistant_provision
   retries: 30
   delay: 10

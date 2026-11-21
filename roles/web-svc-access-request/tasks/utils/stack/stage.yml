@@ -1,0 +1,14 @@
+---
+- name: "📄 Render the role catalogue and settings of '{{ application_id }}' on every node"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "config.json.j2"
+        dest: "{{ ACCESS_REQUEST_CONFIG_HOST }}"
+        mode: "0644"
+        notify: []
+
+- name: "📌 Remember whether the settings of '{{ application_id }}' changed"
+  ansible.builtin.set_fact:
+    access_request_config_changed: "{{ _role_templates_render is changed }}"

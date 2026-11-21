@@ -1,0 +1,40 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+  {% set service_update_order = 'stop-first' %}
+  {% set service_name = 'loki' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'loki') }}
+    {{ lookup('compose_only', 'container_name', LOKI_CONTAINER) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    command:
+      - "-config.file={{ LOKI_CONFIG_DOCKER }}"
+      - "-config.expand-env=true"
+    {# nocheck: swarm-loopback-port overlay  Grafana (GRAFANA_LOKI_URL) and the role test (files/test/test.sh, from a container on the loki network) query Loki by service name and internal port, and shippers push through the gateway vhost #}
+    {{ lookup('container_ports', ['loki', 'loki', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+      {% if LOKI_ALERTMANAGER_ENABLED | bool %}
+      {{ LOKI_PROMETHEUS_NETWORK }}:
+      {% endif %}
+
+  {% set service_name = 'gateway' %}
+  {{ service_name }}:
+    {{ lookup('container_image', application_id, 'gateway') }}
+    {{ lookup('compose_only', 'container_name', LOKI_GATEWAY_CONTAINER) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    command:
+      - run
+      - --server.http.listen-addr=127.0.0.1:12345
+      - --storage.path=/var/lib/alloy/data
+      - --disable-reporting
+      - "{{ LOKI_GATEWAY_CONFIG_DOCKER }}"
+    {{ lookup('container_ports', ['gateway', 'push', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_networks', own_network_only=True, provider_self_alias=False, reverse_proxy=True) | indent(4) }}
+    {{ lookup('depends_on', {'loki': 'service_started'}) }}
+
+{{ lookup('compose_volumes') }}
+{{ lookup('compose_networks') }}
+  {% if LOKI_ALERTMANAGER_ENABLED | bool %}
+  {{ LOKI_PROMETHEUS_NETWORK }}:
+    external: true
+  {% endif %}

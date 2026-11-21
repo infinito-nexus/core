@@ -1,0 +1,18 @@
+---
+- name: "📥 Read the managed server profile settings the running LAM holds"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec {{ lookup('container_address', application_id, 'lam') }}
+      grep -ohE {{ ('"(' ~ (LAM_CONFIG_PROFILE_FIELDS.keys() | join('|')) ~ ')": ' ~ LAM_CONFIG_PROFILE_VALUE) | quote }}
+      {{ LAM_CONFIG_PROFILE_FILE | quote }}
+  register: lam_config_held
+  changed_when: false
+  failed_when: false
+
+- name: "📣 Report the managed LAM settings the container start overwrites"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    lam_config_profile: "{{ ('{' ~ (lam_config_held.stdout_lines | join(',')) ~ '}') | from_json }}"
+    forms_drift_current:
+      config: "{{ dict(lam_config_profile.keys() | map('extract', LAM_CONFIG_PROFILE_FIELDS) | zip(lam_config_profile.values())) }}"
+  when: lam_config_held.rc == 0

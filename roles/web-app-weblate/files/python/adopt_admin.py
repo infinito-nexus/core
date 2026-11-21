@@ -11,8 +11,9 @@ refuses a signed-out OIDC sign-in whose e-mail already belongs to a local
 account (``email_in_use``) unless ``REGISTRATION_REBIND`` is on, and that
 setting would let every Keycloak user take over any account by e-mail. So
 the administrator is bound to exactly its own Keycloak user instead: a
-``social_django`` association for provider ``oidc`` whose ``uid`` is the
-Keycloak user id, which Keycloak sends as the ``sub`` claim.
+``social_django`` association for the ``WEBLATE_OIDC_BACKEND`` provider
+whose ``uid`` is the Keycloak user id, which Keycloak sends as the ``sub``
+claim.
 ``social_user`` then finds the administrator before any e-mail check runs.
 An association with that id held by another account is moved to the
 administrator. An administrator already bound to another subject stops the
@@ -25,7 +26,7 @@ also keeps ``reauthenticate`` from parking a sticky ``@partial`` on
 
 Fed to ``weblate shell`` on stdin. Every value arrives in the environment and
 none has a default: a missing one is a deploy bug and must stop the run.
-``WEBLATE_ADMIN_OIDC_SUBJECT`` is empty while SSO is off.
+``WEBLATE_ADMIN_OIDC_UID`` is empty while SSO is off.
 """
 
 import os
@@ -33,13 +34,13 @@ import os
 from social_django.models import UserSocialAuth
 from weblate.auth.models import User
 
-OIDC_PROVIDER = "oidc"
 OIDC_ID_KEY = "sub"
 
 bootstrap = os.environ["WEBLATE_ADMIN_BOOTSTRAP_USERNAME"]
 target = os.environ["WEBLATE_ADMIN_USERNAME"]
 sso_enabled = os.environ["WEBLATE_OIDC_ENABLED"] == "true"
-subject = os.environ["WEBLATE_ADMIN_OIDC_SUBJECT"]
+backend = os.environ["WEBLATE_OIDC_BACKEND"]
+subject = os.environ["WEBLATE_ADMIN_OIDC_UID"]
 
 changed = False
 
@@ -57,7 +58,7 @@ if sso_enabled:
         raise SystemExit(
             f"ADOPT_REFUSED: SSO is on but no Keycloak subject arrived for '{target}'"
         )
-    foreign = UserSocialAuth.objects.filter(user=admin, provider=OIDC_PROVIDER).exclude(
+    foreign = UserSocialAuth.objects.filter(user=admin, provider=backend).exclude(
         uid=subject
     )
     if foreign.exists():
@@ -66,10 +67,10 @@ if sso_enabled:
             "which Keycloak user it belongs to and delete that row from "
             "social_auth_usersocialauth before deploying again"
         )
-    binding = UserSocialAuth.objects.filter(provider=OIDC_PROVIDER, uid=subject).first()
+    binding = UserSocialAuth.objects.filter(provider=backend, uid=subject).first()
     if binding is None:
         UserSocialAuth.objects.create(
-            user=admin, provider=OIDC_PROVIDER, uid=subject, id_key=OIDC_ID_KEY
+            user=admin, provider=backend, uid=subject, id_key=OIDC_ID_KEY
         )
         changed = True
     elif binding.user_id != admin.pk or binding.id_key != OIDC_ID_KEY:

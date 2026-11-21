@@ -1,0 +1,11 @@
+---
+- name: "🔐 Converge enforced_2fa of every project and team but Guests and project teams"
+  ansible.builtin.shell: # nocheck: container-exec-resolver  only Weblate's own management shell reaches its teams and projects
+    cmd: >
+      container exec
+      {{ WEBLATE_LOCAL_CID | quote }}
+      weblate shell -c 'from weblate_infinito.tasks import main; main()'
+  register: weblate_two_factor
+  changed_when: weblate_two_factor.stdout is search('^CHANGED [1-9]', multiline=True)
+  delegate_to: "{{ WEBLATE_HOST_NODE }}"
+  run_once: true

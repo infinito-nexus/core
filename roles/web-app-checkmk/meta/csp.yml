@@ -5,6 +5,8 @@ flags:
     unsafe-eval: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface
   script-src-elem:
     unsafe-inline: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface
+  script-src-attr:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: Checkmk wires its Monitor, Customize, Setup, Help and User menus and most GUI controls through inline onclick attributes; without it a click on #popup_trigger_mega_menu_setup leaves #popup_menu_setup hidden on every vhost without the logout injector
   style-src:
     unsafe-inline: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface
   style-src-elem:

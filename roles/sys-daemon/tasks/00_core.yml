@@ -1,7 +1,7 @@
 ---
 - name: "♻️ reset (if enabled) for {{ role_name}}"
   include_tasks: 01_reset.yml
-  when: MODE_RESET | bool and run_once_sys_daemon is not defined
+  when: RESET | bool and run_once_sys_daemon is not defined
 
 - name: 📌 Apply systemd manager defaults
   include_tasks: 02_defaults.yml

@@ -8,7 +8,7 @@
 - name: 📄 Render .env from templates/playwright.env.j2
   ansible.builtin.copy:
     dest: "{{ _playwright_stage_dir }}/.env"
-    mode: "0644"
+    mode: "0600"
     content: |
       {% set _env = lookup('template', _playwright_env_template, template_vars={'domain': _playwright_pass_domain}) %}
       {% if _playwright_pass_domain == _playwright_passes[0] %}
@@ -24,7 +24,7 @@
       {{ name }}={{ value }}
       {% endfor %}
       PLAYWRIGHT_NETWORK_LEAK={{ (_playwright_passes | length > 1) | string | lower }}
-      PLAYWRIGHT_NETWORK_SUFFIXES={{ _playwright_passes | map('network_of') | network_suffixes | to_json }}
+      PLAYWRIGHT_NETWORK_SUFFIXES={{ lookup('network_suffixes') | to_json }}
       PLAYWRIGHT_NETWORK_ALLOWED_HOSTS={{ OIDC.URL | urlsplit('hostname') }}
       {% set _bypass = lookup('browser_proxy_bypass', _playwright_pass_domain | network_of, OIDC.URL | urlsplit('hostname')) %}
       {% if _bypass %}
@@ -49,77 +49,162 @@
     _wait_result.status | int < 500
   when:
     - TEST_E2E_PLAYWRIGHT_WAIT_ENABLED | bool
+    - _playwright_pass_domain | length > 0
     - not (TEST_E2E_PLAYWRIGHT_IS_ONION | bool)
     - lookup('config', application_id, 'services.frontend.enabled', true) | bool
 
 - name: ⏳ Wait until the onion answers over Tor (recreate circuits on exhaustion)
-  ansible.builtin.script: >-
-    {{ role_path }}/files/wait_onion_reachable.sh
-    {{ lookup('tor_socks') | quote }}
-    {{ _playwright_pass_domain | quote }}
-    {{ TEST_E2E_PLAYWRIGHT_ONION_PROBE_RETRIES | int }}
-    {{ TEST_E2E_PLAYWRIGHT_ONION_PROBE_DELAY | int }}
-    {{ TEST_E2E_PLAYWRIGHT_ONION_PROBE_MAX_TIME | int }}
-    {{ lookup('container', 'svc-net-tor', 'directories.instance') | quote }}
-    {{ (TEST_E2E_PLAYWRIGHT_TOR_LOCK if (_playwright_dispatch | bool) else '') | quote }}
-  register: _playwright_probe
-  changed_when: false
-  failed_when: _playwright_probe.rc != 0 and not (_playwright_dispatch | bool)
-  become: true
   when: TEST_E2E_PLAYWRIGHT_IS_ONION | bool
+  block:
+    - name: 📡 Probe the onion over Tor until it answers, {{ _playwright_pass_domain }}
+      ansible.builtin.script: &playwright_onion_probe >-
+        {{ role_path }}/files/probe_onion.sh
+        {{ lookup('tor_socks') | quote }}
+        {{ _playwright_pass_domain | quote }}
+        {{ TEST_E2E_PLAYWRIGHT_ONION_PROBE_MAX_TIME | int }}
+      register: _playwright_probe
+      until: _playwright_probe.rc == 0
+      retries: &playwright_onion_retries "{{ (TEST_E2E_PLAYWRIGHT_ONION_PROBE_RETRIES | int) - 1 }}"
+      delay: &playwright_onion_delay "{{ TEST_E2E_PLAYWRIGHT_ONION_PROBE_DELAY | int }}"
+      changed_when: false
+      ignore_errors: true
+      become: true
+
+    - name: 🔄 Recreate Tor once no onion run holds it, {{ _playwright_pass_domain }}
+      ansible.builtin.script: >-
+        {{ role_path }}/files/wait_onion_reachable.sh
+        {{ lookup('container', 'svc-net-tor', 'directories.instance') | quote }}
+        {{ (TEST_E2E_PLAYWRIGHT_TOR_LOCK if (_playwright_dispatch | bool) else '') | quote }}
+        {{ (TEST_E2E_PLAYWRIGHT_ONION_PROBE_RETRIES | int) * (TEST_E2E_PLAYWRIGHT_ONION_PROBE_DELAY | int) }}
+      register: _playwright_tor_recreate
+      changed_when: _playwright_tor_recreate.rc == 0
+      failed_when: _playwright_tor_recreate.rc not in [0, 75]
+      ignore_errors: "{{ _playwright_dispatch | bool }}"
+      become: true
+      when: (_playwright_probe.rc | default(1)) != 0
+
+    - name: 📡 Probe the onion again and let onion runs start once it ended
+      when: _playwright_tor_recreate is not skipped
+      block:
+        - name: 📡 Probe the onion over the current circuits for {{ _playwright_pass_domain }}
+          ansible.builtin.script: *playwright_onion_probe
+          register: _playwright_probe
+          until: _playwright_probe.rc == 0
+          retries: *playwright_onion_retries
+          delay: *playwright_onion_delay
+          changed_when: false
+          ignore_errors: "{{ _playwright_dispatch | bool }}"
+          become: true
+      always:
+        - name: 🚦 Let the scheduler start onion runs again, {{ _playwright_pass_domain }}
+          ansible.builtin.file:
+            path: "{{ TEST_E2E_PLAYWRIGHT_TOR_LOCK }}.recreate-pending"
+            state: absent
+          become: true
+          when: _playwright_dispatch | bool
 
 - name: 🏃 Run the Playwright container in this play and report it
   when: not (_playwright_dispatch | bool)
   block:
-    - name: ▶️ Run Playwright container
-      ansible.builtin.command:
-        argv: &playwright_argv >-
-          {{
-            ['container', 'run', '--rm', '--ipc=host', '--shm-size=1g']
-            + (
-                ['--network', 'host']
-                if IS_SWARM_MODE
-                else (
-                  ['--add-host=host.docker.internal:host-gateway']
-                  + (
-                      ['--add-host=' ~ lookup('tls', 'web-app-keycloak', 'domain') ~ ':host-gateway']
-                      if 'web-app-keycloak' in group_names
-                      else []
-                    )
-                )
-              )
-            + ['--env-file', _playwright_stage_dir ~ '/.env']
-            + ['-e', 'INFINITO_PLAYWRIGHT_KEEP=' ~ test_e2e_playwright_keep]
-            + ['-e', 'INFINITO_PLAYWRIGHT_GLOBAL_TIMEOUT_MS=' ~ TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_MS]
-            + ['-e', 'PLAYWRIGHT_PROXY=' ~ TEST_E2E_PLAYWRIGHT_PROXY]
-            + ['-e', 'PLAYWRIGHT_WORKERS=' ~ test_e2e_playwright_workers]
-            + ['-e', 'PLAYWRIGHT_FULLY_PARALLEL=' ~ TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL]
-            + ['-e', 'PLAYWRIGHT_TIMEOUT_FACTOR=' ~ TIMEOUT_FACTOR]
-            + (['-e', 'PLAYWRIGHT_ONION_TIMEOUT_MULTIPLIER=' ~ TEST_E2E_PLAYWRIGHT_ONION_TIMEOUT_MULTIPLIER] if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool) else [])
-            + ['-v', _playwright_stage_dir ~ ':/e2e']
-            + ['-v', _playwright_stage_dir ~ '/volume:/volume']
-            + ['-v', _playwright_pass_reports_dir ~ ':/reports']
-            + ['-v', TEST_E2E_PLAYWRIGHT_SHARED_NODE_MODULES ~ ':/e2e/node_modules:ro']
-            + ['-v', TEST_E2E_PLAYWRIGHT_SHARED_PERSONAS ~ ':/e2e/tests/personas:ro']
-            + ['-w', '/e2e']
-            + [TEST_E2E_PLAYWRIGHT_IMAGE]
-            + ['/bin/bash', '-lc', TEST_E2E_PLAYWRIGHT_COMMAND]
-          }}
-      timeout: "{{ lookup('timeout', TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT_EFFECTIVE) | int }}"
-      environment: &playwright_environment >-
-        {{
-          {
-            'CA_TRUST_CERT_HOST': _playwright_ca_cert_host,
-            'CA_TRUST_WRAPPER_HOST': _playwright_ca_wrapper_host,
-            'CA_TRUST_NAME': _playwright_ca_trust_name
-          } if (_playwright_ca_required | bool) else {}
-        }}
-      register: _playwright_run
-      changed_when: false
-      failed_when: false
+    - name: 🔍 Look for an RBAC hook of '{{ application_id }}'
+      ansible.builtin.stat:
+        path: "{{ TEST_E2E_PLAYWRIGHT_RBAC_HOOK_DIR }}"
+      register: _playwright_rbac_hook
+      become: true
+
+    - name: ▶️ Run Playwright with the RBAC sync on its test interval
+      block:
+        - name: "🔁 Start the RBAC sync on its test interval"
+          ansible.builtin.command:
+            argv: "{{ TEST_E2E_PLAYWRIGHT_RBAC_SYNC_START }}"
+          changed_when: true
+          become: true
+          when: _playwright_rbac_hook.stat.exists
+
+        - name: 🎬 Time and run the Playwright container as root
+          become: true
+          block:
+            - name: ⏱️ Read the stack host clock the pass starts on
+              ansible.builtin.command:
+                argv: [date, +%s.%N]
+              register: _playwright_pass_clock
+              changed_when: false
+
+            - name: ▶️ Run Playwright container
+              ansible.builtin.command:
+                argv: &playwright_argv >-
+                  {{
+                    ['container', 'run', '--rm', '--ipc=host', '--shm-size=1g']
+                    + (
+                        ['--network', 'host']
+                        if IS_SWARM_MODE
+                        else (
+                          ['--add-host=host.docker.internal:host-gateway']
+                          + (
+                              ['--add-host=' ~ lookup('tls', 'web-app-keycloak', 'domain') ~ ':host-gateway']
+                              if 'web-app-keycloak' in group_names
+                              else []
+                            )
+                        )
+                      )
+                    + ['--env-file', _playwright_stage_dir ~ '/.env']
+                    + ['-e', 'INFINITO_PLAYWRIGHT_KEEP=' ~ test_e2e_playwright_keep]
+                    + ['-e', 'INFINITO_PLAYWRIGHT_GLOBAL_TIMEOUT_MS=' ~ TEST_E2E_PLAYWRIGHT_GLOBAL_TIMEOUT_MS]
+                    + ['-e', 'PLAYWRIGHT_PROXY=' ~ TEST_E2E_PLAYWRIGHT_PROXY]
+                    + ['-e', 'PLAYWRIGHT_WORKERS=' ~ test_e2e_playwright_workers]
+                    + ['-e', 'PLAYWRIGHT_FULLY_PARALLEL=' ~ TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL]
+                    + ['-e', 'PLAYWRIGHT_TIMEOUT_FACTOR=' ~ TIMEOUT_FACTOR]
+                    + (['-e', 'PLAYWRIGHT_ONION_TIMEOUT_MULTIPLIER=' ~ TEST_E2E_PLAYWRIGHT_ONION_TIMEOUT_MULTIPLIER] if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool) else
+                  [])
+                    + ['-v', _playwright_stage_dir ~ ':/e2e']
+                    + ['-v', _playwright_stage_dir ~ '/volume:/volume']
+                    + ['-v', _playwright_pass_reports_dir ~ ':/reports']
+                    + ['-v', TEST_E2E_PLAYWRIGHT_SHARED_NODE_MODULES ~ ':/e2e/node_modules:ro']
+                    + ['-v', TEST_E2E_PLAYWRIGHT_SHARED_PERSONAS ~ ':/e2e/tests/personas:ro']
+                    + (
+                        ['-v', TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_DIR ~ ':' ~ TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_DIR ~ ':ro']
+                        if (TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_MOUNTED | bool)
+                        else []
+                      )
+                    + ['-w', '/e2e']
+                    + [TEST_E2E_PLAYWRIGHT_IMAGE]
+                    + ['/bin/bash', '-lc', TEST_E2E_PLAYWRIGHT_COMMAND]
+                  }}
+              environment: &playwright_environment >-
+                {{
+                  {
+                    'CA_TRUST_CERT_HOST': _playwright_ca_cert_host,
+                    'CA_TRUST_WRAPPER_HOST': _playwright_ca_wrapper_host,
+                    'CA_TRUST_NAME': _playwright_ca_trust_name
+                  } if (_playwright_ca_required | bool) else {}
+                }}
+              # rationale: async; the wait task right below polls this job until it finished, and only that task registers the result 04_collect.yml reads, so nothing reads the run while it is still going
+              async: "{{ TEST_E2E_PLAYWRIGHT_RUN_BUDGET | int }}"
+              poll: 0
+              register: _playwright_run_job
+              changed_when: false
+
+            - name: ⏳ Wait for the Playwright run to finish, {{ application_id }}
+              ansible.builtin.async_status:
+                jid: "{{ _playwright_run_job.ansible_job_id }}"
+              register: _playwright_run
+              until: _playwright_run.finished | bool
+              retries: "{{ ((TEST_E2E_PLAYWRIGHT_RUN_BUDGET | int) / (TEST_E2E_PLAYWRIGHT_RUN_POLL_DELAY | int)) | round(0, 'ceil') | int + 2 }}"
+              delay: "{{ TEST_E2E_PLAYWRIGHT_RUN_POLL_DELAY | int }}"
+              changed_when: false
+              failed_when: _playwright_run.finished | bool and 'rc' not in _playwright_run
+      always:
+        - name: "⏹️ Stop the RBAC sync test interval"
+          ansible.builtin.command:
+            argv: "{{ TEST_E2E_PLAYWRIGHT_RBAC_SYNC_STOP }}"
+          changed_when: true
+          become: true
+          when: _playwright_rbac_hook.stat.exists
 
     - name: 📝 Report and archive the Playwright run
       ansible.builtin.include_tasks: 04_collect.yml
+      vars:
+        _playwright_pass_started: "{{ _playwright_pass_clock.stdout }}"
 
 - name: 📬 Queue the Playwright run for the parallel scheduler
   when: _playwright_dispatch | bool

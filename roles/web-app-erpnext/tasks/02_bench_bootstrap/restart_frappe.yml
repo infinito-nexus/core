@@ -47,3 +47,8 @@
   retries: 60
   delay: 5
   until: erpnext_backend_ready_post_restart.rc == 0
+
+- name: "📌 Record the common site config the restarted Frappe processes run with"
+  ansible.builtin.include_tasks: site_config_revision.yml
+  vars:
+    erpnext_site_config_record: true

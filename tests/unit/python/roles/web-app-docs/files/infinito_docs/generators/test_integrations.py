@@ -248,7 +248,8 @@ class TestRenderedEolPages(unittest.TestCase):
 
     def test_a_live_partner_on_the_same_page_stays_unmarked(self) -> None:
         self.assertIn(
-            "   * ``sso`` -> ``web-app-keycloak``\n", self._render()["services"]
+            "   * ``sso`` -> ``web-app-keycloak`` (central SSO)\n",
+            self._render()["services"],
         )
 
     def test_every_page_explains_the_mark(self) -> None:
@@ -304,6 +305,54 @@ class TestRenderedPages(unittest.TestCase):
     def test_a_role_without_edges_keeps_a_definition_body(self) -> None:
         """An empty body would break the definition list it sits in."""
         self.assertIn("``web-svc-beta``\n   None.", self._render()["overview"])
+
+
+class TestCentralSso(unittest.TestCase):
+    """An ``sso`` edge is served by the shared realm, not a per-role provider."""
+
+    def _render(self) -> dict[str, str]:
+        with TemporaryDirectory() as td:
+            roles_dir = Path(td) / "roles"
+            roles_dir.mkdir()
+            _role(
+                roles_dir,
+                "web-app-alpha",
+                services=SSO_GATE + "matomo:\n  bond: 1\n",
+                addons={"openid_connect": "bridges:\n  - sso\n"},
+            )
+            _role(roles_dir, "web-app-keycloak")
+            _role(roles_dir, "web-app-matomo")
+            output = Path(td) / "out"
+            integrations.generate(roles_dir, output)
+            return {
+                name: read_text(str(output / f"{name}.rst"))
+                for name in ("services", "addons")
+            }
+
+    def test_only_the_sso_key_carries_the_central_mark(self) -> None:
+        self.assertEqual(
+            integrations.render_edge("sso", "web-app-keycloak", set()),
+            "``sso`` -> ``web-app-keycloak`` (central SSO)",
+        )
+        self.assertEqual(
+            integrations.render_edge("matomo", "web-app-matomo", set()),
+            "``matomo`` -> ``web-app-matomo``",
+        )
+
+    def test_the_addon_page_marks_the_sso_client_as_central(self) -> None:
+        self.assertIn(
+            "   * ``openid_connect``: ``sso`` -> ``web-app-keycloak`` (central SSO)",
+            self._render()["addons"],
+        )
+
+    def test_a_native_non_sso_edge_stays_unmarked(self) -> None:
+        self.assertIn(
+            "   * ``matomo`` -> ``web-app-matomo``\n", self._render()["services"]
+        )
+
+    def test_both_edge_pages_explain_the_mark(self) -> None:
+        for page in self._render().values():
+            self.assertIn("``(central SSO)``", page)
 
 
 if __name__ == "__main__":

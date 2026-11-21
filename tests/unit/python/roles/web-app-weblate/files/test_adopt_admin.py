@@ -9,26 +9,17 @@ import unittest
 import unittest.mock
 from types import ModuleType
 
-from ansible.parsing.dataloader import DataLoader
-from ansible.template import Templar
-
 from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
-from utils.templating.ansible import _trust_as_template
 
 SCRIPT = PROJECT_ROOT / "roles/web-app-weblate/files/python/adopt_admin.py"
 TOKEN_TASKS = PROJECT_ROOT / "roles/web-app-weblate/tasks/utils/token.yml"
-SUBJECT_INCLUDE = "utils/admin_oidc_subject.yml"
-SUBJECT_TASKS = PROJECT_ROOT / "roles/web-app-weblate/tasks" / SUBJECT_INCLUDE
-SUBJECT_FACT = "weblate_admin_oidc_subjects"
+DIRECTORY_TASKS = "utils/directory_users.yml"
 STOP_MARKER = "ADOPT_REFUSED"
+BACKEND = "oidc"
 ADMIN = "platformadmin"
 SUBJECT = "4f1c2b8e-9d3a-4e57-8a61-0c2d5e7f9b10"
 OTHER_SUBJECT = "a0b1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4d"
-JVM_NOISE = (
-    "[0.001s][warning][os,container] Cgroup memory controller path at "
-    "'/sys/fs/cgroup' seems to have moved, detected limits won't be accurate"
-)
 
 
 def _matches(row, lookups: dict) -> bool:
@@ -158,7 +149,7 @@ class Database:
     def user(self, pk: int, username: str, **kwargs):
         return self.User.objects.create(pk=pk, username=username, **kwargs)
 
-    def social(self, user, uid: str, id_key: str = "sub", provider: str = "oidc"):
+    def social(self, user, uid: str, id_key: str = "sub", provider: str = BACKEND):
         return self.UserSocialAuth.objects.create(
             user=user, provider=provider, uid=uid, id_key=id_key
         )
@@ -183,13 +174,14 @@ def adopt(db: Database, *, sso: bool = True, subject: str = SUBJECT) -> str:
     Args:
         db: the tables the script reads and writes.
         sso: the value of ``WEBLATE_OIDC_ENABLED``.
-        subject: the value of ``WEBLATE_ADMIN_OIDC_SUBJECT``.
+        subject: the value of ``WEBLATE_ADMIN_OIDC_UID``.
     """
     env = {
         "WEBLATE_ADMIN_BOOTSTRAP_USERNAME": "admin",
         "WEBLATE_ADMIN_USERNAME": ADMIN,
         "WEBLATE_OIDC_ENABLED": "true" if sso else "false",
-        "WEBLATE_ADMIN_OIDC_SUBJECT": subject,
+        "WEBLATE_OIDC_BACKEND": BACKEND,
+        "WEBLATE_ADMIN_OIDC_UID": subject,
     }
     out = io.StringIO()
     with (
@@ -216,7 +208,7 @@ class TestAdministratorSubjectBinding(unittest.TestCase):
         self.assertEqual(admin.username, ADMIN)
         self.assertEqual(
             bindings(db),
-            [(ADMIN, "oidc", SUBJECT, "sub")],
+            [(ADMIN, BACKEND, SUBJECT, "sub")],
             "Weblate 2026.11 refuses to link the OIDC sign-in to the local "
             "administrator by e-mail (email_in_use); social_user must find it "
             "through an oidc association on the Keycloak sub instead",
@@ -228,14 +220,14 @@ class TestAdministratorSubjectBinding(unittest.TestCase):
         db.user(1, ADMIN, usable_password=False)
         adopt(db)
         self.assertIn("ADOPTED=0", adopt(db))
-        self.assertEqual(bindings(db), [(ADMIN, "oidc", SUBJECT, "sub")])
+        self.assertEqual(bindings(db), [(ADMIN, BACKEND, SUBJECT, "sub")])
 
     def test_an_unkeyed_legacy_row_for_the_subject_is_keyed_in_place(self):
         db = Database()
         admin = db.user(1, ADMIN, usable_password=False)
         db.social(admin, SUBJECT, id_key="")
         self.assertIn("ADOPTED=1", adopt(db))
-        self.assertEqual(bindings(db), [(ADMIN, "oidc", SUBJECT, "sub")])
+        self.assertEqual(bindings(db), [(ADMIN, BACKEND, SUBJECT, "sub")])
 
     def test_another_account_holding_the_subject_loses_it(self):
         db = Database()
@@ -243,7 +235,7 @@ class TestAdministratorSubjectBinding(unittest.TestCase):
         stray = db.user(2, "platformadmin-old")
         db.social(stray, SUBJECT)
         self.assertIn("ADOPTED=1", adopt(db))
-        self.assertEqual(bindings(db), [(ADMIN, "oidc", SUBJECT, "sub")])
+        self.assertEqual(bindings(db), [(ADMIN, BACKEND, SUBJECT, "sub")])
 
     def test_a_foreign_subject_on_the_administrator_stops_the_run(self):
         db = Database()
@@ -252,7 +244,7 @@ class TestAdministratorSubjectBinding(unittest.TestCase):
         with self.assertRaises(SystemExit) as stop:
             adopt(db)
         self.assertTrue(str(stop.exception.code).startswith(f"{STOP_MARKER}:"))
-        self.assertEqual(bindings(db), [(ADMIN, "oidc", OTHER_SUBJECT, "sub")])
+        self.assertEqual(bindings(db), [(ADMIN, BACKEND, OTHER_SUBJECT, "sub")])
 
     def test_other_providers_on_the_administrator_are_left_alone(self):
         db = Database()
@@ -263,7 +255,7 @@ class TestAdministratorSubjectBinding(unittest.TestCase):
             sorted(bindings(db)),
             [
                 (ADMIN, "email", "admin@example.com", ""),
-                (ADMIN, "oidc", SUBJECT, "sub"),
+                (ADMIN, BACKEND, SUBJECT, "sub"),
             ],
         )
 
@@ -283,84 +275,34 @@ class TestAdministratorSubjectBinding(unittest.TestCase):
         self.assertTrue(admin.usable_password)
 
 
-def _tasks(path) -> list[dict]:
-    return load_yaml_any(str(path), default_if_missing=[])
-
-
-def _subject_expression() -> str:
-    for task in _tasks(SUBJECT_TASKS):
-        if SUBJECT_FACT in task.get("ansible.builtin.set_fact", {}):
-            return task["ansible.builtin.set_fact"][SUBJECT_FACT]
-    raise AssertionError(f"no task sets {SUBJECT_FACT}")
-
-
-def pick_subjects(stdout_lines: list[str], username: str = ADMIN) -> list[str]:
-    templar = Templar(
-        loader=DataLoader(),
-        variables={
-            "weblate_keycloak_admin_users": {"stdout_lines": stdout_lines},
-            "WEBLATE_ADMIN_USERNAME": username,
-        },
-    )
-    return templar.template(_trust_as_template(_subject_expression()))
-
-
-class TestKeycloakSubjectSelection(unittest.TestCase):
-    def test_jvm_warnings_before_the_csv_are_skipped(self):
-        self.assertEqual(
-            pick_subjects([JVM_NOISE, f"{SUBJECT},{ADMIN}"]),
-            [SUBJECT],
-        )
-
-    def test_the_administrator_name_is_matched_case_insensitively(self):
-        self.assertEqual(
-            pick_subjects([f"{SUBJECT},{ADMIN}"], "PlatformAdmin"), [SUBJECT]
-        )
-
-    def test_only_the_exact_username_matches(self):
-        self.assertEqual(
-            pick_subjects(
-                [
-                    f"{OTHER_SUBJECT},{ADMIN}2",
-                    f"{OTHER_SUBJECT},x{ADMIN}",
-                    f"{OTHER_SUBJECT},other,{ADMIN}",
-                ]
-            ),
-            [],
-        )
-
-    def test_the_username_is_not_read_as_a_pattern(self):
-        self.assertEqual(
-            pick_subjects([f"{OTHER_SUBJECT},platformXadmin"], "platform.admin"), []
-        )
-
-    def test_two_matches_are_both_reported_for_the_assert(self):
-        self.assertEqual(
-            pick_subjects([f"{SUBJECT},{ADMIN}", f"{OTHER_SUBJECT},{ADMIN}"]),
-            [SUBJECT, OTHER_SUBJECT],
-        )
+def _tasks() -> list[dict]:
+    return load_yaml_any(str(TOKEN_TASKS), default_if_missing=[])
 
 
 class TestSubjectReachesTheShell(unittest.TestCase):
-    def test_the_keycloak_lookup_is_included_only_with_sso(self):
-        include = next(
+    def test_the_keycloak_lookup_runs_only_with_sso(self):
+        lookup = next(
             task
-            for task in _tasks(TOKEN_TASKS)
-            if task.get("ansible.builtin.include_tasks") == SUBJECT_INCLUDE
+            for task in _tasks()
+            if any(
+                step.get("ansible.builtin.include_role", {}).get("tasks_from")
+                == DIRECTORY_TASKS
+                for step in task.get("block", [])
+            )
         )
-        self.assertEqual(include["when"], "WEBLATE_OIDC_ENABLED | bool")
-        self.assertTrue(SUBJECT_TASKS.is_file())
+        self.assertEqual(lookup["when"], "WEBLATE_OIDC_ENABLED | bool")
 
-    def test_the_adopt_task_forwards_the_subject_into_the_container(self):
+    def test_the_adopt_task_forwards_backend_and_subject_into_the_container(self):
         adopt_task = next(
             task
-            for task in _tasks(TOKEN_TASKS)
+            for task in _tasks()
             if "adopt_admin.py" in str(task.get("ansible.builtin.shell", {}))
         )
-        self.assertIn(
-            "-e WEBLATE_ADMIN_OIDC_SUBJECT", adopt_task["ansible.builtin.shell"]["cmd"]
-        )
-        self.assertIn("WEBLATE_ADMIN_OIDC_SUBJECT", adopt_task["environment"])
+        command = adopt_task["ansible.builtin.shell"]["cmd"]
+        for name in ("WEBLATE_OIDC_BACKEND", "WEBLATE_ADMIN_OIDC_UID"):
+            with self.subTest(name=name):
+                self.assertIn(f"-e {name}", command)
+                self.assertIn(name, adopt_task["environment"])
         self.assertIn(
             f"'{STOP_MARKER}' in weblate_admin_adopt.stderr", adopt_task["until"]
         )

@@ -1,0 +1,19 @@
+---
+general:
+  path: /admin/application_settings/general
+  sinks: [GITLAB_APPLICATION_SETTINGS]
+  fields:
+    password_authentication_enabled_for_web:
+      source: services.gitlab.login.method.native.enabled
+      mode: enforced
+      selector: 'input[name="application_setting[password_authentication_enabled_for_web]"]'
+      type: checkbox
+      map: { true: true, false: false }
+      label: Allow password authentication for the web interface
+    signup_enabled:
+      source: services.gitlab.login.method.registration.enabled
+      mode: enforced
+      selector: 'input[name="application_setting[signup_enabled]"]'
+      type: checkbox
+      map: { true: true, false: false }
+      label: Sign-up enabled

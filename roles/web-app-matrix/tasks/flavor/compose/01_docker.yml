@@ -2,9 +2,8 @@
 # include-gated: when: IS_COMPOSE_MODE
 - name: "🧩 load docker and db for {{ application_id }}"
   include_role:
-    name: sys-stk-backend
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer/back.yml
 
 - name: 📂 include 02_create-and-seed-database.yml for multiple bridges
   include_tasks: 02_create-and-seed-database.yml
@@ -90,15 +89,32 @@
 - name: "🚿 Flush handlers so the stack deploys before the Synapse wait"
   meta: flush_handlers
 
+- name: "🔍 Resolve the Synapse hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: synapse
+    resolve_output_prefix: MATRIX_SYNAPSE
+    resolve_compose_cid: "{{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}"
+
+- name: "🔍 Resolve the Synapse network namespace for host-side API calls"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+  vars:
+    netns_output_prefix: MATRIX_SYNAPSE
+
 - name: ⏳ wait for Synapse client/versions endpoint
-  uri_retry:
-    url: "http://127.0.0.1:{{ lookup('config', application_id, 'services.synapse.ports.local.http') }}/_matrix/client/versions"
-    method: GET
-    status_code: 200
+  ansible.builtin.command:
+    argv: "{{ MATRIX_SYNAPSE_NETNS_PYTHON }}"
+    stdin: "{{ lookup('http_request_program', '') }}"
+  environment:
+    HTTP_METHOD: GET
+    HTTP_URL: "http://127.0.0.1:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}/_matrix/client/versions"
   register: matrix_synapse_health
   retries: 60
   delay: 2
-  until: matrix_synapse_health.status == 200
+  until: matrix_synapse_health.rc == 0 and (matrix_synapse_health.stdout | from_json).status == 200
+  changed_when: false
+  delegate_to: "{{ MATRIX_SYNAPSE_HOST_NODE }}"
+  become: true
 
 - name: "👤 Do the stack-host-only part of the Matrix bring-up"
   when: IS_STACK_HOST | bool

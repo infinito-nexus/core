@@ -1,6 +1,47 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🔐 Serve the vendor registries through the TLS front"
+  when: REGISTRY_CACHE_VENDORS | length > 0
+  block:
+    - include_tasks: utils/load/handlers.yml
+      vars:
+        handler_role_name: "sys-svc-compose"
+
+    - name: "📄 Render, certify and trust the vendor front"
+      ansible.builtin.include_tasks: utils/front.yml
+
+    - name: "📄 Render the env file of every vendor cache"
+      ansible.builtin.include_tasks: utils/vendor_env.yml
+
+- name: "🧹 Drop the docker trust of the vendor front once no vendor is served"
+  ansible.builtin.file:
+    path: "{{ REGISTRY_CACHE_FRONT_TRUST_DIR }}"
+    state: absent
+  when: REGISTRY_CACHE_VENDORS | length == 0
+
+- name: "🪞 Ship the multi-registry proxy files"
+  when: REGISTRY_CACHE_FLAVOR == 'multi-proxy'
+  block:
+    - include_tasks: utils/load/handlers.yml
+      vars:
+        handler_role_name: "sys-svc-compose"
+
+    - name: "📁 Create the multi-proxy config, mirror and CA directories"
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop: "{{ REGISTRY_CACHE_MULTI_PROXY_DIRS }}"
+
+    - name: "📄 Copy the multi-proxy entrypoint and stale manifest config"
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: "{{ item.mode }}"
+      loop: "{{ REGISTRY_CACHE_MULTI_PROXY_FILES }}"
+      notify: compose-up
+
 - include_role:
     name: sys-svc-compose
   vars:

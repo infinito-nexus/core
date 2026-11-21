@@ -13,7 +13,7 @@
 
 - name: "🧮 Swarm ingress guard | Fingerprint the bound the swarm nodes need"
   ansible.builtin.set_fact:
-    swarm_ingress_guard_digest: "{{ [SWARM_INGRESS_GUARDED, SWARM_INGRESS_PEERS] | to_json | hash('sha256') }}"
+    swarm_ingress_guard_digest: "{{ [SWARM_INGRESS_GUARDED, SWARM_INGRESS_PEERS, SWARM_ONION_GUARDED] | to_json | hash('sha256') }}"
   run_once: true
 
 - name: "🛡️ Swarm ingress guard | Reload the bound on every swarm node"
@@ -29,6 +29,7 @@
     FIREWALL_TABLE: "{{ swarm_ingress_firewall.FIREWALL_TABLE }}"
     SWARM_INGRESS_GUARDED_PORTS: "{{ SWARM_INGRESS_GUARDED }}"
     SWARM_INGRESS_PEER_ADDRESSES: "{{ SWARM_INGRESS_PEERS }}"
+    SWARM_ONION_GUARDED_PORTS: "{{ SWARM_ONION_GUARDED }}"
   loop: "{{ groups['svc-swarm-node'] }}"
   loop_control:
     loop_var: swarm_ingress_guard_node

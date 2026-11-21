@@ -180,12 +180,6 @@ class TestEnvCarriesThePreviousKey(unittest.TestCase):
 
 class TestAppliedStateIsReadBeforeTheConfigIsRendered(unittest.TestCase):
     def test_the_state_read_precedes_the_backend_include(self):
-        """env.j2 is rendered by sys-stk-backend.
-
-        Reading the applied state after that include leaves the container
-        without the previous seal key, and the node comes up sealed with no way
-        to decrypt its own store.
-        """
         tasks = tasks_of("00_core.yml")
         state_read = next(
             i
@@ -197,7 +191,8 @@ class TestAppliedStateIsReadBeforeTheConfigIsRendered(unittest.TestCase):
         backend = next(
             i
             for i, task in enumerate(tasks)
-            if task.get("include_role", {}).get("name") == "sys-stk-backend"
+            if task.get("include_role")
+            == {"name": "svc-stack", "tasks_from": "consumer/back.yml"}
         )
         self.assertLess(state_read, backend)
 

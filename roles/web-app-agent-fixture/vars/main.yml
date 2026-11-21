@@ -1,0 +1,14 @@
+---
+application_id: "web-app-agent-fixture"
+entity_name: "{{ application_id | entity_name }}"
+domain: "{{ lookup('domain', application_id) }}"
+
+FIXTURE_SERVICE: "{{ entity_name }}"
+FIXTURE_CONTAINER: "{{ entity_name }}"
+FIXTURE_IMAGE: "{{ lookup('config', application_id, 'services.agent-fixture.image') }}"
+FIXTURE_VERSION: "{{ lookup('config', application_id, 'services.agent-fixture.version') }}"
+
+FIXTURE_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
+FIXTURE_APP_REL: "app"
+FIXTURE_APP_SRC_DIR: "{{ lookup('path_absolute', 'roles/web-app-agent-fixture/files/app') }}"
+FIXTURE_APP_DEST_DIR: "{{ [FIXTURE_BUILD_DIR, FIXTURE_APP_REL] | path_join }}"

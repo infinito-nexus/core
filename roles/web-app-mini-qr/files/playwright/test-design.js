@@ -12,6 +12,7 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, requireDotenvValue } = require("./personas");
+const { networkOf } = require("./personas/utils/network");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
@@ -49,6 +50,11 @@ const BATCH_CSV = ["url,frameText,fileName", "https://example.org/a,Scan A,code-
 
 function baseUrl() {
   return decodeDotenvQuotedValue(process.env.APP_BASE_URL || "").replace(/\/$/, "");
+}
+
+function targetNetwork() {
+  const suffixes = JSON.parse(requireDotenvValue(process.env.PLAYWRIGHT_NETWORK_SUFFIXES, "PLAYWRIGHT_NETWORK_SUFFIXES"));
+  return networkOf(new URL(baseUrl()).hostname, suffixes);
 }
 
 function designTitle() {
@@ -580,7 +586,7 @@ exports.register = function () {
     test("design: the streaming scanner takes controls and scan frame from the palette", async ({ browserName }) => {
       skipUnlessServiceEnabled("design");
       test.skip(browserName !== "chromium", "the fake camera is a Chromium switch");
-      test.skip(new URL(baseUrl()).hostname.endsWith(".onion"), "the camera browser runs without the onion proxy");
+      test.skip(targetNetwork() !== "clearnet", "the camera browser runs without a proxy into the target's network");
       await withCamera(async (page) => {
         await fresh(page);
         await open(page);

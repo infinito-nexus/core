@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -85,6 +86,89 @@ class TestProgress(unittest.TestCase):
                 "--roles-dir",
                 "/w/src/roles",
             ],
+        )
+
+
+class TestLifecycleDiagramStep(unittest.TestCase):
+    def _checkout(self, *, spot: bool, generator: bool) -> Path:
+        root = Path(self._tmp.name) / f"src-{spot}-{generator}"
+        if spot:
+            path = root.joinpath(*builders.LIFECYCLE_SPOT)
+            path.parent.mkdir(parents=True)
+            path.write_text("statuses: {}\n", encoding="utf-8")
+        if generator:
+            package = root.joinpath(*builders.LIFECYCLE_MODULE.split("."))
+            package.mkdir(parents=True)
+            (package / "__main__.py").write_text("", encoding="utf-8")
+        root.mkdir(exist_ok=True)
+        return root
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+
+    def test_a_new_checkout_renders_the_diagram_last(self) -> None:
+        commands = builders.generate_commands(self._checkout(spot=True, generator=True))
+        self.assertEqual(
+            [sys.executable, "-P", "-m", builders.LIFECYCLE_MODULE], commands[-1]
+        )
+
+    def test_an_old_checkout_builds_unchanged(self) -> None:
+        reference = builders.generate_commands(Path("/w/src"))
+        for spot, generator in ((False, False), (True, False), (False, True)):
+            with self.subTest(spot=spot, generator=generator):
+                root = self._checkout(spot=spot, generator=generator)
+                modules = [c[3] for c in builders.generate_commands(root)[1:]]
+                self.assertNotIn(builders.LIFECYCLE_MODULE, modules)
+                self.assertEqual(len(reference), len(modules) + 1)
+
+
+class TestHeaderTrustTableStep(unittest.TestCase):
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+
+    def _checkout(self, *, generator: bool) -> Path:
+        root = Path(self._tmp.name) / f"src-{generator}"
+        root.mkdir()
+        if generator:
+            package = root.joinpath(*builders.HEADER_TRUST_MODULE.split("."))
+            package.mkdir(parents=True)
+            (package / "__main__.py").write_text("", encoding="utf-8")
+        return root
+
+    def test_a_new_checkout_renders_the_table_into_its_own_rbac_doc(self) -> None:
+        root = self._checkout(generator=True)
+        self.assertEqual(
+            [
+                sys.executable,
+                "-P",
+                "-m",
+                builders.HEADER_TRUST_MODULE,
+                "--doc",
+                str(root / "docs/contributing/design/iam/rbac.md"),
+                "--roles-dir",
+                str(root / "roles"),
+            ],
+            builders.generate_commands(root)[-1],
+        )
+
+    def test_an_old_checkout_builds_unchanged(self) -> None:
+        modules = [
+            command[3]
+            for command in builders.generate_commands(self._checkout(generator=False))[
+                1:
+            ]
+        ]
+        self.assertNotIn(builders.HEADER_TRUST_MODULE, modules)
+
+    def test_the_inputs_ship_in_the_snapshot(self) -> None:
+        role_vars = load_yaml(
+            str(PROJECT_ROOT / "roles" / "web-app-docs" / ROLE_FILE_VARS_MAIN)
+        )
+        self.assertLessEqual(
+            {builders.HEADER_TRUST_DOC[0], "roles", "utils"},
+            set(role_vars["DOCS_SNAPSHOT_PATHS"]),
         )
 
 

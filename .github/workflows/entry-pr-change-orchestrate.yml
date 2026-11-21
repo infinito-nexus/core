@@ -106,6 +106,7 @@ jobs:
       - detect-pr-scope
       - validation
       - detect-affected-roles
+      - detect-role-skeleton-scope
     if: ${{ github.event_name == 'pull_request' && needs.detect-pr-scope.outputs.run_ci_orchestrator == 'true' }}
     permissions:
       actions: read
@@ -118,6 +119,55 @@ jobs:
       distros: "arch debian ubuntu fedora centos"
       whitelist: ${{ needs.detect-affected-roles.outputs.whitelist }}
       trusted_pr: ${{ contains(github.event.pull_request.labels.*.name, '🛡️ Trusted') }}
+      role_skeleton: ${{ needs.detect-role-skeleton-scope.outputs.affected == 'true' }}
+
+  detect-agents-scope:
+    name: 🤖 Detect agent changes
+    needs: [detect-pr-scope, validation]
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-26.04
+    outputs:
+      affected: ${{ steps.resolve.outputs.affected }}
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Resolve agent-platform changes
+        id: resolve
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: ./scripts/github/resolve/pr/agents_affected.sh
+
+  agents-local:
+    name: "🤖 Agents (local)"
+    needs: [detect-pr-scope, validation, detect-agents-scope]
+    if: ${{ github.event_name == 'pull_request' && needs.detect-agents-scope.outputs.affected == 'true' }}
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/call-test-agents-local.yml
+    secrets: inherit
+
+  detect-role-skeleton-scope:
+    name: 🧩 Detect role skeleton changes
+    needs: [detect-pr-scope, validation]
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-26.04
+    outputs:
+      affected: ${{ steps.resolve.outputs.affected }}
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Resolve role skeleton contract changes
+        id: resolve
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: ./scripts/github/resolve/pr/role_skeleton_affected.sh
 
   prepare-fork-merge-ref:
     needs:

@@ -36,6 +36,12 @@
     tor:
       enabled: true
 - services:
+    pgadmin:
+      login:
+        method:
+          2fa:
+            # nocheck: login-methods  Reason: test-2fa-enrollment.js proves here that the forced registration holds a local account without a second factor; no other spec signs a local account in this round
+            enforced: true
     docs:
       enabled: true
       shared: true

@@ -51,10 +51,14 @@ def litellm_model_routes(
             twice.
         declared_models: ``services.litellm.remote_models`` already narrowed to
             the providers this host holds a key for. An entry whose provider is
-            ``mock`` answers from its own ``response`` and calls nothing.
+            ``mock`` answers from its own ``response`` and calls nothing. An
+            optional ``max_output_tokens`` becomes the remote route's
+            ``max_tokens``; without it the route carries no bound and the
+            client's own limit applies.
         ollama_url: base URL of the Ollama API.
         lmstudio_url: base URL of the LM Studio API, without the ``/v1`` suffix.
-        max_tokens: output bound every route carries.
+        max_tokens: output bound of the local Ollama, LM Studio and mock
+            routes.
         timeout: upstream timeout every calling route carries.
         mock_provider: the provider name that marks a mock, passed in rather
             than hardcoded so this and the Ansible side cannot drift apart.
@@ -119,9 +123,25 @@ def litellm_model_routes(
             params = {
                 "model": model["model"],
                 "api_key": f"os.environ/{model['provider'].upper()}_API_KEY",
-                "max_tokens": max_tokens,
                 "timeout": timeout,
             }
+            if "max_output_tokens" in model:
+                bound = model["max_output_tokens"]
+                if type(bound) is not int or bound <= 0:
+                    raise ValueError(
+                        "Declared model max_output_tokens must be a positive integer"
+                    )
+                params["max_tokens"] = bound
+            if "api_base" in model:
+                if not isinstance(model["api_base"], str) or not model["api_base"]:
+                    raise ValueError(
+                        "Declared model api_base must be a nonempty string"
+                    )
+                if type((model.get("traits") or {}).get("local")) is not bool:
+                    raise ValueError(
+                        "Declared models with api_base require explicit traits.local"
+                    )
+                params["api_base"] = model["api_base"]
         routes.append(
             {
                 "alias": alias,

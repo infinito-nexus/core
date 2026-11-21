@@ -1,0 +1,43 @@
+---
+- name: "📝 Upsert the usage client '{{ KEYCLOAK_USAGE_CLIENT_ID }}'"
+  keycloak_kcadm_update:
+    object_kind: client
+    lookup_value: "{{ KEYCLOAK_USAGE_CLIENT_ID }}"
+    desired: "{{ KEYCLOAK_USAGE_CLIENT }}"
+    kcadm_exec: "{{ KEYCLOAK_EXEC_KCADM }}"
+    realm: "{{ KEYCLOAK_REALM }}"
+  register: kc_usage_client
+  changed_when: not kc_usage_client.object_exists
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "⬇️ Read the realm-management roles of '{{ KEYCLOAK_USAGE_SERVICE_ACCOUNT }}'"
+  ansible.builtin.shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} get-roles -r {{ KEYCLOAK_REALM | quote }}
+    --uusername {{ KEYCLOAK_USAGE_SERVICE_ACCOUNT | quote }}
+    --cclientid {{ KEYCLOAK_CONSOLE_ROLE_CLIENT | quote }}
+  register: kc_usage_roles
+  changed_when: false
+
+- name: "🛂 Converge the usage service account to exactly its realm-management roles"
+  vars:
+    kc_usage_held: "{{ kc_usage_roles.stdout | kcadm_json | map(attribute='name') | list }}"
+    kc_usage_grant: "{{ KEYCLOAK_USAGE_CLIENT_ROLES | difference(kc_usage_held) }}"
+    kc_usage_revoke: "{{ kc_usage_held | difference(KEYCLOAK_USAGE_CLIENT_ROLES) }}"
+  block:
+    - name: "🛂 Grant the usage service account its missing realm-management roles"
+      ansible.builtin.shell: >
+        {{ KEYCLOAK_EXEC_KCADM }} add-roles -r {{ KEYCLOAK_REALM | quote }}
+        --uusername {{ KEYCLOAK_USAGE_SERVICE_ACCOUNT | quote }}
+        --cclientid {{ KEYCLOAK_CONSOLE_ROLE_CLIENT | quote }}
+        {% for role_name in kc_usage_grant %}--rolename {{ role_name | quote }} {% endfor %}
+      when: kc_usage_grant | length > 0
+      changed_when: true
+
+    - name: "🧹 Revoke every other realm-management role of the usage service account"
+      ansible.builtin.shell: >
+        {{ KEYCLOAK_EXEC_KCADM }} remove-roles -r {{ KEYCLOAK_REALM | quote }}
+        --uusername {{ KEYCLOAK_USAGE_SERVICE_ACCOUNT | quote }}
+        --cclientid {{ KEYCLOAK_CONSOLE_ROLE_CLIENT | quote }}
+        {% for role_name in kc_usage_revoke %}--rolename {{ role_name | quote }} {% endfor %}
+      when: kc_usage_revoke | length > 0
+      changed_when: true

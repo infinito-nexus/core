@@ -16,6 +16,7 @@ from utils.roles.meta_lookup import (
     get_role_test_skips,
 )
 from utils.roles.validation.invokable import list_invokables_by_type
+from utils.tests.swarm.proxmox_host import runs_on_proxmox_host
 
 from .graph import (
     build_graphs,
@@ -30,8 +31,8 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 TESTED_LIFECYCLES = tested_lifecycles()
-"""Lifecycle stages the CI test-deploy discovery exercises, sourced from the
-``INFINITO_LIFECYCLES`` value in ``default.env`` (the single source)."""
+"""Lifecycle stages some CI trigger context deploys, the union of the
+``ci-deploy`` lists in ``meta/lifecycle.yml``."""
 
 
 class ComplexityRow(NamedTuple):
@@ -357,6 +358,8 @@ def compute_variant_complexity_rows(
         host = name in host_apps and offered.get("host", False)
         skips = _role_test_skips(roles_dir, name)
         for index, variant_config in enumerate(variants.get(name) or []):
+            lab_host = runs_on_proxmox_host(name, {name: variant_config})
+            lab_row = lab_host and compose and not {"compose", "swarm"} & set(skips)
             providers = direct_dep_roles(
                 _variant_services_map(variant_config), registry, truth=truth
             )
@@ -371,8 +374,8 @@ def compute_variant_complexity_rows(
                     swarm=swarm_role,
                     stack=stack,
                     host=host,
-                    test_compose=compose and "compose" not in skips,
-                    test_swarm=swarm_role and "swarm" not in skips,
+                    test_compose=compose and "compose" not in skips and not lab_host,
+                    test_swarm=(swarm_role and "swarm" not in skips) or lab_row,
                     test_host=host and "host" not in skips,
                 )
             )

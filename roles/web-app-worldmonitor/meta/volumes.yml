@@ -1,0 +1,8 @@
+---
+# nocheck: embedded-state-on-nfs the cache service runs one Redis replica, so the dump has a single writer, and its content is a cache the seeder rebuilds
+cache_data:
+  type: volume
+  backup: false
+  mounts:
+    - service: cache
+      target: /data

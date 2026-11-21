@@ -11,13 +11,15 @@ from utils.domains.default_primary import default_domain_primary
 
 TEMPLATE = "compose/coredns/Corefile.tmpl"
 DOMAIN = default_domain_primary()
+TARGET_IP = "172.30.0.20"
 
 
 def _render() -> str:
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         (root / ".env").write_text(
-            f'INFINITO_DOMAIN={DOMAIN}\nINFINITO_IP4="172.30.0.10"\n',
+            f'INFINITO_DOMAIN={DOMAIN}\nINFINITO_IP4="172.30.0.10"\n'
+            f"INFINITO_TARGET_IP={TARGET_IP}\n",
             encoding="utf-8",
         )
         template = root / TEMPLATE
@@ -62,6 +64,9 @@ class TestCoreDNSCorefileRenderer(unittest.TestCase):
             "caching resolver in front then denies every type of that name, "
             "including the A record the deployment depends on",
         )
+
+    def test_the_shared_target_answers_to_its_hostname(self) -> None:
+        self.assertIn(f"    {TARGET_IP} target\n", _render())
 
 
 if __name__ == "__main__":

@@ -1,15 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
-  vars:
-    mcp_adapter_instance_dir: "{{ LIBRETRANSLATE_MCP_INSTANCE_DIR }}"
-  when: LIBRETRANSLATE_MCP_ENABLED | bool
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-
 - name: "📦 Stage the model prefetch of {{ application_id }}"
   stack_host_copy:
     src: python/prefetch_models.py
@@ -40,6 +31,24 @@
 - name: "🧱 Rebuild the MCP adapter of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
   when: LIBRETRANSLATE_MCP_ENABLED | bool
+
+# nocheck: ansible-repeated-when-run  a block guard would be evaluated inside svc-ai-models, whose vars bind its own application_id
+- name: "📦 Seed the engine's models into the store before {{ application_id }} starts"
+  ansible.builtin.include_role:
+    name: svc-ai-models
+    tasks_from: utils/seed.yml
+  vars:
+    models_seeded: "{{ LIBRETRANSLATE_STORE.artefacts }}"
+  when: LIBRETRANSLATE_STORED | bool
+
+- name: "🛑 Refuse to start {{ application_id }} without its artefacts in the store"
+  ansible.builtin.include_role:
+    name: svc-ai-models
+    tasks_from: utils/require.yml
+  vars:
+    models_consumer: "{{ application_id }}"
+    models_required: "{{ LIBRETRANSLATE_STORE.artefacts }}"
+  when: LIBRETRANSLATE_STORED | bool
 
 - name: "🚿 Flush compose handlers for {{ application_id }}"
   ansible.builtin.meta: flush_handlers

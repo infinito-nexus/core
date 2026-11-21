@@ -1,11 +1,8 @@
 ---
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: true
-    webserver_vhost_flavour: "basic"
-    application_id: "web-app-discourse"
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "📁 Create discourse network {{ DISCOURSE_NETWORK }} for launcher to attach"
   include_tasks:

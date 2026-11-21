@@ -10,7 +10,7 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, requireDotenvValue } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 test.use({ ignoreHTTPSErrors: true });
@@ -157,7 +157,7 @@ test("design: focus indicators take the frame text color in the header and the l
 
 test("design: the login page takes the palette", async ({ page }) => {
   skipUnlessServiceEnabled("design");
-  test.skip(ssoEnabled, "with sso oauth2-proxy sends every request to the identity provider");
+  skipUnlessServiceDisabled("sso");
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
     await gotoOnion(page, `${base}/login`);

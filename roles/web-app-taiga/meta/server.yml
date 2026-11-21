@@ -1,0 +1,4 @@
+---
+vhosts:
+  default:
+    location_extra_template: nginx/cookie_flags.conf.j2

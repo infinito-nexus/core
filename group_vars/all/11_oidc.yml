@@ -20,6 +20,7 @@ _oidc_client_id: "{{ OIDC_OVERRIDE.CLIENT.ID if OIDC_OVERRIDE is defined and OID
   }}"
 _oidc_account_url: "{{ _oidc_client_issuer_url ~ '/account' }}"
 _oidc_protocol_oidc: "{{ _oidc_client_issuer_url ~ '/protocol/openid-connect' }}"
+_oidc_email_mailbox_attribute: "mailbox"
 
 defaults_oidc:
   URL: "{{ _oidc_url }}"
@@ -43,9 +44,27 @@ defaults_oidc:
   BUTTON_TEXT: "SSO Login ({{ DOMAIN_PRIMARY | upper }})" # Default button text
   ATTRIBUTES:
     USERNAME: "preferred_username"
-    GIVEN_NAME: "givenName"
-    FAMILY_NAME: "surname"
+    NAME: "name"
+    GIVEN_NAME: "given_name"
+    FAMILY_NAME: "family_name"
+    MIDDLE_NAME: "middle_name"
+    NICKNAME: "nickname"
     EMAIL: "email"
+    PHONE_NUMBER: "phone_number"
+    ADDRESS: "address"
+    LOCALE: "locale"
+    ZONEINFO: "zoneinfo"
+    WEBSITE: "website"
+    NEXTCLOUD_UID: "nextcloud_uid"
+  EMAIL:
+    MAILBOX_ATTRIBUTE: "{{ _oidc_email_mailbox_attribute }}" # Keycloak user attribute holding the platform mailbox under services.keycloak.email.policy mailbox
+    CLAIM_SOURCE: "{{ _oidc_email_mailbox_attribute if lookup('config', 'web-app-keycloak', 'services.keycloak.email.policy') == 'mailbox' else 'email' }}" # Keycloak user attribute the email claim is mapped from
+  ADDRESS_CLAIMS: # Members of the OIDC.ATTRIBUTES.ADDRESS object claim
+    STREET: "street_address"
+    LOCALITY: "locality"
+    REGION: "region"
+    POSTAL_CODE: "postal_code"
+    COUNTRY: "country"
 
   # Keycloak's own built-in admin realm/client (password-grant Admin REST API automation), distinct from the app's own CLIENT.REALM/CLIENT.ID above.
   ADMIN:

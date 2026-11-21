@@ -1,0 +1,29 @@
+---
+- name: "🐳 Pre-compose web-enabled staging (services dir + social-app + login-broker)"
+  block:
+    - name: "✅ Ensure social-app services directory exists"
+      ansible.builtin.file:
+        path: "{{ BLUESKY_SOCIAL_APP_DIR | dirname }}"
+        state: directory
+        mode: "0755"
+
+    - name: "⬇️ Clone social-app build context (pre-compose)"
+      ansible.builtin.include_tasks: "01_social_app.yml"
+
+    - name: "🎬 Stage login-broker build context (pre-compose)"
+      ansible.builtin.include_tasks: "02_login_broker.yml"
+  when: BLUESKY_WEB_ENABLED | bool
+
+- name: "▶️ Execute PDS routines"
+  ansible.builtin.include_tasks: "03_pds.yml"
+
+- name: "🧹 Heal oauth2-proxy cfg bind-mount (if it became a directory in a prior deploy)"
+  ansible.builtin.script: "{{ role_path }}/files/shell/heal_sso_proxy_cfg.sh"
+  environment:
+    SSO_PROXY_CFG_PATH: "{{ [lookup('container', application_id, 'directories.volumes'), sso_proxy_instance.config_file] | path_join }}"
+    SSO_PROXY_CONTAINER: "{{ (application_id | entity_name) ~ '-' ~ sso_proxy_instance.service }}"
+  loop: "{{ lookup('sso', application_id, 'proxy_instances') }}"
+  loop_control:
+    loop_var: sso_proxy_instance
+    label: "{{ sso_proxy_instance.service }}"
+  changed_when: false

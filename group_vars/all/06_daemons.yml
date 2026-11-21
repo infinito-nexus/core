@@ -16,7 +16,6 @@ SYS_SERVICE_BACKUP_VOLUME_2_LOCAL: "{{ lookup('unit_name', 'svc-bkp-volume-2-loc
 SYS_SERVICE_BACKUP_NFS_2_LOCAL: "{{ lookup('unit_name', 'svc-bkp-nfs-2-local'       ) }}"
 SYS_SERVICE_BACKUP_SECRETS_2_LOCAL: "{{ lookup('unit_name', 'svc-bkp-secrets-2-local'   ) }}"
 SYS_SERVICE_REPAIR_CONTAINER_SOFT: "{{ lookup('unit_name', 'sys-ctl-rpr-container-soft'  ) }}"
-SYS_SERVICE_REPAIR_CONTAINER_HARD: "{{ lookup('unit_name', 'sys-ctl-rpr-container-hard'  ) }}"
 
 SYS_SERVICE_ON_FAILURE_COMPOSE: "{{ lookup('unit_name','sys-ctl-alm-compose@', suffix=False ) }}%n.service"
 
@@ -24,25 +23,18 @@ SYS_SERVICE_ON_FAILURE_COMPOSE: "{{ lookup('unit_name','sys-ctl-alm-compose@', s
 SERVICE_LOADER_ROUTE_PENDING: "{{ not (service_loader_preloading | default(false) | bool) or (list_or_shoot_roles | difference(service_loader_post_run | default([]))
   | length > 0) }}"
 
-SYS_SERVICE_GROUP_BACKUPS: >
-  {{ (('sys-ctl-bkp-' | get_category_entries) + ('svc-bkp-' | get_category_entries))
-     | map('regex_replace', '$', SYS_SERVICE_SUFFIX) | list | sort }}
+SYS_SERVICE_IDS_BACKUPS: "{{ ('sys-ctl-bkp-' | get_category_entries) + ('svc-bkp-' | get_category_entries) }}"
+SYS_SERVICE_IDS_CLEANUP: "{{ 'sys-ctl-cln-' | get_category_entries }}"
+SYS_SERVICE_IDS_REPAIR: "{{ 'sys-ctl-rpr-' | get_category_entries }}"
+SYS_SERVICE_IDS_OPTIMIZATION: "{{ 'svc-opt-' | get_category_entries }}"
+SYS_SERVICE_IDS_MAINTANANCE: "{{ 'svc-mtn-' | get_category_entries }}"
 
-SYS_SERVICE_GROUP_CLEANUP: >
-  {{ ('sys-ctl-cln-' | get_category_entries)
-     | map('regex_replace', '$', SYS_SERVICE_SUFFIX) | list | sort }}
-
-SYS_SERVICE_GROUP_REPAIR: >
-  {{ ('sys-ctl-rpr-' | get_category_entries)
-     | map('regex_replace', '$', SYS_SERVICE_SUFFIX) | list | sort }}
-
-SYS_SERVICE_GROUP_OPTIMIZATION: >
-  {{ ('svc-opt-' | get_category_entries)
-     | map('regex_replace', '$', SYS_SERVICE_SUFFIX) | list | sort }}
-
-SYS_SERVICE_GROUP_MAINTANANCE: >
-  {{ ('svc-mtn-' | get_category_entries)
-     | map('regex_replace', '$', SYS_SERVICE_SUFFIX) | list | sort }}
+# The guard is load-bearing: unit_name raises on an empty term list, and no svc-mtn-* role exists.
+SYS_SERVICE_GROUP_BACKUPS: "{{ (query('unit_name', *SYS_SERVICE_IDS_BACKUPS) if SYS_SERVICE_IDS_BACKUPS else []) | sort }}"
+SYS_SERVICE_GROUP_CLEANUP: "{{ (query('unit_name', *SYS_SERVICE_IDS_CLEANUP) if SYS_SERVICE_IDS_CLEANUP else []) | sort }}"
+SYS_SERVICE_GROUP_REPAIR: "{{ (query('unit_name', *SYS_SERVICE_IDS_REPAIR) if SYS_SERVICE_IDS_REPAIR else []) | sort }}"
+SYS_SERVICE_GROUP_OPTIMIZATION: "{{ (query('unit_name', *SYS_SERVICE_IDS_OPTIMIZATION) if SYS_SERVICE_IDS_OPTIMIZATION else []) | sort }}"
+SYS_SERVICE_GROUP_MAINTANANCE: "{{ (query('unit_name', *SYS_SERVICE_IDS_MAINTANANCE) if SYS_SERVICE_IDS_MAINTANANCE else []) | sort }}"
 
 SYS_SERVICE_GROUP_MANIPULATION: >
   {{

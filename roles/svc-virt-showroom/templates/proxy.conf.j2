@@ -1,0 +1,32 @@
+{# nocheck: vhost-cross-cutting-include  the CDN location would shadow the same path of the showroom server, which serves its own CDN, injections and metrics behind this hop #}
+server
+{
+  server_name {{ domain }};
+
+  {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
+
+  {% include 'roles/sys-front-inj-all/templates/server.conf.j2' %}
+
+  client_max_body_size {{ webserver_client_max_body_size }};
+
+  location /
+  {
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
+
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
+
+    {% include 'roles/sys-svc-proxy/templates/headers/forwarded_base.conf.j2' %}
+
+    proxy_pass            https://{{ (SHOWROOM_PROJECTS | showroom_vhosts | selectattr('domain', 'equalto', domain) | first).upstream }};
+    proxy_ssl_server_name on;
+    proxy_ssl_name        $host;
+    proxy_ssl_verify      off;
+
+    proxy_http_version    1.1;
+    proxy_set_header      Upgrade    $proxy_upgrade;
+    proxy_set_header      Connection $connection_upgrade;
+    proxy_buffering       off;
+    proxy_request_buffering off;
+    proxy_read_timeout    3600s;
+  }
+}

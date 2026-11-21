@@ -10,6 +10,7 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm } = require("./personas");
+const { watchMasterPasswordPrompt } = require("./pgadmin-client");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
@@ -20,7 +21,8 @@ const USER_MENU = "[data-test='loggedin-username']";
 const LOGO = ".AppMenuBar-logo";
 const LOGIN_LOGO = ".BasePage-logo";
 const LOGIN_CARD = ".BasePage-pageContent";
-const LOGIN_BUTTON = "button[name='internal_button']";
+const INTERNAL_BUTTON = "button[name='internal_button']";
+const OAUTH2_BUTTON = "button[name='oauth2_button']";
 const TREE = ".file-tree";
 const ENTRY = ".file-entry";
 const PANE = ".dock-layout .dock-tabpane-active";
@@ -35,6 +37,8 @@ const base = decodeDotenvQuotedValue(process.env.APP_BASE_URL).replace(/\/$/, ""
 const adminEmail = decodeDotenvQuotedValue(process.env.ADMIN_EMAIL);
 const adminPassword = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const ssoUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
+const internalLogin = process.env.LOGIN_METHOD_NATIVE_ENABLED === "true";
+const LOGIN_BUTTON = internalLogin ? INTERNAL_BUTTON : OAUTH2_BUTTON;
 const db = {
   host: decodeDotenvQuotedValue(process.env.PGADMIN_DB_HOST),
   name: decodeDotenvQuotedValue(process.env.PGADMIN_DB_NAME),
@@ -58,21 +62,43 @@ async function openLogin(page) {
 
 /**
  * Args:
- *   page: Playwright page; ends signed in on /browser/ with the menu bar and the tree rendered.
+ *   page: Playwright page on /login; ends past the OAuth2 sign-in of the administrator persona.
+ */
+async function signInWithOauth2(page) {
+  await page.locator(OAUTH2_BUTTON).click({ timeout: resolveTimeout(READY) });
+  const keycloakForm = page.locator("input#username, input[name='username']").first();
+  await expect
+    .poll(async () => page.url().includes("/browser") || (await keycloakForm.isVisible().catch(() => false)), {
+      timeout: resolveTimeout(60_000),
+      message: "the OAuth2 button must lead to Keycloak or straight back into pgAdmin",
+    })
+    .toBe(true);
+  if (!page.url().includes("/browser")) await performKeycloakLoginForm(page, ssoUsername, adminPassword);
+}
+
+/**
+ * Args:
+ *   page: Playwright page; ends signed in on /browser/ with the menu bar and the tree rendered and no master password dialog open, through the internal form while the native method is on and through OAuth2 otherwise.
  */
 async function signIn(page) {
+  const settleMasterPassword = watchMasterPasswordPrompt(page);
   await openLogin(page);
   if (page.url().includes("/login")) {
-    const email = page.locator("input[name='email']");
-    await expect(email).toBeEditable({ timeout: resolveTimeout(READY) });
-    await email.fill(adminEmail);
-    const password = page.locator("input[name='password']");
-    await expect(password).toBeEditable({ timeout: resolveTimeout(READY) });
-    await password.fill(adminPassword);
-    await page.locator(LOGIN_BUTTON).click();
+    if (internalLogin) {
+      const email = page.locator("input[name='email']");
+      await expect(email).toBeEditable({ timeout: resolveTimeout(READY) });
+      await email.fill(adminEmail);
+      const password = page.locator("input[name='password']");
+      await expect(password).toBeEditable({ timeout: resolveTimeout(READY) });
+      await password.fill(adminPassword);
+      await page.locator(INTERNAL_BUTTON).click();
+    } else {
+      await signInWithOauth2(page);
+    }
   }
   await expect(page.locator(MENU_BAR)).toBeVisible({ timeout: resolveTimeout(60_000) });
   await expect(page.locator(TREE).first()).toBeVisible({ timeout: resolveTimeout(30_000) });
+  await settleMasterPassword();
 }
 
 async function onBrowser(page) {
@@ -172,8 +198,7 @@ async function signedOut(page) {
 
 function views() {
   const browser = `${base}/browser/`;
-  return [
-    { name: "login", url: `${base}/login`, prepare: signedOut },
+  const internalOnly = [
     {
       name: "forgot-password",
       url: `${base}/login`,
@@ -183,6 +208,13 @@ function views() {
         await expect(page.locator("input[name='email']")).toBeVisible({ timeout: resolveTimeout(READY) });
       },
     },
+  ];
+  const internalAccountOnly = [
+    { name: "change-password", url: browser, prepare: async (page) => { await userMenu(page, /Change Password/); await openDialog(page); } },
+  ];
+  return [
+    { name: "login", url: `${base}/login`, prepare: signedOut },
+    ...(internalLogin ? internalOnly : []),
     { name: "welcome", url: browser, prepare: onBrowser },
     { name: "servers-dashboard", url: browser, prepare: (page) => onServers(page, "Dashboard") },
     { name: "servers-properties", url: browser, prepare: (page) => onServers(page, "Properties") },
@@ -197,7 +229,7 @@ function views() {
     { name: "preferences", url: browser, prepare: async (page) => { await onBrowser(page); await openMenu(page, "File", "Preferences"); await expect(page.locator(ACTIVE_TAB, { hasText: "Preferences" }).first()).toBeVisible({ timeout: resolveTimeout(READY) }); } },
     { name: "about", url: browser, prepare: async (page) => { await onBrowser(page); await openMenu(page, "Help", /About/); await openDialog(page); } },
     { name: "user-management", url: browser, prepare: async (page) => { await userMenu(page, /User Management/); await expect(page.locator(ACTIVE_TAB, { hasText: "User Management" }).first()).toBeVisible({ timeout: resolveTimeout(READY) }); } },
-    { name: "change-password", url: browser, prepare: async (page) => { await userMenu(page, /Change Password/); await openDialog(page); } },
+    ...(internalLogin ? internalAccountOnly : []),
     { name: "user-menu", url: browser, prepare: (page) => userMenu(page) },
     { name: "file-menu", url: browser, prepare: async (page) => { await onBrowser(page); await openMenu(page, "File"); } },
     { name: "tools-menu", url: browser, prepare: async (page) => { await onBrowser(page); await openMenu(page, "Tools"); } },
@@ -217,7 +249,7 @@ exports.register = function () {
   test("design: the administrator signs in with the users password and holds admin rights", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     await signIn(page);
-    await expect(page.locator(USER_MENU)).toContainText(adminEmail);
+    await expect(page.locator(USER_MENU)).toContainText(internalLogin ? adminEmail : ssoUsername);
     await page.locator(USER_MENU).click();
     await expect(page.locator(OPEN_MENU).getByRole("menuitem", { name: /User Management/ })).toBeVisible({ timeout: resolveTimeout(READY) });
   });
@@ -265,12 +297,15 @@ exports.register = function () {
   test("design: primary actions carry the on-primary text", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     await openLogin(page);
-    const email = page.locator("input[name='email']");
-    await expect(email).toBeEditable({ timeout: resolveTimeout(READY) });
-    await email.fill(adminEmail);
-    const password = page.locator("input[name='password']");
-    await expect(password).toBeEditable({ timeout: resolveTimeout(READY) });
-    await password.fill(`probe-${Date.now()}`);
+    if (internalLogin) {
+      const email = page.locator("input[name='email']");
+      await expect(email).toBeEditable({ timeout: resolveTimeout(READY) });
+      await email.fill(adminEmail);
+      const password = page.locator("input[name='password']");
+      await expect(password).toBeEditable({ timeout: resolveTimeout(READY) });
+      await password.fill(`probe-${Date.now()}`);
+    }
+    await expect(page.locator(LOGIN_BUTTON)).toBeEnabled({ timeout: resolveTimeout(READY) });
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
       await assertToken(page, LOGIN_BUTTON, "background-color", "--design-primary", `login button ${mode}`);

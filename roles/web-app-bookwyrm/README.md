@@ -17,6 +17,13 @@ BookWyrm provides a federated social network for books built on ActivityPub. Eac
 - **Privacy & Moderation:** Fine-grained controls for content visibility, moderation, and federation settings.
 - **Community Building:** Host a private club, classroom library, or large public community for readers.
 - **Optional SSO Integration:** Can work with OIDC for unified login across platforms.
+- **Open Sign-In:** Every realm user passes the oauth2 proxy and gets a regular BookWyrm account on the first visit.
+- **Role Groups:** On every new session [files/sso/header_auth.py](./files/sso/header_auth.py) sets the BookWyrm groups `admin`, `owner`, `moderator` and `editor` from the `administrator`, `owner`, `moderator` and `editor` role groups and grants staff with `admin`. The platform administrator that [tasks/01_site.yml](./tasks/01_site.yml) converges keeps its groups.
+- **Profile Sync:** The gate forwards the Keycloak name, locale and time zone (`sso.oauth2.claim_headers`), and every new session writes them onto the display name, language and time zone; a changed name is federated as an `Update` activity.
+
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to. A follow-up tightens them.
 
 ## Further Resources
 

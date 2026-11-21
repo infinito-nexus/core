@@ -51,6 +51,7 @@ tell which ones those are.
 from __future__ import annotations
 
 import concurrent.futures
+import functools
 import ipaddress
 import os
 import random
@@ -265,6 +266,20 @@ def _is_live_literal_url(url: str) -> bool:
     )
 
 
+@functools.lru_cache(maxsize=65536)
+def _live_url(raw: str) -> str | None:
+    """Return the normalized URL of one regex match when it is worth probing.
+
+    Args:
+        raw: the text one ``_URL_RE`` match covers.
+
+    Returns:
+        The normalized URL, or None when ``_is_live_literal_url`` rejects it.
+    """
+    url = _normalize_url(raw)
+    return url if _is_live_literal_url(url) else None
+
+
 def _extract_urls(path: Path) -> list[UrlOccurrence]:
     """Return URL occurrences from *path*, flagged where a marker exempts them."""
     if not _is_probably_text_file(path):
@@ -278,14 +293,23 @@ def _extract_urls(path: Path) -> list[UrlOccurrence]:
     placement = "block-above" if path.suffix == _CATALOG_SUFFIX else "same-or-above"
     occurrences: list[UrlOccurrence] = []
     for line_no, line in enumerate(lines, start=1):
+        if "http" not in line:
+            continue
+        urls = [
+            url
+            for match in _URL_RE.finditer(line)
+            if (url := _live_url(match.group(0))) is not None
+        ]
+        if not urls:
+            continue
         suppressed = is_suppressed_at(lines, line_no, "url", mode=placement)
-        for match in _URL_RE.finditer(line):
-            url = _normalize_url(match.group(0))
-            if _is_live_literal_url(url):
-                occurrences.append(UrlOccurrence(path, line_no, url, suppressed))
+        occurrences.extend(
+            UrlOccurrence(path, line_no, url, suppressed) for url in urls
+        )
     return occurrences
 
 
+@functools.lru_cache(maxsize=65536)
 def _probe_key(url: str) -> str:
     """Deduplicate URLs by dropping fragments, which do not affect HTTP reachability."""
     parsed = urlsplit(url)

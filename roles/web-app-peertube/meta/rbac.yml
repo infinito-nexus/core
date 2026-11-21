@@ -1,0 +1,4 @@
+---
+roles:
+  moderator:
+    description: PeerTube moderator (manages abuse reports, blocklists, comments and video blacklisting, but not the instance configuration)

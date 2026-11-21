@@ -1,0 +1,25 @@
+---
+# Param: WORKSPACE        - the workspace id, a lowercase UUID (102 decision 3)
+# Param: WORKSPACE_ACTION - apply or destroy
+- name: "✅ Assert the workspace inputs"
+  ansible.builtin.assert:
+    that:
+      - WORKSPACE_ACTION in ['apply', 'destroy']
+      - (WORKSPACE | seaweedfs_workspace).bucket | length > 0
+    fail_msg: >-
+      WORKSPACE_ACTION must be apply or destroy, got '{{ WORKSPACE_ACTION }}'.
+    quiet: true
+
+- name: "🪣 Run '{{ WORKSPACE_ACTION }}' for the workspace on the stack host"
+  when: IS_STACK_HOST | bool
+  vars:
+    seaweedfs_ws: "{{ WORKSPACE | seaweedfs_workspace }}"
+    seaweedfs_ws_record_path: "{{ [ SEAWEEDFS_IDENTITIES_DIR, seaweedfs_ws.file ] | path_join }}"
+  block:
+    - name: "🪣 Apply the bucket and identity of the workspace"
+      include_tasks: utils/workspace/apply.yml
+      when: WORKSPACE_ACTION == 'apply'
+
+    - name: "🧹 Destroy the identity and bucket of the workspace"
+      include_tasks: utils/workspace/destroy.yml
+      when: WORKSPACE_ACTION == 'destroy'

@@ -1,0 +1,72 @@
+---
+# Param WORKSPACE: the workspace id, a lowercase UUID that workspace.sh validated.
+# Param WORKSPACE_ACTION: apply creates the pool ws-<id>, the user ws-<id>@pve, its privilege-separated token and their ACLs; destroy removes them.
+- name: "🛑 Refuse a workspace call web-app-proxmox cannot serve"
+  ansible.builtin.assert:
+    that:
+      - WORKSPACE is match('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+      - WORKSPACE_ACTION in ['apply', 'destroy']
+    fail_msg: >-
+      web-app-proxmox serves workspace apply and destroy for a lowercase UUID only,
+      and got {{ WORKSPACE_ACTION }} for {{ WORKSPACE }}.
+    quiet: true
+
+- name: "🔍 Resolve the Proxmox VE container of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: proxmox
+    resolve_output_prefix: PROXMOX
+    resolve_compose_cid: "{{ PROXMOX_CONTAINER }}"
+
+- name: "🔍 Look up the token secret of ws-{{ WORKSPACE }} in OpenBao"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/web-app-openbao/tasks/utils/kv.yml') }}"
+  vars:
+    openbao_kv_state: read
+    openbao_kv_mount: "{{ PROXMOX_TENANT_MOUNT }}"
+    openbao_kv_path: "ws-{{ WORKSPACE }}-provision/proxmox"
+    openbao_kv_data: {}
+  when: WORKSPACE_ACTION == 'apply'
+
+- name: "🏗️ {{ WORKSPACE_ACTION | capitalize }} pool, user and token of the workspace"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e PROXMOX_WORKSPACE_ACTION -e PROXMOX_WORKSPACE_ID -e PROXMOX_WORKSPACE_TOKEN_NAME
+      -e PROXMOX_WORKSPACE_ROLES -e PROXMOX_WORKSPACE_ACLS -e PROXMOX_WORKSPACE_ISSUED
+      {{ PROXMOX_LOCAL_CID | quote }} {{ (PROXMOX_GUEST_EXEC + ['perl', '-']) | map('quote') | join(' ') }}
+    stdin: "{{ lookup('file', 'perl/workspace.pl') }}"
+  environment:
+    PROXMOX_WORKSPACE_ACTION: "{{ WORKSPACE_ACTION }}"
+    PROXMOX_WORKSPACE_ID: "{{ WORKSPACE }}"
+    PROXMOX_WORKSPACE_TOKEN_NAME: "{{ PROXMOX_WORKSPACE_TOKEN_NAME }}"
+    PROXMOX_WORKSPACE_ROLES: "{{ PROXMOX_WORKSPACE_ROLES | to_json }}"
+    PROXMOX_WORKSPACE_ACLS: "{{ WORKSPACE | proxmox_workspace_acls(PROXMOX_WORKSPACES) | to_json }}"
+    PROXMOX_WORKSPACE_ISSUED: "{{ '1' if (openbao_kv_current | default({})).get('token_id', '') | length > 0 else '0' }}"
+  register: proxmox_workspace
+  changed_when: proxmox_workspace.stdout is search('\[CHANGED\]')
+  failed_when: proxmox_workspace.rc != 0 or proxmox_workspace.stderr is search('\[FAIL\]')
+  delegate_to: "{{ PROXMOX_HOST_NODE }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔐 Keep the token of ws-{{ WORKSPACE }} in OpenBao only"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/web-app-openbao/tasks/utils/kv.yml') }}"
+  vars:
+    openbao_kv_state: present
+    openbao_kv_mount: "{{ PROXMOX_TENANT_MOUNT }}"
+    openbao_kv_path: "ws-{{ WORKSPACE }}-provision/proxmox"
+    openbao_kv_data:
+      token_id: "{{ (proxmox_workspace.stdout_lines | last | from_json).token }}"
+      secret: "{{ (proxmox_workspace.stdout_lines | last | from_json).secret }}"
+  when:
+    - WORKSPACE_ACTION == 'apply'
+    - (proxmox_workspace.stdout_lines | last | from_json).secret is not none
+
+- name: "🗑️ Drop the token secret of ws-{{ WORKSPACE }} from OpenBao"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/web-app-openbao/tasks/utils/kv.yml') }}"
+  vars:
+    openbao_kv_state: absent
+    openbao_kv_mount: "{{ PROXMOX_TENANT_MOUNT }}"
+    openbao_kv_path: "ws-{{ WORKSPACE }}-provision/proxmox"
+    openbao_kv_data: {}
+  when: WORKSPACE_ACTION == 'destroy'

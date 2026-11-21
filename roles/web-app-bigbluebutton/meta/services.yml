@@ -10,6 +10,12 @@ logout:
   enabled: "{{ 'web-svc-logout' in group_names }}"
   shared: "{{ 'web-svc-logout' in group_names }}"
 # nocheck: dynamic-flag
+# nocheck: playwright-service-flag
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
+# nocheck: dynamic-flag
 ldap:
   enabled: false
 dashboard:
@@ -22,8 +28,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag: shared provider entity; the app itself is covered by this role's own Playwright spec
 bigbluebutton:
   # TODO: make this role arm64-capable so the declaration below can go
@@ -40,6 +46,7 @@ bigbluebutton:
   shared: true
   repository: https://github.com/bigbluebutton/docker.git
   ref: v3.0.39
+  ref_kind: branch
   update:
     key: ref
     type: http_regex
@@ -66,6 +73,17 @@ bigbluebutton:
   run_after:
     - web-app-keycloak
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-bigbluebutton', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-bigbluebutton', 'native') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-bigbluebutton', 'registration') }}"
+  garbage_collector:
+    type: native
+    setting: "recording.cleanup and recording.max_age_days, rendered as REMOVE_OLD_RECORDING and RECORDING_MAX_AGE_DAYS in templates/env.j2"
   cpus: "4.0"
   mem_reservation: "2g"
   mem_limit: "6g"
@@ -80,6 +98,10 @@ postgres:
 # nocheck: playwright-service-flag — internal sub-component (multi-entity role)
 greenlight:
   name: bigbluebutton-greenlight-1
+  registration_method: >-
+    {{ 'open' if ((lookup('config', 'web-app-bigbluebutton', 'services.sso.enabled') | bool)
+    and (lookup('config', 'web-app-bigbluebutton', 'services.bigbluebutton.login.method.sso.enabled') | bool))
+    or (lookup('config', 'web-app-bigbluebutton', 'services.bigbluebutton.login.method.registration.enabled') | bool) else 'invite' }}
   enabled: true
   shared: false
   cpus: "0.5"
@@ -367,3 +389,27 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  checkout:
+    recursive: false
+    ref: "{{ lookup('config', 'web-app-bigbluebutton', 'services.bigbluebutton.ref') }}"
+    url: "{{ lookup('config', 'web-app-bigbluebutton', 'services.bigbluebutton.repository') }}"
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

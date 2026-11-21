@@ -1,0 +1,62 @@
+---
+# nocheck: run-once
+
+- name: "🛡️ Validate the sysctl owner {{ sys_sysctl_owner }}"
+  ansible.builtin.assert:
+    that:
+      - sys_sysctl_owner is match(SYS_SYSCTL_OWNER_PATTERN)
+      - sys_sysctl_owner not in SYS_SYSCTL_OWNER_RESERVED
+    fail_msg: "sys_sysctl_owner '{{ sys_sysctl_owner }}' must match {{ SYS_SYSCTL_OWNER_PATTERN }} and not be one of {{ SYS_SYSCTL_OWNER_RESERVED }}"
+    quiet: true
+
+- name: "🔍 Detect the systemd-coredump handler"
+  ansible.builtin.stat:
+    path: "{{ SYS_SYSCTL_CORE_HANDLER }}"
+  register: sys_sysctl_core_handler
+
+- name: "⏭️ Skip host-global keys of {{ sys_sysctl_owner }} in a container"
+  ansible.builtin.debug:
+    msg: "{{ item.key }} is not namespaced: its live value or a drop-in a privileged systemd applies at boot would change the host kernel"
+  loop: "{{ sys_sysctl_skipped }}"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: "📁 Create the core dump directory"
+  ansible.builtin.file:
+    path: "{{ SYS_SYSCTL_CORE_DIR }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "{{ SYS_SYSCTL_CORE_DIR_MODE }}"
+  when: (sys_sysctl_writable | items2dict).get('kernel.core_pattern', '').startswith(SYS_SYSCTL_CORE_DIR ~ '/')
+
+- name: "📁 Create the drop-in directory of {{ sys_sysctl_owner }}"
+  ansible.builtin.file:
+    path: "{{ sys_sysctl_file | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "{{ SYS_SYSCTL_DROPIN_DIR_MODE }}"
+  when: sys_sysctl_writable | length > 0
+
+- name: "🔧 Persist and apply the kernel parameters of {{ sys_sysctl_owner }}"
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_file: "{{ sys_sysctl_file }}"
+    state: present
+    sysctl_set: true
+    reload: true
+  loop: "{{ sys_sysctl_writable }}"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: "🧹 Drop the parameters of {{ sys_sysctl_owner }} from retired files"
+  ansible.posix.sysctl:
+    name: "{{ item.0.key }}"
+    sysctl_file: "{{ item.1 }}"
+    state: absent
+    reload: false
+  loop: "{{ sys_sysctl_writable | product(sys_sysctl_retired_files) | list }}"
+  loop_control:
+    label: "{{ item.0.key }} in {{ item.1 }}"

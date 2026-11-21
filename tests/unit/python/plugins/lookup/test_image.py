@@ -17,12 +17,19 @@ from typing import Any
 from ansible.errors import AnsibleError
 
 from plugins.lookup.image import LookupModule
+from plugins.lookup.registry_vendors import route_reference
 from utils.cache.yaml import load_yaml_any
 from utils.docker.image.pin import is_digest
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
+FRONT = "192.168.205.1:5002"
+VENDORS = {"front": FRONT, "registries": ["ghcr.io"]}
+SWARM = {
+    "DEPLOYMENT_MODE": "swarm",
+    "swarm": {"registry": {"host": "mgr", "port": 5000}},
+}
 NODE_DIGEST = "sha256:feb76650b7195319268c59cb2d419c732d6c499b13bf5296f16ab59eb1f0a4f3"
 
 
@@ -60,11 +67,25 @@ def _run(
     *,
     variables: dict[str, Any] | None = None,
     applications: dict[str, Any] | None = None,
+    vendors: dict[str, Any] | None = None,
+    looked_up: list[str] | None = None,
     **kwargs: Any,
 ) -> list[str]:
     apps = applications if applications is not None else _apps()
+    lookups = {
+        "applications": mock.MagicMock(run=lambda *_a, **_k: [apps]),
+        "registry_vendors": mock.MagicMock(
+            run=lambda terms, **_k: [route_reference(t, vendors) for t in terms]
+        ),
+    }
+
+    def _get(name: str, **_k: Any) -> Any:
+        if looked_up is not None:
+            looked_up.append(name)
+        return lookups[name]
+
     with mock.patch("plugins.lookup.image.lookup_loader") as loader_mock:
-        loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [apps])
+        loader_mock.get.side_effect = _get
         lm = LookupModule()
         lm._loader = mock.MagicMock()
         return lm.run(
@@ -478,6 +499,59 @@ class TestImageLookup(unittest.TestCase):
                     _run(role, service, applications=applications),
                     [f"{image.strip()}:{version.strip()}"],
                 )
+
+
+class TestVendorRoute(unittest.TestCase):
+    def _vendor_apps(self) -> dict[str, Any]:
+        return _apps(image="ghcr.io/mattermost/mattermost", version="11.8.0")
+
+    def test_a_vendor_image_is_routed_through_the_front_of_the_host(self):
+        self.assertEqual(
+            _run(
+                "web-app-mattermost",
+                "mattermost",
+                applications=self._vendor_apps(),
+                vendors=VENDORS,
+            ),
+            [f"{FRONT}/ghcr.io/mattermost/mattermost:11.8.0"],
+        )
+
+    def test_a_docker_hub_image_is_not_routed(self):
+        self.assertEqual(
+            _run("web-app-mattermost", "mattermost", vendors=VENDORS),
+            ["mattermost/mattermost-team-edition:11.8.0"],
+        )
+
+    def test_a_host_without_vendors_keeps_the_plain_reference(self):
+        self.assertEqual(
+            _run("web-app-mattermost", "mattermost", applications=self._vendor_apps()),
+            ["ghcr.io/mattermost/mattermost:11.8.0"],
+        )
+
+    def test_swarm_keeps_its_prefix_and_never_asks_for_a_vendor_route(self):
+        looked_up: list[str] = []
+        out = _run(
+            "web-app-mattermost",
+            "mattermost",
+            variables=SWARM,
+            applications=self._vendor_apps(),
+            vendors=VENDORS,
+            looked_up=looked_up,
+        )
+        self.assertEqual(out, ["mgr:5000/ghcr.io/mattermost/mattermost:11.8.0"])
+        self.assertNotIn("registry_vendors", looked_up)
+
+    def test_tag_only_is_never_routed(self):
+        self.assertEqual(
+            _run(
+                "web-app-mattermost",
+                "mattermost",
+                applications=self._vendor_apps(),
+                vendors=VENDORS,
+                tag_only=True,
+            ),
+            ["ghcr.io/mattermost/mattermost:11.8.0"],
+        )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,147 @@
+---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
+# nocheck: dynamic-flag
+# nocheck: oidc
+# nocheck: sso
+sso:
+  enabled: false
+  shared: false
+# nocheck: dynamic-flag
+# nocheck: logout
+logout:
+  enabled: false
+  shared: false
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: email
+# nocheck: playwright-service-flag - email silenced, no Playwright surface
+email:
+  enabled: false
+  shared: false
+matomo:
+  bond: 1
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: playwright-service-flag - design consumer, no Playwright surface (provider: web-svc-design)
+# nocheck: dynamic-flag
+# nocheck: design-off  Reason: atmo themes itself through the base and accent palette of the atmo kit plus its own dark mode, and no mapping from the corporate design onto that palette exists yet
+design:
+  enabled: false
+  shared: false
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+atmo:
+  backup:
+    stop_required: true
+  healthcheck:
+    flavor: tcp
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  image: node
+  version: 26-slim
+  custom: true
+  name: atmo
+  repository: https://github.com/flo-bit/atmo-events.git
+  ref: 83e3d1067a5c13de2e850ad290f62de82a727923
+  ports:
+    local:
+      http: 7990
+    internal:
+      http: 8080
+  # nocheck: default-placement-manager  the Miniflare D1, KV and R2 stores are SQLite files that must stay node-local, WAL and POSIX locks do not hold on NFS
+  placement: manager
+  # nocheck: single-replica  each workerd replica would open the same Miniflare SQLite stores and the in-process OAuth request lock is not distributed
+  replicas: 1
+  moderator_dids: []
+  client_assertion_kid: main-key
+  run_after:
+    - web-app-matomo
+  lifecycle: pre-alpha
+  # nocheck: min-storage-headroom  Reason: the declared image is only the Dockerfile base; the built image adds the whole atmo-events pnpm workspace with its node_modules (wrangler with its workerd binary, the SvelteKit toolchain), the web build and python3, its build stage stays in the build cache, and the data volume holds the Miniflare D1, KV and R2 stores the aggregator persists
+  min_storage: 2GB
+  cpus: "1.0"
+  mem_reservation: 512m
+  mem_limit: 1536m
+  pids_limit: 1024
+cron:
+  name: atmo-cron
+  interval_seconds: 60
+  timeout_seconds: 120
+  healthcheck:
+    test:
+      - CMD
+      - python3
+      - /opt/atmo/cron.py
+      - health
+  # nocheck: single-replica  one ticker drives the ingest cycle; a second one would run concurrent Jetstream drains against the same projection
+  replicas: 1
+  cpus: "0.1"
+  mem_reservation: 32m
+  mem_limit: 64m
+  pids_limit: 32
+# nocheck: shared
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag - internal sub-component (multi-entity role)
+# nocheck: bond-baseline  the flag follows web-app-mobilizon and web-app-bluesky in group_names, and neither is a registered service a variant could pull into the round
+bridge:
+  enabled: "{{ 'web-app-mobilizon' in group_names and 'web-app-bluesky' in group_names }}"
+  name: atmo-bridge
+  interval_seconds: 60
+  healthcheck:
+    test:
+      - CMD
+      - python3
+      - /opt/atmo/bridge.py
+      - health
+  # nocheck: single-replica  the at_uri to Mobilizon event mapping is one SQLite file; two writers would mirror every event twice
+  replicas: 1
+  cpus: "0.2"
+  mem_reservation: 32m
+  mem_limit: 128m
+  pids_limit: 32
+
+# nocheck: playwright-service-flag
+# nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag
+
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

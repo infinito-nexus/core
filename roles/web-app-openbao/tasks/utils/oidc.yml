@@ -1,0 +1,51 @@
+---
+- name: "🧩 Enable the OIDC auth method"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'bao auth list -format=json | grep -q "oidc/" ||
+    { bao auth enable oidc && echo OPENBAO_CHANGED; }'
+  register: openbao_oidc_enable
+  changed_when: "'OPENBAO_CHANGED' in openbao_oidc_enable.stdout"
+
+- name: "👁️ List the OIDC method on the login page while the sso method is on"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c '[ "$(bao read -field=listing_visibility sys/auth/oidc/tune 2>/dev/null)" = {{ OPENBAO_OIDC_LISTING_VISIBILITY }} ] ||
+    { bao auth tune -listing-visibility={{ OPENBAO_OIDC_LISTING_VISIBILITY }} oidc/ && echo OPENBAO_CHANGED; }'
+  register: openbao_oidc_listing
+  changed_when: "'OPENBAO_CHANGED' in openbao_oidc_listing.stdout"
+
+- name: "📇 Point the OIDC method at the Keycloak realm"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    bao write auth/oidc/config
+    oidc_discovery_url={{ OPENBAO_OIDC_ISSUER | quote }}
+    oidc_client_id={{ OPENBAO_OIDC_CLIENT_ID | quote }}
+    oidc_client_secret=-
+    default_role={{ OPENBAO_OIDC_DEFAULT_ROLE | quote }}
+  args:
+    stdin: "{{ OPENBAO_OIDC_CLIENT_SECRET }}"
+    stdin_add_newline: false
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📇 Configure the default OIDC role, which grants only the 'default' policy"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p=auth/oidc/role/{{ OPENBAO_OIDC_DEFAULT_ROLE }};
+    before=$(bao read -format=json $p 2>/dev/null | grep -v request_id || true);
+    bao write $p role_type=oidc
+    bound_audiences={{ OPENBAO_OIDC_CLIENT_ID | quote }}
+    user_claim={{ OPENBAO_OIDC_USER_CLAIM | quote }}
+    groups_claim={{ OPENBAO_OIDC_GROUPS_CLAIM | quote }}
+    {% for openbao_claim_mapping in OPENBAO_OIDC_CLAIM_MAPPINGS %}claim_mappings={{ openbao_claim_mapping | quote }} {% endfor %}
+    oidc_scopes=openid,profile,email
+    token_policies=default
+    token_ttl=30m
+    token_max_ttl=10h
+    allowed_redirect_uris={{ OPENBAO_OIDC_REDIRECT_URIS | quote }} >/dev/null;
+    after=$(bao read -format=json $p | grep -v request_id);
+    [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+  register: openbao_oidc_role
+  changed_when: "'OPENBAO_CHANGED' in openbao_oidc_role.stdout"

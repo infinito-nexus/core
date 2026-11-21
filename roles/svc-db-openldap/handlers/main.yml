@@ -51,21 +51,35 @@
   register: r
   failed_when: r.rc not in [0, 68]
 
+- name: 🛂 Converge the data backend ACL (cn=config via EXTERNAL)
+  ansible.builtin.shell: >-
+    container exec -i {{ lookup('container_address', 'svc-db-openldap', 'openldap') }}
+    ldapmodify -Q -Y EXTERNAL -H {{ OPENLDAP_CONFIG_URI }}
+    -f "{{ [OPENLDAP_LDIF_PATH_DOCKER, 'configuration/07_access.ldif'] | path_join }}"
+  vars:
+    compose_mode_force: ""
+  listen:
+    - "import-configuration-ldif-files"
+  register: r
+  changed_when: r.rc == 0
+
 - name: 📥 Import users, groups, etc. to LDAP (data tree)
   ansible.builtin.shell: >-
+    IFS= read -r OPENLDAP_BIND_PW || :; : "${OPENLDAP_BIND_PW:?arrived empty on stdin}" && export OPENLDAP_BIND_PW &&
     container exec -i -e OPENLDAP_BIND_PW {{ lookup('container_address', 'svc-db-openldap', 'openldap') }}
-    sh -c 'exec ldapadd -x
+    sh -c 'printf "%s" "$OPENLDAP_BIND_PW" | ldapadd -x
     -D "{{ OPENLDAP_BIND_DN }}"
-    -w "$OPENLDAP_BIND_PW"
+    -y /dev/stdin
     -c
     -f "{{ [OPENLDAP_LDIF_PATH_DOCKER, 'groups', (item | basename | regex_replace('\.j2$', ''))] | path_join }}"'
-  environment:
-    OPENLDAP_BIND_PW: "{{ OPENLDAP_BIND_PW }}"
+  args:
+    stdin: "{{ OPENLDAP_BIND_PW }}"
   vars:
     compose_mode_force: ""
   listen:
     - "import-groups-ldif-files"
   register: ldapadd_result
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: "'adding new entry' in ldapadd_result.stdout"
   failed_when: ldapadd_result.rc not in [0, 20, 68, 65]
   loop: "{{ query('fileglob', role_path ~ '/templates/ldif/groups/*.j2') | sort }}"

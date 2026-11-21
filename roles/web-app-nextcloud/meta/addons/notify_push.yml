@@ -1,0 +1,9 @@
+---
+enabled: "{{ lookup('config', 'web-app-nextcloud', 'services.notify_push.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: upstream
+update:
+  monitored: true
+  catalog: nextcloud-appstore
+  upstream_id: notify_push

@@ -1,13 +1,13 @@
 {% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
 {% set ERPNEXT_CONFIGURATOR_STEPS = [
      'ls -1 apps > sites/apps.txt',
-     'bench set-config -g db_host "' ~ ERPNEXT_DB_HOST ~ '"',
-     'bench set-config -gp db_port ' ~ ERPNEXT_DB_PORT,
-     'bench set-config -g redis_cache "' ~ ERPNEXT_REDIS_URL ~ '/0"',
-     'bench set-config -g redis_queue "' ~ ERPNEXT_REDIS_URL ~ '/1"',
-     'bench set-config -g redis_socketio "' ~ ERPNEXT_REDIS_URL ~ '/2"',
-     'bench set-config -gp socketio_port ' ~ ERPNEXT_WEBSOCKET_PORT,
-     'bench set-config -g host_name "' ~ lookup('tls', application_id, 'url.origin') ~ '"',
+     'bench set-config -g db_host "' ~ ERPNEXT_COMMON_SITE_CONFIG.db_host ~ '"',
+     'bench set-config -gp db_port ' ~ ERPNEXT_COMMON_SITE_CONFIG.db_port,
+     'bench set-config -g redis_cache "' ~ ERPNEXT_COMMON_SITE_CONFIG.redis_cache ~ '"',
+     'bench set-config -g redis_queue "' ~ ERPNEXT_COMMON_SITE_CONFIG.redis_queue ~ '"',
+     'bench set-config -g redis_socketio "' ~ ERPNEXT_COMMON_SITE_CONFIG.redis_socketio ~ '"',
+     'bench set-config -gp socketio_port ' ~ ERPNEXT_COMMON_SITE_CONFIG.socketio_port,
+     'bench set-config -g host_name "' ~ ERPNEXT_COMMON_SITE_CONFIG.host_name ~ '"',
    ] %}
 {% set ERPNEXT_CONFIGURATOR_DIGEST = ERPNEXT_CONFIGURATOR_STEPS | join(';') | hash('sha256') %}
 {% set ERPNEXT_CONFIG_READY_GATE = "until grep -q " ~ ERPNEXT_CONFIGURATOR_DIGEST ~ " sites/common_site_config.json 2>/dev/null; do sleep 2; done;" %}
@@ -15,6 +15,11 @@
 
   {% set service_name = 'backend' %}
   {{ service_name }}:
+    {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+      args:
+        ERPNEXT_IMAGE: "{{ ERPNEXT_IMAGE }}"
+        ERPNEXT_VERSION: "{{ ERPNEXT_VERSION }}"
+        ERPNEXT_LOGIN_RBAC_APP: "{{ ERPNEXT_LOGIN_RBAC_APP }}"
     {{ lookup('container_image', application_id, 'erpnext') }}
     {{ lookup('compose_only', 'container_name', ERPNEXT_BACKEND_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}

@@ -1,0 +1,37 @@
+---
+# Param: semaphore_project_token       the admin API token of tasks/utils/admin.yml
+# Param: semaphore_workspace_hint_query  the runner hint tasks/utils/workspace/locate.yml read
+- name: "🛑 Stop the tasks of ws-{{ WORKSPACE }} and wait until each has finished"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ SEMAPHORE_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - python3
+      - -c
+      - "{{ lookup('file', 'python/project.py') }}"
+    stdin: "{{ semaphore_workspace_stop_spec | to_json }}"
+  vars:
+    semaphore_workspace_stop_spec:
+      url: "{{ SEMAPHORE_API_URL }}"
+      token: "{{ semaphore_project_token }}"
+      workspace:
+        id: "{{ WORKSPACE }}"
+        alias: "{{ semaphore_workspace_alias }}"
+        action: stop
+        project_hint: "{{ (semaphore_workspace_hint_query.stdout_lines | select('match', '^HINT ') | map('regex_replace', '^HINT ', '') | map('int') | list + [None])
+          | first }}"
+      provision:
+        project: "{{ SEMAPHORE_PROVISION_PROJECT_NAME }}"
+      export:
+        project: "{{ SEMAPHORE_EXPORT_PROJECT_NAME }}"
+  register: semaphore_workspace_stop
+  changed_when: semaphore_workspace_stop.stdout is search('(?<![A-Z])CHANGED')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ SEMAPHORE_HOST_NODE }}"
+
+- name: "📦 Hold how many tasks of ws-{{ WORKSPACE }} the stop ended"
+  ansible.builtin.set_fact:
+    semaphore_workspace_stopped: >-
+      {{ ((semaphore_workspace_stop.stdout_lines | select('match', '^RESULT ') | first)[7:] | from_json).result.stopped_tasks | int }}

@@ -11,7 +11,7 @@
     - name: 📂 Include task to remove deprecated and unserved nginx configs
       include_tasks: nginx_configs.yml
       when:
-        - MODE_CLEANUP | bool
+        - CLEANUP | bool
 
     - include_tasks: utils/once/flag.yml
   when: run_once_sys_svc_cln_domains is not defined

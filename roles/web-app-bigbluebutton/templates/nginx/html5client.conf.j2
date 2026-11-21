@@ -1,0 +1,5 @@
+{% filter trim %}
+{% with location='^~ /html5client', sso_proxy_enabled=false, proxy_lua_enabled=false %}
+{% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
+{% endwith %}
+{% endfilter %}

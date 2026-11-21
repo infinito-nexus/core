@@ -43,6 +43,7 @@
       enabled: true
       shared: true
     libretranslate:
+      model_store: false
       load_only:
         - en
         - de

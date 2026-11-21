@@ -40,7 +40,7 @@ An addon MAY set `config.background_install: true`. `recognize` sets it.
 4. The `always` section of the install block joins every job with `async_status`. The filter `nextcloud_background_lost` fails the join on the exit codes of the `killed` state.
 5. Each joined plugin runs [02_install.yml](./02_install.yml): `occ app:install` answers `already installed` once the job placed the app, so the stage enables and configures it. When the job failed before it placed the app, the stage installs it with its own retries.
 
-The job runs in every mode, `ASYNC_ENABLED` included. Its limit `NEXTCLOUD_PLUGIN_BACKGROUND_ASYNC_TIME` in [vars/main.yml](../../../vars/main.yml) is 7 days, the default of `SYS_TIMEOUT_CONTAINER_EXEC`.
+The job runs in every mode. Its limit `NEXTCLOUD_PLUGIN_BACKGROUND_ASYNC_TIME` in [vars/main.yml](../../../vars/main.yml) is 7 days, the default of `SYS_TIMEOUT_CONTAINER_EXEC`.
 
 ## Pipeline stages
 
@@ -115,6 +115,26 @@ Missing files MUST be tolerated; the corresponding step skips cleanly.
 An addon under `meta/addons/` MAY declare an `incompatible_plugins` list in its `config:`.
 The plan's `disable` list carries every listed plugin that ends up off and still runs, and [02_install.yml](./02_install.yml) disables the listed plugins again before an install attempt.
 This guarantees that mutually exclusive integrations such as the OIDC entry points (`oidc_login`, `sociallogin`, `user_oidc`) and the document-editing surfaces (`onlyoffice`, `richdocuments`, `fileslibreofficeedit`) cannot accidentally coexist on the same instance.
+
+Before any plugin changes, a pending switch to an OIDC plugin that Nextcloud does not run yet reads the accounts each plugin keyed ([files/php/utils/sso_accounts.php](../../../files/php/utils/sso_accounts.php)). The switch is refused while it would give one of them a new user id, and the refusal names each account and the way out ([nextcloud_rekeyed_accounts](../../../filter_plugins/nextcloud_sso_accounts.py)):
+
+| Accounts | Keyed by | Kept by |
+|---|---|---|
+| Created by `sociallogin` under its provider, or connected to it | `<provider>-<sub>` | `sociallogin`, and `user_oidc` once the Keycloak user `<sub>` holds the account's user id in `nextcloud_uid` |
+| Created by `user_oidc` | its own backend, which only runs while `user_oidc` does | `user_oidc` |
+| Of `user_ldap` | the LDAP user id | `user_oidc` and `oidc_login` while `user_ldap` stays on |
+
+So the flip from `sociallogin` to `oidc_login` that enabling LDAP brings is refused while `sociallogin` holds an account, and so is the flip back that disabling LDAP brings while LDAP accounts exist.
+
+Between the probe and the refusal, a pending switch to `user_oidc` hands every `sociallogin` account to Keycloak: [nextcloud_sociallogin_subjects](../../../filter_plugins/nextcloud_sso_accounts.py) pairs the account's user id with the Keycloak user its longest matching `<provider>-` prefix leaves, and `web-app-keycloak`'s `tasks/utils/user_attributes.yml` writes that user id into the admin-only attribute `nextcloud_uid` in one REST run. `user_oidc` reads the uid claim `nextcloud_uid|preferred_username`, so a migrated user signs in to its old account and every other user to the one named after its username. The refusal keeps an account only when Keycloak took its user id or already held it, and names the Keycloak user and the reason otherwise:
+
+| Outcome | The Keycloak user |
+|---|---|
+| `conflict` | holds another `nextcloud_uid`, which the run leaves as it is |
+| `taken` | would share the user id with another user whose username it is |
+| `missing` | is absent from the realm |
+| `dropped` | kept no value after the write |
+| `failed` | could not be read or written |
 
 ## Entry point
 

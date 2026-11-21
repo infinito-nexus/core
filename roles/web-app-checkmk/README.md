@@ -19,6 +19,12 @@ Checkmk Raw bundles its own monitoring core (Nagios), RRD storage, and an Apache
 - **Native LDAP:**
   A central-OpenLDAP connection supplies user records, roles, and contact groups; the header user (Keycloak `preferred_username`) resolves to a real Checkmk user.
 
+- **Role groups:**
+  The oauth2-proxy gate admits only members of the `administrator`, `user` and `guest` role groups, and the LDAP user filter finds only those members. The LDAP `groups_to_roles` plug-in maps the groups onto the Checkmk roles Administrator, Normal monitoring user and Guest user.
+
+- **Profile sync:**
+  The LDAP sync copies mail, full name and the directory phone number (Checkmk pager address) into every user record.
+
 - **No external database:**
   Self-contained on a single persistent volume.
 
@@ -27,6 +33,10 @@ Checkmk Raw bundles its own monitoring core (Nagios), RRD storage, and an Apache
 
 - **Break-glass `cmkadmin`:**
   Seeded on first run via `CMK_PASSWORD` and re-converged onto the running site on every deploy; reachable via the local login form only when the SSO gate is absent.
+
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to. A follow-up tightens them.
 
 ## Further Resources
 
@@ -40,4 +50,4 @@ Checkmk Raw bundles its own monitoring core (Nagios), RRD storage, and an Apache
 
 Both authenticated Playwright personas are blocked while `services.sso.enabled` is false. Without SSO, `files/configure-sso.sh` skips the `auth_by_http_header` snippet, so the OMD site falls back to its own login form.
 
-The only account that form accepts is Checkmk's built-in `cmkadmin`, whose password comes from `credentials.cmk_password` (`CMK_PASSWORD` in the container env) — a site-local secret unrelated to the Keycloak credentials the personas use. No Checkmk user is provisioned for a non-admin identity at all. With SSO enabled both personas run through the header-auth chain.
+The only account that form accepts is Checkmk's built-in `cmkadmin`, whose password comes from `credentials.cmk_password` (`CMK_PASSWORD` in the container env) — a site-local secret unrelated to the Keycloak credentials the personas use. No Checkmk user is provisioned for a non-admin identity at all. With SSO enabled both personas run through the header-auth chain; the biber persona joins the `guest` role group for its journey, because the gate refuses an account without a Checkmk role group.

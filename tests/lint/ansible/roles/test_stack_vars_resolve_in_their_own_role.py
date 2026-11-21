@@ -1,44 +1,18 @@
-"""Lint: a value handed to a stack include must not read ``application_id``.
-
-``vars:`` on an ``include_role`` reaches everything the include pulls in, and
-the expression is evaluated where it is used rather than where it is written.
-``sys-stk-full`` pulls in the proxy and the database, and those roles set
-``application_id`` to their own id, so an expression that reads it resolves
-against the wrong application by the time anyone asks for it.
-
-It fails as a missing key in a role that never declared the value: a repository
-url written by one app was looked up on ``svc-prx-openresty``, which has no such
-service, and the git task died on an unresolvable argument.
-
-Naming the application literally makes the expression answer the same in every
-scope it travels through. ``entity_name`` is both such a variable and the
-filter that derives one from a role id, so a match preceded by a pipe is an
-application of the filter to whatever stands left of it, not a read of the
-reader's scope.
-
-Only the ``compose_*`` keys are judged, because only those does the included
-chain evaluate. A value nobody downstream reads is merely in scope and harmless;
-matching every handed-over key instead reported thirteen values, six of them
-nothing.
-
-Suppression (see ``docs/contributing/actions/testing/suppression.md``):
-
-* ``# nocheck: stack-var-foreign-scope`` on, or directly above, the definition.
-"""
-
 from __future__ import annotations
 
 import re
 import unittest
 
+import yaml
+
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import PROJECT_ROOT, read_text
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 _RULE = "stack-var-foreign-scope"
-_STACK_INCLUDE = "sys-stk-full"
+STACK_KEY = "stack"
+CHECKOUT_KEY = "checkout"
 
-_PASSED_RE = re.compile(r"^\s+(compose_[a-z_]+):\s*\"\{\{\s*([A-Z][A-Z0-9_]*)\s*\}\}\"")
 _SCOPED_RE = re.compile(r"(?<![\w.])(application_id|entity_name)\b")
 
 
@@ -54,63 +28,66 @@ def reads_the_scope(line: str) -> bool:
     )
 
 
-def passed_into_stack(role) -> set[str]:
-    """Return the variable names a role hands to the stack include.
+def _child(node, key: str):
+    if not isinstance(node, yaml.MappingNode):
+        return None
+    return next(
+        (
+            value
+            for name, value in node.value
+            if isinstance(name, yaml.ScalarNode) and name.value == key
+        ),
+        None,
+    )
 
-    Args:
-        role: the role directory.
+
+def _scalars(node) -> list[tuple[int, str]]:
+    if isinstance(node, yaml.ScalarNode):
+        return [(node.start_mark.line + 1, node.value)]
+    if isinstance(node, yaml.MappingNode):
+        return [found for _name, value in node.value for found in _scalars(value)]
+    if isinstance(node, yaml.SequenceNode):
+        return [found for item in node.value for found in _scalars(item)]
+    return []
+
+
+def checkout_values(text: str) -> list[tuple[int, str]]:
     """
-    passed: set[str] = set()
-    for path in sorted(role.glob("tasks/**/*.yml")):
-        lines = read_text(str(path)).splitlines()
-        for index, line in enumerate(lines):
-            if _STACK_INCLUDE not in line:
-                continue
-            for following in lines[index : index + 12]:
-                match = _PASSED_RE.match(following)
-                if match:
-                    passed.add(match.group(2))
-    return passed
-
-
-def definitions_reading_scope(role, names: set[str]) -> list[str]:
-    """Return one finding per handed-over definition that reads the scope.
-
     Args:
-        role: the role directory.
-        names: the variable names the role hands to the stack include.
+        text: the content of a ``meta/services.yml``.
+
+    Returns:
+        ``(line, value)`` of every scalar under ``stack.checkout``, nested
+        ones included.
     """
-    variables = role / ROLE_FILE_VARS_MAIN
-    if not names or not variables.is_file():
+    checkout = _child(_child(yaml.compose(text), STACK_KEY), CHECKOUT_KEY)
+    if not isinstance(checkout, yaml.MappingNode):
         return []
-    findings = []
-    lines = read_text(str(variables)).splitlines()
-    for index, line in enumerate(lines, start=1):
-        name = line.split(":", 1)[0].strip()
-        if name not in names or not reads_the_scope(line):
-            continue
-        if is_suppressed_at(lines, index, _RULE):
-            continue
-        findings.append(
-            f"{variables.relative_to(PROJECT_ROOT)}:{index}: {name} is handed to "
-            f"{_STACK_INCLUDE} and resolves against whichever role reads it"
-        )
-    return findings
+    return _scalars(checkout)
 
 
-def stack_vars_reading_foreign_scope() -> list[str]:
-    """Return one finding per value that would resolve in a foreign role."""
+def _services_files() -> list:
+    return sorted((PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}"))
+
+
+def checkout_values_reading_foreign_scope() -> list[str]:
     findings = []
-    for role in sorted((PROJECT_ROOT / "roles").iterdir()):
-        if not role.is_dir():
-            continue
-        findings.extend(definitions_reading_scope(role, passed_into_stack(role)))
+    for path in _services_files():
+        text = read_text(str(path))
+        lines = text.splitlines()
+        for line, value in checkout_values(text):
+            if not reads_the_scope(value) or is_suppressed_at(lines, line, _RULE):
+                continue
+            findings.append(
+                f"{path.relative_to(PROJECT_ROOT)}:{line}: a {STACK_KEY}.{CHECKOUT_KEY} "
+                "value resolves against whichever role reads it"
+            )
     return findings
 
 
 class TestStackVarsResolveInTheirOwnRole(unittest.TestCase):
-    def test_no_handed_over_value_reads_the_reader_s_scope(self) -> None:
-        findings = stack_vars_reading_foreign_scope()
+    def test_no_checkout_value_reads_the_reader_s_scope(self) -> None:
+        findings = checkout_values_reading_foreign_scope()
         self.assertEqual(
             [],
             findings,
@@ -119,13 +96,41 @@ class TestStackVarsResolveInTheirOwnRole(unittest.TestCase):
         )
 
     def test_the_shape_it_guards_is_actually_in_use(self) -> None:
-        """Without one, a renamed include would let the rule pass over everything."""
         handing = [
-            role
-            for role in sorted((PROJECT_ROOT / "roles").iterdir())
-            if role.is_dir() and passed_into_stack(role)
+            path for path in _services_files() if checkout_values(read_text(str(path)))
         ]
-        self.assertGreater(len(handing), 3, "no role hands a value to the stack")
+        self.assertGreater(len(handing), 3, "no role hands its sources to the stack")
+
+    def test_a_value_reading_the_scope_is_found(self) -> None:
+        text = (
+            "stack:\n"
+            "  checkout:\n"
+            "    ref: \"{{ lookup('config', 'web-app-x', 'services.'"
+            " ~ ('web-app-x' | entity_name) ~ '.ref') }}\"\n"
+            "    url: \"{{ lookup('config', application_id, 'services.x.repository') }}\"\n"
+            "other:\n"
+            "  checkout:\n"
+            '    url: "{{ application_id }}"\n'
+        )
+        self.assertEqual(
+            [line for line, value in checkout_values(text) if reads_the_scope(value)],
+            [4],
+        )
+
+    def test_a_nested_build_value_reading_the_scope_is_found(self) -> None:
+        text = (
+            "stack:\n"
+            "  checkout:\n"
+            "    build:\n"
+            "      bases:\n"
+            "        node: \"node@{{ lookup('config', application_id, 'services.node.version') }}\"\n"
+            "      dockerfiles:\n"
+            "        app: Dockerfile\n"
+        )
+        self.assertEqual(
+            [line for line, value in checkout_values(text) if reads_the_scope(value)],
+            [5],
+        )
 
 
 if __name__ == "__main__":

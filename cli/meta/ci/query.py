@@ -37,6 +37,7 @@ import sys
 from utils.cache.files import PROJECT_ROOT
 from utils.env.parser import env_setting
 from utils.github.variant.axes import MODES
+from utils.roles import lifecycle
 from utils.roles.display import display_names
 
 ALL_MODES = "auto"
@@ -109,7 +110,7 @@ def _query_argv(
         sort_spec(),
         *fmt,
     ]
-    envelope = lifecycles or env_setting("INFINITO_LIFECYCLES")
+    envelope = lifecycles or lifecycle.envelope()
     if envelope.strip():
         args += ["--lifecycles", envelope]
     return args
@@ -123,7 +124,11 @@ def discover_rows(
     lifecycles: str = "",
 ) -> list[dict]:
     """The ordered candidate rows, each the complexity payload of one
-    ``role#variant``. Uncapped: the chunker decides what a sweep spends."""
+    ``role#variant``. Uncapped: the chunker decides what a sweep spends.
+
+    Only stdout is captured: a planner error in the subprocess (an unsettled
+    variant pin, a provider-override conflict) reaches the caller's stderr by
+    name instead of collapsing into ``exit status 1``."""
     out = subprocess.run(
         _query_argv(
             modes,
@@ -133,7 +138,7 @@ def discover_rows(
             fmt=["--format", "json"],
         ),
         cwd=PROJECT_ROOT,
-        capture_output=True,
+        stdout=subprocess.PIPE,
         text=True,
         check=True,
     ).stdout

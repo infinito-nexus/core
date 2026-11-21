@@ -1,0 +1,11 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🗂️ Plan the front batch of this host"
+  ansible.builtin.set_fact:
+    stack_batch_plan: "{{ lookup('stack_batch') }}"
+
+- name: "🧱 Serve the front batch of the plan"
+  ansible.builtin.include_tasks: batch/serve.yml
+  vars:
+    stack_batch_items: "{{ stack_batch_plan }}"

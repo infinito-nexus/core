@@ -18,6 +18,10 @@ STOP = "systemctl stop docker.socket docker.service containerd.service"
 BIND = "mount --bind /mnt/containerd /var/lib/containerd"
 UNBIND = "umount /var/lib/containerd"
 RESTART = "systemctl start containerd.service docker.socket docker.service"
+RELOCATED_DUMP = (
+    "after docker-relocate -> /mnt/docker-host, containerd -> /mnt/containerd"
+)
+DUMP_STUB = '#!/usr/bin/env bash\nprintf "%s\\n" "$1" >>"${STUB_DUMP_LOG}"\n'
 
 SUDO_STUB = (
     "#!/usr/bin/env bash\n"
@@ -192,6 +196,7 @@ class Outcome:
             or it is no valid JSON.
         daemon_raw: the daemon.json bytes on disk afterwards, None when there is none.
         bound: whether the containerd bind mount is still in place.
+        dumps: the label of every dump_state.sh call in order.
     """
 
     done: subprocess.CompletedProcess
@@ -199,6 +204,7 @@ class Outcome:
     daemon: dict | None
     daemon_raw: str | None
     bound: bool
+    dumps: list[str]
 
 
 def relocate(runner: Runner) -> Outcome:
@@ -219,7 +225,7 @@ def relocate(runner: Runner) -> Outcome:
         for directory in (runner_dir, bin_dir, stub_bin, state):
             directory.mkdir()
         (runner_dir / "relocate_docker_dataroot.sh").symlink_to(SCRIPT)
-        stubs = [(runner_dir / "dump_state.sh", "#!/usr/bin/env bash\nexit 0\n")]
+        stubs = [(runner_dir / "dump_state.sh", DUMP_STUB)]
         stubs += [(bin_dir / "sudo", SUDO_STUB)]
         stubs += [(bin_dir / name, UNPRIVILEGED_STUB) for name in DESTRUCTIVE]
         stubs += [(bin_dir / name, body) for name, body in UNPRIVILEGED.items()]
@@ -229,6 +235,8 @@ def relocate(runner: Runner) -> Outcome:
             path.chmod(0o755)
         log = root / "calls.log"
         log.touch()
+        dump_log = root / "dumps.log"
+        dump_log.touch()
         daemon_out = root / "daemon.json"
         if runner.daemon_exists:
             daemon_out.write_text(runner.daemon_in)
@@ -241,6 +249,7 @@ def relocate(runner: Runner) -> Outcome:
         env.update(
             PATH=f"{bin_dir}{os.pathsep}{os.environ['PATH']}",
             STUB_LOG=str(log),
+            STUB_DUMP_LOG=str(dump_log),
             STUB_BIN=str(stub_bin),
             STUB_STATE=str(state),
             STUB_MNT_MOUNTED="1" if runner.mounted else "0",
@@ -290,6 +299,7 @@ def relocate(runner: Runner) -> Outcome:
             check=False,
         )
         calls = log.read_text().splitlines()  # nocheck: cache-read  stub call log
+        dumps = dump_log.read_text().splitlines()  # nocheck: cache-read  stub call log
         content = (
             daemon_out.read_text()  # nocheck: cache-read  stub output
             if daemon_out.exists()
@@ -305,6 +315,7 @@ def relocate(runner: Runner) -> Outcome:
             daemon=daemon,
             daemon_raw=content,
             bound=(state / "bound").exists(),
+            dumps=dumps,
         )
 
 
@@ -322,6 +333,7 @@ class TestRelocation(unittest.TestCase):
         )
         self.assertEqual(out.daemon, {"data-root": "/mnt/docker-host"})
         self.assertTrue(out.bound)
+        self.assertEqual(out.dumps, [RELOCATED_DUMP])
 
     def test_containerd_1x_dump_with_double_quotes_is_understood(self) -> None:
         out = relocate(Runner(dump=DUMP_V1))
@@ -336,7 +348,7 @@ class TestRelocation(unittest.TestCase):
 
 class TestDeclines(unittest.TestCase):
     def assert_declined(self, out: Outcome, reason: str) -> None:
-        """Assert a visible no-op: exit 0, a notice with the reason, no call.
+        """Assert a visible no-op: exit 0, a notice with the reason, no call, no dump.
 
         Args:
             out: the outcome of the run.
@@ -346,6 +358,7 @@ class TestDeclines(unittest.TestCase):
         self.assertIn("::notice::", out.done.stdout)
         self.assertIn(reason, out.done.stdout)
         self.assertEqual(out.calls, [])
+        self.assertEqual(out.dumps, [])
 
     def test_large_shape_without_a_mnt_mount(self) -> None:
         self.assert_declined(

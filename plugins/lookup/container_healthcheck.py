@@ -137,7 +137,7 @@ class LookupModule(LookupBase):
 
         Args:
             value: raw var value; ``include_role: vars:`` hands these over
-                unrendered, e.g. ``application_id: "{{ sys_stk_full_application_id }}"``.
+                unrendered, e.g. ``application_id: "{{ stack_batch_consumer }}"``.
 
         Raises:
             AnsibleError: the value stayed a template. ansible-core only

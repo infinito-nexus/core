@@ -1,0 +1,102 @@
+Gitea 28.2.0 registers every OAuth2 source with goth once, with a callback URL
+built from ROOT_URL (createProvider in services/auth/source/oauth2/providers.go),
+and goth bakes it into oauth2.Config.RedirectURL. A sign-in started on another
+public URL of the same instance, such as the onion vhost, is therefore sent back
+to the ROOT_URL host. That host carries no cookie of the session that holds the
+gothic state, so the callback fails with "could not find a matching session for
+this request". Gitea's own OIDC sign-out already takes its redirect from
+httplib.GuessCurrentAppURL (buildOIDCEndSessionURL in routers/web/auth/oauth.go).
+
+Callout replaces the redirect_uri of the authorization URL with the callback URL
+under httplib.GuessCurrentAppURL, and Callback hands the same value to goth as
+the redirect_uri callback parameter, which the openidConnect session of goth
+v1.82.0 sends in the token request instead of the registered one. On the
+ROOT_URL host both equal the registered callback URL, and
+PUBLIC_URL_DETECTION=never keeps ROOT_URL for every request. The other goth
+providers ignore that parameter and still send the registered callback URL in
+the token request, so only OpenID Connect sources gain sign-in on a second
+public URL.
+
+Generated with `diff -u` against the gitea-src-28.2.0 tarball and applied with
+`git apply`, which allows no fuzz, so the build fails instead of landing a hunk
+somewhere upstream moved it to.
+
+--- a/services/auth/source/oauth2/providers.go
++++ b/services/auth/source/oauth2/providers.go
+@@ -222,7 +222,7 @@
+
+ // used to create different types of goth providers
+ func createProvider(providerName string, source *Source) (goth.Provider, error) {
+-	callbackURL := setting.AppURL + "user/oauth2/" + url.PathEscape(providerName) + "/callback"
++	callbackURL := buildCallbackURL(setting.AppURL, providerName)
+
+ 	var provider goth.Provider
+ 	var err error
+@@ -244,3 +244,7 @@
+
+ 	return provider, err
+ }
++
++func buildCallbackURL(appURL, providerName string) string {
++	return appURL + "user/oauth2/" + url.PathEscape(providerName) + "/callback"
++}
+--- a/services/auth/source/oauth2/source_callout.go
++++ b/services/auth/source/oauth2/source_callout.go
+@@ -5,6 +5,9 @@
+
+ import (
+ 	"net/http"
++	"net/url"
++
++	"gitea.dev/modules/httplib"
+
+ 	"github.com/markbates/goth"
+ 	"github.com/markbates/goth/gothic"
+@@ -22,11 +25,23 @@
+ 	gothRWMutex.RLock()
+ 	defer gothRWMutex.RUnlock()
+
+-	url, err := gothic.GetAuthURL(response, request)
+-	if err == nil {
+-		http.Redirect(response, request, url, http.StatusTemporaryRedirect)
++	authURL, err := gothic.GetAuthURL(response, request)
++	if err != nil {
++		return err
++	}
++
++	// goth registered the provider with the ROOT_URL callback, which drops sessions started on other public URLs
++	u, err := url.Parse(authURL)
++	if err != nil {
++		return err
+ 	}
+-	return err
++	if query := u.Query(); query.Has("redirect_uri") {
++		query.Set("redirect_uri", source.currentCallbackURL(request))
++		u.RawQuery = query.Encode()
++	}
++
++	http.Redirect(response, request, u.String(), http.StatusTemporaryRedirect)
++	return nil
+ }
+
+ // Callback handles OAuth callback, resolve to a goth user and send back to original url
+@@ -35,6 +50,11 @@
+ 	// not sure if goth is thread safe (?) when using multiple providers
+ 	request.Header.Set(ProviderHeaderKey, source.AuthSource.Name)
+
++	// goth sends this redirect_uri in the token request, which must repeat the one Callout sent
++	query := request.URL.Query()
++	query.Set("redirect_uri", source.currentCallbackURL(request))
++	request.URL.RawQuery = query.Encode()
++
+ 	gothRWMutex.RLock()
+ 	defer gothRWMutex.RUnlock()
+
+@@ -45,3 +65,7 @@
+
+ 	return user, nil
+ }
++
++func (source *Source) currentCallbackURL(request *http.Request) string {
++	return buildCallbackURL(httplib.GuessCurrentAppURL(request.Context()), source.AuthSource.Name)
++}

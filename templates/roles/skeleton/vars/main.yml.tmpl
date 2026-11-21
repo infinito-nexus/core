@@ -1,0 +1,9 @@
+---
+application_id: [[ application_id ]]
+entity_name: "{{ application_id | entity_name }}"
+[% if kind == "static" %]
+[[ prefix ]]_ROOT: "{{ [lookup('nginx', 'directories.data.www'), entity_name] | path_join }}"
+[[ prefix ]]_BRAND_URL: "{{ lookup('cdn', '[[ brand ]]').relative_urls.role.release.root }}/v1"
+[[ prefix ]]_NAV: "{{ lookup('config', '[[ brand ]]', 'services.brand.nav', []) | select('in', lookup('applications')) | list }}"
+[[ prefix ]]_COSMOS: "{{ lookup('design', application_id).cosmos }}"
+[% endif %]

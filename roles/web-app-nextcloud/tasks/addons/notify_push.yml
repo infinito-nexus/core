@@ -1,0 +1,69 @@
+---
+- name: "🔐 Make the notify_push binaries the app ships executable"
+  ansible.builtin.command:
+    cmd: >-
+      {{ NEXTCLOUD_DOCKER_EXEC }} find {{ [NEXTCLOUD_NOTIFY_PUSH_APP_DIRECTORY, 'bin'] | path_join | quote }}
+      -type f -name notify_push ! -perm -0755 -print -exec chmod 0755 {} ;
+  register: nextcloud_notify_push_chmod
+  changed_when: nextcloud_notify_push_chmod.stdout | trim | length > 0
+
+- name: "🔄 Move the notify_push daemon onto the new binary"
+  when: nextcloud_notify_push_chmod is changed
+  block:
+    - name: "🔄 compose | restart {{ NEXTCLOUD_NOTIFY_PUSH_CONTAINER }}"
+      ansible.builtin.command:
+        argv:
+          - container
+          - restart
+          - "{{ NEXTCLOUD_NOTIFY_PUSH_CONTAINER }}"
+      changed_when: true
+      when: IS_COMPOSE_MODE
+
+    - name: "🔄 swarm | force an update of the notify_push service"
+      ansible.builtin.command:
+        argv:
+          - container
+          - service
+          - update
+          - --force
+          - "{{ lookup('container_service', application_id, NEXTCLOUD_NOTIFY_PUSH_SERVICE) }}"
+      changed_when: true
+      timeout: "{{ lookup('timeout', 600) | int }}"
+      delegate_to: "{{ STACK_HOST }}"
+      when: IS_SWARM_MODE
+
+- name: "📋 Read the push endpoint the notify_push app announces"
+  ansible.builtin.command:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} config:app:get notify_push base_endpoint"
+  register: nextcloud_notify_push_endpoint
+  changed_when: false
+  failed_when: nextcloud_notify_push_endpoint.rc not in [0, 1]
+
+- name: "📡 Run the notify_push self-test and store {{ NEXTCLOUD_NOTIFY_PUSH_URL }}"
+  ansible.builtin.command:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} notify_push:setup {{ NEXTCLOUD_NOTIFY_PUSH_URL | quote }}"
+  register: nextcloud_notify_push_setup
+  changed_when: true
+  retries: 12
+  delay: 10
+  until: nextcloud_notify_push_setup.rc in [0, 2]
+  failed_when: nextcloud_notify_push_setup.rc != 0
+  when: (nextcloud_notify_push_endpoint.stdout | trim) != NEXTCLOUD_NOTIFY_PUSH_URL
+
+- name: "🩹 Derive the announced notify_push websocket from the host the client asked"
+  ansible.builtin.command:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} php -- {{ NEXTCLOUD_NOTIFY_PUSH_CAPABILITIES | quote }}"
+    stdin: "{{ lookup('file', 'php/addons/notify_push/websocket/patch.php') }}"
+  register: nextcloud_notify_push_websocket_patch
+  changed_when: "'PATCHED' in nextcloud_notify_push_websocket_patch.stdout"
+
+- name: "🛑 Refuse a push websocket announced on another network than the one asked"
+  ansible.builtin.command:
+    cmd: >-
+      {{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} php -- {{ NEXTCLOUD_DOCKER_WORK_DIRECTORY | quote }}
+      {{ lookup('tls', nextcloud_notify_push_sibling, 'url.origin') | quote }} {{ NEXTCLOUD_NOTIFY_PUSH_LOCATION | quote }}
+    stdin: "{{ lookup('file', 'php/addons/notify_push/websocket/probe.php') }}"
+  loop: "{{ lookup('network_siblings', NEXTCLOUD_DOMAIN) }}"
+  loop_control:
+    loop_var: nextcloud_notify_push_sibling
+  changed_when: false

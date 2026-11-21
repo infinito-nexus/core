@@ -1,0 +1,8 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "📥 Load the mail provider {{ MAIL_PROVIDER }}"
+  include_tasks: "utils/load/app.yml"
+  vars:
+    load_app_id: "{{ MAIL_PROVIDER }}"
+  when: lookup('vars', 'run_once_' ~ (MAIL_PROVIDER | replace('-', '_')), default='__missing__') == '__missing__'

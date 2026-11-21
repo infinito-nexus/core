@@ -8,6 +8,8 @@ test.beforeEach(shared.beforeEach);
 
 require("./test-baseline").register(shared);
 require("./test-oidc-broker-handoff").register(shared);
+require("./test-forged-identity").register(shared);
+require("./test-open-gate-profile").register(shared);
 require("./test-appview-oidc-api").register(shared);
 require("./test-appview-oidc-render").register(shared);
 require("./test-appview-native").register(shared);

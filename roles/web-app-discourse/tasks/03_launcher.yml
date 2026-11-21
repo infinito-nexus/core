@@ -38,6 +38,13 @@
     mode: "0644"
   notify: recreate-discourse
 
+- name: "🛂 Deploy the RBAC login plugin to '{{ DISCOURSE_RBAC_PLUGIN_HOST_DIR }}'"
+  stack_host_copy:
+    src: "ruby/plugins/infinito-rbac-login/"
+    dest: "{{ DISCOURSE_RBAC_PLUGIN_HOST_DIR }}/"
+    mode: "0644"
+  notify: recreate-discourse
+
 - name: "📋 copy configuration to '{{ DISCOURSE_APPLICATION_YML_DEST }}'"
   stack_host_template:
     src: config.yml.j2

@@ -1,0 +1,28 @@
+---
+theme:
+  path: /
+  native: true
+  sinks: [OPENCLOUD_THEME]
+  fields:
+    name:
+      source: services.opencloud.theme.name
+      when: services.design.enabled
+      mode: enforced
+      selector: "head > title"
+      type: text
+      label: Theme name
+    slogan:
+      source: services.opencloud.theme.slogan
+      when: services.design.enabled
+      mode: enforced
+      selector: "html"
+      type: text
+      label: Theme slogan
+    logo:
+      source: services.opencloud.theme.logo
+      when: services.design.enabled
+      optional: true
+      mode: enforced
+      selector: "#oc-topbar img.oc-logo-image"
+      type: file
+      label: Logo

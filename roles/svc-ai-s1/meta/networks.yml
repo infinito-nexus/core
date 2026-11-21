@@ -5,3 +5,25 @@ local:
 overlay:
   modes: [compose, swarm]
   topology: shared_net
+cache:
+  artefacts:
+    gliformer-large-v1--gliner_config.json:
+      url: https://huggingface.co/knowledgator/gliformer-large-v1/resolve/d0a4e53d09cebe6bc963dd9be319d4279084bb2d/gliner_config.json
+      revision: "d0a4e53d09cebe6bc963dd9be319d4279084bb2d"
+      sha256: "80aec1c8824bd58d6733f27d78a8271420f2c7008e4b0c81313d8da09624eea4"
+      bytes: "13436"
+    gliformer-large-v1--pytorch_model.bin:
+      url: https://huggingface.co/knowledgator/gliformer-large-v1/resolve/d0a4e53d09cebe6bc963dd9be319d4279084bb2d/pytorch_model.bin
+      revision: "d0a4e53d09cebe6bc963dd9be319d4279084bb2d"
+      sha256: "f80b29199d66f878669f283703e4dba9fd726755dcc20aba1ed0d24fce4a23f1"
+      bytes: "2302735855"
+    gliformer-large-v1--tokenizer.json:
+      url: https://huggingface.co/knowledgator/gliformer-large-v1/resolve/d0a4e53d09cebe6bc963dd9be319d4279084bb2d/tokenizer.json
+      revision: "d0a4e53d09cebe6bc963dd9be319d4279084bb2d"
+      sha256: "2286c2dd1929d355fabff24926d90011f8c4072c520a8ed3a46edaf7c6228da0"
+      bytes: "8333766"
+    gliformer-large-v1--tokenizer_config.json:
+      url: https://huggingface.co/knowledgator/gliformer-large-v1/resolve/d0a4e53d09cebe6bc963dd9be319d4279084bb2d/tokenizer_config.json
+      revision: "d0a4e53d09cebe6bc963dd9be319d4279084bb2d"
+      sha256: "c2043d84b0dee751af5121a7d1f0267ce63a5ea25889fbd524d7789dfff04480"
+      bytes: "724"

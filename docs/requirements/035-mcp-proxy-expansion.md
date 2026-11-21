@@ -10,8 +10,8 @@ As a platform administrator of Infinito.Nexus, I want every role with an `applic
 
 ## Scope
 
-This requirement extends [025 - MCP Role Integration](025-mcp-role-integration.md).
-Requirement 025 defines the initial MCP metadata and the first Open WebUI integration; this requirement drives the exhaustive role audit, the proxy and workflow-adapter contract, client reconciliation, and the conditions under which the remaining roles may be integrated.
+This requirement extends [050 - MCP Role Integration](050-mcp-role-integration.md).
+Requirement 050 defines the initial MCP metadata and the first Open WebUI integration; this requirement drives the exhaustive role audit, the proxy and workflow-adapter contract, client reconciliation, and the conditions under which the remaining roles may be integrated.
 
 What lives where:
 
@@ -28,73 +28,13 @@ A disposition change belongs in the ADR, because the audit is the authoritative 
 
 This requirement covers requirement and design work only.
 It does not authorize enabling a new MCP endpoint, upgrading an application, installing an upstream plugin, or widening a credential in the same change that introduces this document.
-`web-app-moodle`, `web-app-wordpress`.
 
-### adapter_server (16)
+### Disposition audit
 
-`svc-db-qdrant`, `web-app-baserow`, `web-app-checkmk`, `web-app-fider`, `web-app-gitea`, `web-app-gitlab`, `web-app-jellyfin`, `web-app-jenkins`, `web-app-listmonk`, `web-app-mattermost`, `web-app-nextcloud`, `web-app-pretix`, `web-app-prometheus`, `web-app-snipe-it`, `web-app-zammad`, `web-svc-libretranslate`.
+The disposition of every role lives in the [Exhaustive Application-ID Audit](../architecture/decisions/0003-mcp-surface-per-provider.md#exhaustive-application-id-audit) of ADR 0003, and a role that ships a `meta/mcp.yml` carries the `classification` that file declares. This requirement keeps no copy of that list: the copy that stood here had lost its first sections and still named the desktop roles by the prefix they carried before their rename to `dsk-`.
 
-### blocked (11)
-
-An upstream path exists or is claimed, and something concrete stops it here. Each row names what, using the reason vocabulary above, so "blocked" never reads as "nobody looked".
-
-`svc-ai-litellm`, `svc-ai-lmstudio`, `svc-db-elasticsearch`, `svc-db-mariadb`, `svc-db-redis`, `web-app-discourse`, `web-app-erpnext`, `web-app-matomo`, `web-app-odoo`, `web-app-penpot`, `web-app-shopware`.
-
-| role | reason | blocker |
-| --- | --- | --- |
-| `svc-ai-litellm` | `version_unverified` | The pinned release is inference-only; an MCP-capable one may be selected only after source inspection proves per-server routes, exact tool allowlists and the credential lifecycle. |
-| `svc-ai-lmstudio` | `version_unverified` | The image is an unversioned preview; an explicit MCP-capable headless version has to replace it before a surface can be curated. |
-| `svc-db-elasticsearch` | `missing_dependency` | The maintained native path needs Kibana Agent Builder with its index privileges and licence; the older sidecar is deprecated. |
-| `svc-db-mariadb` | `shared_engine_isolation` | A global MCP server would attach to the shared engine; the alternative is one sidecar per consuming application with a database-scoped read-only principal. |
-| `svc-db-redis` | `stdio_only` | The upstream server is stdio-oriented and broadly mutating over a cache several applications share. |
-| `web-app-discourse` | `stdio_only` | The project-owned server passes ownership, licence, pinning and read-only default, but its HTTP transport serves one session per process, which upstream asserts in `src/test/transport.test.ts` at `v0.3.1`; the deploy probe alone would leave it restart-required. |
-| `web-app-erpnext` | `version_unverified` | The Frappe MCP component is experimental and unverified against the pinned Frappe v16. |
-| `web-app-matomo` | `unreviewed_third_party` | The project-owned plugin is unaudited: endpoint, transport, auth and tool scope are unverified in source. |
-| `web-app-odoo` | `unreviewed_third_party` | Neither Odoo SA nor the OCA publishes a server; the leading third party carries 197 of 231 commits from one author, keeps its access control in a separate Odoo Apps store module outside any pinnable tag, and defaults to a mutating tool scope. |
-| `web-app-penpot` | `interactive_browser_session` | The server needs an active browser tab and plugin connection, and can execute powerful design-context operations. |
-| `web-app-shopware` | `version_unverified` | The pinned 6.7.8.2 predates the experimental native `/api/_mcp` server. |
-
-### adapter_candidate (39)
-
-An adapter could reach these, and none has been curated yet. The five that used to sit under "current MCP metadata requiring revalidation" are here because that revalidation found no shipped surface to revalidate.
-
-`svc-db-typesense`, `web-app-akaunting`, `web-app-bigbluebutton`, `web-app-bluesky`, `web-app-bookwyrm`, `web-app-bridgy-fed`, `web-app-confluence`, `web-app-decidim`, `web-app-espocrm`, `web-app-friendica`, `web-app-funkwhale`, `web-app-jira`, `web-app-jitsi`, `web-app-joomla`, `web-app-kix`, `web-app-magento`, `web-app-mailu`, `web-app-mastodon`, `web-app-matrix`, `web-app-mediawiki`, `web-app-minio`, `web-app-mobilizon`, `web-app-opencloud`, `web-app-openproject`, `web-app-opentalk`, `web-app-peertube`, `web-app-pihole`, `web-app-pixelfed`, `web-app-postmarks`, `web-app-seaweedfs`, `web-app-semaphore`, `web-app-socialhome`, `web-app-stalwart`, `web-app-suitecrm`, `web-app-taiga`, `web-app-wazuh`, `web-app-xwiki`, `web-app-yourls`, `web-svc-xmpp`.
-
-### enabler (2)
-
-`svc-ai-mcp-adapter`, `web-app-keycloak`.
-
-`svc-ai-mcp-adapter` carries no MCP surface of its own. It is the adapter runtime a provider role instantiates, so its disposition is `enabler` and it MUST NOT appear in discovery as a provider or a consumer.
-
-### subordinate (2)
-
-`web-svc-collabora`, `web-svc-onlyoffice`.
-
-### no_surface (98)
-
-These roles remain out of shared MCP discovery.
-A future exception requires a new requirement with a fixed operation list, dedicated identity, isolation boundary, human approval for mutations, and audit trail.
-
-**`host_execution_boundary` (39):** `desk-bluray-player`, `desk-chromium`, `desk-copyq`, `desk-docker`, `desk-dotlinker`, `desk-firefox`, `desk-git`, `desk-gnome`, `desk-gnome-caffeine`, `desk-gnome-extensions`, `desk-gnome-terminal`, `desk-gnucash`, `desk-jrnl`, `desk-keepassxc`, `desk-libreoffice`, `desk-micro`, `desk-neovim`, `desk-nextcloud`, `desk-obs`, `desk-qbittorrent`, `desk-retroarch`, `desk-spotify`, `desk-ssh`, `desk-torbrowser`, `desk-virtualbox`, `desk-zoom`, `dev-arduino`, `dev-core`, `dev-java`, `dev-locales`, `dev-make`, `dev-nix`, `dev-nodejs`, `dev-python`, `drv-epson-multiprinter`, `drv-intel`, `drv-lid-switch`, `drv-non-free`, `gen-hunspell`.
-These roles operate a workstation, developer toolchain, device, or host package; bridging them would amount to shared shell, filesystem, browser-session, device, or host execution without an application-specific remote identity.
-
-**`privileged_control_plane` (24):** `svc-bkp-local-2-device`, `svc-bkp-nfs-2-local`, `svc-bkp-remote-2-local`, `svc-bkp-secrets-2-local`, `svc-bkp-volume-2-local`, `svc-dns-unbound`, `svc-net-firewall`, `svc-net-tor`, `svc-net-tor-smtp`, `svc-net-wireguard`, `svc-opt-keyboard-color`, `svc-opt-ssd-hdd`, `svc-opt-swapfile`, `svc-prx-openresty`, `svc-registry-cache`, `svc-registry-docker`, `svc-runner`, `svc-storage-nfs-client`, `svc-storage-nfs-server`, `svc-swarm-manager`, `svc-swarm-node`, `svc-virt-kata`, `update`, `web-app-openbao`.
-These roles can recover secrets, alter routing or host state, run code, change deployment state, or reach storage/control-plane sockets; they require a separate audited operations gateway and human approval rather than general-purpose application MCP.
-
-**`shared_engine_isolation` (4):** `svc-db-memcached`, `svc-db-openldap`, `svc-db-postgres`, `svc-db-rabbitmq`.
-A generic endpoint would bypass application and tenant authorization on a shared engine.
-Any future exception requires a provider-application-specific account, namespace/database/schema/queue restriction, fixed named operations, and no engine administrator credential.
-
-**`administrative_surface` (5):** `web-app-fusiondirectory`, `web-app-lam`, `web-app-pgadmin`, `web-app-phpldapadmin`, `web-app-phpmyadmin`.
-These UIs expose identity or database administration rather than a bounded application-domain API and MUST NOT be represented by a shared service-account tool surface.
-
-**`duplicate_owner` (1):** `web-app-litellm`.
-This role is only the UI of the separately classified LiteLLM service role, which owns any future MCP gateway contract.
-
-**`no_remote_surface` (24):** `svc-ai-ollama`, `svc-ai-robot`, `web-app-chess`, `web-app-dashboard`, `web-app-fediwall`, `web-app-hugo`, `web-app-littlejs`, `web-app-mig`, `web-app-mini-qr`, `web-app-navigator`, `web-app-roulette-wheel`, `web-app-sphinx`, `web-opt-rdr-domains`, `web-opt-rdr-www`, `web-svc-asset`, `web-svc-cdn`, `web-svc-coturn`, `web-svc-design`, `web-svc-file`, `web-svc-html`, `web-svc-legal`, `web-svc-logout`, `web-svc-mirror`, `web-svc-simpleicons`.
-These roles have no independently useful authenticated remote action contract at the pinned implementation.
-Static published content MAY later be consumed through one owning application's bounded `resource_readonly` adapter, but a new MCP sidecar that merely reimplements a static site's behavior does not count as integration.
-Model tool calling in Ollama does not by itself make Ollama an MCP client or server.
+- The desktop roles `dsk-*` are filed in the audit under `no_surface` with the reason `host_execution_boundary`.
+- The AI roles added after this requirement was written are `svc-ai-agent-broker`, `svc-ai-jupyter`, `svc-ai-s1`, `svc-ai-searxng`, `svc-ai-tika`, `web-app-hermes` and `web-app-openclaw`, all filed in the audit, and `svc-ai-agent-orchestrator`, `svc-ai-agent-provisioner`, `svc-ai-freellmapi`, `svc-ai-libretranslate-engine`, `svc-ai-ltengine`, `svc-ai-nllb-engine`, `web-svc-s1`, `web-svc-translate`, `web-app-agent-fixture` and `dsk-agentbox`, which the audit does not file yet.
 
 ## Tool and Adapter Safety Contract
 
@@ -132,6 +72,7 @@ Sidecars and adapters MUST use an immutable version and digest, documented prove
 - [x] Open WebUI grants each server to only `roles/<provider-application-id>/mcp`; one-of-many, no-membership, wrong-app, removal, and last-group removal tests pass.
 - [x] The declarative user configuration can assign `mcp` to one application without assigning it to any other application.
 - [x] Flowise, Hermes, OpenClaw, and n8n prove their per-server user boundary or are restricted to an admin-only workspace/instance or isolated trust domain. All four take the restriction branch: their oauth2 gate admits only the application's own `administrator` and `mcp` groups, held there by [test_mcp_client_gate_scoped.py](../../tests/lint/ansible/services/test_mcp_client_gate_scoped.py), which derives the client set from `meta/mcp.yml` rather than a list. `web-app-n8n` shipped with no `allowed_groups` at all while declaring an `mcp` role nothing consulted; that gate is now closed.
+  - Superseded by [089](089-agents-restructuring.md#superseded-criteria): the agent firewall decides access per agent; the Hermes and OpenClaw gate no longer admits only the `administrator` and `mcp` groups.
 - [x] Rotation and disablement tests prove that the old credential is rejected, the new credential works, and no stale client entry retains access. The first two run on every deploy: the shared contract probe opens the surface with the declared credential and fails unless a deterministic read succeeds, and separately proves a wrong credential is refused a session. Every one of the eight enabled serving surfaces includes that probe, so neither half is asserted for some roles and assumed for the rest. The third is unit-tested per client, and only three clients can hold a stale entry at all, because Hermes and OpenClaw keep no server-side registration: their configuration is rendered from the run's own discovery snapshot, so there is nothing left behind to go stale. Flowise overwrites the entry's `authConfig` and Open WebUI the registered connection, both already covered; n8n was the gap and now proves that a rotated bearer replaces the credential rather than being compared against one n8n never hands back, on the server side and for every client credential. Auditing the third half turned up a real leak on the way. Nextcloud mints an app password under a fixed managed name and never revoked the previous one, so every run that found the stored password rejected added another valid token to the account while the old ones kept full access. The mint is now preceded by a listing and the revocation of every token carrying that managed name.
 - [ ] Credentials and secret URL components are absent from logs, generated non-secret configuration, API responses, task output, Playwright traces, and exception text. **Three of the six surfaces are held statically:** logs and task output by [test_mcp_secrets_are_masked.py](../../tests/lint/ansible/services/test_mcp_secrets_are_masked.py), which requires `no_log` or `mask_values` on any MCP task that both handles a secret and prints; Playwright traces by [test_mcp_secret_not_in_playwright.py](../../tests/lint/ansible/services/test_mcp_secret_not_in_playwright.py), which forbids a `playwright.env.j2` from rendering `mcp_credential`, a `credentials.mcp_*` secret or a `key_credential` URL component. Generated non-secret configuration needs a secret/non-secret classification of rendered files that does not exist yet; API responses and exception text are runtime observations for the deploy phase.
 
@@ -165,7 +106,7 @@ Sidecars and adapters MUST use an immutable version and digest, documented prove
 
 ## Implementation Order
 
-1. Correct requirement 025's stale claims and add the exhaustive audit/lint status mechanism.
+1. Correct requirement 050's stale claims and add the exhaustive audit/lint status mechanism.
 2. Remove the hard-coded administrator credential path, add provider-consumer authorization, add client capability filtering, and implement post-application reconciliation.
 3. Make Open WebUI revocation and restart behavior correct before expanding its provider set.
 4. Implement Flowise 3.1.4's Streamable HTTP registry and one deterministic read-only flow without disabling unrestricted SSRF protection.

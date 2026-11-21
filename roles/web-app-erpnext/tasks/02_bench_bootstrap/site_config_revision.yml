@@ -1,0 +1,26 @@
+---
+- name: "🔍 Compare the common site config with the running Frappe processes"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      IFS= read -r DECLARED_CONFIG || :; : "${DECLARED_CONFIG:?arrived empty on stdin}" && export DECLARED_CONFIG &&
+      container exec -i
+      -e DECLARED_CONFIG -e RECORD
+      {{ ERPNEXT_BACKEND_LOCAL_CID | quote }}
+      {{ ERPNEXT_BENCH_PYTHON }}
+    stdin: |-
+      {{ ERPNEXT_COMMON_SITE_CONFIG | to_json }}
+      {{ lookup('ansible.builtin.file', role_path ~ '/files/python/apply/site_config_revision.py') }}
+  delegate_to: "{{ ERPNEXT_BACKEND_HOST_NODE }}"
+  environment:
+    RECORD: "{{ erpnext_site_config_record }}"
+  register: erpnext_site_config_revision
+  changed_when: >-
+    erpnext_site_config_revision.rc == 0
+    and erpnext_site_config_record | bool
+    and not (erpnext_site_config_revision.stdout_lines | last | from_json).current
+  retries: 60
+  delay: 5
+  until: >-
+    erpnext_site_config_revision.rc == 0
+    and (erpnext_site_config_revision.stdout_lines | last | from_json).applied

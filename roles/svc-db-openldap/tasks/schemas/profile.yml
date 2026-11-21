@@ -1,0 +1,42 @@
+---
+- name: ✅ Ensure profile LDAP schema snippet via ldapsm
+  vars:
+    schema_name: "moodle"
+    attribute_defs:
+      - "( 1.3.6.1.4.1.99999.10 NAME 'infinitoNamePhoneticGiven' DESC 'Phonetic given name (Moodle field firstnamephonetic)' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )"
+      - "( 1.3.6.1.4.1.99999.11 NAME 'infinitoNamePhoneticFamily' DESC 'Phonetic family name (Moodle field lastnamephonetic)' EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 SINGLE-VALUE )"
+      - "( 1.3.6.1.4.1.99999.12 NAME 'infinitoTimezone' DESC 'IANA timezone name (Moodle field timezone)' EQUALITY caseExactIA5Match SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+        SINGLE-VALUE )"
+      - "( 1.3.6.1.4.1.99999.15 NAME '{{ LDAP.USER.ATTRIBUTES.SECONDARY_MAIL }}' DESC 'Address outside the mailbox domain that receives the account mail of a user'
+        EQUALITY caseIgnoreIA5Match SUBSTR caseIgnoreIA5SubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} SINGLE-VALUE )"
+    objectclass_defs:
+      - "( 1.3.6.1.4.1.99999.13 NAME 'infinitoMoodleUser' DESC 'Auxiliary class for Moodle-only user attributes' AUXILIARY MAY ( infinitoNamePhoneticGiven $ infinitoNamePhoneticFamily
+        $ infinitoTimezone ) )"
+      - "( 1.3.6.1.4.1.99999.14 NAME '{{ LDAP.USER.OBJECTS.AUXILIARY.INFINITO_USER }}' DESC 'Auxiliary class for profile attributes inetOrgPerson lacks' AUXILIARY
+        MAY ( {{ LDAP.USER.ATTRIBUTES.COUNTRY }} $ {{ LDAP.USER.ATTRIBUTES.PHONETIC_GIVEN }} $ {{ LDAP.USER.ATTRIBUTES.PHONETIC_FAMILY }} $ {{ LDAP.USER.ATTRIBUTES.TIMEZONE
+        }} ) )"
+      - "( 1.3.6.1.4.1.99999.16 NAME '{{ LDAP.USER.OBJECTS.AUXILIARY.INFINITO_MAILBOX_USER }}' DESC 'Auxiliary class for the secondary address of a user' AUXILIARY
+        MAY ( {{ LDAP.USER.ATTRIBUTES.SECONDARY_MAIL }} ) )"
+  command:
+    cmd: >
+      {{ OPENLDAP_LDAPSM_COMMAND }}
+        -s {{ OPENLDAP_SERVER_URI }}
+        -D '{{ OPENLDAP_BIND_DN }}'
+        -n {{ schema_name }}
+        {% for at in attribute_defs %}
+        -a "{{ at }}"
+        {% endfor %}
+        {% for oc in objectclass_defs %}
+        -c "{{ oc }}"
+        {% endfor %}
+    stdin: "{{ OPENLDAP_BIND_PW }}"
+  register: ldapsm_profile_result
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: "'Created schema entry' in ldapsm_profile_result.stdout"
+  check_mode: false
+
+- name: 👁️ Show ldapsm output (profile)
+  debug:
+    var: ldapsm_profile_result.stdout_lines

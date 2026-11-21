@@ -85,6 +85,7 @@ def main() -> int:
         paths = list(pool.map(fetch, available))
     for path in paths:
         package.install_from_path(path)
+        Path(path).unlink()
     download_models(model_codes or None, print)
     print(f"Installed {len(paths)} models", flush=True)
     return 0

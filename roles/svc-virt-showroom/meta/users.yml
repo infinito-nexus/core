@@ -1,0 +1,12 @@
+---
+incus-operator:
+  username: incus-operator
+  description: Break-glass root shell into the showroom servers, one sudo command per server
+  authorized_keys: []
+  accounts: []
+
+incus-bastion:
+  username: incus-bastion
+  description: SSH ProxyJump to port 22 of the showroom servers, no shell
+  authorized_keys: []
+  accounts: []

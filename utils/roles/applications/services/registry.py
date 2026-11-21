@@ -28,9 +28,14 @@ def _normalized_name(value: Any) -> str:
     return value.strip()
 
 
-GROUP_GATED_CONSTANTS: tuple[str, ...] = ("LITELLM_USABLE", "OFFICE_SUITE")
+GROUP_GATED_CONSTANTS: tuple[str, ...] = (
+    "LITELLM_USABLE",
+    "LITELLM_SHARED",
+    "OFFICE_SUITE",
+)
 """Group_vars constants whose own definition carries an ``in group_names``
-gate, so a flag referencing one is dynamic even though its own text is not.
+gate, or turns false only on a host that names another host's gateway, so a
+flag referencing one is dynamic even though its own text is not.
 
 A constant hides the role id the substring rule looks for, so every SPOT of
 this kind MUST be listed here or the roles referencing it silently drop their
@@ -176,6 +181,9 @@ def discover_role_services(
         base_entry["overlay"] = overlay
     if provides:
         base_entry["provides"] = provides
+    provider = _normalized_name(primary_entry.get("provider"))
+    if provider:
+        base_entry["provider"] = provider
 
     discovered: dict[str, dict[str, Any]] = {primary_id: base_entry}
     for alias_key, alias_entry in sorted(alias_entries.items()):
@@ -251,6 +259,14 @@ def expand_service_tokens(tokens: list[str], roles_dir: Path) -> list[str]:
             out.extend(role_to_keys[token])
         else:
             out.append(token)
+    disabled_roles = {
+        role for key in out if (role := (registry.get(key) or {}).get("role"))
+    }
+    out.extend(
+        key
+        for key, entry in registry.items()
+        if "canonical" not in entry and entry.get("provider", "") in disabled_roles
+    )
     return list(dict.fromkeys(out))
 
 

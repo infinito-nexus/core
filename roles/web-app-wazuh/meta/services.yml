@@ -1,9 +1,10 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: email, dynamic-flag, playwright-service-flag
 email:
   enabled: false
   shared: false
-sso:
+sso: # nocheck: login-methods  Reason: each mode offers one entry only; with sso the dashboard runs opensearch_security.auth.type openid, a pure redirect, without it the basicauth form of the internal accounts, and the ldap service is authorization only, so the native default of an LDAP mode would drop the platform administrator
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
@@ -65,6 +66,16 @@ wazuh:
     - web-app-keycloak
     - svc-db-openldap
   lifecycle: beta
+  backend_roles:
+    admin_group: "/{{ lookup('rbac_group_path', application_id='web-app-wazuh', role='administrator') }}"
+    analyst_group: "/{{ lookup('rbac_group_path', application_id='web-app-wazuh', role='security-analyst') }}"
+    readonly_group: "/{{ lookup('rbac_group_path', application_id='web-app-wazuh', role='readonly-auditor') }}"
+  ui:
+    default_route: /app/home
+    # nocheck: literal-protocol-lookup  the internal Wazuh manager API on the Docker network serves https only, whatever TLS posture the stack runs
+    api_url: "https://{{ lookup('config', 'web-app-wazuh', 'services.manager.name') }}"
+    api_port: "{{ lookup('config', 'web-app-wazuh', 'services.manager.ports.internal.api') }}"
+    api_username: "{{ lookup('users', 'web-app-wazuh-api').username }}"
 certs_generator:
   image: wazuh/wazuh-certs-generator
   version: "0.0.5"
@@ -148,3 +159,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

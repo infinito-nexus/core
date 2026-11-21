@@ -1,0 +1,5 @@
+---
+- name: "🔐 The OIDC client mu-plugin needs no integration beyond staging"
+  ansible.builtin.debug:
+    msg: "{{ application_id }}: the mu-plugin reads the SSO client settings from the container environment"
+  changed_when: false

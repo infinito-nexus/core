@@ -1,0 +1,83 @@
+---
+# Param openbao_kv_state: present writes openbao_kv_data when it differs from the stored fields, absent deletes the key with every version, read only sets openbao_kv_current.
+# Param openbao_kv_mount: KV v2 mount of the key, such as platform or tenant.
+# Param openbao_kv_path: key below the mount.
+# Param openbao_kv_data: mapping of the key's fields for state present, {} for the other states.
+# Output openbao_kv_current: the key's fields before the call, {} when it holds no version.
+- name: "🛑 Refuse an OpenBao key call this deployment cannot serve"
+  ansible.builtin.assert:
+    that:
+      - (groups.get('web-app-openbao') or []) | length > 0
+      - openbao_kv_state in ['present', 'absent', 'read']
+      - openbao_kv_mount | length > 0
+      - openbao_kv_path | length > 0
+    fail_msg: >-
+      {{ openbao_kv_state }} of {{ openbao_kv_mount }}/{{ openbao_kv_path }} needs a
+      web-app-openbao host in the inventory and a state of present, absent or read.
+    quiet: true
+
+- name: "🔍 Read {{ openbao_kv_mount }}/{{ openbao_kv_path }} from OpenBao"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  compose container of the first OpenBao host, delegated to that host
+      container exec -i {{ openbao_kv_container | quote }}
+      sh -c {{ openbao_kv_script | quote }} openbao-kv read
+      {{ openbao_kv_mount | quote }} {{ openbao_kv_path | quote }}
+    stdin: "{{ openbao_kv_login | to_json }}"
+  vars: &openbao_kv_session
+    openbao_kv_container: "{{ lookup('config', 'web-app-openbao', 'services.openbao.name') }}"
+    openbao_kv_login:
+      role_id: "{{ lookup('config', 'web-app-openbao', 'secrets.credentials.approle_role_id') }}"
+      secret_id: "{{ lookup('config', 'web-app-openbao', 'secrets.credentials.approle_secret_id') }}"
+    openbao_kv_script: >-
+      set -eu;
+      IFS= read -r login || :; : "${login:?arrived empty on stdin}";
+      BAO_TOKEN="$(printf "%s" "$login" | bao write -field=token auth/approle/login -)";
+      export BAO_TOKEN;
+      trap "bao token revoke -self >/dev/null 2>&1 || true" EXIT;
+      case "$1" in
+      read) exec 3>&1; err="$(bao kv get -format=json -mount="$2" "$3" 2>&1 >&3)" || case "$err" in *"No value found"*) ;; *) printf "%s\n" "$err" >&2; exit 1 ;;
+      esac ;;
+      write) IFS= read -r data || :; : "${data:?arrived empty on stdin}"; printf "%s" "$data" | bao kv put -mount="$2" "$3" - >/dev/null ;;
+      delete) bao kv metadata delete -mount="$2" "$3" >/dev/null ;;
+      esac
+  register: openbao_kv_read
+  changed_when: false
+  delegate_to: "{{ groups['web-app-openbao'] | first }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧾 Keep what {{ openbao_kv_mount }}/{{ openbao_kv_path }} held"
+  ansible.builtin.set_fact:
+    openbao_kv_current: >-
+      {{ ((openbao_kv_read.stdout | from_json).data | default({})).data | default({})
+         if openbao_kv_read.stdout | trim | length > 0 else {} }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔐 Write {{ openbao_kv_mount }}/{{ openbao_kv_path }} to OpenBao"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  compose container of the first OpenBao host, delegated to that host
+      container exec -i {{ openbao_kv_container | quote }}
+      sh -c {{ openbao_kv_script | quote }} openbao-kv write
+      {{ openbao_kv_mount | quote }} {{ openbao_kv_path | quote }}
+    stdin: |-
+      {{ openbao_kv_login | to_json }}
+      {{ openbao_kv_data | to_json }}
+  vars: *openbao_kv_session
+  when:
+    - openbao_kv_state == 'present'
+    - openbao_kv_current != openbao_kv_data
+  changed_when: true
+  delegate_to: "{{ groups['web-app-openbao'] | first }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🗑️ Delete {{ openbao_kv_mount }}/{{ openbao_kv_path }} with every version"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  compose container of the first OpenBao host, delegated to that host
+      container exec -i {{ openbao_kv_container | quote }}
+      sh -c {{ openbao_kv_script | quote }} openbao-kv delete
+      {{ openbao_kv_mount | quote }} {{ openbao_kv_path | quote }}
+    stdin: "{{ openbao_kv_login | to_json }}"
+  vars: *openbao_kv_session
+  when: openbao_kv_state == 'absent'
+  changed_when: openbao_kv_current | length > 0
+  delegate_to: "{{ groups['web-app-openbao'] | first }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

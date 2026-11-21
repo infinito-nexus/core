@@ -70,6 +70,13 @@ done
 echo ">>> swarm-clean: leftover networks"
 _nets="$(docker network ls --format '{{.Name}}' | grep -E "${INFINITO_SWARM_LAB_NET_NAME}" || true)"
 if [ -n "${_nets}" ]; then
+	for _net in ${_nets}; do
+		for _peer in $(docker network inspect "${_net}" --format '{{range .Containers}}{{.Name}} {{end}}' 2>/dev/null); do
+			if ! docker network disconnect -f "${_net}" "${_peer}" >/dev/null 2>&1; then
+				echo "    ${_peer} stays on ${_net}; removing ${_net} fails with it"
+			fi
+		done
+	done
 	# shellcheck disable=SC2086  # intentional word-split of the network list
 	docker network rm ${_nets} 2>&1 | sed 's/^/    /' || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 fi

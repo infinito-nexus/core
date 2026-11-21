@@ -1,0 +1,18 @@
+---
+flags:
+  script-src:
+    unsafe-eval: true # nocheck: csp-unsafe  Reason: Grafana loads its panel and datasource plugins through SystemJS, which evaluates the plugin modules at runtime; blocking eval leaves the Explore view and the dashboards without panels.
+  script-src-elem:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: Grafana's index page boots through an inline script that sets window.grafanaBootData before the bundles load.
+  style-src-elem:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: Grafana's React UI injects its theme through emotion style elements at runtime.
+  style-src-attr:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: Grafana positions panels, tooltips and the log viewer through inline style attributes.
+whitelist:
+  worker-src:
+    - "blob:"
+  img-src:
+    - "data:"
+    - "blob:"
+  font-src:
+    - "data:"

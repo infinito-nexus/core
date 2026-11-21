@@ -9,47 +9,100 @@ TOR_CONTAINER: "{{ lookup('config', application_id, 'services.tor.name') }}"
 TOR_NODE_ONION: "{{ lookup('config', application_id, 'services.tor.node', '') }}"
 TOR_USE_ENTRY_GUARDS: "{{ lookup('config', application_id, 'services.tor.use_entry_guards') | bool }}"
 TOR_FLAVOR: "{{ lookup('config', application_id, 'services.tor.flavor') }}"
+TOR_CHUTNEY_NET: "{{ lookup('config', application_id, 'services.tor.chutney.net') }}"
+TOR_CHUTNEY_BASES: "{{ lookup('config', application_id, 'services.tor.chutney.port_bases') }}"
+TOR_CHUTNEY_PORT_SPAN: "{{ lookup('config', application_id, 'services.tor.chutney.port_span') }}"
+TOR_CHUTNEY_ADDRESS: "{{ hostvars[STACK_HOST]['ansible_facts']['default_ipv4']['address'] if IS_SWARM_MODE else NETWORK_LOOPBACK_IPV4 }}"
+TOR_CHUTNEY_PORT_BASES: "{{ TOR_CHUTNEY_BASES.items() | map('join', '=') | join(' ') }}"
+TOR_CHUTNEY_PORT_RANGE: "{{ [TOR_CHUTNEY_BASES.values() | min, (TOR_CHUTNEY_BASES.values() | max) + TOR_CHUTNEY_PORT_SPAN - 1] | join('-') }}"
 TOR_ONION_SSH_ENABLED: "{{ lookup('config', application_id, 'services.tor.forwards.ssh') | bool }}"
 TOR_ONION_HTTP_ENABLED: "{{ lookup('config', application_id, 'services.tor.forwards.http') | bool }}"
 TOR_ONION_EXTRA_PORTS: "{{ lookup('tor_extra_ports') }}"
-TOR_EGRESS_ROUTER_ENABLED: "{{ lookup('config', application_id, 'services.tor.egress.enabled') | bool }}"
+TOR_EGRESS_ROUTE: "{{ lookup('config', application_id, 'services.tor.egress.route') }}"
+TOR_EGRESS_LISTS: "{{ lookup('config', application_id, 'services.tor.egress') }}"
+TOR_EGRESS_PLAN: "{{ TOR_EGRESS_LISTS | tor_egress_plan(TOR_EGRESS_ROUTE) }}"
+# Repeats the FIREWALL_TABLE derivation of svc-net-firewall: dnsmasq is configured before that role runs, and router.yml asserts both agree.
+TOR_EGRESS_NFT_TABLE: "infinito_{{ application_id | regex_replace('[^a-zA-Z0-9]', '_') }}"
+TOR_EGRESS_SOCKET_UID: 0
+TOR_EGRESS_SOCKET_GID: 9050
+TOR_EGRESS_CT_MARK: "0x544f5200"
+TOR_EGRESS_NFTSET_TIMEOUT: "1h"
+TOR_EGRESS_DNS_MAX_CACHE_TTL: 300
+TOR_EGRESS_RESOLVER_PORTS:
+  - "{{ NETWORK_DNS_PORT }}"
+  - 853
+TOR_EGRESS_RESOLVER_CIDRS: >-
+  {{ [ NETWORK_LOOPBACK_CIDR ]
+     + ([ TOR_CONTAINER_DNS_HOST ] if TOR_CONTAINER_DNS_HOST | length > 0 else [])
+     + (lookup('applications') | tor_egress_role_subnets(group_names)) }}
+TOR_EGRESS_NONROUTABLE_IPV4:
+  - 169.254.0.0/16
+  - 224.0.0.0/4
+  - 255.255.255.255
+TOR_EGRESS_LOCAL_IPV6:
+  - "{{ NETWORK_LOOPBACK_IPV6 }}"
+  - fe80::/10
+  - fc00::/7
+  - ff00::/8
+TOR_DNSMASQ_USER: dnsmasq
 TOR_EGRESS_VIRTUAL_NET_IPV4: "{{ NETWORK_TOR_VIRTUAL_CIDR }}"
 TOR_TRANS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.trans') }}"
 TOR_DNS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.dns') }}"
 TOR_SOCKS_PORT: "{{ lookup('config', application_id, 'services.tor.ports.local.socks') }}"
 TOR_DNSMASQ_PORT: "{{ NETWORK_DNS_PORT }}"
+TOR_DNS_UPSTREAMS: "{{ [ networks.internet.dns ] }}"
 TOR_DNSMASQ_CONF: "/etc/dnsmasq.d/tor-onion.conf"
+TOR_RESOLVED_DROPIN: "/etc/systemd/resolved.conf.d/infinito-tor-egress.conf"
 
 TOR_EGRESS_GUARDED_PORTS:
   - port: "{{ TOR_TRANS_PORT }}"
     protocol: tcp
     admitted: containers
+    router: true
   - port: "{{ TOR_DNS_PORT }}"
     protocol: tcp
     admitted: containers
+    router: true
   - port: "{{ TOR_DNS_PORT }}"
     protocol: udp
     admitted: containers
+    router: true
   - port: "{{ TOR_SOCKS_PORT }}"
     protocol: tcp
     admitted: internal
+    router: false
   - port: "{{ TOR_DNSMASQ_PORT }}"
     protocol: tcp
     admitted: internal
+    router: true
   - port: "{{ TOR_DNSMASQ_PORT }}"
     protocol: udp
     admitted: internal
+    router: true
+TOR_CHUTNEY_GUARDED_PORTS: >-
+  {{ [ {'port': TOR_CHUTNEY_PORT_RANGE, 'protocol': 'tcp', 'admitted': 'internal', 'router': false},
+       {'port': TOR_CHUTNEY_PORT_RANGE, 'protocol': 'udp', 'admitted': 'internal', 'router': false} ]
+     if TOR_FLAVOR == 'chutney' else [] }}
 TOR_EGRESS_CLIENT_CIDRS: "{{ lookup('tor_egress_clients') }}"
 TOR_DNSMASQ_DROPIN: "/etc/systemd/system/dnsmasq.service.d/infinito-restart.conf"
-# nocheck: host-local-fact  meta/services.yml pins this role to the manager, so the fact describes the node the hidden service forwards on
+# nocheck: host-local-fact  only the egress router reads it, and the router renders its dnsmasq and nftables files for the node it runs on
 TOR_CONTAINER_DNS_HOST: "{{ ansible_facts['docker0']['ipv4']['address'] | default('', true) }}"
-# nocheck: host-local-fact  meta/services.yml pins this role to the manager, so the fact describes the node the hidden service forwards on
-TOR_HS_BACKEND_HOST: "{{ ansible_facts['default_ipv4']['address'] if IS_SWARM_MODE else (TOR_CONTAINER_DNS_HOST | ternary(TOR_CONTAINER_DNS_HOST, '127.0.0.1')) }}"
+TOR_HS_BACKEND_HOST: "{{ hostvars[STACK_HOST]['ansible_facts']['default_ipv4']['address'] if IS_SWARM_MODE else (hostvars[STACK_HOST]['ansible_facts']['docker0']['ipv4']['address']
+  | default('127.0.0.1', true)) }}"
+TOR_NODE_BRIDGE: "{{ hostvars[tor_node]['ansible_facts']['docker0']['ipv4']['address'] | default('', true) }}"
+TOR_ROUTER_NODES: "{{ [inventory_hostname] if IS_COMPOSE_MODE else (groups['svc-swarm-manager'] | default([]) | intersect(groups[application_id] | default([]))) }}"
+TOR_NODE_ROUTES: "{{ TOR_EGRESS_ROUTE != 'none' and tor_node in TOR_ROUTER_NODES }}"
+TOR_REMOTE_NODES: "{{ [] if IS_COMPOSE_MODE else (query('node_hosts') | difference(groups[application_id] | default([]))) }}"
 
-TOR_DATA_DIR: "{{ [ DIR_VAR_LIB, application_id, 'data' ] | path_join }}"
-TOR_CONFIG_DIR: "{{ [ DIR_VAR_LIB, application_id, 'config' ] | path_join }}"
+TOR_DATA_DIR: "{{ [ DIR_VAR_LIB_NODE, application_id, 'data' ] | path_join }}"
+TOR_CONFIG_DIR: "{{ [ DIR_VAR_LIB_NODE, application_id, 'config' ] | path_join }}"
 TOR_TORRC_HOST: "{{ [ TOR_CONFIG_DIR, 'torrc' ] | path_join }}"
 TOR_HS_DIR: "{{ [ TOR_DATA_DIR, 'infinito', 'node' ] | path_join }}"
+TOR_LEGACY_DIR: "{{ [ DIR_VAR_LIB, application_id ] | path_join }}"
+TOR_LEGACY_NODES: >-
+  {{ query('node_hosts')
+     | tor_legacy_nodes(groups['svc-swarm-node'] | default([]),
+                        groups['svc-storage-nfs-client'] | default([]), STACK_HOST) }}
 
 TOR_HS_SRC_DIR: "{{ lookup('path_absolute', '.onion-identity', 'hs') }}"
 
@@ -58,6 +111,8 @@ TOR_ENTRYPOINT_HOST: "{{ [ TOR_INSTANCE_DIR, 'entrypoint.sh' ] | path_join }}"
 TOR_HEALTHCHECK_HOST: "{{ [ TOR_INSTANCE_DIR, 'healthcheck.sh' ] | path_join }}"
 TOR_ENTRYPOINT_PATH: "/usr/local/bin/tor-entrypoint.sh"
 TOR_HEALTHCHECK_PATH: "/usr/local/bin/tor-healthcheck.sh"
+TOR_CHUTNEY_SCRIPT_HOST: "{{ [ TOR_INSTANCE_DIR, 'chutney.sh' ] | path_join }}"
+TOR_CHUTNEY_SCRIPT_PATH: "/usr/local/bin/tor-chutney.sh"
 TOR_RESTART_REQUIRED: >-
   {{ ((_tor_hs_keys is changed) or (_tor_torrc is changed))
      and (_tor_running_before is not skipped)

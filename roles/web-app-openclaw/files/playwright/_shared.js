@@ -18,6 +18,7 @@ const env = {
   canonicalDomain: decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || ""),
   gatewayToken: decodeDotenvQuotedValue(process.env.OPENCLAW_GATEWAY_TOKEN || ""),
   ssoEnabled: String(process.env.SSO_SERVICE_ENABLED || "").toLowerCase() === "true",
+  trustedProxy: String(process.env.OPENCLAW_TRUSTED_PROXY_ENABLED).toLowerCase() === "true",
 };
 
 async function beforeEach() {}
@@ -46,10 +47,12 @@ async function openGate(page) {
 
 /**
  * Args:
- *   page: Playwright page that shows the login gate.
+ *   page: Playwright page that shows the login gate; the gateway token is typed only while the gateway runs in token mode.
  */
-async function submitToken(page) {
-  await page.locator(`${GATE} .login-gate__secret-row input`).first().fill(env.gatewayToken);
+async function connectGate(page) {
+  if (!env.trustedProxy) {
+    await page.locator(`${GATE} .login-gate__secret-row input`).first().fill(env.gatewayToken);
+  }
   await page.locator(`${GATE} .login-gate__connect`).click();
 }
 
@@ -92,7 +95,7 @@ async function openDashboard(page, path, approvalMs) {
   const gate = page.locator(GATE);
   await expect(shell.or(gate).first()).toBeVisible({ timeout: resolveTimeout(60_000) });
   if (await gate.isVisible()) {
-    await submitToken(page);
+    await connectGate(page);
     const admitted = await expect
       .poll(
         async () => {
@@ -114,4 +117,4 @@ async function openDashboard(page, path, approvalMs) {
   return true;
 }
 
-module.exports = { env, beforeEach, open, openDashboard, openGate, submitToken, GATE };
+module.exports = { env, beforeEach, open, openDashboard, openGate, connectGate, GATE };

@@ -1,0 +1,19 @@
+---
+# Param: assert_kvm_consumer - the role that starts virtual machines on this host
+- name: "🔍 Look for the KVM device on {{ inventory_hostname }}"
+  ansible.builtin.stat:
+    path: /dev/kvm
+  register: assert_kvm_device
+
+- name: "🛑 Refuse a host without hardware virtualization"
+  ansible.builtin.assert:
+    that:
+      - assert_kvm_device.stat.exists
+      - assert_kvm_device.stat.ischr
+    fail_msg: >-
+      {{ assert_kvm_consumer }} starts agent VMs and needs /dev/kvm, which
+      {{ inventory_hostname }} does not have. Enable VT-x or AMD-V in the
+      firmware and load kvm_intel or kvm_amd; on a host that is itself a VM,
+      enable nested virtualization on the outer hypervisor (kvm_intel or
+      kvm_amd with nested=1, CPU type host). Then deploy again.
+    quiet: true

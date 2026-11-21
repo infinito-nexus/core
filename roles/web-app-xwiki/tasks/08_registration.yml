@@ -1,0 +1,99 @@
+---
+- name: "⬇️ XWIKI | Fetch REST session + form token (registration right)"
+  include_tasks: utils/rest_session.yml
+
+- name: "🔎 XWIKI | List the global rights objects of XWikiPreferences"
+  include_tasks: utils/http.yml
+  vars:
+    xwiki_http_method: GET
+    xwiki_http_url: "{{ XWIKI_REST_GLOBAL_RIGHTS }}"
+    xwiki_http_headers: "{{ XWIKI_SUPERADMIN_AUTH_HEADERS | combine({'Accept': 'application/json'}) }}"
+    xwiki_http_body: ""
+    xwiki_http_status: [200]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_global_rights
+
+- name: "🔎 XWIKI | Read the properties of every global rights object"
+  include_tasks: utils/http.yml
+  vars:
+    xwiki_http_method: GET
+    xwiki_http_url: "{{ [XWIKI_REST_GLOBAL_RIGHTS, xwiki_global_right.number | string] | url_join }}"
+    xwiki_http_headers: "{{ XWIKI_SUPERADMIN_AUTH_HEADERS | combine({'Accept': 'application/json'}) }}"
+    xwiki_http_body: ""
+    xwiki_http_status: [200]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: "_xwiki_global_right_object_{{ xwiki_global_right.number }}"
+  loop: "{{ (_xwiki_global_rights.content | from_json).objectSummaries }}"
+  loop_control:
+    loop_var: xwiki_global_right
+    label: "{{ xwiki_global_right.number }}"
+
+- name: "🧮 XWIKI | Start an empty list of registration denials"
+  ansible.builtin.set_fact:
+    _xwiki_registration_denials: []
+
+- name: "🧮 XWIKI | Collect the rights objects that deny the guest registration"
+  ansible.builtin.set_fact:
+    _xwiki_registration_denials: "{{ _xwiki_registration_denials + [xwiki_rights_object.number] }}"
+  loop: >-
+    {{ (_xwiki_global_rights.content | from_json).objectSummaries
+       | map(attribute='number')
+       | map('string')
+       | map('regex_replace', '^', '_xwiki_global_right_object_')
+       | map('extract', hostvars[inventory_hostname], 'content')
+       | map('from_json')
+       | list }}
+  loop_control:
+    loop_var: xwiki_rights_object
+    label: "{{ xwiki_rights_object.number }}"
+  vars:
+    xwiki_rights_properties: "{{ xwiki_rights_object.properties | items2dict(key_name='name', value_name='value') }}"
+  when:
+    - xwiki_rights_properties.get('users') | string == XWIKI_REGISTRATION_GUEST
+    - xwiki_rights_properties.get('levels') | string == 'register'
+    - xwiki_rights_properties.get('allow') | string in ['0', 'false']
+
+- name: "🚫 XWIKI | Deny self-registration to the guest"
+  include_tasks: utils/http.yml
+  vars:
+    xwiki_http_method: POST
+    xwiki_http_url: "{{ XWIKI_REST_PREFERENCES_OBJECTS }}"
+    xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+    xwiki_http_body: "{{ lookup('template', 'xml/rights/registration_denial.xml.j2') }}"
+    xwiki_http_status: [200, 201]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_registration_denied
+  when:
+    - not (XWIKI_LOGIN_REGISTRATION | bool)
+    - _xwiki_registration_denials | length == 0
+
+- name: "✅ XWIKI | Allow self-registration to the guest again"
+  include_tasks: utils/http.yml
+  vars:
+    xwiki_http_method: DELETE
+    xwiki_http_url: "{{ [XWIKI_REST_GLOBAL_RIGHTS, xwiki_registration_denial | string] | url_join }}"
+    xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+    xwiki_http_body: ""
+    xwiki_http_status: [200, 204]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_registration_allowed
+  loop: "{{ _xwiki_registration_denials }}"
+  loop_control:
+    loop_var: xwiki_registration_denial
+  when: XWIKI_LOGIN_REGISTRATION | bool

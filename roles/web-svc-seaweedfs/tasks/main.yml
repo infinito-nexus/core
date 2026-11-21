@@ -6,3 +6,9 @@
 - name: "🔧 Provision a dedicated bucket for a consumer"
   include_tasks: 01_init_consumer.yml
   when: objstore_init | bool
+
+- name: "🪣 Apply or destroy the resources of one workspace"
+  include_tasks: workspace.yml
+  when:
+    - WORKSPACE_ACTION is defined
+    - not (objstore_init | bool)

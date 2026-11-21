@@ -1,19 +1,18 @@
 ---
 - name: "✅ ASSERT | superadmin can authenticate (needed for installer)"
-  uri_retry:
-    url: "{{ [XWIKI_REST_XWIKI, 'spaces'] | url_join }}"
-    method: GET
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [200, 401, 403, 500, 503]
-    return_content: true
-  register: _super_check_ext
-  retries: 120
-  delay: 5
-  until: _super_check_ext.status == 200
-  changed_when: false
-  failed_when: false
+  include_tasks: utils/http.yml
+  vars:
+    xwiki_http_method: GET
+    xwiki_http_url: "{{ [XWIKI_REST_XWIKI, 'spaces'] | url_join }}"
+    xwiki_http_headers: "{{ XWIKI_SUPERADMIN_AUTH_HEADERS }}"
+    xwiki_http_body: ""
+    xwiki_http_status: [200]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 120
+    xwiki_http_delay: 5
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _super_check_ext
 
 - block:
     - name: "🐛 DEBUG | superadmin check + pw hash compare (condensed)"
@@ -64,8 +63,8 @@
 - name: "🫙 XWIKI | Move the blob store to the bucket now the extension exists"
   include_tasks: utils/flush_config.yml
   vars:
-    xwiki_oidc_enabled_switch: false
-    xwiki_ldap_enabled_switch: false
+    xwiki_oidc_enabled_switch: "{{ (XWIKI_OIDC_ENABLED | bool) and (xwiki_extensions_ready | bool) }}"
+    xwiki_ldap_enabled_switch: "{{ (XWIKI_LDAP_ENABLED | bool) and (xwiki_extensions_ready | bool) }}"
     xwiki_blobstore_s3_enabled_switch: "{{ XWIKI_OBJSTORE_ENABLED | bool }}"
 
 - name: "✅ XWIKI | Ensure Main.WebHome exists"
@@ -77,16 +76,20 @@
 - name: "🌐 XWIKI | Name the canonical origin in the main wiki descriptor"
   include_tasks: 07_wiki_descriptor.yml
 
+- name: "🚪 XWIKI | Grant or deny guest self-registration"
+  include_tasks: 08_registration.yml
+
 - block:
     - name: "📁 Create Final Docker Compose File"
       stack_host_template:
         src: "compose.yml.j2"
         dest: "{{ lookup('container', application_id, 'files.compose') }}"
+        mode: "0640"
       notify: compose-up
 
     - name: 🚀 Deploy Final Config
       include_tasks: utils/flush_config.yml
   vars:
-    xwiki_oidc_enabled_switch: "{{ XWIKI_OIDC_ENABLED | bool }}"
-    xwiki_ldap_enabled_switch: "{{ XWIKI_LDAP_ENABLED | bool }}"
+    xwiki_oidc_enabled_switch: "{{ XWIKI_LOGIN_SSO | bool }}"
+    xwiki_ldap_enabled_switch: "{{ XWIKI_LOGIN_LDAP | bool }}"
     xwiki_blobstore_s3_enabled_switch: "{{ XWIKI_OBJSTORE_ENABLED | bool }}"

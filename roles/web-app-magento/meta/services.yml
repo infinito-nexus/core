@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-playwright — Magento remote storage is wired into bin/magento setup:install at first boot and read back through the same PHP process, so the bucket has no persona-reachable upload surface
 logout:
   bond: 1
@@ -15,6 +16,10 @@ sso:
     origin:
       host: nginx
       port: "{{ lookup('config', 'web-app-magento', 'services.magento.ports.internal.http') }}"
+    restricted_locations:
+      - location: "/{{ lookup('config', 'web-app-magento', 'services.magento.backend_frontname') }}"
+        groups:
+          - "{{ lookup('rbac_group_path', application_id='web-app-magento', role='administrator') }}"
 dashboard:
   bond: 1
   enabled: "{{ 'web-app-dashboard' in group_names }}"
@@ -25,11 +30,11 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: bond-baseline - a role-local switch with no provider role to place; variant 0 runs with SSO, where two-factor authentication is off
 two_factor:
-  enabled: "{{ MAIL_PROVIDER in group_names and 'web-app-keycloak' not in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names and 'web-app-keycloak' not in group_names }}"
 php:
   image: markoshust/magento-php
   version: 8.4-fpm # nocheck: docker-version — magento/product-community-edition 2.4.8 requires php ~8.2.0||~8.3.0||~8.4.0; dc08bc621 already pinned this down from 8.5 and the image bot reverted it in 1e4f82128, so composer install fails again
@@ -127,6 +132,7 @@ prometheus:
 magento:
   # nocheck: default-placement-manager  01_setup.yml bootstraps through `container exec` from IS_STACK_HOST, which can only reach a container the manager itself runs
   placement: manager
+  backend_frontname: admin
   composer:
     repository: https://mirror.mage-os.org/
     package: magento/project-community-edition
@@ -171,3 +177,24 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  flush: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

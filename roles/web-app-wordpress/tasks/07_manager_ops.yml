@@ -1,4 +1,19 @@
 ---
+- name: "🔒 Hand the managed option values to the infinito-managed-options guard"
+  ansible.builtin.shell:
+    cmd: >-
+      IFS= read -r INFINITO_MANAGED_OPTIONS || :; : "${INFINITO_MANAGED_OPTIONS:?arrived empty on stdin}" && export INFINITO_MANAGED_OPTIONS &&
+      container exec -i --user {{ WORDPRESS_USER | quote }}
+      -e INFINITO_MANAGED_OPTIONS
+      {{ WORDPRESS_CONTAINER_ADDRESS }}
+      php -- {{ WORDPRESS_MANAGED_OPTIONS_FILE | quote }}
+    stdin: |-
+      {{ WORDPRESS_MANAGED_OPTIONS | to_json | b64encode }}
+      {{ lookup('file', 'php/managed_options.php') }}
+  register: wordpress_managed_options
+  changed_when: wordpress_managed_options.stdout_lines | last == 'changed'
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
 - name: 🔎 Check if {{ WORDPRESS_CONFIG_FILE }} exists in WordPress
   shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }} test -f {{ WORDPRESS_CONFIG_PATH }}
@@ -30,8 +45,12 @@
 - name: "📦 Install declared mu-plugins"
   include_tasks: 04_mu_plugins.yml
 
+- name: "🏠 Reserve and archive the own sites of the site-owner members"
+  include_tasks: 05_site_owners.yml
+  when: WORDPRESS_SITE_OWNER_ENABLED | bool
+
 - name: "🔁 Iterate through WordPress plugins"
-  include_tasks: 05_enable_plugin.yml
+  include_tasks: 06_enable_plugin.yml
   loop: "{{ WORDPRESS_PLUGINS }}"
   loop_control:
     loop_var: wordpress_plugin
@@ -42,38 +61,47 @@
     plugin_task_path: "{{ [role_path, 'tasks/addons', plugin_name  ~ '.yml' ] | path_join }}"
   when: plugin_enabled | bool
 
-- name: "⬇️ Read the WordPress options services.wordpress.options pins"
+- name: 🔍 Detect if WordPress is Multisite
   shell: >
     container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
-    wp option get {{ item.key | quote }} --format=json
-    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
-  loop: "{{ WORDPRESS_OPTIONS | dict2items }}"
-  loop_control:
-    label: "{{ item.key }}"
-  register: wp_options_stored
+    wp eval 'echo (int) is_multisite();' --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  register: wp_is_multisite
   changed_when: false
-  failed_when: >-
-    wp_options_stored.rc != 0
-    and 'Could not get' not in wp_options_stored.stderr
 
-- name: "🔧 Write each pinned WordPress option whose stored value differs"
-  shell: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
-    wp option update {{ item.item.key | quote }} {{ item.item.value | to_json | quote }}
-    --format=json --path={{ WORDPRESS_DOCKER_HTML_PATH }}
-  loop: "{{ wp_options_stored.results }}"
-  loop_control:
-    label: "{{ item.item.key }}"
-  when: item | wordpress_option_drifted
-  register: wp_options_written
-  changed_when: >-
-    'option is unchanged.' not in wp_options_written.stdout
+- name: "🛑 Refuse a Multisite state the configuration does not declare"
+  ansible.builtin.assert:
+    that:
+      - (wp_is_multisite.stdout | trim) == (WORDPRESS_MULTISITE_ENABLED | bool | ternary('1', '0'))
+    fail_msg: >-
+      WordPress reports is_multisite() as {{ wp_is_multisite.stdout | trim }}, but
+      services.wordpress.multisite.enabled is {{ WORDPRESS_MULTISITE_ENABLED | bool | lower }}.
+      The registration fields of meta/forms.yml follow that setting and would write the
+      wrong scope, so align services.wordpress.multisite.enabled with the installation.
+    quiet: true
 
-- name: "🚿 Flush the rewrite rules after a pinned option changed"
-  shell: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
-    wp rewrite flush --path={{ WORDPRESS_DOCKER_HTML_PATH }}
-  when: wp_options_written is changed
+- name: "🛑 Refuse a services.wordpress.options pin no field of meta/forms.yml reads"
+  ansible.builtin.assert:
+    that:
+      - WORDPRESS_OPTION_PINS_UNREAD | length == 0
+    fail_msg: >-
+      services.wordpress.options pins {{ WORDPRESS_OPTION_PINS_UNREAD | join(', ') }},
+      but no field of meta/forms.yml reads them. Declare a field with the source
+      services.wordpress.options.<name> under applications.web-app-wordpress.forms,
+      or drop the pin.
+    quiet: true
+
+- name: "⚙️ Converge the managed options of the WordPress site"
+  include_tasks: utils/options.yml
+  vars:
+    wordpress_options: "{{ WORDPRESS_OPTIONS_CHECKED }}"
+    wordpress_options_command: option
+
+- name: "⚙️ Converge the managed options of the WordPress network"
+  include_tasks: utils/options.yml
+  vars:
+    wordpress_options: "{{ WORDPRESS_NETWORK_OPTIONS }}"
+    wordpress_options_command: site option
+  when: WORDPRESS_NETWORK_OPTIONS | length > 0
 
 - name: "🌍 Verify FreedomTranslate posts to the translation gateway"
   when: WORDPRESS_TRANSLATE_ENABLED | bool
@@ -94,21 +122,12 @@
           instead of {{ WORDPRESS_TRANSLATE_ENDPOINT }}, so the content would be
           translated outside this deployment or not at all.
 
-- name: 🔍 Detect if WordPress is Multisite
-  shell: >
-    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
-    wp eval 'echo (int) is_multisite();' --path={{ WORDPRESS_DOCKER_HTML_PATH }}
-  register: wp_is_multisite
-  changed_when: false
-
 - name: "🔄 Update Single Side WordPress domain"
-  include_tasks: 06_update_domain.yml
+  include_tasks: 08_update_domain.yml
   when: (wp_is_multisite.stdout | trim) == '0'
-  vars:
-    wp_new_url: "{{ WORDPRESS_URL }}"
 
 - name: "🎨 Apply or withdraw the corporate design"
-  include_tasks: 08_design.yml
+  include_tasks: 09_design.yml
 
 - name: "📧 Verify the relay accepted WordPress's startup mail"
   when: lookup('config', application_id, 'services.email.enabled', false) | bool

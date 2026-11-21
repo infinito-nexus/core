@@ -20,6 +20,7 @@ from utils.cache.applications import (
     get_application_defaults,
     get_merged_applications,
     get_variants,
+    with_variants,
 )
 from utils.cache.applications import (
     _load_variants_overrides as _load_yaml_variant_list,
@@ -329,6 +330,29 @@ class TestReadonlyVariants(unittest.TestCase):
         shared = get_variants(roles_dir=str(self.tmp), readonly=True)
         copied = get_variants(roles_dir=str(self.tmp))
         self.assertEqual(shared, copied)
+
+
+_BASE = {"web-app-a": {"v": "base-a"}, "web-app-b": {"v": "base-b"}}
+_AVAILABLE = {"web-app-a": [{"v": "a0"}, {"v": "a1"}]}
+
+
+class TestWithVariants(unittest.TestCase):
+    def test_a_listed_app_takes_its_variant(self) -> None:
+        result = with_variants(_BASE, _AVAILABLE, {"web-app-a": 1})
+        self.assertEqual(result["web-app-a"], {"v": "a1"})
+
+    def test_an_unlisted_app_keeps_its_base(self) -> None:
+        result = with_variants(_BASE, _AVAILABLE, {"web-app-a": 1})
+        self.assertEqual(result["web-app-b"], {"v": "base-b"})
+
+    def test_an_undeclared_index_keeps_the_base(self) -> None:
+        result = with_variants(_BASE, _AVAILABLE, {"web-app-a": 2, "web-app-b": 0})
+        self.assertEqual(result, _BASE)
+
+    def test_the_base_mapping_is_left_untouched(self) -> None:
+        base = dict(_BASE)
+        with_variants(base, _AVAILABLE, {"web-app-a": 0})
+        self.assertEqual(base, _BASE)
 
 
 if __name__ == "__main__":

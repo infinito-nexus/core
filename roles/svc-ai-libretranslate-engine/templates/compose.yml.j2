@@ -16,7 +16,8 @@
         APP_USER: "{{ LIBRETRANSLATE_ENGINE_APP_USER }}"
     {{ lookup('container_image', application_id, 'libretranslate-engine') }}
     {{ lookup('compose_only', 'container_name', LIBRETRANSLATE_ENGINE_CONTAINER_ADDRESS) }}
-    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name, extra_volumes=LIBRETRANSLATE_ENGINE_STORE_MOUNTS) | indent(4) }}
+    {# nocheck: swarm-loopback-port overlay  web-svc-translate reaches the engine by service name and internal port (TRANSLATE_LIBRETRANSLATE_URL); model installs run inside the container #}
     {{ lookup('container_ports', ['libretranslate-engine', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}

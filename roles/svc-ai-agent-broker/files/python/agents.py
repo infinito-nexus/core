@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import collections
 import hashlib
 import json
 import secrets
@@ -11,6 +12,9 @@ from datetime import datetime
 
 from engine import LABEL_OWNER, LABEL_PLATFORM
 
+QUEUE_POLL_SECONDS = 5
+KEYS_REFRESH_SECONDS = 30
+PROFILE_PREFIX = "agent/"
 KEY_ENV = "AGENT_BROKER_KEY"
 CONFIG_ENV = "AGENT_CONFIG"
 CONFIG_PATH_ENV = "AGENT_CONFIG_PATH"
@@ -35,51 +39,112 @@ def pick(requested, allowed):
     return next((entry for entry in allowed if entry == requested), None)
 
 
+def profile_catalog(roles):
+    """Return model name ``agent/<role>`` -> the role's runtime.
+
+    Args:
+        roles: agent role of ``agents/roles/`` -> the runtime it runs on.
+    """
+    return {f"{PROFILE_PREFIX}{role}": runtime for role, runtime in roles.items()}
+
+
+def resolve(requested, platforms, profiles):
+    """Return ``(platform, instance)`` for a requested model: a platform name
+    selects that platform's agent, ``agent/<role>`` the role's runtime and an
+    agent of its own per role. ``instance`` is None for an unknown model and
+    ``platform`` is None for a profile whose runtime this broker does not offer.
+
+    Args:
+        requested: the ``model`` of the request.
+        platforms: platform name -> spec the broker offers.
+        profiles: the result of ``profile_catalog``.
+    """
+    platform = pick(requested, platforms)
+    if platform is not None:
+        return platform, platform
+    profile = pick(requested, profiles)
+    if profile is None:
+        return None, None
+    runtime = profiles[profile]
+    instance = f"{runtime}-{profile[len(PROFILE_PREFIX) :]}"
+    return pick(runtime, platforms), instance
+
+
+def model_list(platforms, profiles):
+    """Return the OpenAI ``/v1/models`` entries: every platform, then every
+    profile of the catalog.
+
+    Args:
+        platforms: platform name -> spec the broker offers.
+        profiles: the result of ``profile_catalog``.
+    """
+    return [
+        {"id": name, "object": "model", "owned_by": "agent-broker"}
+        for name in [*sorted(platforms), *sorted(profiles)]
+    ]
+
+
 def agent_name(platform, owner):
     digest = hashlib.sha256(owner.encode()).hexdigest()[:16]
     return f"agent-{platform}-{digest}"
 
 
-def hermes_config(model, relay_url, key, context):
-    lines = [
-        "model:",
-        f"  default: {json.dumps(model)}",
-        "  provider: custom",
-        f"  base_url: {json.dumps(relay_url)}",
-        f"  api_key: {json.dumps(key)}",
-    ]
-    if context:
-        lines.append(f"  context_length: {context}")
-    lines += ["mcp_servers: {}", ""]
-    return "\n".join(lines)
+_DROP = object()
 
 
-def openclaw_config(model, relay_url, key, context):
-    entry = {"id": model, "name": model}
-    if context:
-        entry["contextWindow"] = context
-    return json.dumps(
+def _subst(node, subs):
+    """Return ``node`` with its ``${name}`` placeholders replaced from ``subs``.
+
+    A string that is exactly ``${context}`` becomes the context value, or
+    ``_DROP`` when the context is falsy so the key is left out. Any other
+    string has every ``${name}`` interpolated. Dicts and lists recurse, and a
+    ``_DROP`` value removes its key or list item.
+    """
+    if isinstance(node, dict):
+        out = {}
+        for key, value in node.items():
+            rendered = _subst(value, subs)
+            if rendered is not _DROP:
+                out[key] = rendered
+        return out
+    if isinstance(node, list):
+        return [r for r in (_subst(v, subs) for v in node) if r is not _DROP]
+    if isinstance(node, str):
+        if node == "${context}":
+            return subs["context"] or _DROP
+        result = node
+        for name, value in subs.items():
+            result = result.replace("${" + name + "}", str(value))
+        return result
+    return node
+
+
+def render_config(platform_spec, model, relay_url, key, context):
+    """Render a runtime's agent config from the runtime's own declaration.
+
+    The broker holds no runtime list: every runtime declares ``config_render``,
+    the agent config as data with ``${model}``, ``${relay_url}``, ``${key}``
+    and ``${context}`` placeholders, in its platform spec. The result is JSON,
+    which both a JSON runtime and a YAML runtime parse, so the broker needs no
+    serializer beyond the standard library.
+
+    Args:
+        platform_spec: the runtime's entry from ``AGENT_PLATFORMS``.
+        model: the model alias the agent asks the relay for.
+        relay_url: the base URL the agent sends model calls to.
+        key: the agent's broker key.
+        context: the model's context window in tokens, 0 to leave it unset.
+    """
+    data = _subst(
+        platform_spec["config_render"],
         {
-            "gateway": {
-                "mode": "local",
-                "http": {"endpoints": {"chatCompletions": {"enabled": True}}},
-            },
-            "agents": {"defaults": {"model": {"primary": f"broker/{model}"}}},
-            "models": {
-                "providers": {
-                    "broker": {
-                        "baseUrl": relay_url,
-                        "apiKey": key,
-                        "api": "openai-completions",
-                        "models": [entry],
-                    }
-                }
-            },
-        }
+            "model": model,
+            "relay_url": relay_url,
+            "key": key,
+            "context": context,
+        },
     )
-
-
-CONFIG_RENDERERS = {"hermes": hermes_config, "openclaw": openclaw_config}
+    return json.dumps(data)
 
 
 def _env_value(env, name):
@@ -109,6 +174,7 @@ class Agents:
         idle_seconds: idle time before a stop.
         max_running: bound on concurrently running agents.
         start_timeout: seconds an agent gets to answer its health endpoint.
+        queue_timeout: seconds a start waits in the queue for a free slot.
         log: ``log(event, **fields)`` writing one broker log line.
     """
 
@@ -126,6 +192,7 @@ class Agents:
         idle_seconds,
         max_running,
         start_timeout,
+        queue_timeout,
         log,
     ):
         self.backend = backend
@@ -140,25 +207,31 @@ class Agents:
         self.idle_seconds = idle_seconds
         self.max_running = max_running
         self.start_timeout = start_timeout
+        self.queue_timeout = queue_timeout
         self.log = log
+        self._slots = threading.Condition()
+        self._queue = collections.deque()
+        self._starting = 0
         self._locks = {}
         self._locks_guard = threading.Lock()
         self._busy = {}
         self._last_used = {}
         self._keys = {}
+        self._keys_guard = threading.Lock()
+        self._keys_refreshed = float("-inf")
         self._agent_models = {}
 
     def _lock_for(self, name):
         with self._locks_guard:
             return self._locks.setdefault(name, threading.Lock())
 
-    def _spec(self, platform, owner, key):
+    def _spec(self, platform, owner, key, instance=None):
         platform_spec = self.platforms[platform]
-        name = agent_name(platform, owner)
+        name = agent_name(instance or platform, owner)
         entrypoint, cmd = self.engine.image_config(platform_spec["image"])
         command = list(platform_spec["command"]) or cmd
-        config = CONFIG_RENDERERS[platform](
-            self.model, self.relay_url, key, self.context
+        config = render_config(
+            platform_spec, self.model, self.relay_url, key, self.context
         )
         env = [f"{k}={v}" for k, v in sorted(platform_spec["env"].items())]
         env += [
@@ -221,41 +294,78 @@ class Agents:
             f" (last error: {last_error})"
         )
 
-    def ensure(self, platform, owner):
-        """Return ``(address, key)`` of the caller's running agent.
+    def _acquire_slot(self, name):
+        """Wait in the FIFO start queue until ``name`` is first and a slot is free.
 
         Args:
-            platform: ``hermes`` or ``openclaw``.
-            owner: Open WebUI user id of the caller.
+            name: the agent waiting for a slot, named in the refusal.
         """
-        name = agent_name(platform, owner)
+        ticket = object()
+        deadline = time.monotonic() + self.queue_timeout
+        with self._slots:
+            self._queue.append(ticket)
+            try:
+                while (
+                    self._queue[0] is not ticket
+                    or self._running_count() + self._starting >= self.max_running
+                ):
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        raise CapacityError(
+                            f"{self.max_running} agents already running; {name}"
+                            f" waited {self.queue_timeout}s in the start queue"
+                        )
+                    self._slots.wait(min(remaining, QUEUE_POLL_SECONDS))
+                self._starting += 1
+            finally:
+                self._queue.remove(ticket)
+                self._slots.notify_all()
+
+    def _release_slot(self):
+        with self._slots:
+            self._starting -= 1
+            self._slots.notify_all()
+
+    def _slot_freed(self):
+        with self._slots:
+            self._slots.notify_all()
+
+    def ensure(self, platform, owner, instance=None):
+        """Return ``(address, key)`` of the caller's running agent; a start
+        beyond ``max_running`` waits in the queue in arrival order.
+
+        Args:
+            platform: a key of ``platforms``.
+            owner: Open WebUI user id of the caller.
+            instance: the agent name part from ``resolve``; the platform when None.
+        """
+        name = agent_name(instance or platform, owner)
+        labels = {LABEL_PLATFORM: platform, LABEL_OWNER: owner}
         with self._lock_for(name):
             detail = self.backend.find(name)
-            if detail is None:
-                if self._running_count() >= self.max_running:
-                    raise CapacityError(f"{self.max_running} agents already running")
-                key = secrets.token_urlsafe(32)
-                network_id = self.backend.network_for(
-                    name,
-                    {LABEL_PLATFORM: platform, LABEL_OWNER: owner},
-                    self.self_container,
-                    self.broker_alias,
+            if detail is not None and self.backend.is_running(detail):
+                self.backend.network_for(
+                    name, labels, self.self_container, self.broker_alias
                 )
-                detail = self.backend.create(
-                    self._spec(platform, owner, key), network_id
-                )
+                key = self._remember(detail)
             else:
-                network_id = self.backend.network_for(
-                    name,
-                    {LABEL_PLATFORM: platform, LABEL_OWNER: owner},
-                    self.self_container,
-                    self.broker_alias,
-                )
-            key = self._remember(detail)
-            if not self.backend.is_running(detail):
-                if self._running_count() >= self.max_running:
-                    raise CapacityError(f"{self.max_running} agents already running")
-                self.backend.start(detail, network_id)
+                self._acquire_slot(name)
+                try:
+                    network_id = self.backend.network_for(
+                        name, labels, self.self_container, self.broker_alias
+                    )
+                    if detail is None:
+                        detail = self.backend.create(
+                            self._spec(
+                                platform, owner, secrets.token_urlsafe(32), instance
+                            ),
+                            network_id,
+                        )
+                    key = self._remember(detail)
+                    if not self.backend.is_running(detail):
+                        self.backend.start(detail, network_id)
+                finally:
+                    self._release_slot()
             self._wait_healthy(platform, name, key)
             self._last_used[name] = time.monotonic()
             return f"http://{name}:{self.platforms[platform]['port']}", key
@@ -279,9 +389,23 @@ class Agents:
         return model
 
     def owner_of_key(self, key):
+        """Return ``(owner, platform)`` of the agent holding ``key``, None for
+        an unknown key; a miss re-reads the agents at most once per
+        ``KEYS_REFRESH_SECONDS``, so unknown keys cannot flood the engine.
+
+        Args:
+            key: the bearer key an agent presented to the relay.
+        """
         if key not in self._keys:
-            for detail in self.backend.list_agents():
-                self._remember(detail)
+            with self._keys_guard:
+                now = time.monotonic()
+                if (
+                    key not in self._keys
+                    and now - self._keys_refreshed >= KEYS_REFRESH_SECONDS
+                ):
+                    for detail in self.backend.list_agents():
+                        self._remember(detail)
+                    self._keys_refreshed = now
         return self._keys.get(key)
 
     def begin(self, platform, owner):
@@ -299,6 +423,7 @@ class Agents:
         detail = self.backend.find(agent_name(platform, owner))
         if detail is not None and self.backend.is_running(detail):
             self.backend.stop(detail)
+            self._slot_freed()
 
     def _idle_seconds_of(self, name, detail):
         last = self._last_used.get(name)
@@ -331,3 +456,4 @@ class Agents:
                     continue
                 self.backend.stop(current)
                 self._last_used.pop(name, None)
+            self._slot_freed()

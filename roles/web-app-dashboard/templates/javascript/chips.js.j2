@@ -1,0 +1,115 @@
+{% set dashboard_chip_cards = lookup('docker_cards', 'roles') %}
+(function () {
+  "use strict";
+
+  const CONFIG = {{ {
+      'cards': dashboard_chip_cards | map(attribute='id') | list,
+      'gates': (dashboard_chip_cards | selectattr('allowed_groups', 'defined') | items2dict(key_name='id', value_name='allowed_groups'))
+               if DASHBOARD_LOCKS_ENABLED | bool else {},
+      'request_url': DASHBOARD_ACCESS_REQUEST_URL if DASHBOARD_ACCESS_REQUEST_ENABLED | bool else '',
+      'status': {
+          'url': DASHBOARD_STATUS_PATH,
+          'poll_seconds': DASHBOARD_STATUS_POLL_SECONDS | int,
+          'stale_after_seconds': DASHBOARD_STATUS_STALE_AFTER_SECONDS | int,
+      } if DASHBOARD_STATUS_ENABLED | bool else None,
+  } | to_json }};
+  const IDENTITY_EVENT = "dashboard:identity";
+  const LOGIN_EVENT = "dashboard:login";
+  const STATES = {
+    running: { tone: "success", icon: "fa-solid fa-circle-check", label: "Running" },
+    paused: { tone: "info", icon: "fa-solid fa-circle-pause", label: "Paused" },
+    degraded: { tone: "warning", icon: "fa-solid fa-triangle-exclamation", label: "Degraded" },
+    down: { tone: "danger", icon: "fa-solid fa-circle-xmark", label: "Down" },
+    unknown: { tone: "secondary", icon: "fa-solid fa-circle-question", label: "Unknown" },
+  };
+
+  let identity;
+  let statusDocument = null;
+
+  function lockFor(id) {
+    const allowed = CONFIG.gates[id];
+    if (!allowed || identity === undefined) {
+      return null;
+    }
+    if (identity === null) {
+      return { kind: "lock", tone: "primary", icon: "fa-solid fa-right-to-bracket", label: "Sign in", state: "signin" };
+    }
+    if (identity.some((group) => allowed.includes(group))) {
+      return null;
+    }
+    if (CONFIG.request_url) {
+      return {
+        kind: "lock",
+        tone: "primary",
+        icon: "fa-solid fa-lock",
+        label: "Request access",
+        href: CONFIG.request_url.split("{id}").join(encodeURIComponent(id)),
+        newTab: true,
+        state: "request",
+      };
+    }
+    return { kind: "lock", tone: "primary", icon: "fa-solid fa-lock", label: "No access", state: "denied" };
+  }
+
+  function healthFor(id) {
+    if (!CONFIG.status) {
+      return null;
+    }
+    const states = statusDocument ? statusDocument.applications : null;
+    const entry = states ? states[id] : null;
+    const checked = entry ? Date.parse(entry.checked) : NaN;
+    const fresh = !Number.isNaN(checked) && Date.now() - checked <= CONFIG.status.stale_after_seconds * 1000;
+    const state = entry && fresh && Object.hasOwn(STATES, entry.state) ? entry.state : "unknown";
+    const detail = Number.isNaN(checked) ? "" : ` · ${new Date(checked).toLocaleString(document.documentElement.lang)}`;
+    return { kind: "health", tone: STATES[state].tone, icon: STATES[state].icon, label: STATES[state].label, detail, state };
+  }
+
+  function refresh() {
+    for (const id of CONFIG.cards) {
+      window.portui.chips.set(id, [lockFor(id), healthFor(id)].filter(Boolean));
+    }
+  }
+
+  function poll() {
+    fetch(CONFIG.status.url, { cache: "no-store", credentials: "same-origin" })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`status ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((document_) => {
+        const valid = document_ && typeof document_.applications === "object" && document_.applications !== null;
+        statusDocument = valid ? document_ : null;
+      })
+      .catch(() => {
+        statusDocument = null;
+      })
+      .then(refresh);
+  }
+
+  function start() {
+    document.addEventListener(IDENTITY_EVENT, (event) => {
+      const groups = event.detail ? event.detail.groups : null;
+      identity = Array.isArray(groups) ? groups.filter((group) => typeof group === "string") : null;
+      refresh();
+    });
+    document.addEventListener("click", (event) => {
+      if (event.target.closest && event.target.closest('.portui-chip-lock[data-portui-state="signin"]')) {
+        event.preventDefault();
+        document.dispatchEvent(new CustomEvent(LOGIN_EVENT));
+      }
+    });
+    refresh();
+    if (CONFIG.status) {
+      poll();
+      setInterval(poll, CONFIG.status.poll_seconds * 1000);
+    }
+  }
+
+  if (window.portui && window.portui.chips) {
+    start();
+  } else {
+    document.addEventListener("portui:ready", start, { once: true });
+  }
+})();

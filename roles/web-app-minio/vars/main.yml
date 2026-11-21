@@ -5,25 +5,27 @@ MINIO_CONTAINER: "{{ lookup('config', application_id, 'services.minio.name') }}"
 
 MINIO_API_DOMAIN: "{{ lookup('config', application_id, 'domains.canonical.api') }}"
 MINIO_API_URL: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ MINIO_API_DOMAIN }}"
-MINIO_API_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.api.ports.local.http') }}"
 
-MINIO_CONSOLE_DOMAIN: "{{ lookup('config', application_id, 'domains.canonical.console') }}"
 MINIO_CONSOLE_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 MINIO_CONSOLE_PORT_INTERNAL: 9001
-MINIO_CONSOLE_PORT_PUBLIC: "{{ lookup('config', application_id, 'services.console.ports.local.http') }}"
 
 MINIO_MC_IMAGE: "{{ lookup('minio', application_id, 'mc_image') }}"
 
 MINIO_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 MINIO_OIDC_POLICY_NAME: "{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
 MINIO_OIDC_POLICY_CONTENT: "{{ lookup('template', 'policy.json.j2') }}"
+MINIO_RBAC_POLICIES:
+  - name: "{{ MINIO_OIDC_POLICY_NAME }}"
+    group_dn: "cn={{ application_id }}-administrator,{{ LDAP.DN.OU.ROLES }}"
+    content: "{{ MINIO_OIDC_POLICY_CONTENT }}"
+  - name: "{{ lookup('rbac_group_path', application_id=application_id, role='readwrite') }}"
+    group_dn: "cn={{ application_id }}-readwrite,{{ LDAP.DN.OU.ROLES }}"
+    content: "{{ lookup('file', 'policies/readwrite.json') }}"
+  - name: "{{ lookup('rbac_group_path', application_id=application_id, role='readonly') }}"
+    group_dn: "cn={{ application_id }}-readonly,{{ LDAP.DN.OU.ROLES }}"
+    content: "{{ lookup('file', 'policies/readonly.json') }}"
 
 MINIO_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 
-MINIO_FRONT_PROXY_MATRIX: >-
-  {{
-    [
-      { 'domain': MINIO_CONSOLE_DOMAIN, 'http_port': MINIO_CONSOLE_PORT_PUBLIC },
-      { 'domain': MINIO_API_DOMAIN,     'http_port': MINIO_API_PORT_PUBLIC }
-    ]
-  }}
+MINIO_LOGIN_SSO: "{{ lookup('config', application_id, 'services.minio.login.method.sso.enabled') | bool }}"
+MINIO_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.minio.login.method.ldap.enabled') | bool }}"

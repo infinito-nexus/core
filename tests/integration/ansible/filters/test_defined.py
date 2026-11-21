@@ -71,6 +71,7 @@ BUILTIN_FILTERS: set[str] = {
     "relpath",
     "from_json",
     "to_json",
+    "to_uuid",
     "from_yaml",
     "to_yaml",
     "combine",

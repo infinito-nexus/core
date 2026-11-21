@@ -21,6 +21,7 @@ Snippet mode (no file changes, YAML printed to stdout)::
 """
 
 import argparse
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -30,12 +31,19 @@ from ruamel.yaml.comments import CommentedMap
 
 from cli.administration.inventory.ruamel_io import round_trip_yaml
 from utils.manager.inventory import InventoryManager
+from utils.openbao_client import OpenBaoError, login
 
 from .emit import (
     credentials_map,
     declared_credentials,
     emit_credentials,
     ensure_map,
+)
+from .openbao import (
+    OpenBaoSink,
+    ReferenceInventoryManager,
+    emit_references,
+    parse_target,
 )
 from .overrides import parse_overrides, split_override_key
 from .prompts import ask_for_confirmation
@@ -51,7 +59,18 @@ def main() -> int:
         "--inventory-file", required=True, help="Host vars file to update"
     )
     parser.add_argument(
-        "--vault-password-file", required=True, help="Vault password file"
+        "--vault-password-file",
+        help="Vault password file; required unless --openbao writes references",
+    )
+    parser.add_argument(
+        "--openbao",
+        metavar="MOUNT/PREFIX",
+        help=(
+            "Write every generated value create-only to OpenBao below "
+            "MOUNT/PREFIX/<application>/<credential> and only its reference "
+            "into the inventory; logs in with SEMAPHORE_JWT and BAO_ROLE or "
+            "with BAO_TOKEN at BAO_ADDR"
+        ),
     )
     parser.add_argument(
         "--set",
@@ -104,6 +123,11 @@ def main() -> int:
 
     overrides = parse_overrides(args.set)
 
+    if args.openbao:
+        return _run_reference_mode(parser, args, overrides)
+    if not args.vault_password_file:
+        parser.error("--vault-password-file is required unless --openbao is given")
+
     manager = InventoryManager(
         role_path=Path(args.role_path),
         inventory_path=Path(args.inventory_file),
@@ -122,6 +146,68 @@ def main() -> int:
         return _run_snippet_mode(schema_apps, overrides, manager, yaml_rt)
 
     return _run_default_mode(schema_apps, overrides, manager, yaml_rt, args)
+
+
+def _run_reference_mode(
+    parser: argparse.ArgumentParser,
+    args: argparse.Namespace,
+    overrides: dict[str, str],
+) -> int:
+    if args.snippet or args.force or "ansible_become_password" in overrides:
+        parser.error(
+            "--openbao writes create-only references; it takes neither --snippet, "
+            "--force nor an ansible_become_password override"
+        )
+    try:
+        mount, prefix = parse_target(args.openbao)
+        sink = OpenBaoSink(login(os.environ), mount, prefix)
+    except OpenBaoError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
+
+    manager = ReferenceInventoryManager(
+        role_path=Path(args.role_path),
+        inventory_path=Path(args.inventory_file),
+        vault_pw="",
+        overrides=overrides,
+        allow_empty_plain=args.allow_empty_plain,
+        variant=args.variant,
+    )
+    yaml_rt = round_trip_yaml()
+    schema_apps = manager.apply_schema().get("applications", {}) or {}
+
+    with Path(args.inventory_file).open(encoding="utf-8") as f:
+        data = yaml_rt.load(f)
+    if data is None:
+        data = CommentedMap()
+    apps = ensure_map(data, "applications")
+
+    written: list[str] = []
+    try:
+        for app_id, app_block_schema in schema_apps.items():
+            if not isinstance(app_block_schema, dict):
+                continue
+            schema_creds = declared_credentials(app_block_schema)
+            if not isinstance(schema_creds, dict) or not schema_creds:
+                continue
+            creds = credentials_map(ensure_map(apps, app_id))
+            written.extend(
+                f"{app_id}.{key}"
+                for key in emit_references(
+                    schema_creds, creds, app_id=app_id, key_path="", sink=sink
+                )
+            )
+    except OpenBaoError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
+
+    with Path(args.inventory_file).open("w", encoding="utf-8") as f:
+        yaml_rt.dump(data, f)
+
+    print(
+        f"✅ Wrote {len(written)} OpenBao references below {mount}/{prefix} → {args.inventory_file}"
+    )
+    return 0
 
 
 def _run_snippet_mode(

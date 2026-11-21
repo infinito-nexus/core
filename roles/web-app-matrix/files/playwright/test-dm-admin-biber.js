@@ -97,9 +97,21 @@ exports.register = function (shared) {
       await adminPage.keyboard.type(bootstrap);
       await adminPage.keyboard.press("Enter");
 
+      const adminMatrixId = `@${adminUsername.toLowerCase()}:${matrixServerName}`;
+      const adminProfile = await biberPage.request
+        .get(`${shared.env.matrixBaseUrl}/_matrix/client/v3/profile/${encodeURIComponent(adminMatrixId)}/displayname`, {
+          failOnStatusCode: false,
+          timeout: resolveTimeout(30_000),
+        })
+        .then((response) => (response.ok() ? response.json() : {}))
+        .catch(() => ({}));
+      const adminNames = [adminUsername, adminProfile.displayname]
+        .filter((name) => typeof name === "string" && name.length > 0)
+        .map((name) => name.toLowerCase());
+
       await expect
         .poll(async () => {
-          return await biberPage.evaluate((adminName) => {
+          return await biberPage.evaluate((names) => {
             const sections = document.querySelectorAll(
               'button[aria-expanded="false"][aria-label^="Toggle "]',
             );
@@ -114,7 +126,7 @@ exports.register = function (shared) {
             );
             for (const tile of roomTiles) {
               const name = `${tile.getAttribute("aria-label") || ""} ${tile.textContent || ""}`.toLowerCase();
-              if (name.includes(adminName)) {
+              if (names.some((adminName) => name.includes(adminName))) {
                 tile.click();
                 break;
               }
@@ -134,13 +146,13 @@ exports.register = function (shared) {
             return !!document.querySelector(
               "div[role='textbox'][contenteditable='true'], textarea[aria-label*='message' i]",
             );
-          }, adminUsername.toLowerCase()).catch(() => false);
+          }, adminNames).catch(() => false);
         }, {
           timeout: resolveTimeout(120_000),
           message:
             `biber: expected invite acceptance to produce a message composer. Element names the DM tile after ` +
-            `the inviter's Synapse display name, which stays the ${adminUsername} localpart because the deploy ` +
-            `registers the account natively and allow_existing_users grandfathers the OIDC login onto it`,
+            `the inviter's Synapse display name, which sso.update_profile_information sets from the IdP name ` +
+            `claim on every OIDC login (looked for: ${adminNames.join(", ")})`,
         })
         .toBe(true);
 

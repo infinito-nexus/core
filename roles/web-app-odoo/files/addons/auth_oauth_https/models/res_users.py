@@ -4,7 +4,7 @@
 import logging
 import os
 
-from odoo import api, models
+from odoo import Command, api, models
 from odoo.exceptions import AccessDenied
 
 _logger = logging.getLogger(__name__)
@@ -34,64 +34,86 @@ class ResUsersOAuthConfigurableUid(models.Model):
     _inherit = "res.users"
 
     @api.model
+    def _oidc_profile(self, validation):
+        return self.env["infinito.rbac"]._profile(
+            name=validation.get(os.environ["ODOO_OIDC_NAME_CLAIM"]),
+            email=validation.get(os.environ["ODOO_OIDC_EMAIL_CLAIM"]),
+            phone=validation.get(os.environ["ODOO_OIDC_PHONE_CLAIM"]),
+            lang=validation.get(os.environ["ODOO_OIDC_LOCALE_CLAIM"]),
+            tz=validation.get(os.environ["ODOO_OIDC_ZONEINFO_CLAIM"]),
+        )
+
+    @api.model
+    def _oidc_role_paths(self, validation):
+        raw = validation.get(os.environ["ODOO_OIDC_GROUP_CLAIM"]) or []
+        return {raw} if isinstance(raw, str) else set(raw)
+
+    @api.model
     def _auth_oauth_signin(self, provider, validation, params):
-        """Reimplement upstream signin, bypassing the broken template-copy path.
+        """Sign in or provision the user of a validated access token.
 
-        Upstream _auth_oauth_signin delegates auto-provisioning to
-        auth_signup.signup() → _create_user_from_template(), which performs
-        template_user.copy(values) inside a savepoint. When that savepoint
-        flushes, recompute of related binary fields triggers
-        ir_attachment._check_contents() → env.user._get_group_ids() →
-        ensure_one(). During the unauthenticated OAuth callback request, the
-        flush runs under default_env with an empty user recordset, so
-        ensure_one() raises and the signup gets converted to AccessDenied
-        with no traceback at the controller level.
+        Every sign-in refuses a user whose groups claim holds no declared role
+        (the platform administrator excepted), replaces the managed Odoo groups
+        with the groups the roles grant, and writes the profile claims.
+        Provisioning creates the user directly instead of upstream's
+        auth_signup template copy: that copy flushes under the empty user of
+        the unauthenticated callback and fails in ensure_one().
 
-        We sidestep the template entirely by creating the new user directly
-        via sudo().create(), adding the portal group explicitly. This keeps
-        OAuth first-login auto-provisioning working across infinito.nexus
-        without depending on the transient env in the signup flush path.
+        Args:
+            provider: auth.oauth.provider id.
+            validation: userinfo claims, ``user_id`` remapped by _auth_oauth_validate.
+            params: callback parameters carrying ``access_token``.
 
-        The log ERROR branch remains: if create() raises, we surface the real
-        cause before re-raising AccessDenied (which the controller turns into
-        oauth_error=3).
+        Returns:
+            the login of the signed-in user, None when user creation is disabled.
         """
+        rbac = self.env["infinito.rbac"]
         oauth_uid = validation["user_id"]
-        oauth_user = self.search(
+        paths = self._oidc_role_paths(validation)
+        profile = self._oidc_profile(validation)
+
+        oauth_user = self.sudo().search(
             [("oauth_uid", "=", oauth_uid), ("oauth_provider_id", "=", provider)]
         )
         if oauth_user:
             assert len(oauth_user) == 1  # noqa: S101  mirrors upstream Odoo invariant; oauth_uid is unique per provider
-            oauth_user.write({"oauth_access_token": params["access_token"]})
+            managed, granted = rbac._authorize(
+                oauth_user.login, lambda role: role["path"] in paths
+            )
+            oauth_user.write({"oauth_access_token": params["access_token"], **profile})
+            rbac._apply(oauth_user, managed, granted)
             return oauth_user.login
         if self.env.context.get("no_user_creation"):
             return None
+
+        _managed, granted = rbac._authorize(
+            oauth_uid, lambda role: role["path"] in paths
+        )
         values = self._generate_signup_values(provider, validation, params)
         create_values = {k: v for k, v in values.items() if k != "oauth_access_token"}
+        create_values.update(profile)
         create_values["active"] = True
         create_values["login"] = oauth_uid
-        internal_group = self.env.ref("base.group_user", raise_if_not_found=False)
-        if internal_group:
-            create_values["group_ids"] = [(4, internal_group.id)]
+        create_values["group_ids"] = [Command.set(granted.ids)]
         try:
             sudo_model = self.sudo().with_context(no_reset_password=True)
             new_user = sudo_model.create(create_values)
-            new_user.sudo().write({"oauth_access_token": params["access_token"]})
+            new_user.write({"oauth_access_token": params["access_token"]})
             sudo_model.env.flush_all()
         except Exception:
             _logger.exception(
-                "OAuth signup failed for provider=%s user_id=%s email=%s values=%s",
+                "OAuth signup failed for provider=%s user_id=%s email=%s",
                 provider,
                 oauth_uid,
                 validation.get("email"),
-                create_values,
             )
             raise AccessDenied from None
         _logger.info(
-            "OAuth auto-provisioned user login=%s oauth_uid=%s provider=%s",
+            "OAuth auto-provisioned user login=%s oauth_uid=%s provider=%s groups=%s",
             new_user.login,
             oauth_uid,
             provider,
+            granted.mapped("name"),
         )
         return new_user.login
 

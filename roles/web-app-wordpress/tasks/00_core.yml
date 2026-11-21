@@ -1,26 +1,35 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "✅ Assert Multisite runs with domain tenancy"
+  ansible.builtin.assert:
+    that: WORDPRESS_RBAC_DOMAIN_TENANCY | bool
+    fail_msg: >-
+      {{ application_id }} enables services.wordpress.multisite but declares no
+      domain tenancy: set rbac.tenancy.axis to 'domain', so that every site of
+      the network gets its own role groups.
+    quiet: true
+  when: WORDPRESS_MULTISITE_ENABLED | bool
+
+- name: "✅ Assert every domains.served entry and site owner names a served host"
+  ansible.builtin.assert:
+    that: WORDPRESS_SITE_OWNER_PROBLEMS | length == 0
+    fail_msg: "{{ WORDPRESS_SITE_OWNER_PROBLEMS | join('; ') }}"
+    quiet: true
+
 - name: "🚦 Declare the MCP edge limits before the vhost references them"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-webserver-core/tasks/utils/mcp_edge_limits.yml') }}"
   when: WORDPRESS_MCP_ENABLED | bool
 
-- name: "📂 Include role sys-stk-front-proxy for {{ application_id }}"
+- name: "📂 Include role svc-stack for {{ application_id }}"
   include_role:
-    name: sys-stk-front-proxy
-  loop: "{{ WORDPRESS_DOMAINS }}"
-  loop_control:
-    loop_var: front_proxy_vhost
-  vars:
-    domain: "{{ front_proxy_vhost }}"
-    webserver_extra_configuration: "client_max_body_size {{ WORDPRESS_MAX_UPLOAD_SIZE }};"
-    http_port: "{{ lookup('config', application_id, 'services.wordpress.ports.local.http') }}"
+    name: svc-stack
+    tasks_from: consumer/front.yml
 
 - name: "🧩 load docker and db for {{ application_id }}"
   include_role:
-    name: sys-stk-backend
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer/back.yml
 
 - name: "⬆️ Transfering upload.ini to {{ WORDPRESS_CONFIG_UPLD_ABS }}"
   stack_host_template:

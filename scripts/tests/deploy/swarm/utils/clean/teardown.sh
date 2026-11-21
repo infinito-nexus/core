@@ -33,6 +33,9 @@ for _node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" "${BACKUP_NODE}"; do
 		echo "WARNING: could not remove '${_node}' (kernel D-state? stuck NFS mount); a host reboot may be required." >&2
 	fi
 done
+for _peer in $(timeout 15 docker network inspect "${SWARM_LAB_NETWORK}" --format '{{range .Containers}}{{.Name}} {{end}}' 2>/dev/null); do
+	timeout 15 docker network disconnect -f "${SWARM_LAB_NETWORK}" "${_peer}" 2>/dev/null
+done
 timeout 30 docker network rm "${SWARM_LAB_NETWORK}" 2>/dev/null
 timeout 30 docker volume rm "${NFS_EXPORT_VOLUME}" 2>/dev/null
 exit 0

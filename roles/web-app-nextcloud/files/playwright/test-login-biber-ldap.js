@@ -1,17 +1,11 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 exports.register = function (shared) {
   test("biber: nextcloud ldap login and logout (native form, ldap backing)", async ({ browser }) => {
-    // biber is not autoprovisioned by Nextcloud's local DB — in the
-    // pure-native variant (no OIDC, no LDAP) the account simply does
-    // not exist, so the test only makes sense when LDAP federation
-    // backs the native credential form. The OIDC variant is covered
-    // by `biber: nextcloud oidc login and logout`.
-    test.skip(
-      shared.env.nextcloudOidcEnabled || !shared.env.nextcloudLdapEnabled,
-      "biber native login is only meaningful in the native+LDAP variant (services.sso.enabled=false AND services.ldap.enabled=true); other flavors are covered by the OIDC test.",
-    );
+    skipUnlessServiceEnabled("ldap");
+    skipUnlessServiceDisabled("sso");
 
     const biberContext = await browser.newContext({ ignoreHTTPSErrors: true });
     const biberPage = await biberContext.newPage();

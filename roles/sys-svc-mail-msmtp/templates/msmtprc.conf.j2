@@ -5,7 +5,7 @@ defaults
 domain              {{ DOMAIN_PRIMARY }}
 logfile             ~/.msmtp.log
 timeout             {{ email.timeout }}
-syslog              {{ MODE_DEBUG | on_off }}
+syslog              {{ lookup('debug', 'sys-svc-mail-msmtp') | on_off }}
 auth                {{ email.auth_mechanism }}
 tls_starttls        {{ email.start_tls | on_off }}
 tls                 {{ email.tls | on_off }}
@@ -13,7 +13,7 @@ tls                 {{ email.tls | on_off }}
 tls_trust_file      {{ CA_TRUST.inject_bundle_container }}
 {% endif %}
 tls_host_override   {{ email.host }}
-{% if smtp_target.endswith('.onion') %}
+{% if (smtp_target | network_of) == 'tor' %}
 {% set socks = (lookup('tor_socks_proxy') | regex_replace('^socks5h://', '')) if sys_svc_mail_msmtp_in_container | bool else lookup('tor_socks') %}
 proxy_host          {{ socks.split(':')[0] }}
 proxy_port          {{ socks.split(':')[1] }}

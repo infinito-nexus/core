@@ -1,31 +1,24 @@
 ---
 - name: "🤖 Ensure the GitLab bot, its API token and the webhook settings"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - "OPENPROJECT_GITLAB_BOT_LOGIN={{ OPENPROJECT_GITLAB_BOT.username }}"
-      - -e
-      - "OPENPROJECT_GITLAB_BOT_MAIL={{ OPENPROJECT_GITLAB_BOT.email }}"
-      - -e
-      - OPENPROJECT_GITLAB_BOT_PASSWORD
-      - -e
-      - "OPENPROJECT_GITLAB_TOKEN_NAME={{ openproject_addon.value.config.token_name }}"
-      - -e
-      - OPENPROJECT_GITLAB_WEBHOOK_SECRET
-      - -e
-      - OPENPROJECT_GITLAB_API_TOKEN
-      - "{{ OPENPROJECT_WEB_LOCAL_CID }}" # nocheck: container-exec-resolver CID resolved at delegate_to runtime; container_address targets a manager-only subshell
-      - bash
-      - -lc
-      - "cd /app && bundle exec rails runner -"
-    stdin: "{{ lookup('file', 'ruby/addons/gitlab/ensure_gitlab_webhook.rb') }}"
-  environment:
-    OPENPROJECT_GITLAB_BOT_PASSWORD: "{{ OPENPROJECT_GITLAB_BOT.password }}"
-    OPENPROJECT_GITLAB_WEBHOOK_SECRET: "{{ OPENPROJECT_GITLAB_WEBHOOK_SECRET }}"
-    OPENPROJECT_GITLAB_API_TOKEN: "{{ OPENPROJECT_GITLAB_TOKEN_HELD }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver, container-exec-stack-host-gate  CID resolved at delegate_to runtime, container_address targets a manager-only subshell; reached only via 05_addons.yml's templated loop include inside 01_manager_ops.yml, which 00_core.yml includes under IS_STACK_HOST
+      container exec -i
+      -e OPENPROJECT_GITLAB_BOT_LOGIN={{ OPENPROJECT_GITLAB_BOT.username | quote }}
+      -e OPENPROJECT_GITLAB_BOT_MAIL={{ OPENPROJECT_GITLAB_BOT.email | quote }}
+      -e OPENPROJECT_GITLAB_TOKEN_NAME={{ openproject_addon.value.config.token_name | quote }}
+      {{ OPENPROJECT_WEB_LOCAL_CID | quote }}
+      bash -lc 'IFS= read -r OPENPROJECT_GITLAB_BOT_PASSWORD
+      && IFS= read -r OPENPROJECT_GITLAB_WEBHOOK_SECRET
+      && IFS= read -r OPENPROJECT_GITLAB_API_TOKEN
+      && : "${OPENPROJECT_GITLAB_BOT_PASSWORD:?arrived empty on stdin}"
+      && : "${OPENPROJECT_GITLAB_WEBHOOK_SECRET:?arrived empty on stdin}"
+      && export OPENPROJECT_GITLAB_BOT_PASSWORD OPENPROJECT_GITLAB_WEBHOOK_SECRET OPENPROJECT_GITLAB_API_TOKEN
+      && cd /app && bundle exec rails runner -'
+    stdin: |-
+      {{ OPENPROJECT_GITLAB_BOT.password }}
+      {{ OPENPROJECT_GITLAB_WEBHOOK_SECRET }}
+      {{ OPENPROJECT_GITLAB_TOKEN_HELD }}
+      {{ lookup('file', 'ruby/addons/gitlab/ensure_gitlab_webhook.rb') }}
   delegate_to: "{{ OPENPROJECT_WEB_HOST_NODE }}"
   register: openproject_gitlab_provision
   changed_when: "'CHANGED' in openproject_gitlab_provision.stdout"

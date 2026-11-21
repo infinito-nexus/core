@@ -24,6 +24,11 @@ WIREGUARD_PRIVATE_KEY: "{{ lookup('config', application_id, 'secrets.credentials
 WIREGUARD_IS_HUB: >-
   {{ WIREGUARD_ACTIVE_MESHES.values() | map(attribute='is_hub') | select | list | length > 0 }}
 
+WIREGUARD_SYSCTL_OWNER: "{{ application_id | entity_name }}"
+WIREGUARD_SYSCTL_PARAMETERS:
+  net.ipv4.ip_forward: "1"
+WIREGUARD_SYSCTL_RETIRED_FILES: ["/etc/sysctl.conf"]
+
 WIREGUARD_DIALLED_PEERS: >-
   {{ WIREGUARD_ACTIVE_MESHES.values()
      | map('mesh_dialled_peers')

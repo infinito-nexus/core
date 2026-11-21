@@ -1,0 +1,6 @@
+---
+roles:
+  user-manager:
+    description: Creates, edits, moves and deletes user accounts and their POSIX settings (FusionDirectory user-manager ACL role)
+  self-service:
+    description: Edits the own user account and its POSIX settings (FusionDirectory self-service ACL role)

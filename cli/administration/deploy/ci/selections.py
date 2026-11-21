@@ -45,6 +45,7 @@ from .runs import (
     _effective,
     _iter_deploy_jobs,
     dispatched_priority,
+    failed_roles,
     parse_role_statuses,
     untriggered_priority,
 )
@@ -189,7 +190,7 @@ def collapse_failures(tokens: Iterable[str], hard: Iterable[str]) -> list[str]:
 
 
 def retrigger_entries(
-    source: dict, repo: str, *, strict: bool, roles_only: bool
+    source: dict, repo: str, *, strict: bool, roles_only: bool, any_axes: bool
 ) -> tuple[list[str], list[str]]:
     """The two halves of the priority line a retrigger of ``source`` dispatches.
 
@@ -199,17 +200,22 @@ def retrigger_entries(
         strict: only hard failures (❌) count as failed.
         roles_only: hard failures come back as role names, see
             :func:`collapse_failures`.
+        any_axes: both halves come back as bare role names, dropping the
+            axes every failed job ran in and the pins every never-deployed
+            priority entry carried, so the priority line expands each like
+            any bare entry; overrides ``roles_only``.
 
     Returns:
         The failed selections, and the priority entries the run never deployed.
     """
     jobs = source["jobs"]
+    statuses = parse_role_statuses(jobs)
+    untriggered = untriggered_priority(dispatched_priority(source, repo), statuses)
+    if any_axes:
+        return failed_roles(statuses, strict=strict), collapse_to_roles(untriggered)
     failed = failed_selections(jobs, strict=strict)
     if roles_only:
         failed = collapse_failures(failed, failed_selections(jobs, strict=True))
-    untriggered = untriggered_priority(
-        dispatched_priority(source, repo), parse_role_statuses(jobs)
-    )
     return failed, untriggered
 
 

@@ -10,6 +10,10 @@ LISTMONK_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
 LISTMONK_NAME: "{{ lookup('config', application_id, 'services.listmonk.name') }}"
 LISTMONK_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'),'config.toml' ] | path_join }}"
 LISTMONK_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+LISTMONK_LOGIN_SSO: "{{ lookup('config', application_id, 'services.listmonk.login.method.sso.enabled') | bool }}"
+LISTMONK_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.listmonk.login.method.native.enabled') | bool }}"
+LISTMONK_LOGIN_2FA: "{{ lookup('config', application_id, 'services.listmonk.login.method.2fa.enabled') | bool }}"
+LISTMONK_OIDC_AUTOLOGIN: "{{ LISTMONK_OIDC_ENABLED | bool and LISTMONK_LOGIN_SSO | bool and not LISTMONK_LOGIN_NATIVE | bool }}"
 
 LISTMONK_PUBLIC_API_ENABLED: "{{ lookup('config', application_id, 'services.listmonk.public_api_activated') }}"
 
@@ -20,35 +24,48 @@ LISTMONK_EXEC_DATABASE: "container exec -i -e LISTMONK_REALIGN_PASSWORD {{ looku
   'username') }} -d {{ lookup('database', application_id, 'name') }}"
 LISTMONK_EMAIL: "{{ lookup('email', application_id) }}"
 
-LISTMONK_SETTINGS:
-  - key: "app.root_url"
-    value: "\"{{ lookup('tls', application_id, 'url.base') }}\""
+LISTMONK_GENERAL_SETTINGS: "{{ lookup('form_values', application_id, 'general') }}"
+LISTMONK_UPLOAD_SETTINGS: "{{ lookup('form_values', application_id, 'upload') }}"
+LISTMONK_S3_SETTINGS: "{{ lookup('form_values', application_id, 's3') }}"
+LISTMONK_BOUNCE_SETTINGS: "{{ lookup('form_values', application_id, 'bounce') }}"
+LISTMONK_OIDC_SETTINGS: "{{ lookup('form_values', application_id, 'security') }}"
+LISTMONK_CAPTCHA_SETTINGS: "{{ lookup('form_values', application_id, 'captcha') }}"
+LISTMONK_PREFIXED_FORMS:
+  general:
+    prefix: "app."
+    fields: "{{ LISTMONK_GENERAL_SETTINGS }}"
+  upload:
+    prefix: "upload."
+    fields: "{{ LISTMONK_UPLOAD_SETTINGS }}"
+  s3:
+    prefix: "upload.s3."
+    fields: "{{ LISTMONK_S3_SETTINGS }}"
+  bounce:
+    prefix: "bounce."
+    fields: "{{ LISTMONK_BOUNCE_SETTINGS }}"
 
+LISTMONK_SETTINGS:
   - key: "app.notify_emails"
     value: "{{ [ lookup('users', 'platform_administrator').email ] | to_json }}"
 
   - key: "security.oidc"
-    value: >-
-      {{ {
-         "enabled": True,
-         "client_id": OIDC.CLIENT.ID,
-         "provider_url": OIDC.CLIENT.ISSUER_URL,
-         "client_secret": OIDC.CLIENT.SECRET
-      } | to_json }}
+    value: "{{ LISTMONK_OIDC_SETTINGS | combine({'client_secret': OIDC.CLIENT.SECRET}) | to_json }}"
     condition: "{{ LISTMONK_OIDC_ENABLED | bool }}"
 
   - key: "appearance.public.custom_js"
-    value: "{{ lookup('file', lookup('path_absolute', 'roles/web-app-listmonk/files/javascript/oidc-autologin.js')) | to_json }}"
-    condition: "{{ LISTMONK_OIDC_ENABLED | bool }}"
+    value: "{{ (lookup('file', lookup('path_absolute', 'roles/web-app-listmonk/files/javascript/oidc-autologin.js')) if LISTMONK_OIDC_AUTOLOGIN | bool else '') |
+      to_json }}"
 
-  - key: "security.enable_captcha"
-    value: "true"
-
-  - key: "security.captcha_key"
-    value: "\"{{ lookup('config', application_id, 'secrets.credentials.hcaptcha.key') }}\""
-
-  - key: "security.captcha_secret"
-    value: "\"{{ lookup('config', application_id, 'secrets.credentials.hcaptcha.secret') }}\""
+  - key: "security.captcha"
+    value: >-
+      {{ {
+        "altcha": {"enabled": false, "complexity": 300000},
+        "hcaptcha": LISTMONK_CAPTCHA_SETTINGS | combine({
+          "key": lookup('config', application_id, 'secrets.credentials.hcaptcha.key'),
+          "secret": lookup('config', application_id, 'secrets.credentials.hcaptcha.secret')
+        })
+      } | to_json }}
+    condition: "{{ LISTMONK_CAPTCHA_SETTINGS | length > 0 }}"
 
   - key: "smtp"
     value: >-
@@ -78,12 +95,6 @@ LISTMONK_SETTINGS:
       ] | to_json }}
     condition: "{{ LISTMONK_EMAIL.smtp | bool }}"
 
-  - key: "app.lang"
-    value: '"{{ HOST_LL }}"'
-
-  - key: "bounce.enabled"
-    value: "true"
-
   - key: "bounce.mailboxes"
     value: >-
       {{ [
@@ -103,19 +114,6 @@ LISTMONK_SETTINGS:
         }
       ] | to_json }}
 
-  - key: "app.from_email"
-    value: '"{{ service_provider.company.titel }} Newsletter <{{ lookup(''users'', LISTMONK_USER_SEND).email }}>"'
-
-  - key: "app.check_updates"
-    value: "true"
-
-  - key: "app.enable_public_archive_rss_content"
-    value: "true"
-
-  - key: "upload.provider"
-    value: '"s3"'
-    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
-
   - key: "upload.s3.aws_access_key_id"
     value: "{{ lookup('objstore', application_id, 'access_key') | to_json }}"
     condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
@@ -124,25 +122,40 @@ LISTMONK_SETTINGS:
     value: "{{ lookup('objstore', application_id, 'secret_key') | to_json }}"
     condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
 
-  - key: "upload.s3.aws_default_region"
-    value: "{{ lookup('objstore', application_id, 'region') | to_json }}"
-    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
-
-  - key: "upload.s3.bucket"
-    value: "{{ lookup('objstore', application_id, 'bucket') | to_json }}"
-    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
-
-  - key: "upload.s3.url"
-    value: "{{ lookup('objstore', application_id, 'url') | to_json }}"
-    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
-
-  - key: "upload.s3.public_url"
-    value: "{{ lookup('objstore', application_id, 'public_url') | to_json }}"
-    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
-
-  - key: "upload.s3.bucket_type"
-    value: '"public"'
-    condition: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
+LISTMONK_SUPER_ADMIN_ROLE_ID: 1
+LISTMONK_RBAC_ROLES:
+  - name: manager
+    permissions:
+      - lists:get_all
+      - lists:manage_all
+      - subscribers:get
+      - subscribers:get_all
+      - subscribers:manage
+      - subscribers:import
+      - campaigns:get
+      - campaigns:get_all
+      - campaigns:get_analytics
+      - campaigns:manage
+      - campaigns:manage_all
+      - campaigns:send
+      - templates:get
+      - templates:manage
+      - media:get
+      - media:manage
+      - bounces:get
+      - bounces:manage
+  - name: viewer
+    permissions:
+      - lists:get_all
+      - subscribers:get
+      - subscribers:get_all
+      - campaigns:get
+      - campaigns:get_all
+      - campaigns:get_analytics
+      - templates:get
+      - media:get
+      - bounces:get
+LISTMONK_RBAC_ADMIN_ROLE: administrator
 
 LISTMONK_DESIGN: "{{ lookup('design', application_id) }}"
 LISTMONK_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
@@ -158,16 +171,6 @@ LISTMONK_DESIGN_APPEARANCE:
   - key: "appearance.public.custom_css"
     template: "design/public.css.j2"
     marker: "{{ LISTMONK_DESIGN_CSS_MARKER }}"
-LISTMONK_DESIGN_BRANDING:
-  - key: "app.logo_url"
-    design: "{{ LISTMONK_DESIGN.urls.header.svg }}"
-    fallback: "{{ service_provider.platform.logo }}"
-  - key: "app.favicon_url"
-    design: "{{ LISTMONK_DESIGN.urls.favicon_ico }}"
-    fallback: "{{ service_provider.platform.favicon }}"
-  - key: "app.site_name"
-    design: "{{ LISTMONK_DESIGN.label }}"
-    fallback: "{{ service_provider.company.titel }} Mailing list"
 
 LISTMONK_MCP_ENABLED: "{{ lookup('config', application_id, 'services.listmonkmcp.enabled') | bool }}"
 LISTMONK_MCP_SERVICE_KEY: "listmonkmcp"

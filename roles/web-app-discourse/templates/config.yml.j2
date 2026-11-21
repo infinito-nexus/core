@@ -55,6 +55,10 @@ env:
 
   INFINITO_NETWORK_BASE_URLS: "{{ DISCOURSE_NETWORK_BASE_URLS | join(' ') }}"
 
+  INFINITO_RBAC_ADMINISTRATOR_GROUP: "{{ '/' ~ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+  INFINITO_RBAC_MODERATOR_GROUP:     "{{ '/' ~ lookup('rbac_group_path', application_id=application_id, role='moderator') }}"
+  INFINITO_RBAC_KEPT_ADMINISTRATOR:  "{{ lookup('users', 'platform_administrator').username }}"
+
   ## Uncomment if you want the container to be started with the same
   ## hostname (-h option) as specified above (default "$hostname-$config")
   #DOCKER_USE_HOSTNAME: true
@@ -63,12 +67,6 @@ env:
   DISCOURSE_DEVELOPER_EMAILS:       {{ lookup('users', 'platform_administrator').email }}
 
   DISCOURSE_LOAD_MINI_PROFILER: "false"
-
-  # Set Logo
-{% if service_provider.platform.logo | length > 0 %}
-  DISCOURSE_LOGO_URL:       "{{ service_provider.platform.logo  }}"
-  DISCOURSE_LOGO_SMALL_URL: "{{ service_provider.platform.logo  }}"
-{% endif %}
 
 {% set email = lookup('email', application_id) %}
 {% if email.enabled | bool %}
@@ -124,6 +122,9 @@ volumes:
   - volume:
       host: {{ DISCOURSE_NETWORK_PLUGIN_HOST_DIR }}
       guest: /var/www/discourse/plugins/infinito-network-origins
+  - volume:
+      host: {{ DISCOURSE_RBAC_PLUGIN_HOST_DIR }}
+      guest: /var/www/discourse/plugins/infinito-rbac-login
 
 {% if DISCOURSE_TLS_SELFSIGNED_ENABLED | bool %}
   - volume:
@@ -178,4 +179,8 @@ docker_args:
   - --add-host={{ extra_host }}
 {% endfor %}
   - --name={{ DISCOURSE_CONTAINER }}
+  - --label={{ DOCKER_LOG_LABEL }}={{ application_id }}
+  - --log-driver=journald
+  - --log-opt=tag={{ application_id }}
+  - --log-opt=labels={{ DOCKER_LOG_LABEL }}
 {{ lookup('container_extra_hosts', docker_flags=true) }}

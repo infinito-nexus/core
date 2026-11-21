@@ -22,11 +22,16 @@ from jinja2.nativetypes import NativeEnvironment
 from utils.cache.files import iter_project_files_with_content
 from utils.cache.yaml import load_yaml, load_yaml_any
 from utils.networks.proxy import render_proxy_pass
-from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import (
+    ROLE_FILE_META_SERVER,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_VARS_MAIN,
+)
 
 from . import PROJECT_ROOT
 
 ROLE_DIR = PROJECT_ROOT / "roles/web-app-keycloak"
+STACK_VHOST = PROJECT_ROOT / "roles/svc-stack/tasks/proxy/vhost.yml"
 TEMPLATE = "roles/web-app-keycloak/templates/nginx/admin_allowlist.conf.j2"
 CONFIG_PATH = "services.keycloak.admin.allowed_networks"
 LOCAL_HTTP_PORT = 8032
@@ -36,9 +41,10 @@ REALM = "example.realm"
 STUBBED_FRAGMENTS = {
     "helper_iframes.conf.j2": "HELPER_IFRAMES\n",
     "admin_allowlist.conf.j2": (
-        "{% for network in KEYCLOAK_ADMIN_NETWORKS %}allow {{ network }};\n{% endfor %}"
+        "{% for network in KEYCLOAK_ADMIN_NETWORKS %}allow {{ network }};{% endfor %}\n"
     ),
     "logout_panel.conf.j2": "LOGOUT_PANEL\n",
+    "field_lock.conf.j2": "FIELD_LOCK\n",
 }
 
 STUBBED_INCLUDES = {
@@ -132,36 +138,40 @@ def render(networks, deployment_mode: str = "compose") -> str:
     )
 
 
-def extra_configuration(networks: list[str], logout_panel_enabled: bool) -> str:
-    """Evaluate the vhost extras `tasks/00_core.yml` hands to `sys-stk-full`.
-
-    Ansible's template lookup returns None for a fragment that renders no text,
-    and `~` writes it into the vhost as "None"; plain Jinja renders ''.
+def extra_configuration(
+    networks: list[str], logout_panel_enabled: bool, javascript_enabled: bool
+) -> str:
+    """Evaluate the vhost extras svc-stack renders from `meta/server.yml`.
 
     Args:
         networks: the resolved `KEYCLOAK_ADMIN_NETWORKS`.
         logout_panel_enabled: the resolved `KEYCLOAK_LOGOUT_PANEL_ENABLED`.
+        javascript_enabled: the resolved `KEYCLOAK_JAVASCRIPT_ENABLED`.
     """
-    task = next(
-        task
-        for task in load_yaml_any(ROLE_DIR / "tasks/00_core.yml")
-        if "vars" in task and "webserver_extra_configuration" in task["vars"]
+    vhost = load_yaml(ROLE_DIR / ROLE_FILE_META_SERVER)["vhosts"]["default"]
+    deploy = next(
+        task for task in load_yaml_any(STACK_VHOST) if "stack_host_contents" in task
     )
     with tempfile.TemporaryDirectory() as search_path:
-        fragments = Path(search_path, "templates", "nginx")
-        fragments.mkdir(parents=True)
+        fragments = Path(search_path, ROLE_DIR.relative_to(PROJECT_ROOT), "templates")
+        (fragments / "nginx").mkdir(parents=True)
         for name, text in STUBBED_FRAGMENTS.items():
-            (fragments / name).write_text(text, encoding="utf-8")
+            (fragments / "nginx" / name).write_text(text, encoding="utf-8")
         templar = Templar(
             loader=DataLoader(),
             variables={
                 "ansible_search_path": [search_path],
+                "front_proxy_extra_template": str(
+                    ROLE_DIR / "templates" / vhost["extra_template"]
+                ),
+                "front_proxy_extra_configuration": "",
                 "KEYCLOAK_ADMIN_NETWORKS": networks,
                 "KEYCLOAK_LOGOUT_PANEL_ENABLED": logout_panel_enabled,
+                "KEYCLOAK_JAVASCRIPT_ENABLED": javascript_enabled,
             },
         )
         return templar.template(
-            trust_as_template(task["vars"]["webserver_extra_configuration"])
+            trust_as_template(deploy["vars"]["webserver_extra_configuration"])
         )
 
 
@@ -206,17 +216,26 @@ class TestShippedValue(unittest.TestCase):
 
 class TestVhostExtras(unittest.TestCase):
     def test_no_declared_network_adds_no_text(self):
-        for panel, expected in (
-            (True, "HELPER_IFRAMES\nLOGOUT_PANEL\n"),
-            (False, "HELPER_IFRAMES\n"),
+        for panel, javascript, expected in (
+            (True, True, "HELPER_IFRAMES\nLOGOUT_PANEL\nFIELD_LOCK\n"),
+            (False, True, "HELPER_IFRAMES\nFIELD_LOCK\n"),
+            (False, False, "HELPER_IFRAMES\n"),
         ):
-            with self.subTest(logout_panel_enabled=panel):
-                self.assertEqual(extra_configuration([], panel), expected)
+            with self.subTest(
+                logout_panel_enabled=panel, javascript_enabled=javascript
+            ):
+                self.assertEqual(extra_configuration([], panel, javascript), expected)
 
     def test_declared_networks_sit_between_the_helpers_and_the_panel(self):
         self.assertEqual(
-            extra_configuration(["203.0.113.0/24"], True),
-            "HELPER_IFRAMES\nallow 203.0.113.0/24;\nLOGOUT_PANEL\n",
+            extra_configuration(["203.0.113.0/24"], True, True),
+            "HELPER_IFRAMES\nallow 203.0.113.0/24;\nLOGOUT_PANEL\nFIELD_LOCK\n",
+        )
+
+    def test_declared_networks_without_the_panel_follow_the_helpers(self):
+        self.assertEqual(
+            extra_configuration(["203.0.113.0/24"], False, True),
+            "HELPER_IFRAMES\nallow 203.0.113.0/24;\nFIELD_LOCK\n",
         )
 
 

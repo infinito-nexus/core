@@ -1,16 +1,17 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
+- name: "🔧 Set vm.max_map_count for the bundled Elasticsearch"
+  ansible.builtin.include_role:
+    name: sys-sysctl
   vars:
-    mcp_adapter_instance_dir: "{{ ZAMMAD_MCP_INSTANCE_DIR }}"
-  when: ZAMMAD_MCP_ENABLED | bool
+    sys_sysctl_owner: "{{ ZAMMAD_SYSCTL_OWNER }}"
+    sys_sysctl_parameters: "{{ ZAMMAD_SYSCTL_PARAMETERS }}"
+
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🧱 Rebuild the MCP adapter of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"

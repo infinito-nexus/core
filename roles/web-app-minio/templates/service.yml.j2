@@ -12,8 +12,7 @@
       - minio:/data
     networks:  # nocheck: networks-literal
       - default
-    logging:
-      driver: journald
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
 {% macro include_resource_for(svc, indent=4) -%}
   {% set service_name = svc -%}
   {%- set _snippet -%}

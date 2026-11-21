@@ -1,0 +1,6 @@
+{% from "clients/service_account.json.j2" import service_account_client %}
+{{ service_account_client(
+     KEYCLOAK_WORKSPACE_MEMBERS_CLIENT_ID,
+     "Workspace members",
+     "Confidential client of the members and user templates; its service account changes the invitations and memberships of workspace organizations.",
+     KEYCLOAK_WORKSPACE_MEMBERS_CLIENT_SECRET) }}

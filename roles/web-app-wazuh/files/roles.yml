@@ -4,7 +4,7 @@ _meta:
   config_version: 2
 
 security_analyst:
-  reserved: false
+  reserved: true
   description: "Security Analyst: read alerts/logs/dashboards, no security-config or RBAC-management access."
   cluster_permissions:
     - "cluster_composite_ops_ro"
@@ -25,7 +25,7 @@ security_analyst:
         - "kibana_all_read"
 
 readonly_auditor:
-  reserved: false
+  reserved: true
   description: "Read-only Auditor: read-only access to dashboards and alerts across all Wazuh indices, no agent/rule/configuration actions."
   cluster_permissions:
     - "cluster_composite_ops_ro"

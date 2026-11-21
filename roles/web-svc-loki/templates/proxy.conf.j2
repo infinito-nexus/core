@@ -1,0 +1,42 @@
+{# nocheck: vhost-cross-cutting-include — 'sys-front-inj-all/templates/server.conf.j2' renders the
+   logout-proxy server block only; this role declares no logout consumer, so the include is dead here. #}
+server
+{
+  server_name {{ domain }};
+  {% include 'roles/sys-svc-proxy/templates/cdn.conf.j2' %}
+  {% include 'roles/sys-svc-proxy/templates/headers/buffers.conf.j2' %}
+
+  {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
+
+  client_max_body_size {{ webserver_client_max_body_size }};
+
+  location = {{ LOKI_PUSH_PATH }} {
+    limit_except POST {
+      deny all;
+    }
+    access_by_lua_block {
+      local token = (ngx.var.http_authorization or ""):match("^[Bb]earer%s+(%S+)$")
+      if not token then
+        return ngx.exit(ngx.HTTP_UNAUTHORIZED)
+      end
+      local digest = require("resty.sha256"):new()
+      digest:update(token)
+      if require("resty.string").to_hex(digest:final()) ~= "{{ LOKI_PUSH_TOKEN_SHA256 }}" then
+        return ngx.exit(ngx.HTTP_UNAUTHORIZED)
+      end
+      if ngx.var.http_x_scope_orgid ~= "{{ LOKI_TENANT }}" then
+        return ngx.exit(ngx.HTTP_FORBIDDEN)
+      end
+    }
+    {% include 'roles/sys-svc-proxy/templates/headers/forwarded.conf.j2' %}
+    {{ lookup('proxy_pass', application_id, 'gateway', 'push', local_port=LOKI_GATEWAY_LOCAL_PORT, internal_port=LOKI_GATEWAY_INTERNAL_PORT) }}
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
+  }
+
+  location / {
+    return 404;
+  }
+
+  {% include 'roles/web-app-prometheus/templates/nginx/locations.conf.j2' %}
+}

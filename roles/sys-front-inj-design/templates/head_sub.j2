@@ -1,6 +1,8 @@
 {% set __css_tpl_dir = lookup('path_absolute', 'roles', 'sys-front-inj-design', 'templates', 'css') %}
+{% set __design = lookup('design', application_id) %}
+{% set __cosmos = __design.cosmos %}
 
-{% for css_file in ['default.css'] + (['bootstrap.css'] if lookup('design', application_id).bootstrap else []) %}
+{% for css_file in ['default.css'] + (['bootstrap.css'] if __design.bootstrap else []) %}
 <link rel="stylesheet" href="{{ [ lookup('cdn', 'web-svc-cdn').urls.shared.css, css_file, lookup('local_mtime_qs', [__css_tpl_dir, css_file ~ '.j2'] | path_join)] | url_join }}">
 {% endfor %}
 {% if app_style_present | default(false) | bool %}
@@ -8,4 +10,13 @@
 {% endif %}
 {% if design_js_one_liner | length > 0 %}
 <script{{ (' data-design="' ~ (design_config_json | e) ~ '"') if design_config_json | length > 0 else '' }}>{{ design_js_one_liner }}</script>
+{% endif %}
+{% if __cosmos %}
+{% set __cosmos_settings = {
+     'zone': HOST_TIMEZONE,
+     'hotkey': lookup('config', __cosmos, 'services.cosmos.hotkey', none),
+   } %}
+{% set __cosmos_config = __cosmos_settings | dict2items | rejectattr('value', 'none') | items2dict
+   | combine({'cookieDomain': DOMAIN_PRIMARY} if domain == DOMAIN_PRIMARY or domain.endswith('.' ~ DOMAIN_PRIMARY) else {}) %}
+<script type="module" src="{{ lookup('cdn', __cosmos).relative_urls.role.release.js }}/cosmos.js{{ lookup('local_mtime_qs', lookup('path_absolute', 'roles', __cosmos, 'files', 'javascript', 'cosmos.mjs'), param='v') }}" data-cosmos="{{ __cosmos_config | to_json | e }}"></script>
 {% endif %}

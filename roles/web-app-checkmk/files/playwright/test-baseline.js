@@ -2,6 +2,8 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const { isServiceEnabled } = require("./service-gating");
+const { withBiberInGroup } = require("./_rbac");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -24,20 +26,25 @@ test("guest: public-landing → auth chain → never authenticated", async ({ pa
   await runGuestFlow(page);
 });
 
-test("biber: app → universal logout", async ({ page }) => {
-  await runBiberFlow(page);
+test("biber: app → universal logout", async ({ page, browser }) => {
+  if (!isServiceEnabled("sso")) {
+    await runBiberFlow(page);
+    return;
+  }
+  test.setTimeout(resolveTimeout(180_000)); // Keycloak group join plus the oauth2-proxy round-trip
+  await withBiberInGroup(browser, decodeDotenvQuotedValue(process.env.RBAC_GUEST_GROUP_PATH), () => runBiberFlow(page));
 });
 
 test("administrator: app → admin surface → universal logout", async ({ page }) => {
   await runAdminFlow(page, {
     adminInteraction: async (interactivePage) => {
-      const setup = interactivePage.getByRole("link", { name: /^setup$/i }).first();
+      const setup = interactivePage.locator("#popup_trigger_mega_menu_setup > a").first();
       if (await setup.isVisible().catch(() => false)) {
-        await setup.click({ timeout: resolveTimeout(30_000) }).catch(() => {});
-        await interactivePage.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-        await expect(interactivePage.locator("body")).toContainText(/setup|hosts|services|checkmk/i, {
-          timeout: resolveTimeout(30_000),
-        });
+        await setup.click({ timeout: resolveTimeout(30_000) });
+        await expect(
+          interactivePage.locator("#popup_menu_setup"),
+          "the Setup menu MUST open: Checkmk wires it through an inline onclick, which script-src-attr has to admit",
+        ).toBeVisible({ timeout: resolveTimeout(30_000) });
       }
     },
   });

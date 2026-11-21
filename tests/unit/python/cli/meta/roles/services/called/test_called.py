@@ -18,6 +18,7 @@ from cli.meta.roles.services.called import (
     verify,
 )
 from cli.meta.roles.services.called.__main__ import main as cli_main
+from utils.cache import ROLES_DIR
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 _ESC = "\x1b"
@@ -164,10 +165,10 @@ class TestRequiredRoleIds(unittest.TestCase):
 
     def test_mode_scoped_required_by_compose_only(self) -> None:
         _write_services_yml(
-            self.roles_dir / "sys-ctl-rpr-container-hard",
+            self.roles_dir / "sys-ctl-rpr-container-soft",
             """
             ---
-            container-hard:
+            container-soft:
               required_by:
                 compose:
                   categories: [web]
@@ -177,7 +178,7 @@ class TestRequiredRoleIds(unittest.TestCase):
             required_role_ids(
                 roles_dir=self.roles_dir, deployed_role_ids=["web-app-yourls"]
             ),
-            {"sys-ctl-rpr-container-hard"},
+            {"sys-ctl-rpr-container-soft"},
         )
         self.assertEqual(
             required_role_ids(
@@ -460,6 +461,60 @@ class TestVerifyEndToEnd(unittest.TestCase):
         )
         self.assertFalse(ok)
         self.assertEqual(missing, ["sys-svc-webserver-core"])
+
+
+class TestStackProviderCoverage(unittest.TestCase):
+    def _log(self, content: str) -> str:
+        with tempfile.NamedTemporaryFile(
+            "w", suffix=".log", delete=False, encoding="utf-8"
+        ) as handle:
+            handle.write(content)
+        self.addCleanup(Path(handle.name).unlink, missing_ok=True)
+        return handle.name
+
+    def test_a_web_app_deploy_requires_the_provider_in_both_modes(self) -> None:
+        for extra in ([], ["svc-swarm-node"]):
+            with self.subTest(extra=extra):
+                required = required_role_ids(
+                    roles_dir=ROLES_DIR, deployed_role_ids=["web-app-gitea", *extra]
+                )
+                self.assertIn("svc-stack", required)
+
+    def test_a_web_svc_deploy_requires_the_provider(self) -> None:
+        required = required_role_ids(
+            roles_dir=ROLES_DIR, deployed_role_ids=["web-svc-cdn"]
+        )
+        self.assertIn("svc-stack", required)
+
+    def test_a_deploy_without_web_roles_does_not_require_it(self) -> None:
+        required = required_role_ids(
+            roles_dir=ROLES_DIR, deployed_role_ids=["svc-db-postgres"]
+        )
+        self.assertNotIn("svc-stack", required)
+
+    def test_a_provider_task_header_proves_the_stack_ran(self) -> None:
+        log_path = self._log(
+            "TASK [svc-stack : 🧊 For 'web-app-gitea': freeze the stack context] ***\n"
+            "ok: [localhost]\n"
+        )
+        _ok, missing = verify(
+            roles_dir=ROLES_DIR,
+            log_path=log_path,
+            deployed_role_ids=["web-app-gitea"],
+        )
+        self.assertNotIn("svc-stack", missing)
+
+    def test_a_removed_stack_role_header_does_not_prove_it(self) -> None:
+        log_path = self._log(
+            "TASK [sys-stk-full : 🧊 For 'web-app-gitea': freeze full-stack context] ***\n"
+            "ok: [localhost]\n"
+        )
+        _ok, missing = verify(
+            roles_dir=ROLES_DIR,
+            log_path=log_path,
+            deployed_role_ids=["web-app-gitea"],
+        )
+        self.assertIn("svc-stack", missing)
 
 
 class TestCLIMain(unittest.TestCase):

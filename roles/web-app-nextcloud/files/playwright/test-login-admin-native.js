@@ -1,12 +1,10 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { skipUnlessServiceDisabled } = require("./service-gating");
 
 exports.register = function (shared) {
   test("admin: nextcloud native login and logout (no oidc)", async ({ page }) => {
-    test.skip(
-      shared.env.nextcloudOidcEnabled,
-      "Admin native login is only exercised when services.sso.enabled is false — when OIDC is on, the Keycloak handoff owns the journey and is covered by `admin: nextcloud oidc login and logout`.",
-    );
+    skipUnlessServiceDisabled("sso");
 
     // `loginToStandaloneNextcloud` knows the native-flavor password swap
     // (administrator persona uses NEXTCLOUD_DIRECT_LOGIN_PASSWORD when no

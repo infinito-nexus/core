@@ -12,6 +12,15 @@
       - matrix_flavor in ['ansible', 'compose']
     fail_msg: "services.matrix.flavor must be 'ansible' or 'compose' (got '{{ matrix_flavor }}')"
 
+- name: "✅ assert Jitsi is not requested on an onion-primary homeserver"
+  ansible.builtin.assert:
+    that:
+      - not (lookup('config', application_id, 'services.jitsi.enabled') | bool and MATRIX_ONION_PRIMARY | bool)
+    fail_msg: >-
+      Jitsi is requested on an onion-primary Matrix: applications.{{ application_id }}.services.jitsi.enabled
+      is true, but the homeserver is served on its onion address {{ lookup('domain', application_id) }},
+      and Jitsi serves clearnet only. Set applications.{{ application_id }}.services.jitsi.enabled to false.
+
 - name: "🔐 Verify the gateway contract for {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
   when: MATRIX_LITELLM_ENABLED | bool
@@ -23,3 +32,6 @@
 - name: "📤 dispatch to compose flavor (deprecated; in-repo compose stack)"
   include_tasks: flavor/compose/main.yml
   when: matrix_flavor == 'compose'
+
+- name: "👑 Reconcile the Synapse admin flag with the administrator role"
+  include_tasks: 01_rbac_administrator.yml

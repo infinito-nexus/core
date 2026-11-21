@@ -1,2 +1,16 @@
 ---
 client_max_body_size: 15M
+vhosts:
+  element:
+    service_key: element
+    http_port: "{{ lookup('config', 'web-app-matrix', 'services.element.ports.local.http') }}"
+    internal_port: "{{ lookup('config', 'web-app-matrix', 'services.element.ports.internal.http') }}"
+  synapse:
+    service_key: synapse
+    http_port: "{{ lookup('config', 'web-app-matrix', 'services.synapse.ports.local.http') }}"
+    internal_port: "{{ lookup('config', 'web-app-matrix', 'services.synapse.ports.internal.http') }}"
+  jitsi:
+    enabled: "{{ lookup('config', 'web-app-matrix', 'services.matrix.flavor') == 'ansible' and (lookup('config', 'web-app-matrix', 'services.jitsi.enabled') | bool)
+      and not (lookup('config', 'web-app-matrix', 'services.jitsi.shared') | bool) }}"
+    http_port: "{{ lookup('config', 'web-app-matrix', 'services.jitsi.ports.local.http') }}"
+    internal_port: "{{ lookup('config', 'web-app-matrix', 'services.jitsi.ports.internal.http') }}"

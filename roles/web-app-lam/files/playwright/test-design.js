@@ -9,77 +9,28 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, requireDotenvValue } = require("./personas");
+const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, requireDotenvValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
+const {
+  ADMIN_USERNAME,
+  LAM,
+  LOGIN_BUTTON,
+  LOGIN_PASSWORD,
+  READY_MS,
+  open,
+  openSignedIn,
+  ready,
+  signIn,
+} = require("./_shared");
 
-const READY_MS = 10_000;
-const APP = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
-const LAM = `${APP}/lam/templates`;
-const ADMIN_USERNAME = decodeDotenvQuotedValue(requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME"));
-const ADMIN_PASSWORD = decodeDotenvQuotedValue(requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD"));
-const ROOT_DN_USERNAME = decodeDotenvQuotedValue(process.env.ADMIN_NATIVE_USERNAME || "");
-const ROOT_DN_PASSWORD = decodeDotenvQuotedValue(process.env.ADMIN_NATIVE_PASSWORD || "");
 const CONFIG_PASSWORD = decodeDotenvQuotedValue(requireDotenvValue(process.env.LAM_CONFIG_PASSWORD, "LAM_CONFIG_PASSWORD"));
 const LOGO_URL = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
-const SSO_ENABLED = process.env.SSO_SERVICE_ENABLED === "true";
 const DESIGN_ENABLED = process.env.DESIGN_SERVICE_ENABLED === "true";
-const KEYCLOAK = /\/protocol\/openid-connect\//;
-const SSO_HOP = /\/protocol\/openid-connect\/|\/login-actions\/|\/oauth2\//;
-const SIGNED_IN = '#lam-topnav a.lam-menu-entry[href$="/templates/lists/list.php?type=user"]';
-const LOGIN_BUTTON = 'button[name="checklogin"]';
 const INHOUSE_SHEET = 'link[href$="/style/900_infinito.css"]';
-
-async function ready(page, selector) {
-  await expect(page.locator(selector).first()).toBeVisible({ timeout: resolveTimeout(READY_MS) });
-}
 
 async function restMouse(page) {
   await page.mouse.move(1, page.viewportSize().height - 1);
-}
-
-async function passSsoGate(page) {
-  if (!SSO_ENABLED || !KEYCLOAK.test(page.url())) return;
-  await performKeycloakLoginForm(page, ADMIN_USERNAME, ADMIN_PASSWORD);
-  await page.waitForURL((url) => !SSO_HOP.test(String(url)), {
-    timeout: resolveTimeout(60_000),
-    waitUntil: "domcontentloaded",
-  });
-}
-
-async function open(page, path, selector) {
-  const url = `${LAM}/${path}`;
-  await gotoOnion(page, url);
-  if (SSO_ENABLED && KEYCLOAK.test(page.url())) {
-    await passSsoGate(page);
-    await page.waitForURL((landed) => String(landed).startsWith(`${LAM}/`), {
-      timeout: resolveTimeout(60_000),
-      waitUntil: "domcontentloaded",
-    });
-    if (page.url() !== url) await gotoOnion(page, url);
-  }
-  await ready(page, selector);
-}
-
-async function signIn(page) {
-  await open(page, "login.php", LOGIN_BUTTON);
-  const user = page.locator("select#username");
-  const password = page.locator("input#passwd");
-  await expect(user).toBeVisible({ timeout: resolveTimeout(READY_MS) });
-  await user.selectOption({ label: ROOT_DN_USERNAME });
-  await expect(password).toBeEditable({ timeout: resolveTimeout(READY_MS) });
-  await password.fill(ROOT_DN_PASSWORD);
-  await page.locator(LOGIN_BUTTON).click();
-  await expect(page.locator(SIGNED_IN)).toHaveCount(1, { timeout: resolveTimeout(30_000) });
-}
-
-async function openSignedIn(page, path, selector) {
-  await open(page, path, "body");
-  if ((await page.locator(SIGNED_IN).count()) === 0) {
-    await signIn(page);
-    await gotoOnion(page, `${LAM}/${path}`);
-  }
-  await ready(page, selector);
 }
 
 async function configSignIn(page, loginPath, path, selector) {
@@ -128,7 +79,7 @@ function galleryViews() {
   return [
     visitor("login", "login.php", LOGIN_BUTTON),
     visitor("login-error", "login.php", LOGIN_BUTTON, async (p) => {
-      const password = p.locator("input#passwd");
+      const password = p.locator(LOGIN_PASSWORD);
       await expect(password).toBeEditable({ timeout: resolveTimeout(READY_MS) });
       await password.fill(`wrong-${Date.now()}-${Math.random().toString(36).slice(2)}`);
       await p.locator(LOGIN_BUTTON).click();
@@ -200,9 +151,7 @@ function galleryViews() {
 }
 
 exports.register = function () {
-  test("LAM: the administrator signs in with the LDAP root DN and reaches the account list", async ({ page }) => {
-    expect(ROOT_DN_USERNAME, "ADMIN_NATIVE_USERNAME must name the LDAP root DN entry of the LAM login list").toBeTruthy();
-    expect(ROOT_DN_PASSWORD, "ADMIN_NATIVE_PASSWORD must carry the LDAP bind credential").toBeTruthy();
+  test("LAM: the administrator signs in with the directory login and reaches the account list", async ({ page }) => {
     await signIn(page);
     await expect(page).not.toHaveURL(/login\.php/);
     await openSignedIn(page, "lists/list.php?type=user", "table.accountlist tbody tr");

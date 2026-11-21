@@ -87,6 +87,7 @@ const PROVIDER_DIVIDER = ".pf-v5-c-page__main hr";
 const BUSY = ".pf-v5-c-spinner, .pf-v5-c-skeleton";
 const LOGOUT_PANEL = "#infinito-logout-status";
 const LOGOUT_PANEL_LINE = `${LOGOUT_PANEL} > p`;
+const LOGOUT_CONFIRM = "#kc-logout";
 
 /**
  * Args:
@@ -306,7 +307,7 @@ const visitorViews = () => [
     await page.locator(SIGN_IN_FORGOT).click();
     await shown(page, "#kc-reset-password-form");
   }),
-  view("sign-out-confirmation", logoutUrl, "#kc-logout"),
+  view("sign-out-confirmation", logoutUrl, LOGOUT_CONFIRM),
   view("error-page", errorUrl, "#kc-error-message"),
   view("sign-in-console", `${consoleUrl}?view=sign-in-console`, SIGN_IN_SUBMIT),
 ];
@@ -668,6 +669,7 @@ exports.register = function () {
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
       await gotoOnion(page, logoutUrl);
+      await page.locator(LOGOUT_CONFIRM).click({ timeout: resolveTimeout(30_000) });
       await shown(page, LOGOUT_PANEL);
       await assertToken(page, LOGOUT_PANEL, "background-color", "--design-surface-2", `logout panel ${mode}`);
       await assertToken(page, LOGOUT_PANEL, "color", "--design-text", `logout panel ${mode}`);

@@ -1,0 +1,49 @@
+---
+authentication:
+  path: /#Admin/authentication
+  native: true
+  sinks: [ESPOCRM_AUTHENTICATION_SETTINGS]
+  fields:
+    authentication_method:
+      source: services.espocrm.authentication_method
+      mode: enforced
+      selector: '.field[data-name="authenticationMethod"]'
+      type: select
+      enum: [Espo, LDAP, Oidc]
+    auth2_f_a:
+      source: services.espocrm.login.method.2fa.enabled
+      mode: enforced
+      selector: '.field[data-name="auth2FA"]'
+      type: checkbox
+    auth2_f_a_forced:
+      source: services.espocrm.second_factor_forced
+      mode: enforced
+      selector: '.field[data-name="auth2FAForced"]'
+      type: checkbox
+    oidc_fallback:
+      source: services.espocrm.login.method.native.enabled
+      when: services.sso.enabled
+      mode: enforced
+      selector: '.field[data-name="oidcFallback"]'
+      type: checkbox
+system:
+  path: /#Admin/settings
+  native: true
+  sinks: [ESPOCRM_SYSTEM_SETTINGS]
+  fields:
+    maintenance_mode:
+      source: services.espocrm.maintenance_mode
+      mode: enforced
+      selector: '.field[data-name="maintenanceMode"]'
+      type: checkbox
+    cron_disabled:
+      source: services.espocrm.maintenance_mode
+      mode: enforced
+      selector: '.field[data-name="cronDisabled"]'
+      type: checkbox
+    use_cache:
+      source: services.espocrm.maintenance_mode
+      mode: enforced
+      selector: '.field[data-name="useCache"]'
+      type: checkbox
+      map: { true: false, false: true }

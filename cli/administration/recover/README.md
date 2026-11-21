@@ -83,12 +83,23 @@ role's backup unit as a rollback point. `--no-safety-backup` skips that
 (only when the target holds nothing worth saving: fresh host / empty /
 disposable). `--preview` prints the exact commands without running them.
 
+A tree pulled from a remote host, or recovered from a remote device, lands in
+an owner-only stage under a random name in the temp directory, never under a
+fixed `/tmp` path. A remote block device is recovered into a directory the
+host's own `mktemp -d` creates, which is removed after the pull. `full`
+removes its local stage after every run, failed or not, so a failed run pulls
+the tree again; a stage that cannot be removed is named in a warning. The
+standalone `device` recovery of a remote source keeps its tree, since it is the
+result, and prints where it lies.
+
 ## Layout
 
 | file | responsibility |
 |---|---|
 | `recoverers.py` | abstract `Recoverer` + one subclass per type, source parsing/validation |
 | `full.py` | `full` orchestration: resolve source, discover repos, recover in order |
+| `remote.py` | remote device source: recover over ssh or pull the image, then pull the tree |
+| `stage.py` | owner-only staging directories, local and on the remote host |
 | `paths.py` | standard filesystem layout (backup root, export base, secrets, mount) |
 | `__main__.py` | argparse entry + dispatch |
 | `schema.yml` | the recovery schema |

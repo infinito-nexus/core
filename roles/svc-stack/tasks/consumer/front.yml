@@ -1,0 +1,8 @@
+---
+- name: "🌐 For '{{ application_id }}': serve the vhosts its meta declares"
+  ansible.builtin.include_tasks: batch/front.yml
+  loop: "{{ [ansible_parent_role_names | default([application_id]) | first] }}"
+  loop_control:
+    loop_var: stack_batch_consumer
+  vars:
+    stack_front_phase: entered

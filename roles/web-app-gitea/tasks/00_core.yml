@@ -1,18 +1,23 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
-  vars:
-    mcp_adapter_instance_dir: "{{ GITEA_MCP_INSTANCE_DIR }}"
-    mcp_adapter_upstream_key: true
-  when: GITEA_MCP_ENABLED | bool
+- name: "🩹 Stage the Gitea source patches into the build context of {{ application_id }}"
+  stack_host_copy:
+    src: "patch/{{ item }}"
+    dest: "{{ [GITEA_PATCH_DIR_HOST_ABS, item | dirname] | path_join }}/"
+    mode: "0644"
+  loop: "{{ GITEA_PATCH_FILES }}"
+  notify:
+    - compose-build
+    - compose-up
 
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
+- name: "🧹 Register the garbage collector of {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-ctl-cln-apps/tasks/utils/install.yml') }}"
   vars:
-    compose_handlers_flush: false
+    garbage_collector_service_key: gitea
+    garbage_collector_environment:
+      GITEA_GARBAGE_COLLECTOR_MINUTES_ROUTINE: "{{ lookup('config', application_id, 'services.gitea.garbage_collector.minutes.routine') }}"
+      GITEA_GARBAGE_COLLECTOR_MINUTES_PRESSURE: "{{ lookup('config', application_id, 'services.gitea.garbage_collector.minutes.pressure') }}"
 
 - name: "🎨 Stage the corporate design overrides of {{ application_id }}"
   include_tasks: utils/design.yml

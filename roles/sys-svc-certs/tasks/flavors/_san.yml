@@ -11,7 +11,7 @@
   command: >-
     certbundle
     --domains "{{ CURRENT_PLAY_DOMAINS_ALL | join(',') }}"
-    --certbot-email "{{ lookup('users', 'platform_administrator').email }}"
+    --certbot-email "{{ lookup('users', 'platform_administrator').secondary_email or lookup('users', 'platform_administrator').email }}"
     --certbot-acme-challenge-method "{{ CERTBOT_ACME_CHALLENGE_METHOD }}"
     --chunk-size 100
     {% if CERTBOT_ACME_CHALLENGE_METHOD != 'webroot' %}
@@ -20,7 +20,7 @@
     {% else %}
     --letsencrypt-webroot-path "{{ LETSENCRYPT_WEBROOT_PATH }}"
     {% endif %}
-    {{ '--mode-test' if MODE_DUMMY | bool else '' }}
+    {{ '--mode-test' if DUMMY | bool else '' }}
   register: certbundle_result
   changed_when: >
     ('certificate not yet due for renewal' not in (certbundle_result.stdout | lower | default('')))

@@ -18,7 +18,7 @@ The goal of this role is to deliver a **hassle-free, production-ready reverse pr
 
 - **Automatic TLS & HSTS**: integrates with the *sys-svc-webserver-https* role for certificate management.  
 - **Flexible vHost templates**: *basic* and *ws_generic* flavours cover standard HTTP and WebSocket applications.  
-- **Security headers**: CSP from each role's `meta/csp.yml`, plus the per-role headers described in [Security Headers](#security-headers).  
+- **Security headers**: CSP from each role's `meta/csp.yml`, plus the per-role headers described in [Security Headers](#security-headers). A role whose CSP sources are derived from other roles renders them in `templates/csp/extras.yml.j2`, a mapping of directive to source list built from lookups only, because the vhost renders outside the role's own vars.  
 - **WebSocket & HTTP/2 aware**: upgrades, keep-alive tuning, and gzip already configured.  
 - **OAuth2 gating**: drop-in support when *web-app-keycloak's SSO-proxy sidecar* is present.  
 - **Modular includes**: headers, locations, and global snippets are factored for easy extension.

@@ -17,16 +17,9 @@ if [[ -z "$container" || -z "$run_as" || -z "$admin_user" || -z "$occ" ]]; then
   exit 2
 fi
 
-if ! IFS= read -r OC_PASS; then
-  echo "[FAIL] No administrator password on stdin." >&2
-  exit 1
-fi
+IFS= read -r OC_PASS || :  # nocheck: shell-or-true -- read returns 1 on a last line without a newline; the next line rejects an empty value
+: "${OC_PASS:?[FAIL] refusing to set an empty administrator password}"
 export OC_PASS
-
-if [[ -z "$OC_PASS" ]]; then
-  echo "[FAIL] OC_PASS is empty; refusing to set an empty administrator password." >&2
-  exit 1
-fi
 
 marker="/var/www/html/config/.admin_password_sha256"
 declared_sha="$(printf '%s' "$OC_PASS" | sha256sum | cut -d' ' -f1)"

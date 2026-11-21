@@ -1,0 +1,9 @@
+{
+    "name": "InfinitoRbacLogin",
+    "description": "Applies the RBAC role groups of a Keycloak sign-in through RebelOIDC to the superuser and website access of the account.",
+    "version": "1.0.0",
+    "theme": false,
+    "require": {
+        "matomo": ">=5.12.0,<6.0.0-b1"
+    }
+}

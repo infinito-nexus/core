@@ -5,14 +5,14 @@
 - name: "📥 Pre-pull the images of this deploy in the background"
   when:
     - not (STORAGE_CONSTRAINED | bool)
-    - not (MODE_RESET | bool)
+    - not (RESET | bool)
     - IS_STACK_HOST | bool
   block:
     - name: "🧮 Derive the images the deploy of the host runs"
       ansible.builtin.set_fact:
         sys_svc_container_prepull_plan: >-
           {%- set plan = lookup('applications')
-                         | update_pull_images(lookup('application_closure', group_names | intersect(lookup('deployment').running))) -%}
+                         | update_pull_images(lookup('application_closure', group_names | intersect(lookup('deployment').running)), lookup('registry_vendors')) -%}
           {{ plan | combine({'pull': plan.pull + (sys_svc_container_prepull_extra | reject('in', plan.pull) | list)}) }}
 
     - name: "📥 Pull the images the host does not hold yet"

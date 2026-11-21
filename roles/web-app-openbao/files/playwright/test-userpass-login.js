@@ -1,5 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { normalizeBaseUrl, decodeDotenvQuotedValue, requireDotenvValue } = require("./personas");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const baseUrl = normalizeBaseUrl(requireDotenvValue(process.env.OPENBAO_BASE_URL, "OPENBAO_BASE_URL"));
@@ -20,9 +21,10 @@ const login = (request) =>
 test("userpass: the administrator signs in with the platform password when no identity provider is deployed", async ({
   request,
 }) => {
-  test.skip(
-    passwordMount !== userpassMount,
-    "an identity provider carries the administrator sign-in (OPENBAO_PASSWORD_AUTH_MOUNT is not the userpass mount)",
+  skipUnlessServiceDisabled("sso");
+  skipUnlessServiceDisabled("ldap");
+  expect(passwordMount, "OPENBAO_PASSWORD_AUTH_MOUNT must name the userpass mount while sso and ldap are disabled").toBe(
+    userpassMount,
   );
 
   const response = await login(request);
@@ -46,15 +48,23 @@ test("userpass: the administrator signs in with the platform password when no id
   }
 });
 
-test("userpass: the method is absent while an identity provider carries the sign-in", async ({ request }) => {
-  test.skip(
-    passwordMount === userpassMount,
-    "the userpass method carries the administrator sign-in (OPENBAO_PASSWORD_AUTH_MOUNT is the userpass mount)",
+async function assertUserpassAbsent(request) {
+  expect(passwordMount, "OPENBAO_PASSWORD_AUTH_MOUNT must not name the userpass mount while an identity provider is enabled").not.toBe(
+    userpassMount,
   );
-
   const response = await login(request);
   expect(
     response.status(),
     `a deployment with an identity provider must offer no userpass login, got ${response.status()}`,
   ).not.toBe(200);
+}
+
+test("userpass: the method is absent while sso carries the sign-in", async ({ request }) => {
+  skipUnlessServiceEnabled("sso");
+  await assertUserpassAbsent(request);
+});
+
+test("userpass: the method is absent while ldap carries the sign-in", async ({ request }) => {
+  skipUnlessServiceEnabled("ldap");
+  await assertUserpassAbsent(request);
 });

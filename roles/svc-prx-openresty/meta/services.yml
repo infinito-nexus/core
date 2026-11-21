@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 openresty:
   modes:
     compose:
@@ -52,3 +53,10 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, dynamic-flag, semaphore-contract  control plane: every Semaphore request passes this proxy, so a run that paused it would cut off the UI that resumes it
+semaphore:
+  enabled: false
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false
+  status: started

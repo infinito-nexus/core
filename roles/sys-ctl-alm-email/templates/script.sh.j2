@@ -26,8 +26,9 @@ mail_tmp="$(mktemp)"
 trap 'rm -f "$mail_tmp"' EXIT
 
 {% set email = lookup('email') %}
+{% set administrator = lookup('users', 'platform_administrator') %}
 cat > "$mail_tmp" <<ERRMAIL
-To: {{ lookup('users', 'platform_administrator').email }}
+To: {{ administrator.secondary_email or administrator.email }}
 From: systemd <{{ email['from'] }}>
 Subject: ${friendly}
 Content-Transfer-Encoding: 8bit

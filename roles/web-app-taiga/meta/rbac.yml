@@ -1,0 +1,4 @@
+---
+roles:
+  user:
+    description: Can sign in to Taiga and work in the projects that invite them, without instance administration

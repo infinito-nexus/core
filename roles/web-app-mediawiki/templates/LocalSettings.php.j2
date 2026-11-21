@@ -145,6 +145,8 @@ $wgSecretKey = "{{ MEDIAWIKI_SECRET_KEY }}";
 # Changing this will log out all existing sessions.
 $wgAuthenticationTokenVersion = "1";
 
+$wgGroupPermissions['*']['createaccount'] = {{ 'true' if MEDIAWIKI_LOGIN_REGISTRATION | bool else 'false' }};
+
 ## For attaching licensing metadata to pages, and displaying an
 ## appropriate copyright notice / icon. GNU Free Documentation
 ## License and Creative Commons licenses are supported so far.
@@ -219,6 +221,6 @@ if ( file_exists( "$IP/extensions/AWS/vendor/autoload.php" ) ) {
 }
 {% endif %}
 
-{% if MODE_DEBUG | bool %}
+{% if lookup('debug') | bool %}
 require_once '{{ MEDIAWIKI_LOCAL_PATH }}/debug.php';
 {% endif %}

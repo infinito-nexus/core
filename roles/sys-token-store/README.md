@@ -136,8 +136,8 @@ lookup('users', 'administrator').tokens['web-app-matomo']
         app: web-app-matomo
         token: "{{ matomo_token_value }}"
       - user_key: no-reply
-        app: web-app-stalwart
-        token: "{{ stalwart_bot_secret }}"
+        app: "{{ MAIL_PROVIDER }}"
+        token: "{{ mail_bot_secret }}"
 ```
 
 ---

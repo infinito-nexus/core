@@ -1,0 +1,41 @@
+---
+- name: "📁 Ensure the directory the gateway mounts for s3.json exists"
+  ansible.builtin.file:
+    path: "{{ SEAWEEDFS_S3_CONFIG_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: "📁 Ensure the workspace identity records directory exists"
+  ansible.builtin.file:
+    path: "{{ SEAWEEDFS_IDENTITIES_DIR }}"
+    state: directory
+    mode: "0700"
+
+- name: "🔎 Find the workspace identity records"
+  ansible.builtin.find:
+    paths: "{{ SEAWEEDFS_IDENTITIES_DIR }}"
+    patterns: "ws-*.json"
+    file_type: file
+  register: _seaweedfs_identity_files
+
+- name: "📥 Read the workspace identity records"
+  ansible.builtin.slurp:
+    src: "{{ seaweedfs_identity_file.path }}"
+  loop: "{{ _seaweedfs_identity_files.files | sort(attribute='path') }}"
+  loop_control:
+    loop_var: seaweedfs_identity_file
+    label: "{{ seaweedfs_identity_file.path | basename }}"
+  register: _seaweedfs_identity_reads
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📄 Render s3.json next to the old one and rename it into place"
+  stack_host_template:
+    src: s3.json.j2
+    dest: "{{ SEAWEEDFS_S3_CONFIG_PATH }}"
+    mode: "0444"
+  vars:
+    seaweedfs_workspace_records: >-
+      {{ _seaweedfs_identity_reads.results
+         | map(attribute='content') | map('b64decode') | map('from_json') | list }}
+  register: seaweedfs_s3_config
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

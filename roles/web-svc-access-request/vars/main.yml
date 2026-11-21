@@ -1,0 +1,35 @@
+---
+application_id: "web-svc-access-request"
+entity_name: "{{ application_id | entity_name }}"
+
+ACCESS_REQUEST_SERVICE: "{{ entity_name }}"
+ACCESS_REQUEST_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+ACCESS_REQUEST_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
+ACCESS_REQUEST_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
+ACCESS_REQUEST_PORT: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
+ACCESS_REQUEST_FOUR_EYES: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.four_eyes') | bool }}"
+ACCESS_REQUEST_URL: "{{ lookup('tls', application_id, 'url.base') }}"
+
+ACCESS_REQUEST_BUILD_DIR: "{{ [lookup('container', application_id, 'directories.instance'), 'access-request'] | path_join }}"
+ACCESS_REQUEST_CONFIG_HOST: "{{ [lookup('container', application_id, 'directories.instance'), 'config.json'] | path_join }}"
+ACCESS_REQUEST_CONFIG_TARGET: "/config/config.json"
+ACCESS_REQUEST_DATABASE: "/data/requests.sqlite3"
+ACCESS_REQUEST_CA_FILE: "{{ CA_TRUST_CERT_CONTAINER_SELFSIGNED }}"
+ACCESS_REQUEST_MOUNTS: "{{ [ACCESS_REQUEST_CONFIG_HOST ~ ':' ~ ACCESS_REQUEST_CONFIG_TARGET ~ ':ro'] + ([CA_TRUST.cert_host ~ ':' ~ CA_TRUST.cert_container ~ ':ro']
+  if ACCESS_REQUEST_CA_FILE else []) }}"
+
+ACCESS_REQUEST_EMAIL: "{{ lookup('email', application_id) }}"
+ACCESS_REQUEST_PLATFORM_ADMIN: "{{ lookup('users', IAM_PLATFORM_ADMIN_USER_KEY) }}"
+ACCESS_REQUEST_APPROVER_EMAILS:
+  - "{{ ACCESS_REQUEST_PLATFORM_ADMIN.secondary_email or ACCESS_REQUEST_PLATFORM_ADMIN.email }}"
+ACCESS_REQUEST_PLATFORM_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+
+ACCESS_REQUEST_APP_IDS: "{{ lookup('deployment').groups | rbac_requestable_app_ids }}"
+ACCESS_REQUEST_CATALOGUE: "{{ lookup('applications') | rbac_access_catalogue(ACCESS_REQUEST_APP_IDS, RBAC.GROUP.NAME) }}"
+ACCESS_REQUEST_I18N: "{{ lookup('i18n_catalogue', 'access_request', 'roles/web-svc-access-request/files/access_request_i18n.yml') }}"
+ACCESS_REQUEST_RBAC_I18N: "{{ lookup('rbac_i18n_catalogue', ACCESS_REQUEST_CATALOGUE) }}"
+
+ACCESS_REQUEST_ZAMMAD_ENABLED: "{{ 'web-app-zammad' in group_names }}"
+ACCESS_REQUEST_ZAMMAD_URL: "{{ lookup('tls', 'web-app-zammad', 'url.base') if (ACCESS_REQUEST_ZAMMAD_ENABLED | bool) else '' }}"
+ACCESS_REQUEST_ZAMMAD_TOKEN: "{{ lookup('config', application_id, 'secrets.credentials.zammad_api_token') if (ACCESS_REQUEST_ZAMMAD_ENABLED | bool) else '' }}"
+ACCESS_REQUEST_ZAMMAD_GROUP: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.zammad_group') }}"

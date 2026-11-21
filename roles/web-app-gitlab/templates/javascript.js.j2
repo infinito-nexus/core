@@ -1,0 +1,26 @@
+(function () {
+  const hiddenEntries = {{ GITLAB_LOGIN_HIDDEN_ENTRIES | to_json }};
+  if (hiddenEntries.length === 0) {
+    return;
+  }
+
+  function hideEntries() {
+    hiddenEntries.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((element) => {
+        element.style.setProperty("display", "none", "important");
+      });
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", hideEntries, { once: true });
+  } else {
+    hideEntries();
+  }
+
+  new MutationObserver(hideEntries).observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+})();
+{% include 'roles/sys-front-inj-javascript/templates/profile_lock.js.j2' %}

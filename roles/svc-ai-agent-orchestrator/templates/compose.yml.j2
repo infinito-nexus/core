@@ -1,0 +1,28 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+
+  {% set service_name = 'agent-orchestrator' %}
+  {{ service_name }}:
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_image', application_id, 'agent-orchestrator') }}
+    build:
+      context: {{ AGENT_ORCHESTRATOR_BUILD_DIR }}
+      dockerfile: Dockerfile
+      args:
+        AGENT_ORCHESTRATOR_BASE_IMAGE: {{ AGENT_ORCHESTRATOR_BASE_IMAGE }}
+        AGENT_ORCHESTRATOR_BASE_VERSION: "{{ AGENT_ORCHESTRATOR_BASE_VERSION }}"
+    {{ lookup('compose_only', 'container_name', AGENT_ORCHESTRATOR_CONTAINER) }}
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    expose:
+      - "{{ AGENT_ORCHESTRATOR_PORT }}"
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_depends_on', application_id) | indent(4) }}
+
+{{ lookup('compose_networks') }}
+
+{{ lookup('compose_volumes') }}

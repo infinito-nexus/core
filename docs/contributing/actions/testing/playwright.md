@@ -2,8 +2,8 @@
 
 This page covers Playwright end-to-end test requirements, runner integration, and file contracts.
 For implementation guidance when writing or updating role-local files, see
-[Agent `playwright.spec.js`](../../../agents/files/role/playwright.spec.js.md) and
-[Agent `playwright.env.j2`](../../../agents/files/role/playwright.env.j2.md).
+[the `playwright.spec.js` authoring skill](../../../../agents/skills/i8-file-role-playwright-spec/SKILL.md) and
+[Agent `playwright.env.j2`](../../../../agents/skills/i8-file-role-playwright-env/SKILL.md).
 For what the `files/playwright/playwright.spec.js` of a role MUST contain, see
 [`playwright.spec.js` (role file rules)](../../artefact/files/role/playwright.specs.js.md).
 
@@ -12,7 +12,7 @@ For what the `files/playwright/playwright.spec.js` of a role MUST contain, see
 - [Playwright](https://playwright.dev/) runs inside Docker via the shared `test-e2e-playwright` role.
 - There is no standalone `make` target for Playwright. Tests run as part of local deploy flows
   (e.g. `make compose-deploy mode=reinstall apps=web-app-matomo full_cycle=true`). For spec-only
-  iteration after the first successful deploy, see [Playwright Spec Loop](../../../agents/action/iteration/playwright.md).
+  iteration after the first successful deploy, see [Playwright Spec Loop](../../../../agents/skills/i8-iterate-playwright/SKILL.md).
 
 ## When to Write ✍️
 
@@ -79,7 +79,7 @@ Set the variable for the contexts you need:
 See the dedicated SPOT pages for authoring rules:
 
 - [`playwright.spec.js`](../../artefact/files/role/playwright.specs.js.md): what the role-local spec MUST contain (entry point, scenarios, selectors, final state)
-- [`playwright.env.j2`](../../../agents/files/role/playwright.env.j2.md): rendered test input surface, variable naming, and entry-point selection
+- [`playwright.env.j2`](../../../../agents/skills/i8-file-role-playwright-env/SKILL.md): rendered test input surface, variable naming, and entry-point selection
 
 ## Recording Tests 🎬
 
@@ -120,7 +120,7 @@ Generated files are persisted in the local workspace (git-ignored). Copy the rel
 
 This page owns framework and runner mechanics only. The procedure for writing, deploying, and reviewing a role-local spec lives in the dedicated SPOTs:
 
-- [Agent `playwright.spec.js`](../../../agents/files/role/playwright.spec.js.md): authoring procedure and live review.
-- [Compose Loop](../../../agents/action/iteration/compose.md): baseline deploy, redeploy rules, Certificate Authority trust, Inspect-before-redeploy.
-- [Playwright Spec Loop](../../../agents/action/iteration/playwright.md): spec-only inner loop against the already-running stack.
+- [the `playwright.spec.js` authoring skill](../../../../agents/skills/i8-file-role-playwright-spec/SKILL.md): authoring procedure and live review.
+- [Compose Loop](../../../../agents/skills/i8-iterate-compose/SKILL.md): baseline deploy, redeploy rules, Certificate Authority trust, Inspect-before-redeploy.
+- [Playwright Spec Loop](../../../../agents/skills/i8-iterate-playwright/SKILL.md): spec-only inner loop against the already-running stack.
 - [`playwright.spec.js` (role file rules)](../../artefact/files/role/playwright.specs.js.md): what the spec MUST contain, including logged-out final state and console cleanliness.

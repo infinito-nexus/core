@@ -1,4 +1,6 @@
 const CLEARNET = "clearnet";
+const TOR = "tor";
+const URL_PATTERN = /\bhttps?:\/\/[^/,\s"']+/gi;
 
 function hostOf(url) {
   try {
@@ -6,6 +8,22 @@ function hostOf(url) {
   } catch {
     return "";
   }
+}
+
+/**
+ * Returns:
+ *   The network name -> host suffix table of the network registry, which the
+ *   harness renders into PLAYWRIGHT_NETWORK_SUFFIXES.
+ */
+function registrySuffixes() {
+  const raw = process.env.PLAYWRIGHT_NETWORK_SUFFIXES || "";
+  if (!raw) {
+    throw new Error(
+      "PLAYWRIGHT_NETWORK_SUFFIXES is missing from the environment. The harness " +
+        "writes it into the staged .env, so this run was started outside it."
+    );
+  }
+  return JSON.parse(raw);
 }
 
 /**
@@ -22,6 +40,46 @@ function networkOf(host, suffixes) {
     if (suffix && name.endsWith(suffix)) return network;
   }
   return CLEARNET;
+}
+
+/**
+ * Args:
+ *   host: a host name.
+ *
+ * Returns:
+ *   Whether the registry puts the host into the tor network.
+ */
+function isTorHost(host) {
+  return Boolean(host) && networkOf(host, registrySuffixes()) === TOR;
+}
+
+/**
+ * Args:
+ *   url: an absolute URL.
+ *
+ * Returns:
+ *   Whether the host of the URL belongs to the tor network.
+ */
+function isTorUrl(url) {
+  return isTorHost(hostOf(url));
+}
+
+/**
+ * Args:
+ *   values: strings that may carry absolute URLs, e.g. the environment values.
+ *
+ * Returns:
+ *   The unique origins of the tor URLs in the values.
+ */
+function torOrigins(values) {
+  const origins = new Set();
+  for (const value of values) {
+    if (typeof value !== "string") continue;
+    for (const url of value.match(URL_PATTERN) || []) {
+      if (isTorUrl(url)) origins.add(new URL(url).origin);
+    }
+  }
+  return [...origins];
 }
 
 /**
@@ -53,4 +111,11 @@ function crossNetworkLeaks({ requests, consoleErrors, suffixes, allowedHosts }) 
   return findings;
 }
 
-module.exports = { networkOf, crossNetworkLeaks };
+module.exports = {
+  registrySuffixes,
+  networkOf,
+  isTorHost,
+  isTorUrl,
+  torOrigins,
+  crossNetworkLeaks,
+};

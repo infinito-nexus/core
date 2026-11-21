@@ -12,7 +12,7 @@ This role builds and runs Bridgy Fed as a Docker container behind the project's 
 
 - **Cross-network federation:** Mirror posts and interactions between ActivityPub, AT Protocol, and the IndieWeb.
 - **Containerized deployment:** Run the upstream Flask app under gunicorn through Docker Compose.
-- **Front-proxy integration:** Publish the app through `sys-stk-front-proxy` for TLS termination and per-domain routing.
+- **Front-proxy integration:** Publish the app through `svc-stack` for TLS termination and per-domain routing.
 - **Optional Firestore emulator:** Use the Datastore-mode emulator sidecar for non-production deployments.
 
 ## Single Sign-On

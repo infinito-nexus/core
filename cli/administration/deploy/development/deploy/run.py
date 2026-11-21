@@ -11,7 +11,11 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 from typing import TYPE_CHECKING, Any
+
+from cli.administration.deploy.development.profile import Profile
+from utils.cache import PROJECT_ROOT
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -23,9 +27,53 @@ _FORWARDED_ENV_KEYS = (
     "GITHUB_TOKEN",
     "GITHUB_REPOSITORY_OWNER",
     "GITHUB_REPOSITORY",
-    "INFINITO_IMAGE_TAG",
     "INFINITO_GHCR_MIRROR_PREFIX",
 )
+_IMAGE_KEY = "INFINITO_IMAGE"
+_IMAGE_TAG_KEY = "INFINITO_IMAGE_TAG"
+_LOCAL_IMAGE_TAG_PREFIX = "dev-"
+_LOCAL_IMAGE_SCRIPT = (
+    PROJECT_ROOT / "scripts" / "meta" / "resolve" / "image" / "local.sh"
+)
+
+
+def deploy_image_tag() -> str:
+    """Return the Infinito.Nexus image tag the deploy pins its images to.
+
+    Returns:
+        ``INFINITO_IMAGE_TAG`` on CI, which tags the images it built;
+        ``dev-<commit>`` of this checkout's ``HEAD`` everywhere else.
+    """
+    if Profile().is_ci():
+        return os.environ[_IMAGE_TAG_KEY]
+    head = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return f"{_LOCAL_IMAGE_TAG_PREFIX}{head.stdout.strip()}"
+
+
+def pin_deploy_image(env: dict[str, str]) -> None:
+    """Point a deploy that runs outside the infinito container at the image of this checkout.
+
+    Args:
+        env: the deploy's environment, updated in place: ``INFINITO_IMAGE_TAG``
+            becomes :func:`deploy_image_tag`, and an empty ``INFINITO_IMAGE``
+            the local image name the compose stack resolves the same way.
+    """
+    env[_IMAGE_TAG_KEY] = deploy_image_tag()
+    if not env.get(_IMAGE_KEY):
+        env[_IMAGE_KEY] = subprocess.run(
+            ["bash", str(_LOCAL_IMAGE_SCRIPT)],
+            cwd=PROJECT_ROOT,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
 
 
 def _run_deploy(
@@ -50,7 +98,7 @@ def _run_deploy(
         "-p",
         pw_file,
         "-vv",
-        "--assert",
+        "--validate",
         "true",
         "--diff",
         "--skip-pull",
@@ -85,6 +133,7 @@ def _run_deploy(
         val = os.environ.get(key)
         if val:
             extra_env[key] = val
+    extra_env[_IMAGE_TAG_KEY] = deploy_image_tag()
 
     r = compose.exec(
         cmd,

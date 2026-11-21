@@ -25,6 +25,8 @@ const dotenv = require("./dotenv");
 const dom = require("./dom");
 const seaweedfs = require("./seaweedfs");
 const mailbox = require("./mailbox");
+const ldap = require("./ldap");
+const forgedIdentity = require("./forged-identity");
 
 module.exports = {
   ...env,
@@ -40,4 +42,6 @@ module.exports = {
   ...dom,
   ...seaweedfs,
   ...mailbox,
+  ...ldap,
+  ...forgedIdentity,
 };

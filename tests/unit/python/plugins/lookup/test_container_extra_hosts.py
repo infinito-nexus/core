@@ -7,6 +7,7 @@ from plugins.lookup.container_extra_hosts import LookupModule
 
 ONION = "auth." + "b" * 56 + ".onion"
 MAIL_ONION = "mail." + "c" * 56 + ".onion"
+PEER_ONION = "matrix." + "d" * 56 + ".onion"
 
 
 class TestContainerExtraHostsLookup(unittest.TestCase):
@@ -238,6 +239,71 @@ class TestContainerExtraHostsLookup(unittest.TestCase):
             block.splitlines()[1], '  - "host.docker.internal:host-gateway"'
         )
 
+    def _swarm_entries(self, **kwargs):
+        variables = {
+            "application_id": "web-app-wordpress",
+            "_sso_enabled": True,
+            "_provider_domain": ONION,
+            "DEPLOYMENT_MODE": "swarm",
+            "ansible_facts": {"default_ipv4": {"address": "10.0.0.7"}},
+        }
+        return self.lookup.run(None, variables=variables, entries_only=True, **kwargs)
+
+    def test_the_wordpress_pins_hold_one_host_gateway_line(self):
+        self.assertEqual(
+            self._swarm_entries(host_alias=True),
+            ["host.docker.internal:host-gateway", f"{ONION}:10.0.0.7"],
+        )
+
+    def test_a_consumer_without_host_alias_holds_one_host_gateway_line(self):
+        self.assertEqual(
+            self._swarm_entries(),
+            ["host.docker.internal:host-gateway", f"{ONION}:10.0.0.7"],
+        )
+
+    def test_host_gateway_wins_over_an_earlier_address_for_the_alias(self):
+        self.assertEqual(
+            self.lookup.run(
+                None,
+                variables={
+                    "application_id": "web-app-wordpress",
+                    "_sso_enabled": False,
+                    "DEPLOYMENT_MODE": "compose",
+                },
+                entries_only=True,
+                extra_hosts=[
+                    "host.docker.internal:10.0.0.7",
+                    "host.docker.internal:host-gateway",
+                ],
+            ),
+            ["host.docker.internal:host-gateway"],
+        )
+
+    def test_host_alias_alone_keeps_the_stack_host_address(self):
+        self.assertEqual(
+            self.lookup.run(
+                None,
+                variables={
+                    "application_id": "web-app-moodle",
+                    "_sso_enabled": False,
+                    "DEPLOYMENT_MODE": "swarm",
+                    "ansible_facts": {"default_ipv4": {"address": "10.0.0.7"}},
+                },
+                entries_only=True,
+                host_alias=True,
+            ),
+            ["host.docker.internal:10.0.0.7"],
+        )
+
+    def test_any_other_name_keeps_its_first_address(self):
+        self.assertEqual(
+            self._run(
+                _sso_enabled=False,
+                extra_hosts=["db.example:10.0.0.9", "db.example:10.0.0.10"],
+            ),
+            'extra_hosts:\n  - "db.example:10.0.0.9"',
+        )
+
     def test_empty_entries_are_dropped(self):
         self.assertEqual(
             self._run(_sso_enabled=False, extra_hosts=["", None, "  "]), ""
@@ -279,6 +345,45 @@ class TestContainerExtraHostsLookup(unittest.TestCase):
 
     def test_entries_only_is_empty_without_sso(self):
         self.assertEqual(self._run_entries(_sso_enabled=False), [])
+
+    def _run_peers(self, onion_peers, **overrides):
+        variables = {
+            "application_id": "web-app-keycloak",
+            "_sso_enabled": False,
+            "DEPLOYMENT_MODE": "compose",
+            **overrides,
+        }
+        return self.lookup.run(
+            None, variables=variables, onion_peers=onion_peers, entries_only=True
+        )
+
+    def test_an_onion_backchannel_peer_is_pinned_to_the_proxy(self):
+        url = f"http://{PEER_ONION}/_synapse/client/oidc/backchannel_logout"
+        self.assertEqual(self._run_peers([url]), [f"{PEER_ONION}:host-gateway"])
+
+    def test_swarm_pins_an_onion_peer_to_the_node_address(self):
+        self.assertEqual(
+            self._run_peers(
+                [f"http://{PEER_ONION}/x"],
+                DEPLOYMENT_MODE="swarm",
+                ansible_facts={"default_ipv4": {"address": "10.0.0.7"}},
+            ),
+            [f"{PEER_ONION}:10.0.0.7"],
+        )
+
+    def test_a_clearnet_peer_is_left_to_dns(self):
+        self.assertEqual(
+            self._run_peers(
+                ["https://matrix.example.com/_synapse/x", "matrix.example.com"]
+            ),
+            [],
+        )
+
+    def test_a_bare_onion_host_is_accepted_as_a_peer(self):
+        self.assertEqual(self._run_peers(PEER_ONION), [f"{PEER_ONION}:host-gateway"])
+
+    def test_no_peers_add_nothing(self):
+        self.assertEqual(self._run_peers([]), [])
 
 
 if __name__ == "__main__":

@@ -147,6 +147,60 @@ def build_realm_rbac_groups(applications, users, group_root, group_names=None):
     return groups
 
 
+def _group_filter(cn_clauses):
+    clauses = "".join(cn_clauses)
+    if len(cn_clauses) > 1:
+        clauses = f"(|{clauses})"
+    return f"(&(objectClass=groupOfNames){clauses})"
+
+
+def kc_app_ldap_scopes(applications, application_id):
+    """Return the LDAP group filters of one application's per-app mappers.
+
+    A tenant-unaware application keeps one mapper over ``cn=<app>-*``. A
+    tenant-aware one gets a mapper over its global role groups and tenant
+    containers, anchored at ``/<root>/<app>``, plus one mapper per tenant over
+    ``cn=<app>-<tenant>-*``, anchored at the imported tenant container.
+
+    Args:
+        applications: the merged applications mapping.
+        application_id: the application whose mappers are built.
+    """
+    app_cfg = (applications or {}).get(application_id) or {}
+    rbac = app_cfg.get("rbac") or {}
+    axis = (rbac.get("tenancy") or {}).get("axis", _AXIS_NONE)
+    if axis == _AXIS_NONE:
+        return {"filter": _group_filter([f"(cn={application_id}-*)"]), "tenants": []}
+    if axis != _AXIS_DOMAIN:
+        raise AnsibleFilterError(
+            f"kc_app_ldap_scopes: unsupported rbac.tenancy.axis '{axis}' on "
+            f"application '{application_id}'."
+        )
+    tenants = _resolve_tenants(app_cfg, application_id)
+    global_roles = sorted(
+        name
+        for name, conf in (rbac.get("roles") or {}).items()
+        if (conf or {}).get("scope", _SCOPE_PER_TENANT) == _SCOPE_GLOBAL
+    )
+    clauses = [f"(cn={application_id}-{role})" for role in global_roles] + [
+        f"(cn={application_id}-{tenant})" for tenant in tenants
+    ]
+    return {
+        "filter": _group_filter(clauses),
+        "tenants": [
+            {
+                "tenant": tenant,
+                "mapper": f"ldap-roles-{application_id}-{tenant}",
+                "filter": _group_filter([f"(cn={application_id}-{tenant}-*)"]),
+            }
+            for tenant in tenants
+        ],
+    }
+
+
 class FilterModule:
     def filters(self):
-        return {"build_realm_rbac_groups": build_realm_rbac_groups}
+        return {
+            "build_realm_rbac_groups": build_realm_rbac_groups,
+            "kc_app_ldap_scopes": kc_app_ldap_scopes,
+        }

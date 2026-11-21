@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout, isOnionTarget } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { runSeaweedfsStorageCheck, decodeDotenvQuotedValue } = require("./personas");
+const { adminKeycloakLoginId, env: login, oidcLogin } = require("./_shared");
 
 const PNG_64x64 = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAATklEQVR42u3PQQkAAAgEsEtiZhtrBN/CYAWW6nktAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKXBQhu0YfsD/UeAAAAAElFTkSuQmCC",
@@ -26,23 +27,27 @@ test("seaweedfs: an uploaded Decidim avatar is stored in the SeaweedFS bucket", 
       expect(adminEmail, "ADMIN_EMAIL must be set for the Decidim seaweedfs check").toBeTruthy();
       expect(adminPassword, "ADMIN_PASSWORD must be set for the Decidim seaweedfs check").toBeTruthy();
 
-      await appPage.goto(`${baseUrl}/users/sign_in`, { waitUntil: "domcontentloaded" });
-      await appPage.waitForLoadState("networkidle").catch(() => {});
-
-      const acceptCookies = appPage
-        .getByRole("button", { name: /accept all|accept only essential|accept/i })
-        .first();
-      if (await acceptCookies.isVisible().catch(() => false)) {
-        await acceptCookies.click().catch(() => {});
+      if (login.loginMethodNative) {
+        await appPage.goto(`${baseUrl}/users/sign_in`, { waitUntil: "domcontentloaded" });
         await appPage.waitForLoadState("networkidle").catch(() => {});
-      }
 
-      const emailInput = appPage.getByLabel(/email/i).first();
-      await emailInput.waitFor({ state: "attached", timeout: resolveTimeout(60_000) });
-      await emailInput.fill(adminEmail);
-      await appPage.locator("input[type='password']").first().fill(adminPassword);
-      await appPage.getByRole("button", { name: /log in|sign in/i }).first().click({ timeout: resolveTimeout(30_000) });
-      await appPage.waitForLoadState("networkidle").catch(() => {});
+        const acceptCookies = appPage
+          .getByRole("button", { name: /accept all|accept only essential|accept/i })
+          .first();
+        if (await acceptCookies.isVisible().catch(() => false)) {
+          await acceptCookies.click().catch(() => {});
+          await appPage.waitForLoadState("networkidle").catch(() => {});
+        }
+
+        const emailInput = appPage.getByLabel(/email/i).first();
+        await emailInput.waitFor({ state: "attached", timeout: resolveTimeout(60_000) });
+        await emailInput.fill(adminEmail);
+        await appPage.locator("input[type='password']").first().fill(adminPassword);
+        await appPage.getByRole("button", { name: /log in|sign in/i }).first().click({ timeout: resolveTimeout(30_000) });
+        await appPage.waitForLoadState("networkidle").catch(() => {});
+      } else {
+        await oidcLogin(appPage, adminKeycloakLoginId(), adminPassword);
+      }
       await expect(appPage, "the administrator must be signed in for the avatar upload").not.toHaveURL(/sign_in/);
 
       await appPage.goto(`${baseUrl}/account`, { waitUntil: "domcontentloaded" });

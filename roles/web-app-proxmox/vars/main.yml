@@ -1,0 +1,86 @@
+---
+application_id: "web-app-proxmox"
+entity_name: "{{ application_id | entity_name }}"
+domain: "{{ lookup('domain', application_id) }}"
+http_port: "{{ lookup('config', application_id, 'services.proxmox.ports.local.http') }}"
+
+PROXMOX_CONTAINER: "{{ lookup('config', application_id, 'services.proxmox.name') }}"
+PROXMOX_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'proxmox') }}"
+PROXMOX_BASE_IMAGE: "{{ lookup('config', application_id, 'services.proxmox.image') }}"
+PROXMOX_BASE_VERSION: "{{ lookup('config', application_id, 'services.proxmox.version') }}"
+PROXMOX_VE: "{{ lookup('config', application_id, 'services.proxmox.ve') }}"
+PROXMOX_FLAVOR: "{{ lookup('config', application_id, 'services.proxmox.flavor') }}"
+PROXMOX_FLAVORS:
+  - vm
+  - container
+PROXMOX_IS_VM: "{{ PROXMOX_FLAVOR == 'vm' }}"
+PROXMOX_PACKAGE_PINS: "{{ PROXMOX_VE.packages | proxmox_package_pins }}"
+PROXMOX_LAUNCHER_PINS: "{{ lookup('config', application_id, 'services.proxmox.launcher.packages') | combine(PROXMOX_VE.installer) | proxmox_package_pins }}"
+PROXMOX_IMAGE_PINS: "{{ PROXMOX_LAUNCHER_PINS if PROXMOX_IS_VM | bool else PROXMOX_PACKAGE_PINS }}"
+PROXMOX_ISO_URL: "{{ PROXMOX_VE.iso.mirror }}/{{ PROXMOX_VE.iso.file }}"
+PROXMOX_LAUNCHER_ID: "{{ lookup('config', application_id, 'group_id') }}"
+PROXMOX_LAUNCHER_SHARE: /usr/share/proxmox-launcher
+PROXMOX_GUEST: "{{ lookup('config', application_id, 'services.proxmox.guest') }}"
+PROXMOX_GUEST_DIR: "{{ lookup('volume', application_id, 'proxmox_guest').target }}"
+PROXMOX_GUEST_BASE_DIR: "{{ lookup('volume', application_id, 'proxmox_guest_base').target }}"
+PROXMOX_GUEST_FQDN: "{{ PROXMOX_GUEST.node }}.{{ DOMAIN_PRIMARY }}"
+PROXMOX_NODE: "{{ PROXMOX_GUEST.node if PROXMOX_IS_VM | bool else PROXMOX_CONTAINER }}"
+PROXMOX_GUEST_EXEC: "{{ ['pve-guest'] if PROXMOX_IS_VM | bool else [] }}"
+PROXMOX_GUEST_WAIT_RETRIES: 360
+PROXMOX_FIRST_BOOT_DIGESTS_FILE: /var/lib/infinito/first-boot.digests
+PROXMOX_AGENTS: "{{ lookup('config', application_id, 'services.proxmox.agents') }}"
+PROXMOX_AGENT_POOL: "agents-{{ DOMAIN_PRIMARY | replace('.', '-') }}"
+PROXMOX_GUEST_AGENT_STORAGE: "{{ PROXMOX_WORKSPACES.storage if PROXMOX_IS_VM | bool else '' }}"
+PROXMOX_LIMITS:
+  cpus: "{{ PROXMOX_GUEST.cpus if PROXMOX_IS_VM | bool else lookup('config', application_id, 'services.proxmox.cpus') }}"
+  mem_limit: "{{ PROXMOX_GUEST.memory if PROXMOX_IS_VM | bool else lookup('config', application_id, 'services.proxmox.mem_limit') }}"
+
+PROXMOX_EXCLUSIVE_PEERS:
+  - web-app-keycloak
+  - svc-ai-litellm
+  - web-app-openbao
+PROXMOX_COHOSTED_PEERS: "{{ PROXMOX_EXCLUSIVE_PEERS | proxmox_cohosted(inventory_hostname, groups, hostvars) }}"
+PROXMOX_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+PROXMOX_TOR_ENABLED: "{{ lookup('config', application_id, 'services.tor.enabled') }}"
+PROXMOX_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.proxmox.ports.internal.http') }}"
+
+PROXMOX_REALM: "{{ lookup('config', application_id, 'services.proxmox.realm.id') }}"
+PROXMOX_REALM_CONFIG:
+  issuer-url: "{{ OIDC.CLIENT.ISSUER_URL }}"
+  client-id: "{{ OIDC.CLIENT.ID }}"
+  username-claim: "{{ OIDC.ATTRIBUTES.USERNAME }}"
+  autocreate: 1
+  default: 1
+  comment: "{{ lookup('config', application_id, 'services.proxmox.realm.comment') }}"
+PROXMOX_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
+PROXMOX_ADMIN_ROLE: Administrator
+PROXMOX_ADMIN_GROUP: "{{ application_id }}-administrator"
+PROXMOX_ADMIN_GROUP_COMMENT: "Members of {{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}, reconciled by Infinito.Nexus"
+
+PROXMOX_WORKSPACES: "{{ lookup('config', application_id, 'services.proxmox.workspaces') }}"
+PROXMOX_WORKSPACE_TOKEN_NAME: provision
+PROXMOX_WORKSPACE_ROLES:
+  InfinitoWorkspace:
+    - Pool.Audit
+    - VM.Allocate
+    - VM.Audit
+    - VM.Config.CDROM
+    - VM.Config.CPU
+    - VM.Config.Cloudinit
+    - VM.Config.Disk
+    - VM.Config.HWType
+    - VM.Config.Memory
+    - VM.Config.Network
+    - VM.Config.Options
+    - VM.GuestAgent.Audit
+    - VM.PowerMgmt
+  InfinitoWorkspaceStorage:
+    - Datastore.AllocateSpace
+    - Datastore.Audit
+  InfinitoWorkspaceBridge:
+    - SDN.Use
+  InfinitoTemplateClone:
+    - VM.Clone
+PROXMOX_PROVISION_MOUNT: platform
+PROXMOX_PROVISION_PATH: "provision/proxmox-{{ inventory_hostname }}"
+PROXMOX_TENANT_MOUNT: tenant

@@ -14,13 +14,10 @@ LITTLEJS_DESIGN_TITLE_ENABLED: "{{ LITTLEJS_DESIGN_ENABLED | bool and lookup('de
 LITTLEJS_DOCUMENT_TITLE: "{{ lookup('design', application_id).title if LITTLEJS_DESIGN_TITLE_ENABLED | bool else LITTLEJS_TITLE }}"
 LITTLEJS_RUN_TITLE: "{{ lookup('design', application_id).title if LITTLEJS_DESIGN_TITLE_ENABLED | bool else 'LittleJS Example' }}"
 
-# Clone coordinates — SPOT in meta/services.yml
 LITTLEJS_REPOSITORY: "{{ lookup('config', 'web-app-littlejs', 'services.littlejs.repository') }}"
-LITTLEJS_REF: "{{ lookup('config', 'web-app-littlejs', 'services.littlejs.ref') }}"
 # Human-readable upstream link for nav_bottom.html (strip .git suffix)
 LITTLEJS_REPOSITORY_BASE: "{{ LITTLEJS_REPOSITORY | regex_replace('\\.git$', '') }}"
 
-# Relative path where sys-stk-full checks out the repo
 LITTLEJS_APP_REL: "services/repository"
 LITTLEJS_INDEX_HOST_ABS: "{{ [ lookup('container', application_id, 'directories.volumes'), 'index.html' ] | path_join }}"
 LITTLEJS_INDEX_HOST_REL: "volumes/index.html"

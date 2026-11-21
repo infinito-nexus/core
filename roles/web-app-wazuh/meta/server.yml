@@ -5,3 +5,8 @@ status_codes:
     - 302
     - 401
     - 403
+vhosts:
+  default:
+    service_key: dashboard
+    http_port: "{{ lookup('config', 'web-app-wazuh', 'services.console.ports.local.http') }}"
+    internal_port: "{{ lookup('config', 'web-app-wazuh', 'services.console.ports.internal.http') }}"

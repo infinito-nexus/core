@@ -6,11 +6,18 @@ from typing import TYPE_CHECKING
 
 from utils.i18n.catalog import (
     ENGINE,
+    MACHINE_PREFIX,
     REFUSAL_PREFIX,
     REJECTED_PREFIX,
     TRANSLATION_REFUSED,
+    catalog_path,
+    exclusive,
     is_machine_translation,
+    judge_failure,
+    judged_engines,
     machine_translation,
+    read_catalog,
+    write_catalog,
 )
 from utils.i18n.damage import (
     COLLAPSE_FLOOR,
@@ -23,6 +30,7 @@ from utils.i18n.spans import prose
 
 if TYPE_CHECKING:
     from collections import Counter
+    from pathlib import Path
 
     from babel.messages.catalog import Catalog, Message
 
@@ -189,6 +197,78 @@ def retry(catalog: Catalog) -> int:
         How many entries were offered again.
     """
     return sum(1 for message in catalog if refused(message) and clear(message))
+
+
+def fail_judgement(message: Message) -> bool:
+    """Empty a machine translation the judge failed, naming its engine.
+
+    The engine moves from the machine mark into a ``judge-failed`` mark that
+    ``apply`` keeps, so every later pass excludes each engine that failed this
+    source, not only the latest one. A source change drops the marks with the
+    entry, as it does every other comment.
+
+    Args:
+        message: a catalog entry.
+
+    Returns:
+        Whether the entry held a machine translation to fail.
+    """
+    marks = [c for c in message.user_comments if is_machine_translation(c)]
+    if not message.string or not marks:
+        return False
+    engine = marks[-1].removeprefix(MACHINE_PREFIX).strip()
+    message.string = ""
+    message.flags.discard("fuzzy")
+    message.user_comments = [
+        comment for comment in message.user_comments if comment not in marks
+    ]
+    message.user_comments.append(judge_failure(engine))
+    return True
+
+
+def record_judged(
+    root: Path, domain: str, code: str, failed: set[tuple[str | None, str, str]]
+) -> int:
+    """Persist a judge pass's failures in one catalog for the next translation.
+
+    Args:
+        root: repository root.
+        domain: catalog domain.
+        code: ISO 639-1 code of the catalog.
+        failed: ``(msgctxt, msgid, msgstr)`` of every sample the judge failed.
+            An entry whose ``msgstr`` changed since it was judged is left
+            alone: the verdict was about a text the catalog no longer holds.
+
+    Returns:
+        How many entries were emptied.
+    """
+    path = catalog_path(root, code, domain)
+    with exclusive(root, domain, code):
+        catalog = read_catalog(path)
+        emptied = sum(
+            1
+            for message in catalog
+            if (message.context, str(message.id), str(message.string)) in failed
+            and fail_judgement(message)
+        )
+        if emptied:
+            write_catalog(path, catalog)
+    return emptied
+
+
+def by_exclusion(messages: list[Message]) -> dict[tuple[str, ...], list[Message]]:
+    """Group ``messages`` by the engines each has to be translated without.
+
+    The gateway takes one ``exclude`` list per request, so entries with
+    different judge histories cannot share a batch.
+
+    Args:
+        messages: entries returned by ``pending``.
+    """
+    groups: dict[tuple[str, ...], list[Message]] = {}
+    for message in messages:
+        groups.setdefault(judged_engines(message.user_comments), []).append(message)
+    return groups
 
 
 SPAN_CRITERIA = ("protected-span", "added-span")

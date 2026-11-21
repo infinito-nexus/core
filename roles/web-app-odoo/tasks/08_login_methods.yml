@@ -1,0 +1,73 @@
+---
+- name: "🧾 Set the signup scope to the registration login method"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/oidc/upsert-ir-config-parameter.sql"
+    named_args:
+      key: "auth_signup.invitation_scope"
+      value: "{{ ODOO_SIGNUP_SETTINGS.auth_signup_uninvited }}"
+
+- name: "🧾 Set the uninvited signup of every website to the registration method"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/update/website-signup-scope.sql"
+    named_args:
+      scope: "{{ ODOO_SIGNUP_SETTINGS.auth_signup_uninvited }}"
+
+- name: "🔑 Set the password reset to the native login method"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/oidc/upsert-ir-config-parameter.sql"
+    named_args:
+      key: "auth_signup.reset_password"
+      value: "{{ ODOO_SIGNUP_SETTINGS.auth_signup_reset_password }}"
+
+- name: "⚠️ Hold the 2FA enforcement while no mail delivers the sign-in code"
+  ansible.builtin.debug:
+    msg: >-
+      services.odoo.login.method.2fa.enforced is true, but web-app-email is not deployed.
+      Odoo mails every account without an authenticator app a code at each sign-in, so
+      enforcing without mail would lock those accounts out, the administrator included.
+      The deploy keeps auth_totp.policy empty until web-app-email joins the deployment.
+  when: ODOO_LOGIN_2FA_ENFORCEMENT | bool and not ODOO_EMAIL_ENABLED | bool
+
+- name: "🔐 Converge the two-factor policy to the 2fa login method"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i -e ODOO_2FA_STATE -e ODOO_2FA_POLICY {{ ODOO_LOCAL_CID | quote }}
+      odoo shell --no-http -d {{ ODOO_DB_NAME | quote }}
+    stdin: "{{ lookup('ansible.builtin.file', ODOO_TWO_FACTOR_POLICY_SCRIPT) }}"
+  environment:
+    ODOO_2FA_STATE: "{{ ODOO_LOGIN_2FA_STATE }}"
+    ODOO_2FA_POLICY: "{{ ODOO_LOGIN_2FA_POLICY }}"
+  delegate_to: "{{ ODOO_HOST_NODE }}"
+  register: odoo_two_factor_policy
+  changed_when: "'TWO_FACTOR_POLICY_CHANGED' in odoo_two_factor_policy.stdout"
+  failed_when: >-
+    odoo_two_factor_policy.rc != 0
+    or ('TWO_FACTOR_POLICY_CHANGED' not in odoo_two_factor_policy.stdout
+        and 'TWO_FACTOR_POLICY_UNCHANGED' not in odoo_two_factor_policy.stdout)
+  timeout: "{{ lookup('timeout', 300) | int }}"
+
+- name: "⚠️ Hold the 2FA enforcement while Odoo cannot open an SMTP session"
+  ansible.builtin.debug:
+    msg: >-
+      services.odoo.login.method.2fa.enforced is true and web-app-email is deployed, but
+      ir.mail_server could not open an SMTP session ({{ odoo_two_factor_policy.stdout_lines | select('match', '^MAIL=') | first }}).
+      The deploy does not switch auth_totp.policy on until Odoo can mail the sign-in code;
+      a policy the deploy already switched on stays.
+  when: "'MAIL=failed' in odoo_two_factor_policy.stdout"
+
+- name: "📁 Remove the LDAP sign-in while the ldap login method is off"
+  database_query:
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/delete/res-company-ldap.sql"
+    named_args:
+      ldap_server: "{{ ODOO_LDAP_CONFIG.ldap_server }}"
+  when:
+    - ODOO_LDAP_ENABLED | bool
+    - not (ODOO_LOGIN_LDAP | bool)

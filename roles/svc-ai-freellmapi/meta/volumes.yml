@@ -1,0 +1,18 @@
+---
+freellmapi_data:
+  type: volume
+  name: freellmapi_data
+  # nocheck: nfs-false-data-loss  Reason: compose-only role with swarm disabled, so the SQLite state stays local to this workstation and no other node mounts it; container_backup covers the restore while the vaulted encryption key is retained
+  nfs: false
+  mounts:
+    - service: freellmapi
+      target: /app/server/data
+
+freellmapi_mock_script:
+  type: config
+  source: "{{ [ lookup('container', 'svc-ai-freellmapi', 'directories.config'), 'mock_upstream.js' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: mock
+      target: /opt/infinito/mock_upstream.js
+      when: "{{ lookup('config', 'svc-ai-freellmapi', 'services.mock.enabled') | bool }}"

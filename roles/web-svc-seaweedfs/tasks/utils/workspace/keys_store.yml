@@ -1,0 +1,41 @@
+---
+# Param: seaweedfs_ws                 - the names of the workspace (filter seaweedfs_workspace)
+# Param: seaweedfs_ws_record          - the record of the workspace
+# Param: _seaweedfs_ws_openbao_path   - the KV path of the keys below the tenant mount
+# Param: _seaweedfs_openbao_read      - the result of reading that path
+# Param: _seaweedfs_openbao_login     - the login whose token writes it
+- name: "✅ Refuse a record that belongs to another workspace"
+  ansible.builtin.assert:
+    that:
+      - (seaweedfs_ws_record | seaweedfs_workspace_identity).name == seaweedfs_ws.identity
+    fail_msg: >-
+      {{ seaweedfs_ws_record_path }} does not hold the record of
+      {{ seaweedfs_ws.identity }}.
+    quiet: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "💾 Write the record of the workspace to identities.d"
+  ansible.builtin.copy:
+    content: "{{ seaweedfs_ws_record | to_nice_json }}\n"
+    dest: "{{ seaweedfs_ws_record_path }}"
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔐 Hand the keys to OpenBao for the provision runner"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ SEAWEEDFS_OPENBAO_LOCAL_CID | quote }}
+    sh -c 'IFS= read -r BAO_TOKEN || :; : "${BAO_TOKEN:?arrived empty on stdin}"; export BAO_TOKEN;
+    bao kv put -mount={{ SEAWEEDFS_WORKSPACE_OPENBAO_MOUNT }} {{ _seaweedfs_ws_openbao_path }} - >/dev/null'
+  args:
+    stdin: |-
+      {{ _seaweedfs_openbao_login.stdout | trim }}
+      {{ {'access_key': seaweedfs_ws_record.access_key, 'secret_key': seaweedfs_ws_record.secret_key} | to_json }}
+  changed_when: true
+  when: >-
+    _seaweedfs_openbao_read.rc != 0
+    or (_seaweedfs_openbao_read.stdout | from_json).data.data
+       != {'access_key': seaweedfs_ws_record.access_key, 'secret_key': seaweedfs_ws_record.secret_key}
+  delegate_to: "{{ SEAWEEDFS_OPENBAO_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

@@ -12,9 +12,17 @@ NEXTCLOUD_PORT: "{{ lookup('config', application_id, 'services.nextcloud.ports.l
 NEXTCLOUD_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 NEXTCLOUD_NETWORK_BASE_URLS: "{{ lookup('network_urls', NEXTCLOUD_URL) }}"
 NEXTCLOUD_PROTOCOL: "{{ lookup('tls', application_id, 'protocols.web') }}"
-NEXTCLOUD_TRUSTED_PROXIES: "{{ lookup('proxy_hops', application_id) }}"
+NEXTCLOUD_TRUSTED_PROXIES: >-
+  {{ (lookup('proxy_hops', application_id)
+      + ([NEXTCLOUD_NOTIFY_PUSH_ADDRESS] if (NEXTCLOUD_NOTIFY_PUSH_ENABLED | bool) and IS_COMPOSE_MODE else []))
+     | unique | list }}
 
 NEXTCLOUD_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
+NEXTCLOUD_LOGIN_SSO: "{{ lookup('config', application_id, 'services.nextcloud.login.method.sso.enabled') | bool }}"
+NEXTCLOUD_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.nextcloud.login.method.ldap.enabled') | bool }}"
+NEXTCLOUD_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.nextcloud.login.method.native.enabled') | bool }}"
+NEXTCLOUD_LOGIN_PASSKEY: "{{ lookup('config', application_id, 'services.nextcloud.login.method.passkey.enabled') | bool }}"
+NEXTCLOUD_LOGIN_FORM: "{{ NEXTCLOUD_LOGIN_NATIVE | bool or NEXTCLOUD_LOGIN_LDAP | bool }}"
 NEXTCLOUD_OIDC_HOST: "{{ lookup('tls', 'web-app-keycloak', 'domain') }}"
 NEXTCLOUD_TOR_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') }}"
 
@@ -26,6 +34,13 @@ NEXTCLOUD_PINNED_PLUGINS: >-
      | map(attribute='key') | list }}
 NEXTCLOUD_PLUGINS_PINNED: "{{ NEXTCLOUD_PINNED_PLUGINS | length > 0 }}"
 NEXTCLOUD_PLUGINS_ENABLED: "{{ lookup('config', application_id, 'services.nextcloud.plugins_enabled') }}"
+NEXTCLOUD_LOGIN_2FA: "{{ lookup('config', application_id, 'services.nextcloud.login.method.2fa.enabled') | bool }}"
+NEXTCLOUD_LOGIN_2FA_ENFORCED: "{{ NEXTCLOUD_LOGIN_2FA | bool and lookup('config', application_id, 'services.nextcloud.login.method.2fa.enforced') | bool }}"
+NEXTCLOUD_TWOFACTOR_APP: "twofactor_totp"
+NEXTCLOUD_TWOFACTOR_OWNER: "infinito twofactor_enforced_by_deploy"
+NEXTCLOUD_TWOFACTOR_PROVIDER_APPS:
+  - privacyidea
+NEXTCLOUD_TWOFACTOR_ENFORCED_FOR_ALL: "Two-factor authentication is enforced for all users"
 NEXTCLOUD_PLUGIN_BACKGROUND_ASYNC_TIME: "{{ lookup('timeout', 604800) | int }}"
 NEXTCLOUD_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 NEXTCLOUD_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
@@ -38,12 +53,30 @@ NEXTCLOUD_DESIGN_THEMING:
   background: backgroundColor
 NEXTCLOUD_USER_LDAP_ENABLED: "{{ lookup('config', application_id, 'addons.user_ldap.enabled') }}"
 NEXTCLOUD_LDAP_CONFIG_PREFIX: "s01"
+NEXTCLOUD_LDAP_CACHE_TTL: 60 # Seconds until a role or profile change in the directory reaches Nextcloud
 
 NEXTCLOUD_HOST_CONF_ADD_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'infinito' ] | path_join }}"
 NEXTCLOUD_HOST_NGINX_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'nginx.conf' ] | path_join }}"
 NEXTCLOUD_HOST_FPM_POOL_PATH: "{{ [ lookup('container', application_id, 'directories.volumes'), 'fpm-pool.conf' ] | path_join }}"
 
 NEXTCLOUD_CNODE_PLUGIN_TASKS_PATH: "{{ [role_path, 'tasks/addons/'] | path_join }}"
+
+NEXTCLOUD_USER_OIDC_PROVIDER: "{{ lookup('config', application_id, 'services.sso.oidc.backchannel_logout_path') | basename }}"
+NEXTCLOUD_USER_OIDC_OPTIONS:
+  - "--clientid={{ lookup('config', application_id, 'services.sso.oidc.clients').user_oidc }}"
+  - "--discoveryuri={{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"
+  - "--endsessionendpointuri={{ OIDC.CLIENT.LOGOUT_URL }}"
+  - "--postlogouturi={{ NEXTCLOUD_URL }}"
+  - "--scope=openid email profile {{ RBAC.GROUP.CLAIM }} {{ lookup('config', 'web-app-keycloak', 'services.keycloak.scopes.nextcloud') }}"
+  - "--unique-uid=0"
+  - "--resolve-nested-claims=1"
+  - "--mapping-uid={{ OIDC.ATTRIBUTES.NEXTCLOUD_UID }}|{{ OIDC.ATTRIBUTES.USERNAME }}"
+  - "--mapping-display-name={{ OIDC.ATTRIBUTES.NAME }}"
+  - "--mapping-email={{ OIDC.ATTRIBUTES.EMAIL }}"
+  - "--mapping-quota={{ LDAP.USER.ATTRIBUTES.NEXTCLOUD_QUOTA }}"
+  - "--mapping-groups={{ RBAC.GROUP.CLAIM }}"
+  - "--group-provisioning=1"
+  - "--send-id-token-hint=1"
 
 NEXTCLOUD_DOCKER_WORK_DIRECTORY: "{{ lookup('volume', 'web-app-nextcloud', 'data').target }}"
 NEXTCLOUD_DOCKER_CONF_ADD_PATH: "{{ lookup('volume', 'web-app-nextcloud', 'infinito_conf').target }}"
@@ -251,6 +284,12 @@ NEXTCLOUD_WHITEBOARD_MAX_OLD_SPACE_SIZE: "{{ lookup('node_max_old_space_size', a
 NEXTCLOUD_RECORDING_SERVICE: "talk_recording"
 NEXTCLOUD_RECORDING_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_RECORDING_SERVICE ~ '.name') }}"
 NEXTCLOUD_RECORDING_ENABLED: "{{ NEXTCLOUD_HPB_PLUGIN_ENABLED }}"
+NEXTCLOUD_SPEECH_TO_TEXT_ENABLED: >-
+  {{ (lookup('config', application_id, 'addons.integration_openai.enabled') | bool)
+     and (lookup('config', application_id, 'services.speech.enabled') | bool)
+     and (lookup('config', application_id, 'services.speech.shared') | bool) }}
+NEXTCLOUD_SPEECH_TO_TEXT_URL: "{{ lookup('container_url', 'svc-ai-speech', 'speech') }}{{ lookup('config', 'svc-ai-speech', 'services.speech.api_path') }}"
+NEXTCLOUD_SPEECH_TO_TEXT_TIMEOUT: "{{ lookup('config', 'svc-ai-speech', 'services.speech.request_timeout') }}"
 NEXTCLOUD_RECORDING_PORT: "{{ lookup('config', application_id, 'services.talk_recording.ports.internal.recording') }}"
 NEXTCLOUD_RECORDING_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.talk_recording_secret') }}"
 NEXTCLOUD_RECORDING_REPOSITORY: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_RECORDING_SERVICE ~ '.repository') }}"
@@ -266,6 +305,24 @@ NEXTCLOUD_RECORDING_CONFIG_TARGET: "{{ lookup('volume', application_id, 'talk_re
 NEXTCLOUD_RECORDING_DIRECTORY: "{{ lookup('volume', application_id, 'talk_recording_tmp').target }}"
 NEXTCLOUD_RECORDING_CA_CERT: "{{ CA_TRUST.inject_cert_container if lookup('ca_injected', application_id) else '' }}"
 NEXTCLOUD_RECORDING_CA_BUNDLE: "{{ CA_TRUST.inject_bundle_container if lookup('ca_injected', application_id) else '' }}"
+
+NEXTCLOUD_NOTIFY_PUSH_SERVICE: "notify_push"
+NEXTCLOUD_NOTIFY_PUSH_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_NOTIFY_PUSH_SERVICE ~ '.name') }}"
+NEXTCLOUD_NOTIFY_PUSH_ENABLED: "{{ lookup('config', application_id, 'services.notify_push.enabled') | bool }}"
+NEXTCLOUD_NOTIFY_PUSH_PORT: "{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_NOTIFY_PUSH_SERVICE ~ '.ports.internal.http') }}"
+NEXTCLOUD_NOTIFY_PUSH_LOCATION: "/push/"
+NEXTCLOUD_NOTIFY_PUSH_URL: "{{ [ NEXTCLOUD_URL, NEXTCLOUD_NOTIFY_PUSH_LOCATION ] | url_join }}"
+NEXTCLOUD_NOTIFY_PUSH_APP_DIRECTORY: "{{ [ NEXTCLOUD_APPS_DIRECTORY, NEXTCLOUD_NOTIFY_PUSH_SERVICE ] | path_join }}"
+NEXTCLOUD_NOTIFY_PUSH_CAPABILITIES: "{{ [ NEXTCLOUD_NOTIFY_PUSH_APP_DIRECTORY, 'lib', 'Capabilities.php' ] | path_join }}"
+# Exception: Docker DNS answers a bare name on the shared network that sorts first (mariadb); swarm pins the openresty overlay proxy_hops trusts
+NEXTCLOUD_NOTIFY_PUSH_NETWORK: "{{ ('svc-prx-openresty' | entity_name) if IS_SWARM_MODE else entity_name }}"
+# Exception: compose trusts this one pinned address, never the subnet, which admitted MCP clients share
+NEXTCLOUD_NOTIFY_PUSH_ADDRESS: "{{ lookup('config', application_id, 'networks.local.notify_push') }}"
+NEXTCLOUD_NOTIFY_PUSH_NEXTCLOUD_HOST: "{{ NEXTCLOUD_PROXY_DNS_NAME }}.{{ NEXTCLOUD_NOTIFY_PUSH_NETWORK }}"
+NEXTCLOUD_NOTIFY_PUSH_NEXTCLOUD_URL: "http://{{ NEXTCLOUD_NOTIFY_PUSH_NEXTCLOUD_HOST }}:{{ lookup('config', application_id, 'services.' ~ NEXTCLOUD_PROXY_SERVICE
+  ~ '.ports.internal.http') }}"
+NEXTCLOUD_NOTIFY_PUSH_LAUNCHER_HOST: "{{ [ lookup('container', application_id, 'directories.volumes'), 'notify-push.sh' ] | path_join }}"
+NEXTCLOUD_NOTIFY_PUSH_LAUNCHER: "{{ lookup('volume', application_id, 'notify_push_launcher').target }}"
 
 NEXTCLOUD_COLLABORA_URL: "{{ lookup('tls', 'web-svc-collabora', 'url.base') }}"
 

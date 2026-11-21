@@ -4,8 +4,6 @@ entity_name: "{{ application_id | entity_name }}"
 
 OPENPROJECT_VERSION: "{{ lookup('config', application_id, 'services.web.version') }}"
 OPENPROJECT_IMAGE: "{{ lookup('config', application_id, 'services.web.image') }}"
-OPENPROJECT_REPOSITORY: "{{ lookup('config', 'web-app-openproject', 'services.openproject.repository') }}"
-OPENPROJECT_REF: "{{ lookup('config', 'web-app-openproject', 'services.openproject.ref') }}"
 OPENPROJECT_WEB_SERVICE: "web"
 OPENPROJECT_WEB_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ OPENPROJECT_WEB_SERVICE ~ '.name') }}"
 OPENPROJECT_WEB_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, OPENPROJECT_WEB_SERVICE) }}"
@@ -67,6 +65,9 @@ OPENPROJECT_PLUGINS_FOLDER: "{{ lookup('container', application_id, 'directories
 
 OPENPROJECT_DUMMY_DIR: "{{ lookup('container', application_id, 'directories.volumes') }}dummy_volume"
 
+OPENPROJECT_GENERAL: "{{ lookup('form_values', application_id, 'general') }}"
+OPENPROJECT_USERS: "{{ lookup('form_values', application_id, 'users') }}"
+
 OPENPROJECT_EMAIL: "{{ lookup('email', application_id) }}"
 OPENPROJECT_RAILS_SETTINGS:
   email_delivery_method: "smtp"
@@ -85,9 +86,17 @@ OPENPROJECT_HEADER_SSO_ENABLED: "{{ (OPENPROJECT_SSO_PROXY_GATED | bool) and (OP
 OPENPROJECT_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 OPENPROJECT_LDAP_FILTER_ADMINISTRATORS_ENABLED: "{{ lookup('config', application_id, 'services.openproject.ldap.filters.administrators') }}"
 OPENPROJECT_LDAP_FILTER_USERS_ENABLED: "{{ lookup('config', application_id, 'services.openproject.ldap.filters.users') }}"
+OPENPROJECT_LDAP_ADMINISTRATOR_GROUP_DN: "cn={{ application_id }}-administrator,{{ LDAP.DN.OU.ROLES }}"
+OPENPROJECT_LDAP_USER_GROUP_DN: "cn={{ application_id }}-user,{{ LDAP.DN.OU.ROLES }}"
 OPENPROJECT_LDAP_FILTERS:
-  ADMINISTRATORS: "{{ '(memberOf=cn=openproject-admins,' ~ LDAP.DN.OU.ROLES ~ ')' if OPENPROJECT_LDAP_FILTER_ADMINISTRATORS_ENABLED | bool else '' }}"
-  USERS: "{{ '(memberOf=cn=openproject-users,' ~ LDAP.DN.OU.ROLES ~ ')' if OPENPROJECT_LDAP_FILTER_USERS_ENABLED | bool else '' }}"
+  ADMINISTRATORS: "{{ '(' ~ LDAP.USER.ATTRIBUTES.MEMBER_OF ~ '=' ~ OPENPROJECT_LDAP_ADMINISTRATOR_GROUP_DN ~ ')' if OPENPROJECT_LDAP_FILTER_ADMINISTRATORS_ENABLED
+    | bool else '' }}"
+  USERS: "{{ '(' ~ LDAP.USER.ATTRIBUTES.MEMBER_OF ~ '=' ~ OPENPROJECT_LDAP_USER_GROUP_DN ~ ')' if OPENPROJECT_LDAP_FILTER_USERS_ENABLED | bool else '' }}"
+OPENPROJECT_LDAP_FILTER_STRING: "{{ ('(|' ~ OPENPROJECT_LDAP_FILTERS.ADMINISTRATORS ~ OPENPROJECT_LDAP_FILTERS.USERS ~ ')') if (OPENPROJECT_LDAP_FILTERS.ADMINISTRATORS
+  ~ OPENPROJECT_LDAP_FILTERS.USERS) else '' }}"
+OPENPROJECT_ADMIN_SPARED_LOGINS:
+  - "{{ OPENPROJECT_ADMINISTRATOR_USERNAME }}"
+  - "{{ OPENPROJECT_GITLAB_BOT.username }}"
 
 OPENPROJECT_DB_POOL: "{{ [POSTGRES_ALLOWED_AVG_CONNECTIONS | int, 20] | min }}"
 OPENPROJECT_RAILS_MAX_THREADS: "{{ [POSTGRES_ALLOWED_AVG_CONNECTIONS | int, 20] | min }}"

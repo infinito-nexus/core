@@ -1,0 +1,35 @@
+---
+- name: "👑 Converge the Listmonk roles and accounts with the role groups"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ LISTMONK_OIDC_ENABLED | bool }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: "{{ [LISTMONK_RBAC_ADMIN_ROLE] + (LISTMONK_RBAC_ROLES | map(attribute='name') | list) }}"
+    rbac_sync_service_key: postgres
+    rbac_sync_service_name: "{{ lookup('database', application_id, 'service_name') }}"
+    rbac_sync_container: "{{ lookup('database', application_id, 'container') }}"
+    rbac_sync_kind: container
+    rbac_sync_user: ""
+    rbac_sync_argv:
+      - psql
+      - -U
+      - "{{ lookup('database', application_id, 'username') }}"
+      - -d
+      - "{{ lookup('database', application_id, 'name') }}"
+      - -v
+      - ON_ERROR_STOP=1
+      - -qtA
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/sql/rbac_reconcile.sql') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      PGPASSWORD: "{{ lookup('database', application_id, 'password') }}"
+      LISTMONK_RBAC_ROLES: "{{ LISTMONK_RBAC_ROLES | to_json }}"
+      LISTMONK_RBAC_ADMINISTRATOR: "{{ {'username': LISTMONK_ADMIN_USERNAME, 'email': lookup('users', 'platform_administrator').email} | to_json }}"
+      LISTMONK_RBAC_PROTECTED: "{{ [LISTMONK_ADMIN_USERNAME] | to_json }}"
+      LISTMONK_RBAC_ADMIN_ROLE: "{{ LISTMONK_RBAC_ADMIN_ROLE }}"
+      LISTMONK_RBAC_ADMIN_ROLE_ID: "{{ LISTMONK_SUPER_ADMIN_ROLE_ID | string }}"
+    rbac_sync_attributes: []
+    rbac_sync_members_env:
+      - { name: RBAC_MEMBERS, role: "*", field: "" }

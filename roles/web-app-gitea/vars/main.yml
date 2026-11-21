@@ -2,29 +2,58 @@
 application_id: "web-app-gitea"
 entity_name: "{{ application_id | entity_name }}"
 
+GITEA_LDAP_SOURCE: "{{ lookup('form_values', application_id, 'ldap_source') }}"
 GITEA_LDAP_SOURCE_NAME: "LDAP"
 GITEA_LDAP_SOURCE_TYPE: "LDAP (via BindDN)"
 GITEA_LDAP_AUTH_ARGS:
   - '--name "{{ GITEA_LDAP_SOURCE_NAME }}"'
-  - '--host "{{ LDAP.SERVER.DOMAIN }}"'
-  - "--port {{ LDAP.SERVER.PORT }}"
-  - '--security-protocol "{{ LDAP.SERVER.SECURITY | trim or "unencrypted" }}"'
-  - '--bind-dn "{{ LDAP.DN.ADMINISTRATOR.DATA }}"'
-  - '--user-search-base "{{ LDAP.DN.OU.USERS }}"'
-  - '--user-filter "(&(objectClass=inetOrgPerson)(uid=%s))"'
-  - '--admin-filter "(memberOf=cn={{ application_id }}-administrator,{{ LDAP.DN.OU.ROLES }})"'
-  - '--username-attribute "{{ LDAP.USER.ATTRIBUTES.ID }}"'
-  - '--firstname-attribute "{{ LDAP.USER.ATTRIBUTES.FIRSTNAME }}"'
-  - '--surname-attribute "{{ LDAP.USER.ATTRIBUTES.SURNAME }}"'
-  - '--email-attribute "{{ LDAP.USER.ATTRIBUTES.MAIL }}"'
-  - '--public-ssh-key-attribute "{{ LDAP.USER.ATTRIBUTES.SSH_PUBLIC_KEY }}"'
-  - "--synchronize-users"
+  - '--host "{{ GITEA_LDAP_SOURCE.host }}"'
+  - "--port {{ GITEA_LDAP_SOURCE.port }}"
+  - '--security-protocol "{{ GITEA_LDAP_SOURCE.security_protocol }}"'
+  - '--bind-dn "{{ GITEA_LDAP_SOURCE.bind_dn }}"'
+  - '--user-search-base "{{ GITEA_LDAP_SOURCE.user_base }}"'
+  - '--user-filter "{{ GITEA_LDAP_SOURCE.filter }}"'
+  - '--admin-filter "{{ GITEA_LDAP_SOURCE.admin_filter }}"'
+  - '--restricted-filter "{{ GITEA_LDAP_SOURCE.restricted_filter }}"'
+  - '--username-attribute "{{ GITEA_LDAP_SOURCE.attribute_username }}"'
+  - '--firstname-attribute "{{ GITEA_LDAP_SOURCE.attribute_name }}"'
+  - '--surname-attribute "{{ GITEA_LDAP_SOURCE.attribute_surname }}"'
+  - '--email-attribute "{{ GITEA_LDAP_SOURCE.attribute_mail }}"'
+  - '--public-ssh-key-attribute "{{ GITEA_LDAP_SOURCE.attribute_ssh_public_key }}"'
+  - '--avatar-attribute "{{ GITEA_LDAP_SOURCE.attribute_avatar }}"'
+  - '{{ "--synchronize-users" if GITEA_LDAP_SOURCE.is_sync_enabled | bool else "--synchronize-users=false" }}'
+GITEA_OAUTH_SOURCE: "{{ lookup('form_values', application_id, 'oauth_source') }}"
 GITEA_OIDC_SOURCE_NAME: "SSO Login"
+GITEA_OIDC_CLIENT_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.oidc_client_secret') }}"
+GITEA_OIDC_AUTH_ARGS:
+  - "--provider {{ GITEA_OAUTH_SOURCE.oauth2_provider }}"
+  - '--name "{{ GITEA_OIDC_SOURCE_NAME }}"'
+  - '--key "{{ GITEA_OAUTH_SOURCE.oauth2_key }}"'
+  - '--secret "$GITEA_OIDC_CLIENT_SECRET"'
+  - '--auto-discover-url "{{ GITEA_OAUTH_SOURCE.open_id_connect_auto_discovery_url }}"'
+  - '--scopes "{{ GITEA_OAUTH_SOURCE.oauth2_scopes }}"'
+  - '--group-claim-name "{{ GITEA_OAUTH_SOURCE.oauth2_group_claim_name }}"'
+  - '--admin-group "{{ GITEA_OAUTH_SOURCE.oauth2_admin_group }}"'
+  - '--restricted-group "{{ GITEA_OAUTH_SOURCE.oauth2_restricted_group }}"'
 GITEA_CONTAINER: "{{ lookup('config', application_id, 'services.gitea.name') }}"
 GITEA_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
 GITEA_USER: "git"
 GITEA_CONFIG: "/data/gitea/conf/app.ini"
 GITEA_LOOPBACK_VERSION_URL: "http://127.0.0.1:{{ lookup('config', application_id, 'services.gitea.ports.internal.http') }}/api/v1/version"
+
+GITEA_IMAGE: "{{ lookup('config', application_id, 'services.gitea.image') }}"
+GITEA_VERSION: "{{ lookup('config', application_id, 'services.gitea.version') }}"
+GITEA_BUILDER_IMAGE: "{{ lookup('config', application_id, 'services.gitea.builder_image') }}"
+GITEA_BUILDER_VERSION: "{{ lookup('config', application_id, 'services.gitea.builder_version') }}"
+GITEA_SOURCE_URL: "{{ lookup('config', application_id, 'services.gitea.source_url') | replace('{version}', GITEA_VERSION) }}"
+GITEA_SOURCE_SHA256: "{{ lookup('config', application_id, 'services.gitea.source_sha256') }}"
+GITEA_BUILD_TAGS: "bindata timetzdata"
+GITEA_BINARY: "/app/gitea/gitea"
+GITEA_PATCH_DIR: "patch"
+GITEA_PATCH_FILES:
+  - "oauth2/redirect-uri-public-url.patch"
+  - "oauth2/account-linking-by-name.patch"
+GITEA_PATCH_DIR_HOST_ABS: "{{ [lookup('container', application_id, 'directories.instance'), GITEA_PATCH_DIR] | path_join }}"
 
 GITEA_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 GITEA_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'design'] | path_join }}"
@@ -47,6 +76,21 @@ GITEA_REDIS_ADDRESS: "{{ lookup('engine', 'redis', application_id, 'host') }}:{{
 GITEA_REDIS_PASSWORD: "{{ lookup('engine', 'redis', application_id, 'password') }}"
 
 GITEA_INTERNAL_API_URL: "{{ lookup('container_url', application_id, 'gitea') }}/api/v1"
+GITEA_ADMIN_BASIC_AUTH: "{{ lookup('users', 'platform_administrator').username ~ ':' ~ lookup('users', 'platform_administrator').password }}"
+
+GITEA_WORKSPACES_ENABLED: "{{ lookup('config', application_id, 'services.gitea.workspaces.enabled') | bool }}"
+GITEA_WORKSPACES_ORGANIZATION: "{{ lookup('config', application_id, 'services.gitea.workspaces.organization') }}"
+GITEA_WORKSPACES_STORE_USERNAME: "{{ lookup('config', application_id, 'services.gitea.workspaces.store.username') }}"
+GITEA_WORKSPACES_STORE_EMAIL: "{{ lookup('config', application_id, 'services.gitea.workspaces.store.email') }}"
+GITEA_WORKSPACES_STORE_SCOPES: "{{ lookup('config', application_id, 'services.gitea.workspaces.store.scopes') }}"
+GITEA_WORKSPACES_STORE_TOKEN_PREFIX: "{{ lookup('config', application_id, 'services.gitea.workspaces.store.token_prefix') }}"
+GITEA_WORKSPACES_ORGANIZATION_BODY:
+  username: "{{ GITEA_WORKSPACES_ORGANIZATION }}"
+  visibility: private
+  repo_admin_change_team_access: false
+GITEA_WORKSPACES_STORE_BODY:
+  admin: false
+  max_repo_creation: 0
 
 GITEA_MCP_ENABLED: "{{ lookup('config', application_id, 'services.giteamcp.enabled') | bool }}"
 GITEA_MCP_SERVICE_KEY: "{{ lookup('config', application_id, 'mcp.endpoint.service_key') }}"
@@ -94,7 +138,7 @@ GITEA_MCP_INITIALIZE_PAYLOAD:
       name: infinito-nexus
       version: "1"
 
-GITEA_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.shared') | bool }}"
+GITEA_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.gitea.login.method.sso.enabled') | bool }}"
 GITEA_OAUTH2_USERNAME_SOURCES:
   sub: userid
   nickname: nickname
@@ -102,3 +146,12 @@ GITEA_OAUTH2_USERNAME_SOURCES:
   email: email
 GITEA_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 GITEA_IAM_ENABLED: "{{ (GITEA_OIDC_ENABLED | bool) or ( GITEA_LDAP_ENABLED | bool ) }}"
+
+GITEA_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.gitea.login.method.ldap.enabled') | bool }}"
+GITEA_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.gitea.login.method.native.enabled') | bool }}"
+GITEA_LOGIN_2FA: "{{ lookup('config', application_id, 'services.gitea.login.method.2fa.enabled') | bool }}"
+GITEA_LOGIN_2FA_ENFORCED: "{{ GITEA_LOGIN_2FA | bool and lookup('config', application_id, 'services.gitea.login.method.2fa.enforced') | bool }}"
+GITEA_LOGIN_PASSKEY: "{{ lookup('config', application_id, 'services.gitea.login.method.passkey.enabled') | bool }}"
+GITEA_LOGIN_OPENID2: "{{ lookup('config', application_id, 'services.gitea.login.method.openid2.enabled') | bool }}"
+GITEA_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.gitea.login.method.registration.enabled') | bool }}"
+GITEA_LOGIN_FORM: "{{ GITEA_LOGIN_NATIVE | bool or GITEA_LOGIN_LDAP | bool }}"

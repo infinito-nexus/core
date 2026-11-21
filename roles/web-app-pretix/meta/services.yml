@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-required — open-source pretix has no S3/object-store backend: src/pretix/settings.py hardcodes MEDIA_ROOT=DATA_DIR/media (local disk), ships no django-storages/boto3, and the upstream config reference (https://docs.pretix.eu/self-hosting/config/) documents no storage/S3/bucket section
 sso:
   bond: 1
@@ -19,8 +20,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: shared
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — Redis cache, no Playwright surface
@@ -57,6 +58,7 @@ pretix:
   version: "3.13"
   source_repository: https://github.com/pretix/pretix.git
   source_version: v2026.9.3
+  ref_kind: tag
   update:
     - key: source_version
       type: git_tags
@@ -79,9 +81,43 @@ pretix:
   run_after:
     - web-app-matomo
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-pretix', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-pretix', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-pretix', '2fa') }}"
+        enforced: true
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-pretix', 'registration') }}"
+  teams:
+    organizers:
+      names: ["Organizers (SSO)"]
+      all_events: true
+      all_event_permissions: true
+      limit_event_permissions: {}
+      all_organizer_permissions: true
+      limit_organizer_permissions: {}
+    checkin:
+      names: ["Check-in (SSO)"]
+      all_events: true
+      all_event_permissions: false
+      limit_event_permissions:
+        "event.orders:checkin": true
+      all_organizer_permissions: false
+      limit_organizer_permissions: {}
+    mcp:
+      names: [mcp-readonly]
+      all_events: true
+      all_event_permissions: false
+      limit_event_permissions:
+        "event.orders:read": true
+      all_organizer_permissions: false
+      limit_organizer_permissions: {}
 design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
@@ -99,6 +135,12 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag  runtime DOM patch of the sign-in and account pages, asserted by test-login-methods.js
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
@@ -119,8 +161,8 @@ pretixmcp:
   enabled: "{{ lookup('config', 'web-app-pretix', 'mcp.enabled') | bool }}"
   shared: false
   image: python
-  # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
-  version: "3.13.15-slim"
+  version: "3.13.18-slim"
+  follow: requires-python
   custom: true
   name: pretixmcp
   cpus: "0.25"
@@ -130,11 +172,6 @@ pretixmcp:
   ports:
     internal:
       http: 8080
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "3.13.15-slim"
-        until: 2026-11-30
 # nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
 openwebui:
   bond: 0.5
@@ -161,3 +198,26 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  checkout:
+    ref: "{{ lookup('config', 'web-app-pretix', 'services.pretix.source_version') }}"
+    url: "{{ lookup('config', 'web-app-pretix', 'services.pretix.source_repository') }}"
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

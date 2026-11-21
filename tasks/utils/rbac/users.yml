@@ -1,0 +1,50 @@
+---
+# Param rbac_users_holding: attribute every listed account holds; LDAP.USER.ATTRIBUTES.ID lists every account.
+# Param rbac_users_attributes: further directory attributes every account from the directory carries base64-encoded under "attributes", [] for none.
+# Output rbac_users: list of {username, email, name} of every account, plus the uuid (entryUUID) from the directory when OpenLDAP is deployed, from the inventory otherwise.
+
+- name: "👥 Search every account of the directory"
+  community.general.ldap_search:
+    server_uri: "ldap://{{ DOCKER_REACH_HOST }}:{{ lookup('config', 'svc-db-openldap', 'services.openldap.ports.local.ldap') }}"
+    bind_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+    bind_pw: "{{ LDAP.BIND_CREDENTIAL }}"
+    dn: "{{ LDAP.DN.OU.USERS }}"
+    scope: onelevel
+    filter: "({{ rbac_users_holding }}=*)"
+    attrs: "{{ [LDAP.USER.ATTRIBUTES.ID, LDAP.USER.ATTRIBUTES.MAIL, LDAP.USER.ATTRIBUTES.FULLNAME, LDAP.USER.ATTRIBUTES.UUID] + rbac_users_attributes }}"
+    base64_attributes: "{{ rbac_users_attributes }}"
+  register: rbac_users_ldap_search
+  delegate_to: "{{ STACK_HOST }}"
+  when:
+    - IS_COMPOSE_MODE | bool
+    - "'svc-db-openldap' in group_names"
+  no_log: "{{ (MASK_CREDENTIALS_IN_LOGS | bool) or (rbac_users_attributes | length > 0) }}"
+
+- name: "👥 Search every account of the directory through the LDAP socket"
+  community.general.ldap_search:
+    server_uri: "{{ LDAP.SERVER.SOCKET_URI }}"
+    bind_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+    bind_pw: "{{ LDAP.BIND_CREDENTIAL }}"
+    dn: "{{ LDAP.DN.OU.USERS }}"
+    scope: onelevel
+    filter: "({{ rbac_users_holding }}=*)"
+    attrs: "{{ [LDAP.USER.ATTRIBUTES.ID, LDAP.USER.ATTRIBUTES.MAIL, LDAP.USER.ATTRIBUTES.FULLNAME, LDAP.USER.ATTRIBUTES.UUID] + rbac_users_attributes }}"
+    base64_attributes: "{{ rbac_users_attributes }}"
+  register: rbac_users_ldap_socket_search
+  delegate_to: "{{ STACK_HOST }}"
+  when:
+    - IS_SWARM_MODE | bool
+    - "'svc-db-openldap' in group_names"
+  no_log: "{{ (MASK_CREDENTIALS_IN_LOGS | bool) or (rbac_users_attributes | length > 0) }}"
+
+- name: "👥 Set every account"
+  ansible.builtin.set_fact:
+    rbac_users: >-
+      {{
+        ((rbac_users_ldap_search if (IS_COMPOSE_MODE | bool) else rbac_users_ldap_socket_search).results
+          | rbac_ldap_members(LDAP.USER.ATTRIBUTES.ID, LDAP.USER.ATTRIBUTES.MAIL, LDAP.USER.ATTRIBUTES.FULLNAME, LDAP.USER.ATTRIBUTES.UUID,
+                              rbac_users_attributes))
+        if ('svc-db-openldap' in group_names)
+        else (lookup('users') | rbac_users)
+      }}
+  no_log: "{{ (MASK_CREDENTIALS_IN_LOGS | bool) or (rbac_users_attributes | length > 0) }}"

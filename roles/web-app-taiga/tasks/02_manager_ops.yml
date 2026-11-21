@@ -57,3 +57,6 @@
 
 - name: "📂 Include Taiga administrator routines"
   include_tasks: 01_administrator.yml
+
+- name: "🛂 Include the Taiga superuser reconcile"
+  include_tasks: 03_rbac.yml

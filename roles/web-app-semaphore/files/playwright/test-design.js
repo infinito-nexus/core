@@ -93,7 +93,7 @@ exports.register = function (shared) {
    */
   async function openSignIn(page) {
     await gotoOnion(page, `${base}${shared.LOGIN_PATH}`);
-    await shown(USERNAME)(page);
+    await shown(shared.env.passwordFormShown ? USERNAME : SIGN_IN_CARD)(page);
   }
 
   /**
@@ -327,6 +327,9 @@ exports.register = function (shared) {
 
   function signInViews() {
     const url = `${base}${shared.LOGIN_PATH}`;
+    if (!shared.env.passwordFormShown) {
+      return [{ name: "sign-in", url, prepare: shown(SIGN_IN_CARD) }];
+    }
     return [
       { name: "sign-in", url, prepare: shown(USERNAME) },
       {
@@ -475,18 +478,21 @@ exports.register = function (shared) {
       await assertToken(page, SIGN_IN_PAGE, "background-color", "--design-frame", `sign-in ${mode}`);
       await expect(page.locator(SIGN_IN_PAGE)).toHaveCSS("background-image", "none");
       await assertToken(page, SIGN_IN_CARD, "background-color", "--design-surface-2", `sign-in ${mode}`);
-      await assertToken(page, USERNAME, "color", "--design-text", `sign-in ${mode}`);
-      await assertToken(page, SUBMIT, "background-color", "--design-primary", `sign-in ${mode}`);
-      await assertToken(page, SUBMIT, "color", "--design-on-primary", `sign-in ${mode}`);
-      await page.locator(SUBMIT).hover();
-      await assertToken(page, SUBMIT, "background-color", "--design-primary-hover", `hovered sign-in ${mode}`);
+      if (shared.env.passwordFormShown) {
+        await assertToken(page, USERNAME, "color", "--design-text", `sign-in ${mode}`);
+        await assertToken(page, SUBMIT, "background-color", "--design-primary", `sign-in ${mode}`);
+        await assertToken(page, SUBMIT, "color", "--design-on-primary", `sign-in ${mode}`);
+        await page.locator(SUBMIT).hover();
+        await assertToken(page, SUBMIT, "background-color", "--design-primary-hover", `hovered sign-in ${mode}`);
+      }
     }
     await page.emulateMedia({ colorScheme: null });
     await openSignIn(page);
     await assertLightAndDark(page, SIGN_IN_CARD, "semaphore sign-in");
+    const formParts = shared.env.passwordFormShown ? [`${SIGN_IN_CARD} .v-label`, SUBMIT] : [];
     await assertReadable(
       page,
-      [`${SIGN_IN_CARD} h2`, `${SIGN_IN_CARD} .v-label`, SUBMIT, { selector: ".auth__divider", optional: true }],
+      [`${SIGN_IN_CARD} h2`, ...formParts, { selector: ".auth__divider", optional: true }],
       "semaphore sign-in",
     );
   });

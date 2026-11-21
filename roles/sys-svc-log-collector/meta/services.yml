@@ -1,0 +1,30 @@
+---
+# nocheck: required-by-coverage — the server stage loop in tasks/stages/02_server.yml includes the collector on every server host, so no consumer has to require it
+# nocheck: image-healthcheck  node-local journal reader with no published port; tasks/00_core.yml waits until the container runs after every start instead
+svc-log-collector:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  image: grafana/alloy
+  version: "v1.21.3"
+  name: log-collector
+  min_storage: 512MB
+  cpus: "0.5"
+  mem_reservation: 128m
+  mem_limit: 512m
+  pids_limit: 256
+  journal_max_age: 12h
+  push:
+    max_backoff_period: 5m
+    max_backoff_retries: 100
+  lifecycle: alpha
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  host-level collector of every application on the node, pausing it would silently drop the logs of all of them
+  status: started

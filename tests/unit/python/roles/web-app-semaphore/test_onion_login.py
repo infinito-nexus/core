@@ -26,9 +26,9 @@ from ansible.plugins.lookup import LookupBase
 from ansible.template import Templar
 
 from plugins.lookup.tls import LookupModule as TlsLookup
-from utils.cache.files import PROJECT_ROOT
+from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_SERVER, ROLE_FILE_VARS_MAIN
 
 filter_loader.add_directory(str(PROJECT_ROOT / "plugins" / "filter"))
 
@@ -36,6 +36,8 @@ ROLE = "web-app-semaphore"
 ROLE_DIR = PROJECT_ROOT / "roles" / ROLE
 VARS = ROLE_DIR / ROLE_FILE_VARS_MAIN
 CORE = ROLE_DIR / "tasks" / "00_core.yml"
+BRIDGE = ROLE_DIR / "tasks" / "utils" / "stack.yml"
+SERVER = ROLE_DIR / ROLE_FILE_META_SERVER
 HTML_LOCATION = "roles/sys-svc-proxy/templates/location/html.conf.j2"
 
 CLEAR = "semaphore.example.test"
@@ -43,10 +45,11 @@ ONION = "semaphore." + "a" * 56 + ".onion"
 ISSUER = "https://auth.example.test/realms/main"
 SECRET = "placeholder-client-secret"
 BUTTON = "Sign in with Keycloak"
+EMAIL_CLAIM = "rbac-gated-email-claim"
 
 OIDC = {
-    "CLIENT": {"ISSUER_URL": ISSUER, "ID": "semaphore-client", "SECRET": SECRET},
-    "ATTRIBUTES": {"USERNAME": "preferred_username"},
+    "CLIENT": {"ISSUER_URL": ISSUER, "ID": "shared-client", "SECRET": "shared-secret"},
+    "ATTRIBUTES": {"USERNAME": "preferred_username", "NAME": "name"},
 }
 
 SINGLE_PROVIDER_JSON = (
@@ -54,7 +57,7 @@ SINGLE_PROVIDER_JSON = (
     f'"provider_url": "{ISSUER}", "client_id": "semaphore-client", '
     f'"client_secret": "{SECRET}", '
     f'"redirect_url": "https://{CLEAR}/api/auth/oidc/keycloak/redirect", '
-    '"username_claim": "preferred_username", "email_claim": "email", '
+    f'"username_claim": "preferred_username", "email_claim": "{EMAIL_CLAIM}", '
     '"name_claim": "name", "scopes": ["openid", "profile", "email"]}}'
 )
 
@@ -118,8 +121,13 @@ def resolve(names, *, siblings, domain, canonical=CLEAR, sso=True) -> dict:
     stubs = {
         "domain": lambda _app: canonical,
         "network_siblings": lambda _domain: siblings,
-        "config": lambda _app, path: {"services.sso.enabled": sso}[path],
-        "path_absolute": lambda path: path,
+        "config": lambda _app, path: {
+            "services.sso.enabled": sso,
+            "services.sso.oidc.clients.web": "semaphore-client",
+            "secrets.credentials.oidc_client_secret": SECRET,
+        }[path],
+        "path_absolute": lambda *parts: "/".join(parts),
+        "template": lambda _path: EMAIL_CLAIM,
         "ansible.builtin.template": _rendered_location,
         "domains": lambda: {ROLE: siblings},
         "applications": lambda: {ROLE: {}},
@@ -317,15 +325,23 @@ class TestWithoutOnionSibling(unittest.TestCase):
 
 class TestStackWiring(unittest.TestCase):
     def test_the_proxy_reads_both_vhost_configurations(self) -> None:
-        stack = next(
-            task
-            for task in load_yaml_any(str(CORE))
-            if task.get("include_role", {}).get("name") == "sys-stk-full"
-        )
         self.assertEqual(
-            (
-                stack["vars"]["webserver_location_extra_configuration"],
-                stack["vars"]["webserver_extra_configuration"],
+            read_text(str(BRIDGE)),
+            read_text(
+                str(PROJECT_ROOT / "roles" / "svc-stack" / "files" / "bridge.yml")
+            ),
+        )
+        self.assertFalse(
+            any(
+                task.get("include_role", {}).get("name") == "svc-stack"
+                for task in load_yaml_any(str(CORE))
+            )
+        )
+        vhost = load_yaml_any(str(SERVER))["vhosts"]["default"]
+        self.assertEqual(
+            tuple(
+                read_text(str(ROLE_DIR / "templates" / vhost[key])).strip()
+                for key in ("location_extra_template", "extra_template")
             ),
             (
                 "{{ SEMAPHORE_LOCATION_CONFIGURATION }}",

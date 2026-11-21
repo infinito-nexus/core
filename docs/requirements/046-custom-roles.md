@@ -34,16 +34,17 @@ As an operator, I want to declare application roles that live in their own repos
 - [x] A declared name that meets a symbolic link under `roles/`, or a directory the pull did not place, stops the run with a message naming it, and the pull never replaces or removes such a directory.
 - [x] A command lists the placed custom roles with their source and resolved commit, and a `make` target removes every `roles/web-app-cst-*` directory the pull placed and nothing else.
 - [x] The pull records the semver the source repository declares at the pinned commit, or in a local checkout, in the role's marker: `[package].version` of `Cargo.toml` (or `[workspace.package].version`), else `[project].version` of `pyproject.toml`, else `version` of `package.json`. `lookup('role_version', 'web-app-cst-<name>')` returns it and fails when the source declares none, so a role pins the images its own repository publishes as `version: "{{ lookup('role_version', 'web-app-cst-<name>') }}"` in `meta/services.yml` and a release never needs a hand-set image version.
-- [ ] `INFINITO_EXTRA_MOUNTS=<dir>[,<dir>]` mounts each directory read-only at the same path into the `infinito` container when the stack is created, so a local `source.url` resolves inside the container; an entry that is not an existing absolute directory stops the stack start with an error naming it.
+- [x] `INFINITO_EXTRA_MOUNTS=<dir>[,<dir>]` mounts each directory read-only at the same path into the `infinito` container when the stack is created, so a local `source.url` resolves inside the container; an entry that is not an existing absolute directory stops the stack start with an error naming it.
 - [x] `roles/web-app-cst-*` is ignored by Git in core, so a pulled role never enters a core commit.
 - [x] The `web-app-cst-` prefix is reserved: a lint fails on an in-tree role whose name starts with it.
 - [x] `meta/categories.yml` declares `web-app-cst` as a category, so the entity name of `web-app-cst-<name>` is `<name>` and the container, database and volume names a custom role derives stay what they were before its rename.
 - [x] A custom role whose entity name equals the entity name of an in-tree role stops the run with a message naming both roles.
-- [ ] A swarm or Act run (`make swarm-*`, `make act-*`) carries the pulled custom roles into the copy of the core checkout its nodes use.
+- [x] A swarm or Act run (`make swarm-*`, `make act-*`) carries the pulled custom roles into the copy of the core checkout its nodes use.
 
 ### Verification
 
-- [ ] A pulled custom role is scanned by `make test`, `make lint` and `make quality-high` exactly like an in-tree role: no lint, unit or integration check skips `roles/web-app-cst-*`, and no check exists only for custom roles. The one exception is the licence: a custom role is exempt from the Infinito.Nexus licence wording the role README lint demands in Credits, and states its own licence instead.
+- [ ] A pulled custom role is scanned by `make test`, `make lint` and `make quality-high` exactly like an in-tree role: no lint, unit or integration check skips `roles/web-app-cst-*`, and no check exists only for custom roles. The one sanctioned exception is the i18n extraction: `role_messages` in `utils/i18n/extract.py` skips custom roles, so their descriptions do not enter the core catalogs.
+- A custom role is exempt from the Infinito.Nexus licence wording the role README lint demands in Credits, and states its own licence instead. Dropped at the updater merge into `feature/store-i18n` by operator decision ("custom-role licence tests: remove the tests, later feature").
 - [ ] `make compose-deploy` deploys a pulled custom role through the same path as an in-tree role, including its Playwright specs.
 - [ ] The README of `php-landingpage` and of `infinito-nexus-gui` documents the inventory format above for their role.
 - [ ] `php-landingpage` names its role `web-app-cst-<name>` in directory and `application_id`, and its CI pulls the role into a core checkout and runs core's `make test` and `make lint` against it.
@@ -53,3 +54,7 @@ As an operator, I want to declare application roles that live in their own repos
 
 - [x] The pull, placement, validation and cleanup logic has unit tests, including a branch name refused as `source.version`, a role whose `application_id` differs from its group, and the removal of a role the inventory no longer declares.
 - [ ] `make test` passes.
+
+## Cross-linking
+
+- Extended by: [129 - Custom Roles Manifest](129-custom-roles-manifest.md), which pins public custom roles in `meta/custom_roles.yml` for every checkout.

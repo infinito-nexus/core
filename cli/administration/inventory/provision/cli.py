@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import getpass
 import json
 import os
 import sys
@@ -8,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from .credentials_generator import generate_credentials_for_roles
+from .email_policy import apply_email_policy, carry_email_policy, inventory_is_new
 from .filters import filter_dynamic_inventory, parse_roles_list
 from .host_vars import (
     apply_vars_overrides,
@@ -20,6 +22,7 @@ from .mirror_overrides import apply_mirror_overrides
 from .network_mode import apply_network_mode_from_env
 from .passwords import generate_random_password
 from .project import build_env_with_project_root, detect_project_root
+from .remote_gateway import drop_gateway_role, named_gateway_host
 from .services.disabler import (
     apply_services_disabled_from_env,
     reconcile_services_disabled_from_env,
@@ -31,6 +34,22 @@ from .yaml_io import dump_yaml, load_yaml
 
 def _fatal(msg: str) -> None:
     raise SystemExit(f"[FATAL] {msg}")
+
+
+def _read_become_password(stream) -> str:
+    """The become password: prompted on a terminal, else the first line of *stream*.
+
+    Args:
+        stream: the text stream the operator piped the password into.
+    """
+    if stream.isatty():
+        secret = getpass.getpass("Become password: ")
+    else:
+        line = stream.readline()
+        secret = line[:-2] if line.endswith("\r\n") else line.removesuffix("\n")
+    if not secret:
+        _fatal("--become-password-stdin read no password from stdin")
+    return secret
 
 
 def _resolve_inventory_file(
@@ -64,7 +83,8 @@ def main(argv: list[str] | None = None) -> int:
         description=(
             "Create or update a full inventory for a host and generate credentials "
             "for all selected applications."
-        )
+        ),
+        allow_abbrev=False,
     )
     parser.add_argument(
         "inventory_dir", help="Inventory directory (e.g. inventories/galaxyserver)."
@@ -75,7 +95,12 @@ def main(argv: list[str] | None = None) -> int:
         help="Hostname to use in the inventory (default: localhost).",
     )
     parser.add_argument(
-        "--become-password", default=None, help="Optional become password (vaulted)."
+        "--become-password-stdin",
+        action="store_true",
+        help=(
+            "Read the become password (vaulted) as the first line of stdin "
+            "instead of keeping or generating one."
+        ),
     )
     parser.add_argument(
         "--vars",
@@ -149,8 +174,29 @@ def main(argv: list[str] | None = None) -> int:
             "respects the variant overlay. Apps not listed default to 0."
         ),
     )
+    parser.add_argument(
+        "--previous-host-vars",
+        default=None,
+        help=(
+            "host_vars file of the inventory this run rebuilds from scratch. Its "
+            "web-app-keycloak email policy and switch carry over, and the "
+            "inventory counts as existing, so no mailbox policy is recorded "
+            "against a realm that holds another one."
+        ),
+    )
 
-    args = parser.parse_args(argv)
+    raw_args = sys.argv[1:] if argv is None else argv
+    if any(arg.startswith("--become-password-stdin=") for arg in raw_args):
+        _fatal("--become-password-stdin takes no value: pipe the password on stdin")
+    args, unknown = parser.parse_known_args(argv)
+    if unknown:
+        _fatal(
+            f"{len(unknown)} unrecognized argument(s), not echoed; the become "
+            "password goes on stdin with --become-password-stdin"
+        )
+    become_password = (
+        _read_become_password(sys.stdin) if args.become_password_stdin else None
+    )
 
     include_filter = parse_roles_list(args.include)
     exclude_filter = parse_roles_list(args.exclude)
@@ -216,10 +262,25 @@ def main(argv: list[str] | None = None) -> int:
         legacy_roles_filter=legacy_roles_filter,
     )
 
+    gateway_host = named_gateway_host(
+        host_vars_file,
+        args.vars,
+        Path(args.vars_file).resolve() if args.vars_file else None,
+    )
+    if gateway_host and drop_gateway_role(dyn_inv):
+        print(
+            f"[INFO] {args.host} uses the gateway on {gateway_host}: "
+            "svc-ai-litellm is not provisioned here"
+        )
+
     dyn_children = (dyn_inv.get("all", {}) or {}).get("children", {}) or {}
     application_ids = sorted(dyn_children.keys())
 
-    if inventory_file.exists():
+    new_inventory = not inventory_file.exists()
+    fresh_inventory = inventory_is_new(
+        inventory_file=inventory_file, host_vars_dir=host_vars_file.parent
+    )
+    if not new_inventory:
         print(f"[INFO] Merging into existing inventory: {inventory_file}")
         base_inv = load_yaml(inventory_file)
     else:
@@ -227,6 +288,8 @@ def main(argv: list[str] | None = None) -> int:
         base_inv = {}
 
     merged_inv = _merge_inventories(base_inv, dyn_inv, host=args.host)
+    if gateway_host and drop_gateway_role(merged_inv):
+        print(f"[INFO] Removed svc-ai-litellm from {inventory_file}")
     dump_yaml(inventory_file, merged_inv)
 
     print(f"[INFO] Ensuring host_vars for host '{args.host}' at {host_vars_file}")
@@ -238,11 +301,17 @@ def main(argv: list[str] | None = None) -> int:
         host_vars_file=host_vars_file, roles_dir=roles_dir
     )
 
+    if args.previous_host_vars and carry_email_policy(
+        previous_host_vars_file=Path(args.previous_host_vars).resolve(),
+        host_vars_file=host_vars_file,
+    ):
+        print("[INFO] Carried the realm email policy over from the replaced inventory")
+
     print(f"[INFO] Ensuring ansible_become_password for host '{args.host}'")
     ensure_become_password(
         host_vars_file=host_vars_file,
         vault_password_file=vault_password_file,
-        become_password=args.become_password,
+        become_password=become_password,
     )
 
     print(
@@ -317,6 +386,16 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     apply_network_mode_from_env(host_vars_file)
+
+    if apply_email_policy(
+        host_vars_file=host_vars_file,
+        application_ids=application_ids,
+        host=args.host,
+        roles_dir=roles_dir,
+        new_inventory=fresh_inventory and not args.previous_host_vars,
+        keycloak_variant=app_variants.get("web-app-keycloak"),
+    ):
+        print("[INFO] New inventory with mail provider: realm email policy mailbox")
 
     apply_services_disabled_from_env(
         host_vars_file=host_vars_file,

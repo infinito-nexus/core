@@ -5,3 +5,6 @@ status_codes:
     - 301
     - 302
     - 405
+vhosts:
+  default:
+    extra_template: nginx/password_login.conf.j2

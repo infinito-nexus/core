@@ -1,2 +1,7 @@
 ---
 platform_administrator: {}
+web-app-pretix-breakglass:
+  username: pretix-breakglass
+  accounts: []
+  description: Local pretix staff account for break-glass access through /control/login?backend=native while Keycloak signs everyone else in; never provisioned
+    in LDAP or Keycloak

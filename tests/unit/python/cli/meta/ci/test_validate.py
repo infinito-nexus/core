@@ -83,6 +83,14 @@ class TestProblems(unittest.TestCase):
         self.assertEqual(errors, [])
         self.assertIn("web-app-gone", warnings[0])
 
+    def test_every_warning_names_a_role_the_run_never_discovers(self) -> None:
+        errors, warnings = _problems(
+            "web-app-a#7@compose+tor web-app-gone#0@swarm web-app-a#1@swarm+tor"
+        )
+        self.assertEqual(len(errors), 2)
+        self.assertEqual(len(warnings), 1)
+        self.assertIn("'web-app-gone#0@swarm' matches no discovered row", warnings[0])
+
     def test_a_bare_role_the_run_discovers_is_silent(self) -> None:
         self.assertEqual(_problems("web-app-a"), ([], []))
 
@@ -280,6 +288,38 @@ class TestMain(unittest.TestCase):
         code, out, _err = self._main(["--whitelist", "web-app-gone"])
         self.assertEqual(code, 0)
         self.assertIn("::warning::", out)
+
+    def test_require_discovery_refuses_a_row_the_run_never_discovers(self) -> None:
+        code, out, err = self._main(
+            ["--require-discovery", "--whitelist", "web-app-gone#0@swarm"]
+        )
+        self.assertEqual(code, 1)
+        self.assertIn("::error::whitelist: 'web-app-gone#0@swarm'", err)
+        self.assertNotIn("::warning::", out)
+        self.assertIn("1 selection(s) name a role this run never discovers", err)
+        self.assertNotIn("abort a chunk's discovery", err)
+
+    def test_require_discovery_passes_a_row_the_run_discovers(self) -> None:
+        code, out, err = self._main(
+            ["--require-discovery", "--whitelist", "web-app-a#0@swarm+tor"]
+        )
+        self.assertEqual(code, 0)
+        self.assertIn("valid for this branch", out)
+        self.assertEqual(err, "")
+
+    def test_each_cause_gets_its_own_summary(self) -> None:
+        code, _out, err = self._main(
+            [
+                "--require-discovery",
+                "--whitelist",
+                "web-app-gone#0@swarm",
+                "--priority",
+                "web-app-a#7",
+            ]
+        )
+        self.assertEqual(code, 1)
+        self.assertIn("1 unusable selection(s). Every one of them would abort", err)
+        self.assertIn("1 selection(s) name a role this run never discovers", err)
 
 
 if __name__ == "__main__":

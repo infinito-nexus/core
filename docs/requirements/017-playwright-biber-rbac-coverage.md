@@ -39,20 +39,10 @@ rather than role by role.
 
 ### Policy
 
-- [ ] Any role whose `roles/<role>/files/playwright/playwright.spec.js` exercises
-  an authenticated path AND whose `meta/services.yml` declares
-  `oidc.enabled` OR `ldap.enabled` (literally or via the dynamic
-  `"{{ '<role>' in group_names }}"` form per
-  [test_dynamic_flags.py](../../tests/integration/roles/meta/services/test_dynamic_flags.py))
-  MUST include at least one `biber`-driven scenario.
+- [x] Any role whose `roles/<role>/files/playwright/playwright.spec.js` exercises an authenticated path AND whose `meta/services.yml` declares `sso.enabled` OR `ldap.enabled` (literally or via the dynamic `"{{ '<role>' in group_names }}"` form per [test_dynamic_flags.py](../../tests/integration/roles/meta/services/test_dynamic_flags.py)) MUST include at least one `biber:` scenario, or opt out via `PERSONA_BIBER_BLOCKED` per the next criterion. [test_naming.py](../../tests/lint/ansible/roles/web-app/playwright/persona/test_naming.py) enforces this for every `web-app-*` role.
 - [x] The biber scenario MUST follow the `biber: <flow>` naming convention from 019 Rule 3, enforced by [test_naming.py](../../tests/lint/ansible/roles/web-app/playwright/persona/test_naming.py).
   A role that legitimately cannot run a biber journey opts out via `PERSONA_BIBER_BLOCKED=true` in `templates/playwright.env.j2` per 019 Rule 11.
-- [ ] The biber scenario MUST gate on the same service flags that the
-  matching admin scenario uses (typically `oidc`, `ldap`, or both),
-  via the `skipUnlessServiceEnabled` helper from
-  [006](README.md#archive). Operators running with
-  `disable=oidc` MUST see the biber scenario as `skipped`
-  with the canonical reason string, never as `failed`.
+- [ ] A biber scenario that does not run the shared `runBiberFlow` persona MUST gate on the same service flags that the matching admin scenario uses (typically `sso`, `ldap`, or both), via the `skipUnlessServiceEnabled` helper from [006](README.md#archive). Operators running with `disable=sso` MUST see such a scenario as `skipped` with the canonical reason string, never as `failed`. The shared `runBiberFlow` persona itself skips only through `PERSONA_BIBER_BLOCKED` or the auth-less collapse, as [test_strict_mode.py](../../tests/lint/ansible/roles/web-app/playwright/persona/test_strict_mode.py) enforces.
 - [ ] The biber scenario MUST end on a deterministic post-login
   surface (a URL, a heading, or a stable role-specific selector) that
   is observable to a non-admin user. Asserting on admin-only UI from
@@ -68,14 +58,7 @@ rather than role by role.
 
 ### Env contract
 
-- [ ] Every role that satisfies the policy above MUST declare
-  `BIBER_USERNAME` and `BIBER_PASSWORD` (via
-  `lookup('users', 'biber')`) in its
-  `roles/<role>/templates/playwright.env.j2`. The
-  [test_playwright_env_keys_used.py](../../tests/lint/ansible/roles/web-app/playwright/test_env_keys_used.py)
-  lint MUST stay green: any declared `BIBER_*` key MUST be consumed
-  by the role's spec or by a shared helper under
-  `roles/test-e2e-playwright/files/`.
+- [x] Every role in scope of the policy above whose biber scenario is not opted out via `PERSONA_BIBER_BLOCKED=true` MUST declare `BIBER_USERNAME` and `BIBER_PASSWORD` (via `lookup('users', 'biber')`) in its `roles/<role>/templates/playwright.env.j2`. The [test_playwright_env_keys_used.py](../../tests/lint/ansible/roles/web-app/playwright/test_env_keys_used.py) lint MUST stay green: any declared `BIBER_*` key MUST be consumed by the role's spec or by a shared helper under `roles/test-e2e-playwright/files/`.
 - [x] Roles that legitimately do not exercise an authenticated UI
   (static content, pure backend services, identity providers tested
   separately) MUST NOT declare `BIBER_*` env keys. The env file is
@@ -95,24 +78,27 @@ commit message why the role is exempt and removing it from this list.
 
 #### In-scope: biber scenario MUST be added
 
-- [ ] [web-app-joomla](../../roles/web-app-joomla/): OIDC
+- [x] [web-app-joomla](../../roles/web-app-joomla/): OIDC
   (`plg_system_keycloak`) AND LDAP variants per
   [006](README.md#archive). Smoking gun for this
   requirement: env keys were declared, never consumed.
-- [ ] [web-app-baserow](../../roles/web-app-baserow/): confirm OIDC/LDAP scope.
-- [ ] [web-app-bookwyrm](../../roles/web-app-bookwyrm/): has both `oidc` and `ldap` gated paths in the spec; biber should ride one of them.
-- [ ] [web-app-bluesky](../../roles/web-app-bluesky/): variant-A+ login-broker. Biber MAY require the broker's app-password handoff; document the outcome of the audit.
-- [ ] [web-app-flowise](../../roles/web-app-flowise/): OIDC via oauth2-proxy.
-- [ ] [web-app-jenkins](../../roles/web-app-jenkins/): OIDC plus LDAP variant.
-- [ ] [web-app-akaunting](../../roles/web-app-akaunting/): OIDC plus LDAP variant.
-- [ ] [web-app-minio](../../roles/web-app-minio/): OIDC plus LDAP variant.
-- [ ] [web-app-taiga](../../roles/web-app-taiga/): OIDC.
-- [ ] [web-app-gitea](../../roles/web-app-gitea/): OIDC plus optional LDAP.
-- [ ] [web-app-postmarks](../../roles/web-app-postmarks/): confirm scope.
+- [x] [web-app-baserow](../../roles/web-app-baserow/): confirm OIDC/LDAP scope.
+- [x] [web-app-bookwyrm](../../roles/web-app-bookwyrm/): the role declares no `ldap` service, so biber rides the `sso`-gated paths ([test-rbac.js](../../roles/web-app-bookwyrm/files/playwright/test-rbac.js), [test-profile-sync.js](../../roles/web-app-bookwyrm/files/playwright/test-profile-sync.js)).
+- [x] [web-app-bluesky](../../roles/web-app-bluesky/): variant-A+ login-broker. Biber MAY require the broker's app-password handoff; document the outcome of the audit.
+- [x] [web-app-flowise](../../roles/web-app-flowise/): OIDC via oauth2-proxy. [test-biber-persona.js](../../roles/web-app-flowise/files/playwright/test-biber-persona.js) carries two `sso`-gated `biber:` scenarios (oauth2 gate refusal, `mcp` role group sign-in) reading `BIBER_USERNAME` / `BIBER_PASSWORD`; `PERSONA_BIBER_BLOCKED` is gone from `templates/playwright.env.j2`.
+- [x] [web-app-jenkins](../../roles/web-app-jenkins/): OIDC plus LDAP variant.
+- [x] [web-app-minio](../../roles/web-app-minio/): OIDC plus LDAP variant.
+- [x] [web-app-taiga](../../roles/web-app-taiga/): OIDC.
+- [x] [web-app-gitea](../../roles/web-app-gitea/): OIDC plus optional LDAP.
+- [x] [web-app-postmarks](../../roles/web-app-postmarks/): [test-biber-persona.js](../../roles/web-app-postmarks/files/playwright/test-biber-persona.js) carries an `sso`-gated `biber:` scenario asserting the oauth2 gate refuses biber outside the postmarks administrator group; `PERSONA_BIBER_BLOCKED` is gone from `templates/playwright.env.j2`.
+- [x] [web-svc-xmpp](../../roles/web-svc-xmpp/): moved from the out-of-scope list. The spec reads `BIBER_*` and carries `ldap`-gated biber scenarios (web admin and API refuse biber, biber's vCard comes from LDAP); the shared persona journey stays blocked because the web admin admits only administrators.
+- [x] [web-app-dashboard](../../roles/web-app-dashboard/): moved from the out-of-scope list. [test-biber-persona.js](../../roles/web-app-dashboard/files/playwright/test-biber-persona.js) runs the shared biber persona, blocked only while `sso` is disabled.
+- [x] [web-app-matomo](../../roles/web-app-matomo/): moved from the out-of-scope list. [auth.spec.js](../../roles/web-app-matomo/files/playwright/auth.spec.js) carries an `sso`-gated `biber:` scenario asserting the Keycloak login of an account without a Matomo role yields no Matomo session or account; the shared persona journey stays blocked.
+- [web-app-akaunting](../../roles/web-app-akaunting/): no longer in scope. The role is end of life (`lifecycle: eol` in its `meta/services.yml`, see its [README](../../roles/web-app-akaunting/README.md)): since Akaunting 3.1 every create needs an `api.akaunting.com` account key, so no biber journey can be driven unattended.
 
 #### Identity providers: separate scope
 
-- [ ] [web-app-keycloak](../../roles/web-app-keycloak/): IS the OIDC
+- [x] [web-app-keycloak](../../roles/web-app-keycloak/): IS the OIDC
   provider; biber's existence in Keycloak is the prerequisite for
   every other role's biber scenario. The role's spec already covers
   the realm-side flow; this requirement does NOT touch it. Audit the
@@ -122,22 +108,15 @@ commit message why the role is exempt and removing it from this list.
   LDAP admin UI; biber as a *managed* user appears in the directory
   view, but the role's own login is admin-only. Audit and document.
 
-#### Out of scope: no biber scenario
+#### Out of scope: biber persona stub only
 
-The following roles MUST NOT carry `BIBER_*` env keys nor a biber
-scenario; closing each item is a NOOP except when a stale env-key
-shows up; in that case remove it.
+The persona contract in [playwright.specs.js.md](../../docs/contributing/artefact/files/role/playwright.specs.js.md) requires a `biber:` scenario in every spec, so the following roles MAY carry a biber persona stub that skips (opted out via `PERSONA_BIBER_BLOCKED=true`, or collapsed because the role renders no `APP_BASE_URL` / `CANONICAL_DOMAIN`), but MUST NOT declare `BIBER_USERNAME` / `BIBER_PASSWORD` that no scenario consumes. Closing each item is a NOOP except when a stale env key shows up; in that case remove it. [web-svc-xmpp](../../roles/web-svc-xmpp/), [web-app-dashboard](../../roles/web-app-dashboard/) and [web-app-matomo](../../roles/web-app-matomo/) moved to the in-scope list because they now carry consumed `BIBER_*` keys and biber scenarios.
 
-- [ ] [web-svc-cdn](../../roles/web-svc-cdn/), [web-svc-simpleicons](../../roles/web-svc-simpleicons/), [web-svc-xmpp](../../roles/web-svc-xmpp/), [web-svc-libretranslate](../../roles/web-svc-libretranslate/): backend services with no end-user UI.
-- [ ] [web-app-hugo](../../roles/web-app-hugo/), [web-app-docs](../../roles/web-app-docs/), [web-app-bridgy-fed](../../roles/web-app-bridgy-fed/), [web-app-meta](../../roles/web-app-meta/): static or pure-publishing content with no authenticated path.
-- [ ] [web-app-dashboard](../../roles/web-app-dashboard/), [web-app-matomo](../../roles/web-app-matomo/): own admin authentication is in scope of their own admin tests; biber-as-non-admin is not a meaningful surface here. Document and exempt.
+- [x] [web-svc-cdn](../../roles/web-svc-cdn/), [web-svc-simpleicons](../../roles/web-svc-simpleicons/), [web-svc-libretranslate](../../roles/web-svc-libretranslate/): services with no end-user UI session. None declares `BIBER_USERNAME` / `BIBER_PASSWORD`; cdn and simpleicons collapse their biber stub, libretranslate opts out via `PERSONA_BIBER_BLOCKED=true`.
+- [x] [web-app-hugo](../../roles/web-app-hugo/), [web-app-docs](../../roles/web-app-docs/), [web-app-bridgy-fed](../../roles/web-app-bridgy-fed/), [web-app-meta](../../roles/web-app-meta/): static or pure-publishing content with no authenticated path. None declares `BIBER_USERNAME` / `BIBER_PASSWORD`; each opts its biber stub out via `PERSONA_BIBER_BLOCKED=true`.
 
 ### Verification
 
-- [ ] After every role-local change [test_playwright_env_keys_used.py](../../tests/lint/ansible/roles/web-app/playwright/test_env_keys_used.py) MUST be green.
-- [ ] A run with `disable=oidc,ldap` MUST report every biber
-  scenario as `skipped: <FLAG>=false` per
-  [006](README.md#archive), never as `failed`.
-- [ ] A grep `process.env\.BIBER_(USERNAME|PASSWORD)` over the role
-  tree MUST return at least one hit for every in-scope role above
-  once the audit closes its checkbox.
+- [x] After every role-local change [test_playwright_env_keys_used.py](../../tests/lint/ansible/roles/web-app/playwright/test_env_keys_used.py) MUST be green. `make test-lint` (`Makefile`) runs it on every change, and it is green on the tree that closes this audit.
+- [ ] A run with `disable=sso,ldap` MUST report every biber scenario that does not run the shared `runBiberFlow` persona as `skipped: <FLAG>=false` per [006](README.md#archive), never as `failed`.
+- [x] A grep `process.env\.BIBER_(USERNAME|PASSWORD)` over the role tree MUST return at least one hit for every in-scope role above once the audit closes its checkbox. A role whose only biber scenario runs the shared `runBiberFlow` persona (web-app-dashboard) counts through the helper's `readEnv("BIBER_USERNAME")` / `readEnv("BIBER_PASSWORD")` in [biber.js](../../roles/test-e2e-playwright/files/personas/biber.js).

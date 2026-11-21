@@ -1,12 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🧩 load docker, proxy for '{{ application_id }}'"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-
 - name: "🎬 Stage the Sphinx tooling into the build context of '{{ application_id }}'"
   stack_host_copy:
     src: "{{ item }}/"
@@ -68,14 +62,30 @@
 - name: "🚿 Flush compose handlers for '{{ application_id }}'"
   ansible.builtin.meta: flush_handlers
 
+- name: "🔍 Resolve the node and container of '{{ application_id }}'"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ DOCS_SERVICE }}"
+    resolve_output_prefix: DOCS
+    resolve_compose_cid: "{{ DOCS_CONTAINER }}"
+
+- name: "🔍 Resolve the network namespace of '{{ application_id }}' for the build queue"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+  vars:
+    netns_output_prefix: DOCS
+
 - name: "🔥 Queue the build of the deployed working tree for '{{ application_id }}'"
-  uri_retry:
-    url: "{{ DOCS_LOCAL_BASE_URL }}/deployed/{{ item }}"
-    status_code: [200, 202]
-    timeout: "{{ lookup('timeout', 30) | int }}"
+  ansible.builtin.command:
+    argv: "{{ DOCS_NETNS_PYTHON }}"
+    stdin: "{{ lookup('http_request_program', '') }}"
+  environment:
+    HTTP_METHOD: GET
+    HTTP_URL: "{{ DOCS_NETNS_BASE_URL }}/deployed/{{ item }}"
   loop: "{{ DOCS_I18N_PRELOAD_PATHS }}"
   register: docs_deployed_warm
-  until: docs_deployed_warm is not failed
+  until: docs_deployed_warm.rc == 0 and (docs_deployed_warm.stdout | from_json).status in [200, 202]
   retries: 12
   delay: 10
   changed_when: false
+  delegate_to: "{{ DOCS_HOST_NODE }}"
+  become: true

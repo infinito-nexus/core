@@ -1,0 +1,23 @@
+---
+DOCKER_LOG_LABEL: "infinito.application" # Container label naming the application; the journald driver copies it into every line as INFINITO_APPLICATION
+DOCKER_LOG_JOURNAL_FIELD: "{{ DOCKER_LOG_LABEL | upper | regex_replace('[^A-Z0-9]', '_') }}" # Journal field the journald driver derives from DOCKER_LOG_LABEL
+FORMS_DRIFT_IDENTIFIER: "infinito-forms-drift" # SYSLOG_IDENTIFIER of the journal event tasks/utils/forms/drift_report.yml raises
+FORMS_DRIFT_PRIORITY: 4 # Journal priority of that event (warning)
+
+LOG_REDACTION_REPLACEMENT: "[REDACTED]" # Text that replaces the secret capture group of every redaction rule
+LOG_REDACTION_RULES: # Ordered RE2-compatible patterns; each holds exactly one capture group, the secret the replacement overwrites
+  - name: key-value-secret
+    pattern: "(?i)(?:password|passwd|passphrase|secret|token|api[_-]?key|access[_-]?key|private[_-]?key|credential)[\\w.-]*[\\x22\\x27]?\\s*[:=]\\s*[\\x22\\x27]?([^\\\
+      s\\x22\\x27,;&]+)"
+  - name: authorization-header
+    pattern: "(?i)authorization[\\x22\\x27]?\\s*[:=]\\s*[\\x22\\x27]?(?:bearer|basic|token|digest)?\\s*([A-Za-z0-9._~+/=-]{6,})"
+  - name: bearer-token
+    pattern: "(?i)\\bbearer\\s+([A-Za-z0-9._~+/=-]{8,})"
+  - name: url-userinfo-password
+    pattern: "(?i)\\b[a-z][a-z0-9+.-]*://[^\\s:/@]+:([^\\s/@]+)@"
+  - name: json-web-token
+    pattern: "\\b(eyJ[A-Za-z0-9_-]{8,}\\.[A-Za-z0-9_-]{8,}\\.[A-Za-z0-9_-]{8,})"
+  - name: query-credential
+    pattern: "(?i)[?&](?:code|sig|signature|x-amz-signature|x-amz-credential|x-amz-security-token)=([^&\\s\\x22\\x27]+)"
+  - name: aws-access-key-id
+    pattern: "\\b((?:AKIA|ASIA)[A-Z0-9]{16})\\b"

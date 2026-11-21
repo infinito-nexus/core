@@ -11,17 +11,19 @@
 # between rounds. This file holds only the cross-cutting environment
 # knobs.
 MASK_CREDENTIALS_IN_LOGS: false
-ASYNC_ENABLED: false
-MODE_DEBUG: true
+DEBUG: true
 ENVIRONMENT: development
 TLS_ENABLED: true
 TLS_MODE: "self_signed"
 
 DOMAIN_PRIMARY: "{{ lookup('env', 'INFINITO_DOMAIN') }}"
 BUILDKIT_ENABLED: "{{ lookup('env', 'INFINITO_BUILDKIT_ENABLED') | bool }}"
-INFINITO_IMAGE_TAG: "{{ lookup('env', 'INFINITO_IMAGE_TAG') | default('latest', true) }}"
+INFINITO_IMAGE_TAG: "{{ lookup('env', 'INFINITO_IMAGE_TAG') }}"
 INFINITO_GHCR_MIRROR_PREFIX: "{{ lookup('env', 'INFINITO_GHCR_MIRROR_PREFIX') | default('', true) }}"
 INFINITO_PULL_POLICY: "{{ lookup('env', 'INFINITO_PULL_POLICY') }}"
+SOFTWARE_IMAGE: "{{ lookup('env', 'INFINITO_IMAGE') | regex_replace(':[^:/]+$', '') }}"
+SOFTWARE_IMAGE_TAG: "{{ INFINITO_IMAGE_TAG }}"
+SOFTWARE_IMAGE_BUILD: "{{ INFINITO_PULL_POLICY == 'never' }}"
 CA_CONTAINER_ENABLED: "{{ lookup('env', 'INFINITO_CONTAINER_CA_ENABLED') | bool }}"
 test_e2e_playwright_keep: "{{ lookup('env', 'INFINITO_PLAYWRIGHT_KEEP') | bool }}"
 MAIL_PRODUCTION_HOST: "{{ lookup('env', 'INFINITO_MAIL_PRODUCTION_HOST') | default('', true) }}"
@@ -45,6 +47,19 @@ applications:
     secrets:
       credentials:
         admin_password: "{{ lookup('env', 'INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD') }}"
+  svc-ai-models:
+    services:
+      models:
+        artefact_base: "{{ lookup('env', 'INFINITO_ARTEFACT_BASE') }}"
+  dev-nix:
+    services:
+      nix:
+        package_cache: "{{ lookup('env', 'INFINITO_CACHE_PACKAGE_URL') }}"
+  web-app-keycloak:
+    services:
+      keycloak:
+        realm:
+          totp_enforced: false
   sys-ctl-hlth-runtime:
     services:
       runtime:

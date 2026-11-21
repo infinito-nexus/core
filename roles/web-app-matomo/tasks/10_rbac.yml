@@ -1,0 +1,22 @@
+---
+- name: "👥 Converge the accounts of {{ application_id }} on its RBAC roles"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ MATOMO_OIDC_ENABLED | bool }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: "{{ MATOMO_RBAC_ROLES }}"
+    rbac_sync_service_key: "{{ MATOMO_SERVICE }}"
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ MATOMO_NAME }}"
+    rbac_sync_kind: container
+    rbac_sync_user: "{{ MATOMO_RUNTIME_OWNER }}"
+    rbac_sync_argv: [php]
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/php/rbac_reconcile.php') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      MATOMO_RBAC_PROTECTED: "{{ MATOMO_RBAC_PROTECTED_LOGINS | to_json }}"
+    rbac_sync_attributes: []
+    rbac_sync_members_env:
+      - { name: RBAC_MEMBERS, role: "*", field: "" }

@@ -57,11 +57,16 @@ def _render(redis_url: str) -> str:
     env.globals["lookup"] = lambda name, *args, **kwargs: f"<lookup {name} {args!r}>"
     return env.get_template(TEMPLATE).render(
         application_id="web-app-erpnext",
-        ERPNEXT_REDIS_URL=redis_url,
-        ERPNEXT_DB_HOST="mariadb",
-        ERPNEXT_DB_PORT=3306,
+        ERPNEXT_COMMON_SITE_CONFIG={
+            "db_host": "mariadb",
+            "db_port": 3306,
+            "redis_cache": f"{redis_url}/0",
+            "redis_queue": f"{redis_url}/1",
+            "redis_socketio": f"{redis_url}/2",
+            "socketio_port": 9000,
+            "host_name": "https://erp.example",
+        },
         ERPNEXT_BACKEND_PORT=8000,
-        ERPNEXT_WEBSOCKET_PORT=9000,
         ERPNEXT_SITES_DIR="/home/frappe/frappe-bench/sites",
     )
 

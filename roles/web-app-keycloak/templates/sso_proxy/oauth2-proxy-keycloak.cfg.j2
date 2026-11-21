@@ -1,44 +1,25 @@
-http_address            =   "0.0.0.0:{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http') }}"
 cookie_secret           =   "{{ lookup('config', sso_proxy_application_id, 'secrets.credentials.sso_proxy_cookie_secret') }}"
 {% set _domain_list = lookup('domains', sso_proxy_application_id) | domain_strings %}
 {% set _network_domains = _domain_list | in_network(sso_proxy_network) %}
 {% set _network_primary = _network_domains | first %}
 cookie_secure           =   "{{ lookup('tls', _network_primary, 'enabled') | string | lower }}"
-{% set _sso_upstream_mode = (compose_mode_force | default('')) or DEPLOYMENT_MODE %}
-upstreams               =   "http://{{ ((sso_proxy_application_id | entity_name) ~ '_') if _sso_upstream_mode == 'swarm' else '' }}{{ lookup('sso', sso_proxy_application_id, 'oauth2_origin_host') }}:{{ lookup('sso', sso_proxy_application_id, 'oauth2_origin_port') }}"  # nocheck: literal-protocol-lookup  Internal docker upstream is plaintext by design.
+cookie_refresh          =   "{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.cookie_refresh') }}"
 {% set _cookie_domains = lookup('sso_cookie_domains', sso_proxy_application_id) %}
 {% if _cookie_domains %}
 cookie_domains          =   {{ _cookie_domains | to_json }}
 {% endif %}
 whitelist_domains       =   {{ lookup('sso_whitelist_domains', sso_proxy_application_id) | to_json }}
-
-client_secret           =   "{{ OIDC.CLIENT.SECRET }}"
-client_id               =   "{{ OIDC.CLIENT.ID }}"
 redirect_url            =   "{{ lookup('tls', _network_primary, 'protocols.web') }}://{{ _network_primary }}/oauth2/callback"
-oidc_issuer_url         =   "{{ OIDC.CLIENT.ISSUER_URL }}"
-skip_oidc_discovery     =   true
-login_url               =   "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
-redeem_url              =   "{{ OIDC.CLIENT.TOKEN_URL }}"
-oidc_jwks_url           =   "{{ OIDC.CLIENT.CERTS }}"
-provider                =   "oidc"
-provider_display_name   =   "{{ OIDC.BUTTON_TEXT }}"
-{% if (TLS_MODE | lower) == 'self_signed' and OIDC.CLIENT.ISSUER_URL.startswith('https') %}
-provider_ca_files       =   ["{{ CA_TRUST.cert_container }}"]
-{% endif %}
 
-{% set allowed_groups_raw = lookup('sso', sso_proxy_application_id, 'oauth2_allowed_groups') %}
-{% if allowed_groups_raw %}
-scope                   =   "openid email profile {{ RBAC.GROUP.CLAIM }}"
-oidc_groups_claim       =   "{{ RBAC.GROUP.CLAIM }}"
-allowed_groups          =   {{ allowed_groups_raw | map('regex_replace', '^/*', '/') | list | to_json }}
+{% set _allowed_groups = lookup('sso', sso_proxy_application_id, 'oauth2_allowed_groups') %}
+{% if _allowed_groups or lookup('sso', sso_proxy_application_id, 'oauth2_allow_all_users') or lookup('sso', sso_proxy_application_id, 'oauth2_any_email') %}
 email_domains           =   ["*"]
 {% else %}
 email_domains           =   "{{ DOMAIN_PRIMARY }}"
 {% endif %}
+{% if _allowed_groups and 'web-svc-access-request' in group_names %}
+custom_templates_dir    =   "{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.templates_directory') }}"
+{% endif %}
 
 session_store_type       = "redis"
 redis_connection_url     = "{{ lookup('engine', 'redis', sso_proxy_application_id, 'url') }}"
-
-set_xauthrequest         = true
-pass_user_headers        = true
-pass_access_token        = {{ lookup('sso', sso_proxy_application_id, 'oauth2_pass_access_token') | string | lower }}

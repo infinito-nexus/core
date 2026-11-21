@@ -1,0 +1,7 @@
+{
+  "variable": {
+    "dns_label": {"type": "string", "nullable": false, "description": "Label of the record <dns_label>.<workspace>.<zone>; empty on remove."},
+    "host": {"type": "string", "nullable": false, "description": "The one IPv4 or IPv6 address of an A or AAAA record; empty for a CNAME and on remove."},
+    "cname": {"type": "string", "nullable": false, "description": "The host name a CNAME points to, never resolved here; empty for an address and on remove."}
+  }
+}

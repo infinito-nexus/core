@@ -1,0 +1,7 @@
+---
+- name: "🔧 Set vm.max_map_count for the bundled OpenSearch"
+  ansible.builtin.include_role:
+    name: sys-sysctl
+  vars:
+    sys_sysctl_owner: "{{ SHOPWARE_SYSCTL_OWNER }}"
+    sys_sysctl_parameters: "{{ SHOPWARE_SYSCTL_PARAMETERS }}"

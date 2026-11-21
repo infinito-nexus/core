@@ -11,7 +11,7 @@ const {
 } = require("./design");
 const { NOTIFICATIONS_SCREEN } = require("./_appview");
 const { apiFetchOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const HOME = '[data-testid="HomeScreen"]';
@@ -218,7 +218,7 @@ async function inlineColors(page) {
 exports.register = function (shared) {
   test("design: the desktop sign-in layout paints its legacy panels with tokens", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(isServiceEnabled("sso"), "the oauth2 gate hands every visitor a session, so the sign-in form never renders");
+    skipUnlessServiceDisabled("sso");
     await page.setViewportSize({ width: 1440, height: 900 });
     for (const mode of ["light", "dark"]) {
       await page.emulateMedia({ colorScheme: mode });
@@ -351,7 +351,7 @@ exports.register = function (shared) {
 
   test("design: the visitor splash shows the configured title as its wordmark", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(isServiceEnabled("sso"), "the oauth2 gate hands every visitor a session, so the splash never renders");
+    skipUnlessServiceDisabled("sso");
     const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
     const logotypeUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGOTYPE_URL || "");
     test.skip(!logotypeUrl, "logo or title replacement is disabled for this role");
@@ -372,7 +372,7 @@ exports.register = function (shared) {
 
   test("design: the SSO handoff page takes the configured title and the design tokens", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(!isServiceEnabled("sso"), "the login broker renders its handoff page only behind the oauth2 gate");
+    skipUnlessServiceEnabled("sso");
     const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
     test.skip(!title, "the title replacement is disabled for this role");
     await signIn(page, shared);
@@ -475,7 +475,7 @@ exports.register = function (shared) {
 
   test("design: the visitor splash takes the tokens", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(isServiceEnabled("sso"), "the oauth2 gate hands every visitor a session, so the splash never renders");
+    skipUnlessServiceDisabled("sso");
     for (const mode of ["light", "dark"]) {
       await page.emulateMedia({ colorScheme: mode });
       await gotoOnion(page, `${shared.env.baseUrl}/settings`);

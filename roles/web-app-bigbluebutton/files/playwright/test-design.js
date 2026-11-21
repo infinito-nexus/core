@@ -10,7 +10,7 @@ const {
   tokenValue,
 } = require("./design");
 const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, requireDotenvValue } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { isOnionTarget, isSplitRealmOidc, resolveTimeout } = require("./timeouts");
 
 const base = normalizeBaseUrl(requireDotenvValue(process.env.BBB_BASE_URL, "BBB_BASE_URL")).replace(/\/$/, "");
@@ -54,7 +54,9 @@ function shown(selector) {
 
 function skipUnreachable() {
   test.skip(isOnionTarget(), "BigBlueButton is WebRTC (UDP/ICE); not served over Tor");
-  test.skip(ssoEnabled && isSplitRealmOidc(), "clearnet app with an onion OIDC issuer: unreachable from one browser");
+  if (isSplitRealmOidc()) {
+    skipUnlessServiceDisabled("sso");
+  }
 }
 
 /**
@@ -207,7 +209,7 @@ test("design: the home page takes surface, header, primary and text from the pal
 test("design: the sign-in button carries the primary with its on-color in both modes", async ({ page }) => {
   skipUnlessServiceEnabled("design");
   skipUnreachable();
-  test.skip(ssoEnabled, "the identity provider replaces the native sign-in form");
+  skipUnlessServiceDisabled("sso");
   await gotoOnion(page, `${base}/signin`);
   await shown(EMAIL)(page);
   await page.locator(EMAIL).evaluate((field) => field.blur());

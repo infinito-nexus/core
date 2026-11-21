@@ -7,7 +7,7 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoes
 
 from plugins.filter.security_headers import FilterModule
 from utils.cache.yaml import load_yaml
-from utils.tls_common import resolve_enabled
+from utils.tls.common import resolve_enabled
 
 from . import PROJECT_ROOT
 

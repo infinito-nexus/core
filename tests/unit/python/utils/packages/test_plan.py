@@ -125,6 +125,21 @@ class TestBuildPlan(unittest.TestCase):
             _modules(plan), ["community.general.copr", "ansible.builtin.package"]
         )
 
+    def test_a_declared_copr_chroot_reaches_the_copr_module(self):
+        spec = PackageSpec(
+            ("foo",),
+            source="copr",
+            repo={"copr": "user/project", "chroot": "rhel+epel-10-x86_64"},
+        )
+        plan = build_plan(spec, STATE_PRESENT)
+        call = _only(plan, "community.general.copr")
+        self.assertEqual(call.args["chroot"], "rhel+epel-10-x86_64")
+
+    def test_without_a_chroot_the_copr_module_picks_its_own(self):
+        spec = PackageSpec(("foo",), source="copr", repo={"copr": "user/project"})
+        plan = build_plan(spec, STATE_PRESENT)
+        self.assertIsNone(_only(plan, "community.general.copr").args["chroot"])
+
     def test_ppa_adds_the_repository_before_installing(self):
         spec = PackageSpec(("foo",), source="ppa", repo={"ppa": "ppa:user/foo"})
         plan = build_plan(spec, STATE_PRESENT)

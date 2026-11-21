@@ -241,12 +241,11 @@ if [[ "${INFINITO_TIMEOUT_MULTIPLIER}" -gt 1 ]]; then
 		bash /opt/src/infinito/scripts/tests/deploy/ci/multiply-timeouts.sh
 fi
 
-echo ">>> init inventory (ASYNC_ENABLED=false baked into host_vars)"
+echo ">>> init inventory"
 "${PYTHON}" -m cli.administration.deploy.development init \
-	"${_init_args[@]}" \
-	--vars '{"ASYNC_ENABLED": false}'
+	"${_init_args[@]}"
 
-echo ">>> deploy (PASS 1 sync + PASS 2 async per variant, --full-cycle)"
+echo ">>> deploy (PASS 1 + PASS 2 update per variant, --full-cycle)"
 "${PYTHON}" -m cli.administration.deploy.development deploy "${deploy_args[@]}" --full-cycle
 
 echo ">>> DISK / DOCKER STATE AFTER DEPLOY (before cleanup, distro=${INFINITO_DISTRO})"

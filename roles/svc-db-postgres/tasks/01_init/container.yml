@@ -1,0 +1,21 @@
+---
+- name: "📁 Provision {{ database_name }} inside the container"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  POSTGRES_LOCAL_CID resolved at delegate_to runtime
+      IFS= read -r DB_PASSWORD || :; : "${DB_PASSWORD:?arrived empty on stdin}" && export DB_PASSWORD && container exec -i --user postgres
+      -e DB_NAME -e DB_USER -e DB_PASSWORD -e DB_EXTENSIONS
+      {{ POSTGRES_LOCAL_CID | quote }}
+      psql -v ON_ERROR_STOP=1 -U postgres -d postgres
+    stdin: "{{ postgres_database_password_string ~ '\n' ~ lookup('file', role_path ~ '/files/sql/provision.sql') ~ '\n' ~ lookup('template', 'sql/grant_schema_privileges.sql.j2')
+      }}"
+  environment:
+    DB_NAME: "{{ database_name }}"
+    DB_USER: "{{ database_username }}"
+    DB_EXTENSIONS: "{{ (lookup('service_extensions', 'postgres')[database_consumer_id] | default([])) | join(',') }}"
+  delegate_to: "{{ POSTGRES_HOST_NODE }}"
+  register: postgres_provision
+  until: postgres_provision.rc == 0
+  retries: "{{ POSTGRES_RETRIES }}"
+  delay: "{{ POSTGRES_DELAY }}"
+  changed_when: postgres_provision.stdout is search('CREATE (DATABASE|ROLE)')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

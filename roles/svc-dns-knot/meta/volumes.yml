@@ -1,0 +1,33 @@
+---
+data:
+  type: volume
+  name: knot_data
+  mounts:
+    - service: knot
+      target: /storage
+config:
+  type: volume
+  name: knot_config
+  mounts:
+    - service: knot
+      target: /config
+rundir:
+  type: volume
+  name: knot_rundir
+  mounts:
+    - service: knot
+      target: /rundir
+conf:
+  type: secret
+  source: "{{ [ lookup('container', 'svc-dns-knot', 'directories.volumes'), 'knot.conf' ] | path_join }}"
+  mode: "0400"
+  mounts:
+    - service: knot
+      target: /config/knot.conf
+zone:
+  type: config
+  source: "{{ [ lookup('container', 'svc-dns-knot', 'directories.volumes'), 'subzone.zone' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: knot
+      target: /zones/subzone.zone

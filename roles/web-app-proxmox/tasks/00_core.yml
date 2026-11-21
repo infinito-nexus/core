@@ -1,0 +1,117 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🔍 Read where the container engine keeps the VM disk volume"
+  ansible.builtin.command: >-
+    container info --format {{ '{{.DockerRootDir}}' }}
+  register: web_app_proxmox_data_root
+  changed_when: false
+
+- name: "🔍 Read what the running Proxmox VE of {{ application_id }} already holds"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "🔍 Look for the running container of {{ application_id }}"
+      ansible.builtin.shell: >-
+        container inspect --type container -f '{{ "{{.State.Running}}" }}' {{ PROXMOX_CONTAINER_ADDRESS }}
+      register: web_app_proxmox_running
+      changed_when: false
+      failed_when: false
+
+    - name: "🔍 Read the agent VMs and their volumes while Proxmox VE runs"
+      when: (web_app_proxmox_running.stdout | trim) == 'true'
+      block:
+        - name: "🔍 Read the guests and storages of {{ PROXMOX_NODE }}"
+          ansible.builtin.shell: >-
+            container exec {{ PROXMOX_CONTAINER_ADDRESS }}
+            {{ (PROXMOX_GUEST_EXEC + ['pvesh', 'get', '/cluster/resources', '--output-format', 'json']) | map('quote') | join(' ') }}
+          register: web_app_proxmox_resources
+          changed_when: false
+          failed_when: false
+
+        - name: "🔍 Read the VM volumes on each local image storage of {{ PROXMOX_NODE }}"
+          ansible.builtin.shell: >-
+            container exec {{ PROXMOX_CONTAINER_ADDRESS }}
+            {{ (PROXMOX_GUEST_EXEC + ['pvesh', 'get', '/nodes/' ~ PROXMOX_NODE ~ '/storage/' ~ item ~ '/content', '--content', 'images', '--output-format', 'json'])
+            | map('quote') | join(' ') }}
+          loop: "{{ web_app_proxmox_resources | proxmox_image_storages(PROXMOX_NODE, PROXMOX_GUEST_AGENT_STORAGE) }}"
+          register: web_app_proxmox_volumes
+          changed_when: false
+          failed_when: false
+
+        - name: "🔍 Read the size and use of the guest storage that holds the agent disks"
+          ansible.builtin.shell: >-
+            container exec {{ PROXMOX_CONTAINER_ADDRESS }}
+            {{ (PROXMOX_GUEST_EXEC + ['pvesh', 'get', '/nodes/' ~ PROXMOX_NODE ~ '/storage/' ~ item ~ '/status', '--output-format', 'json']) | map('quote') | join('
+            ') }}
+          loop: "{{ web_app_proxmox_resources | proxmox_image_storages(PROXMOX_NODE, PROXMOX_GUEST_AGENT_STORAGE) }}"
+          when: PROXMOX_GUEST_AGENT_STORAGE | length > 0
+          register: web_app_proxmox_pool
+          changed_when: false
+          failed_when: false
+
+    - name: "🔍 Read the data the thin volumes of {{ PROXMOX_NODE }} hold"
+      ansible.builtin.shell: >-
+        container exec {{ PROXMOX_CONTAINER_ADDRESS }}
+        {{ (PROXMOX_GUEST_EXEC + ['lvs', '--reportformat', 'json', '--units', 'b', '--nosuffix', '--options', 'lv_name,lv_size,data_percent']) | map('quote') | join('
+        ') }}
+      when: (web_app_proxmox_running.stdout | trim) == 'true'
+      register: web_app_proxmox_thin
+      changed_when: false
+      failed_when: false
+
+- name: "🧮 Count what the agent VMs of {{ application_id }} hold as free for a redeploy"
+  ansible.builtin.set_fact:
+    web_app_proxmox_agent_usage: "{{ web_app_proxmox_resources | proxmox_agent_usage(web_app_proxmox_volumes, web_app_proxmox_thin, PROXMOX_AGENT_POOL) }}"
+    web_app_proxmox_agent_disk_pool: "{{ web_app_proxmox_pool | proxmox_agent_pool(PROXMOX_GUEST_AGENT_STORAGE, PROXMOX_GUEST.disk) }}"
+
+- name: "🧮 Prove the limits of {{ application_id }} hold its agent VMs"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-agent-broker/tasks/utils/vm/capacity.yml') }}"
+  vars:
+    vm_capacity_kind: proxmox
+    vm_capacity_warm_pool: "{{ PROXMOX_AGENTS.warm_pool }}"
+    vm_capacity_reserve: "{{ PROXMOX_AGENTS.reserve }}"
+    vm_capacity_running_memory: "{{ web_app_proxmox_agent_usage.memory }}"
+    vm_capacity_storage_path: "{{ web_app_proxmox_data_root.stdout | trim }}"
+    vm_capacity_pool_size: "{{ web_app_proxmox_agent_disk_pool.size }}"
+    vm_capacity_pool_used: "{{ web_app_proxmox_agent_disk_pool.used }}"
+    vm_capacity_own_disk: "{{ web_app_proxmox_agent_usage.disk }}"
+    vm_capacity_overhead: "{{ PROXMOX_AGENTS.overhead }}"
+    vm_capacity_limits: "{{ PROXMOX_LIMITS }}"
+
+- name: "🚿 Flush compose for {{ application_id }}"
+  meta: flush_handlers
+
+- name: "🪪 Converge the OpenID realm and admin group of {{ application_id }}"
+  ansible.builtin.include_tasks: 01_access.yml
+  when: IS_STACK_HOST | bool
+
+- name: "🛂 Sync the administrator accounts of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ PROXMOX_SSO_ENABLED | bool }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: [administrator]
+    rbac_sync_service_key: proxmox
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ PROXMOX_CONTAINER }}"
+    rbac_sync_kind: container
+    rbac_sync_user: ""
+    rbac_sync_argv: "{{ PROXMOX_GUEST_EXEC + ['perl', '-'] }}"
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/perl/rbac.pl') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      PROXMOX_REALM: "{{ PROXMOX_REALM }}"
+      PROXMOX_GROUP: "{{ PROXMOX_ADMIN_GROUP }}"
+    rbac_sync_attributes: []
+    rbac_sync_members_env:
+      - { name: PROXMOX_RBAC_ADMINISTRATORS, role: administrator, field: "" }
+
+- name: "🧩 Build the KVM and emulated workspace templates of {{ application_id }}"
+  ansible.builtin.include_tasks: 02_templates.yml
+  when: IS_STACK_HOST | bool
+
+- name: "📇 Record the provision target of {{ application_id }}"
+  ansible.builtin.include_tasks: 03_provision.yml
+  when: (IS_STACK_HOST | bool) and ((groups.get('web-app-openbao') or []) | length > 0)

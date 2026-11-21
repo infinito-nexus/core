@@ -28,7 +28,7 @@
       {{ cert_deploy_remote_endpoints
          | default(lookup('env', 'CERT_TEST_REMOTE_ENDPOINTS'), true) }}
   changed_when: false
-  when: MODE_DEBUG | bool
+  when: lookup('debug', 'sys-ctl-mtn-cert-deploy') | bool
 
 - name: 📂 Include dependency 'sys-ctl-alm-compose'
   include_role:

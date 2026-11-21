@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import unittest
 import unittest.mock
 
@@ -11,7 +12,7 @@ from plugins.lookup.compose_only import LookupModule as ComposeOnlyLookup
 from plugins.lookup.container_image import LookupModule as ContainerImageLookup
 from plugins.lookup.image import LookupModule as ImageLookup
 from utils.cache.files import read_text
-from utils.cache.yaml import load_yaml_str
+from utils.cache.yaml import load_yaml_any, load_yaml_str
 from utils.networks.instances import labelled, network_instances
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_TEMPL_COMPOSE
 
@@ -26,6 +27,9 @@ NODE = "a" * 56 + ".onion"
 CLEAR = "dashboard.example.test"
 ONION = f"dashboard.{NODE}"
 REGISTRY = {"host": "registry.example", "port": "5000"}
+LOG_LABEL = load_yaml_any(str(PROJECT_ROOT / "group_vars/all/22_logging.yml"))[
+    "DOCKER_LOG_LABEL"
+]
 PREFIX = {"compose": "", "swarm": "registry.example:5000/"}
 
 INCLUDES = {
@@ -72,10 +76,13 @@ def render(domains: list[str], mode: str) -> dict:
         loader=DictLoader(INCLUDES),
     )
     env.filters["labelled"] = labelled
+    env.filters["to_json"] = json.dumps
 
     def lookup(name, *terms, **_kwargs):
         if name == "template":
-            return env.from_string(read_text(str(PROJECT_ROOT / terms[0]))).render()
+            return env.from_string(read_text(str(PROJECT_ROOT / terms[0]))).render(
+                application_id=APP, DOCKER_LOG_LABEL=LOG_LABEL
+            )
         if name == "compose_only":
             return ComposeOnlyLookup().run(list(terms), variables=variables)[0]
         if name == "container_image":
@@ -91,6 +98,7 @@ def render(domains: list[str], mode: str) -> dict:
             DASHBOARD_VERSION=DASHBOARD["version"],
             DASHBOARD_CONTAINER=DASHBOARD["name"],
             DOCKER_BIND_HOST="127.0.0.1",
+            DOCKER_LOG_LABEL=LOG_LABEL,
         )
     return load_yaml_str(rendered)["services"]
 

@@ -627,6 +627,16 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
         return worker
 
     def _run_counting_renders(self, worker: dict) -> tuple[dict, int]:
+        """Run the lookup and count the applications payload renders.
+
+        Args:
+            worker: the variables the lookup runs with.
+
+        Returns:
+            The lookup result and how often the payload rendered. A payload
+            render renders every application once, so the renders of the
+            mail provider's own entry count the payload renders.
+        """
         _reset_cache_for_tests()
         with patch.object(
             cache_applications,
@@ -634,7 +644,12 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
             wraps=cache_applications._render_with_templar,
         ) as render:
             result = self._run(worker)
-        return result, render.call_count
+        provider = worker["MAIL_PROVIDER"]
+        payload_renders = sum(
+            call.kwargs["variables"].get("application_id") == provider
+            for call in render.call_args_list
+        )
+        return result, payload_renders
 
     def test_worker_reads_the_provider_view_from_the_provider_carrier(self) -> None:
         self._seed(ports=self.STALWART_PORTS)

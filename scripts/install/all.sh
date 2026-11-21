@@ -2,7 +2,9 @@
 # Install all runtime dependencies, incremental via a stamp file.
 #
 # Re-runs the install chain (dev-python bootstrap -> venv -> python -> ansible)
-# only when a recipe input is newer than the stamp at build/install.stamp.
+# only when the content of a recipe input differs from the digest recorded in
+# the stamp at build/install.stamp. Content, not mtime: a commit hook that
+# rewrites an input unchanged must not invalidate the stamp.
 # Pass --force (or run `make install-force`) to drop the stamp first.
 set -euo pipefail
 
@@ -31,23 +33,22 @@ if [[ "${1:-}" == "--force" ]]; then
 	rm -f "${STAMP}"
 fi
 
+for dep in "${DEPS[@]}"; do
+	if [[ ! -f "${dep}" ]]; then
+		echo "[install] missing dependency: ${dep}" >&2
+		exit 1
+	fi
+done
+digest="$(sha256sum "${DEPS[@]}")"
+
 needs_install=0
 if [[ ! -f "${STAMP}" ]]; then
 	needs_install=1
 elif [[ ! -x "${VENV}/bin/python" ]]; then
 	echo "[install] stamp present but venv missing at ${VENV}; reinstalling" >&2
 	needs_install=1
-else
-	for dep in "${DEPS[@]}"; do
-		if [[ ! -f "${dep}" ]]; then
-			echo "[install] missing dependency: ${dep}" >&2
-			exit 1
-		fi
-		if [[ "${dep}" -nt "${STAMP}" ]]; then
-			needs_install=1
-			break
-		fi
-	done
+elif [[ "$(<"${STAMP}")" != "${digest}" ]]; then
+	needs_install=1
 fi
 
 if [[ "${needs_install}" -eq 0 ]]; then
@@ -62,5 +63,5 @@ ANSIBLE_COLLECTIONS_DIR="${HOME}/.ansible/collections" bash scripts/install/ansi
 stamp_dir="$(dirname "${STAMP}")"
 mkdir -p "${stamp_dir}"
 chmod 0777 "${stamp_dir}" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
-touch "${STAMP}"
+printf '%s\n' "${digest}" >"${STAMP}"
 chmod 0777 "${STAMP}" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error

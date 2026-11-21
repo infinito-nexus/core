@@ -1,0 +1,7 @@
+---
+- name: "📂 Load core functions for '{{ application_id }}'"
+  include_tasks: 00_core.yml
+  when:
+    - run_once_web_svc_assistant is not defined
+    - ASSISTANT_MODEL_SERVICE_ENABLED | bool
+    - ASSISTANT_MODELS_NAMED | bool

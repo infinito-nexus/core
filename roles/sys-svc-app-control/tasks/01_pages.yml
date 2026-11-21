@@ -1,0 +1,22 @@
+---
+- name: "🌍 Load the paused page strings of every language the core catalogs translate"
+  ansible.builtin.set_fact:
+    app_control_paused_pages: "{{ APP_CONTROL_PAUSED_CATALOGUE | dict2items }}"
+
+- name: "🌍 Render the paused page per language"
+  stack_host_template:
+    src: paused.html.j2
+    dest: "{{ [ lookup('nginx', 'directories.data.paused_pages'), paused_entry.key ~ '.html' ] | path_join }}"
+    mode: "0644"
+  loop: "{{ app_control_paused_pages }}"
+  loop_control:
+    loop_var: paused_entry
+    label: "{{ paused_entry.key }}"
+
+- name: "🌍 Render the paused page in the source language as the fallback"
+  stack_host_template:
+    src: paused.html.j2
+    dest: "{{ [ lookup('nginx', 'directories.data.paused_pages'), 'index.html' ] | path_join }}"
+    mode: "0644"
+  vars:
+    paused_entry: "{{ app_control_paused_pages | first }}"

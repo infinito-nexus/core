@@ -23,7 +23,7 @@ act-debug:
 .PHONY: act-runner-image
 # Build local/act-runner-fixed: the stock act runner image with /var/run removed so a recent Docker engine accepts act's job-setup content copy.
 # Usage: ACT_PLATFORM_IMAGE=local/act-runner-fixed:latest make swarm-zombie app=<app>
-# Note: see docs/agents/action/iteration/workflow.md.
+# Note: see agents/skills/i8-iterate-workflow/SKILL.md.
 act-runner-image:
 	@bash scripts/tests/deploy/act/build_runner_image.sh
 
@@ -31,6 +31,47 @@ act-runner-image:
 # Run the act-based workflow deploy check.
 act-workflow: install-act
 	@bash scripts/tests/deploy/act/workflow.sh
+
+.PHONY: agents-integration
+# Run the SaaS integration path locally through act: the app matrix with each app deployed together with the agents bundle, local models only, one app after the other.
+# Usage: make agents-integration [whitelist="<app ids>"] [priority="<app ids>"]
+# Param whitelist: space-separated app ids to integrate (empty: diff vs origin/main)
+# Param priority: space-separated app ids to integrate first
+agents-integration: install-act
+	@whitelist='$(whitelist)' priority='$(priority)' bash scripts/agents/integration.sh
+
+.PHONY: agents-preseed
+# Host-pull the agents bundle's large images (for example the Ollama image) before the deploy, so images over the registry cache transfer limit are already loaded.
+# Usage: make agents-preseed images="<ref> <ref>"
+# Param images: space-separated image refs to host-pull (empty: nothing to preseed)
+agents-preseed:
+	@images='$(images)' bash scripts/agents/preseed.sh
+
+.PHONY: agents-stop
+# Suspend the running agent instances without revoking them (kill switch): the orchestrator blocks every agent key, stops every broker-managed container and disables every agent account; a teardown revokes.
+# Usage: make agents-stop orchestrator=<container> cmd="<suspend command>"
+# Param orchestrator: deployed orchestrator container name (required)
+# Param cmd: the orchestrator's suspend command (required)
+agents-stop:
+	@orchestrator='$(orchestrator)' cmd='$(cmd)' bash scripts/agents/stop.sh
+
+.PHONY: agents-verify
+# Run call-test-agents-local.yml through act (the file the CI runs): deploy the agents bundle and play every agent scenario, printing the result table (id, mode, result, duration, log).
+# Usage: make agents-verify [mode=compose|swarm] [scenario=<id>]
+# Example: make agents-verify scenario=hacker-bruteforce
+# Param mode: compose | swarm; omitted runs both in sequence; swarm needs a worktree slot in 3..10
+# Param scenario: a single scenario id replayed against the already-running stack (no act, no redeploy)
+agents-verify: $(if $(scenario),,install-act)
+	@mode='$(mode)' scenario='$(scenario)' bash scripts/agents/verify.sh
+
+.PHONY: agents-vm-template
+# Build the agent VM template of one VM kind from the template directory and its pinned package list only.
+# Usage: make agents-vm-template kind=incus|proxmox out=<dir> [dry_run=true]
+# Param kind: incus | proxmox
+# Param out: directory the build project and the image land in
+# Param dry_run: true prints the build commands without running them
+agents-vm-template:
+	@kind='$(kind)' out='$(out)' dry_run='$(dry_run)' bash scripts/agents/vm-template.sh
 
 .PHONY: alias
 # Print the portable agent shortcuts and the operator's terminal aliases.
@@ -70,9 +111,10 @@ build: fix-dockerignore
 		bash scripts/image/build.sh
 
 .PHONY: build-cleanup
-# Clean up image artifacts.
+# Remove the local toolchain images no registered worktree resolves and no container uses.
+# Note: the GHCR package cleanup runs from cron-images-cleanup-ci.yml through scripts/image/cleanup.sh.
 build-cleanup:
-	@bash scripts/image/cleanup.sh
+	@bash scripts/image/cleanup_local.sh
 
 .PHONY: build-dependency
 # Pull the build dependency image.
@@ -101,16 +143,50 @@ build-no-cache-all:
 	done
 
 .PHONY: cache-apply
-# Install this checkout's cache declarations into the running cache stack.
-# Note: creates the Nexus proxy repos, issues the frontend certs, installs the upstream map the frontend mounts and reloads it.
-# Note: `make compose-up` runs it for a checkout that shares another one's cache stack; call it directly after changing a `cache:` declaration.
+# Install the pinned commit's cache declarations into the running cache stack, never this checkout's own.
+# Note: creates the Nexus proxy repos, issues the frontend certs, installs the upstream map the frontend mounts and reloads it, all from the checkout of the pin below INFINITO_CACHE_PIN_ROOT.
+# Note: `make compose-up` runs it for every checkout; it names this checkout's `cache:` declarations that differ from the pin and fails while no pin exists. See docs/requirements/096-cache-stack-pin.md.
 cache-apply:
 	@bash scripts/system/cache/apply.sh
+
+.PHONY: cache-declare
+# Pin the commit the shared cache stack runs from, materialize it outside every worktree and apply its cache declarations to the running stack.
+# Usage: make cache-declare ref=<commit>
+# Note: only the declarer runs it, after the new or changed `cache:` declaration landed on that commit; every worktree then applies the same commit, and the checkouts of earlier commits but the previous pin are pruned.
+# Param ref: branch, tag or commit SHA, resolved to the full commit written to INFINITO_CACHE_PIN_FILE; a ref that names no commit, or a commit without the cache pin, is refused.
+cache-declare:
+	@test -n '$(ref)' || { echo 'usage: make cache-declare ref=<commit>'; exit 2; }
+	@bash scripts/system/cache/declare.sh '$(ref)'
+
+.PHONY: cache-evict
+# Evict idle cache entries, then the least recently used ones, until every cache fits its cap; refuses when the caps leave less than INFINITO_CACHE_DISK_FLOOR free.
+cache-evict:
+	@"$${PYTHON}" -m cli.meta.cache.evict
+
+.PHONY: cache-host-sync
+# Under sudo, point the host's pacman or apt at the cache stack's caches while INFINITO_CACHE_HOST_SYNC is true, and restore every host file it changed once it is false.
+cache-host-sync:
+	@sudo env PYTHONDONTWRITEBYTECODE=1 "$${PYTHON}" -m cli.meta.cache.host_sync --sync "$${INFINITO_CACHE_HOST_SYNC}" --shared "$${INFINITO_CACHE_SHARED_HOST_PATH}" --nexus "http://$${INFINITO_CACHE_PACKAGE_REST_HOST}:$${INFINITO_CACHE_PACKAGE_PORT}" --ubuntu-mirrors "$${INFINITO_APT_UBUNTU_MIRRORS}"
+
+.PHONY: cache-status
+# Print one JSON object per cache with its path, used bytes, cap, headroom and access-time fallback; the cache pin (pinned and applied commit) goes to stderr.
+cache-status:
+	@"$${PYTHON}" -m cli.meta.cache.status
 
 .PHONY: cheat
 # Print the operator prompt cheatsheet from docs/contributing/tools/agents/cheatsheet.md.
 cheat:
 	@bash scripts/make/cheatsheet.sh
+
+.PHONY: ci-wait
+# Wait for an external CI state (a job log, a run end or a check) with a fixed poll interval and timeout, so no routine needs its own shell loop.
+# Usage: make ci-wait kind=job-log|run|check id=<id> interval=<seconds> timeout=<seconds>
+# Param kind: job-log | run | check -- the kind of state to wait for
+# Param id: the job, run or check id
+# Param interval: seconds between polls
+# Param timeout: seconds before giving up (non-zero exit)
+ci-wait:
+	@kind='$(kind)' id='$(id)' interval='$(interval)' timeout='$(timeout)' bash scripts/ci/wait.sh
 
 .PHONY: clean
 # Remove ignored files from the working tree.
@@ -191,7 +267,7 @@ compose-app-restart:
 
 .PHONY: compose-deploy
 # Run the local deploy router.
-# Usage: make compose-deploy [mode=...] [apps=...] [purge=...] [type=...] [bundles=...] [disable=...] [full_cycle=...] [variant=...] [debug=...]
+# Usage: make compose-deploy [mode=...] [apps=...] [purge=...] [type=...] [bundles=...] [disable=...] [full_cycle=...] [variant=...] [debug=...] [hold=...] [timeout=...]
 # Example: make compose-deploy mode=reinstall apps=web-app-matomo full_cycle=true
 # Note: see scripts/tests/deploy/local/deploy/main.sh for the full routing table.
 # Param mode: initialize | reinstall | update (default: initialize)
@@ -199,12 +275,19 @@ compose-app-restart:
 # Param purge: true | false (default: false) — purge entities before deploy
 # Param bundles: comma-separated bundle names; overrides apps when set
 # Param disable: comma-separated service names to render as disabled
-# Param full_cycle: true | false — when true, also run the async update pass
+# Param full_cycle: true | false — when true, also run the update pass
 # Param variant: matrix round index to pin the redeploy to a specific variant
 # Param debug: true | false (default: from default.env)
 # Param skip_compile: true | false — skip the in-container entry.sh recompile (use when the venv is prebuilt)
+# Param hold: true keeps the job's stack after a pool deploy until its release (INFINITO_DEPLOY_VIA_POOL=true only)
+# Param timeout: withdraw a pool job still queued after this long, e.g. 30m; unset waits (INFINITO_DEPLOY_VIA_POOL=true only)
 compose-deploy:
-	@$(if $(debug),INFINITO_DEBUG="$(debug)") \
+	@if [ "$${INFINITO_DEPLOY_VIA_POOL:-}" = "true" ]; then \
+		exec "$${PYTHON}" -m cli.administration.deploy.pool compose-deploy \
+			--hold '$(or $(hold),false)' --timeout '$(timeout)' \
+			$(filter-out hold=% timeout=% INFINITO_DEPLOY_VIA_POOL=%,$(MAKEOVERRIDES)); \
+	fi; \
+	$(if $(debug),INFINITO_DEBUG="$(debug)") \
 	 $(if $(skip_compile),INFINITO_SKIP_COMPILE="$(skip_compile)") \
 	 bash scripts/tests/deploy/local/deploy/main.sh
 
@@ -289,8 +372,13 @@ compose-system-purge: compose-entity-purge
 	@bash scripts/tests/deploy/local/purge/web.sh
 	@bash scripts/tests/deploy/local/purge/lib.sh
 
+.PHONY: compose-target-reset
+# Recreate the shared target as a bare systemd and sshd machine and rotate the root key the infinito container holds for it.
+compose-target-reset:
+	@"$${PYTHON}" -m cli.administration.deploy.development target-reset
+
 .PHONY: compose-up
-# Start the development stack.
+# Start the development stack and reset its shared target.
 compose-up: install fix-dockerignore
 	@"$${PYTHON}" -m cli.administration.deploy.development up
 
@@ -302,7 +390,7 @@ console:
 	@"$${PYTHON}" -m cli.console
 
 .PHONY: design-gallery
-# Rerun the design spec of a deployed app and copy its screenshots to /tmp/design-gallery/<app>/ (no redeploy).
+# Rerun the design spec of a deployed app and copy its screenshots to its gallery, printed by `python -m cli.meta.roles.design.gallery path <app>` (no redeploy).
 # Usage: make design-gallery app=<application_id> [views=<view>[,<view>...]] [before=true] [pw="--grep <pattern>"]
 # Example: make design-gallery app=web-app-gitea views=dashboard,settings
 # Param app: deployed application id
@@ -340,7 +428,7 @@ design-palette:
 	@app='$(app)' base='$(base)' sync='$(sync)' variant='$(variant)' bash scripts/tests/design/palette.sh
 
 .PHONY: design-queue
-# Print the roles that are due for a design pass in working order (new roles first, then by version gap).
+# Print the roles that are due for a design pass in working order (new roles first, then by version gap, then tune-design proposals).
 # Usage: make design-queue [args="--next|--all|--format json"]
 # Param args: extra flags for the queue CLI
 design-queue:
@@ -369,7 +457,6 @@ diagnose-network:
 
 .PHONY: dotenv
 # Regenerate .env (SPOT) from default.env + runtime context.
-# Note: runtime context covers distro, cache sizes, secrets, and the like.
 dotenv:
 	@python3 -m cli.meta.env
 	@python3 -m cli.meta.cache
@@ -412,9 +499,20 @@ help:
 
 .PHONY: i18n-extract
 # Merge the translatable strings of core and the documentation into the gettext catalogs under locale/.
-# Param domain: core | docs (empty: both)
+# Param domain: core | docs (empty: both); with root: the domain whose root/locale/<domain>.yml holds the English source
+# Param root: directory holding the locale/ of a custom role or repository outside core (empty: core)
 i18n-extract:
-	@"$${PYTHON}" -m cli.build.i18n extract $(if $(domain),--domain "$(domain)")
+	@"$${PYTHON}" -m cli.build.i18n extract $(if $(domain),--domain "$(domain)") $(if $(root),--root "$(root)")
+
+.PHONY: i18n-load
+# Report the host load so the translator's crons can decide whether to start the translation lane, without touching Docker directly.
+i18n-load:
+	@bash scripts/i18n/load.sh
+
+.PHONY: i18n-pause
+# Pause the tools services inside the infra runner so a gate can hold the machine lock without them sending requests; the caches keep answering and the tools keep their models and connections.
+i18n-pause:
+	@"$${PYTHON}" -m cli.administration.infra tools-pause
 
 .PHONY: i18n-prune
 # Empty the translations that altered a protected span so the next i18n-translate redoes them.
@@ -422,6 +520,11 @@ i18n-extract:
 # Param languages: comma-separated ISO 639-1 codes (empty: every language)
 i18n-prune:
 	@"$${PYTHON}" -m cli.build.i18n prune $(if $(domain),--domain "$(domain)") $(if $(languages),--languages "$(languages)")
+
+.PHONY: i18n-resume
+# Resume the tools services inside the infra runner that make i18n-pause paused, with their loaded models and connections intact.
+i18n-resume:
+	@"$${PYTHON}" -m cli.administration.infra tools-resume
 
 .PHONY: i18n-retry
 # Offer the entries a previous run recorded as refused again, after the masking or the damage predicate changed.
@@ -432,17 +535,40 @@ i18n-retry:
 
 .PHONY: i18n-translate
 # Machine-translate the empty and fuzzy entries of the gettext catalogs through the translation gateway, deploying its bundle when it does not answer.
-# Param domain: core | docs (empty: both)
+# Param domain: core | docs (empty: both); with root: the domain of the catalogs under root/locale/
+# Param root: directory holding the locale/ of a custom role or repository outside core (empty: core)
 # Param languages: comma-separated ISO 639-1 codes (empty: every language the gateway serves)
 # Param redeploy: true — deploy the bundle even when a gateway already answers (after changing its code or its backends)
+# Param gateway: base URL of the shared translation gateway, used as it is and never deployed from here (empty: this checkout's own, deployed when absent)
 i18n-translate:
-	@"$${PYTHON}" -m cli.build.i18n translate $(if $(domain),--domain "$(domain)") $(if $(languages),--languages "$(languages)") $(if $(filter true,$(redeploy)),--redeploy)
+	@"$${PYTHON}" -m cli.build.i18n translate $(if $(domain),--domain "$(domain)") $(if $(root),--root "$(root)") $(if $(languages),--languages "$(languages)") $(if $(filter true,$(redeploy)),--redeploy) $(if $(gateway),--gateway "$(gateway)")
 
 .PHONY: i18n-tune
 # Measure the fastest LibreTranslate client settings on this host and record them for `make dotenv`.
 # Param language: ISO 639-1 code the sweep translates into (default: de)
 i18n-tune:
 	@"$${PYTHON}" -m cli.build.i18n tune $(if $(language),--language "$(language)")
+
+.PHONY: infra-down
+# Stop the machine-wide infra runner; its volumes and every cache byte stay.
+infra-down:
+	@"$${PYTHON}" -m cli.administration.infra down
+
+.PHONY: infra-status
+# Print the infra runner's state, address, the gateway URL the i18n targets take as gateway= and, per tools project, whether docker compose -p reaches it inside the runner.
+infra-status:
+	@"$${PYTHON}" -m cli.administration.infra status
+
+.PHONY: infra-up
+# Start the machine-wide infra runner on INFINITO_INFRA_SUBNET once; refuses before anything starts when the caps leave less than INFINITO_CACHE_DISK_FLOOR free.
+# Param takeover: true stops a running legacy cache stack inside the machine lock right before the runner starts, instead of refusing
+infra-up:
+	@"$${PYTHON}" -m cli.administration.infra $(if $(filter true,$(takeover)),--takeover) up
+
+.PHONY: infra-update
+# Apply changed infra inputs (worktree roots, image, caps) to the running infra runner.
+infra-update:
+	@"$${PYTHON}" -m cli.administration.infra update
 
 .PHONY: install
 # Install all runtime dependencies.
@@ -476,6 +602,11 @@ install-alias:
 install-ansible:
 	@ANSIBLE_COLLECTIONS_DIR="$(HOME)/.ansible/collections" \
 	bash scripts/install/ansible.sh
+
+.PHONY: install-codex
+# Install the Codex CLI at the version roles/dsk-gnt-codex pins, for the unit tests that drive the real client.
+install-codex: install
+	@"$${PYTHON}" -m utils.install.codex
 
 .PHONY: install-force
 # Force a full reinstall.
@@ -522,7 +653,11 @@ install-ruby:
 	@bash scripts/install/ruby.sh
 
 .PHONY: install-skills
-# Install the agent skills from INFINITO_SKILLS_REPOSITORY into this project.
+# Install the agent skills from INFINITO_SKILLS_REPOSITORY into every checkout INFINITO_SKILLS_TARGETS names.
+# Example: make install-skills INFINITO_SKILLS_TARGETS='worktree main' INFINITO_SKILLS_REF=<sha>
+# Param INFINITO_SKILLS_REPOSITORY: URL or local path of the skills repository; a local path installs its committed state at INFINITO_SKILLS_REF, never its working tree.
+# Param INFINITO_SKILLS_REF: branch, tag or commit SHA of the skills repository to install.
+# Param INFINITO_SKILLS_TARGETS: space-separated checkouts to install into, each `worktree` (this checkout) or `main` (the primary checkout, first in `git worktree list`); each receives this checkout's agents/skills on top, never its AGENTS.md.
 install-skills:
 	@bash scripts/install/skills.sh
 
@@ -536,16 +671,41 @@ install-system-python:
 install-venv: install-system-python
 	@bash scripts/install/venv.sh
 
+.PHONY: iterate-plan
+# Plan what an iteration on a diff must run: the unit and lint commands (T0), the inner-loop rows (T1), the pre-push rows and gate (T2) and the CI whitelist (T3), with every cut named.
+# Usage: make iterate-plan [base=<ref>] [head=<ref>] [loop=auto] [disable=<keys>|none] [timings=<log|csv>] [format=json]
+# Param base: ref the diff starts from (empty: merge base of origin/main and HEAD; nothing is fetched)
+# Param head: ref the diff ends at (empty: the working tree, untracked files included)
+# Param loop: auto | compose | swarm | playwright | workflow | runner (empty: auto, derived from the diff)
+# Param disable: comma-separated provider keys rendered disabled in T1 and T2 (empty: the compose loop's default; none: nothing)
+# Param timings: deploy log or role-runtimes CSV that prices the rows in seconds (empty: the declared min_storage)
+# Param format: json prints the machine-readable plan (empty: the human form)
+iterate-plan:
+	@"$${PYTHON}" -m cli.meta.ci.iterate $(if $(base),--base "$(base)") $(if $(head),--head "$(head)") $(if $(loop),--loop "$(loop)") $(if $(disable),--disable "$(disable)") $(if $(timings),--timings "$(timings)") $(if $(format),--format "$(format)")
+
 .PHONY: kernel-loop-load
 # Load the kernel loop driver the swarm backup DR drill needs.
 # Note: run this on the host; container environments have no modprobe.
 kernel-loop-load:
 	@sudo bash scripts/system/kernel/loop/load.sh
 
+.PHONY: legal-inventory
+# Build the licence inventory of the tree (project licence and every role's declared licence under roles/*/meta/license.yml) so the counsel's checks start from deterministic data.
+legal-inventory:
+	@bash scripts/legal/inventory.sh
+
+.PHONY: legal-probe
+# Probe a running instance through its front proxy for the Set-Cookie headers set before consent and the reachability of the imprint and privacy pages.
+# Usage: make legal-probe target=<domain>
+# Param target: the instance domain to probe
+legal-probe:
+	@target='$(target)' bash scripts/legal/probe.sh
+
 .PHONY: lint
 # Run all lint checks in parallel.
 # Note: each check runs on host or in docker per INFINITO_LINT_RUNNER.
-lint: install-lint
+lint: install-lint roles-pull
+	@bash scripts/install/wrapper.sh css packages php ruby sql
 	@bash scripts/make/parallel.sh lint-action \
 		lint-ansible \
 		lint-css \
@@ -583,6 +743,19 @@ lint-css: install-lint
 # Run hadolint over the root Dockerfile.
 lint-dockerfile: install-lint
 	@bash scripts/lint/wrapper.sh dockerfile
+
+.PHONY: lint-file
+# Run the scope-aware lint tests on one file or directory, without the full gate.
+# Usage: make lint-file file=<path> [test=<lint module>]
+# Param file: the repository-relative file or directory the lints read
+# Param test: one lint module to run alone instead of every scope-aware lint
+lint-file: install
+	$(if $(file),,$(error lint-file needs file=<path>))
+	@lint_scope='$(file)' \
+	test_paths='$(or $(test),$(shell grep -rl in_lint_scope tests/lint))' \
+	INFINITO_TEST_TYPE="lint" \
+	INFINITO_COMPILE=0 \
+	bash scripts/tests/code/wrapper.sh scripts/tests/code/run.sh
 
 .PHONY: lint-javascript
 # Run ESLint over the project's JavaScript files.
@@ -628,6 +801,15 @@ lint-playwright: install-lint
 # Run Python lint checks.
 lint-python: install-lint
 	@bash scripts/lint/wrapper.sh python
+
+.PHONY: lint-role
+# Run the scope-aware lint tests on one role, without the full gate.
+# Usage: make lint-role role=<role> [test=<lint module>]
+# Param role: the role directory name under roles/
+# Param test: one lint module to run alone instead of every scope-aware lint
+lint-role:
+	$(if $(role),,$(error lint-role needs role=<role>))
+	@$(MAKE) --no-print-directory lint-file file='roles/$(role)' test='$(test)'
 
 .PHONY: lint-ruby
 # Check that every Ruby file parses, via `ruby -c`.
@@ -710,8 +892,33 @@ quality:
 	@"$(MAKE)" test
 
 .PHONY: quality-high
-# Full gate: quality (autoformat + test) followed by every lint check.
-quality-high: quality lint
+# Full gate: autoformat, then the whole test suite and every lint check in parallel.
+quality-high:
+	@"$(MAKE)" autoformat
+	@bash scripts/make/parallel.sh test lint
+
+.PHONY: role-skeleton
+# Render a custom web-app-cst-<name> role from a JSON or YAML manifest with the core role skeleton.
+# Usage: make role-skeleton manifest=<file> target=<dir>
+# Param manifest: manifest file the renderer reads (required); `python -m cli.contributing.role.skeleton schema` lists its fields.
+# Param target: directory the role directory web-app-cst-<name> is written into (required).
+role-skeleton:
+	@test -n '$(manifest)' || { echo 'usage: make role-skeleton manifest=<file> target=<dir>'; exit 2; }
+	@test -n '$(target)' || { echo 'usage: make role-skeleton manifest=<file> target=<dir>'; exit 2; }
+	@"$${PYTHON}" -m cli.contributing.role.skeleton render --target '$(target)' < '$(manifest)'
+
+.PHONY: role-skeleton-check
+# Render the sample roles, run make test and make lint against them, and remove them again, also when a check fails.
+role-skeleton-check:
+	@trap '"$(MAKE)" roles-clean' EXIT
+	@"$(MAKE)" role-skeleton-samples
+	@"$(MAKE)" test
+	@"$(MAKE)" lint
+
+.PHONY: role-skeleton-samples
+# Render one sample role per database and login choice into roles/web-app-cst-*; make roles-clean removes them.
+role-skeleton-samples: install
+	@"$${PYTHON}" -m cli.contributing.role.skeleton.samples
 
 .PHONY: roles-clean
 # Remove every custom role (roles/web-app-cst-*) a pull placed in this checkout and nothing else.
@@ -719,22 +926,23 @@ roles-clean:
 	@"$${PYTHON}" -m cli.administration.roles.clean
 
 .PHONY: roles-pull
-# Pull the custom roles (web-app-cst-*) an inventory declares into roles/ without deploying, removing the ones it no longer declares.
-# Usage: make roles-pull inventory=<path>
+# Pull the custom roles (web-app-cst-*) meta/custom_roles.yml pins and an inventory declares into roles/ without deploying, removing the ones neither declares any more.
+# Usage: make roles-pull [inventory=<path>]
 # Example: make roles-pull inventory=inventories/production/devices.yml
-# Param inventory: inventory file whose group_vars/host_vars declare applications.<group>.custom and .source (required).
-roles-pull:
-	@test -n '$(inventory)' || { echo 'usage: make roles-pull inventory=<path>'; exit 2; }
-	@"$${PYTHON}" -m cli.administration.roles.pull '$(inventory)'
+# Note: without inventory only the pinned roles that are missing or pinned differently are placed and nothing is removed; test, lint and compose-up run it that way.
+# Param inventory: inventory file whose group_vars/host_vars declare applications.<group>.custom and .source, overriding the manifest pin of the same role (optional).
+roles-pull: install
+	@"$${PYTHON}" -m cli.administration.roles.pull $(if $(inventory),'$(inventory)')
 
 .PHONY: roundtrip
 # Validate one or more roles through every deploy mode in order (compose, then swarm), stopping at the first failure.
-# Param apps: space-separated role ids; default = one role per base cluster, most-complex first (complexity --unique).
+# Param apps: space-separated entries, each <role> or <role>#<variant> (e.g. web-app-nextcloud#8); compose and swarm both deploy that variant, whose logs carry a -v<variant> suffix, a bare <role> deploys variant 0, and an unknown role or undeclared variant exits 2 before the first deploy; default = one role per base cluster, most-complex first (complexity --unique).
 # Param modes: optional mode sequence (default "compose swarm"; append k8s once it exists).
-# Param keep: true keeps each validated swarm cluster instead of releasing it.
-# Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,css).
+# Param keep: true keeps the last entry's swarm cluster, green or failed, because every swarm-zombie run first reclaims the lab subnet and the act outer container an earlier entry kept; empty or false lets swarm-zombie release it once its rescue bundle is on the host.
+# Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,design).
+# Param preflight: false skips the disk pre-flight of every swarm-zombie run the roundtrip starts.
 roundtrip:
-	@apps='$(apps)' modes='$(modes)' keep='$(keep)' disable='$(disable)' bash scripts/tests/deploy/roundtrip.sh
+	@apps='$(apps)' modes='$(modes)' keep='$(keep)' disable='$(disable)' preflight='$(preflight)' bash scripts/tests/deploy/roundtrip.sh
 
 .PHONY: runner-ci-deploy
 # Provision self-hosted CI runner instances on a remote host.
@@ -769,6 +977,11 @@ runner-ci-enable:
 	@gh variable set INFINITO_TIMEOUT_MULTIPLIER --body "$${MULTIPLIER:-30}" \
 		$${OWNER:+--repo "$${OWNER}/$${REPO:-infinito-nexus}"}
 	@echo "Self-hosted runners enabled (count=$${COUNT}, multiplier=$${MULTIPLIER:-30}). CI will split deploy jobs proportionally across GitHub-hosted and self-hosted runners."
+
+.PHONY: runner-count
+# Print the default local runner pool size and its RAM, CPU and disk terms as JSON; INFINITO_RUNNER_COUNT overrides it.
+runner-count:
+	@"$${PYTHON}" -m cli.meta.runner.count
 
 .PHONY: security-apparmor-restore
 # Restore AppArmor profiles.
@@ -860,6 +1073,22 @@ swarm-playwright:
 	@node='$(or $(node),$(name)-swarm-mgr-01)' bash scripts/tests/deploy/act/copy_worktree_to_node.sh
 	@node='$(or $(node),$(name)-swarm-mgr-01)' cmd="cd $${INFINITO_NODE_SRC_DIR:?} && TEST_E2E_PLAYWRIGHT_NETWORK_HOST=true $(if $(keep),INFINITO_PLAYWRIGHT_KEEP=$(keep) )bash scripts/tests/e2e/rerun-spec.sh $(role) $(pw)" bash scripts/tests/deploy/act/exec/node.sh
 
+.PHONY: swarm-role-sync
+# Re-run only the role of an app against the kept swarm-test cluster from its act job container (no cluster rebuild; the spec runs only with pw=).
+# Usage: make swarm-role-sync app=<application_id> [name=<cluster-id>] [variant=<idx>] [pw="<playwright args>"] [keep=true]
+# Example: make swarm-role-sync app=web-app-baserow pw="--grep baserow"
+# Param app: application id the kept cluster was deployed with
+# Param name: cluster id the swarm-zombie run used (default: the app id)
+# Param variant: variant index of the round the cluster runs (default 0)
+# Param pw: Playwright arguments; when set, make swarm-playwright reruns the spec of the role after a green sync
+# Param keep: true lets that spec run capture the design gallery
+# Note: needs the nodes and the act job container a failed `make swarm-zombie app=<app> keep=true` leaves up; act removes its container after a green job, and ACT_BIND makes the edits of this worktree live in it.
+# Note: a green sync closes no loop; a fresh `make swarm-zombie app=<app>` without keep stays the gate before a role counts as green in swarm.
+swarm-role-sync:
+	@test -n '$(app)' || { echo 'usage: make swarm-role-sync app=<application_id> [name=<cluster-id>] [variant=<idx>] [pw="<playwright args>"] [keep=true]'; exit 2; }
+	@app='$(app)' SWARM_NAME='$(or $(name),$(app))' variant='$(or $(variant),0)' bash scripts/tests/deploy/swarm/sync/role.sh
+	@$(if $(pw),$(MAKE) swarm-playwright role='$(app)' name='$(or $(name),$(app))' pw='$(pw)' $(if $(keep),keep='$(keep)'))
+
 .PHONY: swarm-shell
 # Drop into an interactive shell on one of the swarm-test DinD nodes.
 # Param name: REQUIRED cluster id (the app id when no name= was passed); node defaults to <name>-swarm-mgr-01.
@@ -877,7 +1106,8 @@ SWARM_ARCH = $(or $(arch),$(shell bash scripts/meta/resolve/architecture.sh))
 # Param keep: true keeps the cluster and its act outer container up for post-mortem inspection; otherwise both are released on success and on failure.
 # Param distros: optional single distro the cluster runs on (default: INFINITO_DISTRO from .env).
 # Param variant: optional matrix variant index to deploy (default 0); a multi-variant app runs one cluster per swarm-zombie, so pick the round to validate.
-# Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,css).
+# Param disable: optional comma-separated provider keys removed from the test inventory (e.g. matomo,dashboard,prometheus,email,design).
+# Param preflight: false skips the disk pre-flight, which prints the include set the provision step derives with the min_storage each role declares and refuses before act starts when that heuristic total plus the watchdog floor exceeds the lowest free space of Docker's data root and the watchdog's storage roots.
 # Param vpn: optional WireGuard axis (auto|enforced|disabled); default disabled.
 # Param meshes: optional WireGuard layout a meshed round deploys (default INFINITO_SWARM_MESHES).
 # Param name: optional cluster-id prefix for the container + network names; release with the same name=.
@@ -886,12 +1116,14 @@ SWARM_ARCH = $(or $(arch),$(shell bash scripts/meta/resolve/architecture.sh))
 # Param step_timeout: optional minute budget for the matrix-deploy step (default 690).
 # Param INFINITO_INVENTORY_EXTRA_VARS: optional environment JSON object laid over every round's inventory vars, `applications` merged per app; must not contain ';'.
 # Note: With keep=true use `make swarm-exec` / `make swarm-shell` to inspect, `make swarm-down` to release.
+# Note: A host-mode-only role has no swarm row; deploy it inside the lightest host row `python -m cli.meta.ci.host_rows --provides <service key> --mode swarm` ranks first.
 swarm-zombie: install-act
-	@test -n '$(app)' || { echo 'usage: make swarm-zombie app=<application_id> [distros=<distro>] [variant=<idx>] [name=<cluster-id>] [disable=<keys>] [network=<mode>] [keep=true]'; exit 2; }
-	@"$${PYTHON}" -m cli.meta.ci.validate --modes swarm --whitelist '$(app)#$(or $(variant),0)@swarm$(if $(network),+$(network))'
+	@test -n '$(app)' || { echo 'usage: make swarm-zombie app=<application_id> [distros=<distro>] [variant=<idx>] [name=<cluster-id>] [disable=<keys>] [network=<mode>] [keep=true] [preflight=false]'; exit 2; }
+	@"$${PYTHON}" -m cli.meta.ci.validate --require-discovery --modes swarm --whitelist '$(app)#$(or $(variant),0)@swarm$(if $(network),+$(network))'
 	@SWARM_NAME='$(or $(name),$(app))' INFINITO_KEEP_SWARM_NODES=false bash scripts/tests/deploy/swarm/utils/clean/teardown.sh
 	@bash scripts/tests/deploy/swarm/utils/clean/lab_subnet.sh
 	@bash scripts/tests/deploy/act/down_act_outer.sh
+	@test '$(preflight)' = false || disable='$(disable)' "$${PYTHON}" -m cli.meta.ci.swarm_preflight --app '$(app)' --variant '$(or $(variant),0)'
 	@SWARM_NAME='$(or $(name),$(app))' \
 	 keep='$(keep)' \
 	 ACT_RM=false \
@@ -922,7 +1154,7 @@ system-purge:
 
 .PHONY: test
 # Run the full test pipeline.
-test: install
+test: roles-pull
 	@bash scripts/make/parallel.sh \
 		test-external \
 		test-integration \
@@ -964,10 +1196,10 @@ test-merge-signed:
 # Run the suite whose verdict comes from a model (not part of the `test` fan-out).
 # Note: brings the tools lane up first, because the checks run inside the stack's container and cannot deploy the model they ask.
 test-oracle: install
-	@"$${PYTHON}" -m utils.inventory.tools
+	@"$${PYTHON}" -m utils.inventory.tools_idle run -- "$${PYTHON}" -m utils.inventory.tools
 	@INFINITO_TEST_TYPE="oracle" \
 	INFINITO_COMPILE=0 \
-	bash scripts/tests/code/wrapper.sh scripts/tests/code/run.sh
+	"$${PYTHON}" -m utils.inventory.tools_idle run -- bash scripts/tests/code/wrapper.sh scripts/tests/code/run.sh
 
 .PHONY: test-performance
 # Run the runtime-performance suite (not part of the `test` fan-out).
@@ -976,6 +1208,19 @@ test-performance: install
 	INFINITO_COMPILE=0 \
 	bash scripts/tests/code/wrapper.sh scripts/tests/code/run.sh
 
+.PHONY: test-ref
+# Run one test against another git ref in a throwaway worktree and let the test prove, by its printed module __file__, that it imported from that ref's tree.
+# Usage: make test-ref ref=<ref> test=<path>
+# Param ref: the git ref to check out
+# Param test: the test path (relative to the repo) to run inside that ref's tree
+test-ref:
+	@ref='$(ref)' test='$(test)' bash scripts/tests/ref.sh
+
+.PHONY: test-runner-down
+# Remove the shared test runner infinito-test-<hash> of this checkout's toolchain image; the next test or lint call starts a new one.
+test-runner-down:
+	@bash scripts/tests/runner/down.sh
+
 .PHONY: test-security
 # Scan every pinned role image of the GHCR mirror with Trivy, Grype and OSV over Syft SBOMs cached by digest (not part of `test`).
 test-security:
@@ -983,6 +1228,16 @@ test-security:
 		--cache-dir build/security \
 		--report build/test-reports/security.json \
 		--workers 4
+
+.PHONY: test-session
+# Run the external, integration, lint and unit Python suites as one pytest session (opt-in; make test runs them as four sessions).
+# Param workers: pytest-xdist worker count of the session (default 20)
+test-session: install
+	@INFINITO_TEST_TYPE="session" \
+	INFINITO_COMPILE=0 \
+	test_paths="tests/external tests/integration tests/lint tests/unit" \
+	pytest_workers='$(or $(workers),20)' \
+	bash scripts/tests/code/wrapper.sh scripts/tests/code/run.sh
 
 .PHONY: test-signed
 # Verify HEAD is signed.
@@ -994,6 +1249,16 @@ test-signed:
 		exit 1; \
 	fi; \
 	echo "✅ HEAD commit signature status: $$status"
+
+.PHONY: test-single
+# Run the full test pipeline like make test, with the four Python suites in one pytest session (make test-session).
+# Param workers: pytest-xdist worker count of that session (default 20)
+test-single: roles-pull
+	@bash scripts/make/parallel.sh \
+		test-session \
+		test-unit-javascript \
+		test-unit-php \
+		test-unit-ruby
 
 .PHONY: test-unit
 # Run the unit test suite (every language).
@@ -1043,7 +1308,7 @@ worktree-prune:
 .PHONY: worktree-up
 # Check a branch out into an isolated worktree with its own subnet, ports and container names.
 # Usage: make worktree-up branch=<name> [base=<dir>]
-# Note: the worktree shares the primary checkout's cache stack instead of starting its own; `make cache-apply` serves its own cache declarations from it.
+# Note: the worktree shares the primary checkout's cache stack instead of starting its own; that stack serves the pinned commit's cache declarations, never the worktree's (see `make cache-declare`).
 # Param branch: branch to check out (required).
 # Param base: parent directory for the worktree (default ~/.local/share/worktrees/<domain>/<account>/<repo>).
 worktree-up:

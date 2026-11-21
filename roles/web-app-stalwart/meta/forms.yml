@@ -1,0 +1,49 @@
+---
+security:
+  path: /
+  lock: pending
+  issue: "stalwartlabs/stalwart, to be filed: read-only WebUI fields for settings an external tool manages"
+  sinks: [STALWART_BAN_PERIODS]
+  fields:
+    authBanPeriod:
+      source: services.stalwart.bans.period_ms
+      mode: enforced
+      selector: "[name='authBanPeriod']"
+      type: number
+      label: Authentication ban period
+    abuseBanPeriod:
+      source: services.stalwart.bans.period_ms
+      mode: enforced
+      selector: "[name='abuseBanPeriod']"
+      type: number
+      label: Abuse ban period
+    loiterBanPeriod:
+      source: services.stalwart.bans.period_ms
+      mode: enforced
+      selector: "[name='loiterBanPeriod']"
+      type: number
+      label: Loiter ban period
+    scanBanPeriod:
+      source: services.stalwart.bans.period_ms
+      mode: enforced
+      selector: "[name='scanBanPeriod']"
+      type: number
+      label: Scan ban period
+http:
+  path: /
+  lock: pending
+  issue: "stalwartlabs/stalwart, to be filed: read-only WebUI fields for settings an external tool manages"
+  sinks: [STALWART_HTTP_SETTINGS]
+  fields:
+    clientIpSource:
+      source: services.stalwart.client_ip.source
+      mode: enforced
+      selector: "[name='clientIpSource']"
+      type: select
+      label: Client IP source
+    forwardedHops:
+      source: services.stalwart.client_ip.forwarded_hops
+      mode: enforced
+      selector: "[name='forwardedHops']"
+      type: number
+      label: Forwarded hops

@@ -1,0 +1,8 @@
+{
+  "output": {
+    "host": {"value": "${concat(local.ipv4, local.ipv6)}", "description": "Public addresses of the server."},
+    "host_key": {"value": "", "description": "Empty: the API sets no host key, the first contact pins it."},
+    "server_id": {"value": "${proxmox_virtual_environment_vm.server.id}", "description": "Provider server id."},
+    "fqdn": {"value": "${module.dns.fqdn}", "description": "Per-deploy record name."}
+  }
+}

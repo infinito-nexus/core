@@ -104,9 +104,10 @@ exports.register = function (shared) {
 
     await gotoOnion(page,"/");
     await shared.waitForDashboardReady(page);
+    await shared.revealCard(page, "web-app-keycloak");
 
     const simpleiconCard = page
-      .locator(".card")
+      .locator("[data-portui-card]:visible .card")
       .filter({
         has: page.locator(".card-img-top svg, .card-img-top img[src^='http://'], .card-img-top img[src^='https://'], .card-img-top img[src^='/static/']"),
       })

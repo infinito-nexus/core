@@ -1,0 +1,12 @@
+---
+- name: "🎬 Stage the cron and bridge scripts for {{ application_id }}"
+  stack_host_copy:
+    src: "python/"
+    dest: "{{ lookup('container', application_id, 'directories.instance') }}/"
+    mode: "0644"
+    directory_mode: "0755"
+  notify:
+    - compose-build
+    - compose-up
+
+- include_tasks: utils/once/flag.yml

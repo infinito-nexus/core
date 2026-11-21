@@ -1,28 +1,83 @@
 ---
-- name: 📁 Ensure the directories the agent reads from exist
-  ansible.builtin.file:
-    path: "{{ item | dirname }}"
-    state: directory
-    owner: "{{ agnt_codex_user }}"
-    group: "{{ agnt_codex_user }}"
-    mode: "0700"
-  loop:
-    - "{{ agnt_codex_config_path }}"
-    - "{{ agnt_codex_env_path }}"
+- name: 🔍 Require Code to be closed on a host with an editor
+  when: lookup('config', application_id, 'services.codex.editor_data_dir') | length > 0
+  block:
+    - name: 🔍 Check whether Code is still running
+      ansible.builtin.stat:
+        path: "{{ lookup('config', application_id, 'services.codex.editor_data_dir') }}/SingletonLock"
+        follow: false
+      register: agnt_codex_editor_lock
 
-- name: 🔐 Write the gateway profile
-  ansible.builtin.template: # nocheck: stack-host-template (workstation role; the file belongs to the local user and there is no compose stack to gate on)
-    src: config.toml.j2
-    dest: "{{ agnt_codex_config_path }}"
-    owner: "{{ agnt_codex_user }}"
-    group: "{{ agnt_codex_user }}"
-    mode: "0600"
+    - name: ✅ Require Code to be closed before managing its Codex connection
+      ansible.builtin.assert:
+        that: not agnt_codex_editor_lock.stat.exists
+        fail_msg: Close all Code windows and deploy again so Codex can reload its connection.
 
-- name: "🔑 Write the key the agent reads from {{ agnt_codex_key_env }}"
-  ansible.builtin.template: # nocheck: stack-host-template (workstation role; the file belongs to the local user and there is no compose stack to gate on)
-    src: gateway.conf.j2
-    dest: "{{ agnt_codex_env_path }}"
-    owner: "{{ agnt_codex_user }}"
-    group: "{{ agnt_codex_user }}"
-    mode: "0600"
+- name: 🔀 Install the Codex connection switch and credential helper
+  ansible.builtin.copy:
+    content: "{{ lookup('file', lookup('path_absolute', 'roles/dsk-gnt-codex/files/python/codex_mode.py')) | regex_replace('^#!/usr/bin/env python3', '#!' ~ ansible_facts.python.executable)
+      }}\n"
+    dest: "{{ agnt_codex_mode_path }}"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: 🔐 Configure the shared Codex CLI and editor connection
+  ansible.builtin.command:
+    argv:
+      - "{{ ansible_facts.python.executable }}"
+      - "{{ agnt_codex_mode_path }}"
+      - --deploy
+    stdin: >-
+      {{ {
+        'gateway_url': agnt_codex_gateway_url,
+        'gateway_key': agnt_codex_gateway_key,
+        'model': agnt_codex_model,
+        'initial_mode': lookup('config', application_id, 'services.codex.initial_mode'),
+        'reasoning_effort': lookup('config', application_id, 'services.codex.reasoning_effort'),
+        'subscription_model': lookup('config', application_id, 'services.codex.subscription_model'),
+        'context_tokens': lookup('config', application_id, 'services.codex.context_tokens'),
+        'auto_compact_tokens': lookup('config', application_id, 'services.codex.auto_compact_tokens'),
+        'editor_data_dir': lookup('config', application_id, 'services.codex.editor_data_dir'),
+        'helper_path': agnt_codex_mode_path,
+        'credential_timeout_ms': lookup('config', application_id, 'services.codex.credential_timeout_ms'),
+        'validation_output_tokens': lookup('config', application_id, 'services.codex.validation_output_tokens')
+      } | to_json }}
+  become: true
+  become_user: "{{ agnt_codex_user }}"
+  register: agnt_codex_connection
+  changed_when: "(agnt_codex_connection.stdout | trim) == 'CHANGED'"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: 📁 Create the persistent Codex validation directory
+  ansible.builtin.file:
+    path: /usr/local/lib/infinito/tests/dsk-gnt-codex
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: 🧪 Install Codex connection validation
+  ansible.builtin.copy:
+    src: python/validate_codex.py
+    dest: /usr/local/lib/infinito/tests/dsk-gnt-codex/validate_codex.py
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: ✅ Validate Codex CLI, editor and Responses API
+  ansible.builtin.command:
+    argv:
+      - "{{ ansible_facts.python.executable }}"
+      - /usr/local/lib/infinito/tests/dsk-gnt-codex/validate_codex.py
+      - --program
+      - "{{ agnt_codex_mode_path }}"
+      - --home
+      - "{{ agnt_codex_home }}"
+      - --timeout
+      - "{{ lookup('config', application_id, 'services.codex.validation_timeout') | string }}"
+  become: true
+  become_user: "{{ agnt_codex_user }}"
+  environment:
+    PATH: "{{ EXEC_PATH_SYSTEM }}"
+  changed_when: false

@@ -1,0 +1,174 @@
+---
+settings:
+  path: /admin_console/
+  native: true
+  sinks: [MATTERMOST_SETTINGS]
+  fields:
+    mm_servicesettings_siteurl:
+      source: services.mattermost.settings.site_url
+      mode: enforced
+      selector: "[id='ServiceSettings.SiteURL']"
+      type: url
+      label: Site URL
+    mm_servicesettings_allowcorsfrom:
+      source: services.mattermost.settings.site_url
+      mode: enforced
+      selector: "[id='ServiceSettings.AllowCorsFrom']"
+      type: text
+      label: Allowed cross-origin requests
+    mm_pluginsettings_enableuploads:
+      source: services.mattermost.settings.plugin_uploads
+      mode: enforced
+      selector: "[id^='PluginSettings.EnableUploads']"
+      type: checkbox
+      map: { true: "true", false: "false" }
+      label: Plugin uploads
+    mm_teamsettings_sitename:
+      source: services.mattermost.settings.site_name
+      when: services.design.enabled
+      mode: enforced
+      selector: "[id='TeamSettings.SiteName']"
+      type: text
+      label: Site name
+    mm_logsettings_consolelevel:
+      source: services.mattermost.settings.console_level
+      mode: enforced
+      selector: "[id='LogSettings.ConsoleLevel']"
+      type: select
+      enum: [DEBUG, INFO]
+      label: Console log level
+    mm_emailsettings_smtpserver:
+      source: services.mattermost.settings.smtp.server
+      when: services.mattermost.settings.smtp.enabled
+      mode: enforced
+      selector: "[id='EmailSettings.SMTPServer']"
+      type: text
+      label: SMTP server
+    mm_emailsettings_smtpport:
+      source: services.mattermost.settings.smtp.port
+      when: services.mattermost.settings.smtp.enabled
+      mode: enforced
+      selector: "[id='EmailSettings.SMTPPort']"
+      type: text
+      label: SMTP port
+    mm_emailsettings_smtpusername:
+      source: services.mattermost.settings.smtp.username
+      when: services.mattermost.settings.smtp.enabled
+      mode: enforced
+      selector: "[id='EmailSettings.SMTPUsername']"
+      type: text
+      label: SMTP username
+    mm_emailsettings_feedbackemail:
+      source: services.mattermost.settings.smtp.from
+      when: services.mattermost.settings.smtp.enabled
+      mode: enforced
+      selector: "[id='EmailSettings.FeedbackEmail']"
+      type: email
+      label: Notification from address
+    mm_emailsettings_replytoaddress:
+      source: services.mattermost.settings.smtp.from
+      when: services.mattermost.settings.smtp.enabled
+      mode: enforced
+      selector: "[id='EmailSettings.ReplyToAddress']"
+      type: email
+      label: Notification reply-to address
+    mm_emailsettings_enablesigninwithemail:
+      source: services.mattermost.login.method.native.enabled
+      mode: enforced
+      selector: "[id^='EmailSettings.EnableSignInWithEmail']"
+      type: checkbox
+      map: { true: "true", false: "false" }
+      label: Sign in with email
+    mm_emailsettings_enablesigninwithusername:
+      source: services.mattermost.login.method.native.enabled
+      mode: enforced
+      selector: "[id^='EmailSettings.EnableSignInWithUsername']"
+      type: checkbox
+      map: { true: "true", false: "false" }
+      label: Sign in with username
+    mm_teamsettings_enableopenserver:
+      source: services.mattermost.login.method.registration.enabled
+      mode: enforced
+      selector: "[id^='TeamSettings.EnableOpenServer']"
+      type: checkbox
+      map: { true: "true", false: "false" }
+      label: Open server
+    mm_servicesettings_enablemultifactorauthentication:
+      source: services.mattermost.login.method.2fa.enabled
+      mode: enforced
+      selector: "[id^='ServiceSettings.EnableMultifactorAuthentication']"
+      type: checkbox
+      map: { true: "true", false: "false" }
+      label: Multi-factor authentication
+    mm_gitlabsettings_enable:
+      source: services.mattermost.login.method.sso.enabled
+      when: services.mattermost.login.method.sso.enabled
+      mode: enforced
+      selector: "[id^='GitLabSettings.Enable']"
+      type: checkbox
+      map: { true: "true" }
+      label: GitLab-slot single sign-on
+    mm_gitlabsettings_id:
+      source: services.mattermost.settings.gitlab.id
+      when: services.mattermost.login.method.sso.enabled
+      mode: enforced
+      selector: "[id='GitLabSettings.Id']"
+      type: text
+      label: Application ID
+    mm_gitlabsettings_authendpoint:
+      source: services.mattermost.settings.gitlab.auth_endpoint
+      when: services.mattermost.login.method.sso.enabled
+      mode: enforced
+      selector: "[id='GitLabSettings.AuthEndpoint']"
+      type: url
+      label: Auth endpoint
+    mm_gitlabsettings_userapiendpoint:
+      source: services.mattermost.settings.gitlab.user_api_endpoint
+      when: services.mattermost.login.method.sso.enabled
+      mode: enforced
+      selector: "[id='GitLabSettings.UserAPIEndpoint']"
+      type: url
+      label: User API endpoint
+    mm_servicesettings_alloweduntrustedinternalconnections:
+      source: services.mattermost.settings.gitlab.untrusted_internal_connections
+      when: services.mattermost.login.method.sso.enabled
+      mode: enforced
+      selector: "[id='ServiceSettings.AllowedUntrustedInternalConnections']"
+      type: text
+      label: Allowed untrusted internal connections
+    mm_filesettings_amazons3bucket:
+      source: services.mattermost.settings.s3.bucket
+      when: services.mattermost.settings.s3.enabled
+      mode: enforced
+      selector: "[id='FileSettings.AmazonS3Bucket']"
+      type: text
+      label: Amazon S3 bucket
+    mm_filesettings_amazons3endpoint:
+      source: services.mattermost.settings.s3.endpoint
+      when: services.mattermost.settings.s3.enabled
+      mode: enforced
+      selector: "[id='FileSettings.AmazonS3Endpoint']"
+      type: text
+      label: Amazon S3 endpoint
+    mm_filesettings_amazons3region:
+      source: services.mattermost.settings.s3.region
+      when: services.mattermost.settings.s3.enabled
+      mode: enforced
+      selector: "[id='FileSettings.AmazonS3Region']"
+      type: text
+      label: Amazon S3 region
+    mm_metricssettings_enable:
+      source: services.prometheus.native_metrics.enabled
+      when: services.prometheus.native_metrics.enabled
+      mode: enforced
+      selector: "[id^='MetricsSettings.Enable']"
+      type: checkbox
+      map: { true: "true" }
+      label: Performance monitoring
+    mm_metricssettings_listenaddress:
+      source: services.mattermost.settings.metrics_listen_address
+      when: services.prometheus.native_metrics.enabled
+      mode: enforced
+      selector: "[id='MetricsSettings.ListenAddress']"
+      type: text
+      label: Metrics listen address

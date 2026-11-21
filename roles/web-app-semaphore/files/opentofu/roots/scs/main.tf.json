@@ -1,0 +1,48 @@
+{
+  "locals": {
+    "catalog": "${jsondecode(file(\"${path.module}/catalog.json\"))[var.flavor]}",
+    "size": "${local.catalog.sizes[var.size]}",
+    "region": "${local.catalog.regions[var.region]}",
+    "workspace_file": "${path.module}/workspace.json",
+    "workspace": "${fileexists(local.workspace_file) ? jsondecode(file(local.workspace_file)) : {workspace = \"ws-missing\", dns = {zone = \"invalid\", zone_id = \"\"}}}",
+    "ipv4": ["${openstack_compute_instance_v2.server.access_ip_v4}"],
+    "ipv6": [],
+    "user_data": "#cloud-config\n${yamlencode({disable_root = false, ssh_authorized_keys = [var.ssh_public_key], ssh_deletekeys = true, ssh_genkeytypes = [], ssh_keys = {ed25519_private = tls_private_key.host.private_key_openssh, ed25519_public = tls_private_key.host.public_key_openssh}})}"
+  },
+  "resource": {
+    "tls_private_key": {
+      "host": {"algorithm": "ED25519"}
+    },
+    "openstack_compute_keypair_v2": {
+      "access": {
+        "name": "${var.name}",
+        "region": "${local.region.region}",
+        "public_key": "${var.ssh_public_key}"
+      }
+    },
+    "openstack_compute_instance_v2": {
+      "server": {
+        "name": "${var.name}",
+        "region": "${local.region.region}",
+        "flavor_name": "${local.size.flavor}",
+        "image_name": "${local.catalog.image}",
+        "key_pair": "${openstack_compute_keypair_v2.access.name}",
+        "user_data": "${local.user_data}",
+        "metadata": {"workspace": "${local.workspace.workspace}", "flavor": "${var.flavor}"},
+        "network": [{"name": "${local.region.network}"}],
+        "lifecycle": [{"precondition": [{"condition": "${fileexists(local.workspace_file)}", "error_message": "workspace.json is missing beside the root module."}]}]
+      }
+    }
+  },
+  "module": {
+    "dns": {
+      "source": "./modules/dns",
+      "zone": "${local.workspace.dns.zone}",
+      "zone_id": "${local.workspace.dns.zone_id}",
+      "name": "${var.dns_label}.${local.workspace.workspace}",
+      "ipv4": "${local.ipv4}",
+      "ipv6": "${local.ipv6}",
+      "cname": ""
+    }
+  }
+}

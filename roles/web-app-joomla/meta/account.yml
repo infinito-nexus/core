@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 150
+  username_pattern: (?!.*\.\./)[^<>"'%;()&\\\s][^<>"'%;()&\\]*[^<>"'%;()&\\\s]
+  source: https://github.com/joomla/joomla-cms/blob/6.2.0/libraries/src/Table/User.php#L220-L221
+  agent_reachable: true

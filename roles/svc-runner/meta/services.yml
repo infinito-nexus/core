@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: dockerfile-custom
 # nocheck: image-healthcheck  CI runner, no service port; readiness is the runner's own registration
 runner:
@@ -18,11 +19,12 @@ runner:
   version: "26.04"
   docker_gid_fallback: 999
   project_prefix: runner
-  sysctl_conf: /etc/sysctl.d/99-github-runner.conf
   image_name: infinito-runner
   image_tag: latest
   install_dir: /opt/github-runner
   cpus: 2
+  flavor: github
+  worktree_roots: []
 
 # nocheck: dynamic-flag
 buildkit:
@@ -48,3 +50,11 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started

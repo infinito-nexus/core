@@ -14,6 +14,9 @@
     design:
       enabled: true
       shared: true
+    ldap:
+      enabled: true
+      shared: true
     prometheus:
       enabled: true
       shared: true
@@ -43,6 +46,9 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     design:
+      enabled: false
+      shared: false
+    ldap:
       enabled: false
       shared: false
     prometheus:

@@ -10,4 +10,8 @@ Tests in this directory MUST only cover `meta/variants.yml` shape and coverage. 
 
 The marker lives beside the pins that cause the overage, so it is visible to whoever edits them, and it is registered as a rule in [suppression.md](../../../../../docs/contributing/actions/testing/suppression.md) like every other suppression. It expires on its own: `test_every_mem_limit_exemption_is_still_needed` fails once the marked variant fits again, so it cannot outlive the cause it was written for. Add one only when no variant placement brings the footprint under the cap, and record in the text which placements were tried.
 
+## Model backend memory
+
+[test_model_backend_memory.py](test_model_backend_memory.py) holds every variant whose service preloads a model (`preload_models` set) to a `mem_limit` of at least 3 GiB. A smaller ceiling leaves the backend no room for its loaded model under concurrent requests: the kernel OOM-kills the inference engine, and the gateway answers the requests in flight with HTTP 400. Variants that preload nothing, such as the mock round of `svc-ai-ollama`, are exempt.
+
 For framework, directory layout, and `make test-integration` usage see [integration.md](../../../../../docs/contributing/actions/testing/integration.md).

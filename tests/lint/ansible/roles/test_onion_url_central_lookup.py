@@ -15,8 +15,8 @@ Forbidden in ``roles/*/templates`` Jinja:
   - manual scheme/host concatenation: ``~ '://'`` / ``'://' ~``
   - the ``to_onion_url`` filter (URL onionization belongs in the lookup)
 
-Exempt: the request-time rewriters that must decide per request, not at render
-time — the nginx body filter and the dashboard OIDC loader.
+Exempt: the dashboard OIDC loader, which must decide per request, not at
+render time.
 """
 
 from __future__ import annotations
@@ -30,7 +30,6 @@ from utils.cache.files import iter_project_files, read_text
 from . import PROJECT_ROOT
 
 _EXEMPT_SUFFIXES: tuple[str, ...] = (
-    "sys-front-inj-all/templates/body_filter.lua.j2",
     "web-app-dashboard/templates/javascript/oidc.js.j2",
 )
 

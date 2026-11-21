@@ -81,6 +81,6 @@ By default every Talk stream goes through `web-svc-coturn`, and Janus publishes 
 | `bridge` | runs on the stack network and publishes the range on `networks.internet.ip4` |
 | `host` | runs in the host network namespace and binds the range itself; compose mode only, the deploy stops in swarm mode |
 
-With `host`, Janus also answers its websocket API on port 8188 of every host interface. Block that port in any firewall in front of the host.
+With `host`, Janus also answers its websocket API on port 8188 of every host interface. Block that port in any firewall in front of the host. The image has no HTTP API in either mode: `files/Dockerfiles/Janus/Dockerfile` configures Janus with `--disable-rest`, so the REST (HTTP/HTTPS) transport and its admin API are not built, and the WebSocket transport is the only Janus API transport in the image.
 
 Open the media range for UDP in any firewall in front of the host. Each participant of a call holds one peer connection per participant, so all calls together get at most as many peer connections as the range has ports, and a call of N participants needs N² of them. Janus refuses a new peer connection once the range is used up. With `bridge`, Docker starts one `docker-proxy` process per published port.

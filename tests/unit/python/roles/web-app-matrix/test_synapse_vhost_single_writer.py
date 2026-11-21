@@ -89,7 +89,7 @@ class TestSynapseVhostSingleWriter(unittest.TestCase):
         self.assertEqual(
             writers,
             [],
-            "sys-stk-front-proxy owns the Synapse vhost; a second writer flips "
+            "svc-stack owns the Synapse vhost; a second writer flips "
             "its content every deploy and forces an OpenResty redeploy",
         )
 

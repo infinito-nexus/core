@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 import subprocess
-import time
 import urllib.request
 from contextlib import contextmanager
 from pathlib import Path
@@ -12,24 +11,30 @@ from typing import TYPE_CHECKING
 
 from utils.cache.yaml import load_yaml
 from utils.i18n.client import merge
-from utils.inventory.tools_vars import LANE_SERVICE, render
+from utils.infra import (
+    GATEWAY_PORT_KEY,
+    INFRA_UP,
+    LOOPBACK,
+    ROOTS_OVERRIDE,
+    RUNNER_CONTAINER_KEY,
+)
+from utils.infra_inventory import deploy_commands
+from utils.inventory.tools_idle import session, stamp_dir
+from utils.inventory.tools_vars import render
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-__all__ = ["merge", "server"]
+__all__ = ["GATEWAY_SERVICE_KEY", "merge", "server"]
 
 ROLE = "svc-ai-libretranslate-engine"
 SERVICE_KEY = "libretranslate-engine"
 SERVICES_FILE = Path("roles") / ROLE / ROLE_FILE_META_SERVICES
 GATEWAY_ROLE = "web-svc-translate"
 GATEWAY_SERVICE_KEY = "translate"
-GATEWAY_SERVICES_FILE = Path("roles") / GATEWAY_ROLE / ROLE_FILE_META_SERVICES
-POLL_SECONDS = 5
 DEPLOYED_TIMEOUT_SECONDS = 5
 DEPLOY_TIMEOUT_SECONDS = 4 * 3600
-RUNNER_TIMEOUT_SECONDS = 300
 INVENTORY_DIR = Path.home() / "inventories" / "infinito-tools"
 DEPLOY_PID_FILE = Path("build") / "deploy.pid"
 DEPLOY_ROUTER = "deploy/main.sh"
@@ -68,10 +73,11 @@ def service_url(root: Path) -> str:
 
     Args:
         root: repository root.
+
+    Returns:
+        The loopback port the infra runner publishes the gateway on.
     """
-    service = load_yaml(root / GATEWAY_SERVICES_FILE)[GATEWAY_SERVICE_KEY]
-    host = environment(root)["INFINITO_BIND_IP"]
-    return f"http://{host}:{service['ports']['local']['http']}"
+    return f"http://{LOOPBACK}:{environment(root)[GATEWAY_PORT_KEY]}"
 
 
 def probe(url: str) -> str:
@@ -179,31 +185,6 @@ def local_image(root: Path, env: dict[str, str]) -> str:
     ).stdout.strip()
 
 
-def await_runner(name: str, env: dict[str, str]) -> None:
-    """Block until the tools runner is up, so no exec falls back to another container.
-
-    Args:
-        name: container name of the runner.
-        env: environment the docker CLI runs with.
-
-    Raises:
-        RuntimeError: the runner never reached the running state.
-    """
-    deadline = time.monotonic() + RUNNER_TIMEOUT_SECONDS
-    while time.monotonic() < deadline:
-        state = subprocess.run(
-            ["docker", "inspect", name, "--format", "{{.State.Running}}"],
-            capture_output=True,
-            text=True,
-            check=False,
-            env=env,
-        )
-        if state.stdout.strip() == "true":
-            return
-        time.sleep(POLL_SECONDS)
-    raise RuntimeError(f"The tools runner {name} did not reach the running state.")
-
-
 def served_languages(root: Path) -> list[str]:
     """Return the codes this engine's models cover.
 
@@ -229,7 +210,7 @@ def baked_languages(root: Path) -> list[str]:
     return sorted({PIVOT_LANGUAGE, *served_languages(root)})
 
 
-def _vars_file(root: Path) -> Path:
+def _vars_file(root: Path, loaded: dict[str, str]) -> Path:
     """Write the lane's host vars pinning which models the image bakes.
 
     ``load_only`` reaches the Dockerfile as a build ARG, so a value that
@@ -238,18 +219,20 @@ def _vars_file(root: Path) -> Path:
 
     Args:
         root: repository root.
+        loaded: the environment the infra runner starts with, whose cache
+            base the rendered paths must lie below.
 
     Returns:
         The rendered file, beside the template so the container sees it.
     """
-    return render(root, baked_languages(root))
+    return render(root, baked_languages(root), loaded)
 
 
 def deploy(root: Path, roles: tuple[str, ...] = (ROLE, GATEWAY_ROLE)) -> str:
-    """Deploy the named roles into the tools lane's own inventory.
+    """Deploy the named roles inside the machine-wide infra runner.
 
     Args:
-        root: repository root.
+        root: repository root, which the runner sees read-only at its host path.
         roles: the application ids to provision and deploy. Defaults to the
             engine and the gateway in front of it, so the i18n targets are
             unaffected by callers that bring up a different tool.
@@ -257,73 +240,23 @@ def deploy(root: Path, roles: tuple[str, ...] = (ROLE, GATEWAY_ROLE)) -> str:
     Returns:
         The gateway's base URL, empty when it stays unreachable.
     """
-    from cli.administration.deploy.development.env import compose_file_args
+    from cli.administration.deploy.development.stack import infra_compose_argv
 
     loaded = environment(root)
-    inside = [
-        "docker",
-        "compose",
-        *compose_file_args(),
-        "exec",
-        "-T",
-        "-w",
-        loaded["INFINITO_SRC_DIR"],
-        LANE_SERVICE,
-        "python",
-        "-m",
-    ]
-    bootstrap = "scripts/tests/deploy/local/utils/entry-bootstrap.sh"
-    steps = [
-        [
-            "docker",
-            "compose",
-            *compose_file_args(),
-            "--profile",
-            LANE_SERVICE,
-            "up",
-            "-d",
-            LANE_SERVICE,
-        ],
-        [*inside[:-2], "sh", "-lc", "/usr/local/bin/package-frontend-ca.sh"],
-        [*inside[:-2], "systemctl", "daemon-reload"],
-        [*inside[:-2], "bash", f"{loaded['INFINITO_SRC_DIR']}/{bootstrap}"],
-        [
-            *inside,
-            "cli.administration.inventory.provision",
-            str(INVENTORY_DIR),
-            "--include",
-            *roles,
-            "--vars-file",
-            f"{loaded['INFINITO_SRC_DIR']}/{_vars_file(root).relative_to(root)}",
-        ],
-        [
-            *inside,
-            "cli.administration.deploy.dedicated",
-            str(INVENTORY_DIR / "devices.yml"),
-            "--password-file",
-            str(INVENTORY_DIR / ".password"),
-            "--skip-backup",
-            "--skip-cleanup",
-            "--skip-pull",
-        ],
-    ]
     outer = {
         **loaded,
         "PYTHONUNBUFFERED": "1",
         "INFINITO_IMAGE": loaded.get("INFINITO_IMAGE") or local_image(root, loaded),
     }
-    name = lane_container(loaded)
-    runner = {**outer, "INFINITO_CONTAINER": name}
-    for index, step in enumerate(steps):
+    compose = infra_compose_argv(root, [ROOTS_OVERRIDE])
+    steps = [
+        list(INFRA_UP),
+        *deploy_commands(compose, root, _vars_file(root, loaded), INVENTORY_DIR, roles),
+    ]
+    for step in steps:
         subprocess.run(
-            step,
-            cwd=root,
-            check=True,
-            timeout=DEPLOY_TIMEOUT_SECONDS,
-            env=outer if index == 0 else runner,
+            step, cwd=root, check=True, timeout=DEPLOY_TIMEOUT_SECONDS, env=outer
         )
-        if index == 0:
-            await_runner(name, outer)
     if accelerated():
         (root / GPU_STAMP).parent.mkdir(exist_ok=True)
         (root / GPU_STAMP).touch()
@@ -355,17 +288,18 @@ def server(root: Path, redeploy: bool = False) -> Iterator[str]:
             "would touch. Wait for it to finish and re-run. The running deploy is "
             "left untouched."
         )
-    running = "" if redeploy or unaccelerated(root) else deployed(root)
-    yield running or deploy(root)
+    with session(stamp_dir(environment(root))):
+        running = "" if redeploy or unaccelerated(root) else deployed(root)
+        yield running or deploy(root)
 
 
 def lane_container(env: dict[str, str]) -> str:
-    """Return the name of the container the tools lane deploys into.
+    """Return the name of the infra runner the tools deploy into.
 
     Args:
         env: the process environment the deploy CLIs expect.
     """
-    return f"{env['INFINITO_CONTAINER']}_{LANE_SERVICE}"
+    return env[RUNNER_CONTAINER_KEY]
 
 
 def download_status(root: Path) -> str:

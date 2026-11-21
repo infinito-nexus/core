@@ -112,6 +112,14 @@ class TestReleaseAfterRescue(unittest.TestCase):
             max(copies), calls.index(next(c for c in calls if c.startswith("teardown")))
         )
 
+    def test_each_artefact_lands_at_its_own_path_on_the_host(self) -> None:
+        _, calls = release("", 0)
+        pairs = [call.split()[2:] for call in calls if call.startswith("docker cp ")]
+        self.assertEqual(
+            [src for src, _ in pairs], [f"act-id:{dst}." for _, dst in pairs]
+        )
+        self.assertIn("/tmp/playwright-artifacts/", [dst for _, dst in pairs])
+
     def test_keep_true_saves_but_leaves_the_cluster_up(self) -> None:
         done, calls = release("true", 1)
         self.assertEqual(done.returncode, 1)
@@ -158,6 +166,16 @@ class TestSwarmZombieWiring(unittest.TestCase):
             "INFINITO_CACHE_HOST_PACMAN_PATH",
         ):
             self.assertIn(f"{key}=$${{{key}:-}};", self.recipe)
+
+    def test_a_row_discovery_cannot_return_stops_the_target_before_act(self) -> None:
+        self.assertIn(
+            "-m cli.meta.ci.validate --require-discovery --modes swarm --whitelist",
+            self.recipe,
+        )
+        self.assertLess(
+            self.recipe.index("cli.meta.ci.validate --require-discovery"),
+            self.recipe.index("clean/teardown.sh"),
+        )
 
     def test_keep_decides_whether_the_act_job_keeps_the_nodes(self) -> None:
         self.assertIn("keep='$(keep)'", self.recipe)

@@ -1,0 +1,7 @@
+{%- set espocrm_locked = namespace(fields={}) -%}
+{%- for espocrm_field in ESPOCRM_FORM_SETTINGS -%}
+{%- set espocrm_parts = espocrm_field.split('_') -%}
+{%- set espocrm_locked.fields = espocrm_locked.fields | combine({espocrm_parts[0] ~ (espocrm_parts[1:] | map('capitalize') | join): {'readOnly': true}}) -%}
+{%- endfor -%}
+Resources/module.json {{ {'order': 100} | to_json | b64encode }}
+Resources/metadata/entityDefs/Settings.json {{ {'fields': espocrm_locked.fields} | to_json | b64encode }}

@@ -16,12 +16,17 @@ from typing import TYPE_CHECKING, Any
 
 from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils.roles.applications.mcp import derive_mcp_presence
-from utils.roles.mapping import ROLE_FILE_META_VARIANTS, ROLE_FILE_META_VOLUMES
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_VARIANTS,
+    ROLE_FILE_META_VOLUMES,
+)
 
 from .addons import META_ADDONS_DIR, load_addons_dir
 from .base import (
     _RENDER_GUARD,
     _cache_key,
+    _decrypt_ansible_encrypted_strings,
     _deep_merge,
     _render_with_templar,
     _resolve_override_mapping,
@@ -42,6 +47,8 @@ _VARIANT_OVERRIDES_ONLY_CACHE: dict[str, dict[str, list[dict[str, Any]]]] = {}
 _MERGED_APPLICATIONS_CACHE: dict[tuple, dict[str, Any]] = {}
 
 _CANONICAL_VOLUMES_BY_ROLE: dict[str, dict[str, Any]] = {}
+
+_UNRENDERED_FORMS_KEY = ROLE_FILE_META_FORMS.rsplit("/", 1)[-1].removesuffix(".yml")
 
 _META_TOPICS: tuple[str, ...] = (
     "server",
@@ -314,6 +321,27 @@ def get_variants(
     return cached if readonly else copy.deepcopy(cached)
 
 
+def with_variants(
+    applications: Mapping[str, Any],
+    available: Mapping[str, list[Any]],
+    variants: Mapping[str, int],
+) -> dict[str, Any]:
+    """Return applications with every app of variants swapped to that variant.
+
+    Args:
+        applications: the base configurations, left untouched.
+        available: the `get_variants` map of the same roles tree.
+        variants: per-app variant index; an index the app does not declare
+            keeps its base configuration.
+    """
+    result = dict(applications)
+    for app_id, index in variants.items():
+        app_variants = available.get(app_id) or []
+        if 0 <= index < len(app_variants):
+            result[app_id] = app_variants[index]
+    return result
+
+
 def _build_variant_overrides_only(
     roles_dir: Path,
 ) -> dict[str, list[dict[str, Any]]]:
@@ -354,11 +382,10 @@ def get_merged_applications(
 ) -> dict[str, Any]:
     """Return the applications payload for *variables*, cached per key.
 
-    A re-entrant call returns before ``_MERGED_APPLICATIONS_CACHE``
-    is written, because its payload carries no users and keeps its volumes. It
-    is therefore memoised on the render guard instead, which drops it when the
-    guard releases. Without that, one template render recomputed the payload
-    for every ``lookup('applications')`` it made.
+    A re-entrant call returns the unrendered payload, memoised on the render
+    guard with every vault value decrypted, so a nested lookup reads the same
+    plaintext credential. ``forms`` and ``volumes`` stay unrendered; each
+    application renders with ``application_id`` bound to its own id.
     """
     from .users import get_merged_users
 
@@ -390,14 +417,22 @@ def get_merged_applications(
         payloads = getattr(_RENDER_GUARD, "nested_payloads", None)
         if payloads is None:
             payloads = _RENDER_GUARD.nested_payloads = {}
-        payloads[cache_key] = merged
-        return merged
+        payloads[cache_key] = _decrypt_ansible_encrypted_strings(merged)
+        return payloads[cache_key]
 
-    _RENDER_GUARD.nested_payloads = {cache_key: copy.deepcopy(merged)}
+    _RENDER_GUARD.nested_payloads = {
+        cache_key: _decrypt_ansible_encrypted_strings(merged)
+    }
 
     for app_cfg in merged.values():
         if isinstance(app_cfg, dict):
             app_cfg.pop("volumes", None)
+
+    raw_forms = {
+        app_id: app_cfg.pop(_UNRENDERED_FORMS_KEY)
+        for app_id, app_cfg in merged.items()
+        if isinstance(app_cfg, dict) and _UNRENDERED_FORMS_KEY in app_cfg
+    }
 
     _RENDER_GUARD.applications = True
     try:
@@ -406,13 +441,16 @@ def get_merged_applications(
             roles_dir=roles_dir,
             templar=None,
         )
-        rendered = _render_with_templar(
-            merged,
-            templar=templar,
-            variables=variables,
-            raw_applications=merged,
-            raw_users=raw_users,
-        )
+        rendered = {
+            app_id: _render_with_templar(
+                app_cfg,
+                templar=templar,
+                variables={**variables, "application_id": app_id},
+                raw_applications=merged,
+                raw_users=raw_users,
+            )
+            for app_id, app_cfg in merged.items()
+        }
     finally:
         _RENDER_GUARD.applications = False
         _RENDER_GUARD.nested_payloads = {}
@@ -421,6 +459,9 @@ def get_merged_applications(
         raw_volumes = get_canonical_volumes(app_id)
         if raw_volumes and isinstance(rendered[app_id], dict):
             rendered[app_id]["volumes"] = copy.deepcopy(raw_volumes)
+    for app_id, forms in raw_forms.items():
+        if isinstance(rendered.get(app_id), dict):
+            rendered[app_id][_UNRENDERED_FORMS_KEY] = copy.deepcopy(forms)
 
     _MERGED_APPLICATIONS_CACHE[cache_key] = rendered
     return rendered

@@ -1,0 +1,11 @@
+---
+- name: "▶️ Run Mattermost setup routines"
+  include_tasks: ../01_setup.yml
+
+- name: "🔧 Configure Keycloak OIDC mappers for Mattermost"
+  include_tasks: ../02_keycloak.yml
+  when: MATTERMOST_OIDC_ENABLED | bool
+
+- name: "🧩 Provision the Mattermost addons"
+  include_tasks: ../04_addons.yml
+  when: MATTERMOST_ADDONS_ENABLED | length > 0

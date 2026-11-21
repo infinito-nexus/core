@@ -38,9 +38,45 @@ SUITECRM_OIDC_ONION_ISSUER: "{{ (lookup('tls', 'web-app-keycloak', 'domain') | n
 SUITECRM_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if SUITECRM_OIDC_ONION_ISSUER | bool else '' }}"
 
 SUITECRM_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+SUITECRM_LOGIN_SSO: "{{ lookup('config', application_id, 'services.suitecrm.login.method.sso.enabled') | bool }}"
+SUITECRM_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.suitecrm.login.method.ldap.enabled') | bool }}"
+SUITECRM_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.suitecrm.login.method.native.enabled') | bool }}"
+SUITECRM_LOGIN_2FA: "{{ lookup('config', application_id, 'services.suitecrm.login.method.2fa.enabled') | bool }}"
 SUITECRM_LDAP_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'ldap.yaml'] | path_join }}"
 SUITECRM_SESSION_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'session.yaml'] | path_join }}"
 SUITECRM_LDAP_EXTENSION_DIR: "{{ [SUITECRM_APP_DIR, 'extensions', SUITECRM_WELL_SOFTWARE_NAME, 'config/services/ldap'] | path_join }}"
+SUITECRM_LDAP_MEMBER_OF_ATTRIBUTE: "{{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}"
+SUITECRM_RBAC_LOGIN_ROLES:
+  - administrator
+  - user
+SUITECRM_LDAP_LOGIN_FILTER: >-
+  (&({{ LDAP.USER.ATTRIBUTES.ID }}={username})(|{% for suitecrm_rbac_role in SUITECRM_RBAC_LOGIN_ROLES %}({{ SUITECRM_LDAP_MEMBER_OF_ATTRIBUTE }}=cn={{ application_id
+  }}-{{ suitecrm_rbac_role }},{{ LDAP.DN.OU.ROLES }}){% endfor %}))
+SUITECRM_RBAC_GROUP_PATHS:
+  administrator: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+  user: "/{{ lookup('rbac_group_path', application_id=application_id, role='user') }}"
+SUITECRM_SAML_LOGIN_GROUPS: "{{ SUITECRM_RBAC_LOGIN_ROLES | map('extract', SUITECRM_RBAC_GROUP_PATHS) | list }}"
+SUITECRM_SAML_ADMINISTRATOR_GROUPS: "{{ [SUITECRM_RBAC_GROUP_PATHS.administrator] }}"
+SUITECRM_SAML_PROTECTED_USERS: "{{ [SUITECRM_ADMIN_USERNAME | lower] }}"
+SUITECRM_PROFILE_FIELDS: >-
+  {{ {
+    LDAP.USER.ATTRIBUTES.PHONE: {'column': 'phone_work', 'length': 50},
+    LDAP.USER.ATTRIBUTES.MOBILE: {'column': 'phone_mobile', 'length': 50},
+    LDAP.USER.ATTRIBUTES.TITLE: {'column': 'title', 'length': 50},
+    LDAP.USER.ATTRIBUTES.DEPARTMENT: {'column': 'department', 'length': 50},
+    LDAP.USER.ATTRIBUTES.STREET: {'column': 'address_street', 'length': 150},
+    LDAP.USER.ATTRIBUTES.LOCALITY: {'column': 'address_city', 'length': 100},
+    LDAP.USER.ATTRIBUTES.REGION: {'column': 'address_state', 'length': 100},
+    LDAP.USER.ATTRIBUTES.POSTAL_CODE: {'column': 'address_postalcode', 'length': 20},
+    LDAP.USER.ATTRIBUTES.COUNTRY: {'column': 'address_country', 'length': 100}
+  } }}
+SUITECRM_SAML_PROFILE_COLUMNS: >-
+  {{ {'firstName': {'column': 'first_name', 'length': 255}, 'lastName': {'column': 'last_name', 'length': 255}} | combine(SUITECRM_PROFILE_FIELDS) }}
+SUITECRM_LDAP_PROFILE_COLUMNS: >-
+  {{ {LDAP.USER.ATTRIBUTES.FIRSTNAME: {'column': 'first_name', 'length': 255}, LDAP.USER.ATTRIBUTES.SURNAME: {'column': 'last_name', 'length': 255}} | combine(SUITECRM_PROFILE_FIELDS)
+  }}
+SUITECRM_IAM_SAML_SYNC_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'SamlDirectorySync.php'] | path_join }}"
+SUITECRM_IAM_LDAP_PROVIDER_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'ProfileLdapUserProvider.php'] | path_join }}"
 
 SUITECRM_ENTRYPOINT_SCRIPT_FILE: "docker-entrypoint.sh"
 SUITECRM_ENTRYPOINT_SCRIPT_SRC: "shell/{{ SUITECRM_ENTRYPOINT_SCRIPT_FILE }}"

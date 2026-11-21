@@ -2,7 +2,7 @@
 - name: "⏳ Keycloak login | Wait for keycloak container to be running"
   ansible.builtin.shell: >
     container inspect --type container -f '{{ "{{" }}.State.Running{{ "}}" }}'
-    {{ lookup('container_address', application_id, entity_name) }}
+    {{ KEYCLOAK_LOGIN_ADDRESS }}
   register: kc_running_compose
   changed_when: false
   retries: 60
@@ -15,9 +15,10 @@
 - name: "🔍 Keycloak login | Resolve hosting node + container id"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
   vars:
-    resolve_service_key: "{{ entity_name }}"
+    resolve_service_key: keycloak
+    resolve_service_name: "{{ KEYCLOAK_LOGIN_SERVICE if IS_SWARM_MODE else '' }}"
     resolve_output_prefix: KEYCLOAK
-    resolve_compose_cid: "{{ lookup('container_address', application_id, entity_name) }}"
+    resolve_compose_cid: "{{ KEYCLOAK_LOGIN_ADDRESS }}"
     resolve_converge_retries: 120
     resolve_converge_delay: 5
 
@@ -35,11 +36,10 @@
 - name: 🔑 Try login with permanent admin (uses container ENV)
   ansible.builtin.shell: | # nocheck: container-exec-resolver  KEYCLOAK_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
     container exec -i {{ KEYCLOAK_LOCAL_CID | quote }} sh -lc '
-      {{ KEYCLOAK_KCADM }} config credentials \
+      KC_CLI_PASSWORD="$KEYCLOAK_PERMANENT_ADMIN_PASSWORD" {{ KEYCLOAK_KCADM }} config credentials \
         --server {{ KEYCLOAK_SERVER_INTERNAL_URL }} \
         --realm master \
-        --user "$KEYCLOAK_PERMANENT_ADMIN_USERNAME" \
-        --password "$KEYCLOAK_PERMANENT_ADMIN_PASSWORD"
+        --user "$KEYCLOAK_PERMANENT_ADMIN_USERNAME"
     '
   register: kc_login_perm
   changed_when: false
@@ -51,7 +51,7 @@
   block:
     - name: ♻️ Absorb a rotation with the credential the previous deploy used
       ansible.builtin.include_tasks:
-        file: converge_previous_admin.yml
+        file: converge/previous_admin.yml
         apply:
           delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
           no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

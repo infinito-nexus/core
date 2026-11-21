@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { skipUnlessServiceEnabled, isServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm, gotoOnion } = require("./personas");
 
 const baseUrl = normalizeBaseUrl(process.env.POSTMARKS_BASE_URL || "");
@@ -51,7 +51,7 @@ test("oidc-security: a forged identity header cannot bypass the oauth2-proxy gat
 });
 
 test("oidc-security: the trusted-header bridge stays inert while SSO is disabled", async ({ browser }) => {
-  test.skip(isServiceEnabled("sso"), "SSO enabled — forged-header gating is covered by the tests above");
+  skipUnlessServiceDisabled("sso");
   expect(baseUrl, "POSTMARKS_BASE_URL must be set").toBeTruthy();
 
   const expectedBase = baseUrl.replace(/\/$/, "");

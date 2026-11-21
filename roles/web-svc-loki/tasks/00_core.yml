@@ -1,0 +1,66 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🧩 load docker for {{ application_id }}"
+  include_role:
+    name: svc-stack
+    tasks_from: consumer/back.yml
+
+- name: "🕸️ Pre-create the Prometheus network the ruler reaches Alertmanager on"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
+  vars:
+    network_role_id: web-app-prometheus
+  when: LOKI_ALERTMANAGER_ENABLED | bool
+
+- name: "📄 Render the Loki, ruler and ingest gateway configuration (local + swarm peers)"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "loki.yaml.j2"
+        dest: "{{ LOKI_CONFIG_HOST }}"
+        mode: "0644"
+      - src: "rules.yaml.j2"
+        dest: "{{ LOKI_RULES_HOST }}"
+        mode: "0644"
+      - src: "gateway.alloy.j2"
+        dest: "{{ LOKI_GATEWAY_CONFIG_HOST }}"
+        mode: "0644"
+
+- name: "🚿 flush handlers for '{{ application_id }}'"
+  meta: flush_handlers
+
+- name: "🔍 Resolve the Loki hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: loki
+    resolve_output_prefix: LOKI
+    resolve_compose_cid: "{{ LOKI_CONTAINER_ADDRESS }}"
+
+- name: "⏳ Wait until Loki answers /ready"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "🔍 Resolve the Loki network namespace"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+      vars:
+        netns_output_prefix: LOKI
+
+    - name: "⏳ Wait until Loki answers /ready inside its network namespace"
+      ansible.builtin.command:
+        argv: "{{ LOKI_NETNS_PYTHON }}"
+        stdin: "{{ lookup('http_request_program', '') }}"
+      environment:
+        HTTP_METHOD: GET
+        HTTP_URL: "{{ LOKI_NETNS_URL }}/ready"
+      register: loki_ready
+      until: loki_ready.rc == 0 and (loki_ready.stdout | from_json).status == 200
+      retries: 60
+      delay: 5
+      changed_when: false
+      delegate_to: "{{ LOKI_HOST_NODE }}"
+      become: true
+
+- name: "📂 Include front proxy for {{ application_id }}"
+  include_role:
+    name: svc-stack
+    tasks_from: consumer/front.yml

@@ -1,0 +1,4 @@
+{# Param semaphore_workspace_targets: WORKSPACE_TARGETS as workspace.py pinned them, [{host, port, address}]. #}
+{% for target in semaphore_workspace_targets if target.host != target.address %}
+{{ target.address }} {{ target.host }}
+{% endfor %}

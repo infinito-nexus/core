@@ -12,15 +12,12 @@
 
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-    compose_repository_pull: false
-    webserver_extra_configuration: "{{ lookup('template', 'nginx/sso.html.conf.j2') }}"
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🌐 Load the port-ui content catalogs from the core translations"
   set_fact:
-    dashboard_i18n_content: "{{ lookup('i18n_content', 'role:', 'menu:') }}"
+    dashboard_i18n_content: "{{ lookup('i18n_content', 'role:', 'menu:', 'logout:choice_') }}"
   run_once: true
 
 - name: "🏠 Stack-host side of the dashboard deployment"

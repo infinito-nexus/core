@@ -26,6 +26,7 @@ Environment={{ _environment }}
   ('ExecStartPre',    system_service_tpl_exec_start_pre),
   ('ExecStart',       system_service_tpl_exec_start),
   ('ExecStartPost',   system_service_tpl_exec_start_post),
+  ('ExecStopPost',    system_service_tpl_exec_stop_post),
   ('RuntimeMaxSec',   system_service_tpl_runtime),
 ] %}
 {% set directive = val | systemd_directive(key) %}

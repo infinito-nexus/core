@@ -1,0 +1,86 @@
+{#
+  login_client renders a confidential login client on the URLs of one application.
+  consumer_client renders the login client of one consuming application, accepting every path below its origins as redirect URI.
+
+  Args:
+    application_id: the application; the origins of its canonical URL bound the redirect URIs and web origins.
+    client_id: the client id; a consuming application declares it under services.sso.oidc.clients.
+    name: the display name of the client.
+    secret: the client secret, from the application's own credentials.
+    login_url: true sets rootUrl and baseUrl on the application's origin, where Keycloak returns an accepted invitation.
+    audience: true adds one audience mapper that names the client itself in the aud of its access tokens.
+    scopes: default client scopes the client gets beyond the shared login scopes.
+    redirect_path: login_client only; the path below each origin that Keycloak accepts as redirect URI.
+#}
+{% macro login_client(application_id, client_id, name, secret, login_url, audience, scopes, redirect_path) -%}
+{%- set kc_consumer_origins = lookup('network_urls', lookup('tls', application_id, 'url.origin')) -%}
+{%- set kc_consumer_redirects = kc_consumer_origins | map('regex_replace', '$', redirect_path) | list -%}
+{
+  "clientId": {{ client_id | to_json }},
+  "name": {{ name | to_json }},
+  "description": {{ ('Confidential login client of ' ~ application_id ~ '; the standard flow only, on the URLs of its own application.') | to_json }},
+{% if login_url | bool %}
+  "rootUrl": {{ kc_consumer_origins | first | to_json }},
+  "baseUrl": {{ kc_consumer_origins | first | to_json }},
+{% endif %}
+  "surrogateAuthRequired": false,
+  "enabled": true,
+  "alwaysDisplayInConsole": false,
+  "clientAuthenticatorType": "client-secret",
+  "secret": {{ secret | to_json }},
+  "redirectUris": {{ kc_consumer_redirects | to_json }},
+  "webOrigins": {{ kc_consumer_origins | to_json }},
+  "notBefore": 0,
+  "bearerOnly": false,
+  "consentRequired": false,
+  "standardFlowEnabled": true,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": false,
+  "serviceAccountsEnabled": false,
+  "publicClient": false,
+  "frontchannelLogout": true,
+  "protocol": "openid-connect",
+  "attributes": {
+    "frontchannel.logout.url": {{ KEYCLOAK_FRONTCHANNEL_LOGOUT_URL | to_json }},
+    "frontchannel.logout.session.required": "true",
+    "backchannel.logout.session.required": "true",
+    "backchannel.logout.revoke.offline.tokens": "false",
+    "post.logout.redirect.uris": {{ KEYCLOAK_POST_LOGOUT_URIS | to_json }},
+    "realm_client": "false",
+    "oidc.ciba.grant.enabled": "false",
+    "oauth2.device.authorization.grant.enabled": "false",
+    "standard.token.exchange.enabled": "false",
+    "display.on.consent.screen": "false"
+  },
+  "authenticationFlowBindingOverrides": {},
+  "fullScopeAllowed": true,
+  "nodeReRegistrationTimeout": -1,
+{% if audience | bool %}
+  "protocolMappers": [
+    {
+      "name": "audience",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-audience-mapper",
+      "consentRequired": false,
+      "config": {
+        "included.client.audience": {{ client_id | to_json }},
+        "id.token.claim": "false",
+        "access.token.claim": "true",
+        "introspection.token.claim": "true"
+      }
+    }
+  ],
+{% endif %}
+  "defaultClientScopes": {{ (['web-origins', 'acr', 'roles', 'profile', 'basic', 'email', 'openid', KEYCLOAK_RBAC_GROUP_CLAIM] + scopes) | to_json }},
+  "optionalClientScopes": [
+    "address",
+    "phone",
+    "organization",
+    "offline_access",
+    "microprofile-jwt"
+  ]
+}
+{%- endmacro %}
+{% macro consumer_client(application_id, client_id, name, secret, login_url, audience, scopes) -%}
+{{ login_client(application_id, client_id, name, secret, login_url, audience, scopes, '/*') }}
+{%- endmacro %}

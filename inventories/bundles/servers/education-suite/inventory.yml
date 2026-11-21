@@ -28,7 +28,10 @@ all:
     web-app-openwebui:
       hosts:
         server:
-    web-app-mailu:
+    web-app-email:
+      hosts:
+        server:
+    web-app-stalwart:
       hosts:
         server:
     web-app-keycloak:

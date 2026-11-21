@@ -1,0 +1,5 @@
+---
+vhosts:
+  default:
+    flavour: "ws_generic"
+    websocket_location: "/websocket"

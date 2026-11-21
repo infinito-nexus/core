@@ -114,7 +114,7 @@ class TestAgentToolFilter(unittest.TestCase):
             _render(
                 OPENCLAW,
                 "openclaw.json.j2",
-                NETWORK_TRUSTED_PROXY_CIDRS=["127.0.0.1/32", "::1/128", "10.0.0.0/8"],
+                OPENCLAW_TRUSTED_PROXY_SOURCES=["192.168.0.0/16"],
                 OPENCLAW_CONTROL_UI_ORIGINS=["https://claw.example.org"],
                 OPENCLAW_LITELLM_ENABLED=False,
                 OPENCLAW_MCP_SERVERS=SERVERS,
@@ -131,7 +131,7 @@ class TestAgentToolFilter(unittest.TestCase):
             _render(
                 OPENCLAW,
                 "openclaw.json.j2",
-                NETWORK_TRUSTED_PROXY_CIDRS=["127.0.0.1/32", "::1/128", "10.0.0.0/8"],
+                OPENCLAW_TRUSTED_PROXY_SOURCES=["192.168.0.0/16"],
                 OPENCLAW_CONTROL_UI_ORIGINS=["https://claw.example.org"],
                 OPENCLAW_LITELLM_ENABLED=False,
                 OPENCLAW_MCP_SERVERS=SERVERS,
@@ -156,7 +156,7 @@ class TestAgentToolFilter(unittest.TestCase):
             _render(
                 OPENCLAW,
                 "openclaw.json.j2",
-                NETWORK_TRUSTED_PROXY_CIDRS=["127.0.0.1/32", "::1/128", "10.0.0.0/8"],
+                OPENCLAW_TRUSTED_PROXY_SOURCES=["192.168.0.0/16"],
                 OPENCLAW_CONTROL_UI_ORIGINS=["https://claw.example.org"],
                 OPENCLAW_LITELLM_ENABLED=False,
                 OPENCLAW_MCP_SERVERS=SERVERS,

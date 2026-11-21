@@ -39,6 +39,7 @@ HELPERS_SRC="${REPO_ROOT}/roles/test-e2e-playwright/files"
 PERSONAS_SRC="${HELPERS_SRC}/personas"
 PLAYWRIGHT_CONFIG_SRC="${HELPERS_SRC}/playwright.config.js"
 ROLE_VARS_SRC="${REPO_ROOT}/roles/test-e2e-playwright/vars/main.yml"
+PASS_TASKS_SRC="${REPO_ROOT}/roles/test-e2e-playwright/tasks/03_run_pass.yml"
 
 mapfile -t CONFIG_TIMEOUT_ENV < <(
 	sed -n '/^TEST_E2E_PLAYWRIGHT_CONFIG_TIMEOUTS:/,/^[^[:space:]#]/p' "${ROLE_VARS_SRC}" |
@@ -83,6 +84,7 @@ stub_env_for_key() {
 	*_BLOCKED | *BLOCKED) printf '%s' "false" ;;
 	*_EMAIL | *EMAIL) printf '%s' "stub@example.test" ;;
 	*_JSON | *JSON | *SLUGS | *OVERRIDE) printf '%s' "[]" ;;
+	*_SUFFIXES) printf '%s' "{}" ;;
 	*_HANDLE | *HANDLE) printf '%s' "stubhandle" ;;
 	*_PASSWORD | *PASSWORD) printf '%s' "stubpass" ;;
 	*_TOKEN | *TOKEN | *_KEY | *KEY) printf '%s' "stubtoken" ;;
@@ -90,6 +92,16 @@ stub_env_for_key() {
 	*) printf '%s' "stub" ;;
 	esac
 }
+
+mapfile -t PASS_STUB_ENV < <(
+	sed -nE 's/^[[:space:]]+(PLAYWRIGHT_[A-Z0-9_]+)=.*/\1/p' "${PASS_TASKS_SRC}" | sort -u |
+		while IFS= read -r key; do printf '%s=%s\n' "${key}" "$(stub_env_for_key "${key}")"; done
+)
+
+if [[ ${#PASS_STUB_ENV[@]} -eq 0 ]]; then
+	echo "lint-playwright: no PLAYWRIGHT_* keys read from ${PASS_TASKS_SRC}; a spec reading one at module load would throw" >&2
+	exit 2
+fi
 
 # Reset reporter output paths to a per-role writable location. The
 # central playwright.config.js hard-codes `/reports/...` (only writable
@@ -141,7 +153,7 @@ lint_one_role() {
 
 	ln -sfn "${REPO_ROOT}/node_modules" "${stage_dir}/node_modules"
 
-	local stub_env=("${CONFIG_TIMEOUT_ENV[@]}")
+	local stub_env=("${CONFIG_TIMEOUT_ENV[@]}" "${PASS_STUB_ENV[@]}")
 	local env_template="roles/${role}/templates/playwright.env.j2"
 	if [[ -f "${env_template}" ]]; then
 		local key

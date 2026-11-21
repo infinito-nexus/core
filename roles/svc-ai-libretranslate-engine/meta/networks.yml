@@ -1,4 +1,1012 @@
 ---
+cache:
+  repos:
+    raw-github:
+      flavor: raw
+      upstream: https://github.com/
+  hosts:
+    github.com:
+      repo: raw-github
+      hijack: "false"
+  artefacts:
+    argos-en_ar-1_0:
+      url: https://argos-net.com/v1/translate-en_ar-1_0.argosmodel
+      revision: "1_0"
+      sha256: "e2a6e84337f7ebbb55f9dc61dcba3a861c0d786ae5a46fa198fd8d6473f5c775"
+      bytes: "88502631"
+      unpacked_bytes: "96366075"
+    argos-en_az-1_5:
+      url: https://argos-net.com/v1/translate-en_az-1_5.argosmodel
+      revision: "1_5"
+      sha256: "04599eef1e4beda939a800735203e2b973cfe44d6452564617dfa1dbcde306fd"
+      bytes: "124622164"
+      unpacked_bytes: "135000498"
+    argos-en_bg-1_9:
+      url: https://argos-net.com/v1/translate-en_bg-1_9.argosmodel
+      revision: "1_9"
+      sha256: "28401fbb5f94e1ce8a54e3005beea9d5f08767d67e3e0900940e08722cfc275a"
+      bytes: "72324211"
+      unpacked_bytes: "84710885"
+    argos-en_bn-1_9:
+      url: https://argos-net.com/v1/translate-en_bn-1_9.argosmodel
+      revision: "1_9"
+      sha256: "2b70f590df0170315323442816391552519b6f0d3aa6c2d1184b562a682465a7"
+      bytes: "70958134"
+      unpacked_bytes: "83809681"
+    argos-en_ca-1_9:
+      url: https://argos-net.com/v1/translate-en_ca-1_9.argosmodel
+      revision: "1_9"
+      sha256: "67a1ef9e3bab7e1b39b7a75d30aa18beb251489a895b12d8be61c14eab6fca18"
+      bytes: "72211311"
+      unpacked_bytes: "80247098"
+    argos-en_cs-1_9_6:
+      url: https://argos-net.com/v1/translate-en_cs-1_9_6.argosmodel
+      revision: "1_9_6"
+      sha256: "f2f5b93fc5a5aa3aa6bece99e0fa9f80487bb9a2ea4e0c3def58d6a4af37c81f"
+      bytes: "67275814"
+      unpacked_bytes: "83460783"
+    argos-en_da-1_9:
+      url: https://argos-net.com/v1/translate-en_da-1_9.argosmodel
+      revision: "1_9"
+      sha256: "58c22c1b2f78cdfcb1777cccd88c7959c9eef57647a00440148574d6626d6393"
+      bytes: "67523692"
+      unpacked_bytes: "81631603"
+    argos-en_de-1_3:
+      url: https://argos-net.com/v1/translate-en_de-1_3.argosmodel
+      revision: "1_3"
+      sha256: "6cd847f0c06c9c66013e6b0932e07fd54a6d90894659c02bf6c5247b72fb25b1"
+      bytes: "150508297"
+      unpacked_bytes: "164904507"
+    argos-en_el-1_9:
+      url: https://argos-net.com/v1/translate-en_el-1_9.argosmodel
+      revision: "1_9"
+      sha256: "ac5a359363b14490a2c6614e6c5ae4a58a8bbbc739b17a4cb3616fe46f2c329b"
+      bytes: "69660890"
+      unpacked_bytes: "83259747"
+    argos-en_eo-1_5:
+      url: https://argos-net.com/v1/translate-en_eo-1_5.argosmodel
+      revision: "1_5"
+      sha256: "b6c13a02fce1fe93fd4a79fdbd68418469e411ed3c82c93365aef6fd222cccc5"
+      bytes: "124626527"
+      unpacked_bytes: "134956927"
+    argos-en_es-1_0:
+      url: https://argos-net.com/v1/translate-en_es-1_0.argosmodel
+      revision: "1_0"
+      sha256: "d698d0ef87ad70d5d184b7fa6965905bf4368f09a2bb9ffb165a79bac96af0c4"
+      bytes: "87503191"
+      unpacked_bytes: "96243365"
+    argos-en_et-1_9:
+      url: https://argos-net.com/v1/translate-en_et-1_9.argosmodel
+      revision: "1_9"
+      sha256: "a9497b139efb09d59861e11219e7be4b2fc884b878d700945080a038889cda88"
+      bytes: "156422931"
+      unpacked_bytes: "172658598"
+    argos-en_eu-1_9:
+      url: https://argos-net.com/v1/translate-en_eu-1_9.argosmodel
+      revision: "1_9"
+      sha256: "f49b7a2586485072766961b75956d32b884099c231d64ae0775d29480080dabb"
+      bytes: "75768884"
+      unpacked_bytes: "83763890"
+    argos-en_fa-1_5:
+      url: https://argos-net.com/v1/translate-en_fa-1_5.argosmodel
+      revision: "1_5"
+      sha256: "9960466e7c3ea1732ef8a2260e8f25581498e9b4c3319b442ee1ea8ba0264466"
+      bytes: "124013736"
+      unpacked_bytes: "135047753"
+    argos-en_fi-1_9:
+      url: https://argos-net.com/v1/translate-en_fi-1_9.argosmodel
+      revision: "1_9"
+      sha256: "172c32485b89233983d1bd4d9e73fc22924ec0cb59bae4c97e299fdd4f083e0e"
+      bytes: "69132412"
+      unpacked_bytes: "83514734"
+    argos-en_fr-1_9:
+      url: https://argos-net.com/v1/translate-en_fr-1_9.argosmodel
+      revision: "1_9"
+      sha256: "3a65ed83364f4e7b06e30f9dd823db1934899ed3ce839e63f46dc7b09dc797b4"
+      bytes: "65472327"
+      unpacked_bytes: "82504162"
+    argos-en_ga-1_1:
+      url: https://argos-net.com/v1/translate-en_ga-1_1.argosmodel
+      revision: "1_1"
+      sha256: "32dbf8e9b02de42bdbd7c1b1ce550f1a819c28afcbae3ec523aff43cbbd25b37"
+      bytes: "98857193"
+      unpacked_bytes: "108602161"
+    argos-en_gl-1_9:
+      url: https://argos-net.com/v1/translate-en_gl-1_9.argosmodel
+      revision: "1_9"
+      sha256: "e920c7c8e9f7a810d08518c8741f871a5647a2a8a8f686957fdc255e27553083"
+      bytes: "75779528"
+      unpacked_bytes: "83793250"
+    argos-en_he-1_5:
+      url: https://argos-net.com/v1/translate-en_he-1_5.argosmodel
+      revision: "1_5"
+      sha256: "f4b75e20bd51ccef54f2e09d684f40b7f70e3682a6f17ae42dc9d496bbce4d17"
+      bytes: "125594693"
+      unpacked_bytes: "135087346"
+    argos-en_hi-1_1:
+      url: https://argos-net.com/v1/translate-en_hi-1_1.argosmodel
+      revision: "1_1"
+      sha256: "60470a003a9c7339db8c060ed8eafc7cf999ba90dfa5dceebd8d0a4f75f1d3f0"
+      bytes: "106752178"
+      unpacked_bytes: "117635647"
+    argos-en_hu-1_9:
+      url: https://argos-net.com/v1/translate-en_hu-1_9.argosmodel
+      revision: "1_9"
+      sha256: "63cd48e94fce5041fb0b3ef6394900a5f4ea014f90f9509e57bf10d79d8bbb10"
+      bytes: "67859271"
+      unpacked_bytes: "82938887"
+    argos-en_id-1_9:
+      url: https://argos-net.com/v1/translate-en_id-1_9.argosmodel
+      revision: "1_9"
+      sha256: "fe5773201222806cfc802a094c5758ada6c25e10dbdd306d0c46bf200aac25fd"
+      bytes: "68010209"
+      unpacked_bytes: "79776318"
+    argos-en_it-1_0:
+      url: https://argos-net.com/v1/translate-en_it-1_0.argosmodel
+      revision: "1_0"
+      sha256: "dde2180001a47904ecbbd688a41e35db8a040e4fd5b52e4f29b4bb499516ab32"
+      bytes: "87660780"
+      unpacked_bytes: "96254401"
+    argos-en_ja-1_1:
+      url: https://argos-net.com/v1/translate-en_ja-1_1.argosmodel
+      revision: "1_1"
+      sha256: "16300cc4eaa85320520cabcf433b63d01be40ef6966251de72043a083408f716"
+      bytes: "120470284"
+      unpacked_bytes: "134515061"
+    argos-en_ko-1_1:
+      url: https://argos-net.com/v1/translate-en_ko-1_1.argosmodel
+      revision: "1_1"
+      sha256: "e03d8e65e6d44525ec5808c3409fcf8728c76c2c76925372b6d3dc3278de17fc"
+      bytes: "120789009"
+      unpacked_bytes: "134500573"
+    argos-en_ky-1_4:
+      url: https://argos-net.com/v1/translate-en_ky-1_4.argosmodel
+      revision: "1_4"
+      sha256: "0dfcd45f516e86799771a8f5998888b18f267cb18886682ef3e91036ea593d8d"
+      bytes: "162834659"
+      unpacked_bytes: "162833415"
+    argos-en_lt-1_9:
+      url: https://argos-net.com/v1/translate-en_lt-1_9.argosmodel
+      revision: "1_9"
+      sha256: "d15e1f3cc1042adcc7907234b3a9e6fd19fee20e9f3de6ff5515a31f0b59bedc"
+      bytes: "67740148"
+      unpacked_bytes: "82560605"
+    argos-en_lv-1_9:
+      url: https://argos-net.com/v1/translate-en_lv-1_9.argosmodel
+      revision: "1_9"
+      sha256: "c95a467af846f67531685c57ff42f10548fc2eaf5e7c59f50c05e95a6e00ce73"
+      bytes: "68206333"
+      unpacked_bytes: "82113536"
+    argos-en_ms-1_9:
+      url: https://argos-net.com/v1/translate-en_ms-1_9.argosmodel
+      revision: "1_9"
+      sha256: "c09e2aa67cb1067ca52f71665f38e16a4b4566154a7fe11b18bf77d9dc6d1c7d"
+      bytes: "69068181"
+      unpacked_bytes: "78412165"
+    argos-en_nb-1_9:
+      url: https://argos-net.com/v1/translate-en_nb-1_9.argosmodel
+      revision: "1_9"
+      sha256: "57968230195e64e07ed44f3becc9222b9c7f23e88b6cebaeba3d4b56d3d140fc"
+      bytes: "66218935"
+      unpacked_bytes: "80823347"
+    argos-en_nl-1_8:
+      url: https://argos-net.com/v1/translate-en_nl-1_8.argosmodel
+      revision: "1_8"
+      sha256: "91406f040619fb519e16af9c304709e9f3195297e626eec6924d62c7c981a33b"
+      bytes: "71504559"
+      unpacked_bytes: "86646516"
+    argos-en_pb-1_9:
+      url: https://argos-net.com/v1/translate-en_pb-1_9.argosmodel
+      revision: "1_9"
+      sha256: "1d1cd5e9540c6b38c258bed002a42d3b311b8a189acb74feaa311ef30d175c5b"
+      bytes: "66179201"
+      unpacked_bytes: "82958472"
+    argos-en_pl-1_9:
+      url: https://argos-net.com/v1/translate-en_pl-1_9.argosmodel
+      revision: "1_9"
+      sha256: "85d865369326b6d8220876fbd7bc552fa5ec8b99e81161fab4a26f78187cedbc"
+      bytes: "67294886"
+      unpacked_bytes: "84408011"
+    argos-en_pt-1_9:
+      url: https://argos-net.com/v1/translate-en_pt-1_9.argosmodel
+      revision: "1_9"
+      sha256: "0c5350a2fa5b923de1346edc0d42e08e38bab2e33cede3a0b9a48eb4281ad8a9"
+      bytes: "66179184"
+      unpacked_bytes: "82958454"
+    argos-en_ro-1_9:
+      url: https://argos-net.com/v1/translate-en_ro-1_9.argosmodel
+      revision: "1_9"
+      sha256: "bf8909d2b1e734f73ef4e892fd53c68fa4a96853b5b786b16da596a5ed258003"
+      bytes: "71049078"
+      unpacked_bytes: "82582255"
+    argos-en_ru-1_9:
+      url: https://argos-net.com/v1/translate-en_ru-1_9.argosmodel
+      revision: "1_9"
+      sha256: "591d743ae103752b88ffc38785c50421320f4eff93c8967e0d3d2e14d4e27811"
+      bytes: "195746693"
+      unpacked_bytes: "217259288"
+    argos-en_sk-1_9:
+      url: https://argos-net.com/v1/translate-en_sk-1_9.argosmodel
+      revision: "1_9"
+      sha256: "937a73ea56435772a60623959b4f3873dbe65c3de7446f3462919a32c62fd788"
+      bytes: "71114489"
+      unpacked_bytes: "82840969"
+    argos-en_sl-1_9:
+      url: https://argos-net.com/v1/translate-en_sl-1_9.argosmodel
+      revision: "1_9"
+      sha256: "19bd9c6188f5a36722aac4ed1601b4824b10081efa25fff39de50f1879c37f57"
+      bytes: "69632517"
+      unpacked_bytes: "82539231"
+    argos-en_sq-1_9:
+      url: https://argos-net.com/v1/translate-en_sq-1_9.argosmodel
+      revision: "1_9"
+      sha256: "4d58f26f3e223cc0d35e784e00d496a552c355ba74fe4bee45f7e337561ad312"
+      bytes: "69657647"
+      unpacked_bytes: "82391316"
+    argos-en_sv-1_5:
+      url: https://argos-net.com/v1/translate-en_sv-1_5.argosmodel
+      revision: "1_5"
+      sha256: "d697224b443d212a04d24eb2ea0b615cb663eb24d4d21b70979673507b4d1e49"
+      bytes: "107585048"
+      unpacked_bytes: "134225302"
+    argos-en_sw-1_11:
+      url: https://argos-net.com/v1/translate-en_sw-1_11.argosmodel
+      revision: "1_11"
+      sha256: "994bf9e19f00dd1566ad59e95879a7ea24de19f7b4fc89ab0dcce860580353f2"
+      bytes: "75782172"
+      unpacked_bytes: "83693606"
+    argos-en_th-1_9:
+      url: https://argos-net.com/v1/translate-en_th-1_9.argosmodel
+      revision: "1_9"
+      sha256: "b0fd94eceb04b967b91c2c7d8d1f7b5493c25362e43027a52649242385d0b2a3"
+      bytes: "66978916"
+      unpacked_bytes: "85041886"
+    argos-en_tl-1_9:
+      url: https://argos-net.com/v1/translate-en_tl-1_9.argosmodel
+      revision: "1_9"
+      sha256: "0915f9e7ae617b085c88bc3ac9213e4915008fd2dbb423fcfcd3724f77c5d86b"
+      bytes: "69282709"
+      unpacked_bytes: "81433234"
+    argos-en_tr-1_5:
+      url: https://argos-net.com/v1/translate-en_tr-1_5.argosmodel
+      revision: "1_5"
+      sha256: "2d553a00880a0c21dea5b1c375535659e6bf18c9bf2ce9847c2a2fd2ff50316a"
+      bytes: "124742526"
+      unpacked_bytes: "135000437"
+    argos-en_uk-1_4:
+      url: https://argos-net.com/v1/translate-en_uk-1_4.argosmodel
+      revision: "1_4"
+      sha256: "037ebc690c0f7287bff01b09006f76707d7089134205a91ef3d823a3c73811e3"
+      bytes: "119889246"
+      unpacked_bytes: "134767955"
+    argos-en_ur-1_9:
+      url: https://argos-net.com/v1/translate-en_ur-1_9.argosmodel
+      revision: "1_9"
+      sha256: "5ca67bf37de95941e0eb8b6ad07db197023d13290ab5bd61851d3edc31f0a859"
+      bytes: "69226461"
+      unpacked_bytes: "83399169"
+    argos-en_vi-1_9:
+      url: https://argos-net.com/v1/translate-en_vi-1_9.argosmodel
+      revision: "1_9"
+      sha256: "86957101aa4099aa9a1a7492e41987d938d3cf0fdaf4fb684c0797a9d567dd16"
+      bytes: "67770159"
+      unpacked_bytes: "79379862"
+    argos-en_zh-1_9:
+      url: https://argos-net.com/v1/translate-en_zh-1_9.argosmodel
+      revision: "1_9"
+      sha256: "433e7c4f034d87fbe2353161e05f18646d7999452f801a4e1f0378522b9850ab"
+      bytes: "70743021"
+      unpacked_bytes: "85640765"
+    argos-en_zt-1_9:
+      url: https://argos-net.com/v1/translate-en_zt-1_9.argosmodel
+      revision: "1_9"
+      sha256: "b97b6532196c4421240c0788cb711cc1fe5e5ecbde553c937193d13e5c67826c"
+      bytes: "70743045"
+      unpacked_bytes: "85640793"
+    argos-ar_en-1_0:
+      url: https://argos-net.com/v1/translate-ar_en-1_0.argosmodel
+      revision: "1_0"
+      sha256: "bc98cd4e27ca1cebfae9b7086b2ebc635e4dbed45e7cb5f0891cb7d22feacfad"
+      bytes: "81869670"
+      unpacked_bytes: "96362652"
+    argos-az_en-1_5:
+      url: https://argos-net.com/v1/translate-az_en-1_5.argosmodel
+      revision: "1_5"
+      sha256: "6d5c5d44d268433aaa33b75ac0e50b857bb20350652dcf5b5dbbe10e07990981"
+      bytes: "120826770"
+      unpacked_bytes: "134947297"
+    argos-bg_en-1_9:
+      url: https://argos-net.com/v1/translate-bg_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "a9fd00e8d67fbe6dd9cf07012a284d51916f2d0480a4bfe8add9ba7fd4375055"
+      bytes: "72511292"
+      unpacked_bytes: "84922515"
+    argos-bn_en-1_9:
+      url: https://argos-net.com/v1/translate-bn_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "1fdc080e676a930bae436b82bf856077191b1497c086d3d3d15cf63a7ad476fe"
+      bytes: "70704005"
+      unpacked_bytes: "85092414"
+    argos-ca_en-1_7:
+      url: https://argos-net.com/v1/translate-ca_en-1_7.argosmodel
+      revision: "1_7"
+      sha256: "d1fd06e9f3d919440b05470b3268b8c9077f15519f2a375e19d78825020c8771"
+      bytes: "75431251"
+      unpacked_bytes: "83325106"
+    argos-cs_en-1_9_6:
+      url: https://argos-net.com/v1/translate-cs_en-1_9_6.argosmodel
+      revision: "1_9_6"
+      sha256: "f1683b1ac5e826c7e3db2b0ea5d73191cdd695d6523b112363d8a769203dcb62"
+      bytes: "71354355"
+      unpacked_bytes: "83475389"
+    argos-da_en-1_9:
+      url: https://argos-net.com/v1/translate-da_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "cf0e4ddc78a6cc4c9093fcd8b5f22285fc5d0a8fe8650940cdc913da6295c585"
+      bytes: "69084740"
+      unpacked_bytes: "81646318"
+    argos-de_en-1_3:
+      url: https://argos-net.com/v1/translate-de_en-1_3.argosmodel
+      revision: "1_3"
+      sha256: "becc2b0011f8249fcb89be9ecb75ba0d876b1fab93c28ee6ff0420936897d637"
+      bytes: "150512831"
+      unpacked_bytes: "164937694"
+    argos-el_en-1_9:
+      url: https://argos-net.com/v1/translate-el_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "51fa664c561a25d48150ab1d334e2f43e43c082c37bc82222b7c98804614563c"
+      bytes: "72161252"
+      unpacked_bytes: "84584519"
+    argos-eo_en-1_5:
+      url: https://argos-net.com/v1/translate-eo_en-1_5.argosmodel
+      revision: "1_5"
+      sha256: "56cd5977acfc7626bc99f2d1d60c5016f5102d6118403fa2f87933778a188b5d"
+      bytes: "119504066"
+      unpacked_bytes: "134957141"
+    argos-es_en-1_9:
+      url: https://argos-net.com/v1/translate-es_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "c54df2b62fceaf54a3ce5d97db6bf56efd7940063329f6778f4212d2acb370d4"
+      bytes: "285208831"
+      unpacked_bytes: "316120308"
+    argos-et_en-1_9:
+      url: https://argos-net.com/v1/translate-et_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "385c288fa814f60734a0668672f205b71e1e81c5a5d4862b96a41dba649618f0"
+      bytes: "156230482"
+      unpacked_bytes: "172661348"
+    argos-eu_en-1_9:
+      url: https://argos-net.com/v1/translate-eu_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "8660002a61a6fb23c67f4b454bf615ecc95557acdf93086b20b785734b374271"
+      bytes: "75734576"
+      unpacked_bytes: "83761908"
+    argos-fa_en-1_5:
+      url: https://argos-net.com/v1/translate-fa_en-1_5.argosmodel
+      revision: "1_5"
+      sha256: "ee79b584708fefff1cf61181fcb89b9c207b3bfeb2287c5610c3399dd034074c"
+      bytes: "118419119"
+      unpacked_bytes: "135046442"
+    argos-fi_en-1_9:
+      url: https://argos-net.com/v1/translate-fi_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "7be1ad3a02c160ac1a2a33697b59a20ae49cbfe92f4cb34fd6185841a7bd00fe"
+      bytes: "69019776"
+      unpacked_bytes: "83580212"
+    argos-fr_en-1_9:
+      url: https://argos-net.com/v1/translate-fr_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "3b3052fee6bb1e8e8e632a26a723eb2a2c7710dfe73ba61ffd9b83e85d4f14c1"
+      bytes: "66585033"
+      unpacked_bytes: "82556925"
+    argos-ga_en-1_1:
+      url: https://argos-net.com/v1/translate-ga_en-1_1.argosmodel
+      revision: "1_1"
+      sha256: "1c38c173a9e885fc4bd1fc9c683a2d213eba810b77dad46c3152f640fab7a7ee"
+      bytes: "95546270"
+      unpacked_bytes: "108613734"
+    argos-gl_en-1_9:
+      url: https://argos-net.com/v1/translate-gl_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "2bf8e715366e906260ba1ef77f1f935555e0dcc40f013add9a8801767f1aa34e"
+      bytes: "75843745"
+      unpacked_bytes: "83792946"
+    argos-he_en-1_5:
+      url: https://argos-net.com/v1/translate-he_en-1_5.argosmodel
+      revision: "1_5"
+      sha256: "ff8ac0ce734a82f8508ff39eaa90c110f66a2df3a93f03cf6ca72c4a60093470"
+      bytes: "115704948"
+      unpacked_bytes: "135079886"
+    argos-hi_en-1_1:
+      url: https://argos-net.com/v1/translate-hi_en-1_1.argosmodel
+      revision: "1_1"
+      sha256: "f99eadf297073c0f5a320df5d634ebb73e9ab0b819404edf7bd0a0daf6b1ce43"
+      bytes: "102381771"
+      unpacked_bytes: "117792346"
+    argos-hu_en-1_9:
+      url: https://argos-net.com/v1/translate-hu_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "aa47290c64ba26a59dff60da464a4eb4466841241594b4dd023ab597b9f6faba"
+      bytes: "71809926"
+      unpacked_bytes: "82956972"
+    argos-id_en-1_9:
+      url: https://argos-net.com/v1/translate-id_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "b494f6109dd7ceae32cb44cc721a14039abce938dc773a70087e73301ef4fed4"
+      bytes: "68650073"
+      unpacked_bytes: "79816980"
+    argos-it_en-1_0:
+      url: https://argos-net.com/v1/translate-it_en-1_0.argosmodel
+      revision: "1_0"
+      sha256: "d2dd23b8b702f612b8127f07c7a0391f5f2a8b93344e6ddc9dd93c81824e85cb"
+      bytes: "87190224"
+      unpacked_bytes: "96254536"
+    argos-ja_en-1_1:
+      url: https://argos-net.com/v1/translate-ja_en-1_1.argosmodel
+      revision: "1_1"
+      sha256: "623e3477959a815eb0a5ef53e09079ae8f1f9d3bbcd230473baf28c03fb83335"
+      bytes: "117155716"
+      unpacked_bytes: "134927292"
+    argos-ko_en-1_1:
+      url: https://argos-net.com/v1/translate-ko_en-1_1.argosmodel
+      revision: "1_1"
+      sha256: "6da8f3db6ca40f42b1875570a1c06856f6e17c7ef62845d85de217ba548c1471"
+      bytes: "118852077"
+      unpacked_bytes: "134740046"
+    argos-ky_en-1_4:
+      url: https://argos-net.com/v1/translate-ky_en-1_4.argosmodel
+      revision: "1_4"
+      sha256: "3fd9eeb55989b000a5e75a8f2120140fa1f40cd2106b8fb247eab32506520e15"
+      bytes: "146483387"
+      unpacked_bytes: "162857747"
+    argos-lt_en-1_9:
+      url: https://argos-net.com/v1/translate-lt_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "8ae06df7e47a344c9e58edfd92156333d7e4e69ede9adb7a77c17bcfa498dac7"
+      bytes: "71408160"
+      unpacked_bytes: "82508341"
+    argos-lv_en-1_9:
+      url: https://argos-net.com/v1/translate-lv_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "a61c1b467ce51f5449496fc6a4e01fba098a1a3b1f1dafcafb12a512a3aef485"
+      bytes: "71393221"
+      unpacked_bytes: "81801484"
+    argos-ms_en-1_9:
+      url: https://argos-net.com/v1/translate-ms_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "4582268f79c733749a58566f5d796cf7749000633fddf406b3c23e808ebcb3b0"
+      bytes: "68979493"
+      unpacked_bytes: "80084782"
+    argos-nb_en-1_9:
+      url: https://argos-net.com/v1/translate-nb_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "ee2e3b3541abecb51566b095d3409d97c61b920c9e37956d211fb8b9e9e7d027"
+      bytes: "67407741"
+      unpacked_bytes: "81150423"
+    argos-nl_en-1_8:
+      url: https://argos-net.com/v1/translate-nl_en-1_8.argosmodel
+      revision: "1_8"
+      sha256: "f49ac90c5812e0cb86a2858f4cfa61accec8709612728e6f805f0771c9a91e0e"
+      bytes: "69944805"
+      unpacked_bytes: "86669276"
+    argos-pb_en-1_9:
+      url: https://argos-net.com/v1/translate-pb_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "578e9c504595ac85f8e8e0b31e4f53c84e38e7638db8c3c8df384d05eac2671b"
+      bytes: "69447841"
+      unpacked_bytes: "82857048"
+    argos-pl_en-1_9:
+      url: https://argos-net.com/v1/translate-pl_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "07eda9edbd6ae5121df7c1d7bd847030423269b8c5056f1c222495c4a81e1721"
+      bytes: "71696499"
+      unpacked_bytes: "85694044"
+    argos-pt_en-1_9:
+      url: https://argos-net.com/v1/translate-pt_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "ae76df6f650895c16f2b582065014fab496755ca846ecb19fae81d51f332a38e"
+      bytes: "69447231"
+      unpacked_bytes: "82810227"
+    argos-ro_en-1_9:
+      url: https://argos-net.com/v1/translate-ro_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "21dba44a9a2455d385264ff103e9eaa5bfc6c0b83eef69e6d1df4c497bcd00af"
+      bytes: "70545301"
+      unpacked_bytes: "82685089"
+    argos-ru_en-1_9:
+      url: https://argos-net.com/v1/translate-ru_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "e9ba8bf722d10a4a4c39f74289d5938fd47eac08dbe4ed0afd22d89445a5c3ac"
+      bytes: "156239112"
+      unpacked_bytes: "173455367"
+    argos-sk_en-1_9:
+      url: https://argos-net.com/v1/translate-sk_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "864f50eec15c0bb2978130cec3457d16ae5645a2737d58a3c290dcb63aa0eae5"
+      bytes: "71441991"
+      unpacked_bytes: "82883431"
+    argos-sl_en-1_9:
+      url: https://argos-net.com/v1/translate-sl_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "dc7d0b60329aaa941067bb14068f977e4cf10b86c336a36bb6b14e912d49371d"
+      bytes: "71989365"
+      unpacked_bytes: "81934439"
+    argos-sq_en-1_9:
+      url: https://argos-net.com/v1/translate-sq_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "3cdafddb8067bc056d7495639830d1551d2c2a892d27531a8aac789cd0b15884"
+      bytes: "70457340"
+      unpacked_bytes: "82463845"
+    argos-sv_en-1_5:
+      url: https://argos-net.com/v1/translate-sv_en-1_5.argosmodel
+      revision: "1_5"
+      sha256: "b4afa5e9ad1834e80bf3f87c74f497bab118d358dbf174320d3e5acdfcdae2f8"
+      bytes: "94928329"
+      unpacked_bytes: "116309925"
+    argos-sw_en-1_11:
+      url: https://argos-net.com/v1/translate-sw_en-1_11.argosmodel
+      revision: "1_11"
+      sha256: "2db0e60b4af88a60a540469190c2fd549d9d007389e93259f74c27817c3b5448"
+      bytes: "75702951"
+      unpacked_bytes: "83693385"
+    argos-th_en-1_9:
+      url: https://argos-net.com/v1/translate-th_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "b6642c07389b156f568aa08c64140243bc1b1926f82df2559a2eae08316f84ce"
+      bytes: "71737116"
+      unpacked_bytes: "84908973"
+    argos-tl_en-1_9:
+      url: https://argos-net.com/v1/translate-tl_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "fa5638666100e86aaba09095b990ad5ab1209f6636efe00924aa14e06458dc7c"
+      bytes: "71472754"
+      unpacked_bytes: "81488083"
+    argos-tr_en-1_5:
+      url: https://argos-net.com/v1/translate-tr_en-1_5.argosmodel
+      revision: "1_5"
+      sha256: "15217905586561fac843efb5730aabff9a1534d5a9aa3f6ebcc0f9641394ac2d"
+      bytes: "120561223"
+      unpacked_bytes: "134945874"
+    argos-uk_en-1_9:
+      url: https://argos-net.com/v1/translate-uk_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "374fd797fd403875c241d018398c77f239b092c6ba5ed7488320838fa1532850"
+      bytes: "76077099"
+      unpacked_bytes: "83972003"
+    argos-ur_en-1_9:
+      url: https://argos-net.com/v1/translate-ur_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "0d722bb7c4686a58ad1361202b192294cb939518d6f851741e68b36bb2e56d73"
+      bytes: "69679858"
+      unpacked_bytes: "83433915"
+    argos-vi_en-1_9:
+      url: https://argos-net.com/v1/translate-vi_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "ebd51b7189b13eccb9238a5777de1d343008c4c05284a8b89610242364433953"
+      bytes: "65895840"
+      unpacked_bytes: "79738259"
+    argos-zh_en-1_9:
+      url: https://argos-net.com/v1/translate-zh_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "62e7af5a3a48b530e47b7b3e5c78c2de79073ecd815750d2bf3ab35b4a67da2d"
+      bytes: "74481402"
+      unpacked_bytes: "86137496"
+    argos-zt_en-1_9:
+      url: https://argos-net.com/v1/translate-zt_en-1_9.argosmodel
+      revision: "1_9"
+      sha256: "a9ea826d801f059dd47f1f47b6c1dc9d762519a80ea3afd2a982130a42a25486"
+      bytes: "74498034"
+      unpacked_bytes: "86203058"
+    minisbd-af.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/af.onnx
+      revision: "v0.0.1"
+      sha256: "04de2ad8dafafc623002d76d4c775ab07164124ee2f5efe78f4e8e918b37d8ba"
+      bytes: "176992"
+    minisbd-ar.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/ar.onnx
+      revision: "v0.0.1"
+      sha256: "44a1847101e1adf667d4b9e1c7a0178d0af016ce33d8e5fc58aea1340c26835f"
+      bytes: "181459"
+    minisbd-be.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/be.onnx
+      revision: "v0.0.1"
+      sha256: "bc8ef7222e4996102ef42155838746e9f1b71acd0e641f5047bd785c0a5c4ce7"
+      bytes: "208890"
+    minisbd-bg.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/bg.onnx
+      revision: "v0.0.1"
+      sha256: "deb5c80eb0d8a2d1f11d6e13ac6385ae492320e480effe162b47d78755f5e4c2"
+      bytes: "180111"
+    minisbd-bxr.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/bxr.onnx
+      revision: "v0.0.1"
+      sha256: "dd72acdc0b522f77fb2653ca0e3e1afb708de05627c624e6666c8dc6131ccf14"
+      bytes: "177894"
+    minisbd-ca.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/ca.onnx
+      revision: "v0.0.1"
+      sha256: "23cd5d6b0528c0ccddc77bc0b1160ab5169cf2bf46e61c48b25a3718983b059d"
+      bytes: "182270"
+    minisbd-cop.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/cop.onnx
+      revision: "v0.0.1"
+      sha256: "c1386f179ec07e395e366fcc40039da6e94d2a9d8b84d3e72aca4975378754b4"
+      bytes: "178650"
+    minisbd-cs.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/cs.onnx
+      revision: "v0.0.1"
+      sha256: "e7f118124fed59b3d07203c030dc3b3ff676882531a633364da22fbf78c95f10"
+      bytes: "183759"
+    minisbd-cu.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/cu.onnx
+      revision: "v0.0.1"
+      sha256: "fe13f4651c2d4d2452f52be756e25c3ff2659abf3a5fb381bf5f2ba588b03139"
+      bytes: "181666"
+    minisbd-cy.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/cy.onnx
+      revision: "v0.0.1"
+      sha256: "f561b54b8e191a5e1bdac64937656ff4f683b3df466b2235cfb9ca9037719df2"
+      bytes: "181045"
+    minisbd-da.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/da.onnx
+      revision: "v0.0.1"
+      sha256: "3a7593d774f854900248ddd65468b95f0fc8244d6484648546057cd3e3da87b0"
+      bytes: "178110"
+    minisbd-de.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/de.onnx
+      revision: "v0.0.1"
+      sha256: "00320fe47a79269bf4a85b4e3aa9a4b367fcc2528af23aa41cbad0203b35d1e7"
+      bytes: "189791"
+    minisbd-el.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/el.onnx
+      revision: "v0.0.1"
+      sha256: "1039c155b3bed5efb9824a28ffbf297dfe2d81135508172c4a50fe3bf696e97f"
+      bytes: "183945"
+    minisbd-en.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/en.onnx
+      revision: "v0.0.1"
+      sha256: "6fa9f3a3b201687bd43e329b2b0736789efc97b37883b5b759b31988dca9f353"
+      bytes: "188043"
+    minisbd-es.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/es.onnx
+      revision: "v0.0.1"
+      sha256: "9774dd5ed1bd2d0566fa8d12ee59fd1d2c57b97127d004e03aa2b7b1cc6b2652"
+      bytes: "193234"
+    minisbd-et.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/et.onnx
+      revision: "v0.0.1"
+      sha256: "4ff771c2a6b3a71e871ab9b8a73e14f9da72010dd452213dd0f200ae82622b0b"
+      bytes: "182796"
+    minisbd-eu.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/eu.onnx
+      revision: "v0.0.1"
+      sha256: "2906031dfd3e6f581d649fdee1b12e49a5cc6687e94cd29bc6652e3d77e6b2f1"
+      bytes: "177154"
+    minisbd-fa.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/fa.onnx
+      revision: "v0.0.1"
+      sha256: "c4ad2f9221ee600aaa3817d34e5287a917774be2430cb76c305e5fa1e9db01d7"
+      bytes: "183356"
+    minisbd-fi.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/fi.onnx
+      revision: "v0.0.1"
+      sha256: "cf273a1395d7e60a00d0ce4a3fe2d403fe424ab0a0f56866b97f24dc8154a35d"
+      bytes: "189321"
+    minisbd-fo.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/fo.onnx
+      revision: "v0.0.1"
+      sha256: "44ba3b82e6c0c4bf5bb2189f450c381b2e62868782231ca098e50eb2f819804d"
+      bytes: "179614"
+    minisbd-fr.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/fr.onnx
+      revision: "v0.0.1"
+      sha256: "f9392ffd67104d9d633c9254e5095048ce64da6a04212d3dc02940425f8c3af4"
+      bytes: "193461"
+    minisbd-fro.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/fro.onnx
+      revision: "v0.0.1"
+      sha256: "e30bd25ab9870bcea71e876bf82ecefa646aa1d57d8024f5a95592ee3175d0ea"
+      bytes: "177372"
+    minisbd-ga.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/ga.onnx
+      revision: "v0.0.1"
+      sha256: "fe7628940f842acdff1a95502572959c39e7adfeb179c8700bed007070ae9eae"
+      bytes: "177703"
+    minisbd-gd.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/gd.onnx
+      revision: "v0.0.1"
+      sha256: "87082b38730494ba3befcd42283804bc8a0040a53c022d3dd469cfb139c16745"
+      bytes: "181369"
+    minisbd-gl.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/gl.onnx
+      revision: "v0.0.1"
+      sha256: "946e05fd52090674089f9bd72e86ba8f1bec770775f72fc0b8cf855225ca07f3"
+      bytes: "181918"
+    minisbd-got.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/got.onnx
+      revision: "v0.0.1"
+      sha256: "1fb8772a15b9cb893ba076da3c9b9de784b293c633bc127e2f1940943b6a90f1"
+      bytes: "175172"
+    minisbd-grc.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/grc.onnx
+      revision: "v0.0.1"
+      sha256: "c323cc42746fdf9c7cd6a1078dcf1b678ccb60ec578f2f688f8e8b41133f2669"
+      bytes: "183094"
+    minisbd-gv.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/gv.onnx
+      revision: "v0.0.1"
+      sha256: "dcbfa87386a9c0f38ac97766bbc9670cfe87f1eca4743eff5bc07f05c0e2e9df"
+      bytes: "179704"
+    minisbd-hbo.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/hbo.onnx
+      revision: "v0.0.1"
+      sha256: "d7bc39db9998c2465f120ed9f734ac69b876a727826dedb9d041b161ddc2458f"
+      bytes: "179877"
+    minisbd-he.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/he.onnx
+      revision: "v0.0.1"
+      sha256: "33f23c01c140dad455a74159bf4288e0e429d57335fecf3594f5f4653173b9a0"
+      bytes: "184715"
+    minisbd-hi.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/hi.onnx
+      revision: "v0.0.1"
+      sha256: "16924ea9912aec3d6759dbf0652a82508a8e3ec840b20941b30d264eba1798d1"
+      bytes: "178129"
+    minisbd-hr.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/hr.onnx
+      revision: "v0.0.1"
+      sha256: "e67c04fa4c7cfa7a23cec99ced51d5537800311a6859033fe223e7c9008b6a85"
+      bytes: "178331"
+    minisbd-hsb.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/hsb.onnx
+      revision: "v0.0.1"
+      sha256: "8cd1cb614ade88aa1aa8a48ab312964f502a62930662f70daa1c7b1a603fd3e7"
+      bytes: "180102"
+    minisbd-hu.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/hu.onnx
+      revision: "v0.0.1"
+      sha256: "bb654e8c296c820b11add875f69e240a8e2b3024a201cf7194089d78e9618c28"
+      bytes: "177603"
+    minisbd-hy.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/hy.onnx
+      revision: "v0.0.1"
+      sha256: "22c09b64aad312f5656ca47379b311347adea54d65d269fc607c5ce791940f7c"
+      bytes: "185182"
+    minisbd-hyw.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/hyw.onnx
+      revision: "v0.0.1"
+      sha256: "f5bad561eb91ddf0e0565bf42d544c8fec4da7d9dca415d19f4f7221acaf4c4e"
+      bytes: "185697"
+    minisbd-id.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/id.onnx
+      revision: "v0.0.1"
+      sha256: "10d29d9261c0a0a50334754d33d0272df71eba1522ef174b337e7869d364c80e"
+      bytes: "191396"
+    minisbd-is.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/is.onnx
+      revision: "v0.0.1"
+      sha256: "73881d0f85471a9687e9f2d8c15991d819d1f8dd379cbcae2be529fa49fcfdf1"
+      bytes: "181552"
+    minisbd-it.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/it.onnx
+      revision: "v0.0.1"
+      sha256: "ada440b5097f2099a6e9cf0673674805f8f95236a02910466c54f6afd8dd218f"
+      bytes: "182756"
+    minisbd-ja.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/ja.onnx
+      revision: "v0.0.1"
+      sha256: "5ef874606b0afe24cc799b737ba1d9c09259e80ddee7646fc557a8f9e0e1017c"
+      bytes: "698618"
+    minisbd-kk.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/kk.onnx
+      revision: "v0.0.1"
+      sha256: "f60152a1c6284a1660efe567dc44040101f4db36c7001f980345c0f71512f8ac"
+      bytes: "181888"
+    minisbd-kmr.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/kmr.onnx
+      revision: "v0.0.1"
+      sha256: "7d8863722875fc9bf879b751ad27241510871ff979e7b210f734a027e6a4d8ea"
+      bytes: "181115"
+    minisbd-ko.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/ko.onnx
+      revision: "v0.0.1"
+      sha256: "a8b8789c7056d535d276489dcda539f313069ed37d7b2779ee9f9e43db842adb"
+      bytes: "305683"
+    minisbd-ky.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/ky.onnx
+      revision: "v0.0.1"
+      sha256: "a778b5785413331208aaa04d2527a82a388fab832a635a22b593809274a81b53"
+      bytes: "179615"
+    minisbd-la.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/la.onnx
+      revision: "v0.0.1"
+      sha256: "05db3df7c147cde6a973df19cf73138823021fb52d473f9b34d9cf7e405172e3"
+      bytes: "178055"
+    minisbd-lij.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/lij.onnx
+      revision: "v0.0.1"
+      sha256: "958ec7e862cd0800addf594b08bd14ca19ac7b5093268682ff2730f130db192b"
+      bytes: "180575"
+    minisbd-lt.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/lt.onnx
+      revision: "v0.0.1"
+      sha256: "d7de76b4be3a3e2f2a3f0b26300db67d98f22f5f81f151f98cc7d022fd4b9246"
+      bytes: "178284"
+    minisbd-lv.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/lv.onnx
+      revision: "v0.0.1"
+      sha256: "014ce50e62c8f98d3eb53a5e94a0a8baeaedd88bae94840f6fe7329588fdd8de"
+      bytes: "179326"
+    minisbd-lzh.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/lzh.onnx
+      revision: "v0.0.1"
+      sha256: "490c2521ffb94b514756eaab06e462b5b7328ebb0a6ce65b54887685b4de023f"
+      bytes: "502624"
+    minisbd-mr.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/mr.onnx
+      revision: "v0.0.1"
+      sha256: "7ed71732dd5e8547291b10449d239e045896ca6b9a2dd26bea40e25c5846c6c0"
+      bytes: "179741"
+    minisbd-mt.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/mt.onnx
+      revision: "v0.0.1"
+      sha256: "87f47b8c6d3b001004a726ee93071e2535b8862e9b972865faac3d6e51f6c05a"
+      bytes: "177862"
+    minisbd-myv.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/myv.onnx
+      revision: "v0.0.1"
+      sha256: "0e30eecb81137b8d4c014ba37623e4b43fc0ae85aae9ef735a96ee191a673138"
+      bytes: "180327"
+    minisbd-nb.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/nb.onnx
+      revision: "v0.0.1"
+      sha256: "e2e7a8936d6890567378d1ead9c4b1ba48bb0b84fda07569de19b39e3a02ca82"
+      bytes: "178634"
+    minisbd-nl.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/nl.onnx
+      revision: "v0.0.1"
+      sha256: "b04ea4f625abd5ee3097f1a54490dc95bca0a6ef1920c38c1239784e6892aaf7"
+      bytes: "181569"
+    minisbd-nn.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/nn.onnx
+      revision: "v0.0.1"
+      sha256: "21a1db69e014b3cfbcf4ace716567aa4ae201389183d07241c59c165f89f9b99"
+      bytes: "178445"
+    minisbd-orv.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/orv.onnx
+      revision: "v0.0.1"
+      sha256: "2b872dd05a8b165921f3b577d4cc4950cfea18f62bf837e8d4399ab7f349c0a0"
+      bytes: "179667"
+    minisbd-pcm.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/pcm.onnx
+      revision: "v0.0.1"
+      sha256: "c821d119092fe796e836ae5a35911dfeb0d03b60fdb488de52d870847dcd9d7b"
+      bytes: "176189"
+    minisbd-pl.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/pl.onnx
+      revision: "v0.0.1"
+      sha256: "884e77a008668f67df61e44836ade2ef16764a0ff922d3b7b30c3249c5896fcc"
+      bytes: "183035"
+    minisbd-pt.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/pt.onnx
+      revision: "v0.0.1"
+      sha256: "db0a8c8f273fde33b902aa660356549986de7b83f881e8538c49dceb1feb1f2f"
+      bytes: "182290"
+    minisbd-qaf.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/qaf.onnx
+      revision: "v0.0.1"
+      sha256: "43ce8c3d349bc340ea66f04e5e6e1c1eb3fd07c3e6fbd9f222a617cba4c671c2"
+      bytes: "181647"
+    minisbd-qpm.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/qpm.onnx
+      revision: "v0.0.1"
+      sha256: "ba01a8f0b01f6fe80db94045e291229919af602c970ef75633a0ca0aafa33621"
+      bytes: "178411"
+    minisbd-qtd.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/qtd.onnx
+      revision: "v0.0.1"
+      sha256: "7431ea0b3902beaac9f9f587a04f2691f75288fc179394f05270d5ac9de107b4"
+      bytes: "180308"
+    minisbd-ro.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/ro.onnx
+      revision: "v0.0.1"
+      sha256: "c7fdd00e0d663134fcfc768f7664407c4c775ebf04b33f7fe1b0431be5e14ca0"
+      bytes: "180275"
+    minisbd-ru.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/ru.onnx
+      revision: "v0.0.1"
+      sha256: "53c65ef031698d99fd0c736275eeb3c37f4694613c5c0d4423745741b0843138"
+      bytes: "181514"
+    minisbd-sa.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/sa.onnx
+      revision: "v0.0.1"
+      sha256: "ab88aa0f32e94c518004a7528056f4033649d438321137f7a828aceedbadba76"
+      bytes: "174588"
+    minisbd-sk.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/sk.onnx
+      revision: "v0.0.1"
+      sha256: "5120818d2a661f82bcbcb2a0a5d6934a227eeadafe498867ba80e6ada4080731"
+      bytes: "182704"
+    minisbd-sl.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/sl.onnx
+      revision: "v0.0.1"
+      sha256: "d40c20286b7883147b2f4c53e65bc8405a3bb28e0c17d8eed9f7ea64ae979e64"
+      bytes: "179743"
+    minisbd-sme.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/sme.onnx
+      revision: "v0.0.1"
+      sha256: "498f184a3d76af2bdd347c9aeee8deaaff9e5e0fbecaf149df3ab980fecb7d4f"
+      bytes: "176652"
+    minisbd-sq.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/sq.onnx
+      revision: "v0.0.1"
+      sha256: "38f7a91b56bb1bf81f6ab774c42c8984948a5cd7270f6aba4600686eb0bfaadb"
+      bytes: "179457"
+    minisbd-sr.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/sr.onnx
+      revision: "v0.0.1"
+      sha256: "2fcaa8a3dad34e91325a11f7f9799d0d614acc4b808fbc8c76f76b2926b767cd"
+      bytes: "177524"
+    minisbd-sv.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/sv.onnx
+      revision: "v0.0.1"
+      sha256: "d71e501161222d5908900798962a82228224e4c5e8b40fd2b3418280fa6accf9"
+      bytes: "176889"
+    minisbd-ta.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/ta.onnx
+      revision: "v0.0.1"
+      sha256: "71d34a315d5993a26d4669f4b0cd06930773374c75cbc6cf52c0ddc09dbe744b"
+      bytes: "179787"
+    minisbd-te.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/te.onnx
+      revision: "v0.0.1"
+      sha256: "0e67df6ed379c75ff25ef1f9cfe530e5fb568d71c275474810e2b5fd8236bdd1"
+      bytes: "177205"
+    minisbd-th.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/th.onnx
+      revision: "v0.0.1"
+      sha256: "62b94ddf5af61ddde4e99dbb4087be71135e26b897e898e5bcb8679842691450"
+      bytes: "879969"
+    minisbd-tr.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/tr.onnx
+      revision: "v0.0.1"
+      sha256: "d569f9893e2d13f4950fc0faa4393a8ffa80c3b7838fbaf789e3f0b14ebc36cc"
+      bytes: "180717"
+    minisbd-ug.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/ug.onnx
+      revision: "v0.0.1"
+      sha256: "c9d82e294623a6a04cba357d95bbae2858d2942c76d6855619ab4290b1c6a5ce"
+      bytes: "176462"
+    minisbd-uk.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/uk.onnx
+      revision: "v0.0.1"
+      sha256: "e4ef6e40816766834f7a7f39b068e733fe842e70babfdab699950ef01131a158"
+      bytes: "186172"
+    minisbd-ur.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/ur.onnx
+      revision: "v0.0.1"
+      sha256: "859d912cc12461f5a6bf230d3c002ea0ee57f22da7823b90b17a20ef57894d2f"
+      bytes: "179384"
+    minisbd-vi.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/vi.onnx
+      revision: "v0.0.1"
+      sha256: "d2b3b1e87464ab65ce6195de45fc545ee4df667c84fff246cb177e9fc71e6cc3"
+      bytes: "973908"
+    minisbd-wo.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/wo.onnx
+      revision: "v0.0.1"
+      sha256: "3f15721407f33c05a82afcf0ef6ef7f2968b238486eefe875989fbb831f9cb22"
+      bytes: "181155"
+    minisbd-zh-hans.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/zh-hans.onnx
+      revision: "v0.0.1"
+      sha256: "b2a6e45ebb43df44ac3c8e4100ea1cb30ec8319c5698b678ed3f203e5edc5d0e"
+      bytes: "616442"
+    minisbd-zh-hant.onnx:
+      url: https://github.com/LibreTranslate/MiniSBD/releases/download/v0.0.1/zh-hant.onnx
+      revision: "v0.0.1"
+      sha256: "ca42ad9655f982aa372e7a4f5e1b04dea43b8fd27c85fc0520190da44206d108"
+      bytes: "624497"
 meshes: []
 local:
   subnet: 192.168.229.0/24

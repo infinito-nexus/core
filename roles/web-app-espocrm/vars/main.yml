@@ -36,7 +36,43 @@ ESPOCRM_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled
 ESPOCRM_OIDC_ONION_ISSUER: "{{ (lookup('tls', 'web-app-keycloak', 'domain') | network_of) == 'tor' }}"
 ESPOCRM_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if ESPOCRM_OIDC_ONION_ISSUER | bool else '' }}"
 ESPOCRM_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+ESPOCRM_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.espocrm.login.method.native.enabled') | bool }}"
+ESPOCRM_LOGIN_2FA: "{{ lookup('config', application_id, 'services.espocrm.login.method.2fa.enabled') | bool }}"
 ESPOCRM_LDAP_AUTOCREATE: "{{ lookup('config', application_id, 'services.ldap.autocreate') }}"
+ESPOCRM_LDAP_MEMBER_OF_ATTRIBUTE: "{{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}"
+ESPOCRM_LDAP_USER_LOGIN_FILTER: >-
+  (|{% for espocrm_rbac_dn in [ESPOCRM_RBAC_ADMIN_DN] + (ESPOCRM_RBAC_TIERS | dict2items | map(attribute='value.dn') | list)
+  %}({{ ESPOCRM_LDAP_MEMBER_OF_ATTRIBUTE }}={{ espocrm_rbac_dn }}){% endfor %})
+ESPOCRM_RBAC_TIERS:
+  manager:
+    team: "Managers"
+    role: "Manager"
+    access: "manage"
+    path: "/{{ lookup('rbac_group_path', application_id=application_id, role='manager') }}"
+    dn: "cn={{ application_id }}-manager,{{ LDAP.DN.OU.ROLES }}"
+  user:
+    team: "Users"
+    role: "User"
+    access: "use"
+    path: "/{{ lookup('rbac_group_path', application_id=application_id, role='user') }}"
+    dn: "cn={{ application_id }}-user,{{ LDAP.DN.OU.ROLES }}"
+ESPOCRM_RBAC_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+ESPOCRM_RBAC_ADMIN_DN: "cn={{ application_id }}-administrator,{{ LDAP.DN.OU.ROLES }}"
+ESPOCRM_RBAC_MODULE_PATH: "custom/Espo/Modules/InfinitoRbac"
+ESPOCRM_RBAC_LDAP_HOOK_CLASS: "Espo\\Modules\\InfinitoRbac\\Classes\\Authentication\\LdapRoleGroups"
+ESPOCRM_RBAC_MODULE_CONFIG_PARAMS:
+  infinitoOidcAllowedGroups:
+    level: system
+  infinitoOidcAdministratorGroups:
+    level: system
+  infinitoOidcProtectedUsers:
+    level: system
+  infinitoLdapMemberOfAttribute:
+    level: system
+  infinitoLdapTeamGroups:
+    level: system
+  infinitoLdapAdministratorGroups:
+    level: system
 ESPOCRM_USER: "www-data"
 
 ESPOCRM_SCRIPT_SEED_FILE: "seed_config.php"
@@ -52,9 +88,10 @@ ESPOCRM_DESIGN_ASSETS_PATH: "client/custom/infinito-design"
 ESPOCRM_DESIGN_ASSETS: ["logo.svg", "favicon.svg", "favicon.ico"]
 ESPOCRM_DESIGN_DIR: "{{ [ lookup('container', application_id, 'directories.volumes'), 'design' ] | path_join }}"
 
-ESPOCRM_MAINTENANCE_MODE: "{{ lookup('config', application_id, 'services.espocrm.maintenance_mode') }}"
-ESPOCRM_CRON_DISABLED: "{{ ESPOCRM_MAINTENANCE_MODE }}"
-ESPOCRM_USE_CACHE: "{{ not ESPOCRM_MAINTENANCE_MODE }}"
+ESPOCRM_AUTHENTICATION_SETTINGS: "{{ lookup('form_values', application_id, 'authentication') }}"
+ESPOCRM_SYSTEM_SETTINGS: "{{ lookup('form_values', application_id, 'system') }}"
+ESPOCRM_FORM_SETTINGS: "{{ ESPOCRM_AUTHENTICATION_SETTINGS | combine(ESPOCRM_SYSTEM_SETTINGS) }}"
+ESPOCRM_FORMS_MODULE_PATH: "custom/Espo/Modules/InfinitoForms"
 
 ESPOCRM_RECAPTCHA_ENABLED: "{{ lookup('config', application_id, 'services.recaptcha.enabled') }}"
 ESPOCRM_RECAPTCHA_KEY: "{{ lookup('config', application_id, 'secrets.credentials.recaptcha.key') }}"

@@ -20,6 +20,10 @@
 # xwiki_replace matches `#? ?key ?=`, so a commented or spaced default has to go
 # too, and a generated password must never reach a sed replacement, where its
 # delimiter or backreference characters would be read as syntax.
+#
+# security.authentication.authService=ldap only selects the LDAP authenticator;
+# it still rejects every login until xwiki.authentication.ldap=1, a switch the
+# stock xwiki.cfg does not carry, so it is written with the connection keys.
 set -e
 
 : "${XWIKI_PROPERTIES_SOURCE:?set from meta/volumes.yml by the compose environment}"
@@ -50,8 +54,9 @@ fi
 if [ -n "${XWIKI_CFG_LDAP_SERVER:-}" ]; then
 	for cfg in "${XWIKI_DATA_CFG}" "${XWIKI_WEBINF_CFG}"; do
 		[ -f "${cfg}" ] || continue
-		sed -i -E '/^#? ?xwiki\.authentication\.ldap\./d' "${cfg}"
+		sed -i -E '/^#? ?xwiki\.authentication\.ldap( ?=|\.)/d' "${cfg}"
 		printf '%s\n' \
+			'xwiki.authentication.ldap=1' \
 			"xwiki.authentication.ldap.server=${XWIKI_CFG_LDAP_SERVER}" \
 			"xwiki.authentication.ldap.port=${XWIKI_CFG_LDAP_PORT}" \
 			"xwiki.authentication.ldap.base_DN=${XWIKI_CFG_LDAP_BASE_DN}" \
@@ -61,6 +66,7 @@ if [ -n "${XWIKI_CFG_LDAP_SERVER:-}" ]; then
 			"xwiki.authentication.ldap.group_mapping=${XWIKI_CFG_LDAP_GROUP_MAPPING}" \
 			"xwiki.authentication.ldap.mode_group_sync=always" \
 			"xwiki.authentication.ldap.trylocal=${XWIKI_CFG_LDAP_TRYLOCAL}" \
+			"xwiki.authentication.ldap.UID_attr=${XWIKI_CFG_LDAP_UID_ATTR}" \
 			"xwiki.authentication.ldap.update_user=1" \
 			>>"${cfg}"
 	done

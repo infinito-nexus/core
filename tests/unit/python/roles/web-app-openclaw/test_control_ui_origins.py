@@ -51,7 +51,8 @@ def _allowed_origins(network_urls: list[str]) -> list[str]:
     config = env.from_string(
         read_text(str(ROLE / "templates" / "openclaw.json.j2"))
     ).render(
-        NETWORK_TRUSTED_PROXY_CIDRS=["127.0.0.1/32"],
+        OPENCLAW_TRUSTED_PROXY_SOURCES=["192.168.0.0/16"],
+        OPENCLAW_TRUSTED_PROXY_ENABLED=False,
         OPENCLAW_CONTROL_UI_ORIGINS=origins,
         OPENCLAW_LITELLM_ENABLED=False,
         OPENCLAW_MCP_SERVERS=[],

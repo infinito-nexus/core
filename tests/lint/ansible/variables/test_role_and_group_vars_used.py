@@ -147,6 +147,7 @@ _ANSIBLE_EXPR_KEYS: frozenset[str] = frozenset(
         "failed_when",
         "changed_when",
         "until",
+        "that",
     }
 )
 
@@ -166,7 +167,7 @@ def _harvest_idents_from_value(value, sink: set[str]) -> None:
 def _scan_ansible_expr_idents(node, sink: set[str]) -> None:
     """Walk a parsed YAML structure and harvest identifiers from every
     Ansible expression-bearing key (`when:` / `loop:` / `with_*:` /
-    `failed_when:` / `changed_when:` / `until:`).
+    `failed_when:` / `changed_when:` / `until:` / `that:`).
 
     These keys are bare expression strings (not wrapped in `{{ … }}`),
     so the Jinja-block scan would miss them; we have to walk the

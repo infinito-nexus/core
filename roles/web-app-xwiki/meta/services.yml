@@ -1,9 +1,10 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: dynamic-flag - the gateway is a single shared instance, never deployed per consumer
 litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 seaweedfs:
   bond: 1
   enabled: "{{ 'web-svc-seaweedfs' in group_names }}"
@@ -13,6 +14,11 @@ sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oidc
+  oidc:
+    clients:
+      web: xwiki-web
+    backchannel_logout_path: /oidc/authenticator/backchannel_logout
+    backchannel_logout_gate: true
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -21,7 +27,6 @@ logout:
 ldap:
   enabled: false
   shared: false
-  trylocal: true
 dashboard:
   bond: 1
   enabled: "{{ 'web-app-dashboard' in group_names }}"
@@ -32,8 +37,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — Redis cache, no Playwright surface
 redis:
@@ -79,9 +84,18 @@ xwiki:
   run_after:
     - web-app-matomo
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-xwiki', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-xwiki', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-xwiki', 'native') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-xwiki', 'registration') }}"
   security:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
@@ -119,3 +133,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

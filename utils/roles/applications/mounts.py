@@ -143,6 +143,17 @@ def validate_volumes_meta(
                 f"{prefix}: 'mode' must be an octal string like \"0440\", "
                 f"got {entry['mode']!r}"
             )
+        for owner in ("uid", "gid"):
+            if owner in entry and vtype not in _TYPE_HAS_MODE:
+                violations.append(
+                    f"{prefix}: '{owner}' is only valid for type config/secret (got type={vtype!r})"
+                )
+            if owner in entry and (
+                isinstance(entry[owner], bool) or not isinstance(entry[owner], int)
+            ):
+                violations.append(
+                    f"{prefix}: '{owner}' must be a numeric id, got {entry[owner]!r}"
+                )
 
         if "read_only" in entry and vtype not in _TYPE_HAS_READ_ONLY:
             violations.append(

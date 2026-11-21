@@ -4,10 +4,28 @@ code_flavor: "{{ lookup('config', application_id, 'services.code.flavor') }}"
 code_flavors:
   code-oss:
     binary: code
+    config_dir: Code - OSS
   vscodium:
     binary: codium
+    config_dir: VSCodium
   vscode:
     binary: code
+    config_dir: Code
 code_binary: "{{ code_flavors[code_flavor].binary }}"
 code_conflicting_flavors: "{{ code_flavors.keys() | reject('equalto', code_flavor) | list }}"
 code_addons: "{{ lookup('config', application_id, 'addons', {}) }}"
+code_user: "{{ lookup('users', WORKSTATION_USER).username }}"
+code_home: "{{ ['/home', code_user] | path_join }}"
+code_package: "{{ (lookup('file', lookup('path_absolute', 'roles/dsk-code/meta/packages.yml')) | from_yaml)[code_flavor][ansible_facts.os_family] }}"
+code_config_home: "{{ ['.var/app', code_package.names[0], 'config'] | path_join if code_package is mapping and code_package.source == 'flatpak' else '.config' }}"
+code_user_settings: "{{ [code_home, code_config_home, code_flavors[code_flavor].config_dir, 'User', 'settings.json'] | path_join }}"
+code_python_guard: >-
+  {{ {
+    'search.ripgrep.maxThreads': code_addons.python.config.ripgrep_max_threads,
+    'files.watcherExclude': dict(code_addons.python.config.watcher_exclude | product([true]))
+  } if code_addons.python.enabled | bool else {} }}
+code_settings: "{{ lookup('config', application_id, 'services.code.settings') | combine(code_python_guard, recursive=True) }}"
+code_protect_script: /usr/local/sbin/protect-code-oss
+code_protect_units:
+  - protect-code-oss.service
+  - protect-code-oss.timer

@@ -29,11 +29,61 @@ Already-set env vars take precedence over `default.env` defaults.
 - [`load.sh`](../../../scripts/meta/env/load.sh) is the shell loader; it sources `.env` and auto-generates it on a cold clone.
   When the exported `INFINITO_DISTRO` differs from the one `.env` was generated for, it loads a set generated for that distro through `python -m cli.meta.env --output <file>` and leaves `.env` as it is.
 
+## Stack name
+
+`INFINITO_STACK_NAME` names the compose project of the development stack.
+Every `docker compose` call MUST go through [stack.py](../../../cli/administration/deploy/development/stack.py) (Python) or `infinito_compose` from [compose.sh](../../../scripts/meta/compose.sh) (shell), which pass `-p` and the `-f` list.
+
+- Unset, the project name equals the one compose derived before: `COMPOSE_PROJECT_NAME` when set, else the normalized basename of the checkout directory.
+  Running stacks, their volumes and their networks are adopted unchanged.
+- Set, `make compose-up`, `compose-exec`, `compose-deploy`, `compose-down`, `test*` and `lint*` address the project `<name>`.
+  [load.sh](../../../scripts/meta/env/load.sh) derives `INFINITO_CONTAINER=infinito_nexus_<name>` and `INFINITO_RUNNER_PREFIX=infinito-<name>` from it, so the checkout's default stack stays untouched.
+- Set it per call (`INFINITO_STACK_NAME=<name> make compose-up`) or in `custom.env`; `make dotenv` writes an exported value into `.env` like every other key.
+- The named stack still uses the checkout's slot, so its subnet and bind IP equal those of the default stack; run one of them at a time until a slot registry lands.
+
+## Toolchain image and shared test runner
+
+- [local.sh](../../../scripts/meta/resolve/image/local.sh) resolves the local image as `<name>/<distro>:<hash>`.
+  `<name>` names the primary checkout, so every worktree of it uses the same name.
+  `<hash>` digests the Dockerfile, every file the `toolchain` stage copies, the stage's build arguments and the ID of the local parent image ([toolchain.py](../../../utils/docker/image/toolchain.py)).
+  Worktrees with equal inputs share one image, and a local build sends only those files as its context.
+- With `INFINITO_TEST_RUNNER=docker` and `INFINITO_LINT_RUNNER=docker`, `make test*`, `make lint*` and `make install-lint` run in the shared test runner `infinito-test-<hash>`.
+  The first call builds the image when it is missing and starts the runner; later calls from every checkout with the same hash reuse it.
+  No test or lint target starts a deploy stack.
+- The runner mounts every root of `INFINITO_WORKTREE_ROOTS` (colon-separated) at its host path; empty mounts the primary checkout and `~/.local/share/worktrees`.
+  The wrappers exec with the invoking checkout as working directory and `INFINITO_SRC_DIR`, and with a `TMPDIR` of that checkout under `/tmp/infinito-test/` inside the runner.
+  A checkout outside the mounted roots is refused.
+- The runner joins the infra network `infinito-infra` and reaches the caches and the tools by name.
+- `make test-runner-down` removes the runner of the checkout's hash; the next call starts a new one with the current roots.
+  `make build-cleanup` removes the toolchain images no registered worktree resolves and no container uses.
+- With `INFINITO_STACK_NAME` set, the wrappers exec into that stack's `infinito` container instead, starting the stack when it is down.
+
+## Infra runner
+
+The machine-wide infra runner of `make infra-up` hosts the caches and the tools; see [cache.md](cache.md) for its lifecycle and [setup.md](setup.md) for its targets.
+The runner takes these values from the checkout that runs `make infra-up` or `make infra-update`, so every checkout of the machine SHOULD carry the same ones.
+
+| Key | Source | Default | Meaning |
+|---|---|---|---|
+| `INFINITO_INFRA_SUBNET` | [default.env](../../../default.env) | `10.47.0.0/24` | /24 of the network `infinito-infra`, outside `172.30.0.0/16` and Docker's default address pools |
+| `INFINITO_INFRA_RUNNER_IP` | `make dotenv` | host `.2` of the subnet | fixed address of the runner |
+| `INFINITO_INFRA_RUNNER_CONTAINER` | `make dotenv` | `infinito-infra-runner` | container name of the runner, read by every consumer |
+| `INFINITO_INFRA_CACHE_DIR` | `make dotenv` | `DIR_CACHE` (`/var/cache/infinito/core/cache`) | cache base every cache path derives from and the runner binds at its host path; a `custom.env` line, else an exported value, moves them all, while the lock, the owner marker and the bridge record stay in `DIR_CACHE` |
+| `INFINITO_WORKTREE_ROOTS` | [default.env](../../../default.env) | empty: the primary checkout and `~/.local/share/worktrees` | colon-separated absolute directories the runner and the shared test runner mount read-only at their host paths |
+| `INFINITO_TOOLS_IDLE_GRACE` | `make dotenv` | `2h` | `<count><s\|m\|h\|d>` the tools stay up after the last tools target ended |
+| `INFINITO_TOOLS_STAMP_DIR` | `make dotenv` | `<INFINITO_INFRA_CACHE_DIR>/tools` | machine-wide directory every tools target stamps its runs in |
+| `INFINITO_INFRA_SEMAPHORE` | [default.env](../../../default.env) | `false` | `true` adds `web-app-semaphore` to the roles `make infra-up` and `make infra-update` deploy into the runner; unset or `false` leaves it out, any other value is refused |
+| `INFINITO_INFRA_CHECKMK` | [default.env](../../../default.env) | `false` | `true` adds `web-app-checkmk` to the roles `make infra-up` and `make infra-update` deploy into the runner; unset or `false` leaves it out, any other value is refused |
+
+`make dotenv` also writes `INFINITO_INFRA_RUNNER_IP` into `INFINITO_CACHE_REGISTRY_IP`, `INFINITO_CACHE_PACKAGE_IP` and `INFINITO_CACHE_PACKAGE_FRONTEND_IP`, since the aliases `infinito-registry-cache`, `infinito-package-cache` and `infinito-package-cache-frontend` all resolve to the runner.
+
+`make dotenv` also writes `INFINITO_CACHE_PACKAGE_URL` ([url.py](../../../utils/env/handlers/infinito/package_cache/url.py)): `http://<INFINITO_CACHE_PACKAGE_IP>:<INFINITO_CACHE_PACKAGE_PORT>` while `INFINITO_CACHE_STACK` is true, empty otherwise. It is recomputed on every run, so a value an earlier run wrote never outlives the stack; a line in `custom.env` wins, and an exported value wins for the exporting shell's run only. [compose.yml](../../../compose.yml) hands it to the `infinito` service, and the development inventory that `INFINITO_INVENTORY_VARS_FILE` names makes it the Nix substituter base of `dev-nix`.
+
 ## Variables NOT in `default.env`
 
 A handful of variables are documented next to their consumer because they cannot have a static default:
 
-- **Driver-injected** by `make compose-up` and the dev CLI (cache override paths like `INFINITO_CACHE_REGISTRY_PROXY_CONF`, the package-cache config paths, the frontend CA file).
+- **Driver-injected** by `make compose-up` and the dev CLI (cache consumer paths like `INFINITO_CACHE_REGISTRY_PROXY_CONF`, the package-cache config paths, the frontend CA file).
   See [common.py](../../../cli/administration/deploy/development/common.py) and [compose.yml.md](../artefact/files/compose.yml.md).
 - **Computed at container start** for `INFINITO_PATH`, set by [entry.sh](../../../scripts/docker/entry.sh).
 - **Persisted on the deploy target** for `INFINITO_VERSION`, written by the [sys-version](../../../roles/sys-version/) role.

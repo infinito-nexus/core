@@ -25,7 +25,7 @@ _FILE_REFERENCE = re.compile(
 _CREDENTIAL_SUFFIX = re.compile(r"(?i)_(?:pw|pass)\b")
 _DESCRIBES_CREDENTIAL = re.compile(
     r"(?i)(?:password|passwd|pwd|secret|token|api_?key|private_?key|credential)\w*"
-    r"_(?:file|path|dir|id|ids|name|names|user|username|owner|email|hash|length"
+    r"[_.](?:file|path|dir|id|ids|name|names|user|username|owner|email|hash|length"
     r"|days|description|url|uri|host|port|type|enabled)\b"
 )
 
@@ -128,6 +128,19 @@ class TestArgvSecretLines(unittest.TestCase):
             "- ansible.builtin.command: cli --lifetime {{ MCP_TOKEN_LIFETIME_DAYS }}",
         ]
         self.assertEqual(_argv_secret_lines(lines), [])
+
+    def test_a_dotted_label_key_describes_a_credential(self) -> None:
+        self.assertIsNotNone(
+            _DESCRIBES_CREDENTIAL.search("'services.matomo.token.description'")
+        )
+
+    def test_negative_control_a_dotted_credential_key_stays_a_credential(
+        self,
+    ) -> None:
+        self.assertIsNone(_DESCRIBES_CREDENTIAL.search("'secrets.credentials.token'"))
+        self.assertIsNone(
+            _DESCRIBES_CREDENTIAL.search("'secrets.credentials.api_token'")
+        )
 
 
 class TestTaskArgvNoSecret(unittest.TestCase):

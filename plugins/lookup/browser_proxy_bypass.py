@@ -8,12 +8,13 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.domains.served import WILDCARD_PREFIX, served_owners
 from utils.networks.reachability import (
     browser_proxy_bypass,
     resolve_node_mode,
     tor_serves_host,
 )
-from utils.tls_common import iter_domains
+from utils.tls.common import iter_domains
 
 
 class LookupModule(LookupBase):
@@ -22,10 +23,12 @@ class LookupModule(LookupBase):
       ``{{ lookup('browser_proxy_bypass', network_name, *extra_hosts) }}``
 
     Returns the hosts a browser probing a page of ``network_name`` on this node
-    reaches directly instead of through that network's proxy: the domains of
-    the applications deployed here plus ``extra_hosts`` (e.g. the SSO issuer),
-    each kept only when its network needs no browser proxy and the node serves
-    that network.
+    reaches directly instead of through that network's proxy: the domains and
+    the ``CURRENT_PLAY_SERVED_DOMAINS`` names of the applications deployed here,
+    a ``*.<parent>`` name as ``.<parent>``, the suffix form every Playwright
+    browser and Chromium's ``--proxy-bypass-list`` match, plus ``extra_hosts``
+    (e.g. the SSO issuer), each kept only when its network needs no browser
+    proxy and the node serves that network.
     """
 
     def run(self, terms, variables: dict[str, Any] | None = None, **kwargs):
@@ -52,4 +55,13 @@ class LookupModule(LookupBase):
             if app in deployed
             for domain in iter_domains(value)
         ]
-        return [browser_proxy_bypass(str(terms[0]), mode, [*hosts, *terms[1:]])]
+        served = [
+            "." + name.removeprefix(WILDCARD_PREFIX)
+            if name.startswith(WILDCARD_PREFIX)
+            else name
+            for name, app in served_owners(variables).items()
+            if app in deployed
+        ]
+        return [
+            browser_proxy_bypass(str(terms[0]), mode, [*hosts, *served, *terms[1:]])
+        ]

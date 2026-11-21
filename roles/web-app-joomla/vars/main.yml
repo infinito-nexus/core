@@ -6,7 +6,6 @@ JOOMLA_VERSION: "{{ lookup('config', application_id, 'services.joomla.version') 
 JOOMLA_IMAGE: "{{ lookup('config', application_id, 'services.joomla.image') }}"
 JOOMLA_CONTAINER: "{{ lookup('config', application_id, 'services.joomla.name') }}"
 JOOMLA_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
-JOOMLA_DOMAINS: "{{ lookup('domains', application_id) }}"
 JOOMLA_SITE_NAME: "{{ lookup('design', application_id).label }}"
 JOOMLA_DB_CONNECTOR: "{{ 'pgsql' if lookup('database', application_id, 'type') == 'postgres' else 'mysqli' }}"
 JOOMLA_CONFIG_FILE: "/var/www/html/configuration.php"
@@ -30,7 +29,7 @@ JOOMLA_ENTRYPOINT_SCRIPT_DOCKER: "{{ [ '/usr/local/bin/', JOOMLA_ENTRYPOINT_SCRI
 JOOMLA_UPLOAD_CONFIG: "{{ [ lookup('container', application_id, 'directories.instance'), 'php-upload.ini' ] | path_join }}"
 JOOMLA_UPLOAD_SIZE: "{{ lookup('config', application_id, 'services.joomla.upload.size_mb') }}"
 JOOMLA_UPLOAD_MAX_FILESIZE: "{{ (JOOMLA_UPLOAD_SIZE | int) }}M"
-JOOMLA_POST_MAX_SIZE: "{{ ((JOOMLA_UPLOAD_SIZE | int) * 12 // 10) }}M"
+JOOMLA_POST_MAX_SIZE: "{{ lookup('config', application_id, 'server.vhosts.default.client_max_body_size') }}"
 JOOMLA_PHP_MEMORY_LIMIT: "{{ lookup('service_memory_mb', application_id, entity_name, 0.5) }}M"
 
 JOOMLA_USER_NAME: "{{ lookup('users', 'platform_administrator').username }}"
@@ -38,6 +37,31 @@ JOOMLA_USER: "{{ JOOMLA_USER_NAME | capitalize }}"
 JOOMLA_USER_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 JOOMLA_USER_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
 JOOMLA_WEB_USER: "www-data"
+
+JOOMLA_PROFILE_FIELDS: ["address1", "address2", "city", "region", "country", "postal_code", "phone", "website", "favoritebook", "aboutme", "dob"]
+JOOMLA_PROFILE_SHOWN: >-
+  {{ (lookup('config', application_id, 'addons.plg_system_keycloak.config.profile.claims') | list)
+     + (lookup('config', application_id, 'addons.plg_system_keycloak.config.profile.address') | list) }}
+
+JOOMLA_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.joomla.login.method.native.enabled') | bool }}"
+JOOMLA_LOGIN_2FA: "{{ lookup('config', application_id, 'services.joomla.login.method.2fa.enabled') | bool }}"
+JOOMLA_LOGIN_2FA_ENFORCED: "{{ JOOMLA_LOGIN_2FA | bool and lookup('config', application_id, 'services.joomla.login.method.2fa.enforced') | bool }}"
+JOOMLA_ROOT_USER_GROUP: "1"
+JOOMLA_LOGIN_PASSKEY: "{{ lookup('config', application_id, 'services.joomla.login.method.passkey.enabled') | bool }}"
+JOOMLA_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.joomla.login.method.registration.enabled') | bool }}"
+JOOMLA_LOGIN_BREAKGLASS: >-
+  {{ (lookup('config', application_id, 'addons.plg_system_keycloak.enabled') | bool)
+     and (lookup('config', application_id, 'services.sso.oidc.fallback_enabled') | bool) }}
+JOOMLA_LOGIN_PLUGINS:
+  authentication/joomla: "{{ ((JOOMLA_LOGIN_NATIVE | bool) or (JOOMLA_LDAP_ENABLED | bool) or (JOOMLA_LOGIN_BREAKGLASS | bool)) | ternary(1, 0) }}"
+  system/webauthn: "{{ JOOMLA_LOGIN_PASSKEY | bool | ternary(1, 0) }}"
+  multifactorauth/totp: "{{ JOOMLA_LOGIN_2FA | bool | ternary(1, 0) }}"
+  multifactorauth/yubikey: "{{ JOOMLA_LOGIN_2FA | bool | ternary(1, 0) }}"
+  multifactorauth/webauthn: "{{ JOOMLA_LOGIN_2FA | bool | ternary(1, 0) }}"
+  multifactorauth/email: "{{ JOOMLA_LOGIN_2FA | bool | ternary(1, 0) }}"
+
+JOOMLA_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.joomla.login.method.ldap.enabled') | bool }}"
+JOOMLA_LDAP_PARAMS: "{{ lookup('form_values', application_id, 'ldap') }}"
 
 JOOMLA_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 JOOMLA_DESIGN_LOGO_ENABLED: "{{ JOOMLA_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"

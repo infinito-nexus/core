@@ -9,7 +9,9 @@ REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
 cd "${REPO_ROOT}"
 
 # TODO: drop the queue ignore once actionlint knows it --
-# https://github.com/rhysd/actionlint/issues/654.
+# upstream: https://github.com/rhysd/actionlint/issues/654
+# upstream: https://github.com/rhysd/actionlint/issues/669
+# upstream: https://github.com/rhysd/actionlint/issues/648
 actionlint \
 	-ignore 'input "client-id" is not defined in action "actions/create-github-app-token' \
 	-ignore 'missing input "app-id" which is required by action "actions/create-github-app-token' \

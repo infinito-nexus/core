@@ -6,18 +6,22 @@
 
 ## Overview
 
-This role deploys KIX as an Infinito.Nexus web app behind the project's standard `sys-stk-front-proxy` and `web-app-keycloak`'s SSO-proxy sidecar chain. The upstream `kix-on-premise` proxy, backend, and frontend containers ship from `docker-registry.kixdesk.com/public/`. The backend initialises its schema (`scripts/database/kix-schema.xml`) against the central `svc-db-postgres` cluster, or against the embedded postgres sidecar when no central provider is in the inventory, with `pg_trgm` pre-activated via `services.postgres.extensions`; the cache is the role-local passwordless redis sidecar (the frontend ignores `REDIS_CACHE_PASSWORD`). The local `admin` account is seeded via `INITIAL_ADMIN_PW` on first start (see `meta/secrets.yml`) and realigned with the declared credential on every later deploy by `tasks/01_admin.yml`, which runs `files/perl/realign_admin_password.pl` inside the backend.
+This role deploys KIX as an Infinito.Nexus web app behind the project's standard [svc-stack](../svc-stack/README.md) front proxy and `web-app-keycloak`'s SSO-proxy sidecar chain. The upstream `kix-on-premise` proxy, backend, and frontend containers ship from `docker-registry.kixdesk.com/public/`. The backend initialises its schema (`scripts/database/kix-schema.xml`) against the central `svc-db-postgres` cluster, or against the embedded postgres sidecar when no central provider is in the inventory, with `pg_trgm` pre-activated via `services.postgres.extensions`; the cache is the role-local passwordless redis sidecar (the frontend ignores `REDIS_CACHE_PASSWORD`). The local `admin` account is seeded via `INITIAL_ADMIN_PW` on first start (see `meta/secrets.yml`) and realigned with the declared credential on every later deploy by `tasks/01_admin.yml`, which runs `files/perl/realign_admin_password.pl` inside the backend.
 
 ## Features
 
-- **TLS and HSTS:** KIX is reachable at `kix.<DOMAIN_PRIMARY>` via `sys-stk-front-proxy` with HSTS enabled.
+- **TLS and HSTS:** KIX is reachable at `kix.<DOMAIN_PRIMARY>` via the `svc-stack` front proxy with HSTS enabled.
 - **OAuth2 proxy gate:** Every request is gated by `web-app-keycloak`'s SSO-proxy sidecar (`services.sso.enabled: true`). The Keycloak realm-level OTP and WebAuthn flow enforces 2FA before the OAuth2 proxy admits a session; KIX itself carries no 2FA logic.
-- **Per-app RBAC:** Members of `/roles/web-app-kix/administrator` or `/roles/web-app-kix/user` are admitted to KIX; other users are blocked at the OAuth2 proxy. The `user` role is declared via `meta/rbac.yml` so non-admin agents can be granted helpdesk access without bumping them to global administrator.
-- **LDAP user directory:** KIX' `Auth::LDAP` and `Auth::Sync::LDAP` modules are wired against `svc-db-openldap`, with one backend per role group. On first login KIX pulls the user's profile (display name, email, group membership) from LDAP, so no manual KIX-side user pre-creation is required.
+- **Per-app RBAC:** Members of `/roles/web-app-kix/administrator` or `/roles/web-app-kix/user` are admitted to KIX; other users are blocked at the OAuth2 proxy. On every sign-in `GroupDNBasedRoleSync` sets the KIX roles from the role groups: `administrator` grants `Superuser`, `user` grants `Ticket Agent`, and a role the user no longer holds is revoked.
+- **LDAP user directory:** KIX' `Auth::LDAP` and `Auth::Sync::LDAP` modules are wired against `svc-db-openldap`, with one backend per role group and one shared sync (`KIX_LDAP_SYNC` in `vars/main.yml`). On every sign-in KIX creates or updates the contact from LDAP: first name, last name, email, login, title, phone, mobile, street, postal code, city, country and the description as comment, all read from the `LDAP.USER.ATTRIBUTES` keys.
 - **Custom `kix-proxy` routing:** The role bind-mounts a complete `default.conf` into the upstream `kix-proxy` container that exposes the agent portal on port 80, routes through the frontend Node server, and forwards the OAuth2-proxy `X-Forwarded-User` header as a `Remote-User` upstream header.
 - **Outbound mail:** KIX notification mail flows through the project's `sys-svc-mail-smtp` relay.
 - **Dashboard card:** `web-app-dashboard` surfaces a KIX tile pointing at the canonical URL.
 - **Universal logout:** The project logout endpoint terminates the KIX session alongside every other Infinito.Nexus app.
+
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to. A follow-up tightens them.
 
 ## Further Resources
 
@@ -29,4 +33,4 @@ This role deploys KIX as an Infinito.Nexus web app behind the project's standard
 
 This role declares `PERSONA_BIBER_BLOCKED` in `templates/playwright.env.j2`. KIX sits behind an oauth2-proxy whose `sso.oauth2.allowed_groups` in `meta/services.yml` admits only `roles/web-app-kix/administrator` and `roles/web-app-kix/user`; biber belongs to neither, so the proxy denies him before KIX renders anything. Past the proxy KIX is a two-stage login: the SPA still presents its own agent form at `/auth` that binds against LDAP, and the shared persona helper has no second stage after the Keycloak round-trip.
 
-The runnable journey lives in `files/playwright/test-login-biber.js`, which first grants biber the KIX user group over the Keycloak Admin API and then drives `runKixLoginLogoutFlow` through both stages to the universal logout. The path back to the generic persona is a KIX build that accepts the proxy's trusted headers instead of demanding its own login.
+The runnable journey lives in `files/playwright/test-login-biber.js`, which grants biber the KIX user group over the Keycloak Admin API for the scenario, drives `runKixLoginLogoutFlow` through both stages to the universal logout and removes the grant again. Its LDAP-only twin, and the one in `files/playwright/test-login-administrator.js`, sign in through the KIX-LDAP login directly while SSO is off, with biber's group membership written to the directory. `files/playwright/test-rbac.js` asserts the proxy refusal for biber without a group and, while SSO is off, the contact fields and Superuser role the sync applies. The path back to the generic persona is a KIX build that accepts the proxy's trusted headers instead of demanding its own login.

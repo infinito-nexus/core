@@ -1,10 +1,10 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-playwright — S3 backs work-package attachments (embedded FOG storage); no standalone object-browser surface to script, consistent with the playwright-service-flag exemption on the seaweedfs key.
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
   shared: "{{ 'web-svc-logout' in group_names }}"
-# nocheck: playwright-service-flag — identity backend, no Playwright surface (verified by the OIDC bridge specs)
 ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"
@@ -19,8 +19,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
   bond: 1
@@ -104,6 +104,10 @@ sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oauth2
+  header_trust:
+    proxy_secret: auth_source_sso_secret
+    switch: "lookup('sso', application_id, 'is_proxy_gated') and services.ldap.enabled"
+    files: [templates/env.j2]
   oauth2:
     origin:
       host: proxy
@@ -113,6 +117,9 @@ sso:
         - /users/me
         - /api/
         - /oauth/token
+    allowed_groups:
+      - "{{ lookup('rbac_group_path', application_id='web-app-openproject', role='administrator') }}"
+      - "{{ lookup('rbac_group_path', application_id='web-app-openproject', role='user') }}"
 # nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
 design:
   bond: 1
@@ -148,12 +155,17 @@ openproject:
   shared: true
   repository: https://github.com/opf/openproject-deploy
   ref: "stable/{{ lookup('config', 'web-app-openproject', 'services.web.version') }}"
+  ref_kind: branch
   ldap:
     filters:
-      administrators: false
-      users: false
+      administrators: true
+      users: true
   admin:
     force: false
+  app_title: "{{ lookup('design', 'web-app-openproject').label }}"
+  host_name: "{{ lookup('domain', 'web-app-openproject') }}"
+  https: "{{ lookup('tls', 'web-app-openproject', 'enabled') }}"
+  user_default_theme: sync_with_os
   ports:
     local:
       sso: 16483
@@ -193,3 +205,26 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  checkout:
+    ref: "{{ lookup('config', 'web-app-openproject', 'services.openproject.ref') }}"
+    url: "{{ lookup('config', 'web-app-openproject', 'services.openproject.repository') }}"
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

@@ -1,0 +1,24 @@
+---
+# Param: playwright_pass_started - Unix time the pass started on the stack host clock
+- name: 🔐 Check the back-channel logout calls Keycloak sent since the pass started
+  when: "'web-app-keycloak' in group_names"
+  block:
+    - name: 🔍 Read the back-channel logout calls Keycloak failed since the pass started
+      ansible.builtin.script: "{{ lookup('path_absolute', 'roles/web-svc-logout/files/shell/backchannel_failures.sh') }}"
+      environment:
+        SINCE: "{{ playwright_pass_started }}"
+        SERVICE: "{{ lookup('container_service', 'web-app-keycloak', 'keycloak') }}"
+        SWARM: "{{ IS_SWARM_MODE | bool | string | lower }}"
+      register: _logout_backchannel_failures
+      changed_when: false
+      failed_when: false
+      become: true
+      delegate_to: "{{ STACK_HOST }}"
+
+    - name: ❌ Fail when Keycloak's log is unreadable or names a failed back-channel logout
+      ansible.builtin.fail:
+        msg: >-
+          {{ ('reading the log of Keycloak failed: ' ~ (_logout_backchannel_failures.stderr_lines[-3:] | join(' ')))
+             if _logout_backchannel_failures.rc != 0
+             else ('Keycloak failed the back-channel logout call of ' ~ (_logout_backchannel_failures.stdout_lines | join(', '))) }}
+      when: (_logout_backchannel_failures.rc != 0) or (_logout_backchannel_failures.stdout_lines | length > 0)

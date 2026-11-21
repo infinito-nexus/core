@@ -1,5 +1,7 @@
 import unittest
+import unittest.mock as mock
 
+from utils.networks import reachability
 from utils.preflight.domains import clearnet_domains
 
 
@@ -20,6 +22,16 @@ class TestClearnetDomains(unittest.TestCase):
             clearnet_domains(["abc.onion", "x.abc.onion", "example.org"]),
             ["example.org"],
         )
+
+    def test_every_registry_network_but_clearnet_is_left_out(self):
+        overlay = reachability.Network(
+            "overlay", "overlay", None, ".overlay.test", False, False, 1
+        )
+        with mock.patch.dict(reachability.NETWORKS, {"overlay": overlay}):
+            self.assertEqual(
+                clearnet_domains(["wiki.overlay.test", "abc.onion", "example.org"]),
+                ["example.org"],
+            )
 
     def test_case_trailing_dots_and_duplicates_collapse(self):
         self.assertEqual(

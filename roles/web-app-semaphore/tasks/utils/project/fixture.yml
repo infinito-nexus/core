@@ -1,0 +1,158 @@
+---
+- name: "🔑 Name the root key this host holds for the shared target"
+  ansible.builtin.command:
+    argv:
+      - sed
+      - -n
+      - s/^INFINITO_TARGET_KEY=//p
+      - "{{ [SEMAPHORE_DEPLOY_FIXTURE_SRC_DIR, '.env'] | path_join }}"
+  register: semaphore_deploy_fixture_key
+  changed_when: false
+  failed_when: semaphore_deploy_fixture_key.rc != 0 or semaphore_deploy_fixture_key.stdout_lines | length != 1
+
+- name: "📖 Read the address, pinned host keys and root key of the shared target"
+  ansible.builtin.slurp:
+    src: "{{ semaphore_deploy_fixture_key.stdout ~ semaphore_deploy_fixture_suffix }}"
+  loop:
+    - .address
+    - .known_hosts
+    - .pub
+  loop_control:
+    loop_var: semaphore_deploy_fixture_suffix
+  register: semaphore_deploy_fixture_target
+
+- name: "📌 Hold the address, the pinned host keys and the root key of the shared target"
+  ansible.builtin.set_fact:
+    semaphore_deploy_fixture_address: "{{ semaphore_deploy_fixture_target.results[0].content | b64decode | trim }}"
+    semaphore_deploy_fixture_known_hosts: "{{ (semaphore_deploy_fixture_target.results[1].content | b64decode).splitlines() | select | list }}"
+    semaphore_deploy_fixture_holder_key: "{{ semaphore_deploy_fixture_target.results[2].content | b64decode | trim }}"
+
+- name: "✅ Fail when the fixture key equals the root, app-control, deploy or target key"
+  ansible.builtin.assert:
+    that:
+      - semaphore_fixture_workspace_findings | length == 0
+    fail_msg: "{{ semaphore_fixture_workspace_findings | join('; ') }}"
+    quiet: true
+  vars:
+    semaphore_fixture_workspace_findings: >-
+      {{ SEMAPHORE_DEPLOY_FIXTURE_WORKSPACE_PUBLIC_KEY | semaphore_fixture_key_findings({
+           'root': SEMAPHORE_DEPLOY_FIXTURE_ROOT_PUBLIC_KEY,
+           'app-control': SEMAPHORE_APP_CONTROL_PRIVATE_KEY | ssh_public_key,
+           'deploy': SEMAPHORE_DEPLOY_FIXTURE_PUBLIC_KEY,
+           'target': semaphore_deploy_fixture_holder_key,
+         }) }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🗂️ Build the Workspaces inventory of the platform host"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/utils/project/fixture/platform.yml"
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔐 Authorize the Semaphore deploy and fixture keys for root on the shared target"
+  ansible.builtin.command:
+    argv:
+      - ssh
+      - -i
+      - "{{ semaphore_deploy_fixture_key.stdout }}"
+      - -o
+      - BatchMode yes
+      - -o
+      - StrictHostKeyChecking yes
+      - -o
+      - "UserKnownHostsFile {{ semaphore_deploy_fixture_key.stdout }}.known_hosts"
+      - "root@{{ semaphore_deploy_fixture_address }}"
+      - >-
+        read -r key || :; : "${key:?arrived empty on stdin}"; if grep -qxF "$key" /root/.ssh/authorized_keys; then echo UNCHANGED;
+        else printf '%s\n' "$key" >>/root/.ssh/authorized_keys && echo CHANGED; fi
+    stdin: "{{ semaphore_deploy_fixture_authorized }}"
+  loop:
+    - "{{ SEMAPHORE_DEPLOY_FIXTURE_PUBLIC_KEY }}"
+    - "{{ SEMAPHORE_DEPLOY_FIXTURE_WORKSPACE_PUBLIC_KEY }}"
+  loop_control:
+    loop_var: semaphore_deploy_fixture_authorized
+    label: "{{ semaphore_deploy_fixture_authorized.split()[1][-16:] }}"
+  register: semaphore_deploy_fixture_authorize
+  changed_when: "'CHANGED' in semaphore_deploy_fixture_authorize.stdout"
+
+- name: "🔍 Resolve the node and container of Gitea"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: gitea
+    resolve_service_name: "{{ lookup('container_service', 'web-app-gitea', 'gitea') if IS_SWARM_MODE else '' }}"
+    resolve_output_prefix: SEMAPHORE_GITEA
+    resolve_compose_cid: "{{ lookup('config', 'web-app-gitea', 'services.gitea.name') }}"
+
+- name: "🔍 Resolve the Gitea network namespace for the inventory repository calls"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+  vars:
+    netns_output_prefix: SEMAPHORE_GITEA
+
+- name: "🔎 Read the fixture marker of the inventory repository"
+  ansible.builtin.command:
+    argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
+    stdin: "{{ lookup('http_request_program', '', headers=SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS) }}"
+  environment:
+    HTTP_METHOD: GET
+    HTTP_URL: >-
+      {{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}/raw/{{ SEMAPHORE_DEPLOY_FIXTURE_MARKER
+      }}?ref={{ SEMAPHORE_DEPLOY_REPOSITORY_BRANCH | urlencode }}
+  register: semaphore_deploy_fixture_marker
+  retries: 30
+  delay: 2
+  until: semaphore_deploy_fixture_marker.rc == 0 and (semaphore_deploy_fixture_marker.stdout | from_json).status in [200, 404]
+  changed_when: false
+  delegate_to: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
+  become: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🏗️ Recreate the inventory repository for the current keys and target"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/project/fixture/repository.yml"
+  when: >-
+    (semaphore_deploy_fixture_marker.stdout | from_json).status != 200
+    or ((semaphore_deploy_fixture_marker.stdout | from_json).content | trim) != SEMAPHORE_DEPLOY_FIXTURE_FINGERPRINT
+
+- name: "🔎 List the deploy keys of the inventory repository"
+  ansible.builtin.command:
+    argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
+    stdin: "{{ lookup('http_request_program', '', headers=SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS) }}"
+  environment:
+    HTTP_METHOD: GET
+    HTTP_URL: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}/keys"
+  register: semaphore_deploy_fixture_keys
+  retries: 30
+  delay: 2
+  until: semaphore_deploy_fixture_keys.rc == 0 and (semaphore_deploy_fixture_keys.stdout | from_json).status == 200
+  changed_when: false
+  delegate_to: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
+  become: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 Bind the inventory repository key to the repository, read-only"
+  ansible.builtin.command:
+    argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
+    stdin: >-
+      {{ lookup('http_request_program', {
+        'title': SEMAPHORE_DEPLOY_REPOSITORY_KEY_NAME,
+        'key': SEMAPHORE_DEPLOY_REPOSITORY_KEY | ssh_public_key,
+        'read_only': true,
+      } | to_json, headers=SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS) }}
+  environment:
+    HTTP_METHOD: POST
+    HTTP_URL: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}/keys"
+  register: semaphore_deploy_fixture_bind
+  retries: 30
+  delay: 2
+  until: semaphore_deploy_fixture_bind.rc == 0 and (semaphore_deploy_fixture_bind.stdout | from_json).status == 201
+  changed_when: true
+  delegate_to: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
+  become: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: >-
+    (semaphore_deploy_fixture_keys.stdout | from_json).content | from_json
+    | selectattr('key', 'search', (SEMAPHORE_DEPLOY_REPOSITORY_KEY | ssh_public_key).split()[1] | regex_escape)
+    | list | length == 0
+
+- name: "🔐 Hand OpenBao the platform credentials the workspace fixture references"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/project/fixture/credentials.yml"
+  when: SEMAPHORE_WORKSPACES_ENABLED | bool

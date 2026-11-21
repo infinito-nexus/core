@@ -1,5 +1,6 @@
 ---
-enabled: "{{ lookup('config', 'web-app-wordpress', 'services.sso.enabled') | bool }}"
+enabled: "{{ (lookup('config', 'web-app-wordpress', 'services.sso.enabled') | bool) and (lookup('config', 'web-app-wordpress', 'services.wordpress.login.method.sso.enabled')
+  | bool) }}"
 required: false
 mechanism: plugin
 source: upstream
@@ -19,19 +20,19 @@ config:
     endpoint_userinfo: "{{ OIDC.CLIENT.USER_INFO_URL }}"
     endpoint_jwks: "{{ OIDC.CLIENT.CERTS }}"
     endpoint_end_session: "{{ OIDC.CLIENT.LOGOUT_URL }}"
-    login_type: "auto"
+    login_type: "{{ 'button' if (lookup('config', 'web-app-wordpress', 'services.wordpress.login.method.native.enabled') | bool) else 'auto' }}"
     scope: "openid profile email {{ RBAC.GROUP.CLAIM }}"
     create_if_does_not_exist: true
     enforce_privacy: false
     link_existing_users: false
     redirect_on_logout: true
     redirect_user_back: true
-    enable_logging: "{{ MODE_DEBUG }}"
+    enable_logging: "{{ lookup('debug', 'web-app-wordpress') }}"
     no_sslverify: false
     http_request_timeout: 5
     identity_key: "{{ OIDC.ATTRIBUTES.USERNAME }}"
     nickname_key: "{{ OIDC.ATTRIBUTES.USERNAME }}"
     email_format: "{{ '{' ~ OIDC.ATTRIBUTES.EMAIL ~ '}' }}"
-    displayname_format: "{{ OIDC.ATTRIBUTES.GIVEN_NAME }} {{ OIDC.ATTRIBUTES.FAMILY_NAME }}"
+    displayname_format: "{{ '{' ~ OIDC.ATTRIBUTES.GIVEN_NAME ~ '} {' ~ OIDC.ATTRIBUTES.FAMILY_NAME ~ '}' }}"
     identify_with_username: false
     state_time_limit: 180

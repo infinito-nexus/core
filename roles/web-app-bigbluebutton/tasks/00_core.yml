@@ -1,26 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🧩 load docker, proxy for '{{ application_id }}'"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-    compose_repository_pull: true
-    compose_repository_url: "{{ BBB_REPOSITORY }}"
-    compose_repository_ref: "{{ BBB_REF }}"
-    compose_repository_recursive: false
-    webserver_extra_configuration: >-
-      {{ lookup(
-           'ansible.builtin.template',
-           lookup('path_absolute', 'roles/sys-svc-proxy/templates/location/html.conf.j2'),
-           template_vars={
-             'location': '^~ /html5client',
-             'sso_proxy_enabled': false,
-             'proxy_lua_enabled': false
-           }
-         ) | trim }}
-
 - name: "👔 BBB manager-side operations (compose render + container exec)"
   include_tasks: 00_core/manager_ops.yml
   when: IS_STACK_HOST | bool

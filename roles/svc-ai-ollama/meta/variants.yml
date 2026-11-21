@@ -42,10 +42,9 @@
     ollama:
       mem_reservation: 3g
       mem_limit: 6g
-      preload_models:
-        - alias: qwen2.5:0.5b
-          context: 4096
-        - alias: smollm2:135m
-          context: 8192
-        - alias: llama3.2:1b
-          context: 65536
+      preload_models: >-
+        {{ AI_LOCAL_MODELS | selectattr('alias', 'equalto', 'llama3.2:1b')
+           | product([{'alias': 'llama3.2:1b-4k', 'context': 4096},
+                      {'alias': 'llama3.2:1b-8k', 'context': 8192},
+                      {'context': 65536}])
+           | map('combine') | list }}

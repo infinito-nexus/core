@@ -41,13 +41,12 @@ The catalog entry lives in
 Globally-exempt services
 ------------------------
 
-Services whose verification is owned by their own provider's
-parameterised spec (``dashboard``, ``prometheus``)
-are globally exempt: every consumer role declares them in
-``meta/services.yml`` for inventory completeness, but the per-role
-env templates intentionally do NOT render the
-``<NAME>_SERVICE_ENABLED=`` flag because the persona scenarios no
-longer gate on them. The provider specs
+Services whose verification is owned by their own provider's spec
+(``dashboard``, ``prometheus``, ``semaphore``) are globally exempt: every
+consumer role declares them in ``meta/services.yml`` for inventory
+completeness, but the per-role env templates intentionally do NOT render
+the ``<NAME>_SERVICE_ENABLED=`` flag because the persona scenarios no
+longer gate on them. The dashboard and prometheus specs
 (``roles/web-app-{dashboard,prometheus}/files/playwright/playwright.spec.js``)
 parameterise one assertion per consumer using the
 ``DASHBOARD_TARGET_ROLES_JSON`` / ``PROMETHEUS_TARGET_ROLES_JSON``
@@ -78,7 +77,9 @@ _RULE = "playwright-service-flag"
 _ENV_TEMPLATE_REL = "templates/playwright.env.j2"  # nocheck: role-file-spot
 _ENV_KEY_LHS_RE = re.compile(r"^([A-Z_][A-Z0-9_]*)\s*=", re.MULTILINE)
 
-_SPOT_OWNED_SERVICES: frozenset[str] = frozenset({"dashboard", "prometheus"})
+_SPOT_OWNED_SERVICES: frozenset[str] = frozenset(
+    {"dashboard", "prometheus", "semaphore"}
+)
 
 
 def _service_to_env_key(name: str) -> str:

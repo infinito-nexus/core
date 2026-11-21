@@ -1,0 +1,65 @@
+(function () {
+  const hideForm = {{ (not (ODOO_LOGIN_FORM | bool)) | to_json }};
+  const hidePasskey = {{ (not (ODOO_LOGIN_PASSKEY | bool)) | to_json }};
+  const hideTwoFactor = {{ (not (ODOO_LOGIN_2FA | bool)) | to_json }};
+  const breakGlass = new URLSearchParams(window.location.search).get("fallback") === "local";
+
+  function hide(element) {
+    if (element) {
+      element.style.setProperty("display", "none", "important");
+    }
+  }
+
+  function shown(element) {
+    return element.style.getPropertyValue("display") !== "none";
+  }
+
+  function hideLoginEntries() {
+    const form = document.querySelector("form.oe_login_form");
+    if (!form) {
+      return;
+    }
+    if (hideForm && !breakGlass) {
+      form
+        .querySelectorAll(
+          ".field-login, .o_caps_lock_warning, .oe_login_buttons > button[type='submit'], a[href^='/web/reset_password']",
+        )
+        .forEach(hide);
+    }
+    if (hidePasskey) {
+      form.querySelectorAll("a.passkey_login_link").forEach(hide);
+    }
+    form.querySelectorAll(".o_login_auth").forEach((auth) => {
+      const entries = Array.from(auth.querySelectorAll("a.list-group-item")).filter(shown);
+      if (entries.length === 0) {
+        hide(auth);
+      } else if (hideForm && !breakGlass) {
+        auth.querySelectorAll(":scope > em").forEach(hide);
+      }
+    });
+  }
+
+  function hideEnrollment() {
+    if (hidePasskey) {
+      document.querySelectorAll("button[name='action_create_passkey']").forEach(hide);
+    }
+    if (hideTwoFactor) {
+      document.querySelectorAll("button[name='action_totp_enable_wizard']").forEach(hide);
+    }
+  }
+
+  function run() {
+    hideLoginEntries();
+    hideEnrollment();
+    if (hidePasskey || hideTwoFactor) {
+      new MutationObserver(hideEnrollment).observe(document.body, { childList: true, subtree: true });
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run, { once: true });
+  } else {
+    run();
+  }
+})();
+{% include 'roles/sys-front-inj-javascript/templates/profile_lock.js.j2' %}

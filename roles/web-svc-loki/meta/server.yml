@@ -1,0 +1,10 @@
+---
+client_max_body_size: 16m
+status_codes:
+  default:
+    - 404
+vhosts:
+  default:
+    service_key: gateway
+    http_port: "{{ lookup('config', 'web-svc-loki', 'services.gateway.ports.local.push') }}"
+    internal_port: "{{ lookup('config', 'web-svc-loki', 'services.gateway.ports.internal.push') }}"
