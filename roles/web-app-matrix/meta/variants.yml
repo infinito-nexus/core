@@ -42,7 +42,8 @@
       enabled: false
       shared: false
     jitsi:
-      shared: true
+      enabled: false
+      shared: false
     ldap:
       enabled: true
       shared: true
