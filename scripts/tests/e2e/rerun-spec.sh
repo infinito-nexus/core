@@ -18,6 +18,7 @@
 # Usage:
 #   scripts/tests/e2e/rerun-spec.sh <role> [playwright args...]  # nocheck: self-path-reference
 #   scripts/tests/e2e/rerun-spec.sh web-app-nextcloud --grep "talk admin"  # nocheck: self-path-reference
+#   PLAYWRIGHT_SPEC_SECRETS_FILE=<rendered KEY=VALUE file> scripts/tests/e2e/rerun-spec.sh <role>  # nocheck: self-path-reference
 set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
@@ -75,6 +76,49 @@ command -v docker >/dev/null || {
 	exit 1
 }
 
+cmd="${TEST_E2E_PLAYWRIGHT_COMMAND:-npm install --no-fund --no-audit && npx playwright test${*:+ $*}}"
+
+if [[ "${TEST_E2E_PLAYWRIGHT_NETWORK_HOST:-}" == "true" ]]; then
+	net_args=(--network host)
+	proxy_host="127.0.0.1"
+else
+	net_args=(--add-host=host.docker.internal:host-gateway)
+	proxy_host="host.docker.internal"
+fi
+
+proxy_env=()
+base_url="$(sed -n 's/^APP_BASE_URL=//p' "$env_file" | tr -d '"')"
+if [[ "$base_url" =~ \.onion(/|$) ]]; then
+	default_proxy="socks5://${proxy_host}:${INFINITO_TOR_SOCKS_PORT:?INFINITO_TOR_SOCKS_PORT unset (built by the env handler from svc-net-tor services.tor.ports.local.socks)}"
+	proxy_env=(-e "PLAYWRIGHT_PROXY=${PLAYWRIGHT_PROXY:-$default_proxy}")
+fi
+
+secret_args=()
+if [[ -f "$repo_root/roles/$role/templates/playwright.secrets.j2" ]]; then
+	secrets_file="${PLAYWRIGHT_SPEC_SECRETS_FILE:?$role ships templates/playwright.secrets.j2: set PLAYWRIGHT_SPEC_SECRETS_FILE to a file holding its rendered KEY=VALUE lines}"
+	[[ -f "$secrets_file" ]] || {
+		echo "missing spec secrets file: $secrets_file" >&2
+		exit 1
+	}
+	capture_flags='(^|[[:space:]])(--(reporter|output|trace|config|ui|ui-host|ui-port|update-snapshots)([[:space:]=]|$)|-[[:alpha:]]*[cu])'
+	[[ ! "$cmd" =~ $capture_flags ]] || {
+		echo "$role ships templates/playwright.secrets.j2: --reporter, --output, --trace, -c/--config, --ui and -u/--update-snapshots would record form input or bypass the capture switch" >&2
+		exit 2
+	}
+	spec_secrets="$repo_root/roles/test-e2e-playwright/files/spec_secrets.py"
+	masker="$repo_root/roles/test-e2e-playwright/files/spec_secrets_mask.py"
+	run_name="infinito-playwright-rerun-$$"
+	secrets_dir="$(python3 "$spec_secrets" create 0 "$$")"
+	trap 'docker rm --force "$run_name" >/dev/null 2>&1; python3 -B "$masker" scrub "$secrets_dir" "$stage_dir" "$reports_dir" || echo "spec secrets: check $reports_dir and $stage_dir, masking failed" >&2; rm -rf -- "$secrets_dir"' EXIT
+	install -m 0400 "$secrets_file" "$secrets_dir/.rendered"
+	python3 "$spec_secrets" split "$secrets_dir"
+	python3 -B "$masker" scrub "$secrets_dir" "$stage_dir" "$reports_dir"
+	trap 'docker rm --force "$run_name" >/dev/null 2>&1; wait; exit 129' HUP
+	trap 'docker rm --force "$run_name" >/dev/null 2>&1; wait; exit 130' INT
+	trap 'docker rm --force "$run_name" >/dev/null 2>&1; wait; exit 143' TERM
+	secret_args=(--name "$run_name" --mount "type=bind,src=$secrets_dir,dst=/run/spec-secrets,readonly" -e INFINITO_PLAYWRIGHT_NO_CAPTURE=true -e NO_COLOR=1 -e FORCE_COLOR=0)
+fi
+
 mkdir -p "$stage_dir/tests" "$stage_dir/volume" "$reports_dir"
 for role_js in "$role_playwright_dir"/*.js; do
 	[[ -f "$role_js" ]] || continue
@@ -85,6 +129,7 @@ for helper_src in "$repo_root/roles/test-e2e-playwright/files"/*.js; do
 	[[ "$(basename "$helper_src")" == "playwright.config.js" ]] && continue
 	cp "$helper_src" "$stage_dir/tests/$(basename "$helper_src")"
 done
+cp "$repo_root/roles/test-e2e-playwright/files/playwright.config.js" "$stage_dir/playwright.config.js"
 personas_dir="$repo_root/roles/test-e2e-playwright/files/personas"
 if [[ -d "$personas_dir" ]]; then
 	mkdir -p "$stage_dir/tests/personas/utils"
@@ -108,34 +153,21 @@ for sub in addons fixtures; do
 	done
 done
 
-cmd="${TEST_E2E_PLAYWRIGHT_COMMAND:-npm install --no-fund --no-audit && npx playwright test${*:+ $*}}"
-
-if [[ "${TEST_E2E_PLAYWRIGHT_NETWORK_HOST:-}" == "true" ]]; then
-	net_args=(--network host)
-	proxy_host="127.0.0.1"
-else
-	net_args=(--add-host=host.docker.internal:host-gateway)
-	proxy_host="host.docker.internal"
-fi
-
-proxy_env=()
-base_url="$(sed -n 's/^APP_BASE_URL=//p' "$env_file" | tr -d '"')"
-if [[ "$base_url" =~ \.onion(/|$) ]]; then
-	default_proxy="socks5://${proxy_host}:${INFINITO_TOR_SOCKS_PORT:?INFINITO_TOR_SOCKS_PORT unset (built by the env handler from svc-net-tor services.tor.ports.local.socks)}"
-	proxy_env=(-e "PLAYWRIGHT_PROXY=${PLAYWRIGHT_PROXY:-$default_proxy}")
-fi
-
-exec docker run --rm \
-	--ipc=host --shm-size=1g \
-	"${net_args[@]}" \
-	--env-file "$env_file" \
-	-e "INFINITO_PLAYWRIGHT_KEEP=${INFINITO_PLAYWRIGHT_KEEP:-}" \
-	-e "PLAYWRIGHT_GALLERY_VIEWS=${PLAYWRIGHT_GALLERY_VIEWS:-}" \
-	-e "PLAYWRIGHT_GALLERY_BEFORE=${PLAYWRIGHT_GALLERY_BEFORE:-}" \
-	"${proxy_env[@]}" \
-	-v "$stage_dir:/e2e" \
-	-v "$stage_dir/volume:/volume" \
-	-v "$reports_dir:/reports" \
-	-w /e2e \
-	"$image" \
-	/bin/bash -lc "$cmd"
+run=(docker run --rm
+	--ipc=host --shm-size=1g
+	"${net_args[@]}"
+	--env-file "$env_file"
+	-e "INFINITO_PLAYWRIGHT_KEEP=${INFINITO_PLAYWRIGHT_KEEP:-}"
+	-e "PLAYWRIGHT_GALLERY_VIEWS=${PLAYWRIGHT_GALLERY_VIEWS:-}"
+	-e "PLAYWRIGHT_GALLERY_BEFORE=${PLAYWRIGHT_GALLERY_BEFORE:-}"
+	"${proxy_env[@]}"
+	-v "$stage_dir:/e2e"
+	-v "$stage_dir/volume:/volume"
+	-v "$reports_dir:/reports"
+	"${secret_args[@]}"
+	-w /e2e
+	"$image"
+	/bin/bash -lc "$cmd")
+((${#secret_args[@]})) || exec "${run[@]}"
+python3 -B "$masker" mask "$secrets_dir" "$stage_dir" "$reports_dir" -- "${run[@]}" &
+wait "$!"

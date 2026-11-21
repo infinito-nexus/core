@@ -3,6 +3,8 @@
   ansible.builtin.file:
     path: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}"
     state: directory
+    owner: root
+    group: root
     mode: "0755"
 
 - name: ✅ Ensure reports base dir exists
@@ -10,6 +12,12 @@
     path: "{{ TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR }}"
     state: directory
     mode: "0755"
+
+- name: 🧹 Remove the spec secrets a killed run left behind
+  ansible.builtin.script: "{{ role_path }}/files/spec_secrets.py prune"
+  register: _playwright_spec_secrets_pruned
+  changed_when: "'removed:' in _playwright_spec_secrets_pruned.stdout"
+  failed_when: false
 
 - name: 🧰 Prepare shared @playwright/test install
   ansible.builtin.include_tasks: 01_setup.yml

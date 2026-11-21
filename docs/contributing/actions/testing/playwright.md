@@ -74,6 +74,8 @@ Set the variable for the contexts you need:
 | `true` (case-insensitive) | `on` | `on` | `on` |
 | any other value, unset, or empty | `retain-on-failure` | `only-on-failure` | `retain-on-failure` |
 
+A role that ships `templates/playwright.secrets.j2` overrides both rows: its run sets `INFINITO_PLAYWRIGHT_NO_CAPTURE=true`, which turns trace, screenshot, video, the HTML report and the failure page snapshot off and keeps `test-results` inside the container. See [Spec secrets](../../../../roles/test-e2e-playwright/README.md#spec-secrets).
+
 ## File Requirements 📄
 
 See the dedicated SPOT pages for authoring rules:
