@@ -175,6 +175,7 @@ env:
   INFINITO_ARCHITECTURES: ${{ inputs.architectures }}
   INFINITO_LIFECYCLES: ${{ inputs.lifecycles }}
   INFINITO_DISCOVERY_SEED: ${{ github.run_id }}
+  INFINITO_CI_CONCURRENCY: ${{ vars.INFINITO_CI_CONCURRENCY }}
 
 jobs:
   discover:

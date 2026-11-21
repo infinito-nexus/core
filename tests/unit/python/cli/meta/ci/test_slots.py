@@ -8,6 +8,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from cli.meta.ci import chunks, slots
+from utils.cache.files import PROJECT_ROOT
+from utils.env.parser import parse_static_env
 
 _SETTINGS = {
     "INFINITO_CI_JOB_LIMIT": "256",
@@ -211,6 +213,25 @@ class TestChunkArithmetic(unittest.TestCase):
         ):
             self.assertEqual(slots.chunk_size(Path(tmp)), slots.MATRIX_CAP)
 
+    def test_enterprise_concurrency_leaves_the_job_cap_as_the_only_limit(
+        self,
+    ) -> None:
+        with (
+            _tree() as tmp,
+            mock.patch.dict(
+                "os.environ",
+                {
+                    **_SETTINGS,
+                    "INFINITO_CI_CONCURRENCY": "500",
+                    "INFINITO_CI_CHUNK_SIZE": "0",
+                },
+            ),
+        ):
+            root = Path(tmp)
+            self.assertGreater(slots.chunk_size(root), slots.available(root))
+            self.assertEqual(slots.chunk_count(root), 1)
+            self.assertEqual(slots.rows_per_sweep(root), slots.available(root))
+
 
 _UNLIMITED = {**_SETTINGS, "INFINITO_CI_JOB_LIMIT": "0"}
 
@@ -269,6 +290,23 @@ class TestUnlimitedBudget(unittest.TestCase):
             table = slots.render_matrix()
         self.assertRegex(table, r"available\s+unlimited\n")
         self.assertRegex(table, r"job limit \(INFINITO_CI_JOB_LIMIT\)\s+0\n")
+
+
+class TestConcurrencySetting(unittest.TestCase):
+    def test_an_empty_or_blank_value_falls_back_to_default_env(self) -> None:
+        declared = int(
+            parse_static_env(PROJECT_ROOT / "default.env")["INFINITO_CI_CONCURRENCY"]
+        )
+        for raw in ("", "   "):
+            with (
+                self.subTest(raw=raw),
+                mock.patch.dict("os.environ", {"INFINITO_CI_CONCURRENCY": raw}),
+            ):
+                self.assertEqual(slots.setting("INFINITO_CI_CONCURRENCY"), declared)
+
+    def test_a_set_value_wins_over_default_env(self) -> None:
+        with mock.patch.dict("os.environ", {"INFINITO_CI_CONCURRENCY": "500"}):
+            self.assertEqual(slots.setting("INFINITO_CI_CONCURRENCY"), 500)
 
 
 class TestRenderMatrix(unittest.TestCase):

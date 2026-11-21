@@ -1,5 +1,6 @@
 import importlib.util
 import sys
+import time
 import unittest
 from unittest.mock import patch
 
@@ -82,6 +83,13 @@ class TestIsDatabase(unittest.TestCase):
                 expected,
                 f"Image {image_name} expected {expected}",
             )
+
+
+class TestSleepPatchEndsWithItsTest(unittest.TestCase):
+    def test_time_sleep_is_real_again_after_a_health_check_test(self):
+        real_sleep = time.sleep
+        TestHealthCheckLogic("test_has_healthcheck_true").run()
+        self.assertIs(time.sleep, real_sleep)
 
 
 if __name__ == "__main__":

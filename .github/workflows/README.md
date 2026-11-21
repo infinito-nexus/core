@@ -90,6 +90,14 @@ can outlast it — so the estimate can only overshoot the real drain time. With
 the current constants that is 4 waves of 20 runners, so 80 rows per chunk, and
 the last job of a chunk starts around t=18h, well inside the 24h window.
 
+The repository variable `INFINITO_CI_CONCURRENCY` overrides the `default.env`
+value; unset or empty keeps it. `call-validation.yml` and `call-test-deploy.yml`
+forward it in their workflow-level `env:`, so the batch count and every chunk's
+cut use the same size. An account that runs 500 jobs at once (GitHub
+Enterprise) gets a chunk larger than `available` below, so a sweep needs one
+chunk, two with a priority line, and only the run's job cap bounds it. See
+[configuration.md](../../docs/contributing/tools/github/actions/configuration.md).
+
 ### How many chunks a sweep spends
 
 The run's 256-job cap is the second ceiling. `slots` counts every non-deploy

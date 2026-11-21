@@ -37,7 +37,7 @@ ltengine:
   custom: true
   gpu: true
   repository: https://github.com/LibreTranslate/LTEngine
-  ref: 3fa19f8b6d3eecbacbdbf79406e0f877ebe11e26
+  ref: v0.1.1
   # nocheck: min-storage-headroom  Reason: the CUDA runtime base the binary is built on, plus the GGUF weights the server downloads into its models volume on first start
   min_storage: 5GB
   model: gemma3-1b
