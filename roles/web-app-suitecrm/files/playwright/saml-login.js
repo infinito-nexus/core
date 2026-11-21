@@ -175,8 +175,8 @@ async function samlLoginTo(page, appBaseUrl, username, password, url) {
  *   page: Playwright page holding a SuiteCRM session.
  *   appBaseUrl: base URL of SuiteCRM without a trailing slash.
  *
- * Returns true when the legacy Administration panel renders, false when SuiteCRM refuses it
- * with "Unauthorized access to administration".
+ * Returns true when the legacy Administration panel renders its System Settings entry, false
+ * when SuiteCRM refuses the module with "You do not have permission to access this module".
  */
 async function holdsAdministration(page, appBaseUrl) {
   const response = await page.request.get(`${appBaseUrl}/legacy/index.php?module=Administration&action=index`, {
@@ -184,8 +184,8 @@ async function holdsAdministration(page, appBaseUrl) {
   });
   expect(response.status(), "the legacy Administration module must answer").toBeLessThan(500);
   const body = await response.text();
-  const refused = /Unauthorized access to administration/i.test(body);
-  const panel = /module=Configurator/i.test(body);
+  const refused = /You do not have permission to access this module/i.test(body);
+  const panel = /id=['"]configphp_settings['"]/i.test(body);
   expect(refused !== panel, "the Administration response must be either the panel or the refusal").toBe(true);
   return panel;
 }

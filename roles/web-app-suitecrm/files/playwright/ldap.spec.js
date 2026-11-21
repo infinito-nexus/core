@@ -30,12 +30,19 @@ test.beforeEach(async ({ page }) => {
 
 /** Sign in through SuiteCRM's own login view and return its session state. */
 async function formLogin(page, username, password) {
+  const loginStrings = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/graphql") &&
+      /"operationName"\s*:\s*"appStrings"/.test(response.request().postData() || ""),
+    { timeout: resolveTimeout(60_000) },
+  );
   const landing = await gotoOnion(page, `${appBaseUrl}/`, { waitUntil: "domcontentloaded" });
   expect(landing, "the app must answer the initial navigation").toBeTruthy();
   expect(landing.status(), "the login view must render, not error").toBeLessThan(400);
 
   const usernameField = page.locator("input[name='username']").first();
   await usernameField.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
+  await loginStrings;
   await usernameField.fill(username);
   await page.locator("input[type='password']").first().fill(password);
 
