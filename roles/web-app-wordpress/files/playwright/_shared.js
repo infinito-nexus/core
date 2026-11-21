@@ -20,6 +20,7 @@ const env = {
   superAdminPassword: decodeDotenvQuotedValue(process.env.SUPER_ADMIN_PASSWORD),
   adminUsername: decodeDotenvQuotedValue(process.env.ADMIN_USERNAME),
   adminPassword: decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD),
+  adminEmail: decodeDotenvQuotedValue(process.env.ADMIN_EMAIL),
   biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
   localAdminUsername: decodeDotenvQuotedValue(process.env.WORDPRESS_ADMIN_USERNAME),
