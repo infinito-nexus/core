@@ -1,31 +1,20 @@
 from __future__ import annotations
 
 import datetime as dt
-import os
 import re
 import string
+from pathlib import Path
 
-from provision import inputs, keystone
+from provision import inputs, keystone, sandbox
 
 HOST = re.compile(r"^(?!.*\.\.)[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$")
+CREDENTIALS_DIRECTORY = "credentials"
 WORKSPACE_SECRETS = "workspace_secrets"
 CATALOG = "catalog"
 KEYSTONE = "keystone"
 RUN_BUDGET = dt.timedelta(hours=2)
 TOFU_GRACE = dt.timedelta(minutes=5)
 FORMATTER = string.Formatter()
-
-
-def private_file(path, text):
-    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-    previous = os.umask(0o077)
-    try:
-        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-    finally:
-        os.umask(previous)
-    with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
-        handle.write(text)
-    return path
 
 
 def record_fields(template):
@@ -150,7 +139,7 @@ def provider_environment(bao, spec, context, task, source, region):
         :func:`keystone.keystone_contract` for :data:`RUN_BUDGET` plus
         :data:`TOFU_GRACE`, the longest OpenTofu runs with it.
     """
-    directory = task / "credentials"
+    directory = task / CREDENTIALS_DIRECTORY
     secrets = provider_secrets(bao, spec, context, source)
     if any("{host}" in secret["path"] for secret in secrets) and not (
         HOST.match(context["host"])
@@ -177,7 +166,9 @@ def provider_environment(bao, spec, context, task, source, region):
                 dt.datetime.now(dt.UTC) + RUN_BUDGET + TOFU_GRACE,
             )
         for relative in files:
-            private_file(directory / relative, values[relative])
+            sandbox.task_write(
+                task, Path(CREDENTIALS_DIRECTORY) / relative, values[relative]
+            )
     return environment | {
         name: value.format(**context, credentials=directory)
         for name, value in spec["env"].items()

@@ -24,6 +24,8 @@ from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
+from ._fake_spawner import FakeSpawner
+
 ROLE = PROJECT_ROOT / "roles" / "web-app-semaphore"
 FILES = ROLE / "files"
 INTERFACE = json.loads(read_text(str(FILES / "opentofu" / "interface.json")))
@@ -64,6 +66,7 @@ KEYSTONE_OWN_RECORD = (
     f"/v3/users/{KEYSTONE_USER}/application_credentials/{SCS_CREDENTIAL_ID}"
 )
 SECRET_PART = 6
+HARNESS_PREFIX = "provision-test-"
 STRICT = jinja2.Environment(
     undefined=jinja2.StrictUndefined,
     autoescape=jinja2.select_autoescape(default_for_string=False),
@@ -84,9 +87,16 @@ def environ(pid):
     except PermissionError:
         return None
     return dict(e.decode().split("=", 1) for e in raw.split(b"\\0") if e)
-stat_line = pathlib.Path(f"/proc/{{os.getppid()}}/stat").read_bytes()
-runner = environ(int(stat_line.rsplit(b")", 1)[1].split()[1]))
-record["supervisor_env"] = environ(os.getppid())
+requester = int(pathlib.Path(os.environ["FAKE_TOFU_LOG"] + ".requester").read_text(encoding="utf-8"))
+ancestors = []
+parent = os.getppid()
+while parent > 1:
+    ancestors.append(parent)
+    stat_line = pathlib.Path(f"/proc/{{parent}}/stat").read_bytes()
+    parent = int(stat_line.rsplit(b")", 1)[1].split()[1])
+runner = environ(requester)
+record["requester"] = requester
+record["ancestors"] = ancestors
 record["runner_env"] = None if runner is None else sorted(runner)
 for arg in args:
     if arg.startswith("-backend-config="):
@@ -160,11 +170,18 @@ def load(name):
     return module
 
 
+def harness_directory():
+    """Returns:
+    A new directory under ``/tmp`` itself, never under a deep ``TMPDIR``,
+    so the socket of a sandbox spawner in it fits ``sun_path``.
+    """
+    return Path(tempfile.mkdtemp(dir="/tmp", prefix=HARNESS_PREFIX))
+
+
 class TempCase(unittest.TestCase):
     def setUp(self):
-        directory = tempfile.TemporaryDirectory()
-        self.addCleanup(directory.cleanup)
-        self.root = Path(directory.name)
+        self.root = harness_directory()
+        self.addCleanup(shutil.rmtree, self.root, ignore_errors=True)
 
 
 def default_secrets(dns_port):
@@ -584,7 +601,7 @@ class Sandbox:
 
     def __init__(self, flavor="knot", locks=False):
         self.locks = locks
-        self.directory = Path(tempfile.mkdtemp(prefix="provision-test-"))
+        self.directory = harness_directory()
         self.core = self.directory / "core" / "roles" / "web-app-semaphore" / "files"
         for part in ("python", "opentofu", "shell"):
             shutil.copytree(FILES / part, self.core / part)
@@ -602,11 +619,28 @@ class Sandbox:
         self.tmp = self.directory / "tmp"
         self.tmp.mkdir()
         self.log = self.directory / "tofu.log"
+        self.spawner = FakeSpawner(
+            load("sandbox.spawner"),
+            self.directory / "sandboxes",
+            self.tmp,
+            tofu,
+            self.core / "opentofu" / "tofurc",
+            requester=Path(f"{self.log}.requester"),
+        )
         self.plan = self.directory / "plan.json"
         self.set_plan({"state": [], "outputs": OUTPUTS})
         self.dns = FakeDNS({})
         self.platform = FakePlatform(default_secrets(self.dns.port), {})
         self.flavor = flavor
+        self.spawner.pinned["BAO_ADDR"] = self.platform.origin
+        self.spawner.extra |= {
+            "FAKE_TOFU_LOG": str(self.log),
+            "FAKE_TOFU_PLAN": str(self.plan),
+        }
+        if locks:
+            self.spawner.extra["FAKE_TOFU_LOCKS"] = (
+                f"{self.platform.origin}{FAKE_LOCKS}"
+            )
         credentials = self.core / "opentofu" / "credentials.json"
         spec = json.loads(read_text(str(credentials)))
         spec["zone"]["api"] = f"{self.platform.origin}{CLOUDFLARE_ZONES}"
@@ -653,11 +687,6 @@ class Sandbox:
             "PROVISION_STATE_ENDPOINT": self.platform.origin,
             "PROVISION_CATALOG_DIR": str(self.catalogs),
             "PROVISION_DNS_FLAVOR": self.flavor,
-            "FAKE_TOFU_LOG": str(self.log),
-            "FAKE_TOFU_PLAN": str(self.plan),
-            "FAKE_TOFU_LOCKS": (
-                f"{self.platform.origin}{FAKE_LOCKS}" if self.locks else None
-            ),
         }
         env.update(overrides)
         return {name: value for name, value in env.items() if value is not None}
@@ -702,6 +731,7 @@ class Sandbox:
         return [call["argv"][0] for call in self.calls()]
 
     def close(self):
+        self.spawner.close()
         self.platform.stop()
         self.dns.stop()
         shutil.rmtree(self.directory, ignore_errors=True)

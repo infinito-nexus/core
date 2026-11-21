@@ -67,6 +67,15 @@ UNDUMPABLE_CALL = "    undumpable()\n"
 MAIN_BLOCK = 'if __name__ == "__main__":'
 AFTER_UNDUMPABLE = ("task_token(TASK_JWT_FD)", "main(sys.argv")
 KEPT_TOKEN_REFUSAL = "    if TASK_JWT in os.environ:\n"
+DIRECT_TOFU_AT = "    command = arguments[0]\n"
+DIRECT_TOFU = (
+    DIRECT_TOFU_AT + "    import subprocess\n"
+    "    done = subprocess.run(\n"
+    '        ["tofu", *arguments], cwd=task, env=environment, text=True,\n'
+    "        stdout=subprocess.PIPE if capture else None,\n"
+    "    )\n"
+    '    return done.stdout or ""\n'
+)
 
 
 def dump_order_findings(text):
@@ -88,20 +97,19 @@ def dump_order_findings(text):
     ]
 
 
-def supervisor_findings(calls):
+def descent_findings(calls):
     """Args:
         calls: the recorded ``tofu`` calls of a run.
 
     Returns:
-        One finding per variable the supervisor of a call holds with a value
-        its ``tofu`` lacks; the supervisor is dumpable, so every provider
-        plugin of the call reads its environment.
+        One finding per call whose ``tofu`` descends from ``provision.py``,
+        the process that opened its sandbox: such a ``tofu``, and every
+        process between them, runs as the runner's uid, outside the sandbox.
     """
     return [
-        f"the supervisor of tofu {call['argv'][0]} holds {name}"
+        f"tofu {call['argv'][0]} descends from provision.py"
         for call in calls
-        for name, value in (call["supervisor_env"] or {}).items()
-        if call["env"].get(name) != value
+        if call["requester"] in call["ancestors"]
     ]
 
 
@@ -398,7 +406,7 @@ class TestState(ProvisionCase):
                     self.assertFalse(task.exists())
                     self.assertFalse((task / "backend.tfbackend").exists())
                     self.assertFalse((task / ".terraform").exists())
-                self.assertEqual(list(self.sandbox.tmp.glob("provision-task-*")), [])
+                self.assertEqual(list(self.sandbox.spawner.root.iterdir()), [])
 
 
 class TestBackendKeys(ProvisionCase):
@@ -414,7 +422,7 @@ class TestBackendKeys(ProvisionCase):
         self.assertEqual(len(configs), 1)
         path = Path(configs[0].split("=", 1)[1])
         self.assertTrue(path.is_relative_to(Path(init["cwd"])))
-        self.assertEqual(init["backend"]["mode"], 0o600)
+        self.assertEqual(init["backend"]["mode"], 0o640)
         for name, value in STATE_KEYS.items():
             self.assertIn(f'{name} = "{value}"\n', init["backend"]["text"])
 
@@ -906,28 +914,21 @@ class TestTheTofuToken(ProvisionCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertNotIn(None, self.runner_environments())
 
-    def test_the_supervisor_holds_no_variable_tofu_lacks(self):
+    def test_no_process_of_the_runner_stands_between_provision_and_tofu(self):
         result = self.sandbox.run("provision-incus")
         self.assertEqual(result.returncode, 0, result.stderr)
         calls = self.sandbox.calls()
         self.assertTrue(calls)
-        self.assertNotIn(None, [call["supervisor_env"] for call in calls])
-        self.assertEqual(supervisor_findings(calls), [])
+        self.assertEqual(descent_findings(calls), [])
 
-    def test_negative_control_a_supervisor_that_keeps_a_variable_from_tofu(self):
-        self.plant(
-            "python/tofu_supervisor.py",
-            (
-                "subprocess.call(argv[2:])",
-                'subprocess.call(argv[2:], env={**os.environ, "BAO_TOKEN": ""})',
-            ),
-        )
+    def test_negative_control_a_tofu_started_by_provision_itself_is_found(self):
+        self.plant("python/provision/opentofu.py", (DIRECT_TOFU_AT, DIRECT_TOFU))
         result = self.sandbox.run("provision-incus")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(
-            supervisor_findings(self.sandbox.calls()),
+            descent_findings(self.sandbox.calls()),
             [
-                f"the supervisor of tofu {command} holds BAO_TOKEN"
+                f"tofu {command} descends from provision.py"
                 for command in self.sandbox.commands()
             ],
         )

@@ -167,6 +167,8 @@ SEMAPHORE_PLATFORM_RUNNERS:
     token: "{{ lookup('config', application_id, 'secrets.credentials.export_runner_token') }}"
     token_file_host: "{{ [ lookup('container', application_id, 'directories.instance'), 'export-runner.token' ] | path_join }}"
 SEMAPHORE_PLATFORM_RUNNERS_ACTIVE: "{{ SEMAPHORE_PLATFORM_RUNNERS | selectattr('enabled') | list }}"
+SEMAPHORE_PROVISION_RUNNER_SERVICE: "{{ (SEMAPHORE_PLATFORM_RUNNERS | selectattr('key', 'equalto', 'provision') | first).service }}"
+SEMAPHORE_PROVISION_RUNNER_ENV_FILE: "{{ lookup('container', application_id, 'directories.env') }}{{ SEMAPHORE_PROVISION_RUNNER_SERVICE }}.env"
 SEMAPHORE_EXPORT_RUNNER_SERVICE: "export-runner"
 SEMAPHORE_EXPORT_RUNNER_ENABLED: "{{ lookup('config', application_id, 'services.export-runner.enabled') | bool }}"
 SEMAPHORE_EXPORT_RUNNER_ENV_FILE: "{{ lookup('container', application_id, 'directories.env') }}{{ SEMAPHORE_EXPORT_RUNNER_SERVICE }}.env"
@@ -185,6 +187,7 @@ SEMAPHORE_RUNNER_SOURCE_GLOBS:
   - "python/bao/*"
   - "python/provision/*"
   - "python/prune/*"
+  - "python/sandbox/*"
   - "opentofu/*"
   - "opentofu/records/*"
   - "opentofu/records/.*"
@@ -233,6 +236,7 @@ SEMAPHORE_RUNNER_INPUTS:
   SEMAPHORE_RUNNER_GID: "{{ SEMAPHORE_RUNNER_GID }}"
   SEMAPHORE_RUNNER_REPOSITORY: "{{ SEMAPHORE_RUNNER_REPOSITORY }}"
   SEMAPHORE_RUNNER_TMP: "{{ SEMAPHORE_RUNNER_TMP }}"
+  SEMAPHORE_SANDBOX_ENTRYPOINT: "{{ SEMAPHORE_SANDBOX_ENTRYPOINT }}"
 SEMAPHORE_RUNNER_INPUTS_DIGEST: "{{ SEMAPHORE_RUNNER_INPUTS | semaphore_runner_digest }}"
 SEMAPHORE_RUNNER_INPUTS_FORMAT: >-
   {{ '{{ json (index .Config.Labels "' ~ SEMAPHORE_RUNNER_INPUTS_LABEL ~ '") }}' }}
@@ -476,6 +480,19 @@ SEMAPHORE_WORKSPACE_RUNNER_IMAGE_TAG: "{{ SEMAPHORE_WORKSPACE_RUNNER_TAG_PREFIX 
 SEMAPHORE_WORKSPACE_USER: "runner"
 SEMAPHORE_WORKSPACE_HOME: "/home/{{ SEMAPHORE_WORKSPACE_USER }}"
 SEMAPHORE_WORKSPACE_UID_BASE: 64200
+SEMAPHORE_SANDBOX_UID_BASE: 63800
+SEMAPHORE_SANDBOX_UID_COUNT: 256
+SEMAPHORE_SANDBOX_ENTRYPOINT: "/usr/local/sbin/provision-sandbox"
+SEMAPHORE_SANDBOX_PROBE: "roles/web-app-semaphore/files/python/sandbox/probe.py"
+SEMAPHORE_SANDBOX_TOFU: "/usr/local/bin/tofu"
+SEMAPHORE_SANDBOX_CA: "{{ CA_TRUST_CERT_CONTAINER_SELFSIGNED }}"
+SEMAPHORE_SANDBOX_BAO_ADDR: "{{ SEMAPHORE_WORKSPACES_VARIABLES.BAO_ADDR if lookup('config', application_id, 'services.provision-runner.enabled') | bool else '' }}"
+SEMAPHORE_SANDBOX_ROOT: "{{ lookup('volume', application_id, 'semaphore_provision_sandboxes').target }}"
+SEMAPHORE_SANDBOX_TMP: "{{ lookup('volume', application_id, 'semaphore_runner_tmp').target }}"
+SEMAPHORE_SANDBOX_SHARED:
+  - /var/tmp
+  - /dev/shm
+  - /dev/mqueue
 SEMAPHORE_EGRESS_SERVICE: "egress"
 SEMAPHORE_EGRESS_NAME: "{{ lookup('config', application_id, 'services.' ~ SEMAPHORE_EGRESS_SERVICE ~ '.name') }}"
 SEMAPHORE_EGRESS_CONF_FILE: "{{ lookup('volume', application_id, 'semaphore_egress_squid_conf').target }}"

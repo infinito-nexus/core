@@ -14,7 +14,7 @@
 
   {% for runner in SEMAPHORE_PLATFORM_RUNNERS_ACTIVE %}
   {% set service_name = runner.service %}
-  {% set docker_compose_env = SEMAPHORE_EXPORT_RUNNER_ENV_FILE if service_name == SEMAPHORE_EXPORT_RUNNER_SERVICE else SEMAPHORE_RUNNER_ENV_FILE %}
+  {% set docker_compose_env = SEMAPHORE_EXPORT_RUNNER_ENV_FILE if service_name == SEMAPHORE_EXPORT_RUNNER_SERVICE else SEMAPHORE_PROVISION_RUNNER_ENV_FILE if runner.key == 'provision' else SEMAPHORE_RUNNER_ENV_FILE %}
   {{ service_name }}:
     {{ lookup('container_image', application_id, SEMAPHORE_RUNNER_SERVICE, version=SEMAPHORE_RUNNER_IMAGE_TAG) }}
     {% if service_name == SEMAPHORE_RUNNER_SERVICE %}
@@ -31,6 +31,19 @@
     {{ lookup('compose_only', 'container_name', runner.name) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {% if runner.key == 'provision' %}
+    user: "0:0"
+    entrypoint:
+      - "{{ SEMAPHORE_SANDBOX_ENTRYPOINT }}"
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+      - CHOWN
+    security_opt:
+      - "no-new-privileges:true"
+    {% endif %}
     {% if service_name == SEMAPHORE_EXPORT_RUNNER_SERVICE %}
     read_only: true
     cap_drop:

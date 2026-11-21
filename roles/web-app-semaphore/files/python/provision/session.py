@@ -6,14 +6,27 @@ import re
 import sys
 from pathlib import Path
 
-from provision import inputs, provider_env, remote
-from provision.opentofu import FailedError, tofu
+from provision import inputs, provider_env, remote, sandbox
+from provision.opentofu import LOCK_ID, FailedError, tofu
 
 PACKAGE = Path(__file__).resolve().parent
 OPENTOFU = PACKAGE.parent.with_name("opentofu")
 STATE_REGION = "us-east-1"
 CLEARED_PREFIXES = ("TF_", "AWS_")
 CLEARED_NAMES = frozenset({"BAO_TOKEN", "VAULT_TOKEN", "SEMAPHORE_JWT"})
+SESSION_NAMES = frozenset(
+    {
+        "HOME",
+        "TMPDIR",
+        "TF_IN_AUTOMATION",
+        "TF_INPUT",
+        "TF_CLI_CONFIG_FILE",
+        "TF_ENCRYPTION",
+        "BAO_ADDR",
+        "BAO_TOKEN",
+        "BAO_CACERT",
+    }
+)
 BACKEND_FILE = "backend.tfbackend"
 VALUES_FILE = "values.tfvars.json"
 RESOLV_CONF = Path("/etc/resolv.conf")
@@ -21,7 +34,9 @@ SNAPSHOT_RECORD = "platform/data/provision/transit/{workspace}"
 TRANSIT_POLICY = "{workspace}-transit"
 TRANSIT_ROLE = "{workspace}-transit-child"
 SNAPSHOT_FIELDS = ("key_created_at", "snapshot_at")
-LOCK_ID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+ENDPOINTS = frozenset({"endpoint", "auth_url"})
+ENDPOINT_TEMPLATES = frozenset({"{host}"})
+WORKSPACE_NAME = re.compile(r"^ws-[a-z0-9-]+$")
 
 
 def credential_names(credentials):
@@ -44,6 +59,75 @@ def credential_names(credentials):
     return names
 
 
+def credential_file_names(credentials):
+    """Args:
+        credentials: the decoded ``credentials.json``.
+
+    Returns:
+        Every environment name a provider reads a path below its task's
+        ``credentials`` directory from.
+    """
+    return frozenset(
+        name
+        for provider in credentials["providers"].values()
+        for name, value in provider["env"].items()
+        if "{credentials}" in value
+    )
+
+
+def endpoint_names(credentials):
+    """Args:
+        credentials: the decoded ``credentials.json``.
+
+    Returns:
+        Every environment name a provider reads the address of its API from,
+        or the remote naming it, such as ``INCUS_REMOTE``.
+    """
+    names = set()
+    for provider in credentials["providers"].values():
+        names |= {
+            name
+            for name, value in provider["env"].items()
+            if value in ENDPOINT_TEMPLATES
+        }
+        workspace_secrets = provider.get(provider_env.WORKSPACE_SECRETS, [])
+        for secret in provider["secrets"] + workspace_secrets:
+            fields = secret.get("env", {}) | secret.get(provider_env.CATALOG, {})
+            names |= {name for name, field in fields.items() if field in ENDPOINTS}
+    return frozenset(names)
+
+
+def is_encryption(value):
+    """Args:
+        value: a ``TF_ENCRYPTION`` a run passes.
+
+    Returns:
+        Whether it is exactly what :func:`encryption` writes for one
+        workspace, so its key provider is the workspace's transit key behind
+        the pinned ``BAO_ADDR`` and nothing else.
+    """
+    try:
+        document = json.loads(value)
+        key = document["key_provider"]["openbao"]["workspace"]["key_name"]
+    except (ValueError, TypeError, KeyError):
+        return False
+    workspace = str(key).removesuffix("-provision")
+    return WORKSPACE_NAME.match(workspace) is not None and document == json.loads(
+        encryption(workspace)
+    )
+
+
+def tofu_names(credentials):
+    """Args:
+        credentials: the decoded ``credentials.json``.
+
+    Returns:
+        Every environment name :attr:`Session.environment` may hand to
+        ``tofu``; the spawner refuses a run with any other.
+    """
+    return sandbox.PASSED | SESSION_NAMES | credential_names(credentials)
+
+
 def _hcl(value):
     return json.dumps(value).replace("${", "$${").replace("%{", "%%{")
 
@@ -60,7 +144,7 @@ def write_backend(task, config, bucket, key, keys):
         values["custom_ca_bundle"] = config["cafile"]
     text = "".join(f"{name} = {_hcl(value)}\n" for name, value in values.items())
     text += f"endpoints = {{\n  s3 = {_hcl(config['state'])}\n}}\n"
-    return provider_env.private_file(task / BACKEND_FILE, text)
+    return sandbox.task_write(task, BACKEND_FILE, text)
 
 
 def encryption(workspace):
@@ -217,10 +301,13 @@ class Session:
         self.environment = {
             name: value
             for name, value in self.env.items()
-            if not name.startswith(CLEARED_PREFIXES)
+            if name in sandbox.PASSED
+            and not name.startswith(CLEARED_PREFIXES)
             and name not in cleared
             and name not in CLEARED_NAMES
         } | {
+            "HOME": str(sandbox.home_of(self.task)),
+            "TMPDIR": str(sandbox.home_of(self.task)),
             "TF_IN_AUTOMATION": "1",
             "TF_INPUT": "0",
             "TF_CLI_CONFIG_FILE": str(OPENTOFU / "tofurc"),

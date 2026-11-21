@@ -1322,15 +1322,44 @@ async function serverLifecycle(shared, browser, provider) {
     expect(destroyedCount(destroyed), `${destroyed.what}: the destroy must remove the server and its record`).toBeGreaterThan(0);
     await target.expectGone(order);
     await expectRecord(servers, outputs.fqdn, [], `${LABEL}: the record of ${order.name} after the destroy`);
-    const state = await stateBucket(fixture);
-    const left = [];
-    for (const key of [`${order.salesOrder}/${order.line}.tfstate`, `${order.salesOrder}/${order.line}.tfstate.tflock`, `${order.salesOrder}/${order.line}.provision.json`]) {
-      if (await state.exists(key)) {
-        left.push(`${state.bucket}/${key}`);
-      }
-    }
-    return left;
+    return leftovers(fixture, order);
   });
+}
+
+/**
+ * Args:
+ *   fixture: the result of `workspaces.openWorkspace`.
+ *   order: an order line of `orderLine`.
+ *
+ * Returns:
+ *   The state, lock and provision record objects of the order line the
+ *   bucket of the workspace still holds.
+ */
+async function leftovers(fixture, order) {
+  const state = await stateBucket(fixture);
+  const left = [];
+  for (const key of [`${order.salesOrder}/${order.line}.tfstate`, `${order.salesOrder}/${order.line}.tfstate.tflock`, `${order.salesOrder}/${order.line}.provision.json`]) {
+    if (await state.exists(key)) {
+      left.push(`${state.bucket}/${key}`);
+    }
+  }
+  return left;
+}
+
+/**
+ * Args:
+ *   runs: two finished tasks of `runPlatform`.
+ *
+ * Returns:
+ *   Whether each of them started before the other ended.
+ */
+function overlapping(runs) {
+  const [first, second] = runs.map((run) => run.task);
+  return (
+    Boolean(first.start && first.end && second.start && second.end) &&
+    new Date(first.start) < new Date(second.end) &&
+    new Date(second.start) < new Date(first.end)
+  );
 }
 
 /**
@@ -1816,6 +1845,46 @@ exports.register = function (shared) {
     requireProvider("incus");
     test.setTimeout(resolveTimeout(BASE_MS + SERVER_MS));
     expect(await serverLifecycle(shared, browser, "incus"), `${LABEL}: the destroy of the incus server must delete its state and lock`).toEqual([]);
+  });
+
+  test("provision: two workspaces provision at once, each in its own sandbox", async ({ browser }) => {
+    workspaces.requireWorkspaces(shared);
+    requireProvider("incus");
+    test.setTimeout(resolveTimeout(2 * BASE_MS + 2 * PROVISION_MS + 2 * DESTROY_MS));
+    await workspaces.withWorkspace(shared, browser, LABEL, "", (first, firstCleanup) =>
+      workspaces.withWorkspace(shared, browser, LABEL, "", async (second, secondCleanup) => {
+        const lines = [];
+        for (const [fixture, cleanup] of [
+          [first, firstCleanup],
+          [second, secondCleanup],
+        ]) {
+          const offer = await placement(fixture.context, "incus");
+          const order = orderLine(freshSalesOrder(), "1");
+          await commitValues(fixture, order, offer);
+          cleanup(() => destroy(shared, fixture, order));
+          lines.push({ fixture, order, target: await serverTarget(fixture, "incus", offer) });
+        }
+        const runs = await Promise.all(
+          lines.map(({ fixture, order }) =>
+            runPlatform(shared, fixture, orderKind("provision", order), providerSurvey(order), PROVISION_MS, `${LABEL}: provision of ${order.name} in ws-${fixture.workspace}`),
+          ),
+        );
+        for (const run of runs) {
+          workspaces.expectSucceeded(run, run.what);
+        }
+        expect(overlapping(runs), `${LABEL}: the provision tasks of ws-${first.workspace} and ws-${second.workspace} must run at the same time`).toBe(true);
+        const outputs = runs.map(outputsOf);
+        for (const [index, { order, target }] of lines.entries()) {
+          await target.expectRunning(outputs[index], order);
+        }
+        const destroyed = await Promise.all(lines.map(({ fixture, order }) => destroy(shared, fixture, order)));
+        for (const [index, { fixture, order, target }] of lines.entries()) {
+          expect(destroyedCount(destroyed[index]), `${destroyed[index].what}: the destroy must remove the server`).toBeGreaterThan(0);
+          await target.expectGone(order);
+          expect(await leftovers(fixture, order), `${LABEL}: the destroy of ${order.name} must leave no state and no record in ws-${fixture.workspace}`).toEqual([]);
+        }
+      }),
+    );
   });
 
   test("dns: a BYO record is created once and removed", async ({ browser }) => {

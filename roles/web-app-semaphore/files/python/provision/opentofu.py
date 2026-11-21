@@ -1,17 +1,25 @@
 from __future__ import annotations
 
-import contextlib
 import os
+import re
+import select
 import signal
-import subprocess
 import sys
-import time
-from pathlib import Path
 
-from provision import provider_env
+from provision import provider_env, sandbox
 
-SUPERVISOR = Path(__file__).resolve().parent.with_name("tofu_supervisor.py")
-GROUP_POLL_SECONDS = 0.1
+READ_BYTES = 65536
+LOCK_ID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+TASK_FILE_FLAGS = frozenset({"-backend-config", "-var-file"})
+COMMANDS = {
+    ("init",): (frozenset({"-input=false", "-backend-config"}), None),
+    ("state", "list"): (frozenset(), None),
+    ("output",): (frozenset({"-json"}), None),
+    ("show",): (frozenset({"-json"}), None),
+    ("apply",): (frozenset({"-auto-approve", "-input=false", "-var-file"}), None),
+    ("destroy",): (frozenset({"-auto-approve", "-input=false", "-var-file"}), None),
+    ("force-unlock",): (frozenset({"-force"}), LOCK_ID),
+}
 
 
 class FailedError(Exception):
@@ -26,110 +34,149 @@ class BudgetError(FailedError):
     """
 
 
-def _ended(process, deadline=None):
+def _stopped(box, command):
     """Args:
-        process: the :data:`SUPERVISOR` to wait for, left unreaped so its
-            zombie keeps the id of its process group reserved for
-            :func:`_killed`.
-        deadline: the :func:`time.monotonic` bound of the wait, ``None`` for
-            none.
-
-    Returns:
-        Its exit code, negative for the signal that killed it, or ``None``
-        once the deadline passed first.
-    """
-    flags = os.WEXITED | os.WNOWAIT | (0 if deadline is None else os.WNOHANG)
-    while (info := os.waitid(os.P_PID, process.pid, flags)) is None:
-        if time.monotonic() >= deadline:
-            return None
-        time.sleep(GROUP_POLL_SECONDS)
-    return info.si_status if info.si_code == os.CLD_EXITED else -info.si_status
-
-
-def _unwatched(process, deadline):
-    """Args:
-    process: a :data:`SUPERVISOR` a signal killed, so the rest of its
-        process group, ``tofu`` included, runs on unwatched. It is reaped
-        first, as its zombie would count as a member; the members that
-        still run keep the group id reserved. Returns once the group is
-        empty or ``deadline``, a :func:`time.monotonic` value, passed.
-    """
-    process.wait()
-    while time.monotonic() < deadline:
-        try:
-            os.killpg(process.pid, 0)
-        except ProcessLookupError:
-            return
-        time.sleep(GROUP_POLL_SECONDS)
-
-
-def _stopped(process, command):
-    """Args:
-        process: the :data:`SUPERVISOR` of the running ``tofu`` to stop.
+        box: the :class:`sandbox.Sandbox` of the running ``tofu`` to stop.
         command: its subcommand, e.g. ``apply``.
 
     Returns:
         How ``tofu`` ended: on SIGINT within :data:`provider_env.TOFU_GRACE`,
-        or killed after it, also when its supervisor died; the caller kills.
+        or killed with every process of its sandbox after it.
 
     Raises:
         Whatever a signal handler raises during the grace.
     """
     signal.alarm(0)
-    with contextlib.suppress(ProcessLookupError):
-        os.killpg(process.pid, signal.SIGINT)
+    box.signal(signal.SIGINT)
     grace = provider_env.TOFU_GRACE
-    deadline = time.monotonic() + grace.total_seconds()
-    code = _ended(process, deadline)
+    code = box.ended(grace.total_seconds())
     if code is None:
+        box.kill()
         return (
             f"tofu {command} ignored SIGINT for {grace} and was killed, so its "
             f"state may miss resources and keep its lock until unlock runs"
         )
-    if code < 0:
-        _unwatched(process, deadline)
-        return (
-            f"the supervisor of tofu {command} died with {code}, so its process "
-            f"group got SIGINT and up to {grace} before SIGKILL, and the state "
-            f"of tofu may miss resources and keep its lock until unlock runs"
-        )
     return f"tofu {command} stopped on SIGINT with exit code {code}"
 
 
-def _killed(process):
+def admitted_arguments(arguments, task):
     """Args:
-    process: the :data:`SUPERVISOR` whose process group, ``tofu`` and its
-        provider plugins included, gets SIGKILL and is reaped; the group id
-        stays reserved while any member lives, the unreaped supervisor too.
+        arguments: the subcommand and arguments a run asks ``tofu`` for.
+        task: the task directory of its sandbox.
+
+    Returns:
+        ``(arguments, files)``, once the arguments start with a command of
+        :data:`COMMANDS` and every further one is a flag that command takes,
+        its lock id, or a flag of :data:`TASK_FILE_FLAGS` in its file form
+        naming a file below ``task``; ``files`` are those files relative to
+        ``task``, which the sandbox uid checks for links before ``tofu``
+        starts.
+
+    Raises:
+        SandboxError: any other argument, such as ``-chdir=``,
+            ``-plugin-dir=`` or ``-backend-config=<key>=<value>``; the refusal
+            names the flag, never its value.
     """
-    with contextlib.suppress(ProcessLookupError):
-        os.killpg(process.pid, signal.SIGKILL)
-    process.wait()
+    words = next(
+        (words for words in COMMANDS if tuple(arguments[: len(words)]) == words),
+        None,
+    )
+    if words is None:
+        raise sandbox.SandboxError("tofu runs no such command in a sandbox")
+    flags, positional = COMMANDS[words]
+    files = []
+    for argument in arguments[len(words) :]:
+        flag, equals, value = argument.partition("=")
+        if argument in flags - TASK_FILE_FLAGS or (
+            positional and positional.match(argument)
+        ):
+            continue
+        relative = sandbox.task_relative(task, value)
+        if (
+            equals
+            and flag in flags & TASK_FILE_FLAGS
+            and "=" not in value
+            and relative is not None
+        ):
+            files.append(str(relative))
+            continue
+        raise sandbox.SandboxError(f"tofu {' '.join(words)} takes no {flag}")
+    return list(arguments), files
+
+
+def _drained(reader, box):
+    """Args:
+        reader: the read end of the stdout pipe of ``tofu``.
+        box: its :class:`sandbox.Sandbox`.
+
+    Returns:
+        ``(stdout, exit code)``; the pipe is read to its end only once the
+        spawner reported the end of the run, as no process of the sandbox
+        holds it then.
+
+    Raises:
+        SandboxError: the spawner broke off the run, as a process of the
+            sandbox survived and may hold the pipe open for ever.
+    """
+    chunks = []
+    connection = box.channel.connection
+    code = None
+    while code is None:
+        readable, _, _ = select.select([reader, connection], [], [])
+        chunk = os.read(reader, READ_BYTES) if reader in readable else b""
+        chunks.append(chunk)
+        if connection in readable or (reader in readable and not chunk):
+            code = box.ended()
+    while chunk := os.read(reader, READ_BYTES):
+        chunks.append(chunk)
+    return b"".join(chunks).decode("utf-8"), code
 
 
 def tofu(task, environment, *arguments, capture=False):
+    """Args:
+        task: the task directory of the run's sandbox, see :func:`sandbox.opened`.
+        environment: the environment of ``tofu``, passed as it is.
+        arguments: the subcommand and its arguments.
+        capture: whether to return the stdout of ``tofu`` instead of passing it.
+
+    Returns:
+        The captured stdout, ``""`` without ``capture``, once ``tofu`` ended
+        and no process of the sandbox lives, one that left its process group
+        or session included.
+
+    Raises:
+        FailedError: ``tofu`` failed or a signal killed it.
+        BudgetError: the run outlived its budget; ``tofu`` got SIGINT first.
+    """
     command = arguments[0]
-    with subprocess.Popen(
-        [sys.executable, "-I", str(SUPERVISOR), str(os.getpid()), "tofu", *arguments],
-        cwd=task,
-        env=environment,
-        text=True,
-        stdout=subprocess.PIPE if capture else None,
-        start_new_session=True,
-    ) as process:
+    box = sandbox.of(task)
+    reader, writer = os.pipe() if capture else (None, sys.stdout.fileno())
+    try:
         try:
-            output = process.stdout.read() if capture else ""
-            code = _ended(process)
+            box.start(sandbox.TOFU, arguments, environment, writer)
+        finally:
+            if capture:
+                os.close(writer)
+        try:
+            output, code = _drained(reader, box) if capture else ("", box.ended())
         except BaseException as stop:
-            stopped = _stopped(process, command)
+            if not box.running:
+                raise
+            try:
+                stopped = _stopped(box, command)
+            finally:
+                box.kill()
             if isinstance(stop, BudgetError):
                 raise BudgetError(f"{stop}; {stopped}") from None
             raise
-        else:
-            if code < 0:
-                raise FailedError(_stopped(process, command))
-        finally:
-            _killed(process)
+    finally:
+        if capture:
+            os.close(reader)
+    if code < 0:
+        raise FailedError(
+            f"tofu {command} was killed by signal {-code}, so its state may miss "
+            f"resources and keep its lock until unlock runs"
+        )
     if code != 0:
         raise FailedError(f"tofu {command} exited with {code}")
     return output

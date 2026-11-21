@@ -40,7 +40,7 @@ class TestProviderEnvironment(unittest.TestCase):
             "platform/data/provision/incus-target#certificate",
         )
         for path in (server, credentials / "client.crt", credentials / "client.key"):
-            self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o600, path)
+            self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o640, path)
 
     def test_a_host_that_would_leave_its_path_is_refused(self):
         spec = CREDENTIALS["providers"]["proxmox"]

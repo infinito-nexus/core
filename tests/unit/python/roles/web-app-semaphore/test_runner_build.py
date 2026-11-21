@@ -86,6 +86,31 @@ NAMES = (
     "SEMAPHORE_RUNNER_PRUNE_FILTERS",
     "SEMAPHORE_RUNNER_PRUNED_IMAGES",
 )
+SANDBOX_ARG = "ARG SEMAPHORE_SANDBOX_ENTRYPOINT\n"
+SANDBOX_STEPS = (
+    SANDBOX_ARG.strip(),
+    "command -v setpriv",
+    'test -f "${INFINITO_SRC_DIR}/roles/web-app-semaphore/files/python/sandbox/spawner.py"',
+    "files/python/sandbox/spawner.py serve /usr/local/bin/semaphore runner start",
+    '> "${SEMAPHORE_SANDBOX_ENTRYPOINT}"',
+    'chmod 0755 "${SEMAPHORE_SANDBOX_ENTRYPOINT}"',
+)
+
+
+def entry_point_findings(dockerfile: str) -> list[str]:
+    """Args:
+        dockerfile: the runner's Dockerfile, possibly planted.
+
+    Returns:
+        Every step of the sandbox entry point of 135 the image lacks; each
+        runs in one ``&&`` chain, so a base image without ``setpriv`` or a
+        checkout without the spawner fails the build.
+    """
+    return [
+        f"the Dockerfile lacks {step}"
+        for step in SANDBOX_STEPS
+        if step not in dockerfile
+    ]
 
 
 def _load_filters():
@@ -449,6 +474,23 @@ class TestDockerfile(unittest.TestCase):
     def test_the_image_list_names_repository_and_tag(self) -> None:
         self.assertEqual(
             self.first["SEMAPHORE_RUNNER_LIST_FORMAT"], "{{.Repository}}:{{.Tag}}"
+        )
+
+    def test_the_runner_image_carries_the_sandbox_entry_point(self) -> None:
+        self.assertEqual(entry_point_findings(self.dockerfile), [])
+        entry = load_yaml_str(read_text(str(VARS)))["SEMAPHORE_SANDBOX_ENTRYPOINT"]
+        self.assertEqual(
+            self.first["SEMAPHORE_RUNNER_BUILD_ARGS"]["SEMAPHORE_SANDBOX_ENTRYPOINT"],
+            entry,
+        )
+
+    def test_negative_control_an_image_without_the_sandbox_entry_point(self) -> None:
+        start = self.dockerfile.index(SANDBOX_ARG)
+        end = self.dockerfile.index("\n\n", start)
+        planted = self.dockerfile[:start] + self.dockerfile[end + 2 :]
+        self.assertEqual(
+            entry_point_findings(planted),
+            [f"the Dockerfile lacks {step}" for step in SANDBOX_STEPS],
         )
 
 

@@ -84,7 +84,7 @@ semaphore_runner_tmp:
       when: "{{ lookup('config', 'web-app-semaphore', 'services.workspaces-runner.enabled') | bool }}"
     - service: provision-runner
       target: *semaphore_runner_tmp_target
-      mode: "1777"
+      mode: "0700"
       when: "{{ lookup('config', 'web-app-semaphore', 'services.provision-runner.enabled') | bool }}"
     - service: export-runner
       target: *semaphore_runner_tmp_target
@@ -113,6 +113,14 @@ semaphore_runner_work:
       target: *semaphore_runner_work_target
       mode: "1777"
       when: "{{ lookup('config', 'web-app-semaphore', 'services.export-runner.enabled') | bool }}"
+
+semaphore_provision_sandboxes:
+  type: tmpfs
+  mounts:
+    - service: provision-runner
+      target: /run/provision
+      mode: "0711"
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.provision-runner.enabled') | bool }}"
 
 semaphore_export_runner_home:
   type: tmpfs

@@ -1,0 +1,25 @@
+---
+- name: "🔍 Resolve the node that runs the provision runner"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ SEMAPHORE_PROVISION_RUNNER_SERVICE }}"
+    resolve_output_prefix: SEMAPHORE_PROVISION
+    resolve_compose_cid: "{{ lookup('container_address', application_id, SEMAPHORE_PROVISION_RUNNER_SERVICE) }}"
+
+- name: "🔬 Probe two OpenTofu sandboxes of the provision runner at once"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -u {{ (SEMAPHORE_RUNNER_UID ~ ':' ~ SEMAPHORE_RUNNER_GID) | quote }}
+      {{ lookup('container_address', application_id, SEMAPHORE_PROVISION_RUNNER_SERVICE) }}
+      sh -c 'exec python3 -E -s "${INFINITO_SRC_DIR}/{{ SEMAPHORE_SANDBOX_PROBE }}" check'
+  register: semaphore_sandbox_probe
+  changed_when: false
+  delegate_to: "{{ SEMAPHORE_PROVISION_HOST_NODE }}"
+
+- name: "🛡️ Assert the OpenTofu sandbox holds"
+  vars:
+    semaphore_sandbox_problems: "{{ semaphore_sandbox_probe.stdout | from_json | semaphore_sandbox_findings }}"
+  ansible.builtin.assert:
+    that: semaphore_sandbox_problems | length == 0
+    fail_msg: "{{ semaphore_sandbox_problems | join('; ') }}"
+    quiet: true

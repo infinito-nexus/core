@@ -76,6 +76,15 @@ RUN install -d -m 0755 /usr/local/share/semaphore-runner \
     && test -s /usr/local/share/semaphore-runner/core-version \
     && install -m 0644 "${INFINITO_SRC_DIR}/CHANGELOG.md" /usr/local/share/semaphore-runner/CHANGELOG.md
 
+ARG SEMAPHORE_SANDBOX_ENTRYPOINT
+RUN command -v setpriv \
+    && test -f "${INFINITO_SRC_DIR}/roles/web-app-semaphore/files/python/sandbox/spawner.py" \
+    && test -f "${INFINITO_SRC_DIR}/roles/web-app-semaphore/files/python/provision/sandbox.py" \
+    && install -d -m 0755 "$(dirname "${SEMAPHORE_SANDBOX_ENTRYPOINT}")" \
+    && printf '#!/bin/sh\nexec python3 -E -s %s/roles/web-app-semaphore/files/python/sandbox/spawner.py serve /usr/local/bin/semaphore runner start --no-config "$@"\n' "${INFINITO_SRC_DIR}" \
+        > "${SEMAPHORE_SANDBOX_ENTRYPOINT}" \
+    && chmod 0755 "${SEMAPHORE_SANDBOX_ENTRYPOINT}"
+
 # nocheck: healthcheck-timing-override  NONE drops the systemd probe of the Infinito.Nexus base image; the runner runs no systemd and opens no port
 HEALTHCHECK NONE
 STOPSIGNAL SIGTERM

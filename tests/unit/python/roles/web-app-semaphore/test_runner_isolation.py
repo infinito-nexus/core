@@ -19,7 +19,10 @@ from utils.roles.mapping import (
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-semaphore"
 SERVER_ENV = ROLE / "templates" / "env.j2"
-RUNNER_ENV = ROLE / "templates" / "env" / "task-runner.j2"
+RUNNER_ENV_TEMPLATE = "roles/web-app-semaphore/templates/env/task-runner.j2"
+PROVISION_ENV_TEMPLATE = "roles/web-app-semaphore/templates/env/provision-runner.j2"
+CONTAINER_ENV_TEMPLATE = "roles/sys-svc-container/templates/env.j2"
+RUNNER_ENV = PROJECT_ROOT / RUNNER_ENV_TEMPLATE
 EXPORT_RUNNER_ENV = ROLE / "templates" / "env" / "export-runner.j2"
 DOCKERFILE = ROLE / "files" / "runner" / "Dockerfile"
 
@@ -48,6 +51,10 @@ EGRESS = "egress"
 EXPORT_NETWORK = "export"
 EXPORT_ENV_FILE = "/opt/compose/semaphore/env/export-runner.env"
 RUNNER_ENV_FILE = "/opt/compose/semaphore/env/task-runner.env"
+PROVISION_ENV_FILE = "/opt/compose/semaphore/env/provision-runner.env"
+PROVISION_ENV_SELECTOR = (
+    "SEMAPHORE_PROVISION_RUNNER_ENV_FILE if runner.key == 'provision' else "
+)
 INCLUDES = {
     "roles/sys-svc-compose/templates/base.yml.j2": "services:\n",
     "roles/sys-svc-container/templates/base.yml.j2": (
@@ -57,11 +64,45 @@ INCLUDES = {
         "{% endif %}"
     ),
 }
+PROVISION_RUNNER = "provision-runner"
 ACTIVE_RUNNERS = [
     {"service": "task-runner", "name": "semaphore-runner"},
     {"service": "deploy-runner", "name": "semaphore-runner-deploy"},
     {"service": EXPORT_RUNNER, "name": "semaphore-runner-export"},
+    {
+        "service": PROVISION_RUNNER,
+        "name": "semaphore-runner-provision",
+        "key": "provision",
+    },
 ]
+PROVISION_GUARD = "{% if runner.key == 'provision' %}"
+SANDBOX_CAPABILITIES = {"SETUID", "SETGID", "CHOWN"}
+SANDBOX_TMPFS = {PROVISION_RUNNER: ("semaphore_provision_sandboxes",)}
+SANDBOX_ROOT = "/run/provision"
+SANDBOX_PREFIX = "SEMAPHORE_SANDBOX_"
+SANDBOX_ENV = (
+    "SEMAPHORE_SANDBOX_RUNNER_UID",
+    "SEMAPHORE_SANDBOX_UID_BASE",
+    "SEMAPHORE_SANDBOX_UID_COUNT",
+    "SEMAPHORE_SANDBOX_ROOT",
+    "SEMAPHORE_SANDBOX_TMP",
+    "SEMAPHORE_SANDBOX_SHARED",
+    "SEMAPHORE_SANDBOX_TOFU",
+    "SEMAPHORE_SANDBOX_CA",
+    "SEMAPHORE_SANDBOX_BAO_ADDR",
+)
+SANDBOX_SHARED = ["/var/tmp", "/dev/shm", "/dev/mqueue"]
+
+
+def provision_target(volumes: dict, volume: str) -> str:
+    (mount,) = [
+        mount
+        for mount in volumes[volume]["mounts"]
+        if mount["service"] == PROVISION_RUNNER
+    ]
+    return mount["target"]
+
+
 ENV_FORBIDDEN = ("PRIVATE_KEY", "SSH_KEY", "ssh_key", "BEGIN OPENSSH")
 GUARD_OPEN = "{% if SEMAPHORE_DEPLOY_ENABLED | bool %}"
 GUARD_CLOSE = "{% endif %}"
@@ -131,7 +172,7 @@ def runner_volume_findings(volumes: dict, runners: dict[str, str]) -> list[str]:
             if any(mount.get("service") == service for mount in entry.get("mounts", []))
         )
         binds = READ_ONLY_BINDS.get(service, ())
-        homes = HOME_TMPFS.get(service, ())
+        homes = HOME_TMPFS.get(service, ()) + SANDBOX_TMPFS.get(service, ())
         expected = sorted([token, *SCRATCH_VOLUMES, *binds, *homes])
         if mounted != expected:
             findings.append(f"{service} mounts {mounted}, expected only {expected}")
@@ -165,6 +206,10 @@ def runner_block_findings(compose: str) -> list[str]:
         compose: the role's ``templates/compose.yml.j2``.
     """
     block = compose[compose.index(BLOCK_START) : compose.index(BLOCK_END)]
+    if PROVISION_GUARD in block:
+        start = block.index(PROVISION_GUARD)
+        end = block.index("{% endif %}", start)
+        block = block[:start] + block[end:]
     sidecar = compose[compose.index(BLOCK_END) : compose.index(SIDECAR_END)]
     return [
         f"the {RUNNER} service sets {token}"
@@ -245,6 +290,7 @@ def render_compose(compose: str, variables: dict, mode: str, runners: list[dict]
         SEMAPHORE_RUNNER_BUILD_ARGS={},
         SEMAPHORE_RUNNER_ENV_FILE=RUNNER_ENV_FILE,
         SEMAPHORE_EXPORT_RUNNER_ENV_FILE=EXPORT_ENV_FILE,
+        SEMAPHORE_PROVISION_RUNNER_ENV_FILE=PROVISION_ENV_FILE,
         SEMAPHORE_PLATFORM_RUNNERS_ACTIVE=runners,
         SEMAPHORE_EXPORT_RUNNER_SERVICE=export,
         SEMAPHORE_EXPORT_RUNNER_ENABLED=enabled,
@@ -254,8 +300,144 @@ def render_compose(compose: str, variables: dict, mode: str, runners: list[dict]
         else [],
         SEMAPHORE_EGRESS_SERVICE=variables["SEMAPHORE_EGRESS_SERVICE"],
         SEMAPHORE_EGRESS_NAME="semaphore-egress",
+        SEMAPHORE_SANDBOX_ENTRYPOINT=variables["SEMAPHORE_SANDBOX_ENTRYPOINT"],
     )
     return load_yaml_str(text)
+
+
+def render_env(template: str, variables: dict, provision_env: str) -> dict[str, str]:
+    """Args:
+    template: :data:`RUNNER_ENV_TEMPLATE` or :data:`PROVISION_ENV_TEMPLATE`.
+    variables: the role's ``vars/main.yml``, possibly planted.
+    provision_env: the text of ``templates/env/provision-runner.j2``,
+        possibly planted.
+
+    Returns:
+        ``{name: value}`` of the env file ``template`` renders to, the
+        container env base left out.
+    """
+    volumes = _yaml(ROLE_FILE_META_VOLUMES)
+    environment = Environment(
+        loader=DictLoader(
+            {
+                RUNNER_ENV_TEMPLATE: _text(RUNNER_ENV),
+                PROVISION_ENV_TEMPLATE: provision_env,
+                CONTAINER_ENV_TEMPLATE: "",
+            }
+        ),
+        autoescape=select_autoescape(default_for_string=False),
+        trim_blocks=True,
+    )
+    environment.filters["bool"] = bool
+    text = environment.get_template(template).render(
+        SEMAPHORE_RUNNER_SERVER_URL="http://semaphore:3000",
+        SEMAPHORE_RUNNER_TMP="/tmp/semaphore",
+        SEMAPHORE_RUNNER_TOKEN_FILE="/run/secrets/semaphore-runner-token",
+        SEMAPHORE_DEPLOY_ENABLED=False,
+        SEMAPHORE_RUNNER_UID=volumes[TOKEN_VOLUME]["uid"],
+        SEMAPHORE_SANDBOX_UID_BASE=variables["SEMAPHORE_SANDBOX_UID_BASE"],
+        SEMAPHORE_SANDBOX_UID_COUNT=variables["SEMAPHORE_SANDBOX_UID_COUNT"],
+        SEMAPHORE_SANDBOX_ROOT=provision_target(
+            volumes, "semaphore_provision_sandboxes"
+        ),
+        SEMAPHORE_SANDBOX_TMP=provision_target(volumes, "semaphore_runner_tmp"),
+        SEMAPHORE_SANDBOX_SHARED=variables["SEMAPHORE_SANDBOX_SHARED"],
+        SEMAPHORE_SANDBOX_TOFU=variables["SEMAPHORE_SANDBOX_TOFU"],
+        SEMAPHORE_SANDBOX_CA="",
+        SEMAPHORE_SANDBOX_BAO_ADDR="https://openbao.example.org",
+    )
+    pairs = [line.split("=", 1) for line in text.splitlines() if "=" in line]
+    return dict(pairs)
+
+
+def sandbox_service_findings(
+    project: dict, volumes: dict, environment: dict, runner_env: dict
+) -> list[str]:
+    """Args:
+    project: :func:`render_compose`, possibly planted.
+    volumes: the role's ``meta/volumes.yml``, possibly planted.
+    environment: :func:`render_env` of the provision runner's env file,
+        possibly planted.
+    runner_env: :func:`render_env` of the env file of the other runners.
+
+    Returns:
+        Why the provision runner holds more than the sandbox of 135 needs, or
+        less, why it misses a setting every runner gets, and why another
+        runner no longer starts as the runner's uid.
+    """
+    services = project["services"]
+    runner = services[PROVISION_RUNNER]
+    findings = []
+    if runner.get("env_file") != [PROVISION_ENV_FILE]:
+        findings.append(f"the provision runner reads {runner.get('env_file')}")
+    lost = sorted(
+        name for name, value in runner_env.items() if environment.get(name) != value
+    )
+    if lost:
+        findings.append(f"the provision runner loses {lost} of the runner env")
+    if runner.get("user") != "0:0":
+        findings.append(f"the provision runner starts as {runner.get('user')}")
+    if runner.get("cap_drop") != ["ALL"]:
+        findings.append("the provision runner keeps every default capability")
+    added = set(runner.get("cap_add") or [])
+    if not added <= SANDBOX_CAPABILITIES:
+        extra = sorted(added - SANDBOX_CAPABILITIES)
+        findings.append(f"the provision runner adds {extra}")
+    options = runner.get("security_opt") or []
+    if "no-new-privileges:true" not in options:
+        findings.append("the provision runner gains new privileges")
+    if any(option.startswith(("seccomp", "apparmor")) for option in options):
+        findings.append("the provision runner leaves Docker's default profiles")
+    layout = sorted(name for name in environment if name.startswith(SANDBOX_PREFIX))
+    if layout != sorted(SANDBOX_ENV):
+        findings.append("the spawner lacks the layout of its sandboxes")
+    elif environment["SEMAPHORE_SANDBOX_SHARED"].split(":") != SANDBOX_SHARED:
+        shared = environment["SEMAPHORE_SANDBOX_SHARED"]
+        findings.append(f"the spawner closes {shared} only")
+    (tmp,) = [
+        mount
+        for mount in volumes["semaphore_runner_tmp"]["mounts"]
+        if mount["service"] == PROVISION_RUNNER
+    ]
+    if str(tmp.get("mode")) != "0700":
+        findings.append(f"/tmp of the provision runner has mode {tmp.get('mode')}")
+    sandboxes = volumes.get("semaphore_provision_sandboxes", {})
+    (root,) = [
+        mount
+        for mount in sandboxes.get("mounts", [{"service": PROVISION_RUNNER}])
+        if mount["service"] == PROVISION_RUNNER
+    ]
+    if sandboxes.get("type") != "tmpfs" or root.get("target") != SANDBOX_ROOT:
+        findings.append(f"{SANDBOX_ROOT} is no tmpfs of the provision runner")
+    elif str(root.get("mode")) != "0711":
+        findings.append(f"{SANDBOX_ROOT} has mode {root.get('mode')}")
+    for name, service in sorted(services.items()):
+        if name != PROVISION_RUNNER and ("user" in service or "entrypoint" in service):
+            findings.append(f"{name} no longer starts as the runner uid")
+    return findings
+
+
+def uid_range_findings(variables: dict, volumes: dict) -> list[str]:
+    """Args:
+    variables: the role's ``vars/main.yml``, possibly planted.
+    volumes: the role's ``meta/volumes.yml``.
+
+    Returns:
+        Why a sandbox uid could be the runner's uid or a workspace runner's;
+        the workspace runners count up from their base without a cap, so the
+        range must end below that base.
+    """
+    base = int(variables["SEMAPHORE_SANDBOX_UID_BASE"])
+    count = int(variables["SEMAPHORE_SANDBOX_UID_COUNT"])
+    uids = range(base, base + count)
+    findings = []
+    if base <= 0 or count <= 0:
+        findings.append(f"the sandbox uids {base}+{count} hold root or none")
+    if volumes[TOKEN_VOLUME]["uid"] in uids:
+        findings.append("the sandbox uids hold the runner uid")
+    if uids.stop > int(variables["SEMAPHORE_WORKSPACE_UID_BASE"]):
+        findings.append("the sandbox uids reach the workspace runner uids")
+    return findings
 
 
 def export_shape_findings(project: dict) -> list[str]:
@@ -605,6 +787,160 @@ class TestRunnerIsolation(unittest.TestCase):
             for entry in self.variables["SEMAPHORE_PLATFORM_RUNNERS"]
         }
         self.assertEqual(rows["export"], 1)
+
+    def project_findings(
+        self, project, volumes=None, variables=None, provision_env=None
+    ):
+        variables = variables or self.variables
+        provision_env = provision_env or _text(PROJECT_ROOT / PROVISION_ENV_TEMPLATE)
+        return sandbox_service_findings(
+            project,
+            volumes or self.volumes,
+            render_env(PROVISION_ENV_TEMPLATE, variables, provision_env),
+            render_env(RUNNER_ENV_TEMPLATE, variables, provision_env),
+        )
+
+    def sandbox_findings(self, compose=None, volumes=None, mode="compose"):
+        return self.project_findings(self.render(compose, mode), volumes)
+
+    def test_the_provision_runner_grants_the_sandbox_only_what_it_needs(self):
+        for mode in ("compose", "swarm"):
+            with self.subTest(mode=mode):
+                self.assertEqual(self.sandbox_findings(mode=mode), [])
+        entry = self.render()["services"][PROVISION_RUNNER]["entrypoint"]
+        self.assertEqual(entry, [self.variables["SEMAPHORE_SANDBOX_ENTRYPOINT"]])
+
+    def planted(self, old, new):
+        planted = self.compose.replace(old, new)
+        self.assertNotEqual(planted, self.compose, old)
+        return planted
+
+    def test_negative_control_a_provision_runner_reading_the_shared_runner_env(self):
+        planted = self.planted(PROVISION_ENV_SELECTOR, "")
+        self.assertEqual(
+            self.sandbox_findings(planted),
+            [f"the provision runner reads {[RUNNER_ENV_FILE]}"],
+        )
+
+    def test_negative_control_a_provision_env_without_the_runner_env(self):
+        text = _text(PROJECT_ROOT / PROVISION_ENV_TEMPLATE)
+        include = f"{{% include '{RUNNER_ENV_TEMPLATE}' %}}\n"
+        self.assertIn(include, text)
+        findings = self.project_findings(
+            self.render(), provision_env=text.replace(include, "")
+        )
+        self.assertEqual(
+            findings,
+            [
+                (
+                    "the provision runner loses ['SEMAPHORE_RUNNER_TOKEN_FILE', "
+                    "'SEMAPHORE_TMP_PATH', 'SEMAPHORE_WEB_ROOT'] of the runner env"
+                )
+            ],
+        )
+
+    def test_negative_control_an_env_file_without_a_layout_name(self):
+        text = _text(PROJECT_ROOT / PROVISION_ENV_TEMPLATE)
+        line = "SEMAPHORE_SANDBOX_BAO_ADDR={{ SEMAPHORE_SANDBOX_BAO_ADDR }}\n"
+        self.assertIn(line, text)
+        findings = self.project_findings(
+            self.render(), provision_env=text.replace(line, "")
+        )
+        self.assertEqual(findings, ["the spawner lacks the layout of its sandboxes"])
+
+    def test_negative_control_a_provision_runner_keeping_capabilities(self):
+        kept = "    cap_add:\n      - SETUID\n      - SETGID\n      - CHOWN\n"
+        planted = self.planted("    cap_drop:\n      - ALL\n" + kept, kept)
+        self.assertEqual(
+            self.sandbox_findings(planted),
+            ["the provision runner keeps every default capability"],
+        )
+
+    def test_negative_control_a_provision_runner_adding_a_capability(self):
+        planted = self.planted("      - CHOWN\n", "      - CHOWN\n      - SYS_ADMIN\n")
+        self.assertEqual(
+            self.sandbox_findings(planted), ["the provision runner adds ['SYS_ADMIN']"]
+        )
+
+    def test_negative_control_a_provision_runner_gaining_privileges(self):
+        project = self.render()
+        project["services"][PROVISION_RUNNER]["security_opt"] = []
+        self.assertEqual(
+            self.project_findings(project),
+            ["the provision runner gains new privileges"],
+        )
+
+    def test_negative_control_a_provision_runner_without_the_default_seccomp(self):
+        project = self.render(mode="swarm")
+        project["services"][PROVISION_RUNNER]["security_opt"].append(
+            "seccomp:unconfined"
+        )
+        self.assertEqual(
+            self.project_findings(project),
+            ["the provision runner leaves Docker's default profiles"],
+        )
+
+    def test_negative_control_a_shared_tmp_of_the_provision_runner(self):
+        volumes = copy.deepcopy(self.volumes)
+        for mount in volumes["semaphore_runner_tmp"]["mounts"]:
+            if mount["service"] == PROVISION_RUNNER:
+                mount["mode"] = "1777"
+        self.assertEqual(
+            self.sandbox_findings(volumes=volumes),
+            ["/tmp of the provision runner has mode 1777"],
+        )
+
+    def test_negative_control_task_directories_without_their_tmpfs(self):
+        volumes = copy.deepcopy(self.volumes)
+        del volumes["semaphore_provision_sandboxes"]
+        self.assertEqual(
+            self.sandbox_findings(volumes=volumes),
+            [f"{SANDBOX_ROOT} is no tmpfs of the provision runner"],
+        )
+        volumes = copy.deepcopy(self.volumes)
+        volumes["semaphore_provision_sandboxes"]["mounts"][0]["mode"] = "1777"
+        self.assertEqual(
+            self.sandbox_findings(volumes=volumes), [f"{SANDBOX_ROOT} has mode 1777"]
+        )
+
+    def test_negative_control_another_runner_starting_as_root(self):
+        project = self.render()
+        project["services"]["task-runner"]["user"] = "0:0"
+        self.assertEqual(
+            self.project_findings(project),
+            ["task-runner no longer starts as the runner uid"],
+        )
+
+    def test_negative_control_a_shared_directory_left_open(self):
+        variables = copy.deepcopy(self.variables)
+        variables["SEMAPHORE_SANDBOX_SHARED"].remove("/dev/shm")
+        project = render_compose(self.compose, variables, "compose", ACTIVE_RUNNERS)
+        self.assertEqual(
+            self.project_findings(project, variables=variables),
+            ["the spawner closes /var/tmp:/dev/mqueue only"],
+        )
+
+    def test_the_sandbox_paths_are_the_mounts_of_the_provision_runner(self):
+        for name, volume in (
+            ("SEMAPHORE_SANDBOX_ROOT", "semaphore_provision_sandboxes"),
+            ("SEMAPHORE_SANDBOX_TMP", "semaphore_runner_tmp"),
+        ):
+            with self.subTest(name):
+                source = f"lookup('volume', application_id, '{volume}').target"
+                self.assertIn(source, self.variables[name])
+
+    def test_the_sandbox_uids_are_disjoint_from_every_runner_uid(self):
+        self.assertEqual(uid_range_findings(self.variables, self.volumes), [])
+
+    def test_negative_control_an_overlapping_sandbox_base(self):
+        variables = {**self.variables, "SEMAPHORE_SANDBOX_UID_BASE": 64100}
+        self.assertEqual(
+            uid_range_findings(variables, self.volumes),
+            [
+                "the sandbox uids hold the runner uid",
+                "the sandbox uids reach the workspace runner uids",
+            ],
+        )
 
 
 if __name__ == "__main__":

@@ -3,8 +3,10 @@ from __future__ import annotations
 import contextlib
 import datetime as dt
 import io
+import os
 import shutil
 import signal
+import stat
 import time
 import unittest
 import unittest.mock as mock
@@ -18,6 +20,7 @@ from .provision._fake_provision import (
     TempCase,
     load,
 )
+from .provision._fake_spawner import FakeSpawner
 
 provision = load("provision")
 RefusedError = provision.inputs.RefusedError
@@ -248,25 +251,83 @@ class TestRunBudget(unittest.TestCase):
         self.run_main(dt.timedelta(seconds=30), 0)
         self.assertIs(signal.getsignal(signal.SIGALRM), previous)
 
+    def raised(self, error):
+        """Args:
+            error: what the dispatched template raises.
 
-class TestTaskDirectoryBudget(unittest.TestCase):
+        Returns:
+            ``(exit code, stderr)`` of :func:`provision.main`, ``(None, the
+            error)`` when the error escapes it, as no ``failed:`` line and no
+            exit code 1 reach Semaphore then.
+        """
+        stderr = io.StringIO()
+        with (
+            mock.patch.object(provision, "dispatch", side_effect=error),
+            contextlib.redirect_stderr(stderr),
+        ):
+            try:
+                code = provision.main(["provision.py", "provision"], {}, Path("/none"))
+            except type(error) as escaped:
+                return None, repr(escaped)
+        return code, stderr.getvalue()
+
+    def test_a_sandbox_error_fails_the_run_with_its_line(self):
+        error = provision.sandbox.SandboxError("a process of the sandbox 1 survived")
+        self.assertEqual(self.raised(error), (1, f"provision.sh: failed: {error}\n"))
+
+    def test_negative_control_a_main_blind_to_sandbox_errors_lets_them_escape(self):
+        error = provision.sandbox.SandboxError("a process of the sandbox 1 survived")
+        blind = tuple(kind for kind in provision.FAILURES if kind is not type(error))
+        self.assertLess(len(blind), len(provision.FAILURES))
+        with mock.patch.object(provision, "FAILURES", blind):
+            self.assertEqual(self.raised(error), (None, repr(error)))
+
+    def test_negative_control_a_refusal_still_refuses(self):
+        refusal = RefusedError("names no template")
+        self.assertEqual(
+            self.raised(refusal), (2, f"provision.sh: refused: {refusal}\n")
+        )
+
+
+class TestTaskDirectoryBudget(TempCase):
     def setUp(self):
+        super().setUp()
         self.addCleanup(signal.signal, signal.SIGALRM, signal.getsignal(signal.SIGALRM))
         self.addCleanup(signal.alarm, 0)
+        patcher = mock.patch.object(provision.tempfile, "tempdir", str(self.root))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.spawner = FakeSpawner(
+            load("sandbox.spawner"),
+            self.root / "sandboxes",
+            self.root,
+            Path(os.devnull),
+            provision.OPENTOFU / "tofurc",
+        )
+        self.addCleanup(self.spawner.close)
+
+    def purging(self, before):
+        """Args:
+        before: called in the spawner right before it removes the files of
+            a sandbox.
+        """
+        purge = self.spawner.privileges.purge
+
+        def purged(*arguments):
+            before()
+            purge(*arguments)
+
+        patcher = mock.patch.object(self.spawner.privileges, "purge", purged)
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
     def test_a_budget_end_during_the_cleanup_fires_once_it_removed_the_task(self):
         def over(*_):
             raise provision.opentofu.BudgetError("over budget")
 
         signal.signal(signal.SIGALRM, over)
-        remove = shutil.rmtree
-
-        def slow(path, **options):
-            time.sleep(CLEANUP_PAUSE)
-            remove(path, **options)
-
+        self.purging(lambda: time.sleep(CLEANUP_PAUSE))
         with (
-            mock.patch.object(provision.shutil, "rmtree", slow),
             self.assertRaisesRegex(provision.opentofu.BudgetError, "over budget"),
             provision.task_directory() as task,
         ):
@@ -275,21 +336,20 @@ class TestTaskDirectoryBudget(unittest.TestCase):
 
     def test_the_task_directory_defers_the_budget_during_its_cleanup(self):
         signal.signal(signal.SIGALRM, lambda *_: None)
-        remove = shutil.rmtree
         armed = []
-
-        def watched(path, **options):
-            armed.append(signal.getitimer(signal.ITIMER_REAL)[0])
-            remove(path, **options)
-
-        with (
-            mock.patch.object(provision.shutil, "rmtree", watched),
-            provision.task_directory() as task,
-        ):
+        self.purging(lambda: armed.append(signal.getitimer(signal.ITIMER_REAL)[0]))
+        with provision.task_directory() as task:
             signal.alarm(100)
         self.assertEqual(armed, [0.0])
         self.assertFalse(task.exists())
         self.assertGreater(signal.getitimer(signal.ITIMER_REAL)[0], 90)
+
+    def test_the_task_directory_is_removed_after_a_failure(self):
+        with self.assertRaises(RuntimeError), provision.task_directory() as task:
+            (task / "backend.tfbackend").write_text("x")
+            raise RuntimeError("tofu failed")
+        self.assertFalse(task.exists())
+        self.assertFalse(task.parent.exists())
 
 
 class TestLock(TempCase):
@@ -312,12 +372,6 @@ class TestLock(TempCase):
                 pass
         with provision.workspace_lock(WORKSPACE, True):
             pass
-
-    def test_the_task_directory_is_removed_after_a_failure(self):
-        with self.assertRaises(RuntimeError), provision.task_directory() as task:
-            (task / "backend.tfbackend").write_text("x")
-            raise RuntimeError("tofu failed")
-        self.assertFalse(task.exists())
 
 
 class TestMain(unittest.TestCase):
@@ -363,6 +417,33 @@ class TestMain(unittest.TestCase):
                 self.assertEqual(code, 2)
                 self.assertIn("refused: ", stderr)
                 self.assertIn(message, stderr)
+
+
+class TestTaskWrites(TempCase):
+    def setUp(self):
+        super().setUp()
+        self.task = self.root / "task"
+        self.task.mkdir()
+        self.task.chmod(provision.sandbox.TASK_MODE)
+
+    def test_tofu_init_replaces_the_staged_lock_file_in_a_real_task_directory(self):
+        staged = self.root / "staged.lock.hcl"
+        staged.write_text("old", encoding="utf-8")
+        lock = self.task / ".terraform.lock.hcl"
+        shutil.copy2(staged, lock)
+        part = self.task / ".terraform.lock.hcl.tmp"
+        part.write_text("new", encoding="utf-8")
+        part.replace(lock)
+        self.assertEqual(lock.read_bytes(), b"new")  # nocheck: cache-read tempdir
+        self.assertEqual(
+            stat.S_IMODE(self.task.stat().st_mode), provision.sandbox.TASK_MODE
+        )
+
+    def test_a_write_that_climbs_out_of_the_task_is_refused(self):
+        with self.assertRaisesRegex(provision.sandbox.SandboxError, "no path below"):
+            outside = os.path.relpath(self.root / "x", self.task)
+            provision.sandbox.task_write(self.task, outside, "x")
+        self.assertFalse((self.root / "x").exists())
 
 
 if __name__ == "__main__":

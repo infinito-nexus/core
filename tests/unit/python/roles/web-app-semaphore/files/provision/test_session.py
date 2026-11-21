@@ -72,7 +72,7 @@ class TestBackend(TempCase):
     def test_the_backend_file_is_private_and_written_once(self):
         keys = {**STATE_KEYS, "secret_key": "s${x}"}
         path = session.write_backend(self.root, self.config, "b", "SO/1.tfstate", keys)
-        self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o600)
+        self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o640)
         text = path.read_text(encoding="utf-8")  # nocheck: cache-read tempdir
         self.assertIn('secret_key = "s$${x}"\n', text)
         self.assertIn('endpoints = {\n  s3 = "https://s3.example.org"\n}\n', text)
