@@ -10,10 +10,10 @@ Setting.set("auth_third_party_auto_link_at_inital_login", false)
 Setting.set("auth_openid_connect_credentials", {
   "display_name"                 => ENV.fetch("OIDC_BUTTON_TEXT"),
   "identifier"                   => ENV.fetch("OIDC_CLIENT_ID"),
-  "secret"                       => ENV.fetch("OIDC_CLIENT_SECRET"),
   "issuer"                       => ENV.fetch("OIDC_ISSUER_URL"),
   "scope"                        => ENV.fetch("OIDC_SCOPE"),
   "uid_field"                    => ENV.fetch("OIDC_UID_FIELD"),
+  "pkce"                         => true,
   "send_scope_to_token_endpoint" => true,
 })
 

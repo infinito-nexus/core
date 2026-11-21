@@ -27,10 +27,10 @@
       "value": {
         "display_name":               "{{ OIDC.BUTTON_TEXT }}",
         "identifier":                 "{{ ZAMMAD_OIDC_CLIENT_ID }}",
-        "secret":                     "{{ OIDC.CLIENT.SECRET }}",
         "issuer":                     "{{ OIDC.CLIENT.ISSUER_URL }}",
         "scope":                      "openid email profile",
         "uid_field":                  "sub",
+        "pkce":                       true,
         "send_scope_to_token_endpoint":  true
       }
     }

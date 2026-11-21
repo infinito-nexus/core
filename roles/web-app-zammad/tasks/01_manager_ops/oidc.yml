@@ -4,18 +4,13 @@
   ansible.builtin.shell:
     cmd: |
       set -euo pipefail
-      IFS= read -r OIDC_CLIENT_SECRET
-      : "${OIDC_CLIENT_SECRET:?arrived empty on stdin}"
-      export OIDC_CLIENT_SECRET
       container exec -i \
         -e ZAMMAD_FQDN -e ZAMMAD_HTTP_TYPE \
-        -e OIDC_BUTTON_TEXT -e OIDC_CLIENT_ID -e OIDC_CLIENT_SECRET -e OIDC_ISSUER_URL \
+        -e OIDC_BUTTON_TEXT -e OIDC_CLIENT_ID -e OIDC_ISSUER_URL \
         -e OIDC_SCOPE -e OIDC_UID_FIELD -e OIDC_ADMIN_LOGIN \
         {{ ZAMMAD_RAILS_CONTAINER_ADDRESS }} \
         bundle exec rails r -
-    stdin: |-
-      {{ OIDC.CLIENT.SECRET }}
-      {{ lookup('file', 'ruby/apply/oidc_settings.rb') }}
+    stdin: "{{ lookup('file', 'ruby/apply/oidc_settings.rb') }}"
   environment:
     ZAMMAD_FQDN: "{{ ZAMMAD_HOSTNAME }}"
     ZAMMAD_HTTP_TYPE: "{{ ZAMMAD_WEB_PROTOCOL }}"
