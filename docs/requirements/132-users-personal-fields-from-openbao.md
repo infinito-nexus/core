@@ -34,9 +34,9 @@ The store's requirement 062 (`infinito-nexus/gui: docs/requirements/062-slim-sto
 
 ### Resolution
 
-- [ ] `users.<name>.email`, `users.<name>.firstname` and `users.<name>.lastname` given as `{openbao: <mount>/<path>#<field>}` resolve through `lookup('users', ...)` and through `lookup('config', ..., 'users.<name>.<field>')` to the field's value, and a plain value resolves as before (unit test in `tests/unit/python/utils/test_openbao_client.py`).
-- [ ] A reference in a users field outside `password`, `email`, `firstname` and `lastname`, for example `users.<name>.username`, is still refused with its dotted name, and a negative control that accepts every field fails that test.
-- [ ] The 106 pre-flight reads the references of all four fields: a missing `tenant/ws-<id>/users/<name>` stops the deploy before the first play with a message that names the path and the field and holds no value.
+- [x] `users.<name>.email`, `users.<name>.firstname` and `users.<name>.lastname` given as `{openbao: <mount>/<path>#<field>}` resolve through `lookup('users', ...)` and through `lookup('config', ..., 'users.<name>.<field>')` to the field's value, and a plain value resolves as before (`TestUsersOpenBao` in `tests/unit/python/plugins/lookup/test_users_openbao.py`).
+- [x] A reference in a users field outside `password`, `email`, `firstname` and `lastname`, for example `users.<name>.username`, is still refused with its dotted name, and a negative control that accepts every field fails that test.
+- [x] The 106 pre-flight reads the references of all four fields: a missing `tenant/ws-<id>/users/<name>` stops the deploy before the first play with a message that names the path and the field and holds no value.
 
 ### Erasure
 
@@ -44,5 +44,5 @@ The store's requirement 062 (`infinito-nexus/gui: docs/requirements/062-slim-sto
 
 ### Documentation
 
-- [ ] The inventory documentation of 106 lists the four user fields that may hold a reference, the path convention of decision 3 and the erasure of decision 4.
-- [ ] 106 decision 2's note on 127 names this requirement as the extension to `email`, `firstname` and `lastname`.
+- [x] The inventory documentation of 106 lists the four user fields that may hold a reference, the path convention of decision 3 and the erasure of decision 4.
+- [x] 106 decision 2's note on 127 names this requirement as the extension to `email`, `firstname` and `lastname`.
