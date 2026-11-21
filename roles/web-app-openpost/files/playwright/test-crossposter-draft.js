@@ -86,7 +86,7 @@ exports.register = function (shared) {
     shared.skipUnlessServiceEnabled("crossposter");
     shared.skipUnlessServiceEnabled("mastodon");
     shared.skipOnOnionSibling("mastodon");
-    test.setTimeout(resolveTimeout(420_000)); // Mastodon sign-in, the crossposter's poll interval, composer autosave and scheduling
+    test.setTimeout(resolveTimeout(420_000));
     const label = "administrator";
     const marker = `cp-desk-${Date.now()}`;
     const edited = `Edited in the desk ${marker}`;
