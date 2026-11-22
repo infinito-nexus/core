@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { performKeycloakLoginForm, gotoOnion } = require("./personas");
+const { gotoOnion, signInToLam } = require("./personas");
 
 const LDAP_MEMBER_ATTRIBUTE = "member";
 const MEMBER_VALUE_LIST = `#attributeList_${LDAP_MEMBER_ATTRIBUTE}`;
@@ -59,45 +59,6 @@ async function sessionUserId(page, shared) {
   const id = (await response.json())?.id;
   expect(id, "OpenWebUI must report the id of the signed-in user").toBeTruthy();
   return id;
-}
-
-async function signInToLam(page, shared) {
-  await gotoOnion(page, `${shared.env.lamBaseUrl.replace(/\/+$/, "")}/`);
-
-  if (/\/protocol\/openid-connect\//.test(page.url())) {
-    await performKeycloakLoginForm(
-      page,
-      shared.env.adminUsername,
-      shared.env.adminPassword
-    );
-  }
-
-  await expect(
-    page,
-    "LAM must be reached after the SSO hop, not left on the identity provider"
-  ).not.toHaveURL(/\/protocol\/openid-connect\//, { timeout: resolveTimeout(60_000) });
-
-  const passwordField = page
-    .locator("input[type='password'], input[name='passwd'], input#passwd")
-    .first();
-  await expect(
-    passwordField,
-    "LAM must present its own login form after the SSO hop; the proxy does not bind to LDAP for us"
-  ).toBeVisible({ timeout: resolveTimeout(60_000) });
-
-  const userSelect = page.getByRole("combobox", { name: /user ?name/i }).first();
-  if (await userSelect.isVisible().catch(() => false)) {
-    const bindRdnValue = shared.env.ldapBindDn.split(",")[0].split("=").slice(1).join("=");
-    await userSelect.selectOption({ label: bindRdnValue });
-  }
-
-  await passwordField.fill(shared.env.ldapBindPassword);
-  await page.getByRole("button", { name: /login|anmelden/i }).first().click();
-
-  await expect(
-    passwordField,
-    "LAM must accept the bind credential instead of returning its login form"
-  ).toBeHidden({ timeout: resolveTimeout(60_000) });
 }
 
 async function openMemberValueList(page, shared, groupCn) {
@@ -278,7 +239,7 @@ exports.register = function (shared) {
     const lamPage = await (await browser.newContext(PERSONA_CONTEXT)).newPage();
     const adminPage = await (await browser.newContext(PERSONA_CONTEXT)).newPage();
 
-    await signInToLam(lamPage, shared);
+    await signInToLam(lamPage, shared.env.lamBaseUrl, shared.env.adminUsername, shared.env.adminPassword);
     await shared.signInViaDashboardOidc(
       adminPage,
       shared.env.adminUsername,

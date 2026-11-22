@@ -15,8 +15,7 @@ const realmName = decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME || "")
 const superAdminUsername = decodeDotenvQuotedValue(process.env.SUPER_ADMIN_USERNAME || "");
 const superAdminPassword = decodeDotenvQuotedValue(process.env.SUPER_ADMIN_PASSWORD || "");
 const lamBaseUrl = normalizeBaseUrl(process.env.LAM_BASE_URL || "");
-const lamLoginPassword =
-  decodeDotenvQuotedValue(process.env.LDAP_ADMIN_PASSWORD || "") || decodeDotenvQuotedValue(process.env.LAM_PASSWORD || "");
+const lamPassword = decodeDotenvQuotedValue(process.env.LAM_PASSWORD || "");
 
 const KEYCLOAK_MIDDLE_NAME_ATTRIBUTE = "middleName";
 const MIDDLE_NAME_FIELD = "input[name='middlename']";
@@ -38,15 +37,6 @@ async function expectMoodleMiddleName(shared, page, value, source) {
   ).toHaveValue(value, { timeout: resolveTimeout(30_000) });
   await gotoOnion(page, `${shared.env.moodleBaseUrl}/my/`, { waitUntil: "domcontentloaded" });
   await inAppLogout(page);
-}
-
-async function lamSignIn(page) {
-  await gotoOnion(page, `${lamBaseUrl}/lam/templates/login.php`, { waitUntil: "load" });
-  const passwordInput = page.locator("input[name='passwd'], input[name='password'], input#passwd").first();
-  await expect(passwordInput, "the LAM native login form must render").toBeVisible({ timeout: resolveTimeout(30_000) });
-  await passwordInput.fill(lamLoginPassword);
-  await page.locator("button[type='submit'], input[type='submit']").first().click({ timeout: resolveTimeout(30_000) });
-  await page.waitForLoadState("networkidle");
 }
 
 async function lamWriteBiberInitials(shared, page, value) {
@@ -180,7 +170,7 @@ exports.register = function (shared) {
       skipUnlessServiceDisabled("sso");
       test.setTimeout(resolveTimeout(300_000));
       expect(lamBaseUrl, "LAM_BASE_URL must be set").toBeTruthy();
-      expect(lamLoginPassword, "LDAP_ADMIN_PASSWORD or LAM_PASSWORD must be set").toBeTruthy();
+      expect(lamPassword, "LAM_PASSWORD must be set").toBeTruthy();
 
       const probe = `LDAP-${Date.now()}`;
       const lamContext = await browser.newContext({ ignoreHTTPSErrors: true });
@@ -188,7 +178,7 @@ exports.register = function (shared) {
       let previous = null;
       try {
         const lamPage = await lamContext.newPage();
-        await lamSignIn(lamPage);
+        await shared.signInToLam(lamPage, lamBaseUrl, shared.env.adminUsername, lamPassword);
         previous = await lamWriteBiberInitials(shared, lamPage, probe);
 
         const page = await moodleContext.newPage();

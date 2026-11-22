@@ -3,11 +3,8 @@ const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvQuotedValue, normalizeBaseUrl, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
-const lamOauth2Fronted = String(process.env.LAM_OAUTH2_FRONTED || "").toLowerCase() === "true";
 const lamBaseUrl = normalizeBaseUrl(process.env.LAM_BASE_URL || "");
 const lamPassword = decodeDotenvQuotedValue(process.env.LAM_PASSWORD);
-const ldapAdminPassword = decodeDotenvQuotedValue(process.env.LDAP_ADMIN_PASSWORD);
-const lamLoginPassword = ldapAdminPassword || lamPassword;
 
 exports.register = function (shared) {
   test.describe("keycloak → ldap write-through, verified via LAM", () => {
@@ -35,31 +32,9 @@ exports.register = function (shared) {
         `Keycloak write must succeed: stage=${restResult.stage} status=${restResult.status}`
       ).toBe("ok");
 
+      expect(lamPassword, "LAM_PASSWORD must be set").toBeTruthy();
       const lamPage = await context.newPage();
-      await lamPage.goto(`${lamBaseUrl}/lam/templates/login.php`, { waitUntil: "load" });
-
-      if (lamOauth2Fronted) {
-        const kcUsername = lamPage.locator("input[name='username'], input#username").first();
-        await expect(kcUsername, "Keycloak login form must render for OAuth2-fronted LAM").toBeVisible({ timeout: resolveTimeout(30_000) });
-        await kcUsername.fill(shared.env.adminUsername);
-        await lamPage.locator("input[name='password'], input#password").first().fill(shared.env.adminPassword);
-        await lamPage.locator("button[type='submit'], input[name='login'], input[type='submit']").first().click({ timeout: resolveTimeout(30_000) });
-        await lamPage.waitForLoadState("networkidle");
-
-        const lamPwAfterSso = lamPage.locator("input[name='passwd'], input[name='password'], input#passwd").first();
-        if (lamLoginPassword && await lamPwAfterSso.isVisible().catch(() => false)) {
-          await lamPwAfterSso.fill(lamLoginPassword);
-          await lamPage.locator("button[type='submit'], input[type='submit']").first().click({ timeout: resolveTimeout(30_000) });
-          await lamPage.waitForLoadState("networkidle");
-        }
-      } else {
-        expect(lamLoginPassword, "LDAP_ADMIN_PASSWORD or LAM_PASSWORD must be set when LAM is not OAuth2-fronted").toBeTruthy();
-        const lamPwInput = lamPage.locator("input[name='passwd'], input[name='password'], input#passwd").first();
-        await expect(lamPwInput, "LAM native login form must render").toBeVisible({ timeout: resolveTimeout(30_000) });
-        await lamPwInput.fill(lamLoginPassword);
-        await lamPage.locator("button[type='submit'], input[type='submit']").first().click({ timeout: resolveTimeout(30_000) });
-        await lamPage.waitForLoadState("networkidle");
-      }
+      await shared.signInToLam(lamPage, lamBaseUrl, shared.env.adminUsername, lamPassword);
 
       await lamPage.goto(`${lamBaseUrl}/lam/templates/lists/list.php?type=user`, { waitUntil: "load" });
       const filter = lamPage.locator("input[type='text'][name='filter_uid'], input[type='text'][name^='filter_']").first();

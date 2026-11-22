@@ -8,6 +8,7 @@ const {
   readEnv,
   runAdminFlow,
   runGuestFlow,
+  signInToLam,
 } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
@@ -231,5 +232,6 @@ module.exports = {
   runAdminFlow,
   runGuestFlow,
   setMiddleNameViaAccountRest,
+  signInToLam,
   submitLoginForm,
 };
