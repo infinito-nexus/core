@@ -1,5 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { isOidcCodeExchange } = require("./_shared");
 const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const {
   clickOidcLoginLink,
@@ -30,8 +31,7 @@ async function submitKeycloakSignIn(page) {
   await page.context().clearCookies();
   await gotoOnion(page, `${env.appBaseUrl}/`, { waitUntil: "domcontentloaded" });
   const loginResponse = page.context().waitForEvent("response", {
-    predicate: (response) =>
-      response.url().includes("/api/v1/App/user") && Boolean(response.request().headers()["espo-authorization"]),
+    predicate: isOidcCodeExchange,
     timeout: resolveTimeout(120_000),
   });
   loginResponse.catch(() => {});

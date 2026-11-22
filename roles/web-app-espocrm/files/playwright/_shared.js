@@ -50,4 +50,17 @@ async function espoApi(page, method, path, data) {
   );
 }
 
-module.exports = { awaitSession, espoApi };
+/**
+ * Args:
+ *   response: a Playwright response.
+ * Returns:
+ *   whether it answers the OIDC code exchange, the App/user call whose credentials are
+ *   `**oidc:<code>`, and not a revalidation of the token stored in localStorage.
+ */
+function isOidcCodeExchange(response) {
+  if (!response.url().includes("/api/v1/App/user")) return false;
+  const credentials = response.request().headers()["espo-authorization"] || "";
+  return Buffer.from(credentials, "base64").toString("utf8").startsWith("**oidc:");
+}
+
+module.exports = { awaitSession, espoApi, isOidcCodeExchange };
