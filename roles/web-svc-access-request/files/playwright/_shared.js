@@ -1,4 +1,5 @@
 const {
+  MAPACHE,
   decodeDotenvQuotedValue,
   keycloakAdminToken,
   keycloakResolveGroupId,
@@ -29,7 +30,7 @@ const env = {
   adminPassword: decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD),
   biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
-  mapacheUsername: decodeDotenvQuotedValue(process.env.MAPACHE_USERNAME),
+  mapacheUsername: MAPACHE.username,
 };
 
 /**
