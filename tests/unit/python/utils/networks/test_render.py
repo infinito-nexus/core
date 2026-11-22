@@ -112,22 +112,23 @@ class TestRenderComposeNetworks(unittest.TestCase):
         )
         self.assertEqual(rendered, expected)
 
-    def test_a_role_with_nothing_to_attach_emits_no_networks_key(self):
-        """A bare `networks:` parses as null, and compose refuses it as not an array."""
+    def test_a_role_with_nothing_to_attach_keeps_its_default(self):
+        """Without it compose falls back to `<project>_default`, which the
+        `<entity>` bridge labelled as that project's default shadows: the start
+        fails with `network <project>_default not found`."""
         for render in (render_container_networks, render_compose_networks):
             for role in ("svc-ai-mcp-adapter", "svc-db-nothing"):
                 with self.subTest(render=render.__name__, role=role):
-                    self.assertEqual(
-                        "",
-                        render(
-                            application_id=role,
-                            deployment_mode="compose",
-                            registry={},
-                            entity_name=_entity_name,
-                            lookup_config=_const_lookup_config(),
-                            lookup_database=_const_lookup_database(),
-                        ),
+                    rendered = render(
+                        application_id=role,
+                        deployment_mode="compose",
+                        registry={},
+                        entity_name=_entity_name,
+                        lookup_config=_const_lookup_config(),
+                        lookup_database=_const_lookup_database(),
                     )
+                    self.assertIn("  default:", rendered)
+                    self.assertNotEqual(rendered.strip(), "networks:")
 
     def test_a_role_that_keeps_the_default_still_renders_it(self):
         """The guard must not swallow the default attachment it sits behind."""
