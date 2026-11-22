@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.metadata
 import io
 import json
 import subprocess
@@ -364,6 +365,25 @@ class TestDeployAnsiblePlaybook(unittest.TestCase):
         self.assertEqual(ctx.exception.code, 1)
         self.assertIn(absent, stderr.getvalue())
         self.assertNotIn("PyYAML", stderr.getvalue())
+
+    def test_exits_naming_a_deploy_pin_the_interpreter_carries_at_another_version(
+        self,
+    ):
+        installed = importlib.metadata.version("PyYAML")
+        pinned = f"PyYAML=={installed}.post999"
+        repo_root, bindir = self._checkout(
+            [pinned, f"ruamel.yaml=={importlib.metadata.version('ruamel.yaml')}"],
+            with_playbook=True,
+        )
+        stderr = io.StringIO()
+        with (
+            unittest.mock.patch.object(runner.sys, "stderr", stderr),
+            self.assertRaises(SystemExit) as ctx,
+        ):
+            self._resolve(repo_root, bindir)
+        self.assertEqual(ctx.exception.code, 1)
+        self.assertIn(f"{pinned} (installed: {installed})", stderr.getvalue())
+        self.assertNotIn("ruamel.yaml", stderr.getvalue())
 
     def test_exits_when_no_ansible_playbook_sits_beside_the_interpreter(self):
         repo_root, bindir = self._checkout(["PyYAML"], with_playbook=False)
