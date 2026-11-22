@@ -42,8 +42,6 @@ frontend-conf:
   mounts:
     - service: front
       target: /usr/share/nginx/html/conf.json
-      when: "{{ (lookup('config', 'web-app-taiga', 'services.sso.enabled') | bool) or (lookup('config', 'web-app-taiga', 'services.ldap.enabled', false) | bool) or
-        (lookup('config', 'web-app-taiga', 'services.design.enabled') | bool) }}"
 design-plugin-manifest:
   type: config
   source: "{{ [lookup('container', 'web-app-taiga', 'directories.config'), 'infinito-design.json'] | path_join }}"
