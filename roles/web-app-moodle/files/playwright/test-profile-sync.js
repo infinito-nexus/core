@@ -36,6 +36,7 @@ async function expectMoodleMiddleName(shared, page, value, source) {
     `${source} must overwrite biber's Moodle middle name on this login`,
   ).toHaveValue(value, { timeout: resolveTimeout(30_000) });
   await gotoOnion(page, `${shared.env.moodleBaseUrl}/my/`, { waitUntil: "domcontentloaded" });
+  await shared.endUserTour(page);
   await inAppLogout(page);
 }
 
@@ -147,6 +148,7 @@ exports.register = function (shared) {
           ).toHaveValue(attributes[attribute], { timeout: resolveTimeout(30_000) });
         }
         await gotoOnion(page, `${shared.env.moodleBaseUrl}/my/`, { waitUntil: "domcontentloaded" });
+        await shared.endUserTour(page);
         await inAppLogout(page);
       } finally {
         if (previous) {

@@ -12,6 +12,7 @@ const {
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, performKeycloakLogin, readEnv } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
+const { endUserTour } = require("./_shared");
 
 const SHOWCASE_SHORTNAME = "design-showcase";
 const SHOWCASE_FULLNAME = "Corporate design showcase";
@@ -24,7 +25,6 @@ const PRIMARY_NAVIGATION = ".primarynav-navbar > .moremenu";
 const MODE_TOGGLE = "#colourmode-menu-toggle";
 const COLOUR_MODE_PREFERENCE = "/api/rest/v2/user/current/preferences/theme_boost_colourmode";
 const PRIMARY_DRAWER = ".drawer.drawer-primary";
-const USER_TOUR = '[data-role="flexitour-step"]';
 const MODES = ["light", "dark"];
 const BOOST_SHEET = 'link[rel="stylesheet"][href*="/theme/styles.php/boost/"]';
 const LOGIN_PATH = "/login/index.php?loginredirect=0";
@@ -39,18 +39,6 @@ async function fillSecret(field, secret) {
     await field.fill(secret);
     expect(await field.evaluate((element, expected) => element.value === expected, secret)).toBe(true);
   }).toPass({ timeout: resolveTimeout(30_000) });
-}
-
-async function endUserTour(page) {
-  if (!(await page.content()).includes('"startTour":true')) return;
-  const end = page.locator(`${USER_TOUR} [data-role="end"]`).first();
-  const shown = await end.waitFor({ timeout: resolveTimeout(10_000) }).then(
-    () => true,
-    () => false,
-  );
-  if (!shown) return;
-  await end.click();
-  await expect(page.locator("[data-flexitour]")).toHaveCount(0);
 }
 
 async function signIn(page, shared) {

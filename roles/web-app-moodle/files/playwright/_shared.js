@@ -14,6 +14,7 @@ const { isServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const USER_MENU = ".usermenu, [data-region='user-menu-toggle'], a[href*='profile.php']";
+const USER_TOUR_END = '[data-role="flexitour-step"] [data-role="end"]';
 
 const env = {
   moodleBaseUrl: normalizeBaseUrl(process.env.APP_BASE_URL),
@@ -134,6 +135,22 @@ async function loginAsDirectoryUser(page, username, password) {
   ).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
+/**
+ * Args:
+ *   page: Moodle page that may have started a user tour, whose backdrop swallows every click until the tour ends.
+ */
+async function endUserTour(page) {
+  if (!(await page.content()).includes('"startTour":true')) return;
+  const end = page.locator(USER_TOUR_END).first();
+  const shown = await end.waitFor({ timeout: resolveTimeout(10_000) }).then(
+    () => true,
+    () => false,
+  );
+  if (!shown) return;
+  await end.click();
+  await expect(page.locator("[data-flexitour]")).toHaveCount(0);
+}
+
 async function beforeEach({ page }) {
   await page.setViewportSize({ width: 1440, height: 1100 });
   expect(env.moodleBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
@@ -227,6 +244,7 @@ const setMiddleNameViaAccountRest = async ({
 module.exports = {
   env,
   beforeEach,
+  endUserTour,
   loginAsDirectoryUser,
   loginAsSiteAdmin,
   runAdminFlow,

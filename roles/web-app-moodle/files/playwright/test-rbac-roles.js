@@ -18,6 +18,7 @@ const PERMISSION_DENIED = /permission|access denied|section error|berechtigung|z
 
 async function logoutAndAssertSessionGone(shared, page) {
   await gotoOnion(page, `${shared.env.moodleBaseUrl}/my/`, { waitUntil: "domcontentloaded" });
+  await shared.endUserTour(page);
   await inAppLogout(page);
   await gotoOnion(page, `${shared.env.moodleBaseUrl}${ADMIN_SETTINGS_PATH}`, { waitUntil: "domcontentloaded" });
   await expect(
