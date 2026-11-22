@@ -5,8 +5,6 @@ import unittest
 from infinito_elector_src.openldap import OpenLDAPRole
 from infinito_elector_src.roles import RoleError
 
-from . import _NAME  # noqa: F401  side-effect import registers infinito_elector_src
-
 
 class FakeLdap:
     def __init__(self, csns: dict[str, list[str]], read_only: str = "TRUE") -> None:

@@ -11,8 +11,6 @@ from infinito_elector_src.roles import (
     choose,
 )
 
-from . import _NAME  # noqa: F401  side-effect import registers infinito_elector_src
-
 
 class FakeServers:
     """Answers the mariadb client per target (``local`` or a peer host)."""

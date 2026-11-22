@@ -12,6 +12,7 @@ missing, 4 when a local instance could not be probed, 64 on bad usage,
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import json
 import shutil
@@ -160,11 +161,9 @@ def purge_file_copies(generation: Path | None, volumes: Sequence[str]) -> None:
     if generation is None:
         return
     files_dir = FILES_DIR
-    try:
+    with contextlib.suppress(OSError, json.JSONDecodeError):
         manifest = json.loads((generation / MANIFEST_FILE).read_text("utf-8"))
         files_dir = manifest.get("layout", {}).get("files_dir") or FILES_DIR
-    except (OSError, json.JSONDecodeError):
-        pass
     for volume in volumes:
         shutil.rmtree(generation / volume / files_dir, ignore_errors=True)
 

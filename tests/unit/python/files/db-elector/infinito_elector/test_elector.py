@@ -7,8 +7,6 @@ from infinito_elector_src.elector import Elector, FatalError
 from infinito_elector_src.lock import Lock, LockError
 from infinito_elector_src.roles import ReseedRequired, Role, RoleError
 
-from . import _NAME  # noqa: F401  side-effect import registers infinito_elector_src
-
 
 class Clock:
     def __init__(self) -> None:
@@ -130,7 +128,7 @@ class TestElection(unittest.TestCase):
         self.assertEqual(b.role.followed, "a")
 
     def test_an_instance_that_yields_leaves_the_lease_to_the_better_peer(self) -> None:
-        _clock, _, _, (a, b) = _pair()
+        _, _, _, (a, b) = _pair()
         a.role.peers = {"b": 5}
         b.role._rank = 5
         a.tick()

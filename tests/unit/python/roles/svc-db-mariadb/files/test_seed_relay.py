@@ -1,3 +1,4 @@
+import contextlib
 import importlib.util
 import io
 import socket
@@ -91,11 +92,9 @@ class TestSeedRelay(unittest.TestCase):
                     seed_relay.read_exact(conn, seed_relay.NONCE_BYTES)
                     conn.sendall(b"f" * seed_relay.DIGEST_BYTES)
                     conn.settimeout(2)
-                    try:
+                    with contextlib.suppress(OSError):
                         while chunk := conn.recv(4096):
                             got.extend(chunk)
-                    except OSError:
-                        pass
 
         thread = threading.Thread(target=impostor, daemon=True)
         thread.start()

@@ -14,8 +14,6 @@ from infinito_elector_src.mariadb_seed import (
     verify,
 )
 
-from . import _NAME  # noqa: F401  side-effect import registers infinito_elector_src
-
 SECRET = b"seed-secret"
 PEER = "10.0.9.7"
 

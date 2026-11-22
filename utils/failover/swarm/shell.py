@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import subprocess
 import time
 from typing import TYPE_CHECKING
@@ -44,11 +45,9 @@ def wait_until(
 ) -> bool:
     deadline = time.monotonic() + timeout_s
     while True:
-        try:
+        with contextlib.suppress(RuntimeError, OSError, subprocess.TimeoutExpired):
             if predicate():
                 return True
-        except (RuntimeError, OSError, subprocess.TimeoutExpired):
-            pass
         if time.monotonic() >= deadline:
             return False
         time.sleep(interval_s)

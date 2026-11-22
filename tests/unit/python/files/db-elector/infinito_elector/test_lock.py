@@ -3,16 +3,14 @@ from __future__ import annotations
 import base64
 import io
 import unittest
+import unittest.mock as mock
 import urllib.error
-from unittest import mock
 
 from infinito_elector_src.lock import (
     EtcdLeaseLock,
     LockError,
     http_transport,
 )
-
-from . import _NAME  # noqa: F401  side-effect import registers infinito_elector_src
 
 
 def _b64(text: str) -> str:
