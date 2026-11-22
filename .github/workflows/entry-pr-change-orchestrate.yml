@@ -18,7 +18,6 @@ on:
       - ready_for_review
       - labeled
 
-# Exception: a skipped run still joins its concurrency group and cancels the running pipeline, so a label CI ignores gets a group of its own.
 concurrency:
   group: >-
     ${{ github.event.action == 'labeled'
