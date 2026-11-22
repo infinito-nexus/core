@@ -2,6 +2,8 @@
 whitelist:
   connect-src:
     - https://tiles.versatiles.org
+  img-src:
+    - https://versatiles.org
   worker-src:
     - "blob:"
 flags:
