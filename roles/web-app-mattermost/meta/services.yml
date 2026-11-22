@@ -50,7 +50,7 @@ mattermost:
   version: 13.7-slim
   custom: true
   repository: https://github.com/mattermost/mattermost.git
-  ref: v11.11.4
+  ref: v12.1.0
   min_storage: 659MB
   backup:
     stop_required: false

@@ -4595,9 +4595,6 @@ html:not([data-design-app-theme="custom"]) .Menu .dropdown-menu li a {
 html:not([data-design-app-theme="custom"]) .Menu .styleSelectableItem .sorting-menu-checkbox i {
   color: var(--button-bg);
 }
-html:not([data-design-app-theme="custom"]) .Menu>.product-switcher-menu .MenuItem a .icon {
-  color: rgba(var(--center-channel-color-rgb), 0.64);
-}
 @media screen and (max-width: 768px) {
 html:not([data-design-app-theme="custom"]) #submenuModal .mobile-sub-menu .modal-content .modal-body .MenuWrapper .Menu.dropdown-menu .MenuGroup.menu-divider {
   background-color: var(--design-surface-2);
@@ -9029,7 +9026,7 @@ html:not([data-design-app-theme="custom"]) body .header-footer-route .header-foo
 }
 {% if design.logo is string %}
 
-html:not([data-design-app-theme="custom"]) body #global-header [aria-controls="product-switcher-menu"] > span > svg {
+html:not([data-design-app-theme="custom"]) body #global-header #switchProductMenuButton > span > svg {
   width: {{ (24 * design.slots['logo-frame'].width / design.slots['logo-frame'].height) | round | int }}px;
   height: 24px;
   background: url("{{ design.urls['logo-frame'].svg }}") left center / contain no-repeat;
@@ -9041,7 +9038,7 @@ body .hfroute-header .header-main .header-logo-link > svg {
   background: url("{{ design.urls.logo.svg }}") left center / contain no-repeat;
 }
 
-html:not([data-design-app-theme="custom"]) body #global-header [aria-controls="product-switcher-menu"] > span > svg > *,
+html:not([data-design-app-theme="custom"]) body #global-header #switchProductMenuButton > span > svg > *,
 body .hfroute-header .header-logo-link > svg > * {
   visibility: hidden;
 }
