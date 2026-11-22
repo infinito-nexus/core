@@ -9,4 +9,4 @@ For the canonical Make target index that invokes these helpers, see [make.md](..
 
 | Command | What it does | Notes |
 |---|---|---|
-| `workflow.sh` | Runs any workflow file through `act`. | Supports custom job, matrix, container, network, and image settings. Binds `INFINITO_VULNERABILITY_DB_HOST_PATH` into the job container at the same path. Invoked via `make act-workflow ACT_WORKFLOW=<file>`. |
+| `workflow.sh` | Runs any workflow file through `act`. | Supports custom job, matrix, container, network, and image settings. Binds `INFINITO_VULNERABILITY_DB_HOST_PATH` into the job container at the same path. A bound checkout (`ACT_BIND=true`, or pulled `roles/web-app-cst-*`) passes `INFINITO_DOTENV_HOST_OWNED=true`, so the job's `make dotenv` keeps the host `.env`. Invoked via `make act-workflow ACT_WORKFLOW=<file>`. |

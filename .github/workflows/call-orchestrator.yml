@@ -97,11 +97,6 @@ on:
         required: false
         type: string
         default: ""
-      trusted_pr:
-        description: "True when the PR carries the maintainer '🛡️ Trusted' label; skips the fork-prereq wait."
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   actions: read
@@ -125,7 +120,6 @@ jobs:
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       chunk_size: ${{ inputs.chunk_size }}
       fork_prereqs: true
-      trusted_pr: ${{ inputs.trusted_pr }}
       image_wait_attempts: ${{ inputs.image_wait_attempts }}
       image_wait_sleep_seconds: ${{ inputs.image_wait_sleep_seconds }}
     secrets: inherit
@@ -398,7 +392,7 @@ jobs:
         if: ${{ !cancelled() }}
         run: grep '^INFINITO_GHCR_MIRROR_PREFIX=' default.env >> "$GITHUB_ENV"
       - name: 🛡️ Open, update and close the runtime vulnerability issues
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && (contains(needs.*.result, 'success') || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 -m cli.meta.ci.runtime_vulnerabilities --run-id "${{ github.run_id }}" --repo "${{ github.repository }}" --ref "${GITHUB_REF}" --dir "${RUNNER_TEMP}/rescue-diagnostics"

@@ -31,7 +31,9 @@ const POSTS = "#post-list";
 const POST = `${POSTS} .post:not(.post--system)`;
 const CONTENT = "#app-content";
 const HEADER = "#global-header";
-const HEADER_LOGO = `${HEADER} [aria-controls='product-switcher-menu'] > span > svg`;
+const PRODUCT_MENU_BUTTON = "#switchProductMenuButton";
+const PRODUCT_MENU = "#switchProductMenu";
+const HEADER_LOGO = `${HEADER} ${PRODUCT_MENU_BUTTON} > span > svg`;
 const SIDEBAR = "#SidebarContainer";
 const SETTINGS = "#accountSettingsModal";
 const THEMES = "#premadeThemesSection";
@@ -278,8 +280,8 @@ exports.register = function (shared) {
           await page.locator("#navbar .navbar-toggle").first().click();
           await settled(page, SIDEBAR);
         } else {
-          await page.locator("#product_switch_menu").click();
-          await settled(page, "#product-switcher-menu-dropdown");
+          await page.locator(PRODUCT_MENU_BUTTON).click();
+          await settled(page, PRODUCT_MENU);
         }
       }),
       view("settings-notifications", showcase, openSettings),
@@ -390,7 +392,7 @@ exports.register = function (shared) {
     await loaded(EDITOR)(page);
     const onFrame = await tokenValue(page, "--design-on-frame", "color");
     const seen = [];
-    await page.locator(`${HEADER} #product_switch_menu`).focus();
+    await page.locator(`${HEADER} ${PRODUCT_MENU_BUTTON}`).focus();
     for (let step = 0; step < 24; step += 1) {
       await page.keyboard.press("Tab");
       const stop = await page.evaluate(
