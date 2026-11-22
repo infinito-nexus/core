@@ -14,6 +14,7 @@ from jinja2.nativetypes import NativeEnvironment
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import (
+    ROLE_FILE_META_DOMAINS,
     ROLE_FILE_META_FORMS,
     ROLE_FILE_META_SERVICES,
     ROLE_FILE_VARS_MAIN,
@@ -53,11 +54,12 @@ OPENTALK_CLIENT_TASKS = (
     PROJECT_ROOT / "roles" / OPENTALK / "tasks/02_keycloak_client.yml"
 )
 XWIKI = "web-app-xwiki"
+MATRIX = "web-app-matrix"
 LOGOUT_GATE = "web-svc-logout"
 LOGOUT_GATE_PATH = "/backchannel/"
 USER_OIDC_BACKCHANNEL_PATH = "/index.php/apps/user_oidc/backchannel-logout/"
 UPSTREAM_BACKCHANNEL_ENDPOINTS = {
-    "web-app-matrix": ("synapse", "/_synapse/client/oidc/backchannel_logout"),
+    MATRIX: ("synapse", "/_synapse/client/oidc/backchannel_logout"),
     "web-app-mediawiki": ("", "/rest.php/pluggableauth/v1/logout"),
     NEXTCLOUD: ("", USER_OIDC_BACKCHANNEL_PATH + "keycloak"),
     OPENCLOUD: ("", "/backchannel_logout"),
@@ -214,6 +216,21 @@ def canonical_origin(app: str, key: str = "") -> str:
     return f"https://{key + '.' if key else ''}{app}.example.com"
 
 
+def primary_domain_key(app: str) -> str:
+    """The named canonical domain ``lookup('tls', app, 'url.origin')`` serves.
+
+    Args:
+        app: application id.
+
+    Returns:
+        The first key of a named ``canonical`` map in the role's meta/domains.yml,
+        empty for a role with a single canonical domain.
+    """
+    path = PROJECT_ROOT / "roles" / app / ROLE_FILE_META_DOMAINS
+    canonical = load_yaml_any(str(path)).get("canonical") if path.is_file() else None
+    return next(iter(canonical)) if isinstance(canonical, dict) else ""
+
+
 def onion_sibling(url: str) -> list[str]:
     """
     Args:
@@ -240,7 +257,7 @@ def lookup(name, *args, **_kwargs):
     if name == "canonical_url":
         return canonical_origin(*args)
     if name == "tls":
-        return canonical_origin(args[0])
+        return canonical_origin(args[0], primary_domain_key(args[0]))
     if name == "network_urls":
         return onion_sibling(args[0])
     if name == "sso_oidc_plugin":
@@ -326,7 +343,7 @@ def logout_receiver(url: str) -> str:
     if not url.startswith(gate):
         return url
     role = url.removeprefix(gate)
-    return canonical_origin(role) + role_config(
+    return lookup("tls", role) + role_config(
         role, "services.sso.oidc.backchannel_logout_path"
     )
 
@@ -344,7 +361,10 @@ def endpoint_findings(role: str, url: str) -> list[str]:
         findings.append(f"{url} skips the logout gate {logout_gate_url(role)}")
     if not gated(role) and logout_receiver(url) != url:
         findings.append(f"{url} reaches the logout gate, which serves no {role}")
-    if logout_receiver(url) != canonical_origin(role, key) + path:
+    if (
+        logout_receiver(url)
+        != canonical_origin(role, key or primary_domain_key(role)) + path
+    ):
         findings.append(f"{url} does not reach the upstream endpoint {path}")
     return findings
 
@@ -644,11 +664,30 @@ class TestBackchannelClients(unittest.TestCase):
         self.assertEqual(len(endpoint_findings(XWIKI, foreign)), 2)
 
     def test_a_role_the_gate_does_not_serve_cannot_use_the_gate(self) -> None:
-        matrix = "web-app-matrix"
-        self.assertFalse(gated(matrix))
+        self.assertFalse(gated(OPENCLOUD))
         self.assertIn(
-            f"{logout_gate_url(matrix)} reaches the logout gate, which serves no {matrix}",
-            endpoint_findings(matrix, logout_gate_url(matrix)),
+            f"{logout_gate_url(OPENCLOUD)} reaches the logout gate, which serves no {OPENCLOUD}",
+            endpoint_findings(OPENCLOUD, logout_gate_url(OPENCLOUD)),
+        )
+
+    def test_synapse_receives_logout_tokens_through_the_gate(self) -> None:
+        (client,) = render_fragment(
+            PROJECT_ROOT / "roles" / MATRIX / "templates/keycloak/clients.json.j2"
+        )
+        self.assertTrue(
+            gated(MATRIX),
+            "Synapse 1.165.0 answers a logout token whose kid is not in the JWKS "
+            "with a 500: _verify_jwt lets authlib's ValueError past the JoseError "
+            "handler of handle_backchannel_logout",
+        )
+        self.assertEqual(
+            client["attributes"][BACKCHANNEL_LOGOUT_URL], logout_gate_url(MATRIX)
+        )
+        self.assertEqual(
+            primary_domain_key(MATRIX),
+            UPSTREAM_BACKCHANNEL_ENDPOINTS[MATRIX][0],
+            "the gate forwards to lookup('tls', ..., 'url.origin'), the first "
+            "canonical domain, which must stay the Synapse one",
         )
 
     def test_a_gated_client_with_the_origins_of_the_gate_fails_the_check(

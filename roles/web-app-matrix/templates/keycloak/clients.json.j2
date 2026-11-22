@@ -2,9 +2,9 @@
 {% set matrix_kc_synapse = lookup('network_urls', matrix_kc_synapse_origin) %}
 {% set matrix_kc_synapse_redirects = matrix_kc_synapse | map('regex_replace', '$', '/*') | list %}
 {
-  "clientId": "{{ lookup('config', 'web-app-matrix', 'services.sso.oidc.clients.synapse') }}",
+  "clientId": "{{ lookup('config', 'web-app-matrix', 'services.sso.oidc.clients.web') }}",
   "name": "Matrix Synapse",
-  "description": "Confidential Synapse client that receives OIDC back-channel logout tokens. Reuses the shared client secret.",
+  "description": "Confidential Synapse client whose OIDC back-channel logout tokens reach Synapse through the logout gate. Reuses the shared client secret.",
   "enabled": true,
   "surrogateAuthRequired": false,
   "alwaysDisplayInConsole": false,
@@ -24,7 +24,7 @@
   "protocol": "openid-connect",
   "attributes": {
     "post.logout.redirect.uris": "{{ matrix_kc_synapse_redirects | join('##') }}",
-    "backchannel.logout.url": "{{ matrix_kc_synapse_origin ~ lookup('config', 'web-app-matrix', 'services.sso.oidc.backchannel_logout_path') }}",
+    "backchannel.logout.url": "{{ lookup('tls', 'web-svc-logout', 'url.origin') ~ '/backchannel/web-app-matrix' }}",
     "backchannel.logout.session.required": "true",
     "backchannel.logout.revoke.offline.tokens": "false",
     "oauth2.device.authorization.grant.enabled": "false",

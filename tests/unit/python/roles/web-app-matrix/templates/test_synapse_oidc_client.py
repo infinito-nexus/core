@@ -122,7 +122,7 @@ def oidc_provider(flavor: str) -> dict:
 
 class TestSynapseLogsInThroughItsOwnClient(unittest.TestCase):
     def test_both_flavors_log_in_through_the_synapse_client(self) -> None:
-        client_id = services_config("services.sso.oidc.clients.synapse")
+        client_id = services_config("services.sso.oidc.clients.web")
         self.assertNotEqual(client_id, SHARED_CLIENT_ID)
         for flavor in FLAVORS:
             with self.subTest(flavor=flavor):

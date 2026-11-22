@@ -23,7 +23,24 @@ const RESULT_PARAM = "logout-result";
 const KEYCLOAK_LOGIN = "input[name='username'], input#username";
 const SSO_BUTTON = /\bsso\b/i;
 const XWIKI_SIGNED_IN = /data-xwiki-user-reference="(?:[^"]*[:])?XWiki\.(?!XWikiGuest")/;
+const SYNAPSE_ACCESS_TOKENS = new Map();
 const GATED_SESSIONS = {
+  "web-app-matrix": {
+    start: (page, base) => {
+      SYNAPSE_ACCESS_TOKENS.delete(base);
+      return gotoOnion(page, synapseSsoUrl(base), { waitUntil: "domcontentloaded" });
+    },
+    signedIn: async (page, base) => {
+      if (!SYNAPSE_ACCESS_TOKENS.has(base)) {
+        const loginToken = await synapseLoginToken(page, base);
+        if (!loginToken) {
+          return false;
+        }
+        SYNAPSE_ACCESS_TOKENS.set(base, await redeemSynapseLoginToken(page.request, base, loginToken));
+      }
+      return (await synapseSessionStatus(page.request, base, SYNAPSE_ACCESS_TOKENS.get(base))) === 200;
+    },
+  },
   "web-app-mediawiki": {
     start: async (page, base) => {
       await gotoOnion(page, `${base}/index.php?title=Special:UserLogin`, { waitUntil: "domcontentloaded" });
@@ -32,8 +49,8 @@ const GATED_SESSIONS = {
         await button.click({ timeout: resolveTimeout(30_000) });
       }
     },
-    signedIn: async (request, base) => {
-      const response = await apiGetOnion(request, `${base}/api.php?action=query&meta=userinfo&format=json`, {
+    signedIn: async (page, base) => {
+      const response = await apiGetOnion(page.request, `${base}/api.php?action=query&meta=userinfo&format=json`, {
         maxRedirects: 0,
         timeout: resolveTimeout(30_000),
       });
@@ -42,15 +59,15 @@ const GATED_SESSIONS = {
   },
   "web-app-xwiki": {
     start: (page, base) => gotoOnion(page, `${base}/bin/login/XWiki/XWikiLogin`, { waitUntil: "domcontentloaded" }),
-    signedIn: async (request, base) => {
-      const response = await apiGetOnion(request, `${base}/bin/view/Main/`, { timeout: resolveTimeout(30_000) });
+    signedIn: async (page, base) => {
+      const response = await apiGetOnion(page.request, `${base}/bin/view/Main/`, { timeout: resolveTimeout(30_000) });
       return XWIKI_SIGNED_IN.test(await response.text());
     },
   },
   "web-app-zammad": {
     start: (page, base) => gotoOnion(page, `${base}/auth/openid_connect`, { waitUntil: "domcontentloaded" }),
-    signedIn: async (request, base) => {
-      const response = await apiGetOnion(request, `${base}/api/v1/users/me`, {
+    signedIn: async (page, base) => {
+      const response = await apiGetOnion(page.request, `${base}/api/v1/users/me`, {
         headers: { Accept: "application/json" },
         maxRedirects: 0,
         timeout: resolveTimeout(30_000),
@@ -285,22 +302,58 @@ async function expectLoginAsksForCredentials(page) {
  */
 async function signInToSynapse(page) {
   const base = logoutEnv.synapseUrl.replace(/\/$/, "");
-  const landing = `${base}/_matrix/static/`;
-  await gotoOnion(page, `${base}/_matrix/client/v3/login/sso/redirect/${SYNAPSE_IDP}?redirectUrl=${encodeURIComponent(landing)}`);
+  await gotoOnion(page, synapseSsoUrl(base));
   const username = page.locator(KEYCLOAK_LOGIN).first();
   if (await username.isVisible().catch(() => false)) {
     await performKeycloakLoginForm(page, logoutEnv.biberUsername, logoutEnv.biberPassword, { settle: false });
   }
-  const continueLink = page.locator("a[href*='loginToken=']").first();
   await expect
-    .poll(async () => page.url().includes("loginToken=") || (await continueLink.isVisible().catch(() => false)), {
+    .poll(async () => Boolean(await synapseLoginToken(page, base)), {
       timeout: resolveTimeout(120_000),
       message: "Synapse must hand back a login token after the Keycloak round trip",
     })
     .toBe(true);
-  const tokenUrl = page.url().includes("loginToken=") ? page.url() : await continueLink.getAttribute("href");
-  const loginToken = new URL(tokenUrl, base).searchParams.get("loginToken");
-  const response = await apiFetchOnion(page.request, `${base}/_matrix/client/v3/login`, {
+  return redeemSynapseLoginToken(page.request, base, await synapseLoginToken(page, base));
+}
+
+/**
+ * Args:
+ *   base: a Synapse base URL without a trailing slash.
+ *
+ * Returns:
+ *   The URL that starts the Synapse SSO round trip through Keycloak.
+ */
+function synapseSsoUrl(base) {
+  return `${base}/_matrix/client/v3/login/sso/redirect/${SYNAPSE_IDP}?redirectUrl=${encodeURIComponent(`${base}/_matrix/static/`)}`;
+}
+
+/**
+ * Args:
+ *   page: a page that may have come back from the Synapse SSO round trip.
+ *   base: the Synapse base URL the round trip started on.
+ *
+ * Returns:
+ *   The login token Synapse handed back, in the URL or behind its continue link, or null.
+ */
+async function synapseLoginToken(page, base) {
+  const continueLink = page.locator("a[href*='loginToken=']").first();
+  const tokenUrl = page.url().includes("loginToken=")
+    ? page.url()
+    : (await continueLink.isVisible().catch(() => false)) && (await continueLink.getAttribute("href"));
+  return tokenUrl ? new URL(tokenUrl, base).searchParams.get("loginToken") : null;
+}
+
+/**
+ * Args:
+ *   request: an API request context.
+ *   base: the Synapse base URL the login token belongs to.
+ *   loginToken: the login token of a finished SSO round trip.
+ *
+ * Returns:
+ *   The access token of the Synapse session the login token opens.
+ */
+async function redeemSynapseLoginToken(request, base, loginToken) {
+  const response = await apiFetchOnion(request, `${base}/_matrix/client/v3/login`, {
     method: "POST",
     data: { type: "m.login.token", token: loginToken },
     timeout: resolveTimeout(30_000),
@@ -312,10 +365,11 @@ async function signInToSynapse(page) {
 /**
  * Args:
  *   request: an API request context.
+ *   base: the Synapse base URL the access token belongs to.
  *   accessToken: a Synapse access token.
  */
-async function synapseSessionStatus(request, accessToken) {
-  const response = await apiFetchOnion(request, `${logoutEnv.synapseUrl.replace(/\/$/, "")}/_matrix/client/v3/account/whoami`, {
+async function synapseSessionStatus(request, base, accessToken) {
+  const response = await apiFetchOnion(request, `${base}/_matrix/client/v3/account/whoami`, {
     method: "GET",
     headers: { Authorization: `Bearer ${accessToken}` },
     timeout: resolveTimeout(30_000),
@@ -331,7 +385,7 @@ async function synapseSessionStatus(request, accessToken) {
  */
 async function expectSynapseSession(request, accessToken, expected) {
   await expect
-    .poll(() => synapseSessionStatus(request, accessToken), {
+    .poll(() => synapseSessionStatus(request, logoutEnv.synapseUrl.replace(/\/$/, ""), accessToken), {
       timeout: resolveTimeout(60_000),
       message: `the Synapse session must answer whoami with ${expected}`,
     })
@@ -441,7 +495,7 @@ function gatedAppSessions() {
  */
 async function expectGatedSession(page, gated, alive) {
   await expect
-    .poll(() => gated.session.signedIn(page.request, gated.base), {
+    .poll(() => gated.session.signedIn(page, gated.base), {
       timeout: resolveTimeout(60_000),
       message: `${gated.id} on ${gated.base}: the app session must be ${alive ? "alive" : "gone"}`,
     })
@@ -457,7 +511,7 @@ async function signInToGatedApp(page, gated) {
   await gated.session.start(page, gated.base);
   const form = page.locator(KEYCLOAK_LOGIN).first();
   await expect
-    .poll(async () => (await form.isVisible().catch(() => false)) || (await gated.session.signedIn(page.request, gated.base)), {
+    .poll(async () => (await form.isVisible().catch(() => false)) || (await gated.session.signedIn(page, gated.base)), {
       timeout: resolveTimeout(120_000),
       message: `${gated.id} on ${gated.base}: the sign-in must reach the Keycloak form or come back signed in`,
     })

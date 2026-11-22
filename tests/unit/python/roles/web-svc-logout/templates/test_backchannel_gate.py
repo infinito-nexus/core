@@ -52,6 +52,7 @@ APPLICATIONS = {
     OPEN: {"services": {"sso": {"oidc": {}}}},
 }
 CONFIG = {
+    (GATED, "services.sso.enabled"): True,
     (GATED, "services.sso.oidc.backchannel_logout_gate"): True,
     (GATED, "services.sso.oidc.clients.web"): CLIENT_ID,
     (GATED, "services.sso.oidc.backchannel_logout_path"): RECEIVER_PATH,
@@ -198,11 +199,8 @@ def playwright_targets(group_names: list[str], answer=lookup) -> list[dict]:
     return json.loads(dotenv_unquote(value))
 
 
+MATRIX = "web-app-matrix"
 SSO_CLIENT_APPS = {
-    "web-app-matrix": {
-        "services.sso.oidc.backchannel_logout_path": "/_synapse/client/oidc/backchannel_logout",
-        "services.sso.oidc.clients.synapse": "synapse",
-    },
     "web-app-opencloud": {
         "services.sso.oidc.backchannel_logout_path": "/backchannel_logout",
         "services.sso.oidc.clients.web": "opencloud",
@@ -216,18 +214,18 @@ SYNAPSE_URL = "https://synapse.example.test"
 
 
 def sso_client_lookup(sso_enabled: bool):
-    """Return a lookup stub that deploys every app of SSO_CLIENT_APPS.
+    """Return a lookup stub that deploys every app of SSO_CLIENT_APPS, Matrix and the gated app.
 
     Args:
         sso_enabled: the ``services.sso.enabled`` value of every such app.
     """
 
     def answer(name, *terms, **kwargs):
-        if name == "canonical_url" and terms == ("web-app-matrix", "synapse"):
+        if name == "canonical_url" and terms == (MATRIX, "synapse"):
             return SYNAPSE_URL
+        if name == "config" and terms[1] == "services.sso.enabled":
+            return sso_enabled
         if name == "config" and terms[0] in SSO_CLIENT_APPS:
-            if terms[1] == "services.sso.enabled":
-                return sso_enabled
             return SSO_CLIENT_APPS[terms[0]][terms[1]]
         return lookup(name, *terms, **kwargs)
 
@@ -329,13 +327,13 @@ class TestPlaywrightGateTargets(unittest.TestCase):
 
 class TestPlaywrightSsoClientTargets(unittest.TestCase):
     def test_the_backchannel_targets_follow_services_sso_enabled(self) -> None:
-        deployed = [APP, *SSO_CLIENT_APPS]
+        deployed = [APP, *SSO_CLIENT_APPS, MATRIX, GATED]
         self.assertEqual(
             [
                 target["id"]
                 for target in playwright_targets(deployed, sso_client_lookup(True))
             ],
-            list(SSO_CLIENT_APPS),
+            [*SSO_CLIENT_APPS, GATED],
         )
         self.assertEqual(
             dotenv_unquote(

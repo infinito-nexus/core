@@ -13,8 +13,9 @@ sso:
   flavor: oidc
   oidc:
     clients:
-      synapse: matrix-synapse
+      web: matrix-synapse
     backchannel_logout_path: /_synapse/client/oidc/backchannel_logout
+    backchannel_logout_gate: true
 ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"
