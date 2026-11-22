@@ -114,6 +114,7 @@ class ObjstoreLookupTests(unittest.TestCase):
         self.assertEqual(out["public_bucket"], "")
         self.assertEqual(out["public_endpoint"], "")
         self.assertEqual(out["public_url"], "")
+        self.assertEqual(out["public_scheme"], "")
         self.assertEqual(out["relative_url"], "")
         self.assertEqual(out["reach_host"], "127.0.0.1")
 
@@ -427,6 +428,27 @@ class ObjstoreSameOriginProxyTests(unittest.TestCase):
             ("api.seaweedfs.s3.example.com", "https"),
             "the nginx fragment still has to reach the provider's own vhost, so "
             "the rebase must not overwrite the upstream it proxies to",
+        )
+
+    def test_an_onion_only_consumer_gets_the_scheme_of_its_own_origin(self):
+        out = self._resolve(consumer_domains=["foo.abcdefghij.onion"])
+
+        self.assertEqual(
+            out["public_scheme"],
+            "http",
+            "a client that joins its own scheme to public_bucket must not dial "
+            "https on an onion that maps no port 443",
+        )
+        self.assertEqual(
+            f"{out['public_scheme']}://{out['public_bucket']}", out["public_url"]
+        )
+
+    def test_a_clearnet_consumer_keeps_the_provider_scheme(self):
+        out = self._resolve(consumer_domains=["foo.example.com"], consumer_web="http")
+
+        self.assertEqual(out["public_scheme"], "https")
+        self.assertEqual(
+            f"{out['public_scheme']}://{out['public_bucket']}", out["public_url"]
         )
 
     def test_the_consumer_origin_is_resolved_for_the_named_consumer(self):
