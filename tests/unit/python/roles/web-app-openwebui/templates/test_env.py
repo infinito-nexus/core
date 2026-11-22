@@ -26,6 +26,7 @@ OIDC_ENV = {
     "OAUTH_CODE_CHALLENGE_METHOD": "S256",
     "OAUTH_TOKEN_ENDPOINT_AUTH_METHOD": "none",
     "ENABLE_OAUTH_BACKCHANNEL_LOGOUT": "true",
+    "OPENID_END_SESSION_ENDPOINT": "{{ OPENWEBUI_OIDC_END_SESSION_URL }}",
 }
 REDIS_ENV = ("REDIS_URL", "{{ OPENWEBUI_REDIS_URL | dotenv_quote }}")
 VARS = {
@@ -81,7 +82,7 @@ def realm_lifespan(realm: str) -> int:
 
 
 def findings(sources: dict[str, str]) -> list[str]:
-    """What keeps Open WebUI from its own public client and its revocation store.
+    """What keeps Open WebUI from its own public client, its sign-out and its revocation store.
 
     Args:
         sources: the env template, vars, services and Keycloak client fragment
@@ -169,6 +170,23 @@ class TestOpenWebuiBackchannelLogout(unittest.TestCase):
                 "ENABLE_OAUTH_BACKCHANNEL_LOGOUT=false",
             ),
             ["ENABLE_OAUTH_BACKCHANNEL_LOGOUT is not true in the SSO block"],
+        )
+
+    def test_a_missing_or_network_gated_end_session_endpoint_is_caught(self) -> None:
+        key = "OPENID_END_SESSION_ENDPOINT"
+        line = f"{key}={OIDC_ENV[key]}\n"
+        finding = [f"{key} is not {OIDC_ENV[key]} in the SSO block"]
+        self.assertEqual(planted("env", line, ""), finding)
+        self.assertEqual(
+            planted(
+                "env",
+                line,
+                "{% if (OIDC.CLIENT.ISSUER_URL | urlsplit('hostname') | network_of) == 'tor' %}\n"
+                f"{line}{{% endif %}}\n",
+            ),
+            finding,
+            "with the discovery fallback on clearnet the sign-out still fetches it from the "
+            "container, and one Keycloak outage there leaves the SSO session open again",
         )
 
     def test_redis_behind_a_switch_or_off_is_caught(self) -> None:

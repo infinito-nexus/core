@@ -60,4 +60,7 @@ OPENWEBUI_CUSTOM_CSS_HOST: "{{ [lookup('container', application_id, 'directories
 OPENWEBUI_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.openwebui.login.method.sso.enabled') | bool }}"
 OPENWEBUI_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.clients.web') }}"
 OPENWEBUI_OIDC_REDIRECT_URL: "{{ [OPENWEBUI_URL,'/oauth/oidc/callback'] | url_join }}"
+OPENWEBUI_OIDC_END_SESSION_URL: >-
+  {{ OIDC.CLIENT.LOGOUT_URL ~ '?' ~ ({'client_id': OPENWEBUI_OIDC_CLIENT_ID,
+     'post_logout_redirect_uri': [OPENWEBUI_URL, '/auth'] | url_join} | urlencode) }}
 OPENWEBUI_OIDC_ADMIN_GROUP: "{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
