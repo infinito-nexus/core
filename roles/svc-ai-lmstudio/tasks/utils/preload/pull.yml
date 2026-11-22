@@ -1,8 +1,5 @@
 ---
 - name: ⬇️ Pre-pull LM Studio models
-  # Exception: docker exec forwards no signal and the download is a daemon job, so a host-side budget leaves it running.
-  # lms cancels it only on SIGINT answered with N, which is why the budget runs inside the container and
-  # CONTAINER_EXEC_TIMEOUT must outlast budget plus kill grace.
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec {{ LMSTUDIO_LOCAL_CID | quote }}
     sh -c 'echo N | timeout --foreground -s INT -k "$1" "$2" lms get --yes --gguf "$3"'

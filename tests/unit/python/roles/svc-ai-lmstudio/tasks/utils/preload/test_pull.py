@@ -20,9 +20,6 @@ WRAPPER = PROJECT_ROOT / "roles/sys-svc-container/files/python/container.py"
 TASK = "⬇️ Pre-pull LM Studio models"
 BUDGET_SECONDS = 2
 
-# Exception: start_new_session and the relayed output reproduce what the defect hinges on, docker exec forwards no
-# signal to the process it started and holds none of the client's descriptors open, so a client the host-side timeout
-# kills returns at once and leaves that process running in the container.
 FAKE_DOCKER = """
 import shutil
 import subprocess
@@ -43,8 +40,6 @@ shutil.copyfileobj(child.stdout, sys.stdout.buffer)
 sys.exit(child.wait())
 """
 
-# Exception: models lms get against the LM Studio daemon, whose transfer outlives the client: an lms get started while
-# a transfer is on record attaches to it, and only an N read after SIGINT cancels it.
 FAKE_LMS = """
 import os
 import signal
