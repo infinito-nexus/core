@@ -70,7 +70,7 @@ class LookupModule(LookupBase):
             ) is not None,
             "fact_cache": sorted(
                 name for name in ({APPLICATIONS_RENDERED_FACT!r}, {USERS_RENDERED_FACT!r})
-                if name in facts
+                if facts.get(name) is not None
             ),
         }}]
 """
@@ -130,6 +130,29 @@ HAZARD_PLAY = """---
       fact_carrier: {}
 
     - name: Read the fact-parked carrier
+      ansible.builtin.copy:
+        dest: "{{ probe_out }}"
+        content: "{{ lookup('carrier_probe') | to_json }}"
+        mode: "0644"
+"""
+
+
+RECOVERY_PLAY = """---
+- name: Clear a fact-parked carrier and park it again
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Park the carrier in the fact cache
+      fact_carrier: {}
+
+    - name: Clear it, as the reader's recovery hint says
+      applications_carrier:
+        clear: true
+
+    - name: Park the carrier again
+      applications_carrier: {}
+
+    - name: Read the parked carrier
       ansible.builtin.copy:
         dest: "{{ probe_out }}"
         content: "{{ lookup('carrier_probe') | to_json }}"
@@ -264,6 +287,15 @@ class TestApplicationsCarrierReachesLaterWorkers(unittest.TestCase):
         self.assertNotEqual(code, 0, output)
         self.assertIsNone(report)
         self.assertIn("not visible as a variable", output)
+
+    def test_clear_removes_a_fact_parked_carrier_from_the_fact_cache(self):
+        for inject in (True, False):
+            with self.subTest(inject=inject):
+                code, output, report = self._play(RECOVERY_PLAY, inject, "localhost,")
+                self.assertEqual(code, 0, output)
+                self.assertEqual(
+                    report, {"applications": True, "users": True, "fact_cache": []}
+                )
 
 
 if __name__ == "__main__":

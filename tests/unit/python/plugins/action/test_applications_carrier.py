@@ -277,6 +277,29 @@ class TestApplicationsCarrierActionPlugin(unittest.TestCase):
         self.assertEqual(applications.calls, [])
         self.assertEqual(users.calls, [])
 
+    def test_clear_overwrites_a_carrier_left_in_the_fact_cache(self):
+        action = _make_action(_FakeTask(args={"clear": True}))
+        stale = {"key": ["roles", ["a"]], "applications": {"x": {}}}
+        with patch(
+            "plugins.action.applications_carrier.ActionBase.run",
+            autospec=True,
+            return_value={},
+        ):
+            action.run(
+                task_vars={
+                    "ansible_facts": {
+                        APPLICATIONS_RENDERED_FACT: stale,
+                        "os_family": "Debian",
+                    }
+                }
+            )
+
+        self.assertEqual(
+            action.registered[VariableLayer.CACHEABLE_FACT],
+            {APPLICATIONS_RENDERED_FACT: None},
+        )
+        self.assertIsNone(_parked(action)[APPLICATIONS_RENDERED_FACT])
+
     def test_clear_false_still_renders(self):
         applications, users, loader = _lookups()
         action = _make_action(_FakeTask(args={"clear": "no"}))

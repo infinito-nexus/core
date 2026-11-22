@@ -99,13 +99,13 @@ class ActionModule(ActionBase):
             )
 
         if boolean(args.get("clear", False)):
-            self._park(
-                {
-                    APPLICATIONS_RENDERED_FACT: None,
-                    USERS_RENDERED_FACT: None,
-                    PROVIDER_VIEW_RENDERED_FACT: None,
-                }
-            )
+            cleared = {
+                APPLICATIONS_RENDERED_FACT: None,
+                USERS_RENDERED_FACT: None,
+                PROVIDER_VIEW_RENDERED_FACT: None,
+            }
+            facts = task_vars.get("ansible_facts") or {}
+            self._park(cleared, {fact: None for fact in cleared if fact in facts})
             result.update(changed=False)
             return result
 
@@ -136,10 +136,18 @@ class ActionModule(ActionBase):
             if view_carrier is not None:
                 carriers[PROVIDER_VIEW_RENDERED_FACT] = view_carrier
 
-        self._park(carriers)
+        self._park(carriers, {})
         result.update(changed=False, _ansible_no_log=True)
         return result
 
-    def _park(self, carriers: dict[str, Any]) -> None:
-        self.register_host_variables({}, VariableLayer.CACHEABLE_FACT)
+    def _park(self, carriers: dict[str, Any], cacheable: dict[str, Any]) -> None:
+        """Register the carriers outside the fact cache.
+
+        Args:
+            carriers: carrier variables for the ephemeral fact layer.
+            cacheable: entries for the cacheable fact layer. The fact cache
+                merges this layer, so an empty mapping leaves a stale carrier
+                there; only ``None`` overwrites its payload.
+        """
+        self.register_host_variables(cacheable, VariableLayer.CACHEABLE_FACT)
         self.register_host_variables(carriers, VariableLayer.EPHEMERAL_FACT)
