@@ -1,5 +1,5 @@
 # nocheck: mirrored-unit-test - runs in `gitlab-rails runner` against User,
-# Organizations::Organization and Users::CreateService, which come from the GitLab
+# Organizations::Organization and Users::AuthorizedCreateService, which come from the GitLab
 # image and are not loadable anywhere else
 #
 # Env (from the container):
@@ -23,7 +23,7 @@ if user.nil?
   organization = Organizations::Organization.default_organization
   abort("[FAIL] no default organization to create '#{username}' in") if organization.nil?
 
-  result = Users::CreateService.new(
+  result = Users::AuthorizedCreateService.new(
     nil,
     username: username,
     name: display_name,
