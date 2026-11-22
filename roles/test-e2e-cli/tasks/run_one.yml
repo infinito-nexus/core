@@ -47,12 +47,29 @@
     resolve_converge_delay: 2
   when: _cli_service_key | length > 0
 
+- name: 🧭 Claim this host's CLI node for {{ application_id }}
+  ansible.builtin.set_fact:
+    _cli_node_claim: "{{ application_id }}@{{ CLI_HOST_NODE }}"
+
+- name: 🧭 Pick the one host per CLI node that runs the test of {{ application_id }}
+  ansible.builtin.set_fact:
+    _cli_runner: "{{ ((_cli_peers | select('equalto', STACK_HOST) | list) + _cli_peers) | first }}"
+  vars:
+    _cli_peers: >-
+      {{ ansible_play_hosts
+         | map('extract', hostvars)
+         | selectattr('_cli_node_claim', 'defined')
+         | selectattr('_cli_node_claim', 'equalto', _cli_node_claim)
+         | map(attribute='inventory_hostname')
+         | list }}
+
 - name: 📁 Create stage directory for {{ application_id }}
   ansible.builtin.file:
     path: "{{ _cli_stage_dir }}"
     state: directory
     mode: "0700"
   delegate_to: "{{ CLI_HOST_NODE }}"
+  when: _cli_runner == inventory_hostname
 
 - name: 📦 Stage CLI test assets for {{ application_id }}
   ansible.builtin.copy:
@@ -60,6 +77,7 @@
     dest: "{{ _cli_stage_dir }}/"
     mode: "0755"
   delegate_to: "{{ CLI_HOST_NODE }}"
+  when: _cli_runner == inventory_hostname
 
 - name: 📦 Stage the shared CLI harness for {{ application_id }}
   ansible.builtin.copy:
@@ -67,6 +85,7 @@
     dest: "{{ _cli_stage_dir }}/shared/"
     mode: "0755"
   delegate_to: "{{ CLI_HOST_NODE }}"
+  when: _cli_runner == inventory_hostname
 
 - name: 🧭 Reset the per-role deployment-mode override
   ansible.builtin.include_vars:
@@ -104,6 +123,7 @@
     mode: "0600"
     content: "{{ lookup('template', _cli_env_template) }}"
   delegate_to: "{{ CLI_HOST_NODE }}"
+  when: _cli_runner == inventory_hostname
 
 - name: 🚀 Run CLI test script for {{ application_id }}
   ansible.builtin.shell:
@@ -121,9 +141,10 @@
   failed_when: false
   delegate_to: "{{ CLI_HOST_NODE }}"
   throttle: 1
+  when: _cli_runner == inventory_hostname
 
 - name: ❌ Handle the failed CLI test run of {{ application_id }}
-  when: _cli_run.rc != 0
+  when: hostvars[_cli_runner]._cli_run.rc != 0
   block:
     - name: 📄 Print CLI test output on failure for {{ application_id }}
       ansible.builtin.debug:
@@ -133,6 +154,7 @@
           stderr:
           {{ _cli_run.stderr }}
       changed_when: false
+      when: _cli_runner == inventory_hostname
 
     - name: ❌ Record failure for {{ application_id }}
       ansible.builtin.set_fact:
@@ -143,4 +165,6 @@
     path: "{{ _cli_stage_dir }}"
     state: absent
   delegate_to: "{{ CLI_HOST_NODE }}"
-  when: CLI_HOST_NODE != inventory_hostname
+  when:
+    - _cli_runner == inventory_hostname
+    - CLI_HOST_NODE != inventory_hostname

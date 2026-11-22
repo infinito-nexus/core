@@ -118,7 +118,7 @@ def _group_vars_all() -> dict:
 
 
 def _role_scoped_vars(application_id: str) -> dict:
-    """Mirror the ``include_vars`` chain ``run_one.yml:44-70`` runs before rendering."""
+    """Mirror the ``include_vars`` chain ``run_one.yml`` runs before rendering."""
     loaded: dict = {}
     for candidate in (
         PROJECT_ROOT / "roles" / application_id / ROLE_FILE_DEFAULTS_MAIN,

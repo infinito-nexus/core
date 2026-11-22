@@ -29,3 +29,7 @@ cli:
 ```
 
 The script runs with `CLI_DEADLINE` exported, the epoch second the harness kills it. A script that retries budgets against it, so it can still print its own verdict before the harness ends it.
+
+## How often a test runs
+
+A role's test runs once per CLI node, not once per play host. Without `container_service_key` every host is its own CLI node. With it, every host resolves the node that holds the service's container, so in swarm all hosts of the role share one node and one run. The stack host (`STACK_HOST`) runs it when it is one of them, else the first of them in play order, and `test.env` renders from that host's variables. Each host claims `<role>@<node>`, so a host that skips a role (a manager-only placement) keeps an older claim that never matches it. A failed run counts as a failure on every host that shares its node.
