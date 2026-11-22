@@ -459,17 +459,59 @@ def probe_php(container_id: str) -> PhpProbe | None:
     return parse_probe(result.stdout)
 
 
+def container_running(container_id: str) -> bool:
+    """Tell whether a container still runs.
+
+    Args:
+        container_id: the container to inspect.
+
+    Returns:
+        ``False`` only when the container engine reports it stopped or no
+        longer knows it; ``True`` while it runs, and also when the engine does
+        not answer in time or the inspection fails for another reason, so a
+        probe error then stays a failure.
+    """
+    try:
+        result = subprocess.run(
+            [
+                "container",
+                "inspect",
+                "--type",
+                "container",
+                "--format",
+                "{{.State.Running}}",
+                container_id,
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=EXEC_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired:
+        return True
+    if result.returncode == 0:
+        return result.stdout.strip() == "true"
+    return "no such container" not in result.stderr.lower()
+
+
 def check(
     containers: list[Container],
     hardened: dict,
     probe,
+    running,
 ) -> tuple[list[str], list[str]]:
     """Evaluate the PHP hardening of every container.
+
+    A probe error counts as a failure only while the container still runs.
+    A container that is stopped or gone when it is inspected after the error,
+    as a swarm task that recycles itself is, is reported as info instead,
+    even when it stopped only after its probe had failed.
 
     Args:
         containers: the running containers.
         hardened: ``{stack: [service, ...]}`` that must run hardened PHP.
         probe: callable returning a :class:`PhpProbe` or ``None`` per id.
+        running: callable telling whether a container id still runs.
 
     Returns:
         ``(failures, infos)`` as printable lines.
@@ -486,7 +528,13 @@ def check(
         try:
             result = probe(container.id)
         except ProbeError as exc:
-            failures.append(f"{container.name}: {exc}")
+            if running(container.id):
+                failures.append(f"{container.name}: {exc}")
+            else:
+                infos.append(
+                    f"{container.name}: not running when inspected after its "
+                    "probe error, skipped"
+                )
             continue
         if result is None:
             if must_harden:
@@ -2250,7 +2298,7 @@ def main(argv=None) -> int:
     except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as exc:
         print(f"❌ listing the running containers failed: {exc}")
         return 1
-    failures, infos = check(containers, hardened, probe_php)
+    failures, infos = check(containers, hardened, probe_php, container_running)
     remote = host_network_mounts() if "host" in config.targets else []
     infos += [
         f"host scan skips the network or automounted filesystem at {printable(point)}"

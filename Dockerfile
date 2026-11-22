@@ -57,7 +57,7 @@ RUN set -euo pipefail; \
   /bin/bash "${INFINITO_SRC_DIR}/${INFINITO_PYTHON_INSTALL_SCRIPT:?}" ensure; \
   VENV="${INFINITO_VENV_DIR}" bash "${INFINITO_SRC_DIR}/scripts/install/venv.sh"; \
   ${PIP} install --upgrade pip setuptools wheel; \
-  ${PIP} install ansible PyYAML; \
+  ${PIP} install "$(grep -oE '"ansible==[^"]+"' "${INFINITO_SRC_DIR}/pyproject.toml" | tr -d '"')" PyYAML; \
   ANSIBLE_COLLECTIONS_DIR="${HOME}/.ansible/collections" \
     bash "${INFINITO_SRC_DIR}/scripts/install/ansible.sh"
 

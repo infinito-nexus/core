@@ -37,7 +37,7 @@ class Tracker(NamedTuple):
     covers: Callable[[Mapping[str, Any], str], bool]
 
 
-LABEL = "vulnerability"
+LABEL = "🔓 vulnerability"
 LABEL_COLOR = "B60205"
 LABEL_DESCRIPTION = "A pinned image carries a CVE at the scan threshold"
 MIRROR = Tracker(

@@ -1,0 +1,12 @@
+---
+# Param: PLAY_ENVIRONMENT_SOURCE - mapping of environment variable to its templated source
+# Param: PLAY_ENVIRONMENT        - the mapping freeze.yml rendered at play start
+- name: "✅ Assert the frozen play environment still equals its sources"
+  ansible.builtin.assert:
+    that:
+      - PLAY_ENVIRONMENT == PLAY_ENVIRONMENT_SOURCE
+    fail_msg: >-
+      A source of the play environment changed during the play, so every task after the change
+      ran with a stale value. Sources now: {{ PLAY_ENVIRONMENT_SOURCE | dict2items
+      | difference(PLAY_ENVIRONMENT | dict2items) | items2dict | to_json }}
+    quiet: true
