@@ -35,10 +35,11 @@ from __future__ import annotations
 import functools
 import re
 import unittest
+from unittest.mock import patch
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.applications.variant_pins import pins_of
+from utils.roles.applications.variant_pins import RECIPROCAL, pins_of
 from utils.roles.applications.variants import (
     _resolve_round_include,
     services_overrides_for_round,
@@ -120,7 +121,8 @@ def _exempt(role: str) -> bool:
 
 
 def _pins_partner(role: str, index: int, partner: str) -> bool:
-    return partner in pins_of(role, roles_dir=str(ROLES_DIR)).get(index, {})
+    target = pins_of(role, roles_dir=str(ROLES_DIR)).get(index, {}).get(partner)
+    return target is not None and (target.isdigit() or target == RECIPROCAL)
 
 
 def mutual_pairs() -> list[tuple[str, str, str, str]]:
@@ -180,6 +182,19 @@ class TestVariantPinRequired(unittest.TestCase):
             "no mutual pair is pinned true in any variant, so the rule above "
             "can never fire",
         )
+
+
+class TestPinsPartner(unittest.TestCase):
+    def _pins(self, target: str) -> bool:
+        with patch(f"{__name__}.pins_of", return_value={0: {"web-app-b": target}}):
+            return _pins_partner("web-app-a", 0, "web-app-b")
+
+    def test_an_index_or_reciprocal_pin_states_the_pairing(self) -> None:
+        self.assertTrue(self._pins("3"))
+        self.assertTrue(self._pins(RECIPROCAL))
+
+    def test_negative_control_a_without_pin_does_not_state_the_pairing(self) -> None:
+        self.assertFalse(self._pins("without-prometheus"))
 
 
 if __name__ == "__main__":

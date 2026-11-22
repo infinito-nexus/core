@@ -12,6 +12,10 @@ on:
         description: "Chunk index this call deploys; chunks run serially, one block per index."
         required: true
         type: string
+      chunk_gate:
+        description: "The orchestrator's chunk gate. On a pull request it also cancels the chunk's remaining rows at its first failed row; other events always run every row."
+        required: true
+        type: boolean
       sweep:
         description: "Sweep number driving the mode and network rotation and the regular-line offset."
         required: true
@@ -170,6 +174,7 @@ env:
   INFINITO_ARCHITECTURES: ${{ inputs.architectures }}
   INFINITO_LIFECYCLES: ${{ inputs.lifecycles }}
   INFINITO_DISCOVERY_SEED: ${{ github.run_id }}
+  INFINITO_CI_CONCURRENCY: ${{ vars.INFINITO_CI_CONCURRENCY }}
 
 jobs:
   discover:
@@ -367,7 +372,7 @@ jobs:
       queue: max
 
     strategy:
-      fail-fast: ${{ github.event_name == 'pull_request' || github.event_name == 'pull_request_target' }}
+      fail-fast: ${{ (github.event_name == 'pull_request' || github.event_name == 'pull_request_target') && inputs.chunk_gate }}
       matrix:
         include: ${{ fromJson(needs.discover.outputs.apps) }}
 

@@ -1,0 +1,40 @@
+name: "🔄 Dependabot: Label update level"
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+
+permissions: {}
+
+jobs:
+  label:
+    name: 🏷️ Label the Dependabot PR
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && vars.CI_ENABLE_AUTO_UPDATES == 'true'
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: 🔎 Read Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+
+      - name: ⬇️ Checkout the base branch
+        uses: actions/checkout@v7.0.0
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+
+      - name: 🔧 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: 🏷️ Label update and semver level
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+        run: python3 -m cli.contributing.update.label --repo "$REPOSITORY" --pr "$PR_NUMBER" --update-type "$UPDATE_TYPE"

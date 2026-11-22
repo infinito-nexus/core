@@ -6,11 +6,16 @@
     resolve_output_prefix: WEBLATE
     resolve_compose_cid: "{{ WEBLATE_CONTAINER }}"
 
+- name: "🔗 Look up the Keycloak user the administrator signs in as"
+  when: WEBLATE_OIDC_ENABLED | bool
+  ansible.builtin.include_tasks: utils/admin_oidc_subject.yml
+
 - name: "👤 Let the platform administrator own the superuser Weblate bootstrapped"
   ansible.builtin.shell: # nocheck: container-exec-resolver  only Weblate's own management shell can reach its user table
     cmd: >
       container exec -i
       -e WEBLATE_ADMIN_BOOTSTRAP_USERNAME -e WEBLATE_ADMIN_USERNAME -e WEBLATE_OIDC_ENABLED
+      -e WEBLATE_ADMIN_OIDC_SUBJECT
       {{ WEBLATE_LOCAL_CID | quote }}
       weblate shell
     stdin: "{{ lookup('file', 'python/adopt_admin.py') }}"
@@ -18,10 +23,11 @@
     WEBLATE_ADMIN_BOOTSTRAP_USERNAME: "{{ WEBLATE_ADMIN_BOOTSTRAP_USERNAME }}"
     WEBLATE_ADMIN_USERNAME: "{{ WEBLATE_ADMIN_USERNAME }}"
     WEBLATE_OIDC_ENABLED: "{{ WEBLATE_OIDC_ENABLED | bool | lower }}"
+    WEBLATE_ADMIN_OIDC_SUBJECT: "{{ (weblate_admin_oidc_subjects | first) if (WEBLATE_OIDC_ENABLED | bool) else '' }}"
   register: weblate_admin_adopt
   retries: 30
   delay: 10
-  until: weblate_admin_adopt.rc == 0
+  until: weblate_admin_adopt.rc == 0 or 'ADOPT_REFUSED' in weblate_admin_adopt.stderr
   changed_when: "'ADOPTED=1' in weblate_admin_adopt.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ WEBLATE_HOST_NODE }}"

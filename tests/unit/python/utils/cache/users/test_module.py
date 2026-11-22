@@ -21,7 +21,11 @@ from pathlib import Path
 from utils.cache import base as cache_base
 from utils.cache import tokens as cache_tokens
 from utils.cache import users as cache_users
-from utils.cache.carrier import USERS_RENDERED_FACT, merged_users_cache_key
+from utils.cache.carrier import (
+    USERS_RENDERED_FACT,
+    CarrierInvisibleError,
+    merged_users_cache_key,
+)
 from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import dump_yaml_str
 from utils.domains.default_primary import default_domain_primary
@@ -738,6 +742,17 @@ class TestGetMergedUsersCarrierFact(unittest.TestCase):
                     self.assertEqual(
                         merged["rendered"]["foo"]["email"], "foo@example.org"
                     )
+
+    def test_a_carrier_parked_only_in_the_fact_cache_fails_loudly(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = _seed_minimal_user_role(Path(tmp))
+            variables = self._variables()
+            self._park(roles, variables, {"foo": {"carried": True}})
+            variables["ansible_facts"] = {
+                USERS_RENDERED_FACT: variables.pop(USERS_RENDERED_FACT)
+            }
+            with self.assertRaises(CarrierInvisibleError):
+                self._merged(roles, variables)
 
 
 class TestStoreSignature(unittest.TestCase):

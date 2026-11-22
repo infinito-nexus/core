@@ -6,6 +6,7 @@ import argparse
 import contextlib
 import datetime as dt
 import fcntl
+import hashlib
 import itertools
 import json
 import os
@@ -458,17 +459,59 @@ def probe_php(container_id: str) -> PhpProbe | None:
     return parse_probe(result.stdout)
 
 
+def container_running(container_id: str) -> bool:
+    """Tell whether a container still runs.
+
+    Args:
+        container_id: the container to inspect.
+
+    Returns:
+        ``False`` only when the container engine reports it stopped or no
+        longer knows it; ``True`` while it runs, and also when the engine does
+        not answer in time or the inspection fails for another reason, so a
+        probe error then stays a failure.
+    """
+    try:
+        result = subprocess.run(
+            [
+                "container",
+                "inspect",
+                "--type",
+                "container",
+                "--format",
+                "{{.State.Running}}",
+                container_id,
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=EXEC_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired:
+        return True
+    if result.returncode == 0:
+        return result.stdout.strip() == "true"
+    return "no such container" not in result.stderr.lower()
+
+
 def check(
     containers: list[Container],
     hardened: dict,
     probe,
+    running,
 ) -> tuple[list[str], list[str]]:
     """Evaluate the PHP hardening of every container.
+
+    A probe error counts as a failure only while the container still runs.
+    A container that is stopped or gone when it is inspected after the error,
+    as a swarm task that recycles itself is, is reported as info instead,
+    even when it stopped only after its probe had failed.
 
     Args:
         containers: the running containers.
         hardened: ``{stack: [service, ...]}`` that must run hardened PHP.
         probe: callable returning a :class:`PhpProbe` or ``None`` per id.
+        running: callable telling whether a container id still runs.
 
     Returns:
         ``(failures, infos)`` as printable lines.
@@ -485,7 +528,13 @@ def check(
         try:
             result = probe(container.id)
         except ProbeError as exc:
-            failures.append(f"{container.name}: {exc}")
+            if running(container.id):
+                failures.append(f"{container.name}: {exc}")
+            else:
+                infos.append(
+                    f"{container.name}: not running when inspected after its "
+                    "probe error, skipped"
+                )
             continue
         if result is None:
             if must_harden:
@@ -1254,6 +1303,8 @@ ENGINE_ENV = {
 TRIVY_COMMON = (
     "--cache-dir",
     CACHE,
+    "--timeout",
+    f"{JOB_TIMEOUT_SECONDS}s",
     "--disable-telemetry",
     "--skip-version-check",
     "--quiet",
@@ -1484,6 +1535,14 @@ def trivy_step(
     config: ScanConfig,
     os_args: Sequence[str],
 ) -> Step:
+    return trivy_args_step(
+        layout, image, target, trivy_args(layout, target, config, os_args)
+    )
+
+
+def trivy_args(
+    layout: Layout, target: Target, config: ScanConfig, os_args: Sequence[str]
+) -> list[str]:
     args = [
         "rootfs" if target.kind == "host" else "image",
         *TRIVY_COMMON,
@@ -1506,6 +1565,12 @@ def trivy_step(
         args.append(HOST_ROOT)
     else:
         args += ["--image-src", "docker", target.ref]
+    return args
+
+
+def trivy_args_step(
+    layout: Layout, image: str, target: Target, args: Sequence[str]
+) -> Step:
     scratch = scratch_of("trivy", target.key)
     return Step(
         f"trivy {target.kind} {target.label}",
@@ -1516,6 +1581,78 @@ def trivy_step(
         scratch,
         target.kind == "container",
     )
+
+
+def engine_image_id(layout: Layout, image: str, runner: Runner) -> str | None:
+    """
+    Args:
+        layout: where the run keeps its files, its runtime among them.
+        image: the engine image reference, a mutable tag.
+        runner: runs one command.
+
+    Returns:
+        The local image id the reference resolves to, ``None`` when it does
+        not resolve.
+    """
+    try:
+        result = runner(
+            (layout.runtime[0], "image", "inspect", "--format", "{{.Id}}", image)
+        )
+    except subprocess.TimeoutExpired:
+        return None
+    resolved = result.stdout.strip()
+    return resolved if result.returncode == 0 and resolved else None
+
+
+def trivy_fingerprint(
+    layout: Layout, image_id: str | None, args: Sequence[str]
+) -> str | None:
+    """
+    Args:
+        layout: where the run keeps its files, the Trivy database among them.
+        image_id: the resolved id of the Trivy image, see
+            :func:`engine_image_id`.
+        args: the Trivy arguments of one container target.
+
+    Returns:
+        A digest of the engine image id, its arguments and the size and
+        modification time of every Trivy database file, ``None`` when the
+        image id or a database file is missing.
+    """
+    if image_id is None:
+        return None
+    digest = hashlib.sha256(json.dumps([image_id, list(args)]).encode())
+    for marker in DB_MARKERS["trivy"]:
+        path = layout.databases / "trivy" / marker
+        if not path.is_file():
+            return None
+        stat = path.stat()
+        digest.update(f"{marker}:{stat.st_size}:{stat.st_mtime_ns}".encode())
+    return digest.hexdigest()
+
+
+def trivy_cache_path(layout: Layout, target: Target) -> Path:
+    return layout.sbom / f"{target.key}.trivy.json"
+
+
+def cached_trivy_report(
+    layout: Layout, target: Target, fingerprint: str | None
+) -> dict | None:
+    """
+    Returns:
+        The Trivy report of an earlier run on the same image, arguments and
+        database, ``None`` when there is none.
+    """
+    path = trivy_cache_path(layout, target)
+    if fingerprint is None or not path.is_file():
+        return None
+    try:
+        cached = _read_json(path)
+    except (OSError, ValueError):
+        return None
+    if cached.get("fingerprint") != fingerprint:
+        return None
+    return cached.get("report")
 
 
 def grype_step(layout: Layout, image: str, target: Target, config: ScanConfig) -> Step:
@@ -1896,21 +2033,48 @@ def scan(
 
     lanes: list[list[Step]] = []
     today = dt.datetime.now(tz=dt.UTC).date()
+    trivy_fresh: dict[str, tuple[Target, str]] = {}
+    trivy_lane: int | None = None
     if "trivy" in scanners:
-        lanes.append(
-            [
-                trivy_step(
-                    layout,
-                    images["trivy"],
-                    target,
-                    config,
-                    trivy_os_args(layout, target, scanners, config, today)
-                    if target in sbom_ready
-                    else [],
-                )
-                for target in targets
-            ]
+        steps = []
+        reused = 0
+        trivy_id = (
+            engine_image_id(layout, images["trivy"], runner)
+            if any(target.kind == "container" for target in targets)
+            else None
         )
+        for target in targets:
+            args = trivy_args(
+                layout,
+                target,
+                config,
+                trivy_os_args(layout, target, scanners, config, today)
+                if target in sbom_ready
+                else [],
+            )
+            fingerprint = (
+                trivy_fingerprint(layout, trivy_id, args)
+                if target.kind == "container"
+                else None
+            )
+            report = cached_trivy_report(layout, target, fingerprint)
+            if report is not None:
+                (layout.work / f"{target.key}.trivy.json").write_text(
+                    json.dumps(report), encoding="utf-8"
+                )
+                reused += 1
+                continue
+            if fingerprint is not None:
+                trivy_fresh[target.key] = (target, fingerprint)
+            steps.append(trivy_args_step(layout, images["trivy"], target, args))
+        if reused:
+            print(
+                f"ℹ️ trivy: {reused} report(s) of unchanged images reused "
+                "against the unchanged database"
+            )
+        if steps:
+            trivy_lane = len(lanes)
+            lanes.append(steps)
     if "grype" in scanners:
         lanes.extend(
             [grype_step(layout, images["grype"], target, config)]
@@ -1941,7 +2105,15 @@ def scan(
                 for step in osv_image_steps(layout, images["osv"], target, config)
             ]
         )
-    errors += _flat(run_lanes(lanes, runner, config.workers, layout))
+    results = run_lanes(lanes, runner, config.workers, layout)
+    errors += _flat(results)
+    if trivy_lane is not None and not results[trivy_lane]:
+        for key, (target, fingerprint) in trivy_fresh.items():
+            report = layout.work / f"{key}.trivy.json"
+            write_atomic(
+                trivy_cache_path(layout, target),
+                json.dumps({"fingerprint": fingerprint, "report": _read_json(report)}),
+            )
 
     findings: list[Finding] = []
     for target in targets:
@@ -1967,7 +2139,11 @@ def scan(
 
 def prune_sboms(layout: Layout, targets: Iterable[Target]) -> None:
     """Drop the cached SBOMs of images no container runs any more."""
-    keep = {path for target in targets for path in sbom_paths(layout, target)}
+    keep = {
+        path
+        for target in targets
+        for path in (*sbom_paths(layout, target), trivy_cache_path(layout, target))
+    }
     for path in layout.sbom.glob("*.json"):
         if path not in keep:
             path.unlink()
@@ -2122,7 +2298,7 @@ def main(argv=None) -> int:
     except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as exc:
         print(f"❌ listing the running containers failed: {exc}")
         return 1
-    failures, infos = check(containers, hardened, probe_php)
+    failures, infos = check(containers, hardened, probe_php, container_running)
     remote = host_network_mounts() if "host" in config.targets else []
     infos += [
         f"host scan skips the network or automounted filesystem at {printable(point)}"

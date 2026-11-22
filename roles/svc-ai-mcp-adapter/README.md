@@ -47,6 +47,8 @@ The deployment renders one `ADAPTER_CONTRACT` JSON document per instance:
 
 `files/python/policy.py` validates it at startup. A contract missing a limit, carrying an empty allowlist, naming a wildcard path or lacking a pinned schema hash is refused before the process serves anything.
 
+An optional `upstream_host` is sent as the `Host` header of every upstream request, for a provider that answers only its canonical domain; without it the request carries the host of `upstream_url`.
+
 ## Endpoints
 
 | Path | Method | Purpose |

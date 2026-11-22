@@ -44,6 +44,9 @@ fi
 
 git commit -m "${UPDATE_COMMIT_MESSAGE}"
 
+UPDATE_LEVEL="$(python3 -m utils.update.level HEAD~1 HEAD)"
+echo "Update level: ${UPDATE_LEVEL}"
+
 fingerprint_ref() {
 	local ref="$1"
 	shift
@@ -101,6 +104,7 @@ done
 
 if [[ -n "${DUPLICATE_PR}" ]]; then
 	echo "Open PR #${DUPLICATE_PR} already carries this exact change. Skipping push and PR creation."
+	python3 -m cli.contributing.update.label --repo "${REPO}" --pr "${DUPLICATE_PR}" --level "${UPDATE_LEVEL}"
 	exit 0
 fi
 
@@ -143,3 +147,5 @@ else
 	PR_NUMBER="${PR_URL##*/}"
 	echo "Created PR #${PR_NUMBER}: ${PR_URL}"
 fi
+
+python3 -m cli.contributing.update.label --repo "${REPO}" --pr "${PR_NUMBER}" --level "${UPDATE_LEVEL}"
