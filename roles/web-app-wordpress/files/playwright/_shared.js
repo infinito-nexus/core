@@ -7,6 +7,7 @@ const {
   decodeDotenvQuotedValue,
   gotoOnion,
   installCspViolationObserver,
+  keycloakRemoveUserFromGroupViaRest,
   normalizeBaseUrl,
 } = require("./personas");
 
@@ -490,60 +491,6 @@ async function keycloakAdminAddUserToGroupViaUi(
     `Expected "${targetGroupPath}" to appear as a membership on the user's Groups tab after joining.`
   ).toBeVisible({ timeout: resolveTimeout(30_000) });
   return true;
-}
-
-// REST teardown: the admin-UI Groups tab's row-level Leave affordance is
-// fragile across Keycloak UI versions; the REST API keeps the
-// idempotency guarantee deterministic.
-async function keycloakRemoveUserFromGroupViaRest(
-  request,
-  keycloakBaseUrl,
-  realmName,
-  adminUsername,
-  adminPassword,
-  groupPath,
-  username
-) {
-  const tokenResp = await request.post(
-    `${keycloakBaseUrl}/realms/master/protocol/openid-connect/token`,
-    {
-      form: {
-        client_id: "admin-cli",
-        grant_type: "password",
-        username: adminUsername,
-        password: adminPassword,
-      },
-      timeout: resolveTimeout(30_000),
-    }
-  );
-  if (!tokenResp.ok()) {
-    throw new Error(
-      `Admin token request failed (${tokenResp.status()}): ${await tokenResp.text()}`
-    );
-  }
-  const { access_token: accessToken } = await tokenResp.json();
-  const auth = { Authorization: `Bearer ${accessToken}` };
-
-  const usersResp = await request.get(
-    `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/users?username=${encodeURIComponent(username)}&exact=true`,
-    { headers: auth, timeout: resolveTimeout(30_000) }
-  );
-  const users = await usersResp.json();
-  const userId = users?.[0]?.id;
-  if (!userId) return;
-
-  const groupResp = await request.get(
-    `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/group-by-path/${groupPath.replace(/^\//, "")}`,
-    { headers: auth, timeout: resolveTimeout(30_000) }
-  );
-  if (!groupResp.ok()) return;
-  const group = await groupResp.json();
-  if (!group?.id) return;
-
-  await request.delete(
-    `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/users/${userId}/groups/${group.id}`,
-    { headers: auth, timeout: resolveTimeout(30_000) }
-  );
 }
 
 async function discourseApiRequest(request, path, init = {}) {

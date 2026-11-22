@@ -51,8 +51,10 @@
  *     Idempotent group join; returns whether this call performed it.
  *
  *   `keycloakRemoveUserFromGroupViaRest(request, keycloakBaseUrl, realmName, adminUsername, adminPassword, groupPath, username, opts)`
- *     Best-effort group removal (throws on lookup failure, no-ops if the
- *     user/group is already gone).
+ *     Group removal that leaves every other membership as it found it:
+ *     groups the leave dropped besides `groupPath` are joined back, also
+ *     after a failed leave, and every rejoin is attempted before one error
+ *     names each failed leave or rejoin (throws on lookup failure too).
  *
  *   `keycloakAdminSetUserAttributes(request, keycloakBaseUrl, realmName, username, attributes, adminUsername, adminPassword, opts)`
  *     Writes user attributes and returns their previous values for a restore.
@@ -459,15 +461,37 @@ async function keycloakRemoveUserFromGroupViaRest(
   }
 
   const groupId = await keycloakResolveGroupId(request, keycloakBaseUrl, realmName, accessToken, groupPath);
+  const membershipUrl = `${keycloakBaseUrl}/admin/realms/${realmName}/users/${user.id}/groups`;
+  const memberships = async () => {
+    const resp = await request.get(`${membershipUrl}?max=500`, { headers });
+    if (!resp.ok()) {
+      throw new Error(`Keycloak user-groups lookup failed: ${resp.status()} ${await resp.text()}`);
+    }
+    return resp.json();
+  };
 
-  const leaveResp = await request.delete(
-    `${keycloakBaseUrl}/admin/realms/${realmName}/users/${user.id}/groups/${groupId}`,
-    { headers },
-  );
-  if (!leaveResp.ok()) {
-    throw new Error(
-      `Keycloak leave-group failed (user=${username}, group=${groupPath}): ${leaveResp.status()} ${await leaveResp.text()}`,
-    );
+  const attempt = async (label, call) => {
+    try {
+      const resp = await call();
+      return resp.ok() ? null : `${label} answered ${resp.status()} ${await resp.text()}`;
+    } catch (error) {
+      return `${label} raised ${error}`;
+    }
+  };
+
+  const before = await memberships();
+  const failures = [];
+  const leaveFailure = await attempt(`leave ${groupPath}`, () => request.delete(`${membershipUrl}/${groupId}`, { headers }));
+  if (leaveFailure) failures.push(leaveFailure);
+
+  // Keycloak 26.8.2 GroupLDAPStorageMapper.leaveGroup drops the same-named role group of every app, even on a leave that then fails (roles/web-app-keycloak/README.md, LDAP group leave); joins do not cascade, so every collateral membership is joined back.
+  const kept = new Set((await memberships().catch(() => [])).map((group) => group.id));
+  for (const group of before.filter((entry) => entry.id !== groupId && !kept.has(entry.id))) {
+    const rejoinFailure = await attempt(`rejoin ${group.path}`, () => request.put(`${membershipUrl}/${group.id}`, { headers }));
+    if (rejoinFailure) failures.push(rejoinFailure);
+  }
+  if (failures.length > 0) {
+    throw new Error(`Keycloak leave-group of ${username} from ${groupPath} failed: ${failures.join("; ")}`);
   }
 }
 

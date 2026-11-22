@@ -157,7 +157,10 @@ def _group_filter(cn_clauses):
 def kc_app_ldap_scopes(applications, application_id):
     """Return the LDAP group filters of one application's per-app mappers.
 
-    A tenant-unaware application keeps one mapper over ``cn=<app>-*``. A
+    A tenant-unaware application keeps one mapper over its role groups, each
+    matched exactly as ``cn=<app>-<role>`` (the implicit ``administrator``
+    included), so an application whose id prefixes another's, such as
+    ``svc-net-tor`` and ``svc-net-tor-smtp``, never maps the other's groups. A
     tenant-aware one gets a mapper over its global role groups and tenant
     containers, anchored at ``/<root>/<app>``, plus one mapper per tenant over
     ``cn=<app>-<tenant>-*``, anchored at the imported tenant container.
@@ -170,7 +173,13 @@ def kc_app_ldap_scopes(applications, application_id):
     rbac = app_cfg.get("rbac") or {}
     axis = (rbac.get("tenancy") or {}).get("axis", _AXIS_NONE)
     if axis == _AXIS_NONE:
-        return {"filter": _group_filter([f"(cn={application_id}-*)"]), "tenants": []}
+        roles = sorted({*(rbac.get("roles") or {}), _IMPLICIT_ADMIN})
+        return {
+            "filter": _group_filter(
+                [f"(cn={application_id}-{role})" for role in roles]
+            ),
+            "tenants": [],
+        }
     if axis != _AXIS_DOMAIN:
         raise AnsibleFilterError(
             f"kc_app_ldap_scopes: unsupported rbac.tenancy.axis '{axis}' on "

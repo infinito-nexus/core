@@ -57,7 +57,7 @@ Inline `[RBAC.GROUP.NAME, ...] | path_join` MUST NOT be used: it scatters the pa
 
 ## Keycloak group tree and the `groups` client scope 🎫
 
-The Keycloak group tree is built by **per-application** `group-ldap-mapper`s. Each deployed application gets one mapper anchored at `/roles/<application_id>` whose LDAP filter `(&(objectClass=groupOfNames)(cn=<application_id>-*))` surfaces only that application's role groups. The mapper uses the LDAP `description` attribute as the visible Keycloak group name, so the resulting group paths carry no redundant prefix.
+The Keycloak group tree is built by **per-application** `group-ldap-mapper`s. Each deployed application gets one mapper anchored at `/roles/<application_id>` whose LDAP filter `(&(objectClass=groupOfNames)(|(cn=<application_id>-<role>)...))` lists each of that application's role groups by its exact `cn`, so an application whose id prefixes another one (`svc-net-tor` and `svc-net-tor-smtp`) never sees the other's groups. The mapper uses the LDAP `description` attribute as the visible Keycloak group name, so the resulting group paths carry no redundant prefix.
 
 A shared mapper that imports every LDAP group with `preserve.group.inheritance=true` MUST NOT be used. Role names recur across applications (`administrator`, `editor`, ...) and Keycloak's `GroupTreeResolver` keys its lookup map on the group name, so the second `administrator` silently overwrites the first.
 
