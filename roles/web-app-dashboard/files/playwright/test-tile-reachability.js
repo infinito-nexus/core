@@ -74,6 +74,91 @@ function embeddedHost(dashboardUrl) {
   }
 }
 
+/**
+ * Args:
+ *   request: a request of the browser context.
+ *   opener: the dashboard page the Tab button sits on.
+ * Returns: true for a top-level navigation of a page other than opener. A
+ *   navigation whose frame Playwright has not announced yet counts too: that is
+ *   the first request of a new tab, and request.frame() throws for it.
+ */
+function isTabNavigation(request, opener) {
+  if (!request.isNavigationRequest()) {
+    return false;
+  }
+  let frame;
+  try {
+    frame = request.frame();
+  } catch {
+    return true;
+  }
+  return frame.page() !== opener && !frame.parentFrame();
+}
+
+/**
+ * Args:
+ *   context: the browser context the Tab button opens its tab in.
+ *   opener: the dashboard page the Tab button sits on.
+ * Returns: { hops, stop }: hops() lists every top-level navigation of the new
+ *   tab as { url, status }, its redirect hops and the app's own login redirects
+ *   included, until stop(); status stays null for a request that got no
+ *   response, such as a refused connection or a failed DNS lookup.
+ */
+function recordTabNavigations(context, opener) {
+  const hops = new Map();
+  const onRequest = (request) => {
+    if (isTabNavigation(request, opener)) {
+      hops.set(request, { url: request.url(), status: null });
+    }
+  };
+  const onResponse = (response) => {
+    const hop = hops.get(response.request());
+    if (hop) {
+      hop.status = response.status();
+    }
+  };
+  context.on("request", onRequest);
+  context.on("response", onResponse);
+  return {
+    hops: () => [...hops.values()],
+    stop: () => {
+      context.off("request", onRequest);
+      context.off("response", onResponse);
+    },
+  };
+}
+
+/**
+ * Args:
+ *   url: the URL a tab landed on.
+ * Returns: true when it is an OpenID Connect authorization request, the IdP
+ *   login page an SSO hand-off shows an anonymous visitor.
+ */
+function isAuthorizationRequest(url) {
+  const { searchParams } = new URL(url);
+  return ["response_type", "client_id", "redirect_uri"].every((name) => searchParams.has(name));
+}
+
+/**
+ * Args:
+ *   hops: the new tab's top-level navigations, each { url, status }.
+ *   landing: the URL the tab shows once its document loaded.
+ *   host: the embedded host the Tab button opened.
+ * Returns: true when the last hop on host got a response below 400 and the tab
+ *   either lands on host, so that hop is the page it shows, or lands on an IdP
+ *   authorization request elsewhere, the SSO hand-off. A request without a
+ *   response, a page of host that ends in an error status and a redirect that
+ *   leaves host for anywhere but the IdP return false.
+ */
+function hostAnsweredTab(hops, landing, host) {
+  const hostHops = hops.filter(({ url }) => new URL(url).host === host);
+  const last = hostHops[hostHops.length - 1];
+  if (!last || last.status === null || last.status >= 400) {
+    return false;
+  }
+  return new URL(landing).host === host || isAuthorizationRequest(landing);
+}
+
 async function findVisibleTile(page, canonicalDomain) {
   const tile = page.locator(tileSelector(canonicalDomain)).first();
   const visible = await tile.isVisible().catch(() => false);
@@ -219,17 +304,25 @@ async function assertTabButtonOpensNewTab(page, context, target) {
   ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
   const expectedHost = target.handover_domain || embeddedHost(page.url()) || landingDomain(target);
-  const [popup] = await Promise.all([
-    context.waitForEvent("page", { timeout: resolveTimeout(30_000) }),
-    tabButton.click(),
-  ]);
+  const tabNavigations = recordTabNavigations(context, page);
+  try {
+    const [popup] = await Promise.all([
+      context.waitForEvent("page", { timeout: resolveTimeout(30_000) }),
+      tabButton.click(),
+    ]);
 
-  await popup.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-  expect(
-    referencesHost(popup.url(), expectedHost),
-    `Expected popup tab URL to address the embedded ${expectedHost}, got ${popup.url()}`
-  ).toBe(true);
-  await popup.close();
+    await popup.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+    const landing = popup.url();
+    const hops = tabNavigations.hops();
+    const walked = hops.map(({ url, status }) => `${url} (${status === null ? "no response" : status})`).join(" -> ");
+    expect(
+      hostAnsweredTab(hops, landing, expectedHost),
+      `Expected the embedded ${expectedHost} to answer the new tab, it navigated ${walked || "nowhere"} and landed on ${landing}`
+    ).toBe(true);
+    await popup.close();
+  } finally {
+    tabNavigations.stop();
+  }
 }
 
 exports.register = function (shared) {
