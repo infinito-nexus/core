@@ -99,6 +99,12 @@ async function signInViaBreakGlass(page, username, password, label) {
       },
     )
     .toBeGreaterThan(0);
+  await expect
+    .poll(() => onLoginSurface(page), {
+      timeout: resolveTimeout(30_000),
+      message: `${label}: the Jellyfin web client must settle on its login surface before it takes over an API session`,
+    })
+    .toBe(true);
   await page.evaluate(
     ({ serverId, accessToken, userId }) => {
       const credentials = JSON.parse(window.localStorage.getItem("jellyfin_credentials"));
@@ -111,7 +117,7 @@ async function signInViaBreakGlass(page, username, password, label) {
     },
     { serverId: session.ServerId, accessToken: session.AccessToken, userId: session.User.Id },
   );
-  await gotoOnion(page, `${jellyfinBaseUrl}/web/#/home`, { waitUntil: "domcontentloaded" });
+  await gotoOnion(page, `${jellyfinBaseUrl}/web/index.html`, { waitUntil: "domcontentloaded" });
   await assertAuthenticated(page, label);
 }
 
