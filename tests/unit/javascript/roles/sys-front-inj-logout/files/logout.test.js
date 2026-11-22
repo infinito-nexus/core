@@ -1,74 +1,12 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const fs = require("node:fs");
-const path = require("node:path");
-const vm = require("node:vm");
 
-const SOURCE = path.join(
-  __dirname,
-  "..", "..", "..", "..", "..", "..",
-  "roles", "sys-front-inj-logout", "files", "javascript", "logout.js",
-);
+const { element, patch: patchPage } = require("../../../utils/logout-patch.js");
 
 const LOGOUT_URL = "https://logout.example.org/";
 
-function element(tagName, attributes = {}, text = "") {
-  const el = {
-    tagName,
-    dataset: {},
-    style: {},
-    listeners: [],
-    innerText: text,
-    attributes: [],
-    getAttribute(name) {
-      const found = el.attributes.find((a) => a.name === name);
-      return found ? found.value : null;
-    },
-    setAttribute(name, value) {
-      const found = el.attributes.find((a) => a.name === name);
-      if (found) {
-        found.value = value;
-        return;
-      }
-      el.attributes.push({ name, value });
-    },
-    hasAttribute(name) {
-      return el.attributes.some((a) => a.name === name);
-    },
-    addEventListener(type, handler, options) {
-      el.listeners.push({ type, handler, options });
-    },
-    querySelectorAll() {
-      return [];
-    },
-  };
-
-  for (const [name, value] of Object.entries(attributes)) {
-    el.setAttribute(name, value);
-  }
-  el.id = el.getAttribute("id") || "";
-  el.className = el.getAttribute("class") || "";
-  return el;
-}
-
 function patch(elements, logoutUrl = LOGOUT_URL) {
-  const sandbox = {
-    console: { debug() {} },
-    location: { href: "" },
-    Element: class Element {},
-    MutationObserver: class MutationObserver {
-      observe() {}
-    },
-    document: {
-      body: {},
-      querySelectorAll: () => elements,
-    },
-  };
-  sandbox.window = sandbox;
-  vm.createContext(sandbox);
-  vm.runInContext(fs.readFileSync(SOURCE, "utf8"), sandbox);
-  sandbox.initLogoutPatch(logoutUrl, false);
-  return sandbox;
+  return patchPage(elements, logoutUrl);
 }
 
 const KEYCLOAK_LOGOUT_URL = "https://auth.example.org/realms/example.org/protocol/openid-connect/logout";
@@ -132,7 +70,7 @@ test("a non-interactive tag is never patched, whatever it says", () => {
 });
 
 test("a button carrying formaction has that formaction rewritten", () => {
-  const button = element("BUTTON", { formaction: "/session/end", title: "Logout" });
+  const button = element("BUTTON", { formaction: "/session/end", title: "Logout" }, "");
   patch([button]);
 
   assert.equal(button.getAttribute("formaction"), LOGOUT_URL);
@@ -156,7 +94,7 @@ test("an element already handled is not bound a second time", () => {
 });
 
 test("a role-injected logout control keeps its own target and click handler", () => {
-  const button = element("A", { "data-injected-logout": "true", href: "/oauth2/sign_out?rd=x", "aria-label": "Logout" });
+  const button = element("A", { "data-injected-logout": "true", href: "/oauth2/sign_out?rd=x", "aria-label": "Logout" }, "");
   patch([button]);
 
   assert.equal(button.getAttribute("href"), "/oauth2/sign_out?rd=x");
