@@ -29,6 +29,7 @@ const env = {
   organizerGroupPath: decodeDotenvQuotedValue(process.env.RBAC_ORGANIZER_GROUP_PATH),
   checkinGroupPath: decodeDotenvQuotedValue(process.env.RBAC_CHECKIN_GROUP_PATH),
 };
+const CONTROL_SESSION_MARKER = "a[href$='/control/settings']";
 
 async function withBiberInGroup(browser, groupPath, body) {
   const adminOpts = { adminRealm: env.adminRealm, adminClientId: env.adminClientId };
@@ -91,7 +92,7 @@ async function withControlSession(browser, username, password, body) {
       )
       .toBe(true);
     await expect(
-      page.locator("a[href$='/control/logout']").first(),
+      page.locator(CONTROL_SESSION_MARKER).first(),
       "the OIDC sign-in must establish a Pretix control session",
     ).toBeAttached({ timeout: resolveTimeout(30_000) });
     await body(page);
