@@ -10,7 +10,7 @@ This package contains the in-process cache layers Infinito.Nexus uses to keep CL
 | [files.py](files.py) | The project tree's full path list (one walk per process) and per-file UTF-8 contents (`read_text`). Used by lint/integration tests and CLI tools that scan the repo. |
 | [base.py](base.py) | Cross-cutting helpers: filesystem constants (`PROJECT_ROOT`, `ROLES_DIR`, `DEFAULT_TOKENS_FILE`), `_deep_merge`, cache-key + content-fingerprint signatures, the cross-domain re-entry guard, and the templar-render machinery. The only ansible-coupled symbol is `_render_with_templar`, which lazy-imports its dependency. |
 | [applications.py](applications.py) | Per-app variants + defaults + `get_merged_applications`. **Strictly ansible-free at import time** so the GitHub Actions runner-host CLI path (`cli.administration.deploy.development.init` → `plan_dev_inventory_matrix` → `get_variants`) keeps working without ansible installed. |
-| [carrier.py](carrier.py) | The play-scoped carriers of the rendered applications and users payloads: the fact names `_INFINITO_APPLICATIONS_RENDERED` and `_INFINITO_USERS_RENDERED`, `merged_applications_cache_key`, `merged_users_cache_key`, and the readers `get_merged_applications` and `get_merged_users` consult before they render. |
+| [carrier.py](carrier.py) | The play-scoped carriers of the rendered applications and users payloads: the non-persistent variable names `_INFINITO_APPLICATIONS_RENDERED` and `_INFINITO_USERS_RENDERED`, `merged_applications_cache_key`, `merged_users_cache_key`, and the readers `get_merged_applications` and `get_merged_users` consult before they render. |
 | [tokens.py](tokens.py) | The token store the users are hydrated from: `resolve_tokens_file`, `load_store_users`, the `sys_token_store_users` fact and the digest the users cache and users carrier keys share (`store_signature`). |
 | `users/` | User definitions, token store hydration, alias materialization, `get_user_defaults`, `get_merged_users` (package; `users/placeholders.py` substitutes `DOMAIN_PRIMARY` / `ORGANIZATION` / `SOFTWARE_NAME` ahead of the templar render pass). |
 | [domains.py](domains.py) | Canonical-domains map derived from the merged applications view: `get_merged_domains`. A read issued while the applications render is in progress (the re-entry guard is set) sees the unrendered view, so it is cached under its own key and never answers a later read. |
@@ -28,7 +28,7 @@ The layers are orthogonal: `yaml.py` caches "this file's parsed root", the `appl
 
 Both layers are process-wide in-process caches. They intentionally do NOT track on-disk file mtimes; CLI tools are short-lived and the assumption "the on-disk file does not change while my process runs" holds. The single exception is `utils.cache.yaml.dump_yaml`, which writes through and evicts the cached entry for the path it just wrote so a tool that edits a file mid-run sees the new content on the next read.
 
-Inside a play the process boundary is the task: Ansible forks a fresh worker per task, so `_MERGED_APPLICATIONS_CACHE` and `_MERGED_USERS_CACHE` start empty in every worker. `get_merged_applications` therefore also accepts the play-scoped carrier fact `_INFINITO_APPLICATIONS_RENDERED` (payload plus cache key, parked by the constructor stage and again after every role, every nested application load and every persisted token) and serves it when the key matches. The same action parks `_INFINITO_USERS_RENDERED`, which `get_merged_users` serves to templated reads under the applications key plus the token store digest and `inventory_hostname`. See [applications.md](../../docs/contributing/artefact/files/plugins/lookup/applications.md) and [users.md](../../docs/contributing/artefact/files/plugins/lookup/users.md) for the contract.
+Inside a play the process boundary is the task: Ansible forks a fresh worker per task, so `_MERGED_APPLICATIONS_CACHE` and `_MERGED_USERS_CACHE` start empty in every worker. `get_merged_applications` therefore also accepts the play-scoped carrier variable `_INFINITO_APPLICATIONS_RENDERED` (payload plus cache key, registered in the `set_fact` layer and never in the fact cache, which `get_vars` deep-copies before every task; parked by the constructor stage and again after every role, every nested application load and every persisted token) and serves it when the key matches. The same action parks `_INFINITO_USERS_RENDERED`, which `get_merged_users` serves to templated reads under the applications key plus the token store digest and `inventory_hostname`. See [applications.md](../../docs/contributing/artefact/files/plugins/lookup/applications.md) and [users.md](../../docs/contributing/artefact/files/plugins/lookup/users.md) for the contract.
 
 While one render runs, the re-entry guard also holds that render's unrendered view and its cache key. A nested `get_merged_applications` call from a lookup inside a role template (`config`, `tls`, `domain`, ...) with the same key returns that view instead of copying and merging the role defaults again. The view is shared by every nested call of the render, so callers MUST NOT mutate it. The guard drops it when the render ends.
 
@@ -66,7 +66,7 @@ from utils.cache.reset import _reset_cache_for_tests
 flowchart TD
     decl["meta/services.yml<br/>a flag reading group_names<br/>114 role files"]
     ctor["01_constructor.yml:191<br/>applications_carrier"]
-    fact["_INFINITO_APPLICATIONS_RENDERED<br/>per-host fact"]
+    fact["_INFINITO_APPLICATIONS_RENDERED<br/>per-host set_fact variable"]
     lookup["lookup('database', ...)<br/>and every applications consumer"]
     key["base.py:103<br/>_stable_variables_signature"]
     proc["_MERGED_APPLICATIONS_CACHE<br/>process-global dict"]
@@ -84,9 +84,9 @@ flowchart TD
     render --> consumer
     consumer -->|"selects"| name
 
-    proc -.->|"TRIP-WIRE: read BEFORE the<br/>host's own fact, so an inherited<br/>entry outranks it"| fact
+    proc -.->|"TRIP-WIRE: read BEFORE the<br/>host's own carrier, so an inherited<br/>entry outranks it"| fact
     render -.->|"TRIP-WIRE: main process renders<br/>task names for one host; forked<br/>workers inherit that entry"| proc
-    key -.->|"TRIP-WIRE: carrier.py:121 stringifies<br/>only one side, so a non-scalar key<br/>part silently never matches again"| fact
+    key -.->|"TRIP-WIRE: carrier.py:136 stringifies<br/>only one side, so a non-scalar key<br/>part silently never matches again"| fact
 ```
 
 The key covers `group_names`. `domains.py` derives from the applications view and shares that dependency; `users` reads `group_names` nowhere.

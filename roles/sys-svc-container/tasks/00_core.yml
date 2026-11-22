@@ -1,4 +1,6 @@
 ---
+- include_tasks: utils/once/flag.yml
+
 - name: 📖 Read PID 1 process name
   ansible.builtin.slurp:
     src: /proc/1/comm

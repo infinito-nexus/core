@@ -53,7 +53,7 @@
       - "!all"
       - network
     filter:
-      - ansible_docker0
+      - ansible_docker0 # nocheck: deprecated-ansible (setup filter, not a fact read)
 
 - name: "📝 Render torrc"
   ansible.builtin.template: # nocheck: stack-host-template (per-host torrc under DIR_VAR_LIB; tor is a node-local host-network sidecar)

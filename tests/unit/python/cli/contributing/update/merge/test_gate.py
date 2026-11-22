@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import unittest
 
+from cli.contributing.update.label import UPDATE
 from cli.contributing.update.merge import gate
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
@@ -14,7 +15,7 @@ def pull_request(**overrides):
         "user": {"login": "dependabot[bot]"},
         "head": {"ref": "dependabot/npm/left-pad-1.3.0", "repo": {"full_name": REPO}},
         "base": {"ref": "main"},
-        "labels": [{"name": "update"}],
+        "labels": [{"name": UPDATE.name}],
     }
     pr.update(overrides)
     return pr
