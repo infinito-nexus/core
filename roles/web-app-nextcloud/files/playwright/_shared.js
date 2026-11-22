@@ -1,6 +1,13 @@
 const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvQuotedValue, findFirstVisibleCandidate, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
+const {
+  confirmKeycloakLogoutIfPrompted,
+  decodeDotenvQuotedValue,
+  findFirstVisibleCandidate,
+  runAdminFlow,
+  runBiberFlow,
+  runGuestFlow,
+} = require("./personas");
 const { isAddonEnabled } = require("./addon-gating");
 const { isServiceEnabled } = require("./service-gating");
 const {
@@ -165,7 +172,6 @@ async function logoutStandaloneNextcloud(adminPage) {
     .first();
   const logoutLinkByName = adminPage.getByRole("link", { name: "Log out" });
   const logoutLinkByHref = adminPage.locator('a[href*="logout"]');
-  const logoutConfirmButton = adminPage.getByRole("button", { name: "Logout" });
 
   await dismissBlockingNextcloudModals(adminPage, adminPage);
   await clickWithModalRetry(adminPage, adminPage, userMenuTrigger);
@@ -176,17 +182,14 @@ async function logoutStandaloneNextcloud(adminPage) {
     15_000
   );
   await expect(logoutLink).toBeVisible();
+  const shellUrl = adminPage.url();
   await logoutLink.click({ timeout: resolveTimeout(30_000) });
-
-  const logoutConfirmationVisible = await logoutConfirmButton
-    .first()
-    .waitFor({ state: "visible", timeout: resolveTimeout(10_000) })
-    .then(() => true)
-    .catch(() => false);
-  if (logoutConfirmationVisible) {
-    await logoutConfirmButton.click();
-  }
-
+  await adminPage.waitForURL((url) => url.href !== shellUrl, {
+    waitUntil: "commit",
+    timeout: resolveTimeout(30_000)
+  });
+  await adminPage.waitForLoadState("networkidle", { timeout: resolveTimeout(45_000) }).catch(() => {});
+  await confirmKeycloakLogoutIfPrompted(adminPage);
   await adminPage.waitForLoadState("networkidle", { timeout: resolveTimeout(45_000) }).catch(() => {});
 }
 

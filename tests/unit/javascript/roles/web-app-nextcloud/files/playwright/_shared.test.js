@@ -10,6 +10,8 @@ const GATING = path.join(PROJECT_ROOT, "roles/test-e2e-playwright/files");
 const CLEARNET = "https://next.example.org/";
 const ONION = `http://next.${"a".repeat(56)}.onion/`;
 const FLAVOR_ENV = ["SSO_SERVICE_ENABLED", "LDAP_SERVICE_ENABLED", "USER_OIDC_ADDON_ENABLED", "NEXTCLOUD_BASE_URL"];
+const SHELL_URL = `${CLEARNET}apps/dashboard/`;
+const KEYCLOAK_LOGOUT_URL = "https://auth.example.org/realms/main/protocol/openid-connect/logout";
 
 /**
  * Load _shared.js against the real gating helpers and the given env.
@@ -18,8 +20,9 @@ const FLAVOR_ENV = ["SSO_SERVICE_ENABLED", "LDAP_SERVICE_ENABLED", "USER_OIDC_AD
  *   env: the Playwright env keys the flavor and the base URL are read from.
  *   pageHelpers: stand-ins for the exports of ./_page.
  *   expect: stand-in for the expect of @playwright/test.
+ *   personas: stand-ins for the exports of ./personas beside decodeDotenvQuotedValue.
  */
-function loadShared(env, pageHelpers = {}, expect = () => undefined) {
+function loadShared(env, pageHelpers = {}, expect = () => undefined, personas = {}) {
   for (const key of FLAVOR_ENV) delete process.env[key];
   Object.assign(process.env, env);
   const playwright = { "@playwright/test": { expect, test: { skip: () => undefined } } };
@@ -27,11 +30,11 @@ function loadShared(env, pageHelpers = {}, expect = () => undefined) {
   const { isServiceEnabled } = loadInternals(path.join(GATING, "service-gating.js"), ["isServiceEnabled"], playwright, {});
   return loadInternals(
     SHARED,
-    ["nextcloudLoginFlavor", "attemptStandaloneNextcloudLogin"],
+    ["nextcloudLoginFlavor", "attemptStandaloneNextcloudLogin", "logoutStandaloneNextcloud"],
     {
       ...playwright,
       "./timeouts": { resolveTimeout: (ms) => ms },
-      "./personas": { decodeDotenvQuotedValue: (value) => value },
+      "./personas": { decodeDotenvQuotedValue: (value) => value, ...personas },
       "./addon-gating": { isAddonEnabled },
       "./service-gating": { isServiceEnabled },
       "./_page": pageHelpers,
@@ -109,4 +112,74 @@ test("a user_oidc sign-in on another network opens that network's login page and
   assert.deepEqual(visited, [`${ONION}login`]);
   assert.equal(handovers.length, 0, "both the entry and the handover were awaited");
   assert.equal(credentialForm.touched, false, "an existing Keycloak session leaves no credential form to fill");
+});
+
+/**
+ * Args:
+ *   landing: the URL the Log out click commits, or null when the click does not navigate.
+ *
+ * Returns:
+ *   the URLs the page showed whenever the shared Keycloak confirmation helper ran, and the
+ *   error the logout raised, if any.
+ */
+async function logOutFromShell(landing) {
+  let current = SHELL_URL;
+  const confirmedOn = [];
+  const logoutLink = {
+    click: async () => {
+      if (landing) current = landing;
+    },
+  };
+  const stockLabelButton = {
+    waitFor: async () => {
+      throw new Error("no button named Logout on the corporate confirmation page");
+    },
+    click: async () => undefined,
+  };
+  const page = {
+    url: () => current,
+    locator: () => ({ first: () => ({}) }),
+    getByRole: () => ({ first: () => stockLabelButton, click: async () => undefined }),
+    waitForURL: async (predicate) => {
+      if (!predicate(new URL(current))) throw new Error("TimeoutError: page.waitForURL");
+    },
+    waitForLoadState: async () => undefined,
+  };
+  const { logoutStandaloneNextcloud } = loadShared(
+    { SSO_SERVICE_ENABLED: "true", LDAP_SERVICE_ENABLED: "true", USER_OIDC_ADDON_ENABLED: "false", NEXTCLOUD_BASE_URL: CLEARNET },
+    {
+      dismissBlockingNextcloudModals: async () => undefined,
+      clickWithModalRetry: async () => undefined,
+      waitForFirstVisible: async () => logoutLink,
+    },
+    () => ({ toBeVisible: async () => undefined }),
+    {
+      confirmKeycloakLogoutIfPrompted: async (target) => {
+        confirmedOn.push(target.url());
+      },
+    },
+  );
+  const error = await logoutStandaloneNextcloud(page).then(
+    () => null,
+    (raised) => raised,
+  );
+  return { confirmedOn, error };
+}
+
+test("a Log out the universal logout sends to the Keycloak confirmation page is confirmed there", async () => {
+  const { confirmedOn, error } = await logOutFromShell(KEYCLOAK_LOGOUT_URL);
+
+  assert.equal(error, null);
+  assert.deepEqual(
+    confirmedOn,
+    [KEYCLOAK_LOGOUT_URL],
+    "the shared helper submits #kc-logout whatever label the realm theme gives it, so the Keycloak session ends",
+  );
+});
+
+test("a Log out click that never leaves the shell fails instead of passing as a logout", async () => {
+  const { confirmedOn, error } = await logOutFromShell(null);
+
+  assert.match(String(error), /waitForURL/);
+  assert.deepEqual(confirmedOn, [], "nothing is confirmed while the signed-in shell is still shown");
 });
