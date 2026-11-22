@@ -14,6 +14,7 @@ from ._spec_secrets_fakes import (
     MASKER,
     NAME,
     VALUE,
+    caller_env,
     container_argv,
     install,
     make_run,
@@ -96,7 +97,8 @@ if cidfile:
     pathlib.Path(cidfile).write_text(name)
 for turn in range(600):
     with contextlib.suppress(OSError):
-        pathlib.Path(reports, "playwright-junit.xml").write_text(f"<failure>{value}</failure>")
+        pathlib.Path(reports, "junit.part").write_text(f"<failure>{value}</failure>")
+        pathlib.Path(reports, "junit.part").replace(pathlib.Path(reports, "playwright-junit.xml"))
     if not turn:
         print("started", flush=True)
     time.sleep(0.1)
@@ -111,10 +113,22 @@ def ready(proc: subprocess.Popen, seconds: float) -> bool:
         seconds: the longest to wait.
 
     Returns:
-        Whether it printed a line in time.
+        Whether it printed a whole line in time; the pipe is read as it
+        fills, so a partial line that stays never blocks past the deadline.
     """
-    readable, _, _ = select.select([proc.stdout], [], [], seconds)
-    return bool(readable) and bool(proc.stdout.readline())
+    deadline, seen = time.monotonic() + seconds, b""
+    while b"\n" not in seen:
+        left = deadline - time.monotonic()
+        if left <= 0:
+            return False
+        readable, _, _ = select.select([proc.stdout], [], [], left)
+        if not readable:
+            return False
+        chunk = os.read(proc.stdout.fileno(), 4096)
+        if not chunk:
+            return False
+        seen += chunk
+    return True
 
 
 def reap(pidfile: Path) -> bool:
@@ -179,7 +193,7 @@ def tool_env(
             it started.
 
     Returns:
-        This process's environment with ``bin`` first on PATH.
+        ``caller_env`` with ``bin`` first on PATH.
     """
     switches = {"STUCK": stuck, "DETACH": detach, "SLOW": slow, "LATE_CID": late}
     for name, on in switches.items():
@@ -187,7 +201,7 @@ def tool_env(
         if on:
             (probe / name).touch()
     return {
-        **os.environ,
+        **caller_env(),
         "PATH": f"{probe.parent / 'bin'}{os.pathsep}{os.environ['PATH']}",
     }
 

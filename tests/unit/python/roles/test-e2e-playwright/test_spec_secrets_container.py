@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 import tempfile
-import unittest
+import unittest.mock
 from pathlib import Path
 
 from . import role_task
@@ -19,6 +20,7 @@ from ._spec_secrets_fakes import (
     install,
     load_from,
     make_run,
+    without_docker_config,
 )
 from ._spec_secrets_wiring import (
     ARGV_VARS,
@@ -74,10 +76,26 @@ def env_refused(line: str, *replacements, keys: str | None) -> bool:
         if keys is not None:
             (stage / ".env.keys").write_text(keys, encoding="utf-8")
         try:
-            module.check_container(argv, run)
+            with without_docker_config():
+                module.check_container(argv, run)
         except module.spec_secrets.SpecSecretsError:
             return True
         return False
+
+
+def open_config(root: Path) -> Path:
+    """Make a Docker config dir any user may write, which the masker refuses.
+
+    Args:
+        root: the scratch dir.
+
+    Returns:
+        The dir, mode 0777 whoever runs the test.
+    """
+    docker = root / "docker-config"
+    docker.mkdir(exist_ok=True)
+    docker.chmod(0o777)
+    return docker
 
 
 def listed_keys(source: str) -> tuple[list[str], str, str]:
@@ -184,13 +202,23 @@ class TestSpecSecretsContainer(unittest.TestCase):
             Whether ``check_container`` refused it.
         """
         try:
-            self.module.check_container(argv, self.run_dir)
+            with without_docker_config():
+                self.module.check_container(argv, self.run_dir)
         except self.module.spec_secrets.SpecSecretsError:
             return True
         return False
 
     def test_the_command_a_run_with_spec_secrets_starts_passes(self) -> None:
         self.assertFalse(self.refused(container_argv(self.root, self.run_dir)))
+
+    def test_a_docker_config_the_caller_exports_stays_out_of_the_checks(self) -> None:
+        argv = container_argv(self.root, self.run_dir)
+        exported = {"DOCKER_CONFIG": str(open_config(self.root))}
+        with unittest.mock.patch.dict(os.environ, exported):
+            self.assertFalse(self.refused(argv))
+            self.assertFalse(
+                env_refused("PLAYWRIGHT_NETWORK_LEAK=false", keys=STAGE_KEYS)
+            )
 
     def test_the_rendered_serial_and_queued_deploy_commands_pass(self) -> None:
         container_argv(self.root, self.run_dir)
@@ -275,6 +303,18 @@ class TestSpecSecretsContainerNegativeControls(unittest.TestCase):
         self,
     ) -> None:
         self.assertFalse(env_refused("FOO=bar", UNDECLARED, keys=STAGE_KEYS))
+
+    def test_a_check_that_sees_the_caller_docker_config_is_caught(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            module, run = load_from(root / "bin", root), root / "run"
+            argv = container_argv(root, run)
+            exported = {"DOCKER_CONFIG": str(open_config(root))}
+            with (
+                unittest.mock.patch.dict(os.environ, exported),
+                self.assertRaises(module.spec_secrets.SpecSecretsError),
+            ):
+                module.check_container(argv, run)
 
     def test_a_secrets_run_that_mounts_the_stage_dir_writable_is_caught(
         self,

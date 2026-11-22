@@ -23,6 +23,7 @@ from ._spec_secrets_fakes import (
     load_from,
     make_run,
     scratch_text,
+    without_docker_config,
 )
 from ._spec_secrets_wiring import (
     ARGV_VARS,
@@ -203,7 +204,7 @@ def ca_variants(cert: Path) -> dict[str, list[str]]:
 
 
 def refused(module, argv: list[str], run: Path) -> bool:
-    """Hold a container command against the check.
+    """Hold a container command against the check, the caller's Docker config hidden.
 
     Args:
         module: the loaded masker.
@@ -214,7 +215,8 @@ def refused(module, argv: list[str], run: Path) -> bool:
         Whether ``check_container`` refused it.
     """
     try:
-        module.check_container(argv, run)
+        with without_docker_config():
+            module.check_container(argv, run)
     except module.spec_secrets.SpecSecretsError:
         return True
     return False

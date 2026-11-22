@@ -6,7 +6,7 @@ import re
 from html.entities import html5
 from urllib.parse import quote, quote_plus
 
-from ._spec_secrets_fakes import RAW, leaks
+from ._spec_secrets_fakes import RAW
 
 
 def xml(text: str) -> str:
@@ -160,9 +160,24 @@ LITERALS = {
     },
 }
 BASIC_USERS = ("abc", "ab", "a", "user", "admin:x")
+BASIC = "authorization: Basic "
 SPACED = "a b!c d!e f!g h"
 PADDING = b"." * 600
 ANSI = re.compile("\x1b\\[[0-9;]*m")
+
+
+def basic_header(user: str, value: bytes) -> tuple[str, bytes]:
+    """Build the ``BASIC`` header line of a user and a value, as a request log prints it.
+
+    Args:
+        user: the user.
+        value: the password.
+
+    Returns:
+        The encoded ``user:value`` and the line that carries it.
+    """
+    encoded = base64.b64encode(f"{user}:".encode() + value).decode()
+    return encoded, f"{BASIC}{encoded}\n".encode()
 
 
 def form_leaks(module, value: str) -> list[str]:
@@ -224,18 +239,25 @@ def basic_leaks(module) -> list[str]:
         module: the loaded masker.
 
     Returns:
-        The users behind which a window of the characters that hold value
-        bytes only shows.
+        The users whose masked header, of ``RAW`` or of ``RAW`` without its
+        last byte, so that each length of user gets a padded last group with
+        one of them, is not a start of the encoding, then one ``***`` to the
+        line end, or whose start shows a character a value bit decides:
+        behind ``user:`` the first ``4 * (len(user) + 1) // 3`` hold none.
     """
-    masks = module.windows([RAW])
     found = []
-    for user in BASIC_USERS:
-        prefix = f"{user}:".encode()
-        encoded = base64.b64encode(prefix + RAW).decode()
-        core = encoded[4 * -(-len(prefix) // 3) : 4 * ((len(prefix) + len(RAW)) // 3)]
-        line = f"Authorization: Basic {encoded}\n".encode()
-        if leaks(module.Stream(masks).feed(line, final=True).decode(), core):
-            found.append(user)
+    for value in (RAW, RAW[:-1]):
+        masks = module.windows([value])
+        for user in BASIC_USERS:
+            encoded, line = basic_header(user, value)
+            out = module.Stream(masks).feed(line, final=True).decode()
+            shown, mask, rest = out.removeprefix(BASIC).partition("***")
+            if user not in found and (
+                (mask, rest) != ("***", "\n")
+                or not encoded.startswith(shown)
+                or len(shown) > 4 * (len(user) + 1) // 3
+            ):
+                found.append(user)
     return found
 
 

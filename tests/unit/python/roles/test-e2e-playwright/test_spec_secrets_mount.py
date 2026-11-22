@@ -471,7 +471,7 @@ class TestSpecSecretsMountNegativeControls(unittest.TestCase):
     def test_a_job_that_puts_its_flags_into_the_masker_is_caught(self) -> None:
         content = role_task(QUEUE_TASKS, "📮")["ansible.builtin.copy"]["content"]
         broken = re.sub(
-            r"_playwright_argv\[:\(.*?\) \+ 2\]", "_playwright_argv[:2]", content
+            r"_playwright_argv\[:\(.*?\) \+ 1\]", "_playwright_argv[:2]", content
         )
         self.assertNotEqual(broken, content)
         self.assertEqual(

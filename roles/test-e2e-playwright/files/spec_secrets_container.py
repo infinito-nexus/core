@@ -126,12 +126,14 @@ def container_env() -> dict[str, str]:
     return {key: os.environ[key] for key in CHILD_ENV if key in os.environ}
 
 
-def remove_container(directory: Path, cli: str) -> bool:
+def remove_container(directory: Path, cli: str, name: str) -> bool:
     """Force-remove the container the run directory's ``CID`` names, then prove it gone.
 
     Args:
         directory: the run directory.
         cli: the container tool, such as ``container`` or ``docker``.
+        name: the name the run gave its container, removed the same way while
+            no ``CID`` names one; empty for a run that names none.
 
     Returns:
         Whether none is named or, after ``rm --force``, ``inspect`` finds
@@ -139,9 +141,9 @@ def remove_container(directory: Path, cli: str) -> bool:
         until ``REMOVAL_SECONDS`` pass, then False, as when the tool fails.
     """
     try:
-        container = (directory / CID).read_text(encoding="utf-8").strip()
+        container = (directory / CID).read_text(encoding="utf-8").strip() or name
     except FileNotFoundError:
-        return True
+        container = name
     except OSError:
         return False
     if not container:
@@ -169,20 +171,20 @@ def remove_container(directory: Path, cli: str) -> bool:
         pause = min(2 * pause, LAST_PAUSE)
 
 
-def cid_named(directory: Path) -> bool:
-    """Tell whether the run directory's ``CID`` names a container yet.
+def cid_named(directory: Path) -> str:
+    """Read the container id the run directory's ``CID`` names yet.
 
     Args:
         directory: the run directory.
 
     Returns:
-        Whether the file holds a container id, so a removal can prove that
-        container gone; before, a container may still start.
+        The id, empty until the tool wrote one; until then a container may
+        still start that no removal can prove gone.
     """
     try:
-        return bool((directory / CID).read_text(encoding="utf-8").strip())
+        return (directory / CID).read_text(encoding="utf-8").strip()
     except OSError:
-        return False
+        return ""
 
 
 def pinned_image() -> str:

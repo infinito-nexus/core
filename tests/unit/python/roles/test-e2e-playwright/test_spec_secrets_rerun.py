@@ -155,7 +155,8 @@ def rerun(
         showed in the output or the published report, whether ``***`` did,
         what is left of the run directories, whether the report reached the
         reports dir, which of ``stale`` are still there, whether the run
-        mounted the stage dir writable and everything the script printed.
+        mounted the stage dir writable, what each ``rm`` removed and all it
+        printed.
     """
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
@@ -212,7 +213,9 @@ def rerun(
         env = {
             key: value
             for key, value in os.environ.items()
-            if not key.startswith(("TEST_E2E_PLAYWRIGHT_", "PLAYWRIGHT_"))
+            if not key.startswith(
+                ("TEST_E2E_PLAYWRIGHT_", "PLAYWRIGHT_", "DOCKER_CONFIG")
+            )
         }
         env.update(
             **({"TEST_E2E_PLAYWRIGHT_COMMAND": override} if override else {}),
@@ -228,11 +231,8 @@ def rerun(
             check=False,
         )
         log = root / "probe" / "calls.jsonl"
-        calls = (
-            [json.loads(line) for line in scratch_text(log).splitlines()]
-            if log.exists()
-            else []
-        )
+        logged = scratch_text(log).splitlines() if log.exists() else []
+        calls = [json.loads(line) for line in logged]
         started = [call for call in calls if call[0] == "run"]
         runs = [call for call in started if "--mount" in call]
         reports = root / "reports" / ROLE_ID
@@ -270,6 +270,7 @@ def rerun(
             "masked": "***" in shown,
             "left": sorted(os.listdir(parent)) if parent.exists() else [],
             "published": junit.exists(),
+            "removed": [call[-1] for call in calls if call[0] == "rm"],
             "said": shown,
         }
 
@@ -305,7 +306,7 @@ def forwarded(makefile: str, secrets: str | None) -> list[str]:
         env = {
             key: value
             for key, value in os.environ.items()
-            if not key.startswith(("MAKE", "MFLAGS"))
+            if not key.startswith(("MAKE", "MFLAGS", "PLAYWRIGHT_SPEC_SECRETS_FILE"))
         }
         env["INFINITO_NODE_SRC_DIR"] = str(root)
         found = []
@@ -458,7 +459,7 @@ class TestSpecSecretsRerunNegativeControls(unittest.TestCase):
         unchecked = (UNCHECKED_CONTAINER,)
         plain = {"stuck": True, "run_code": 0, "ca_mode": CA_MODE}
         blind = rerun((), (CIDFILE, ""), masker=unchecked, **plain)
-        self.assertEqual([blind["rc"], blind["published"]], [0, True])
+        self.assertEqual([blind["rc"], blind["published"]], [1, True])
         refused = rerun((), (CIDFILE, ""), **plain)
         self.assertEqual([refused["rc"], refused["ran"]], [70, False])
 

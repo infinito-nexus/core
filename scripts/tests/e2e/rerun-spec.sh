@@ -135,15 +135,19 @@ if [[ -f "$repo_root/roles/$role/templates/playwright.secrets.j2" ]]; then
 		mapfile -t ca_args < <(grep -v '^$' -- "$ca_trust")
 	fi
 	run_name="infinito-playwright-rerun-$$"
+	masker_pid=""
 	python3 -I -B "$spec_secrets" prune
 	secrets_dir="$(python3 -I -B "$spec_secrets" create)"
 	finish() {
 		local status=$?
-		if ! python3 -I -B "$masker" scrub "$secrets_dir" "$reports_dir" docker; then
-			echo "spec secrets: $run_name may still run or its reports could not be masked, none were published to $reports_dir" >&2
+		if ! python3 -I -B "$masker" scrub "$secrets_dir" "$reports_dir" docker ${masker_pid:+"$run_name"}; then
+			echo "spec secrets: the scrub failed, $reports_dir may hold only part of the reports, all of them masked" >&2
 			((status)) || status=1
 		fi
-		rm -rf -- "$secrets_dir"
+		if ! rm -rf -- "$secrets_dir"; then
+			echo "spec secrets: $secrets_dir could not be removed whole, remove it as its owner" >&2
+			((status)) || status=1
+		fi
 		exit "$status"
 	}
 	trap finish EXIT
@@ -151,9 +155,9 @@ if [[ -f "$repo_root/roles/$role/templates/playwright.secrets.j2" ]]; then
 	python3 -I -B "$spec_secrets" split "$secrets_dir"
 	reports_mount="$secrets_dir/reports"
 	stage_ro=":ro"
-	trap 'docker rm --force "$run_name" >/dev/null 2>&1 || :; wait; exit 129' HUP
-	trap 'docker rm --force "$run_name" >/dev/null 2>&1 || :; wait; exit 130' INT
-	trap 'docker rm --force "$run_name" >/dev/null 2>&1 || :; wait; exit 143' TERM
+	trap '[[ -z "$masker_pid" ]] || kill -HUP "$masker_pid" 2>/dev/null || :; wait; exit 129' HUP
+	trap '[[ -z "$masker_pid" ]] || kill -INT "$masker_pid" 2>/dev/null || :; wait; exit 130' INT
+	trap '[[ -z "$masker_pid" ]] || kill -TERM "$masker_pid" 2>/dev/null || :; wait; exit 143' TERM
 	user_args=()
 	((EUID == 0)) || user_args=(--user "$(id -u):$(id -g)" -e HOME=/tmp)
 	secret_args=(--name "$run_name" "--cidfile=$secrets_dir/.cid" --log-driver=none --mount "type=bind,src=$secrets_dir,dst=/run/spec-secrets,readonly" -e INFINITO_PLAYWRIGHT_NO_CAPTURE=true -e NO_COLOR=1 -e FORCE_COLOR=0 "${user_args[@]}")
@@ -212,4 +216,5 @@ run=(docker run --rm
 ((${#secret_args[@]})) || exec "${run[@]}" /bin/bash -lc "$cmd"
 docker run --rm "${net_args[@]}" "${user_args[@]}" -v "$stage_dir:/e2e:ro" -v "$stage_dir/node_modules:/e2e/node_modules" -w /e2e "$image" npm install --no-fund --no-audit --no-package-lock
 python3 -I -B "$masker" mask "$secrets_dir" "$reports_dir" -- "${run[@]}" -- "$@" &
-wait "$!"
+masker_pid=$!
+wait "$masker_pid"

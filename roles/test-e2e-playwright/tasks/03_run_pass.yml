@@ -177,7 +177,7 @@
         - name: 🛑 Fail the pass when its container or reports could not be masked
           ansible.builtin.fail:
             msg: >-
-              Masking the spec secrets of {{ application_id }} failed (run rc {{ _playwright_run.rc | default('absent') }}), its reports were not published to {{ _playwright_pass_reports_dir }}
+              Masking the spec secrets of {{ application_id }} failed (run rc {{ _playwright_run.rc | default('absent') }}), {{ _playwright_pass_reports_dir }} may hold only part of its reports, all of them masked,
               and the pass is not retried:
               {{ _playwright_spec_secrets_scrub.stderr | default('') }}
           when: _playwright_spec_secrets_scrub is failed

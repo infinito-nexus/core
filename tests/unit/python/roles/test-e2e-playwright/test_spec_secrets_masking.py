@@ -7,6 +7,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -24,9 +25,14 @@ from ._spec_secrets_fakes import (
     masked_run,
     scratch_text,
 )
-from ._spec_secrets_tool import detached_run, late_cid_run, stopped_run
+from ._spec_secrets_tool import detached_run, late_cid_run, ready, stopped_run
 
 RUN_CODE = 3
+FRAGMENT = "\N{LATIN SMALL LETTER E WITH ACUTE} \U0001f600 "
+HALF_LINE = (
+    "import sys, time; sys.stdout.write('sta'); sys.stdout.flush(); time.sleep(30)"
+)
+HALF_LINE_BOUND = 10
 NAME_CHECK = "if named(str(Path(here, name)), masks):"
 PROOF = "found.returncode and MISSING.search(found.stderr)"
 HIDDEN = (
@@ -291,16 +297,33 @@ class TestSpecSecretsMasking(unittest.TestCase):
             with self.subTest(arguments=refused):
                 self.assertEqual(argv_run(refused), (70, None, True))
 
+    def test_the_leak_check_counts_bytes_not_characters(self) -> None:
+        self.assertTrue(leaks(f"<{FRAGMENT}>", VALUE))
+
+    def test_a_child_that_prints_half_a_line_does_not_hold_the_wait(self) -> None:
+        child = subprocess.Popen(
+            [sys.executable, "-c", HALF_LINE], stdout=subprocess.PIPE
+        )
+        try:
+            started = time.monotonic()
+            self.assertFalse(ready(child, 1))
+            self.assertLess(time.monotonic() - started, HALF_LINE_BOUND)
+        finally:
+            child.kill()
+            child.wait()
+            child.stdout.close()
+
     def test_bad_usage_and_a_foreign_run_directory_are_refused(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             for argv, code in (
                 (["scrub", tmp], 2),
                 (["scrub", tmp, tmp], 2),
-                (["scrub", tmp, tmp, "docker", "extra"], 2),
+                (["scrub", tmp, tmp, "docker", "name", "extra"], 2),
                 (["mask", tmp, tmp, "true"], 2),
                 (["mask", tmp, tmp, "--", "true"], 2),
                 (["baseline", tmp], 2),
                 (["scrub", tmp, tmp, "docker"], 1),
+                (["scrub", tmp, tmp, "docker", "name"], 1),
                 (["mask", tmp, tmp, "--", "true", "--"], 70),
             ):
                 with self.subTest(argv=argv):
@@ -398,7 +421,7 @@ class TestSpecSecretsMaskingNegativeControls(unittest.TestCase):
     def test_a_masker_that_settles_before_the_container_is_gone_is_caught(
         self,
     ) -> None:
-        settling = ("gone = remove_container(directory, command[0])", "gone = True")
+        settling = ('gone = remove_container(directory, command[0], "")', "gone = True")
         for broken in (settling, (PROOF, "True")):
             with self.subTest(old=broken[0]):
                 found = detached_run(True, broken)

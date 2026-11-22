@@ -156,7 +156,7 @@
       ansible.builtin.fail:
         msg: >-
           Masking the spec secrets failed for the runs reporting to {{ _playwright_unmasked }},
-          whose reports were deleted unpublished and are not archived, removing them failed for {{ _playwright_unremoved }}; check those dirs.
+          whose dirs may hold only part of their reports, all of them masked, and are not archived, removing them failed for {{ _playwright_unremoved }}; check those dirs.
       when: (_playwright_unmasked + _playwright_unremoved) | length > 0
 
     - name: 🛑 Fail when the scheduler itself did not finish cleanly

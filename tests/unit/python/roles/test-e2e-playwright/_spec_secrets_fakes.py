@@ -8,10 +8,15 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from typing import TYPE_CHECKING
+from unittest import mock
 
 from utils.cache.files import read_text
 
 from . import ROLE
+
+if TYPE_CHECKING:
+    from contextlib import AbstractContextManager
 
 FILES = ROLE / "files"
 HELPER = FILES / "spec_secrets.py"
@@ -52,6 +57,7 @@ os.execvp(command[0], [*command, *args[args.index(image) + 1 :]])
 VALUE = "Pa%\"s<w&r'd\\9X é \U0001f600 Sentinel-Value-9f3c abcdefghijklmnopqrstuvwxyz0123456789"
 RAW = VALUE.encode()
 WINDOW = 8
+REDACTED = "<failure>***</failure>"
 FAKE_RUN = """\
 import json, pathlib, sys
 value, reports, gone, code = sys.argv[1:5]
@@ -217,8 +223,29 @@ def exec_tool(
     docker.chmod(0o755)
     setup = {"command": command, "image": IMAGE}
     (root / "bin" / FAKE_SETUP).write_text(json.dumps(setup), encoding="utf-8")
-    env = {**os.environ, "PATH": f"{root / 'bin'}{os.pathsep}{os.environ['PATH']}"}
+    env = caller_env()
+    env["PATH"] = f"{root / 'bin'}{os.pathsep}{os.environ['PATH']}"
     return container_argv(root, directory), env
+
+
+def caller_env() -> dict[str, str]:
+    """Copy this process's environment for a masker, without the caller's Docker config.
+
+    Returns:
+        Every variable but ``DOCKER_CONFIG``, which ``check_docker_config``
+        refuses unless root owns it; a test of that policy sets its own.
+    """
+    return {key: value for key, value in os.environ.items() if key != "DOCKER_CONFIG"}
+
+
+def without_docker_config() -> AbstractContextManager:
+    """Hide the caller's ``DOCKER_CONFIG`` from a container check in this process.
+
+    Returns:
+        A context manager that holds ``caller_env`` as the environment and
+        restores the environment on exit.
+    """
+    return mock.patch.dict(os.environ, caller_env(), clear=True)
 
 
 def make_run(helper: Path, rendered: str) -> Path:
@@ -267,11 +294,10 @@ def leaks(text: str, secret: str) -> bool:
         secret: the text to look for pieces of.
 
     Returns:
-        Whether such a piece shows.
+        Whether such a piece shows, both cut as UTF-8.
     """
-    return any(
-        secret[at : at + WINDOW] in text for at in range(len(secret) - WINDOW + 1)
-    )
+    raw, shown = secret.encode(), text.encode()
+    return any(raw[at : at + WINDOW] in shown for at in range(len(raw) - WINDOW + 1))
 
 
 def state_of(report: Path) -> str:
@@ -281,11 +307,15 @@ def state_of(report: Path) -> str:
         report: the report in the reports dir.
 
     Returns:
-        ``none`` when it was not published, else ``leaks`` or ``masked``.
+        ``none`` when it was not published, else ``leaks``, ``masked`` for
+        exactly ``REDACTED`` or ``other``, such as an empty file.
     """
     if not report.exists():
         return "none"
-    return "leaks" if leaks(scratch_text(report), VALUE) else "masked"
+    text = scratch_text(report)
+    if leaks(text, VALUE):
+        return "leaks"
+    return "masked" if text == REDACTED else "other"
 
 
 def masked_run(*replacements, owner_gone: bool = False, code: int) -> list[str]:

@@ -226,7 +226,7 @@ def run_owner(directory: Path) -> int:
         The uid; this process must be that user or root.
     """
     suffix = directory.parent.name.removeprefix(f"{PARENT.name}-")
-    uid = int(suffix) if suffix.isdigit() else -1
+    uid = int(suffix) if NUMBER.fullmatch(suffix) else -1
     if not directory.name.startswith(PREFIX) or directory.parent != parent(uid):
         raise SpecSecretsError(
             f"{directory} is not a run directory below {PARENT}-<uid>"
@@ -283,7 +283,7 @@ def users() -> list[int]:
         return [0]
     prefix = f"{PARENT.name}-"
     suffixes = [name[len(prefix) :] for name in names if name.startswith(prefix)]
-    return sorted({0} | {int(suffix) for suffix in suffixes if suffix.isdigit()})
+    return sorted({0, *map(int, filter(NUMBER.fullmatch, suffixes))})
 
 
 def prune_parent(uid: int) -> int:

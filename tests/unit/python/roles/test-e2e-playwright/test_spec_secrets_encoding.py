@@ -4,6 +4,8 @@ import unittest
 
 from ._spec_secrets_fakes import RAW, VALUE, WINDOW, load_masker
 from ._spec_secrets_forms import (
+    BASIC,
+    BASIC_USERS,
     ENCODER_TRIGGERS,
     MARK_TRIGGERS,
     NORMALIZED_TRIGGERS,
@@ -11,6 +13,7 @@ from ._spec_secrets_forms import (
     SPECIALS,
     SPLIT_TRIGGERS,
     TRIGGERS,
+    basic_header,
     basic_leaks,
     chunked,
     form_leaks,
@@ -103,6 +106,35 @@ UNNORMALIZED = (
     "    values = list(dict.fromkeys([*values, *map(normalized, values)]))\n",
     "",
 )
+CUTS = {
+    "start": ("\U0001f600ABCDEFG", "x\U0001f640ABCDEFG y\n"),
+    "end": ("ABCDEFG\U0001f600", "xABCDEFG\U0001f601 y\n"),
+}
+UNWIDENED = {
+    "start": (
+        (
+            "            while start and buffer[start] & 0xC0 == 0x80:\n"
+            "                start -= 1\n"
+        ),
+        "",
+    ),
+    "end": (
+        (
+            "            while end < len(buffer) and buffer[end] & 0xC0 == 0x80:\n"
+            "                end += 1\n"
+        ),
+        "",
+    ),
+}
+CUT_SHOWN = {
+    "start": "x\U0001f640".encode()[:4] + b"*** y\n",
+    "end": b"x***" + "\U0001f601".encode()[3:] + b" y\n",
+}
+BASIC_VALUE = "0123456789"
+BASIC_SHOWN = {"a": "YT", "ab": "YWI6", "abc": "YWJj"}
+BASIC_FORMS = '((b"", 0), (b":", 0), (b"\\0:", 2))'
+COLONLESS = (BASIC_FORMS, '((b"", 0), (b"\\0", 4), (b"\\0\\0", 4))')
+UNPADDED = ("value)[cut:]", "value)[cut : 4 * ((len(prefix) + len(value)) // 3)]")
 SNAPSHOT_LINES = {
     "ab'cdefgh": (
         "- 'heading \"Token: ab''cdefgh\"'\n",
@@ -114,6 +146,36 @@ SNAPSHOT_LINES = {
         '- heading "Token: ***"\n',
     ),
 }
+
+
+def cut_line(module, side: str) -> bytes:
+    """Mask a line whose character at one end of a match shares only some bytes with the value.
+
+    Args:
+        module: the loaded masker.
+        side: ``start`` or ``end`` of ``CUTS``, the end the match cuts.
+
+    Returns:
+        The masked line.
+    """
+    value, line = CUTS[side]
+    stream = module.Stream(module.windows([value.encode()]))
+    return stream.feed(line.encode(), final=True)
+
+
+def basic_line(module, user: str) -> bytes:
+    """Mask the ``Basic`` header of a user and ``BASIC_VALUE``.
+
+    Args:
+        module: the loaded masker.
+        user: the user; behind ``abc:`` the last group is padded.
+
+    Returns:
+        The masked header line.
+    """
+    _encoded, line = basic_header(user, BASIC_VALUE.encode())
+    stream = module.Stream(module.windows([BASIC_VALUE.encode()]))
+    return stream.feed(line, final=True)
 
 
 def snapshot_leaks(module) -> list[str]:
@@ -203,8 +265,44 @@ class TestSpecSecretsEncoding(unittest.TestCase):
         stream = module.Stream(module.windows([RAW]))
         self.assertEqual(stream.feed(b"started\n"), b"started\n")
 
+    def test_a_mask_never_cuts_a_utf8_character_in_two(self) -> None:
+        module = load_masker()
+        for side in CUTS:
+            with self.subTest(side=side):
+                self.assertEqual(cut_line(module, side).decode(), "x*** y\n")
+
+    def test_a_basic_header_shows_no_value_byte_behind_a_user_of_any_length(
+        self,
+    ) -> None:
+        module = load_masker()
+        for user, shown in BASIC_SHOWN.items():
+            with self.subTest(user=user):
+                self.assertEqual(
+                    basic_line(module, user),
+                    f"{BASIC}{shown}***\n".encode(),
+                )
+
 
 class TestSpecSecretsEncodingNegativeControls(unittest.TestCase):
+    def test_a_mask_that_starts_or_ends_inside_a_character_is_caught(self) -> None:
+        for side, unwidened in UNWIDENED.items():
+            with self.subTest(side=side):
+                self.assertEqual(
+                    cut_line(load_masker(unwidened), side), CUT_SHOWN[side]
+                )
+
+    def test_base64_forms_cut_before_the_padded_last_group_are_caught(self) -> None:
+        module = load_masker(UNPADDED)
+        self.assertEqual(basic_line(module, "abc"), f"{BASIC}YWJj***ODk=\n".encode())
+        self.assertEqual(basic_leaks(module), list(BASIC_USERS))
+
+    def test_base64_forms_without_the_colon_of_a_basic_header_are_caught(
+        self,
+    ) -> None:
+        module = load_masker(COLONLESS)
+        self.assertEqual(basic_line(module, "abc"), f"{BASIC}YWJjOjAx***\n".encode())
+        self.assertEqual(basic_leaks(module), ["abc", "a", "user", "admin:x"])
+
     def test_each_form_leaks_without_its_decoder(self) -> None:
         for name, (line, leaking) in DECODERS.items():
             with self.subTest(decoder=name):
@@ -287,7 +385,7 @@ class TestSpecSecretsEncodingNegativeControls(unittest.TestCase):
         )
 
     def test_a_basic_header_behind_an_unaligned_user_is_caught(self) -> None:
-        module = load_masker(("for shift in range(3):", "for shift in range(1):"))
+        module = load_masker((BASIC_FORMS, '((b"", 0),)'))
         self.assertEqual(basic_leaks(module), ["abc", "a", "user", "admin:x"])
 
     def test_a_stream_without_hold_back_carry_or_line_release_is_caught(

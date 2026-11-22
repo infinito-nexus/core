@@ -5,9 +5,8 @@ import os
 import re
 import subprocess
 import tempfile
-import unittest
+import unittest.mock
 from pathlib import Path
-from unittest import mock
 
 from utils.cache.files import read_text
 
@@ -336,12 +335,16 @@ def config_refused(case: str, *replacements: tuple[str, str]) -> bool:
             (real / "config.json").chmod(0o644)
         (root / "docker-link").symlink_to(real)
         named = {"dir": real, "link": root / "docker-link", "missing": root / "gone"}
-        with mock.patch.dict(os.environ):
+        with unittest.mock.patch.dict(os.environ):
             if "DOCKER_CONFIG" in os.environ:
                 del os.environ["DOCKER_CONFIG"]
             if kind is not None:
                 os.environ["DOCKER_CONFIG"] = str(named[kind])
-            return refused(module, argv, run)
+            try:
+                module.check_container(argv, run)
+            except module.spec_secrets.SpecSecretsError:
+                return True
+            return False
 
 
 def foreign_above_refused(*replacements: tuple[str, str]) -> bool:
@@ -362,7 +365,7 @@ def foreign_above_refused(*replacements: tuple[str, str]) -> bool:
             return info
         return os.stat_result((*info[:4], FOREIGN_UID, *info[5:10]))
 
-    with mock.patch("os.lstat", lstat):
+    with unittest.mock.patch("os.lstat", lstat):
         return config_refused("no config.json", *replacements)
 
 

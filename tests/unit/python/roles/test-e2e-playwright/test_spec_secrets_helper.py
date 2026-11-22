@@ -307,8 +307,9 @@ class TestSpecSecretsHelper(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             module.PARENT = Path(tmp) / "spec-secrets"
             module.create()
+            login = os.geteuid()
             with unittest.mock.patch.object(module.os, "geteuid", return_value=0):
-                self.assertEqual(module.users(), sorted({0, os.geteuid()}))
+                self.assertEqual(module.users(), sorted({0, login}))
 
     def test_a_value_holding_a_control_character_is_refused_by_its_key(
         self,

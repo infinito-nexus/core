@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import tempfile
-import unittest
+import unittest.mock
 from pathlib import Path
 
 from .test_spec_secrets_helper import (
@@ -30,6 +30,14 @@ PER_PARENT = (
         '            print(f"spec secrets prune skipped {parent(uid)}: {error.strerror}")\n'
     ),
     "",
+)
+ODD_DIGIT = "\N{SUPERSCRIPT TWO}"
+UNICODE_DIGITS = (
+    (
+        "uid = int(suffix) if NUMBER.fullmatch(suffix) else -1",
+        "uid = int(suffix) if suffix.isdigit() else -1",
+    ),
+    ("filter(NUMBER.fullmatch, suffixes)", "filter(str.isdigit, suffixes)"),
 )
 
 
@@ -60,6 +68,53 @@ def stuck_prune(module) -> tuple[int, str, list[str]]:
         names = {stuck.name: "stuck", killed.name: "killed"}
         left = sorted(names.get(name, name) for name in os.listdir(mine(module)))
         return code, printed.replace(stuck.name, "stuck"), left
+
+
+def odd_suffix(module) -> list[str]:
+    """Hand a root prune and ``run_owner`` a parent whose uid is a superscript digit.
+
+    Args:
+        module: the loaded helper.
+
+    Returns:
+        One message per call that neither ignored nor refused that parent;
+        ``str.isdigit`` takes the digit, ``int`` does not.
+    """
+    problems = []
+    with tempfile.TemporaryDirectory() as tmp:
+        module.PARENT = Path(tmp) / "spec-secrets"
+        odd = Path(tmp) / f"spec-secrets-{ODD_DIGIT}"
+        odd.mkdir(mode=0o700)
+        with unittest.mock.patch.object(module.os, "geteuid", return_value=0):
+            try:
+                if module.users() != [0]:
+                    problems.append("a root prune lists the odd parent")
+            except ValueError:
+                problems.append("a root prune fails on the odd parent")
+            try:
+                module.run_owner(odd / "run.odd")
+                problems.append("run_owner takes the odd parent")
+            except module.SpecSecretsError:
+                pass
+            except ValueError:
+                problems.append("run_owner fails on the odd parent")
+    return problems
+
+
+class TestSpecSecretsParentNames(unittest.TestCase):
+    def test_a_parent_named_with_another_digit_is_ignored_or_refused(self) -> None:
+        self.assertEqual(odd_suffix(load_helper()), [])
+
+
+class TestSpecSecretsParentNamesNegativeControls(unittest.TestCase):
+    def test_a_uid_check_that_takes_any_unicode_digit_is_caught(self) -> None:
+        self.assertEqual(
+            odd_suffix(load_helper(*UNICODE_DIGITS)),
+            [
+                "a root prune fails on the odd parent",
+                "run_owner fails on the odd parent",
+            ],
+        )
 
 
 @unittest.skipIf(os.geteuid() == 0, "root removes a run whatever its modes")

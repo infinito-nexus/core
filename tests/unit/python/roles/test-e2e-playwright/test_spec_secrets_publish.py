@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import io
 import os
 import stat
 import tempfile
 import unittest
+from contextlib import redirect_stderr
 from pathlib import Path
 
 from ._spec_secrets_fakes import RAW, load_masker, scratch_text
@@ -16,6 +18,13 @@ KEPT_MODE = ("        os.fchmod(descriptor, PUBLISHED_DIR)\n", "        pass\n")
 OPENING = (
     "swap(into, name, PUBLISHED_FILE, copy)",
     'copy(os.fdopen(os.open(name, os.O_WRONLY | os.O_NONBLOCK, dir_fd=into), "wb"))',
+)
+CONTAINER_ID = "c0ffee1d"
+UNNAMED = ("{cid_named(directory) or name or 'unnamed'}", "{name or 'unnamed'}")
+UNDELETED = '        print("spec secrets: the staged reports were not deleted"'
+UNCHECKED_DELETION = (
+    f"    if os.path.lexists(staged):\n{UNDELETED}",
+    f"    if False:\n{UNDELETED}",
 )
 
 
@@ -140,7 +149,57 @@ def reused_modes(module) -> dict[str, int]:
         }
 
 
+def undeletable_settle(module) -> tuple[int, list[str]]:
+    """Settle staged reports below a ``0555`` dir, as a container leaves one in a non-root rerun.
+
+    Args:
+        module: the loaded masker.
+
+    Returns:
+        What ``settle`` returns and the names published below ``locked``.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        run, reports = Path(tmp) / "run", Path(tmp) / "reports"
+        locked = run / "reports" / "locked"
+        locked.mkdir(parents=True)
+        (locked / "report.xml").write_text("ok")
+        locked.chmod(0o555)
+        try:
+            code = module.settle(run, reports, module.windows([RAW]), True, "")
+        finally:
+            locked.chmod(0o755)
+        return code, sorted(os.listdir(reports / "locked"))
+
+
+def unproven_settle(module) -> tuple[int, str]:
+    """Settle a run whose container was not proven gone, its ``.cid`` naming ``CONTAINER_ID``.
+
+    Args:
+        module: the loaded masker.
+
+    Returns:
+        What ``settle`` returns and what it printed.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        run, reports = Path(tmp) / "run", Path(tmp) / "reports"
+        (run / "reports").mkdir(parents=True)
+        (run / ".cid").write_text(f"{CONTAINER_ID}\n")
+        printed = io.StringIO()
+        with redirect_stderr(printed):
+            code = module.settle(run, reports, module.windows([RAW]), False, "")
+        return code, printed.getvalue()
+
+
 class TestSpecSecretsPublish(unittest.TestCase):
+    def test_a_container_that_may_still_run_is_named_by_its_id(self) -> None:
+        code, printed = unproven_settle(load_masker())
+        self.assertEqual(code, 1)
+        self.assertIn(f"container {CONTAINER_ID} may still run", printed)
+
+    @unittest.skipIf(os.geteuid() == 0, "root deletes below a 0555 dir")
+    def test_staged_reports_that_cannot_be_deleted_fail_the_settlement(self) -> None:
+        self.assertEqual(undeletable_settle(load_masker()), (1, ["report.xml"]))
+
     def test_a_link_below_the_reports_dir_is_refused_and_never_written_through(
         self,
     ) -> None:
@@ -159,6 +218,16 @@ class TestSpecSecretsPublish(unittest.TestCase):
 
 
 class TestSpecSecretsPublishNegativeControls(unittest.TestCase):
+    def test_a_message_that_drops_the_container_id_is_caught(self) -> None:
+        _code, printed = unproven_settle(load_masker(UNNAMED))
+        self.assertNotIn(CONTAINER_ID, printed)
+
+    @unittest.skipIf(os.geteuid() == 0, "root deletes below a 0555 dir")
+    def test_a_settlement_that_ignores_a_failed_deletion_is_caught(self) -> None:
+        self.assertEqual(
+            undeletable_settle(load_masker(UNCHECKED_DELETION)), (0, ["report.xml"])
+        )
+
     def test_a_publish_that_follows_an_intermediate_link_is_caught(self) -> None:
         self.assertEqual(
             linked_publish(load_masker(FOLLOWING)), ("published", ["report.xml"])

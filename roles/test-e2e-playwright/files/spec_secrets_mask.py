@@ -23,7 +23,7 @@ from spec_secrets_container import (
     container_env,
     remove_container,
 )
-from spec_secrets_match import CHUNK, Stream, pump, relay, windows
+from spec_secrets_match import CHUNK, Stream, named, pump, relay, windows
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
@@ -39,7 +39,7 @@ PUBLISHED_DIR = 0o755
 CREATE_MARK = os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW
 USAGE = (
     "mask <run dir> <reports dir> -- <container command> -- [<argument>...]"
-    " | scrub <run dir> <reports dir> <container cli>"
+    " | scrub <run dir> <reports dir> <container cli> [<container name>]"
 )
 
 
@@ -242,21 +242,6 @@ def open_into(root: int, here: str) -> int:
     return into
 
 
-def named(path: str, masks: frozenset[bytes]) -> bool:
-    """Tell whether a path holds a window in any of its views.
-
-    Args:
-        path: the path of a staged report below the staged dir.
-        masks: the windows to mask.
-
-    Returns:
-        Whether publishing it would copy a piece of a value into a name.
-    """
-    stream = Stream(masks)
-    stream.feed(os.fsencode(path), final=True)
-    return stream.masked
-
-
 def publish(staged: Path, reports: Path, masks: frozenset[bytes]) -> int:
     """Copy the regular files of the masked staged reports into the reports dir.
 
@@ -300,7 +285,9 @@ def publish(staged: Path, reports: Path, masks: frozenset[bytes]) -> int:
     return refused
 
 
-def settle(directory: Path, reports: Path, masks: frozenset[bytes], gone: bool) -> int:
+def settle(
+    directory: Path, reports: Path, masks: frozenset[bytes], gone: bool, name: str
+) -> int:
     """Mask the reports a run staged in its directory, then publish or delete them.
 
     Args:
@@ -309,18 +296,20 @@ def settle(directory: Path, reports: Path, masks: frozenset[bytes], gone: bool) 
         masks: the windows to mask.
         gone: whether ``remove_container`` proved that no container writes
             into ``STAGED`` any more.
+        name: the name ``remove_container`` got, which the message names
+            while no ``CID`` names the container; empty for none.
 
     Returns:
-        0 once every staged file is masked and published; 1, the staged reports
-        deleted unpublished, when the container may still run or a file could
-        not be masked, and 1 when a path holds a value or publishing failed.
+        0 once every staged file is masked, published and deleted, else 1; the
+        reports go unpublished when the container, which the message names, may
+        still run or a file could not be masked.
     """
     staged = directory / STAGED
     failed = 1
     if not gone:
         print(
-            "spec secrets: the container may still run, its reports were deleted"
-            " unpublished",
+            f"spec secrets: container {cid_named(directory) or name or 'unnamed'}"
+            " may still run, its reports were deleted unpublished",
             file=sys.stderr,
         )
     elif scrub(staged, masks):
@@ -345,6 +334,9 @@ def settle(directory: Path, reports: Path, masks: frozenset[bytes], gone: bool) 
                     file=sys.stderr,
                 )
     shutil.rmtree(staged, ignore_errors=True)
+    if os.path.lexists(staged):
+        print("spec secrets: the staged reports were not deleted", file=sys.stderr)
+        failed = 1
     return failed
 
 
@@ -380,7 +372,7 @@ def mask(directory: Path, reports: Path, command: list[str]) -> int:
         if removals:
             return removals[0]
         known = cid_named(directory)
-        gone = remove_container(directory, command[0])
+        gone = remove_container(directory, command[0], "")
         if known:
             removals.append(gone)
         return gone
@@ -400,7 +392,7 @@ def mask(directory: Path, reports: Path, command: list[str]) -> int:
     for thread in relays:
         thread.join()
     code = child.wait()
-    scrubbed = settle(directory, reports, masks, removed())
+    scrubbed = settle(directory, reports, masks, removed(), "")
     return UNSETTLED if scrubbed else (code if code >= 0 else 128 - code)
 
 
@@ -456,8 +448,9 @@ def main(argv: list[str]) -> int:
 
     Args:
         argv: the program name and the words of ``USAGE``; ``scrub`` first
-            removes the run's container with the tool and proves it gone.
-            Both settle the staged reports into the reports dir only then.
+            removes the run's container with the tool and proves it gone,
+            the one ``CID`` names or else the one of the name it got, if
+            any. Both settle the staged reports into the reports dir only then.
 
     Returns:
         ``mask``: what ``guarded_mask`` returns; ``scrub``: 0, or 1 when the
@@ -471,10 +464,11 @@ def main(argv: list[str]) -> int:
     if command[:1] == ["mask"] and command[3:4] == ["--"] and split:
         return guarded_mask(paths, command[4:split], command[split + 1 :])
     try:
-        if command[:1] == ["scrub"] and len(command) == 4:
+        if command[:1] == ["scrub"] and len(command) in {4, 5}:
+            name = command[4] if len(command) == 5 else ""
             masks = windows(spec_secrets.read_values(paths[0]))
-            gone = remove_container(paths[0], command[3])
-            settled = settle(paths[0], paths[1], masks, gone)
+            gone = remove_container(paths[0], command[3], name)
+            settled = settle(paths[0], paths[1], masks, gone, name)
             if os.path.lexists(paths[0] / UNSETTLED_MARK):
                 print(
                     "spec secrets: the run's masker could not settle its reports",

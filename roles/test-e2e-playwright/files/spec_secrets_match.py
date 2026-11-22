@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import html.entities
 import json
+import os
 import re
 from functools import partial
 from typing import TYPE_CHECKING
@@ -176,16 +177,17 @@ def base64_forms(value: bytes) -> set[bytes]:
         value: the value.
 
     Returns:
-        Standard and URL-safe: the encoding of the value alone, padded and
-        unpadded, and per offset of 0, 1 or 2 bytes, as behind the ``user:``
-        of a ``Basic`` header, the characters that hold value bytes only.
+        Standard and URL-safe, padded and unpadded, each to its end with the
+        padded trailing group: the encoding at offset 0, and at offsets 1 and
+        2 behind the ``:`` that RFC 7617 puts before the password of a
+        ``Basic`` header, from the first character the ``:`` and the value
+        alone decide. Behind a ``user:`` of any length no value byte shows;
+        behind other bytes the groups of value bytes only still match.
     """
     found: set[bytes] = set()
-    for shift in range(3):
-        encoded = base64.b64encode(bytes(shift) + value)
-        found.add(encoded[4 * ((shift + 2) // 3) : 4 * ((shift + len(value)) // 3)])
-        if not shift:
-            found |= {encoded, encoded.rstrip(b"=")}
+    for prefix, cut in ((b"", 0), (b":", 0), (b"\0:", 2)):
+        form = base64.b64encode(prefix + value)[cut:]
+        found |= {form, form.rstrip(b"=")}
     return found | {form.translate(URLSAFE) for form in found}
 
 
@@ -405,8 +407,9 @@ class Stream:
         Returns:
             All bytes but the last ``HOLD`` after the last newline, which no
             window or escape holds, all of them on ``final``, each run of
-            windows replaced by one ``MASK``; a run that reaches past them
-            goes on masked into the next bytes.
+            windows, widened to the whole UTF-8 characters it cuts,
+            replaced by one ``MASK``; a run that reaches past them goes on
+            masked into the next bytes.
         """
         buffer = self.pending + data
         held = max(len(buffer) - HOLD, buffer.rfind(b"\n") + 1, 0)
@@ -418,7 +421,12 @@ class Stream:
             if view[at : at + MASK_MIN] in self.masks
         )
         spans = [[0, self.carry]] if self.carry else []
-        for start, end in found:
+        for low, high in found:
+            start, end = low, high
+            while start and buffer[start] & 0xC0 == 0x80:
+                start -= 1
+            while end < len(buffer) and buffer[end] & 0xC0 == 0x80:
+                end += 1
             if spans and start <= spans[-1][1]:
                 spans[-1][1] = max(spans[-1][1], end)
             else:
@@ -470,3 +478,18 @@ def relay(source, target, masks: frozenset[bytes]) -> None:
                 broken.append(error)
 
     pump(partial(source.read1, CHUNK), write, Stream(masks))
+
+
+def named(path: str, masks: frozenset[bytes]) -> bool:
+    """Tell whether a path holds a window in any of its views.
+
+    Args:
+        path: the path of a staged report below the staged dir.
+        masks: the windows to mask.
+
+    Returns:
+        Whether publishing it would copy a piece of a value into a name.
+    """
+    stream = Stream(masks)
+    stream.feed(os.fsencode(path), final=True)
+    return stream.masked
