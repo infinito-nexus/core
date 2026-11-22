@@ -12,7 +12,7 @@ const env = {
 };
 
 const SIGN_IN_FORM = "form:has(input[type=password])";
-const SHELL = "img[alt='LiteLLM Brand']";
+const SHELL = "aside[data-slot='sidebar'] a[aria-label='LiteLLM home'] img:visible";
 
 /**
  * Args:
