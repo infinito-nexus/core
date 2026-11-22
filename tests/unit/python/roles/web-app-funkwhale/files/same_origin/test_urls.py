@@ -4,9 +4,9 @@ import importlib.util
 import re
 import sys
 import unittest
+import unittest.mock
 import urllib.parse
 from types import ModuleType, SimpleNamespace
-from unittest import mock
 
 from utils.cache.files import read_text
 
@@ -33,6 +33,13 @@ class _HttpResponse(dict):
     def __init__(self, content_type: str) -> None:
         super().__init__()
         self.content_type = content_type
+
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, _HttpResponse)
+            and dict.__eq__(self, other)
+            and self.content_type == other.content_type
+        )
 
 
 def funkwhale_get_file_path(audio_file) -> bytes:
@@ -91,13 +98,13 @@ def nginx_rewrite(body: str, uri: str) -> str:
     return re.sub(pattern, re.sub(r"\$(\d)", r"\\\1", replacement), uri)
 
 
-def load() -> tuple[ModuleType, mock.MagicMock, ModuleType]:
+def load() -> tuple[ModuleType, unittest.mock.MagicMock, ModuleType]:
     """
     Returns:
         same_origin_urls imported over stand-ins for django and funkwhale, the default storage it signs with and the same_origin_storage it checks names with.
     """
     storage_module = load_storage()
-    storage = mock.MagicMock()
+    storage = unittest.mock.MagicMock()
     storage.signed_url.return_value = SIGNED
     files_storage = ModuleType("django.core.files.storage")
     files_storage.default_storage = storage
@@ -131,7 +138,7 @@ def load() -> tuple[ModuleType, mock.MagicMock, ModuleType]:
         "funkwhale_api.music.views": music_views,
         "same_origin_storage": storage_module,
     }
-    with mock.patch.dict(sys.modules, modules):
+    with unittest.mock.patch.dict(sys.modules, modules):
         spec = importlib.util.spec_from_file_location("same_origin_urls", MODULE_PATH)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

@@ -13,7 +13,7 @@ funkwhale:
   # nocheck: default-placement-manager  embedded typesense index; node-local in swarm
   placement: manager
   image: funkwhale/front
-  version: 2.0.13
+  version: 2.0.17
   min_storage: 224MB
   ports:
     internal:
@@ -43,7 +43,7 @@ api:
   name: funkwhale-api
   image: funkwhale/api
   ca_client: true
-  version: 2.0.13
+  version: 2.0.17
   min_storage: 588MB
   ports:
     internal:
@@ -73,6 +73,11 @@ typesense:
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "30.2"
+        until: 2026-11-30
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"

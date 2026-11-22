@@ -87,6 +87,11 @@ MATRIX_MDAD_DAEMON_JSON:
   log-opts:
     max-size: "10m"
     max-file: "3"
+  default-ulimits:
+    nofile:
+      Name: nofile
+      Soft: 1048576
+      Hard: 1048576
 
 MATRIX_TELEGRAM_USABLE: >-
   {{ (lookup('config', application_id, 'secrets.credentials.mautrix_telgegram_bridge_api_id', '') | string | trim | length > 0)
@@ -131,6 +136,7 @@ MATRIX_ADDON_BAIBOT_PASSWORD: "{{ lookup('config', application_id, 'addons.baibo
 MATRIX_ADDON_BAIBOT_AGENT_ID: "{{ lookup('config', application_id, 'addons.baibot.config.agent_id') }}"
 MATRIX_ADDON_SYNAPSE_USAGE_EXPORTER_ENABLED: "{{ (lookup('config', application_id, 'addons.synapse-usage-exporter.enabled') | bool) and (HOST_ARCHITECTURE_BY_KERNEL[hostvars[STACK_HOST].ansible_facts['architecture']]
   in lookup('config', application_id, 'addons.synapse-usage-exporter.architectures')) }}"
+MATRIX_ADDON_SYNAPSE_USAGE_EXPORTER_NOFILE: "{{ lookup('config', application_id, 'addons.synapse-usage-exporter.config.nofile') }}"
 MATRIX_ADDON_MAUTRIX_META_VERSION: "{{ lookup('config', application_id, 'addons.mautrix-meta.version') }}"
 
 MATRIX_ADDON_HOOKSHOT_GITLAB_ENABLED: "{{ lookup('config', application_id, 'addons.hookshot-gitlab.enabled') | bool }}"

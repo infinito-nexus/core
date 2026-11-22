@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING
 from utils.paths import read_group_path
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 ENTRIES: tuple[tuple[str, tuple[str, ...], str], ...] = (
     (

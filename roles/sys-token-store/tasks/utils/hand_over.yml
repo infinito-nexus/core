@@ -1,0 +1,14 @@
+---
+- name: "🔄 Hand the written store to the lookups of the rest of the play"
+  ansible.builtin.set_fact:
+    sys_token_store_users: "{{ sys_token_store_users_merged }}"
+  delegate_to: "{{ sys_token_store_reader }}"
+  delegate_facts: true
+  loop: "{{ ansible_play_hosts }}"
+  loop_control:
+    loop_var: sys_token_store_reader
+  when: hostvars[sys_token_store_reader].STACK_HOST == STACK_HOST
+
+- name: "📌 Keep the writer's own merge over a peer writer's hand-over"
+  ansible.builtin.set_fact:
+    sys_token_store_users: "{{ sys_token_store_users_merged }}"

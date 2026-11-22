@@ -68,12 +68,15 @@ def write(path: Path, text: str) -> Path:
 def role_repo(root: Path, application_id: str = ROLE) -> Path:
     """A repository whose tag ``v1.0.0`` holds the role and whose branch ``feature`` moved on.
 
+    The repository root declares ``version = "1.0.0"`` in ``Cargo.toml``.
+
     Args:
         root: directory the repository is created in.
         application_id: the ``vars/main.yml`` application_id of the role.
     """
     repo = root / "repo"
     write(repo / "README.md", "repository root\n")
+    write(repo / "Cargo.toml", '[package]\nname = "demo"\nversion = "1.0.0"\n')
     write(repo / ROLE_PATH / ROLE_FILE_META_MAIN, "galaxy_info: {}\n")
     write(repo / ROLE_PATH / ROLE_FILE_VARS_MAIN, f"application_id: {application_id}\n")
     write(repo / ROLE_PATH / ROLE_FILE_TASKS_MAIN, "release: v1\n")

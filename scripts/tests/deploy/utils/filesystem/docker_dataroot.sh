@@ -67,11 +67,11 @@ verdict() {
 
 # Param: $1 loop device backed by the image
 mount_image() {
-	if [ "${FSTYPE}" = ext4 ]; then
-		mount -t ext4 -o discard "$1" "${MOUNT}"
-	else
-		mount -t "${FSTYPE}" "$1" "${MOUNT}"
-	fi
+	case "${FSTYPE}" in
+	ext4) mount -t ext4 -o discard "$1" "${MOUNT}" ;;
+	btrfs) mount -t btrfs -o discard=async "$1" "${MOUNT}" ;;
+	*) mount -t "${FSTYPE}" "$1" "${MOUNT}" ;;
+	esac
 }
 
 # Param: $1 loop device to detach
@@ -103,7 +103,7 @@ claim_loop() {
 		if [ -n "${candidate}" ] && [ ! -b "${candidate}" ]; then
 			mknod "${candidate}" b 7 "${candidate#/dev/loop}" 2>/dev/null || candidate=""
 		fi
-		if attached="$(losetup --find --show "${IMAGE}" 2>/dev/null)"; then
+		if attached="$(losetup --direct-io=on --find --show "${IMAGE}" 2>/dev/null)"; then
 			LOOP="${attached}"
 		fi
 	done

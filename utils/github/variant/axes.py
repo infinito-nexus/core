@@ -1,6 +1,6 @@
 """Assign the deploy axes to CI matrix rows.
 
-Every row of the CI matrix is one ``role#variant`` selection. Six axes are
+Every row of the CI matrix is one ``role#variant`` selection. Seven axes are
 decided here, all as a deterministic rotation over the row's position in the
 *global* discovery order and the sweep number -- never at random, so a red job
 can be reproduced by re-running the same sweep, and so consecutive sweeps
@@ -41,6 +41,10 @@ cover the combinations instead of sampling them:
   architecture forever. A role may narrow the pool to one value in
   ``meta/services.yml`` when only that hardware can run it.
 
+* **engine** -- which vulnerability engine the row's deploy-time scan runs.
+  It is the odometer digit above distro and filesystem, so it never moves in
+  lockstep with either of them.
+
 A row's position is its index in the uncapped discovery order, not its index
 inside a chunk, so slicing the list into chunks never changes what a row is
 assigned. A priority row, which deploys several mode/network combinations at
@@ -62,16 +66,22 @@ from utils.github.variant.label import (
 )
 from utils.github.variant.network import (
     NETWORK_DEPLOY_MODES,
-    combinations,
     disabled_services,
     network_states,
     row_pulls_tor,
     row_states,
 )
-from utils.github.variant.pins import check_pins, row_architectures
+from utils.github.variant.pins import (
+    check_pins,
+    draw_pair,
+    priority_picks,
+    row_architectures,
+    row_pairs,
+)
 from utils.github.variant.pools import (
     ARCHITECTURES,
     DISTROS,
+    ENGINES,
     FILESYSTEMS,
     MODES,
     rotate,
@@ -83,7 +93,6 @@ from utils.github.variant.topology import (
 )
 from utils.github.variant.vpn import (
     VPN_DEPLOY_MODES,
-    pinned_vpn_states,
     rotated_vpn,
 )
 from utils.networks.reachability import NODE_MODES
@@ -102,8 +111,10 @@ __all__ = [
     "check_pins",
     "parse_label",
     "pick_mode",
+    "priority_picks",
     "resolve_sweep",
     "row_architectures",
+    "row_pairs",
     "sort_key",
 ]
 
@@ -203,12 +214,13 @@ def assign(
 
     Returns:
         one entry per (row, mode, network) the run deploys, each stamped with
-        the distro and filesystem its rotation drew, carrying the row's
+        the distro, filesystem and vulnerability engine its rotation drew,
+        carrying the row's
         discovery ``id`` and the ``covered`` id of the earlier row that already
         embeds it (``0``: nothing does), so a reader of the plan can tell a
         redundant row from a unique one without a second query. A regular row
         yields exactly one -- the rotation picks its combination for this
-        sweep. A priority row yields every combination :func:`combinations`
+        sweep. A priority row yields every combination :func:`priority_picks`
         allows, so the roles a run is told to prove are proven everywhere at
         once rather than sampled over several sweeps. ``network`` is the node
         ``NETWORK_MODE`` the deploy runs with, ``vpn`` whether a swarm row
@@ -237,6 +249,7 @@ def assign(
         offered_architectures = row_architectures(
             app, architectures, row.get("services", ())
         )
+        pairs = row_pairs(app, distros, offered_architectures, row.get("services", ()))
         check_pins(
             app,
             variant_csv,
@@ -254,16 +267,18 @@ def assign(
             distros=distros,
             filesystems=filesystems,
             architectures=offered_architectures,
+            pairs=pairs,
         )
         if priority:
-            picked = [
-                (mode, state, meshed)
-                for mode, state in combinations(
-                    offered, states=states, network_input=network_input
-                )
-                if pin_mode in (None, mode) and pin_network in (None, state)
-                for meshed in pinned_vpn_states(mode, pin=pin_vpn, vpn_mode=vpn_mode)
-            ]
+            picked = priority_picks(
+                offered,
+                pin_mode=pin_mode,
+                pin_network=pin_network,
+                pin_vpn=pin_vpn,
+                states=states,
+                network_input=network_input,
+                vpn_mode=vpn_mode,
+            )
         else:
             modes = _offering(
                 offered, pin_network, states=states, network_input=network_input
@@ -308,12 +323,20 @@ def assign(
             )
         ]
         for step, (mode, state, meshed, topology) in enumerate(staged):
-            distro = pin_distro or rotate(distros, position + step, sweep)
+            distro, architecture = draw_pair(
+                pairs,
+                distros,
+                offered_architectures,
+                pin_distro=pin_distro,
+                pin_architecture=pin_architecture,
+                index=position + step,
+                sweep=sweep,
+            )
             filesystem = pin_filesystem or rotate(
                 filesystems, (position + step) // len(distros), sweep
             )
-            architecture = pin_architecture or rotate(
-                offered_architectures, position + step, sweep
+            engine = rotate(
+                ENGINES, (position + step) // (len(distros) * len(filesystems)), sweep
             )
             glyphs = (
                 to_emoji(mode)
@@ -327,6 +350,7 @@ def assign(
                 + to_emoji(filesystem)
                 + to_emoji(architecture)
                 + (to_emoji(topology) if topology else "")
+                + to_emoji(engine)
             )
             entries.append(
                 {
@@ -340,6 +364,7 @@ def assign(
                     "filesystem": filesystem,
                     "architecture": architecture,
                     "runner": runner_of(architecture),
+                    "engine": engine,
                     "enforce_filesystem": "true"
                     if pin_filesystem is not None or len(filesystems) == 1
                     else "false",

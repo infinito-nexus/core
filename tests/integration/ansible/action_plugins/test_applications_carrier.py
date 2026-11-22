@@ -8,8 +8,9 @@ readers consult, and every lookup renders the payload again.
 
 These cases run real Ansible with fake ``applications`` and ``users`` lookups
 in front of the real ``applications_carrier`` action: the carrier must be
-visible to a later task's worker with injection on and off and never sit in
-``ansible_facts``. The hazard case parks a carrier the old way, as a fact, so
+visible to a later task's worker with injection on and off, never sit in
+``ansible_facts``, and reach another host through ``hostvars``, the path the
+mail provider view reads. The hazard case parks a carrier the old way, as a fact, so
 the reader guard is shown to turn the invisible carrier into a failed task.
 """
 
@@ -69,7 +70,7 @@ class LookupModule(LookupBase):
             ) is not None,
             "fact_cache": sorted(
                 name for name in ({APPLICATIONS_RENDERED_FACT!r}, {USERS_RENDERED_FACT!r})
-                if name in facts
+                if facts.get(name) is not None
             ),
         }}]
 """
@@ -136,13 +137,56 @@ HAZARD_PLAY = """---
 """
 
 
-def _run(workdir: Path, play: str, inject: bool) -> tuple[int, str, dict | None]:
+RECOVERY_PLAY = """---
+- name: Clear a fact-parked carrier and park it again
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Park the carrier in the fact cache
+      fact_carrier: {}
+
+    - name: Clear it, as the reader's recovery hint says
+      applications_carrier:
+        clear: true
+
+    - name: Park the carrier again
+      applications_carrier: {}
+
+    - name: Read the parked carrier
+      ansible.builtin.copy:
+        dest: "{{ probe_out }}"
+        content: "{{ lookup('carrier_probe') | to_json }}"
+        mode: "0644"
+"""
+
+
+CROSS_HOST_PLAY = f"""---
+- name: Park the carrier on two hosts and read the other host's through hostvars
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Park the carrier
+      applications_carrier: {{}}
+
+    - name: Read node2's carrier on node1, the way the provider view does
+      ansible.builtin.copy:
+        dest: "{{{{ probe_out }}}}"
+        content: "{{{{ hostvars['node2'][{APPLICATIONS_RENDERED_FACT!r}].key | to_json }}}}"
+        mode: "0644"
+      when: inventory_hostname == 'node1'
+"""
+
+
+def _run(
+    workdir: Path, play: str, inject: bool, inventory: str
+) -> tuple[int, str, dict | list | None]:
     """Run *play* once with fact injection set to *inject*.
 
     Args:
         workdir: an empty directory to build the plugins and the play in.
         play: the playbook text.
         inject: the value of ``ANSIBLE_INJECT_FACT_VARS``.
+        inventory: the comma-separated host list passed to ``-i``.
 
     Returns:
         ``(exit code, combined output, probe report or None)``.
@@ -175,7 +219,7 @@ def _run(workdir: Path, play: str, inject: bool) -> tuple[int, str, dict | None]
         [
             "ansible-playbook",
             "-i",
-            "localhost,",
+            inventory,
             "-c",
             "local",
             str(workdir / "play.yml"),
@@ -194,14 +238,25 @@ def _run(workdir: Path, play: str, inject: bool) -> tuple[int, str, dict | None]
 
 @unittest.skipUnless(shutil.which("ansible-playbook"), "ansible-playbook not found")
 class TestApplicationsCarrierReachesLaterWorkers(unittest.TestCase):
-    def _play(self, play: str, inject: bool) -> tuple[int, str, dict | None]:
+    def _play(
+        self, play: str, inject: bool, inventory: str
+    ) -> tuple[int, str, dict | list | None]:
         with tempfile.TemporaryDirectory() as tmp:
-            return _run(Path(tmp), play, inject)
+            return _run(Path(tmp), play, inject, inventory)
+
+    def test_another_host_reads_the_carrier_through_hostvars(self):
+        for inject in (True, False):
+            with self.subTest(inject=inject):
+                code, output, report = self._play(
+                    CROSS_HOST_PLAY, inject, inventory="node1,node2,"
+                )
+                self.assertEqual(code, 0, output)
+                self.assertEqual(report, APPLICATIONS_KEY)
 
     def test_the_carrier_reaches_later_workers_outside_the_fact_cache(self):
         for inject in (True, False):
             with self.subTest(inject=inject):
-                code, output, report = self._play(CARRIER_PLAY, inject)
+                code, output, report = self._play(CARRIER_PLAY, inject, "localhost,")
                 self.assertEqual(code, 0, output)
                 self.assertNotIn("template error", output)
                 self.assertEqual(
@@ -214,7 +269,7 @@ class TestApplicationsCarrierReachesLaterWorkers(unittest.TestCase):
                 )
 
     def test_a_fact_parked_carrier_is_visible_only_while_facts_are_injected(self):
-        code, output, report = self._play(HAZARD_PLAY, True)
+        code, output, report = self._play(HAZARD_PLAY, True, "localhost,")
         self.assertEqual(code, 0, output)
         self.assertEqual(
             report,
@@ -228,10 +283,19 @@ class TestApplicationsCarrierReachesLaterWorkers(unittest.TestCase):
         )
 
     def test_the_reader_fails_on_a_fact_parked_carrier_without_injection(self):
-        code, output, report = self._play(HAZARD_PLAY, False)
+        code, output, report = self._play(HAZARD_PLAY, False, "localhost,")
         self.assertNotEqual(code, 0, output)
         self.assertIsNone(report)
         self.assertIn("not visible as a variable", output)
+
+    def test_clear_removes_a_fact_parked_carrier_from_the_fact_cache(self):
+        for inject in (True, False):
+            with self.subTest(inject=inject):
+                code, output, report = self._play(RECOVERY_PLAY, inject, "localhost,")
+                self.assertEqual(code, 0, output)
+                self.assertEqual(
+                    report, {"applications": True, "users": True, "fact_cache": []}
+                )
 
 
 if __name__ == "__main__":

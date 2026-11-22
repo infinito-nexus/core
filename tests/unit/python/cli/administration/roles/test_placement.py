@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import os
 import re
 import shutil
+import stat
 import tempfile
 import threading
 import unittest
+import unittest.mock
 from pathlib import Path
-from unittest import mock
 
 from cli.administration.roles import placement
 from cli.administration.roles.marker import MARKER_FILE, is_placed
@@ -401,7 +403,7 @@ class TestPullCommit(_PullFixture, unittest.TestCase):
             return rmtree(path, *args, **kwargs)
 
         with (
-            mock.patch.object(placement.shutil, "rmtree", interrupted),
+            unittest.mock.patch.object(placement.shutil, "rmtree", interrupted),
             self.assertRaises(KeyboardInterrupt),
         ):
             self.pull({ROLE: declaration(str(self.repo))})
@@ -418,7 +420,9 @@ class TestPullCommit(_PullFixture, unittest.TestCase):
             return stage(group, source, target)
 
         with (
-            mock.patch.object(placement, "stage", stage_beside_a_hand_placed_copy),
+            unittest.mock.patch.object(
+                placement, "stage", stage_beside_a_hand_placed_copy
+            ),
             self.assertRaisesRegex(
                 CustomRoleError, f"{ROLE}: .* was not placed by a pull"
             ),
@@ -441,7 +445,7 @@ class TestPullCommit(_PullFixture, unittest.TestCase):
             events.append(("clean still waiting", cleaner.is_alive()))
             return stage(group, source, target)
 
-        with mock.patch.object(placement, "stage", stage_while_a_clean_starts):
+        with unittest.mock.patch.object(placement, "stage", stage_while_a_clean_starts):
             self.pull({ROLE: declaration(str(self.repo))})
         cleaner.join(timeout=30)
         self.assertEqual(("clean still waiting", True), events[0])
@@ -483,6 +487,12 @@ class TestClean(_PullFixture, unittest.TestCase):
         )
         self.assertTrue((target / "keep.yml").is_file())
         self.assertEqual([], self.leftovers())
+
+    def test_the_lock_is_open_to_its_owner_only_whatever_the_umask(self):
+        self.addCleanup(os.umask, os.umask(0))
+        clean(self.roles, self.work)
+        mode = (self.work / placement.LOCK_FILE).stat().st_mode
+        self.assertEqual(0o600, stat.S_IMODE(mode))
 
 
 if __name__ == "__main__":

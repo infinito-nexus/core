@@ -3,7 +3,8 @@ set -euo pipefail
 
 # Usage: archive_playwright_reports.sh <reports_dir> <variant_index> <async_enabled>
 #
-# Move playwright-junit.xml / playwright-report/ / test-results/ from
+# Move playwright-junit.xml / playwright-report/ / test-results/ and the
+# parallel scheduler's run-parallel/ (output and result of the run) from
 # <reports_dir> into <reports_dir>/variant-N/{sync|async}/ so subsequent
 # invocations of the test-e2e-playwright role cannot overwrite them.
 # Idempotent: an existing slot is replaced rather than refused.
@@ -26,7 +27,7 @@ subdir="variant-${variant_index}/${pass}"
 
 cd "$reports_dir"
 mkdir -p "$subdir"
-for item in playwright-junit.xml playwright-report test-results; do
+for item in playwright-junit.xml playwright-report test-results run-parallel; do
 	if [ -e "$item" ]; then
 		rm -rf "${subdir:?}/$item"
 		mv "$item" "$subdir/"

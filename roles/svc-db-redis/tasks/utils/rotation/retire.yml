@@ -1,0 +1,32 @@
+---
+- name: "🔑 REDIS | Retire the passwords the rotated REDIS_PASSWORD replaced"
+  ansible.builtin.shell: >
+    {{ REDIS_EXEC_SHELL }}
+    'printf "%s" ">$REDIS_PASSWORD" | {{ REDIS_CLI }} -x ACL SETUSER default resetpass'
+  register: redis_acl_retired
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  changed_when: true
+  failed_when: redis_acl_retired.rc != 0 or redis_acl_retired.stdout | trim != 'OK'
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧹 REDIS | Start the refused-authentication log at the retire"
+  ansible.builtin.shell: >
+    {{ REDIS_EXEC_SHELL }}
+    '{{ REDIS_CLI }} ACL LOG RESET'
+  register: redis_acl_log_reset
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  changed_when: false
+  failed_when: redis_acl_log_reset.rc != 0 or redis_acl_log_reset.stdout | trim != 'OK'
+
+# Exception: removing a password leaves the connections it authenticated open, so a consumer still on the old secret would pass every later check without authenticating again.
+- name: "🔌 REDIS | Make every client authenticate again with the current password"
+  ansible.builtin.shell: >
+    {{ REDIS_EXEC_SHELL }}
+    '{{ REDIS_CLI }} CLIENT KILL USER default'
+  register: redis_clients_killed
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  changed_when: redis_clients_killed.stdout | trim != '0'
+  failed_when: redis_clients_killed.rc != 0 or redis_clients_killed.stdout | trim is not match('^[0-9]+$')

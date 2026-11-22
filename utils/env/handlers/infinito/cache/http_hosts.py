@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 from utils.cache.hosts import HTTP_PORT, declarations
 
 if TYPE_CHECKING:
-    from utils.env.builder import BuildContext, EnvBuilder
+    from utils.env.context import BuildContext, EnvBuilder
 
 KEY = "INFINITO_CACHE_HTTP_HOSTS"
 COMMENT = "Hostnames the cache frontend serves over plain HTTP; safe to hijack in any image build."

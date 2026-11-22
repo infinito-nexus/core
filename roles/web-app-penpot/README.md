@@ -103,6 +103,11 @@ Procedure); revisit at PR review:
   the framework's CA-override re-serialises the command.
 - **`disable-onboarding`** is in `PENPOT_FLAGS` so users land directly on the
   dashboard (sovereign install; also keeps the project/asset flows testable).
+- **`disable-admin-console`** is in `PENPOT_FLAGS` because Penpot 2.19 enables
+  the Admin Console by default and then expects a `penpot-admin-console`
+  service plus `PENPOT_ADMIN_CONSOLE_URI`, which this role does not deploy.
+  Without the flag `manage.py create-profile` fails with `admin console is not
+  configured`.
 
 ## Testing
 

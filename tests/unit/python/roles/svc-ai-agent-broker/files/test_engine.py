@@ -111,6 +111,7 @@ class _ConnectEngine(engine.Engine):
     """Engine whose connect answers 404 for the first ``misses`` attempts."""
 
     def __init__(self, misses):
+        super().__init__("/nonexistent/engine.sock", timeout=5)
         self.misses = misses
         self.attempts = 0
         self.slept = 0.0
@@ -131,6 +132,12 @@ class TestConnect(unittest.TestCase):
 
     def tearDown(self):
         engine.time.sleep = self.real_sleep
+
+    def test_the_fake_keeps_the_engine_state_its_base_sets(self):
+        fake = _ConnectEngine(misses=0)
+        self.assertEqual(
+            (fake.socket_path, fake.timeout), ("/nonexistent/engine.sock", 5)
+        )
 
     def test_a_swarm_overlay_is_joined_once_its_allocator_realizes_it(self):
         fake = _ConnectEngine(misses=3)

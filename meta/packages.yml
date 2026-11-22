@@ -28,7 +28,10 @@
 
 blender:
   Archlinux:
-    - blender
+    names:
+      - blender
+    architectures:
+      - amd64
   Debian:
     - blender
   centos:
@@ -37,6 +40,8 @@ blender:
       - org.blender.Blender
     flatpak:
       command: blender
+    architectures:
+      - amd64
   fedora:
     - blender
 

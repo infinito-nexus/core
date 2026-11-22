@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import json
+import shutil
 import subprocess
+import tempfile
 import unittest
 import unittest.mock as mock
+from pathlib import Path
 
 from utils.install import npm as npm_mod
 
@@ -96,6 +100,32 @@ class TestNpmInstallLocalInRepo(unittest.TestCase):
         ):
             npm_mod.npm_install_local_in_repo("/repo")
         self.assertEqual(run.call_args.args[0][:2], ["npm", "install"])
+
+
+class TestNpmLocalMissing(unittest.TestCase):
+    def _repo(self, installed: list[str]) -> str:
+        root = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, root)
+        (root / "package.json").write_text(
+            json.dumps({"devDependencies": {"@scope/added": "^1", "plain": "^2"}}),
+            encoding="utf-8",
+        )
+        for name in installed:
+            (root / "node_modules" / name).mkdir(parents=True)
+            (root / "node_modules" / name / "package.json").write_text(
+                "{}", encoding="utf-8"
+            )
+        return str(root)
+
+    def test_a_dependency_added_after_the_install_counts_as_missing(self) -> None:
+        self.assertEqual(
+            npm_mod.npm_local_missing(self._repo(["plain"])), ["@scope/added"]
+        )
+
+    def test_a_complete_install_misses_nothing(self) -> None:
+        self.assertEqual(
+            npm_mod.npm_local_missing(self._repo(["plain", "@scope/added"])), []
+        )
 
 
 if __name__ == "__main__":

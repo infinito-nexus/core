@@ -34,7 +34,7 @@ Key settings in `meta/services.yml` and `meta/server.yml`:
 | `services.sso.enabled` | `true` | Automate Keycloak OIDC setup |
 | `services.postgres.enabled` | `true` | Enable PostgreSQL for Fider |
 | `services.postgres.shared` | `true` | Reuse the shared PostgreSQL provider |
-| `services.fider.version` | `stable` | Docker image tag |
+| `services.fider.version` | `v0.39.0` | Docker image tag |
 | `domains.canonical` | `fider.{{ DOMAIN_PRIMARY }}` | Public domain |
 | `server.status_codes.default` | `[200, 301, 302, 405]` | Expected HTTP codes for health check (405 because Fider returns 405 on HEAD requests to `/`) |
 

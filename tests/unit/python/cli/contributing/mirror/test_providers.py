@@ -1,10 +1,15 @@
 from __future__ import annotations
 
 import unittest
+from itertools import chain
 from unittest.mock import patch
 
-from cli.contributing.mirror.model import ImageRef
 from cli.contributing.mirror.providers import GHCRProvider
+from utils import PROJECT_ROOT
+from utils.docker.image.discovery import ImageRef, iter_role_images, iter_runner_images
+from utils.docker.image.pin import is_digest
+
+from . import DIGEST_REFERENCE, NODE, NODE_MIRROR
 
 
 class TestGHCRProviderImageBase(unittest.TestCase):
@@ -104,6 +109,45 @@ class TestGHCRProviderIsStale(unittest.TestCase):
     def test_indeterminate_mirror_counts_as_current(self) -> None:
         self.assertFalse(
             self._is_stale({self.UPSTREAM: "sha256:new", self.MIRROR: None})
+        )
+
+
+class TestGHCRProviderImageRef(unittest.TestCase):
+    def setUp(self) -> None:
+        self.provider = GHCRProvider("acme", "myrepo")
+
+    def test_every_tag_pin_of_the_repository_keeps_its_mirror_reference(self) -> None:
+        refs = [
+            ref
+            for ref in chain(
+                iter_role_images(PROJECT_ROOT), iter_runner_images(PROJECT_ROOT)
+            )
+            if not is_digest(ref.version)
+        ]
+        self.assertGreater(len(refs), 100)
+        for ref in refs:
+            with self.subTest(ref=ref.source):
+                self.assertEqual(
+                    self.provider.image_ref(ref),
+                    f"{self.provider.image_base(ref)}:{ref.version}",
+                )
+
+    def test_a_digest_pin_is_copied_to_its_digest_reference(self) -> None:
+        with patch("cli.contributing.mirror.providers.subprocess.run") as run:
+            self.provider.mirror(NODE)
+
+        source, dest = run.call_args.args[0][-2:]
+        self.assertEqual(source, f"docker://{NODE.source}")
+        self.assertEqual(dest, f"docker://{NODE_MIRROR}")
+        self.assertRegex(dest.removeprefix("docker://"), DIGEST_REFERENCE)
+
+    def test_a_digest_pin_is_probed_at_its_digest_reference(self) -> None:
+        with patch("cli.contributing.mirror.providers.subprocess.run") as run:
+            run.return_value.returncode = 0
+            self.assertTrue(self.provider.tag_exists(NODE))
+
+        self.assertEqual(
+            run.call_args.args[0], ["skopeo", "inspect", f"docker://{NODE_MIRROR}"]
         )
 
 

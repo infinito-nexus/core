@@ -10,12 +10,15 @@ Every role-scoped updater (`docker`, `source`, `pip`, `repository`) and the addo
 
 `python -m cli.contributing.update.repository` bumps every `ref:` that sits next to a `repository:` in `roles/*/meta/services.yml` or `roles/*/meta/addons/*.yml`, at any depth, an addon's `config` included:
 
-| `ref:`                 | Moves to                                    | Reads                               |
-| ---------------------- | ------------------------------------------- | ----------------------------------- |
-| semver, e.g. `v0.8.5`  | the latest tag of the same depth and flavor | `git ls-remote --tags <repository>` |
-| full 40-hex commit SHA | the tip of the default branch               | `git ls-remote <repository> HEAD`   |
+| `ref:`                 | Moves to                                    | Reads                                        |
+| ---------------------- | ------------------------------------------- | -------------------------------------------- |
+| semver, e.g. `v0.8.5`  | the latest tag of the same depth and flavor | `git ls-remote --tags <repository>`          |
+| full 40-hex commit SHA | the newest release tag that contains it     | `git ls-remote --tags`, treeless `git fetch` |
+| same, no such release  | the tip of the default branch               | `git ls-remote <repository> HEAD`            |
 
-A branch name and a short SHA stay as they are. `# nocheck: repository-version` on the line above `ref:` freezes a pin. Each repository is queried once per run and lookup, and a failed query leaves its pins untouched. The `update-repository-refs` job of `.github/workflows/cron-update.yml` opens one PR per changed role, and `tests/external/update/repository/` warns about pending bumps.
+A branch name and a short SHA stay as they are. `# nocheck: repository-version` on the line above `ref:` freezes a pin. Each repository is queried once per run and lookup, and a failed query leaves its pins untouched. The `update-repository-refs` job of `.github/workflows/cron-update.yml` opens one PR per changed role, and `tests/external/update/repository/` warns about pending bumps and fails on a commit SHA that a release tag already contains. A pin newer than the newest release keeps following the tip, so no pin moves back to an older release.
+
+Every update PR carries the label `⬆️ update` and one of `🔴 major`, `🟡 minor` or `🟢 patch`: the highest step among its changed versions, read by [level.py](../../../utils/update/level.py). A change that is no number step (a commit SHA, a SHA moving to a tag) counts as `🔴 major`.
 
 ## Declared version sources
 
@@ -48,8 +51,15 @@ it. Types:
 on Docker Hub), `strip: true` removes it again so a pin without the upstream's
 `v` stays without it.
 
+A pin whose asset is fetched by digest names its companion checksum beside the
+type (`checksum_key`, `checksum_url`), see
+[checksum.py](../../../utils/update/checksum.py).
+
 A `repository` + `ref` pin that declares a source with `key: ref` is bumped
-from that source alone, the repository updater skips it.
+from that source alone, the repository updater skips it. A bump to a name the
+repository lists as neither branch nor tag
+(`git ls-remote <repository> refs/heads/<ref> refs/tags/<ref>`), or one that
+lookup cannot confirm, is withheld and reported on stderr.
 
 An `http_regex` source with a `template` fills it with the pattern's named
 groups instead of taking the first group, for a tag built from several upstream
@@ -60,7 +70,7 @@ freeswitch:
   version: "v1.10.12-v3.0.23"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: 'repos/bigbluebutton (?P<bbb>v[0-9.]+)\nrepos/freeswitch (?P<freeswitch>v[0-9.]+)'
     template: "{freeswitch}-{bbb}"
 ```

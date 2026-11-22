@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import stat
 import tempfile
 import unittest
 from pathlib import Path
@@ -15,11 +16,13 @@ from cli.administration.roles.marker import (
     provenance,
     write_marker,
 )
+from utils.roles.custom import marker_fields
 
 from ._fixtures import write
 
 ORIGIN = "https://example.invalid/w.git ansible/roles/web-app-cst-a @ v1 (commit abc)"
 PLACED = "web-app-cst-a"
+VERSION = "1.4.2"
 
 
 class TestMarker(unittest.TestCase):
@@ -27,7 +30,10 @@ class TestMarker(unittest.TestCase):
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
         self.roles = Path(tmp.name) / "roles"
-        write(self.roles / PLACED / MARKER_FILE, marker_text(PLACED, PLACED, ORIGIN))
+        write(
+            self.roles / PLACED / MARKER_FILE,
+            marker_text(PLACED, PLACED, ORIGIN, VERSION),
+        )
         write(self.roles / "web-app-cst-hand" / "mine.yml", "mine: true\n")
         write(self.roles / "web-app-cst-forged" / MARKER_FILE, "something else\n")
         shutil.copytree(self.roles / PLACED, self.roles / "web-app-cst-copy")
@@ -37,7 +43,7 @@ class TestMarker(unittest.TestCase):
         )
         write(
             self.roles / "web-app-nextcloud" / MARKER_FILE,
-            marker_text("web-app-nextcloud", "web-app-nextcloud", ORIGIN),
+            marker_text("web-app-nextcloud", "web-app-nextcloud", ORIGIN, ""),
         )
         (self.roles / "web-app-cst-link").symlink_to(self.roles / PLACED)
 
@@ -63,6 +69,12 @@ class TestMarker(unittest.TestCase):
 
     def test_provenance_reads_back_what_the_pull_recorded(self):
         self.assertEqual(ORIGIN, provenance(self.roles / PLACED))
+
+    def test_the_version_the_pull_recorded_reads_back(self):
+        self.assertEqual(VERSION, marker_fields(self.roles / PLACED)["version"])
+
+    def test_a_marker_without_a_version_has_no_version_field(self):
+        self.assertNotIn("version", marker_fields(self.roles / "web-app-nextcloud"))
 
     def test_custom_entries_are_every_prefixed_entry(self):
         self.assertEqual(
@@ -90,14 +102,15 @@ class TestWriteMarker(unittest.TestCase):
         self.role.mkdir()
 
     def test_marker_names_the_directory_and_the_group(self):
-        write_marker(self.role, PLACED, ORIGIN)
+        write_marker(self.role, PLACED, ORIGIN, VERSION)
         self.assertTrue(is_placed(self.role))
         self.assertEqual(ORIGIN, provenance(self.role))
+        self.assertEqual(VERSION, marker_fields(self.role)["version"])
 
     def test_a_symbolic_link_under_the_marker_name_is_replaced_not_followed(self):
         victim = write(self.root / "victim.yml", "victim: true\n")
         (self.role / MARKER_FILE).symlink_to(victim)
-        write_marker(self.role, PLACED, ORIGIN)
+        write_marker(self.role, PLACED, ORIGIN, VERSION)
         text = victim.read_text(encoding="utf-8")  # nocheck: cache-read tempdir
         self.assertEqual("victim: true\n", text)
         self.assertFalse((self.role / MARKER_FILE).is_symlink())
@@ -105,8 +118,15 @@ class TestWriteMarker(unittest.TestCase):
 
     def test_a_directory_under_the_marker_name_is_replaced(self):
         write(self.role / MARKER_FILE / "nested.yml", "nested: true\n")
-        write_marker(self.role, PLACED, ORIGIN)
+        write_marker(self.role, PLACED, ORIGIN, VERSION)
         self.assertTrue((self.role / MARKER_FILE).is_file())
+        self.assertTrue(is_placed(self.role))
+
+    def test_the_marker_is_readable_by_its_owner_only_whatever_the_umask(self):
+        self.addCleanup(os.umask, os.umask(0))
+        write_marker(self.role, PLACED, ORIGIN, VERSION)
+        mode = (self.role / MARKER_FILE).stat().st_mode
+        self.assertEqual(0o600, stat.S_IMODE(mode))
         self.assertTrue(is_placed(self.role))
 
 

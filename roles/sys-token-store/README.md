@@ -100,6 +100,7 @@ Persists several tokens with one store write and at most one re-render of the us
 
 - Merges every entry into the store in list order, so a later entry for the same user and app wins
 - Writes the store file and re-renders the users SPOT once, and only when the merged store differs from the loaded one
+- Hands the merged store to every play host whose `STACK_HOST` holds the written file, so a swarm worker that loaded the store earlier resolves the new token in the same play
 
 ---
 

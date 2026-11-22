@@ -18,13 +18,13 @@ import unittest
 import unittest.mock as mock
 from pathlib import Path
 
-from utils.cache import _reset_cache_for_tests
 from utils.cache import applications as cache_apps
 from utils.cache.carrier import (
     APPLICATIONS_RENDERED_FACT,
     CarrierInvisibleError,
     merged_applications_cache_key,
 )
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import (
     ROLE_DIR_META_ADDONS,

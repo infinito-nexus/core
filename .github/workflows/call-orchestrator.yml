@@ -48,7 +48,7 @@ on:
         type: string
         default: "0"
       chunk_gate:
-        description: "🛑 Stop the chunk chain at its first failed chunk; batch 1 also waits for a running workspace test and stops when it failed. Off: keep deploying the remaining chunks."
+        description: "🛑 Stop the chunk chain at its first failed chunk; batch 1 also waits for a running workspace test and stops when it failed. On a pull request a failed row also cancels the rest of its chunk. Off: keep deploying every row and chunk."
         required: false
         type: boolean
         default: true
@@ -102,11 +102,6 @@ on:
         required: false
         type: string
         default: ""
-      trusted_pr:
-        description: "True when the PR carries the maintainer '🛡️ Trusted' label; skips the fork-prereq wait."
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   actions: read
@@ -130,7 +125,6 @@ jobs:
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       chunk_size: ${{ inputs.chunk_size }}
       fork_prereqs: true
-      trusted_pr: ${{ inputs.trusted_pr }}
       image_wait_attempts: ${{ inputs.image_wait_attempts }}
       image_wait_sleep_seconds: ${{ inputs.image_wait_sleep_seconds }}
     secrets: inherit
@@ -203,6 +197,7 @@ jobs:
     with:
       distros: ${{ inputs.distros }}
       index: "0"
+      chunk_gate: ${{ inputs.chunk_gate }}
       marker: ${{ needs.validate-selection.outputs.starred > 0 && ' ⭐' || '' }}
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
@@ -260,6 +255,7 @@ jobs:
     with:
       distros: ${{ inputs.distros }}
       index: "1"
+      chunk_gate: ${{ inputs.chunk_gate }}
       marker: ${{ needs.validate-selection.outputs.starred > 1 && ' ⭐' || '' }}
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
@@ -301,6 +297,7 @@ jobs:
     with:
       distros: ${{ inputs.distros }}
       index: "2"
+      chunk_gate: ${{ inputs.chunk_gate }}
       marker: ${{ needs.validate-selection.outputs.starred > 2 && ' ⭐' || '' }}
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
@@ -344,6 +341,7 @@ jobs:
     with:
       distros: ${{ inputs.distros }}
       index: "3"
+      chunk_gate: ${{ inputs.chunk_gate }}
       marker: ${{ needs.validate-selection.outputs.starred > 3 && ' ⭐' || '' }}
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
@@ -399,13 +397,13 @@ jobs:
     secrets: inherit
 
   report-main-failures:
-    name: 🐞 Report main role failures
+    name: 🐞 Report main role failures and runtime vulnerabilities
     needs:
       - test-deploy-chunk-0
       - test-deploy-chunk-1
       - test-deploy-chunk-2
       - test-deploy-chunk-3
-    if: ${{ always() && github.ref == 'refs/heads/main' && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
+    if: ${{ always() && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-26.04
     permissions:
       issues: write
@@ -414,9 +412,18 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.0
       - name: 🐞 Open or append issues for failed roles
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python3 -m cli.meta.ci.report_failures --run-id "${{ github.run_id }}" --repo "${{ github.repository }}"
+      - name: "📥 Load the GHCR mirror prefix SPOT into job env"
+        if: ${{ !cancelled() }}
+        run: grep '^INFINITO_GHCR_MIRROR_PREFIX=' default.env >> "$GITHUB_ENV"
+      - name: 🛡️ Open, update and close the runtime vulnerability issues
+        if: ${{ !cancelled() && (contains(needs.*.result, 'success') || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 -m cli.meta.ci.runtime_vulnerabilities --run-id "${{ github.run_id }}" --repo "${{ github.repository }}" --ref "${GITHUB_REF}" --dir "${RUNNER_TEMP}/rescue-diagnostics"
 
   done:
     name: 🏁 Finish pipeline

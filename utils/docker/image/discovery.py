@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from utils.cache.yaml import load_yaml_any as _load_yaml_cached
 from utils.docker.image.pin import pull_reference
+from utils.roles.custom import resolve_role_version
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.update.base import is_maintained
 
@@ -263,7 +264,9 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
                 continue
 
             image = str(service.get("image") or "").strip()
-            version = str(service.get("version") or "").strip()
+            version = resolve_role_version(
+                str(service.get("version") or "").strip(), roles_dir
+            )
 
             if not image or not version:
                 continue

@@ -103,7 +103,7 @@ test("integration integration_discourse: Nextcloud drives the User-API-Key conne
     // Discourse" control (#discourse-oauth) renders. onInput saves the url via
     // /apps/integration_discourse/config; the connect click then redirects to
     // <partner>/user-api-key/new with the provisioned client_id + public_key.
-    await urlField.click();
+    await shared.clickWithModalRetry(page, page, urlField);
     await urlField.fill(partnerBaseUrl);
     await urlField.blur();
 
@@ -119,7 +119,7 @@ test("integration integration_discourse: Nextcloud drives the User-API-Key conne
     const popupPromise = page.waitForEvent("popup", { timeout: resolveTimeout(15_000) }).catch(() => null);
     await Promise.all([
       page.waitForEvent("framenavigated", { timeout: resolveTimeout(60_000) }).catch(() => {}),
-      connect.click({ timeout: resolveTimeout(30_000) }),
+      shared.clickWithModalRetry(page, page, connect),
     ]);
 
     const popup = await popupPromise;

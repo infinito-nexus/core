@@ -8,7 +8,7 @@
 # stream PHP files to FPM. Data dir stays restrictive (0770 / 0660)
 # because only Moodle FPM (running as MOODLE_RUNTIME_USER) needs to
 # read/write user-uploaded content.
-#
+
 - name: "⏳ Wait until no container is still bootstrapping the shared code volume"
   shell: >
     container exec --user root {{ MOODLE_CONTAINER_ADDRESS }}

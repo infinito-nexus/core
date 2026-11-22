@@ -4,11 +4,15 @@ requests reach an application from (compose/swarm), SPOT.
 Trip-wire: the swarm oauth2 endpoint must forward ``$uri$is_args$args``, not
 ``$request_uri`` — during the ``error_page 401 = @oauth2_start`` jump the original
 ``$request_uri`` stays ``/`` and oauth2-proxy 403s instead of redirecting.
+
+Trip-wire: a compose ``request`` tail renders no URI part. With one, nginx
+forwards the normalized, percent-decoded URI (``%3A`` becomes ``:``), so a
+signed request such as Matrix federation (``/v2/invite/!room%3Aserver/...``)
+fails its signature check upstream.
 """
 
 from __future__ import annotations
 
-import re
 from typing import TYPE_CHECKING, Any
 
 from utils.networks.address import subnet_gateway
@@ -18,8 +22,6 @@ from utils.roles.entity.name import entity_name
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-_REGEX_OR_NAMED_LOCATION = re.compile(r"^[@~]")
-_LOCATION_MODIFIER = re.compile(r"^(?:=|\^~)\s*")
 _UPSTREAM_VAR = "proxy_pass_upstream"
 REVERSE_PROXY_APPLICATION_ID = "svc-prx-openresty"
 
@@ -98,12 +100,7 @@ def resolve_upstream(
     return f"{entity}_{service_key}:{port}"
 
 
-def _compose_suffix(tail: str, location: str) -> str:
-    if tail == "request":
-        loc = location.strip()
-        if _REGEX_OR_NAMED_LOCATION.match(loc):
-            return ""
-        return _LOCATION_MODIFIER.sub("", loc)
+def _compose_suffix(tail: str) -> str:
     if tail.startswith("/"):
         return tail
     return ""
@@ -121,7 +118,6 @@ def render_proxy_pass(
     authority: str,
     deployment_mode: str,
     tail: str = "request",
-    location: str = "/",
     host_gateway: bool = False,
 ) -> str:
     """``proxy_pass`` directive; swarm prepends a ``set`` line (request-time DNS).
@@ -137,7 +133,7 @@ def render_proxy_pass(
             f'set ${_UPSTREAM_VAR} "{authority}";\n'
             f"    proxy_pass http://${_UPSTREAM_VAR}{_swarm_tail(tail)};"
         )
-    return f"proxy_pass http://{authority}{_compose_suffix(tail, location)};"
+    return f"proxy_pass http://{authority}{_compose_suffix(tail)};"
 
 
 def proxy_hops(

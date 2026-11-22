@@ -1,11 +1,17 @@
 from __future__ import annotations
 
+import contextlib
+import io
+import subprocess
 import tempfile
 import unittest
 import unittest.mock as mock
+import urllib.error
+from email.message import Message
 from pathlib import Path
 
 from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
+from utils.update import repository
 from utils.update import source as module
 
 SERVICES = """\
@@ -107,6 +113,49 @@ bundle:
     pattern: 'part (v[0-9.]+-v[0-9.]+)'
 """
 
+SUPPRESSED = """\
+---
+first:
+  image: example/first
+  version: "v1.0.0"
+  update:
+    type: npm
+    package: first
+  security:
+    suppressions:
+      # nocheck: cve stale tag
+      - image_tag: "v1.0.0"
+        until: 2026-11-30
+      # nocheck: cve accepted
+      - id: CVE-2026-1234
+        until: 2026-11-30
+second:
+  image: example/second
+  version: "v2.0.0"
+  update:
+    type: npm
+    package: second
+  security:
+    suppressions:
+      # nocheck: cve stale tag
+      - image_tag: "v2.0.0"
+        until: 2026-11-30
+"""
+
+STACK = "https://example.test/stack.git"
+
+REF_PINNED = f"""\
+---
+stack:
+  repository: {STACK}
+  ref: v3.0.39
+  update:
+    key: ref
+    type: http_regex
+    url: https://example.test/tags
+    pattern: 'core (v[0-9.]+)'
+"""
+
 
 def _repo(services: str = SERVICES) -> Path:
     tmp = Path(tempfile.mkdtemp())
@@ -150,6 +199,25 @@ class TestCandidates(unittest.TestCase):
             self.assertEqual(module.candidates(entry, root), ["2.1.0"])
 
 
+class TestRegistryV2Tags(unittest.TestCase):
+    def test_a_realm_other_than_https_is_never_read(self) -> None:
+        for realm in ("file:///tmp/token.json", "http://169.254.169.254/token"):
+            headers = Message()
+            headers["WWW-Authenticate"] = f'Bearer realm="{realm}",service="reg"'
+            denied = urllib.error.HTTPError(
+                "https://reg.example/v2", 401, "err", headers, io.BytesIO(b"")
+            )
+            with (
+                self.subTest(realm=realm),
+                mock.patch.object(module, "get", side_effect=denied) as get,
+            ):
+                self.assertEqual(module.registry_v2_tags("reg.example/foo/bar"), [])
+                self.assertEqual(
+                    [call.args[0] for call in get.call_args_list],
+                    ["https://reg.example/v2/foo/bar/tags/list"],
+                )
+
+
 class TestOutdated(unittest.TestCase):
     def _entry(self, root: Path):
         return next(e for e in module.collect_entries(root) if e.key == "app_version")
@@ -174,6 +242,32 @@ class TestOutdated(unittest.TestCase):
         root = _repo()
         with mock.patch.object(module, "candidates", return_value=["2.0.0", "1.9.9"]):
             self.assertEqual(module.outdated([self._entry(root)], root), [])
+
+
+class TestSuppressions(unittest.TestCase):
+    def test_a_moved_version_drops_its_image_tag_suppressions_and_every_pin_moves(
+        self,
+    ) -> None:
+        root = _repo(SUPPRESSED)
+        latest = {"first": "v1.1.0", "second": "v2.1.0"}
+        with (
+            mock.patch.object(module, "manifest_exists", return_value=True),
+            mock.patch.object(
+                module,
+                "candidates",
+                side_effect=lambda entry, _: [latest[entry.entity]],
+            ),
+        ):
+            updates = module.outdated(module.collect_entries(root), root)
+        module.apply_updates(updates)
+
+        config = root / "roles" / "web-app-example" / ROLE_FILE_META_SERVICES
+        written = config.read_text()  # nocheck: cache-read  just rewritten here
+        self.assertIn('version: "v1.1.0"', written)
+        self.assertIn('version: "v2.1.0"', written)
+        self.assertNotIn("image_tag", written)
+        self.assertIn("id: CVE-2026-1234", written)
+        self.assertEqual(written.count("security:"), 1)
 
 
 class TestTemplate(unittest.TestCase):
@@ -234,6 +328,75 @@ class TestPulledImage(unittest.TestCase):
         self.assertEqual(entries, {"app_version": "", "version": "example"})
 
 
+class TestCheckedOutRef(unittest.TestCase):
+    def _outdated(
+        self, services: str, listed: str, returncode: int = 0
+    ) -> tuple[list[str], list[list[str]], str]:
+        root = _repo(services)
+        calls: list[list[str]] = []
+
+        def ls_remote(argv: list[str], **_kwargs) -> subprocess.CompletedProcess:
+            calls.append(argv)
+            return subprocess.CompletedProcess(argv, returncode, listed, "")
+
+        stderr = io.StringIO()
+        with (
+            mock.patch.object(module, "documents", return_value="core v4.0.2\n"),
+            mock.patch.object(repository.subprocess, "run", side_effect=ls_remote),
+            contextlib.redirect_stderr(stderr),
+        ):
+            updates = module.outdated(module.collect_entries(root), root)
+        return [update.latest for update in updates], calls, stderr.getvalue()
+
+    def test_a_ref_the_repository_lists_as_branch_or_tag_is_proposed(self) -> None:
+        for listed in (
+            f"{'1' * 40}\trefs/heads/v4.0.2\n",
+            f"{'1' * 40}\trefs/tags/v4.0.2\n{'2' * 40}\trefs/tags/v4.0.2^{{}}\n",
+        ):
+            with self.subTest(listed=listed):
+                latest, calls, stderr = self._outdated(REF_PINNED, listed)
+                self.assertEqual(latest, ["v4.0.2"])
+                self.assertEqual(stderr, "")
+                self.assertEqual(
+                    calls,
+                    [
+                        [
+                            "git",
+                            "ls-remote",
+                            STACK,
+                            "refs/heads/v4.0.2",
+                            "refs/tags/v4.0.2",
+                        ]
+                    ],
+                )
+
+    def test_a_ref_the_repository_does_not_list_is_withheld_and_reported(
+        self,
+    ) -> None:
+        latest, _calls, stderr = self._outdated(
+            REF_PINNED, f"{'1' * 40}\trefs/heads/develop\n"
+        )
+        self.assertEqual(latest, [])
+        self.assertIn("WARN web-app-example/stack.ref", stderr)
+        self.assertIn("lists no branch or tag of that name", stderr)
+        self.assertIn("withholding v3.0.39 -> v4.0.2", stderr)
+
+    def test_a_failed_lookup_withholds_the_ref(self) -> None:
+        latest, _calls, stderr = self._outdated(
+            REF_PINNED, f"{'1' * 40}\trefs/heads/v4.0.2\n", returncode=128
+        )
+        self.assertEqual(latest, [])
+        self.assertIn("could not be queried", stderr)
+
+    def test_a_pin_other_than_the_ref_never_queries_the_repository(self) -> None:
+        services = REF_PINNED.replace("ref: v3.0.39", 'version: "v3.0.39"').replace(
+            "key: ref", "key: version"
+        )
+        latest, calls, _stderr = self._outdated(services, "")
+        self.assertEqual(latest, ["v4.0.2"])
+        self.assertEqual(calls, [])
+
+
 class TestAddons(unittest.TestCase):
     def test_only_a_declared_or_github_released_addon_pin_is_collected(self) -> None:
         entries = module.collect_entries(_addon_repo())
@@ -265,6 +428,38 @@ class TestAddons(unittest.TestCase):
         self.assertIn('version: "v1.3.0"', written)
         self.assertIn("released/download/v1.3.0/app.tar.gz", written)
         self.assertIn("upstream_id: example/released", written)
+
+    def test_every_version_in_the_archive_moves_with_its_own_prefix(self) -> None:
+        root = _addon_repo(
+            {
+                "prefixed": ADDONS["released"].replace(
+                    "v1.2.0/app.tar.gz", "v1.2.0/app-v1.2.0.tar.gz"
+                ),
+                "bare": ADDONS["released"].replace(
+                    "v1.2.0/app.tar.gz", "v1.2.0/app-1.2.0.tar.gz"
+                ),
+            }
+        )
+        with mock.patch.object(module, "candidates", return_value=["v2.0.0"]):
+            module.apply_updates(module.find_outdated_updates(root))
+
+        directory = root / "roles" / "web-app-example" / ROLE_DIR_META_ADDONS
+        prefixed_path = directory / "prefixed.yml"
+        bare_path = directory / "bare.yml"
+        prefixed = prefixed_path.read_text()  # nocheck: cache-read  just rewritten here
+        bare = bare_path.read_text()  # nocheck: cache-read  just rewritten here
+        self.assertIn("released/download/v2.0.0/app-v2.0.0.tar.gz", prefixed)
+        self.assertIn("released/download/v2.0.0/app-2.0.0.tar.gz", bare)
+
+    def test_a_longer_version_holding_the_pin_stays(self) -> None:
+        self.assertEqual(
+            module.bump_archive(
+                "archive: https://x.test/v1.2.0/app-11.2.0-v1.2.0.1.tar.gz",
+                "v1.2.0",
+                "v1.3.0",
+            ),
+            "archive: https://x.test/v1.3.0/app-11.2.0-v1.2.0.1.tar.gz",
+        )
 
     def test_an_archive_that_does_not_carry_the_pin_is_reported(self) -> None:
         drifted = ADDONS["released"].replace('version: "v1.2.0"', 'version: "v1.1.0"')

@@ -20,6 +20,13 @@ x-node: &node
   volumes:
     - /sys/fs/cgroup:/sys/fs/cgroup:rw
     - /lib/modules:/lib/modules:ro
+    - &vulnerability-db
+      type: bind
+      source: ${INFINITO_VULNERABILITY_DB_HOST_PATH:?run make dotenv first}
+      target: ${INFINITO_VULNERABILITY_DB_DIR:?run make dotenv first}
+      read_only: true
+      bind:
+        create_host_path: true
   extra_hosts:
     - "${MGR:?run utils/topology/export.sh first}:${INFINITO_SWARM_MGR_IP:?run utils/topology/export.sh first}"
     - "${WRK1:?run utils/topology/export.sh first}:${INFINITO_SWARM_WRK1_IP:?run utils/topology/export.sh first}"
@@ -35,6 +42,7 @@ services:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
       - /lib/modules:/lib/modules:ro
+      - *vulnerability-db
       - "nfs-export:${NFS_EXPORT_BASE:?run utils/topology/export.sh first}"
     networks:
       lab:

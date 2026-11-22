@@ -47,6 +47,7 @@ PENPOT_FLAGS: >-
   enable-prepl-server
   disable-telemetry
   disable-onboarding
+  disable-admin-console
   {{ 'enable-login-with-oidc' if PENPOT_SSO_ENABLED | bool else '' }}
   {{ 'enable-login-with-ldap' if PENPOT_LDAP_ENABLED | bool else '' }}
 

@@ -1,7 +1,6 @@
 import importlib.util
 import unittest
 import unittest.mock as mock
-from unittest.mock import patch
 
 from ansible.errors import AnsibleError
 
@@ -88,7 +87,7 @@ class DatabaseLookupTests(unittest.TestCase):
 
         lookup = self._make_lookup(vars_)
 
-        with patch.object(
+        with mock.patch.object(
             self.db_lookup_mod,
             "entity_name",
             side_effect=self._fake_entity_name,
@@ -115,7 +114,7 @@ class DatabaseLookupTests(unittest.TestCase):
         self.assertEqual(out["version"], "")
         self.assertEqual(out["reach_host"], "127.0.0.1")
 
-        with patch.object(
+        with mock.patch.object(
             self.db_lookup_mod,
             "entity_name",
             side_effect=self._fake_entity_name,
@@ -150,7 +149,7 @@ class DatabaseLookupTests(unittest.TestCase):
 
         lookup = self._make_lookup(vars_)
 
-        with patch.object(
+        with mock.patch.object(
             self.db_lookup_mod,
             "entity_name",
             side_effect=self._fake_entity_name,
@@ -183,7 +182,7 @@ class DatabaseLookupTests(unittest.TestCase):
         self.assertEqual(out["reach_host"], "127.0.0.1")
         self.assertEqual(out["instance"], "foo")
 
-        with patch.object(
+        with mock.patch.object(
             self.db_lookup_mod,
             "entity_name",
             side_effect=self._fake_entity_name,
@@ -229,7 +228,7 @@ class DatabaseLookupTests(unittest.TestCase):
 
         lookup = self._make_lookup(vars_)
 
-        with patch.object(
+        with mock.patch.object(
             self.db_lookup_mod,
             "entity_name",
             side_effect=self._fake_entity_name,
@@ -266,7 +265,7 @@ class DatabaseLookupTests(unittest.TestCase):
 
         lookup = self._make_lookup(vars_)
 
-        with patch.object(
+        with mock.patch.object(
             self.db_lookup_mod,
             "entity_name",
             side_effect=self._fake_entity_name,
@@ -316,7 +315,7 @@ class DatabaseLookupTests(unittest.TestCase):
 
         lookup = self._make_lookup(vars_)
 
-        with patch.object(
+        with mock.patch.object(
             self.db_lookup_mod,
             "entity_name",
             side_effect=self._fake_entity_name,
@@ -361,7 +360,7 @@ class DatabaseLookupTests(unittest.TestCase):
 
         lookup = self._make_lookup(vars_)
 
-        with patch.object(
+        with mock.patch.object(
             self.db_lookup_mod,
             "entity_name",
             side_effect=self._fake_entity_name,
@@ -407,7 +406,7 @@ class DatabaseLookupTests(unittest.TestCase):
 
         lookup = self._make_lookup(vars_)
 
-        with patch.object(
+        with mock.patch.object(
             self.db_lookup_mod,
             "entity_name",
             side_effect=self._fake_entity_name,
@@ -433,7 +432,7 @@ class DatabaseLookupTests(unittest.TestCase):
 
         lookup = self._make_lookup(vars_)
 
-        with patch.object(
+        with mock.patch.object(
             self.db_lookup_mod,
             "entity_name",
             side_effect=self._fake_entity_name,
@@ -445,7 +444,7 @@ class DatabaseLookupTests(unittest.TestCase):
         self.assertFalse(out["local"])
         self.assertEqual(out["host"], "")
 
-        with patch.object(
+        with mock.patch.object(
             self.db_lookup_mod,
             "entity_name",
             side_effect=self._fake_entity_name,
@@ -525,7 +524,7 @@ class DatabaseLookupTests(unittest.TestCase):
 
     def _resolve(self, vars_):
         lookup = self._make_lookup(vars_)
-        with patch.object(
+        with mock.patch.object(
             self.db_lookup_mod,
             "entity_name",
             side_effect=self._fake_entity_name,
@@ -567,7 +566,7 @@ class DatabaseLookupTests(unittest.TestCase):
 
     def _resolve_want(self, vars_, want):
         lookup = self._make_lookup(vars_)
-        with patch.object(
+        with mock.patch.object(
             self.db_lookup_mod,
             "entity_name",
             side_effect=self._fake_entity_name,

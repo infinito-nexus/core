@@ -33,6 +33,11 @@ typesense:
       # nocheck: onion-flag  the search index is queried by the app containers holding its API key, and the apps themselves are served through the onion's port 80
       typesense: false
   lifecycle: beta
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "0.25.2"
+        until: 2026-11-30
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
 tor:
   bond: 0.5

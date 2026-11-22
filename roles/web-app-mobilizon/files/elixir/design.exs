@@ -35,7 +35,15 @@ color_changes =
       end
   end
 
-{:ok, owner} = Mobilizon.Actors.get_or_create_internal_actor("relay")
+owner =
+  case Mobilizon.Actors.get_local_actor_by_name("relay") do
+    nil ->
+      {:ok, actor} = Mobilizon.Actors.get_or_create_internal_actor("relay")
+      actor
+
+    actor ->
+      actor
+  end
 
 media_changes =
   for {name, wanted} <- medias, reduce: [] do

@@ -16,11 +16,10 @@ from pathlib import Path
 from utils.docker import registry
 from utils.docker.image import config
 
+AMD = "sha256:" + "b" * 64
 MANIFEST = {"config": {"digest": "sha256:cfg"}, "layers": [{"size": 1}]}
 INDEX = {
-    "manifests": [
-        {"platform": {"os": "linux", "architecture": "amd64"}, "digest": "sha256:amd"}
-    ]
+    "manifests": [{"platform": {"os": "linux", "architecture": "amd64"}, "digest": AMD}]
 }
 PROBE = {"Test": ["CMD-SHELL", "dig @127.0.0.1 || exit 1"]}
 VOLUMES = {"/opt/ejabberd": {}}
@@ -73,12 +72,12 @@ class TestImageHealthcheck(_Isolated, unittest.TestCase):
                     {},
                     json.dumps({"config": {"Healthcheck": PROBE}}).encode(),
                 )
-            body = MANIFEST if "sha256%3Aamd" in url else INDEX
+            body = MANIFEST if AMD.replace(":", "%3A") in url else INDEX
             return (200, {}, json.dumps(body).encode())
 
         with mock.patch.object(registry, "_request", side_effect=_request):
             self.assertEqual(config.image_healthcheck("redis", "alpine"), PROBE)
-        self.assertTrue(any("sha256%3Aamd" in url for url in seen))
+        self.assertTrue(any(AMD.replace(":", "%3A") in url for url in seen))
 
     def test_an_index_without_the_platform_is_indeterminate(self) -> None:
         with (

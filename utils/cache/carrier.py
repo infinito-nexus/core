@@ -21,6 +21,7 @@ from .base import (
     _revalidate_tokens_file,
     _stable_variables_signature,
 )
+from .tokens import resolve_tokens_file, store_signature
 
 if TYPE_CHECKING:
     import os
@@ -75,10 +76,8 @@ def merged_users_cache_key(
         ``(resolved roles dir, applications key signature extended by the
         token store signature and the host the payload was rendered for)``.
     """
-    from .users import _resolve_tokens_file, _store_signature
-
     roles_key, signature = merged_applications_cache_key(variables, roles_dir=roles_dir)
-    tokens = _store_signature(variables, _resolve_tokens_file(variables))
+    tokens = store_signature(variables, resolve_tokens_file(variables))
     host = (variables or {}).get("inventory_hostname")
     return (
         roles_key,
@@ -92,9 +91,7 @@ def revalidate_tokens_file(variables: Mapping[str, Any] | None) -> None:
     Args:
         variables: The play's variable scope the tokens file resolves from.
     """
-    from .users import _resolve_tokens_file
-
-    _revalidate_tokens_file(_resolve_tokens_file(variables))
+    _revalidate_tokens_file(resolve_tokens_file(variables))
 
 
 def _carried(
@@ -119,9 +116,11 @@ def _carried(
     carrier = variables.get(fact)
     if fact not in variables and fact in (variables.get("ansible_facts") or {}):
         raise CarrierInvisibleError(
-            f"{fact} is parked in the fact cache but not visible as a variable; "
-            "park it with applications_carrier, which registers it outside the "
-            "fact cache, or every lookup renders the payload again"
+            f"{fact} is parked in the fact cache but not visible as a variable, "
+            "so every lookup would render the payload again; remove the task "
+            "that returns it as ansible_facts, or run "
+            "'applications_carrier: {clear: true}' before parking it again with "
+            "applications_carrier, which registers it outside the fact cache"
         )
     if not isinstance(carrier, Mapping):
         return None

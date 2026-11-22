@@ -5,3 +5,4 @@ compose_mode: "{{ compose_mode_force or DEPLOYMENT_MODE }}" # Effective deploy m
 compose_repository_pull: "{{ compose_repository_url is defined and compose_repository_url is string and compose_repository_url | length > 0 }}"
 compose_repository_refspec: "" # Refspec of the shallow repository clone; '+refs/tags/<tag>:refs/tags/<tag>' when compose_repository_ref is a tag
 compose_prepared_application_ids: [] # Application ids whose compose instance this play prepared on the host; tasks/decommission.yml keeps their directories
+compose_prune_free_floor_mib: 30720 # Free MiB on the Docker data root at or above which the storage-constrained prune handler leaves Docker data alone

@@ -43,7 +43,7 @@ bigbluebutton:
   update:
     key: ref
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   recording:
     enabled: false
@@ -119,9 +119,14 @@ bbb-web:
   version: "v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v3.0.39"
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 freeswitch:
@@ -131,10 +136,15 @@ freeswitch:
   version: "v1.11.3-v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (?P<bbb>v[0-9.]+)\\nrepos/freeswitch (?P<freeswitch>v[0-9.]+)"
     template: "{freeswitch}-{bbb}"
   enabled: false
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v1.11.3-v3.0.39"
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 nginx:
@@ -145,11 +155,16 @@ nginx:
   update:
     type: http_regex
     url:
-      - https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
-      - https://raw.githubusercontent.com/bigbluebutton/docker/develop/docker-compose.tmpl.yml
+      - https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
+      - https://raw.githubusercontent.com/bigbluebutton/docker/main/docker-compose.tmpl.yml
     pattern: "repos/bbb-playback (?P<playback>v[0-9.]+)\\n(?:.*\\n)*?repos/bigbluebutton (?P<bbb>v[0-9.]+)\\n(?:.*\\n)*?.*bbb-docker-nginx:.*-(?P<base>[0-9.]+)\\n"
     template: "{bbb}-{playback}-{base}"
   enabled: false
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v3.0.39-v5.4.8-1.29"
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-shared-notes-server:
@@ -157,9 +172,14 @@ bbb-shared-notes-server:
   version: "v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v3.0.39"
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-export-annotations:
@@ -169,9 +189,14 @@ bbb-export-annotations:
   version: "v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v3.0.39"
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 webrtc-sfu:
@@ -181,9 +206,14 @@ webrtc-sfu:
   version: "v2.24.0"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bbb-webrtc-sfu (v[0-9.]+)"
   enabled: false
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v2.24.0"
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 fsesl-akka:
@@ -191,9 +221,14 @@ fsesl-akka:
   version: "v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v3.0.39"
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 apps-akka:
@@ -203,9 +238,14 @@ apps-akka:
   version: "v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v3.0.39"
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-graphql-server:
@@ -218,9 +258,14 @@ bbb-graphql-server:
   version: "v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v3.0.39"
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-graphql-actions:
@@ -228,9 +273,14 @@ bbb-graphql-actions:
   version: "v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v3.0.39"
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-graphql-middleware:
@@ -238,9 +288,14 @@ bbb-graphql-middleware:
   version: "v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v3.0.39"
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 periodic:
@@ -250,9 +305,14 @@ periodic:
   version: "v3.0.0"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/docker-compose.tmpl.yml
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/docker-compose.tmpl.yml
     pattern: "bbb-docker-periodic:(v[0-9.]+)"
   enabled: false
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v3.0.0"
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 recordings:
@@ -262,9 +322,14 @@ recordings:
   version: "v3.0.39"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bigbluebutton (v[0-9.]+)"
   enabled: false
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v3.0.39"
+        until: 2026-11-30
 # nocheck: playwright-service-flag: prebuilt upstream-compose image, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose sub-service, not group-gated
 bbb-webrtc-recorder:
@@ -272,9 +337,14 @@ bbb-webrtc-recorder:
   version: "v0.14.0"
   update:
     type: http_regex
-    url: https://raw.githubusercontent.com/bigbluebutton/docker/develop/repos/tags
+    url: https://raw.githubusercontent.com/bigbluebutton/docker/main/repos/tags
     pattern: "repos/bbb-webrtc-recorder (v[0-9.]+)"
   enabled: false
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v0.14.0"
+        until: 2026-11-30
 # nocheck: playwright-service-flag: script-time helper of upstream generate-compose, mirror pre-pull only
 # nocheck: dynamic-flag: fixed upstream-compose helper, not group-gated
 dockerize:

@@ -6,9 +6,12 @@ gets a fresh connection in a fresh worker. ``docker_cached`` keeps the answer
 for the run. These cases run the same play through both plugins against a
 stand-in ``docker`` executable that logs every call and runs the exec payload
 locally: the cached plugin must make the same exec calls with the same
-results, and only the first task-host may query the version.
+results, and only the first task-host may query the version. A static case
+checks that the options the plugin copies still resolve like those of the
+installed stock connection.
 """
 
+import ast
 import json
 import os
 import shutil
@@ -19,9 +22,14 @@ import unittest
 from pathlib import Path
 from typing import ClassVar
 
+from ansible_collections.community.docker.plugins.connection import docker
+
 from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_str
 
 from . import PROJECT_ROOT
+
+PLUGIN = PROJECT_ROOT / "plugins" / "connection" / "docker_cached.py"
 
 SHIM = f"""#!{sys.executable}
 import json
@@ -213,6 +221,52 @@ class TestDockerCachedConnection(unittest.TestCase):
         )
         self.assertEqual(files, stock_files)
         self.assertEqual(files["templated.txt"], "templated node1\n")
+
+
+def _behaviour(options: dict) -> dict:
+    """Reduce plugin options to the fields that change how they resolve.
+
+    Args:
+        options: the ``options`` mapping of a connection plugin's DOCUMENTATION.
+
+    Returns:
+        Per option its type, default, choices, aliases and the env, ini and
+        vars sources it reads, without descriptions or ``version_added``.
+    """
+    return {
+        name: {
+            "type": spec.get("type"),
+            "default": spec.get("default"),
+            "choices": spec.get("choices"),
+            "aliases": spec.get("aliases"),
+            "env": [entry["name"] for entry in spec.get("env") or []],
+            "ini": [
+                (entry["section"], entry["key"]) for entry in spec.get("ini") or []
+            ],
+            "vars": [entry["name"] for entry in spec.get("vars") or []],
+        }
+        for name, spec in options.items()
+    }
+
+
+class TestDocumentationMatchesTheStockPlugin(unittest.TestCase):
+    def test_every_option_resolves_like_the_installed_stock_option(self):
+        module = ast.parse(read_text(str(PLUGIN)))
+        ours = next(
+            node.value.value
+            for node in module.body
+            if isinstance(node, ast.Assign)
+            and any(
+                isinstance(target, ast.Name) and target.id == "DOCUMENTATION"
+                for target in node.targets
+            )
+        )
+        self.assertEqual(
+            _behaviour(load_yaml_str(ours)["options"]),
+            _behaviour(load_yaml_str(docker.DOCUMENTATION)["options"]),
+            "docker_cached copies the stock connection's options; after a "
+            "community.docker bump, copy the changed options again",
+        )
 
 
 if __name__ == "__main__":

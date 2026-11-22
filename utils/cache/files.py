@@ -140,15 +140,46 @@ def iter_project_files(
         yield path
 
 
+READ_TEXT_CACHE_MAX_BYTES = 1 << 20
+
+
+def _read(path: str) -> str:
+    with Path(path).open(encoding="utf-8") as f:
+        return f.read()
+
+
 @lru_cache(maxsize=8192)
+def _read_cached(path: str) -> str:
+    return _read(path)
+
+
 def read_text(path: str) -> str:
     """Return the UTF-8 text content of a file; cached process-wide.
 
-    Raises OSError / UnicodeDecodeError unchanged — callers that scan arbitrary
-    files can wrap this in try/except if non-UTF-8 blobs may appear.
+    A file larger than ``READ_TEXT_CACHE_MAX_BYTES`` on disk is read again on
+    every call and never cached. The ``locale/*/LC_MESSAGES/docs.po``
+    catalogs hold 1.2 GiB, which Python keeps as about 4 GiB of str, and a
+    whole-tree content scan pinned that in every pytest-xdist worker that
+    ran one until the 16 GiB CI runner swapped to death.
+
+    Args:
+        path: absolute path of the file to read.
+
+    Returns:
+        The decoded content of the file.
+
+    Raises:
+        OSError: the file cannot be stat'ed or read.
+        UnicodeDecodeError: the file is not UTF-8; callers that scan
+            arbitrary files catch it when non-UTF-8 blobs may appear.
     """
-    with Path(path).open(encoding="utf-8") as f:
-        return f.read()
+    try:
+        size = Path(path).stat().st_size
+    except FileNotFoundError:
+        return _read_cached(path)
+    if size > READ_TEXT_CACHE_MAX_BYTES:
+        return _read(path)
+    return _read_cached(path)
 
 
 def iter_project_files_with_content(
@@ -256,11 +287,11 @@ def _reset() -> None:
     """Test-only helper: clear the project-walk and file-content caches.
 
     Named ``_reset`` for parity with the per-domain reset helpers in
-    sibling modules; ``utils.cache._reset_cache_for_tests`` orchestrates
+    sibling modules; ``utils.cache.reset._reset_cache_for_tests`` orchestrates
     calls to all of them.
     """
     _all_project_files.cache_clear()
     _local_exclude_dirs.cache_clear()
-    read_text.cache_clear()
+    _read_cached.cache_clear()
     repository_files.cache_clear()
     untracked_files.cache_clear()

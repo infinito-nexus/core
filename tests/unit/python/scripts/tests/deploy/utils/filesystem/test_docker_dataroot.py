@@ -26,7 +26,8 @@ STUB = (
     "  id) echo 0 ;;\n"
     "  awk) echo 10 ;;\n"
     "  losetup) echo /dev/infinito-test-loop ;;\n"
-    "  mountpoint) grep -q '^mount ' \"${STUB_LOG}\" ;;\n"
+    '  mount) touch "${STUB_LOG}.mounted" ;;\n'
+    '  mountpoint) [ "$2" = /mnt/docker-fs ] && [ -e "${STUB_LOG}.mounted" ] ;;\n'
     '  zpool) [ "$1" != list ] ;;\n'
     '  systemctl) [ "$1" != cat ] ;;\n'
     "  python3|tee) cat >/dev/null ;;\n"
@@ -39,6 +40,10 @@ STUBBED = (
     "mountpoint",
     "zpool",
     "zfs",
+    "mkfs.ext4",
+    "mkfs.btrfs",
+    "btrfs",
+    "mount",
     "systemctl",
     "python3",
     "modprobe",
@@ -48,18 +53,13 @@ STUBBED = (
     "truncate",
     "install",
     "tee",
-    "mount",
-    "mkfs.ext4",
-    "mkfs.btrfs",
-    "btrfs",
 )
 
 
-def apply_fstype(fstype: str) -> tuple[subprocess.CompletedProcess, list[list[str]]]:
-    """Run one path of docker_dataroot.sh against stubs of every host tool.
-
+def apply(fstype: str) -> tuple[subprocess.CompletedProcess, list[list[str]]]:
+    """
     Args:
-        fstype: the filesystem the script puts the data root on.
+        fstype: the filesystem the script is asked to put the data root on.
 
     Returns:
         The finished process and the argv of every stubbed call, tool first.
@@ -92,30 +92,48 @@ def apply_fstype(fstype: str) -> tuple[subprocess.CompletedProcess, list[list[st
 
 class TestDockerDatarootZfs(unittest.TestCase):
     def test_the_stubbed_zfs_path_applies(self) -> None:
-        done, _ = apply_fstype("zfs")
+        done, _ = apply("zfs")
         self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
         self.assertIn("status=applied-pending-docker", done.stdout)
 
     def test_the_pool_returns_freed_blocks_to_the_sparse_image(self) -> None:
-        _, calls = apply_fstype("zfs")
+        _, calls = apply("zfs")
         creates = [argv for argv in calls if argv[:2] == ["zpool", "create"]]
         self.assertEqual(len(creates), 1, calls)
         self.assertIn(("-o", "autotrim=on"), list(pairwise(creates[0])))
 
 
+DISCARD = {"ext4": "discard", "btrfs": "discard=async"}
+
+
 class TestDockerDatarootLoopMount(unittest.TestCase):
-    def _mounts(self, fstype: str) -> list[list[str]]:
-        done, calls = apply_fstype(fstype)
-        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
-        mounts = [argv for argv in calls if argv[0] == "mount"]
-        self.assertEqual(len(mounts), 1, calls)
-        return mounts
+    def test_the_stubbed_mount_paths_apply(self) -> None:
+        for fstype in DISCARD:
+            with self.subTest(fstype=fstype):
+                done, _ = apply(fstype)
+                self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+                self.assertIn("status=applied-pending-docker", done.stdout)
 
-    def test_ext4_returns_freed_blocks_to_the_sparse_image(self) -> None:
-        self.assertIn(("-o", "discard"), list(pairwise(self._mounts("ext4")[0])))
+    def test_the_mount_returns_freed_blocks_to_the_sparse_image(self) -> None:
+        for fstype, option in DISCARD.items():
+            with self.subTest(fstype=fstype):
+                _, calls = apply(fstype)
+                mounts = [argv for argv in calls if argv[0] == "mount"]
+                self.assertEqual(len(mounts), 1, calls)
+                self.assertIn(("-t", fstype), list(pairwise(mounts[0])))
+                self.assertIn(("-o", option), list(pairwise(mounts[0])))
 
-    def test_btrfs_keeps_the_discard_mode_of_the_kernel(self) -> None:
-        self.assertNotIn("discard", self._mounts("btrfs")[0])
+
+class TestDockerDatarootLoopAttach(unittest.TestCase):
+    def test_the_loop_bypasses_the_page_cache_of_its_backing_image(self) -> None:
+        for fstype in (*DISCARD, "zfs"):
+            with self.subTest(fstype=fstype):
+                _, calls = apply(fstype)
+                attaches = [
+                    argv for argv in calls if argv[0] == "losetup" and "--show" in argv
+                ]
+                self.assertEqual(len(attaches), 1, calls)
+                self.assertIn("--direct-io=on", attaches[0])
 
 
 if __name__ == "__main__":

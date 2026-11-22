@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "infinito-nexus"
-version = "16.2.3"
+version = "17.0.0"
 description = "Infinito.Nexus"
 readme = "README.md"
 requires-python = ">=3.11,<3.15"
@@ -13,11 +13,12 @@ license = { file = "LICENSE.md" }
 dependencies = [
   # Pinned: utils/recovery reads the generation layout from baudolo's own
   # BackupPaths, so the version here and in svc-bkp-volume-2-local must match.
-  "backup-docker-to-local==7.1.1",
+  "backup-docker-to-local==8.0.0",
   "Babel",
   "bcrypt",
   "cryptography",
   "humanfriendly",
+  "Jinja2",
   "PyMySQL",
   "psycopg2-binary",
   "ldap3",
@@ -35,7 +36,7 @@ deploy = [
   "requests",
 ]
 dev = [
-  "ruff==0.17.3",
+  "ruff==0.17.6",
   "import-linter",
   "pre-commit",
   "git-maintainer-tools",

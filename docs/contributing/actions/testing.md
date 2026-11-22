@@ -25,6 +25,7 @@ Use the following table to choose the right lint, syntax, unit, integration, or 
 | Unit tests | `make test-unit` | Runs the unit test suite. | Use this when you changed Python logic or other isolated code paths. |
 | Integration tests | `make test-integration` | Runs the integration test suite. | Use this when your change affects behavior across modules or runtime boundaries. |
 | External tests | `make test-external` | Runs opt-in tests that depend on live third-party systems such as public registries. | Use this when you need live external verification. It is intentionally excluded from `make test`. |
+| Security tests | `make test-security` | Builds a Syft SBOM of every pinned role image from the GHCR mirror and scans it with Trivy, Grype and OSV at the threshold of `sys-ctl-hlth-runtime`. | Use this when you bump or add an image pin. It is excluded from `make test` and runs daily in `cron-images-mirror-all.yml`. |
 | Combined validation | `make test` | Runs the main combined validation flow without the opt-in external suite. | Use this whenever a change touches at least one file that is not `.md` or `.rst`, or before opening a Pull Request. |
 
 ## Local Deploy and End-to-End Checks 🚀

@@ -12,11 +12,11 @@ from ansible.errors import AnsibleError
 
 from plugins.lookup.applications import LookupModule as ApplicationsLookup
 from plugins.lookup.email import RESOLUTION_ORDER, LookupModule, provider_view_carrier
-from utils.cache import _reset_cache_for_tests
 from utils.cache import applications as cache_applications
 from utils.cache import base as cache_base
-from utils.cache import users as cache_users
+from utils.cache import tokens as cache_tokens
 from utils.cache.carrier import APPLICATIONS_RENDERED_FACT, PROVIDER_VIEW_RENDERED_FACT
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_DOMAINS, ROLE_FILE_META_SERVICES
 
@@ -43,7 +43,7 @@ class TestEmailLookup(unittest.TestCase):
         (self._tmp / "roles").mkdir(parents=True, exist_ok=True)
         os.chdir(self._tmp)
         self._tokens_store_patcher = patch.object(
-            cache_users, "_load_store_users", return_value={}
+            cache_tokens, "load_store_users", return_value={}
         )
         self._tokens_store_patcher.start()
 
@@ -472,7 +472,7 @@ class TestProviderOnionIsClusterWide(unittest.TestCase):
         (self._tmp / "roles").mkdir(parents=True, exist_ok=True)
         os.chdir(self._tmp)
         self._tokens_store_patcher = patch.object(
-            cache_users, "_load_store_users", return_value={}
+            cache_tokens, "load_store_users", return_value={}
         )
         self._tokens_store_patcher.start()
 
@@ -806,6 +806,13 @@ class _RawGetHostvars(dict):
     def __init__(self, templated: dict, raw: dict) -> None:
         super().__init__(templated)
         self._raw = raw
+
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, _RawGetHostvars)
+            and dict.__eq__(self, other)
+            and self._raw == other._raw
+        )
 
     def raw_get(self, host: str) -> dict:
         return self._raw[host]

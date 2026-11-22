@@ -157,10 +157,12 @@ a[class*="main_ui_auth__logo-btn"] {
 a[class*="main_ui_auth__logo-btn"] > svg {
   visibility: hidden;
 }
-[class*="main_ui_dashboard_sidebar__penpot-icon"] {
+[class*="main_ui_dashboard_organization_team_switch__personal-projects-icon"],
+[class*="main_ui_dashboard_organization_team_switch__team-item-personal-icon"] {
   background: url("{{ design.urls.logo.svg }}") center / contain no-repeat;
 }
-[class*="main_ui_dashboard_sidebar__penpot-icon"] > svg {
+[class*="main_ui_dashboard_organization_team_switch__personal-projects-icon"] > svg,
+[class*="main_ui_dashboard_organization_team_switch__team-item-personal-icon"] > svg {
   visibility: hidden;
 }
 {% endif %}

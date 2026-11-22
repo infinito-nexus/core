@@ -4,6 +4,8 @@
     container exec -i {{ lookup('container_address', 'svc-db-openldap', 'openldap') }}
     ldapmodify -Q -Y EXTERNAL -H {{ OPENLDAP_CONFIG_URI }}
     -f "{{ [OPENLDAP_LDIF_PATH_DOCKER, 'configuration/01_member_of_configuration.ldif'] | path_join }}"
+  vars:
+    compose_mode_force: ""
   listen:
     - "import-configuration-ldif-files"
   register: r
@@ -16,6 +18,8 @@
     container exec -i {{ lookup('container_address', 'svc-db-openldap', 'openldap') }}
     ldapmodify -Q -Y EXTERNAL -H {{ OPENLDAP_CONFIG_URI }}
     -f "{{ [OPENLDAP_LDIF_PATH_DOCKER, 'configuration/04_refint_module.ldif'] | path_join }}"
+  vars:
+    compose_mode_force: ""
   listen:
     - "import-configuration-ldif-files"
   register: r
@@ -28,6 +32,8 @@
     container exec -i {{ lookup('container_address', 'svc-db-openldap', 'openldap') }}
     ldapadd -Q -Y EXTERNAL -H {{ OPENLDAP_CONFIG_URI }}
     -f "{{ [OPENLDAP_LDIF_PATH_DOCKER, 'configuration/02_member_of_configuration.ldif'] | path_join }}"
+  vars:
+    compose_mode_force: ""
   listen:
     - "import-configuration-ldif-files"
   register: r
@@ -38,6 +44,8 @@
     container exec -i {{ lookup('container_address', 'svc-db-openldap', 'openldap') }}
     ldapadd -Q -Y EXTERNAL -H {{ OPENLDAP_CONFIG_URI }}
     -f "{{ [OPENLDAP_LDIF_PATH_DOCKER, 'configuration/03_member_of_configuration.ldif'] | path_join }}"
+  vars:
+    compose_mode_force: ""
   listen:
     - "import-configuration-ldif-files"
   register: r
@@ -53,6 +61,8 @@
     -f "{{ [OPENLDAP_LDIF_PATH_DOCKER, 'groups', (item | basename | regex_replace('\.j2$', ''))] | path_join }}"'
   environment:
     OPENLDAP_BIND_PW: "{{ OPENLDAP_BIND_PW }}"
+  vars:
+    compose_mode_force: ""
   listen:
     - "import-groups-ldif-files"
   register: ldapadd_result

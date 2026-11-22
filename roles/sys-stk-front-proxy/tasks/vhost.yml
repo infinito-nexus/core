@@ -53,13 +53,19 @@
 - name: "🚀 Deploy NGINX config for '{{ front_proxy_domain }}'"
   stack_host_contents:
     files: >-
-      {{ ([{'path': lookup('nginx', 'files.domain', front_proxy_domain, protocol='http'),
+      {{ ([{'path': lookup('nginx', 'files.lua', front_proxy_domain),
+            'content': lookup('template_shallow', lookup('path_absolute', 'roles/sys-front-inj-all/templates/body_filter.lua.j2'),
+                              template_vars={'application_id': front_proxy_application_id, 'domain': front_proxy_domain})}]
+          if IS_STACK_HOST | bool else [])
+         + ([{'path': lookup('nginx', 'files.domain', front_proxy_domain, protocol='http'),
             'content': lookup('template', lookup('path_absolute', 'roles/sys-front-tls/templates/http.conf.j2'),
                               template_vars={'domain': front_proxy_domain})}]
           if lookup('tls', front_proxy_domain, 'enabled') | bool else [])
          + [{'path': front_proxy_domain_conf_dst_resolved,
              'content': lookup('template', front_proxy_template_src)}] }}
     mode: "0644"
+    diff_paths:
+      - "{{ lookup('nginx', 'files.lua', front_proxy_domain) }}"
   vars:
     application_id: "{{ front_proxy_application_id }}"
     domain: "{{ front_proxy_domain }}"

@@ -31,6 +31,37 @@ TEST_E2E_PLAYWRIGHT_HELPERS_DIR: "{{ lookup('path_absolute', 'roles/test-e2e-pla
 TEST_E2E_PLAYWRIGHT_HELPERS_ARCHIVE: "/tmp/infinito-playwright-helpers.tar"
 TEST_E2E_PLAYWRIGHT_SHARED_STAMP: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/.installed-version"
 
+TEST_E2E_PLAYWRIGHT_PARALLEL: "{{ lookup('playwright_parallel') }}"
+TEST_E2E_PLAYWRIGHT_PARALLEL_JOBS_DIR: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}/_jobs"
+TEST_E2E_PLAYWRIGHT_PARALLEL_SCHEDULER: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/run_parallel.py"
+TEST_E2E_PLAYWRIGHT_PARALLEL_POLL_SECONDS: 1
+TEST_E2E_PLAYWRIGHT_PARALLEL_WAIT_DELAY: 10
+TEST_E2E_PLAYWRIGHT_PARALLEL_MAX_CPU_PRESSURE: 36
+TEST_E2E_PLAYWRIGHT_PARALLEL_SUSTAIN_SECONDS: 30
+TEST_E2E_PLAYWRIGHT_PARALLEL_OOM_SCORE_ADJ: 1000
+TEST_E2E_PLAYWRIGHT_PARALLEL_CONTAINER_PREFIX: "infinito-playwright-"
+TEST_E2E_PLAYWRIGHT_TOR_LOCK: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}/tor.lock"
+TEST_E2E_PLAYWRIGHT_PARALLEL_BUDGET: >-
+  {%- set retries = TEST_E2E_PLAYWRIGHT_ONION_PROBE_RETRIES | int -%}
+  {%- set delay = TEST_E2E_PLAYWRIGHT_ONION_PROBE_DELAY | int -%}
+  {%- set onion_wait = 2 * retries * ((TEST_E2E_PLAYWRIGHT_ONION_PROBE_MAX_TIME | int) + delay) + retries * delay -%}
+  {%- set clearnet_wait = (test_e2e_playwright_wait_retries | int) * (test_e2e_playwright_wait_delay | int) -%}
+  {%- set ns = namespace(total=0) -%}
+  {%- for app in TEST_E2E_PLAYWRIGHT_APPS -%}
+  {%- set role_timeout = lookup('role_tests', app, 'playwright.timeout', default='') | string | trim -%}
+  {%- set picks = [lookup('domain', app)] if lookup('config', app, 'networks.reachability.handover', False)
+        else lookup('network_siblings', lookup('domain', app)) -%}
+  {%- set worst = namespace(seconds=0) -%}
+  {%- for network in picks | map('network_of') | unique -%}
+  {%- set onion = network == 'tor' -%}
+  {%- set run_timeout = (role_timeout | int) if (role_timeout | length > 0)
+        else (TEST_E2E_PLAYWRIGHT_ONION_RUN_TIMEOUT if onion else test_e2e_playwright_run_timeout) -%}
+  {%- set worst.seconds = [worst.seconds, (lookup('timeout', run_timeout) | int) + (onion_wait if onion else clearnet_wait)] | max -%}
+  {%- endfor -%}
+  {%- set ns.total = ns.total + worst.seconds -%}
+  {%- endfor -%}
+  {{ ns.total }}
+
 TEST_E2E_PLAYWRIGHT_IS_ONION: "{{ (_playwright_pass_domain | network_of) == 'tor' }}"
 TEST_E2E_PLAYWRIGHT_PROXY: "{{ ('socks5://' ~ lookup('tor_socks', '127.0.0.1' if IS_SWARM_MODE else 'host.docker.internal')) if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool)
   else '' }}"
@@ -45,6 +76,7 @@ TEST_E2E_PLAYWRIGHT_ONION_TIMEOUT_MULTIPLIER: "{{ lookup('config', 'svc-net-tor'
 TEST_E2E_PLAYWRIGHT_WAIT_ENABLED: true
 TEST_E2E_PLAYWRIGHT_ONION_PROBE_RETRIES: 40
 TEST_E2E_PLAYWRIGHT_ONION_PROBE_DELAY: 15
+TEST_E2E_PLAYWRIGHT_ONION_PROBE_MAX_TIME: 120
 TEST_E2E_PLAYWRIGHT_NAVIGATION_TIMEOUT: 60000
 TEST_E2E_PLAYWRIGHT_ONION_NAVIGATION_TIMEOUT: 180000
 TEST_E2E_PLAYWRIGHT_EXPECT_TIMEOUT: 10000

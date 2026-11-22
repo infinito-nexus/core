@@ -13,13 +13,18 @@
 - name: "🔑 Realign the pgAdmin administrator with the declared password"
   ansible.builtin.shell:
     cmd: >-
+      IFS= read -r PGADMIN_ADMIN_PASSWORD_B64
+      || { echo '[FAIL] no administrator password line arrived on stdin.' >&2; exit 1; };
+      export PGADMIN_ADMIN_PASSWORD_B64 &&
       container exec -i
-      -e PGADMIN_ADMIN_EMAIL -e PGADMIN_ADMIN_PASSWORD
+      -e PGADMIN_ADMIN_EMAIL -e PGADMIN_ADMIN_PASSWORD_B64 -e PGADMIN_SQLITE_PATH
       {{ PGADMIN_CONTAINER_ADDRESS }} /venv/bin/python3 -
-    stdin: "{{ lookup('file', 'python/realign_admin_password.py') }}"
+    stdin: |-
+      {{ PGADMIN_ADMIN_PASSWORD | b64encode }}
+      {{ lookup('file', 'python/realign_admin_password.py') }}
   environment:
     PGADMIN_ADMIN_EMAIL: "{{ PGADMIN_ADMIN_EMAIL }}"
-    PGADMIN_ADMIN_PASSWORD: "{{ PGADMIN_ADMIN_PASSWORD }}"
+    PGADMIN_SQLITE_PATH: "{{ PGADMIN_SQLITE_PATH }}"
   register: pgadmin_admin_realign
   changed_when: pgadmin_admin_realign.stdout is search('\[CHANGED\]')
   failed_when: >-

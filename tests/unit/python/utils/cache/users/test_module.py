@@ -2,8 +2,8 @@
 
 Pins the public API (`get_user_defaults`, `get_merged_users`) plus the
 internal helpers that only this module owns: `_load_user_defs`,
-`_build_users`, `_validate_forwards`, `_compute_reserved_usernames`, `_load_store_users`,
-`_resolve_tokens_file`, `_hydrate_users_tokens`, `_merge_users`,
+`_build_users`, `_validate_forwards`, `_compute_reserved_usernames`,
+`_hydrate_users_tokens`, `_merge_users`,
 `_materialize_domain_label_reservations`. Module name is `test_users_module`
 to disambiguate from the existing `tests/unit/python/plugins/lookup/test_users.py`
 which targets the lookup plugin.
@@ -18,15 +18,15 @@ import unittest.mock as mock
 from collections import OrderedDict
 from pathlib import Path
 
-from utils.cache import _reset_cache_for_tests
 from utils.cache import base as cache_base
+from utils.cache import tokens as cache_tokens
 from utils.cache import users as cache_users
 from utils.cache.carrier import (
     USERS_RENDERED_FACT,
     CarrierInvisibleError,
     merged_users_cache_key,
 )
-from utils.cache.users import store as cache_users_store
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import dump_yaml_str
 from utils.domains.default_primary import default_domain_primary
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_USERS
@@ -349,7 +349,7 @@ class TestResolveTokensFile(unittest.TestCase):
             sentinel.write_text("users: {}\n", encoding="utf-8")
             cache_base.DEFAULT_TOKENS_FILE = sentinel
             try:
-                result = cache_users._resolve_tokens_file(variables={})
+                result = cache_tokens.resolve_tokens_file(variables={})
                 self.assertEqual(result, sentinel)
             finally:
                 cache_base.DEFAULT_TOKENS_FILE = previous
@@ -358,7 +358,7 @@ class TestResolveTokensFile(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             explicit = Path(tmp) / "tokens.yml"
             explicit.write_text("users: {}\n", encoding="utf-8")
-            result = cache_users._resolve_tokens_file(
+            result = cache_tokens.resolve_tokens_file(
                 variables={"FILE_TOKENS": str(explicit)}
             )
             self.assertEqual(result, explicit)
@@ -366,8 +366,8 @@ class TestResolveTokensFile(unittest.TestCase):
 
 class TestLoadStoreUsers(unittest.TestCase):
     def test_missing_path_returns_empty(self):
-        self.assertEqual(cache_users._load_store_users(None), {})
-        self.assertEqual(cache_users._load_store_users(""), {})
+        self.assertEqual(cache_tokens.load_store_users(None), {})
+        self.assertEqual(cache_tokens.load_store_users(""), {})
 
     def test_yaml_users_block_passes_through(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -376,7 +376,7 @@ class TestLoadStoreUsers(unittest.TestCase):
                 dump_yaml_str({"users": {"alice": {"tokens": {"x": "y"}}}}),
                 encoding="utf-8",
             )
-            result = cache_users._load_store_users(path)
+            result = cache_tokens.load_store_users(path)
             self.assertEqual(result, {"alice": {"tokens": {"x": "y"}}})
 
 
@@ -578,9 +578,7 @@ class TestGetMergedUsersCarrierFact(unittest.TestCase):
         return {
             "inventory_hostname": host,
             "users": {"foo": {"email": "foo@example.org"}},
-            cache_users_store.STORE_FACT: {
-                "foo": {"tokens": {"web-app-foo": "minted"}}
-            },
+            cache_tokens.STORE_FACT: {"foo": {"tokens": {"web-app-foo": "minted"}}},
         }
 
     @staticmethod
@@ -654,7 +652,7 @@ class TestGetMergedUsersCarrierFact(unittest.TestCase):
             roles = _seed_minimal_user_role(Path(tmp))
             variables = self._variables()
             self._park(roles, variables, {"foo": {"carried": True}})
-            variables[cache_users_store.STORE_FACT] = {
+            variables[cache_tokens.STORE_FACT] = {
                 "foo": {"tokens": {"web-app-foo": "rotated"}}
             }
             merged, renders = self._merged(roles, variables)
@@ -671,7 +669,7 @@ class TestGetMergedUsersCarrierFact(unittest.TestCase):
             encoding="utf-8",
         )
         variables = self._variables()
-        del variables[cache_users_store.STORE_FACT]
+        del variables[cache_tokens.STORE_FACT]
         variables["FILE_TOKENS"] = str(tokens)
         carried = self._park(roles, variables, {"foo": {"carried": True}})
         return roles, variables, tokens, carried
@@ -696,7 +694,7 @@ class TestGetMergedUsersCarrierFact(unittest.TestCase):
             roles, variables, _, carried = self._park_from_the_tokens_file(
                 Path(tmp), "minted"
             )
-            variables[cache_users_store.STORE_FACT] = {
+            variables[cache_tokens.STORE_FACT] = {
                 "foo": {"tokens": {"web-app-foo": "minted"}}
             }
             merged, renders = self._merged(roles, variables)
@@ -764,8 +762,8 @@ class TestStoreSignature(unittest.TestCase):
     @staticmethod
     def _signature(store: dict) -> tuple:
         with tempfile.TemporaryDirectory() as tmp:
-            return cache_users._store_signature(
-                {cache_users_store.STORE_FACT: store}, Path(tmp) / "tokens.yml"
+            return cache_tokens.store_signature(
+                {cache_tokens.STORE_FACT: store}, Path(tmp) / "tokens.yml"
             )
 
     @staticmethod
@@ -779,9 +777,9 @@ class TestStoreSignature(unittest.TestCase):
             tokens_file = Path(tmp) / "tokens.yml"
             tokens_file.write_text(dump_yaml_str({"users": store}), encoding="utf-8")
             self.assertEqual(
-                cache_users._store_signature({}, tokens_file),
-                cache_users._store_signature(
-                    {cache_users_store.STORE_FACT: store}, tokens_file
+                cache_tokens.store_signature({}, tokens_file),
+                cache_tokens.store_signature(
+                    {cache_tokens.STORE_FACT: store}, tokens_file
                 ),
             )
 
@@ -789,10 +787,8 @@ class TestStoreSignature(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             absent = Path(tmp) / "tokens.yml"
             self.assertEqual(
-                cache_users._store_signature({}, absent),
-                cache_users._store_signature(
-                    {cache_users_store.STORE_FACT: {}}, absent
-                ),
+                cache_tokens.store_signature({}, absent),
+                cache_tokens.store_signature({cache_tokens.STORE_FACT: {}}, absent),
             )
 
     def test_fields_and_padding_the_hydration_ignores_keep_the_signature(self):

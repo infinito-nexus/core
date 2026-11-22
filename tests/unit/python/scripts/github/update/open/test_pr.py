@@ -1,16 +1,20 @@
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 
-from utils.cache.files import PROJECT_ROOT
+from cli.contributing.update.label import UPDATE
+from cli.contributing.update.label.__main__ import LEVEL_OF_NAME
+from utils.cache.files import PROJECT_ROOT, read_text
 
 SCRIPT = PROJECT_ROOT / "scripts" / "github" / "update" / "open" / "pr.sh"
 PINNED_FILE = "pin.txt"
 GH_STUB = """#!/usr/bin/env bash
+printf '%s\\n' "$*" >> "${GH_STUB_LOG}"
 if [[ "$1 $2" == "pr list" ]]; then
 	printf '7\\t%s\\t%s\\n' "${GH_STUB_CROSS_REPO}" "${GH_STUB_BRANCH}"
 fi
@@ -32,10 +36,12 @@ class UpdatePrFixture:
         stub = stub_dir / "gh"
         stub.write_text(GH_STUB)
         stub.chmod(0o755)
+        self.gh_log = Path(tmp) / "gh.log"
         inherited = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
         self.env = {
             **inherited,
             "PATH": f"{stub_dir}{os.pathsep}{os.environ['PATH']}",
+            "GH_STUB_LOG": str(self.gh_log),
             "GIT_CONFIG_GLOBAL": os.devnull,
             "GIT_ALLOW_PROTOCOL": "file",
             "GH_TOKEN": "unused",
@@ -100,7 +106,7 @@ class UpdatePrFixture:
 
 
 class TestUpdatePrDedupe(unittest.TestCase):
-    def test_edited_branch_of_the_same_proposal_is_a_duplicate(self) -> None:
+    def test_edited_branch_of_the_same_proposal_is_a_labelled_duplicate(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             fixture = UpdatePrFixture(tmp)
             branch = f"update/pins-20251231-{fixture.fingerprint()[:7]}"
@@ -108,6 +114,14 @@ class TestUpdatePrDedupe(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn("Open PR #7 already carries this exact change", result.stdout)
             self.assertNotIn("Pushing change to branch", result.stdout)
+            level = re.search(r"^Update level: (\w+)$", result.stdout, re.MULTILINE)
+            self.assertIsNotNone(level, result.stdout)
+            self.assertIn(
+                "api --method POST repos/acme/widgets/issues/7/labels"
+                f" -f labels[]={UPDATE.name}"
+                f" -f labels[]={LEVEL_OF_NAME[level.group(1)].name}",
+                read_text(str(fixture.gh_log)).splitlines(),
+            )
 
     def test_fork_branch_with_the_same_suffix_is_not_a_duplicate(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

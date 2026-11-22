@@ -235,6 +235,18 @@ class TestApplicationsCarrierActionPlugin(unittest.TestCase):
         ):
             action.run(task_vars={})
 
+    def test_an_ansible_core_without_variable_layers_fails_with_its_version(self):
+        action = _make_action(_FakeTask(args={"clear": True}))
+        with (
+            patch("plugins.action.applications_carrier.VariableLayer", None),
+            patch("plugins.action.applications_carrier.release.__version__", "2.20.9"),
+            self.assertRaisesRegex(
+                AnsibleActionFail, r"2\.21 or newer, found 2\.20\.9"
+            ),
+        ):
+            action.run(task_vars={})
+        self.assertEqual(action.registered, {})
+
     def test_clear_drops_every_carrier_without_rendering(self):
         applications, users, loader = _lookups()
         action = _make_action(_FakeTask(args={"clear": True}))
@@ -264,6 +276,29 @@ class TestApplicationsCarrierActionPlugin(unittest.TestCase):
         self.assertFalse(result["changed"])
         self.assertEqual(applications.calls, [])
         self.assertEqual(users.calls, [])
+
+    def test_clear_overwrites_a_carrier_left_in_the_fact_cache(self):
+        action = _make_action(_FakeTask(args={"clear": True}))
+        stale = {"key": ["roles", ["a"]], "applications": {"x": {}}}
+        with patch(
+            "plugins.action.applications_carrier.ActionBase.run",
+            autospec=True,
+            return_value={},
+        ):
+            action.run(
+                task_vars={
+                    "ansible_facts": {
+                        APPLICATIONS_RENDERED_FACT: stale,
+                        "os_family": "Debian",
+                    }
+                }
+            )
+
+        self.assertEqual(
+            action.registered[VariableLayer.CACHEABLE_FACT],
+            {APPLICATIONS_RENDERED_FACT: None},
+        )
+        self.assertIsNone(_parked(action)[APPLICATIONS_RENDERED_FACT])
 
     def test_clear_false_still_renders(self):
         applications, users, loader = _lookups()

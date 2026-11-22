@@ -12,7 +12,8 @@
         },
         "command": [
           "--transaction-isolation=READ-COMMITTED",
-          "--binlog-format=ROW"
+          "--binlog-format=ROW",
+          "--init-file="
         ],
         "deploy": {
           "placement": {

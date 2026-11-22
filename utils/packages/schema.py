@@ -48,6 +48,20 @@ pulls them from a Flatpak remote::
 named after the application id, not after the binary inside it, so without
 this key a role calling ``blender`` finds nothing on PATH.
 
+``architectures`` narrows one distro entry to the CPU architectures its
+source publishes, drawn from
+:data:`utils.github.variant.pools.ARCHITECTURES`; absent means every one::
+
+    blender:
+      centos:
+        source: flatpak
+        names: [org.blender.Blender]
+        architectures: [amd64]
+
+The deploy matrix keeps a role installing it off that distro and
+architecture pair, and ``package_install`` refuses it there before any
+module runs.
+
 ``source: download`` fetches one vendor artefact and installs it locally,
 for a vendor that publishes a ``.deb`` or ``.rpm`` but runs no repository::
 
@@ -63,6 +77,15 @@ for a vendor that publishes a ``.deb`` or ``.rpm`` but runs no repository::
 the package manager. ``checksum`` is mandatory: the URL alone would install
 whatever the vendor serves today, and a mismatch must abort the fetch
 rather than reach the package manager.
+
+``download.repo_files`` lists the repository definitions the artefact's
+install script registers, each a file directly under one of
+:data:`VENDOR_REPO_DIRS`; they are removed right after the install::
+
+    download:
+      url: https://downloads.cursor.com/.../cursor-3.27.6.el8.x86_64.rpm
+      checksum: sha256:f06d4f...
+      repo_files: [/etc/yum.repos.d/cursor.repo]
 
 A bare list is shorthand for ``{names: [...], source: repo}``. An empty
 list states that the package is deliberately not installed on that family,
@@ -96,9 +119,11 @@ file, so the batch knows to install it with the role::
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import PurePosixPath
 from typing import TYPE_CHECKING, Any
 
 from utils.distros import distro_family
+from utils.github.variant.pools import ARCHITECTURES
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -141,6 +166,8 @@ DOWNLOAD_CHECKSUM_PREFIXES: tuple[str, ...] = ("sha256:", "sha512:")
 """Digest algorithms strong enough to pin a vendor artefact. ``get_url``
 also accepts md5 and sha1, which a prefix check must keep out."""
 
+VENDOR_REPO_DIRS: tuple[str, ...] = ("/etc/apt/sources.list.d", "/etc/yum.repos.d")
+
 REPO_KEYS: frozenset[str] = frozenset(
     {
         "baseurl",
@@ -154,6 +181,22 @@ REPO_KEYS: frozenset[str] = frozenset(
 )
 """A repository definition must declare at least one of these; the rest
 (``name``, ``description``, ``gpgkey``, ``gpgcheck``, ``state``) qualify it."""
+
+ENTRY_KEYS: frozenset[str] = frozenset(
+    {
+        "names",
+        "source",
+        "repo",
+        "virtual",
+        "build",
+        "download",
+        "flatpak",
+        "architectures",
+    }
+)
+"""Every key a distro entry may carry. Anything else is refused rather than
+ignored: a misspelt ``architecture`` would otherwise drop the narrowing and
+install where the source publishes nothing."""
 
 DISTRO_FAMILY: dict[str, str] = distro_family()
 """The default distro matrix mapped onto the ``os_family`` ansible reports
@@ -176,6 +219,23 @@ class PackageSpec:
     build: dict[str, Any] | None = None
     flatpak: dict[str, Any] | None = None
     download: dict[str, Any] | None = None
+    architectures: tuple[str, ...] = ARCHITECTURES
+
+
+def _validate_architectures(
+    package_id: str, key: str, architectures: Any, path: Path
+) -> None:
+    if (
+        not isinstance(architectures, list)
+        or not architectures
+        or any(value not in ARCHITECTURES for value in architectures)
+    ):
+        raise PackagesShapeError(
+            f"{path}: {package_id}.{key}.architectures must be a non-empty "
+            f"list drawn from {ARCHITECTURES}, got {architectures!r}. An "
+            f"unknown token would match no host and refuse the package "
+            f"everywhere."
+        )
 
 
 def _validate_repo(package_id: str, key: str, repo: Any, path: Path) -> None:
@@ -237,6 +297,22 @@ def _validate_download(
             f"{sorted(DOWNLOAD_CHECKSUM_PREFIXES)} followed by the digest; "
             "without it the URL installs whatever the vendor serves today."
         )
+    _validate_repo_files(package_id, key, download.get("repo_files", []), path)
+
+
+def _validate_repo_files(
+    package_id: str, key: str, repo_files: Any, path: Path
+) -> None:
+    if not isinstance(repo_files, list) or any(
+        not isinstance(repo_file, str)
+        or PurePosixPath(repo_file).parent.as_posix() not in VENDOR_REPO_DIRS
+        for repo_file in repo_files
+    ):
+        raise PackagesShapeError(
+            f"{path}: {package_id}.{key}.download.repo_files must list files "
+            f"directly under {sorted(VENDOR_REPO_DIRS)}, got {repo_files!r}; "
+            "each one is removed as root after the install."
+        )
 
 
 def _validate_flatpak(
@@ -270,6 +346,12 @@ def normalize_entry(package_id: str, key: str, value: Any, path: Path) -> Packag
             f"{path}: {package_id}.{key} must be a list of names or a mapping, "
             f"got {type(value).__name__}."
         )
+    unknown = sorted(set(value) - ENTRY_KEYS)
+    if unknown:
+        raise PackagesShapeError(
+            f"{path}: {package_id}.{key} has unknown key(s) {unknown}; an entry "
+            f"may carry {sorted(ENTRY_KEYS)}."
+        )
 
     names = value.get("names")
     if not isinstance(names, list) or any(not isinstance(n, str) for n in names):
@@ -302,6 +384,16 @@ def normalize_entry(package_id: str, key: str, value: Any, path: Path) -> Packag
     flatpak = value.get("flatpak")
     _validate_flatpak(package_id, key, source, flatpak, path)
 
+    architectures = value.get("architectures", list(ARCHITECTURES))
+    _validate_architectures(package_id, key, architectures, path)
+
     return PackageSpec(
-        tuple(names), str(source), repo, virtual, build, flatpak, download
+        tuple(names),
+        str(source),
+        repo,
+        virtual,
+        build,
+        flatpak,
+        download,
+        tuple(architectures),
     )

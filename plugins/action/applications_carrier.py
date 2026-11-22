@@ -8,7 +8,9 @@ as non-persistent host variables, the layer ``set_fact`` writes; every later
 worker inherits them at fork time and ``get_merged_applications`` /
 ``get_merged_users`` serve them instead of rendering. They stay out of the
 fact cache on purpose: ``get_vars`` deep-copies every fact before every task,
-and these are the whole rendered trees. The users carrier is keyed like the applications carrier plus
+and these are the whole rendered trees. The action also registers an empty
+cacheable layer, as ``set_fact`` does, so ansible-core never copies a result's
+``ansible_facts`` into the fact cache. The users carrier is keyed like the applications carrier plus
 the token store digest and ``inventory_hostname``::
 
     - name: 🧊 Render the applications SPOT once and carry it into every task's worker
@@ -16,8 +18,8 @@ the token store digest and ``inventory_hostname``::
 
 ``tasks/stages/01_constructor.yml`` parks three of them: a block-scoped one
 for the merge block, which it drops again at the block's end, one after the
-``add_host`` tasks for the swarm bootstrap roles, parked only when
-``DEPLOYMENT_MODE`` is ``swarm``, and the stage-wide one after the token store. ``merged_applications_cache_key`` reads ``group_names``, so a
+``add_host`` tasks for the ``update`` role, the pre-flight checks, the package
+batch and the bootstrap roles, and the stage-wide one after the token store. ``merged_applications_cache_key`` reads ``group_names``, so a
 carrier whose groups no longer match is rejected and the reader renders
 afresh. ``merged_users_cache_key`` adds a digest of the tokens the users are
 hydrated from (the tokens file, or the ``sys_token_store_users`` fact once the
@@ -53,9 +55,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from ansible import release
 from ansible.errors import AnsibleActionFail
 from ansible.module_utils.parsing.convert_bool import boolean
-from ansible.plugins.action import ActionBase, VariableLayer
+from ansible.plugins.action import ActionBase
 from ansible.plugins.loader import lookup_loader
 
 from plugins.lookup.email import provider_view_carrier
@@ -67,6 +70,11 @@ from utils.cache.carrier import (
     revalidate_tokens_file,
 )
 
+try:
+    from ansible.plugins.action import VariableLayer
+except ImportError:
+    VariableLayer = None
+
 
 class ActionModule(ActionBase):
     TRANSFERS_FILES = False
@@ -74,6 +82,12 @@ class ActionModule(ActionBase):
     def run(
         self, tmp: Any = None, task_vars: dict[str, Any] | None = None
     ) -> dict[str, Any]:
+        if VariableLayer is None:
+            raise AnsibleActionFail(
+                "applications_carrier needs ansible-core 2.21 or newer, found "
+                f"{release.__version__}; install the `deploy` extra of "
+                "pyproject.toml (make install-python)"
+            )
         result = super().run(tmp, task_vars)
         task_vars = task_vars or {}
         args = self._task.args or {}
@@ -85,13 +99,13 @@ class ActionModule(ActionBase):
             )
 
         if boolean(args.get("clear", False)):
-            self._park(
-                {
-                    APPLICATIONS_RENDERED_FACT: None,
-                    USERS_RENDERED_FACT: None,
-                    PROVIDER_VIEW_RENDERED_FACT: None,
-                }
-            )
+            cleared = {
+                APPLICATIONS_RENDERED_FACT: None,
+                USERS_RENDERED_FACT: None,
+                PROVIDER_VIEW_RENDERED_FACT: None,
+            }
+            facts = task_vars.get("ansible_facts") or {}
+            self._park(cleared, {fact: None for fact in cleared if fact in facts})
             result.update(changed=False)
             return result
 
@@ -122,10 +136,18 @@ class ActionModule(ActionBase):
             if view_carrier is not None:
                 carriers[PROVIDER_VIEW_RENDERED_FACT] = view_carrier
 
-        self._park(carriers)
+        self._park(carriers, {})
         result.update(changed=False, _ansible_no_log=True)
         return result
 
-    def _park(self, carriers: dict[str, Any]) -> None:
-        self.register_host_variables({}, VariableLayer.CACHEABLE_FACT)
+    def _park(self, carriers: dict[str, Any], cacheable: dict[str, Any]) -> None:
+        """Register the carriers outside the fact cache.
+
+        Args:
+            carriers: carrier variables for the ephemeral fact layer.
+            cacheable: entries for the cacheable fact layer. The fact cache
+                merges this layer, so an empty mapping leaves a stale carrier
+                there; only ``None`` overwrites its payload.
+        """
+        self.register_host_variables(cacheable, VariableLayer.CACHEABLE_FACT)
         self.register_host_variables(carriers, VariableLayer.EPHEMERAL_FACT)

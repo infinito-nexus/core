@@ -1,6 +1,18 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "📂 For '{{ application_id }}': own the compose handler topic"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+    tasks_from: none.yml
+    handlers_from: main
+
+- name: "🥾 For '{{ application_id }}': bootstrap the compose host once"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+    tasks_from: 00_core.yml
+  when: run_once_sys_svc_compose is not defined
+
 - include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/db/ha/prepare.yml') }}"
 
 - name: "📄 Render the HAProxy write endpoint config"
@@ -23,6 +35,22 @@
 
     - name: "📄 MariaDB HA | Render option files and the image build context"
       include_tasks: ha/02_files.yml
+
+- name: "📄 Lay down the MariaDB health identity init file on the stack host"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "✅ Ensure MariaDB volumes directory exists"
+      ansible.builtin.file:
+        path: "{{ MARIADB_VOLUMES_DIR }}"
+        state: directory
+        mode: "0755"
+
+    - name: "📄 Copy the health identity init file"
+      stack_host_copy:
+        src: sql/ensure_health_identity.sql
+        dest: "{{ MARIADB_HEALTH_IDENTITY_FILE }}"
+        mode: "0444"
+      notify: compose-up
 
 - name: "🔧 Setup container network for {{ application_id }}"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"

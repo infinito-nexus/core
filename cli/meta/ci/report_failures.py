@@ -16,7 +16,7 @@ from utils.roles.display import display_names
 
 _DECISIVE_FILES = ("error-context.md", "meta.txt", "containers.txt")
 _TITLE = "CI failure: {role}"
-_LABEL = "ci-failure"
+_LABEL = "💥 ci-failure"
 
 
 class Failure(NamedTuple):
@@ -221,6 +221,17 @@ def report(run_id: str, repo: str) -> int:
     return 0
 
 
+def has_snapshot(dest: Path) -> bool:
+    """Whether any artifact under *dest* holds a rescue snapshot.
+
+    Both rescue collectors write below ``<distro>/<app>/`` of the artifact,
+    while the host metrics log sits at its root on every run, green or red.
+    A file one folder deep inside an artifact is therefore real capture
+    content; a root file alone is not.
+    """
+    return any(path.is_file() for path in dest.glob("*/*/**/*"))
+
+
 def _download_excerpt(
     repo: str, run_id: str, role: str, failures: list[Failure], dest: Path
 ) -> str:
@@ -228,14 +239,24 @@ def _download_excerpt(
         name = artifact_name(role, failure)
         try:
             _gh(
-                ["run", "download", run_id, "--repo", repo, "-n", name, "-D", str(dest)]
+                [
+                    "run",
+                    "download",
+                    run_id,
+                    "--repo",
+                    repo,
+                    "-n",
+                    name,
+                    "-D",
+                    str(dest / name),
+                ]
             )
         except subprocess.CalledProcessError:
             continue
-    return decisive_excerpt(dest) if dest.is_dir() else _NO_ARTIFACT
+    return decisive_excerpt(dest) if has_snapshot(dest) else _NO_SNAPSHOT
 
 
-_NO_ARTIFACT = "_No rescue-diagnostics artifact was uploaded for this role._"
+_NO_SNAPSHOT = "_No rescue snapshot was captured for this role._"
 
 
 def main(argv: list[str] | None = None) -> int:

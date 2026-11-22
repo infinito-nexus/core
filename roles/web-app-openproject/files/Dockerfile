@@ -18,4 +18,6 @@ RUN f=$(find /app/vendor/bundle -path '*grape*/lib/grape/exceptions/incompatible
       sed -i "1irequire_relative 'base'" "$f"; \
     fi
 
-RUN ./docker/prod/setup/precompile-assets.sh
+RUN ./docker/prod/setup/precompile-assets.sh \
+ && printf '%s\n' 'ActiveRecord::Tasks::DatabaseTasks.structure_load_flags = ["--single-transaction"]' \
+      > /app/config/initializers/zz_structure_load_single_transaction.rb

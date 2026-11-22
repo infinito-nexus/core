@@ -115,9 +115,9 @@ def _place(declared: dict[str, Source], roles_dir: Path, work_dir: Path) -> list
             staging = _holder(work_dir, group, holders) / group
             origin = stage(group, source, staging)
             _check_role(group, staging)
-            write_marker(staging, group, origin)
+            write_marker(staging, group, origin.provenance, origin.version)
             staged.append((staging, roles_dir / group))
-            lines.append(f"{group}: {origin}")
+            lines.append(f"{group}: {origin.provenance}")
         for _staging, target in staged:
             _check_target(target)
         dropped = [entry for entry in undeclared if is_placed(entry)]
@@ -179,7 +179,7 @@ def _check_role(group: str, staged: Path) -> None:
 def _locked(work_dir: Path) -> Iterator[None]:
     work_dir.mkdir(parents=True, exist_ok=True)
     lock = work_dir / LOCK_FILE
-    descriptor = os.open(lock, os.O_RDONLY | os.O_CREAT | os.O_NOFOLLOW, 0o644)
+    descriptor = os.open(lock, os.O_RDONLY | os.O_CREAT | os.O_NOFOLLOW, 0o600)
     try:
         try:
             fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)

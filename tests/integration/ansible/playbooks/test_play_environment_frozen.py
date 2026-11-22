@@ -7,7 +7,9 @@ end of the play and fails when a source changed after the freeze, because
 every task after the change ran with the stale value.
 
 These cases run real Ansible with the two shared task files: the frozen value
-reaches a module's environment, and a source changed mid-play fails the check.
+reaches a task, a handler and a delegated task while a task's own
+``environment:`` still wins, a source changed mid-play fails the check, and a
+``--tags`` run still freezes and checks.
 """
 
 import shutil
@@ -36,35 +38,65 @@ PLAY = f"""---
   environment: "{{{{ PLAY_ENVIRONMENT }}}}"
   pre_tasks:
     - name: Freeze
-      ansible.builtin.include_tasks: {FREEZE}
+      ansible.builtin.include_tasks:
+        file: {FREEZE}
+        apply:
+          tags: [always]
+      tags: [always]
   tasks:
     - name: Report the value a module sees
-      ansible.builtin.shell: printf '%s' "$PROBE_VALUE" > "{{{{ probe_out }}}}"
+      ansible.builtin.shell: printf '%s' "$PROBE_VALUE" > "{{{{ probe_dir }}}}/task"
+      changed_when: true
+      notify: Report the value a handler sees
+      tags: [probe]
+
+    - name: Report the value a task with its own environment sees
+      ansible.builtin.shell: printf '%s' "$PROBE_VALUE" > "{{{{ probe_dir }}}}/override"
+      environment:
+        PROBE_VALUE: own
       changed_when: false
+      tags: [probe]
+
+    - name: Report the value a delegated task sees
+      ansible.builtin.shell: printf '%s' "$PROBE_VALUE" > "{{{{ probe_dir }}}}/delegated"
+      delegate_to: localhost
+      changed_when: false
+      tags: [probe]
 
     - name: Change the source mid-play
       ansible.builtin.set_fact:
         probe_source: changed
       when: change_source | bool
+      tags: [probe]
+  handlers:
+    - name: Report the value a handler sees
+      ansible.builtin.shell: printf '%s' "$PROBE_VALUE" > "{{{{ probe_dir }}}}/handler"
+      changed_when: false
   post_tasks:
     - name: Check
-      ansible.builtin.include_tasks: {CHECK}
+      ansible.builtin.include_tasks:
+        file: {CHECK}
+        apply:
+          tags: [always]
+      tags: [always]
 """
 
+PROBES = ("task", "override", "delegated", "handler")
 
-def _run(change_source: bool) -> tuple[int, str, str]:
+
+def _run(change_source: bool, tags: list[str]) -> tuple[int, str, dict[str, str]]:
     """Run the play once.
 
     Args:
         change_source: whether the play changes the source after the freeze.
+        tags: the ``--tags`` to pass, none for a full run.
 
     Returns:
-        ``(exit code, combined output, value the module saw)``.
+        ``(exit code, combined output, value each probe saw)``.
     """
     with tempfile.TemporaryDirectory() as tmp:
         workdir = Path(tmp)
         (workdir / "play.yml").write_text(PLAY, encoding="utf-8")
-        probe_out = workdir / "probe.txt"
         result = subprocess.run(
             [
                 "ansible-playbook",
@@ -74,30 +106,49 @@ def _run(change_source: bool) -> tuple[int, str, str]:
                 "local",
                 str(workdir / "play.yml"),
                 "-e",
-                f"probe_out={probe_out}",
+                f"probe_dir={workdir}",
                 "-e",
                 f"change_source={change_source}",
+                *[f"--tags={tag}" for tag in tags],
             ],
             cwd=str(workdir),
             capture_output=True,
             text=True,
             check=False,
         )
-        seen = read_text(str(probe_out)) if probe_out.exists() else ""
+        seen = {
+            probe: read_text(str(workdir / probe))
+            for probe in PROBES
+            if (workdir / probe).exists()
+        }
     return result.returncode, result.stdout + result.stderr, seen
 
 
 @unittest.skipUnless(shutil.which("ansible-playbook"), "ansible-playbook not found")
 class TestPlayEnvironmentFrozen(unittest.TestCase):
-    def test_a_module_sees_the_frozen_value_and_the_check_passes(self):
-        code, output, seen = _run(change_source=False)
+    def test_tasks_handlers_and_delegates_see_the_frozen_value(self):
+        code, output, seen = _run(change_source=False, tags=[])
         self.assertEqual(code, 0, output)
-        self.assertEqual(seen, "frozen")
+        self.assertEqual(
+            seen,
+            {
+                "task": "frozen",
+                "override": "own",
+                "delegated": "frozen",
+                "handler": "frozen",
+            },
+        )
 
     def test_a_source_changed_mid_play_fails_the_check(self):
-        code, output, seen = _run(change_source=True)
+        code, output, seen = _run(change_source=True, tags=[])
         self.assertNotEqual(code, 0, output)
-        self.assertEqual(seen, "frozen")
+        self.assertEqual(seen["task"], "frozen")
+        self.assertIn("A source of the play environment changed", output)
+
+    def test_a_tagged_run_still_freezes_and_checks(self):
+        code, output, seen = _run(change_source=True, tags=["probe"])
+        self.assertNotEqual(code, 0, output)
+        self.assertEqual(seen["task"], "frozen")
         self.assertIn("A source of the play environment changed", output)
 
 

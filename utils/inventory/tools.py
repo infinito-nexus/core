@@ -1,35 +1,16 @@
-"""The tools lane: the host vars its services deploy with, and bringing it up.
+"""The tools lane: bringing it up and reaching its services.
 
 The lane holds the toolchain services the repository's own targets and tests
 call: the translation engine behind the ``i18n`` targets, and the System One
 classifier the semantic suite asks for a verdict. A caller names the roles it
 needs and gets them running, so a check is never skipped merely because
-nothing happened to be up.
-
-The template carries Ansible expressions the deploy resolves later, so it is
-rendered with the Ansible parts inside ``raw`` blocks; everything this module
-fills is an ordinary Jinja expression. The rendered file lands beside the
-template so the runner's bind mount of the repository exposes it inside the
-container.
+nothing happened to be up. The host vars those services deploy with are
+rendered by :mod:`utils.inventory.tools_vars`.
 
 Nothing here deploys a cache: the runner extends ``compose.cache-consumer.yml``
 from the outer stack, so its image pulls already traverse ``registry-cache``
 and its package and model downloads resolve to ``package-cache-frontend``
 through that file's ``extra_hosts``.
-
-System One authenticates its callers, and its key is an
-``algorithm: alphanumeric`` credential the provisioner would otherwise
-generate into a vault the caller cannot read back. :data:`API_KEY` pins one
-instead, so the lane and the checks that call it agree without reading a vault
-or passing a secret on a command line. It is a fixed literal because the lane
-serves the repository's own tooling on a developer machine and reaches no
-deployment that holds data, the same standing as the dummy authorized key the
-template already carries. Never reuse it anywhere a real caller could reach.
-
-:data:`LITELLM_KEY` pins the model gateway's master key for the same reason
-and under the same standing. A deployment hands each consumer a virtual key
-instead, which is what the role's secret description asks for; the oracle
-judge is not a deployed consumer and has no vault to read one from.
 
 The lane pins its own model in the template, rather than taking the
 repository's ``AI_LOCAL_MODELS`` default: the oracle needs a judge that can
@@ -42,40 +23,28 @@ two are held together by a test that renders the template.
 
 from __future__ import annotations
 
-import os
 import subprocess
 from pathlib import Path
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined
-
 from utils.cache.yaml import load_yaml
+from utils.i18n.libretranslate import (
+    baked_languages,
+    deploy,
+    deploying,
+    environment,
+    lane_container,
+)
+from utils.inventory.tools_vars import LANE_SERVICE, LITELLM_KEY
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
-TEMPLATE = Path("inventories") / "development" / "tools.yml.j2"
-RENDERED = Path("inventories") / "development" / "tools.rendered.yml"
 ADDRESS = Path("inventories") / "development" / "tools.address"
-API_KEY = "toolsLaneTestKeyNotASecret0000000000"
-LITELLM_KEY = "toolsLaneLiteLlmMasterKeyNotASecret000000000000000000"
 LIBRETRANSLATE_ROLE = "svc-ai-libretranslate-engine"
 S1_ROLE = "svc-ai-s1"
 LITELLM_ROLE = "svc-ai-litellm"
 OLLAMA_ROLE = "svc-ai-ollama"
 GATEWAY_ROLE = "web-svc-translate"
-LANE_SERVICE = "tools"
 LANE_MODEL_ALIAS = "qwen2.5:3b"
 PROBE_TIMEOUT_SECONDS = 10
-
-
-def models_dir() -> str:
-    """Return the node-local directory the lane keeps its models in.
-
-    Reads the same value ``compose/tools.override.yml`` mounts into the
-    runner, so a bind the inventory writes resolves to the host directory
-    rather than to something inside the runner that a rebuild discards.
-    """
-    from utils.env.handlers.infinito.tools.models import KEY, default
-
-    return (os.environ.get(KEY) or "").strip() or default()
 
 
 def lane_ip(root: Path) -> str:
@@ -93,8 +62,6 @@ def lane_ip(root: Path) -> str:
     """
     import ipaddress
     import json
-
-    from utils.i18n.libretranslate import environment, lane_container
 
     env = environment(root)
     found = subprocess.run(
@@ -181,8 +148,6 @@ def host_url(root: Path, role: str, service_key: str) -> str:
         role: application id owning the service.
         service_key: key under ``meta/services.yml``.
     """
-    from utils.i18n.libretranslate import environment
-
     services = load_yaml(root / "roles" / role / ROLE_FILE_META_SERVICES)
     port = services[service_key]["ports"]["local"]["http"]
     return f"http://{environment(root)['INFINITO_BIND_IP']}:{port}"
@@ -334,42 +299,6 @@ def serving(root: Path, load_only: list[str], roles: tuple[str, ...]) -> bool:
     return {_base_subtag(code) for code in load_only} <= served
 
 
-def render(root: Path, load_only: list[str]) -> Path:
-    """Write the tools lane host vars and return the rendered file.
-
-    Args:
-        root: repository root.
-        load_only: every language code the lane's image prefetches models for.
-            Pinning the whole set keeps the build ARG constant, so the prefetch
-            layer is not rebuilt once per batch.
-
-    Returns:
-        The rendered file.
-    """
-    template_path = root / TEMPLATE
-    env = Environment(
-        loader=FileSystemLoader(str(template_path.parent)),
-        undefined=StrictUndefined,
-        keep_trailing_newline=True,
-        trim_blocks=True,
-        lstrip_blocks=True,
-        variable_start_string="[[",
-        variable_end_string="]]",
-        block_start_string="[%",
-        block_end_string="%]",
-        autoescape=False,  # noqa: S701 - YAML output, HTML escaping would corrupt it
-    )
-    body = env.get_template(template_path.name).render(
-        load_only=sorted(load_only),
-        s1_api_key=API_KEY,
-        litellm_master_key=LITELLM_KEY,
-        models_dir=models_dir(),
-    )
-    rendered = root / RENDERED
-    rendered.write_text(body, encoding="utf-8")
-    return rendered
-
-
 def ensure(root: Path, roles: tuple[str, ...]) -> None:
     """Bring the named lane roles up, unless they already serve.
 
@@ -394,8 +323,6 @@ def ensure(root: Path, roles: tuple[str, ...]) -> None:
         RuntimeError: a deploy already holds the container stack this one
             would touch.
     """
-    from utils.i18n.libretranslate import baked_languages, deploy, deploying
-
     if serving(root, baked_languages(root), roles):
         print(
             f"tools lane already serves {', '.join(roles)}; not deploying", flush=True
@@ -437,7 +364,6 @@ def main(argv: list[str] | None = None) -> int:
     import argparse
 
     from utils import PROJECT_ROOT
-    from utils.i18n.libretranslate import baked_languages
 
     default_roles = [
         LIBRETRANSLATE_ROLE,

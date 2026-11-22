@@ -7,6 +7,8 @@ from ansible.plugins.action import ActionBase
 from ansible.plugins.loader import become_loader, shell_loader
 
 from plugins.action.package_install import ActionModule
+from utils.cache.files import PROJECT_ROOT
+from utils.cache.yaml import load_yaml_any
 from utils.packages.calls import (
     GENERIC_PACKAGE,
     STATE_ABSENT,
@@ -16,9 +18,13 @@ from utils.packages.calls import (
     package_call,
 )
 from utils.packages.outcome import aggregate
+from utils.packages.plan import HOST_ARCHITECTURE_VAR
 from utils.packages.schema import PackageSpec
 
 QUERY = "ansible.builtin.command"
+_BY_KERNEL = load_yaml_any(str(PROJECT_ROOT / "group_vars" / "all" / "00_general.yml"))[
+    HOST_ARCHITECTURE_VAR
+]
 
 
 def _modules(execute) -> list[str]:
@@ -262,8 +268,9 @@ class TestRunMergesPlainPlans(unittest.TestCase):
         "pkg_mgr": "apt",
     }
 
-    def _run(self, package_ids, specs, query=None):
+    def _run(self, package_ids, specs, query=None, facts=None, by_kernel=None):
         action = _action({"id": package_ids})
+        self.action = action
         action._task._role = None
         action._task.delegate_to = None
         action._connection = mock.Mock(become=None, transport="local")
@@ -286,8 +293,46 @@ class TestRunMergesPlainPlans(unittest.TestCase):
                 side_effect=lambda declaration, *_: specs[declaration.package_id],
             ),
         ):
-            result = action.run(task_vars={"ansible_facts": self.FACTS})
+            result = action.run(
+                task_vars={
+                    "ansible_facts": facts or self.FACTS,
+                    HOST_ARCHITECTURE_VAR: _BY_KERNEL
+                    if by_kernel is None
+                    else by_kernel,
+                }
+            )
         return action._execute_module, result
+
+    def _centos(self, kernel, by_kernel=None):
+        flathub_only = PackageSpec(
+            ("org.blender.Blender",), source="flatpak", architectures=("amd64",)
+        )
+        facts = {
+            "distribution": "CentOS",
+            "os_family": "RedHat",
+            "pkg_mgr": "dnf",
+            "architecture": kernel,
+        }
+        with self.assertRaises(AnsibleActionFail) as caught:
+            self._run(
+                ["git", "blender"],
+                {"git": PackageSpec(("git",)), "blender": flathub_only},
+                facts=facts,
+                by_kernel=by_kernel,
+            )
+        self.assertEqual(self.action._execute_module.call_args_list, [])
+        return str(caught.exception)
+
+    def test_an_unpublished_architecture_fails_before_any_module_runs(self):
+        self.assertIn(
+            "'blender' cannot be installed on centos arm64", self._centos("aarch64")
+        )
+
+    def test_an_unmapped_kernel_architecture_fails_loud(self):
+        self.assertIn(HOST_ARCHITECTURE_VAR, self._centos("riscv64"))
+
+    def test_the_kernel_map_comes_from_the_inventory(self):
+        self.assertIn(HOST_ARCHITECTURE_VAR, self._centos("x86_64", by_kernel={}))
 
     def test_two_repository_ids_cost_one_package_manager_call(self):
         execute, _result = self._run(

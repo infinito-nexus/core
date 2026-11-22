@@ -160,9 +160,10 @@ async function measure(page, selector) {
     const ctx = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
     const rgba = (value) => {
       ctx.clearRect(0, 0, 1, 1);
-      ctx.fillStyle = "#000";
+      ctx.save();
       ctx.fillStyle = value;
       ctx.fillRect(0, 0, 1, 1);
+      ctx.restore();
       const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
       return [r, g, b, a / 255];
     };

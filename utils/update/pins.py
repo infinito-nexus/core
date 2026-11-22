@@ -54,3 +54,23 @@ def archive_index(lines: list[str]) -> int | None:
         if re.match(r"^\s+archive\s*:", line):
             return index
     return None
+
+
+def bump_archive(line: str, current: str, latest: str) -> str:
+    """Return the archive line with every occurrence of the pinned version moved.
+
+    Args:
+        line: the ``archive`` line of an addon.
+        current: the pinned version, with or without a leading ``v``.
+        latest: the version it moves to.
+
+    Returns:
+        The line with each occurrence of ``current`` replaced by ``latest``,
+        each keeping its own ``v`` prefix or lack of one.
+    """
+    old, new = current.removeprefix("v"), latest.removeprefix("v")
+    return re.sub(
+        rf"(?<![\d.])(v?){re.escape(old)}(?!\.?\d)",
+        lambda found: found[1] + new,
+        line,
+    )

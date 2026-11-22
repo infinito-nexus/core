@@ -4,7 +4,7 @@
 
 This Ansible role provides Redis in two interchangeable shapes, selected per consumer with the `shared` flag (mirroring `svc-db-postgres`):
 
-- **Central** (`enabled: true`, `shared: true`): a Redis stack that many roles share through the `default` user. One host renders the standalone form; three or more hosts in the `svc-db-redis` inventory group on Swarm render the HA form with Sentinel.
+- **Central** (`enabled: true`, `shared: true`): a Redis stack that many roles share. Every consumer authenticates as the `default` user and keeps its keys under its own prefix `{entity}:`. One host renders the standalone, manager-pinned form; three or more hosts in the `svc-db-redis` inventory group on Swarm render the HA form with Sentinel.
 - **Embedded** (`enabled: true`, `shared: false`): a Redis sidecar rendered into the consumer's own compose stack via `templates/service.yml.j2`.
 
 ## Overview
@@ -16,7 +16,11 @@ The standalone central stack (`templates/compose.yml.j2`) runs `redis:alpine` fr
 - A `maxmemory` ceiling derived from the service `mem_limit` with an `allkeys-lru` policy.
 - A bind on `127.0.0.1:6379` plus the shared cross-stack overlay network for consumers.
 
-Applications share the `default` user; there are no per-application users.
+A shared consumer resolves its connection via `lookup('engine', 'redis', <consumer>, ...)`, which hands every consumer the `default` user, the `REDIS_PASSWORD` credential and the key prefix `{entity}`. There are no per-consumer ACL users: `sys-svc-engine` provisions no Redis consumer, so `tasks/01_init.yml` runs on no deploy path.
+
+A changed `REDIS_PASSWORD` restarts the standalone engine, and the restart drops every password but the new one while the consumers deployed later in the same pass still hold the old one. `tasks/00_core.yml` therefore reads the password hashes a healthy engine accepts before the restart and adds the replaced ones back after it. Once every server role has redeployed, `tasks/stages/02_server.yml` runs `tasks/utils/rotation/retire.yml` before the end-to-end tests: it leaves only the current password, empties the `ACL LOG` and disconnects every client. After the tests, `tasks/utils/rotation/verify.yml` fails the pass on every authentication Redis refused since then, so a consumer that never picked up the new secret fails loudly even when no test exercises it. The check runs only in the test runtimes, like the end-to-end tests. The HA form renders its ACL users from `infinito.conf` on every run and skips this carry.
+
+The replaced password stays valid for the rest of the server pass. A pass that aborts before the retire, or a deploy that leaves this role out, keeps it valid until a later deploy of this role reaches the retire step: every deploy carries it again, also across its own restart. When a rotation answers a leaked password, retire it by hand as described in `Administration.md`.
 
 ## High Availability (alpha)
 
@@ -60,6 +64,8 @@ The embedded snippet (`templates/service.yml.j2`) keeps the previous single-host
 
 - **Central or embedded** selected per consumer via `services.redis.shared`.
 - **Sentinel HA (alpha)** three instances and three Sentinels behind an HAProxy write endpoint on Swarm.
+- **Key prefixes** one prefix per consumer, `{entity}:`, on the shared `default` user.
+- **Rotation without a crash loop** the replaced password stays accepted until every server role has redeployed.
 - **Node-local state** on-disk state stays node-local (never on NFS) in swarm.
 - **Built-in healthcheck** authenticated `redis-cli ping`.
 

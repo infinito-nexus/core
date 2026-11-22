@@ -51,7 +51,7 @@ hugo:
   version: 1.31-alpine
   custom: true
   builder_image: ghcr.io/gohugoio/hugo
-  builder_version: v0.169.0
+  builder_version: v0.170.1
   source_repository: https://github.com/gohugoio/hugoDocs.git
   source_version: v0.165.0
   update:
@@ -77,6 +77,11 @@ hugo:
   mem_reservation: 128m
   mem_limit: 256m
   pids_limit: 256
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "1.31-alpine"
+        until: 2026-11-30
 # nocheck: email
 # nocheck: dynamic-flag
 email:

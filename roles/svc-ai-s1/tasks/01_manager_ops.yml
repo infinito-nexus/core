@@ -6,6 +6,18 @@
     resolve_output_prefix: S1
     resolve_compose_cid: "{{ S1_CONTAINER }}"
 
+- name: "⏳ Wait until the decider answers its healthcheck"
+  ansible.builtin.command: >-
+    container inspect --type container
+    --format={% raw %}{{.State.Health.Status}}{% endraw %}
+    {{ S1_LOCAL_CID }}
+  register: s1_health_result
+  retries: "{{ lookup('timeout', 600) | int // 5 }}"
+  delay: 5
+  until: (s1_health_result.stdout | trim) == 'healthy'
+  changed_when: false
+  delegate_to: "{{ S1_HOST_NODE }}"
+
 - name: "🔥 Warm the decider so the first route is not a cold load"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i {{ S1_LOCAL_CID | quote }} python3 -c {{ lookup('file', lookup('path_absolute', 'roles/svc-ai-s1/files/python/warm_model.py')) | quote }}

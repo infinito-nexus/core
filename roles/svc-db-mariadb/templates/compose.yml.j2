@@ -13,6 +13,7 @@
     command:
       - "--transaction-isolation=READ-COMMITTED"
       - "--binlog-format=ROW"
+      - "--init-file={{ MARIADB_HEALTH_IDENTITY_TARGET }}"
 {% if db_instance %}
       - "--server-id={{ MARIADB_SERVER_IDS[db_instance.host_id] }}"
     environment: # nocheck: compose-environment-from-env-file  values vary per HA instance of the db_instance loop

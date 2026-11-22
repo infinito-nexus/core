@@ -85,6 +85,11 @@ opentalk:
   run_after:
     - web-app-keycloak
   lifecycle: beta
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v2.9.2"
+        until: 2026-11-30
 controller:
   name: opentalk-controller
   image: registry.opencode.de/opentalk/controller
@@ -105,6 +110,11 @@ controller:
       http: 8072
     internal:
       http: 11311
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v0.34.5"
+        until: 2026-11-30
 livekit:
   name: opentalk-livekit
   image: livekit/livekit-server
@@ -123,6 +133,11 @@ livekit:
       relay:
         start: 60000
         end: 60999
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v1.13.11"
+        until: 2026-11-30
 # nocheck: playwright-service-flag — object store, no Playwright surface; the live S3 backend is the seaweedfs block below, web-app-minio is end of life and stays off
 minio:
   enabled: false # nocheck: dynamic-flag
@@ -148,7 +163,7 @@ rabbit:
     retries: 5
   name: opentalk-rabbit
   image: rabbitmq
-  version: 4.4.0
+  version: 4.4.1
   min_storage: 314MB
   cpus: "0.5"
   mem_reservation: 256m
@@ -170,6 +185,11 @@ recorder:
   mem_reservation: 512m
   mem_limit: 2g
   pids_limit: 1024
+  security:
+    suppressions:
+      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
+      - image_tag: "v0.17.5"
+        until: 2026-11-30
 # nocheck: playwright-service-flag — verified by web-svc-design provider spec
 design:
   bond: 1

@@ -119,6 +119,51 @@
     openclaw:
       enabled: false
       shared: false
+  addons: &addons_static_off
+    appointments:
+      enabled: false
+    calendar:
+      enabled: false
+    collectives:
+      enabled: false
+    contacts:
+      enabled: false
+    cospend:
+      enabled: false
+    drawio:
+      enabled: false
+    epubviewer:
+      enabled: false
+    event_update_notification:
+      enabled: false
+    external:
+      enabled: false
+    files_bpm:
+      enabled: false
+    forms:
+      enabled: false
+    gpxpod:
+      enabled: false
+    groupfolders:
+      enabled: false
+    mail:
+      enabled: false
+    metadata:
+      enabled: false
+    news:
+      enabled: false
+    phonetrack:
+      enabled: false
+    polls:
+      enabled: false
+    quota_warning:
+      enabled: false
+    recognize:
+      enabled: false
+    tables:
+      enabled: false
+    tasks:
+      enabled: false
 # Variant 1: minimal - SSO off, no partners
 - services:
     container_backup:
@@ -215,51 +260,7 @@
     openclaw:
       enabled: true
       shared: true
-  addons: &addons_static_off
-    appointments:
-      enabled: false
-    calendar:
-      enabled: false
-    collectives:
-      enabled: false
-    contacts:
-      enabled: false
-    cospend:
-      enabled: false
-    drawio:
-      enabled: false
-    epubviewer:
-      enabled: false
-    event_update_notification:
-      enabled: false
-    external:
-      enabled: false
-    files_bpm:
-      enabled: false
-    forms:
-      enabled: false
-    gpxpod:
-      enabled: false
-    groupfolders:
-      enabled: false
-    mail:
-      enabled: false
-    metadata:
-      enabled: false
-    news:
-      enabled: false
-    phonetrack:
-      enabled: false
-    polls:
-      enabled: false
-    quota_warning:
-      enabled: false
-    recognize:
-      enabled: false
-    tables:
-      enabled: false
-    tasks:
-      enabled: false
+  addons: *addons_static_off
 # Variant 2: openwebui
 - services:
     container_backup:
@@ -735,7 +736,6 @@
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    # variant-pin: web-app-keycloak#1
     sso:
       enabled: true
       shared: true
@@ -793,7 +793,6 @@
     gitlab:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    # variant-pin: web-app-discourse#3
     discourse:
       enabled: true
       shared: true
@@ -810,7 +809,7 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     litellm:
-      enabled: true
+      enabled: false
     mastodon:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1488,37 +1487,32 @@
       enabled: false
       shared: false
   addons: *addons_static_off
-# Variant 15: discourse with its translate chain at full weight and matrix held light
+# Variant 15: the static addons, moved off variant 0 because together with the baseline they outrun the job budget
 - services:
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    # variant-pin: web-app-keycloak#1
     sso:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
     coturn:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    # variant-pin: web-svc-logout#1
     logout:
-      enabled: true
-      shared: true
-    ldap:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    # variant-pin: web-app-dashboard#1
+    ldap:
+      enabled: false
+      shared: false
     dashboard:
-      enabled: true
-      shared: true
-    # variant-pin: web-app-matomo#1
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     matomo:
-      enabled: true
-      shared: true
-    # variant-pin: web-app-stalwart#1
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     email:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     mariadb:
       shared: true
     redis:
@@ -1540,35 +1534,30 @@
     xwiki:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    # variant-pin: web-svc-seaweedfs#1
     seaweedfs:
-      enabled: true
-      shared: true
-    # variant-pin: web-svc-design#1
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     design:
-      enabled: true
-      shared: true
-    # variant-pin: web-app-prometheus#2
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     prometheus:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     openproject:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     gitlab:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    # variant-pin: web-app-discourse#0
     discourse:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     mattermost:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
-    # variant-pin: web-app-matrix#3
     matrix:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
     zammad:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -1583,6 +1572,7 @@
     peertube:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    # variant-pin: web-svc-mirror#without-prometheus
     tor:
       enabled: true
     hermes:
@@ -1591,4 +1581,4 @@
     openclaw:
       enabled: false
       shared: false
-  addons: *addons_static_off
+  addons: {} # nocheck: addons-variant-pinning v15 carries the static addons moved off v0 for the job budget

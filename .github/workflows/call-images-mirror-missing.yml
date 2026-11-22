@@ -91,6 +91,8 @@ jobs:
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
+        with:
+          persist-credentials: false
 
       - name: 🔍 Resolve GHCR namespace and repository
         id: vars
@@ -98,6 +100,10 @@ jobs:
         env:
           GHCR_NAMESPACE_INPUT: ${{ inputs.ghcr_namespace || '' }}
         run: bash scripts/meta/resolve/ghcr/namespace_and_repository.sh
+
+      - name: 🔗 Check symlinks out as plain files (optional)
+        if: ${{ inputs.source_repository != '' && inputs.source_ref != '' }}
+        run: git config --global core.symlinks false
 
       - name: ⬇️ Checkout source repo for scan (optional)
         if: ${{ inputs.source_repository != '' && inputs.source_ref != '' }}
@@ -109,6 +115,12 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
           allow-unsafe-pr-checkout: ${{ inputs.allow_unsafe_checkout }}
+
+      - name: 🔗 Refuse symlinks in the scanned source (optional)
+        if: ${{ inputs.source_repository != '' && inputs.source_ref != '' }}
+        env:
+          SOURCE_PATH: ${{ inputs.source_path }}
+        run: bash scripts/github/gate/no_symlinks.sh "${SOURCE_PATH}"
 
       - name: 🔧 Setup Python
         uses: actions/setup-python@v6
@@ -125,13 +137,13 @@ jobs:
 
       - name: 🔑 Login to Docker Hub (optional)
         if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' && !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) }}
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
         with:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ env.DOCKERHUB_TOKEN }}
 
       - name: 🔑 Login to GHCR
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
