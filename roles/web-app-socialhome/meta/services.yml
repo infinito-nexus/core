@@ -17,7 +17,7 @@ socialhome:
   placement: manager
   name: socialhome
   image: ghcr.io/social-home-io/socialhome
-  version: "2026.11.19"
+  version: "2026.11.21"
   ports:
     local:
       http: 8089
