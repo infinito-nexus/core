@@ -237,6 +237,7 @@ class TestCancelPullRequestRuns(CancelScriptMixin, unittest.TestCase):
   {
     "id": 299,
     "event": "pull_request_target",
+    "display_title": "pull_request_target / PR #106 / synchronize / AlejandroRomanIbanez:feature/makefile-wsl2",
     "head_sha": "deadbeef",
     "head_branch": "unexpected-branch-name",
     "head_repository": {"full_name": "base-repo/core"},
@@ -248,6 +249,71 @@ class TestCancelPullRequestRuns(CancelScriptMixin, unittest.TestCase):
             runs_by_status={"in_progress": in_progress_runs}
         )
         self.assertEqual(cancelled, ["299"])
+
+    def test_head_sha_never_cancels_another_pull_requests_runs(self):
+        in_progress_runs = """\
+{"workflow_runs":[
+  {
+    "id": 340,
+    "event": "pull_request",
+    "head_sha": "deadbeef",
+    "head_branch": "fix/victim",
+    "head_repository": {"full_name": "base-repo/core"},
+    "pull_requests": [{"number": 107}]
+  },
+  {
+    "id": 341,
+    "event": "pull_request_target",
+    "display_title": "pull_request_target / PR #1061 / synchronize / victim:fix/victim",
+    "head_sha": "deadbeef",
+    "head_branch": "main",
+    "head_repository": {"full_name": "base-repo/core"},
+    "pull_requests": []
+  },
+  {
+    "id": 342,
+    "event": "pull_request",
+    "head_sha": "deadbeef",
+    "head_branch": "fix/victim",
+    "head_repository": {"full_name": "victim/core"},
+    "pull_requests": []
+  },
+  {
+    "id": 343,
+    "event": "pull_request",
+    "head_sha": "deadbeef",
+    "head_branch": "other-branch",
+    "head_repository": {"full_name": "AlejandroRomanIbanez/core"},
+    "pull_requests": []
+  }
+]}
+"""
+        _, cancelled = self._run_script(
+            runs_by_status={"in_progress": in_progress_runs}
+        )
+        self.assertEqual(cancelled, ["343"])
+
+    def test_head_sha_never_cancels_a_rival_pull_request_on_the_same_head(self):
+        in_progress_runs = """\
+{"workflow_runs":[
+  {
+    "id": 344,
+    "event": "pull_request",
+    "head_sha": "deadbeef",
+    "head_branch": "feature/makefile-wsl2",
+    "head_repository": {"full_name": "AlejandroRomanIbanez/core"},
+    "pull_requests": []
+  }
+]}
+"""
+        result, cancelled = self._run_script(
+            runs_by_status={
+                "in_progress": in_progress_runs,
+                "pulls": '[{"number": 107, "head": {"ref": "feature/makefile-wsl2"}}]\n',
+            },
+        )
+        self.assertEqual(cancelled, [])
+        self.assertIn("Branch fallback disabled", result.stdout)
 
     NEWEST_PER_GROUP_RUNS = """\
 {"workflow_runs":[

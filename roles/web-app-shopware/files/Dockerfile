@@ -26,6 +26,7 @@ RUN set -eux; \
       --no-scripts \
       --ignore-platform-req=ext-gd \
       --ignore-platform-req=ext-intl \
+      --ignore-platform-req=ext-mbstring \
       --ignore-platform-req=ext-pdo_mysql; \
     composer require symfony/redis-messenger:^7.4 league/flysystem-async-aws-s3:^3.0 \
       heptacom/shopware-platform-admin-open-auth:^9.0 \
@@ -35,6 +36,7 @@ RUN set -eux; \
       --update-no-dev \
       --ignore-platform-req=ext-gd \
       --ignore-platform-req=ext-intl \
+      --ignore-platform-req=ext-mbstring \
       --ignore-platform-req=ext-pdo_mysql \
       --ignore-platform-req=ext-redis
 

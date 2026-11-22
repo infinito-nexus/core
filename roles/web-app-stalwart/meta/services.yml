@@ -140,7 +140,7 @@ clamav:
   enabled: true
   shared: false
   image: clamav/clamav-debian
-  version: "1.5.4"
+  version: "1.5.5"
   ports:
     internal:
       milter: 7357

@@ -10,6 +10,7 @@ from __future__ import annotations
 import stat
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
 
 from utils.cache.hosts import host_records
@@ -86,6 +87,43 @@ class TestOllamaRegistry(unittest.TestCase):
         self.assertIn("location / {", block)
         self.assertIn(f"/repository/{OLLAMA_REPO}/;", block)
         self.assertNotIn("location /v2/", block)
+
+
+def _servers(http2: bool | str) -> tuple[list[str], list[str]]:
+    """Return the TLS and the plain server blocks of the rendered frontend.
+
+    Args:
+        http2: the value ``WEBSERVER_HTTP2_ENABLED`` is rendered with.
+    """
+    with mock.patch("utils.cache.render._webserver_http2", return_value=http2):
+        blocks = upstreams_conf().split("server {")[1:]
+    tls = [block for block in blocks if " ssl;" in block]
+    return tls, [block for block in blocks if " ssl;" not in block]
+
+
+class TestHttp2(unittest.TestCase):
+    def test_no_listener_serves_http2_while_the_switch_is_off(self) -> None:
+        tls, plain = _servers(False)
+
+        self.assertTrue(tls)
+        self.assertFalse([block for block in tls + plain if "http2" in block])
+
+    def test_every_tls_listener_serves_http2_once_the_switch_is_on(self) -> None:
+        tls, _plain = _servers(True)
+
+        self.assertTrue(tls)
+        self.assertEqual([block for block in tls if "\n\thttp2 on;\n" not in block], [])
+
+    def test_a_string_false_from_extra_vars_keeps_http2_off(self) -> None:
+        tls, _plain = _servers("false")
+
+        self.assertFalse([block for block in tls if "http2" in block])
+
+    def test_a_plain_listener_never_serves_http2(self) -> None:
+        _tls, plain = _servers(True)
+
+        self.assertTrue(plain)
+        self.assertFalse([block for block in plain if "http2" in block])
 
 
 if __name__ == "__main__":

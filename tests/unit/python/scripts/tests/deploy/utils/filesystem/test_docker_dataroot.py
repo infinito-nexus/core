@@ -122,5 +122,17 @@ class TestDockerDatarootLoopMount(unittest.TestCase):
                 self.assertIn(("-o", option), list(pairwise(mounts[0])))
 
 
+class TestDockerDatarootLoopAttach(unittest.TestCase):
+    def test_the_loop_bypasses_the_page_cache_of_its_backing_image(self) -> None:
+        for fstype in (*DISCARD, "zfs"):
+            with self.subTest(fstype=fstype):
+                _, calls = apply(fstype)
+                attaches = [
+                    argv for argv in calls if argv[0] == "losetup" and "--show" in argv
+                ]
+                self.assertEqual(len(attaches), 1, calls)
+                self.assertIn("--direct-io=on", attaches[0])
+
+
 if __name__ == "__main__":
     unittest.main()
