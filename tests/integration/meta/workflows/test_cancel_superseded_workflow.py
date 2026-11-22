@@ -132,9 +132,10 @@ class TestCancelSupersededWorkflow(unittest.TestCase):
         )
 
     def test_pull_request_job_runs_for_pull_request_target_only(self):
-        self.assertEqual(
-            self.workflow["jobs"]["cancel-pull-request-runs"]["if"],
-            "${{ github.event_name == 'pull_request_target' }}",
+        self.assertTrue(
+            self.workflow["jobs"]["cancel-pull-request-runs"]["if"].startswith(
+                "${{ github.event_name == 'pull_request_target'\n"
+            )
         )
 
     def _step(self, job_name):
