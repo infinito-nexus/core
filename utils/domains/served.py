@@ -12,6 +12,7 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, Any
 
+from utils.networks.reachability import TOR, network_of, sibling_domain
 from utils.roles.rbac.scoped import members_with_role
 
 if TYPE_CHECKING:
@@ -81,6 +82,29 @@ def served_specs(
     return specs, problems
 
 
+def served_parent(
+    parent: str, app_domains: Iterable[str], primary: str, node: str
+) -> str:
+    """Return the name a served parent carries on the network of its application.
+
+    Args:
+        parent: the rendered parent of one ``domains.served`` entry.
+        app_domains: the application's domains in the resolved domains map,
+            which already carry the networks it is served on.
+        primary: the node's ``DOMAIN_PRIMARY``.
+        node: the node onion address, empty without Tor.
+
+    Returns:
+        The onion sibling of ``parent`` when every domain of the application
+        lies on Tor, as on a tor-only node; ``parent`` itself when a domain
+        stays on clearnet, when the application has no domain, or when
+        ``parent`` has no onion sibling.
+    """
+    if {network_of(domain) for domain in app_domains} != {TOR}:
+        return parent
+    return sibling_domain(parent, TOR, primary, node) or parent
+
+
 def declares_served(
     applications: Mapping[str, Any], application_ids: Iterable[str]
 ) -> bool:
@@ -106,6 +130,7 @@ def served_domains(
     *,
     wildcard_certificate: Callable[[Mapping[str, Any]], bool],
     known_domains: Iterable[str],
+    parent_of: Callable[[str, str], str],
 ) -> dict[str, list[Any]]:
     """Return the vhost names the given applications serve for role members.
 
@@ -118,6 +143,8 @@ def served_domains(
             a wildcard name of it gets a certificate.
         known_domains: every domain, redirect source and ``www.`` variant of
             the host; no served name may repeat one.
+        parent_of: maps an application id and a declared parent to the parent
+            the host serves, such as ``served_parent``.
 
     Returns:
         ``entries``: ``{"name", "application_id", "members", "hosts"}`` per
@@ -126,17 +153,24 @@ def served_domains(
         a name of its own. ``problems``: one message per declaration error,
         member whose username names no host, or name that repeats a known
         one; such members and names are left out of ``entries``.
+        ``parents``: ``{"application_id", "role", "parent"}`` per valid
+        declaration, with the served parent.
     """
     taken = {str(domain).lower() for domain in known_domains}
     entries: list[dict[str, Any]] = []
     problems: list[str] = []
+    parents: list[dict[str, str]] = []
     for application_id in sorted(set(application_ids)):
         app_cfg = applications.get(application_id)
         if not isinstance(app_cfg, dict):
             continue
         specs, spec_problems = served_specs(application_id, app_cfg)
         problems.extend(spec_problems)
-        for parent, role in specs:
+        for declared, role in specs:
+            parent = parent_of(application_id, declared)
+            parents.append(
+                {"application_id": application_id, "role": role, "parent": parent}
+            )
             members = []
             for username in members_with_role(users, application_id, role):
                 if is_member_label(username):
@@ -166,7 +200,7 @@ def served_domains(
                         "hosts": [f"{member}.{parent}" for member in served],
                     }
                 )
-    return {"entries": entries, "problems": problems}
+    return {"entries": entries, "problems": problems, "parents": parents}
 
 
 def served_owners(variables: Mapping[str, Any]) -> dict[str, str]:

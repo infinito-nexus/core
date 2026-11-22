@@ -32,6 +32,9 @@ WEBROOT = {
     "CERTBOT_FLAVOR": "dedicated",
     "CERTBOT_ACME_CHALLENGE_METHOD": "webroot",
 }
+ONION = "b5abfs7uwr23x6vbjxqjatyscpmkm6qkmkla7eyapdi4zpwtrz6o4nqd.onion"
+ONION_PARENT = f"user.blog.{ONION}"
+TOR_NODE = dict(SELF_SIGNED, DOMAIN_PRIMARY="main.test", group_names=["svc-net-tor"])
 
 
 class _Stub:
@@ -53,6 +56,7 @@ class TestServedDomainsLookup(unittest.TestCase):
             "applications": applications or APPLICATIONS,
             "domains": domains or {APP: ["blog.main.test"]},
             "users": USERS,
+            "config": ONION,
         }
         with mock.patch(
             "plugins.lookup.served_domains.lookup_loader.get",
@@ -91,7 +95,50 @@ class TestServedDomainsLookup(unittest.TestCase):
 
     def test_a_play_without_a_declaring_application_serves_nothing(self):
         self.assertEqual(
-            {"entries": [], "problems": []}, self._run({}, ["web-app-plain"])
+            {"entries": [], "problems": [], "parents": []},
+            self._run({}, ["web-app-plain"]),
+        )
+
+    def test_a_tor_only_node_serves_the_wildcard_below_the_onion_parent(self):
+        result = self._run(TOR_NODE, [APP], domains={APP: [f"blog.{ONION}"]})
+        self.assertEqual(
+            [f"*.{ONION_PARENT}"], [entry["name"] for entry in result["entries"]]
+        )
+        self.assertEqual(
+            [{"application_id": APP, "role": "site-owner", "parent": ONION_PARENT}],
+            result["parents"],
+        )
+
+    def test_a_tor_only_node_names_member_hosts_below_the_onion_parent(self):
+        variables = dict(
+            WEBROOT, DOMAIN_PRIMARY="main.test", group_names=["svc-net-tor"]
+        )
+        result = self._run(variables, [APP], domains={APP: [f"blog.{ONION}"]})
+        self.assertEqual(
+            [f"biber.{ONION_PARENT}"], [entry["name"] for entry in result["entries"]]
+        )
+        self.assertEqual([f"biber.{ONION_PARENT}"], result["entries"][0]["hosts"])
+
+    def test_a_multi_node_keeps_the_clearnet_parent(self):
+        domains = {APP: ["blog.main.test", f"blog.{ONION}"]}
+        result = self._run(TOR_NODE, [APP], domains=domains)
+        self.assertEqual(
+            ["*.user.blog.main.test"], [entry["name"] for entry in result["entries"]]
+        )
+        self.assertEqual(
+            ["user.blog.main.test"], [entry["parent"] for entry in result["parents"]]
+        )
+
+    def test_a_node_without_tor_keeps_the_declared_parent(self):
+        self.assertEqual(
+            [
+                {
+                    "application_id": APP,
+                    "role": "site-owner",
+                    "parent": "user.blog.main.test",
+                }
+            ],
+            self._run(SELF_SIGNED, [APP])["parents"],
         )
 
     def _templated(self, tls, **scope):

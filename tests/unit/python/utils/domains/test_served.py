@@ -9,15 +9,20 @@ from utils.domains.served import (
     is_member_label,
     served_domains,
     served_owners,
+    served_parent,
     served_specs,
 )
 
 APP = "web-app-wordpress"
 OTHER = "web-app-other"
+PRIMARY = "main.test"
 PARENT = "user.blog.main.test"
 BIBER = "biber.user.blog.main.test"
 MAPACHE = "mapache.user.blog.main.test"
 WILDCARD = "*.user.blog.main.test"
+ONION = "b5abfs7uwr23x6vbjxqjatyscpmkm6qkmkla7eyapdi4zpwtrz6o4nqd.onion"
+ONION_PARENT = f"user.blog.{ONION}"
+ONION_BLOG = f"blog.{ONION}"
 APPLICATIONS = {
     APP: {
         "domains": {
@@ -34,6 +39,14 @@ USERS = {
 }
 
 
+def _as_declared(application_id, parent):
+    return parent
+
+
+def _on_tor(application_id, parent):
+    return served_parent(parent, [ONION_BLOG], PRIMARY, ONION)
+
+
 def _served(wildcard, known=("blog.main.test",), users=USERS):
     return served_domains(
         APPLICATIONS,
@@ -41,6 +54,18 @@ def _served(wildcard, known=("blog.main.test",), users=USERS):
         [APP, OTHER, "web-app-absent"],
         wildcard_certificate=lambda app: wildcard,
         known_domains=list(known),
+        parent_of=_as_declared,
+    )
+
+
+def _served_on_tor(wildcard, known):
+    return served_domains(
+        APPLICATIONS,
+        USERS,
+        [APP, OTHER],
+        wildcard_certificate=lambda app: wildcard,
+        known_domains=list(known),
+        parent_of=_on_tor,
     )
 
 
@@ -107,6 +132,9 @@ class TestServedDomains(unittest.TestCase):
                     }
                 ],
                 "problems": [],
+                "parents": [
+                    {"application_id": APP, "role": "site-owner", "parent": PARENT}
+                ],
             },
             _served(True),
         )
@@ -163,8 +191,89 @@ class TestServedDomains(unittest.TestCase):
             [APP],
             wildcard_certificate=wildcard,
             known_domains=[],
+            parent_of=_as_declared,
         )
         self.assertEqual([APPLICATIONS[APP]], seen)
+
+    def test_each_declaration_asks_for_its_served_parent_once(self):
+        asked = []
+
+        def parent_of(application_id, parent):
+            asked.append((application_id, parent))
+            return parent
+
+        served_domains(
+            APPLICATIONS,
+            USERS,
+            [APP, OTHER],
+            wildcard_certificate=lambda app: True,
+            known_domains=[],
+            parent_of=parent_of,
+        )
+        self.assertEqual([(APP, PARENT)], asked)
+
+    def test_a_tor_only_application_serves_its_wildcard_below_the_onion_parent(self):
+        result = _served_on_tor(True, known=(ONION_BLOG,))
+        self.assertEqual(
+            [
+                {
+                    "name": f"*.{ONION_PARENT}",
+                    "application_id": APP,
+                    "members": ["biber", "mapache"],
+                    "hosts": [f"biber.{ONION_PARENT}", f"mapache.{ONION_PARENT}"],
+                }
+            ],
+            result["entries"],
+        )
+        self.assertEqual(
+            [{"application_id": APP, "role": "site-owner", "parent": ONION_PARENT}],
+            result["parents"],
+        )
+
+    def test_a_tor_only_application_names_every_member_host_below_the_onion_parent(
+        self,
+    ):
+        self.assertEqual(
+            [f"biber.{ONION_PARENT}", f"mapache.{ONION_PARENT}"],
+            [entry["name"] for entry in _served_on_tor(False, ())["entries"]],
+        )
+
+    def test_an_onion_member_host_that_repeats_a_known_domain_is_a_problem(self):
+        result = _served_on_tor(False, known=(f"biber.{ONION_PARENT}",))
+        self.assertEqual(
+            [f"mapache.{ONION_PARENT}"],
+            [entry["name"] for entry in result["entries"]],
+        )
+        self.assertEqual(1, len(result["problems"]))
+
+
+class TestServedParent(unittest.TestCase):
+    def test_a_tor_only_application_serves_the_onion_sibling_of_its_parent(self):
+        self.assertEqual(
+            ONION_PARENT, served_parent(PARENT, [ONION_BLOG], PRIMARY, ONION)
+        )
+
+    def test_an_application_with_a_clearnet_domain_keeps_its_parent(self):
+        for app_domains in (["blog.main.test"], ["blog.main.test", ONION_BLOG]):
+            with self.subTest(app_domains=app_domains):
+                self.assertEqual(
+                    PARENT, served_parent(PARENT, app_domains, PRIMARY, ONION)
+                )
+
+    def test_an_application_without_a_domain_keeps_its_parent(self):
+        self.assertEqual(PARENT, served_parent(PARENT, [], PRIMARY, ONION))
+
+    def test_a_parent_without_an_onion_sibling_stays_as_declared(self):
+        for parent, node in (("user.example.org", ONION), (PARENT, "")):
+            with self.subTest(parent=parent, node=node):
+                self.assertEqual(
+                    parent, served_parent(parent, [ONION_BLOG], PRIMARY, node)
+                )
+
+    def test_an_onion_parent_stays_on_tor(self):
+        self.assertEqual(
+            ONION_PARENT, served_parent(ONION_PARENT, [ONION_BLOG], PRIMARY, ONION)
+        )
 
 
 class TestServedOwners(unittest.TestCase):

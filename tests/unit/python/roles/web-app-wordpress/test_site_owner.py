@@ -51,6 +51,19 @@ DOMAINS_CONFIG = {
     ],
 }
 MANAGER_OPS = ROLE / "tasks" / "07_manager_ops.yml"
+ONION_PARENT = PARENT.replace("main.test", ONION)
+SERVED_RESOLVED = {
+    "entries": [],
+    "problems": ["web-app-wordpress: site-owner member 'harry.beaver' names no host"],
+    "parents": [
+        {
+            "application_id": APPLICATION_ID,
+            "role": "other",
+            "parent": "x.other.main.test",
+        },
+        {"application_id": APPLICATION_ID, "role": SITE_OWNER, "parent": ONION_PARENT},
+    ],
+}
 
 
 def _env() -> Environment:
@@ -77,12 +90,14 @@ def _php_constant(name: str) -> str:
     return found.group(1)
 
 
-def _lookup(*terms: str) -> object:
-    if terms == ("config", APPLICATION_ID, "domains"):
+def _lookup(*terms: str, **kwargs: object) -> object:
+    if terms == ("config", APPLICATION_ID, "domains") and not kwargs:
         return DOMAINS_CONFIG
-    if terms == ("tls", APPLICATION_ID, "protocols.web"):
+    if terms == ("tls", APPLICATION_ID, "protocols.web") and not kwargs:
         return "https"
-    raise AssertionError(f"the site-owner vars render an unexpected lookup{terms}")
+    raise AssertionError(
+        f"the site-owner vars render an unexpected lookup{terms} {kwargs}"
+    )
 
 
 def _expression(name: str, **variables: object) -> object:
@@ -262,12 +277,12 @@ def _enabled(multisite: bool, domains_config: dict) -> bool:
 
 
 class TestSiteOwnerVars(unittest.TestCase):
-    def test_the_parent_comes_from_the_site_owner_declaration(self):
+    def test_the_parent_is_the_served_parent_of_the_site_owner_declaration(self):
         parent = _expression(
             "WORDPRESS_SITE_OWNER_PARENT_DOMAIN",
-            WORDPRESS_SITE_OWNER_DECLARATIONS=_declarations(DOMAINS_CONFIG),
+            WORDPRESS_SITE_OWNER_RESOLVED=SERVED_RESOLVED,
         )
-        self.assertEqual(PARENT, parent)
+        self.assertEqual(ONION_PARENT, parent)
 
     def test_the_domains_config_comes_from_the_role_config(self):
         self.assertEqual(DOMAINS_CONFIG, _expression("WORDPRESS_DOMAINS_CONFIG"))
