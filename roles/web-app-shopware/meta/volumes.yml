@@ -171,7 +171,8 @@ static_system_config:
   mode: "0444"
   mounts:
     - service: init
-      target: &var_www_html_config_infinito_static_system_config_kskheptacomadminopenauth_yaml_target /var/www/html/config/infinito/static_system_config/KskHeptacomAdminOpenAuth.yaml
+      target: &var_www_html_config_infinito_static_system_config_kskheptacomadminopenauth_yaml_target
+        /var/www/html/config/infinito/static_system_config/KskHeptacomAdminOpenAuth.yaml
     - service: web
       target: *var_www_html_config_infinito_static_system_config_kskheptacomadminopenauth_yaml_target
     - service: worker
