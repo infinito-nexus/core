@@ -86,17 +86,18 @@ async function dismissAllOpenModals(page) {
   }
 }
 
+const SIGN_OUT_CONTROLS = ":is(a, button, [role='menuitem']):not([inert], [inert] *)";
+const SIGN_OUT_TEXT = /^\s*(sign\s*out|log\s*out|abmelden)\s*$/i;
+
 async function openwebuiLogout(page, _openwebuiBaseUrl) {
   await dismissAllOpenModals(page);
 
-  const signOutTextFilter = { hasText: /^\s*(sign\s*out|log\s*out|abmelden)\s*$/i };
-
-  const topLevelSignOut = page
-    .locator("a, button, [role='menuitem']")
-    .filter(signOutTextFilter)
+  const signOut = page
+    .locator(SIGN_OUT_CONTROLS)
+    .filter({ hasText: SIGN_OUT_TEXT })
     .first();
-  if (await topLevelSignOut.isVisible().catch(() => false)) {
-    await actionableClick(topLevelSignOut);
+  if (await signOut.isVisible().catch(() => false)) {
+    await actionableClick(signOut);
     return;
   }
 
@@ -115,16 +116,12 @@ async function openwebuiLogout(page, _openwebuiBaseUrl) {
   await dismissAllOpenModals(page);
   await actionableClick(menuTrigger);
 
-  const dropdownSignOut = page
-    .locator("a, button, [role='menuitem']")
-    .filter(signOutTextFilter)
-    .first();
   await expect(
-    dropdownSignOut,
+    signOut,
     "Sign Out item must be reachable inside the user-profile menu"
   ).toBeVisible({ timeout: resolveTimeout(10_000) });
   await dismissAllOpenModals(page);
-  await actionableClick(dropdownSignOut);
+  await actionableClick(signOut);
 }
 
 // Native DOM click; OpenWebUI's auth panel parks the SSO/LDAP buttons outside the viewport scroll container.
