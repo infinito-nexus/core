@@ -31,6 +31,8 @@ SHOPWARE_FRAMEWORK_HOST: "{{ [ lookup('container', application_id, 'directories.
 SHOPWARE_ADMINOPENAUTH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'adminopenauth.yaml' ] | path_join }}"
 SHOPWARE_ROLE_GATE_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'AdminOpenAuthRoleGate.php' ] | path_join }}"
 SHOPWARE_STATIC_CONFIG_LOCK_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'StaticSystemConfigLock.php' ] | path_join }}"
+SHOPWARE_PLUGIN_STATIC_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'plugin_static_config.php' ] | path_join }}"
+SHOPWARE_STATIC_SYSTEM_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'static_system_config.yaml' ] | path_join }}"
 SHOPWARE_FILESYSTEM_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'shopware.yaml' ] | path_join }}"
 SHOPWARE_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') }}"
 

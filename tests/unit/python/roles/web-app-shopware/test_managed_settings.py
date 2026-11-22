@@ -110,14 +110,26 @@ def _sink(name: str, sso: bool = True, native: bool = False, sso_login: bool = T
     return dict(_templated(variables[name], variables, stubs))
 
 
-def _static(settings: dict) -> dict:
-    text = read_text(str(ROLE / "templates/adminopenauth.yaml.j2"))
+def _rendered(template: str, settings: dict) -> dict:
+    text = read_text(str(ROLE / "templates" / template))
     variables = {
         "SHOPWARE_OIDC_INTERNAL_BASE": ORIGIN,
         "SHOPWARE_OIDC_PLUGIN": _vars()["SHOPWARE_OIDC_PLUGIN"],
         "SHOPWARE_OIDC_PLUGIN_SETTINGS": settings,
     }
     return load_yaml_str(_templated(_trust_as_template(text), variables, {}))
+
+
+def _static(settings: dict) -> dict:
+    return _rendered("static_system_config.yaml.j2", settings)
+
+
+def _packages(settings: dict) -> dict:
+    return _rendered("adminopenauth.yaml.j2", settings)
+
+
+def _mounts(volume: str) -> list[dict]:
+    return load_yaml_any(str(ROLE / ROLE_FILE_META_VOLUMES))[volume]["mounts"]
 
 
 def _tasks() -> list[dict]:
@@ -165,9 +177,43 @@ class TestPluginConfig(unittest.TestCase):
         )
 
     def test_an_empty_sink_renders_no_static_system_config(self):
-        rendered = _static({})
+        self.assertEqual({}, _static({}))
+        self.assertIn(LOCK, _packages({})["services"])
+
+    def test_negative_control_the_always_loaded_package_config_holds_no_static_keys(
+        self,
+    ):
+        rendered = _packages(_sink("SHOPWARE_OIDC_PLUGIN_SETTINGS"))
         self.assertNotIn("shopware", rendered)
         self.assertIn(LOCK, rendered["services"])
+
+    def test_the_static_file_is_mounted_where_the_package_config_finds_its_plugin(
+        self,
+    ):
+        root = _vars()["SHOPWARE_ROOT"]
+        plugin = _vars()["SHOPWARE_OIDC_PLUGIN"]
+        self.assertEqual(
+            {f"{root}/config/infinito/static_system_config/{plugin}.yaml"},
+            {mount["target"] for mount in _mounts("static_system_config")},
+        )
+        self.assertEqual(
+            {f"{root}/config/packages/plugin_static_config.php"},
+            {mount["target"] for mount in _mounts("plugin_static_config")},
+        )
+        deploy = next(
+            task
+            for task in load_yaml_any(str(ROLE / "tasks/02_manager_ops.yml"))
+            if task.get("copy", {}).get("src") == "php/oidc/plugin_static_config.php"
+        )
+        self.assertEqual(
+            "{{ SHOPWARE_PLUGIN_STATIC_CONFIG_HOST }}", deploy["copy"]["dest"]
+        )
+        for volume in ("static_system_config", "plugin_static_config"):
+            with self.subTest(volume=volume):
+                self.assertEqual(
+                    {"init", "web", "worker", "scheduler"},
+                    {mount["service"] for mount in _mounts(volume)},
+                )
 
     def test_no_task_writes_the_plugin_config_beside_the_static_file(self):
         tasks = f"{ROLE / 'tasks'}{os.sep}"
@@ -187,7 +233,7 @@ class TestPluginConfig(unittest.TestCase):
 
 class TestStaticConfigLock(unittest.TestCase):
     def test_the_lock_listens_to_every_response_with_the_static_config(self):
-        service = _static({})["services"][LOCK]
+        service = _packages({})["services"][LOCK]
         self.assertEqual(["%shopware.system_config%"], service["arguments"])
         self.assertEqual(
             [

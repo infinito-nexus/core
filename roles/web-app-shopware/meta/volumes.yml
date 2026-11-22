@@ -151,6 +151,34 @@ static_config_lock:
     - service: scheduler
       target: *var_www_html_src_infinitorbac_staticsystemconfiglock_php_target
 
+plugin_static_config:
+  type: config
+  source: "{{ [lookup('container', 'web-app-shopware', 'directories.config'), 'plugin_static_config.php'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: init
+      target: &var_www_html_config_packages_plugin_static_config_php_target /var/www/html/config/packages/plugin_static_config.php
+    - service: web
+      target: *var_www_html_config_packages_plugin_static_config_php_target
+    - service: worker
+      target: *var_www_html_config_packages_plugin_static_config_php_target
+    - service: scheduler
+      target: *var_www_html_config_packages_plugin_static_config_php_target
+
+static_system_config:
+  type: config
+  source: "{{ [lookup('container', 'web-app-shopware', 'directories.config'), 'static_system_config.yaml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: init
+      target: &var_www_html_config_infinito_static_system_config_kskheptacomadminopenauth_yaml_target /var/www/html/config/infinito/static_system_config/KskHeptacomAdminOpenAuth.yaml
+    - service: web
+      target: *var_www_html_config_infinito_static_system_config_kskheptacomadminopenauth_yaml_target
+    - service: worker
+      target: *var_www_html_config_infinito_static_system_config_kskheptacomadminopenauth_yaml_target
+    - service: scheduler
+      target: *var_www_html_config_infinito_static_system_config_kskheptacomadminopenauth_yaml_target
+
 php_hardening:
   type: config
   source: "{{ FILE_PHP_HARDENING_INI }}"

@@ -1,0 +1,10 @@
+{% if SHOPWARE_OIDC_PLUGIN_SETTINGS %}
+shopware:
+  system_config:
+    default:
+{% for shopware_plugin_field, shopware_plugin_value in SHOPWARE_OIDC_PLUGIN_SETTINGS.items() %}
+      {{ (SHOPWARE_OIDC_PLUGIN ~ '.config.' ~ shopware_plugin_field) | to_json }}: {{ shopware_plugin_value | to_json }}
+{% endfor %}
+{% else %}
+{}
+{% endif %}
