@@ -36,7 +36,7 @@ deploy = [
   "requests",
 ]
 dev = [
-  "ruff==0.17.5",
+  "ruff==0.17.6",
   "import-linter",
   "pre-commit",
   "git-maintainer-tools",
