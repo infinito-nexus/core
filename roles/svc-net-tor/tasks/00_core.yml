@@ -91,7 +91,7 @@
       - "!all"
       - network
     filter:
-      - ansible_docker0
+      - ansible_docker0 # nocheck: deprecated-ansible (setup filter, not a fact read)
   delegate_to: "{{ item }}"
   delegate_facts: true
   loop: "{{ query('node_hosts') }}"

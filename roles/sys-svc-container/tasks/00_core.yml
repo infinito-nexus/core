@@ -1,4 +1,6 @@
 ---
+- include_tasks: utils/once/flag.yml
+
 - name: "🔧 Set docker.service's journald rate limit before Docker first starts"
   include_role:
     name: sys-svc-journalctl

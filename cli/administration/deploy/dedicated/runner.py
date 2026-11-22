@@ -25,28 +25,37 @@ from utils.preflight.switches import PREFLIGHT_ROLE, check_enabled
 from .proc import run, run_make
 
 _REQUIREMENT_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
+_EXACT_PIN = re.compile(r"([A-Za-z0-9][A-Za-z0-9._-]*)\s*==\s*([^\s;,]+)\s*$")
 
 
 def deploy_ansible_playbook(repo_root: str) -> str:
     """
     Return the ansible-playbook of the running interpreter once that
-    interpreter carries every distribution of the `deploy` extra.
+    interpreter carries every distribution of the `deploy` extra, each
+    exact `==` pin at its pinned version.
 
     Args:
       repo_root: checkout whose pyproject.toml declares the `deploy` extra
     Returns:
       absolute path of the ansible-playbook next to sys.executable
     Exits:
-      1 when a `deploy` distribution or that ansible-playbook is missing
+      1 when a `deploy` distribution is missing or off its `==` pin, or that
+      ansible-playbook is missing
     """
     pyproject = tomllib.loads(read_text(str(Path(repo_root) / "pyproject.toml")))
     missing: list[str] = []
+    stale: list[str] = []
     for requirement in pyproject["project"]["optional-dependencies"]["deploy"]:
         name = _REQUIREMENT_NAME.match(requirement)
         try:
-            importlib.metadata.distribution(name.group(0))
+            installed = importlib.metadata.distribution(name.group(0)).version
         except importlib.metadata.PackageNotFoundError:
             missing.append(requirement)
+            continue
+        pin = _EXACT_PIN.match(requirement)
+        if pin and installed != pin.group(2):
+            missing.append(requirement)
+            stale.append(f"{requirement} (installed: {installed})")
 
     ansible_playbook = Path(sys.executable).parent / "ansible-playbook"
     if missing:
@@ -55,7 +64,8 @@ def deploy_ansible_playbook(repo_root: str) -> str:
             f"\n[ERROR] The deploy interpreter {sys.executable} lacks "
             f"{', '.join(missing)} from the `deploy` extra of "
             f"{repo_root}/pyproject.toml.\n"
-            f"        Install them with: {sys.executable} -m pip install {quoted}\n"
+            + (f"        Pinned but different: {', '.join(stale)}\n" if stale else "")
+            + f"        Install them with: {sys.executable} -m pip install {quoted}\n"
             "        or launch the CLI from the venv `make install` provisions.\n",
             file=sys.stderr,
         )

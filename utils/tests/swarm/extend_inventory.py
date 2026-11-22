@@ -43,7 +43,7 @@ from utils.tests.swarm.proxmox_host import (
 )
 
 _DOCKER_VARS: dict[str, str] = {
-    "ansible_connection": "docker",
+    "ansible_connection": "docker_cached",
     "ansible_python_interpreter": "/usr/bin/python3",
     "ansible_user": "root",
 }

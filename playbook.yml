@@ -2,21 +2,31 @@
 - name: "Execute Infinito.Nexus Play"
   hosts: all
   any_errors_fatal: true
-  environment:
-    CA_TRUST_CERT_HOST: "{{ CA_TRUST.cert_host }}"
-    CA_TRUST_WRAPPER_HOST: "{{ CA_TRUST.wrapper_host }}"
-    CA_TRUST_NAME: "{{ CA_TRUST.trust_name }}"
-    CA_TRUST_CERT_CONTAINER: "{{ CA_TRUST.inject_cert_container }}"
-    CA_TRUST_WRAPPER_CONTAINER: "{{ CA_TRUST.inject_wrapper_container }}"
-    CA_CONTAINER_ENABLED: "{{ CA_CONTAINER_ENABLED | int }}"
-    COMPOSE_HTTP_TIMEOUT: "600"
-    DOCKER_CLIENT_TIMEOUT: "600"
-    DOCKER_BUILDKIT: "{{ BUILDKIT_ENABLED | int }}"
-    COMPOSE_DOCKER_CLI_BUILD: "{{ BUILDKIT_ENABLED | int }}"
-    INFINITO_RESCUE_DIAGNOSTICS_DIR: "{{ DIR_RESCUE_DIAGNOSTICS }}"
-    CONTAINER_EXEC_TIMEOUT: "{{ SYS_TIMEOUT_CONTAINER_EXEC }}"
+  vars:
+    PLAY_ENVIRONMENT_SOURCE:
+      CA_TRUST_CERT_HOST: "{{ CA_TRUST.cert_host }}"
+      CA_TRUST_WRAPPER_HOST: "{{ CA_TRUST.wrapper_host }}"
+      CA_TRUST_NAME: "{{ CA_TRUST.trust_name }}"
+      CA_TRUST_CERT_CONTAINER: "{{ CA_TRUST.inject_cert_container }}"
+      CA_TRUST_WRAPPER_CONTAINER: "{{ CA_TRUST.inject_wrapper_container }}"
+      CA_CONTAINER_ENABLED: "{{ CA_CONTAINER_ENABLED | int }}"
+      COMPOSE_HTTP_TIMEOUT: "600"
+      DOCKER_CLIENT_TIMEOUT: "600"
+      DOCKER_BUILDKIT: "{{ BUILDKIT_ENABLED | int }}"
+      COMPOSE_DOCKER_CLI_BUILD: "{{ BUILDKIT_ENABLED | int }}"
+      INFINITO_RESCUE_DIAGNOSTICS_DIR: "{{ DIR_RESCUE_DIAGNOSTICS }}"
+      CONTAINER_EXEC_TIMEOUT: "{{ SYS_TIMEOUT_CONTAINER_EXEC }}"
+    PLAY_ENVIRONMENT: "{{ PLAY_ENVIRONMENT_SOURCE }}"
+  environment: "{{ PLAY_ENVIRONMENT }}"
   gather_facts: false
   pre_tasks:
+    - name: "🧊 Render the play environment once for this host"
+      ansible.builtin.include_tasks:
+        file: tasks/utils/play/environment/freeze.yml
+        apply:
+          tags: [always]
+      tags: [always]
+
     - name: "🐍 Link the managed Python interpreter before any module needs it"
       ansible.builtin.script: scripts/system/python/managed_interpreter.sh
       register: managed_interpreter
@@ -37,4 +47,11 @@
 
     - name: "Load 'destructor' tasks"
       include_tasks: "tasks/stages/03_destructor.yml"
+  post_tasks:
+    - name: "✅ Check the play environment against its sources"
+      ansible.builtin.include_tasks:
+        file: tasks/utils/play/environment/check.yml
+        apply:
+          tags: [always]
+      tags: [always]
   become: true
