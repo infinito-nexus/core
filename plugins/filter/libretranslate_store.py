@@ -9,7 +9,9 @@ FROM_SOURCE = "from_source"
 SOURCE = "en"
 PACKAGE_PREFIX = "translate-"
 MODEL_CODES = {"zh-hans": "zh", "zh-hant": "zt", "pt-br": "pb"}
-PACKAGES = (".local", "share", "argos-translate", "packages")
+ARGOS_DATA = (".local", "share", "argos-translate")
+PACKAGES = (*ARGOS_DATA, "packages")
+MINISBD_CACHE = (*ARGOS_DATA, "minisbd")
 MIN_PACKAGES = 2
 SELECTION_KEYS = ("directions", "load_only", "model_store")
 ENGINE = "svc-ai-libretranslate-engine"
@@ -115,8 +117,9 @@ def libretranslate_store(
         ``artefacts`` are the selected Argos packages and every MiniSBD model,
         the records to seed and require, ``packages`` is the ARGOS_PACKAGES_DIR
         that holds only the selected packages, one read-only bind each,
-        ``minisbd`` the MiniSBD cache directory, and ``mounts`` every bind,
-        all read-only; when false they are empty.
+        ``minisbd`` the MiniSBD cache directory beside ``packages`` in the
+        Argos data directory, and ``mounts`` every bind, all read-only; when
+        false they are empty.
     """
     argos, minisbd = _selection(records, directions, load_only, enabled)
     if not argos:
@@ -128,7 +131,7 @@ def libretranslate_store(
             "mounts": [],
         }
     packages = posixpath.join(home, *PACKAGES)
-    cache = posixpath.join(home, ".cache", "minisbd")
+    cache = posixpath.join(home, *MINISBD_CACHE)
     return {
         "stored": True,
         "artefacts": [*argos, *minisbd],

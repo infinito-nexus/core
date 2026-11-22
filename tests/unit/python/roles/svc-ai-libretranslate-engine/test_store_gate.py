@@ -40,8 +40,10 @@ TODAY = [(", extra_volumes=LIBRETRANSLATE_ENGINE_STORE_MOUNTS", "")]
 VOLUMES = "    volumes: "
 STORE = "/srv/cache/models"
 HOME = "/home/libretranslate"
-MINISBD_CACHE = f"{HOME}/.cache/minisbd"
-PACKAGES_DIR = f"{HOME}/.local/share/argos-translate/packages"
+ARGOS_DATA_DIR = f"{HOME}/.local/share/argos-translate"
+MINISBD_CACHE = f"{ARGOS_DATA_DIR}/minisbd"
+MINISBD_DEFAULT = f"{HOME}/.cache/minisbd"
+PACKAGES_DIR = f"{ARGOS_DATA_DIR}/packages"
 LOADING_MODELS = ("lazy", "build", "task")
 LOADING_MODEL_SOURCE = (
     f"lookup('config', application_id, 'services.{SERVICE}.loading_model')"
@@ -259,6 +261,18 @@ def _gate_on_findings(texts: dict[str, str]) -> list[str]:
     return found
 
 
+def _minisbd_findings(store: dict) -> list[str]:
+    source = f"{STORE}/{MINISBD['root']}"
+    found = []
+    if store["minisbd"] != MINISBD_CACHE:
+        found.append(
+            f"the MiniSBD models sit at {store['minisbd']}, not {MINISBD_CACHE}"
+        )
+    if f"{source}:{MINISBD_CACHE}:ro" not in store["mounts"]:
+        found.append(f"{source} is not mounted read-only at {MINISBD_CACHE}")
+    return found
+
+
 def _gate_findings(texts: dict[str, str]) -> list[str]:
     found = [
         f"the gate opens on {kind}"
@@ -325,6 +339,29 @@ class TestLibretranslateStoreGate(unittest.TestCase):
 
     def test_gate_on_reads_the_store_read_only_without_fetching(self) -> None:
         self.assertEqual(_gate_on_findings(_texts()), [])
+
+    def test_the_minisbd_models_sit_where_argostranslate_reads_them(self) -> None:
+        store = _resolved(_texts()["vars"], GATE_ON)[f"{PREFIX}_STORE"]
+        self.assertEqual(_minisbd_findings(store), [])
+
+    def test_the_guard_reports_minisbd_at_its_own_cache_default(self) -> None:
+        store = _resolved(_texts()["vars"], GATE_ON)[f"{PREFIX}_STORE"]
+        source = f"{STORE}/{MINISBD['root']}"
+        moved = {
+            **store,
+            "minisbd": MINISBD_DEFAULT,
+            "mounts": [
+                mount.replace(f":{MINISBD_CACHE}:", f":{MINISBD_DEFAULT}:")
+                for mount in store["mounts"]
+            ],
+        }
+        self.assertEqual(
+            _minisbd_findings(moved),
+            [
+                f"the MiniSBD models sit at {MINISBD_DEFAULT}, not {MINISBD_CACHE}",
+                f"{source} is not mounted read-only at {MINISBD_CACHE}",
+            ],
+        )
 
     def test_the_engine_gates_on_its_entries_and_checks_first(self) -> None:
         self.assertEqual(_gate_findings(_texts()), [])

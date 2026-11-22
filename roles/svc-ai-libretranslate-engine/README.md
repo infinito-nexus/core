@@ -82,7 +82,9 @@ does without the store.
 `ARGOS_PACKAGES_DIR` holds one read-only bind per selected package, so
 `load_only` and `directions` keep their meaning although LibreTranslate applies
 `load_only` only while fewer than two packages are installed. The MiniSBD
-models, about 18 MB, are mounted whole.
+models, about 18 MB, are mounted whole at `minisbd` beside `packages` in the
+Argos data directory, where argostranslate points MiniSBD instead of its own
+`~/.cache/minisbd` default.
 
 The CI variants keep `model_store: false` for `build` and `task`, so those
 paths stay deployed; `lazy` with the store off is covered only by the unit
