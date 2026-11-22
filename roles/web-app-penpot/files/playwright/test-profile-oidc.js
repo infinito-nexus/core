@@ -86,12 +86,12 @@ exports.register = (shared) => {
     expect(env.keycloakAdminPassword, "KEYCLOAK_ADMIN_PASSWORD must be set").toBeTruthy();
     expect(env.oidcIssuerUrl, "OIDC_ISSUER_URL must be set").toBeTruthy();
 
-    const suffix = randomUUID().slice(0, 8);
+    const suffix = randomUUID().replace(/[^a-z1-9]/g, "").slice(0, 6);
     const person = {
-      username: `pw-penpot-${suffix}`,
+      username: `penpot${suffix}`,
       firstName: "Penpot",
       lastName: `Profile ${suffix}`,
-      email: `pw-penpot-${suffix}@${env.canonicalDomain}`.toLowerCase(),
+      email: `penpot${suffix}@${env.canonicalDomain}`.toLowerCase(),
       password: `Pw-${randomUUID()}!`,
     };
     const expectedName = `${person.firstName} ${person.lastName}`;
