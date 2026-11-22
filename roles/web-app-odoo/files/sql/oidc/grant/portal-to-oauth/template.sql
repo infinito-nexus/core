@@ -19,3 +19,8 @@ WHERE imd.module = 'base'
 	WHERE r.gid = imd.res_id
 	  AND r.uid = u.id
   );
+
+UPDATE res_users
+SET share = True
+WHERE login = '_oauth_template'
+  AND share IS NOT True;

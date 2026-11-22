@@ -39,7 +39,7 @@ function baseUrl() {
 async function clickOdooSsoButton(locator) {
   const providerList = locator.locator(".o_login_auth, .o_auth_oauth_providers");
   const ssoButton = locator
-    .locator('a[href*="/auth_oauth/signin"], a[href*="auth_oauth/signin"]')
+    .locator('a[href*="auth_oauth%2Fsignin"]')
     .filter({ hasText: /login with sso|sign in with|continue with/i })
     .first();
   const ssoButtonByText = locator.getByRole("link", { name: /login with sso/i }).first();

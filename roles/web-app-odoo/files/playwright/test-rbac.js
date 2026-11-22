@@ -273,11 +273,19 @@ test.describe.serial("odoo RBAC and profile mapping", () => {
       const body = await rpc(page, "/web/dataset/call_kw/res.users/search_read", {
         model: "res.users",
         method: "search_read",
-        args: [[["login", "=", "_oauth_template"]], ["share"]],
+        args: [[["login", "=", "_oauth_template"]], ["share", "group_ids"]],
         kwargs: { context: { active_test: false } },
       });
       expect(body.error, `reading the signup template must not fail: ${JSON.stringify(body.error)}`).toBeFalsy();
       expect(body.result, "tasks/05_oidc.yml must provision the _oauth_template user").toHaveLength(1);
+      const internal = await rpc(page, "/web/dataset/call_kw/ir.model.data/search_read", {
+        model: "ir.model.data",
+        method: "search_read",
+        args: [[["module", "=", "base"], ["name", "=", "group_user"], ["model", "=", "res.groups"]], ["res_id"]],
+        kwargs: {},
+      });
+      expect(internal.result, "base.group_user must resolve to one group").toHaveLength(1);
+      expect(body.result[0].group_ids, "the signup template must not hold Internal User").not.toContain(internal.result[0].res_id);
       expect(body.result[0].share, "a self-signup copied from the template must not become an internal user").toBe(true);
     } finally {
       await context.close().catch(() => {});

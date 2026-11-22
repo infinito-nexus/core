@@ -3,7 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const { awaitOnionHandoff, decodeDotenvQuotedValue, isVisible, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
-const { onionOptions } = require("./_shared");
+const { clickOdooSsoButton, onionOptions } = require("./_shared");
 
 require("./test-seaweedfs");
 require("./test-login-methods");
@@ -23,32 +23,6 @@ const adminUsername  = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword  = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const biberUsername  = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword  = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
-
-// Click the "Login with SSO" button on Odoo's login page.
-// Odoo renders OAuth provider links inside a ".o_login_auth" container (modern
-// layout; older variants used ".o_auth_oauth_providers"). The oe_login_form has
-// class "d-none" when OAuth is enabled, so we wait for either container OR the
-// SSO link itself directly.
-async function clickOdooSsoButton(locator) {
-  const providerList = locator.locator(".o_login_auth, .o_auth_oauth_providers");
-  const ssoButton = locator
-    .locator('a[href*="/auth_oauth/signin"], a[href*="auth_oauth/signin"]')
-    .filter({ hasText: /login with sso|sign in with|continue with/i })
-    .first();
-  const ssoButtonByText = locator.getByRole("link", { name: /login with sso/i }).first();
-
-  await Promise.any([
-    providerList.first().waitFor({ state: "visible", timeout: resolveTimeout(60_000) }),
-    ssoButton.waitFor({ state: "visible", timeout: resolveTimeout(60_000) }),
-    ssoButtonByText.waitFor({ state: "visible", timeout: resolveTimeout(60_000) })
-  ]);
-
-  if (await ssoButtonByText.isVisible().catch(() => false)) {
-    await ssoButtonByText.click({ timeout: resolveTimeout(30_000) });
-  } else {
-    await ssoButton.click({ timeout: resolveTimeout(30_000) });
-  }
-}
 
 // Check if user is authenticated in Odoo
 // Odoo is a SPA - after login, the web client loads asynchronously.

@@ -6,7 +6,7 @@ const { resolveTimeout } = require("./timeouts");
 const { BREAKGLASS_LOGIN_PATH, baseUrl, loginMethods, nativeLoginToOdoo } = require("./_shared");
 
 const LOGIN_FORM = "form.oe_login_form";
-const SSO_ENTRY = `${LOGIN_FORM} .o_login_auth a[href*="auth_oauth/signin"]`;
+const SSO_ENTRY = `${LOGIN_FORM} .o_login_auth a[href*="redirect_uri="][href*="auth_oauth%2Fsignin"]`;
 
 test("guest: with SSO on the sign-in page offers the SSO entry and no disabled method", async ({ page }) => {
   skipUnlessServiceEnabled("sso");
