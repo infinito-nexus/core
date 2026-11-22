@@ -62,7 +62,7 @@ class TestOnceFlagBeforePostLoad(unittest.TestCase):
         tasks = load_yaml_str(read_text(str(core)))
         flag = next(i for i, t in enumerate(tasks) if t.get("include_tasks") == FLAG)
         planted = tasks[:flag] + tasks[flag + 1 :] + [tasks[flag]]
-        self.assertTrue(order_findings(tasks) == [])
+        self.assertEqual(order_findings(tasks), [])
         self.assertNotEqual(order_findings(planted), [])
 
 

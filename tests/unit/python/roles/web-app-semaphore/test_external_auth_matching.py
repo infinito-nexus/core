@@ -23,6 +23,7 @@ def render(*, oidc: bool, ldap: bool) -> list[str]:
     source = read_text(str(PROJECT_ROOT / ENV_TEMPLATE))
     environment = jinja2.Environment(
         loader=jinja2.DictLoader({ENV_TEMPLATE: source, INCLUDED: ""}),
+        autoescape=jinja2.select_autoescape(),
         undefined=jinja2.ChainableUndefined,
     )
     environment.filters["bool"] = bool
