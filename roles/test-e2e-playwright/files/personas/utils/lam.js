@@ -37,7 +37,7 @@ async function signInToLam(page, lamBaseUrl, username, password) {
     timeout: resolveTimeout(30_000),
   });
   await secret.fill(password);
-  await page.locator(LAM_LOGIN_BUTTON).click();
+  await page.locator(LAM_LOGIN_BUTTON).click({ timeout: resolveTimeout(30_000) });
   await page.waitForLoadState("domcontentloaded");
   await expect(
     page.locator(LAM_SIGNED_IN),
