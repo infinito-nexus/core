@@ -68,7 +68,7 @@ bookwyrm:
   version: 3.11-slim
   custom: true
   repository: https://github.com/bookwyrm-social/bookwyrm.git
-  ref: v0.9.4
+  ref: v0.9.5
   min_storage: 579MB
   ports:
     local:

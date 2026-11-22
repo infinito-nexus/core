@@ -19,7 +19,11 @@ on:
       - labeled
 
 concurrency:
-  group: pr-ci-${{ github.repository }}-${{ github.event_name }}-pr-${{ github.event.pull_request.number }}
+  group: >-
+    ${{ github.event.action == 'labeled'
+        && !contains(fromJSON('["🧩 Subset", "🛡️ Trusted", "🏃 Run all"]'), github.event.label.name)
+        && format('pr-label-{0}', github.run_id)
+        || format('pr-ci-{0}-{1}-pr-{2}', github.repository, github.event_name, github.event.pull_request.number) }}
   cancel-in-progress: true
 
 permissions:
@@ -28,7 +32,10 @@ permissions:
 jobs:
   detect-pr-scope:
     name: 🔎 Detect PR scope
-    if: ${{ github.event.pull_request.draft == false && (github.event_name == 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository) }}
+    if: >-
+      ${{ github.event.pull_request.draft == false
+          && (github.event_name == 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository)
+          && (github.event.action != 'labeled' || contains(fromJSON('["🧩 Subset", "🛡️ Trusted", "🏃 Run all"]'), github.event.label.name)) }}
     runs-on: ubuntu-26.04
     outputs:
       scope: ${{ steps.resolve.outputs.scope }}
@@ -119,6 +126,7 @@ jobs:
       distros: "arch debian ubuntu fedora centos"
       whitelist: ${{ needs.detect-affected-roles.outputs.whitelist }}
       role_skeleton: ${{ needs.detect-role-skeleton-scope.outputs.affected == 'true' }}
+      chunk_gate: ${{ !contains(github.event.pull_request.labels.*.name, '🏃 Run all') }}
 
   detect-agents-scope:
     name: 🤖 Detect agent changes

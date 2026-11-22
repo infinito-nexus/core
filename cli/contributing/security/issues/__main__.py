@@ -55,7 +55,7 @@ def pinned(report: Mapping[str, Any]) -> set[str]:
     return {title({"image": image}) for image in report["pinned"]}
 
 
-LABEL = "vulnerability"
+LABEL = "🔓 vulnerability"
 LABEL_COLOR = "B60205"
 LABEL_DESCRIPTION = "A pinned image carries a CVE at the scan threshold"
 MIRROR = Tracker(
