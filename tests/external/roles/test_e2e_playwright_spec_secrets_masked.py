@@ -11,6 +11,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from typing import NoReturn
 
 from utils.annotations.message import notice, warning
 from utils.cache.files import read_text
@@ -122,7 +123,7 @@ def fetch(case: unittest.TestCase, argv: list[str], seconds: int, what: str) -> 
         skip(case, f"{what} failed: {failure}")
 
 
-def skip(case: unittest.TestCase, reason: str) -> None:
+def skip(case: unittest.TestCase, reason: str) -> NoReturn:
     """Skip the case with a warning annotation that names the reason.
 
     Args:
@@ -134,7 +135,7 @@ def skip(case: unittest.TestCase, reason: str) -> None:
         title=TITLE,
         file=str(ROLE.relative_to(PROJECT_ROOT) / ROLE_FILE_META_SERVICES),
     )
-    case.skipTest(reason)
+    raise unittest.SkipTest(reason)
 
 
 def real_run(case: unittest.TestCase) -> tuple[int, str, str]:
