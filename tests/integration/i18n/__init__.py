@@ -50,7 +50,7 @@ from utils.i18n.untranslatable import untranslatable
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 SUITE = "catalog-scan"
 CACHE_FILE = PROJECT_ROOT / "build" / "catalog-scan-cache.json"
-RULES_VERSION = 5
+RULES_VERSION = 6
 EXAMPLES_PER_TRANSLATION = 3
 MEMINFO = Path("/proc/meminfo")
 BYTES_PER_WORKER = 512 * 1024**2
