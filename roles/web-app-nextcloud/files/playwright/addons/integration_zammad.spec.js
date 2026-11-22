@@ -4,6 +4,51 @@ const { skipUnlessAddonEnabled } = require("../addon-gating");
 const shared = require("../_shared");
 const { gotoOnion } = require("../personas");
 
+const AUTHORIZE_PATH = /\/oauth\/authorize/i;
+const SENSITIVE_CONFIG_PATH = /\/apps\/integration_zammad\/sensitive-config(\?|$)/i;
+
+/**
+ * Args:
+ *   page: the personal connected-accounts page.
+ *   connect: the visible personal "Connect to Zammad" control.
+ *
+ * Returns:
+ *   The URL of the partner /oauth/authorize request the connect issued: the control's own href when it links there,
+ *   else the request its click sends after the app stored the OAuth state through PUT sensitive-config.
+ */
+async function connectToZammad(page, connect) {
+  const href = await connect.getAttribute("href");
+  if (href && AUTHORIZE_PATH.test(href)) return href;
+
+  const stateSaved = page
+    .waitForResponse(
+      (response) => response.request().method() === "PUT" && SENSITIVE_CONFIG_PATH.test(response.url()),
+      { timeout: resolveTimeout(30_000) }
+    )
+    .catch(() => null);
+  const authorizeRequest = page
+    .waitForRequest((request) => AUTHORIZE_PATH.test(request.url()), { timeout: resolveTimeout(30_000) })
+    .catch(() => null);
+
+  await connect.click({ timeout: resolveTimeout(10_000) });
+
+  const saved = await stateSaved;
+  expect(
+    saved,
+    "the Connect to Zammad click must PUT the OAuth state to /apps/integration_zammad/sensitive-config"
+  ).toBeTruthy();
+  expect(
+    saved.ok(),
+    "integration_zammad must accept the OAuth state PUT to /apps/integration_zammad/sensitive-config"
+  ).toBe(true);
+  const request = await authorizeRequest;
+  expect(
+    request,
+    "after the OAuth state was stored, the Connect to Zammad click must send the browser to the partner /oauth/authorize"
+  ).toBeTruthy();
+  return request.url();
+}
+
 test("integration integration_zammad: per-user OAuth connect reaches the partner Zammad authorize endpoint", async ({ browser }) => {
   skipUnlessAddonEnabled("integration_zammad");
   test.setTimeout(resolveTimeout(120_000));
@@ -60,23 +105,10 @@ test("integration integration_zammad: per-user OAuth connect reaches the partner
       .first();
     await expect(
       connect,
-      "the personal 'Connect to Zammad' control must render once the partner OAuth client is provisioned — its absence means the coupling failed to land"
+      "the personal 'Connect to Zammad' control must render once the partner OAuth client is provisioned; its absence means the coupling failed to land"
     ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
-    let authorizeHref = await connect.getAttribute("href").catch(() => null);
-    if (!authorizeHref || !/\/oauth\/authorize/i.test(authorizeHref)) {
-      // The control is a button doing window.location.replace(<partner>/oauth/authorize?...); Zammad's
-      // SPA then bounces the unauthenticated browser to login at "/", so the settled URL is no longer the
-      // authorize endpoint. Capture the authorize request itself — it carries the provisioned client_id.
-      const requestPromise = page
-        .waitForRequest((req) => /\/oauth\/authorize/i.test(req.url()), { timeout: resolveTimeout(30_000) })
-        .catch(() => null);
-      await connect.click({ timeout: resolveTimeout(10_000) }).catch(() => {});
-      const request = await requestPromise;
-      authorizeHref = request ? request.url() : page.url();
-    }
-
-    const authorize = new URL(authorizeHref, instanceUrl);
+    const authorize = new URL(await connectToZammad(page, connect), instanceUrl);
     expect(
       authorize.host,
       "the Zammad OAuth authorize must be served by the partner instance, not Nextcloud"
