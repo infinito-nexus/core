@@ -166,7 +166,7 @@ def over_shared(catalog: Catalog) -> list[Message]:
     return [
         message
         for shared in sharers.values()
-        if len(shared) > MAX_SHARING_SOURCES
+        if len({str(entry.id) for entry in shared}) > MAX_SHARING_SOURCES
         for message in shared
     ]
 

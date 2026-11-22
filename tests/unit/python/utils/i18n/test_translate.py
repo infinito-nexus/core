@@ -466,6 +466,16 @@ class TestOverSharedTranslation(unittest.TestCase):
 
         self.assertEqual(over_shared(catalog), [])
 
+    def test_one_source_in_many_contexts_stays(self) -> None:
+        catalog = Catalog(locale="de")
+        for context in ("rbac:a:mcp", "rbac:b:mcp", "rbac:c:mcp", "rbac:d:mcp"):
+            catalog.add(self.LONG_A, self.SHARED, context=context)
+        for message in catalog:
+            if message.id:
+                message.user_comments = [MACHINE_TRANSLATION]
+
+        self.assertEqual(over_shared(catalog), [])
+
     def test_short_sources_may_share_one(self) -> None:
         catalog = self._catalog([self.SHORT_A, self.SHORT_B, self.SHORT_C], "Datei")
 

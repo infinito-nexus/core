@@ -140,7 +140,7 @@ def scan_one(path_and_label: tuple[str, str]) -> tuple[list[str], list[str]]:
         if reads_echoes and source == translation and not untranslatable(source):
             echoes.append(f"{label}: {message.context or '-'} -> {source[:60]!r}")
         seen = sources_of[translation]
-        if len(seen) <= EXAMPLES_PER_TRANSLATION:
+        if source not in seen and len(seen) <= EXAMPLES_PER_TRANSLATION:
             seen.append(source)
 
     collapses = [
