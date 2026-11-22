@@ -1,15 +1,30 @@
 ---
-- name: ⬇️ Pre-pull LM Studio models
-  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec {{ LMSTUDIO_LOCAL_CID | quote }}
-    sh -c 'echo N | timeout --foreground -s INT -k "$1" "$2" lms get --yes --gguf "$3"'
-    sh {{ _grace }} {{ _budget }} {{ (model.source ~ '@' ~ model.quant) | quote }}
-  vars:
+- name: 🛑 Fail if a model's download budget outlasts the pre-pull async lifetime
+  ansible.builtin.assert:
+    that: (_budget | int) + 2 * (_grace | int) < (LMSTUDIO_PRELOAD_ASYNC_TIME | int)
+    fail_msg: >-
+      {{ model.alias }} needs {{ (_budget | int) + 2 * (_grace | int) }} s for its download budget and cancel,
+      but services.lmstudio.preload_async_time of svc-ai-lmstudio allows {{ LMSTUDIO_PRELOAD_ASYNC_TIME }} s;
+      raise it in the inventory.
+    quiet: true
+  vars: &lmstudio_pull_budget
     _grace: 15
     _budget: >-
       {{ [ LMSTUDIO_PRELOAD_FLOOR_SECONDS | int,
            ((model.bytes | int) / (LMSTUDIO_PRELOAD_MIN_BYTES_PER_SECOND | int))
            | round(0, 'ceil') | int ] | max }}
+  loop: "{{ LMSTUDIO_PRELOAD_MODELS }}"
+  loop_control:
+    loop_var: model
+    label: "{{ model.alias }}"
+  when: ASYNC_ENABLED | bool
+
+- name: ⬇️ Pre-pull LM Studio models
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ LMSTUDIO_LOCAL_CID | quote }}
+    sh -c 'echo N | timeout --foreground -s INT -k "$1" "$2" lms get --yes --gguf "$3"'
+    sh {{ _grace }} {{ _budget }} {{ (model.source ~ '@' ~ model.quant) | quote }}
+  vars: *lmstudio_pull_budget
   environment:
     CONTAINER_EXEC_TIMEOUT: "{{ (_budget | int) + 2 * (_grace | int) }}"
   register: lmstudio_pull_result

@@ -219,5 +219,46 @@ class TestTimedOutPull(unittest.TestCase):
         )
 
 
+class TestBudgetGuard(unittest.TestCase):
+    def _holds(self, model_bytes: int) -> bool:
+        """
+        Args:
+            model_bytes: the declared size of the one model to pre-pull.
+
+        Returns:
+            Whether the guard lets the pre-pull start under the shipped async lifetime.
+        """
+        guard = next(
+            task
+            for task in load_yaml_any(str(PULL), default_if_missing=[])
+            if "ansible.builtin.assert" in task
+        )
+        variables = {
+            "LMSTUDIO_PRELOAD_ASYNC_TIME": 3600,
+            "LMSTUDIO_PRELOAD_FLOOR_SECONDS": 600,
+            "LMSTUDIO_PRELOAD_MIN_BYTES_PER_SECOND": 1_000_000,
+            "model": {"alias": "probe", "bytes": model_bytes},
+        }
+        for key, value in guard["vars"].items():
+            variables[key] = _trust_as_template(value)
+        templar = Templar(loader=DataLoader(), variables=variables)
+        return (
+            _render(templar, f"{{{{ {guard['ansible.builtin.assert']['that']} }}}}")
+            == "True"
+        )
+
+    def test_the_guard_shares_the_pull_budget(self) -> None:
+        tasks = load_yaml_any(str(PULL), default_if_missing=[])
+        guard = next(task for task in tasks if "ansible.builtin.assert" in task)
+        pull = next(task for task in tasks if task.get("name") == TASK)
+        self.assertEqual(guard["vars"], pull["vars"])
+
+    def test_the_largest_budget_that_fits_passes(self) -> None:
+        self.assertTrue(self._holds(3_569_000_000))
+
+    def test_a_budget_reaching_the_async_lifetime_fails(self) -> None:
+        self.assertFalse(self._holds(3_570_000_000))
+
+
 if __name__ == "__main__":
     unittest.main()
