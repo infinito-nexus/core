@@ -104,6 +104,7 @@ done
 
 if [[ -n "${DUPLICATE_PR}" ]]; then
 	echo "Open PR #${DUPLICATE_PR} already carries this exact change. Skipping push and PR creation."
+	python3 -m cli.contributing.update.label --repo "${REPO}" --pr "${DUPLICATE_PR}" --level "${UPDATE_LEVEL}"
 	exit 0
 fi
 
