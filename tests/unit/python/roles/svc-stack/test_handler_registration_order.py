@@ -2,9 +2,13 @@ from __future__ import annotations
 
 import re
 import unittest
+from typing import TYPE_CHECKING
 
 from utils.cache.files import PROJECT_ROOT, iter_project_files_with_content, read_text
 from utils.cache.yaml import load_yaml_str
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 BACKEND = PROJECT_ROOT / "roles/svc-stack/tasks/backend.yml"
 RDBMS_DEDICATED = PROJECT_ROOT / "roles/sys-svc-rdbms/tasks/dedicated.yml"
@@ -20,9 +24,13 @@ BLUESKY_STAGING = tuple(
 )
 BLUESKY_BRIDGE = PROJECT_ROOT / "roles/web-app-bluesky/tasks/utils/stack.yml"
 SEARXNG_CORE = PROJECT_ROOT / "roles/svc-ai-searxng/tasks/00_core.yml"
+REGISTRY_CACHE = PROJECT_ROOT / "roles/svc-registry-cache"
+REGISTRY_CACHE_CORE = REGISTRY_CACHE / "tasks/00_core.yml"
 COMPOSE_OWNER = "sys-svc-compose"
 RENDER_REPLICATED = "render_replicated_templates.yml"
+BOOTSTRAP_GUARD = "run_once_sys_svc_compose is not defined"
 _NOTIFY = re.compile(r"^\s*notify:\s*(?:\[\s*)?['\"]?(compose-[\w-]+)", re.MULTILINE)
+_PATH_ABSOLUTE = re.compile(r"path_absolute',\s*'([^']+)'")
 
 
 def _role_include(task: dict) -> dict:
@@ -40,6 +48,72 @@ def _role_includes(tasks: list) -> list[dict]:
         if include.get("name"):
             includes.append(include)
     return includes
+
+
+def _included_file(task: dict) -> str:
+    include = task.get("include_tasks", task.get("ansible.builtin.include_tasks"))
+    if isinstance(include, dict):
+        include = include.get("file")
+    return include if isinstance(include, str) else ""
+
+
+def _resolve_include(role: Path, include: str) -> Path | None:
+    match = _PATH_ABSOLUTE.search(include)
+    if match:
+        return PROJECT_ROOT / match.group(1)
+    for base in (role / "tasks", PROJECT_ROOT / "tasks"):
+        if (base / include).is_file():
+            return base / include
+    return None
+
+
+def _queues_compose_topic(role: Path, task: dict) -> bool:
+    notify = task.get("notify") or []
+    topics = [notify] if isinstance(notify, str) else notify
+    if any(str(topic).startswith("compose-") for topic in topics):
+        return True
+    include = _included_file(task)
+    if RENDER_REPLICATED in include:
+        return True
+    children = [
+        child
+        for section in ("block", "rescue", "always")
+        for child in task.get(section) or []
+    ]
+    path = _resolve_include(role, include) if include else None
+    if path is not None:
+        children += load_yaml_str(read_text(str(path))) or []
+    return any(
+        isinstance(child, dict) and _queues_compose_topic(role, child)
+        for child in children
+    )
+
+
+def _is_compose_bootstrap(task: dict) -> bool:
+    include = _role_include(task)
+    return (
+        include.get("name") == COMPOSE_OWNER
+        and include.get("tasks_from") == "00_core.yml"
+        and BOOTSTRAP_GUARD in str(task.get("when"))
+    )
+
+
+def _bootstrap_findings(role: Path, tasks: list) -> list[str]:
+    notifier = next(
+        (i for i, task in enumerate(tasks) if _queues_compose_topic(role, task)),
+        None,
+    )
+    if notifier is None:
+        return []
+    bootstrap = next(
+        (i for i, task in enumerate(tasks) if _is_compose_bootstrap(task)),
+        None,
+    )
+    if bootstrap is None:
+        return [f"task {notifier} notifies compose without a guarded bootstrap"]
+    if bootstrap > notifier:
+        return [f"task {notifier} notifies compose before bootstrap {bootstrap}"]
+    return []
 
 
 class TestHandlerRegistrationOrder(unittest.TestCase):
@@ -146,9 +220,7 @@ class TestHandlerRegistrationOrder(unittest.TestCase):
         )
         notify = next(index for index, task in enumerate(tasks) if task.get("notify"))
         self.assertLess(bootstrap, notify)
-        self.assertIn(
-            "run_once_sys_svc_compose is not defined", str(tasks[bootstrap].get("when"))
-        )
+        self.assertIn(BOOTSTRAP_GUARD, str(tasks[bootstrap].get("when")))
 
     def test_searxng_bootstraps_the_compose_host_before_it_renders(self) -> None:
         tasks = load_yaml_str(read_text(str(SEARXNG_CORE)))
@@ -171,9 +243,54 @@ class TestHandlerRegistrationOrder(unittest.TestCase):
             "sys-svc-container, whose unconditional flush would run the "
             "handlers before sys-svc-compose installs the compose wrapper",
         )
-        self.assertIn(
-            "run_once_sys_svc_compose is not defined",
-            str(tasks[bootstrap].get("when")),
+        self.assertIn(BOOTSTRAP_GUARD, str(tasks[bootstrap].get("when")))
+
+    def test_registry_cache_bootstraps_the_compose_host_before_it_notifies(
+        self,
+    ) -> None:
+        tasks = load_yaml_str(read_text(str(REGISTRY_CACHE_CORE)))
+        vendor_front = next(task for task in tasks if "block" in task)
+        self.assertTrue(
+            _queues_compose_topic(REGISTRY_CACHE, vendor_front),
+            "the vendor front notifies compose-up two include levels down",
+        )
+        self.assertEqual(
+            _bootstrap_findings(REGISTRY_CACHE, tasks),
+            [],
+            "the role is the first compose consumer of the bootstrap stage, and "
+            "sys-svc-container's unconditional flush would run its compose "
+            "handlers before dockerd starts and before compose.yml exists",
+        )
+
+    def test_negative_control_a_missing_late_or_unguarded_bootstrap_is_reported(
+        self,
+    ) -> None:
+        bootstrap = {
+            "ansible.builtin.include_role": {
+                "name": COMPOSE_OWNER,
+                "tasks_from": "00_core.yml",
+            },
+            "when": BOOTSTRAP_GUARD,
+        }
+        unguarded = {key: value for key, value in bootstrap.items() if key != "when"}
+        tasks = [
+            task
+            for task in load_yaml_str(read_text(str(REGISTRY_CACHE_CORE)))
+            if not _is_compose_bootstrap(task)
+        ]
+        notifier = next(index for index, task in enumerate(tasks) if "block" in task)
+        self.assertEqual(_bootstrap_findings(REGISTRY_CACHE, [bootstrap, *tasks]), [])
+        self.assertEqual(
+            _bootstrap_findings(REGISTRY_CACHE, tasks),
+            [f"task {notifier} notifies compose without a guarded bootstrap"],
+        )
+        self.assertEqual(
+            _bootstrap_findings(REGISTRY_CACHE, [*tasks, bootstrap]),
+            [f"task {notifier} notifies compose before bootstrap {len(tasks)}"],
+        )
+        self.assertEqual(
+            _bootstrap_findings(REGISTRY_CACHE, [unguarded, *tasks]),
+            [f"task {notifier + 1} notifies compose without a guarded bootstrap"],
         )
 
     def test_the_owner_still_holds_every_compose_topic_that_is_notified(self) -> None:

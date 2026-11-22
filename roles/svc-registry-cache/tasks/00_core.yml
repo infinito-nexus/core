@@ -1,6 +1,12 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🥾 For '{{ application_id }}': bootstrap the compose host once"
+  ansible.builtin.include_role:
+    name: sys-svc-compose
+    tasks_from: 00_core.yml
+  when: run_once_sys_svc_compose is not defined
+
 - name: "🔐 Serve the vendor registries through the TLS front"
   when: REGISTRY_CACHE_VENDORS | length > 0
   block:
