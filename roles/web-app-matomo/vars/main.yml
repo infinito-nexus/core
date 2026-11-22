@@ -53,6 +53,8 @@ MATOMO_OIDC_PLUGIN_SOURCE: "{{ [MATOMO_RELEASE_DIR, 'plugins', MATOMO_OIDC_PLUGI
 MATOMO_OIDC_SETTINGS: "{{ lookup('form_values', application_id, 'rebeloidc') }}"
 MATOMO_OIDC_CREDENTIALS:
   clientSecret: "{{ OIDC.CLIENT.SECRET }}"
+MATOMO_OIDC_ONION_ISSUER: "{{ (OIDC.CLIENT.ISSUER_URL | urlsplit('hostname') | network_of) == 'tor' }}"
+MATOMO_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if (MATOMO_OIDC_STATE == 'present' and MATOMO_OIDC_ONION_ISSUER | bool) else '' }}"
 MATOMO_OIDC_GENERAL:
   proxy_scheme_headers: ["HTTP_X_FORWARDED_PROTO"]
   login_logout_url: "{{ MATOMO_SITE_URL if MATOMO_OIDC_ENABLED | bool else '' }}"
