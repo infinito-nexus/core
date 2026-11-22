@@ -466,9 +466,10 @@ def container_running(container_id: str) -> bool:
         container_id: the container to inspect.
 
     Returns:
-        ``True`` while the container engine reports it running or does not
-        answer in time, so a probe error then stays a failure; ``False`` once
-        it stopped or is gone.
+        ``False`` only when the container engine reports it stopped or no
+        longer knows it; ``True`` while it runs, and also when the engine does
+        not answer in time or the inspection fails for another reason, so a
+        probe error then stays a failure.
     """
     try:
         result = subprocess.run(
@@ -488,7 +489,9 @@ def container_running(container_id: str) -> bool:
         )
     except subprocess.TimeoutExpired:
         return True
-    return result.returncode == 0 and result.stdout.strip() == "true"
+    if result.returncode == 0:
+        return result.stdout.strip() == "true"
+    return "no such container" not in result.stderr.lower()
 
 
 def check(
@@ -499,8 +502,10 @@ def check(
 ) -> tuple[list[str], list[str]]:
     """Evaluate the PHP hardening of every container.
 
-    A container that stopped between the listing and its probe, as a swarm
-    task that recycles itself does, is reported as info, not as a failure.
+    A probe error counts as a failure only while the container still runs.
+    A container that is stopped or gone when it is inspected after the error,
+    as a swarm task that recycles itself is, is reported as info instead,
+    even when it stopped only after its probe had failed.
 
     Args:
         containers: the running containers.
@@ -526,7 +531,10 @@ def check(
             if running(container.id):
                 failures.append(f"{container.name}: {exc}")
             else:
-                infos.append(f"{container.name}: stopped before its probe, skipped")
+                infos.append(
+                    f"{container.name}: not running when inspected after its "
+                    "probe error, skipped"
+                )
             continue
         if result is None:
             if must_harden:

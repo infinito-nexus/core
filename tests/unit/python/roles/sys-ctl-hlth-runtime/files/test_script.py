@@ -2156,23 +2156,54 @@ class TestCheck(TestCase):
             lambda _container_id: False,
         )
         self.assertEqual(failures, [])
-        self.assertEqual(infos, ["worker: stopped before its probe, skipped"])
+        self.assertEqual(
+            infos, ["worker: not running when inspected after its probe error, skipped"]
+        )
 
 
 class TestContainerRunning(TestCase):
-    def _running(self, returncode, stdout):
-        completed = SimpleNamespace(returncode=returncode, stdout=stdout, stderr="")
+    def _running(self, returncode, stdout, stderr):
+        completed = SimpleNamespace(returncode=returncode, stdout=stdout, stderr=stderr)
         with mock.patch.object(SCRIPT.subprocess, "run", return_value=completed):
             return SCRIPT.container_running("abc")
 
     def test_a_running_container_runs(self):
-        self.assertTrue(self._running(0, "true\n"))
+        self.assertTrue(self._running(0, "true\n", ""))
 
     def test_a_stopped_container_does_not_run(self):
-        self.assertFalse(self._running(0, "false\n"))
+        self.assertFalse(self._running(0, "false\n", ""))
 
     def test_a_removed_container_does_not_run(self):
-        self.assertFalse(self._running(1, ""))
+        self.assertFalse(self._running(1, "", "Error: No such container: abc"))
+
+    def test_a_removed_podman_container_does_not_run(self):
+        self.assertFalse(self._running(125, "", 'Error: no such container "abc"'))
+
+    def test_a_failed_inspection_keeps_the_probe_error(self):
+        self.assertTrue(
+            self._running(
+                1,
+                "",
+                "Cannot connect to the Docker daemon. Is the docker daemon running?",
+            )
+        )
+
+    def test_a_failed_inspection_does_not_hide_a_probe_failure(self):
+        def broken(_container_id):
+            raise SCRIPT.ProbeError("php exited 255: boom")
+
+        completed = SimpleNamespace(
+            returncode=1, stdout="", stderr="permission denied while trying to connect"
+        )
+        with mock.patch.object(SCRIPT.subprocess, "run", return_value=completed):
+            failures, infos = SCRIPT.check(
+                [_container("wp", "wordpress", "wordpress")],
+                {"wordpress": ["wordpress"]},
+                broken,
+                SCRIPT.container_running,
+            )
+        self.assertEqual(failures, ["wp: php exited 255: boom"])
+        self.assertEqual(infos, [])
 
     def test_an_engine_that_does_not_answer_counts_as_running(self):
         timeout = SCRIPT.subprocess.TimeoutExpired(cmd="container", timeout=1)
