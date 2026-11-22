@@ -147,6 +147,41 @@ async function statusOf(page, path) {
 }
 
 /**
+ * Args:
+ *   page: a Playwright page whose context carries the Jenkins session.
+ *
+ * Returns:
+ *   the CSRF crumb header of the session, or no header when the controller issues no crumb.
+ */
+async function crumbHeaders(page) {
+  const crumbResponse = await page.request.get(`${baseUrl}/crumbIssuer/api/json`, {
+    failOnStatusCode: false,
+    timeout: resolveTimeout(30_000),
+  });
+  if (!crumbResponse.ok()) return {};
+  const crumb = await crumbResponse.json();
+  return { [crumb.crumbRequestField]: crumb.crumb };
+}
+
+/**
+ * Args:
+ *   page: a Playwright page whose context carries the Jenkins session.
+ *   jobName: the job to build through the REST endpoint with the session's CSRF crumb.
+ *
+ * Returns:
+ *   the HTTP status Jenkins answers, 201 for a queued build.
+ */
+async function queueBuild(page, jobName) {
+  const response = await page.request.post(`${baseUrl}/job/${encodeURIComponent(jobName)}/build?delay=0sec`, {
+    headers: await crumbHeaders(page),
+    failOnStatusCode: false,
+    maxRedirects: 0,
+    timeout: resolveTimeout(30_000),
+  });
+  return response.status();
+}
+
+/**
  * Delete a job through the REST endpoint with the session's CSRF crumb,
  * tolerating a job that is already gone.
  *
@@ -155,14 +190,8 @@ async function statusOf(page, path) {
  *   jobName: the job to remove.
  */
 async function deleteJob(page, jobName) {
-  const crumbResponse = await page.request.get(`${baseUrl}/crumbIssuer/api/json`, { failOnStatusCode: false });
-  const headers = {};
-  if (crumbResponse.ok()) {
-    const crumb = await crumbResponse.json();
-    headers[crumb.crumbRequestField] = crumb.crumb;
-  }
   const response = await page.request.post(`${baseUrl}/job/${encodeURIComponent(jobName)}/doDelete`, {
-    headers,
+    headers: await crumbHeaders(page),
     failOnStatusCode: false,
     maxRedirects: 0,
   });
@@ -304,11 +333,17 @@ test("rbac: membership in the developer group lets biber create and build a job 
         .poll(() => page.url(), { timeout: resolveTimeout(60_000) })
         .not.toContain("/configure");
 
-      await page
-        .getByRole("link", { name: /build now/i })
-        .or(page.getByRole("button", { name: /build now/i }))
-        .first()
-        .click({ timeout: resolveTimeout(30_000) });
+      await expect(
+        page
+          .getByRole("link", { name: /build now/i })
+          .or(page.getByRole("button", { name: /build now/i }))
+          .first(),
+        "a developer MUST be offered Build Now on the job it created",
+      ).toBeVisible({ timeout: resolveTimeout(30_000) });
+      expect(
+        await queueBuild(page, jobName),
+        "Jenkins MUST queue the build a developer requests; 403 means the developer role lacks Job/Build",
+      ).toBe(201);
       await expect
         .poll(
           async () => {
