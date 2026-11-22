@@ -79,7 +79,9 @@ class TestVariableDefinitions(unittest.TestCase):
         self.ansible_set_fact = re.compile(
             r"^(?:\s*-\s*)?(?:ansible\.builtin\.)?set_fact\s*:\s*(\{[^}]*\})?\s*$"
         )
-        self.ansible_vars_block = re.compile(r"^(?:\s*[-]\s*)?vars\s*:\s*$")
+        self.ansible_vars_block = re.compile(
+            r"^(?:\s*[-]\s*)?vars\s*:\s*(?:&[A-Za-z0-9_-]+\s*)?$"
+        )
         self.ansible_loop_var = re.compile(r"^\s*loop_var\s*:\s*([a-zA-Z_]\w*)")
         self.mapping_key = re.compile(r"^\s*([a-zA-Z_]\w*)\s*:\s*")
         self.register_pat = re.compile(r"^\s*register\s*:\s*([a-zA-Z_]\w*)")
