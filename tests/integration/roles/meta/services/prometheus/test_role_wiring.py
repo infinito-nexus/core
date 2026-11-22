@@ -39,6 +39,7 @@ _GROUP_NAMES = (
     "web-app-matrix",
     "svc-prx-openresty",
 )
+_INVENTORY_CREDENTIALS = {"logout_gate_key": "fixture-logout-gate-key"}
 _INJ_OFF = {
     "logout": False,
     "dashboard": False,
@@ -299,6 +300,9 @@ def _template(application_id: str, mode: str, extra: dict, expression: str) -> s
         The evaluated text.
     """
     applications = get_application_defaults(roles_dir=ROLES_DIR)
+    applications[application_id].setdefault("secrets", {}).setdefault(
+        "credentials", {}
+    ).update(_INVENTORY_CREDENTIALS)
     variables = {
         **_vars_layer(sorted((PROJECT_ROOT / "group_vars" / "all").glob("*.yml"))),
         **_vars_layer(
