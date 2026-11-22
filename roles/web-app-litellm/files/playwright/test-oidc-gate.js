@@ -43,8 +43,27 @@ test("biber: the LiteLLM admin UI refuses a Keycloak account outside the adminis
   expect(session, "a refused SSO login MUST NOT leave a LiteLLM UI session token").toBeUndefined();
 
   await gotoOnion(page, `${expectedBase}/ui`, { waitUntil: "domcontentloaded" });
-  await expect(
-    page.locator("input[type=password]").first(),
-    "without a session the UI MUST still show its own password gate",
-  ).toBeVisible({ timeout: resolveTimeout(30_000) });
+  await expect
+    .poll(() => new URL(page.url()).pathname.startsWith("/ui"), {
+      timeout: resolveTimeout(30_000),
+      message: "without a session the UI MUST hand biber back to the SSO login instead of keeping its own password form",
+    })
+    .toBe(false);
+  await expect
+    .poll(
+      async () => {
+        if (page.url().startsWith(oidcIssuerUrl) && (await page.locator("input[type=password]").count()) > 0) {
+          return "keycloak form";
+        }
+        const text = await page.locator("body").innerText().catch(() => "");
+        return /not in the restricted SSO group/i.test(text) ? "refused" : "pending";
+      },
+      {
+        timeout: resolveTimeout(60_000),
+        message: "the repeated SSO round-trip MUST end on the gateway's refusal or on the Keycloak sign-in form",
+      },
+    )
+    .not.toBe("pending");
+  const retry = (await page.context().cookies()).find((c) => c.name === "token");
+  expect(retry, "the repeated SSO round-trip MUST NOT leave a LiteLLM UI session token either").toBeUndefined();
 });
