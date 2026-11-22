@@ -42,6 +42,7 @@ namespace {
             'JOOMLA_OIDC_PROFILE_ADDRESS_FIELDS',
             'JOOMLA_OIDC_PROFILE_LOCKED',
             'JOOMLA_OIDC_ISSUER_URL',
+            'JOOMLA_ADMIN_USERNAME',
         ];
 
         private const LOCKED = ['name', 'username', 'email', 'language', 'timezone', 'phone', 'website', 'address'];
@@ -128,6 +129,30 @@ namespace {
                 [4, 6],
                 $this->call('mapGroupsToJoomla', ['/roles/web-app-joomla/editor', 'roles/web-app-joomla/editor', '/roles/web-app-joomla/manager', '/unrelated'])
             );
+        }
+
+        public function testTheBootstrapAdministratorKeepsSuperUsersWithoutTheAdministratorGroup(): void
+        {
+            putenv('JOOMLA_OIDC_GROUP_MAP=' . json_encode(['/roles/web-app-joomla/editor' => 4, '/roles/web-app-joomla/administrator' => 8]));
+            putenv('JOOMLA_ADMIN_USERNAME=platformadmin');
+
+            self::assertSame([4, 8], $this->call('groupsForLogin', 'platformadmin', ['/roles/web-app-joomla/editor']));
+        }
+
+        public function testAnotherAccountWithoutTheAdministratorGroupGetsNoSuperUsers(): void
+        {
+            putenv('JOOMLA_OIDC_GROUP_MAP=' . json_encode(['/roles/web-app-joomla/editor' => 4, '/roles/web-app-joomla/administrator' => 8]));
+            putenv('JOOMLA_ADMIN_USERNAME=platformadmin');
+
+            self::assertSame([4], $this->call('groupsForLogin', 'biber', ['/roles/web-app-joomla/editor']));
+        }
+
+        public function testTheBootstrapAdministratorInTheAdministratorGroupHoldsSuperUsersOnce(): void
+        {
+            putenv('JOOMLA_OIDC_GROUP_MAP=' . json_encode(['/roles/web-app-joomla/administrator' => 8]));
+            putenv('JOOMLA_ADMIN_USERNAME=platformadmin');
+
+            self::assertSame([8], $this->call('groupsForLogin', 'platformadmin', ['/roles/web-app-joomla/administrator']));
         }
 
         public function testAnEmptyProfileClaimMapRaises(): void

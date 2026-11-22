@@ -687,10 +687,7 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
         $email = PunycodeHelper::emailToPunycode($email);
         $name  = trim((string) (new InputFilter())->clean($given . ' ' . $family, 'string')) ?: $username;
 
-        $mappedGroups = $this->mapGroupsToJoomla($groups);
-        if ($username === $this->requireEnv(self::ENV_BOOTSTRAP_ADMIN) && !in_array(self::JOOMLA_GROUP_SUPER, $mappedGroups, true)) {
-            $mappedGroups[] = self::JOOMLA_GROUP_SUPER;
-        }
+        $mappedGroups = $this->groupsForLogin($username, $groups);
         $language = $this->resolveLanguage($this->stringClaim($oidc, self::ENV_CLAIM_LOCALE));
         $timezone = $this->resolveTimezone($this->stringClaim($oidc, self::ENV_CLAIM_ZONEINFO));
         $profile  = self::profileFromClaims(
@@ -782,6 +779,22 @@ class Keycloak extends CMSPlugin implements SubscriberInterface
             throw new \RuntimeException('Keycloak: failed to create Joomla user: ' . implode(' ', $user->getErrors()));
         }
         return (int) $user->id;
+    }
+
+    /**
+     * Args:
+     *   $username: login of the account signing in.
+     *   $kcGroups: group paths of its groups claim.
+     * Returns:
+     *   int[]: the Joomla usergroup IDs the account holds after the login; the bootstrap administrator also holds Super Users.
+     */
+    private function groupsForLogin(string $username, array $kcGroups): array
+    {
+        $mappedGroups = $this->mapGroupsToJoomla($kcGroups);
+        if ($username === $this->requireEnv(self::ENV_BOOTSTRAP_ADMIN) && !in_array(self::JOOMLA_GROUP_SUPER, $mappedGroups, true)) {
+            $mappedGroups[] = self::JOOMLA_GROUP_SUPER;
+        }
+        return $mappedGroups;
     }
 
     /**

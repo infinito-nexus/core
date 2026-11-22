@@ -122,28 +122,6 @@ test.describe.serial("rbac: Keycloak groups drive Joomla user groups", () => {
     });
   }
 
-  test("rbac: the bootstrap administrator keeps Super Users without the administrator group", async ({ browser }) => {
-    skipUnlessServiceEnabled("sso");
-    test.setTimeout(resolveTimeout(240_000));
-    const groupPath = requireGroupPath("administrator");
-
-    const keycloak = await browser.newContext({ ignoreHTTPSErrors: true });
-    let wasMember = false;
-    try {
-      wasMember = !(await addToGroup(keycloak.request, groupPath, adminUsername));
-      await removeFromGroup(keycloak.request, groupPath, adminUsername);
-      await signsInViaKeycloak(browser, adminUsername, adminPassword);
-      await expectJoomlaGroup(browser, adminUsername, "Super Users");
-    } finally {
-      if (wasMember) {
-        await addToGroup(keycloak.request, groupPath, adminUsername).catch((error) =>
-          console.warn(`Restoring ${adminUsername} in ${groupPath} failed: ${error}`),
-        );
-      }
-      await keycloak.close().catch(() => {});
-    }
-  });
-
   test("rbac: biber without a Joomla role group signs in and lands in Registered", async ({ browser }) => {
     skipUnlessServiceEnabled("sso");
     test.setTimeout(resolveTimeout(180_000));

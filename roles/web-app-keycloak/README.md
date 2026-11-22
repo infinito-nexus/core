@@ -237,6 +237,12 @@ sso:
 
 No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to. A follow-up tightens them.
 
+## LDAP group leave
+
+Keycloak 26.8.2, pinned in [`meta/services.yml`](./meta/services.yml), removes a federated user from more than the group they leave. When a user leaves one app's role group, for example `/roles/web-app-joomla/administrator`, `GroupLDAPStorageMapper.leaveGroup` of every app's LDAP group mapper looks the group up by its name alone and also drops the user's `member` value from that app's own role group of the same name. One removal therefore takes `administrator` away in every app. It only ever revokes access, never grants it, and it hits every role removal made through Keycloak, in production too. When the name matches more than one LDAP entry, the leave fails with HTTP 400 (`multiple LDAP objects`) instead.
+
+No change in this role avoids it, because the leave uses the same search every mapper uses to read its own groups. The upstream fix (commit `b39c237efb`, issue 50984) ships with Keycloak 27.0.0, and the pin moves there once it is released. Until then no Playwright spec takes the platform administrator out of a role group: the spec would strip it from every app of the deployment.
+
 ## Further Resources
 
 - [Keycloak Official Website](https://www.keycloak.org/)
