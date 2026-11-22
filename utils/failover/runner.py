@@ -157,34 +157,3 @@ def run_plain(
             result.notes.append(dual_writer_detail(rounds))
     result.seconds = time.monotonic() - started
     return result
-
-
-def run_scenario(
-    lab: Lab,
-    engine: str,
-    scenario: Scenario,
-    *,
-    duration_s: int,
-    sleep: Callable[[float], None] = time.sleep,
-    env=None,
-) -> CaseResult:
-    """Run one scenario end to end, by its procedure or by the plain flow.
-
-    Args:
-        lab: mode adapter.
-        engine: engine under test.
-        scenario: registry entry.
-        duration_s: seconds the checker writes in the plain flow.
-        sleep: injectable for tests.
-        env: ``procedures.Env`` shared across the scripted cases of one run.
-    """
-    if scenario.procedure:
-        from utils.failover import procedures
-
-        return procedures.run_procedure(
-            lab,
-            engine,
-            scenario,
-            env or procedures.Env(duration_s=duration_s, sleep=sleep),
-        )
-    return run_plain(lab, engine, scenario, duration_s=duration_s, sleep=sleep)

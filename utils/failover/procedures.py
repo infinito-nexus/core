@@ -27,7 +27,7 @@ from utils.failover.procedure_kit import (
     watch_local_writes,
     with_checker,
 )
-from utils.failover.runner import FAULT_HOLD_S, unfinished
+from utils.failover.runner import FAULT_HOLD_S, run_plain, unfinished
 from utils.failover.sampling import (
     dual_writer_detail,
     dual_writer_windows,
@@ -49,6 +49,7 @@ from utils.failover.targets import (
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from utils.failover.runner import Lab
     from utils.failover.scenarios import Scenario
 
 
@@ -410,3 +411,32 @@ def run_procedure(lab, engine: str, scenario: Scenario, env: Env) -> CaseResult:
     PROCEDURES[scenario.procedure](lab, engine, env, result)
     result.seconds = time.monotonic() - started
     return result
+
+
+def run_scenario(
+    lab: Lab,
+    engine: str,
+    scenario: Scenario,
+    *,
+    duration_s: int,
+    sleep: Callable[[float], None] = time.sleep,
+    env: Env | None = None,
+) -> CaseResult:
+    """Run one scenario end to end, by its procedure or by the plain flow.
+
+    Args:
+        lab: mode adapter.
+        engine: engine under test.
+        scenario: registry entry.
+        duration_s: seconds the checker writes in the plain flow.
+        sleep: injectable for tests.
+        env: clocks and shared state across the scripted cases of one run.
+    """
+    if scenario.procedure:
+        return run_procedure(
+            lab,
+            engine,
+            scenario,
+            env or Env(duration_s=duration_s, sleep=sleep),
+        )
+    return run_plain(lab, engine, scenario, duration_s=duration_s, sleep=sleep)

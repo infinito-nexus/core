@@ -24,8 +24,7 @@ from utils import PROJECT_ROOT
 from utils.cache.yaml import dump_yaml
 from utils.failover.inventory import LabInventory, find_inventory
 from utils.failover.junit import CaseResult, write_junit
-from utils.failover.procedures import Env
-from utils.failover.runner import run_scenario
+from utils.failover.procedures import Env, run_scenario
 from utils.failover.scenarios import PARTS, scenarios_for
 from utils.failover.swarm import SwarmLab, filter_lab_overrides, load_lab_sizes
 from utils.failover.targets import ENGINES, RECLONE_CEILING_S

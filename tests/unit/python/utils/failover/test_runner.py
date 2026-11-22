@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from utils.failover import runner
+from utils.failover import procedures, runner
 from utils.failover.checker import parse_checker_output
 from utils.failover.sampling import Round
 from utils.failover.scenarios import get_scenario
@@ -44,7 +44,7 @@ class TestRunScenario(unittest.TestCase):
         self, log: str, name: str = "steady-state", engine: str = "postgres", sleep=None
     ):
         lab = _FakeLab(log)
-        result = runner.run_scenario(
+        result = procedures.run_scenario(
             lab,
             engine,
             get_scenario(name),
@@ -89,7 +89,7 @@ class TestRunScenario(unittest.TestCase):
 
         lab = _FakeLab(_GOOD)
         with self.assertRaises(KeyboardInterrupt):
-            runner.run_scenario(
+            procedures.run_scenario(
                 lab, "postgres", get_scenario("node-hang"), duration_s=1, sleep=sleep
             )
         self.assertEqual(
