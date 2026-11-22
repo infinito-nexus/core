@@ -8,6 +8,9 @@ const playwrightStub = {
     toBe(expected) {
       if (actual !== expected) throw new Error(message || `expected ${expected}, got ${actual}`);
     },
+    toEqual(expected) {
+      assert.deepEqual(actual, expected, message);
+    },
   }),
 };
 const loadModule = Module._load;
@@ -16,7 +19,7 @@ Module._load = function (request, ...rest) {
 };
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../../../../../..");
-const { assertCspInjections, installCspHeaderRecorder } = require(
+const { assertCspInjections, expectNoCspViolations, installCspHeaderRecorder } = require(
   path.join(
     PROJECT_ROOT,
     "roles/test-e2e-playwright/files/personas/utils/csp.js",
@@ -28,6 +31,9 @@ Module._load = loadModule;
 const CDN = "https://cdn.example.test";
 const WITH_CDN = `default-src 'self' ${CDN}`;
 const WITHOUT_CDN = "default-src 'self'";
+const TRACKER_HOST = "tracker.example.test";
+const TRACKER_SCRIPT = `https://${TRACKER_HOST}/script.js`;
+const TRACKER_BLOCK = { expected: [{ host: TRACKER_HOST, directive: "script-src" }] };
 
 /**
  * Build a stub `page` that records its response listeners.
@@ -95,6 +101,30 @@ async function withEnv(vars, run) {
       else process.env[name] = previous[name];
     }
   }
+}
+
+/**
+ * Run `expectNoCspViolations` against recorded violations and console text.
+ *
+ * @param {{blockedURI: string, effectiveDirective: string}[]} violations -
+ *   the securitypolicyviolation events the page recorded
+ * @param {string[]} consoleTexts - the CSP-related console entries
+ * @param {object} [opts] - the helper's fourth argument, omitted when undefined
+ * @returns {Promise<void>} rejects when the helper fails the page
+ */
+function checkViolations(violations, consoleTexts, opts) {
+  const page = { evaluate: async () => violations };
+  const cspRelated = consoleTexts.map((text) => ({ source: "console", text }));
+  const args = [page, { cspRelated }, "dashboard"];
+  return expectNoCspViolations(...(opts === undefined ? args : [...args, opts]));
+}
+
+function blocked(blockedURI, effectiveDirective) {
+  return { blockedURI, effectiveDirective, violatedDirective: effectiveDirective };
+}
+
+function blockedMessage(url, directive) {
+  return `Loading the script '${url}' violates the Content Security Policy directive: "${directive}".`;
 }
 
 const withCdnEnv = (run) => withEnv({ CDN_BASE_URL: CDN }, run);
@@ -283,4 +313,73 @@ test("a torn-down response does not break the recorder", async () => {
   await assertCdn(stub.page);
 
   assert.equal(stub.refetchCalls(), 0);
+});
+
+test("an expected block under its directive is the one tolerated violation", async () => {
+  await checkViolations(
+    [blocked(TRACKER_SCRIPT, "script-src-elem"), blocked(TRACKER_SCRIPT, "script-src")],
+    [
+      blockedMessage(TRACKER_SCRIPT, "script-src-elem"),
+      `Refused to load the script '${TRACKER_SCRIPT}' because it violates the following Content Security Policy directive: "script-src 'self' https://cdn.example.test". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback.`,
+    ],
+    TRACKER_BLOCK,
+  );
+  await checkViolations([], [], TRACKER_BLOCK);
+});
+
+test("a violation from any other source still fails beside an expected block", async () => {
+  for (const violations of [
+    [blocked("https://cdn.example.test/app.js", "script-src-elem")],
+    [blocked("inline", "script-src-elem")],
+    [blocked(`https://evil-${TRACKER_HOST}/script.js`, "script-src-elem")],
+    [blocked(`https://x.${TRACKER_HOST}/script.js`, "script-src-elem")],
+    [blocked(TRACKER_SCRIPT, "script-src-elem"), blocked("eval", "script-src")],
+  ]) {
+    await assert.rejects(() => checkViolations(violations, [], TRACKER_BLOCK), /securitypolicyviolation/);
+  }
+});
+
+test("a console entry that does not name the expected host still fails", async () => {
+  for (const text of [
+    blockedMessage(`https://${TRACKER_HOST}.evil.test/x.js`, "script-src-elem"),
+    blockedMessage(`https://evil-${TRACKER_HOST}/script.js`, "script-src-elem"),
+    blockedMessage(`https://x.${TRACKER_HOST}/script.js`, "script-src-elem"),
+    'Refused to apply inline style because it violates the Content Security Policy directive: "style-src".',
+  ]) {
+    await assert.rejects(() => checkViolations([], [text], TRACKER_BLOCK), /console\/pageerror/);
+  }
+});
+
+test("the expected host under a different directive still fails", async () => {
+  for (const directive of ["img-src", "connect-src", "script-srcx"]) {
+    await assert.rejects(
+      () => checkViolations([blocked(TRACKER_SCRIPT, directive)], [], TRACKER_BLOCK),
+      /securitypolicyviolation/,
+    );
+    await assert.rejects(
+      () => checkViolations([], [blockedMessage(TRACKER_SCRIPT, directive)], TRACKER_BLOCK),
+      /console\/pageerror/,
+    );
+  }
+  await assert.rejects(
+    () =>
+      checkViolations(
+        [{ blockedURI: TRACKER_SCRIPT, effectiveDirective: "img-src", violatedDirective: "script-src" }],
+        [],
+        TRACKER_BLOCK,
+      ),
+    /securitypolicyviolation/,
+  );
+});
+
+test("without the fourth argument every violation fails as before", async () => {
+  await assert.rejects(
+    () => checkViolations([blocked(TRACKER_SCRIPT, "script-src-elem")], []),
+    /securitypolicyviolation/,
+  );
+  await assert.rejects(
+    () => checkViolations([], [blockedMessage(TRACKER_SCRIPT, "script-src-elem")]),
+    /console\/pageerror/,
+  );
+  await checkViolations([], []);
 });

@@ -168,6 +168,7 @@ function installCspViolationObserver(page) {
     window.__cspViolations = [];
     window.addEventListener("securitypolicyviolation", (event) => {
       window.__cspViolations.push({
+        effectiveDirective: event.effectiveDirective,
         violatedDirective: event.violatedDirective,
         blockedURI: event.blockedURI,
         sourceFile: event.sourceFile,
@@ -180,6 +181,17 @@ function installCspViolationObserver(page) {
 
 async function readCspViolations(page) {
   return page.evaluate(() => window.__cspViolations || []).catch(() => []);
+}
+
+const CONSOLE_BLOCKED_URL_RE = /'(https?:\/\/[^']+)'/;
+const CONSOLE_DIRECTIVE_RE = /directive: "([a-z-]+)/;
+
+function isExpectedBlock(expected, host, directive) {
+  return expected.some(
+    (block) =>
+      block.host === host &&
+      (directive === block.directive || String(directive).startsWith(`${block.directive}-`)),
+  );
 }
 
 /** Parse a `Content-Security-Policy` header string into a directive
@@ -285,17 +297,40 @@ function attachDiagnostics(page) {
  *
  * `diagnostics` is optional: pass `null` (or omit the third arg) when
  * the spec does not track diagnostics. The shared helper still
- * validates the DOM-level violations either way. */
-async function expectNoCspViolations(page, diagnostics, label) {
-  const domViolations = await readCspViolations(page);
+ * validates the DOM-level violations either way.
+ *
+ * @param {object} [opts]
+ * @param {{host: string, directive: string}[]} [opts.expected] - blocks the
+ *   policy is meant to make: a violation or console/pageerror entry is
+ *   dropped only when it names `host` as the blocked host and `directive`
+ *   or a `directive-*` sub-directive (`script-src` covers `script-src-elem`).
+ *   Without it every violation fails. */
+async function expectNoCspViolations(page, diagnostics, label, opts = {}) {
+  const expected = opts.expected || [];
+  const domViolations = (await readCspViolations(page)).filter(
+    (violation) =>
+      !isExpectedBlock(
+        expected,
+        hostOf(violation.blockedURI),
+        violation.effectiveDirective || violation.violatedDirective,
+      ),
+  );
   expect(
     domViolations,
     `${label}: securitypolicyviolation events observed: ${JSON.stringify(domViolations)}`
   ).toEqual([]);
   if (diagnostics && Array.isArray(diagnostics.cspRelated)) {
+    const cspRelated = diagnostics.cspRelated.filter(
+      ({ text }) =>
+        !isExpectedBlock(
+          expected,
+          hostOf((CONSOLE_BLOCKED_URL_RE.exec(text) || [])[1]),
+          (CONSOLE_DIRECTIVE_RE.exec(text) || [])[1],
+        ),
+    );
     expect(
-      diagnostics.cspRelated,
-      `${label}: CSP-related console/pageerror entries observed: ${JSON.stringify(diagnostics.cspRelated)}`
+      cspRelated,
+      `${label}: CSP-related console/pageerror entries observed: ${JSON.stringify(cspRelated)}`
     ).toEqual([]);
   }
 }

@@ -37,7 +37,7 @@ exports.register = function (shared) {
     await installCspViolationObserver(page);
     await shared.openApp(page, "/");
     await shared.expectDashboard(page, "with SSO disabled the dashboard is anonymous");
-    await expectNoCspViolations(page, diagnostics, "World Monitor dashboard");
+    await expectNoCspViolations(page, diagnostics, "World Monitor dashboard", shared.EXPECTED_CSP_BLOCKS);
   });
 
   test("guest: a login without an account is rejected", async ({ page }) => {

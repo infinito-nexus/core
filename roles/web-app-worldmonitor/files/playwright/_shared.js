@@ -20,17 +20,21 @@ const env = {
 
 const KEYCLOAK_AUTH_RE = /openid-connect\/auth/;
 const API_PROBE_PATH = "/api/sidecar-health";
+const MAP_STATE_URL_RE = /[?&]view=/;
+const EXPECTED_CSP_BLOCKS = { expected: [{ host: "abacus.worldmonitor.app", directive: "script-src" }] };
 
 async function expectKeycloakLogin(page, label) {
   await expect(page, label).toHaveURL(KEYCLOAK_AUTH_RE, { timeout: resolveTimeout(60_000) });
 }
 
 async function expectDashboard(page, label) {
-  await expect(page.locator("html"), `${label}: the dashboard must finish booting`).toHaveAttribute(
-    "data-wm-event-handlers-ready",
-    "true",
-    { timeout: resolveTimeout(90_000) },
-  );
+  const loadingShell = page.locator("#app .skeleton-shell");
+  await expect(loadingShell, `${label}: the dashboard must replace its loading shell`).toHaveCount(0, {
+    timeout: resolveTimeout(90_000),
+  });
+  await expect(page, `${label}: the dashboard must finish booting`).toHaveURL(MAP_STATE_URL_RE, {
+    timeout: resolveTimeout(90_000),
+  });
   await expect(page.locator("#mapSection"), `${label}: the map section must be shown`).toBeVisible({
     timeout: resolveTimeout(60_000),
   });
@@ -71,6 +75,7 @@ module.exports = {
   env,
   KEYCLOAK_AUTH_RE,
   API_PROBE_PATH,
+  EXPECTED_CSP_BLOCKS,
   expectKeycloakLogin,
   expectDashboard,
   openApp,

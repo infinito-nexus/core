@@ -39,7 +39,7 @@ exports.register = function (shared) {
     const diagnostics = attachDiagnostics(page);
     await installCspViolationObserver(page);
     await shared.loginToDashboard(page, shared.env.biberUsername, shared.env.biberPassword);
-    await expectNoCspViolations(page, diagnostics, "World Monitor dashboard");
+    await expectNoCspViolations(page, diagnostics, "World Monitor dashboard", shared.EXPECTED_CSP_BLOCKS);
 
     const surface = await apiGetOnion(page.request, `${shared.env.appBaseUrl}/`, { timeout: resolveTimeout(30_000) });
     expect(surface.status(), "the canonical surface must serve the dashboard to the session").toBe(200);
