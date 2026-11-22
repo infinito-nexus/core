@@ -166,6 +166,31 @@ class PeertubeRbacSyncTests(unittest.TestCase):
         )
         self.assertIn("NOT EXISTS (SELECT 1 FROM revoked)", reconcile)
 
+    def test_a_directory_administrator_never_meets_the_setup_wizard(self):
+        reconcile = " ".join(read_text(str(SQL_DIR / "reconcile-roles.sql")).split())
+        self.assertIn(
+            'UPDATE public."user" AS account SET "noWelcomeModal" = true '
+            "WHERE account.\"pluginAuth\" = :'plugin' "
+            "AND account.role = (:'role_ids'::jsonb->>'administrator')::integer "
+            'AND account."noWelcomeModal" IS NOT TRUE',
+            reconcile,
+        )
+
+    def test_the_wizard_statement_runs_after_the_role_convergence(self):
+        reconcile = " ".join(read_text(str(SQL_DIR / "reconcile-roles.sql")).split())
+        convergence, _, after = reconcile.partition(
+            "NOT EXISTS (SELECT 1 FROM revoked);"
+        )
+        self.assertNotIn('"noWelcomeModal"', convergence)
+        self.assertIn('SET "noWelcomeModal" = true', after)
+
+    def test_a_dismissed_wizard_is_reported_beside_an_unchanged_role(self):
+        output = self.run_main(
+            FakeDatabase([], "UNCHANGED\nCHANGED alice setup wizard dismissed\n")
+        )
+
+        self.assertEqual(["CHANGED alice setup wizard dismissed"], output)
+
     def test_revoked_tokens_are_reported_as_changes(self):
         output = self.run_main(
             FakeDatabase([], "CHANGED mallory password tokens revoked\n")

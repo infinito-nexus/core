@@ -27,7 +27,10 @@ Output:
     every password-grant token (``authName`` NULL) of a plugin account, since
     PeerTube refuses password logins to those: such a token can only stem from
     a grant that read the account just before the link committed, and the link
-    statement's own snapshot cannot see it.
+    statement's own snapshot cannot see it. A second statement of
+    reconcile-roles.sql then sets ``noWelcomeModal`` on every plugin account
+    that holds the Administrator role, printing ``CHANGED <username> setup
+    wizard dismissed``.
 """
 
 import os

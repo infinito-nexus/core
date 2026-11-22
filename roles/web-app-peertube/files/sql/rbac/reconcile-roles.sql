@@ -45,3 +45,9 @@ SELECT DISTINCT 'CHANGED ' || username || ' password tokens revoked' FROM revoke
 UNION ALL
 SELECT 'UNCHANGED'
 WHERE NOT EXISTS (SELECT 1 FROM updated) AND NOT EXISTS (SELECT 1 FROM revoked);
+UPDATE public."user" AS account
+SET "noWelcomeModal" = true
+WHERE account."pluginAuth" = :'plugin'
+  AND account.role = (:'role_ids'::jsonb->>'administrator')::integer
+  AND account."noWelcomeModal" IS NOT TRUE
+RETURNING 'CHANGED ' || account.username || ' setup wizard dismissed';
