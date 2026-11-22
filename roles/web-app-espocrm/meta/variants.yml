@@ -46,7 +46,8 @@
       login:
         method:
           2fa:
-            enforced: false
+            # nocheck: login-methods  Reason: test-2fa-enrollment.js proves here that a regular account without a second factor is sent to setup; every other local sign-in of this round skips
+            enforced: true
     docs:
       enabled: true
       shared: true

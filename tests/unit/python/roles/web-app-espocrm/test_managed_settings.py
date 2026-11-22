@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import json
+import os
 import re
 import unittest
 import unittest.mock as mock
@@ -12,12 +13,13 @@ from ansible.plugins.lookup import LookupBase
 from ansible.template import Templar
 
 from utils import PROJECT_ROOT
-from utils.cache.files import read_text
+from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
 from utils.roles.mapping import (
     ROLE_FILE_META_FORMS,
     ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_VARIANTS,
     ROLE_FILE_VARS_MAIN,
 )
 from utils.templating.ansible import _trust_as_template
@@ -37,6 +39,10 @@ SETTINGS = {
     "cron_disabled": "cronDisabled",
     "use_cache": "useCache",
 }
+SPECS = ROLE / "files/playwright"
+ENROLLMENT_SPEC = SPECS / "test-2fa-enrollment.js"
+SETTINGS_WRITE = re.compile(r'"(?:PUT|PATCH)",\s*"Settings",\s*\{([^}]*)\}')
+ENFORCED = ("services", "espocrm", "login", "method", "2fa", "enforced")
 
 
 class _Stub(LookupBase):
@@ -151,6 +157,34 @@ def _locked(settings: dict) -> dict:
     )
     files = dict(line.split(" ", 1) for line in payload.splitlines() if line)
     return {path: json.loads(base64.b64decode(data)) for path, data in files.items()}
+
+
+def _specs() -> list[str]:
+    root = str(SPECS) + os.sep
+    files = iter_project_files(extensions=(".js",))
+    return sorted(path for path in files if path.startswith(root))
+
+
+def _locked_writes(text: str) -> set[str]:
+    """The managed settings a spec sends through the settings API.
+
+    Args:
+        text: the source of a Playwright spec.
+    """
+    return {
+        name
+        for body in SETTINGS_WRITE.findall(text)
+        for name in re.findall(r"\w+", body)
+        if name in SETTINGS.values()
+    }
+
+
+def _dig(node: object, *path: str) -> object:
+    for key in path:
+        if not isinstance(node, dict):
+            return None
+        node = node.get(key)
+    return node
 
 
 def _stored(settings: dict, hidden: int, noise: str = "") -> dict:
@@ -291,6 +325,47 @@ class TestLock(unittest.TestCase):
             "custom/Espo/Modules/InfinitoForms",
             load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN))["ESPOCRM_FORMS_MODULE_PATH"],
         )
+
+
+class TestEnrollmentSpec(unittest.TestCase):
+    def test_no_spec_writes_a_setting_the_lock_drops(self):
+        specs = _specs()
+        self.assertIn(str(ENROLLMENT_SPEC), specs)
+        for spec in specs:
+            with self.subTest(spec=spec):
+                self.assertEqual(set(), _locked_writes(read_text(spec)))
+
+    def test_a_spec_that_forces_the_second_factor_through_the_api_is_caught(self):
+        self.assertEqual(
+            {"auth2FAForced"},
+            _locked_writes(
+                'adminApi(request, "PUT", "Settings", { auth2FAForced: true });'
+            ),
+        )
+
+    def test_the_spec_reads_the_enforcement_the_seeder_writes(self):
+        self.assertIn(
+            "LOGIN_METHOD_2FA_ENFORCED={{ lookup('config', application_id, "
+            "'services.espocrm.second_factor_forced') | bool | string | lower }}",
+            read_text(str(ROLE / "templates/playwright.env.j2")),
+        )
+        self.assertIn(
+            'test.skip(!twoFactorEnforced, "LOGIN_METHOD_2FA_ENFORCED=false");',
+            read_text(str(ENROLLMENT_SPEC)),
+        )
+
+    def test_a_native_variant_keeps_the_enforcement_for_the_spec(self):
+        variants = load_yaml_any(
+            str(ROLE / ROLE_FILE_META_VARIANTS), default_if_missing=[]
+        )
+        native = [
+            entry
+            for entry in variants
+            if _dig(entry, "services", "sso", "enabled") is False
+            and _dig(entry, "services", "ldap", "enabled") is False
+        ]
+        self.assertTrue(native)
+        self.assertIn(True, [_dig(entry, *ENFORCED) for entry in native])
 
 
 class TestConverge(unittest.TestCase):

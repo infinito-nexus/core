@@ -58,6 +58,10 @@ test("biber: app → universal logout", async ({ page }) => {
 });
 
 test("administrator: app → universal logout", async ({ page }) => {
+  test.skip(
+    process.env.LOGIN_METHOD_2FA_ENFORCED === "true",
+    "LOGIN_METHOD_2FA_ENFORCED=true: this round proves the enforced enrollment in test-2fa-enrollment.js, so its other local sign-ins skip",
+  );
   await runAdminFlow(page, {
     adminInteraction: async (interactivePage) => {
       await gotoOnion(interactivePage, `${appBaseUrl}/#Admin`);

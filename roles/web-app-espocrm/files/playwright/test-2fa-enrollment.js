@@ -9,6 +9,7 @@ const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USER
 const adminNativePassword = decodeDotenvQuotedValue(process.env.ADMIN_NATIVE_PASSWORD || "");
 const nativeEnabled = process.env.LOGIN_METHOD_NATIVE_ENABLED === "true";
 const twoFactorEnabled = process.env.LOGIN_METHOD_2FA_ENABLED === "true";
+const twoFactorEnforced = process.env.LOGIN_METHOD_2FA_ENFORCED === "true";
 const REQUIRED_MODAL = ".modal:has(button[data-action='proceed']):has(button[data-action='logout'])";
 
 /**
@@ -50,6 +51,7 @@ test("2fa enrollment: with its own second factor enforced EspoCRM sends a regula
   skipUnlessServiceDisabled("recaptcha");
   test.skip(!nativeEnabled, "LOGIN_METHOD_NATIVE_ENABLED=false");
   test.skip(!twoFactorEnabled, "LOGIN_METHOD_2FA_ENABLED=false");
+  test.skip(!twoFactorEnforced, "LOGIN_METHOD_2FA_ENFORCED=false");
   test.setTimeout(resolveTimeout(240_000));
   expect(adminNativePassword, "ADMIN_NATIVE_PASSWORD must be set while LDAP is off").toBeTruthy();
 
@@ -57,11 +59,11 @@ test("2fa enrollment: with its own second factor enforced EspoCRM sends a regula
   expect(settings.status(), "the administrator must read the EspoCRM settings").toBe(200);
   const { auth2FA, auth2FAForced } = await settings.json();
   expect(auth2FA, "login.method.2fa is on, so EspoCRM must offer its own second factor").toBe(true);
+  expect(auth2FAForced, "login.method.2fa.enforced is on, so the deploy must force regular users to set up 2FA").toBe(true);
 
   const suffix = `${Date.now().toString(36)}${crypto.randomBytes(3).toString("hex")}`;
   const probe = { userName: `infinito-2fa-probe-${suffix}`, password: crypto.randomBytes(24).toString("base64url") };
   let probeId = null;
-  let forcing = false;
   try {
     const created = await adminApi(request, "POST", "User", {
       userName: probe.userName,
@@ -73,9 +75,6 @@ test("2fa enrollment: with its own second factor enforced EspoCRM sends a regula
     });
     expect(created.status(), "the administrator must create the regular probe account").toBe(200);
     probeId = (await created.json()).id;
-    const forced = await adminApi(request, "PUT", "Settings", { auth2FAForced: true });
-    expect(forced.status(), "the administrator must force regular users to set up 2FA").toBe(200);
-    forcing = true;
 
     await page.context().clearCookies();
     await gotoOnion(page, `${appBaseUrl}/`);
@@ -108,15 +107,6 @@ test("2fa enrollment: with its own second factor enforced EspoCRM sends a regula
       timeout: resolveTimeout(60_000),
     });
   } finally {
-    if (forcing) {
-      const restored = await adminApi(request, "PUT", "Settings", { auth2FAForced }).then(
-        (response) => response.status(),
-        (error) => String(error),
-      );
-      if (restored !== 200) {
-        console.warn(`restoring auth2FAForced failed: ${restored}`);
-      }
-    }
     if (probeId !== null) {
       await adminApi(request, "DELETE", `User/${probeId}`).catch((error) => console.warn(`deleting the probe account failed: ${error}`));
     }
