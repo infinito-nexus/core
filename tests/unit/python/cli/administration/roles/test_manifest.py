@@ -16,7 +16,7 @@ from utils.roles.custom import MANIFEST_FILE
 from ._fixtures import ROLE, ROLE_PATH, roles_dir, write
 
 URL = "https://github.com/acme/widgets.git"
-SHA = "65bd05c7d1ef5dc03a004dad0fe096d03f045a8e"
+SHA = "7dec9a5f944c6afebc088e986a6f3b3d33496c2d"
 
 
 def entry(**overrides: object) -> dict:
@@ -62,7 +62,7 @@ class TestReadManifest(unittest.TestCase):
         self.assertEqual(
             "https://github.com/kevinveenbirkenbach/cosmos.git", cosmos.url
         )
-        self.assertEqual("v0.3.2", cosmos.version)
+        self.assertEqual("v0.3.3", cosmos.version)
         self.assertEqual(SHA, cosmos.pinned_commit)
         self.assertEqual("ansible/roles/web-app-cst-cosmos", cosmos.path)
 

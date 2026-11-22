@@ -6,6 +6,6 @@
 #   path      role directory inside the repository, named like the group
 web-app-cst-cosmos:
   url: https://github.com/kevinveenbirkenbach/cosmos.git
-  version: v0.3.2
-  commit: 65bd05c7d1ef5dc03a004dad0fe096d03f045a8e
+  version: v0.3.3
+  commit: 7dec9a5f944c6afebc088e986a6f3b3d33496c2d
   path: ansible/roles/web-app-cst-cosmos
