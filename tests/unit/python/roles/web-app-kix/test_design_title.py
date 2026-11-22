@@ -25,6 +25,27 @@ const titles = cases.map(([pathname, title]) => {
 });
 process.stdout.write(JSON.stringify(titles));
 """
+NAVIGATION_HARNESS = """
+const vm = require("node:vm");
+const script = process.argv[1];
+const cases = JSON.parse(process.argv[2]);
+const titles = cases.map(([fromPath, fromTitle, toPath, toTitle]) => {
+  const document = { title: fromTitle, head: {}, addEventListener() {} };
+  let onChange = null;
+  const location = { pathname: fromPath };
+  const MutationObserver = class { constructor(callback) { onChange = callback; } observe() {} };
+  vm.runInNewContext(script, { document, location, MutationObserver });
+  location.pathname = toPath;
+  document.title = toTitle;
+  onChange();
+  return document.title;
+});
+process.stdout.write(JSON.stringify(titles));
+"""
+NAVIGATIONS = (
+    ("/auth", "Welcome to KIX", "/home", "Home", f"Home · {TITLE}"),
+    ("/home", "Home", "/auth", "Welcome to KIX", TITLE),
+)
 CASES = (
     ("/auth", "Welcome to KIX", TITLE),
     ("/auth", "Willkommen bei KIX", TITLE),
@@ -68,6 +89,24 @@ class TestDesignTitle(unittest.TestCase):
         ):
             with self.subTest(path=path, title=title):
                 self.assertEqual(actual, expected)
+
+    def test_a_client_side_route_change_reads_the_new_route(self) -> None:
+        proc = subprocess.run(
+            [
+                "node",
+                "-e",
+                NAVIGATION_HARNESS,
+                _render(),
+                json.dumps([list(case[:4]) for case in NAVIGATIONS]),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        for case, actual in zip(NAVIGATIONS, json.loads(proc.stdout), strict=True):
+            with self.subTest(navigation=f"{case[0]} -> {case[2]}"):
+                self.assertEqual(actual, case[4])
 
 
 if __name__ == "__main__":
