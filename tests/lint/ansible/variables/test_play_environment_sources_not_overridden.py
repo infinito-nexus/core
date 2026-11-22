@@ -74,9 +74,11 @@ def _assigned_names(node: Any) -> list[tuple[str, str]]:
     for key, value in node.items():
         if key in SET_FACT_KEYS and isinstance(value, dict):
             found.extend(("set_fact", name) for name in value)
-        elif key == "vars" and isinstance(value, dict):
+            continue
+        if key == "vars" and isinstance(value, dict):
             found.extend(("vars", name) for name in value)
-        elif key == "register" and isinstance(value, str):
+            continue
+        if key == "register" and isinstance(value, str):
             found.append(("register", value))
         elif key in INCLUDE_VARS_KEYS and isinstance(value, dict) and "name" in value:
             found.append(("include_vars", str(value["name"])))
@@ -183,6 +185,13 @@ class TestPlayEnvironmentSourcesNotOverridden(unittest.TestCase):
         clean = load_yaml_str(
             "- command: id\n  environment:\n    CA_CONTAINER_ENABLED: '0'\n"
             "- set_fact:\n    OTHER: '{{ CA_TRUST }}'\n"
+        )
+        self.assertEqual(scan(PLANTED_TASKS, clean, self.protected), [])
+
+    def test_data_inside_a_variable_value_is_not_a_task_keyword(self) -> None:
+        clean = load_yaml_str(
+            "- set_fact:\n    OTHER: {register: CA_TRUST, vars: {BUILDKIT_ENABLED: 1}}\n"
+            "- debug: {msg: x}\n  vars:\n    SPEC: {set_fact: {CA_TRUST: 1}}\n"
         )
         self.assertEqual(scan(PLANTED_TASKS, clean, self.protected), [])
 

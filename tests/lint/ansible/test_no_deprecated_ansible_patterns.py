@@ -158,9 +158,10 @@ _BARE_FACT = re.compile(
     r"(?=\s*(?:\[|\.\w|\||\s+is\s|==|!=|\s+in\b|\s*\)|\s*}}|\s*%}))"
 )
 _JINJA_EXPR = re.compile(r"\{\{.*?\}\}|\{%.*?%\}")
-_CONDITION = re.compile(
-    r"^\s*(?:(?:when|that|failed_when|changed_when|until):|-(?!\s+[\w\"']+:))\s+(?P<expr>.*)$"
+_CONDITION_KEY = re.compile(
+    r"^\s*(?:-\s+)?(?P<key>when|that|failed_when|changed_when|until):(?:\s+(?P<expr>.*))?$"
 )
+_CONDITION_ITEM = re.compile(r"^\s*-(?!\s+[\w\"']+:)\s+(?P<expr>.*)$")
 
 _PATTERNS: tuple[tuple[str, re.Pattern[str], str], ...] = (
     (
@@ -207,6 +208,7 @@ def scan_text(text: str, python: bool, template: bool = False) -> list[str]:
     out: list[str] = []
     fact_pattern = _PY_NAME if python else _YAML_NAME
     patterns = () if python else _PATTERNS
+    condition_column: int | None = None
     for idx, line in enumerate(lines, start=1):
         if is_suppressed_at(lines, idx, _RULE, mode="same-or-above"):
             continue
@@ -222,9 +224,19 @@ def scan_text(text: str, python: bool, template: bool = False) -> list[str]:
         if python or line.lstrip().startswith("#"):
             continue
         expressions = _JINJA_EXPR.findall(line)
-        condition = None if template else _CONDITION.match(line)
-        if condition:
-            expressions.append(condition.group("expr"))
+        if not template and line.strip():
+            column = len(line) - len(line.lstrip())
+            if condition_column is not None and column > condition_column:
+                expressions.append(line.strip())
+            else:
+                condition_column = None
+                key = _CONDITION_KEY.match(line)
+                item = None if key else _CONDITION_ITEM.match(line)
+                if key:
+                    condition_column = key.start("key")
+                    expressions.append(key.group("expr") or "")
+                elif item:
+                    expressions.append(item.group("expr"))
         if any(_BARE_FACT.search(expression) for expression in expressions):
             out.append(
                 f"line {idx}: [injected-bare-fact] {line.strip()}  -> {_BARE_FACT_FIX}"
@@ -278,6 +290,10 @@ class TestNoDeprecatedAnsiblePatterns(unittest.TestCase):
             "- packages['nfs-ganesha'] | first": False,
             "- getent_group is defined": False,
             "{{ getent_passwd.nixbld1[1] }}": False,
+            "- when: services['docker.service'] is defined": False,
+            "when: >\n  x is defined and\n  services['docker.service'] is defined": False,
+            "failed_when: |-\n  rc != 0 or packages['git'] | length == 0": False,
+            "when: x is defined and\n  getent_group is defined": False,
         }
         for line, python in planted.items():
             with self.subTest(line=line):
@@ -300,6 +316,8 @@ class TestNoDeprecatedAnsiblePatterns(unittest.TestCase):
             "when: ansible_facts.services['docker.service'] is defined": False,
             "{{ lookup('config', application_id, 'services.sso.enabled') }}": False,
             "- name: install language packages": False,
+            "when: >\n  x is defined\nvars:\n  services: [a]": False,
+            "- when: x is defined\n  name: list packages | services": False,
         }
         for line, python in clean.items():
             with self.subTest(line=line):
