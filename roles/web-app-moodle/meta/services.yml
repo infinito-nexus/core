@@ -114,25 +114,25 @@ moodle:
     opname: "{{ OIDC.BUTTON_TEXT }}"
     icon: "moodle:t/lock"
     lock: locked
-    update: oneveryloginupdate
+    update: always
     claims:
-      firstname: "{{ OIDC.ATTRIBUTES.GIVEN_NAME }}"
-      lastname: "{{ OIDC.ATTRIBUTES.FAMILY_NAME }}"
-      middlename: "{{ OIDC.ATTRIBUTES.MIDDLE_NAME }}"
-      alternatename: "{{ OIDC.ATTRIBUTES.NICKNAME }}"
-      email: "{{ OIDC.ATTRIBUTES.EMAIL }}"
-      phone1: "{{ OIDC.ATTRIBUTES.PHONE_NUMBER }}"
+      firstname: givenName
+      lastname: surname
+      middlename: moodle_middle_name
+      alternatename: moodle_nickname
+      email: mail
+      phone1: moodle_phone_number
       phone2: phone_number_alt
       address: street
       city: locality
-      country: country
+      country: moodle_country
       institution: institution
-      department: department
+      department: moodle_department
       description: description
       idnumber: id_number
-      url: "{{ OIDC.ATTRIBUTES.WEBSITE }}"
-      lang: "{{ OIDC.ATTRIBUTES.LOCALE }}"
-      timezone: "{{ OIDC.ATTRIBUTES.ZONEINFO }}"
+      url: moodle_website
+      lang: moodle_locale
+      timezone: moodle_zoneinfo
       firstnamephonetic: name_phonetic_given
       lastnamephonetic: name_phonetic_family
   auth_ldap:

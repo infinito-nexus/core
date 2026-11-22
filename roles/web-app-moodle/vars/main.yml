@@ -111,8 +111,19 @@ MOODLE_OIDC_CREDENTIALS:
   clientsecret: "{{ OIDC.CLIENT.SECRET }}"
 MOODLE_LDAP_CREDENTIALS:
   bind_pw: "{{ LDAP.BIND_CREDENTIAL }}"
+MOODLE_OIDC_TOKEN_FIELDS:
+  - bindingusernameclaim
+  - objectId
+  - userPrincipalName
+  - givenName
+  - surname
+  - mail
+MOODLE_OIDC_CUSTOM_CLAIMS: >-
+  {{ MOODLE_OIDC_SETTINGS | dict2items | selectattr('key', 'match', '^field_map_') | map(attribute='value')
+     | reject('in', MOODLE_OIDC_TOKEN_FIELDS) | unique | sort | join(' ') }}
 MOODLE_OIDC_UNLISTED_SETTINGS:
   oidcscope: "{{ MOODLE_OIDC_SCOPES }}"
+  customclaims: "{{ MOODLE_OIDC_CUSTOM_CLAIMS }}"
 MOODLE_LDAP_UNLISTED_SETTINGS: "{{ {'removecontexts': 1} if MOODLE_OIDC_ENABLED | bool else {} }}"
 MOODLE_FORCED_PLUGIN_SETTINGS: >-
   {{ ({'auth_oidc': MOODLE_OIDC_SETTINGS | combine(MOODLE_OIDC_UNLISTED_SETTINGS)} if MOODLE_OIDC_ENABLED | bool else {})

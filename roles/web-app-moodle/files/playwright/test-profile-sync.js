@@ -92,7 +92,7 @@ exports.register = function (shared) {
         const page = await context.newPage();
         await installCspViolationObserver(page);
         await shared.loginAsDirectoryUser(page, shared.env.biberUsername, shared.env.biberPassword);
-        await expectMoodleMiddleName(shared, page, probe, "the middle_name claim of the OIDC login");
+        await expectMoodleMiddleName(shared, page, probe, "the moodle_middle_name claim of the OIDC login");
       } finally {
         if (previous) {
           await keycloakAdminSetUserAttributes(

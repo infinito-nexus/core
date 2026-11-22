@@ -103,8 +103,59 @@ PROFILE_FIELDS = (
     "firstnamephonetic",
     "lastnamephonetic",
 )
+KEYCLOAK_MOODLE_SCOPE = (
+    PROJECT_ROOT / "roles/web-app-keycloak/templates/import/scopes/moodle.json.j2"
+)
+AUTH_OIDC_TOKEN_FIELDS = frozenset(
+    {
+        "bindingusernameclaim",
+        "objectId",
+        "userPrincipalName",
+        "givenName",
+        "surname",
+        "mail",
+    }
+)
+AUTH_OIDC_UPDATE_EVENTS = {
+    "always": {"create", "login", "usersync"},
+    "oncreate": {"create"},
+    "onlogin": {"login", "usersync"},
+    "oncreate_usersync": {"create", "usersync"},
+}
+AUTH_OIDC_RESERVED_CLAIMS = frozenset(
+    {
+        *("iss", "sub", "aud", "exp", "nbf", "iat", "jti", "name", "given_name"),
+        *("family_name", "middle_name", "nickname", "preferred_username", "profile"),
+        *("picture", "website", "email", "email_verified", "gender", "birthdate"),
+        *("zoneinfo", "locale", "phone_number", "phone_number_verified", "address"),
+        *("updated_at", "auth_time", "nonce", "acr", "amr", "azp", "at_hash", "c_hash"),
+        *("sid", "aio", "acrs", "altsecid", "appid", "appidacr", "azpacr", "ctry"),
+        *("fwd", "group", "idp", "idtyp", "in_corp", "ipaddr", "login_hint", "oid"),
+        *("onprem_sid", "platf", "puid", "pwd_exp", "pwd_url", "rh", "scp"),
+        *("tenant_ctry", "tid", "unique_name", "upn", "uti", "ver"),
+        *("verified_primary_email", "verified_secondary_email", "vnet", "wids"),
+        *("xms_cc", "xms_edov", "xms_pdl", "xms_pl", "xms_tpl", "typ", "session_state"),
+        *("allowed-origins", "realm_access", "resource_access", "scope"),
+        *("samaccountname", "bindingusernameclaim", "objectid", "userprincipalname"),
+        *("displayname", "givenname", "surname", "mail", "onpremisessamaccountname"),
+        *("streetaddress", "city", "postalcode", "state", "country", "jobtitle"),
+        *("department", "companyname", "preferredlanguage", "employeeid"),
+        *("businessphones", "faxnumber", "mobilephone", "officelocation"),
+        *("preferredname", "manager", "manager_email", "teams", "sds_school_id"),
+        *("sds_school_name", "sds_school_role", "sds_student_externalid"),
+        *("sds_student_birthdate", "sds_student_grade", "sds_student_graduationyear"),
+        *("sds_student_studentnumber", "sds_teacher_externalid"),
+        *("sds_teacher_teachernumber",),
+        *(f"extensionattribute{index}" for index in range(1, 16)),
+    }
+)
 CASES = (
-    ("04_oidc.yml", "auth_oidc", "MOODLE_OIDC_SETTINGS", {"clientsecret", "oidcscope"}),
+    (
+        "04_oidc.yml",
+        "auth_oidc",
+        "MOODLE_OIDC_SETTINGS",
+        {"clientsecret", "oidcscope", "customclaims"},
+    ),
     (
         "06_ldap_sync.yml",
         "auth_ldap",
@@ -227,7 +278,7 @@ class TestSinks(unittest.TestCase):
 
     def test_every_profile_field_is_mapped_locked_and_refreshed_by_both_plugins(self):
         for sink, update in (
-            ("MOODLE_OIDC_SETTINGS", "oneveryloginupdate"),
+            ("MOODLE_OIDC_SETTINGS", "always"),
             ("MOODLE_LDAP_SETTINGS", "onlogin"),
         ):
             settings = _sink(sink)
@@ -240,7 +291,7 @@ class TestSinks(unittest.TestCase):
     def test_the_mappings_render_from_the_claims_and_the_attributes(self):
         oidc = _sink("MOODLE_OIDC_SETTINGS")
         ldap = _sink("MOODLE_LDAP_SETTINGS")
-        self.assertEqual(OIDC["ATTRIBUTES"]["GIVEN_NAME"], oidc["field_map_firstname"])
+        self.assertIn(oidc["field_map_firstname"], AUTH_OIDC_TOKEN_FIELDS)
         self.assertEqual(OIDC["ATTRIBUTES"]["USERNAME"], oidc["bindingusernameclaim"])
         self.assertEqual(OIDC["CLIENT"]["TOKEN_URL"], oidc["tokenendpoint"])
         self.assertEqual("street", oidc["field_map_address"])
@@ -264,6 +315,106 @@ class TestSinks(unittest.TestCase):
         self.assertEqual(
             1, _sink("MOODLE_LDAP_SETTINGS", sso=False)["auth_user_create"]
         )
+
+
+def _scope_claims() -> dict:
+    rendered = _templated(
+        _trust_as_template(read_text(str(KEYCLOAK_MOODLE_SCOPE))),
+        {"application_id": "web-app-keycloak"},
+        {"config": lambda _app, _key: "moodle"},
+    )
+    scope = rendered if isinstance(rendered, dict) else json.loads(rendered)
+    return {
+        mapper["config"]["claim.name"]: mapper["config"]["user.attribute"]
+        for mapper in scope["protocolMappers"]
+    }
+
+
+def _oidc_field_maps() -> dict:
+    return {
+        key.removeprefix("field_map_"): value
+        for key, value in _sink("MOODLE_OIDC_SETTINGS").items()
+        if key.startswith("field_map_")
+    }
+
+
+def _plugin_fills(remote: str, custom_claims: set, scope_claims: dict) -> bool:
+    """
+    Args:
+        remote: the field_map value of a Moodle profile field.
+        custom_claims: the claim names of the ``customclaims`` setting.
+        scope_claims: claim name to Keycloak user attribute of the moodle client scope.
+
+    Returns:
+        True when the plugin fills ``remote`` from the token on its own, or reads it as a
+        configured custom claim that is not reserved and that the moodle scope emits.
+    """
+    if remote in AUTH_OIDC_TOKEN_FIELDS:
+        return True
+    return (
+        remote in custom_claims
+        and remote.lower() not in AUTH_OIDC_RESERVED_CLAIMS
+        and remote in scope_claims
+    )
+
+
+def _refreshes_on_login(update: str) -> bool:
+    return {"create", "login"} <= AUTH_OIDC_UPDATE_EVENTS.get(update, set())
+
+
+class TestOidcClaimMapping(unittest.TestCase):
+    def test_every_field_is_written_at_creation_and_refreshed_on_every_login(self):
+        settings = _sink("MOODLE_OIDC_SETTINGS")
+        for field in PROFILE_FIELDS:
+            with self.subTest(field=field):
+                self.assertTrue(
+                    _refreshes_on_login(settings[f"field_updatelocal_{field}"])
+                )
+
+    def test_an_update_value_the_plugin_does_not_know_refreshes_nothing(self):
+        for update in ("oneveryloginupdate", "oncreate", "onlogin"):
+            with self.subTest(update=update):
+                self.assertFalse(_refreshes_on_login(update))
+
+    def test_every_mapped_field_reads_a_value_the_plugin_fills(self):
+        custom = set(_sink("MOODLE_OIDC_UNLISTED_SETTINGS")["customclaims"].split())
+        scope = _scope_claims()
+        for field, remote in _oidc_field_maps().items():
+            with self.subTest(field=field, remote=remote):
+                self.assertTrue(_plugin_fills(remote, custom, scope))
+
+    def test_a_standard_or_plugin_claim_name_is_never_filled_even_when_listed(self):
+        for remote in ("given_name", "middle_name", "country", "department", "address"):
+            with self.subTest(remote=remote):
+                self.assertFalse(_plugin_fills(remote, {remote}, {remote: "attribute"}))
+
+    def test_customclaims_lists_exactly_the_claims_the_fields_read_beside_the_token_fields(
+        self,
+    ):
+        custom = _sink("MOODLE_OIDC_UNLISTED_SETTINGS")["customclaims"].split()
+        self.assertEqual(len(custom), len(set(custom)))
+        self.assertEqual(
+            set(_oidc_field_maps().values()) - AUTH_OIDC_TOKEN_FIELDS, set(custom)
+        )
+
+    def test_customclaims_is_empty_while_sso_is_off(self):
+        self.assertEqual(
+            "", _sink("MOODLE_OIDC_UNLISTED_SETTINGS", sso=False)["customclaims"]
+        )
+
+    def test_the_scope_feeds_middle_name_address_country_and_department_from_their_user_attributes(
+        self,
+    ):
+        scope = _scope_claims()
+        maps = _oidc_field_maps()
+        for field, attribute in (
+            ("middlename", "middleName"),
+            ("address", "street"),
+            ("country", "country"),
+            ("department", "department"),
+        ):
+            with self.subTest(field=field):
+                self.assertEqual(attribute, scope[maps[field]])
 
 
 class TestCallers(unittest.TestCase):
