@@ -28,6 +28,8 @@ const SAVE_BUTTON = '[name="accountContainerSaveAccount"]';
 const SET_PASSWORD_BUTTON = '[name="accountContainerPassword"], button:has-text("Set password")';
 const NEW_PASSWORD = "input#newPassword1:visible";
 const REPEAT_PASSWORD = "input#newPassword2:visible";
+const PASSWORD_REPLY = "div.swal2-popup";
+const PASSWORD_REPLY_OK = "button.swal2-confirm";
 
 function exactCell(page, text) {
   const escaped = text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -51,6 +53,17 @@ async function saveBiberDescription(page, value) {
     page.getByText("LDAP operation successful."),
     "the LAM administrator group must hold write access on other directory entries",
   ).toBeVisible({ timeout: resolveTimeout(30_000) });
+}
+
+async function acceptPasswordReply(page) {
+  const reply = page.locator(PASSWORD_REPLY);
+  await expect(reply, "LAM must answer the password change").toBeVisible({ timeout: resolveTimeout(30_000) });
+  await expect(reply.locator("div.statusError"), "LAM must not refuse the password").toHaveCount(0);
+  await expect(reply.locator("div.statusInfo").first(), "LAM must hold the password for the save").toBeVisible();
+  await reply.locator(PASSWORD_REPLY_OK).click();
+  await expect(reply, "the password reply must close before the account is saved").toBeHidden({
+    timeout: resolveTimeout(READY_MS),
+  });
 }
 
 exports.register = function () {
@@ -110,7 +123,7 @@ exports.register = function () {
     await expect(page.locator(NEW_PASSWORD), "the dialog must accept the password").toHaveCount(0, {
       timeout: resolveTimeout(30_000),
     });
-    await expect(page.locator("div.statusError:visible"), "LAM must not refuse the password").toHaveCount(0);
+    await acceptPasswordReply(page);
     await page.locator(SAVE_BUTTON).first().click();
     await page.waitForLoadState("domcontentloaded");
     await expect(
