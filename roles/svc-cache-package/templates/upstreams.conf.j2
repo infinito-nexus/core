@@ -82,6 +82,9 @@ server {
 
 server {
 	listen 80 default_server;
+	location = / {
+		return 200;
+	}
 {% for host in artefact_hosts %}
 	location /{{ host.host }}/ {
 {% if host.read_timeout %}

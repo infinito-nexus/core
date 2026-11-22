@@ -8,16 +8,21 @@ from unittest.mock import patch
 
 from utils.cache.artefacts import url_for
 from utils.cache.hosts import host_records, repo_records
-from utils.cache.render import BACKEND, upstreams_conf
+from utils.cache.render import BACKEND, ROLE_DIR, upstreams_conf
+from utils.cache.yaml import load_yaml
 from utils.env.builder import apply_custom_env
 from utils.env.context import BuildContext, EnvBuilder
 from utils.env.handlers import ORDERED_HANDLERS
 from utils.env.handlers.infinito.cache import artefact_base as handler
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
-DEFAULT_SERVER = "listen 80 default_server;"
+DEFAULT_SERVER_PORT = "80"
+DEFAULT_SERVER = f"listen {DEFAULT_SERVER_PORT} default_server;"
 SHELL_DEFAULT = "https:/"
 FRONTEND_IP = "172.30.0.4"
 BLANK = {handler.KEY: "", handler.STACK_KEY: "", handler.FRONTEND_IP_KEY: ""}
+HEALTHY_ANSWER = "return 200;"
+EXACT = "= "
 
 
 def _base_block() -> str:
@@ -35,13 +40,41 @@ def _locations(block: str) -> dict[str, list[str]]:
     for raw in block.splitlines():
         line = raw.strip()
         if line.startswith("location ") and line.endswith("{"):
-            current = line.split()[1]
+            current = line.removeprefix("location ").removesuffix("{").strip()
             found[current] = []
         elif line == "}":
             current = ""
         elif current:
             found[current].append(line)
     return found
+
+
+def _route(locations: dict[str, list[str]], path: str) -> list[str] | None:
+    """Args:
+        locations: the server block's locations, as ``_locations`` keys them.
+        path: the request path.
+
+    Returns:
+        The directives of the location nginx picks for *path* (exact match,
+        else longest prefix), None when none matches and nginx falls back to
+        its static root.
+    """
+    if f"{EXACT}{path}" in locations:
+        return locations[f"{EXACT}{path}"]
+    prefixes = [
+        key for key in locations if not key.startswith(EXACT) and path.startswith(key)
+    ]
+    return locations[max(prefixes, key=len)] if prefixes else None
+
+
+def _frontend_probe() -> tuple[str, str]:
+    """Returns:
+    The internal port and the request path of the frontend's healthcheck.
+    """
+    frontend = load_yaml(str(ROLE_DIR / ROLE_FILE_META_SERVICES))["frontend"]
+    healthcheck = frontend["healthcheck"]
+    port = frontend["ports"]["internal"][healthcheck["port_key"]]
+    return str(port), f"/{healthcheck.get('path', '')}"
 
 
 def _base(stack: str, root: Path = Path("/repo")) -> str:
@@ -75,7 +108,11 @@ class TestFrontendRoutes(unittest.TestCase):
             if record["tls"] or not record["hijack"]
         }
         self.assertTrue(any(not record["hijack"] for record in based.values()))
-        self.assertEqual(set(self.locations), {f"/{name}/" for name in based})
+        _, probe_path = _frontend_probe()
+        self.assertEqual(
+            set(self.locations),
+            {f"{EXACT}{probe_path}", *(f"/{name}/" for name in based)},
+        )
         for name, record in based.items():
             with self.subTest(host=name):
                 repo = self.repos[record["repo"]]["name"]
@@ -121,6 +158,30 @@ class TestFrontendRoutes(unittest.TestCase):
 
     def test_exactly_one_server_is_the_port_80_default(self) -> None:
         self.assertEqual(upstreams_conf().count("default_server"), 1)
+
+    def test_the_default_server_answers_the_frontend_healthcheck(self) -> None:
+        port, path = _frontend_probe()
+        self.assertEqual(port, DEFAULT_SERVER_PORT)
+        self.assertEqual(
+            _route(self.locations, path),
+            [HEALTHY_ANSWER],
+            "the probe addresses the frontend by IP, which no server_name names, "
+            "so the default server answers it; without a route there nginx serves "
+            "its static root and the container never turns healthy",
+        )
+
+    def test_negative_control_a_default_server_without_the_route_fails_the_probe(
+        self,
+    ) -> None:
+        _, path = _frontend_probe()
+        bare = {
+            key: body for key, body in self.locations.items() if key != f"{EXACT}{path}"
+        }
+        self.assertIsNone(_route(bare, path))
+        self.assertEqual(
+            _route({**bare, path: [HEALTHY_ANSWER]}, path),
+            [HEALTHY_ANSWER],
+        )
 
 
 class TestArtefactBase(unittest.TestCase):
