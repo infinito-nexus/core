@@ -13,6 +13,8 @@ const ADMIN_USERNAME = "#mod-login-username";
 const ADMIN_PASSWORD = "#mod-login-password";
 const ADMIN_SUBMIT = "#btn-login-submit";
 const ADMIN_CONTENT = "body.com_cpanel #content";
+const ADMIN_USER_TOGGLE = ".header-profile .dropdown-toggle";
+const ADMIN_USER_MENU = ".header-profile .dropdown-menu.show";
 const ADMIN_SEARCH = "form#adminForm #filter_search";
 const ADMIN_ROW = "form#adminForm table tbody tr";
 const TOUR = ".shepherd-element";
@@ -88,14 +90,17 @@ async function signInToSite(page, base, username, password) {
 
 /**
  * Args:
- *   page: Playwright page with a site session; ends on a page without one.
+ *   page: Playwright page with a site session; ends on the com_users login view without one.
  *   base: Joomla base URL without a trailing slash.
  */
 async function signOutOfSite(page, base) {
-  await gotoOnion(page, `${base}/index.php?option=com_users&view=login`);
+  const loginView = `${base}/index.php?option=com_users&view=login`;
+  await gotoOnion(page, loginView);
   const logout = page.locator("main .com-users-logout").getByRole("button", { name: /log\s*out/i });
   await expect(logout, "com_users must offer its Log out button to a signed-in account").toBeVisible(ACTION);
   await logout.click(ACTION);
+  await expect(logout, "the Log out post must leave the com_users logout form").toBeHidden(ACTION);
+  await gotoOnion(page, loginView);
   await expect
     .poll(
       async () =>
@@ -155,6 +160,21 @@ async function signInToAdministrator(page, base, username, password) {
 
 /**
  * Args:
+ *   page: Playwright page on the control panel with an administrator session; ends on the administrator login form.
+ */
+async function signOutOfAdministrator(page) {
+  const toggle = page.locator(`${ADMIN_USER_TOGGLE}:visible`).first();
+  await expect(toggle, "the control panel must offer the user menu").toBeVisible(ACTION);
+  await dismissTour(page);
+  await toggle.click(ACTION);
+  const logout = page.locator(ADMIN_USER_MENU).getByRole("link", { name: /log\s*out/i });
+  await expect(logout, "the user menu must open and offer Log out").toBeVisible(ACTION);
+  await logout.click(ACTION);
+  await expect(page.locator(ADMIN_USERNAME), "after Log out the administrator must ask for credentials").toBeVisible(ACTION);
+}
+
+/**
+ * Args:
  *   page: Playwright page with an administrator session.
  *   base: Joomla base URL without a trailing slash.
  *   username: account whose row of the user manager is returned.
@@ -181,5 +201,6 @@ module.exports = {
   signInToSite,
   signOutOfSite,
   signInToAdministrator,
+  signOutOfAdministrator,
   userManagerRow,
 };

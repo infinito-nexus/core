@@ -2,7 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { decodeDotenvQuotedValue, normalizeBaseUrl, gotoOnion } = require("./personas");
-const { signInToSite, signOutOfSite } = require("./joomla-session");
+const { signInToSite, signOutOfAdministrator, signOutOfSite } = require("./joomla-session");
 
 const joomlaBaseUrl = normalizeBaseUrl(process.env.JOOMLA_BASE_URL);
 const adminUsername = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
@@ -12,16 +12,6 @@ const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const biberEmail = decodeDotenvQuotedValue(process.env.BIBER_EMAIL);
 
 test.use({ ignoreHTTPSErrors: true });
-
-async function joomlaAdministratorLogout(page) {
-  const menu = page.locator(".header-profile .dropdown-toggle").first();
-  await menu.click({ timeout: resolveTimeout(30_000) });
-  await page
-    .locator(".header-profile .dropdown-menu")
-    .getByRole("link", { name: /log\s*out/i })
-    .first()
-    .click({ timeout: resolveTimeout(30_000) });
-}
 
 test("administrator: Joomla core LDAP plugin authenticates at /administrator (LDAP variant)", async ({ page }) => {
   expect(joomlaBaseUrl, "JOOMLA_BASE_URL must be set in the Playwright env file").toBeTruthy();
@@ -61,9 +51,7 @@ test("administrator: Joomla core LDAP plugin authenticates at /administrator (LD
       }),
   ]);
 
-  await joomlaAdministratorLogout(page);
-
-  await expect(page.locator("input[name='username']")).toBeVisible({ timeout: resolveTimeout(15_000) });
+  await signOutOfAdministrator(page);
 });
 
 test("biber: signs in through the core LDAP plugin with the directory uid and mail, then signs out", async ({ page }) => {
