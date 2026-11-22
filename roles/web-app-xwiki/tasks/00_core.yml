@@ -16,11 +16,14 @@
     - name: "🎬 Stage and bootstrap the XWiki config on the stack host"
       when: IS_STACK_HOST | bool
       block:
-        - name: "🎬 Stage the XWiki entrypoint wrapper into the compose build context"
+        - name: "🎬 Stage the XWiki entrypoint chain into the compose build context"
           stack_host_copy:
-            src: shell/xwiki-entrypoint.sh
-            dest: "{{ [ lookup('container', application_id, 'directories.instance'), 'xwiki-entrypoint.sh' ] | path_join }}"
+            src: "{{ item }}"
+            dest: "{{ [ lookup('container', application_id, 'directories.instance'), item | basename ] | path_join }}"
             mode: "0755"
+          loop:
+            - shell/xwiki-entrypoint.sh
+            - "{{ lookup('path_absolute', 'roles/sys-ca-selfsigned/files/shell/java-with-ca-trust.sh') }}"
           notify:
             - compose-build
             - compose-up
