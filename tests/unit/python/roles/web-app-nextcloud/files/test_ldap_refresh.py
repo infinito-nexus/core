@@ -9,9 +9,13 @@ import unittest
 from pathlib import Path
 
 from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml, load_yaml_any
 
 from . import PROJECT_ROOT
 
+USER_LDAP_ADDON = (
+    PROJECT_ROOT / "roles" / "web-app-nextcloud" / "meta" / "addons" / "user_ldap.yml"
+)
 SCRIPT = (
     PROJECT_ROOT
     / "roles"
@@ -126,6 +130,36 @@ def member(username, **parts):
 
 def mapped(*usernames):
     return {f"uuid-{username}": username for username in usernames}
+
+
+def address_mapping(addon):
+    """Return the directory attribute ``user_ldap`` maps onto the profile address.
+
+    Args:
+        addon: the parsed ``user_ldap`` addon definition.
+    """
+    [value] = [
+        entry["configvalue"]
+        for entry in addon["config"]["plugin_configuration"]
+        if entry["configkey"].endswith("}}ldap_attr_address")
+    ]
+    return value
+
+
+def leaves_a_street_only_address(addon, include):
+    """Args:
+        addon: the parsed ``user_ldap`` addon definition.
+        include: the vars the role hands the RBAC hook.
+
+    Returns:
+        Whether a refresh ``user_ldap`` runs on its own can leave the street alone in
+        the address for longer than one timer interval: ``user_ldap`` maps the
+        address while the timer may skip the hook that composes it.
+    """
+    return (
+        bool(address_mapping(addon))
+        and include["rbac_sync_skip_unchanged"] is not False
+    )
 
 
 class NextcloudLdapRefreshTests(unittest.TestCase):
@@ -337,6 +371,37 @@ class NextcloudLdapRefreshTests(unittest.TestCase):
             "| bool) else 'false' }}\"",
             include,
         )
+
+    def test_user_ldap_locks_the_address_through_the_street(self):
+        self.assertEqual(
+            address_mapping(load_yaml(USER_LDAP_ADDON)),
+            "{{ LDAP.USER.ATTRIBUTES.STREET }}",
+        )
+
+    def test_the_hook_runs_on_every_timer_run_while_user_ldap_maps_the_address(self):
+        include = load_yaml_any(TASKS)[0]["vars"]
+
+        self.assertIs(include["rbac_sync_skip_unchanged"], False)
+        self.assertFalse(
+            leaves_a_street_only_address(load_yaml(USER_LDAP_ADDON), include)
+        )
+
+    def test_a_skipping_hook_beside_an_address_mapping_is_reported(self):
+        addon = load_yaml(USER_LDAP_ADDON)
+        skipping = {"rbac_sync_skip_unchanged": True}
+        unmapped = {
+            "config": {
+                "plugin_configuration": [
+                    {
+                        "configkey": "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_attr_address",
+                        "configvalue": "",
+                    }
+                ]
+            }
+        }
+
+        self.assertTrue(leaves_a_street_only_address(addon, skipping))
+        self.assertFalse(leaves_a_street_only_address(unmapped, skipping))
 
     def test_empty_parts_leave_no_separator_behind(self):
         self.assertEqual(

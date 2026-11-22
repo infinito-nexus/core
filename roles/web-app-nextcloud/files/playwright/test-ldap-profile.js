@@ -11,6 +11,31 @@ const env = {
   ldapCacheTtlSeconds: Number(decodeDotenvQuotedValue(process.env.NEXTCLOUD_LDAP_CACHE_TTL)),
 };
 
+/**
+ * Args:
+ *   playwright: the Playwright fixture whose request API opens the context.
+ *   url: the OCS current-user endpoint.
+ *   basic: the base64 Basic credential of the account.
+ *
+ * Returns:
+ *   the phone of the profile, or "HTTP <status>" when the endpoint refuses.
+ */
+async function phoneAfterPasswordLogin(playwright, url, basic) {
+  const context = await playwright.request.newContext({ ignoreHTTPSErrors: true });
+  try {
+    const response = await context.get(url, {
+      headers: { "OCS-APIRequest": "true", Accept: "application/json", Authorization: `Basic ${basic}` },
+      timeout: resolveTimeout(30_000),
+    });
+    if (!response.ok()) {
+      return `HTTP ${response.status()}`;
+    }
+    return (await response.json()).ocs.data.phone;
+  } finally {
+    await context.dispose();
+  }
+}
+
 exports.register = function (shared) {
   test("biber: nextcloud profile fields synced from the directory are read-only", async ({ browser }) => {
     skipUnlessServiceEnabled("ldap");
@@ -46,7 +71,7 @@ exports.register = function (shared) {
     }
   });
 
-  test("biber: a phone number changed in the directory reaches Nextcloud on the next directory password login", async ({ request }) => {
+  test("biber: a phone number changed in the directory reaches Nextcloud on the next directory password login", async ({ playwright }) => {
     skipUnlessServiceEnabled("ldap");
     expect(env.ldapCacheTtlSeconds, "NEXTCLOUD_LDAP_CACHE_TTL must be a number of seconds").toBeGreaterThan(0);
     const refreshBudgetMs = (env.ldapCacheTtlSeconds + 90) * 1000;
@@ -54,19 +79,11 @@ exports.register = function (shared) {
 
     const phone = `+49301${String(Date.now()).slice(-6)}`;
     const basic = Buffer.from(`${shared.env.biberUsername}:${shared.env.biberPassword}`).toString("base64");
+    const currentUserUrl = new URL("ocs/v2.php/cloud/user?format=json", shared.env.nextcloudBaseUrl).toString();
     await withLdapAttributes(env.biberDn, { [env.phoneAttribute]: phone }, async () => {
       await expect
         .poll(
-          async () => {
-            const response = await request.get(new URL("ocs/v2.php/cloud/user?format=json", shared.env.nextcloudBaseUrl).toString(), {
-              headers: { "OCS-APIRequest": "true", Accept: "application/json", Authorization: `Basic ${basic}` },
-              timeout: resolveTimeout(30_000),
-            });
-            if (!response.ok()) {
-              return `HTTP ${response.status()}`;
-            }
-            return (await response.json()).ocs.data.phone;
-          },
+          () => phoneAfterPasswordLogin(playwright, currentUserUrl, basic),
           {
             timeout: refreshBudgetMs,
             intervals: [5_000],

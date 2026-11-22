@@ -57,7 +57,7 @@ config:
       configvalue: "{{ application_id }}-administrator"
     - appid: "user_ldap"
       configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_attr_address"
-      configvalue: ""
+      configvalue: "{{ LDAP.USER.ATTRIBUTES.STREET }}"
     - appid: "user_ldap"
       configkey: "{{ NEXTCLOUD_LDAP_CONFIG_PREFIX }}ldap_attr_biography"
       configvalue: "{{ LDAP.USER.ATTRIBUTES.DESCRIPTION }}"
