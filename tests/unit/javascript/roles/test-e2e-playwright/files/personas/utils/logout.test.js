@@ -3,14 +3,14 @@ const assert = require("node:assert/strict");
 const path = require("node:path");
 const Module = require("node:module");
 
-const playwrightStub = { expect: () => ({ toBe() {} }) };
+const playwrightStub = { expect: Object.assign(() => ({ toBe() {} }), { soft: () => ({ toBe() {} }) }) };
 const loadModule = Module._load;
 Module._load = function (request, ...rest) {
   return request === "@playwright/test" ? playwrightStub : loadModule.call(this, request, ...rest);
 };
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../../../../../..");
-const { confirmKeycloakLogoutIfPrompted, waitForLogoutControl } = require(
+const { confirmKeycloakLogoutIfPrompted, inAppLogout, waitForLogoutControl } = require(
   path.join(PROJECT_ROOT, "roles/test-e2e-playwright/files/personas/utils/logout.js"),
 );
 
@@ -130,4 +130,41 @@ test("confirm helper returns once Keycloak redirects away without a prompt", asy
   const elapsed = Date.now() - started;
   assert.equal(page.clicks, 0);
   assert.ok(elapsed < 1_000, `must not wait out the confirm window after the redirect, waited ${elapsed}ms`);
+});
+
+const PGADMIN_USER_MENU = "[data-test='loggedin-username']";
+
+function pgAdminBrowserPage() {
+  const page = { clicks: [], menuOpen: false };
+  const absent = { count: async () => 0, nth: () => absent, filter: () => absent, first: () => absent, isVisible: async () => false };
+  const present = (label, visible, onClick = () => {}) => {
+    const handle = {
+      isVisible: async () => visible(),
+      click: async () => {
+        page.clicks.push(label);
+        onClick();
+      },
+      evaluate: async () => label,
+    };
+    return { count: async () => 1, nth: () => handle, filter: () => absent, first: () => handle };
+  };
+  page.locator = (selector) => {
+    if (selector === "body") return { innerText: async () => "File\nObject\nTools\nHelp\nplatformadmin (keycloak)" };
+    if (!selector.includes(PGADMIN_USER_MENU)) return absent;
+    return present("user menu", () => true, () => {
+      page.menuOpen = true;
+    });
+  };
+  page.getByRole = (role, { name }) =>
+    role === "menuitem" && name.test("Logout") ? present("Logout", () => page.menuOpen) : absent;
+  page.waitForLoadState = async () => {};
+  page.waitForTimeout = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  page.url = () => "https://pgadmin.test/browser/";
+  return page;
+}
+
+test("opens pgAdmin's user menu, which has no aria-haspopup or account name, and clicks its Logout item", async () => {
+  const page = pgAdminBrowserPage();
+  await inAppLogout(page);
+  assert.deepEqual(page.clicks, ["user menu", "Logout"]);
 });
