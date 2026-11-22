@@ -62,6 +62,7 @@ _YAML_PREFIXES = (
     "playbook.yml",
     "playbook-sync.yml",
 )
+_YAML_EXCLUDED_SUFFIXES = ("/meta/forms.yml",)
 _PY_EXCLUDED_PREFIXES = ("tests/",)
 _PY_EXCLUDED_PARTS = ("/files/",)
 _ANSIBLE_PLUGINS = Path(constants.__file__).parent / "plugins"
@@ -249,10 +250,15 @@ def _in_scope(rel: str) -> bool:
         return not rel.startswith(_PY_EXCLUDED_PREFIXES) and not any(
             part in f"/{rel}" for part in _PY_EXCLUDED_PARTS
         )
-    return rel.startswith(_YAML_PREFIXES)
+    return rel.startswith(_YAML_PREFIXES) and not rel.endswith(_YAML_EXCLUDED_SUFFIXES)
 
 
 class TestNoDeprecatedAnsiblePatterns(unittest.TestCase):
+    def test_form_specs_are_out_of_scope(self) -> None:
+        self.assertFalse(_in_scope("roles/web-app-wordpress/meta/forms.yml"))
+        self.assertTrue(_in_scope("roles/web-app-wordpress/meta/services.yml"))
+        self.assertTrue(_in_scope("roles/web-app-wordpress/tasks/main.yml"))
+
     def test_no_deprecated_patterns(self) -> None:
         offenders: dict[Path, list[str]] = {}
         for abs_path in iter_project_files(extensions=SCAN_SUFFIXES):
