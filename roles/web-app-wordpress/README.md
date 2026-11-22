@@ -55,7 +55,7 @@ WordPress Multisite is opt-in. Set `services.wordpress.multisite.enabled: true` 
 
 RBAC under Multisite uses the hierarchical Keycloak group path:
 
-- Per-site role: `/roles/web-app-wordpress/<canonical-domain>/<role>`
+- Per-site role: `/roles/web-app-wordpress/<canonical-domain>/<role>`, granted on the site the node serves that domain on, which is its onion sibling on a tor-only node
 - Site role on every site of the network: `/roles/web-app-wordpress/global-<role>`
 - Network-wide super-admin: `/roles/web-app-wordpress/network-administrator`
 - Own site: `/roles/web-app-wordpress/site-owner`

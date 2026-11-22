@@ -38,6 +38,8 @@ PARENT = "user.blog.main.test"
 SITES = ["blog.main.test", "biberblog.main.test", "biber.blog.main.test"]
 ONION = "b5abfs7uwr23x6vbjxqjatyscpmkm6qkmkla7eyapdi4zpwtrz6o4nqd.onion"
 ONION_SIBLINGS = [site.replace("main.test", ONION) for site in SITES]
+CLEARNET_SERVED = {site: site for site in SITES}
+TOR_ONLY_SERVED = dict(zip(SITES, ONION_SIBLINGS, strict=True))
 OTHER_SERVED = {
     "name": "x.other.main.test",
     "application_id": "web-app-other",
@@ -134,19 +136,36 @@ def _variant_rbac(multisite: bool) -> dict:
     raise AssertionError(f"no WordPress variant runs with multisite={multisite}")
 
 
-def _rbac_group_path(name: str, **kwargs: str) -> str:
-    if name != "rbac_group_path":
-        raise AssertionError(f"the group map renders an unexpected lookup {name}")
-    tenant = [kwargs["tenant"]] if "tenant" in kwargs else []
-    return "/".join(["roles", kwargs["application_id"], *tenant, kwargs["role"]])
+def _group_map_lookup(served_sites: dict[str, str]):
+    """
+    Args:
+        served_sites: canonical domain mapped to the site domain the node serves it on.
+
+    Returns:
+        The lookup the group map renders with: rbac_group_path and network_siblings.
+    """
+
+    def lookup(name: str, *terms: str, **kwargs: str) -> object:
+        if name == "network_siblings":
+            return [served_sites[terms[0]]]
+        if name != "rbac_group_path":
+            raise AssertionError(f"the group map renders an unexpected lookup {name}")
+        tenant = [kwargs["tenant"]] if "tenant" in kwargs else []
+        return "/".join(["roles", kwargs["application_id"], *tenant, kwargs["role"]])
+
+    return lookup
 
 
-def _group_map(multisite: bool, site_owner: bool, rbac: dict) -> dict:
+def _group_map(
+    multisite: bool, site_owner: bool, rbac: dict, served_sites: dict[str, str]
+) -> dict:
     """
     Args:
         multisite: WORDPRESS_MULTISITE_ENABLED.
         site_owner: WORDPRESS_SITE_OWNER_ENABLED.
         rbac: WORDPRESS_RBAC_CONFIG, the merged rbac block of the deployed variant.
+        served_sites: canonical domain mapped to its site domain on the node's
+            canonical network.
 
     Returns:
         WORDPRESS_RBAC_GROUP_MAP as rbac_group_map.json.j2 renders it.
@@ -154,11 +173,10 @@ def _group_map(multisite: bool, site_owner: bool, rbac: dict) -> dict:
     template = _env().from_string(read_text(str(GROUP_MAP_TEMPLATE)))
     rendered = template.render(
         application_id=APPLICATION_ID,
-        lookup=_rbac_group_path,
+        lookup=_group_map_lookup(served_sites),
         WORDPRESS_MULTISITE_ENABLED=multisite,
         WORDPRESS_SITE_OWNER_ENABLED=site_owner,
-        WORDPRESS_DOMAINS=SITES + ONION_SIBLINGS,
-        WORDPRESS_SITE_DOMAINS=SITES,
+        WORDPRESS_DOMAINS_CONFIG=DOMAINS_CONFIG,
         WORDPRESS_RBAC_CONFIG=rbac,
         WORDPRESS_RBAC_SITE_ROLES=SITE_ROLES,
         WORDPRESS_RBAC_NETWORK_ADMIN_ROLE=NETWORK_ADMIN,
@@ -198,27 +216,29 @@ class TestSiteOwnerVariant(unittest.TestCase):
 
 class TestSiteOwnerGroupMap(unittest.TestCase):
     def test_the_multisite_map_names_only_the_network_sites_as_tenants(self):
-        entries = _group_map(True, True, _variant_rbac(True)).values()
+        entries = _group_map(True, True, _variant_rbac(True), CLEARNET_SERVED).values()
         tenants = {entry["tenant"] for entry in entries if "tenant" in entry}
         self.assertEqual(set(SITES), tenants)
 
     def test_the_multisite_map_flags_exactly_the_site_owner_group(self):
-        entries = _group_map(True, True, _variant_rbac(True)).items()
+        entries = _group_map(True, True, _variant_rbac(True), CLEARNET_SERVED).items()
         owners = [path for path, entry in entries if entry.get("site_owner")]
         self.assertEqual(["/roles/web-app-wordpress/site-owner"], owners)
 
     def test_the_site_owner_group_maps_no_wordpress_role_and_no_tenant(self):
-        group_map = _group_map(True, True, _variant_rbac(True))
+        group_map = _group_map(True, True, _variant_rbac(True), CLEARNET_SERVED)
         self.assertEqual(
             {"site_owner": True}, group_map["/roles/web-app-wordpress/site-owner"]
         )
 
     def test_a_network_without_site_owners_carries_no_site_owner_group(self):
-        entries = _group_map(True, False, _variant_rbac(True)).values()
+        entries = _group_map(True, False, _variant_rbac(True), CLEARNET_SERVED).values()
         self.assertFalse([entry for entry in entries if entry.get("site_owner")])
 
     def test_a_single_site_map_carries_no_site_owner_group(self):
-        entries = _group_map(False, False, _variant_rbac(False)).values()
+        entries = _group_map(
+            False, False, _variant_rbac(False), CLEARNET_SERVED
+        ).values()
         self.assertFalse([entry for entry in entries if entry.get("site_owner")])
 
 
@@ -233,7 +253,7 @@ class TestGlobalSiteRoleGroupMap(unittest.TestCase):
                     self.assertEqual("global", (declared or {}).get("scope"))
 
     def test_the_multisite_map_grants_each_global_role_its_site_role_untenanted(self):
-        group_map = _group_map(True, True, _variant_rbac(True))
+        group_map = _group_map(True, True, _variant_rbac(True), CLEARNET_SERVED)
         self.assertEqual(
             {
                 f"/roles/{APPLICATION_ID}/{GLOBAL_PREFIX}{role}": {"role": role}
@@ -249,15 +269,48 @@ class TestGlobalSiteRoleGroupMap(unittest.TestCase):
             for name, spec in rbac["roles"].items()
             if not name.startswith(GLOBAL_PREFIX)
         }
-        group_map = _group_map(True, True, {**rbac, "roles": roles})
+        group_map = _group_map(True, True, {**rbac, "roles": roles}, CLEARNET_SERVED)
         self.assertEqual({}, _untenanted_site_roles(group_map))
 
     def test_a_single_site_maps_every_site_role_without_a_global_group(self):
-        group_map = _group_map(False, False, _variant_rbac(False))
+        group_map = _group_map(False, False, _variant_rbac(False), CLEARNET_SERVED)
         self.assertEqual(
             {f"/roles/{APPLICATION_ID}/{role}": {"role": role} for role in SITE_ROLES},
             _untenanted_site_roles(group_map),
         )
+
+
+def _per_site_groups(group_map: dict) -> dict:
+    return {path: entry for path, entry in group_map.items() if "tenant" in entry}
+
+
+class TestTorOnlyPerSiteGroupMap(unittest.TestCase):
+    def test_a_tor_only_node_names_every_per_site_group_after_its_canonical_domain(
+        self,
+    ):
+        group_map = _group_map(True, True, _variant_rbac(True), TOR_ONLY_SERVED)
+        self.assertEqual(
+            {
+                f"/roles/{APPLICATION_ID}/{site}/{role}"
+                for site in SITES
+                for role in SITE_ROLES
+            },
+            set(_per_site_groups(group_map)),
+        )
+
+    def test_a_tor_only_node_grants_each_per_site_group_on_the_onion_site(self):
+        group_map = _group_map(True, True, _variant_rbac(True), TOR_ONLY_SERVED)
+        for site, onion_site in TOR_ONLY_SERVED.items():
+            for role in SITE_ROLES:
+                with self.subTest(site=site, role=role):
+                    self.assertEqual(
+                        {"role": role, "tenant": onion_site},
+                        group_map[f"/roles/{APPLICATION_ID}/{site}/{role}"],
+                    )
+
+    def test_no_group_of_a_tor_only_node_is_named_after_an_onion_site(self):
+        group_map = _group_map(True, True, _variant_rbac(True), TOR_ONLY_SERVED)
+        self.assertEqual([], [path for path in group_map if ONION in path])
 
 
 def _declarations(domains_config: dict) -> object:
