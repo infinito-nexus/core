@@ -126,7 +126,6 @@ jobs:
       distros: "arch debian ubuntu fedora centos"
       whitelist: ${{ needs.detect-affected-roles.outputs.whitelist }}
       chunk_gate: ${{ !contains(github.event.pull_request.labels.*.name, '🏃 Run all') }}
-      trusted_pr: ${{ contains(github.event.pull_request.labels.*.name, '🛡️ Trusted') }}
 
   prepare-fork-merge-ref:
     needs:

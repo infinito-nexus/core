@@ -97,11 +97,6 @@ on:
         required: false
         type: string
         default: ""
-      trusted_pr:
-        description: "True when the PR carries the maintainer '🛡️ Trusted' label; skips the fork-prereq wait."
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   actions: read
@@ -125,7 +120,6 @@ jobs:
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       chunk_size: ${{ inputs.chunk_size }}
       fork_prereqs: true
-      trusted_pr: ${{ inputs.trusted_pr }}
       image_wait_attempts: ${{ inputs.image_wait_attempts }}
       image_wait_sleep_seconds: ${{ inputs.image_wait_sleep_seconds }}
     secrets: inherit
