@@ -37,7 +37,7 @@
   changed_when: false
   failed_when: redis_acl_before_restart.rc != 0 or redis_acl_before_restart.stdout_lines | select('match', '^user default ') | list | length != 1
   when:
-    - REDIS_HA.form != 'ha'
+    - redis_health_before is not skipped
     - redis_health_before.stdout | trim == 'running healthy'
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
@@ -89,7 +89,6 @@
         | sort
       }}
   changed_when: false
-  when: REDIS_HA.form != 'ha'
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 # Exception: the restart dropped every password but the new one, while the shared consumers deployed later in this pass still hold the old one. tasks/utils/rotation/retire.yml drops them once every server role has redeployed.
@@ -102,9 +101,7 @@
   run_once: true
   changed_when: true
   failed_when: redis_acl_carried.rc != 0 or redis_acl_carried.stdout | trim != 'OK'
-  when:
-    - REDIS_HA.form != 'ha'
-    - redis_retired_password_hashes | length > 0
+  when: redis_retired_password_hashes | length > 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/db/ha/health_gate.yml') }}"
