@@ -16,7 +16,7 @@ from __future__ import annotations
 import functools
 import os
 import unittest
-import unittest.mock as mock
+import unittest.mock
 
 from cli.administration.deploy.development.inventory import (
     plan_dev_inventory_matrix,
@@ -124,7 +124,7 @@ def _deployed(app: str, index: int, mode: str, tokens: str) -> frozenset[str]:
     """
     variants, include = _rounds(app)[index]
     if mode == "swarm":
-        with mock.patch.dict(os.environ, {"disable": tokens}):
+        with unittest.mock.patch.dict(os.environ, {"disable": tokens}):
             return frozenset(derive_includes(app, variants=variants))
     if not tokens:
         return frozenset(include)
@@ -242,7 +242,7 @@ class TestCoveredRowsAreDeployed(unittest.TestCase):
             for row, coverer in _covered()
             if _modes(coverer) & {"compose", "host"}
         )
-        with mock.patch.object(
+        with unittest.mock.patch.object(
             network, "disabled_services", lambda state, include: row["name"]
         ):
             self.assertTrue(_losses(row, coverer))
