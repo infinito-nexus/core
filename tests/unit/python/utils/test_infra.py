@@ -665,6 +665,29 @@ _CACHE_ENV = {
     "INFINITO_CACHE_REGISTRY_CA_HOST_PATH": "/c/registry/ca",
     "INFINITO_CACHE_REGISTRIES": "ghcr.io quay.io",
 }
+HLTH_RUNTIME_ROLE = "sys-ctl-hlth-runtime"
+
+
+def _runtime_severity(applications: dict) -> dict:
+    """Args:
+        applications: the ``applications`` mapping of an inventory.
+
+    Returns:
+        The severity mapping the runtime scan applies after the inventory is
+        merged over the role's own ``meta/services.yml``.
+    """
+    from plugins.filter.merge.with_defaults import merge_with_defaults
+    from utils.cache.files import PROJECT_ROOT
+    from utils.roles.mapping import ROLE_FILE_META_SERVICES
+
+    services = load_yaml(
+        PROJECT_ROOT / "roles" / HLTH_RUNTIME_ROLE / ROLE_FILE_META_SERVICES
+    )
+    merged = merge_with_defaults(
+        {HLTH_RUNTIME_ROLE: {"services": services}},
+        {HLTH_RUNTIME_ROLE: applications.get(HLTH_RUNTIME_ROLE, {})},
+    )
+    return merged[HLTH_RUNTIME_ROLE]["services"]["runtime"]["severity"]
 
 
 class TestInventory(unittest.TestCase):
@@ -744,6 +767,24 @@ class TestInventory(unittest.TestCase):
         del env["INFINITO_CACHE_REGISTRY_MAX_SIZE"]
         with self.assertRaises(KeyError):
             self._render(env)
+
+    def test_the_runtime_scan_maps_severities_as_every_development_deploy(
+        self,
+    ) -> None:
+        from cli.administration.deploy.development.common import (
+            DEV_INVENTORY_VARS_FILE,
+        )
+        from utils.cache.files import PROJECT_ROOT
+
+        development = load_yaml(PROJECT_ROOT / DEV_INVENTORY_VARS_FILE)
+        severity = _runtime_severity(self._render(_CACHE_ENV))
+        self.assertEqual(severity, _runtime_severity(development["applications"]))
+        self.assertEqual(severity["CRITICAL"], "warn")
+
+    def test_an_inventory_without_the_mapping_fails_on_a_critical_finding(
+        self,
+    ) -> None:
+        self.assertEqual(_runtime_severity({})["CRITICAL"], "fail")
 
 
 if __name__ == "__main__":  # pragma: no cover

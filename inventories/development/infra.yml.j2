@@ -41,3 +41,8 @@ applications:
           local:
             http: 80
             https: 443
+  sys-ctl-hlth-runtime:
+    services:
+      runtime:
+        severity:
+          CRITICAL: warn
