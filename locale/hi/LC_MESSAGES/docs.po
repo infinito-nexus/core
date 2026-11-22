@@ -57906,12 +57906,9 @@ msgstr "कंटेनर लीब स्टेट को हटा देत�
 msgid "Removes the inventory directory in the running container."
 msgstr "चल कंटेनर में सूची निर्देशिका को हटा देता है।."
 
-# (https://t.co/) इकाई के तहत प्रत्येक ऐप से संबंधित है। चारों ओर पतला रैपर
-# [nginx_vhosts.py](../../../../utils/cleanup/nginx_vhosts.py)।.
-# gained=['https://t.co/']
 # translated-by: libretranslate
 msgid "Removes the per-domain nginx vhost files (http + https) belonging to every app under the entity. Thin wrapper around [nginx_vhosts.py](../../../../utils/cleanup/nginx_vhosts.py)."
-msgstr "प्रति डोमेन nginx भूत फ़ाइलों को हटा देता है (https://t.co/) इकाई के तहत प्रत्येक ऐप से संबंधित है। चारों ओर पतला रैपर [nginx_vhosts.py](../../../../utils/cleanup/nginx_vhosts.py)।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Removes the stack directory and its volumes."
@@ -88890,15 +88887,9 @@ msgstr ""
 msgid "Yield every task of a task list, descending into blocks."
 msgstr ""
 
-# प्रत्येक एप्लिकेशन के लिए *इकाई*, प्लस ``www.<domain>.conf`` पुनर्निर्देशित
-# वेरिएंट और - जब एक नोड प्याज का प्रावधान किया जाता है (``services.tor.node``
-# कुंजी फ़ाइल) - दोहरी स्टैक ``<sub>.<node-onion>.conf`` वेरिएंट, इसलिए एक
-# गिरा हुआ ऐप या तो कोई कहानी प्याज की लहर नहीं छोड़ता है। केवल उन फ़ाइलों को
-# उत्पन्न करता है जो मौजूद हैं।.
-# gained=['https://t.co/']
 # translated-by: libretranslate
 msgid "Yield existing vhost files (http + https) for every app belonging to *entity*, plus the ``www.<domain>.conf`` redirect variant and — when a node onion is provisioned (``services.tor.node`` / the key file) — the dual-stack ``<sub>.<node-onion>.conf`` variant, so a dropped app leaves no stale onion vhost either. Only yields files that exist."
-msgstr "मौजूदा भूत फ़ाइलों को पैदा करना (https://t.co/) प्रत्येक एप्लिकेशन के लिए *इकाई*, प्लस ``www.<domain>.conf`` पुनर्निर्देशित वेरिएंट और - जब एक नोड प्याज का प्रावधान किया जाता है (``services.tor.node`` कुंजी फ़ाइल) - दोहरी स्टैक ``<sub>.<node-onion>.conf`` वेरिएंट, इसलिए एक गिरा हुआ ऐप या तो कोई कहानी प्याज की लहर नहीं छोड़ता है। केवल उन फ़ाइलों को उत्पन्न करता है जो मौजूद हैं।."
+msgstr ""
 
 # translated-by: libretranslate
 msgid "Yield mount dicts in ``volume['mounts']`` that target ``service``."

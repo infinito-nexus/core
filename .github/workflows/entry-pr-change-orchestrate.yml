@@ -118,7 +118,6 @@ jobs:
     with:
       distros: "arch debian ubuntu fedora centos"
       whitelist: ${{ needs.detect-affected-roles.outputs.whitelist }}
-      trusted_pr: ${{ contains(github.event.pull_request.labels.*.name, '🛡️ Trusted') }}
       role_skeleton: ${{ needs.detect-role-skeleton-scope.outputs.affected == 'true' }}
 
   detect-agents-scope:

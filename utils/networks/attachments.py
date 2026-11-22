@@ -266,6 +266,25 @@ def _suppress_default(
     return not bool(lookup_database(application_id, "local"))
 
 
+def _drops_default(
+    application_id: str,
+    attachments: list[dict[str, Any]],
+    lookup_database: Callable[[str, str], Any],
+) -> bool:
+    """
+    Args:
+        application_id: role the compose file belongs to.
+        attachments: what :func:`_compute_attachments` returns for it.
+        lookup_database: database value accessor.
+
+    Returns:
+        Whether its compose file leaves ``default`` out; never for a role that
+        joins no other network, whose start would otherwise fail with ``network
+        <project>_default not found`` on the ``<entity>`` bridge.
+    """
+    return bool(attachments) and _suppress_default(application_id, lookup_database)
+
+
 def _own_shared_net_provider(
     attachments: list[dict[str, Any]],
     own_entity: str,

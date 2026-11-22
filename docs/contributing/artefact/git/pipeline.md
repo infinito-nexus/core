@@ -32,7 +32,7 @@ The orchestrator runs the following stages in order:
 
 ### 1. Fork Prerequisites ⏳
 
-For fork PRs, CI waits for privileged images built by the `pull_request_target` event before proceeding. That build and the mirror producer run only for a fork PR that carries the maintainer-applied `🛡️ Trusted` label; for an untrusted fork the `🛡️ Gate fork trust` job fails instead, and the waiting `pull_request` run fails fast with it. The label also switches the build source to the PR head and skips the wait — see [Trusted fork PRs](#trusted-fork-prs-).
+For fork PRs, CI waits for privileged images built by the `pull_request_target` event before proceeding. That build and the mirror producer run only for a fork PR that carries the maintainer-applied `🛡️ Trusted` label; for an untrusted fork the `🛡️ Gate fork trust` job fails instead, and the waiting `pull_request` run fails fast with it. The label also switches the build source to the PR head — see [Trusted fork PRs](#trusted-fork-prs-).
 
 ### 2. Security 🛡️
 
@@ -148,7 +148,6 @@ For an **untrusted** fork PR the privileged `pull_request_target` jobs stop at t
 
 When a maintainer applies the `🛡️ Trusted` label, the fork PR is treated as deliberately released code:
 
-- The orchestrator's `wait-fork-prereq-run` job **skips the wait** for the privileged fork images.
 - The privileged `pull_request_target` build switches its **build source** from the base merge ref to the **raw PR head** (`head.repo.full_name` @ `head.sha`).
 - The trusted mirror producer receives the Docker Hub mirror credentials; untrusted fork PRs get no privileged job at all.
 - A fork-sourced build imports the shared `buildcache-<arch>` registry cache but never exports to it, so only base-sourced builds write the cache every trusted build reads.
@@ -160,4 +159,4 @@ Security gates:
 - Build-orchestration scripts (`scripts/image/push.sh` and the helper checkout) always come from the base repo at `github.sha`; only the Docker build **context** (`_src`) is the fork head. `persist-credentials: false` keeps the token out of the source checkout, and `USE_NIX_TOKEN` stays disabled for fork-sourced builds.
 - Fork `pull_request` runs always receive a read-only token (GitHub-enforced); the label never grants write tokens or secrets to the untrusted event.
 
-Both events carry a `labeled` trigger, so applying the `🛡️ Trusted` label starts fresh runs that already observe it: the `pull_request_target` build switches to the PR head and the `pull_request` orchestrator skips the wait — no extra push is needed. (Re-running an existing run does not pick up a new label, because GitHub replays the original event payload.) The trade-off is that any label change starts a fresh PR CI run.
+Both events carry a `labeled` trigger, so applying the `🛡️ Trusted` label starts fresh runs that already observe it: the `pull_request_target` build switches to the PR head, and the `pull_request` run waits in `wait-fork-prereq-run` until that build has published the images — no extra push is needed. (Re-running an existing run does not pick up a new label, because GitHub replays the original event payload.) The trade-off is that any label change starts a fresh PR CI run.

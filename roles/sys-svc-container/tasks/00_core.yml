@@ -141,6 +141,8 @@
 
 - include_tasks: utils/once/flag.yml
 
+- include_tasks: utils/once/flag.yml
+
 - name: "🧭 Route docker cleanup/health deps through service-loader"
   ansible.builtin.include_role:
     name: sys-service-loader

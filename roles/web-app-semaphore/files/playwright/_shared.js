@@ -130,8 +130,21 @@ async function signInViaBreakglassApi(page, username, password, label) {
   await assertAuthenticated(page, label);
 }
 
+async function selectLdapLoginTab(page, label) {
+  const ldapTab = page.locator(".v-btn-toggle").getByRole("button", { name: "LDAP", exact: true });
+  await expect(
+    ldapTab,
+    `${label}: the LDAP tab must render on the Semaphore login page; the default Sign In tab posts method=password and never queries LDAP`,
+  ).toBeVisible({ timeout: resolveTimeout(30_000) });
+  await ldapTab.click({ timeout: resolveTimeout(30_000) });
+  await expect(ldapTab, `${label}: the LDAP tab must be selected before signing in`).toHaveClass(/v-btn--active/);
+}
+
 async function signInViaLdap(page, username, password, label) {
-  await signInViaLocal(page, username, password, label);
+  await gotoLogin(page);
+  await selectLdapLoginTab(page, label);
+  await fillLocalLogin(page, username, password);
+  await assertAuthenticated(page, label);
 }
 
 /**

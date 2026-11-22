@@ -61,7 +61,7 @@ LITELLM_MESH_BIND_HOST: "{{ lookup('mesh_address', inventory_hostname) if (LITEL
 LITELLM_UI_ROLE: "web-app-litellm"
 LITELLM_UI_LOGIN_SSO: "{{ lookup('config', LITELLM_UI_ROLE, 'services.litellm.login.method.sso.enabled') | bool }}"
 LITELLM_UI_SSO: "{{ (LITELLM_UI_ROLE in group_names) and (lookup('sso', LITELLM_UI_ROLE, 'is_oidc_native') | bool) and (LITELLM_UI_LOGIN_SSO | bool) }}"
-LITELLM_UI_BASE_URL: "{{ lookup('tls', LITELLM_UI_ROLE, 'url.base') }}"
+LITELLM_UI_ORIGIN: "{{ lookup('tls', LITELLM_UI_ROLE, 'url.origin') }}"
 LITELLM_UI_ADMIN: "{{ lookup('users', 'platform_administrator').username }}"
 LITELLM_UI_SSO_GROUP: "/{{ lookup('rbac_group_path', application_id='web-app-litellm', role='administrator') }}"
 LITELLM_UI_LOGO_URL: "{{ lookup('design', LITELLM_UI_ROLE).urls.logo.svg if ((LITELLM_UI_ROLE in group_names) and (lookup('config', LITELLM_UI_ROLE, 'services.design.enabled')
