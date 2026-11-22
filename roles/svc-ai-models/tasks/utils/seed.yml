@@ -8,7 +8,12 @@
          | selectattr('key', 'in', models_seeded | map(attribute='name') | list)
          | map(attribute='value') | list }}
     timeout: "{{ lookup('timeout', MODELS_FETCH_TIMEOUT | int) | int }}"
+  register: models_seed
+  until: models_seed is succeeded
+  retries: 3
+  delay: 30
   delegate_to: "{{ models_node }}"
+  run_once: "{{ IS_SWARM_MODE | bool }}"
   loop: "{{ MODELS_SEED_NODES }}"
   loop_control:
     loop_var: models_node
