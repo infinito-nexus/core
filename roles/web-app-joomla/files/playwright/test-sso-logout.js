@@ -17,9 +17,23 @@ const biberPassword = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 
 test.use({ ignoreHTTPSErrors: true });
 
+/**
+ * Args:
+ *   origin: origin of the Joomla site.
+ * Returns:
+ *   function: whether a response is the universal logout conductor's /logout call on that origin, the call that
+ *   clears the Joomla session cookie once the injected logout patch sends the Log out click straight to Keycloak.
+ */
+function isSiteSweep(origin) {
+  return (response) => {
+    const url = new URL(response.url());
+    return url.origin === origin && url.pathname === "/logout";
+  };
+}
+
 test("biber: the com_users Log out button ends the Keycloak session", async ({ browser }) => {
   skipUnlessServiceEnabled("sso");
-  test.setTimeout(resolveTimeout(180_000)); // two OIDC round-trips around one Keycloak end-session confirmation
+  test.setTimeout(resolveTimeout(180_000));
   expect(base, "JOOMLA_BASE_URL must be set").toBeTruthy();
   expect(oidcIssuerUrl, "OIDC_ISSUER_URL must be set when OIDC is enabled").toBeTruthy();
 
@@ -34,9 +48,13 @@ test("biber: the com_users Log out button ends the Keycloak session", async ({ b
     await expect(logout, "com_users must render its Log out button for a signed-in account").toBeVisible({
       timeout: resolveTimeout(30_000),
     });
+    const universalLogout = isServiceEnabled("logout");
+    const sweep = universalLogout
+      ? page.waitForResponse(isSiteSweep(new URL(base).origin), { timeout: resolveTimeout(120_000) })
+      : null;
     await logout.click({ timeout: resolveTimeout(30_000) });
 
-    if (!isServiceEnabled("logout")) {
+    if (!universalLogout) {
       await expect
         .poll(() => page.url(), {
           timeout: resolveTimeout(60_000),
@@ -46,6 +64,12 @@ test("biber: the com_users Log out button ends the Keycloak session", async ({ b
     }
     await page.waitForLoadState("networkidle", { timeout: resolveTimeout(30_000) }).catch(() => {});
     await confirmKeycloakLogoutIfPrompted(page);
+    if (sweep) {
+      expect(
+        (await sweep).ok(),
+        "the logout conductor on the Keycloak page must clear the Joomla session cookie before biber comes back",
+      ).toBe(true);
+    }
 
     await gotoOnion(page, `${base}/`);
     await expect
