@@ -29,7 +29,6 @@ async function expectAuthWall(page, label) {
 
 async function openApp(page) {
   await gotoOnion(page, `${env.appBaseUrl}/`, { waitUntil: "domcontentloaded" });
-  await assertCspInjections(page, { isEnabled: safeIsEnabled });
   await expectAuthWall(page, "an anonymous visit must land on the login");
 }
 
@@ -57,6 +56,7 @@ async function loginToApp(page, username, password) {
   await expect(page, "the login must return to the editor").toHaveURL(`${env.appBaseUrl}/`, {
     timeout: resolveTimeout(30_000),
   });
+  await assertCspInjections(page, { isEnabled: safeIsEnabled });
 }
 
 async function endSsoSession(page) {
