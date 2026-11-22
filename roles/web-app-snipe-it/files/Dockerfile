@@ -12,7 +12,11 @@ COPY --chown=apache:apache ${SNIPE_IT_LOGIN_RBAC_CONTEXT} /opt/infinito/snipe-it
 
 USER apache
 RUN composer config repositories.infinito-login-rbac '{"type": "path", "url": "/opt/infinito/snipe-it-login-rbac", "options": {"symlink": false}}' \
-    && COMPOSER_CACHE_DIR=/dev/null composer require --no-interaction --no-scripts --no-audit infinito/snipe-it-login-rbac:1.0.0 \
+    && COMPOSER_HOME="$(mktemp -d)" \
+    && export COMPOSER_HOME \
+    && composer config --global use-github-api false \
+    && composer require --no-interaction --no-scripts --no-audit --update-no-dev infinito/snipe-it-login-rbac:1.0.0 \
+    && rm -rf "$COMPOSER_HOME" \
     && php artisan clear-compiled --no-ansi \
     && php artisan package:discover --no-ansi \
     && php -r '$manifest = require "bootstrap/cache/packages.php"; if (empty($manifest["infinito/snipe-it-login-rbac"]["providers"])) { fwrite(STDERR, "package:discover wrote no providers for infinito/snipe-it-login-rbac into bootstrap/cache/packages.php\n"); exit(1); }'
