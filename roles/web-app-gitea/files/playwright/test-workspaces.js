@@ -10,12 +10,15 @@ const {
   WORKSPACE_RESULT_LINE,
   WORKSPACE_RUN_MS,
   WORKSPACE_TEMPLATE,
+  runTemplateTask,
   runWorkspaceTask,
   vaultedBreakglassSession,
 } = require("./personas/utils/workspace");
 const { resolveTimeout } = require("./timeouts");
 
 const SEMAPHORE_POLL_MS = 10_000;
+const ROTATION_TEMPLATE = "rotate store credentials";
+const ROTATION_RUN_MS = 10 * 60_000;
 
 const enabled = process.env.GITEA_WORKSPACES_ENABLED === "true";
 const workspacesApply = process.env.SEMAPHORE_WORKSPACES_ENABLED === "true";
@@ -181,9 +184,9 @@ function semaphoreEnv() {
   };
 }
 
-async function semaphore(request) {
+async function semaphore(request, template) {
   const env = semaphoreEnv();
-  return vaultedBreakglassSession(request, env.openbao, env, env.project, WORKSPACE_TEMPLATE);
+  return vaultedBreakglassSession(request, env.openbao, env, env.project, template);
 }
 
 function workspaceResult(run, action) {
@@ -233,10 +236,21 @@ exports.register = function (shared) {
     });
 
     test("gitea workspaces: the store token carries exactly three scopes", async ({ request }) => {
+      test.skip(!workspacesApply, `no Semaphore Workspaces project with OpenBao runs beside Gitea, so no ${ROTATION_TEMPLATE} mints a store token`);
+      test.setTimeout(resolveTimeout(2 * ROTATION_RUN_MS));
       const asStore = client(request, base(), adminAuth, store);
-      const tokens = await (await asStore.get(`/users/${store}/tokens?limit=50`)).json();
-      const rotated = tokens.filter((token) => token.name.startsWith(tokenPrefix));
-      expect(rotated.length, "rotate store credentials must have minted a store token").toBeGreaterThan(0);
+      const storeTokens = async () =>
+        (await (await asStore.get(`/users/${store}/tokens?limit=50`)).json()).filter((token) =>
+          token.name.startsWith(tokenPrefix),
+        );
+      let rotated = await storeTokens();
+      if (rotated.length === 0) {
+        const sem = await semaphore(request, ROTATION_TEMPLATE);
+        const run = await runTemplateTask(sem, null, ROTATION_RUN_MS, SEMAPHORE_POLL_MS, ROTATION_TEMPLATE);
+        expect(run.status, `${ROTATION_TEMPLATE} task ${run.id} must succeed; its output is in Semaphore`).toBe("success");
+        rotated = await storeTokens();
+      }
+      expect(rotated.length, `${ROTATION_TEMPLATE} must have minted a store token`).toBeGreaterThan(0);
       for (const token of rotated) {
         expect([...token.scopes].sort(), `scopes of ${token.name}`).toEqual(scopes.split(",").sort());
       }
@@ -312,6 +326,7 @@ exports.register = function (shared) {
     });
 
     test("gitea workspaces: members read and billing sees nothing", async ({ request }) => {
+      requireTools(["git"]);
       const asAdmin = (sudo) => client(request, base(), adminAuth, sudo);
       const token = await mintStoreToken(asAdmin);
       const asStore = client(request, base(), `token ${token.value}`);
@@ -322,6 +337,7 @@ exports.register = function (shared) {
         password: probePassword(),
       }));
       const repoUrl = `${base().replace(/\/$/, "")}/${organization}/${repository}.git`;
+      const directory = fs.mkdtempSync(path.join(os.tmpdir(), "gitea-member-access-"));
       try {
         expect((await asStore.post(`/orgs/${organization}/repos`, { name: repository, private: true, auto_init: true })).status()).toBe(201);
         const team = await asStore.post(`/orgs/${organization}/teams`, {
@@ -348,19 +364,18 @@ exports.register = function (shared) {
         }
         for (const person of people) {
           const auth = basic(person.username, person.password);
-          const fetchRefs = (service) =>
-            request.get(`${repoUrl}/info/refs?service=${service}`, {
-              headers: { Authorization: auth },
-              failOnStatusCode: false,
-              timeout: resolveTimeout(30_000),
-            });
           const api = await client(request, base(), auth).get(`/repos/${organization}/${repository}`);
           if (person.role === "billing") {
             expect(api.status(), "a billing-only user must not see the repository").toBe(404);
             continue;
           }
-          expect((await fetchRefs("git-upload-pack")).status(), `${person.role} clones over HTTPS`).toBe(200);
-          expect((await fetchRefs("git-receive-pack")).status(), `${person.role} is refused on push`).toBeGreaterThanOrEqual(400);
+          const clone = path.join(directory, person.role);
+          httpsGit(["clone", "-q", repoUrl, clone], directory, auth);
+          commit(clone, `${person.role}.yml`, `${person.role} change`);
+          expect(
+            () => httpsGit(["push", "origin", "HEAD"], clone, auth),
+            `${person.role} is refused on push`,
+          ).toThrow(/User permission denied for writing/);
         }
       } finally {
         await asAdmin().del(`/repos/${organization}/${repository}`);
@@ -372,6 +387,7 @@ exports.register = function (shared) {
           await asAdmin().del(`/admin/users/${person.username}`);
         }
         await asAdmin(store).del(`/users/${store}/tokens/${token.id}`);
+        fs.rmSync(directory, { recursive: true, force: true });
       }
     });
 
@@ -379,7 +395,7 @@ exports.register = function (shared) {
       test.skip(!workspacesApply, "no Semaphore Workspaces project with OpenBao runs beside Gitea, so no workspace apply can start");
       test.setTimeout(resolveTimeout(3 * WORKSPACE_RUN_MS));
       const asAdmin = (sudo) => client(request, base(), adminAuth, sudo);
-      const sem = await semaphore(request);
+      const sem = await semaphore(request, WORKSPACE_TEMPLATE);
       const workspace = randomUUID();
       const repository = `ws-${workspace}`;
       await withCleanup(async (cleanup) => {
@@ -505,7 +521,7 @@ exports.register = function (shared) {
         const asMember = client(request, base(), `token ${memberSecret}`);
         const memberBasic = basic(member.username, memberSecret);
 
-        const storeClone = path.join(directory, "store");
+        const storeClone = path.join(directory, "store-clone");
         git(["clone", "-q", sshRemote, storeClone], directory, writer.file);
         const storeHead = commit(storeClone, "inventory.yml", "store inventory");
         git(["push", "-q", "origin", "HEAD:main"], storeClone, writer.file);
