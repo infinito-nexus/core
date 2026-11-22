@@ -4003,6 +4003,18 @@ th.selectedCell {
 #kix-header .new-object-dropdown-container ul {
   --design-focus: var(--design-link);
 }
+:root {
+  --focus-color: var(--design-link-rgb);
+  --focus-color-alternative: var(--design-on-frame-rgb);
+}
+:root :focus,
+:root :focus-within {
+  --focus-outline: 2px solid var(--design-focus, var(--design-link));
+}
+#kix-header .skip-to-main {
+  background-color: var(--design-frame);
+  color: var(--design-on-frame);
+}
 .login-wrapper {
   background-image: none;
 }
