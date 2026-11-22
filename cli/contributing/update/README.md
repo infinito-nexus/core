@@ -10,12 +10,15 @@ Every role-scoped updater (`docker`, `source`, `pip`, `repository`) and the addo
 
 `python -m cli.contributing.update.repository` bumps every `ref:` that sits next to a `repository:` in `roles/*/meta/services.yml` or `roles/*/meta/addons/*.yml`, at any depth, an addon's `config` included:
 
-| `ref:`                 | Moves to                                    | Reads                               |
-| ---------------------- | ------------------------------------------- | ----------------------------------- |
-| semver, e.g. `v0.8.5`  | the latest tag of the same depth and flavor | `git ls-remote --tags <repository>` |
-| full 40-hex commit SHA | the tip of the default branch               | `git ls-remote <repository> HEAD`   |
+| `ref:`                 | Moves to                                    | Reads                                        |
+| ---------------------- | ------------------------------------------- | -------------------------------------------- |
+| semver, e.g. `v0.8.5`  | the latest tag of the same depth and flavor | `git ls-remote --tags <repository>`          |
+| full 40-hex commit SHA | the newest release tag that contains it     | `git ls-remote --tags`, treeless `git fetch` |
+| same, no such release  | the tip of the default branch               | `git ls-remote <repository> HEAD`            |
 
-A branch name and a short SHA stay as they are. `# nocheck: repository-version` on the line above `ref:` freezes a pin. Each repository is queried once per run and lookup, and a failed query leaves its pins untouched. The `update-repository-refs` job of `.github/workflows/cron-update.yml` opens one PR per changed role, and `tests/external/update/repository/` warns about pending bumps.
+A branch name and a short SHA stay as they are. `# nocheck: repository-version` on the line above `ref:` freezes a pin. Each repository is queried once per run and lookup, and a failed query leaves its pins untouched. The `update-repository-refs` job of `.github/workflows/cron-update.yml` opens one PR per changed role, and `tests/external/update/repository/` warns about pending bumps and fails on a commit SHA that a release tag already contains. A pin newer than the newest release keeps following the tip, so no pin moves back to an older release.
+
+Every update PR carries the label `⬆️ update` and one of `🔴 major`, `🟡 minor` or `🟢 patch`: the highest step among its changed versions, read by [level.py](../../../utils/update/level.py). A change that is no number step (a commit SHA, a SHA moving to a tag) counts as `🔴 major`.
 
 ## Declared version sources
 

@@ -90,6 +90,126 @@ def _variants(role_dir: Path) -> list:
     return data if isinstance(data, list) else []
 
 
+def _pinned_enabled(variant, addon_id: str):
+    """
+    Args:
+        variant: one entry of the variant list.
+        addon_id: the addon to look up.
+
+    Returns:
+        The ``enabled`` value the variant pins for *addon_id*, None when it
+        pins none.
+    """
+    entry = _pinned_addons(variant).get(addon_id)
+    return entry.get("enabled") if isinstance(entry, Mapping) else None
+
+
+def _addons_line_reason(lines: list[str]) -> str | None:
+    """
+    Args:
+        lines: the lines of one variant entry, its ``- `` line first.
+
+    Returns:
+        The reason the marker on the entry's own ``addons:`` line states,
+        empty when it states none, None when that line carries no marker.
+    """
+    from utils.annotations.suppress import marker_reason
+
+    own = next(
+        (
+            line
+            for line in lines
+            if line[:2] in ("- ", "  ") and line[2:].startswith("addons:")
+        ),
+        None,
+    )
+    return None if own is None else marker_reason(own, _RULE)
+
+
+def _addon_carriers(
+    text: str, variants: list, required: list[str]
+) -> tuple[set[int], list[str]]:
+    """
+    Args:
+        text: the role's ``meta/variants.yml``.
+        variants: the parsed variant list of that file.
+        required: the ids of the role's statically enabled addons.
+
+    Returns:
+        The indices of the variants whose own ``addons:`` line carries
+        ``# nocheck: addons-variant-pinning``, and one finding per marker on
+        variant 0 or 1, per reason shorter than ``MIN_REASON_CHARS``, per
+        carrier while variant 0 still installs the static addons, per carrier
+        that leaves none of them on, and for more than one marked variant.
+    """
+    from cli.administration.inventory.validate.open_subtrees import (
+        MIN_REASON_CHARS,
+    )
+
+    lines = text.splitlines()
+    starts = [n for n, line in enumerate(lines) if line.startswith("- ")]
+    baseline_off = all(
+        _pinned_enabled(variants[0] if variants else {}, a) is False for a in required
+    )
+    carriers: set[int] = set()
+    findings: list[str] = []
+    for index, (start, end) in enumerate(
+        zip(starts, [*starts[1:], len(lines)], strict=True)
+    ):
+        reason = _addons_line_reason(lines[start:end])
+        if reason is None:
+            continue
+        carriers.add(index)
+        variant = variants[index] if index < len(variants) else {}
+        if index < 2:
+            findings.append(
+                f"variant {index} carries the marker, but variant 1 owns the "
+                "static-off set"
+            )
+        if len(reason) < MIN_REASON_CHARS:
+            findings.append(
+                f"variant {index} carries the marker without a reason of at "
+                f"least {MIN_REASON_CHARS} characters"
+            )
+        if not baseline_off:
+            findings.append(
+                f"variant {index} carries the marker, but v0 already carries the "
+                "static addons"
+            )
+        if all(_pinned_enabled(variant, a) is False for a in required):
+            findings.append(
+                f"variant {index}: carrier marker on a variant that carries nothing"
+            )
+    if len(carriers) > 1:
+        findings.append(
+            f"variants {sorted(carriers)} carry the marker; a role has at most "
+            "one addon-carrier variant"
+        )
+    return carriers, findings
+
+
+def _uncarried_static_addons(
+    variants: list, required: list[str], carriers: set[int]
+) -> list[tuple[int, str, object]]:
+    """
+    Args:
+        variants: the role's parsed variant list.
+        required: the ids of the statically enabled addons.
+        carriers: the addon-carrier variants, exempt from the check.
+
+    Returns:
+        ``(variant index, addon id, pinned value)`` per variant from 2 on
+        that does not pin a statically enabled addon to ``false``.
+    """
+    return [
+        (index, addon_id, value)
+        for index in range(2, len(variants))
+        if index not in carriers
+        for addon_id in required
+        if (value := _pinned_enabled(variants[index], addon_id)) is not False
+    ]
+
+
 def _pinned_addons(variant) -> Mapping:
     """Return a variant entry's ``addons`` map, empty when it declares none.
 
@@ -156,17 +276,16 @@ class TestAddonsVariantPinning(unittest.TestCase):
             if len(variants) < 3:
                 continue
             required = sorted(f.stem for f in addon_files if _base_enabled(f) is True)
-            for index in range(2, len(variants)):
-                pinned = _pinned_addons(variants[index])
-                for addon_id in required:
-                    entry = pinned.get(addon_id)
-                    value = entry.get("enabled") if isinstance(entry, Mapping) else None
-                    if value is False:
-                        continue
-                    findings.append(
-                        f"- {role}/{ROLE_FILE_META_VARIANTS}: variant {index} pins "
-                        f"{addon_id!r} as {value!r}, variant 1 disables it"
-                    )
+            carriers, _ = _addon_carriers(
+                read_text(str(role_dir / ROLE_FILE_META_VARIANTS)), variants, required
+            )
+            findings.extend(
+                f"- {role}/{ROLE_FILE_META_VARIANTS}: variant {index} pins "
+                f"{addon_id!r} as {value!r}, variant 1 disables it"
+                for index, addon_id, value in _uncarried_static_addons(
+                    variants, required, carriers
+                )
+            )
 
         if not findings:
             return
@@ -181,8 +300,163 @@ class TestAddonsVariantPinning(unittest.TestCase):
             "          enabled: false\n"
             "    # variant 2 and later\n"
             "      addons: *addons_static_off\n\n" + "\n".join(findings) + "\n\n"
-            f"Per-addon opt-out: `# nocheck: {_RULE}` with a reason."
+            f"Per-addon opt-out: `# nocheck: {_RULE}` with a reason. The role's "
+            f"one addon-carrier variant keeps them on with `# nocheck: {_RULE} "
+            "<reason>` on its `addons:` line."
         )
+
+    def test_every_addon_carrier_marker_is_valid(self) -> None:
+        findings: list[str] = []
+        for role, addon_files in sorted(self._roles().items()):
+            role_dir = PROJECT_ROOT / "roles" / role
+            path = role_dir / ROLE_FILE_META_VARIANTS
+            if not path.is_file():
+                continue
+            required = sorted(f.stem for f in addon_files if _base_enabled(f) is True)
+            _, problems = _addon_carriers(
+                read_text(str(path)), _variants(role_dir), required
+            )
+            findings.extend(
+                f"- {role}/{ROLE_FILE_META_VARIANTS}: {p}" for p in problems
+            )
+
+        if not findings:
+            return
+
+        self.fail(
+            f"`# nocheck: {_RULE}` on a variant's own `addons:` line names the "
+            "role's one addon-carrier variant, which keeps the static addons on. "
+            "It needs a reason, marks one variant only and never variant 0 or 1, "
+            "requires variant 0 to keep the static addons off, and must leave at "
+            "least one of them on:\n\n" + "\n".join(findings)
+        )
+
+    def _carriers(
+        self, marked: Mapping[int, str], variants: list
+    ) -> tuple[set[int], list[str]]:
+        return _addon_carriers(
+            "".join(f"- addons: {{}}{marked.get(index, '')}\n" for index in range(5)),
+            variants,
+            ["calendar"],
+        )
+
+    def _five_variants(self) -> list:
+        off = {"calendar": {"enabled": False}}
+        return [
+            {"addons": off},
+            {"addons": off},
+            {"addons": off},
+            {"addons": {}},
+            {"addons": off},
+        ]
+
+    def test_a_marked_carrier_keeps_the_static_addons(self) -> None:
+        carriers, problems = self._carriers(
+            {3: f" # nocheck: {_RULE} budget split"}, self._five_variants()
+        )
+        self.assertEqual((carriers, problems), ({3}, []))
+        self.assertEqual(
+            _uncarried_static_addons(self._five_variants(), ["calendar"], carriers),
+            [],
+        )
+
+    def test_negative_control_an_unmarked_carrier_fails(self) -> None:
+        carriers, _ = self._carriers({}, self._five_variants())
+        self.assertEqual(
+            _uncarried_static_addons(self._five_variants(), ["calendar"], carriers),
+            [(3, "calendar", None)],
+        )
+
+    def test_negative_control_a_second_marked_variant_fails(self) -> None:
+        variants = self._five_variants()
+        variants[4] = {"addons": {}}
+        _, problems = self._carriers(
+            {
+                3: f" # nocheck: {_RULE} budget split",
+                4: f" # nocheck: {_RULE} another split",
+            },
+            variants,
+        )
+        self.assertEqual(
+            problems,
+            [
+                (
+                    "variants [3, 4] carry the marker; a role has at most one "
+                    "addon-carrier variant"
+                )
+            ],
+        )
+
+    def test_negative_control_a_marker_without_a_reason_fails(self) -> None:
+        _, problems = self._carriers({3: f" # nocheck: {_RULE}"}, self._five_variants())
+        self.assertEqual(
+            problems,
+            ["variant 3 carries the marker without a reason of at least 10 characters"],
+        )
+
+    def test_negative_control_a_too_short_reason_fails(self) -> None:
+        _, problems = self._carriers(
+            {3: f" # nocheck: {_RULE} split"}, self._five_variants()
+        )
+        self.assertEqual(
+            problems,
+            ["variant 3 carries the marker without a reason of at least 10 characters"],
+        )
+
+    def test_negative_control_a_marker_on_variant_1_fails(self) -> None:
+        variants = self._five_variants()
+        variants[1] = {"addons": {}}
+        _, problems = self._carriers({1: f" # nocheck: {_RULE} owns the set"}, variants)
+        self.assertEqual(
+            problems,
+            ["variant 1 carries the marker, but variant 1 owns the static-off set"],
+        )
+
+    def test_negative_control_a_carrier_beside_a_static_on_baseline_fails(
+        self,
+    ) -> None:
+        variants = self._five_variants()[:3]
+        variants[0] = {}
+        variants[2] = {"addons": {}}
+        _, problems = self._carriers({2: f" # nocheck: {_RULE} budget split"}, variants)
+        self.assertEqual(
+            problems,
+            ["variant 2 carries the marker, but v0 already carries the static addons"],
+        )
+
+    def test_negative_control_a_stale_carrier_marker_fails(self) -> None:
+        _, problems = self._carriers(
+            {4: f" # nocheck: {_RULE} budget split"}, self._five_variants()
+        )
+        self.assertEqual(
+            problems,
+            ["variant 4: carrier marker on a variant that carries nothing"],
+        )
+
+    def test_negative_control_a_marker_off_the_addons_line_counts_nothing(
+        self,
+    ) -> None:
+        text = (
+            "- addons: {}\n- addons: {}\n- addons: {}\n"
+            f"# Variant 3: heading # nocheck: {_RULE} budget split\n"
+            "- services:\n"
+            f"    tor: # nocheck: {_RULE} budget split\n"
+            "      enabled: true\n"
+            "  addons: {}\n"
+        )
+        variants = self._five_variants()[:4]
+        self.assertEqual(_addon_carriers(text, variants, ["calendar"]), (set(), []))
+
+    def test_a_marker_on_a_block_variants_addons_line_counts(self) -> None:
+        text = (
+            "- addons: {}\n- addons: {}\n- addons: {}\n"
+            "- services:\n"
+            "    tor:\n"
+            "      enabled: true\n"
+            f"  addons: {{}} # nocheck: {_RULE} budget split\n"
+        )
+        variants = self._five_variants()[:4]
+        self.assertEqual(_addon_carriers(text, variants, ["calendar"]), ({3}, []))
 
     def test_dynamic_addons_are_never_pinned_in_a_variant(self) -> None:
         findings: list[str] = []

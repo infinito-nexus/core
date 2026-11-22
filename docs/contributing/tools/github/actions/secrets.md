@@ -8,8 +8,8 @@ Repository secrets MUST be set under **Settings → Secrets and variables → Ac
 
 | Secret | Workflow | Purpose | Required when |
 |---|---|---|---|
-| `BOT_APP_CLIENT_ID` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml) | GitHub App Client ID (OAuth-style `Iv…` identifier shown on the App's General page) used to mint a short-lived installation token for the update PR. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
-| `BOT_APP_PRIVATE_KEY` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml) | PEM-encoded private key of the same GitHub App. Used to sign the JWT that exchanges for the installation token. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
+| `BOT_APP_CLIENT_ID` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) | GitHub App Client ID (OAuth-style `Iv…` identifier shown on the App's General page) used to mint a short-lived installation token for the update PR and for its automatic merge. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
+| `BOT_APP_PRIVATE_KEY` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) | PEM-encoded private key of the same GitHub App. Used to sign the JWT that exchanges for the installation token. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
 | `API_OPENAI_KEY` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | Publishes the `openai/*` models on the LiteLLM gateway and lets the CLI test exercise the route. | Never. Unset leaves the route unpublished. |
 | `API_ANTHROPIC_KEY` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | Publishes the `anthropic/*` models. | Never. |
 | `API_OPENROUTER_KEY` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | Publishes `openrouter/auto`. | Never. |
@@ -98,6 +98,8 @@ A classic personal access token MAY be used as a fallback for unrelated automati
 ### How the workflow consumes the secrets ⚙️
 
 Each PR-opening job in [cron-update.yml](../../../../../.github/workflows/cron-update.yml) runs an `actions/create-github-app-token@v2` step gated on `steps.diff.outputs.changed == 'true'`, then forwards the minted token as `GH_TOKEN` and the resolved `APP_SLUG` to the subsequent PR step. The job's `permissions:` block keeps the workflow-provided `GITHUB_TOKEN` read-only; write access is provided exclusively by the App token, scoped to the App's repository permissions.
+
+[entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) mints the App token only after its merge gate passed, and uses it for the merge call alone; the gate itself reads with the read-only `GITHUB_TOKEN`. Merging needs the App's `Contents` and `Pull requests` write permissions plus a bypass of the `Main` ruleset; a PR that changes `.github/workflows/` additionally needs `Workflows`: **Read and write**, or its merge fails and it stays open.
 
 ### Commit identity propagation 🪪
 

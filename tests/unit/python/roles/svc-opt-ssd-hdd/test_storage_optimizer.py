@@ -1,5 +1,6 @@
 import importlib.util
 import sys
+import time
 import unittest
 from unittest.mock import patch
 
@@ -28,8 +29,8 @@ storage_optimizer = load_optimizer_module()
 class TestHealthCheckLogic(unittest.TestCase):
     def setUp(self):
         patcher = patch("storage_optimizer.time.sleep", return_value=None)
-        self.sleep_patcher = patcher.start()
-        self.addCleanup(self.sleep_patcher.stop)
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
     @patch("storage_optimizer.run_command")
     def test_has_healthcheck_true(self, mock_run):
@@ -82,6 +83,13 @@ class TestIsDatabase(unittest.TestCase):
                 expected,
                 f"Image {image_name} expected {expected}",
             )
+
+
+class TestSleepPatchEndsWithItsTest(unittest.TestCase):
+    def test_time_sleep_is_real_again_after_a_health_check_test(self):
+        real_sleep = time.sleep
+        TestHealthCheckLogic("test_has_healthcheck_true").run()
+        self.assertIs(time.sleep, real_sleep)
 
 
 if __name__ == "__main__":
