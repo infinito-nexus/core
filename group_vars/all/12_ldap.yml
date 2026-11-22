@@ -19,7 +19,7 @@ _ldap_user_id: "uid"
 _ldap_ou_users: "ou=users"
 _ldap_ou_groups: "ou=groups"
 _ldap_ou_roles: "ou=roles"
-_ldap_filters_users_all: "(|(objectclass=inetOrgPerson))"
+_ldap_filters_users_all: "(objectclass=inetOrgPerson)"
 
 LDAP:
   DN:
