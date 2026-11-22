@@ -175,6 +175,7 @@
       # nocheck: healthcheck-timing-override  a role variable the linter cannot compare, tuned per deployment size
       start_period: {{ container_healthcheck_start_period }}
       start_interval: 5s
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
 
@@ -199,6 +200,7 @@
       # nocheck: healthcheck-timing-override  a role variable the linter cannot compare, tuned per deployment size
       start_period: {{ container_healthcheck_start_period }}
       start_interval: 5s
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
 
