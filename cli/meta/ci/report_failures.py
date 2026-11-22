@@ -16,7 +16,7 @@ from utils.roles.display import display_names
 
 _DECISIVE_FILES = ("error-context.md", "meta.txt", "containers.txt")
 _TITLE = "CI failure: {role}"
-_LABEL = "ci-failure"
+_LABEL = "💥 ci-failure"
 
 
 class Failure(NamedTuple):

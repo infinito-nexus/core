@@ -18,7 +18,7 @@ Every role-scoped updater (`docker`, `source`, `pip`, `repository`) and the addo
 
 A branch name and a short SHA stay as they are. `# nocheck: repository-version` on the line above `ref:` freezes a pin. Each repository is queried once per run and lookup, and a failed query leaves its pins untouched. The `update-repository-refs` job of `.github/workflows/cron-update.yml` opens one PR per changed role, and `tests/external/update/repository/` warns about pending bumps and fails on a commit SHA that a release tag already contains. A pin newer than the newest release keeps following the tip, so no pin moves back to an older release.
 
-Every update PR carries the label `update` and one of `major`, `minor` or `patch`: the highest step among its changed versions, read by [level.py](../../../utils/update/level.py). A change that is no number step (a commit SHA, a SHA moving to a tag) counts as `major`.
+Every update PR carries the label `⬆️ update` and one of `🔴 major`, `🟡 minor` or `🟢 patch`: the highest step among its changed versions, read by [level.py](../../../utils/update/level.py). A change that is no number step (a commit SHA, a SHA moving to a tag) counts as `🔴 major`.
 
 ## Declared version sources
 

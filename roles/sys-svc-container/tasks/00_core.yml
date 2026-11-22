@@ -1,4 +1,6 @@
 ---
+- include_tasks: utils/once/flag.yml
+
 - name: 📖 Read PID 1 process name
   ansible.builtin.slurp:
     src: /proc/1/comm
@@ -134,6 +136,8 @@
   include_tasks: "03_reset.yml"
   when: MODE_RESET | bool
 
+- include_tasks: utils/once/flag.yml
+
 - name: "🧭 Route docker cleanup/health deps through service-loader"
   ansible.builtin.include_role:
     name: sys-service-loader
@@ -144,5 +148,3 @@
       - sys-ctl-hlth-container
       - sys-ctl-hlth-runtime
       - sys-ctl-hlth-volumes
-
-- include_tasks: utils/once/flag.yml

@@ -82,11 +82,6 @@ on:
         required: false
         type: boolean
         default: false
-      trusted_pr:
-        description: "🛡️ True when the PR carries the maintainer Trusted label; skips the fork-prereq wait."
-        required: false
-        type: boolean
-        default: false
       image_wait_attempts:
         description: "🔁 Polling attempts while waiting on prebuilt or mirrored images."
         required: false
@@ -198,14 +193,14 @@ jobs:
     if: ${{ inputs.fork_prereqs }}
     runs-on: ubuntu-26.04
     env:
-      WAIT_REQUIRED: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository && !inputs.trusted_pr }}
+      WAIT_REQUIRED: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
     steps:
-      - name: 🏷️ Mark fork prerequisites as ready outside fork PRs or for trusted PRs
+      - name: 🏷️ Mark fork prerequisites as ready outside fork PRs
         if: ${{ env.WAIT_REQUIRED != 'true' }}
         shell: bash
         run: |
           set -euo pipefail
-          echo "Fork prerequisites are implicitly ready (non-fork PR or '🛡️ Trusted' label)."
+          echo "Fork prerequisites are implicitly ready (non-fork PR)."
 
       - name: ⬇️ Checkout trusted workflow repo (helpers)
         if: ${{ env.WAIT_REQUIRED == 'true' }}

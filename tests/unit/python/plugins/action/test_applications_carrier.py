@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from ansible.errors import AnsibleActionFail
+from ansible.plugins.action import VariableLayer
 
 from plugins.action.applications_carrier import ActionModule
 from utils.cache.carrier import (
@@ -50,7 +51,15 @@ def _make_action(task: _FakeTask, templar=None) -> ActionModule:
     action._task = task
     action._loader = None
     action._templar = _FakeTemplar() if templar is None else templar
+    action.registered = {}
+    action.register_host_variables = lambda variables, layer: (
+        action.registered.__setitem__(layer, variables)
+    )
     return action
+
+
+def _parked(action: ActionModule) -> dict:
+    return action.registered[VariableLayer.EPHEMERAL_FACT]
 
 
 def _lookups(templar=None):
@@ -64,7 +73,7 @@ def _lookups(templar=None):
 
 
 class TestApplicationsCarrierActionPlugin(unittest.TestCase):
-    def test_parks_both_carriers_as_masked_facts(self):
+    def test_parks_both_carriers_outside_the_fact_cache(self):
         applications, users, loader = _lookups()
         action = _make_action(_FakeTask())
         with (
@@ -80,10 +89,10 @@ class TestApplicationsCarrierActionPlugin(unittest.TestCase):
         ):
             result = action.run(task_vars={"applications": {}})
 
-        self.assertIs(
-            result["ansible_facts"][APPLICATIONS_RENDERED_FACT], applications.carrier
-        )
-        self.assertIs(result["ansible_facts"][USERS_RENDERED_FACT], users.carrier)
+        self.assertIs(_parked(action)[APPLICATIONS_RENDERED_FACT], applications.carrier)
+        self.assertIs(_parked(action)[USERS_RENDERED_FACT], users.carrier)
+        self.assertEqual(action.registered[VariableLayer.CACHEABLE_FACT], {})
+        self.assertNotIn("ansible_facts", result)
         self.assertTrue(result["_ansible_no_log"])
         self.assertFalse(result["changed"])
         for lookup in (applications, users):
@@ -107,22 +116,21 @@ class TestApplicationsCarrierActionPlugin(unittest.TestCase):
             ),
             patch("plugins.action.applications_carrier.revalidate_tokens_file"),
         ):
-            return action.run(task_vars=task_vars), applications, users
+            action.run(task_vars=task_vars)
+        return _parked(action), applications, users
 
     def test_a_users_carrier_that_still_matches_stays_in_place(self):
         parked = {"key": ["roles", ["a", "b", "c", "d", "h"]], "users": {"u": {}}}
-        result, applications, _ = self._park({USERS_RENDERED_FACT: parked})
+        carriers, applications, _ = self._park({USERS_RENDERED_FACT: parked})
 
-        self.assertNotIn(USERS_RENDERED_FACT, result["ansible_facts"])
-        self.assertIs(
-            result["ansible_facts"][APPLICATIONS_RENDERED_FACT], applications.carrier
-        )
+        self.assertNotIn(USERS_RENDERED_FACT, carriers)
+        self.assertIs(carriers[APPLICATIONS_RENDERED_FACT], applications.carrier)
 
     def test_a_stale_users_carrier_is_replaced(self):
         parked = {"key": ["roles", ["a", "b", "c", "d", "h2"]], "users": {"u": {}}}
-        result, _, users = self._park({USERS_RENDERED_FACT: parked})
+        carriers, _, users = self._park({USERS_RENDERED_FACT: parked})
 
-        self.assertIs(result["ansible_facts"][USERS_RENDERED_FACT], users.carrier)
+        self.assertIs(carriers[USERS_RENDERED_FACT], users.carrier)
 
     def test_renders_the_applications_before_the_users(self):
         _, _, loader = _lookups()
@@ -227,7 +235,19 @@ class TestApplicationsCarrierActionPlugin(unittest.TestCase):
         ):
             action.run(task_vars={})
 
-    def test_clear_drops_both_facts_without_rendering(self):
+    def test_an_ansible_core_without_variable_layers_fails_with_its_version(self):
+        action = _make_action(_FakeTask(args={"clear": True}))
+        with (
+            patch("plugins.action.applications_carrier.VariableLayer", None),
+            patch("plugins.action.applications_carrier.release.__version__", "2.20.9"),
+            self.assertRaisesRegex(
+                AnsibleActionFail, r"2\.21 or newer, found 2\.20\.9"
+            ),
+        ):
+            action.run(task_vars={})
+        self.assertEqual(action.registered, {})
+
+    def test_clear_drops_every_carrier_without_rendering(self):
         applications, users, loader = _lookups()
         action = _make_action(_FakeTask(args={"clear": True}))
         with (
@@ -244,16 +264,41 @@ class TestApplicationsCarrierActionPlugin(unittest.TestCase):
             result = action.run(task_vars={"applications": {}})
 
         self.assertEqual(
-            result["ansible_facts"],
+            _parked(action),
             {
                 APPLICATIONS_RENDERED_FACT: None,
                 USERS_RENDERED_FACT: None,
                 PROVIDER_VIEW_RENDERED_FACT: None,
             },
         )
+        self.assertEqual(action.registered[VariableLayer.CACHEABLE_FACT], {})
+        self.assertNotIn("ansible_facts", result)
         self.assertFalse(result["changed"])
         self.assertEqual(applications.calls, [])
         self.assertEqual(users.calls, [])
+
+    def test_clear_overwrites_a_carrier_left_in_the_fact_cache(self):
+        action = _make_action(_FakeTask(args={"clear": True}))
+        stale = {"key": ["roles", ["a"]], "applications": {"x": {}}}
+        with patch(
+            "plugins.action.applications_carrier.ActionBase.run",
+            autospec=True,
+            return_value={},
+        ):
+            action.run(
+                task_vars={
+                    "ansible_facts": {
+                        APPLICATIONS_RENDERED_FACT: stale,
+                        "os_family": "Debian",
+                    }
+                }
+            )
+
+        self.assertEqual(
+            action.registered[VariableLayer.CACHEABLE_FACT],
+            {APPLICATIONS_RENDERED_FACT: None},
+        )
+        self.assertIsNone(_parked(action)[APPLICATIONS_RENDERED_FACT])
 
     def test_clear_false_still_renders(self):
         applications, users, loader = _lookups()
@@ -269,12 +314,10 @@ class TestApplicationsCarrierActionPlugin(unittest.TestCase):
                 side_effect=loader.get,
             ),
         ):
-            result = action.run(task_vars={"applications": {}})
+            action.run(task_vars={"applications": {}})
 
-        self.assertIs(
-            result["ansible_facts"][APPLICATIONS_RENDERED_FACT], applications.carrier
-        )
-        self.assertIs(result["ansible_facts"][USERS_RENDERED_FACT], users.carrier)
+        self.assertIs(_parked(action)[APPLICATIONS_RENDERED_FACT], applications.carrier)
+        self.assertIs(_parked(action)[USERS_RENDERED_FACT], users.carrier)
         self.assertEqual(len(applications.calls), 1)
         self.assertEqual(len(users.calls), 1)
 
@@ -297,32 +340,32 @@ class TestApplicationsCarrierActionPlugin(unittest.TestCase):
                 return_value=view_carrier,
             ) as probe,
         ):
-            result = action.run(task_vars=task_vars)
-        return result, probe, action, task_vars
+            action.run(task_vars=task_vars)
+        return _parked(action), probe, action, task_vars
 
     def test_provider_view_parks_the_provider_view_carrier(self):
         view_carrier = {"key": ["roles", []], "applications": {}, "view": ["mgr", ""]}
 
-        result, probe, action, task_vars = self._run_with_view_carrier(
+        carriers, probe, action, task_vars = self._run_with_view_carrier(
             {"provider_view": True}, view_carrier
         )
 
         probe.assert_called_once_with(task_vars, templar=action._templar)
-        self.assertIs(
-            result["ansible_facts"][PROVIDER_VIEW_RENDERED_FACT], view_carrier
-        )
+        self.assertIs(carriers[PROVIDER_VIEW_RENDERED_FACT], view_carrier)
 
     def test_a_provider_view_carrier_that_still_matches_stays_in_place(self):
-        result, probe, _, _ = self._run_with_view_carrier({"provider_view": True}, None)
+        carriers, probe, _, _ = self._run_with_view_carrier(
+            {"provider_view": True}, None
+        )
 
         probe.assert_called_once()
-        self.assertNotIn(PROVIDER_VIEW_RENDERED_FACT, result["ansible_facts"])
+        self.assertNotIn(PROVIDER_VIEW_RENDERED_FACT, carriers)
 
     def test_without_provider_view_the_view_is_not_rendered(self):
-        result, probe, _, _ = self._run_with_view_carrier({}, {"key": []})
+        carriers, probe, _, _ = self._run_with_view_carrier({}, {"key": []})
 
         probe.assert_not_called()
-        self.assertNotIn(PROVIDER_VIEW_RENDERED_FACT, result["ansible_facts"])
+        self.assertNotIn(PROVIDER_VIEW_RENDERED_FACT, carriers)
 
 
 if __name__ == "__main__":
