@@ -118,8 +118,6 @@ git push --force \
 	"https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" \
 	"HEAD:refs/heads/${BRANCH}"
 
-python3 -m cli.contributing.update.label --repo "${REPO}" --ensure-only
-
 PR_NUMBER="$(
 	gh pr list \
 		--repo "${REPO}" \
@@ -134,9 +132,7 @@ if [[ -n "${PR_NUMBER}" ]]; then
 	gh pr edit "${PR_NUMBER}" \
 		--repo "${REPO}" \
 		--title "${UPDATE_PR_TITLE}" \
-		--body "${UPDATE_PR_BODY}" \
-		--add-label update \
-		--add-label "${UPDATE_LEVEL}"
+		--body "${UPDATE_PR_BODY}"
 else
 	echo "Creating PR for ${BRANCH}"
 	PR_URL="$(
@@ -145,10 +141,10 @@ else
 			--title "${UPDATE_PR_TITLE}" \
 			--body "${UPDATE_PR_BODY}" \
 			--base "${UPDATE_BASE_BRANCH}" \
-			--head "${OWNER}:${BRANCH}" \
-			--label update \
-			--label "${UPDATE_LEVEL}"
+			--head "${OWNER}:${BRANCH}"
 	)"
 	PR_NUMBER="${PR_URL##*/}"
 	echo "Created PR #${PR_NUMBER}: ${PR_URL}"
 fi
+
+python3 -m cli.contributing.update.label --repo "${REPO}" --pr "${PR_NUMBER}" --level "${UPDATE_LEVEL}"

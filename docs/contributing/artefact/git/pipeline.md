@@ -115,6 +115,10 @@ The subset path fails the run when:
 
 The `🧩 Subset` label must exist in the repository's label set and is applied through the PR labels UI. Both the `pull_request` and `pull_request_target` events carry a `labeled` trigger, so adding it starts a fresh run.
 
+#### Run all label 🏃
+
+By default a PR run stops at its first failure: a failed deploy row cancels the rest of its batch (matrix `fail-fast`), and the `1️⃣ Gate` stops every later batch. Apply the `🏃 Run all` label to see every failure of a PR in one run instead: [entry-pr-change-orchestrate.yml](../../../../.github/workflows/entry-pr-change-orchestrate.yml) then calls the orchestrator with `chunk_gate: false`, so every row of every batch deploys to its end. Lint, code tests and the CI image build still gate the deploys. Adding the label starts a fresh run; removing it changes nothing until the next push.
+
 ### 10. Installation Tests 📦
 
 The install-test workflows listed in the `Infrastructure tests` table of [workflows.md](../../tools/github/actions/workflows.md) run in parallel once `code-quality-gate` is green. All of them MUST pass `test-install-gate`.
@@ -159,4 +163,4 @@ Security gates:
 - Build-orchestration scripts (`scripts/image/push.sh` and the helper checkout) always come from the base repo at `github.sha`; only the Docker build **context** (`_src`) is the fork head. `persist-credentials: false` keeps the token out of the source checkout, and `USE_NIX_TOKEN` stays disabled for fork-sourced builds.
 - Fork `pull_request` runs always receive a read-only token (GitHub-enforced); the label never grants write tokens or secrets to the untrusted event.
 
-Both events carry a `labeled` trigger, so applying the `🛡️ Trusted` label starts fresh runs that already observe it: the `pull_request_target` build switches to the PR head and the `pull_request` orchestrator skips the wait — no extra push is needed. (Re-running an existing run does not pick up a new label, because GitHub replays the original event payload.) The trade-off is that any label change starts a fresh PR CI run.
+Both events carry a `labeled` trigger, so applying the `🛡️ Trusted` label starts fresh runs that already observe it: the `pull_request_target` build switches to the PR head and the `pull_request` orchestrator skips the wait — no extra push is needed. (Re-running an existing run does not pick up a new label, because GitHub replays the original event payload.) Only the labels CI reads (`🧩 Subset`, `🛡️ Trusted`, `🏃 Run all`) start a fresh run; any other label gets a concurrency group of its own and skips every job, so it neither cancels nor restarts the running pipeline.

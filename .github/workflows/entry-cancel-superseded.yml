@@ -51,7 +51,9 @@ jobs:
 
   cancel-pull-request-runs:
     name: 🚫 Cancel superseded pull request runs
-    if: ${{ github.event_name == 'pull_request_target' }}
+    if: >-
+      ${{ github.event_name == 'pull_request_target'
+          && (github.event.action != 'labeled' || contains(fromJSON('["🧩 Subset", "🛡️ Trusted", "🏃 Run all"]'), github.event.label.name)) }}
     runs-on: ubuntu-26.04
     permissions:
       actions: write

@@ -48,7 +48,7 @@ on:
         type: string
         default: "0"
       chunk_gate:
-        description: "🛑 Stop the chunk chain at its first failed chunk; batch 1 also waits for a running workspace test and stops when it failed. Off: keep deploying the remaining chunks."
+        description: "🛑 Stop the chunk chain at its first failed chunk; batch 1 also waits for a running workspace test and stops when it failed. On a pull request a failed row also cancels the rest of its chunk. Off: keep deploying every row and chunk."
         required: false
         type: boolean
         default: true
@@ -198,6 +198,7 @@ jobs:
     with:
       distros: ${{ inputs.distros }}
       index: "0"
+      chunk_gate: ${{ inputs.chunk_gate }}
       marker: ${{ needs.validate-selection.outputs.starred > 0 && ' ⭐' || '' }}
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
@@ -254,6 +255,7 @@ jobs:
     with:
       distros: ${{ inputs.distros }}
       index: "1"
+      chunk_gate: ${{ inputs.chunk_gate }}
       marker: ${{ needs.validate-selection.outputs.starred > 1 && ' ⭐' || '' }}
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
@@ -294,6 +296,7 @@ jobs:
     with:
       distros: ${{ inputs.distros }}
       index: "2"
+      chunk_gate: ${{ inputs.chunk_gate }}
       marker: ${{ needs.validate-selection.outputs.starred > 2 && ' ⭐' || '' }}
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
@@ -336,6 +339,7 @@ jobs:
     with:
       distros: ${{ inputs.distros }}
       index: "3"
+      chunk_gate: ${{ inputs.chunk_gate }}
       marker: ${{ needs.validate-selection.outputs.starred > 3 && ' ⭐' || '' }}
       sweep: ${{ inputs.sweep != '' && inputs.sweep || github.run_number }}
       offset: ${{ inputs.offset }}
