@@ -22,11 +22,14 @@ Per-line opt-out: ``# nocheck: version-key`` above the pin, with a reason.
 from __future__ import annotations
 
 import re
+import tempfile
 import unittest
+from pathlib import Path
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
+from utils.roles.custom import MARKER_FILE, MARKER_HEADER, resolve_role_version
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.update.base import declares_source, hold_reason, is_semver
 from utils.update.source import invalid_declarations
@@ -68,11 +71,16 @@ def _findings() -> list[str]:
     return sorted(set(findings))
 
 
-def _hold_findings() -> list[str]:
+def _hold_findings(root: Path) -> list[str]:
+    """
+    Args:
+        root: the repository whose ``roles/`` the scan reads.
+
+    Returns:
+        One line per ``hold`` that holds nothing or names another pin.
+    """
     findings: list[str] = []
-    for config_path in sorted(
-        (PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}")
-    ):
+    for config_path in sorted((root / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}")):
         role = config_path.parts[-3]
         for entity, config in (load_yaml(str(config_path)) or {}).items():
             if not isinstance(config, dict) or "hold" not in config:
@@ -84,7 +92,13 @@ def _hold_findings() -> list[str]:
                 )
                 continue
             try:
-                hold_reason(config, str(config.get("version")))
+                hold_reason(
+                    config,
+                    resolve_role_version(
+                        str(config.get("version") or "").strip(),
+                        root / "roles",
+                    ),
+                )
             except ValueError as exc:
                 findings.append(f"- {role}/{entity}: {exc}")
     return findings
@@ -108,13 +122,36 @@ class TestVersionKeys(unittest.TestCase):
         self.assertEqual(problems, [], "\n".join(problems))
 
     def test_every_hold_states_a_reason_for_its_own_pin(self) -> None:
-        findings = _hold_findings()
+        findings = _hold_findings(PROJECT_ROOT)
         self.assertEqual(
             findings,
             [],
             "A `hold` keeps the image updater off a `version` and needs "
             "`version: <the pin>` and a `reason`:\n" + "\n".join(findings),
         )
+
+    def test_a_hold_matches_the_pin_its_role_version_lookup_resolves_to(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = Path(tmp) / "roles"
+            custom = roles / "web-app-cst-demo"
+            custom.mkdir(parents=True)
+            (custom / MARKER_FILE).write_text(
+                f"{MARKER_HEADER}\nversion: 1.2.3\n", encoding="utf-8"
+            )
+            services = roles / "web-app-demo" / ROLE_FILE_META_SERVICES
+            services.parent.mkdir(parents=True)
+            services.write_text(
+                "demo:\n"
+                "  image: example/demo\n"
+                "  version: \"v{{ lookup('role_version', 'web-app-cst-demo') }}\"\n"
+                "  hold:\n"
+                "    version: v1.2.3\n"
+                "    reason: v1.3.0 drops the demo API\n",
+                encoding="utf-8",
+            )
+            self.assertEqual(_hold_findings(Path(tmp)), [])
 
 
 if __name__ == "__main__":
