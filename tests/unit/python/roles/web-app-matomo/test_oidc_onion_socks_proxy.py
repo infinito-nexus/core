@@ -10,10 +10,11 @@ from plugins.lookup.tor_socks_proxy import resolve_proxy_url
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
 from utils.networks.reachability import network_of
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 APP = "web-app-matomo"
 ROLE = PROJECT_ROOT / "roles" / APP
-VARS = load_yaml_str(read_text(str(ROLE / "vars" / "main.yml")))
+VARS = load_yaml_str(read_text(str(ROLE / ROLE_FILE_VARS_MAIN)))
 NETWORKS_VARS = load_yaml_str(
     read_text(str(PROJECT_ROOT / "group_vars" / "all" / "08_networks.yml"))
 )

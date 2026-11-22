@@ -9,9 +9,10 @@ from jinja2 import Environment, StrictUndefined, select_autoescape
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
 from utils.networks.reachability import network_of
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 ROLE_DIR = PROJECT_ROOT / "roles" / "web-app-nextcloud"
-VARS = load_yaml_str(read_text(str(ROLE_DIR / "vars" / "main.yml")))
+VARS = load_yaml_str(read_text(str(ROLE_DIR / ROLE_FILE_VARS_MAIN)))
 ADDON = load_yaml_str(read_text(str(ROLE_DIR / "meta" / "addons" / "user_oidc.yml")))
 ONION = "next.cloud." + "a" * 56 + ".onion"
 CLEARNET = "next.cloud.infinito.example"

@@ -4,23 +4,25 @@ const path = require("node:path");
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../../../../..");
 const { loadInternals } = require(path.join(PROJECT_ROOT, "tests/unit/javascript/utils/internals.js"));
+const { DOMAIN } = require(path.join(PROJECT_ROOT, "tests/unit/javascript/utils/domain.js"));
 
-const DASHBOARD = "https://dashboard.main.infinito.test/";
+const DASHBOARD = `https://dashboard.${DOMAIN}/`;
 const CHROME_ERROR = "chrome-error://chromewebdata/";
-const ELEMENT = "https://element.main.infinito.test/";
-const SYNAPSE_SSO = `https://matrix.main.infinito.test/_matrix/client/v3/login/sso/redirect?redirectUrl=${encodeURIComponent(`${ELEMENT}#/`)}`;
-const KEYCLOAK_AUTH = "https://auth.main.infinito.test/realms/infinito.nexus/protocol/openid-connect/auth";
-const KEYCLOAK_FOR_SYNAPSE = `${KEYCLOAK_AUTH}?response_type=code&client_id=matrix-synapse&redirect_uri=${encodeURIComponent("https://matrix.main.infinito.test/_synapse/client/oidc/callback")}`;
-const PROXIED = "https://prometheus.main.infinito.test/";
+const ELEMENT = `https://element.${DOMAIN}/`;
+const SYNAPSE_SSO = `https://matrix.${DOMAIN}/_matrix/client/v3/login/sso/redirect?redirectUrl=${encodeURIComponent(`${ELEMENT}#/`)}`;
+const KEYCLOAK_AUTH = `https://auth.${DOMAIN}/realms/infinito.nexus/protocol/openid-connect/auth`;
+const KEYCLOAK_FOR_SYNAPSE = `${KEYCLOAK_AUTH}?response_type=code&client_id=matrix-synapse&redirect_uri=${encodeURIComponent(`https://matrix.${DOMAIN}/_synapse/client/oidc/callback`)}`;
+const PROXIED = `https://prometheus.${DOMAIN}/`;
 const PROXY_START = `${PROXIED}oauth2/start?rd=%2F`;
 const KEYCLOAK_FOR_PROXY = `${KEYCLOAK_AUTH}?response_type=code&client_id=prometheus&redirect_uri=${encodeURIComponent(`${PROXIED}oauth2/callback`)}`;
-const PIHOLE = "https://pihole.main.infinito.test/";
+const PIHOLE = `https://pihole.${DOMAIN}/`;
 const PIHOLE_ADMIN = `${PIHOLE}admin/`;
-const MATRIX = { id: "web-app-matrix", canonical_domain: "element.main.infinito.test", handover_domain: "" };
-const PROMETHEUS = { id: "web-app-prometheus", canonical_domain: "prometheus.main.infinito.test", handover_domain: "" };
-const PIHOLE_TARGET = { id: "web-app-pihole", canonical_domain: "pihole.main.infinito.test", handover_domain: "" };
-const WALKED_ELEMENT = /Expected the embedded element\.main\.infinito\.test to answer the new tab/;
-const WALKED_PIHOLE = /Expected the embedded pihole\.main\.infinito\.test to answer the new tab/;
+const MATRIX = { id: "web-app-matrix", canonical_domain: `element.${DOMAIN}`, handover_domain: "" };
+const PROMETHEUS = { id: "web-app-prometheus", canonical_domain: `prometheus.${DOMAIN}`, handover_domain: "" };
+const PIHOLE_TARGET = { id: "web-app-pihole", canonical_domain: `pihole.${DOMAIN}`, handover_domain: "" };
+const ESCAPED_DOMAIN = DOMAIN.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const WALKED_ELEMENT = new RegExp(`Expected the embedded element\\.${ESCAPED_DOMAIN} to answer the new tab`);
+const WALKED_PIHOLE = new RegExp(`Expected the embedded pihole\\.${ESCAPED_DOMAIN} to answer the new tab`);
 
 /**
  * Args:

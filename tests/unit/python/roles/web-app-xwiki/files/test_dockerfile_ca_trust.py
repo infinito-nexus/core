@@ -8,13 +8,14 @@ from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.domains.default_primary import default_domain_primary
 
 ROLE = PROJECT_ROOT / "roles/web-app-xwiki"
 DOCKERFILE = ROLE / "files/Dockerfile"
 STAGE_TASKS = ROLE / "tasks/00_core.yml"
 PATH_ABSOLUTE = re.compile(r"lookup\('path_absolute', '([^']+)'\)")
 IMAGE_DIRS = ("/usr/local/xwiki/data", "/usr/local/tomcat/webapps")
-CA_NAME = "main.infinito.test"
+CA_NAME = default_domain_primary()
 CA_PEM = "ROOT-CA-PEM"
 PUBLIC_ROOTS = "public-roots PUBLIC-PEM"
 PRE_FIX_DOCKERFILE = """ARG XWIKI_IMAGE
