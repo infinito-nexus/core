@@ -16,6 +16,7 @@ const env = require("./env");
 const onion = require("./onion");
 const tls = require("./tls");
 const keycloak = require("./keycloak");
+const lam = require("./lam");
 const mapache = require("./mapache");
 const logout = require("./logout");
 const landing = require("./landing");
@@ -33,6 +34,7 @@ module.exports = {
   ...onion,
   ...tls,
   ...keycloak,
+  ...lam,
   ...mapache,
   ...logout,
   ...landing,
