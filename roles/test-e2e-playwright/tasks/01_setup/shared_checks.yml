@@ -7,6 +7,11 @@
     _playwright_ca_cert_host: "{{ CA_TRUST.cert_host }}"
     _playwright_ca_wrapper_host: "{{ CA_TRUST.wrapper_host }}"
     _playwright_ca_trust_name: "{{ CA_TRUST.trust_name }}"
+    _playwright_ca_argv: >-
+      {{ ['-v', CA_TRUST.cert_host ~ ':' ~ CA_TRUST.inject_cert_container ~ ':ro']
+         + ['-e', 'CA_TRUST_CERT=' ~ CA_TRUST.inject_cert_container, '-e', 'CA_TRUST_NAME=' ~ CA_TRUST.trust_name]
+         + ['-e', 'NODE_EXTRA_CA_CERTS=' ~ CA_TRUST.inject_cert_container, '-e', 'SSL_CERT_FILE=' ~ CA_TRUST.inject_cert_container]
+         + ['-e', 'REQUESTS_CA_BUNDLE=' ~ CA_TRUST.inject_cert_container, '-e', 'CURL_CA_BUNDLE=' ~ CA_TRUST.inject_cert_container] }}
 
 - name: ✅ Validate CA_TRUST configuration for self-signed TLS
   ansible.builtin.fail:
@@ -33,6 +38,19 @@
       ansible.builtin.stat:
         path: "{{ _playwright_ca_wrapper_host }}"
       register: _playwright_ca_wrapper_stat
+
+    - name: 🔎 Read the Playwright image's ENTRYPOINT, which the CA trust of a run with spec secrets needs empty
+      ansible.builtin.command:
+        argv:
+          - container
+          - image
+          - inspect
+          - --format
+          - "{{ '{{json .Config.Entrypoint}}' }}"
+          - "{{ TEST_E2E_PLAYWRIGHT_IMAGE }}"
+      register: _playwright_image_entrypoint
+      changed_when: false
+      failed_when: false
 
 - name: 🛑 Fail if CA certificate is missing on host
   ansible.builtin.fail:

@@ -2,367 +2,397 @@
 from __future__ import annotations
 
 import contextlib
-import hashlib
-import json
+import errno
 import os
+import shutil
 import signal
 import stat
 import subprocess
 import sys
-import tempfile
 import threading
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, BinaryIO
+
+sys.path.append(str(Path(__file__).parent))
 
 import spec_secrets
-from spec_secrets_match import CHUNK, MASK_MIN, Automaton, Stream, pump
+from spec_secrets_container import (
+    check_container,
+    cid_named,
+    container_env,
+    remove_container,
+)
+from spec_secrets_match import CHUNK, Stream, pump, relay, windows
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
 
-CID = ".cid"
-STAGED = ".staged"
+UNSETTLED = 70
+UNSETTLED_MARK = ".unsettled"
+STAGED = "reports"
 TEMP = ".masked."
-WRITABLE = stat.S_IWGRP | stat.S_IWOTH
+OPEN_FILE = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
+CREATE_FILE = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW
+PUBLISHED_FILE = 0o644
+PUBLISHED_DIR = 0o755
+CREATE_MARK = os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW
 USAGE = (
-    "baseline <stage dir>"
-    " | mask <run dir> <stage dir> <reports dir> -- <command>"
-    " | scrub <run dir> <stage dir> <reports dir> [<container cli>]"
+    "mask <run dir> <reports dir> -- <container command> -- [<argument>...]"
+    " | scrub <run dir> <reports dir> <container cli>"
 )
 
 
-def masked_values(directory: Path) -> list[bytes]:
-    """Read the values of a run directory long enough to mask.
+def open_root(root: Path) -> int | None:
+    """Open a reports dir without following a link.
 
     Args:
-        directory: a run directory below ``spec_secrets.PARENT``.
+        root: the directory.
 
     Returns:
-        Every value of ``MASK_MIN`` bytes or more.
+        Its descriptor, or None when it is missing.
+
+    Raises:
+        SpecSecretsError: it is a link or no directory.
     """
-    run = spec_secrets.open_run(directory)
-    values = []
     try:
-        for name in filter(spec_secrets.KEY.fullmatch, os.listdir(run)):
-            descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=run)
-            with os.fdopen(descriptor, "rb") as handle:
-                values.append(handle.read())
-    finally:
-        os.close(run)
-    return [value for value in values if len(value) >= MASK_MIN]
+        return os.open(root, spec_secrets.OPEN_DIR)
+    except FileNotFoundError:
+        return None
+    except OSError:
+        raise spec_secrets.SpecSecretsError(
+            f"{root} is a link or no directory, it is not masked"
+        ) from None
 
 
-def walk(root: Path, skipped: Path | None, failed: list[OSError]) -> Iterator[Path]:
-    """List the files below a directory.
+def walk(root: Path, failed: list[Exception]) -> Iterator[tuple[int, str]]:
+    """List the files below a directory, never following a link.
 
     Args:
         root: the directory; a missing one holds nothing.
-        skipped: a directory below it to leave out, or None.
         failed: collects the errors of directories that cannot be read.
 
     Yields:
-        Every file, the ``TEMP`` files of other scrubs included.
+        Per file, ``TEMP`` ones included, its open directory until the next one.
     """
 
     def unreadable(error: OSError) -> None:
         if not isinstance(error, FileNotFoundError):
             failed.append(error)
 
-    for top, dirs, files in os.walk(root, onerror=unreadable):
-        dirs[:] = [name for name in dirs if Path(top, name) != skipped]
-        yield from (Path(top, name) for name in files)
-
-
-def digest(path: Path) -> str | None:
+    top = open_root(root)
+    if top is None:
+        return
     try:
-        if stat.S_ISREG(path.lstat().st_mode):
-            with path.open("rb") as handle:
-                return hashlib.file_digest(handle, "sha256").hexdigest()
-    except OSError:
+        for _here, _dirs, files, at in os.fwalk(".", onerror=unreadable, dir_fd=top):
+            for name in files:
+                yield at, name
+    finally:
+        os.close(top)
+
+
+def open_file(at: int, name: str) -> int | None:
+    """Open a regular file of a directory without following a link.
+
+    Args:
+        at: the open directory.
+        name: the file's name in it.
+
+    Returns:
+        Its descriptor, or None when it is gone, a link or no regular file.
+    """
+    try:
+        if not stat.S_ISREG(os.stat(name, dir_fd=at, follow_symlinks=False).st_mode):
+            return None
+        descriptor = os.open(name, OPEN_FILE, dir_fd=at)
+    except FileNotFoundError:
         return None
+    except OSError as error:
+        if error.errno == errno.ELOOP:
+            return None
+        raise
+    if stat.S_ISREG(os.fstat(descriptor).st_mode):
+        return descriptor
+    os.close(descriptor)
     return None
 
 
-def digests(stage: Path) -> dict[str, str]:
-    """Take the digest of every file of a stage dir but its ``node_modules``.
+def swap(at: int, name: str, mode: int, fill: Callable[[BinaryIO], object]) -> None:
+    """Write a ``TEMP`` sibling of a name, then rename it over the name.
 
     Args:
-        stage: the stage dir.
-
-    Returns:
-        Each file's path below the stage dir with its sha256.
+        at: the open directory that holds the name.
+        name: the name; a FIFO, device or hard link there is replaced, unopened.
+        mode: the exact mode the file gets once written.
+        fill: writes the file's bytes into the open sibling.
     """
-    return {
-        str(path.relative_to(stage)): found
-        for path in walk(stage, stage / "node_modules", [])
-        if (found := digest(path))
-    }
-
-
-def baseline(stage: Path) -> Path:
-    return Path(f"{stage}{STAGED}")
-
-
-def write_json(descriptor: int, data: dict[str, str]) -> None:
-    with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
-        json.dump(data, handle)
-
-
-def loaded(descriptor: int | None) -> dict[str, str]:
-    """Read a digest list.
-
-    Args:
-        descriptor: an open file holding it, or None.
-
-    Returns:
-        Its digests, or none when it is missing or unreadable.
-    """
-    if descriptor is None:
-        return {}
-    with os.fdopen(descriptor, "rb") as handle:
-        text = handle.read()
-    with contextlib.suppress(ValueError):
-        found = json.loads(text)
-        if isinstance(found, dict):
-            return {str(name): str(value) for name, value in found.items()}
-    return {}
-
-
-def private(info: os.stat_result) -> bool:
-    return info.st_uid == os.geteuid() and not info.st_mode & WRITABLE
-
-
-def base_dir(stage: Path) -> Path:
-    """Check the dir that holds the stage dir and its digest list.
-
-    Args:
-        stage: the stage dir.
-
-    Returns:
-        The dir.
-
-    Raises:
-        SpecSecretsError: it is no directory that this user owns and alone
-            can write.
-    """
-    info = stage.parent.lstat()
-    if not stat.S_ISDIR(info.st_mode) or not private(info):
-        raise spec_secrets.SpecSecretsError(
-            f"{stage.parent} is not a directory only uid {os.geteuid()} can write"
-        )
-    return stage.parent
-
-
-def keep_baseline(stage: Path) -> None:
-    """Keep the digests of a freshly staged stage dir beside it.
-
-    Args:
-        stage: the stage dir; the list goes to ``<stage dir>.staged``, outside
-            every mount a container gets, through a new file renamed over
-            whatever was there, never written through it.
-    """
-    prefix = f".{stage.name}{STAGED}."
-    descriptor, name = tempfile.mkstemp(prefix=prefix, dir=base_dir(stage))
+    temp = f"{TEMP}{os.urandom(8).hex()}"
+    written = os.open(temp, CREATE_FILE, 0o600, dir_fd=at)
     try:
-        write_json(descriptor, digests(stage))
-        Path(name).replace(baseline(stage))
+        with os.fdopen(written, "wb") as target:
+            fill(target)
+            os.fchmod(target.fileno(), mode)
+        os.replace(temp, name, src_dir_fd=at, dst_dir_fd=at)
     finally:
         with contextlib.suppress(FileNotFoundError):
-            Path(name).unlink()
+            os.unlink(temp, dir_fd=at)
 
 
-def read_baseline(stage: Path) -> dict[str, str]:
-    """Read the digests the deploy kept of the fresh stage dir.
-
-    Args:
-        stage: the stage dir.
-
-    Returns:
-        The digests, or none when the list is missing or when another user
-        could have written it or the dir that holds it.
-    """
-    try:
-        base_dir(stage)
-        descriptor = os.open(baseline(stage), os.O_RDONLY | os.O_NOFOLLOW)
-    except (OSError, spec_secrets.SpecSecretsError):
-        return {}
-    info = os.fstat(descriptor)
-    if not stat.S_ISREG(info.st_mode) or not private(info):
-        os.close(descriptor)
-        return {}
-    return loaded(descriptor)
-
-
-def record_staged(directory: Path, kept: dict[str, str]) -> None:
-    """Keep the digests the masker took before the run in the run directory.
-
-    Args:
-        directory: the run directory, which keeps them as ``STAGED`` for a
-            scrub after a kill.
-        kept: the digests.
-    """
-    run = spec_secrets.open_run(directory)
-    try:
-        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW
-        descriptor = os.open(STAGED, flags, 0o600, dir_fd=run)
-    finally:
-        os.close(run)
-    write_json(descriptor, kept)
-
-
-def read_staged(directory: Path, stage: Path) -> dict[str, str]:
-    """Read the digests of the stage files a scrub leaves alone.
-
-    Args:
-        directory: the run directory.
-        stage: the stage dir.
-
-    Returns:
-        The digests the masker took before this run; without them, when no
-        run started, those the deploy took of the fresh stage dir; without
-        trusted ones, none, so every stage file holding a value is masked.
-    """
-    run = spec_secrets.open_run(directory)
-    try:
-        descriptor = os.open(STAGED, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=run)
-    except FileNotFoundError:
-        return read_baseline(stage)
-    finally:
-        os.close(run)
-    return loaded(descriptor)
-
-
-def remove_container(directory: Path, cli: str) -> None:
-    """Force-remove the container the run directory's ``CID`` names.
-
-    Args:
-        directory: the run directory.
-        cli: the container tool, such as ``container`` or ``docker``.
-    """
-    with contextlib.suppress(OSError):
-        container = (directory / CID).read_text(encoding="utf-8").strip()
-        if container:
-            subprocess.run(
-                [cli, "rm", "--force", container], capture_output=True, check=False
-            )
-
-
-def scrub_file(path: Path, automaton: Automaton) -> bool:
+def scrub_file(at: int, name: str, masks: frozenset[bytes]) -> bool:
     """Mask a regular file in place, streamed in chunks; links are left alone.
 
     Args:
-        path: the file.
-        automaton: the values to mask.
+        at: the open directory that holds the file.
+        name: the file's name in it.
+        masks: the windows to mask.
 
     Returns:
-        Whether it held a value; only then it is replaced, by a ``TEMP``
-        sibling with its mode, which holds masked bytes only.
+        Whether it held a window; only then ``swap`` masks it, mode kept.
     """
-    if not stat.S_ISREG(path.lstat().st_mode):
+    descriptor = open_file(at, name)
+    if descriptor is None:
         return False
-    with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW), "rb") as source:
+    with os.fdopen(descriptor, "rb") as source:
         read = partial(source.read, CHUNK)
-        if not pump(read, lambda _data: None, Stream(automaton)):
+        if not pump(read, lambda _data: None, Stream(masks)):
             return False
         source.seek(0)
         mode = stat.S_IMODE(os.fstat(source.fileno()).st_mode)
-        descriptor, name = tempfile.mkstemp(prefix=TEMP, dir=path.parent)
-        try:
-            with os.fdopen(descriptor, "wb") as target:
-                os.fchmod(target.fileno(), mode)
-                pump(read, target.write, Stream(automaton))
-            Path(name).replace(path)
-        finally:
-            with contextlib.suppress(FileNotFoundError):
-                Path(name).unlink()
+        swap(at, name, mode, lambda target: pump(read, target.write, Stream(masks)))
     return True
 
 
-def scrub(
-    stage: Path, reports: Path, automaton: Automaton, kept: dict[str, str]
-) -> int:
-    """Mask the files of a run's stage and reports dirs, whatever their age.
+def scrub(reports: Path, masks: frozenset[bytes]) -> int:
+    """Mask every file of a run's reports dir, whatever its age.
 
     Args:
-        stage: the stage dir; its ``node_modules``, npm's install tree or the
-            shared read-only mount, is left out, no reporter writes there.
-        reports: the reports dir, every file of it.
-        automaton: the values to mask.
-        kept: the digests of the stage files to leave alone while unchanged.
+        reports: the reports dir.
+        masks: the windows to mask.
 
     Returns:
-        0, or 1 when a path could not be read or rewritten.
+        0, or 1 when a path could not be read or rewritten or the reports
+        dir is a link, which is not walked.
     """
-    failed: list[OSError] = []
-    roots = ((stage, stage / "node_modules"), (reports, None))
-    for root, skipped in roots if automaton.grams else ():
-        for path in walk(root, skipped, failed):
-            name = str(path.relative_to(root))
-            if root == stage and kept.get(name, "") == digest(path):
-                continue
+    failed: list[Exception] = []
+    try:
+        for at, name in walk(reports, failed) if masks else ():
             try:
-                scrub_file(path, automaton)
+                scrub_file(at, name, masks)
             except FileNotFoundError:
                 continue
             except OSError as error:
                 failed.append(error)
+    except spec_secrets.SpecSecretsError as error:
+        print(f"spec secrets: {error}", file=sys.stderr)
+        failed.append(error)
     if failed:
         print(f"spec secrets: {len(failed)} paths not masked", file=sys.stderr)
     return 1 if failed else 0
 
 
-def relay(source, target, automaton: Automaton) -> None:
-    """Copy a pipe masked, and keep draining it once the target is gone.
+def open_dir(name: str | Path, at: int | None = None) -> int:
+    """Open one directory of the published reports, created when missing, never through a link.
 
     Args:
-        source: the child's binary pipe.
-        target: this process's binary stream.
-        automaton: the values to mask.
+        name: its name in ``at``, or the reports dir itself.
+        at: the open parent directory, None for the reports dir.
+
+    Returns:
+        Its descriptor, set to exactly ``PUBLISHED_DIR``, created or reused, so
+        no setgid bit of a parent or an earlier run and no umask is left; the
+        ``TEMP`` regular files a killed masker left in it are removed.
+
+    Raises:
+        OSError: it is a link or no directory, or its parent is missing.
     """
-    broken = []
+    with contextlib.suppress(FileExistsError):
+        os.mkdir(name, PUBLISHED_DIR, dir_fd=at)
+    descriptor = os.open(name, spec_secrets.OPEN_DIR, dir_fd=at)
+    try:
+        os.fchmod(descriptor, PUBLISHED_DIR)
+        with os.scandir(descriptor) as entries:
+            files = [e.name for e in entries if e.is_file(follow_symlinks=False)]
+        for temp in (name for name in files if name.startswith(TEMP)):
+            with contextlib.suppress(FileNotFoundError):
+                os.unlink(temp, dir_fd=descriptor)
+    except OSError:
+        os.close(descriptor)
+        raise
+    return descriptor
 
-    def write(data: bytes) -> None:
-        if data and not broken:
+
+def open_into(root: int, here: str) -> int:
+    """Open the directory a published file goes into, one component at a time.
+
+    Args:
+        root: the open reports dir.
+        here: the file's directory, relative to it.
+
+    Returns:
+        The open directory; ``open_dir`` created or reused each component
+        relative to the one before, so no link on the way is followed.
+    """
+    into = os.dup(root)
+    for part in Path(here).parts:
+        try:
+            inner = open_dir(part, into)
+        finally:
+            os.close(into)
+        into = inner
+    return into
+
+
+def named(path: str, masks: frozenset[bytes]) -> bool:
+    """Tell whether a path holds a window in any of its views.
+
+    Args:
+        path: the path of a staged report below the staged dir.
+        masks: the windows to mask.
+
+    Returns:
+        Whether publishing it would copy a piece of a value into a name.
+    """
+    stream = Stream(masks)
+    stream.feed(os.fsencode(path), final=True)
+    return stream.masked
+
+
+def publish(staged: Path, reports: Path, masks: frozenset[bytes]) -> int:
+    """Copy the regular files of the masked staged reports into the reports dir.
+
+    Args:
+        staged: the run's masked reports; links and special files stay there.
+        reports: the collected reports dir, created when missing below an
+            existing parent; it or a directory below it that is a link fails.
+        masks: the windows no published path may hold.
+
+    Returns:
+        The number of files left unpublished because their path below
+        ``staged`` holds a window; a directory is created only for a file.
+    """
+    root, top, refused = open_dir(reports), None, 0
+    try:
+        top = open_root(staged)
+        walked = os.fwalk(".", dir_fd=top) if top is not None else ()
+        for here, _dirs, files, at in walked:
+            into = None
             try:
-                target.write(data)
-                target.flush()
-            except OSError as error:
-                broken.append(error)
+                for name in files:
+                    if name.startswith(TEMP):
+                        continue
+                    if named(str(Path(here, name)), masks):
+                        refused += 1
+                        continue
+                    source = open_file(at, name)
+                    if source is None:
+                        continue
+                    with os.fdopen(source, "rb") as handle:
+                        into = open_into(root, here) if into is None else into
+                        copy = partial(shutil.copyfileobj, handle)
+                        swap(into, name, PUBLISHED_FILE, copy)
+            finally:
+                if into is not None:
+                    os.close(into)
+    finally:
+        os.close(root)
+        if top is not None:
+            os.close(top)
+    return refused
 
-    pump(partial(source.read1, CHUNK), write, Stream(automaton))
+
+def settle(directory: Path, reports: Path, masks: frozenset[bytes], gone: bool) -> int:
+    """Mask the reports a run staged in its directory, then publish or delete them.
+
+    Args:
+        directory: the run directory; the container wrote into its ``STAGED``.
+        reports: the collected reports dir, which only ever gets masked files.
+        masks: the windows to mask.
+        gone: whether ``remove_container`` proved that no container writes
+            into ``STAGED`` any more.
+
+    Returns:
+        0 once every staged file is masked and published; 1, the staged reports
+        deleted unpublished, when the container may still run or a file could
+        not be masked, and 1 when a path holds a value or publishing failed.
+    """
+    staged = directory / STAGED
+    failed = 1
+    if not gone:
+        print(
+            "spec secrets: the container may still run, its reports were deleted"
+            " unpublished",
+            file=sys.stderr,
+        )
+    elif scrub(staged, masks):
+        if os.path.lexists(staged):
+            print(
+                "spec secrets: the run's reports were deleted unpublished",
+                file=sys.stderr,
+            )
+    else:
+        try:
+            refused = publish(staged, reports, masks)
+        except (OSError, spec_secrets.SpecSecretsError) as error:
+            print(
+                f"spec secrets: publishing the reports failed: {error}", file=sys.stderr
+            )
+        else:
+            failed = 1 if refused else 0
+            if refused:
+                print(
+                    f"spec secrets: {refused} reports whose path holds a value"
+                    " were not published",
+                    file=sys.stderr,
+                )
+    shutil.rmtree(staged, ignore_errors=True)
+    return failed
 
 
-def mask(directory: Path, stage: Path, reports: Path, command: list[str]) -> int:
-    """Run the container command with its output and its files masked.
+def mask(directory: Path, reports: Path, command: list[str]) -> int:
+    """Run the container command with its output and its reports masked.
 
     Args:
         directory: the run directory whose values get masked; ``CID`` in it
-            names the container once the command wrote it there.
-        stage: the run's stage dir, whose digests are taken before the run.
-        reports: the run's reports dir.
-        command: the container command; ``command[0] rm --force`` stops it.
+            names the container once the command wrote it there, and the
+            command mounts its ``STAGED`` dir, created here, as the reports.
+        reports: the collected reports dir, which must not be a link.
+        command: the container command, run with ``container_env`` only;
+            ``command[0] rm --force`` stops it.
 
     Returns:
-        The command's exit code, 128 plus the signal when a signal ended it.
-        On HUP, INT or TERM the container is removed first, since its PID 1
-        ignores them, and the files are masked before this returns, with
-        the values and digests read before the run, so a run directory
-        removed meanwhile changes nothing.
+        The command's exit code or 128 plus the signal that ended it;
+        ``UNSETTLED``, which no Playwright failure exits with, whenever its
+        container could not be proven gone or its reports not be masked and
+        published. HUP, INT or TERM, which its PID 1 ignores, and the end of
+        the command remove the container and prove it gone before the reports
+        settle; a removal before ``CID`` named a container runs again.
     """
-    automaton = Automaton(masked_values(directory))
-    kept = digests(stage)
-    record_staged(directory, kept)
-    child = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    masks = windows(spec_secrets.read_values(directory))
+    root = open_root(reports)
+    if root is not None:
+        os.close(root)
+    (directory / STAGED).mkdir(mode=spec_secrets.DIR_MODE, exist_ok=True)
+    piped = subprocess.PIPE
+    child = subprocess.Popen(command, stdout=piped, stderr=piped, env=container_env())
+    removals: list[bool] = []
+
+    def removed() -> bool:
+        if removals:
+            return removals[0]
+        known = cid_named(directory)
+        gone = remove_container(directory, command[0])
+        if known:
+            removals.append(gone)
+        return gone
 
     def stop(received: int, _frame: object) -> None:
-        remove_container(directory, command[0])
+        removed()
         child.send_signal(received)
 
     for signum in (signal.SIGHUP, signal.SIGINT, signal.SIGTERM):
         signal.signal(signum, stop)
     relays = [
-        threading.Thread(target=relay, args=(pipe, out.buffer, automaton))
+        threading.Thread(target=relay, args=(pipe, out.buffer, masks))
         for pipe, out in ((child.stdout, sys.stdout), (child.stderr, sys.stderr))
     ]
     for thread in relays:
@@ -370,39 +400,88 @@ def mask(directory: Path, stage: Path, reports: Path, command: list[str]) -> int
     for thread in relays:
         thread.join()
     code = child.wait()
-    scrub(stage, reports, automaton, kept)
-    return code if code >= 0 else 128 - code
+    scrubbed = settle(directory, reports, masks, removed())
+    return UNSETTLED if scrubbed else (code if code >= 0 else 128 - code)
+
+
+def unsettled(directory: Path) -> None:
+    """Leave ``UNSETTLED_MARK`` in a run directory, so its later scrub fails too.
+
+    Args:
+        directory: the run directory; a refused one gets no mark, its scrub
+            refuses it anyway.
+    """
+    try:
+        run = spec_secrets.open_run(directory)
+    except spec_secrets.SpecSecretsError:
+        return
+    try:
+        with contextlib.suppress(OSError):
+            os.close(os.open(UNSETTLED_MARK, CREATE_MARK, 0o600, dir_fd=run))
+    finally:
+        os.close(run)
+
+
+def guarded_mask(paths: list[Path], container: list[str], arguments: list[str]) -> int:
+    """Run ``mask`` and mark the run when the masker itself failed.
+
+    Args:
+        paths: the run directory and the collected reports dir.
+        container: the container command up to and including the image,
+            which ``check_container`` holds against the one a run with spec
+            secrets starts.
+        arguments: the Playwright arguments; ``spec_secrets.playwright``
+            checks them and appends the only command a run with spec secrets
+            runs, so no variable a caller renders reaches the container.
+
+    Returns:
+        What ``mask`` returns, or ``UNSETTLED`` when it refused or failed.
+    """
+    try:
+        check_container(container, paths[0])
+        code = mask(*paths, [*container, *spec_secrets.playwright(arguments)])
+    except spec_secrets.SpecSecretsError as error:
+        print(f"spec secrets refused: {error}", file=sys.stderr)
+        code = UNSETTLED
+    except OSError as error:
+        print(f"spec secrets failed: {error.strerror or 'error'}", file=sys.stderr)
+        code = UNSETTLED
+    if code == UNSETTLED:
+        unsettled(paths[0])
+    return code
 
 
 def main(argv: list[str]) -> int:
     """Mask a run, never printing a key or a value.
 
     Args:
-        argv: the program name and ``baseline <stage dir>``, ``mask <run
-            dir> <stage dir> <reports dir> -- <command>`` or ``scrub <run
-            dir> <stage dir> <reports dir> [<container cli>]``; ``baseline``
-            keeps the digests of a freshly staged stage dir for every later
-            scrub; with the tool given, ``scrub`` first force-removes the
-            run's container.
+        argv: the program name and the words of ``USAGE``; ``scrub`` first
+            removes the run's container with the tool and proves it gone.
+            Both settle the staged reports into the reports dir only then.
 
     Returns:
-        ``mask``: the command's exit code; ``baseline`` and ``scrub``: 0, or
-        1 when a path could not be read or masked; 1 on a refused run
-        directory, 2 on bad usage.
+        ``mask``: what ``guarded_mask`` returns; ``scrub``: 0, or 1 when the
+        container could not be proven gone, the reports could not be
+        settled or the run's ``mask`` left ``UNSETTLED_MARK``; 1 on a
+        refused run directory, 2 on bad usage.
     """
     command = argv[1:]
-    paths = [Path(path) for path in command[1:4]]
+    paths = [Path(path) for path in command[1:3]]
+    split = command.index("--", 5) if "--" in command[5:] else 0
+    if command[:1] == ["mask"] and command[3:4] == ["--"] and split:
+        return guarded_mask(paths, command[4:split], command[split + 1 :])
     try:
-        if command[:1] == ["baseline"] and len(command) == 2:
-            keep_baseline(paths[0])
-            return 0
-        if command[:1] == ["mask"] and command[4:5] == ["--"] and command[5:]:
-            return mask(*paths, command[5:])
-        if command[:1] == ["scrub"] and len(command) in {4, 5}:
-            automaton = Automaton(masked_values(paths[0]))
-            for cli in command[4:]:
-                remove_container(paths[0], cli)
-            return scrub(*paths[1:], automaton, read_staged(*paths[:2]))
+        if command[:1] == ["scrub"] and len(command) == 4:
+            masks = windows(spec_secrets.read_values(paths[0]))
+            gone = remove_container(paths[0], command[3])
+            settled = settle(paths[0], paths[1], masks, gone)
+            if os.path.lexists(paths[0] / UNSETTLED_MARK):
+                print(
+                    "spec secrets: the run's masker could not settle its reports",
+                    file=sys.stderr,
+                )
+                return 1
+            return settled
     except spec_secrets.SpecSecretsError as error:
         print(f"spec secrets refused: {error}", file=sys.stderr)
         return 1

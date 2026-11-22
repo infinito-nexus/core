@@ -55,14 +55,21 @@ env_file="$stage_dir/.env"
 	echo "missing spec: $spec_src" >&2
 	exit 1
 }
-[[ -d "$stage_dir" ]] || {
-	echo "missing staging dir (run deploy first): $stage_dir" >&2
+[[ -d "$stage_dir" && ! -L "$stage_dir" ]] || {
+	echo "missing staging dir (run deploy first) or a link in its place: $stage_dir" >&2
 	exit 1
 }
 [[ -f "$env_file" ]] || {
 	echo "missing rendered env (run deploy first): $env_file" >&2
 	exit 1
 }
+config_src="$repo_root/roles/test-e2e-playwright/files/playwright.config.js"
+while read -r timeout; do
+	grep -qE "^${timeout}=.+" "$env_file" || {
+		echo "$env_file lacks $timeout, which $config_src requires: it was rendered by an older deploy, redeploy $role to restage it" >&2
+		exit 1
+	}
+done < <(grep -oE 'requiredTimeout\("[A-Z][A-Z0-9_]*"\)' "$config_src" | grep -oE '[A-Z][A-Z0-9_]+')
 
 image="${TEST_E2E_PLAYWRIGHT_IMAGE:-}"
 if [[ -z "$image" ]]; then
@@ -76,7 +83,11 @@ command -v docker >/dev/null || {
 	exit 1
 }
 
-cmd="${TEST_E2E_PLAYWRIGHT_COMMAND:-npm install --no-fund --no-audit && npx playwright test${*:+ $*}}"
+pw_args=""
+if (($#)); then
+	printf -v pw_args ' %q' "$@"
+fi
+cmd="${TEST_E2E_PLAYWRIGHT_COMMAND:-npm install --no-fund --no-audit && npx playwright test$pw_args}"
 
 if [[ "${TEST_E2E_PLAYWRIGHT_NETWORK_HOST:-}" == "true" ]]; then
 	net_args=(--network host)
@@ -94,32 +105,62 @@ if [[ "$base_url" =~ \.onion(/|$) ]]; then
 fi
 
 secret_args=()
+ca_args=()
+reports_mount="$reports_dir"
+stage_ro=""
 if [[ -f "$repo_root/roles/$role/templates/playwright.secrets.j2" ]]; then
 	secrets_file="${PLAYWRIGHT_SPEC_SECRETS_FILE:?$role ships templates/playwright.secrets.j2: set PLAYWRIGHT_SPEC_SECRETS_FILE to a file holding its rendered KEY=VALUE lines}"
 	[[ -f "$secrets_file" ]] || {
 		echo "missing spec secrets file: $secrets_file" >&2
 		exit 1
 	}
-	capture_flags='(^|[[:space:]])(--(reporter|output|trace|config|ui|ui-host|ui-port|update-snapshots)([[:space:]=]|$)|-[[:alpha:]]*[cu])'
-	[[ ! "$cmd" =~ $capture_flags ]] || {
-		echo "$role ships templates/playwright.secrets.j2: --reporter, --output, --trace, -c/--config, --ui and -u/--update-snapshots would record form input or bypass the capture switch" >&2
-		exit 2
-	}
 	spec_secrets="$repo_root/roles/test-e2e-playwright/files/spec_secrets.py"
 	masker="$repo_root/roles/test-e2e-playwright/files/spec_secrets_mask.py"
+	[[ -z "${TEST_E2E_PLAYWRIGHT_COMMAND:-}" ]] || {
+		echo "$role ships templates/playwright.secrets.j2: a TEST_E2E_PLAYWRIGHT_COMMAND override is refused, pass Playwright arguments instead" >&2
+		exit 2
+	}
+	python3 -I -B "$spec_secrets" arguments "$@" || exit 2
+	ca_trust="$stage_dir/.ca-trust"
+	if [[ -L "$ca_trust" || (-e "$ca_trust" && ! -f "$ca_trust") ]]; then
+		echo "$ca_trust is a link or no regular file: redeploy $role" >&2
+		exit 2
+	fi
+	if [[ -f "$ca_trust" ]]; then
+		read -r ca_owner ca_mode < <(stat -c '%u %#a' -- "$ca_trust")
+		[[ ("$ca_owner" == 0 || "$ca_owner" == "$EUID") && $((ca_mode & ~0644)) == 0 ]] || {
+			echo "$ca_trust is neither root's nor yours with mode 0644 or tighter: redeploy $role" >&2
+			exit 2
+		}
+		mapfile -t ca_args < <(grep -v '^$' -- "$ca_trust")
+	fi
 	run_name="infinito-playwright-rerun-$$"
-	secrets_dir="$(python3 "$spec_secrets" create 0 "$$")"
-	trap 'docker rm --force "$run_name" >/dev/null 2>&1; python3 -B "$masker" scrub "$secrets_dir" "$stage_dir" "$reports_dir" || echo "spec secrets: check $reports_dir and $stage_dir, masking failed" >&2; rm -rf -- "$secrets_dir"' EXIT
-	install -m 0400 "$secrets_file" "$secrets_dir/.rendered"
-	python3 "$spec_secrets" split "$secrets_dir"
-	python3 -B "$masker" scrub "$secrets_dir" "$stage_dir" "$reports_dir"
-	trap 'docker rm --force "$run_name" >/dev/null 2>&1; wait; exit 129' HUP
-	trap 'docker rm --force "$run_name" >/dev/null 2>&1; wait; exit 130' INT
-	trap 'docker rm --force "$run_name" >/dev/null 2>&1; wait; exit 143' TERM
-	secret_args=(--name "$run_name" --mount "type=bind,src=$secrets_dir,dst=/run/spec-secrets,readonly" -e INFINITO_PLAYWRIGHT_NO_CAPTURE=true -e NO_COLOR=1 -e FORCE_COLOR=0)
+	python3 -I -B "$spec_secrets" prune
+	secrets_dir="$(python3 -I -B "$spec_secrets" create)"
+	finish() {
+		local status=$?
+		if ! python3 -I -B "$masker" scrub "$secrets_dir" "$reports_dir" docker; then
+			echo "spec secrets: $run_name may still run or its reports could not be masked, none were published to $reports_dir" >&2
+			((status)) || status=1
+		fi
+		rm -rf -- "$secrets_dir"
+		exit "$status"
+	}
+	trap finish EXIT
+	install -m 0400 -- "$secrets_file" "$secrets_dir/.rendered"
+	python3 -I -B "$spec_secrets" split "$secrets_dir"
+	reports_mount="$secrets_dir/reports"
+	stage_ro=":ro"
+	trap 'docker rm --force "$run_name" >/dev/null 2>&1 || :; wait; exit 129' HUP
+	trap 'docker rm --force "$run_name" >/dev/null 2>&1 || :; wait; exit 130' INT
+	trap 'docker rm --force "$run_name" >/dev/null 2>&1 || :; wait; exit 143' TERM
+	user_args=()
+	((EUID == 0)) || user_args=(--user "$(id -u):$(id -g)" -e HOME=/tmp)
+	secret_args=(--name "$run_name" "--cidfile=$secrets_dir/.cid" --log-driver=none --mount "type=bind,src=$secrets_dir,dst=/run/spec-secrets,readonly" -e INFINITO_PLAYWRIGHT_NO_CAPTURE=true -e NO_COLOR=1 -e FORCE_COLOR=0 "${user_args[@]}")
 fi
 
-mkdir -p "$stage_dir/tests" "$stage_dir/volume" "$reports_dir"
+mkdir -p "$stage_dir/tests" "$stage_dir/volume" "$stage_dir/node_modules" "$reports_dir"
+rm -rf -- "$reports_dir/playwright-junit.xml" "$reports_dir/playwright-report" "$reports_dir/test-results" "$reports_dir/run-parallel"
 for role_js in "$role_playwright_dir"/*.js; do
 	[[ -f "$role_js" ]] || continue
 	cp "$role_js" "$stage_dir/tests/$(basename "$role_js")"
@@ -129,7 +170,7 @@ for helper_src in "$repo_root/roles/test-e2e-playwright/files"/*.js; do
 	[[ "$(basename "$helper_src")" == "playwright.config.js" ]] && continue
 	cp "$helper_src" "$stage_dir/tests/$(basename "$helper_src")"
 done
-cp "$repo_root/roles/test-e2e-playwright/files/playwright.config.js" "$stage_dir/playwright.config.js"
+cp "$config_src" "$stage_dir/playwright.config.js"
 personas_dir="$repo_root/roles/test-e2e-playwright/files/personas"
 if [[ -d "$personas_dir" ]]; then
 	mkdir -p "$stage_dir/tests/personas/utils"
@@ -161,13 +202,14 @@ run=(docker run --rm
 	-e "PLAYWRIGHT_GALLERY_VIEWS=${PLAYWRIGHT_GALLERY_VIEWS:-}"
 	-e "PLAYWRIGHT_GALLERY_BEFORE=${PLAYWRIGHT_GALLERY_BEFORE:-}"
 	"${proxy_env[@]}"
-	-v "$stage_dir:/e2e"
-	-v "$stage_dir/volume:/volume"
-	-v "$reports_dir:/reports"
+	-v "$stage_dir:/e2e$stage_ro"
+	-v "$stage_dir/volume:/volume$stage_ro"
+	-v "$reports_mount:/reports"
 	"${secret_args[@]}"
+	"${ca_args[@]}"
 	-w /e2e
-	"$image"
-	/bin/bash -lc "$cmd")
-((${#secret_args[@]})) || exec "${run[@]}"
-python3 -B "$masker" mask "$secrets_dir" "$stage_dir" "$reports_dir" -- "${run[@]}" &
+	"$image")
+((${#secret_args[@]})) || exec "${run[@]}" /bin/bash -lc "$cmd"
+docker run --rm "${net_args[@]}" "${user_args[@]}" -v "$stage_dir:/e2e:ro" -v "$stage_dir/node_modules:/e2e/node_modules" -w /e2e "$image" npm install --no-fund --no-audit --no-package-lock
+python3 -I -B "$masker" mask "$secrets_dir" "$reports_dir" -- "${run[@]}" -- "$@" &
 wait "$!"

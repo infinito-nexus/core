@@ -35,9 +35,11 @@ AFTER_STAGING = (
     "🧹 Remove any handed-over container the scheduler did not stop",
     "🫥 Mask the spec secrets in every file of each staged run, also after a kill",
     "🧹 Remove the spec secrets of every staged run",
+    "📌 Note the runs whose reports could not be masked or secrets removed",
     "📥 Read each handed-over run's job and result",
     "🧭 Leave the runs whose dependency never ran here to the serial runner",
     "📝 Report and archive each handed-over run",
+    "🛑 Fail when a staged run could not be masked or its spec secrets removed",
     "🛑 Fail when the scheduler itself did not finish cleanly",
 )
 BUDGET_INPUTS = (

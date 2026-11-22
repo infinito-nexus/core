@@ -1,11 +1,34 @@
 ---
-- name: ✅ Ensure staging base dir exists
-  ansible.builtin.file:
-    path: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}"
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
+- name: ✅ Create the staging base dir with mkdir, which never follows a link nor touches a dir another user made
+  ansible.builtin.command:
+    argv: [mkdir, -m, "0755", "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}"]
+    creates: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}"
+
+- name: 🔍 Read who owns the stage base, the shared Playwright project dir and the tools dir
+  ansible.builtin.stat:
+    path: "{{ playwright_owned_dir }}"
+    follow: false
+  loop:
+    - "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}"
+    - "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}"
+    - "{{ TEST_E2E_PLAYWRIGHT_TOOLS_DIR }}"
+  loop_control:
+    loop_var: playwright_owned_dir
+  register: _playwright_owned_dirs
+
+- name: ✅ Refuse a stage base, shared or tools dir another user created or may write
+  ansible.builtin.assert:
+    that:
+      - not playwright_owned.stat.exists or (playwright_owned.stat.isdir and not playwright_owned.stat.islnk
+        and playwright_owned.stat.uid == 0 and not playwright_owned.stat.wgrp and not playwright_owned.stat.woth)
+    fail_msg: >-
+      {{ playwright_owned.playwright_owned_dir }} is a link, not root's or writable by others, so the masker, its helpers
+      or node_modules there could be swapped; remove it.
+    quiet: true
+  loop: "{{ _playwright_owned_dirs.results }}"
+  loop_control:
+    loop_var: playwright_owned
+    label: "{{ playwright_owned.playwright_owned_dir }}"
 
 - name: ✅ Ensure reports base dir exists
   ansible.builtin.file:
@@ -13,14 +36,15 @@
     state: directory
     mode: "0755"
 
-- name: 🧹 Remove the spec secrets a killed run left behind
-  ansible.builtin.script: "{{ role_path }}/files/spec_secrets.py prune"
-  register: _playwright_spec_secrets_pruned
-  changed_when: "'removed:' in _playwright_spec_secrets_pruned.stdout"
-  failed_when: false
-
 - name: 🧰 Prepare shared @playwright/test install
   ansible.builtin.include_tasks: 01_setup.yml
+
+- name: 🧹 Remove the spec secrets a killed run left behind
+  ansible.builtin.command:
+    argv: [python3, -I, -B, "{{ TEST_E2E_PLAYWRIGHT_TOOLS_DIR }}/spec_secrets.py", prune]
+  register: _playwright_spec_secrets_pruned
+  changed_when: "'removed:' in (_playwright_spec_secrets_pruned.stdout | default(''))"
+  failed_when: false
 
 - name: ✅ Check the CA and central templates every role's run shares
   ansible.builtin.include_tasks: 01_setup/shared_checks.yml

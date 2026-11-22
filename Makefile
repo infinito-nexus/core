@@ -248,13 +248,16 @@ compose-inventory-refresh:
 compose-network-recreate: install
 	@"$${PYTHON}" -m cli.administration.deploy.development recreate
 
+PLAYWRIGHT_SECRETS_WORD = '$(subst ','\'',$(secrets))'
+PLAYWRIGHT_SECRETS_ASSIGN = $(if $(secrets),PLAYWRIGHT_SPEC_SECRETS_FILE=$(subst ','\'',$(PLAYWRIGHT_SECRETS_WORD)) )
+
 .PHONY: compose-playwright
 # Rerun a role-local Playwright spec against the live running stack (no redeploy).
 # Usage: make compose-playwright role=<role> [pw="--grep <pattern>"] [keep=true] [secrets=<rendered playwright.secrets.j2 file in the container>]
 # Example: make compose-playwright role=web-app-dashboard pw="--grep icons" keep=true
 compose-playwright:
 	@: $${role:?role=<role> required, e.g. role=web-app-dashboard}
-	@cmd='$(if $(keep),INFINITO_PLAYWRIGHT_KEEP=$(keep) )$(if $(secrets),PLAYWRIGHT_SPEC_SECRETS_FILE=$(secrets) )bash scripts/tests/e2e/rerun-spec.sh $(role) $(pw)' \
+	@cmd='$(if $(keep),INFINITO_PLAYWRIGHT_KEEP=$(keep) )$(PLAYWRIGHT_SECRETS_ASSIGN)bash scripts/tests/e2e/rerun-spec.sh $(role) $(pw)' \
 	 bash scripts/tests/deploy/local/exec/container.sh
 
 .PHONY: compose-restart
@@ -858,7 +861,7 @@ swarm-playwright:
 	@: $${role:?role=<role> required, e.g. role=web-svc-logout}
 	@test -n '$(name)' || { echo 'name=<cluster-id> required (the app id when no name= was passed to swarm-zombie)'; exit 2; }
 	@node='$(or $(node),$(name)-swarm-mgr-01)' bash scripts/tests/deploy/act/copy_worktree_to_node.sh
-	@node='$(or $(node),$(name)-swarm-mgr-01)' cmd="cd $${INFINITO_NODE_SRC_DIR:?} && TEST_E2E_PLAYWRIGHT_NETWORK_HOST=true $(if $(keep),INFINITO_PLAYWRIGHT_KEEP=$(keep) )$(if $(secrets),PLAYWRIGHT_SPEC_SECRETS_FILE=$(secrets) )bash scripts/tests/e2e/rerun-spec.sh $(role) $(pw)" bash scripts/tests/deploy/act/exec/node.sh
+	@node='$(or $(node),$(name)-swarm-mgr-01)' cmd="cd $${INFINITO_NODE_SRC_DIR:?} && TEST_E2E_PLAYWRIGHT_NETWORK_HOST=true $(if $(keep),INFINITO_PLAYWRIGHT_KEEP=$(keep) )"'$(PLAYWRIGHT_SECRETS_ASSIGN)'"bash scripts/tests/e2e/rerun-spec.sh $(role) $(pw)" bash scripts/tests/deploy/act/exec/node.sh
 
 .PHONY: swarm-shell
 # Drop into an interactive shell on one of the swarm-test DinD nodes.

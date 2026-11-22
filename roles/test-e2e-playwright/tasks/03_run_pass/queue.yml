@@ -1,7 +1,9 @@
 ---
 - name: 🔐 Write the role's spec secrets for the scheduled run
   ansible.builtin.include_tasks: 03_run_pass/spec_secrets.yml
-  when: _playwright_secrets_template_stat.stat.exists
+  when:
+    - _playwright_secrets_template_stat.stat.exists
+    - _playwright_probe is skipped or (_playwright_probe.rc is defined and _playwright_probe.rc == 0)
 
 - name: 📮 Hand the Playwright run to the parallel scheduler
   ansible.builtin.copy:
@@ -11,8 +13,8 @@
       {{
         {
           'id': application_id,
-          'argv': _playwright_argv[:(TEST_E2E_PLAYWRIGHT_MASK_ARGV | length) + 2] + _playwright_parallel_flags
-                  + _playwright_argv[(TEST_E2E_PLAYWRIGHT_MASK_ARGV | length) + 2:],
+          'argv': _playwright_argv[:(_playwright_argv.index('run')) + 1] + _playwright_parallel_flags
+                  + _playwright_argv[(_playwright_argv.index('run')) + 1:],
           'env': _playwright_environment,
           'timeout': lookup('timeout', TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT_EFFECTIVE) | int,
           'after': ([TEST_E2E_PLAYWRIGHT_APPS | first] + lookup('role_tests', application_id, 'playwright.run_after', default=[]))
@@ -30,7 +32,7 @@
       - "--name={{ TEST_E2E_PLAYWRIGHT_PARALLEL_CONTAINER_PREFIX ~ application_id }}"
       - "--oom-score-adj={{ TEST_E2E_PLAYWRIGHT_PARALLEL_OOM_SCORE_ADJ }}"
   register: _playwright_job_written
-  when: _playwright_probe is skipped or (_playwright_probe.rc | default(1)) == 0
+  when: _playwright_probe is skipped or (_playwright_probe.rc is defined and _playwright_probe.rc == 0)
 
 - name: 📝 Remember the run the scheduler now owns
   ansible.builtin.set_fact:

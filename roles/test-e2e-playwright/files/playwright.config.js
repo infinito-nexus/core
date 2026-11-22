@@ -1,3 +1,4 @@
+const fs = require("fs");
 const { defineConfig } = require("@playwright/test");
 
 // nocheck: env-default  a role may export its own base variable and no APP_BASE_URL
@@ -5,7 +6,9 @@ const baseURL = process.env.APP_BASE_URL || "http://127.0.0.1";
 
 const keepAll = (process.env.INFINITO_PLAYWRIGHT_KEEP || "").toLowerCase() === "true";
 
-const captureOff = (process.env.INFINITO_PLAYWRIGHT_NO_CAPTURE || "").toLowerCase() === "true";
+const captureOff =
+  fs.existsSync("/run/spec-secrets") ||
+  (process.env.INFINITO_PLAYWRIGHT_NO_CAPTURE || "").toLowerCase() === "true";
 
 const capture = captureOff
   ? { trace: "off", screenshot: "off", video: "off" }
@@ -17,10 +20,14 @@ const capture = captureOff
 
 const recordingEnv = ["PW_TEST_REPORTER", "PLAYWRIGHT_LIST_PRINT_STEPS", "PLAYWRIGHT_DASHBOARD", "DEBUG", "DEBUG_FILE"];
 
+const reporterEnv = /^PLAYWRIGHT_(JUNIT|JSON|HTML|BLOB)_/;
+
 if (captureOff) {
   process.env.PLAYWRIGHT_NO_COPY_PROMPT = "1";
-  for (const name of recordingEnv) {
-    delete process.env[name];
+  for (const name of Object.keys(process.env)) {
+    if (recordingEnv.includes(name) || reporterEnv.test(name)) {
+      delete process.env[name];
+    }
   }
 }
 
@@ -82,6 +89,7 @@ module.exports = defineConfig({
   ),
   fullyParallel: (process.env.PLAYWRIGHT_FULLY_PARALLEL || "").toLowerCase() === "true",
   outputDir: captureOff ? "/tmp/test-results" : "/reports/test-results",
+  ...(captureOff ? { updateSnapshots: "none" } : {}),
   reporter: [
     ["list"],
     // `github` emits ::error file=...,line=...::-annotations for failed

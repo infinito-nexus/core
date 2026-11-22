@@ -74,7 +74,7 @@ Set the variable for the contexts you need:
 | `true` (case-insensitive) | `on` | `on` | `on` |
 | any other value, unset, or empty | `retain-on-failure` | `only-on-failure` | `retain-on-failure` |
 
-A role that ships `templates/playwright.secrets.j2` overrides both rows: its run sets `INFINITO_PLAYWRIGHT_NO_CAPTURE=true`, which turns trace, screenshot, video, the HTML report and the failure page snapshot off and keeps `test-results` inside the container. See [Spec secrets](../../../../roles/test-e2e-playwright/README.md#spec-secrets).
+A role that ships `templates/playwright.secrets.j2` overrides both rows: its run sets `INFINITO_PLAYWRIGHT_NO_CAPTURE=true` and mounts `/run/spec-secrets`, which alone keeps the switch on, and that turns trace, screenshot, video, the HTML report and the design gallery off and keeps `test-results` inside the container; `updateSnapshots: "none"` makes a missing snapshot fail instead of being written into the stage dir. Playwright still writes `error-context.md` and the failure snapshot there, and both go with the `--rm` container. See [Spec secrets](../../../../roles/test-e2e-playwright/README.md#spec-secrets).
 
 ## File Requirements 📄
 
