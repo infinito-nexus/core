@@ -6,7 +6,7 @@ const { gotoOnion, normalizeBaseUrl, recordVideoOptions, requireDotenvValue } = 
 const { signInToAdministrator, submitSiteLogin } = require("./joomla-session");
 
 const base = normalizeBaseUrl(requireDotenvValue(process.env.JOOMLA_BASE_URL, "JOOMLA_BASE_URL"));
-const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
+const mailDomain = requireDotenvValue(process.env.DOMAIN_PRIMARY, "DOMAIN_PRIMARY");
 const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
 const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
 const twoFactorEnabled = process.env.LOGIN_METHOD_2FA_ENABLED === "true";
@@ -121,7 +121,7 @@ test("2fa enrollment: with its own second factor enforced Joomla sends a local a
     await page.locator("#jform_username").fill(probe.username);
     await page.locator("#jform_password").fill(probe.password);
     await page.locator("#jform_password2").fill(probe.password);
-    await page.locator("#jform_email").fill(`${probe.username}@${canonicalDomain}`);
+    await page.locator("#jform_email").fill(`${probe.username}@${mailDomain}`);
     await page.locator(`input[name='jform[groups][]'][value='${groupId}']`).evaluate((box) => {
       box.checked = true;
     });
