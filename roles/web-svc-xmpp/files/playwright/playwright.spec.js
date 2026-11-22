@@ -2,14 +2,15 @@ const { test, expect } = require("@playwright/test");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
 const {
+  apiGetOnion,
   decodeDotenvQuotedValue,
-  gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
   runAdminFlow,
   runBiberFlow,
   runGuestFlow,
 } = require("./personas");
+const { resolveTimeout } = require("./timeouts");
 test.use({ ignoreHTTPSErrors: true });
 
 const baseUrl = normalizeBaseUrl(process.env.XMPP_BASE_URL || "");
@@ -43,21 +44,20 @@ test.beforeEach(async ({ page }) => {
   await page.context().clearCookies();
 });
 
+function getAdminAnonymously(page) {
+  return apiGetOnion(page.request, `${baseUrl}/admin/`, { timeout: resolveTimeout(30_000) });
+}
+
 test("baseline: ejabberd HTTP API responds on the canonical domain", async ({ page }) => {
-  // The ejabberd HTTP listener at /admin and /api covers the
-  // web-facing surfaces; XMPP client login itself runs over
-  // 5222/5269 and is not Playwright-testable via HTTP. The
-  // baseline asserts the role at least binds correctly.
-  const r = await gotoOnion(page, `${baseUrl}/admin/`);
-  expect(r).toBeTruthy();
-  expect(r.status()).toBeLessThan(500);
+  const r = await getAdminAnonymously(page);
+  expect(r.status(), "ejabberd MUST challenge an anonymous web admin request").toBe(401);
+  expect(r.headers()["www-authenticate"], "the challenge MUST come from ejabberd").toMatch(/realm="ejabberd"/i);
   expect(r.url().includes(canonicalDomain)).toBe(true);
 });
 
 test("guest: ejabberd LDAP backend points at svc-db-openldap (variant 1)", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
-  const r = await gotoOnion(page, `${baseUrl}/admin/`);
-  expect(r).toBeTruthy();
+  const r = await getAdminAnonymously(page);
   expect(r.status()).toBeLessThan(500);
 });
 
