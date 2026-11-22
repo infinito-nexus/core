@@ -36,6 +36,7 @@ const LOCKED_PROFILE_FIELD = "#jform_profile_phone";
 const LOCKED_SELECT = "#jform_params_language";
 const UNMANAGED_FIELD = "jform[params][editor]";
 const UNMANAGED_SELECT = "#jform_params_editor";
+const DEFAULT_EDITOR = "";
 const SITE_EDITABLE = ["#jform_name", "#jform_email1"];
 const ADMIN_EDITABLE = ["#jform_name", "#jform_username", "#jform_email"];
 const SITE_LOGIN = "index.php?option=com_users&view=login&fallback=local";
@@ -144,18 +145,16 @@ async function otherEditor(page) {
 
 /**
  * Args:
- *   page: Playwright page on the profile edit form whose lock was asserted.
- *   stored: what expectLockedProfile returned.
+ *   page: Playwright page on the profile edit form; ends on that form again once Joomla confirmed the save.
  *   values: the form fields the direct POST overrides.
  */
-async function expectDirectSaveKeeps(page, stored, values) {
-  const editor = await otherEditor(page);
+async function postProfile(page, values) {
   const form = await page.locator(PROFILE_FORM).evaluate((element) => ({
     action: element.action,
     fields: Object.fromEntries(new FormData(element).entries()),
   }));
   const response = await page.request.post(form.action, {
-    form: { ...form.fields, task: "profile.save", ...values, [UNMANAGED_FIELD]: editor },
+    form: { ...form.fields, task: "profile.save", ...values },
     maxRedirects: 0,
     timeout: resolveTimeout(60_000),
   });
@@ -165,16 +164,54 @@ async function expectDirectSaveKeeps(page, stored, values) {
   await expect(page.locator(SUCCESS_NOTICE).first(), "Joomla must confirm the saved profile").toBeVisible(ACTION);
   await expect(page.locator(PROFILE_VIEW).first(), "a saved profile lands on the profile view, a refused one on the form").toBeVisible(ACTION);
   await gotoOnion(page, `${base}/${PROFILE_EDIT}`);
-  for (const [name, selector] of Object.entries(LOCKED_FIELDS)) {
-    await expect(page.locator(`${PROFILE_FORM} ${selector}`), `a direct profile POST must not change ${selector}`).toHaveValue(
-      stored[name],
-      ACTION,
-    );
-  }
+}
+
+/**
+ * Args:
+ *   page: Playwright page with a site session of the account; ends on its profile edit form with the editor on
+ *     DEFAULT_EDITOR.
+ */
+async function restoreDefaultEditor(page) {
+  await gotoOnion(page, `${base}/${PROFILE_EDIT}`);
+  await postProfile(page, { [UNMANAGED_FIELD]: DEFAULT_EDITOR });
   await expect(
     page.locator(`${PROFILE_FORM} ${UNMANAGED_SELECT}`),
-    "the same POST must still save the editor, which Keycloak does not manage",
-  ).toHaveValue(editor, ACTION);
+    "the account must be back on the site default editor, which every later spec of it opens",
+  ).toHaveValue(DEFAULT_EDITOR, ACTION);
+}
+
+/**
+ * Args:
+ *   page: Playwright page on the profile edit form whose lock was asserted; ends with the editor on DEFAULT_EDITOR,
+ *     also when an assertion fails, whose error then propagates.
+ *   stored: what expectLockedProfile returned.
+ *   values: the form fields the direct POST overrides.
+ */
+async function expectDirectSaveKeeps(page, stored, values) {
+  let failure = null;
+  try {
+    const editor = await otherEditor(page);
+    await postProfile(page, { ...values, [UNMANAGED_FIELD]: editor });
+    for (const [name, selector] of Object.entries(LOCKED_FIELDS)) {
+      await expect(page.locator(`${PROFILE_FORM} ${selector}`), `a direct profile POST must not change ${selector}`).toHaveValue(
+        stored[name],
+        ACTION,
+      );
+    }
+    await expect(
+      page.locator(`${PROFILE_FORM} ${UNMANAGED_SELECT}`),
+      "the same POST must still save the editor, which Keycloak does not manage",
+    ).toHaveValue(editor, ACTION);
+  } catch (error) {
+    failure = error;
+    throw error;
+  } finally {
+    await restoreDefaultEditor(page).catch((error) => {
+      throw failure
+        ? new AggregateError([failure, error], `${failure.message}\nrestoring the default editor failed too: ${error.message}`)
+        : error;
+    });
+  }
 }
 
 test("biber: the Joomla profile locks name, username and email with the translated warning, and a direct save keeps them", async ({
@@ -182,7 +219,7 @@ test("biber: the Joomla profile locks name, username and email with the translat
 }) => {
   skipUnlessServiceEnabled("sso");
   skipUnlessServiceEnabled("javascript");
-  test.setTimeout(resolveTimeout(180_000)); // one OIDC round-trip, one profile POST and three profile renders
+  test.setTimeout(resolveTimeout(180_000));
   expect(base, "JOOMLA_BASE_URL must be set").toBeTruthy();
 
   const session = await newSession(browser);
@@ -208,7 +245,7 @@ test("administrator: the SSO administrator cannot rename itself, a direct profil
 }) => {
   skipUnlessServiceEnabled("sso");
   skipUnlessServiceEnabled("javascript");
-  test.setTimeout(resolveTimeout(180_000)); // one OIDC round-trip, one profile POST and three profile renders
+  test.setTimeout(resolveTimeout(180_000));
   expect(adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
 
   const session = await newSession(browser);
