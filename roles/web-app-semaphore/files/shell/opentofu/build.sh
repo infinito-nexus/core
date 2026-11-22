@@ -2,13 +2,12 @@
 # Args:
 #   install <archive> <sha256> <binary>  verify a pinned .tar.gz or .AppImage release, install its file named like <binary> as <binary>
 #   runtime                              install the libraries the KeePassXC AppImage takes from the distribution
-#   mirror <opentofu-dir>                mirror every provider each root locks into the mirror tofurc names
+#   mirror <opentofu-dir> <platform>     mirror every provider each root locks for <platform> into the mirror tofurc names
 #   validate <opentofu-dir>              init every root offline from that mirror and validate it once per DNS flavor
 #   lock <opentofu-dir> <root> <platform>...  rewrite the lock file of <root> for every platform
 set -euo pipefail
 
 readonly FLAVORS=(knot route53 cloudflare)
-readonly PLATFORM="linux_amd64"
 readonly STAND_IN_WORKSPACE="ws-00000000-0000-4000-8000-000000000000"
 readonly KEEPASSXC_DNF=("libEGL.so.1()(64bit)" "libGLX.so.0()(64bit)" "libOpenGL.so.0()(64bit)"
   "libX11.so.6()(64bit)" "libfontconfig.so.1()(64bit)" "libfreetype.so.6()(64bit)"
@@ -159,7 +158,12 @@ main() {
       install_runtime
       ;;
     mirror)
-      [[ $# -eq 2 ]] || { echo "build.sh: mirror <opentofu-dir>" >&2; return 2; }
+      [[ $# -eq 3 ]] || { echo "build.sh: mirror <opentofu-dir> <platform>" >&2; return 2; }
+      if [[ ! "$3" =~ ^linux_[a-z0-9]+$ ]]; then
+        echo "build.sh: mirror platform '$3' is no linux_<architecture>" >&2
+        return 2
+      fi
+      PLATFORM="$3"
       MIRROR="$(mirror_path "$2")"
       mkdir -p "${MIRROR}"
       each_root_and_flavor "$2" mirror_one

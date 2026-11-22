@@ -14,13 +14,14 @@ FROM ${SEMAPHORE_RUNNER_BASE_IMAGE} AS opentofu
 
 ARG SEMAPHORE_OPENTOFU_URL
 ARG SEMAPHORE_OPENTOFU_SHA256
+ARG SEMAPHORE_OPENTOFU_PLATFORM
 
 ADD ${SEMAPHORE_OPENTOFU_URL} /tmp/opentofu.tar.gz
 RUN bash "${INFINITO_SRC_DIR}/roles/web-app-semaphore/files/shell/opentofu/build.sh" \
         install /tmp/opentofu.tar.gz "${SEMAPHORE_OPENTOFU_SHA256}" /usr/local/bin/tofu \
     && rm /tmp/opentofu.tar.gz \
     && bash "${INFINITO_SRC_DIR}/roles/web-app-semaphore/files/shell/opentofu/build.sh" \
-        mirror "${INFINITO_SRC_DIR}/roles/web-app-semaphore/files/opentofu"
+        mirror "${INFINITO_SRC_DIR}/roles/web-app-semaphore/files/opentofu" "${SEMAPHORE_OPENTOFU_PLATFORM}"
 
 FROM opentofu AS opentofu-check
 

@@ -39,7 +39,11 @@ if args[:2] == ["providers", "lock"]:
     )
     (cwd / ".terraform.lock.hcl").write_text(blocks)
 """
-URL = "https://example.org/tofu_{version}_linux_amd64.tar.gz"
+URLS = {
+    "amd64": "https://example.org/tofu_{version}_linux_amd64.tar.gz",
+    "arm64": "https://example.org/tofu_{version}_linux_arm64.tar.gz",
+}
+MACHINES = {"amd64": "x86_64", "arm64": "aarch64"}
 DNS = "https://registry.opentofu.org/v1/providers/hashicorp/dns/versions"
 TLS = "https://registry.opentofu.org/v1/providers/hashicorp/tls/versions"
 
@@ -63,18 +67,21 @@ ARCHIVE = _archive()
 
 class FakeRepository:
     """Args:
-    sha256: the OpenTofu archive sum the fake role pins.
+    sha256: ``{architecture: sum}`` of the OpenTofu archives the fake role pins.
+    machine: what ``platform.machine()`` answers on the updating host.
     """
 
-    def __init__(self, sha256):
+    def __init__(self, sha256, machine="x86_64"):
         self.root = Path(tempfile.mkdtemp(prefix="opentofu-update-test-"))
         self.log = self.root / "tofu.log"
+        self.machine = machine
+        self.fetched = []
         self.role = self._role("web-app-tofu", "stable", sha256)
         self.eol = self._role("web-app-old", "eol", sha256)
         self.registry = {
             DNS: _versions("3.6.2", "3.7.0", "3.8.0-beta1"),
             TLS: _versions("4.4.2"),
-            URL.format(version="1.13.9"): ARCHIVE,
+            **{url.format(version="1.13.9"): ARCHIVE for url in URLS.values()},
         }
 
     def _role(self, name, stage, sha256):
@@ -82,8 +89,8 @@ class FakeRepository:
         (role / "meta").mkdir(parents=True)
         runner = {
             "opentofu_version": "1.13.9",
-            "opentofu_url": URL,
-            "opentofu_sha256": sha256,
+            **{f"opentofu_url_{arch}": url for arch, url in URLS.items()},
+            **{f"opentofu_sha256_{arch}": value for arch, value in sha256.items()},
             "opentofu_platforms": ["linux_amd64", "linux_arm64"],
         }
         services = {
@@ -113,6 +120,7 @@ class FakeRepository:
         return role
 
     def get(self, url):
+        self.fetched.append(url)
         return self.registry[url]
 
     def pin(self, role, root):
@@ -129,14 +137,18 @@ class FakeRepository:
     def main(self, *arguments):
         with (
             mock.patch.dict(os.environ, {"FAKE_TOFU_LOG": str(self.log)}),
+            mock.patch.object(opentofu.platform, "machine", return_value=self.machine),
             contextlib.redirect_stdout(io.StringIO()),
         ):
             return main(["--repo-root", str(self.root), *arguments], self.get)
 
 
+SUMS = dict.fromkeys(URLS, hashlib.sha256(ARCHIVE).hexdigest())
+
+
 class UpdateCase(unittest.TestCase):
     def setUp(self):
-        self.repository = FakeRepository(hashlib.sha256(ARCHIVE).hexdigest())
+        self.repository = FakeRepository(SUMS)
         self.addCleanup(shutil.rmtree, self.repository.root, True)
 
 
@@ -182,10 +194,38 @@ class TestLock(UpdateCase):
         self.assertEqual(len(opentofu.stale_locks(self.repository.root)), 2)
 
     def test_an_archive_off_its_pin_is_refused(self):
-        repository = FakeRepository("0" * 64)
+        repository = FakeRepository(dict.fromkeys(URLS, "0" * 64))
         self.addCleanup(shutil.rmtree, repository.root, True)
         with self.assertRaisesRegex(ValueError, "does not match its pin"):
             repository.main()
+
+
+class TestHostArchitecture(unittest.TestCase):
+    def run_on(self, architecture, sums):
+        repository = FakeRepository(sums, MACHINES[architecture])
+        self.addCleanup(shutil.rmtree, repository.root, True)
+        repository.main()
+        return [url for url in repository.fetched if "tofu_" in url]
+
+    def test_each_host_fetches_the_tofu_of_its_own_architecture(self):
+        for architecture, url in URLS.items():
+            with self.subTest(architecture=architecture):
+                fetched = self.run_on(architecture, SUMS)
+                self.assertEqual(set(fetched), {url.format(version="1.13.9")})
+
+    def test_negative_control_a_wrong_sum_of_the_host_architecture_is_refused(self):
+        for architecture in URLS:
+            with self.subTest(architecture=architecture):
+                sums = {**SUMS, architecture: "0" * 64}
+                with self.assertRaisesRegex(ValueError, architecture):
+                    self.run_on(architecture, sums)
+
+    def test_an_unmapped_machine_is_refused(self):
+        with (
+            mock.patch.object(opentofu.platform, "machine", return_value="s390x"),
+            self.assertRaisesRegex(ValueError, "maps no architecture for 's390x'"),
+        ):
+            opentofu.host_architecture()
 
 
 class TestReadme(unittest.TestCase):

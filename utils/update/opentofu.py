@@ -4,6 +4,7 @@ import hashlib
 import io
 import json
 import os
+import platform
 import re
 import subprocess
 import tarfile
@@ -12,7 +13,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from utils.cache.files import read_text
+from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.update import fetch
@@ -23,6 +24,8 @@ VERSIONS_FILE = "versions.tf.json"
 LOCK_FILE = ".terraform.lock.hcl"
 BUILD = Path("files/shell/opentofu/build.sh")
 RELEASE = re.compile(r"^\d+\.\d+\.\d+$")
+GENERAL_VARS = PROJECT_ROOT / "group_vars" / "all" / "00_general.yml"
+ARCHITECTURE_BY_KERNEL = "HOST_ARCHITECTURE_BY_KERNEL"
 
 Fetch = Callable[[str], bytes]
 
@@ -149,6 +152,23 @@ def _runner(role_dir: Path) -> dict:
     raise ValueError(f"{role_dir.name} pins no OpenTofu in meta/services.yml")
 
 
+def host_architecture() -> str:
+    """Returns:
+        The architecture token of the machine running the update, mapped from
+        its kernel machine name through ``HOST_ARCHITECTURE_BY_KERNEL``.
+
+    Raises:
+        ValueError: the map names no architecture for this machine.
+    """
+    by_kernel = load_yaml_str(read_text(str(GENERAL_VARS)))[ARCHITECTURE_BY_KERNEL]
+    machine = platform.machine()
+    if machine not in by_kernel:
+        raise ValueError(
+            f"{ARCHITECTURE_BY_KERNEL} maps no architecture for {machine!r}"
+        )
+    return str(by_kernel[machine])
+
+
 def pinned_tofu(role_dir: Path, directory: Path, get: Fetch = fetch.get) -> Path:
     """Args:
         role_dir: the role whose ``meta/services.yml`` pins OpenTofu.
@@ -156,13 +176,18 @@ def pinned_tofu(role_dir: Path, directory: Path, get: Fetch = fetch.get) -> Path
         get: reads an https URL.
 
     Returns:
-        The pinned ``tofu``, its archive checked against the pinned sum.
+        The pinned ``tofu`` of this machine's architecture, its archive checked
+        against the sum pinned for that architecture.
     """
     runner = _runner(role_dir)
     version = str(runner["opentofu_version"])
-    archive = get(str(runner["opentofu_url"]).replace("{version}", version))
-    if hashlib.sha256(archive).hexdigest() != runner["opentofu_sha256"]:
-        raise ValueError(f"the OpenTofu {version} archive does not match its pin")
+    architecture = host_architecture()
+    url = str(runner[f"opentofu_url_{architecture}"]).replace("{version}", version)
+    archive = get(url)
+    if hashlib.sha256(archive).hexdigest() != runner[f"opentofu_sha256_{architecture}"]:
+        raise ValueError(
+            f"the OpenTofu {version} {architecture} archive does not match its pin"
+        )
     with tarfile.open(fileobj=io.BytesIO(archive), mode="r:gz") as bundle:
         bundle.extract("tofu", directory, filter="data")
     binary = directory / "tofu"

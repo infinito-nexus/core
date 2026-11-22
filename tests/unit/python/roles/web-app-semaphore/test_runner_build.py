@@ -26,6 +26,7 @@ from ansible.template import Templar
 from plugins.filter.docker.build_digest import docker_build_digest
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import dump_yaml_str, load_yaml_str
+from utils.github.variant.pools import ARCHITECTURES
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 from ._fake_opentofu_build import FLAVORS, OPENTOFU, Build, roots
@@ -53,8 +54,15 @@ RUNNER = load_yaml_str(read_text(str(ROLE_DIR / ROLE_FILE_META_SERVICES)))[
 PINS = tuple(
     f"{tool}_{key}"
     for tool in ("opentofu", "age", "keepassxc")
-    for key in ("version", "url", "sha256")
+    for key in (
+        "version",
+        *(f"{kind}_{arch}" for kind in ("url", "sha256") for arch in ARCHITECTURES),
+    )
 )
+HOST_ARCHITECTURE_BY_KERNEL = load_yaml_str(
+    read_text(str(PROJECT_ROOT / "group_vars" / "all" / "00_general.yml"))
+)["HOST_ARCHITECTURE_BY_KERNEL"]
+STACK_HOST = "stack-host"
 BUILD = ROLE_DIR / "files" / "shell" / "opentofu" / "build.sh"
 EXPORT_TOOLS = {
     "age": {
@@ -147,10 +155,15 @@ def resolve(
     uid=1001,
     image_build=True,
     listed=(),
+    machine="x86_64",
+    names=NAMES,
 ) -> dict:
     """Resolve the runner variables of one deploy.
 
     Args:
+        machine: ``ansible_facts.architecture`` of the stack host that builds
+            the runner image.
+        names: the variables to resolve.
         primary: what ``lookup('deployment').primary`` answers.
         tag: ``SOFTWARE_IMAGE_TAG`` of the deploy.
         compose: text of the compose file the stack host deployed, None when
@@ -167,7 +180,7 @@ def resolve(
         listed: the image tags ``container image ls`` lists on the stack host.
 
     Returns:
-        ``{name: value}`` for every name in ``NAMES``.
+        ``{name: value}`` for every name in ``names``.
     """
     texts = {
         DOCKERFILE_PATH: dockerfile,
@@ -220,11 +233,14 @@ def resolve(
         ),
         "semaphore_runner_held": inspected,
         "semaphore_runner_images": {"stdout_lines": list(listed)},
+        "HOST_ARCHITECTURE_BY_KERNEL": HOST_ARCHITECTURE_BY_KERNEL,
+        "STACK_HOST": STACK_HOST,
+        "hostvars": {STACK_HOST: {"ansible_facts": {"architecture": machine}}},
     }
     declared = DataLoader().load_from_file(str(VARS), trusted_as_template=True)
     templar = Templar(loader=DataLoader(), variables={**declared, **facts})
     with mock.patch.object(lookup_loader, "get", side_effect=get):
-        return {name: templar.template(declared[name]) for name in NAMES}
+        return {name: templar.template(declared[name]) for name in names}
 
 
 def rendered(deploy: dict) -> str:
@@ -501,7 +517,7 @@ class TestOpenTofuLayer(unittest.TestCase):
         self.addCleanup(self.build.close)
 
     def built(self):
-        mirrored = self.build.run("mirror", str(self.build.opentofu))
+        mirrored = self.build.run("mirror", str(self.build.opentofu), "linux_amd64")
         self.assertEqual(mirrored.returncode, 0, mirrored.stderr)
         mirror_calls = self.build.calls()
         validated = self.build.run("validate", str(self.build.opentofu))
@@ -513,7 +529,9 @@ class TestOpenTofuLayer(unittest.TestCase):
         args = resolve(primary=[ROLE], tag=OLD)["SEMAPHORE_RUNNER_BUILD_ARGS"]
         self.assertEqual(
             args["SEMAPHORE_OPENTOFU_URL"],
-            RUNNER["opentofu_url"].replace("{version}", RUNNER["opentofu_version"]),
+            RUNNER["opentofu_url_amd64"].replace(
+                "{version}", RUNNER["opentofu_version"]
+            ),
         )
         self.assertRegex(args["SEMAPHORE_OPENTOFU_SHA256"], r"^[0-9a-f]{64}$")
         self.assertEqual(self.dockerfile.count("ADD "), 1 + len(EXPORT_TOOLS))
@@ -581,7 +599,7 @@ class TestOpenTofuLayer(unittest.TestCase):
         unfixed = self.build.directory / "build.sh"
         unfixed.write_text(script.replace(step, ""), encoding="utf-8")
         self.build.script = unfixed
-        result = self.build.run("mirror", str(self.build.opentofu))
+        result = self.build.run("mirror", str(self.build.opentofu), "linux_amd64")
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("Module not installed", result.stderr)
 
@@ -657,17 +675,19 @@ class TestExportTools(unittest.TestCase):
 
     def test_the_build_pins_keepassxc_and_age(self) -> None:
         args = resolve(primary=[ROLE], tag=OLD)["SEMAPHORE_RUNNER_BUILD_ARGS"]
-        self.assertIn("linux_amd64", RUNNER["opentofu_url"])
+        self.assertIn("linux_amd64", RUNNER["opentofu_url_amd64"])
         for tool, pin in EXPORT_TOOLS.items():
             with self.subTest(tool=tool):
                 version = RUNNER[f"{tool}_version"]
                 self.assertRegex(version, r"^[0-9]+\.[0-9]+\.[0-9]+$")
-                self.assertEqual(RUNNER[f"{tool}_url"], pin["url"])
+                self.assertEqual(RUNNER[f"{tool}_url_amd64"], pin["url"])
                 self.assertEqual(
                     args[f"{pin['arg']}_URL"], pin["url"].replace("{version}", version)
                 )
                 self.assertRegex(args[f"{pin['arg']}_SHA256"], r"^[0-9a-f]{64}$")
-                self.assertEqual(args[f"{pin['arg']}_SHA256"], RUNNER[f"{tool}_sha256"])
+                self.assertEqual(
+                    args[f"{pin['arg']}_SHA256"], RUNNER[f"{tool}_sha256_amd64"]
+                )
                 self.assertIn(pin["add"], self.dockerfile)
                 self.assertIn(pin["install"], self.dockerfile)
         self.assertRegex(
@@ -686,7 +706,12 @@ class TestExportTools(unittest.TestCase):
         self.assertEqual(binary.resolve(), appdir / "usr" / "bin" / "keepassxc-cli")
 
     def test_negative_control_a_missing_sum_fails_the_build_arguments(self) -> None:
-        for key in ("age_sha256", "keepassxc_sha256", "age_url", "keepassxc_version"):
+        for key in (
+            "age_sha256_amd64",
+            "keepassxc_sha256_amd64",
+            "age_url_amd64",
+            "keepassxc_version",
+        ):
             with self.subTest(key=key), mock.patch.dict(RUNNER):
                 del RUNNER[key]
                 with self.assertRaises(AnsibleError):

@@ -205,25 +205,28 @@ SEMAPHORE_RUNNER_REPOSITORY: "/opt/app-control"
 SEMAPHORE_RUNNER_BASE_ARG: "SEMAPHORE_RUNNER_BASE_IMAGE"
 SEMAPHORE_RUNNER_INPUTS_ARG: "SEMAPHORE_RUNNER_INPUTS_DIGEST"
 SEMAPHORE_RUNNER_INPUTS_LABEL: "nexus.infinito.semaphore.runner.inputs"
+SEMAPHORE_RUNNER_ARCHITECTURE: "{{ HOST_ARCHITECTURE_BY_KERNEL[hostvars[STACK_HOST].ansible_facts['architecture']] }}"
 SEMAPHORE_OPENTOFU_VERSION: "{{ lookup('config', application_id, 'services.' ~ SEMAPHORE_RUNNER_SERVICE ~ '.opentofu_version') }}"
 SEMAPHORE_OPENTOFU_URL: >-
-  {{ lookup('config', application_id, 'services.' ~ SEMAPHORE_RUNNER_SERVICE ~ '.opentofu_url')
+  {{ lookup('config', application_id, 'services.' ~ SEMAPHORE_RUNNER_SERVICE ~ '.opentofu_url_' ~ SEMAPHORE_RUNNER_ARCHITECTURE)
      | replace('{version}', SEMAPHORE_OPENTOFU_VERSION) }}
-SEMAPHORE_OPENTOFU_SHA256: "{{ lookup('config', application_id, 'services.' ~ SEMAPHORE_RUNNER_SERVICE ~ '.opentofu_sha256') }}"
+SEMAPHORE_OPENTOFU_SHA256: "{{ lookup('config', application_id, 'services.' ~ SEMAPHORE_RUNNER_SERVICE ~ '.opentofu_sha256_' ~ SEMAPHORE_RUNNER_ARCHITECTURE) }}"
+SEMAPHORE_OPENTOFU_PLATFORM: "linux_{{ SEMAPHORE_RUNNER_ARCHITECTURE }}"
 SEMAPHORE_AGE_VERSION: "{{ lookup('config', application_id, 'services.' ~ SEMAPHORE_RUNNER_SERVICE ~ '.age_version') }}"
 SEMAPHORE_AGE_URL: >-
-  {{ lookup('config', application_id, 'services.' ~ SEMAPHORE_RUNNER_SERVICE ~ '.age_url')
+  {{ lookup('config', application_id, 'services.' ~ SEMAPHORE_RUNNER_SERVICE ~ '.age_url_' ~ SEMAPHORE_RUNNER_ARCHITECTURE)
      | replace('{version}', SEMAPHORE_AGE_VERSION) }}
-SEMAPHORE_AGE_SHA256: "{{ lookup('config', application_id, 'services.' ~ SEMAPHORE_RUNNER_SERVICE ~ '.age_sha256') }}"
+SEMAPHORE_AGE_SHA256: "{{ lookup('config', application_id, 'services.' ~ SEMAPHORE_RUNNER_SERVICE ~ '.age_sha256_' ~ SEMAPHORE_RUNNER_ARCHITECTURE) }}"
 SEMAPHORE_KEEPASSXC_VERSION: "{{ lookup('config', application_id, 'services.' ~ SEMAPHORE_RUNNER_SERVICE ~ '.keepassxc_version') }}"
 SEMAPHORE_KEEPASSXC_URL: >-
-  {{ lookup('config', application_id, 'services.' ~ SEMAPHORE_RUNNER_SERVICE ~ '.keepassxc_url')
+  {{ lookup('config', application_id, 'services.' ~ SEMAPHORE_RUNNER_SERVICE ~ '.keepassxc_url_' ~ SEMAPHORE_RUNNER_ARCHITECTURE)
      | replace('{version}', SEMAPHORE_KEEPASSXC_VERSION) }}
-SEMAPHORE_KEEPASSXC_SHA256: "{{ lookup('config', application_id, 'services.' ~ SEMAPHORE_RUNNER_SERVICE ~ '.keepassxc_sha256') }}"
+SEMAPHORE_KEEPASSXC_SHA256: "{{ lookup('config', application_id, 'services.' ~ SEMAPHORE_RUNNER_SERVICE ~ '.keepassxc_sha256_' ~ SEMAPHORE_RUNNER_ARCHITECTURE) }}"
 SEMAPHORE_RUNNER_INPUTS:
   SEMAPHORE_SERVER_IMAGE: "{{ SEMAPHORE_SERVER_IMAGE }}"
   SEMAPHORE_OPENTOFU_URL: "{{ SEMAPHORE_OPENTOFU_URL }}"
   SEMAPHORE_OPENTOFU_SHA256: "{{ SEMAPHORE_OPENTOFU_SHA256 }}"
+  SEMAPHORE_OPENTOFU_PLATFORM: "{{ SEMAPHORE_OPENTOFU_PLATFORM }}"
   SEMAPHORE_AGE_URL: "{{ SEMAPHORE_AGE_URL }}"
   SEMAPHORE_AGE_SHA256: "{{ SEMAPHORE_AGE_SHA256 }}"
   SEMAPHORE_KEEPASSXC_URL: "{{ SEMAPHORE_KEEPASSXC_URL }}"

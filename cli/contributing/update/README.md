@@ -24,7 +24,7 @@ Every update PR carries the label `update` and one of `major`, `minor` or `patch
 
 `python -m cli.contributing.update.opentofu` reads every `versions.tf.json` under `roles/*/files/opentofu/`. Each provider there is pinned to an exact version. The updater asks the OpenTofu registry for the newest release that is no pre-release and sets that version in every file that pins the provider, so all roots of a tag share one version per provider. `--dry-run` lists the bumps and writes nothing.
 
-The lock files then follow the pins. For every root whose pins changed, the updater downloads the OpenTofu that the role's `meta/services.yml` pins (`opentofu_version`, checked against `opentofu_sha256`) and runs `tofu providers lock` once, with one `-platform` per entry of `opentofu_platforms`. It goes through `files/shell/opentofu/build.sh lock`, which stages a root the same way the runner image build does.
+The lock files then follow the pins. For every root whose pins changed, the updater downloads the OpenTofu that the role's `meta/services.yml` pins for the architecture of the machine it runs on (`opentofu_version`, fetched from `opentofu_url_<arch>` and checked against `opentofu_sha256_<arch>`) and runs `tofu providers lock` once, with one `-platform` per entry of `opentofu_platforms`. It goes through `files/shell/opentofu/build.sh lock`, which stages a root the same way the runner image build does.
 
 `scripts/github/update/opentofu_pins.sh` runs it, and the `update-opentofu-pins` job of `.github/workflows/cron-update.yml` opens one PR per changed role. The runner image build of that PR inits and validates every root offline, so a bump that breaks a root fails there. `tests/external/update/opentofu/` warns about pending bumps.
 
