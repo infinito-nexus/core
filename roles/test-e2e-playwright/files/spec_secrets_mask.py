@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import contextlib
 import errno
+import fcntl
 import os
 import shutil
 import signal
@@ -12,12 +13,13 @@ import sys
 import threading
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, BinaryIO
+from typing import TYPE_CHECKING, BinaryIO, TextIO
 
 sys.path.append(str(Path(__file__).parent))
 
 import spec_secrets
 from spec_secrets_container import (
+    CID,
     check_container,
     cid_named,
     container_env,
@@ -201,8 +203,10 @@ def open_dir(name: str | Path, at: int | None = None) -> int:
 
     Returns:
         Its descriptor, set to exactly ``PUBLISHED_DIR``, created or reused, so
-        no setgid bit of a parent or an earlier run and no umask is left; the
-        ``TEMP`` regular files a killed masker left in it are removed.
+        no setgid bit of a parent or an earlier run and no umask is left, and
+        locked while open, so it waits for any other masker publishing into
+        it; the ``TEMP`` regular files left in it then belong to a killed
+        masker and are removed.
 
     Raises:
         OSError: it is a link or no directory, or its parent is missing.
@@ -211,6 +215,7 @@ def open_dir(name: str | Path, at: int | None = None) -> int:
         os.mkdir(name, PUBLISHED_DIR, dir_fd=at)
     descriptor = os.open(name, spec_secrets.OPEN_DIR, dir_fd=at)
     try:
+        fcntl.flock(descriptor, fcntl.LOCK_EX)
         os.fchmod(descriptor, PUBLISHED_DIR)
         with os.scandir(descriptor) as entries:
             files = [e.name for e in entries if e.is_file(follow_symlinks=False)]
@@ -287,6 +292,33 @@ def publish(staged: Path, reports: Path, masks: frozenset[bytes]) -> int:
     return refused
 
 
+def container_named(directory: Path, name: str) -> str:
+    """Name a run's container for a message, never reading through a link.
+
+    Args:
+        directory: the run directory, refused or not.
+        name: the name the run gave its container; empty for none.
+
+    Returns:
+        The id ``CID`` holds when it is a regular file holding one
+        ``spec_secrets.NAME``, else ``name``, else ``unnamed``.
+    """
+    cid = b""
+    with contextlib.suppress(OSError):
+        at = os.open(directory, spec_secrets.OPEN_DIR)
+        try:
+            descriptor = open_file(at, CID)
+        finally:
+            os.close(at)
+        if descriptor is not None:
+            with os.fdopen(descriptor, "rb") as handle:
+                cid = handle.read(spec_secrets.NAME_MAX + 1).strip()
+    text = cid.decode("ascii", "replace")
+    if len(cid) <= spec_secrets.NAME_MAX and spec_secrets.NAME.fullmatch(text):
+        return text
+    return name or "unnamed"
+
+
 def settle(
     directory: Path, reports: Path, masks: frozenset[bytes], gone: bool, name: str
 ) -> int:
@@ -310,7 +342,7 @@ def settle(
     failed = 1
     if not gone:
         print(
-            f"spec secrets: container {cid_named(directory) or name or 'unnamed'}"
+            f"spec secrets: container {container_named(directory, name)}"
             " may still run, its reports were deleted unpublished",
             file=sys.stderr,
         )
@@ -356,16 +388,27 @@ def mask(directory: Path, reports: Path, command: list[str]) -> int:
     Returns:
         The command's exit code or 128 plus the signal that ended it;
         ``UNSETTLED``, which no Playwright failure exits with, whenever its
-        container could not be proven gone or its reports not be masked and
-        published. HUP, INT or TERM, which its PID 1 ignores, and the end of
-        the command remove the container and prove it gone before the reports
-        settle; a removal before ``CID`` named a container runs again.
+        container could not be proven gone, its output not be relayed whole,
+        or its reports not be masked and published. HUP, INT or TERM, which
+        its PID 1 ignores, and the end of the command remove the container
+        and prove it gone before the reports settle; a removal before ``CID``
+        named a container runs again. A relay that fails closes its pipe, so
+        the command cannot block on it.
     """
     masks = windows(spec_secrets.read_values(directory))
     root = open_root(reports)
     if root is not None:
         os.close(root)
     (directory / STAGED).mkdir(mode=spec_secrets.DIR_MODE, exist_ok=True)
+    unrelayed: list[str] = []
+
+    def relay_stream(pipe: BinaryIO, out: TextIO) -> None:
+        try:
+            relay(pipe, out.buffer, masks)
+        except Exception as error:
+            unrelayed.append(type(error).__name__)
+            pipe.close()
+
     piped = subprocess.PIPE
     child = subprocess.Popen(command, stdout=piped, stderr=piped, env=container_env())
     removals: list[bool] = []
@@ -386,7 +429,7 @@ def mask(directory: Path, reports: Path, command: list[str]) -> int:
     for signum in (signal.SIGHUP, signal.SIGINT, signal.SIGTERM):
         signal.signal(signum, stop)
     relays = [
-        threading.Thread(target=relay, args=(pipe, out.buffer, masks))
+        threading.Thread(target=relay_stream, args=(pipe, out))
         for pipe, out in ((child.stdout, sys.stdout), (child.stderr, sys.stderr))
     ]
     for thread in relays:
@@ -394,8 +437,13 @@ def mask(directory: Path, reports: Path, command: list[str]) -> int:
     for thread in relays:
         thread.join()
     code = child.wait()
+    if unrelayed:
+        print(
+            f"spec secrets: relaying the output failed: {', '.join(unrelayed)}",
+            file=sys.stderr,
+        )
     scrubbed = settle(directory, reports, masks, removed(), "")
-    return UNSETTLED if scrubbed else (code if code >= 0 else 128 - code)
+    return UNSETTLED if scrubbed or unrelayed else (code if code >= 0 else 128 - code)
 
 
 def unsettled(directory: Path) -> None:
@@ -458,16 +506,17 @@ def main(argv: list[str]) -> int:
         ``mask``: what ``guarded_mask`` returns; ``scrub``: 0, or 1 when the
         container could not be proven gone, the reports could not be
         settled or the run's ``mask`` left ``UNSETTLED_MARK``; 1 on a
-        refused run directory, 2 on bad usage.
+        refused run directory, whose message names the container that may
+        still run, 2 on bad usage.
     """
     command = argv[1:]
     paths = [Path(path) for path in command[1:3]]
     split = command.index("--", 5) if "--" in command[5:] else 0
     if command[:1] == ["mask"] and command[3:4] == ["--"] and split:
         return guarded_mask(paths, command[4:split], command[split + 1 :])
+    name = command[4] if len(command) == 5 else ""
     try:
         if command[:1] == ["scrub"] and len(command) in {4, 5}:
-            name = command[4] if len(command) == 5 else ""
             masks = windows(spec_secrets.read_values(paths[0]))
             gone = remove_container(paths[0], command[3], name)
             settled = settle(paths[0], paths[1], masks, gone, name)
@@ -479,13 +528,18 @@ def main(argv: list[str]) -> int:
                 return 1
             return settled
     except spec_secrets.SpecSecretsError as error:
-        print(f"spec secrets refused: {error}", file=sys.stderr)
-        return 1
+        problem = f"refused: {error}"
     except OSError as error:
-        print(f"spec secrets failed: {error.strerror or 'error'}", file=sys.stderr)
-        return 1
-    print(f"usage: {argv[0]} {USAGE}", file=sys.stderr)
-    return 2
+        problem = f"failed: {error.strerror or 'error'}"
+    else:
+        print(f"usage: {argv[0]} {USAGE}", file=sys.stderr)
+        return 2
+    print(
+        f"spec secrets {problem}, container {container_named(paths[0], name)}"
+        " may still run",
+        file=sys.stderr,
+    )
+    return 1
 
 
 if __name__ == "__main__":

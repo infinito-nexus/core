@@ -59,6 +59,11 @@ VALUE = "Pa%\"s<w&r'd\\9X é \U0001f600 Sentinel-Value-9f3c abcdefghijklmnopqrst
 RAW = VALUE.encode()
 WINDOW = 8
 REDACTED = "<failure>***</failure>"
+EXPECTED = {
+    "stderr": "Error: ***",
+    "junit": "<![CDATA[***]]>",
+    "older report": "***",
+}
 FAKE_RUN = """\
 import json, pathlib, sys
 value, reports, gone, code = sys.argv[1:5]
@@ -329,7 +334,8 @@ def masked_run(*replacements, owner_gone: bool = False, code: int) -> list[str]:
 
     Returns:
         One message per place the value shows in the output or the published
-        reports, a link that was followed or published, staged reports left
+        reports, per stream or report that lacks its ``EXPECTED`` masked
+        text, a link that was followed or published, staged reports left
         behind or the exit code not being the container's.
     """
     with tempfile.TemporaryDirectory() as tmp:
@@ -360,6 +366,11 @@ def masked_run(*replacements, owner_gone: bool = False, code: int) -> list[str]:
         }
         problems += [
             f"{name} shows the value" for name, t in shown.items() if leaks(t, VALUE)
+        ]
+        problems += [
+            f"{name} lacks its expected text"
+            for name, text in EXPECTED.items()
+            if text not in shown[name]
         ]
         if os.path.lexists(reports / ".masked.1.junit"):
             problems.append("a forged temp file was published")
