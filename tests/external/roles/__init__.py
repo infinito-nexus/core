@@ -40,7 +40,7 @@ def fetch_mdad_file(case: unittest.TestCase, path: str) -> str:
             title="MDAD pin unverified",
             file=str(MATRIX_SERVICES.relative_to(PROJECT_ROOT)),
         )
-        case.skipTest(f"{url} unreachable")
+        raise unittest.SkipTest(f"{url} unreachable") from exc
     case.assertEqual(
         response.status_code,
         200,
