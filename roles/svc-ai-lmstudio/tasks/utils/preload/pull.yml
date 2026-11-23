@@ -7,9 +7,9 @@
       but services.lmstudio.preload_async_time of svc-ai-lmstudio allows {{ LMSTUDIO_PRELOAD_ASYNC_TIME }} s;
       raise it in the inventory.
     quiet: true
-  vars: &lmstudio_pull_budget
-    _grace: 15
-    _budget: >-
+  vars:
+    _grace: &lmstudio_pull_grace 15
+    _budget: &lmstudio_pull_budget >-
       {{ [ LMSTUDIO_PRELOAD_FLOOR_SECONDS | int,
            ((model.bytes | int) / (LMSTUDIO_PRELOAD_MIN_BYTES_PER_SECOND | int))
            | round(0, 'ceil') | int ] | max }}
@@ -24,7 +24,9 @@
     container exec {{ LMSTUDIO_LOCAL_CID | quote }}
     sh -c 'echo N | timeout --foreground -s INT -k "$1" "$2" lms get --yes --gguf "$3"'
     sh {{ _grace }} {{ _budget }} {{ (model.source ~ '@' ~ model.quant) | quote }}
-  vars: *lmstudio_pull_budget
+  vars:
+    _grace: *lmstudio_pull_grace
+    _budget: *lmstudio_pull_budget
   environment:
     CONTAINER_EXEC_TIMEOUT: "{{ (_budget | int) + 2 * (_grace | int) }}"
   register: lmstudio_pull_result
