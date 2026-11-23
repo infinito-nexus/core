@@ -2,6 +2,8 @@
 COMPOSE_DOWN_ALL_PACKAGE: "docodol"
 COMPOSE_DOWN_ALL_REPO: "{{ lookup('config', 'sys-svc-compose', 'services.svc-compose.repository') }}"
 COMPOSE_DOWN_ALL_REF: "{{ lookup('config', 'sys-svc-compose', 'services.svc-compose.ref') }}"
+COMPOSE_PRUNE_FREE_FLOOR_MIB: "{{ lookup('config', 'sys-svc-compose', 'services.svc-compose.prune.free_floor_mib') }}"
+COMPOSE_PRUNE_REPEAT_BELOW_PERCENT: "{{ lookup('config', 'sys-svc-compose', 'services.svc-compose.prune.repeat_below_percent') }}"
 COMPOSE_REPOSITORY_REF_KIND: "{{ lookup('config', application_id, 'services.' ~ (application_id | entity_name) ~ '.ref_kind') }}"
 COMPOSE_REPOSITORY_REFSPEC: "{{ compose_repository_ref | git_refspec(COMPOSE_REPOSITORY_REF_KIND) }}"
 COMPOSE_UP_PENDING_MARKER: "{{ [lookup('container', application_id, 'directories.instance'), '.compose-up-pending'] | path_join }}"
