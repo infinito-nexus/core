@@ -22,7 +22,6 @@ async function expectInstanceIntegrationIsAdminOnly(page, addon, label) {
 
 function register() {
   test("integration confluence: the Confluence instance-integration page is routed and admin-only", async ({ page }) => {
-    skipUnlessServiceEnabled("confluence");
     await expectInstanceIntegrationIsAdminOnly(page, "confluence", "Confluence");
   });
 
@@ -32,7 +31,6 @@ function register() {
   });
 
   test("integration jira: the Jira instance-integration page is routed and admin-only", async ({ page }) => {
-    skipUnlessServiceEnabled("jira");
     await expectInstanceIntegrationIsAdminOnly(page, "jira", "Jira");
   });
 
