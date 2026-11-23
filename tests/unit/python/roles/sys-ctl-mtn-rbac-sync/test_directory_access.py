@@ -16,6 +16,7 @@ from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 from utils.templating.ansible import _trust_as_template
 
 RBAC_VARS = PROJECT_ROOT / "roles/sys-ctl-mtn-rbac-sync" / ROLE_FILE_VARS_MAIN
+RBAC_CORE = PROJECT_ROOT / "roles/sys-ctl-mtn-rbac-sync/tasks/00_core.yml"
 OPENLDAP_VARS = PROJECT_ROOT / "roles/svc-db-openldap" / ROLE_FILE_VARS_MAIN
 LDAP_VARS = PROJECT_ROOT / "group_vars/all/12_ldap.yml"
 SWARM_VARS = PROJECT_ROOT / "group_vars/all/18_swarm.yml"
@@ -23,6 +24,8 @@ CLIENT = PROJECT_ROOT / "roles/svc-db-openldap/files/python/ldap/client.py"
 VOLUMES_LOOKUP = "lookup('container', 'svc-db-openldap', 'directories.volumes')"
 SOCKET_URI = "ldapi://%2Fsocket"
 MAINTENANCE_FILE = "/run/infinito/maintenance/backup.json"
+RBAC_SYNC_DIR = "/shared/rbac-sync"
+SCRIPT_EXEC = "python3 /scripts/script.py"
 MANAGER = "swarm-mgr-01"
 WORKER = "swarm-wrk-01"
 CLUSTER = {
@@ -73,6 +76,24 @@ def _sync(
       swarm: the value IS_SWARM_MODE and the negation IS_COMPOSE_MODE render to.
       socket_uri: the value LDAP.SERVER.SOCKET_URI renders to.
     """
+    return _sync_template("{{ " + key + " }}", host, swarm=swarm, socket_uri=socket_uri)
+
+
+def _sync_template(
+    template: str,
+    host: str,
+    *,
+    swarm: bool = True,
+    socket_uri: str = SOCKET_URI,
+) -> object:
+    """Render a template against the real ``vars/main.yml`` of the sync for one host of ``CLUSTER``.
+
+    Args:
+      template: the Jinja template to render, such as a task argument of the role.
+      host: the inventory_hostname the role runs on.
+      swarm: the value IS_SWARM_MODE and the negation IS_COMPOSE_MODE render to.
+      socket_uri: the value LDAP.SERVER.SOCKET_URI renders to.
+    """
     rbac = load_yaml_str(read_text(str(RBAC_VARS)))
     variables = {
         "inventory_hostname": host,
@@ -82,6 +103,8 @@ def _sync(
         "IS_COMPOSE_MODE": not swarm,
         "STACK_HOST": _trust_as_template(load_yaml_any(str(SWARM_VARS))["STACK_HOST"]),
         "BIN_CONTAINER": "/usr/bin/container",
+        "DIR_RBAC_SYNC": RBAC_SYNC_DIR,
+        "system_service_script_exec": SCRIPT_EXEC,
         "FILE_MAINTENANCE_BACKUP": MAINTENANCE_FILE,
         "LDAP": {
             "SERVER": {"SOCKET_URI": socket_uri},
@@ -100,7 +123,15 @@ def _sync(
     variables.update(
         {name: _trusted(value) for name, value in rbac.items() if name.isupper()}
     )
-    return _render("{{ " + key + " }}", variables)
+    return _render(template, variables)
+
+
+def _unit_exec_start() -> str:
+    for task in load_yaml_any(str(RBAC_CORE)):
+        include = task.get("include_role") or task.get("ansible.builtin.include_role")
+        if isinstance(include, dict) and include.get("name") == "sys-service":
+            return task["vars"]["system_service_tpl_exec_start"]
+    raise AssertionError(f"{RBAC_CORE} includes no sys-service unit")
 
 
 def _client() -> types.ModuleType:
@@ -154,17 +185,21 @@ class TestEveryNodeOfAClusterWithADirectoryKnowsIt(unittest.TestCase):
 
                 self.assertEqual(config["ldap"]["uri"], SOCKET_URI)
 
-    def test_the_written_config_tells_where_slapd_belongs(self):
+    def test_every_node_writes_the_same_config_to_the_shared_directory(self):
         worker = _sync("RBAC_SYNC_CONFIG", WORKER)
         manager = _sync("RBAC_SYNC_CONFIG", MANAGER)
 
         self.assertIsNotNone(worker["ldap"])
+        self.assertEqual(worker["maintenance_file"], MAINTENANCE_FILE)
+        self.assertEqual(worker, manager)
+
+    def test_the_unit_of_each_node_tells_where_slapd_belongs(self):
         self.assertEqual(
+            [_sync_template(_unit_exec_start(), host) for host in (MANAGER, WORKER)],
             [
-                (config["directory_host"], config["maintenance_file"])
-                for config in (worker, manager)
+                f"{SCRIPT_EXEC} --directory {RBAC_SYNC_DIR}",
+                f"{SCRIPT_EXEC} --directory {RBAC_SYNC_DIR} --remote-directory",
             ],
-            [(False, MAINTENANCE_FILE), (True, MAINTENANCE_FILE)],
         )
 
 

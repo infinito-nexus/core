@@ -62,6 +62,6 @@
     system_service_copy_files: false
     system_service_timer_enabled: "{{ RBAC_SYNC_TIMER_ENABLED | bool }}"
     system_service_on_calendar: "{{ SYS_SCHEDULE_MAINTANANCE_RBAC_SYNC }}"
-    system_service_tpl_exec_start: "{{ system_service_script_exec }} --directory {{ DIR_RBAC_SYNC }}"
+    system_service_tpl_exec_start: "{{ system_service_script_exec }} {{ RBAC_SYNC_RUNNER_ARGS }}"
 
 - include_tasks: utils/once/flag.yml

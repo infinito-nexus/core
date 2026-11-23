@@ -218,7 +218,6 @@ class Workspace:
             json.dumps(
                 {
                     "container_bin": CONTAINER_BIN,
-                    "directory_host": True,
                     "maintenance_file": str(self.path / "backup.json"),
                     "timeout_seconds": 5,
                     "refresh_seconds": 100,
@@ -706,14 +705,17 @@ class MainTests(unittest.TestCase):
         self.assertIn("SKIPPED no directory", stdout)
         self.assertEqual(run.calls, [])
 
-    def run_against_socket(self, path, mailbox, directory_host=True, backup=None):
+    def run_against_socket(
+        self, path, mailbox, remote=False, backup=None, config_extra=None
+    ):
         """Run the timer against a real ``ldapi`` URI with a hook and its container.
 
         Args:
             path: the socket path the URI names.
             mailbox: the content of ``mailbox.json``, or None for none.
-            directory_host: whether the node is a host of svc-db-openldap.
+            remote: whether the node's unit passes ``--remote-directory``.
             backup: the backup's maintenance document, or None for none.
+            config_extra: further keys of the shared ``config.json``, or None for none.
 
         Returns:
             The exit code, stdout, stderr and the stand-in for ``subprocess.run``.
@@ -723,15 +725,16 @@ class MainTests(unittest.TestCase):
             [hook()],
             {**LDAP, "uri": uri},
             mailbox=mailbox,
-            config_extra={"directory_host": directory_host},
+            config_extra=config_extra,
         )
         if backup is not None:
             (workspace.path / "backup.json").write_text(json.dumps(backup))
         run = FakeRun({"name=^/weblate$": "c1"})
+        argv = ["--directory", str(workspace.path)]
+        if remote:
+            argv.append("--remote-directory")
         try:
-            code, stdout, stderr = self.run_main(
-                ["--directory", str(workspace.path)], run, self.mod.Connection
-            )
+            code, stdout, stderr = self.run_main(argv, run, self.mod.Connection)
         finally:
             workspace.close()
         return code, stdout, stderr, run
@@ -744,9 +747,7 @@ class MainTests(unittest.TestCase):
     def test_a_node_outside_svc_db_openldap_skips_in_one_line(self):
         path = self.missing_socket()
 
-        code, stdout, stderr, run = self.run_against_socket(
-            path, None, directory_host=False
-        )
+        code, stdout, stderr, run = self.run_against_socket(path, None, remote=True)
 
         self.assertEqual((code, stderr, run.calls), (0, "", []))
         self.assertEqual(
@@ -758,6 +759,24 @@ class MainTests(unittest.TestCase):
                 )
             ],
         )
+
+    def test_the_shared_config_never_decides_where_slapd_belongs(self):
+        path = self.missing_socket()
+        for written_last_by_a_directory_host in (True, False):
+            shared = {"directory_host": written_last_by_a_directory_host}
+            with self.subTest(directory_host=written_last_by_a_directory_host):
+                worker = self.run_against_socket(
+                    path, None, remote=True, config_extra=shared
+                )
+                manager = self.run_against_socket(path, None, config_extra=shared)
+
+                self.assertEqual(
+                    [
+                        (code, stdout.split(" ", 1)[0], stderr.split(" ", 1)[0])
+                        for code, stdout, stderr, _ in (worker, manager)
+                    ],
+                    [(0, "SKIPPED", ""), (1, "", "FAILED")],
+                )
 
     def test_a_host_of_svc_db_openldap_without_the_socket_fails_in_one_line(self):
         path = self.missing_socket()

@@ -12,6 +12,10 @@ Args:
         a directory lookup, each member with an ``attributes`` map when the hook
         declares attributes; requires ``--only``, and a missing container is
         then an error rather than a skip.
+    --remote-directory: OpenLDAP runs on another node, so a missing socket is
+        one SKIPPED line instead of a failure. The node's own unit carries it,
+        because swarm nodes share ``--directory`` over NFS and every node
+        would overwrite a per-node value in ``config.json``.
 
 Output:
     Every line a hook prints, prefixed with its application id, and every
@@ -70,26 +74,28 @@ def stopped_for_backup(config, now):
         return False
 
 
-def missing_socket_reason(config, now):
+def missing_socket_reason(config, remote, now):
     """Return why a missing socket is no failure here, or an empty string when it is one.
 
     Args:
         config: the parsed ``config.json``.
+        remote: whether OpenLDAP runs on another node than this one.
         now: the current time in seconds.
     """
-    if not config["directory_host"]:
+    if remote:
         return "OpenLDAP runs on another node"
     if stopped_for_backup(config, now):
         return f"the backup stopped {DIRECTORY_APPLICATION}"
     return ""
 
 
-def reach_directory(connect, config, now):
+def reach_directory(connect, config, remote, now):
     """Return ``(connection, None)``, or ``(None, exit code)`` after one line saying why not.
 
     Args:
         connect: ``ldap_client.Connection`` or a stand-in.
         config: the parsed ``config.json``.
+        remote: whether OpenLDAP runs on another node than this one.
         now: the current time in seconds.
 
     Returns:
@@ -100,7 +106,7 @@ def reach_directory(connect, config, now):
     try:
         return connect(uri), None
     except SocketMissingError as error:
-        reason = missing_socket_reason(config, now)
+        reason = missing_socket_reason(config, remote, now)
         if reason:
             print(f"SKIPPED {error}: {reason}, no hook runs here")
             return None, 0
@@ -145,6 +151,7 @@ def main(argv, run=subprocess.run, connect=Connection, clock=time.time):
     parser.add_argument("--directory", required=True)
     parser.add_argument("--only", default="")
     parser.add_argument("--members-file", default="")
+    parser.add_argument("--remote-directory", action="store_true")
     options = parser.parse_args(argv)
     if options.members_file and not options.only:
         parser.error("--members-file requires --only")
@@ -170,7 +177,9 @@ def main(argv, run=subprocess.run, connect=Connection, clock=time.time):
         print("SKIPPED no directory is deployed, role groups are inventory grants")
         return 0
     mailbox_file = directory / MAILBOX_FILE
-    connection, code = reach_directory(connect, config, clock())
+    connection, code = reach_directory(
+        connect, config, options.remote_directory, clock()
+    )
     if connection is None:
         return code
     seeded = True
@@ -184,7 +193,9 @@ def main(argv, run=subprocess.run, connect=Connection, clock=time.time):
         except (DirectoryError, OSError) as error:
             print(f"[mailbox] FAILED {type(error).__name__}: {error}", file=sys.stderr)
             seeded = False
-        connection, code = reach_directory(connect, config, clock())
+        connection, code = reach_directory(
+            connect, config, options.remote_directory, clock()
+        )
         if connection is None:
             return code if seeded else 1
     failed = []
