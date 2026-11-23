@@ -7,7 +7,7 @@ from pathlib import Path
 
 from utils.cache.files import iter_non_ignored_files, read_text
 from utils.cache.yaml import load_yaml_any
-from utils.update.docker import DEPENDABOT_COMPOSE_FILES
+from utils.update.docker_compose import DEPENDABOT_COMPOSE_FILES
 
 from . import PROJECT_ROOT
 

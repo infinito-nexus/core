@@ -4,8 +4,10 @@ repository's own compose files (:func:`compose_files`).
 
 Counterpart to :mod:`utils.update.repository` (which handles git refs).
 Both share the semver primitives in :mod:`utils.update.base`; this
-module owns the Docker-Hub / GHCR registry lookups and the YAML
-walker that rewrites the matching ``version:`` or ``image:`` line.
+module owns the bump selection and the YAML walker that rewrites the
+matching ``version:`` line; registry lookups live in
+:mod:`utils.update.docker_tags`, compose files in
+:mod:`utils.update.docker_compose`.
 
 Suppress a check by placing ``# nocheck: docker-version`` on the line
 directly above the ``version:`` key, or above a compose service's ``image:``.
@@ -17,38 +19,24 @@ A ``version`` that names its own upstream in an ``update:`` block belongs to
 from __future__ import annotations
 
 import concurrent.futures
-import http.client
-import json
 import re
-import time
-import urllib.error
-import urllib.request
 from collections import defaultdict
 from dataclasses import dataclass
-from pathlib import PurePosixPath
 from typing import TYPE_CHECKING
-from urllib.parse import quote, urlencode
 
 import yaml
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
-from utils.cache.yaml import load_yaml, load_yaml_any
+from utils.cache.yaml import load_yaml
 from utils.docker.image.discovery import (
     RUNNER_ROLE,
     ImageRef,
     iter_compose_images,
     iter_role_images,
 )
-from utils.docker.image.ref import (
-    GHCR_REGISTRY,
-    MCR_REGISTRY,
-    dockerhub_repo,
-    is_dockerhub,
-    split_registry_and_name,
-)
+from utils.docker.image.ref import is_dockerhub
 from utils.docker.registry import fetch_registry_tags
-from utils.meta.role.names import ROLES_DIR
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.security.suppressions import drop_image_tag_entries
 from utils.update.base import (
@@ -60,6 +48,20 @@ from utils.update.base import (
     version_depth,
     version_flavor,
     version_key,
+)
+from utils.update.docker_compose import (
+    _compose_image_lines,
+    compose_files,
+    suppressed_compose_services,
+    update_compose_images,
+)
+from utils.update.docker_tags import (
+    fetch_dockerhub_tags,
+    fetch_ghcr_tags,
+    fetch_mcr_tags,
+    is_ghcr,
+    is_mcr,
+    is_supported_registry,
 )
 from utils.update.follow import followed_tags
 
@@ -73,19 +75,6 @@ _VERSION_VALUE_RE = re.compile(
     r"(?P<quote>[\"']?)(?P<value>[^\"'#\s]+)(?P=quote)"
     r"(?P<suffix>\s*(?:#.*)?)$"
 )
-_IMAGE_VALUE_RE = re.compile(
-    r"^(?P<prefix>\s*image\s*:\s*)"
-    r"(?P<quote>[\"']?)(?P<name>[^\"'#\s]+):(?P<tag>[^\"'#\s:/@]+)(?P=quote)"
-    r"(?P<suffix>\s*(?:#.*)?)$"
-)
-COMPOSE_SUFFIXES = (".yml", ".yaml")
-DEPENDABOT_COMPOSE_FILES = (
-    "compose.yml",
-    "compose.yaml",
-    "docker-compose.yml",
-    "docker-compose.yaml",
-)
-TEST_TREE = "tests"
 
 
 @dataclass(frozen=True)
@@ -101,143 +90,6 @@ class DockerImageVersionEntry:
 class DockerImageVersionUpdate:
     entry: DockerImageVersionEntry
     latest: str
-
-
-def fetch_dockerhub_tags(image: str, max_pages: int = 5) -> list[str]:
-    repo = dockerhub_repo(image)
-    tags: list[str] = []
-    for page in range(1, max_pages + 1):
-        url = (
-            f"https://hub.docker.com/v2/repositories/{repo}/tags/"
-            f"?page_size=100&page={page}"
-        )
-        req = urllib.request.Request(
-            url, headers={"User-Agent": "infinito-nexus-version-updater"}
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
-                if resp.status == 429:
-                    time.sleep(2)
-                    continue
-                body = json.loads(resp.read().decode())
-        except (
-            urllib.error.URLError,
-            OSError,
-            http.client.HTTPException,
-            json.JSONDecodeError,
-        ):
-            break
-        tags.extend(item["name"] for item in body.get("results", []))
-        if not body.get("next"):
-            break
-    return tags
-
-
-def is_ghcr(image: str) -> bool:
-    parsed = split_registry_and_name(image)
-    return parsed is not None and parsed[0] == GHCR_REGISTRY
-
-
-def ghcr_repo(image: str) -> str:
-    parsed = split_registry_and_name(image)
-    if parsed is None or parsed[0] != GHCR_REGISTRY:
-        raise ValueError(f"Image is not a GHCR reference: {image!r}")
-    return parsed[1]
-
-
-def fetch_ghcr_tags(image: str) -> list[str]:
-    name = ghcr_repo(image)
-    token_query = urlencode(
-        {"scope": f"repository:{name}:pull", "service": GHCR_REGISTRY}
-    )
-    token_url = f"https://{GHCR_REGISTRY}/token?{token_query}"
-    try:
-        req = urllib.request.Request(
-            token_url, headers={"User-Agent": "infinito-nexus-version-updater"}
-        )
-        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
-            token_body = json.loads(resp.read().decode())
-        token = token_body.get("token") or token_body.get("access_token")
-    except (
-        urllib.error.URLError,
-        OSError,
-        http.client.HTTPException,
-        json.JSONDecodeError,
-    ):
-        return []
-
-    if not token:
-        return []
-
-    tags_url = f"https://{GHCR_REGISTRY}/v2/{quote(name, safe='/')}/tags/list"
-    req = urllib.request.Request(
-        tags_url,
-        headers={
-            "Authorization": f"Bearer {token}",
-            "User-Agent": "infinito-nexus-version-updater",
-        },
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
-            body = json.loads(resp.read().decode())
-    except (
-        urllib.error.URLError,
-        OSError,
-        http.client.HTTPException,
-        json.JSONDecodeError,
-    ):
-        return []
-
-    return body.get("tags") or []
-
-
-def is_mcr(image: str) -> bool:
-    parsed = split_registry_and_name(image)
-    return parsed is not None and parsed[0] == MCR_REGISTRY
-
-
-def is_supported_registry(image: str) -> bool:
-    """Whether *image* resolves to a registry the generic v2 client can query."""
-    return split_registry_and_name(image) is not None
-
-
-def mcr_repo(image: str) -> str:
-    parsed = split_registry_and_name(image)
-    if parsed is None or parsed[0] != MCR_REGISTRY:
-        raise ValueError(f"Image is not an MCR reference: {image!r}")
-    return parsed[1]
-
-
-_LINK_NEXT_RE = re.compile(r'<([^>]+)>\s*;\s*rel="next"', re.IGNORECASE)
-
-
-def fetch_mcr_tags(image: str, max_pages: int = 10) -> list[str]:
-    name = mcr_repo(image)
-    base = f"https://{MCR_REGISTRY}"
-    url = f"{base}/v2/{quote(name, safe='/')}/tags/list?n=100"
-    tags: list[str] = []
-    for _ in range(max_pages):
-        req = urllib.request.Request(  # noqa: S310
-            url, headers={"User-Agent": "infinito-nexus-version-updater"}
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
-                body = json.loads(resp.read().decode())
-                link_header = resp.headers.get("Link", "")
-        except (
-            urllib.error.URLError,
-            OSError,
-            http.client.HTTPException,
-            json.JSONDecodeError,
-        ):
-            break
-        tags.extend(body.get("tags") or [])
-        match = _LINK_NEXT_RE.search(link_header)
-        if not match:
-            break
-        next_link = match.group(1)
-        url = next_link if next_link.startswith("http") else f"{base}{next_link}"
-    return tags
 
 
 def suppressed_services(config_path: Path) -> set[str]:
@@ -326,110 +178,6 @@ def collect_entries(repo_root: Path) -> list[DockerImageVersionEntry]:
 
 def _entry_image(ref: ImageRef) -> str:
     return ref.name if ref.registry == "docker.io" else f"{ref.registry}/{ref.name}"
-
-
-def declares_compose_images(document: object) -> bool:
-    """Args:
-        document: a parsed YAML document.
-
-    Returns:
-        Whether its top level holds a ``services`` mapping in which at least
-        one service carries an ``image`` string.
-    """
-    services = document.get("services") if isinstance(document, dict) else None
-    return isinstance(services, dict) and any(
-        isinstance(spec, dict) and isinstance(spec.get("image"), str)
-        for spec in services.values()
-    )
-
-
-def _owned_candidate(rel: str) -> bool:
-    path = PurePosixPath(rel)
-    return (
-        rel.endswith(COMPOSE_SUFFIXES)
-        and path.name not in DEPENDABOT_COMPOSE_FILES
-        and path.parts[0] not in (TEST_TREE, ROLES_DIR)
-    )
-
-
-def compose_files(repo_root: Path, tracked: Iterable[str]) -> list[str]:
-    """Args:
-        repo_root: repository root the tracked paths are relative to.
-        tracked: repository-relative POSIX paths of the tracked files, as
-            :func:`utils.cache.files.repository_files` lists them.
-
-    Returns:
-        The tracked YAML files :func:`declares_compose_images` accepts,
-        sorted. Left out are Jinja templates, YAML that does not parse as one
-        document, the test tree ``TEST_TREE``, the role tree ``ROLES_DIR``,
-        whose images ``meta/services.yml`` pins for :func:`collect_entries`,
-        and the files Dependabot's ``docker-compose`` ecosystem bumps
-        (``DEPENDABOT_COMPOSE_FILES``).
-    """
-    owned: list[str] = []
-    for rel in tracked:
-        if not _owned_candidate(rel):
-            continue
-        path = repo_root / rel
-        try:
-            if "services" not in read_text(str(path)):
-                continue
-            document = load_yaml_any(str(path))
-        except (OSError, UnicodeDecodeError, ValueError, yaml.YAMLError):
-            continue
-        if declares_compose_images(document):
-            owned.append(rel)
-    return sorted(owned)
-
-
-def _compose_image_lines(raw: str) -> dict[str, int]:
-    """Args:
-        raw: text of a compose file.
-
-    Returns:
-        Each compose service mapped to the 0-indexed line of its ``image``
-        key, for the keys whose tagged value sits on that line in the one
-        form ``_IMAGE_VALUE_RE`` rewrites.
-    """
-    text_lines = raw.splitlines()
-    root = yaml.compose(raw)
-    services = next(
-        (
-            value
-            for key, value in (root.value if isinstance(root, yaml.MappingNode) else [])
-            if key.value == "services" and isinstance(value, yaml.MappingNode)
-        ),
-        None,
-    )
-    lines: dict[str, int] = {}
-    for service, spec in services.value if services else []:
-        if not isinstance(spec, yaml.MappingNode):
-            continue
-        for field, value in spec.value:
-            line = field.start_mark.line
-            if (
-                field.value == "image"
-                and value.start_mark.line == line
-                and _IMAGE_VALUE_RE.match(text_lines[line])
-            ):
-                lines[service.value] = line
-    return lines
-
-
-def suppressed_compose_services(compose_path: Path) -> set[str]:
-    """Args:
-        compose_path: a compose file of the repository.
-
-    Returns:
-        The services whose ``image:`` carries ``# nocheck: docker-version``.
-    """
-    raw = read_text(str(compose_path))
-    lines = raw.splitlines()
-    return {
-        service
-        for service, line in _compose_image_lines(raw).items()
-        if is_suppressed_at(lines, line + 1, "docker-version")
-    }
 
 
 def collect_compose_entries(
@@ -665,37 +413,6 @@ def update_config_versions(config_path: Path, service_versions: dict[str, str]) 
         config_path.write_text("".join(lines), encoding="utf-8")
 
     return bool(moved)
-
-
-def update_compose_images(compose_path: Path, service_versions: dict[str, str]) -> bool:
-    """Args:
-        compose_path: a compose file of the repository.
-        service_versions: service name to the tag its image moves to.
-
-    Returns:
-        Whether the file changed; every line but the rewritten tags stays as
-        it was.
-    """
-    raw = compose_path.read_text(  # nocheck: cache-read -- read-then-write of the same file; a cached read would go stale
-        encoding="utf-8"
-    )
-    lines = raw.splitlines(keepends=True)
-    changed = False
-    for service, line in _compose_image_lines(raw).items():
-        latest = service_versions.get(service)
-        body = lines[line].rstrip("\n")
-        match = _IMAGE_VALUE_RE.match(body)
-        if latest is None or match is None or match["tag"] == latest:
-            continue
-        quote = match["quote"]
-        lines[line] = (
-            f"{match['prefix']}{quote}{match['name']}:{latest}{quote}"
-            f"{match['suffix']}{lines[line][len(body) :]}"
-        )
-        changed = True
-    if changed:
-        compose_path.write_text("".join(lines), encoding="utf-8")
-    return changed
 
 
 def apply_updates(updates: list[DockerImageVersionUpdate]) -> list[Path]:
