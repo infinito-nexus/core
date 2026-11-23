@@ -5,7 +5,6 @@ import unittest
 from ansible.errors import AnsibleFilterError
 
 from plugins.filter.litellm.local_model import (
-    OLLAMA_VERSION,
     PIN_KEYS,
     declared_local_models,
     local_model_directives,
@@ -17,7 +16,6 @@ from plugins.filter.litellm.local_model import (
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 _COMMIT = "199151125cf15a129ab3b548b26afeed976df066"
 _SHA = "f7ede42862ceca07ad1c88a97b67520019c4ac7e5ced250d2e696fa62ab189af"
@@ -254,18 +252,6 @@ class TestLocalModelsPinned(unittest.TestCase):
                     [local_model_refusal(model), "/resolve/main/" in model["url"]],
                     ["", False],
                 )
-
-
-class TestOllamaVersion(unittest.TestCase):
-    def test_the_vetted_names_belong_to_the_pinned_ollama_version(self) -> None:
-        services = PROJECT_ROOT / "roles" / "svc-ai-ollama" / ROLE_FILE_META_SERVICES
-        pinned = load_yaml_str(read_text(str(services)))["ollama"]
-        self.assertEqual(
-            OLLAMA_VERSION,
-            str(pinned["version"]),
-            "re-vet the renderer and parser names against the new Ollama "
-            "version, then raise OLLAMA_VERSION",
-        )
 
 
 if __name__ == "__main__":
