@@ -1,0 +1,150 @@
+---
+# Param: lmstudio_fetch_store    directory on the target that holds <repo>/<file> of every model
+# Param: lmstudio_fetch_staging  directory on the store's filesystem where a download lands until it verifies
+# Param: lmstudio_fetch_node     the host that owns the store, named in the failure messages
+- name: "📁 Create the model store directories on '{{ lmstudio_fetch_node }}'"
+  ansible.builtin.file:
+    path: "{{ lmstudio_fetch_store }}/{{ model.repo }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ LMSTUDIO_PRELOAD_MODELS }}"
+  loop_control:
+    loop_var: model
+    label: "{{ model.file }}"
+
+- name: "📁 Create the staging directory beside the model store on '{{ lmstudio_fetch_node }}'"
+  ansible.builtin.file:
+    path: "{{ lmstudio_fetch_staging }}"
+    state: directory
+    mode: "0755"
+
+- name: "🔍 Find partial downloads an interrupted fetch left on '{{ lmstudio_fetch_node }}'"
+  ansible.builtin.find:
+    paths: "{{ lmstudio_fetch_staging }}"
+    file_type: any
+    hidden: true
+  register: lmstudio_staging_leftovers
+
+- name: "🧹 Remove the partial downloads an interrupted fetch left on '{{ lmstudio_fetch_node }}'"
+  ansible.builtin.file:
+    path: "{{ leftover.path }}"
+    state: absent
+  loop: "{{ lmstudio_staging_leftovers.files }}"
+  loop_control:
+    loop_var: leftover
+    label: "{{ leftover.path | basename }}"
+
+- name: "🔍 Read what the model store on '{{ lmstudio_fetch_node }}' already holds"
+  ansible.builtin.stat:
+    path: "{{ lmstudio_fetch_store }}/{{ model.repo }}/{{ model.file }}"
+    checksum_algorithm: sha256
+  register: lmstudio_present
+  changed_when: false
+  loop: "{{ LMSTUDIO_PRELOAD_MODELS }}"
+  loop_control:
+    loop_var: model
+    label: "{{ model.file }}"
+
+- name: "🗄️ Measure the free space the model store on '{{ lmstudio_fetch_node }}' offers"
+  ansible.builtin.command: "df -P -B1 {{ lmstudio_fetch_store | quote }}"
+  register: lmstudio_store_space
+  changed_when: false
+
+- name: "🛑 Refuse to fetch models the store on '{{ lmstudio_fetch_node }}' cannot hold"
+  vars:
+    _free: "{{ lmstudio_store_space.stdout_lines[1].split()[3] | int }}"
+    _absent: >-
+      {{ lmstudio_present.results
+         | rejectattr('stat.exists')
+         | map(attribute='model.bytes') | map('int') | sum }}
+    _required: "{{ (_absent | int) + (LMSTUDIO_PRELOAD_LARGEST_BYTES | int) }}"
+  ansible.builtin.fail:
+    msg: >-
+      The model store {{ lmstudio_fetch_store }} on {{ lmstudio_fetch_node }} has
+      {{ (_free | int / 1024 / 1024 / 1024) | round(1) }} GiB free but needs
+      {{ (_required | int / 1024 / 1024 / 1024) | round(1) }} GiB: it is missing
+      {{ (_absent | int / 1024 / 1024 / 1024) | round(1) }} GiB of declared models,
+      plus {{ (LMSTUDIO_PRELOAD_LARGEST_BYTES | int / 1024 / 1024 / 1024) | round(1) }}
+      GiB for the largest one while it stages. Shrink AI_LOCAL_MODELS in
+      group_vars/all/16_ai.yml or give {{ lmstudio_fetch_node }} more space.
+  when: _free | int < _required | int
+
+- name: "⬇️ Fetch the models into the store on '{{ lmstudio_fetch_node }}'"
+  get_url_retry:
+    url: "{{ model.url }}"
+    dest: "{{ lmstudio_fetch_store }}/{{ model.repo }}/{{ model.file }}"
+    tmp_dest: "{{ lmstudio_fetch_staging }}"
+    checksum: "sha256:{{ model.sha256 }}"
+    mode: "0644"
+  vars:
+    _bytes: "{{ model.bytes }}"
+    _budget: &lmstudio_fetch_budget >-
+      {{ [ LMSTUDIO_PRELOAD_FLOOR_SECONDS | int,
+           ((_bytes | int) / (LMSTUDIO_PRELOAD_MIN_BYTES_PER_SECOND | int))
+           | round(0, 'ceil') | int ] | max }}
+  timeout: "{{ lookup('timeout', _budget) | int }}"
+  loop: "{{ LMSTUDIO_PRELOAD_MODELS }}"
+  loop_control:
+    loop_var: model
+    label: "{{ model.file }}"
+  register: lmstudio_fetch
+  changed_when: false
+  failed_when: false
+
+- name: "🪞 Fetch from a mirror when the source did not deliver to '{{ lmstudio_fetch_node }}'"
+  get_url_retry:
+    url: "{{ item.1 }}"
+    dest: "{{ lmstudio_fetch_store }}/{{ item.0.repo }}/{{ item.0.file }}"
+    tmp_dest: "{{ lmstudio_fetch_staging }}"
+    checksum: "sha256:{{ item.0.sha256 }}"
+    mode: "0644"
+  vars:
+    _bytes: "{{ item.0.bytes }}"
+    _budget: *lmstudio_fetch_budget
+  timeout: "{{ lookup('timeout', _budget) | int }}"
+  loop: "{{ LMSTUDIO_PRELOAD_MODELS | subelements('mirrors', skip_missing=True) }}"
+  loop_control:
+    label: "{{ item.0.file }} from {{ item.1 }}"
+  register: lmstudio_fetch_mirror
+  changed_when: false
+  failed_when: false
+
+- name: "🔍 Read back what the model store on '{{ lmstudio_fetch_node }}' now holds"
+  ansible.builtin.stat:
+    path: "{{ lmstudio_fetch_store }}/{{ model.repo }}/{{ model.file }}"
+    checksum_algorithm: sha256
+  register: lmstudio_seeded
+  changed_when: false
+  loop: "{{ LMSTUDIO_PRELOAD_MODELS }}"
+  loop_control:
+    loop_var: model
+    label: "{{ model.file }}"
+
+- name: "🛑 Fail when no source delivered a declared model to '{{ lmstudio_fetch_node }}'"
+  vars:
+    _missing: >-
+      {{ lmstudio_seeded.results
+         | rejectattr('stat.exists')
+         | map(attribute='model.file') | list }}
+    _said: >-
+      {{ (lmstudio_fetch.results | map(attribute='msg') | select | list)
+         + (lmstudio_fetch_mirror.results | default([]) | map(attribute='msg') | select | list) }}
+  ansible.builtin.fail:
+    msg: >-
+      The model store {{ lmstudio_fetch_store }} on {{ lmstudio_fetch_node }} is missing
+      {{ _missing | join(', ') }}. What the sources answered:
+      {{ _said | join(' | ') }}
+  when: _missing | length > 0
+
+- name: "🛑 Fail when a stored model does not match its declared digest and size"
+  ansible.builtin.fail:
+    msg: >-
+      {{ item.model.file }} in the model store {{ lmstudio_fetch_store }} on
+      {{ lmstudio_fetch_node }} hashes to {{ item.stat.checksum }} at {{ item.stat.size }} bytes,
+      but AI_LOCAL_MODELS declares {{ item.model.sha256 }} at {{ item.model.bytes }} bytes.
+  loop: "{{ lmstudio_seeded.results | selectattr('stat.exists') | list }}"
+  loop_control:
+    label: "{{ item.model.file }}"
+  when: >-
+    item.stat.checksum != item.model.sha256
+    or (item.stat.size | int) != (item.model.bytes | int)

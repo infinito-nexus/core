@@ -9,7 +9,6 @@ LMSTUDIO_APP_VERSION: "{{ lookup('config', application_id, 'services.lmstudio.ap
 LMSTUDIO_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
 LMSTUDIO_PORT: "{{ lookup('config', application_id, 'services.lmstudio.ports.internal.http') }}"
 LMSTUDIO_PRELOAD_MODELS: "{{ lookup('config', application_id, 'services.lmstudio.preload_models') }}"
-LMSTUDIO_PRELOAD_ASYNC_TIME: "{{ lookup('config', application_id, 'services.lmstudio.preload_async_time') }}"
 LMSTUDIO_PRELOAD_FLOOR_SECONDS: "{{ lookup('config', application_id, 'services.lmstudio.preload_floor_seconds') }}"
 LMSTUDIO_PRELOAD_MIN_BYTES_PER_SECOND: "{{ lookup('config', application_id, 'services.lmstudio.preload_min_bytes_per_second') }}"
 LMSTUDIO_PRELOAD_LARGEST_BYTES: >-
