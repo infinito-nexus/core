@@ -53,21 +53,21 @@
 - name: "🛑 Refuse to fetch models the store on '{{ lmstudio_fetch_node }}' cannot hold"
   vars:
     _free: "{{ lmstudio_store_space.stdout_lines[1].split()[3] | int }}"
-    _absent: >-
-      {{ lmstudio_present.results
-         | rejectattr('stat.exists')
-         | map(attribute='model.bytes') | map('int') | sum }}
-    _required: "{{ (_absent | int) + (LMSTUDIO_PRELOAD_LARGEST_BYTES | int) }}"
+    _pending: >-
+      {%- set tally = namespace(bytes=0) -%}
+      {%- for present in lmstudio_present.results
+            if not (present.stat.exists and present.stat.checksum == present.model.sha256) -%}
+      {%- set tally.bytes = tally.bytes + (present.model.bytes | int) -%}
+      {%- endfor -%}
+      {{ tally.bytes }}
   ansible.builtin.fail:
     msg: >-
       The model store {{ lmstudio_fetch_store }} on {{ lmstudio_fetch_node }} has
       {{ (_free | int / 1024 / 1024 / 1024) | round(1) }} GiB free but needs
-      {{ (_required | int / 1024 / 1024 / 1024) | round(1) }} GiB: it is missing
-      {{ (_absent | int / 1024 / 1024 / 1024) | round(1) }} GiB of declared models,
-      plus {{ (LMSTUDIO_PRELOAD_LARGEST_BYTES | int / 1024 / 1024 / 1024) | round(1) }}
-      GiB for the largest one while it stages. Shrink AI_LOCAL_MODELS in
+      {{ (_pending | int / 1024 / 1024 / 1024) | round(1) }} GiB for the declared
+      models it does not hold at their digest yet. Shrink AI_LOCAL_MODELS in
       group_vars/all/16_ai.yml or give {{ lmstudio_fetch_node }} more space.
-  when: _free | int < _required | int
+  when: _free | int < _pending | int
 
 - name: "⬇️ Fetch the models into the store on '{{ lmstudio_fetch_node }}'"
   get_url_retry:
@@ -89,7 +89,7 @@
     label: "{{ model.file }}"
   register: lmstudio_fetch
   changed_when: false
-  failed_when: false
+  ignore_errors: true
 
 - name: "🪞 Fetch from a mirror when the source failed on '{{ lmstudio_fetch_node }}'"
   get_url_retry:
@@ -107,7 +107,7 @@
     label: "{{ item.0.file }} from {{ item.1 }}"
   register: lmstudio_fetch_mirror
   changed_when: false
-  failed_when: false
+  ignore_errors: true
 
 - name: "🔍 Read back what the model store on '{{ lmstudio_fetch_node }}' now holds"
   ansible.builtin.stat:

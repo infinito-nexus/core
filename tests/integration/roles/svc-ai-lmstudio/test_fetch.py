@@ -69,7 +69,13 @@ def _serve(resets: int, corrupt: bool) -> tuple[ThreadingHTTPServer, dict]:
 
 
 def _fetch(
-    resets: int, corrupt: bool, floor: int, stale: bool
+    resets: int,
+    corrupt: bool,
+    floor: int,
+    stale: bool,
+    mirrors: list[bool],
+    free: int | None,
+    held: bytes | None,
 ) -> tuple[int, str, bytes, int, float, list[str]]:
     """
     Args:
@@ -77,6 +83,9 @@ def _fetch(
         corrupt: whether the source only ever sends other bytes than BLOB.
         floor: the download budget floor in seconds.
         stale: whether an interrupted earlier fetch left a partial in staging.
+        mirrors: per mirror, whether it only ever sends other bytes than BLOB.
+        free: the free bytes df reports for the store, None for the real figure.
+        held: what the store already holds at the model's path, None for nothing.
 
     Returns:
         The play's exit code, its output, the stored model (b"" when absent),
@@ -84,6 +93,7 @@ def _fetch(
         staging holds afterwards.
     """
     server, state = _serve(resets, corrupt)
+    sources = [server] + [_serve(0, bad)[0] for bad in mirrors]
     try:
         with tempfile.TemporaryDirectory() as scratch:
             root = Path(scratch)
@@ -93,6 +103,9 @@ def _fetch(
             if stale:
                 staging.mkdir(parents=True)
                 (staging / "tmpinterrupted").write_bytes(BLOB[:1024])
+            if held is not None:
+                stored.parent.mkdir(parents=True)
+                stored.write_bytes(held)
             host, port = server.server_address[:2]
             variables = root / "vars.json"
             variables.write_text(
@@ -105,12 +118,17 @@ def _fetch(
                         "lmstudio_fetch_node": "localhost",
                         "LMSTUDIO_PRELOAD_FLOOR_SECONDS": floor,
                         "LMSTUDIO_PRELOAD_MIN_BYTES_PER_SECOND": 1_000_000,
-                        "LMSTUDIO_PRELOAD_LARGEST_BYTES": len(BLOB),
                         "LMSTUDIO_PRELOAD_MODELS": [
                             {
                                 "repo": REPO,
                                 "file": FILE,
                                 "url": f"http://{host}:{port}/{FILE}",
+                                "mirrors": [
+                                    "http://{}:{}/{}".format(
+                                        *mirror.server_address[:2], FILE
+                                    )
+                                    for mirror in sources[1:]
+                                ],
                                 "sha256": hashlib.sha256(BLOB).hexdigest(),
                                 "bytes": len(BLOB),
                             }
@@ -128,6 +146,18 @@ def _fetch(
                 "ANSIBLE_LOCAL_TEMP": str(root / "ansible-local"),
                 "ANSIBLE_REMOTE_TEMP": str(root / "ansible-remote"),
             }
+            if free is not None:
+                bin_dir = root / "bin"
+                bin_dir.mkdir()
+                df = bin_dir / "df"
+                df.write_text(
+                    "#!/bin/sh\n"
+                    "echo 'Filesystem 1-blocks Used Available Capacity Mounted on'\n"
+                    f"echo 'probe 0 0 {free} 0% /'\n",
+                    encoding="utf-8",
+                )
+                df.chmod(0o755)
+                env["PATH"] = f"{bin_dir}{os.pathsep}{env['PATH']}"
             began = time.monotonic()
             result = subprocess.run(
                 [
@@ -162,8 +192,9 @@ def _fetch(
                 sorted(os.listdir(staging)) if staging.exists() else [],
             )
     finally:
-        server.shutdown()
-        server.server_close()
+        for source in sources:
+            source.shutdown()
+            source.server_close()
 
 
 def _includes_fetch(tasks: list) -> bool:
@@ -186,24 +217,64 @@ def _includes_fetch(tasks: list) -> bool:
 
 class TestFetch(unittest.TestCase):
     def test_a_reset_transfer_costs_a_retry_not_the_deploy(self) -> None:
-        rc, output, body, requests, _elapsed, _staged = _fetch(1, False, 60, False)
+        rc, output, body, requests, _elapsed, _staged = _fetch(
+            1, False, 60, False, [], None, None
+        )
         self.assertEqual(rc, 0, output[-3000:])
         self.assertEqual(body, BLOB)
         self.assertEqual(requests, 2)
 
     def test_an_interrupted_fetch_leaves_no_partial_behind(self) -> None:
-        rc, output, body, _requests, _elapsed, staged = _fetch(0, False, 60, True)
+        rc, output, body, _requests, _elapsed, staged = _fetch(
+            0, False, 60, True, [], None, None
+        )
         self.assertEqual(rc, 0, output[-3000:])
         self.assertEqual(body, BLOB)
         self.assertEqual(staged, [])
 
     def test_a_source_that_never_verifies_fails_closed_inside_the_budget(self) -> None:
-        rc, output, body, requests, elapsed, _staged = _fetch(0, True, 4, False)
+        rc, output, body, requests, elapsed, _staged = _fetch(
+            0, True, 4, False, [], None, None
+        )
         self.assertNotEqual(rc, 0, output[-3000:])
         self.assertIn("Timed out after 4 second(s)", output, output[-3000:])
         self.assertEqual(body, b"")
         self.assertGreater(requests, 0)
         self.assertLess(elapsed, 4 + 30)
+
+    def test_a_timed_out_source_hands_over_to_the_next_mirror(self) -> None:
+        rc, output, body, requests, _elapsed, _staged = _fetch(
+            0, True, 4, False, [True, False], None, None
+        )
+        self.assertEqual(rc, 0, output[-3000:])
+        self.assertIn("Timed out after 4 second(s)", output, output[-3000:])
+        self.assertEqual(body, BLOB)
+        self.assertGreater(requests, 0)
+
+    def test_a_timed_out_mirror_still_reaches_the_final_check(self) -> None:
+        rc, output, body, _requests, _elapsed, _staged = _fetch(
+            0, True, 4, False, [True], None, None
+        )
+        self.assertNotEqual(rc, 0, output[-3000:])
+        self.assertIn("What the sources answered", output, output[-3000:])
+        self.assertEqual(body, b"")
+
+    def test_an_absent_model_counts_once_against_the_free_space(self) -> None:
+        rc, output, body, _requests, _elapsed, _staged = _fetch(
+            0, False, 60, False, [], len(BLOB) * 3 // 2, None
+        )
+        self.assertEqual(rc, 0, output[-3000:])
+        self.assertEqual(body, BLOB)
+
+    def test_a_held_model_with_another_digest_counts_as_pending(self) -> None:
+        held = bytes(reversed(BLOB))
+        rc, output, body, requests, _elapsed, _staged = _fetch(
+            0, False, 60, False, [], len(BLOB) // 2, held
+        )
+        self.assertNotEqual(rc, 0, output[-3000:])
+        self.assertIn("GiB free but needs", output, output[-3000:])
+        self.assertEqual(body, held)
+        self.assertEqual(requests, 0)
 
     def test_the_swarm_seed_and_the_node_preload_share_one_fetch(self) -> None:
         for caller in ("00_core.yml", "utils/preload/node.yml"):
