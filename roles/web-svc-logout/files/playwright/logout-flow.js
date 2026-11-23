@@ -429,6 +429,17 @@ async function endTokenSession(request, refreshToken) {
 }
 
 /**
+ * Args:
+ *   accessToken: an access token of biber.
+ *
+ * Returns:
+ *   The headers of an Account REST API call.
+ */
+function accountRestHeaders(accessToken) {
+  return { Accept: "application/json", Authorization: `Bearer ${accessToken}` };
+}
+
+/**
  * Return the applications Keycloak lists for biber, read with a fresh token of
  * biber and the Account REST API.
  *
@@ -440,7 +451,7 @@ async function accountApplications(request) {
   try {
     const response = await apiFetchOnion(request, `${logoutEnv.accountUrl.replace(/\/$/, "")}/applications`, {
       method: "GET",
-      headers: { Accept: "application/json", Authorization: `Bearer ${accessToken}` },
+      headers: accountRestHeaders(accessToken),
       timeout: resolveTimeout(30_000),
     });
     expect(response.status(), "the Account REST API must list biber's applications").toBe(200);
@@ -460,7 +471,7 @@ async function endEveryOtherSession(request) {
   try {
     const response = await apiFetchOnion(request, `${logoutEnv.accountUrl.replace(/\/$/, "")}/sessions`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: accountRestHeaders(accessToken),
       timeout: resolveTimeout(30_000),
     });
     expect(response.status(), "the Account REST API must end every other session of biber").toBe(204);
