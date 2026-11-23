@@ -160,5 +160,23 @@ class TestMatomoReachesAnOnionIssuerThroughTor(unittest.TestCase):
                 )
 
 
+class TestMatomoMakesNoUpdateCallThroughTor(unittest.TestCase):
+    def test_the_release_disables_the_update_check(self):
+        dockerfile = read_text(str(ROLE / "files" / "Dockerfile"))
+        self.assertIn(
+            "printf '[General]\\nenable_auto_update = 0\\n' > "
+            '"${MATOMO_RELEASE_DIR}/config/common.config.ini.php"',
+            dockerfile,
+            "UpdateCheck calls api.matomo.org through the env proxy with a 5 s "
+            "timeout and retries on every request after a failure, which stalls "
+            "each installer page behind a Tor without exits",
+        )
+        self.assertIn("ARG MATOMO_RELEASE_DIR", dockerfile)
+
+    def test_the_build_passes_the_release_dir(self):
+        compose = read_text(str(ROLE / "templates" / "compose.yml.j2"))
+        self.assertIn('MATOMO_RELEASE_DIR: "{{ MATOMO_RELEASE_DIR }}"', compose)
+
+
 if __name__ == "__main__":
     unittest.main()

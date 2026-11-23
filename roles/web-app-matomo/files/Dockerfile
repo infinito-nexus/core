@@ -4,6 +4,7 @@ FROM ${MATOMO_IMAGE}:${MATOMO_VERSION}
 
 ARG MATOMO_OIDC_PLUGIN_SOURCE
 ARG MATOMO_OIDC_PLUGIN_ARCHIVE
+ARG MATOMO_RELEASE_DIR
 
 RUN install -d -o www-data -g www-data /var/www/html/tmp
 
@@ -13,3 +14,5 @@ RUN set -eux; \
 	tar --strip-components=1 -xzf /tmp/oidc-plugin.tar.gz -C "${MATOMO_OIDC_PLUGIN_SOURCE}"; \
 	rm /tmp/oidc-plugin.tar.gz; \
 	test -f "${MATOMO_OIDC_PLUGIN_SOURCE}/plugin.json"
+
+RUN printf '[General]\nenable_auto_update = 0\n' > "${MATOMO_RELEASE_DIR}/config/common.config.ini.php"
