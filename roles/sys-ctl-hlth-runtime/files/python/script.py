@@ -12,7 +12,6 @@ import json
 import os
 import re
 import shutil
-import socket
 import subprocess
 import sys
 import tempfile
@@ -49,7 +48,7 @@ SUPPRESSED = "suppressed"
 VERDICTS = (*ACTIONS, SUPPRESSED)
 CLEAN = "ok"
 METRIC = "infinito_hlth_runtime"
-METRIC_LABELS = ("target", "kind", "image", "severity", "scanner", "verdict")
+METRIC_LABELS = ("host", "target", "kind", "image", "severity", "scanner", "verdict")
 FINDINGS_LOG = "findings.jsonl"
 REPORT = "report.json"
 CVE_PATTERN = re.compile(r"^CVE-\d{4}-\d{4,}$")
@@ -337,6 +336,11 @@ def parse_args(argv=None):
     )
     parser.add_argument(
         "--environment", required=True, help="Deployment environment of the node"
+    )
+    parser.add_argument(
+        "--host",
+        required=True,
+        help="Inventory name of the node: the report's host and the metrics label",
     )
     parser.add_argument(
         "--report-dir", required=True, help=f"Directory of {REPORT}, the last run"
@@ -1198,20 +1202,21 @@ class Outcome:
                 for label, value in zip(METRIC_LABELS, values, strict=True)
             )
             lines.append(f"{METRIC}_findings{{{labels}}} {count}")
+        host = f'host="{_label_value(self.run.host)}"'
         lines += [
             f"# HELP {METRIC}_last_run_timestamp_seconds When the last run finished.",
             f"# TYPE {METRIC}_last_run_timestamp_seconds gauge",
-            f"{METRIC}_last_run_timestamp_seconds {int(self.finished)}",
+            f"{METRIC}_last_run_timestamp_seconds{{{host}}} {int(self.finished)}",
             f"# HELP {METRIC}_last_run_success 1 when the last run did not fail, else 0.",
             f"# TYPE {METRIC}_last_run_success gauge",
-            f"{METRIC}_last_run_success {0 if self.failed else 1}",
+            f"{METRIC}_last_run_success{{{host}}} {0 if self.failed else 1}",
             f"# HELP {METRIC}_scanner_errors Engine runs of the last run that did not deliver.",
             f"# TYPE {METRIC}_scanner_errors gauge",
         ]
         errors = Counter(error_engine(line) for line in self.errors)
         for engine in sorted({*self.engines, *errors}):
             lines.append(
-                f'{METRIC}_scanner_errors{{scanner="{_label_value(engine)}"}} {errors[engine]}'
+                f'{METRIC}_scanner_errors{{{host},scanner="{_label_value(engine)}"}} {errors[engine]}'
             )
         return "\n".join(lines) + "\n"
 
@@ -2284,7 +2289,7 @@ def main(argv=None) -> int:
     run = Run(
         id=str(uuid.uuid4()),
         started=dt.datetime.now(tz=dt.UTC),
-        host=socket.gethostname(),
+        host=args.host,
         environment=args.environment,
     )
     hardened = json.loads(args.hardened)
