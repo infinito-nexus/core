@@ -23,6 +23,10 @@ const DNS_PORT = 53;
 const BRIDGE_NAME_MAX = 15;
 const OPERATION_PENDING = new Set(["Pending", "Running"]);
 const IMAGE_SERVERS = { images: "https://images.linuxcontainers.org" };
+const SILENT_PORT_CODES = new Set(["ECONNREFUSED", "ECONNRESET", "ETIMEDOUT"]);
+const CONNECT_TIMEOUT_CODE = "CONNECT_TIMEOUT";
+const SSHD_MARKER_DROP_IN = "/etc/ssh/sshd_config.d/00-playwright-marker.conf";
+const MARK_SSH_BANNER = 'printf "VersionAddendum %s\\n" "$1" > "$2" && systemctl try-reload-or-restart ssh';
 const CONNECT_PROBE =
   "import socket,sys\n" +
   "s=socket.socket(socket.AF_INET6 if ':' in sys.argv[1] else socket.AF_INET)\n" +
@@ -296,6 +300,21 @@ function gateways(config) {
   return { ipv4: config["ipv4.address"].split("/")[0], ipv6: config["ipv6.address"].split("/")[0] };
 }
 
+function hostAddresses(config) {
+  return [
+    {
+      host: new URL(settings().apiUrl).hostname,
+      openPort: apiEnabled ? apiPort() : null,
+      reason: "services.incus.api.enabled is off, so no listener proves this host reachable",
+    },
+    {
+      host: gateways(config).ipv4,
+      openPort: null,
+      reason: "the runner reaches no port of the bridge gateway that the spec knows to be open",
+    },
+  ];
+}
+
 function within(cidr, address) {
   const [network, prefix] = cidr.split("/");
   const family = network.includes(":") ? "ipv6" : "ipv4";
@@ -314,19 +333,92 @@ function listed(address) {
   });
 }
 
-function sshBanner(host) {
+function sshBanner(host, port) {
   return new Promise((resolve, reject) => {
-    const socket = net.connect({ host, port: SSH_PORT, timeout: resolveTimeout(15_000) });
+    const socket = net.connect({ host, port, timeout: resolveTimeout(15_000) });
     socket.once("data", (data) => {
       socket.destroy();
       resolve(data.toString("utf8"));
     });
     socket.once("timeout", () => {
+      const connected = !socket.connecting;
       socket.destroy();
-      reject(new Error(`${host}:${SSH_PORT} sent no SSH banner`));
+      reject(
+        connected
+          ? Object.assign(new Error(`${host}:${port} accepted the connection and sent no SSH banner`), { code: "ETIMEDOUT" })
+          : Object.assign(new Error(`${host}:${port} did not complete its lookup and TCP connection before the probe timed out`), {
+              code: CONNECT_TIMEOUT_CODE,
+            }),
+      );
+    });
+    socket.once("end", () => {
+      socket.destroy();
+      reject(Object.assign(new Error(`${host}:${port} closed without an SSH banner`), { code: "ECONNRESET" }));
     });
     socket.once("error", reject);
   });
+}
+
+async function sshBannerIfAny(host, port) {
+  try {
+    return await sshBanner(host, port);
+  } catch (error) {
+    if (SILENT_PORT_CODES.has(error.code)) {
+      return "";
+    }
+    throw error;
+  }
+}
+
+function answersAt(host, port) {
+  return new Promise((resolve) => {
+    const socket = net.connect({ host, port, timeout: resolveTimeout(15_000) });
+    socket.once("connect", () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.once("timeout", () => {
+      socket.destroy();
+      resolve(false);
+    });
+    socket.once("error", (error) => resolve(error.code === "ECONNREFUSED"));
+  });
+}
+
+async function hostSshBanner(address, port, note) {
+  try {
+    return await sshBannerIfAny(address.host, port);
+  } catch (error) {
+    if (error.code !== CONNECT_TIMEOUT_CODE) {
+      throw error;
+    }
+    if (address.openPort === null) {
+      note(`${address.host}:${port} did not connect and was not probed further: ${address.reason}`);
+      return "";
+    }
+    if (await answersAt(address.host, address.openPort)) {
+      return "";
+    }
+    throw new Error(`${address.host} is unreachable: neither port ${port} nor its open port ${address.openPort} completed a connection`, {
+      cause: error,
+    });
+  }
+}
+
+async function expectNoInstanceSsh(address, port, marker, name, note) {
+  expect(
+    await hostSshBanner(address, port, note),
+    `${name} must not answer SSH on ${address.host}:${port}, an address of the host`,
+  ).not.toContain(marker);
+}
+
+async function markSshBanner(client, scope, name) {
+  const marker = `playwright${randomUUID().replace(/-/g, "")}`;
+  expect(
+    (await execIn(client, scope, name, ["sh", "-c", MARK_SSH_BANNER, "sh", marker, SSHD_MARKER_DROP_IN])).code,
+    `${name} must append ${marker} to its SSH banner`,
+  ).toBe(0);
+  return marker;
 }
 
 test("incus api: the listener answers on 8443", async ({ request }) => {
@@ -516,7 +608,19 @@ test.describe.serial("incus workspaces", () => {
       metadata(await client("GET", `/1.0/networks/${bridgeOf(first)}/forwards`), "listing the forwards of the bridge"),
       `no host address may forward to ${instance}`,
     ).toEqual([]);
-    expect(await sshBanner(addresses.ipv4), `${instance} must answer SSH on ${addresses.ipv4} from outside the host`).toMatch(/^SSH-2\.0-/);
+    const marker = await markSshBanner(client, own, instance);
+    await expect
+      .poll(async () => sshBannerIfAny(addresses.ipv4, SSH_PORT), {
+        timeout: resolveTimeout(AGENT_MS),
+        intervals: [POLL_MS],
+        message: `${instance} must answer SSH on ${addresses.ipv4} from outside the host with the banner it marked`,
+      })
+      .toMatch(new RegExp(`^SSH-2\\.0-[^\\r\\n]* ${marker}`));
+    for (const address of hostAddresses(config)) {
+      await expectNoInstanceSsh(address, SSH_PORT, marker, instance, (description) =>
+        test.info().annotations.push({ type: "host address not probed", description }),
+      );
+    }
   });
 
   test("incus workspaces: a spoofed source address is dropped", async ({ request }) => {
@@ -579,7 +683,7 @@ test.describe.serial("incus workspaces", () => {
     await awaitAgent(asSecond, project(second), neighbour);
     const mine = await addressesOf(asFirst, project(first), instance);
     const theirs = await addressesOf(asSecond, project(second), neighbour);
-    expect(await sshBanner(theirs.ipv4), `${neighbour} must answer SSH, so a refused connection means isolation`).toMatch(/^SSH-2\.0-/);
+    expect(await sshBanner(theirs.ipv4, SSH_PORT), `${neighbour} must answer SSH, so a refused connection means isolation`).toMatch(/^SSH-2\.0-/);
     for (const family of ["ipv4", "ipv6"]) {
       expect(
         (await connectFrom(asFirst, project(first), instance, mine[family], theirs[family], SSH_PORT)).code,
