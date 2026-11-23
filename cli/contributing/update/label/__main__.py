@@ -19,6 +19,7 @@ _LEVEL_OF_UPDATE_TYPE = {
     "version-update:semver-minor": MINOR,
     "version-update:semver-patch": PATCH,
 }
+LEVEL_OF_NAME = {"major": MAJOR, "minor": MINOR, "patch": PATCH}
 
 
 def level(update_type: str) -> Label:
@@ -100,21 +101,21 @@ def ensure_labels(
 
 
 def sync(
-    gh: Callable[[Sequence[str]], str], repo: str, pr: int, update_type: str
+    gh: Callable[[Sequence[str]], str], repo: str, pr: int, semver: Label
 ) -> list[str]:
-    """Leave *pr* carrying ``update`` and exactly one semver label.
+    """Leave *pr* carrying the update label and exactly one semver label.
 
     Args:
         gh: runs ``gh`` with the given arguments and returns its stdout.
         repo: ``owner/name``.
         pr: the pull request number.
-        update_type: the ``update-type`` output of ``dependabot/fetch-metadata``.
+        semver: the semver label the pull request must carry.
 
     Returns:
         what was done, one line per action. A label the pull request already
-        carries is not added again: a ``labeled`` event restarts its CI run.
+        carries is not added again.
     """
-    wanted = (UPDATE, level(update_type))
+    wanted = (UPDATE, semver)
     actions = [f"created label {name}" for name in ensure_labels(gh, repo, wanted)]
     current = names(gh, f"repos/{repo}/issues/{pr}/labels")
     for stale in LEVELS:
@@ -141,8 +142,9 @@ def sync(
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Label a Dependabot pull request `update` plus exactly one of "
-            "`major`, `minor` and `patch`, creating labels the repository lacks."
+            f"Label an update pull request `{UPDATE.name}` plus exactly one of "
+            f"{', '.join(f'`{label.name}`' for label in LEVELS)}, creating "
+            "labels the repository lacks."
         )
     )
     parser.add_argument("--repo", required=True, help="owner/name")
@@ -156,14 +158,25 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--update-type",
         help="update-type output of dependabot/fetch-metadata, possibly empty",
     )
+    parser.add_argument(
+        "--level",
+        choices=sorted(LEVEL_OF_NAME),
+        help="semver level utils.update.level printed for an updater pull request",
+    )
     args = parser.parse_args(argv)
     if args.ensure_only:
         for name in ensure_labels(run_gh, args.repo, (UPDATE, *LEVELS)):
             print(f"created label {name}")
         return 0
-    if args.pr is None or args.update_type is None:
-        parser.error("--pr and --update-type are required without --ensure-only")
-    actions = sync(run_gh, args.repo, args.pr, args.update_type)
+    if args.pr is None or (args.update_type is None) == (args.level is None):
+        parser.error(
+            "--pr and exactly one of --update-type and --level are required "
+            "without --ensure-only"
+        )
+    semver = (
+        level(args.update_type) if args.level is None else LEVEL_OF_NAME[args.level]
+    )
+    actions = sync(run_gh, args.repo, args.pr, semver)
     for line in actions or [f"#{args.pr} already carries its labels"]:
         print(line)
     return 0

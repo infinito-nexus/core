@@ -47,6 +47,7 @@ if TYPE_CHECKING:
 from utils.networks.attachments import (
     _coerce_bool,
     _compute_attachments,
+    _drops_default,
     _is_consumer,
     _own_shared_net_provider,
     _shared_network_key,
@@ -157,7 +158,7 @@ def render_compose_networks(
     is_own_shared_net_provider = (
         _shared_network_key(attachments, own_entity, entity_name) == own_entity
     )
-    if not _suppress_default(application_id, lookup_database):
+    if not _drops_default(application_id, attachments, lookup_database):
         lines.append("  default:")
         if deployment_mode == "swarm":
             if not is_own_shared_net_provider and own_entity:
@@ -232,7 +233,7 @@ def render_container_networks(
             return ""
         return "\n" + "\n".join(lines)
 
-    if not _suppress_default(application_id, lookup_database):
+    if not _drops_default(application_id, attachments, lookup_database):
         if default_aliases:
             lines.append("  default:")
             lines.append("    aliases:")

@@ -16,6 +16,7 @@ const { assertInjectedAssetLoadsWithoutCspBlock, gotoOnion } = require("./person
 const { resolveTimeout } = require("./timeouts");
 
 const SET_SITE_ID_CALL = /_paq\s*\.\s*push\s*\(\s*\[\s*['"]setSiteId['"]/g;
+const AUTH_CHALLENGE_STATUSES = [401, 403];
 
 function countTrackers(html) {
   return (String(html).match(SET_SITE_ID_CALL) || []).length;
@@ -35,17 +36,18 @@ async function skipWhenLandingOnIdp(page, target, url) {
     `${target.id}: GET ${url} returned ${referenceResp.status()} — surface must respond for the tracker assertion to be meaningful`
   ).toBeLessThan(500);
   const referenceHtml = await referenceResp.text();
-  const injected = referenceHtml.includes(matomoCanonicalDomain);
+  const challenged = AUTH_CHALLENGE_STATUSES.includes(referenceResp.status());
+  const ownSurface = referenceHtml.includes(matomoCanonicalDomain) && !challenged;
   const ownHost = new URL(url).host;
   let landedHost = new URL(referenceResp.url()).host;
-  if (landedHost === ownHost && !injected) {
+  if (landedHost === ownHost && !ownSurface) {
     await gotoOnion(page, url, { waitUntil: "domcontentloaded" });
     await page
       .waitForURL((landed) => new URL(landed).host !== ownHost, { timeout: resolveTimeout(15_000) })
       .catch(() => {});
     landedHost = new URL(page.url()).host;
   }
-  if (landedHost !== ownHost && !injected) {
+  if (landedHost !== ownHost && !ownSurface) {
     const idpHost = new URL(oidcIssuerUrl).host;
     expect(
       landedHost,
