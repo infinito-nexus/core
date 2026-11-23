@@ -48,6 +48,7 @@ from utils.docker.image.ref import (
     split_registry_and_name,
 )
 from utils.docker.registry import fetch_registry_tags
+from utils.meta.role.names import ROLES_DIR
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.security.suppressions import drop_image_tag_entries
 from utils.update.base import (
@@ -347,7 +348,7 @@ def _owned_candidate(rel: str) -> bool:
     return (
         rel.endswith(COMPOSE_SUFFIXES)
         and path.name not in DEPENDABOT_COMPOSE_FILES
-        and path.parts[0] != TEST_TREE
+        and path.parts[0] not in (TEST_TREE, ROLES_DIR)
     )
 
 
@@ -360,8 +361,10 @@ def compose_files(repo_root: Path, tracked: Iterable[str]) -> list[str]:
     Returns:
         The tracked YAML files :func:`declares_compose_images` accepts,
         sorted. Left out are Jinja templates, YAML that does not parse as one
-        document, the test tree ``TEST_TREE`` and the files Dependabot's
-        ``docker-compose`` ecosystem bumps (``DEPENDABOT_COMPOSE_FILES``).
+        document, the test tree ``TEST_TREE``, the role tree ``ROLES_DIR``,
+        whose images ``meta/services.yml`` pins for :func:`collect_entries`,
+        and the files Dependabot's ``docker-compose`` ecosystem bumps
+        (``DEPENDABOT_COMPOSE_FILES``).
     """
     owned: list[str] = []
     for rel in tracked:
@@ -379,14 +382,16 @@ def compose_files(repo_root: Path, tracked: Iterable[str]) -> list[str]:
     return sorted(owned)
 
 
-def _compose_image_lines(raw: str) -> dict[str, tuple[int, int]]:
+def _compose_image_lines(raw: str) -> dict[str, int]:
     """Args:
         raw: text of a compose file.
 
     Returns:
-        Each compose service mapped to the 0-indexed lines of its ``image``
-        key and value.
+        Each compose service mapped to the 0-indexed line of its ``image``
+        key, for the keys whose tagged value sits on that line in the one
+        form ``_IMAGE_VALUE_RE`` rewrites.
     """
+    text_lines = raw.splitlines()
     root = yaml.compose(raw)
     services = next(
         (
@@ -396,13 +401,18 @@ def _compose_image_lines(raw: str) -> dict[str, tuple[int, int]]:
         ),
         None,
     )
-    lines: dict[str, tuple[int, int]] = {}
+    lines: dict[str, int] = {}
     for service, spec in services.value if services else []:
         if not isinstance(spec, yaml.MappingNode):
             continue
         for field, value in spec.value:
-            if field.value == "image":
-                lines[service.value] = (field.start_mark.line, value.start_mark.line)
+            line = field.start_mark.line
+            if (
+                field.value == "image"
+                and value.start_mark.line == line
+                and _IMAGE_VALUE_RE.match(text_lines[line])
+            ):
+                lines[service.value] = line
     return lines
 
 
@@ -417,8 +427,8 @@ def suppressed_compose_services(compose_path: Path) -> set[str]:
     lines = raw.splitlines()
     return {
         service
-        for service, (key_line, _value_line) in _compose_image_lines(raw).items()
-        if is_suppressed_at(lines, key_line + 1, "docker-version")
+        for service, line in _compose_image_lines(raw).items()
+        if is_suppressed_at(lines, line + 1, "docker-version")
     }
 
 
@@ -529,11 +539,13 @@ def outdated(entries: list[DockerImageVersionEntry]) -> list[DockerImageVersionU
         if latest and version_key(entry.version) < version_key(latest):
             updates.append(DockerImageVersionUpdate(entry=entry, latest=latest))
 
-    return _held_to_release_groups(updates, image_tags)
+    return _held_to_release_groups(entries, updates, image_tags)
 
 
 def _held_to_release_groups(
-    updates: list[DockerImageVersionUpdate], image_tags: dict[str, list[str]]
+    entries: list[DockerImageVersionEntry],
+    updates: list[DockerImageVersionUpdate],
+    image_tags: dict[str, list[str]],
 ) -> list[DockerImageVersionUpdate]:
     """Hold every member of a release group to the newest tag all of them
     publish.
@@ -546,37 +558,41 @@ def _held_to_release_groups(
     deploying a mixed set.
 
     Args:
+        entries: every collected pin, so a member without a candidate of its
+            own still holds its group.
         updates: the per-entry candidates, before grouping.
         image_tags: every tag fetched per image, keyed as in the caller.
 
     Returns:
         The updates, each group lowered to its common newest tag, and dropped
-        entirely where the group shares no newer tag at all.
+        entirely where a member has no candidate or the group shares no newer
+        tag at all.
     """
-    groups: dict[tuple[str, Path, str], list[DockerImageVersionUpdate]] = defaultdict(
+    due = {update.entry: update for update in updates}
+    groups: dict[tuple[str, Path, str], list[DockerImageVersionEntry]] = defaultdict(
         list
     )
-    for update in updates:
-        entry = update.entry
-        groups[(entry.role, entry.config_path, entry.version)].append(update)
+    for entry in entries:
+        groups[(entry.role, entry.config_path, entry.version)].append(entry)
 
     held: list[DockerImageVersionUpdate] = []
     for group in groups.values():
+        if not all(entry in due for entry in group):
+            continue
         if len(group) == 1:
-            held.extend(group)
+            held.append(due[group[0]])
             continue
         shared = set.intersection(
-            *(set(image_tags.get(update.entry.image, [])) for update in group)
+            *(set(image_tags.get(entry.image, [])) for entry in group)
         )
-        current = group[0].entry.version
+        current = group[0].version
         common = latest_semver(
             sorted(shared), version_depth(current), version_flavor(current)
         )
         if not common or version_key(current) >= version_key(common):
             continue
         held.extend(
-            DockerImageVersionUpdate(entry=update.entry, latest=common)
-            for update in group
+            DockerImageVersionUpdate(entry=entry, latest=common) for entry in group
         )
 
     return held
@@ -665,16 +681,16 @@ def update_compose_images(compose_path: Path, service_versions: dict[str, str]) 
     )
     lines = raw.splitlines(keepends=True)
     changed = False
-    for service, (_key_line, value_line) in _compose_image_lines(raw).items():
+    for service, line in _compose_image_lines(raw).items():
         latest = service_versions.get(service)
-        body = lines[value_line].rstrip("\n")
+        body = lines[line].rstrip("\n")
         match = _IMAGE_VALUE_RE.match(body)
         if latest is None or match is None or match["tag"] == latest:
             continue
         quote = match["quote"]
-        lines[value_line] = (
+        lines[line] = (
             f"{match['prefix']}{quote}{match['name']}:{latest}{quote}"
-            f"{match['suffix']}{lines[value_line][len(body) :]}"
+            f"{match['suffix']}{lines[line][len(body) :]}"
         )
         changed = True
     if changed:

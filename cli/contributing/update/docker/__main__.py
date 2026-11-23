@@ -40,6 +40,11 @@ def main() -> int:
     args = parser.parse_args()
 
     repo_root = args.repo_root.resolve()
+    if args.compose and repo_root != PROJECT_ROOT:
+        parser.error(
+            "--compose lists the tracked files of this checkout only; "
+            "drop --repo-root or run the command from the other checkout"
+        )
     updates = (
         find_outdated_compose_updates(repo_root, repository_files())
         if args.compose

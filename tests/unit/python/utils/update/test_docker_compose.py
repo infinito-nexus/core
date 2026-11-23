@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+import contextlib
+import io
 import os
 import re
+import sys
 import tempfile
 import unittest
 import unittest.mock as mock
 from pathlib import Path
 
+from cli.contributing.update.docker import __main__ as docker_cli
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.reset import _reset_cache_for_tests
 from utils.docker.image.discovery import RUNNER_ROLE
@@ -265,6 +269,34 @@ class TestComposeDiscovery(unittest.TestCase):
             [("literal", "nginx")],
         )
 
+    def test_a_compose_file_in_the_role_tree_is_not_discovered(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write(root / "roles/svc-x/files/stack.yaml", STACK)
+            _write(root / "ops/stack.yaml", STACK)
+            files = docker.compose_files(
+                root, ["roles/svc-x/files/stack.yaml", "ops/stack.yaml"]
+            )
+        self.assertEqual(files, ["ops/stack.yaml"])
+
+    def test_an_image_value_on_the_line_after_its_key_is_not_collected(self):
+        split = (
+            "services:\n"
+            "  split:\n"
+            "    image:\n"
+            "      redis:7.4.1\n"
+            "  inline:\n"
+            "    image: nginx:1.27-alpine\n"
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write(root / "ops/split.yml", split)
+            entries = docker.collect_compose_entries(root, ["ops/split.yml"])
+        self.assertEqual(
+            [(entry.service, entry.image) for entry in entries],
+            [("inline", "nginx")],
+        )
+
     def test_the_version_policy_of_role_pins_applies(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = _repo(Path(tmp))
@@ -287,6 +319,63 @@ class TestComposeDiscovery(unittest.TestCase):
                 "package-cache-frontend": "1.29-alpine",
             },
         )
+
+    def test_a_service_on_the_shared_version_without_its_release_holds_the_group(
+        self,
+    ):
+        pair = (
+            "services:\n"
+            "  api:\n"
+            "    image: acme/api:1.0.0\n"
+            "  worker:\n"
+            "    image: acme/worker:1.0.0\n"
+        )
+        published = {"acme/api": ["1.0.0", "1.0.1"], "acme/worker": ["1.0.0"]}
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write(root / "ops/pair.yml", pair)
+            with (
+                mock.patch.dict(os.environ, {"INFINITO_WORKER_FETCH": "2"}),
+                _registry(published),
+            ):
+                partial = docker.find_outdated_compose_updates(root, ["ops/pair.yml"])
+            published["acme/worker"].append("1.0.1")
+            with (
+                mock.patch.dict(os.environ, {"INFINITO_WORKER_FETCH": "2"}),
+                _registry(published),
+            ):
+                complete = docker.find_outdated_compose_updates(root, ["ops/pair.yml"])
+        self.assertEqual(partial, [])
+        self.assertEqual(
+            {update.entry.service: update.latest for update in complete},
+            {"api": "1.0.1", "worker": "1.0.1"},
+        )
+
+
+class TestComposeCli(unittest.TestCase):
+    def _main(self, *argv: str) -> mock.Mock:
+        find = mock.Mock(return_value=[])
+        with (
+            mock.patch.object(sys, "argv", ["update-docker", *argv]),
+            mock.patch.object(docker_cli, "find_outdated_compose_updates", find),
+            mock.patch.object(docker_cli, "repository_files", return_value=()),
+            contextlib.redirect_stdout(io.StringIO()),
+            contextlib.redirect_stderr(io.StringIO()),
+        ):
+            self.assertEqual(docker_cli.main(), 0)
+        return find
+
+    def test_compose_refuses_a_repo_root_other_than_the_one_it_lists(self):
+        with (
+            tempfile.TemporaryDirectory() as tmp,
+            self.assertRaises(SystemExit) as raised,
+        ):
+            self._main("--compose", "--repo-root", tmp)
+        self.assertEqual(raised.exception.code, 2)
+
+    def test_compose_scans_the_default_repo_root(self):
+        find = self._main("--compose")
+        find.assert_called_once_with(PROJECT_ROOT, ())
 
 
 class TestComposeBump(unittest.TestCase):
