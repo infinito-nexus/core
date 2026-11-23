@@ -10,7 +10,6 @@ free_mib() {
   df --output=avail -BM "${root}" 2>/dev/null | sed 1d | tr -dc '0-9'
 }
 
-# Exception: a probe that fails falls through to the prune, so unmeasured space counts as short.
 if root="$(container info --format '{{.DockerRootDir}}' 2>/dev/null)" &&
   free="$(free_mib)" && [ -n "${free}" ]; then
   if [ "${free}" -ge "${floor_mib}" ]; then
