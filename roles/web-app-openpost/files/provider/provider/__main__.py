@@ -80,6 +80,7 @@ def serve(config: dict) -> int:
     plain = ThreadingHTTPServer(("0.0.0.0", int(config["http_port"])), handler)  # noqa: S104 published only on the role network and the CI loopback
     secure = ThreadingHTTPServer(("0.0.0.0", int(config["https_port"])), handler)  # noqa: S104 published only on the role network and the CI loopback
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.minimum_version = ssl.TLSVersion.TLSv1_2
     context.load_cert_chain(config["certificate"], config["key"])
     secure.socket = context.wrap_socket(secure.socket, server_side=True)
     threading.Thread(target=secure.serve_forever, daemon=True).start()
