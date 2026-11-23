@@ -23,6 +23,7 @@ const PIHOLE_TARGET = { id: "web-app-pihole", canonical_domain: `pihole.${DOMAIN
 const ESCAPED_DOMAIN = DOMAIN.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const WALKED_ELEMENT = new RegExp(`Expected the embedded element\\.${ESCAPED_DOMAIN} to answer the new tab`);
 const WALKED_PIHOLE = new RegExp(`Expected the embedded pihole\\.${ESCAPED_DOMAIN} to answer the new tab`);
+const WALKED_PROMETHEUS = new RegExp(`Expected the embedded prometheus\\.${ESCAPED_DOMAIN} to answer the new tab`);
 
 /**
  * Args:
@@ -151,6 +152,44 @@ test("an oauth2-proxy app that redirects the tab to the IdP with a redirect_uri 
     KEYCLOAK_FOR_PROXY,
   );
   await assertTabButtonOpensNewTab(page, context, PROMETHEUS);
+});
+
+test("a tab the dashboard opens on the IdP login its iframe already reached, returning to the oauth2-proxy app, passes", async () => {
+  const { page, context } = dashboardWithTab(
+    PROXIED,
+    [[KEYCLOAK_FOR_PROXY, 200]],
+    [
+      [PROXIED, 302],
+      [KEYCLOAK_FOR_PROXY, 200],
+    ],
+    KEYCLOAK_FOR_PROXY,
+  );
+  await assertTabButtonOpensNewTab(page, context, PROMETHEUS);
+});
+
+test("a tab that starts on an IdP login returning to another host fails", async () => {
+  const { page, context } = dashboardWithTab(ELEMENT, [[KEYCLOAK_FOR_PROXY, 200]], [], KEYCLOAK_FOR_PROXY);
+  await assert.rejects(assertTabButtonOpensNewTab(page, context, MATRIX), WALKED_ELEMENT);
+});
+
+test("a tab that starts on an IdP login that never answers fails", async () => {
+  const { page, context } = dashboardWithTab(PROXIED, [[KEYCLOAK_FOR_PROXY, null]], [], CHROME_ERROR);
+  await assert.rejects(assertTabButtonOpensNewTab(page, context, PROMETHEUS), WALKED_PROMETHEUS);
+});
+
+test("a tab whose IdP login got no response fails even while its URL still reads the IdP request", async () => {
+  const { page, context } = dashboardWithTab(PROXIED, [[KEYCLOAK_FOR_PROXY, null]], [], KEYCLOAK_FOR_PROXY);
+  await assert.rejects(assertTabButtonOpensNewTab(page, context, PROMETHEUS), WALKED_PROMETHEUS);
+});
+
+test("a tab that starts on an IdP login but lands off the IdP fails", async () => {
+  const { page, context } = dashboardWithTab(PROXIED, [[KEYCLOAK_FOR_PROXY, 200]], [], DASHBOARD);
+  await assert.rejects(assertTabButtonOpensNewTab(page, context, PROMETHEUS), WALKED_PROMETHEUS);
+});
+
+test("a tab that starts on an IdP login answering with a 5xx fails", async () => {
+  const { page, context } = dashboardWithTab(PROXIED, [[KEYCLOAK_FOR_PROXY, 502]], [], KEYCLOAK_FOR_PROXY);
+  await assert.rejects(assertTabButtonOpensNewTab(page, context, PROMETHEUS), WALKED_PROMETHEUS);
 });
 
 test("a front proxy that redirects the tab to a page its app answers passes", async () => {

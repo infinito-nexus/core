@@ -141,19 +141,51 @@ function isAuthorizationRequest(url) {
 
 /**
  * Args:
+ *   url: the URL a tab started on.
+ *   host: the embedded host the Tab button opened.
+ * Returns: true when url is an OpenID Connect authorization request whose
+ *   redirect_uri returns to host.
+ */
+function handsOffTo(url, host) {
+  if (!isAuthorizationRequest(url)) {
+    return false;
+  }
+  try {
+    return new URL(new URL(url).searchParams.get("redirect_uri")).host === host;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Args:
  *   hops: the new tab's top-level navigations, each { url, status }.
  *   landing: the URL the tab shows once its document loaded.
  *   host: the embedded host the Tab button opened.
  * Returns: true when the last hop on host got a response below 400 and the tab
  *   either lands on host, so that hop is the page it shows, or lands on an IdP
- *   authorization request elsewhere, the SSO hand-off. A request without a
- *   response, a page of host that ends in an error status and a redirect that
- *   leaves host for anywhere but the IdP return false.
+ *   authorization request elsewhere, the SSO hand-off. A tab with no hop on
+ *   host passes only when it starts on an authorization request that returns
+ *   to host, gets a response below 400 and lands on an authorization request:
+ *   the iframe already followed host's login redirect, so the dashboard reopens
+ *   that IdP page. A request without a response, a page of host that ends in an
+ *   error status and a redirect that leaves host for anywhere but the IdP
+ *   return false.
  */
 function hostAnsweredTab(hops, landing, host) {
   const hostHops = hops.filter(({ url }) => new URL(url).host === host);
   const last = hostHops[hostHops.length - 1];
-  if (!last || last.status === null || last.status >= 400) {
+  if (!last) {
+    const [first] = hops;
+    return (
+      Boolean(first) &&
+      first.status !== null &&
+      first.status < 400 &&
+      handsOffTo(first.url, host) &&
+      isAuthorizationRequest(landing)
+    );
+  }
+  if (last.status === null || last.status >= 400) {
     return false;
   }
   return new URL(landing).host === host || isAuthorizationRequest(landing);
