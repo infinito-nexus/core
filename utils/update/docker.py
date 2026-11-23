@@ -1,13 +1,14 @@
 """Detect and rewrite outdated Docker image `version:` tags in
-`roles/*/meta/services.yml`.
+`roles/*/meta/services.yml`, and the tags of the `image:` literals in the
+repository's own compose files (:func:`compose_files`).
 
 Counterpart to :mod:`utils.update.repository` (which handles git refs).
 Both share the semver primitives in :mod:`utils.update.base`; this
 module owns the Docker-Hub / GHCR registry lookups and the YAML
-walker that rewrites the matching ``version:`` line.
+walker that rewrites the matching ``version:`` or ``image:`` line.
 
 Suppress a check by placing ``# nocheck: docker-version`` on the line
-directly above the ``version:`` key.
+directly above the ``version:`` key, or above a compose service's ``image:``.
 
 A ``version`` that names its own upstream in an ``update:`` block belongs to
 :mod:`utils.update.source` and is not collected here.
@@ -24,6 +25,7 @@ import urllib.error
 import urllib.request
 from collections import defaultdict
 from dataclasses import dataclass
+from pathlib import PurePosixPath
 from typing import TYPE_CHECKING
 from urllib.parse import quote, urlencode
 
@@ -31,8 +33,13 @@ import yaml
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
-from utils.cache.yaml import load_yaml
-from utils.docker.image.discovery import iter_role_images
+from utils.cache.yaml import load_yaml, load_yaml_any
+from utils.docker.image.discovery import (
+    RUNNER_ROLE,
+    ImageRef,
+    iter_compose_images,
+    iter_role_images,
+)
 from utils.docker.image.ref import (
     GHCR_REGISTRY,
     MCR_REGISTRY,
@@ -56,6 +63,7 @@ from utils.update.base import (
 from utils.update.follow import followed_tags
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from pathlib import Path
 
 _KEY_RE = re.compile(r"^(?P<indent>\s*)(?P<key>[A-Za-z0-9_-]+):(?P<rest>.*)$")
@@ -64,6 +72,19 @@ _VERSION_VALUE_RE = re.compile(
     r"(?P<quote>[\"']?)(?P<value>[^\"'#\s]+)(?P=quote)"
     r"(?P<suffix>\s*(?:#.*)?)$"
 )
+_IMAGE_VALUE_RE = re.compile(
+    r"^(?P<prefix>\s*image\s*:\s*)"
+    r"(?P<quote>[\"']?)(?P<name>[^\"'#\s]+):(?P<tag>[^\"'#\s:/@]+)(?P=quote)"
+    r"(?P<suffix>\s*(?:#.*)?)$"
+)
+COMPOSE_SUFFIXES = (".yml", ".yaml")
+DEPENDABOT_COMPOSE_FILES = (
+    "compose.yml",
+    "compose.yaml",
+    "docker-compose.yml",
+    "docker-compose.yaml",
+)
+TEST_TREE = "tests"
 
 
 @dataclass(frozen=True)
@@ -289,21 +310,148 @@ def collect_entries(repo_root: Path) -> list[DockerImageVersionEntry]:
         if ref.service in sourced_services(config_path):
             continue
 
-        if ref.registry == "docker.io":
-            image = ref.name
-        else:
-            image = f"{ref.registry}/{ref.name}"
-
         entries.append(
             DockerImageVersionEntry(
                 role=ref.role,
                 service=ref.service,
-                image=image,
+                image=_entry_image(ref),
                 version=ref.version,
                 config_path=config_path,
             )
         )
 
+    return entries
+
+
+def _entry_image(ref: ImageRef) -> str:
+    return ref.name if ref.registry == "docker.io" else f"{ref.registry}/{ref.name}"
+
+
+def declares_compose_images(document: object) -> bool:
+    """Args:
+        document: a parsed YAML document.
+
+    Returns:
+        Whether its top level holds a ``services`` mapping in which at least
+        one service carries an ``image`` string.
+    """
+    services = document.get("services") if isinstance(document, dict) else None
+    return isinstance(services, dict) and any(
+        isinstance(spec, dict) and isinstance(spec.get("image"), str)
+        for spec in services.values()
+    )
+
+
+def _owned_candidate(rel: str) -> bool:
+    path = PurePosixPath(rel)
+    return (
+        rel.endswith(COMPOSE_SUFFIXES)
+        and path.name not in DEPENDABOT_COMPOSE_FILES
+        and path.parts[0] != TEST_TREE
+    )
+
+
+def compose_files(repo_root: Path, tracked: Iterable[str]) -> list[str]:
+    """Args:
+        repo_root: repository root the tracked paths are relative to.
+        tracked: repository-relative POSIX paths of the tracked files, as
+            :func:`utils.cache.files.repository_files` lists them.
+
+    Returns:
+        The tracked YAML files :func:`declares_compose_images` accepts,
+        sorted. Left out are Jinja templates, YAML that does not parse as one
+        document, the test tree ``TEST_TREE`` and the files Dependabot's
+        ``docker-compose`` ecosystem bumps (``DEPENDABOT_COMPOSE_FILES``).
+    """
+    owned: list[str] = []
+    for rel in tracked:
+        if not _owned_candidate(rel):
+            continue
+        path = repo_root / rel
+        try:
+            if "services" not in read_text(str(path)):
+                continue
+            document = load_yaml_any(str(path))
+        except (OSError, UnicodeDecodeError, ValueError, yaml.YAMLError):
+            continue
+        if declares_compose_images(document):
+            owned.append(rel)
+    return sorted(owned)
+
+
+def _compose_image_lines(raw: str) -> dict[str, tuple[int, int]]:
+    """Args:
+        raw: text of a compose file.
+
+    Returns:
+        Each compose service mapped to the 0-indexed lines of its ``image``
+        key and value.
+    """
+    root = yaml.compose(raw)
+    services = next(
+        (
+            value
+            for key, value in (root.value if isinstance(root, yaml.MappingNode) else [])
+            if key.value == "services" and isinstance(value, yaml.MappingNode)
+        ),
+        None,
+    )
+    lines: dict[str, tuple[int, int]] = {}
+    for service, spec in services.value if services else []:
+        if not isinstance(spec, yaml.MappingNode):
+            continue
+        for field, value in spec.value:
+            if field.value == "image":
+                lines[service.value] = (field.start_mark.line, value.start_mark.line)
+    return lines
+
+
+def suppressed_compose_services(compose_path: Path) -> set[str]:
+    """Args:
+        compose_path: a compose file of the repository.
+
+    Returns:
+        The services whose ``image:`` carries ``# nocheck: docker-version``.
+    """
+    raw = read_text(str(compose_path))
+    lines = raw.splitlines()
+    return {
+        service
+        for service, (key_line, _value_line) in _compose_image_lines(raw).items()
+        if is_suppressed_at(lines, key_line + 1, "docker-version")
+    }
+
+
+def collect_compose_entries(
+    repo_root: Path, tracked: Iterable[str]
+) -> list[DockerImageVersionEntry]:
+    """Args:
+        repo_root: repository root the tracked paths are relative to.
+        tracked: repository-relative paths of the tracked files.
+
+    Returns:
+        One entry per semver-tagged service ``image`` literal of the
+        :func:`compose_files`, scoped to the pseudo role ``RUNNER_ROLE``; its
+        ``config_path`` is the compose file.
+    """
+    entries: list[DockerImageVersionEntry] = []
+    for ref in iter_compose_images(repo_root, compose_files(repo_root, tracked)):
+        compose_path = repo_root / ref.source_file
+        if not is_semver(ref.version):
+            continue
+        if ref.service not in _compose_image_lines(read_text(str(compose_path))):
+            continue
+        if ref.service in suppressed_compose_services(compose_path):
+            continue
+        entries.append(
+            DockerImageVersionEntry(
+                role=ref.role,
+                service=ref.service,
+                image=_entry_image(ref),
+                version=ref.version,
+                config_path=compose_path,
+            )
+        )
     return entries
 
 
@@ -318,7 +466,29 @@ def _registry_cursor(version: str) -> str | None:
 
 
 def find_outdated_updates(repo_root: Path) -> list[DockerImageVersionUpdate]:
-    entries = collect_entries(repo_root)
+    return outdated(collect_entries(repo_root))
+
+
+def find_outdated_compose_updates(
+    repo_root: Path, tracked: Iterable[str]
+) -> list[DockerImageVersionUpdate]:
+    return outdated(collect_compose_entries(repo_root, tracked))
+
+
+def _follow_config(entry: DockerImageVersionEntry) -> object:
+    if entry.role == RUNNER_ROLE:
+        return None
+    return (load_yaml(str(entry.config_path)) or {}).get(entry.service)
+
+
+def outdated(entries: list[DockerImageVersionEntry]) -> list[DockerImageVersionUpdate]:
+    """Args:
+        entries: pins from :func:`collect_entries` or
+            :func:`collect_compose_entries`.
+
+    Returns:
+        The bumps due for *entries*, release groups held together.
+    """
     updates: list[DockerImageVersionUpdate] = []
 
     def _fetch(item: tuple[str, str]) -> tuple[str, list[str]]:
@@ -343,9 +513,11 @@ def find_outdated_updates(repo_root: Path) -> list[DockerImageVersionUpdate]:
         )
 
     for entry in entries:
-        config = (load_yaml(str(entry.config_path)) or {}).get(entry.service)
         tags = followed_tags(
-            entry.image, image_tags.get(entry.image, []), config, entry.version
+            entry.image,
+            image_tags.get(entry.image, []),
+            _follow_config(entry),
+            entry.version,
         )
         if not tags:
             continue
@@ -366,11 +538,12 @@ def _held_to_release_groups(
     """Hold every member of a release group to the newest tag all of them
     publish.
 
-    Several images of one role that currently sit on the same version are one
-    product released together (the four Jitsi components, the six GitLab CNG
-    images). Upstream does not push them atomically, so a run that lands in the
-    window between the first and the last push would raise the ones already
-    there and leave the rest behind, deploying a mixed set.
+    Several images of one role (or one compose file) that currently sit on the
+    same version are one product released together (the four Jitsi
+    components, the six GitLab CNG images). Upstream does not push them
+    atomically, so a run that lands in the window between the first and the
+    last push would raise the ones already there and leave the rest behind,
+    deploying a mixed set.
 
     Args:
         updates: the per-entry candidates, before grouping.
@@ -380,9 +553,12 @@ def _held_to_release_groups(
         The updates, each group lowered to its common newest tag, and dropped
         entirely where the group shares no newer tag at all.
     """
-    groups: dict[tuple[str, str], list[DockerImageVersionUpdate]] = defaultdict(list)
+    groups: dict[tuple[str, Path, str], list[DockerImageVersionUpdate]] = defaultdict(
+        list
+    )
     for update in updates:
-        groups[(update.entry.role, update.entry.version)].append(update)
+        entry = update.entry
+        groups[(entry.role, entry.config_path, entry.version)].append(update)
 
     held: list[DockerImageVersionUpdate] = []
     for group in groups.values():
@@ -475,15 +651,50 @@ def update_config_versions(config_path: Path, service_versions: dict[str, str]) 
     return bool(moved)
 
 
+def update_compose_images(compose_path: Path, service_versions: dict[str, str]) -> bool:
+    """Args:
+        compose_path: a compose file of the repository.
+        service_versions: service name to the tag its image moves to.
+
+    Returns:
+        Whether the file changed; every line but the rewritten tags stays as
+        it was.
+    """
+    raw = compose_path.read_text(  # nocheck: cache-read -- read-then-write of the same file; a cached read would go stale
+        encoding="utf-8"
+    )
+    lines = raw.splitlines(keepends=True)
+    changed = False
+    for service, (_key_line, value_line) in _compose_image_lines(raw).items():
+        latest = service_versions.get(service)
+        body = lines[value_line].rstrip("\n")
+        match = _IMAGE_VALUE_RE.match(body)
+        if latest is None or match is None or match["tag"] == latest:
+            continue
+        quote = match["quote"]
+        lines[value_line] = (
+            f"{match['prefix']}{quote}{match['name']}:{latest}{quote}"
+            f"{match['suffix']}{lines[value_line][len(body) :]}"
+        )
+        changed = True
+    if changed:
+        compose_path.write_text("".join(lines), encoding="utf-8")
+    return changed
+
+
 def apply_updates(updates: list[DockerImageVersionUpdate]) -> list[Path]:
-    grouped: dict[Path, dict[str, str]] = {}
+    grouped: dict[tuple[Path, str], dict[str, str]] = {}
     for update in updates:
-        grouped.setdefault(update.entry.config_path, {})[update.entry.service] = (
+        entry = update.entry
+        grouped.setdefault((entry.config_path, entry.role), {})[entry.service] = (
             update.latest
         )
 
     changed_paths: list[Path] = []
-    for config_path, service_versions in sorted(grouped.items()):
-        if update_config_versions(config_path, service_versions):
+    for (config_path, role), service_versions in sorted(grouped.items()):
+        rewrite = (
+            update_compose_images if role == RUNNER_ROLE else update_config_versions
+        )
+        if rewrite(config_path, service_versions):
             changed_paths.append(config_path)
     return changed_paths

@@ -4,7 +4,12 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from utils.update.docker import apply_updates, find_outdated_updates
+from utils.cache.files import repository_files
+from utils.update.docker import (
+    apply_updates,
+    find_outdated_compose_updates,
+    find_outdated_updates,
+)
 
 from . import PROJECT_ROOT
 
@@ -12,6 +17,14 @@ from . import PROJECT_ROOT
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Update semver-based Docker image versions in roles/*/meta/services.yml."
+    )
+    parser.add_argument(
+        "--compose",
+        action="store_true",
+        help=(
+            "Update the image tags of the tracked YAML files holding a compose "
+            "'services' mapping instead"
+        ),
     )
     parser.add_argument(
         "--repo-root",
@@ -27,7 +40,11 @@ def main() -> int:
     args = parser.parse_args()
 
     repo_root = args.repo_root.resolve()
-    updates = find_outdated_updates(repo_root)
+    updates = (
+        find_outdated_compose_updates(repo_root, repository_files())
+        if args.compose
+        else find_outdated_updates(repo_root)
+    )
 
     if not updates:
         print("Docker image versions are already up to date.")
