@@ -455,7 +455,8 @@ class TestSpecSecretsMaskingNegativeControls(unittest.TestCase):
     ) -> None:
         self.assertEqual(failed_scrub_run(HIDDEN)[::3], (0, 0))
         trusting = (PROOF, "True")
-        self.assertEqual(stopped_run(signal.SIGKILL, True, trusting)[2], "scrub 0")
+        published = stopped_run(signal.SIGKILL, True, trusting)[4]
+        self.assertNotEqual(published, "published none")
 
     def test_a_masker_whose_failure_leaves_no_mark_for_the_scrub_is_caught(
         self,
