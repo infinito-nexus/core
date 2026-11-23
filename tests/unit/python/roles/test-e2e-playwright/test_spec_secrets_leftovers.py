@@ -198,7 +198,7 @@ def files_below(path: Path) -> list[str]:
     """
     return sorted(
         str(Path(here, name).relative_to(path))
-        for here, dirs, files in os.walk(path)
+        for here, dirs, files in os.walk(path)  # nocheck: project-walk tempdir
         for name in [*files, *(d for d in dirs if Path(here, d).is_symlink())]
     )
 

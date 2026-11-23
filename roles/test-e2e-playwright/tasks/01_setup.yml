@@ -1,5 +1,5 @@
 ---
-- name: ✅ Ensure shared Playwright project dir and the root helpers' tools dir exist, the tools dir never mounted
+- name: ✅ Ensure the shared Playwright project dir and the unmounted tools dir exist
   ansible.builtin.file:
     path: "{{ playwright_setup_dir }}"
     state: directory

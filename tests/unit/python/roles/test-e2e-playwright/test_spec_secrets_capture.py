@@ -47,10 +47,11 @@ KEPT = {
 }
 MOUNT = '"/run/spec-secrets"'
 MOUNT_SWITCH = f"fs.existsSync({MOUNT}) ||"
+NO_CAPTURE = "INFINITO_PLAYWRIGHT_NO_CAPTURE"  # nocheck: container env
 SWITCHES = (
     {"INFINITO_PLAYWRIGHT_KEEP": "true"},
-    {"INFINITO_PLAYWRIGHT_KEEP": "true", "INFINITO_PLAYWRIGHT_NO_CAPTURE": "true"},
-    {"INFINITO_PLAYWRIGHT_KEEP": "true", "INFINITO_PLAYWRIGHT_NO_CAPTURE": "TRUE"},
+    {"INFINITO_PLAYWRIGHT_KEEP": "true", NO_CAPTURE: "true"},
+    {"INFINITO_PLAYWRIGHT_KEEP": "true", NO_CAPTURE: "TRUE"},
     {},
 )
 

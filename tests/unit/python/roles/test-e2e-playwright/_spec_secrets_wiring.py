@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import re
 
 import jinja2
@@ -111,6 +112,38 @@ def role_tasks(task_file: str) -> list[dict]:
     return load_yaml_any(str(ROLE / "tasks" / task_file), default_if_missing=[])
 
 
+def conditions(task: dict) -> list[str]:
+    """List a task's ``when`` conditions.
+
+    Args:
+        task: a parsed task.
+
+    Returns:
+        Its ``when``, a single condition as a list of one, none as empty.
+    """
+    when = task.get("when", [])
+    return when if isinstance(when, list) else [when]
+
+
+def flattened(task_file: str) -> list[dict]:
+    """Parse one task file of the role with each block's tasks in its place.
+
+    Args:
+        task_file: path below the role's ``tasks`` directory.
+
+    Returns:
+        A copy of its top-level tasks, a block replaced by its tasks, whose
+        ``when`` lists the block's conditions before their own.
+    """
+    flat = []
+    for task in copy.deepcopy(role_tasks(task_file)):
+        for child in task.get("block", [task]):
+            if child is not task:
+                child["when"] = [*conditions(task), *conditions(child)]
+            flat.append(child)
+    return flat
+
+
 def role_vars() -> dict:
     """Parse the role's ``vars/main.yml``.
 
@@ -160,7 +193,8 @@ def prune_violations(orchestrate: list[dict]) -> list[str]:
     Returns:
         One message per broken expectation: the prune is not one command
         with exactly ``PRUNE_ARGV`` after the setup that ships ``HELPER_SHIP``
-        and before the first run, can fail or reports changed wrongly.
+        and before the first run, can fail or reports changed wrongly, also
+        for a result without stdout, which Ansible's strict templating raises on.
     """
     problems = []
     pruned = [
@@ -182,33 +216,41 @@ def prune_violations(orchestrate: list[dict]) -> list[str]:
     if prune.get("failed_when") is not False:
         problems.append("the prune can fail a role without the template")
     register = str(prune.get("register"))
-    changed = [
-        holds(prune.get("changed_when", "true"), **{register: value})
-        for value in (
-            {"stdout": "spec secrets removed: 1"},
-            {"stdout": "nothing to prune"},
-            {},
-        )
-    ]
+    template = environment(strict=True).from_string(
+        "{{ (" + str(prune.get("changed_when", "true")) + ") | bool }}"
+    )
+    changed = []
+    for value in (
+        {"stdout": "spec secrets removed: 1"},
+        {"stdout": "nothing to prune"},
+        {},
+    ):
+        try:
+            changed.append(template.render(**{register: value}) == "True")
+        except jinja2.UndefinedError:
+            changed.append("undefined")
     if changed != [True, False, False]:
         problems.append(f"the prune reports changed {changed}")
     return problems
 
 
-def environment(native: bool = False) -> jinja2.Environment:
+def environment(native: bool = False, strict: bool = False) -> jinja2.Environment:
     """Build a Jinja environment with Ansible's filters and tests.
 
     Args:
         native: whether templates render to Python values instead of text.
+        strict: whether using an undefined value raises, as Ansible does.
 
     Returns:
         The environment.
     """
+    undefined = jinja2.StrictUndefined if strict else jinja2.Undefined
     env = (
-        NativeEnvironment()
+        NativeEnvironment(undefined=undefined)
         if native
         else jinja2.Environment(
-            autoescape=jinja2.select_autoescape(default_for_string=False)
+            autoescape=jinja2.select_autoescape(default_for_string=False),
+            undefined=undefined,
         )
     )
     env.filters.update(FilterModule().filters())

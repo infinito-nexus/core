@@ -11,6 +11,7 @@ import unittest
 from pathlib import Path
 
 from utils.cache.files import iter_project_files, read_text
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT, ROLE
 from ._spec_secrets_fakes import CA_MODE, MASKER, QUICK, install
@@ -60,7 +61,7 @@ SHADOW = (
     "pathlib.Path(__file__).with_name('shadowed').touch()\n"
     "raise ImportError('planted')\n"
 )
-TRAP = re.compile(r"^\ttrap '(.*)' (HUP|INT|TERM)$", re.MULTILINE)
+TRAP = re.compile(r"^\ttrap '(.*)' (HUP|INT|TERM)(?: # nocheck: .*)?$", re.MULTILINE)
 LAUNCH = '-- "$@" &\nmasker_pid=$!\nwait "$masker_pid"\n'
 UNFORWARDED_TERM = ('kill -TERM "$masker_pid"', "true")
 UNKEPT_PID = (LAUNCH, '-- "$@" &\nwait "$!"\n')
@@ -87,6 +88,7 @@ UNCHECKED_SCRUB = (
 SPLIT = '\tpython3 -I -B "$spec_secrets" split "$secrets_dir"\n'
 UNSTARTED = (SPLIT, f"{SPLIT}\tfalse\n")
 UNSTARTED_SAID = re.compile(
+    r"spec secrets files written: 1\n"
     r"spec secrets: publishing the reports failed: [^\n]+\n"
     r"spec secrets: the scrub failed, [^\n]+ may hold only part of the reports,"
     r" all of them masked\n"
@@ -162,7 +164,7 @@ def helper_texts() -> dict[str, str]:
         for path in iter_project_files(extensions=(".yml",))
         if path.startswith(tasks)
     ]
-    paths += [str(ROLE / "vars" / "main.yml"), str(RERUN)]
+    paths += [str(ROLE / ROLE_FILE_VARS_MAIN), str(RERUN)]
     return {path: read_text(path) for path in sorted(paths)}
 
 
@@ -292,7 +294,7 @@ class TestSpecSecretsSharedNegativeControls(unittest.TestCase):
 
     def test_a_helper_started_without_isolation_is_caught(self) -> None:
         texts = helper_texts()
-        vars_main = str(ROLE / "vars" / "main.yml")
+        vars_main = str(ROLE / ROLE_FILE_VARS_MAIN)
         texts[vars_main] = texts[vars_main].replace("'-I', ", "", 1)
         self.assertEqual(unisolated(texts), [vars_main])
 

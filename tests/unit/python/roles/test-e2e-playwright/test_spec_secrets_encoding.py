@@ -95,7 +95,7 @@ DECODERS = {
         '    rb"(?P<plus>\\+)",\n',
         ["form_encoded", "form_then_percent", "url_search_params"],
     ],
-    "quote": ["    rb\"(?P<quote>'')\",\n", ["yaml_single_quoted"]],
+    "quote": ["    rb\"(?P<quote>'')\",\n", []],
 }
 NEW_RULE = (DECODERS["plus"][0], DECODERS["plus"][0] + '    rb"(?P<tilde>~)",\n')
 NO_QUOTE = (
@@ -358,6 +358,8 @@ class TestSpecSecretsEncodingNegativeControls(unittest.TestCase):
         unquoted = load_masker(*NO_QUOTE)
         self.assertLessEqual(set(SNAPSHOT_TRIGGERS), set(literal_leaks(unquoted)))
         self.assertEqual(snapshot_leaks(unquoted), ["ab'cdefgh"])
+        ruleless = load_masker(NO_QUOTE[0], NO_ENCODINGS)
+        self.assertEqual(snapshot_leaks(ruleless), ["ab'cdefgh"])
 
     def test_a_normalised_name_leaks_without_the_normalised_windows(self) -> None:
         unnormalized = load_masker(UNNORMALIZED)

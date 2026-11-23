@@ -7,7 +7,6 @@ import tempfile
 import unittest.mock
 from pathlib import Path
 
-from . import role_task
 from ._spec_secrets_fakes import (
     IMAGE,
     MASKER,
@@ -27,6 +26,7 @@ from ._spec_secrets_wiring import (
     PATH_FACT,
     TEMPLATE_EXISTS,
     environment,
+    flattened,
     mount_violations,
     render,
     run_argv,
@@ -98,16 +98,17 @@ def open_config(root: Path) -> Path:
     return docker
 
 
-def listed_keys(source: str) -> tuple[list[str], str, str]:
+def listed_keys(source: str) -> tuple[list[str], str, list[str]]:
     """Render the task that lists the keys an env template declares.
 
     Args:
         source: the env template's source, as ``lookup('file')`` reads it.
 
     Returns:
-        The listed keys, the file the task writes and when it runs.
+        The listed keys, the file the task writes and the conditions it and
+        its block run under.
     """
-    task = role_task("03_run_pass.yml", "📇")
+    task = next(t for t in flattened("03_run_pass.yml") if t["name"].startswith("📇"))
     copied = task["ansible.builtin.copy"]
     text = (
         environment()
@@ -118,7 +119,7 @@ def listed_keys(source: str) -> tuple[list[str], str, str]:
         )
     )
     keys = [line.strip() for line in text.splitlines() if line.strip()]
-    return keys, copied["dest"], task.get("when", "")
+    return keys, copied["dest"], task.get("when", [])
 
 
 def argv_triggers(stage: Path, run: Path) -> dict[str, tuple[str, list[str]]]:
@@ -288,7 +289,7 @@ class TestSpecSecretsContainer(unittest.TestCase):
             (
                 ["APP_BASE_URL", "ADMIN_USERNAME"],
                 "{{ _playwright_stage_dir }}/.env.keys",
-                TEMPLATE_EXISTS,
+                [TEMPLATE_EXISTS],
             ),
         )
 

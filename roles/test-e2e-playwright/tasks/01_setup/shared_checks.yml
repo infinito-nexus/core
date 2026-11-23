@@ -39,7 +39,7 @@
         path: "{{ _playwright_ca_wrapper_host }}"
       register: _playwright_ca_wrapper_stat
 
-    - name: 🔎 Read the Playwright image's ENTRYPOINT, which the CA trust of a run with spec secrets needs empty
+    - name: 🔎 Read the Playwright image's ENTRYPOINT, empty for the spec secrets CA trust
       ansible.builtin.command:
         argv:
           - container

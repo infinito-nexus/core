@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import os
 import tempfile
 import unittest.mock
@@ -91,13 +92,12 @@ def odd_suffix(module) -> list[str]:
                     problems.append("a root prune lists the odd parent")
             except ValueError:
                 problems.append("a root prune fails on the odd parent")
-            try:
-                module.run_owner(odd / "run.odd")
-                problems.append("run_owner takes the odd parent")
-            except module.SpecSecretsError:
-                pass
-            except ValueError:
-                problems.append("run_owner fails on the odd parent")
+            with contextlib.suppress(module.SpecSecretsError):
+                try:
+                    module.run_owner(odd / "run.odd")
+                    problems.append("run_owner takes the odd parent")
+                except ValueError:
+                    problems.append("run_owner fails on the odd parent")
     return problems
 
 

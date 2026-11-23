@@ -129,11 +129,11 @@ def render_budget(
     )
 
 
-def conditional(expression: str, **variables) -> bool:
+def conditional(expression: str | list[str], **variables) -> bool:
     """Evaluate a task condition the way Ansible does.
 
     Args:
-        expression: the ``when`` or ``failed_when`` text.
+        expression: the ``when`` or ``failed_when`` text, or the list a task holds.
         **variables: the variables in scope.
 
     Returns:
@@ -144,6 +144,8 @@ def conditional(expression: str, **variables) -> bool:
     )
     env.filters.update(FilterModule().filters())
     env.tests.update(TestModule().tests())
+    if isinstance(expression, list):
+        expression = " and ".join(f"({part})" for part in expression)
     return (
         env.from_string("{{ (" + expression + ") | bool }}").render(**variables)
         == "True"

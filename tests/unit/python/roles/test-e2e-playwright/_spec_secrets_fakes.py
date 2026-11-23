@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 from unittest import mock
 
 from utils.cache.files import read_text
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import ROLE
 
@@ -23,7 +24,7 @@ HELPER = FILES / "spec_secrets.py"
 MASKER = FILES / "spec_secrets_mask.py"
 MATCHER = FILES / "spec_secrets_match.py"
 CONTAINER = FILES / "spec_secrets_container.py"
-SERVICES = ROLE / "meta" / "services.yml"
+SERVICES = ROLE / ROLE_FILE_META_SERVICES
 PARENT_LINE = 'PARENT = Path("/tmp/infinito-playwright-spec-secrets")'
 QUICK = ("REMOVAL_SECONDS = 30.0", "REMOVAL_SECONDS = 6.0")
 CA_MODE = 0o644

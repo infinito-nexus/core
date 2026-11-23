@@ -155,9 +155,9 @@ if [[ -f "$repo_root/roles/$role/templates/playwright.secrets.j2" ]]; then
 	python3 -I -B "$spec_secrets" split "$secrets_dir"
 	reports_mount="$secrets_dir/reports"
 	stage_ro=":ro"
-	trap '[[ -z "$masker_pid" ]] || kill -HUP "$masker_pid" 2>/dev/null || :; wait; exit 129' HUP
-	trap '[[ -z "$masker_pid" ]] || kill -INT "$masker_pid" 2>/dev/null || :; wait; exit 130' INT
-	trap '[[ -z "$masker_pid" ]] || kill -TERM "$masker_pid" 2>/dev/null || :; wait; exit 143' TERM
+	trap '[[ -z "$masker_pid" ]] || kill -HUP "$masker_pid" 2>/dev/null || :; wait; exit 129' HUP # nocheck: shell-or-true -- the masker may have exited already
+	trap '[[ -z "$masker_pid" ]] || kill -INT "$masker_pid" 2>/dev/null || :; wait; exit 130' INT # nocheck: shell-or-true -- the masker may have exited already
+	trap '[[ -z "$masker_pid" ]] || kill -TERM "$masker_pid" 2>/dev/null || :; wait; exit 143' TERM # nocheck: shell-or-true -- the masker may have exited already
 	user_args=()
 	((EUID == 0)) || user_args=(--user "$(id -u):$(id -g)" -e HOME=/tmp)
 	secret_args=(--name "$run_name" "--cidfile=$secrets_dir/.cid" --log-driver=none --mount "type=bind,src=$secrets_dir,dst=/run/spec-secrets,readonly" -e INFINITO_PLAYWRIGHT_NO_CAPTURE=true -e NO_COLOR=1 -e FORCE_COLOR=0 "${user_args[@]}")

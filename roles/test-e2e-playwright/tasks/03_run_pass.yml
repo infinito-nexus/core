@@ -1,5 +1,5 @@
 ---
-- name: ✅ Ensure the pass reports dir exists, never emptied, since it keeps the earlier variant-* slots
+- name: ✅ Ensure the pass reports dir exists, kept for the earlier variant-* slots
   ansible.builtin.file:
     path: "{{ _playwright_pass_reports_dir }}"
     state: directory
@@ -34,25 +34,26 @@
     application_id: "{{ application_id }}"
     domains: "{{ lookup('domains') }}"
 
-- name: 📇 List the keys the env template declares, the only role keys a run with spec secrets takes from the .env
-  ansible.builtin.copy:
-    dest: "{{ _playwright_stage_dir }}/.env.keys"
-    mode: "0644"
-    content: |
-      {% for key in lookup('file', _playwright_env_template) | regex_findall('(?m)^([A-Z][A-Z0-9_]*)=') | unique %}
-      {{ key }}
-      {% endfor %}
+- name: 🧾 Stage the env keys and CA trust words a run with spec secrets checks
   when: _playwright_secrets_template_stat.stat.exists
+  block:
+    - name: 📇 List the env template's keys, the only role keys a spec secrets run takes
+      ansible.builtin.copy:
+        dest: "{{ _playwright_stage_dir }}/.env.keys"
+        mode: "0644"
+        content: |
+          {% for key in lookup('file', _playwright_env_template) | regex_findall('(?m)^([A-Z][A-Z0-9_]*)=') | unique %}
+          {{ key }}
+          {% endfor %}
 
-- name: 🔐 List the CA trust words of a run with spec secrets, one per line, which rerun-spec.sh passes the same way
-  ansible.builtin.copy:
-    dest: "{{ _playwright_stage_dir }}/.ca-trust"
-    mode: "0644"
-    content: |
-      {% for word in (_playwright_ca_argv if (_playwright_ca_required | bool) else []) %}
-      {{ word }}
-      {% endfor %}
-  when: _playwright_secrets_template_stat.stat.exists
+    - name: 🔐 List the CA trust words of a run with spec secrets, one per line
+      ansible.builtin.copy:
+        dest: "{{ _playwright_stage_dir }}/.ca-trust"
+        mode: "0644"
+        content: |
+          {% for word in (_playwright_ca_argv if (_playwright_ca_required | bool) else []) %}
+          {{ word }}
+          {% endfor %}
 
 - name: ⏳ Wait until application is ready (any non-error response)
   uri_retry:

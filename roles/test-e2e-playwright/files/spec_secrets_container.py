@@ -70,10 +70,11 @@ REPEATABLE = frozenset({"-e", "-v", "--add-host"})
 REQUIRED = frozenset(
     {"--rm", "--log-driver=none", "-w", "--cidfile", "--mount", "--env-file"}
 )
+NO_CAPTURE = "INFINITO_PLAYWRIGHT_NO_CAPTURE"  # nocheck: container env
 ENV = {
     "INFINITO_PLAYWRIGHT_KEEP": re.compile(r"(?:[Tt]rue|[Ff]alse)?"),
-    "INFINITO_PLAYWRIGHT_GLOBAL_TIMEOUT_MS": NUMBER,
-    "INFINITO_PLAYWRIGHT_NO_CAPTURE": re.compile(r"true"),
+    "INFINITO_PLAYWRIGHT_GLOBAL_TIMEOUT_MS": NUMBER,  # nocheck: container env
+    NO_CAPTURE: re.compile(r"true"),
     "PLAYWRIGHT_PROXY": re.compile(
         r"(?:socks5://(?:127\.0\.0\.1|host\.docker\.internal):[0-9]+)?"
     ),
@@ -85,11 +86,11 @@ ENV = {
     "PLAYWRIGHT_GALLERY_BEFORE": re.compile(r"[A-Za-z0-9,_-]*"),
     "NO_COLOR": re.compile(r"1"),
     "FORCE_COLOR": re.compile(r"0"),
-    "HOME": re.compile(r"/tmp"),  # noqa: S108
+    "HOME": re.compile(r"/tmp"),  # noqa: S108 - the HOME a non-root run gets inside the container
     **dict.fromkeys(("CA_TRUST_CERT", *CA_BUNDLES), re.compile(re.escape(CA_CERT))),
     "CA_TRUST_NAME": re.compile(r"[a-z0-9][a-z0-9.-]*"),
 }
-REQUIRED_ENV = frozenset({"INFINITO_PLAYWRIGHT_NO_CAPTURE", "NO_COLOR", "FORCE_COLOR"})
+REQUIRED_ENV = frozenset({NO_CAPTURE, "NO_COLOR", "FORCE_COLOR"})
 TIMEOUTS = (
     "PLAYWRIGHT_TEST_TIMEOUT",
     "PLAYWRIGHT_EXPECT_TIMEOUT",
@@ -218,9 +219,8 @@ def options(words: list[str]) -> dict[str, list[str]]:
         Each value per option, an empty one per flag of ``FLAGS``.
 
     Raises:
-        SpecSecretsError: a word is no option of ``FLAGS`` or ``OPTIONS``, a
-            value is outside its pattern or an option that is not
-            ``REPEATABLE`` repeats.
+        SpecSecretsError: a word is no option of ``FLAGS`` or ``OPTIONS``, a value is
+            outside its pattern, or an option not ``REPEATABLE`` repeats.
     """
     found: dict[str, list[str]] = {}
     remaining = iter(words)

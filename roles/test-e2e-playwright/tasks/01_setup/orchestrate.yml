@@ -1,10 +1,10 @@
 ---
-- name: ✅ Create the staging base dir with mkdir, which never follows a link nor touches a dir another user made
+- name: ✅ Create the staging base dir with mkdir, which never follows a link
   ansible.builtin.command:
     argv: [mkdir, -m, "0755", "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}"]
     creates: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}"
 
-- name: 🔍 Read who owns the stage base, the shared Playwright project dir and the tools dir
+- name: 🔍 Read who owns the stage base, the shared project dir and the tools dir
   ansible.builtin.stat:
     path: "{{ playwright_owned_dir }}"
     follow: false
@@ -43,7 +43,7 @@
   ansible.builtin.command:
     argv: [python3, -I, -B, "{{ TEST_E2E_PLAYWRIGHT_TOOLS_DIR }}/spec_secrets.py", prune]
   register: _playwright_spec_secrets_pruned
-  changed_when: "'removed:' in (_playwright_spec_secrets_pruned.stdout | default(''))"
+  changed_when: _playwright_spec_secrets_pruned.stdout is defined and 'removed:' in _playwright_spec_secrets_pruned.stdout
   failed_when: false
 
 - name: ✅ Check the CA and central templates every role's run shares

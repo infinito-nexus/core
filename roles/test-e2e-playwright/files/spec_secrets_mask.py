@@ -131,6 +131,7 @@ def swap(at: int, name: str, mode: int, fill: Callable[[BinaryIO], object]) -> N
     try:
         with os.fdopen(written, "wb") as target:
             fill(target)
+            target.flush()
             os.fchmod(target.fileno(), mode)
         os.replace(temp, name, src_dir_fd=at, dst_dir_fd=at)
     finally:
@@ -147,7 +148,8 @@ def scrub_file(at: int, name: str, masks: frozenset[bytes]) -> bool:
         masks: the windows to mask.
 
     Returns:
-        Whether it held a window; only then ``swap`` masks it, mode kept.
+        Whether it held a window; only then ``swap`` masks it, its permission
+        bits kept and any setuid, setgid or sticky bit dropped.
     """
     descriptor = open_file(at, name)
     if descriptor is None:
@@ -157,7 +159,7 @@ def scrub_file(at: int, name: str, masks: frozenset[bytes]) -> bool:
         if not pump(read, lambda _data: None, Stream(masks)):
             return False
         source.seek(0)
-        mode = stat.S_IMODE(os.fstat(source.fileno()).st_mode)
+        mode = stat.S_IMODE(os.fstat(source.fileno()).st_mode) & 0o777
         swap(at, name, mode, lambda target: pump(read, target.write, Stream(masks)))
     return True
 

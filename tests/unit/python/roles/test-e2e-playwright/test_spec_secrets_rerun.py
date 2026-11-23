@@ -12,6 +12,7 @@ from itertools import pairwise
 from pathlib import Path
 
 from utils.cache.files import read_text
+from utils.roles.mapping import ROLE_FILE_PLAYWRIGHT_SPEC
 
 from . import PROJECT_ROOT
 from ._spec_secrets_fakes import (
@@ -168,8 +169,8 @@ def rerun(
             f"{required}module.exports = {{}};\n"
         )
         role = root / "roles" / ROLE_ID
-        (role / "files" / "playwright").mkdir(parents=True)
-        (role / "files" / "playwright" / "playwright.spec.js").write_text("\n")
+        (role / ROLE_FILE_PLAYWRIGHT_SPEC).parent.mkdir(parents=True)
+        (role / ROLE_FILE_PLAYWRIGHT_SPEC).write_text("\n")
         (role / "templates").mkdir()
         (role / "templates" / "playwright.secrets.j2").write_text("\n")
         script = root / "scripts" / "tests" / "e2e" / RERUN.name

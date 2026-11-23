@@ -124,7 +124,8 @@ ENCODER_TRIGGERS = {
 }
 MARK_TRIGGERS = {
     "nine_bytes_one_letter_highlighted": ("Zq%3A&Kp9", "Zq%3A&[7mK[27mp9"),
-    "nine_bytes_two_letters_highlighted": (
+    "nine_bytes_two_letters_highlighted": ("Zq%3A&Kp9", "Zq%3A&\x1b[7mKp\x1b[27m9"),
+    "nine_bytes_two_letters_highlighted_apart": (
         "Zq%3A&Kp9",
         "Z[7mq[27m%3A&\x1b[7mK\x1b[27mp9",
     ),

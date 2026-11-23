@@ -27,6 +27,7 @@ MASKER = FILES / "spec_secrets_mask.py"
 VALUE = "Pa%\"s<w&r'd\\9X é \U0001f600 Sentinel-Value-9f3c abcdefghijklmnopqrstuvwxyz0123456789"
 WINDOW = 8
 ANSI = re.compile("\x1b?\\[[0-9;]*m")
+FAILED_CASE = re.compile(r"<(?:failure|error)[\s>]")
 SPEC = """\
 const fs = require("fs");
 const { test, expect } = require("@playwright/test");
@@ -227,7 +228,7 @@ class TestSpecSecretsMaskedInTheRealImage(unittest.TestCase):
         code, printed, report = real_run(self)
         found = {
             "exit": code,
-            "failures": report.count("<failure"),
+            "failed tests": len(FAILED_CASE.findall(report)),
             "masks in output": printed.count("***"),
             "masks in report": report.count("***"),
             "output leaks": leaks(printed),
@@ -239,8 +240,8 @@ class TestSpecSecretsMaskedInTheRealImage(unittest.TestCase):
             file=str(MASKER.relative_to(PROJECT_ROOT)),
         )
         self.assertEqual(
-            {key: found[key] for key in ("exit", "failures")},
-            {"exit": 1, "failures": 2},
+            {key: found[key] for key in ("exit", "failed tests")},
+            {"exit": 1, "failed tests": 2},
         )
         self.assertEqual((found["output leaks"], found["report leaks"]), (False, False))
         self.assertGreater(found["masks in output"], 0)

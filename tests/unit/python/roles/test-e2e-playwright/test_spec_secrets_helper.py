@@ -209,7 +209,8 @@ def confinement_violations(module) -> list[str]:
         module: the loaded helper.
 
     Returns:
-        One message per file the helper touched outside ``PARENT``.
+        One message per file the helper touched outside ``PARENT``, where a
+        rendered template waits that a followed link would split.
     """
     with tempfile.TemporaryDirectory() as tmp:
         module.PARENT = Path(tmp) / "spec-secrets"
@@ -217,6 +218,7 @@ def confinement_violations(module) -> list[str]:
         outside = Path(tmp) / "outside"
         outside.mkdir(mode=0o700)
         (outside / "keep").write_text("")
+        (outside / module.RENDERED).write_text("LONG_KEY=outside-value\n")
         link = mine(module) / "run.link"
         link.symlink_to(outside)
         aged(outside)
@@ -225,7 +227,7 @@ def confinement_violations(module) -> list[str]:
             run_helper(module, "prune")
         left = sorted(path.name for path in outside.iterdir())
         problems = [] if code == 1 and "refused" in printed else [f"split rc {code}"]
-        if left != ["keep"]:
+        if left != sorted([module.RENDERED, "keep"]):
             problems.append(f"the helper left {left} outside the parent")
         return problems
 

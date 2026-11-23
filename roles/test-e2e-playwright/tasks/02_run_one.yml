@@ -29,26 +29,26 @@
   delegate_to: localhost
   become: false
 
-- name: 🛑 Refuse a run with spec secrets whose image could not be pulled or inspected, since its CA trust needs the image inspected
-  ansible.builtin.fail:
-    msg: >-
-      {{ TEST_E2E_PLAYWRIGHT_IMAGE }} could not be inspected (pull rc {{ _playwright_shared_pull.rc }}, inspect rc {{ _playwright_image_entrypoint.rc }}),
-      so the run with spec secrets of {{ application_id }} cannot tell which CA trust it needs; fix the pull and deploy again.
+- name: 🔐 Check the image a run with spec secrets and CA trust starts
   when:
     - _playwright_secrets_template_stat.stat.exists
     - _playwright_ca_required | bool
-    - _playwright_image_entrypoint.rc != 0
+  block:
+    - name: 🛑 Refuse a run with spec secrets whose image could not be pulled or inspected
+      ansible.builtin.fail:
+        msg: >-
+          {{ TEST_E2E_PLAYWRIGHT_IMAGE }} could not be inspected (pull rc {{ _playwright_shared_pull.rc }}, inspect rc {{ _playwright_image_entrypoint.rc }}),
+          so the run with spec secrets of {{ application_id }} cannot tell which CA trust it needs; fix the pull and deploy again.
+      when: _playwright_image_entrypoint.rc != 0
 
-- name: 🛑 Refuse a run with spec secrets whose image has an ENTRYPOINT, since its CA trust copies the wrapper's branch for an image without one
-  ansible.builtin.fail:
-    msg: >-
-      {{ TEST_E2E_PLAYWRIGHT_IMAGE }} has an ENTRYPOINT; a run with spec secrets of {{ application_id }}
-      trusts the CA the way the container wrapper does for an image without one and does not guess the other branch.
-  when:
-    - _playwright_secrets_template_stat.stat.exists
-    - _playwright_ca_required | bool
-    - _playwright_image_entrypoint.rc == 0
-    - (_playwright_image_entrypoint.stdout | trim) not in ['null', '[]']
+    - name: 🛑 Refuse a run with spec secrets whose image has an ENTRYPOINT
+      ansible.builtin.fail:
+        msg: >-
+          {{ TEST_E2E_PLAYWRIGHT_IMAGE }} has an ENTRYPOINT; a run with spec secrets of {{ application_id }}
+          trusts the CA the way the container wrapper does for an image without one and does not guess the other branch.
+      when:
+        - _playwright_image_entrypoint.rc == 0
+        - (_playwright_image_entrypoint.stdout | trim) not in ['null', '[]']
 
 - name: ✅ Assert required Playwright spec exists
   ansible.builtin.stat:
@@ -91,7 +91,7 @@
     state: directory
     mode: "0755"
 
-- name: 📁 Create the mountpoints of the shared node_modules and personas, which docker cannot add to a read-only stage dir
+- name: 📁 Create the node_modules and personas mountpoints a read-only stage dir needs
   ansible.builtin.file:
     path: "{{ playwright_mountpoint }}"
     state: directory

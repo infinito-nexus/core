@@ -33,7 +33,9 @@ from ._spec_secrets_wiring import (
 
 COLLECT = "04_collect.yml"
 SERIAL_ONLY = "not (_playwright_dispatch | bool)"
-MOUNT_CONDITION = "if (_playwright_secrets_template_stat.stat.exists | bool) else [])"
+MOUNT_CONDITION = (
+    "'/.cid'] if (_playwright_secrets_template_stat.stat.exists | bool) else [])"
+)
 STAGED_REPORTS = (
     "(([_playwright_spec_secrets_path, 'reports'] | path_join)"
     " if (_playwright_secrets_template_stat.stat.exists | bool)"
@@ -297,6 +299,9 @@ def parallel_mutated(mutation: str) -> list[str]:
     elif mutation == "unisolated":
         prune = next(t for t in orchestrate if command_argv(t) == PRUNE_ARGV)
         prune["ansible.builtin.command"]["argv"].remove("-I")
+    elif mutation == "unguarded":
+        prune = next(t for t in orchestrate if command_argv(t) == PRUNE_ARGV)
+        prune["changed_when"] = "'removed:' in _playwright_spec_secrets_pruned.stdout"
     else:
         orchestrate = [t for t in orchestrate if command_argv(t) != PRUNE_ARGV]
     return parallel_violations(parallel, orchestrate)
@@ -336,8 +341,9 @@ class TestSpecSecretsMountNegativeControls(unittest.TestCase):
     def test_a_mount_without_the_template_condition_or_as_a_volume_is_caught(
         self,
     ) -> None:
+        argv = " ".join(run_argv().split())
         for old, new in (
-            (MOUNT_CONDITION, "if true else [])"),
+            (MOUNT_CONDITION, "'/.cid'] if true else [])"),
             (STAGED_REPORTS, "_playwright_pass_reports_dir"),
             (
                 (
@@ -349,8 +355,8 @@ class TestSpecSecretsMountNegativeControls(unittest.TestCase):
             ("'--log-driver=none', ", ""),
         ):
             with self.subTest(old=old):
-                self.assertEqual(run_argv().count(old), 1)
-                self.assertNotEqual(mount_violations(run_argv().replace(old, new)), [])
+                self.assertEqual(argv.count(old), 1)
+                self.assertNotEqual(mount_violations(argv.replace(old, new)), [])
 
     def test_a_secrets_run_that_renders_its_own_command_is_caught(self) -> None:
         self.assertEqual(run_argv().count(MASKER_TAIL), 1)
@@ -454,6 +460,7 @@ class TestSpecSecretsMountNegativeControls(unittest.TestCase):
             ("prune", "a run does not start by removing a killed run's secrets"),
             ("early", "a run does not start by removing a killed run's secrets"),
             ("unisolated", "a run does not start by removing a killed run's secrets"),
+            ("unguarded", "the prune reports changed [True, False, 'undefined']"),
         ):
             with self.subTest(mutation=mutation):
                 self.assertIn(message, parallel_mutated(mutation))

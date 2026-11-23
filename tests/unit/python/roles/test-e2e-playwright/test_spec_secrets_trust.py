@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 import json
 import os
 import subprocess
@@ -28,9 +27,9 @@ from ._spec_secrets_fakes import (
 from ._spec_secrets_wiring import (
     ARGV_VARS,
     PATH_FACT,
+    flattened,
     holds,
     render,
-    role_tasks,
     run_argv,
 )
 from .test_spec_secrets_container import env_refused
@@ -425,7 +424,7 @@ class TestSpecSecretsTrust(unittest.TestCase):
         self.assertFalse(refused(self.module, container, self.run_dir))
 
     def test_an_image_with_an_entrypoint_is_refused_before_the_run(self) -> None:
-        self.assertEqual(entrypoint_violations(role_tasks("02_run_one.yml")), [])
+        self.assertEqual(entrypoint_violations(flattened("02_run_one.yml")), [])
 
     def test_the_container_tool_gets_no_ca_or_proxy_variable(self) -> None:
         self.assertEqual(tool_env_seen(PLAY_ENV), [])
@@ -464,6 +463,7 @@ class TestSpecSecretsTrustNegativeControls(unittest.TestCase):
             module = load_from(root / "bin", root, OWN_UID, UNTRUSTING)
             self.assertFalse(refused(module, planted, run))
             module = load_from(root / "bin", root, WRAPPED)
+            (root / "stage" / ".ca-trust").unlink()
             wrapped = ["container", *container_argv(root, run)[1:]]
             self.assertFalse(refused(module, wrapped, run))
 
@@ -484,7 +484,7 @@ class TestSpecSecretsTrustNegativeControls(unittest.TestCase):
             with self.subTest(refusal=key):
                 run_one = [
                     task
-                    for task in copy.deepcopy(role_tasks("02_run_one.yml"))
+                    for task in flattened("02_run_one.yml")
                     if not task.get("name", "").startswith(prefix)
                 ]
                 self.assertEqual(
@@ -493,7 +493,7 @@ class TestSpecSecretsTrustNegativeControls(unittest.TestCase):
                 )
 
     def test_a_pull_refusal_that_blames_the_entrypoint_is_caught(self) -> None:
-        run_one = copy.deepcopy(role_tasks("02_run_one.yml"))
+        run_one = flattened("02_run_one.yml")
         pull = next(t for t in run_one if t["name"].startswith(REFUSALS["pull"]))
         pull["ansible.builtin.fail"]["msg"] = (
             "{{ TEST_E2E_PLAYWRIGHT_IMAGE }} has an ENTRYPOINT"
