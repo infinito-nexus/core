@@ -125,6 +125,11 @@ target AS (
   FROM public.project
   WHERE name = :'project'
 ),
+task_runner_role AS (
+  SELECT id
+  FROM public.role
+  WHERE builtin AND slug = 'task_runner'
+),
 member AS (
   SELECT account.id
   FROM public."user" AS account
@@ -135,13 +140,14 @@ member AS (
        OR (operator.email <> '' AND operator.email = lower(account.email))
   )
 )
-INSERT INTO public.project__user (project_id, user_id, role)
-SELECT target.id, member.id, 'task_runner'
+INSERT INTO public.project__user_role (project_id, user_id, role_id)
+SELECT target.id, member.id, task_runner_role.id
 FROM target
 CROSS JOIN member
+CROSS JOIN task_runner_role
 WHERE NOT EXISTS (
   SELECT 1
-  FROM public.project__user AS granted
+  FROM public.project__user_role AS granted
   WHERE granted.project_id = target.id
     AND granted.user_id = member.id
 )
@@ -159,6 +165,16 @@ target AS (
   FROM public.project
   WHERE name = :'project'
 ),
+guest_role AS (
+  SELECT id
+  FROM public.role
+  WHERE builtin AND slug = 'guest'
+),
+task_runner_role AS (
+  SELECT id
+  FROM public.role
+  WHERE builtin AND slug = 'task_runner'
+),
 member AS (
   SELECT account.id
   FROM public."user" AS account
@@ -169,12 +185,19 @@ member AS (
        OR (operator.email <> '' AND operator.email = lower(account.email))
   )
 )
-UPDATE public.project__user AS granted
-SET role = 'task_runner'
-FROM target, member
+UPDATE public.project__user_role AS granted
+SET role_id = task_runner_role.id
+FROM target, member, guest_role, task_runner_role
 WHERE granted.project_id = target.id
   AND granted.user_id = member.id
-  AND granted.role = 'guest'
+  AND granted.role_id = guest_role.id
+  AND NOT EXISTS (
+    SELECT 1
+    FROM public.project__user_role AS held
+    WHERE held.project_id = granted.project_id
+      AND held.user_id = granted.user_id
+      AND held.role_id = task_runner_role.id
+  )
 RETURNING 'CHANGED user ' || granted.user_id || ' task_runner promoted';
 \set promoted_changes :ROW_COUNT
 
@@ -189,6 +212,11 @@ target AS (
   FROM public.project
   WHERE name = :'project'
 ),
+task_runner_role AS (
+  SELECT id
+  FROM public.role
+  WHERE builtin AND slug = 'task_runner'
+),
 member AS (
   SELECT account.id
   FROM public."user" AS account
@@ -199,10 +227,10 @@ member AS (
        OR (operator.email <> '' AND operator.email = lower(account.email))
   )
 )
-DELETE FROM public.project__user AS granted
-USING target
+DELETE FROM public.project__user_role AS granted
+USING target, task_runner_role
 WHERE granted.project_id = target.id
-  AND granted.role = 'task_runner'
+  AND granted.role_id = task_runner_role.id
   AND granted.user_id NOT IN (SELECT id FROM member)
 RETURNING 'CHANGED user ' || granted.user_id || ' task_runner revoked';
 \set revoked_changes :ROW_COUNT
@@ -211,15 +239,21 @@ WITH deploy AS (
   SELECT id
   FROM public.project
   WHERE name = :'deploy_project'
+),
+owner_role AS (
+  SELECT id
+  FROM public.role
+  WHERE builtin AND slug = 'owner'
 )
-INSERT INTO public.project__user (project_id, user_id, role)
-SELECT deploy.id, account.id, 'owner'
+INSERT INTO public.project__user_role (project_id, user_id, role_id)
+SELECT deploy.id, account.id, owner_role.id
 FROM deploy
+CROSS JOIN owner_role
 CROSS JOIN public."user" AS account
 WHERE account.admin
   AND NOT EXISTS (
     SELECT 1
-    FROM public.project__user AS granted
+    FROM public.project__user_role AS granted
     WHERE granted.project_id = deploy.id
       AND granted.user_id = account.id
   )
@@ -231,7 +265,7 @@ WITH deploy AS (
   FROM public.project
   WHERE name = :'deploy_project'
 )
-DELETE FROM public.project__user AS granted
+DELETE FROM public.project__user_role AS granted
 USING deploy, public."user" AS account
 WHERE granted.project_id = deploy.id
   AND granted.user_id = account.id
