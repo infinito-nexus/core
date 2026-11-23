@@ -20,7 +20,7 @@ ubuntu:
 # nocheck: image-healthcheck  CI workspace base image; sys-os runs no container
 fedora:
   image: fedora
-  version: "44"
+  version: "45"
   follow: latest
 # nocheck: image-healthcheck  CI workspace base image; sys-os runs no container
 centos:
