@@ -3,6 +3,7 @@ from __future__ import annotations
 import io
 import json
 import os
+import subprocess
 import sys
 import tarfile
 import tempfile
@@ -67,6 +68,35 @@ def membership(operation: str, age_days: float) -> dict[str, Any]:
         "operationType": operation,
         "time": int(time.time() * 1000 - age_days * DAY_MS),
     }
+
+
+def argv_findings(tools: list[dict[str, Any]], workdir: Path) -> list[str]:
+    """
+    Args:
+        tools: the calls the fake tools logged, as ``ExportCase.tools`` reads them.
+        workdir: the directory ``build_archive`` worked in.
+
+    Returns:
+        Each tool whose arguments are anything but its file paths and the
+        recipient, by name and never by an argument value.
+    """
+    expected = {
+        "keepassxc-cli": [
+            "import",
+            "--set-password",
+            str(workdir / "secrets.xml"),
+            str(workdir / "secrets.kdbx"),
+        ],
+        "age": ["-r", KEYCLOAK_RECIPIENT, "-o", str(workdir / "passphrase.age")],
+    }
+    ran = sorted(entry["tool"] for entry in tools)
+    if ran != sorted(expected):
+        return [f"the tools that ran are {ran}"]
+    return [
+        f"{entry['tool']} takes other arguments than its paths and the recipient"
+        for entry in tools
+        if entry["args"] != expected[entry["tool"]]
+    ]
 
 
 class Keycloak:
@@ -236,6 +266,29 @@ class TestExport(ExportCase):
         self.assertEqual(list(workdir.iterdir()), [])
         self.assertEqual(len(self.mails()), 1)
 
+    def test_the_tools_take_only_paths_and_the_recipient_as_arguments(self) -> None:
+        workdir = self.root / "argv"
+        workdir.mkdir()
+        export.run(self.env, self.keycloak(), workdir)
+        self.assertEqual(argv_findings(self.tools(), workdir), [])
+
+    def test_negative_control_a_passphrase_argument_is_found(self) -> None:
+        workdir = self.root / "argv-planted"
+        workdir.mkdir()
+        real_run = subprocess.run
+
+        def leaky(argv: list[str], **kwargs: Any) -> Any:
+            if argv[0] == "age":
+                argv = [*argv, kwargs["input"]]
+            return real_run(argv, **kwargs)
+
+        with mock.patch.object(export.subprocess, "run", leaky):
+            export.run(self.env, self.keycloak(), workdir)
+        self.assertEqual(
+            argv_findings(self.tools(), workdir),
+            ["age takes other arguments than its paths and the recipient"],
+        )
+
     def test_a_refusal_reads_no_tenant_secret_and_tells_every_owner(self) -> None:
         cases = {
             "no direct member": self.keycloak(members=[STRANGER]),
@@ -298,6 +351,67 @@ class TestExport(ExportCase):
                 with self.assertRaisesRegex(export.ExportRefusedError, name):
                     export.run({**self.env, name: "yes"}, self.keycloak(), workdir)
                 self.assertEqual(self.stub.requests, [])
+
+
+class TestTheXmlLifetime(ExportCase):
+    def xml_findings(self, name: str, failing: bool) -> list[str]:
+        """
+        Args:
+            name: the task directory below the scratch root.
+            failing: whether ``keepassxc-cli`` exits non-zero.
+
+        Returns:
+            How ``secrets.xml`` outlives its import in ``build_archive``: the
+            import ran without it, ``age`` ran beside it, or it is left behind.
+        """
+        workdir = self.root / name
+        workdir.mkdir()
+        xml = workdir / "secrets.xml"
+        seen: list[tuple[str, bool]] = []
+        real_run = subprocess.run
+
+        def run(argv: list[str], **kwargs: Any) -> Any:
+            seen.append((argv[0], xml.exists()))
+            if failing and argv[0] == "keepassxc-cli":
+                argv = [sys.executable, "-c", "raise SystemExit(1)"]
+            return real_run(argv, **kwargs)
+
+        entries = {"db/app": {"password": VALUE}}
+        with mock.patch.object(export.subprocess, "run", run):
+            if failing:
+                with self.assertRaises(subprocess.CalledProcessError):
+                    export.build_archive(entries, KEYCLOAK_RECIPIENT, workdir)
+            else:
+                export.build_archive(entries, KEYCLOAK_RECIPIENT, workdir)
+        findings: list[str] = []
+        if seen[:1] != [("keepassxc-cli", True)]:
+            findings.append("the import ran without the xml")
+        if ("age", True) in seen:
+            findings.append("age ran beside the xml")
+        if xml.exists():
+            findings.append("the xml outlives build_archive")
+        return findings
+
+    def test_the_xml_is_gone_before_age_runs(self) -> None:
+        self.assertEqual(self.xml_findings("sealed", failing=False), [])
+
+    def test_a_failed_import_leaves_no_xml(self) -> None:
+        self.assertEqual(self.xml_findings("failed", failing=True), [])
+
+    def test_negative_control_a_kept_xml_is_found(self) -> None:
+        real_unlink = export.Path.unlink
+
+        def keep_xml(path: Path, **kwargs: Any) -> None:
+            if path.name != "secrets.xml":
+                real_unlink(path, **kwargs)
+
+        with mock.patch.object(export.Path, "unlink", keep_xml):
+            sealed = self.xml_findings("kept-sealed", failing=False)
+            failed = self.xml_findings("kept-failed", failing=True)
+        self.assertEqual(
+            sealed, ["age ran beside the xml", "the xml outlives build_archive"]
+        )
+        self.assertEqual(failed, ["the xml outlives build_archive"])
 
 
 class TestExportBehindTheEgressProxy(ExportCase):

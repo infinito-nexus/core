@@ -1577,6 +1577,7 @@ async function deployToSharedTarget(shared, fixture, options, label) {
 module.exports = {
   DEPLOY_ORDER,
   DEPLOY_RUN_MS,
+  PROBE_RUN_MS,
   ageDecrypt,
   ageIdentity,
   awaitTask,

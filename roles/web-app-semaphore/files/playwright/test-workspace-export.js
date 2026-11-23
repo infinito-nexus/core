@@ -40,6 +40,53 @@ const MESSAGE_LIST = "#messagelist, table.messagelist";
 const MESSAGE_ROWS = "#messagelist tbody tr, table.messagelist tbody tr";
 const WITHOUT_WEBMAIL = "WEBMAIL_BASE_URL is empty: the mail provider serves no webmail to read the notices from";
 const SPLIT_REALM = "clearnet webmail with an onion OIDC issuer: unreachable from one browser";
+const PERSISTENCE_PROBE = `set -u
+exec python3 - "$@" <<'PY'
+import os, sys, tempfile
+PSEUDO = {"cgroup", "cgroup2", "devpts", "mqueue", "proc", "sysfs"}
+own, earlier = sys.argv[1], sys.argv[2:]
+mounts = {}
+with open("/proc/self/mounts") as table:
+    for line in table:
+        _, point, kind, options = line.split()[:4]
+        mounts[point.encode().decode("unicode_escape")] = (kind, options.split(","))
+writable = sorted(
+    point
+    for point, (kind, options) in mounts.items()
+    if kind not in PSEUDO and "rw" in options and os.path.isdir(point) and os.access(point, os.W_OK)
+)
+def marked(point, marker):
+    return os.path.join(point, ".probe-persist-" + marker)
+def present(marker):
+    return sum(os.path.lexists(marked(point, marker)) for point in writable)
+def holder(target):
+    target = os.path.realpath(target)
+    return max((point for point in mounts if target == point or target.startswith(point.rstrip("/") + "/")), key=len)
+def coverage(target):
+    point = holder(target)
+    if point in planted:
+        return "yes"
+    if "ro" in mounts[point][1] or not os.access(target, os.W_OK):
+        return "ro"
+    return "no"
+planted = []
+for point in writable:
+    try:
+        os.close(os.open(marked(point, own), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600))
+    except OSError:
+        continue
+    planted.append(point)
+print("PROBE root " + ("ro" if "ro" in mounts["/"][1] else "rw"))
+for point in writable:
+    print("PROBE mount " + point + " " + ("planted" if point in planted else "refused"))
+for label, target in (("cwd", os.getcwd()), ("home", os.path.expanduser("~")), ("tempdir", tempfile.gettempdir())):
+    print("PROBE covers " + label + " " + coverage(target))
+print("PROBE control " + str(present(own)))
+print("PROBE survived " + str(sum(present(marker) for marker in earlier)))
+PY
+`;
+const PERSISTENCE_TMPFS = ["/tmp", "/tmp/semaphore"];
+const PERSISTENCE_COVERS = { cwd: ["yes", "ro"], home: ["yes"], tempdir: ["yes"] };
 
 const LINK_SECONDS = 900;
 const DAY_MS = 24 * 60 * 60_000;
@@ -383,7 +430,8 @@ exports.register = function (shared) {
     }
 
     function passphraseOf(exported) {
-      return workspaces.ageDecrypt(openArchive(exported).member("passphrase.age"), world.standing.age.privateKey).toString("utf8");
+      const sealed = openArchive(exported).member("passphrase.age");
+      return workspaces.ageDecrypt(sealed, world.standing.age.privateKey).toString("utf8");
     }
 
     function expectedEntries() {
@@ -392,6 +440,46 @@ exports.register = function (shared) {
           Object.entries(fields).map(([field, value]) => [`${path}#${field}`, value]),
         ),
       );
+    }
+
+    /**
+     * Args:
+     *   projectId: the export project.
+     *   markers: the random marker this probe task plants, then the markers
+     *     of earlier probe tasks it looks for.
+     *   what: what the failure messages name.
+     *
+     * Returns:
+     *   `points`, the writable mounts of the export runner, each holding a
+     *   file of this task, and `survived`, how many files of the earlier
+     *   markers this task found.
+     */
+    async function persistenceProbe(projectId, markers, what) {
+      const run = await workspaces.runProbe(shared, fixture, projectId, PERSISTENCE_PROBE, markers, what);
+      workspaces.expectSucceeded(run, what);
+      const lines = (kind) => workspaces.probeLines(run, kind);
+      expect(lines("root"), `${what}: the root filesystem of the export runner must be read-only`).toEqual(["ro"]);
+      const mounts = lines("mount").map((line) => {
+        const at = line.lastIndexOf(" ");
+        return { point: line.slice(0, at), state: line.slice(at + 1) };
+      });
+      expect(
+        mounts.filter((mount) => mount.state !== "planted").map((mount) => mount.point),
+        `${what}: the probe must plant a file in every writable mount`,
+      ).toEqual([]);
+      const points = mounts.map((mount) => mount.point);
+      for (const point of PERSISTENCE_TMPFS) {
+        expect(points.includes(point), `${what}: ${point} must be a writable mount of the export runner`).toBe(true);
+      }
+      const covers = Object.fromEntries(lines("covers").map((line) => line.split(" ")));
+      for (const [label, accepted] of Object.entries(PERSISTENCE_COVERS)) {
+        expect(
+          accepted.includes(covers[label]),
+          `${what}: ${label} must be ${accepted.join(" or ")} (yes: on a planted mount, ro: not writable), the probe reported ${covers[label]}`,
+        ).toBe(true);
+      }
+      expect(lines("control"), `${what}: the probe must find the file it planted in each writable mount`).toEqual([String(points.length)]);
+      return { points, survived: Number(lines("survived")[0]) };
     }
 
     async function openMailbox(browser) {
@@ -566,7 +654,7 @@ exports.register = function (shared) {
     });
 
     test("export: no plaintext outlives the task", async () => {
-      test.setTimeout(resolveTimeout(EXPORT_RUN_MS + LOGIN_MS));
+      test.setTimeout(resolveTimeout(EXPORT_RUN_MS + LOGIN_MS + 2 * workspaces.PROBE_RUN_MS));
       const exported = await standingOwnerExport();
       const { project, template } = await exportTemplate();
       const raw = await shared.apiResponse(fixture.page, "GET", `/project/${project.id}/tasks/${exported.run.task.id}/raw_output`);
@@ -587,6 +675,13 @@ exports.register = function (shared) {
           expect(text.includes(plaintext), `${LABEL}: ${where} of the export must not carry ${what}`).toBe(false);
         }
       }
+      const what = `${LABEL}: the persistence probes on the export runner after task ${exported.run.task.id}`;
+      const first = crypto.randomBytes(16).toString("hex");
+      const second = crypto.randomBytes(16).toString("hex");
+      const planting = await persistenceProbe(project.id, [first], `${what}, first task`);
+      const checking = await persistenceProbe(project.id, [second, first], `${what}, second task`);
+      expect(checking.points, `${what}: both probe tasks must see the same writable mounts`).toEqual(planting.points);
+      expect(checking.survived, `${what}: no file the first probe task planted may reach the next task`).toBe(0);
     });
 
     test("export: every owner is told", async ({ browser }) => {
