@@ -10,7 +10,7 @@ from plugins.lookup.tor_socks_proxy import resolve_proxy_url
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
 from utils.networks.reachability import network_of
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE, ROLE_FILE_VARS_MAIN
 
 APP = "web-app-matomo"
 ROLE = PROJECT_ROOT / "roles" / APP
@@ -174,7 +174,7 @@ class TestMatomoMakesNoUpdateCallThroughTor(unittest.TestCase):
         self.assertIn("ARG MATOMO_RELEASE_DIR", dockerfile)
 
     def test_the_build_passes_the_release_dir(self):
-        compose = read_text(str(ROLE / "templates" / "compose.yml.j2"))
+        compose = read_text(str(ROLE / ROLE_FILE_TEMPL_COMPOSE))
         self.assertIn('MATOMO_RELEASE_DIR: "{{ MATOMO_RELEASE_DIR }}"', compose)
 
 

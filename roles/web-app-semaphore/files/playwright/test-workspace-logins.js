@@ -180,10 +180,10 @@ async function taskToken(context, token, mount, role, run) {
     }
   }
   expect(
-    found.length,
+    found,
     `${LABEL}: exactly one live token must be named ${name}; the live ${login} tokens of role ${role} are named: ${sameRole.join(", ")}; ` +
       `task ${run.task.id} ended ${run.task.status}; output tail:\n${workspaces.outputTail(run.lines)}`,
-  ).toBe(1);
+  ).toHaveLength(1);
   expect(Boolean(found[0].lookup.id), `${LABEL}: lookup-accessor must blank the token id of ${name}`).toBe(false);
   return found[0];
 }
