@@ -170,7 +170,7 @@ exports.register = function (shared) {
       const copy = await shared.api(fixture.page, "POST", `/project/${projectId}/templates`, {
         ...body,
         name: `${PROBE_TEMPLATE} ${crypto.randomBytes(4).toString("hex")}`,
-        jwt_params: { enabled: true, audience: OTHER_AUDIENCE },
+        jwt_params: { enabled: true, audience: [OTHER_AUDIENCE, OTHER_AUDIENCE] },
       });
       try {
         const what = `${LABEL}: a probe whose task token names ${OTHER_AUDIENCE}`;

@@ -544,6 +544,11 @@ def template_body(project_id, spec, refs):
             a sequence of ``(name, required)``.
         refs: ids of the ``inventory``, ``repository`` and ``environment``,
             and the ``runner_tag`` of the project's runner.
+
+    Returns:
+        The body; ``jwt_params.audience`` names ``JWT_AUDIENCE`` twice, since
+        Semaphore decodes an audience only from a JSON array and stores a
+        one-entry audience as a string it cannot read back.
     """
     body = {
         "project_id": project_id,
@@ -560,7 +565,7 @@ def template_body(project_id, spec, refs):
         "survey_vars": [
             survey_var(name, required) for name, required in spec["survey"]
         ],
-        "jwt_params": {"enabled": True, "audience": JWT_AUDIENCE},
+        "jwt_params": {"enabled": True, "audience": [JWT_AUDIENCE, JWT_AUDIENCE]},
     }
     for flag in LOCKED_FLAGS:
         body[flag] = False
@@ -579,7 +584,7 @@ def lock_findings(body):
     findings = [flag for flag in LOCKED_FLAGS if body.get(flag) is not False]
     if not body.get("runner_tag"):
         findings.append("runner_tag")
-    if _jwt(body) != (True, JWT_AUDIENCE):
+    if _jwt(body) != (True, [JWT_AUDIENCE]):
         findings.append("jwt_params")
     if body.get("app") == ANSIBLE_APP and _inventory_lock(body) is not False:
         findings.append("task_params.allow_override_inventory")
@@ -599,8 +604,18 @@ def _survey(template):
 
 
 def _jwt(template):
+    """Args:
+    template: a template body or a template the API returned.
+
+    Returns:
+        Whether it issues a task token, and its distinct audience entries,
+        sorted; Semaphore answers a one-entry audience as a string.
+    """
     jwt = template.get("jwt_params") or {}
-    return (jwt.get("enabled") is True, jwt.get("audience"))
+    audience = jwt.get("audience") or []
+    if isinstance(audience, str):
+        audience = [audience]
+    return (jwt.get("enabled") is True, sorted(set(audience)))
 
 
 def _inventory_lock(template):

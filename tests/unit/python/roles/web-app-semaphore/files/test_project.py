@@ -708,6 +708,24 @@ class LockedTemplateTests(unittest.TestCase):
             ["jwt_params"],
         )
 
+    def test_every_template_sends_its_audience_as_a_json_array(self):
+        for body in self.bodies:
+            with self.subTest(template=body["name"]):
+                audience = body["jwt_params"]["audience"]
+                self.assertIsInstance(audience, list)
+                self.assertGreater(len(audience), 1)
+
+    def test_same_template_reads_the_audience_as_semaphore_answers_it(self):
+        body = self.workspace["deploy"]
+        for audience in (["openbao", "openbao"], "openbao"):
+            with self.subTest(audience=audience):
+                answered = {
+                    **body,
+                    "jwt_params": {"enabled": True, "audience": audience},
+                }
+                self.assertTrue(self.mod.same_template(answered, body))
+                self.assertEqual(self.mod.lock_findings(answered), [])
+
     def test_negative_control_ansible_inventory_override(self):
         def ansible(body):
             body["app"] = "ansible"

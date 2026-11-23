@@ -163,7 +163,7 @@ exports.register = function (shared) {
           project_id: claims.project_id,
           template_id: claims.template_id,
           task_id: claims.task_id,
-          aud: [].concat(claims.aud),
+          aud: [...new Set([].concat(claims.aud))],
           iss: claims.iss,
         },
         `${what}: the token must name the task, its project and template, the audience ${JWT_AUDIENCE} and the configured issuer`,
@@ -310,7 +310,7 @@ exports.register = function (shared) {
           expect(Boolean(template[flag]), `${LABEL}: the deploy must turn ${flag} of "${TEMPLATE}" off again`).toBe(false);
         }
         expect(
-          Boolean(template.jwt_params && template.jwt_params.enabled) && template.jwt_params.audience === JWT_AUDIENCE,
+          Boolean(template.jwt_params && template.jwt_params.enabled) && [...new Set([].concat(template.jwt_params.audience))].join() === JWT_AUDIENCE,
           `${LABEL}: "${TEMPLATE}" must issue a task token for ${JWT_AUDIENCE} after the deploy`,
         ).toBe(true);
         expect(Boolean(template.runner_tag), `${LABEL}: "${TEMPLATE}" must name its runner tag after the deploy`).toBe(true);

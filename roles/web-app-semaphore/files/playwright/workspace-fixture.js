@@ -184,7 +184,7 @@ function expectLockedTemplate(template, label) {
     expect(Boolean(template[flag]), `${label}: the template ${template.name} must keep ${flag} off`).toBe(false);
   }
   expect(
-    Boolean(template.jwt_params && template.jwt_params.enabled) && template.jwt_params.audience === JWT_AUDIENCE,
+    Boolean(template.jwt_params && template.jwt_params.enabled) && [...new Set([].concat(template.jwt_params.audience))].join() === JWT_AUDIENCE,
     `${label}: the template ${template.name} must issue a task token for ${JWT_AUDIENCE}`,
   ).toBe(true);
   expect(Boolean(template.runner_tag), `${label}: the template ${template.name} must name its runner tag`).toBe(true);
