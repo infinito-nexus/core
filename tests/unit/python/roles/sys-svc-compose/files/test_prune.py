@@ -8,15 +8,16 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
 from utils import PROJECT_ROOT
+from utils.roles.mapping import ROLE_FILE_DEFAULTS_MAIN, ROLE_FILE_HANDLERS_MAIN
 
 ROLE = PROJECT_ROOT / "roles/sys-svc-compose"
 SCRIPT = ROLE / "files/shell/prune.sh"
 
 DEFAULTS = DataLoader().load_from_file(
-    str(ROLE / "defaults/main.yml"), trusted_as_template=True
+    str(ROLE / ROLE_FILE_DEFAULTS_MAIN), trusted_as_template=True
 )
 HANDLERS = DataLoader().load_from_file(
-    str(ROLE / "handlers/main.yml"), trusted_as_template=True
+    str(ROLE / ROLE_FILE_HANDLERS_MAIN), trusted_as_template=True
 )
 PRUNE_HANDLER = next(h for h in HANDLERS if "ansible.builtin.script" in h)
 RECORD_HANDLER = next(h for h in HANDLERS if "ansible.builtin.set_fact" in h)
