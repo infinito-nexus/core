@@ -15,7 +15,7 @@ updates:
     rebase-strategy: "auto"
     labels:
       - "dependencies"
-      - "update"
+      - "⬆️ update"
       - "python"
 
   # ------------------------------------------------------------
@@ -30,7 +30,7 @@ updates:
       time: "00:00"
     labels:
       - "dependencies"
-      - "update"
+      - "⬆️ update"
       - "ci"
 
   # ------------------------------------------------------------
@@ -45,7 +45,7 @@ updates:
       time: "00:00"
     labels:
       - "dependencies"
-      - "update"
+      - "⬆️ update"
       - "docker"
 
   # ------------------------------------------------------------
@@ -60,7 +60,7 @@ updates:
       time: "00:00"
     labels:
       - "dependencies"
-      - "update"
+      - "⬆️ update"
       - "docker"
 
   # ------------------------------------------------------------
@@ -79,7 +79,7 @@ updates:
       time: "00:00"
     labels:
       - "dependencies"
-      - "update"
+      - "⬆️ update"
       - "ci"
 
   # ------------------------------------------------------------
@@ -95,7 +95,7 @@ updates:
       time: "00:00"
     labels:
       - "dependencies"
-      - "update"
+      - "⬆️ update"
       - "javascript"
 
   # ------------------------------------------------------------
@@ -110,7 +110,7 @@ updates:
       time: "00:00"
     labels:
       - "dependencies"
-      - "update"
+      - "⬆️ update"
       - "php"
 
   # ------------------------------------------------------------
@@ -195,7 +195,7 @@ updates:
       time: "00:00"
     labels:
       - "dependencies"
-      - "update"
+      - "⬆️ update"
       - "ruby"
 
   # cargo: no Cargo.toml found

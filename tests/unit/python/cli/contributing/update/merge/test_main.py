@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import cli.contributing.update.merge.__main__ as merge_main
+from cli.contributing.update.label import MINOR, UPDATE
 from cli.contributing.update.merge import github
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
@@ -32,7 +33,7 @@ def pull_request(**overrides):
             "repo": {"full_name": REPO},
         },
         "base": {"ref": "main"},
-        "labels": [{"name": "update"}, {"name": "minor"}],
+        "labels": [{"name": UPDATE.name}, {"name": MINOR.name}],
     }
     pr.update(overrides)
     return pr
@@ -137,7 +138,7 @@ class TestEvaluate(unittest.TestCase):
     def test_a_missing_update_label_is_refused(self):
         unlabeled = pull_request(labels=[{"name": "minor"}])
         refusals = evaluate(green_gh(prs=[unlabeled]))[1]
-        self.assertEqual(refusals, ["label update is missing"])
+        self.assertEqual(refusals, [f"label {UPDATE.name} is missing"])
 
     def test_a_pending_check_refuses(self):
         pending = check("🌐 Translate catalogs", status="in_progress", conclusion=None)

@@ -161,14 +161,14 @@ Dependabot cannot read repository variables itself, so [entry-pr-open-dependabot
 | `true` | Run ✓ | Stay open ✓ |
 | any other value | Skipped ✓ | Auto-closed on open ✓ |
 
-The same guard sits on [entry-pr-change-dependabot-label.yml](../../../../../.github/workflows/entry-pr-change-dependabot-label.yml), which labels Dependabot PRs `update` plus `major`, `minor` or `patch`, and on [entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml), which merges an update PR once CI proved it. With the variable unset, neither labels nor merges anything.
+The same guard sits on [entry-pr-change-dependabot-label.yml](../../../../../.github/workflows/entry-pr-change-dependabot-label.yml), which labels Dependabot PRs `⬆️ update` plus `🔴 major`, `🟡 minor` or `🟢 patch`, and on [entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml), which merges an update PR once CI proved it. With the variable unset, neither labels nor merges anything.
 
 ### Automatic merge 🔀
 
 An update PR merges itself only when all of these hold; otherwise the job prints the failing condition and the PR waits for a manual merge:
 
 1. Its `🔀 Pull Request` run of the `pull_request` event concluded `success`.
-2. `infinito-nexus-updater[bot]` opened it from `update/*`, or `dependabot[bot]` from `dependabot/*`, in this repository, against the default branch, not as a draft, and it carries the `update` label.
+2. `infinito-nexus-updater[bot]` opened it from `update/*`, or `dependabot[bot]` from `dependabot/*`, in this repository, against the default branch, not as a draft, and it carries the `⬆️ update` label.
 3. Every latest check run on its head commit completed as `success`, `skipped` or `neutral`, and every commit status is `success`. A check still running counts as not green; no later run retries the merge.
 4. Every role under `roles/<role>/` the PR changes appears in the `role` column of a `role-runtimes-*` artifact of that run. A PR that changes no role needs no artifact; a missing artifact proves nothing.
 
