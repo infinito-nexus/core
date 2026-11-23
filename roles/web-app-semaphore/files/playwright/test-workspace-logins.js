@@ -20,6 +20,18 @@ const OTHER_AUDIENCE = "not-openbao";
 const PROBE_TEMPLATE = "probe";
 const PRUNE_TEMPLATE = "prune task entities";
 const PRUNE_LINE = /^prune task entities: (at|own|kept|deleted) (\S+)(?: until (\S+))?$/;
+const EXPORT_LOGIN_REFUSED = "export refused: OpenBao refused the task token login to auth/jwt-export role";
+const EXPORT_MOUNT = "jwt-export";
+const ANNOUNCE_TEMPLATE = "announce owners";
+const ANNOUNCE_ROLE = "announce-owners";
+const OWNERS = "export/owners";
+const TOKEN_ACCESSORS = "auth/token/accessors";
+const LOOKUP_ACCESSOR = "auth/token/lookup-accessor";
+const CAPABILITIES_ACCESSOR = "sys/capabilities-accessor";
+const LISTED_ACCESSOR = [200, 400, 403];
+const DEFAULT_POLICY = "default";
+const EXPORT_SHARED = "export-shared";
+const TENANT_EXPORT = "tenant-export";
 const PROBE_CALL_MS = 30_000;
 const PROBE_TEXT = `set -u
 exec python3 - "$@" <<'PY'
@@ -131,6 +143,92 @@ function platformProject(fixture, kind) {
   const identity = fixture.result.templates[`${kind} ${fixture.result.alias}`];
   expect(identity, `${LABEL}: apply must report the ${kind} template of ${fixture.result.alias}`).toBeTruthy();
   return identity;
+}
+
+/**
+ * Args:
+ *   context: a browser context.
+ *   token: a token of the Playwright AppRole.
+ *   mount: the jwt auth mount the task logged in to.
+ *   role: the role of that mount the task logged in with.
+ *   run: the finished run of the task.
+ *
+ * Returns:
+ *   `{ accessor, lookup }` of the one live token named `<mount>-task:<task id>`;
+ *   `lookup` is the metadata lookup-accessor answers for it.
+ */
+async function taskToken(context, token, mount, role, run) {
+  const origin = workspaces.openbaoOrigin();
+  const headers = { "X-Vault-Token": token };
+  const listed = await workspaces.http(context, "GET", `${origin}/v1/${TOKEN_ACCESSORS}?list=true`, { headers });
+  await workspaces.expectStatus(listed, [200], `${LABEL}: the list of token accessors`);
+  const name = `${mount}-task:${run.task.id}`;
+  const login = `auth/${mount}/login`;
+  const found = [];
+  const sameRole = [];
+  for (const accessor of (await listed.json()).data.keys) {
+    const response = await workspaces.http(context, "POST", `${origin}/v1/${LOOKUP_ACCESSOR}`, { headers, data: { accessor } });
+    await workspaces.expectStatus(response, LISTED_ACCESSOR, `${LABEL}: the lookup of a listed token accessor`);
+    if (response.status() === 200) {
+      const lookup = (await response.json()).data;
+      if (lookup.display_name === name) {
+        found.push({ accessor, lookup });
+      }
+      if (lookup.path === login && lookup.meta?.role === role) {
+        sameRole.push(lookup.display_name);
+      }
+    }
+  }
+  expect(
+    found.length,
+    `${LABEL}: exactly one live token must be named ${name}; the live ${login} tokens of role ${role} are named: ${sameRole.join(", ")}; ` +
+      `task ${run.task.id} ended ${run.task.status}; output tail:\n${workspaces.outputTail(run.lines)}`,
+  ).toBe(1);
+  expect(Boolean(found[0].lookup.id), `${LABEL}: lookup-accessor must blank the token id of ${name}`).toBe(false);
+  return found[0];
+}
+
+/**
+ * Args:
+ *   context: a browser context.
+ *   token: a token of the Playwright AppRole.
+ *   accessor: the accessor of the token under test.
+ *   paths: the request paths.
+ *
+ * Returns:
+ *   `{ path: capabilities }`, each list sorted, OpenBao's ACL decision for the
+ *   token under test on each path.
+ */
+async function capabilitiesOf(context, token, accessor, paths) {
+  const response = await workspaces.http(context, "POST", `${workspaces.openbaoOrigin()}/v1/${CAPABILITIES_ACCESSOR}`, {
+    headers: { "X-Vault-Token": token },
+    data: { accessor, paths },
+  });
+  await workspaces.expectStatus(response, [200], `${LABEL}: the capabilities of a task token`);
+  const decided = (await response.json()).data;
+  return Object.fromEntries(paths.map((path) => [path, [...decided[path]].sort()]));
+}
+
+/**
+ * Args:
+ *   context: a browser context.
+ *   run: a finished run of a locked template of the export project.
+ *   expected: `role`, `policies` and `capabilities`, `{ path: sorted
+ *     capabilities }`, of the token the run logged in with.
+ *   what: what the failure messages name.
+ */
+async function expectExportToken(context, run, expected, what) {
+  await workspaces.withPlaywrightToken(context, async (token) => {
+    const { accessor, lookup } = await taskToken(context, token, EXPORT_MOUNT, expected.role, run);
+    expect(
+      { path: lookup.path, role: lookup.meta?.role, policies: [...lookup.policies].sort() },
+      `${what}: the login of task ${run.task.id}`,
+    ).toEqual({ path: `auth/${EXPORT_MOUNT}/login`, role: expected.role, policies: [...expected.policies].sort() });
+    expect(
+      await capabilitiesOf(context, token, accessor, Object.keys(expected.capabilities)),
+      `${what}: the capabilities of the token of task ${run.task.id}`,
+    ).toEqual(expected.capabilities);
+  });
 }
 
 exports.register = function (shared) {
@@ -361,10 +459,10 @@ exports.register = function (shared) {
     test("export login: the announcer reads no tenant secret", async () => {
       test.setTimeout(resolveTimeout(2 * RUN_MS));
       const exportProject = platformProject(a, "export").project_id;
-      const announce = await workspaces.namedTemplate(shared, a.page, exportProject, "announce owners");
+      const announce = await workspaces.namedTemplate(shared, a.page, exportProject, ANNOUNCE_TEMPLATE);
       const what = `${LABEL}: announce owners`;
       workspaces.expectSucceeded(await workspaces.runTemplate(shared, a.page, exportProject, announce.id, {}, RUN_MS, what), what);
-      const role = "jwt-export/announce-owners";
+      const role = `${EXPORT_MOUNT}/${ANNOUNCE_ROLE}`;
       const read = `GET ${TENANT}/data/ws-${a.workspace}/x`;
       const run = await probe(a, exportProject, [`login=${role}`, read.replace(" ", "=")], "the export probe of A");
       expectLogin(run, role, "refused", "a task of the export project of A with the announcer role");
@@ -376,7 +474,23 @@ exports.register = function (shared) {
       const exportProject = platformProject(a, "export").project_id;
       const role = `jwt-export/ws-${a.workspace}`;
       expectLogin(await probe(a, exportProject, [`login=${role}`], "the export probe of A"), role, "refused", "the export probe of A outside the export template");
-      expectLogin(await probe(b, exportProject, [`login=${role}`], "the export probe of B"), role, "refused", "the export probe of B with the export role of A");
+      const exportOfB = platformProject(b, "export");
+      const what = `${LABEL}: export ${b.result.alias} for the workspace of A`;
+      const run = await workspaces.runTemplate(
+        shared,
+        b.page,
+        exportOfB.project_id,
+        exportOfB.template_id,
+        { WORKSPACE: a.workspace, EXPORT_FOR: crypto.randomUUID() },
+        RUN_MS,
+        what,
+      );
+      const refusals = REFUSED.map((status) => `${EXPORT_LOGIN_REFUSED} ws-${a.workspace} (HTTP ${status})`);
+      expect(run.task.status, `${what}: task ${run.task.id} must end in error; output tail:\n${workspaces.outputTail(run.lines)}`).toBe("error");
+      expect(
+        run.lines.some((line) => refusals.some((refusal) => line.includes(refusal))),
+        `${what}: task ${run.task.id} must print one of "${refusals.join('", "')}"; output tail:\n${workspaces.outputTail(run.lines)}`,
+      ).toBe(true);
     });
 
     test("provision login: the dns template reads only its own workspace", async () => {
@@ -442,6 +556,69 @@ exports.register = function (shared) {
         expect(second.deleted, `${LABEL}: the second prune must keep ${id}, young until ${new Date(until).toISOString()}`).not.toContain(id);
         expect(listed.has(id), `${LABEL}: ${id}, young until ${new Date(until).toISOString()}, must still be there`).toBe(true);
       }
+    });
+
+    test("export token: the announcer's own token reads the owner records and no tenant secret", async () => {
+      test.setTimeout(resolveTimeout(2 * RUN_MS));
+      const exportProject = platformProject(a, "export").project_id;
+      const announce = await workspaces.namedTemplate(shared, a.page, exportProject, ANNOUNCE_TEMPLATE);
+      const what = `${LABEL}: the token of announce owners`;
+      const run = await workspaces.runTemplate(shared, a.page, exportProject, announce.id, {}, RUN_MS, what);
+      await expectExportToken(
+        a.context,
+        run,
+        {
+          role: ANNOUNCE_ROLE,
+          policies: [DEFAULT_POLICY, EXPORT_SHARED],
+          capabilities: {
+            [`${PLATFORM}/data/${OWNERS}/ws-${a.workspace}`]: ["read"],
+            [`${PLATFORM}/metadata/${OWNERS}/`]: ["list"],
+            [`${TENANT}/data/ws-${a.workspace}/x`]: ["deny"],
+            [`${TENANT}/metadata/ws-${a.workspace}/`]: ["deny"],
+            [`${PLATFORM}/data/store/x`]: ["deny"],
+          },
+        },
+        what,
+      );
+    });
+
+    test("export token: an export's own token reads only its own workspace", async () => {
+      test.setTimeout(resolveTimeout(2 * RUN_MS));
+      const exportOfA = platformProject(a, "export");
+      const what = `${LABEL}: the token of export ${a.result.alias} for an unknown user`;
+      const run = await workspaces.runTemplate(
+        shared,
+        a.page,
+        exportOfA.project_id,
+        exportOfA.template_id,
+        { WORKSPACE: a.workspace, EXPORT_FOR: crypto.randomUUID() },
+        RUN_MS,
+        what,
+      );
+      expect(run.task.status, `${what}: task ${run.task.id} must stop before any export; output tail:\n${workspaces.outputTail(run.lines)}`).toBe(
+        "error",
+      );
+      expect(
+        run.lines.some((line) => line.includes(EXPORT_LOGIN_REFUSED)),
+        `${what}: task ${run.task.id} must pass its own login; output tail:\n${workspaces.outputTail(run.lines)}`,
+      ).toBe(false);
+      await expectExportToken(
+        a.context,
+        run,
+        {
+          role: `ws-${a.workspace}`,
+          policies: [DEFAULT_POLICY, EXPORT_SHARED, TENANT_EXPORT],
+          capabilities: {
+            [`${TENANT}/data/ws-${a.workspace}/x`]: ["read"],
+            [`${TENANT}/metadata/ws-${a.workspace}/`]: ["list"],
+            [`${TENANT}/data/ws-${a.workspace}-provision/x`]: ["deny"],
+            [`${TENANT}/data/ws-${b.workspace}/x`]: ["deny"],
+            [`${PLATFORM}/data/store/x`]: ["deny"],
+            [`${PLATFORM}/data/${OWNERS}/ws-${a.workspace}`]: ["read"],
+          },
+        },
+        what,
+      );
     });
 
     test("task login: destroy removes the workspace roles", async () => {

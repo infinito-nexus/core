@@ -621,12 +621,12 @@ function openbaoOrigin() {
 /**
  * Args:
  *   context: a browser context.
- *   path: a path below the Playwright mount the Playwright policy reads.
+ *   use: called with a token of the Playwright AppRole.
  *
  * Returns:
- *   The fields stored there, read with the Playwright AppRole whose token is revoked afterwards.
+ *   What `use` returns, once the token is revoked.
  */
-async function playwrightRead(context, path) {
+async function withPlaywrightToken(context, use) {
   const login = await http(context, "POST", `${openbaoOrigin()}/v1/auth/approle/login`, {
     data: {
       role_id: requireDotenvValue(process.env.OPENBAO_PLAYWRIGHT_ROLE_ID, "OPENBAO_PLAYWRIGHT_ROLE_ID"),
@@ -636,16 +636,30 @@ async function playwrightRead(context, path) {
   await expectStatus(login, [200], "the OpenBao AppRole login of the Playwright AppRole");
   const token = (await login.json()).auth.client_token;
   try {
-    const mount = requireDotenvValue(process.env.OPENBAO_PLAYWRIGHT_MOUNT, "OPENBAO_PLAYWRIGHT_MOUNT");
-    const data = await vaultRead(context, token, mount, path);
-    expect(data, `OpenBao must hand the Playwright AppRole ${mount}/${path}`).not.toBeNull();
-    return data;
+    return await use(token);
   } finally {
     const revoke = await http(context, "POST", `${openbaoOrigin()}/v1/auth/token/revoke-self`, {
       headers: { "X-Vault-Token": token },
     });
     await expectStatus(revoke, [204], "the revocation of the Playwright AppRole token");
   }
+}
+
+/**
+ * Args:
+ *   context: a browser context.
+ *   path: a path below the Playwright mount the Playwright policy reads.
+ *
+ * Returns:
+ *   The fields stored there, read with the Playwright AppRole whose token is revoked afterwards.
+ */
+async function playwrightRead(context, path) {
+  return withPlaywrightToken(context, async (token) => {
+    const mount = requireDotenvValue(process.env.OPENBAO_PLAYWRIGHT_MOUNT, "OPENBAO_PLAYWRIGHT_MOUNT");
+    const data = await vaultRead(context, token, mount, path);
+    expect(data, `OpenBao must hand the Playwright AppRole ${mount}/${path}`).not.toBeNull();
+    return data;
+  });
 }
 
 /**
@@ -1607,6 +1621,7 @@ module.exports = {
   vaultDestroy,
   vaultRead,
   vaultWrite,
+  withPlaywrightToken,
   withWorkspace,
   workspaceFixture,
   workspacesOwner,

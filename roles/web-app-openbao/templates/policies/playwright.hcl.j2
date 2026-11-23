@@ -45,3 +45,15 @@ path "{{ OPENBAO_PLATFORM_MOUNT }}/data/playwright/store" {
 path "auth/token/revoke-self" {
   capabilities = ["update"]
 }
+
+path "auth/token/accessors" {
+  capabilities = ["list", "sudo"]
+}
+
+path "auth/token/lookup-accessor" {
+  capabilities = ["update"]
+}
+
+path "sys/capabilities-accessor" {
+  capabilities = ["update"]
+}
