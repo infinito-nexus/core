@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+import os
+import subprocess
+import sys
+import tempfile
 import unittest
+import unittest.mock as mock
 
 from cli.meta.ci import query
 
@@ -101,6 +106,35 @@ class TestQueryArgv(unittest.TestCase):
     def test_the_filter_reads_the_tested_column_not_the_capable_one(self) -> None:
         argv = self._argv()
         self.assertIn("test_compose == true", argv[argv.index("--filter") + 1])
+
+
+class TestDiscoverRows(unittest.TestCase):
+    def _discover_with(self, script: str) -> list[dict]:
+        with mock.patch.object(
+            query, "_query_argv", return_value=[sys.executable, "-c", script]
+        ):
+            return query.discover_rows(("compose",))
+
+    def test_a_failing_query_leaves_its_error_on_stderr(self) -> None:
+        saved = os.dup(2)
+        with tempfile.TemporaryFile() as sink:
+            os.dup2(sink.fileno(), 2)
+            try:
+                with self.assertRaises(subprocess.CalledProcessError) as raised:
+                    self._discover_with(
+                        "import sys; sys.stderr.write('VariantPinError: x\\n'); sys.exit(1)"
+                    )
+            finally:
+                os.dup2(saved, 2)
+                os.close(saved)
+            sink.seek(0)
+            self.assertIn(b"VariantPinError: x", sink.read())
+        self.assertIsNone(raised.exception.stderr)
+
+    def test_the_rows_are_read_from_stdout(self) -> None:
+        self.assertEqual(
+            self._discover_with('print(\'[{"name": "r"}]\')'), [{"name": "r"}]
+        )
 
 
 if __name__ == "__main__":
