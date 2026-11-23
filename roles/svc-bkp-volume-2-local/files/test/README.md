@@ -225,8 +225,12 @@ overwrite.
 
 The workspace pass of requirement 112. `BKP_TEST_WORKSPACES` is true when the
 host holds `web-app-semaphore`, `web-app-openbao`, `web-svc-seaweedfs` and
-`web-app-gitea` with `services.gitea.workspaces.enabled`; only then does
-`test.env.j2` render the URLs and admin credentials the pass reads.
+`web-app-gitea` with `services.gitea.workspaces.enabled`, and some host of the
+inventory holds `svc-virt-incus`, the e2e target of requirement 109 the pass
+provisions on. The target may sit in the dev stack's separate `target`
+container, so that half reads `groups`, as Semaphore's own provision switch
+does, not this host's `group_names`. Only then does `test.env.j2` render the
+URLs, the admin credentials and the provision order the pass reads.
 
 ```mermaid
 flowchart TD
@@ -242,8 +246,16 @@ and groups, and the object versions of the SeaweedFS buckets of both
 workspaces. The controls take the key out of the project's env file, recreate
 the project, and put the file back from a copy in the pass's `0700` scratch
 directory, also when the pass fails. `BKP_TEST_WORKSPACE_ORDER`, the provision
-order for the Incus e2e target of requirement 109, is not rendered yet; the
-pass fails on its absence instead of skipping.
+order for the Incus e2e target, is the survey of `provision-incus ws-<id>` and
+`destroy-incus ws-<id>` (`SALES_ORDER`, `LINE`, `PROVIDER_TOKEN`) as one JSON
+object. `test.env.j2` renders it from `services.test.workspace_order` of the
+role's `meta/services.yml`, shell-quoted because `test-e2e-cli` sources the
+file; the pass fails on its absence instead of skipping.
+
+Open gap: the provision template also reads
+`provision/<SALES_ORDER>-<LINE>.tfvars.json` (`provision/DRILL-1.tfvars.json`
+for the configured order) from the workspace repository, and the pass commits
+none yet. Until it does, step 2 fails with "the checkout holds no regular file".
 
 ## `seed/marker.py`
 

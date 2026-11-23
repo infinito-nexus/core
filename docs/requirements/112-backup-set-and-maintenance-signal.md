@@ -36,7 +36,7 @@ The store's requirement 062 (`infinito-nexus/gui: docs/requirements/062-slim-sto
 
    Both times are RFC 3339 with a numeric offset in UTC (`2026-11-13T02:00:00+00:00`). After the last start the unit writes the document with an empty `applications`, and an `ExecStopPost` does the same when the run fails. On a snapshot run, which stops nothing, the list stays empty. `/run` is a `tmpfs`, so a reboot clears the document. A reader MUST treat a missing document, an empty list and a document past its `until` as no maintenance. A reader MUST take the stopped applications from the list and MUST NOT assume a fixed set: Gitea and Semaphore keep running during a copy (`roles/web-app-gitea/meta/services.yml`, Today), so they appear only when their `stop_required` turns true.
 4. **Who reads it.** A role that sets `services.maintenance.enabled` in its `meta/services.yml` gets `/run/infinito/maintenance` mounted read-only. The store's role sets it. The document is not served on any public vhost: unlike `/status.json` (`roles/sys-ctl-hlth-webserver/README.md`), it would publish the platform's backup window.
-5. **The drill covers the workspace set.** The deploy drill of `svc-bkp-volume-2-local` gains a workspace pass. It runs when the stack holds `web-app-semaphore`, `web-app-openbao`, `web-svc-seaweedfs` and `web-app-gitea` with workspaces on.
+5. **The drill covers the workspace set.** The deploy drill of `svc-bkp-volume-2-local` gains a workspace pass. It runs when the stack holds `web-app-semaphore`, `web-app-openbao`, `web-svc-seaweedfs` and `web-app-gitea` with workspaces on, and some host of the inventory holds `svc-virt-incus`, the e2e target of 109 that step 2 provisions on.
 
 ## Acceptance Criteria
 

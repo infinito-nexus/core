@@ -26,6 +26,10 @@ test:
   shared: false
   image: alpine
   version: "3.24"
+  workspace_order:
+    SALES_ORDER: DRILL
+    LINE: "1"
+    PROVIDER_TOKEN: platform
 
 # nocheck: dynamic-flag - host secrets must be captured unconditionally wherever container backups run
 secrets_backup:
