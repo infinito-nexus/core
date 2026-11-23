@@ -64,7 +64,7 @@ test("guest: ejabberd LDAP backend points at svc-db-openldap (variant 1)", async
 test("administrator: the ejabberd web admin admits the administrator", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
   expect(xmppHost, "XMPP_HOST must be set").toBeTruthy();
-  const response = await page.request.get(`${baseUrl}/admin/`, {
+  const response = await page.request.get(`${baseUrl}/admin/server/${xmppHost}/`, {
     headers: basicAuth(adminUsername, adminPassword),
     failOnStatusCode: false,
   });
@@ -73,7 +73,8 @@ test("administrator: the ejabberd web admin admits the administrator", async ({ 
 
 test("biber: the ejabberd web admin and API refuse biber without the administrator role", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
-  const webAdmin = await page.request.get(`${baseUrl}/admin/`, {
+  expect(xmppHost, "XMPP_HOST must be set").toBeTruthy();
+  const webAdmin = await page.request.get(`${baseUrl}/admin/server/${xmppHost}/`, {
     headers: basicAuth(biberUsername, biberPassword),
     failOnStatusCode: false,
   });
