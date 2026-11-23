@@ -652,6 +652,11 @@ class TestMoodle(_EnforcementCase, unittest.TestCase):
         expired = self._setting("local_mfaenforce", mode, second_factor)
         return f"nosetup={nosetup} grace={grace} expired={expired}"
 
+    def test_the_email_factor_moodle_enables_by_default_stays_off(self) -> None:
+        task = self._task("factor_email")
+        self.assertNotIn("when", task)
+        self.assertEqual("0", task["vars"]["moodle_plugin_config_settings"]["enabled"])
+
     def test_the_grace_factor_converges_on_every_deploy_through_its_script(
         self,
     ) -> None:

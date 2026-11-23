@@ -18,6 +18,13 @@
     moodle_plugin_config_settings:
       enabled: "{{ MOODLE_MFA_ENABLED }}"
 
+- name: "🔐 Keep the email factor Moodle 5 enables by default off, so TOTP stays the only second factor"
+  include_tasks: utils/plugin/config.yml
+  vars:
+    moodle_plugin_config_component: factor_email
+    moodle_plugin_config_settings:
+      enabled: "0"
+
 - name: "🔐 Offer or withdraw the TOTP factor"
   include_tasks: utils/plugin/config.yml
   vars:
