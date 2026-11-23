@@ -1226,9 +1226,17 @@ def _label_value(value: str) -> str:
 
 
 def write_atomic(path: Path, text: str) -> None:
-    staged = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    """Replace a file through a staged file beside it.
+
+    Args:
+        path: the file to replace.
+        text: its new content.
+    """
+    staged = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+    handle = staged.open("x", encoding="utf-8")
     try:
-        staged.write_text(text, encoding="utf-8")
+        with handle:
+            handle.write(text)
         staged.replace(path)
     finally:
         staged.unlink(missing_ok=True)
