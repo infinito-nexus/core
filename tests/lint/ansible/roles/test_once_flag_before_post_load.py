@@ -61,7 +61,7 @@ class TestOnceFlagBeforePostLoad(unittest.TestCase):
         core = PROJECT_ROOT / "roles" / "sys-svc-container" / "tasks" / "00_core.yml"
         tasks = load_yaml_str(read_text(str(core)))
         flag = next(i for i, t in enumerate(tasks) if t.get("include_tasks") == FLAG)
-        planted = [t for t in tasks if t.get("include_tasks") != FLAG] + [tasks[flag]]
+        planted = tasks[:flag] + tasks[flag + 1 :] + [tasks[flag]]
         self.assertEqual(order_findings(tasks), [])
         self.assertNotEqual(order_findings(planted), [])
 
