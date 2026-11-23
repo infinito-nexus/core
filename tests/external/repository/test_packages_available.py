@@ -4,10 +4,11 @@ Queries the official package index of each default distribution in
 parallel instead of installing anything, so the whole registry is checked
 in seconds rather than one container build per package.
 
-A package that the index positively reports as absent fails the test. A
-package whose declaration exempts it (a third-party repository or a virtual
-name) is reported as a warning. Any other package whose index stays
-unreachable after the retries also fails the test.
+A package that the index positively reports as absent fails the test. Only
+the declared exemptions warn: a package from a third-party repository, and
+a virtual name its index does not list. Any other package whose index could
+not be consulted fails the test as well, because a run that verified
+nothing must not report green.
 """
 
 from __future__ import annotations
