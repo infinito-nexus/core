@@ -47,6 +47,10 @@ The token must carry:
 
 The gate therefore signs in through the service's own confidential client `access-request`, which `services.sso.oauth2.client` in [services.yml](meta/services.yml) declares with `kc-admin-api` as a default client scope; its secret is `sso_proxy_client_secret` from [secrets.yml](meta/secrets.yml). [web-app-keycloak](../web-app-keycloak/README.md) renders the client, and the shared client keeps the scope out, so a token of any other gated application cannot call the admin REST API.
 
+## Persona contract opt-outs
+
+The service has no login of its own. [identity.py](files/python/access_request/identity.py) reads the signed-in user only from the headers of the oauth2-proxy gate, so without the gate every request gets the `401` sign-in page. In the `services.sso.enabled: false` matrix variants the gate is gone, so [playwright.env.j2](templates/playwright.env.j2) renders `PERSONA_ADMINISTRATOR_BLOCKED=true` and `PERSONA_BIBER_BLOCKED=true`. With SSO enabled both personas run. The `guest` persona and the forged-identity scenario run in every variant.
+
 ## Further Resources
 
 - [Fine-grained admin permissions](https://www.keycloak.org/docs/latest/server_admin/#_fine_grained_permissions)
