@@ -2515,7 +2515,7 @@ class TestWriteAtomic(TestCase):
     def test_two_nodes_of_one_pid_replace_one_shared_report(self):
         real_replace = Path.replace
         both_staged = threading.Barrier(2, timeout=10)
-        errors: list[BaseException] = []
+        errors: list[Exception] = []
 
         def replace_once_both_staged(staged, target):
             both_staged.wait()
@@ -2524,7 +2524,7 @@ class TestWriteAtomic(TestCase):
         def node(path, text):
             try:
                 SCRIPT.write_atomic(path, text)
-            except BaseException as exc:
+            except Exception as exc:
                 errors.append(exc)
 
         with tempfile.TemporaryDirectory() as tmp:
