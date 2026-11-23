@@ -4,8 +4,8 @@
   ansible.builtin.script:
     cmd: shell/prune.sh
   environment:
-    PRUNE_FREE_FLOOR_MIB: "{{ compose_prune_free_floor_mib }}"
-    PRUNE_REPEAT_BELOW_PERCENT: "{{ compose_prune_repeat_below_percent }}"
+    PRUNE_FREE_FLOOR_MIB: "{{ COMPOSE_PRUNE_FREE_FLOOR_MIB }}"
+    PRUNE_REPEAT_BELOW_PERCENT: "{{ COMPOSE_PRUNE_REPEAT_BELOW_PERCENT }}"
     PRUNE_LAST_FREE_MIB: "{{ compose_prune_last_free_mib }}"
   register: compose_prune_result
   changed_when: "'prune skipped' not in compose_prune_result.stdout"

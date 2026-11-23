@@ -8,7 +8,11 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
 from utils import PROJECT_ROOT
-from utils.roles.mapping import ROLE_FILE_DEFAULTS_MAIN, ROLE_FILE_HANDLERS_MAIN
+from utils.roles.mapping import (
+    ROLE_FILE_DEFAULTS_MAIN,
+    ROLE_FILE_HANDLERS_MAIN,
+    ROLE_FILE_META_SERVICES,
+)
 
 ROLE = PROJECT_ROOT / "roles/sys-svc-compose"
 SCRIPT = ROLE / "files/shell/prune.sh"
@@ -16,6 +20,14 @@ SCRIPT = ROLE / "files/shell/prune.sh"
 DEFAULTS = DataLoader().load_from_file(
     str(ROLE / ROLE_FILE_DEFAULTS_MAIN), trusted_as_template=True
 )
+PRUNE = DataLoader().load_from_file(str(ROLE / ROLE_FILE_META_SERVICES))["svc-compose"][
+    "prune"
+]
+ROLE_VARIABLES = {
+    **DEFAULTS,
+    "COMPOSE_PRUNE_FREE_FLOOR_MIB": PRUNE["free_floor_mib"],
+    "COMPOSE_PRUNE_REPEAT_BELOW_PERCENT": PRUNE["repeat_below_percent"],
+}
 HANDLERS = DataLoader().load_from_file(
     str(ROLE / ROLE_FILE_HANDLERS_MAIN), trusted_as_template=True
 )
@@ -47,9 +59,10 @@ def handler_env(last_free_mib):
         last_free_mib: compose_prune_last_free_mib when the prune handler runs.
 
     Returns:
-        The environment the prune handler passes prune.sh under the role defaults.
+        The environment the prune handler passes prune.sh under the role
+        defaults and the prune values of meta/services.yml.
     """
-    variables = {**DEFAULTS, "compose_prune_last_free_mib": last_free_mib}
+    variables = {**ROLE_VARIABLES, "compose_prune_last_free_mib": last_free_mib}
     rendered = Templar(loader=DataLoader(), variables=variables).template(
         PRUNE_HANDLER["environment"]
     )
@@ -121,7 +134,7 @@ class TestPruneScript(unittest.TestCase):
             Whether the prune ran, and compose_prune_last_free_mib after the flush.
         """
         variables = {
-            **DEFAULTS,
+            **ROLE_VARIABLES,
             "STORAGE_CONSTRAINED": True,
             "compose_prune_last_free_mib": last_free_mib,
         }
@@ -283,6 +296,18 @@ class TestPruneScript(unittest.TestCase):
                 )
                 self.assertTrue(ran)
                 self.assertEqual(last_free_mib, "")
+
+    def test_prune_regaining_the_floor_clears_a_kept_record(self):
+        ran, last_free_mib = self.flush(
+            free_mib="12000", free_after_mib="40000", last_free_mib="24000"
+        )
+        self.assertTrue(ran)
+        self.assertEqual(last_free_mib, "")
+        ran, last_free_mib = self.flush(
+            free_mib="20000", free_after_mib="20500", last_free_mib=last_free_mib
+        )
+        self.assertTrue(ran)
+        self.assertEqual(last_free_mib, "20500")
 
 
 if __name__ == "__main__":
