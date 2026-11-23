@@ -22,6 +22,7 @@
     {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
     {{ lookup('depends_on', {entity_name: 'service_healthy'}) }}
 
+  {% if CACHE_PACKAGE_BOOTSTRAP_ENABLED | bool %}
   {% set service_name = 'bootstrap' %}
   {% set docker_restart_policy = 'no' %}
   {{ service_name }}:
@@ -32,6 +33,7 @@
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
     {{ lookup('depends_on', {entity_name: 'service_healthy'}) }}
+  {% endif %}
 
 {{ lookup('compose_volumes') }}
 {{ lookup('compose_networks') }}

@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from utils.env.handlers.infinito.cache.conf import KEY as FRONTEND_CONF_KEY
 from utils.infra import SERVICE
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
@@ -20,6 +21,7 @@ INVENTORY_KEYS = {
     "package_port": "INFINITO_CACHE_PACKAGE_PORT",
     "frontend_ca": "INFINITO_CACHE_PACKAGE_FRONTEND_CA_DIR",
     "frontend_certs": "INFINITO_CACHE_PACKAGE_FRONTEND_CERTS_DIR",
+    "frontend_map": FRONTEND_CONF_KEY,
     "registry_cap": "INFINITO_CACHE_REGISTRY_MAX_SIZE",
     "registry_auth": "INFINITO_CACHE_REGISTRY_AUTH",
     "registry_mirror": "INFINITO_CACHE_REGISTRY_HOST_PATH",
@@ -111,7 +113,8 @@ def render_inventory(root: Path, env: Mapping[str, str]) -> Path:
         The rendered host vars of the infra inventory, beside the template.
 
     Raises:
-        KeyError: a cap, a path, the registries or the idle window is unset.
+        KeyError: a cap, a path, the pinned frontend map, the registries or
+            the idle window is unset.
     """
     from jinja2 import (
         Environment,
@@ -153,21 +156,19 @@ def unmounted(base: Path, pins: Path, env: Mapping[str, str]) -> list[str]:
         One refusal per set host path outside the roots it may live in, which
         the runner's inner docker would resolve against its own filesystem.
         Cache data, the tools models and the tools stamps must lie below
-        ``base``; a pin path below either root.
+        ``base``; the frontend map below ``pins``, the only root whose map
+        ``make cache-apply`` replaces.
     """
-    from utils.env.handlers.infinito.cache.conf import KEY as FRONTEND_CONF_KEY
     from utils.env.handlers.infinito.tools.idle import STAMP_DIR_KEY
     from utils.env.handlers.infinito.tools.models import KEY as MODELS_KEY
 
     data = (MODELS_KEY, STAMP_DIR_KEY, *(INVENTORY_KEYS[name] for name in PATH_NAMES))
-    checks = [*((key, (base,)) for key in data), (FRONTEND_CONF_KEY, (base, pins))]
+    checks = [*((key, base) for key in data), (FRONTEND_CONF_KEY, pins)]
     return [
-        f"[infra] {key}={env[key]} lies outside "
-        f"{' and '.join(str(root) for root in roots)}, which the infra runner "
-        f"mounts; move it below {roots[-1]}"
-        for key, roots in checks
-        if env.get(key)
-        and not any(Path(env[key]).is_relative_to(root) for root in roots)
+        f"[infra] {key}={env[key]} lies outside {root}, which the infra runner "
+        f"mounts for it; move it below {root}"
+        for key, root in checks
+        if env.get(key) and not Path(env[key]).is_relative_to(root)
     ]
 
 
@@ -183,6 +184,26 @@ def cache_container(root: Path, kind: str) -> str:
 
     role, key = CACHE_SERVICES[kind]
     return load_yaml(root / "roles" / role / ROLE_FILE_META_SERVICES)[key]["name"]
+
+
+def cache_port(root: Path, kind: str, protocol: str) -> int:
+    """Args:
+        root: repository root.
+        kind: ``registry``, ``package`` or ``frontend``.
+        protocol: the key below ``ports.internal``, such as ``http``.
+
+    Returns:
+        The port that service listens on inside its own container, which a
+        ``docker exec`` into it reaches on loopback.
+
+    Raises:
+        KeyError: the service declares no internal port for *protocol*.
+    """
+    from utils.cache.yaml import load_yaml
+
+    role, key = CACHE_SERVICES[kind]
+    services = load_yaml(root / "roles" / role / ROLE_FILE_META_SERVICES)
+    return services[key]["ports"]["internal"][protocol]
 
 
 def deploy_commands(

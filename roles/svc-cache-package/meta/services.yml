@@ -42,7 +42,7 @@ package:
   metadata_max_age_min: 0
   data_path: ""
   lifecycle: beta
-# nocheck: dynamic-flag  the bootstrap has no group of its own; it runs exactly when the cache it provisions comes up
+# nocheck: dynamic-flag  the bootstrap has no group of its own; it runs when the cache it provisions comes up, unless an inventory whose repositories another tool writes turns it off
 bootstrap:
   modes:
     compose:
@@ -95,6 +95,7 @@ frontend:
       https: 443
   ca_path: "{{ [lookup('container', 'svc-cache-package', 'directories.config'), 'ca'] | path_join }}"
   certs_path: "{{ [lookup('container', 'svc-cache-package', 'directories.config'), 'certs'] | path_join }}"
+  map_path: "{{ [lookup('container', 'svc-cache-package', 'directories.config'), 'upstreams.conf'] | path_join }}"
   lifecycle: beta
   security:
     suppressions:

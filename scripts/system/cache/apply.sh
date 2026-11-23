@@ -32,12 +32,12 @@ if [[ "${stage}" == "apply" ]]; then
 	running=0
 	cache_pin_frontend_running || running=$?
 	if [[ "${running}" -eq 1 ]]; then
-		echo "[cache-apply] ${CACHE_PIN_FRONTEND} is not running; start the infra runner first with make infra-up" >&2
+		echo "[cache-apply] ${CACHE_PIN_FRONTEND} is not running; start it with make infra-update" >&2
 	fi
 	if [[ "${running}" -ne 0 ]]; then
 		exit 1
 	fi
-	cache_pin_frontend_map || exit 4
+	cache_pin_frontend_map || exit $?
 fi
 
 "${PYTHON}" -m cli.meta.cache.pin read >/dev/null
@@ -51,7 +51,16 @@ cache_pin_export_env "${pinned}"
 
 if [[ "${stage}" == "apply" ]]; then
 	echo "[cache-apply] creating the Nexus proxy repositories"
-	(cd "${pinned}" && bash roles/svc-cache-package/files/shell/bootstrap.sh)
+	nexus="$("${PYTHON}" -m cli.administration.infra cache-name package)"
+	nexus_port="$("${PYTHON}" -m cli.administration.infra cache-port package http)"
+	(
+		CACHE_PIN_CALLER="$(pwd -P)"
+		# shellcheck disable=SC2329
+		docker() { (unset -f docker && cd "${CACHE_PIN_CALLER}" && cache_pin_docker "$@"); }
+		export -f docker cache_pin_docker
+		export CACHE_PIN_CALLER INFINITO_CACHE_PACKAGE_CONTAINER="${nexus}" INFINITO_CACHE_PACKAGE_PORT="${nexus_port}" INFINITO_CACHE_PACKAGE_EXEC_MODE=docker INFINITO_CACHE_PACKAGE_REST_HOST=127.0.0.1
+		cd "${pinned}" && bash roles/svc-cache-package/files/shell/bootstrap.sh
+	)
 fi
 
 echo "[cache-apply] issuing the frontend leaf certificates"

@@ -1,13 +1,18 @@
 from __future__ import annotations
 
 import importlib
+import tempfile
 import unittest
 import unittest.mock as mock
+from pathlib import Path
 
 from ansible.errors import AnsibleError
 
 from plugins.lookup.container_ports import LookupModule as ContainerPorts
-from utils.cache.yaml import load_yaml_any, load_yaml_str
+from utils import infra_inventory
+from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.yaml import load_yaml, load_yaml_any, load_yaml_str
+from utils.env.handlers.infinito.cache.conf import KEY as FRONTEND_CONF_KEY
 
 render = importlib.import_module("tests.unit.python.roles.svc-cache-package._render")
 
@@ -15,6 +20,7 @@ DIR_CACHE = "/var/cache/infinito/core/cache"
 DATA = f"{DIR_CACHE}/package/data"
 CA = f"{DIR_CACHE}/package/frontend/ca"
 CERTS = f"{DIR_CACHE}/package/frontend/certs"
+PINNED_MAP = "/home/me/.local/share/infinito/cache/upstreams.conf"
 NEXUS_DATA = "/nexus-data"
 NEXUS_UID = "200"
 TASKS = render.ROLE / "tasks" / "00_core.yml"
@@ -24,10 +30,12 @@ INFRA = {
     "frontend": {
         "ca_path": CA,
         "certs_path": CERTS,
+        "map_path": PINNED_MAP,
         "ports": {"local": {"http": 80, "https": 443}},
     },
 }
 PORTS_LINE = "container_ports: "
+MAP_TARGET = "/etc/nginx/conf.d/upstreams.conf"
 
 
 def _volumes(service: str, override=None) -> list:
@@ -84,6 +92,69 @@ def _data_dir(override=None) -> tuple[int, dict, dict]:
     }
     resolved["when"] = built.compile_expression(task["when"])(**values)
     return index, task, resolved
+
+
+def _mounted_map(override=None) -> str:
+    """Args:
+        override: the ``services`` keys an inventory sets for the role.
+
+    Returns:
+        The host file the frontend mounts at its map target.
+    """
+    mounts = load_yaml_str(render.mounts("frontend", override))["configs"]
+    [entry] = [mount for mount in mounts if mount["target"] == MAP_TARGET]
+    return load_yaml_str(render.top_volumes(override))["configs"][entry["source"]][
+        "file"
+    ]
+
+
+def _infra_services(env: dict[str, str]) -> dict:
+    """Args:
+        env: the environment ``make infra-up`` renders the infra inventory from.
+
+    Returns:
+        The ``services`` keys the infra inventory sets for the role.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        template = root / infra_inventory.INVENTORY_TEMPLATE
+        template.parent.mkdir(parents=True)
+        template.write_text(
+            read_text(str(PROJECT_ROOT / infra_inventory.INVENTORY_TEMPLATE)),
+            encoding="utf-8",
+        )
+        rendered = load_yaml(infra_inventory.render_inventory(root, env))
+    return rendered["applications"][render.APPLICATION_ID]["services"]
+
+
+def _infra_env() -> dict[str, str]:
+    env = {key: f"/c/{name}" for name, key in infra_inventory.INVENTORY_KEYS.items()}
+    env[FRONTEND_CONF_KEY] = PINNED_MAP
+    env[infra_inventory.REGISTRIES_KEY] = "ghcr.io"
+    return env
+
+
+def _compose_services(override=None) -> dict:
+    return load_yaml_str(render.compose(override))["services"]
+
+
+def _repositories_task_runs(override=None) -> bool:
+    """Args:
+        override: the ``services`` keys an inventory sets for the role.
+
+    Returns:
+        Whether the role task that writes the proxy repositories runs.
+    """
+    built = render.environment(override)
+    [task] = [
+        task
+        for task in load_yaml_any(str(TASKS))
+        if "bootstrap.sh" in task.get("ansible.builtin.shell", {}).get("cmd", "")
+    ]
+    enabled = render.role_var(built, "CACHE_PACKAGE_BOOTSTRAP_ENABLED")
+    return built.compile_expression(task["when"])(
+        CACHE_PACKAGE_BOOTSTRAP_ENABLED=enabled
+    )
 
 
 def _compose_up_index() -> int:
@@ -162,6 +233,35 @@ class TestFrontendPaths(unittest.TestCase):
         self.assertNotIn(DIR_CACHE, render.mounts("frontend"))
         self.assertNotIn(DIR_CACHE, env["INFINITO_CACHE_PACKAGE_FRONTEND_CA_DIR"])
         self.assertNotIn(DIR_CACHE, env["INFINITO_CACHE_PACKAGE_FRONTEND_CERTS_DIR"])
+
+
+class TestFrontendMap(unittest.TestCase):
+    def test_the_frontend_mounts_the_configured_map(self) -> None:
+        self.assertEqual(_mounted_map(INFRA), PINNED_MAP)
+
+    def test_the_infra_runner_hands_the_frontend_the_pinned_map(self) -> None:
+        self.assertEqual(_mounted_map(_infra_services(_infra_env())), PINNED_MAP)
+
+    def test_without_the_key_the_frontend_mounts_the_map_the_role_renders(
+        self,
+    ) -> None:
+        rendered = render.role_var(
+            render.environment(), "CACHE_PACKAGE_FRONTEND_CONF_HOST"
+        )
+        self.assertEqual(_mounted_map(), rendered)
+        self.assertNotEqual(_mounted_map(), PINNED_MAP)
+
+
+class TestRepositoriesUnderTheInfraRunner(unittest.TestCase):
+    def test_the_infra_runner_starts_no_bootstrap_sidecar(self) -> None:
+        self.assertNotIn("bootstrap", _compose_services(_infra_services(_infra_env())))
+
+    def test_the_infra_runner_skips_the_role_repository_task(self) -> None:
+        self.assertFalse(_repositories_task_runs(_infra_services(_infra_env())))
+
+    def test_without_the_key_the_role_provisions_its_repositories(self) -> None:
+        self.assertIn("bootstrap", _compose_services())
+        self.assertTrue(_repositories_task_runs())
 
 
 class TestFrontendPorts(unittest.TestCase):

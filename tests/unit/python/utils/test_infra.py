@@ -6,11 +6,15 @@ import threading
 import unittest
 from contextlib import nullcontext
 from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 from utils import infra, infra_inventory
 from utils.cache.evict import Usage
 from utils.cache.yaml import load_yaml
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class TestRunnerIp(unittest.TestCase):
@@ -50,6 +54,9 @@ class TestUp(unittest.TestCase):
         self.lock = Path(self.tmp.name) / "infra.lock"
         self.base = Path(self.tmp.name) / "spare" / "cache"
         self.calls: list[list[str]] = []
+        self.pins: list[str] = []
+        self.pinned = True
+        self.evict_fails = False
 
     def tearDown(self) -> None:
         self.tmp.cleanup()
@@ -60,24 +67,89 @@ class TestUp(unittest.TestCase):
         running: bool,
         recreate: bool,
         foreign: tuple[str, ...] = (),
+        run: Callable[[list[str]], None] | None = None,
     ) -> int:
         return infra.up(
             ["compose"],
             refusal=lambda: refusal,
             foreign=lambda: list(foreign),
             running=lambda: running,
-            run=self.calls.append,
+            run=run or self.calls.append,
             lock=self.lock,
             base=self.base,
             recreate=recreate,
             takeover=[],
             bridge=None,
             installs=self._installs,
+            prepare=self._prepare_pin,
+            apply=self._apply_pin,
+            evict=self._evict,
         )
 
     def _installs(self) -> list[list[str]]:
         self.calls.append(["build installs"])
         return [["timer"]]
+
+    def _prepare_pin(self) -> None:
+        self.pins.append("prepare")
+        if not self.pinned:
+            raise SystemExit("no cache pin")
+
+    def _apply_pin(self) -> None:
+        self.pins.append("apply")
+
+    def _evict(self) -> None:
+        self.pins.append("evict")
+        if self.evict_fails:
+            raise RuntimeError("evict failed")
+
+    def _sequence(
+        self,
+        running: bool,
+        recreate: bool,
+        failing: str = "",
+        fresh: bool = False,
+    ) -> list[str]:
+        """Args:
+            running: whether the runner already runs.
+            recreate: whether the call is infra-update.
+            failing: the command that raises, none when empty.
+            fresh: Nexus still has its install password and no tasks, so the
+                eviction fails with 401 until the apply's bootstrap ran.
+
+        Returns:
+            The pin steps and the runner commands in the order the call ran them,
+            then ``raised <reason>`` when the call propagated a failure.
+        """
+        steps: list[str] = []
+
+        def run(argv: list[str]) -> None:
+            steps.append(" ".join(argv))
+            if argv == [failing]:
+                raise RuntimeError(failing)
+            if fresh and argv == ["evict"] and "apply pin" not in steps:
+                raise RuntimeError("evict got 401")
+
+        try:
+            infra.up(
+                ["compose"],
+                refusal=list,
+                foreign=list,
+                running=lambda: running,
+                run=run,
+                lock=self.lock,
+                base=self.base,
+                recreate=recreate,
+                takeover=[],
+                bridge=None,
+                installs=lambda: [["deploy-package-cache"], ["timer"]],
+                prepare=lambda: steps.append("prepare pin"),
+                apply=lambda: steps.append("apply pin"),
+                evict=lambda: run(["evict"]),
+            )
+        except RuntimeError as exc:
+            steps.append(f"raised {exc}")
+        return steps
 
     def _takeover(
         self,
@@ -106,7 +178,108 @@ class TestUp(unittest.TestCase):
             takeover=["legacy-a", "legacy-b"],
             bridge=("legacy-net", "172.30.0.6"),
             installs=lambda: [["deploy-registry-cache"]],
+            prepare=self._prepare_pin,
+            apply=self._apply_pin,
+            evict=self._evict,
         )
+
+    def test_a_start_prepares_the_pin_applies_it_then_evicts(self) -> None:
+        self.assertEqual(
+            self._sequence(running=False, recreate=False),
+            [
+                "prepare pin",
+                "compose up --detach --wait",
+                "deploy-package-cache",
+                "timer",
+                "apply pin",
+                "evict",
+            ],
+        )
+
+    def test_a_fresh_nexus_is_evicted_only_after_the_apply_rotated_it(self) -> None:
+        steps = self._sequence(running=False, recreate=False, fresh=True)
+        self.assertEqual(steps[-2:], ["apply pin", "evict"])
+
+    def test_a_failed_eviction_comes_after_the_one_apply_then_raises(self) -> None:
+        steps = self._sequence(running=False, recreate=False, failing="evict")
+        self.assertEqual(steps[-3:], ["apply pin", "evict", "raised evict"])
+        self.assertEqual(steps.count("apply pin"), 1)
+
+    def test_a_failed_deploy_applies_and_raises_without_evicting(self) -> None:
+        self.assertEqual(
+            self._sequence(
+                running=False, recreate=False, failing="deploy-package-cache"
+            ),
+            [
+                "prepare pin",
+                "compose up --detach --wait",
+                "deploy-package-cache",
+                "apply pin",
+                "raised deploy-package-cache",
+            ],
+        )
+
+    def test_an_interrupt_during_the_installs_applies_nothing(self) -> None:
+        def interrupt(argv: list[str]) -> None:
+            if argv == ["timer"]:
+                raise KeyboardInterrupt
+
+        with self.assertRaises(KeyboardInterrupt):
+            self._up([], False, False, run=interrupt)
+        self.assertEqual(self.pins, ["prepare"])
+
+    def test_a_failed_takeover_rolls_back_and_applies_nothing(self) -> None:
+        self._rolled_back("deploy-registry-cache")
+        self.assertEqual(self.pins, ["prepare"])
+
+    def test_a_failed_eviction_keeps_the_finished_takeover(self) -> None:
+        self.evict_fails = True
+        with self.assertRaisesRegex(RuntimeError, "evict failed"):
+            self._takeover([], "", running=False)
+        self.assertNotIn(["compose", "stop"], [call[:-1] for call in self.calls])
+        self.assertTrue(self.lock.with_name(infra.OWNER_NAME).is_file())
+        self.assertEqual(self.pins, ["prepare", "apply", "evict"])
+
+    def test_an_update_prepares_applies_and_evicts_on_a_running_runner(
+        self,
+    ) -> None:
+        steps = self._sequence(running=True, recreate=True)
+        self.assertEqual(
+            (steps[0], steps[-2:]), ("prepare pin", ["apply pin", "evict"])
+        )
+
+    def test_a_call_that_finds_the_runner_running_only_applies_the_pin(
+        self,
+    ) -> None:
+        with patch("builtins.print"):
+            self.assertEqual(
+                self._sequence(running=True, recreate=False), ["apply pin"]
+            )
+
+    def test_without_a_pin_the_runner_does_not_start(self) -> None:
+        self.pinned = False
+        with self.assertRaisesRegex(SystemExit, "no cache pin"):
+            self._up([], False, False)
+        self.assertEqual((self.calls, self.pins), ([], ["prepare"]))
+
+    def test_without_a_pin_a_takeover_restarts_the_legacy_stack(self) -> None:
+        self.pinned = False
+        with patch("sys.stderr"), self.assertRaisesRegex(SystemExit, "no cache pin"):
+            self._takeover([], "", running=False)
+        self.assertEqual(
+            [call[:-1] for call in self.calls],
+            [
+                ["docker", "stop", "-t", "120", "legacy-a", "legacy-b"],
+                ["compose", "stop"],
+                ["docker", "start", "legacy-a", "legacy-b"],
+            ],
+        )
+        self.assertFalse(self.lock.with_name(infra.OWNER_NAME).exists())
+
+    def test_a_refusal_neither_prepares_nor_applies_the_pin(self) -> None:
+        with patch("sys.stderr"):
+            self._up(["below INFINITO_CACHE_DISK_FLOOR"], False, False)
+        self.assertEqual(self.pins, [])
 
     def test_the_takeover_stops_the_legacy_stack_after_the_mark_before_the_start(
         self,
@@ -181,6 +354,9 @@ class TestUp(unittest.TestCase):
                 takeover=[],
                 bridge=None,
                 installs=list,
+                prepare=list,
+                apply=list,
+                evict=list,
             )
         self.assertTrue(self.lock.with_name(infra.OWNER_NAME).is_file())
 
@@ -238,6 +414,9 @@ class TestUp(unittest.TestCase):
                 takeover=[],
                 bridge=None,
                 installs=list,
+                prepare=list,
+                apply=list,
+                evict=list,
             )
         self.assertTrue(self.lock.with_name(infra.OWNER_NAME).is_file())
 
@@ -274,6 +453,9 @@ class TestUp(unittest.TestCase):
             takeover=[],
             bridge=None,
             installs=list,
+            prepare=list,
+            apply=list,
+            evict=list,
         )
         self.assertEqual(seen, [True])
 
@@ -519,6 +701,9 @@ class TestConcurrentUp(unittest.TestCase):
                 takeover=[],
                 bridge=None,
                 installs=list,
+                prepare=list,
+                apply=list,
+                evict=list,
             )
 
         with tempfile.TemporaryDirectory() as tmp, patch("builtins.print"):
@@ -659,6 +844,7 @@ _CACHE_ENV = {
     "INFINITO_CACHE_PACKAGE_PORT": "8081",
     "INFINITO_CACHE_PACKAGE_FRONTEND_CA_DIR": "/c/package/frontend/ca",
     "INFINITO_CACHE_PACKAGE_FRONTEND_CERTS_DIR": "/c/package/frontend/certs",
+    "INFINITO_CACHE_PACKAGE_FRONTEND_CONF": "/pins/upstreams.conf",
     "INFINITO_CACHE_REGISTRY_MAX_SIZE": "40g",
     "INFINITO_CACHE_REGISTRY_AUTH": "",
     "INFINITO_CACHE_REGISTRY_HOST_PATH": "/c/registry/mirror",
@@ -753,6 +939,16 @@ class TestInventory(unittest.TestCase):
         self.assertEqual(
             services["frontend"]["ports"]["local"], {"http": 80, "https": 443}
         )
+
+    def test_the_frontend_mounts_the_map_below_the_pin_root(self) -> None:
+        frontend = self._render(_CACHE_ENV)["svc-cache-package"]["services"]["frontend"]
+        self.assertEqual(frontend["map_path"], "/pins/upstreams.conf")
+
+    def test_an_unset_pinned_map_is_refused(self) -> None:
+        env = dict(_CACHE_ENV)
+        del env["INFINITO_CACHE_PACKAGE_FRONTEND_CONF"]
+        with self.assertRaises(KeyError):
+            self._render(env)
 
     def test_a_changed_cap_changes_the_inventory(self) -> None:
         apps = self._render(

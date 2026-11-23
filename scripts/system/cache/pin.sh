@@ -6,12 +6,12 @@
 #   cache_pin_lock: holds an exclusive lock on CACHE_PIN_ROOT/.lock on fd 9 until cache_pin_unlock or the shell exits.
 #   cache_pin_unlock: releases the lock cache_pin_lock holds.
 #   cache_pin_docker ARGS: runs docker ARGS on the infra runner's daemon, where the cache containers run.
-#   cache_pin_frontend_running: sets CACHE_PIN_FRONTEND and succeeds while it runs; returns 1 when it does not, 2 when docker ps fails.
-#   cache_pin_frontend_map: sets CACHE_PIN_FRONTEND_MAP to the map CACHE_PIN_FRONTEND mounts; refuses one outside CACHE_PIN_ROOT.
+#   cache_pin_frontend_running: sets CACHE_PIN_FRONTEND and succeeds while it runs; returns 1 when it or the infra runner does not run (the runner state exits 3), 2 when docker ps fails.
+#   cache_pin_frontend_map: sets CACHE_PIN_FRONTEND_MAP to the map CACHE_PIN_FRONTEND mounts; returns 4 for a map outside CACHE_PIN_ROOT, 1 for a refused root, a failed docker inspect or no mounted map.
 #   cache_pin_materialize SHA: sets CACHE_PIN_CHECKOUT to the checkout of SHA below CACHE_PIN_ROOT; refuses a symlinked checkout and one without its map.
 #   cache_pin_export_env DIR: exports the declaration-derived keys the checkout in DIR computes.
 #   cache_pin_report_drift DIR: names this checkout's declarations that differ from DIR; never fails.
-#   cache_pin_install_map DIR TARGET: copies the map of DIR onto TARGET in place and leaves it read-only.
+#   cache_pin_install_map DIR TARGET: copies the map of DIR onto TARGET in place, on the inode the frontend bind-mounts, ignoring SIGINT, SIGTERM, SIGHUP and SIGQUIT meanwhile, and leaves it read-only.
 
 CACHE_PIN_MAP="compose/package-cache-frontend/upstreams.conf"
 CACHE_PIN_EXCLUDES=(":(exclude)locale" ":(exclude)tests" ":(exclude)docs")
@@ -50,8 +50,14 @@ cache_pin_docker() {
 }
 
 cache_pin_frontend_running() {
-	local names
+	local names runner=0
 	CACHE_PIN_FRONTEND="$("${PYTHON:?Source scripts/meta/env/load.sh first}" -m cli.administration.infra cache-name frontend)" || return 2
+	"${PYTHON}" -m cli.administration.infra running || runner=$?
+	case "${runner}" in
+	0) ;;
+	3) return 1 ;;
+	*) return 2 ;;
+	esac
 	if ! names="$(cache_pin_docker ps --format '{{.Names}}')"; then
 		echo "[cache-pin] docker ps failed, so it is unknown whether ${CACHE_PIN_FRONTEND} runs" >&2
 		return 2
@@ -70,8 +76,8 @@ cache_pin_frontend_map() {
 		return 1
 	fi
 	if [[ "$(realpath -m -- "${mounted}")" != "${CACHE_PIN_ROOT}/"* ]]; then
-		echo "[cache-pin] ${CACHE_PIN_FRONTEND} mounts its map from ${mounted}, outside INFINITO_CACHE_PIN_ROOT ${CACHE_PIN_ROOT}; it serves another pin root. Check that INFINITO_CACHE_PACKAGE_FRONTEND_CONF in .env and in your shell lies below INFINITO_CACHE_PIN_ROOT, then recreate it with make compose-up in the checkout that owns the cache stack" >&2
-		return 1
+		echo "[cache-pin] ${CACHE_PIN_FRONTEND} mounts its map from ${mounted}, outside INFINITO_CACHE_PIN_ROOT ${CACHE_PIN_ROOT}; it serves another pin root. Check that INFINITO_CACHE_PACKAGE_FRONTEND_CONF in .env and in your shell lies below INFINITO_CACHE_PIN_ROOT, then recreate it with make infra-update" >&2
+		return 4
 	fi
 	# shellcheck disable=SC2034
 	CACHE_PIN_FRONTEND_MAP="${mounted}"
@@ -137,9 +143,12 @@ cache_pin_report_drift() {
 cache_pin_install_map() {
 	local source="$1/${CACHE_PIN_MAP}" target="$2"
 	mkdir -p "$(dirname "${target}")"
-	if [[ -e "${target}" ]]; then
-		chmod u+w "${target}"
-	fi
-	cp -- "${source}" "${target}"
-	chmod a-w "${target}"
+	(
+		trap '' INT TERM HUP QUIT
+		if [[ -e "${target}" ]]; then
+			chmod u+w "${target}"
+		fi
+		cp -- "${source}" "${target}"
+		chmod a-w "${target}"
+	)
 }

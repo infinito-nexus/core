@@ -35,8 +35,22 @@ def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8")  # nocheck: cache-read
 
 
-INFRA_ARMS = """cache-name) echo infinito-package-cache-frontend ;;
+NEXUS = "package-cache"
+FRONTEND = "infinito-package-cache-frontend"
+NEXUS_PORT = "8081"
+PUBLISHED_PORT = "8099"
+PUBLISHED_HOST = "nexus.example"
+
+INFRA_ARMS = f"""cache-name)
+	case "$4" in
+	package) echo {NEXUS} ;;
+	*) echo {FRONTEND} ;;
+	esac
+	;;
+cache-port) [[ "$4 $5" == "package http" ]] && echo {NEXUS_PORT} ;;
+running) [[ -z "$STUB_RUNNER_DOWN" ]] || exit 3 ;;
 docker)
+	[[ -z "$STUB_RUNNER_DOWN" ]] || exit 1
 	shift 3
 	exec docker "$@"
 	;;"""
@@ -83,13 +97,30 @@ ps)
 	fi
 	[[ -n "$STUB_MOUNTED" ]] && echo infinito-package-cache-frontend
 	;;
-inspect) echo "$STUB_MOUNTED" ;;
+inspect)
+	if [[ -n "$STUB_INSPECT_FAILS" ]]; then
+		echo "Error: No such object" >&2
+		exit 1
+	fi
+	[[ -n "$STUB_NO_MAP" ]] || echo "$STUB_MOUNTED"
+	;;
 esac
 exit 0
 """
 
 ROLE_STUB = """#!/usr/bin/env bash
 printf '%s %s %s %s\\n' "$(basename "$0")" "$PWD" "$INFINITO_CACHE_TLS_HOSTS" "$INFINITO_CACHE_UPSTREAMS" >>"$STUB_LOG"
+"""
+
+BOOTSTRAP_STUB = f"""{ROLE_STUB}printf 'nexus %s:%s\\n' "$INFINITO_CACHE_PACKAGE_REST_HOST" "$INFINITO_CACHE_PACKAGE_PORT" >>"$STUB_LOG"
+docker exec "$INFINITO_CACHE_PACKAGE_CONTAINER" true
+"""
+
+INTERRUPTED_CP_STUB = """#!/usr/bin/env bash
+: >"${@: -1}"
+kill -INT $$
+export PATH="${PATH#*:}"
+exec cp "$@"
 """
 
 RENDER_STUB = """import os
@@ -126,8 +157,8 @@ def _executable(path: Path, content: str) -> Path:
 def _checkout(root: Path, label: str) -> None:
     (root / MAP).parent.mkdir(parents=True, exist_ok=True)
     (root / MAP).write_text(f"{label} map\n", encoding="utf-8")
-    for name in ("bootstrap.sh", "certs.sh"):
-        _executable(root / SHELL_DIR / name, ROLE_STUB)
+    for name, stub in (("bootstrap.sh", BOOTSTRAP_STUB), ("certs.sh", ROLE_STUB)):
+        _executable(root / SHELL_DIR / name, stub)
 
 
 def _clean_env() -> dict[str, str]:
@@ -183,7 +214,9 @@ class ApplyRun:
             f"export PYTHON={python}\n"
             f"export INFINITO_CACHE_PIN_ROOT={self.pin_root}\n"
             f"export INFINITO_CACHE_PIN_FILE={base / 'state' / 'cache.ref'}\n"
-            f"export INFINITO_CACHE_PACKAGE_FRONTEND_CONF={self.served}\n",
+            f"export INFINITO_CACHE_PACKAGE_FRONTEND_CONF={self.served}\n"
+            f"export INFINITO_CACHE_PACKAGE_PORT={PUBLISHED_PORT}\n"
+            f"export INFINITO_CACHE_PACKAGE_REST_HOST={PUBLISHED_HOST}\n",
             encoding="utf-8",
         )
         self.env = _clean_env()
@@ -256,6 +289,37 @@ class TestApply(unittest.TestCase):
         ]
         self.assertNotEqual(docker, [])
         self.assertEqual(docker, through_runner)
+
+    def test_the_pinned_bootstrap_reaches_nexus_inside_the_infra_runner(
+        self,
+    ) -> None:
+        run = self._run()
+        self.assertEqual(run.done.returncode, 0, run.done.stderr)
+        self.assertIn(
+            f"python {run.caller} -m cli.administration.infra docker exec {NEXUS} true",
+            run.lines,
+        )
+        self.assertIn(f"docker exec {NEXUS} true", run.lines)
+
+    def test_the_bootstrap_reaches_nexus_on_its_loopback_and_internal_port(
+        self,
+    ) -> None:
+        run = self._run()
+        self.assertEqual(run.done.returncode, 0, run.done.stderr)
+        nexus = [line for line in run.lines if line.startswith("nexus ")]
+        self.assertEqual(nexus, [f"nexus 127.0.0.1:{NEXUS_PORT}"])
+        self.assertFalse(any(PUBLISHED_HOST in line for line in run.lines))
+
+    def test_a_stopped_infra_runner_is_a_stopped_frontend(self) -> None:
+        run = self._setup()
+        run.env["STUB_RUNNER_DOWN"] = "1"
+        run.run()
+        self.assertEqual(run.done.returncode, 1)
+        self.assertIn(
+            "is not running; start it with make infra-update", run.done.stderr
+        )
+        self.assertNotIn("docker ps failed", run.done.stderr)
+        self.assertEqual(_read(run.mounted), "old map\n")
 
     def test_apply_reports_drift_against_the_pinned_checkout(self) -> None:
         run = self._run()
@@ -337,6 +401,95 @@ class TestApply(unittest.TestCase):
         self.assertIn(
             f"python {run.caller} -m cli.meta.cache.pin applied {SHA2}", run.lines
         )
+
+
+class TestMapRefusals(unittest.TestCase):
+    def _refused(self, **changed: str) -> ApplyRun:
+        """Args:
+            changed: STUB_* settings of the docker stub for this run.
+
+        Returns:
+            The finished apply, which must have touched nothing.
+        """
+        run = ApplyRun(APPLY, SHA)
+        self.addCleanup(run.close)
+        run.env.update(changed)
+        run.run()
+        self.assertEqual(_read(run.mounted), "old map\n")
+        self.assertFalse(
+            any(line.startswith(("bootstrap", "certs")) for line in run.lines)
+        )
+        return run
+
+    def test_a_failed_inspect_is_no_foreign_map(self) -> None:
+        run = self._refused(STUB_INSPECT_FAILS="1")
+        self.assertEqual(run.done.returncode, 1, run.done.stderr)
+
+    def test_a_frontend_without_a_mounted_map_is_no_foreign_map(self) -> None:
+        run = self._refused(STUB_NO_MAP="1")
+        self.assertEqual(run.done.returncode, 1, run.done.stderr)
+        self.assertIn("mounts no map", run.done.stderr)
+
+    def test_a_refused_pin_root_is_no_foreign_map(self) -> None:
+        run = ApplyRun(APPLY, SHA)
+        self.addCleanup(run.close)
+        loader = run.caller / "scripts" / "meta" / "env" / "load.sh"
+        loader.write_text(
+            _read(loader).replace(
+                f"INFINITO_CACHE_PIN_ROOT={run.pin_root}",
+                "INFINITO_CACHE_PIN_ROOT=pins",
+            ),
+            encoding="utf-8",
+        )
+        run.run()
+        self.assertEqual(run.done.returncode, 1, run.done.stderr)
+        self.assertIn("is not an absolute path", run.done.stderr)
+        self.assertEqual(_read(run.mounted), "old map\n")
+
+    def test_there_is_no_stage_that_skips_the_apply(self) -> None:
+        run = ApplyRun(APPLY, SHA)
+        self.addCleanup(run.close)
+        run.run("refresh")
+        self.assertEqual(run.done.returncode, 2)
+        self.assertIn("unknown stage 'refresh'", run.done.stderr)
+
+
+class TestMapInstall(unittest.TestCase):
+    def test_an_interrupt_during_the_copy_never_truncates_the_served_map(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _checkout(root / "pinned", "pinned")
+            target = root / "pins" / "upstreams.conf"
+            target.parent.mkdir()
+            target.write_text("served map\n", encoding="utf-8")
+            target.chmod(0o444)
+            inode = target.stat().st_ino
+            stubs = root / "bin"
+            _executable(stubs / "cp", INTERRUPTED_CP_STUB)
+            done = subprocess.run(
+                [
+                    "bash",
+                    "-c",
+                    'set -euo pipefail; source "$1"; cache_pin_install_map "$2" "$3"',
+                    "install-map",
+                    str(PIN_SH),
+                    str(root / "pinned"),
+                    str(target),
+                ],
+                env={
+                    **_clean_env(),
+                    "PATH": f"{stubs}{os.pathsep}{os.environ['PATH']}",
+                },
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual(done.returncode, 0, done.stderr)
+            self.assertEqual(_read(target), "pinned map\n")
+            self.assertEqual(target.stat().st_ino, inode)
+            self.assertFalse(target.stat().st_mode & stat.S_IWUSR)
 
 
 class TempRepo:
@@ -543,15 +696,25 @@ class TestDeclare(unittest.TestCase):
         self.assertFalse(run.pin_file.exists())
         self.assertFalse((run.root / temp.sha).exists())
 
-    def test_without_a_running_frontend_the_pin_waits_for_the_next_compose_up(
+    def test_without_a_running_frontend_the_pin_waits_for_infra_update(
         self,
     ) -> None:
         temp, run = self._declare(with_pin_cli=True)
         self.assertEqual(run.done.returncode, 0, run.done.stderr)
         self.assertEqual(_read(run.pin_file).strip(), temp.sha)
         self.assertEqual(_read(run.root / temp.sha / MAP), "rendered map\n")
-        self.assertIn("next make compose-up", run.done.stdout)
+        self.assertIn("make infra-update", run.done.stdout)
+        self.assertIn("that starts the infra runner", run.done.stdout)
         self.assertFalse(any(" read" in line for line in run.lines))
+
+    def test_a_declare_before_the_infra_runner_starts_pins_and_succeeds(
+        self,
+    ) -> None:
+        temp, run = self._declare(with_pin_cli=True, STUB_RUNNER_DOWN="1")
+        self.assertEqual(run.done.returncode, 0, run.done.stderr)
+        self.assertEqual(_read(run.pin_file).strip(), temp.sha)
+        self.assertIn("make infra-update", run.done.stdout)
+        self.assertNotIn("pinned but not applied", run.done.stderr)
 
 
 class TestWorkspaceBootstrap(unittest.TestCase):

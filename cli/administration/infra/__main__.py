@@ -49,6 +49,7 @@ from utils.infra_inventory import (
     CACHE_SERVICES,
     PRUNE_ACTION,
     cache_container,
+    cache_port,
     deploy_commands,
     drop_roles,
     infra_roles,
@@ -91,8 +92,61 @@ LIFECYCLE = ("up", "update", "down", "status")
 ATTACH = "attach"
 DOCKER = "docker"
 CACHE_NAME = "cache-name"
+CACHE_PORT = "cache-port"
+RUNNING = "running"
+RUNNER_DOWN = 3
 STARTING = ("up", "update", ATTACH)
 OUTER_TOOLS = {"tools-stop": "stop", "tools-pause": "pause", "tools-resume": "unpause"}
+CACHE_APPLY = ("bash", "scripts/system/cache/apply.sh")
+CACHE_PREPARE = (*CACHE_APPLY, "prepare")
+FOREIGN_MAP = 4
+CACHE_PIN_DOC = "docs/contributing/environment/cache.md"
+
+
+def _pin_prepare() -> None:
+    """
+    Raises:
+        SystemExit: no pin exists yet, `.env` predates the pin, or the pinned
+            commit cannot be materialized; the cache frontend does not start.
+    """
+    print(
+        "[infra] installing the pinned certificates and map of the cache frontend",
+        file=sys.stderr,
+        flush=True,
+    )
+    done = subprocess.run(
+        CACHE_PREPARE, cwd=PROJECT_ROOT, stdout=sys.stderr, check=False
+    )
+    if done.returncode != 0:
+        raise SystemExit(
+            "[infra] ERROR: the cache stack does not start without its pin "
+            f"(apply.sh prepare exited rc={done.returncode}, reason above). "
+            "Run `make dotenv` if it names an unset key; before the first pin "
+            "the declarer runs `make cache-declare ref=<commit>`. "
+            f"See {CACHE_PIN_DOC}."
+        )
+
+
+def _pin_apply() -> None:
+    print(
+        "[infra] applying the pinned cache declarations to the cache stack",
+        file=sys.stderr,
+        flush=True,
+    )
+    done = subprocess.run(CACHE_APPLY, cwd=PROJECT_ROOT, stdout=sys.stderr, check=False)
+    if done.returncode == 0:
+        return
+    if done.returncode == FOREIGN_MAP:
+        hint = (
+            "the cache frontend keeps serving its map from outside the pin "
+            "root. Recreate it with `make infra-update`."
+        )
+    else:
+        hint = "the cache frontend keeps serving the map it already had; see above."
+    print(
+        f"[infra] WARNING: cache apply exited rc={done.returncode}; {hint}",
+        file=sys.stderr,
+    )
 
 
 def _resolved(command: list[str]) -> str:
@@ -177,8 +231,23 @@ def _installs(argv: list[str], primary: Path) -> list[list[str]]:
     return [
         *deploy_commands(argv, PROJECT_ROOT, vars_file, INVENTORY_DIR, roles, pruned),
         *timer_installs(argv, unit_dir),
-        EVICT,
     ]
+
+
+def _runner_state() -> int:
+    """Returns:
+    0 while the infra runner runs, RUNNER_DOWN while it does not, and 2
+    while the host's ``docker ps`` cannot answer.
+    """
+    name = os.environ[RUNNER_CONTAINER_KEY]
+    names = run_command(["docker", "ps", "--format", "{{.Names}}"])
+    if names is None:
+        print(
+            f"[infra] docker ps failed, so it is unknown whether {name} runs",
+            file=sys.stderr,
+        )
+        return 2
+    return 0 if name in names.split() else RUNNER_DOWN
 
 
 def _status() -> dict[str, object]:
@@ -201,6 +270,8 @@ def main(argv: list[str] | None = None) -> int:
             ATTACH,
             DOCKER,
             CACHE_NAME,
+            CACHE_PORT,
+            RUNNING,
             PRUNE_ACTION,
         ),
     )
@@ -221,6 +292,14 @@ def main(argv: list[str] | None = None) -> int:
             parser.error(f"{CACHE_NAME} takes one of {', '.join(CACHE_SERVICES)}")
         print(cache_container(PROJECT_ROOT, args.rest[0]))
         return 0
+    if args.action == CACHE_PORT:
+        if len(args.rest) != 2 or args.rest[0] not in CACHE_SERVICES:
+            kinds = ", ".join(CACHE_SERVICES)
+            parser.error(f"{CACHE_PORT} takes one of {kinds}, then the protocol")
+        print(cache_port(PROJECT_ROOT, *args.rest))
+        return 0
+    if args.action == RUNNING:
+        return _runner_state()
     if args.action == PRUNE_ACTION:
         if not args.rest:
             parser.error(f"{PRUNE_ACTION} takes the inventory file, then the roles")
@@ -292,6 +371,9 @@ def _up(
         takeover=legacy_running(names or "") if takeover else [],
         bridge=bridge,
         installs=partial(_installs, compose, primary),
+        prepare=_pin_prepare,
+        apply=_pin_apply,
+        evict=partial(run, EVICT),
     )
 
 

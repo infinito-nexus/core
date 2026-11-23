@@ -274,6 +274,9 @@ def up(
     takeover: Sequence[str],
     bridge: tuple[str, str] | None,
     installs: Callable[[], Sequence[list[str]]],
+    prepare: Callable[[], None],
+    apply: Callable[[], None],
+    evict: Callable[[], None],
 ) -> int:
     """Args:
         argv: compose call of the infra stack.
@@ -293,13 +296,28 @@ def up(
         recreate: apply changed inputs to a running runner (infra-update).
         takeover: running legacy cache containers, stopped inside the lock
             right after the marker, which recreates a running runner; when
-            anything after that stop fails, the runner stops, they start
-            again, and the marker and the bridge record go before the failure
-            propagates.
+            anything between that stop and the apply fails, the runner stops,
+            they start again, and the marker and the bridge record go before
+            the failure propagates.
         bridge: the legacy network and address *argv* joins the runner to,
             recorded as BRIDGE_NAME next to the lock so later calls keep it.
         installs: builds the commands run after the runner is up, such as the
             idle timer; called only then, so a refusal writes nothing.
+        prepare: installs the pinned certificates and map of the cache
+            frontend, called by a call that starts or recreates the runner
+            right before it does, so the frontend its deploy starts serves the
+            pin; raises when there is no pin, which starts nothing.
+        apply: applies the pinned cache declarations, the only writer of the
+            stack's repositories, on every call: by a call that finds the
+            runner running, after the start and the installs, and after one of
+            them raises an Exception unless a takeover rolls back, which then
+            restores the legacy stack and applies nothing; never raises.
+        evict: runs the cache eviction and raises on failure; called once the
+            start and the installs succeeded and the apply returned, whether
+            or not it applied, outside the takeover rollback, since on a fresh
+            Nexus only the apply's bootstrap sets the admin password and
+            schedules the tasks the eviction needs, so there an apply that
+            failed fails the call through the eviction.
 
     Returns:
         2 on a refusal or a foreign base, else 0.
@@ -322,14 +340,23 @@ def up(
                 run(["docker", "stop", "-t", STOP_GRACE, *takeover])
             if running() and not (recreate or takeover):
                 print("the infra runner already runs", flush=True)
+                apply()
                 return 0
-            run([*argv, "up", "--detach", "--wait"])
-            for command in installs():
-                run(list(command))
+            prepare()
+            try:
+                run([*argv, "up", "--detach", "--wait"])
+                for command in installs():
+                    run(list(command))
+            except Exception:
+                if not takeover:
+                    apply()
+                raise
+            apply()
         except BaseException:
             if takeover:
                 _roll_back(argv, takeover, written, run)
             raise
+        evict()
     return 0
 
 

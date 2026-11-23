@@ -166,18 +166,19 @@ _probe_target_for_runtime() {
 # proxying (mis-routed nginx, dead upstream, broken auth, expired CA,
 # etc.). Calls ``exit 1`` if either probe fails.
 probe_caches() {
-	local probe_target proxy_repo upstream_path
+	local probe_target proxy_repo upstream_path nexus_port
 	probe_target="$(_probe_target_for_runtime)"
 	if [[ -z "${probe_target}" ]]; then
 		echo "[probe] no probe target mapped for" \
 			"DEV_RUNTIME_IMAGE='${DEV_RUNTIME_IMAGE:-?}'; skipping package probe"
 	else
 		read -r proxy_repo upstream_path <<<"${probe_target}"
+		nexus_port="$("${PYTHON:?source scripts/meta/env/load.sh}" -m cli.administration.infra cache-port package http)"
 		echo "[probe] package-cache: GET /repository/${proxy_repo}/${upstream_path}"
 		if ! infra_docker exec "$(infra_cache package)" curl \
 			--silent --fail --show-error --max-time 60 \
 			--output /dev/null \
-			"http://localhost:8081/repository/${proxy_repo}/${upstream_path}"; then
+			"http://localhost:${nexus_port}/repository/${proxy_repo}/${upstream_path}"; then
 			echo "[FAIL] package-cache: proxy '${proxy_repo}' did not serve" \
 				"'${upstream_path}'. The cache stack is up but pull-through is broken." >&2
 			exit 1

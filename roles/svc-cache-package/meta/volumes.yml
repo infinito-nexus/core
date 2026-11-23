@@ -46,7 +46,7 @@ frontend_certs:
       target: /etc/nginx/certs
 frontend_conf:
   type: config
-  source: "{{ [lookup('container', 'svc-cache-package', 'directories.config'), 'upstreams.conf'] | path_join }}"
+  source: "{{ lookup('config', 'svc-cache-package', 'services.frontend.map_path') }}"
   mode: "0444"
   mounts:
     - service: frontend

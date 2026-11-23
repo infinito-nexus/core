@@ -4,6 +4,7 @@ entity_name: "{{ application_id | entity_name }}"
 
 CACHE_PACKAGE_CONTAINER: "{{ lookup('config', application_id, 'services.package.name') }}"
 CACHE_PACKAGE_BOOTSTRAP_CONTAINER: "{{ lookup('config', application_id, 'services.bootstrap.name') }}"
+CACHE_PACKAGE_BOOTSTRAP_ENABLED: "{{ lookup('config', application_id, 'services.bootstrap.enabled') | bool }}"
 CACHE_PACKAGE_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services.frontend.name') }}"
 CACHE_PACKAGE_PORT: "{{ lookup('config', application_id, 'services.package.ports.internal.http') }}"
 CACHE_PACKAGE_DATA_PATH: "{{ lookup('config', application_id, 'services.package.data_path') }}"

@@ -125,6 +125,9 @@ class TestTheInfraDeployIncludes(unittest.TestCase):
         self.assertEqual(_included({SEMAPHORE_KEY: "true"}), [*CACHE_ROLES, SEMAPHORE])
         self.assertEqual(_included({CHECKMK_KEY: "true"}), [*CACHE_ROLES, CHECKMK])
 
+    def test_the_eviction_is_no_install_that_runs_before_the_apply(self) -> None:
+        self.assertNotIn(cli.EVICT, _commands({}))
+
 
 class TestAnOptOutLeavesTheInventory(unittest.TestCase):
     def test_the_prune_runs_between_the_provision_and_the_deploy(self) -> None:

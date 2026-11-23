@@ -70,3 +70,4 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: cache_package_bootstrap
   changed_when: "'created' in cache_package_bootstrap.stderr"
+  when: CACHE_PACKAGE_BOOTSTRAP_ENABLED | bool

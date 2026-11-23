@@ -34,9 +34,12 @@ applications:
         ports:
           local:
             http: [[ package_port ]]
+      bootstrap:
+        enabled: false
       frontend:
         ca_path: [[ frontend_ca ]]
         certs_path: [[ frontend_certs ]]
+        map_path: [[ frontend_map ]]
         ports:
           local:
             http: 80

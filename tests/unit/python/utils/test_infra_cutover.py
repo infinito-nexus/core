@@ -252,11 +252,18 @@ class TestUnmountedHostPathsAreRefused(unittest.TestCase):
         )
         self.assertEqual(len(refused), 1)
 
-    def test_a_pin_path_outside_both_roots_is_refused(self) -> None:
+    def test_a_map_outside_both_roots_is_refused(self) -> None:
         refused = unmounted(_BASE, _PINS, {_CONF: "/etc/infinito/upstreams.conf"})
         self.assertEqual(len(refused), 1)
         self.assertIn(f"{_CONF}=/etc/infinito/upstreams.conf", refused[0])
         self.assertIn(str(_PINS), refused[0])
+
+    def test_a_map_below_the_cache_base_but_outside_the_pin_root_is_refused(
+        self,
+    ) -> None:
+        [line] = unmounted(_BASE, _PINS, {_CONF: f"{_BASE}/upstreams.conf"})
+        self.assertIn(f"{_CONF}={_BASE}/upstreams.conf", line)
+        self.assertIn(f"move it below {_PINS}", line)
 
     def test_paths_below_their_roots_or_unset_pass(self) -> None:
         self.assertEqual(
@@ -679,10 +686,11 @@ class TestTheWorkspaceJobReachesTheRunnerStart(unittest.TestCase):
         Returns:
             The exit status of ``python -m cli.administration.infra attach``,
             which ``make install-lint`` reaches through the test runner, every
-            docker call it made, and its stderr. Only docker and the primary
-            checkout are stubbed: docker fails the runner start with status
-            97, and the primary checkout is this checkout, as in the job's
-            plain clone, whatever worktree layout runs the test.
+            docker call it made, and its stderr. Only docker, the primary
+            checkout and the pin steps are stubbed: docker fails the runner
+            start with status 97, the primary checkout is this checkout, as in
+            the job's plain clone, whatever worktree layout runs the test, and
+            the pin steps, which test_infra_pin.py covers, touch no host pin.
         """
         moved = str(disk / "mnt" / "cache")
         job = {
@@ -720,6 +728,8 @@ class TestTheWorkspaceJobReachesTheRunnerStart(unittest.TestCase):
                 ),
             ),
             patch("utils.infra.free_bytes", return_value=free),
+            patch.object(cli, "_pin_prepare"),
+            patch.object(cli, "_pin_apply"),
             patch("sys.stderr", stderr),
         ):
             try:

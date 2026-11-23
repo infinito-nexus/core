@@ -35,7 +35,7 @@ cache_pin_frontend_running || running=$?
 case "${running}" in
 0) ;;
 1)
-	echo "[cache-declare] ${CACHE_PIN_FRONTEND} is not running; the next make compose-up of the checkout that owns the cache stack applies ${sha}"
+	echo "[cache-declare] ${CACHE_PIN_FRONTEND} is not running; make infra-update, or the next make infra-up or make compose-up that starts the infra runner, applies ${sha}"
 	exit 0
 	;;
 *)
