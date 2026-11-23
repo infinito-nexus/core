@@ -12,7 +12,7 @@ set -euo pipefail
 #
 # Optional:
 #   full_cycle=false   Default. Deploy only (pass 1). Set to 'true' to also run the update pass (pass 2).
-#   bundles            Comma-separated bundle names whose all.vars seed the inventory (exported by bundles/fresh.sh).
+#   bundles            Comma-separated bundle names whose all.vars, without the infinito catalogue key, seed the inventory (exported by bundles/fresh.sh).
 #   PYTHON=python3
 #   INFINITO_LIMIT_HOST=localhost
 

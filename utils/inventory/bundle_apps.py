@@ -27,6 +27,7 @@ SEARCH_DIRS = (
     PROJECT_ROOT / "inventories" / "bundles" / "servers",
     PROJECT_ROOT / "inventories" / "bundles" / "workstations",
 )
+CATALOG_KEY = "infinito"
 
 
 def _split_csv(raw: str) -> list[str]:
@@ -92,14 +93,15 @@ def resolve(bundles: Iterable[str]) -> list[str]:
 
 
 def resolve_vars(bundles: Iterable[str]) -> dict[str, Any]:
-    """Return the ``all.vars`` the given bundle inventories declare.
+    """Return the ``all.vars`` of the given bundle inventories a deploy reads.
 
     Args:
         bundles: bundle names, merged in order; a later bundle wins per
             top-level key, as with several ``-i`` sources in Ansible.
 
     Returns:
-        The merged vars, empty when no bundle declares any.
+        The merged vars without ``CATALOG_KEY``; empty when no bundle
+        declares any other var.
 
     Raises:
         FileNotFoundError: one or more bundles are missing; all are named.
@@ -107,6 +109,7 @@ def resolve_vars(bundles: Iterable[str]) -> dict[str, Any]:
     merged: dict[str, Any] = {}
     for group in _all_groups(bundles):
         merged.update(group.get("vars") or {})
+    merged.pop(CATALOG_KEY, None)
     return merged
 
 

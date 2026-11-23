@@ -76,8 +76,9 @@ def add_parser(sub: argparse._SubParsersAction) -> None:
         "--bundles",
         default=None,
         help=(
-            "Comma-separated bundle names whose inventory `all.vars` seed the "
-            "inventory variables; --vars wins per top-level key."
+            "Comma-separated bundle names whose inventory `all.vars`, without "
+            "the `infinito` catalogue key, seed the inventory variables; --vars "
+            "wins per top-level key."
         ),
     )
     add_variant_args(p, action="init")
@@ -94,8 +95,9 @@ def seed_extra_vars(
         explicit: the parsed ``--vars`` object, or None.
 
     Returns:
-        A new dict: the bundles' ``all.vars`` merged in bundle order, with
-        ``explicit`` winning per top-level key.
+        A new dict: the bundles' ``all.vars`` without the ``infinito``
+        catalogue key, merged in bundle order, with ``explicit`` winning per
+        top-level key.
 
     Raises:
         FileNotFoundError: one or more bundles are missing; all are named.

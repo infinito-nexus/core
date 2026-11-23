@@ -194,6 +194,21 @@ class TestResolveVars(_BundleFsMixin, unittest.TestCase):
         self.write_bundle(self.servers, "plain", ["app_a"])
         self.assertEqual(bundle_apps.resolve_vars(["plain"]), {})
 
+    def test_drops_the_catalogue_metadata(self):
+        self.write_vars_bundle(
+            "shop",
+            "all:\n  vars:\n    FLAG: true\n"
+            f"    {bundle_apps.CATALOG_KEY}:\n      bundle:\n        title: Shop\n",
+        )
+        self.assertEqual(bundle_apps.resolve_vars(["shop"]), {"FLAG": True})
+
+    def test_catalogue_only_bundle_yields_nothing(self):
+        self.write_vars_bundle(
+            "meta",
+            f"all:\n  vars:\n    {bundle_apps.CATALOG_KEY}:\n      bundle: {{}}\n",
+        )
+        self.assertEqual(bundle_apps.resolve_vars(["meta"]), {})
+
     def test_missing_bundle_raises(self):
         with self.assertRaises(FileNotFoundError) as ctx:
             bundle_apps.resolve_vars(["ghost"])
