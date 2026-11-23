@@ -2,7 +2,7 @@
 
 import os
 
-from odoo import Command, models
+from odoo import SUPERUSER_ID, Command, models
 
 
 def _text(value):
@@ -67,14 +67,25 @@ class ResCompanyLdapProfile(models.Model):
         return data
 
     def _get_or_create_user(self, conf, login, ldap_entry):
-        managed, granted = self.env["infinito.rbac"]._authorize(
-            login, self._infinito_holds(ldap_entry)
+        """Find or create the user of a first LDAP sign-in as the superuser.
+
+        Args:
+            conf: LDAP configuration dict from _get_ldap_dicts.
+            login: the login that signed in.
+            ldap_entry: its (dn, attrs) directory entry.
+
+        Returns:
+            The res.users id.
+        """
+        ldap = self.with_user(SUPERUSER_ID)
+        managed, granted = ldap.env["infinito.rbac"]._authorize(
+            login, ldap._infinito_holds(ldap_entry)
         )
-        scoped = self.with_context(infinito_rbac_granted=granted.ids)
+        scoped = ldap.with_context(infinito_rbac_granted=granted.ids)
         user_id = super(ResCompanyLdapProfile, scoped)._get_or_create_user(
             conf, login, ldap_entry
         )
-        self._infinito_sync(
-            self.env["res.users"].sudo().browse(user_id), ldap_entry, managed, granted
+        ldap._infinito_sync(
+            ldap.env["res.users"].browse(user_id), ldap_entry, managed, granted
         )
         return user_id
