@@ -57,7 +57,6 @@ SQLITE_PATTERNS = (
 
 
 def wait_ready() -> None:
-    last = "no answer"
     while True:
         try:
             status, _ = call("GET", "/ready")
