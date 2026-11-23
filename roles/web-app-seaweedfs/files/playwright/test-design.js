@@ -17,6 +17,8 @@ const READY_MS = 10_000;
 const SHOWCASE = "design-showcase";
 const HEADING = ".page-header h1";
 const LOGO = `${HEADING} > a > img`;
+const ICON = "link[rel~='icon']";
+const CSS_URL = /^url\("(.+)"\)$/;
 const LISTING = "#drop-area table.table-hover";
 const ROW = `${LISTING} tr`;
 const CELL = `${LISTING} tr > td`;
@@ -45,6 +47,20 @@ function escapeRegExp(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+/**
+ * Args:
+ *   page: Playwright page whose request context reaches the CDN of every network.
+ *   referenced: absolute URL of the asset the rendered page points at, on the CDN host of the network
+ *     the console is served on, which on the +tor pass is not the host of DESIGN_*.
+ *   generated: bytes of the generated asset as published under its DESIGN_* URL.
+ *   label: the asset and the page, for the assertion messages.
+ */
+async function assertServesGenerated(page, referenced, generated, label) {
+  const served = await apiGetOnion(page.request, referenced);
+  expect(served.ok(), `${label} ${referenced} is served`).toBe(true);
+  expect((await served.body()).equals(generated), `${label} ${referenced} is the generated asset`).toBe(true);
+}
+
 exports.register = function (shared) {
   const { env, keycloakLogin, isAuthChain } = shared;
   const filer = (env.filerUrl || "").replace(/\/$/, "");
@@ -52,8 +68,7 @@ exports.register = function (shared) {
 
   function skipUnlessUiServed() {
     skipUnlessServiceEnabled("design");
-    test.skip(!env.frontendEnabled, "frontend disabled (headless backend node)");
-    test.skip(!env.ssoEnabled, "SSO disabled: the front proxy answers 403 on both UI domains");
+    skipUnlessServiceEnabled("sso");
   }
 
   /**
@@ -112,8 +127,8 @@ exports.register = function (shared) {
 
   async function renderProgress(page) {
     await page.evaluate(() => {
-      window.startUpload({ name: "running.bin" });
-      window.startUpload({ name: "done.bin" });
+      window.startUpload({ path: "running.bin" });
+      window.startUpload({ path: "done.bin" });
       window.reportProgress("running.bin", 60);
       window.reportProgress("done.bin", 100);
     });
@@ -305,6 +320,12 @@ exports.register = function (shared) {
     const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE);
     test.skip(!logoUrl && !title, "logo and title replacement are disabled for this role");
 
+    const published = new Map();
+    for (const assetUrl of [logoUrl, faviconUrl].filter(Boolean)) {
+      const response = await apiGetOnion(page.request, assetUrl);
+      expect(response.ok(), `${assetUrl} is published on the CDN`).toBe(true);
+      published.set(assetUrl, await response.body());
+    }
     for (const [url, suffix] of [
       [`${filer}/`, " Filer"],
       [`${master}/`, ""],
@@ -315,15 +336,16 @@ exports.register = function (shared) {
         await expect(page.locator(HEADING)).toContainText(`${title}${suffix}`);
       }
       if (logoUrl) {
-        await expect(page.locator(LOGO)).toHaveCSS("content", `url("${logoUrl}")`);
+        await expect(page.locator(LOGO)).toHaveCSS("content", CSS_URL);
+        const content = await page.locator(LOGO).evaluate((image) => getComputedStyle(image).content);
+        await assertServesGenerated(page, CSS_URL.exec(content)[1], published.get(logoUrl), `the logo of ${url}`);
         const box = await page.locator(LOGO).boundingBox();
         expect(Math.round(box.width), "the logo keeps the 50 px box of upstream").toBe(50);
         expect(Math.round(box.height), "the logo keeps the 50 px box of upstream").toBe(50);
-        await expect(page.locator("link[rel~='icon']")).toHaveAttribute("href", faviconUrl);
+        await expect(page.locator(ICON)).toHaveAttribute("href", /\S/);
+        const icon = new URL(await page.locator(ICON).getAttribute("href"), page.url()).href;
+        await assertServesGenerated(page, icon, published.get(faviconUrl), `the favicon of ${url}`);
       }
-    }
-    for (const assetUrl of [logoUrl, faviconUrl].filter(Boolean)) {
-      expect((await apiGetOnion(page.request, assetUrl)).ok(), `${assetUrl} is published on the CDN`).toBe(true);
     }
   });
 
