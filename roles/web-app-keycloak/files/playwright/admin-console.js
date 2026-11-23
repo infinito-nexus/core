@@ -3,9 +3,10 @@
  *
  *   `provisionKeycloakUser(browser, options)`
  *     Signs the master-realm administrator into the admin console, creates
- *     `options.user` in `options.realm` when it is missing, and sets
- *     `options.password` as its permanent password either way, so a user
- *     left on a reused stack always ends up on the inventory's value.
+ *     `options.user` in `options.realm` when it is missing, marks its email
+ *     address verified, and sets `options.password` as its permanent
+ *     password either way, so a user left on a reused stack always ends up
+ *     on the inventory's value and never meets `VERIFY_EMAIL` at sign-in.
  *
  *     Args:
  *       browser: Playwright `Browser`; the flow runs in its own context.
@@ -22,6 +23,10 @@
 const { expect } = require("@playwright/test");
 const { performKeycloakLoginForm, gotoOnion } = require("./personas");
 const { resolveTimeout } = require("./timeouts");
+
+function emailVerifiedSwitch(page) {
+  return page.getByRole("switch", { name: /^email verified$/i }).first();
+}
 
 async function openUser(page, username) {
   const search = page.getByPlaceholder(/search user/i).first();
@@ -49,11 +54,30 @@ async function createUser(page, user, emailLabel) {
   await page.getByLabel(emailLabel).first().fill(user.email);
   await page.getByLabel(/^first name/i).first().fill(user.firstName);
   await page.getByLabel(/^last name/i).first().fill(user.lastName);
+  await emailVerifiedSwitch(page).setChecked(true, { force: true, timeout: resolveTimeout(30_000) });
   await page.getByRole("button", { name: /^create$/i }).click({ timeout: resolveTimeout(30_000) });
   await expect(
     page.getByText(/the user has been created/i).first(),
     `Keycloak must confirm that ${user.username} was created`,
   ).toBeVisible({ timeout: resolveTimeout(60_000) });
+}
+
+async function verifyExistingEmail(page, username) {
+  await expect(
+    page.getByLabel(/^username/i).first(),
+    `Keycloak must load the details of ${username}`,
+  ).toHaveValue(username, { timeout: resolveTimeout(60_000) });
+  const verified = emailVerifiedSwitch(page);
+  if (await verified.isChecked()) {
+    return;
+  }
+  await verified.setChecked(true, { force: true, timeout: resolveTimeout(30_000) });
+  await page.getByRole("button", { name: /^save$/i }).first().click({ timeout: resolveTimeout(30_000) });
+  await expect(
+    page.getByText(/the user has been saved/i).first(),
+    `Keycloak must save the verified email address of ${username}`,
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect(verified, `the email address of ${username} must stay verified after the save`).toBeChecked();
 }
 
 async function setPassword(page, username, password) {
@@ -93,7 +117,9 @@ async function provisionKeycloakUser(browser, options) {
   try {
     await gotoOnion(page, `${baseUrl}/admin/master/console/#/${realm}/users`);
     await performKeycloakLoginForm(page, adminUsername, adminPassword);
-    if (!(await openUser(page, user.username))) {
+    if (await openUser(page, user.username)) {
+      await verifyExistingEmail(page, user.username);
+    } else {
       await createUser(page, user, emailLabel);
     }
     await setPassword(page, user.username, password);
