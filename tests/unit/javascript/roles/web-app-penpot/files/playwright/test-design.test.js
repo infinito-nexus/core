@@ -12,14 +12,34 @@ const FAVICON = "https://cdn.example.test/roles/web-app-penpot/latest/img/design
 const PENPOT_SVG = "images/favicon.svg";
 const PENPOT_PNG = "images/favicon.png";
 const STYLESHEET = fs.readFileSync(path.join(PROJECT_ROOT, "roles/web-app-penpot/templates/style.css.j2"), "utf8");
+const SPEC_ENV = fs.readFileSync(path.join(PROJECT_ROOT, "roles/web-app-penpot/templates/playwright.env.j2"), "utf8");
+const ROLE_VARS = fs.readFileSync(path.join(PROJECT_ROOT, "roles/web-app-penpot/vars/main.yml"), "utf8");
 const PERSONAL_TEAM_SLOTS = [
   "main_ui_dashboard_organization_team_switch__personal-projects-icon",
   "main_ui_dashboard_organization_team_switch__team-item-personal-icon",
 ];
 
-const { screenUrl, assertEveryIcon, SIDEBAR_LOGO } = loadInternals(
+const {
+  screenUrl,
+  assertEveryIcon,
+  credentialFormOffered,
+  signInReadable,
+  SIDEBAR_LOGO,
+  AUTH_SECTION,
+  LOGIN_TITLE,
+  LOGIN_SUBMIT,
+} = loadInternals(
   path.join(PROJECT_ROOT, "roles/web-app-penpot/files/playwright/test-design.js"),
-  ["screenUrl", "assertEveryIcon", "SIDEBAR_LOGO"],
+  [
+    "screenUrl",
+    "assertEveryIcon",
+    "credentialFormOffered",
+    "signInReadable",
+    "SIDEBAR_LOGO",
+    "AUTH_SECTION",
+    "LOGIN_TITLE",
+    "LOGIN_SUBMIT",
+  ],
   {},
   {},
 );
@@ -130,4 +150,31 @@ test("the stylesheet puts the generated logo into every personal-team slot of th
   for (const slot of PERSONAL_TEAM_SLOTS) {
     assert.ok(brandsSlot(STYLESHEET, slot), `style.css.j2 must brand ${slot}`);
   }
+});
+
+test("the sign-in page offers the credential form while native or LDAP login is on", () => {
+  assert.equal(credentialFormOffered({ LOGIN_METHOD_NATIVE_ENABLED: "true", LOGIN_METHOD_LDAP_ENABLED: "false" }), true);
+  assert.equal(credentialFormOffered({ LOGIN_METHOD_NATIVE_ENABLED: "false", LOGIN_METHOD_LDAP_ENABLED: "true" }), true);
+  assert.equal(credentialFormOffered({ LOGIN_METHOD_NATIVE_ENABLED: "true", LOGIN_METHOD_LDAP_ENABLED: "true" }), true);
+});
+
+test("an SSO-only sign-in page offers no credential form", () => {
+  assert.equal(credentialFormOffered({ LOGIN_METHOD_NATIVE_ENABLED: "false", LOGIN_METHOD_LDAP_ENABLED: "false" }), false);
+});
+
+test("the form labels are a required contrast probe wherever the credential form is offered", () => {
+  const probes = signInReadable(true);
+  assert.ok(probes.includes(`${AUTH_SECTION} label`), "a required string entry, never an optional one");
+  assert.ok(probes.includes(LOGIN_TITLE));
+});
+
+test("an SSO-only sign-in page measures its title and no form label", () => {
+  assert.deepEqual(structuredClone(signInReadable(false)), [LOGIN_TITLE, { selector: LOGIN_SUBMIT, optional: true }]);
+});
+
+test("the spec reads the login methods from the same vars that write PENPOT_FLAGS", () => {
+  assert.match(SPEC_ENV, /^LOGIN_METHOD_NATIVE_ENABLED=\{\{ PENPOT_LOGIN_NATIVE \|/m);
+  assert.match(SPEC_ENV, /^LOGIN_METHOD_LDAP_ENABLED=\{\{ PENPOT_LOGIN_LDAP \|/m);
+  assert.match(ROLE_VARS, /'enable-login-with-password' if PENPOT_LOGIN_NATIVE \| bool else 'disable-login-with-password'/);
+  assert.match(ROLE_VARS, /'enable-login-with-ldap' if PENPOT_LOGIN_LDAP \| bool/);
 });
