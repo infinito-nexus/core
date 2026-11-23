@@ -9,11 +9,12 @@ from plugins.filter.update.pull import (
     update_pull_summary,
 )
 from plugins.lookup.image import LookupModule as ImageLookup
-from plugins.lookup.registry_vendors import route_reference, unrouted
+from plugins.lookup.registry_vendors import CACHE_ROLE, route_reference, unrouted
 from utils.update_check.common import FAIL, OK
 
 FRONT = "192.168.205.1:5002"
 VENDORS = {"front": FRONT, "registries": ["ghcr.io", "quay.io"]}
+MIRROR = "ghcr.io/kevinveenbirkenbach/infinito-nexus-core/mirror/docker.io"
 
 DEPLOYED = [
     "svc-db-postgres",
@@ -219,6 +220,29 @@ class TestVendorRoute(unittest.TestCase):
                     _compose_reference(
                         applications, "web-app-matrix", service, VENDORS
                     ),
+                    pull,
+                )
+
+    def test_the_cache_role_prepulls_its_own_vendor_images_upstream(self):
+        applications = {
+            **_vendor_applications(),
+            CACHE_ROLE: {
+                "services": {
+                    "cache": {"image": f"{MIRROR}/registry", "version": "3"},
+                    "front": {"image": f"{MIRROR}/nginx", "version": "1.31-alpine"},
+                }
+            },
+        }
+        pull = update_pull_images(
+            applications, [CACHE_ROLE, "web-app-matrix"], VENDORS
+        )["pull"]
+        self.assertIn(f"{MIRROR}/registry:3", pull)
+        self.assertIn(f"{MIRROR}/nginx:1.31-alpine", pull)
+        self.assertIn(f"{FRONT}/ghcr.io/matrixgpt/matrix-chatgpt-bot:3.1.2", pull)
+        for service in ("cache", "front"):
+            with self.subTest(service=service):
+                self.assertIn(
+                    _compose_reference(applications, CACHE_ROLE, service, VENDORS),
                     pull,
                 )
 

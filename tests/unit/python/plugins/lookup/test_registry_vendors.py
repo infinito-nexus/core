@@ -9,6 +9,7 @@ from plugins.lookup.registry_vendors import (
     CACHE_ROLE,
     LookupModule,
     registry_of,
+    routable,
     route_reference,
     unrouted,
 )
@@ -100,6 +101,16 @@ class TestRouteReference(unittest.TestCase):
         for reference, registry in cases.items():
             with self.subTest(reference=reference):
                 self.assertEqual(registry_of(reference), registry)
+
+
+class TestRoutable(unittest.TestCase):
+    def test_the_cache_role_never_pulls_through_its_own_front(self):
+        self.assertFalse(routable(CACHE_ROLE))
+
+    def test_every_other_role_may_pull_through_the_front(self):
+        for application_id in ("web-app-mattermost", "svc-cache-package", ""):
+            with self.subTest(application_id=application_id):
+                self.assertTrue(routable(application_id))
 
 
 class TestRegistryVendorsLookup(unittest.TestCase):

@@ -58,6 +58,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from plugins.lookup.registry_vendors import routable
 from utils.docker.image.custom import custom_image_name
 from utils.docker.image.pin import pull_reference
 from utils.roles.entity.name import entity_name
@@ -201,6 +202,8 @@ class LookupModule(LookupBase):
         prefix = _swarm_prefix(vars_, templar)
         if prefix:
             return [f"{prefix}{image_ref}"]
+        if not routable(application_id):
+            return [image_ref]
         return lookup_loader.get(
             "registry_vendors", loader=self._loader, templar=templar
         ).run([image_ref], variables=vars_)

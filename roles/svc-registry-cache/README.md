@@ -41,7 +41,11 @@ cached by rewriting the image reference instead:
   nothing else.
 - On the cache host in compose mode the image lookup prefixes every vendor
   image with the front, for example `192.168.205.1:5002/ghcr.io/foo/bar:1.0`.
-  Docker Hub images keep their plain reference and the mirror.
+  Docker Hub images keep their plain reference and the mirror. The images of
+  this role itself always keep their plain reference: the front and the
+  vendor caches start only once those images are pulled, so routing them
+  through the front would wait on a front that never comes up. This matters
+  as soon as they name a vendor registry, as the GHCR mirror of CI does.
 
 Vendor pulls on the cache host then depend on this role being up: with the
 front or a vendor cache down, the pull fails. Docker Hub pulls keep Docker's

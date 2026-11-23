@@ -17,7 +17,7 @@ from typing import Any
 from ansible.errors import AnsibleError
 
 from plugins.lookup.image import LookupModule
-from plugins.lookup.registry_vendors import route_reference
+from plugins.lookup.registry_vendors import CACHE_ROLE, route_reference
 from utils.cache.yaml import load_yaml_any
 from utils.docker.image.pin import is_digest
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
@@ -26,6 +26,9 @@ from . import PROJECT_ROOT
 
 FRONT = "192.168.205.1:5002"
 VENDORS = {"front": FRONT, "registries": ["ghcr.io"]}
+MIRROR = "ghcr.io/kevinveenbirkenbach/infinito-nexus-core/mirror/docker.io"
+MIRRORED_REGISTRY = f"{MIRROR}/registry"
+MIRRORED_NGINX = f"{MIRROR}/nginx"
 SWARM = {
     "DEPLOYMENT_MODE": "swarm",
     "swarm": {"registry": {"host": "mgr", "port": 5000}},
@@ -540,6 +543,42 @@ class TestVendorRoute(unittest.TestCase):
         )
         self.assertEqual(out, ["mgr:5000/ghcr.io/mattermost/mattermost:11.8.0"])
         self.assertNotIn("registry_vendors", looked_up)
+
+    def test_the_cache_role_pulls_its_own_vendor_images_upstream(self):
+        applications = {
+            CACHE_ROLE: {
+                "services": {
+                    "cache": {"image": MIRRORED_REGISTRY, "version": "3"},
+                    "front": {"image": MIRRORED_NGINX, "version": "1.31-alpine"},
+                }
+            }
+        }
+        for service, reference in (
+            ("cache", f"{MIRRORED_REGISTRY}:3"),
+            ("front", f"{MIRRORED_NGINX}:1.31-alpine"),
+        ):
+            with self.subTest(service=service):
+                looked_up: list[str] = []
+                out = _run(
+                    CACHE_ROLE,
+                    service,
+                    applications=applications,
+                    vendors=VENDORS,
+                    looked_up=looked_up,
+                )
+                self.assertEqual(out, [reference])
+                self.assertNotIn("registry_vendors", looked_up)
+
+    def test_another_role_on_the_cache_host_still_pulls_through_the_front(self):
+        self.assertEqual(
+            _run(
+                "web-app-mattermost",
+                "mattermost",
+                applications=_apps(image=MIRRORED_NGINX, version="1.31-alpine"),
+                vendors=VENDORS,
+            ),
+            [f"{FRONT}/{MIRRORED_NGINX}:1.31-alpine"],
+        )
 
     def test_tag_only_is_never_routed(self):
         self.assertEqual(

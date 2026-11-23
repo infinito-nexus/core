@@ -61,6 +61,19 @@ def cacheable(registry: str) -> bool:
     return registry != "localhost" and ":" not in registry
 
 
+def routable(application_id: str) -> bool:
+    """Tell whether the images of a role may pull through the vendor front.
+
+    Args:
+        application_id: the role that runs the images.
+
+    Returns:
+        False for ``svc-registry-cache``: its front and vendor caches start
+        only once their own images are pulled, so those pulls go upstream.
+    """
+    return application_id != CACHE_ROLE
+
+
 def route_reference(reference: str, vendors: Mapping[str, Any] | None) -> str:
     """Prefix a reference with the vendor front when its registry is cached.
 
