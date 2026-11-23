@@ -4,9 +4,11 @@ Queries the official package index of each default distribution in
 parallel instead of installing anything, so the whole registry is checked
 in seconds rather than one container build per package.
 
-A package that the index positively reports as absent fails the test. A
-network or index error is reported as a warning, because an unreachable
-mirror says nothing about the declaration.
+A package that the index positively reports as absent fails the test. Only
+the declared exemptions warn: a package from a third-party repository, and
+a virtual name its index does not list. Any other package whose index could
+not be consulted fails the test as well, because a run that verified
+nothing must not report green.
 """
 
 from __future__ import annotations
