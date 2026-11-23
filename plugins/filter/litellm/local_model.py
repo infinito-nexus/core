@@ -10,7 +10,7 @@ from utils.cache.artefacts import pin_problems, records
 BLOB_PREFIX = "sha256-"
 DECLARATIONS = "AI_LOCAL_MODEL_DECLARATIONS"
 PIN_KEYS = ("url", "revision", "sha256", "bytes")
-OLLAMA_VERSION = "0.40.16"
+OLLAMA_VERSION = "0.40.17"
 NAMED = {
     "renderer": frozenset({"gemma4", "qwen3-coder"}),
     "parser": frozenset({"gemma4", "qwen3-coder"}),
