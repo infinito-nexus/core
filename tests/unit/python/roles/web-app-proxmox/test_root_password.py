@@ -199,8 +199,15 @@ class TestDeployLock(unittest.TestCase):
     def test_the_lock_runs_only_while_root_keeps_a_usable_password(self):
         when = _lock_task(VM_TASKS)["when"]
         for stdout, runs in ((USABLE, True), (EMPTY, True), (LOCKED, False)):
-            scope = {"proxmox_guest_root_status": {"stdout": stdout}}
+            scope = {
+                "IS_STACK_HOST": True,
+                "proxmox_guest_root_status": {"stdout": stdout},
+            }
             self.assertIs(bool(evaluate(when, scope)), runs, stdout)
+
+    def test_the_lock_skips_a_node_that_does_not_host_the_stack(self):
+        when = _lock_task(VM_TASKS)["when"]
+        self.assertIs(bool(evaluate(when, {"IS_STACK_HOST": False})), False)
 
     def test_the_deploy_refuses_a_guest_whose_root_stays_unlocked(self):
         check = assert_task(VM_FLAVOR, LOCKED_ASSERT)

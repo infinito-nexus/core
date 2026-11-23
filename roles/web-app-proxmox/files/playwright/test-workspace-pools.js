@@ -460,7 +460,7 @@ test.describe.serial("proxmox workspaces", () => {
     const { pool } = identity(first);
     const { apiUrl, provision, openbao } = settings();
     const publicVersion = `${proxmoxEnv().appBaseUrl}/api2/json/version`;
-    const withToken = { headers: tokenHeaders(token), failOnStatusCode: false, maxRedirects: 0, timeout: resolveTimeout(60_000) };
+    const withToken = { headers: tokenHeaders(token), failOnStatusCode: false, maxRedirects: 0 };
     const record = await openbaoRead(request, openbao, provision.mount, provision.path);
     expect(record.status, `OpenBao must hold the provision record ${provision.mount}/${provision.path}`).toBe(200);
     expect(normalizeBaseUrl(record.data.endpoint), "the provision record must name the API listener this spec dials").toBe(apiUrl);
@@ -473,9 +473,15 @@ test.describe.serial("proxmox workspaces", () => {
       "a client that pins another fingerprint must stop before it sends the token",
     ).rejects.toThrow(/other than the pinned one/);
     await answered(await tokenApi(request, token)("GET", "/version"), `the token of ${pool} on the address pveproxy serves directly`);
-    refused(await request.get(publicVersion, withToken), `the token of ${pool} on the public domain without a gate session`);
+    refused(
+      await request.get(publicVersion, { ...withToken, timeout: resolveTimeout(60_000) }),
+      `the token of ${pool} on the public domain without a gate session`,
+    );
     await (await adminApi(page))("/version");
-    refused(await page.request.get(publicVersion, withToken), `the token of ${pool} on the public domain beside an administrator session`);
+    refused(
+      await page.request.get(publicVersion, { ...withToken, timeout: resolveTimeout(60_000) }),
+      `the token of ${pool} on the public domain beside an administrator session`,
+    );
   });
 
   test("proxmox workspaces: a token reaches only its own pool", async ({ request }) => {

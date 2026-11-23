@@ -2,10 +2,10 @@
 # Param PROXMOX_API_SAN: the subjectAltName of the name the API consumers dial, DNS:<name> or IP:<address>.
 # Param PROXMOX_API_CERT_DAYS: the lifetime of a new certificate in days.
 # Param PROXMOX_API_CERT_RENEW_SECONDS: a certificate that expires within this many seconds is replaced.
-# Param PROXMOX_API_KEY_BITS: the RSA key size of a new certificate.
+# Param PROXMOX_API_RSA_BITS: the RSA key size of a new certificate.
 set -eu
 
-: "${PROXMOX_API_SAN:?}" "${PROXMOX_API_CERT_DAYS:?}" "${PROXMOX_API_CERT_RENEW_SECONDS:?}" "${PROXMOX_API_KEY_BITS:?}"
+: "${PROXMOX_API_SAN:?}" "${PROXMOX_API_CERT_DAYS:?}" "${PROXMOX_API_CERT_RENEW_SECONDS:?}" "${PROXMOX_API_RSA_BITS:?}"
 
 PROXMOX_API_CERT=/etc/pve/local/pveproxy-ssl.pem
 
@@ -25,7 +25,7 @@ if current; then
 else
 	work=$(mktemp -d)
 	trap 'rm -rf "$work"' EXIT
-	openssl req -x509 -newkey "rsa:$PROXMOX_API_KEY_BITS" -nodes \
+	openssl req -x509 -newkey "rsa:$PROXMOX_API_RSA_BITS" -nodes \
 		-keyout "$work/key.pem" -out "$work/cert.pem" \
 		-days "$PROXMOX_API_CERT_DAYS" -subj "/CN=${PROXMOX_API_SAN#*:}" \
 		-addext "subjectAltName=$PROXMOX_API_SAN" \

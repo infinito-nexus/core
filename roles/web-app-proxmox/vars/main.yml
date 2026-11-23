@@ -45,14 +45,15 @@ PROXMOX_TOR_ENABLED: "{{ lookup('config', application_id, 'services.tor.enabled'
 PROXMOX_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.proxmox.ports.internal.http') }}"
 
 PROXMOX_API: "{{ lookup('config', application_id, 'services.proxmox.api') }}"
-PROXMOX_API_PORT: "{{ (PROXMOX_API.bind ~ ':' ~ lookup('config', application_id, 'services.proxmox.ports.public.api')) | api_listener_port('services.proxmox.api.bind') }}"
+PROXMOX_API_PORT: "{{ (PROXMOX_API.bind ~ ':' ~ lookup('config', application_id, 'services.proxmox.ports.public.api')) | api_listener_port('services.proxmox.api.bind')
+  }}"
 PROXMOX_API_HOST: "{{ 'host.docker.internal' if inventory_hostname in NETWORK_LOOPBACK_HOSTS else inventory_hostname }}"
 PROXMOX_API_ENDPOINT: "https://{{ PROXMOX_API_HOST }}:{{ PROXMOX_API_PORT }}"
 PROXMOX_API_SAN: "{{ ('IP:' if PROXMOX_API_HOST is match('^[0-9.]+$') else 'DNS:') ~ PROXMOX_API_HOST }}"
 PROXMOX_API_SOURCES: "{{ PROXMOX_API.allowed_sources | api_listener_sources('services.proxmox.api.allowed_sources') }}"
 PROXMOX_API_CERT_DAYS: 825
 PROXMOX_API_CERT_RENEW_SECONDS: 2592000
-PROXMOX_API_KEY_BITS: 3072
+PROXMOX_API_RSA_BITS: 3072
 
 PROXMOX_REALM: "{{ lookup('config', application_id, 'services.proxmox.realm.id') }}"
 PROXMOX_REALM_CONFIG:

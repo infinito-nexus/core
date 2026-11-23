@@ -29,12 +29,13 @@
   register: proxmox_guest_root_status
   changed_when: false
   delegate_to: "{{ PROXMOX_HOST_NODE }}"
+  when: IS_STACK_HOST | bool
 
-- name: "🔒 Lock the root password of a Proxmox VE guest installed before the first-boot lock"
+- name: "🔒 Lock root of a Proxmox VE guest installed before the first-boot lock"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
       container exec {{ PROXMOX_LOCAL_CID | quote }} pve-guest usermod -L root
-  when: "proxmox_guest_root_status.stdout.split()[1:2] != ['L']"
+  when: "IS_STACK_HOST | bool and proxmox_guest_root_status.stdout.split()[1:2] != ['L']"
   changed_when: true
   delegate_to: "{{ PROXMOX_HOST_NODE }}"
 
@@ -45,6 +46,7 @@
   register: proxmox_guest_root_locked
   changed_when: false
   delegate_to: "{{ PROXMOX_HOST_NODE }}"
+  when: IS_STACK_HOST | bool
 
 - name: "🛑 Refuse a Proxmox VE guest whose root password is not locked"
   ansible.builtin.assert:
