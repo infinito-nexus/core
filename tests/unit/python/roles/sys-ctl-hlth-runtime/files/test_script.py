@@ -2512,6 +2512,50 @@ class TestWriteAtomic(TestCase):
                 (["infinito_hlth_runtime.prom"], "new\n"),
             )
 
+    def test_two_nodes_of_one_pid_replace_one_shared_report(self):
+        real_replace = Path.replace
+        both_staged = threading.Barrier(2, timeout=10)
+        errors: list[Exception] = []
+
+        def replace_once_both_staged(staged, target):
+            both_staged.wait()
+            return real_replace(staged, target)
+
+        def node(path, text):
+            try:
+                SCRIPT.write_atomic(path, text)
+            except Exception as exc:
+                errors.append(exc)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "report.json"
+            with mock.patch.object(Path, "replace", replace_once_both_staged):
+                nodes = [
+                    threading.Thread(target=node, args=(path, text))
+                    for text in ("wrk-01\n", "wrk-02\n")
+                ]
+                for thread in nodes:
+                    thread.start()
+                for thread in nodes:
+                    thread.join()
+            text = path.read_text()  # nocheck: cache-read tempdir file rewritten
+            self.assertEqual(
+                (
+                    errors,
+                    [p.name for p in Path(tmp).iterdir()],
+                    text in {"wrk-01\n", "wrk-02\n"},
+                ),
+                ([], ["report.json"], True),
+            )
+
+    def test_the_replaced_file_keeps_the_mode_of_a_plain_new_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            plain = Path(tmp) / "plain"
+            plain.write_text("")
+            path = Path(tmp) / "infinito_hlth_runtime.prom"
+            SCRIPT.write_atomic(path, "new\n")
+            self.assertEqual(path.stat().st_mode, plain.stat().st_mode)
+
 
 NO_SUPPRESSIONS = {"containers": {}, "host": {}}
 MAIN_SCAN = {
