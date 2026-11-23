@@ -8,6 +8,7 @@
 #   MCP_CLIENT_CONTAINER        addressable OpenClaw container
 #   TRUSTED_PROXY_ENABLED       whether the gateway runs in trusted-proxy mode
 #   GATEWAY_HOST, GATEWAY_PORT  published gateway port on this node
+#   GATEWAY_PUBLISHED           whether the deploy mode publishes that port (compose) or must not (swarm)
 #   FORGED_USER                 allowlisted user a forged identity header claims
 #   PROXY_SECRET_HEADER_PREFIX  prefix of the secret header name the front proxy sends
 set -euo pipefail
@@ -17,6 +18,7 @@ set -euo pipefail
 : "${TRUSTED_PROXY_ENABLED:?}"
 : "${GATEWAY_HOST:?}"
 : "${GATEWAY_PORT:?}"
+: "${GATEWAY_PUBLISHED:?}"
 : "${FORGED_USER:?}"
 : "${PROXY_SECRET_HEADER_PREFIX:?}"
 
@@ -65,12 +67,20 @@ refused() {
 
 if [[ "${TRUSTED_PROXY_ENABLED}" == "true" ]]; then
     reach="$(curl -s --connect-timeout 5 --max-time 30 -o /dev/null -w '%{http_code}' "${gateway}/healthz" || true)"
-    if [[ "${reach}" != "200" ]]; then
-        echo "[FAIL] the published gateway port must answer /healthz, got HTTP ${reach}" >&2
-        exit 1
+    if [[ "${GATEWAY_PUBLISHED}" != "true" ]]; then
+        if [[ "${reach}" != "000" ]]; then
+            echo "[FAIL] swarm must not publish the gateway port, yet ${gateway}/healthz answered HTTP ${reach}" >&2
+            exit 1
+        fi
+        echo "[OK]   the gateway port is not published: ${gateway}/healthz does not answer"
+    else
+        if [[ "${reach}" != "200" ]]; then
+            echo "[FAIL] the published gateway port must answer /healthz, got HTTP ${reach}" >&2
+            exit 1
+        fi
+        refused "without the proxy secret header"
+        refused "with a guessed proxy secret header" -H "${PROXY_SECRET_HEADER_PREFIX}-forged: 1"
     fi
-    refused "without the proxy secret header"
-    refused "with a guessed proxy secret header" -H "${PROXY_SECRET_HEADER_PREFIX}-forged: 1"
 fi
 
 if [[ "${MCP_TEST_ENABLED}" != "true" ]]; then
