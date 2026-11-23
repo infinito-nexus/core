@@ -53,7 +53,7 @@ bridgy-fed:
   version: 3.14-slim
   name: web-app-bridgy-fed
   repository: https://github.com/snarfed/bridgy-fed.git
-  ref: 07a86d3ee33b36eaecf7c4cc0e4d670a60629b02
+  ref: f1be230eae3c99ba1096c5bd72aa8e9ee40f17a0
   ports:
     local:
       http: 8053

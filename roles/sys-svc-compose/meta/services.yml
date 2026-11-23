@@ -3,6 +3,9 @@ svc-compose:
   lifecycle: beta
   repository: https://github.com/kevinveenbirkenbach/docker-compose-down-all.git
   ref: v1.0.0
+  prune:
+    free_floor_mib: 30720 # Free MiB on the Docker data root at or above which the storage-constrained prune handler leaves Docker data alone
+    repeat_below_percent: 50 # Percent applied twice: a below-floor prune of this run that kept at least this share of the floor lets later prunes skip while free space stays above this share of what it kept; a smaller record never skips
   required_by:
     compose:
       categories: [web]
