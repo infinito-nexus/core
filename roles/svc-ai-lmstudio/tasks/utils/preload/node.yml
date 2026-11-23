@@ -23,7 +23,7 @@
       changed_when: false
       delegate_to: "{{ lmstudio_node }}"
 
-    - name: "⬇️ Fetch the LM Studio models from their declared sources on '{{ lmstudio_node }}'"
+    - name: "⬇️ Fetch the LM Studio models from their sources on '{{ lmstudio_node }}'"
       ansible.builtin.include_tasks:
         file: utils/fetch.yml
         apply:

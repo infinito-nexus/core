@@ -12,20 +12,20 @@
     loop_var: model
     label: "{{ model.file }}"
 
-- name: "📁 Create the staging directory beside the model store on '{{ lmstudio_fetch_node }}'"
+- name: "📁 Create the staging dir beside the model store on '{{ lmstudio_fetch_node }}'"
   ansible.builtin.file:
     path: "{{ lmstudio_fetch_staging }}"
     state: directory
     mode: "0755"
 
-- name: "🔍 Find partial downloads an interrupted fetch left on '{{ lmstudio_fetch_node }}'"
+- name: "🔍 Find partial downloads a broken fetch left on '{{ lmstudio_fetch_node }}'"
   ansible.builtin.find:
     paths: "{{ lmstudio_fetch_staging }}"
     file_type: any
     hidden: true
   register: lmstudio_staging_leftovers
 
-- name: "🧹 Remove the partial downloads an interrupted fetch left on '{{ lmstudio_fetch_node }}'"
+- name: "🧹 Remove partial downloads a broken fetch left on '{{ lmstudio_fetch_node }}'"
   ansible.builtin.file:
     path: "{{ leftover.path }}"
     state: absent
@@ -91,7 +91,7 @@
   changed_when: false
   failed_when: false
 
-- name: "🪞 Fetch from a mirror when the source did not deliver to '{{ lmstudio_fetch_node }}'"
+- name: "🪞 Fetch from a mirror when the source failed on '{{ lmstudio_fetch_node }}'"
   get_url_retry:
     url: "{{ item.1 }}"
     dest: "{{ lmstudio_fetch_store }}/{{ item.0.repo }}/{{ item.0.file }}"
