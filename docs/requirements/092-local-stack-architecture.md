@@ -198,7 +198,7 @@ Disk floor: the caps fit the machine only when `free + used - sum(caps) >= floor
 
 Every compose call goes through one helper that passes `-p` and the `-f` list of [env.py:18-59](../../cli/administration/deploy/development/env.py). Without `INFINITO_STACK_NAME` (D12), the project name equals today's implicit one, so running stacks and their volumes are adopted, not orphaned. With `INFINITO_STACK_NAME=<name>`, every deploy, exec, test and lint target addresses the stack `<name>`; test and lint targets then run in that stack's `infinito` container instead of the shared test runner, which gives an isolated gate on purpose. From Phase 8 a held job stack carries a name, and the same override addresses it.
 
-A slot belongs to a stack (D13): the allocator records each stack name with its slot in a machine registry (proposed `/var/cache/infinito/core/stacks/`, outside the cache folders, so neither eviction nor `make clean-cache` touches it). A stack keeps its slot across restarts, two stack names from one checkout get two slots, and `make worktree-up` allocates the slot of the worktree's default stack name. Phase 8 retires the slots for deploys once the pool's live proof is recorded.
+A slot belongs to a stack (D13): the allocator records each stack name with its slot in a machine registry (`stacks/` below `DIR_CACHE`, `/var/cache/infinito/core/cache/stacks/`, outside the cache folders, so neither eviction nor `make clean-cache` touches it; the first proposal, `/var/cache/infinito/core/stacks/`, cannot be created by the operator because `/var/cache/infinito/core` is not writable by the operator). A stack keeps its slot across restarts, two stack names from one checkout get two slots, and `make worktree-up` allocates the slot of the worktree's default stack name. Phase 8 retires the slots for deploys once the pool's live proof is recorded.
 
 ### Runner pool (Phase 8)
 
@@ -405,7 +405,7 @@ Phase 1:
 Phase 2:
 
 - `tests/lint/repository/test_compose_calls_through_helper.py`: no `docker compose` call outside the helper. Fails today on [wrapper.sh](../../scripts/tests/code/wrapper.sh) lines 31, 35 and 50 and on [the lint wrapper](../../scripts/lint/wrapper.sh) lines 45 and 51.
-- `tests/unit/python/cli/administration/deploy/development/test_stack_name.py`: default project name, the override and the slot registry keyed by stack name. Fails today: no call passes `-p`, and [lib.sh:44-69](../../scripts/system/worktree/lib.sh) reads the slot from the checkout's `custom.env`.
+- `tests/unit/python/cli/administration/deploy/development/test_stack_name.py`: default project name, the override and the slot registry keyed by stack name. Failed on the 2026-11-05 base: no call passed `-p`, and the slot picker of [lib.sh](../../scripts/system/worktree/lib.sh) took the slot from each checkout's `custom.env`; the registry of [slots.py](../../cli/administration/deploy/development/slots.py) now keys it by stack name and reads `custom.env` only for the pins.
 
 Phase 3:
 

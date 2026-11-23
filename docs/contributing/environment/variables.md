@@ -39,7 +39,33 @@ Every `docker compose` call MUST go through [stack.py](../../../cli/administrati
 - Set, `make compose-up`, `compose-exec`, `compose-deploy`, `compose-down`, `test*` and `lint*` address the project `<name>`.
   [load.sh](../../../scripts/meta/env/load.sh) derives `INFINITO_CONTAINER=infinito_nexus_<name>` and `INFINITO_RUNNER_PREFIX=infinito-<name>` from it, so the checkout's default stack stays untouched.
 - Set it per call (`INFINITO_STACK_NAME=<name> make compose-up`) or in `custom.env`; `make dotenv` writes an exported value into `.env` like every other key.
-- The named stack still uses the checkout's slot, so its subnet and bind IP equal those of the default stack; run one of them at a time until a slot registry lands.
+- The [slot registry](#slot-registry) can hold a slot per stack name, but only `make worktree-up` allocates one, for the default stack.
+  A named stack still runs on the checkout's pinned slot, so its subnet and bind IP equal those of the default stack; run one of them at a time.
+
+## Slot registry
+
+A slot shifts a stack's compose subnet `172.30.<slot>.0/24`, its bind IP `127.0.0.<slot + 1>` and its swarm lab subnet `10.160.<slot>.0/24`.
+Slot 0 is the primary checkout; the other slots belong to stacks, not to checkouts.
+
+- The registry is the directory `stacks/` below the cache base `DIR_CACHE` (`/var/cache/infinito/core/cache/stacks/`), with one `<stack>.json` per stack that records its slot and its checkout ([slots.py](../../../cli/administration/deploy/development/slots.py)).
+  It lies outside every cache folder, so neither `make cache-evict` nor `make clean-cache` touches it, and like the infra lock it stays in `DIR_CACHE` whatever `INFINITO_INFRA_CACHE_DIR` says.
+  The parent `/var/cache/infinito/core` is not writable by the operator, so the registry cannot sit beside the cache base.
+  An entry file that cannot be parsed is reported as a warning and counts as absent until its stack is written again.
+  When this user cannot write the registry, `make worktree-up` and `make worktree-down` print a `FAILURE` line with the one-time `sudo` command that hands it over.
+- `make worktree-up` checks the branch out first and then records the slot under the worktree's default stack name, the normalized basename of its directory.
+  It pins that slot as `INFINITO_INSTANCE` into `custom.env`, together with the subnet, bind IP and swarm addresses derived from it, and every consumer keeps reading them through `.env`.
+- The new slot is the lowest from 1 to `WORKTREE_MAX_SLOT` ([lib.sh](../../../scripts/system/worktree/lib.sh)) that no entry, no Docker network's subnet and no current `INFINITO_INSTANCE` pin of a checkout `git worktree list` names holds.
+  A pin set by hand in `custom.env` therefore stays out of reach even after its worktree has an entry.
+  Every allocation holds an `flock` on `slots.lock` in the registry, so two concurrent `make worktree-up` calls get two slots.
+- A stack keeps its slot until it is released: `make compose-down` and `make compose-up` leave the entry alone.
+  `make worktree-down` releases every stack of the checkout once its directory is gone: right after the removal, even when the teardown fails afterwards, and also when the directory was already gone before the call; a release that cannot write the registry only warns.
+  An allocation drops the entry of a checkout only when its directory is gone and `git worktree list` no longer names it, so an unmounted checkout keeps its slot.
+  A checkout recreated at its old path gets its old slot back only while its entry survives, that is when it was neither released by `make worktree-down` nor dropped by an allocation in between, and no other listed checkout pins that slot meanwhile.
+- A stack name that another live checkout holds, one on disk or named by `git worktree list`, is refused, because both checkouts would address one compose project.
+- Migration: an allocation records a listed worktree under its default stack name with the `INFINITO_INSTANCE` its `custom.env`, else its `.env`, pins, when that name has no entry yet, the pin lies in 1..`WORKTREE_MAX_SLOT` and no other entry holds the slot, so existing worktrees keep their slots.
+  A pin it cannot record that way still stays out of reach as above.
+  The pin is the last `INFINITO_INSTANCE=<digits>` line; every other line is ignored, so a malformed file still yields its numeric pin, and a file that cannot be opened pins nothing.
+- A recorded slot that another listed checkout now pins by hand moves: the stack's entry is dropped and the stack gets the lowest free slot instead.
 
 ## Toolchain image and shared test runner
 

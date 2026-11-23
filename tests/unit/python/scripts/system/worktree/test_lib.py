@@ -20,6 +20,7 @@ from utils.cache.files import PROJECT_ROOT, read_text
 
 LIB = PROJECT_ROOT / "scripts" / "system" / "worktree" / "lib.sh"
 NEEDS_UNPRIVILEGED = "clearing the write bit does not restrain root"
+SLOTS_MODULE = "cli.administration.deploy.development.slots"
 
 
 def _call(func: str, *args: str) -> subprocess.CompletedProcess:
@@ -104,71 +105,152 @@ class TestWorktreeUnregister(unittest.TestCase):
             self.assertFalse(entry.exists())
 
 
+def _max_slot() -> str:
+    return subprocess.run(
+        ["bash", "-c", 'source "$1"; printf %s "$WORKTREE_MAX_SLOT"', "bash", str(LIB)],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+
+
 def _shim(bin_dir: Path, name: str, body: str) -> None:
     shim = bin_dir / name
     shim.write_text(f"#!/bin/sh\n{body}\n")
     shim.chmod(0o755)
 
 
-def _next_slot(
-    tmp: str, slots: list[int], subnets: tuple[str, ...], docker_exit: int
-) -> str:
-    root = Path(tmp)
-    lines = []
-    for index, slot in enumerate(slots):
-        checkout = root / f"checkout-{index}"
-        checkout.mkdir()
-        if slot:
-            (checkout / "custom.env").write_text(f"INFINITO_INSTANCE={slot}\n")
-        lines.append(f"worktree {checkout}\n")
-    listing = root / "listing"
-    listing.write_text("".join(lines))
-    networks = root / "networks"
-    networks.write_text("".join(f"{subnet}\n" for subnet in subnets))
-    bin_dir = root / "bin"
-    bin_dir.mkdir()
-    _shim(bin_dir, "git", f'cat "{listing}"')
-    _shim(
-        bin_dir,
-        "docker",
-        f"[ {docker_exit} = 0 ] || exit {docker_exit}\n"
-        f'if [ "$2" = ls ]; then echo n1; else cat "{networks}"; fi',
-    )
-    env = {**os.environ, "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}"}
-    result = subprocess.run(
-        ["bash", "-c", 'source "$1"; worktree_next_slot', "bash", str(LIB)],
-        capture_output=True,
-        text=True,
-        check=True,
-        env=env,
-    )
-    return result.stdout
+class SlotShims:
+    def __init__(
+        self,
+        tmp: str,
+        checkouts: tuple[str, ...],
+        subnets: tuple[str, ...],
+        docker_exit: int = 0,
+        git_exit: int = 0,
+    ) -> None:
+        root = Path(tmp)
+        listing = root / "listing"
+        listing.write_text("".join(f"worktree {c}\nHEAD 0\n\n" for c in checkouts))
+        networks = root / "networks"
+        networks.write_text("".join(f"{subnet}\n" for subnet in subnets))
+        self.argv = root / "python3.argv"
+        bin_dir = root / "bin"
+        bin_dir.mkdir()
+        _shim(bin_dir, "git", f'[ {git_exit} = 0 ] || exit {git_exit}\ncat "{listing}"')
+        _shim(
+            bin_dir,
+            "docker",
+            f"[ {docker_exit} = 0 ] || exit {docker_exit}\n"
+            f'if [ "$2" = ls ]; then echo n1; else cat "{networks}"; fi',
+        )
+        _shim(bin_dir, "python3", f'printf "%s\\n" "$@" > "{self.argv}"\necho 7')
+        self.env = {**os.environ, "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}"}
+
+    def call(self, func: str, *args: str) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            ["bash", "-c", f'source "$1"; shift; {func} "$@"', "bash", str(LIB), *args],
+            capture_output=True,
+            text=True,
+            check=False,
+            env=self.env,
+        )
+
+    def python_argv(self) -> list[str] | None:
+        if not self.argv.exists():
+            return None
+        return read_text(str(self.argv)).splitlines()
 
 
-class TestWorktreeNextSlot(unittest.TestCase):
-    def test_reuses_the_lowest_free_slot(self) -> None:
+class TestWorktreeTakenSlots(unittest.TestCase):
+    def taken(self, subnets: tuple[str, ...], docker_exit: int = 0) -> list[str]:
         with tempfile.TemporaryDirectory() as tmp:
-            self.assertEqual(_next_slot(tmp, [0, 1, 2, 4, 9], (), 0), "3")
+            shims = SlotShims(tmp, (), subnets, docker_exit=docker_exit)
+            result = shims.call("worktree_taken_slots")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return result.stdout.split()
 
-    def test_an_unpinned_primary_alone_gets_slot_one(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            self.assertEqual(_next_slot(tmp, [0], (), 0), "1")
+    def test_a_compose_subnet_holds_its_slot(self) -> None:
+        self.assertEqual(self.taken(("172.30.2.0/24",)), ["2"])
 
-    def test_skips_a_slot_whose_compose_subnet_a_network_holds(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            self.assertEqual(_next_slot(tmp, [0, 1], ("172.30.2.0/24",), 0), "3")
-
-    def test_skips_a_slot_whose_swarm_lab_subnet_a_network_holds(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            self.assertEqual(_next_slot(tmp, [0], ("10.160.1.0/24",), 0), "2")
+    def test_a_swarm_lab_subnet_holds_its_slot(self) -> None:
+        self.assertEqual(self.taken(("10.160.1.0/24",)), ["1"])
 
     def test_a_longer_slot_number_does_not_hold_its_prefix(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            self.assertEqual(_next_slot(tmp, [0], ("172.30.10.0/24",), 0), "1")
+        self.assertEqual(self.taken(("172.30.10.0/24",)), ["10"])
 
-    def test_a_failing_docker_keeps_the_worktree_pick(self) -> None:
+    def test_foreign_subnets_hold_no_slot(self) -> None:
+        self.assertEqual(self.taken(("192.168.1.0/24", "10.47.0.0/24")), [])
+
+    def test_a_failing_docker_holds_no_slot(self) -> None:
+        self.assertEqual(self.taken(("172.30.1.0/24",), docker_exit=1), [])
+
+
+class TestWorktreeSlotRegistryCalls(unittest.TestCase):
+    def test_allocation_hands_the_registry_every_worktree_and_held_slot(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
-            self.assertEqual(_next_slot(tmp, [0], ("172.30.1.0/24",), 1), "1")
+            shims = SlotShims(
+                tmp, ("/main", "/wt/feat"), ("172.30.3.0/24", "10.160.5.0/24")
+            )
+            result = shims.call("worktree_allocate_slot", "/wt/new")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout, "7\n")
+            self.assertEqual(
+                shims.python_argv(),
+                [
+                    "-m",
+                    SLOTS_MODULE,
+                    "allocate",
+                    "/wt/new",
+                    "--last",
+                    _max_slot(),
+                    "--known",
+                    "/main",
+                    "/wt/feat",
+                    "--taken",
+                    "3",
+                    "5",
+                ],
+            )
+
+    def test_allocation_without_networks_passes_an_empty_taken_list(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            shims = SlotShims(tmp, ("/main",), ())
+            result = shims.call("worktree_allocate_slot", "/wt/new")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(shims.python_argv()[-3:], ["--known", "/main", "--taken"])
+
+    def test_an_unlistable_repository_allocates_nothing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            shims = SlotShims(tmp, ("/main",), (), git_exit=128)
+            result = shims.call("worktree_allocate_slot", "/wt/new")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIsNone(shims.python_argv())
+
+    def test_release_hands_the_registry_the_removed_checkout(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            shims = SlotShims(tmp, (), ())
+            result = shims.call("worktree_release_slots", "/wt/gone")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(
+                shims.python_argv(), ["-m", SLOTS_MODULE, "release", "/wt/gone"]
+            )
+
+
+class TestUpScript(unittest.TestCase):
+    def test_the_slot_is_allocated_once_the_checkout_exists(self) -> None:
+        up_sh = read_text(str(LIB.parent / "up.sh"))
+        added = up_sh.index('git worktree add "${path}" "${branch}"')
+        allocated = up_sh.index('slot="$(worktree_allocate_slot "${path}")"')
+        pinned = up_sh.index("INFINITO_INSTANCE=${slot}")
+        self.assertLess(added, allocated)
+        self.assertLess(allocated, pinned)
+
+    def test_a_refused_slot_is_reported_before_the_worktree_is_removed(self) -> None:
+        up_sh = read_text(str(LIB.parent / "up.sh"))
+        reported = up_sh.index("FAILURE: the slot registry gave ${path} no slot")
+        removed = up_sh.index('if git worktree remove --force "${path}"; then')
+        self.assertLess(reported, removed)
 
     def test_the_prefixes_match_the_pins_up_sh_writes(self) -> None:
         result = subprocess.run(
@@ -188,24 +270,8 @@ class TestWorktreeNextSlot(unittest.TestCase):
         self.assertIn(f"INFINITO_SUBNET={net}.${{slot}}.0/24", up_sh)
         self.assertIn(f'lab_prefix="{lab}.${{slot}}"', up_sh)
 
-    def test_a_full_range_reports_past_the_last_valid_slot(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            self.assertEqual(_next_slot(tmp, list(range(255)), (), 0), "255")
-
     def test_the_last_slot_keeps_a_valid_bind_ip(self) -> None:
-        result = subprocess.run(
-            [
-                "bash",
-                "-c",
-                'source "$1"; printf %s "$WORKTREE_MAX_SLOT"',
-                "bash",
-                str(LIB),
-            ],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        self.assertLessEqual(int(result.stdout) + 1, 255)
+        self.assertLessEqual(int(_max_slot()) + 1, 255)
 
 
 if __name__ == "__main__":

@@ -20,7 +20,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from utils.cache.files import PROJECT_ROOT
+from utils.cache.files import PROJECT_ROOT, read_text
 
 WORKTREE_SCRIPTS = PROJECT_ROOT / "scripts" / "system" / "worktree"
 GIT_IDENTITY = {
@@ -44,13 +44,24 @@ NEEDS_UNPRIVILEGED = "clearing the write bit does not restrain root"
 class WorktreeDownFixture:
     """A throwaway repo with the worktree scripts copied in and branch ``feat``."""
 
-    def __init__(self, tmp: str) -> None:
+    def __init__(self, tmp: str, release_exit: int = 0) -> None:
         self.root = Path(tmp)
         self.repo = self.root / "repo"
         self.base = self.root / "worktrees"
         self.checkout = self.base / "feat"
         inherited = {k: v for k, v in os.environ.items() if k not in GIT_REPO_SCOPE}
-        self.env = {**inherited, **GIT_IDENTITY}
+        self.argv = self.root / "python3.argv"
+        bin_dir = self.root / "bin"
+        bin_dir.mkdir()
+        shim = bin_dir / "python3"
+        shim.write_text(
+            f'#!/bin/sh\nprintf "%s\\n" "$@" > "{self.argv}"\n'
+            f"[ {release_exit} = 0 ] || exit {release_exit}\n"
+            "echo 'Slot 3 of stack feat released.'\n"
+        )
+        shim.chmod(0o755)
+        path = f"{bin_dir}{os.pathsep}{inherited['PATH']}"
+        self.env = {**inherited, **GIT_IDENTITY, "PATH": path}
 
         scripts = self.repo / "scripts" / "system" / "worktree"
         scripts.parent.mkdir(parents=True)
@@ -87,6 +98,11 @@ class WorktreeDownFixture:
             check=False,
         )
 
+    def released(self) -> list[str] | None:
+        if not self.argv.exists():
+            return None
+        return read_text(str(self.argv)).splitlines()
+
     def registered(self) -> bool:
         listing = self.git("worktree", "list", "--porcelain").stdout
         return str(self.checkout) in listing
@@ -101,6 +117,22 @@ class TestWorktreeDown(unittest.TestCase):
             self.assertFalse(fixture.checkout.exists())
             self.assertFalse(fixture.registered())
 
+    def test_a_removed_worktree_gives_its_slots_back(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = WorktreeDownFixture(tmp)
+            result = fixture.down()
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(
+                fixture.released(),
+                [
+                    "-m",
+                    "cli.administration.deploy.development.slots",
+                    "release",
+                    str(fixture.checkout),
+                ],
+            )
+            self.assertIn("Slot 3 of stack feat released.", result.stdout)
+
     def test_uncommitted_changes_block_the_removal(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             fixture = WorktreeDownFixture(tmp)
@@ -109,6 +141,7 @@ class TestWorktreeDown(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("uncommitted changes", result.stderr)
             self.assertTrue(fixture.checkout.exists())
+            self.assertIsNone(fixture.released())
 
     def test_force_drops_uncommitted_changes(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -156,6 +189,40 @@ class TestWorktreeDown(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("still registers branch", result.stderr)
 
+    @unittest.skipIf(os.geteuid() == 0, NEEDS_UNPRIVILEGED)
+    def test_a_deleted_checkout_gives_its_slots_back_before_a_late_failure(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = WorktreeDownFixture(tmp)
+            meta = fixture.meta_dir()
+            mode = meta.stat().st_mode
+            meta.chmod(mode & ~stat.S_IWUSR)
+            try:
+                result = fixture.down()
+            finally:
+                meta.chmod(mode)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertFalse(fixture.checkout.exists())
+            self.assertEqual(
+                fixture.released(),
+                [
+                    "-m",
+                    "cli.administration.deploy.development.slots",
+                    "release",
+                    str(fixture.checkout),
+                ],
+            )
+
+    def test_a_failed_release_still_ends_a_clean_teardown(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = WorktreeDownFixture(tmp, release_exit=1)
+            result = fixture.down()
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertFalse(fixture.checkout.exists())
+            self.assertFalse(fixture.registered())
+            self.assertIn("WARNING: the slot registry kept the slots", result.stderr)
+
     def test_missing_worktree_is_an_error(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             fixture = WorktreeDownFixture(tmp)
@@ -163,6 +230,22 @@ class TestWorktreeDown(unittest.TestCase):
             result = fixture.down()
             self.assertEqual(result.returncode, 1)
             self.assertIn("no worktree at", result.stderr)
+
+    def test_an_already_deleted_checkout_still_gives_its_slots_back(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = WorktreeDownFixture(tmp)
+            shutil.rmtree(fixture.checkout)
+            result = fixture.down()
+            self.assertEqual(result.returncode, 1)
+            self.assertEqual(
+                fixture.released(),
+                [
+                    "-m",
+                    "cli.administration.deploy.development.slots",
+                    "release",
+                    str(fixture.checkout),
+                ],
+            )
 
 
 if __name__ == "__main__":
