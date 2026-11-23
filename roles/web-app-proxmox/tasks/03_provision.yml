@@ -6,7 +6,9 @@
     openbao_kv_mount: "{{ PROXMOX_PROVISION_MOUNT }}"
     openbao_kv_path: "{{ PROXMOX_PROVISION_PATH }}"
     openbao_kv_data:
-      endpoint: "{{ lookup('tls', application_id, 'url.base') }}"
+      endpoint: "{{ PROXMOX_API_ENDPOINT }}"
+      certificate: "{{ proxmox_api_certificate.stdout | regex_search('(?s)-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----') }}"
+      fingerprint: "{{ proxmox_api_certificate.stdout | regex_search('(?m)^fingerprint=[0-9a-f]{64}$') | replace('fingerprint=', '') }}"
       node: "{{ PROXMOX_NODE }}"
       kvm: "{{ PROXMOX_VM_KVM | bool }}"
       storage: "{{ PROXMOX_WORKSPACES.storage }}"

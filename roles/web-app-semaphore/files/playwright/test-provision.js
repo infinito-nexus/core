@@ -3,6 +3,7 @@ const dgram = require("node:dgram");
 const dns = require("node:dns");
 const https = require("node:https");
 const net = require("node:net");
+const tls = require("node:tls");
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvJsonList, decodeDotenvQuotedValue, requireDotenvValue } = require("./personas");
@@ -1126,6 +1127,60 @@ async function expectSsh(host, what) {
 
 /**
  * Args:
+ *   server: the platform record of the target: `endpoint`, `certificate`
+ *     and `fingerprint`.
+ *   what: the API the failure messages name.
+ *
+ * Returns:
+ *   The check `checkServerIdentity` runs: the certificate must be the
+ *   pinned one by its SHA-256.
+ */
+function pinnedIdentity(server, what) {
+  return (_host, peer) =>
+    peer.fingerprint256.replace(/:/g, "").toLowerCase() === String(server.fingerprint).toLowerCase()
+      ? undefined
+      : new Error(`the ${what} at ${new URL(server.endpoint).host} presented a certificate other than the pinned one`);
+}
+
+/**
+ * Args:
+ *   url: the URL to GET.
+ *   options: the `https.request` options that pin the server, and client
+ *     credentials or headers.
+ *   what: the API the failure messages name.
+ *
+ * Returns:
+ *   `{status, json}` of the answer, over a TLS session that trusts
+ *   `options.ca` alone, whatever NODE_TLS_REJECT_UNAUTHORIZED says.
+ */
+function pinnedGet(url, options, what) {
+  return new Promise((resolve, reject) => {
+    const request = https.request(
+      url,
+      { ...options, method: "GET", agent: false, rejectUnauthorized: true, timeout: resolveTimeout(REQUEST_MS) },
+      (response) => {
+        let text = "";
+        response.setEncoding("utf8");
+        response.on("data", (chunk) => {
+          text += chunk;
+        });
+        response.on("end", () => {
+          try {
+            resolve({ status: response.statusCode, json: text ? JSON.parse(text) : null });
+          } catch (error) {
+            reject(error);
+          }
+        });
+      },
+    );
+    request.on("timeout", () => request.destroy(new Error(`GET ${url.pathname} on the ${what} got no answer`)));
+    request.on("error", reject);
+    request.end();
+  });
+}
+
+/**
+ * Args:
  *   fixture: the result of `workspaces.openWorkspace`.
  *   offer: the incus offer of `placement`.
  *
@@ -1140,39 +1195,16 @@ async function incusTarget(fixture, offer) {
   const base = new URL(server.endpoint);
   const project = `ws-${fixture.workspace}`;
   const get = (path) =>
-    new Promise((resolve, reject) => {
-      const request = https.request(
-        new URL(path, base),
-        {
-          method: "GET",
-          ca: server.certificate,
-          cert: client.certificate,
-          key: client.key,
-          checkServerIdentity: (_host, peer) =>
-            peer.fingerprint256.replace(/:/g, "").toLowerCase() === String(server.fingerprint).toLowerCase()
-              ? undefined
-              : new Error(`the Incus API at ${base.host} presented a certificate other than the pinned one`),
-          timeout: resolveTimeout(REQUEST_MS),
-        },
-        (response) => {
-          let text = "";
-          response.setEncoding("utf8");
-          response.on("data", (chunk) => {
-            text += chunk;
-          });
-          response.on("end", () => {
-            try {
-              resolve({ status: response.statusCode, json: text ? JSON.parse(text) : null });
-            } catch (error) {
-              reject(error);
-            }
-          });
-        },
-      );
-      request.on("timeout", () => request.destroy(new Error(`GET ${path} on the Incus API got no answer`)));
-      request.on("error", reject);
-      request.end();
-    });
+    pinnedGet(
+      new URL(path, base),
+      {
+        ca: server.certificate,
+        cert: client.certificate,
+        key: client.key,
+        checkServerIdentity: pinnedIdentity(server, "Incus API"),
+      },
+      "Incus API",
+    );
   const named = async (name) => {
     const listed = await get(`/1.0/instances?project=${project}&recursion=1`);
     expect(listed.status, `${LABEL}: the workspace certificate must list the instances of the Incus project ${project}`).toBe(200);
@@ -1203,17 +1235,29 @@ async function incusTarget(fixture, offer) {
  *
  * Returns:
  *   `expectRunning(outputs, order)` and `expectGone(order)` on the pool of
- *   the workspace, read with the workspace's own API token.
+ *   the workspace, read with the workspace's own API token over the API
+ *   listener, against the pinned server certificate and the name it was
+ *   issued for, as `bpg/proxmox` checks it.
  */
 async function proxmoxTarget(fixture, offer) {
   const token = await vaultRecord(fixture.context, TENANT_MOUNT, `ws-${fixture.workspace}-provision/proxmox`);
-  const origin = new URL(offer.record.endpoint).origin;
+  const server = offer.record;
+  const base = new URL(server.endpoint);
   const headers = { Authorization: `PVEAPIToken=${token.token_id}=${token.secret}` };
   const pool = `ws-${fixture.workspace}`;
+  const pinned = pinnedIdentity(server, "Proxmox VE API");
   const get = async (path) => {
-    const response = await workspaces.http(fixture.context, "GET", `${origin}/api2/json${path}`, { headers });
-    await workspaces.expectStatus(response, [200], `${LABEL}: GET /api2/json${path} with the token of ${pool}`);
-    return (await response.json()).data;
+    const answer = await pinnedGet(
+      new URL(`/api2/json${path}`, base),
+      {
+        ca: server.certificate,
+        headers,
+        checkServerIdentity: (host, peer) => tls.checkServerIdentity(host, peer) ?? pinned(host, peer),
+      },
+      "Proxmox VE API",
+    );
+    expect(answer.status, `${LABEL}: GET /api2/json${path} with the token of ${pool} on ${base.host}`).toBe(200);
+    return answer.json.data;
   };
   const named = async (name) => (await get("/cluster/resources?type=vm")).filter((vm) => vm.name === name);
   const kvm = truthy(offer.place.kvm);

@@ -47,13 +47,19 @@ Each deployment then boots a copy-on-write overlay on that base in the `proxmox_
 
 ### First-boot values
 
-The launcher hands the guest a QEMU `fw_cfg` item `opt/nexus.infinito.proxmox/first-boot` with its fully qualified name (`services.proxmox.guest.node` under `DOMAIN_PRIMARY`), a root password hash of a password nobody keeps, the launcher's SSH public key and an SSH host key it generated for this guest. On first boot the hook applies them, regenerates the other SSH host keys, the machine id, the cluster CA, the node certificate and the ticket key, and only then admits the launcher's key. So no two deployments share a key.
+The launcher hands the guest a QEMU `fw_cfg` item `opt/nexus.infinito.proxmox/first-boot` with its fully qualified name (`services.proxmox.guest.node` under `DOMAIN_PRIMARY`), a root password hash of a password nobody keeps, the launcher's SSH public key and an SSH host key it generated for this guest. On first boot the hook applies them, locks the root password (`usermod -L root`), regenerates the other SSH host keys, the machine id, the cluster CA, the node certificate and the ticket key, and only then admits the launcher's key. So no two deployments share a key. The guest's sshd keeps `UsePAM yes`, because without PAM it refuses a key login of a locked account, which would cut the guest channel.
 
 Before it admits the key, the hook records what the guest booted with and what it made: SSH host key fingerprints, SHA-256 fingerprints of the node certificate and the cluster CA, and SHA-256 digests of the machine id and the root password hash, never a private key or a hash itself. The deploy reads that record over the guest channel, and the Playwright test `proxmox vm: no two deployments share a key` fails when a value of this deployment equals the image's, when the record is missing, or when the certificates Proxmox VE reports are not the ones the hook made. A guest installed before the hook kept the record carries none and fails that test until its `proxmox_guest` volume is recreated.
 
 ## Nested KVM
 
 The launcher starts the guest with CPU type `host`. The deploy reads `nested` of the host's `kvm_intel` or `kvm_amd` and writes the result to the deploy log and to OpenBao at `platform/data/provision/proxmox-<host>`, beside the endpoint, the node, the storage, the bridge and the template ids. With nesting on, VMs inside Proxmox VE run with KVM; without it, as on GitHub-hosted runners, they run with `kvm: 0`: slower, same API. Under `container`, VMs always run on the host's KVM.
+
+## API Listener
+
+`services.proxmox.api.enabled` (default `false`) publishes `pveproxy` on port `services.proxmox.ports.public.api` (default `8606`, in the `api` band of `PORT_BANDS.public`) of the host address `services.proxmox.api.bind` (default `0.0.0.0`), beside the loopback port of the front proxy; with it off, the API is reached through the front proxy only, which refuses every API token (`templates/nginx/api_token_refusal.conf.j2`). The role's nftables table `infinito_web_app_proxmox` drops every connection to that port whose source is not in `services.proxmox.api.allowed_sources`: the egress addresses of the provision runner and, in a test deployment, of the e2e stack. An empty list admits no one, and an entry that is no address or network fails the deploy when the variables render. The table loads before the compose flush that publishes the port, so the listener is never open to every source, not even on a first deploy. Docker publishes the port through a DNAT rule that runs before the input hook, so the table filters in the prerouting hook at priority `-150`, ahead of that DNAT, and only packets addressed to the host itself (`fib daddr type local`), which leaves the front proxy's and the OAuth2 proxy's traffic to `proxmox:8006` on the container network untouched.
+
+`pveproxy` serves a certificate of its own on that port: the deploy generates it inside the Proxmox VE the flavor runs (`files/shell/api-certificate.sh`) with `openssl req -x509`, one key per deployment that never leaves the node, and the subjectAltName of the name the consumers dial, and installs it with `pvenode cert set` as `/etc/pve/local/pveproxy-ssl.pem`. The stock node certificate names only the node, `localhost` and its addresses, while `bpg/proxmox` checks the dialled name against the certificate. A redeploy keeps a certificate that still names that host and outlives `PROXMOX_API_CERT_RENEW_SECONDS`, and replaces it otherwise. The deploy stores the fields `endpoint` (`https://<host>:<port>`), `certificate` and `fingerprint` (its SHA-256) in OpenBao at `platform/data/provision/proxmox-<host>`. As for `svc-virt-incus`, the endpoint is read inside containers, so a `<host>` in `NETWORK_LOOPBACK_HOSTS` is recorded as `host.docker.internal` and any other `<host>` as it stands. The provision runner takes `endpoint` as `PROXMOX_VE_ENDPOINT` and writes `certificate` to `servercerts/<host>.crt` of its task, which `SSL_CERT_DIR` names: `bpg/proxmox` `v0.119.0` has no CA option, so Go's system pool, which reads `SSL_CERT_DIR` beside the system bundle, is the one place a pin reaches it.
 
 ## Workspace templates
 
@@ -114,7 +120,7 @@ The container runs without `privileged` in both flavors. Each grant in `template
 - **`cgroup: private`:** `container` only; systemd and QEMU manage their own cgroup subtree, in the container's own cgroup namespace, not the host's.
 - **Host namespaces:** none of network, PID or IPC; the container keeps its own. Under `container` it has no user namespace of its own unless the Docker daemon runs with `userns-remap`, so root in the container is root on the host.
 
-The container publishes one port: the web UI port 8006 as `127.0.0.1:7992` (`services.proxmox.ports.local.http`) for the front proxy. Ports 3128, 111, 5405 and 22 are never published.
+The container publishes the web UI port 8006 as `127.0.0.1:7992` (`services.proxmox.ports.local.http`) for the front proxy and, with `services.proxmox.api.enabled` on, once more on `services.proxmox.api.bind` port `services.proxmox.ports.public.api` for the [API listener](#api-listener). Ports 3128, 111, 5405 and 22 are never published.
 
 ## Known gaps
 
@@ -139,6 +145,8 @@ The broker gets one privilege-separated API token per Infinito.Nexus instance, b
 1. The OAuth2 proxy sends the visitor to Keycloak and admits only members of the administrator group.
 2. Proxmox VE shows its login window with the OpenID realm preselected; `Login (OpenID redirect)` completes silently through the Keycloak session and creates the account `<username>@<realm>` on first login.
 3. The user menu's `Logout` triggers the universal logout, which ends the Keycloak session and deletes both the OAuth2 proxy cookie and `PVEAuthCookie`.
+
+A password login of a `@pam` or `@pve` account fails. The deploy sets the second factor `PROXMOX_LOCAL_REALM_TFA` (`type=oath`) as required on both realms (`PROXMOX_LOCAL_REALMS`), and no account of them holds one, so Proxmox VE refuses the login after the password. The root password is locked as well: by the first-boot hook under `vm` and in the image under `container`. API tokens, such as `ws-<id>@pve!provision`, authenticate without a realm login and keep working. The Playwright test `proxmox login: a @pam or @pve password login through the public domain fails` reads the realm setting and proves the refusal with a `@pve` account whose password is right.
 
 Break-glass access goes through the container shell, never through the public domain: `pveum` as root inside the container under `container`, and `pve-guest pveum` inside the launcher under `vm`.
 

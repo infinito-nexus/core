@@ -103,7 +103,7 @@ flowchart LR
 ### Proxmox web UI
 
 - [ ] `web-app-proxmox` serves the Proxmox VE web UI at its own domain through the front proxy with a valid certificate. `[host]`
-- [ ] From outside, only port 443 of the front proxy answers; ports 8006, 3128, 111, 5405 and 22 of the container are closed. `[host]`
+- [ ] From outside, only port 443 of the front proxy answers, and, with `services.proxmox.api.enabled` on, the API listener on port `services.proxmox.ports.public.api` answers only to `services.proxmox.api.allowed_sources` ([110](110-proxmox-test-target-and-pool-token-per-workspace.md) decision 8, as [109](109-incus-api-listener-and-project-per-workspace.md) decision 1 for Incus); ports 3128, 111, 5405 and 22 of the container are closed. `[host]`
 - [ ] A Keycloak user in the role's administrator group logs in through the OpenID Connect realm and gets the `Administrator` role. `[host]`
 - [ ] A Keycloak user outside the role's groups is stopped by the front proxy's group check and gets no Proxmox ticket. `[host]`
 - [ ] The public domain refuses `/api2/` requests that carry an API token; the broker uses an internal address. `[host]`

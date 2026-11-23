@@ -11,6 +11,7 @@ from ansible.plugins.filter.core import (
 )
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
+from plugins.filter import api_listener
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
@@ -28,6 +29,9 @@ _SPEC = importlib.util.spec_from_file_location(
 )
 FILTERS = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(FILTERS)
+LISTENER = api_listener
+SOURCES_SETTING = "services.incus.api.allowed_sources"
+LISTEN_SETTING = "services.incus.api.listen"
 
 
 def environment() -> Environment:
@@ -36,6 +40,7 @@ def environment() -> Environment:
         autoescape=select_autoescape(default_for_string=False),
     )
     env.filters.update(FILTERS.FilterModule().filters())
+    env.filters.update(LISTENER.FilterModule().filters())
     env.filters["dict2items"] = dict_to_list_of_dict_key_value_elements
     env.filters["items2dict"] = list_of_dict_key_value_elements_to_dict
     env.filters["bool"] = lambda value: str(value).lower() in ("true", "yes", "1")
@@ -76,8 +81,10 @@ def ruleset(
         .from_string(template)
         .render(
             FIREWALL_TABLE=TABLE,
-            INCUS_API_SOURCES=FILTERS.incus_sources(sources),
-            INCUS_API_PORT=FILTERS.incus_listen_port(listen or INCUS["api"]["listen"]),
+            INCUS_API_SOURCES=LISTENER.api_listener_sources(sources, SOURCES_SETTING),
+            INCUS_API_PORT=LISTENER.api_listener_port(
+                listen or INCUS["api"]["listen"], LISTEN_SETTING
+            ),
             INCUS_WORKSPACES=workspaces or INCUS["workspaces"],
             INCUS_NETWORK=INCUS["network"],
         )

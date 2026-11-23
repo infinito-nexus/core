@@ -28,6 +28,21 @@ def _pins(packages: dict) -> str:
     return " ".join(f"{name}={packages[name]}" for name in sorted(packages))
 
 
+def _published(term) -> str:
+    """Args:
+        term: a ``container_ports`` term, the list or the dict form.
+
+    Returns:
+        The quoted mapping the lookup renders for it: the loopback web UI
+        mapping for the list form, ``<ip>:<public>:<internal>`` of the
+        role's declared ports for the dict form.
+    """
+    if not isinstance(term, dict):
+        return PUBLISHED
+    ports, protocol = PROXMOX["ports"], term["protocol"]
+    return f'"{term["ip"]}:{ports["public"][protocol]}:{ports["internal"][protocol]}"'
+
+
 def _lookup(name: str, *terms, **_kwargs) -> str:
     if name == "template":
         return "build:\n  context: .\n  dockerfile: Dockerfile"
@@ -36,7 +51,7 @@ def _lookup(name: str, *terms, **_kwargs) -> str:
     if name == "compose_only":
         return f"{terms[0]}: {terms[1]}"
     if name == "container_ports":
-        return f"ports:\n  - {PUBLISHED}"
+        return "ports:\n" + "\n".join(f"  - {_published(term)}" for term in terms)
     if name == "container_volumes":
         return "volumes:\n  - proxmox_guest:/var/lib/proxmox-guest"
     if name == "container_networks":
@@ -77,6 +92,7 @@ def variables(flavor: str) -> dict:
         "PROXMOX_GUEST": PROXMOX["guest"],
         "PROXMOX_GUEST_FQDN": f"{PROXMOX['guest']['node']}.example.org",
         "PROXMOX_INTERNAL_PORT": PROXMOX["ports"]["internal"]["http"],
+        "PROXMOX_API": PROXMOX["api"],
         "PROXMOX_ISO_URL": f"{PROXMOX['ve']['iso']['mirror']}/{PROXMOX['ve']['iso']['file']}",
         "DOCKER_BIND_HOST": "127.0.0.1",
         "application_id": "web-app-proxmox",
@@ -84,10 +100,11 @@ def variables(flavor: str) -> dict:
     }
 
 
-def render(source: str, flavor: str) -> str:
+def render(source: str, flavor: str, **overrides) -> str:
     """Args:
         source: template text, such as ``COMPOSE`` or a planted variant of it.
         flavor: ``vm`` or ``container``.
+        **overrides: role variables that replace those of :func:`variables`.
 
     Returns:
         The rendered text, with the shared compose and container includes
@@ -101,18 +118,19 @@ def render(source: str, flavor: str) -> str:
     )
     environment.filters["dotenv_quote"] = _dotenv_quote
     environment.filters["bool"] = bool
-    return environment.get_template("main").render(**variables(flavor))
+    return environment.get_template("main").render(**(variables(flavor) | overrides))
 
 
-def service(flavor: str, source: str = COMPOSE) -> dict:
+def service(flavor: str, source: str = COMPOSE, **overrides) -> dict:
     """Args:
         flavor: ``vm`` or ``container``.
         source: compose template text.
+        **overrides: role variables that replace those of :func:`variables`.
 
     Returns:
         The rendered ``proxmox`` compose service.
     """
-    return load_yaml_str(render(source, flavor))["services"]["proxmox"]
+    return load_yaml_str(render(source, flavor, **overrides))["services"]["proxmox"]
 
 
 def planted(source: str, old: str, new: str) -> str:

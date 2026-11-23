@@ -78,6 +78,13 @@
     vm_capacity_overhead: "{{ PROXMOX_AGENTS.overhead }}"
     vm_capacity_limits: "{{ PROXMOX_LIMITS }}"
 
+- name: "🛡️ Admit the API listener of {{ application_id }} from its sources only"
+  ansible.builtin.include_role:
+    name: svc-net-firewall
+  vars:
+    FIREWALL_FRAGMENT_ROLE: web-app-proxmox
+  when: (IS_STACK_HOST | bool) and (PROXMOX_API.enabled | bool)
+
 - name: "🚿 Flush compose for {{ application_id }}"
   meta: flush_handlers
 
@@ -113,6 +120,10 @@
   ansible.builtin.include_tasks: 02_templates.yml
   when: IS_STACK_HOST | bool
 
+- name: "🔐 Open the API listener of {{ application_id }} to its sources"
+  ansible.builtin.include_tasks: api.yml
+  when: (IS_STACK_HOST | bool) and (PROXMOX_API.enabled | bool)
+
 - name: "📇 Record the provision target of {{ application_id }}"
   ansible.builtin.include_tasks: 03_provision.yml
-  when: (IS_STACK_HOST | bool) and ((groups.get('web-app-openbao') or []) | length > 0)
+  when: (IS_STACK_HOST | bool) and (PROXMOX_API.enabled | bool) and ((groups.get('web-app-openbao') or []) | length > 0)

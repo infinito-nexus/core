@@ -44,6 +44,16 @@ PROXMOX_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled'
 PROXMOX_TOR_ENABLED: "{{ lookup('config', application_id, 'services.tor.enabled') }}"
 PROXMOX_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.proxmox.ports.internal.http') }}"
 
+PROXMOX_API: "{{ lookup('config', application_id, 'services.proxmox.api') }}"
+PROXMOX_API_PORT: "{{ (PROXMOX_API.bind ~ ':' ~ lookup('config', application_id, 'services.proxmox.ports.public.api')) | api_listener_port('services.proxmox.api.bind') }}"
+PROXMOX_API_HOST: "{{ 'host.docker.internal' if inventory_hostname in NETWORK_LOOPBACK_HOSTS else inventory_hostname }}"
+PROXMOX_API_ENDPOINT: "https://{{ PROXMOX_API_HOST }}:{{ PROXMOX_API_PORT }}"
+PROXMOX_API_SAN: "{{ ('IP:' if PROXMOX_API_HOST is match('^[0-9.]+$') else 'DNS:') ~ PROXMOX_API_HOST }}"
+PROXMOX_API_SOURCES: "{{ PROXMOX_API.allowed_sources | api_listener_sources('services.proxmox.api.allowed_sources') }}"
+PROXMOX_API_CERT_DAYS: 825
+PROXMOX_API_CERT_RENEW_SECONDS: 2592000
+PROXMOX_API_KEY_BITS: 3072
+
 PROXMOX_REALM: "{{ lookup('config', application_id, 'services.proxmox.realm.id') }}"
 PROXMOX_REALM_CONFIG:
   issuer-url: "{{ OIDC.CLIENT.ISSUER_URL }}"
@@ -53,6 +63,10 @@ PROXMOX_REALM_CONFIG:
   default: 1
   comment: "{{ lookup('config', application_id, 'services.proxmox.realm.comment') }}"
 PROXMOX_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
+PROXMOX_LOCAL_REALMS:
+  - pam
+  - pve
+PROXMOX_LOCAL_REALM_TFA: type=oath
 PROXMOX_ADMIN_ROLE: Administrator
 PROXMOX_ADMIN_GROUP: "{{ application_id }}-administrator"
 PROXMOX_ADMIN_GROUP_COMMENT: "Members of {{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}, reconciled by Infinito.Nexus"

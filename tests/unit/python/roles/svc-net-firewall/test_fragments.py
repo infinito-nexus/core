@@ -19,7 +19,6 @@ rather than real values: nft needs shapes, not this host's addresses.
 
 from __future__ import annotations
 
-import importlib.util
 import os
 import re
 import shutil
@@ -33,6 +32,7 @@ from pathlib import Path
 import jinja2
 from jinja2.nativetypes import NativeEnvironment
 
+from plugins.filter.api_listener import api_listener_port, api_listener_sources
 from plugins.filter.swarm_ingress_guard import (
     swarm_ingress_published,
     swarm_node_addresses,
@@ -92,20 +92,39 @@ def _incus_variables() -> dict:
     Returns:
         The incus fragment's inputs: the role's own network, workspace and
         listen declaration, and one stand-in API source per family shaped by
-        the role's own ``incus_sources`` filter.
+        the shared ``api_listener_sources`` filter.
     """
     role = PROJECT_ROOT / "roles" / "svc-virt-incus"
     incus = load_yaml_any(str(role / ROLE_FILE_META_SERVICES))["incus"]
-    spec = importlib.util.spec_from_file_location(
-        "incus_workspace_filters", role / "filter_plugins" / "incus_workspace.py"
-    )
-    filters = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(filters)
     return {
-        "INCUS_API_SOURCES": filters.incus_sources(["192.0.2.7", "2001:db8::7"]),
-        "INCUS_API_PORT": filters.incus_listen_port(incus["api"]["listen"]),
+        "INCUS_API_SOURCES": api_listener_sources(
+            ["192.0.2.7", "2001:db8::7"], "services.incus.api.allowed_sources"
+        ),
+        "INCUS_API_PORT": api_listener_port(
+            incus["api"]["listen"], "services.incus.api.listen"
+        ),
         "INCUS_WORKSPACES": incus["workspaces"],
         "INCUS_NETWORK": incus["network"],
+    }
+
+
+def _proxmox_variables() -> dict:
+    """
+    Returns:
+        The proxmox fragment's inputs: the role's own bind address and
+        registered listener port, and one stand-in API source per family
+        shaped by the shared ``api_listener_sources`` filter.
+    """
+    role = PROJECT_ROOT / "roles" / "web-app-proxmox"
+    proxmox = load_yaml_any(str(role / ROLE_FILE_META_SERVICES))["proxmox"]
+    return {
+        "PROXMOX_API_SOURCES": api_listener_sources(
+            ["192.0.2.8", "2001:db8::8"], "services.proxmox.api.allowed_sources"
+        ),
+        "PROXMOX_API_PORT": api_listener_port(
+            f"{proxmox['api']['bind']}:{proxmox['ports']['public']['api']}",
+            "services.proxmox.api.bind",
+        ),
     }
 
 
@@ -144,6 +163,7 @@ COMMON = {
     "SWARM_INGRESS_PEER_ADDRESSES": swarm_node_addresses(["10.0.0.2"]),
     "SWARM_ONION_GUARDED_PORTS": [389, 3306],
     **_incus_variables(),
+    **_proxmox_variables(),
 }
 
 MODES = ("compose", "swarm")

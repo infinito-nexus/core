@@ -12,43 +12,8 @@ if TYPE_CHECKING:
 WORKSPACE_ID = re.compile(
     r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 )
-LISTEN = re.compile(r"(?:\[[0-9A-Fa-f:.]+\]|[0-9.]+|[A-Za-z0-9.-]+):(\d{1,5})")
 IFNAME_MAX = 15
 MARKER = "user.infinito.workspace"
-
-
-def incus_sources(sources: list) -> dict[str, list[str]]:
-    """Args:
-        sources: addresses and networks that may reach the API, IPv4 and IPv6 mixed.
-
-    Returns:
-        ``{"ipv4": [...], "ipv6": [...]}`` in nftables notation.
-    """
-    split: dict[str, list[str]] = {"ipv4": [], "ipv6": []}
-    for source in sources or []:
-        try:
-            network = ipaddress.ip_network(str(source), strict=False)
-        except ValueError as exc:
-            raise AnsibleFilterError(
-                f"services.incus.api.allowed_sources holds {source!r}, which is no address or network"
-            ) from exc
-        split[f"ipv{network.version}"].append(network.with_prefixlen)
-    return split
-
-
-def incus_listen_port(listen: str) -> int:
-    """Args:
-        listen: ``services.incus.api.listen``, an address and a port.
-
-    Returns:
-        The port.
-    """
-    match = LISTEN.fullmatch(str(listen))
-    if not match or not 0 < int(match.group(1)) < 65536:
-        raise AnsibleFilterError(
-            f"services.incus.api.listen {listen!r} is no <address>:<port>"
-        )
-    return int(match.group(1))
 
 
 def incus_workspace_bridge(workspace: str, prefix: str) -> str:
@@ -236,8 +201,6 @@ def incus_workspace_profile(
 class FilterModule:
     def filters(self):
         return {
-            "incus_sources": incus_sources,
-            "incus_listen_port": incus_listen_port,
             "incus_workspace_bridges": incus_workspace_bridges,
             "incus_workspace_network": incus_workspace_network,
             "incus_workspace_project": incus_workspace_project,

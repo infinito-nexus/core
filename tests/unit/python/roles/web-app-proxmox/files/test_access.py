@@ -35,6 +35,13 @@ CONFIG = {
     for key, value in VARS["PROXMOX_REALM_CONFIG"].items()
 }
 GRANTED = {"acl_root": {"groups": {GROUP: {ROLE_NAME: 1}}}}
+LOCAL_REALMS = VARS["PROXMOX_LOCAL_REALMS"]
+LOCAL_TFA = VARS["PROXMOX_LOCAL_REALM_TFA"]
+OPEN_LOCAL = {realm: {"type": realm} for realm in LOCAL_REALMS}
+LOCKED_LOCAL = {realm: {"type": realm, "tfa": LOCAL_TFA} for realm in LOCAL_REALMS}
+LOCAL_LOOP = re.compile(
+    r"^for my \$local \(@local_realms\) \{\n.*?^\}\n", re.MULTILINE | re.DOTALL
+)
 
 
 def _env(secret: str = SECRET, **overrides: str) -> dict[str, str]:
@@ -42,6 +49,8 @@ def _env(secret: str = SECRET, **overrides: str) -> dict[str, str]:
         "PROXMOX_REALM": REALM,
         "PROXMOX_REALM_CONFIG": json.dumps(CONFIG),
         "PROXMOX_REALM_CLIENT_SECRET_B64": base64.b64encode(secret.encode()).decode(),
+        "PROXMOX_LOCAL_REALMS": ",".join(LOCAL_REALMS),
+        "PROXMOX_LOCAL_REALM_TFA": LOCAL_TFA,
         "PROXMOX_GROUP": GROUP,
         "PROXMOX_GROUP_COMMENT": "members",
         "PROXMOX_ROLE": ROLE_NAME,
@@ -51,25 +60,50 @@ def _env(secret: str = SECRET, **overrides: str) -> dict[str, str]:
 
 
 def _state(
-    realm: dict | None = None, group: dict | None = None, acl: dict | None = None
+    realm: dict | None = None,
+    group: dict | None = None,
+    acl: dict | None = None,
+    local: dict | None = None,
 ) -> dict:
+    ids = dict(OPEN_LOCAL if local is None else local)
+    if realm:
+        ids[REALM] = realm
     return {
-        "domains.cfg": {"ids": {REALM: realm} if realm else {}},
+        "domains.cfg": {"ids": ids},
         "user.cfg": {"groups": {GROUP: group} if group else {}, **(acl or {})},
     }
 
 
-def _converged(**realm_overrides) -> dict:
+def _converged(local: dict | None = None, **realm_overrides) -> dict:
     return _state(
         {"type": "openid", **CONFIG, "client-key": SECRET, **realm_overrides},
         {"comment": "members"},
         GRANTED,
+        LOCKED_LOCAL if local is None else local,
     )
 
 
 def _leaks(run, secret: str = SECRET) -> bool:
     encoded = base64.b64encode(secret.encode()).decode()
     return any(needle in run.stdout + run.stderr for needle in (secret, encoded))
+
+
+def open_local_realms(state: dict, run) -> list[str]:
+    """Args:
+        state: the ``domains.cfg`` and ``user.cfg`` the script read.
+        run: the script's run against that state.
+
+    Returns:
+        Every local realm whose ``tfa``, after the recorded writes, is not the
+        second factor that refuses its password logins.
+    """
+    ids = state["domains.cfg"]["ids"]
+    tfa = {realm: (ids.get(realm) or {}).get("tfa", "") for realm in LOCAL_REALMS}
+    for call in run.calls:
+        param = call["param"]
+        if call["method"] == "PVE::API2::Domains->update" and param["realm"] in tfa:
+            tfa[param["realm"]] = param.get("tfa", tfa[param["realm"]])
+    return [realm for realm, value in tfa.items() if value != LOCAL_TFA]
 
 
 @unittest.skipUnless(PERL, "perl is not installed")
@@ -82,6 +116,7 @@ class TestAccessScript(unittest.TestCase):
             methods,
             [
                 "PVE::API2::Domains->create",
+                *["PVE::API2::Domains->update"] * len(LOCAL_REALMS),
                 "PVE::API2::Group->create_group",
                 "PVE::API2::ACL->update_acl",
             ],
@@ -93,10 +128,10 @@ class TestAccessScript(unittest.TestCase):
         for key, value in CONFIG.items():
             self.assertEqual(realm[key], value, key)
         self.assertEqual(
-            run.calls[2]["param"],
+            run.calls[-1]["param"],
             {"path": "/", "groups": GROUP, "roles": ROLE_NAME, "propagate": 1},
         )
-        self.assertEqual(run.stdout.count("[CHANGED]"), 3)
+        self.assertEqual(run.stdout.count("[CHANGED]"), 3 + len(LOCAL_REALMS))
 
     def test_converged_state_writes_nothing(self):
         run = run_script(SCRIPT, _converged(), _env())
@@ -161,6 +196,83 @@ class TestAccessScript(unittest.TestCase):
         self.assertEqual(
             [call["method"] for call in run.calls], ["PVE::API2::ACL->update_acl"]
         )
+
+
+@unittest.skipUnless(PERL, "perl is not installed")
+class TestLocalRealms(unittest.TestCase):
+    def test_the_local_realms_are_pam_and_pve_and_need_a_totp_factor(self):
+        self.assertEqual(LOCAL_REALMS, ["pam", "pve"])
+        self.assertEqual(LOCAL_TFA, "type=oath")
+        self.assertNotIn(REALM, LOCAL_REALMS)
+
+    def test_a_deploy_makes_every_local_realm_require_the_second_factor(self):
+        state = _converged(local=OPEN_LOCAL)
+        run = run_script(SCRIPT, state, _env())
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertEqual(open_local_realms(state, run), [])
+        self.assertEqual(
+            run.calls,
+            [
+                {
+                    "method": "PVE::API2::Domains->update",
+                    "param": {"realm": local, "tfa": LOCAL_TFA},
+                }
+                for local in LOCAL_REALMS
+            ],
+        )
+        self.assertNotIn(LOCAL_TFA, run.stdout)
+
+    def test_negative_control_without_the_step_both_realms_keep_password_logins(self):
+        mutant = LOCAL_LOOP.sub("", SCRIPT)
+        self.assertNotEqual(mutant, SCRIPT)
+        state = _converged(local=OPEN_LOCAL)
+        run = run_script(mutant, state, _env())
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertEqual(open_local_realms(state, run), LOCAL_REALMS)
+
+    def test_a_drifted_local_realm_is_rewritten_alone(self):
+        local = {**LOCKED_LOCAL, "pve": {"type": "pve", "tfa": "type=yubico"}}
+        state = _converged(local=local)
+        run = run_script(SCRIPT, state, _env())
+        self.assertEqual(run.returncode, 0, run.stderr)
+        self.assertEqual(
+            run.calls,
+            [
+                {
+                    "method": "PVE::API2::Domains->update",
+                    "param": {"realm": "pve", "tfa": LOCAL_TFA},
+                }
+            ],
+        )
+        self.assertEqual(open_local_realms(state, run), [])
+
+    def test_the_openid_realm_never_gets_the_second_factor(self):
+        run = run_script(SCRIPT, _state(), _env())
+        self.assertEqual(run.returncode, 0, run.stderr)
+        for call in run.calls:
+            if call["param"].get("realm") == REALM:
+                self.assertNotIn("tfa", call["param"])
+
+    def test_empty_local_realm_values_are_refused(self):
+        for name in ("PROXMOX_LOCAL_REALMS", "PROXMOX_LOCAL_REALM_TFA"):
+            with self.subTest(name=name):
+                run = run_script(SCRIPT, _state(), _env(**{name: ""}))
+                self.assertNotEqual(run.returncode, 0)
+                self.assertIn(f"[FAIL] {name} arrived empty", run.stderr)
+                self.assertEqual(run.calls, [])
+
+    def test_the_task_hands_both_values_to_the_script(self):
+        self.assertEqual(
+            TASK["environment"]["PROXMOX_LOCAL_REALMS"],
+            "{{ PROXMOX_LOCAL_REALMS | join(',') }}",
+        )
+        self.assertEqual(
+            TASK["environment"]["PROXMOX_LOCAL_REALM_TFA"],
+            "{{ PROXMOX_LOCAL_REALM_TFA }}",
+        )
+        cmd = TASK["ansible.builtin.shell"]["cmd"]
+        for name in ("PROXMOX_LOCAL_REALMS", "PROXMOX_LOCAL_REALM_TFA"):
+            self.assertIn(f"-e {name}", cmd)
 
 
 def _fake_container(root: Path) -> Path:

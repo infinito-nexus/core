@@ -26,9 +26,9 @@ INCUS_PROJECT_CONFIG:
   limits.instances: "{{ (INCUS_MAX_RUNNING | int) + (INCUS_AGENTS.warm_pool | int) }}"
   limits.disk: "{{ INCUS_STORAGE_POOL.size }}"
 INCUS_API: "{{ lookup('config', application_id, 'services.incus.api') }}"
-INCUS_API_PORT: "{{ INCUS_API.listen | incus_listen_port }}"
+INCUS_API_PORT: "{{ INCUS_API.listen | api_listener_port('services.incus.api.listen') }}"
 INCUS_API_ENDPOINT: "https://{{ 'host.docker.internal' if inventory_hostname in NETWORK_LOOPBACK_HOSTS else inventory_hostname }}:{{ INCUS_API_PORT }}"
-INCUS_API_SOURCES: "{{ INCUS_API.allowed_sources | incus_sources }}"
+INCUS_API_SOURCES: "{{ INCUS_API.allowed_sources | api_listener_sources('services.incus.api.allowed_sources') }}"
 INCUS_SERVER_CONFIG:
   core.https_address: "{{ INCUS_API.listen if INCUS_API.enabled | bool else '' }}"
   core.remote_token_expiry: "{{ lookup('config', application_id, 'services.incus.remote_token_expiry') }}"

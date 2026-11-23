@@ -6,7 +6,18 @@ from ansible.errors import AnsibleFilterError
 
 from utils.cache.yaml import load_yaml_any
 
-from ._incus import FILTERS, INCUS, NFTABLES, ROLE, VARS, dropped, evaluate, ruleset
+from ._incus import (
+    INCUS,
+    LISTEN_SETTING,
+    LISTENER,
+    NFTABLES,
+    ROLE,
+    SOURCES_SETTING,
+    VARS,
+    dropped,
+    evaluate,
+    ruleset,
+)
 
 TASKS = load_yaml_any(str(ROLE / "tasks" / "00_core.yml"), default_if_missing=[])
 SERVER = VARS["INCUS_SERVER_CONFIG"]
@@ -121,13 +132,17 @@ class TestApiListener(unittest.TestCase):
         )
 
     def test_a_malformed_source_or_listen_is_refused(self):
-        with self.assertRaises(AnsibleFilterError):
-            FILTERS.incus_sources(["runner.example"])
-        with self.assertRaises(AnsibleFilterError):
-            FILTERS.incus_listen_port("[::]")
-        self.assertEqual(FILTERS.incus_listen_port("[::]:8443"), 8443)
+        with self.assertRaisesRegex(AnsibleFilterError, SOURCES_SETTING):
+            LISTENER.api_listener_sources(["runner.example"], SOURCES_SETTING)
+        with self.assertRaisesRegex(AnsibleFilterError, LISTEN_SETTING):
+            LISTENER.api_listener_port("[::]", LISTEN_SETTING)
+        self.assertEqual(LISTENER.api_listener_port("[::]:8443", LISTEN_SETTING), 8443)
         self.assertEqual(
-            FILTERS.incus_sources(["10.42.0.0/16", "fd42::7"]),
+            VARS["INCUS_API_PORT"],
+            f"{{{{ INCUS_API.listen | api_listener_port('{LISTEN_SETTING}') }}}}",
+        )
+        self.assertEqual(
+            LISTENER.api_listener_sources(["10.42.0.0/16", "fd42::7"], SOURCES_SETTING),
             {"ipv4": ["10.42.0.0/16"], "ipv6": ["fd42::7/128"]},
         )
 

@@ -217,7 +217,8 @@ def default_secrets(dns_port):
             "certificate": "SERVER-CERT",
         },
         "platform/data/provision/proxmox-proxmox": {
-            "endpoint": "https://proxmox.example.org:8006/"
+            "endpoint": "https://proxmox.example.org:8006",
+            "certificate": "PROXMOX-SERVER-CERT",
         },
         "platform/data/provision/hetzner": {"token": "hcloud-platform-token"},
         "platform/data/provision/ionos": {"token": "ionos-platform-token"},

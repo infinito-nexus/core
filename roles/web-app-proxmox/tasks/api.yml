@@ -1,0 +1,21 @@
+---
+- name: "🔐 Serve the API listener with a certificate for {{ PROXMOX_API_HOST }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i
+      -e PROXMOX_API_SAN -e PROXMOX_API_CERT_DAYS -e PROXMOX_API_CERT_RENEW_SECONDS -e PROXMOX_API_KEY_BITS
+      {{ PROXMOX_LOCAL_CID | quote }} {{ (PROXMOX_GUEST_EXEC + ['sh', '-s']) | map('quote') | join(' ') }}
+    stdin: "{{ lookup('file', 'shell/api-certificate.sh') }}"
+  environment:
+    PROXMOX_API_SAN: "{{ PROXMOX_API_SAN }}"
+    PROXMOX_API_CERT_DAYS: "{{ PROXMOX_API_CERT_DAYS }}"
+    PROXMOX_API_CERT_RENEW_SECONDS: "{{ PROXMOX_API_CERT_RENEW_SECONDS }}"
+    PROXMOX_API_KEY_BITS: "{{ PROXMOX_API_KEY_BITS }}"
+  register: proxmox_api_certificate
+  changed_when: proxmox_api_certificate.stderr is search('\[CHANGED\]')
+  failed_when: >-
+    proxmox_api_certificate.rc != 0
+    or proxmox_api_certificate.stderr is search('\[FAIL\]')
+    or proxmox_api_certificate.stdout is not search('(?m)^fingerprint=[0-9a-f]{64}$')
+    or proxmox_api_certificate.stdout is not search('-----BEGIN CERTIFICATE-----')
+  delegate_to: "{{ PROXMOX_HOST_NODE }}"

@@ -4,6 +4,8 @@ use warnings;
 # Param PROXMOX_REALM: id of the OpenID Connect realm.
 # Param PROXMOX_REALM_CONFIG: JSON object of the realm options except the client secret.
 # Param PROXMOX_REALM_CLIENT_SECRET_B64: base64 of the client secret; the deploy exports it from stdin, so it never reaches an argv.
+# Param PROXMOX_LOCAL_REALMS: comma-separated ids of the built-in password realms (pam, pve) whose logins the deploy refuses.
+# Param PROXMOX_LOCAL_REALM_TFA: second factor those realms require; no account of them holds one, so Proxmox VE refuses each of their logins after the password.
 # Param PROXMOX_GROUP: group that receives PROXMOX_ROLE on "/".
 # Param PROXMOX_GROUP_COMMENT: comment of that group.
 # Param PROXMOX_ROLE: built-in role granted to the group.
@@ -26,6 +28,8 @@ sub required_env {
 }
 
 my $realm = required_env('PROXMOX_REALM');
+my @local_realms = split /,/, required_env('PROXMOX_LOCAL_REALMS');
+my $local_tfa = required_env('PROXMOX_LOCAL_REALM_TFA');
 my $group = required_env('PROXMOX_GROUP');
 my $group_comment = required_env('PROXMOX_GROUP_COMMENT');
 my $role = required_env('PROXMOX_ROLE');
@@ -35,7 +39,8 @@ die "[FAIL] the client secret decoded to an empty string\n" if $desired->{'clien
 
 PVE::RPCEnvironment->setup_default_cli_env();
 
-my $current = cfs_read_file('domains.cfg')->{ids}->{$realm};
+my $domains = cfs_read_file('domains.cfg')->{ids};
+my $current = $domains->{$realm};
 if (!$current) {
     PVE::API2::Domains->create({ realm => $realm, type => 'openid', %$desired });
     print "[CHANGED] realm $realm created\n";
@@ -54,6 +59,12 @@ if (!$current) {
         PVE::API2::Domains->update({ realm => $realm, map { ($_ => $desired->{$_}) } @stale });
         print "[CHANGED] realm $realm updated: " . join(', ', @stale) . "\n";
     }
+}
+
+for my $local (@local_realms) {
+    next if ($domains->{$local}->{tfa} // '') eq $local_tfa;
+    PVE::API2::Domains->update({ realm => $local, tfa => $local_tfa });
+    print "[CHANGED] realm $local updated: tfa\n";
 }
 
 my $usercfg = cfs_read_file('user.cfg');

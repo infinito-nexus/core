@@ -141,6 +141,9 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
     federation:
       start: 8448
       end: 8499
+    api:
+      start: 8600
+      end: 8699
     ldaps:
       start: 636
       end: 636

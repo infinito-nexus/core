@@ -2,6 +2,12 @@
 - services:
     proxmox:
       flavor: vm
+      api:
+        enabled: true
+        allowed_sources:
+          - "{{ NETWORK_PRIVATE_CIDRS.class_a }}"
+          - "{{ NETWORK_PRIVATE_CIDRS.class_b }}"
+          - "{{ NETWORK_PRIVATE_CIDRS.class_c }}"
     docs:
       enabled: false
       shared: false
@@ -28,6 +34,12 @@
 - services:
     proxmox:
       flavor: container
+      api:
+        enabled: true
+        allowed_sources:
+          - "{{ NETWORK_PRIVATE_CIDRS.class_a }}"
+          - "{{ NETWORK_PRIVATE_CIDRS.class_b }}"
+          - "{{ NETWORK_PRIVATE_CIDRS.class_c }}"
     docs:
       enabled: true
       shared: true

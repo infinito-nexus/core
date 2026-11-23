@@ -58,9 +58,12 @@ def pinned_values(environ, cli_config, ca, bao_addr):
         :data:`sandbox.PASSED` but ``PATH`` as the spawner's own environment
         holds it, the image's CLI configuration, the layout's OpenBao
         address and its CA file, ``None`` without one, so no run passes
-        ``BAO_CACERT`` then.
+        ``BAO_CACERT`` then. A name ``credentials.json`` points below the
+        task's ``credentials`` directory, such as ``SSL_CERT_DIR`` of
+        ``proxmox``, is a task file of ``tofu`` instead and not pinned.
     """
-    values = {name: environ.get(name) for name in sandbox.PASSED - {"PATH"}}
+    unpinned = {"PATH"} | session.credential_file_names(credentials())
+    values = {name: environ.get(name) for name in sandbox.PASSED - unpinned}
     return values | {
         CLI_CONFIG: str(cli_config),
         CA_NAME: None if ca is None else str(ca),

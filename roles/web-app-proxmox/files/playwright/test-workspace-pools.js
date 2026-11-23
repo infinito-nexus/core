@@ -1,4 +1,6 @@
 const { createHash, randomInt, randomUUID } = require("node:crypto");
+const https = require("node:https");
+const tls = require("node:tls");
 
 const { test, expect } = require("@playwright/test");
 const { decodeDotenvJsonList, normalizeBaseUrl, requireDotenvValue } = require("./personas");
@@ -137,17 +139,61 @@ async function workspaceToken(request, workspace) {
   return read.data;
 }
 
+function tokenHeaders(token) {
+  return { Authorization: `PVEAPIToken=${token.token_id}=${token.secret}` };
+}
+
 function tokenApi(request, token) {
   const { apiUrl } = settings();
-  const authorization = `PVEAPIToken=${token.token_id}=${token.secret}`;
   return (method, route, data) =>
     request.fetch(`${apiUrl}/api2/json${route}`, {
       method,
-      headers: { Authorization: authorization },
+      headers: tokenHeaders(token),
       data,
       failOnStatusCode: false,
       timeout: resolveTimeout(60_000),
     });
+}
+
+/**
+ * Args:
+ *   record: the provision record: `endpoint`, `certificate` and `fingerprint`.
+ *   route: the API route below `/api2/json`.
+ *   headers: the request headers.
+ *
+ * Returns:
+ *   The status of a GET over a TLS session that trusts the recorded
+ *   certificate alone, checks the endpoint's name against it as
+ *   `bpg/proxmox` does and pins its SHA-256, whatever
+ *   NODE_TLS_REJECT_UNAUTHORIZED says.
+ */
+function pinnedStatus(record, route, headers) {
+  const url = new URL(`/api2/json${route}`, record.endpoint);
+  return new Promise((resolve, reject) => {
+    const call = https.request(
+      url,
+      {
+        method: "GET",
+        headers,
+        agent: false,
+        ca: record.certificate,
+        rejectUnauthorized: true,
+        checkServerIdentity: (host, peer) =>
+          tls.checkServerIdentity(host, peer) ??
+          (peer.fingerprint256.replace(/:/g, "").toLowerCase() === String(record.fingerprint).toLowerCase()
+            ? undefined
+            : new Error(`the API listener at ${url.host} presented a certificate other than the pinned one`)),
+        timeout: resolveTimeout(60_000),
+      },
+      (response) => {
+        response.resume();
+        response.on("end", () => resolve(response.statusCode));
+      },
+    );
+    call.on("timeout", () => call.destroy(new Error(`GET ${url.pathname} on ${url.host} got no answer`)));
+    call.on("error", reject);
+    call.end();
+  });
 }
 
 async function answered(response, what) {
@@ -407,6 +453,29 @@ test.describe.serial("proxmox workspaces", () => {
         `no line of workspace apply task ${run.id} may hold the token secret`,
       ).toHaveLength(0);
     }
+  });
+
+  test("proxmox workspaces: the public domain refuses the token", async ({ page, request }) => {
+    const token = await workspaceToken(request, first);
+    const { pool } = identity(first);
+    const { apiUrl, provision, openbao } = settings();
+    const publicVersion = `${proxmoxEnv().appBaseUrl}/api2/json/version`;
+    const withToken = { headers: tokenHeaders(token), failOnStatusCode: false, maxRedirects: 0, timeout: resolveTimeout(60_000) };
+    const record = await openbaoRead(request, openbao, provision.mount, provision.path);
+    expect(record.status, `OpenBao must hold the provision record ${provision.mount}/${provision.path}`).toBe(200);
+    expect(normalizeBaseUrl(record.data.endpoint), "the provision record must name the API listener this spec dials").toBe(apiUrl);
+    expect(
+      await pinnedStatus(record.data, "/version", tokenHeaders(token)),
+      `the token of ${pool} over the API listener, trusting the recorded certificate alone and checking its name`,
+    ).toBe(200);
+    await expect(
+      pinnedStatus({ ...record.data, fingerprint: "0".repeat(64) }, "/version", tokenHeaders(token)),
+      "a client that pins another fingerprint must stop before it sends the token",
+    ).rejects.toThrow(/other than the pinned one/);
+    await answered(await tokenApi(request, token)("GET", "/version"), `the token of ${pool} on the address pveproxy serves directly`);
+    refused(await request.get(publicVersion, withToken), `the token of ${pool} on the public domain without a gate session`);
+    await (await adminApi(page))("/version");
+    refused(await page.request.get(publicVersion, withToken), `the token of ${pool} on the public domain beside an administrator session`);
   });
 
   test("proxmox workspaces: a token reaches only its own pool", async ({ request }) => {

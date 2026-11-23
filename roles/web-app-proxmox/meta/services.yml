@@ -48,9 +48,18 @@ proxmox:
     local:
       http: 7992
       sso: 16503
+    public:
+      api: 8606
     internal:
       http: 8006
+      api: 8006
+    onion:
+      api: false # nocheck: onion-flag  the API listener admits services.proxmox.api.allowed_sources only, and the role refuses services.tor.enabled
   upstream_scheme: https
+  api:
+    enabled: false
+    bind: "0.0.0.0"
+    allowed_sources: []
   realm:
     id: keycloak
     comment: Keycloak

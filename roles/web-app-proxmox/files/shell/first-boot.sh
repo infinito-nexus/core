@@ -77,8 +77,9 @@ rm -f /etc/pve/priv/pve-root-ca.key /etc/pve/pve-root-ca.pem /etc/pve/priv/pve-r
 pvecm updatecerts --force
 
 usermod -p "$root_hash" root
+usermod -L root
 
-printf 'AcceptEnv PROXMOX_*\nPasswordAuthentication no\nPermitRootLogin prohibit-password\n' \
+printf 'AcceptEnv PROXMOX_*\nPasswordAuthentication no\nPermitRootLogin prohibit-password\nUsePAM yes\n' \
 	>/etc/ssh/sshd_config.d/infinito.conf
 systemctl restart ssh pvedaemon pveproxy
 

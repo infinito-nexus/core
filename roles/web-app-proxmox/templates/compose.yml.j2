@@ -47,7 +47,11 @@
       - /run
       - /run/lock
     {% endif %}
+    {% if PROXMOX_API.enabled | bool %}
+    {{ lookup('container_ports', ['proxmox', 'http', DOCKER_BIND_HOST], {'service': 'proxmox', 'protocol': 'api', 'ip': PROXMOX_API.bind}) | indent(4) }}
+    {% else %}
     {{ lookup('container_ports', ['proxmox', 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {% endif %}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
