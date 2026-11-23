@@ -25,7 +25,7 @@ const { performKeycloakLoginForm, gotoOnion } = require("./personas");
 const { resolveTimeout } = require("./timeouts");
 
 function emailVerifiedSwitch(page) {
-  return page.getByRole("switch", { name: /^email verified$/i }).first();
+  return page.getByRole("checkbox", { name: /^email verified$/i }).first();
 }
 
 async function openUser(page, username) {
