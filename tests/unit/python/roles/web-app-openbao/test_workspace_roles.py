@@ -65,11 +65,14 @@ def workspace_config() -> dict[str, Any]:
     return services["openbao"]["workspaces"]
 
 
-def roles(ids: dict[str, Any], source: str | None = None) -> list[dict[str, Any]]:
+def roles(
+    ids: dict[str, Any], source: str | None = None, workspace: str = WORKSPACE
+) -> list[dict[str, Any]]:
     """
     Args:
         ids: the ``workspace_semaphore`` mapping ``workspace apply`` receives.
         source: a replacement template source, for the negative controls.
+        workspace: the workspace id without its ``ws-`` prefix.
 
     Returns:
         The role entries the apply step writes, each with mount, name and body.
@@ -82,7 +85,7 @@ def roles(ids: dict[str, Any], source: str | None = None) -> list[dict[str, Any]
         else environment.from_string(source)
     )
     rendered = template.render(
-        WORKSPACE=WORKSPACE,
+        WORKSPACE=workspace,
         workspace_semaphore=ids,
         OPENBAO_JWT_MOUNT="jwt",
         OPENBAO_JWT_EXPORT_MOUNT="jwt-export",

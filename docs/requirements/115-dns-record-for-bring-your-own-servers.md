@@ -60,7 +60,7 @@ Rejected:
 
 ### OpenBao
 
-- [ ] A task of `dns ws-<A>` reads `tenant/data/ws-<A>-provision/dns` and gets 403 on `tenant/data/ws-<B>-provision/dns` (`provision login: the dns template reads only its own workspace` in `roles/web-app-semaphore/files/playwright/test-workspace-logins.js`).
+- [ ] Under the knot and route53 flavors, a task of `dns ws-<A>` logs in only to the role `ws-<A>-provision`, whose one role policy (beside OpenBao's built-in `default`) reads `tenant/data/ws-<A>-provision/dns` and holds no path that covers `tenant/data/ws-<B>-provision/dns`, so OpenBao denies that read (under cloudflare the dns credential is the zone token `platform/data/provision/cloudflare/<zone>`, read by every workspace placed in that zone, which this box does not isolate) (`TestTheDnsTokenReachesNoProvisionPathOfAnotherWorkspace` in `tests/unit/python/roles/web-app-openbao/test_dns_template_isolation.py`; the planted provision role without its template binding and the planted grants `tenant/data/+/dns` and `tenant/data/ws-*` fail it; live, `provision login: the dns template reads only its own workspace` in `roles/web-app-semaphore/files/playwright/test-workspace-logins.js` runs `dns ws-<B>` and shows that a provision-project template the role does not bind is refused).
 
 ### Documentation
 
