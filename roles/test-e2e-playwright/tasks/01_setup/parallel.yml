@@ -18,6 +18,7 @@
   ansible.builtin.set_fact:
     _playwright_submitted: []
     _playwright_serial_roles: []
+    _playwright_spec_secrets_runs: []
 
 - name: 📋 Ship the parallel scheduler
   ansible.builtin.copy:
@@ -29,6 +30,8 @@
   ansible.builtin.command:
     argv:
       - python3
+      - -I
+      - -B
       - "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_SCHEDULER }}"
       - "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_JOBS_DIR }}"
       - "{{ TEST_E2E_PLAYWRIGHT_PARALLEL | int }}"
@@ -109,6 +112,36 @@
       failed_when: false
       when: _playwright_submitted | length > 0
 
+    - name: 🫥 Mask the spec secrets in every file of each staged run, also after a kill
+      ansible.builtin.command:
+        # nocheck: task-argv-secret Reason: each item is the run dir and reports dir paths the runs task of 03_run_pass/spec_secrets.yml appends, never a value
+        argv: "{{ ['python3', '-I', '-B', TEST_E2E_PLAYWRIGHT_MASKER, 'scrub'] + playwright_spec_secrets_run + ['container'] }}"
+      loop: "{{ _playwright_spec_secrets_runs }}"
+      loop_control:
+        loop_var: playwright_spec_secrets_run
+      register: _playwright_spec_secrets_scrubs
+      changed_when: false
+      ignore_errors: true
+
+    - name: 🧹 Remove the spec secrets of every staged run
+      ansible.builtin.file:
+        path: "{{ playwright_spec_secrets_run | first }}"
+        state: absent
+      loop: "{{ _playwright_spec_secrets_runs }}"
+      loop_control:
+        loop_var: playwright_spec_secrets_run
+      register: _playwright_spec_secrets_removed
+      ignore_errors: true
+
+    - name: 📌 Note the runs whose reports could not be masked or secrets removed
+      ansible.builtin.set_fact:
+        _playwright_unmasked: >-
+          {{ _playwright_spec_secrets_scrubs.results | select('failed')
+             | map(attribute='playwright_spec_secrets_run') | map('last') | list }}
+        _playwright_unremoved: >-
+          {{ _playwright_spec_secrets_removed.results | select('failed')
+             | map(attribute='playwright_spec_secrets_run') | map('first') | list }}
+
     - name: 📥 Read each handed-over run's job and result
       ansible.builtin.slurp:
         src: "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_JOBS_DIR }}/{{ playwright_read }}"
@@ -144,7 +177,16 @@
         loop_var: playwright_submitted
         index_var: playwright_index
         label: "{{ playwright_submitted.id }}"
-      when: _playwright_run.deferred is not defined
+      when:
+        - _playwright_run.deferred is not defined
+        - _playwright_pass_reports_dir not in _playwright_unmasked
+
+    - name: 🛑 Fail when a staged run could not be masked or its spec secrets removed
+      ansible.builtin.fail:
+        msg: >-
+          Masking the spec secrets failed for the runs reporting to {{ _playwright_unmasked }},
+          whose dirs may hold only part of their reports, all of them masked, and are not archived, removing them failed for {{ _playwright_unremoved }}; check those dirs.
+      when: (_playwright_unmasked + _playwright_unremoved) | length > 0
 
     - name: 🛑 Fail when the scheduler itself did not finish cleanly
       ansible.builtin.fail:

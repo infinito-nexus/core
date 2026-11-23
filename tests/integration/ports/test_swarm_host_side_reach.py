@@ -249,6 +249,8 @@ class TestPlaywrightDirectoryWrites(unittest.TestCase):
                 "group_names": [] if groups else ["svc-db-openldap"],
                 "lookup": self._lookup,
                 "_playwright_env_template": str(template),
+                "_playwright_secrets_template_stat": {"stat": {"exists": False}},
+                "TEST_E2E_PLAYWRIGHT_MASK_ARGV": [],
             }
             variables["TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_DIR"] = _value(
                 role["TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_DIR"], variables

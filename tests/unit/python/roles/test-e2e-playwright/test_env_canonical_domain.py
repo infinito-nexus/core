@@ -4,6 +4,7 @@ import json
 import unittest
 from urllib.parse import urlsplit
 
+from ansible.plugins.test.core import TestModule as JinjaTests
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from plugins.filter.dotenv import dotenv_quote
@@ -39,6 +40,7 @@ def render(pass_domain: str, passes: tuple[str, ...] = (CLEARNET[0], TOR[0])) ->
         to_json=json.dumps,
         urlsplit=lambda url, part: getattr(urlsplit(url), part),
     )
+    env.tests.update(JinjaTests().tests())
 
     def lookup(name, *terms, template_vars=None):
         if name == "template":

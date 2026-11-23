@@ -33,14 +33,19 @@ from utils.roles.mapping import (
 
 from . import PROJECT_ROOT, ROLE, role_task
 
+QUEUE_TASKS = "03_run_pass/queue.yml"
 AFTER_STAGING = (
     "🔏 Seal the job list so the scheduler drains and exits",
     "⏳ Wait for the scheduler to drain the job list",
     "⏹️ Stop the RBAC sync test interval",
     "🧹 Remove any handed-over container the scheduler did not stop",
+    "🫥 Mask the spec secrets in every file of each staged run, also after a kill",
+    "🧹 Remove the spec secrets of every staged run",
+    "📌 Note the runs whose reports could not be masked or secrets removed",
     "📥 Read each handed-over run's job and result",
     "🧭 Leave the runs whose dependency never ran here to the serial runner",
     "📝 Report and archive each handed-over run",
+    "🛑 Fail when a staged run could not be masked or its spec secrets removed",
     "🛑 Fail when the scheduler itself did not finish cleanly",
 )
 BUDGET_INPUTS = (
@@ -164,11 +169,11 @@ def render_budget(
     )
 
 
-def conditional(expression: str, **variables) -> bool:
+def conditional(expression: str | list[str], **variables) -> bool:
     """Evaluate a task condition the way Ansible does.
 
     Args:
-        expression: the ``when`` or ``failed_when`` text.
+        expression: the ``when`` or ``failed_when`` text, or the list a task holds.
         **variables: the variables in scope.
 
     Returns:
@@ -179,6 +184,8 @@ def conditional(expression: str, **variables) -> bool:
     )
     env.filters.update(FilterModule().filters())
     env.tests.update(TestModule().tests())
+    if isinstance(expression, list):
+        expression = " and ".join(f"({part})" for part in expression)
     return (
         env.from_string("{{ (" + expression + ") | bool }}").render(**variables)
         == "True"
@@ -407,7 +414,7 @@ class TestParallelOrchestration(unittest.TestCase):
                 for app, job in zip(apps[1:], names, strict=True)
                 for name in (job, f"{app}.result.json")
             ]
-        leave = role_task("03_run_pass.yml", "📝 Leave")["ansible.builtin.set_fact"]
+        leave = role_task(QUEUE_TASKS, "📝 Leave")["ansible.builtin.set_fact"]
         serial = native(
             leave["_playwright_serial_roles"],
             _playwright_serial_roles=[],
@@ -605,9 +612,9 @@ class TestParallelOrchestration(unittest.TestCase):
         retry = role_task("03_run_pass.yml", RETRY)
         second = role_task("03_run_pass.yml", SECOND_PROBE)
         release = role_task("03_run_pass.yml", "🚦")
-        queue = role_task("03_run_pass.yml", "📮")
-        remember = role_task("03_run_pass.yml", "📝 Remember")
-        leave = role_task("03_run_pass.yml", "📝 Leave")
+        queue = role_task(QUEUE_TASKS, "📮")
+        remember = role_task(QUEUE_TASKS, "📝 Remember")
+        leave = role_task(QUEUE_TASKS, "📝 Leave")
         skipped = {"skipped": True, "changed": False}
         self.assertEqual(wait["block"], [first, recreate, retry])
         self.assertNotIn("rescue", wait)
@@ -813,7 +820,7 @@ class TestParallelContainerFlags(unittest.TestCase):
         return module
 
     def _flags(self):
-        return role_task("03_run_pass.yml", "📮")["vars"]["_playwright_parallel_flags"]
+        return role_task(QUEUE_TASKS, "📮")["vars"]["_playwright_parallel_flags"]
 
     def test_every_parallel_flag_carries_its_value_in_one_token(self):
         flags = self._flags()

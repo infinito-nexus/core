@@ -34,6 +34,10 @@ class TestVarsPassedAreUsed(unittest.TestCase):
     JINJA_EXTENSIONS: ClassVar[set[str]] = {".j2"}
 
     EXCLUDED_TOP_LEVEL_DIRS: ClassVar[set[str]] = {"inventories"}
+    ANSIBLE_READ_VARS: ClassVar[set[str]] = {
+        "ansible_python_interpreter",
+        "ansible_remote_tmp",
+    }
 
     def _iter_files(self, extensions: set[str]) -> Iterable[Path]:
         exts = tuple(extensions)
@@ -222,7 +226,7 @@ class TestVarsPassedAreUsed(unittest.TestCase):
         unused: list[str] = []
         for var_name in sorted(vars_passed):
             used = var_name in used_tokens
-            if not used and var_name != "ansible_python_interpreter":
+            if not used and var_name not in self.ANSIBLE_READ_VARS:
                 unused.append(var_name)
 
         if unused:

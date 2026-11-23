@@ -141,7 +141,7 @@ proxy:
     # nocheck: healthcheck-timing-override  a sidecar of a stack whose main service alone takes minutes; the value predates this default and has not been measured against it
     start_period: 20m
   image: nginx
-  version: 1.31.9-alpine
+  version: 1.31.10-alpine
   backup:
     stop_required: false
   cpus: "0.5"

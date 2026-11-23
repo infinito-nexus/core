@@ -1,3 +1,4 @@
+const fs = require("fs");
 const { defineConfig } = require("@playwright/test");
 const { torOrigins } = require("./tests/personas/utils/network");
 
@@ -5,6 +6,31 @@ const { torOrigins } = require("./tests/personas/utils/network");
 const baseURL = process.env.APP_BASE_URL || "http://127.0.0.1";
 
 const keepAll = (process.env.INFINITO_PLAYWRIGHT_KEEP || "").toLowerCase() === "true";
+
+const captureOff =
+  fs.existsSync("/run/spec-secrets") ||
+  (process.env.INFINITO_PLAYWRIGHT_NO_CAPTURE || "").toLowerCase() === "true";
+
+const capture = captureOff
+  ? { trace: "off", screenshot: "off", video: "off" }
+  : {
+      trace: keepAll ? "on" : "retain-on-failure",
+      screenshot: keepAll ? "on" : "only-on-failure",
+      video: keepAll ? "on" : "retain-on-failure"
+    };
+
+const recordingEnv = ["PW_TEST_REPORTER", "PLAYWRIGHT_LIST_PRINT_STEPS", "PLAYWRIGHT_DASHBOARD", "DEBUG", "DEBUG_FILE"];
+
+const reporterEnv = /^PLAYWRIGHT_(JUNIT|JSON|HTML|BLOB)_/;
+
+if (captureOff) {
+  process.env.PLAYWRIGHT_NO_COPY_PROMPT = "1";
+  for (const name of Object.keys(process.env)) {
+    if (recordingEnv.includes(name) || reporterEnv.test(name)) {
+      delete process.env[name];
+    }
+  }
+}
 
 const onionSecure = torOrigins(Object.values(process.env));
 
@@ -48,7 +74,8 @@ module.exports = defineConfig({
     Number(process.env.PLAYWRIGHT_MAX_WORKERS) || Infinity
   ),
   fullyParallel: (process.env.PLAYWRIGHT_FULLY_PARALLEL || "").toLowerCase() === "true",
-  outputDir: "/reports/test-results",
+  outputDir: captureOff ? "/tmp/test-results" : "/reports/test-results",
+  ...(captureOff ? { updateSnapshots: "none" } : {}),
   reporter: [
     ["list"],
     // `github` emits ::error file=...,line=...::-annotations for failed
@@ -56,7 +83,7 @@ module.exports = defineConfig({
     // failures inline on the workflow run page.
     ["github"],
     ["junit", { outputFile: "/reports/playwright-junit.xml" }],
-    ["html", { outputFolder: "/reports/playwright-report", open: "never" }]
+    ...(captureOff ? [] : [["html", { outputFolder: "/reports/playwright-report", open: "never" }]])
   ],
   use: {
     baseURL,
@@ -76,8 +103,6 @@ module.exports = defineConfig({
     // unreachable (e.g. an onion service that is not yet published).
     navigationTimeout: requiredTimeout("PLAYWRIGHT_NAVIGATION_TIMEOUT"),
     actionTimeout: requiredTimeout("PLAYWRIGHT_ACTION_TIMEOUT"),
-    trace: keepAll ? "on" : "retain-on-failure",
-    screenshot: keepAll ? "on" : "only-on-failure",
-    video: keepAll ? "on" : "retain-on-failure"
+    ...capture
   }
 });
