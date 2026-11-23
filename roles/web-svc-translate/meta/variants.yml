@@ -31,8 +31,8 @@
       enabled: false
       shared: false
     weblate:
-      enabled: true
-      shared: true
+      enabled: false
+      shared: false
     prometheus:
       enabled: true
       shared: true
@@ -114,9 +114,10 @@
     s1:
       enabled: true
       shared: true
+    # variant-pin: web-app-weblate#reciprocal
     weblate:
-      enabled: false
-      shared: false
+      enabled: true
+      shared: true
     prometheus:
       enabled: true
       shared: true

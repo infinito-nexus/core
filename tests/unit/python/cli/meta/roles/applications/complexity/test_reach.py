@@ -4,7 +4,7 @@ its round still runs once each network's ``disable`` is applied."""
 from __future__ import annotations
 
 import unittest
-import unittest.mock as mock
+import unittest.mock
 from types import SimpleNamespace
 
 from cli.meta.roles.applications.complexity import reach
@@ -49,44 +49,46 @@ def _prune(
     )
 
 
-class _Fixture(unittest.TestCase):
+class _Fixture:
     def setUp(self) -> None:
         caches = (reach._round_of, reach._networks, reach._runs)
         for fn in caches:
             fn.cache_clear()
             self.addCleanup(fn.cache_clear)
-        self.row_states = mock.Mock(return_value=("clearnet", "tor", "multi"))
+        self.row_states = unittest.mock.Mock(return_value=("clearnet", "tor", "multi"))
         for patch in (
-            mock.patch.object(reach, "_round_of", return_value=ROUND),
-            mock.patch.object(reach, "get_variants", return_value={}),
-            mock.patch.object(reach.network, "row_states", self.row_states),
-            mock.patch.object(
+            unittest.mock.patch.object(reach, "_round_of", return_value=ROUND),
+            unittest.mock.patch.object(reach, "get_variants", return_value={}),
+            unittest.mock.patch.object(reach.network, "row_states", self.row_states),
+            unittest.mock.patch.object(
                 reach.network, "tor_provider", return_value="svc-net-tor"
             ),
-            mock.patch.object(
+            unittest.mock.patch.object(
                 reach.network,
                 "network_states",
                 side_effect=lambda mode, states, network_input: STATES[mode],
             ),
-            mock.patch.object(
+            unittest.mock.patch.object(
                 reach.network,
                 "disabled_services",
                 side_effect=lambda state, include: DISABLE[state],
             ),
-            mock.patch.object(
+            unittest.mock.patch.object(
                 reach,
                 "find_provider_roles",
                 side_effect=lambda services, roles_dir: {
                     s: PROVIDERS[s] for s in services
                 },
             ),
-            mock.patch.object(reach, "prune_orphans_after_disable", side_effect=_prune),
+            unittest.mock.patch.object(
+                reach, "prune_orphans_after_disable", side_effect=_prune
+            ),
         ):
             patch.start()
             self.addCleanup(patch.stop)
 
 
-class TestRuns(_Fixture):
+class TestRuns(_Fixture, unittest.TestCase):
     def test_a_network_without_disable_runs_the_whole_round(self) -> None:
         self.assertEqual(
             reach._runs("roles", APP, 3, frozenset({"multi"})),
@@ -107,7 +109,7 @@ class TestRuns(_Fixture):
         )
 
 
-class TestNetworks(_Fixture):
+class TestNetworks(_Fixture, unittest.TestCase):
     def test_the_networks_are_those_of_every_tested_mode(self) -> None:
         self.assertEqual(
             reach._networks("roles", APP, 0, frozenset({"compose", "swarm"})),
@@ -122,7 +124,7 @@ class TestNetworks(_Fixture):
         self.assertTrue(self.row_states.call_args.kwargs["pulls_tor"])
 
 
-class TestRounds(_Fixture):
+class TestRounds(_Fixture, unittest.TestCase):
     def test_the_modes_are_the_tested_ones(self) -> None:
         row = SimpleNamespace(
             name=APP, variant=None, test_compose=True, test_swarm=False, test_host=True

@@ -54,9 +54,8 @@ coturn:
   enabled: "{{ 'web-svc-coturn' in group_names }}"
   shared: "{{ 'web-svc-coturn' in group_names }}"
 # nocheck: variants-coverage — the onion gate is a hard invariant; no variant may force Jitsi on a tor node.
-# nocheck: bond-baseline — same reason: variant 0 must not pin Jitsi on.
 jitsi:
-  bond: 1
+  bond: 0.5
   enabled: >- # nocheck: dynamic-flag  Matrix offers Jitsi from the ansible flavor and off tor nodes only
     {{ lookup('config', 'web-app-matrix', 'services.matrix.flavor') == 'ansible' and 'svc-net-tor' not in group_names
     and not ((lookup('config', 'svc-net-tor', 'services.tor.node', '') | length > 0)
