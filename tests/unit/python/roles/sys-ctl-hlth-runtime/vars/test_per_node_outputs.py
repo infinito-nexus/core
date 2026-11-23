@@ -107,6 +107,23 @@ class TestPerNodeOutputs(unittest.TestCase):
                     self.assertNotIn(path, live)
                     self.assertTrue(_on(path, outputs["nfs"]))
 
+    def test_the_cleanup_never_removes_a_directory(self) -> None:
+        tasks = list(_tasks(load_yaml_any(str(_CORE_TASKS))))
+        removals = [
+            task
+            for task in tasks
+            if (task.get("ansible.builtin.file") or {}).get("state") == "absent"
+        ]
+        self.assertEqual(len(removals), 1)
+        self.assertIn("not item.stat.isdir", str(removals[0].get("when")))
+        stats = [
+            task["ansible.builtin.stat"]
+            for task in tasks
+            if "ansible.builtin.stat" in task
+            and "HEALTH_RUNTIME_SHARED_OUTPUTS" in str(task.get("loop"))
+        ]
+        self.assertEqual([stat.get("follow") for stat in stats], [False])
+
 
 if __name__ == "__main__":
     unittest.main()
