@@ -32,13 +32,11 @@ SHARED = {
     "svc-net-tor-smtp",
     "web-app-dashboard",
     "web-app-discourse",
-    "web-app-jitsi",
     "web-app-keycloak",
     "web-app-matomo",
     "web-app-matrix",
     "web-app-prometheus",
     "web-app-stalwart",
-    "web-app-weblate",
     "web-svc-asset",
     "web-svc-cdn",
     "web-svc-coturn",
@@ -56,9 +54,9 @@ PINNED = {
     "web-svc-logout": (0, "pin by web-app-matomo#0"),
 }
 GOLDEN = {
-    "web-app-wordpress#0": (29, SHARED | {"web-app-wordpress"}, "round index", PINNED),
+    "web-app-wordpress#0": (27, SHARED | {"web-app-wordpress"}, "round index", PINNED),
     "web-app-nextcloud#7": (
-        29,
+        27,
         SHARED | {"web-app-nextcloud"},
         "default 0: round past its variants",
         PINNED,
