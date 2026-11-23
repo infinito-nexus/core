@@ -17,6 +17,7 @@ from cli.meta.roles.applications.complexity.model import (
     compute_complexity_rows,
     compute_variant_complexity_rows,
 )
+from cli.meta.roles.applications.complexity.reach import Rounds
 from cli.meta.roles.applications.complexity.render import (
     _bool_cell,
     _dwidth,
@@ -725,6 +726,12 @@ class TestSortByCoveredBy(unittest.TestCase):
                     "cli.meta.roles.applications.complexity.cli.PROJECT_ROOT",
                     Path(td),
                 ),
+                # Limitation: the deploy planner resolves includes against the
+                # project's own roles/, so it cannot plan this fixture tree.
+                mock.patch(
+                    "cli.meta.roles.applications.complexity.cli.rounds",
+                    lambda _roles_dir: _planner(),
+                ),
                 redirect_stdout(buf),
             ):
                 rc = main(
@@ -895,11 +902,11 @@ def _row(
 
 class TestCoveredBy(unittest.TestCase):
     def test_id_is_numeric_sort_position(self) -> None:
-        marked = _mark_covered([_row("A", []), _row("B", [])])
+        marked = _mark_covered([_row("A", []), _row("B", [])], planner=_planner())
         self.assertEqual([m.id for m in marked], [1, 2])
 
     def test_green_rows_get_covered_by_zero(self) -> None:
-        marked = _mark_covered([_row("A", ["B"]), _row("C", [])])
+        marked = _mark_covered([_row("A", ["B"]), _row("C", [])], planner=_planner())
         self.assertEqual([m.covered_by for m in marked], [0, 0])
 
     def test_embedded_row_records_its_embedder_id(self) -> None:
@@ -908,7 +915,8 @@ class TestCoveredBy(unittest.TestCase):
                 _row("Z", []),
                 _row("A", ["B"]),
                 _row("B", []),
-            ]
+            ],
+            planner=_planner(),
         )
         self.assertEqual([m.covered_by for m in marked], [0, 0, 2])
 
@@ -918,7 +926,8 @@ class TestCoveredBy(unittest.TestCase):
                 _row("Z", []),
                 _row("A", ["X", "Y"]),
                 _row("B", ["X"]),
-            ]
+            ],
+            planner=_planner(),
         )
         self.assertEqual([m.covered_by for m in marked], [0, 0, 0])
 
@@ -929,7 +938,8 @@ class TestCoveredBy(unittest.TestCase):
                 _row("A", ["X"]),
                 _row("B", ["X"]),
                 _row("X", []),
-            ]
+            ],
+            planner=_planner(),
         )
         self.assertEqual([m.covered_by for m in marked], [0, 0, 0, 2])
 
@@ -940,7 +950,8 @@ class TestCoveredBy(unittest.TestCase):
                 _row("A", ["B", "C"]),
                 _row("B", [], variant=0),
                 _row("C", [], variant=1),
-            ]
+            ],
+            planner=_planner(),
         )
         self.assertEqual([m.covered_by for m in marked], [0, 0, 2, 0])
 
@@ -952,6 +963,7 @@ class TestCoveredBy(unittest.TestCase):
                 _row("B", [], variant=0),
             ],
             variant_counts={"B": 1},
+            planner=_planner(),
         )
         self.assertEqual([m.covered_by for m in marked], [0, 0, 2])
 
@@ -963,6 +975,7 @@ class TestCoveredBy(unittest.TestCase):
                 _row("B", [], variant=0),
             ],
             variant_counts={"B": 5},
+            planner=_planner(),
         )
         self.assertEqual([m.covered_by for m in marked], [0, 0, 0])
 
@@ -974,23 +987,138 @@ class TestCoveredBy(unittest.TestCase):
                 _row("B", [], variant=0),
             ],
             variant_counts={"B": 9},
+            planner=_planner(),
         )
         self.assertEqual([m.covered_by for m in marked], [0, 0, 2])
 
     def test_a_variant_that_overrides_a_provider_does_not_cover_it(self) -> None:
         rows = [_row("A", ["B", "C"], variant=0), _row("B", []), _row("C", [])]
-        marked = _mark_covered(rows, {("A", 0): {"B"}})
+        marked = _mark_covered(rows, {("A", 0): {"B"}}, planner=_planner())
         self.assertEqual([m.covered_by for m in marked], [0, 0, 1])
 
     def test_the_override_only_bars_the_provider_it_names(self) -> None:
         rows = [_row("A", ["B"], variant=0), _row("B", [])]
-        marked = _mark_covered(rows, {("A", 0): {"C"}})
+        marked = _mark_covered(rows, {("A", 0): {"C"}}, planner=_planner())
         self.assertEqual([m.covered_by for m in marked], [0, 1])
 
     def test_an_override_in_another_variant_leaves_coverage_alone(self) -> None:
         rows = [_row("A", ["B"], variant=0), _row("B", [])]
-        marked = _mark_covered(rows, {("A", 2): {"B"}})
+        marked = _mark_covered(rows, {("A", 2): {"B"}}, planner=_planner())
         self.assertEqual([m.covered_by for m in marked], [0, 1])
+
+    def test_a_row_whose_round_never_deploys_the_provider_does_not_cover_it(
+        self,
+    ) -> None:
+        rows = [_row("A", ["B"], variant=3), _row("B", [], variant=0)]
+        marked = _mark_covered(rows, planner=_planner({("A", 3): {"A": 3}}))
+        self.assertEqual([m.covered_by for m in marked], [0, 0])
+
+    def test_a_row_whose_round_deploys_the_provider_at_zero_covers_it(self) -> None:
+        rows = [_row("A", ["B"], variant=3), _row("B", [], variant=0)]
+        marked = _mark_covered(rows, planner=_planner({("A", 3): {"B": 0, "A": 3}}))
+        self.assertEqual([m.covered_by for m in marked], [0, 1])
+
+    def test_a_round_that_runs_the_provider_in_another_variant_does_not_cover(
+        self,
+    ) -> None:
+        rows = [_row("A", ["B"], variant=3), _row("B", [], variant=0)]
+        marked = _mark_covered(rows, planner=_planner({("A", 3): {"B": 1, "A": 3}}))
+        self.assertEqual([m.covered_by for m in marked], [0, 0])
+
+    def test_the_next_green_row_that_deploys_the_provider_covers_it(self) -> None:
+        rows = [
+            _row("A", ["B"], variant=3),
+            _row("C", ["B"], variant=0),
+            _row("B", [], variant=0),
+        ]
+        marked = _mark_covered(
+            rows,
+            planner=_planner({("A", 3): {"A": 3}, ("C", 0): {"B": 0, "C": 0}}),
+        )
+        self.assertEqual([m.covered_by for m in marked], [0, 0, 2])
+
+    def test_the_deploy_check_never_widens_what_services_covers(self) -> None:
+        rows = [_row("A", [], variant=0), _row("B", [], variant=0)]
+        marked = _mark_covered(rows, planner=_planner({("A", 0): {"B": 0, "A": 0}}))
+        self.assertEqual([m.covered_by for m in marked], [0, 0])
+
+    def test_a_row_taking_a_network_its_coverer_never_takes_is_not_covered(
+        self,
+    ) -> None:
+        rows = [_row("A", ["B"], variant=0), _row("B", [], variant=0)]
+        marked = _mark_covered(
+            rows,
+            planner=_planner(
+                {("A", 0): {"B": 0, "A": 0}},
+                networks={("A", 0): CLEARNET_ONLY, ("B", 0): CLEARNET_AND_TOR},
+            ),
+        )
+        self.assertEqual([m.covered_by for m in marked], [0, 0])
+
+    def test_a_coverer_offering_every_network_the_row_takes_covers_it(self) -> None:
+        rows = [_row("A", ["B"], variant=0), _row("B", [], variant=0)]
+        marked = _mark_covered(
+            rows,
+            planner=_planner(
+                {("A", 0): {"B": 0, "A": 0}},
+                networks={("A", 0): CLEARNET_AND_TOR, ("B", 0): CLEARNET_ONLY},
+            ),
+        )
+        self.assertEqual([m.covered_by for m in marked], [0, 1])
+
+    def test_a_row_tested_in_a_mode_its_coverer_is_not_is_not_covered(self) -> None:
+        rows = [_row("A", ["B"], variant=0), _row("B", [], variant=0)]
+        marked = _mark_covered(
+            rows,
+            planner=_planner(modes={("B", 0): COMPOSE_AND_HOST}),
+        )
+        self.assertEqual([m.covered_by for m in marked], [0, 0])
+
+    def test_a_coverer_tested_in_every_mode_of_the_row_covers_it(self) -> None:
+        rows = [_row("A", ["B"], variant=0), _row("B", [], variant=0)]
+        marked = _mark_covered(
+            rows,
+            planner=_planner(modes={("A", 0): COMPOSE_AND_HOST}),
+        )
+        self.assertEqual([m.covered_by for m in marked], [0, 1])
+
+
+CLEARNET_ONLY = frozenset({"clearnet"})
+CLEARNET_AND_TOR = frozenset({"clearnet", "tor"})
+COMPOSE_ONLY = frozenset({"compose"})
+COMPOSE_AND_HOST = frozenset({"compose", "host"})
+
+
+def _planner(
+    runs: dict[tuple[str, int], dict[str, int]] | None = None,
+    *,
+    networks: dict[tuple[str, int], frozenset[str]] | None = None,
+    modes: dict[tuple[str, int], frozenset[str]] | None = None,
+) -> Rounds:
+    """A ``planner`` stub answering from fixed tables.
+
+    Args:
+        runs: ``{(role, variant): {role: variant}}`` per coverer; a row absent
+            from it runs every role of its ``services`` in variant 0.
+        networks: ``{(role, variant): network modes}``; a row absent from it
+            takes clearnet only.
+        modes: ``{(role, variant): deploy modes}``; a row absent from it is
+            tested in compose only.
+
+    Returns:
+        :class:`Rounds` answering from those tables.
+    """
+
+    def key(row: ComplexityRow) -> tuple[str, int]:
+        return (row.name, row.variant or 0)
+
+    return Rounds(
+        lambda row: (modes or {}).get(key(row), COMPOSE_ONLY),
+        lambda row: (networks or {}).get(key(row), CLEARNET_ONLY),
+        lambda row: (runs or {}).get(
+            key(row), {**dict.fromkeys(row.services, 0), row.name: row.variant or 0}
+        ),
+    )
 
 
 if __name__ == "__main__":
