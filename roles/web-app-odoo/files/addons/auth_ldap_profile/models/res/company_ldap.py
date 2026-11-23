@@ -1,4 +1,3 @@
-# nocheck: mirrored-unit-test - an Odoo ORM model inheriting res.company.ldap; every method needs a live registry and directory entry
 # Part of Infinito.Nexus. See LICENSE file for full copyright and licensing details.
 
 import os
@@ -60,6 +59,7 @@ class ResCompanyLdapProfile(models.Model):
 
     def _map_ldap_attributes(self, conf, login, ldap_entry):
         data = super()._map_ldap_attributes(conf, login, ldap_entry)
+        data["company_ids"] = [Command.link(data["company_id"])]
         data.update(self._infinito_profile(ldap_entry))
         granted = self.env.context.get("infinito_rbac_granted")
         if granted is not None:
