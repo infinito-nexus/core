@@ -295,6 +295,7 @@ test("administrator: a local break-glass session edits its own profile and its a
     await signInToAdministrator(backend.page, base, adminUsername, adminPassword);
     const row = await userManagerRow(backend.page, base, adminUsername);
     await row.locator("a[href*='task=user.edit']").first().click(ACTION);
+    await expect(backend.page.locator(USER_FORM), "task=user.edit must render the account's edit form").toBeVisible(ACTION);
     const warning = await expectedWarning(backend.page);
     for (const selector of ADMIN_EDITABLE) {
       const field = backend.page.locator(`${USER_FORM} ${selector}`);
