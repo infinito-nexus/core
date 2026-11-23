@@ -137,7 +137,7 @@ webmail:
   image: roundcube/roundcubemail
   healthcheck:
     flavor: curl
-  version: "1.7.6-apache"
+  version: "1.7.7-apache"
   backup:
     stop_required: false
   cpus: "0.3"
