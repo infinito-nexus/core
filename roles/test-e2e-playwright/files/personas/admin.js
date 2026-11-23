@@ -95,7 +95,7 @@ async function runAdminFlow(page, opts = {}) {
       }
       const usernameField = page
         .locator(
-          "input[name='username']:visible, input[name='email']:visible, input[name='login']:visible, input[name$='[username]']:visible, input[name$='[email]']:visible, input[type='email']:visible, input[autocomplete='username']:visible",
+          "input[name='username']:visible, input[name='email']:visible, input[name='login']:visible, input[name='user']:visible, input[name$='[username]']:visible, input[name$='[email]']:visible, input[type='email']:visible, input[autocomplete='username']:visible",
         )
         .first();
       if (await usernameField.isVisible().catch(() => false)) {
