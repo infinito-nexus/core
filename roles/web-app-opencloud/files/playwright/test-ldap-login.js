@@ -91,6 +91,10 @@ for (const persona of PERSONAS) {
     expect(account.displayName, "OpenCloud must read the display name from OC_LDAP_USER_SCHEMA_DISPLAYNAME").toBeTruthy();
 
     await logoutThroughAccountMenu(page);
+    await expect(
+      usernameField,
+      `sign-out must hand ${persona.label} to the sign-in form of the built-in identity provider before the next request`,
+    ).toBeVisible({ timeout: resolveTimeout(90_000) });
 
     await gotoOnion(page, `${base}/`);
     await expect(
