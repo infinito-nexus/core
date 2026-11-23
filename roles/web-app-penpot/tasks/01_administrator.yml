@@ -13,7 +13,11 @@
       python3 manage.py create-profile
       -n {{ PENPOT_ADMIN_FULLNAME | quote }}
       -e {{ PENPOT_ADMIN_EMAIL | quote }}
-    stdin: "{{ PENPOT_ADMIN_PASSWORD }}"
+    stdin: >-
+      {{
+        PENPOT_ADMIN_PASSWORD if PENPOT_LOGIN_NATIVE | bool
+        else lookup('ansible.builtin.password', '/dev/null', length=48, chars=['ascii_letters', 'digits'])
+      }}
   register: penpot_admin_create
   retries: 30
   delay: 5
@@ -34,7 +38,9 @@
       python3 manage.py update-profile
       -e {{ PENPOT_ADMIN_EMAIL | quote }}
     stdin: "{{ PENPOT_ADMIN_PASSWORD }}"
-  when: "'already exists' in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default(''))"
+  when:
+    - PENPOT_LOGIN_NATIVE | bool
+    - "'already exists' in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default(''))"
   register: penpot_admin_update
   changed_when: "'Updated' in penpot_admin_update.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

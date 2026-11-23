@@ -13,7 +13,7 @@
   ansible.builtin.include_tasks: 01_administrator.yml
   when:
     - IS_STACK_HOST | bool
-    - PENPOT_LOGIN_NATIVE | bool
+    - (PENPOT_LOGIN_NATIVE | bool) or (PENPOT_LOGIN_LDAP | bool)
 
 - name: "👥 Map the role groups onto the shared platform team"
   ansible.builtin.include_tasks: 02_rbac.yml
