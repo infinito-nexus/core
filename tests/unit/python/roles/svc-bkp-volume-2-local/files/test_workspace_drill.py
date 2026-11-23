@@ -12,6 +12,7 @@ PASS = PROJECT_ROOT / "roles/svc-bkp-volume-2-local/files/test/workspace/pass.sh
 PROJECT = PROJECT_ROOT / "roles/web-app-semaphore/files/python/project.py"
 WORKSPACE = " ws-${IDS[0]}"
 DRILL_TASK = re.compile(r'drill task "\S+" ("[^"]+"|\S+)')
+FIRST_TASK = 'drill task "${STATE}/result-${IDS[0]}.json" '
 
 
 def provider_templates() -> set[str]:
@@ -57,7 +58,9 @@ class TestTheWorkspaceDrill(unittest.TestCase):
 
     def test_control_the_retired_shared_template_name_is_found(self) -> None:
         source = read_text(str(PASS))
-        planted = source.replace('"provision-incus ws-${IDS[0]}"', "provision", 1)
+        planted = source.replace(
+            f'{FIRST_TASK}"provision-incus ws-${{IDS[0]}}"', f"{FIRST_TASK}provision", 1
+        )
         self.assertNotEqual(planted, source)
         self.assertEqual(unknown_templates(planted), ["provision"])
 

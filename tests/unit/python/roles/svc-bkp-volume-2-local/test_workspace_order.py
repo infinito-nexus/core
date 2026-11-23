@@ -42,6 +42,8 @@ GATE = "BKP_TEST_WORKSPACES"
 ORDER = "BKP_TEST_WORKSPACE_ORDER"
 SOURCED = "set -a && . /dev/stdin && set +a && env -0"
 STUB = "stub"
+CATALOGS = "/opt/compose/semaphore/catalogs"
+CATALOG_VOLUME = ("web-app-semaphore", "semaphore_provision_catalogs")
 CONFIG = {
     "web-app-gitea": {
         "services": {"gitea": {"workspaces": {"enabled": True, "organization": STUB}}}
@@ -118,12 +120,30 @@ def _config(application: str, path: str) -> object:
     return node
 
 
+def _volume(application: str, name: str) -> dict[str, str]:
+    """Args:
+        application: the role whose volume registry is read.
+        name: the volume entry.
+
+    Returns:
+        The provision catalog volume of Semaphore with ``CATALOGS`` as its
+        source; any other volume fails the render.
+    """
+    if (application, name) != CATALOG_VOLUME:
+        raise AssertionError(
+            f"test.env.j2 reads the volume {name} of {application}, "
+            f"not {CATALOG_VOLUME[1]} of {CATALOG_VOLUME[0]}"
+        )
+    return {"source": CATALOGS}
+
+
 LOOKUPS = {
     "config": _config,
     "database_consumerless_volumes": list,
     "timeout": int,
     "tls": lambda application, _key: f"https://{application}.example",
     "users": lambda _user: dict.fromkeys(("username", "password"), STUB),
+    "volume": _volume,
 }
 
 

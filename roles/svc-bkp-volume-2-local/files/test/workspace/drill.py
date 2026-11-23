@@ -3,6 +3,14 @@ Args:
     workspace <apply|destroy> <workspace> <result>: runs the ``workspace``
         template of Semaphore's workspaces project; apply writes the result
         line it prints to ``result``.
+    repository <create|delete> <result> <template>: creates, as the store
+        does, the repository that ``template`` of the workspace apply result
+        ``result`` clones, with the read key apply printed as its read-only
+        deploy key, or deletes it.
+    order <result> <template> <catalog>: commits
+        ``provision/<SALES_ORDER>-<LINE>.tfvars.json`` of the order
+        ``BKP_TEST_WORKSPACE_ORDER`` holds to that repository: the smallest
+        size of the provider catalog file ``catalog`` and a fresh login key.
     task <result> <template> <output>: runs that template of the workspace
         project ``result`` names with the order ``BKP_TEST_WORKSPACE_ORDER``
         holds and writes the task output to ``output``.
@@ -34,6 +42,7 @@ import http.client
 import json
 import os
 import re
+import secrets
 import ssl
 import sys
 import time
@@ -44,6 +53,9 @@ POLL_SECONDS = 5
 TERMINAL = ("success", "error", "stopped")
 WORKSPACE_TEMPLATE = "workspace"
 PAGE = 50
+SIZE_KEYS = ("vcpus", "memory_mib", "disk_gib")
+KEY_TYPE = "ssh-ed25519"
+KEY_BYTES = 32
 
 
 class DrillError(Exception):
@@ -187,6 +199,25 @@ class Semaphore:
         return status == "success", lines
 
 
+class Gitea:
+    def __init__(self):
+        self.base = f"{os.environ['BKP_TEST_GITEA_URL'].rstrip('/')}/api/v1"
+        auth = base64.b64encode(secret("BKP_TEST_GITEA_BASIC_AUTH_B64").encode("utf-8"))
+        self.headers = {"Authorization": f"Basic {auth.decode('ascii')}"}
+
+    def call(self, method, path, payload=None):
+        """
+        Args:
+            method: HTTP verb.
+            path: the API path below ``/api/v1``.
+            payload: a JSON-serialisable body.
+
+        Returns:
+            The decoded answer.
+        """
+        return fetch_json(method, f"{self.base}{path}", self.headers, payload)
+
+
 def workspace(action, workspace_id, result):
     api = Semaphore()
     project_id, template_id = api.workspace_template()
@@ -206,6 +237,121 @@ def workspace(action, workspace_id, result):
                 f"workspace apply of {workspace_id} printed another result"
             )
         Path(result).write_text(json.dumps(written), encoding="utf-8")
+
+
+def workspace_repository(result, template):
+    """
+    Args:
+        result: the file ``workspace apply`` wrote.
+        template: a template of that result.
+
+    Returns:
+        ``(path, branch, read_key)``: ``<owner>/<name>`` of the repository the
+        template clones, its branch, and the public half of the read key
+        apply printed.
+    """
+    written = json.loads(Path(result).read_text(encoding="utf-8"))
+    entry = written["templates"][template]
+    path = urllib.parse.urlsplit(entry["git_url"]).path.strip("/")
+    return path.removesuffix(".git"), entry["git_branch"], written["read_key"]
+
+
+def repository(action, result, template):
+    path, branch, read_key = workspace_repository(result, template)
+    owner, name = path.split("/")
+    gitea = Gitea()
+    if action == "delete":
+        gitea.call("DELETE", f"/repos/{path}")
+        return
+    gitea.call(
+        "POST",
+        f"/orgs/{owner}/repos",
+        {"name": name, "private": True, "auto_init": True, "default_branch": branch},
+    )
+    gitea.call(
+        "POST",
+        f"/repos/{path}/keys",
+        {"title": f"read {name}", "key": read_key, "read_only": True},
+    )
+
+
+def public_key():
+    """
+    Returns:
+        A fresh login key line in the ed25519 OpenSSH form
+        ``sshEd25519PublicLine`` of the Playwright personas writes, its 32 key
+        bytes random, so no private half exists.
+    """
+    raw = secrets.token_bytes(KEY_BYTES)
+    blob = b"".join(
+        len(part).to_bytes(4, "big") + part for part in (KEY_TYPE.encode("ascii"), raw)
+    )
+    return f"{KEY_TYPE} {base64.b64encode(blob).decode('ascii')}"
+
+
+def order_values(order, catalog, key):
+    """
+    Args:
+        order: the survey ``BKP_TEST_WORKSPACE_ORDER`` holds.
+        catalog: the provider catalog the provision runner checks a line
+            against.
+        key: the OpenSSH public key of the first login.
+
+    Returns:
+        The root inputs of the order line: the smallest size of the catalog
+        by vCPUs, memory and disk, ties broken by flavor and size name, in
+        the alphabetically first region of that flavor that names a host.
+    """
+    for flavor, entry in catalog.items():
+        for size, resources in entry["sizes"].items():
+            missing = [field for field in SIZE_KEYS if field not in resources]
+            if missing:
+                raise DrillError(
+                    f"size {size} of flavor {flavor} names no {', '.join(missing)}"
+                )
+    offers = sorted(
+        ([entry["sizes"][size][field] for field in SIZE_KEYS], flavor, size, region)
+        for flavor, entry in catalog.items()
+        for size in entry["sizes"]
+        for region, place in entry["regions"].items()
+        if place.get("host")
+    )
+    if not offers:
+        raise DrillError("the catalog offers no region that names a host")
+    _, flavor, size, region = offers[0]
+    name = f"{order['SALES_ORDER']}-{order['LINE']}"
+    return {
+        "name": name,
+        "flavor": flavor,
+        "size": size,
+        "region": region,
+        "ssh_public_key": key,
+        "dns_label": name.lower(),
+    }
+
+
+def commit_order(result, template, catalog):
+    path, branch, _ = workspace_repository(result, template)
+    values = order_values(
+        json.loads(os.environ["BKP_TEST_WORKSPACE_ORDER"]),
+        json.loads(Path(catalog).read_text(encoding="utf-8")),
+        public_key(),
+    )
+    relative = f"provision/{values['name']}.tfvars.json"
+    text = json.dumps(values, separators=(",", ":"))
+    Gitea().call(
+        "POST",
+        f"/repos/{path}/contents/{relative}",
+        {
+            "content": base64.b64encode(text.encode("utf-8")).decode("ascii"),
+            "message": f"workspace drill: {relative}",
+            "branch": branch,
+        },
+    )
+    print(
+        f"workspace drill: committed {relative} to {path}, size {values['size']} "
+        f"of {values['flavor']} in {values['region']}"
+    )
 
 
 def task(result, template, output):
@@ -232,15 +378,11 @@ def sealed():
 
 
 def repositories(workspaces):
-    base = os.environ["BKP_TEST_GITEA_URL"].rstrip("/")
+    gitea = Gitea()
     organization = os.environ["BKP_TEST_GITEA_ORGANIZATION"]
-    auth = base64.b64encode(secret("BKP_TEST_GITEA_BASIC_AUTH_B64").encode("utf-8"))
-    headers = {"Authorization": f"Basic {auth.decode('ascii')}"}
     names, page = [], 1
-    while batch := fetch_json(
-        "GET",
-        f"{base}/api/v1/orgs/{organization}/repos?limit={PAGE}&page={page}",
-        headers,
+    while batch := gitea.call(
+        "GET", f"/orgs/{organization}/repos?limit={PAGE}&page={page}"
     ):
         names.extend(repo["full_name"] for repo in batch)
         page += 1
@@ -396,6 +538,14 @@ def main(argv):
             and argv[1] in ("apply", "destroy")
         ):
             workspace(argv[1], argv[2], argv[3])
+        elif (
+            argv[:1] == ["repository"]
+            and len(argv) == 4
+            and argv[1] in ("create", "delete")
+        ):
+            repository(argv[1], argv[2], argv[3])
+        elif argv[:1] == ["order"] and len(argv) == 4:
+            commit_order(argv[1], argv[2], argv[3])
         elif argv[:1] == ["task"] and len(argv) == 4:
             task(argv[1], argv[2], argv[3])
         elif argv[:1] == ["state"] and len(argv) > 1:

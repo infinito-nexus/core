@@ -234,10 +234,10 @@ URLs, the admin credentials and the provision order the pass reads.
 
 ```mermaid
 flowchart TD
-    PREP["prepare, before the forced backup:<br>workspace apply twice, provision one server<br>through the Incus e2e target, record the state"] --> CYCLE["restore_cycle.sh<br>takes every project down and restores"]
+    PREP["prepare, before the forced backup:<br>workspace apply twice, create both repositories,<br>commit the order's tfvars, provision one server<br>through the Incus e2e target, record the state"] --> CYCLE["restore_cycle.sh<br>takes every project down and restores"]
     CYCLE --> PROVE["prove: workspace apply for both,<br>restore time, state against the record,<br>provision again: clone and no change"]
     PROVE --> CTRL["controls: without the access key encryption key<br>the clone fails; without the seal key<br>OpenBao stays sealed"]
-    CTRL --> CLEAN["cleanup: destroy the server and both workspaces"]
+    CTRL --> CLEAN["cleanup: destroy the server,<br>both repositories and both workspaces"]
 ```
 
 `workspace/drill.py` speaks to Semaphore's API for every workspace step and
@@ -252,10 +252,24 @@ object. `test.env.j2` renders it from `services.test.workspace_order` of the
 role's `meta/services.yml`, shell-quoted because `test-e2e-cli` sources the
 file; the pass fails on its absence instead of skipping.
 
-Open gap: the provision template also reads
-`provision/<SALES_ORDER>-<LINE>.tfvars.json` (`provision/DRILL-1.tfvars.json`
-for the configured order) from the workspace repository, and the pass commits
-none yet. Until it does, step 2 fails with "the checkout holds no regular file".
+Before step 2 the pass does for the order what the store does. For each
+workspace, `drill.py repository create` creates the repository its templates
+clone (`git_url` and `git_branch` of the apply result) and registers the
+`read_key` apply printed as its read-only deploy key. `drill.py order` then
+commits `provision/<SALES_ORDER>-<LINE>.tfvars.json`
+(`provision/DRILL-1.tfvars.json` for the configured order) to the repository
+of the first workspace, in the format `commitValues` of `web-app-semaphore`'s
+`test-provision.js` writes: the name from the order, the smallest size by
+vCPUs, memory and disk of the Incus catalog the provision runner mounts
+(`BKP_TEST_WORKSPACE_CATALOGS`), in the alphabetically first region of its
+flavor that names a host, a login key line of the ed25519 OpenSSH form whose
+32 key bytes are random, so no private half exists, and the lowercased name
+as DNS label. A size without `vcpus`, `memory_mib` or `disk_gib` fails the
+pass with its name. The cleanup deletes the server, both repositories and
+both workspaces, runs every step even when one fails, and fails afterwards
+naming what it left behind. When the server destroy fails, it keeps the
+repository and the workspace of that server, which a retried `destroy-incus`
+needs, and still cleans the other workspace.
 
 ## `seed/marker.py`
 

@@ -5,6 +5,7 @@ set -euo pipefail
 : "${BKP_TEST_PYTHON:?}"
 : "${BKP_TEST_HEALTH_TIMEOUT:?}"
 : "${BKP_TEST_WORKSPACE_DIR:?}"
+: "${BKP_TEST_WORKSPACE_CATALOGS:?}"
 if [[ -z "${BKP_TEST_WORKSPACE_ORDER:-}" ]]; then
     echo "FAIL: workspace drill: BKP_TEST_WORKSPACE_ORDER holds no provision order for the Incus e2e target"
     exit 1
@@ -88,9 +89,11 @@ prepare() {
     for ws in "$(cat /proc/sys/kernel/random/uuid)" "$(cat /proc/sys/kernel/random/uuid)"; do
         drill workspace apply "${ws}" "${STATE}/result-${ws}.json"
         printf '%s\n' "${ws}" >>"${STATE}/ids"
+        drill repository create "${STATE}/result-${ws}.json" "provision-incus ws-${ws}"
     done
     mapfile -t IDS <"${STATE}/ids"
-    echo "workspace drill: step 1 created the workspaces ${IDS[*]}"
+    echo "workspace drill: step 1 created the workspaces ${IDS[*]} and their repositories"
+    drill order "${STATE}/result-${IDS[0]}.json" "provision-incus ws-${IDS[0]}" "${BKP_TEST_WORKSPACE_CATALOGS}/incus.json"
     drill task "${STATE}/result-${IDS[0]}.json" "provision-incus ws-${IDS[0]}" "${STATE}/provision-before.log"
     echo "workspace drill: step 2 provisioned one server of ${IDS[0]} through the Incus e2e target"
     drill state "${IDS[@]}" >"${STATE}/before.json"
@@ -160,13 +163,22 @@ controls() {
 }
 
 cleanup() {
-    local ws
-    drill task "${STATE}/result-${IDS[0]}.json" "destroy-incus ws-${IDS[0]}" "${STATE}/destroy.log"
+    local ws kept="" left=()
+    drill task "${STATE}/result-${IDS[0]}.json" "destroy-incus ws-${IDS[0]}" "${STATE}/destroy.log" || kept="${IDS[0]}"
     for ws in "${IDS[@]}"; do
-        drill workspace destroy "${ws}" "${STATE}/destroy-${ws}"
+        if [[ "${ws}" == "${kept}" ]]; then
+            left+=("the server, repository and workspace of ${ws} for a retried destroy-incus")
+            continue
+        fi
+        drill repository delete "${STATE}/result-${ws}.json" "provision-incus ws-${ws}" || left+=("the repository of ${ws}")
+        drill workspace destroy "${ws}" "${STATE}/destroy-${ws}" || left+=("the workspace ${ws}")
     done
+    if (( ${#left[@]} > 0 )); then
+        echo "FAIL: workspace drill: the cleanup left behind: $(printf '%s; ' "${left[@]}")see ${STATE}"
+        exit 1
+    fi
     rm -rf "${STATE}"
-    echo "workspace drill: removed the drill's server and workspaces"
+    echo "workspace drill: removed the drill's server, repositories and workspaces"
 }
 
 case "${1:-}" in
