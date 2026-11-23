@@ -10,6 +10,7 @@ from cli.administration.inventory.provision.services.disabler import (
 )
 from cli.meta.runtime import detect_runtime
 from plugins.filter.merge.with_defaults import merge_with_defaults
+from utils.inventory.bundle_apps import resolve_vars as resolve_bundle_vars
 from utils.roles.applications.variants import (
     services_overrides_for_round as build_services_overrides_for_round,
 )
@@ -71,8 +72,36 @@ def add_parser(sub: argparse._SubParsersAction) -> None:
         default=None,
         help="JSON object merged into inventory variables (overrides win).",
     )
+    p.add_argument(
+        "--bundles",
+        default=None,
+        help=(
+            "Comma-separated bundle names whose inventory `all.vars` seed the "
+            "inventory variables; --vars wins per top-level key."
+        ),
+    )
     add_variant_args(p, action="init")
     p.set_defaults(_handler=handler)
+
+
+def seed_extra_vars(
+    bundles: str | None, explicit: dict[str, Any] | None
+) -> dict[str, Any]:
+    """Lay the explicit inventory vars over the vars the named bundles declare.
+
+    Args:
+        bundles: comma-separated bundle names, or None for an apps-only init.
+        explicit: the parsed ``--vars`` object, or None.
+
+    Returns:
+        A new dict: the bundles' ``all.vars`` merged in bundle order, with
+        ``explicit`` winning per top-level key.
+
+    Raises:
+        FileNotFoundError: one or more bundles are missing; all are named.
+    """
+    names = [x.strip() for x in (bundles or "").split(",") if x.strip()]
+    return {**resolve_bundle_vars(names), **(explicit or {})}
 
 
 def handler(args: argparse.Namespace) -> int:
@@ -112,7 +141,7 @@ def handler(args: argparse.Namespace) -> int:
             raise SystemExit("--vars must be a JSON object")
         extra_vars = parsed
 
-    extra_vars = dict(extra_vars or {})
+    extra_vars = seed_extra_vars(args.bundles, extra_vars)
     extra_vars["applications"] = merge_with_defaults(
         extra_vars.get("applications") or {}, deploy_inventory_overrides()
     )

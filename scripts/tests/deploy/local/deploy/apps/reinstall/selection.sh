@@ -12,6 +12,7 @@ set -euo pipefail
 #
 # Optional:
 #   full_cycle=false   Default. Deploy only (pass 1). Set to 'true' to also run the update pass (pass 2).
+#   bundles            Comma-separated bundle names whose all.vars seed the inventory (exported by bundles/fresh.sh).
 #   PYTHON=python3
 #   INFINITO_LIMIT_HOST=localhost
 
@@ -67,10 +68,15 @@ if [[ -n "${INIT_VARS_EXTRA:-}" ]]; then
 else
 	INIT_VARS="{${INIT_VARS_BASE}}"
 fi
-"${PYTHON}" -m cli.administration.deploy.development init \
-	--apps "${apps}" \
-	--inventory-dir "${INFINITO_INVENTORY_DIR}" \
+init_args=(
+	--apps "${apps}"
+	--inventory-dir "${INFINITO_INVENTORY_DIR}"
 	--vars "${INIT_VARS}"
+)
+if [[ -n "${bundles:-}" ]]; then
+	init_args+=(--bundles "${bundles}")
+fi
+"${PYTHON}" -m cli.administration.deploy.development init "${init_args[@]}"
 
 if [[ "${full_cycle:-false}" == "true" ]]; then
 	echo ">>> deploy (PASS 1 + PASS 2 update per variant, full_cycle=true)"
