@@ -154,7 +154,7 @@ async function submitLoginForm(page, username, password) {
   await expect(userField).toBeVisible({ timeout: resolveTimeout(60_000) });
   await userField.fill(username);
   await page.locator("input[name='_password']").first().fill(password);
-  await page.locator("input[name='_login'], button[name='_login']").first().click({ timeout: resolveTimeout(30_000) });
+  await page.locator("#_login").click({ timeout: resolveTimeout(30_000) });
   await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(60_000) });
 }
 
