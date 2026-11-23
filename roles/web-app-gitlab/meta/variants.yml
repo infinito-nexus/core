@@ -184,6 +184,7 @@
     matomo:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
+    # variant-pin: web-app-dashboard#without-simpleicons
     sso:
       enabled: true
       shared: true
