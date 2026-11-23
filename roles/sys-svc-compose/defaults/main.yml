@@ -6,3 +6,5 @@ compose_repository_pull: "{{ compose_repository_url is defined and compose_repos
 compose_repository_refspec: "" # Refspec of the shallow repository clone; '+refs/tags/<tag>:refs/tags/<tag>' when compose_repository_ref is a tag
 compose_prepared_application_ids: [] # Application ids whose compose instance this play prepared on the host; tasks/decommission.yml keeps their directories
 compose_prune_free_floor_mib: 30720 # Free MiB on the Docker data root at or above which the storage-constrained prune handler leaves Docker data alone
+compose_prune_repeat_below_percent: 50 # Percent applied twice: a below-floor prune of this run that kept at least this share of the floor lets later prunes skip while free space stays above this share of what it kept; a smaller record never skips. 50 holds on every data root size: a skip always leaves at least a quarter of the floor free, and a run whose in-use images outgrow the floor prunes once per halving instead of at every flush
+compose_prune_last_free_mib: "" # Free MiB the last prune of this playbook run kept on the host below the floor, set by the prune handler; empty until such a prune ran
