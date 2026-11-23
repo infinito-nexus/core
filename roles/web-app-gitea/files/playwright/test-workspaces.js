@@ -511,6 +511,12 @@ exports.register = function (shared) {
           "the administrator creates the member",
         ).toBe(201);
         cleanup(async () => expectGone(await asAdmin().del(`/admin/users/${member.username}`), `user ${member.username}`));
+        cleanup(async () =>
+          expectGone(
+            await asAdmin().del(`/teams/${teamId}/members/${member.username}`),
+            `membership of ${member.username} in team ${repository}`,
+          ),
+        );
         expect((await asStore.put(`/teams/${teamId}/members/${member.username}`)).status()).toBe(204);
         const memberToken = await asAdmin(member.username).post(`/users/${member.username}/tokens`, {
           name: `playwright-${suffix()}`,
