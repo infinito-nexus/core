@@ -10,6 +10,7 @@ DOMAIN={{ DOMAIN_PRIMARY }}
 DOMAIN_RE={{ DOMAIN_PRIMARY | replace('.', '\\.') }}
 INVENTORY_DIR={{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}/inventories/github
 INFINITO_DOCKER_VOLUME={{ RUNNER_DOCKER_BASE }}/{{ runner_instance }}
+INFINITO_VULNERABILITY_DB_HOST_PATH={{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}/vulnerability-db
 INFINITO_PRESERVE_DOCKER_CACHE=true
 INFINITO_CPUS={{ RUNNER_CPUS }}
 {% if RUNNER_REGISTERS_WITH_GITHUB | bool %}
