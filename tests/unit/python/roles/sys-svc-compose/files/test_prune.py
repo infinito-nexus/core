@@ -309,6 +309,18 @@ class TestPruneScript(unittest.TestCase):
         self.assertTrue(ran)
         self.assertEqual(last_free_mib, "20500")
 
+    def test_free_space_at_the_floor_clears_a_kept_record(self):
+        ran, last_free_mib = self.flush(
+            free_mib="40000", free_after_mib="40000", last_free_mib="24000"
+        )
+        self.assertFalse(ran)
+        self.assertEqual(last_free_mib, "")
+        ran, last_free_mib = self.flush(
+            free_mib="20000", free_after_mib="20500", last_free_mib=last_free_mib
+        )
+        self.assertTrue(ran)
+        self.assertEqual(last_free_mib, "20500")
+
 
 if __name__ == "__main__":
     unittest.main()

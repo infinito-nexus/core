@@ -19,7 +19,7 @@
     compose_prune_last_free_mib: "{{ compose_prune_result.stdout | regex_findall('kept ([0-9]+) MiB free after the prune') | last | default('') }}"
   when:
     - STORAGE_CONSTRAINED | bool
-    - compose_prune_result is changed
+    - "compose_prune_result is changed or 'floor: prune skipped' in compose_prune_result.stdout"
   listen:
     - compose-up
     - compose-build
