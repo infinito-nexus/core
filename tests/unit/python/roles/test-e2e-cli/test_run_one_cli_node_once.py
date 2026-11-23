@@ -14,18 +14,20 @@ RUN_ONE = PROJECT_ROOT / "roles" / "test-e2e-cli" / "tasks" / "run_one.yml"
 RUNNER_GUARD = "_cli_runner == inventory_hostname"
 
 
-def _tasks() -> list[dict]:
+def _tasks() -> list[tuple[dict, str]]:
     """Flatten ``run_one.yml`` into its tasks.
 
     Returns:
-        Every task, the tasks inside a ``block`` included, in file order.
+        Every task, the tasks inside a ``block`` included, in file order,
+        each with the ``when`` it runs under, its enclosing blocks' included.
     """
-    pending = list(load_yaml_any(str(RUN_ONE)))
-    flat: list[dict] = []
+    pending = [(task, "") for task in load_yaml_any(str(RUN_ONE))]
+    flat: list[tuple[dict, str]] = []
     while pending:
-        task = pending.pop(0)
-        flat.append(task)
-        pending[:0] = task.get("block", [])
+        task, inherited = pending.pop(0)
+        guard = f"{inherited} {task.get('when', '')}"
+        flat.append((task, guard))
+        pending[:0] = [(child, guard) for child in task.get("block", [])]
     return flat
 
 
@@ -38,7 +40,7 @@ def _task(prefix: str) -> dict:
     Returns:
         The first task whose name starts with ``prefix``.
     """
-    for task in _tasks():
+    for task, _ in _tasks():
         if task.get("name", "").startswith(prefix):
             return task
     raise LookupError(f"{RUN_ONE}: no task named {prefix}")
@@ -112,14 +114,14 @@ class TestRunOneCliNodeOnce(unittest.TestCase):
 
     def test_every_task_on_the_cli_node_runs_on_the_runner_only(self) -> None:
         delegated = [
-            task
-            for task in _tasks()
+            (task, guard)
+            for task, guard in _tasks()
             if task.get("delegate_to") == "{{ CLI_HOST_NODE }}"
         ]
         self.assertGreaterEqual(len(delegated), 6)
-        for task in delegated:
+        for task, guard in delegated:
             with self.subTest(task=task["name"]):
-                self.assertIn(RUNNER_GUARD, str(task.get("when", "")))
+                self.assertIn(RUNNER_GUARD, guard)
 
     def test_every_peer_records_the_failure_of_the_run_it_shares(self) -> None:
         handler = _task("❌ Handle the failed CLI test run")

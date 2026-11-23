@@ -25,7 +25,10 @@ RUN_ONE = PROJECT_ROOT / "roles" / "test-e2e-cli" / "tasks" / "run_one.yml"
 
 
 def _run_command() -> str:
-    for task in load_yaml_any(str(RUN_ONE)):
+    pending = list(load_yaml_any(str(RUN_ONE)))
+    while pending:
+        task = pending.pop(0)
+        pending[:0] = task.get("block", [])
         shell = task.get("ansible.builtin.shell")
         if isinstance(shell, dict) and "test.env" in str(shell.get("cmd", "")):
             return shell["cmd"]

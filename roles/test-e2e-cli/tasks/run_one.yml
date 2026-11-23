@@ -63,29 +63,29 @@
          | map(attribute='inventory_hostname')
          | list }}
 
-- name: 📁 Create stage directory for {{ application_id }}
-  ansible.builtin.file:
-    path: "{{ _cli_stage_dir }}"
-    state: directory
-    mode: "0700"
-  delegate_to: "{{ CLI_HOST_NODE }}"
+- name: 📦 Stage the CLI test of {{ application_id }} on its runner host
   when: _cli_runner == inventory_hostname
+  block:
+    - name: 📁 Create stage directory for {{ application_id }}
+      ansible.builtin.file:
+        path: "{{ _cli_stage_dir }}"
+        state: directory
+        mode: "0700"
+      delegate_to: "{{ CLI_HOST_NODE }}"
 
-- name: 📦 Stage CLI test assets for {{ application_id }}
-  ansible.builtin.copy:
-    src: "{{ lookup('path_absolute', 'roles', application_id, 'files/test') }}/"
-    dest: "{{ _cli_stage_dir }}/"
-    mode: "0755"
-  delegate_to: "{{ CLI_HOST_NODE }}"
-  when: _cli_runner == inventory_hostname
+    - name: 📦 Stage CLI test assets for {{ application_id }}
+      ansible.builtin.copy:
+        src: "{{ lookup('path_absolute', 'roles', application_id, 'files/test') }}/"
+        dest: "{{ _cli_stage_dir }}/"
+        mode: "0755"
+      delegate_to: "{{ CLI_HOST_NODE }}"
 
-- name: 📦 Stage the shared CLI harness for {{ application_id }}
-  ansible.builtin.copy:
-    src: "{{ lookup('path_absolute', 'roles/test-e2e-cli/files/shared') }}/"
-    dest: "{{ _cli_stage_dir }}/shared/"
-    mode: "0755"
-  delegate_to: "{{ CLI_HOST_NODE }}"
-  when: _cli_runner == inventory_hostname
+    - name: 📦 Stage the shared CLI harness for {{ application_id }}
+      ansible.builtin.copy:
+        src: "{{ lookup('path_absolute', 'roles/test-e2e-cli/files/shared') }}/"
+        dest: "{{ _cli_stage_dir }}/shared/"
+        mode: "0755"
+      delegate_to: "{{ CLI_HOST_NODE }}"
 
 - name: 🧭 Reset the per-role deployment-mode override
   ansible.builtin.include_vars:
@@ -117,31 +117,32 @@
     file: "{{ lookup('path_absolute', 'roles', application_id, 'vars/main.yml') }}"
   when: _cli_app_vars_stat.stat.exists
 
-- name: 📄 Render test.env from templates/test.env.j2 for {{ application_id }}
-  ansible.builtin.copy:
-    dest: "{{ _cli_stage_dir }}/test.env"
-    mode: "0600"
-    content: "{{ lookup('template', _cli_env_template) }}"
-  delegate_to: "{{ CLI_HOST_NODE }}"
+- name: 🚀 Render and run the CLI test of {{ application_id }} on its runner host
   when: _cli_runner == inventory_hostname
+  block:
+    - name: 📄 Render test.env from templates/test.env.j2 for {{ application_id }}
+      ansible.builtin.copy:
+        dest: "{{ _cli_stage_dir }}/test.env"
+        mode: "0600"
+        content: "{{ lookup('template', _cli_env_template) }}"
+      delegate_to: "{{ CLI_HOST_NODE }}"
 
-- name: 🚀 Run CLI test script for {{ application_id }}
-  ansible.builtin.shell:
-    cmd: "set -ea; . {{ _cli_stage_dir }}/test.env; set +ea; export CLI_DEADLINE=$(( $(date +%s) + {{ _cli_timeout }} )); timeout {{ _cli_timeout }} bash {{ _cli_test_script
-      }}"
-    executable: /bin/bash
-  vars:
-    _cli_timeout_base: "{{ lookup('role_tests', application_id, 'cli.timeout', default='') }}"
-    _cli_timeout: >-
-      {{ (lookup('timeout', _cli_timeout_base | int) | int)
-         if (_cli_timeout_base | string | trim | length > 0)
-         else (TEST_E2E_CLI_TIMEOUT | int) }}
-  register: _cli_run
-  changed_when: false
-  failed_when: false
-  delegate_to: "{{ CLI_HOST_NODE }}"
-  throttle: 1
-  when: _cli_runner == inventory_hostname
+    - name: 🚀 Run CLI test script for {{ application_id }}
+      ansible.builtin.shell:
+        cmd: "set -ea; . {{ _cli_stage_dir }}/test.env; set +ea; export CLI_DEADLINE=$(( $(date +%s) + {{ _cli_timeout }} )); timeout {{ _cli_timeout }} bash {{ _cli_test_script
+          }}"
+        executable: /bin/bash
+      vars:
+        _cli_timeout_base: "{{ lookup('role_tests', application_id, 'cli.timeout', default='') }}"
+        _cli_timeout: >-
+          {{ (lookup('timeout', _cli_timeout_base | int) | int)
+             if (_cli_timeout_base | string | trim | length > 0)
+             else (TEST_E2E_CLI_TIMEOUT | int) }}
+      register: _cli_run
+      changed_when: false
+      failed_when: false
+      delegate_to: "{{ CLI_HOST_NODE }}"
+      throttle: 1
 
 - name: ❌ Handle the failed CLI test run of {{ application_id }}
   when: hostvars[_cli_runner]._cli_run.rc != 0
