@@ -6,6 +6,7 @@
     rbac_sync_enabled: true
     rbac_sync_mode: "{{ compose_mode_force or DEPLOYMENT_MODE }}"
     rbac_sync_skip_unchanged: true
+    rbac_sync_any_slot: false
     rbac_sync_roles: [administrator]
     rbac_sync_service_key: "{{ MATRIX_MDAD_SERVICE_KEY if compose_mode_force == 'compose' else 'synapse' }}"
     rbac_sync_service_name: ""

@@ -6,6 +6,7 @@
     rbac_sync_enabled: "{{ SEMAPHORE_OIDC_ENABLED | bool or SEMAPHORE_LDAP_ENABLED | bool }}"
     rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
     rbac_sync_skip_unchanged: true
+    rbac_sync_any_slot: false
     rbac_sync_roles: "{{ SEMAPHORE_RBAC_LOGIN_ROLES }}"
     rbac_sync_service_key: postgres
     rbac_sync_service_name: "{{ lookup('database', application_id, 'service_name') }}"

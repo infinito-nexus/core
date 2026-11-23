@@ -6,6 +6,7 @@
     rbac_sync_enabled: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
     rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
     rbac_sync_skip_unchanged: true
+    rbac_sync_any_slot: false
     rbac_sync_roles: [administrator]
     rbac_sync_service_key: litellm
     rbac_sync_service_name: "{{ lookup('container_service', 'svc-ai-litellm', 'litellm') if (IS_SWARM_MODE | bool) else '' }}"

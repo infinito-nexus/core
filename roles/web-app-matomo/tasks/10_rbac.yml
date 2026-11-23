@@ -6,6 +6,7 @@
     rbac_sync_enabled: "{{ MATOMO_OIDC_ENABLED | bool }}"
     rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
     rbac_sync_skip_unchanged: true
+    rbac_sync_any_slot: false
     rbac_sync_roles: "{{ MATOMO_RBAC_ROLES }}"
     rbac_sync_service_key: "{{ MATOMO_SERVICE }}"
     rbac_sync_service_name: ""

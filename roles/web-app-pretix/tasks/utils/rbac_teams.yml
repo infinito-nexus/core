@@ -25,6 +25,7 @@
     rbac_sync_enabled: "{{ PRETIX_OIDC_ENABLED | bool }}"
     rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
     rbac_sync_skip_unchanged: false
+    rbac_sync_any_slot: false
     rbac_sync_roles: []
     rbac_sync_service_key: pretix
     rbac_sync_service_name: ""

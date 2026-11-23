@@ -6,6 +6,7 @@
     rbac_sync_enabled: "{{ (JELLYFIN_LDAP_ENABLED | bool) and ('svc-db-openldap' in group_names) }}"
     rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
     rbac_sync_skip_unchanged: false
+    rbac_sync_any_slot: false
     rbac_sync_roles: ["@users:{{ LDAP.USER.ATTRIBUTES.PHOTO }}"]
     rbac_sync_service_key: jellyfin
     rbac_sync_service_name: ""

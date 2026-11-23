@@ -386,6 +386,15 @@ class NextcloudLdapRefreshTests(unittest.TestCase):
             leaves_a_street_only_address(load_yaml(USER_LDAP_ADDON), include)
         )
 
+    def test_the_timer_refreshes_through_a_nextcloud_task_of_any_slot(self):
+        include = load_yaml_any(TASKS)[0]["vars"]
+
+        self.assertIs(
+            include["rbac_sync_any_slot"],
+            True,
+            "in swarm the RBAC timer runs only on the OpenLDAP node, which may hold any Nextcloud task slot",
+        )
+
     def test_a_skipping_hook_beside_an_address_mapping_is_reported(self):
         addon = load_yaml(USER_LDAP_ADDON)
         skipping = {"rbac_sync_skip_unchanged": True}

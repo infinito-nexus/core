@@ -15,6 +15,7 @@
 # Param rbac_sync_env: variables the hook receives; the hook directory is root-only.
 # Param rbac_sync_members_env: list of {name, role, field}; role "*" passes {role: members}, field "" passes whole members, otherwise that field per member.
 # Param rbac_sync_skip_unchanged: whether the timer skips the hook while its definition and members are unchanged and its last run is recent.
+# Param rbac_sync_any_slot: whether the timer runs a swarm hook through a running task of any slot on its node; false runs it only on the node of task slot 1.
 # Output rbac_sync_run: the deploy-time run; its stdout carries CHANGED when the hook wrote something.
 
 - name: "🧹 Unregister the RBAC hook of {{ rbac_sync_application_id }}"

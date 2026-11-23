@@ -71,11 +71,11 @@ exports.register = function (shared) {
     }
   });
 
-  test("biber: a phone number changed in the directory reaches Nextcloud on the next directory password login", async ({ playwright }) => {
+  test("biber: a phone number changed in the directory reaches the Nextcloud profile through the directory refresh hook", async ({ playwright }) => {
     skipUnlessServiceEnabled("ldap");
     expect(env.ldapCacheTtlSeconds, "NEXTCLOUD_LDAP_CACHE_TTL must be a number of seconds").toBeGreaterThan(0);
-    const refreshBudgetMs = (env.ldapCacheTtlSeconds + 90) * 1000;
-    test.setTimeout(refreshBudgetMs + resolveTimeout(120_000)); // the LDAP cache TTL of user_ldap plus one directory attribute write and restore
+    const refreshBudgetMs = (2 * env.ldapCacheTtlSeconds + 90) * 1000;
+    test.setTimeout(refreshBudgetMs + resolveTimeout(120_000));
 
     const phone = `+49301${String(Date.now()).slice(-6)}`;
     const basic = Buffer.from(`${shared.env.biberUsername}:${shared.env.biberPassword}`).toString("base64");
@@ -87,7 +87,7 @@ exports.register = function (shared) {
           {
             timeout: refreshBudgetMs,
             intervals: [5_000],
-            message: `a password login of biber against the directory must copy the changed ${env.phoneAttribute} onto the Nextcloud profile`,
+            message: `ldap_refresh.py on the RBAC sync timer must copy the changed ${env.phoneAttribute} onto the Nextcloud profile biber reads`,
           },
         )
         .toBe(phone);

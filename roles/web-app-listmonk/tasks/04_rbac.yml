@@ -6,6 +6,7 @@
     rbac_sync_enabled: "{{ LISTMONK_OIDC_ENABLED | bool }}"
     rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
     rbac_sync_skip_unchanged: true
+    rbac_sync_any_slot: false
     rbac_sync_roles: "{{ [LISTMONK_RBAC_ADMIN_ROLE] + (LISTMONK_RBAC_ROLES | map(attribute='name') | list) }}"
     rbac_sync_service_key: postgres
     rbac_sync_service_name: "{{ lookup('database', application_id, 'service_name') }}"
