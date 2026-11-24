@@ -10,6 +10,11 @@ from utils.cache.files import PROJECT_ROOT
 
 SCRIPT = PROJECT_ROOT / "scripts" / "github" / "runner" / "enlarge_swap.sh"
 SUDO_STUB = '#!/usr/bin/env bash\nprintf "%s\\n" "$*" >>"${STUB_LOG}"\n'
+ZRAM_SUDO_STUB = (
+    "#!/usr/bin/env bash\n"
+    'printf "%s\\n" "$*" >>"${STUB_LOG}"\n'
+    'if [ "$1" = zramctl ] && [ "$2" = --find ]; then echo /dev/zram0; fi\n'
+)
 DF_STUB = (
     "#!/usr/bin/env bash\n"
     'echo "Avail"\n'
@@ -29,7 +34,12 @@ DUMP_STUB = "#!/usr/bin/env bash\nexit 0\n"
 
 
 def enlarge(
-    *, mounted: bool, mnt_free: int, root_free: int, containerd_dev: str
+    *,
+    mounted: bool,
+    mnt_free: int,
+    root_free: int,
+    containerd_dev: str,
+    zram: bool,
 ) -> tuple[subprocess.CompletedProcess, list[str]]:
     """Run enlarge_swap.sh against stubbed disks.
 
@@ -39,6 +49,7 @@ def enlarge(
         root_free: GB df reports free on /.
         containerd_dev: device id stat reports for /var/lib/containerd
             (2049 is the /mnt device).
+        zram: whether ``zramctl --find`` hands out a device.
 
     Returns:
         The finished process and every sudo call in order.
@@ -52,7 +63,7 @@ def enlarge(
         bin_dir.mkdir()
         for path, body in (
             (runner_dir / "dump_state.sh", DUMP_STUB),
-            (bin_dir / "sudo", SUDO_STUB),
+            (bin_dir / "sudo", ZRAM_SUDO_STUB if zram else SUDO_STUB),
             (bin_dir / "df", DF_STUB),
             (bin_dir / "mountpoint", MOUNTPOINT_STUB),
             (bin_dir / "stat", STAT_STUB),
@@ -97,38 +108,58 @@ def swapfile(calls: list[str]) -> list[str]:
 class TestEnlargeSwapPlacement(unittest.TestCase):
     def test_swap_goes_to_root_when_containerd_lives_on_the_spare_disk(self) -> None:
         done, calls = enlarge(
-            mounted=True, mnt_free=200, root_free=54, containerd_dev="2049"
+            mounted=True, mnt_free=200, root_free=54, containerd_dev="2049", zram=False
         )
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(swapfile(calls), ["fallocate -l 16G /swapfile"])
 
     def test_swap_goes_to_mnt_when_containerd_stayed_on_root(self) -> None:
         done, calls = enlarge(
-            mounted=True, mnt_free=60, root_free=54, containerd_dev="66305"
+            mounted=True, mnt_free=60, root_free=54, containerd_dev="66305", zram=False
         )
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(swapfile(calls), ["fallocate -l 16G /mnt/swapfile"])
 
     def test_large_shape_without_mnt_keeps_swap_on_root(self) -> None:
         done, calls = enlarge(
-            mounted=False, mnt_free=0, root_free=123, containerd_dev="66305"
+            mounted=False, mnt_free=0, root_free=123, containerd_dev="66305", zram=False
         )
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(swapfile(calls), ["fallocate -l 16G /swapfile"])
 
     def test_missing_containerd_root_keeps_the_mnt_preference(self) -> None:
         done, calls = enlarge(
-            mounted=True, mnt_free=60, root_free=54, containerd_dev="missing"
+            mounted=True,
+            mnt_free=60,
+            root_free=54,
+            containerd_dev="missing",
+            zram=False,
         )
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(swapfile(calls), ["fallocate -l 16G /mnt/swapfile"])
 
     def test_full_root_still_uses_the_spare_disk(self) -> None:
         done, calls = enlarge(
-            mounted=True, mnt_free=200, root_free=10, containerd_dev="2049"
+            mounted=True, mnt_free=200, root_free=10, containerd_dev="2049", zram=False
         )
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(swapfile(calls), ["fallocate -l 16G /mnt/swapfile"])
+
+    def test_zram_takes_the_swap_off_the_disk(self) -> None:
+        done, calls = enlarge(
+            mounted=False, mnt_free=0, root_free=88, containerd_dev="66305", zram=True
+        )
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(swapfile(calls), [])
+        self.assertIn("zramctl --find --size 16G --algorithm zstd", calls)
+        self.assertIn("swapon --priority 100 /dev/zram0", calls)
+
+    def test_zram_needs_no_free_disk(self) -> None:
+        done, calls = enlarge(
+            mounted=False, mnt_free=0, root_free=5, containerd_dev="66305", zram=True
+        )
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(swapfile(calls), [])
 
 
 if __name__ == "__main__":

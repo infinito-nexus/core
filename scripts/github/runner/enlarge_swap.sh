@@ -13,6 +13,11 @@
 # on a 145 GB root, leaving so little headroom that later Docker layer
 # writes (Playwright test image pull) failed with ENOSPC. See #162.
 #
+# A zram device comes first: compressed swap in RAM gives the same swap size
+# without the swapfile's blocks on the runner's one disk, which a heavy swarm
+# HA row needs for its images. The swapfile below stays the fallback when the
+# runner's kernel offers no zram module.
+#
 # Usage: enlarge_swap.sh [size-gb]
 # Default: 16 GB (empirically sufficient for the peertube spike).
 #
@@ -37,6 +42,27 @@ MIN_FREE_GB=$((SWAP_GB + 4)) # need the target size plus a little slack
 
 sudo swapoff -a || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 sudo rm -f /mnt/swapfile /swapfile
+
+zram_module() {
+	sudo modprobe zram && return 0
+	sudo apt-get update -qq &&
+		sudo apt-get install -y "linux-modules-extra-$(uname -r)" &&
+		sudo modprobe zram
+}
+
+if zram_module; then
+	zram_dev="$(sudo zramctl --find --size "${SWAP_GB}G" --algorithm zstd)" || zram_dev=""
+	if [ -n "$zram_dev" ] && sudo mkswap "$zram_dev" && sudo swapon --priority 100 "$zram_dev"; then
+		"$DUMP" "after swap resize → ${SWAP_GB}G zram at ${zram_dev}"
+		exit 0
+	fi
+	echo "zram swap could not be set up; falling back to a swapfile" >&2
+	if [ -n "$zram_dev" ]; then
+		sudo zramctl --reset "$zram_dev" || echo "zramctl --reset ${zram_dev} failed" >&2
+	fi
+else
+	echo "no zram module on this runner kernel; falling back to a swapfile" >&2
+fi
 
 if mountpoint -q /mnt 2>/dev/null; then
 	mnt_free=$(df --output=avail -B1G /mnt | tail -n1 | tr -d ' ')
