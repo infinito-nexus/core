@@ -34,7 +34,8 @@ user_connections = [
         "user_filter": "${LDAP_USER_FILTER}",
         "group_dn": "${LDAP_GROUP_DN}",
         "group_scope": "sub",
-        "group_member": "member",
+        "group_filter": "${LDAP_GROUP_FILTER}",
+        "group_member": "${LDAP_GROUP_MEMBER_ATTR}",
         "active_plugins": {
             "email": {},
             "alias": {},
