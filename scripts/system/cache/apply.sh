@@ -55,7 +55,7 @@ if [[ "${stage}" == "apply" ]]; then
 	nexus_port="$("${PYTHON}" -m cli.administration.infra cache-port package http)"
 	(
 		CACHE_PIN_CALLER="$(pwd -P)"
-		# shellcheck disable=SC2329
+		# shellcheck disable=SC2329,SC2317
 		docker() { (unset -f docker && cd "${CACHE_PIN_CALLER}" && cache_pin_docker "$@"); }
 		export -f docker cache_pin_docker
 		export CACHE_PIN_CALLER INFINITO_CACHE_PACKAGE_CONTAINER="${nexus}" INFINITO_CACHE_PACKAGE_PORT="${nexus_port}" INFINITO_CACHE_PACKAGE_EXEC_MODE=docker INFINITO_CACHE_PACKAGE_REST_HOST=127.0.0.1
