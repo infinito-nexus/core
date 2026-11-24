@@ -15,7 +15,7 @@ libretranslate:
   enabled: true
   shared: true
   image: libretranslate/libretranslate
-  version: v1.9.6
+  version: v1.10.0
   version_variants:
     - "-cuda"
   custom: true
@@ -37,11 +37,6 @@ libretranslate:
   mem_limit: 1g
   pids_limit: 512
   gpu: true
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "v1.9.6"
-        until: 2026-11-30
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
