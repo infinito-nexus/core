@@ -11,6 +11,36 @@
   run_once: true
   loop: "{{ query('node_hosts') }}"
 
+- name: "🧹 Remove the partial Argos packages of {{ application_id }}"
+  ansible.builtin.command:
+    argv:
+      - find
+      - -H
+      - "{{ LIBRETRANSLATE_ENGINE_MODELS_DIR }}"
+      - -mindepth
+      - "1"
+      - -maxdepth
+      - "1"
+      - -type
+      - d
+      - "!"
+      - -exec
+      - test
+      - -e
+      - "{}/metadata.json"
+      - ;
+      - -print
+      - -exec
+      - rm
+      - -rf
+      - "{}"
+      - +
+  register: libretranslate_engine_partial_packages
+  changed_when: libretranslate_engine_partial_packages.stdout | length > 0
+  delegate_to: "{{ item }}"
+  run_once: true
+  loop: "{{ query('node_hosts') }}"
+
 - name: "🧩 load the container manager for {{ application_id }}"
   include_role:
     name: sys-svc-compose

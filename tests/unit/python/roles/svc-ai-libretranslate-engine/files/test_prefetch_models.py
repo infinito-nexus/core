@@ -6,6 +6,7 @@ module is executed.
 from __future__ import annotations
 
 import importlib.util
+import os
 import sys
 import types
 import unittest
@@ -40,8 +41,11 @@ def _load() -> types.ModuleType:
     package = types.ModuleType("argostranslate.package")
     package.update_package_index = lambda: None
     package.get_available_packages = list
+    settings = types.ModuleType("argostranslate.settings")
+    settings.package_data_dir = Path(os.devnull)
     argos = types.ModuleType("argostranslate")
     argos.package = package
+    argos.settings = settings
 
     language = types.ModuleType("libretranslate.language")
     language.iso2model = list
@@ -54,6 +58,7 @@ def _load() -> types.ModuleType:
     modules = {
         "argostranslate": argos,
         "argostranslate.package": package,
+        "argostranslate.settings": settings,
         "libretranslate": libretranslate,
         "libretranslate.language": language,
         "minisbd": minisbd,
@@ -222,6 +227,67 @@ class TestFetch(unittest.TestCase):
             self.module.fetch(FakePackage("en", "de", path))
 
         self.assertFalse(path.exists())
+
+
+class TestInstall(unittest.TestCase):
+    def setUp(self) -> None:
+        self.module = _load()
+        self._tmp = TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.root = Path(self._tmp.name)
+        self.packages = self.root / "packages"
+        self.packages.mkdir()
+        self.module.settings.package_data_dir = self.packages
+
+    def _archive(self, *names: str) -> Path:
+        path = self.root / "model.argosmodel"
+        with zipfile.ZipFile(path, "w") as archive:
+            for name in names:
+                archive.writestr(name, "x")
+        return path
+
+    def _extract_all(self, path: Path) -> None:
+        with zipfile.ZipFile(path) as archive:
+            archive.extractall(self.packages)
+
+    def _interrupted_after_first_member(self, path: Path) -> None:
+        with zipfile.ZipFile(path) as archive:
+            archive.extract(archive.namelist()[0], self.packages)
+        raise EOFError
+
+    def test_a_failed_install_leaves_no_partial_package(self) -> None:
+        path = self._archive(
+            "translate-de_en-1_3/model/model.bin", "translate-de_en-1_3/metadata.json"
+        )
+        self.module.package.install_from_path = self._interrupted_after_first_member
+
+        with self.assertRaises(EOFError):
+            self.module.install(path)
+
+        self.assertEqual(list(self.packages.iterdir()), [])
+
+    def test_a_completed_install_is_kept(self) -> None:
+        path = self._archive("translate-de_en-1_3/metadata.json")
+        self.module.package.install_from_path = self._extract_all
+
+        self.module.install(path)
+
+        self.assertTrue(
+            (self.packages / "translate-de_en-1_3" / "metadata.json").exists()
+        )
+
+    def test_cleanup_stays_inside_the_package_directory(self) -> None:
+        sibling = self.root / "sibling"
+        sibling.mkdir()
+        path = self._archive(
+            f"{os.pardir}/sibling/x", "/sibling/x", "translate-de_en-1_3/metadata.json"
+        )
+        self.module.package.install_from_path = self._interrupted_after_first_member
+
+        with self.assertRaises(EOFError):
+            self.module.install(path)
+
+        self.assertTrue(sibling.exists())
 
 
 if __name__ == "__main__":
