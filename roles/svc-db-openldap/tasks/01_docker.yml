@@ -28,7 +28,7 @@
   block:
     - name: 📋 Copy the writer elector package into the image build context
       stack_host_copy:
-        src: "{{ lookup('path_absolute', 'files/db-elector/infinito_elector') }}"
+        src: "{{ lookup('path_absolute', 'roles/svc-dcs-etcd/files/python/infinito_elector') }}"
         dest: "{{ lookup('container', application_id, 'directories.instance') }}"
         mode: "0644"
         directory_mode: "0755"

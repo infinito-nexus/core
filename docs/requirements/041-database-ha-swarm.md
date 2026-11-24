@@ -221,7 +221,7 @@ This requirement covers:
 ### OpenLDAP: `svc-db-openldap` with writer election
 
 - [ ] The HA form runs N-way multi-provider syncrepl across all instances (`olcMultiProvider: TRUE`, syncrepl to every peer). Only one instance takes writes at a time.
-- [ ] Each instance runs the writer elector, a shared Python package used by MariaDB and OpenLDAP, with a lock interface (an etcd lease) and a role interface (MariaDB, OpenLDAP). It lives in `files/db-elector/`, outside the engine roles, and both images copy it at build time; its unit tests live beside that path. It runs as a second process under the image's `tini`; if it exits, slapd stops and the container restarts read-only.
+- [ ] Each instance runs the writer elector, a shared Python package used by MariaDB and OpenLDAP, with a lock interface (an etcd lease) and a role interface (MariaDB, OpenLDAP). It lives in `roles/svc-dcs-etcd/files/python/infinito_elector/`, with the coordination store whose lease it uses, and both engine images copy it at build time; its unit tests mirror that path. It runs as a second process under the image's `tini`; if it exits, slapd stops and the container restarts read-only.
 - [ ] The elector competes only after the instance's initial syncrepl refresh is complete (its contextCSN equals a peer's). Lease 15 s, renew deadline 10 s, retry 2 s.
   - **On winning:** set `olcReadOnly: FALSE` over `ldapi`.
   - **On losing the lease, missing the renew deadline, or SIGTERM:** set `olcReadOnly: TRUE` first, without needing the network, then release the lease.

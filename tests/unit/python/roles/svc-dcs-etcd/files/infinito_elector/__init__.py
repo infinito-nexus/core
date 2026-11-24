@@ -10,7 +10,7 @@ import sys
 
 from utils import PROJECT_ROOT
 
-_SRC = PROJECT_ROOT / "files" / "db-elector" / "infinito_elector"
+_SRC = PROJECT_ROOT / "roles" / "svc-dcs-etcd" / "files" / "python" / "infinito_elector"
 _NAME = "infinito_elector_src"
 
 if _NAME not in sys.modules:

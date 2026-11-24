@@ -43,7 +43,7 @@
 
 - name: "📦 MariaDB HA | Copy the writer elector into the build context"
   ansible.builtin.copy:
-    src: "{{ lookup('path_absolute', 'files/db-elector/infinito_elector') }}/"
+    src: "{{ lookup('path_absolute', 'roles/svc-dcs-etcd/files/python/infinito_elector') }}/"
     dest: "{{ [MARIADB_HA_BUILD_DIR, 'infinito_elector'] | path_join }}/"
     mode: "0644"
     directory_mode: "0755"
