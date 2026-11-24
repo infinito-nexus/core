@@ -63,5 +63,7 @@
     system_service_timer_enabled: "{{ RBAC_SYNC_TIMER_ENABLED | bool }}"
     system_service_on_calendar: "{{ SYS_SCHEDULE_MAINTANANCE_RBAC_SYNC }}"
     system_service_tpl_exec_start: "{{ system_service_script_exec }} {{ RBAC_SYNC_RUNNER_ARGS }}"
+    system_service_force_flush_final: "{{ SYS_SERVICE_ALL_ENABLED | bool }}"
+    system_service_run_once: true
 
 - include_tasks: utils/once/flag.yml
