@@ -7,11 +7,14 @@
     line: "retries=10"
     insertafter: "^\\[main\\]"
 
-# Exception: under dnf5, ansible.builtin.dnf's update_cache expires no repo (it queries the repos before loading them), so cached metadata survives until metadata_expire.
 - name: "🔄 update (dnf) | re-fetch the metadata of every enabled repository"
   become: true
   ansible.builtin.command:
     argv: [dnf, makecache, --refresh, -y]
+  register: update_dnf_makecache
+  until: update_dnf_makecache.rc == 0
+  retries: 10
+  delay: 30
   changed_when: false
 
 - name: "🔄 update (dnf) | upgrade all installed packages"
