@@ -21,6 +21,7 @@ CACHE_CONTENT_MAX_AGE_MIN="${INFINITO_CACHE_PACKAGE_MAX_AGE_MIN}"
 CACHE_METADATA_MAX_AGE_MIN="${INFINITO_CACHE_PACKAGE_METADATA_MAX_AGE_MIN}"
 CACHE_MAX_IDLE_DAYS="${INFINITO_CACHE_MAX_IDLE_DAYS}"
 CLEANUP_POLICY="infinito-idle"
+COMPACT_TASK_NAME="infinito compact default"
 
 PKGCACHE_CONTAINER="${INFINITO_CACHE_PACKAGE_CONTAINER}"
 NEXUS_REST="http://${INFINITO_CACHE_PACKAGE_REST_HOST}:${INFINITO_CACHE_PACKAGE_PORT}/service/rest"
@@ -245,24 +246,44 @@ ensure_cleanup_task() {
 	return 1
 }
 
+list_compact_tasks() {
+	nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -fsS "${NEXUS_REST}/v1/tasks?type=blobstore.compact"
+}
+
+# Param: $1 Nexus's listing of its blobstore.compact tasks
+compact_task_listed() {
+	grep -qE "\"name\" *: *\"${COMPACT_TASK_NAME}\"" <<<"$1"
+}
+
 ensure_compact_task() {
-	local payload response
-	if task_scheduled blobstore.compact; then
+	local listing payload response
+	if ! listing="$(list_compact_tasks)"; then
+		log "Nexus did not list its blobstore.compact tasks"
+		return 1
+	fi
+	if compact_task_listed "${listing}"; then
 		log "task blobstore.compact already scheduled"
 		return 0
 	fi
-	payload='{"action":"coreui_Task","method":"create","type":"rpc","tid":1,"data":[{"enabled":true,"name":"infinito compact default","typeId":"blobstore.compact","alertEmail":"","notificationCondition":"FAILURE","schedule":"advanced","timeZoneOffset":"+00:00","cronExpression":"0 0 2 * * ?","properties":{"blobstoreName":"default","blobsOlderThan":"0"}}]}'
+	payload='{"action":"coreui_Task","method":"create","type":"rpc","tid":1,"data":[{"enabled":true,"name":"'"${COMPACT_TASK_NAME}"'","typeId":"blobstore.compact","alertEmail":"","notificationCondition":"FAILURE","schedule":"advanced","timeZoneOffset":"+00:00","cronExpression":"0 0 2 * * ?","properties":{"blobstoreName":"default","blobsOlderThan":"0"}}]}'
 	response="$(nexus_curl_auth "${ADMIN_USER}:${ADMIN_PASS}" -sS \
 		-H "Content-Type: application/json" \
 		-H "NX-ANTI-CSRF-TOKEN: ${CSRF_TOKEN}" \
 		-H "Cookie: NX-ANTI-CSRF-TOKEN=${CSRF_TOKEN}" \
 		-X POST "${NEXUS_EXTDIRECT}" \
 		--data "${payload}" || true)"
-	if ! grep -q '"success":true' <<<"${response}"; then
-		log "Nexus refused the blobstore.compact task: ${response}"
-		return 1
+	if grep -q '"success":true' <<<"${response}"; then
+		log "task blobstore.compact created"
+		return 0
 	fi
-	log "task blobstore.compact created"
+	if grep -qF "Task with name '${COMPACT_TASK_NAME}' already exists" <<<"${response}" &&
+		listing="$(list_compact_tasks)" &&
+		compact_task_listed "${listing}"; then
+		log "task blobstore.compact created by a concurrent bootstrap"
+		return 0
+	fi
+	log "Nexus refused the blobstore.compact task: ${response}"
+	return 1
 }
 
 ensure_eviction_tasks() {

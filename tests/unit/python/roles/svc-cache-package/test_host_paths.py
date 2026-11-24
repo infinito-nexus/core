@@ -25,6 +25,10 @@ NEXUS_DATA = "/nexus-data"
 NEXUS_UID = "200"
 TASKS = render.ROLE / "tasks" / "00_core.yml"
 FILE_MODULE = "ansible.builtin.file"
+COMMAND_MODULE = "ansible.builtin.command"
+WAIT_ARGV = ["container", "wait"]
+NO_SUCH = "Error response from daemon: No such container: package-cache-bootstrap"
+DAEMON_DOWN = "Cannot connect to the Docker daemon. Is the docker daemon running?"
 INFRA = {
     "package": {"data_path": DATA},
     "frontend": {
@@ -138,6 +142,21 @@ def _compose_services(override=None) -> dict:
     return load_yaml_str(render.compose(override))["services"]
 
 
+def _is_repository_task(task: dict) -> bool:
+    return "bootstrap.sh" in task.get("ansible.builtin.shell", {}).get("cmd", "")
+
+
+def _is_sidecar_wait(task: dict) -> bool:
+    return task.get(COMMAND_MODULE, {}).get("argv", [])[:2] == WAIT_ARGV
+
+
+def _is_compose_flush(task: dict) -> bool:
+    return (
+        task.get("include_role", {}).get("name") == "sys-svc-compose"
+        and task.get("vars", {}).get("compose_handlers_flush") is True
+    )
+
+
 def _repositories_task_runs(override=None) -> bool:
     """Args:
         override: the ``services`` keys an inventory sets for the role.
@@ -146,11 +165,7 @@ def _repositories_task_runs(override=None) -> bool:
         Whether the role task that writes the proxy repositories runs.
     """
     built = render.environment(override)
-    [task] = [
-        task
-        for task in load_yaml_any(str(TASKS))
-        if "bootstrap.sh" in task.get("ansible.builtin.shell", {}).get("cmd", "")
-    ]
+    [task] = [task for task in load_yaml_any(str(TASKS)) if _is_repository_task(task)]
     enabled = render.role_var(built, "CACHE_PACKAGE_BOOTSTRAP_ENABLED")
     return built.compile_expression(task["when"])(
         CACHE_PACKAGE_BOOTSTRAP_ENABLED=enabled
@@ -161,8 +176,70 @@ def _compose_up_index() -> int:
     return next(
         index
         for index, task in enumerate(load_yaml_any(str(TASKS)))
-        if task.get("include_role", {}).get("name") == "sys-svc-compose"
-        and task.get("vars", {}).get("compose_handlers_flush") is True
+        if _is_compose_flush(task)
+    )
+
+
+def _waits_for_the_sidecar(tasks: list[dict]) -> bool:
+    """Args:
+        tasks: a role task list.
+
+    Returns:
+        Whether a task waits for a container after the compose up flush has
+        started the sidecar and before the repository task runs the bootstrap.
+    """
+    flush = next(index for index, task in enumerate(tasks) if _is_compose_flush(task))
+    [repositories] = [
+        index for index, task in enumerate(tasks) if _is_repository_task(task)
+    ]
+    return any(
+        flush < index < repositories
+        for index, task in enumerate(tasks)
+        if _is_sidecar_wait(task)
+    )
+
+
+def _sidecar_wait() -> dict:
+    [task] = [task for task in load_yaml_any(str(TASKS)) if _is_sidecar_wait(task)]
+    return task
+
+
+def _wait_runs(override=None, swarm: bool = False) -> bool:
+    """Args:
+        override: the ``services`` keys an inventory sets for the role.
+        swarm: the IS_SWARM_MODE the deploy runs under.
+
+    Returns:
+        Whether the deploy waits for the bootstrap sidecar.
+    """
+    built = render.environment(override)
+    values = {
+        "CACHE_PACKAGE_BOOTSTRAP_ENABLED": render.role_var(
+            built, "CACHE_PACKAGE_BOOTSTRAP_ENABLED"
+        ),
+        "IS_SWARM_MODE": swarm,
+    }
+    return all(
+        built.compile_expression(condition)(**values)
+        for condition in _sidecar_wait()["when"]
+    )
+
+
+def _wait_fails(rc: int, stdout: str, stderr: str) -> bool:
+    """Args:
+        rc: the exit code of ``container wait``.
+        stdout: what it printed, the sidecar's exit code.
+        stderr: its error output.
+
+    Returns:
+        Whether the deploy fails on that result.
+    """
+    task = _sidecar_wait()
+    result = {task["register"]: {"rc": rc, "stdout": stdout, "stderr": stderr}}
+    built = render.environment()
+    return all(
+        built.compile_expression(condition)(**result)
+        for condition in task["failed_when"]
     )
 
 
@@ -262,6 +339,49 @@ class TestRepositoriesUnderTheInfraRunner(unittest.TestCase):
     def test_without_the_key_the_role_provisions_its_repositories(self) -> None:
         self.assertIn("bootstrap", _compose_services())
         self.assertTrue(_repositories_task_runs())
+
+
+class TestOneBootstrapAtATime(unittest.TestCase):
+    def test_the_deploy_waits_for_the_sidecar_before_its_own_bootstrap(self) -> None:
+        self.assertTrue(_waits_for_the_sidecar(load_yaml_any(str(TASKS))))
+
+    def test_a_deploy_without_the_wait_is_caught(self) -> None:
+        tasks = load_yaml_any(str(TASKS))
+        unguarded = [task for task in tasks if not _is_sidecar_wait(task)]
+        self.assertFalse(_waits_for_the_sidecar(unguarded))
+
+    def test_a_wait_after_the_deploy_bootstrap_is_caught(self) -> None:
+        tasks = load_yaml_any(str(TASKS))
+        late = [task for task in tasks if not _is_sidecar_wait(task)]
+        late.append(_sidecar_wait())
+        self.assertFalse(_waits_for_the_sidecar(late))
+
+    def test_it_waits_for_the_container_the_stack_names(self) -> None:
+        built = render.environment()
+        waited = built.from_string(_sidecar_wait()[COMMAND_MODULE]["argv"][2]).render(
+            CACHE_PACKAGE_BOOTSTRAP_CONTAINER=render.role_var(
+                built, "CACHE_PACKAGE_BOOTSTRAP_CONTAINER"
+            )
+        )
+        self.assertEqual(
+            _compose_services()["bootstrap"]["compose_only"][0],
+            ["container_name", waited],
+        )
+
+    def test_it_waits_exactly_where_the_stack_runs_the_sidecar(self) -> None:
+        self.assertTrue(_wait_runs())
+        self.assertFalse(_wait_runs(swarm=True))
+        self.assertFalse(_wait_runs(_infra_services(_infra_env())))
+
+    def test_an_absent_or_failed_sidecar_leaves_the_verdict_to_the_deploy_bootstrap(
+        self,
+    ) -> None:
+        self.assertFalse(_wait_fails(0, "0", ""))
+        self.assertFalse(_wait_fails(0, "1", ""))
+        self.assertFalse(_wait_fails(1, "", NO_SUCH))
+
+    def test_a_wait_the_daemon_cannot_answer_fails_the_deploy(self) -> None:
+        self.assertTrue(_wait_fails(1, "", DAEMON_DOWN))
 
 
 class TestFrontendPorts(unittest.TestCase):

@@ -58,6 +58,21 @@
   vars:
     compose_handlers_flush: true
 
+- name: "⏳ Wait for the bootstrap sidecar before the deploy runs the same bootstrap"
+  ansible.builtin.command:
+    argv:
+      - container
+      - wait
+      - "{{ CACHE_PACKAGE_BOOTSTRAP_CONTAINER }}"
+  register: cache_package_bootstrap_sidecar
+  changed_when: false
+  failed_when:
+    - cache_package_bootstrap_sidecar.rc != 0
+    - "'No such container' not in cache_package_bootstrap_sidecar.stderr"
+  when:
+    - CACHE_PACKAGE_BOOTSTRAP_ENABLED | bool
+    - not (IS_SWARM_MODE | bool)
+
 - name: "📦 Create the proxy repositories the frontend maps onto"
   ansible.builtin.shell:
     cmd: >-

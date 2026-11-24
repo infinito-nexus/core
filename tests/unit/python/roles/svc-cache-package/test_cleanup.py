@@ -6,6 +6,7 @@ import re
 import subprocess
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 from utils import PROJECT_ROOT
@@ -20,6 +21,9 @@ POLICY_ROUTE = "/service/rest/internal/cleanup-policies"
 EXTDIRECT = "/service/extdirect"
 CLEANUP = "repository.cleanup"
 COMPACT = "blobstore.compact"
+COMPACT_NAME = "infinito compact default"
+DUPLICATE = f"Task with name '{COMPACT_NAME}' already exists"
+TASK_NAMES = {CLEANUP: "Cleanup service", COMPACT: COMPACT_NAME}
 DAILY = re.compile(r"^0 \d{1,2} \d{1,2} \* \* \?$")
 UPSTREAMS = (
     "pypi-proxy|pypi|https://pypi.org/|||,"  # nocheck: url  upstream list fixture
@@ -55,14 +59,25 @@ with open(os.environ["STUB_LOG"], "a", encoding="utf-8") as log:
     entry = {"method": method, "url": url, "data": data, "headers": headers}
     log.write(json.dumps(entry) + "\n")
 if "/v1/tasks?type=" in url:
+    kind = url.rsplit("type=", 1)[1]
+    if kind in os.environ["STUB_LISTING_FAILS"].split(","):
+        sys.stderr.write("curl: (22) The requested URL returned error: 500\n")
+        sys.exit(22)
     scheduled = os.environ["STUB_TASKS"].split(",")
-    item = '{ "id" : "existing" }' if url.rsplit("type=", 1)[1] in scheduled else ""
+    if os.path.exists(os.environ["STUB_CREATED"]):
+        scheduled += os.environ["STUB_TASKS_AFTER_CREATE"].split(",")
+    names = json.loads(os.environ["STUB_TASK_NAMES"])
+    item = '{ "id" : "existing", "name" : "' + names[kind] + '" }' if kind in scheduled else ""
     sys.stdout.write('{\n  "items" : [ ' + item + ' ],\n  "continuationToken" : null\n}')
 elif url.endswith("/service/extdirect"):
+    with open(os.environ["STUB_CREATED"], "w", encoding="utf-8"):
+        pass
     success = os.environ["STUB_EXTDIRECT_SUCCESS"]
+    refusal = os.environ["STUB_EXTDIRECT_REFUSAL"]
+    message = '"message":' + json.dumps(refusal) + "," if refusal else ""
     sys.stdout.write(
         '{"tid":1,"action":"coreui_Task","method":"create","type":"rpc",'
-        '"result":{"success":' + success + ',"data":{}}}'
+        '"result":{' + message + '"success":' + success + ',"data":{}}}'
     )
 elif write_out:
     sys.stdout.write("204" if method == "PUT" or url.endswith("/v1/system/eula") else "201")
@@ -73,12 +88,21 @@ NOOP = "#!/usr/bin/env bash\nexit 0\n"
 
 
 def _bootstrap(
-    idle_days: str, scheduled: str, extdirect_success: str
+    idle_days: str,
+    scheduled: str,
+    extdirect_success: str,
+    refusal: str = "",
+    scheduled_after_create: str = "",
+    listing_fails: str = "",
 ) -> tuple[int, list[dict]]:
     """Args:
         idle_days: the INFINITO_CACHE_MAX_IDLE_DAYS the bootstrap gets, empty to leave it unset.
         scheduled: the comma-separated task types Nexus already lists.
         extdirect_success: what Nexus answers to the Ext.Direct task creation, `true` or `false`.
+        refusal: the message Nexus adds to that answer, empty for none.
+        scheduled_after_create: the comma-separated task types Nexus lists once a
+            creation was posted, as when a concurrent bootstrap created them.
+        listing_fails: the comma-separated task types whose listing Nexus answers with HTTP 500.
 
     Returns:
         The exit code and every Nexus request, with its JSON body parsed.
@@ -100,7 +124,12 @@ def _bootstrap(
             "HOME": tmp,
             "STUB_LOG": str(log),
             "STUB_TASKS": scheduled,
+            "STUB_TASKS_AFTER_CREATE": scheduled_after_create,
+            "STUB_TASK_NAMES": json.dumps(TASK_NAMES),
+            "STUB_LISTING_FAILS": listing_fails,
+            "STUB_CREATED": str(Path(tmp) / "created"),
             "STUB_EXTDIRECT_SUCCESS": extdirect_success,
+            "STUB_EXTDIRECT_REFUSAL": refusal,
             "INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD": "probe-password",
             "INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX": "40g",
             "INFINITO_CACHE_PACKAGE_MAX_AGE_MIN": "8640",
@@ -226,6 +255,47 @@ class TestBootstrapCleanup(unittest.TestCase):
         code, requests = _bootstrap("30", CLEANUP, "false")
         self.assertNotEqual(code, 0)
         self.assertEqual(len(_posts(requests, EXTDIRECT)), 1)
+
+    def test_the_task_a_concurrent_bootstrap_created_counts_once_nexus_lists_it(
+        self,
+    ) -> None:
+        code, requests = _bootstrap(
+            "30", CLEANUP, "false", refusal=DUPLICATE, scheduled_after_create=COMPACT
+        )
+        self.assertEqual(code, 0)
+        calls = _posts(requests, EXTDIRECT)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0]["body"]["data"][0]["name"], COMPACT_NAME)
+        self.assertEqual(_looked_up(requests).count(COMPACT), 2)
+
+    def test_a_duplicate_refusal_fails_while_nexus_lists_no_such_task(self) -> None:
+        code, requests = _bootstrap("30", CLEANUP, "false", refusal=DUPLICATE)
+        self.assertNotEqual(code, 0)
+        self.assertEqual(len(_posts(requests, EXTDIRECT)), 1)
+
+    def test_another_refusal_fails_even_once_nexus_lists_the_task(self) -> None:
+        code, _ = _bootstrap(
+            "30",
+            CLEANUP,
+            "false",
+            refusal="Invalid cron expression",
+            scheduled_after_create=COMPACT,
+        )
+        self.assertNotEqual(code, 0)
+
+    def test_a_compaction_task_of_another_name_does_not_count(self) -> None:
+        names = {**TASK_NAMES, COMPACT: "operator compact default"}
+        with unittest.mock.patch.dict(TASK_NAMES, names):
+            code, requests = _bootstrap("30", f"{CLEANUP},{COMPACT}", "true")
+        self.assertEqual(code, 0)
+        calls = _posts(requests, EXTDIRECT)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0]["body"]["data"][0]["name"], COMPACT_NAME)
+
+    def test_an_unanswered_task_listing_fails_before_any_creation(self) -> None:
+        code, requests = _bootstrap("30", CLEANUP, "true", listing_fails=COMPACT)
+        self.assertNotEqual(code, 0)
+        self.assertEqual(_posts(requests, EXTDIRECT), [])
 
 
 class TestAptProxies(unittest.TestCase):
