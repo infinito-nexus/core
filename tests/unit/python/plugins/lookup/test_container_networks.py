@@ -102,9 +102,7 @@ class TestContainerNetworksLookup(unittest.TestCase):
 
     def test_reads_the_service_network_aliases_from_its_config(self):
         render_mock = mock.MagicMock(return_value="RENDERED")
-        config_calls = self._run_with_configured_aliases(
-            ["a.example.com"], render_mock
-        )
+        config_calls = self._run_with_configured_aliases(["a.example.com"], render_mock)
 
         self.assertIn(
             ("web-app-x", "services.relay.network_aliases", None), config_calls
