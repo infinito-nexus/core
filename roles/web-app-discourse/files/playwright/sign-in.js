@@ -51,6 +51,10 @@ async function signInViaOidc(page, base, username, password) {
     await expect(createAccount, "expected the IdP-filled account form to be submittable").toBeEnabled({
       timeout: resolveTimeout(30_000),
     });
+    await expect(
+      page.locator("#username-validation"),
+      "expected discourse to confirm the IdP-filled username as available before the account form is sent",
+    ).toHaveClass(/\bgood\b/, { timeout: resolveTimeout(30_000) });
     await createAccount.click();
     await expect(currentUserMenu, "expected the confirmed account to open a session").toBeVisible({
       timeout: resolveTimeout(60_000),
