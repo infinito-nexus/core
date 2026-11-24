@@ -1,19 +1,32 @@
 const dgram = require("node:dgram");
 const { test, expect } = require("@playwright/test");
+const { decodeDotenvQuotedValue } = require("./personas");
 
 const TXT = 16;
 const RRSIG = 46;
-const zone = (process.env.KNOT_ZONE || "").replace(/\.$/, "");
+
+/**
+ * Args:
+ *   raw: the KNOT_SERVERS value as the container sees it, still dotenv-quoted.
+ *
+ * Returns:
+ *   One { host, port } per comma-separated host:port entry.
+ */
+function knotServers(raw) {
+  return decodeDotenvQuotedValue(raw || "")
+    .split(",")
+    .filter(Boolean)
+    .map((entry) => {
+      const colon = entry.lastIndexOf(":");
+      return { host: entry.slice(0, colon), port: Number(entry.slice(colon + 1)) };
+    });
+}
+
+const zone = decodeDotenvQuotedValue(process.env.KNOT_ZONE || "").replace(/\.$/, "");
 if (!zone) {
   throw new Error("KNOT_ZONE must be set by the role's playwright.env");
 }
-const servers = (process.env.KNOT_SERVERS || "")
-  .split(",")
-  .filter(Boolean)
-  .map((entry) => {
-    const colon = entry.lastIndexOf(":");
-    return { host: entry.slice(0, colon), port: Number(entry.slice(colon + 1)) };
-  });
+const servers = knotServers(process.env.KNOT_SERVERS);
 
 function question(name, type) {
   const header = Buffer.from([0x4b, 0x6e, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01]);
