@@ -98,6 +98,7 @@ async function configure(page, base, section, values, restore) {
  */
 async function createAccount(page, base, username, label) {
   const password = `${crypto.randomBytes(24).toString("base64url")}Aa1-`;
+  const email = `${username}@${requireDotenvValue(process.env.DOMAIN_PRIMARY, "DOMAIN_PRIMARY")}`;
   await gotoOnion(page, `${base}/user/editadvanced.php?id=-1`, { waitUntil: "domcontentloaded" });
   await expect(page.locator("#id_username"), "the new user form must render").toBeEditable(ACTION);
   await page.locator("#id_username").fill(username);
@@ -108,7 +109,8 @@ async function createAccount(page, base, username, label) {
   await page.locator("#id_newpassword").fill(password, ACTION);
   await page.locator("#id_firstname").fill("Infinito");
   await page.locator("#id_lastname").fill(label);
-  await page.locator("#id_email").fill(`${username}@${requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN")}`);
+  await page.locator("#id_email").fill(email);
+  await expect(page.locator("#id_email"), `the email field must hold all of ${email}`).toHaveValue(email, ACTION);
   await page.locator("#id_submitbutton").click(ACTION);
   await page.waitForURL((url) => !url.pathname.endsWith("/user/editadvanced.php"), ACTION);
   const users = await ajax(page, "core_user_get_users_by_field", { field: "username", values: [username] });
