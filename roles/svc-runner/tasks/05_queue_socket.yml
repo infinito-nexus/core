@@ -1,0 +1,32 @@
+---
+- name: 🔌 Define the Docker socket the runner-queue group reaches the daemon on
+  ansible.builtin.template: # nocheck: stack-host-template (socket unit of the infra runner's own daemon)
+    src: runner-queue-docker.socket.j2
+    dest: "{{ RUNNER_QUEUE_SOCKET_UNIT_FILE }}"
+    mode: "0644"
+  register: _runner_queue_socket_unit
+
+- name: 📁 Ensure the docker.service drop-in directory exists
+  ansible.builtin.file:
+    path: "{{ RUNNER_DOCKER_DROPIN | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: 🔌 Hand the queue socket to the Docker daemon beside its own
+  ansible.builtin.template: # nocheck: stack-host-template (docker.service drop-in of the infra runner's own daemon)
+    src: runner-queue-socket.conf.j2
+    dest: "{{ RUNNER_DOCKER_DROPIN }}"
+    mode: "0644"
+  register: _runner_queue_socket_dropin
+
+- name: 🔄 Restart the queue socket and the Docker daemon that listens on it
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: restarted
+    daemon_reload: true
+  loop:
+    - "{{ RUNNER_QUEUE_SOCKET_UNIT }}"
+    - docker.service
+  when: >-
+    _runner_queue_socket_unit is changed
+    or _runner_queue_socket_dropin is changed

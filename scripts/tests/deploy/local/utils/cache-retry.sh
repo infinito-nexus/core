@@ -44,9 +44,11 @@ _cache_retry_list_apt_proxy_repos() {
 	return 0
 }
 
-cache_retry_recover() {
-	# shellcheck disable=SC1091  # path is runtime-resolved through REPO_ROOT
-	source "${REPO_ROOT:-${PWD}}/scripts/meta/env/load.sh"
+_cache_retry_invalidate_nexus() {
+	if [[ "${INFINITO_POOL_RUNNER:-}" == true ]]; then
+		echo "[cache-retry] pool job: Nexus runs on the infra runner's daemon, out of this job's reach; skipping invalidate-cache"
+		return 0
+	fi
 
 	local repos=()
 	local discovered
@@ -65,6 +67,13 @@ cache_retry_recover() {
 		echo "[cache-retry] Nexus invalidate-cache: ${repo}"
 		_cache_retry_nexus_invalidate "${repo}"
 	done
+}
+
+cache_retry_recover() {
+	# shellcheck disable=SC1091  # path is runtime-resolved through REPO_ROOT
+	source "${REPO_ROOT:-${PWD}}/scripts/meta/env/load.sh"
+
+	_cache_retry_invalidate_nexus
 
 	echo "[cache-retry] docker builder prune -af..."
 	docker builder prune -af >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error

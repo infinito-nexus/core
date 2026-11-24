@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import json
+import os
 import subprocess
 import tempfile
 import unittest
@@ -11,18 +12,19 @@ from cli.meta.runner.cleanup.__main__ import (
     PROJECTS,
     RUNNER_STATE,
     job_stacks,
-    project_prefix,
     run,
 )
-from utils import PROJECT_ROOT
+from utils.infra_inventory import POOL_KEY
 from utils.runner import jobs
 from utils.runner.jobs import HELD, RUNNING
 
 NOW = 1_800_000_000.0
 HOUR = 3600
 PREFIX = "runner"
+POOL_ON = {POOL_KEY: "true"}
 LISTING = json.dumps(
     [
+        {"Name": "runner-0", "Status": "exited(1)"},
         {"Name": "runner-1", "Status": "running(3)"},
         {"Name": "runner-2", "Status": "running(3)"},
         {"Name": "runner-3", "Status": "exited(3)"},
@@ -61,9 +63,6 @@ class TestJobStacks(unittest.TestCase):
     def test_another_prefix_finds_none_of_them(self) -> None:
         self.assertEqual(job_stacks(LISTING, "pool"), [])
 
-    def test_the_prefix_is_the_one_svc_runner_names_its_job_stacks_with(self) -> None:
-        self.assertEqual(project_prefix(PROJECT_ROOT), PREFIX)
-
 
 class TestReport(unittest.TestCase):
     def setUp(self) -> None:
@@ -89,7 +88,9 @@ class TestReport(unittest.TestCase):
         self,
     ) -> None:
         probe = _Probe(state=0, listing=0)
-        code = run(self.root, PREFIX, probe, NOW + 25 * HOUR, self.out, self.err)
+        code = run(
+            self.root, PREFIX, POOL_ON, probe, NOW + 25 * HOUR, self.out, self.err
+        )
         self.assertEqual(code, 0, self.err.getvalue())
         self.assertEqual(
             self._rows(),
@@ -108,31 +109,88 @@ class TestReport(unittest.TestCase):
 
     def test_the_report_removes_nothing(self) -> None:
         probe = _Probe(state=0, listing=0)
-        run(self.root, PREFIX, probe, NOW + 25 * HOUR, self.out, self.err)
+        run(self.root, PREFIX, POOL_ON, probe, NOW + 25 * HOUR, self.out, self.err)
         self.assertEqual(probe.calls, [RUNNER_STATE, PROJECTS])
         self.assertEqual(jobs.job(self.root, self.held.id).state, HELD)
         self.assertEqual(jobs.job(self.root, self.running.id).state, RUNNING)
 
     def test_a_stopped_infra_runner_holds_no_job_stack(self) -> None:
         probe = _Probe(state=3, listing=0)
-        code = run(self.root, PREFIX, probe, NOW + 25 * HOUR, self.out, self.err)
+        code = run(
+            self.root, PREFIX, POOL_ON, probe, NOW + 25 * HOUR, self.out, self.err
+        )
         self.assertEqual(code, 0, self.err.getvalue())
         self.assertEqual(probe.calls, [RUNNER_STATE])
         self.assertEqual([row["kind"] for row in self._rows()], [HELD])
 
     def test_an_unknown_runner_state_fails_loudly(self) -> None:
         probe = _Probe(state=2, listing=0)
-        code = run(self.root, PREFIX, probe, NOW, self.out, self.err)
+        code = run(self.root, PREFIX, POOL_ON, probe, NOW, self.out, self.err)
         self.assertEqual(code, 2)
         self.assertEqual(self.out.getvalue(), "")
         self.assertIn("state is unknown", self.err.getvalue())
 
     def test_a_failed_project_listing_fails_loudly(self) -> None:
         probe = _Probe(state=0, listing=1)
-        code = run(self.root, PREFIX, probe, NOW, self.out, self.err)
+        code = run(self.root, PREFIX, POOL_ON, probe, NOW, self.out, self.err)
         self.assertEqual(code, 2)
         self.assertEqual(self.out.getvalue(), "")
         self.assertIn("docker compose ls", self.err.getvalue())
+
+
+class TestUnusableQueue(unittest.TestCase):
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.root = Path(self._tmp.name) / "jobs"
+        self.out = io.StringIO()
+        self.err = io.StringIO()
+
+    def _report(self) -> tuple[int, _Probe]:
+        probe = _Probe(state=0, listing=0)
+        return run(self.root, PREFIX, POOL_ON, probe, NOW, self.out, self.err), probe
+
+    def test_a_missing_queue_is_refused_before_the_runner_is_asked(self) -> None:
+        code, probe = self._report()
+        self.assertEqual([code, probe.calls, self.out.getvalue()], [2, [], ""])
+        self.assertIn("make infra-update", self.err.getvalue())
+
+    @unittest.skipIf(os.geteuid() == 0, "root writes every directory")
+    def test_a_queue_outside_the_users_group_reports_no_orphan(self) -> None:
+        self.root.mkdir()
+        self.root.chmod(0o550)
+        self.addCleanup(self.root.chmod, 0o750)
+        code, probe = self._report()
+        self.assertEqual([code, probe.calls, self.out.getvalue()], [2, [], ""])
+        self.assertIn("sudo usermod -aG", self.err.getvalue())
+
+
+class TestPoolOff(unittest.TestCase):
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self._tmp.name) / "jobs"
+        self.out = io.StringIO()
+        self.err = io.StringIO()
+
+    def tearDown(self) -> None:
+        self._tmp.cleanup()
+
+    def _report(self, env: dict[str, str]) -> tuple[int, _Probe]:
+        probe = _Probe(state=0, listing=0)
+        return run(self.root, PREFIX, env, probe, NOW, self.out, self.err), probe
+
+    def test_an_unset_or_false_opt_in_reports_nothing_and_succeeds(self) -> None:
+        for env in ({}, {POOL_KEY: "false"}):
+            with self.subTest(env=env):
+                code, probe = self._report(env)
+                self.assertEqual([code, probe.calls, self.out.getvalue()], [0, [], ""])
+                self.assertIn("pool is off", self.err.getvalue())
+                self.assertFalse(self.root.exists())
+
+    def test_another_opt_in_value_is_refused_naming_the_key(self) -> None:
+        code, probe = self._report({POOL_KEY: "yes"})
+        self.assertEqual([code, probe.calls], [2, []])
+        self.assertIn(POOL_KEY, self.err.getvalue())
 
 
 if __name__ == "__main__":

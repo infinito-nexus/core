@@ -105,6 +105,7 @@ stacks:
     stops:
       - compose-down
       - compose-stop
+      - runner-release
       - system-purge
       - worktree-down
 unaddressed:

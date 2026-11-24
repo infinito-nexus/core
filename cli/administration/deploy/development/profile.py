@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import os
 
+from utils.runner import POOL_RUNNER_KEY
+
 
 def _declared(name: str) -> bool | None:
     """Explicit capability declaration, or None when it is left to the default."""
@@ -34,6 +36,10 @@ class Profile:
         """True iff the pull-through cache stack should be loaded."""
         declared = _declared("INFINITO_CACHE_STACK")
         return (not self.is_ci()) if declared is None else declared
+
+    def pool_runner(self) -> bool:
+        """True iff a pool runner declared it runs this job: caches yes, infra start and attach no."""
+        return _declared(POOL_RUNNER_KEY) is True
 
     def gpu_reservable(self) -> bool:
         """True iff the docker daemon registers an NVIDIA runtime."""

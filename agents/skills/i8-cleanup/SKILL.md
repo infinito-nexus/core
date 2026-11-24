@@ -36,7 +36,7 @@ here is stricter, it wins. This skill never runs under the `robot` skill.
   `make -C <worktree> test-runner-status` names the runner of that worktree's image and whether it runs, and `make -C <worktree> test-runner-down` removes it.
   A runner that `make -C <worktree> test-runner-status` names for no worktree `git worktree list` registers MAY still serve a separate clone below the worktree roots: list it in the report as a stale candidate, but never remove it.
 - **Toolchain images**: `<repo>/<distro>:<hash>` images that no registered worktree resolves and no container uses are the candidates `make build-cleanup` removes; it keeps every other one.
-- **Runner pool**: `make runner-cleanup-report` prints one JSON object per held pool job (job id, runner, stack, checkout, `age_seconds`) and per job stack that no running or held job owns (`kind: orphan`).
+- **Runner pool**: `make runner-cleanup-report` prints one JSON object per held pool job (job id, runner, stack, checkout, `age_seconds`) and per job stack that no running or held job owns (`kind: orphan`); with the pool off (`INFINITO_DEPLOY_VIA_POOL` unset or `false`) it prints none and exits `0`.
   List every row in the report with its age; the report removes nothing, and this skill MUST NOT remove a pool runner, a held job or a job stack.
 - **Act and swarm**: `local/act-runner-fixed:latest`,
   `infinito-swarm-node:latest`, the volume `act-toolcache` and `~/.cache/act`

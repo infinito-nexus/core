@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from cli.administration.deploy.development.extra_mounts import write_mounts_override
-from cli.administration.deploy.development.profile import Profile
+from cli.administration.deploy.development.profile import POOL_RUNNER_KEY, Profile
 from cli.administration.deploy.development.stack import infra_compose_argv
 from utils.cache.evict import CacheConfigError
 from utils.cache.eviction.docker import build_cache_usage, run_command
@@ -47,13 +47,18 @@ from utils.infra import (
 )
 from utils.infra_inventory import (
     CACHE_SERVICES,
+    POOL_KEY,
+    POOL_ROLE,
     PRUNE_ACTION,
+    SRC_KEY,
+    Pool,
     cache_container,
     cache_port,
     deploy_commands,
     drop_roles,
     infra_roles,
     opted_out,
+    pool_refusal,
     render_inventory,
     unmounted,
 )
@@ -75,6 +80,7 @@ from utils.inventory.tools import (
 )
 from utils.inventory.tools_idle import GRACE_KEY, STAMP_DIR_KEY
 from utils.roles.entity.name import entity_name
+from utils.runner.jobs import queue_root
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -85,7 +91,12 @@ GPU_KEY = "INFINITO_GPU_COUNT"
 GPU_OVERRIDE = "compose/infra-gpu.override.yml"
 PRIMARY = ["bash", "scripts/meta/resolve/repository/primary.sh"]
 IMAGE = ["bash", "scripts/meta/resolve/image/local.sh"]
+IMAGE_LOAD = (
+    'image="$1"; shift; "$@" image inspect "$image" >/dev/null 2>&1 '
+    '|| docker save "$image" | "$@" load'
+)
 EVICT = [sys.executable, "-m", "cli.meta.cache.evict"]
+RUNNER_COUNT = [sys.executable, "-m", "cli.meta.runner.count"]
 INVENTORY_DIR = Path.home() / "inventories" / "infinito-infra"
 TOOLS_ROLES = (LIBRETRANSLATE_ROLE, S1_ROLE, LITELLM_ROLE, OLLAMA_ROLE, GATEWAY_ROLE)
 LIFECYCLE = ("up", "update", "down", "status")
@@ -221,14 +232,58 @@ def _projects() -> list[str]:
     return [entity_name(role) for role in TOOLS_ROLES]
 
 
+def _runner_count() -> int:
+    done = subprocess.run(
+        RUNNER_COUNT, cwd=PROJECT_ROOT, capture_output=True, text=True, check=False
+    )
+    if done.returncode != 0:
+        raise SystemExit(
+            f"[infra] {POOL_KEY}=true deploys the runner pool, whose size "
+            f"make runner-count cannot tell (rc={done.returncode}): "
+            f"{done.stderr.strip()}"
+        )
+    return int(json.loads(done.stdout)["count"])
+
+
+def _pool(primary: Path) -> Pool:
+    roots = worktree_roots(os.environ.get(ROOTS_KEY) or "", primary, Path.home())
+    pool = Pool(
+        count=_runner_count(),
+        roots=tuple(str(root) for root in roots),
+        queue=str(queue_root()),
+        src=(os.environ.get(SRC_KEY) or "").strip(),
+        image=(os.environ.get(IMAGE_KEY) or "").strip(),
+        uid=os.getuid(),
+        gid=os.getgid(),
+    )
+    refusals = pool_refusal(pool, base())
+    if refusals:
+        raise SystemExit("\n".join(refusals))
+    return pool
+
+
+def image_load(argv: list[str], image: str) -> list[str]:
+    """Args:
+        argv: compose call of the infra stack.
+        image: the toolchain image the pool runners run.
+
+    Returns:
+        The call that hands the image from the host's daemon to the infra
+        runner's, unless that one already holds it.
+    """
+    return ["bash", "-c", IMAGE_LOAD, "image-load", image, *inner_docker(argv, [])]
+
+
 def _installs(argv: list[str], primary: Path) -> list[list[str]]:
     roles, pruned = infra_roles(os.environ), opted_out(os.environ)
-    vars_file = render_inventory(PROJECT_ROOT, os.environ)
+    pool = _pool(primary) if POOL_ROLE in roles else None
+    vars_file = render_inventory(PROJECT_ROOT, os.environ, pool)
     unit_dir = base().joinpath(*UNIT_DIR)
     python = f"{os.environ[VENV_KEY]}/bin/python"
     idle = {key: os.environ[key] for key in (GRACE_KEY, STAMP_DIR_KEY)}
     write_units(unit_dir, idle_units(primary, python, idle))
     return [
+        *([image_load(argv, pool.image)] if pool else []),
         *deploy_commands(argv, PROJECT_ROOT, vars_file, INVENTORY_DIR, roles, pruned),
         *timer_installs(argv, unit_dir),
     ]
@@ -282,6 +337,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.action in STARTING and not Profile().cache_stack_enabled():
         print("[infra] INFINITO_CACHE_STACK is off; no infra runner", file=sys.stderr)
         return 0
+    if args.action in STARTING and Profile().pool_runner():
+        raise SystemExit(
+            f"[infra] {POOL_RUNNER_KEY}=true: a pool job consumes the infra "
+            f"runner's caches and never runs '{args.action}' itself"
+        )
     if args.action in STARTING:
         try:
             infra_roles(os.environ)

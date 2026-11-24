@@ -13,6 +13,10 @@ else
 $(error Missing env file: $(ENV_SH))
 endif
 
+ifdef job
+export INFINITO_POOL_JOB := $(job)
+endif
+
 .DEFAULT_GOAL := help
 
 .PHONY: act-debug
@@ -282,11 +286,13 @@ compose-app-restart:
 # Param hold: true keeps the job's stack after a pool deploy until its release (INFINITO_DEPLOY_VIA_POOL=true only)
 # Param timeout: withdraw a pool job still queued after this long, e.g. 30m; unset waits (INFINITO_DEPLOY_VIA_POOL=true only)
 compose-deploy:
-	@if [ "$${INFINITO_DEPLOY_VIA_POOL:-}" = "true" ]; then \
-		exec "$${PYTHON}" -m cli.administration.deploy.pool compose-deploy \
+	@case "$${INFINITO_DEPLOY_VIA_POOL:-}" in \
+	true) exec "$${PYTHON}" -m cli.administration.deploy.pool compose-deploy \
 			--hold '$(or $(hold),false)' --timeout '$(timeout)' \
-			$(filter-out hold=% timeout=% INFINITO_DEPLOY_VIA_POOL=%,$(MAKEOVERRIDES)); \
-	fi; \
+			$(filter-out hold=% timeout=% INFINITO_DEPLOY_VIA_POOL=%,$(MAKEOVERRIDES)) ;; \
+	"" | false) ;; \
+	*) echo "[runner] INFINITO_DEPLOY_VIA_POOL=$${INFINITO_DEPLOY_VIA_POOL}: set true or false, or unset it" >&2; exit 2 ;; \
+	esac; \
 	$(if $(debug),INFINITO_DEBUG="$(debug)") \
 	 $(if $(skip_compile),INFINITO_SKIP_COMPILE="$(skip_compile)") \
 	 bash scripts/tests/deploy/local/deploy/main.sh
@@ -308,6 +314,7 @@ compose-entity-purge:
 # Usage: make compose-exec [cmd="..."]
 # Example: make compose-exec cmd="ls /opt/src/infinito"
 # Param cmd: shell command to run; when unset, opens an interactive shell.
+# Param job: id of a held or running pool job, whose stack on the infra runner's daemon it reaches instead
 compose-exec:
 	@cmd='$(cmd)' bash scripts/tests/deploy/local/exec/container.sh
 
@@ -318,6 +325,7 @@ compose-exec:
 # Param IMAGE: image reference passed to `docker run` (required, e.g. alpine).
 # Param cmd: command to execute inside the sidecar; defaults to the image entrypoint.
 # Param INFINITO_RUN_FLAGS: extra flags forwarded verbatim to `docker run`.
+# Param job: id of a held or running pool job, whose stack on the infra runner's daemon it reaches instead
 compose-inner-run:
 	@cmd='$(cmd)' bash scripts/tests/deploy/local/exec/run.sh
 
@@ -338,8 +346,10 @@ PLAYWRIGHT_SECRETS_ASSIGN = $(if $(secrets),PLAYWRIGHT_SPEC_SECRETS_FILE=$(subst
 # Rerun a role-local Playwright spec against the live running stack (no redeploy).
 # Usage: make compose-playwright role=<role> [pw="--grep <pattern>"] [keep=true] [secrets=<rendered playwright.secrets.j2 file in the container>]
 # Example: make compose-playwright role=web-app-dashboard pw="--grep icons" keep=true
+# Param job: id of a held or running pool job, whose stack on the infra runner's daemon it reaches instead, after mirroring the checkout its record names (the one that submitted it) into the job's copy again
 compose-playwright:
 	@: $${role:?role=<role> required, e.g. role=web-app-dashboard}
+	@$(if $(job),"$${PYTHON}" -m cli.administration.deploy.pool.attach --sync '$(job)')
 	@cmd='$(if $(keep),INFINITO_PLAYWRIGHT_KEEP=$(keep) )$(PLAYWRIGHT_SECRETS_ASSIGN)bash scripts/tests/e2e/rerun-spec.sh $(role) $(pw)' \
 	 bash scripts/tests/deploy/local/exec/container.sh
 
@@ -359,8 +369,10 @@ compose-restart:
 # Param pw: Playwright arguments without quotes; when set, the spec of the role is staged again, its .env rendered again and run with them
 # Param keep: true lets that spec run capture the design gallery
 # Param base: hex base color that replaces the one of the inventory for this run, e.g. base='#001f3f'
+# Param job: id of a held or running pool job, whose stack on the infra runner's daemon it reaches instead, after mirroring the checkout its record names (the one that submitted it) into the job's copy again
 compose-role-sync:
 	@: $${role:?role=<application_id> required, e.g. role=web-app-gitea}
+	@$(if $(job),"$${PYTHON}" -m cli.administration.deploy.pool.attach --sync '$(job)')
 	@role='$(role)' variant='$(variant)' task='$(task)' pw='$(pw)' keep='$(keep)' base='$(base)' bash scripts/tests/deploy/local/sync/role.sh
 
 .PHONY: compose-stop
@@ -461,6 +473,7 @@ diagnose-network:
 .PHONY: dotenv
 # Regenerate .env (SPOT) from default.env + runtime context.
 dotenv:
+	@test -z "$${INFINITO_POOL_JOB:-}" || { echo "make dotenv writes the .env of this checkout and takes no job= or INFINITO_POOL_JOB" >&2; exit 2; }
 	@python3 -m cli.meta.env
 	@python3 -m cli.meta.cache
 
@@ -990,6 +1003,19 @@ runner-cleanup-report:
 # Print the default local runner pool size and its RAM, CPU and disk terms as JSON; INFINITO_RUNNER_COUNT overrides it.
 runner-count:
 	@"$${PYTHON}" -m cli.meta.runner.count
+
+.PHONY: runner-release
+# Remove the stack of a held pool job, or of a running one whose runner no longer serves the queue, from the infra runner's daemon, then end the job (the running one failed with 137) and free its runner; a failed removal leaves the job as it was.
+# Usage: make runner-release job=<id>
+# Param job: id of the held or stranded job, as make compose-deploy and make runner-status print it
+runner-release:
+	@test -n '$(job)' || { echo 'usage: make runner-release job=<id>'; exit 2; }
+	@"$${PYTHON}" -m cli.administration.deploy.pool.release '$(job)'
+
+.PHONY: runner-status
+# Print one JSON object per pool runner with its state (idle, busy or held), whether a process serves the queue as it, its job and stack, and for a held job its age and release command, also named for a running job no process serves; exits 3 while no runner has registered.
+runner-status:
+	@"$${PYTHON}" -m cli.administration.deploy.pool.status
 
 .PHONY: security-apparmor-restore
 # Restore AppArmor profiles.

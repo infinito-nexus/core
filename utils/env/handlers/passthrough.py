@@ -1,6 +1,10 @@
 """Static-env passthrough: copy every declared key from default.env
 with caller-env-wins (setdefault) semantics. Comments come from
-``ctx.static_comments`` (parsed from default.env)."""
+``ctx.static_comments`` (parsed from default.env).
+
+PER_CALL_KEYS always take their default.env value: a make call exports
+them for itself only, so a caller value written here would stick in
+.env and steer every later call."""
 
 from __future__ import annotations
 
@@ -110,6 +114,7 @@ STATIC_KEYS = (
     "INFINITO_APP_DISCOVERY_RUNNER",
     "INFINITO_DEPLOY_MODE",
     "INFINITO_DEPLOY_VIA_POOL",
+    "INFINITO_POOL_RUNNER",
     "INFINITO_DISCOVERY_SEED",
     "INFINITO_DISCOVERY_SORT",
     "INFINITO_MODES",
@@ -136,8 +141,14 @@ STATIC_KEYS = (
     "INFINITO_RECOVER_DRILL",
     "INFINITO_REPO_ROOT",
     "INFINITO_RESCUE_DIAGNOSTICS_BASE",
+    "INFINITO_RUNNER_CHECKOUT",
     "INFINITO_RUNNER_COUNT",
+    "INFINITO_RUNNER_IMAGE",
+    "INFINITO_RUNNER_INSTALL_DIR",
     "INFINITO_RUNNER_PREFIX",
+    "INFINITO_RUNNER_QUEUE_DIR",
+    "INFINITO_RUNNER_SRC_DIR",
+    "INFINITO_RUNNER_WORKTREE_ROOTS",
     "INFINITO_HELD_JOB_WARN_AGE",
     "INFINITO_HELD_JOB_CRIT_AGE",
     "INFINITO_TIMEOUT_MULTIPLIER",
@@ -180,6 +191,8 @@ STATIC_KEYS = (
     "INFINITO_APP_VARIANTS",
 )
 
+PER_CALL_KEYS = ("INFINITO_POOL_JOB",)
+
 
 def apply(eb: EnvBuilder, ctx: BuildContext) -> None:
     for key in STATIC_KEYS:
@@ -187,3 +200,6 @@ def apply(eb: EnvBuilder, ctx: BuildContext) -> None:
             eb.setdefault(
                 key, ctx.static[key], comment=ctx.static_comments.get(key, "")
             )
+    for key in PER_CALL_KEYS:
+        if key in ctx.static:
+            eb.set(key, ctx.static[key], comment=ctx.static_comments.get(key, ""))

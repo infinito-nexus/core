@@ -1,21 +1,20 @@
 from __future__ import annotations
 
 import json
-import re
+import os
 import subprocess
 import sys
 import time
 from typing import TYPE_CHECKING
 
-from cli.administration.deploy.runner.command import RUNNER_ROLE
 from cli.administration.infra.__main__ import RUNNER_DOWN
 from utils import PROJECT_ROOT
-from utils.cache.yaml import load_yaml
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.infra_inventory import POOL_KEY, POOL_ROLE, infra_roles
 from utils.runner.jobs import HELD, JobError, cleanup_report, queue_root
+from utils.runner.role import project_prefix, queue_refusal, runner_stack
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Sequence
+    from collections.abc import Callable, Iterable, Mapping, Sequence
     from pathlib import Path
     from typing import TextIO
 
@@ -29,28 +28,16 @@ PROJECTS = (*INFRA, "docker", "compose", "ls", "--all", "--format", "json")
 ORPHAN = "orphan"
 
 
-def project_prefix(root: Path) -> str:
-    """Args:
-        root: repository root.
-
-    Returns:
-        The compose project prefix svc-runner gives the job stack of each pool runner.
-    """
-    services = load_yaml(root / "roles" / RUNNER_ROLE / ROLE_FILE_META_SERVICES)
-    return services["runner"]["project_prefix"]
-
-
 def job_stacks(listing: str, prefix: str) -> list[str]:
     """Args:
         listing: what ``docker compose ls --all --format json`` prints inside the infra runner.
         prefix: the compose project prefix of the pool's job stacks.
 
     Returns:
-        Every compose project named ``<prefix>-<N>``, the job stack of pool runner N.
+        Every compose project that is the job stack of a pool runner.
     """
-    pattern = re.compile(rf"{re.escape(prefix)}-[0-9]+")
     return sorted(
-        row["Name"] for row in json.loads(listing) if pattern.fullmatch(row["Name"])
+        row["Name"] for row in json.loads(listing) if runner_stack(row["Name"], prefix)
     )
 
 
@@ -108,19 +95,45 @@ def report_rows(
 
 
 def run(
-    root: Path, prefix: str, probe: Probe, now: float, out: TextIO, err: TextIO
+    root: Path,
+    prefix: str,
+    env: Mapping[str, str],
+    probe: Probe,
+    now: float,
+    out: TextIO,
+    err: TextIO,
 ) -> int:
     """Args:
         root: the queue directory.
         prefix: the compose project prefix of the pool's job stacks.
+        env: environment holding the pool's opt-in.
         probe: runs a command and returns it completed, with its output as text.
         now: the current time.
         out: where one JSON object per held job and orphaned stack goes.
-        err: where a failure to read the job stacks goes.
+        err: where a refusal, the pool being off or a failure to read the job
+            stacks goes.
 
     Returns:
-        0 once every row is printed, 2 when the job stacks cannot be read.
+        0 once every row is printed, or with no row while the pool is off;
+        2 for an opt-in other than true or false, while this user cannot use
+        the queue, or when the job stacks cannot be read.
     """
+    try:
+        pool_on = POOL_ROLE in infra_roles(env)
+    except ValueError as exc:
+        print(str(exc), file=err)
+        return 2
+    if not pool_on:
+        print(
+            f"[runner-cleanup-report] the runner pool is off ({POOL_KEY} is not "
+            "true): no held job or job stack to report",
+            file=err,
+        )
+        return 0
+    refusals = queue_refusal(root)
+    if refusals:
+        print("\n".join(refusals), file=err)
+        return 2
     try:
         stacks = existing_stacks(probe, prefix)
     except JobError as exc:
@@ -141,7 +154,8 @@ def _probe(command: Sequence[str]) -> subprocess.CompletedProcess[str]:
 def main() -> int:
     return run(
         queue_root(),
-        project_prefix(PROJECT_ROOT),
+        project_prefix(),
+        os.environ,
         _probe,
         time.time(),
         sys.stdout,

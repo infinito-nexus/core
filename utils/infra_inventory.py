@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -40,6 +41,10 @@ OPT_IN_ROLES = {
     "INFINITO_INFRA_SEMAPHORE": "web-app-semaphore",
     "INFINITO_INFRA_CHECKMK": "web-app-checkmk",
 }
+POOL_KEY = "INFINITO_DEPLOY_VIA_POOL"
+POOL_ROLE = "svc-runner"
+SRC_KEY = "INFINITO_RUNNER_SRC_DIR"
+GATED_ROLES = {**OPT_IN_ROLES, POOL_KEY: POOL_ROLE}
 OPT_IN_VALUES = ("", "true", "false")
 PRUNE_MODULE = "cli.administration.infra"
 PRUNE_ACTION = "inventory-prune"
@@ -50,12 +55,74 @@ CACHE_SERVICES = {
 }
 
 
+@dataclass(frozen=True)
+class Pool:
+    """
+    Args:
+        count: the number of local runners, as ``make runner-count`` prints it.
+        roots: the worktree roots every runner mounts at its host path.
+        queue: the job queue every runner takes its jobs from.
+        src: the checkout, below a root, whose pool loop every runner runs,
+            from :data:`SRC_KEY`.
+        image: the toolchain image every runner runs, with its venv baked in.
+        uid: the operator's uid, which every runner and its jobs run as.
+        gid: the operator's gid.
+    """
+
+    count: int
+    roots: tuple[str, ...]
+    queue: str
+    src: str
+    image: str
+    uid: int
+    gid: int
+
+
+def pool_refusal(pool: Pool, base: Path) -> list[str]:
+    """Args:
+        pool: the runner pool to deploy.
+        base: the cache base the infra runner binds read-write at its host path.
+
+    Returns:
+        One refusal per value the pool runners could not use inside the infra
+        runner: a count below 1, no worktree root, an unset checkout or one
+        outside every root, no image, root as the operator, or a queue the
+        runner does not see because it lies outside ``base``.
+    """
+    refusals: list[str] = []
+    if pool.count < 1:
+        refusals.append(
+            f"[infra] the runner pool needs at least 1 runner, got {pool.count}"
+        )
+    if not pool.roots:
+        refusals.append("[infra] the runner pool mounts no worktree root")
+    if not any(Path(pool.src).is_relative_to(root) for root in pool.roots):
+        refusals.append(
+            f"[infra] {SRC_KEY}={pool.src!r} must name the checkout whose pool "
+            "loop the runners run, an absolute path below a worktree root "
+            f"({', '.join(pool.roots)}); export it in .env or the environment"
+        )
+    if not pool.image:
+        refusals.append("[infra] the runner pool needs the toolchain image")
+    if pool.uid == 0 or pool.gid == 0:
+        refusals.append(
+            "[infra] the runner pool never runs as root: run as the operator"
+        )
+    if not Path(pool.queue).is_relative_to(base):
+        refusals.append(
+            f"[infra] the job queue {pool.queue} lies outside {base}, which the "
+            f"infra runner mounts for the pool runners; unset {POOL_KEY} or move "
+            "the cache base back to the paths SPOT"
+        )
+    return refusals
+
+
 def infra_roles(env: Mapping[str, str]) -> tuple[str, ...]:
     """Args:
         env: environment holding the opt-in of every optional infra role.
 
     Returns:
-        The cache roles, then each role of :data:`OPT_IN_ROLES` whose opt-in
+        The cache roles, then each role of :data:`GATED_ROLES` whose opt-in
         is ``true``; an unset or ``false`` opt-in adds nothing.
 
     Raises:
@@ -69,7 +136,7 @@ def opted_out(env: Mapping[str, str]) -> tuple[str, ...]:
         env: environment holding the opt-in of every optional infra role.
 
     Returns:
-        Each role of :data:`OPT_IN_ROLES` whose opt-in is unset or ``false``.
+        Each role of :data:`GATED_ROLES` whose opt-in is unset or ``false``.
 
     Raises:
         ValueError: an opt-in is set to anything but ``true`` or ``false``.
@@ -78,7 +145,7 @@ def opted_out(env: Mapping[str, str]) -> tuple[str, ...]:
 
 
 def _opt_ins(env: Mapping[str, str]) -> dict[str, bool]:
-    values = {key: (env.get(key) or "").strip() for key in OPT_IN_ROLES}
+    values = {key: (env.get(key) or "").strip() for key in GATED_ROLES}
     invalid = [
         f"{key}={value!r}"
         for key, value in values.items()
@@ -86,7 +153,7 @@ def _opt_ins(env: Mapping[str, str]) -> dict[str, bool]:
     ]
     if invalid:
         raise ValueError(f"[infra] {', '.join(invalid)}: set true or false")
-    return {role: values[key] == "true" for key, role in OPT_IN_ROLES.items()}
+    return {role: values[key] == "true" for key, role in GATED_ROLES.items()}
 
 
 def drop_roles(inventory: dict, roles: Sequence[str]) -> list[str]:
@@ -104,10 +171,13 @@ def drop_roles(inventory: dict, roles: Sequence[str]) -> list[str]:
     return dropped
 
 
-def render_inventory(root: Path, env: Mapping[str, str]) -> Path:
+def render_inventory(
+    root: Path, env: Mapping[str, str], pool: Pool | None = None
+) -> Path:
     """Args:
         root: repository root holding the template.
         env: environment holding the cache caps, paths, registries and idle window.
+        pool: the runner pool, None while :data:`POOL_KEY` keeps it off.
 
     Returns:
         The rendered host vars of the infra inventory, beside the template.
@@ -138,7 +208,7 @@ def render_inventory(root: Path, env: Mapping[str, str]) -> Path:
     )
     values = {name: env[key] for name, key in INVENTORY_KEYS.items()}
     body = jinja.get_template(template.name).render(
-        registries=env[REGISTRIES_KEY].split(), **values
+        registries=env[REGISTRIES_KEY].split(), pool=pool, **values
     )
     rendered = root / INVENTORY_RENDERED
     rendered.write_text(body, encoding="utf-8")

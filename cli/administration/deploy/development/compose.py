@@ -220,7 +220,7 @@ class Compose:
         args: list[str] = ["up", "-d"]
         if no_build:
             args.append("--no-build")
-        if self.profile.cache_stack_enabled():
+        if self.profile.cache_stack_enabled() and not self.profile.pool_runner():
             self._ensure_infra(env)
         args += ["coredns", "infinito"]
 

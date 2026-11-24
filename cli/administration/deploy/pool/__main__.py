@@ -18,6 +18,7 @@ from utils.runner.jobs import (
     submit,
     wait_until_started,
 )
+from utils.runner.role import queue_refusal
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -63,14 +64,22 @@ def run(
     except JobError as exc:
         print(f"[runner] timeout= {exc}", file=err)
         return 2
-    record = submit(
-        root,
-        str(PROJECT_ROOT),
-        args.target,
-        args.assignments,
-        args.hold == TRUE,
-        clock(),
-    )
+    refusals = queue_refusal(root)
+    if refusals:
+        print("\n".join(refusals), file=err)
+        return 2
+    try:
+        record = submit(
+            root,
+            str(PROJECT_ROOT),
+            args.target,
+            args.assignments,
+            args.hold == TRUE,
+            clock(),
+        )
+    except JobError as exc:
+        print(f"[runner] {exc}", file=err)
+        return 2
     command = " ".join(["make", args.target, *args.assignments])
     print(f"[runner] job {record.id} submitted: {command}", file=out, flush=True)
     try:

@@ -13,7 +13,9 @@ from utils.cache.yaml import dump_yaml, load_yaml
 from utils.env.parser import parse_static_env
 from utils.infra_inventory import (
     CACHE_ROLES,
+    GATED_ROLES,
     OPT_IN_ROLES,
+    POOL_ROLE,
     PRUNE_ACTION,
     infra_roles,
     opted_out,
@@ -36,7 +38,7 @@ RUNTIME = {
 
 def _env(env: dict[str, str]) -> dict[str, str]:
     stripped = {
-        key: value for key, value in os.environ.items() if key not in OPT_IN_ROLES
+        key: value for key, value in os.environ.items() if key not in GATED_ROLES
     }
     return {**stripped, **RUNTIME, **env}
 
@@ -138,8 +140,8 @@ class TestAnOptOutLeavesTheInventory(unittest.TestCase):
         self.assertLess(_position(commands, PRUNE_ACTION), _position(commands, DEPLOY))
 
     def test_the_prune_names_every_opted_out_role_only(self) -> None:
-        self.assertEqual(_pruned({}), list(OPTIONAL))
-        self.assertEqual(_pruned({SEMAPHORE_KEY: "true"}), [CHECKMK])
+        self.assertEqual(_pruned({}), [*OPTIONAL, POOL_ROLE])
+        self.assertEqual(_pruned({SEMAPHORE_KEY: "true"}), [CHECKMK, POOL_ROLE])
 
     def test_a_role_an_earlier_opt_in_provisioned_leaves_the_inventory(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
