@@ -17,7 +17,10 @@
  *   or `{ selector, optional: true }`; a required one is awaited up to
  *   `SETTLE_TIMEOUT_MS` and fails when nothing visible matches, an optional
  *   one is measured once, and at least one element must be measured.
- * - `galleryEnabled()`: true when `INFINITO_PLAYWRIGHT_KEEP=true`.
+ * - `galleryEnabled()`: true when `INFINITO_PLAYWRIGHT_KEEP=true`, false
+ *   while `INFINITO_PLAYWRIGHT_NO_CAPTURE=true` or the spec secrets are
+ *   mounted at `/run/spec-secrets`, since masking cannot reach the pixels of
+ *   a screenshot.
  * - `captureDesignGallery(page, views)`: per view, color mode and viewport one
  *   screenshot with the injected CSS/JS (`/reports/design/after/`), named
  *   `<view>-<mode>-<viewport>.png`. Each screenshot waits up to
@@ -32,6 +35,7 @@
  *   the injected snippets; a plain side that still carries them fails the view.
  */
 
+const fs = require("fs");
 const { expect } = require("@playwright/test");
 
 const { gotoOnion } = require("./personas");
@@ -252,7 +256,10 @@ async function assertReadable(page, selectors, label, min = 4.5) {
 }
 
 function galleryEnabled() {
-  return process.env.INFINITO_PLAYWRIGHT_KEEP === "true";
+  const captureOff =
+    fs.existsSync("/run/spec-secrets") ||
+    (process.env.INFINITO_PLAYWRIGHT_NO_CAPTURE || "").toLowerCase() === "true";
+  return process.env.INFINITO_PLAYWRIGHT_KEEP === "true" && !captureOff;
 }
 
 /**

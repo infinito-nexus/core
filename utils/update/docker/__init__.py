@@ -1,13 +1,17 @@
 """Detect and rewrite outdated Docker image `version:` tags in
-`roles/*/meta/services.yml`.
+`roles/*/meta/services.yml`, and the tags of the `image:` literals in the
+repository's own compose files (:func:`compose_files`).
 
 Counterpart to :mod:`utils.update.repository` (which handles git refs).
 Both share the semver primitives in :mod:`utils.update.base`; this
-module owns the Docker-Hub / GHCR registry lookups and the YAML
-walker that rewrites the matching ``version:`` line.
+module owns the bump selection and the YAML walker that rewrites the
+matching ``version:`` line; registry lookups live in
+:mod:`utils.update.docker.tags`, compose files in
+:mod:`utils.update.docker.compose`, holds and release groups in
+:mod:`utils.update.docker.hold`.
 
 Suppress a check by placing ``# nocheck: docker-version`` on the line
-directly above the ``version:`` key.
+directly above the ``version:`` key, or above a compose service's ``image:``.
 
 A ``version`` that names its own upstream in an ``update:`` block belongs to
 :mod:`utils.update.source` and is not collected here.
@@ -16,28 +20,22 @@ A ``version`` that names its own upstream in an ``update:`` block belongs to
 from __future__ import annotations
 
 import concurrent.futures
-import http.client
-import json
 import re
-import time
-import urllib.error
-import urllib.request
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
-from urllib.parse import quote, urlencode
 
 import yaml
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
-from utils.docker.image.discovery import iter_role_images
-from utils.docker.image.ref import (
-    GHCR_REGISTRY,
-    MCR_REGISTRY,
-    dockerhub_repo,
-    is_dockerhub,
-    split_registry_and_name,
+from utils.docker.image.discovery import (
+    RUNNER_ROLE,
+    ImageRef,
+    iter_compose_images,
+    iter_role_images,
 )
+from utils.docker.image.ref import is_dockerhub
 from utils.docker.registry import fetch_registry_tags
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.security.suppressions import drop_image_tag_entries
@@ -52,11 +50,25 @@ from utils.update.base import (
     version_flavor,
     version_key,
 )
-from utils.update.docker_models import DockerImageVersionEntry, DockerImageVersionUpdate
+from utils.update.docker.compose import (
+    _compose_image_lines,
+    compose_files,
+    suppressed_compose_services,
+    update_compose_images,
+)
+from utils.update.docker.hold import releasable_updates
+from utils.update.docker.tags import (
+    fetch_dockerhub_tags,
+    fetch_ghcr_tags,
+    fetch_mcr_tags,
+    is_ghcr,
+    is_mcr,
+    is_supported_registry,
+)
 from utils.update.follow import followed_tags
-from utils.update.hold import releasable_updates
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from pathlib import Path
 
 _KEY_RE = re.compile(r"^(?P<indent>\s*)(?P<key>[A-Za-z0-9_-]+):(?P<rest>.*)$")
@@ -67,141 +79,20 @@ _VERSION_VALUE_RE = re.compile(
 )
 
 
-def fetch_dockerhub_tags(image: str, max_pages: int = 5) -> list[str]:
-    repo = dockerhub_repo(image)
-    tags: list[str] = []
-    for page in range(1, max_pages + 1):
-        url = (
-            f"https://hub.docker.com/v2/repositories/{repo}/tags/"
-            f"?page_size=100&page={page}"
-        )
-        req = urllib.request.Request(
-            url, headers={"User-Agent": "infinito-nexus-version-updater"}
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
-                if resp.status == 429:
-                    time.sleep(2)
-                    continue
-                body = json.loads(resp.read().decode())
-        except (
-            urllib.error.URLError,
-            OSError,
-            http.client.HTTPException,
-            json.JSONDecodeError,
-        ):
-            break
-        tags.extend(item["name"] for item in body.get("results", []))
-        if not body.get("next"):
-            break
-    return tags
+@dataclass(frozen=True)
+class DockerImageVersionEntry:
+    role: str
+    service: str
+    image: str
+    version: str
+    config_path: Path
+    hold: str = ""
 
 
-def is_ghcr(image: str) -> bool:
-    parsed = split_registry_and_name(image)
-    return parsed is not None and parsed[0] == GHCR_REGISTRY
-
-
-def ghcr_repo(image: str) -> str:
-    parsed = split_registry_and_name(image)
-    if parsed is None or parsed[0] != GHCR_REGISTRY:
-        raise ValueError(f"Image is not a GHCR reference: {image!r}")
-    return parsed[1]
-
-
-def fetch_ghcr_tags(image: str) -> list[str]:
-    name = ghcr_repo(image)
-    token_query = urlencode(
-        {"scope": f"repository:{name}:pull", "service": GHCR_REGISTRY}
-    )
-    token_url = f"https://{GHCR_REGISTRY}/token?{token_query}"
-    try:
-        req = urllib.request.Request(
-            token_url, headers={"User-Agent": "infinito-nexus-version-updater"}
-        )
-        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
-            token_body = json.loads(resp.read().decode())
-        token = token_body.get("token") or token_body.get("access_token")
-    except (
-        urllib.error.URLError,
-        OSError,
-        http.client.HTTPException,
-        json.JSONDecodeError,
-    ):
-        return []
-
-    if not token:
-        return []
-
-    tags_url = f"https://{GHCR_REGISTRY}/v2/{quote(name, safe='/')}/tags/list"
-    req = urllib.request.Request(
-        tags_url,
-        headers={
-            "Authorization": f"Bearer {token}",
-            "User-Agent": "infinito-nexus-version-updater",
-        },
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
-            body = json.loads(resp.read().decode())
-    except (
-        urllib.error.URLError,
-        OSError,
-        http.client.HTTPException,
-        json.JSONDecodeError,
-    ):
-        return []
-
-    return body.get("tags") or []
-
-
-def is_mcr(image: str) -> bool:
-    parsed = split_registry_and_name(image)
-    return parsed is not None and parsed[0] == MCR_REGISTRY
-
-
-def is_supported_registry(image: str) -> bool:
-    """Whether *image* resolves to a registry the generic v2 client can query."""
-    return split_registry_and_name(image) is not None
-
-
-def mcr_repo(image: str) -> str:
-    parsed = split_registry_and_name(image)
-    if parsed is None or parsed[0] != MCR_REGISTRY:
-        raise ValueError(f"Image is not an MCR reference: {image!r}")
-    return parsed[1]
-
-
-_LINK_NEXT_RE = re.compile(r'<([^>]+)>\s*;\s*rel="next"', re.IGNORECASE)
-
-
-def fetch_mcr_tags(image: str, max_pages: int = 10) -> list[str]:
-    name = mcr_repo(image)
-    base = f"https://{MCR_REGISTRY}"
-    url = f"{base}/v2/{quote(name, safe='/')}/tags/list?n=100"
-    tags: list[str] = []
-    for _ in range(max_pages):
-        req = urllib.request.Request(  # noqa: S310
-            url, headers={"User-Agent": "infinito-nexus-version-updater"}
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
-                body = json.loads(resp.read().decode())
-                link_header = resp.headers.get("Link", "")
-        except (
-            urllib.error.URLError,
-            OSError,
-            http.client.HTTPException,
-            json.JSONDecodeError,
-        ):
-            break
-        tags.extend(body.get("tags") or [])
-        match = _LINK_NEXT_RE.search(link_header)
-        if not match:
-            break
-        next_link = match.group(1)
-        url = next_link if next_link.startswith("http") else f"{base}{next_link}"
-    return tags
+@dataclass(frozen=True)
+class DockerImageVersionUpdate:
+    entry: DockerImageVersionEntry
+    latest: str
 
 
 def suppressed_services(config_path: Path) -> set[str]:
@@ -256,8 +147,26 @@ def sourced_services(config_path: Path) -> set[str]:
 
 
 def collect_entries(repo_root: Path) -> list[DockerImageVersionEntry]:
+    return _role_entries(repo_root)[0]
+
+
+def _role_entries(
+    repo_root: Path,
+) -> tuple[list[DockerImageVersionEntry], list[DockerImageVersionEntry]]:
+    """
+    Args:
+        repo_root: the repository whose ``roles/`` hold the pins.
+
+    Returns:
+        The watched pins, and the held pins ``# nocheck: docker-version``
+        keeps out of them.
+
+    Raises:
+        ValueError: a ``hold`` states no reason or names another version.
+    """
     roles_root = repo_root / "roles"
     entries: list[DockerImageVersionEntry] = []
+    frozen: list[DockerImageVersionEntry] = []
 
     for ref in iter_role_images(repo_root):
         if ref.derived:
@@ -270,15 +179,8 @@ def collect_entries(repo_root: Path) -> list[DockerImageVersionEntry]:
             continue
 
         config_path = roles_root / ref.role / ROLE_FILE_META_SERVICES
-        if ref.service in suppressed_services(config_path):
-            continue
         if ref.service in sourced_services(config_path):
             continue
-
-        if ref.registry == "docker.io":
-            image = ref.name
-        else:
-            image = f"{ref.registry}/{ref.name}"
 
         config = (load_yaml(str(config_path)) or {}).get(ref.service)
         try:
@@ -286,17 +188,56 @@ def collect_entries(repo_root: Path) -> list[DockerImageVersionEntry]:
         except ValueError as exc:
             raise ValueError(f"{config_path}:{ref.service}: {exc}") from exc
 
+        entry = DockerImageVersionEntry(
+            role=ref.role,
+            service=ref.service,
+            image=_entry_image(ref),
+            version=ref.version,
+            config_path=config_path,
+            hold=hold,
+        )
+        if ref.service not in suppressed_services(config_path):
+            entries.append(entry)
+        elif hold:
+            frozen.append(entry)
+
+    return entries, frozen
+
+
+def _entry_image(ref: ImageRef) -> str:
+    return ref.name if ref.registry == "docker.io" else f"{ref.registry}/{ref.name}"
+
+
+def collect_compose_entries(
+    repo_root: Path, tracked: Iterable[str]
+) -> list[DockerImageVersionEntry]:
+    """Args:
+        repo_root: repository root the tracked paths are relative to.
+        tracked: repository-relative paths of the tracked files.
+
+    Returns:
+        One entry per semver-tagged service ``image`` literal of the
+        :func:`compose_files`, scoped to the pseudo role ``RUNNER_ROLE``; its
+        ``config_path`` is the compose file.
+    """
+    entries: list[DockerImageVersionEntry] = []
+    for ref in iter_compose_images(repo_root, compose_files(repo_root, tracked)):
+        compose_path = repo_root / ref.source_file
+        if not is_semver(ref.version):
+            continue
+        if ref.service not in _compose_image_lines(read_text(str(compose_path))):
+            continue
+        if ref.service in suppressed_compose_services(compose_path):
+            continue
         entries.append(
             DockerImageVersionEntry(
                 role=ref.role,
                 service=ref.service,
-                image=image,
+                image=_entry_image(ref),
                 version=ref.version,
-                config_path=config_path,
-                hold=hold,
+                config_path=compose_path,
             )
         )
-
     return entries
 
 
@@ -311,7 +252,38 @@ def _registry_cursor(version: str) -> str | None:
 
 
 def find_outdated_updates(repo_root: Path) -> list[DockerImageVersionUpdate]:
-    entries = collect_entries(repo_root)
+    entries, frozen = _role_entries(repo_root)
+    return outdated(entries, frozen, repo_root)
+
+
+def find_outdated_compose_updates(
+    repo_root: Path, tracked: Iterable[str]
+) -> list[DockerImageVersionUpdate]:
+    return outdated(collect_compose_entries(repo_root, tracked), [], repo_root)
+
+
+def _follow_config(entry: DockerImageVersionEntry) -> object:
+    if entry.role == RUNNER_ROLE:
+        return None
+    return (load_yaml(str(entry.config_path)) or {}).get(entry.service)
+
+
+def outdated(
+    entries: list[DockerImageVersionEntry],
+    frozen: list[DockerImageVersionEntry],
+    repo_root: Path,
+) -> list[DockerImageVersionUpdate]:
+    """Args:
+        entries: pins from :func:`collect_entries` or
+            :func:`collect_compose_entries`.
+        frozen: held pins ``# nocheck: docker-version`` keeps out of
+            *entries*; they move nowhere but still hold their release group.
+        repo_root: the repository the pins' files sit in.
+
+    Returns:
+        The bumps due for *entries* that no ``hold`` blocks, release groups
+        held together.
+    """
     updates: list[DockerImageVersionUpdate] = []
 
     def _fetch(item: tuple[str, str]) -> tuple[str, list[str]]:
@@ -336,9 +308,11 @@ def find_outdated_updates(repo_root: Path) -> list[DockerImageVersionUpdate]:
         )
 
     for entry in entries:
-        config = (load_yaml(str(entry.config_path)) or {}).get(entry.service)
         tags = followed_tags(
-            entry.image, image_tags.get(entry.image, []), config, entry.version
+            entry.image,
+            image_tags.get(entry.image, []),
+            _follow_config(entry),
+            entry.version,
         )
         if not tags:
             continue
@@ -350,7 +324,7 @@ def find_outdated_updates(repo_root: Path) -> list[DockerImageVersionUpdate]:
         if latest and version_key(entry.version) < version_key(latest):
             updates.append(DockerImageVersionUpdate(entry=entry, latest=latest))
 
-    return releasable_updates(entries, updates, image_tags, repo_root)
+    return releasable_updates(entries, frozen, updates, image_tags, repo_root)
 
 
 def update_config_versions(config_path: Path, service_versions: dict[str, str]) -> bool:
@@ -423,14 +397,18 @@ def update_config_versions(config_path: Path, service_versions: dict[str, str]) 
 
 
 def apply_updates(updates: list[DockerImageVersionUpdate]) -> list[Path]:
-    grouped: dict[Path, dict[str, str]] = {}
+    grouped: dict[tuple[Path, str], dict[str, str]] = {}
     for update in updates:
-        grouped.setdefault(update.entry.config_path, {})[update.entry.service] = (
+        entry = update.entry
+        grouped.setdefault((entry.config_path, entry.role), {})[entry.service] = (
             update.latest
         )
 
     changed_paths: list[Path] = []
-    for config_path, service_versions in sorted(grouped.items()):
-        if update_config_versions(config_path, service_versions):
+    for (config_path, role), service_versions in sorted(grouped.items()):
+        rewrite = (
+            update_compose_images if role == RUNNER_ROLE else update_config_versions
+        )
+        if rewrite(config_path, service_versions):
             changed_paths.append(config_path)
     return changed_paths

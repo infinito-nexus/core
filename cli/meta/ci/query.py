@@ -123,7 +123,11 @@ def discover_rows(
     lifecycles: str = "",
 ) -> list[dict]:
     """The ordered candidate rows, each the complexity payload of one
-    ``role#variant``. Uncapped: the chunker decides what a sweep spends."""
+    ``role#variant``. Uncapped: the chunker decides what a sweep spends.
+
+    Only stdout is captured: a planner error in the subprocess (an unsettled
+    variant pin, a provider-override conflict) reaches the caller's stderr by
+    name instead of collapsing into ``exit status 1``."""
     out = subprocess.run(
         _query_argv(
             modes,
@@ -133,7 +137,7 @@ def discover_rows(
             fmt=["--format", "json"],
         ),
         cwd=PROJECT_ROOT,
-        capture_output=True,
+        stdout=subprocess.PIPE,
         text=True,
         check=True,
     ).stdout

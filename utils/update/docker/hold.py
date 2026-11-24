@@ -10,10 +10,7 @@ from utils.update.base import latest_semver, version_depth, version_flavor, vers
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from utils.update.docker_models import (
-        DockerImageVersionEntry,
-        DockerImageVersionUpdate,
-    )
+    from utils.update.docker import DockerImageVersionEntry, DockerImageVersionUpdate
 
 
 @dataclass(frozen=True)
@@ -24,6 +21,7 @@ class DockerImageVersionHold:
 
 def releasable_updates(
     entries: list[DockerImageVersionEntry],
+    frozen: list[DockerImageVersionEntry],
     updates: list[DockerImageVersionUpdate],
     image_tags: dict[str, list[str]],
     repo_root: Path,
@@ -31,15 +29,17 @@ def releasable_updates(
     """
     Args:
         entries: every watched pin.
+        frozen: the held pins ``# nocheck: docker-version`` keeps out of
+            *entries*; they propose nothing but still hold their group.
         updates: the per-entry candidates, before grouping.
         image_tags: every tag fetched per image.
-        repo_root: the repository whose ``roles/`` hold the pins.
+        repo_root: the repository the pins' files sit in.
 
     Returns:
         The candidates no hold blocks, each release group lowered to its
         common newest tag; every blocked candidate is reported as a warning.
     """
-    free, held = _split_holds(entries, updates)
+    free, held = _split_holds([*entries, *frozen], updates)
     for hold in held:
         update = hold.update
         warning(
@@ -50,29 +50,40 @@ def releasable_updates(
             title="Held Docker image",
             file=str(update.entry.config_path.relative_to(repo_root)),
         )
-    return _held_to_release_groups(free, image_tags)
+    return _held_to_release_groups(entries, free, image_tags)
+
+
+def _release_group(entry: DockerImageVersionEntry) -> tuple[str, Path, str]:
+    """
+    Args:
+        entry: a pin.
+
+    Returns:
+        The key every pin of one role or compose file on one version shares.
+    """
+    return (entry.role, entry.config_path, entry.version)
 
 
 def _split_holds(
-    entries: list[DockerImageVersionEntry], updates: list[DockerImageVersionUpdate]
+    holders: list[DockerImageVersionEntry], updates: list[DockerImageVersionUpdate]
 ) -> tuple[list[DockerImageVersionUpdate], list[DockerImageVersionHold]]:
     """
     Args:
-        entries: every watched pin.
+        holders: every pin whose ``hold`` may block its release group.
         updates: the per-entry candidates, before grouping.
 
     Returns:
         The candidates outside every release group with a held member, and
         one hold per candidate inside one, naming that member.
     """
-    holders: dict[tuple[str, str], DockerImageVersionEntry] = {}
-    for entry in entries:
+    held_groups: dict[tuple[str, Path, str], DockerImageVersionEntry] = {}
+    for entry in holders:
         if entry.hold:
-            holders.setdefault((entry.role, entry.version), entry)
+            held_groups.setdefault(_release_group(entry), entry)
     free: list[DockerImageVersionUpdate] = []
     held: list[DockerImageVersionHold] = []
     for update in updates:
-        holder = holders.get((update.entry.role, update.entry.version))
+        holder = held_groups.get(_release_group(update.entry))
         if holder is None:
             free.append(update)
         else:
@@ -81,35 +92,45 @@ def _split_holds(
 
 
 def _held_to_release_groups(
-    updates: list[DockerImageVersionUpdate], image_tags: dict[str, list[str]]
+    entries: list[DockerImageVersionEntry],
+    updates: list[DockerImageVersionUpdate],
+    image_tags: dict[str, list[str]],
 ) -> list[DockerImageVersionUpdate]:
     """
     Args:
+        entries: every collected pin, so a member without a candidate of its
+            own still holds its group.
         updates: the per-entry candidates, before grouping.
         image_tags: every tag fetched per image, keyed as in the caller.
 
     Returns:
         The updates, each group lowered to its common newest tag, and dropped
-        entirely where the group shares no newer tag at all.
+        entirely where a member has no candidate or the group shares no newer
+        tag at all.
     """
-    groups: dict[tuple[str, str], list[DockerImageVersionUpdate]] = defaultdict(list)
-    for update in updates:
-        groups[(update.entry.role, update.entry.version)].append(update)
+    due = {update.entry: update for update in updates}
+    groups: dict[tuple[str, Path, str], list[DockerImageVersionEntry]] = defaultdict(
+        list
+    )
+    for entry in entries:
+        groups[_release_group(entry)].append(entry)
 
     held: list[DockerImageVersionUpdate] = []
     for group in groups.values():
+        if not all(entry in due for entry in group):
+            continue
         if len(group) == 1:
-            held.extend(group)
+            held.append(due[group[0]])
             continue
         shared = set.intersection(
-            *(set(image_tags.get(update.entry.image, [])) for update in group)
+            *(set(image_tags.get(entry.image, [])) for entry in group)
         )
-        current = group[0].entry.version
+        current = group[0].version
         common = latest_semver(
             sorted(shared), version_depth(current), version_flavor(current)
         )
         if not common or version_key(current) >= version_key(common):
             continue
-        held.extend(replace(update, latest=common) for update in group)
+        held.extend(replace(due[entry], latest=common) for entry in group)
 
     return held

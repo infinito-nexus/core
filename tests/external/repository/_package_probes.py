@@ -4,13 +4,18 @@ Queries the official package index of each default distribution in
 parallel instead of installing anything, so the whole registry is checked
 in seconds rather than one container build per package.
 
-A package that the index positively reports as absent fails the test. A
-network or index error is reported as a warning, because an unreachable
-mirror says nothing about the declaration.
+A package that the index positively reports as absent fails the test. Only
+the declared exemptions warn: a package from a third-party repository, and
+a virtual name its index does not list. Any other probe that cannot reach
+its index leaves availability unknown, which fails the test as well,
+because a run that verified nothing must not report green. Ubuntu's index
+is read from the first mirror of INFINITO_APT_UBUNTU_MIRRORS that serves
+every pocket, in declared order.
 """
 
 from __future__ import annotations
 
+import http.client
 import io
 import json
 import lzma
@@ -23,6 +28,7 @@ import urllib.parse
 import urllib.request
 from typing import NamedTuple
 
+from utils.env.parser import env_setting
 from utils.packages.schema import SOURCE_AUR, SOURCE_DOWNLOAD, SOURCE_FLATPAK
 
 from ._host_gate import host_gate
@@ -187,71 +193,101 @@ def _probe_flathub(name: str) -> tuple[bool | None, str]:
     return None, f"Flathub returned HTTP {status}"
 
 
-DEBIAN_MIRROR = "deb.debian.org"
-UBUNTU_MIRROR = "archive.ubuntu.com"
+UBUNTU_MIRRORS_KEY = "INFINITO_APT_UBUNTU_MIRRORS"
 
 
 class AptIndex(NamedTuple):
-    mirror: str
-    path: str
+    mirrors: tuple[str, ...]
     suites: tuple[str, ...]
     components: tuple[str, ...]
 
 
 APT_INDEX: dict[str, AptIndex] = {
     "debian": AptIndex(
-        DEBIAN_MIRROR,
-        "debian",
+        ("http://deb.debian.org/debian/",),
         (DEBIAN_SUITE, f"{DEBIAN_SUITE}-updates"),
         ("main", "contrib", "non-free", "non-free-firmware"),
     ),
     "ubuntu": AptIndex(
-        UBUNTU_MIRROR,
-        "ubuntu",
+        tuple(env_setting(UBUNTU_MIRRORS_KEY).split()),
         (UBUNTU_SUITE, f"{UBUNTU_SUITE}-updates", f"{UBUNTU_SUITE}-security"),
         ("main", "universe", "restricted", "multiverse"),
     ),
 }
-"""The pockets a default install actually resolves against. Ubuntu ships
-packages such as 0ad only in -updates, so probing the release pocket alone
-reports a declared package as absent."""
+"""The pockets a default install actually resolves against, and the mirrors
+it reads them from in fallback order. Ubuntu ships packages such as 0ad only
+in -updates, so probing the release pocket alone reports a declared package
+as absent."""
 
 _APT_INDEX_CACHE: dict[str, tuple[set[str] | None, str]] = {}
 _APT_INDEX_LOCK = threading.Lock()
 
 
-def _load_apt_index(index: AptIndex) -> tuple[set[str] | None, str]:
+def _read_apt_mirror(mirror: str, index: AptIndex) -> tuple[set[str] | None, str]:
+    """Read every pocket of one mirror, or none of them.
+
+    Args:
+        mirror: base URL of the archive, as the mirror list spells it.
+        index: the suites and components to read.
+
+    Returns:
+        The binary and virtual package names across all pockets together
+        with the mirror read, or None with the first pocket that failed.
+    """
+    host = urllib.parse.urlsplit(mirror).hostname
     names: set[str] = set()
     for suite in index.suites:
         for component in index.components:
             url = (
-                f"http://{index.mirror}/{index.path}/dists/{suite}"
+                f"{mirror.rstrip('/')}/dists/{suite}"
                 f"/{component}/binary-amd64/Packages.xz"
             )
             try:
                 status, body = _get(url)
-            except OSError as exc:
-                return None, f"{index.mirror}: {exc}"
+            except (OSError, http.client.HTTPException) as exc:
+                return None, f"{host}: {exc}"
             if status != 200:
-                return None, f"{index.mirror} returned HTTP {status} for {url}"
-            for line in lzma.decompress(body).decode("utf-8", "replace").splitlines():
+                return None, f"{host} returned HTTP {status} for {url}"
+            try:
+                text = lzma.decompress(body).decode("utf-8", "replace")
+            except lzma.LZMAError as exc:
+                return None, f"{host}: {exc} for {url}"
+            for line in text.splitlines():
                 if line.startswith("Package: "):
                     names.add(line[len("Package: ") :].strip())
                 elif line.startswith("Provides: "):
                     for entry in line[len("Provides: ") :].split(","):
                         names.add(entry.split("(")[0].strip())
-    return names, f"{index.mirror}/{index.suites[0]}"
+    return names, f"{host}/{index.suites[0]}"
+
+
+def _load_apt_index(index: AptIndex) -> tuple[set[str] | None, str]:
+    """Read the index from the first mirror that serves every pocket.
+
+    Args:
+        index: the mirrors in fallback order, the suites and the components.
+
+    Returns:
+        The names and the mirror read, or None with every mirror's failure.
+    """
+    failures: list[str] = []
+    for mirror in index.mirrors:
+        names, detail = _read_apt_mirror(mirror, index)
+        if names is not None:
+            return names, detail
+        failures.append(detail)
+    return None, "; ".join(failures)
 
 
 def _apt_index_names(distro: str) -> tuple[set[str] | None, str]:
     """Load a distribution's binary index once per run, answer from memory.
 
     Args:
-        distro: key into APT_INDEX naming the mirror, suite and components.
+        distro: key into APT_INDEX naming the mirrors, suites and components.
 
     Returns:
         The set of binary and virtual package names in the suite, or None
-        together with the fetch error when the mirror could not be read.
+        together with each mirror's fetch error when no mirror could be read.
     """
     with _APT_INDEX_LOCK:
         if distro not in _APT_INDEX_CACHE:

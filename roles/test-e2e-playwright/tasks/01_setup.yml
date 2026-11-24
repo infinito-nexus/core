@@ -1,9 +1,35 @@
 ---
-- name: ✅ Ensure shared Playwright project dir exists
+- name: ✅ Ensure the shared Playwright project dir and the unmounted tools dir exist
   ansible.builtin.file:
-    path: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}"
+    path: "{{ playwright_setup_dir }}"
     state: directory
+    follow: false
+    owner: root
+    group: root
     mode: "0755"
+  loop:
+    - "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}"
+    - "{{ TEST_E2E_PLAYWRIGHT_TOOLS_DIR }}"
+  loop_control:
+    loop_var: playwright_setup_dir
+
+- name: 📋 Ship the helper that prunes, creates, splits and guards the spec secrets
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/spec_secrets.py"
+    dest: "{{ TEST_E2E_PLAYWRIGHT_TOOLS_DIR }}/spec_secrets.py"
+    mode: "0755"
+
+- name: 📋 Ship the container check the masker holds every run with spec secrets against
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/spec_secrets_container.py"
+    dest: "{{ TEST_E2E_PLAYWRIGHT_TOOLS_DIR }}/spec_secrets_container.py"
+    mode: "0644"
+
+- name: 📋 Ship the services file whose image pin the container check reads
+  ansible.builtin.copy:
+    src: "{{ role_path }}/meta/services.yml"
+    dest: "{{ TEST_E2E_PLAYWRIGHT_TOOLS_DIR }}/services.yml"
+    mode: "0644"
 
 - name: 📄 Render shared package.json from central template
   ansible.builtin.template: # nocheck: stack-host-template (per-host playwright stage dir, runs on every test host)

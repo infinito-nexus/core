@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import io
+import json
 import os
 import tempfile
 import unittest
@@ -18,6 +19,7 @@ from utils.update.docker import (
     sourced_services,
     update_config_versions,
 )
+from utils.update.docker.tags import fetch_mcr_tags
 
 HELD = """odoo:
   image: odoo
@@ -44,9 +46,23 @@ plain:
   version: "4.0"
 """
 
+SUPPRESSED_HOLDER = """web:
+  image: example/web
+  # nocheck: docker-version web 2.0 drops the prosody handshake
+  version: "1.0"
+  hold:
+    version: "1.0"
+    reason: web 2.0 drops the prosody handshake
+prosody:
+  image: example/prosody
+  version: "1.0"
+"""
+
 REGISTRY = {
     "odoo": ["19.0", "20.0"],
     "example/plain": ["4.0", "5.0"],
+    "example/web": ["1.0", "2.0"],
+    "example/prosody": ["1.0", "2.0"],
     "jitsi/web": ["stable-9400", "stable-9700"],
     "jitsi/prosody": ["stable-9400", "stable-9700"],
 }
@@ -152,6 +168,16 @@ class TestHold(unittest.TestCase):
                     "web 9700 drops the prosody handshake",
                     output,
                 )
+
+    def test_a_suppressed_holder_still_holds_its_release_group(self) -> None:
+        proposed, output = self._outdated(SUPPRESSED_HOLDER)
+
+        self.assertEqual(proposed, [])
+        self.assertIn(
+            "[hold] web-app-example/prosody: example/prosody stays at 1.0, "
+            "2.0 is available; held by web: web 2.0 drops the prosody handshake",
+            output,
+        )
 
     def test_an_unheld_release_group_still_moves_together(self) -> None:
         unheld = GROUP.replace(
@@ -266,6 +292,38 @@ nginx:
             update_config_versions(config_path, {"penpot": "2.18.6"})
 
             self.assertEqual(read_text(str(config_path)), expected)
+
+
+_MCR_TAGS = "https://mcr.microsoft.com/v2/dotnet/runtime/tags/list?n=100"
+_MCR_NEXT = "https://mcr.microsoft.com/v2/dotnet/runtime/tags/list?last=a"
+
+
+class TestMcrPaging(unittest.TestCase):
+    def _page(self, link: str) -> tuple[list[str], list[str]]:
+        pages = []
+        for found, header in ((["a"], f'<{link}>; rel="next"'), (["b"], "")):
+            page = mock.MagicMock()
+            page.__enter__.return_value = page
+            page.read.return_value = json.dumps({"tags": found}).encode()
+            page.headers = {"Link": header}
+            pages.append(page)
+        with mock.patch("urllib.request.urlopen", side_effect=pages) as opened:
+            tags = fetch_mcr_tags("mcr.microsoft.com/dotnet/runtime")
+        return tags, [call.args[0].full_url for call in opened.call_args_list]
+
+    def test_a_link_next_on_the_registry_pages(self) -> None:
+        for link in ("/v2/dotnet/runtime/tags/list?last=a", _MCR_NEXT):
+            with self.subTest(link=link):
+                self.assertEqual(self._page(link), (["a", "b"], [_MCR_TAGS, _MCR_NEXT]))
+
+    def test_a_link_next_off_the_registry_stops_paging(self) -> None:
+        for link in (
+            "https://evil.example/v2/dotnet/runtime/tags/list?last=a",
+            "http://mcr.microsoft.com/v2/dotnet/runtime/tags/list?last=a",
+            "//evil.example/v2/dotnet/runtime/tags/list?last=a",
+        ):
+            with self.subTest(link=link):
+                self.assertEqual(self._page(link), (["a"], [_MCR_TAGS]))
 
 
 if __name__ == "__main__":

@@ -39,6 +39,20 @@
     state: directory
   when: HEALTH_RUNTIME_METRICS_ENABLED | bool
 
+- name: 🔎 Look up the shared report and textfile without following links
+  ansible.builtin.stat:
+    path: "{{ item }}"
+    follow: false
+  loop: "{{ HEALTH_RUNTIME_SHARED_OUTPUTS }}"
+  register: sys_ctl_hlth_runtime_shared_outputs
+
+- name: 🗑️ Remove the shared report and textfile files, never a directory
+  ansible.builtin.file:
+    path: "{{ item.item }}"
+    state: absent
+  loop: "{{ sys_ctl_hlth_runtime_shared_outputs.results }}"
+  when: item.stat.exists and not item.stat.isdir
+
 - name: 🔁 Rotate the findings log weekly
   ansible.builtin.template: # nocheck: stack-host-template (per-node logrotate drop-in, every node scans itself)
     src: logrotate.j2
@@ -76,6 +90,7 @@
       --database-dir '{{ HEALTH_RUNTIME_DATABASE_DIR }}'
       --host-excludes '{{ HEALTH_RUNTIME_HOST_EXCLUDES | to_json }}'
       --environment '{{ ENVIRONMENT }}'
+      --host '{{ HEALTH_RUNTIME_HOST }}'
       --report-dir '{{ DIR_HEALTH_RUNTIME_REPORT }}'
       --log-dir '{{ DIR_HEALTH_RUNTIME_LOG }}'
       {{ ("--metrics-file '" ~ HEALTH_RUNTIME_METRICS_FILE ~ "'") if HEALTH_RUNTIME_METRICS_ENABLED | bool else '' }}
