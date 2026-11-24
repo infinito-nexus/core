@@ -42,7 +42,8 @@ LIMITS = {
 }
 
 _X_SINGLE = ((0, 4351), (8192, 8205), (8208, 8223), (8242, 8247))
-_ZWJ = "‍"
+_ZWJ = "\N{ZERO WIDTH JOINER}"
+_EMOJI_PRESENTATION = "\N{VARIATION SELECTOR-16}"
 
 
 def _joins(previous: str, char: str) -> bool:
@@ -79,7 +80,9 @@ def _regional_pair(cluster: str, char: str) -> bool:
 
 def _emoji(cluster: str) -> bool:
     return any(
-        ord(char) >= 0x1F000 or 0x2600 <= ord(char) <= 0x27BF or char in (_ZWJ, "️")
+        ord(char) >= 0x1F000
+        or 0x2600 <= ord(char) <= 0x27BF
+        or char in (_ZWJ, _EMOJI_PRESENTATION)
         for char in cluster
     )
 
