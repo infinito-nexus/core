@@ -3,6 +3,12 @@
 - name: "📂 Load required action routines for '{{ application_id }}'"
   include_tasks: "{{ role_path }}/tasks/update/12_required_actions.yml"
 
+- name: "🔑 Load LDAP bind routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/03_ldap/bind.yml"
+  when:
+    - KEYCLOAK_LDAP_ENABLED | bool
+    - KEYCLOAK_LDAP_SHARED | bool
+
 - name: "📂 Load email policy routines for '{{ application_id }}'"
   include_tasks: "{{ role_path }}/tasks/update/14_email_policy.yml"
 

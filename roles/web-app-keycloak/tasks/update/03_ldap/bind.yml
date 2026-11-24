@@ -1,0 +1,36 @@
+---
+- name: "⬇️ Fetch components (JSON) for the LDAP bind of '{{ KEYCLOAK_LDAP_CMP_NAME }}'"
+  ansible.builtin.shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} get components -r {{ KEYCLOAK_REALM }} --format json
+  register: kc_ldap_bind_components
+  changed_when: false
+
+- name: "🔍 Resolve the LDAP federation id of '{{ KEYCLOAK_LDAP_CMP_NAME }}'"
+  ansible.builtin.set_fact:
+    kc_ldap_bind_cmp_id: >-
+      {{
+        kc_ldap_bind_components.stdout | kcadm_json
+        | selectattr('providerType', 'equalto', 'org.keycloak.storage.UserStorageProvider')
+        | selectattr('providerId', 'equalto', 'ldap')
+        | selectattr('name', 'equalto', KEYCLOAK_LDAP_CMP_NAME)
+        | map(attribute='id')
+        | list
+        | first
+        | default('')
+      }}
+
+- name: "🔑 Converge the LDAP bind of '{{ KEYCLOAK_LDAP_CMP_NAME }}' before the first read through the federation"
+  keycloak_kcadm_update:
+    object_kind: "component"
+    lookup_field: "id"
+    lookup_value: "{{ kc_ldap_bind_cmp_id }}"
+    desired:
+      config:
+        bindDn: ["{{ KEYCLOAK_LDAP_BIND_DN }}"]
+        bindCredential: ["{{ KEYCLOAK_LDAP_BIND_PW }}"]
+    merge_path: "config"
+    kcadm_exec: "{{ KEYCLOAK_EXEC_KCADM }}"
+    realm: "{{ KEYCLOAK_REALM }}"
+    assert_mode: "{{ KEYCLOAK_VALIDATE_ENABLED }}"
+  when: kc_ldap_bind_cmp_id | length > 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
