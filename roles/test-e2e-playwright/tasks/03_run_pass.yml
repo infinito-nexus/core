@@ -1,5 +1,5 @@
 ---
-- name: ✅ Ensure the pass reports dir exists
+- name: ✅ Ensure the pass reports dir exists, kept for the earlier variant-* slots
   ansible.builtin.file:
     path: "{{ _playwright_pass_reports_dir }}"
     state: directory
@@ -20,8 +20,8 @@
            | in_network(_playwright_pass_domain | network_of) | first | dotenv_quote) }}
       {% endfor %}
       {% endif %}
-      {% for name, value in TEST_E2E_PLAYWRIGHT_CONFIG_TIMEOUTS.items() %}
-      {{ name }}={{ value }}
+      {% for name, value in TEST_E2E_PLAYWRIGHT_CONFIG_TIMEOUTS.items() if name is match('PLAYWRIGHT_[A-Z]+_TIMEOUT$') %}
+      {{ name }}={{ value | int }}
       {% endfor %}
       PLAYWRIGHT_NETWORK_LEAK={{ (_playwright_passes | length > 1) | string | lower }}
       PLAYWRIGHT_NETWORK_SUFFIXES={{ _playwright_passes | map('network_of') | network_suffixes | to_json }}
@@ -33,6 +33,27 @@
   vars:
     application_id: "{{ application_id }}"
     domains: "{{ lookup('domains') }}"
+
+- name: 🧾 Stage the env keys and CA trust words a run with spec secrets checks
+  when: _playwright_secrets_template_stat.stat.exists
+  block:
+    - name: 📇 List the env template's keys, the only role keys a spec secrets run takes
+      ansible.builtin.copy:
+        dest: "{{ _playwright_stage_dir }}/.env.keys"
+        mode: "0644"
+        content: |
+          {% for key in lookup('file', _playwright_env_template) | regex_findall('(?m)^([A-Z][A-Z0-9_]*)=') | unique %}
+          {{ key }}
+          {% endfor %}
+
+    - name: 🔐 List the CA trust words of a run with spec secrets, one per line
+      ansible.builtin.copy:
+        dest: "{{ _playwright_stage_dir }}/.ca-trust"
+        mode: "0644"
+        content: |
+          {% for word in (_playwright_ca_argv if (_playwright_ca_required | bool) else []) %}
+          {{ word }}
+          {% endfor %}
 
 - name: ⏳ Wait until application is ready (any non-error response)
   uri_retry:
@@ -71,11 +92,17 @@
 - name: 🏃 Run the Playwright container in this play and report it
   when: not (_playwright_dispatch | bool)
   block:
+    - name: 🔐 Write the role's spec secrets for this run
+      ansible.builtin.include_tasks: 03_run_pass/spec_secrets.yml
+      when: _playwright_secrets_template_stat.stat.exists
+
     - name: ▶️ Run Playwright container
       ansible.builtin.command:
         argv: &playwright_argv >-
           {{
-            ['container', 'run', '--rm', '--ipc=host', '--shm-size=1g']
+            (['python3', '-I', '-B', TEST_E2E_PLAYWRIGHT_TOOLS_DIR ~ '/spec_secrets.py', 'guard'] if (_playwright_secrets_template_stat.stat.exists | bool) else [])
+            + TEST_E2E_PLAYWRIGHT_MASK_ARGV
+            + [('docker' if (_playwright_secrets_template_stat.stat.exists | bool) else 'container'), 'run', '--rm', '--ipc=host', '--shm-size=1g']
             + (
                 ['--network', 'host']
                 if IS_SWARM_MODE
@@ -96,14 +123,19 @@
             + ['-e', 'PLAYWRIGHT_FULLY_PARALLEL=' ~ TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL]
             + ['-e', 'PLAYWRIGHT_TIMEOUT_FACTOR=' ~ TIMEOUT_FACTOR]
             + (['-e', 'PLAYWRIGHT_ONION_TIMEOUT_MULTIPLIER=' ~ TEST_E2E_PLAYWRIGHT_ONION_TIMEOUT_MULTIPLIER] if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool) else [])
-            + ['-v', _playwright_stage_dir ~ ':/e2e']
-            + ['-v', _playwright_stage_dir ~ '/volume:/volume']
-            + ['-v', _playwright_pass_reports_dir ~ ':/reports']
+            + ['-v', _playwright_stage_dir ~ ':/e2e' ~ (':ro' if (_playwright_secrets_template_stat.stat.exists | bool) else '')]
+            + ['-v', _playwright_stage_dir ~ '/volume:/volume' ~ (':ro' if (_playwright_secrets_template_stat.stat.exists | bool) else '')]
+            + ['-v', (([_playwright_spec_secrets_path, 'reports'] | path_join) if (_playwright_secrets_template_stat.stat.exists | bool) else _playwright_pass_reports_dir) ~ ':/reports']
             + ['-v', TEST_E2E_PLAYWRIGHT_SHARED_NODE_MODULES ~ ':/e2e/node_modules:ro']
             + ['-v', TEST_E2E_PLAYWRIGHT_SHARED_PERSONAS ~ ':/e2e/tests/personas:ro']
+            + (['--mount', 'type=bind,src=' ~ _playwright_spec_secrets_path ~ ',dst=/run/spec-secrets,readonly', '-e', 'INFINITO_PLAYWRIGHT_NO_CAPTURE=true']
+               + ['-e', 'NO_COLOR=1', '-e', 'FORCE_COLOR=0', '--log-driver=none', '--cidfile=' ~ _playwright_spec_secrets_path ~ '/.cid']
+               if (_playwright_secrets_template_stat.stat.exists | bool) else [])
+            + (_playwright_ca_argv if (_playwright_secrets_template_stat.stat.exists | bool) and (_playwright_ca_required | bool) else [])
             + ['-w', '/e2e']
             + [TEST_E2E_PLAYWRIGHT_IMAGE]
-            + ['/bin/bash', '-lc', TEST_E2E_PLAYWRIGHT_COMMAND]
+            + ((['--'] + TEST_E2E_PLAYWRIGHT_ARGUMENTS) if (_playwright_secrets_template_stat.stat.exists | bool)
+               else ['/bin/bash', '-lc', TEST_E2E_PLAYWRIGHT_COMMAND])
           }}
       timeout: "{{ lookup('timeout', TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT_EFFECTIVE) | int }}"
       environment: &playwright_environment >-
@@ -117,51 +149,47 @@
       register: _playwright_run
       changed_when: false
       failed_when: false
+  always:
+    - name: 🫥 Mask and remove this run's spec secrets
+      when:
+        - _playwright_secrets_template_stat.stat.exists
+        - _playwright_spec_secrets_path | default('') | length > 0
+      block:
+        - name: 🫥 Remove the run's container, then mask the spec secrets in its files
+          ansible.builtin.command:
+            argv:
+              - python3
+              - -I
+              - -B
+              - "{{ TEST_E2E_PLAYWRIGHT_MASKER }}"
+              - scrub
+              - "{{ _playwright_spec_secrets_path }}"
+              - "{{ _playwright_pass_reports_dir }}"
+              - container
+          register: _playwright_spec_secrets_scrub
+          changed_when: false
+          ignore_errors: true
 
-    - name: 📝 Report and archive the Playwright run
-      ansible.builtin.include_tasks: 04_collect.yml
+        - name: 🧹 Remove this run's spec secrets
+          ansible.builtin.file:
+            path: "{{ _playwright_spec_secrets_path }}"
+            state: absent
+
+        - name: 🛑 Fail the pass when its container or reports could not be masked
+          ansible.builtin.fail:
+            msg: >-
+              Masking the spec secrets of {{ application_id }} failed (run rc {{ _playwright_run.rc | default('absent') }}), {{ _playwright_pass_reports_dir }} may hold only part of its reports, all of them masked,
+              and the pass is not retried:
+              {{ _playwright_spec_secrets_scrub.stderr | default('') }}
+          when: _playwright_spec_secrets_scrub is failed
+
+- name: 📝 Report and archive the Playwright run, its reports masked
+  when: not (_playwright_dispatch | bool)
+  ansible.builtin.include_tasks: 04_collect.yml
 
 - name: 📬 Queue the Playwright run for the parallel scheduler
   when: _playwright_dispatch | bool
-  block:
-    - name: 📮 Hand the Playwright run to the parallel scheduler
-      ansible.builtin.copy:
-        dest: "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_JOBS_DIR }}/{{ TEST_E2E_PLAYWRIGHT_APPS.index(application_id) }}-{{ application_id }}.job.json"
-        mode: "0644"
-        content: >-
-          {{
-            {
-              'id': application_id,
-              'argv': _playwright_argv[:2] + _playwright_parallel_flags + _playwright_argv[2:],
-              'env': _playwright_environment,
-              'timeout': lookup('timeout', TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT_EFFECTIVE) | int,
-              'after': ([TEST_E2E_PLAYWRIGHT_APPS | first] + lookup('role_tests', application_id, 'playwright.run_after', default=[]))
-                       | intersect(TEST_E2E_PLAYWRIGHT_APPS) | difference([application_id]),
-              'tor': TEST_E2E_PLAYWRIGHT_IS_ONION | bool,
-              'workers': _playwright_workers | int,
-              'memory_mb': lookup('playwright_parallel', 'memory_mb', workers=_playwright_workers) | int,
-              'stop': ['container', 'rm', '--force', TEST_E2E_PLAYWRIGHT_PARALLEL_CONTAINER_PREFIX ~ application_id],
-              'meta': {'reports_dir': _playwright_pass_reports_dir}
-            } | to_json
-          }}
-      vars:
-        _playwright_argv: *playwright_argv
-        _playwright_environment: *playwright_environment
-        _playwright_workers: "{{ (_playwright_argv | select('match', '^PLAYWRIGHT_WORKERS=') | first).split('=', 1)[1] }}"
-        _playwright_parallel_flags:
-          - "--name={{ TEST_E2E_PLAYWRIGHT_PARALLEL_CONTAINER_PREFIX ~ application_id }}"
-          - "--oom-score-adj={{ TEST_E2E_PLAYWRIGHT_PARALLEL_OOM_SCORE_ADJ }}"
-      register: _playwright_job_written
-      when: _playwright_probe is skipped or (_playwright_probe.rc | default(1)) == 0
-
-    - name: 📝 Remember the run the scheduler now owns
-      ansible.builtin.set_fact:
-        _playwright_submitted: >-
-          {{ _playwright_submitted
-             + [{'id': application_id, 'job': _playwright_job_written.dest | basename}] }}
-      when: _playwright_job_written is not skipped
-
-    - name: 📝 Leave the run to the serial runner, its onion never answered over Tor
-      ansible.builtin.set_fact:
-        _playwright_serial_roles: "{{ _playwright_serial_roles + [application_id] }}"
-      when: _playwright_job_written is skipped
+  ansible.builtin.include_tasks: 03_run_pass/queue.yml
+  vars:
+    _playwright_argv: *playwright_argv
+    _playwright_environment: *playwright_environment

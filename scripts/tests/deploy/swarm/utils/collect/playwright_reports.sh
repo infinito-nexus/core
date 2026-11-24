@@ -20,7 +20,7 @@ fi
 
 set +e
 timeout --kill-after=30 120 docker exec "${MGR}" \
-	tar -C "${INFINITO_PLAYWRIGHT_REPORTS_BASE_DIR}" -cf - . 2>/dev/null |
+	tar -C "${INFINITO_PLAYWRIGHT_REPORTS_BASE_DIR}" --exclude='.masked.*' -cf - . 2>/dev/null |
 	tar -C "${dest}" -xf - 2>/dev/null
 pipe_rc=("${PIPESTATUS[@]}")
 set -e
