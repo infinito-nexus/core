@@ -66,22 +66,26 @@ These decisions were confirmed by the operator before implementation starts and 
 ```
 roles/web-app-openpost/files/crossposter/
 ├── Dockerfile
-└── crossposter/
-    ├── __init__.py
-    ├── __main__.py
-    ├── adapt.py
-    ├── config.py
-    ├── notify.py
-    ├── openpost.py
-    ├── retry.py
-    ├── store.py
-    └── sources/
-        ├── __init__.py
-        ├── mastodon.py
-        ├── peertube.py
-        └── pixelfed.py
+└── requirements.txt
 roles/web-app-openpost/files/provider/
-├── Dockerfile
+└── Dockerfile
+roles/web-app-openpost/files/python/
+├── crossposter/
+│   ├── __init__.py
+│   ├── __main__.py
+│   ├── adapt.py
+│   ├── config.py
+│   ├── notify.py
+│   ├── openpost.py
+│   ├── retry.py
+│   ├── service.py
+│   ├── store.py
+│   ├── web.py
+│   └── sources/
+│       ├── __init__.py
+│       ├── mastodon.py
+│       ├── peertube.py
+│       └── pixelfed.py
 └── provider/
     ├── __init__.py
     ├── __main__.py
