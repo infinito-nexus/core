@@ -11,6 +11,7 @@ from typing import Any, ClassVar
 
 CURL = ("curl",)
 CURL_NO_PROXY = ("--noproxy", "*")
+LOOPBACK = "127.0.0.1"
 
 DEFAULT_INTERVAL = "2m"
 DEFAULT_TIMEOUT = "5s"
@@ -82,7 +83,7 @@ class Probe:
 
     @property
     def url(self) -> str:
-        return f"http://127.0.0.1{f':{self.port}' if self.port else ''}/{self.path}"
+        return f"http://{LOOPBACK}{f':{self.port}' if self.port else ''}/{self.path}"
 
     def test(self) -> list[str]:
         raise NotImplementedError
@@ -224,7 +225,7 @@ class Nc(Probe):
     timeout = "3s"
 
     def test(self) -> list[str]:
-        return ["CMD-SHELL", f"nc -z localhost {self.port} || exit 1"]
+        return ["CMD-SHELL", f"nc -z {LOOPBACK} {self.port} || exit 1"]
 
 
 class Connect(Probe):
@@ -241,7 +242,7 @@ class Connect(Probe):
     start_period = "15m"
 
     def test(self) -> list[str]:
-        return ["CMD", "bash", "-c", f"</dev/tcp/127.0.0.1/{self.port}"]
+        return ["CMD", "bash", "-c", f"</dev/tcp/{LOOPBACK}/{self.port}"]
 
 
 PROBES: dict[str, type[Probe]] = {
