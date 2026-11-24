@@ -6,7 +6,7 @@ test-e2e-playwright:
 playwright:
   image: mcr.microsoft.com/playwright
   version: "v1.65.1-noble"
-  axe_version: 4.14.0
+  axe_version: 4.14.1
   update:
     - key: axe_version
       type: npm
