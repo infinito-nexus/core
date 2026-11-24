@@ -8,6 +8,9 @@ import types
 import unittest
 from pathlib import Path
 
+from ansible.parsing.dataloader import DataLoader
+from ansible.template import Templar, trust_as_template
+
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml, load_yaml_any
 
@@ -53,6 +56,9 @@ PHP = [
 PREFIX = [*PHP, "/var/www/html/occ"]
 MAPPING_CALL = [*PHP, "--", "/var/www/html"]
 PARTS = ["street", "postalCode", "l", "st", "c"]
+PLATFORM_ADMIN = "platformadmin"
+PLATFORM_DIRECTORY_ACCOUNT = f"{PLATFORM_ADMIN}_4240"
+ADMIN_ROLES = {"admin": "administrator"}
 
 
 def load_module(hook_dir):
@@ -77,13 +83,21 @@ class FakeNextcloud:
         script: the mapping script the hook has to pipe into ``php``.
         directory: ``{directory uuid: Nextcloud account}`` that ``user_ldap`` maps
             when ``user:list`` enumerates the directory.
+        groups: ``{group id: [accounts]}`` of the Nextcloud groups, or None for none.
+        backends: ``{account: backend}`` that ``user:info`` reports, or None for none.
     """
 
-    def __init__(self, mapping, addresses, script, directory):
+    def __init__(
+        self, mapping, addresses, script, directory, groups=None, backends=None
+    ):
         self.mapping = dict(mapping)
         self.addresses = dict(addresses)
         self.script = script
         self.directory = directory
+        self.groups = {
+            group: set(accounts) for group, accounts in (groups or {}).items()
+        }
+        self.backends = dict(backends or {})
         self.calls = []
 
     def __call__(self, argv, **kwargs):
@@ -106,6 +120,17 @@ class FakeNextcloud:
             stdout = self.addresses.get(args[1], "") + "\n"
         elif args[0] == "user:profile":
             self.addresses[args[1]] = args[3]
+        if args[0] == "group:list":
+            found = {
+                group: sorted(accounts)
+                for group, accounts in self.groups.items()
+                if args[1] in group
+            }
+            stdout = json.dumps(found or [])
+        if args[0] == "group:removeuser":
+            self.groups[args[1]].discard(args[2])
+        if args[0] == "user:info":
+            stdout = json.dumps({"user_id": args[1], "backend": self.backends[args[1]]})
         return subprocess.CompletedProcess(argv, 0, stdout=stdout, stderr="")
 
 
@@ -130,6 +155,15 @@ def member(username, **parts):
 
 def mapped(*usernames):
     return {f"uuid-{username}": username for username in usernames}
+
+
+RECONCILE_MAPPING = {
+    **mapped("alice", "biber"),
+    f"uuid-{PLATFORM_ADMIN}": PLATFORM_DIRECTORY_ACCOUNT,
+}
+RECONCILE_MEMBERS = [member("alice"), member("biber"), member(PLATFORM_ADMIN)]
+REVOKED_ADMINS = [PLATFORM_ADMIN, PLATFORM_DIRECTORY_ACCOUNT, "alice", "biber"]
+ADMINISTRATORS = ["alice"]
 
 
 def address_mapping(addon):
@@ -170,8 +204,8 @@ class NextcloudLdapRefreshTests(unittest.TestCase):
         self.script = read_text(str(MAPPING))
         self.members_file = Path(self.tmp.name) / "members.json"
 
-    def environ(self, members, listing=True):
-        self.members_file.write_text(json.dumps({"@users": members}))
+    def environ(self, members, listing=True, roles=None, group_roles=None):
+        self.members_file.write_text(json.dumps({"@users": members, **(roles or {})}))
         return {
             "RBAC_SYNC_CONTAINER_BIN": "/usr/bin/container",
             "RBAC_SYNC_CID": "c1",
@@ -180,18 +214,57 @@ class NextcloudLdapRefreshTests(unittest.TestCase):
             "NEXTCLOUD_OCC": "/var/www/html/occ",
             "NEXTCLOUD_ADDRESS_ATTRIBUTES": json.dumps(PARTS),
             "NEXTCLOUD_LDAP_USER_LISTING": "true" if listing else "false",
+            "NEXTCLOUD_USER_OIDC_GROUP_ROLES": json.dumps(group_roles or {}),
+            "NEXTCLOUD_RBAC_KEEP": json.dumps([PLATFORM_ADMIN]),
         }
 
-    def run_main(self, mapping, members, addresses=None, directory=None, listing=True):
-        nextcloud = FakeNextcloud(
-            mapping, addresses or {}, self.script, directory or {}
-        )
+    def execute(self, nextcloud, environ):
         stdout, stderr = io.StringIO(), io.StringIO()
         with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
-            code = self.mod.main(self.environ(members, listing), run=nextcloud)
-        self.code = code
+            self.code = self.mod.main(environ, run=nextcloud)
         self.stderr = stderr.getvalue().strip().splitlines()
-        return nextcloud, stdout.getvalue().strip().splitlines()
+        return stdout.getvalue().strip().splitlines()
+
+    def run_main(
+        self,
+        mapping,
+        members,
+        addresses=None,
+        directory=None,
+        listing=True,
+        roles=None,
+        group_roles=None,
+        groups=None,
+        backends=None,
+    ):
+        nextcloud = FakeNextcloud(
+            mapping, addresses or {}, self.script, directory or {}, groups, backends
+        )
+        environ = self.environ(members, listing, roles, group_roles)
+        return nextcloud, self.execute(nextcloud, environ)
+
+    def run_reconcile(self, groups, administrators, backends=None):
+        """Args:
+            groups: ``{group id: [accounts]}`` of the Nextcloud groups.
+            administrators: the logins of the administrator role group.
+            backends: ``{account: backend}`` that ``user:info`` reports, or None for none.
+        """
+        nextcloud = FakeNextcloud(
+            RECONCILE_MAPPING, {}, self.script, {}, groups, backends
+        )
+        self.reconcile_environ = self.environ(
+            RECONCILE_MEMBERS,
+            roles={"administrator": [member(login) for login in administrators]},
+            group_roles=ADMIN_ROLES,
+        )
+        return nextcloud, self.execute(nextcloud, self.reconcile_environ)
+
+    def removals(self, nextcloud):
+        return [
+            call[len(PREFIX) :]
+            for call in nextcloud.calls
+            if "group:removeuser" in call
+        ]
 
     def test_only_accounts_user_ldap_mapped_are_refreshed(self):
         nextcloud, output = self.run_main(
@@ -430,6 +503,135 @@ class NextcloudLdapRefreshTests(unittest.TestCase):
 
         with self.assertRaises(subprocess.CalledProcessError):
             self.mod.main(self.environ([member("alice")]), run=failing)
+
+    def test_a_revoked_directory_account_leaves_admin_at_the_next_run(self):
+        nextcloud, output = self.run_reconcile(
+            {"admin": REVOKED_ADMINS, "subadmins": ["biber"]}, ADMINISTRATORS
+        )
+
+        self.assertEqual(
+            nextcloud.groups["admin"],
+            {PLATFORM_ADMIN, PLATFORM_DIRECTORY_ACCOUNT, "alice"},
+        )
+        self.assertEqual(nextcloud.groups["subadmins"], {"biber"})
+        self.assertEqual(
+            self.removals(nextcloud), [["group:removeuser", "admin", "biber"]]
+        )
+        self.assertFalse(any("user:info" in call for call in nextcloud.calls))
+        self.assertEqual((self.code, output[0]), (0, "CHANGED biber left admin"))
+
+    def test_without_the_removal_a_revoked_account_keeps_admin(self):
+        self.mod.remove_from_group = lambda *args: None
+
+        nextcloud, _ = self.run_reconcile({"admin": REVOKED_ADMINS}, ADMINISTRATORS)
+
+        self.assertEqual(nextcloud.groups["admin"], set(REVOKED_ADMINS))
+        self.assertEqual(self.removals(nextcloud), [])
+
+    def test_a_second_run_changes_no_group(self):
+        nextcloud, first = self.run_reconcile({"admin": REVOKED_ADMINS}, ADMINISTRATORS)
+        nextcloud.calls.clear()
+
+        second = self.execute(nextcloud, self.reconcile_environ)
+
+        self.assertIn("CHANGED biber left admin", first)
+        self.assertEqual(self.removals(nextcloud), [])
+        self.assertFalse(any(line.endswith(" left admin") for line in second))
+        self.assertEqual(
+            nextcloud.groups["admin"],
+            {PLATFORM_ADMIN, PLATFORM_DIRECTORY_ACCOUNT, "alice"},
+        )
+
+    def test_a_local_account_outside_the_role_keeps_admin(self):
+        nextcloud, _ = self.run_reconcile(
+            {"admin": [PLATFORM_ADMIN, "alice", "operator"]},
+            ADMINISTRATORS,
+            backends={"operator": "Database"},
+        )
+
+        self.assertEqual(
+            nextcloud.groups["admin"], {PLATFORM_ADMIN, "alice", "operator"}
+        )
+        self.assertIn(
+            [*PREFIX, "user:info", "operator", "--output=json"], nextcloud.calls
+        )
+        self.assertEqual(self.removals(nextcloud), [])
+
+    def test_a_user_oidc_account_keeps_admin_only_while_its_login_holds_the_role(self):
+        nextcloud, output = self.run_reconcile(
+            {"admin": [PLATFORM_ADMIN, "carol", "dora"]},
+            [*ADMINISTRATORS, "dora"],
+            backends={"carol": "user_oidc"},
+        )
+
+        self.assertEqual(nextcloud.groups["admin"], {PLATFORM_ADMIN, "dora"})
+        self.assertIn("CHANGED carol left admin", output)
+        self.assertNotIn(
+            [*PREFIX, "user:info", "dora", "--output=json"], nextcloud.calls
+        )
+
+    def test_a_group_no_account_holds_yet_changes_nothing(self):
+        nextcloud, output = self.run_reconcile({}, ADMINISTRATORS)
+
+        self.assertIn(
+            [*PREFIX, "group:list", "admin", "--output=json"], nextcloud.calls
+        )
+        self.assertEqual(self.removals(nextcloud), [])
+        self.assertEqual((self.code, output), (0, ["REFRESHED 3"]))
+
+    def test_without_user_oidc_no_group_is_read(self):
+        nextcloud, output = self.run_main(
+            mapped("biber"), [member("biber")], groups={"admin": ["biber"]}
+        )
+
+        self.assertEqual(nextcloud.groups["admin"], {"biber"})
+        self.assertFalse(any("group:list" in call for call in nextcloud.calls))
+        self.assertEqual((self.code, output), (0, ["REFRESHED 1"]))
+
+    def test_a_failing_removal_stops_the_hook(self):
+        nextcloud = FakeNextcloud(
+            RECONCILE_MAPPING, {}, self.script, {}, {"admin": REVOKED_ADMINS}
+        )
+
+        def failing(argv, **kwargs):
+            if "group:removeuser" in argv:
+                raise subprocess.CalledProcessError(
+                    1, argv, output="user biber not found"
+                )
+            return nextcloud(argv, **kwargs)
+
+        environ = self.environ(
+            RECONCILE_MEMBERS,
+            roles={"administrator": [member("alice")]},
+            group_roles=ADMIN_ROLES,
+        )
+        with self.assertRaises(subprocess.CalledProcessError):
+            self.mod.main(environ, run=failing)
+
+    def test_the_hook_reads_the_role_group_of_every_client_role_group(self):
+        include = load_yaml_any(TASKS)[0]["vars"]
+
+        for group_roles, roles in (
+            ({}, ["@users"]),
+            (ADMIN_ROLES, ["@users", "administrator"]),
+        ):
+            with self.subTest(group_roles=group_roles):
+                templar = Templar(
+                    loader=DataLoader(),
+                    variables={"NEXTCLOUD_USER_OIDC_GROUP_ROLES": group_roles},
+                )
+                self.assertEqual(
+                    templar.template(trust_as_template(include["rbac_sync_roles"])),
+                    roles,
+                )
+        self.assertEqual(
+            include["rbac_sync_env"]["NEXTCLOUD_USER_OIDC_GROUP_ROLES"],
+            "{{ NEXTCLOUD_USER_OIDC_GROUP_ROLES | to_json }}",
+        )
+        self.assertEqual(
+            include["rbac_sync_env"]["NEXTCLOUD_RBAC_KEEP"],
+            "{{ [NEXTCLOUD_ADMINISTRATOR_USERNAME] | to_json }}",
+        )
 
 
 if __name__ == "__main__":

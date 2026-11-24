@@ -382,6 +382,13 @@ class TestUserOidcProvider(unittest.TestCase):
         with self.assertRaises(AnsibleError):
             render("{{ NEXTCLOUD_USER_OIDC_OPTIONS }}", "oidc_login")
 
+    def test_the_rbac_hook_revokes_the_client_role_groups_only_under_user_oidc(
+        self,
+    ) -> None:
+        template = "{{ NEXTCLOUD_USER_OIDC_GROUP_ROLES }}"
+        self.assertEqual({"admin": "administrator"}, render(template, "user_oidc"))
+        self.assertEqual({}, render(template, "oidc_login"))
+
     def test_the_client_and_the_provider_switch_on_the_same_plugin(self) -> None:
         services = read_text(str(ROLE_DIR / ROLE_FILE_META_SERVICES))
         addon = read_text(str(ROLE_DIR / "meta/addons/user_oidc.yml"))

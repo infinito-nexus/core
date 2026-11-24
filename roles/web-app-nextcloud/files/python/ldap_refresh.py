@@ -1,22 +1,30 @@
-"""Refresh the LDAP attributes and the address of every Nextcloud account the directory holds.
+"""Refresh the LDAP attributes and the address of every Nextcloud account the directory holds,
+and take every ``user_oidc`` account out of the groups whose role it no longer holds.
 
 Environment:
     RBAC_SYNC_CONTAINER_BIN, RBAC_SYNC_CID: how to reach the Nextcloud container.
-    RBAC_SYNC_MEMBERS_FILE: JSON ``{"@users": [members]}`` the runner hands over,
-        every member with the address attributes base64-encoded under ``attributes``;
-        a member without ``attributes`` is refreshed and keeps its address.
+    RBAC_SYNC_MEMBERS_FILE: JSON ``{"@users": [members], <role>: [members]}`` the
+        runner hands over, every member with the address attributes base64-encoded
+        under ``attributes``; a member without ``attributes`` is refreshed and keeps
+        its address.
     NEXTCLOUD_USER: user ``occ`` runs as inside the container.
     NEXTCLOUD_OCC: path of ``occ`` inside the container, in the server root.
     NEXTCLOUD_ADDRESS_ATTRIBUTES: JSON list of the street, postal code, locality, region
         and country attributes the address is composed of, in that order.
     NEXTCLOUD_LDAP_USER_LISTING: ``true`` when ``user_ldap`` lists the directory,
         ``false`` when it maps an account only at its first login.
+    NEXTCLOUD_USER_OIDC_GROUP_ROLES: JSON ``{group: role}`` of the Nextcloud groups
+        ``user_oidc`` provisions from a client role, each with the role whose members
+        hold that client role; ``{}`` while ``user_oidc`` is not the sign-in plugin.
+    NEXTCLOUD_RBAC_KEEP: JSON list of the logins no such group loses, under the local
+        account and under the directory account of the login.
 
 Output:
-    One ``CHANGED <account> address`` line per rewritten address, then
-    ``REFRESHED <count>`` with the number of refreshed accounts; one ``FAILED``
-    line with the member and mapping counts and exit code 1 when directory members
-    exist but none of them matches a mapped account.
+    One ``CHANGED <account> left <group>`` line per account taken out of a group, one
+    ``CHANGED <account> address`` line per rewritten address, then ``REFRESHED <count>``
+    with the number of refreshed accounts; one ``FAILED`` line with the member and
+    mapping counts and exit code 1 when directory members exist but none of them
+    matches a mapped account.
 """
 
 import base64
@@ -29,6 +37,7 @@ from pathlib import Path, PurePosixPath
 USERS_ROLE = "@users"
 MAPPING_PREFIX = "LDAP_MAPPING "
 MAPPING_PROGRAM = "ldap_user_mapping.php"
+USER_OIDC_BACKEND = "user_oidc"
 
 
 def php(environ, run, *args, stdin=None):
@@ -78,6 +87,18 @@ def ldap_accounts(environ, run):
     return json.loads(line.removeprefix(MAPPING_PREFIX))
 
 
+def read_members(environ):
+    """Args:
+        environ: the process environment.
+
+    Returns:
+        ``{role: [members]}`` the runner hands over.
+    """
+    return json.loads(
+        Path(environ["RBAC_SYNC_MEMBERS_FILE"]).read_text(encoding="utf-8")
+    )
+
+
 def compose_address(street, postal_code, locality, region, country):
     """Return the one-line postal address of the given parts, empty parts left out.
 
@@ -92,19 +113,17 @@ def compose_address(street, postal_code, locality, region, country):
     return ", ".join(part for part in (street, place, region, country) if part)
 
 
-def directory_addresses(environ):
+def directory_addresses(environ, members):
     """Return ``{directory uuid: address}`` of the accounts of the users OU.
 
     Args:
         environ: the process environment.
+        members: the ``@users`` members the runner hands over.
 
     Returns:
         The composed address of every account by its uuid, None for an account
         that carries no address attributes.
     """
-    members = json.loads(
-        Path(environ["RBAC_SYNC_MEMBERS_FILE"]).read_text(encoding="utf-8")
-    )[USERS_ROLE]
     parts = json.loads(environ["NEXTCLOUD_ADDRESS_ATTRIBUTES"])
     return {
         member["uuid"]: compose_address(
@@ -144,10 +163,87 @@ def unmatched_reason(members, mapped, listing):
     return ""
 
 
-def main(environ, run=subprocess.run):
-    """Refresh the mapped directory accounts, align their addresses, print the result.
+def account_names(members, mapped):
+    """Args:
+        members: directory members.
+        mapped: ``{directory uuid: Nextcloud account}`` of every account ``user_ldap`` mapped.
 
-    Args:
+    Returns:
+        Every Nextcloud account the members sign in as: the login, which
+        ``user_oidc`` takes as the user id of an account of its own, and the
+        account ``user_ldap`` mapped for the member's uuid.
+    """
+    return {member["username"] for member in members} | {
+        mapped[member["uuid"]] for member in members if member["uuid"] in mapped
+    }
+
+
+def group_members(environ, run, group):
+    """Args:
+        environ: the process environment.
+        run: ``subprocess.run`` or a stand-in.
+        group: the group id; ``occ group:list`` matches it as a search string and
+            prints an empty JSON list when no group matches.
+
+    Returns:
+        The accounts of that Nextcloud group.
+    """
+    found = json.loads(occ(environ, run, "group:list", group, "--output=json")) or {}
+    return found.get(group, [])
+
+
+def provisioned_by_user_oidc(environ, run, account, directory):
+    """Args:
+        environ: the process environment.
+        run: ``subprocess.run`` or a stand-in.
+        account: a Nextcloud account.
+        directory: the accounts ``user_ldap`` mapped, which ``user_oidc`` signs in to.
+
+    Returns:
+        Whether ``user_oidc`` provisions the groups of the account: a directory
+        account, or an account of the ``user_oidc`` backend.
+    """
+    if account in directory:
+        return True
+    info = json.loads(occ(environ, run, "user:info", account, "--output=json"))
+    return info["backend"] == USER_OIDC_BACKEND
+
+
+def remove_from_group(environ, run, group, account):
+    """Args:
+        environ: the process environment.
+        run: ``subprocess.run`` or a stand-in.
+        group: the group id.
+        account: the account that leaves the group.
+    """
+    occ(environ, run, "group:removeuser", group, account)
+
+
+def revoke_lapsed_groups(environ, run, mapped, roster):
+    """Args:
+        environ: the process environment.
+        run: ``subprocess.run`` or a stand-in.
+        mapped: ``{directory uuid: Nextcloud account}`` of every account ``user_ldap`` mapped.
+        roster: ``{role: [members]}`` the runner hands over.
+    """
+    logins = set(json.loads(environ["NEXTCLOUD_RBAC_KEEP"]))
+    keep = logins | account_names(
+        [member for member in roster[USERS_ROLE] if member["username"] in logins],
+        mapped,
+    )
+    directory = set(mapped.values())
+    group_roles = json.loads(environ["NEXTCLOUD_USER_OIDC_GROUP_ROLES"])
+    for group, role in sorted(group_roles.items()):
+        holders = keep | account_names(roster[role], mapped)
+        lapsed = set(group_members(environ, run, group)) - holders
+        for account in sorted(lapsed):
+            if provisioned_by_user_oidc(environ, run, account, directory):
+                remove_from_group(environ, run, group, account)
+                print(f"CHANGED {account} left {group}")
+
+
+def main(environ, run=subprocess.run):
+    """Args:
         environ: the process environment.
         run: ``subprocess.run`` or a stand-in.
 
@@ -156,7 +252,8 @@ def main(environ, run=subprocess.run):
     """
     occ(environ, run, "user:list", "--output=json", "--limit=0")
     mapped = ldap_accounts(environ, run)
-    members = directory_addresses(environ)
+    roster = read_members(environ)
+    members = directory_addresses(environ, roster[USERS_ROLE])
     addresses = {
         mapped[uuid]: address for uuid, address in members.items() if uuid in mapped
     }
@@ -167,6 +264,7 @@ def main(environ, run=subprocess.run):
         if reason:
             print(f"FAILED {reason}", file=sys.stderr)
             return 1
+    revoke_lapsed_groups(environ, run, mapped, roster)
     for account in sorted(addresses):
         occ(environ, run, "ldap:check-user", "--update", account)
         if addresses[account] is None:

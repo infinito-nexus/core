@@ -1,5 +1,5 @@
 ---
-- name: "🪪 Refresh the LDAP attributes and addresses of the Nextcloud accounts"
+- name: "🪪 Refresh the LDAP attributes and addresses of the Nextcloud accounts and revoke lapsed user_oidc groups"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
   vars:
     rbac_sync_application_id: "{{ application_id }}"
@@ -7,7 +7,7 @@
     rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
     rbac_sync_skip_unchanged: false
     rbac_sync_any_slot: true
-    rbac_sync_roles: ["@users"]
+    rbac_sync_roles: "{{ ['@users'] + (NEXTCLOUD_USER_OIDC_GROUP_ROLES.values() | unique | sort) }}"
     rbac_sync_service_key: "{{ NEXTCLOUD_SERVICE }}"
     rbac_sync_service_name: ""
     rbac_sync_container: "{{ NEXTCLOUD_CONTAINER }}"
@@ -28,4 +28,6 @@
       NEXTCLOUD_OCC: "{{ NEXTCLOUD_INTERNAL_OCC_COMMAND }}"
       NEXTCLOUD_ADDRESS_ATTRIBUTES: "{{ rbac_sync_attributes | to_json }}"
       NEXTCLOUD_LDAP_USER_LISTING: "{{ 'true' if (lookup('config', application_id, 'addons.user_ldap.config.user_directory.enabled') | bool) else 'false' }}"
+      NEXTCLOUD_USER_OIDC_GROUP_ROLES: "{{ NEXTCLOUD_USER_OIDC_GROUP_ROLES | to_json }}"
+      NEXTCLOUD_RBAC_KEEP: "{{ [NEXTCLOUD_ADMINISTRATOR_USERNAME] | to_json }}"
     rbac_sync_members_env: []

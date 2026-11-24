@@ -78,6 +78,7 @@ NEXTCLOUD_USER_OIDC_OPTIONS:
   - "--mapping-groups={{ RBAC.GROUP.CLAIM }}|{{ lookup('config', application_id, 'services.sso.oidc.no_groups_claim') }}"
   - "--group-provisioning=1"
   - "--send-id-token-hint=1"
+NEXTCLOUD_USER_OIDC_GROUP_ROLES: "{{ lookup('config', application_id, 'services.sso.oidc.client_roles.user_oidc') if lookup('sso_oidc_plugin') == 'user_oidc' else {} }}"
 
 NEXTCLOUD_DOCKER_WORK_DIRECTORY: "{{ lookup('volume', 'web-app-nextcloud', 'data').target }}"
 NEXTCLOUD_DOCKER_CONF_ADD_PATH: "{{ lookup('volume', 'web-app-nextcloud', 'infinito_conf').target }}"
