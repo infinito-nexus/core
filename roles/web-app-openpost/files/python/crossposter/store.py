@@ -4,40 +4,26 @@ import dataclasses
 import hashlib
 import json
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 from .sources import Media, SourceItem
 
 LOCK_ID = 4_103_270_041
-SCHEMA = (
-    "CREATE SCHEMA IF NOT EXISTS crossposter",
-    """CREATE TABLE IF NOT EXISTS crossposter.cursors (
-        route text PRIMARY KEY,
-        cursor text NOT NULL,
-        updated_at timestamptz NOT NULL DEFAULT now()
-    )""",
-    """CREATE TABLE IF NOT EXISTS crossposter.items (
-        id bigserial PRIMARY KEY,
-        route text NOT NULL,
-        source_uri text NOT NULL,
-        source_url text NOT NULL,
-        target text NOT NULL,
-        network text NOT NULL,
-        state text NOT NULL,
-        payload jsonb NOT NULL,
-        publication_id text NOT NULL DEFAULT '',
-        attempts integer NOT NULL DEFAULT 0,
-        resends integer NOT NULL DEFAULT 0,
-        next_attempt_at timestamptz NOT NULL DEFAULT now(),
-        last_error text NOT NULL DEFAULT '',
-        notified_at timestamptz,
-        created_at timestamptz NOT NULL DEFAULT now(),
-        updated_at timestamptz NOT NULL DEFAULT now(),
-        UNIQUE (source_uri, target)
-    )""",
-)
-COLUMNS = (
-    "id, route, source_uri, source_url, target, network, state, payload, publication_id, "
-    "attempts, resends, next_attempt_at, last_error, notified_at, created_at, updated_at"
+SQL_DIR = Path(__file__).resolve().parent / "sql"
+SCHEMA = ("create_schema", "create_cursors", "create_items")
+QUERIES = (
+    *SCHEMA,
+    "try_lock",
+    "select_cursor",
+    "insert_item",
+    "upsert_cursor",
+    "select_due",
+    "select_open_publications",
+    "select_unnotified",
+    "select_items",
+    "update_item",
+    "resend_item",
+    "mark_notified",
 )
 
 STATES = ("pending", "drafted", "submitted", "published", "failed", "dead_lettered")
@@ -83,6 +69,19 @@ def item_from_json(raw: dict) -> SourceItem:
     return SourceItem(**{**raw, "media": media, "tags": tuple(raw["tags"])})
 
 
+def query(name: str) -> str:
+    """
+    Args:
+        name: one of QUERIES, the file name of a statement without ``.sql``.
+
+    Returns:
+        The statement's text from SQL_DIR.
+    """
+    if name not in QUERIES:
+        raise KeyError(f"unknown crossposter query {name!r}")
+    return (SQL_DIR / f"{name}.sql").read_text(encoding="utf-8")
+
+
 class Store:
     def __init__(self, dsn: str) -> None:
         from psycopg import connect
@@ -90,19 +89,22 @@ class Store:
 
         self.connection = connect(dsn, autocommit=True, row_factory=dict_row)
 
+    def _rows(self, name: str) -> list[dict]:
+        return list(self.connection.execute(query(name)).fetchall())
+
     def migrate(self) -> None:
-        for statement in SCHEMA:
-            self.connection.execute(statement)
+        for name in SCHEMA:
+            self.connection.execute(query(name))
 
     def lock(self) -> bool:
         row = self.connection.execute(
-            "SELECT pg_try_advisory_lock(%s) AS held", (LOCK_ID,)
+            query("try_lock"), {"lock_id": LOCK_ID}
         ).fetchone()
         return bool(row["held"])
 
     def cursor(self, route: str) -> str | None:
         row = self.connection.execute(
-            "SELECT cursor FROM crossposter.cursors WHERE route = %s", (route,)
+            query("select_cursor"), {"route": route}
         ).fetchone()
         return None if row is None else str(row["cursor"])
 
@@ -112,38 +114,31 @@ class Store:
         with self.connection.transaction():
             for item, target, network in enqueued:
                 self.connection.execute(
-                    """INSERT INTO crossposter.items (route, source_uri, source_url, target, network, state, payload)
-                       VALUES (%s, %s, %s, %s, %s, 'pending', %s)
-                       ON CONFLICT (source_uri, target) DO NOTHING""",
-                    (route, item.uri, item.url, target, network, item_to_json(item)),
+                    query("insert_item"),
+                    {
+                        "route": route,
+                        "source_uri": item.uri,
+                        "source_url": item.url,
+                        "target": target,
+                        "network": network,
+                        "payload": item_to_json(item),
+                    },
                 )
             self.connection.execute(
-                """INSERT INTO crossposter.cursors (route, cursor) VALUES (%s, %s)
-                   ON CONFLICT (route) DO UPDATE SET cursor = excluded.cursor, updated_at = now()""",
-                (route, cursor),
+                query("upsert_cursor"), {"route": route, "cursor": cursor}
             )
 
-    def rows(self, where: str, parameters: tuple) -> list[dict]:
-        from psycopg import sql
-
-        query = sql.SQL("SELECT {} FROM crossposter.items WHERE {} ORDER BY id").format(
-            sql.SQL(COLUMNS), sql.SQL(where)
-        )
-        return list(self.connection.execute(query, parameters).fetchall())
-
     def due(self) -> list[dict]:
-        return self.rows("state = 'pending' AND next_attempt_at <= now()", ())
+        return self._rows("select_due")
 
     def open_publications(self) -> list[dict]:
-        return self.rows("state IN ('drafted', 'submitted')", ())
+        return self._rows("select_open_publications")
 
     def unnotified(self) -> list[dict]:
-        return self.rows(
-            "state IN ('failed', 'dead_lettered') AND notified_at IS NULL", ()
-        )
+        return self._rows("select_unnotified")
 
     def everything(self) -> list[dict]:
-        return self.rows("true", ())
+        return self._rows("select_items")
 
     def update(
         self,
@@ -154,29 +149,30 @@ class Store:
         error: str,
         delay_seconds: float,
     ) -> None:
-        next_attempt = datetime.now(UTC) + timedelta(seconds=delay_seconds)
         self.connection.execute(
-            """UPDATE crossposter.items
-               SET state = %s, publication_id = %s, attempts = %s, last_error = %s,
-                   next_attempt_at = %s, updated_at = now()
-               WHERE id = %s""",
-            (state, publication_id, attempts, error, next_attempt, row_id),
+            query("update_item"),
+            {
+                "id": row_id,
+                "state": state,
+                "publication_id": publication_id,
+                "attempts": attempts,
+                "error": error,
+                "next_attempt_at": datetime.now(UTC) + timedelta(seconds=delay_seconds),
+            },
         )
 
     def resend(
         self, row_id: int, attempts: int, error: str, delay_seconds: float
     ) -> None:
-        next_attempt = datetime.now(UTC) + timedelta(seconds=delay_seconds)
         self.connection.execute(
-            """UPDATE crossposter.items
-               SET state = 'pending', resends = resends + 1, publication_id = '',
-                   attempts = %s, last_error = %s,
-                   next_attempt_at = %s, updated_at = now()
-               WHERE id = %s""",
-            (attempts, error, next_attempt, row_id),
+            query("resend_item"),
+            {
+                "id": row_id,
+                "attempts": attempts,
+                "error": error,
+                "next_attempt_at": datetime.now(UTC) + timedelta(seconds=delay_seconds),
+            },
         )
 
     def mark_notified(self, row_id: int) -> None:
-        self.connection.execute(
-            "UPDATE crossposter.items SET notified_at = now() WHERE id = %s", (row_id,)
-        )
+        self.connection.execute(query("mark_notified"), {"id": row_id})
