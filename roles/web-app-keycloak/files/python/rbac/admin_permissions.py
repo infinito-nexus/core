@@ -36,6 +36,7 @@ USER_SCOPES = ["view", "manage-group-membership"]
 GROUP_SCOPES = ["view", "manage-membership"]
 NOT_FOUND = "HTTP 404"
 ROUTES = {"policy": "policy/group", "permission": "permission/scope"}
+COMMON = {"logic": "POSITIVE", "decisionStrategy": "UNANIMOUS"}
 
 
 def fingerprint(payload: dict) -> str:
@@ -48,60 +49,84 @@ def fingerprint(payload: dict) -> str:
     return f"Generated from meta/rbac.yml by web-app-keycloak; digest {digest[:16]}"
 
 
+def group_policy(name: str, paths: list[str], approvers: dict[str, str]) -> dict:
+    """Return a group policy that admits a member of any of ``paths``.
+
+    Args:
+        name: policy name.
+        paths: approver group paths, sorted.
+        approvers: Keycloak id of every approver group, by path.
+    """
+    return {
+        "name": name,
+        "type": "group",
+        **COMMON,
+        "groups": [{"id": approvers[path], "extendChildren": False} for path in paths],
+    }
+
+
+def scope_permission(
+    name: str, resource_type: str, resources: list[str], scopes: list[str], policy: str
+) -> dict:
+    """Return a scope permission that names ``policy`` in ``policies`` by name.
+
+    Args:
+        name: permission name.
+        resource_type: ``Users`` or ``Groups``.
+        resources: resource ids; empty applies it to every resource of the type.
+        scopes: granted scopes.
+        policy: name of the policy deciding it.
+    """
+    return {
+        "name": name,
+        "type": "scope",
+        **COMMON,
+        "resourceType": resource_type,
+        "resources": sorted(resources),
+        "scopes": scopes,
+        "policies": [policy],
+    }
+
+
 def desired(
-    prefix: str, approver: str, approver_id: str, group_ids: list[str]
+    prefix: str, approvers: dict[str, str], grants: dict[str, set[str]]
 ) -> list[tuple[str, dict]]:
-    """Return the ``(kind, representation)`` pairs one approver group needs.
+    """Return the ``(kind, representation)`` pairs the approver groups need.
 
     Args:
         prefix: name prefix of every owned entry.
-        approver: path of the approver group.
-        approver_id: its Keycloak id.
-        group_ids: ids of the groups its members may grant; none leaves out the
-            group permission.
+        approvers: Keycloak id of every approver group, by path.
+        grants: paths of the approver groups that may grant each group, by the
+            group's Keycloak id.
 
     Returns:
-        The group policy first, then its permissions, which name the policy in
-        ``policies`` by name.
+        ``<prefix>:approvers`` with ``<prefix>:users`` for every user, then per
+        distinct set of approvers a policy named by their joined paths with its
+        ``:groups`` permission on the groups exactly that set may grant. Each
+        policy precedes the permission that names it.
     """
-    policy = f"{prefix}:{approver}"
-    common = {"logic": "POSITIVE", "decisionStrategy": "UNANIMOUS"}
+    if not approvers:
+        return []
+    every = f"{prefix}:approvers"
     entries = [
-        (
-            "policy",
-            {
-                "name": policy,
-                "type": "group",
-                **common,
-                "groups": [{"id": approver_id, "extendChildren": False}],
-            },
-        ),
+        ("policy", group_policy(every, sorted(approvers), approvers)),
         (
             "permission",
-            {
-                "name": f"{policy}:users",
-                "type": "scope",
-                **common,
-                "resourceType": "Users",
-                "resources": [],
-                "scopes": USER_SCOPES,
-                "policies": [policy],
-            },
+            scope_permission(f"{prefix}:users", "Users", [], USER_SCOPES, every),
         ),
     ]
-    if group_ids:
+    by_set: dict[tuple[str, ...], list[str]] = {}
+    for group, paths in grants.items():
+        by_set.setdefault(tuple(sorted(paths)), []).append(group)
+    for paths, groups in sorted(by_set.items()):
+        policy = f"{prefix}:{','.join(paths)}"
+        entries.append(("policy", group_policy(policy, list(paths), approvers)))
         entries.append(
             (
                 "permission",
-                {
-                    "name": f"{policy}:groups",
-                    "type": "scope",
-                    **common,
-                    "resourceType": "Groups",
-                    "resources": sorted(group_ids),
-                    "scopes": GROUP_SCOPES,
-                    "policies": [policy],
-                },
+                scope_permission(
+                    f"{policy}:groups", "Groups", groups, GROUP_SCOPES, policy
+                ),
             )
         )
     return entries
@@ -217,20 +242,24 @@ def converge(kc: Keycloak, spec: dict) -> list[str]:
                 lines.append(f"missing group {path}")
         return paths[path]
 
-    wanted: set[str] = set()
+    approvers: dict[str, str] = {}
+    grants: dict[str, set[str]] = {}
     for entry in spec["approvers"]:
         approver_id = resolve(entry["approver"])
         if approver_id is None:
             continue
-        group_ids = [gid for gid in map(resolve, entry["groups"]) if gid]
-        for kind, body in desired(prefix, entry["approver"], approver_id, group_ids):
-            wanted.add(body["name"])
-            try:
-                outcome = write(kc, base, kind, body, current.get(body["name"]), ids)
-            except ERRORS as error:
-                print(f"{kind} {body['name']}: {error}", file=sys.stderr)
-                outcome = "failed"
-            lines.append(f"{outcome} {kind} {body['name']}")
+        approvers[entry["approver"]] = approver_id
+        for gid in filter(None, map(resolve, entry["groups"])):
+            grants.setdefault(gid, set()).add(entry["approver"])
+    wanted: set[str] = set()
+    for kind, body in desired(prefix, approvers, grants):
+        wanted.add(body["name"])
+        try:
+            outcome = write(kc, base, kind, body, current.get(body["name"]), ids)
+        except ERRORS as error:
+            print(f"{kind} {body['name']}: {error}", file=sys.stderr)
+            outcome = "failed"
+        lines.append(f"{outcome} {kind} {body['name']}")
     stale = sorted(
         (entry for name, entry in current.items() if name not in wanted),
         key=lambda entry: (entry.get("type") == "group", entry["name"]),
