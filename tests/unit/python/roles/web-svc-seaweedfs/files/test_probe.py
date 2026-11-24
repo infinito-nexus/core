@@ -39,6 +39,8 @@ ADMIN = ("ADMINKEY", "adminsecret")
 BUCKET = "matrix"
 KEY = "infinito-engine-check/0123-restart-race"
 WINDOW = 0.05
+STALL = 0.2
+GIVE_UP = 0.01
 TIMING = {"interval": 0.005, "settle": 0.02, "timeout": 0.3}
 DOWN = "down"
 LOADING = "loading"
@@ -46,29 +48,65 @@ LOADED = "loaded"
 
 
 class FakeEngine:
-    def __init__(self, *, served_while_loading: bool = False) -> None:
+    def __init__(
+        self,
+        *,
+        served_while_loading: bool = False,
+        stalls: bool = False,
+        stalled_writes_land: bool = False,
+    ) -> None:
         self.state = LOADED
         self.served_while_loading = served_while_loading
+        self.stalls = stalls
+        self.stalled_writes_land = stalled_writes_land
+        self.anonymous_lost = False
         self.writes: list[str] = []
+        self.landed: set[str] = set()
 
     def request(
-        self, method, path, *, query=None, payload=b"", access_key="", secret_key=""
+        self,
+        method,
+        path,
+        *,
+        query=None,
+        payload=b"",
+        access_key="",
+        secret_key="",
+        timeout=None,
     ):
         state = self.state
         if state == DOWN:
+            if self.stalls and not access_key:
+                time.sleep(STALL if timeout is None else min(STALL, timeout))
+                if self.stalled_writes_land:
+                    self.landed.add(path)
+                return 0, b"timed out", {}
             return 0, b"[Errno 111] Connection refused", {}
         if access_key:
-            return (200 if state == LOADED else 503), b"", {}
+            if state != LOADED:
+                return 503, b"", {}
+            if path == "/" or path in self.landed:
+                return 200, b"", {}
+            return 404, b"<Error><Code>NoSuchKey</Code></Error>", {}
+        if self.anonymous_lost:
+            return 0, b"timed out", {}
         self.writes.append(path)
         if state == LOADING and self.served_while_loading:
             return 200, b"", {}
         return 403, b"<Error><Code>AccessDenied</Code></Error>", {}
 
 
-def restart(engine: FakeEngine, *, goes_down: bool = True, loads: bool = True):
+def restart(
+    engine: FakeEngine,
+    *,
+    goes_down: bool = True,
+    loads: bool = True,
+    anonymous_lost: bool = False,
+):
     def run() -> list[str]:
         if goes_down:
             engine.state = DOWN
+            engine.anonymous_lost = anonymous_lost
             time.sleep(WINDOW)
             engine.state = LOADING
             time.sleep(WINDOW)
@@ -80,9 +118,10 @@ def restart(engine: FakeEngine, *, goes_down: bool = True, loads: bool = True):
 
 
 def race(engine: FakeEngine, restarter, **timing) -> list[str]:
-    return restart_race.check_restart_serves_no_anonymous_write(
-        engine, ADMIN, BUCKET, KEY, restarter, **{**TIMING, **timing}
-    )
+    with mock.patch.object(restart_race, "RACE_REQUEST_TIMEOUT", GIVE_UP):
+        return restart_race.check_restart_serves_no_anonymous_write(
+            engine, ADMIN, BUCKET, KEY, restarter, **{**TIMING, **timing}
+        )
 
 
 class TestRestartRace(unittest.TestCase):
@@ -105,6 +144,36 @@ class TestRestartRace(unittest.TestCase):
         (failure,) = race(engine, restart(engine, goes_down=False))
         self.assertIn("never spanned the restart", failure)
 
+    def test_a_write_stalled_by_the_restart_gives_up_and_the_loop_goes_on(
+        self,
+    ) -> None:
+        engine = FakeEngine(stalls=True)
+        self.assertEqual(race(engine, restart(engine)), [])
+        self.assertEqual(set(engine.writes), {f"/{BUCKET}/{KEY}"})
+        self.assertEqual(engine.landed, set())
+
+    def test_a_stalled_write_that_lands_after_the_give_up_is_caught(self) -> None:
+        engine = FakeEngine(stalls=True, stalled_writes_land=True)
+        (failure,) = race(engine, restart(engine))
+        self.assertEqual(
+            f"F: an anonymous write landed during the restart: /{BUCKET}/{KEY} exists",
+            failure,
+        )
+
+    def test_negative_control_a_write_served_while_a_stalling_engine_loads_is_caught(
+        self,
+    ) -> None:
+        engine = FakeEngine(served_while_loading=True, stalls=True)
+        (failure,) = race(engine, restart(engine))
+        self.assertIn(f"/{BUCKET}/{KEY} answered 200", failure)
+
+    def test_negative_control_an_engine_lost_to_anonymous_writes_is_caught(
+        self,
+    ) -> None:
+        engine = FakeEngine()
+        (failure,) = race(engine, restart(engine, anonymous_lost=True))
+        self.assertIn("never saw it start again", failure)
+
     def test_an_engine_that_never_loads_its_identities_fails(self) -> None:
         engine = FakeEngine()
         failures = race(engine, restart(engine, loads=False), timeout=0.05)
@@ -117,6 +186,65 @@ class TestRestartRace(unittest.TestCase):
         self.assertTrue(
             any("never spanned the restart" in failure for failure in failures)
         )
+
+
+class TestNoWriteLanded(unittest.TestCase):
+    def _check(self, status: int) -> tuple[list[str], mock.Mock]:
+        engine = mock.Mock()
+        engine.request.return_value = (status, b"", {})
+        failures = restart_race.check_no_write_landed(engine, ADMIN, f"/{BUCKET}/{KEY}")
+        return failures, engine
+
+    def test_a_missing_object_passes_and_is_read_as_admin(self) -> None:
+        failures, engine = self._check(404)
+        self.assertEqual([], failures)
+        engine.request.assert_called_once_with(
+            "GET", f"/{BUCKET}/{KEY}", access_key=ADMIN[0], secret_key=ADMIN[1]
+        )
+
+    def test_negative_control_an_existing_object_is_caught(self) -> None:
+        (failure,) = self._check(200)[0]
+        self.assertIn("landed during the restart", failure)
+
+    def test_an_admin_read_without_an_answer_is_a_failure(self) -> None:
+        (failure,) = self._check(0)[0]
+        self.assertIn("answered nothing instead of 404", failure)
+
+    def test_an_admin_read_that_is_refused_is_a_failure(self) -> None:
+        (failure,) = self._check(403)[0]
+        self.assertIn("answered 403 instead of 404", failure)
+
+
+class SlowBody(io.BytesIO):
+    def read(self, *args):
+        raise TimeoutError("timed out")
+
+
+class TestEngine(unittest.TestCase):
+    def _send(self, body: io.BytesIO) -> tuple[int, bytes, dict[str, str]]:
+        refused = urllib.error.HTTPError(
+            f"{LOOPBACK}/{BUCKET}/{KEY}",
+            403,
+            "Forbidden",
+            {"Content-Type": "application/xml"},
+            body,
+        )
+        engine = s3_engine.Engine(LOOPBACK, "us-east-1")
+        with mock.patch.object(
+            urllib.request.OpenerDirector, "open", side_effect=refused
+        ):
+            return engine.request(
+                "PUT", f"/{BUCKET}/{KEY}", payload=b"x", timeout=GIVE_UP
+            )
+
+    def test_an_error_status_whose_body_times_out_keeps_its_status(self) -> None:
+        status, body, headers = self._send(SlowBody())
+        self.assertEqual((403, b""), (status, body))
+        self.assertEqual("application/xml", headers["Content-Type"])
+
+    def test_negative_control_an_error_body_that_arrives_is_returned(self) -> None:
+        status, body, _ = self._send(io.BytesIO(b"<Error/>"))
+        self.assertEqual((403, b"<Error/>"), (status, body))
 
 
 def completed(

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import http.client
 import os
 import subprocess
 import urllib.error
@@ -35,6 +36,7 @@ class Engine:
         payload: bytes = b"",
         access_key: str = "",
         secret_key: str = "",
+        timeout: float | None = None,
     ) -> tuple[int, bytes, dict[str, str]]:
         """Perform one request and return its status, body and headers.
 
@@ -45,6 +47,7 @@ class Engine:
             payload: Request body.
             access_key: Identity to sign as; unsigned when empty.
             secret_key: Matching secret; never logged.
+            timeout: Seconds the request may take; REQUEST_TIMEOUT when None.
 
         Returns:
             The status code, the body and the response headers. A transport
@@ -67,20 +70,30 @@ class Engine:
             )
         if not url.startswith(("http://", "https://")):
             raise ValueError(f"refusing a non-HTTP S3 endpoint: {self.scheme}:")
-        return self._send(method, url, headers, payload)
+        limit = REQUEST_TIMEOUT if timeout is None else timeout
+        return self._send(method, url, headers, payload, limit)
 
     def _send(
-        self, method: str, url: str, headers: dict[str, str], payload: bytes
+        self,
+        method: str,
+        url: str,
+        headers: dict[str, str],
+        payload: bytes,
+        timeout: float,
     ) -> tuple[int, bytes, dict[str, str]]:
         req = urllib.request.Request(  # noqa: S310 fixed internal http origin from test.env, scheme asserted in request()
             url, data=payload or None, method=method, headers=headers
         )
         opener = urllib.request.build_opener(_NoRedirect())
         try:
-            with opener.open(req, timeout=REQUEST_TIMEOUT) as res:
+            with opener.open(req, timeout=timeout) as res:
                 return res.status, res.read(), dict(res.headers)
         except urllib.error.HTTPError as exc:
-            return exc.code, exc.read(), dict(exc.headers)
+            try:
+                body = exc.read()
+            except (OSError, ValueError, http.client.HTTPException):
+                body = b""
+            return exc.code, body, dict(exc.headers)
         except (urllib.error.URLError, OSError, ValueError) as exc:
             return 0, str(exc).encode("utf-8"), {}
 
@@ -105,10 +118,15 @@ class ContainerEngine(Engine):
         self.cid = ""
 
     def _send(
-        self, method: str, url: str, headers: dict[str, str], payload: bytes
+        self,
+        method: str,
+        url: str,
+        headers: dict[str, str],
+        payload: bytes,
+        timeout: float,
     ) -> tuple[int, bytes, dict[str, str]]:
         exec_argv = ["container", "exec", "-i"]
-        curl = ["curl", "-sS", "-i", "--max-time", str(REQUEST_TIMEOUT)]
+        curl = ["curl", "-sS", "-i", "--max-time", f"{timeout:g}"]
         curl += ["-X", method, "-H", "Expect:"]
         env = None
         for name, value in headers.items():
@@ -134,7 +152,7 @@ class ContainerEngine(Engine):
                 input=payload,
                 capture_output=True,
                 env=env,
-                timeout=REQUEST_TIMEOUT + EXEC_GRACE,
+                timeout=timeout + EXEC_GRACE,
                 check=False,
             )
         except (OSError, subprocess.SubprocessError) as exc:

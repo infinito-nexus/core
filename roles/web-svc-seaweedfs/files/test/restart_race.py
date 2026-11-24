@@ -12,10 +12,13 @@ if TYPE_CHECKING:
 
 RACE_INTERVAL = 0.2
 RACE_SETTLE = 5.0
+RACE_REQUEST_TIMEOUT = 2.0
 RESTART_TIMEOUT = 300
 READY_INTERVAL = 1.0
 NO_ANSWER = 0
+FOUND = 200
 REFUSED = 400
+MISSING = 404
 
 
 def _container(*args: str) -> subprocess.CompletedProcess[str]:
@@ -145,9 +148,36 @@ def _anonymous_puts(
     interval: float,
 ) -> None:
     while not stop.is_set():
-        status, _, _ = engine.request("PUT", path, payload=b"restart-race")
+        status, _, _ = engine.request(
+            "PUT", path, payload=b"restart-race", timeout=RACE_REQUEST_TIMEOUT
+        )
         answers.append(status)
         stop.wait(interval)
+
+
+def check_no_write_landed(
+    engine: Engine, admin: tuple[str, str], path: str
+) -> list[str]:
+    """
+    Args:
+        engine: the S3 gateway.
+        admin: the admin identity, which may read every bucket.
+        path: the object the anonymous writes targeted.
+
+    Returns:
+        The failures: the object exists, or the admin read gave no 404, so a
+        landed write cannot be ruled out.
+    """
+    status, _, _ = engine.request("GET", path, access_key=admin[0], secret_key=admin[1])
+    if status == MISSING:
+        return []
+    if status == FOUND:
+        return [f"F: an anonymous write landed during the restart: {path} exists"]
+    return [
+        f"F: the admin read of {path} answered {status or 'nothing'} instead of "
+        f"{MISSING}, so an anonymous write that landed during the restart is not "
+        "ruled out"
+    ]
 
 
 def check_restart_serves_no_anonymous_write(
@@ -168,13 +198,14 @@ def check_restart_serves_no_anonymous_write(
         bucket: a bucket that exists, so a served write would land.
         key: the object key the anonymous writes target.
         restart: restarts the engine and returns its failures.
-        interval: seconds between two anonymous writes.
+        interval: seconds between two anonymous writes, each of which gives
+            up after RACE_REQUEST_TIMEOUT seconds.
         settle: seconds the writes go on once the admin identity answers.
         timeout: seconds the engine has to load its identities again.
 
     Returns:
-        The failures: a write that was served, a restart that failed or was
-        never seen by the writes, and an engine that did not come back.
+        The failures: a write that was served or landed, a restart that failed
+        or was never seen by the writes, and an engine that did not come back.
     """
     path = f"/{bucket}/{key}"
     answers: list[int] = []
@@ -197,6 +228,8 @@ def check_restart_serves_no_anonymous_write(
     finally:
         stop.set()
         writer.join()
+    if not failures:
+        failures += check_no_write_landed(engine, admin, path)
     served = sorted({status for status in answers if NO_ANSWER < status < REFUSED})
     if served:
         failures.append(
