@@ -14,6 +14,7 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ORCHESTRATOR_KEY="$(printf '%s' "${AGENT_ORCHESTRATOR_KEY_B64}" | base64 -d)"
 WEBHOOK_SECRET="$(printf '%s' "${AGENT_ORCHESTRATOR_WEBHOOK_SECRET_B64}" | base64 -d)"
 BODY='{"action":"opened"}'
+DELIVERY="cli-$(date +%s%N)"
 FAILED=0
 
 fail() {
@@ -49,13 +50,13 @@ out="$(probe GET /status "" "" "" "" "")"
 out="$(probe GET /status "${ORCHESTRATOR_KEY}" "" "" "" "")"
 [ "$(status_of "${out}")" = "200" ] || fail "/status with the key answered $(status_of "${out}"), not 200"
 
-out="$(probe POST /webhooks/github "" "" "sha256=deadbeef" "d1" "${BODY}")"
+out="$(probe POST /webhooks/github "" "" "sha256=deadbeef" "${DELIVERY}" "${BODY}")"
 [ "$(status_of "${out}")" = "401" ] || fail "a webhook with a bad signature answered $(status_of "${out}"), not 401"
 
-out="$(probe POST /webhooks/github "" "${WEBHOOK_SECRET}" "" "d1" "${BODY}")"
+out="$(probe POST /webhooks/github "" "${WEBHOOK_SECRET}" "" "${DELIVERY}" "${BODY}")"
 [ "$(status_of "${out}")" = "202" ] || fail "a signed webhook answered $(status_of "${out}"), not 202"
 
-out="$(probe POST /webhooks/github "" "${WEBHOOK_SECRET}" "" "d1" "${BODY}")"
+out="$(probe POST /webhooks/github "" "${WEBHOOK_SECRET}" "" "${DELIVERY}" "${BODY}")"
 [ "$(status_of "${out}")" = "200" ] || fail "a repeated delivery id answered $(status_of "${out}"), not 200 (dropped)"
 
 [ "${FAILED}" -eq 0 ] && echo "[OK] orchestrator verified signature, dedup and management auth"
