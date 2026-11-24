@@ -89,6 +89,18 @@ def compose_files(repo_root: Path, tracked: Iterable[str]) -> list[str]:
     return sorted(owned)
 
 
+def _defined_in_place(key: yaml.Node, value: yaml.Node) -> bool:
+    """Args:
+        key: a mapping key node.
+        value: the node composed for that key.
+
+    Returns:
+        Whether *value* is written after *key* rather than being an alias,
+        which composes to the anchored node with that node's source marks.
+    """
+    return value.start_mark.index >= key.end_mark.index
+
+
 def _compose_image_lines(raw: str) -> dict[str, int]:
     """Args:
         raw: text of a compose file.
@@ -96,7 +108,9 @@ def _compose_image_lines(raw: str) -> dict[str, int]:
     Returns:
         Each compose service mapped to the 0-indexed line of its ``image``
         key, for the keys whose tagged value sits on that line in the one
-        form ``_IMAGE_VALUE_RE`` rewrites.
+        form ``_IMAGE_VALUE_RE`` rewrites. A service that aliases a mapping
+        anchored elsewhere is left out: its line belongs to the anchor, and
+        rewriting it would move every service merging that anchor as well.
     """
     text_lines = raw.splitlines()
     root = yaml.compose(raw)
@@ -110,7 +124,9 @@ def _compose_image_lines(raw: str) -> dict[str, int]:
     )
     lines: dict[str, int] = {}
     for service, spec in services.value if services else []:
-        if not isinstance(spec, yaml.MappingNode):
+        if not isinstance(spec, yaml.MappingNode) or not _defined_in_place(
+            service, spec
+        ):
             continue
         for field, value in spec.value:
             line = field.start_mark.line

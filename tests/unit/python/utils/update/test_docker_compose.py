@@ -425,6 +425,31 @@ class TestComposeBump(unittest.TestCase):
             original.replace(old, f"rpardini/docker-registry-proxy:{newest}"),
         )
 
+    def test_a_service_aliasing_an_anchor_outside_the_services_leaves_it_alone(self):
+        aliased = (
+            "x-base: &base\n"
+            "  image: redis:7.4.1\n"
+            "services:\n"
+            "  direct: *base\n"
+            "  inherited:\n"
+            "    <<: *base\n"
+            "  local: &local\n"
+            "    image: nginx:1.27-alpine\n"
+            "  copy: *local\n"
+        )
+        rel = "ops/aliased.yml"
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write(root / rel, aliased)
+            changed = _bump(root, [rel], TAGS)
+            _reset_cache_for_tests()
+            after = read_text(str(root / rel))
+
+        self.assertEqual(changed, [root / rel])
+        self.assertEqual(
+            after, aliased.replace("nginx:1.27-alpine", "nginx:1.29-alpine")
+        )
+
     def test_quoted_and_commented_tags_keep_their_quotes_and_comments(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "cache.override.yml"
