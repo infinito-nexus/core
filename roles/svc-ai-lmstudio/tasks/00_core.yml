@@ -3,10 +3,14 @@
 
 - name: "⬇️ Seed the shared model store before the daemons index it"
   ansible.builtin.include_tasks:
-    file: utils/preseed.yml
+    file: utils/fetch.yml
     apply:
       delegate_to: "{{ LMSTUDIO_NFS_SERVER }}"
       run_once: true
+  vars:
+    lmstudio_fetch_store: "{{ LMSTUDIO_SHARED_MODELS_PATH }}"
+    lmstudio_fetch_staging: "{{ LMSTUDIO_SHARED_STAGING_PATH }}"
+    lmstudio_fetch_node: "{{ LMSTUDIO_NFS_SERVER }}"
   when: LMSTUDIO_PRESEED_ENABLED | bool
 
 - name: "🥾 Bootstrap the compose host once before staging the build context"

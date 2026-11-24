@@ -9,13 +9,14 @@ and therefore also pulls the MiniSBD models its caller would have installed.
 from __future__ import annotations
 
 import argparse
+import shutil
 import sys
 import zipfile
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import libretranslate.language
-from argostranslate import package
+from argostranslate import package, settings
 from minisbd import download_models
 
 LANES = 8
@@ -64,9 +65,32 @@ def fetch(available) -> Path:
     """
     path = available.download()
     if not zipfile.is_zipfile(path):
-        Path(path).unlink()
+        Path(path).unlink(missing_ok=True)
         raise RuntimeError(f"{path} is not a valid argosmodel archive")
     return path
+
+
+def install(path: Path) -> None:
+    """Install one archive, removing its whole package directory on failure.
+
+    Args:
+        path: A downloaded ``.argosmodel`` archive.
+
+    Raises:
+        Exception: whatever ``install_from_path`` raised, after the removal.
+    """
+    base = Path(settings.package_data_dir).resolve()
+    with zipfile.ZipFile(path) as archive:
+        targets = {
+            base / name.split("/", 1)[0] for name in archive.namelist() if "/" in name
+        }
+    targets = {target for target in targets if target.resolve().parent == base}
+    try:
+        package.install_from_path(path)
+    except Exception:
+        for target in targets:
+            shutil.rmtree(target, ignore_errors=True)
+        raise
 
 
 def main() -> int:
@@ -84,7 +108,7 @@ def main() -> int:
     with ThreadPoolExecutor(LANES) as pool:
         paths = list(pool.map(fetch, available))
     for path in paths:
-        package.install_from_path(path)
+        install(path)
     download_models(model_codes or None, print)
     print(f"Installed {len(paths)} models", flush=True)
     return 0

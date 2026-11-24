@@ -272,7 +272,8 @@ body {
 a:active {
   color: var(--design-link);
 }
-.button[class*="_solid_"] {
+.button[class*="_solid_"],
+.button[class*="_brand_"] {
   --button--color: var(--design-on-primary);
 }
 .button[class*="_destructive_"] {
@@ -367,11 +368,17 @@ a:active {
   fill: var(--design-frame-active);
 }
 {% if design.logo is string %}
+{% set n8n_logo_slot = design.slots.brand if design.title is string else design.slots.logo %}
+{% set n8n_logo_overscale = 125 %}
 [data-test-id="n8n-logo"] {
-  background: url("{{ design.urls.brand.svg if design.title is string else design.urls.logo.svg }}") left center / auto 125% no-repeat;
+  background: url("{{ design.urls.brand.svg if design.title is string else design.urls.logo.svg }}") left center / auto {{ n8n_logo_overscale }}% no-repeat;
 }
 [data-test-id="n8n-logo"][class*="_large_"] {
   background-position: center;
+}
+#sidebar [data-test-id="n8n-logo"] {
+  height: var(--height--md);
+  width: calc(var(--height--md) * {{ n8n_logo_overscale }} / 100 * {{ n8n_logo_slot.width }} / {{ n8n_logo_slot.height }} + var(--spacing--4xs));
 }
 [data-test-id="n8n-logo"] > svg {
   visibility: hidden;

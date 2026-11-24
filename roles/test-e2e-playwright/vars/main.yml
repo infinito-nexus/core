@@ -9,7 +9,8 @@ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR: "/tmp/test-e2e-playwright"
 
 TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR: "{{ [DIR_VAR_LIB, 'logs', 'test-e2e-playwright'] | path_join }}"
 
-TEST_E2E_PLAYWRIGHT_COMMAND: "npx --no-install playwright test --max-failures=5"
+TEST_E2E_PLAYWRIGHT_ARGUMENTS: ["--max-failures=5"]
+TEST_E2E_PLAYWRIGHT_COMMAND: "npx --no-install playwright test {{ TEST_E2E_PLAYWRIGHT_ARGUMENTS | map('quote') | join(' ') }}"
 
 TEST_E2E_PLAYWRIGHT_FULLY_PARALLEL: false
 
@@ -30,10 +31,16 @@ TEST_E2E_PLAYWRIGHT_PERSONAS_ARCHIVE: "/tmp/infinito-playwright-personas.tar"
 TEST_E2E_PLAYWRIGHT_HELPERS_DIR: "{{ lookup('path_absolute', 'roles/test-e2e-playwright/files') }}"
 TEST_E2E_PLAYWRIGHT_HELPERS_ARCHIVE: "/tmp/infinito-playwright-helpers.tar"
 TEST_E2E_PLAYWRIGHT_SHARED_STAMP: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/.installed-version"
+TEST_E2E_PLAYWRIGHT_TOOLS_DIR: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}/_tools"
+TEST_E2E_PLAYWRIGHT_MASKER: "{{ TEST_E2E_PLAYWRIGHT_TOOLS_DIR }}/spec_secrets_mask.py"
+TEST_E2E_PLAYWRIGHT_MASK_ARGV: >-
+  {{ ['python3', '-I', '-B', TEST_E2E_PLAYWRIGHT_MASKER, 'mask', _playwright_spec_secrets_path,
+      _playwright_pass_reports_dir, '--']
+     if (_playwright_secrets_template_stat.stat.exists | bool) else [] }}
 
 TEST_E2E_PLAYWRIGHT_PARALLEL: "{{ lookup('playwright_parallel') }}"
 TEST_E2E_PLAYWRIGHT_PARALLEL_JOBS_DIR: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}/_jobs"
-TEST_E2E_PLAYWRIGHT_PARALLEL_SCHEDULER: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/run_parallel.py"
+TEST_E2E_PLAYWRIGHT_PARALLEL_SCHEDULER: "{{ TEST_E2E_PLAYWRIGHT_TOOLS_DIR }}/run_parallel.py"
 TEST_E2E_PLAYWRIGHT_PARALLEL_POLL_SECONDS: 1
 TEST_E2E_PLAYWRIGHT_PARALLEL_WAIT_DELAY: 10
 TEST_E2E_PLAYWRIGHT_PARALLEL_MAX_CPU_PRESSURE: 36

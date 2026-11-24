@@ -18,6 +18,7 @@
 # Usage:
 #   scripts/tests/e2e/rerun-spec.sh <role> [playwright args...]  # nocheck: self-path-reference
 #   scripts/tests/e2e/rerun-spec.sh web-app-nextcloud --grep "talk admin"  # nocheck: self-path-reference
+#   PLAYWRIGHT_SPEC_SECRETS_FILE=<rendered KEY=VALUE file> scripts/tests/e2e/rerun-spec.sh <role>  # nocheck: self-path-reference
 set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
@@ -54,14 +55,21 @@ env_file="$stage_dir/.env"
 	echo "missing spec: $spec_src" >&2
 	exit 1
 }
-[[ -d "$stage_dir" ]] || {
-	echo "missing staging dir (run deploy first): $stage_dir" >&2
+[[ -d "$stage_dir" && ! -L "$stage_dir" ]] || {
+	echo "missing staging dir (run deploy first) or a link in its place: $stage_dir" >&2
 	exit 1
 }
 [[ -f "$env_file" ]] || {
 	echo "missing rendered env (run deploy first): $env_file" >&2
 	exit 1
 }
+config_src="$repo_root/roles/test-e2e-playwright/files/playwright.config.js"
+while read -r timeout; do
+	grep -qE "^${timeout}=.+" "$env_file" || {
+		echo "$env_file lacks $timeout, which $config_src requires: it was rendered by an older deploy, redeploy $role to restage it" >&2
+		exit 1
+	}
+done < <(grep -oE 'requiredTimeout\("[A-Z][A-Z0-9_]*"\)' "$config_src" | grep -oE '[A-Z][A-Z0-9_]+')
 
 image="${TEST_E2E_PLAYWRIGHT_IMAGE:-}"
 if [[ -z "$image" ]]; then
@@ -75,7 +83,88 @@ command -v docker >/dev/null || {
 	exit 1
 }
 
-mkdir -p "$stage_dir/tests" "$stage_dir/volume" "$reports_dir"
+pw_args=""
+if (($#)); then
+	printf -v pw_args ' %q' "$@"
+fi
+cmd="${TEST_E2E_PLAYWRIGHT_COMMAND:-npm install --no-fund --no-audit && npx playwright test$pw_args}"
+
+if [[ "${TEST_E2E_PLAYWRIGHT_NETWORK_HOST:-}" == "true" ]]; then
+	net_args=(--network host)
+	proxy_host="127.0.0.1"
+else
+	net_args=(--add-host=host.docker.internal:host-gateway)
+	proxy_host="host.docker.internal"
+fi
+
+proxy_env=()
+base_url="$(sed -n 's/^APP_BASE_URL=//p' "$env_file" | tr -d '"')"
+if [[ "$base_url" =~ \.onion(/|$) ]]; then
+	default_proxy="socks5://${proxy_host}:${INFINITO_TOR_SOCKS_PORT:?INFINITO_TOR_SOCKS_PORT unset (built by the env handler from svc-net-tor services.tor.ports.local.socks)}"
+	proxy_env=(-e "PLAYWRIGHT_PROXY=${PLAYWRIGHT_PROXY:-$default_proxy}")
+fi
+
+secret_args=()
+ca_args=()
+reports_mount="$reports_dir"
+stage_ro=""
+if [[ -f "$repo_root/roles/$role/templates/playwright.secrets.j2" ]]; then
+	secrets_file="${PLAYWRIGHT_SPEC_SECRETS_FILE:?$role ships templates/playwright.secrets.j2: set PLAYWRIGHT_SPEC_SECRETS_FILE to a file holding its rendered KEY=VALUE lines}"
+	[[ -f "$secrets_file" ]] || {
+		echo "missing spec secrets file: $secrets_file" >&2
+		exit 1
+	}
+	spec_secrets="$repo_root/roles/test-e2e-playwright/files/spec_secrets.py"
+	masker="$repo_root/roles/test-e2e-playwright/files/spec_secrets_mask.py"
+	[[ -z "${TEST_E2E_PLAYWRIGHT_COMMAND:-}" ]] || {
+		echo "$role ships templates/playwright.secrets.j2: a TEST_E2E_PLAYWRIGHT_COMMAND override is refused, pass Playwright arguments instead" >&2
+		exit 2
+	}
+	python3 -I -B "$spec_secrets" arguments "$@" || exit 2
+	ca_trust="$stage_dir/.ca-trust"
+	if [[ -L "$ca_trust" || (-e "$ca_trust" && ! -f "$ca_trust") ]]; then
+		echo "$ca_trust is a link or no regular file: redeploy $role" >&2
+		exit 2
+	fi
+	if [[ -f "$ca_trust" ]]; then
+		read -r ca_owner ca_mode < <(stat -c '%u %#a' -- "$ca_trust")
+		[[ ("$ca_owner" == 0 || "$ca_owner" == "$EUID") && $((ca_mode & ~0644)) == 0 ]] || {
+			echo "$ca_trust is neither root's nor yours with mode 0644 or tighter: redeploy $role" >&2
+			exit 2
+		}
+		mapfile -t ca_args < <(grep -v '^$' -- "$ca_trust")
+	fi
+	run_name="infinito-playwright-rerun-$$"
+	masker_pid=""
+	python3 -I -B "$spec_secrets" prune
+	secrets_dir="$(python3 -I -B "$spec_secrets" create)"
+	finish() {
+		local status=$?
+		if ! python3 -I -B "$masker" scrub "$secrets_dir" "$reports_dir" docker ${masker_pid:+"$run_name"}; then
+			echo "spec secrets: the scrub failed, $reports_dir may hold only part of the reports, all of them masked" >&2
+			((status)) || status=1
+		fi
+		if ! rm -rf -- "$secrets_dir"; then
+			echo "spec secrets: $secrets_dir could not be removed whole, remove it as its owner" >&2
+			((status)) || status=1
+		fi
+		exit "$status"
+	}
+	trap finish EXIT
+	install -m 0400 -- "$secrets_file" "$secrets_dir/.rendered"
+	python3 -I -B "$spec_secrets" split "$secrets_dir"
+	reports_mount="$secrets_dir/reports"
+	stage_ro=":ro"
+	trap '[[ -z "$masker_pid" ]] || kill -HUP "$masker_pid" 2>/dev/null || :; wait; exit 129' HUP # nocheck: shell-or-true -- the masker may have exited already
+	trap '[[ -z "$masker_pid" ]] || kill -INT "$masker_pid" 2>/dev/null || :; wait; exit 130' INT # nocheck: shell-or-true -- the masker may have exited already
+	trap '[[ -z "$masker_pid" ]] || kill -TERM "$masker_pid" 2>/dev/null || :; wait; exit 143' TERM # nocheck: shell-or-true -- the masker may have exited already
+	user_args=()
+	((EUID == 0)) || user_args=(--user "$(id -u):$(id -g)" -e HOME=/tmp)
+	secret_args=(--name "$run_name" "--cidfile=$secrets_dir/.cid" --log-driver=none --mount "type=bind,src=$secrets_dir,dst=/run/spec-secrets,readonly" -e INFINITO_PLAYWRIGHT_NO_CAPTURE=true -e NO_COLOR=1 -e FORCE_COLOR=0 "${user_args[@]}")
+fi
+
+mkdir -p "$stage_dir/tests" "$stage_dir/volume" "$stage_dir/node_modules" "$reports_dir"
+rm -rf -- "$reports_dir/playwright-junit.xml" "$reports_dir/playwright-report" "$reports_dir/test-results" "$reports_dir/run-parallel"
 for role_js in "$role_playwright_dir"/*.js; do
 	[[ -f "$role_js" ]] || continue
 	cp "$role_js" "$stage_dir/tests/$(basename "$role_js")"
@@ -85,6 +174,7 @@ for helper_src in "$repo_root/roles/test-e2e-playwright/files"/*.js; do
 	[[ "$(basename "$helper_src")" == "playwright.config.js" ]] && continue
 	cp "$helper_src" "$stage_dir/tests/$(basename "$helper_src")"
 done
+cp "$config_src" "$stage_dir/playwright.config.js"
 personas_dir="$repo_root/roles/test-e2e-playwright/files/personas"
 if [[ -d "$personas_dir" ]]; then
 	mkdir -p "$stage_dir/tests/personas/utils"
@@ -108,34 +198,23 @@ for sub in addons fixtures; do
 	done
 done
 
-cmd="${TEST_E2E_PLAYWRIGHT_COMMAND:-npm install --no-fund --no-audit && npx playwright test${*:+ $*}}"
-
-if [[ "${TEST_E2E_PLAYWRIGHT_NETWORK_HOST:-}" == "true" ]]; then
-	net_args=(--network host)
-	proxy_host="127.0.0.1"
-else
-	net_args=(--add-host=host.docker.internal:host-gateway)
-	proxy_host="host.docker.internal"
-fi
-
-proxy_env=()
-base_url="$(sed -n 's/^APP_BASE_URL=//p' "$env_file" | tr -d '"')"
-if [[ "$base_url" =~ \.onion(/|$) ]]; then
-	default_proxy="socks5://${proxy_host}:${INFINITO_TOR_SOCKS_PORT:?INFINITO_TOR_SOCKS_PORT unset (built by the env handler from svc-net-tor services.tor.ports.local.socks)}"
-	proxy_env=(-e "PLAYWRIGHT_PROXY=${PLAYWRIGHT_PROXY:-$default_proxy}")
-fi
-
-exec docker run --rm \
-	--ipc=host --shm-size=1g \
-	"${net_args[@]}" \
-	--env-file "$env_file" \
-	-e "INFINITO_PLAYWRIGHT_KEEP=${INFINITO_PLAYWRIGHT_KEEP:-}" \
-	-e "PLAYWRIGHT_GALLERY_VIEWS=${PLAYWRIGHT_GALLERY_VIEWS:-}" \
-	-e "PLAYWRIGHT_GALLERY_BEFORE=${PLAYWRIGHT_GALLERY_BEFORE:-}" \
-	"${proxy_env[@]}" \
-	-v "$stage_dir:/e2e" \
-	-v "$stage_dir/volume:/volume" \
-	-v "$reports_dir:/reports" \
-	-w /e2e \
-	"$image" \
-	/bin/bash -lc "$cmd"
+run=(docker run --rm
+	--ipc=host --shm-size=1g
+	"${net_args[@]}"
+	--env-file "$env_file"
+	-e "INFINITO_PLAYWRIGHT_KEEP=${INFINITO_PLAYWRIGHT_KEEP:-}"
+	-e "PLAYWRIGHT_GALLERY_VIEWS=${PLAYWRIGHT_GALLERY_VIEWS:-}"
+	-e "PLAYWRIGHT_GALLERY_BEFORE=${PLAYWRIGHT_GALLERY_BEFORE:-}"
+	"${proxy_env[@]}"
+	-v "$stage_dir:/e2e$stage_ro"
+	-v "$stage_dir/volume:/volume$stage_ro"
+	-v "$reports_mount:/reports"
+	"${secret_args[@]}"
+	"${ca_args[@]}"
+	-w /e2e
+	"$image")
+((${#secret_args[@]})) || exec "${run[@]}" /bin/bash -lc "$cmd"
+docker run --rm "${net_args[@]}" "${user_args[@]}" -v "$stage_dir:/e2e:ro" -v "$stage_dir/node_modules:/e2e/node_modules" -w /e2e "$image" npm install --no-fund --no-audit --no-package-lock
+python3 -I -B "$masker" mask "$secrets_dir" "$reports_dir" -- "${run[@]}" -- "$@" &
+masker_pid=$!
+wait "$masker_pid"
