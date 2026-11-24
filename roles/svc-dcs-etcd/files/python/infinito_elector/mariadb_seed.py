@@ -235,7 +235,7 @@ def seed_position(binlog_info: str = BINLOG_INFO) -> str:
 
 
 def main(argv: Sequence[str]) -> int:
-    from .__main__ import build_role, parse_args
+    from .config import build_role, parse_args
 
     args = parse_args([])
     role = build_role(args)

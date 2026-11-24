@@ -1,6 +1,6 @@
 import subprocess
 import unittest
-from unittest import mock
+import unittest.mock as mock
 
 from infinito_elector_src import roles
 

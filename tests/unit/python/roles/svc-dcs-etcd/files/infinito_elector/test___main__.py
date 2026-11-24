@@ -1,93 +1,33 @@
-from __future__ import annotations
-
-import contextlib
-import io
-import os
+import argparse
 import unittest
-import unittest.mock as mock
 
-from infinito_elector_src.__main__ import parse_args
-
-COMMON = {
-    "ELECTOR_ENGINE": "mariadb",
-    "ELECTOR_HOST_ID": "m1",
-    "ELECTOR_PEERS": "m1,m2",
-    "ELECTOR_PEER_TEMPLATE": "mariadb-{host}",
-    "ELECTOR_ETCD_ENDPOINTS": "https://etcd-m1:2379",
-    "ELECTOR_ETCD_USER": "mariadb-elector",
-    "ELECTOR_ETCD_PASSWORD_FILE": "/run/secrets/etcd",
-    "ELECTOR_KEY": "/infinito/mariadb/writer",
-    "ELECTOR_PORT": "8009",
-}
-MARIADB = {
-    "ELECTOR_MARIADB_DEFAULTS_FILE": "/etc/elector.cnf",
-    "ELECTOR_MARIADB_SOCKET": "/run/mysqld/mysqld.sock",
-    "ELECTOR_MARIADB_LOCAL_USER": "mysql",
-    "ELECTOR_REPLICATION_USER": "replication",
-    "ELECTOR_REPLICATION_PASSWORD_FILE": "/run/secrets/repl",
-}
-OPENLDAP = {
-    "ELECTOR_LDAP_DATABASE_DN": "olcDatabase={1}mdb,cn=config",
-    "ELECTOR_LDAP_SUFFIX": "dc=example,dc=test",
-    "ELECTOR_LDAP_BIND_DN": "cn=admin,dc=example,dc=test",
-    "ELECTOR_LDAP_BIND_PASSWORD_FILE": "/run/slapd/pw",
-}
+from infinito_elector_src.__main__ import build_donor
 
 
-def _parse(env):
-    with mock.patch.dict(os.environ, env, clear=True):
-        return parse_args([])
+def _args(**overrides):
+    values = {
+        "engine": "mariadb",
+        "seed_port": 4444,
+        "seed_relay": "relay:4445",
+        "replication_password_file": "/run/secrets/repl",
+        "mariadb_local_user": "mysql",
+        "mariadb_socket": "/run/mysqld/mysqld.sock",
+    }
+    values.update(overrides)
+    return argparse.Namespace(**values)
 
 
-def _rejected(env) -> bool:
-    try:
-        with contextlib.redirect_stderr(io.StringIO()):
-            _parse(env)
-    except SystemExit:
-        return True
-    return False
+class TestBuildDonor(unittest.TestCase):
+    def test_openldap_has_no_seed_handler(self):
+        self.assertIsNone(build_donor(_args(engine="openldap"), role=object()))
 
+    def test_mariadb_without_a_seed_port_has_no_seed_handler(self):
+        self.assertIsNone(build_donor(_args(seed_port=None), role=object()))
 
-class TestParseArgs(unittest.TestCase):
-    def test_mariadb_reads_every_option_from_env(self) -> None:
-        args = _parse({**COMMON, **MARIADB})
-        self.assertEqual(args.etcd_endpoints, "https://etcd-m1:2379")
-        self.assertEqual(args.port, 8009)
-        self.assertEqual(args.key, "/infinito/mariadb/writer")
-        self.assertEqual(args.mariadb_socket, "/run/mysqld/mysqld.sock")
-
-    def test_openldap_reads_every_option_from_env(self) -> None:
-        args = _parse({**COMMON, **OPENLDAP, "ELECTOR_ENGINE": "openldap"})
-        self.assertEqual(args.ldap_database_dn, "olcDatabase={1}mdb,cn=config")
-
-    def test_every_deployment_setting_is_required(self) -> None:
-        for name in (*COMMON, *MARIADB):
-            with self.subTest(missing=name):
-                env = {**COMMON, **MARIADB}
-                del env[name]
-                self.assertTrue(_rejected(env))
-
-    def test_a_seed_port_needs_the_seed_relay(self) -> None:
-        env = {**COMMON, **MARIADB, "ELECTOR_SEED_PORT": "4444"}
-        self.assertTrue(_rejected(env))
-        relay = "/opt/db-elector/seed_relay.py"
-        args = _parse({**env, "ELECTOR_SEED_RELAY": relay})
-        self.assertEqual(args.seed_relay, relay)
-
-    def test_openldap_settings_are_required_for_openldap(self) -> None:
-        for name in OPENLDAP:
-            with self.subTest(missing=name):
-                env = {**COMMON, **OPENLDAP, "ELECTOR_ENGINE": "openldap"}
-                del env[name]
-                self.assertTrue(_rejected(env))
-
-    def test_no_lock_backend_choice(self) -> None:
-        with (
-            contextlib.redirect_stderr(io.StringIO()),
-            self.assertRaises(SystemExit),
-            mock.patch.dict(os.environ, {**COMMON, **MARIADB}, clear=True),
-        ):
-            parse_args(["--lock", "kubernetes"])
+    def test_mariadb_with_a_seed_port_serves_seed_requests(self):
+        handler = build_donor(_args(), role=object())
+        self.assertTrue(callable(handler))
+        self.assertEqual(handler.__name__, "handle")
 
 
 if __name__ == "__main__":
