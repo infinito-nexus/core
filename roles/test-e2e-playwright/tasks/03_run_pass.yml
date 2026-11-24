@@ -159,7 +159,8 @@
               ansible.builtin.command:
                 argv: &playwright_argv >-
                   {{
-                    (['python3', '-I', '-B', TEST_E2E_PLAYWRIGHT_TOOLS_DIR ~ '/spec_secrets.py', 'guard'] if (_playwright_secrets_template_stat.stat.exists | bool) else [])
+                    (['python3', '-I', '-B', TEST_E2E_PLAYWRIGHT_TOOLS_DIR ~ '/spec_secrets.py', 'guard'] if (_playwright_secrets_template_stat.stat.exists | bool)
+                  else [])
                     + TEST_E2E_PLAYWRIGHT_MASK_ARGV
                     + [('docker' if (_playwright_secrets_template_stat.stat.exists | bool) else 'container'), 'run', '--rm', '--ipc=host', '--shm-size=1g']
                     + (
@@ -185,7 +186,8 @@
                   [])
                     + ['-v', _playwright_stage_dir ~ ':/e2e' ~ (':ro' if (_playwright_secrets_template_stat.stat.exists | bool) else '')]
                     + ['-v', _playwright_stage_dir ~ '/volume:/volume' ~ (':ro' if (_playwright_secrets_template_stat.stat.exists | bool) else '')]
-                    + ['-v', (([_playwright_spec_secrets_path, 'reports'] | path_join) if (_playwright_secrets_template_stat.stat.exists | bool) else _playwright_pass_reports_dir) ~ ':/reports']
+                    + ['-v', (([_playwright_spec_secrets_path, 'reports'] | path_join) if (_playwright_secrets_template_stat.stat.exists | bool) else _playwright_pass_reports_dir)
+                  ~ ':/reports']
                     + ['-v', TEST_E2E_PLAYWRIGHT_SHARED_NODE_MODULES ~ ':/e2e/node_modules:ro']
                     + ['-v', TEST_E2E_PLAYWRIGHT_SHARED_PERSONAS ~ ':/e2e/tests/personas:ro']
                     + (
@@ -261,7 +263,8 @@
         - name: 🛑 Fail the pass when its container or reports could not be masked
           ansible.builtin.fail:
             msg: >-
-              Masking the spec secrets of {{ application_id }} failed (run rc {{ _playwright_run.rc | default('absent') }}), {{ _playwright_pass_reports_dir }} may hold only part of its reports, all of them masked,
+              Masking the spec secrets of {{ application_id }} failed (run rc {{ _playwright_run.rc | default('absent') }}), {{ _playwright_pass_reports_dir }} may
+              hold only part of its reports, all of them masked,
               and the pass is not retried:
               {{ _playwright_spec_secrets_scrub.stderr | default('') }}
           when: _playwright_spec_secrets_scrub is failed

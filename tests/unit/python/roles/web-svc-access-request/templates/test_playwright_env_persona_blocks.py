@@ -59,7 +59,7 @@ def render_persona_flags(sso_enabled: bool) -> dict[str, str]:
 class TestPlaywrightEnvPersonaBlocks(unittest.TestCase):
     def test_without_the_gate_both_signed_in_personas_are_blocked(self) -> None:
         self.assertEqual(
-            {flag: "true" for flag in SIGNED_IN_PERSONAS},
+            dict.fromkeys(SIGNED_IN_PERSONAS, "true"),
             render_persona_flags(False),
             "the service reads the user only from the oauth2-proxy gate's "
             "headers and answers 401 without them, so an sso: false variant "
@@ -68,7 +68,7 @@ class TestPlaywrightEnvPersonaBlocks(unittest.TestCase):
 
     def test_behind_the_gate_both_signed_in_personas_run(self) -> None:
         self.assertEqual(
-            {flag: "false" for flag in SIGNED_IN_PERSONAS},
+            dict.fromkeys(SIGNED_IN_PERSONAS, "false"),
             render_persona_flags(True),
             "with SSO enabled the gate signs both personas in, so blocking "
             "them would drop the only end-to-end proof of the auth chain",
