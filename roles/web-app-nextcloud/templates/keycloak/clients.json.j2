@@ -69,6 +69,22 @@
         "introspection.token.claim": "true",
         "lightweight.claim": "false"
       }
+    },
+    {
+      "name": "nextcloud no groups",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-hardcoded-claim-mapper",
+      "consentRequired": false,
+      "config": {
+        "claim.name": "{{ lookup('config', 'web-app-nextcloud', 'services.sso.oidc.no_groups_claim') }}",
+        "claim.value": "[]",
+        "jsonType.label": "JSON",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "userinfo.token.claim": "true",
+        "introspection.token.claim": "true",
+        "lightweight.claim": "false"
+      }
     }
   ],
   "fullScopeAllowed": true,

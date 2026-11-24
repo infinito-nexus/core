@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib
+import json
 import re
 import unittest
 from typing import Any
@@ -45,6 +46,11 @@ OIDC = {
 RBAC = {"GROUP": {"CLAIM": "groups"}}
 LDAP = {"USER": {"ATTRIBUTES": {"NEXTCLOUD_QUOTA": "nextcloudQuota"}}}
 NEXTCLOUD_URL = "https://next.cloud.example.com"
+NO_GROUPS_CLAIM = load_yaml_any(str(ROLE_DIR / ROLE_FILE_META_SERVICES))["sso"]["oidc"][
+    "no_groups_claim"
+]
+ADMIN_GROUP_PATH = "/roles/web-app-nextcloud/administrator"
+HARDCODED_CLAIM_MAPPER = "oidc-hardcoded-claim-mapper"
 
 
 def setUpModule() -> None:
@@ -127,6 +133,78 @@ def provisioned_group_id(claim_value: str, options: list[str]) -> str | None:
     return claim_value
 
 
+def own_client() -> dict:
+    """
+    Returns:
+        The own Keycloak client of user_oidc, rendered the way the realm includes it.
+    """
+    fragments = importlib.import_module(
+        "tests.unit.python.roles.web-app-keycloak.templates.test_backchannel_clients"
+    )
+    (client,) = fragments.render_fragment(
+        ROLE_DIR / "templates/keycloak/clients.json.j2"
+    )
+    return client
+
+
+def id_token(held: list[str], client: dict) -> dict:
+    """
+    Args:
+        held: the group paths and client roles the account holds.
+        client: the rendered client representation.
+
+    Returns:
+        The decoded ID token payload Keycloak sends, reduced to the
+        claims user_oidc maps groups from: no group claim for an empty list,
+        a JSON hardcoded claim parsed as written.
+    """
+    payload: dict[str, Any] = {}
+    if held:
+        payload[RBAC["GROUP"]["CLAIM"]] = list(held)
+    for mapper in client["protocolMappers"]:
+        config = mapper["config"]
+        if mapper["protocolMapper"] != HARDCODED_CLAIM_MAPPER:
+            continue
+        if config.get("id.token.claim") != "true":
+            continue
+        value = config["claim.value"]
+        if config.get("jsonType.label") == "JSON":
+            value = json.loads(value)
+        payload[config["claim.name"]] = value
+    return payload
+
+
+def synced_groups(payload: dict, options: list[str]) -> list[str] | None:
+    """
+    Args:
+        payload: the decoded ID token.
+        options: the ``occ user_oidc:provider`` options.
+
+    Returns:
+        The complete group set user_oidc provisions, the first present
+        ``|`` alternative while nested claims are on, or None when user_oidc
+        changes no group.
+    """
+    settings = dict(option.removeprefix("--").split("=", 1) for option in options)
+    mapping = settings["mapping-groups"]
+    alternatives = (
+        mapping.split("|")
+        if settings.get("resolve-nested-claims") == "1"
+        else [mapping]
+    )
+    value = next(
+        (payload[name.strip()] for name in alternatives if name.strip() in payload),
+        None,
+    )
+    if value is None:
+        return None
+    return [
+        group
+        for group in (provisioned_group_id(item, options) for item in value)
+        if group is not None
+    ]
+
+
 def registration_block() -> dict:
     (block,) = load_yaml_str(read_text(str(ROLE_DIR / "tasks/addons/user_oidc.yml")))
     return block
@@ -180,14 +258,8 @@ class TestUserOidcProvider(unittest.TestCase):
         self.assertIn("--unique-uid=0", self.options)
 
     def test_the_own_client_hands_user_oidc_the_mapped_user_id(self) -> None:
-        fragments = importlib.import_module(
-            "tests.unit.python.roles.web-app-keycloak.templates.test_backchannel_clients"
-        )
-        (client,) = fragments.render_fragment(
-            ROLE_DIR / "templates/keycloak/clients.json.j2"
-        )
         (mapper,) = [
-            m for m in client["protocolMappers"] if m["name"] == "nextcloud uid"
+            m for m in own_client()["protocolMappers"] if m["name"] == "nextcloud uid"
         ]
         self.assertEqual("oidc-usermodel-attribute-mapper", mapper["protocolMapper"])
         expected = {
@@ -205,7 +277,7 @@ class TestUserOidcProvider(unittest.TestCase):
             "--mapping-display-name=name",
             "--mapping-email=email",
             "--mapping-quota=nextcloudQuota",
-            "--mapping-groups=groups",
+            f"--mapping-groups=groups|{NO_GROUPS_CLAIM}",
             "--group-provisioning=1",
         ):
             with self.subTest(option=option):
@@ -240,6 +312,61 @@ class TestUserOidcProvider(unittest.TestCase):
                 self.assertNotEqual(
                     "admin", provisioned_group_id("admin", base + extra)
                 )
+
+    def test_the_own_client_always_sends_an_empty_group_list(self) -> None:
+        fragments = importlib.import_module(
+            "tests.unit.python.roles.web-app-keycloak.templates.test_backchannel_clients"
+        )
+        group_mapper = fragments.group_claim_mapper()
+        (mapper,) = [
+            m
+            for m in own_client()["protocolMappers"]
+            if m["protocolMapper"] == HARDCODED_CLAIM_MAPPER
+        ]
+        config = mapper["config"]
+        self.assertEqual(NO_GROUPS_CLAIM, config["claim.name"])
+        self.assertEqual([], json.loads(config["claim.value"]))
+        self.assertEqual("JSON", config["jsonType.label"])
+        for flag in fragments.TOKEN_FLAGS:
+            with self.subTest(flag=flag):
+                self.assertEqual(group_mapper["config"].get(flag), config.get(flag))
+
+    def test_the_empty_group_list_never_shadows_the_groups_claim(self) -> None:
+        self.assertNotEqual(RBAC["GROUP"]["CLAIM"], NO_GROUPS_CLAIM)
+        for separator in (".", "|"):
+            with self.subTest(separator=separator):
+                self.assertNotIn(separator, NO_GROUPS_CLAIM)
+        payload = id_token([ADMIN_GROUP_PATH, "admin"], own_client())
+        self.assertEqual(
+            [ADMIN_GROUP_PATH, "admin"], synced_groups(payload, self.options)
+        )
+
+    def test_an_account_that_loses_its_last_group_leaves_admin(self) -> None:
+        payload = id_token([], own_client())
+        self.assertNotIn(RBAC["GROUP"]["CLAIM"], payload)
+        self.assertEqual([], synced_groups(payload, self.options))
+
+    def test_without_the_fallback_a_revoked_administrator_keeps_admin(self) -> None:
+        payload = id_token([], own_client())
+        groups_only = [
+            option
+            for option in self.options
+            if not option.startswith("--mapping-groups=")
+        ] + [f"--mapping-groups={RBAC['GROUP']['CLAIM']}"]
+        self.assertIsNone(synced_groups(payload, groups_only))
+        without_nested = [
+            option
+            for option in self.options
+            if not option.startswith("--resolve-nested-claims=")
+        ] + ["--resolve-nested-claims=0"]
+        self.assertIsNone(synced_groups(payload, without_nested))
+        client = own_client()
+        client["protocolMappers"] = [
+            m
+            for m in client["protocolMappers"]
+            if m["protocolMapper"] != HARDCODED_CLAIM_MAPPER
+        ]
+        self.assertIsNone(synced_groups(id_token([], client), self.options))
 
     def test_the_provider_identifier_is_the_one_keycloak_logs_out_on(self) -> None:
         self.assertEqual("keycloak", self.provider)

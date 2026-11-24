@@ -10,6 +10,7 @@ sso:
     client_roles:
       user_oidc:
         admin: administrator
+    no_groups_claim: nextcloud_no_groups
     backchannel_logout_path: /index.php/apps/user_oidc/backchannel-logout/keycloak
 # nocheck: playwright-service-flag: infrastructural sub-component (TURN/STUN)
 coturn:

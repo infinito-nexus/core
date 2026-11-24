@@ -75,7 +75,7 @@ NEXTCLOUD_USER_OIDC_OPTIONS:
   - "--mapping-display-name={{ OIDC.ATTRIBUTES.NAME }}"
   - "--mapping-email={{ OIDC.ATTRIBUTES.EMAIL }}"
   - "--mapping-quota={{ LDAP.USER.ATTRIBUTES.NEXTCLOUD_QUOTA }}"
-  - "--mapping-groups={{ RBAC.GROUP.CLAIM }}"
+  - "--mapping-groups={{ RBAC.GROUP.CLAIM }}|{{ lookup('config', application_id, 'services.sso.oidc.no_groups_claim') }}"
   - "--group-provisioning=1"
   - "--send-id-token-hint=1"
 
