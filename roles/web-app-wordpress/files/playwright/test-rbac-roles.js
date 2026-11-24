@@ -52,11 +52,13 @@ exports.register = function (shared) {
             groupPath,
             shared.env.biberUsername
           );
-          biberEmail = await shared.keycloakUserEmail(
-            adminKc.page.context().request,
-            shared.env.keycloakBaseUrl,
-            shared.env.realmName,
-            shared.env.biberUsername
+          biberEmail = shared.biberClaimedEmail(
+            await shared.keycloakUserByName(
+              adminKc.page.context().request,
+              shared.env.keycloakBaseUrl,
+              shared.env.realmName,
+              shared.env.biberUsername
+            )
           );
         } finally {
           await adminKc.ctx.close().catch(() => {});
@@ -106,7 +108,7 @@ exports.register = function (shared) {
           ).not.toHaveText(/^\s*email\s*$/i);
           await expect(
             emailCell,
-            `biber's row on /wp-admin/users.php MUST show the Keycloak email "${biberEmail}"`
+            `biber's row on /wp-admin/users.php MUST show the address of biber's Keycloak email claim "${biberEmail}"`
           ).toHaveText(biberEmail, { timeout: resolveTimeout(30_000) });
         } finally {
           await wpAdmin.ctx.close().catch(() => {});

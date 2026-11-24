@@ -9,7 +9,9 @@ const {
   installCspViolationObserver,
   keycloakRemoveUserFromGroupViaRest,
   normalizeBaseUrl,
+  requireDotenvValue,
 } = require("./personas");
+const { claimedEmail } = require("./claimed-email");
 
 const env = {
   appBaseUrl: normalizeBaseUrl(process.env.APP_BASE_URL || ""),
@@ -238,9 +240,9 @@ async function keycloakAdminToken(request, keycloakBaseUrl) {
  *   realmName: realm that holds the user.
  *   username: Keycloak user name, matched case-insensitively.
  * Returns:
- *   The email Keycloak stores for the user; throws when the user or its email is missing.
+ *   The Keycloak admin representation of the user; throws when the lookup fails or finds no such user.
  */
-async function keycloakUserEmail(request, keycloakBaseUrl, realmName, username) {
+async function keycloakUserByName(request, keycloakBaseUrl, realmName, username) {
   const accessToken = await keycloakAdminToken(request, keycloakBaseUrl);
   const resp = await request.get(
     `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/users?username=${encodeURIComponent(username)}&exact=true`,
@@ -252,10 +254,24 @@ async function keycloakUserEmail(request, keycloakBaseUrl, realmName, username) 
   const user = (await resp.json()).find(
     (u) => (u.username || "").toLowerCase() === username.toLowerCase()
   );
-  if (!user?.email) {
-    throw new Error(`Keycloak user "${username}" has no email`);
+  if (!user) {
+    throw new Error(`Keycloak user "${username}" not found in realm "${realmName}"`);
   }
-  return user.email;
+  return user;
+}
+
+/**
+ * Args:
+ *   keycloakUser: Keycloak admin representation of biber.
+ * Returns:
+ *   The address biber's OIDC email claim carries under KEYCLOAK_EMAIL_POLICY, as claimedEmail resolves it.
+ */
+function biberClaimedEmail(keycloakUser) {
+  return claimedEmail(
+    keycloakUser,
+    requireDotenvValue(process.env.KEYCLOAK_EMAIL_POLICY, "KEYCLOAK_EMAIL_POLICY") === "mailbox",
+    requireDotenvValue(process.env.BIBER_EMAIL, "BIBER_EMAIL")
+  );
 }
 
 // Resolve via /admin/realms/<realm>/group-by-path/...; fall back to a
@@ -588,7 +604,8 @@ module.exports = {
   wpActivePluginAction,
   wpSignOut,
   keycloakAdminToken,
-  keycloakUserEmail,
+  keycloakUserByName,
+  biberClaimedEmail,
   keycloakResolveGroupId,
   keycloakAdminAddUserToGroup,
   keycloakAdminOpenUserProfile,
