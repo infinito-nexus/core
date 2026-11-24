@@ -6,8 +6,8 @@ Counterpart to :mod:`utils.update.repository` (which handles git refs).
 Both share the semver primitives in :mod:`utils.update.base`; this
 module owns the bump selection and the YAML walker that rewrites the
 matching ``version:`` line; registry lookups live in
-:mod:`utils.update.docker_tags`, compose files in
-:mod:`utils.update.docker_compose`.
+:mod:`utils.update.docker.tags`, compose files in
+:mod:`utils.update.docker.compose`.
 
 Suppress a check by placing ``# nocheck: docker-version`` on the line
 directly above the ``version:`` key, or above a compose service's ``image:``.
@@ -49,13 +49,13 @@ from utils.update.base import (
     version_flavor,
     version_key,
 )
-from utils.update.docker_compose import (
+from utils.update.docker.compose import (
     _compose_image_lines,
     compose_files,
     suppressed_compose_services,
     update_compose_images,
 )
-from utils.update.docker_tags import (
+from utils.update.docker.tags import (
     fetch_dockerhub_tags,
     fetch_ghcr_tags,
     fetch_mcr_tags,

@@ -24,7 +24,7 @@ from utils.update.base import (
     is_semver,
     newer_version,
 )
-from utils.update.docker_tags import (
+from utils.update.docker.tags import (
     fetch_dockerhub_tags,
     fetch_ghcr_tags,
     fetch_mcr_tags,

@@ -9,7 +9,7 @@ import re
 import time
 import urllib.error
 import urllib.request
-from urllib.parse import quote, urlencode
+from urllib.parse import quote, urlencode, urljoin
 
 from utils.docker.image.ref import (
     GHCR_REGISTRY,
@@ -31,7 +31,7 @@ def fetch_dockerhub_tags(image: str, max_pages: int = 5) -> list[str]:
             url, headers={"User-Agent": "infinito-nexus-version-updater"}
         )
         try:
-            with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
+            with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 - fixed https Docker Hub URL
                 if resp.status == 429:
                     time.sleep(2)
                     continue
@@ -71,7 +71,7 @@ def fetch_ghcr_tags(image: str) -> list[str]:
         req = urllib.request.Request(
             token_url, headers={"User-Agent": "infinito-nexus-version-updater"}
         )
-        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
+        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 - fixed https GHCR token URL
             token_body = json.loads(resp.read().decode())
         token = token_body.get("token") or token_body.get("access_token")
     except (
@@ -94,7 +94,7 @@ def fetch_ghcr_tags(image: str) -> list[str]:
         },
     )
     try:
-        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
+        with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 - fixed https GHCR tags URL
             body = json.loads(resp.read().decode())
     except (
         urllib.error.URLError,
@@ -133,11 +133,11 @@ def fetch_mcr_tags(image: str, max_pages: int = 10) -> list[str]:
     url = f"{base}/v2/{quote(name, safe='/')}/tags/list?n=100"
     tags: list[str] = []
     for _ in range(max_pages):
-        req = urllib.request.Request(  # noqa: S310
+        req = urllib.request.Request(  # noqa: S310 - https URL on the MCR host only
             url, headers={"User-Agent": "infinito-nexus-version-updater"}
         )
         try:
-            with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
+            with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310 - https URL on the MCR host only
                 body = json.loads(resp.read().decode())
                 link_header = resp.headers.get("Link", "")
         except (
@@ -151,6 +151,7 @@ def fetch_mcr_tags(image: str, max_pages: int = 10) -> list[str]:
         match = _LINK_NEXT_RE.search(link_header)
         if not match:
             break
-        next_link = match.group(1)
-        url = next_link if next_link.startswith("http") else f"{base}{next_link}"
+        url = urljoin(url, match.group(1))
+        if not url.startswith(f"{base}/"):
+            break
     return tags
