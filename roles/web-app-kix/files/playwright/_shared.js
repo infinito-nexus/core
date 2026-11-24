@@ -49,7 +49,10 @@ const SETUP_PENDING_STEP = `${SETUP_STEP}:not(.completed):not(.skipped)`;
 const CUSTOMER_DASHBOARD = "/organisations?dependent=false";
 const CUSTOMER_SEARCH = `${CONTENT} .customer-dashboard .organisation-search`;
 const CUSTOMER_SEARCH_INPUT = `${CUSTOMER_SEARCH} input`;
-const CUSTOMER_SEARCH_SUBMIT = `${CUSTOMER_SEARCH} button.submit-button`;
+const ACTIVE_CONTEXT = `${CONTENT} > [data-contextinstanceid]:not(.d-none)`;
+const ROLE_ASSIGNED_AGENTS = ".role-assigned-users";
+const WIDGET_TOGGLE = ".widget-header .minimize-icon-wrapper button";
+const WIDGET_TABLE = ".widget-content table.kix-table";
 
 function expectKeycloakAdminEnv() {
   for (const [key, value] of Object.entries({ ...keycloak, kixUserGroupPath, biberUsername, biberPassword })) {
@@ -322,8 +325,50 @@ async function skipSetupAssistant(page) {
  */
 async function searchCustomerDashboard(page, term) {
   await openView(page, CUSTOMER_DASHBOARD, CUSTOMER_SEARCH_INPUT);
-  await page.locator(CUSTOMER_SEARCH_INPUT).first().fill(term);
-  await page.locator(CUSTOMER_SEARCH_SUBMIT).first().click({ timeout: resolveTimeout(30_000) });
+  const input = page.locator(CUSTOMER_SEARCH_INPUT).first();
+  await input.fill(term);
+  await input.press("Enter", { timeout: resolveTimeout(30_000) });
+}
+
+/**
+ * Args:
+ *   page: Playwright page of the signed-in interface.
+ *
+ * Returns:
+ *   The locator of the context the interface shows.
+ */
+function activeContext(page) {
+  return page.locator(ACTIVE_CONTEXT);
+}
+
+/**
+ * Args:
+ *   page: Playwright page on the detail view of a KIX role; ends with its Assigned Agents widget expanded.
+ *
+ * Returns:
+ *   The rendered agents table of the widget.
+ */
+async function expandRoleAssignedAgents(page) {
+  const widget = activeContext(page).locator(ROLE_ASSIGNED_AGENTS).first();
+  const toggle = widget.locator(WIDGET_TOGGLE).first();
+  const table = widget.locator(WIDGET_TABLE).first();
+  await expect
+    .poll(
+      async () => {
+        if ((await toggle.count()) === 0 || !(await toggle.getAttribute("title"))) return false;
+        if ((await toggle.getAttribute("aria-expanded")) === "false") {
+          await toggle.click({ timeout: resolveTimeout(30_000) });
+          return false;
+        }
+        return table.isVisible();
+      },
+      {
+        timeout: resolveTimeout(60_000),
+        message: "the Assigned Agents widget of the role must expand and render its agents table",
+      },
+    )
+    .toBe(true);
+  return table;
 }
 
 async function beforeEach({ page }) {
@@ -355,6 +400,8 @@ module.exports = {
   openView,
   skipSetupAssistant,
   searchCustomerDashboard,
+  activeContext,
+  expandRoleAssignedAgents,
   performKixLogin,
   signInThroughGate,
   runKixLogin,

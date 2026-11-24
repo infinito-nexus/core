@@ -19,11 +19,12 @@ function directoryAttributes(contact) {
   );
 }
 
-async function openRole(page, appBaseUrl, roleId, roleName) {
-  await gotoOnion(page, `${appBaseUrl}/roles/${roleId}`, { waitUntil: "domcontentloaded" });
-  await expect(page.getByText(roleName, { exact: true }).first(), `KIX role ${roleId} must be "${roleName}"`).toBeVisible({
-    timeout: resolveTimeout(60_000),
-  });
+async function openRole(shared, page, roleId, roleName) {
+  await gotoOnion(page, `${shared.env.appBaseUrl}/roles/${roleId}`, { waitUntil: "domcontentloaded" });
+  await expect(
+    shared.activeContext(page).getByText(roleName, { exact: true }).first(),
+    `KIX role ${roleId} must be "${roleName}"`,
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
 exports.register = function (shared) {
@@ -83,37 +84,44 @@ exports.register = function (shared) {
           await shared.skipSetupAssistant(page);
 
           await shared.searchCustomerDashboard(page, shared.env.biberUsername);
-          const streetCell = page.getByText(contact.Street).first();
+          const shown = shared.activeContext(page);
+          const streetCell = shown.getByText(contact.Street).first();
           await expect(
             streetCell,
             "the contacts dashboard searched for biber's login must list biber's synced street; reading it needs the Superuser role",
           ).toBeVisible({ timeout: resolveTimeout(90_000) });
           await streetCell.click({ timeout: resolveTimeout(30_000) });
           for (const value of [contact.Title, contact.Phone, contact.Mobile, contact.Street, contact.Zip, contact.City]) {
-            await expect(page.getByText(value).first(), `the contact page must show "${value}" from the directory`).toBeVisible({
+            await expect(shown.getByText(value).first(), `the contact page must show "${value}" from the directory`).toBeVisible({
               timeout: resolveTimeout(60_000),
             });
           }
-          await expect(page.getByText(contact.Country, { exact: true }).first(), "the contact page must show the directory country").toBeVisible();
+          await expect(shown.getByText(contact.Country, { exact: true }).first(), "the contact page must show the directory country").toBeVisible();
 
-          await openRole(page, shared.env.appBaseUrl, SEEDED_ROLE_IDS.agent, roleAgent);
-          const biberAgent = page.getByText(shared.env.biberUsername, { exact: true }).first();
+          await openRole(shared, page, SEEDED_ROLE_IDS.agent, roleAgent);
+          const agentRoleAgents = await shared.expandRoleAssignedAgents(page);
+          const biberAgent = agentRoleAgents.getByText(shared.env.biberUsername, { exact: true }).first();
           await expect(biberAgent, `the user role group must grant biber "${roleAgent}"`).toBeVisible({
             timeout: resolveTimeout(60_000),
           });
           await biberAgent.click({ timeout: resolveTimeout(30_000) });
           await expect(
-            page.getByText(contact.Comment).first(),
+            shown.getByText(contact.Comment).first(),
             "biber's user page must show the directory description as the contact comment",
           ).toBeVisible({ timeout: resolveTimeout(60_000) });
 
-          await openRole(page, shared.env.appBaseUrl, SEEDED_ROLE_IDS.superuser, roleSuperuser);
+          await openRole(shared, page, SEEDED_ROLE_IDS.superuser, roleSuperuser);
+          const superuserRoleAgents = await shared.expandRoleAssignedAgents(page);
           await expect(
-            page.getByText(shared.env.adminUsername, { exact: true }).first(),
+            superuserRoleAgents.getByText(shared.env.adminUsername, { exact: true }).first(),
             `the administrator role group must grant "${roleSuperuser}"`,
           ).toBeVisible({ timeout: resolveTimeout(60_000) });
           await expect(
-            page.getByText(shared.env.biberUsername, { exact: true }),
+            superuserRoleAgents,
+            `the agents table of "${roleSuperuser}" must be rendered before it can prove biber's absence`,
+          ).toBeVisible();
+          await expect(
+            superuserRoleAgents.getByText(shared.env.biberUsername, { exact: true }),
             `the user role group must not grant "${roleSuperuser}"`,
           ).toHaveCount(0);
 
