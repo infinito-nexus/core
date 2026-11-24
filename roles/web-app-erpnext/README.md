@@ -49,6 +49,8 @@ This role creates nothing under a consumer's names. [test_consumer_namespaces.py
 
 `applications.web-app-erpnext.services.erpnext.api_bot.extra_roles` lists the ERPNext roles the consumers need on `erpnext-api-bot` and defaults to an empty list. Every deploy grants them beside `System Manager` and the `Script Manager` of the Server Scripts switch; removing a role from the list does not revoke it. A listed role the site does not hold yet is created as an empty Role (`CHANGED created role <role>`) and granted in the same run; its consumer adds the permissions later. This role is the only writer of the bot's roles, API key and API secret, so a consumer declares the roles it needs here instead of setting them itself.
 
+[test-api-bot-rights.js](./files/playwright/test-api-bot-rights.js) proves these rights on the deployed site: through the bot's token it creates, reads back and deletes a Role, a DocType, a Custom Field on `ToDo`, a disabled Webhook, a disabled User and, while `server_scripts` is on, a disabled API Server Script, each named `Infinito Bot Probe <hex>` or `infinito_bot_probe_<hex>`, outside every consumer namespace. Frappe inserts a Contact for every new User in a background job after the commit and only unlinks it when the User is deleted, so the User case waits for that Contact before it deletes the User and deletes the Contact in its teardown. With `server_scripts` off the Server Script case skips, because the deploy then revokes `Script Manager`.
+
 `applications.web-app-erpnext.services.erpnext.api_bot.enabled` (default `true`) keeps the bot. Set to `false`, for a host whose consumers use their own least-privilege API identities, every deploy retires it instead: it never creates the bot, and an existing one is disabled, loses every role and role profile, and has its API key and secret cleared. The token break-glass path of the login methods and the specs that call the API through it ([_shared.js](./files/playwright/_shared.js) `breakGlassApi`) are then gone, and those specs skip.
 
 ### Group roles
@@ -89,6 +91,8 @@ The DB-number split is stable for v1. If `svc-db-redis` later partitions tenants
 | V3 | ✗ | ✓ | ✗ | LDAP-only — sign in against the central OpenLDAP. |
 
 V1 and V3 map `/roles/svc-db-openldap/administrator`, the implicit role group every deploy with OpenLDAP holds and one that grants no directory write access, to `Auditor` in `group_roles`, so the group-roles spec of [test-rbac.js](./files/playwright/test-rbac.js) runs through the Keycloak sign-in (V1) and through Frappe's LDAP login (V3).
+
+V1 also turns `server_scripts` on, so the Server Script case of [test-api-bot-rights.js](./files/playwright/test-api-bot-rights.js) runs there.
 
 ## Backup & restore (operator command, v1)
 
