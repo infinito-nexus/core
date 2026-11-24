@@ -52,7 +52,9 @@ NUMBER = re.compile(r"[0-9]+")
 DECIMAL = re.compile(r"[0-9]+(?:\.[0-9]+)?")
 BOOL = re.compile(r"[Tt]rue|[Ff]alse")
 LISTED = re.compile(r"[^\n]*")
-FLAGS = frozenset({"--rm", "--ipc=host", "--shm-size=1g", "--log-driver=none"})
+# nocheck: logging-driver  the run prints spec secrets before the host masker scrubs its attached output, so journald would keep them unmasked
+NO_LOG = "--log-driver=none"
+FLAGS = frozenset({"--rm", "--ipc=host", "--shm-size=1g", NO_LOG})
 OPTIONS = {
     "--add-host": re.compile(r"[A-Za-z0-9.-]+:host-gateway"),
     "--name": re.compile(r"infinito-playwright-[A-Za-z0-9_.-]+"),
@@ -67,9 +69,7 @@ OPTIONS = {
     "--mount": re.compile(r"type=bind,src=/[^,]+,dst=/run/spec-secrets,readonly"),
 }
 REPEATABLE = frozenset({"-e", "-v", "--add-host"})
-REQUIRED = frozenset(
-    {"--rm", "--log-driver=none", "-w", "--cidfile", "--mount", "--env-file"}
-)
+REQUIRED = frozenset({"--rm", NO_LOG, "-w", "--cidfile", "--mount", "--env-file"})
 NO_CAPTURE = "INFINITO_PLAYWRIGHT_NO_CAPTURE"  # nocheck: container env
 ENV = {
     "INFINITO_PLAYWRIGHT_KEEP": re.compile(r"(?:[Tt]rue|[Ff]alse)?"),

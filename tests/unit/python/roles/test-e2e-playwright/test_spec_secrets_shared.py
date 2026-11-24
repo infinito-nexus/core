@@ -61,7 +61,7 @@ SHADOW = (
     "pathlib.Path(__file__).with_name('shadowed').touch()\n"
     "raise ImportError('planted')\n"
 )
-TRAP = re.compile(r"^\ttrap '(.*)' (HUP|INT|TERM)(?: # nocheck: .*)?$", re.MULTILINE)
+TRAP = re.compile(r"^\ttrap '(.*)' (HUP|INT|TERM)(?: +# nocheck: .*)?$", re.MULTILINE)
 LAUNCH = '-- "$@" &\nmasker_pid=$!\nwait "$masker_pid"\n'
 UNFORWARDED_TERM = ('kill -TERM "$masker_pid"', "true")
 UNKEPT_PID = (LAUNCH, '-- "$@" &\nwait "$!"\n')

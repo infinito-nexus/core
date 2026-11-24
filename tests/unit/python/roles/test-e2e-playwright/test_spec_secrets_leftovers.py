@@ -98,9 +98,9 @@ STALE = (
     "playwright-report/index.html",
 )
 ATTEMPT_ONE = (
-    "variant-0/sync/playwright-junit.xml",
-    "variant-0/sync/run-parallel/result.json",
-    "variant-1/sync/playwright-junit.xml",
+    "variant-0/initial/playwright-junit.xml",
+    "variant-0/initial/run-parallel/result.json",
+    "variant-1/initial/playwright-junit.xml",
 )
 PUBLISHING_TEMP = (
     "                    if name.startswith(TEMP):\n                        continue\n",
@@ -461,8 +461,8 @@ class TestSpecSecretsLeftovers(unittest.TestCase):
         self.assertEqual(
             archived(),
             {
-                "variant-0/sync/playwright-junit.xml": "retry",
-                "variant-1/sync/playwright-junit.xml": "attempt 1",
+                "variant-0/initial/playwright-junit.xml": "retry",
+                "variant-1/initial/playwright-junit.xml": "attempt 1",
             },
         )
 
@@ -525,7 +525,7 @@ class TestSpecSecretsLeftoversNegativeControls(unittest.TestCase):
     def test_an_archive_that_keeps_the_first_attempts_leftovers_is_caught(
         self,
     ) -> None:
-        self.assertIn("variant-0/sync/run-parallel/result.json", archived(SLOT_WIPE))
+        self.assertIn("variant-0/initial/run-parallel/result.json", archived(SLOT_WIPE))
 
     def test_a_rerun_that_keeps_its_earlier_outputs_is_caught(self) -> None:
         text = edited(RERUN, RERUN_CLEAR)
