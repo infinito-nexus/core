@@ -29,9 +29,14 @@
 
 - name: "📦 Stage the crossposter build context"
   ansible.builtin.copy:
-    src: "{{ role_path }}/files/crossposter/"
-    dest: "{{ OPENPOST_CROSSPOSTER_BUILD_CONTEXT }}/"
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
     mode: preserve
+  loop:
+    - src: "{{ role_path }}/files/crossposter/"
+      dest: "{{ OPENPOST_CROSSPOSTER_BUILD_CONTEXT }}/"
+    - src: "{{ role_path }}/files/python/crossposter/"
+      dest: "{{ [OPENPOST_CROSSPOSTER_BUILD_CONTEXT, 'crossposter'] | path_join }}/"
   notify:
     - compose-build
     - compose-up
