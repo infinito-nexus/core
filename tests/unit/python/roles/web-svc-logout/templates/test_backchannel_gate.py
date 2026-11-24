@@ -60,6 +60,10 @@ CONFIG = {
 }
 
 
+def receiver_url(application_id: str) -> str:
+    return f"https://{application_id}.landing.test{RECEIVER_PATH}"
+
+
 def lookup(name, *terms, **kwargs):
     """Answer the lookups of the gate templates for one gated and one open app.
 
@@ -72,6 +76,8 @@ def lookup(name, *terms, **kwargs):
         return APPLICATIONS
     if name == "tls":
         return LOGOUT_ORIGIN if terms[0] == APP else f"https://{terms[0]}.example.test"
+    if name == "backchannel_receiver":
+        return receiver_url(terms[0])
     if name == "network_urls":
         return [terms[0], terms[0].replace(".example.test", ".example.onion")]
     if name == "config":
@@ -201,14 +207,8 @@ def playwright_targets(group_names: list[str], answer=lookup) -> list[dict]:
 
 MATRIX = "web-app-matrix"
 SSO_CLIENT_APPS = {
-    "web-app-opencloud": {
-        "services.sso.oidc.backchannel_logout_path": "/backchannel_logout",
-        "services.sso.oidc.clients.web": "opencloud",
-    },
-    "web-app-opentalk": {
-        "services.sso.oidc.backchannel_logout_path": "/v1/auth/logout",
-        "services.sso.oidc.frontend_client_id": "opentalk-frontend",
-    },
+    "web-app-opencloud": {"services.sso.oidc.clients.web": "opencloud"},
+    "web-app-opentalk": {"services.sso.oidc.frontend_client_id": "opentalk-frontend"},
 }
 SYNAPSE_URL = "https://synapse.example.test"
 
@@ -240,7 +240,7 @@ class TestGateClients(unittest.TestCase):
             {
                 GATED: {
                     "audience": CLIENT_ID,
-                    "receiver": f"https://{GATED}.example.test{RECEIVER_PATH}",
+                    "receiver": receiver_url(GATED),
                     "key": GATE_KEY,
                 }
             },
@@ -312,7 +312,7 @@ class TestPlaywrightGateTargets(unittest.TestCase):
                     "id": GATED,
                     "url": f"{LOGOUT_ORIGIN}/backchannel/{GATED}",
                     "client_id": CLIENT_ID,
-                    "sealed_url": f"https://{GATED}.example.test{RECEIVER_PATH}",
+                    "sealed_url": receiver_url(GATED),
                     "app_urls": [
                         f"https://{GATED}.example.test",
                         f"https://{GATED}.example.onion",
@@ -326,6 +326,18 @@ class TestPlaywrightGateTargets(unittest.TestCase):
 
 
 class TestPlaywrightSsoClientTargets(unittest.TestCase):
+    def test_a_direct_client_is_probed_at_its_receiver(self) -> None:
+        self.assertEqual(
+            playwright_targets([APP, "web-app-opencloud"], sso_client_lookup(True)),
+            [
+                {
+                    "id": "web-app-opencloud",
+                    "url": receiver_url("web-app-opencloud"),
+                    "client_id": "opencloud",
+                }
+            ],
+        )
+
     def test_the_backchannel_targets_follow_services_sso_enabled(self) -> None:
         deployed = [APP, *SSO_CLIENT_APPS, MATRIX, GATED]
         self.assertEqual(

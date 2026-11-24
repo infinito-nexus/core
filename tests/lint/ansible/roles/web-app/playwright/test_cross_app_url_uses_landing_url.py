@@ -23,7 +23,7 @@ from . import PROJECT_ROOT
 
 _ENV_TEMPLATE_SUFFIX = "/templates/playwright.env.j2"
 _CROSS_APP_TLS_URL = re.compile(
-    r"""lookup\(\s*['"]tls['"]\s*,\s*['"](?P<app>[a-z0-9-]+)['"]\s*,\s*['"]url\.base['"]"""
+    r"""lookup\(\s*['"]tls['"]\s*,\s*['"](?P<app>[a-z0-9-]+)['"]\s*,\s*['"]url\.(?:base|origin)['"]"""
 )
 _INLINE_HANDOVER = re.compile(
     r"""lookup\(\s*['"]tls['"]\s*,\s*lookup\(\s*['"]domain['"]\s*,\s*['"](?P<app>[a-z0-9-]+)['"]\s*\)"""
@@ -75,6 +75,7 @@ class TestCrossAppUrlUsesLandingUrl(unittest.TestCase):
                 "roles/web-app-foo/templates/playwright.env.j2",
                 "APP_BASE_URL={{ lookup('tls', application_id, 'url.base') }}\n"
                 "SELF={{ lookup('tls', 'web-app-foo', 'url.base') }}\n"
+                "ORIGIN={{ lookup('tls', 'web-app-foo', 'url.origin') }}\n"
                 "BAR={{ lookup('landing_url', 'web-app-bar') }}\n",
             ),
             [],
@@ -86,10 +87,11 @@ class TestCrossAppUrlUsesLandingUrl(unittest.TestCase):
                 find_violations(
                     "roles/web-app-foo/templates/playwright.env.j2",
                     "BAR={{ lookup('tls', 'web-app-bar', 'url.base') }}\n"
-                    "BAZ={{ lookup('tls', lookup('domain', 'web-app-baz'), 'url.base') }}\n",
+                    "BAZ={{ lookup('tls', lookup('domain', 'web-app-baz'), 'url.base') }}\n"
+                    "QUX={{ lookup('tls', 'web-app-qux', 'url.origin') }}\n",
                 )
             ),
-            2,
+            3,
         )
 
 

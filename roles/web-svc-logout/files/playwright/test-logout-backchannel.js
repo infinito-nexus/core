@@ -91,6 +91,7 @@ exports.register = function () {
               const response = await apiFetchOnion(context.request, target.url, {
                 method: "POST",
                 form: { logout_token: token },
+                maxRedirects: 0,
                 timeout: resolveTimeout(30_000),
               });
               if (target.sealed_url) {
