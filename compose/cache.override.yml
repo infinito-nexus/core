@@ -38,7 +38,7 @@ services:
     restart: unless-stopped
 
   package-cache:
-    image: sonatype/nexus3:3.91.1-ubi
+    image: sonatype/nexus3:3.98.3-ubi
     container_name: ${INFINITO_CACHE_PACKAGE_CONTAINER:?Run 'make dotenv' to generate the .env single source of truth}
     user: "0:0"
     environment:
@@ -69,7 +69,7 @@ services:
     restart: unless-stopped
 
   package-cache-frontend:
-    image: nginx:1.27-alpine
+    image: nginx:1.31-alpine
     container_name: infinito-package-cache-frontend
     depends_on:
       package-cache:
