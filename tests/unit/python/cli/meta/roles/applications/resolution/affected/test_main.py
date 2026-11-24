@@ -14,6 +14,7 @@ from utils.roles.mapping import (
     ROLE_FILE_META_MAIN,
     ROLE_FILE_META_SERVICES,
     ROLE_FILE_META_VARIANTS,
+    ROLE_FILE_TASKS_MAIN,
     ROLE_FILE_VARS_MAIN,
 )
 
@@ -60,6 +61,12 @@ def _write_dependencies(root: Path, role: str, deps: list[str]) -> None:
         root / "roles" / role / ROLE_FILE_META_MAIN,
         {"dependencies": deps},
     )
+
+
+def _write_tasks(root: Path, role: str, tasks: list[dict]) -> None:
+    path = root / "roles" / role / ROLE_FILE_TASKS_MAIN
+    path.parent.mkdir(parents=True, exist_ok=True)
+    dump_yaml(path, tasks)
 
 
 class TestAffected(unittest.TestCase):
@@ -299,6 +306,73 @@ class TestAffected(unittest.TestCase):
             with patch.object(repo_paths, "PROJECT_ROOT", root):
                 got = affected_main.affected_selection(["web-app-keycloak"])
             self.assertIn("web-app-consumer#0", got)
+
+    def test_an_include_selects_the_includer_and_the_rounds_deploying_it(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            for role in ("svc-net-firewall", "svc-net-tor", "web-app-consumer"):
+                _mk_app_role(root, role, role)
+            off = {"enabled": False, "shared": False}
+            on = {"enabled": True, "shared": True}
+            _write_tasks(
+                root,
+                "svc-net-tor",
+                [{"ansible.builtin.include_role": {"name": "svc-net-firewall"}}],
+            )
+            dump_yaml(
+                root / "roles" / "svc-net-tor" / ROLE_FILE_META_VARIANTS, [{}, {}]
+            )
+            dump_yaml(
+                root / "roles" / "web-app-consumer" / ROLE_FILE_META_SERVICES,
+                {"consumer": {}, "tor": on},
+            )
+            dump_yaml(
+                root / "roles" / "web-app-consumer" / ROLE_FILE_META_VARIANTS,
+                [{"services": {"tor": on}}, {"services": {"tor": off}}],
+            )
+
+            with patch.object(repo_paths, "PROJECT_ROOT", root):
+                got = affected_main.affected_selection(["svc-net-firewall"])
+            self.assertEqual(
+                got, ["svc-net-firewall", "svc-net-tor", "web-app-consumer#0"]
+            )
+
+    def test_an_include_gated_on_the_included_roles_group_adds_nothing(self) -> None:
+        gate = "'web-app-openwebui' in group_names"
+        include = {
+            "ansible.builtin.include_role": {
+                "name": "web-app-openwebui",
+                "tasks_from": "utils/refresh_model_grants.yml",
+            }
+        }
+        shapes = {
+            "own when": [{**include, "when": [gate, "flag | bool"]}],
+            "enclosing block": [{"block": [include], "when": gate}],
+        }
+        for label, tasks in shapes.items():
+            with self.subTest(label), tempfile.TemporaryDirectory() as td:
+                root = Path(td)
+                for role in ("web-app-openwebui", "svc-ai-litellm"):
+                    _mk_app_role(root, role, role)
+                _write_tasks(root, "svc-ai-litellm", tasks)
+
+                with patch.object(repo_paths, "PROJECT_ROOT", root):
+                    got = affected_main.affected_selection(["web-app-openwebui"])
+                self.assertEqual(got, ["web-app-openwebui"])
+
+    def test_includes_chain_transitively(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            for role in ("dsk-a", "dsk-b", "dsk-c", "dsk-d"):
+                _mk_app_role(root, role, role)
+            _write_tasks(root, "dsk-b", [{"include_role": {"name": "dsk-a"}}])
+            _write_tasks(root, "dsk-c", [{"block": [{"import_role": "dsk-b"}]}])
+
+            with patch.object(repo_paths, "PROJECT_ROOT", root):
+                got = affected_main.affected_selection(["dsk-a"])
+            self.assertEqual(got, ["dsk-a", "dsk-b", "dsk-c"])
 
     def test_a_seed_keeps_every_variant_of_its_own_role(self) -> None:
         with tempfile.TemporaryDirectory() as td:

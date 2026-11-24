@@ -7,7 +7,9 @@ Usage:
 
 Output:
   Whitespace-separated, sorted list of selection tokens (single line),
-  including the seed roles themselves. Every other role is kept only with
+  including the seed roles themselves and every role that runs one of them
+  through an ungated ``include_role``/``import_role``, transitively, each
+  with all its variants. Every other role is kept only with
   the variants whose round really deploys a seed (``role#0,2``,
   :mod:`utils.github.variant.selection`), and dropped when none does: a
   variant that switches its provider off, or reaches the seed only over a
@@ -53,6 +55,7 @@ from utils.roles.applications.services.registry import (
 from utils.roles.applications.topics import provider_of
 from utils.roles.applications.variants import resolve_round
 from utils.roles.display import VARIANT_SEPARATOR
+from utils.roles.invocations import role_includes
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -173,6 +176,27 @@ def _union_services(
     return {name: _switched_on(blocks) for name, blocks in sources.items()}
 
 
+def _with_includers(seeds: set[str], names: list[str]) -> set[str]:
+    """
+    Args:
+        seeds: the changed roles.
+        names: every role.
+
+    Returns:
+        *seeds* plus every role that includes one of them, transitively, per
+        :func:`utils.roles.invocations.role_includes`.
+    """
+    path = str(roles_dir())
+    found = set(seeds)
+    frontier = set(seeds)
+    while frontier:
+        frontier = {
+            name for name in names if frontier & role_includes(path, name)
+        } - found
+        found |= frontier
+    return found
+
+
 def affected_roles(changed: Iterable[str]) -> list[str]:
     seeds: set[str] = {r.strip() for r in changed if r and r.strip()}
     if not seeds:
@@ -200,12 +224,14 @@ def affected_roles(changed: Iterable[str]) -> list[str]:
         ),
         follow_run_after=False,
     )
+    changed_roles = _with_includers(seeds, all_roles)
     return sorted(
-        seeds
+        changed_roles
         | {
             role
             for role in all_roles
-            if role not in seeds and seeds.intersection(resolver.resolve(role))
+            if role not in changed_roles
+            and changed_roles.intersection(resolver.resolve(role))
         }
     )
 
@@ -283,18 +309,24 @@ def affected_selection(changed: Iterable[str]) -> list[str]:
         changed: the changed roles.
 
     Returns:
-        Every seed with all its variants, because its own files changed, and
-        every other affected role with only the variants whose round deploys
-        a seed; a role none of whose rounds does is left out.
+        Every seed and every role that includes one, transitively, with all
+        its variants, and every other
+        affected role with only the variants whose round deploys one of
+        them; a role none of whose rounds does is left out.
     """
     seeds: set[str] = {r.strip() for r in changed if r and r.strip()}
     affected = affected_roles(changed)
+    changed_roles = _with_includers(seeds, _list_role_names())
     variants = get_variants(roles_dir=str(roles_dir()), readonly=True)
     tokens = (
         role
-        if role in seeds
+        if role in changed_roles
         else _pinned(
-            role, seeds, max(1, len(variants.get(role) or ())), roles_dir(), variants
+            role,
+            changed_roles,
+            max(1, len(variants.get(role) or ())),
+            roles_dir(),
+            variants,
         )
         for role in affected
     )
@@ -305,9 +337,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
             "Print every role with a variant whose round deploys one of the "
-            "given seed roles over dependencies or services, narrowed to "
-            "those variants. Seed roles themselves are included, with every "
-            "variant."
+            "given seed roles, or a role including one, over dependencies or "
+            "services, narrowed to those variants. Seed roles and the roles "
+            "including them are printed with every variant."
         )
     )
     parser.add_argument(
