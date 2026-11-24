@@ -20,6 +20,8 @@ Every image is built from the pinned upstream clone. The image published on GHCR
 
 World Monitor has no account system and speaks no OIDC. When Keycloak is part of the deployment the oauth2 gate guards the whole domain, including `/api/*`; every signed-in platform user reaches the dashboard and nobody else does. Logout goes through the platform logout (`/oauth2/sign_out`), because the dashboard has no logout control of its own. Without Keycloak the dashboard is public.
 
+The upstream client sends its public `/api/*` reads with `credentials: 'omit'`, a cache key for the upstream CDN, so the browser drops the gate cookie and the gate answers them with a login redirect. With SSO on, the platform injects [`files/javascript/javascript.js`](./files/javascript/javascript.js) into the dashboard page; it raises exactly those fetches to the dashboard's own `/api/` routes to `same-origin` credentials before the client boots, so they carry the gate session and no route needs a bypass. Requests to other origins and every other credentials mode pass through unchanged.
+
 ### Internal secrets
 
 The upstream authentication between its own services stays enabled: `RELAY_SHARED_SECRET`, `REDIS_PASSWORD`, `REDIS_TOKEN` and `WM_SESSION_SECRET` are generated through [`meta/secrets.yml`](./meta/secrets.yml). `I_UNDERSTAND_THIS_DISABLES_AUTH` and `ALLOW_UNAUTHENTICATED_RELAY` are never set. Only the `worldmonitor` HTTP port is published, bound to the platform bind host; Redis, the REST bridge and the relay stay on the role network.

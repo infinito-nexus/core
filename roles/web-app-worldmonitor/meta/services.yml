@@ -107,6 +107,12 @@ sso:
     origin:
       host: worldmonitor
       port: "{{ lookup('config', 'web-app-worldmonitor', 'services.worldmonitor.ports.internal.http') }}"
+# nocheck: dynamic-flag  gated on services.sso.enabled, not on group_names: the fetch patch only exists to carry the oauth2 gate session
+# nocheck: playwright-service-flag  runtime fetch patch without a probe-able surface flag, asserted by the biber scenario of test-live-updates.js
+javascript:
+  bond: 1
+  enabled: "{{ lookup('config', 'web-app-worldmonitor', 'services.sso.enabled') | bool }}"
+  shared: "{{ lookup('config', 'web-app-worldmonitor', 'services.sso.enabled') | bool }}"
 # nocheck: playwright-service-flag, dynamic-flag  the gateway is a single shared instance, never deployed per consumer
 litellm:
   bond: 1
