@@ -12,7 +12,7 @@ const {
 const { apiFetchOnion, apiGetOnion, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
-const { BREAKGLASS_LOGIN_PATH, adminUsername, appBaseUrl, loginAsAdmin, matomoApiToken } = require("./_shared");
+const { BREAKGLASS_LOGIN_PATH, adminUsername, appBaseUrl, loginAsAdmin, matomoApiToken, seedVisits } = require("./_shared");
 
 const THEME = "InfinitoDesign";
 const MODES = ["light", "dark"];
@@ -23,7 +23,6 @@ const DASHBOARD = "#dashboardWidgetsArea .widget";
 const BUSY = ".widgetLoading:visible, .loadingPiwik:visible, .sparklineLoadingSkeleton:visible";
 const USER = "#login_form_login";
 const SUBMIT = "#login_form_submit";
-const SHOWCASE_VISITS = 20;
 const SETTINGS_FORM = "#userSettingsTable";
 const SETTINGS_SAVE = `${SETTINGS_FORM} .matomo-save-button input.btn`;
 const USERS_TABLE = "#manageUsersTable";
@@ -65,42 +64,6 @@ async function shown(page, selector) {
 async function signIn(page) {
   await page.context().clearCookies();
   await loginAsAdmin(page);
-}
-
-/**
- * Args:
- *   request: Playwright request context; records showcase visits for site 1 through the
- *            tracking API with documentation IPs once per day.
- */
-async function seedVisits(request) {
-  const api = await apiFetchOnion(request, `${base()}/index.php`, {
-    method: "POST",
-    form: {
-      module: "API",
-      method: "VisitsSummary.getVisits",
-      format: "json",
-      token_auth: matomoApiToken,
-      ...Object.fromEntries(new URLSearchParams(SCOPE)),
-    },
-  });
-  expect(api.status(), "VisitsSummary.getVisits must answer").toBe(200);
-  const body = await api.json();
-  if (Number(body.value) >= SHOWCASE_VISITS) return;
-  for (let n = 1; n <= SHOWCASE_VISITS; n += 1) {
-    const hit = await apiFetchOnion(request, `${base()}/matomo.php`, {
-      method: "POST",
-      form: {
-        idsite: "1",
-        rec: "1",
-        url: `${base()}/showcase/page-${n % 5}`,
-        action_name: `Showcase page ${n % 5}`,
-        cip: `203.0.113.${n}`,
-        _id: n.toString(16).padStart(16, "0"),
-        token_auth: matomoApiToken,
-      },
-    });
-    expect(hit.status(), "a showcase tracking hit must be accepted").toBeLessThan(400);
-  }
 }
 
 test("design: corporate tokens apply in light and dark mode", async ({ page }) => {

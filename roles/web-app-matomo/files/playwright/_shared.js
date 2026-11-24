@@ -6,6 +6,7 @@
 const { expect, test } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const {
+  apiFetchOnion,
   decodeDotenvJsonList,
   decodeDotenvQuotedValue,
   gotoOnion,
@@ -30,6 +31,7 @@ const matomoTrackingScope = (process.env.MATOMO_TRACKING_SCOPE || "").trim().toL
 const nativeLoginEnabled = process.env.LOGIN_METHOD_NATIVE_ENABLED === "true";
 const twoFactorEnforced = process.env.LOGIN_METHOD_2FA_ENFORCED === "true";
 const BREAKGLASS_LOGIN_PATH = "/index.php?module=Login&fallback=local";
+const SHOWCASE_VISITS = 20;
 
 const matomoCanonicalDomain = (() => {
   try {
@@ -179,6 +181,46 @@ async function matomoApi(request, method, params) {
   return response.json();
 }
 
+/**
+ * Args:
+ *   request: Playwright request context; records showcase visits for site 1 through the
+ *            tracking API with documentation IPs once per day. A site that never received a
+ *            visit gets Matomo's empty-site setup in place of its reports, which hides
+ *            #secondNavBar, so every spec asserting the reporting UI seeds first.
+ */
+async function seedVisits(request) {
+  const api = await apiFetchOnion(request, `${appBaseUrl}/index.php`, {
+    method: "POST",
+    form: {
+      module: "API",
+      method: "VisitsSummary.getVisits",
+      format: "json",
+      token_auth: matomoApiToken,
+      idSite: "1",
+      period: "day",
+      date: "today",
+    },
+  });
+  expect(api.status(), "VisitsSummary.getVisits must answer").toBe(200);
+  const body = await api.json();
+  if (Number(body.value) >= SHOWCASE_VISITS) return;
+  for (let n = 1; n <= SHOWCASE_VISITS; n += 1) {
+    const hit = await apiFetchOnion(request, `${appBaseUrl}/matomo.php`, {
+      method: "POST",
+      form: {
+        idsite: "1",
+        rec: "1",
+        url: `${appBaseUrl}/showcase/page-${n % 5}`,
+        action_name: `Showcase page ${n % 5}`,
+        cip: `203.0.113.${n}`,
+        _id: n.toString(16).padStart(16, "0"),
+        token_auth: matomoApiToken,
+      },
+    });
+    expect(hit.status(), "a showcase tracking hit must be accepted").toBeLessThan(400);
+  }
+}
+
 module.exports = {
   appBaseUrl,
   oidcIssuerUrl,
@@ -208,4 +250,5 @@ module.exports = {
   expectLoginForm,
   startOidcLogin,
   matomoApi,
+  seedVisits,
 };

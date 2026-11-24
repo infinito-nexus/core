@@ -10,6 +10,7 @@ const {
   canonicalDomain,
   matomoApi,
   nativeLoginEnabled,
+  seedVisits,
   signIn,
   twoFactorEnforced,
 } = require("./_shared");
@@ -81,6 +82,7 @@ test("2fa enrollment: with its own second factor enforced Matomo sends a local a
   test.skip(!twoFactorEnforced, "LOGIN_METHOD_2FA_ENFORCED=false");
   test.setTimeout(resolveTimeout(300_000));
 
+  await seedVisits(request);
   const probe = probeAccount();
   try {
     await createProbe(request, probe);
@@ -130,6 +132,7 @@ test("2fa enrollment: with the enforcement off Matomo lets a local account witho
   test.skip(twoFactorEnforced, "LOGIN_METHOD_2FA_ENFORCED=true");
   test.setTimeout(resolveTimeout(300_000));
 
+  await seedVisits(request);
   const probe = probeAccount();
   try {
     await createProbe(request, probe);
