@@ -27,6 +27,15 @@ MASKER = FILES / "spec_secrets_mask.py"
 VALUE = "Pa%\"s<w&r'd\\9X é \U0001f600 Sentinel-Value-9f3c abcdefghijklmnopqrstuvwxyz0123456789"
 WINDOW = 8
 ANSI = re.compile("\x1b?\\[[0-9;]*m")
+NETWORK_FAILURE = re.compile(
+    r"ENOTFOUND|EAI_AGAIN|ETIMEDOUT|ECONNRESET|ECONNREFUSED|ERR_SOCKET_TIMEOUT"
+    r"|no such host|i/o timeout|TLS handshake timeout|connection refused"
+    r"|connection reset|Temporary failure in name resolution|toomanyrequests"
+    r"|network is unreachable|unexpected EOF|too many requests|\bE(?:5\d\d|429)\b"
+    r"|HTTP status:? 5\d\d|Service Unavailable|Bad Gateway|Gateway Time-?out"
+    r"|Client\.Timeout|context deadline exceeded",
+    re.IGNORECASE,
+)
 FAILED_CASE = re.compile(r"<(?:failure|error)[\s>]")
 SPEC = """\
 const fs = require("fs");
@@ -92,21 +101,22 @@ def leaks(text: str) -> bool:
         text: masked output or report.
 
     Returns:
-        Whether a piece of ``WINDOW`` characters shows.
+        Whether a piece of ``WINDOW`` bytes shows, both cut as UTF-8.
     """
     plain = ANSI.sub("", text)
+    raw = VALUE.encode()
     return any(
-        VALUE[at : at + WINDOW] in view
-        for view in (plain, html.unescape(plain))
-        for at in range(len(VALUE) - WINDOW + 1)
+        raw[at : at + WINDOW] in view
+        for view in (plain.encode(), html.unescape(plain).encode())
+        for at in range(len(raw) - WINDOW + 1)
     )
 
 
 def fetch(case: unittest.TestCase, argv: list[str], seconds: int, what: str) -> None:
-    """Run a step that reaches a registry, skipping the case when it fails.
+    """Run a step that reaches a registry, skipping the case on a network failure and failing it on any other.
 
     Args:
-        case: the test case to skip.
+        case: the test case to skip or fail.
         argv: the command, which handles no secret.
         seconds: how long it may take.
         what: the step, for the warning.
@@ -116,12 +126,13 @@ def fetch(case: unittest.TestCase, argv: list[str], seconds: int, what: str) -> 
             argv, capture_output=True, text=True, timeout=seconds, check=False
         )
     except subprocess.TimeoutExpired:
-        failure = f"timed out after {seconds} s"
-    else:
-        lines = done.stderr.strip().splitlines() or [f"exit {done.returncode}"]
-        failure = "" if done.returncode == 0 else lines[-1]
-    if failure:
-        skip(case, f"{what} failed: {failure}")
+        skip(case, f"{what} timed out after {seconds} s")
+    if done.returncode == 0:
+        return
+    lines = done.stderr.strip().splitlines() or [f"exit {done.returncode}"]
+    if NETWORK_FAILURE.search(done.stderr):
+        skip(case, f"{what} failed: {lines[-1]}")
+    case.fail(f"{what} failed: {lines[-1]}")
 
 
 def skip(case: unittest.TestCase, reason: str) -> NoReturn:
@@ -208,12 +219,15 @@ def real_run(case: unittest.TestCase) -> tuple[int, str, str]:
                     timeout=RUN_SECONDS,
                 )
             except subprocess.TimeoutExpired:
-                subprocess.run(
+                scrubbed = subprocess.run(
                     [*masker, "scrub", *paths, "docker"],
                     capture_output=True,
                     check=False,
                 )
-                skip(case, f"the run timed out after {RUN_SECONDS} s")
+                case.fail(
+                    f"the masked run timed out after {RUN_SECONDS} s,"
+                    f" scrub exit {scrubbed.returncode}"
+                )
         finally:
             shutil.rmtree(directory, ignore_errors=True)
         junit = reports / "playwright-junit.xml"
