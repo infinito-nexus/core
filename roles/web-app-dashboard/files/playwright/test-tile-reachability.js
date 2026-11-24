@@ -350,13 +350,18 @@ async function assertTabButtonOpensNewTab(page, context, target) {
     ]);
 
     await popup.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-    const landing = popup.url();
-    const hops = tabNavigations.hops();
-    const walked = hops.map(({ url, status }) => `${url} (${status === null ? "no response" : status})`).join(" -> ");
-    expect(
-      hostAnsweredTab(hops, landing, expectedHost, target.domains, target.status_codes),
-      `Expected the embedded ${expectedHost} to answer the new tab, it navigated ${walked || "nowhere"} and landed on ${landing}`
-    ).toBe(true);
+    // An app may answer the anonymous tab with an interstitial page whose script
+    // redirects on to its login, e.g. Jenkins' 403 to /securityRealm/commenceLogin,
+    // so domcontentloaded can fire while that redirect is still in flight.
+    await expect(() => {
+      const landing = popup.url();
+      const hops = tabNavigations.hops();
+      const walked = hops.map(({ url, status }) => `${url} (${status === null ? "no response" : status})`).join(" -> ");
+      expect(
+        hostAnsweredTab(hops, landing, expectedHost, target.domains, target.status_codes),
+        `Expected the embedded ${expectedHost} to answer the new tab, it navigated ${walked || "nowhere"} and landed on ${landing}`
+      ).toBe(true);
+    }).toPass({ timeout: resolveTimeout(30_000) });
     await popup.close();
   } finally {
     tabNavigations.stop();

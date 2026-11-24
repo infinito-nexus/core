@@ -1,11 +1,14 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const os = require("node:os");
 const path = require("node:path");
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../../../../..");
 const { loadInternals } = require(path.join(PROJECT_ROOT, "tests/unit/javascript/utils/internals.js"));
 const { DOMAIN } = require(path.join(PROJECT_ROOT, "tests/unit/javascript/utils/domain.js"));
 
+const SPEC = path.join(PROJECT_ROOT, "roles/web-app-dashboard/files/playwright/test-tile-reachability.js");
 const DASHBOARD = `https://dashboard.${DOMAIN}/`;
 const CHROME_ERROR = "chrome-error://chromewebdata/";
 const ELEMENT = `https://element.${DOMAIN}/`;
@@ -18,6 +21,9 @@ const KEYCLOAK_FOR_PROXY = `${KEYCLOAK_AUTH}?response_type=code&client_id=promet
 const PIHOLE = `https://pihole.${DOMAIN}/`;
 const PIHOLE_ADMIN = `${PIHOLE}admin/`;
 const BRIDGY = `https://bridgyfed.${DOMAIN}/`;
+const JENKINS = `https://jenkins.${DOMAIN}/`;
+const JENKINS_LOGIN = `${JENKINS}securityRealm/commenceLogin?from=%2F`;
+const KEYCLOAK_FOR_JENKINS = `${KEYCLOAK_AUTH}?response_type=code&client_id=jenkins&redirect_uri=${encodeURIComponent(`${JENKINS}securityRealm/finishLogin`)}`;
 const DEFAULT_OK = [200, 302, 301];
 const MATRIX = {
   id: "web-app-matrix",
@@ -48,37 +54,74 @@ const BRIDGY_TARGET = {
   domains: [`bridgyfed.${DOMAIN}`],
   status_codes: [...DEFAULT_OK, 404],
 };
+const JENKINS_TARGET = {
+  id: "web-app-jenkins",
+  canonical_domain: `jenkins.${DOMAIN}`,
+  handover_domain: "",
+  domains: [`jenkins.${DOMAIN}`],
+  status_codes: [...DEFAULT_OK, 403],
+};
 const ESCAPED_DOMAIN = DOMAIN.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const WALKED_ELEMENT = new RegExp(`Expected the embedded element\\.${ESCAPED_DOMAIN} to answer the new tab`);
 const WALKED_PIHOLE = new RegExp(`Expected the embedded pihole\\.${ESCAPED_DOMAIN} to answer the new tab`);
 const WALKED_PROMETHEUS = new RegExp(`Expected the embedded prometheus\\.${ESCAPED_DOMAIN} to answer the new tab`);
 const WALKED_BRIDGY = new RegExp(`Expected the embedded bridgyfed\\.${ESCAPED_DOMAIN} to answer the new tab`);
+const WALKED_JENKINS = new RegExp(
+  `Expected the embedded jenkins\\.${ESCAPED_DOMAIN} to answer the new tab, it navigated .*commenceLogin\\S* \\(no response\\)`,
+);
+const browserSteps = [];
 
 /**
  * Args:
- *   actual: the value under assertion.
+ *   actual: the value under assertion, or the block toPass retries.
  *   message: the failure message.
  *
  * Returns:
- *   The matchers assertTabButtonOpensNewTab calls, failing like Playwright's with the message.
+ *   The matchers assertTabButtonOpensNewTab calls, failing like Playwright's with the message. toPass runs its block,
+ *   lets the browser take the next of browserSteps after each failure, as Playwright's polling gives a tab that keeps
+ *   navigating, and rethrows the last failure once no step is left.
  */
 function expect(actual, message) {
   return {
     toBeVisible: async () => {},
     toBe: (expected) => assert.equal(actual, expected, message),
+    toPass: async () => {
+      for (;;) {
+        try {
+          return await actual();
+        } catch (error) {
+          const step = browserSteps.shift();
+          if (!step) {
+            throw error;
+          }
+          step();
+        }
+      }
+    },
   };
 }
 
-const { assertTabButtonOpensNewTab } = loadInternals(
-  path.join(PROJECT_ROOT, "roles/web-app-dashboard/files/playwright/test-tile-reachability.js"),
-  ["assertTabButtonOpensNewTab"],
-  {
-    "./fixtures/onion-test": { test: () => {}, expect },
-    "./timeouts": { resolveTimeout: (ms) => ms },
-    "./personas": { decodeDotenvJsonList: () => [], gotoOnion: async () => {} },
-  },
-  { URL },
-);
+/**
+ * Args:
+ *   file: the spec file to load.
+ *
+ * Returns:
+ *   Its assertTabButtonOpensNewTab.
+ */
+function loadAssertion(file) {
+  return loadInternals(
+    file,
+    ["assertTabButtonOpensNewTab"],
+    {
+      "./fixtures/onion-test": { test: () => {}, expect },
+      "./timeouts": { resolveTimeout: (ms) => ms },
+      "./personas": { decodeDotenvJsonList: () => [], gotoOnion: async () => {} },
+    },
+    { URL },
+  ).assertTabButtonOpensNewTab;
+}
+
+const assertTabButtonOpensNewTab = loadAssertion(SPEC);
 
 /**
  * Args:
@@ -109,7 +152,9 @@ function navigation(url, frame) {
  *   landing: the URL the tab shows once its document loaded.
  *
  * Returns:
- *   { page, context, listeners }: a dashboard whose Tab button opens a tab that walks tabHops.
+ *   { page, context, listeners, tab }: a dashboard whose Tab button opens a tab that walks tabHops. tab drives that tab
+ *   on after its document loaded: tab.answer(url, status) answers its request for url, tab.walk([url, status]) sends a
+ *   further navigation, and tab.land(url) moves the URL it shows.
  */
 function dashboardWithTab(embedded, tabHops, embedHops, landing) {
   const listeners = { request: new Set(), response: new Set() };
@@ -117,22 +162,27 @@ function dashboardWithTab(embedded, tabHops, embedHops, landing) {
   const announced = new Promise((resolve) => {
     announce = resolve;
   });
+  let shown = landing;
   const page = {};
-  const popup = { url: () => landing, waitForLoadState: async () => {}, close: async () => {} };
+  const popup = { url: () => shown, waitForLoadState: async () => {}, close: async () => {} };
   const popupFrame = { page: () => popup, parentFrame: () => null };
   const embedFrame = { page: () => page, parentFrame: () => ({}) };
+  const tabRequests = new Map();
+  const answer = (request, status) =>
+    listeners.response.forEach((listener) => listener({ request: () => request, status: () => status }));
   const walk = ([url, status], frame) => {
     const request = navigation(url, frame);
     listeners.request.forEach((listener) => listener(request));
     if (status !== null) {
-      listeners.response.forEach((listener) => listener({ request: () => request, status: () => status }));
+      answer(request, status);
     }
+    return request;
   };
   const tabButton = {
     isVisible: async () => true,
     click: async () => {
       embedHops.forEach((hop) => walk(hop, embedFrame));
-      tabHops.forEach((hop, index) => walk(hop, index === 0 ? null : popupFrame));
+      tabHops.forEach((hop, index) => tabRequests.set(hop[0], walk(hop, index === 0 ? null : popupFrame)));
       announce(popup);
     },
   };
@@ -146,7 +196,49 @@ function dashboardWithTab(embedded, tabHops, embedHops, landing) {
     off: (event, listener) => listeners[event].delete(listener),
     waitForEvent: async () => announced,
   };
-  return { page, context, listeners };
+  const tab = {
+    answer: (url, status) => answer(tabRequests.get(url), status),
+    walk: (hop) => tabRequests.set(hop[0], walk(hop, popupFrame)),
+    land: (url) => {
+      shown = url;
+    },
+  };
+  return { page, context, listeners, tab };
+}
+
+/**
+ * Args:
+ *   tab: the tab controls dashboardWithTab returns.
+ *
+ * Returns:
+ *   Nothing; queues the browser step in which Jenkins answers the login redirect its 403 page scripted with a 302 to
+ *   the IdP, and the tab lands on that IdP login.
+ */
+function jenkinsLoginAnswersLater(tab) {
+  browserSteps.push(() => {
+    tab.answer(JENKINS_LOGIN, 302);
+    tab.walk([KEYCLOAK_FOR_JENKINS, 200]);
+    tab.land(KEYCLOAK_FOR_JENKINS);
+  });
+}
+
+/**
+ * Returns:
+ *   The path of a planted copy of the spec that judges the tab once, as soon as its first document loaded, for a
+ *   negative control.
+ */
+function judgedOnce() {
+  const source = [
+    ["await expect(() => {", "await (() => {"],
+    ["}).toPass({ timeout: resolveTimeout(30_000) });", "})();"],
+  ].reduce((text, [old, replacement]) => {
+    assert.equal(text.split(old).length, 2, `the plant ${old} must occur exactly once`);
+    return text.replace(old, replacement);
+  }, fs.readFileSync(SPEC, "utf8"));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "tile-reachability-plant-"));
+  const file = path.join(directory, "test-tile-reachability.js");
+  fs.writeFileSync(file, source);
+  return file;
 }
 
 test("a tab whose Element answers and then hands its login through Synapse to Keycloak passes", async () => {
@@ -298,4 +390,56 @@ test("an Element host that answers the tab with a 404 its role does not declare 
 test("a declared 404 does not excuse a federation host that answers with a 5xx", async () => {
   const { page, context } = dashboardWithTab(BRIDGY, [[BRIDGY, 502]], [], BRIDGY);
   await assert.rejects(assertTabButtonOpensNewTab(page, context, BRIDGY_TARGET), WALKED_BRIDGY);
+});
+
+test("a Jenkins tab whose 403 page scripts the login redirect passes once that redirect hands off to the IdP", async () => {
+  const { page, context, tab } = dashboardWithTab(
+    JENKINS,
+    [
+      [JENKINS, 403],
+      [JENKINS_LOGIN, null],
+    ],
+    [],
+    JENKINS,
+  );
+  jenkinsLoginAnswersLater(tab);
+  try {
+    await assertTabButtonOpensNewTab(page, context, JENKINS_TARGET);
+    assert.equal(browserSteps.length, 0, "the verdict must wait for the login redirect still in flight when the tab's first document loaded");
+  } finally {
+    browserSteps.length = 0;
+  }
+});
+
+test("a Jenkins tab whose scripted login redirect never answers fails", async () => {
+  const { page, context } = dashboardWithTab(
+    JENKINS,
+    [
+      [JENKINS, 403],
+      [JENKINS_LOGIN, null],
+    ],
+    [],
+    JENKINS,
+  );
+  await assert.rejects(assertTabButtonOpensNewTab(page, context, JENKINS_TARGET), WALKED_JENKINS);
+});
+
+test("negative control: judging the Jenkins tab at its first document fails though its login redirect answers later", async () => {
+  const file = judgedOnce();
+  const { page, context, tab } = dashboardWithTab(
+    JENKINS,
+    [
+      [JENKINS, 403],
+      [JENKINS_LOGIN, null],
+    ],
+    [],
+    JENKINS,
+  );
+  jenkinsLoginAnswersLater(tab);
+  try {
+    await assert.rejects(loadAssertion(file)(page, context, JENKINS_TARGET), WALKED_JENKINS);
+  } finally {
+    browserSteps.length = 0;
+    fs.rmSync(path.dirname(file), { recursive: true, force: true });
+  }
 });
