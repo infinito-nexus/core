@@ -274,11 +274,20 @@ class TestSpecSecretsContainer(unittest.TestCase):
         )
         self.assertTrue(env_refused("FOO=bar", keys=STAGE_KEYS))
         self.assertTrue(
-            env_refused("NODE_OPTIONS=--require=/e2e/x.js", keys="NODE_OPTIONS\n")
+            env_refused(
+                "NODE_OPTIONS=--require=/e2e/x.js", keys=f"{STAGE_KEYS}NODE_OPTIONS\n"
+            )
         )
         self.assertTrue(
             env_refused(
-                "NODE_TLS_REJECT_UNAUTHORIZED=2", keys="NODE_TLS_REJECT_UNAUTHORIZED\n"
+                "NODE_TLS_REJECT_UNAUTHORIZED=2",
+                keys=f"{STAGE_KEYS}NODE_TLS_REJECT_UNAUTHORIZED\n",
+            )
+        )
+        self.assertFalse(
+            env_refused(
+                "NODE_TLS_REJECT_UNAUTHORIZED=0",
+                keys=f"{STAGE_KEYS}NODE_TLS_REJECT_UNAUTHORIZED\n",
             )
         )
         self.assertTrue(env_refused("", keys=None))

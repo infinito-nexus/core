@@ -285,13 +285,11 @@ def stopped_run(how: signal.Signals, stuck: bool = False, *replacements) -> list
             except subprocess.TimeoutExpired:
                 os.killpg(proc.pid, signal.SIGKILL)
                 proc.wait()
-            time.sleep(0.3)
             junit = reports / "playwright-junit.xml"
             events = [f"masker {proc.returncode}", f"published {state_of(junit)}"]
             removals = scratch_text(probe / "calls").split().count("rm")
             scrub = [*masker, "scrub", str(directory), str(reports), run[0]]
             done = subprocess.run(scrub, capture_output=True, check=False, env=env)
-            time.sleep(0.5)
             events.append(f"scrub {done.returncode}")
             events.append(f"container alive {reap(probe / PIDFILE)}")
             events.append(f"published {state_of(junit)}")

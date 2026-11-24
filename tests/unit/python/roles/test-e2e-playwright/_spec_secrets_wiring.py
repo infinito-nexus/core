@@ -38,6 +38,11 @@ SHIPPED = tuple(
             "{{ TEST_E2E_PLAYWRIGHT_TOOLS_DIR }}/spec_secrets_match.py",
             "0644",
         ),
+        (
+            "spec_secrets_files.py",
+            "{{ TEST_E2E_PLAYWRIGHT_TOOLS_DIR }}/spec_secrets_files.py",
+            "0644",
+        ),
         ("spec_secrets_mask.py", "{{ TEST_E2E_PLAYWRIGHT_MASKER }}", "0755"),
     )
 )
@@ -409,7 +414,7 @@ def layout_violations(tasks: list[dict]) -> list[str]:
     if any("SPEC_SECRETS" in name for name in variables):
         problems.append("a role variable can move the spec secrets parent")
     modules = [next(k for k in task if k.startswith("ansible.")) for task in tasks]
-    expected = ["set_fact", "copy", "copy", "command", "command"]
+    expected = ["set_fact", "copy", "copy", "copy", "command", "command"]
     if modules != [
         f"ansible.builtin.{m}"
         for m in [*expected, "set_fact", "set_fact", "assert", "copy", "command"]

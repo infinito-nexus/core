@@ -24,6 +24,7 @@ HELPER = FILES / "spec_secrets.py"
 MASKER = FILES / "spec_secrets_mask.py"
 MATCHER = FILES / "spec_secrets_match.py"
 CONTAINER = FILES / "spec_secrets_container.py"
+FILE_OPS = FILES / "spec_secrets_files.py"
 SERVICES = ROLE / ROLE_FILE_META_SERVICES
 PARENT_LINE = 'PARENT = Path("/tmp/infinito-playwright-spec-secrets")'
 QUICK = ("REMOVAL_SECONDS = 30.0", "REMOVAL_SECONDS = 6.0")
@@ -59,6 +60,11 @@ VALUE = "Pa%\"s<w&r'd\\9X é \U0001f600 Sentinel-Value-9f3c abcdefghijklmnopqrst
 RAW = VALUE.encode()
 WINDOW = 8
 REDACTED = "<failure>***</failure>"
+EXPECTED = {
+    "stderr": "Error: ***",
+    "junit": "<![CDATA[***]]>",
+    "older report": "***",
+}
 FAKE_RUN = """\
 import json, pathlib, sys
 value, reports, gone, code = sys.argv[1:5]
@@ -86,14 +92,15 @@ sys.exit(masker.main(["spec_secrets_mask.py", "mask", *sys.argv[2:]]))
 
 
 def install(bin_dir: Path, root: Path, *replacements: tuple[str, str]) -> Path:
-    """Copy the four helpers and the image pin into a dir, their parent moved below a scratch dir.
+    """Copy the five helpers and the image pin into a dir, their parent moved below a scratch dir.
 
     Args:
         bin_dir: where the helpers go.
         root: the scratch dir.
-        *replacements: pairs of text the masker, matcher and container
-            check together hold exactly once and its replacement, for a
-            negative control; the removal bound is ``QUICK`` already, and
+        *replacements: pairs of text the masker, its file operations, the
+            matcher and the container check together hold exactly once and
+            its replacement, for a negative control; the removal bound is
+            ``QUICK`` already, and
             ``PARENT_OWNERS`` adds the owners of the scratch dirs above,
             such as uid 65534 for ``/`` in a bubblewrap sandbox.
 
@@ -109,7 +116,10 @@ def install(bin_dir: Path, root: Path, *replacements: tuple[str, str]) -> Path:
         encoding="utf-8",
     )
     (bin_dir / SERVICES.name).write_text(read_text(str(SERVICES)), encoding="utf-8")
-    sources = {path.name: read_text(str(path)) for path in (MASKER, MATCHER, CONTAINER)}
+    sources = {
+        path.name: read_text(str(path))
+        for path in (MASKER, FILE_OPS, MATCHER, CONTAINER)
+    }
     container = sources[CONTAINER.name]
     if container.count(PARENT_OWNERS[0]) != 1:
         raise AssertionError(
@@ -135,13 +145,14 @@ def load_from(bin_dir: Path, root: Path, *replacements: tuple[str, str]):
         *replacements: pairs for ``install``.
 
     Returns:
-        The module, with fresh copies of the helper, the matcher and the
-        container check, whose image pin stays readable while ``bin_dir`` is.
+        The module, with fresh copies of the helper, its file operations, the
+        matcher and the container check, whose image pin stays readable
+        while ``bin_dir`` is.
     """
     install(bin_dir, root, *replacements)
     sys.path.insert(0, str(bin_dir))
-    for name in ("spec_secrets", "spec_secrets_match", "spec_secrets_container"):
-        sys.modules.pop(name, None)
+    for path in (HELPER, FILE_OPS, MATCHER, CONTAINER):
+        sys.modules.pop(path.stem, None)
     try:
         spec = importlib.util.spec_from_file_location(
             "spec_secrets_mask", bin_dir / MASKER.name
@@ -329,7 +340,8 @@ def masked_run(*replacements, owner_gone: bool = False, code: int) -> list[str]:
 
     Returns:
         One message per place the value shows in the output or the published
-        reports, a link that was followed or published, staged reports left
+        reports, per stream or report that lacks its ``EXPECTED`` masked
+        text, a link that was followed or published, staged reports left
         behind or the exit code not being the container's.
     """
     with tempfile.TemporaryDirectory() as tmp:
@@ -360,6 +372,11 @@ def masked_run(*replacements, owner_gone: bool = False, code: int) -> list[str]:
         }
         problems += [
             f"{name} shows the value" for name, t in shown.items() if leaks(t, VALUE)
+        ]
+        problems += [
+            f"{name} lacks its expected text"
+            for name, text in EXPECTED.items()
+            if text not in shown[name]
         ]
         if os.path.lexists(reports / ".masked.1.junit"):
             problems.append("a forged temp file was published")

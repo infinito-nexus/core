@@ -16,7 +16,7 @@ libretranslate-engine:
   enabled: true
   shared: true
   image: libretranslate/libretranslate
-  version: v1.9.6
+  version: v1.10.0
   version_variants:
     - "-cuda"
   custom: true

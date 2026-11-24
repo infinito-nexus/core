@@ -54,7 +54,7 @@ cache:
   max_idle_days: 30
   multi_proxy:
     image: rpardini/docker-registry-proxy
-    version: 0.6.5
+    version: 0.8.0
     registries: []
     max_size: 32g
     auth: ""

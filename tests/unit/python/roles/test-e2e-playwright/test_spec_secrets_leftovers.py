@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import subprocess
 import tempfile
 import unittest.mock
@@ -22,7 +23,7 @@ from ._spec_secrets_fakes import (
     load_masker,
     scratch_text,
 )
-from ._spec_secrets_wiring import environment
+from ._spec_secrets_wiring import environment, render, role_tasks
 from .test_spec_secrets_rerun import RERUN, edited, rerun
 from .test_spec_secrets_trust import (
     OWN_UID,
@@ -185,6 +186,9 @@ TRUSTED_CONFIGS = [
     "unset",
 ]
 CA_FILE = "🔐 List the CA trust words"
+RUN_PASS = "03_run_pass.yml"
+PASS_CLEAR = "🧹 Remove the outputs an earlier run left unarchived"
+EARLIER = "earlier run"
 
 
 def files_below(path: Path) -> list[str]:
@@ -246,6 +250,58 @@ def cleared_outputs(rerun_text: str, archive_text: str) -> list[str]:
     if sorted(names) != sorted(moved.group(1).split()):
         return [f"the rerun clears {sorted(names)}, the archive moves others"]
     return []
+
+
+def pass_cleared(run_pass: list[dict], reports: Path) -> list[Path]:
+    """List what a deploy pass removes before its serial run and its queued job.
+
+    Args:
+        run_pass: the parsed ``03_run_pass.yml``.
+        reports: the pass reports dir the removals are rendered for.
+
+    Returns:
+        Each path an ``absent`` file task before the run removes, from the
+        tasks no ``when`` skips.
+    """
+    first_run = next(i for i, t in enumerate(run_pass) if t["name"].startswith("🏃"))
+    cleared = []
+    for task in run_pass[:first_run]:
+        made = task.get("ansible.builtin.file") or {}
+        if made.get("state") != "absent" or "when" in task:
+            continue
+        loop_var = task.get("loop_control", {}).get("loop_var", "item")
+        items = render(str(task["loop"]), _playwright_pass_reports_dir=str(reports))
+        cleared += [
+            Path(render(str(made["path"]), **{loop_var: item})) for item in items
+        ]
+    return cleared
+
+
+def adopted(run_pass: list[dict]) -> dict[str, str]:
+    """Archive a deploy pass that wrote no report where an earlier run left its outputs.
+
+    Args:
+        run_pass: the parsed ``03_run_pass.yml``, whose removals run first.
+
+    Returns:
+        The text of each file below the reports dir afterwards, by path.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        reports = Path(tmp) / "reports"
+        for path in (*ATTEMPT_ONE, *STALE, "playwright-junit.xml"):
+            (reports / path).parent.mkdir(parents=True, exist_ok=True)
+            (reports / path).write_text(EARLIER)
+        for path in pass_cleared(run_pass, reports):
+            if path.is_dir() and not path.is_symlink():
+                shutil.rmtree(path)
+            else:
+                path.unlink(missing_ok=True)
+        subprocess.run(
+            ["bash", str(ARCHIVE), str(reports), "0", "false"],
+            capture_output=True,
+            check=True,
+        )
+        return {path: scratch_text(reports / path) for path in files_below(reports)}
 
 
 def collect_violations(texts: dict[Path, str], temp: str) -> list[str]:
@@ -474,6 +530,12 @@ class TestSpecSecretsLeftovers(unittest.TestCase):
         found = rerun((), stale=STALE, run_code=0, ca_mode=CA_MODE)
         self.assertEqual([found["rc"], found["kept"]], [0, []])
 
+    def test_a_deploy_pass_archives_no_output_an_earlier_run_left(self) -> None:
+        self.assertEqual(
+            adopted(role_tasks(RUN_PASS)),
+            {"variant-1/sync/playwright-junit.xml": EARLIER},
+        )
+
     def test_no_collect_path_copies_a_temp_file(self) -> None:
         texts = {path: read_text(str(path)) for path in (DEDICATED, SWARM_COLLECT)}
         self.assertEqual(collect_violations(texts, load_masker().TEMP), [])
@@ -532,6 +594,14 @@ class TestSpecSecretsLeftoversNegativeControls(unittest.TestCase):
         self.assertNotEqual(cleared_outputs(text, read_text(str(ARCHIVE))), [])
         found = rerun((), RERUN_CLEAR, stale=STALE, run_code=0, ca_mode=CA_MODE)
         self.assertEqual(found["kept"], list(STALE))
+
+    def test_a_deploy_pass_that_keeps_an_earlier_runs_outputs_is_caught(
+        self,
+    ) -> None:
+        run_pass = role_tasks(RUN_PASS)
+        kept = [task for task in run_pass if not task["name"].startswith(PASS_CLEAR)]
+        self.assertEqual(len(kept), len(run_pass) - 1)
+        self.assertEqual(adopted(kept)["variant-0/sync/playwright-junit.xml"], EARLIER)
 
     def test_a_collect_path_that_copies_temp_files_is_caught(self) -> None:
         texts = {path: read_text(str(path)) for path in (DEDICATED, SWARM_COLLECT)}

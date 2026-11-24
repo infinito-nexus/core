@@ -5,6 +5,14 @@
     state: directory
     mode: "0755"
 
+- name: 🧹 Remove the outputs an earlier run left unarchived, never a variant-* slot
+  ansible.builtin.file:
+    path: "{{ playwright_stale_output }}"
+    state: absent
+  loop: "{{ ['playwright-junit.xml', 'playwright-report', 'test-results', 'run-parallel'] | map('regex_replace', '^', _playwright_pass_reports_dir ~ '/') | list }}"
+  loop_control:
+    loop_var: playwright_stale_output
+
 - name: 📄 Render .env from templates/playwright.env.j2
   ansible.builtin.copy:
     dest: "{{ _playwright_stage_dir }}/.env"

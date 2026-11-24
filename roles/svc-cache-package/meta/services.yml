@@ -80,8 +80,6 @@ frontend:
   image: nginx
   version: 1.31-alpine
   name: package-cache-frontend
-  # nocheck: dynamic-flag  the throwaway container that issues the CA and leaf certs before nginx starts, not a deployed service
-  init_image: alpine:latest
   min_storage: 64MB
   cpus: "0.5"
   mem_reservation: 64m

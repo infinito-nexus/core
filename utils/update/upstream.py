@@ -8,13 +8,12 @@ import urllib.error
 from typing import TYPE_CHECKING
 from urllib.parse import urlencode, urlparse
 
+from utils.docker.image.ref import dockerhub_repo, is_dockerhub
 from utils.update.base import captured_versions
-from utils.update.docker import (
-    dockerhub_repo,
+from utils.update.docker.tags import (
     fetch_dockerhub_tags,
     fetch_ghcr_tags,
     fetch_mcr_tags,
-    is_dockerhub,
     is_ghcr,
     is_mcr,
 )

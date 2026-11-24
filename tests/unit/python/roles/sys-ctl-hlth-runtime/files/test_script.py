@@ -2738,9 +2738,22 @@ class TestMetrics(TestCase):
             )
         )
         self.assertIn(
-            'infinito_hlth_runtime_findings{target="node",kind="host",image="node",'
-            'severity="CRITICAL",scanner="trivy",verdict="fail"} 2',
+            'infinito_hlth_runtime_findings{host="node",target="node",kind="host",'
+            'image="node",severity="CRITICAL",scanner="trivy",verdict="fail"} 2',
             lines,
+        )
+
+    def test_every_series_names_the_host_that_ran(self):
+        lines = self._lines(
+            _outcome(
+                [_verdict(NEXTCLOUD, ("nextcloud", "nextcloud"), action="warn")],
+                errors=["grype database: exited 1"],
+            )
+        )
+        series = [line for line in lines if not line.startswith("#")]
+        self.assertEqual(
+            (len(series), [line for line in series if 'host="node"' not in line]),
+            (5, []),
         )
 
     def test_no_series_names_the_vulnerability(self):
@@ -2768,9 +2781,10 @@ class TestMetrics(TestCase):
     def test_the_last_run_carries_its_time_and_success(self):
         lines = self._lines(_outcome([], failed=True))
         self.assertIn(
-            "infinito_hlth_runtime_last_run_timestamp_seconds 1793404805", lines
+            'infinito_hlth_runtime_last_run_timestamp_seconds{host="node"} 1793404805',
+            lines,
         )
-        self.assertIn("infinito_hlth_runtime_last_run_success 0", lines)
+        self.assertIn('infinito_hlth_runtime_last_run_success{host="node"} 0', lines)
 
     def test_scanner_errors_are_counted_per_engine_with_clean_engines_at_zero(self):
         lines = self._lines(
@@ -2790,9 +2804,9 @@ class TestMetrics(TestCase):
                 if line.startswith("infinito_hlth_runtime_scanner")
             ],
             [
-                'infinito_hlth_runtime_scanner_errors{scanner="grype"} 2',
-                'infinito_hlth_runtime_scanner_errors{scanner="osv"} 1',
-                'infinito_hlth_runtime_scanner_errors{scanner="syft"} 0',
+                'infinito_hlth_runtime_scanner_errors{host="node",scanner="grype"} 2',
+                'infinito_hlth_runtime_scanner_errors{host="node",scanner="osv"} 1',
+                'infinito_hlth_runtime_scanner_errors{host="node",scanner="syft"} 0',
             ],
         )
 
@@ -2902,6 +2916,7 @@ class TestMain(TestCase):
         for name in ("cache", "report", "log", "metrics"):
             (self.root / name).mkdir()
         self.metrics = self.root / "metrics" / "infinito_hlth_runtime.prom"
+        self.host = "node"
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -2924,6 +2939,8 @@ class TestMain(TestCase):
             "[]",
             "--environment",
             "production",
+            "--host",
+            self.host,
             "--report-dir",
             str(self.root / "report"),
             "--log-dir",
@@ -2957,7 +2974,6 @@ class TestMain(TestCase):
             mock.patch.object(
                 SCRIPT, "scan", return_value=(list(findings), list(errors))
             ),
-            mock.patch.object(SCRIPT.socket, "gethostname", return_value="node"),
             contextlib.redirect_stdout(io.StringIO()) as out,
         ):
             code = SCRIPT.main(self._args(scan, suppressions, flags))
@@ -3125,9 +3141,22 @@ class TestMain(TestCase):
         self._main([CRITICAL_FINDING])
         text = self.metrics.read_text()  # nocheck: cache-read tempdir metrics of main()
         self.assertIn(
-            'infinito_hlth_runtime_findings{target="node",kind="host",image="node",'
-            'severity="CRITICAL",scanner="grype",verdict="fail"} 1',
+            'infinito_hlth_runtime_findings{host="node",target="node",kind="host",'
+            'image="node",severity="CRITICAL",scanner="grype",verdict="fail"} 1',
             text.splitlines(),
+        )
+
+    def test_the_inventory_host_names_the_report_and_every_series(self):
+        self.host = "wrk-01"
+        self._main([CRITICAL_FINDING])
+        text = self.metrics.read_text()  # nocheck: cache-read tempdir metrics of main()
+        series = [line for line in text.splitlines() if not line.startswith("#")]
+        self.assertEqual(
+            (
+                self._report()["host"],
+                [line for line in series if 'host="wrk-01"' not in line],
+            ),
+            ("wrk-01", []),
         )
 
     def test_no_metrics_file_is_written_without_the_flag(self):

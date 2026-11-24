@@ -6,6 +6,18 @@ Repository-side version maintenance: scan role configuration files for declared 
 
 Every role-scoped updater (`docker`, `source`, `pip`, `repository`, `opentofu`) and the addon check skip a role whose [lifecycle](../../../docs/contributing/design/role/services/lifecycle.md) is `eol`: no update PR is opened for it and no external test warns about its pins.
 
+## Docker images
+
+`python -m cli.contributing.update.docker` bumps the semver `version:` of every `image` in `roles/*/meta/services.yml`; with `--compose` it bumps the tag of every `image:` literal in the compose files instead, under the same version policy (same depth and flavor, release groups held per file, `# nocheck: docker-version` above `image:` freezes a pin).
+
+A compose file is recognized by its content, not its name: a tracked `.yml` or `.yaml` file whose top level holds a `services` mapping with at least one `image` string. An `image:` that interpolates a variable, carries no tag or is pinned by digest is left alone. Three kinds of file never reach the compose updater:
+
+- Jinja templates (`*.j2`): role templates render `image:` from the `meta/services.yml` pins the role updater owns.
+- Fixtures under `tests/`: their pins are test input, not a deployment.
+- Files named like a Dependabot `docker-compose` manifest (`compose.yml`, `compose.yaml`, `docker-compose.yml`, `docker-compose.yaml`): Dependabot already bumps them, so a second updater would open a second PR for the same pin.
+
+`roles/*/meta/services.yml` holds no top-level `services` mapping, so no pin is updated by both updaters. The `update-compose-image-versions` job of `.github/workflows/cron-update.yml` opens one PR for all compose files on its own `update/compose-image-versions-` branch, and `scripts/github/update/open/pr.sh` skips it while an open PR on that prefix carries the same change.
+
 ## Repository refs
 
 `python -m cli.contributing.update.repository` bumps every `ref:` that sits next to a `repository:` in `roles/*/meta/services.yml` or `roles/*/meta/addons/*.yml`, at any depth, an addon's `config` included:
