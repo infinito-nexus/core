@@ -21,7 +21,10 @@ WEB_USER = "SNIPE_IT_WEB_USER"
 WEB_USER_REFERENCE = "{{ SNIPE_IT_WEB_USER }}"
 BUILD_USER = re.compile(r"^USER (?!root$)(\S+)$", re.MULTILINE)
 CONVERGE_EXEC = "container exec {{ SNIPE_IT_CONTAINER_ADDRESS }} sh -c"
-CONVERGE_ARGS = "_ {{ SNIPE_IT_WEB_USER | quote }} {{ SNIPE_IT_LDAP_LOG_PATH | quote }}"
+CONVERGE_ARGS = (
+    "_ {{ SNIPE_IT_WEB_USER | quote }} {{ SNIPE_IT_LDAP_LOG_PATH | quote }} "
+    "{{ SNIPE_IT_FILE_CACHE_PATH | quote }}"
+)
 CONVERGE_SCRIPT = re.compile(r"sh -c '(.*)' _ ", re.DOTALL)
 STACK_HOST_GATE = "IS_STACK_HOST | bool"
 
@@ -76,9 +79,10 @@ def ldap_log_converge_problems(tasks: list[dict]) -> list[str]:
       tasks: the tasks of tasks/06_rbac.yml.
 
     Returns:
-      Why an ldap.log a root hook left behind would still block the web user's
-      sync: no converge step, one after the hook, one off the stack host, one
-      that hands the file to another user or reports a change it did not make.
+      Why an ldap.log or a file cache entry a root hook left behind would still
+      block the web user's sync: no converge step, one after the hook, one off
+      the stack host, one that hands them to another user or reports a change
+      it did not make.
     """
     converge = _converge_index(tasks)
     if converge is None:
@@ -91,7 +95,9 @@ def ldap_log_converge_problems(tasks: list[dict]) -> list[str]:
     if STACK_HOST_GATE not in str(task.get("when", "")):
         problems.append("the container exec is not gated on the stack host")
     if CONVERGE_ARGS not in task["ansible.builtin.shell"]["cmd"]:
-        problems.append("the converge does not hand ldap.log to the web user")
+        problems.append(
+            "the converge does not hand ldap.log and the file cache to the web user"
+        )
     if task.get("changed_when") != f"{task.get('register')}.stdout | trim == 'changed'":
         problems.append("the converge reports a change it did not make")
     return problems
@@ -106,17 +112,18 @@ def _converge_script() -> str:
     return CONVERGE_SCRIPT.search(task["ansible.builtin.shell"]["cmd"]).group(1)
 
 
-def _run_converge(owner: str, log: Path) -> subprocess.CompletedProcess:
+def _run_converge(owner: str, log: Path, cache: Path) -> subprocess.CompletedProcess:
     """
     Args:
-      owner: the user the converge must hand the log to.
+      owner: the user the converge must hand the log and the cache to.
       log: path of the LDAP log inside the container.
+      cache: path of the file cache the CLI and the web process share.
 
     Returns:
       The finished converge script.
     """
     return subprocess.run(
-        ["sh", "-c", _converge_script(), "_", owner, str(log)],
+        ["sh", "-c", _converge_script(), "_", owner, str(log), str(cache)],
         capture_output=True,
         text=True,
         check=False,
@@ -169,17 +176,22 @@ class TestLdapLogConverge(unittest.TestCase):
             ldap_log_converge_problems([tasks[_hook_index(tasks)]]),
         )
 
-    def test_an_absent_log_is_left_alone(self) -> None:
+    def test_an_absent_log_and_cache_are_left_alone(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            finished = _run_converge("nobody", Path(directory) / "ldap.log")
+            finished = _run_converge(
+                "nobody", Path(directory) / "ldap.log", Path(directory) / "cache"
+            )
         self.assertEqual((0, ""), (finished.returncode, finished.stdout))
 
-    def test_a_log_the_web_user_owns_reports_no_change(self) -> None:
+    def test_a_log_and_cache_the_web_user_owns_report_no_change(self) -> None:
         owner = pwd.getpwuid(os.getuid()).pw_name
         with tempfile.TemporaryDirectory() as directory:
             log = Path(directory) / "ldap.log"
             log.touch()
-            finished = _run_converge(owner, log)
+            lock = Path(directory) / "cache" / "08" / "21"
+            lock.mkdir(parents=True)
+            (lock / "0821c2ca").touch()
+            finished = _run_converge(owner, log, Path(directory) / "cache")
         self.assertEqual((0, ""), (finished.returncode, finished.stdout))
 
     def test_negative_control_a_log_another_user_owns_is_chowned(self) -> None:
@@ -187,7 +199,20 @@ class TestLdapLogConverge(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             log = Path(directory) / "ldap.log"
             log.touch()
-            finished = _run_converge(stranger, log)
+            finished = _run_converge(stranger, log, Path(directory) / "cache")
+        self.assertNotEqual(0, finished.returncode)
+        self.assertIn(stranger, finished.stderr)
+
+    def test_negative_control_a_cache_entry_another_user_owns_is_chowned(
+        self,
+    ) -> None:
+        stranger = "snipe-it-web-user-that-does-not-exist"
+        with tempfile.TemporaryDirectory() as directory:
+            lock = Path(directory) / "cache" / "08" / "21"
+            lock.mkdir(parents=True)
+            finished = _run_converge(
+                stranger, Path(directory) / "ldap.log", Path(directory) / "cache"
+            )
         self.assertNotEqual(0, finished.returncode)
         self.assertIn(stranger, finished.stderr)
 

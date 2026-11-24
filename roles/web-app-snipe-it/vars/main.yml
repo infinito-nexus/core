@@ -16,6 +16,7 @@ SNIPE_IT_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, SNIP
 SNIPE_IT_APP_KEY: "{{ lookup('config', application_id, 'secrets.credentials.app_key') }}"
 SNIPE_IT_WEB_USER: "apache"
 SNIPE_IT_LDAP_LOG_PATH: "/var/www/html/storage/logs/ldap.log"
+SNIPE_IT_FILE_CACHE_PATH: "/var/www/html/storage/framework/cache"
 
 SNIPE_IT_MAIL_FROM_NAME: "{{ lookup('config', application_id, 'services.email.from_name') }}"
 

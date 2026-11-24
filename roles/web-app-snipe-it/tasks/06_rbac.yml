@@ -1,10 +1,14 @@
 ---
-- name: "🪪 snipe-it: hand an existing LDAP log to the web user the hook syncs as, {{ SNIPE_IT_WEB_USER }}"
+- name: "🪪 snipe-it: hand an existing LDAP log and the shared file cache to the web user the hook syncs as, {{ SNIPE_IT_WEB_USER }}"
   ansible.builtin.shell:
     cmd: >-
       container exec {{ SNIPE_IT_CONTAINER_ADDRESS }} sh -c
-      '[ -e "$2" ] || exit 0; [ "$(stat -c %U "$2")" = "$1" ] && exit 0; chown "$1" "$2" && echo changed'
-      _ {{ SNIPE_IT_WEB_USER | quote }} {{ SNIPE_IT_LDAP_LOG_PATH | quote }}
+      'changed=;
+      if [ -e "$2" ] && [ "$(stat -c %U "$2")" != "$1" ]; then chown "$1" "$2" || exit 1; changed=1; fi;
+      if [ -d "$3" ]; then foreign=$(find "$3" ! -user "$1" -print -quit) || exit 1;
+      if [ -n "$foreign" ]; then find "$3" ! -user "$1" -exec chown "$1" {} + || exit 1; changed=1; fi; fi;
+      [ -z "$changed" ] || echo changed'
+      _ {{ SNIPE_IT_WEB_USER | quote }} {{ SNIPE_IT_LDAP_LOG_PATH | quote }} {{ SNIPE_IT_FILE_CACHE_PATH | quote }}
   register: snipe_it_ldap_log_owner
   changed_when: snipe_it_ldap_log_owner.stdout | trim == 'changed'
   when: IS_STACK_HOST | bool
