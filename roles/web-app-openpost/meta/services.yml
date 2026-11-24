@@ -113,6 +113,11 @@ relay:
     internal:
       http: 80
       https: 443
+  siblings:
+    mastodon: web-app-mastodon
+    pixelfed: web-app-pixelfed
+    peertube: web-app-peertube
+  network_aliases: "{{ lookup('openpost_relay_domains') }}"
 # nocheck: playwright-service-flag, dynamic-flag
 simulator:
   enabled: false
@@ -133,7 +138,7 @@ simulator:
     internal:
       http: 8080
       https: 443
-  hosts:
+  network_aliases:
     - api.twitter.com
     - upload.twitter.com
     - graph.facebook.com
@@ -172,7 +177,7 @@ provider:
       https: 443
     local:
       http: 8107
-  hosts:
+  network_aliases:
     - www.linkedin.com
     - api.linkedin.com
 
