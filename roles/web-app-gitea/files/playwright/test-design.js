@@ -61,8 +61,16 @@ async function assertTheme(page, theme, label) {
 }
 
 async function pickTheme(page, theme) {
-  await page.locator("#footer-theme-selector").click();
-  await page.locator(`#footer-theme-selector .menu > .item[data-value="${theme}"]`).click();
+  const item = page.locator(`#footer-theme-selector .menu > .item[data-value="${theme}"]`);
+  // Gitea renders the footer toggle before its script wires it, so a click right after
+  // the previous pick's reload can open nothing.
+  await expect(async () => {
+    if (!(await item.isVisible())) {
+      await page.locator("#footer-theme-selector").click();
+    }
+    await expect(item, `the theme selector must offer ${theme}`).toBeVisible({ timeout: resolveTimeout(5_000) });
+  }).toPass({ timeout: resolveTimeout(30_000) });
+  await item.click();
   await assertTheme(page, theme, "gitea theme selector");
 }
 

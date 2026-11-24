@@ -5,7 +5,7 @@ const os = require("node:os");
 const path = require("node:path");
 
 const { test, expect } = require("@playwright/test");
-const { decodeDotenvQuotedValue, normalizeBaseUrl, requireDotenvValue } = require("./personas");
+const { decodeDotenvQuotedValue, isOnionUrl, normalizeBaseUrl, requireDotenvValue } = require("./personas");
 const {
   WORKSPACE_RESULT_LINE,
   WORKSPACE_RUN_MS,
@@ -110,14 +110,56 @@ function git(args, cwd, key) {
   });
 }
 
-function httpsGit(args, cwd, authorization) {
+/**
+ * Args:
+ *   remote: the HTTP(S) URL of the repository git talks to.
+ *
+ * Returns:
+ *   The [key, value] git settings that send git through the runner's Tor proxy, PLAYWRIGHT_PROXY, when remote is a
+ *   Tor URL. The socks5h scheme lets the proxy resolve the .onion name, as the browser's socks_remote_dns does; curl
+ *   refuses to resolve it itself (RFC 7686).
+ */
+function torProxySettings(remote) {
+  const proxy = process.env.PLAYWRIGHT_PROXY;
+  if (!proxy || !isOnionUrl(remote)) {
+    return [];
+  }
+  return [["http.proxy", proxy.replace(/^socks5:/, "socks5h:")]];
+}
+
+/**
+ * Args:
+ *   settings: [key, value] git settings.
+ *
+ * Returns:
+ *   The GIT_CONFIG_COUNT, GIT_CONFIG_KEY_<n> and GIT_CONFIG_VALUE_<n> variables that apply settings to one git call.
+ */
+function gitConfigEnv(settings) {
+  return Object.fromEntries([
+    ["GIT_CONFIG_COUNT", String(settings.length)],
+    ...settings.flatMap(([key, value], index) => [
+      [`GIT_CONFIG_KEY_${index}`, key],
+      [`GIT_CONFIG_VALUE_${index}`, value],
+    ]),
+  ]);
+}
+
+/**
+ * Args:
+ *   args: the git arguments.
+ *   cwd: the directory git runs in.
+ *   authorization: the Authorization header value git sends.
+ *   remote: the HTTP(S) URL of the repository the call talks to.
+ *
+ * Returns:
+ *   The stdout of git.
+ */
+function httpsGit(args, cwd, authorization, remote) {
   return execFileSync("git", args, {
     cwd,
     env: {
       ...process.env,
-      GIT_CONFIG_COUNT: "1",
-      GIT_CONFIG_KEY_0: "http.extraHeader",
-      GIT_CONFIG_VALUE_0: `Authorization: ${authorization}`,
+      ...gitConfigEnv([["http.extraHeader", `Authorization: ${authorization}`], ...torProxySettings(remote)]),
       GIT_SSL_NO_VERIFY: "true",
       GIT_TERMINAL_PROMPT: "0",
     },
@@ -370,10 +412,10 @@ exports.register = function (shared) {
             continue;
           }
           const clone = path.join(directory, person.role);
-          httpsGit(["clone", "-q", repoUrl, clone], directory, auth);
+          httpsGit(["clone", "-q", repoUrl, clone], directory, auth, repoUrl);
           commit(clone, `${person.role}.yml`, `${person.role} change`);
           expect(
-            () => httpsGit(["push", "origin", "HEAD"], clone, auth),
+            () => httpsGit(["push", "origin", "HEAD"], clone, auth, repoUrl),
             `${person.role} is refused on push`,
           ).toThrow(/User permission denied for writing/);
         }
@@ -533,16 +575,16 @@ exports.register = function (shared) {
         git(["push", "-q", "origin", "HEAD:main"], storeClone, writer.file);
 
         const memberClone = path.join(directory, "member");
-        httpsGit(["clone", "-q", httpsRemote, memberClone], directory, memberBasic);
+        httpsGit(["clone", "-q", httpsRemote, memberClone], directory, memberBasic, httpsRemote);
         commit(memberClone, "member.yml", "member change");
         expect(
-          () => httpsGit(["push", "-q", "origin", "HEAD:main"], memberClone, memberBasic),
+          () => httpsGit(["push", "-q", "origin", "HEAD:main"], memberClone, memberBasic, httpsRemote),
           "a member with write must be refused on a push to main",
         ).toThrow();
         execFileSync("git", ["reset", "-q", "--hard", "HEAD~2"], { cwd: memberClone, stdio: "pipe" });
         commit(memberClone, "rewrite.yml", "member rewrite");
         expect(
-          () => httpsGit(["push", "-q", "--force", "origin", "HEAD:main"], memberClone, memberBasic),
+          () => httpsGit(["push", "-q", "--force", "origin", "HEAD:main"], memberClone, memberBasic, httpsRemote),
           "a member with write must be refused on a force push to main",
         ).toThrow();
         expect(
