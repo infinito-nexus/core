@@ -1,16 +1,27 @@
 from __future__ import annotations
 
+import copy
+import functools
 import json
 import re
 import unittest
 from typing import TYPE_CHECKING, Any
 
+from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.filter.core import to_bool
+from ansible.template import Templar
 from jinja2 import DictLoader, Environment, StrictUndefined, select_autoescape
 
 from plugins.lookup.container_volumes import container_volumes
+from utils.cache.applications import (
+    get_merged_applications,
+    get_variant_overrides_only,
+)
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml, load_yaml_any, load_yaml_str
+from utils.roles.applications.services.sso import get_sso_config
+from utils.roles.applications.status_codes import declared_status_codes
 from utils.roles.mapping import (
     ROLE_FILE_META_SERVICES,
     ROLE_FILE_META_VOLUMES,
@@ -30,6 +41,8 @@ TOKEN_TEMPLATE = "connection-token.j2"
 TOKEN_FLAGS = {"--connection-token", "--connection-token-file"}
 NO_TOKEN_FLAG = "--without-connection-token"
 TOKEN_FREE_PATHS = {"version"}
+TOKEN_REFUSAL = 403
+HEAD_REFUSAL = 405
 IMAGE_USER = 1000
 IMAGE_PROGRAMS = {"curl", "wget"}
 RESOLVED = (
@@ -164,6 +177,61 @@ def token_render_task() -> dict[str, Any]:
         if any(entry.get("src") == TOKEN_TEMPLATE for entry in templates):
             return task
     raise AssertionError(f"no task renders {TOKEN_TEMPLATE}")
+
+
+def rendered(group_names: list[str], override: dict[str, Any]) -> dict[str, Any]:
+    """
+    Args:
+        group_names: the groups of the host.
+        override: the inventory's ``applications`` entry of the role, the
+            variant overlay in the matrix, {} for none.
+
+    Returns:
+        The role's configuration as ``get_merged_applications`` renders it
+        with a real Ansible templar.
+    """
+    applications = {APPLICATION_ID: copy.deepcopy(override)} if override else {}
+    variables = {"group_names": list(group_names), "applications": applications}
+    templar = Templar(loader=DataLoader(), variables=dict(variables))
+    templar.available_variables = dict(variables)
+    _reset_cache_for_tests()
+    try:
+        return get_merged_applications(variables=variables, templar=templar)[
+            APPLICATION_ID
+        ]
+    finally:
+        _reset_cache_for_tests()
+
+
+@functools.cache
+def deployments() -> dict[str, dict[str, Any]]:
+    """
+    Returns:
+        ``{name: configuration}`` of the role on a host with and without
+        Keycloak, and in every matrix variant on a host with Keycloak.
+    """
+    keycloak = [APPLICATION_ID, "web-app-keycloak"]
+    resolved = {
+        "host with keycloak": rendered(keycloak, {}),
+        "host without keycloak": rendered([APPLICATION_ID], {}),
+    }
+    overrides = get_variant_overrides_only(roles_dir=PROJECT_ROOT / "roles")
+    for index, override in enumerate(overrides[APPLICATION_ID]):
+        resolved[f"variant {index}"] = rendered(keycloak, override)
+    return resolved
+
+
+def proxy_gated(configuration: dict[str, Any]) -> bool:
+    """
+    Args:
+        configuration: a rendered configuration of the role.
+
+    Returns:
+        What ``lookup('sso', APPLICATION_ID, 'is_proxy_gated')`` answers for it.
+    """
+    return get_sso_config({APPLICATION_ID: configuration}, APPLICATION_ID)[
+        "is_proxy_gated"
+    ]
 
 
 def entrypoint(dockerfile: str) -> list[str] | None:
@@ -309,6 +377,33 @@ class TestTheProbes(unittest.TestCase):
         )
         ready_path = resolved_vars(gated=False)["WORKSPACE_READY_PATH"]
         self.assertTrue(test[-1].endswith(f"/{ready_path}"))
+
+    def test_a_host_without_keycloak_runs_the_editor_behind_its_token(self):
+        gates = {name: proxy_gated(config) for name, config in deployments().items()}
+        self.assertIs(gates["host with keycloak"], True)
+        self.assertIs(gates["host without keycloak"], False)
+        self.assertEqual(set(gates.values()), {True, False})
+
+    def test_the_rendered_codes_accept_403_exactly_behind_the_token(self):
+        for name, configuration in deployments().items():
+            command = workspace_service(proxy_gated(configuration))["command"]
+            token_gated = bool(TOKEN_FLAGS & set(command))
+            codes = configuration["server"]["status_codes"]["default"]
+            with self.subTest(deployment=name, token_gated=token_gated):
+                self.assertIsInstance(codes, list)
+                self.assertIn(HEAD_REFUSAL, codes)
+                self.assertEqual(
+                    TOKEN_REFUSAL in codes,
+                    token_gated,
+                    "openvscode-server refuses GET / without the token with 403; "
+                    "behind the proxy a 403 is a refusal the probes must report",
+                )
+                self.assertEqual(
+                    declared_status_codes(
+                        {APPLICATION_ID: configuration}, APPLICATION_ID, ""
+                    ),
+                    codes,
+                )
 
 
 if __name__ == "__main__":
