@@ -19,6 +19,13 @@ function isSuccess(status) {
   return (status >= 200 && status < 300) || status === 304;
 }
 
+// Matomo sends its page view as a keepalive beacon. When the spec navigates on
+// while that beacon is in flight, Chromium reports it as net::ERR_ABORTED even
+// though the browser still delivers it and Matomo answers 204.
+function isAbortedTrackerBeacon(request, errorText) {
+  return errorText === "net::ERR_ABORTED" && MATOMO_TRACKER_PATH.test(new URL(request.url()).pathname);
+}
+
 function watchSubresources(page) {
   const observed = new Set();
   const failures = [];
@@ -32,7 +39,9 @@ function watchSubresources(page) {
   const onRequestFailed = (request) => {
     if (!isTrackedRequest(request)) return;
     const failure = request.failure();
-    failures.push(`${failure ? failure.errorText : "request failed"} ${request.url()}`);
+    const errorText = failure ? failure.errorText : "request failed";
+    if (isAbortedTrackerBeacon(request, errorText)) return;
+    failures.push(`${errorText} ${request.url()}`);
   };
   page.on("response", onResponse);
   page.on("requestfailed", onRequestFailed);
