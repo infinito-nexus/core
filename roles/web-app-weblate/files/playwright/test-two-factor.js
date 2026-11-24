@@ -90,7 +90,7 @@ exports.register = function () {
         201,
         "create the probe component from a document",
       );
-      await firstResult(request, `components/${slug}/probe/translations/`, "the probe component must load its source");
+      await firstResult(request, `translations/${slug}/probe/en/units/`, "the probe component must load its source");
       await expectStatus(
         await api(request, "POST", `components/${slug}/probe/translations/`, { data: { language_code: "de" } }),
         201,
