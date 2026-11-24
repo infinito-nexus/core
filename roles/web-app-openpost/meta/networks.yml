@@ -2,3 +2,4 @@
 meshes: []
 local:
   subnet: 192.88.99.0/24
+  outside_pool: true
