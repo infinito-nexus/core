@@ -622,8 +622,8 @@ class TestWorkspaceTfvars(unittest.TestCase):
         )
 
     def test_the_login_key_has_the_shape_of_ssh_ed25519_public_line(self) -> None:
-        with unittest.mock.patch.object(
-            drill().secrets, "token_bytes", return_value=KEY_RAW
+        with unittest.mock.patch(
+            "secrets.token_bytes", return_value=KEY_RAW
         ) as token_bytes:
             line = drill().public_key()
         token_bytes.assert_called_once_with(len(KEY_RAW))

@@ -42,24 +42,21 @@ import http.client
 import json
 import os
 import re
-import secrets
 import ssl
 import sys
 import time
 import urllib.parse
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from drill_check import check
+from drill_order import DrillError, order_values, public_key
+
 POLL_SECONDS = 5
 TERMINAL = ("success", "error", "stopped")
 WORKSPACE_TEMPLATE = "workspace"
 PAGE = 50
-SIZE_KEYS = ("vcpus", "memory_mib", "disk_gib")
-KEY_TYPE = "ssh-ed25519"
-KEY_BYTES = 32
-
-
-class DrillError(Exception):
-    pass
 
 
 def secret(name):
@@ -275,61 +272,6 @@ def repository(action, result, template):
     )
 
 
-def public_key():
-    """
-    Returns:
-        A fresh login key line in the ed25519 OpenSSH form
-        ``sshEd25519PublicLine`` of the Playwright personas writes, its 32 key
-        bytes random, so no private half exists.
-    """
-    raw = secrets.token_bytes(KEY_BYTES)
-    blob = b"".join(
-        len(part).to_bytes(4, "big") + part for part in (KEY_TYPE.encode("ascii"), raw)
-    )
-    return f"{KEY_TYPE} {base64.b64encode(blob).decode('ascii')}"
-
-
-def order_values(order, catalog, key):
-    """
-    Args:
-        order: the survey ``BKP_TEST_WORKSPACE_ORDER`` holds.
-        catalog: the provider catalog the provision runner checks a line
-            against.
-        key: the OpenSSH public key of the first login.
-
-    Returns:
-        The root inputs of the order line: the smallest size of the catalog
-        by vCPUs, memory and disk, ties broken by flavor and size name, in
-        the alphabetically first region of that flavor that names a host.
-    """
-    for flavor, entry in catalog.items():
-        for size, resources in entry["sizes"].items():
-            missing = [field for field in SIZE_KEYS if field not in resources]
-            if missing:
-                raise DrillError(
-                    f"size {size} of flavor {flavor} names no {', '.join(missing)}"
-                )
-    offers = sorted(
-        ([entry["sizes"][size][field] for field in SIZE_KEYS], flavor, size, region)
-        for flavor, entry in catalog.items()
-        for size in entry["sizes"]
-        for region, place in entry["regions"].items()
-        if place.get("host")
-    )
-    if not offers:
-        raise DrillError("the catalog offers no region that names a host")
-    _, flavor, size, region = offers[0]
-    name = f"{order['SALES_ORDER']}-{order['LINE']}"
-    return {
-        "name": name,
-        "flavor": flavor,
-        "size": size,
-        "region": region,
-        "ssh_public_key": key,
-        "dns_label": name.lower(),
-    }
-
-
 def commit_order(result, template, catalog):
     path, branch, _ = workspace_repository(result, template)
     values = order_values(
@@ -480,47 +422,6 @@ def state(workspaces):
         "organizations": organizations(workspaces),
         "versions": versions(workspaces),
     }
-
-
-def check(before_file, after_file):
-    """
-    Args:
-        before_file: the state recorded before the backup.
-        after_file: the state recorded after the restore.
-
-    Returns:
-        The failed proofs.
-    """
-    before = json.loads(Path(before_file).read_text(encoding="utf-8"))
-    after = json.loads(Path(after_file).read_text(encoding="utf-8"))
-    failed = []
-    if after["sealed"] is False:
-        print("workspace drill: OpenBao unseals with the inventory's seal key")
-    else:
-        failed.append(f"OpenBao reports sealed={after['sealed']} after the restore")
-    proofs = (
-        (
-            "SeaweedFS serves every object version of",
-            "versions",
-            lambda held: any(held.values()),
-        ),
-        ("Gitea serves the repository of", "repositories", bool),
-        (
-            "Keycloak holds the organization and groups of",
-            "organizations",
-            lambda held: bool(held["organizations"] and held["groups"]),
-        ),
-    )
-    for ws in before["workspaces"]:
-        for label, key, filled in proofs:
-            held = before[key][ws]
-            if not filled(held):
-                failed.append(f"{key} of {ws} was empty before the backup")
-            elif after[key][ws] != held:
-                failed.append(f"{key} of {ws} differ after the restore")
-            else:
-                print(f"workspace drill: {label} {ws}")
-    return failed
 
 
 def main(argv):
