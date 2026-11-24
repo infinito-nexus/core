@@ -981,6 +981,11 @@ runner-ci-enable:
 		$${OWNER:+--repo "$${OWNER}/$${REPO:-infinito-nexus}"}
 	@echo "Self-hosted runners enabled (count=$${COUNT}, multiplier=$${MULTIPLIER:-30}). CI will split deploy jobs proportionally across GitHub-hosted and self-hosted runners."
 
+.PHONY: runner-cleanup-report
+# Print one JSON object per held pool job with its age and per svc-runner job stack the infra runner's Docker lists that no running or held job owns; removes nothing.
+runner-cleanup-report:
+	@"$${PYTHON}" -m cli.meta.runner.cleanup
+
 .PHONY: runner-count
 # Print the default local runner pool size and its RAM, CPU and disk terms as JSON; INFINITO_RUNNER_COUNT overrides it.
 runner-count:
@@ -1223,6 +1228,11 @@ test-ref:
 # Remove the shared test runner infinito-test-<hash> of this checkout's toolchain image; the next test or lint call starts a new one.
 test-runner-down:
 	@bash scripts/tests/runner/down.sh
+
+.PHONY: test-runner-status
+# Print the shared test runner infinito-test-<hash> of this checkout's toolchain image, whether it runs and the worktree roots it mounts; starts nothing.
+test-runner-status:
+	@bash scripts/tests/runner/status.sh
 
 .PHONY: test-security
 # Scan every pinned role image of the GHCR mirror with Trivy, Grype and OSV over Syft SBOMs cached by digest (not part of `test`).

@@ -32,6 +32,12 @@ here is stricter, it wins. This skill never runs under the `robot` skill.
   `infinito-coredns`, and `DIR_CACHE` (`/var/cache/infinito/core/cache`) with
   every cache and model below it. Free cache space only through
   `make cache-evict`.
+- **Shared test runners**: one long-lived container `infinito-test-<hash>` per toolchain image `<repo>/<distro>:<hash>`, mounting every worktree root.
+  `make -C <worktree> test-runner-status` names the runner of that worktree's image and whether it runs, and `make -C <worktree> test-runner-down` removes it.
+  A runner that `make -C <worktree> test-runner-status` names for no worktree `git worktree list` registers MAY still serve a separate clone below the worktree roots: list it in the report as a stale candidate, but never remove it.
+- **Toolchain images**: `<repo>/<distro>:<hash>` images that no registered worktree resolves and no container uses are the candidates `make build-cleanup` removes; it keeps every other one.
+- **Runner pool**: `make runner-cleanup-report` prints one JSON object per held pool job (job id, runner, stack, checkout, `age_seconds`) and per job stack that no running or held job owns (`kind: orphan`).
+  List every row in the report with its age; the report removes nothing, and this skill MUST NOT remove a pool runner, a held job or a job stack.
 - **Act and swarm**: `local/act-runner-fixed:latest`,
   `infinito-swarm-node:latest`, the volume `act-toolcache` and `~/.cache/act`
   stay while any peer runs a swarm step or a roundtrip.
@@ -50,6 +56,8 @@ here is stricter, it wins. This skill never runs under the `robot` skill.
 | Stack of a worktree | `make -C <worktree> compose-down` | containers and volumes including `<project>_docker`; the next deploy needs `mode=initialize` |
 | Stack, checkout and slot | `make worktree-down branch=<branch>` | as above plus the checkout; refuses uncommitted changes |
 | Cache space | `make cache-evict` | idle, then least recently used cache and model entries until every cache fits its cap; the caches keep running |
+| Shared test runner of a worktree's image | `make -C <worktree> test-runner-down` | the runner `infinito-test-<hash>` and its inner Docker volume; the next test or lint call of a checkout with that image starts a new one |
+| Toolchain images | `make build-cleanup` | local toolchain images that no registered worktree resolves and no container uses |
 | One app inside a stack | `make -C <worktree> compose-entity-purge apps=<app>` | the app's containers, volumes and inventory group; the output must name `removed '<app>' from inventory` |
 | One swarm cluster | `make swarm-down name=<cluster>` | its DinD nodes, lab network and act outer container |
 | Every act-swarm leftover | `make swarm-clean` | all clusters including in-flight runs; only when no peer runs a swarm step |

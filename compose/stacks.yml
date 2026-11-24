@@ -112,3 +112,5 @@ unaddressed:
   - i18n-prune
   - i18n-retry
   - infra-status
+  - runner-cleanup-report
+  - test-runner-status

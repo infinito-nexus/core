@@ -12,6 +12,11 @@ action of this skill). Stream the output to a log under `/tmp` and iterate: read
 the per-target result table, not the pipe exit code (which is unreliable), fix
 every failure at its root, and re-run until `make quality` is green end to end.
 
+The gate runs in the shared test runner `infinito-test-<hash>` of this checkout's toolchain image, with the checkout as working directory, and starts no deploy stack (`coredns`, `infinito`, `target`, `target-resolver`).
+The first test or lint call on the machine starts that runner, and every later call from a checkout with the same image reuses it.
+`make test-runner-status` shows the runner, whether it runs and the worktree roots it mounts; `make test-runner-down` removes it, and the next call starts a new one.
+With `INFINITO_STACK_NAME` set, the gate runs in that stack's `infinito` container instead.
+
 Begin by clarifying every open requirement with the `active-listening` skill
 (escalating any root-cause or design question you are not ~99% sure of to the
 `dialectic` skill), then work under the `robot` skill. The gate is finished only

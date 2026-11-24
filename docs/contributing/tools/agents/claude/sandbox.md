@@ -91,3 +91,16 @@ The `sandbox.network` block governs outbound and local connectivity from inside 
 | `allowLocalBinding` | `true` | The agent MAY bind listening sockets on `localhost` (e.g. `make compose-up`, `python -m http.server`, dev servers). Required for any local end-to-end testing. |
 
 If a contributor needs to tighten network policy locally (e.g. running on an untrusted network), they SHOULD do so via `.claude/settings.local.json` rather than weakening the project-level defaults that other contributors depend on.
+
+## Local Stacks 🧱
+
+Sandboxed make targets reach every local stack through the host Docker socket that `allowAllUnixSockets` opens; the sandbox bounds only the host paths those targets write.
+
+| Stack | Class | Make targets | Host paths it writes |
+|---|---|---|---|
+| Infra runner `infinito-infra` with the caches and the tools | always-on (caches), on-demand (tools) | `make infra-up`, `make infra-status`, `make cache-status`, `make cache-evict` | `DIR_CACHE` (`/var/cache/infinito/core/cache`, in `allowWrite`): the machine lock, the owner marker and every cache byte |
+| Shared test runner `infinito-test-<hash>`, one per toolchain image | long-lived | `make test-unit*`, `make test-integration`, `make test-external`, `make test-lint`, `make test-performance`, `make test-session`, every `make lint*` target and `make autoformat`, and through them `make test`, `make quality` and `make quality-high`; `make test-runner-status` shows it and `make test-runner-down` removes it | its start lock `/tmp/infinito-test-<hash>.lock` |
+| Deploy stack of a checkout | on-demand | `make compose-deploy`, `make compose-exec`, `make compose-down`, `make worktree-down` | the checkout |
+
+The job queue of the runner pool lives beside `DIR_CACHE` in `/var/cache/infinito/core/jobs`, which `allowWrite` does not cover: `make runner-count` and `make runner-cleanup-report` work inside the sandbox, while a deploy with `INFINITO_DEPLOY_VIA_POOL=true` MUST run outside it, because submitting its job writes there.
+With `INFINITO_STACK_NAME` set, the deploy, exec, test and lint targets address that stack instead of the default ones.
