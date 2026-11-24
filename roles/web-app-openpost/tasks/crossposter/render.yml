@@ -37,6 +37,8 @@
       dest: "{{ OPENPOST_CROSSPOSTER_BUILD_CONTEXT }}/"
     - src: "{{ role_path }}/files/python/crossposter/"
       dest: "{{ [OPENPOST_CROSSPOSTER_BUILD_CONTEXT, 'crossposter'] | path_join }}/"
+    - src: "{{ role_path }}/files/sql/crossposter/"
+      dest: "{{ [OPENPOST_CROSSPOSTER_BUILD_CONTEXT, 'crossposter', 'sql'] | path_join }}/"
   notify:
     - compose-build
     - compose-up
