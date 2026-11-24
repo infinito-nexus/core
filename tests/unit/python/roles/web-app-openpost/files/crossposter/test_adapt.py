@@ -61,7 +61,9 @@ class TestCounting(unittest.TestCase):
         )
 
     def test_mastodon_counts_graphemes_not_code_points(self) -> None:
-        family = "\U0001f468‍\U0001f469‍\U0001f467"
+        family = (
+            "\U0001f468\N{ZERO WIDTH JOINER}\U0001f469\N{ZERO WIDTH JOINER}\U0001f467"
+        )
         self.assertEqual(adapt.count(family, "mastodon"), 1)
         self.assertEqual(adapt.count("é", "mastodon"), 1)
 
