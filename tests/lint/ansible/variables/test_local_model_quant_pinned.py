@@ -2,15 +2,15 @@
 
 Rationale
 =========
-``roles/svc-ai-lmstudio/tasks/utils/preload/pull.yml`` downloads with
-``lms get --yes --gguf <source>@<quant>``. Without the ``@<quant>`` suffix LM
-Studio picks the variant itself, and the ``file``, ``sha256`` and ``bytes`` the
-entry declares become a guess about that pick rather than a description of it.
+``roles/svc-ai-lmstudio/tasks/utils/fetch.yml`` downloads the entry's ``url``
+into ``<models>/<repo>/<file>`` and verifies it against ``sha256`` and
+``bytes``. ``quant`` names the variant those four fields describe, so an entry
+whose ``file`` carries another variant pins a digest to the wrong blob.
 
-Two shipped checks measure against those fields, so the guess is not harmless.
+Two shipped checks measure against those fields, so the drift is not harmless.
 ``roles/svc-ai-lmstudio/files/test/test.sh`` looks for
 ``<models>/<repo>/<file>`` and reports ``is not in the model store`` when the
-store holds a different variant. ``pull.yml`` derives the download budget from
+store holds a different variant. ``fetch.yml`` derives the download budget from
 ``bytes``, so a declaration smaller than the real file cuts the transfer off.
 
 Run 36107421422 hit both at once: the entry declared ``Q4_K_M`` at 808 MB while
@@ -72,8 +72,8 @@ class TestLocalModelQuantPinned(unittest.TestCase):
         ]
         self.assertFalse(
             missing,
-            f"{self.rel}: {missing} declare no 'quant', so lms get picks the "
-            "variant and the declared file, sha256 and bytes describe a guess",
+            f"{self.rel}: {missing} declare no 'quant', so nothing names the "
+            "variant the declared file, sha256 and bytes describe",
         )
 
     def test_the_declared_file_carries_the_pinned_quantization(self) -> None:
