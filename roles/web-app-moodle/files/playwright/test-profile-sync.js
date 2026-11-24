@@ -19,11 +19,29 @@ const lamPassword = decodeDotenvQuotedValue(process.env.LAM_PASSWORD || "");
 
 const KEYCLOAK_MIDDLE_NAME_ATTRIBUTE = "middleName";
 const MIDDLE_NAME_FIELD = "input[name='middlename']";
-const MOODLE_FIELD_BY_KEYCLOAK_ATTRIBUTE = {
+const MOODLE_TEXT_FIELD_BY_KEYCLOAK_ATTRIBUTE = {
   street: "address",
   locality: "city",
-  country: "country",
 };
+const LOCKED_COUNTRY = "#fitem_id_country .felement";
+
+/**
+ * Args:
+ *   page: the Moodle profile-edit form of the signed-in account.
+ *   code: the ISO 3166-1 alpha-2 code the country claim carries.
+ *
+ * Returns:
+ *   Nothing; fails unless the locked country select, which Moodle prints as the country name in the page language
+ *   without any named control, shows the country of `code`.
+ */
+async function expectLockedCountry(page, code) {
+  const lang = await page.locator("html").getAttribute("lang");
+  const name = new Intl.DisplayNames([lang], { type: "region" }).of(code);
+  await expect(
+    page.locator(LOCKED_COUNTRY),
+    `the flat country claim of the moodle scope must fill biber's Moodle country, which the locked form prints as ${name}`,
+  ).toHaveText(name, { timeout: resolveTimeout(30_000) });
+}
 
 async function expectMoodleMiddleName(shared, page, value, source) {
   await gotoOnion(page, `${shared.env.moodleBaseUrl}/user/edit.php`, { waitUntil: "domcontentloaded" });
@@ -141,12 +159,13 @@ exports.register = function (shared) {
           page.locator("#id_submitbutton"),
           "the profile-edit form must render before its address can be read",
         ).toBeVisible({ timeout: resolveTimeout(30_000) });
-        for (const [attribute, field] of Object.entries(MOODLE_FIELD_BY_KEYCLOAK_ATTRIBUTE)) {
+        for (const [attribute, field] of Object.entries(MOODLE_TEXT_FIELD_BY_KEYCLOAK_ATTRIBUTE)) {
           await expect(
             page.locator(`[name='${field}']`).first(),
             `the flat ${attribute} claim of the moodle scope must fill biber's Moodle ${field}`,
           ).toHaveValue(attributes[attribute], { timeout: resolveTimeout(30_000) });
         }
+        await expectLockedCountry(page, attributes.country);
         await gotoOnion(page, `${shared.env.moodleBaseUrl}/my/`, { waitUntil: "domcontentloaded" });
         await shared.endUserTour(page);
         await inAppLogout(page);
