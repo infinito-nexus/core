@@ -164,17 +164,21 @@ function handsOffTo(url, hosts) {
  *   host: the embedded host the Tab button opened.
  *   roleDomains: every domain the role behind the tile serves, such as the
  *     Synapse homeserver that signs Element's users in.
- * Returns: true when the last hop on host got a response below 400 and the tab
- *   either lands on host, so that hop is the page it shows, or lands on an IdP
- *   authorization request elsewhere, the SSO hand-off. A tab with no hop on
- *   host passes only when it starts on an authorization request that returns
- *   to host or to another of roleDomains, gets a response below 400 and lands
- *   on an authorization request: the iframe already followed the role's login
- *   redirect, so the dashboard reopens that IdP page. A request without a
- *   response, a page of host that ends in an error status and a redirect that
- *   leaves host for anywhere but the IdP return false.
+ *   acceptedCodes: the status codes the role behind the tile accepts at its
+ *     host, its server.status_codes on top of the default, so a 4xx the role
+ *     serves by design counts as an answer.
+ * Returns: true when the last hop on host got a response below 400 or one of
+ *   acceptedCodes, and the tab either lands on host, so that hop is the page it
+ *   shows, or lands on an IdP authorization request elsewhere, the SSO
+ *   hand-off. A tab with no hop on host passes only when it starts on an
+ *   authorization request that returns to host or to another of roleDomains,
+ *   gets a response below 400 and lands on an authorization request: the
+ *   iframe already followed the role's login redirect, so the dashboard reopens
+ *   that IdP page. A request without a response, a page of host that ends in an
+ *   error status its role does not accept and a redirect that leaves host for
+ *   anywhere but the IdP return false.
  */
-function hostAnsweredTab(hops, landing, host, roleDomains) {
+function hostAnsweredTab(hops, landing, host, roleDomains, acceptedCodes) {
   const hostHops = hops.filter(({ url }) => new URL(url).host === host);
   const last = hostHops[hostHops.length - 1];
   if (!last) {
@@ -187,7 +191,7 @@ function hostAnsweredTab(hops, landing, host, roleDomains) {
       isAuthorizationRequest(landing)
     );
   }
-  if (last.status === null || last.status >= 400) {
+  if (last.status === null || (last.status >= 400 && !acceptedCodes.includes(last.status))) {
     return false;
   }
   return new URL(landing).host === host || isAuthorizationRequest(landing);
@@ -350,7 +354,7 @@ async function assertTabButtonOpensNewTab(page, context, target) {
     const hops = tabNavigations.hops();
     const walked = hops.map(({ url, status }) => `${url} (${status === null ? "no response" : status})`).join(" -> ");
     expect(
-      hostAnsweredTab(hops, landing, expectedHost, target.domains),
+      hostAnsweredTab(hops, landing, expectedHost, target.domains, target.status_codes),
       `Expected the embedded ${expectedHost} to answer the new tab, it navigated ${walked || "nowhere"} and landed on ${landing}`
     ).toBe(true);
     await popup.close();

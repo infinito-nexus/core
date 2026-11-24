@@ -17,11 +17,14 @@ const PROXY_START = `${PROXIED}oauth2/start?rd=%2F`;
 const KEYCLOAK_FOR_PROXY = `${KEYCLOAK_AUTH}?response_type=code&client_id=prometheus&redirect_uri=${encodeURIComponent(`${PROXIED}oauth2/callback`)}`;
 const PIHOLE = `https://pihole.${DOMAIN}/`;
 const PIHOLE_ADMIN = `${PIHOLE}admin/`;
+const BRIDGY = `https://bridgyfed.${DOMAIN}/`;
+const DEFAULT_OK = [200, 302, 301];
 const MATRIX = {
   id: "web-app-matrix",
   canonical_domain: `element.${DOMAIN}`,
   handover_domain: "",
   domains: [`element.${DOMAIN}`, `jitsi.matrix.${DOMAIN}`, `matrix.${DOMAIN}`],
+  status_codes: DEFAULT_OK,
 };
 const MATRIX_WITHOUT_HOMESERVER = { ...MATRIX, domains: [`element.${DOMAIN}`, `jitsi.matrix.${DOMAIN}`] };
 const PROMETHEUS = {
@@ -29,12 +32,27 @@ const PROMETHEUS = {
   canonical_domain: `prometheus.${DOMAIN}`,
   handover_domain: "",
   domains: [`prometheus.${DOMAIN}`],
+  status_codes: DEFAULT_OK,
 };
-const PIHOLE_TARGET = { id: "web-app-pihole", canonical_domain: `pihole.${DOMAIN}`, handover_domain: "", domains: [`pihole.${DOMAIN}`] };
+const PIHOLE_TARGET = {
+  id: "web-app-pihole",
+  canonical_domain: `pihole.${DOMAIN}`,
+  handover_domain: "",
+  domains: [`pihole.${DOMAIN}`],
+  status_codes: DEFAULT_OK,
+};
+const BRIDGY_TARGET = {
+  id: "web-app-bridgy-fed",
+  canonical_domain: `bridgyfed.${DOMAIN}`,
+  handover_domain: "",
+  domains: [`bridgyfed.${DOMAIN}`],
+  status_codes: [...DEFAULT_OK, 404],
+};
 const ESCAPED_DOMAIN = DOMAIN.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const WALKED_ELEMENT = new RegExp(`Expected the embedded element\\.${ESCAPED_DOMAIN} to answer the new tab`);
 const WALKED_PIHOLE = new RegExp(`Expected the embedded pihole\\.${ESCAPED_DOMAIN} to answer the new tab`);
 const WALKED_PROMETHEUS = new RegExp(`Expected the embedded prometheus\\.${ESCAPED_DOMAIN} to answer the new tab`);
+const WALKED_BRIDGY = new RegExp(`Expected the embedded bridgyfed\\.${ESCAPED_DOMAIN} to answer the new tab`);
 
 /**
  * Args:
@@ -265,4 +283,19 @@ test("an Element host that redirects the tab away for good fails", async () => {
 test("the dashboard's own iframe answered by Element does not stand in for a tab that got no answer", async () => {
   const { page, context } = dashboardWithTab(ELEMENT, [[ELEMENT, null]], [[ELEMENT, 200]], CHROME_ERROR);
   await assert.rejects(assertTabButtonOpensNewTab(page, context, MATRIX), WALKED_ELEMENT);
+});
+
+test("a federation host whose root answers the 404 its role declares passes", async () => {
+  const { page, context } = dashboardWithTab(BRIDGY, [[BRIDGY, 404]], [], BRIDGY);
+  await assertTabButtonOpensNewTab(page, context, BRIDGY_TARGET);
+});
+
+test("an Element host that answers the tab with a 404 its role does not declare fails", async () => {
+  const { page, context } = dashboardWithTab(ELEMENT, [[ELEMENT, 404]], [], ELEMENT);
+  await assert.rejects(assertTabButtonOpensNewTab(page, context, MATRIX), WALKED_ELEMENT);
+});
+
+test("a declared 404 does not excuse a federation host that answers with a 5xx", async () => {
+  const { page, context } = dashboardWithTab(BRIDGY, [[BRIDGY, 502]], [], BRIDGY);
+  await assert.rejects(assertTabButtonOpensNewTab(page, context, BRIDGY_TARGET), WALKED_BRIDGY);
 });
