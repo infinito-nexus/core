@@ -12,14 +12,16 @@ the returned ids to subnets through ``lookup('role_subnets', ...)``.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.roles.applications.config import get as get_app_conf
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 FLAG_PATH = "networks.local.outside_pool"
 
