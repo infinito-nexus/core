@@ -6,6 +6,7 @@
 // personas no longer drive the dashboard click; they go straight to the
 // app URL.
 
+const { inflateRawSync } = require("node:zlib");
 const { test, expect } = require("./fixtures/onion-test");
 const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvJsonList, gotoOnion } = require("./personas");
@@ -130,28 +131,49 @@ function recordTabNavigations(context, opener) {
 
 /**
  * Args:
+ *   url: a URL a tab navigated to or landed on.
+ * Returns: the URL the IdP sign-in request at url returns the visitor to: the
+ *   redirect_uri of an OpenID Connect authorization request, or the
+ *   AssertionConsumerServiceURL of a SAML AuthnRequest in the HTTP-Redirect
+ *   binding; empty when url is neither.
+ */
+function signInReturnUrl(url) {
+  const { searchParams } = new URL(url);
+  if (["response_type", "client_id", "redirect_uri"].every((name) => searchParams.has(name))) {
+    return searchParams.get("redirect_uri");
+  }
+  const samlRequest = searchParams.get("SAMLRequest");
+  if (!samlRequest) {
+    return "";
+  }
+  try {
+    const authnRequest = inflateRawSync(Buffer.from(samlRequest, "base64")).toString("utf8");
+    return (authnRequest.match(/\bAssertionConsumerServiceURL=["']([^"']+)["']/) || ["", ""])[1];
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Args:
  *   url: the URL a tab landed on.
- * Returns: true when it is an OpenID Connect authorization request, the IdP
- *   login page an SSO hand-off shows an anonymous visitor.
+ * Returns: true when it is an IdP sign-in request: an OpenID Connect
+ *   authorization request or a SAML AuthnRequest.
  */
 function isAuthorizationRequest(url) {
-  const { searchParams } = new URL(url);
-  return ["response_type", "client_id", "redirect_uri"].every((name) => searchParams.has(name));
+  return signInReturnUrl(url) !== "";
 }
 
 /**
  * Args:
  *   url: the URL a tab started on.
  *   hosts: the hosts the hand-off may return to.
- * Returns: true when url is an OpenID Connect authorization request whose
- *   redirect_uri returns to one of hosts.
+ * Returns: true when url is an IdP sign-in request whose return URL is on one
+ *   of hosts.
  */
 function handsOffTo(url, hosts) {
-  if (!isAuthorizationRequest(url)) {
-    return false;
-  }
   try {
-    return hosts.includes(new URL(new URL(url).searchParams.get("redirect_uri")).host);
+    return hosts.includes(new URL(signInReturnUrl(url)).host);
   } catch {
     return false;
   }

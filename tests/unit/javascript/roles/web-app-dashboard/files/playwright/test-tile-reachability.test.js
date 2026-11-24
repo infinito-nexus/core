@@ -3,17 +3,19 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
+const zlib = require("node:zlib");
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../../../../..");
 const { loadInternals } = require(path.join(PROJECT_ROOT, "tests/unit/javascript/utils/internals.js"));
-const { DOMAIN } = require(path.join(PROJECT_ROOT, "tests/unit/javascript/utils/domain.js"));
+const { DOMAIN, SOFTWARE_DOMAIN } = require(path.join(PROJECT_ROOT, "tests/unit/javascript/utils/domain.js"));
 
 const SPEC = path.join(PROJECT_ROOT, "roles/web-app-dashboard/files/playwright/test-tile-reachability.js");
 const DASHBOARD = `https://dashboard.${DOMAIN}/`;
 const CHROME_ERROR = "chrome-error://chromewebdata/";
 const ELEMENT = `https://element.${DOMAIN}/`;
 const SYNAPSE_SSO = `https://matrix.${DOMAIN}/_matrix/client/v3/login/sso/redirect?redirectUrl=${encodeURIComponent(`${ELEMENT}#/`)}`;
-const KEYCLOAK_AUTH = `https://auth.${DOMAIN}/realms/infinito.nexus/protocol/openid-connect/auth`;
+const KEYCLOAK_REALM = `https://auth.${DOMAIN}/realms/${SOFTWARE_DOMAIN}`;
+const KEYCLOAK_AUTH = `${KEYCLOAK_REALM}/protocol/openid-connect/auth`;
 const KEYCLOAK_FOR_SYNAPSE = `${KEYCLOAK_AUTH}?response_type=code&client_id=matrix-synapse&redirect_uri=${encodeURIComponent(`https://matrix.${DOMAIN}/_synapse/client/oidc/callback`)}`;
 const PROXIED = `https://prometheus.${DOMAIN}/`;
 const PROXY_START = `${PROXIED}oauth2/start?rd=%2F`;
@@ -24,6 +26,12 @@ const BRIDGY = `https://bridgyfed.${DOMAIN}/`;
 const JENKINS = `https://jenkins.${DOMAIN}/`;
 const JENKINS_LOGIN = `${JENKINS}securityRealm/commenceLogin?from=%2F`;
 const KEYCLOAK_FOR_JENKINS = `${KEYCLOAK_AUTH}?response_type=code&client_id=jenkins&redirect_uri=${encodeURIComponent(`${JENKINS}securityRealm/finishLogin`)}`;
+const SUITECRM = `https://suite.crm.${DOMAIN}/`;
+const SUITECRM_SAML_LOGIN = `${SUITECRM}saml/login`;
+const KEYCLOAK_SAML = `${KEYCLOAK_REALM}/protocol/saml`;
+const KEYCLOAK_FOR_SUITECRM = samlSignIn(`${SUITECRM}saml/acs`);
+const KEYCLOAK_SAML_FOR_PROXY = samlSignIn(`${PROXIED}saml/acs`);
+const KEYCLOAK_SAML_UNREADABLE = `${KEYCLOAK_SAML}?SAMLRequest=${encodeURIComponent(Buffer.from("not-deflated").toString("base64"))}`;
 const DEFAULT_OK = [200, 302, 301];
 const MATRIX = {
   id: "web-app-matrix",
@@ -61,15 +69,40 @@ const JENKINS_TARGET = {
   domains: [`jenkins.${DOMAIN}`],
   status_codes: [...DEFAULT_OK, 403],
 };
+const SUITECRM_TARGET = {
+  id: "web-app-suitecrm",
+  canonical_domain: `suite.crm.${DOMAIN}`,
+  handover_domain: "",
+  domains: [`suite.crm.${DOMAIN}`],
+  status_codes: DEFAULT_OK,
+};
 const ESCAPED_DOMAIN = DOMAIN.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const WALKED_ELEMENT = new RegExp(`Expected the embedded element\\.${ESCAPED_DOMAIN} to answer the new tab`);
 const WALKED_PIHOLE = new RegExp(`Expected the embedded pihole\\.${ESCAPED_DOMAIN} to answer the new tab`);
 const WALKED_PROMETHEUS = new RegExp(`Expected the embedded prometheus\\.${ESCAPED_DOMAIN} to answer the new tab`);
 const WALKED_BRIDGY = new RegExp(`Expected the embedded bridgyfed\\.${ESCAPED_DOMAIN} to answer the new tab`);
+const WALKED_SUITECRM = new RegExp(`Expected the embedded suite\\.crm\\.${ESCAPED_DOMAIN} to answer the new tab`);
 const WALKED_JENKINS = new RegExp(
   `Expected the embedded jenkins\\.${ESCAPED_DOMAIN} to answer the new tab, it navigated .*commenceLogin\\S* \\(no response\\)`,
 );
 const browserSteps = [];
+
+/**
+ * Args:
+ *   acsUrl: the AssertionConsumerServiceURL the service provider asks the IdP to post its assertion to.
+ *
+ * Returns:
+ *   The IdP sign-in URL carrying a deflated, base64-encoded SAML AuthnRequest in the HTTP-Redirect binding.
+ */
+function samlSignIn(acsUrl) {
+  const authnRequest = [
+    '<samlp:AuthnRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" ID="ONELOGIN_1" Version="2.0"',
+    ` Destination="${KEYCLOAK_SAML}" AssertionConsumerServiceURL="${acsUrl}">`,
+    `<saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">${SUITECRM}saml/metadata</saml:Issuer>`,
+    "</samlp:AuthnRequest>",
+  ].join("");
+  return `${KEYCLOAK_SAML}?SAMLRequest=${encodeURIComponent(zlib.deflateRawSync(authnRequest).toString("base64"))}`;
+}
 
 /**
  * Args:
@@ -113,11 +146,12 @@ function loadAssertion(file) {
     file,
     ["assertTabButtonOpensNewTab"],
     {
+      "node:zlib": zlib,
       "./fixtures/onion-test": { test: () => {}, expect },
       "./timeouts": { resolveTimeout: (ms) => ms },
       "./personas": { decodeDotenvJsonList: () => [], gotoOnion: async () => {} },
     },
-    { URL },
+    { URL, Buffer },
   ).assertTabButtonOpensNewTab;
 }
 
@@ -223,15 +257,14 @@ function jenkinsLoginAnswersLater(tab) {
 }
 
 /**
+ * Args:
+ *   replacements: [old, replacement] pairs, each old text occurring exactly once in the spec.
+ *
  * Returns:
- *   The path of a planted copy of the spec that judges the tab once, as soon as its first document loaded, for a
- *   negative control.
+ *   The path of a planted copy of the spec with every replacement applied.
  */
-function judgedOnce() {
-  const source = [
-    ["await expect(() => {", "await (() => {"],
-    ["}).toPass({ timeout: resolveTimeout(30_000) });", "})();"],
-  ].reduce((text, [old, replacement]) => {
+function planted(replacements) {
+  const source = replacements.reduce((text, [old, replacement]) => {
     assert.equal(text.split(old).length, 2, `the plant ${old} must occur exactly once`);
     return text.replace(old, replacement);
   }, fs.readFileSync(SPEC, "utf8"));
@@ -239,6 +272,25 @@ function judgedOnce() {
   const file = path.join(directory, "test-tile-reachability.js");
   fs.writeFileSync(file, source);
   return file;
+}
+
+/**
+ * Returns:
+ *   The path of a planted copy of the spec that judges the tab once, as soon as its first document loaded.
+ */
+function judgedOnce() {
+  return planted([
+    ["await expect(() => {", "await (() => {"],
+    ["}).toPass({ timeout: resolveTimeout(30_000) });", "})();"],
+  ]);
+}
+
+/**
+ * Returns:
+ *   The path of a planted copy of the spec that reads no SAML AuthnRequest.
+ */
+function blindToSaml() {
+  return planted([['searchParams.get("SAMLRequest")', '""']]);
 }
 
 test("a tab whose Element answers and then hands its login through Synapse to Keycloak passes", async () => {
@@ -440,6 +492,62 @@ test("negative control: judging the Jenkins tab at its first document fails thou
     await assert.rejects(loadAssertion(file)(page, context, JENKINS_TARGET), WALKED_JENKINS);
   } finally {
     browserSteps.length = 0;
+    fs.rmSync(path.dirname(file), { recursive: true, force: true });
+  }
+});
+
+/**
+ * Returns:
+ *   A dashboard whose Tab button opens a SuiteCRM tab that lands on the IdP's login for SuiteCRM's AuthnRequest.
+ */
+function suitecrmHandsOffBySaml() {
+  return dashboardWithTab(
+    SUITECRM,
+    [
+      [SUITECRM, 302],
+      [SUITECRM_SAML_LOGIN, 302],
+      [KEYCLOAK_FOR_SUITECRM, 200],
+    ],
+    [],
+    KEYCLOAK_FOR_SUITECRM,
+  );
+}
+
+test("a SuiteCRM tab that redirects to the IdP with a SAML AuthnRequest returning to it passes", async () => {
+  const { page, context } = suitecrmHandsOffBySaml();
+  await assertTabButtonOpensNewTab(page, context, SUITECRM_TARGET);
+});
+
+test("a tab the dashboard opens on the SAML login its iframe already reached, returning to SuiteCRM, passes", async () => {
+  const { page, context } = dashboardWithTab(
+    SUITECRM,
+    [[KEYCLOAK_FOR_SUITECRM, 200]],
+    [
+      [SUITECRM, 302],
+      [SUITECRM_SAML_LOGIN, 302],
+      [KEYCLOAK_FOR_SUITECRM, 200],
+    ],
+    KEYCLOAK_FOR_SUITECRM,
+  );
+  await assertTabButtonOpensNewTab(page, context, SUITECRM_TARGET);
+});
+
+test("a tab that starts on a SAML login returning to another host fails", async () => {
+  const { page, context } = dashboardWithTab(SUITECRM, [[KEYCLOAK_SAML_FOR_PROXY, 200]], [], KEYCLOAK_SAML_FOR_PROXY);
+  await assert.rejects(assertTabButtonOpensNewTab(page, context, SUITECRM_TARGET), WALKED_SUITECRM);
+});
+
+test("a tab that starts on a SAMLRequest that does not inflate to an AuthnRequest fails", async () => {
+  const { page, context } = dashboardWithTab(SUITECRM, [[KEYCLOAK_SAML_UNREADABLE, 200]], [], KEYCLOAK_SAML_UNREADABLE);
+  await assert.rejects(assertTabButtonOpensNewTab(page, context, SUITECRM_TARGET), WALKED_SUITECRM);
+});
+
+test("negative control: a spec that reads no SAML AuthnRequest fails the SuiteCRM tab that hands off to the IdP", async () => {
+  const file = blindToSaml();
+  const { page, context } = suitecrmHandsOffBySaml();
+  try {
+    await assert.rejects(loadAssertion(file)(page, context, SUITECRM_TARGET), WALKED_SUITECRM);
+  } finally {
     fs.rmSync(path.dirname(file), { recursive: true, force: true });
   }
 });
