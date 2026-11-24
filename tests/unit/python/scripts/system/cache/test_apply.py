@@ -11,6 +11,8 @@ import unittest
 from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.stacks.declaration import load, resolve
+from utils.stacks.makefile import make_calls, makefile_calls
 
 CACHE_SCRIPTS = PROJECT_ROOT / "scripts" / "system" / "cache"
 APPLY = CACHE_SCRIPTS / "apply.sh"
@@ -20,6 +22,8 @@ WORKSPACE_BOOTSTRAP = (
     PROJECT_ROOT / "scripts" / "tests" / "workspace" / "base" / "04_bootstrap.sh"
 )
 WORKSPACE_WORKFLOW = PROJECT_ROOT / ".github" / "workflows" / "call-test-workspace.yml"
+WORKSPACE_DECLARE = 'make cache-declare ref="$(git rev-parse HEAD)"'
+CACHE_STACK = "cache"
 SHA = "0123456789abcdef0123456789abcdef01234567"
 SHA2 = "fedcba9876543210fedcba9876543210fedcba98"
 MAP = Path("compose") / "package-cache-frontend" / "upstreams.conf"
@@ -717,11 +721,53 @@ class TestDeclare(unittest.TestCase):
         self.assertNotIn("pinned but not applied", run.done.stderr)
 
 
+def _cache_starters(lines: list[str]) -> list[str]:
+    """
+    Args:
+        lines: shell lines of a script.
+
+    Returns:
+        The make targets the lines run that compose/stacks.yml resolves to
+        the cache stack, so they start or address the infra runner.
+    """
+    stacks, graph = load(), makefile_calls()
+    return sorted(
+        target
+        for line in lines
+        for target in make_calls(line)
+        if CACHE_STACK in resolve(target, stacks, graph)
+    )
+
+
+def _starters_before_the_declare(lines: list[str]) -> list[str]:
+    """
+    Args:
+        lines: shell lines of a workspace bootstrap script.
+
+    Returns:
+        The cache stack starters the lines run above the workspace declare.
+    """
+    return _cache_starters(lines[: lines.index(WORKSPACE_DECLARE)])
+
+
 class TestWorkspaceBootstrap(unittest.TestCase):
-    def test_the_fresh_ci_host_declares_its_own_head_before_compose_up(self) -> None:
+    def test_the_fresh_ci_host_declares_its_own_head_before_any_call_starts_the_cache(
+        self,
+    ) -> None:
         lines = read_text(str(WORKSPACE_BOOTSTRAP)).splitlines()
-        declare = lines.index('make cache-declare ref="$(git rev-parse HEAD)"')
-        self.assertLess(declare, lines.index("make compose-up"))
+        self.assertEqual(_starters_before_the_declare(lines), [])
+        declare = lines.index(WORKSPACE_DECLARE)
+        self.assertIn("compose-up", _cache_starters(lines[declare + 1 :]))
+
+    def test_the_old_order_with_the_lint_bootstrap_above_the_declare_is_caught(
+        self,
+    ) -> None:
+        self.assertEqual(
+            _starters_before_the_declare(
+                ["make environment-bootstrap", WORKSPACE_DECLARE]
+            ),
+            ["environment-bootstrap"],
+        )
 
     def test_the_pin_root_is_the_same_path_for_the_container_and_the_daemon(
         self,

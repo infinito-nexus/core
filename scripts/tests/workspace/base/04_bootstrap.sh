@@ -8,11 +8,11 @@ source "${SCRIPT_DIR}/../utils/common.sh"
 
 cd "${REPO_ROOT}"
 
+echo "Pinning the cache stack to this checkout's commit, which the fresh CI host has never declared, before the shared test runner of install-lint starts the infra runner."
+make cache-declare ref="$(git rev-parse HEAD)"
+
 echo "Bootstrapping the development environment: DNS, AppArmor, IPv6, and lint tooling."
 make environment-bootstrap
-
-echo "Pinning the cache stack to this checkout's commit, which the fresh CI host has never declared."
-make cache-declare ref="$(git rev-parse HEAD)"
 
 echo "Starting the local compose stack (builds the image if missing)."
 make compose-up
