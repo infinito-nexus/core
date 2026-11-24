@@ -80,6 +80,8 @@ cleanup() {
 	# nocheck: container-cp - container-to-host extraction on the CI host itself
 	docker cp "${INFINITO_CONTAINER}:${INFINITO_PLAYWRIGHT_REPORTS_BASE_DIR}/." \
 		"${_playwright_host_dir}" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+	find "${_playwright_host_dir}" -name '.masked.*' -type f -delete ||
+		echo ">>> Could not drop every .masked.* file from ${_playwright_host_dir}, cleanup goes on" >&2
 
 	local _rescue_host_dir="${INFINITO_RESCUE_DIAGNOSTICS_BASE}/${INFINITO_DISTRO}/${apps}"
 	mkdir -p "${_rescue_host_dir}"

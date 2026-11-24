@@ -12,41 +12,23 @@
   until: lmstudio_daemon_ready.rc == 0
   delegate_to: "{{ lmstudio_node }}"
 
-- name: "🗄️ Check the model store on '{{ lmstudio_node }}' before preloading"
+- name: "⬇️ Preload the LM Studio models into the volume on '{{ lmstudio_node }}'"
   when: not (LMSTUDIO_PRESEED_ENABLED | bool)
   block:
-    - name: "🗄️ Measure the space the model store offers on '{{ lmstudio_node }}'"
-      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-        container exec {{ LMSTUDIO_LOCAL_CID | quote }} df -P -B1 {{ LMSTUDIO_MODELS_TARGET | quote }}
-      register: lmstudio_store_space
+    - name: "🧭 Resolve the model volume's mountpoint on '{{ lmstudio_node }}'"
+      ansible.builtin.command: >-
+        container volume inspect --format '{{ "{{" }}.Mountpoint{{ "}}" }}'
+        {{ lookup('volume', application_id, 'lmstudio_models').name | quote }}
+      register: lmstudio_models_mountpoint
       changed_when: false
-      retries: 30
-      delay: 2
-      until: lmstudio_store_space.rc == 0
       delegate_to: "{{ lmstudio_node }}"
 
-    - name: "🛑 Refuse to preload models the store on '{{ lmstudio_node }}' cannot hold"
+    - name: "⬇️ Fetch the LM Studio models from their sources on '{{ lmstudio_node }}'"
+      ansible.builtin.include_tasks:
+        file: utils/fetch.yml
+        apply:
+          delegate_to: "{{ lmstudio_node }}"
       vars:
-        _free: "{{ lmstudio_store_space.stdout_lines[1].split()[3] | int }}"
-        _required: "{{ LMSTUDIO_PRELOAD_LARGEST_BYTES | int }}"
-      ansible.builtin.fail:
-        msg: >-
-          The model store on {{ lmstudio_node }} has
-          {{ (_free | int / 1024 / 1024 / 1024) | round(1) }} GiB free, less than the
-          {{ (_required | int / 1024 / 1024 / 1024) | round(1) }} GiB the largest
-          declared model needs. Shrink AI_LOCAL_MODELS in group_vars/all/16_ai.yml or
-          give the node more disk.
-      when: _free | int < _required | int
-
-- name: "⬇️ Preload the LM Studio models on '{{ lmstudio_node }}'"
-  block:
-    - name: "⬇️ Preload the LM Studio models (first pass)"
-      ansible.builtin.include_tasks: utils/preload/pull.yml
-  rescue:
-    - name: "🐝 Re-raise the preload failure unchanged in swarm" # nocheck: rescue-recovery a timed-out transfer leaves the daemon reporting 0.00% for every further pull, and restarting the container it owns is the only lever the role has, though CI job 105558224377 shows a restart returning rc 0 without clearing it; the generic capture cannot even try, so swarm re-raises here instead, because under any_errors_fatal a rescued host keeps running while every other host is already marked failed, and compose ends the block by preloading again so an unrecovered failure still re-raises
-      ansible.builtin.fail:
-        msg: "{{ ansible_failed_result.msg | default('LM Studio preload failed') }}"
-      when: IS_SWARM_MODE
-
-    - name: "♻️ Recover the wedged transfer and preload again"
-      ansible.builtin.include_tasks: utils/preload/recover.yml
+        lmstudio_fetch_store: "{{ lmstudio_models_mountpoint.stdout | trim }}"
+        lmstudio_fetch_staging: "{{ [lmstudio_models_mountpoint.stdout | trim, '.staging'] | path_join }}"
+        lmstudio_fetch_node: "{{ lmstudio_node }}"

@@ -1,0 +1,47 @@
+---
+- name: 🔐 Write the role's spec secrets for the scheduled run
+  ansible.builtin.include_tasks: 03_run_pass/spec_secrets.yml
+  when:
+    - _playwright_secrets_template_stat.stat.exists
+    - _playwright_probe is skipped or (_playwright_probe.rc is defined and _playwright_probe.rc == 0)
+
+- name: 📮 Hand the Playwright run to the parallel scheduler
+  ansible.builtin.copy:
+    dest: "{{ TEST_E2E_PLAYWRIGHT_PARALLEL_JOBS_DIR }}/{{ TEST_E2E_PLAYWRIGHT_APPS.index(application_id) }}-{{ application_id }}.job.json"
+    mode: "0644"
+    content: >-
+      {{
+        {
+          'id': application_id,
+          'argv': _playwright_argv[:(_playwright_argv.index('run')) + 1] + _playwright_parallel_flags
+                  + _playwright_argv[(_playwright_argv.index('run')) + 1:],
+          'env': _playwright_environment,
+          'timeout': lookup('timeout', TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT_EFFECTIVE) | int,
+          'after': ([TEST_E2E_PLAYWRIGHT_APPS | first] + lookup('role_tests', application_id, 'playwright.run_after', default=[]))
+                   | intersect(TEST_E2E_PLAYWRIGHT_APPS) | difference([application_id]),
+          'tor': TEST_E2E_PLAYWRIGHT_IS_ONION | bool,
+          'workers': _playwright_workers | int,
+          'memory_mb': lookup('playwright_parallel', 'memory_mb', workers=_playwright_workers) | int,
+          'stop': ['container', 'rm', '--force', TEST_E2E_PLAYWRIGHT_PARALLEL_CONTAINER_PREFIX ~ application_id],
+          'meta': {'reports_dir': _playwright_pass_reports_dir}
+        } | to_json
+      }}
+  vars:
+    _playwright_workers: "{{ (_playwright_argv | select('match', '^PLAYWRIGHT_WORKERS=') | first).split('=', 1)[1] }}"
+    _playwright_parallel_flags:
+      - "--name={{ TEST_E2E_PLAYWRIGHT_PARALLEL_CONTAINER_PREFIX ~ application_id }}"
+      - "--oom-score-adj={{ TEST_E2E_PLAYWRIGHT_PARALLEL_OOM_SCORE_ADJ }}"
+  register: _playwright_job_written
+  when: _playwright_probe is skipped or (_playwright_probe.rc is defined and _playwright_probe.rc == 0)
+
+- name: 📝 Remember the run the scheduler now owns
+  ansible.builtin.set_fact:
+    _playwright_submitted: >-
+      {{ _playwright_submitted
+         + [{'id': application_id, 'job': _playwright_job_written.dest | basename}] }}
+  when: _playwright_job_written is not skipped
+
+- name: 📝 Leave the run to the serial runner, its onion never answered over Tor
+  ansible.builtin.set_fact:
+    _playwright_serial_roles: "{{ _playwright_serial_roles + [application_id] }}"
+  when: _playwright_job_written is skipped
