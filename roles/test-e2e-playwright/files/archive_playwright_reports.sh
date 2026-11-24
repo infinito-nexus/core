@@ -26,10 +26,10 @@ esac
 subdir="variant-${variant_index}/${pass}"
 
 cd "$reports_dir"
+rm -rf "${subdir:?}"
 mkdir -p "$subdir"
 for item in playwright-junit.xml playwright-report test-results run-parallel; do
 	if [ -e "$item" ]; then
-		rm -rf "${subdir:?}/$item"
 		mv "$item" "$subdir/"
 	fi
 done
