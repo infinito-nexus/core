@@ -4,10 +4,6 @@
     timeout: "{{ LMSTUDIO_PRELOAD_RETRY_DELAY | int }}"  # nocheck: timeout-lookup
   when: lmstudio_fetch_attempt | int > 0
 
-- name: "🕒 Give the downloads of source {{ lmstudio_fetch_slot }} the rest of its budget"
-  ansible.builtin.set_fact:
-    lmstudio_fetch_lifetime: "{{ [(lmstudio_fetch_deadline | int) - ('%s' | strftime | int), 1] | max }}"
-
 - name: "⬇️ Fetch the models of source {{ lmstudio_fetch_slot }} one by one"
   get_url_retry:
     url: "{{ lmstudio_fetch_job.url }}"
@@ -35,9 +31,10 @@
 - name: "⬇️ Run source {{ lmstudio_fetch_slot }} downloads as async jobs"
   ansible.builtin.include_tasks: utils/fetch/start.yml
   vars:
+    lmstudio_fetch_lifetime: "{{ [(lmstudio_fetch_deadline | int) - ('%s' | strftime | int), 1] | max }}"
     _window:
       lifetime: "{{ lmstudio_fetch_lifetime | int }}"
-      deadline: "{{ ('%s' | strftime | int) + (lmstudio_fetch_lifetime | int) + 15 }}"
+      deadline: "{{ (lmstudio_fetch_deadline | int) + 15 }}"
     _collect: >-
       {{ _window | combine({'jobs': lmstudio_fetch_async.results
                                     | selectattr('ansible_job_id', 'defined')

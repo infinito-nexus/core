@@ -1,5 +1,5 @@
 ---
-# Param: lmstudio_fetch_collect  async downloads this fetch started, to wait for before staging is touched again: {lifetime: seconds each job may run, jobs: [job ids]}
+# Param: lmstudio_fetch_collect  async downloads this fetch started: {lifetime: seconds left of their budget, deadline: when every one of them has ended, jobs: [job ids]}
 - name: "⏳ Collect the downloads on '{{ lmstudio_fetch_node }}'"
   ansible.builtin.include_tasks:
     file: utils/async/reap.yml
@@ -21,13 +21,16 @@
   vars:
     _running: >-
       {{ ((async_reap_results.results | selectattr('finished', 'undefined') | list)
-          + (async_reap_results.results | selectattr('finished', 'defined') | rejectattr('finished') | list))
+          + (async_reap_results.results | selectattr('finished', 'defined') | rejectattr('finished') | list)
+          + (async_reap_results.results | selectattr('msg', 'defined')
+             | selectattr('msg', 'eq', 'could not find job') | list))
          | map(attribute='ansible_job_id', default='unknown') | list }}
   ansible.builtin.fail:
     msg: >-
       The downloads {{ _running | join(', ') }} on {{ lmstudio_fetch_node }} still run
-      or reported no state past their {{ lmstudio_fetch_collect.lifetime }} s lifetime,
-      so another download would write the same model beside them.
+      past their budget or left no job state to read, so another download could write
+      the same model beside them. {{ lmstudio_fetch_jobs_file }} keeps their ids for the
+      next run to wait out.
   when: _running | length > 0
 
 - name: "🧾 Clear the jobs file on '{{ lmstudio_fetch_node }}' after its downloads ended"

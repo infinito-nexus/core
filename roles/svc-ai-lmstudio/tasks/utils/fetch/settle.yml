@@ -27,6 +27,18 @@
     loop_var: model
     label: "{{ model.file }}"
 
+- name: "🛑 Refuse model paths on '{{ lmstudio_fetch_node }}' that hold no readable file"
+  vars:
+    _unreadable: >-
+      {{ lmstudio_read.results | selectattr('stat.exists')
+         | selectattr('stat.checksum', 'undefined') | map(attribute='stat.path') | list }}
+  ansible.builtin.fail:
+    msg: >-
+      {{ _unreadable | join(', ') }} on {{ lmstudio_fetch_node }} hold no readable regular
+      file, so their sha256 cannot be checked against AI_LOCAL_MODELS and no download may
+      replace them. Remove or replace them.
+  when: _unreadable | length > 0
+
 - name: "🧮 Sort what the model store on '{{ lmstudio_fetch_node }}' holds by digest"
   vars:
     _off_digest: >-

@@ -9,9 +9,9 @@
     _identities: >-
       {{ _repos | zip(_files, LMSTUDIO_PRELOAD_MODELS | map(attribute='sha256'),
                       LMSTUDIO_PRELOAD_MODELS | map(attribute='bytes') | map('string'))
-         | map('join', '/') | unique | list }}
+         | map('join', '/') | unique(case_sensitive=true) | list }}
   ansible.builtin.assert:
-    that: _identities | length == _repos | zip(_files) | map('join', '/') | unique | list | length
+    that: _identities | length == _repos | zip(_files) | map('join', '/') | unique(case_sensitive=true) | list | length
     fail_msg: >-
       AI_LOCAL_MODELS declares the same repo and file more than once with
       different sha256 or bytes, so the model store on {{ lmstudio_fetch_node }}
@@ -30,17 +30,8 @@
     quiet: true
 
 - name: "🧾 Start the fetch on '{{ lmstudio_fetch_node }}' with nothing read yet"
-  vars:
-    _declared: >-
-      {%- set seen = namespace(paths=[], models=[]) -%}
-      {%- for model in LMSTUDIO_PRELOAD_MODELS
-            if (model.repo ~ '/' ~ model.file) not in seen.paths -%}
-      {%- set seen.paths = seen.paths + [model.repo ~ '/' ~ model.file] -%}
-      {%- set seen.models = seen.models + [model] -%}
-      {%- endfor -%}
-      {{ seen.models }}
   ansible.builtin.set_fact:
-    lmstudio_fetch_declared: "{{ _declared }}"
+    lmstudio_fetch_declared: "{{ LMSTUDIO_PRELOAD_MODELS | lmstudio_declared_models }}"
     lmstudio_fetch_jobs_file: "{{ lmstudio_fetch_staging }}.jobs.json"
     lmstudio_fetch_pending: []
     lmstudio_fetch_settled: []
@@ -80,7 +71,10 @@
   loop_control:
     loop_var: jid
   register: lmstudio_fetch_leftover_jobs
-  until: lmstudio_fetch_leftover_jobs.finished or (_now | int) > (_leftovers.deadline | int)
+  until: >-
+    (lmstudio_fetch_leftover_jobs.finished
+     and (lmstudio_fetch_leftover_jobs.msg | default('')) != 'could not find job')
+    or (_now | int) > (_leftovers.deadline | int)
   retries: "{{ [((_leftovers.deadline | int) - (_now | int)) // 5 + 1, 0] | max }}"
   delay: 5
   changed_when: false

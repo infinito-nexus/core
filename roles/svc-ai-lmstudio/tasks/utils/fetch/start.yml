@@ -1,6 +1,7 @@
 ---
-# Param: _window   {lifetime, deadline} of the downloads this attempt starts, the deadline taken anew on every use
-# Param: _collect  _window plus the ids of the jobs the start task registered
+# Param: lmstudio_fetch_lifetime  seconds left of the source's budget, taken anew for every download started, at least 1
+# Param: _window                  {lifetime, deadline} of the downloads this attempt starts: the lifetime taken anew on every use, the deadline by which every one of them has ended
+# Param: _collect                 _window plus the ids of the jobs the start task registered
 - name: "🧾 Note in the jobs file that source {{ lmstudio_fetch_slot }} starts"
   ansible.builtin.copy:
     content: "{{ _window | combine({'jobs': []}) | to_json }}"

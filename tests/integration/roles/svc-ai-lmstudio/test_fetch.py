@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shlex
 import signal
 import socket
 import struct
@@ -25,6 +26,7 @@ BLOB = bytes(range(256)) * 1024
 REPO = "lmstudio-community/Probe-GGUF"
 FILE = "Probe-Q4_K_M.gguf"
 OTHER = "Other-Q4_K_M.gguf"
+THIRD = "Third-Q4_K_M.gguf"
 GOOD = ("good", 0.0)
 CORRUPT = ("corrupt", 0.0)
 RATE = 1_000_000
@@ -108,7 +110,7 @@ class Run:
 
 
 def _serve(
-    routes: dict[str, tuple[str, float]], held: list[Path]
+    routes: dict[str, tuple[str, float]], held: list[Path], async_dir: Path
 ) -> tuple[ThreadingHTTPServer, dict]:
     """
     Args:
@@ -118,15 +120,19 @@ def _serve(
             transfer cleanly after half the body, "trickle" sends a kilobyte
             every half second and gives up after a quarter of the body,
             "tamper" rewrites every held model with other bytes before it sends
-            BLOB. Each of them waits the seconds before it answers, except
-            "outage", which answers 503 until the seconds have passed since its
-            first request and BLOB after that.
+            BLOB, "forget" deletes every async job state before it sends BLOB.
+            Each of them waits the seconds before it answers, except "outage",
+            which answers 503 until the seconds have passed since its first
+            request and BLOB after that, and "gate", which sends BLOB once every
+            "gate" route has been asked or the seconds have passed.
         held: the store paths "tamper" rewrites.
+        async_dir: the directory of the async job states "forget" deletes.
 
     Returns:
         The running source and its counters.
     """
-    lock = threading.Lock()
+    lock = threading.Condition()
+    gates = sum(1 for kind, _ in routes.values() if kind == "gate")
     stats: dict = {
         "requests": {},
         "first": {},
@@ -134,6 +140,7 @@ def _serve(
         "peak": {},
         "active": 0,
         "overlap": 0,
+        "gated": 0,
     }
 
     class Source(BaseHTTPRequestHandler):
@@ -150,13 +157,21 @@ def _serve(
                 )
                 stats["active"] += 1
                 stats["overlap"] = max(stats["overlap"], stats["active"])
+                stats["gated"] += kind == "gate"
+                lock.notify_all()
             try:
+                if kind == "forget":
+                    for job in async_dir.iterdir():
+                        job.unlink(missing_ok=True)
                 if kind == "outage":
                     if time.monotonic() - first < seconds:
                         self.send_response(503)
                         self.send_header("Content-Length", "0")
                         self.end_headers()
                         return
+                elif kind == "gate":
+                    with lock:
+                        lock.wait_for(lambda: stats["gated"] >= gates, seconds)
                 else:
                     time.sleep(seconds)
                 self._answer(kind, attempt)
@@ -235,7 +250,7 @@ class Probe:
             routes[f"/source/{model.file}"] = model.source
             for index, mirror in enumerate(model.mirrors, start=1):
                 routes[f"/mirror{index}/{model.file}"] = mirror
-        self.server, self.stats = _serve(routes, held)
+        self.server, self.stats = _serve(routes, held, self.async_dir)
         base = "http://{}:{}".format(*self.server.server_address[:2])
         (root / "tasks").symlink_to(PROJECT_ROOT / "tasks")
         declared = []
@@ -335,12 +350,12 @@ class Probe:
             encoding="utf-8",
         )
 
-    def leave_unnoted_start(self, seconds: int) -> None:
-        """Leave the jobs file of a fetch killed after it noted the start of its
-        downloads but before it noted their job ids.
-
+    def leave_started(self, seconds: int, jobs: list[str]) -> None:
+        """
         Args:
-            seconds: how long from now the downloads it started may run.
+            seconds: how long from now the downloads a killed fetch started may run.
+            jobs: the job ids its jobs file notes, none when it was killed before
+                it noted them.
         """
         self.staging.mkdir(parents=True, exist_ok=True)
         self.jobs_file.write_text(
@@ -348,11 +363,28 @@ class Probe:
                 {
                     "lifetime": seconds,
                     "deadline": int(time.time()) + seconds,
-                    "jobs": [],
+                    "jobs": jobs,
                 }
             ),
             encoding="utf-8",
         )
+
+    def stall(self, module: str, seconds: int) -> None:
+        """
+        Args:
+            module: the module whose every start on the target waits, as its
+                uploaded file names it ("async_wrapper", "get_url").
+            seconds: how long each such start waits.
+        """
+        shim = self.variables.with_name("interpreter")
+        shim.write_text(
+            "#!/bin/sh\n"
+            f'case "$1" in *[/_]{module}.py) sleep {seconds} ;; esac\n'
+            f'exec {shlex.quote(sys.executable)} "$@"\n',
+            encoding="utf-8",
+        )
+        shim.chmod(0o755)
+        self.settings["ansible_python_interpreter"] = str(shim)
 
     def deliver(self, file: str) -> None:
         """Land a model in the store the way a download the play did not start would.
@@ -366,18 +398,26 @@ class Probe:
         landing.write_bytes(BLOB)
         landing.replace(path)
 
-    def noted_jobs(self) -> list[str]:
+    def ledger(self) -> dict | None:
         """
         Returns:
-            The job ids the jobs file notes, empty while it is absent or notes none.
+            What the jobs file notes, None while it is absent.
         """
         try:
             noted = self.jobs_file.read_text(  # nocheck: cache-read  a running play rewrites it
                 encoding="utf-8"
             )
         except FileNotFoundError:
-            return []
-        return json.loads(noted)["jobs"]
+            return None
+        return json.loads(noted)
+
+    def noted_jobs(self) -> list[str]:
+        """
+        Returns:
+            The job ids the jobs file notes, empty while it is absent or notes none.
+        """
+        ledger = self.ledger()
+        return [] if ledger is None else ledger["jobs"]
 
     def _configure(self, async_enabled: bool) -> None:
         """
@@ -438,7 +478,7 @@ class Probe:
             path = self.store / REPO / model.file
             stored[model.file] = (
                 path.read_bytes()  # nocheck: cache-read  the play wrote it
-                if path.exists()
+                if path.is_file()
                 else b""
             )
         return Run(
@@ -506,8 +546,8 @@ class TestFetch(unittest.TestCase):
     def test_every_model_downloads_at_once_when_async(self) -> None:
         run = _fetch(
             [
-                Model(FILE, ("good", 3.0), (), None, BLOB),
-                Model(OTHER, ("good", 3.0), (), None, BLOB),
+                Model(FILE, ("gate", 30.0), (), None, BLOB),
+                Model(OTHER, ("gate", 30.0), (), None, BLOB),
             ],
             60,
             False,
@@ -575,12 +615,11 @@ class TestFetch(unittest.TestCase):
                 )
                 self.assertEqual(run.rc, 0, run.output[-3000:])
                 self.assertEqual(run.stored[FILE], BLOB)
-                self.assertGreaterEqual(run.requests[f"/source/{FILE}"], 3)
+                self.assertGreaterEqual(run.requests[f"/source/{FILE}"], 2)
 
     def test_async_retries_stop_when_the_source_budget_runs_out(self) -> None:
         run = _fetch([Model(FILE, CORRUPT, (), None, BLOB)], 20, False, None, True)
         self.assertNotEqual(run.rc, 0, run.output[-3000:])
-        self.assertGreaterEqual(run.requests[f"/source/{FILE}"], 2)
         self.assertLessEqual(run.requests[f"/source/{FILE}"], 4)
 
     def test_an_interrupted_fetch_leaves_no_partial_behind(self) -> None:
@@ -599,7 +638,8 @@ class TestFetch(unittest.TestCase):
         self.assertEqual(run.staged, [])
 
     def test_a_source_that_never_verifies_fails_closed_inside_the_budget(self) -> None:
-        run = _fetch([Model(FILE, CORRUPT, (), None, BLOB)], 4, False, None, True)
+        with Probe([Model(FILE, CORRUPT, (), None, BLOB)], 60, RATE, 0, None) as probe:
+            run = probe.play(True)
         self.assertNotEqual(run.rc, 0, run.output[-3000:])
         self.assertIn("did not match", run.text(), run.output[-3000:])
         self.assertEqual(run.stored[FILE], b"")
@@ -691,23 +731,62 @@ class TestFetch(unittest.TestCase):
         self.assertEqual(run.staged, [])
         self.assertLess(run.elapsed, 120)
 
-    def test_downloads_started_but_never_noted_are_waited_out(self) -> None:
+    def test_downloads_of_a_past_fetch_in_no_known_state_are_waited_out(self) -> None:
+        for noted in ([], ["j404.1"]):
+            with self.subTest(noted=noted):
+                with Probe(
+                    [Model(FILE, GOOD, (), None, BLOB)], 60, RATE, RETRIES, None
+                ) as probe:
+                    probe.leave_started(30, noted)
+                    probe.leave_partial()
+                    landing = threading.Timer(20, probe.deliver, args=(FILE,))
+                    landing.start()
+                    try:
+                        run = probe.play(True)
+                    finally:
+                        landing.cancel()
+                    self.assertFalse(probe.jobs_file.exists())
+                self.assertEqual(run.rc, 0, run.output[-3000:])
+                self.assertEqual(run.stored[FILE], BLOB)
+                self.assertEqual(run.requests, {})
+                self.assertEqual(run.staged, [])
+
+    def test_a_download_whose_job_state_vanishes_stops_the_play(self) -> None:
         with Probe(
-            [Model(FILE, GOOD, (), None, BLOB)], 60, RATE, RETRIES, None
+            [Model(FILE, ("forget", 10.0), (), None, BLOB)], 60, RATE, RETRIES, None
         ) as probe:
-            probe.leave_unnoted_start(30)
-            probe.leave_partial()
-            landing = threading.Timer(20, probe.deliver, args=(FILE,))
-            landing.start()
-            try:
-                run = probe.play(True)
-            finally:
-                landing.cancel()
-            self.assertFalse(probe.jobs_file.exists())
-        self.assertEqual(run.rc, 0, run.output[-3000:])
-        self.assertEqual(run.stored[FILE], BLOB)
-        self.assertEqual(run.requests, {})
-        self.assertEqual(run.staged, [])
+            run = probe.play(True)
+            noted = probe.noted_jobs()
+        self.assertNotEqual(run.rc, 0, run.output[-3000:])
+        self.assertIn("left no job state to read", run.text(), run.output[-3000:])
+        self.assertTrue(noted)
+        self.assertEqual(run.requests[f"/source/{FILE}"], 1)
+
+    def test_every_download_ends_by_the_deadline_noted_before_its_start(self) -> None:
+        with Probe(
+            [
+                Model(name, ("trickle", 0.0), (), None, BLOB)
+                for name in (FILE, OTHER, THIRD)
+            ],
+            20,
+            RATE,
+            0,
+            None,
+        ) as probe:
+            probe.stall("async_wrapper", 6)
+            play = probe.start(True)
+            noted = None
+            cutoff = time.monotonic() + 300
+            while play.poll() is None and time.monotonic() < cutoff:
+                ledger = probe.ledger()
+                if noted is None and ledger is not None and not ledger["jobs"]:
+                    noted = int(ledger["deadline"])
+                time.sleep(0.2)
+            play.wait(timeout=60)
+            ended = [job.stat().st_mtime for job in probe.async_dir.iterdir()]
+        self.assertIsNotNone(noted)
+        self.assertEqual(len(ended), 3)
+        self.assertLessEqual(max(ended), noted)
 
     def test_debug_runs_retry_a_download_only_preload_retries_times(self) -> None:
         with Probe(
@@ -778,6 +857,48 @@ class TestFetch(unittest.TestCase):
         self.assertEqual(run.stored[FILE], BLOB)
         self.assertEqual(run.requests[f"/source/{FILE}"], 1)
         self.assertEqual(run.peak, {FILE: 1})
+
+    def test_a_model_declared_twice_keeps_the_sources_of_both(self) -> None:
+        with Probe(
+            [
+                Model(FILE, CORRUPT, (), None, BLOB),
+                Model(FILE, CORRUPT, (GOOD,), None, BLOB),
+            ],
+            60,
+            RATE,
+            0,
+            None,
+        ) as probe:
+            run = probe.play(True)
+        self.assertEqual(run.rc, 0, run.output[-3000:])
+        self.assertEqual(run.stored[FILE], BLOB)
+        self.assertEqual(run.requests[f"/mirror1/{FILE}"], 1)
+
+    def test_paths_that_differ_only_in_case_are_two_models(self) -> None:
+        twin = FILE.lower()
+        run = _fetch(
+            [
+                Model(FILE, GOOD, (), None, BLOB),
+                Model(twin, CORRUPT, (), None, bytes(reversed(BLOB))),
+            ],
+            60,
+            False,
+            None,
+            True,
+        )
+        self.assertEqual(run.rc, 0, run.output[-3000:])
+        self.assertEqual(run.stored, {FILE: BLOB, twin: bytes(reversed(BLOB))})
+
+    def test_a_model_path_holding_no_readable_file_is_refused(self) -> None:
+        with Probe(
+            [Model(FILE, GOOD, (), None, BLOB)], 60, RATE, RETRIES, None
+        ) as probe:
+            (probe.store / REPO / FILE).mkdir(parents=True)
+            run = probe.play(True)
+        self.assertNotEqual(run.rc, 0, run.output[-3000:])
+        self.assertIn(f"{REPO}/{FILE}", run.text(), run.output[-3000:])
+        self.assertIn("no readable regular file", run.text(), run.output[-3000:])
+        self.assertEqual(run.requests, {})
 
     def test_a_path_declared_with_two_digests_is_refused(self) -> None:
         run = _fetch(
