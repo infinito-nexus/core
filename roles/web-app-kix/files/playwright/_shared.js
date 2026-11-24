@@ -46,6 +46,10 @@ const CONTENT = ".content-wrapper";
 const SETUP_STEPS = `${CONTENT} .setup-steps`;
 const SETUP_STEP = `${SETUP_STEPS} .step`;
 const SETUP_PENDING_STEP = `${SETUP_STEP}:not(.completed):not(.skipped)`;
+const CUSTOMER_DASHBOARD = "/organisations?dependent=false";
+const CUSTOMER_SEARCH = `${CONTENT} .customer-dashboard .organisation-search`;
+const CUSTOMER_SEARCH_INPUT = `${CUSTOMER_SEARCH} input`;
+const CUSTOMER_SEARCH_SUBMIT = `${CUSTOMER_SEARCH} button.submit-button`;
 
 function expectKeycloakAdminEnv() {
   for (const [key, value] of Object.entries({ ...keycloak, kixUserGroupPath, biberUsername, biberPassword })) {
@@ -310,6 +314,18 @@ async function skipSetupAssistant(page) {
   await expect(page.locator(SETUP_PENDING_STEP), "every setup step must be completed or skipped").toHaveCount(0);
 }
 
+/**
+ * Args:
+ *   page: Playwright page signed in as an agent who may read organisations and contacts; ends on the customer
+ *     dashboard listing what the search found.
+ *   term: search term matching an attribute KIX searches, such as the login name of a contact.
+ */
+async function searchCustomerDashboard(page, term) {
+  await openView(page, CUSTOMER_DASHBOARD, CUSTOMER_SEARCH_INPUT);
+  await page.locator(CUSTOMER_SEARCH_INPUT).first().fill(term);
+  await page.locator(CUSTOMER_SEARCH_SUBMIT).first().click({ timeout: resolveTimeout(30_000) });
+}
+
 async function beforeEach({ page }) {
   expect(appBaseUrl,      "APP_BASE_URL must be set").toBeTruthy();
   expect(canonicalDomain, "CANONICAL_DOMAIN must be set").toBeTruthy();
@@ -338,6 +354,7 @@ module.exports = {
   reached,
   openView,
   skipSetupAssistant,
+  searchCustomerDashboard,
   performKixLogin,
   signInThroughGate,
   runKixLogin,

@@ -8,6 +8,7 @@ const { loadInternals } = require(path.join(PROJECT_ROOT, "tests/unit/javascript
 const SHARED = path.join(PROJECT_ROOT, "roles/web-app-kix/files/playwright/_shared.js");
 const BASE = "https://kix.example.org";
 const POLL_LIMIT = 50;
+const BIBER = { login: "biber", street: "Biberweg 7" };
 const identity = (value) => value;
 const tick = () => new Promise((resolve) => setImmediate(resolve));
 
@@ -67,23 +68,65 @@ function kixApp(deleteTicks) {
   return app;
 }
 
-function loadLogout(app) {
+/**
+ * Args:
+ *   contacts: contacts KIX holds, each with its login name and the street the directory synced.
+ *
+ * Returns:
+ *   A KIX customer dashboard stand-in: a load lists no contact, a submitted search lists the contacts whose login name
+ *   matches the typed term, and while the contacts table depends on the organisations one it lists none.
+ */
+function customerDashboard(contacts) {
+  const app = { url: "", dependent: false, term: "", listed: [], visits: [] };
+  const element = {
+    isVisible: async () => app.url !== "",
+    first: () => element,
+    fill: async (value) => {
+      app.term = value;
+    },
+    click: async () => {
+      app.listed = app.dependent ? [] : contacts.filter((contact) => contact.login === app.term);
+    },
+  };
+  app.page = {
+    url: () => app.url,
+    evaluate: async () => false,
+    locator: () => element,
+    getByText: (text) => ({
+      first: () => ({ isVisible: async () => app.listed.some((contact) => contact.street.includes(text)) }),
+    }),
+  };
+  app.gotoOnion = async (page, url) => {
+    app.visits.push(url);
+    const target = new URL(url);
+    app.dependent = target.searchParams.get("dependent") === "true";
+    app.url = `${BASE}${target.pathname}?dependent=${app.dependent}`;
+    app.term = "";
+    app.listed = [];
+  };
+  return app;
+}
+
+function loadShared(name, personas) {
   return loadInternals(
     SHARED,
-    ["runKixDirectoryLogout"],
+    [name],
     {
       "@playwright/test": { expect: fakeExpect, request: {} },
       "./timeouts": { resolveTimeout: identity },
-      "./personas": {
-        decodeDotenvQuotedValue: identity,
-        requireDotenvValue: identity,
-        inAppLogout: app.inAppLogout,
-        gotoOnion: app.gotoOnion,
-      },
+      "./personas": { decodeDotenvQuotedValue: identity, requireDotenvValue: identity, ...personas },
       "./service-gating": { isServiceEnabled: () => false },
     },
     { URL },
-  ).runKixDirectoryLogout;
+  )[name];
+}
+
+function loadLogout(app) {
+  return loadShared("runKixDirectoryLogout", { inAppLogout: app.inAppLogout, gotoOnion: app.gotoOnion });
+}
+
+function loadSearch(app) {
+  return loadShared("searchCustomerDashboard", { gotoOnion: app.gotoOnion });
 }
 
 test("the directory logout waits for the KIX sign-in before it requests a protected page again", async () => {
@@ -106,4 +149,26 @@ test("a logout that never reaches the KIX sign-in fails instead of requesting th
   const app = kixApp(POLL_LIMIT * 4);
   await assert.rejects(loadLogout(app)(app.page), /hand over to the KIX sign-in/);
   assert.deepEqual(app.visits, []);
+});
+
+test("the customer dashboard search for a login lists that contact's street with the organisation dependency off", async () => {
+  process.env.APP_BASE_URL = BASE;
+  const app = customerDashboard([BIBER]);
+  await loadSearch(app)(app.page, BIBER.login);
+  assert.deepEqual(app.visits, [`${BASE}/organisations?dependent=false`]);
+  assert.equal(await app.page.getByText(BIBER.street).first().isVisible(), true);
+});
+
+test("an unsearched customer dashboard lists no contact, the failure the search prevents", async () => {
+  process.env.APP_BASE_URL = BASE;
+  const app = customerDashboard([BIBER]);
+  await app.gotoOnion(app.page, `${BASE}/organisations`);
+  assert.equal(await app.page.getByText(BIBER.street).first().isVisible(), false);
+});
+
+test("a customer dashboard search for another login leaves the contact unlisted", async () => {
+  process.env.APP_BASE_URL = BASE;
+  const app = customerDashboard([BIBER]);
+  await loadSearch(app)(app.page, "nobody");
+  assert.equal(await app.page.getByText(BIBER.street).first().isVisible(), false);
 });

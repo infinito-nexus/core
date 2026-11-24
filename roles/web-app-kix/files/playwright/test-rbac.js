@@ -82,11 +82,11 @@ exports.register = function (shared) {
           await shared.runKixDirectoryLogin(page, shared.env.adminUsername, shared.env.adminPassword);
           await shared.skipSetupAssistant(page);
 
-          await gotoOnion(page, `${shared.env.appBaseUrl}/organisations`, { waitUntil: "domcontentloaded" });
+          await shared.searchCustomerDashboard(page, shared.env.biberUsername);
           const streetCell = page.getByText(contact.Street).first();
           await expect(
             streetCell,
-            "the contacts dashboard must list biber's synced street; reading it needs the Superuser role",
+            "the contacts dashboard searched for biber's login must list biber's synced street; reading it needs the Superuser role",
           ).toBeVisible({ timeout: resolveTimeout(90_000) });
           await streetCell.click({ timeout: resolveTimeout(30_000) });
           for (const value of [contact.Title, contact.Phone, contact.Mobile, contact.Street, contact.Zip, contact.City]) {
