@@ -11,8 +11,18 @@ from ansible.plugins.action import ActionBase
 
 
 class ActionModule(ActionBase):
+    """get_url with retries on the controller.
+
+    Args:
+        retries: own argument, never passed on to get_url: how often a failed
+            download is retried. Use it instead of the ``retries`` task keyword,
+            which also makes Ansible retry the whole task, every retry of this
+            plugin included. Defaults to the keyword, else DEFAULT_RETRIES.
+    """
+
     DEFAULT_RETRIES = 12
     DEFAULT_DELAY = 5
+    OWN_ARGS = frozenset({"retries"})
 
     def run(self, tmp=None, task_vars=None):
         if task_vars is None:
@@ -24,7 +34,10 @@ class ActionModule(ActionBase):
         if self._task.async_val:
             return self._execute_get_url(tmp=tmp, task_vars=task_vars)
 
-        retries = self._task_keyword_int("retries", self.DEFAULT_RETRIES)
+        if "retries" in self._task.args:
+            retries = self._as_int(self._task.args["retries"], self.DEFAULT_RETRIES)
+        else:
+            retries = self._task_keyword_int("retries", self.DEFAULT_RETRIES)
         delay = self._task_keyword_int("delay", self.DEFAULT_DELAY)
 
         attempts_total = max(1, retries + 1)
@@ -44,7 +57,11 @@ class ActionModule(ActionBase):
     def _execute_get_url(self, tmp, task_vars):
         return self._execute_module(
             module_name="ansible.builtin.get_url",
-            module_args=dict(self._task.args),
+            module_args={
+                key: value
+                for key, value in self._task.args.items()
+                if key not in self.OWN_ARGS
+            },
             task_vars=task_vars,
             tmp=tmp,
         )

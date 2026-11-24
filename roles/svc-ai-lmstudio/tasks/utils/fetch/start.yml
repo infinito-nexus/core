@@ -1,0 +1,37 @@
+---
+# Param: _window   {lifetime, deadline} of the downloads this attempt starts, the deadline taken anew on every use
+# Param: _collect  _window plus the ids of the jobs the start task registered
+- name: "🧾 Note in the jobs file that source {{ lmstudio_fetch_slot }} starts"
+  ansible.builtin.copy:
+    content: "{{ _window | combine({'jobs': []}) | to_json }}"
+    dest: "{{ lmstudio_fetch_jobs_file }}"
+    mode: "0600"
+
+- name: "⬇️ Start the downloads of source {{ lmstudio_fetch_slot }}"
+  ansible.builtin.get_url:
+    url: "{{ lmstudio_fetch_job.url }}"
+    dest: "{{ lmstudio_fetch_store }}/{{ lmstudio_fetch_job.model.repo }}/{{ lmstudio_fetch_job.model.file }}"
+    tmp_dest: "{{ lmstudio_fetch_staging }}"
+    checksum: "sha256:{{ lmstudio_fetch_job.model.sha256 }}"
+    mode: "0644"
+  # rationale: async; collect.yml waits for every job of the round and settle.yml reads the store back before another attempt or the play goes on
+  async: "{{ lmstudio_fetch_lifetime }}"
+  poll: "{{ ASYNC_POLL }}"
+  loop: "{{ lmstudio_fetch_due }}"
+  loop_control:
+    loop_var: lmstudio_fetch_job
+    label: "{{ lmstudio_fetch_job.model.file }} from {{ lmstudio_fetch_job.url }}"
+  register: lmstudio_fetch_async
+  changed_when: false
+  ignore_errors: true
+
+- name: "🧾 Note the downloads of source {{ lmstudio_fetch_slot }} in the jobs file"
+  ansible.builtin.copy:
+    content: "{{ _collect | to_json }}"
+    dest: "{{ lmstudio_fetch_jobs_file }}"
+    mode: "0600"
+
+- name: "⏳ Wait for the downloads of source {{ lmstudio_fetch_slot }}"
+  ansible.builtin.include_tasks: utils/fetch/collect.yml
+  vars:
+    lmstudio_fetch_collect: "{{ _collect }}"

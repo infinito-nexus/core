@@ -1,0 +1,45 @@
+---
+# Param: lmstudio_fetch_models  declared models to read back from the store; each one replaces its entry in lmstudio_fetch_settled when held at its digest, else in lmstudio_fetch_pending
+- name: "🔍 Find partial downloads left in the staging dir on '{{ lmstudio_fetch_node }}'"
+  ansible.builtin.find:
+    paths: "{{ lmstudio_fetch_staging }}"
+    file_type: any
+    hidden: true
+  register: lmstudio_staging_leftovers
+
+- name: "🧹 Remove partial downloads left in staging on '{{ lmstudio_fetch_node }}'"
+  ansible.builtin.file:
+    path: "{{ leftover.path }}"
+    state: absent
+  loop: "{{ lmstudio_staging_leftovers.files }}"
+  loop_control:
+    loop_var: leftover
+    label: "{{ leftover.path | basename }}"
+
+- name: "🔍 Read what the model store on '{{ lmstudio_fetch_node }}' holds"
+  ansible.builtin.stat:
+    path: "{{ lmstudio_fetch_store }}/{{ model.repo }}/{{ model.file }}"
+    checksum_algorithm: sha256
+  register: lmstudio_read
+  changed_when: false
+  loop: "{{ lmstudio_fetch_models }}"
+  loop_control:
+    loop_var: model
+    label: "{{ model.file }}"
+
+- name: "🧮 Sort what the model store on '{{ lmstudio_fetch_node }}' holds by digest"
+  vars:
+    _off_digest: >-
+      {%- set off = namespace(reads=[]) -%}
+      {%- for read in lmstudio_read.results
+            if not (read.stat.exists and read.stat.checksum == read.model.sha256) -%}
+      {%- set off.reads = off.reads + [read] -%}
+      {%- endfor -%}
+      {{ off.reads }}
+  ansible.builtin.set_fact:
+    lmstudio_fetch_pending: >-
+      {{ (lmstudio_fetch_pending | rejectattr('model', 'in', lmstudio_fetch_models) | list)
+         + _off_digest }}
+    lmstudio_fetch_settled: >-
+      {{ (lmstudio_fetch_settled | rejectattr('model', 'in', lmstudio_fetch_models) | list)
+         + (lmstudio_read.results | reject('in', _off_digest) | list) }}

@@ -1,0 +1,36 @@
+---
+# Param: lmstudio_fetch_collect  async downloads this fetch started, to wait for before staging is touched again: {lifetime: seconds each job may run, jobs: [job ids]}
+- name: "⏳ Collect the downloads on '{{ lmstudio_fetch_node }}'"
+  ansible.builtin.include_tasks:
+    file: utils/async/reap.yml
+    apply:
+      delegate_to: "{{ lmstudio_fetch_node }}"
+      ignore_errors: true
+  vars:
+    async_reap_jobs: >-
+      {%- set fired = namespace(jobs=[]) -%}
+      {%- for jid in lmstudio_fetch_collect.jobs -%}
+      {%- set fired.jobs = fired.jobs + [{'ansible_job_id': jid}] -%}
+      {%- endfor -%}
+      {{ fired.jobs }}
+    async_reap_label: "LM Studio model downloads on {{ lmstudio_fetch_node }}"
+    async_reap_tolerate: []
+    ASYNC_TIME: "{{ (lmstudio_fetch_collect.lifetime | int) + 30 }}"
+
+- name: "🛑 Stop when a download still runs on '{{ lmstudio_fetch_node }}'"
+  vars:
+    _running: >-
+      {{ ((async_reap_results.results | selectattr('finished', 'undefined') | list)
+          + (async_reap_results.results | selectattr('finished', 'defined') | rejectattr('finished') | list))
+         | map(attribute='ansible_job_id', default='unknown') | list }}
+  ansible.builtin.fail:
+    msg: >-
+      The downloads {{ _running | join(', ') }} on {{ lmstudio_fetch_node }} still run
+      or reported no state past their {{ lmstudio_fetch_collect.lifetime }} s lifetime,
+      so another download would write the same model beside them.
+  when: _running | length > 0
+
+- name: "🧾 Clear the jobs file on '{{ lmstudio_fetch_node }}' after its downloads ended"
+  ansible.builtin.file:
+    path: "{{ lmstudio_fetch_jobs_file }}"
+    state: absent

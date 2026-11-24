@@ -80,6 +80,53 @@ class TestGetUrlRetryActionPlugin(unittest.TestCase):
         self.assertEqual(sleep_mock.call_count, 2)
         sleep_mock.assert_called_with(1)
 
+    def test_run_takes_its_retry_count_from_its_own_argument(self):
+        task = _FakeTask(
+            args={"url": "http://example.invalid", "dest": "/tmp/file", "retries": "1"},
+            ds={"delay": 1},
+            delay=1,
+        )
+        action = _make_action(task)
+
+        with (
+            patch(
+                "plugins.action.get_url_retry.ActionModule._execute_module",
+                side_effect=[
+                    {"failed": True, "msg": "attempt-1"},
+                    {"failed": True, "msg": "attempt-2"},
+                    {"failed": False, "dest": "/tmp/file"},
+                ],
+            ) as module_mock,
+            patch("plugins.action.get_url_retry.time.sleep") as sleep_mock,
+        ):
+            result = action.run(task_vars={})
+
+        self.assertTrue(result.get("failed"))
+        self.assertEqual(result.get("attempts"), 2)
+        self.assertEqual(module_mock.call_count, 2)
+        sleep_mock.assert_called_once_with(1)
+        for call in module_mock.call_args_list:
+            self.assertEqual(
+                call.kwargs["module_args"],
+                {"url": "http://example.invalid", "dest": "/tmp/file"},
+            )
+
+    def test_own_retry_argument_never_reaches_an_async_get_url(self):
+        task = _FakeTask(
+            args={"url": "http://example.invalid", "dest": "/tmp/file", "retries": 3},
+            async_val=30,
+        )
+        action = _make_action(task)
+
+        with patch(
+            "plugins.action.get_url_retry.ActionModule._execute_module",
+            return_value={"failed": False, "dest": "/tmp/file"},
+        ) as module_mock:
+            action.run(task_vars={})
+
+        self.assertEqual(module_mock.call_count, 1)
+        self.assertNotIn("retries", module_mock.call_args.kwargs["module_args"])
+
     def test_run_delegates_to_native_when_until_is_set(self):
         task = _FakeTask(
             args={"url": "http://example.invalid", "dest": "/tmp/file"},
