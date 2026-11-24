@@ -32,7 +32,7 @@ matomo:
   enabled: true # nocheck: dynamic-flag
   shared: true
   image: matomo
-  version: "5.14.3"
+  version: "6.0.0"
   custom: true
   name: matomo
   min_storage: 404MB
