@@ -41,7 +41,7 @@
 
 - name: "📡 Run the notify_push self-test and store {{ NEXTCLOUD_NOTIFY_PUSH_URL }}"
   ansible.builtin.command:
-    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} notify_push:setup {{ NEXTCLOUD_NOTIFY_PUSH_URL | quote }}"
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC }} {{ NEXTCLOUD_NOTIFY_PUSH_SETUP_ENV }} {{ NEXTCLOUD_INTERNAL_OCC_COMMAND }} notify_push:setup {{ NEXTCLOUD_NOTIFY_PUSH_URL | quote }}"
   register: nextcloud_notify_push_setup
   changed_when: true
   retries: 12

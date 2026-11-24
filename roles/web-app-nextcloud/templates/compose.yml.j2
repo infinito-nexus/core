@@ -46,7 +46,7 @@
       start_period: {{ container_healthcheck_start_period }}
       start_interval: 5s
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    {{ lookup('container_extra_hosts') | indent(4) }}
+    {{ lookup('container_extra_hosts', extra_hosts=(['host.docker.internal:host-gateway'] if NEXTCLOUD_NOTIFY_PUSH_SOCKS_PROXY else [])) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
     {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
 

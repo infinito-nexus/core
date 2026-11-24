@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import shlex
 import unittest
 
 from jinja2 import (
@@ -10,6 +11,7 @@ from jinja2 import (
     DictLoader,
     Environment,
     FileSystemLoader,
+    StrictUndefined,
     select_autoescape,
 )
 
@@ -19,6 +21,7 @@ from utils.cache.applications import get_merged_applications
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml_any
+from utils.networks.reachability import network_of
 from utils.roles.mapping import (
     ROLE_FILE_META_SERVICES,
     ROLE_FILE_TEMPL_COMPOSE,
@@ -71,6 +74,17 @@ NEXTCLOUD_URLS = {
     "compose": "http://nextcloud-proxy:80",
     "swarm": "http://nextcloud_proxy:80",
 }
+
+TASKS_FILE = PROJECT_ROOT / ROLE / "tasks/addons/notify_push.yml"
+ONION_DOMAIN = "next.cloud." + "a" * 56 + ".onion"
+CLEARNET_DOMAIN = "next.cloud.infinito.example"
+TOR_SOCKS_PROXY = "socks5h://host.docker.internal:9050"
+DOCKER_EXEC = ["container", "exec", "-u", "www-data", "4f1c2b"]
+OCC = "/var/www/html/occ"
+PRE_FIX_SELF_TEST = (
+    "{{ NEXTCLOUD_DOCKER_EXEC_OCC }} notify_push:setup "
+    "{{ NEXTCLOUD_NOTIFY_PUSH_URL | quote }}"
+)
 
 
 class _Marker(ChainableUndefined):
@@ -239,6 +253,66 @@ def _push_route(base_endpoint: str, location: str) -> str:
     return re.sub(f"^{re.escape(location)}(.*)$", r"/\1", path)
 
 
+def _render_role_expression(expression: str, scope: dict) -> str:
+    """
+    Args:
+        expression: a Jinja expression of the role's tasks or ``vars/main.yml``.
+        scope: the values that stand in for lookups and facts.
+
+    Returns:
+        The expression rendered strictly, with every role var it names that
+        ``scope`` does not hold rendered from ``vars/main.yml`` first.
+    """
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    env.filters["network_of"] = network_of
+    env.filters["quote"] = shlex.quote
+    names = set(re.findall(r"\b[A-Z][A-Z0-9_]+\b", expression))
+    resolved = {
+        name: _render_role_expression(ROLE_VARS[name], scope)
+        for name in names & ROLE_VARS.keys() - scope.keys()
+    }
+    return env.from_string(expression).render({**scope, **resolved})
+
+
+def _self_test_command() -> str:
+    tasks = load_yaml_any(str(TASKS_FILE))
+    [task] = [entry for entry in tasks if "notify_push:setup" in str(entry)]
+    return task["ansible.builtin.command"]["cmd"]
+
+
+def _direct_argv(domain: str) -> list[str]:
+    """
+    Args:
+        domain: the Nextcloud domain of the deployment.
+
+    Returns:
+        The self-test argv that reaches the push URL without any proxy.
+    """
+    return [*DOCKER_EXEC, OCC, "notify_push:setup", f"http://{domain}/push"]
+
+
+def _self_test_argv(domain: str, command: str) -> list[str]:
+    """
+    Args:
+        domain: the Nextcloud domain of the deployment.
+        command: the ``cmd`` of the self-test task to render.
+
+    Returns:
+        The argv the command module runs for the self-test.
+    """
+    scope = {
+        "NEXTCLOUD_DOMAIN": domain,
+        "NEXTCLOUD_TOR_SOCKS_PROXY": TOR_SOCKS_PROXY,
+        "NEXTCLOUD_DOCKER_EXEC": shlex.join(DOCKER_EXEC),
+        "NEXTCLOUD_INTERNAL_OCC_COMMAND": OCC,
+        "NEXTCLOUD_NOTIFY_PUSH_URL": f"http://{domain}/push",
+    }
+    return shlex.split(_render_role_expression(command, scope))
+
+
 class TestNotifyPushComposeService(unittest.TestCase):
     def test_enabled_renders_the_daemon_on_the_nextcloud_image_in_both_modes(self):
         template = read_text(str(PROJECT_ROOT / COMPOSE_TEMPLATE))
@@ -314,7 +388,7 @@ class TestNotifyPushEndpoint(unittest.TestCase):
 
 class TestNotifyPushWebsocketTaskWiring(unittest.TestCase):
     def test_patch_then_fail_closed_probe_follow_the_setup(self):
-        tasks = load_yaml_any(str(PROJECT_ROOT / ROLE / "tasks/addons/notify_push.yml"))
+        tasks = load_yaml_any(str(TASKS_FILE))
         programs = {
             re.search(
                 r"'(php/addons/notify_push/[a-z_/]+\.php)'",
@@ -344,6 +418,37 @@ class TestNotifyPushWebsocketTaskWiring(unittest.TestCase):
         for key in ("failed_when", "ignore_errors", "until"):
             with self.subTest(key=key):
                 self.assertNotIn(key, probe_task)
+
+
+class TestNotifyPushSelfTestTorProxy(unittest.TestCase):
+    def test_an_onion_self_test_runs_through_the_tor_socks_proxy(self):
+        self.assertEqual(
+            _self_test_argv(ONION_DOMAIN, _self_test_command()),
+            [
+                *DOCKER_EXEC,
+                "env",
+                f"HTTP_PROXY={TOR_SOCKS_PROXY}",
+                f"HTTPS_PROXY={TOR_SOCKS_PROXY}",
+                OCC,
+                "notify_push:setup",
+                f"http://{ONION_DOMAIN}/push",
+            ],
+            "libcurl refuses an .onion host under RFC 7686 unless a socks5h "
+            "proxy resolves it",
+        )
+
+    def test_a_clearnet_self_test_stays_direct(self):
+        self.assertEqual(
+            _self_test_argv(CLEARNET_DOMAIN, _self_test_command()),
+            _direct_argv(CLEARNET_DOMAIN),
+            "a broken clearnet push route must keep failing the self-test",
+        )
+
+    def test_negative_control_the_pre_fix_self_test_sends_the_onion_unproxied(self):
+        self.assertEqual(
+            _self_test_argv(ONION_DOMAIN, PRE_FIX_SELF_TEST),
+            _direct_argv(ONION_DOMAIN),
+        )
 
 
 class TestNotifyPushFlags(unittest.TestCase):

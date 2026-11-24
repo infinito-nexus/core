@@ -17,10 +17,16 @@ TEMPLATE = read_text(
 ONION_PROVIDER = "auth." + "b" * 56 + ".onion"
 CLEARNET_PROVIDER = "auth.infinito.example"
 ONION_PINS = ["host.docker.internal:host-gateway", f"{ONION_PROVIDER}:host-gateway"]
+TOR_PROXY_PIN = ["host.docker.internal:host-gateway"]
+TOR_SOCKS_PROXY = "socks5h://host.docker.internal:9050"
 PHP_RUNTIMES = ("nextcloud", "cron", "taskprocessing")
 HEALTHCHECK_TAIL = "      start_interval: 5s\n"
 DEPENDS_ON = "    {{ lookup('container_depends_on'"
 PIN = "    {{ lookup('container_extra_hosts') | indent(4) }}\n"
+SELF_TEST_PIN = (
+    "    {{ lookup('container_extra_hosts', extra_hosts=(['host.docker.internal:host-gateway']"
+    " if NEXTCLOUD_NOTIFY_PUSH_SOCKS_PROXY else [])) | indent(4) }}\n"
+)
 
 
 class _Marker(ChainableUndefined):
@@ -39,27 +45,37 @@ def _bool(value):
 
 
 class _ProviderLookup:
-    def __init__(self, name: str, provider_host: str):
+    def __init__(self, name: str, provider_host: str, sso: bool):
         self._name = name
         self._provider_host = provider_host
+        self._sso = sso
 
     def run(self, terms, variables=None):
         if self._name == "config":
-            return [terms[1] == "services.sso.enabled"]
+            return [self._sso and terms[1] == "services.sso.enabled"]
         if self._name == "tls":
             return [self._provider_host]
         raise AssertionError(f"unexpected lookup '{self._name}'")
 
 
-def _render(template_text: str, provider_host: str) -> str:
+def _render(
+    template_text: str,
+    provider_host: str,
+    *,
+    sso: bool,
+    socks_proxy: str = "",
+) -> str:
     """
     Args:
         template_text: the compose template source to render.
         provider_host: the SSO provider domain the extra_hosts lookup resolves.
+        sso: whether the deployment enables SSO.
+        socks_proxy: what ``NEXTCLOUD_NOTIFY_PUSH_SOCKS_PROXY`` renders to,
+            empty unless Nextcloud's own domain is an onion.
 
     Returns:
-        The compose document of a compose-mode node with SSO enabled, rendered
-        with the real container_extra_hosts lookup.
+        The compose document of a compose-mode node, rendered with the real
+        container_extra_hosts lookup.
     """
     env = Environment(
         loader=DictLoader(
@@ -86,6 +102,7 @@ def _render(template_text: str, provider_host: str) -> str:
         "NEXTCLOUD_SERVICE": "nextcloud",
         "NEXTCLOUD_CRON_SERVICE": "cron",
         "NEXTCLOUD_TASKPROCESSING_SERVICE": "taskprocessing",
+        "NEXTCLOUD_NOTIFY_PUSH_SOCKS_PROXY": socks_proxy,
     }
 
     def lookup(name, *args, **kwargs):
@@ -96,7 +113,7 @@ def _render(template_text: str, provider_host: str) -> str:
     env.globals["lookup"] = lookup
     with patch(
         "plugins.lookup.container_extra_hosts.lookup_loader.get",
-        side_effect=lambda name, **_kwargs: _ProviderLookup(name, provider_host),
+        side_effect=lambda name, **_kwargs: _ProviderLookup(name, provider_host, sso),
     ):
         return env.get_template("compose.yml.j2").render(variables)
 
@@ -128,13 +145,13 @@ def _extra_hosts(rendered: str, service: str) -> list[str]:
 
 class TestPhpRuntimeExtraHosts(unittest.TestCase):
     def test_onion_sso_pins_the_tor_proxy_host_in_every_php_runtime(self):
-        rendered = _render(TEMPLATE, ONION_PROVIDER)
+        rendered = _render(TEMPLATE, ONION_PROVIDER, sso=True)
         for service in PHP_RUNTIMES:
             with self.subTest(service=service):
                 self.assertEqual(_extra_hosts(rendered, service), ONION_PINS)
 
     def test_clearnet_sso_pins_nothing_in_any_php_runtime(self):
-        rendered = _render(TEMPLATE, CLEARNET_PROVIDER)
+        rendered = _render(TEMPLATE, CLEARNET_PROVIDER, sso=True)
         for service in PHP_RUNTIMES:
             with self.subTest(service=service):
                 self.assertEqual(_extra_hosts(rendered, service), [])
@@ -146,10 +163,51 @@ class TestPhpRuntimeExtraHosts(unittest.TestCase):
             HEALTHCHECK_TAIL + PIN + DEPENDS_ON, HEALTHCHECK_TAIL + DEPENDS_ON
         )
         self.assertNotEqual(pre_fix, TEMPLATE)
-        rendered = _render(pre_fix, ONION_PROVIDER)
+        rendered = _render(pre_fix, ONION_PROVIDER, sso=True)
         self.assertEqual(_extra_hosts(rendered, "nextcloud"), ONION_PINS)
         self.assertEqual(_extra_hosts(rendered, "cron"), [])
         self.assertEqual(_extra_hosts(rendered, "taskprocessing"), [])
+
+
+class TestNotifyPushSelfTestProxyHost(unittest.TestCase):
+    def test_onion_without_sso_pins_the_tor_proxy_host_where_the_self_test_runs(
+        self,
+    ):
+        rendered = _render(
+            TEMPLATE, CLEARNET_PROVIDER, sso=False, socks_proxy=TOR_SOCKS_PROXY
+        )
+        self.assertEqual(
+            _extra_hosts(rendered, "nextcloud"),
+            TOR_PROXY_PIN,
+            "the occ self-test reaches its onion URL only through the Tor SOCKS "
+            "proxy on host.docker.internal",
+        )
+        self.assertEqual(_extra_hosts(rendered, "cron"), [])
+        self.assertEqual(_extra_hosts(rendered, "taskprocessing"), [])
+
+    def test_clearnet_without_sso_pins_nothing(self):
+        rendered = _render(TEMPLATE, CLEARNET_PROVIDER, sso=False)
+        for service in PHP_RUNTIMES:
+            with self.subTest(service=service):
+                self.assertEqual(_extra_hosts(rendered, service), [])
+
+    def test_onion_sso_keeps_its_pins_unchanged(self):
+        rendered = _render(
+            TEMPLATE, ONION_PROVIDER, sso=True, socks_proxy=TOR_SOCKS_PROXY
+        )
+        for service in PHP_RUNTIMES:
+            with self.subTest(service=service):
+                self.assertEqual(_extra_hosts(rendered, service), ONION_PINS)
+
+    def test_negative_control_the_unpinned_template_leaves_the_self_test_without_the_proxy_host(
+        self,
+    ):
+        self.assertIn(SELF_TEST_PIN, TEMPLATE)
+        pre_fix = TEMPLATE.replace(SELF_TEST_PIN, PIN)
+        rendered = _render(
+            pre_fix, CLEARNET_PROVIDER, sso=False, socks_proxy=TOR_SOCKS_PROXY
+        )
+        self.assertEqual(_extra_hosts(rendered, "nextcloud"), [])
 
 
 if __name__ == "__main__":
