@@ -1,40 +1,109 @@
 from __future__ import annotations
 
+import contextlib
 import json
+import re
 import unittest
+import unittest.mock
 
 from crossposter import store
 from crossposter.sources import Media, SourceItem
 
+from . import PROJECT_ROOT
+
 SOURCE = "https://microblog.example/users/press/statuses/1"
+SQL_SOURCE = PROJECT_ROOT / "roles/web-app-openpost/files/sql/crossposter"
+PLACEHOLDER = re.compile(r"%\((\w+)\)s")
+ITEM = SourceItem(
+    uri=SOURCE,
+    url="https://microblog.example/@press/1",
+    platform="mastodon",
+    text="Hello",
+    visibility="public",
+    tags=("news",),
+    media=(
+        Media(
+            url="https://microblog.example/a.png",
+            mime="image/png",
+            description="alt",
+            size=12,
+        ),
+    ),
+    in_reply_to="",
+    reblog=False,
+    spoiler="",
+    application="",
+    cursor="1",
+)
+
+
+class _Connection:
+    def __init__(self) -> None:
+        self.calls: list[tuple[str, dict | None]] = []
+
+    def execute(self, text: str, parameters: dict | None = None) -> _Connection:
+        self.calls.append((text, parameters))
+        return self
+
+    def fetchone(self) -> dict:
+        return {"held": True, "cursor": "1"}
+
+    def fetchall(self) -> list[dict]:
+        return []
+
+    def transaction(self) -> contextlib.nullcontext:
+        return contextlib.nullcontext()
 
 
 class TestPayload(unittest.TestCase):
     def test_a_stored_item_comes_back_unchanged(self) -> None:
-        item = SourceItem(
-            uri=SOURCE,
-            url="https://microblog.example/@press/1",
-            platform="mastodon",
-            text="Hello",
-            visibility="public",
-            tags=("news",),
-            media=(
-                Media(
-                    url="https://microblog.example/a.png",
-                    mime="image/png",
-                    description="alt",
-                    size=12,
-                ),
-            ),
-            in_reply_to="",
-            reblog=False,
-            spoiler="",
-            application="",
-            cursor="1",
-        )
         self.assertEqual(
-            store.item_from_json(json.loads(store.item_to_json(item))), item
+            store.item_from_json(json.loads(store.item_to_json(ITEM))), ITEM
         )
+
+
+class TestQueries(unittest.TestCase):
+    def setUp(self) -> None:
+        patcher = unittest.mock.patch.object(store, "SQL_DIR", SQL_SOURCE)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_every_query_has_one_file_and_every_file_a_query(self) -> None:
+        self.assertEqual(
+            sorted(path.stem for path in SQL_SOURCE.glob("*.sql")),
+            sorted(store.QUERIES),
+        )
+
+    def test_an_unknown_query_is_refused(self) -> None:
+        with self.assertRaises(KeyError):
+            store.query("select_items; DROP SCHEMA crossposter")
+
+    def test_every_call_binds_exactly_the_placeholders_of_its_statement(
+        self,
+    ) -> None:
+        connection = _Connection()
+        crossposter_store = store.Store.__new__(store.Store)
+        crossposter_store.connection = connection
+
+        crossposter_store.migrate()
+        crossposter_store.lock()
+        crossposter_store.cursor("press")
+        crossposter_store.advance("press", "2", [(ITEM, "x-press", "x")])
+        crossposter_store.due()
+        crossposter_store.open_publications()
+        crossposter_store.unnotified()
+        crossposter_store.everything()
+        crossposter_store.update(1, "drafted", "pub-1", 1, "", 0)
+        crossposter_store.resend(1, 0, "HTTP 503", 30)
+        crossposter_store.mark_notified(1)
+
+        self.assertEqual(
+            sorted(text for text, _ in connection.calls),
+            sorted(store.query(name) for name in store.QUERIES),
+        )
+        for text, parameters in connection.calls:
+            with self.subTest(statement=text.splitlines()[0]):
+                self.assertEqual(set(PLACEHOLDER.findall(text)), set(parameters or {}))
 
 
 class TestIdempotencyKey(unittest.TestCase):
