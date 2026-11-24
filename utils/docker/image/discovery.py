@@ -316,6 +316,30 @@ def _runner_image(service: str, image: str, source_file: str) -> ImageRef | None
     )
 
 
+def iter_compose_images(
+    repo_root: Path, source_files: Iterable[str]
+) -> Iterable[ImageRef]:
+    """Args:
+    repo_root: repository root the source files are relative to.
+    source_files: repository-relative compose files. A file without a
+        ``services`` mapping, and an ``image`` that interpolates a
+        variable, carries no tag or is pinned by digest, yield nothing.
+    """
+    for source_file in source_files:
+        services = load_yaml(repo_root / source_file).get("services")
+        if not isinstance(services, dict):
+            continue
+        for service, spec in services.items():
+            image = (
+                str(spec.get("image") or "").strip() if isinstance(spec, dict) else ""
+            )
+            if not image or "${" in image:
+                continue
+            ref = _runner_image(str(service), image, source_file)
+            if ref is not None:
+                yield ref
+
+
 def iter_runner_images(repo_root: Path) -> Iterable[ImageRef]:
     """Yield the images the CI runner pulls itself, outside every role.
 
@@ -326,17 +350,7 @@ def iter_runner_images(repo_root: Path) -> Iterable[ImageRef]:
     """
     from utils.env.parser import parse_static_env
 
-    for source_file in RUNNER_COMPOSE_FILES:
-        services = load_yaml(repo_root / source_file).get("services") or {}
-        for service, spec in services.items():
-            image = (
-                str(spec.get("image") or "").strip() if isinstance(spec, dict) else ""
-            )
-            if not image or "${" in image:
-                continue
-            ref = _runner_image(str(service), image, source_file)
-            if ref is not None:
-                yield ref
+    yield from iter_compose_images(repo_root, RUNNER_COMPOSE_FILES)
 
     declared = parse_static_env(repo_root / "default.env")
     for key in RUNNER_ENV_IMAGES:

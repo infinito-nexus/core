@@ -173,6 +173,8 @@ def _main(mountinfo, targets):
             '["/proc"]',
             "--environment",
             "production",
+            "--host",
+            "node",
             "--report-dir",
             str(root / "report"),
             "--log-dir",
@@ -184,7 +186,6 @@ def _main(mountinfo, targets):
             mock.patch.object(SCRIPT, "check", return_value=([], [])),
             mock.patch.object(SCRIPT, "docker_root", return_value="/var/lib/docker"),
             mock.patch.object(SCRIPT, "scan", side_effect=scan),
-            mock.patch.object(SCRIPT.socket, "gethostname", return_value="node"),
             contextlib.redirect_stdout(io.StringIO()) as out,
         ):
             SCRIPT.main(argv)

@@ -250,9 +250,12 @@ def file_violations(directory: Path, expected: dict[str, str]) -> list[str]:
         problems.append(f"the directory holds {present}")
     for key, value in expected.items():
         path = directory / key
-        if not path.exists():
+        if not path.is_symlink() and not path.exists():
             continue
         info = path.lstat()
+        if not stat.S_ISREG(info.st_mode):
+            problems.append(f"{key} is not a regular file")
+            continue
         if stat.S_IMODE(info.st_mode) != 0o400:
             problems.append(f"{key} has mode {stat.S_IMODE(info.st_mode):04o}")
         if info.st_uid != os.geteuid():
@@ -317,6 +320,26 @@ class TestSpecSecretsHelper(unittest.TestCase):
         self,
     ) -> None:
         self.assertEqual(control_violations(load_helper()), [])
+
+    def test_a_short_value_holding_a_control_character_is_refused_by_its_key(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            module = load_helper()
+            module.PARENT = Path(tmp) / "spec-secrets"
+            _directory, code, printed = split_rendered(module, "A_KEY=a\tb\n")
+        self.assertEqual(code, 1)
+        self.assertIn("A_KEY", printed)
+
+    def test_a_dangling_link_in_place_of_a_secret_file_is_a_violation(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp) / "secrets"
+            directory.mkdir(mode=0o700)
+            (directory / "A_KEY").symlink_to(Path(tmp) / "gone")
+            self.assertEqual(
+                file_violations(directory, {"A_KEY": SENTINEL}),
+                ["A_KEY is not a regular file"],
+            )
 
     def test_the_helper_writes_0400_files_and_prints_a_count_only(self) -> None:
         module = load_helper()

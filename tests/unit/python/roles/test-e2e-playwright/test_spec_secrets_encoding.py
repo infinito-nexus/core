@@ -248,6 +248,19 @@ class TestSpecSecretsEncoding(unittest.TestCase):
     def test_each_decoder_rule_has_an_encoder_whose_form_it_decodes(self) -> None:
         self.assertEqual(mapping_gaps(load_masker()), [])
 
+    def test_an_escape_past_unicode_is_left_as_text_and_stops_no_scan(self) -> None:
+        names = load_masker().windows.__globals__
+        for escape in (
+            b"\\UFFFFFFFF",
+            b"\\U80000000",
+            b"\\U00110000",
+            b"\\u{FFFFFFFF}",
+        ):
+            with self.subTest(escape=escape):
+                data = b"secret-" + escape + b"-tail"
+                self.assertIn(data, {view for view, _s, _e in names["views"](data)})
+                self.assertTrue(names["windows"]([data]))
+
     def test_an_aria_snapshot_masks_a_doubled_quote_and_a_normalised_name(
         self,
     ) -> None:
