@@ -12,6 +12,7 @@ from urllib.parse import urlencode, urlparse
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
+from utils.docker.image.ref import dockerhub_repo, is_dockerhub
 from utils.docker.registry import manifest_exists
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.security.suppressions import drop_image_tag_entries
@@ -23,12 +24,10 @@ from utils.update.base import (
     is_semver,
     newer_version,
 )
-from utils.update.docker import (
-    dockerhub_repo,
+from utils.update.docker.tags import (
     fetch_dockerhub_tags,
     fetch_ghcr_tags,
     fetch_mcr_tags,
-    is_dockerhub,
     is_ghcr,
     is_mcr,
 )

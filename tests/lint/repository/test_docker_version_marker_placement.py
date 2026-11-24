@@ -1,7 +1,7 @@
 """A ``# nocheck: docker-version`` marker sits where the image updater reads it.
 
 The updater only skips a ``version:`` whose own line or immediately preceding
-non-empty line carries the marker (``utils/update/docker.py``). One line too
+non-empty line carries the marker (``utils/update/docker/__init__.py``). One line too
 high, above ``image:``, the marker holds nothing: the updater moved the
 self-built bases of ``svc-ai-s1`` and ``svc-ai-nllb-engine`` to
 ``python:3.15.2-slim``, where their pinned dependencies do not install.
