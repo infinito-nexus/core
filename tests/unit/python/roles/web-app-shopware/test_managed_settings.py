@@ -317,8 +317,14 @@ class TestClientConverge(unittest.TestCase):
 
     def test_the_read_never_receives_the_client_secret(self):
         read = _task("Read the stored")["ansible.builtin.shell"]
+        write = _task("Ensure the Keycloak login")["ansible.builtin.shell"]
         self.assertNotIn("OIDC_CLIENT_SECRET", read["cmd"])
-        self.assertNotIn("SECRET", read["stdin"])
+        self.assertEqual(
+            "{{ lookup('ansible.builtin.file', role_path ~ '/files/php/dal.php') }}\n"
+            "{{ lookup('ansible.builtin.file', role_path ~ '/files/php/oidc/client.php') }}",
+            read["stdin"],
+        )
+        self.assertIn("OIDC.CLIENT.SECRET", write["stdin"])
         self.assertIn("-e OIDC_CLIENT_MODE=read", read["cmd"])
         self.assertIn("--user {{ SHOPWARE_USER }}", read["cmd"])
 
@@ -343,13 +349,13 @@ class TestClientConverge(unittest.TestCase):
 
     def test_the_script_reads_only_the_form_fields_before_it_writes(self):
         script = _client_script()
-        main = script.index("$base = rtrim(env('SHOPWARE_API_BASE')")
+        main = script.index("$settings = json_decode(env('OIDC_CLIENT_SETTINGS')")
         branch = script.index("if (getenv('OIDC_CLIENT_MODE') === 'read') {")
         end = script.index("exit(0);", branch)
         self.assertIn("array_intersect_key($stored, $settings)", script[branch:end])
         for write in (
-            "api('PATCH'",
-            "api('POST', $entity",
+            "dal('upsert'",
+            "deleteOthers(",
             "env('OIDC_CLIENT_SECRET')",
         ):
             with self.subTest(write=write):

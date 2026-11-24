@@ -228,6 +228,17 @@ SHOPWARE_DESIGN_THEME_VALUES: >-
   }}
 SHOPWARE_DESIGN_SHOP_NAME: >-
   {{ lookup('design', application_id).title if SHOPWARE_DESIGN_ENABLED and lookup('design', application_id).title is string else '' }}
+SHOPWARE_SHOWCASE_ENABLED: "{{ (SHOPWARE_DESIGN_ENABLED | bool) and RUNTIME in ['dev', 'act', 'github'] }}"
+SHOPWARE_SHOWCASE:
+  manufacturer: d0000000000000000000000000000001
+  customer: d0000000000000000000000000000002
+  address: d0000000000000000000000000000003
+  customerEmail: "design-showcase@{{ lookup('domain', application_id) }}"
+  products:
+    - { id: d0000000000000000000000000000011, number: DESIGN-1, name: Design showcase lamp, gross: 119 }
+    - { id: d0000000000000000000000000000012, number: DESIGN-2, name: Design showcase chair, gross: 238 }
+    - { id: d0000000000000000000000000000013, number: DESIGN-3, name: Design showcase table, gross: 476 }
+SHOPWARE_SHOWCASE_SEEDED: "{{ (shopware_design_showcase.stdout_lines | last | from_json) if (SHOPWARE_SHOWCASE_ENABLED | bool) else {} }}"
 
 SHOPWARE_REDIS_ENABLED: "{{ lookup('config', application_id, 'services.redis.enabled') }}"
 SHOPWARE_REDIS_URL: "{{ lookup('engine', 'redis', application_id, 'url') }}"

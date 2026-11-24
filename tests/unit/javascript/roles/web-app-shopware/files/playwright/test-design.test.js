@@ -1,25 +1,22 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const crypto = require("node:crypto");
+const fs = require("node:fs");
 const path = require("node:path");
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../../../../..");
+const SPEC = path.join(PROJECT_ROOT, "roles/web-app-shopware/files/playwright/test-design.js");
 const { loadInternals } = require(path.join(PROJECT_ROOT, "tests/unit/javascript/utils/internals.js"));
+const dotenv = require(path.join(PROJECT_ROOT, "roles/test-e2e-playwright/files/personas/utils/dotenv.js"));
 
-const BASE = "https://shop.example";
-const DOTENV = {
-  APP_BASE_URL: BASE,
-  ADMIN_USERNAME: "administrator",
-  ADMIN_PASSWORD: "administrator-secret",
-  CANONICAL_DOMAIN: "shop.example",
-};
-const RESPONSES = {
-  "/api/oauth/token": { access_token: "token" },
-  "/api/search/sales-channel": { data: [{ id: "channel", domains: [{ url: BASE }] }] },
-  "/api/search/tax": { data: [{ id: "tax", taxRate: 19 }] },
-  "/api/search/theme": { data: [{ id: "theme" }] },
-  "/api/search/salutation": { data: [{ id: "salutation" }] },
-  "/api/_action/sync": {},
+const ENV = {
+  APP_BASE_URL: '"https://shop.example"',
+  SHOWCASE_PRODUCT_ID: '"d0000000000000000000000000000011"',
+  SHOWCASE_PRODUCT_NAME: '"Design showcase lamp"',
+  SHOWCASE_CUSTOMER_EMAIL: '"design-showcase@shop.example"',
+  SHOWCASE_CUSTOMER_PASSWORD: '"seeded-at-deploy"',
+  SHOWCASE_CHANNEL_ID: '"channel"',
+  SHOWCASE_THEME_ID: '"theme"',
+  SHOWCASE_THEME_CONFIG: '"{\\"sw-color-brand-primary\\":\\"#123456\\"}"',
 };
 const passes = new Proxy(
   {},
@@ -31,31 +28,19 @@ const passes = new Proxy(
   },
 );
 
-const synced = [];
-const { seedShowcase, signInCustomer } = loadInternals(
-  path.join(PROJECT_ROOT, "roles/web-app-shopware/files/playwright/test-design.js"),
-  ["seedShowcase", "signInCustomer"],
+Object.assign(process.env, ENV);
+const { showcase, signInCustomer } = loadInternals(
+  SPEC,
+  ["showcase", "signInCustomer"],
   {
-    "node:crypto": { ...crypto, randomBytes: (size) => Buffer.alloc(size, 0x5a) },
     "@playwright/test": { test: () => undefined, expect: () => passes },
-    "./personas": {
-      apiFetchOnion: async (_request, url, options) => {
-        const route = url.slice(BASE.length);
-        if (route === "/api/_action/sync") synced.push(options.data);
-        return { status: () => 200, json: async () => RESPONSES[route] };
-      },
-      decodeDotenvQuotedValue: (value) => value,
-      gotoOnion: async () => undefined,
-      normalizeBaseUrl: (value) => value,
-      requireDotenvValue: (_value, name) => DOTENV[name],
-    },
+    "./personas": { ...dotenv, gotoOnion: async () => undefined },
     "./timeouts": { resolveTimeout: (ms) => ms },
   },
   {},
 );
 
-test("the showcase customer signs in with a password drawn from node:crypto, not derived from the administrator's", async () => {
-  await seedShowcase({});
+test("the showcase customer signs in with the email and password the deploy seeded and handed over in .env", async () => {
   const filled = {};
   const locator = (selector) => ({
     fill: async (value) => {
@@ -66,7 +51,32 @@ test("the showcase customer signs in with a password drawn from node:crypto, not
   });
   await signInCustomer({ locator });
 
-  const seeded = synced[0]["design-showcase-customer"].payload[0].password;
-  assert.match(seeded, /^(?:5a){16,}$/);
-  assert.equal(filled["input[name='password']"], seeded);
+  assert.equal(filled["input[name='username']"], "design-showcase@shop.example");
+  assert.equal(filled["input[name='password']"], "seeded-at-deploy");
+});
+
+test("the channel, theme and theme configuration come from the deploy's seed output", () => {
+  const seeded = showcase();
+
+  assert.equal(seeded.productId, "d0000000000000000000000000000011");
+  assert.equal(seeded.channelId, "channel");
+  assert.equal(seeded.themeId, "theme");
+  assert.deepEqual(seeded.themeConfig, { "sw-color-brand-primary": "#123456" });
+});
+
+test("negative control: a run whose .env carries no seeded password fails instead of signing in with an empty one", () => {
+  process.env.SHOWCASE_CUSTOMER_PASSWORD = '""';
+  try {
+    assert.throws(showcase, /SHOWCASE_CUSTOMER_PASSWORD is empty/);
+  } finally {
+    process.env.SHOWCASE_CUSTOMER_PASSWORD = ENV.SHOWCASE_CUSTOMER_PASSWORD;
+  }
+});
+
+test("the spec reads no key: no mounted secret, no token grant, no admin API call and no random password", () => {
+  const source = fs.readFileSync(SPEC, "utf8");
+
+  for (const forbidden of ["/run/spec-secrets", "oauth/token", "/api/_action/sync", "/api/search/", "node:crypto", "node:fs", "INTEGRATION"]) {
+    assert.ok(!source.includes(forbidden), `the design spec must not reference ${forbidden}`);
+  }
 });

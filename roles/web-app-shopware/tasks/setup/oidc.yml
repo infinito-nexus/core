@@ -19,16 +19,14 @@
 - name: "🔎 Read the stored Keycloak login provider"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      IFS= read -r ADMIN_PASSWORD || :; : "${ADMIN_PASSWORD:?arrived empty on stdin}" && export ADMIN_PASSWORD && container exec -i --user {{ SHOPWARE_USER }}
-      -e SHOPWARE_API_BASE={{ SHOPWARE_API_BASE | quote }}
-      -e ADMIN_USER={{ lookup('users', 'platform_administrator').username | quote }}
-      -e ADMIN_PASSWORD
+      container exec -i --user {{ SHOPWARE_USER }}
+      -e SHOPWARE_ROOT={{ SHOPWARE_ROOT | quote }}
       -e OIDC_CLIENT_MODE=read
       -e OIDC_CLIENT_SETTINGS={{ SHOPWARE_OIDC_CLIENT_SETTINGS | to_json | quote }}
       {{ SHOPWARE_WEB_LOCAL_CID | quote }}
       php
     stdin: |-
-      {{ lookup('users', 'platform_administrator').password }}
+      {{ lookup('ansible.builtin.file', role_path ~ '/files/php/dal.php') }}
       {{ lookup('ansible.builtin.file', role_path ~ '/files/php/oidc/client.php') }}
   register: shopware_oidc_client_stored
   changed_when: false
@@ -43,11 +41,9 @@
 - name: "🔐 Ensure the Keycloak login provider is configured"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      IFS= read -r ADMIN_PASSWORD && IFS= read -r OIDC_CLIENT_SECRET && : "${ADMIN_PASSWORD:?arrived empty on stdin}" && : "${OIDC_CLIENT_SECRET:?arrived empty on
-      stdin}" && export ADMIN_PASSWORD OIDC_CLIENT_SECRET && container exec -i --user {{ SHOPWARE_USER }}
-      -e SHOPWARE_API_BASE={{ SHOPWARE_API_BASE | quote }}
-      -e ADMIN_USER={{ lookup('users', 'platform_administrator').username | quote }}
-      -e ADMIN_PASSWORD
+      IFS= read -r OIDC_CLIENT_SECRET && : "${OIDC_CLIENT_SECRET:?arrived empty on stdin}" && export OIDC_CLIENT_SECRET
+      && container exec -i --user {{ SHOPWARE_USER }}
+      -e SHOPWARE_ROOT={{ SHOPWARE_ROOT | quote }}
       -e OIDC_CLIENT_SECRET
       -e OIDC_CLIENT_SETTINGS={{ SHOPWARE_OIDC_CLIENT_SETTINGS | to_json | quote }}
       -e RBAC_GROUP_CLAIM={{ RBAC.GROUP.CLAIM | quote }}
@@ -58,8 +54,8 @@
       {{ SHOPWARE_WEB_LOCAL_CID | quote }}
       php
     stdin: |-
-      {{ lookup('users', 'platform_administrator').password }}
       {{ OIDC.CLIENT.SECRET }}
+      {{ lookup('ansible.builtin.file', role_path ~ '/files/php/dal.php') }}
       {{ lookup('ansible.builtin.file', role_path ~ '/files/php/oidc/client.php') }}
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

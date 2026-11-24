@@ -34,7 +34,7 @@ test("guest: with SSO on the administration login offers the Keycloak entry and 
   }
 });
 
-test("administrator: the local administrator's password grant reaches the admin API while SSO is on", async ({ request }) => {
+test("administrator: the password grant of the admin API follows the native method while SSO is on", async ({ request }) => {
   skipUnlessServiceEnabled("sso");
   expect(adminUsername, "ADMIN_USERNAME must be set").toBeTruthy();
   expect(adminPassword, "ADMIN_PASSWORD must be set").toBeTruthy();
@@ -51,7 +51,17 @@ test("administrator: the local administrator's password grant reaches the admin 
     },
     timeout: resolveTimeout(60_000),
   });
-  expect(grant.status(), "the break-glass password grant must stay open while the password form is hidden").toBe(200);
+
+  if (!nativeEnabled) {
+    expect(grant.status(), "denyPasswordLogin must refuse the password grant while the native method is off").toBe(400);
+    const refusal = (await grant.json()).errors?.[0]?.title || "";
+    expect(refusal, "the refusal must name the unsupported grant, not a wrong password").toMatch(
+      /grant type is not supported/i,
+    );
+    return;
+  }
+
+  expect(grant.status(), "the password grant must stay open while the native method is on").toBe(200);
   const token = (await grant.json()).access_token;
   expect(token, "the password grant must return an access token").toBeTruthy();
 
@@ -60,5 +70,5 @@ test("administrator: the local administrator's password grant reaches the admin 
     headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
     timeout: resolveTimeout(60_000),
   });
-  expect(info.status(), "the break-glass token must authorize the admin API").toBe(200);
+  expect(info.status(), "the password grant's token must authorize the admin API").toBe(200);
 });
