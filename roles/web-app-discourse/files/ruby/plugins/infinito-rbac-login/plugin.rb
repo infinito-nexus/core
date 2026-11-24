@@ -23,9 +23,8 @@ module ::InfinitoRbacLogin
   # @param user [User] the account that signs in
   # @param groups [Array<String>] the groups claim of the sign-in
   def self.apply(user, groups)
-    return if user.username_lower == User.normalize_username(KEPT_ADMINISTRATOR)
-
-    administrator = groups.include?(ADMINISTRATOR_GROUP)
+    kept = user.username_lower == User.normalize_username(KEPT_ADMINISTRATOR)
+    administrator = kept ? user.admin : groups.include?(ADMINISTRATOR_GROUP)
     if administrator && !user.admin
       user.grant_admin!
     elsif !administrator && user.admin
@@ -58,6 +57,22 @@ module ::InfinitoRbacLogin
       InfinitoRbacLogin.apply(user, groups) unless groups.nil?
     end
   end
+
+  module NoBootstrapModeration
+    private
+
+    # Replaces the whole upstream method: Discourse main (after v2026.10.2) also
+    # runs DiscoursePluginRegistry.first_admin_bootstrap callbacks there, which
+    # this override would drop; recheck at every Discourse bump.
+    # @param _user [User] the only admin, signing in for the first time
+    # @return [nil] the moderator flag stays with the moderator role group
+    def bootstrap_first_admin(_user)
+      nil
+    end
+  end
 end
 
-after_initialize { OpenIDConnectAuthenticator.prepend(InfinitoRbacLogin::Authenticator) }
+after_initialize do
+  OpenIDConnectAuthenticator.prepend(InfinitoRbacLogin::Authenticator)
+  Auth::DefaultCurrentUserProvider.prepend(InfinitoRbacLogin::NoBootstrapModeration)
+end

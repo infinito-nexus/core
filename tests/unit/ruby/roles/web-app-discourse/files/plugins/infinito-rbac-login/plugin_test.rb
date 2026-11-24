@@ -77,6 +77,22 @@ class DiscourseRbacLoginPluginTest < Minitest::Test
       end
     end
 
+    module Auth
+      class DefaultCurrentUserProvider
+        def log_on_user(user, _session, _cookie_jar, _opts = {})
+          bootstrap_first_admin(user)
+        end
+
+        private
+
+        def bootstrap_first_admin(user)
+          return if !user.admin || user.moderator
+
+          user.grant_moderation!
+        end
+      end
+    end
+
     def after_initialize
       yield
     end
@@ -101,6 +117,12 @@ class DiscourseRbacLoginPluginTest < Minitest::Test
     end
   RUBY
 
+  LOG_ON_DRIVER = <<~RUBY
+    account = FakeUser.new(JSON.parse(ENV.fetch("SCENARIO")).fetch("user"))
+    Auth::DefaultCurrentUserProvider.new.log_on_user(account, {}, {})
+    puts "admin=\#{account.admin} moderator=\#{account.moderator}"
+  RUBY
+
   # @param username [String] Discourse username of the account
   # @param admin [Boolean] admin flag before the sign-in
   # @param moderator [Boolean] moderator flag before the sign-in
@@ -120,22 +142,52 @@ class DiscourseRbacLoginPluginTest < Minitest::Test
     }
   end
 
+  # @param scenario [Hash] the SCENARIO the driver reads
+  # @param driver [String] Ruby source run after the prelude and the plugin
+  # @param plugin [Boolean] whether the plugin is loaded before the driver runs
+  # @param env [Hash] container variables to override, nil unsets one
+  # @return [Array(Array<String>, String, Process::Status)] stdout lines, stderr and status
+  def run_driver(scenario:, driver:, plugin: true, env: {})
+    stdout, stderr, status = Open3.capture3(
+      {
+        "INFINITO_RBAC_ADMINISTRATOR_GROUP" => ADMINISTRATOR_GROUP,
+        "INFINITO_RBAC_MODERATOR_GROUP" => MODERATOR_GROUP,
+        "INFINITO_RBAC_KEPT_ADMINISTRATOR" => "Administrator",
+        "SCENARIO" => scenario.to_json,
+      }.merge(env),
+      RbConfig.ruby, "-e", [PRELUDE, plugin ? "load ARGV[0]" : "", driver].join("\n"), PLUGIN
+    )
+    [stdout.lines.map(&:strip), stderr, status]
+  end
+
   # @param user [Hash, nil] the account the authenticator resolves, nil for a first sign-in
   # @param extra [Hash, nil] the extra section of the auth token
   # @param signup [Hash, nil] the account the signup creates afterwards, nil for no signup
   # @param env [Hash] container variables to override, nil unsets one
   # @return [Array(Array<String>, String, Process::Status)] stdout lines, stderr and status
   def sign_in(user:, extra:, signup: nil, env: {})
-    stdout, stderr, status = Open3.capture3(
-      {
-        "INFINITO_RBAC_ADMINISTRATOR_GROUP" => ADMINISTRATOR_GROUP,
-        "INFINITO_RBAC_MODERATOR_GROUP" => MODERATOR_GROUP,
-        "INFINITO_RBAC_KEPT_ADMINISTRATOR" => "Administrator",
-        "SCENARIO" => { "user" => user, "extra" => extra, "signup" => signup }.to_json,
-      }.merge(env),
-      RbConfig.ruby, "-e", "#{PRELUDE}\nload ARGV[0]\n#{DRIVER}", PLUGIN
-    )
-    [stdout.lines.map(&:strip), stderr, status]
+    run_driver(scenario: { "user" => user, "extra" => extra, "signup" => signup }, driver: DRIVER, env: env)
+  end
+
+  # @param user [Hash] the account that signs in through any login method
+  # @param plugin [Boolean] whether the plugin is loaded before the sign-in
+  # @return [Array(Array<String>, String, Process::Status)] stdout lines, stderr and status
+  def log_on(user:, plugin: true)
+    run_driver(scenario: { "user" => user }, driver: LOG_ON_DRIVER, plugin: plugin)
+  end
+
+  def test_the_first_sign_in_of_the_only_admin_grants_no_moderation
+    lines, stderr, status = log_on(user: account("administrator", admin: true))
+
+    assert_predicate status, :success?, stderr
+    assert_equal ["admin=true moderator=false"], lines
+  end
+
+  def test_without_the_plugin_the_first_sign_in_of_the_only_admin_grants_moderation
+    lines, stderr, status = log_on(user: account("administrator", admin: true), plugin: false)
+
+    assert_predicate status, :success?, stderr
+    assert_equal ["granted_moderator=administrator", "admin=true moderator=true"], lines
   end
 
   def test_an_administrator_member_is_granted_admin
@@ -185,11 +237,25 @@ class DiscourseRbacLoginPluginTest < Minitest::Test
     assert_equal "admin=false moderator=false", lines.last
   end
 
-  def test_the_kept_administrator_keeps_both_flags_outside_every_group
+  def test_the_kept_administrator_keeps_admin_but_loses_a_moderator_flag_outside_the_group
     lines, stderr, status = sign_in(user: account("administrator", admin: true, moderator: true), extra: extra([]))
 
     assert_predicate status, :success?, stderr
-    assert_equal ["groups=[]", "admin=true moderator=true"], lines
+    assert_equal ["revoked_moderator=administrator", "groups=[]", "admin=true moderator=false"], lines
+  end
+
+  def test_the_kept_administrator_without_admin_is_not_granted_admin
+    lines, stderr, status = sign_in(user: account("administrator"), extra: extra([]))
+
+    assert_predicate status, :success?, stderr
+    assert_equal ["groups=[]", "admin=false moderator=false"], lines
+  end
+
+  def test_the_kept_administrator_in_the_moderator_group_is_granted_moderation
+    lines, stderr, status = sign_in(user: account("administrator", admin: true), extra: extra([MODERATOR_GROUP]))
+
+    assert_predicate status, :success?, stderr
+    assert_equal ["granted_moderator=administrator", "groups=#{[MODERATOR_GROUP].inspect}", "admin=true moderator=true"], lines
   end
 
   def test_converged_flags_are_not_rewritten

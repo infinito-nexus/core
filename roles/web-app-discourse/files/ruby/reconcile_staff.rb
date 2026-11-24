@@ -13,9 +13,9 @@ kept = JSON.parse(ENV.fetch("DISCOURSE_RBAC_KEPT_ADMINISTRATORS")).map { |name| 
 changed = false
 
 User.real.find_each do |user|
-  next if kept.include?(user.username_lower)
+  administrator = kept.include?(user.username_lower) ? user.admin : administrators.call(user)
 
-  if administrators.call(user)
+  if administrator
     unless user.admin
       user.grant_admin!
       changed = true

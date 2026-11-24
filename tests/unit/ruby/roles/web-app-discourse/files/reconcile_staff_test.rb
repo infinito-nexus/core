@@ -124,8 +124,26 @@ class DiscourseReconcileStaffTest < Minitest::Test
   end
 
   def test_a_kept_administrator_outside_the_role_stays_admin
+    lines, stderr, status = reconcile(users: [account("administrator", admin: true)], kept: ["Administrator"])
+
+    assert_predicate status, :success?, stderr
+    assert_equal ["UNCHANGED"], lines
+  end
+
+  def test_a_kept_administrator_outside_the_moderator_role_loses_moderation
     lines, stderr, status = reconcile(
       users: [account("administrator", admin: true, moderator: true)],
+      kept: ["Administrator"]
+    )
+
+    assert_predicate status, :success?, stderr
+    assert_equal ["CHANGED revoked_moderator=administrator"], lines
+  end
+
+  def test_a_kept_administrator_without_admin_is_not_granted_admin
+    lines, stderr, status = reconcile(
+      users: [account("administrator")],
+      administrators: [member("administrator")],
       kept: ["Administrator"]
     )
 
