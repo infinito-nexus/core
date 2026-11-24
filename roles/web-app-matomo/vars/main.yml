@@ -6,6 +6,7 @@ entity_name: "{{ application_id | entity_name }}"
 
 MATOMO_SERVICE: "{{ entity_name }}"
 MATOMO_NAME: "{{ lookup('config', application_id, 'services.' ~ MATOMO_SERVICE ~ '.name') }}"
+MATOMO_VERSION: "{{ lookup('config', application_id, 'services.' ~ MATOMO_SERVICE ~ '.version') }}"
 MATOMO_HTML_DIR: "{{ lookup('volume', application_id, 'data').target }}"
 MATOMO_RELEASE_DIR: "/usr/src/matomo"
 MATOMO_RUNTIME_OWNER: "www-data:www-data"
@@ -34,6 +35,7 @@ MATOMO_TOKEN_DESCRIPTION: "{{ lookup('config', application_id, 'services.matomo.
 
 MATOMO_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') }}"
 MATOMO_DESIGN_THEME: "InfinitoDesign"
+MATOMO_DESIGN_REQUIRE: ">={{ MATOMO_VERSION.split('.')[0] }}.0.0-b1,<{{ MATOMO_VERSION.split('.')[0] | int + 1 }}.0.0-b1"
 MATOMO_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.volumes'), 'design'] | path_join }}"
 MATOMO_DESIGN_ASSETS: ["logo.svg", "logo.png", "favicon.png"]
 MATOMO_DESIGN_THEME_MODE_LOGINS: ["{{ MATOMO_ADMIN_USER_NAME }}", "anonymous"]
