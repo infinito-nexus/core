@@ -86,6 +86,7 @@ UNCHECKED_SCRUB = (
     SCRUB_CHECK.replace("if ! ", "").replace("; then", "\n\t\tif false; then"),
 )
 SPLIT = '\tpython3 -I -B "$spec_secrets" split "$secrets_dir"\n'
+UNWRITTEN_CID = (CIDFILE, '--cidfile "$secrets_dir/.cid" ')
 UNSTARTED = (SPLIT, f"{SPLIT}\tfalse\n")
 UNSTARTED_SAID = re.compile(
     r"spec secrets files written: 1\n"
@@ -241,9 +242,10 @@ class TestSpecSecretsShared(unittest.TestCase):
         self,
     ) -> None:
         started = time.monotonic()
-        found = rerun((), (CIDFILE, ""), stuck=True, run_code=0, ca_mode=CA_MODE)
+        found = rerun((), UNWRITTEN_CID, stuck=True, run_code=0, ca_mode=CA_MODE)
         self.assertLess(time.monotonic() - started, REMOVAL_BOUND)
-        self.assertEqual([found["rc"], found["left"]], [REFUSED, []])
+        self.assertTrue(found["ran"])
+        self.assertEqual([found["rc"], found["left"]], [1, []])
         self.assertTrue(found["removed"])
         self.assertTrue(all(map(RUN_NAME.fullmatch, found["removed"])))
         self.assertRegex(found["said"], UNPROVEN)

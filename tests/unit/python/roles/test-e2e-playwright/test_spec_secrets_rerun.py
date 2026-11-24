@@ -76,6 +76,8 @@ STAGE_RO = 'stage_ro=":ro"'
 UNCHECKED_CONTAINER = ("        check_container(container, paths[0])\n", "")
 FOREIGN_IMAGE = "mcr.microsoft.com/playwright:v0.0.1-noble"
 OVERRIDE_CHECK = '[[ -z "${TEST_E2E_PLAYWRIGHT_COMMAND:-}" ]] || {'
+IMAGE_CHECK = '[[ -z "${TEST_E2E_PLAYWRIGHT_IMAGE:-}" ]] || {'
+UNCHECKED_IMAGE = (IMAGE_CHECK, "true || {")
 OVERRIDE = "npm install && npx playwright test --reporter=html"
 STAGE_GUARD = '[[ -d "$stage_dir" && ! -L "$stage_dir" ]]'
 ASSIGN = re.compile(r"^PLAYWRIGHT_SECRETS_ASSIGN = .*$", re.MULTILINE)
@@ -416,6 +418,13 @@ class TestSpecSecretsRerun(unittest.TestCase):
         self.assertEqual([found["rc"], found["ran"]], [2, False])
         self.assertIn("override is refused", found["said"])
 
+    def test_a_rerun_refuses_an_image_override_before_any_container_starts(
+        self,
+    ) -> None:
+        found = rerun((), image=FOREIGN_IMAGE, run_code=0, ca_mode=CA_MODE)
+        self.assertEqual([found["rc"], found["ran"], found["installs"]], [2, False, []])
+        self.assertIn("TEST_E2E_PLAYWRIGHT_IMAGE override is refused", found["said"])
+
     @unittest.skipUnless(shutil.which("make"), "make is not installed")
     def test_both_make_targets_forward_any_secrets_file_name(self) -> None:
         name = '/tmp/a b/it\'s "quoted".txt'
@@ -434,7 +443,7 @@ class TestSpecSecretsRerun(unittest.TestCase):
     ) -> None:
         plain = {"run_code": 0, "ca_mode": CA_MODE}
         for name, found in (
-            ("image", rerun((), image=FOREIGN_IMAGE, **plain)),
+            ("image", rerun((), UNCHECKED_IMAGE, image=FOREIGN_IMAGE, **plain)),
             (
                 "NODE_OPTIONS",
                 rerun((), staged_env="NODE_OPTIONS=--require=/e2e/x.js\n", **plain),
@@ -475,9 +484,20 @@ class TestSpecSecretsRerunNegativeControls(unittest.TestCase):
     def test_a_masker_that_leaves_the_container_part_unchecked_is_caught(self) -> None:
         unchecked = (UNCHECKED_CONTAINER,)
         found = rerun(
-            (), image=FOREIGN_IMAGE, masker=unchecked, run_code=0, ca_mode=CA_MODE
+            (),
+            UNCHECKED_IMAGE,
+            image=FOREIGN_IMAGE,
+            masker=unchecked,
+            run_code=0,
+            ca_mode=CA_MODE,
         )
         self.assertEqual([found["rc"], found["ran"]], [0, True])
+
+    def test_a_rerun_that_installs_with_an_image_override_is_caught(self) -> None:
+        found = rerun(
+            (), UNCHECKED_IMAGE, image=FOREIGN_IMAGE, run_code=0, ca_mode=CA_MODE
+        )
+        self.assertEqual([found["installs"], found["rc"]], [[INSTALL], 70])
 
     def test_a_rerun_that_skips_the_timeout_check_is_caught(self) -> None:
         older = rerun(
