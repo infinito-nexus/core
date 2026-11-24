@@ -21,6 +21,7 @@ speech:
     flavor: http_status
     path: health
   api_path: /v1
+  model_alias: whisper-1
   language: auto
   request_timeout: 3600
   # nocheck: min-storage-headroom  Reason: the extracted image plus the upload and its 16 kHz WAV, about 450 MB per recorded hour, which the server writes to /tmp while it transcribes

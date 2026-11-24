@@ -47,8 +47,24 @@ LITELLM_KEYED_PROVIDERS: "{{ LITELLM_PROVIDER_KEYS | dict2items | selectattr('va
 
 LITELLM_SERVED_PROVIDERS: "{{ LITELLM_KEYED_PROVIDERS + [AI_MOCK_PROVIDER] }}"
 LITELLM_UNRANKED_ALIASES: "{{ ([LITELLM_ROUTER_ALIAS] + (AI_FREELLMAPI_MODELS | map(attribute='alias') | list) + (LITELLM_REMOTE_MODELS | selectattr('provider', 'equalto',
-  AI_MOCK_PROVIDER) | map(attribute='alias') | list)) | join(',') }}"
+  AI_MOCK_PROVIDER) | map(attribute='alias') | list) + LITELLM_AUDIO_ALIASES) | join(',') }}"
 LITELLM_REMOTE_MODELS: "{{ lookup('config', application_id, 'services.litellm.remote_models') + AI_FREELLMAPI_MODELS }}"
+
+LITELLM_SPEECH_BACKEND: >-
+  {{ (lookup('config', application_id, 'services.speech.enabled') | bool)
+     and (lookup('config', application_id, 'services.speech.shared') | bool) }}
+LITELLM_AUDIO_ROUTES: >-
+  {{ [{
+      'alias': lookup('config', 'svc-ai-speech', 'services.speech.model_alias'),
+      'mode': 'audio_transcription',
+      'params': {
+        'model': 'openai/' ~ lookup('config', 'svc-ai-speech', 'services.speech.name'),
+        'api_base': lookup('container_url', 'svc-ai-speech', 'speech') ~ lookup('config', 'svc-ai-speech', 'services.speech.api_path'),
+        'api_key': 'svc-ai-speech',
+        'timeout': lookup('config', 'svc-ai-speech', 'services.speech.request_timeout')
+      }
+     }] if LITELLM_SPEECH_BACKEND | bool else [] }}
+LITELLM_AUDIO_ALIASES: "{{ LITELLM_AUDIO_ROUTES | map(attribute='alias') | list }}"
 LITELLM_TEST_CONTRACT:
   ollama: "{{ LITELLM_OLLAMA_BACKEND | bool }}"
   lmstudio: "{{ LITELLM_LMSTUDIO_BACKEND | bool }}"

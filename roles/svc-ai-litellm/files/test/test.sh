@@ -17,6 +17,7 @@
 #   LITELLM_LMSTUDIO_ALIASES   JSON list of aliases only LM Studio provides
 #   LITELLM_MOCK_ALIASES       JSON list of aliases answered from a canned string
 #   LITELLM_REMOTE_ALIASES     JSON list of aliases a configured provider key adds
+#   LITELLM_AUDIO_ALIASES      JSON list of audio aliases svc-ai-speech backs
 #   LITELLM_OLLAMA_ENABLED     true|false
 #   LITELLM_LMSTUDIO_ENABLED   true|false
 #   READY_RETRIES              gateway readiness attempts (default 30)
@@ -57,6 +58,7 @@ probe() {
 		-e "LMSTUDIO_ALIASES=${LITELLM_LMSTUDIO_ALIASES}" \
 		-e "MOCK_ALIASES=${LITELLM_MOCK_ALIASES}" \
 		-e "REMOTE_ALIASES=${LITELLM_REMOTE_ALIASES}" \
+		-e "AUDIO_ALIASES=${LITELLM_AUDIO_ALIASES}" \
 		-e "OLLAMA_ENABLED=${LITELLM_OLLAMA_ENABLED}" \
 		-e "LMSTUDIO_ENABLED=${LITELLM_LMSTUDIO_ENABLED}" \
 		-e "ROUTER_ALIAS=${LITELLM_ROUTER_ALIAS}" \

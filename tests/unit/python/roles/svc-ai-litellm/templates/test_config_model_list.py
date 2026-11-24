@@ -80,6 +80,7 @@ def render(
     measured_speed=None,
     logo_url="",
     ui_sso=False,
+    audio_routes=(),
 ):
     """The rendered config as a parsed mapping.
 
@@ -94,6 +95,8 @@ def render(
             measurement; empty means nothing has been measured yet.
         logo_url: LITELLM_UI_LOGO_URL; empty while the admin UI shows no corporate logo.
         ui_sso: LITELLM_UI_SSO; whether the admin UI signs in through Keycloak.
+        audio_routes: LITELLM_AUDIO_ROUTES; empty while svc-ai-speech is not
+            deployed.
     """
     env = Environment(
         undefined=StrictUndefined,
@@ -120,6 +123,7 @@ def render(
         LITELLM_UI_SSO=str(ui_sso),
         LITELLM_UI_SSO_GROUP=UI_SSO_GROUP,
         RBAC={"GROUP": {"CLAIM": UI_SSO_CLAIM}},
+        LITELLM_AUDIO_ROUTES=list(audio_routes),
     )
     return yaml.safe_load(
         rendered

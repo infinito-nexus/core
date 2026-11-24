@@ -12,4 +12,6 @@
 
 - name: "🔁 Re-grant the gateway models in the running {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/web-app-openwebui/tasks/utils/agent_models.yml') }}"
-  when: openwebui_running.stdout | trim | length > 0
+  when:
+    - OPENWEBUI_MODEL_GRANTS_ENABLED | bool
+    - openwebui_running.stdout | trim | length > 0

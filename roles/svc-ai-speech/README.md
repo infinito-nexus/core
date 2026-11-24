@@ -12,7 +12,7 @@ The server answers `POST /v1/audio/transcriptions`, the route an OpenAI client a
 
 The model is `ggml-small-q5_1.bin` from `ggerganov/whisper.cpp` on Hugging Face, pinned in `meta/networks.yml` to a commit, its sha256 and its size. [svc-ai-models](../svc-ai-models/README.md) fetches it once into the shared model store, and the container mounts that store read-only, so the store is this role's model cache: no deploy and no swarm node downloads the model a second time, and the container starts only on a node whose store holds it.
 
-A consumer reaches the server once it declares `speech` in its own `meta/services.yml` with `enabled` and `shared` set, which attaches it to this role's network. `web-app-nextcloud` ships that flag: while this role is part of the deployment and `integration_openai` is enabled, Nextcloud sends its speech-to-text requests here and Talk transcribes and summarizes stored recordings.
+A consumer reaches the server once it declares `speech` in its own `meta/services.yml` with `enabled` and `shared` set, which attaches it to this role's network. `web-app-nextcloud` ships that flag: while this role is part of the deployment and `integration_openai` is enabled, Nextcloud sends its speech-to-text requests here and Talk transcribes and summarizes stored recordings. [svc-ai-litellm](../svc-ai-litellm/README.md) ships the flag too: while both roles are deployed, the gateway answers `/v1/audio/transcriptions` for the model `services.speech.model_alias` (`whisper-1`, the name OpenAI clients send by default) from this server, so a client that holds a gateway key needs no second endpoint.
 
 ## Features
 
@@ -21,6 +21,7 @@ A consumer reaches the server once it declares `speech` in its own `meta/service
 - **CPU only:** inference runs on as many threads as `services.speech.cpus` grants; the upload and its 16 kHz WAV, about 450 MB per recorded hour of a Talk video recording, go to `/tmp` until the answer is sent.
 - **Pinned model:** the model is verified against its digest before it enters the store, and the store is read-only inside the container.
 - **Internal only:** the server has no authentication, so it listens on the container network alone and only the roles that carry the `speech` flag join that network.
+- **Gateway route:** `services.speech.model_alias` names the model LiteLLM publishes for this server; the route carries the server's `request_timeout` and is held out of LiteLLM's chat routing.
 
 ## Further Resources
 

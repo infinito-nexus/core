@@ -189,6 +189,12 @@ def mock(alias, *, context=None, traits=None):
     return _route(alias, params, context, traits)
 
 
+def transcription(alias):
+    entry = local(alias, model="openai/speech")
+    entry["model_info"] = {"mode": "audio_transcription"}
+    return entry
+
+
 def _route(alias, params, context, traits):
     entry = {"model_name": alias, "litellm_params": params}
     info = {}
@@ -339,6 +345,13 @@ class TestCapabilities(HookCase, unittest.TestCase):
             self.caps(remote("e", model="text-embedding-3-small"))["servable"]
         )
 
+    def test_a_declared_non_chat_mode_is_not_servable(self) -> None:
+        self.assertFalse(
+            self.caps(transcription("whisper-1"))["servable"],
+            "the speech route names a model no catalog holds, so only its own "
+            "model_info.mode tells the router it answers no chat request",
+        )
+
     def test_system_messages_are_assumed_unless_denied(self) -> None:
         self.assertTrue(self.caps(remote("m", model="claude-sonnet-4-5"))["system"])
         self.assertFalse(self.caps(remote("m", model="no-system"))["system"])
@@ -438,6 +451,11 @@ class TestEligible(HookCase, unittest.TestCase):
     def test_a_deprecated_route_is_dropped(self) -> None:
         self.assertEqual(
             self.aliases([remote("r", model="retired"), local("ok")]), ["ok"]
+        )
+
+    def test_a_transcription_route_never_answers_a_chat_request(self) -> None:
+        self.assertEqual(
+            self.aliases([transcription("whisper-1"), local("ok")]), ["ok"]
         )
 
 
@@ -551,6 +569,27 @@ class TestLocalOnly(HookCase, unittest.TestCase):
         verdict = self.route(hook, self.SECRET, routes)
         self.assertIsInstance(verdict, str)
         self.assertIn("structured secret", verdict)
+
+    def test_a_transcription_route_does_not_hold_chat_on_the_cluster(self) -> None:
+        routes = [transcription("whisper-1"), remote("big", context=99999)]
+        verdict = self.route(
+            self.hook, {"model": ALIAS, "messages": [{"content": "hello"}]}, routes
+        )
+        self.assertEqual(
+            verdict["model"],
+            "big",
+            "the speech server is local but answers no chat request, so counting "
+            "it as a local route refuses every request of a gateway whose only "
+            "chat models are remote",
+        )
+
+    def test_a_secret_stays_local_beside_a_transcription_route(self) -> None:
+        routes = [
+            transcription("whisper-1"),
+            local("home", context=99999),
+            remote("big", context=99999),
+        ]
+        self.assertEqual(self.route(self.hook, self.SECRET, routes)["model"], "home")
 
 
 class TestLoudFailure(HookCase, unittest.TestCase):

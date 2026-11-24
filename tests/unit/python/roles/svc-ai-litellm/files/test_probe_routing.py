@@ -22,6 +22,7 @@ spec.loader.exec_module(probe)
 
 ALIAS = "qwen2.5:0.5b"
 LMSTUDIO_ONLY = "mistral:latest"
+SPEECH = "whisper-1"
 
 
 def verdict(**overrides) -> list[str]:
@@ -34,6 +35,7 @@ def verdict(**overrides) -> list[str]:
         "lmstudio_enabled": False,
         "lmstudio_aliases": [LMSTUDIO_ONLY],
         "remote_aliases": [],
+        "audio_aliases": [],
     }
     kwargs.update(overrides)
     return probe.evaluate(**kwargs)
@@ -246,6 +248,45 @@ class TestRouterAlias(unittest.TestCase):
         )
         self.assertTrue(
             any("router alias 'auto'" in failure for failure in failures), failures
+        )
+
+
+class TestAudioAliases(unittest.TestCase):
+    def test_a_speech_route_beside_ollama_passes(self) -> None:
+        self.assertEqual(
+            verdict(
+                served={ALIAS, SPEECH},
+                expected=[ALIAS],
+                chat_model=ALIAS,
+                chat_model_served=True,
+                ollama_enabled=True,
+                audio_aliases=[SPEECH],
+            ),
+            [],
+        )
+
+    def test_a_speech_route_alone_is_not_read_as_an_unbacked_chat_model(
+        self,
+    ) -> None:
+        self.assertEqual(
+            verdict(served={SPEECH}, audio_aliases=[SPEECH]),
+            [],
+            "a gateway with no chat backend but svc-ai-speech deployed serves "
+            "only the transcription alias, which no chat backend has to back",
+        )
+
+    def test_a_declared_speech_route_the_gateway_withholds_fails(self) -> None:
+        failures = verdict(served=set(), audio_aliases=[SPEECH])
+        self.assertTrue(
+            any("svc-ai-speech is deployed" in failure for failure in failures),
+            failures,
+        )
+
+    def test_a_speech_route_without_its_server_fails(self) -> None:
+        failures = verdict(served={SPEECH})
+        self.assertTrue(
+            any("no backend is deployed" in failure for failure in failures),
+            failures,
         )
 
 

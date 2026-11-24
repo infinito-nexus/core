@@ -39,9 +39,24 @@ OPENWEBUI_AGENT_BROKER_ENABLED: "{{ lookup('config', application_id, 'services.a
 OPENWEBUI_AGENT_BROKER_URL: "{{ lookup('container_url', 'svc-ai-agent-broker', 'agent-broker') }}/v1"
 OPENWEBUI_AGENT_BROKER_KEY: "{{ lookup('config', 'svc-ai-agent-broker', 'secrets.credentials.api_key') }}"
 OPENWEBUI_AGENT_BROKER_TIMEOUT: "{{ lookup('config', 'svc-ai-agent-broker', 'services.agent-broker.request_timeout') }}"
-OPENWEBUI_AGENT_MODELS:
+OPENWEBUI_AGENT_GROUPS:
   hermes: "/{{ lookup('rbac_group_path', application_id='web-app-hermes', role='agent-user') }}"
   openclaw: "/{{ lookup('rbac_group_path', application_id='web-app-openclaw', role='agent-user') }}"
+OPENWEBUI_AGENT_MODELS: "{{ OPENWEBUI_AGENT_GROUPS if (OPENWEBUI_AGENT_BROKER_ENABLED | bool) else {} }}"
+OPENWEBUI_MODEL_GRANTS_ENABLED: "{{ (OPENWEBUI_LITELLM_ENABLED | bool) or (OPENWEBUI_AGENT_MODELS | length > 0) }}"
+OPENWEBUI_API_KEY_NEEDED: "{{ (OPENWEBUI_MODEL_GRANTS_ENABLED | bool) or (OPENWEBUI_MCP_SERVERS | length > 0) }}"
+OPENWEBUI_GATEWAY_FAILED_RC: 3
+OPENWEBUI_ARENA_MODELS:
+  - id: arena-model
+    name: Arena Model
+    meta:
+      profile_image_url: /favicon.png
+      description: Submit your questions to anonymous AI chatbots and vote on the best response.
+      model_ids: null
+      access_grants:
+        - principal_type: user
+          principal_id: "*"
+          permission: read
 OPENWEBUI_OPENAI_CONNECTIONS: >-
   {{ ([{'url': LITELLM_BASE_LOCAL_URL ~ '/v1', 'key': OPENWEBUI_LITELLM_API_KEY}] if (OPENWEBUI_LITELLM_ENABLED | bool) else [])
      + ([{'url': OPENWEBUI_AGENT_BROKER_URL, 'key': OPENWEBUI_AGENT_BROKER_KEY}] if (OPENWEBUI_AGENT_BROKER_ENABLED | bool) else []) }}

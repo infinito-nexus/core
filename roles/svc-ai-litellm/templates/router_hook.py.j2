@@ -197,7 +197,7 @@ def capabilities(entry, catalog, today=None):
         "audio": bool(known.get("supports_audio_input")),
         "images": known.get("max_images_per_prompt"),
         "system": known.get("supports_system_messages") is not False,
-        "servable": known.get("mode") in CHAT_MODES or not known,
+        "servable": (info.get("mode") or known.get("mode")) in CHAT_MODES,
         "deprecated": _deprecated(known, today),
         "input_cost": known.get(
             "input_cost_per_token", 0.0 if local else UNPRICED_REMOTE_COST
@@ -260,6 +260,7 @@ def local_reason(data, deployments, catalog):
         capabilities(entry, catalog)["local"]
         for entry in deployments or []
         if entry.get("model_name") not in (None, ROUTER_ALIAS)
+        and (entry.get("model_info") or {}).get("mode") in CHAT_MODES
     ):
         return ""
     if carries_secret(data):
