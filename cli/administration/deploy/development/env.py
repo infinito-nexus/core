@@ -7,14 +7,16 @@ from utils.distros import distro_names
 VALID_DISTROS: tuple[str, ...] = distro_names()
 
 INFRA_CONSUMER = "compose/infra-consumer.override.yml"
+POOL_CONSUMER = "compose/pool-consumer.override.yml"
 
 
 def compose_file_args() -> list[str]:
     """Compose `-f` flags shared by up and down flows.
 
     Returns:
-        The `-f` flags; the infra consumer override joins the machine-wide
-        infra network whenever the cache stack is enabled.
+        The `-f` flags; whenever the cache stack is enabled the infra consumer
+        override joins the machine-wide infra network, and a pool runner's job
+        takes the pool consumer override, which wires the caches without it.
     """
     from .extra_mounts import OVERRIDE, parse_mounts, write_mounts_override
     from .profile import Profile
@@ -24,7 +26,7 @@ def compose_file_args() -> list[str]:
     if profile.shared_git_dir():
         out += ["-f", "compose/worktree.override.yml"]
     if profile.cache_stack_enabled():
-        out += ["-f", INFRA_CONSUMER]
+        out += ["-f", POOL_CONSUMER if profile.pool_runner() else INFRA_CONSUMER]
         if profile.shared_package_cache():
             out += ["-f", "compose/shared-cache.override.yml"]
             if profile.host_pacman_cache():

@@ -25,6 +25,11 @@ runner:
   cpus: 2
   flavor: github
   worktree_roots: []
+  queue_dir: ""
+  src_dir: ""
+  toolchain_image: ""
+  operator_uid: ""
+  operator_gid: ""
 
 # nocheck: dynamic-flag
 buildkit:

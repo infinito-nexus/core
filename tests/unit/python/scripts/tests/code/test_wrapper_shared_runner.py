@@ -24,7 +24,10 @@ EXTRA = (
     "scripts/tests/code/wrapper.sh",
     "scripts/tests/runner/down.sh",
     "scripts/tests/runner/lib.sh",
+    "scripts/tests/runner/status.sh",
 )
+STATUS_SCRIPT = "scripts/tests/runner/status.sh"
+RUNNER_CHANGES = ("docker run ", "docker start ", "docker rm ")
 RUN_SCRIPT = "scripts/tests/code/run.sh"
 STACK_FLAGS_MODULE = "cli.administration.deploy.development.stack"
 
@@ -289,6 +292,34 @@ class TestWrapperSharedRunner(unittest.TestCase):
         )
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertIn(f"docker rm -f -v {name}", calls)
+
+    def _runner_name(self) -> str:
+        _, test_calls = self._test_run(self.linked)
+        return (
+            self._runner_exec(test_calls).split(" bash --login ")[0].rsplit(" ", 1)[1]
+        )
+
+    def test_runner_status_shows_the_runner_of_the_checkouts_image(self) -> None:
+        name = self._runner_name()
+        done, calls = self._run(
+            self.linked,
+            STATUS_SCRIPT,
+            STUB_RUNNER_STATE="true",
+            STUB_RUNNER_ROOTS=f"{self.primary}:{self.worktrees}",
+        )
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertIn(f"Shared test runner {name} from ", done.stdout)
+        self.assertIn("running=true", done.stdout)
+        self.assertIn(f"worktree roots {self.primary}:{self.worktrees}", done.stdout)
+        self.assertFalse([call for call in calls if call.startswith(RUNNER_CHANGES)])
+
+    def test_runner_status_without_a_runner_starts_none(self) -> None:
+        name = self._runner_name()
+        done, calls = self._run(self.linked, STATUS_SCRIPT)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertIn(f"No shared test runner {name} exists", done.stdout)
+        self.assertNotIn("running=", done.stdout)
+        self.assertFalse([call for call in calls if call.startswith(RUNNER_CHANGES)])
 
     def test_a_named_stack_runs_the_tests_in_its_own_container(self) -> None:
         done, calls = self._test_run(

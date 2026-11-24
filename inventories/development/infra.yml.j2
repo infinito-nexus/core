@@ -4,6 +4,10 @@ TLS_MODE: self_signed
 TIMEOUT_FACTOR: 4
 
 DOCKER_BIND_HOST: 0.0.0.0
+[% if pool %]
+
+RUNNER_COUNT: [[ pool.count ]]
+[% endif %]
 
 users:
   administrator:
@@ -49,3 +53,18 @@ applications:
       runtime:
         severity:
           CRITICAL: warn
+[% if pool %]
+  svc-runner:
+    services:
+      runner:
+        flavor: local
+        queue_dir: [[ pool.queue ]]
+        src_dir: [[ pool.src ]]
+        toolchain_image: [[ pool.image ]]
+        operator_uid: [[ pool.uid ]]
+        operator_gid: [[ pool.gid ]]
+        worktree_roots:
+[% for root in pool.roots %]
+          - [[ root ]]
+[% endfor %]
+[% endif %]

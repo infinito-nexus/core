@@ -156,8 +156,10 @@ Proof tiers: `[unit]` a unit test or lint, `[host]` the operator's workstation, 
 
 ### Phase 6: Speech
 
-- [ ] `svc-ai-speech` (whisper.cpp server and piper, both pinned artefacts) is opt-in and deploys only where an inventory names it. `[unit]` (Open: out of scope of this round; the role does not exist yet.)
-- [ ] LiteLLM routes `/v1/audio/transcriptions` and `/v1/audio/speech` to it when it is deployed and has no audio route otherwise. `[unit]` (Open: out of scope of this round; waits on `svc-ai-speech`.)
+- [x] `svc-ai-speech` serves transcription with the whisper.cpp server, its image pinned to a release commit and its model a pinned artefact of the shared store, and is opt-in: it deploys only where an inventory names it, and every consumer's `speech` flag follows `'svc-ai-speech' in group_names`. `[unit]` (`test_the_image_is_the_cpu_build_of_a_pinned_commit` and `test_the_model_comes_read_only_from_the_pinned_store` in `tests/unit/python/roles/svc-ai-speech/test_server.py`, `test_the_declared_flag_follows_the_speech_role` in `tests/unit/python/roles/svc-ai-litellm/templates/test_config_audio_routes.py`, `test_the_speech_flag_follows_the_deployed_backend` in `tests/unit/python/roles/web-app-nextcloud/test_speech_to_text_gate.py`.)
+- [ ] `svc-ai-speech` serves speech synthesis with piper as a pinned artefact, opt-in the same way. `[unit]` (Open: the role ships no synthesis engine yet.)
+- [x] LiteLLM routes `/v1/audio/transcriptions` to it when it is deployed and has no audio route otherwise. `[unit]` (`test_the_speech_server_publishes_one_transcription_route` in `tests/unit/python/roles/svc-ai-litellm/templates/test_config_audio_routes.py`, with `test_without_the_speech_server_no_audio_route_is_published` as the negative control.)
+- [ ] LiteLLM routes `/v1/audio/speech` to it when it is deployed and has no synthesis route otherwise. `[unit]` (Open: waits on piper in `svc-ai-speech`.)
 - [ ] A transcription and a synthesis through LiteLLM answer on the workstation. `[host]`
 
 ### Phase 7: Peers

@@ -112,8 +112,8 @@ def infra_compose_argv(repo_root: Path, overrides: Sequence[str]) -> list[str]:
 
 def runner_compose_argv(project: str, action: str) -> list[str]:
     """Args:
-        project: compose project of a role stack inside the infra runner.
-        action: ``stop``, ``pause`` or ``unpause``.
+        project: compose project of a role stack or a pool job stack inside the infra runner.
+        action: ``stop``, ``pause``, ``unpause`` or ``down``.
 
     Returns:
         ``docker compose`` addressing that project by name, run inside the runner.

@@ -31,11 +31,26 @@ RUNNER_FLAVORS:
     entrypoint: shell/entrypoint.sh
     registers_with_github: true
     mounts_worktrees: false
+    takes_local_jobs: false
   local:
     entrypoint: shell/entrypoint-local.sh
     registers_with_github: false
     mounts_worktrees: true
+    takes_local_jobs: true
 RUNNER_ENTRYPOINT: "{{ RUNNER_FLAVORS[RUNNER_FLAVOR].entrypoint }}"
 RUNNER_REGISTERS_WITH_GITHUB: "{{ RUNNER_FLAVORS[RUNNER_FLAVOR].registers_with_github }}"
 RUNNER_MOUNTS_WORKTREES: "{{ RUNNER_FLAVORS[RUNNER_FLAVOR].mounts_worktrees }}"
+RUNNER_TAKES_LOCAL_JOBS: "{{ RUNNER_FLAVORS[RUNNER_FLAVOR].takes_local_jobs }}"
 RUNNER_WORKTREE_ROOTS: "{{ lookup('config', application_id, 'services.runner.worktree_roots') }}"
+RUNNER_QUEUE_DIR: "{{ lookup('config', application_id, 'services.runner.queue_dir') }}"
+RUNNER_TOOLCHAIN_IMAGE: "{{ lookup('config', application_id, 'services.runner.toolchain_image') }}"
+RUNNER_OPERATOR_UID: "{{ lookup('config', application_id, 'services.runner.operator_uid') }}"
+RUNNER_OPERATOR_GID: "{{ lookup('config', application_id, 'services.runner.operator_gid') }}"
+RUNNER_RUN_OWNER: "{{ RUNNER_OPERATOR_UID if RUNNER_TAKES_LOCAL_JOBS | bool else RUNNER_USER }}"
+RUNNER_RUN_GROUP: "{{ RUNNER_OPERATOR_GID if RUNNER_TAKES_LOCAL_JOBS | bool else RUNNER_USER }}"
+RUNNER_QUEUE_GROUP: "{{ lookup('users', 'runner-queue').username }}"
+RUNNER_QUEUE_GID: "{{ lookup('users', 'runner-queue').gid }}"
+RUNNER_QUEUE_SOCKET: "{{ [RUNNER_QUEUE_DIR, 'docker.sock'] | path_join }}"
+RUNNER_QUEUE_SOCKET_UNIT: runner-queue-docker.socket
+RUNNER_QUEUE_SOCKET_UNIT_FILE: "{{ [DIR_SYSTEM_SERVICE, RUNNER_QUEUE_SOCKET_UNIT] | path_join }}"
+RUNNER_DOCKER_DROPIN: "{{ [DIR_SYSTEM_SERVICE, 'docker.service.d', 'runner-queue-socket.conf'] | path_join }}"

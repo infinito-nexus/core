@@ -9,6 +9,7 @@
         - group: /roles/svc-db-openldap/administrator
           roles:
             - Auditor
+      server_scripts: true
     docs:
       enabled: false
       shared: false

@@ -449,7 +449,7 @@ jobs:
           network: ${{ matrix.network }}
           INFINITO_SWARM_VPN: ${{ matrix.vpn }}
           INFINITO_SWARM_MESHES: ${{ inputs.meshes }}
-        run: ./scripts/tests/deploy/distros.sh "${{ env.SCRIPTS }}/00_one.sh" 2>&1 | tee "/tmp/ansible-${{ matrix.apps }}.log"
+        run: ./scripts/tests/deploy/job/entry.sh ./scripts/tests/deploy/distros.sh "${{ env.SCRIPTS }}/00_one.sh" 2>&1 | tee "/tmp/ansible-${{ matrix.apps }}.log"
 
       - name: 🚀 Deploy app
         if: ${{ matrix.mode != 'swarm' }}
@@ -461,7 +461,7 @@ jobs:
           disable: ${{ format('{0} {1}', matrix.disable, inputs.disable) }}
           network: ${{ matrix.network }}
           ANSIBLE_LOG_PATH: /tmp/ansible-${{ matrix.apps }}.log
-        run: ./scripts/tests/deploy/ci/all.sh 2>&1 | tee "/tmp/ansible-${{ matrix.apps }}.log"
+        run: ./scripts/tests/deploy/job/entry.sh ./scripts/tests/deploy/ci/all.sh 2>&1 | tee "/tmp/ansible-${{ matrix.apps }}.log"
 
       - name: 🚫 Fail on deprecation warnings
         if: ${{ always() && matrix.mode != 'swarm' }}

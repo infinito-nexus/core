@@ -27,7 +27,18 @@ OIDC_ENV = {
     "OAUTH_TOKEN_ENDPOINT_AUTH_METHOD": "none",
     "ENABLE_OAUTH_BACKCHANNEL_LOGOUT": "true",
     "OPENID_END_SESSION_ENDPOINT": "{{ OPENWEBUI_OIDC_END_SESSION_URL }}",
+    "BYPASS_ADMIN_ACCESS_CONTROL": "false",
 }
+MODEL_BYPASS_LINE = "BYPASS_MODEL_ACCESS_CONTROL=false"
+MODEL_BYPASS_FINDING = "BYPASS_MODEL_ACCESS_CONTROL is not false in every variant"
+ARENA_ENV = (
+    "EVALUATION_ARENA_MODELS",
+    "{{ OPENWEBUI_ARENA_MODELS | to_json(separators=(',', ':')) | dotenv_quote }}",
+)
+ARENA_ID = "arena-model"
+PUBLIC_READ = {"principal_type": "user", "principal_id": "*", "permission": "read"}
+ARENA_ENV_FINDING = "EVALUATION_ARENA_MODELS is not rendered in every variant"
+ARENA_GRANT_FINDING = "the arena model is not readable by every user"
 REDIS_ENV = ("REDIS_URL", "{{ OPENWEBUI_REDIS_URL | dotenv_quote }}")
 VARS = {
     "OPENWEBUI_OIDC_CLIENT_ID": "{{ lookup('config', application_id, 'services.sso.oidc.clients.web') }}",
@@ -109,6 +120,17 @@ def findings(sources: dict[str, str]) -> list[str]:
         found.append(LIFETIME_FINDING)
     if entries.get("ENABLE_PERSISTENT_CONFIG") != ("false", ""):
         found.append("ENABLE_PERSISTENT_CONFIG is not false in every variant")
+    if entries.get("BYPASS_MODEL_ACCESS_CONTROL") != ("false", ""):
+        found.append(MODEL_BYPASS_FINDING)
+    if entries.get(ARENA_ENV[0]) != (ARENA_ENV[1], ""):
+        found.append(ARENA_ENV_FINDING)
+    arena = [
+        model
+        for model in variables.get("OPENWEBUI_ARENA_MODELS") or []
+        if model.get("id") == ARENA_ID
+    ]
+    if not arena or PUBLIC_READ not in (arena[0]["meta"].get("access_grants") or []):
+        found.append(ARENA_GRANT_FINDING)
     found.extend(
         f"{key} is not {value}"
         for key, value in VARS.items()
@@ -227,6 +249,52 @@ class TestOpenWebuiBackchannelLogout(unittest.TestCase):
                 "ENABLE_PERSISTENT_CONFIG=true",
             ),
             ["ENABLE_PERSISTENT_CONFIG is not false in every variant"],
+        )
+
+    def test_a_model_bypass_without_the_broker_is_caught(self) -> None:
+        self.assertEqual(
+            planted(
+                "env",
+                MODEL_BYPASS_LINE,
+                "BYPASS_MODEL_ACCESS_CONTROL="
+                "{{ (not (OPENWEBUI_AGENT_BROKER_ENABLED | bool)) | string | lower }}",
+            ),
+            [MODEL_BYPASS_FINDING],
+        )
+        self.assertEqual(
+            planted(
+                "env",
+                MODEL_BYPASS_LINE,
+                "{% if OPENWEBUI_AGENT_BROKER_ENABLED | bool %}\n"
+                f"{MODEL_BYPASS_LINE}\n{{% endif %}}",
+            ),
+            [MODEL_BYPASS_FINDING],
+        )
+
+    def test_an_arena_without_a_public_grant_is_caught(self) -> None:
+        self.assertEqual(
+            planted(
+                "vars",
+                "        - principal_type: user\n"
+                '          principal_id: "*"\n'
+                "          permission: read\n",
+                "",
+            ),
+            [ARENA_GRANT_FINDING],
+        )
+        self.assertEqual(
+            planted("env", f"{ARENA_ENV[0]}={ARENA_ENV[1]}\n", ""),
+            [ARENA_ENV_FINDING],
+        )
+
+    def test_an_administrator_bypass_is_caught(self) -> None:
+        self.assertEqual(
+            planted(
+                "env",
+                "BYPASS_ADMIN_ACCESS_CONTROL=false",
+                "BYPASS_ADMIN_ACCESS_CONTROL=true",
+            ),
+            ["BYPASS_ADMIN_ACCESS_CONTROL is not false in the SSO block"],
         )
 
     def test_a_client_id_with_a_fallback_is_caught(self) -> None:

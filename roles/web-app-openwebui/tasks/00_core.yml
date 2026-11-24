@@ -1,6 +1,18 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🛑 Refuse the grant steps while Open WebUI refuses API keys"
+  ansible.builtin.assert:
+    that:
+      - "(OPENWEBUI_ENABLE_API_KEYS | bool) or not (OPENWEBUI_API_KEY_NEEDED | bool)"
+    fail_msg: >-
+      The model grants (on with the LiteLLM gateway or svc-ai-agent-broker) and the
+      MCP tool-server grants sign in with an administrator API key, which Open WebUI
+      answers with HTTP 403 while ENABLE_API_KEYS is off, so
+      applications.web-app-openwebui.services.openwebui.enable_api_keys must be true
+      in the inventory (default true in roles/web-app-openwebui/meta/services.yml).
+    quiet: true
+
 - name: "📣 Report the managed Open WebUI settings the env file render overwrites"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/env.yml') }}"
   vars:
@@ -65,16 +77,14 @@
 - name: "🚿 Flush compose handlers for {{ application_id }}"
   ansible.builtin.meta: flush_handlers
 
-- name: "👤 Converge the native administrator of {{ application_id }}"
+- name: "👤 Converge the platform administrator of {{ application_id }} before any grant step"
   ansible.builtin.include_tasks: utils/admin.yml
-  when:
-    - not (OPENWEBUI_OIDC_ENABLED | bool)
-    - not (OPENWEBUI_LDAP_ENABLED | bool)
+  when: not (OPENWEBUI_OIDC_ENABLED | bool)
 
 - name: "🔌 Provision MCP tool-server access grants"
   ansible.builtin.include_tasks: utils/mcp.yml
   when: OPENWEBUI_MCP_SERVERS | length > 0
 
-- name: "🤖 Provision per-group access to the agent models"
+- name: "🤖 Grant the gateway models to all users and each agent model to its group"
   ansible.builtin.include_tasks: utils/agent_models.yml
-  when: OPENWEBUI_AGENT_BROKER_ENABLED | bool
+  when: OPENWEBUI_MODEL_GRANTS_ENABLED | bool

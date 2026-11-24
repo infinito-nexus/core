@@ -165,6 +165,4 @@
     tasks_from: utils/refresh_model_grants.yml
   vars:
     application_id: web-app-openwebui
-  when:
-    - "'web-app-openwebui' in group_names"
-    - lookup('config', 'web-app-openwebui', 'services.agent-broker.enabled') | bool
+  when: "'web-app-openwebui' in group_names"

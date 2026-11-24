@@ -57,7 +57,12 @@ GIT_REF = "feature/ref-sentinel"
 HOME = "/home/operator"
 ROOTS = [f"{HOME}/Repositories/core", f"{HOME}/.local/share/worktrees"]
 IMAGE_SRC_DIR = "/opt/src/infinito"
-PLAYBOOK_DIR = f"{ROOTS[1]}/github.com/infinito-nexus/core/feature-x"
+SRC_DIR = f"{ROOTS[1]}/github.com/infinito-nexus/core/feature-x"
+PLAYBOOK = f"{ROOTS[1]}/github.com/infinito-nexus/core/last-infra-update"
+TOOLCHAIN = "infinito/arch:0123abcd"
+OPERATOR = 1000
+QUEUE = "/var/cache/infinito/core/cache/jobs"
+QUEUE_GID = 901
 HOST_ENV = {
     "GITHUB_REPOSITORY": "infinito-nexus/core",
     "GITHUB_REPOSITORY_OWNER": "infinito-nexus",
@@ -71,6 +76,7 @@ CAPABILITIES = (
     "RUNNER_ENTRYPOINT",
     "RUNNER_REGISTERS_WITH_GITHUB",
     "RUNNER_MOUNTS_WORKTREES",
+    "RUNNER_TAKES_LOCAL_JOBS",
 )
 
 
@@ -186,10 +192,10 @@ def flavor_variables(flavor: str, role: Path = ROLE) -> dict[str, Any]:
     }
 
 
-def source_dir(flavor: str, playbook_dir: str = PLAYBOOK_DIR, role: Path = ROLE) -> str:
+def source_dir(flavor: str, src_dir: str = SRC_DIR, role: Path = ROLE) -> str:
     """Args:
         flavor: the value of ``services.runner.flavor``.
-        playbook_dir: the checkout the deploy runs ``playbook.yml`` from.
+        src_dir: the value of ``services.runner.src_dir``.
         role: the role directory.
 
     Returns:
@@ -199,14 +205,18 @@ def source_dir(flavor: str, playbook_dir: str = PLAYBOOK_DIR, role: Path = ROLE)
     expression = load_yaml_any(str(role / ROLE_FILE_DEFAULTS_MAIN))["RUNNER_SRC_DIR"]
     env = environment()
 
-    def lookup(plugin, name):
-        if plugin != "env":
-            raise AssertionError(f"unexpected lookup {plugin}")
-        return HOST_ENV[name]
+    def lookup(plugin, *terms):
+        if plugin == "env":
+            return HOST_ENV[terms[0]]
+        if plugin == "config" and terms == ("svc-runner", "services.runner.src_dir"):
+            return src_dir
+        raise AssertionError(f"unexpected lookup {plugin} {terms}")
 
     env.globals["lookup"] = lookup
     return env.from_string(expression).render(
-        playbook_dir=playbook_dir, **flavor_variables(flavor, role)
+        application_id="svc-runner",
+        playbook_dir=PLAYBOOK,
+        **flavor_variables(flavor, role),
     )
 
 
@@ -237,6 +247,9 @@ def variables(flavor: str, swarm: bool, roots: list[str]) -> dict[str, Any]:
         "IS_SWARM_MODE": swarm,
         **flavor_variables(flavor),
         "RUNNER_WORKTREE_ROOTS": roots,
+        "RUNNER_QUEUE_DIR": QUEUE,
+        "RUNNER_QUEUE_GROUP": "runner-queue",
+        "RUNNER_QUEUE_GID": QUEUE_GID,
         "RUNNER_COUNT": 2,
         "RUNNER_IMAGE_REF": ("manager:5000/" if swarm else "")
         + "infinito-runner:latest",
@@ -256,6 +269,9 @@ def variables(flavor: str, swarm: bool, roots: list[str]) -> dict[str, Any]:
         "RUNNER_API_TOKEN": PAT,
         "RUNNER_GIT_REF": GIT_REF,
         "RUNNER_SRC_DIR": source_dir(flavor),
+        "RUNNER_TOOLCHAIN_IMAGE": TOOLCHAIN,
+        "RUNNER_OPERATOR_UID": OPERATOR,
+        "RUNNER_OPERATOR_GID": OPERATOR,
         "RUNNER_USER": "github-runner",
         "DOMAIN_PRIMARY": "infinito.example",
         "DOCKER_IN_CONTAINER": False,

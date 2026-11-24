@@ -3,8 +3,8 @@
   file:
     path: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}"
     state: directory
-    owner: "{{ RUNNER_USER }}"
-    group: "{{ RUNNER_USER }}"
+    owner: "{{ RUNNER_RUN_OWNER }}"
+    group: "{{ RUNNER_RUN_GROUP }}"
     mode: "0755"
 
 - name: 🔍 Check runner binary installed for instance {{ runner_instance }}

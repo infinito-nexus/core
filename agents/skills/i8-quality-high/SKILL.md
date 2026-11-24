@@ -14,6 +14,11 @@ Follow the instructions from AGENTS.md, then drive `make quality-high` to green.
 It runs `make autoformat`, then `make test` and `make lint` (every lint target)
 in parallel, so a pass takes as long as the slower of the two phases.
 
+Both phases run in the shared test runner `infinito-test-<hash>` of this checkout's toolchain image, with the checkout as working directory, and the gate starts no deploy stack (`coredns`, `infinito`, `target`, `target-resolver`).
+The first test or lint call on the machine starts that runner, and every later call from a checkout with the same image reuses it.
+`make test-runner-status` shows the runner, whether it runs and the worktree roots it mounts; `make test-runner-down` removes it, and the next call starts a new one.
+With `INFINITO_STACK_NAME` set, the gate runs in that stack's `infinito` container instead.
+
 The fix loop and its forbidden shortcuts are the `test-fix` skill's; this skill
 only pins the command and how to read its result.
 

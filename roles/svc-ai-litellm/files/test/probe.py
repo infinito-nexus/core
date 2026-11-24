@@ -18,6 +18,8 @@ Env (rendered into test.env from templates/test.env.j2):
                        reported prompt token count is litellm's own constant
     REMOTE_ALIASES     JSON list of aliases a configured provider key publishes
                        (OpenAI, Anthropic, OpenRouter)
+    AUDIO_ALIASES      JSON list of audio aliases svc-ai-speech backs; empty
+                       when it is not deployed
     OLLAMA_ENABLED     true|false
     LMSTUDIO_ENABLED   true|false
     MIN_CHARS_PER_TOKEN the hook's own characters-per-token floor, so the probe
@@ -49,6 +51,7 @@ def evaluate(
     lmstudio_enabled: bool,
     lmstudio_aliases: list[str],
     remote_aliases: list[str],
+    audio_aliases: list[str],
     router_alias: str = "",
 ) -> list[str]:
     """Every routing violation the published model list shows, as messages.
@@ -62,6 +65,10 @@ def evaluate(
         lmstudio_enabled: svc-ai-lmstudio is deployed on the gateway's host.
         lmstudio_aliases: aliases only LM Studio provides, whatever is deployed.
         remote_aliases: aliases a configured remote provider key publishes.
+        audio_aliases: aliases the config routes to svc-ai-speech; empty when
+            it is not deployed. They answer no chat request, so they are
+            accounted for separately and then held out of the backend
+            arithmetic.
         router_alias: the alias the pre-call hook rewrites. It is backed by no
             backend of its own, so it is accounted for separately and then held
             out of the backend arithmetic.
@@ -70,6 +77,14 @@ def evaluate(
         One message per violation; empty when the routing is consistent.
     """
     failures: list[str] = []
+
+    unrouted_audio = sorted(set(audio_aliases) - served)
+    if unrouted_audio:
+        failures.append(
+            f"svc-ai-speech is deployed but the gateway does not serve "
+            f"{unrouted_audio}; its audio routes were declared and not routed"
+        )
+    served = served - set(audio_aliases)
 
     if router_alias:
         if served and router_alias not in served:
@@ -368,6 +383,7 @@ def main() -> int:
         lmstudio_enabled=os.environ["LMSTUDIO_ENABLED"] == "true",
         lmstudio_aliases=json.loads(os.environ["LMSTUDIO_ALIASES"]),
         remote_aliases=json.loads(os.environ["REMOTE_ALIASES"]),
+        audio_aliases=json.loads(os.environ["AUDIO_ALIASES"]),
         router_alias=os.environ.get("ROUTER_ALIAS", "").strip(),
     )
 

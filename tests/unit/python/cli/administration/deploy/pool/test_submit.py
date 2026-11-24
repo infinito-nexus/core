@@ -156,9 +156,9 @@ class TestMakeWiring(unittest.TestCase):
     def test_the_pool_branch_is_gated_on_the_flag_and_runs_the_submitter(
         self,
     ) -> None:
-        self.assertIn('"$${INFINITO_DEPLOY_VIA_POOL:-}" = "true"', self.recipe)
+        self.assertIn('case "$${INFINITO_DEPLOY_VIA_POOL:-}" in', self.recipe)
         self.assertIn(
-            'exec "$${PYTHON}" -m cli.administration.deploy.pool', self.recipe
+            'true) exec "$${PYTHON}" -m cli.administration.deploy.pool', self.recipe
         )
         self.assertRegex(self.recipe, r"--hold '\$\(or \$\(hold\),false\)'")
         self.assertIn("--timeout '$(timeout)'", self.recipe)
@@ -175,6 +175,24 @@ class TestMakeWiring(unittest.TestCase):
 
     def test_without_the_flag_the_local_router_still_runs(self) -> None:
         self.assertIn("bash scripts/tests/deploy/local/deploy/main.sh", self.recipe)
+        self.assertIn('"" | false) ;;', self.recipe)
+
+    def test_any_other_flag_value_aborts_naming_the_key(self) -> None:
+        arm = self.recipe.split("\t*) ", 1)[1].split(";;", 1)[0]
+        self.assertIn("INFINITO_DEPLOY_VIA_POOL=", arm)
+        self.assertIn("exit 2", arm)
+
+
+class TestUnusableQueue(unittest.TestCase):
+    def test_a_missing_queue_is_refused_and_nothing_is_created(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "jobs"
+            out, err = io.StringIO(), io.StringIO()
+            fake = _Pool(root, claim_after=None, exit_code=0)
+            code = pool.run([TARGET], root, fake.clock, fake.sleep, out, err)
+            self.assertEqual(code, 2)
+            self.assertIn("does not exist", err.getvalue())
+            self.assertFalse(root.exists())
 
 
 if __name__ == "__main__":

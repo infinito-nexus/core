@@ -4,6 +4,7 @@ import asyncio
 import importlib.util
 import types
 import unittest
+import uuid
 from unittest.mock import patch
 
 from . import PROJECT_ROOT
@@ -13,17 +14,17 @@ EMAIL = "Administrator@Example.org"
 PASSWORD = "p$ssw0rd-from-the-users-spot"
 
 
-def load_script() -> object:
+def load_script(ldap: bool) -> object:
     spec = importlib.util.spec_from_file_location("administrator", SCRIPT_PATH)
     module = importlib.util.module_from_spec(spec)
-    with patch.dict(
-        "os.environ",
-        {
-            "OPENWEBUI_ADMIN_EMAIL": EMAIL,
-            "OPENWEBUI_ADMIN_NAME": "administrator",
-            "OPENWEBUI_ADMIN_PASSWORD": PASSWORD,
-        },
-    ):
+    environment = {
+        "OPENWEBUI_ADMIN_EMAIL": EMAIL,
+        "OPENWEBUI_ADMIN_NAME": "administrator",
+        "OPENWEBUI_ADMIN_LDAP": str(ldap).lower(),
+    }
+    if not ldap:
+        environment["OPENWEBUI_ADMIN_PASSWORD"] = PASSWORD
+    with patch.dict("os.environ", environment):
         spec.loader.exec_module(module)
     return module
 
@@ -87,11 +88,41 @@ class FakeBackend:
         return hashed == f"hashed-{plain}"
 
 
+def run_script(backend: FakeBackend, ldap: bool) -> str:
+    module = load_script(ldap)
+    with patch.dict("sys.modules", backend.modules()):
+        return asyncio.run(module.converge())
+
+
+class TestLdapAdministrator(unittest.TestCase):
+    def test_a_missing_administrator_gets_a_password_nobody_knows(self) -> None:
+        backend = FakeBackend()
+        with patch.dict("os.environ", {"OPENWEBUI_ADMIN_PASSWORD": PASSWORD}):
+            self.assertEqual(run_script(backend, ldap=True), "CHANGED created")
+        [(email, password, name, role)] = backend.created
+        self.assertEqual((email, name, role), (EMAIL.lower(), "administrator", "admin"))
+        self.assertNotIn(PASSWORD, password)
+        self.assertEqual(str(uuid.UUID(password)), password)
+
+    def test_an_existing_account_is_promoted_and_keeps_its_password(self) -> None:
+        user = types.SimpleNamespace(id="u1", email=EMAIL.lower(), role="user")
+        backend = FakeBackend(user, hashed="an-ldap-signup-uuid")
+        self.assertEqual(run_script(backend, ldap=True), "CHANGED role")
+        self.assertEqual(backend.passwords, [])
+        self.assertEqual(backend.roles, [("u1", "admin")])
+
+    def test_negative_control_without_ldap_the_registry_password_is_written(
+        self,
+    ) -> None:
+        user = types.SimpleNamespace(id="u1", email=EMAIL.lower(), role="admin")
+        backend = FakeBackend(user, hashed="an-ldap-signup-uuid")
+        self.assertEqual(run_script(backend, ldap=False), "CHANGED password")
+        self.assertEqual(backend.passwords, [("u1", f"hashed-{PASSWORD}")])
+
+
 class TestConvergeAdministrator(unittest.TestCase):
     def run_script(self, backend: FakeBackend) -> str:
-        module = load_script()
-        with patch.dict("sys.modules", backend.modules()):
-            return asyncio.run(module.converge())
+        return run_script(backend, ldap=False)
 
     def test_a_missing_administrator_is_created_with_the_spot_password(self) -> None:
         backend = FakeBackend()

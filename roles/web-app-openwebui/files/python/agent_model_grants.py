@@ -4,9 +4,13 @@ Environment:
     OPENWEBUI_ADMIN_EMAIL:     administrator to take or mint an API key for.
     OPENWEBUI_ADMIN_NAME:      its display name when it has to be created.
     OPENWEBUI_ADMIN_PASSWORD:  its password when it has to be created.
-    OPENWEBUI_GATEWAY_URL:     LiteLLM base URL whose models become public; empty skips them.
+    OPENWEBUI_GATEWAY_URL:     LiteLLM base URL whose models become public, except the
+                               ones its /v1/model/info declares in an UNGRANTED_MODES
+                               mode; empty skips them.
     OPENWEBUI_GATEWAY_KEY:     Open WebUI's own gateway key.
     OPENWEBUI_AGENT_MODELS:    JSON model id -> group name.
+    OPENWEBUI_GATEWAY_FAILED_RC: exit code of a gateway the run cannot list, which
+                               the deploy does not retry.
 """
 
 import asyncio
@@ -26,7 +30,9 @@ ADMIN_PASSWORD = os.environ["OPENWEBUI_ADMIN_PASSWORD"]
 GATEWAY_URL = os.environ["OPENWEBUI_GATEWAY_URL"].rstrip("/")
 GATEWAY_KEY = os.environ["OPENWEBUI_GATEWAY_KEY"]
 AGENT_MODELS = json.loads(os.environ["OPENWEBUI_AGENT_MODELS"])
+GATEWAY_FAILED_RC = int(os.environ["OPENWEBUI_GATEWAY_FAILED_RC"])
 PUBLIC = [{"principal_type": "user", "principal_id": "*", "permission": "read"}]
+UNGRANTED_MODES = ("audio_transcription", "audio_speech", "embedding")
 
 
 async def resolve_api_key():
@@ -74,13 +80,40 @@ def call(url, key, payload=None):
         return error.code, error.read().decode(errors="replace")
 
 
-def gateway_models():
-    if not GATEWAY_URL:
-        return []
-    status, body = call(f"{GATEWAY_URL}/v1/models", GATEWAY_KEY)
+def gateway_listing(path):
+    """
+    Returns:
+        The ``data`` list the gateway answers ``path`` with. An unreachable gateway
+        or any other answer than 200 ends the run with GATEWAY_FAILED_RC and the
+        reason on stderr, without the answer body.
+    """
+    url = f"{GATEWAY_URL}{path}"
+    try:
+        status, body = call(url, GATEWAY_KEY)
+    except OSError as error:
+        print(f"FAILED: the gateway at {url} is unreachable: {error}", file=sys.stderr)
+        sys.exit(GATEWAY_FAILED_RC)
     if status != 200:
-        sys.exit(f"FAILED listing gateway models: {status} {body}")
-    return [item["id"] for item in body.get("data") or []]
+        print(f"FAILED: the gateway at {url} answered HTTP {status}", file=sys.stderr)
+        sys.exit(GATEWAY_FAILED_RC)
+    return body.get("data") or []
+
+
+def gateway_grants():
+    """
+    Returns:
+        gateway model id -> access grants: PUBLIC, or none for a model whose
+        model_info mode is in UNGRANTED_MODES.
+    """
+    if not GATEWAY_URL:
+        return {}
+    models = [item["id"] for item in gateway_listing("/v1/models")]
+    ungranted = {
+        entry["model_name"]
+        for entry in (gateway_listing("/v1/model/info") if models else [])
+        if (entry.get("model_info") or {}).get("mode") in UNGRANTED_MODES
+    }
+    return {model_id: [] if model_id in ungranted else PUBLIC for model_id in models}
 
 
 def group_id(key, name):
@@ -136,9 +169,9 @@ def ensure_grants(key, model_id, grants):
 
 def provision(key):
     changed = False
-    for model_id in gateway_models():
+    for model_id, grants in gateway_grants().items():
         if model_id not in AGENT_MODELS:
-            changed |= ensure_grants(key, model_id, PUBLIC)
+            changed |= ensure_grants(key, model_id, grants)
     for model_id, group_name in AGENT_MODELS.items():
         grant = {
             "principal_type": "group",

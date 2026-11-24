@@ -6,19 +6,21 @@
     resolve_output_prefix: OPENWEBUI
     resolve_compose_cid: "{{ OPENWEBUI_CONTAINER }}"
 
-- name: "👤 Create the administrator or converge its password and role"
+- name: "👤 Create the administrator or converge its role and, without LDAP, its password"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  OPENWEBUI_LOCAL_CID comes from resolve_host_cid.yml above
-      IFS= read -r OPENWEBUI_ADMIN_PASSWORD && : "${OPENWEBUI_ADMIN_PASSWORD:?arrived empty on stdin}" && export OPENWEBUI_ADMIN_PASSWORD && container exec -i
-      -e ENABLE_DB_MIGRATIONS=false -e OPENWEBUI_ADMIN_EMAIL -e OPENWEBUI_ADMIN_NAME -e OPENWEBUI_ADMIN_PASSWORD
-      {{ OPENWEBUI_LOCAL_CID | quote }}
+      {% if not (OPENWEBUI_LDAP_ENABLED | bool) %}IFS= read -r OPENWEBUI_ADMIN_PASSWORD && : "${OPENWEBUI_ADMIN_PASSWORD:?arrived empty on stdin}" && export
+      OPENWEBUI_ADMIN_PASSWORD && {% endif %}container exec -i
+      -e ENABLE_DB_MIGRATIONS=false -e OPENWEBUI_ADMIN_EMAIL -e OPENWEBUI_ADMIN_NAME -e OPENWEBUI_ADMIN_LDAP
+      {% if not (OPENWEBUI_LDAP_ENABLED | bool) %}-e OPENWEBUI_ADMIN_PASSWORD {% endif %}{{ OPENWEBUI_LOCAL_CID | quote }}
       python3 -
     stdin: |-
-      {{ OPENWEBUI_ADMIN_USER.password }}
-      {{ lookup('file', 'python/administrator.py') }}
+      {% if not (OPENWEBUI_LDAP_ENABLED | bool) %}{{ OPENWEBUI_ADMIN_USER.password }}
+      {% endif %}{{ lookup('file', 'python/administrator.py') }}
   environment:
     OPENWEBUI_ADMIN_EMAIL: "{{ OPENWEBUI_ADMIN_USER.email }}"
     OPENWEBUI_ADMIN_NAME: "{{ OPENWEBUI_ADMIN_USER.username }}"
+    OPENWEBUI_ADMIN_LDAP: "{{ OPENWEBUI_LDAP_ENABLED | bool | string | lower }}"
   register: openwebui_admin
   retries: 30
   delay: 10

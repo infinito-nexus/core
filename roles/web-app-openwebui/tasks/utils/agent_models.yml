@@ -21,6 +21,7 @@
       -e OPENWEBUI_GATEWAY_URL={{ (LITELLM_BASE_LOCAL_URL if (OPENWEBUI_LITELLM_ENABLED | bool) else '') | quote }}
       -e OPENWEBUI_GATEWAY_KEY
       -e OPENWEBUI_AGENT_MODELS={{ OPENWEBUI_AGENT_MODELS | to_json | quote }}
+      -e OPENWEBUI_GATEWAY_FAILED_RC={{ OPENWEBUI_GATEWAY_FAILED_RC | quote }}
       {{ OPENWEBUI_LOCAL_CID | quote }}
       python3 -
     stdin: |-
@@ -30,8 +31,15 @@
   register: openwebui_model_grants
   retries: 30
   delay: 10
-  until: openwebui_model_grants.rc == 0
+  until: openwebui_model_grants.rc in [0, OPENWEBUI_GATEWAY_FAILED_RC | int]
+  failed_when: openwebui_model_grants.rc not in [0, OPENWEBUI_GATEWAY_FAILED_RC | int]
   changed_when: openwebui_model_grants.stdout.startswith('CHANGED')
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ OPENWEBUI_HOST_NODE }}"
+  run_once: true
+
+- name: "🛑 Stop on a gateway the grant step cannot list"
+  ansible.builtin.fail:
+    msg: "{{ openwebui_model_grants.stderr }}"
+  when: openwebui_model_grants.rc == (OPENWEBUI_GATEWAY_FAILED_RC | int)
   run_once: true

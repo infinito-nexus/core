@@ -105,6 +105,7 @@ stacks:
     stops:
       - compose-down
       - compose-stop
+      - runner-release
       - system-purge
       - worktree-down
 unaddressed:
@@ -112,3 +113,5 @@ unaddressed:
   - i18n-prune
   - i18n-retry
   - infra-status
+  - runner-cleanup-report
+  - test-runner-status

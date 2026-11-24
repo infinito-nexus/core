@@ -10,6 +10,25 @@
       {{ RUNNER_FLAVORS | list | join(', ') }}
     quiet: true
 
+- name: 🧭 Validate the checkout, image and user of the pool runners
+  ansible.builtin.assert:
+    that:
+      - RUNNER_SRC_DIR | length > 0
+      - RUNNER_TOOLCHAIN_IMAGE | length > 0
+      - RUNNER_OPERATOR_UID | string is match('[1-9][0-9]*$')
+      - RUNNER_OPERATOR_GID | string is match('[1-9][0-9]*$')
+    fail_msg: >-
+      the {{ RUNNER_FLAVOR }} flavor runs its pool loop from
+      services.runner.src_dir in services.runner.toolchain_image as
+      services.runner.operator_uid:operator_gid, a user other than root;
+      make infra-update sets them from INFINITO_RUNNER_SRC_DIR (export the
+      checkout whose code the pool runs, below a worktree root, in .env or
+      the environment), INFINITO_IMAGE and the invoking user
+      (got {{ [RUNNER_SRC_DIR, RUNNER_TOOLCHAIN_IMAGE, RUNNER_OPERATOR_UID,
+      RUNNER_OPERATOR_GID] | to_json }})
+    quiet: true
+  when: RUNNER_TAKES_LOCAL_JOBS | bool
+
 - name: 🧭 Validate the worktree roots the runner flavor mounts
   ansible.builtin.assert:
     that:
@@ -41,6 +60,21 @@
       (roots: {{ RUNNER_WORKTREE_ROOTS | to_json }})
     quiet: true
   when: RUNNER_MOUNTS_WORKTREES | bool
+
+- name: 🧭 Validate the job queue the runner flavor takes its jobs from
+  ansible.builtin.assert:
+    that:
+      - >-
+        RUNNER_QUEUE_DIR is string
+        and RUNNER_QUEUE_DIR is match('/[^/]')
+        and RUNNER_QUEUE_DIR is not search('(^|/)[.][.]?(/|$)')
+        and RUNNER_QUEUE_DIR is not search(':')
+    fail_msg: >-
+      the {{ RUNNER_FLAVOR }} flavor takes its jobs from a local queue and
+      needs services.runner.queue_dir as an absolute directory other than /,
+      without ':' (got {{ RUNNER_QUEUE_DIR | to_json }})
+    quiet: true
+  when: RUNNER_TAKES_LOCAL_JOBS | bool
 
 - name: 🐳 Ensure Docker is installed and running
   ansible.builtin.include_role:
@@ -88,6 +122,39 @@
     owner: "{{ RUNNER_USER }}"
     group: "{{ RUNNER_USER }}"
     mode: "0755"
+
+- name: 👥 Create the group the local job queue is shared through
+  group:
+    name: "{{ RUNNER_QUEUE_GROUP }}"
+    gid: "{{ RUNNER_QUEUE_GID }}"
+    system: true
+  when: RUNNER_TAKES_LOCAL_JOBS | bool
+
+- name: 📂 Create the local job queue, sticky, shared by its group, closed to others
+  file:
+    path: "{{ RUNNER_QUEUE_DIR }}"
+    state: directory
+    owner: root
+    group: "{{ RUNNER_QUEUE_GID }}"
+    mode: "3770"
+  when: RUNNER_TAKES_LOCAL_JOBS | bool
+
+- name: 📂 Create the job, log and runner folders of the local job queue
+  file:
+    path: "{{ [RUNNER_QUEUE_DIR, item] | path_join }}"
+    state: directory
+    owner: root
+    group: "{{ RUNNER_QUEUE_GID }}"
+    mode: "2770"
+  loop:
+    - jobs
+    - logs
+    - runners
+  when: RUNNER_TAKES_LOCAL_JOBS | bool
+
+- name: 🔌 Open the Docker daemon to the queue group on a socket in the queue
+  include_tasks: 05_queue_socket.yml
+  when: RUNNER_TAKES_LOCAL_JOBS | bool
 
 - name: 📦 Provide the GitHub Actions runner binary
   when: RUNNER_REGISTERS_WITH_GITHUB | bool

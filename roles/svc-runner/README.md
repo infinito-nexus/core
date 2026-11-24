@@ -22,7 +22,7 @@ The `RUNNER_DISTRIBUTION` variable selects distro-specific package installation 
 - **Multi-distro:** Supports Debian, Ubuntu (`apt`), Arch Linux (`pacman`), and Fedora/EL (`dnf`) via distro-specific task files.
 - **Idempotent:** The compose stack lives in the default instance directory and runs through the default compose handlers; re-running the deploy recreates the containers when their image, compose file or instance environment changed, without manual cleanup.
 - **CI workflow ready:** All deploy-test workflows route to GitHub-hosted runners by default; set `CI_SELF_HOSTED_RUNNER_COUNT` to overflow jobs to your runners.
-- **Two flavors:** `services.runner.flavor` selects `github` (the default, everything this page describes) or `local`, which registers nowhere, needs no PAT, checks nothing out and mounts the worktree roots at their host paths instead; see [Local flavor](#local-flavor).
+- **Two flavors:** `services.runner.flavor` selects `github` (the default, everything this page describes) or `local`, which registers nowhere, needs no PAT, checks nothing out, mounts the worktree roots at their host paths instead and takes its jobs from the local job queue; see [Local flavor](#local-flavor).
 
 ## End-to-end guide
 
@@ -138,6 +138,8 @@ python -m cli.administration.deploy.runner <hostname> \
 | `RUNNER_SYSCTL_PARAMETERS` | three `fs.inotify.*` limits and `vm.max_map_count: 262144` | Inotify limits for parallel runner containers, and the memory-map floor Wazuh, OpenSearch and Elasticsearch need inside DiD; host-global, so skipped inside a container. |
 | `RUNNER_FLAVOR` | `meta/services.yml` (`github`) | `services.runner.flavor`: `github` registers every instance with GitHub; `local` renders no registration, no PAT and no checkout ref, skips the GitHub runner binary and mounts `RUNNER_WORKTREE_ROOTS`. Any other value fails the deploy. |
 | `RUNNER_WORKTREE_ROOTS` | `meta/services.yml` (`[]`) | `services.runner.worktree_roots`: absolute directories every `local` instance mounts read-only at its host path. The `local` flavor fails the deploy without one, and on a root that is `/`, holds `:`, or is a home directory (`/root`, `/home/<user>`, `/Users/<user>`, `/var/home/<user>`) or a parent of one. |
+| `RUNNER_QUEUE_DIR` | `meta/services.yml` (`""`) | `services.runner.queue_dir`: the local job queue every `local` instance mounts writable at its host path and takes its jobs from. The `local` flavor fails the deploy unless it is an absolute directory other than `/`, without `:`. |
+| `RUNNER_QUEUE_GID` | `meta/users.yml` (`runner-queue`, gid `901`) | The group the `local` flavor creates `RUNNER_QUEUE_DIR` for, `root:runner-queue` with mode `3770`, its `jobs`, `logs` and `runners` folders `root:runner-queue` with mode `2770`, and adds every `local` instance to. The sticky root keeps a job, which runs with the group, from renaming or removing those folders. Joining it equals root on the host, because its members reach the daemon of the privileged infra runner. The operator joins it once on the host (`sudo groupadd -g 901 runner-queue`, `sudo usermod -aG runner-queue "$USER"`), and the commands refuse while gid `901` names another group there; `make compose-deploy` with `INFINITO_DEPLOY_VIA_POOL=true`, `make runner-status`, `make runner-release` and `make runner-cleanup-report` refuse with that step until then, and refuse a root without the sticky bit or a folder that is missing, a link or owned by another user than the root until `make infra-update` restores the layout. |
 
 `RUNNER_DISTRIBUTION` is **required** and has no default; it is passed automatically by the CLI.
 
@@ -226,10 +228,15 @@ applications:
     services:
       runner:
         flavor: local
+        queue_dir: /var/cache/infinito/core/cache/jobs
         worktree_roots:
           - /home/<user>/Repositories/github.com/infinito-nexus/core
           - /home/<user>/.local/share/worktrees
 ```
+
+The infra inventory renders exactly this entry, with `RUNNER_COUNT` from
+`make runner-count`, while `INFINITO_DEPLOY_VIA_POOL=true`; with it unset or
+`false` the infra deploy drops the role from `~/inventories/infinito-infra`.
 
 Each instance keeps its per-instance DinD environment (compose project,
 prefix, subnet `172.30.<N>.0/24` and Docker volume), but its `.env` carries
@@ -239,10 +246,74 @@ downloads no GitHub runner binary, and the e2e environment carries no
 `GITHUB_TOKEN` and no `RUNNER_GIT_REF` but `RUNNER_FLAVOR` and
 `RUNNER_WORKTREE_ROOTS`. Every root of `worktree_roots` is
 mounted read-only at its host path, so a worktree's `.git` file resolves into
-the primary checkout as it does on the host. The staged entrypoint
-(`files/shell/entrypoint-local.sh`) registers nowhere and keeps the container
-idle; it takes no job by itself. Without the key, every inventory renders the
-`github` flavor byte-identical to the role before the flavor existed.
+the primary checkout as it does on the host, and `queue_dir` is mounted
+writable at its host path for the `runner-queue` group every instance joins.
+Every `local` instance runs `services.runner.toolchain_image` (the invoking
+checkout's `INFINITO_IMAGE`, venv baked in, which `make infra-update` loads
+into the infra runner's daemon) as `operator_uid:operator_gid`, the operator
+who ran `make infra-update`, and owns `RUNNER_INSTALL_DIR/<N>` as that user.
+Its entrypoint, `files/shell/entrypoint-local.sh` read from
+`services.runner.src_dir`, registers nowhere; it runs the pool loop of
+[utils/runner/loop.py](../../utils/runner/loop.py) from that checkout, which
+`make infra-update` takes from `INFINITO_RUNNER_SRC_DIR` and refuses to guess:
+unset, or outside every worktree root, it aborts naming the key. The loop
+registers the instance under its compose project (`runner-<N>`), ends any job
+it still ran when it last stopped, claims the oldest queued job whose checkout
+resolves inside `INFINITO_RUNNER_WORKTREE_ROOTS` (never a root itself, and
+only one holding `scripts/tests/deploy/job/entry.sh`), and copies into its own
+`INFINITO_RUNNER_CHECKOUT` (`RUNNER_INSTALL_DIR/<N>/checkout`) only what git
+sees in that checkout: tracked files and untracked ones that no ignore rule
+covers, never `.env`, plus the checkout's `custom.env` (mode `0600`) with
+`INFINITO_POOL_RUNNER=true` and `INFINITO_DEPLOY_VIA_POOL=false` pinned. The
+copy of the job before goes first, removed as root by a throwaway container of
+the runner's own image that mounts `RUNNER_INSTALL_DIR/<N>` alone, so files the
+job's root container wrote into it never block the next job. The copy gets a
+`.git` file naming the checkout's git directory as mounted, so
+`git rev-parse` works in it. The job runs there as
+`<copy>/scripts/tests/deploy/job/entry.sh make <target> <args>` with
+`INFINITO_STACK_NAME=runner-<N>`, `PYTHONDONTWRITEBYTECODE=1`, the two pinned
+keys and without the loop's own `PYTHONPATH`. The job keeps the cache consumer
+(CA, proxy and mirror configuration, the cache names mapped to the infra
+runner's address on `INFINITO_INFRA_SUBNET`) through
+`compose/pool-consumer.override.yml`, but starts and attaches to no infra
+runner, joins no `infinito-infra` network and submits no pool job, and its
+stack goes afterwards unless the job was submitted with `hold=true`. The job writes into
+that copy and a held stack runs from it while the worktrees stay read-only.
+`make compose-role-sync` and `make compose-playwright` with `job=<id>` first
+mirror the checkout the job's record names into its copy: changed files are
+copied again, and a file copied before that git no longer lists goes, while
+files the job wrote itself stay. When the removal as root fails, the instance
+turns `failed`, names the path in `make runner-status`, retries the removal
+once a minute instead of every poll and takes no job until a later removal
+succeeds. The `local` instances carry no health check, since
+the toolchain image's own probe never passes in them.
+
+The `local` flavor also hands the inner dockerd a second socket,
+`RUNNER_QUEUE_SOCKET` (`docker.sock` in `queue_dir`, `root:runner-queue`,
+mode `0660`), through the `runner-queue-docker.socket` unit and a
+`docker.service` drop-in, restarting both when either changes. Since
+`queue_dir` lies in the cache base the infra runner binds at its host path,
+the host reaches the daemon every job stack runs on there:
+`make <target> job=<id>` exports `INFINITO_POOL_JOB`, and
+`scripts/meta/env/load.sh` sets `DOCKER_HOST` to that socket and
+`INFINITO_STACK_NAME` to the job's `runner-<N>`, so `make compose-exec`,
+`make compose-inner-run`, `make compose-playwright` and
+`make compose-role-sync` reach the stack of a held or running job unchanged,
+and `make runner-release` removes stacks through it. `INFINITO_STACK_NAME=runner-<N>`
+without `job=` is refused, because it would address the host's daemon. The
+`runner-queue` group is one trust domain, and membership in it equals root on
+the host: its members reach the daemon of the infra runner, which runs
+privileged with the host's cgroups, so add only users who may be root there.
+A held instance, and one whose stack removal failed, takes no job
+until `make runner-release job=<id>` removes the stack; `make runner-status`
+lists every instance as `idle`, `busy`, `held` or `failed`, and whether a process still
+serves the queue as it. An instance removed while it ran a job, such as one
+beyond a smaller `RUNNER_COUNT`, leaves that job running with no process
+serving it; `make runner-status` names its release, and
+`make runner-release job=<id>` removes its stack and fails it with 137, which
+ends the submitter's follow. Without the key, every
+inventory renders the `github` flavor byte-identical to the role before the
+flavor existed.
 
 ```mermaid
 flowchart LR
@@ -250,9 +321,10 @@ flowchart LR
         roots[(worktree roots<br/>host paths, read-only)]
         r1[runner-1<br/>local flavor] -->|/var/run/docker.sock| dockerd[(inner dockerd)]
         rn[runner-N<br/>local flavor] -->|/var/run/docker.sock| dockerd
-        roots --> r1
-        roots --> rn
+        roots -->|copied per job| r1
+        roots -->|copied per job| rn
     end
+    operator[make target job=id] -->|queue_dir/docker.sock| dockerd
 ```
 
 ## Further Resources

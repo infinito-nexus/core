@@ -1,16 +1,30 @@
+"""
+Environment:
+    OPENWEBUI_ADMIN_EMAIL:     the administrator's e-mail.
+    OPENWEBUI_ADMIN_NAME:      its display name when it has to be created.
+    OPENWEBUI_ADMIN_LDAP:      "true" when LDAP signs the administrator in: the
+                               account then gets a random local password nobody
+                               knows, as Open WebUI's own LDAP sign-up does, and
+                               its password is never converged.
+    OPENWEBUI_ADMIN_PASSWORD:  the local password to converge; read only without LDAP.
+"""
+
 import asyncio
 import os
 import sys
+import uuid
 
 sys.path.insert(0, "/app/backend")
 
 EMAIL = os.environ["OPENWEBUI_ADMIN_EMAIL"].lower()
 NAME = os.environ["OPENWEBUI_ADMIN_NAME"]
-PASSWORD = os.environ["OPENWEBUI_ADMIN_PASSWORD"]
+LDAP = os.environ["OPENWEBUI_ADMIN_LDAP"] == "true"
+PASSWORD = None if LDAP else os.environ["OPENWEBUI_ADMIN_PASSWORD"]
 
 
 async def converge():
-    """Create the administrator or bring an existing account back to its password and role.
+    """Create the administrator or bring an existing account back to its role and,
+    without LDAP, its password.
 
     Returns:
         ``CHANGED <what>`` when the database was written, ``OK`` otherwise.
@@ -23,7 +37,7 @@ async def converge():
     if user is None:
         created = await Auths.insert_new_auth(
             email=EMAIL,
-            password=await get_password_hash(PASSWORD),
+            password=str(uuid.uuid4()) if LDAP else await get_password_hash(PASSWORD),
             name=NAME,
             role="admin",
         )
@@ -35,7 +49,7 @@ async def converge():
         return await verify_password(PASSWORD, hashed)
 
     changes = []
-    if await Auths.authenticate_user(EMAIL, matches) is None:
+    if not LDAP and await Auths.authenticate_user(EMAIL, matches) is None:
         if not await Auths.update_user_password_by_id(
             user.id, await get_password_hash(PASSWORD)
         ):
