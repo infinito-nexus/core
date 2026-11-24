@@ -85,13 +85,29 @@ async function openUserList(page) {
 }
 
 /**
+ * Args:
+ *   page: a Playwright page showing the Checkmk user list.
+ *   username: the Checkmk user id, matched exactly against the ID cell.
+ *
+ * Returns:
+ *   The locator of the role links in that row's Roles column.
+ */
+function userRoleLinks(page, username) {
+  return page
+    .locator("table.data tr")
+    .filter({ has: page.getByRole("cell", { name: username, exact: true }) })
+    .first()
+    .locator("a[href*='mode=edit_role']");
+}
+
+/**
  * Start the LDAP user sync from the user list until the row of `username`
- * shows `expected`.
+ * lists the Checkmk role `expected`.
  *
  * Args:
  *   page: a Playwright page logged in as the administrator.
  *   username: the Checkmk user id whose row is inspected.
- *   expected: text the row must contain once the sync finished.
+ *   expected: the Checkmk role alias the row's Roles column must list once the sync finished.
  */
 async function syncUntilRowShows(page, username, expected) {
   await openUserList(page);
@@ -99,9 +115,8 @@ async function syncUntilRowShows(page, username, expected) {
     .poll(
       async () => {
         await gotoOnion(page, `${env.guiUrl}/wato.py?mode=users`, { waitUntil: "domcontentloaded" });
-        const row = page.locator("table.data tr").filter({ hasText: new RegExp(`\\b${username}\\b`) }).first();
-        const rowText = (await row.count()) ? await row.innerText() : "";
-        if (rowText.includes(expected)) return rowText;
+        const roles = await userRoleLinks(page, username).allInnerTexts();
+        if (roles.includes(expected)) return roles;
         const syncLink = page.locator("a:has-text('Synchronize users')").first();
         if (await syncLink.count()) {
           const syncResponse = page.waitForResponse((response) => response.url().includes("_sync=1"), {
@@ -110,12 +125,12 @@ async function syncUntilRowShows(page, username, expected) {
           await syncLink.evaluate((link) => link.click());
           await syncResponse.catch(() => {});
         }
-        return rowText;
+        return roles;
       },
       {
         timeout: resolveTimeout(180_000),
         intervals: [3_000, 5_000, 10_000],
-        message: `the user list row of ${username} MUST show "${expected}" after the LDAP sync`,
+        message: `the user list row of ${username} MUST list the Checkmk role "${expected}" after the LDAP sync`,
       },
     )
     .toContain(expected);
