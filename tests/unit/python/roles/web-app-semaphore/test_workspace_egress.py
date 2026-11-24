@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ipaddress
 import unittest
 from importlib.util import module_from_spec, spec_from_file_location
 from urllib.parse import urlsplit
@@ -29,6 +30,7 @@ PLATFORM = [
 ]
 CLOSED = ["127.0.0.0/8", "169.254.0.0/16", "fe80::/10", "192.0.2.1"]
 PUBLIC = "93.184.216.34"
+LOOPBACK_PIN = "127.0.0.1 localhost"
 NODES = {
     "manager": {
         "all_ipv4_addresses": ["192.0.2.10", "172.17.0.1"],
@@ -65,6 +67,34 @@ def render(name, targets, platform=PLATFORM):
         semaphore_workspace_closed=CLOSED,
         SEMAPHORE_EGRESS_HOSTS_FILE=HOSTS_FILE,
     )
+
+
+def written_hosts(targets, source=None):
+    """Args:
+    targets: the pinned targets.
+    source: the template text, that of ``templates/workspace/hosts.j2`` when None.
+
+    Returns:
+        The hosts file as the Ansible template module writes it, whose block
+        tags swallow their newline.
+    """
+    environment = Environment(
+        autoescape=select_autoescape(default_for_string=False), trim_blocks=True
+    )
+    if source is None:
+        source = read_text(str(TEMPLATES / "hosts.j2"))
+    return environment.from_string(source).render(semaphore_workspace_targets=targets)
+
+
+def swarm_config_findings(content):
+    """Args:
+    content: a file a swarm stack mounts as a config.
+
+    Returns:
+        Why ``docker stack deploy`` refuses to create the config.
+    """
+    size = len(content.encode("utf-8"))
+    return [] if 0 < size < 1024000 else [f"config data of {size} bytes"]
 
 
 def export_egress(declared=None):
@@ -348,7 +378,28 @@ class TestWorkspaceEgress(unittest.TestCase):
             f"acl target_1_address dst {PUBLIC}", render("squid.conf", pinned)
         )
         self.assertEqual(
-            render("hosts", pinned).strip(), f"{PUBLIC} target.example.org"
+            written_hosts(pinned).splitlines(),
+            [LOOPBACK_PIN, f"{PUBLIC} target.example.org"],
+        )
+
+    def test_the_export_egress_hosts_file_is_a_valid_swarm_config(self):
+        self.assertEqual(swarm_config_findings(written_hosts([])), [])
+        self.assertEqual(written_hosts([]).splitlines(), [LOOPBACK_PIN])
+
+    def test_the_fixed_pin_points_into_a_range_the_proxy_closes(self):
+        address = ipaddress.ip_address(LOOPBACK_PIN.split(maxsplit=1)[0])
+        ranges = templar()[0].available_variables["SEMAPHORE_WORKSPACE_CLOSED"]
+        self.assertTrue(
+            any(address in ipaddress.ip_network(entry) for entry in ranges), ranges
+        )
+
+    def test_negative_control_a_hosts_file_without_the_pin_is_refused_by_swarm(self):
+        source = read_text(str(TEMPLATES / "hosts.j2"))
+        unpinned = source.replace(f"{LOOPBACK_PIN}\n", "")
+        self.assertNotEqual(unpinned, source)
+        self.assertEqual(
+            swarm_config_findings(written_hosts([], unpinned)),
+            ["config data of 0 bytes"],
         )
 
     def test_apply_refuses_a_target_in_a_closed_range(self):
