@@ -32,10 +32,10 @@ def _make_lookup(vars_=None):
 
 
 class TestContainerNetworksLookup(unittest.TestCase):
-    def test_raises_when_positional_terms_supplied(self):
+    def test_raises_when_more_than_one_term_supplied(self):
         lm = _make_lookup({"application_id": "x", "DEPLOYMENT_MODE": "swarm"})
         with self.assertRaises(AnsibleError):
-            lm.run(["unexpected"], variables=lm._templar.available_variables)
+            lm.run(["relay", "unexpected"], variables=lm._templar.available_variables)
 
     def test_raises_when_application_id_missing(self):
         lm = _make_lookup({"DEPLOYMENT_MODE": "swarm"})
@@ -71,7 +71,47 @@ class TestContainerNetworksLookup(unittest.TestCase):
         self.assertEqual(kwargs["application_id"], "web-app-baserow")
         self.assertEqual(kwargs["deployment_mode"], "compose")
 
-    def test_forwards_caller_aliases(self):
+    def _run_with_configured_aliases(self, configured, render_mock=None):
+        vars_ = {"application_id": "web-app-x", "DEPLOYMENT_MODE": "compose"}
+        lm = _make_lookup(vars_)
+        config_calls: list[tuple] = []
+
+        def _config_run(args, **_):
+            config_calls.append(tuple(args))
+            return [configured]
+
+        def _get(name, **_):
+            if name == "config":
+                return mock.MagicMock(run=_config_run)
+            return mock.MagicMock(run=lambda *_a, **_k: [{}])
+
+        with (
+            mock.patch(
+                "utils.networks.lookup_context.build_service_registry_from_applications",
+                return_value={},
+            ),
+            mock.patch("utils.networks.lookup_context.lookup_loader") as loader_mock,
+            mock.patch(
+                "plugins.lookup.container_networks.render_container_networks",
+                render_mock or mock.MagicMock(return_value="RENDERED"),
+            ),
+        ):
+            loader_mock.get.side_effect = _get
+            lm.run(["relay"], variables=vars_)
+        return config_calls
+
+    def test_reads_the_service_network_aliases_from_its_config(self):
+        render_mock = mock.MagicMock(return_value="RENDERED")
+        config_calls = self._run_with_configured_aliases(
+            ["a.example.com"], render_mock
+        )
+
+        self.assertIn(
+            ("web-app-x", "services.relay.network_aliases", None), config_calls
+        )
+        self.assertEqual(render_mock.call_args.kwargs["aliases"], ["a.example.com"])
+
+    def test_without_a_service_no_aliases_are_read(self):
         vars_ = {"application_id": "web-app-x", "DEPLOYMENT_MODE": "compose"}
         lm = _make_lookup(vars_)
 
@@ -87,24 +127,17 @@ class TestContainerNetworksLookup(unittest.TestCase):
             ) as render_mock,
         ):
             loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [{}])
-            lm.run([], variables=vars_, aliases=["a.example.com"])
+            lm.run([], variables=vars_)
 
-        self.assertEqual(render_mock.call_args.kwargs["aliases"], ["a.example.com"])
+        self.assertIsNone(render_mock.call_args.kwargs["aliases"])
 
-    def test_rejects_aliases_that_are_not_a_list_of_strings(self):
-        vars_ = {"application_id": "web-app-x", "DEPLOYMENT_MODE": "compose"}
-        lm = _make_lookup(vars_)
+    def test_rejects_network_aliases_that_are_not_a_list_of_strings(self):
+        with self.assertRaises(AnsibleError):
+            self._run_with_configured_aliases("a.example.com")
 
-        with (
-            mock.patch(
-                "utils.networks.lookup_context.build_service_registry_from_applications",
-                return_value={},
-            ),
-            mock.patch("utils.networks.lookup_context.lookup_loader") as loader_mock,
-        ):
-            loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [{}])
-            with self.assertRaises(AnsibleError):
-                lm.run([], variables=vars_, aliases="a.example.com")
+    def test_rejects_a_service_without_network_aliases(self):
+        with self.assertRaises(AnsibleError):
+            self._run_with_configured_aliases(None)
 
     def test_falls_back_to_compose_when_deployment_mode_unset(self):
         vars_ = {"application_id": "web-app-x"}
