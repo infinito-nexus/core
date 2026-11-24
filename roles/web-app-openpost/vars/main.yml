@@ -39,21 +39,8 @@ OPENPOST_ORGANISATION_WORKSPACE: "{{ SOFTWARE_NAME }}"
 OPENPOST_BOOTSTRAP_ADMINS:
   - "{{ lookup('users', 'platform_administrator').email }}"
 
-OPENPOST_RELAY_SIBLINGS:
-  mastodon: web-app-mastodon
-  pixelfed: web-app-pixelfed
-  peertube: web-app-peertube
-OPENPOST_RELAY_DOMAINS: >-
-  {%- set _domains = [lookup('domain', application_id)] -%}
-  {%- for _key, _role in OPENPOST_RELAY_SIBLINGS.items() -%}
-  {%- if lookup('config', application_id, 'services.' ~ _key ~ '.enabled') | bool -%}
-  {%- set _ = _domains.append(lookup('domain', _role)) -%}
-  {%- endif -%}
-  {%- endfor -%}
-  {%- if OPENPOST_OBJSTORE_ENABLED | bool -%}
-  {%- set _ = _domains.append(lookup('objstore', application_id, 'public_domain')) -%}
-  {%- endif -%}
-  {{ _domains }}
+OPENPOST_RELAY_SIBLINGS: "{{ lookup('config', application_id, 'services.relay.siblings') }}"
+OPENPOST_RELAY_DOMAINS: "{{ lookup('config', application_id, 'services.relay.network_aliases') }}"
 OPENPOST_PINNED_INSTANCES: >-
   {%- set _instances = [] -%}
   {%- for _key in ['mastodon', 'pixelfed'] -%}
@@ -74,12 +61,12 @@ OPENPOST_RELAY_UPSTREAM_HTTP_PORT: "{{ lookup('config', 'svc-prx-openresty', 'se
 OPENPOST_SIMULATOR_ENABLED: "{{ lookup('config', application_id, 'services.simulator.enabled') | bool }}"
 OPENPOST_SIMULATOR_NAME: "{{ lookup('config', application_id, 'services.simulator.name') }}"
 OPENPOST_SIMULATOR_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'simulator'] | path_join }}"
-OPENPOST_SIMULATOR_HOSTS: "{{ lookup('config', application_id, 'services.simulator.hosts') }}"
+OPENPOST_SIMULATOR_HOSTS: "{{ lookup('config', application_id, 'services.simulator.network_aliases') }}"
 OPENPOST_PROVIDER: "{{ lookup('config', application_id, 'services.provider') }}"
 OPENPOST_PROVIDER_ENABLED: "{{ lookup('config', application_id, 'services.provider.enabled') | bool }}"
 OPENPOST_PROVIDER_NAME: "{{ OPENPOST_PROVIDER.name }}"
 OPENPOST_PROVIDER_UID: "{{ OPENPOST_PROVIDER.uid }}"
-OPENPOST_PROVIDER_HOSTS: "{{ OPENPOST_PROVIDER.hosts }}"
+OPENPOST_PROVIDER_HOSTS: "{{ OPENPOST_PROVIDER.network_aliases }}"
 OPENPOST_PROVIDER_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'provider'] | path_join }}"
 OPENPOST_PROVIDER_CONFIG_HOST: "{{ [OPENPOST_PROVIDER_DIR, 'provider.json'] | path_join }}"
 OPENPOST_PROVIDER_KEY_HOST: "{{ [OPENPOST_PROVIDER_DIR, 'server.key'] | path_join }}"
