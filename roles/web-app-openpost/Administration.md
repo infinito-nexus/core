@@ -47,7 +47,7 @@ Inside an Infinito.Nexus deployment the sibling vhosts usually resolve to privat
 The role therefore runs an `nginx` stream relay next to OpenPost:
 
 - The role network uses `192.88.99.0/24`, the deprecated 6to4 relay anycast block (RFC 7526), which `netguard` accepts as a global unicast range and which never leaves the Docker host.
-  `group_vars/all/08_networks.yml` lists the role in `NETWORK_ROLE_SUBNET_EXCEPTION_ROLES` for that reason.
+  `meta/networks.yml` declares that block with `outside_pool: true` for that reason, which puts the role in `NETWORK_ROLE_SUBNET_EXCEPTION_ROLES`.
 - The relay carries OpenPost's own canonical domain, the canonical domains of the deployed Mastodon, Pixelfed and PeerTube roles, and the public domain of the object store, as network aliases, so OpenPost resolves those names to the relay.
   OpenPost writes media to the object store's public endpoint because browsers upload through the same presigned URLs; the alias keeps those writes on the shared proxy even where that public name only resolves through Tor.
   OpenPost requests its own public media URLs before it lets a provider fetch them. With `svc-net-tor` deployed, the host drops DNS queries from every range outside the internal ones, `192.88.99.0/24` included, so without the alias that check would time out resolving the name.
@@ -86,7 +86,7 @@ Every callback URL has the form `https://publish.<DOMAIN_PRIMARY>/api/v1/account
 ## Provider simulator
 
 Variant 0 of `meta/variants.yml` starts a WireMock `simulator` on the role network that answers for X, Facebook, Instagram, YouTube and TikTok under their real API host names.
-Next to it runs the fake `provider`, a small stateful Python service built from `files/provider/` that plays LinkedIn on `www.linkedin.com` and `api.linkedin.com`: members sign up on `/signup`, grant OpenPost access on the consent page, and the fake keeps the tokens, images and posts it receives.
+Next to it runs the fake `provider`, a small stateful Python service built from `files/provider/Dockerfile` and the `files/python/provider/` package that plays LinkedIn on `www.linkedin.com` and `api.linkedin.com`: members sign up on `/signup`, grant OpenPost access on the consent page, and the fake keeps the tokens, images and posts it receives.
 The deploy signs a certificate for all those names with a per-deploy test CA in the role's config directory, OpenPost trusts that CA through `SSL_CERT_DIR`, and the role renders `simulator-<provider>` credentials instead of the `API` entries for the simulated providers.
 The keystore that carries the certificate uses WireMock's built-in keystore password, so WireMock starts without any password on its command line.
 The fake also publishes plain HTTP on the local port of `services.provider.ports.local.http`; Playwright routes `https://www.linkedin.com/` there, and `/__fake/linkedin/posts` lists what OpenPost delivered.
