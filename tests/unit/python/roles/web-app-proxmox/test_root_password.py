@@ -11,7 +11,13 @@ from ._render import DOCKERFILE, ROLE, planted, render
 
 FIRST_BOOT = read_text(str(ROLE / "files" / "shell" / "first-boot.sh"))
 VM_FLAVOR = ROLE / "tasks" / "flavors" / "vm.yml"
-VM_TASKS = load_yaml_any(str(VM_FLAVOR), default_if_missing=[])
+GUEST_FILE = "flavors/vm/guest.yml"
+GUEST_INCLUDE = next(
+    task
+    for task in load_yaml_any(str(VM_FLAVOR), default_if_missing=[])
+    if "ansible.builtin.include_tasks" in task
+)
+GUEST_TASKS = load_yaml_any(str(ROLE / "tasks" / GUEST_FILE), default_if_missing=[])
 GUEST_ANSWERS = "⏳ Wait until the Proxmox VE guest answers on the guest channel"
 LOCKED_ASSERT = "🛑 Refuse a Proxmox VE guest whose root password is not locked"
 GUEST_LOCK = "pve-guest usermod -L root"
@@ -98,7 +104,7 @@ def _lock_task(tasks: list[dict]) -> dict:
 
 def deploy_lock_findings(tasks: list[dict]) -> list[str]:
     """Args:
-        tasks: the task list of the vm flavor.
+        tasks: the guest checks of the vm flavor.
 
     Returns:
         Every way a deploy leaves the root password of an already installed
@@ -171,46 +177,47 @@ class TestVmGuestRoot(unittest.TestCase):
 
 class TestDeployLock(unittest.TestCase):
     def test_every_deploy_locks_and_checks_root_of_an_installed_guest(self):
-        self.assertEqual(deploy_lock_findings(VM_TASKS), [])
-        self.assertEqual(_lock_task(VM_TASKS)["delegate_to"], "{{ PROXMOX_HOST_NODE }}")
+        self.assertEqual(deploy_lock_findings(GUEST_TASKS), [])
+        self.assertEqual(
+            _lock_task(GUEST_TASKS)["delegate_to"], "{{ PROXMOX_HOST_NODE }}"
+        )
 
     def test_negative_control_a_flavor_without_the_lock_is_caught(self):
-        tasks = [task for task in VM_TASKS if GUEST_LOCK not in _cmd(task)]
-        self.assertEqual(len(tasks), len(VM_TASKS) - 1)
+        tasks = [task for task in GUEST_TASKS if GUEST_LOCK not in _cmd(task)]
+        self.assertEqual(len(tasks), len(GUEST_TASKS) - 1)
         self.assertEqual(
             deploy_lock_findings(tasks), ["no task locks root inside the guest"]
         )
 
     def test_negative_control_a_lock_before_the_guest_answers_is_caught(self):
-        lock = _lock_task(VM_TASKS)
-        tasks = [lock, *(task for task in VM_TASKS if task is not lock)]
+        lock = _lock_task(GUEST_TASKS)
+        tasks = [lock, *(task for task in GUEST_TASKS if task is not lock)]
         self.assertIn(
             "root is locked before the guest answers", deploy_lock_findings(tasks)
         )
 
     def test_negative_control_a_flavor_without_the_check_is_caught(self):
-        tasks = [task for task in VM_TASKS if task.get("name") != LOCKED_ASSERT]
-        self.assertEqual(len(tasks), len(VM_TASKS) - 1)
+        tasks = [task for task in GUEST_TASKS if task.get("name") != LOCKED_ASSERT]
+        self.assertEqual(len(tasks), len(GUEST_TASKS) - 1)
         self.assertEqual(
             deploy_lock_findings(tasks),
             ["no assert checks the status read after the lock"],
         )
 
     def test_the_lock_runs_only_while_root_keeps_a_usable_password(self):
-        when = _lock_task(VM_TASKS)["when"]
+        when = _lock_task(GUEST_TASKS)["when"]
         for stdout, runs in ((USABLE, True), (EMPTY, True), (LOCKED, False)):
-            scope = {
-                "IS_STACK_HOST": True,
-                "proxmox_guest_root_status": {"stdout": stdout},
-            }
+            scope = {"proxmox_guest_root_status": {"stdout": stdout}}
             self.assertIs(bool(evaluate(when, scope)), runs, stdout)
 
     def test_the_lock_skips_a_node_that_does_not_host_the_stack(self):
-        when = _lock_task(VM_TASKS)["when"]
+        self.assertEqual(GUEST_INCLUDE["ansible.builtin.include_tasks"], GUEST_FILE)
+        when = GUEST_INCLUDE["when"]
         self.assertIs(bool(evaluate(when, {"IS_STACK_HOST": False})), False)
+        self.assertIs(bool(evaluate(when, {"IS_STACK_HOST": True})), True)
 
     def test_the_deploy_refuses_a_guest_whose_root_stays_unlocked(self):
-        check = assert_task(VM_FLAVOR, LOCKED_ASSERT)
+        check = assert_task(ROLE / "tasks" / GUEST_FILE, LOCKED_ASSERT)
         self.assertTrue(holds(check, {"proxmox_guest_root_locked": {"stdout": LOCKED}}))
         for stdout in (USABLE, EMPTY, ""):
             scope = {
