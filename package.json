@@ -14,7 +14,7 @@
     "@playwright/test": "^1.65.1",
     "eslint-plugin-playwright": "^2.12.2",
     "globals": "^17.14.0",
-    "stylelint": "^18.0.0"
+    "stylelint": "^18.1.0"
   },
   "overrides": {
     "brace-expansion": "^5.0.12",

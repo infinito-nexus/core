@@ -52,7 +52,7 @@ def code_point(point: int) -> bytes | None:
     """
     try:
         return chr(point).encode("utf-8")
-    except (ValueError, UnicodeEncodeError):
+    except (ValueError, OverflowError, UnicodeEncodeError):
         return None
 
 

@@ -25,6 +25,7 @@ ROOT_HELPERS = frozenset(
     {
         "spec_secrets.py",
         "spec_secrets_container.py",
+        "spec_secrets_files.py",
         "spec_secrets_match.py",
         "spec_secrets_mask.py",
         "run_parallel.py",

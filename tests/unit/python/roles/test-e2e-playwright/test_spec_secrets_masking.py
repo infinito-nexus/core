@@ -36,9 +36,29 @@ HALF_LINE_BOUND = 10
 NAME_CHECK = "if named(str(Path(here, name)), masks):"
 PROOF = "found.returncode and MISSING.search(found.stderr)"
 HIDDEN = (
-    "return UNSETTLED if scrubbed else (code if code >= 0 else 128 - code)",
+    "return UNSETTLED if scrubbed or unrelayed else (code if code >= 0 else 128 - code)",
     "return code if code >= 0 else 128 - code",
 )
+EMPTIED = (
+    "swap(into, name, PUBLISHED_FILE, copy)",
+    "swap(into, name, PUBLISHED_FILE, lambda _target: None)",
+)
+STDERR_DROPPED = (
+    "((child.stdout, sys.stdout), (child.stderr, sys.stderr))",
+    "((child.stdout, sys.stdout),)",
+)
+FAILED_RELAY = """\
+import sys
+sys.path.insert(0, sys.argv[1])
+import spec_secrets_mask as masker
+def relay(source, target, masks):
+    raise RuntimeError
+masker.relay = relay
+sys.exit(masker.main(["spec_secrets_mask.py", "mask", *sys.argv[2:]]))
+"""
+QUIET = "print('done')"
+FLOOD = "import sys; sys.stdout.write('x' * (1 << 20)); sys.stdout.flush()"
+RELAY_BOUND = 30
 WRITE_ARGV = "import json, pathlib, sys; pathlib.Path(sys.argv[1]).write_text(json.dumps(sys.argv[2:]))"
 UNCHECKED = (
     "[*container, *spec_secrets.playwright(arguments)]",
@@ -139,6 +159,36 @@ def argv_run(arguments: list[str], *replacements) -> tuple[int, list[str] | None
         )
         seen = json.loads(scratch_text(probe)) if probe.exists() else None
         return result.returncode, seen, (directory / ".unsettled").exists()
+
+
+def failed_relay_run(child: str) -> int | str:
+    """Mask a command whose output relays raise before they read a byte.
+
+    Args:
+        child: the Python source the fake container runs.
+
+    Returns:
+        The masker's exit code, or ``hung`` when it did not end within
+        ``RELAY_BOUND`` seconds.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        helper = install(root / "bin", root)
+        directory = make_run(helper, f"LONG_KEY={VALUE}\n")
+        container, env = exec_tool(root, directory, [sys.executable, "-c", child])
+        patched = [sys.executable, "-c", FAILED_RELAY, str(root / "bin")]
+        paths = [str(directory), str(root / "reports")]
+        try:
+            result = subprocess.run(
+                [*patched, *paths, "--", *container, "--"],
+                capture_output=True,
+                check=False,
+                env=env,
+                timeout=RELAY_BOUND,
+            )
+        except subprocess.TimeoutExpired:
+            return "hung"
+        return result.returncode
 
 
 class TestSpecSecretsMasking(unittest.TestCase):
@@ -266,7 +316,11 @@ class TestSpecSecretsMasking(unittest.TestCase):
         )
 
     def test_a_term_before_the_container_id_still_removes_the_container(self) -> None:
-        self.assertEqual(late_cid_run()[1:], ["container alive False"])
+        self.assertEqual(late_cid_run(), ["masker 0", "container alive False"])
+
+    def test_an_output_relay_that_fails_leaves_the_run_unsettled(self) -> None:
+        self.assertEqual(failed_relay_run(QUIET), 70)
+        self.assertEqual(failed_relay_run(FLOOD), 70)
 
     def test_a_removal_that_takes_seconds_still_publishes_the_masked_reports(
         self,
@@ -366,6 +420,9 @@ class TestSpecSecretsMaskingNegativeControls(unittest.TestCase):
                 "stderr shows the value",
                 "junit shows the value",
                 "older report shows the value",
+                "stderr lacks its expected text",
+                "junit lacks its expected text",
+                "older report lacks its expected text",
             ],
         )
         following = masked_run(
@@ -381,12 +438,25 @@ class TestSpecSecretsMaskingNegativeControls(unittest.TestCase):
         )
         self.assertEqual(following, ["a link was followed"])
 
+    def test_a_masker_that_empties_the_reports_or_drops_stderr_is_caught(
+        self,
+    ) -> None:
+        self.assertEqual(
+            masked_run(EMPTIED, code=RUN_CODE),
+            ["junit lacks its expected text", "older report lacks its expected text"],
+        )
+        self.assertEqual(
+            masked_run(STDERR_DROPPED, code=RUN_CODE),
+            ["stderr lacks its expected text"],
+        )
+
     def test_a_masker_that_hides_a_failed_scrub_or_a_failed_removal_is_caught(
         self,
     ) -> None:
         self.assertEqual(failed_scrub_run(HIDDEN)[::3], (0, 0))
         trusting = (PROOF, "True")
-        self.assertEqual(stopped_run(signal.SIGKILL, True, trusting)[2], "scrub 0")
+        published = stopped_run(signal.SIGKILL, True, trusting)[4]
+        self.assertNotEqual(published, "published none")
 
     def test_a_masker_whose_failure_leaves_no_mark_for_the_scrub_is_caught(
         self,
