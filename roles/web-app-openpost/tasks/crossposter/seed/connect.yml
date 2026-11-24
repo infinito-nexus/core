@@ -24,6 +24,7 @@
     argv:
       - container
       - exec
+      - -i
       - -e
       - "CROSSPOSTER_ACCOUNT={{ openpost_crossposter_mastodon_route.source.account }}"
       - -e
@@ -31,20 +32,8 @@
       - "{{ OPENPOST_SEED_MASTODON_LOCAL_CID }}" # nocheck: container-exec-resolver
       - bin/rails
       - runner
-      - |
-        query = Rack::Utils.parse_query(URI.parse(ENV.fetch("CROSSPOSTER_AUTHORIZE")).query)
-        account = Account.find_local!(ENV.fetch("CROSSPOSTER_ACCOUNT"))
-        application = Doorkeeper::Application.find_by!(uid: query.fetch("client_id"))
-        grant = Doorkeeper::AccessGrant.create!(
-          application: application,
-          resource_owner_id: account.user.id,
-          redirect_uri: query.fetch("redirect_uri"),
-          scopes: query.fetch("scope", application.scopes.to_s),
-          code_challenge: query["code_challenge"],
-          code_challenge_method: query["code_challenge_method"],
-          expires_in: 600
-        )
-        puts "CROSSPOSTER_GRANT=#{grant.plaintext_token}"
+      - "-"
+    stdin: "{{ lookup('file', 'ruby/mastodon_grant_authorization.rb') }}"
   register: openpost_crossposter_mastodon_grant
   changed_when: true
   delegate_to: "{{ OPENPOST_SEED_MASTODON_HOST_NODE }}"
