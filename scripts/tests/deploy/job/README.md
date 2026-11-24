@@ -1,0 +1,11 @@
+# Deploy Job Entry
+
+This directory holds the job entry that every CI deploy step calls. The local runner pool of [092](../../../../docs/requirements/092-local-stack-architecture.md) does not call it yet; its runner still runs a bare `make <target>`.
+
+For the CI deploy flows it starts, see [../ci/README.md](../ci/README.md); for the local ones, see [../local/README.md](../local/README.md).
+
+## Entry Points
+
+| Script | What it does | Notes |
+|---|---|---|
+| `entry.sh <command> [args...]` | Changes into its checkout, prints the start line `[job-entry] start: <command> (checkout <path>)` and replaces itself with the deploy command, so the command's exit status is the job's. | Exports `INFINITO_DEPLOY_VIA_POOL=false`, so a job never submits itself to the pool again. [test_ci_deploy_through_entry.py](../../../../tests/lint/repository/test_ci_deploy_through_entry.py) fails on a workflow deploy step that bypasses it. |

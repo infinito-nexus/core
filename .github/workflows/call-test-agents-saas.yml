@@ -265,14 +265,14 @@ jobs:
       - name: 🐳 Deploy the agents bundle (local models behind LiteLLM)
         timeout-minutes: 240
         shell: bash
-        run: make compose-deploy bundles=agents
+        run: ./scripts/tests/deploy/job/entry.sh make compose-deploy bundles=agents
 
       - name: "🚀 Deploy ${{ matrix.apps }} onto the agents bundle"
         timeout-minutes: 240
         shell: bash
         run: |
           set -euo pipefail
-          make compose-deploy mode=update apps='${{ matrix.apps }}' variant='${{ matrix.variant }}' 2>&1 | tee "/tmp/ansible-${{ matrix.apps }}.log"
+          ./scripts/tests/deploy/job/entry.sh make compose-deploy mode=update apps='${{ matrix.apps }}' variant='${{ matrix.variant }}' 2>&1 | tee "/tmp/ansible-${{ matrix.apps }}.log"
 
       - name: "🎭 Run every Playwright spec of ${{ matrix.apps }}"
         timeout-minutes: 90
