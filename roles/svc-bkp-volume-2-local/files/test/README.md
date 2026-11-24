@@ -154,7 +154,7 @@ flowchart TD
     SWARM{"swarm node?"} -->|yes| SK["skip: the compose down/up cycle races the reconciler<br>swarm is drilled by scripts/tests/deploy/swarm/routine/backup"]
     SWARM -->|no| REC["record running containers, their projects and volumes,<br>plus launcher-run containers holding a backed-up volume"]
     REC --> DOWN["compose down every project, stop the launcher containers"]
-    DOWN --> RM["container volume rm every mounted volume<br>except the engines' own data directories"]
+    DOWN --> RM["container volume rm every mounted volume<br>except the engines' own data directories<br>and the volumes declared derived: code"]
     RM --> CREATE["compose create every project<br>so the volumes exist again, empty"]
     CREATE --> BLANK["seed/marker.py blank:<br>drop the live marker, only a restore returns it"]
     BLANK --> VOL["recover volume &lt;dir&gt; localhost, per files/ tree"]
@@ -174,11 +174,25 @@ the chain from the repository's service definitions.
 **Every mounted volume is discarded**, not only the backed-up ones. A volume
 declared `backup: false` claims to be disposable; a drill that spares it never
 tests the claim. If its service cannot rebuild it, the health gate goes red —
-that is the finding, not a false alarm. The single exception is the data
+that is the finding, not a false alarm. One exception is the data
 directory of an engine whose dump is about to be replayed: it carries the
 database and its role, which the deploy creates and the container does not, so
 wiping it would leave `baudolo-restore --empty -d <db>` with nothing to connect
 to and the drill would fail at itself instead of at a defect.
+
+**A volume declared `derived: code` is kept.** The service builds its content
+from the deployed code and keys it by that code: `web-app-docs` keys every
+site by the digest of the deployed snapshot, so a kept site either matches the
+code the drill brings back or is rebuilt on its next visit. The drill restores
+into the same image, so the kept site is the one the service would build
+again. Emptying it would only time a rebuild, which for the docs site outlasts
+the job's budget. `test.env.j2` hands the drill these names as
+`BKP_TEST_VOLUMES_CODE_DERIVED`, from `lookup('backup_volume', 'derived')`,
+which names each volume as the engine does. The schema in
+`utils/roles/applications/mounts.py` refuses `derived: code` without
+`backup: false`, so the drill never keeps a volume the backup is meant to
+carry. A volume derived from state, a search index or a thumbnail cache, is
+not `derived: code` and is still emptied.
 
 **A cluster dump is replayed, not skipped.** The recover chain sends it through
 `baudolo-restore cluster` with the superuser of its cluster row, so a

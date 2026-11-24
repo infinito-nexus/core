@@ -2,13 +2,20 @@ from __future__ import annotations
 
 import contextlib
 from collections.abc import Mapping
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
+from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.roles.applications.mounts import DERIVED_FROM_CODE
 from utils.roles.entity.name import entity_name
 from utils.storage.nfs import swarm_nfs_backed
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+DERIVED_TERM = "derived"
 
 
 def deployed_volume_name(
@@ -32,6 +39,36 @@ def deployed_volume_name(
         return pinned
     entity = entity_name(application_id)
     return f"{entity}_{semantic_name}" if entity else semantic_name
+
+
+def deployed_volume_names(
+    applications: Any, wanted: Callable[[str, Mapping], bool]
+) -> list[str]:
+    """Return the sorted, deduplicated docker names of the wanted entries.
+
+    Args:
+        applications: the merged ``applications`` config, keyed by role.
+        wanted: predicate over a role id and one of its ``meta/volumes.yml``
+            entries; an entry it accepts contributes its deployed name.
+    """
+    if not isinstance(applications, Mapping):
+        return []
+    names: set[str] = set()
+    for app_id, app in applications.items():
+        volumes = app.get("volumes") if isinstance(app, Mapping) else None
+        if not isinstance(volumes, Mapping):
+            continue
+        for semantic_name, entry in volumes.items():
+            if not isinstance(entry, Mapping) or not wanted(str(app_id), entry):
+                continue
+            name = deployed_volume_name(str(app_id), str(semantic_name), entry)
+            if name:
+                names.add(name)
+    return sorted(names)
+
+
+def _code_derived(_application_id: str, entry: Mapping) -> bool:
+    return entry.get("derived") == DERIVED_FROM_CODE
 
 
 class LookupModule(LookupBase):
@@ -62,7 +99,12 @@ class LookupModule(LookupBase):
     derived tree next to the state that must be preserved.
 
     Reads the live merged ``applications`` config, whose payload carries the
-    canonical volumes of every deployed role. Takes no terms.
+    canonical volumes of every deployed role.
+
+    ``lookup('backup_volume', 'derived')`` answers the restore drill instead:
+    the docker names of the entries declaring ``derived: code``, which the
+    drill keeps rather than empties. The schema requires ``backup: false``
+    beside that key, so the answer is a subset of the default one.
     """
 
     def run(
@@ -71,6 +113,18 @@ class LookupModule(LookupBase):
         variables: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> list[list[str]]:
+        """Return the selected docker volume names as one sorted list.
+
+        Args:
+            terms: empty for the volumes baudolo skips, or ``['derived']`` for
+                the code-derived volumes the restore drill keeps.
+            variables: the templating context.
+        """
+        if terms and list(terms) != [DERIVED_TERM]:
+            raise AnsibleError(
+                f"backup_volume lookup takes no term or '{DERIVED_TERM}', "
+                f"got {list(terms)!r}"
+            )
         vars_ = variables or getattr(self._templar, "available_variables", {}) or {}
 
         applications = lookup_loader.get(
@@ -78,6 +132,8 @@ class LookupModule(LookupBase):
             loader=self._loader,
             templar=getattr(self, "_templar", None),
         ).run([], variables=vars_)[0]
+        if terms:
+            return [deployed_volume_names(applications, _code_derived)]
 
         templar = getattr(self, "_templar", None)
         deployment_mode = vars_.get("DEPLOYMENT_MODE", "")
@@ -96,28 +152,16 @@ class LookupModule(LookupBase):
             isinstance(groups, Mapping) and groups.get("svc-bkp-nfs-2-local")
         )
 
-        names: set[str] = set()
-        if isinstance(applications, Mapping):
-            for app_id, app in applications.items():
-                volumes = app.get("volumes") if isinstance(app, Mapping) else None
-                if not isinstance(volumes, Mapping):
-                    continue
-                for semantic_name, entry in volumes.items():
-                    if not isinstance(entry, Mapping):
-                        continue
-                    excluded = entry.get("backup") is False or (
-                        export_repo
-                        and entry.get("type", "volume") == "volume"
-                        and swarm_nfs_backed(
-                            entry,
-                            application_id=str(app_id),
-                            deployment_mode=deployment_mode,
-                            storage_backend=storage_backend,
-                        )
-                    )
-                    if not excluded:
-                        continue
-                    name = deployed_volume_name(str(app_id), str(semantic_name), entry)
-                    if isinstance(name, str) and name:
-                        names.add(name)
-        return [sorted(names)]
+        def excluded(application_id: str, entry: Mapping) -> bool:
+            return entry.get("backup") is False or (
+                export_repo
+                and entry.get("type", "volume") == "volume"
+                and swarm_nfs_backed(
+                    entry,
+                    application_id=application_id,
+                    deployment_mode=deployment_mode,
+                    storage_backend=storage_backend,
+                )
+            )
+
+        return [deployed_volume_names(applications, excluded)]

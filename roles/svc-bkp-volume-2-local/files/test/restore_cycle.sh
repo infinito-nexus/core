@@ -16,7 +16,9 @@
 # container outside compose is only stopped here; re-creating a removed volume
 # would also drop its driver options. An engine volume whose dump is about to
 # be replayed is spared, because `pg_dump -d <db>` writes no CREATE ROLE or
-# CREATE DATABASE and initdb would leave nothing to replay into.
+# CREATE DATABASE and initdb would leave nothing to replay into. A volume
+# declared `derived: code` is spared too: its service keys the content by the
+# deployed code and rebuilds a mismatch, so emptying it only times a rebuild.
 #
 # Discourse carries no compose label but is a subject when it holds a volume.
 set -euo pipefail
@@ -25,6 +27,7 @@ set -euo pipefail
 : "${BKP_TEST_PYTHON:?}"
 : "${BKP_TEST_REPO_ROOT:?}"
 : "${BKP_TEST_SCRATCH_IMAGE:?}"
+: "${BKP_TEST_VOLUMES_CODE_DERIVED?}"
 : "${BKP_TEST_WORKSPACES:?}"
 : "${DR_TOKEN:?}"
 : "${REPO_DIR:?}"
@@ -157,21 +160,29 @@ done
 echo "OK: ${#RESTORABLE[@]} volume(s) come back from this generation: ${RESTORABLE[*]-none}"
 
 DUMP_VOLUMES=" $(find "${GEN_DIR}" -mindepth 2 -maxdepth 2 -type d -name sql -printf '%h\n' | xargs -rn1 basename | sort -u | tr '\n' ' ')"
+CODE_DERIVED=" ${BKP_TEST_VOLUMES_CODE_DERIVED//,/ } "
 DISCARD=()
 SPARED=()
+SPARED_CODE=()
 for volume in "${!MOUNTED[@]}"; do
-    if [[ "${DUMP_VOLUMES}" != *" ${volume} "* ]]; then
-        DISCARD+=("${volume}")
-    else
+    if [[ "${DUMP_VOLUMES}" == *" ${volume} "* ]]; then
         SPARED+=("${volume}")
+    elif [[ "${CODE_DERIVED}" == *" ${volume} "* ]]; then
+        SPARED_CODE+=("${volume}")
+    else
+        DISCARD+=("${volume}")
     fi
 done
 mapfile -t DISCARD < <(printf '%s\n' "${DISCARD[@]-}" | grep -v '^$' | sort)
 mapfile -t SPARED < <(printf '%s\n' "${SPARED[@]-}" | grep -v '^$' | sort)
+mapfile -t SPARED_CODE < <(printf '%s\n' "${SPARED_CODE[@]-}" | grep -v '^$' | sort)
 echo "OK: ${#DISCARD[@]} volume(s) get emptied: ${DISCARD[*]-none}"
 if (( ${#SPARED[@]} > 0 )); then
     echo "NOTE: ${#SPARED[@]} engine data director(ies) are NOT emptied: ${SPARED[*]}"
     echo "NOTE: their dumps carry no CREATE ROLE and no CREATE DATABASE, so an emptied engine would come back from initdb with nothing to replay into; this drill proves the dump, not the engine's own volume"
+fi
+if (( ${#SPARED_CODE[@]} > 0 )); then
+    echo "OK: ${#SPARED_CODE[@]} volume(s) derived from code are kept: ${SPARED_CODE[*]}; their service keys the content by the deployed code and rebuilds a mismatch, so emptying them would time a rebuild, not prove the backup"
 fi
 UNRESTORABLE=()
 for volume in "${DISCARD[@]-}"; do

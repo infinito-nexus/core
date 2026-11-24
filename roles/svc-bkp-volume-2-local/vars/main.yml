@@ -13,6 +13,7 @@
 # - BKP_VOLUME_2_LOCAL_MAINTENANCE_BIN:  Writer and reader of the maintenance signal FILE_MAINTENANCE_BACKUP
 # - BKP_VOLUME_2_LOCAL_STOPPING:         Application ids whose services declare backup.stop_required true (for --stopping)
 # - BKP_VOLUME_2_LOCAL_MAINTENANCE_CLEAR: Command that rewrites the signal with no application once the run ended
+# - BKP_VOLUME_2_LOCAL_VOLUMES_CODE_DERIVED: Docker volume names declaring derived: code; the restore drill keeps them instead of emptying them
 # baudolo matches --images-* exactly, so the refs carry the swarm registry prefix.
 # CLI-ready variables render these lists as argument strings.
 
@@ -70,6 +71,9 @@ BKP_VOLUME_2_LOCAL_DISABLED: >-
 
 BKP_VOLUME_2_LOCAL_VOLUMES_DISABLED: >-
   {{ lookup('backup_volume') }}
+
+BKP_VOLUME_2_LOCAL_VOLUMES_CODE_DERIVED: >-
+  {{ lookup('backup_volume', 'derived') }}
 
 BKP_VOLUME_2_LOCAL_HARD_RESTART: >-
   {{ lookup('backup_hard_restart_projects') }}
