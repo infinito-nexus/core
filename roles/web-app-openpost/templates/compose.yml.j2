@@ -19,7 +19,7 @@
     {{ lookup('compose_only', 'container_name', OPENPOST_RELAY_NAME) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_extra_hosts', host_alias=True) | indent(4) }}
-    {{ lookup('container_networks', aliases=OPENPOST_RELAY_DOMAINS) | indent(4) }}
+    {{ lookup('container_networks', service_name) | indent(4) }}
 
   {% if OPENPOST_CROSSPOSTER_ENABLED | bool %}
   {% set service_name = 'crossposter' %}
@@ -57,7 +57,7 @@
       - PKCS12
       - --disable-banner
     {{ lookup('container_volumes', service_name) | indent(4) }}
-    {{ lookup('container_networks', aliases=OPENPOST_SIMULATOR_HOSTS) | indent(4) }}
+    {{ lookup('container_networks', service_name) | indent(4) }}
   {% endif %}
 
   {% if OPENPOST_PROVIDER_ENABLED | bool %}
@@ -77,7 +77,7 @@
     {{ lookup('compose_restart') }}
     {{ lookup('container_ports', ['provider', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
-    {{ lookup('container_networks', aliases=OPENPOST_PROVIDER_HOSTS) | indent(4) }}
+    {{ lookup('container_networks', service_name) | indent(4) }}
   {% endif %}
 
 {{ lookup('compose_volumes') }}
