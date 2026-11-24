@@ -16,6 +16,7 @@ litellm:
     stop_required: false
   image: ghcr.io/berriai/litellm
   version: v1.106.6
+  ca_client: true
   name: litellm
   max_output_tokens: 512
   upstream_timeout: 240
