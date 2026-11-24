@@ -1,4 +1,14 @@
 ---
+- name: "🪪 snipe-it: hand an existing LDAP log to the web user the hook syncs as, {{ SNIPE_IT_WEB_USER }}"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec {{ SNIPE_IT_CONTAINER_ADDRESS }} sh -c
+      '[ -e "$2" ] || exit 0; [ "$(stat -c %U "$2")" = "$1" ] && exit 0; chown "$1" "$2" && echo changed'
+      _ {{ SNIPE_IT_WEB_USER | quote }} {{ SNIPE_IT_LDAP_LOG_PATH | quote }}
+  register: snipe_it_ldap_log_owner
+  changed_when: snipe_it_ldap_log_owner.stdout | trim == 'changed'
+  when: IS_STACK_HOST | bool
+
 - name: "🛂 snipe-it: converge every account to the role groups"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
   vars:
@@ -12,7 +22,7 @@
     rbac_sync_service_name: ""
     rbac_sync_container: "{{ SNIPE_IT_CONTAINER }}"
     rbac_sync_kind: container
-    rbac_sync_user: ""
+    rbac_sync_user: "{{ SNIPE_IT_WEB_USER }}"
     rbac_sync_argv: [php]
     rbac_sync_script: "{{ lookup('file', role_path ~ '/files/php/apply/rbac_sync.php') }}"
     rbac_sync_modules: []
