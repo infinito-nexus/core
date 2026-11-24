@@ -9,6 +9,23 @@
 - name: "🚿 Flush docker service for '{{ application_id }}'"
   ansible.builtin.meta: flush_handlers
 
+- name: "⏳ Wait until the Penpot backend migrated its schema"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "🔍 Resolve the node that holds the Penpot backend and its local id"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+      vars:
+        resolve_service_key: "{{ PENPOT_BACKEND_SERVICE }}"
+        resolve_output_prefix: PENPOT_BACKEND
+        resolve_compose_cid: "{{ PENPOT_BACKEND_CONTAINER_ADDRESS }}"
+
+    - name: "⏳ Wait until the Penpot backend serves HTTP, which it opens only after its migrations"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/wait_container_port.yml') }}"
+      vars:
+        wait_output_prefix: PENPOT_BACKEND
+        wait_port: "{{ PENPOT_BACKEND_INTERNAL_PORT }}"
+        wait_timeout: "{{ lookup('timeout', 600) | int }}"
+
 - name: "🥾 Bootstrap the Penpot administrator's local account"
   ansible.builtin.include_tasks: 01_administrator.yml
   when:
