@@ -118,8 +118,8 @@ nginx:
             self.assertEqual(read_text(str(config_path)), expected)
 
 
-_MCR_TAGS = "https://mcr.microsoft.com/v2/foo/bar/tags/list?n=100"
-_MCR_NEXT = "https://mcr.microsoft.com/v2/foo/bar/tags/list?last=a"
+_MCR_TAGS = "https://mcr.microsoft.com/v2/dotnet/runtime/tags/list?n=100"
+_MCR_NEXT = "https://mcr.microsoft.com/v2/dotnet/runtime/tags/list?last=a"
 
 
 class TestMcrPaging(unittest.TestCase):
@@ -132,19 +132,19 @@ class TestMcrPaging(unittest.TestCase):
             page.headers = {"Link": header}
             pages.append(page)
         with mock.patch("urllib.request.urlopen", side_effect=pages) as opened:
-            tags = fetch_mcr_tags("mcr.microsoft.com/foo/bar")
+            tags = fetch_mcr_tags("mcr.microsoft.com/dotnet/runtime")
         return tags, [call.args[0].full_url for call in opened.call_args_list]
 
     def test_a_link_next_on_the_registry_pages(self) -> None:
-        for link in ("/v2/foo/bar/tags/list?last=a", _MCR_NEXT):
+        for link in ("/v2/dotnet/runtime/tags/list?last=a", _MCR_NEXT):
             with self.subTest(link=link):
                 self.assertEqual(self._page(link), (["a", "b"], [_MCR_TAGS, _MCR_NEXT]))
 
     def test_a_link_next_off_the_registry_stops_paging(self) -> None:
         for link in (
-            "https://evil.example/v2/foo/bar/tags/list?last=a",
-            "http://mcr.microsoft.com/v2/foo/bar/tags/list?last=a",
-            "//evil.example/v2/foo/bar/tags/list?last=a",
+            "https://evil.example/v2/dotnet/runtime/tags/list?last=a",
+            "http://mcr.microsoft.com/v2/dotnet/runtime/tags/list?last=a",
+            "//evil.example/v2/dotnet/runtime/tags/list?last=a",
         ):
             with self.subTest(link=link):
                 self.assertEqual(self._page(link), (["a"], [_MCR_TAGS]))
