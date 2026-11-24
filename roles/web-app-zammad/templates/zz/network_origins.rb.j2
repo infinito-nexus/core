@@ -26,6 +26,14 @@ module InfinitoNetworkOrigins
       super.sub(client_options.redirect_uri, "#{full_host}#{callback_path}")
     end
   end
+
+  module BackchannelLogoutEveryOrigin
+    def oidc_bc_logout
+      super
+      sid = oidc_strategy.decode_logout_token(params[:logout_token]).sid
+      Session.find_each { |record| record.destroy if record.data["oidc_sid"] == sid }
+    end
+  end
 end
 
 Rails.application.config.middleware.insert_before(0, InfinitoNetworkOrigins::PlaintextRequest)
@@ -37,4 +45,5 @@ end
 Rails.application.reloader.to_prepare do
   Session.singleton_class.prepend(InfinitoNetworkOrigins::PlaintextSecureFlag)
   OmniAuth::Strategies::OidcDatabase.prepend(InfinitoNetworkOrigins::RequestOriginCallback)
+  SessionsController.prepend(InfinitoNetworkOrigins::BackchannelLogoutEveryOrigin)
 end
