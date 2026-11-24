@@ -11,13 +11,15 @@ store's public domain when OpenPost uses one.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ansible.errors import AnsibleError
 from ansible.module_utils.parsing.convert_bool import boolean
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
 
 APPLICATION_ID = "web-app-openpost"
 SIBLINGS_PATH = "services.relay.siblings"
@@ -64,9 +66,7 @@ class LookupModule(LookupBase):
             raise AnsibleError("lookup('openpost_relay_domains') expects no terms.")
 
         def _lookup(name: str, *args: str) -> Any:
-            plugin = lookup_loader.get(
-                name, loader=self._loader, templar=self._templar
-            )
+            plugin = lookup_loader.get(name, loader=self._loader, templar=self._templar)
             return plugin.run(list(args), variables=variables)[0]
 
         objstore_domain = (
