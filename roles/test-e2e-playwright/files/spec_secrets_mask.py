@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import contextlib
-import errno
 import os
 import shutil
 import signal
@@ -12,131 +11,38 @@ import sys
 import threading
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, BinaryIO
+from typing import BinaryIO, TextIO
 
 sys.path.append(str(Path(__file__).parent))
 
 import spec_secrets
 from spec_secrets_container import (
+    CID,
     check_container,
     cid_named,
     container_env,
     remove_container,
 )
+from spec_secrets_files import (
+    TEMP,
+    open_dir,
+    open_file,
+    open_into,
+    open_root,
+    swap,
+    walk,
+)
 from spec_secrets_match import CHUNK, Stream, named, pump, relay, windows
-
-if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
 
 UNSETTLED = 70
 UNSETTLED_MARK = ".unsettled"
 STAGED = "reports"
-TEMP = ".masked."
-OPEN_FILE = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
-CREATE_FILE = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW
 PUBLISHED_FILE = 0o644
-PUBLISHED_DIR = 0o755
 CREATE_MARK = os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW
 USAGE = (
     "mask <run dir> <reports dir> -- <container command> -- [<argument>...]"
     " | scrub <run dir> <reports dir> <container cli> [<container name>]"
 )
-
-
-def open_root(root: Path) -> int | None:
-    """Open a reports dir without following a link.
-
-    Args:
-        root: the directory.
-
-    Returns:
-        Its descriptor, or None when it is missing.
-
-    Raises:
-        SpecSecretsError: it is a link or no directory.
-    """
-    try:
-        return os.open(root, spec_secrets.OPEN_DIR)
-    except FileNotFoundError:
-        return None
-    except OSError:
-        raise spec_secrets.SpecSecretsError(
-            f"{root} is a link or no directory, it is not masked"
-        ) from None
-
-
-def walk(root: Path, failed: list[Exception]) -> Iterator[tuple[int, str]]:
-    """List the files below a directory, never following a link.
-
-    Args:
-        root: the directory; a missing one holds nothing.
-        failed: collects the errors of directories that cannot be read.
-
-    Yields:
-        Per file, ``TEMP`` ones included, its open directory until the next one.
-    """
-
-    def unreadable(error: OSError) -> None:
-        if not isinstance(error, FileNotFoundError):
-            failed.append(error)
-
-    top = open_root(root)
-    if top is None:
-        return
-    try:
-        for _here, _dirs, files, at in os.fwalk(".", onerror=unreadable, dir_fd=top):
-            for name in files:
-                yield at, name
-    finally:
-        os.close(top)
-
-
-def open_file(at: int, name: str) -> int | None:
-    """Open a regular file of a directory without following a link.
-
-    Args:
-        at: the open directory.
-        name: the file's name in it.
-
-    Returns:
-        Its descriptor, or None when it is gone, a link or no regular file.
-    """
-    try:
-        if not stat.S_ISREG(os.stat(name, dir_fd=at, follow_symlinks=False).st_mode):
-            return None
-        descriptor = os.open(name, OPEN_FILE, dir_fd=at)
-    except FileNotFoundError:
-        return None
-    except OSError as error:
-        if error.errno == errno.ELOOP:
-            return None
-        raise
-    if stat.S_ISREG(os.fstat(descriptor).st_mode):
-        return descriptor
-    os.close(descriptor)
-    return None
-
-
-def swap(at: int, name: str, mode: int, fill: Callable[[BinaryIO], object]) -> None:
-    """Write a ``TEMP`` sibling of a name, then rename it over the name.
-
-    Args:
-        at: the open directory that holds the name.
-        name: the name; a FIFO, device or hard link there is replaced, unopened.
-        mode: the exact mode the file gets once written.
-        fill: writes the file's bytes into the open sibling.
-    """
-    temp = f"{TEMP}{os.urandom(8).hex()}"
-    written = os.open(temp, CREATE_FILE, 0o600, dir_fd=at)
-    try:
-        with os.fdopen(written, "wb") as target:
-            fill(target)
-            target.flush()
-            os.fchmod(target.fileno(), mode)
-        os.replace(temp, name, src_dir_fd=at, dst_dir_fd=at)
-    finally:
-        with contextlib.suppress(FileNotFoundError):
-            os.unlink(temp, dir_fd=at)
 
 
 def scrub_file(at: int, name: str, masks: frozenset[bytes]) -> bool:
@@ -192,58 +98,6 @@ def scrub(reports: Path, masks: frozenset[bytes]) -> int:
     return 1 if failed else 0
 
 
-def open_dir(name: str | Path, at: int | None = None) -> int:
-    """Open one directory of the published reports, created when missing, never through a link.
-
-    Args:
-        name: its name in ``at``, or the reports dir itself.
-        at: the open parent directory, None for the reports dir.
-
-    Returns:
-        Its descriptor, set to exactly ``PUBLISHED_DIR``, created or reused, so
-        no setgid bit of a parent or an earlier run and no umask is left; the
-        ``TEMP`` regular files a killed masker left in it are removed.
-
-    Raises:
-        OSError: it is a link or no directory, or its parent is missing.
-    """
-    with contextlib.suppress(FileExistsError):
-        os.mkdir(name, PUBLISHED_DIR, dir_fd=at)
-    descriptor = os.open(name, spec_secrets.OPEN_DIR, dir_fd=at)
-    try:
-        os.fchmod(descriptor, PUBLISHED_DIR)
-        with os.scandir(descriptor) as entries:
-            files = [e.name for e in entries if e.is_file(follow_symlinks=False)]
-        for temp in (name for name in files if name.startswith(TEMP)):
-            with contextlib.suppress(FileNotFoundError):
-                os.unlink(temp, dir_fd=descriptor)
-    except OSError:
-        os.close(descriptor)
-        raise
-    return descriptor
-
-
-def open_into(root: int, here: str) -> int:
-    """Open the directory a published file goes into, one component at a time.
-
-    Args:
-        root: the open reports dir.
-        here: the file's directory, relative to it.
-
-    Returns:
-        The open directory; ``open_dir`` created or reused each component
-        relative to the one before, so no link on the way is followed.
-    """
-    into = os.dup(root)
-    for part in Path(here).parts:
-        try:
-            inner = open_dir(part, into)
-        finally:
-            os.close(into)
-        into = inner
-    return into
-
-
 def publish(staged: Path, reports: Path, masks: frozenset[bytes]) -> int:
     """Copy the regular files of the masked staged reports into the reports dir.
 
@@ -287,6 +141,33 @@ def publish(staged: Path, reports: Path, masks: frozenset[bytes]) -> int:
     return refused
 
 
+def container_named(directory: Path, name: str) -> str:
+    """Name a run's container for a message, never reading through a link.
+
+    Args:
+        directory: the run directory, refused or not.
+        name: the name the run gave its container; empty for none.
+
+    Returns:
+        The id ``CID`` holds when it is a regular file holding one
+        ``spec_secrets.NAME``, else ``name``, else ``unnamed``.
+    """
+    cid = b""
+    with contextlib.suppress(OSError):
+        at = os.open(directory, spec_secrets.OPEN_DIR)
+        try:
+            descriptor = open_file(at, CID)
+        finally:
+            os.close(at)
+        if descriptor is not None:
+            with os.fdopen(descriptor, "rb") as handle:
+                cid = handle.read(spec_secrets.NAME_MAX + 1).strip()
+    text = cid.decode("ascii", "replace")
+    if len(cid) <= spec_secrets.NAME_MAX and spec_secrets.NAME.fullmatch(text):
+        return text
+    return name or "unnamed"
+
+
 def settle(
     directory: Path, reports: Path, masks: frozenset[bytes], gone: bool, name: str
 ) -> int:
@@ -310,7 +191,7 @@ def settle(
     failed = 1
     if not gone:
         print(
-            f"spec secrets: container {cid_named(directory) or name or 'unnamed'}"
+            f"spec secrets: container {container_named(directory, name)}"
             " may still run, its reports were deleted unpublished",
             file=sys.stderr,
         )
@@ -356,16 +237,27 @@ def mask(directory: Path, reports: Path, command: list[str]) -> int:
     Returns:
         The command's exit code or 128 plus the signal that ended it;
         ``UNSETTLED``, which no Playwright failure exits with, whenever its
-        container could not be proven gone or its reports not be masked and
-        published. HUP, INT or TERM, which its PID 1 ignores, and the end of
-        the command remove the container and prove it gone before the reports
-        settle; a removal before ``CID`` named a container runs again.
+        container could not be proven gone, its output not be relayed whole,
+        or its reports not be masked and published. HUP, INT or TERM, which
+        its PID 1 ignores, and the end of the command remove the container
+        and prove it gone before the reports settle; a removal before ``CID``
+        named a container runs again. A relay that fails closes its pipe, so
+        the command cannot block on it.
     """
     masks = windows(spec_secrets.read_values(directory))
     root = open_root(reports)
     if root is not None:
         os.close(root)
     (directory / STAGED).mkdir(mode=spec_secrets.DIR_MODE, exist_ok=True)
+    unrelayed: list[str] = []
+
+    def relay_stream(pipe: BinaryIO, out: TextIO) -> None:
+        try:
+            relay(pipe, out.buffer, masks)
+        except Exception as error:
+            unrelayed.append(type(error).__name__)
+            pipe.close()
+
     piped = subprocess.PIPE
     child = subprocess.Popen(command, stdout=piped, stderr=piped, env=container_env())
     removals: list[bool] = []
@@ -386,7 +278,7 @@ def mask(directory: Path, reports: Path, command: list[str]) -> int:
     for signum in (signal.SIGHUP, signal.SIGINT, signal.SIGTERM):
         signal.signal(signum, stop)
     relays = [
-        threading.Thread(target=relay, args=(pipe, out.buffer, masks))
+        threading.Thread(target=relay_stream, args=(pipe, out))
         for pipe, out in ((child.stdout, sys.stdout), (child.stderr, sys.stderr))
     ]
     for thread in relays:
@@ -394,8 +286,13 @@ def mask(directory: Path, reports: Path, command: list[str]) -> int:
     for thread in relays:
         thread.join()
     code = child.wait()
+    if unrelayed:
+        print(
+            f"spec secrets: relaying the output failed: {', '.join(unrelayed)}",
+            file=sys.stderr,
+        )
     scrubbed = settle(directory, reports, masks, removed(), "")
-    return UNSETTLED if scrubbed else (code if code >= 0 else 128 - code)
+    return UNSETTLED if scrubbed or unrelayed else (code if code >= 0 else 128 - code)
 
 
 def unsettled(directory: Path) -> None:
@@ -458,16 +355,17 @@ def main(argv: list[str]) -> int:
         ``mask``: what ``guarded_mask`` returns; ``scrub``: 0, or 1 when the
         container could not be proven gone, the reports could not be
         settled or the run's ``mask`` left ``UNSETTLED_MARK``; 1 on a
-        refused run directory, 2 on bad usage.
+        refused run directory, whose message names the container that may
+        still run, 2 on bad usage.
     """
     command = argv[1:]
     paths = [Path(path) for path in command[1:3]]
     split = command.index("--", 5) if "--" in command[5:] else 0
     if command[:1] == ["mask"] and command[3:4] == ["--"] and split:
         return guarded_mask(paths, command[4:split], command[split + 1 :])
+    name = command[4] if len(command) == 5 else ""
     try:
         if command[:1] == ["scrub"] and len(command) in {4, 5}:
-            name = command[4] if len(command) == 5 else ""
             masks = windows(spec_secrets.read_values(paths[0]))
             gone = remove_container(paths[0], command[3], name)
             settled = settle(paths[0], paths[1], masks, gone, name)
@@ -479,13 +377,18 @@ def main(argv: list[str]) -> int:
                 return 1
             return settled
     except spec_secrets.SpecSecretsError as error:
-        print(f"spec secrets refused: {error}", file=sys.stderr)
-        return 1
+        problem = f"refused: {error}"
     except OSError as error:
-        print(f"spec secrets failed: {error.strerror or 'error'}", file=sys.stderr)
-        return 1
-    print(f"usage: {argv[0]} {USAGE}", file=sys.stderr)
-    return 2
+        problem = f"failed: {error.strerror or 'error'}"
+    else:
+        print(f"usage: {argv[0]} {USAGE}", file=sys.stderr)
+        return 2
+    print(
+        f"spec secrets {problem}, container {container_named(paths[0], name)}"
+        " may still run",
+        file=sys.stderr,
+    )
+    return 1
 
 
 if __name__ == "__main__":

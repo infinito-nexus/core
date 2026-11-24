@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import fcntl
 import io
 import os
 import stat
 import tempfile
+import threading
 import unittest
-from contextlib import redirect_stderr
+from contextlib import redirect_stderr, suppress
 from pathlib import Path
 
 from ._spec_secrets_fakes import RAW, load_masker, scratch_text
@@ -20,12 +22,50 @@ OPENING = (
     'copy(os.fdopen(os.open(name, os.O_WRONLY | os.O_NONBLOCK, dir_fd=into), "wb"))',
 )
 CONTAINER_ID = "c0ffee1d"
-UNNAMED = ("{cid_named(directory) or name or 'unnamed'}", "{name or 'unnamed'}")
+UNNAMED = ("{container_named(directory, name)}", "{name or 'unnamed'}")
+LINKED_VALUE = "Sentinel9f3cLinkedValue"
 UNDELETED = '        print("spec secrets: the staged reports were not deleted"'
 UNCHECKED_DELETION = (
     f"    if os.path.lexists(staged):\n{UNDELETED}",
     f"    if False:\n{UNDELETED}",
 )
+UNLOCKED = ("        fcntl.flock(descriptor, fcntl.LOCK_EX)\n", "")
+LOCK_WAIT = 1.0
+
+
+def contended_publish(module) -> tuple[bool, list[str]]:
+    """Publish while another masker holds the reports dir, its ``TEMP`` file not yet renamed.
+
+    Args:
+        module: the loaded masker.
+
+    Returns:
+        Whether ``publish`` still waited after ``LOCK_WAIT`` seconds, and the
+        names in the reports dir once the other masker renamed its file and
+        let go of the dir.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        staged, reports = Path(tmp) / "staged", Path(tmp) / "reports"
+        staged.mkdir()
+        reports.mkdir()
+        (staged / "mine.xml").write_text("mine")
+        temp = reports / f"{module.TEMP}other"
+        temp.write_text("other")
+        held = os.open(reports, os.O_RDONLY | os.O_DIRECTORY)
+        fcntl.flock(held, fcntl.LOCK_EX)
+        publishing = threading.Thread(
+            target=module.publish, args=(staged, reports, module.windows([RAW]))
+        )
+        publishing.start()
+        try:
+            publishing.join(LOCK_WAIT)
+            waited = publishing.is_alive()
+            with suppress(FileNotFoundError):
+                temp.replace(reports / "other.xml")
+        finally:
+            os.close(held)
+            publishing.join()
+        return waited, sorted(os.listdir(reports))
 
 
 def attempt(module, staged: Path, reports: Path) -> str:
@@ -190,11 +230,47 @@ def unproven_settle(module) -> tuple[int, str]:
         return code, printed.getvalue()
 
 
+def refused_scrub(module, linked: bool) -> tuple[int, str]:
+    """Scrub a run directory the helper refuses, its ``.cid`` naming ``CONTAINER_ID``.
+
+    Args:
+        module: the loaded masker.
+        linked: whether ``.cid`` is instead a link to a file holding
+            ``LINKED_VALUE``, a name the container check would accept.
+
+    Returns:
+        What ``main`` returns and what it printed.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        run, reports = Path(tmp) / "run", Path(tmp) / "reports"
+        run.mkdir()
+        if linked:
+            (Path(tmp) / "value").write_text(LINKED_VALUE)
+            (run / ".cid").symlink_to(Path(tmp) / "value")
+        else:
+            (run / ".cid").write_text(f"{CONTAINER_ID}\n")
+        printed = io.StringIO()
+        with redirect_stderr(printed):
+            code = module.main(
+                ["spec_secrets_mask.py", "scrub", str(run), str(reports), "docker"]
+            )
+        return code, printed.getvalue()
+
+
 class TestSpecSecretsPublish(unittest.TestCase):
     def test_a_container_that_may_still_run_is_named_by_its_id(self) -> None:
         code, printed = unproven_settle(load_masker())
         self.assertEqual(code, 1)
         self.assertIn(f"container {CONTAINER_ID} may still run", printed)
+
+    def test_a_refused_scrub_names_the_container_never_a_linked_value(self) -> None:
+        module = load_masker()
+        code, printed = refused_scrub(module, linked=False)
+        self.assertEqual(code, 1)
+        self.assertIn(f"container {CONTAINER_ID} may still run", printed)
+        code, printed = refused_scrub(module, linked=True)
+        self.assertEqual((code, LINKED_VALUE in printed), (1, False))
+        self.assertIn("container unnamed may still run", printed)
 
     @unittest.skipIf(os.geteuid() == 0, "root deletes below a 0555 dir")
     def test_staged_reports_that_cannot_be_deleted_fail_the_settlement(self) -> None:
@@ -216,8 +292,20 @@ class TestSpecSecretsPublish(unittest.TestCase):
             hard_linked_publish(load_masker()), ("published", "kept", "masked")
         )
 
+    def test_a_publish_waits_for_another_masker_publishing_into_the_same_dir(
+        self,
+    ) -> None:
+        self.assertEqual(
+            contended_publish(load_masker()), (True, ["mine.xml", "other.xml"])
+        )
+
 
 class TestSpecSecretsPublishNegativeControls(unittest.TestCase):
+    def test_a_publish_that_drops_a_live_maskers_temp_file_is_caught(self) -> None:
+        self.assertEqual(
+            contended_publish(load_masker(UNLOCKED)), (False, ["mine.xml"])
+        )
+
     def test_a_message_that_drops_the_container_id_is_caught(self) -> None:
         _code, printed = unproven_settle(load_masker(UNNAMED))
         self.assertNotIn(CONTAINER_ID, printed)

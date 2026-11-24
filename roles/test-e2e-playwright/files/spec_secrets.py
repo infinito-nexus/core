@@ -109,15 +109,15 @@ def parse(text: str) -> dict[str, str]:
             )
         if key in entries:
             raise SpecSecretsError(f"line {number} repeats an earlier key")
-        if len(normalized(value.encode("utf-8"))) < MASK_MIN:
-            raise SpecSecretsError(
-                f"line {number} holds a value of fewer than {MASK_MIN} bytes once"
-                " white space is collapsed, which the masker cannot hide"
-            )
         if CONTROL.search(value):
             raise SpecSecretsError(
                 f"line {number}: the value of {key} holds a control character,"
                 " which a report may drop; encode it in the template"
+            )
+        if len(normalized(value.encode("utf-8"))) < MASK_MIN:
+            raise SpecSecretsError(
+                f"line {number} holds a value of fewer than {MASK_MIN} bytes once"
+                " white space is collapsed, which the masker cannot hide"
             )
         entries[key] = value
     return entries
@@ -331,8 +331,8 @@ def prune() -> int:
 
     Returns:
         The number removed below the parents of ``users``: those unchanged
-        for ``STALE_SECONDS``, a day, which outlasts any run timeout and
-        parallel round, so a live run on the same host keeps its directory.
+        for ``STALE_SECONDS``, a day; the age alone decides, no check tells a
+        live run from a killed one.
         A foreign parent is skipped and named.
     """
     removed = 0

@@ -4,7 +4,7 @@
 
 services:
   registry-cache:
-    image: rpardini/docker-registry-proxy:0.6.5
+    image: rpardini/docker-registry-proxy:0.8.0
     container_name: infinito-registry-cache
     environment:
       ENABLE_MANIFEST_CACHE: "true"
