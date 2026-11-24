@@ -79,9 +79,7 @@ class TestLookup(unittest.TestCase):
         )
 
     def test_skips_the_object_store_when_openpost_uses_none(self):
-        self.assertEqual(
-            self._run(False), [["publish.example", "microblog.example"]]
-        )
+        self.assertEqual(self._run(False), [["publish.example", "microblog.example"]])
 
     def test_rejects_terms(self):
         with self.assertRaises(AnsibleError):
