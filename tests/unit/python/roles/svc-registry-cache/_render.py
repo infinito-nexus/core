@@ -2,12 +2,21 @@ from __future__ import annotations
 
 import importlib
 import json
+from types import SimpleNamespace
 from typing import Any
+from unittest import mock
 
-from jinja2 import DictLoader
+from ansible.parsing.dataloader import DataLoader
+from ansible.plugins.loader import lookup_loader
+from ansible.template import Templar
+from jinja2 import DictLoader, StrictUndefined
+from jinja2.nativetypes import NativeEnvironment
 
+from plugins.lookup import container_healthcheck
 from utils import PROJECT_ROOT
+from utils.cache import applications as applications_cache
 from utils.cache.files import read_text
+from utils.cache.reset import _reset_rendered_caches_for_tests
 from utils.cache.yaml import load_yaml, load_yaml_any
 from utils.roles.mapping import (
     ROLE_FILE_META_SERVICES,
@@ -55,6 +64,97 @@ def flavor_of(override: dict[str, Any]) -> str:
         The flavor the merged config resolves, the role default when the inventory sets none.
     """
     return {**cache_defaults(), **override}["flavor"]
+
+
+class _Config:
+    """Args:
+    services: the ``services`` mapping the ``config`` lookup reads; a value
+        that is one Jinja expression renders natively, as the config SPOT
+        renders it.
+    """
+
+    def __init__(self, services: dict[str, Any]) -> None:
+        self.services = services
+        self.environment = NativeEnvironment(undefined=StrictUndefined)
+        self.environment.globals["lookup"] = lambda _name, _app, path: self.value(path)
+
+    def value(self, path: str, *default: Any) -> Any:
+        """Args:
+            path: the dotted config path below the application.
+            default: the value of an absent path; without it an absent path raises.
+
+        Returns:
+            The value at *path*, rendered when it is a template.
+        """
+        node: Any = {"services": self.services}
+        for part in path.split("."):
+            if not isinstance(node, dict) or part not in node:
+                if default:
+                    return default[0]
+                raise KeyError(path)
+            node = node[part]
+        if isinstance(node, str) and "{{" in node:
+            return self.environment.from_string(node).render()
+        return node
+
+    def run(self, terms: list[Any], variables: Any = None) -> list[Any]:
+        return [self.value(*terms[1:])]
+
+
+def healthcheck(flavor: str, declared: Any = None) -> str:
+    """Args:
+        flavor: the value of ``services.cache.flavor``.
+        declared: a replacement ``services.cache.healthcheck`` value, for the
+            pre-selection shape and for negative controls.
+
+    Returns:
+        The block ``lookup('container_healthcheck', 'cache')`` renders.
+    """
+    cache = {**cache_defaults(), "flavor": flavor}
+    if declared is not None:
+        cache["healthcheck"] = declared
+    config = _Config({"cache": cache})
+    loader = SimpleNamespace(get=lambda name, **_: {"config": config}[name])
+    with mock.patch.object(container_healthcheck, "lookup_loader", loader):
+        return container_healthcheck.LookupModule().run(
+            ["cache"], variables={"application_id": "svc-registry-cache"}
+        )[0]
+
+
+def config_healthcheck(flavor: str, declared: str | None = None) -> Any:
+    """Args:
+        flavor: the ``services.cache.flavor`` the inventory sets.
+        declared: an inventory override of ``services.cache.healthcheck``, for
+            negative controls.
+
+    Returns:
+        What the ``config`` lookup plugin hands ``container_healthcheck`` for
+        ``services.cache.healthcheck``, called the way that lookup calls it,
+        with a real Ansible templar. The eager render of every application is
+        held back, so the config lookup's own ``_render_with_templar`` renders
+        the value.
+    """
+    cache = {"flavor": flavor, **({"healthcheck": declared} if declared else {})}
+    variables = {
+        "applications": {"svc-registry-cache": {"services": {"cache": cache}}},
+        "group_names": ["svc-registry-cache"],
+    }
+    loader = DataLoader()
+    lookup_loader.add_directory(str(PROJECT_ROOT / "plugins" / "lookup"))
+    config = lookup_loader.get(
+        "config", loader=loader, templar=Templar(loader=loader, variables=variables)
+    )
+    _reset_rendered_caches_for_tests()
+    try:
+        with mock.patch.object(
+            applications_cache, "_render_with_templar", new=lambda value, **_: value
+        ):
+            return config.run(
+                ["svc-registry-cache", "services.cache.healthcheck", {}],
+                variables=variables,
+            )[0]
+    finally:
+        _reset_rendered_caches_for_tests()
 
 
 def fixture() -> dict[str, str]:

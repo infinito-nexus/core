@@ -18,6 +18,21 @@ CASES = {
     "env": ("env.j2", []),
     "front": ("front.conf.j2", render.VENDORS),
 }
+PROBES = {
+    "registry": (
+        {"flavor": "wget", "port_key": "registry", "path": "v2/"},
+        "http://127.0.0.1:5000/v2/",
+    ),
+    "multi-proxy": (
+        {"flavor": "http", "port_key": "proxy", "path": "ca.crt"},
+        "http://127.0.0.1:3128/ca.crt",
+    ),
+}
+FLAVOR_LOOKUP = "lookup('config', 'svc-registry-cache', 'services.cache.flavor')"
+STRINGIFIED = (
+    "{{ lookup('config', 'svc-registry-cache', 'services.cache.healthchecks')"
+    f"[{FLAVOR_LOOKUP}] | string }}}}"
+)
 
 
 def _renders(flavor: str) -> dict[str, str]:
@@ -138,6 +153,45 @@ class TestMultiProxyFlavor(unittest.TestCase):
                 self.assertIn("== 'multi-proxy'", mount["when"])
         _, data = render.volume_mount("data")
         self.assertIn("== 'registry'", data["when"])
+
+
+class TestCacheHealthcheck(unittest.TestCase):
+    def test_each_flavor_renders_the_probe_it_rendered_before(self) -> None:
+        for flavor, (before, url) in PROBES.items():
+            with self.subTest(flavor=flavor):
+                block = render.healthcheck(flavor)
+                self.assertEqual(block, render.healthcheck(flavor, before))
+                self.assertIn(url, block)
+
+    def test_a_selection_of_the_other_flavor_is_detected(self) -> None:
+        declared = render.cache_defaults()["healthcheck"]
+        swapped = f"('multi-proxy' if {FLAVOR_LOOKUP} == 'registry' else 'registry')"
+        wrong = declared.replace(FLAVOR_LOOKUP, swapped, 1)
+        self.assertNotEqual(wrong, declared)
+        for flavor, (before, _url) in PROBES.items():
+            with self.subTest(flavor=flavor):
+                self.assertNotEqual(
+                    render.healthcheck(flavor, wrong),
+                    render.healthcheck(flavor, before),
+                )
+
+
+class TestCacheHealthcheckConfigPath(unittest.TestCase):
+    def test_the_config_lookup_hands_over_the_flavor_entry_as_a_mapping(self) -> None:
+        table = render.cache_defaults()["healthchecks"]
+        for flavor in PROBES:
+            with self.subTest(flavor=flavor):
+                declared = render.config_healthcheck(flavor)
+                self.assertIsInstance(declared, dict)
+                self.assertEqual(declared, table[flavor])
+
+    def test_negative_control_a_stringified_entry_is_no_mapping(self) -> None:
+        table = render.cache_defaults()["healthchecks"]
+        for flavor in PROBES:
+            with self.subTest(flavor=flavor):
+                declared = render.config_healthcheck(flavor, STRINGIFIED)
+                self.assertNotIsInstance(declared, dict)
+                self.assertNotEqual(declared, table[flavor])
 
 
 if __name__ == "__main__":

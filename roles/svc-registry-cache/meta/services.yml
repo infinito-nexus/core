@@ -7,10 +7,16 @@ node:
   bond: 1
 cache:
   flavor: registry
-  healthcheck:
-    flavor: "{{ 'wget' if lookup('config', 'svc-registry-cache', 'services.cache.flavor') == 'registry' else 'http' }}"
-    port_key: "{{ 'registry' if lookup('config', 'svc-registry-cache', 'services.cache.flavor') == 'registry' else 'proxy' }}"
-    path: "{{ 'v2/' if lookup('config', 'svc-registry-cache', 'services.cache.flavor') == 'registry' else 'ca.crt' }}"
+  healthcheck: "{{ lookup('config', 'svc-registry-cache', 'services.cache.healthchecks')[lookup('config', 'svc-registry-cache', 'services.cache.flavor')] }}"
+  healthchecks:
+    registry:
+      flavor: wget
+      port_key: registry
+      path: v2/
+    multi-proxy:
+      flavor: http
+      port_key: proxy
+      path: ca.crt
   modes:
     compose:
       enabled: true

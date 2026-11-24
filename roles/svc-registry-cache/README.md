@@ -15,6 +15,10 @@ group's host. Because the group typically holds exactly one host (the swarm
 manager), `DEPLOYMENT_MODE` resolves to `compose` for the role; multi-host
 fan-out for the cache itself is out of scope for v1.
 
+The cache's healthcheck follows `services.cache.flavor`, so an inventory tunes
+it under `services.cache.healthchecks.<flavor>`; a key set under
+`services.cache.healthcheck` replaces that selection and fails the render.
+
 Any host that should consume the cache joins the role's group as well. The
 shared daemon.json template then emits a `registry-mirrors` block pointing at
 `http://<cache-host>:<cache-port>` plus an `insecure-registries` entry so

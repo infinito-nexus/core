@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
+import sys
 import urllib.error
 from typing import TYPE_CHECKING
 from urllib.parse import urlencode, urlparse
@@ -100,6 +101,22 @@ def http_regex_versions(
     return captured_versions(body, pattern, template)
 
 
+def _role_script(repo_root: Path, role: str, path: str) -> Path | None:
+    """Args:
+        repo_root: repository root.
+        role: role the script belongs to.
+        path: role-relative path of the script.
+
+    Returns:
+        The resolved script, or ``None`` when *path* resolves outside
+        ``roles/<role>/`` (absolute, ``..``, or a symlink pointing out) or to
+        anything but a regular file.
+    """
+    role_root = (repo_root / "roles" / role).resolve()
+    script = (role_root / path).resolve()
+    return script if script.is_relative_to(role_root) and script.is_file() else None
+
+
 def script_versions(repo_root: Path, role: str, path: str, current: str) -> list[str]:
     """Return what a role-local updater prints for its pin.
 
@@ -108,8 +125,20 @@ def script_versions(repo_root: Path, role: str, path: str, current: str) -> list
         role: role the script belongs to.
         path: role-relative path of the script.
         current: the version currently pinned, passed as the first argument.
+
+    Returns:
+        The versions the script prints; nothing when it fails, and nothing,
+        reported on stderr before anything runs, when *path* is not a regular
+        file inside ``roles/<role>/``.
     """
-    script = repo_root / "roles" / role / path
+    script = _role_script(repo_root, role, path)
+    if script is None:
+        print(
+            f"[source] WARN {role}: refusing update script '{path}', it is not "
+            f"a regular file inside roles/{role}/",
+            file=sys.stderr,
+        )
+        return []
     try:
         proc = subprocess.run(
             [str(script), current],

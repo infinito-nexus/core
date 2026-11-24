@@ -39,6 +39,7 @@ import unittest
 from pathlib import Path
 from typing import Any
 
+from tests.utils.healthcheck import declares_healthcheck, healthcheck_entries
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.applications import get_application_defaults
 from utils.cache.files import iter_project_files_with_content
@@ -65,10 +66,6 @@ _INTERPOLATION = re.compile(r"""^\{\{\s*(.+?)\s*\}\}$""")
 _ROLE_VAR = re.compile(r"^[A-Z][A-Z0-9_]*$")
 _PLAIN_KEY = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 _ENTITY_NAME_EXPRESSIONS = ("entity_name", "application_id | entity_name")
-_FLAVOR_CHOICE = re.compile(
-    r"""^\{\{\s*(['"])([a-z0-9_-]+)\1\s+if\s+(?:(?!\selse\s).)+?\s+else\s+(['"])([a-z0-9_-]+)\3\s*\}\}$""",
-    re.DOTALL,
-)
 
 
 def _role_app_id(rel_path: str) -> str | None:
@@ -146,7 +143,21 @@ def _probe_defect(services: dict[str, Any], key: str) -> str | None:
     """
     if key not in services:
         return f"service '{key}' missing in services config"
-    config = services[key].get("healthcheck")
+    for _path, config in healthcheck_entries(services, key):
+        defect = _config_defect(key, config)
+        if defect:
+            return defect
+    return None
+
+
+def _config_defect(key: str, config: Any) -> str | None:
+    """Args:
+        key: the service key the call site targets.
+        config: one entry the service's ``healthcheck`` renders to.
+
+    Returns:
+        Why that entry would fail at render time, ``None`` when it renders.
+    """
     if not isinstance(config, dict):
         return (
             f"service '{key}' declares no healthcheck.flavor, so healthcheck.test "
@@ -163,27 +174,7 @@ def _probe_defect(services: dict[str, Any], key: str) -> str | None:
             f"service '{key}' healthcheck has neither flavor nor test. "
             f"Known flavors: {known_flavors()}"
         )
-    for branch in _flavor_branches(flavor) if flavor else []:
-        defect = _flavor_defect(key, branch, config)
-        if defect:
-            return defect
-    return None
-
-
-def _flavor_branches(flavor: str | list[str]) -> list[str | list[str]]:
-    """Return the flavors a declared flavor can render to.
-
-    Args:
-        flavor: the declared ``healthcheck.flavor``.
-
-    Returns:
-        Both literals of a ``{{ 'a' if <test> else 'b' }}`` choice, which the
-        lookup renders through the config SPOT before it validates the flavor;
-        any other value as it stands, so a template of another shape fails as
-        an unknown flavor.
-    """
-    choice = _FLAVOR_CHOICE.match(flavor) if isinstance(flavor, str) else None
-    return [choice.group(2), choice.group(4)] if choice else [flavor]
+    return _flavor_defect(key, flavor, config) if flavor else None
 
 
 def _flavor_defect(key: str, flavor: str | list[str], config: dict) -> str | None:
@@ -191,7 +182,7 @@ def _flavor_defect(key: str, flavor: str | list[str], config: dict) -> str | Non
 
     Args:
         key: the service key the call site targets.
-        flavor: one flavor the declaration renders to.
+        flavor: the declared ``healthcheck.flavor``.
         config: the service's ``healthcheck`` mapping.
     """
     for name in resolve_flavors(flavor):
@@ -254,7 +245,7 @@ class TestContainerHealthcheckRequiresProbe(unittest.TestCase):
         for app, config in sorted(get_application_defaults().items()):
             services = config.get("services", {}) or {}
             for key in sorted(services):
-                if not isinstance(services[key].get("healthcheck"), dict):
+                if not declares_healthcheck(services, key):
                     continue
                 defect = _probe_defect(services, key)
                 if defect:
@@ -266,28 +257,33 @@ class TestContainerHealthcheckRequiresProbe(unittest.TestCase):
                 "lookup would refuse at render time:\n\n" + "\n".join(findings)
             )
 
-    def test_a_flavor_choice_is_judged_on_both_literals(self) -> None:
-        test = "lookup('config', 'svc-x', 'services.x.flavor') == 'registry'"
-        for flavor, defect in (
-            (f"{{{{ 'wget' if {test} else 'http' }}}}", None),
+    def test_a_templated_flavor_is_an_unknown_flavor(self) -> None:
+        found = _probe_defect({"x": {"healthcheck": {"flavor": "{{ X_FLAVOR }}"}}}, "x")
+        self.assertEqual(found, "service 'x' has unknown flavor '{{ X_FLAVOR }}'")
+
+    def test_a_table_choice_is_judged_on_every_entry(self) -> None:
+        choice = (
+            "{{ lookup('config', 'svc-x', 'services.x.healthchecks')"
+            "[lookup('config', 'svc-x', 'services.x.flavor')] }}"
+        )
+        for table, defect in (
+            ({"a": {"flavor": "wget"}, "b": {"flavor": "http"}}, None),
             (
-                f"{{{{ 'wget' if {test} else 'nope' }}}}",
+                {"a": {"flavor": "wget"}, "b": {"flavor": "nope"}},
                 "service 'x' has unknown flavor 'nope'",
             ),
             (
-                f"{{{{ 'nope' if {test} else 'http' }}}}",
-                "service 'x' has unknown flavor 'nope'",
+                {"a": {"flavor": "wget"}, "b": "wget"},
+                "service 'x' declares no healthcheck.flavor",
             ),
-            (
-                f"{{{{ 'wget' if {test} else 'curl' if {test} else 'nope' }}}}",
-                "service 'x' has unknown flavor",
-            ),
-            ("{{ X_FLAVOR }}", "service 'x' has unknown flavor '{{ X_FLAVOR }}'"),
+            ({}, "service 'x' declares no healthcheck.flavor"),
         ):
-            with self.subTest(flavor=flavor):
-                found = _probe_defect({"x": {"healthcheck": {"flavor": flavor}}}, "x")
+            with self.subTest(table=table):
+                services = {"x": {"healthcheck": choice, "healthchecks": table}}
+                found = _probe_defect(services, "x")
                 if defect is None:
                     self.assertIsNone(found)
+                    self.assertTrue(declares_healthcheck(services, "x"))
                 else:
                     self.assertIsNotNone(found)
                     self.assertTrue(found.startswith(defect), found)
