@@ -42,7 +42,6 @@ mobilizon:
   image: docker.io/kaihuri/mobilizon
   name: mobilizon
   version: 5.3.0
-  custom: true
   min_storage: 825MB
   ports:
     local:
