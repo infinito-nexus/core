@@ -607,17 +607,19 @@ class TestFetch(unittest.TestCase):
         self.assertLess(run.elapsed, 120)
 
     def test_a_corrupt_source_hands_over_to_the_next_mirror(self) -> None:
-        run = _fetch(
-            [Model(FILE, CORRUPT, (CORRUPT, GOOD), None, BLOB)], 4, False, None, True
-        )
+        with Probe(
+            [Model(FILE, CORRUPT, (CORRUPT, GOOD), None, BLOB)], 60, RATE, 0, None
+        ) as probe:
+            run = probe.play(True)
         self.assertEqual(run.rc, 0, run.output[-3000:])
         self.assertEqual(run.stored[FILE], BLOB)
         self.assertEqual(run.requests[f"/mirror2/{FILE}"], 1)
 
     def test_a_corrupt_mirror_still_reaches_the_final_check(self) -> None:
-        run = _fetch(
-            [Model(FILE, CORRUPT, (CORRUPT,), None, BLOB)], 4, False, None, True
-        )
+        with Probe(
+            [Model(FILE, CORRUPT, (CORRUPT,), None, BLOB)], 60, RATE, 0, None
+        ) as probe:
+            run = probe.play(True)
         self.assertNotEqual(run.rc, 0, run.output[-3000:])
         self.assertIn("What the sources answered:", run.text(), run.output[-3000:])
         answered = run.text().split("What the sources answered:", 1)[1]

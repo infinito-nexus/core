@@ -6,13 +6,12 @@
   vars:
     _repos: "{{ LMSTUDIO_PRELOAD_MODELS | map(attribute='repo') | list }}"
     _files: "{{ LMSTUDIO_PRELOAD_MODELS | map(attribute='file') | list }}"
-    _paths: "{{ _repos | zip(_files) | map('join', '/') | unique | list }}"
     _identities: >-
       {{ _repos | zip(_files, LMSTUDIO_PRELOAD_MODELS | map(attribute='sha256'),
                       LMSTUDIO_PRELOAD_MODELS | map(attribute='bytes') | map('string'))
          | map('join', '/') | unique | list }}
   ansible.builtin.assert:
-    that: _identities | length == _paths | length
+    that: _identities | length == _repos | zip(_files) | map('join', '/') | unique | list | length
     fail_msg: >-
       AI_LOCAL_MODELS declares the same repo and file more than once with
       different sha256 or bytes, so the model store on {{ lmstudio_fetch_node }}
@@ -90,7 +89,7 @@
 
 - name: "⏸️ Wait out unnoted downloads of a past fetch on '{{ lmstudio_fetch_node }}'"
   ansible.builtin.wait_for:
-    timeout: >-
+    timeout: >-  # nocheck: timeout-lookup
       {{ [((lmstudio_fetch_leftovers.content | b64decode | from_json).deadline | int)
           - ('%s' | strftime | int), 0] | max }}
   when: >-

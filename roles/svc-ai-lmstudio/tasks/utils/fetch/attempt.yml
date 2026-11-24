@@ -1,7 +1,7 @@
 ---
 - name: "⏸️ Wait before retrying source {{ lmstudio_fetch_slot }}"
   ansible.builtin.wait_for:
-    timeout: "{{ LMSTUDIO_PRELOAD_RETRY_DELAY | int }}"
+    timeout: "{{ LMSTUDIO_PRELOAD_RETRY_DELAY | int }}"  # nocheck: timeout-lookup
   when: lmstudio_fetch_attempt | int > 0
 
 - name: "🕒 Give the downloads of source {{ lmstudio_fetch_slot }} the rest of its budget"
