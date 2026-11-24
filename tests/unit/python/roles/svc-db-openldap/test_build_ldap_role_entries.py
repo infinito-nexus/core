@@ -51,9 +51,9 @@ class TestBuildLdapRoleEntriesNonTenant(unittest.TestCase):
             }
         }
         self.users = {
-            "alice": {"roles": ["editor", "administrator"]},
-            "bob": {"roles": ["viewer"]},
-            "carol": {"roles": []},
+            "alice": {"username": "alice", "roles": ["editor", "administrator"]},
+            "bob": {"username": "bob", "roles": ["viewer"]},
+            "carol": {"username": "carol", "roles": []},
         }
         self.ldap = LDAP_FIXTURE
 
@@ -91,6 +91,35 @@ class TestBuildLdapRoleEntriesNonTenant(unittest.TestCase):
                     entry.get("member", []),
                 )
 
+    def test_a_member_keyed_apart_from_its_username_is_named_by_the_username(self):
+        users = {
+            **self.users,
+            "platform_administrator": {
+                "username": "platformadmin",
+                "roles": ["administrator"],
+            },
+        }
+        entries = build_ldap_role_entries(self.applications, users, self.ldap)
+        members = entries["cn=app1-administrator,ou=roles,dc=example,dc=org"]["member"]
+        self.assertIn("uid=platformadmin,ou=users,dc=example,dc=org", members)
+        self.assertNotIn(
+            "uid=platform_administrator,ou=users,dc=example,dc=org", members
+        )
+
+    def test_member_uids_carry_the_username(self):
+        ldap = {**self.ldap, "RBAC": {**self.ldap["RBAC"], "FLAVORS": ["posixGroup"]}}
+        users = {
+            "platform_administrator": {
+                "username": "platformadmin",
+                "roles": ["administrator"],
+            }
+        }
+        entries = build_ldap_role_entries(self.applications, users, ldap)
+        self.assertEqual(
+            entries["cn=app1-administrator,ou=roles,dc=example,dc=org"]["memberUid"],
+            ["platformadmin"],
+        )
+
 
 class TestBuildLdapRoleEntriesTenantAware(unittest.TestCase):
     """Tenant-aware apps produce tenant containers and per-tenant role
@@ -117,7 +146,7 @@ class TestBuildLdapRoleEntriesTenantAware(unittest.TestCase):
                 },
             }
         }
-        self.users = {"alice": {"roles": ["editor"]}}
+        self.users = {"alice": {"username": "alice", "roles": ["editor"]}}
 
     def test_app_container_references_tenants_and_global_roles(self):
         entries = build_ldap_role_entries(self.applications, self.users, LDAP_FIXTURE)
@@ -196,7 +225,7 @@ class TestBuildLdapRoleEntriesGroupNamesGate(unittest.TestCase):
                 "rbac": {"roles": {"organizer": {"description": "Organizer"}}},
             },
         }
-        self.users = {"alice": {"roles": ["editor"]}}
+        self.users = {"alice": {"username": "alice", "roles": ["editor"]}}
 
     def test_only_deployed_apps_contribute_when_group_names_given(self):
         entries = build_ldap_role_entries(

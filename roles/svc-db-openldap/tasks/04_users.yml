@@ -71,6 +71,13 @@
       description: "Container for application access profiles"
     state: present
 
+- name: 🚚 Move the user entries still named by their inventory key before any entry is created
+  ansible.builtin.include_tasks:
+    file: _user_renames.yml
+    apply:
+      run_once: true
+      delegate_to: "{{ STACK_HOST }}"
+
 - name: ✅ Ensure LDAP users exist
   ldap_entries:
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
@@ -85,6 +92,24 @@
   changed_when: false
   throttle: 1
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: 🚚 Repoint the group values whose username-named entry exists only now
+  ansible.builtin.include_tasks:
+    file: _user_renames.yml
+    apply:
+      run_once: true
+      delegate_to: "{{ STACK_HOST }}"
+
+- name: 🔑 Leave every user entry its username as its only login
+  ldap_entries:
+    server_uri: "{{ OPENLDAP_SERVER_URI }}"
+    bind_dn: "{{ OPENLDAP_BIND_DN }}"
+    bind_pw: "{{ OPENLDAP_BIND_PW }}"
+    state: exact
+    entries: >-
+      {{ OPENLDAP_USERS | openldap_user_login_entries(LDAP.USER.ATTRIBUTES.ID,
+                                                      LDAP.DN.OU.USERS) }}
+  throttle: 1
 
 - name: 🔧 Set LDAP user passwords (per-user update policy)
   ldap_passwords:

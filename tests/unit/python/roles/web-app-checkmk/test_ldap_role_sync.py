@@ -115,7 +115,7 @@ def directory_role_groups() -> dict[str, dict]:
     applications = {
         APPLICATION_ID: {"rbac": load_yaml_any(str(ROLE_DIR / ROLE_FILE_META_RBAC))}
     }
-    users = {ADMINISTRATOR: {"roles": [ADMINISTRATOR]}}
+    users = {ADMINISTRATOR: {"username": ADMINISTRATOR, "roles": [ADMINISTRATOR]}}
     return {
         dn.lower(): {key.lower(): value for key, value in entry.items()}
         for dn, entry in module.build_ldap_role_entries(

@@ -36,7 +36,7 @@
       bash -s
     stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/shell/ldap/bootstrap.sh') }}"
   environment:
-    FD_ADMIN_DN: "{{ LDAP.USER.ATTRIBUTES.ID }}=platform_administrator,{{ LDAP.DN.OU.USERS }}"
+    FD_ADMIN_DN: "{{ lookup('users', 'platform_administrator') | ldap_user_dn(LDAP.USER.ATTRIBUTES.ID, LDAP.DN.OU.USERS) }}"
     FD_ADMINISTRATOR_GROUP_DN: "{{ FUSIONDIRECTORY_ADMINISTRATOR_GROUP_DN }}"
     FD_USER_MANAGER_GROUP_DN: "{{ FUSIONDIRECTORY_USER_MANAGER_GROUP_DN }}"
     FD_SELF_SERVICE_GROUP_DN: "{{ FUSIONDIRECTORY_SELF_SERVICE_GROUP_DN }}"

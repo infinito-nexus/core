@@ -38,6 +38,33 @@ USERS = {
     },
 }
 STRUCTURAL = ["person", "inetOrgPerson", "posixAccount"]
+RENAME_USERS = {
+    "platform_administrator": {"username": "platformadmin"},
+    "biber": {"username": "biber"},
+}
+OLD_DN = "uid=platform_administrator,ou=users,dc=x"
+NEW_DN = "uid=platformadmin,ou=users,dc=x"
+BIBER_DN = "uid=biber,ou=users,dc=x"
+ADMIN_GROUP = "cn=app-administrator,ou=roles,dc=x"
+POSIX_GROUP = "cn=app-posix,ou=roles,dc=x"
+EDITOR_GROUP = "cn=app-editor,ou=roles,dc=x"
+USERS_DN = "ou=users,dc=x"
+
+
+def _made_here(dn, uids, home):
+    return {"dn": dn, "uid": uids, "objectClass": ["top", *STRUCTURAL], "homeDirectory": home}
+
+
+LEGACY_ENTRIES = [
+    _made_here(OLD_DN, ["platformadmin", "platform_administrator"], "/home/platform_administrator"),
+    _made_here(BIBER_DN, "biber", "/home/biber"),
+    {"dn": "uid=foreign,ou=users,dc=x", "uid": ["foreign", "extra"]},
+]
+LEGACY_GROUPS = [
+    {"dn": ADMIN_GROUP, "member": [BIBER_DN, OLD_DN]},
+    {"dn": POSIX_GROUP, "memberUid": "platform_administrator"},
+    {"dn": EDITOR_GROUP, "member": BIBER_DN},
+]
 
 
 class TestLdapUserEntries(unittest.TestCase):
@@ -66,6 +93,33 @@ class TestLdapUserEntries(unittest.TestCase):
             },
         )
         self.assertEqual(entries[1]["attributes"]["cn"], "Bob B.")
+
+    def test_a_user_keyed_apart_from_its_username_gets_one_uid_named_dn(self):
+        users = {
+            "platform_administrator": {**USERS["alice"], "username": "platformadmin"}
+        }
+        for build in (
+            self.m.openldap_user_entries,
+            self.m.openldap_user_class_entries,
+            self.m.openldap_user_mail_entries,
+        ):
+            with self.subTest(build=build.__name__):
+                entry = build(users, "uid", "ou=users,dc=x", STRUCTURAL)[0]
+                self.assertEqual(entry["dn"], "uid=platformadmin,ou=users,dc=x")
+                self.assertNotIn("platform_administrator", entry["dn"])
+        attributes = self.m.openldap_user_entries(
+            users, "uid", "ou=users,dc=x", STRUCTURAL
+        )[0]["attributes"]
+        self.assertEqual(attributes["uid"], "platformadmin")
+
+    def test_the_password_entry_follows_the_username_named_dn(self):
+        users = {
+            "platform_administrator": {"username": "platformadmin", "password": "p"}
+        }
+        self.assertEqual(
+            self.m.openldap_user_passwords(users, "uid", "ou=users,dc=x", []),
+            [{"dn": "uid=platformadmin,ou=users,dc=x", "passwd": "p"}],
+        )
 
     def test_cn_falls_back_to_the_key_without_any_name(self):
         users = {
@@ -222,10 +276,14 @@ class TestLdapUserEntries(unittest.TestCase):
 
     def test_passwords_are_managed_unless_the_user_opts_out(self):
         users = {
-            "alice": {"password": "a-pw"},
-            "bob": {"password": "b-pw", "password_update": False},
-            "carol": {"password": "c-pw", "password_update": "false"},
-            "dave": {"password": "d-pw", "password_update": "yes"},
+            "alice": {"username": "alice", "password": "a-pw"},
+            "bob": {"username": "bob", "password": "b-pw", "password_update": False},
+            "carol": {
+                "username": "carol",
+                "password": "c-pw",
+                "password_update": "false",
+            },
+            "dave": {"username": "dave", "password": "d-pw", "password_update": "yes"},
         }
         entries = self.m.openldap_user_passwords(users, "uid", "ou=users,dc=x", [])
         self.assertEqual(
@@ -238,13 +296,191 @@ class TestLdapUserEntries(unittest.TestCase):
 
     def test_an_opted_out_user_created_by_this_run_still_gets_its_password(self):
         users = {
-            "bob": {"password": "b-pw", "password_update": False},
-            "carol": {"password": "c-pw", "password_update": False},
+            "bob": {"username": "bob", "password": "b-pw", "password_update": False},
+            "carol": {
+                "username": "carol",
+                "password": "c-pw",
+                "password_update": False,
+            },
         }
         entries = self.m.openldap_user_passwords(
             users, "uid", "ou=users,dc=x", ["uid=carol,ou=users,dc=x"]
         )
         self.assertEqual(entries, [{"dn": "uid=carol,ou=users,dc=x", "passwd": "c-pw"}])
+
+    def _renames(self, entries, groups, users=None):
+        return self.m.openldap_user_renames(
+            RENAME_USERS if users is None else users,
+            entries,
+            groups,
+            "uid",
+            USERS_DN,
+            STRUCTURAL,
+            ["member", "uniqueMember"],
+            ["memberUid"],
+        )
+
+    def _move_only(self, dn, login):
+        return [{"dn": dn, "new_rdn": f"uid={login}", "move": True, "references": []}]
+
+    def test_an_entry_created_under_an_earlier_username_still_moves(self):
+        entries = [
+            _made_here(
+                OLD_DN,
+                ["platformadministrator", "platform_administrator"],
+                "/home/platform_administrator",
+            )
+        ]
+        self.assertEqual(
+            self._renames(entries, []), self._move_only(OLD_DN, "platformadmin")
+        )
+
+    def test_a_user_renamed_in_the_inventory_moves_to_the_new_username(self):
+        dn = "uid=alice,ou=users,dc=x"
+        entries = [_made_here(dn, "alice", "/home/alice")]
+        self.assertEqual(
+            self._renames(entries, [], {"alice": {"username": "alicia"}}),
+            self._move_only(dn, "alicia"),
+        )
+
+    def test_group_values_wait_until_the_username_named_entry_exists(self):
+        groups = [{"dn": ADMIN_GROUP, "member": [BIBER_DN, OLD_DN]}]
+        self.assertEqual(self._renames([], groups), [])
+        self.assertEqual(
+            self._renames([_made_here(NEW_DN, "platformadmin", "/home/x")], groups),
+            [
+                {
+                    "dn": OLD_DN,
+                    "new_rdn": "uid=platformadmin",
+                    "move": False,
+                    "references": [
+                        {
+                            "dn": ADMIN_GROUP,
+                            "attribute": "member",
+                            "old": OLD_DN,
+                            "new": NEW_DN,
+                        }
+                    ],
+                }
+            ],
+        )
+
+    def test_login_entries_leave_every_user_only_its_username(self):
+        self.assertEqual(
+            self.m.openldap_user_login_entries(RENAME_USERS, "uid", USERS_DN),
+            [
+                {"dn": NEW_DN, "attributes": {"uid": "platformadmin"}},
+                {"dn": BIBER_DN, "attributes": {"uid": "biber"}},
+            ],
+        )
+
+    def test_the_entry_named_by_its_key_moves_and_its_group_values_follow(self):
+        self.assertEqual(
+            self._renames(LEGACY_ENTRIES, LEGACY_GROUPS),
+            [
+                {
+                    "dn": OLD_DN,
+                    "new_rdn": "uid=platformadmin",
+                    "move": True,
+                    "references": [
+                        {
+                            "dn": ADMIN_GROUP,
+                            "attribute": "member",
+                            "old": OLD_DN,
+                            "new": NEW_DN,
+                        },
+                        {
+                            "dn": POSIX_GROUP,
+                            "attribute": "memberUid",
+                            "old": "platform_administrator",
+                            "new": "platformadmin",
+                        },
+                    ],
+                }
+            ],
+        )
+
+    def test_a_foreign_entry_with_an_extra_uid_value_is_left_alone(self):
+        entries = [
+            {"dn": NEW_DN, "uid": "platformadmin"},
+            {"dn": BIBER_DN, "uid": "biber"},
+            {"dn": "uid=foreign,ou=users,dc=x", "uid": ["foreign", "extra"]},
+            {"dn": "uid=other,ou=users,dc=x", "uid": ["other", "a", "b"]},
+        ]
+        self.assertEqual(self._renames(entries, []), [])
+
+    def test_a_clean_directory_plans_nothing(self):
+        entries = [{"dn": NEW_DN, "uid": "platformadmin"}, {"dn": BIBER_DN, "uid": "biber"}]
+        groups = [
+            {"dn": ADMIN_GROUP, "member": [BIBER_DN, NEW_DN]},
+            {"dn": POSIX_GROUP, "memberUid": "platformadmin"},
+        ]
+        self.assertEqual(self._renames(entries, groups), [])
+
+    def test_group_values_left_behind_after_the_move_are_still_repaired(self):
+        entries = [{"dn": NEW_DN, "uid": "platformadmin"}]
+        groups = [
+            {"dn": ADMIN_GROUP, "member": [BIBER_DN, NEW_DN]},
+            {"dn": POSIX_GROUP, "memberUid": ["biber", "platform_administrator"]},
+            {"dn": EDITOR_GROUP, "uniqueMember": "UID=platform_administrator, ou=users,dc=x"},
+        ]
+        self.assertEqual(
+            self._renames(entries, groups),
+            [
+                {
+                    "dn": OLD_DN,
+                    "new_rdn": "uid=platformadmin",
+                    "move": False,
+                    "references": [
+                        {
+                            "dn": EDITOR_GROUP,
+                            "attribute": "uniqueMember",
+                            "old": "UID=platform_administrator, ou=users,dc=x",
+                            "new": NEW_DN,
+                        },
+                        {
+                            "dn": POSIX_GROUP,
+                            "attribute": "memberUid",
+                            "old": "platform_administrator",
+                            "new": "platformadmin",
+                        },
+                    ],
+                }
+            ],
+        )
+
+    def test_a_foreign_entry_at_the_old_dn_fails_instead_of_moving(self):
+        for entry in (
+            {
+                "dn": OLD_DN,
+                "uid": ["platformadmin", "platform_administrator"],
+                "objectClass": ["top", "person", "inetOrgPerson"],
+            },
+            _made_here(
+                OLD_DN,
+                ["platformadmin", "platform_administrator"],
+                "/home/intruder",
+            ),
+        ):
+            with self.subTest(entry=entry), self.assertRaises(AnsibleFilterError) as ctx:
+                self._renames([entry], [])
+            self.assertIn(OLD_DN, str(ctx.exception))
+
+    def test_a_key_that_is_another_users_username_is_left_to_that_user(self):
+        users = {
+            **RENAME_USERS,
+            "keeper": {"username": "platform_administrator"},
+        }
+        entries = [_made_here(OLD_DN, ["platform_administrator"], "/home/keeper")]
+        self.assertEqual(self._renames(entries, LEGACY_GROUPS, users), [])
+        with self.assertRaises(AnsibleFilterError):
+            self._renames(LEGACY_ENTRIES, [], users)
+
+    def test_an_entry_at_both_dns_fails_instead_of_merging(self):
+        entries = [*LEGACY_ENTRIES, {"dn": "UID=platformadmin, ou=users,dc=x"}]
+        with self.assertRaises(AnsibleFilterError) as ctx:
+            self._renames(entries, [])
+        self.assertIn(NEW_DN, str(ctx.exception))
 
     def test_dn_entries_share_one_attribute_set(self):
         entries = self.m.ldap_dn_entries(["a", "b"], {"objectClass": ["x"]})

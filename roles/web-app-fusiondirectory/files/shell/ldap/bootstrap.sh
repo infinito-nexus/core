@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
-# Output: one line per schema, entry or ACL grant it added; nothing when all exist.
+# Output: one line per schema, entry or ACL grant it added and per ACL entry it
+#   stripped of members that no longer exist; nothing when all exist.
 #
 # Required env, supplied via `container exec -e KEY`:
 #   FD_ADMIN_DN                DN of the platform administrator persona's entry
@@ -36,6 +37,19 @@ ldap() {
 
 found() {
   [ "$(ldap ldapsearch -LLL -o ldif-wrap=no -b "$1" -s base "(objectClass=*)" dn 2>/dev/null | grep -c '^dn:')" -gt 0 ]
+}
+
+absent() {
+  local rc=0
+  ldap ldapsearch -LLL -b "$1" -s base "(objectClass=*)" 1.1 >/dev/null 2>&1 || rc=$?
+  case "$rc" in
+    0) return 1 ;;
+    32) return 0 ;;
+    *)
+      echo "cannot tell whether ${1} exists: ldapsearch exited ${rc}" >&2
+      exit "$rc"
+      ;;
+  esac
 }
 
 add_absent() {
@@ -82,9 +96,47 @@ grant() {
       echo "-"
     fi
     echo "add: gosaAclEntry"
-    echo "gosaAclEntry: $(grep -c '^gosaAclEntry:' <<<"$base_entry")${acl}"
+    echo "gosaAclEntry: $(awk -F'[: ]+' '/^gosaAclEntry: / && $2 + 1 > next_priority { next_priority = $2 + 1 } END { print next_priority + 0 }' <<<"$base_entry")${acl}"
   } | ldap ldapmodify >/dev/null
   echo "granted ${role} to ${member}"
+}
+
+revoke_stale() {
+  local entry priority type role members filter member dn kept removed
+  local -a listed
+  while IFS= read -r entry; do
+    IFS=: read -r priority type role members filter <<<"$entry"
+    case "$type" in
+      one | base | sub | psub | subtree) ;;
+      *) continue ;;
+    esac
+    IFS=, read -r -a listed <<<"$members"
+    kept=""
+    removed=""
+    for member in "${listed[@]}"; do
+      dn="$(printf %s "$member" | base64 -d)"
+      if absent "$dn"; then
+        removed="${removed:+${removed} }${dn}"
+      else
+        kept="${kept:+${kept},}${member}"
+      fi
+    done
+    if [ -z "$removed" ]; then
+      continue
+    fi
+    {
+      echo "dn: ${base}"
+      echo "changetype: modify"
+      echo "delete: gosaAclEntry"
+      echo "gosaAclEntry: ${entry}"
+      if [ -n "$kept" ]; then
+        echo "-"
+        echo "add: gosaAclEntry"
+        echo "gosaAclEntry: ${priority}:${type}:${role}:${kept}${filter:+:${filter}}"
+      fi
+    } | ldap ldapmodify >/dev/null
+    echo "revoked ACL entry ${priority} from ${removed}"
+  done < <(ldap ldapsearch -LLL -o ldif-wrap=no -b "$base" -s base "(objectClass=*)" gosaAclEntry | sed -n 's/^gosaAclEntry: //p')
 }
 
 reconcile() {
@@ -116,6 +168,7 @@ add_role "$admin_role_dn" admin "Gives all rights on all objects" "0:all;cmdrw"
 add_role "$user_manager_role_dn" user-manager "Gives all rights on users in the given branch" "0:user/user;cmdrw,user/posixAccount;cmdrw"
 add_role "$self_service_role_dn" self-service "Allows users to edit their own information" "0:user/user;srw,user/posixAccount;srw"
 
+revoke_stale
 grant "$admin_role_dn" "$FD_ADMIN_DN"
 grant "$admin_role_dn" "$FD_ADMINISTRATOR_GROUP_DN"
 grant "$user_manager_role_dn" "$FD_USER_MANAGER_GROUP_DN"

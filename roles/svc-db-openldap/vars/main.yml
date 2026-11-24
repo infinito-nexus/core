@@ -47,6 +47,13 @@ OPENLDAP_USER_AUXILIARY_CLASSES: >-
       | map(attribute='value') | list)
      + ([LDAP.USER.OBJECTS.AUXILIARY.INFINITO_MAILBOX_USER] if OPENLDAP_EMAIL_MAILBOX | bool else []) }}
 OPENLDAP_SECONDARY_ADDRESSES: "{{ OPENLDAP_USERS | dict2items | map(attribute='value') | items2dict(key_name='username', value_name='secondary_email') }}"
+OPENLDAP_DN_MEMBER_ATTRIBUTES:
+  - "{{ LDAP.RBAC.MEMBER_ATTRIBUTE }}"
+  - uniqueMember
+OPENLDAP_LOGIN_MEMBER_ATTRIBUTES:
+  - memberUid
+OPENLDAP_MEMBER_ATTRIBUTES: "{{ OPENLDAP_DN_MEMBER_ATTRIBUTES + OPENLDAP_LOGIN_MEMBER_ATTRIBUTES }}"
+OPENLDAP_MEMBER_FILTER: "(|{{ OPENLDAP_MEMBER_ATTRIBUTES | map('regex_replace', '^(.*)$', '(\\1=*)') | join }})"
 OPENLDAP_DIRECTORY_EDITOR_GROUP_DNS:
   - "cn=web-app-lam-administrator,{{ LDAP.DN.OU.ROLES }}"
   - "cn=web-app-phpldapadmin-administrator,{{ LDAP.DN.OU.ROLES }}"
