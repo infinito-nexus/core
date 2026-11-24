@@ -2,36 +2,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from utils.roles.db.instances import (
     coordination_store,
     engine_word,
     sanitize_host_id,
 )
 
-if TYPE_CHECKING:
-    from collections.abc import Iterable
-
 
 class ForgetNodeError(ValueError):
     pass
-
-
-def assert_host_absent(host: str, inventory_hosts: Iterable[str]) -> None:
-    """Refuse when the host is still listed in the inventory.
-
-    Args:
-        host: inventory name and Swarm node hostname of the lost node.
-        inventory_hosts: every host the inventory still lists.
-    """
-    if not host or not host.strip():
-        raise ForgetNodeError("forget-node: host must not be empty")
-    if host in set(inventory_hosts):
-        raise ForgetNodeError(
-            f"forget-node: '{host}' is still in the inventory. Remove it from "
-            "every group (and reorder svc-swarm-manager if needed) first."
-        )
 
 
 def forget_node_plan(host: str, node_inspect: str) -> dict:

@@ -1,23 +1,6 @@
 import unittest
 
-from utils.roles.forget_node import (
-    ForgetNodeError,
-    assert_host_absent,
-    forget_node_plan,
-)
-
-
-class TestAssertHostAbsent(unittest.TestCase):
-    def test_refuses_host_still_in_inventory(self):
-        with self.assertRaisesRegex(ForgetNodeError, "still in the inventory"):
-            assert_host_absent("mgr-03", ["mgr-01", "mgr-02", "mgr-03"])
-
-    def test_refuses_empty_host(self):
-        with self.assertRaises(ForgetNodeError):
-            assert_host_absent(" ", ["mgr-01"])
-
-    def test_accepts_absent_host(self):
-        assert_host_absent("mgr-03", ["mgr-01", "mgr-02", "mgr-04"])
+from utils.roles.forget_node import ForgetNodeError, forget_node_plan
 
 
 class TestForgetNodePlan(unittest.TestCase):

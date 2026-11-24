@@ -893,7 +893,7 @@ swarm-exec:
 # Param args: optional extra deploy options forwarded verbatim (e.g. "--password-file <file> --diff").
 swarm-forget-node:
 	@test -n '$(host)' -a -n '$(inventory)' || { echo 'usage: make swarm-forget-node host=<name> inventory=<file> [args="--password-file <file>"]'; exit 2; }
-	@python3 -m cli.administration.swarm.forget_node '$(inventory)' --host '$(host)' $(args)
+	@python3 -m cli.administration.deploy.swarm '$(inventory)' $(args) -e 'SWARM_FORGET_NODE=$(host)'
 
 .PHONY: swarm-playwright
 # Rerun a role-local Playwright spec against the live swarm-test cluster (no redeploy).
