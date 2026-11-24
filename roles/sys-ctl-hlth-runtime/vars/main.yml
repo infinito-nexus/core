@@ -19,7 +19,11 @@ HEALTH_RUNTIME_IMAGES:
 HEALTH_RUNTIME_CACHE_DIR: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.runtime.cache_dir') }}"
 HEALTH_RUNTIME_DATABASE_DIR: "{{ lookup('config', 'sys-ctl-hlth-runtime', 'services.runtime.database_dir') }}"
 HEALTH_RUNTIME_METRICS_ENABLED: "{{ 'web-app-prometheus' in lookup('deployment').deployed }}"
-HEALTH_RUNTIME_METRICS_FILE: "{{ [ DIR_METRICS_TEXTFILE, 'infinito_hlth_runtime.prom' ] | path_join }}"
+HEALTH_RUNTIME_HOST: "{{ inventory_hostname }}"
+HEALTH_RUNTIME_METRICS_FILE: "{{ [ DIR_METRICS_TEXTFILE, 'infinito_hlth_runtime.' ~ HEALTH_RUNTIME_HOST ~ '.prom' ] | path_join }}"
+HEALTH_RUNTIME_SHARED_OUTPUTS:
+  - "{{ [ DIR_VAR_LIB, 'hlth-runtime', 'report.json' ] | path_join }}"
+  - "{{ [ DIR_METRICS_TEXTFILE, 'infinito_hlth_runtime.prom' ] | path_join }}"
 HEALTH_RUNTIME_LOGROTATE_FILE: "{{ [ '/etc/logrotate.d', system_service_id ] | path_join }}"
 HEALTH_RUNTIME_HOST_EXCLUDES:
   - /proc

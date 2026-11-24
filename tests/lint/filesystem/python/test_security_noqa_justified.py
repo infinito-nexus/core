@@ -72,7 +72,6 @@ _BASELINE: frozenset[str] = frozenset(
         "roles/web-app-erpnext/files/python/apply/oidc_settings.py",
         "roles/web-app-keycloak/library/keycloak_kcadm_update.py",
         "utils/github/playwright_summary.py",
-        "utils/update/docker.py",
     }
 )
 
