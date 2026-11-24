@@ -30,7 +30,7 @@ async function connectToZammad(page, connect) {
     .waitForRequest((request) => AUTHORIZE_PATH.test(request.url()), { timeout: resolveTimeout(30_000) })
     .catch(() => null);
 
-  await connect.click({ timeout: resolveTimeout(10_000) });
+  await shared.clickWithModalRetry(page, page, connect);
 
   const saved = await stateSaved;
   expect(
