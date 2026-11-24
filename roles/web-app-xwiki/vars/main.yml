@@ -3,11 +3,9 @@ application_id: "web-app-xwiki"
 entity_name: "{{ application_id | entity_name }}"
 domain: "{{ lookup('domain',application_id) }}"
 
-container_hostname: "{{ lookup('container_hostname', application_id) }}"
-
 XWIKI_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.xwiki.ports.internal.http') }}"
 
-XWIKI_HOSTNAME: "{{ container_hostname }}"
+XWIKI_HOSTNAME: "{{ entity_name }}"
 XWIKI_URL: "{{ lookup('tls', application_id, 'url.origin') }}"
 
 XWIKI_HOST_PROPERTIES_PATH: "{{ [lookup('container', application_id, 'directories.config'), 'xwiki.properties'] | path_join }}"
