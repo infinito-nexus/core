@@ -1,26 +1,4 @@
 #!/usr/bin/env bash
-# Disaster-recovery drill: record what runs, take the host down, hand the
-# generation to the recover chain, bring the host back and require each
-# recorded container healthy (or running when it defines no healthcheck).
-#
-# Databases come back last with only their engine service up - the replay
-# pre-cleans in one psql session and a booting consumer would recreate the
-# schema before the dump's CREATE TABLE lands. The engine's service name comes
-# from its compose label: no fixed name covers both `postgres` (project
-# postgres, volume postgres_data) and bigbluebutton (project bigbluebutton,
-# service postgres).
-#
-# Every mounted volume is emptied, including those declared `backup: false` -
-# that claim of disposability is what the drill tests. Emptied, not removed:
-# docker refuses to remove a volume a container still references, and a
-# container outside compose is only stopped here; re-creating a removed volume
-# would also drop its driver options. An engine volume whose dump is about to
-# be replayed is spared, because `pg_dump -d <db>` writes no CREATE ROLE or
-# CREATE DATABASE and initdb would leave nothing to replay into. A volume
-# declared `derived: code` is spared too: its service keys the content by the
-# deployed code and rebuilds a mismatch, so emptying it only times a rebuild.
-#
-# Discourse carries no compose label but is a subject when it holds a volume.
 set -euo pipefail
 
 : "${BKP_TEST_HEALTH_TIMEOUT:?}"
@@ -200,8 +178,19 @@ for name in "${RUNNING[@]}"; do
 done
 echo "OK: network attachments recorded for ${#NETWORKS[@]} container(s)"
 
-# Any exit between this teardown and the final restart leaves the host with
-# its subjects down, which is why the marker is written from a trap.
+for attempt in 1 2 3; do
+    if container image inspect "${BKP_TEST_SCRATCH_IMAGE}" >/dev/null 2>&1 ||
+        container pull "${BKP_TEST_SCRATCH_IMAGE}" >/dev/null; then
+        break
+    fi
+    if (( attempt == 3 )); then
+        echo "FAIL: scratch image ${BKP_TEST_SCRATCH_IMAGE} could not be pulled; nothing was torn down"
+        exit 1
+    fi
+    sleep 10
+done
+echo "OK: scratch image ${BKP_TEST_SCRATCH_IMAGE} is local"
+
 mark_torn_down() {
     local code=$?
     if (( code != 0 )); then

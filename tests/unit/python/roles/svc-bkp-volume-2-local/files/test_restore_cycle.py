@@ -57,19 +57,40 @@ case "$1" in
         ;;
     volume)
         ;;
+    image)
+        [[ -z "${STUB_IMAGE_MISSING}" ]]
+        ;;
+    pull)
+        echo STUB-PULLED >&2
+        [[ -z "${STUB_PULL_FAILS}" ]]
+        ;;
     *)
         exit 64
         ;;
 esac
 """
 COMPOSE_STUB = "#!/usr/bin/env bash\nexit 0\n"
+SLEEP_STUB = "#!/usr/bin/env bash\necho STUB-SLEPT >&2\n"
+LOCAL, REACHABLE, DOWN = "local", "reachable", "down"
+REGISTRY = {
+    LOCAL: {"STUB_IMAGE_MISSING": "", "STUB_PULL_FAILS": ""},
+    REACHABLE: {"STUB_IMAGE_MISSING": "1", "STUB_PULL_FAILS": ""},
+    DOWN: {"STUB_IMAGE_MISSING": "1", "STUB_PULL_FAILS": "1"},
+}
+STUBS = (
+    ("container", CONTAINER_STUB),
+    ("compose", COMPOSE_STUB),
+    ("sleep", SLEEP_STUB),
+)
 
 
-def _drill(code_derived: str | None) -> subprocess.CompletedProcess[str]:
+def _drill(code_derived: str | None, registry: str) -> subprocess.CompletedProcess[str]:
     """
     Args:
         code_derived: the value of BKP_TEST_VOLUMES_CODE_DERIVED, or None to
             leave it unset.
+        registry: LOCAL when the scratch image is already on the host,
+            REACHABLE when it must be pulled, DOWN when every pull fails.
 
     Returns:
         The finished drill.
@@ -78,7 +99,7 @@ def _drill(code_derived: str | None) -> subprocess.CompletedProcess[str]:
         root = Path(scratch)
         bin_dir = root / "bin"
         bin_dir.mkdir()
-        for name, body in (("container", CONTAINER_STUB), ("compose", COMPOSE_STUB)):
+        for name, body in STUBS:
             stub = bin_dir / name
             stub.write_text(body, encoding="utf-8")
             stub.chmod(0o755)
@@ -101,6 +122,7 @@ def _drill(code_derived: str | None) -> subprocess.CompletedProcess[str]:
                 "DR_TOKEN": "dr-stub",
                 "REPO_DIR": str(root / "repo"),
                 "NEWEST_GENERATION": "gen",
+                **REGISTRY[registry],
             }
         )
         if code_derived is not None:
@@ -124,7 +146,7 @@ def _emptied(result: subprocess.CompletedProcess[str]) -> list[str]:
 
 class TestCodeDerivedVolumes(unittest.TestCase):
     def _passed(self, code_derived: str) -> subprocess.CompletedProcess[str]:
-        result = _drill(code_derived)
+        result = _drill(code_derived, LOCAL)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
@@ -152,10 +174,35 @@ class TestCodeDerivedVolumes(unittest.TestCase):
         self.assertEqual(_emptied(self._passed(f"{LOKI},{DOCS}")), [APP])
 
     def test_an_unset_list_fails_before_the_teardown(self) -> None:
-        result = _drill(None)
+        result = _drill(None, LOCAL)
         self.assertNotEqual(result.returncode, 0, result.stdout)
         self.assertEqual(_emptied(result), [])
         self.assertNotIn("Stopping every subject", result.stdout)
+
+
+class TestScratchImage(unittest.TestCase):
+    def test_a_local_image_is_not_pulled(self) -> None:
+        result = _drill(DOCS, LOCAL)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(result.stderr.count("STUB-PULLED"), 0)
+
+    def test_a_missing_image_is_pulled_before_the_teardown(self) -> None:
+        result = _drill(DOCS, REACHABLE)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(result.stderr.count("STUB-PULLED"), 1)
+        self.assertLess(
+            result.stdout.index("OK: scratch image scratch:stub is local"),
+            result.stdout.index("Stopping every subject"),
+        )
+
+    def test_an_unpullable_image_fails_before_the_teardown(self) -> None:
+        result = _drill(DOCS, DOWN)
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(result.stderr.count("STUB-PULLED"), 3)
+        self.assertEqual(result.stderr.count("STUB-SLEPT"), 2)
+        self.assertIn("nothing was torn down", result.stdout)
+        self.assertNotIn("Stopping every subject", result.stdout)
+        self.assertEqual(_emptied(result), [])
 
 
 class TestWiring(unittest.TestCase):
