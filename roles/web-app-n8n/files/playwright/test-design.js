@@ -36,7 +36,11 @@ const MENU_ITEM = `${SIDEBAR} [data-test-id='menu-item']`;
 const WORKFLOW_CARD = "[data-test-id='resources-list-item-workflow']";
 const WORKFLOW_NAME = "[data-test-id='workflow-card-name']";
 const CREATE_WORKFLOW = "[data-test-id='add-resource-workflow']";
-const PREVIEW_BADGE = "[class*='_badge_'][class*='_secondary_']";
+const PREVIEW_BADGE = "[data-test-id='tab-AgentsListView'] .n8n-badge";
+const PREVIEW_BADGE_TOKENS = [
+  ["border-top-color", "--design-border"],
+  ["color", "--design-text-muted"],
+];
 const CREDENTIAL_ROW = "[data-test-id='resources-list-item']";
 const EXECUTION_ROW = "[data-test-id='global-execution-list-item']";
 const ROW_CHECKBOX = `${EXECUTION_ROW} [data-test-id='select-execution-checkbox']`;
@@ -513,8 +517,9 @@ exports.register = function (shared) {
       await assertToken(page, WORKFLOW_NAME, "color", "--design-text", `shell ${mode}`);
       await assertToken(page, CREATE_WORKFLOW, "background-color", "--design-primary", `shell ${mode}`);
       await assertToken(page, CREATE_WORKFLOW, "color", "--design-on-primary", `shell ${mode}`);
-      await assertToken(page, PREVIEW_BADGE, "background-color", "--design-info-subtle", `badge ${mode}`);
-      await assertToken(page, PREVIEW_BADGE, "color", "--design-info", `badge ${mode}`);
+      for (const [property, token] of PREVIEW_BADGE_TOKENS) {
+        await assertToken(page, PREVIEW_BADGE, property, token, `badge ${mode}`);
+      }
       await page.locator(CREATE_WORKFLOW).hover();
       await assertToken(page, CREATE_WORKFLOW, "background-color", "--design-primary-hover", `hovered action ${mode}`);
     }
