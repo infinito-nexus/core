@@ -4,6 +4,7 @@ const { gotoOnion } = require("./personas");
 
 const MATOMO_TRACKER_PATH = /\/matomo\.php$/;
 const UPSTREAM_MISSING_ICON = "/addon/smiley_pack/icons/opensource/vivaldi.png";
+const ABORTED = "net::ERR_ABORTED";
 
 function isTrackedRequest(request) {
   const url = request.url();
@@ -19,38 +20,105 @@ function isSuccess(status) {
   return (status >= 200 && status < 300) || status === 304;
 }
 
-// Matomo sends its page view as a keepalive beacon. When the spec navigates on
-// while that beacon is in flight, Chromium reports it as net::ERR_ABORTED even
-// though the browser still delivers it and Matomo answers 204.
-function isAbortedTrackerBeacon(request, errorText) {
-  return errorText === "net::ERR_ABORTED" && MATOMO_TRACKER_PATH.test(new URL(request.url()).pathname);
+const FOLLOWED_REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
+
+// Friendica answers the avatar of an account without a stored profile photo
+// with a 302 to /images/person-300.jpg. Chromium follows such a hop, so the
+// answer at the end of the chain is judged in its place.
+function isFollowedRedirect(response) {
+  return FOLLOWED_REDIRECT_STATUSES.has(response.status()) && Boolean(response.headers().location);
+}
+
+// An image bounced through the oauth2-proxy login also ends in a 200, on the
+// Keycloak login page, so a redirected image must end on an image.
+function endsRedirectOffImage(request, response) {
+  return (
+    request.redirectedFrom() !== null &&
+    request.resourceType() === "image" &&
+    response.status() !== 304 &&
+    !/^image\//i.test(response.headers()["content-type"] || "")
+  );
+}
+
+// Leaving a document makes Chromium report what it still had in flight as
+// net::ERR_ABORTED although no answer failed: the images its load event waited
+// for, since the login helper navigates on before its landing page has loaded,
+// and the Matomo keepalive beacon, which the browser delivers anyway.
+function isNavigationAbort(failure, currentDocument, loadedDocuments) {
+  if (failure.errorText !== ABORTED || !(failure.document < currentDocument)) return false;
+  return failure.isTrackerBeacon || !loadedDocuments.has(failure.document);
+}
+
+// Playwright throws on frame() for a subframe whose navigation starts before
+// the frame is attached; that request is no main-frame navigation either.
+function isMainFrameNavigation(page, request) {
+  if (!request.isNavigationRequest()) return false;
+  try {
+    return request.frame() === page.mainFrame();
+  } catch {
+    return false;
+  }
+}
+
+function failureText(request) {
+  const failure = request.failure();
+  return failure ? failure.errorText : "request failed";
 }
 
 function watchSubresources(page) {
   const observed = new Set();
-  const failures = [];
-  const onResponse = (response) => {
-    const request = response.request();
-    if (!isTrackedRequest(request)) return;
-    observed.add(request.url());
-    const status = response.status();
-    if (!isSuccess(status)) failures.push(`${status} ${request.url()}`);
+  const recorded = [];
+  const documentOf = new WeakMap();
+  const loadedDocuments = new Set();
+  let currentDocument = 0;
+  let newDocumentPending = false;
+  const listeners = {
+    // Playwright also fires framenavigated for pushState, replaceState and
+    // #hash changes. Only a main-frame navigation that got a final answer, or
+    // failed into Chromium's error page, opens a new document on its commit.
+    framenavigated: (frame) => {
+      if (frame !== page.mainFrame() || !newDocumentPending) return;
+      newDocumentPending = false;
+      currentDocument += 1;
+    },
+    load: () => {
+      loadedDocuments.add(currentDocument);
+    },
+    request: (request) => {
+      if (isTrackedRequest(request)) documentOf.set(request, currentDocument);
+    },
+    response: (response) => {
+      const request = response.request();
+      if (isMainFrameNavigation(page, request) && !isFollowedRedirect(response)) newDocumentPending = true;
+      if (!isTrackedRequest(request)) return;
+      observed.add(request.url());
+      if (isFollowedRedirect(response)) return;
+      if (!isSuccess(response.status()) || endsRedirectOffImage(request, response)) {
+        recorded.push({ text: `${response.status()} ${request.url()}` });
+      }
+    },
+    requestfailed: (request) => {
+      const errorText = failureText(request);
+      if (isMainFrameNavigation(page, request) && errorText !== ABORTED) newDocumentPending = true;
+      if (!isTrackedRequest(request)) return;
+      recorded.push({
+        errorText,
+        document: documentOf.get(request),
+        isTrackerBeacon: MATOMO_TRACKER_PATH.test(new URL(request.url()).pathname),
+        text: `${errorText} ${request.url()}`,
+      });
+    },
   };
-  const onRequestFailed = (request) => {
-    if (!isTrackedRequest(request)) return;
-    const failure = request.failure();
-    const errorText = failure ? failure.errorText : "request failed";
-    if (isAbortedTrackerBeacon(request, errorText)) return;
-    failures.push(`${errorText} ${request.url()}`);
-  };
-  page.on("response", onResponse);
-  page.on("requestfailed", onRequestFailed);
+  for (const [event, listener] of Object.entries(listeners)) page.on(event, listener);
   return {
     observed,
-    failures,
+    failures() {
+      return recorded
+        .filter((failure) => !isNavigationAbort(failure, currentDocument, loadedDocuments))
+        .map((failure) => failure.text);
+    },
     stop() {
-      page.off("response", onResponse);
-      page.off("requestfailed", onRequestFailed);
+      for (const [event, listener] of Object.entries(listeners)) page.off(event, listener);
     },
   };
 }
@@ -94,9 +162,10 @@ exports.register = function (shared) {
         neverFetched,
         `Smiley icons rendered without any observed HTTP response:\n${neverFetched.join("\n")}`
       ).toEqual([]);
+      const failures = watcher.failures();
       expect(
-        watcher.failures,
-        `Images or tracker requests that did not answer 2xx:\n${watcher.failures.join("\n")}`
+        failures,
+        `Images or tracker requests that did not answer 2xx:\n${failures.join("\n")}`
       ).toEqual([]);
     } finally {
       watcher.stop();
