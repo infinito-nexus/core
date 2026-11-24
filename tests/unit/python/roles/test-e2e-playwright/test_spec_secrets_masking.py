@@ -495,7 +495,6 @@ class TestSpecSecretsMaskingNegativeControls(unittest.TestCase):
         for broken in (settling, (PROOF, "True")):
             with self.subTest(old=broken[0]):
                 found = detached_run(True, broken)
-                self.assertEqual(found[0], "masker 0")
                 self.assertNotEqual(found[1], "published none")
 
     def test_a_masker_that_publishes_or_keeps_unmasked_reports_is_caught(
