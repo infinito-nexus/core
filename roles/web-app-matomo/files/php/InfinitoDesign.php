@@ -11,8 +11,10 @@ class InfinitoDesign extends \Piwik\Plugin
 {
     private const TOKENS = [
         'colorBrand' => 'var(--design-primary)',
-        'colorNewBrand' => 'var(--design-primary)',
         'colorBaseSeries' => 'var(--design-primary)',
+        'colorPositive' => 'var(--design-success)',
+        'colorNegative' => 'var(--design-danger)',
+        'colorNeutral' => 'var(--design-text-muted)',
         'colorBrandContrast' => 'var(--design-on-primary)',
         'colorFocusRing' => 'var(--design-focus, var(--design-link))',
         'colorFocusRingAlternative' => 'var(--design-focus, var(--design-link))',
@@ -21,7 +23,6 @@ class InfinitoDesign extends \Piwik\Plugin
         'colorTextContrast' => 'var(--design-text)',
         'colorHeadlineAlternative' => 'var(--design-text)',
         'colorMenuContrastText' => 'var(--design-text)',
-        'colorMenuContrastTextSelected' => 'var(--design-text)',
         'colorWidgetTitleText' => 'var(--design-text)',
         'colorTextLight' => 'var(--design-text-muted)',
         'colorTextLighter' => 'var(--design-text-muted)',
@@ -48,10 +49,8 @@ class InfinitoDesign extends \Piwik\Plugin
         'colorTextInvertContrast' => 'var(--design-neutral-50)',
         'colorCode' => 'var(--design-neutral-50)',
         'colorCodeBackground' => 'var(--design-neutral-900)',
-        'colorBorder' => 'var(--design-border-strong)',
+        'colorBorder' => 'var(--design-border)',
         'colorBorderLight' => 'var(--design-border-strong)',
-        'colorBorderAlternative' => 'var(--design-border)',
-        'colorWidgetBorder' => 'var(--design-border)',
         'colorBoxShadow' => 'color-mix(in srgb, var(--design-neutral-950) 12%, transparent)',
         'shadowOverlay' => 'var(--design-shadow-3)',
     ];
