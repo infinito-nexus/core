@@ -211,7 +211,8 @@ def render_container_networks(
     attachments, default_aliases = _compute_attachments(
         registry, application_id, deployment_mode, lookup_config, lookup_database
     )
-    default_aliases = list(dict.fromkeys([*default_aliases, *(aliases or [])]))
+    if aliases:
+        default_aliases = list(dict.fromkeys([*default_aliases, *aliases]))
     lines: list[str] = ["networks:"]
     for att in attachments:
         if att["is_provider"] and att["topology"] == "default_net":
