@@ -1,11 +1,16 @@
+{% set _signout_i18n = {} %}
+{% for _code in ACCESS_REQUEST_I18N if _code in ACCESS_REQUEST_LOGOUT_I18N %}
+{% set _ = _signout_i18n.update({_code: {'signout_action': ACCESS_REQUEST_LOGOUT_I18N[_code].choice_device}}) %}
+{% endfor %}
 {{ {
   'public_url': ACCESS_REQUEST_URL,
+  'signout_url': ACCESS_REQUEST_SIGNOUT_URL,
   'four_eyes': ACCESS_REQUEST_FOUR_EYES | bool,
   'platform_group': ACCESS_REQUEST_PLATFORM_GROUP,
   'approver_emails': ACCESS_REQUEST_APPROVER_EMAILS,
   'ca_file': ACCESS_REQUEST_CA_FILE,
   'catalogue': ACCESS_REQUEST_CATALOGUE,
-  'i18n': ACCESS_REQUEST_I18N,
+  'i18n': ACCESS_REQUEST_I18N | combine(_signout_i18n, recursive=True),
   'rbac_i18n': ACCESS_REQUEST_RBAC_I18N,
   'realm': {
     'base_url': OIDC.URL,

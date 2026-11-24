@@ -28,6 +28,8 @@ ACCESS_REQUEST_APP_IDS: "{{ lookup('deployment').groups | rbac_requestable_app_i
 ACCESS_REQUEST_CATALOGUE: "{{ lookup('applications') | rbac_access_catalogue(ACCESS_REQUEST_APP_IDS, RBAC.GROUP.NAME) }}"
 ACCESS_REQUEST_I18N: "{{ lookup('i18n_catalogue', 'access_request', 'roles/web-svc-access-request/files/access_request_i18n.yml') }}"
 ACCESS_REQUEST_RBAC_I18N: "{{ lookup('rbac_i18n_catalogue', ACCESS_REQUEST_CATALOGUE) }}"
+ACCESS_REQUEST_LOGOUT_I18N: "{{ lookup('i18n_catalogue', 'logout', 'roles/web-app-keycloak/files/logout_i18n.yml') }}"
+ACCESS_REQUEST_SIGNOUT_URL: "{{ lookup('sso', application_id, 'logout_url') }}"
 
 ACCESS_REQUEST_ZAMMAD_ENABLED: "{{ 'web-app-zammad' in group_names }}"
 ACCESS_REQUEST_ZAMMAD_URL: "{{ lookup('tls', 'web-app-zammad', 'url.base') if (ACCESS_REQUEST_ZAMMAD_ENABLED | bool) else '' }}"

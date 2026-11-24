@@ -23,6 +23,7 @@ An application whose gate requires no role group keeps the default oauth2-proxy 
 - **Review:** the review page shows the requester, the application, each requested role with its group path, the reason, and the requester's live groups. The approver can deselect roles before confirming.
 - **Four eyes:** when `services.access-request.four_eyes` is `true`, a grant needs two different approvers. It grants only the roles both kept selected.
 - **Grant:** confirming calls the Keycloak admin REST API with the approver's own access token. The service holds no Keycloak credential. An expired token leads to a sign-in page.
+- **Sign-out:** every signed-in page links to the gate's sign-out, which `lookup('sso', application_id, 'logout_url')` resolves. It clears the oauth2-proxy session and opens Keycloak's logout prompt, which ends the Keycloak session once confirmed. The link reuses the `choice_device` text of [logout_i18n.yml](../web-app-keycloak/files/logout_i18n.yml), so it reads like the dashboard's logout entry. The `401` sign-in page shows no sign-out.
 - **Audit:** the realm records admin events, so every membership the service grants appears under the approver who confirmed it, for as many days as `services.keycloak.events.admin.expiration_days` of [web-app-keycloak](../web-app-keycloak/README.md) sets.
 - **Texts:** the service and the 403 page read their texts from the `core` gettext catalogs under the `access_request:` and `rbac:` contexts of [extract.py](../../utils/i18n/extract.py).
 

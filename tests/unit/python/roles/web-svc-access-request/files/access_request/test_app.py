@@ -68,6 +68,7 @@ TEXTS = {
         "signin_title",
         "signin_text",
         "signin_action",
+        "signout_action",
     ]
 }
 TEXTS.update(
@@ -79,8 +80,14 @@ TEXTS.update(
         "mail_rejected_subject": "rejected {application}",
     }
 )
+SIGNOUT_URL = (
+    "/oauth2/sign_out?rd=https%3A//auth.example.org/realms/realm"
+    "/protocol/openid-connect/logout"
+)
+SIGNOUT_LINK = f'id="signout" href="{SIGNOUT_URL}">signout_action</a>'
 CONFIG = {
     "public_url": "https://access.example.org",
+    "signout_url": SIGNOUT_URL,
     "four_eyes": False,
     "platform_group": PLATFORM,
     "approver_emails": ["admin@example.org"],
@@ -224,6 +231,44 @@ class TestService(unittest.TestCase):
 
         self.assertEqual("401 Unauthorized", status)
         self.assertIn('id="signin"', page)
+
+    def test_every_signed_in_page_links_to_the_gate_sign_out(self):
+        biber = _headers("sub-biber", "biber")
+        admin = _headers("sub-admin", "administrator", PLATFORM)
+        _, submitted = self.submit(["user"])
+        request_id = submitted.split("/review/")[1].split('"')[0]
+        with mock.patch.object(app.keycloak, "user_groups", return_value=[]):
+            pages = {
+                "landing without an application": self.call("GET", "/", biber)[1],
+                "form": self.call("GET", "/", biber, query="application=web-app-x")[1],
+                "submitted": submitted,
+                "review": self.call("GET", f"/review/{request_id}", admin)[1],
+                "unknown path": self.call("GET", "/elsewhere", biber)[1],
+            }
+
+        for name, page in pages.items():
+            with self.subTest(page=name):
+                self.assertIn(SIGNOUT_LINK, page)
+
+    def test_the_sign_in_pages_offer_no_sign_out(self):
+        _, submitted = self.submit(["user"])
+        request_id = submitted.split("/review/")[1].split('"')[0]
+        admin = _headers("sub-admin", "administrator", PLATFORM)
+        with mock.patch.object(
+            app.keycloak, "user_groups", side_effect=keycloak.GrantError(401, "expired")
+        ):
+            pages = {
+                "no session": self.call("GET", "/", {}),
+                "expired approver token": self.call(
+                    "GET", f"/review/{request_id}", admin
+                ),
+            }
+
+        for name, (status, page) in pages.items():
+            with self.subTest(page=name):
+                self.assertEqual("401 Unauthorized", status)
+                self.assertIn('id="signin"', page)
+                self.assertNotIn('id="signout"', page)
 
     def test_the_platform_administrator_grants_the_kept_roles(self):
         _, page = self.submit(["user", "administrator"])

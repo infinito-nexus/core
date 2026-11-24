@@ -77,13 +77,7 @@ class Service:
         try:
             person = identity.session_person(headers)
         except identity.IdentityError:
-            return self._page(
-                start_response,
-                "401 Unauthorized",
-                messages,
-                messages("signin_title"),
-                self._signin(messages),
-            )
+            return self._signin_page(start_response, messages)
         query = urllib.parse.parse_qs(environ.get("QUERY_STRING", ""))
         if path == "/" and method == "GET":
             return self._form(start_response, messages, query)
@@ -107,13 +101,7 @@ class Service:
                 )
             except keycloak.GrantError as error:
                 if error.status == 401:
-                    return self._page(
-                        start_response,
-                        "401 Unauthorized",
-                        messages,
-                        messages("signin_title"),
-                        self._signin(messages),
-                    )
+                    return self._signin_page(start_response, messages)
                 raise
         return self._page(
             start_response, "404 Not Found", messages, messages("form_title"), ""
@@ -138,22 +126,52 @@ class Service:
         )
         return [data]
 
-    def _page(
-        self, start_response, status: str, messages: Messages, title: str, body: str
+    def _document(
+        self,
+        start_response,
+        status: str,
+        messages: Messages,
+        title: str,
+        header: str,
+        body: str,
     ) -> list[bytes]:
         document = (
             f'<!DOCTYPE html><html lang="{html.escape(messages.code)}" dir="{html.escape(messages.direction)}">'
             f'<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
             f"<title>{html.escape(title)}</title></head>"
-            f'<body><main class="container py-4" id="access-request"><h1>{html.escape(title)}</h1>{body}</main></body></html>'
+            f'<body>{header}<main class="container py-4" id="access-request"><h1>{html.escape(title)}</h1>{body}</main></body></html>'
         )
         return self._respond(start_response, status, document, "text/html")
+
+    def _page(
+        self, start_response, status: str, messages: Messages, title: str, body: str
+    ) -> list[bytes]:
+        return self._document(
+            start_response, status, messages, title, self._signout(messages), body
+        )
+
+    def _signin_page(self, start_response, messages: Messages) -> list[bytes]:
+        return self._document(
+            start_response,
+            "401 Unauthorized",
+            messages,
+            messages("signin_title"),
+            "",
+            self._signin(messages),
+        )
 
     @staticmethod
     def _signin(messages: Messages) -> str:
         return (
             f'<p id="signin-text">{html.escape(messages("signin_text"))}</p>'
             f'<a class="btn btn-primary" id="signin" href="/oauth2/sign_out?rd=%2F">{html.escape(messages("signin_action"))}</a>'
+        )
+
+    def _signout(self, messages: Messages) -> str:
+        return (
+            '<header class="container d-flex justify-content-end pt-3" id="session">'
+            f'<a class="btn btn-outline-secondary btn-sm" id="signout" href="{html.escape(self.config["signout_url"])}">{html.escape(messages("signout_action"))}</a>'
+            "</header>"
         )
 
     def _entry(self, application: str) -> dict[str, Any] | None:
