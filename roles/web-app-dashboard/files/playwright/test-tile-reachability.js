@@ -142,16 +142,16 @@ function isAuthorizationRequest(url) {
 /**
  * Args:
  *   url: the URL a tab started on.
- *   host: the embedded host the Tab button opened.
+ *   hosts: the hosts the hand-off may return to.
  * Returns: true when url is an OpenID Connect authorization request whose
- *   redirect_uri returns to host.
+ *   redirect_uri returns to one of hosts.
  */
-function handsOffTo(url, host) {
+function handsOffTo(url, hosts) {
   if (!isAuthorizationRequest(url)) {
     return false;
   }
   try {
-    return new URL(new URL(url).searchParams.get("redirect_uri")).host === host;
+    return hosts.includes(new URL(new URL(url).searchParams.get("redirect_uri")).host);
   } catch {
     return false;
   }
@@ -162,17 +162,19 @@ function handsOffTo(url, host) {
  *   hops: the new tab's top-level navigations, each { url, status }.
  *   landing: the URL the tab shows once its document loaded.
  *   host: the embedded host the Tab button opened.
+ *   roleDomains: every domain the role behind the tile serves, such as the
+ *     Synapse homeserver that signs Element's users in.
  * Returns: true when the last hop on host got a response below 400 and the tab
  *   either lands on host, so that hop is the page it shows, or lands on an IdP
  *   authorization request elsewhere, the SSO hand-off. A tab with no hop on
  *   host passes only when it starts on an authorization request that returns
- *   to host, gets a response below 400 and lands on an authorization request:
- *   the iframe already followed host's login redirect, so the dashboard reopens
- *   that IdP page. A request without a response, a page of host that ends in an
- *   error status and a redirect that leaves host for anywhere but the IdP
- *   return false.
+ *   to host or to another of roleDomains, gets a response below 400 and lands
+ *   on an authorization request: the iframe already followed the role's login
+ *   redirect, so the dashboard reopens that IdP page. A request without a
+ *   response, a page of host that ends in an error status and a redirect that
+ *   leaves host for anywhere but the IdP return false.
  */
-function hostAnsweredTab(hops, landing, host) {
+function hostAnsweredTab(hops, landing, host, roleDomains) {
   const hostHops = hops.filter(({ url }) => new URL(url).host === host);
   const last = hostHops[hostHops.length - 1];
   if (!last) {
@@ -181,7 +183,7 @@ function hostAnsweredTab(hops, landing, host) {
       Boolean(first) &&
       first.status !== null &&
       first.status < 400 &&
-      handsOffTo(first.url, host) &&
+      handsOffTo(first.url, [host, ...roleDomains]) &&
       isAuthorizationRequest(landing)
     );
   }
@@ -348,7 +350,7 @@ async function assertTabButtonOpensNewTab(page, context, target) {
     const hops = tabNavigations.hops();
     const walked = hops.map(({ url, status }) => `${url} (${status === null ? "no response" : status})`).join(" -> ");
     expect(
-      hostAnsweredTab(hops, landing, expectedHost),
+      hostAnsweredTab(hops, landing, expectedHost, target.domains),
       `Expected the embedded ${expectedHost} to answer the new tab, it navigated ${walked || "nowhere"} and landed on ${landing}`
     ).toBe(true);
     await popup.close();

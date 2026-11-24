@@ -17,9 +17,20 @@ const PROXY_START = `${PROXIED}oauth2/start?rd=%2F`;
 const KEYCLOAK_FOR_PROXY = `${KEYCLOAK_AUTH}?response_type=code&client_id=prometheus&redirect_uri=${encodeURIComponent(`${PROXIED}oauth2/callback`)}`;
 const PIHOLE = `https://pihole.${DOMAIN}/`;
 const PIHOLE_ADMIN = `${PIHOLE}admin/`;
-const MATRIX = { id: "web-app-matrix", canonical_domain: `element.${DOMAIN}`, handover_domain: "" };
-const PROMETHEUS = { id: "web-app-prometheus", canonical_domain: `prometheus.${DOMAIN}`, handover_domain: "" };
-const PIHOLE_TARGET = { id: "web-app-pihole", canonical_domain: `pihole.${DOMAIN}`, handover_domain: "" };
+const MATRIX = {
+  id: "web-app-matrix",
+  canonical_domain: `element.${DOMAIN}`,
+  handover_domain: "",
+  domains: [`element.${DOMAIN}`, `jitsi.matrix.${DOMAIN}`, `matrix.${DOMAIN}`],
+};
+const MATRIX_WITHOUT_HOMESERVER = { ...MATRIX, domains: [`element.${DOMAIN}`, `jitsi.matrix.${DOMAIN}`] };
+const PROMETHEUS = {
+  id: "web-app-prometheus",
+  canonical_domain: `prometheus.${DOMAIN}`,
+  handover_domain: "",
+  domains: [`prometheus.${DOMAIN}`],
+};
+const PIHOLE_TARGET = { id: "web-app-pihole", canonical_domain: `pihole.${DOMAIN}`, handover_domain: "", domains: [`pihole.${DOMAIN}`] };
 const ESCAPED_DOMAIN = DOMAIN.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const WALKED_ELEMENT = new RegExp(`Expected the embedded element\\.${ESCAPED_DOMAIN} to answer the new tab`);
 const WALKED_PIHOLE = new RegExp(`Expected the embedded pihole\\.${ESCAPED_DOMAIN} to answer the new tab`);
@@ -138,6 +149,16 @@ test("a tab whose Element answers and then hands its login through Synapse to Ke
 test("Element's answer to the tab's first request, sent before Playwright announces the tab, counts", async () => {
   const { page, context } = dashboardWithTab(ELEMENT, [[ELEMENT, 200]], [], ELEMENT);
   await assertTabButtonOpensNewTab(page, context, MATRIX);
+});
+
+test("a tab that starts on an IdP login returning to the role's Synapse homeserver passes", async () => {
+  const { page, context } = dashboardWithTab(ELEMENT, [[KEYCLOAK_FOR_SYNAPSE, 200]], [], KEYCLOAK_FOR_SYNAPSE);
+  await assertTabButtonOpensNewTab(page, context, MATRIX);
+});
+
+test("a tab that starts on an IdP login returning to a homeserver outside the role's domains fails", async () => {
+  const { page, context } = dashboardWithTab(ELEMENT, [[KEYCLOAK_FOR_SYNAPSE, 200]], [], KEYCLOAK_FOR_SYNAPSE);
+  await assert.rejects(assertTabButtonOpensNewTab(page, context, MATRIX_WITHOUT_HOMESERVER), WALKED_ELEMENT);
 });
 
 test("an oauth2-proxy app that redirects the tab to the IdP with a redirect_uri back to it passes", async () => {
