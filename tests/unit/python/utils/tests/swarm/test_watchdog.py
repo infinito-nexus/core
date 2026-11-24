@@ -14,6 +14,7 @@ import io
 import itertools
 import signal
 import subprocess
+import threading
 import unittest
 import unittest.mock as mock
 from collections.abc import Callable
@@ -291,6 +292,114 @@ class TestRunWatched(unittest.TestCase):
         self._watch(timeouts=1, rc=0, io_stall=0.0)
         touched = sorted(call.args[0] for call in self.handlers.call_args_list)
         self.assertEqual(touched, sorted([signal.SIGINT, signal.SIGTERM] * 2))
+
+
+class TestTripwire(unittest.TestCase):
+    def test_write_bytes_are_read_per_pid(self) -> None:
+        text = (
+            "/proc/12/io:write_bytes: 4096\n"
+            "/proc/self/io:write_bytes: 1\n"
+            "/proc/99/io:write_bytes: 0\n"
+        )
+        self.assertEqual(watchdog.parse_write_bytes(text), {"12": 4096, "99": 0})
+
+    def test_top_writers_rank_the_bytes_written_between_snapshots(self) -> None:
+        before = {"1": 100, "2": 100, "3": 100}
+        after = {"1": 150, "2": 900, "3": 100, "4": 70}
+        self.assertEqual(
+            watchdog.top_writers(before, after, 2), [("2", 800), ("4", 70)]
+        )
+
+    def test_a_drop_below_the_spike_size_is_no_spike(self) -> None:
+        previous = (40_000, 6_000)
+        current = (40_000 - watchdog.SPIKE_MB + 1, 6_000 - watchdog.SPIKE_MB + 1)
+        self.assertIsNone(watchdog.spike_kind(previous, current))
+
+    def test_a_disk_or_memory_drop_of_the_spike_size_is_a_spike(self) -> None:
+        self.assertEqual(
+            watchdog.spike_kind((40_000, 6_000), (40_000 - watchdog.SPIKE_MB, 6_000)),
+            (watchdog.SPIKE_MB, 0),
+        )
+        self.assertEqual(
+            watchdog.spike_kind((40_000, 6_000), (40_000, 6_000 - watchdog.SPIKE_MB)),
+            (0, watchdog.SPIKE_MB),
+        )
+
+    def test_the_floor_eta_ends_only_a_run_about_to_reach_the_floor(self) -> None:
+        rate = 2 * watchdog.SPIKE_MB
+        near = watchdog.DISK_FLOOR_MB + rate * watchdog.FLOOR_ETA_S
+        self.assertTrue(watchdog.floor_within_eta(near, rate))
+        self.assertFalse(watchdog.floor_within_eta(near + 1, rate))
+        self.assertFalse(watchdog.floor_within_eta(watchdog.DISK_FLOOR_MB, 0))
+
+    def _trip(
+        self, disks: list[int], mems: list[int]
+    ) -> tuple[threading.Event, str, _FakeProc]:
+        proc = _FakeProc(timeouts=0, rc=0)
+        stop = mock.Mock()
+        stop.wait.side_effect = [False] * len(disks) + [True]
+        tripped = threading.Event()
+        buffer = io.StringIO()
+        with (
+            mock.patch.object(
+                watchdog, "lowest_free_mb", side_effect=[(d, "/") for d in disks]
+            ),
+            mock.patch.object(watchdog, "mem_available_mb", side_effect=mems),
+            mock.patch.object(
+                watchdog, "spike_report", return_value=["=== top writers/s x ==="]
+            ) as report,
+            mock.patch.object(
+                watchdog.os,
+                "killpg",
+                side_effect=lambda _pgid, sig: proc.signals.append(sig),
+            ),
+            mock.patch.object(watchdog.subprocess, "run"),
+            contextlib.redirect_stdout(buffer),
+        ):
+            watchdog._tripwire(proc, stop, tripped)
+        self.report = report
+        return tripped, buffer.getvalue(), proc
+
+    def test_a_steady_host_prints_nothing(self) -> None:
+        tripped, output, proc = self._trip([40_000] * 3, [6_000] * 3)
+        self.assertFalse(tripped.is_set())
+        self.assertEqual(output, "")
+        self.assertFalse(proc.terminated)
+
+    def test_a_memory_spike_is_named_but_does_not_end_the_step(self) -> None:
+        tripped, output, proc = self._trip([40_000] * 2, [6_000, 3_000])
+        self.assertFalse(tripped.is_set())
+        self.assertIn("SPIKE disk -0M (40000M free on /), mem -3000M", output)
+        self.assertIn("top writers/s", output)
+        self.assertFalse(proc.terminated)
+
+    def test_a_disk_racing_to_the_floor_ends_the_step(self) -> None:
+        start = watchdog.DISK_FLOOR_MB + 30 * watchdog.SPIKE_MB
+        tripped, output, proc = self._trip(
+            [start, start - 10 * watchdog.SPIKE_MB], [6_000] * 2
+        )
+        self.assertTrue(tripped.is_set())
+        self.assertIn("DISK EXHAUSTION IMMINENT", output)
+        self.assertTrue(proc.terminated)
+
+    def test_repeated_spikes_are_reported_once_per_cooldown(self) -> None:
+        self._trip([40_000] * 4, [9_000, 7_000, 5_000, 3_000])
+        self.assertEqual(self.report.call_count, 1)
+
+    def test_run_watched_returns_the_abort_code_when_the_tripwire_fired(
+        self,
+    ) -> None:
+        proc = _FakeProc(timeouts=0, rc=0)
+
+        def fire(_proc: object, _stop: object, tripped: threading.Event) -> None:
+            tripped.set()
+
+        with (
+            mock.patch.object(watchdog.subprocess, "Popen", return_value=proc),
+            mock.patch.object(watchdog.signal, "signal", return_value=signal.SIG_DFL),
+            mock.patch.object(watchdog, "_tripwire", side_effect=fire),
+        ):
+            self.assertEqual(watchdog.run_watched(["true"], env={}), watchdog.ABORT_RC)
 
 
 class TestBlockedStreaks(unittest.TestCase):

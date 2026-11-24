@@ -19,6 +19,8 @@ import os
 import shutil
 import signal
 import subprocess
+import threading
+import time
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -45,6 +47,10 @@ TOP_EVERY_SAMPLES = 60
 STALL_WINDOW_S = 60
 HUNG_TASK_S = 30
 WEDGE_SAMPLES = 2
+FAST_INTERVAL_S = 1
+SPIKE_MB = 2**10
+SPIKE_COOLDOWN_S = 30
+FLOOR_ETA_S = 5
 ABORT_RC = 75
 _FORWARDED_SIGNALS = (signal.SIGINT, signal.SIGTERM)
 
@@ -163,6 +169,166 @@ def sample_line(
     )
 
 
+def parse_write_bytes(text: str) -> dict[str, int]:
+    """
+    Args:
+        text: ``grep -H write_bytes /proc/[0-9]*/io`` output.
+
+    Returns:
+        Per pid the bytes it has written so far.
+    """
+    found: dict[str, int] = {}
+    for line in text.splitlines():
+        path, _, value = line.partition(":write_bytes:")
+        pid = path.removeprefix("/proc/").removesuffix("/io")
+        if pid.isdigit() and value.strip().isdigit():
+            found[pid] = int(value)
+    return found
+
+
+def top_writers(
+    before: dict[str, int], after: dict[str, int], rows: int
+) -> list[tuple[str, int]]:
+    """
+    Args:
+        before: parse_write_bytes() of the first snapshot.
+        after: parse_write_bytes() of the second snapshot.
+        rows: how many writers to return.
+
+    Returns:
+        ``(pid, bytes written between the snapshots)``, largest first.
+    """
+    deltas = [(pid, written - before.get(pid, 0)) for pid, written in after.items()]
+    return sorted((d for d in deltas if d[1] > 0), key=lambda d: -d[1])[:rows]
+
+
+def _write_bytes() -> dict[str, int]:
+    try:
+        out = subprocess.run(
+            ["sudo", "-n", "sh", "-c", "grep -H write_bytes /proc/[0-9]*/io"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        ).stdout
+    except (OSError, subprocess.TimeoutExpired):
+        return {}
+    return parse_write_bytes(out)
+
+
+def _comm(pid: str) -> str:
+    try:
+        comm = Path(f"/proc/{pid}/comm")
+        return comm.read_text(encoding="utf-8").strip()  # nocheck: cache-read  live pid
+
+    except OSError:
+        return "?"
+
+
+def _top_rss(rows: int) -> list[str]:
+    try:
+        out = subprocess.run(
+            ["ps", "-eo", "rss=,comm=", "--sort=-rss"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        ).stdout
+    except (OSError, subprocess.TimeoutExpired):
+        return []
+    lines = []
+    for line in out.splitlines()[:rows]:
+        rss, _, command = line.strip().partition(" ")
+        if rss.isdigit():
+            lines.append(f"{int(rss) // 1024}M {command.strip()}")
+    return lines
+
+
+def spike_report() -> list[str]:
+    """Name what eats the host while a spike is under way.
+
+    Returns:
+        One line of the largest resident processes and one of the processes
+        that wrote the most bytes over one second, both runner-wide.
+    """
+    before = _write_bytes()
+    time.sleep(FAST_INTERVAL_S)
+    after = _write_bytes()
+    writers = [
+        f"{written // 2**20}M {_comm(pid)}({pid})"
+        for pid, written in top_writers(before, after, TOP_ROWS)
+    ]
+    return [
+        "=== swarm-matrix: top rss " + " | ".join(_top_rss(TOP_ROWS)) + " ===",
+        "=== swarm-matrix: top writers/s " + " | ".join(writers) + " ===",
+    ]
+
+
+def spike_kind(
+    previous: tuple[int, int], current: tuple[int, int]
+) -> tuple[int, int] | None:
+    """
+    Args:
+        previous: ``(free disk MB, available memory MB)`` of the last sample.
+        current: the same pair FAST_INTERVAL_S later.
+
+    Returns:
+        ``(disk drop MB, memory drop MB)`` when either reached SPIKE_MB,
+        else ``None``.
+    """
+    disk_drop = previous[0] - current[0]
+    mem_drop = previous[1] - current[1]
+    if disk_drop >= SPIKE_MB or mem_drop >= SPIKE_MB:
+        return disk_drop, mem_drop
+    return None
+
+
+def floor_within_eta(free_mb: int, disk_drop_mb: int) -> bool:
+    """
+    Args:
+        free_mb: free MB on the fullest storage root now.
+        disk_drop_mb: MB that root lost over the last FAST_INTERVAL_S.
+
+    Returns:
+        Whether that rate reaches DISK_FLOOR_MB within FLOOR_ETA_S.
+    """
+    return disk_drop_mb > 0 and free_mb - DISK_FLOOR_MB <= disk_drop_mb * FLOOR_ETA_S
+
+
+def _tripwire(
+    proc: subprocess.Popen[bytes], stop: threading.Event, tripped: threading.Event
+) -> None:
+    previous: tuple[int, int] | None = None
+    reported = -float(SPIKE_COOLDOWN_S)
+    while not stop.wait(FAST_INTERVAL_S):
+        free_mb, root = lowest_free_mb()
+        current = (free_mb, mem_available_mb())
+        drop = spike_kind(previous, current) if previous else None
+        previous = current
+        if drop is None:
+            continue
+        now = time.monotonic()
+        if now - reported >= SPIKE_COOLDOWN_S:
+            reported = now
+            print(
+                f"=== swarm-matrix: SPIKE disk -{drop[0]}M ({free_mb}M free on "
+                f"{root}), mem -{drop[1]}M ({current[1]}M available) in "
+                f"{FAST_INTERVAL_S}s ===",
+                flush=True,
+            )
+            for line in spike_report():
+                print(line, flush=True)
+        if floor_within_eta(free_mb, drop[0]):
+            tripped.set()
+            _abort(
+                proc,
+                f"=== swarm-matrix: DISK EXHAUSTION IMMINENT ({free_mb}M free on "
+                f"{root}, -{drop[0]}M in {FAST_INTERVAL_S}s) - aborting step ===",
+                ["df", "-h", *STORAGE_ROOTS],
+            )
+            return
+
+
 def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
     """Run a step, aborting visibly before the runner disk, RAM or I/O wedges.
 
@@ -176,7 +342,11 @@ def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
     state on the same sample, WEDGE_SAMPLES breaches in a row, and a step old
     enough to own a whole STALL_WINDOW_S of the trailing average. Without the
     last one an I/O-heavy predecessor aborts its successor before that step
-    has issued a single read.
+    has issued a single read. A side thread samples every FAST_INTERVAL_S,
+    because a runner that went from a healthy sample to silence within one
+    SAMPLE_INTERVAL_S left nothing to attribute the loss to: it names the
+    largest and the busiest-writing processes of a spike, and ends the step
+    when the disk would reach DISK_FLOOR_MB before the next slow sample.
 
     Args:
         cmd: argv of the step.
@@ -186,8 +356,17 @@ def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
         The step's exit code, or ABORT_RC when a floor was hit.
     """
     proc = subprocess.Popen(cmd, cwd=str(PROJECT_ROOT), env=env, process_group=0)
+    stop = threading.Event()
+    tripped = threading.Event()
+    wire = threading.Thread(target=_tripwire, args=(proc, stop, tripped), daemon=True)
     with _forwarding(proc):
-        return _watch(proc)
+        wire.start()
+        try:
+            returned = _watch(proc)
+        finally:
+            stop.set()
+            wire.join()
+    return ABORT_RC if tripped.is_set() else returned
 
 
 def top_processes(rows: int) -> list[str]:
