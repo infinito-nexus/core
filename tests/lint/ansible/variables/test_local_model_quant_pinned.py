@@ -71,8 +71,8 @@ class TestLocalModelQuantPinned(unittest.TestCase):
         ]
         self.assertFalse(
             missing,
-            f"{self.rel}: {missing} declare no 'quant', so lms get picks the "
-            "variant and the declared file, sha256 and bytes describe a guess",
+            f"{self.rel}: {missing} declare no 'quant', so nothing names the "
+            "variant the declared file, sha256 and bytes describe",
         )
 
     def test_the_declared_file_carries_the_pinned_quantization(self) -> None:
