@@ -25,7 +25,7 @@ NEXTCLOUD_LOGIN_PASSKEY: "{{ lookup('config', application_id, 'services.nextclou
 NEXTCLOUD_LOGIN_FORM: "{{ NEXTCLOUD_LOGIN_NATIVE | bool or NEXTCLOUD_LOGIN_LDAP | bool }}"
 NEXTCLOUD_OIDC_HOST: "{{ lookup('tls', 'web-app-keycloak', 'domain') }}"
 NEXTCLOUD_TOR_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') }}"
-NEXTCLOUD_USER_OIDC_ALLOW_INSECURE_HTTP: "{{ NEXTCLOUD_PROTOCOL != 'https' and (NEXTCLOUD_DOMAIN | network_of) == 'tor' }}"
+NEXTCLOUD_USER_OIDC_ALLOW_INSECURE_HTTP: "{{ lookup('network_siblings', NEXTCLOUD_DOMAIN) | in_network('tor') | length > 0 }}"
 
 NEXTCLOUD_PLUGIN_ITEMS: "{{ lookup('config', application_id, 'addons') | dict2items }}"
 NEXTCLOUD_PINNED_PLUGINS: >-
