@@ -109,41 +109,24 @@ class ExecTests(unittest.TestCase):
 
     def test_the_timer_only_runs_on_the_node_of_task_slot_one(self):
         run = FakeRun(SLOT_TWO_ONLY)
+        swarm = hook(container={"swarm_service": "s_w"})
 
-        for declared in ({}, {"any_slot": False}):
-            swarm = hook(container={"swarm_service": "s_w"}, **declared)
-            with self.subTest(declared=declared):
-                self.assertEqual(self.mod.local_container("/c", swarm, run, False), "")
-                self.assertEqual(self.mod.local_container("/c", swarm, run, True), "c3")
-
-    def test_a_hook_that_declares_any_slot_runs_through_a_local_task_of_slot_two(self):
-        swarm = hook(container={"swarm_service": "s_w"}, any_slot=True)
-
-        self.assertEqual(
-            self.mod.local_container("/c", swarm, FakeRun(SLOT_TWO_ONLY), False),
-            "c3",
-            "a hook registered with any_slot must run through the task of slot 2 on the timer's node",
-        )
+        self.assertEqual(self.mod.local_container("/c", swarm, run, False), "")
+        self.assertEqual(self.mod.local_container("/c", swarm, run, True), "c3")
 
 
 class TimerSlotTests(unittest.TestCase):
     def setUp(self):
         self.script = load_module()
 
-    def timer_run(self, declared):
+    def timer_run(self):
         """Run the timer on a node whose only task of ``s_w`` holds slot 2.
-
-        Args:
-            declared: the hook's ``any_slot`` entry, empty for a hook registered
-                before the key existed.
 
         Returns:
             ``(exit code, stdout, ids of the containers the hook ran in)``.
         """
         directory = StubDirectory({ADMINISTRATORS: [("uid=alice", {"uid": ["alice"]})]})
-        workspace = Workspace(
-            [hook(container={"swarm_service": "s_w"}, **declared)], LDAP
-        )
+        workspace = Workspace([hook(container={"swarm_service": "s_w"})], LDAP)
         run = FakeRun(SLOT_TWO_ONLY)
         stdout = io.StringIO()
         try:
@@ -161,22 +144,13 @@ class TimerSlotTests(unittest.TestCase):
             workspace.close()
         return code, stdout.getvalue(), [argv[-3] for argv, _ in run.runs()]
 
-    def test_the_timer_runs_a_hook_that_declares_any_slot_through_slot_two(self):
-        code, stdout, ran = self.timer_run({"any_slot": True})
+    def test_the_timer_skips_a_hook_whose_local_task_holds_slot_two(self):
+        code, stdout, ran = self.timer_run()
 
-        self.assertEqual((code, ran), (0, ["c3"]))
-        self.assertNotIn("SKIPPED", stdout)
-
-    def test_the_timer_skips_slot_two_for_every_hook_without_the_opt_in(self):
-        for declared in ({}, {"any_slot": False}):
-            with self.subTest(declared=declared):
-                code, stdout, ran = self.timer_run(declared)
-
-                self.assertEqual((code, ran), (0, []))
-                self.assertIn(
-                    "[web-app-weblate] SKIPPED no running container on this node",
-                    stdout,
-                )
+        self.assertEqual((code, ran), (0, []))
+        self.assertIn(
+            "[web-app-weblate] SKIPPED no running container on this node", stdout
+        )
 
 
 class HandoverTests(unittest.TestCase):

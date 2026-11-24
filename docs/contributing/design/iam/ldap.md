@@ -22,6 +22,7 @@ The high-level structure:
 | `LDAP.SERVER.PORT` | Port resolved through the ports registry |
 | `LDAP.SERVER.URI` | Full `ldap[s]://host:port` URI |
 | `LDAP.SERVER.SOCKET_URI` | `ldapi://` URI of the socket OpenLDAP binds into its volumes directory, for host-side clients on the OpenLDAP node in either mode, since swarm publishes no local port. The Playwright runner gets it as `LDAP_URL` and mounts the socket directory read-only only for a role whose `templates/playwright.env.j2` renders `LDAP_URL`, while `STACK_HOST` is a host of `svc-db-openldap` |
+| `LDAP.SERVER.NODE_LABEL` | Swarm node label `svc-db-openldap` sets to `true` on each of its hosts, the only nodes that hold the bind-mount source of the socket. A service whose host-side hook must run where `SOCKET_URI` answers declares it as its `node_label` in `meta/services.yml` |
 | `LDAP.SERVER.SECURITY` | Transport security mode, empty when unused |
 | `LDAP.NETWORK.LOCAL` | True when the consumer shares the OpenLDAP Docker network |
 

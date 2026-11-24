@@ -2,7 +2,8 @@
 and take every ``user_oidc`` account out of the groups whose role it no longer holds.
 
 Environment:
-    RBAC_SYNC_CONTAINER_BIN, RBAC_SYNC_CID: how to reach the Nextcloud container.
+    RBAC_SYNC_CONTAINER_BIN, RBAC_SYNC_CID: how to reach the Nextcloud ``cron``
+        container, which runs the image and mounts the volumes of the app container.
     RBAC_SYNC_MEMBERS_FILE: JSON ``{"@users": [members], <role>: [members]}`` the
         runner hands over, every member with the address attributes base64-encoded
         under ``attributes``; a member without ``attributes`` is refreshed and keeps

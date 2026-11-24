@@ -44,6 +44,7 @@ LDAP:
     PORT: "{{ _ldap_server_port }}"
     URI: "{{ _ldap_protocol }}://{{ _ldap_name if _ldap_docker_network_enabled else _ldap_domain }}:{{ _ldap_server_port }}"
     SOCKET_URI: "ldapi://{{ [lookup('container', 'svc-db-openldap', 'directories.volumes'), 'run', 'ldapi'] | path_join | replace('/', '%2F') }}"
+    NODE_LABEL: "ldap-socket"
     SECURITY: "" # TLS, SSL - Leave empty for none
   NETWORK:
     LOCAL: "{{ _ldap_docker_network_enabled }}" # Uses the application configuration to define if local network should be available or not

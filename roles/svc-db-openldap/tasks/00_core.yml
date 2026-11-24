@@ -24,6 +24,15 @@
     state: directory
     mode: "0755"
 
+- name: "🏷️ Label this swarm node as a holder of the ldapi socket"
+  ansible.builtin.command: >-
+    container node update --label-add {{ LDAP.SERVER.NODE_LABEL }}=true
+    {{ inventory_hostname }}
+  register: openldap_node_label
+  changed_when: openldap_node_label.rc == 0
+  delegate_to: "{{ STACK_HOST }}"
+  when: IS_SWARM_MODE
+
 - name: 🎬 Initialize docker
   include_tasks: 01_docker.yml
 

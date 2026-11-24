@@ -61,7 +61,6 @@
       env: "{{ rbac_sync_env }}"
       members_env: "{{ rbac_sync_members_env }}"
       skip_unchanged: "{{ rbac_sync_skip_unchanged | bool }}"
-      any_slot: "{{ rbac_sync_any_slot | bool }}"
       paused_marker: >-
         {{
           ([ lookup('container', rbac_sync_application_id, 'directories.instance'), APP_CONTROL_STATE_FILE ] | path_join)

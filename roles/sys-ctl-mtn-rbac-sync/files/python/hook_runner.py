@@ -46,18 +46,15 @@ def local_container(container_bin, hook, run, any_slot):
 
     Args:
         container_bin: path of the ``container`` wrapper.
-        hook: the parsed hook; its ``any_slot`` lets a swarm container of any task
-            slot qualify, absent from a hook registered before the key existed.
+        hook: the parsed hook.
         run: ``subprocess.run`` or a stand-in.
-        any_slot: whether a swarm container of any task slot qualifies whatever the
-            hook declares; false restricts a hook without ``any_slot`` to task slot 1.
+        any_slot: whether a swarm container of any task slot qualifies; false restricts it to task slot 1.
     """
     target = hook["container"]
     if "swarm_service" in target:
         selector = f"label=com.docker.swarm.service.name={target['swarm_service']}"
     else:
         selector = f"name=^/{target['name']}$"
-    every_slot = any_slot or hook.get("any_slot", False)
     found = run(
         [
             container_bin,
@@ -77,7 +74,7 @@ def local_container(container_bin, hook, run, any_slot):
         cid, _, task = line.strip().partition(" ")
         if not cid:
             continue
-        if "swarm_service" not in target or every_slot:
+        if "swarm_service" not in target or any_slot:
             return cid
         if task.split(".")[1:2] == ["1"]:
             return cid

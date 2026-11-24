@@ -202,6 +202,10 @@ contextagentmcp:
 cron:
   # nocheck: single-replica singleton cron.sh; replicas double-run background jobs on the shared data volume
   replicas: 1
+  node_label: >-
+    {{ LDAP.SERVER.NODE_LABEL
+       if (lookup('config', 'web-app-nextcloud', 'addons.user_ldap.enabled') | bool)
+       else '' }}
   name: nextcloud-cron
   cpus: "0.25"
   mem_reservation: 128m

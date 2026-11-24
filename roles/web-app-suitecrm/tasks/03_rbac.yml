@@ -6,7 +6,6 @@
     rbac_sync_enabled: "{{ (SUITECRM_SSO_ENABLED | bool) or (SUITECRM_LDAP_ENABLED | bool) }}"
     rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
     rbac_sync_skip_unchanged: true
-    rbac_sync_any_slot: false
     rbac_sync_roles: [administrator]
     rbac_sync_service_key: "{{ entity_name }}"
     rbac_sync_service_name: ""

@@ -6,7 +6,6 @@
     rbac_sync_enabled: "{{ SHOPWARE_OIDC_ENABLED | bool }}"
     rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
     rbac_sync_skip_unchanged: true
-    rbac_sync_any_slot: false
     rbac_sync_roles: [administrator, editor]
     rbac_sync_service_key: web
     rbac_sync_service_name: ""

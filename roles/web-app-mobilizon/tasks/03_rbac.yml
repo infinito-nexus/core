@@ -6,7 +6,6 @@
     rbac_sync_enabled: "{{ MOBILIZON_OIDC_ENABLED | bool }}"
     rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
     rbac_sync_skip_unchanged: true
-    rbac_sync_any_slot: false
     rbac_sync_roles: [administrator, moderator]
     rbac_sync_service_key: mobilizon
     rbac_sync_service_name: ""

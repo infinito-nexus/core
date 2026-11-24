@@ -6,11 +6,10 @@
     rbac_sync_enabled: "{{ (NEXTCLOUD_USER_LDAP_ENABLED | bool) and ('svc-db-openldap' in group_names) }}"
     rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
     rbac_sync_skip_unchanged: false
-    rbac_sync_any_slot: true
     rbac_sync_roles: "{{ ['@users'] + (NEXTCLOUD_USER_OIDC_GROUP_ROLES.values() | unique | sort) }}"
-    rbac_sync_service_key: "{{ NEXTCLOUD_SERVICE }}"
+    rbac_sync_service_key: "{{ NEXTCLOUD_CRON_SERVICE }}"
     rbac_sync_service_name: ""
-    rbac_sync_container: "{{ NEXTCLOUD_CONTAINER }}"
+    rbac_sync_container: "{{ NEXTCLOUD_CRON_CONTAINER }}"
     rbac_sync_kind: host
     rbac_sync_user: ""
     rbac_sync_argv: []

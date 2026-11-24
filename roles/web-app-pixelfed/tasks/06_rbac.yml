@@ -6,7 +6,6 @@
     rbac_sync_enabled: true
     rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
     rbac_sync_skip_unchanged: true
-    rbac_sync_any_slot: false
     rbac_sync_roles: [administrator]
     rbac_sync_service_key: mariadb
     rbac_sync_service_name: "{{ lookup('database', application_id, 'service_name') }}"

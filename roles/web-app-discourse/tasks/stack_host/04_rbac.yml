@@ -6,7 +6,6 @@
     rbac_sync_enabled: true
     rbac_sync_mode: compose
     rbac_sync_skip_unchanged: true
-    rbac_sync_any_slot: false
     rbac_sync_roles: [administrator, moderator]
     rbac_sync_service_key: "{{ entity_name }}"
     rbac_sync_service_name: ""

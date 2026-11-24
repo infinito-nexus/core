@@ -6,7 +6,6 @@
     rbac_sync_enabled: "{{ ERPNEXT_OIDC_ENABLED | bool or ERPNEXT_LDAP_ENABLED | bool }}"
     rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
     rbac_sync_skip_unchanged: false
-    rbac_sync_any_slot: false
     rbac_sync_roles: "{{ ERPNEXT_RBAC_GRANTS | list }}"
     rbac_sync_service_key: backend
     rbac_sync_service_name: ""
