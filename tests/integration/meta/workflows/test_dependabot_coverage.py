@@ -7,6 +7,7 @@ from pathlib import Path
 
 from utils.cache.files import iter_non_ignored_files, read_text
 from utils.cache.yaml import load_yaml_any
+from utils.update.docker.compose import DEPENDABOT_COMPOSE_FILES
 
 from . import PROJECT_ROOT
 
@@ -69,12 +70,7 @@ ECOSYSTEM_FILENAME_INDICATORS: dict[str, list[str]] = {
     "helm": ["Chart.yaml"],
     "pre-commit": [".pre-commit-config.yaml"],
     "docker": ["Dockerfile", "*.dockerfile", "Dockerfile.*"],
-    "docker-compose": [
-        "docker-compose.yml",
-        "docker-compose.yaml",
-        "compose.yml",
-        "compose.yaml",
-    ],
+    "docker-compose": [*DEPENDABOT_COMPOSE_FILES],
 }
 
 # Mapping: Dependabot ecosystem name → repository-relative path patterns

@@ -41,6 +41,10 @@ def _jitsi_updates(version: str, latest: str):
     ]
 
 
+def _held(updates: list[DockerImageVersionUpdate], tags: dict[str, list[str]]):
+    return _held_to_release_groups([update.entry for update in updates], updates, tags)
+
+
 class TestReleaseGroupsMoveTogether(unittest.TestCase):
     def test_a_partial_publish_holds_the_whole_group_back(self):
         tags = {
@@ -51,16 +55,30 @@ class TestReleaseGroupsMoveTogether(unittest.TestCase):
         }
         updates = _jitsi_updates("stable-9400", "stable-9700")
 
-        held = _held_to_release_groups(updates, tags)
+        held = _held(updates, tags)
 
         self.assertEqual({update.latest for update in held}, {"stable-9646"})
         self.assertEqual(len(held), 4)
+
+    def test_a_member_without_a_newer_tag_holds_the_whole_group(self):
+        tags = {
+            "jitsi/web": ["stable-9400"],
+            "jitsi/prosody": ["stable-9400", "stable-9700"],
+            "jitsi/jicofo": ["stable-9400", "stable-9700"],
+            "jitsi/jvb": ["stable-9400", "stable-9700"],
+        }
+        updates = _jitsi_updates("stable-9400", "stable-9700")
+        entries = [update.entry for update in updates]
+
+        held = _held_to_release_groups(entries, updates[1:], tags)
+
+        self.assertEqual(held, [])
 
     def test_a_group_all_publish_moves_to_the_head(self):
         tags = {f"jitsi/{name}": ["stable-9400", "stable-9700"] for name in JITSI}
         updates = _jitsi_updates("stable-9400", "stable-9700")
 
-        held = _held_to_release_groups(updates, tags)
+        held = _held(updates, tags)
 
         self.assertEqual({update.latest for update in held}, {"stable-9700"})
 
@@ -73,7 +91,7 @@ class TestReleaseGroupsMoveTogether(unittest.TestCase):
         }
         updates = _jitsi_updates("stable-9400", "stable-9704")
 
-        self.assertEqual(_held_to_release_groups(updates, tags), [])
+        self.assertEqual(_held(updates, tags), [])
 
     def test_a_lone_entry_is_untouched(self):
         update = DockerImageVersionUpdate(
@@ -81,7 +99,7 @@ class TestReleaseGroupsMoveTogether(unittest.TestCase):
             latest="v0.36.0",
         )
 
-        held = _held_to_release_groups([update], {"getfider/fider": ["v0.36.0"]})
+        held = _held([update], {"getfider/fider": ["v0.36.0"]})
 
         self.assertEqual(held, [update])
 
@@ -101,7 +119,7 @@ class TestReleaseGroupsMoveTogether(unittest.TestCase):
             ),
         ]
 
-        held = _held_to_release_groups(updates, tags)
+        held = _held(updates, tags)
 
         self.assertEqual(
             [update.latest for update in held], ["stable-9700", "stable-9400"]
