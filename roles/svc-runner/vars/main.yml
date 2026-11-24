@@ -1,9 +1,10 @@
 ---
 application_id: svc-runner
 compose_mode_force: compose
-RUNNER_USER: "{{ lookup('users', 'github-runner').username }}"
-RUNNER_UID: "{{ lookup('users', 'github-runner').uid }}"
-RUNNER_GID: "{{ lookup('users', 'github-runner').gid }}"
+RUNNER_ACCOUNT: "{{ lookup('users', 'github-runner') }}"
+RUNNER_USER: "{{ RUNNER_ACCOUNT.username }}"
+RUNNER_UID: "{{ RUNNER_ACCOUNT.uid }}"
+RUNNER_GID: "{{ RUNNER_ACCOUNT.gid }}"
 RUNNER_DOCKER_BASE: "{{ lookup('config', application_id, 'services.runner.docker_base') }}"
 RUNNER_PROJECT_PREFIX: "{{ lookup('config', application_id, 'services.runner.project_prefix') }}"
 RUNNER_SYSCTL_OWNER: "{{ application_id | entity_name }}"

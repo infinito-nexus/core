@@ -8,7 +8,7 @@ The [GitHub Actions self-hosted runner](https://docs.github.com/en/actions/hosti
 
 This role provisions a dedicated machine as one or more GitHub Actions self-hosted CI runners for Infinito.Nexus. Each runner instance runs as an ephemeral Docker container (DooD — Docker out of Docker): the container mounts the host's `/var/run/docker.sock` and uses it to start a fresh Infinito DinD container for each CI job, then tears it down when the job finishes.
 
-Registration tokens are fetched from the GitHub API at container start time via `RUNNER_API_TOKEN` (a GitHub PAT with repo scope). The token is stored in a per-instance `.env` file on disk (mode `0600`, owned by `github-runner`).
+Registration tokens are fetched from the GitHub API at container start time via `RUNNER_API_TOKEN` (a GitHub PAT with repo scope). The token is stored in a per-instance `.env` file on disk (mode `0600`, owned by `RUNNER_USER`).
 
 The `RUNNER_DISTRIBUTION` variable selects distro-specific package installation tasks (Debian, Ubuntu, Arch Linux, or Fedora/EL). The role is designed to be driven by the `make runner-ci-deploy` target; see the end-to-end guide below.
 
@@ -147,7 +147,7 @@ python -m cli.administration.deploy.runner <hostname> \
 
 The role self-validates via the scripts in `files/test/`, discovered and run by `test-e2e-cli` during deploy. `test.sh` orchestrates two complementary checks:
 
-- **`local.sh` — fully local, no external GitHub.** Checks the runner containers are healthy and the DooD socket works, then `container cp`s the repo into a runner, **builds the Infinito image locally**, and deploys `web-app-dashboard` (all other services disabled) inside a **sealed, throwaway Docker daemon** that shares the runner's network namespace. The sandbox is torn down on exit, so the host stack is never touched and **no GitHub/GHCR access is required**. On the update pass the heavy deploy is skipped (it is validated once on the first pass).
+- **`local.sh` — fully local, no external GitHub.** Checks the runner containers are healthy and the DooD socket works, then `container cp`s the repo into a runner, **builds the Infinito image locally**, and deploys `web-app-dashboard` (all other services disabled) inside a **sealed, throwaway Docker daemon** that shares the runner's network namespace. The sandbox is torn down on exit, so the host stack is never touched and **no GitHub/GHCR access is required**. The copy pins `INFINITO_CACHE_STACK=false` in its `custom.env`: the nested deploy starts no infra runner inside the runner. On the update pass the heavy deploy is skipped (it is validated once on the first pass).
 - **`external.sh` — real job-pickup smoke test (optional).** Uses `RUNNER_API_TOKEN` to confirm the runners registered and are online via the GitHub API, dispatches a smoke workflow, and polls it to completion. Skipped automatically when no token is present.
 
 In short: `local.sh` proves the runner can build and deploy entirely on its own hardware; `external.sh` proves it can receive real jobs from GitHub. Under the `local` flavor `test.sh` skips the runner binary and `external.sh`, `local.sh` checks that every worktree root is mounted in every runner, and the nested deploy reads the checkout from its mounted root instead of copying it into the runner.

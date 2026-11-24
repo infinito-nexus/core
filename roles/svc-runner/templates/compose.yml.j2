@@ -16,6 +16,7 @@
         RUNNER_BASE_IMAGE: "{{ RUNNER_BASE_IMAGE }}"
         RUNNER_UID: "{{ RUNNER_UID }}"
         RUNNER_GID: "{{ RUNNER_GID }}"
+        RUNNER_USER: "{{ RUNNER_USER }}"
     {% endif %}
     # nocheck: container-image-lookup  locally-built runner image, not a services.yml registry entry
     image: "{{ RUNNER_IMAGE_REF }}"

@@ -219,6 +219,7 @@ class TestRunnerComposeRender(unittest.TestCase):
                 "RUNNER_BASE_IMAGE": "ubuntu:26.04",
                 "RUNNER_UID": "900",
                 "RUNNER_GID": "900",
+                "RUNNER_USER": _render.runner_account()["username"],
             },
         )
         self.assertEqual(builder["pull_policy"], "never")

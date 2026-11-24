@@ -3,6 +3,7 @@ FROM ${RUNNER_BASE_IMAGE}
 
 ARG RUNNER_UID
 ARG RUNNER_GID
+ARG RUNNER_USER
 
 RUN rm -rf /var/lib/apt/lists/* \
     && apt-get -o Acquire::Retries=3 update \
@@ -31,14 +32,14 @@ RUN rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/lib/apt/lists/* \
     && ln -sf python3 /usr/bin/python
 
-RUN groupadd -g "${RUNNER_GID}" github-runner \
-    && useradd -u "${RUNNER_UID}" -g "${RUNNER_GID}" -m -s /bin/bash github-runner \
-    && echo "github-runner ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/github-runner \
-    && chmod 0440 /etc/sudoers.d/github-runner
+RUN groupadd -g "${RUNNER_GID}" "${RUNNER_USER}" \
+    && useradd -u "${RUNNER_UID}" -g "${RUNNER_GID}" -m -s /bin/bash "${RUNNER_USER}" \
+    && echo "${RUNNER_USER} ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/${RUNNER_USER}" \
+    && chmod 0440 "/etc/sudoers.d/${RUNNER_USER}"
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 WORKDIR /runner
-USER github-runner
+USER ${RUNNER_USER}
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

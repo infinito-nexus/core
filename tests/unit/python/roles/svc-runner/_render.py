@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import posixpath
+import re
 from importlib.util import module_from_spec, spec_from_file_location
 from typing import TYPE_CHECKING, Any
 
@@ -23,6 +24,7 @@ from utils.roles.entity.name import entity_name
 from utils.roles.mapping import (
     ROLE_FILE_DEFAULTS_MAIN,
     ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_USERS,
     ROLE_FILE_TEMPL_COMPOSE,
     ROLE_FILE_VARS_MAIN,
 )
@@ -70,6 +72,7 @@ HOST_ENV = {
     "GH_TOKEN": "",
     "INFINITO_SRC_DIR": IMAGE_SRC_DIR,
 }
+ACCOUNT_LOOKUP = re.compile(r"lookup\('users', '([^']+)'\)")
 ANSIBLE_FILTERS = ("regex_escape", "regex_replace")
 ANSIBLE_TESTS = ("match", "search")
 CAPABILITIES = (
@@ -161,6 +164,14 @@ def role_vars(role: Path = ROLE) -> dict[str, Any]:
     return load_yaml_any(str(role / ROLE_FILE_VARS_MAIN))
 
 
+def runner_account() -> dict[str, Any]:
+    """Returns:
+    The meta/users.yml entry the role's ``RUNNER_ACCOUNT`` looks up.
+    """
+    (key,) = ACCOUNT_LOOKUP.findall(role_vars(ROLE)["RUNNER_ACCOUNT"])
+    return load_yaml_any(str(ROLE / ROLE_FILE_META_USERS))[key]
+
+
 def runner_defaults(role: Path = ROLE) -> dict[str, Any]:
     """Args:
         role: the role directory.
@@ -239,6 +250,7 @@ def variables(flavor: str, swarm: bool, roots: list[str]) -> dict[str, Any]:
     Returns:
         The variables every template of the role reads.
     """
+    account = runner_account()
     return {
         "application_id": "svc-runner",
         "compose_mode_force": "compose",
@@ -256,8 +268,8 @@ def variables(flavor: str, swarm: bool, roots: list[str]) -> dict[str, Any]:
         "RUNNER_INSTALL_DIR": "/opt/github-runner",
         "RUNNER_DOCKER_BASE": "/mnt/docker",
         "RUNNER_BASE_IMAGE": "ubuntu:26.04",
-        "RUNNER_UID": 900,
-        "RUNNER_GID": 900,
+        "RUNNER_UID": account["uid"],
+        "RUNNER_GID": account["gid"],
         "_runner_docker_gid": "999",
         "RUNNER_PROJECT_PREFIX": "runner",
         "RUNNER_CPUS": 2,
@@ -272,7 +284,7 @@ def variables(flavor: str, swarm: bool, roots: list[str]) -> dict[str, Any]:
         "RUNNER_TOOLCHAIN_IMAGE": TOOLCHAIN,
         "RUNNER_OPERATOR_UID": OPERATOR,
         "RUNNER_OPERATOR_GID": OPERATOR,
-        "RUNNER_USER": "github-runner",
+        "RUNNER_USER": account["username"],
         "DOMAIN_PRIMARY": "infinito.example",
         "DOCKER_IN_CONTAINER": False,
         "DEPLOY_IS_UPDATE": False,

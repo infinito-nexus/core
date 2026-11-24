@@ -665,7 +665,7 @@ class TestSharedJobQueue(unittest.TestCase):
         users = load_yaml_any(str(render.ROLE / ROLE_FILE_META_USERS))
         self.assertEqual(users[role.QUEUE_USER]["gid"], render.QUEUE_GID)
         self.assertNotEqual(
-            users[role.QUEUE_USER]["gid"], users["github-runner"]["gid"]
+            users[role.QUEUE_USER]["gid"], render.runner_account()["gid"]
         )
         self.assertIn(f"'{role.QUEUE_USER}'", render.role_vars()["RUNNER_QUEUE_GID"])
 

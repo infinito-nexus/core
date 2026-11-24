@@ -48,6 +48,8 @@ if [[ "${DEPLOY_IS_UPDATE:-false}" == "true" ]]; then
 fi
 
 _iso_src="${RUNNER_INSTALL_DIR}/1/nested-src"
+_iso_env="${_iso_src}/custom.env"
+_iso_pin="{ cat ${_iso_env} 2>/dev/null; printf '\n%s\n' INFINITO_CACHE_STACK=false; } > ${_iso_env}.pin && mv -f ${_iso_env}.pin ${_iso_env} && chmod 0600 ${_iso_env}"
 echo "DinD mode: running full reinstall deploy inside ${RUNNER_PROJECT_PREFIX}-1..."
 if [[ "${RUNNER_FLAVOR:-}" == "local" ]]; then
     if ! container exec "${RUNNER_PROJECT_PREFIX}-1" test -d "${RUNNER_SRC_DIR}"; then
@@ -60,7 +62,7 @@ else
     container cp "${RUNNER_SRC_DIR}/." "${RUNNER_PROJECT_PREFIX}-1:${RUNNER_SRC_DIR}"
 fi
 container exec --user root "${RUNNER_PROJECT_PREFIX}-1" \
-    bash -c "rm -rf ${_iso_src} && mkdir -p ${_iso_src} && tar -C ${RUNNER_SRC_DIR} --exclude='./.env' --exclude='./compose/coredns/Corefile' --exclude='./.venvs' --exclude='./venv' --exclude='./build' --exclude='*/node_modules' --exclude='*/__pycache__' -cf - . | tar -C ${_iso_src} -xf - && chown -R github-runner:github-runner ${_iso_src}"
+    bash -c "rm -rf ${_iso_src} && mkdir -p ${_iso_src} && tar -C ${RUNNER_SRC_DIR} --exclude='./.env' --exclude='./compose/coredns/Corefile' --exclude='./.venvs' --exclude='./venv' --exclude='./build' --exclude='*/node_modules' --exclude='*/__pycache__' -cf - . | tar -C ${_iso_src} -xf - && ${_iso_pin} && chown -R ${RUNNER_USER}:${RUNNER_USER} ${_iso_src}"
 container exec "${RUNNER_PROJECT_PREFIX}-1" bash -c "cd ${_iso_src} && make install"
 
 _deploy_rc=0

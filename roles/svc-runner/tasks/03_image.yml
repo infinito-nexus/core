@@ -12,6 +12,8 @@
       - "RUNNER_UID={{ RUNNER_UID }}"
       - --build-arg
       - "RUNNER_GID={{ RUNNER_GID }}"
+      - --build-arg
+      - "RUNNER_USER={{ RUNNER_USER }}"
       - "{{ lookup('container', application_id, 'directories.instance') }}"
   changed_when: true
 
