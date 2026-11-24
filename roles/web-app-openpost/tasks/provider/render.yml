@@ -21,9 +21,14 @@
 
 - name: "📦 Stage the fake provider build context"
   ansible.builtin.copy:
-    src: "{{ role_path }}/files/provider/"
-    dest: "{{ OPENPOST_PROVIDER_BUILD_CONTEXT }}/"
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
     mode: preserve
+  loop:
+    - src: "{{ role_path }}/files/provider/"
+      dest: "{{ OPENPOST_PROVIDER_BUILD_CONTEXT }}/"
+    - src: "{{ role_path }}/files/python/provider/"
+      dest: "{{ [OPENPOST_PROVIDER_BUILD_CONTEXT, 'provider'] | path_join }}/"
   notify:
     - compose-build
     - compose-up
