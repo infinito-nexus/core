@@ -32,6 +32,7 @@ SLEEP_SECONDS="${SLEEP_SECONDS:?pass SLEEP_SECONDS as env (wait between attempts
 TOR_DNSMASQ_CONF="${TOR_DNSMASQ_CONF:?pass TOR_DNSMASQ_CONF as env (the dnsmasq drop-in path, from svc-net-tor vars)}"
 TOR_CONTAINER="${TOR_CONTAINER:?pass TOR_CONTAINER as env (address of the tor container, from svc-net-tor test.env)}"
 TOR_FLAVOR="${TOR_FLAVOR:?pass TOR_FLAVOR as env (public or chutney, from svc-net-tor test.env)}"
+WILDCARD_LABEL="probe"
 
 discover_domains() {
 	find "${NGINX_SERVERS_DIR}/http" "${NGINX_SERVERS_DIR}/https" \
@@ -54,18 +55,22 @@ echo "[INFO] probing ${#domains[@]} domain(s); onion via socks5://${TOR_SOCKS}"
 
 # Probe one domain with retries. Echoes the final HTTP code; returns 0 on success.
 probe() {
-	local domain="$1" scheme curl_proxy=() attempt=1 code
-	if [[ "${domain}" == *"${ONION_SUFFIX}" ]]; then
+	local domain="$1" host="$1" scheme curl_proxy=() follow=(--location) attempt=1 code
+	if [[ "${domain}" == "*."* ]]; then
+		host="${WILDCARD_LABEL}.${domain#\*.}"
+		follow=()
+	fi
+	if [[ "${host}" == *"${ONION_SUFFIX}" ]]; then
 		scheme="http"
 		curl_proxy=(--socks5-hostname "${TOR_SOCKS}")
 	else
 		scheme="https"
 	fi
 	while [[ "${attempt}" -le "${RETRIES}" ]]; do
-		code="$(curl "${curl_proxy[@]}" --silent --show-error --location \
+		code="$(curl "${curl_proxy[@]}" "${follow[@]}" --silent --show-error \
 			--insecure --max-time 60 \
 			-o /dev/null -w '%{http_code}' \
-			"${scheme}://${domain}/")"
+			"${scheme}://${host}/")"
 		if [[ "${code}" =~ ^[234][0-9][0-9]$ ]]; then
 			echo "${code}"
 			return 0
