@@ -34,6 +34,8 @@ RESOLV_CONF = Path("/etc/resolv.conf")
 SNAPSHOT_RECORD = "platform/data/provision/transit/{workspace}"
 TRANSIT_POLICY = "{workspace}-transit"
 TRANSIT_ROLE = "{workspace}-transit-child"
+BROKER = "broker"
+BROKER_FILE = "broker.json"
 SNAPSHOT_FIELDS = ("key_created_at", "snapshot_at")
 ENDPOINTS = frozenset({"endpoint", "auth_url"})
 ENDPOINT_TEMPLATES = frozenset({"{host}"})
@@ -96,6 +98,17 @@ def endpoint_names(credentials):
             fields = secret.get("env", {}) | secret.get(provider_env.CATALOG, {})
             names |= {name for name, field in fields.items() if field in ENDPOINTS}
     return frozenset(names)
+
+
+def broker_url(broker):
+    """Args:
+        broker: the ``broker`` entry of a DNS flavor of ``credentials.json``.
+
+    Returns:
+        The loopback origin and API path the DNS broker serves, the
+        ``base_url`` the flavor's DNS module hands its provider.
+    """
+    return f"http://{broker['listen']}:{broker['port']}{broker['base']}"
 
 
 def is_encryption(value):
@@ -279,24 +292,39 @@ class Session:
     def open(self, reach):
         """Args:
             reach: the ``{path, env}`` entry of ``credentials.json`` whose
-                fields the root's provider reads from the environment.
+                fields the root's provider reads from the environment; with
+                a ``broker`` the run never reads ``path``, which only the DNS
+                broker reads.
 
         Returns:
             The session, once it read that credential and set the environment
             of every OpenTofu call: ``BAO_TOKEN`` there is a child token of
             the token role ``ws-<id>-transit-child`` that carries
             ``ws-<id>-transit`` alone, the transit key of the workspace's
-            state, never the role token of the run.
+            state, never the role token of the run. With a ``broker`` each
+            name of ``env`` holds a child of ``ws-<id>-dns-child`` that
+            carries ``ws-<id>-dns`` alone, which the DNS broker takes as the
+            caller's workspace and which no provider API accepts.
         """
-        self.reached = provider_env.mapped(
-            self.bao,
-            reach["path"].format(workspace=self.workspace, zone=self.zone),
-            reach["env"],
-        )
+        ttl = f"{int(provider_env.RUN_BUDGET.total_seconds())}s"
+        broker = reach.get(BROKER)
+        if broker is None:
+            self.reached = provider_env.mapped(
+                self.bao,
+                reach["path"].format(workspace=self.workspace, zone=self.zone),
+                reach["env"],
+            )
+        else:
+            caller = self.bao.child(
+                broker["role"].format(workspace=self.workspace),
+                broker["policy"].format(workspace=self.workspace),
+                ttl,
+            )
+            self.reached = dict.fromkeys(reach["env"], caller)
         transit = self.bao.child(
             TRANSIT_ROLE.format(workspace=self.workspace),
             TRANSIT_POLICY.format(workspace=self.workspace),
-            f"{int(provider_env.RUN_BUDGET.total_seconds())}s",
+            ttl,
         )
         cleared = credential_names(self.credentials)
         self.environment = {

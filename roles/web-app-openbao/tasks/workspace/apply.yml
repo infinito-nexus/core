@@ -19,14 +19,16 @@
       - workspace_owner_group is match('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
       - workspace_dns.zone is string
       - workspace_dns.zone is match('^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$')
+      - workspace_dns.zone_id is string
+      - workspace_dns.zone_id is match('^[A-Za-z0-9]{0,64}$')
       - WORKSPACE_PLATFORM_TOKENS is boolean
     fail_msg: >-
       workspace apply needs every id of workspace_semaphore as an integer, since a
       jwt role matches a numeric claim only against a JSON number, one provision
       and one destroy template per provider of OPENBAO_PROVISION_SECRETS, the Keycloak
       id of the pinned Owner group, a lowercase UUID, in workspace_owner_group,
-      the zone of the workspace in workspace_dns.zone and the store's switch
-      WORKSPACE_PLATFORM_TOKENS as a boolean.
+      the zone of the workspace in workspace_dns.zone, its zone id, empty under knot,
+      in workspace_dns.zone_id and the store's switch WORKSPACE_PLATFORM_TOKENS as a boolean.
     quiet: true
 
 - name: "📜 Write the provision policies of ws-{{ WORKSPACE }}"
@@ -60,11 +62,11 @@
   register: openbao_workspace_zone_policy
   changed_when: "'OPENBAO_CHANGED' in openbao_workspace_zone_policy.stdout"
 
-- name: "📜 Write the transit policy and the token role of ws-{{ WORKSPACE }}"
+- name: "📜 Write the child policies and token roles of ws-{{ WORKSPACE }}"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i {{ OPENBAO_LOCAL_CID | quote }}
     sh -c 'set -e;
-    p=ws-{{ WORKSPACE }}-transit;
+    p=ws-{{ WORKSPACE }}-{{ item.suffix }};
     before=$(bao policy read $p 2>/dev/null || true);
     bao policy write $p - >/dev/null;
     after=$(bao policy read $p);
@@ -76,9 +78,27 @@
     after=$(bao read -format=json $r | grep -v request_id);
     [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
   args:
-    stdin: "{{ lookup('template', 'workspace/transit_policy.hcl.j2') }}"
-  register: openbao_workspace_transit_policy
-  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_transit_policy.stdout"
+    stdin: "{{ lookup('template', item.policy) }}"
+  loop:
+    - suffix: transit
+      policy: workspace/transit_policy.hcl.j2
+    - suffix: dns
+      policy: workspace/dns_policy.hcl.j2
+  loop_control:
+    label: "{{ item.suffix }}"
+  register: openbao_workspace_child_policy
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_child_policy.stdout"
+
+- name: "🌐 Pin the DNS scope of ws-{{ WORKSPACE }} for the DNS broker"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'p={{ OPENBAO_DNS_SCOPE_PREFIX }}/ws-{{ WORKSPACE }};
+    [ "$(bao kv get -mount={{ OPENBAO_PLATFORM_MOUNT }} -field=zone $p 2>/dev/null)" = "{{ workspace_dns.zone }}" ] &&
+    [ "$(bao kv get -mount={{ OPENBAO_PLATFORM_MOUNT }} -field=zone_id $p 2>/dev/null)" = "{{ workspace_dns.zone_id }}" ] ||
+    { bao kv put -mount={{ OPENBAO_PLATFORM_MOUNT }} $p zone="{{ workspace_dns.zone }}" zone_id="{{ workspace_dns.zone_id }}" >/dev/null &&
+    echo OPENBAO_CHANGED; }'
+  register: openbao_workspace_dns_scope
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_dns_scope.stdout"
 
 - name: "🎫 Write the task token roles of ws-{{ WORKSPACE }}"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node

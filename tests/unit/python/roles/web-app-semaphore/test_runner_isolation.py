@@ -90,7 +90,10 @@ SANDBOX_ENV = (
     "SEMAPHORE_SANDBOX_TOFU",
     "SEMAPHORE_SANDBOX_CA",
     "SEMAPHORE_SANDBOX_BAO_ADDR",
+    "SEMAPHORE_SANDBOX_BROKER_UID",
+    "SEMAPHORE_SANDBOX_BROKER_LOGIN",
 )
+BROKER_VOLUME = "semaphore_dns_broker_login"
 SANDBOX_SHARED = ["/var/tmp", "/dev/shm", "/dev/mqueue"]
 
 
@@ -155,14 +158,18 @@ def platform_runners(variables: dict) -> dict[str, str]:
 SCRATCH_VOLUMES = ("semaphore_runner_tmp", "semaphore_runner_work")
 READ_ONLY_BINDS = {"provision-runner": ("semaphore_provision_catalogs",)}
 HOME_TMPFS = {EXPORT_RUNNER: ("semaphore_export_runner_home",)}
+BROKER_SECRETS = {"provision-runner": (BROKER_VOLUME,)}
 
 
 def runner_volume_findings(volumes: dict, runners: dict[str, str]) -> list[str]:
-    """Return every mount of a platform runner beyond its own runner token, its tmpfs scratch, its ``HOME_TMPFS`` and its ``READ_ONLY_BINDS``.
-
-    Args:
+    """Args:
         volumes: the role's ``meta/volumes.yml``.
         runners: :func:`platform_runners`.
+
+    Returns:
+        Every mount of a platform runner beyond its own runner token, its tmpfs
+        scratch, its ``HOME_TMPFS``, its ``READ_ONLY_BINDS`` and its
+        ``BROKER_SECRETS``.
     """
     findings = []
     for service, token in runners.items():
@@ -173,11 +180,19 @@ def runner_volume_findings(volumes: dict, runners: dict[str, str]) -> list[str]:
         )
         binds = READ_ONLY_BINDS.get(service, ())
         homes = HOME_TMPFS.get(service, ()) + SANDBOX_TMPFS.get(service, ())
-        expected = sorted([token, *SCRATCH_VOLUMES, *binds, *homes])
+        brokers = BROKER_SECRETS.get(service, ())
+        expected = sorted([token, *SCRATCH_VOLUMES, *binds, *homes, *brokers])
         if mounted != expected:
             findings.append(f"{service} mounts {mounted}, expected only {expected}")
         elif volumes[token].get("type") != "secret":
             findings.append(f"{token} is no secret")
+        findings.extend(
+            f"{name} is no 0400 secret of a uid beside the runner's"
+            for name in brokers
+            if volumes[name].get("type") != "secret"
+            or str(volumes[name].get("mode")) != "0400"
+            or volumes[name].get("uid") in (0, volumes[token].get("uid"))
+        )
         findings.extend(
             f"{name} is no tmpfs"
             for name in homes
@@ -345,6 +360,8 @@ def render_env(template: str, variables: dict, provision_env: str) -> dict[str, 
         SEMAPHORE_SANDBOX_TOFU=variables["SEMAPHORE_SANDBOX_TOFU"],
         SEMAPHORE_SANDBOX_CA="",
         SEMAPHORE_SANDBOX_BAO_ADDR="https://openbao.example.org",
+        SEMAPHORE_DNS_BROKER_UID=volumes[BROKER_VOLUME]["uid"],
+        SEMAPHORE_DNS_BROKER_LOGIN=provision_target(volumes, BROKER_VOLUME),
     )
     pairs = [line.split("=", 1) for line in text.splitlines() if "=" in line]
     return dict(pairs)
@@ -437,6 +454,13 @@ def uid_range_findings(variables: dict, volumes: dict) -> list[str]:
         findings.append("the sandbox uids hold the runner uid")
     if uids.stop > int(variables["SEMAPHORE_WORKSPACE_UID_BASE"]):
         findings.append("the sandbox uids reach the workspace runner uids")
+    broker = volumes[BROKER_VOLUME]["uid"]
+    if broker in uids:
+        findings.append("the sandbox uids hold the broker uid")
+    if broker in (0, volumes[TOKEN_VOLUME]["uid"]) or broker >= int(
+        variables["SEMAPHORE_WORKSPACE_UID_BASE"]
+    ):
+        findings.append("the broker uid is root, the runner's or a workspace runner's")
     return findings
 
 
@@ -941,7 +965,25 @@ class TestRunnerIsolation(unittest.TestCase):
             [
                 "the sandbox uids hold the runner uid",
                 "the sandbox uids reach the workspace runner uids",
+                "the sandbox uids hold the broker uid",
             ],
+        )
+
+    def test_negative_control_a_broker_running_as_the_runner(self):
+        volumes = copy.deepcopy(self.volumes)
+        volumes[BROKER_VOLUME]["uid"] = volumes[TOKEN_VOLUME]["uid"]
+        self.assertEqual(
+            uid_range_findings(self.variables, volumes),
+            ["the broker uid is root, the runner's or a workspace runner's"],
+        )
+
+    def test_negative_control_a_broker_login_the_runner_reads(self):
+        volumes = copy.deepcopy(self.volumes)
+        runner = volumes["semaphore_provision_runner_token"]["uid"]
+        volumes[BROKER_VOLUME]["uid"] = runner
+        self.assertEqual(
+            runner_volume_findings(volumes, platform_runners(self.variables)),
+            [f"{BROKER_VOLUME} is no 0400 secret of a uid beside the runner's"],
         )
 
 

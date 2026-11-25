@@ -132,6 +132,29 @@ class OpenBao:
         self.token = answer["auth"]["client_token"]
         return self.token
 
+    def approle(self, role_id, secret_id):
+        """Args:
+            role_id: the RoleID of an AppRole.
+            secret_id: a SecretID of it.
+
+        Returns:
+            The client token, kept for :meth:`read`.
+        """
+        answer = self._call(
+            "POST", "auth/approle/login", {"role_id": role_id, "secret_id": secret_id}
+        )
+        self.token = answer["auth"]["client_token"]
+        return self.token
+
+    def policies(self):
+        """Returns:
+        The ``policies`` OpenBao reports for the client token on
+        ``auth/token/lookup-self``, without those of its entity.
+        """
+        return (self._call("GET", "auth/token/lookup-self").get("data") or {}).get(
+            "policies"
+        )
+
     def child(self, role, policy, ttl):
         """Args:
             role: the token role whose ``allowed_policies`` name ``policy``.

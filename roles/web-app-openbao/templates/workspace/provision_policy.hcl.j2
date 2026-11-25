@@ -1,6 +1,5 @@
 {# Param openbao_provider: the provider whose secrets the policy adds, empty for the provider-free policy of unlock, dns and the record lookup of destroy. #}
 {# Param WORKSPACE_PLATFORM_TOKENS: the store's switch; only while it is true does a provider policy read that provider's platform secrets. #}
-{# Param workspace_dns: the zone fact of the DNS flavor; the policy reads the Cloudflare token of this zone alone. #}
 {% set openbao_workspace = 'ws-' ~ WORKSPACE %}
 {% set openbao_provision = openbao_workspace ~ '-provision' %}
 {% set openbao_secrets = OPENBAO_PROVISION_SECRETS[openbao_provider] if openbao_provider else {'platform': [], 'workspace': []} %}
@@ -12,8 +11,8 @@ path "{{ OPENBAO_TENANT_MOUNT }}/data/{{ openbao_provision }}/dns" {
   capabilities = ["read"]
 }
 
-path "{{ OPENBAO_PLATFORM_MOUNT }}/data/provision/cloudflare/{{ workspace_dns.zone }}" {
-  capabilities = ["read"]
+path "auth/token/create/{{ openbao_workspace }}-dns-child" {
+  capabilities = ["update"]
 }
 
 path "auth/token/create/{{ openbao_workspace }}-transit-child" {

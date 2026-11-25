@@ -1,0 +1,7 @@
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/provision/cloudflare/*" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/{{ OPENBAO_DNS_SCOPE_PREFIX }}/*" {
+  capabilities = ["read"]
+}

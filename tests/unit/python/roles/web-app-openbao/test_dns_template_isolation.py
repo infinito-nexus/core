@@ -108,8 +108,9 @@ def foreign_paths(workspace: str) -> tuple[str, ...]:
             dns token must not reach.
 
     Returns:
-        Its dns and s3 credentials, its transit record, its transit child
-        token role, its transit decrypt and the Cloudflare token of its zone.
+        Its dns and s3 credentials, its transit record, its transit and DNS
+        broker child token roles, its transit decrypt and the Cloudflare token
+        of its zone.
     """
     values = literal_vars()
     platform = values["OPENBAO_PLATFORM_MOUNT"]
@@ -118,6 +119,7 @@ def foreign_paths(workspace: str) -> tuple[str, ...]:
         credential(workspace, "s3"),
         f"{platform}/data/{values['OPENBAO_TRANSIT_RECORD_PREFIX']}/ws-{workspace}",
         f"auth/token/create/ws-{workspace}-transit-child",
+        f"auth/token/create/ws-{workspace}-dns-child",
         f"{values['OPENBAO_TRANSIT_MOUNT']}/decrypt/ws-{workspace}-provision",
         f"{platform}/data/provision/cloudflare/{ZONES[workspace]}",
     )

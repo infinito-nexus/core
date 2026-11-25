@@ -99,6 +99,19 @@
     loop_var: semaphore_platform_runner
     label: "{{ semaphore_platform_runner.service }}"
 
+- name: "🌐 Stage the AppRole file of the DNS broker, readable by the broker uid alone"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "dns-broker.json.j2"
+        dest: "{{ SEMAPHORE_DNS_BROKER_LOGIN_HOST }}"
+        owner: "{{ SEMAPHORE_DNS_BROKER_UID }}"
+        group: "{{ SEMAPHORE_DNS_BROKER_GID }}"
+        mode: "0400"
+        notify: []
+  when: lookup('config', application_id, 'services.provision-runner.enabled') | bool
+
 - name: "📊 Re-gather every node's addresses so the egress proxies close the live ones"
   ansible.builtin.setup:
     gather_subset:

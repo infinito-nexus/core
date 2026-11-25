@@ -38,6 +38,8 @@ VOLUMES = load_yaml_str(read_text(str(ROLE / ROLE_FILE_META_VOLUMES)))
 VARIABLES = load_yaml_str(read_text(str(ROLE / ROLE_FILE_VARS_MAIN)))
 SERVICE = "provision-runner"
 RUNNER = VOLUMES["semaphore_provision_runner_token"]["uid"]
+BROKER_VOLUME = "semaphore_dns_broker_login"
+BROKER = VOLUMES[BROKER_VOLUME]["uid"]
 FIRST = VARIABLES["SEMAPHORE_SANDBOX_UID_BASE"]
 FAKE_SPAWNER = Path(FAKES.__file__).with_name("_fake_spawner.py")
 PYTHON = FAKES.FILES / "python"
@@ -52,6 +54,7 @@ THREAD_ROOTS = (
     (SPAWNER, "Run"),
     (SPAWNER, "accept"),
     (SPAWNER, "vital"),
+    (SPAWNER, "broker_ended"),
     (PRIVILEGED, "Privileges"),
 )
 THREAD_REACH = {
@@ -86,6 +89,8 @@ LAYOUT_ENV = {
     hardening.TOFU_BINARY: VARIABLES["SEMAPHORE_SANDBOX_TOFU"],
     hardening.CA_FILE: "",
     hardening.BAO_ADDRESS: "https://openbao.example.org",
+    hardening.BROKER_UID: str(BROKER),
+    hardening.BROKER_LOGIN: target_of(BROKER_VOLUME),
 }
 SELF_SIGNED_CA = Path("/etc/infinito/ca.crt")
 CLI_CONFIG = spawner.session.OPENTOFU / "tofurc"
@@ -354,6 +359,38 @@ class TestLayout(unittest.TestCase):
                 self.assertRaisesRegex(SystemExit, f"the role sets no {name}"),
             ):
                 hardening.layout({k: v for k, v in LAYOUT_ENV.items() if k != name})
+
+    def test_the_broker_runs_as_a_uid_of_its_own_with_its_login_file(self):
+        container = hardening.layout(LAYOUT_ENV)
+        self.assertEqual(container["broker"], BROKER)
+        self.assertEqual(str(container["login"]), target_of(BROKER_VOLUME))
+        self.assertNotIn(BROKER, (0, RUNNER, *container["uids"]))
+        self.assertEqual(str(VOLUMES[BROKER_VOLUME]["mode"]), "0400")
+        self.assertEqual(VOLUMES[BROKER_VOLUME]["gid"], BROKER)
+
+    def test_negative_control_a_broker_uid_shared_with_another_is_refused(self):
+        last = FIRST + VARIABLES["SEMAPHORE_SANDBOX_UID_COUNT"] - 1
+        for uid in (0, RUNNER, FIRST, last):
+            with (
+                self.subTest(uid=uid),
+                self.assertRaisesRegex(SystemExit, "the broker uid is root"),
+            ):
+                hardening.layout(LAYOUT_ENV | {hardening.BROKER_UID: str(uid)})
+
+    def test_the_broker_starts_dropped_to_its_uid_with_the_layout(self):
+        container = hardening.layout(LAYOUT_ENV)
+        argv = spawner.broker_argv(container)
+        dropped = spawner.sandbox.dropped(BROKER, [])[:-1]
+        self.assertEqual(argv[: argv.index("--")], dropped)
+        self.assertEqual(argv[-4:], [spawner.BROKER, str(container["login"]), BAO, ""])
+        trusted = LAYOUT_ENV | {hardening.CA_FILE: str(SELF_SIGNED_CA)}
+        ca = spawner.broker_argv(hardening.layout(trusted))
+        self.assertEqual(ca[-1], str(SELF_SIGNED_CA))
+
+    def test_the_broker_mode_serves_the_dns_broker(self):
+        with mock.patch.object(spawner.dns_broker, "serve") as serve:
+            spawner.main(["spawner.py", spawner.BROKER, "/login", BAO, ""])
+        serve.assert_called_once_with("/login", BAO, "")
 
 
 class FakeKernel:
@@ -1170,7 +1207,7 @@ class TestServe(unittest.TestCase):
         return {
             "code": result,
             "harden": harden.call_args.args,
-            "spawned": spawned.call_args,
+            "spawned": spawned.call_args_list,
             "threads": threads,
             "targets": targets,
             "forwarded": helpers,
@@ -1193,9 +1230,15 @@ class TestServe(unittest.TestCase):
             ),
         )
         argv = spawner.sandbox.dropped(RUNNER, ["semaphore", "runner"])
-        self.assertEqual(served["spawned"].args, (argv,))
-        self.assertEqual(served["spawned"].kwargs["env"]["HOME"], "/home/runner")
-        self.assertEqual(served["threads"], [("accept", True), ("reap", True)])
+        runner, broker = served["spawned"]
+        self.assertEqual(runner.args, (argv,))
+        self.assertEqual(runner.kwargs["env"]["HOME"], "/home/runner")
+        self.assertEqual(broker.args, (spawner.broker_argv(container),))
+        self.assertEqual(broker.kwargs["env"], {"PATH": admission.SANDBOX_PATH})
+        self.assertEqual(
+            served["threads"],
+            [("accept", True), ("broker_ended", True), ("reap", True)],
+        )
         self.assertEqual(served["handled"], sorted([signal.SIGINT, signal.SIGTERM]))
         self.assertEqual(
             served["forwarded"], [(RUNNER, "signal", str(int(signal.SIGTERM)), "4242")]
@@ -1275,8 +1318,9 @@ class TestServe(unittest.TestCase):
     def test_a_sigint_while_the_main_thread_holds_the_lock_reaches_the_runner(self):
         code, started = self.stopped(privileged.CHILDREN_LOCK)
         self.assertEqual(code, 0)
-        self.assertEqual(len(started), 2)
-        helper = started[1]
+        self.assertEqual(len(started), 3)
+        self.assertEqual(started[1], spawner.broker_argv(hardening.layout(LAYOUT_ENV)))
+        helper = started[2]
         dropped = spawner.sandbox.dropped(RUNNER, [])[:-1]
         self.assertEqual(helper[: helper.index("--")], dropped)
         self.assertEqual(helper[-3:], ["signal", str(int(signal.SIGINT)), "4242"])

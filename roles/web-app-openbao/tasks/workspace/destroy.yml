@@ -25,6 +25,7 @@
     - "{{ OPENBAO_JWT_MOUNT }}/role/ws-{{ WORKSPACE }}-zone"
     - "{{ OPENBAO_JWT_EXPORT_MOUNT }}/role/ws-{{ WORKSPACE }}"
     - "token/roles/ws-{{ WORKSPACE }}-transit-child"
+    - "token/roles/ws-{{ WORKSPACE }}-dns-child"
   register: openbao_workspace_role_delete
   changed_when: "'OPENBAO_CHANGED' in openbao_workspace_role_delete.stdout"
 
@@ -49,7 +50,7 @@
   register: openbao_workspace_provision_policy_delete
   changed_when: "'OPENBAO_CHANGED' in openbao_workspace_provision_policy_delete.stdout"
 
-- name: "📜 Delete the zone and transit policies of ws-{{ WORKSPACE }}"
+- name: "📜 Delete the zone, transit and DNS broker caller policies of ws-{{ WORKSPACE }}"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec {{ OPENBAO_LOCAL_CID | quote }}
     sh -c 'set -e;
@@ -61,6 +62,7 @@
   loop:
     - zone
     - transit
+    - dns
   register: openbao_workspace_zone_policy_delete
   changed_when: "'OPENBAO_CHANGED' in openbao_workspace_zone_policy_delete.stdout"
 
@@ -76,18 +78,6 @@
   register: openbao_workspace_erase
   changed_when: "'OPENBAO_CHANGED' in openbao_workspace_erase.stdout"
 
-- name: "👥 Drop the pinned Owner group of ws-{{ WORKSPACE }}"
-  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec {{ OPENBAO_LOCAL_CID | quote }}
-    sh -c 'set -e;
-    p={{ OPENBAO_OWNER_RECORD_PREFIX }}/ws-{{ WORKSPACE }};
-    held=;
-    bao kv metadata get -mount={{ OPENBAO_PLATFORM_MOUNT }} $p >/dev/null 2>&1 && held=1;
-    bao kv metadata delete -mount={{ OPENBAO_PLATFORM_MOUNT }} $p >/dev/null;
-    [ -z "$held" ] || echo OPENBAO_CHANGED'
-  register: openbao_workspace_owner_delete
-  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_owner_delete.stdout"
-
 - name: "🔐 Delete the transit key ws-{{ WORKSPACE }}-provision after its states"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec {{ OPENBAO_LOCAL_CID | quote }}
@@ -100,14 +90,18 @@
   register: openbao_workspace_key_delete
   changed_when: "'OPENBAO_CHANGED' in openbao_workspace_key_delete.stdout"
 
-- name: "🧾 Drop the snapshot record of the deleted key"
+- name: "🧾 Drop the Owner group, DNS scope and key snapshot of ws-{{ WORKSPACE }}"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec {{ OPENBAO_LOCAL_CID | quote }}
     sh -c 'set -e;
-    p={{ OPENBAO_TRANSIT_RECORD_PREFIX }}/ws-{{ WORKSPACE }};
+    p={{ item }}/ws-{{ WORKSPACE }};
     held=;
     bao kv metadata get -mount={{ OPENBAO_PLATFORM_MOUNT }} $p >/dev/null 2>&1 && held=1;
     bao kv metadata delete -mount={{ OPENBAO_PLATFORM_MOUNT }} $p >/dev/null;
     [ -z "$held" ] || echo OPENBAO_CHANGED'
+  loop:
+    - "{{ OPENBAO_OWNER_RECORD_PREFIX }}"
+    - "{{ OPENBAO_DNS_SCOPE_PREFIX }}"
+    - "{{ OPENBAO_TRANSIT_RECORD_PREFIX }}"
   register: openbao_workspace_record_delete
   changed_when: "'OPENBAO_CHANGED' in openbao_workspace_record_delete.stdout"

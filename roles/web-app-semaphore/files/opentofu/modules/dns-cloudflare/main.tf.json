@@ -4,6 +4,9 @@
       "cloudflare": {"source": "cloudflare/cloudflare"}
     }
   },
+  "provider": {
+    "cloudflare": {"base_url": "${jsondecode(file(\"${path.module}/broker.json\")).base_url}"}
+  },
   "variable": {
     "zone": {"type": "string", "description": "Deploy zone apex without trailing dot."},
     "zone_id": {"type": "string", "description": "Cloudflare zone id of the deploy zone."},

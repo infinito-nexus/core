@@ -51,26 +51,37 @@ def destroy_tasks() -> list[dict[str, Any]]:
     return load_yaml_any(str(ROLE_DIR / "tasks/workspace/destroy.yml"))
 
 
-def transit_task_shell() -> str:
-    apply = load_yaml_any(str(ROLE_DIR / "tasks/workspace/apply.yml"))
-    return next(
-        task["ansible.builtin.shell"]
-        for task in apply
-        if task.get("register") == "openbao_workspace_transit_policy"
-    )
+CHILD_POLICY = "p=ws-{{ WORKSPACE }}-{{ item.suffix }};"
+
+
+def task_of(tasks: list[dict[str, Any]], register: str) -> dict[str, Any]:
+    return next(task for task in tasks if task.get("register") == register)
+
+
+def apply_task(register: str) -> dict[str, Any]:
+    return task_of(load_yaml_any(str(ROLE_DIR / "tasks/workspace/apply.yml")), register)
+
+
+def apply_task_shell(register: str) -> str:
+    return apply_task(register)["ansible.builtin.shell"]
+
+
+def child_task_shell() -> str:
+    return apply_task_shell("openbao_workspace_child_policy")
 
 
 def token_role_findings(shell: str) -> list[str]:
     """
     Args:
-        shell: the command of the apply task that writes the transit policy.
+        shell: the command of the apply task that writes the transit policy and
+            the DNS broker caller policy.
 
     Returns:
-        A missing write of the token role ``ws-<id>-transit-child``, and each
+        A missing write of the token role ``$p-child`` of that policy, and each
         field of it that differs from ``TOKEN_ROLE`` or that it adds.
     """
     if "r=auth/token/roles/$p-child;" not in shell:
-        return ["no token role ws-<id>-transit-child"]
+        return ["no token role $p-child"]
     written = shell.split("bao write $r ", 1)[1].split(" >/dev/null", 1)[0]
     fields = dict(re.findall(r"(\w+)=(\{\{ [^}]+ \}\}|\S+)", written))
     differing = [
@@ -263,34 +274,77 @@ class TestTheDestroyOrder(unittest.TestCase):
                 "{{ OPENBAO_JWT_MOUNT }}/role/ws-{{ WORKSPACE }}-zone",
                 "{{ OPENBAO_JWT_EXPORT_MOUNT }}/role/ws-{{ WORKSPACE }}",
                 "token/roles/ws-{{ WORKSPACE }}-transit-child",
+                "token/roles/ws-{{ WORKSPACE }}-dns-child",
             ],
         )
 
-    def test_apply_writes_the_token_role_that_alone_mints_the_child(self) -> None:
-        self.assertEqual(token_role_findings(transit_task_shell()), [])
+    def test_apply_writes_the_token_roles_that_alone_mint_each_child(self) -> None:
+        task = apply_task("openbao_workspace_child_policy")
+        self.assertEqual(
+            [(item["suffix"], item["policy"]) for item in task["loop"]],
+            [
+                ("transit", "workspace/transit_policy.hcl.j2"),
+                ("dns", "workspace/dns_policy.hcl.j2"),
+            ],
+        )
+        self.assertIn(CHILD_POLICY, task["ansible.builtin.shell"])
+        self.assertEqual(token_role_findings(task["ansible.builtin.shell"]), [])
+
+    def test_control_a_child_role_that_keeps_default_is_found(self) -> None:
+        shell = child_task_shell()
+        planted = shell.replace(
+            "token_no_default_policy=true", "token_no_default_policy=false"
+        )
+        self.assertNotEqual(planted, shell)
+        self.assertEqual(
+            token_role_findings(planted), ["token_no_default_policy=false"]
+        )
+
+    def test_destroy_drops_the_platform_records_apply_pins_after_the_key(
+        self,
+    ) -> None:
+        self.assertIn(
+            "p={{ OPENBAO_DNS_SCOPE_PREFIX }}/ws-{{ WORKSPACE }};",
+            apply_task_shell("openbao_workspace_dns_scope"),
+        )
+        dropped = task_of(destroy_tasks(), "openbao_workspace_record_delete")
+        self.assertEqual(
+            dropped["loop"],
+            [
+                "{{ OPENBAO_OWNER_RECORD_PREFIX }}",
+                "{{ OPENBAO_DNS_SCOPE_PREFIX }}",
+                "{{ OPENBAO_TRANSIT_RECORD_PREFIX }}",
+            ],
+        )
+        registers = [task.get("register") for task in destroy_tasks()]
+        self.assertEqual(registers.count("openbao_workspace_record_delete"), 1)
+        self.assertLess(
+            registers.index("openbao_workspace_key_delete"),
+            registers.index("openbao_workspace_record_delete"),
+        )
+        self.assertIn(
+            "p={{ item }}/ws-{{ WORKSPACE }};", dropped["ansible.builtin.shell"]
+        )
+        self.assertIn("bao kv metadata delete", dropped["ansible.builtin.shell"])
 
     def test_control_a_renewable_token_role_is_found(self) -> None:
-        shell = transit_task_shell()
+        shell = child_task_shell()
         planted = shell.replace("renewable=false", "renewable=true")
         self.assertNotEqual(planted, shell)
         self.assertEqual(token_role_findings(planted), ["renewable=true"])
 
-    def test_destroy_deletes_the_zone_and_transit_policies_apply_writes(self) -> None:
-        def task_of(tasks: list[dict[str, Any]], register: str) -> dict[str, Any]:
-            return next(task for task in tasks if task.get("register") == register)
-
-        apply = load_yaml_any(str(ROLE_DIR / "tasks/workspace/apply.yml"))
-        for suffix, register in (
-            ("zone", "openbao_workspace_zone_policy"),
-            ("transit", "openbao_workspace_transit_policy"),
-        ):
-            with self.subTest(policy=suffix):
-                self.assertIn(
-                    f"p=ws-{{{{ WORKSPACE }}}}-{suffix};",
-                    task_of(apply, register)["ansible.builtin.shell"],
-                )
+    def test_destroy_deletes_the_zone_transit_and_dns_policies_apply_writes(
+        self,
+    ) -> None:
+        self.assertIn(
+            "p=ws-{{ WORKSPACE }}-zone;",
+            apply_task_shell("openbao_workspace_zone_policy"),
+        )
+        child = apply_task("openbao_workspace_child_policy")
+        self.assertIn(CHILD_POLICY, child["ansible.builtin.shell"])
+        self.assertEqual([item["suffix"] for item in child["loop"]], ["transit", "dns"])
         deleted = task_of(destroy_tasks(), "openbao_workspace_zone_policy_delete")
-        self.assertEqual(deleted["loop"], ["zone", "transit"])
+        self.assertEqual(deleted["loop"], ["zone", "transit", "dns"])
         self.assertIn(
             "p=ws-{{ WORKSPACE }}-{{ item }};", deleted["ansible.builtin.shell"]
         )

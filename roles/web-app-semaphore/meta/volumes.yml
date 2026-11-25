@@ -48,6 +48,17 @@ semaphore_provision_runner_token:
       target: *semaphore_runner_token_target
       when: "{{ lookup('config', 'web-app-semaphore', 'services.provision-runner.enabled') | bool }}"
 
+semaphore_dns_broker_login:
+  type: secret
+  source: "{{ [ lookup('container', 'web-app-semaphore', 'directories.instance'), 'dns-broker.json' ] | path_join }}"
+  mode: "0400"
+  uid: 64102
+  gid: 64102
+  mounts:
+    - service: provision-runner
+      target: /run/secrets/dns-broker-login
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.provision-runner.enabled') | bool }}"
+
 semaphore_export_runner_token:
   type: secret
   source: "{{ [ lookup('container', 'web-app-semaphore', 'directories.instance'), 'export-runner.token' ] | path_join }}"

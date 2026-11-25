@@ -202,6 +202,8 @@ def render_findings(source, variables, provisioning):
         "tofu": variables["SEMAPHORE_SANDBOX_TOFU"],
         "ca": None,
         "bao": f"https://{OPENBAO}.{DOMAIN}",
+        "broker": VOLUMES["semaphore_dns_broker_login"]["uid"],
+        "login": mount_target("semaphore_dns_broker_login"),
     }
     served = {
         "runner": container["runner"],
@@ -211,6 +213,8 @@ def render_findings(source, variables, provisioning):
         "tofu": str(container["tofu"]),
         "ca": container["ca"],
         "bao": container["bao"],
+        "broker": container["broker"],
+        "login": str(container["login"]),
     }
     return [
         f"the spawner serves {key} {served[key]!r}, not {expected[key]!r}"
@@ -294,6 +298,17 @@ class TestProvisionRunnerEnv(unittest.TestCase):
         variables = copy.deepcopy(VARIABLES)
         variables["SEMAPHORE_SANDBOX_UID_BASE"] = 64000
         refusal = "sandbox/spawner.py:the sandbox uids hold root or the runner"
+        self.assertEqual(
+            render_findings(self.source, variables, True),
+            [f"the spawner refuses the env: {refusal}"],
+        )
+
+    def test_negative_control_a_broker_uid_among_the_sandboxes_is_refused(self):
+        variables = copy.deepcopy(VARIABLES)
+        variables["SEMAPHORE_DNS_BROKER_UID"] = variables["SEMAPHORE_SANDBOX_UID_BASE"]
+        refusal = (
+            "sandbox/spawner.py:the broker uid is root, the runner or a sandbox uid"
+        )
         self.assertEqual(
             render_findings(self.source, variables, True),
             [f"the spawner refuses the env: {refusal}"],

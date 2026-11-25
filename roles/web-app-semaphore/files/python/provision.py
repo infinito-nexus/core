@@ -13,7 +13,14 @@ import tempfile
 from pathlib import Path
 
 from provision import inputs, opentofu, provider_env, remote, sandbox, zone
-from provision.session import OPENTOFU, VALUES_FILE, opened
+from provision.session import (
+    BROKER,
+    BROKER_FILE,
+    OPENTOFU,
+    VALUES_FILE,
+    broker_url,
+    opened,
+)
 
 TEMPLATES = ("provision", "destroy", "unlock", "dns", "zone")
 ORDER_TEMPLATES = ("provision", "destroy")
@@ -119,9 +126,24 @@ def staged(source, task, *ignored):
             shutil.copy2(entry, task / name)
 
 
-def stage(task, root, flavor, workspace):
+def stage(task, root, flavor, workspace, reach):
+    """Args:
+    task: the task directory of a sandbox.
+    root: the OpenTofu root it runs.
+    flavor: the DNS flavor of the deployment, whose module becomes ``modules/dns``.
+    workspace: the ``workspace.json`` document.
+    reach: the ``credentials.json`` entry of the flavor; with a ``broker`` the
+        module's ``broker.json`` names the DNS broker as its provider's
+        ``base_url``.
+    """
     staged(root, task, "catalog.json", "workspace.json", ".terraform")
     shutil.copytree(OPENTOFU / "modules" / f"dns-{flavor}", task / "modules" / "dns")
+    if BROKER in reach:
+        sandbox.task_write(
+            task,
+            f"modules/dns/{BROKER_FILE}",
+            json.dumps({"base_url": broker_url(reach[BROKER])}),
+        )
     sandbox.task_write(task, "workspace.json", json.dumps(workspace))
 
 
@@ -200,7 +222,7 @@ def order(template, pinned, env, checkout, interface, credentials, config):
     reach = credentials["dns"][config["flavor"]]
     if template == "unlock":
         with workspace_lock(name, True), task_directory() as task:
-            stage(task, OPENTOFU / "records", config["flavor"], workspace)
+            stage(task, OPENTOFU / "records", config["flavor"], workspace, reach)
             with opened(
                 env, config, credentials, workspace, task, key, PROVISION_ROLE
             ) as session:
@@ -240,7 +262,7 @@ def order(template, pinned, env, checkout, interface, credentials, config):
                 session, record_key, selected, values["name"]
             )
         session.open(reach)
-        stage(task, OPENTOFU / "roots" / provider, config["flavor"], workspace)
+        stage(task, OPENTOFU / "roots" / provider, config["flavor"], workspace, reach)
         sandbox.task_write(task, "catalog.json", json.dumps(catalog))
         sandbox.task_write(task, VALUES_FILE, json.dumps(values))
         region = catalog[values["flavor"]]["regions"][values["region"]]
@@ -262,10 +284,10 @@ def record(env, interface, credentials, config):
     workspace = inputs.workspace_document(env, interface, config["flavor"])
     key = f"{request['sales_order']}/{request['line']}.dns.tfstate"
     with task_directory() as task:
-        stage(task, OPENTOFU / "records", config["flavor"], workspace)
+        reach = credentials["dns"][config["flavor"]]
+        stage(task, OPENTOFU / "records", config["flavor"], workspace, reach)
         values = {key: request[key] for key in ("dns_label", "host", "cname")}
         sandbox.task_write(task, VALUES_FILE, json.dumps(values))
-        reach = credentials["dns"][config["flavor"]]
         with opened(
             env, config, credentials, workspace, task, key, PROVISION_ROLE
         ) as session:

@@ -257,6 +257,12 @@
   changed_when: "'OPENBAO_CHANGED' in openbao_store_secret_id.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "🌐 Hand the DNS broker its AppRole"
+  ansible.builtin.include_tasks:
+    file: utils/dns_broker.yml
+    apply:
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+
 - name: "🧾 Write and erase one tenant secret as the store, for the audit check"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i {{ OPENBAO_LOCAL_CID | quote }}

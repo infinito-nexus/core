@@ -503,6 +503,13 @@ SEMAPHORE_SANDBOX_PROBE: "roles/web-app-semaphore/files/python/sandbox/probe.py"
 SEMAPHORE_SANDBOX_TOFU: "/usr/local/bin/tofu"
 SEMAPHORE_SANDBOX_CA: "{{ CA_TRUST_CERT_CONTAINER_SELFSIGNED }}"
 SEMAPHORE_SANDBOX_BAO_ADDR: "{{ SEMAPHORE_WORKSPACES_VARIABLES.BAO_ADDR if lookup('config', application_id, 'services.provision-runner.enabled') | bool else '' }}"
+SEMAPHORE_DNS_BROKER_UID: "{{ lookup('volume', application_id, 'semaphore_dns_broker_login').uid }}"
+SEMAPHORE_DNS_BROKER_GID: "{{ lookup('volume', application_id, 'semaphore_dns_broker_login').gid }}"
+SEMAPHORE_DNS_BROKER_LOGIN: "{{ lookup('volume', application_id, 'semaphore_dns_broker_login').target }}"
+SEMAPHORE_DNS_BROKER_LOGIN_HOST: "{{ [ lookup('container', application_id, 'directories.instance'), 'dns-broker.json' ] | path_join }}"
+SEMAPHORE_DNS_BROKER_PAIR:
+  role_id: "{{ lookup('config', 'web-app-openbao', 'secrets.credentials.dns_broker_approle_role_id') }}"
+  secret_id: "{{ lookup('config', 'web-app-openbao', 'secrets.credentials.dns_broker_approle_secret_id') }}"
 SEMAPHORE_SANDBOX_ROOT: "{{ lookup('volume', application_id, 'semaphore_provision_sandboxes').target }}"
 SEMAPHORE_SANDBOX_TMP: "{{ lookup('volume', application_id, 'semaphore_runner_tmp').target }}"
 SEMAPHORE_SANDBOX_SHARED:

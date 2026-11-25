@@ -22,7 +22,20 @@ SHARED = "SEMAPHORE_SANDBOX_SHARED"
 TOFU_BINARY = "SEMAPHORE_SANDBOX_TOFU"
 CA_FILE = "SEMAPHORE_SANDBOX_CA"
 BAO_ADDRESS = "SEMAPHORE_SANDBOX_BAO_ADDR"
-LAYOUT = (RUNNER_UID, UID_BASE, UID_COUNT, ROOT, TMP, SHARED, TOFU_BINARY, BAO_ADDRESS)
+BROKER_UID = "SEMAPHORE_SANDBOX_BROKER_UID"
+BROKER_LOGIN = "SEMAPHORE_SANDBOX_BROKER_LOGIN"
+LAYOUT = (
+    RUNNER_UID,
+    UID_BASE,
+    UID_COUNT,
+    ROOT,
+    TMP,
+    SHARED,
+    TOFU_BINARY,
+    BAO_ADDRESS,
+    BROKER_UID,
+    BROKER_LOGIN,
+)
 
 
 def no_new_privileges(libc):
@@ -170,28 +183,36 @@ def layout(env):
 
     Returns:
         ``{"runner": uid, "uids": range, "root": path, "tmp": path,
-        "shared": [path], "tofu": path, "ca": path or None, "bao": address}``
-        of the container; ``SEMAPHORE_SANDBOX_CA`` is empty unless the
-        deploy trusts a self-signed CA.
+        "shared": [path], "tofu": path, "ca": path or None, "bao": address,
+        "broker": uid, "login": path}`` of the container;
+        ``SEMAPHORE_SANDBOX_CA`` is empty unless the deploy trusts a
+        self-signed CA. ``broker`` is the uid of the DNS broker, which alone
+        reads ``login``, the file of its AppRole.
 
     Raises:
-        SystemExit: a variable is missing or empty, or the range holds root
-            or the runner uid.
+        SystemExit: a variable is missing or empty, the range holds root
+            or the runner uid, or the broker uid is root, the runner's or
+            one of the range.
     """
     missing = [name for name in LAYOUT if not env.get(name)]
     if missing:
         raise SystemExit(f"sandbox/spawner.py:the role sets no {', '.join(missing)}")
     try:
-        runner, base, count = (
-            int(env[name]) for name in (RUNNER_UID, UID_BASE, UID_COUNT)
+        runner, base, count, broker = (
+            int(env[name]) for name in (RUNNER_UID, UID_BASE, UID_COUNT, BROKER_UID)
         )
     except ValueError:
         raise SystemExit(
-            f"sandbox/spawner.py:{RUNNER_UID}, {UID_BASE} and {UID_COUNT} name no uids"
+            f"sandbox/spawner.py:{RUNNER_UID}, {UID_BASE}, {UID_COUNT} and "
+            f"{BROKER_UID} name no uids"
         ) from None
     uids = range(base, base + count)
     if base <= 0 or count <= 0 or runner in uids:
         raise SystemExit("sandbox/spawner.py:the sandbox uids hold root or the runner")
+    if broker <= 0 or broker == runner or broker in uids:
+        raise SystemExit(
+            "sandbox/spawner.py:the broker uid is root, the runner or a sandbox uid"
+        )
     return {
         "runner": runner,
         "uids": uids,
@@ -201,4 +222,6 @@ def layout(env):
         "tofu": Path(env[TOFU_BINARY]),
         "ca": Path(env[CA_FILE]) if env.get(CA_FILE) else None,
         "bao": env[BAO_ADDRESS],
+        "broker": broker,
+        "login": Path(env[BROKER_LOGIN]),
     }

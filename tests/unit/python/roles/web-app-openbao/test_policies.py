@@ -45,7 +45,7 @@ PROBE_HOST = "echoserver"
 PROVISION_BASE = {
     "tenant/data/ws-0a-provision/s3": {"read"},
     "tenant/data/ws-0a-provision/dns": {"read"},
-    OWN_DNS_TOKEN: {"read"},
+    "auth/token/create/ws-0a-dns-child": {"update"},
     "auth/token/create/ws-0a-transit-child": {"update"},
     "platform/data/provision/transit/ws-0a": {"read"},
 }
@@ -61,6 +61,7 @@ FOREIGN_WORKSPACE_PATHS = (
     "platform/data/provision/transit/ws-0b",
     "auth/token/create",
     "auth/token/create/ws-0b-transit-child",
+    "auth/token/create/ws-0b-dns-child",
     FOREIGN_DNS_TOKEN,
     ZONE_TOKEN,
 )
@@ -448,8 +449,9 @@ def foreign_findings(grants: dict[str, set[str]], provider: str) -> list[str]:
         provider: the provider of that role.
 
     Returns:
-        Every secret of another provider, of another workspace or of another
-        zone the policy reaches, and a missing read of its own zone's token.
+        Every secret of another provider and of another workspace the policy
+        reaches, and the zone token of any zone, its own included, which only
+        the DNS broker reads.
     """
     foreign = [
         path
@@ -458,14 +460,11 @@ def foreign_findings(grants: dict[str, set[str]], provider: str) -> list[str]:
         for kind in ("platform", "workspace")
         for path in provider_paths(other, kind)
     ]
-    findings = [
+    return [
         f"{path}: {sorted(effective(grants, path))}"
-        for path in (*foreign, *FOREIGN_WORKSPACE_PATHS)
+        for path in (*foreign, *FOREIGN_WORKSPACE_PATHS, OWN_DNS_TOKEN)
         if effective(grants, path)
     ]
-    if effective(grants, OWN_DNS_TOKEN) != {"read"}:
-        findings.append(f"{OWN_DNS_TOKEN}: the run cannot reach its own zone")
-    return findings
 
 
 class TestTheProvisionPolicies(unittest.TestCase):
@@ -490,10 +489,12 @@ class TestTheProvisionPolicies(unittest.TestCase):
                 )
                 self.assertIn("auth/token/create: ['update']", findings)
 
-    def test_the_policy_names_the_zone_of_the_apply_only(self) -> None:
-        grants = parse(provision_policy("0a", "hetzner", True, "example.net"))
-        self.assertEqual(effective(grants, FOREIGN_DNS_TOKEN), {"read"})
-        self.assertEqual(effective(grants, OWN_DNS_TOKEN), set())
+    def test_the_policy_reads_the_token_of_no_zone(self) -> None:
+        for zone in (OWN_ZONE, "example.net"):
+            grants = parse(provision_policy("0a", "hetzner", True, zone))
+            for path in (OWN_DNS_TOKEN, FOREIGN_DNS_TOKEN):
+                with self.subTest(zone=zone, path=path):
+                    self.assertEqual(effective(grants, path), set())
 
     def test_the_platform_secrets_need_the_store_switch(self) -> None:
         for provider in provision_secrets():
@@ -803,6 +804,8 @@ DEPLOY_WRITES = {
     "platform/data/export/keycloak": {"create", "read", "update"},
     "platform/data/export/other": set(),
     "platform/metadata/export/s3": set(),
+    "platform/data/provision/dns-scope/ws-0a": {"create", "read", "update"},
+    "platform/metadata/provision/dns-scope/ws-0a": {"read", "delete"},
 }
 
 

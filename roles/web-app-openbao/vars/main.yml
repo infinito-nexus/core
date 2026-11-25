@@ -119,6 +119,7 @@ OPENBAO_TENANCY_POLICIES:
   - members
   - store-credentials
   - task-entities
+  - dns-broker
 OPENBAO_STORE_CREDENTIALS_ROLE: "store-credentials"
 OPENBAO_TASK_ENTITIES_ROLE: "task-entities"
 OPENBAO_FIXTURE_POLICY: "fixture"
@@ -147,10 +148,15 @@ OPENBAO_PLAYWRIGHT_LOGINS:
   store:
     role_id: "{{ OPENBAO_STORE_ROLE_ID }}"
     secret_id: "{{ OPENBAO_STORE_SECRET_ID }}"
+OPENBAO_DNS_BROKER_APPROLE: "dns-broker"
+OPENBAO_DNS_BROKER_CONFIG: "{{ lookup('config', application_id, 'services.openbao.workspaces.dns_broker') }}"
+OPENBAO_DNS_BROKER_ROLE_ID: "{{ lookup('config', application_id, 'secrets.credentials.dns_broker_approle_role_id') }}"
+OPENBAO_DNS_BROKER_SECRET_ID: "{{ lookup('config', application_id, 'secrets.credentials.dns_broker_approle_secret_id') }}"
 OPENBAO_RAFT_SNAPSHOT_DIR: "{{ [DIR_BACKUPS, application_id, 'raft'] | path_join }}"
 OPENBAO_TRANSIT_RECORD_PREFIX: "provision/transit"
 OPENBAO_ZONE_TOKEN_PATH: "provision/cloudflare-zones"
 OPENBAO_OWNER_RECORD_PREFIX: "export/owners"
+OPENBAO_DNS_SCOPE_PREFIX: "provision/dns-scope"
 OPENBAO_PROVISION_SECRETS:
   hetzner:
     platform:

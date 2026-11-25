@@ -14,6 +14,10 @@ purge <directory> ...: as one uid, removes every entry that uid owns below
 ipc: as a sandbox uid, removes every System V IPC object of that uid.
 exec <descriptor>: as a sandbox uid, reads ``{argv, env, cwd}`` from the
     descriptor and execs ``argv`` in ``cwd`` with exactly ``env``.
+broker <login> <openbao> <ca>: as the broker uid ``SEMAPHORE_SANDBOX_BROKER_UID``
+    names, serves the DNS broker of ``provision/dns/broker.py`` with the
+    AppRole file ``login`` only that uid reads, ``serve`` starting it beside
+    the Semaphore runner.
 """
 
 from __future__ import annotations
@@ -35,8 +39,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from provision import admission, hardening, privileged, sandbox, session
+from provision.dns import broker as dns_broker
 
 PROC = sandbox.PROC
+BROKER = "broker"
 PEERCRED = struct.Struct("3i")
 KILL_ROUNDS = 200
 KILL_PAUSE = 0.05
@@ -350,6 +356,35 @@ def vital(target):
     return running
 
 
+def broker_argv(container):
+    """Args:
+        container: :func:`hardening.layout`.
+
+    Returns:
+        The command that serves the DNS broker as its own uid, with the
+        AppRole file, the OpenBao address and the CA file of the layout, an
+        empty CA for none; the spawner passes it only ``PATH``.
+    """
+    ca = "" if container["ca"] is None else str(container["ca"])
+    script = str(Path(__file__).resolve())
+    argv = [sys.executable, *sandbox.ISOLATED, script, BROKER]
+    return sandbox.dropped(
+        container["broker"], [*argv, str(container["login"]), container["bao"], ca]
+    )
+
+
+def broker_ended(process):
+    """Args:
+        process: the DNS broker :func:`serve` started.
+
+    Returns:
+        Once the broker ended, which :func:`vital` turns into the end of the
+        spawner, so no run reaches a DNS provider through a broker that is
+        gone.
+    """
+    privileged.waited(process)
+
+
 def serve(argv):
     """Args:
         argv: the command of the Semaphore runner and its arguments.
@@ -390,9 +425,13 @@ def serve(argv):
 
     signal.signal(signal.SIGTERM, stop)
     signal.signal(signal.SIGINT, stop)
+    broker = privileged.spawned(
+        broker_argv(container), env={"PATH": admission.SANDBOX_PATH}
+    )
     threading.Thread(
         target=vital(accept), args=(listener, spawner.serve), daemon=True
     ).start()
+    threading.Thread(target=vital(broker_ended), args=(broker,), daemon=True).start()
     threading.Thread(target=privileged.reap, daemon=True).start()
     code = privileged.waited(process)
     for uid in sorted(spawner.active):
@@ -424,6 +463,8 @@ def main(argv):
         return 0
     if mode == "exec":
         admission.exec_plan(int(arguments[0]))
+    if mode == BROKER:
+        dns_broker.serve(*arguments)
     return 2
 
 

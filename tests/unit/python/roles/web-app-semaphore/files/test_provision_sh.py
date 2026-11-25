@@ -55,6 +55,7 @@ POLICIES = importlib.import_module(
 )
 FOREIGN_DNS_TOKEN = "platform/data/provision/cloudflare/example.net"
 SOURCES = ("secrets", "workspace_secrets")
+BROKER = "broker"
 TRANSIT_CHILD = {
     "role": f"{WORKSPACE}-transit-child",
     "policies": [f"{WORKSPACE}-transit"],
@@ -62,6 +63,16 @@ TRANSIT_CHILD = {
     "renewable": False,
     "no_default_policy": True,
 }
+DNS_CHILD = TRANSIT_CHILD | {
+    "role": f"{WORKSPACE}-dns-child",
+    "policies": [f"{WORKSPACE}-dns"],
+}
+ZONE_GRANT = (
+    'path "{{ OPENBAO_PLATFORM_MOUNT }}/data/provision/cloudflare/'
+    '{{ workspace_dns.zone }}" { capabilities = ["read"] }'
+)
+BROKER_FILE = "modules/dns/broker.json"
+SESSION_BROKER = "        broker = reach.get(BROKER)\n"
 WRAPPER_EXEC = "exec env -u SEMAPHORE_JWT python3"
 UNDUMPABLE_CALL = "    undumpable()\n"
 MAIN_BLOCK = 'if __name__ == "__main__":'
@@ -124,6 +135,9 @@ def concrete(path):
 
 
 STATE_PATH = concrete(CREDENTIALS["state"]["path"])
+BROKERED_TOKENS = {
+    concrete(entry["path"]) for entry in CREDENTIALS["dns"].values() if BROKER in entry
+}
 
 
 def provider_reads(provider, kinds):
@@ -141,9 +155,15 @@ def provider_reads(provider, kinds):
 def run_reads():
     """Returns:
     The paths every provision run reads whatever its provider: the state
-    keys, the snapshot record and the DNS credential of each flavor.
+    keys, the snapshot record and the DNS credential of each flavor the run
+    reads itself; the zone token of a flavor with a ``broker`` only the DNS
+    broker reads.
     """
-    dns = {concrete(entry["path"]) for entry in CREDENTIALS["dns"].values()}
+    dns = {
+        concrete(entry["path"])
+        for entry in CREDENTIALS["dns"].values()
+        if BROKER not in entry
+    }
     return {concrete(CREDENTIALS["state"]["path"]), SNAPSHOT_RECORD, *dns}
 
 
@@ -156,10 +176,11 @@ def tofu_reach(provider, granted, source=None):
     Returns:
         Every path of ``credentials.json``, of the snapshot record and of a
         foreign zone's DNS token that the token of the line's provider role
-        reads.
+        reads, the brokered zone tokens among them.
     """
     every = (
         run_reads()
+        | BROKERED_TOKENS
         | {concrete(CREDENTIALS["zone"]["path"]), FOREIGN_DNS_TOKEN}
         | {
             path
@@ -225,6 +246,13 @@ class ProvisionCase(unittest.TestCase):
         path = self.sandbox.catalogs / "incus.json"
         catalog = json.loads(path.read_text())  # nocheck: cache-read tempdir
         return json.dumps({"provider": "incus", "catalog": catalog}).encode()
+
+    def provisioned(self):
+        self.sandbox.platform.objects[STATE_OBJECT] = b"encrypted"
+        self.sandbox.set_plan({"state": ["hcloud_server.server"], "outputs": {}})
+        result = self.sandbox.run("provision-incus")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return self.sandbox.calls()
 
 
 class TestCheckout(ProvisionCase):
@@ -449,16 +477,71 @@ class TestRoute53Keys(ProvisionCase):
     flavor = "route53"
 
     def test_route53_sets_only_the_iam_user_keys(self):
-        self.sandbox.platform.objects[STATE_OBJECT] = b"encrypted"
-        self.sandbox.set_plan({"state": ["hcloud_server.server"], "outputs": {}})
-        result = self.sandbox.run("provision-incus")
-        self.assertEqual(result.returncode, 0, result.stderr)
         allowed = {
             "AWS_ACCESS_KEY_ID": ROUTE53_KEYS["access_key"],
             "AWS_SECRET_ACCESS_KEY": ROUTE53_KEYS["secret_key"],
         }
-        for call in self.sandbox.calls():
+        for call in self.provisioned():
             self.assertEqual(key_findings(call, STATE_KEYS, allowed), [])
+
+
+class TestTheBrokeredZoneToken(ProvisionCase):
+    flavor = "cloudflare"
+
+    def zone_token_findings(self, calls):
+        """Args:
+            calls: the recorded ``tofu`` calls of a run.
+
+        Returns:
+            One finding per call that carries the zone token of the brokered
+            flavor in its environment or on argv, and one per read of that
+            token by the run.
+        """
+        (path,) = BROKERED_TOKENS
+        token = self.sandbox.platform.secrets[path]["token"]
+        findings = [
+            f"tofu {call['argv'][0]} carries the zone token in {name}"
+            for call in calls
+            for name, value in call["env"].items()
+            if token in value
+        ]
+        findings += [
+            f"tofu {call['argv'][0]} carries the zone token on argv"
+            for call in calls
+            if any(token in argument for argument in call["argv"])
+        ]
+        findings += [
+            f"the run read {read}"
+            for read in self.sandbox.platform.reads
+            if read in BROKERED_TOKENS
+        ]
+        return findings
+
+    def test_tofu_holds_the_dns_child_and_reaches_the_broker(self):
+        calls = self.provisioned()
+        self.assertEqual(self.zone_token_findings(calls), [])
+        tokens = {call["env"].get("CLOUDFLARE_API_TOKEN") for call in calls}
+        self.assertEqual(tokens, {CHILD_TOKEN})
+        self.assertEqual(self.sandbox.platform.children, [DNS_CHILD, TRANSIT_CHILD])
+        broker = CREDENTIALS["dns"][self.flavor][BROKER]
+        expected = f"http://{broker['listen']}:{broker['port']}{broker['base']}"
+        for call in calls:
+            with self.subTest(command=call["argv"][0]):
+                staged = json.loads(call["texts"][BROKER_FILE])
+                self.assertEqual(staged, {"base_url": expected})
+
+    def test_negative_control_a_session_reading_the_zone_token_is_found(self):
+        path = self.sandbox.core / "python" / "provision" / "session.py"
+        text = read_text(str(FILES / "python" / "provision" / "session.py"))
+        planted = text.replace(SESSION_BROKER, "        broker = None\n")
+        self.assertNotEqual(planted, text)
+        path.write_text(planted)
+        findings = self.zone_token_findings(self.provisioned())
+        (read,) = BROKERED_TOKENS
+        self.assertIn(f"the run read {read}", findings)
+        self.assertTrue(
+            any(finding.endswith("CLOUDFLARE_API_TOKEN") for finding in findings)
+        )
 
 
 class TestTakenName(ProvisionCase):
@@ -810,6 +893,19 @@ class TestTheTofuToken(ProvisionCase):
         reach = tofu_reach("incus", True, source)
         self.assertNotEqual(reach, run_reads() | provider_reads("incus", SOURCES))
         self.assertIn("platform/data/provision/hetzner", reach)
+
+    def test_no_provision_token_reads_a_brokered_zone_token(self):
+        self.assertTrue(BROKERED_TOKENS)
+        for provider in CREDENTIALS["providers"]:
+            for granted in (True, False):
+                with self.subTest(provider=provider, granted=granted):
+                    reach = tofu_reach(provider, granted)
+                    self.assertEqual(reach & BROKERED_TOKENS, set())
+
+    def test_negative_control_a_planted_zone_grant_reaches_the_zone_token(self):
+        source = read_text(str(POLICIES.PROVISION_POLICY)) + "\n" + ZONE_GRANT + "\n"
+        reach = tofu_reach("incus", True, source)
+        self.assertEqual(reach & BROKERED_TOKENS, BROKERED_TOKENS)
 
     def tofu_tokens(self):
         return {call["env"].get("BAO_TOKEN") for call in self.sandbox.calls()}

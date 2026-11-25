@@ -110,6 +110,10 @@ openbao:
       logins:
         semaphore: playwright/semaphore
         store: playwright/store
+    dns_broker:
+      secret_id_ttl: 0s
+      token_ttl: 5m
+      token_max_ttl: 10m
   lifecycle: beta
   login:
     method:

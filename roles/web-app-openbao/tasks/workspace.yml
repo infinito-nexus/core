@@ -8,8 +8,8 @@
 #                                  export_template_id.
 # Param: workspace_owner_group     apply only: the Keycloak id of the workspace's pinned Owner group (113 decision 8),
 #                                  which the workspace apply of web-app-keycloak hands to every host.
-# Param: workspace_dns             apply only: the zone fact of the DNS flavor; the provision policies read the
-#                                  Cloudflare token of workspace_dns.zone alone, so a zone change needs a re-apply.
+# Param: workspace_dns             apply only: the zone fact of the DNS flavor, zone and zone_id; apply pins both as the
+#                                  DNS scope the DNS broker reads.
 # Param: WORKSPACE_PLATFORM_TOKENS apply only: the store's switch, a boolean; false denies every provider role of the
 #                                  workspace the platform secrets of its provider, so only PROVIDER_TOKEN=workspace runs.
 # Param: workspace_state_objects   destroy only: the number of OpenTofu state objects the workspace still holds;
