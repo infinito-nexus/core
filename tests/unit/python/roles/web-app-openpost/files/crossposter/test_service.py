@@ -474,7 +474,7 @@ class TestDelivery(ServiceFixture, unittest.TestCase):
         self.assertEqual({row["state"] for row in database.items}, {"drafted"})
 
     def test_a_malformed_media_host_fails_the_delivery_not_the_service(self) -> None:
-        for url in ("http://%00/m.jpg", "http://a..b/m.jpg"):
+        for url in ("http://%00/m.jpg", "http://a..b/m.jpg"):  # nocheck: url
             with self.subTest(url=url):
                 runner, database, _ = self.build("review", [picture(101, url)])
                 database.cursors["press"] = "100"

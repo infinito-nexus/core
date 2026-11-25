@@ -178,7 +178,7 @@ class TestRefusedUrls(unittest.TestCase):
 
     def test_a_malformed_host_is_a_request_error(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
-            for url in ("http://%00/m.jpg", "http://a..b/m.jpg"):
+            for url in ("http://%00/m.jpg", "http://a..b/m.jpg"):  # nocheck: url
                 with self.subTest(url=url), self.assertRaises(web.RequestError):
                     web.download(url, {}, Path(folder) / "m.jpg")
 
