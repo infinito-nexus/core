@@ -6,6 +6,7 @@ from utils.cache.yaml import dump_yaml
 from utils.roles.invocations import (
     deploy_closure,
     expand_roles,
+    role_includes,
     role_invocations,
     stage_files,
     stage_invocations,
@@ -18,6 +19,9 @@ from utils.roles.mapping import (
 )
 
 ROLES = ("role-a", "role-b", "role-c", "sys-ctl-hlth-x", "sys-ctl-hlth-y")
+NESTED_CALL_GATE = (
+    "'role-b' | application_allowed(group_names, lookup('deployment').whitelist)"
+)
 
 
 def _role_file(role: str, role_file: str) -> str:
@@ -141,6 +145,46 @@ class TestRoleInvocations(_TreeMixin, unittest.TestCase):
         )
 
 
+class TestRoleIncludes(_TreeMixin, unittest.TestCase):
+    def _includes(self, tasks) -> frozenset[str]:
+        self._write(_role_file("role-a", ROLE_FILE_TASKS_MAIN), tasks)
+        return role_includes(str(self.root / "roles"), "role-a")
+
+    def test_a_template_with_a_literal_part_names_no_role(self):
+        tasks = [{"include_role": {"name": "sys-ctl-hlth-{{ kind }}"}}]
+        self.assertEqual(self._includes(tasks), frozenset())
+
+    def test_literal_names_and_literal_loop_items_are_included(self):
+        tasks = [
+            {"include_role": {"name": "role-b"}},
+            {
+                "include_role": {"name": "{{ dep }}"},
+                "loop": ["role-c"],
+                "loop_control": {"loop_var": "dep"},
+            },
+        ]
+        self.assertEqual(self._includes(tasks), {"role-b", "role-c"})
+
+    def test_a_gate_holds_the_include_in_either_quote_style(self):
+        roles = str(self.root / "roles")
+        for role, quote in (("role-a", "'"), ("role-c", '"')):
+            self._write(
+                _role_file(role, ROLE_FILE_TASKS_MAIN),
+                [
+                    {
+                        "include_role": {"name": "role-b"},
+                        "when": f"{quote}role-b{quote} in group_names",
+                    }
+                ],
+            )
+        self.assertEqual(role_includes(roles, "role-a"), frozenset())
+        self.assertEqual(role_includes(roles, "role-c"), role_includes(roles, "role-a"))
+
+    def test_a_gate_with_a_nested_call_argument_holds_the_include(self):
+        tasks = [{"include_role": {"name": "role-b"}, "when": NESTED_CALL_GATE}]
+        self.assertEqual(self._includes(tasks), frozenset())
+
+
 class TestStageInvocations(_TreeMixin, unittest.TestCase):
     def _stage(self, tasks):
         return self._write("tasks/stages/01_constructor.yml", tasks)
@@ -170,6 +214,45 @@ class TestStageInvocations(_TreeMixin, unittest.TestCase):
                     "block": [{"include_role": {"name": "role-b"}}],
                 }
             ]
+        )
+        self.assertEqual(
+            stage_invocations(path, frozenset(ROLES), seeds=[], group_names=["role-b"]),
+            set(),
+        )
+        self.assertEqual(
+            stage_invocations(path, frozenset(ROLES), seeds=["role-b"], group_names=[]),
+            {"role-b"},
+        )
+
+    def test_a_double_quoted_membership_gate_closes_for_a_non_member(self):
+        path = self._stage(
+            [{"include_role": {"name": "role-b"}, "when": '"role-b" in group_names'}]
+        )
+        self.assertEqual(
+            stage_invocations(path, frozenset(ROLES), seeds=[], group_names=[]), set()
+        )
+
+    def test_a_membership_test_inside_a_compound_condition_keeps_the_include(self):
+        path = self._stage(
+            [
+                {
+                    "include_role": {"name": "role-b"},
+                    "when": '"role-b" in group_names or true',
+                },
+                {
+                    "include_role": {"name": "role-c"},
+                    "when": "'role-c' in group_names or true",
+                },
+            ]
+        )
+        self.assertEqual(
+            stage_invocations(path, frozenset(ROLES), seeds=[], group_names=[]),
+            {"role-b", "role-c"},
+        )
+
+    def test_an_application_allowed_gate_with_a_nested_call_decides_on_the_seeds(self):
+        path = self._stage(
+            [{"include_role": {"name": "role-b"}, "when": NESTED_CALL_GATE}]
         )
         self.assertEqual(
             stage_invocations(path, frozenset(ROLES), seeds=[], group_names=["role-b"]),
