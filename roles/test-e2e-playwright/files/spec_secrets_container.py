@@ -59,6 +59,7 @@ OPTIONS = {
     "--oom-score-adj": re.compile(r"-?[0-9]+"),
     "--network": re.compile(r"host|none"),
     "--user": re.compile(r"[0-9]+:[0-9]+"),
+    "--ulimit": re.compile(r"core=0"),
     "-w": re.compile(r"/e2e"),
     "-e": re.compile(r"[A-Z][A-Z0-9_]*=.*"),
     "-v": re.compile(r"/[^:]+:/[^:]+(?::ro)?"),
@@ -494,7 +495,6 @@ def check_container(container: list[str], run: Path) -> None:
         f"{shared / 'personas'}:/e2e/tests/personas:ro",
     }
     mounts = check_ca(container, found, stage)
-    if len(set(mounts)) != len(mounts) or not required <= set(mounts) <= (
-        required | optional
-    ):
+    unique = set(mounts)
+    if len(unique) != len(mounts) or not required <= unique <= required | optional:
         raise SpecSecretsError("a run with spec secrets takes no other mounts")

@@ -26,6 +26,8 @@ message when a host runs a distribution that this role does not yet cover.
 | `CentOS`                        | `centos.yml`      | `ansible.builtin.dnf`      |
 | anything else                   | `unsupported.yml` | `ansible.builtin.fail`     |
 
+On Arch Linux ARM, `arch.yml` runs [alarm_mirror.sh](files/shell/alarm_mirror.sh) before the database refresh. The geo host `mirror.archlinuxarm.org` redirects every request on its own, so pacman can take the database from a mirror that already holds a new release and look the packages up on mirrors that do not yet serve it. The script moves every `Server` line of that host behind the last concrete `Server` of `/etc/pacman.d/mirrorlist`, so the database and the packages come from the first concrete mirror. When the upgrade still fails to retrieve packages, the role moves the first concrete `Server` behind the last concrete one, re-syncs the databases (`pacman -Syyu`) and upgrades again, at most once for every further concrete mirror; the geo host never leads. The role decides by the script's exit code, never by its output, and fails with the original error when no retry succeeded. A mirrorlist without that geo host, such as the one of x86_64 Arch Linux, stays untouched.
+
 `centos.yml` first runs [centos_mirror.sh](files/shell/centos_mirror.sh), which replaces every `metalink=` of the CentOS Stream repo files with a `baseurl=` on `mirror.stream.centos.org` and every `metalink=` of the EPEL repo files with the file's own `baseurl` template on `dl.fedoraproject.org`, and then includes `fedora.yml`. The [Dockerfile](../../Dockerfile) runs the same script before its first `dnf` call, so the CentOS dev and swarm-node images resolve against the same source.
 
 ## Cosmos

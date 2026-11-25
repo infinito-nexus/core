@@ -1739,6 +1739,10 @@ msgctxt "role:web-app-dashboard:description"
 msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
 msgstr "사용자 정의 타일 및 메뉴 인터페이스를 통해 모든 배포 응용 프로그램에 통합 된 액세스를위한 셀프 호스팅 포털"
 
+msgctxt "role:web-app-openpost:description"
+msgid "Self-hosted publishing desk that composes, schedules and publishes posts to Fediverse and commercial social networks"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:web-app-pretix:description"
 msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"

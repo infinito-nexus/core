@@ -29,6 +29,14 @@
     replace: "#DownloadUser ="
   when: "'DisableSandbox' in (update_pacman_conf.content | b64decode).splitlines()"
 
+- name: "🪞 update (pacman) | take ALARM databases and packages from one concrete mirror"
+  become: true
+  ansible.builtin.script:
+    cmd: shell/alarm_mirror.sh demote {{ UPDATE_PACMAN_MIRRORLIST | quote }}
+  register: update_alarm_demoted
+  changed_when: update_alarm_demoted.rc == 3
+  failed_when: update_alarm_demoted.rc not in [0, 3]
+
 - name: "🔄 update (pacman) | refresh the pacman package databases"
   community.general.pacman: # nocheck: dynamic-package - database refresh, not a package install
     update_cache: true
@@ -50,9 +58,29 @@
         enabled: true
       when: not ansible_check_mode
 
-- name: "🔄 update (pacman) | upgrade all installed packages"
-  community.general.pacman: # nocheck: dynamic-package - full-system upgrade, not a package install
-    upgrade: true
+- name: "🔄 update (pacman) | upgrade all installed packages, retrying ALARM mirrors"
+  block:
+    - name: "🔄 update (pacman) | upgrade all installed packages"
+      community.general.pacman: # nocheck: dynamic-package - full-system upgrade, not a package install
+        upgrade: true
+  rescue:
+    - name: "🛑 update (pacman) | re-raise anything but packages no mirror served" # nocheck: rescue-recovery an Arch Linux ARM mirror can list packages in its database before it serves them, so the retry moves to the next concrete mirror, re-syncs and upgrades again, once per mirror; the last failure fails loud
+      ansible.builtin.fail:
+        msg: "{{ ansible_failed_result.msg }}"
+      when: "'failed to retrieve some files' not in (ansible_failed_result.stderr | default(''))"
+
+    - name: "🔁 update (pacman) | upgrade from the next concrete ALARM mirror"
+      become: true
+      ansible.builtin.script:
+        cmd: shell/alarm_mirror.sh retry {{ UPDATE_PACMAN_MIRRORLIST | quote }}
+      register: update_alarm_retried
+      changed_when: update_alarm_retried.rc == 0
+      failed_when: false
+
+    - name: "🛑 update (pacman) | re-raise the failure no further ALARM mirror retried"
+      ansible.builtin.fail:
+        msg: "{{ ansible_failed_result.msg }}"
+      when: update_alarm_retried is skipped or update_alarm_retried.rc != 0
 
 - name: "🛑 update (pacman) | reboot or guard when the running kernel was upgraded"
   ansible.builtin.include_tasks: arch/reboot.yml

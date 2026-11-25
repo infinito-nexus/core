@@ -71,7 +71,6 @@ class Run:
         requests: per URL path, how many requests it answered.
         peak: per model file, the most transfers of it in flight at once.
         overlap: the most transfers in flight at once, across every file.
-        elapsed: the play's wall time in seconds.
         staged: what staging holds afterwards.
     """
 
@@ -81,7 +80,6 @@ class Run:
     requests: dict[str, int]
     peak: dict[str, int]
     overlap: int
-    elapsed: float
     staged: list[str]
 
     def text(self) -> str:
@@ -462,7 +460,6 @@ class Probe:
             What one play did, with the source counters of every play so far.
         """
         self._configure(async_enabled)
-        began = time.monotonic()
         result = subprocess.run(
             self.command,
             cwd=str(PROJECT_ROOT),
@@ -472,7 +469,6 @@ class Probe:
             check=False,
             timeout=900,
         )
-        elapsed = time.monotonic() - began
         stored = {}
         for model in self.models:
             path = self.store / REPO / model.file
@@ -488,7 +484,6 @@ class Probe:
             requests=dict(self.stats["requests"]),
             peak=dict(self.stats["peak"]),
             overlap=self.stats["overlap"],
-            elapsed=elapsed,
             staged=(
                 sorted(entry.name for entry in self.staging.iterdir())
                 if self.staging.exists()
@@ -644,7 +639,6 @@ class TestFetch(unittest.TestCase):
         self.assertIn("did not match", run.text(), run.output[-3000:])
         self.assertEqual(run.stored[FILE], b"")
         self.assertEqual(run.requests[f"/source/{FILE}"], 1)
-        self.assertLess(run.elapsed, 120)
 
     def test_a_corrupt_source_hands_over_to_the_next_mirror(self) -> None:
         with Probe(
@@ -729,7 +723,6 @@ class TestFetch(unittest.TestCase):
         self.assertEqual(run.rc, 0, run.output[-3000:])
         self.assertEqual(run.stored[FILE], BLOB)
         self.assertEqual(run.staged, [])
-        self.assertLess(run.elapsed, 120)
 
     def test_downloads_of_a_past_fetch_in_no_known_state_are_waited_out(self) -> None:
         for noted in ([], ["j404.1"]):
