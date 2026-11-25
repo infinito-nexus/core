@@ -41,7 +41,7 @@ defaults_networks:
 PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outside the YAML/Jinja scope
   local:
     http:
-      start: 7990
+      start: 7950
       end: 8107
     agent:
       start: 8500
