@@ -21,8 +21,11 @@ FORMS = ROLE / ROLE_FILE_META_FORMS
 SERVICES = ROLE / ROLE_FILE_META_SERVICES
 VARS = ROLE / ROLE_FILE_VARS_MAIN
 SETUP = ROLE / "tasks" / "02_setup.yml"
+OAUTH_SETUP = ROLE / "tasks" / "setup" / "oauth_source.yml"
 LDAP_SETUP = ROLE / "tasks" / "setup" / "ldap.yml"
 SQL = ROLE / "files" / "sql" / "login-source-settings.sql"
+FINGERPRINT_SQL = ROLE / "files" / "sql" / "oauth-source-fingerprint.sql"
+RESTART = "tasks/utils/restart.yml"
 FILTER = ROLE / "filter_plugins" / "gitea_auth_source_held.py"
 LOADER = ROLE / "templates" / "javascript.js.j2"
 RENDERER = "roles/sys-front-inj-javascript/templates/profile_lock.js.j2"
@@ -188,9 +191,11 @@ class TestTheDriftReadsWhatGiteaStores(unittest.TestCase):
 
 class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
     def test_the_oauth_drift_runs_before_the_oidc_setup(self) -> None:
-        oauth = next(task for task in _tasks(SETUP) if "setup/oidc.yml" in str(task))
+        oauth = next(
+            task for task in _tasks(SETUP) if "setup/oauth_source.yml" in str(task)
+        )
         self.assertEqual("GITEA_OIDC_ENABLED | bool", oauth["when"])
-        tasks = oauth["block"]
+        tasks = _tasks(OAUTH_SETUP)
         drift = _index(tasks, lambda task: "setup/drift.yml" in str(task))
         oidc = _index(tasks, lambda task: "setup/oidc.yml" in str(task))
         self.assertLess(drift, oidc)
@@ -210,6 +215,52 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
         self.assertEqual(
             "{{ ldap_source_plan.keep }}", tasks[drift]["vars"]["gitea_auth_drift_id"]
         )
+
+
+def _fingerprint(tasks: list[dict], register: str) -> int:
+    return _index(
+        tasks,
+        lambda task: (
+            task.get("register") == register
+            and FINGERPRINT_SQL.name in str(task.get("database_query", {}))
+        ),
+    )
+
+
+def _reloads_after_write(tasks: list[dict]) -> bool:
+    loaded = _fingerprint(tasks, "gitea_oauth_source_loaded")
+    oidc = _index(tasks, lambda task: "setup/oidc.yml" in str(task))
+    stored = _fingerprint(tasks, "gitea_oauth_source_stored")
+    restarts = [
+        index
+        for index, task in enumerate(tasks)
+        if RESTART in str(task.get("include_tasks", ""))
+    ]
+    if not restarts or not loaded < oidc < stored < restarts[0]:
+        return False
+    gate = " ".join(tasks[restarts[0]].get("when", []))
+    return (
+        "gitea_oauth_source_stored.rows != gitea_oauth_source_loaded.rows" in gate
+        and "gitea_oauth_source_loaded.rows | length > 0" in gate
+    )
+
+
+class TestTheRunningGiteaLoadsTheStoredOAuthSource(unittest.TestCase):
+    def test_a_changed_oauth_source_restarts_gitea_after_the_write(self) -> None:
+        self.assertTrue(_reloads_after_write(_tasks(OAUTH_SETUP)))
+
+    def test_negative_control_a_write_without_restart_is_caught(self) -> None:
+        tasks = [
+            task
+            for task in _tasks(OAUTH_SETUP)
+            if RESTART not in str(task.get("include_tasks", ""))
+        ]
+        self.assertFalse(_reloads_after_write(tasks))
+
+    def test_the_fingerprint_covers_the_whole_oauth_source_config(self) -> None:
+        sql = read_text(str(FINGERPRINT_SQL))
+        self.assertIn("SHA2(s.cfg, 256)", sql)
+        self.assertRegex(sql, r"WHERE s\.type = 6\b")
 
 
 if __name__ == "__main__":

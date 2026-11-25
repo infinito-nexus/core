@@ -1,0 +1,38 @@
+---
+- name: 📣 Report the managed OAuth2 auth source settings the OIDC setup reverts
+  include_tasks: "{{ role_path }}/tasks/setup/drift.yml"
+  vars:
+    gitea_auth_drift_form: oauth_source
+    gitea_auth_drift_id: ""
+
+- name: "⬇️ Fingerprint the OAuth2 auth source the running Gitea loaded"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/oauth-source-fingerprint.sql"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: gitea_oauth_source_loaded
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: ▶️ Execute OIDC Setup Routine
+  include_tasks:
+    file: "{{ role_path }}/tasks/setup/oidc.yml"
+    apply:
+      delegate_to: "{{ GITEA_HOST_NODE }}"
+
+- name: "⬇️ Fingerprint the OAuth2 auth source the OIDC setup stored"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/oauth-source-fingerprint.sql"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: gitea_oauth_source_stored
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔄 Restart {{ application_id }} so it loads the stored OAuth2 source"
+  include_tasks: "{{ role_path }}/tasks/utils/restart.yml"
+  when:
+    - gitea_oauth_source_loaded.rows | length > 0
+    - gitea_oauth_source_stored.rows != gitea_oauth_source_loaded.rows
