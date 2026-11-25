@@ -33,6 +33,8 @@ depends=(
 
 optdepends=(
   'bind: provides dig for DNS test scripts'
+  'perl: runs the Perl helpers of the unit tests'
+  'procps-ng: provides sysctl for the sysctl unit tests'
   'shellcheck: shell linting'
   'shfmt: shell formatting'
 )
