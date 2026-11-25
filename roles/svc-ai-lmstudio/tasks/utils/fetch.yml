@@ -165,8 +165,8 @@
       {%- for seen in lmstudio_fetch_final.results
             if seen.stat.exists != seen.last.stat.exists
                or (seen.stat.exists
-                   and [seen.stat.inode, seen.stat.mtime, seen.stat.size]
-                       != [seen.last.stat.inode, seen.last.stat.mtime, seen.last.stat.size]) -%}
+                   and [seen.stat.inode, seen.stat.mtime, seen.stat.ctime, seen.stat.size]
+                       != [seen.last.stat.inode, seen.last.stat.mtime, seen.last.stat.ctime, seen.last.stat.size]) -%}
       {%- set rewritten.models = rewritten.models + [seen.last.model] -%}
       {%- endfor -%}
       {{ rewritten.models }}

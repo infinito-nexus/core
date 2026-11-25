@@ -71,6 +71,8 @@ class Run:
         requests: per URL path, how many requests it answered.
         peak: per model file, the most transfers of it in flight at once.
         overlap: the most transfers in flight at once, across every file.
+        order: every request's start and end as "start <path>" or "end <path>",
+            in the order the source saw them.
         staged: what staging holds afterwards.
     """
 
@@ -80,6 +82,7 @@ class Run:
     requests: dict[str, int]
     peak: dict[str, int]
     overlap: int
+    order: list[str]
     staged: list[str]
 
     def text(self) -> str:
@@ -117,13 +120,15 @@ def _serve(
             transfer off halfway with a TCP reset, "half" ends its first
             transfer cleanly after half the body, "trickle" sends a kilobyte
             every half second and gives up after a quarter of the body,
-            "tamper" rewrites every held model with other bytes before it sends
-            BLOB, "forget" deletes every async job state before it sends BLOB.
+            "tamper" replaces every held model with other bytes before it sends
+            BLOB, "rewrite" overwrites every held model in place with other
+            bytes of its size and puts its mtime back before it sends BLOB,
+            "forget" deletes every async job state before it sends BLOB.
             Each of them waits the seconds before it answers, except "outage",
             which answers 503 until the seconds have passed since its first
             request and BLOB after that, and "gate", which sends BLOB once every
             "gate" route has been asked or the seconds have passed.
-        held: the store paths "tamper" rewrites.
+        held: the store paths "tamper" and "rewrite" change.
         async_dir: the directory of the async job states "forget" deletes.
 
     Returns:
@@ -139,6 +144,7 @@ def _serve(
         "active": 0,
         "overlap": 0,
         "gated": 0,
+        "order": [],
     }
 
     class Source(BaseHTTPRequestHandler):
@@ -156,6 +162,7 @@ def _serve(
                 stats["active"] += 1
                 stats["overlap"] = max(stats["overlap"], stats["active"])
                 stats["gated"] += kind == "gate"
+                stats["order"].append(f"start {self.path}")
                 lock.notify_all()
             try:
                 if kind == "forget":
@@ -179,6 +186,7 @@ def _serve(
                 with lock:
                     stats["flight"][file] -= 1
                     stats["active"] -= 1
+                    stats["order"].append(f"end {self.path}")
 
         def _answer(self, kind: str, attempt: int) -> None:
             if kind == "tamper":
@@ -186,6 +194,12 @@ def _serve(
                     forged = path.with_name(path.name + ".forged")
                     forged.write_bytes(bytes(reversed(BLOB)))
                     forged.replace(path)
+            if kind == "rewrite":
+                for path in held:
+                    kept = path.stat()
+                    with path.open("r+b") as model:
+                        model.write(bytes(reversed(BLOB)))
+                    os.utime(path, ns=(kept.st_atime_ns, kept.st_mtime_ns))
             body = bytes(reversed(BLOB)) if kind == "corrupt" else BLOB
             self.send_response(200)
             self.send_header("Content-Length", str(len(body)))
@@ -484,6 +498,7 @@ class Probe:
             requests=dict(self.stats["requests"]),
             peak=dict(self.stats["peak"]),
             overlap=self.stats["overlap"],
+            order=list(self.stats["order"]),
             staged=(
                 sorted(entry.name for entry in self.staging.iterdir())
                 if self.staging.exists()
@@ -676,6 +691,10 @@ class TestFetch(unittest.TestCase):
         self.assertEqual(run.stored, {FILE: BLOB, OTHER: BLOB})
         self.assertNotIn(f"/mirror1/{FILE}", run.requests)
         self.assertEqual(run.requests[f"/mirror2/{OTHER}"], 1)
+        self.assertLess(
+            run.order.index(f"end /source/{FILE}"),
+            run.order.index(f"start /mirror1/{OTHER}"),
+        )
         self.assertEqual(run.peak, {FILE: 1, OTHER: 1})
 
     def test_a_trickling_download_is_cut_at_its_budget_and_collected(self) -> None:
@@ -700,11 +719,15 @@ class TestFetch(unittest.TestCase):
                 ) as probe:
                     first = probe.start(True)
                     deadline = time.monotonic() + 120
-                    while not probe.noted_jobs() and time.monotonic() < deadline:
+                    while time.monotonic() < deadline and not (
+                        probe.noted_jobs() and probe.stats["active"]
+                    ):
                         time.sleep(0.2)
+                    in_flight = probe.stats["active"]
                     os.killpg(first.pid, signal.SIGKILL)
                     first.wait()
                     self.assertTrue(probe.noted_jobs())
+                    self.assertEqual(in_flight, 1)
                     run = probe.play(next_async)
                     self.assertFalse(probe.jobs_file.exists())
                 self.assertEqual(run.rc, 0, run.output[-3000:])
@@ -769,17 +792,33 @@ class TestFetch(unittest.TestCase):
             probe.stall("async_wrapper", 6)
             play = probe.start(True)
             noted = None
-            cutoff = time.monotonic() + 300
-            while play.poll() is None and time.monotonic() < cutoff:
-                ledger = probe.ledger()
-                if noted is None and ledger is not None and not ledger["jobs"]:
-                    noted = int(ledger["deadline"])
-                time.sleep(0.2)
-            play.wait(timeout=60)
-            ended = [job.stat().st_mtime for job in probe.async_dir.iterdir()]
+            try:
+                cutoff = time.monotonic() + 300
+                while play.poll() is None and time.monotonic() < cutoff:
+                    ledger = probe.ledger()
+                    if noted is None and ledger is not None and not ledger["jobs"]:
+                        noted = int(ledger["deadline"])
+                    time.sleep(0.2)
+                play.wait(timeout=60)
+            finally:
+                if play.poll() is None:
+                    os.killpg(play.pid, signal.SIGKILL)
+                    play.wait()
+            ended = [
+                (
+                    job.stat().st_mtime,
+                    job.read_text(  # nocheck: cache-read  async_wrapper wrote it
+                        encoding="utf-8"
+                    ),
+                )
+                for job in probe.async_dir.iterdir()
+            ]
         self.assertIsNotNone(noted)
         self.assertEqual(len(ended), 3)
-        self.assertLessEqual(max(ended), noted)
+        self.assertEqual(
+            [state for _, state in ended if "started" in json.loads(state)], []
+        )
+        self.assertLessEqual(max(mtime for mtime, _ in ended), noted)
 
     def test_debug_runs_retry_a_download_only_preload_retries_times(self) -> None:
         with Probe(
@@ -805,19 +844,23 @@ class TestFetch(unittest.TestCase):
         self.assertEqual(run.requests, {})
 
     def test_a_model_rewritten_during_the_fetch_is_judged_again(self) -> None:
-        run = _fetch(
-            [
-                Model(FILE, GOOD, (), BLOB, BLOB),
-                Model(OTHER, ("tamper", 0.0), (), None, BLOB),
-            ],
-            60,
-            False,
-            None,
-            True,
-        )
-        self.assertNotEqual(run.rc, 0, run.output[-3000:])
-        self.assertIn(f"{FILE} in the model store", run.text(), run.output[-3000:])
-        self.assertEqual(run.stored[OTHER], BLOB)
+        for kind in ("tamper", "rewrite"):
+            with self.subTest(kind=kind):
+                run = _fetch(
+                    [
+                        Model(FILE, GOOD, (), BLOB, BLOB),
+                        Model(OTHER, (kind, 0.0), (), None, BLOB),
+                    ],
+                    60,
+                    False,
+                    None,
+                    True,
+                )
+                self.assertNotEqual(run.rc, 0, run.output[-3000:])
+                self.assertIn(
+                    f"{FILE} in the model store", run.text(), run.output[-3000:]
+                )
+                self.assertEqual(run.stored[OTHER], BLOB)
 
     def test_the_free_space_check_sums_every_pending_model(self) -> None:
         run = _fetch(
