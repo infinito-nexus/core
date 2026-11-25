@@ -2,6 +2,7 @@ const { test, expect, request } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const {
+  decodeDotenvJsonList,
   decodeDotenvQuotedValue,
   keycloakAdminAddUserToGroup,
   keycloakRemoveUserFromGroupViaRest,
@@ -17,6 +18,7 @@ function agentGroups() {
   expect(raw, "AGENT_GROUP_PATHS must be rendered while the broker is enabled").toBeTruthy();
   return JSON.parse(raw);
 }
+const ungrantedModels = decodeDotenvJsonList(process.env.GATEWAY_UNGRANTED_MODELS_JSON, "GATEWAY_UNGRANTED_MODELS_JSON");
 
 /**
  * Put one user into, or take it out of, the named agent groups, leaving every group first.
@@ -179,12 +181,17 @@ exports.register = function (shared) {
       return listedModels(adminPage, admin, "/openai/models");
     });
     const models = await listedModels(page, session, "/api/models?refresh=true");
-    const gatewayModels = servedModels.filter((id) => !(id in agentGroups()) && !id.startsWith("agent/"));
+    const gatewayModels = servedModels.filter(
+      (id) => !(id in agentGroups()) && !id.startsWith("agent/") && !ungrantedModels.includes(id),
+    );
     if (isServiceEnabled("litellm")) {
       expect(gatewayModels.length, "the connections must serve the gateway models").toBeGreaterThan(0);
     }
     for (const model of gatewayModels) {
       expect(models, `the gateway model ${model} must be granted to every user`).toContain(model);
+    }
+    for (const model of ungrantedModels) {
+      expect(models, `the audio model ${model} is granted to no user`).not.toContain(model);
     }
     for (const platform of Object.keys(agentGroups())) {
       expect(models, `${platform} is granted to its agent-user group only`).not.toContain(platform);
