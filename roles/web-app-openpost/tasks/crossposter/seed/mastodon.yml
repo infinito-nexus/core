@@ -19,7 +19,7 @@
       - bin/rails
       - runner
       - "-"
-    stdin: "{{ lookup('file', 'ruby/mastodon_mint_token.rb') }}"
+    stdin: "{{ lookup('file', 'ruby/mastodon/mint_token.rb') }}"
   loop: "{{ openpost_crossposter_seed_missing | selectattr('source.platform', 'equalto', 'mastodon') | list }}"
   loop_control:
     label: "{{ item.name }}"
