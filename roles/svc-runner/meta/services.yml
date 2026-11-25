@@ -30,6 +30,8 @@ runner:
   toolchain_image: ""
   operator_uid: ""
   operator_gid: ""
+  healthcheck:
+    test: ["NONE"]
 
 # nocheck: dynamic-flag
 buildkit:

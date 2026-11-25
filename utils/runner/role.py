@@ -9,7 +9,7 @@ from utils.cache import ROLES_DIR
 from utils.cache.yaml import load_yaml
 from utils.infra_inventory import POOL_ROLE
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_USERS
-from utils.runner import jobs
+from utils.runner import jobs, store
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -72,7 +72,7 @@ def queue_refusal(root: Path) -> list[str]:
                 "make infra-update with INFINITO_DEPLOY_VIA_POOL=true restores "
                 "its layout"
             )
-            for problem in jobs.layout_problems(root)
+            for problem in store.layout_problems(root)
         ]
     if not root.is_dir():
         return [

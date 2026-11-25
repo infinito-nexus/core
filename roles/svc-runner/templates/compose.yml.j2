@@ -7,8 +7,7 @@
     image: "{{ RUNNER_TOOLCHAIN_IMAGE }}"
     user: "{{ RUNNER_OPERATOR_UID }}:{{ RUNNER_OPERATOR_GID }}"
     entrypoint: ["bash", "{{ RUNNER_SRC_DIR }}/roles/svc-runner/files/shell/entrypoint-local.sh"]
-    healthcheck:
-      disable: true
+    {{ lookup('container_healthcheck', 'runner') | indent(4) }}
     {% else %}
     {% if i == 1 and not IS_SWARM_MODE %}
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}

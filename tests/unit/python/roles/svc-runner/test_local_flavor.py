@@ -10,10 +10,16 @@ from types import SimpleNamespace
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any, load_yaml_str
-from utils.roles.mapping import ROLE_FILE_META_USERS
-from utils.runner import jobs, loop, role
+from utils.roles.mapping import ROLE_FILE_DEFAULTS_MAIN, ROLE_FILE_META_USERS
+from utils.runner import loop, role, store
 
 render = importlib.import_module("tests.unit.python.roles.svc-runner._render")
+
+CORE_TASKS = "00_core.yml"
+QUEUE_TASKS = "01_queue.yml"
+INSTANCE_TASKS = "03_instance.yml"
+TEMPLATE_MODULE = "ansible.builtin.template"
+HEALTHCHECK_DISABLED = ["NONE"]
 
 REGISTRATION_KEYS = (
     "RUNNER_NAME",
@@ -67,11 +73,12 @@ def _flatten(tasks: list[dict], inherited: tuple[str, ...] = ()):
             yield task, clauses
 
 
+def _tasks(name: str) -> list[dict]:
+    return load_yaml_any(str(render.ROLE / "tasks" / name))
+
+
 def _binary_tasks() -> list[tuple[str, str]]:
-    tasks = [
-        *load_yaml_any(str(render.ROLE / "tasks" / "00_core.yml")),
-        *load_yaml_any(str(render.ROLE / "tasks" / "02_instance.yml")),
-    ]
+    tasks = [*_tasks(CORE_TASKS), *_tasks(INSTANCE_TASKS)]
     return [
         (task["name"], " and ".join(f"({clause})" for clause in clauses) or "true")
         for task, clauses in _flatten(tasks)
@@ -87,7 +94,7 @@ def _binary_tasks() -> list[tuple[str, str]]:
 def _assert_tasks() -> list[dict]:
     return [
         task
-        for task in load_yaml_any(str(render.ROLE / "tasks" / "00_core.yml"))
+        for task in _tasks(CORE_TASKS)
         if any(module in task for module in ASSERT_MODULES)
     ]
 
@@ -337,7 +344,7 @@ class TestLocalSourceDir(unittest.TestCase):
         self.assertEqual(render.source_dir("local"), render.SRC_DIR)
         self.assertNotEqual(render.source_dir("local"), render.PLAYBOOK)
         self.assertNotIn(
-            "playbook_dir", read_text(str(render.ROLE / "defaults" / "main.yml"))
+            "playbook_dir", read_text(str(render.ROLE / ROLE_FILE_DEFAULTS_MAIN))
         )
         self.assertEqual(render.source_dir("github"), render.IMAGE_SRC_DIR)
 
@@ -397,16 +404,17 @@ class TestLocalSourceDir(unittest.TestCase):
             with self.subTest(swarm=swarm):
                 self.assertEqual(
                     {
-                        name: service.get("healthcheck")
+                        name: (service.get("healthcheck") or {}).get("test")
                         for name, service in _services(local).items()
                     },
-                    {name: {"disable": True} for name in _services(local)},
+                    dict.fromkeys(_services(local), HEALTHCHECK_DISABLED),
                 )
                 self.assertEqual(
                     [
                         name
                         for name, service in _services(github).items()
-                        if (service.get("healthcheck") or {}).get("disable")
+                        if (service.get("healthcheck") or {}).get("test")
+                        == HEALTHCHECK_DISABLED
                     ],
                     [],
                 )
@@ -548,26 +556,24 @@ class TestLocalJobQueue(unittest.TestCase):
         self.assertTrue(_queue_accepted("github", ""))
 
 
-def _core_task(module: str, key: str, value: str) -> tuple[int, dict]:
-    tasks = load_yaml_any(str(render.ROLE / "tasks" / "00_core.yml"))
+def _queue_task(module: str, key: str, value: str) -> tuple[int, dict]:
     return next(
         (index, task)
-        for index, task in enumerate(tasks)
+        for index, task in enumerate(_tasks(QUEUE_TASKS))
         if (task.get(module) or {}).get(key) == value
     )
 
 
 def _include(name: str) -> tuple[int, dict]:
-    tasks = load_yaml_any(str(render.ROLE / "tasks" / "00_core.yml"))
     return next(
         (position, task)
-        for position, task in enumerate(tasks)
+        for position, task in enumerate(_tasks(CORE_TASKS))
         if task.get("include_tasks") == name
     )
 
 
 def _provision_index() -> int:
-    return _include("02_instance.yml")[0]
+    return _include(INSTANCE_TASKS)[0]
 
 
 def _socket_vars() -> dict[str, str]:
@@ -584,8 +590,9 @@ def _socket_vars() -> dict[str, str]:
     }
 
 
-def _unit(template: str) -> configparser.ConfigParser:
-    text = read_text(str(render.ROLE / "templates" / template))
+def _unit(dest: str) -> configparser.ConfigParser:
+    _index, task = _queue_task(TEMPLATE_MODULE, "dest", dest)
+    text = read_text(str(render.ROLE / "templates" / task[TEMPLATE_MODULE]["src"]))
     parser = configparser.ConfigParser(interpolation=None)
     parser.optionxform = str
     parser.read_string(render.environment().from_string(text).render(_socket_vars()))
@@ -622,44 +629,44 @@ class TestSharedJobQueue(unittest.TestCase):
     def test_the_role_creates_the_queue_for_its_group_only_before_the_runners(
         self,
     ) -> None:
-        index, queue = _core_task("file", "path", "{{ RUNNER_QUEUE_DIR }}")
-        _group_index, group = _core_task("group", "gid", "{{ RUNNER_QUEUE_GID }}")
+        index, queue = _queue_task("file", "path", "{{ RUNNER_QUEUE_DIR }}")
+        group_index, _group = _queue_task("group", "gid", "{{ RUNNER_QUEUE_GID }}")
+        include_index, include = _include(QUEUE_TASKS)
         self.assertEqual(
             {key: queue["file"][key] for key in ("state", "owner", "group", "mode")},
             {
                 "state": "directory",
                 "owner": "root",
                 "group": "{{ RUNNER_QUEUE_GID }}",
-                "mode": f"{jobs.QUEUE_ROOT_MODE:o}",
+                "mode": f"{store.QUEUE_ROOT_MODE:o}",
             },
         )
         self.assertEqual(int(queue["file"]["mode"], 8) & 0o007, 0)
         self.assertTrue(int(queue["file"]["mode"], 8) & stat.S_ISVTX)
-        for task in (queue, group):
-            self.assertEqual(task["when"], "RUNNER_TAKES_LOCAL_JOBS | bool")
-        self.assertLess(index, _provision_index())
+        self.assertLess(group_index, index)
+        self.assertEqual(include["when"], "RUNNER_TAKES_LOCAL_JOBS | bool")
+        self.assertLess(include_index, _provision_index())
 
     def test_the_role_creates_the_queue_folders_shared_below_the_sticky_root(
         self,
     ) -> None:
-        root, _queue = _core_task("file", "path", "{{ RUNNER_QUEUE_DIR }}")
-        index, folders = _core_task(
+        root, _queue = _queue_task("file", "path", "{{ RUNNER_QUEUE_DIR }}")
+        index, folders = _queue_task(
             "file", "path", "{{ [RUNNER_QUEUE_DIR, item] | path_join }}"
         )
-        self.assertEqual(folders["loop"], list(jobs.QUEUE_DIRS))
+        self.assertEqual(folders["loop"], list(store.QUEUE_DIRS))
         self.assertEqual(
             {key: folders["file"][key] for key in ("state", "owner", "group", "mode")},
             {
                 "state": "directory",
                 "owner": "root",
                 "group": "{{ RUNNER_QUEUE_GID }}",
-                "mode": f"{jobs.SHARED_DIR_MODE:o}",
+                "mode": f"{store.SHARED_DIR_MODE:o}",
             },
         )
         self.assertEqual(int(folders["file"]["mode"], 8) & 0o007, 0)
-        self.assertEqual(folders["when"], "RUNNER_TAKES_LOCAL_JOBS | bool")
+        self.assertNotIn("when", folders)
         self.assertLess(root, index)
-        self.assertLess(index, _provision_index())
 
     def test_the_queue_group_is_its_own_and_the_queue_code_names_it(self) -> None:
         users = load_yaml_any(str(render.ROLE / ROLE_FILE_META_USERS))
@@ -678,7 +685,7 @@ class TestQueueSocket(unittest.TestCase):
 
     def test_only_the_queue_group_reaches_the_daemon_on_it(self) -> None:
         self.assertEqual(
-            dict(_unit("runner-queue-docker.socket.j2")["Socket"]),
+            dict(_unit("{{ RUNNER_QUEUE_SOCKET_UNIT_FILE }}")["Socket"]),
             {
                 "ListenStream": f"{render.QUEUE}/{role.DOCKER_SOCKET}",
                 "SocketMode": "0660",
@@ -690,16 +697,19 @@ class TestQueueSocket(unittest.TestCase):
 
     def test_the_daemon_takes_the_queue_socket_beside_its_own(self) -> None:
         self.assertEqual(
-            _unit("runner-queue-socket.conf.j2")["Service"]["Sockets"].split(),
+            _unit("{{ RUNNER_DOCKER_DROPIN }}")["Service"]["Sockets"].split(),
             ["docker.socket", _socket_vars()["RUNNER_QUEUE_SOCKET_UNIT"]],
         )
 
     def test_only_the_local_flavor_opens_it_after_the_queue_before_the_runners(
         self,
     ) -> None:
-        index, include = _include("05_queue_socket.yml")
-        folders, _task = _core_task(
+        index, include = _include(QUEUE_TASKS)
+        folders, _task = _queue_task(
             "file", "path", "{{ [RUNNER_QUEUE_DIR, item] | path_join }}"
+        )
+        unit, _unit_task = _queue_task(
+            TEMPLATE_MODULE, "dest", "{{ RUNNER_QUEUE_SOCKET_UNIT_FILE }}"
         )
         self.assertEqual(
             [
@@ -708,12 +718,11 @@ class TestQueueSocket(unittest.TestCase):
             ],
             [True, False],
         )
-        self.assertLess(folders, index)
+        self.assertLess(folders, unit)
         self.assertLess(index, _provision_index())
 
     def test_a_changed_unit_restarts_the_socket_and_then_the_daemon(self) -> None:
-        tasks = load_yaml_any(str(render.ROLE / "tasks" / "05_queue_socket.yml"))
-        restart = tasks[-1]
+        restart = _tasks(QUEUE_TASKS)[-1]
         self.assertEqual(
             restart["loop"], ["{{ RUNNER_QUEUE_SOCKET_UNIT }}", "docker.service"]
         )

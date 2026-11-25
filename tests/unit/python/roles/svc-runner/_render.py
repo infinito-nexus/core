@@ -20,6 +20,7 @@ from jinja2 import (
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
+from utils.docker.healthcheck.compose import build
 from utils.roles.entity.name import entity_name
 from utils.roles.mapping import (
     ROLE_FILE_DEFAULTS_MAIN,
@@ -44,7 +45,7 @@ FIXTURE = (
     / "github.json"
 )
 COMPOSE = posixpath.basename(ROLE_FILE_TEMPL_COMPOSE)
-INSTANCE_ENV = "runner_instance_env.j2"
+INSTANCE_ENV = "runner/instance_env.j2"
 TEST_ENV = "test.env.j2"
 SUDOERS = "sudoers.j2"
 STAGE_DEST = "entrypoint.sh"
@@ -328,6 +329,10 @@ def render(
             ]
         if plugin in ABSENT_LOOKUPS:
             return False
+        if plugin == "container_healthcheck":
+            services = load_yaml_any(str(role / ROLE_FILE_META_SERVICES))
+            config = services[terms[0]]["healthcheck"]
+            return build(config.get("flavor", ""), config, test=config.get("test"))
         if plugin == "container_networks":
             return "networks:\n  default: {}"
         if plugin == "compose_networks":

@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 from cli.administration.infra.__main__ import RUNNER_DOWN
 from utils import PROJECT_ROOT
 from utils.infra_inventory import POOL_KEY, POOL_ROLE, infra_roles
+from utils.preflight.networks import PROJECT_LABEL
 from utils.runner.jobs import HELD, JobError, cleanup_report, queue_root
 from utils.runner.role import project_prefix, queue_refusal, runner_stack
 
@@ -24,21 +25,29 @@ if TYPE_CHECKING:
 
 INFRA = (sys.executable, "-m", "cli.administration.infra")
 RUNNER_STATE = (*INFRA, "running")
-PROJECTS = (*INFRA, "docker", "compose", "ls", "--all", "--format", "json")
+PROJECTS = (
+    *INFRA,
+    "docker",
+    "ps",
+    "--all",
+    "--filter",
+    f"label={PROJECT_LABEL}",
+    "--format",
+    f'{{{{.Label "{PROJECT_LABEL}"}}}}',
+)
 ORPHAN = "orphan"
 
 
 def job_stacks(listing: str, prefix: str) -> list[str]:
     """Args:
-        listing: what ``docker compose ls --all --format json`` prints inside the infra runner.
+        listing: the compose project of every container, running or not, one
+            per line, as :data:`PROJECTS` prints them inside the infra runner.
         prefix: the compose project prefix of the pool's job stacks.
 
     Returns:
         Every compose project that is the job stack of a pool runner.
     """
-    return sorted(
-        row["Name"] for row in json.loads(listing) if runner_stack(row["Name"], prefix)
-    )
+    return sorted({name for name in listing.split() if runner_stack(name, prefix)})
 
 
 def existing_stacks(probe: Probe, prefix: str) -> list[str]:
@@ -63,8 +72,8 @@ def existing_stacks(probe: Probe, prefix: str) -> list[str]:
     listed = probe(PROJECTS)
     if listed.returncode != 0:
         raise JobError(
-            f"docker compose ls inside the infra runner failed (rc={listed.returncode}): "
-            f"{listed.stderr.strip()}"
+            f"listing the compose projects inside the infra runner failed "
+            f"(rc={listed.returncode}): {listed.stderr.strip()}"
         )
     return job_stacks(listed.stdout, prefix)
 

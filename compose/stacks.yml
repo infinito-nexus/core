@@ -67,12 +67,15 @@ stacks:
       - lint-ruby
       - lint-shellcheck
       - lint-sql
+      - quality-high
+      - test
       - test-external
       - test-integration
       - test-lint
       - test-oracle
       - test-performance
       - test-session
+      - test-single
       - test-unit-javascript
       - test-unit-php
       - test-unit-python
@@ -84,6 +87,7 @@ stacks:
     needs:
       - cache
     targets:
+      - agents-stop
       - compose-app-exec
       - compose-app-logs
       - compose-app-restart
@@ -109,9 +113,31 @@ stacks:
       - system-purge
       - worktree-down
 unaddressed:
+  - agents-vm-template
+  - build
+  - build-cleanup
+  - build-missing
+  - build-no-cache
+  - clean-container-owned
+  - compose-entity-purge
+  - compose-system-purge
   - i18n-extract
   - i18n-prune
   - i18n-retry
   - infra-status
+  - install
+  - install-alias
+  - install-force
+  - install-venv
+  - network-trust-ca
   - runner-cleanup-report
+  - runner-status
+  - swarm-clean
+  - swarm-clean-stale-nfs
+  - swarm-down
+  - swarm-playwright
+  - test-ref
   - test-runner-status
+  - wsl2-dns-setup
+  - wsl2-systemd-check
+  - wsl2-trust-windows

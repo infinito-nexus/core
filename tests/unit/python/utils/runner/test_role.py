@@ -4,14 +4,14 @@ import grp
 import os
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from utils.cache import ROLES_DIR
 from utils.cache.yaml import load_yaml
 from utils.infra_inventory import POOL_ROLE
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_USERS
-from utils.runner import jobs, role
+from utils.runner import jobs, role, store
 
 
 class TestJobStacks(unittest.TestCase):
@@ -82,7 +82,7 @@ class TestQueueRefusal(unittest.TestCase):
 
     def test_a_root_without_the_sticky_bit_is_refused(self) -> None:
         jobs.ensure_queue(self.root)
-        self.root.chmod(jobs.SHARED_DIR_MODE)
+        self.root.chmod(store.SHARED_DIR_MODE)
         refusal = role.queue_refusal(self.root)
         self.assertEqual(len(refusal), 1)
         self.assertIn("lacks the sticky bit", refusal[0])
@@ -100,8 +100,8 @@ class TestQueueRefusal(unittest.TestCase):
 
     def test_a_queue_without_its_folders_is_refused(self) -> None:
         self.root.mkdir()
-        self.root.chmod(jobs.QUEUE_ROOT_MODE)
-        self.assertEqual(len(role.queue_refusal(self.root)), len(jobs.QUEUE_DIRS))
+        self.root.chmod(store.QUEUE_ROOT_MODE)
+        self.assertEqual(len(role.queue_refusal(self.root)), len(store.QUEUE_DIRS))
 
     @unittest.skipIf(os.geteuid() == 0, "root writes every directory")
     def test_an_unwritable_queue_names_the_group_to_join(self) -> None:

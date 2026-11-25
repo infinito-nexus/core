@@ -123,37 +123,8 @@
     group: "{{ RUNNER_USER }}"
     mode: "0755"
 
-- name: 👥 Create the group the local job queue is shared through
-  group:
-    name: "{{ RUNNER_QUEUE_GROUP }}"
-    gid: "{{ RUNNER_QUEUE_GID }}"
-    system: true
-  when: RUNNER_TAKES_LOCAL_JOBS | bool
-
-- name: 📂 Create the local job queue, sticky, shared by its group, closed to others
-  file:
-    path: "{{ RUNNER_QUEUE_DIR }}"
-    state: directory
-    owner: root
-    group: "{{ RUNNER_QUEUE_GID }}"
-    mode: "3770"
-  when: RUNNER_TAKES_LOCAL_JOBS | bool
-
-- name: 📂 Create the job, log and runner folders of the local job queue
-  file:
-    path: "{{ [RUNNER_QUEUE_DIR, item] | path_join }}"
-    state: directory
-    owner: root
-    group: "{{ RUNNER_QUEUE_GID }}"
-    mode: "2770"
-  loop:
-    - jobs
-    - logs
-    - runners
-  when: RUNNER_TAKES_LOCAL_JOBS | bool
-
-- name: 🔌 Open the Docker daemon to the queue group on a socket in the queue
-  include_tasks: 05_queue_socket.yml
+- name: 📂 Provide the local job queue and its Docker socket for the queue group
+  include_tasks: 01_queue.yml
   when: RUNNER_TAKES_LOCAL_JOBS | bool
 
 - name: 📦 Provide the GitHub Actions runner binary
@@ -199,7 +170,7 @@
          | list }}
 
 - name: 🗑️ Remove runner instances beyond RUNNER_COUNT
-  include_tasks: 01_cleanup_instance.yml
+  include_tasks: 02_cleanup_instance.yml
   loop: "{{ _runners_to_remove }}"
   loop_control:
     loop_var: runner_instance
@@ -282,13 +253,13 @@
     - compose-up
 
 - name: 🚀 Provision runner instances
-  include_tasks: 02_instance.yml
+  include_tasks: 03_instance.yml
   loop: "{{ range(1, RUNNER_COUNT | int + 1) | list }}"
   loop_control:
     loop_var: runner_instance
 
 - name: 📦 Build and publish the runner image to the swarm registry
-  include_tasks: 03_image.yml
+  include_tasks: 04_image.yml
   when:
     - IS_SWARM_MODE | bool
     - IS_STACK_HOST | bool
@@ -303,7 +274,7 @@
   when: (SWARM_REGISTRY_PREFIX | length > 0) and not (IS_STACK_HOST | bool)
 
 - name: 🖥️ Prepare the node-local runner stack on a swarm worker
-  include_tasks: 04_node.yml
+  include_tasks: 05_node.yml
   when: not (IS_STACK_HOST | bool)
 
 - name: 📌 Recreate the runner stack when the registry image of this node changed

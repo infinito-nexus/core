@@ -34,6 +34,7 @@ NAMED_TARGETS = (
     "runner-cleanup-report",
     "cache-evict",
 )
+UNKNOWN_TARGET = "no-such-target"
 
 
 def _skill(name: str) -> str:
@@ -120,8 +121,8 @@ class TestNamedTargetsExist(unittest.TestCase):
 
     def test_an_unknown_target_is_flagged(self) -> None:
         self.assertEqual(
-            sorted({"runner-release", *NAMED_TARGETS} - _targets()),
-            ["runner-release"],
+            sorted({UNKNOWN_TARGET, *NAMED_TARGETS} - _targets()),
+            [UNKNOWN_TARGET],
         )
 
 

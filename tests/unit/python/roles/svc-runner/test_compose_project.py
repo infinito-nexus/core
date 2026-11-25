@@ -173,7 +173,7 @@ class TestRunnerComposeProject(unittest.TestCase):
             task
             for task in _role_tasks()
             if str((_task_module(task, TEMPLATE_MODULES) or {}).get("src", ""))
-            == "runner_instance_env.j2"
+            == "runner/instance_env.j2"
         ]
         self.assertEqual(len(writes), 1, writes)
         self.assertIn("compose-up", _notifies(writes[0]))

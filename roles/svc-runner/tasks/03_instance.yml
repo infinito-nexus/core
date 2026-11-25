@@ -43,7 +43,7 @@
 
 - name: 📄 Write runner environment file for instance {{ runner_instance }}
   template: # nocheck: stack-host-template (node-local runner: each node registers its own instances)
-    src: runner_instance_env.j2
+    src: runner/instance_env.j2
     dest: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}/.env"
     owner: "{{ RUNNER_USER }}"
     group: "{{ RUNNER_USER }}"

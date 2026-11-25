@@ -90,10 +90,10 @@ class TestLocalFlavorSuite(_Suite):
         self.assertNotIn("RUNNER_GIT_REF", self.env)
 
     def test_the_suite_probes_the_checkout_the_role_default_names(self) -> None:
-        self.assertEqual(self.env["RUNNER_SRC_DIR"], render.PLAYBOOK_DIR)
+        self.assertEqual(self.env["RUNNER_SRC_DIR"], render.SRC_DIR)
         run = self.run_suite()
         self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
-        self.assertIn(f"exec runner-1 test -d {render.PLAYBOOK_DIR}", self.calls())
+        self.assertIn(f"exec runner-1 test -d {render.SRC_DIR}", self.calls())
 
     def test_the_suite_passes_without_github_inputs(self) -> None:
         run = self.run_suite()

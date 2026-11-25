@@ -159,5 +159,5 @@ ORDERED_HANDLERS = [
     package_cache_url,
 ]
 
-PASSTHROUGH_STATIC_KEYS = passthrough.STATIC_KEYS
+PASSTHROUGH_STATIC_KEYS = passthrough.STATIC_KEYS + passthrough.PER_CALL_KEYS
 GHA_STATIC_KEYS = gha_passthrough.STATIC_KEYS

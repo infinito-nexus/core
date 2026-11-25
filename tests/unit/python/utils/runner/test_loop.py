@@ -8,8 +8,8 @@ import sys
 import tempfile
 import time
 import unittest
+import unittest.mock as mock
 from pathlib import Path
-from unittest import mock
 
 from cli.administration.deploy.development.env import (
     INFRA_CONSUMER,
@@ -22,7 +22,8 @@ from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.env.parser import custom_env_value
 from utils.infra_inventory import POOL_KEY
-from utils.runner import jobs, loop
+from utils.runner import POOL_RUNNER_KEY, jobs, loop
+from utils.runner.checkout import CUSTOM_ENV, GIT, MANIFEST
 from utils.runner.jobs import BUSY, DONE, FAILED, HELD, IDLE, RUNNING
 
 NOW = 1_800_000_000.0
@@ -131,7 +132,7 @@ def make_checkout(checkout: Path) -> Path:
     (checkout / "roles" / "main.yml").write_text("---\n", encoding="utf-8")
     (checkout / "link").symlink_to("roles")
     (checkout / ".gitignore").write_text(
-        f"build/\nsecret\n{loop.CUSTOM_ENV}\n", encoding="utf-8"
+        f"build/\nsecret\n{CUSTOM_ENV}\n", encoding="utf-8"
     )
     git(checkout, "init", "-q")
     git(checkout, "add", "--all")
@@ -265,7 +266,7 @@ class TestTheJobRunsThroughTheEntry(_Loop):
         self._step(run)
         env = run.calls[0]["env"]
         self.assertEqual(
-            [env["PYTHONDONTWRITEBYTECODE"], env[loop.POOL_RUNNER_KEY]], ["1", "true"]
+            [env["PYTHONDONTWRITEBYTECODE"], env[POOL_RUNNER_KEY]], ["1", "true"]
         )
         self.assertNotIn("INFINITO_CACHE_STACK", env)
 
@@ -401,7 +402,7 @@ class TestTheJobRunsFromACopy(_Loop):
     def test_the_copy_holds_what_git_sees_and_a_resolvable_git_file(self) -> None:
         linked = self.worktrees / "linked"
         git(self.checkout, "worktree", "add", "-q", str(linked))
-        tracked = [".git", ".gitignore", loop.CUSTOM_ENV, "link", "roles", "scripts"]
+        tracked = [".git", ".gitignore", CUSTOM_ENV, "link", "roles", "scripts"]
         for checkout, entries in (
             (self.checkout, sorted([*tracked, "notes.txt"])),
             (linked, tracked),
@@ -418,8 +419,8 @@ class TestTheJobRunsFromACopy(_Loop):
                         "top": str(self.copy),
                     },
                 )
-                self.assertTrue((self.copy / loop.GIT).is_file())
-                self.assertTrue((checkout / loop.GIT).exists())
+                self.assertTrue((self.copy / GIT).is_file())
+                self.assertTrue((checkout / GIT).exists())
 
     def test_ignored_unreadable_and_big_files_and_env_are_never_copied(
         self,
@@ -457,7 +458,7 @@ class TestTheJobRunsFromACopy(_Loop):
     def test_the_operators_custom_env_comes_along_with_the_pool_settings_pinned(
         self,
     ) -> None:
-        (self.checkout / loop.CUSTOM_ENV).write_text(
+        (self.checkout / CUSTOM_ENV).write_text(
             "INFINITO_DISTRO=debian\nINFINITO_CACHE_STACK=true\n"
             "export INFINITO_DEPLOY_VIA_POOL=true\nINFINITO_POOL_RUNNER=false\n",
             encoding="utf-8",
@@ -472,17 +473,17 @@ class TestTheJobRunsFromACopy(_Loop):
                 **loop.POOL_SETTINGS,
             },
         )
-        self.assertEqual(loop.POOL_SETTINGS[loop.POOL_RUNNER_KEY], "true")
+        self.assertEqual(loop.POOL_SETTINGS[POOL_RUNNER_KEY], "true")
 
     def test_the_copied_custom_env_is_readable_by_its_owner_alone(self) -> None:
-        source = self.checkout / loop.CUSTOM_ENV
+        source = self.checkout / CUSTOM_ENV
         source.write_text("INFINITO_DISTRO=debian\n", encoding="utf-8")
         source.chmod(0o644)
         (self.checkout / ".gitignore").chmod(0o644)
         self._deployed(self.checkout)
         self.assertEqual(
             [
-                (self.copy / loop.CUSTOM_ENV).stat().st_mode & 0o777,
+                (self.copy / CUSTOM_ENV).stat().st_mode & 0o777,
                 (self.copy / ".gitignore").stat().st_mode & 0o777,
             ],
             [0o600, 0o644],
@@ -508,7 +509,7 @@ class TestTheJobRunsFromACopy(_Loop):
     ) -> None:
         self._deployed(self.checkout)
         self.assertEqual(
-            read_text(str(self.copy / loop.CUSTOM_ENV)).splitlines(),
+            read_text(str(self.copy / CUSTOM_ENV)).splitlines(),
             [f"{key}={value}" for key, value in loop.POOL_SETTINGS.items()],
         )
 
@@ -534,7 +535,7 @@ class TestTheJobRunsFromACopy(_Loop):
 
     def test_without_the_list_of_the_copy_before_nothing_is_removed(self) -> None:
         loop.copy_checkout(self.checkout, self.copy, self.install)
-        (self.install / loop.MANIFEST).unlink()
+        (self.install / MANIFEST).unlink()
         (self.checkout / "notes.txt").unlink()
         loop.copy_checkout(self.checkout, self.copy, self.install)
         self.assertTrue((self.copy / "notes.txt").is_file())
@@ -545,7 +546,7 @@ class TestTheJobRunsFromACopy(_Loop):
         linked = self.worktrees / "moved"
         (linked / loop.ENTRY).parent.mkdir(parents=True)
         (linked / loop.ENTRY).write_text("#!/bin/sh\n", encoding="utf-8")
-        (linked / loop.GIT).write_text("gitdir: /nonexistent/.git\n", encoding="utf-8")
+        (linked / GIT).write_text("gitdir: /nonexistent/.git\n", encoding="utf-8")
         record = self._submit(hold=True, checkout=linked)
         run = _Run([0], None)
         ended = self._step(run)
@@ -643,7 +644,7 @@ class TestAJobUsesTheInfraCachesButNeverStartsOrJoinsIt(_Loop):
     def test_without_the_pool_runner_the_same_env_attaches_from_the_host(
         self,
     ) -> None:
-        env = {**loop.job_env(self.runner), loop.POOL_RUNNER_KEY: ""}
+        env = {**loop.job_env(self.runner), POOL_RUNNER_KEY: ""}
         enabled, files = self._layered(env)
         self.assertEqual(
             [enabled, POOL_CONSUMER in files, INFRA_CONSUMER in files],

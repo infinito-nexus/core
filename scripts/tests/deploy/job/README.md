@@ -1,6 +1,6 @@
 # Deploy Job Entry
 
-This directory holds the job entry that every CI deploy step and every job of the local runner pool of [092](../../../../docs/requirements/092-local-stack-architecture.md) calls.
+This directory holds the job entry that every CI deploy step and every job of the local runner pool of [svc-runner](../../../../roles/svc-runner/README.md#local-flavor) calls.
 
 For the CI deploy flows it starts, see [../ci/README.md](../ci/README.md); for the local ones, see [../local/README.md](../local/README.md).
 

@@ -187,6 +187,7 @@ class TestTheInfraRunnerServesThePin(unittest.TestCase):
             patch.object(cli, "up", side_effect=record),
         ):
             profile.return_value.cache_stack_enabled.return_value = True
+            profile.return_value.pool_runner.return_value = False
             self.assertEqual(cli.main(action), 0)
         return seen
 

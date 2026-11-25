@@ -1,7 +1,33 @@
 ---
+- name: 👥 Create the group the local job queue is shared through
+  group:
+    name: "{{ RUNNER_QUEUE_GROUP }}"
+    gid: "{{ RUNNER_QUEUE_GID }}"
+    system: true
+
+- name: 📂 Create the local job queue, sticky, shared by its group, closed to others
+  file:
+    path: "{{ RUNNER_QUEUE_DIR }}"
+    state: directory
+    owner: root
+    group: "{{ RUNNER_QUEUE_GID }}"
+    mode: "3770"
+
+- name: 📂 Create the job, log and runner folders of the local job queue
+  file:
+    path: "{{ [RUNNER_QUEUE_DIR, item] | path_join }}"
+    state: directory
+    owner: root
+    group: "{{ RUNNER_QUEUE_GID }}"
+    mode: "2770"
+  loop:
+    - jobs
+    - logs
+    - runners
+
 - name: 🔌 Define the Docker socket the runner-queue group reaches the daemon on
   ansible.builtin.template: # nocheck: stack-host-template (socket unit of the infra runner's own daemon)
-    src: runner-queue-docker.socket.j2
+    src: runner/queue/docker.socket.j2
     dest: "{{ RUNNER_QUEUE_SOCKET_UNIT_FILE }}"
     mode: "0644"
   register: _runner_queue_socket_unit
@@ -14,7 +40,7 @@
 
 - name: 🔌 Hand the queue socket to the Docker daemon beside its own
   ansible.builtin.template: # nocheck: stack-host-template (docker.service drop-in of the infra runner's own daemon)
-    src: runner-queue-socket.conf.j2
+    src: runner/queue/socket.conf.j2
     dest: "{{ RUNNER_DOCKER_DROPIN }}"
     mode: "0644"
   register: _runner_queue_socket_dropin

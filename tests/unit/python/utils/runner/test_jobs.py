@@ -16,7 +16,7 @@ from unittest.mock import patch
 
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
-from utils.runner import jobs
+from utils.runner import jobs, store
 from utils.runner.jobs import (
     BUSY,
     DONE,
@@ -335,7 +335,7 @@ class TestJobIds(_Queue):
 
     def test_a_submitted_id_passes(self) -> None:
         record = self._submit()
-        self.assertEqual(jobs.checked_id(record.id), record.id)
+        self.assertEqual(store.checked_id(record.id), record.id)
         self.assertEqual(jobs.job(self.root, record.id), record)
 
     def test_a_record_that_names_another_id_or_a_bad_stack_is_refused(self) -> None:
@@ -373,32 +373,32 @@ class TestSharedQueue(_Queue):
         with jobs.open_log(self.root, record.id) as handle:
             handle.write("line\n")
         entries = {
-            self.root: jobs.QUEUE_ROOT_MODE,
-            self.root / "jobs": jobs.SHARED_DIR_MODE,
-            self.root / "logs": jobs.SHARED_DIR_MODE,
-            self.root / "runners": jobs.SHARED_DIR_MODE,
-            self.root / ".lock": jobs.SHARED_FILE_MODE,
-            self.root / "jobs" / f"{record.id}.json": jobs.SHARED_FILE_MODE,
-            jobs.log_path(self.root, record.id): jobs.SHARED_FILE_MODE,
-            self.root / "runners" / "runner-1": jobs.SHARED_FILE_MODE,
+            self.root: store.QUEUE_ROOT_MODE,
+            self.root / "jobs": store.SHARED_DIR_MODE,
+            self.root / "logs": store.SHARED_DIR_MODE,
+            self.root / "runners": store.SHARED_DIR_MODE,
+            self.root / ".lock": store.SHARED_FILE_MODE,
+            self.root / "jobs" / f"{record.id}.json": store.SHARED_FILE_MODE,
+            jobs.log_path(self.root, record.id): store.SHARED_FILE_MODE,
+            self.root / "runners" / "runner-1": store.SHARED_FILE_MODE,
         }
         for path, mode in entries.items():
             with self.subTest(path=path.name):
                 self.assertEqual(stat.S_IMODE(path.stat().st_mode), mode)
 
     def test_the_modes_are_not_world_writable(self) -> None:
-        self.assertEqual(jobs.QUEUE_ROOT_MODE & 0o007, 0)
-        self.assertEqual(jobs.SHARED_DIR_MODE & 0o007, 0)
-        self.assertEqual(jobs.SHARED_FILE_MODE & 0o007, 0)
-        self.assertEqual(jobs.QUEUE_ROOT_MODE & 0o3070, 0o3070)
-        self.assertEqual(jobs.SHARED_DIR_MODE & 0o2070, 0o2070)
-        self.assertEqual(jobs.SHARED_FILE_MODE & 0o060, 0o060)
+        self.assertEqual(store.QUEUE_ROOT_MODE & 0o007, 0)
+        self.assertEqual(store.SHARED_DIR_MODE & 0o007, 0)
+        self.assertEqual(store.SHARED_FILE_MODE & 0o007, 0)
+        self.assertEqual(store.QUEUE_ROOT_MODE & 0o3070, 0o3070)
+        self.assertEqual(store.SHARED_DIR_MODE & 0o2070, 0o2070)
+        self.assertEqual(store.SHARED_FILE_MODE & 0o060, 0o060)
 
     def test_only_the_root_is_sticky_so_runners_still_unlink_each_others_files(
         self,
     ) -> None:
-        self.assertTrue(jobs.QUEUE_ROOT_MODE & stat.S_ISVTX)
-        self.assertFalse(jobs.SHARED_DIR_MODE & stat.S_ISVTX)
+        self.assertTrue(store.QUEUE_ROOT_MODE & stat.S_ISVTX)
+        self.assertFalse(store.SHARED_DIR_MODE & stat.S_ISVTX)
 
     def test_an_existing_queue_keeps_its_owner_mode(self) -> None:
         self.root.mkdir(mode=0o750)
@@ -410,13 +410,13 @@ class TestSharedQueue(_Queue):
 class TestQueueLayout(_Queue):
     def test_the_layout_the_queue_creates_is_sound(self) -> None:
         jobs.ensure_queue(self.root)
-        self.assertEqual(jobs.layout_problems(self.root), [])
+        self.assertEqual(store.layout_problems(self.root), [])
 
     def test_a_root_without_the_sticky_bit_is_named(self) -> None:
         jobs.ensure_queue(self.root)
-        self.root.chmod(jobs.SHARED_DIR_MODE)
+        self.root.chmod(store.SHARED_DIR_MODE)
         self.assertEqual(
-            jobs.layout_problems(self.root), [f"{self.root} lacks the sticky bit"]
+            store.layout_problems(self.root), [f"{self.root} lacks the sticky bit"]
         )
 
     def test_a_linked_missing_or_foreign_folder_is_named(self) -> None:
@@ -436,8 +436,8 @@ class TestQueueLayout(_Queue):
                 return os.stat_result(fields)
             return real(path)
 
-        with patch.object(jobs.os, "lstat", lstat):
-            problems = jobs.layout_problems(self.root)
+        with patch.object(store.os, "lstat", lstat):
+            problems = store.layout_problems(self.root)
         self.assertEqual(
             problems,
             [
@@ -452,18 +452,18 @@ class TestQueueLayout(_Queue):
 
     def test_the_queue_never_replaces_a_folder_of_its_root(self) -> None:
         jobs.register(self.root, "runner-1")
-        before = {name: (self.root / name).stat().st_ino for name in jobs.QUEUE_DIRS}
+        before = {name: (self.root / name).stat().st_ino for name in store.QUEUE_DIRS}
         held = self._held("runner-1", NOW)
         jobs.release(self.root, held.id)
         withdrawn = self._submit(at=NOW + 1)
         jobs.withdraw(self.root, withdrawn.id)
         self.assertEqual(
-            {name: (self.root / name).stat().st_ino for name in jobs.QUEUE_DIRS},
+            {name: (self.root / name).stat().st_ino for name in store.QUEUE_DIRS},
             before,
         )
         self.assertEqual(
             sorted(entry.name for entry in self.root.iterdir()),
-            sorted([".lock", *jobs.QUEUE_DIRS]),
+            sorted([".lock", *store.QUEUE_DIRS]),
         )
 
 
@@ -549,7 +549,7 @@ class TestVanishedRecords(_Queue):
         gone = self._submit(at=NOW + 1)
         path = self.root / "jobs" / f"{gone.id}.json"
         content = json.dumps(dataclasses.asdict(gone))
-        read = jobs._read
+        read = store._read
 
         def withdrawn_first(candidate: Path) -> jobs.Job:
             if candidate == path:
@@ -568,7 +568,7 @@ class TestVanishedRecords(_Queue):
             path.write_text(content, encoding="utf-8")
             with (
                 self.subTest(reader=name),
-                patch.object(jobs, "_read", withdrawn_first),
+                patch.object(store, "_read", withdrawn_first),
                 contextlib.redirect_stderr(io.StringIO()) as err,
             ):
                 self.assertEqual(reader(), expected)
@@ -576,14 +576,14 @@ class TestVanishedRecords(_Queue):
 
     def test_a_record_withdrawn_while_it_is_read_by_its_id_is_no_job(self) -> None:
         gone = self._submit()
-        read = jobs._read
+        read = store._read
 
         def withdrawn_first(candidate: Path) -> jobs.Job:
             candidate.unlink(missing_ok=True)
             return read(candidate)
 
         with (
-            patch.object(jobs, "_read", withdrawn_first),
+            patch.object(store, "_read", withdrawn_first),
             self.assertRaisesRegex(JobError, f"no job {gone.id}"),
         ):
             jobs.job(self.root, gone.id)

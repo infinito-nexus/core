@@ -22,16 +22,9 @@ NOW = 1_800_000_000.0
 HOUR = 3600
 PREFIX = "runner"
 POOL_ON = {POOL_KEY: "true"}
-LISTING = json.dumps(
-    [
-        {"Name": "runner-0", "Status": "exited(1)"},
-        {"Name": "runner-1", "Status": "running(3)"},
-        {"Name": "runner-2", "Status": "running(3)"},
-        {"Name": "runner-3", "Status": "exited(3)"},
-        {"Name": "runner-x", "Status": "running(1)"},
-        {"Name": "myrunner-4", "Status": "running(1)"},
-        {"Name": "svc-registry-cache", "Status": "running(1)"},
-    ]
+LISTING = (
+    "runner-0\nrunner-1\nrunner-1\nrunner-2\nrunner-3\nrunner-x\n"
+    "myrunner-4\nsvc-registry-cache\n"
 )
 
 
@@ -40,7 +33,7 @@ class _Probe:
         """
         Args:
             state: exit status of the infra runner's state check.
-            listing: exit status of ``docker compose ls`` inside the runner.
+            listing: exit status of the compose project listing inside the runner.
         """
         self.codes = {RUNNER_STATE: state, PROJECTS: listing}
         self.calls: list[tuple[str, ...]] = []
@@ -135,7 +128,7 @@ class TestReport(unittest.TestCase):
         code = run(self.root, PREFIX, POOL_ON, probe, NOW, self.out, self.err)
         self.assertEqual(code, 2)
         self.assertEqual(self.out.getvalue(), "")
-        self.assertIn("docker compose ls", self.err.getvalue())
+        self.assertIn("listing the compose projects", self.err.getvalue())
 
 
 class TestUnusableQueue(unittest.TestCase):
