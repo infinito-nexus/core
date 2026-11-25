@@ -12,13 +12,20 @@
     resolve_compose_cid: "{{ lookup('container_address', 'web-app-mastodon', 'mastodon') }}"
 
 - name: "🧭 Ask OpenPost for the Mastodon authorization it would start"
-  uri_retry:
-    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/accounts/mastodon/auth-url?workspace_id={{ openpost_crossposter_target_workspace }}&server_name={{ openpost_crossposter_mastodon_server
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ OPENPOST_NETNS_PYTHON }}"
+    netns_request_host: "{{ OPENPOST_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "{{ OPENPOST_NETNS_URL }}/api/v1/accounts/mastodon/auth-url?workspace_id={{ openpost_crossposter_target_workspace }}&server_name={{ openpost_crossposter_mastodon_server
       | urlencode }}"
-    headers: "{{ openpost_breakglass_headers }}"
-    status_code: 200
-  register: openpost_crossposter_mastodon_authorize
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_headers: "{{ openpost_breakglass_headers }}"
+    netns_request_status: [200]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_timeout: "{{ lookup('timeout', 30) | int }}"
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: openpost_crossposter_mastodon_authorize
 
 - name: "🎫 Grant OpenPost's pinned app the code that authorization asks for"
   ansible.builtin.command:
@@ -29,7 +36,7 @@
       - -e
       - "CROSSPOSTER_ACCOUNT={{ openpost_crossposter_mastodon_route.source.account }}"
       - -e
-      - "CROSSPOSTER_AUTHORIZE={{ openpost_crossposter_mastodon_authorize.json.url }}"
+      - "CROSSPOSTER_AUTHORIZE={{ (openpost_crossposter_mastodon_authorize.content | from_json).url }}"
       - "{{ OPENPOST_SEED_MASTODON_LOCAL_CID }}" # nocheck: container-exec-resolver
       - bin/rails
       - runner
@@ -41,17 +48,23 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔁 Exchange the code through OpenPost"
-  uri_retry:
-    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/accounts/mastodon/exchange"
-    method: POST
-    headers: "{{ openpost_breakglass_headers }}"
-    body_format: json
-    body:
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    openpost_crossposter_mastodon_exchange:
       code: "{{ (openpost_crossposter_mastodon_grant.stdout_lines | select('match', 'CROSSPOSTER_GRANT=') | first) | replace('CROSSPOSTER_GRANT=', '') | trim }}"
       instance_url: ""
       server_name: "{{ openpost_crossposter_mastodon_server }}"
       workspace_id: "{{ openpost_crossposter_target_workspace }}"
-    status_code: [200, 201]
-  retries: 0
-  changed_when: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_argv: "{{ OPENPOST_NETNS_PYTHON }}"
+    netns_request_host: "{{ OPENPOST_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ OPENPOST_NETNS_URL }}/api/v1/accounts/mastodon/exchange"
+    netns_request_headers: "{{ openpost_breakglass_headers }}"
+    netns_request_body: "{{ openpost_crossposter_mastodon_exchange | to_json }}"
+    netns_request_status: [200, 201]
+    netns_request_retries: 0
+    netns_request_delay: 0
+    netns_request_timeout: "{{ lookup('timeout', 30) | int }}"
+    netns_request_changed: [200, 201]
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: openpost_crossposter_mastodon_exchanged

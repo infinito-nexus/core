@@ -1,60 +1,68 @@
 ---
 - name: "🔑 Sign in to {{ application_id }} for the corporate design"
-  ansible.builtin.command:
-    argv: "{{ JELLYFIN_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', {'Username': JELLYFIN_ADMIN_USERNAME, 'Pw': JELLYFIN_ADMIN_PASSWORD} | to_json, headers={'X-Emby-Authorization': JELLYFIN_API_CLIENT})
-      }}"
-  environment:
-    HTTP_METHOD: POST
-    HTTP_URL: "{{ JELLYFIN_API }}/Users/AuthenticateByName"
-  register: jellyfin_design_session
-  until: jellyfin_design_session.rc == 0 and (jellyfin_design_session.stdout | from_json).status == 200
-  retries: 60
-  delay: 5
-  changed_when: false
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ JELLYFIN_NETNS_PYTHON }}"
+    netns_request_host: "{{ JELLYFIN_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ JELLYFIN_API }}/Users/AuthenticateByName"
+    netns_request_headers: "{{ {'X-Emby-Authorization': JELLYFIN_API_CLIENT} }}"
+    netns_request_body: "{{ {'Username': JELLYFIN_ADMIN_USERNAME, 'Pw': JELLYFIN_ADMIN_PASSWORD} | to_json }}"
+    netns_request_status: [200]
+    netns_request_retries: 60
+    netns_request_delay: 5
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: jellyfin_design_session
 
 - name: "📖 Read the branding of {{ application_id }}"
-  ansible.builtin.command:
-    argv: "{{ JELLYFIN_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', '', headers=jellyfin_design_headers) }}"
-  environment:
-    HTTP_METHOD: GET
-    HTTP_URL: "{{ JELLYFIN_API }}/System/Configuration/branding"
-  register: jellyfin_design_branding_answer
-  until: jellyfin_design_branding_answer.rc == 0 and (jellyfin_design_branding_answer.stdout | from_json).status == 200
-  retries: 30
-  delay: 2
-  changed_when: false
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ JELLYFIN_NETNS_PYTHON }}"
+    netns_request_host: "{{ JELLYFIN_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "{{ JELLYFIN_API }}/System/Configuration/branding"
+    netns_request_headers: "{{ jellyfin_design_headers }}"
+    netns_request_status: [200]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: jellyfin_design_branding_answer
 
 - name: "🎨 Apply the corporate custom CSS of {{ application_id }}"
-  ansible.builtin.command:
-    argv: "{{ JELLYFIN_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', jellyfin_design_branding | combine({'CustomCss': jellyfin_design_css}) | to_json, headers=jellyfin_design_headers) }}"
-  environment:
-    HTTP_METHOD: POST
-    HTTP_URL: "{{ JELLYFIN_API }}/System/Configuration/branding"
-  register: jellyfin_design_css_written
-  failed_when: jellyfin_design_css_written.rc != 0 or (jellyfin_design_css_written.stdout | from_json).status not in [200, 204]
-  when: jellyfin_design_css_current != jellyfin_design_css
-  changed_when: true
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ JELLYFIN_NETNS_PYTHON }}"
+    netns_request_host: "{{ JELLYFIN_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ JELLYFIN_API }}/System/Configuration/branding"
+    netns_request_headers: "{{ jellyfin_design_headers }}"
+    netns_request_body: "{{ jellyfin_design_branding | combine({'CustomCss': jellyfin_design_css}) | to_json }}"
+    netns_request_status: [200, 204]
+    netns_request_retries: 0
+    netns_request_delay: 0
+    netns_request_changed: [200, 204]
+    netns_request_skip: "{{ jellyfin_design_css_current == jellyfin_design_css }}"
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: jellyfin_design_css_written
 
 - name: "🏷️ Name the {{ application_id }} server after the corporate title"
   when: jellyfin_design_title is string
   vars:
-    jellyfin_design_system: "{{ (jellyfin_design_system_answer.stdout | from_json).content | from_json }}"
+    jellyfin_design_system: "{{ jellyfin_design_system_answer.content | from_json }}"
   block:
     - name: "📖 Read the server configuration of {{ application_id }}"
-      ansible.builtin.command:
-        argv: "{{ JELLYFIN_NETNS_PYTHON }}"
-        stdin: "{{ lookup('http_request_program', '', headers=jellyfin_design_headers) }}"
-      environment:
-        HTTP_METHOD: GET
-        HTTP_URL: "{{ JELLYFIN_API }}/System/Configuration"
-      register: jellyfin_design_system_answer
-      until: jellyfin_design_system_answer.rc == 0 and (jellyfin_design_system_answer.stdout | from_json).status == 200
-      retries: 30
-      delay: 2
-      changed_when: false
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+      vars:
+        netns_request_argv: "{{ JELLYFIN_NETNS_PYTHON }}"
+        netns_request_host: "{{ JELLYFIN_HOST_NODE }}"
+        netns_request_method: GET
+        netns_request_url: "{{ JELLYFIN_API }}/System/Configuration"
+        netns_request_headers: "{{ jellyfin_design_headers }}"
+        netns_request_status: [200]
+        netns_request_retries: 30
+        netns_request_delay: 2
+        netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+        netns_request_result: jellyfin_design_system_answer
 
     - name: "🏷️ Revert the Jellyfin server name that drifted"
       when: jellyfin_design_system.get('ServerName') != jellyfin_design_title
@@ -65,13 +73,17 @@
             forms_drift_current: "{{ {'settings': {'server_name': jellyfin_design_system.get('ServerName')}} }}"
 
         - name: "🏷️ Write the corporate title into the server configuration"
-          ansible.builtin.command:
-            argv: "{{ JELLYFIN_NETNS_PYTHON }}"
-            stdin: "{{ lookup('http_request_program', jellyfin_design_system | combine({'ServerName': jellyfin_design_title}) | to_json, headers=jellyfin_design_headers)
-              }}"
-          environment:
-            HTTP_METHOD: POST
-            HTTP_URL: "{{ JELLYFIN_API }}/System/Configuration"
-          register: jellyfin_design_title_written
-          failed_when: jellyfin_design_title_written.rc != 0 or (jellyfin_design_title_written.stdout | from_json).status not in [200, 204]
-          changed_when: true
+          ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+          vars:
+            netns_request_argv: "{{ JELLYFIN_NETNS_PYTHON }}"
+            netns_request_host: "{{ JELLYFIN_HOST_NODE }}"
+            netns_request_method: POST
+            netns_request_url: "{{ JELLYFIN_API }}/System/Configuration"
+            netns_request_headers: "{{ jellyfin_design_headers }}"
+            netns_request_body: "{{ jellyfin_design_system | combine({'ServerName': jellyfin_design_title}) | to_json }}"
+            netns_request_status: [200, 204]
+            netns_request_retries: 0
+            netns_request_delay: 0
+            netns_request_changed: [200, 204]
+            netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+            netns_request_result: jellyfin_design_title_written

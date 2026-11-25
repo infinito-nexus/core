@@ -12,86 +12,94 @@
     netns_output_prefix: BLUESKY_PDS
 
 - name: "⏳ Wait for PDS XRPC to come up at {{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/_health"
-  ansible.builtin.command:
-    argv: "{{ BLUESKY_PDS_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', '') }}"
-  environment:
-    HTTP_METHOD: GET
-    HTTP_URL: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/_health"
-  register: bluesky_pds_health
-  retries: 30
-  delay: 2
-  until: bluesky_pds_health.rc == 0 and (bluesky_pds_health.stdout | from_json).status == 200
-  changed_when: false
-  delegate_to: "{{ BLUESKY_PDS_HOST_NODE }}"
-  become: true
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ BLUESKY_PDS_NETNS_PYTHON }}"
+    netns_request_host: "{{ BLUESKY_PDS_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/_health"
+    netns_request_status: [200]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_no_log: false
+    netns_request_result: bluesky_pds_health
 
 - name: "📁 Create native PDS administrator account (idempotent)"
-  ansible.builtin.command:
-    argv: "{{ BLUESKY_PDS_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', {'handle': BLUESKY_ADMIN_HANDLE, 'email': BLUESKY_ADMIN_EMAIL, 'password': BLUESKY_ADMIN_PASSWORD} | to_json) }}"
-  environment:
-    HTTP_METHOD: POST
-    HTTP_URL: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/com.atproto.server.createAccount"
-  register: bluesky_admin_create
-  changed_when: bluesky_admin_create.rc == 0 and (bluesky_admin_create.stdout | from_json).status == 200
-  failed_when: >-
-    bluesky_admin_create.rc != 0
-    or ((bluesky_admin_create.stdout | from_json).status != 200
-        and 'Handle already taken' not in (bluesky_admin_create.stdout | from_json).content
-        and 'Reserved handle' not in (bluesky_admin_create.stdout | from_json).content)
-  delegate_to: "{{ BLUESKY_PDS_HOST_NODE }}"
-  become: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ BLUESKY_PDS_NETNS_PYTHON }}"
+    netns_request_host: "{{ BLUESKY_PDS_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/com.atproto.server.createAccount"
+    netns_request_body: "{{ {'handle': BLUESKY_ADMIN_HANDLE, 'email': BLUESKY_ADMIN_EMAIL, 'password': BLUESKY_ADMIN_PASSWORD} | to_json }}"
+    netns_request_status: [200, 400]
+    netns_request_retries: 0
+    netns_request_delay: 0
+    netns_request_changed: [200]
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: bluesky_admin_create
+
+- name: "✅ Accept only a new account, a taken handle or a reserved handle"
+  ansible.builtin.assert:
+    that: >-
+      bluesky_admin_create.status == 200
+      or 'Handle already taken' in bluesky_admin_create.content
+      or 'Reserved handle' in bluesky_admin_create.content
+    fail_msg: "createAccount returned {{ bluesky_admin_create.status }}"
+    quiet: true
 
 - name: "📁 Create the native PDS admin account with the i8- prefix (idempotent)"
-  ansible.builtin.command:
-    argv: "{{ BLUESKY_PDS_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', {'handle': BLUESKY_ADMIN_HANDLE_RESERVED, 'email': BLUESKY_ADMIN_EMAIL, 'password': BLUESKY_ADMIN_PASSWORD} | to_json)
-      }}"
-  environment:
-    HTTP_METHOD: POST
-    HTTP_URL: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/com.atproto.server.createAccount"
-  register: bluesky_admin_create_reserved
-  changed_when: bluesky_admin_create_reserved.rc == 0 and (bluesky_admin_create_reserved.stdout | from_json).status == 200
-  failed_when: >-
-    bluesky_admin_create_reserved.rc != 0
-    or ((bluesky_admin_create_reserved.stdout | from_json).status != 200
-        and 'Handle already taken' not in (bluesky_admin_create_reserved.stdout | from_json).content)
-  when: "'Reserved handle' in (bluesky_admin_create.stdout | from_json).content"
-  delegate_to: "{{ BLUESKY_PDS_HOST_NODE }}"
-  become: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ BLUESKY_PDS_NETNS_PYTHON }}"
+    netns_request_host: "{{ BLUESKY_PDS_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/com.atproto.server.createAccount"
+    netns_request_body: "{{ {'handle': BLUESKY_ADMIN_HANDLE_RESERVED, 'email': BLUESKY_ADMIN_EMAIL, 'password': BLUESKY_ADMIN_PASSWORD} | to_json }}"
+    netns_request_status: [200, 400]
+    netns_request_retries: 0
+    netns_request_delay: 0
+    netns_request_changed: [200]
+    netns_request_skip: "{{ 'Reserved handle' not in bluesky_admin_create.content }}"
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: bluesky_admin_create_reserved
 
-- name: "🔑 Realign the password an existing native PDS administrator kept"
-  when: (bluesky_admin_create.stdout | from_json).status != 200
-  block:
-    - name: "🔎 Resolve the DID of the native PDS administrator handle"
-      ansible.builtin.command:
-        argv: "{{ BLUESKY_PDS_NETNS_PYTHON }}"
-        stdin: "{{ lookup('http_request_program', '') }}"
-      environment:
-        HTTP_METHOD: GET
-        HTTP_URL: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/com.atproto.identity.resolveHandle?handle={{ BLUESKY_ADMIN_HANDLE | urlencode }}"
-      register: bluesky_admin_did
-      changed_when: false
-      failed_when: bluesky_admin_did.rc != 0 or (bluesky_admin_did.stdout | from_json).status != 200
-      delegate_to: "{{ BLUESKY_PDS_HOST_NODE }}"
-      become: true
+- name: "✅ Accept only a new account or a taken handle under the i8- prefix"
+  ansible.builtin.assert:
+    that: >-
+      bluesky_admin_create_reserved is skipped
+      or bluesky_admin_create_reserved.status == 200
+      or 'Handle already taken' in bluesky_admin_create_reserved.content
+    fail_msg: "createAccount with the i8- prefix returned {{ bluesky_admin_create_reserved.status }}"
+    quiet: true
 
-    - name: "🔑 Set the native administrator password through the admin API"
-      ansible.builtin.command:
-        argv: "{{ BLUESKY_PDS_NETNS_PYTHON }}"
-        stdin: >-
-          {{ lookup('http_request_program',
-                    {'did': ((bluesky_admin_did.stdout | from_json).content | from_json).did, 'password': BLUESKY_ADMIN_PASSWORD} | to_json,
-                    headers={'Authorization': 'Basic ' ~ (('admin:' ~ BLUESKY_ADMIN_PASSWORD) | b64encode)}) }}
-      environment:
-        HTTP_METHOD: POST
-        HTTP_URL: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/com.atproto.admin.updateAccountPassword"
-      register: bluesky_admin_password
-      changed_when: true
-      failed_when: bluesky_admin_password.rc != 0 or (bluesky_admin_password.stdout | from_json).status != 200
-      delegate_to: "{{ BLUESKY_PDS_HOST_NODE }}"
-      become: true
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+- name: "🔎 Resolve the DID of the native PDS administrator handle"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ BLUESKY_PDS_NETNS_PYTHON }}"
+    netns_request_host: "{{ BLUESKY_PDS_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/com.atproto.identity.resolveHandle?handle={{ BLUESKY_ADMIN_HANDLE | urlencode }}"
+    netns_request_status: [200]
+    netns_request_retries: 0
+    netns_request_delay: 0
+    netns_request_skip: "{{ bluesky_admin_create.status == 200 }}"
+    netns_request_no_log: false
+    netns_request_result: bluesky_admin_did
+
+- name: "🔑 Set the native administrator password through the admin API"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ BLUESKY_PDS_NETNS_PYTHON }}"
+    netns_request_host: "{{ BLUESKY_PDS_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ BLUESKY_PDS_INTERNAL_URL }}/xrpc/com.atproto.admin.updateAccountPassword"
+    netns_request_headers: "{{ {'Authorization': 'Basic ' ~ (('admin:' ~ BLUESKY_ADMIN_PASSWORD) | b64encode)} }}"
+    netns_request_body: "{{ {'did': (bluesky_admin_did.content | from_json).did, 'password': BLUESKY_ADMIN_PASSWORD} | to_json }}"
+    netns_request_status: [200]
+    netns_request_retries: 0
+    netns_request_delay: 0
+    netns_request_changed: [200]
+    netns_request_skip: "{{ bluesky_admin_create.status == 200 }}"
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: bluesky_admin_password

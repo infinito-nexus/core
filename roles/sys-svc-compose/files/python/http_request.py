@@ -7,6 +7,7 @@ Args (module global, prepended on stdin by lookup('http_request_program')):
 Args (environment):
     HTTP_METHOD: request method.
     HTTP_URL: absolute http:// URL.
+    HTTP_TIMEOUT: seconds per attempt, a positive integer; empty waits 60.
 
 Output:
     ``{"status": int, "content_type": str, "content": str}`` on stdout. An
@@ -21,6 +22,9 @@ import sys
 import urllib.error
 import urllib.request
 
+timeout = os.environ.get("HTTP_TIMEOUT") or "60"
+if not (timeout.isdigit() and int(timeout) > 0):
+    sys.exit(f"HTTP_TIMEOUT must be a positive integer, got {timeout!r}")
 body = base64.b64decode(globals()["BODY_B64"]).decode()
 headers = {"Content-Type": "application/json"} if body else {}
 headers.update(json.loads(base64.b64decode(globals()["HEADERS_B64"]).decode()))
@@ -32,7 +36,7 @@ request = urllib.request.Request(  # noqa: S310 - caller-fixed http:// URL insid
 )
 opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 try:
-    with opener.open(request, timeout=60) as response:
+    with opener.open(request, timeout=int(timeout)) as response:
         status, headers, content = response.status, response.headers, response.read()
 except urllib.error.HTTPError as error:
     status, headers, content = error.code, error.headers, error.read()

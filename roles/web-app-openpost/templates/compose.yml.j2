@@ -17,6 +17,7 @@
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_image', application_id, 'relay') }}
     {{ lookup('compose_only', 'container_name', OPENPOST_RELAY_NAME) }}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_extra_hosts', host_alias=True) | indent(4) }}
     {{ lookup('container_networks', service_name) | indent(4) }}
@@ -58,6 +59,7 @@
       - --keystore-type
       - PKCS12
       - --disable-banner
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks', service_name) | indent(4) }}
   {% endif %}
@@ -78,7 +80,6 @@
     {{ lookup('compose_only', 'pull_policy', 'never') }}
     {{ lookup('compose_restart') }}
     {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
-    {# nocheck: swarm-loopback-port open  the host-side test and the Playwright browser reach the fake provider on this published local port, which swarm drops; 074 :27 tracks it #}
     {{ lookup('container_ports', ['provider', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_networks', service_name) | indent(4) }}

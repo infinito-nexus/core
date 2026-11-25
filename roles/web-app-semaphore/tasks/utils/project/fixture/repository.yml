@@ -1,42 +1,41 @@
 ---
 - name: "🗑️ Drop the inventory repository an earlier key or target left behind"
-  ansible.builtin.command:
-    argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', '', headers=SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS) }}"
-  environment:
-    HTTP_METHOD: DELETE
-    HTTP_URL: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}"
-  register: semaphore_deploy_fixture_drop
-  retries: 30
-  delay: 2
-  until: semaphore_deploy_fixture_drop.rc == 0 and (semaphore_deploy_fixture_drop.stdout | from_json).status in [204, 404]
-  changed_when: semaphore_deploy_fixture_drop.rc == 0 and (semaphore_deploy_fixture_drop.stdout | from_json).status == 204
-  delegate_to: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
-  become: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
+    netns_request_host: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
+    netns_request_method: DELETE
+    netns_request_url: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}"
+    netns_request_headers: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS }}"
+    netns_request_status: [204, 404]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_changed: [204]
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: semaphore_deploy_fixture_drop
 
 - name: "📦 Create the private inventory repository"
-  ansible.builtin.command:
-    argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
-    stdin: >-
-      {{ lookup('http_request_program', {
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
+    netns_request_host: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/admin/users/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH.split('/')[0] }}/repos"
+    netns_request_headers: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS }}"
+    netns_request_body: >-
+      {{ {
         'name': SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH.split('/')[1],
         'private': true,
         'auto_init': true,
         'readme': 'Default',
         'default_branch': SEMAPHORE_DEPLOY_REPOSITORY_BRANCH,
-      } | to_json, headers=SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS) }}
-  environment:
-    HTTP_METHOD: POST
-    HTTP_URL: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/admin/users/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH.split('/')[0] }}/repos"
-  register: semaphore_deploy_fixture_create
-  retries: 30
-  delay: 2
-  until: semaphore_deploy_fixture_create.rc == 0 and (semaphore_deploy_fixture_create.stdout | from_json).status == 201
-  changed_when: true
-  delegate_to: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
-  become: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      } | to_json }}
+    netns_request_status: [201]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_changed: [201]
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: semaphore_deploy_fixture_create
 
 - name: "📁 Stage a scratch directory for the inventory on the controller"
   ansible.builtin.tempfile:

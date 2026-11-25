@@ -57,19 +57,17 @@
     netns_output_prefix: NEXTCLOUD_MM
 
 - name: "⏳ Wait until the Mattermost HTTP API serves (mmctl local mode skips it)"
-  ansible.builtin.command:
-    argv: "{{ NEXTCLOUD_MM_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', '') }}"
-  environment:
-    HTTP_METHOD: GET
-    HTTP_URL: "{{ nextcloud_mm_local_url }}/api/v4/system/ping"
-  delegate_to: "{{ NEXTCLOUD_MM_HOST_NODE }}"
-  become: true
-  register: nextcloud_mm_http_ready
-  retries: 30
-  delay: 5
-  until: nextcloud_mm_http_ready.rc == 0 and (nextcloud_mm_http_ready.stdout | from_json).status == 200
-  changed_when: false
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ NEXTCLOUD_MM_NETNS_PYTHON }}"
+    netns_request_host: "{{ NEXTCLOUD_MM_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "{{ nextcloud_mm_local_url }}/api/v4/system/ping"
+    netns_request_status: [200]
+    netns_request_retries: 30
+    netns_request_delay: 5
+    netns_request_no_log: false
+    netns_request_result: nextcloud_mm_http_ready
 
 - name: 🔧 Provision Mattermost OAuth app for Nextcloud and capture creds (idempotent)
   ansible.builtin.shell:

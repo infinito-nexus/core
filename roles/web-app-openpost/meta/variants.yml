@@ -92,6 +92,16 @@
       shared: true
     tor: # nocheck: variant-tor-off, variant-tor-collateral the SSO round runs clearnet only: OpenPost reaches an onion Keycloak only through Tor's SOCKS port, which svc-net-tor opens to the internal ranges and not to the role subnet 192.88.99.0/24, so its partners ride along on clearnet and are proven over the onion in their own variants
       enabled: false
+  domains: &openpost_provider_domains
+    canonical:
+      web: publish.{{ DOMAIN_PRIMARY }}
+      provider: provider.publish.{{ DOMAIN_PRIMARY }}
+  server: &openpost_provider_server
+    vhosts:
+      provider:
+        service_key: provider
+        http_port: "{{ lookup('config', 'web-app-openpost', 'services.provider.ports.local.http') }}"
+        internal_port: "{{ lookup('config', 'web-app-openpost', 'services.provider.ports.internal.http') }}"
 
 - services:
     container_backup:
@@ -182,6 +192,8 @@
       shared: false
     tor:
       enabled: true
+  domains: *openpost_provider_domains
+  server: *openpost_provider_server
 
 - services:
     container_backup:

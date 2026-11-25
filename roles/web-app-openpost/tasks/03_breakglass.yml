@@ -1,27 +1,34 @@
 ---
 - name: "⏳ Wait until OpenPost reports ready"
-  uri_retry:
-    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/ready"
-    headers: "{{ OPENPOST_API_HEADERS }}"
-    status_code: 200
-    timeout: "{{ lookup('timeout', 10) | int }}"
-  retries: 60
-  delay: 5
-  changed_when: false
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ OPENPOST_NETNS_PYTHON }}"
+    netns_request_host: "{{ OPENPOST_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "{{ OPENPOST_NETNS_URL }}/api/v1/ready"
+    netns_request_headers: "{{ OPENPOST_API_HEADERS }}"
+    netns_request_status: [200]
+    netns_request_retries: 60
+    netns_request_delay: 5
+    netns_request_timeout: "{{ lookup('timeout', 10) | int }}"
+    netns_request_no_log: false
+    netns_request_result: openpost_ready
 
 - name: "🔑 Sign in as the break-glass instance admin"
-  uri_retry:
-    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/auth/login"
-    method: POST
-    headers: "{{ OPENPOST_API_HEADERS }}"
-    body_format: json
-    body:
-      email: "{{ OPENPOST_ADMIN_EMAIL }}"
-      password: "{{ OPENPOST_ADMIN_PASSWORD }}"
-    status_code: [200, 401]
-  register: openpost_breakglass_login
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  changed_when: false
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ OPENPOST_NETNS_PYTHON }}"
+    netns_request_host: "{{ OPENPOST_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ OPENPOST_NETNS_URL }}/api/v1/auth/login"
+    netns_request_headers: "{{ OPENPOST_API_HEADERS }}"
+    netns_request_body: "{{ {'email': OPENPOST_ADMIN_EMAIL, 'password': OPENPOST_ADMIN_PASSWORD} | to_json }}"
+    netns_request_status: [200, 401]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_timeout: "{{ lookup('timeout', 30) | int }}"
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: openpost_breakglass_login
 
 - name: "🛟 Create or recover the break-glass account that cannot sign in"
   include_tasks: breakglass/recover.yml
@@ -29,31 +36,43 @@
 
 - name: "🔐 Keep the break-glass session headers for the following API calls"
   ansible.builtin.set_fact:
-    openpost_breakglass_headers: >-
-      {{ OPENPOST_API_HEADERS | combine({'Authorization': 'Bearer ' ~
-         (openpost_breakglass_login.json.token if openpost_breakglass_login.status == 200
-          else openpost_breakglass_register.json.token if openpost_breakglass_register.status == 200
-          else openpost_breakglass_relogin.json.token)}) }}
+    openpost_breakglass_headers: "{{ OPENPOST_API_HEADERS | combine({'Authorization': 'Bearer ' ~ (openpost_breakglass_session.content | from_json).token}) }}"
+  vars:
+    openpost_breakglass_session: >-
+      {{ openpost_breakglass_login if openpost_breakglass_login.status == 200
+         else openpost_breakglass_register if openpost_breakglass_register.status == 200
+         else openpost_breakglass_relogin }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔍 List the workspaces of the break-glass instance admin"
-  uri_retry:
-    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/workspaces"
-    headers: "{{ openpost_breakglass_headers }}"
-    status_code: 200
-  register: openpost_breakglass_workspaces
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  changed_when: false
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ OPENPOST_NETNS_PYTHON }}"
+    netns_request_host: "{{ OPENPOST_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "{{ OPENPOST_NETNS_URL }}/api/v1/workspaces"
+    netns_request_headers: "{{ openpost_breakglass_headers }}"
+    netns_request_status: [200]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_timeout: "{{ lookup('timeout', 30) | int }}"
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: openpost_breakglass_workspaces
 
 - name: "🏢 Create the organisation workspace owned by the break-glass instance admin"
-  uri_retry:
-    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/workspaces"
-    method: POST
-    headers: "{{ openpost_breakglass_headers }}"
-    body_format: json
-    body:
-      name: "{{ OPENPOST_ORGANISATION_WORKSPACE }}"
-    status_code: 200
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  changed_when: true
-  when: OPENPOST_ORGANISATION_WORKSPACE not in (openpost_breakglass_workspaces.json | map(attribute='name') | list)
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ OPENPOST_NETNS_PYTHON }}"
+    netns_request_host: "{{ OPENPOST_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ OPENPOST_NETNS_URL }}/api/v1/workspaces"
+    netns_request_headers: "{{ openpost_breakglass_headers }}"
+    netns_request_body: "{{ {'name': OPENPOST_ORGANISATION_WORKSPACE} | to_json }}"
+    netns_request_status: [200]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_timeout: "{{ lookup('timeout', 30) | int }}"
+    netns_request_changed: [200]
+    netns_request_skip: "{{ OPENPOST_ORGANISATION_WORKSPACE in (openpost_breakglass_workspaces.content | from_json | map(attribute='name') | list) }}"
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: openpost_breakglass_workspace

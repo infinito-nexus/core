@@ -1,25 +1,24 @@
 ---
 - name: "🔑 Log the ChatGPT bridge bot in against Synapse"
-  ansible.builtin.command:
-    argv: "{{ MATRIX_SYNAPSE_NETNS_PYTHON }}"
-    stdin: >-
-      {{ lookup('http_request_program', {
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ MATRIX_SYNAPSE_NETNS_PYTHON }}"
+    netns_request_host: "{{ MATRIX_SYNAPSE_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "http://127.0.0.1:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}/_matrix/client/v3/login"
+    netns_request_body: >-
+      {{ {
         'type': 'm.login.password',
         'identifier': {'type': 'm.id.user', 'user': 'chatgptbot'},
         'password': lookup('config', application_id, 'secrets.credentials.chatgpt_bridge_user_password'),
         'initial_device_display_name': 'infinito-chatgpt-bridge',
-      } | to_json) }}
-  environment:
-    HTTP_METHOD: POST
-    HTTP_URL: "http://127.0.0.1:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}/_matrix/client/v3/login"
-  register: matrix_chatgptbot_login
-  retries: 10
-  delay: 6
-  until: matrix_chatgptbot_login.rc == 0 and (matrix_chatgptbot_login.stdout | from_json).status == 200
-  changed_when: false
-  delegate_to: "{{ MATRIX_SYNAPSE_HOST_NODE }}"
-  become: true
+      } | to_json }}
+    netns_request_status: [200]
+    netns_request_retries: 10
+    netns_request_delay: 6
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: matrix_chatgptbot_login
 
 - name: "🔧 Publish the issued token to the bridge container env"
   ansible.builtin.set_fact:
-    MATRIX_CHATGPT_ACCESS_TOKEN: "{{ ((matrix_chatgptbot_login.stdout | from_json).content | from_json).access_token }}"
+    MATRIX_CHATGPT_ACCESS_TOKEN: "{{ (matrix_chatgptbot_login.content | from_json).access_token }}"

@@ -114,13 +114,15 @@ class TestSettingsForm(unittest.TestCase):
     def test_the_drift_report_runs_between_the_read_and_the_write(self) -> None:
         read, drifted = _server_name_steps()
         report, write = drifted["block"]
-        self.assertEqual("jellyfin_design_system_answer", read["register"])
+        self.assertEqual(
+            "jellyfin_design_system_answer", read["vars"]["netns_request_result"]
+        )
         self.assertIn(DRIFT_TASKS, report["ansible.builtin.include_tasks"])
         self.assertEqual(
             "jellyfin_design_system.get('ServerName') != jellyfin_design_title",
             drifted["when"],
         )
-        self.assertIn("ServerName", write["ansible.builtin.command"]["stdin"])
+        self.assertIn("ServerName", write["vars"]["netns_request_body"])
 
     def test_the_drift_report_holds_the_stored_server_name(self) -> None:
         current = _server_name_steps()[1]["block"][0]["vars"]["forms_drift_current"]

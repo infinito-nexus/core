@@ -1,0 +1,29 @@
+---
+- name: "🔍 Resolve the OpenPost container for host-side API calls"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: openpost
+    resolve_output_prefix: OPENPOST
+    resolve_compose_cid: "{{ OPENPOST_NAME }}"
+
+- name: "⏳ Wait until the OpenPost container reports healthy"
+  ansible.builtin.command:
+    argv:
+      - container
+      - inspect
+      - --type
+      - container
+      - --format
+      - "{{ '{{.State.Health.Status}}' }}"
+      - "{{ OPENPOST_LOCAL_CID }}" # nocheck: container-exec-resolver
+  register: openpost_health
+  until: (openpost_health.stdout | trim) == 'healthy'
+  retries: "{{ (lookup('timeout', 600) | int) // 5 }}"
+  delay: 5
+  changed_when: false
+  delegate_to: "{{ OPENPOST_HOST_NODE }}"
+
+- name: "🔍 Resolve the OpenPost network namespace for host-side API calls"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+  vars:
+    netns_output_prefix: OPENPOST

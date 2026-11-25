@@ -12,31 +12,35 @@
     netns_output_prefix: FLOWISE
 
 - name: "👤 Register the Flowise instance owner before a visitor can claim it"
-  ansible.builtin.command:
-    argv: "{{ FLOWISE_NETNS_PYTHON }}"
-    stdin: >-
-      {{ lookup('http_request_program', {'user': {
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+    apply:
+      run_once: true
+  vars:
+    netns_request_argv: "{{ FLOWISE_NETNS_PYTHON }}"
+    netns_request_host: "{{ FLOWISE_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ FLOWISE_INTERNAL_URL }}/api/v1/account/register"
+    netns_request_headers: "{{ {'x-request-from': 'internal'} }}"
+    netns_request_body: >-
+      {{ {'user': {
         'email': FLOWISE_API_BOT_USER.email,
         'name': FLOWISE_API_BOT_USER.username,
         'credential': FLOWISE_API_BOT_PASSWORD,
-      }} | to_json, headers={'x-request-from': 'internal'}) }}
-  environment:
-    HTTP_METHOD: POST
-    HTTP_URL: "{{ FLOWISE_INTERNAL_URL }}/api/v1/account/register"
-  register: flowise_owner
-  retries: 30
-  delay: 5
-  until: flowise_owner.rc == 0 and (flowise_owner.stdout | from_json).status in [200, 201, 400]
-  changed_when: flowise_owner.rc == 0 and (flowise_owner.stdout | from_json).status in [200, 201]
-  failed_when: >-
-    flowise_owner.rc != 0
-    or ((flowise_owner.stdout | from_json).status not in [200, 201]
-    and ((flowise_owner.stdout | from_json).status != 400
-    or 'only have one organization' not in (flowise_owner.stdout | from_json).content))
-  delegate_to: "{{ FLOWISE_HOST_NODE }}"
-  become: true
+      }} | to_json }}
+    netns_request_status: [200, 201, 400]
+    netns_request_retries: 30
+    netns_request_delay: 5
+    netns_request_changed: [200, 201]
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: flowise_owner
+
+- name: "✅ Accept a 400 only when Flowise already has its one organization"
+  ansible.builtin.assert:
+    that: flowise_owner.status != 400 or 'only have one organization' in flowise_owner.content
+    fail_msg: "account/register returned {{ flowise_owner.status }}"
+    quiet: true
   run_once: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔐 Converge the password of the Flowise instance owner"
   ansible.builtin.command:

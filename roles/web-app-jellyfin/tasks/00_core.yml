@@ -53,8 +53,8 @@
     - name: "🎨 Apply the corporate design of {{ application_id }}"
       vars:
         jellyfin_design_headers:
-          Authorization: 'MediaBrowser Token="{{ ((jellyfin_design_session.stdout | from_json).content | from_json).AccessToken }}"'
-        jellyfin_design_branding: "{{ (jellyfin_design_branding_answer.stdout | from_json).content | from_json }}"
+          Authorization: 'MediaBrowser Token="{{ (jellyfin_design_session.content | from_json).AccessToken }}"'
+        jellyfin_design_branding: "{{ jellyfin_design_branding_answer.content | from_json }}"
         jellyfin_design_title: "{{ JELLYFIN_SETTINGS.server_name | default(false) }}"
         jellyfin_design_css_current: "{{ jellyfin_design_branding.get('CustomCss') or '' }}"
         jellyfin_design_css_foreign: "{{ jellyfin_design_css_current | regex_replace(JELLYFIN_DESIGN_CSS_PATTERN, '') | trim }}"

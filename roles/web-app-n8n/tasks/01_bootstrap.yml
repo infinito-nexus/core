@@ -37,46 +37,41 @@
     n8n_owner_probe_status: "{{ (n8n_owner_probe.stdout | from_json).status }}"
 
 - name: "🔧 Initialise n8n owner account (first-time only)"
-  ansible.builtin.command:
-    argv: "{{ N8N_NETNS_PYTHON }}"
-    stdin: >-
-      {{ lookup('http_request_program', {
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ N8N_NETNS_PYTHON }}"
+    netns_request_host: "{{ N8N_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ N8N_NETNS_API_URL }}/rest/owner/setup"
+    netns_request_body: >-
+      {{ {
         'email': N8N_OWNER_EMAIL,
         'firstName': lookup('users', 'platform_administrator').firstname | replace('.', ' ') | trim,
         'lastName': lookup('users', 'platform_administrator').lastname | replace('.', ' ') | trim,
         'password': N8N_OWNER_PASSWORD,
-      } | to_json) }}
-  environment:
-    HTTP_METHOD: POST
-    HTTP_URL: "{{ N8N_NETNS_API_URL }}/rest/owner/setup"
-  register: n8n_owner_setup
-  changed_when: n8n_owner_setup.rc == 0 and (n8n_owner_setup.stdout | from_json).status in [200, 201]
-  failed_when: n8n_owner_setup.rc != 0 or (n8n_owner_setup.stdout | from_json).status not in [200, 201, 400]
-  delegate_to: "{{ N8N_HOST_NODE }}"
-  become: true
-  when: n8n_owner_probe_status | int != 200
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      } | to_json }}
+    netns_request_status: [200, 201, 400]
+    netns_request_retries: 0
+    netns_request_delay: 0
+    netns_request_changed: [200, 201]
+    netns_request_skip: "{{ n8n_owner_probe_status | int == 200 }}"
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: n8n_owner_setup
 
-- name: "✅ Check the n8n owner setup answer"
+- name: "✅ Assert n8n owner setup succeeded or was already done"
+  ansible.builtin.assert:
+    that:
+      - >-
+        (n8n_owner_setup.status in [200, 201])
+        or ('already setup' in n8n_owner_setup.content)
+    fail_msg: "n8n owner setup returned {{ n8n_owner_setup.status }}: {{ n8n_owner_setup.content }}"
   when: n8n_owner_setup is not skipped
-  block:
-    - name: "🔧 Keep the owner setup answer"
-      ansible.builtin.set_fact:
-        n8n_owner_setup_answer: "{{ n8n_owner_setup.stdout | from_json }}"
-
-    - name: "✅ Assert n8n owner setup succeeded or was already done"
-      ansible.builtin.assert:
-        that:
-          - >-
-            (n8n_owner_setup_answer.status in [200, 201])
-            or ('already setup' in n8n_owner_setup_answer.content)
-        fail_msg: "n8n owner setup returned {{ n8n_owner_setup_answer.status }}: {{ n8n_owner_setup_answer.content }}"
 
 - name: "🔐 Converge a rotated owner password n8n still rejects"
   when:
     - n8n_owner_probe_status | int in [401, 403]
     - n8n_owner_setup is not skipped
-    - "'already setup' in n8n_owner_setup_answer.content"
+    - "'already setup' in n8n_owner_setup.content"
   block:
     - name: "🔐 Write the deployed owner password into n8n's user row"
       ansible.builtin.shell:
@@ -99,15 +94,15 @@
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
     - name: "🔎 Confirm the owner signs in with the deployed password"
-      ansible.builtin.command:
-        argv: "{{ N8N_NETNS_PYTHON }}"
-        stdin: "{{ lookup('http_request_program', {'emailOrLdapLoginId': N8N_OWNER_EMAIL, 'password': N8N_OWNER_PASSWORD} | to_json) }}"
-      environment:
-        HTTP_METHOD: POST
-        HTTP_URL: "{{ N8N_NETNS_API_URL }}/rest/login"
-      register: n8n_owner_confirm
-      changed_when: false
-      failed_when: n8n_owner_confirm.rc != 0 or (n8n_owner_confirm.stdout | from_json).status != 200
-      delegate_to: "{{ N8N_HOST_NODE }}"
-      become: true
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+      vars:
+        netns_request_argv: "{{ N8N_NETNS_PYTHON }}"
+        netns_request_host: "{{ N8N_HOST_NODE }}"
+        netns_request_method: POST
+        netns_request_url: "{{ N8N_NETNS_API_URL }}/rest/login"
+        netns_request_body: "{{ {'emailOrLdapLoginId': N8N_OWNER_EMAIL, 'password': N8N_OWNER_PASSWORD} | to_json }}"
+        netns_request_status: [200]
+        netns_request_retries: 0
+        netns_request_delay: 0
+        netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+        netns_request_result: n8n_owner_confirm

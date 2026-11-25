@@ -59,6 +59,10 @@
 - name: "🚿 flush handlers for '{{ application_id }}'"
   meta: flush_handlers
 
+- name: "🔍 Resolve the OpenPost namespace for the break-glass and crossposter calls"
+  include_tasks: netns.yml
+  when: IS_STACK_HOST | bool
+
 - name: "🔑 Bootstrap the break-glass instance admin"
   include_tasks: 03_breakglass.yml
   when: IS_STACK_HOST | bool

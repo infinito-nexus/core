@@ -1,45 +1,43 @@
 ---
 - name: "🔑 PEERTUBE | Obtain an API token for root"
-  ansible.builtin.command:
-    argv: "{{ PEERTUBE_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', PEERTUBE_ROOT_TOKEN_FORM, headers=PEERTUBE_TOKEN_HEADERS) }}"
-  environment:
-    HTTP_METHOD: POST
-    HTTP_URL: "{{ PEERTUBE_NETNS_URL }}/api/v1/users/token"
-  register: peertube_design_token
-  retries: 30
-  delay: 2
-  until: peertube_design_token.rc == 0 and (peertube_design_token.stdout | from_json).status == 200
-  changed_when: false
-  delegate_to: "{{ PEERTUBE_HOST_NODE }}"
-  become: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ PEERTUBE_NETNS_PYTHON }}"
+    netns_request_host: "{{ PEERTUBE_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ PEERTUBE_NETNS_URL }}/api/v1/users/token"
+    netns_request_headers: "{{ PEERTUBE_TOKEN_HEADERS }}"
+    netns_request_body: "{{ PEERTUBE_ROOT_TOKEN_FORM }}"
+    netns_request_status: [200]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: peertube_design_token
 
 - name: "🔑 PEERTUBE | Keep the API headers of root"
   ansible.builtin.set_fact:
     peertube_design_headers:
       Host: "{{ PEERTUBE_HOSTNAME }}"
-      Authorization: "Bearer {{ ((peertube_design_token.stdout | from_json).content | from_json).access_token }}"
+      Authorization: "Bearer {{ (peertube_design_token.content | from_json).access_token }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔍 PEERTUBE | Read the logos PeerTube serves"
-  ansible.builtin.command:
-    argv: "{{ PEERTUBE_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', '', headers=PEERTUBE_API_HEADERS) }}"
-  environment:
-    HTTP_METHOD: GET
-    HTTP_URL: "{{ PEERTUBE_NETNS_URL }}/api/v1/config"
-  register: peertube_design_config
-  retries: 30
-  delay: 2
-  until: peertube_design_config.rc == 0 and (peertube_design_config.stdout | from_json).status == 200
-  changed_when: false
-  delegate_to: "{{ PEERTUBE_HOST_NODE }}"
-  become: true
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ PEERTUBE_NETNS_PYTHON }}"
+    netns_request_host: "{{ PEERTUBE_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "{{ PEERTUBE_NETNS_URL }}/api/v1/config"
+    netns_request_headers: "{{ PEERTUBE_API_HEADERS }}"
+    netns_request_status: [200]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_no_log: false
+    netns_request_result: peertube_design_config
 
 - name: "🔍 PEERTUBE | Keep the logos PeerTube serves"
   ansible.builtin.set_fact:
-    peertube_design_served: "{{ ((peertube_design_config.stdout | from_json).content | from_json).instance.logo }}"
+    peertube_design_served: "{{ (peertube_design_config.content | from_json).instance.logo }}"
 
 - name: "🎨 PEERTUBE | Apply the corporate logos"
   ansible.builtin.include_tasks: design/apply.yml

@@ -105,6 +105,7 @@ class LinkedIn:
 
     def handle(self, request: Request) -> Response:
         routes = {
+            ("GET", "/"): self.health,
             ("GET", "/signup"): self.signup_page,
             ("POST", "/signup"): self.signup,
             ("GET", "/oauth/v2/authorization"): self.authorization_page,

@@ -60,53 +60,57 @@
     netns_output_prefix: JELLYFIN
 
 - name: "🛂 Jellyfin auth | Trust the forwarded headers of the front proxy"
-  delegate_to: "{{ JELLYFIN_HOST_NODE }}"
-  become: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   vars:
     jellyfin_proxy_headers:
-      Authorization: 'MediaBrowser Token="{{ ((jellyfin_proxy_session.stdout | from_json).content | from_json).AccessToken }}"'
-    jellyfin_network: "{{ (jellyfin_network_answer.stdout | from_json).content | from_json }}"
+      Authorization: 'MediaBrowser Token="{{ (jellyfin_proxy_session.content | from_json).AccessToken }}"'
+    jellyfin_network: "{{ jellyfin_network_answer.content | from_json }}"
   block:
     - name: "🔑 Sign in to {{ application_id }} for its network configuration"
-      ansible.builtin.command:
-        argv: "{{ JELLYFIN_NETNS_PYTHON }}"
-        stdin: "{{ lookup('http_request_program', {'Username': JELLYFIN_ADMIN_USERNAME, 'Pw': JELLYFIN_ADMIN_PASSWORD} | to_json, headers={'X-Emby-Authorization':
-          JELLYFIN_API_CLIENT}) }}"
-      environment:
-        HTTP_METHOD: POST
-        HTTP_URL: "{{ JELLYFIN_API }}/Users/AuthenticateByName"
-      register: jellyfin_proxy_session
-      until: jellyfin_proxy_session.rc == 0 and (jellyfin_proxy_session.stdout | from_json).status == 200
-      retries: 60
-      delay: 5
-      changed_when: false
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+      vars:
+        netns_request_argv: "{{ JELLYFIN_NETNS_PYTHON }}"
+        netns_request_host: "{{ JELLYFIN_HOST_NODE }}"
+        netns_request_method: POST
+        netns_request_url: "{{ JELLYFIN_API }}/Users/AuthenticateByName"
+        netns_request_headers: "{{ {'X-Emby-Authorization': JELLYFIN_API_CLIENT} }}"
+        netns_request_body: "{{ {'Username': JELLYFIN_ADMIN_USERNAME, 'Pw': JELLYFIN_ADMIN_PASSWORD} | to_json }}"
+        netns_request_status: [200]
+        netns_request_retries: 60
+        netns_request_delay: 5
+        netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+        netns_request_result: jellyfin_proxy_session
 
     - name: "📖 Read the network configuration of {{ application_id }}"
-      ansible.builtin.command:
-        argv: "{{ JELLYFIN_NETNS_PYTHON }}"
-        stdin: "{{ lookup('http_request_program', '', headers=jellyfin_proxy_headers) }}"
-      environment:
-        HTTP_METHOD: GET
-        HTTP_URL: "{{ JELLYFIN_API }}/System/Configuration/network"
-      register: jellyfin_network_answer
-      until: jellyfin_network_answer.rc == 0 and (jellyfin_network_answer.stdout | from_json).status == 200
-      retries: 30
-      delay: 2
-      changed_when: false
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+      vars:
+        netns_request_argv: "{{ JELLYFIN_NETNS_PYTHON }}"
+        netns_request_host: "{{ JELLYFIN_HOST_NODE }}"
+        netns_request_method: GET
+        netns_request_url: "{{ JELLYFIN_API }}/System/Configuration/network"
+        netns_request_headers: "{{ jellyfin_proxy_headers }}"
+        netns_request_status: [200]
+        netns_request_retries: 30
+        netns_request_delay: 2
+        netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+        netns_request_result: jellyfin_network_answer
 
     - name: "🛂 Trust X-Forwarded-* from the private proxy networks"
-      ansible.builtin.command:
-        argv: "{{ JELLYFIN_NETNS_PYTHON }}"
-        stdin: "{{ lookup('http_request_program', jellyfin_network | combine({'KnownProxies': NETWORK_TRUSTED_PROXY_CIDRS}) | to_json, headers=jellyfin_proxy_headers)
-          }}"
-      environment:
-        HTTP_METHOD: POST
-        HTTP_URL: "{{ JELLYFIN_API }}/System/Configuration/network"
-      register: jellyfin_network_written
-      failed_when: jellyfin_network_written.rc != 0 or (jellyfin_network_written.stdout | from_json).status not in [200, 204]
-      when: jellyfin_network.KnownProxies != NETWORK_TRUSTED_PROXY_CIDRS
-      changed_when: true
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+      vars:
+        netns_request_argv: "{{ JELLYFIN_NETNS_PYTHON }}"
+        netns_request_host: "{{ JELLYFIN_HOST_NODE }}"
+        netns_request_method: POST
+        netns_request_url: "{{ JELLYFIN_API }}/System/Configuration/network"
+        netns_request_headers: "{{ jellyfin_proxy_headers }}"
+        netns_request_body: "{{ jellyfin_network | combine({'KnownProxies': NETWORK_TRUSTED_PROXY_CIDRS}) | to_json }}"
+        netns_request_status: [200, 204]
+        netns_request_retries: 0
+        netns_request_delay: 0
+        netns_request_changed: [200, 204]
+        netns_request_skip: "{{ jellyfin_network.KnownProxies == NETWORK_TRUSTED_PROXY_CIDRS }}"
+        netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+        netns_request_result: jellyfin_network_written
 
 - name: "♻️ Jellyfin auth | Final restart to apply auth configuration (compose)"
   ansible.builtin.command: container restart {{ JELLYFIN_NAME }}

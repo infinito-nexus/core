@@ -1,0 +1,51 @@
+---
+# Param: netns_request_argv   - argv running python3 on stdin in the namespace (<prefix>_NETNS_PYTHON of utils/netns.yml)
+# Param: netns_request_host    - node holding the namespace (<prefix>_HOST_NODE of utils/swarm/resolve_host_cid.yml)
+# Param: netns_request_method  - request method
+# Param: netns_request_url     - absolute http:// URL inside the namespace
+# Param: netns_request_headers - request headers mapping; {} sends none
+# Param: netns_request_body    - request body text; '' sends none
+# Param: netns_request_status  - accepted statuses; any other fails the call once the retries run out
+# Param: netns_request_retries - retries after the first attempt; 0 sends once
+# Param: netns_request_delay   - seconds between attempts
+# Param: netns_request_timeout - seconds per attempt, a positive integer; null waits 60
+# Param: netns_request_changed - statuses that report a change; [] reports none
+# Param: netns_request_skip    - true sends nothing and sets a skipped result
+# Param: netns_request_no_log  - true hides the request and the answer
+# Param: netns_request_result  - name of the fact that receives the command result plus the answer's status, content_type and content
+- name: "🛑 netns_request | refuse a call without its required parameters"
+  ansible.builtin.assert:
+    that: netns_request_missing | length == 0
+    fail_msg: "utils/netns_request.yml misses {{ netns_request_missing | join(', ') }}"
+    quiet: true
+  vars:
+    netns_request_missing: >-
+      {{ ['netns_request_argv', 'netns_request_host', 'netns_request_method', 'netns_request_url', 'netns_request_status',
+          'netns_request_retries', 'netns_request_delay', 'netns_request_no_log', 'netns_request_result']
+         | difference(q('varnames', '^netns_request_')) }}
+
+- name: "🌐 netns_request | {{ netns_request_method }} {{ netns_request_shown_url }}"
+  vars:
+    netns_request_shown_url: "{{ 'masked URL' if netns_request_no_log | bool else netns_request_url }}"
+  ansible.builtin.command:
+    argv: "{{ netns_request_argv }}"
+    stdin: "{{ lookup('http_request_program', netns_request_body | default(''), headers=netns_request_headers | default({})) }}"
+  environment:
+    HTTP_METHOD: "{{ netns_request_method }}"
+    HTTP_URL: "{{ netns_request_url }}"
+    HTTP_TIMEOUT: "{{ '' if netns_request_timeout | default(none) is none else netns_request_timeout | string }}"
+  register: netns_request_answer
+  until: netns_request_answer.rc == 0 and (netns_request_answer.stdout | from_json).status in netns_request_status
+  retries: "{{ netns_request_retries }}"
+  delay: "{{ netns_request_delay }}"
+  changed_when: netns_request_answer.rc == 0 and (netns_request_answer.stdout | from_json).status in (netns_request_changed | default([]))
+  failed_when: netns_request_answer.rc != 0 or (netns_request_answer.stdout | from_json).status not in netns_request_status
+  when: not (netns_request_skip | default(false) | bool)
+  delegate_to: "{{ netns_request_host }}"
+  become: true
+  no_log: "{{ netns_request_no_log | bool }}"
+
+- name: "🔧 netns_request | keep the answer as {{ netns_request_result }}"
+  ansible.builtin.set_fact:
+    "{{ netns_request_result }}": "{{ netns_request_answer | combine({} if netns_request_answer is skipped else (netns_request_answer.stdout | from_json)) }}"
+  no_log: "{{ netns_request_no_log | bool }}"

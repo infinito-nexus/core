@@ -13,19 +13,17 @@
     netns_output_prefix: GRAFANA
 
 - name: "⏳ Wait for /api/health of Grafana on '{{ grafana_instance.network }}'"
-  ansible.builtin.command:
-    argv: "{{ GRAFANA_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', '') }}"
-  environment:
-    HTTP_METHOD: GET
-    HTTP_URL: "{{ GRAFANA_INSTANCE_NETNS_URL }}/api/health"
-  register: grafana_health
-  until: grafana_health.rc == 0 and (grafana_health.stdout | from_json).status == 200
-  retries: 60
-  delay: 5
-  changed_when: false
-  delegate_to: "{{ GRAFANA_HOST_NODE }}"
-  become: true
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ GRAFANA_NETNS_PYTHON }}"
+    netns_request_host: "{{ GRAFANA_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "{{ GRAFANA_INSTANCE_NETNS_URL }}/api/health"
+    netns_request_status: [200]
+    netns_request_retries: 60
+    netns_request_delay: 5
+    netns_request_no_log: false
+    netns_request_result: grafana_health
 
 - name: "🔐 Align the break-glass password on '{{ grafana_instance.network }}'"
   ansible.builtin.command:

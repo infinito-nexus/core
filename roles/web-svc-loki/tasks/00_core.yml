@@ -46,19 +46,17 @@
         netns_output_prefix: LOKI
 
     - name: "⏳ Wait until Loki answers /ready inside its network namespace"
-      ansible.builtin.command:
-        argv: "{{ LOKI_NETNS_PYTHON }}"
-        stdin: "{{ lookup('http_request_program', '') }}"
-      environment:
-        HTTP_METHOD: GET
-        HTTP_URL: "{{ LOKI_NETNS_URL }}/ready"
-      register: loki_ready
-      until: loki_ready.rc == 0 and (loki_ready.stdout | from_json).status == 200
-      retries: 60
-      delay: 5
-      changed_when: false
-      delegate_to: "{{ LOKI_HOST_NODE }}"
-      become: true
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+      vars:
+        netns_request_argv: "{{ LOKI_NETNS_PYTHON }}"
+        netns_request_host: "{{ LOKI_HOST_NODE }}"
+        netns_request_method: GET
+        netns_request_url: "{{ LOKI_NETNS_URL }}/ready"
+        netns_request_status: [200]
+        netns_request_retries: 60
+        netns_request_delay: 5
+        netns_request_no_log: false
+        netns_request_result: loki_ready
 
 - name: "📂 Include front proxy for {{ application_id }}"
   include_role:

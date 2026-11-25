@@ -129,8 +129,8 @@ class TestUriNeverTargetsContainerLoopback(unittest.TestCase):
             scan(),
             "a uri task runs outside the backend's network namespace, where "
             "its ports.internal port is not listening; call it through "
-            "roles/sys-svc-compose/tasks/utils/netns.yml with "
-            "lookup('http_request_program') or through container exec",
+            "roles/sys-svc-compose/tasks/utils/netns_request.yml or through "
+            "container exec",
         )
 
 

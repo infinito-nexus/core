@@ -13,20 +13,20 @@
     netns_output_prefix: DASHBOARD_SIMPLEICONS
 
 - name: "⏳ Wait for a known Simple Icons asset"
-  ansible.builtin.command:
-    argv: "{{ DASHBOARD_SIMPLEICONS_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', '') }}"
-  environment:
-    HTTP_METHOD: HEAD
-    HTTP_URL: "{{ DASHBOARD_SIMPLEICONS_SYNC_URL_BASE }}keycloak.svg"
-  register: dashboard_simpleicons_ready
-  retries: 60
-  delay: 5
-  until: dashboard_simpleicons_ready.rc == 0 and (dashboard_simpleicons_ready.stdout | from_json).status == 200
-  changed_when: false
-  delegate_to: "{{ DASHBOARD_SIMPLEICONS_HOST_NODE }}"
-  become: true
-  run_once: true
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+    apply:
+      run_once: true
+  vars:
+    netns_request_argv: "{{ DASHBOARD_SIMPLEICONS_NETNS_PYTHON }}"
+    netns_request_host: "{{ DASHBOARD_SIMPLEICONS_HOST_NODE }}"
+    netns_request_method: HEAD
+    netns_request_url: "{{ DASHBOARD_SIMPLEICONS_SYNC_URL_BASE }}keycloak.svg"
+    netns_request_status: [200]
+    netns_request_retries: 60
+    netns_request_delay: 5
+    netns_request_no_log: false
+    netns_request_result: dashboard_simpleicons_ready
 
 - name: "🔍 Probe Simple Icons reachability per card slug"
   ansible.builtin.command:

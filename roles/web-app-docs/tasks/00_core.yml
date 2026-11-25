@@ -75,17 +75,17 @@
     netns_output_prefix: DOCS
 
 - name: "🔥 Queue the build of the deployed working tree for '{{ application_id }}'"
-  ansible.builtin.command:
-    argv: "{{ DOCS_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', '') }}"
-  environment:
-    HTTP_METHOD: GET
-    HTTP_URL: "{{ DOCS_NETNS_BASE_URL }}/deployed/{{ item }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
   loop: "{{ DOCS_I18N_PRELOAD_PATHS }}"
-  register: docs_deployed_warm
-  until: docs_deployed_warm.rc == 0 and (docs_deployed_warm.stdout | from_json).status in [200, 202]
-  retries: 12
-  delay: 10
-  changed_when: false
-  delegate_to: "{{ DOCS_HOST_NODE }}"
-  become: true
+  loop_control:
+    loop_var: docs_deployed_path
+  vars:
+    netns_request_argv: "{{ DOCS_NETNS_PYTHON }}"
+    netns_request_host: "{{ DOCS_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "{{ DOCS_NETNS_BASE_URL }}/deployed/{{ docs_deployed_path }}"
+    netns_request_status: [200, 202]
+    netns_request_retries: 12
+    netns_request_delay: 10
+    netns_request_no_log: false
+    netns_request_result: docs_deployed_warm

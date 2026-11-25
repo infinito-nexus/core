@@ -14,18 +14,19 @@
     netns_output_prefix: DASHBOARD
 
 - name: "⏳ Wait for the {{ dashboard_instance.network }} Dashboard instance"
-  ansible.builtin.command:
-    argv: "{{ DASHBOARD_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', '') }}"
-  environment:
-    HTTP_METHOD: GET
-    HTTP_URL: "http://127.0.0.1:{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.ports.internal.' ~ ('http' | labelled(dashboard_instance.label,
-      '_'))) }}/"
-  register: dashboard_http
-  retries: 60
-  delay: 5
-  until: dashboard_http.rc == 0 and (dashboard_http.stdout | from_json).status == 200
-  changed_when: false
-  delegate_to: "{{ DASHBOARD_HOST_NODE }}"
-  become: true
-  run_once: true
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+    apply:
+      run_once: true
+  vars:
+    netns_request_argv: "{{ DASHBOARD_NETNS_PYTHON }}"
+    netns_request_host: "{{ DASHBOARD_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: >-
+      http://127.0.0.1:{{ lookup('config', DASHBOARD_APPLICATION_ID,
+      'services.dashboard.ports.internal.' ~ ('http' | labelled(dashboard_instance.label, '_'))) }}/
+    netns_request_status: [200]
+    netns_request_retries: 60
+    netns_request_delay: 5
+    netns_request_no_log: false
+    netns_request_result: dashboard_http

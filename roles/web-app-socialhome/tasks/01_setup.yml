@@ -12,35 +12,32 @@
     netns_output_prefix: SOCIALHOME
 
 - name: "⏳ Wait for Social Home at {{ SOCIALHOME_INTERNAL_URL }}/healthz"
-  ansible.builtin.command:
-    argv: "{{ SOCIALHOME_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', '') }}"
-  environment:
-    HTTP_METHOD: GET
-    HTTP_URL: "{{ SOCIALHOME_INTERNAL_URL }}/healthz"
-  register: socialhome_health
-  retries: 30
-  delay: 5
-  until: socialhome_health.rc == 0 and (socialhome_health.stdout | from_json).status == 200
-  changed_when: false
-  delegate_to: "{{ SOCIALHOME_HOST_NODE }}"
-  become: true
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ SOCIALHOME_NETNS_PYTHON }}"
+    netns_request_host: "{{ SOCIALHOME_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "{{ SOCIALHOME_INTERNAL_URL }}/healthz"
+    netns_request_status: [200]
+    netns_request_retries: 30
+    netns_request_delay: 5
+    netns_request_no_log: false
+    netns_request_result: socialhome_health
 
 - name: "🔐 Mark the standalone first-boot setup complete"
-  ansible.builtin.command:
-    argv: "{{ SOCIALHOME_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', {'username': SOCIALHOME_ADMIN_USERNAME, 'password': SOCIALHOME_ADMIN_PASSWORD} | to_json) }}"
-  environment:
-    HTTP_METHOD: POST
-    HTTP_URL: "{{ SOCIALHOME_INTERNAL_URL }}/api/setup/standalone"
-  register: socialhome_setup
-  retries: 30
-  delay: 2
-  until: socialhome_setup.rc == 0 and (socialhome_setup.stdout | from_json).status in [201, 409]
-  changed_when: socialhome_setup.rc == 0 and (socialhome_setup.stdout | from_json).status == 201
-  delegate_to: "{{ SOCIALHOME_HOST_NODE }}"
-  become: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ SOCIALHOME_NETNS_PYTHON }}"
+    netns_request_host: "{{ SOCIALHOME_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ SOCIALHOME_INTERNAL_URL }}/api/setup/standalone"
+    netns_request_body: "{{ {'username': SOCIALHOME_ADMIN_USERNAME, 'password': SOCIALHOME_ADMIN_PASSWORD} | to_json }}"
+    netns_request_status: [201, 409]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_changed: [201]
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: socialhome_setup
 
 - name: "🔍 Resolve the hosting node + container id of '{{ application_id }}'"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"

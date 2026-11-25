@@ -89,69 +89,65 @@
     netns_output_prefix: SEMAPHORE_GITEA
 
 - name: "🔎 Read the fixture marker of the inventory repository"
-  ansible.builtin.command:
-    argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', '', headers=SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS) }}"
-  environment:
-    HTTP_METHOD: GET
-    HTTP_URL: >-
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
+    netns_request_host: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: >-
       {{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}/raw/{{ SEMAPHORE_DEPLOY_FIXTURE_MARKER
       }}?ref={{ SEMAPHORE_DEPLOY_REPOSITORY_BRANCH | urlencode }}
-  register: semaphore_deploy_fixture_marker
-  retries: 30
-  delay: 2
-  until: semaphore_deploy_fixture_marker.rc == 0 and (semaphore_deploy_fixture_marker.stdout | from_json).status in [200, 404]
-  changed_when: false
-  delegate_to: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
-  become: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_headers: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS }}"
+    netns_request_status: [200, 404]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: semaphore_deploy_fixture_marker
 
 - name: "🏗️ Recreate the inventory repository for the current keys and target"
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/project/fixture/repository.yml"
   when: >-
-    (semaphore_deploy_fixture_marker.stdout | from_json).status != 200
-    or ((semaphore_deploy_fixture_marker.stdout | from_json).content | trim) != SEMAPHORE_DEPLOY_FIXTURE_FINGERPRINT
+    semaphore_deploy_fixture_marker.status != 200
+    or (semaphore_deploy_fixture_marker.content | trim) != SEMAPHORE_DEPLOY_FIXTURE_FINGERPRINT
 
 - name: "🔎 List the deploy keys of the inventory repository"
-  ansible.builtin.command:
-    argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', '', headers=SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS) }}"
-  environment:
-    HTTP_METHOD: GET
-    HTTP_URL: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}/keys"
-  register: semaphore_deploy_fixture_keys
-  retries: 30
-  delay: 2
-  until: semaphore_deploy_fixture_keys.rc == 0 and (semaphore_deploy_fixture_keys.stdout | from_json).status == 200
-  changed_when: false
-  delegate_to: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
-  become: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
+    netns_request_host: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}/keys"
+    netns_request_headers: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS }}"
+    netns_request_status: [200]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: semaphore_deploy_fixture_keys
 
 - name: "🔑 Bind the inventory repository key to the repository, read-only"
-  ansible.builtin.command:
-    argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
-    stdin: >-
-      {{ lookup('http_request_program', {
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
+    netns_request_host: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}/keys"
+    netns_request_headers: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS }}"
+    netns_request_body: >-
+      {{ {
         'title': SEMAPHORE_DEPLOY_REPOSITORY_KEY_NAME,
         'key': SEMAPHORE_DEPLOY_REPOSITORY_KEY | ssh_public_key,
         'read_only': true,
-      } | to_json, headers=SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS) }}
-  environment:
-    HTTP_METHOD: POST
-    HTTP_URL: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}/keys"
-  register: semaphore_deploy_fixture_bind
-  retries: 30
-  delay: 2
-  until: semaphore_deploy_fixture_bind.rc == 0 and (semaphore_deploy_fixture_bind.stdout | from_json).status == 201
-  changed_when: true
-  delegate_to: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
-  become: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  when: >-
-    (semaphore_deploy_fixture_keys.stdout | from_json).content | from_json
-    | selectattr('key', 'search', (SEMAPHORE_DEPLOY_REPOSITORY_KEY | ssh_public_key).split()[1] | regex_escape)
-    | list | length == 0
+      } | to_json }}
+    netns_request_status: [201]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_changed: [201]
+    netns_request_skip: >-
+      {{ semaphore_deploy_fixture_keys.content | from_json
+         | selectattr('key', 'search', (SEMAPHORE_DEPLOY_REPOSITORY_KEY | ssh_public_key).split()[1] | regex_escape)
+         | list | length > 0 }}
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: semaphore_deploy_fixture_bind
 
 - name: "🔐 Hand OpenBao the platform credentials the workspace fixture references"
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/project/fixture/credentials.yml"

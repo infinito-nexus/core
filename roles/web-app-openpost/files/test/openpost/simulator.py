@@ -23,6 +23,7 @@ from openpost.api import (
     check,
     draft,
     in_container,
+    post_inside,
     provider,
     release,
     renditions,
@@ -196,8 +197,7 @@ def check_tokens_at_rest() -> None:
 def member_session(tag: str) -> tuple[str, str, str]:
     local, domain = MEMBER_MAILBOX.split("@", 1)
     email = f"{local}+{tag}@{domain}"
-    status, body = call(
-        "POST",
+    body = post_inside(
         "/auth/register",
         {
             "email": email,
@@ -206,8 +206,8 @@ def member_session(tag: str) -> tuple[str, str, str]:
             "accepted_legal": True,
         },
     )
-    if status != 200 or not isinstance(body, dict) or not body.get("token"):
-        sys.exit(f"[FAIL] the probe member cannot register: HTTP {status} {body}")
+    if not isinstance(body, dict) or not body.get("token"):
+        sys.exit(f"[FAIL] the probe member cannot register: {body}")
     return str(body["token"]), str(body["user"]["id"]), email
 
 

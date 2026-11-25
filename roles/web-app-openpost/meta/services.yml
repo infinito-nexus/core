@@ -107,6 +107,9 @@ openpost:
 relay:
   enabled: true
   shared: false
+  healthcheck:
+    flavor: nc
+    port_key: https
   modes:
     compose:
       enabled: true
@@ -132,6 +135,9 @@ relay:
 simulator:
   enabled: false
   shared: false
+  healthcheck:
+    flavor: http_status
+    path: __admin/mappings
   modes:
     compose:
       enabled: true

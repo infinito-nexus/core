@@ -102,19 +102,17 @@
     netns_output_prefix: MATRIX_SYNAPSE
 
 - name: ⏳ wait for Synapse client/versions endpoint
-  ansible.builtin.command:
-    argv: "{{ MATRIX_SYNAPSE_NETNS_PYTHON }}"
-    stdin: "{{ lookup('http_request_program', '') }}"
-  environment:
-    HTTP_METHOD: GET
-    HTTP_URL: "http://127.0.0.1:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}/_matrix/client/versions"
-  register: matrix_synapse_health
-  retries: 60
-  delay: 2
-  until: matrix_synapse_health.rc == 0 and (matrix_synapse_health.stdout | from_json).status == 200
-  changed_when: false
-  delegate_to: "{{ MATRIX_SYNAPSE_HOST_NODE }}"
-  become: true
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ MATRIX_SYNAPSE_NETNS_PYTHON }}"
+    netns_request_host: "{{ MATRIX_SYNAPSE_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "http://127.0.0.1:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}/_matrix/client/versions"
+    netns_request_status: [200]
+    netns_request_retries: 60
+    netns_request_delay: 2
+    netns_request_no_log: false
+    netns_request_result: matrix_synapse_health
 
 - name: "👤 Do the stack-host-only part of the Matrix bring-up"
   when: IS_STACK_HOST | bool

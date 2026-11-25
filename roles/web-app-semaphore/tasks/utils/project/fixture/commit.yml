@@ -106,22 +106,22 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "📤 Commit the inventory to the repository"
-  ansible.builtin.command:
-    argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
-    stdin: >-
-      {{ lookup('http_request_program', {
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
+    netns_request_host: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}/contents"
+    netns_request_headers: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS }}"
+    netns_request_body: >-
+      {{ {
         'branch': SEMAPHORE_DEPLOY_REPOSITORY_BRANCH,
         'message': 'Inventories of the shared target and the platform host',
         'files': semaphore_deploy_fixture_commit,
-      } | to_json, headers=SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS) }}
-  environment:
-    HTTP_METHOD: POST
-    HTTP_URL: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}/contents"
-  register: semaphore_deploy_fixture_push
-  retries: 30
-  delay: 2
-  until: semaphore_deploy_fixture_push.rc == 0 and (semaphore_deploy_fixture_push.stdout | from_json).status == 201
-  changed_when: true
-  delegate_to: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
-  become: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      } | to_json }}
+    netns_request_status: [201]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_changed: [201]
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: semaphore_deploy_fixture_push
