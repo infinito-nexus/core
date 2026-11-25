@@ -20,6 +20,22 @@ It MUST NOT host application roles, fixtures, or test harnesses.
 - You SHOULD annotate non-obvious keys with a short inline comment that explains why they exist, not what they do.
 - You MUST document every new env var by adding the row below AND committing a one-line `# ...` comment above its key in [default.env](../../../../default.env).
 
+## Stack Kinds 🧱
+
+The stacks of this repository are declared in [stacks.yml](../../../../compose/stacks.yml); the `infinito` runner container of `compose.yml` belongs to the `deploy` stack.
+
+| Stack | Class | Purpose |
+|---|---|---|
+| `cache` | always-on | Registry mirror and package cache inside the machine-wide infra runner `infinito-infra`. |
+| `tools` | on-demand | Translation and model services inside the infra runner, started after `cache`. |
+| `test-runner` | long-lived | Shared test runner `infinito-test-<hash>`, one per toolchain image, which every `make test*` and `make lint*` target uses. |
+| `deploy` | on-demand | The deploy stack of one checkout, with `infinito`, `coredns`, `target` and `target-resolver`. |
+
+- A test or lint target MUST NOT start a deploy stack; `make test-runner-status` shows the test runner and `make test-runner-down` removes it.
+- With `INFINITO_STACK_NAME=<name>` set, every deploy, exec, test and lint target addresses the stack `<name>` instead of the default ones, so the test and lint targets then run in that stack's `infinito` container.
+- With `INFINITO_DEPLOY_VIA_POOL=true`, `make compose-deploy` submits a pool job to the runner pool of [svc-runner](../../../../roles/svc-runner/README.md); `hold=true` keeps the job's stack until `make runner-release job=<id>` removes it.
+- `make runner-status` lists the pool runners and their jobs, `make runner-cleanup-report` lists held jobs and orphaned job stacks, and `make runner-count` prints the default pool size.
+
 ## Environment Variables 📋
 
 All variables consumed by [compose.yml](../../../../compose.yml).

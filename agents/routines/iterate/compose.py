@@ -128,7 +128,7 @@ STEPS = [
     ),
     Step(
         "baseline",
-        "make test, then make compose-deploy mode=reinstall apps=<roles> full_cycle=true",
+        "make test (it runs in the shared test runner infinito-test-<hash>), then make compose-deploy mode=reinstall apps=<roles> full_cycle=true hold=true when the pool serves the deploy (INFINITO_DEPLOY_VIA_POOL=true), whose job stack stays until make runner-release job=<id>",
         nxt="inspect",
     ),
     Step(
@@ -183,7 +183,11 @@ STEPS = [
         branches=(("✅ green", TUNE_VELOCITY), ("❌ red", "hung"), (RUNNING, "hung")),
     ),
     *companion_steps("done", design=True),
-    Step("done", "Report the roles green on the stack", "terminal"),
+    Step(
+        "done",
+        "Report the roles green on the stack, after releasing every held pool job with make runner-release job=<id> (ids from make runner-status)",
+        "terminal",
+    ),
     *red_chain("iterate_compose", "inspect", ("sync", "rebuild", "redeploy", "gate")),
 ]
 MERMAID = mermaid(STEPS)

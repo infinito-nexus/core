@@ -13,7 +13,10 @@ Follow the instructions from AGENTS.md, then run
 the same `base=<dir>` that `make worktree-up` was given, otherwise the target
 looks in the default parent directory and reports no worktree at that path.
 
-The target stops only the worktree's own deploy stack. It never stops the
+The target stops only the worktree's own deploy stack. A pool job this worktree
+submitted with `hold=true` keeps its stack on the infra runner's daemon, so list
+the held jobs with `make runner-status` and release each of them with
+`make runner-release job=<id>`. It never stops the
 machine-wide infra runner (`infinito-infra`), the runner pool or a shared test
 runner `infinito-test-<hash>`: other checkouts keep using them, and nothing of
 the caches or the tools belongs to one worktree.

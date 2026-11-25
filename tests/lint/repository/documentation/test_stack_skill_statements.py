@@ -15,6 +15,35 @@ GATE_STATEMENTS = (
     "starts no deploy stack",
     "`make test-runner-status`",
 )
+WORKTREE_DOWN_SKILL = "i8-worktree-down"
+WORKTREE_DOWN_STATEMENTS = (
+    "`make runner-status`",
+    "`make runner-release job=<id>`",
+    "never stops the\nmachine-wide infra runner",
+)
+TEST_SKILL = "i8-test"
+RUNNER_STATEMENTS = (
+    "shared test runner `infinito-test-<hash>`",
+    "`make test-runner-status`",
+    "`make runner-release job=<id>`",
+)
+ROUTINE_FILES = ("testing.py", "iterate/compose.py")
+ROUTINE_STATEMENTS = (
+    "shared test runner infinito-test-<hash>",
+    "make test-runner-status",
+    "make runner-release job=<id>",
+)
+COMPOSE_DOC = ("docs", "contributing", "artefact", "files", "compose.yml.md")
+COMPOSE_DOC_STATEMENTS = (
+    "`make test-runner-status`",
+    "`INFINITO_STACK_NAME=<name>`",
+    "`make runner-release job=<id>`",
+    "`make runner-status`",
+    "`make runner-cleanup-report`",
+    "`make runner-count`",
+    "always-on",
+    "long-lived",
+)
 CLEANUP_SKILL = "i8-cleanup"
 CLEANUP_STATEMENTS = (
     "never a candidate",
@@ -33,6 +62,10 @@ NAMED_TARGETS = (
     "build-cleanup",
     "runner-cleanup-report",
     "cache-evict",
+    "runner-status",
+    "runner-release",
+    "runner-count",
+    "test-runner-down",
 )
 UNKNOWN_TARGET = "no-such-target"
 
@@ -91,6 +124,50 @@ class TestGateSkillsNameTheTestRunner(unittest.TestCase):
     def test_a_gate_skill_without_the_runner_statement_is_flagged(self) -> None:
         text = _skill(GATE_SKILLS[0]).replace(GATE_STATEMENTS[1], "")
         self.assertEqual(missing(text, GATE_STATEMENTS), [GATE_STATEMENTS[1]])
+
+
+class TestWorktreeDownReleasesHeldJobs(unittest.TestCase):
+    def test_it_names_the_release_and_spares_the_runners(self) -> None:
+        text = _skill(WORKTREE_DOWN_SKILL)
+        self.assertEqual(missing(text, WORKTREE_DOWN_STATEMENTS), [])
+
+    def test_a_skill_without_the_release_is_flagged(self) -> None:
+        text = _skill(WORKTREE_DOWN_SKILL).replace(WORKTREE_DOWN_STATEMENTS[1], "")
+        self.assertEqual(
+            missing(text, WORKTREE_DOWN_STATEMENTS), [WORKTREE_DOWN_STATEMENTS[1]]
+        )
+
+
+class TestTestingGuidanceNamesTheRunnerAndRelease(unittest.TestCase):
+    def test_the_test_skill_names_the_runner_and_the_release(self) -> None:
+        self.assertEqual(missing(_skill(TEST_SKILL), RUNNER_STATEMENTS), [])
+
+    def test_the_routines_hand_the_agent_the_runner_and_the_release(self) -> None:
+        joined = "".join(
+            read_text(str(PROJECT_ROOT / "agents" / "routines" / name))
+            for name in ROUTINE_FILES
+        )
+        self.assertEqual(missing(joined, ROUTINE_STATEMENTS), [])
+
+    def test_a_routine_without_the_release_is_flagged(self) -> None:
+        text = read_text(str(PROJECT_ROOT / "agents" / "routines" / ROUTINE_FILES[1]))
+        self.assertEqual(
+            missing(text.replace(ROUTINE_STATEMENTS[2], ""), ROUTINE_STATEMENTS[2:]),
+            [ROUTINE_STATEMENTS[2]],
+        )
+
+    def test_compose_doc_names_stack_kinds_pool_targets_and_override(self) -> None:
+        text = read_text(str(PROJECT_ROOT.joinpath(*COMPOSE_DOC)))
+        self.assertEqual(missing(text, COMPOSE_DOC_STATEMENTS), [])
+
+    def test_a_compose_doc_without_the_override_is_flagged(self) -> None:
+        text = read_text(str(PROJECT_ROOT.joinpath(*COMPOSE_DOC)))
+        self.assertEqual(
+            missing(
+                text.replace(COMPOSE_DOC_STATEMENTS[1], ""), COMPOSE_DOC_STATEMENTS
+            ),
+            [COMPOSE_DOC_STATEMENTS[1]],
+        )
 
 
 class TestCleanupSkillStacks(unittest.TestCase):

@@ -15,7 +15,7 @@ STEPS = [
     ),
     Step(
         "validate",
-        "Run the one matching validation command per contributing/actions/testing.md, unit tests serial not parallel",
+        "Run the one matching validation command per contributing/actions/testing.md, unit tests serial not parallel; every make test* and make lint* target runs in the shared test runner infinito-test-<hash> and starts no deploy stack (make test-runner-status shows it)",
         nxt="recover",
     ),
     Step(

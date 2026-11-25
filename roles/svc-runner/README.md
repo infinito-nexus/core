@@ -92,6 +92,10 @@ make runner-ci-disable OWNER=youruser
 | `make runner-ci-deploy` | `HOST`, `DISTRO`, `COUNT` (optional), `PORT`, `OWNER`, `REPO` | Provision runner instances on the target host. |
 | `make runner-ci-enable` | `COUNT`, `OWNER`, `REPO` | Set `CI_SELF_HOSTED_RUNNER_COUNT` repo variable to activate split routing. |
 | `make runner-ci-disable` | `OWNER`, `REPO` | Zero the variable — all CI reverts to GitHub-hosted runners. |
+| `make runner-status` | none | Print one JSON object per pool runner with its state (`idle`, `busy` or `held`), its job and stack, and for a held job its age and release command; exits 3 while no runner has registered. |
+| `make runner-release` | `job` | Remove the stack of a held or stranded pool job from the infra runner's daemon, end the job and free its runner. |
+| `make runner-cleanup-report` | none | Print one JSON object per held pool job with its age and every job stack no running or held job owns; removes nothing. |
+| `make runner-count` | none | Print the default pool size and its RAM, CPU and disk terms as JSON; `INFINITO_RUNNER_COUNT` overrides it. |
 
 ## CLI parameters
 

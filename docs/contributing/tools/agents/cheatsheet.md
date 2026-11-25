@@ -33,7 +33,7 @@ from its procedure file. Run `make install-skills` to (re)install them; `INFINIT
 | Splitting an over-budget CI row into variants that keep its coverage | `i8-variant-split` |
 | Inspecting the variant tree one CI row really deploys | `i8-variant-tree` |
 | Checking a branch out into a parallel worktree | `i8-worktree-create` |
-| Releasing a parallel worktree, its own deploy stack and its slot, while the infra runner and the shared test runners keep running | `i8-worktree-down` |
+| Releasing a parallel worktree, its own deploy stack, its held pool jobs and its slot, while the infra runner and the shared test runners keep running | `i8-worktree-down` |
 | Freeing disk space and `/tmp` that agents filled: toolchain images through `make build-cleanup`, cache space through `make cache-evict`, and the list of stale test runners and of held and orphaned pool job stacks | `i8-cleanup` |
 | A GitHub Actions / CI run failed and needs triage | `triage` |
 | A local deploy is failing on the host | `i8-debug-local` |
