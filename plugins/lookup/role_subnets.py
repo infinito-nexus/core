@@ -13,6 +13,10 @@ Usage:
 Terms may be role ids or lists of them, mixed. A role that declares no local
 subnet raises, because a silently dropped entry would narrow whatever firewall
 or trust list consumes the result.
+
+A term may also be the unrendered template text of a group var such as
+``NETWORK_ROLE_SUBNET_EXCEPTION_ROLES``, which reaches a lookup as the file
+holds it; it is rendered before its role ids are read.
 """
 
 from __future__ import annotations
@@ -22,8 +26,15 @@ from typing import Any
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
+from ansible.template import trust_as_template
 
 _SUBNET_PATH = "networks.local.subnet"
+
+
+def _rendered(templar: Any, term: Any) -> Any:
+    if isinstance(term, str) and "{{" in term and templar is not None:
+        return templar.template(trust_as_template(term))
+    return term
 
 
 def _flattened(terms: list[Any]) -> list[str]:
@@ -43,7 +54,8 @@ class LookupModule(LookupBase):
         variables: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> list[Any]:
-        roles = _flattened(terms or [])
+        templar = getattr(self, "_templar", None)
+        roles = _flattened([_rendered(templar, term) for term in terms or []])
         if not roles:
             raise AnsibleError(
                 "lookup('role_subnets', <role id or list of role ids>) expects "
@@ -52,7 +64,7 @@ class LookupModule(LookupBase):
         config = lookup_loader.get(
             "config",
             loader=getattr(self, "_loader", None),
-            templar=getattr(self, "_templar", None),
+            templar=templar,
         )
         subnets: list[str] = []
         for role in roles:

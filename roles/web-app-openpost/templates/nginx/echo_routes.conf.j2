@@ -1,0 +1,11 @@
+{% set sso_proxy_enabled = lookup('sso', application_id, 'is_proxy_gated') %}
+{% set location = '~ "^/api/v1/(media/(upload|batch-upload|metadata|upload-session/[^/]+/content)|auth/profile/avatar|admin/backup(/.*)?)$"' %}
+{% set proxy_x_forwarded_proto = 'http' %}
+{% set webserver_location_extra_configuration %}
+  set $openpost_origin $http_origin;
+  if ($http_origin = "https://$host") {
+    set $openpost_origin "http://$host";
+  }
+  proxy_set_header Origin $openpost_origin;
+{% endset %}
+{% include 'roles/sys-svc-proxy/templates/location/html.conf.j2' %}
