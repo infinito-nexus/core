@@ -126,8 +126,11 @@ def _serve(
             "forget" deletes every async job state before it sends BLOB.
             Each of them waits the seconds before it answers, except "outage",
             which answers 503 until the seconds have passed since its first
-            request and BLOB after that, and "gate", which sends BLOB once every
-            "gate" route has been asked or the seconds have passed.
+            request and BLOB after that, "gate", which sends BLOB once every
+            "gate" route has been asked or the seconds have passed, "hold",
+            which sends BLOB once every "release" route has answered or the
+            seconds have passed, and "release", which sends other bytes once
+            every "hold" route has been asked or the seconds have passed.
         held: the store paths "tamper" and "rewrite" change.
         async_dir: the directory of the async job states "forget" deletes.
 
@@ -136,6 +139,8 @@ def _serve(
     """
     lock = threading.Condition()
     gates = sum(1 for kind, _ in routes.values() if kind == "gate")
+    holds = sum(1 for kind, _ in routes.values() if kind == "hold")
+    releases = sum(1 for kind, _ in routes.values() if kind == "release")
     stats: dict = {
         "requests": {},
         "first": {},
@@ -144,6 +149,8 @@ def _serve(
         "active": 0,
         "overlap": 0,
         "gated": 0,
+        "holding": 0,
+        "released": 0,
         "order": [],
     }
 
@@ -162,6 +169,7 @@ def _serve(
                 stats["active"] += 1
                 stats["overlap"] = max(stats["overlap"], stats["active"])
                 stats["gated"] += kind == "gate"
+                stats["holding"] += kind == "hold"
                 stats["order"].append(f"start {self.path}")
                 lock.notify_all()
             try:
@@ -177,6 +185,12 @@ def _serve(
                 elif kind == "gate":
                     with lock:
                         lock.wait_for(lambda: stats["gated"] >= gates, seconds)
+                elif kind == "hold":
+                    with lock:
+                        lock.wait_for(lambda: stats["released"] >= releases, seconds)
+                elif kind == "release":
+                    with lock:
+                        lock.wait_for(lambda: stats["holding"] >= holds, seconds)
                 else:
                     time.sleep(seconds)
                 self._answer(kind, attempt)
@@ -186,7 +200,9 @@ def _serve(
                 with lock:
                     stats["flight"][file] -= 1
                     stats["active"] -= 1
+                    stats["released"] += kind == "release"
                     stats["order"].append(f"end {self.path}")
+                    lock.notify_all()
 
         def _answer(self, kind: str, attempt: int) -> None:
             if kind == "tamper":
@@ -200,7 +216,7 @@ def _serve(
                     with path.open("r+b") as model:
                         model.write(bytes(reversed(BLOB)))
                     os.utime(path, ns=(kept.st_atime_ns, kept.st_mtime_ns))
-            body = bytes(reversed(BLOB)) if kind == "corrupt" else BLOB
+            body = bytes(reversed(BLOB)) if kind in ("corrupt", "release") else BLOB
             self.send_response(200)
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
@@ -679,8 +695,8 @@ class TestFetch(unittest.TestCase):
     def test_mirrors_wait_for_the_source_round_and_never_share_a_file(self) -> None:
         run = _fetch(
             [
-                Model(FILE, ("good", 3.0), (GOOD,), None, BLOB),
-                Model(OTHER, ("corrupt", 1.0), (("corrupt", 1.0), GOOD), None, BLOB),
+                Model(FILE, ("hold", 6.0), (GOOD,), None, BLOB),
+                Model(OTHER, ("release", 6.0), (("corrupt", 1.0), GOOD), None, BLOB),
             ],
             8,
             False,
@@ -691,6 +707,14 @@ class TestFetch(unittest.TestCase):
         self.assertEqual(run.stored, {FILE: BLOB, OTHER: BLOB})
         self.assertNotIn(f"/mirror1/{FILE}", run.requests)
         self.assertEqual(run.requests[f"/mirror2/{OTHER}"], 1)
+        self.assertLess(
+            run.order.index(f"start /source/{FILE}"),
+            run.order.index(f"end /source/{OTHER}"),
+        )
+        self.assertLess(
+            run.order.index(f"end /source/{OTHER}"),
+            run.order.index(f"end /source/{FILE}"),
+        )
         self.assertLess(
             run.order.index(f"end /source/{FILE}"),
             run.order.index(f"start /mirror1/{OTHER}"),
