@@ -42,9 +42,6 @@ SBOM_READERS = frozenset({"grype", "osv"})
 IMAGE_MOUNT_READERS = frozenset({SBOM_BUILDER})
 IMAGE_CATALOGERS = "image,file"
 IMAGE_MOUNT_SINCE = (28, 0, 0)
-# moby docker-v29.0.0 to v29.1.3 name an image mount's layer hex(ctrID,src,dst),
-# 302 characters, too long for its mount directory in the graphdriver and the
-# containerd image store alike (ENAMETOOLONG); docker-v29.1.4 hashes the name.
 IMAGE_MOUNT_LONG_LAYER_NAMES = ((29, 0, 0), (29, 1, 4))
 IMAGE_MOUNT_API = (1, 48)
 DOCKER_RELEASE = re.compile(r"([0-9]+)\.([0-9]+)\.([0-9]+)")

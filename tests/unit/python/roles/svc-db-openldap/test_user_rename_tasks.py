@@ -12,11 +12,14 @@ SEARCH = "community.general.ldap_search"
 INCLUDE = "ansible.builtin.include_tasks"
 
 
+def _include_file(task):
+    include = task.get(INCLUDE)
+    return include.get("file") if isinstance(include, dict) else include
+
+
 def _includes():
     return [
-        index
-        for index, task in enumerate(USERS)
-        if task.get(INCLUDE, {}).get("file") == RENAMES_FILE
+        index for index, task in enumerate(USERS) if _include_file(task) == RENAMES_FILE
     ]
 
 

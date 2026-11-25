@@ -71,7 +71,7 @@
       description: "Container for application access profiles"
     state: present
 
-- name: 🚚 Move the user entries still named by their inventory key before any entry is created
+- name: 🚚 Move user entries still named by their inventory key before any is created
   ansible.builtin.include_tasks:
     file: _user_renames.yml
     apply:

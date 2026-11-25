@@ -2097,7 +2097,7 @@ class TestSyftImageMount(TestCase):
 
     def test_an_unreadable_daemon_falls_back_to_the_export(self):
         self.assertEqual(
-            self._mount(_config(), self.CONTAINERS, None),
+            self._mount(_config(), self.CONTAINERS, (None, None)),
             (
                 False,
                 1,

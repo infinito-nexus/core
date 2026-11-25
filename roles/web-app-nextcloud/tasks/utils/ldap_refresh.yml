@@ -1,5 +1,5 @@
 ---
-- name: "🪪 Refresh the LDAP attributes and addresses of the Nextcloud accounts and revoke lapsed user_oidc groups"
+- name: "🪪 Refresh account LDAP attributes and addresses, revoke lapsed user_oidc groups"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
   vars:
     rbac_sync_application_id: "{{ application_id }}"

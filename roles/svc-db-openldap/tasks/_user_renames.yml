@@ -25,7 +25,7 @@
     attrs: "{{ OPENLDAP_MEMBER_ATTRIBUTES }}"
   register: openldap_member_groups
 
-- name: 🚚 Move every user entry still named by its inventory key and repoint its group values
+- name: 🚚 Move user entries still named by their inventory key and repoint group values
   ldap_user_rdn:
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
     bind_dn: "{{ OPENLDAP_BIND_DN }}"

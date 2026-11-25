@@ -19,7 +19,7 @@
         | default('')
       }}
 
-- name: "🔑 Converge the LDAP bind of '{{ KEYCLOAK_LDAP_CMP_NAME }}' before the first read through the federation"
+- name: "🔑 Converge the LDAP bind of '{{ KEYCLOAK_LDAP_CMP_NAME }}' before the first read"
   keycloak_kcadm_update:
     object_kind: "component"
     lookup_field: "id"

@@ -77,7 +77,7 @@
 - name: "🚿 Flush compose handlers for {{ application_id }}"
   ansible.builtin.meta: flush_handlers
 
-- name: "👤 Converge the platform administrator of {{ application_id }} before any grant step"
+- name: "👤 Converge the platform administrator of {{ application_id }} before any grant"
   ansible.builtin.include_tasks: utils/admin.yml
   when: not (OPENWEBUI_OIDC_ENABLED | bool)
 

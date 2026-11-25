@@ -183,6 +183,7 @@ def render(source: str, inventory: dict[str, tuple[str, ...]]) -> str:
         BKP_VOLUME_2_LOCAL_DISABLED=[],
         BKP_VOLUME_2_LOCAL_MAINTENANCE_BIN="/usr/local/bin/baudolo-maintenance",
         BKP_VOLUME_2_LOCAL_STOPPING=[],
+        BKP_VOLUME_2_LOCAL_VOLUMES_CODE_DERIVED=[],
         BKP_VOLUME_2_LOCAL_VOLUMES_DISABLED=[],
         DEPLOY_IS_UPDATE=False,
         FILE_MAINTENANCE_BACKUP="/run/infinito/maintenance/backup.json",
