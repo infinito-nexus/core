@@ -762,7 +762,7 @@ class TestTheWorkspaceJobReachesTheRunnerStart(unittest.TestCase):
             disk = Path(tmp)
             code, calls, err = self._attach(_workspace_env(), disk, needed - _GIB)
             prepared = (disk / "mnt" / "cache").exists()
-        self.assertEqual([code, prepared, needed], [2, False, 99 * _GIB])
+        self.assertEqual([code, prepared, needed], [2, False, 73 * _GIB])
         self.assertFalse([call for call in calls if " up " in f" {call} "])
         self.assertIn(FLOOR_KEY, err)
 
