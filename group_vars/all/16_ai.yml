@@ -25,6 +25,9 @@ LMSTUDIO_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-lmstudio', 'services
 
 S1_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-s1', 'services.s1.name') }}:{{ lookup('config','svc-ai-s1', 'services.s1.ports.internal.http') }}"
 
+PIPER_BASE_LOCAL_URL: "http://{{ lookup('config','svc-ai-speech', 'services.piper.name') }}:{{ lookup('config','svc-ai-speech', 'services.piper.ports.internal.http')
+  }}"
+
 LITELLM_OPENAI_BASE_LOCAL_URL: "{{ LITELLM_BASE_LOCAL_URL }}/v1"
 
 LITELLM_LOOPBACK_HOSTS: "{{ NETWORK_LOOPBACK_HOSTS }}"
@@ -60,6 +63,33 @@ AI_FREELLMAPI_MODELS: >-
       'traits': lookup('config', 'svc-ai-litellm', 'services.litellm.freellmapi.traits')
         | combine({'local': false, 'auto': lookup('config', 'svc-ai-litellm', 'services.litellm.freellmapi.include_in_auto') | bool})
      }] if LITELLM_FREELLMAPI_BACKEND | bool else [] }}
+
+LITELLM_SPEECH_BACKEND: >-
+  {{ (lookup('config', 'svc-ai-litellm', 'services.speech.enabled') | bool)
+     and (lookup('config', 'svc-ai-litellm', 'services.speech.shared') | bool) }}
+
+LITELLM_AUDIO_ROUTES: >-
+  {{ [{
+      'alias': lookup('config', 'svc-ai-speech', 'services.speech.model_alias'),
+      'mode': 'audio_transcription',
+      'params': {
+        'model': 'openai/' ~ lookup('config', 'svc-ai-speech', 'services.speech.name'),
+        'api_base': lookup('container_url', 'svc-ai-speech', 'speech') ~ lookup('config', 'svc-ai-speech', 'services.speech.api_path'),
+        'api_key': 'svc-ai-speech',
+        'timeout': lookup('config', 'svc-ai-speech', 'services.speech.request_timeout')
+      }
+     }, {
+      'alias': lookup('config', 'svc-ai-speech', 'services.piper.model_alias'),
+      'mode': 'audio_speech',
+      'params': {
+        'model': 'openai/' ~ lookup('config', 'svc-ai-speech', 'services.piper.name'),
+        'api_base': PIPER_BASE_LOCAL_URL ~ lookup('config', 'svc-ai-speech', 'services.piper.api_path'),
+        'api_key': 'svc-ai-speech',
+        'timeout': lookup('config', 'svc-ai-speech', 'services.piper.request_timeout')
+      }
+     }] if LITELLM_SPEECH_BACKEND | bool else [] }}
+
+LITELLM_AUDIO_ALIASES: "{{ LITELLM_AUDIO_ROUTES | map(attribute='alias') | list }}"
 
 AI_MODELS_STORE_PATH: "{{ [DIR_CACHE, 'models'] | path_join }}"
 

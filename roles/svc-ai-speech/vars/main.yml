@@ -4,10 +4,30 @@ entity_name: "{{ application_id | entity_name }}"
 
 SPEECH_SERVICE: "{{ entity_name }}"
 SPEECH_CONTAINER: "{{ lookup('config', application_id, 'services.speech.name') }}"
+SPEECH_ARCHITECTURE: "{{ HOST_ARCHITECTURE_BY_KERNEL[hostvars[STACK_HOST].ansible_facts['architecture']] }}"
+SPEECH_IMAGE_VERSION: >-
+  {{ lookup('config', application_id, 'services.speech.version')
+     | docker_architecture_tag(SPEECH_ARCHITECTURE, lookup('config', application_id, 'services.speech.architecture_tags')) }}
 SPEECH_PORT: "{{ lookup('config', application_id, 'services.speech.ports.internal.http') }}"
 SPEECH_LANGUAGE: "{{ lookup('config', application_id, 'services.speech.language') }}"
 SPEECH_THREADS: "{{ [(lookup('cpus', application_id, 'speech') | float) | round(0, 'ceil') | int, 1] | max }}"
 SPEECH_INFERENCE_PATH: "{{ lookup('config', application_id, 'services.speech.api_path') }}/audio/transcriptions"
-SPEECH_ARTEFACTS: "{{ lookup('cache_artefacts', application_id).values() | list }}"
-SPEECH_MODEL_FILE: "{{ [AI_MODELS_STORE_PATH, (SPEECH_ARTEFACTS | first).tree] | path_join }}"
+SPEECH_RECORDS: "{{ lookup('cache_artefacts', application_id) }}"
+SPEECH_ARTEFACTS: "{{ SPEECH_RECORDS.values() | list }}"
+SPEECH_MODEL_FILE: "{{ [AI_MODELS_STORE_PATH, SPEECH_RECORDS[lookup('config', application_id, 'services.speech.artefact')].tree] | path_join }}"
 SPEECH_STORE_MOUNTS: "{{ [AI_MODELS_STORE_PATH ~ ':' ~ AI_MODELS_STORE_PATH ~ ':ro'] }}"
+
+PIPER_SERVICE: "piper"
+PIPER_CONTAINER: "{{ lookup('config', application_id, 'services.piper.name') }}"
+PIPER_PORT: "{{ lookup('config', application_id, 'services.piper.ports.internal.http') }}"
+PIPER_BASE_IMAGE: "{{ lookup('config', application_id, 'services.piper.image') }}"
+PIPER_BASE_VERSION: "{{ lookup('config', application_id, 'services.piper.version') }}"
+PIPER_SPEAKER: "{{ lookup('config', application_id, 'services.piper.speaker') }}"
+PIPER_MAX_INPUT_CHARS: "{{ lookup('config', application_id, 'services.piper.max_input_chars') }}"
+PIPER_TIMEOUT: "{{ lookup('config', application_id, 'services.piper.request_timeout') }}"
+PIPER_INFERENCE_PATH: "{{ lookup('config', application_id, 'services.piper.api_path') }}/audio/speech"
+PIPER_VOICE_FILE: "{{ [AI_MODELS_STORE_PATH, SPEECH_RECORDS[lookup('config', application_id, 'services.piper.artefact')].tree] | path_join }}"
+PIPER_VOICE_CONFIG_FILE: "{{ PIPER_VOICE_FILE ~ '.json' }}"
+PIPER_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
+PIPER_CACHE_CA_FILE: /opt/package-frontend-ca.crt
+PIPER_CACHE_CA_INSTALLER: roles/svc-cache-package/files/shell/ca.sh

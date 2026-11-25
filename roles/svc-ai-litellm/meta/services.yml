@@ -115,7 +115,7 @@ lmstudio:
   shared: "{{ 'svc-ai-lmstudio' in group_names }}"
 
 # nocheck: playwright-service-flag, dynamic-flag
-speech: # nocheck: gateway-backend-registered LITELLM_AUDIO_ROUTES in vars/main.yml builds the transcription route the template renders; test_config_audio_routes.py verifies the render
+speech: # nocheck: gateway-backend-registered LITELLM_AUDIO_ROUTES in group_vars/all/16_ai.yml builds the transcription route the template renders; test_config_audio_routes.py verifies the render
   bond: 0.5
   enabled: "{{ 'svc-ai-speech' in group_names }}"
   shared: "{{ 'svc-ai-speech' in group_names }}"
