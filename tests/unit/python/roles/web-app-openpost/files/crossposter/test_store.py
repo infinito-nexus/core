@@ -5,9 +5,12 @@ import json
 import re
 import unittest
 import unittest.mock
+from pathlib import Path
 
 from crossposter import store
 from crossposter.sources import Media, SourceItem
+
+from utils.cache.files import iter_project_files
 
 from . import PROJECT_ROOT
 
@@ -69,8 +72,13 @@ class TestQueries(unittest.TestCase):
         self.addCleanup(patcher.stop)
 
     def test_every_query_has_one_file_and_every_file_a_query(self) -> None:
+        statements = (Path(path) for path in iter_project_files(extensions=(".sql",)))
         self.assertEqual(
-            sorted(path.stem for path in SQL_SOURCE.glob("*.sql")),
+            sorted(
+                path.relative_to(SQL_SOURCE).with_suffix("").as_posix()
+                for path in statements
+                if path.is_relative_to(SQL_SOURCE)
+            ),
             sorted(store.QUERIES),
         )
 
