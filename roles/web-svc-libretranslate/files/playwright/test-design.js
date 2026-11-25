@@ -86,7 +86,8 @@ async function fresh(page) {
  *   path: route below the base URL, with its query string.
  */
 async function visit(page, path) {
-  await gotoOnion(page, `${base()}${path}`);
+  const target = `${base()}${path}`;
+  await gotoOnion(page, target);
   if (page.url().includes("openid-connect/auth")) {
     await performKeycloakLoginForm(
       page,
@@ -94,7 +95,7 @@ async function visit(page, path) {
       decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD),
     );
     await expect.poll(() => page.url(), { timeout: resolveTimeout(60_000) }).toContain(base());
-    await gotoOnion(page, `${base()}${path}`);
+    if (page.url() !== target) await gotoOnion(page, target);
   }
 }
 
