@@ -299,11 +299,15 @@ def exec_docker(cmd: list[str], debug: bool) -> int:
         print(">>> " + " ".join(shlex.quote(x) for x in cmd), file=sys.stderr)
 
     try:
-        return subprocess.run(cmd, check=False).returncode
+        returncode = subprocess.run(cmd, check=False).returncode
     except FileNotFoundError:
         die("docker not found. Please install Docker.", code=127)
     except Exception as exc:
         die(f"Unexpected error: {exc}", code=1)
+    if returncode < 0:
+        print(f"container: docker was killed by signal {-returncode}", file=sys.stderr)
+        return 128 - returncode
+    return returncode
 
 
 def container_run(argv: list[str], debug: bool, with_ca: bool) -> int:
