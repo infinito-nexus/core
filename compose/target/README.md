@@ -64,5 +64,5 @@ The swarm teardown disconnects the target from the lab network before it removes
 | `Dockerfile` | builds the target from `INFINITO_PARENT_IMAGE` and boots `/sbin/init` |
 | `init.sh` | installs systemd and an ssh server, removes the host keys, installs `target-host-keys.service`, masks the units that escape a container |
 | `.dockerignore` | keeps the build context to `Dockerfile` and `init.sh` |
-| `Corefile.tmpl` | the resolver's configuration; `${INFINITO_DOMAIN}`, `${INFINITO_TARGET_IP}` and `${INFINITO_DNS_IP}` come from `.env` |
+| `Corefile.tmpl` | the resolver's configuration; `${INFINITO_DOMAIN}`, `${INFINITO_TARGET_IP}`, `${INFINITO_TARGET_RESOLVER_IP}` and `${INFINITO_DNS_IP}` come from `.env` |
 | `Corefile` | rendered output, bind-mounted into `target-resolver`; ignored by git |

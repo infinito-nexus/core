@@ -42,7 +42,8 @@ def _stack(root: Path) -> None:
     (root / ".env").write_text(
         f"INFINITO_DNS_IP={DNS_IP}\n"
         f"INFINITO_DOMAIN={DOMAIN}\n"
-        f"INFINITO_TARGET_IP={TARGET_IP}\n",
+        f"INFINITO_TARGET_IP={TARGET_IP}\n"
+        f"INFINITO_TARGET_RESOLVER_IP={RESOLVER_IP}\n",
         encoding="utf-8",
     )
     for relpath in (target.COREFILE_TEMPLATE, STACK_COREFILE_TEMPLATE):
@@ -125,6 +126,23 @@ class TestTargetCorefile(unittest.TestCase):
         self.assertIn(f"{DOMAIN}:53 {{", corefile)
         self.assertIn(f'answer "{{{{ .Name }}}} 60 IN A {TARGET_IP}"', corefile)
         self.assertIn(f"forward . {DNS_IP}", corefile)
+
+    def test_the_resolver_listens_on_its_own_address(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _stack(root)
+            out = CoreDNSCorefileRenderer(
+                repo_root=root,
+                template_relpath=target.COREFILE_TEMPLATE,
+                output_relpath=target.COREFILE,
+            ).render(show_preview=False)
+            corefile = read_text(str(out))
+        binds = [
+            line.split()[1:]
+            for line in corefile.splitlines()
+            if line.split()[:1] == ["bind"]
+        ]
+        self.assertEqual(binds, [[RESOLVER_IP], [RESOLVER_IP]])
 
 
 class TestResolverAddress(unittest.TestCase):
