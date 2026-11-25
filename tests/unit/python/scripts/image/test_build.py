@@ -52,6 +52,7 @@ class TestImageBuildLabels(unittest.TestCase):
                     "INFINITO_PYTHON_INSTALL_SCRIPT": "python.sh",
                     "INFINITO_DOCKER_CLI_INSTALL_SCRIPT": "docker-cli.sh",
                     "INFINITO_BUILD_CACHE_MAX_SIZE": "20g",
+                    "INFINITO_GPU_COUNT": "0",
                 }
             )
             for key in ("GITHUB_REPOSITORY", "GITHUB_REPOSITORY_OWNER", "OWNER"):
