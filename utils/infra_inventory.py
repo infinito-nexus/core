@@ -185,7 +185,9 @@ def render_inventory(
     Returns:
         The rendered host vars of the infra inventory, beside the template.
         With the pool and the Semaphore opt-in, ``web-app-semaphore`` seeds
-        one runner per pool runner and deploys from the pool's checkout.
+        one runner per pool runner and deploys from the pool's checkout; with
+        the Checkmk opt-in, ``web-app-checkmk`` mounts the directory the pool
+        check timer writes into.
 
     Raises:
         KeyError: a cap, a path, the pinned frontend map, the registries or
@@ -218,11 +220,19 @@ def render_inventory(
         registries=env[REGISTRIES_KEY].split(),
         pool=pool,
         semaphore=OPT_IN_ROLES[SEMAPHORE_OPT_IN] in roles,
+        checkmk_dir=_checkmk_dir() if OPT_IN_ROLES[CHECKMK_OPT_IN] in roles else "",
         **values,
     )
     rendered = root / INVENTORY_RENDERED
     rendered.write_text(body, encoding="utf-8")
     return rendered
+
+
+def _checkmk_dir() -> str:
+    from utils.env.handlers.infinito.cache.paths import base
+    from utils.infra_checkmk import check_dir
+
+    return str(check_dir(base()))
 
 
 def unmounted(base: Path, pins: Path, env: Mapping[str, str]) -> list[str]:

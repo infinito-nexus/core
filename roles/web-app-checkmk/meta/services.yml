@@ -90,6 +90,7 @@ checkmk:
   backup:
     stop_required: false
   name: checkmk
+  local_check_dir: ""
   ports:
     internal:
       http: 5000

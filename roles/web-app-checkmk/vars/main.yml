@@ -67,3 +67,7 @@ CHECKMK_MCP_UPSTREAM_KEY: "{{ lookup('config', application_id, 'secrets.credenti
 CHECKMK_MCP_UPSTREAM_USER: "mcpreader"
 CHECKMK_MCP_UPSTREAM_AUTH_HEADER: "Authorization"
 CHECKMK_MCP_UPSTREAM_AUTH_FORMAT: "Bearer {{ CHECKMK_MCP_UPSTREAM_USER }} {key}"
+CHECKMK_POOL_ENABLED: "{{ lookup('config', application_id, 'services.checkmk.local_check_dir') | length > 0 }}"
+CHECKMK_POOL_HOST: "infinito-infra"
+CHECKMK_POOL_FILE: "{{ [lookup('volume', application_id, 'checkmk_pool').target, 'pool.txt'] | path_join }}"
+CHECKMK_POOL_API: "http://localhost:{{ container_port }}/{{ CHECKMK_SITE }}/check_mk/api/1.0"

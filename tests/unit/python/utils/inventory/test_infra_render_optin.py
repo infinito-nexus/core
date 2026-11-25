@@ -20,6 +20,7 @@ from utils.infra_inventory import (
 )
 
 SEMAPHORE = OPT_IN_ROLES[SEMAPHORE_OPT_IN]
+CHECKMK = OPT_IN_ROLES[CHECKMK_OPT_IN]
 SRC = "/home/operator/.local/share/worktrees/github.com/infinito-nexus/core/main"
 POOL = Pool(
     count=3,
@@ -76,6 +77,28 @@ class TestTheSemaphoreOptIn(unittest.TestCase):
     def test_a_bad_opt_in_is_refused_before_anything_is_written(self) -> None:
         with self.assertRaises(ValueError):
             _applications({SEMAPHORE_OPT_IN: "yes"}, POOL)
+
+
+class TestTheCheckmkOptIn(unittest.TestCase):
+    def test_checkmk_mounts_the_check_dir_below_the_cache_base(self) -> None:
+        for pool in (POOL, None):
+            with self.subTest(pool=pool):
+                applications = _applications({CHECKMK_OPT_IN: "true"}, pool)
+                self.assertEqual(
+                    applications[CHECKMK]["services"]["checkmk"],
+                    {"local_check_dir": "/c/cache/checkmk"},
+                )
+
+    def test_negative_control_without_the_opt_in_nothing_is_mounted(self) -> None:
+        for opt_ins in ({}, {CHECKMK_OPT_IN: "false"}, {SEMAPHORE_OPT_IN: "true"}):
+            with self.subTest(opt_ins=opt_ins):
+                applications, base_calls = _render(opt_ins, POOL)
+                self.assertNotIn(CHECKMK, applications)
+                self.assertEqual(base_calls, 0)
+
+    def test_a_bad_opt_in_is_refused_before_anything_is_written(self) -> None:
+        with self.assertRaises(ValueError):
+            _applications({CHECKMK_OPT_IN: "1"}, POOL)
 
 
 if __name__ == "__main__":

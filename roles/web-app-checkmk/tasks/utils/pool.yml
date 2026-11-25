@@ -1,0 +1,41 @@
+---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id for the pool host"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: checkmk
+    resolve_output_prefix: CHECKMK_POOL
+    resolve_compose_cid: "{{ CHECKMK_NAME }}"
+
+- name: "📊 Register host {{ CHECKMK_POOL_HOST }} with the runner pool check"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      IFS= read -r CHECKMK_ADMIN_PASSWORD &&
+      : "${CHECKMK_ADMIN_PASSWORD:?arrived empty on stdin}" &&
+      export CHECKMK_ADMIN_PASSWORD && container exec -i
+      -e CHECKMK_API={{ CHECKMK_POOL_API | quote }}
+      -e CHECKMK_ADMIN_USER=cmkadmin
+      -e CHECKMK_ADMIN_PASSWORD
+      -e CHECKMK_SITE={{ CHECKMK_SITE | quote }}
+      -e POOL_HOST={{ CHECKMK_POOL_HOST | quote }}
+      -e POOL_FILE={{ CHECKMK_POOL_FILE | quote }}
+      {{ CHECKMK_POOL_LOCAL_CID | quote }}
+      python3 -
+    stdin: |-
+      {{ CHECKMK_ADMIN_PASSWORD }}
+      {{ lookup('file', 'python/register_pool_host.py') }}
+  register: checkmk_pool_host
+  retries: 30
+  delay: 10
+  until: checkmk_pool_host.rc == 0 or 'REJECTED' in checkmk_pool_host.stderr
+  changed_when: checkmk_pool_host.stdout == 'CHANGED'
+  delegate_to: "{{ CHECKMK_POOL_HOST_NODE }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛑 Refuse a pool host that did not converge"
+  ansible.builtin.assert:
+    that:
+      - checkmk_pool_host.rc == 0
+    fail_msg: >-
+      {{ application_id }} could not register {{ CHECKMK_POOL_HOST }}:
+      {{ checkmk_pool_host.stderr }}

@@ -34,6 +34,9 @@ Checkmk Raw bundles its own monitoring core (Nagios), RRD storage, and an Apache
 - **Break-glass `cmkadmin`:**
   Seeded on first run via `CMK_PASSWORD` and re-converged onto the running site on every deploy; reachable via the local login form only when the SSO gate is absent.
 
+- **Runner pool host:**
+  Only the infra inventory sets `services.checkmk.local_check_dir`, with `INFINITO_INFRA_CHECKMK=true`, to the directory the infra runner's `infinito-pool-checkmk` timer rewrites `pool.txt` in every minute. The role mounts it read-only at `/etc/infinito/pool` and [register_pool_host.py](./files/python/register_pool_host.py) converges host `infinito-infra` with a `datasource_programs` rule that runs `cat /etc/infinito/pool/pool.txt`, then a `fix_all` service discovery: one service per pool runner (critical when `failed`), per held job, per cache and for the disk floor.
+
 ## Biber coverage
 
 No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to. A follow-up tightens them.

@@ -5,3 +5,11 @@ checkmk_data:
   mounts:
     - service: checkmk
       target: /omd/sites
+checkmk_pool:
+  type: bind
+  source: "{{ lookup('config', 'web-app-checkmk', 'services.checkmk.local_check_dir') }}"
+  read_only: true
+  mounts:
+    - service: checkmk
+      target: /etc/infinito/pool
+      when: "{{ lookup('config', 'web-app-checkmk', 'services.checkmk.local_check_dir') | length > 0 }}"

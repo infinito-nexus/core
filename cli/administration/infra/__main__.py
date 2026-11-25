@@ -45,8 +45,11 @@ from utils.infra import (
     worktree_roots,
     write_bridge,
 )
+from utils.infra_checkmk import check_setup
 from utils.infra_inventory import (
     CACHE_SERVICES,
+    CHECKMK_OPT_IN,
+    OPT_IN_ROLES,
     POOL_KEY,
     POOL_ROLE,
     PRUNE_ACTION,
@@ -282,8 +285,14 @@ def _installs(argv: list[str], primary: Path) -> list[list[str]]:
     python = f"{os.environ[VENV_KEY]}/bin/python"
     idle = {key: os.environ[key] for key in (GRACE_KEY, STAMP_DIR_KEY)}
     write_units(unit_dir, idle_units(primary, python, idle))
+    checks = (
+        check_setup(argv, unit_dir, primary, python, os.environ, base())
+        if OPT_IN_ROLES[CHECKMK_OPT_IN] in roles
+        else []
+    )
     return [
         *([image_load(argv, pool.image)] if pool else []),
+        *checks,
         *deploy_commands(argv, PROJECT_ROOT, vars_file, INVENTORY_DIR, roles, pruned),
         *timer_installs(argv, unit_dir),
     ]

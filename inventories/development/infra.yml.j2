@@ -76,3 +76,9 @@ applications:
           runners: [[ pool.count ]]
           checkout: [[ pool.src ]]
 [% endif %]
+[% if checkmk_dir %]
+  web-app-checkmk:
+    services:
+      checkmk:
+        local_check_dir: [[ checkmk_dir ]]
+[% endif %]

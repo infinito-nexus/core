@@ -8,3 +8,9 @@
 - name: "🔌 Serve MCP from {{ application_id }}"
   ansible.builtin.include_tasks: utils/mcp.yml
   when: CHECKMK_MCP_ENABLED | bool
+
+- name: "📊 Monitor the runner pool of the infra runner from {{ application_id }}"
+  ansible.builtin.include_tasks: utils/pool.yml
+  when:
+    - CHECKMK_POOL_ENABLED | bool
+    - IS_STACK_HOST | bool

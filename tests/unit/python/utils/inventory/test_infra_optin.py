@@ -43,7 +43,10 @@ def _env(env: dict[str, str]) -> dict[str, str]:
     return {**stripped, **RUNTIME, **env}
 
 
-def _commands(env: dict[str, str]) -> list[list[str]]:
+CHECK_INSTALL = ["compose", "exec", "-T", "runner", "systemctl", "check"]
+
+
+def _setup(env: dict[str, str]) -> tuple[list[list[str]], list]:
     with (
         patch.dict(os.environ, _env(env), clear=True),
         patch.object(
@@ -53,8 +56,13 @@ def _commands(env: dict[str, str]) -> list[list[str]]:
         patch.object(cli, "idle_units", return_value={}),
         patch.object(cli, "write_units"),
         patch.object(cli, "timer_installs", return_value=[]),
+        patch.object(cli, "check_setup", return_value=[CHECK_INSTALL]) as checks,
     ):
-        return cli._installs(["compose"], Path("/c"))
+        return cli._installs(["compose"], Path("/c")), checks.call_args_list
+
+
+def _commands(env: dict[str, str]) -> list[list[str]]:
+    return _setup(env)[0]
 
 
 def _position(commands: list[list[str]], module: str) -> int:
@@ -163,6 +171,24 @@ class TestAnOptOutLeavesTheInventory(unittest.TestCase):
                 )
             children = load_yaml(devices)["all"]["children"]
         self.assertEqual(sorted(children), sorted((*CACHE_ROLES, SEMAPHORE)))
+
+
+class TestTheCheckmkTimer(unittest.TestCase):
+    def test_the_opt_in_installs_the_check_timer_ahead_of_the_deploy(self) -> None:
+        commands, calls = _setup({CHECKMK_KEY: "true"})
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0].args[0], ["compose"])
+        self.assertEqual(calls[0].args[-1], Path("/c/cache"))
+        self.assertLess(commands.index(CHECK_INSTALL), _position(commands, DEPLOY))
+
+    def test_negative_control_without_the_opt_in_no_check_timer_is_set_up(
+        self,
+    ) -> None:
+        for env in ({}, {CHECKMK_KEY: "false"}, {SEMAPHORE_KEY: "true"}):
+            with self.subTest(env=env):
+                commands, calls = _setup(env)
+                self.assertEqual(calls, [])
+                self.assertNotIn(CHECK_INSTALL, commands)
 
 
 class TestABadOptInStartsNothing(unittest.TestCase):

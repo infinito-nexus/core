@@ -16,6 +16,53 @@ UNIT_DIR = ("infra", "systemd")
 TOOLS_ACTIONS = ("stop", "pause", "unpause")
 
 
+def timer_units(
+    name: str,
+    period: str,
+    description: str,
+    checkout: Path,
+    environment: Mapping[str, str],
+    command: str,
+) -> dict[str, str]:
+    """Args:
+        name: the unit name of the service and its timer.
+        period: how often, and how long after boot, the timer runs the service.
+        description: what the service does, for its ``Description``.
+        checkout: read-only checkout root inside the runner, at its host path.
+        environment: the variables the command reads, by key.
+        command: the command line the oneshot service runs.
+
+    Returns:
+        The oneshot systemd service and its repeating timer, by file name.
+    """
+    service = [
+        "[Unit]",
+        f"Description={description}",
+        "",
+        "[Service]",
+        "Type=oneshot",
+        f"WorkingDirectory={checkout}",
+        "Environment=PYTHONDONTWRITEBYTECODE=1",
+        *(f"Environment={key}={value}" for key, value in sorted(environment.items())),
+        f"ExecStart={command}",
+    ]
+    timer = [
+        "[Unit]",
+        f"Description=Run {name}.service every {period}",
+        "",
+        "[Timer]",
+        f"OnBootSec={period}",
+        f"OnUnitActiveSec={period}",
+        "",
+        "[Install]",
+        "WantedBy=timers.target",
+    ]
+    return {
+        f"{name}.service": "\n".join(service) + "\n",
+        f"{name}.timer": "\n".join(timer) + "\n",
+    }
+
+
 def idle_units(
     checkout: Path, python: str, environment: Mapping[str, str]
 ) -> dict[str, str]:
@@ -28,32 +75,14 @@ def idle_units(
         The systemd service and timer of the idle stop, by file name.
     """
     stop = f"{python} -m cli.administration.infra tools-inside stop"
-    service = [
-        "[Unit]",
-        "Description=Stop the tools services of the infra runner once idle",
-        "",
-        "[Service]",
-        "Type=oneshot",
-        f"WorkingDirectory={checkout}",
-        "Environment=PYTHONDONTWRITEBYTECODE=1",
-        *(f"Environment={key}={value}" for key, value in sorted(environment.items())),
-        f"ExecStart={python} -m utils.inventory.tools_idle stop-if-idle -- {stop}",
-    ]
-    timer = [
-        "[Unit]",
-        f"Description=Run {TIMER}.service every {TIMER_PERIOD}",
-        "",
-        "[Timer]",
-        f"OnBootSec={TIMER_PERIOD}",
-        f"OnUnitActiveSec={TIMER_PERIOD}",
-        "",
-        "[Install]",
-        "WantedBy=timers.target",
-    ]
-    return {
-        f"{TIMER}.service": "\n".join(service) + "\n",
-        f"{TIMER}.timer": "\n".join(timer) + "\n",
-    }
+    return timer_units(
+        TIMER,
+        TIMER_PERIOD,
+        "Stop the tools services of the infra runner once idle",
+        checkout,
+        environment,
+        f"{python} -m utils.inventory.tools_idle stop-if-idle -- {stop}",
+    )
 
 
 def write_units(unit_dir: Path, units: Mapping[str, str]) -> None:
@@ -66,19 +95,31 @@ def write_units(unit_dir: Path, units: Mapping[str, str]) -> None:
         (unit_dir / name).write_text(text, encoding="utf-8")
 
 
-def timer_installs(argv: Sequence[str], unit_dir: Path) -> list[list[str]]:
+def unit_installs(argv: Sequence[str], unit_dir: Path, name: str) -> list[list[str]]:
     """Args:
         argv: compose call of the infra stack.
-        unit_dir: directory holding the units of :func:`idle_units`.
+        unit_dir: directory holding the units of :func:`timer_units`.
+        name: the unit name of the service and its timer.
 
     Returns:
         The commands that link the service and enable the timer inside the runner.
     """
     systemctl = [*argv, "exec", "-T", SERVICE, "systemctl"]
     return [
-        [*systemctl, "link", str(unit_dir / f"{TIMER}.service")],
-        [*systemctl, "enable", "--now", str(unit_dir / f"{TIMER}.timer")],
+        [*systemctl, "link", str(unit_dir / f"{name}.service")],
+        [*systemctl, "enable", "--now", str(unit_dir / f"{name}.timer")],
     ]
+
+
+def timer_installs(argv: Sequence[str], unit_dir: Path) -> list[list[str]]:
+    """Args:
+        argv: compose call of the infra stack.
+        unit_dir: directory holding the units of :func:`idle_units`.
+
+    Returns:
+        The commands that link the idle stop and enable its timer inside the runner.
+    """
+    return unit_installs(argv, unit_dir, TIMER)
 
 
 def tools_commands(
