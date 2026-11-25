@@ -1731,6 +1731,10 @@ msgctxt "role:web-app-dashboard:description"
 msgid "Self-hosted portal for unified access to all deployed applications via a customizable tile and menu interface"
 msgstr "Un portal auto-ordinador per a accedir unificat a totes les aplicacions que s' usen mitjançant una fitxa i interfície de menú personalitzable"
 
+msgctxt "role:web-app-openpost:description"
+msgid "Self-hosted publishing desk that composes, schedules and publishes posts to Fediverse and commercial social networks"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:web-app-pretix:description"
 msgid "Self-hosted ticketing platform for events with online sales, registration management, and secure payments"

@@ -1,0 +1,34 @@
+---
+- name: "📖 Read Stalwart's inbound throttles"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: >-
+      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+          'methodCalls': [['x:MtaInboundThrottle/get', {'ids': none}, 'c0']]} | to_json }}
+
+- name: "🔍 Resolve the recipient throttles that still count authenticated submissions"
+  ansible.builtin.set_fact:
+    stalwart_rcpt_throttle_ids: >-
+      {{ stalwart_jmap.methodResponses[0][1].list
+         | selectattr('key', 'equalto', STALWART_RCPT_THROTTLE_KEY)
+         | rejectattr('match.else', 'equalto', STALWART_RCPT_THROTTLE_RULE)
+         | map(attribute='id')
+         | list }}
+
+- name: "📮 Keep authenticated submissions out of the recipient throttle"
+  when: stalwart_rcpt_throttle_ids | length > 0
+  block:
+    - name: "🔧 Count only unauthenticated sessions against the recipient throttle"
+      include_tasks: jmap_call.yml
+      vars:
+        stalwart_jmap_body: >-
+          {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
+              'methodCalls': [['x:MtaInboundThrottle/set',
+                {'update': dict(stalwart_rcpt_throttle_ids
+                  | zip([{'match': {'else': STALWART_RCPT_THROTTLE_RULE}}] * (stalwart_rcpt_throttle_ids | length)))},
+                'c0']]} | to_json }}
+
+    - name: "🔄 Reload Stalwart's settings"
+      include_tasks: jmap_call.yml
+      vars:
+        stalwart_jmap_body: "{{ STALWART_JMAP_RELOAD_SETTINGS }}"

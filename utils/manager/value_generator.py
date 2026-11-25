@@ -13,6 +13,10 @@ from cryptography.hazmat.primitives.serialization import (
     PublicFormat,
 )
 
+from utils.annotations.message import mask
+
+UNDEFINED = "undefined"
+
 
 class ValueGenerator:
     PASSWORD_REGEX = re.compile(
@@ -31,6 +35,7 @@ class ValueGenerator:
         for _ in range(10_000):
             password = "".join(secrets.choice(characters) for _ in range(length))
             if self._is_valid_password(password):
+                mask(password)
                 return password
 
         raise RuntimeError("Failed to generate a valid password after many attempts")
@@ -41,7 +46,9 @@ class ValueGenerator:
     def generate_secure_alphanumeric(self, length: int) -> str:
         """Generate a cryptographically secure random alphanumeric string of the given length."""
         characters = string.ascii_letters + string.digits
-        return "".join(secrets.choice(characters) for _ in range(length))
+        value = "".join(secrets.choice(characters) for _ in range(length))
+        mask(value)
+        return value
 
     def generate_vapid_keypair(self) -> tuple[str, str]:
         """Return a linked (private, public) VAPID keypair, cached per instance.
@@ -81,7 +88,17 @@ class ValueGenerator:
         • "vapid_private"
         • "vapid_public"
         • "rsa_pem_2048"
+
+        Returns:
+            the value, already registered with GitHub Actions for masking, or
+            ``"undefined"`` for an unknown algorithm.
         """
+        value = self._generate(algorithm)
+        if value != UNDEFINED:
+            mask(value)
+        return value
+
+    def _generate(self, algorithm: str) -> str:
         if algorithm == "random_hex":
             return secrets.token_hex(64)
         if algorithm == "random_hex_32":
@@ -119,4 +136,4 @@ class ValueGenerator:
             return key.private_bytes(
                 Encoding.PEM, PrivateFormat.TraditionalOpenSSL, NoEncryption()
             ).decode()
-        return "undefined"
+        return UNDEFINED

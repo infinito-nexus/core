@@ -1,0 +1,102 @@
+---
+media:
+  type: volume
+  name: openpost_media
+  mounts:
+    - service: openpost
+      target: /data/media
+
+simulator_mappings:
+  type: config
+  source: "{{ [lookup('container', 'web-app-openpost', 'directories.config'), 'simulator', 'openpost.json'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: simulator
+      target: /home/wiremock/mappings/openpost.json
+      when: "{{ lookup('config', 'web-app-openpost', 'services.simulator.enabled') | bool }}"
+
+simulator_keystore:
+  type: secret
+  source: "{{ [lookup('container', 'web-app-openpost', 'directories.config'), 'simulator', 'keystore.p12'] | path_join }}"
+  mode: "0400"
+  mounts:
+    - service: simulator
+      target: /home/wiremock/keystore.p12
+      when: "{{ lookup('config', 'web-app-openpost', 'services.simulator.enabled') | bool }}"
+
+simulator_ca:
+  type: config
+  source: "{{ [lookup('container', 'web-app-openpost', 'directories.config'), 'simulator', 'ca.crt'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: openpost
+      target: /etc/ssl/openpost-trust/simulator-ca.crt
+      when: "{{ lookup('config', 'web-app-openpost', 'services.simulator.enabled') | bool }}"
+
+provider_config:
+  type: secret
+  source: "{{ [lookup('container', 'web-app-openpost', 'directories.config'), 'provider', 'provider.json'] | path_join }}"
+  mode: "0400"
+  mounts:
+    - service: provider
+      target: /run/secrets/provider.json
+      uid: "{{ lookup('config', 'web-app-openpost', 'services.provider.uid') }}"
+      gid: "{{ lookup('config', 'web-app-openpost', 'services.provider.uid') }}"
+      when: "{{ lookup('config', 'web-app-openpost', 'services.provider.enabled') | bool }}"
+
+provider_certificate:
+  type: config
+  source: "{{ [lookup('container', 'web-app-openpost', 'directories.config'), 'simulator', 'server.crt'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: provider
+      target: /config/server.crt
+      when: "{{ lookup('config', 'web-app-openpost', 'services.provider.enabled') | bool }}"
+
+provider_key:
+  type: secret
+  source: "{{ [lookup('container', 'web-app-openpost', 'directories.config'), 'provider', 'server.key'] | path_join }}"
+  mode: "0400"
+  mounts:
+    - service: provider
+      target: /run/secrets/server.key
+      uid: "{{ lookup('config', 'web-app-openpost', 'services.provider.uid') }}"
+      gid: "{{ lookup('config', 'web-app-openpost', 'services.provider.uid') }}"
+      when: "{{ lookup('config', 'web-app-openpost', 'services.provider.enabled') | bool }}"
+
+root_ca:
+  type: config
+  source: "{{ CA_TRUST.cert_host }}"
+  mode: "0444"
+  mounts:
+    - service: openpost
+      target: /etc/ssl/openpost-trust/root-ca.crt
+      when: "{{ TLS_MODE == 'self_signed' }}"
+
+crossposter_config:
+  type: config
+  source: "{{ [lookup('container', 'web-app-openpost', 'directories.config'), 'crossposter', 'crossposter.json'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: crossposter
+      target: /config/crossposter.json
+      when: "{{ lookup('config', 'web-app-openpost', 'services.crossposter.enabled') | bool }}"
+
+crossposter_secrets:
+  type: secret
+  source: "{{ [lookup('container', 'web-app-openpost', 'directories.config'), 'crossposter', 'crossposter-secrets.json'] | path_join }}"
+  mode: "0400"
+  mounts:
+    - service: crossposter
+      target: /run/secrets/crossposter.json
+      uid: "{{ lookup('config', 'web-app-openpost', 'services.crossposter.uid') }}"
+      gid: "{{ lookup('config', 'web-app-openpost', 'services.crossposter.uid') }}"
+      when: "{{ lookup('config', 'web-app-openpost', 'services.crossposter.enabled') | bool }}"
+
+relay_conf:
+  type: config
+  source: "{{ [lookup('container', 'web-app-openpost', 'directories.config'), 'relay.conf'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: relay
+      target: /etc/nginx/nginx.conf

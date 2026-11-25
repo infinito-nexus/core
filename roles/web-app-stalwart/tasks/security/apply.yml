@@ -34,8 +34,4 @@
 - name: "🔄 Reload Stalwart's settings"
   include_tasks: "{{ role_path }}/tasks/jmap_call.yml"
   vars:
-    stalwart_jmap_body: >-
-      {{ {'using': ['urn:ietf:params:jmap:core', 'urn:stalwart:jmap'],
-          'methodCalls': [['x:Action/set',
-            {'create': {'a': {'@type': 'ReloadSettings'}}},
-            'c0']]} | to_json }}
+    stalwart_jmap_body: "{{ STALWART_JMAP_RELOAD_SETTINGS }}"

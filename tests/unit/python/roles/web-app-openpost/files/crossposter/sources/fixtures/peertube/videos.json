@@ -1,0 +1,41 @@
+{
+  "total": 3,
+  "data": [
+    {
+      "id": 31,
+      "uuid": "6a1c6b54-0e3b-4c0e-9b9e-1a2b3c4d5e6f",
+      "shortUUID": "dK3h1qWvA8bQ2nPp",
+      "url": "https://video.example/videos/watch/6a1c6b54-0e3b-4c0e-9b9e-1a2b3c4d5e6f",
+      "name": "Conference talk",
+      "description": "Short description",
+      "publishedAt": "2026-10-22T10:30:00.000Z",
+      "privacy": {"id": 1, "label": "Public"},
+      "state": {"id": 1, "label": "Published"},
+      "duration": 1800
+    },
+    {
+      "id": 30,
+      "uuid": "5f1c6b54-0e3b-4c0e-9b9e-1a2b3c4d5e6f",
+      "shortUUID": "cK3h1qWvA8bQ2nPp",
+      "url": "https://video.example/videos/watch/5f1c6b54-0e3b-4c0e-9b9e-1a2b3c4d5e6f",
+      "name": "Unlisted rehearsal",
+      "description": "Not for everyone",
+      "publishedAt": "2026-10-22T10:00:00.000Z",
+      "privacy": {"id": 2, "label": "Unlisted"},
+      "state": {"id": 1, "label": "Published"},
+      "duration": 600
+    },
+    {
+      "id": 29,
+      "uuid": "4e1c6b54-0e3b-4c0e-9b9e-1a2b3c4d5e6f",
+      "shortUUID": "bK3h1qWvA8bQ2nPp",
+      "url": "https://video.example/videos/watch/4e1c6b54-0e3b-4c0e-9b9e-1a2b3c4d5e6f",
+      "name": "Still transcoding",
+      "description": "Soon",
+      "publishedAt": "2026-10-22T09:30:00.000Z",
+      "privacy": {"id": 1, "label": "Public"},
+      "state": {"id": 2, "label": "To transcode"},
+      "duration": 900
+    }
+  ]
+}

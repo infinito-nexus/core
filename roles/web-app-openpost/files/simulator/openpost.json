@@ -1,0 +1,916 @@
+{
+  "mappings": [
+    {
+      "name": "x-request-token",
+      "request": {
+        "method": "POST",
+        "urlPath": "/oauth/request_token"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        "body": "oauth_token=simulator-request-token&oauth_token_secret=simulator-request-secret&oauth_callback_confirmed=true"
+      }
+    },
+    {
+      "name": "x-access-token",
+      "request": {
+        "method": "POST",
+        "urlPath": "/oauth/access_token"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        "body": "oauth_token=simulator-access-token&oauth_token_secret=simulator-access-secret&user_id=4242&screen_name=openpost_simulator"
+      }
+    },
+    {
+      "name": "x-users-me",
+      "request": {
+        "method": "GET",
+        "urlPath": "/2/users/me"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "id": "4242",
+            "name": "OpenPost Simulator",
+            "username": "openpost_simulator",
+            "subscription_type": "None"
+          }
+        }
+      }
+    },
+    {
+      "name": "x-user-metrics",
+      "request": {
+        "method": "GET",
+        "urlPath": "/2/users/4242"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "id": "4242",
+            "public_metrics": {
+              "followers_count": 0,
+              "following_count": 0,
+              "tweet_count": 0,
+              "listed_count": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "x-tweet-rate-limited-once",
+      "priority": 1,
+      "scenarioName": "x-rate-limited",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "recovered",
+      "request": {
+        "method": "POST",
+        "urlPath": "/2/tweets",
+        "bodyPatterns": [
+          {
+            "contains": "[simulate-429]"
+          }
+        ]
+      },
+      "response": {
+        "status": 429,
+        "headers": {
+          "Content-Type": "application/json",
+          "x-rate-limit-remaining": "0",
+          "x-rate-limit-reset": "{{now offset='5 seconds' format='epoch'}}"
+        },
+        "jsonBody": {
+          "title": "Too Many Requests",
+          "status": 429
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "x-tweet-unavailable-always",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/2/tweets",
+        "bodyPatterns": [
+          {
+            "contains": "[simulate-503-always]"
+          }
+        ]
+      },
+      "response": {
+        "status": 503,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "title": "Service Unavailable",
+          "status": 503
+        }
+      }
+    },
+    {
+      "name": "x-tweet-unavailable-once",
+      "priority": 1,
+      "scenarioName": "x-unavailable",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "recovered",
+      "request": {
+        "method": "POST",
+        "urlPath": "/2/tweets",
+        "bodyPatterns": [
+          {
+            "contains": "[simulate-503]"
+          }
+        ]
+      },
+      "response": {
+        "status": 503,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "title": "Service Unavailable",
+          "status": 503
+        }
+      }
+    },
+    {
+      "name": "x-tweet-rejected",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/2/tweets",
+        "bodyPatterns": [
+          {
+            "contains": "[simulate-400]"
+          }
+        ]
+      },
+      "response": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "title": "Invalid Request",
+          "status": 400,
+          "detail": "Simulated permanent rejection",
+          "type": "https://api.twitter.com/2/problems/invalid-request"
+        }
+      }
+    },
+    {
+      "name": "x-tweet-created",
+      "priority": 5,
+      "request": {
+        "method": "POST",
+        "urlPath": "/2/tweets"
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "id": "1840000000000000001",
+            "text": "simulated"
+          }
+        }
+      }
+    },
+    {
+      "name": "x-media-upload",
+      "request": {
+        "method": "POST",
+        "urlPath": "/1.1/media/upload.json"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "media_id": 1880000000000000001,
+          "media_id_string": "1880000000000000001",
+          "expires_after_secs": 86400
+        }
+      }
+    },
+    {
+      "name": "x-media-metadata",
+      "request": {
+        "method": "POST",
+        "urlPath": "/1.1/media/metadata/create.json"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{}"
+      }
+    },
+    {
+      "name": "meta-access-token",
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/v[0-9.]+/oauth/access_token"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "access_token": "simulator-meta-user-token",
+          "token_type": "bearer",
+          "expires_in": 5183944
+        }
+      }
+    },
+    {
+      "name": "meta-permissions",
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/v[0-9.]+/me/permissions"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": [
+            {
+              "permission": "business_management",
+              "status": "granted"
+            },
+            {
+              "permission": "pages_show_list",
+              "status": "granted"
+            },
+            {
+              "permission": "pages_read_engagement",
+              "status": "granted"
+            },
+            {
+              "permission": "pages_read_user_content",
+              "status": "granted"
+            },
+            {
+              "permission": "pages_manage_engagement",
+              "status": "granted"
+            },
+            {
+              "permission": "pages_manage_metadata",
+              "status": "granted"
+            },
+            {
+              "permission": "pages_manage_posts",
+              "status": "granted"
+            },
+            {
+              "permission": "pages_messaging",
+              "status": "granted"
+            },
+            {
+              "permission": "instagram_basic",
+              "status": "granted"
+            },
+            {
+              "permission": "instagram_content_publish",
+              "status": "granted"
+            },
+            {
+              "permission": "instagram_manage_comments",
+              "status": "granted"
+            },
+            {
+              "permission": "instagram_manage_messages",
+              "status": "granted"
+            },
+            {
+              "permission": "instagram_manage_insights",
+              "status": "granted"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "meta-me",
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/v[0-9.]+/me"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "4243",
+          "name": "OpenPost Simulator",
+          "username": "openpost.simulator",
+          "picture": {
+            "data": {
+              "url": ""
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "meta-pages",
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/v[0-9.]+/me/accounts"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": [
+            {
+              "id": "424242",
+              "name": "OpenPost Simulator Page",
+              "username": "openpostsimulator",
+              "access_token": "simulator-page-token",
+              "tasks": [
+                "ADVERTISE",
+                "ANALYZE",
+                "CREATE_CONTENT",
+                "MESSAGING",
+                "MODERATE",
+                "MANAGE"
+              ],
+              "instagram_business_account": {
+                "id": "17841400000000000",
+                "username": "openpost_simulator",
+                "name": "OpenPost Simulator",
+                "profile_picture_url": "",
+                "account_type": "BUSINESS"
+              },
+              "picture": {
+                "data": {
+                  "url": ""
+                }
+              }
+            },
+            {
+              "id": "525252",
+              "name": "OpenPost Simulator Second Page",
+              "username": "openpostsimulatorsecond",
+              "access_token": "simulator-second-page-token",
+              "tasks": [
+                "ADVERTISE",
+                "ANALYZE",
+                "CREATE_CONTENT",
+                "MESSAGING",
+                "MODERATE",
+                "MANAGE"
+              ],
+              "picture": {
+                "data": {
+                  "url": ""
+                }
+              }
+            }
+          ],
+          "paging": {}
+        }
+      }
+    },
+    {
+      "name": "meta-businesses",
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/v[0-9.]+/me/businesses"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": [],
+          "paging": {}
+        }
+      }
+    },
+    {
+      "name": "facebook-feed",
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/v[0-9.]+/(424242|525252)/feed"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "{{request.pathSegments.[1]}}_1001"
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "facebook-photos",
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/v[0-9.]+/(424242|525252)/photos"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "2001",
+          "post_id": "{{request.pathSegments.[1]}}_2001"
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "instagram-container",
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/v[0-9.]+/17841400000000000/media"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "18000000000000001"
+        }
+      }
+    },
+    {
+      "name": "instagram-container-status",
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/v[0-9.]+/18000000000000001"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "18000000000000001",
+          "status_code": "FINISHED",
+          "status": "Finished: Media has been uploaded and it is ready to be published."
+        }
+      }
+    },
+    {
+      "name": "instagram-publish",
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/v[0-9.]+/17841400000000000/media_publish"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "18000000000000002"
+        }
+      }
+    },
+    {
+      "name": "instagram-media",
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/v[0-9.]+/18000000000000002"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "18000000000000002",
+          "permalink": "https://www.instagram.com/p/simulator/"
+        }
+      }
+    },
+    {
+      "name": "google-token",
+      "request": {
+        "method": "POST",
+        "urlPath": "/token"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "access_token": "simulator-google-token",
+          "refresh_token": "simulator-google-refresh",
+          "expires_in": 3599,
+          "token_type": "Bearer",
+          "scope": "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube.upload"
+        }
+      }
+    },
+    {
+      "name": "google-userinfo",
+      "request": {
+        "method": "GET",
+        "urlPath": "/oauth2/v2/userinfo"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "simulator-google-user",
+          "name": "OpenPost Simulator",
+          "email": "simulator@example.org",
+          "picture": ""
+        }
+      }
+    },
+    {
+      "name": "youtube-channels",
+      "request": {
+        "method": "GET",
+        "urlPath": "/youtube/v3/channels"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "items": [
+            {
+              "id": "UCsimulator",
+              "snippet": {
+                "title": "OpenPost Simulator",
+                "customUrl": "@openpostsimulator",
+                "thumbnails": {
+                  "default": {
+                    "url": ""
+                  }
+                }
+              },
+              "statistics": {
+                "subscriberCount": "0",
+                "videoCount": "0",
+                "viewCount": "0"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "youtube-playlists",
+      "request": {
+        "method": "GET",
+        "urlPath": "/youtube/v3/playlists"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "items": [
+            {
+              "id": "PLsimulator",
+              "snippet": {
+                "title": "OpenPost Simulator Playlist"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "youtube-video-categories",
+      "request": {
+        "method": "GET",
+        "urlPath": "/youtube/v3/videoCategories"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "items": [
+            {
+              "id": "22",
+              "snippet": {
+                "assignable": true,
+                "title": "People & Blogs"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "youtube-upload-session",
+      "request": {
+        "method": "POST",
+        "urlPath": "/upload/youtube/v3/videos",
+        "queryParameters": {
+          "uploadType": {
+            "equalTo": "resumable"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Location": "{{request.baseUrl}}/upload/youtube/v3/videos?uploadType=resumable&upload_id=simulator-upload"
+        },
+        "transformers": [
+          "response-template"
+        ]
+      }
+    },
+    {
+      "name": "youtube-upload",
+      "request": {
+        "method": "PUT",
+        "urlPath": "/upload/youtube/v3/videos",
+        "queryParameters": {
+          "upload_id": {
+            "equalTo": "simulator-upload"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "simulatorvid",
+          "status": {
+            "uploadStatus": "uploaded",
+            "privacyStatus": "private"
+          }
+        }
+      }
+    },
+    {
+      "name": "youtube-videos",
+      "request": {
+        "method": "GET",
+        "urlPath": "/youtube/v3/videos"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "items": [
+            {
+              "id": "simulatorvid",
+              "status": {
+                "uploadStatus": "processed",
+                "privacyStatus": "private"
+              },
+              "processingDetails": {
+                "processingStatus": "succeeded"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "tiktok-token",
+      "request": {
+        "method": "POST",
+        "urlPath": "/v2/oauth/token/"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "access_token": "simulator-tiktok-token",
+          "refresh_token": "simulator-tiktok-refresh",
+          "expires_in": 86400,
+          "refresh_expires_in": 31536000,
+          "token_type": "Bearer",
+          "scope": "user.info.basic,user.info.profile,user.info.stats,video.list,video.publish,video.upload",
+          "open_id": "simulator-tiktok-open-id"
+        }
+      }
+    },
+    {
+      "name": "tiktok-user-info",
+      "request": {
+        "method": "GET",
+        "urlPath": "/v2/user/info/"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "user": {
+              "open_id": "simulator-tiktok-open-id",
+              "union_id": "simulator-tiktok-union-id",
+              "display_name": "OpenPost Simulator",
+              "username": "openpost_simulator",
+              "avatar_url": ""
+            }
+          },
+          "error": {
+            "code": "ok",
+            "message": "",
+            "log_id": "simulator"
+          }
+        }
+      }
+    },
+    {
+      "name": "tiktok-creator-info",
+      "request": {
+        "method": "POST",
+        "urlPath": "/v2/post/publish/creator_info/query/"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "creator_avatar_url": "",
+            "creator_username": "openpost_simulator",
+            "creator_nickname": "OpenPost Simulator",
+            "privacy_level_options": ["PUBLIC_TO_EVERYONE", "MUTUAL_FOLLOW_FRIENDS", "SELF_ONLY"],
+            "comment_disabled": false,
+            "duet_disabled": false,
+            "stitch_disabled": false,
+            "max_video_post_duration_sec": 600
+          },
+          "error": {
+            "code": "ok",
+            "message": "",
+            "log_id": "simulator"
+          }
+        }
+      }
+    },
+    {
+      "name": "tiktok-video-init",
+      "request": {
+        "method": "POST",
+        "urlPath": "/v2/post/publish/video/init/"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "publish_id": "v_pub_url~simulator-video"
+          },
+          "error": {
+            "code": "ok",
+            "message": "",
+            "log_id": "simulator"
+          }
+        }
+      }
+    },
+    {
+      "name": "tiktok-photo-init",
+      "request": {
+        "method": "POST",
+        "urlPath": "/v2/post/publish/content/init/"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "publish_id": "p_pub_url~simulator-photo"
+          },
+          "error": {
+            "code": "ok",
+            "message": "",
+            "log_id": "simulator"
+          }
+        }
+      }
+    },
+    {
+      "name": "tiktok-publish-status",
+      "request": {
+        "method": "POST",
+        "urlPath": "/v2/post/publish/status/fetch/"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "status": "PUBLISH_COMPLETE",
+            "publicaly_available_post_id": ["7300000000000000001"]
+          },
+          "error": {
+            "code": "ok",
+            "message": "",
+            "log_id": "simulator"
+          }
+        }
+      }
+    },
+    {
+      "name": "tiktok-video-list",
+      "request": {
+        "method": "ANY",
+        "urlPath": "/v2/video/list/"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "videos": [],
+            "cursor": 0,
+            "has_more": false
+          },
+          "error": {
+            "code": "ok",
+            "message": "",
+            "log_id": "simulator"
+          }
+        }
+      }
+    },
+    {
+      "name": "unmatched",
+      "priority": 10,
+      "request": {
+        "method": "ANY",
+        "urlPattern": ".*"
+      },
+      "response": {
+        "status": 404,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "error": "simulator has no mapping for this request"
+        }
+      }
+    }
+  ]
+}
