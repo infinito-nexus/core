@@ -18,6 +18,8 @@ proxmox:
   version: 13.7-slim
   custom: true
   name: proxmox
+  guide_companions:
+    - web-app-keycloak
   healthcheck:
     test:
       - "CMD"

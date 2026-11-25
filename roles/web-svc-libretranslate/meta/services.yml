@@ -26,6 +26,8 @@ libretranslate:
       http: 5000
   proxy:
     service_key: libretranslate
+  guide_companions:
+    - svc-ai-libretranslate-engine
   lifecycle: beta
   cpus: "0.2"
   mem_reservation: 64m
