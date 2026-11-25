@@ -21,7 +21,7 @@
       - "PIXELFED_APP_DIR={{ OPENPOST_PIXELFED_APP_DIR }}"
       - "{{ OPENPOST_SEED_PIXELFED_LOCAL_CID }}" # nocheck: container-exec-resolver
       - php
-    stdin: "{{ lookup('file', 'php/pixelfed_mint_token.php') }}"
+    stdin: "{{ lookup('file', 'php/pixelfed/mint_token.php') }}"
   loop: "{{ openpost_crossposter_seed_missing | selectattr('source.platform', 'equalto', 'pixelfed') | list }}"
   loop_control:
     label: "{{ item.name }}"
