@@ -21,6 +21,8 @@ ROLE = PROJECT_ROOT / "roles" / "web-app-semaphore"
 WORKSPACE_PY = ROLE / "files" / "python" / "workspace.py"
 TEMPLATES = ROLE / "templates" / "workspace"
 PLAYWRIGHT_ENV = ROLE / "templates" / "playwright.env.j2"
+RUNNER_TASKS = ROLE / "tasks" / "utils" / "runner.yml"
+EXPORT_EGRESS_STAGE = "🧱 Stage the egress proxy of the export runner"
 HOST_ADDRESSES = "SEMAPHORE_WORKSPACE_HOST_ADDRESSES_JSON"
 VOLUMES = load_yaml_str(read_text(str(ROLE / ROLE_FILE_META_VOLUMES)))
 HOSTS_FILE = VOLUMES["semaphore_egress_hosts"]["mounts"][0]["target"]
@@ -312,6 +314,46 @@ def closed_findings(declared=None):
     return findings
 
 
+def runner_tasks():
+    """Returns:
+    The tasks of ``tasks/utils/runner.yml``.
+    """
+    return DataLoader().load_from_file(str(RUNNER_TASKS), trusted_as_template=True)
+
+
+def refreshes_node_addresses(task):
+    """Args:
+    task: one task of ``tasks/utils/runner.yml``.
+
+    Returns:
+        Whether it gathers the network facts of every node into that node.
+    """
+    setup = task.get("ansible.builtin.setup")
+    return (
+        isinstance(setup, dict)
+        and "network" in setup["gather_subset"]
+        and task.get("delegate_facts") is True
+        and "node_hosts" in str(task["loop"])
+    )
+
+
+def refresh_findings(tasks=None):
+    """Args:
+    tasks: the runner tasks, those of :func:`runner_tasks` when None.
+
+    Returns:
+        The export egress render when no task before it refreshes the node
+        addresses, so it reads the facts of the play start, gathered before
+        the deploy installs ``ip`` and starts the bridges.
+    """
+    if tasks is None:
+        tasks = runner_tasks()
+    render = [task["name"] for task in tasks].index(EXPORT_EGRESS_STAGE)
+    if any(refreshes_node_addresses(task) for task in tasks[:render]):
+        return []
+    return [f"'{EXPORT_EGRESS_STAGE}' reads the node addresses of the play start"]
+
+
 def connect_pairs(config):
     """Args:
     config: a rendered ``squid.conf``.
@@ -540,6 +582,18 @@ class TestWorkspaceEgress(unittest.TestCase):
                 "a render on worker leaves 192.0.2.10 open",
                 "a render on worker leaves 2001:db8::10 open",
             ],
+        )
+
+    def test_the_export_egress_closes_freshly_gathered_node_addresses(self):
+        self.assertEqual(refresh_findings(), [])
+
+    def test_negative_control_an_export_egress_on_play_start_facts_is_reported(self):
+        tasks = runner_tasks()
+        planted = [task for task in tasks if not refreshes_node_addresses(task)]
+        self.assertEqual(len(planted), len(tasks) - 1)
+        self.assertEqual(
+            refresh_findings(planted),
+            [f"'{EXPORT_EGRESS_STAGE}' reads the node addresses of the play start"],
         )
 
     def test_the_spec_probes_every_node_address_the_proxy_closes(self):

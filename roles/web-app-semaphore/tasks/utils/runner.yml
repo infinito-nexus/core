@@ -99,6 +99,17 @@
     loop_var: semaphore_platform_runner
     label: "{{ semaphore_platform_runner.service }}"
 
+- name: "📊 Re-gather every node's addresses so the egress proxies close the live ones"
+  ansible.builtin.setup:
+    gather_subset:
+      - "!all"
+      - "!min"
+      - network
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ query('node_hosts') }}"
+  run_once: "{{ IS_SWARM_MODE | bool }}"
+
 - name: "🧱 Stage the egress proxy of the export runner"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
