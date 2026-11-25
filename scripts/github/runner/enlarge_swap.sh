@@ -13,9 +13,11 @@
 # on a 145 GB root, leaving so little headroom that later Docker layer
 # writes (Playwright test image pull) failed with ENOSPC. See #162.
 #
-# A zram device comes first: compressed swap in RAM gives the same swap size
-# without the swapfile's blocks on the runner's one disk, which a heavy swarm
-# HA row needs for its images. The swapfile below stays the fallback when the
+# A zram device comes first: compressed swap in RAM, without the swapfile's
+# blocks on the runner's one disk and without the disk thrash that cost a
+# heavy swarm HA row its runner. Its compressed pages live in RAM, so it is
+# sized at twice the RAM, with a cap on the RAM it may take, to hold more
+# than the swapfile did. The swapfile below stays the fallback when the
 # runner's kernel offers no zram module.
 #
 # Usage: enlarge_swap.sh [size-gb]
@@ -50,10 +52,16 @@ zram_module() {
 		sudo modprobe zram
 }
 
+ram_mib="$(awk '/^MemTotal:/ {print int($2 / 1024)}' /proc/meminfo)"
+zram_mib=$((ram_mib * 2))
+zram_ram_cap_mib=$((ram_mib * 6 / 10))
+
 if zram_module; then
-	zram_dev="$(sudo zramctl --find --size "${SWAP_GB}G" --algorithm zstd)" || zram_dev=""
-	if [ -n "$zram_dev" ] && sudo mkswap "$zram_dev" && sudo swapon --priority 100 "$zram_dev"; then
-		"$DUMP" "after swap resize → ${SWAP_GB}G zram at ${zram_dev}"
+	zram_dev="$(sudo zramctl --find --size "${zram_mib}M" --algorithm zstd)" || zram_dev=""
+	if [ -n "$zram_dev" ] &&
+		echo "${zram_ram_cap_mib}M" | sudo tee "/sys/block/${zram_dev#/dev/}/mem_limit" >/dev/null &&
+		sudo mkswap "$zram_dev" && sudo swapon --priority 100 "$zram_dev"; then
+		"$DUMP" "after swap resize → ${zram_mib}M zram at ${zram_dev}, RAM cap ${zram_ram_cap_mib}M"
 		exit 0
 	fi
 	echo "zram swap could not be set up; falling back to a swapfile" >&2

@@ -93,6 +93,15 @@ def enlarge(
         return done, log.read_text().splitlines()  # nocheck: cache-read  stub call log
 
 
+def _ram_mib() -> int:
+    meminfo = Path("/proc/meminfo")
+    text = meminfo.read_text(encoding="utf-8")  # nocheck: cache-read  live kernel state
+    for line in text.splitlines():
+        if line.startswith("MemTotal:"):
+            return int(line.split()[1]) // 1024
+    raise AssertionError("no MemTotal in /proc/meminfo")
+
+
 def swapfile(calls: list[str]) -> list[str]:
     """Return the fallocate calls among the recorded sudo calls.
 
@@ -150,9 +159,15 @@ class TestEnlargeSwapPlacement(unittest.TestCase):
             mounted=False, mnt_free=0, root_free=88, containerd_dev="66305", zram=True
         )
         self.assertEqual(done.returncode, 0, done.stderr)
+        ram_mib = _ram_mib()
         self.assertEqual(swapfile(calls), [])
-        self.assertIn("zramctl --find --size 16G --algorithm zstd", calls)
+        self.assertIn(f"zramctl --find --size {ram_mib * 2}M --algorithm zstd", calls)
+        self.assertIn("tee /sys/block/zram0/mem_limit", calls)
         self.assertIn("swapon --priority 100 /dev/zram0", calls)
+        self.assertLess(
+            calls.index("tee /sys/block/zram0/mem_limit"),
+            calls.index("swapon --priority 100 /dev/zram0"),
+        )
 
     def test_zram_needs_no_free_disk(self) -> None:
         done, calls = enlarge(

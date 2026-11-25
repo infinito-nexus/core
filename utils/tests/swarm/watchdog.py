@@ -33,6 +33,7 @@ from utils.env.runtime import (
     mem_total_mb,
     uninterruptible_switches,
 )
+from utils.tests.swarm.probes import memory_line, spike_report
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -169,101 +170,6 @@ def sample_line(
     )
 
 
-def parse_write_bytes(text: str) -> dict[str, int]:
-    """
-    Args:
-        text: ``grep -H write_bytes /proc/[0-9]*/io`` output.
-
-    Returns:
-        Per pid the bytes it has written so far.
-    """
-    found: dict[str, int] = {}
-    for line in text.splitlines():
-        path, _, value = line.partition(":write_bytes:")
-        pid = path.removeprefix("/proc/").removesuffix("/io")
-        if pid.isdigit() and value.strip().isdigit():
-            found[pid] = int(value)
-    return found
-
-
-def top_writers(
-    before: dict[str, int], after: dict[str, int], rows: int
-) -> list[tuple[str, int]]:
-    """
-    Args:
-        before: parse_write_bytes() of the first snapshot.
-        after: parse_write_bytes() of the second snapshot.
-        rows: how many writers to return.
-
-    Returns:
-        ``(pid, bytes written between the snapshots)``, largest first.
-    """
-    deltas = [(pid, written - before.get(pid, 0)) for pid, written in after.items()]
-    return sorted((d for d in deltas if d[1] > 0), key=lambda d: -d[1])[:rows]
-
-
-def _write_bytes() -> dict[str, int]:
-    try:
-        out = subprocess.run(
-            ["sudo", "-n", "sh", "-c", "grep -H write_bytes /proc/[0-9]*/io"],
-            capture_output=True,
-            text=True,
-            timeout=10,
-            check=False,
-        ).stdout
-    except (OSError, subprocess.TimeoutExpired):
-        return {}
-    return parse_write_bytes(out)
-
-
-def _comm(pid: str) -> str:
-    try:
-        comm = Path(f"/proc/{pid}/comm")
-        return comm.read_text(encoding="utf-8").strip()  # nocheck: cache-read  live pid
-
-    except OSError:
-        return "?"
-
-
-def _top_rss(rows: int) -> list[str]:
-    try:
-        out = subprocess.run(
-            ["ps", "-eo", "rss=,comm=", "--sort=-rss"],
-            capture_output=True,
-            text=True,
-            timeout=10,
-            check=False,
-        ).stdout
-    except (OSError, subprocess.TimeoutExpired):
-        return []
-    lines = []
-    for line in out.splitlines()[:rows]:
-        rss, _, command = line.strip().partition(" ")
-        if rss.isdigit():
-            lines.append(f"{int(rss) // 1024}M {command.strip()}")
-    return lines
-
-
-def spike_report() -> list[str]:
-    """Name what eats the host while a spike is under way.
-
-    Returns:
-        One line of the largest resident processes and one of the processes
-        that wrote the most bytes over one second, both runner-wide.
-    """
-    before = _write_bytes()
-    time.sleep(FAST_INTERVAL_S)
-    after = _write_bytes()
-    writers = [
-        f"{written // 2**20}M {_comm(pid)}({pid})"
-        for pid, written in top_writers(before, after, TOP_ROWS)
-    ]
-    return [
-        "=== swarm-matrix: top rss " + " | ".join(_top_rss(TOP_ROWS)) + " ===",
-        "=== swarm-matrix: top writers/s " + " | ".join(writers) + " ===",
-    ]
-
-
 def spike_kind(
     previous: tuple[int, int], current: tuple[int, int]
 ) -> tuple[int, int] | None:
@@ -316,7 +222,7 @@ def _tripwire(
                 f"{FAST_INTERVAL_S}s ===",
                 flush=True,
             )
-            for line in spike_report():
+            for line in spike_report(TOP_ROWS, FAST_INTERVAL_S):
                 print(line, flush=True)
         if floor_within_eta(free_mb, drop[0]):
             tripped.set()
@@ -452,7 +358,9 @@ def _watch(proc: subprocess.Popen[bytes]) -> int:
                     + " ===",
                     flush=True,
                 )
+                print(memory_line(TOP_ROWS), flush=True)
             if total and avail < total * MEM_FLOOR_RATIO:
+                print(memory_line(TOP_ROWS), flush=True)
                 return _abort(
                     proc,
                     "=== swarm-matrix: MEMORY EXHAUSTION IMMINENT "

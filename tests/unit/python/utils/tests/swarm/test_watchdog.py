@@ -295,21 +295,6 @@ class TestRunWatched(unittest.TestCase):
 
 
 class TestTripwire(unittest.TestCase):
-    def test_write_bytes_are_read_per_pid(self) -> None:
-        text = (
-            "/proc/12/io:write_bytes: 4096\n"
-            "/proc/self/io:write_bytes: 1\n"
-            "/proc/99/io:write_bytes: 0\n"
-        )
-        self.assertEqual(watchdog.parse_write_bytes(text), {"12": 4096, "99": 0})
-
-    def test_top_writers_rank_the_bytes_written_between_snapshots(self) -> None:
-        before = {"1": 100, "2": 100, "3": 100}
-        after = {"1": 150, "2": 900, "3": 100, "4": 70}
-        self.assertEqual(
-            watchdog.top_writers(before, after, 2), [("2", 800), ("4", 70)]
-        )
-
     def test_a_drop_below_the_spike_size_is_no_spike(self) -> None:
         previous = (40_000, 6_000)
         current = (40_000 - watchdog.SPIKE_MB + 1, 6_000 - watchdog.SPIKE_MB + 1)
