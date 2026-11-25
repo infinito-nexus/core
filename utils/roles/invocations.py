@@ -50,7 +50,9 @@ _ROLE_FILE_REF_RE = re.compile(r"roles/(?P<role>[a-z0-9-]+)/(?:tasks|handlers)/"
 _QUOTED_NAME_RE = re.compile(r"['\"](?P<name>[a-z0-9][a-z0-9-]*)['\"]")
 _TEMPLATE_RE = re.compile(r"\{\{.*?\}\}")
 _MEMBERSHIP_GATE_RE = re.compile(
-    r"^'(?P<role>[a-z0-9-]+)'\s*(?P<test>in\s+group_names|\|\s*application_allowed\b)"
+    r"(?P<quote>['\"])(?P<role>[a-z0-9-]+)(?P=quote)\s*"
+    r"(?P<test>in\s+group_names"
+    r"|\|\s*application_allowed\s*\((?:[^()]|\([^()]*\))*\))"
 )
 
 
@@ -86,12 +88,12 @@ def _strings(value: Any) -> Iterator[str]:
             yield from _strings(item)
 
 
-def _named(name: str, known: frozenset[str]) -> set[str] | None:
+def _named(name: str, known: frozenset[str], *, globs: bool) -> set[str] | None:
     name = name.strip()
     if "{{" not in name:
         return {name}
     pattern = _TEMPLATE_RE.sub("*", name)
-    if not pattern.strip("*"):
+    if not globs or not pattern.strip("*"):
         return None
     return set(fnmatch.filter(known, pattern))
 
@@ -117,6 +119,35 @@ def _looped(task: dict[str, Any]) -> set[str] | None:
     return None
 
 
+def included_roles(
+    task: dict[str, Any], known: frozenset[str], *, globs: bool
+) -> tuple[set[str], bool]:
+    """
+    Args:
+        task: one task mapping without the tasks nested in its blocks.
+        known: every existing role name.
+        globs: whether a template with a literal part names every role its
+            glob matches; else it names a role only through a literal loop.
+
+    Returns:
+        The roles the task's ``include_role``/``import_role`` names, and
+        whether a name stayed unresolved.
+    """
+    included: set[str] = set()
+    unresolved = False
+    for key in INCLUDE_ROLE_KEYS & task.keys():
+        spec = task[key]
+        name = spec.get("name") if isinstance(spec, dict) else spec
+        named = _named(name, known, globs=globs) if isinstance(name, str) else None
+        if named is None:
+            named = _looped(task)
+        if named is None:
+            unresolved = True
+            continue
+        included |= named
+    return included & known, unresolved
+
+
 def task_invocations(
     task: dict[str, Any], known: frozenset[str]
 ) -> tuple[set[str], bool]:
@@ -132,19 +163,8 @@ def task_invocations(
         invoked.update(
             match.group("role") for match in _ROLE_FILE_REF_RE.finditer(value)
         )
-
-    unresolved = False
-    for key in INCLUDE_ROLE_KEYS & own.keys():
-        spec = own[key]
-        name = spec.get("name") if isinstance(spec, dict) else spec
-        named = _named(name, known) if isinstance(name, str) else None
-        if named is None:
-            named = _looped(own)
-        if named is None:
-            unresolved = True
-            continue
-        invoked |= named
-    return invoked & known, unresolved
+    included, unresolved = included_roles(own, known, globs=True)
+    return (invoked | included) & known, unresolved
 
 
 def file_invocations(path: Path, known: frozenset[str]) -> tuple[set[str], bool]:
@@ -198,6 +218,65 @@ def role_invocations(roles_dir: str, role: str) -> frozenset[str]:
     return frozenset(invoked & known)
 
 
+def _own_gates(when: Any) -> set[str]:
+    """
+    Args:
+        when: a task's ``when``.
+
+    Returns:
+        Every role one whole condition of *when* requires in the host's
+        groups (``'<role>' in group_names``, ``'<role>' | application_allowed(...)``).
+    """
+    conditions = when if isinstance(when, list) else [when]
+    return {
+        match.group("role")
+        for condition in conditions
+        if isinstance(condition, str)
+        and (match := _MEMBERSHIP_GATE_RE.fullmatch(condition.strip()))
+    }
+
+
+def _ungated_includes(
+    node: Any, gates: frozenset[str], known: frozenset[str]
+) -> Iterator[str]:
+    if not isinstance(node, list):
+        return
+    for task in node:
+        if not isinstance(task, dict):
+            continue
+        held = gates | _own_gates(task.get("when"))
+        own = {key: value for key, value in task.items() if key not in NESTED_KEYS}
+        yield from included_roles(own, known, globs=False)[0] - held
+        for key in NESTED_KEYS:
+            yield from _ungated_includes(task.get(key), held, known)
+
+
+@cache
+def role_includes(roles_dir: str, role: str) -> frozenset[str]:
+    """
+    Args:
+        roles_dir: directory holding the role folders.
+        role: role name.
+
+    Returns:
+        Every other role an ``include_role``/``import_role`` in *role*'s task
+        and handler files names literally or through a literal loop, except
+        where that task or an enclosing block requires the included role in
+        the host's groups.
+    """
+    known = role_names(roles_dir)
+    included = {
+        name
+        for path in _files(Path(roles_dir) / role, TASK_FILE_DIRS)
+        if any(key in read_text(str(path)) for key in ("include_role", "import_role"))
+        for name in _ungated_includes(
+            load_yaml_any(str(path), default_if_missing=None), frozenset(), known
+        )
+    }
+    included.discard(role)
+    return frozenset(included)
+
+
 def stage_files(project_root: Path, host_types: Iterable[str]) -> list[Path]:
     """Return the play's stage files a host with *host_types* runs, in order.
 
@@ -221,7 +300,7 @@ def _gate_closed(
     for condition in when if isinstance(when, list) else [when]:
         if not isinstance(condition, str):
             continue
-        match = _MEMBERSHIP_GATE_RE.match(condition.strip())
+        match = _MEMBERSHIP_GATE_RE.fullmatch(condition.strip())
         if match is None:
             continue
         members = group_names if match.group("test").startswith("in") else seeds
@@ -283,7 +362,7 @@ def deploy_closure(
         group_names: the host's inventory groups.
     """
     known = role_names(str(Path(project_root) / "roles"))
-    seed_set = {str(seed) for seed in seeds}
+    seed_set = {str(name) for name in seeds}
     roots = set(seed_set)
     for path in stage_files(project_root, host_types):
         roots |= stage_invocations(path, known, seeds=seed_set, group_names=group_names)
