@@ -30,7 +30,7 @@ This role:
 - Renders `.env` from `templates/playwright.env.j2` using Ansible variables (`application_id`, `domains`, `users`, `applications`)
 - Optionally waits until the application responds with HTTP `200` or `302`
 - Injects CA trust automatically for `TLS_MODE=self_signed` (via `CA_TRUST.*`), so Playwright accepts self-signed cert chains
-- Runs Playwright in Docker with stable browser settings (`--ipc=host`, `--shm-size=1g`)
+- Runs Playwright in Docker with stable browser settings (`--ipc=host`, `--shm-size=1g`) and without core dumps (`--ulimit=core=0`), so a crashing browser cannot fill the container's disk
 - Runs the suite once per role on one network it is served on (`lookup('network_siblings', ...)`), picked at random when there are several and kept for the flake retry, with the `.env` rendered for that network's vhost
 - Stores per-role reports/artifacts under `TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR/<application_id>`, or under `<application_id>+<network>` when the pick is not the canonical network
 

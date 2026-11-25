@@ -10,7 +10,7 @@
   include_role:
     name: sys-stk-full
 
-- name: "📦 Stage the model prefetch and the gunicorn worker-exit hook of {{ application_id }}"
+- name: "📦 Stage the model prefetch and worker-exit hook of {{ application_id }}"
   stack_host_copy:
     src: "python/{{ item }}"
     dest: "{{ [lookup('container', application_id, 'directories.instance'), item] | path_join }}"
