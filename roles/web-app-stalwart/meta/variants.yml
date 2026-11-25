@@ -73,9 +73,9 @@
           destinations:
             - "administrator@{{ DOMAIN_PRIMARY }}"
             - "biber@{{ DOMAIN_PRIMARY }}"
-            - "team@routing-probe.invalid"
+            - "team@routing-probe.test"
       forwards:
         - address: "biber@{{ DOMAIN_PRIMARY }}"
           destinations:
             - "administrator@{{ DOMAIN_PRIMARY }}"
-            - "biber@routing-probe.invalid"
+            - "biber@routing-probe.test"
