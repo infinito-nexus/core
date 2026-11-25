@@ -1,6 +1,6 @@
 ---
 # Param rbac_sync_application_id: application whose role mapping the hook reconciles; include on every host of its group, the deploy-time run happens once.
-# Param rbac_sync_enabled: whether the hook is registered; false removes a hook an earlier deploy registered.
+# Param rbac_sync_enabled: whether the hook is registered; false removes it, on svc-storage-nfs-client nodes only on STACK_HOST.
 # Param rbac_sync_roles: role names whose members the hook receives; "@users" stands for every account of the directory, "@users:<attribute>" for every account that holds the attribute, and a group path "/<root>/<application>/<role>" names a role of any application.
 # Param rbac_sync_mode: "swarm" or "compose", the mode the container runs in; a compose container of a swarm cluster runs on the stack host.
 # Param rbac_sync_service_key: compose/swarm service key of the container the hook acts on.
@@ -21,7 +21,9 @@
   ansible.builtin.file:
     path: "{{ [ DIR_RBAC_SYNC, 'hooks', rbac_sync_application_id ] | path_join }}"
     state: absent
-  when: not (rbac_sync_enabled | bool)
+  when:
+    - not (rbac_sync_enabled | bool)
+    - inventory_hostname == STACK_HOST or 'svc-storage-nfs-client' not in group_names
 
 - name: "🛂 Register and run the RBAC hook of {{ rbac_sync_application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync/register.yml') }}"
