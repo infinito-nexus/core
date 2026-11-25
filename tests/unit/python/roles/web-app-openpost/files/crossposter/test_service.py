@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import io
 import json
 import tempfile
 import unittest
@@ -20,6 +21,7 @@ from crossposter.config import (
 from crossposter.notify import Mail
 from crossposter.openpost import Destination
 from crossposter.sources import Media, SourceItem
+from PIL import Image
 
 DESTINATIONS = [
     Destination("acc-x", "x-press", "x", {}),
@@ -71,6 +73,12 @@ class TestMediaCredentials(unittest.TestCase):
 
 def picture(number: int, url: str) -> SourceItem:
     return replace(post(number), media=(Media(url, "image/jpeg", "", 0),))
+
+
+def png(width: int, height: int) -> bytes:
+    buffer = io.BytesIO()
+    Image.new("1", (width, height)).save(buffer, "PNG")
+    return buffer.getvalue()
 
 
 class FakeSource:
@@ -387,6 +395,82 @@ class TestDelivery(ServiceFixture, unittest.TestCase):
             runner.deliver_due()
         self.assertEqual({row["state"] for row in database.items}, {"pending"})
         self.assertIn("not available yet", database.items[0]["last_error"])
+
+    def test_a_source_naming_a_local_file_as_media_fails_for_good(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            secret = Path(folder) / "crossposter-secrets.json"
+            secret.write_text('{"openpost_token": "op-token"}')
+            runner, database, _ = self.build("review", [picture(101, secret.as_uri())])
+            database.cursors["press"] = "100"
+            runner.detect(runner.routes["press"])
+            runner.deliver_due()
+        self.assertEqual({row["state"] for row in database.items}, {"dead_lettered"})
+        self.assertNotIn("not available yet", database.items[0]["last_error"])
+
+    def to_instagram(self, body: bytes) -> FakeStore:
+        image = Media("https://microblog.example/m/1.png", "image/png", "", 0)
+        runner, database, client = self.build(
+            "review", [replace(post(101), media=(image,))]
+        )
+        client.destinations = lambda *_args: [
+            Destination("acc-ig", "ig-press", "instagram", {})
+        ]
+        database.cursors["press"] = "100"
+        runner.detect(runner.routes["press"])
+
+        def download(_url: str, _headers: dict, target: Path) -> Path:
+            target.write_bytes(body)
+            return target
+
+        with patch.object(service.web, "download", download):
+            runner.deliver_due()
+        return database
+
+    def test_non_image_media_for_a_jpeg_only_network_fails_for_good(self) -> None:
+        database = self.to_instagram(b"<html>no image</html>")
+        self.assertEqual({row["state"] for row in database.items}, {"dead_lettered"})
+        self.assertIn("no convertible image", database.items[0]["last_error"])
+
+    def test_a_decompression_bomb_fails_for_good(self) -> None:
+        with patch.object(Image, "MAX_IMAGE_PIXELS", 10):
+            database = self.to_instagram(png(20, 20))
+        self.assertEqual({row["state"] for row in database.items}, {"dead_lettered"})
+
+    def test_an_image_too_large_for_the_memory_limit_fails_for_good(self) -> None:
+        database = self.to_instagram(png(4097, 4096))
+        self.assertEqual({row["state"] for row in database.items}, {"dead_lettered"})
+        self.assertIn("4097x4096", database.items[0]["last_error"])
+
+    def test_a_small_png_is_converted_for_instagram(self) -> None:
+        database = self.to_instagram(png(20, 20))
+        self.assertEqual({row["state"] for row in database.items}, {"drafted"})
+
+    def test_media_is_stored_under_its_index_not_the_remote_name(self) -> None:
+        remote = "https://microblog.example/m/" + "x" * 300 + ".jpg"
+        runner, database, _ = self.build("review", [picture(101, remote)])
+        database.cursors["press"] = "100"
+        runner.detect(runner.routes["press"])
+        stored: list[str] = []
+
+        def download(_url: str, _headers: dict, target: Path) -> Path:
+            target.write_bytes(b"\xff\xd8 image")
+            stored.append(target.name)
+            return target
+
+        with patch.object(service.web, "download", download):
+            runner.deliver_due()
+        self.assertEqual(set(stored), {"media-0.jpg"})
+        self.assertEqual({row["state"] for row in database.items}, {"drafted"})
+
+    def test_a_malformed_media_host_fails_the_delivery_not_the_service(self) -> None:
+        for url in ("http://%00/m.jpg", "http://a..b/m.jpg"):
+            with self.subTest(url=url):
+                runner, database, _ = self.build("review", [picture(101, url)])
+                database.cursors["press"] = "100"
+                runner.detect(runner.routes["press"])
+                runner.deliver_due()
+                self.assertEqual({row["state"] for row in database.items}, {"pending"})
+                self.assertEqual({row["attempts"] for row in database.items}, {1})
 
     def test_permanent_errors_dead_letter_at_once(self) -> None:
         runner, database, client = self.queued("auto")
