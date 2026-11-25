@@ -68,3 +68,11 @@ applications:
           - [[ root ]]
 [% endfor %]
 [% endif %]
+[% if pool and semaphore %]
+  web-app-semaphore:
+    services:
+      semaphore:
+        pool:
+          runners: [[ pool.count ]]
+          checkout: [[ pool.src ]]
+[% endif %]

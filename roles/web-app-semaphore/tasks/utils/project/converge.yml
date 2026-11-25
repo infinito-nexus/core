@@ -5,7 +5,7 @@
     semaphore_admin_before: "{{ role_path }}/tasks/utils/project/inputs.yml"
     semaphore_admin_tasks: "{{ role_path }}/tasks/utils/project/sync.yml"
 
-- name: "🏃 Align one runner row per platform project"
+- name: "🏃 Align one runner row per platform project and one per pool runner"
   ansible.builtin.command:
     argv:
       - container
@@ -26,7 +26,7 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ SEMAPHORE_DATABASE_HOST_NODE }}"
 
-- name: "✅ Fail unless platform projects and their runners pair up one to one"
+- name: "✅ Fail unless platform and pool projects run on exactly their own runners"
   ansible.builtin.assert:
     that:
       - semaphore_project_runner_findings | length == 0
@@ -34,4 +34,4 @@
     quiet: true
   vars:
     semaphore_project_runner_findings: >-
-      {{ semaphore_project_runners.stdout_lines | semaphore_runner_findings(SEMAPHORE_PLATFORM_RUNNERS_ACTIVE) }}
+      {{ semaphore_project_runners.stdout_lines | semaphore_runner_findings(SEMAPHORE_RUNNER_ROWS) }}

@@ -49,7 +49,9 @@ _FIELDS: dict[str, tuple[type, ...]] = {
     "started_at": (*_NUMBER, _NONE),
     "ended_at": (*_NUMBER, _NONE),
     "exit_code": (int, _NONE),
+    "pin": (str, _NONE),
 }
+_UNPINNED = {"pin": None}
 _SKIPPED: set[str] = set()
 
 
@@ -71,6 +73,7 @@ class Job:
     started_at: float | None = None
     ended_at: float | None = None
     exit_code: int | None = None
+    pin: str | None = None
 
 
 def checked_id(job_id: str) -> str:
@@ -245,8 +248,13 @@ def _write(root: Path, job: Job) -> Job:
         fd = _new_fd(staged, os.O_WRONLY)
     except FileExistsError as exc:
         raise JobError(f"{staged} reappeared while the queue wrote it") from exc
+    body = {
+        key: value
+        for key, value in dataclasses.asdict(job).items()
+        if key not in _UNPINNED or value is not None
+    }
     with os.fdopen(fd, "w", encoding="utf-8") as handle:
-        json.dump(dataclasses.asdict(job), handle, sort_keys=True)
+        json.dump(body, handle, sort_keys=True)
     staged.replace(folder / f"{job.id}.json")
     return job
 
@@ -256,6 +264,8 @@ def _of(value: object, kinds: tuple[type, ...]) -> bool:
 
 
 def _record(raw: object, path: Path) -> Job:
+    if isinstance(raw, dict):
+        raw = {**_UNPINNED, **raw}
     if not isinstance(raw, dict) or set(raw) != set(_FIELDS):
         raise JobError(f"{path} holds no job record of the fields {', '.join(_FIELDS)}")
     malformed = {key for key, kinds in _FIELDS.items() if not _of(raw[key], kinds)}
@@ -282,7 +292,7 @@ def _read(path: Path) -> Job:
     if record.id != path.stem:
         raise JobError(f"{path} holds job {record.id!r}, not the job of its name")
     checked_id(record.id)
-    for name in (record.runner, record.stack):
+    for name in (record.runner, record.stack, record.pin):
         if name is not None:
             checked_name(name)
     return record

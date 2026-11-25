@@ -17,6 +17,7 @@ from jinja2 import (
     select_autoescape,
 )
 
+from plugins.filter.pool_runner import FilterModule as PoolRunnerFilters
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
@@ -66,6 +67,9 @@ TOOLCHAIN = "infinito/arch:0123abcd"
 OPERATOR = 1000
 QUEUE = "/var/cache/infinito/core/cache/jobs"
 QUEUE_GID = 901
+SEMAPHORE_IMAGE = "semaphoreui/semaphore:v0.0.0"
+SEMAPHORE_URL = "http://host.docker.internal:8086"
+SEMAPHORE_SECRET = "SEMAPHORE_SECRET_SENTINEL"
 HOST_ENV = {
     "GITHUB_REPOSITORY": "infinito-nexus/core",
     "GITHUB_REPOSITORY_OWNER": "infinito-nexus",
@@ -291,6 +295,12 @@ def variables(flavor: str, swarm: bool, roots: list[str]) -> dict[str, Any]:
         "DEPLOY_IS_UPDATE": False,
         "INFINITO_GHCR_MIRROR_PREFIX": "",
         "INFINITO_IMAGE_TAG": "latest",
+        "RUNNER_SEMAPHORE_ENABLED": False,
+        "RUNNER_SEMAPHORE_IMAGE": SEMAPHORE_IMAGE,
+        "RUNNER_SEMAPHORE_URL": SEMAPHORE_URL,
+        "RUNNER_SEMAPHORE_SECRET": SEMAPHORE_SECRET,
+        "RUNNER_SEMAPHORE_TOKEN_FILE": role_vars()["RUNNER_SEMAPHORE_TOKEN_FILE"],
+        "RUNNER_SEMAPHORE_WORK_DIR": role_vars()["RUNNER_SEMAPHORE_WORK_DIR"],
         "runner_instance": 1,
     }
 
@@ -303,6 +313,7 @@ def render(
     roots: list[str] | None = None,
     role: Path = ROLE,
     source: str | None = None,
+    overrides: dict[str, Any] | None = None,
 ) -> str:
     """Args:
         name: the template file below the role's templates/.
@@ -311,12 +322,17 @@ def render(
         roots: the worktree roots, ROOTS when None.
         role: the role directory the template is read from.
         source: a replacement template text, for negative controls.
+        overrides: variables that replace those of :func:`variables`, None for none.
 
     Returns:
         The rendered template, with the whitespace handling of the task that renders it.
     """
-    values = variables(flavor, swarm, ROOTS if roots is None else roots)
+    values = {
+        **variables(flavor, swarm, ROOTS if roots is None else roots),
+        **(overrides or {}),
+    }
     env = environment(FunctionLoader(project_template), lstrip=name == COMPOSE)
+    env.filters.update(PoolRunnerFilters().filters())
 
     def lookup(plugin, *terms, **kwargs):
         if plugin == "env":
@@ -333,6 +349,9 @@ def render(
             services = load_yaml_any(str(role / ROLE_FILE_META_SERVICES))
             config = services[terms[0]]["healthcheck"]
             return build(config.get("flavor", ""), config, test=config.get("test"))
+        if plugin == "container_extra_hosts":
+            hosts = kwargs["extra_hosts"]
+            return "extra_hosts:\n" + "\n".join(f'  - "{host}"' for host in hosts)
         if plugin == "container_networks":
             return "networks:\n  default: {}"
         if plugin == "compose_networks":

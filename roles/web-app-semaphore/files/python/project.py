@@ -27,6 +27,8 @@ Reads one JSON document from standard input:
         task_template: ``name``, ``app`` and ``playbook``, the inventory
             file relative to the repository.
     workspaces: present only beside ``deploy``, see :func:`converge_workspaces`.
+    pool: present only when the infra inventory seeds the runner pool, see
+        :func:`converge_pool`.
     workspace: replaces every key but ``url`` and ``token`` for one workspace
         operation, see :func:`apply_workspace` and :func:`destroy_workspace`.
 
@@ -93,6 +95,7 @@ CHECKOUT_KINDS = ("provision",)
 ORDER_SURVEY = (("SALES_ORDER", True), ("LINE", True))
 HOST_SURVEY = (("HOST", True), (HOST_KEY, True))
 COMMIT_SURVEY = (("INVENTORY_COMMIT", True),)
+POOL_SURVEY = (("APPS", True),)
 WORKSPACE_TEMPLATES = (
     {
         "name": "deploy",
@@ -1326,6 +1329,105 @@ def converge_deploy(api, deploy, projects, changes):
     )
 
 
+def converge_pool(api, pool, projects, changes):
+    """
+    Args:
+        api: the client.
+        pool: the ``pool`` part of the standard input document:
+            project: the name of the pool project.
+            runner_tag: the tag every pool runner's Semaphore runner carries.
+            inventory: the name of its empty inventory.
+            repository: ``name`` and ``path``, the checkout every pool runner
+                mounts at its host path and runs its pool loop from.
+            environment: the name of its empty environment.
+            task_template: ``name`` and ``playbook``, the script below the
+                checkout that submits the deploy as a job pinned to the pool
+                runner the task runs on.
+        projects: every project the API returned.
+        changes: the change log this call appends to.
+    """
+    project_id = ensure_project(api, pool["project"], projects, changes)
+    template = pool["task_template"]
+    ensure_template(
+        api,
+        project_id,
+        template_body(
+            project_id,
+            {
+                "name": template["name"],
+                "app": APP,
+                "playbook": template["playbook"],
+                "arguments": [],
+                "survey": POOL_SURVEY,
+            },
+            pool_refs(api, project_id, pool, changes),
+        ),
+        changes,
+    )
+
+
+def pool_refs(api, project_id, pool, changes):
+    """
+    Args:
+        api: the client.
+        project_id: the id of the pool project.
+        pool: the ``pool`` part of the standard input document.
+        changes: the change log this call appends to.
+
+    Returns:
+        The ids of the empty inventory, the checkout repository and the empty
+        environment of the pool project, and the tag of its pool runners.
+    """
+    none_key_id = ensure_none_key(api, project_id, changes)
+    return {
+        "inventory": ensure_resource(
+            api,
+            project_id,
+            "inventory",
+            {
+                "name": pool["inventory"],
+                "project_id": project_id,
+                "inventory": "",
+                "ssh_key_id": none_key_id,
+                "become_key_id": None,
+                "type": "static",
+            },
+            matches,
+            changes,
+        ),
+        "repository": ensure_resource(
+            api,
+            project_id,
+            "repositories",
+            {
+                "name": pool["repository"]["name"],
+                "project_id": project_id,
+                "git_url": pool["repository"]["path"],
+                "git_branch": "",
+                "ssh_key_id": none_key_id,
+            },
+            matches,
+            changes,
+        ),
+        "environment": ensure_resource(
+            api,
+            project_id,
+            "environment",
+            {
+                "name": pool["environment"],
+                "project_id": project_id,
+                "json": EMPTY_JSON,
+                "env": EMPTY_JSON,
+                "password": None,
+                "secrets": [],
+            },
+            same_environment,
+            changes,
+        ),
+        "runner_tag": pool["runner_tag"],
+    }
+
+
 def converge(api, spec, sleep):
     """Converge the platform projects.
 
@@ -1411,6 +1513,8 @@ def converge(api, spec, sleep):
                     api, spec["deploy"], spec["workspaces"], projects, changes
                 )
             )
+    if "pool" in spec:
+        converge_pool(api, spec["pool"], projects, changes)
     return changes, findings
 
 

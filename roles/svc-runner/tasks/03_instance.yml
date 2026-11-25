@@ -49,3 +49,37 @@
     group: "{{ RUNNER_USER }}"
     mode: "0600"
   notify: compose-up
+
+- name: 📂 Create the Semaphore runner work directory of instance {{ runner_instance }}
+  file:
+    path: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}/{{ RUNNER_SEMAPHORE_WORK_DIR }}"
+    state: "{{ 'directory' if RUNNER_SEMAPHORE_ENABLED | bool else 'absent' }}"
+    owner: "{{ RUNNER_RUN_OWNER }}"
+    group: "{{ RUNNER_RUN_GROUP }}"
+    mode: "0700"
+
+- name: 🎟️ Write the Semaphore runner env and token of {{ runner_instance }}
+  template: # nocheck: stack-host-template (node-local runner: each instance signs in with its own token)
+    src: "{{ runner_semaphore_file.src }}"
+    dest: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}/{{ runner_semaphore_file.dest }}"
+    owner: "{{ RUNNER_RUN_OWNER }}"
+    group: "{{ RUNNER_RUN_GROUP }}"
+    mode: "{{ runner_semaphore_file.mode }}"
+  loop: "{{ RUNNER_SEMAPHORE_FILES }}"
+  loop_control:
+    loop_var: runner_semaphore_file
+    label: "{{ runner_semaphore_file.dest }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  notify: compose-up
+  when: RUNNER_SEMAPHORE_ENABLED | bool
+
+- name: 🗑️ Remove the Semaphore runner env and token of {{ runner_instance }}
+  file:
+    path: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}/{{ runner_semaphore_file.dest }}"
+    state: absent
+  loop: "{{ RUNNER_SEMAPHORE_FILES }}"
+  loop_control:
+    loop_var: runner_semaphore_file
+    label: "{{ runner_semaphore_file.dest }}"
+  notify: compose-up
+  when: not (RUNNER_SEMAPHORE_ENABLED | bool)

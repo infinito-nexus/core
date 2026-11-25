@@ -315,7 +315,9 @@ class TestQueueLocation(unittest.TestCase):
         self,
     ) -> None:
         cache = Path("/var/cache/infinito/core/cache")
-        with patch.object(jobs, "machine", return_value=cache):
+        with patch(
+            "utils.env.handlers.infinito.cache.paths.machine", return_value=cache
+        ):
             root = jobs.queue_root()
         self.assertEqual(root, cache / "jobs")
         self.assertTrue(root.is_relative_to(cache))

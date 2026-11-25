@@ -331,6 +331,27 @@ flowchart LR
     operator[make target job=id] -->|queue_dir/docker.sock| dockerd
 ```
 
+### Semaphore remote runners
+
+With `web-app-semaphore` in the same inventory (`INFINITO_INFRA_SEMAPHORE=true`
+beside `INFINITO_DEPLOY_VIA_POOL=true`), every `local` instance `<N>` also gets
+a `semaphore-runner-<N>` sidecar (`RUNNER_SEMAPHORE_ENABLED`). The sidecar runs
+`semaphore runner start --no-config` from the Semaphore image the
+`web-app-semaphore` role pins, as `operator_uid:operator_gid`, and registers
+with the Semaphore server at `host.docker.internal` as `runner-<N>`, the row
+the server seeds for it with at most one parallel task.
+
+Its token is `RUNNER_INSTALL_DIR/<N>/semaphore.token` (mode `0400`), the
+HMAC-SHA256 of the runner name under the `pool_runner_token` credential of
+`web-app-semaphore`, mounted read-only at `/run/semaphore/token`; it never lands
+in `queue_dir`. `RUNNER_INSTALL_DIR/<N>/semaphore.env` (mode `0600`) names that
+file, the server, the queue, the checkout and the forwarded variables. A
+Semaphore task of the Pool project runs `scripts/tests/deploy/job/semaphore.sh`,
+which submits a `compose-deploy` job pinned to the sidecar's own `runner-<N>`
+and follows it, so the task runs through `scripts/tests/deploy/job/entry.sh` on
+that instance alone and only once it runs no other job. Without either opt-in
+the role renders no sidecar and removes both files.
+
 ## Further Resources
 
 - [GitHub Actions self-hosted runner documentation](https://docs.github.com/en/actions/hosting-your-own-runners)

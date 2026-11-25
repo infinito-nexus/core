@@ -6,6 +6,11 @@ from typing import Any
 
 from ansible.errors import AnsibleFilterError
 
+from utils.runner.semaphore import pool_runner_names, pool_runner_token
+from utils.runner.store import JobError
+
+POOL_MAX_PARALLEL_TASKS = 1
+
 
 def semaphore_runner_digest(inputs: dict[str, Any]) -> str:
     """Return the sha256 the runner image is labelled with.
@@ -64,12 +69,14 @@ def semaphore_runner_findings(lines: list[str], wanted: list[dict]) -> list[str]
     lines: the stdout lines of ``sql/project/runners.sql.j2``; each ``RUNNER``
         line carries one runner row as JSON with ``name``, ``project`` (the
         project name, null without a project) and ``tags``.
-    wanted: ``SEMAPHORE_PLATFORM_RUNNERS_ACTIVE`` (``name``, ``project``,
-        ``tag``).
+    wanted: ``SEMAPHORE_RUNNER_ROWS`` (``name``, ``project``, ``tag``): the
+        platform runners, one per project, and the pool runners, which share
+        the pool project.
 
     Returns:
-        Every runner row without a project and every platform project that
-        does not run on exactly its own runner with exactly its tag.
+        Every runner row without a project, every platform or pool project
+        that does not run on exactly its own runners, and every own runner
+        that does not carry exactly its tag.
     """
     rows = [
         json.loads(line[len("RUNNER ") :])
@@ -79,18 +86,57 @@ def semaphore_runner_findings(lines: list[str], wanted: list[dict]) -> list[str]
     findings = [
         f"runner {row['name']} has no project" for row in rows if row["project"] is None
     ]
+    projects: dict[str, list[dict]] = {}
     for runner in wanted:
-        held = [row for row in rows if row["project"] == runner["project"]]
-        names = sorted(row["name"] for row in held)
-        if names != [runner["name"]]:
+        projects.setdefault(runner["project"], []).append(runner)
+    for project, own in projects.items():
+        expected = sorted(runner["name"] for runner in own)
+        names = sorted(row["name"] for row in rows if row["project"] == project)
+        if names != expected:
             findings.append(
-                f"project {runner['project']} runs on {names}, expected only {runner['name']}"
+                f"project {project} runs on {names}, expected only {', '.join(expected)}"
             )
-        elif held[0]["tags"] != [runner["tag"]]:
-            findings.append(
-                f"runner {runner['name']} carries {held[0]['tags']}, expected [{runner['tag']!r}]"
-            )
+            continue
+        held = {row["name"]: row for row in rows if row["project"] == project}
+        findings.extend(
+            f"runner {runner['name']} carries {held[runner['name']]['tags']}, expected [{runner['tag']!r}]"
+            for runner in own
+            if held[runner["name"]]["tags"] != [runner["tag"]]
+        )
     return findings
+
+
+def semaphore_pool_runners(
+    count: int, prefix: str, secret: str, project: str, tag: str
+) -> list[dict]:
+    """Args:
+        count: the number of pool runners the infra inventory deploys.
+        prefix: ``services.runner.project_prefix`` of ``svc-runner``.
+        secret: the ``pool_runner_token`` credential.
+        project: the pool project every pool runner serves.
+        tag: the runner tag of the pool project's template.
+
+    Returns:
+        One runner row per pool runner, shaped like an entry of
+        ``SEMAPHORE_PLATFORM_RUNNERS_ACTIVE`` for ``runners.sql.j2``: its queue
+        name, its derived token, the pool project, the tag and one task at a time.
+
+    Raises:
+        AnsibleFilterError: a name is no runner name or the secret is empty.
+    """
+    try:
+        return [
+            {
+                "name": name,
+                "token": pool_runner_token(secret, name),
+                "project": project,
+                "tag": tag,
+                "max_parallel_tasks": POOL_MAX_PARALLEL_TASKS,
+            }
+            for name in pool_runner_names(prefix, count)
+        ]
+    except JobError as exc:
+        raise AnsibleFilterError(f"semaphore_pool_runners: {exc}") from exc
 
 
 class FilterModule:
@@ -99,4 +145,5 @@ class FilterModule:
             "semaphore_runner_base": semaphore_runner_base,
             "semaphore_runner_digest": semaphore_runner_digest,
             "semaphore_runner_findings": semaphore_runner_findings,
+            "semaphore_pool_runners": semaphore_pool_runners,
         }

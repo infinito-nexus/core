@@ -1,0 +1,3 @@
+{# Param RUNNER_SEMAPHORE_SECRET: the pool_runner_token credential of web-app-semaphore. #}
+{# Param RUNNER_PROJECT_PREFIX, runner_instance: the pool runner's queue name, which its Semaphore runner row carries. #}
+{{ RUNNER_SEMAPHORE_SECRET | pool_runner_token(RUNNER_PROJECT_PREFIX ~ '-' ~ runner_instance) }}

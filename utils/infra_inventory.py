@@ -37,9 +37,11 @@ PATH_NAMES = (
 )
 REGISTRIES_KEY = "INFINITO_CACHE_REGISTRIES"
 CACHE_ROLES = ("svc-registry-cache", "svc-cache-package")
+SEMAPHORE_OPT_IN = "INFINITO_INFRA_SEMAPHORE"
+CHECKMK_OPT_IN = "INFINITO_INFRA_CHECKMK"
 OPT_IN_ROLES = {
-    "INFINITO_INFRA_SEMAPHORE": "web-app-semaphore",
-    "INFINITO_INFRA_CHECKMK": "web-app-checkmk",
+    SEMAPHORE_OPT_IN: "web-app-semaphore",
+    CHECKMK_OPT_IN: "web-app-checkmk",
 }
 POOL_KEY = "INFINITO_DEPLOY_VIA_POOL"
 POOL_ROLE = "svc-runner"
@@ -176,15 +178,19 @@ def render_inventory(
 ) -> Path:
     """Args:
         root: repository root holding the template.
-        env: environment holding the cache caps, paths, registries and idle window.
+        env: environment holding the cache caps, paths, registries, idle
+            window and the opt-ins of :data:`OPT_IN_ROLES`.
         pool: the runner pool, None while :data:`POOL_KEY` keeps it off.
 
     Returns:
         The rendered host vars of the infra inventory, beside the template.
+        With the pool and the Semaphore opt-in, ``web-app-semaphore`` seeds
+        one runner per pool runner and deploys from the pool's checkout.
 
     Raises:
         KeyError: a cap, a path, the pinned frontend map, the registries or
             the idle window is unset.
+        ValueError: an opt-in is set to anything but ``true`` or ``false``.
     """
     from jinja2 import (
         Environment,
@@ -207,8 +213,12 @@ def render_inventory(
         autoescape=select_autoescape(default_for_string=False),
     )
     values = {name: env[key] for name, key in INVENTORY_KEYS.items()}
+    roles = infra_roles(env)
     body = jinja.get_template(template.name).render(
-        registries=env[REGISTRIES_KEY].split(), pool=pool, **values
+        registries=env[REGISTRIES_KEY].split(),
+        pool=pool,
+        semaphore=OPT_IN_ROLES[SEMAPHORE_OPT_IN] in roles,
+        **values,
     )
     rendered = root / INVENTORY_RENDERED
     rendered.write_text(body, encoding="utf-8")

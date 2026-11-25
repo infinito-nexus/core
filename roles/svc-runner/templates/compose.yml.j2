@@ -48,6 +48,34 @@
     deploy:
       {{ lookup('compose_replicas', 1) }}
     {% endif %}
+  {% if RUNNER_TAKES_LOCAL_JOBS | bool and RUNNER_SEMAPHORE_ENABLED | bool %}
+  {% set service_name = 'semaphore-runner-' ~ i %}
+  {{ service_name }}:
+    # nocheck: container-image-lookup  the Semaphore server image of web-app-semaphore, whose binary serves the Semaphore tasks of this pool runner
+    image: "{{ RUNNER_SEMAPHORE_IMAGE }}"
+    user: "{{ RUNNER_OPERATOR_UID }}:{{ RUNNER_OPERATOR_GID }}"
+    entrypoint: ["/usr/local/bin/semaphore", "runner", "start", "--no-config"]
+    {{ lookup('compose_only', 'container_name', service_name, node_local=True) }}
+    {{ lookup('compose_restart', node_local=True) }}
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
+    {{ lookup('container_extra_hosts', extra_hosts=['host.docker.internal:host-gateway']) | indent(4) }}
+    env_file: "{{ RUNNER_INSTALL_DIR }}/{{ i }}/semaphore.env"
+    # nocheck: compose-inline-mount-section  per-instance host bind mounts, not services.yml volumes
+    volumes:
+      - "{{ RUNNER_INSTALL_DIR }}/{{ i }}/semaphore.token:{{ RUNNER_SEMAPHORE_TOKEN_FILE }}:ro" # nocheck: bind-mount-single-file-swarm-fragile  node-local instance (compose_mode_force: compose), rendered and run on the same host, never stack-deployed
+      - "{{ RUNNER_INSTALL_DIR }}/{{ i }}/{{ RUNNER_SEMAPHORE_WORK_DIR }}:{{ RUNNER_INSTALL_DIR }}/{{ i }}/{{ RUNNER_SEMAPHORE_WORK_DIR }}"
+      {% for root in RUNNER_WORKTREE_ROOTS %}
+      - "{{ root }}:{{ root }}:ro"
+      {% endfor %}
+      - "{{ RUNNER_QUEUE_DIR }}:{{ RUNNER_QUEUE_DIR }}"
+    group_add:
+      - "{{ RUNNER_QUEUE_GID }}"
+    {{ lookup('container_networks', node_local=True) | indent(4) }}
+    {% if IS_SWARM_MODE %}
+    deploy:
+      {{ lookup('compose_replicas', 1) }}
+    {% endif %}
+  {% endif %}
   {% endfor %}
 
 {{ lookup('compose_networks', node_local=True) }}

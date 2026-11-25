@@ -109,6 +109,7 @@ SEMAPHORE_PLATFORM_RUNNER_TAGS:
   workspaces: "workspaces"
   provision: "provision"
   export: "export"
+  pool: "pool"
 
 SEMAPHORE_RUNNER_SERVICE: "task-runner"
 SEMAPHORE_RUNNER_NAME: "{{ lookup('config', application_id, 'services.' ~ SEMAPHORE_RUNNER_SERVICE ~ '.name') }}"
@@ -167,6 +168,17 @@ SEMAPHORE_PLATFORM_RUNNERS:
     token: "{{ lookup('config', application_id, 'secrets.credentials.export_runner_token') }}"
     token_file_host: "{{ [ lookup('container', application_id, 'directories.instance'), 'export-runner.token' ] | path_join }}"
 SEMAPHORE_PLATFORM_RUNNERS_ACTIVE: "{{ SEMAPHORE_PLATFORM_RUNNERS | selectattr('enabled') | list }}"
+SEMAPHORE_POOL_ENABLED: "{{ 'pool' in lookup('config', application_id, 'services.semaphore') }}"
+SEMAPHORE_POOL_PROJECT_NAME: "{{ SOFTWARE_NAME }} Pool"
+SEMAPHORE_POOL_NAME: "deploy"
+SEMAPHORE_POOL_SCRIPT: "scripts/tests/deploy/job/semaphore.sh"
+SEMAPHORE_POOL_RUNNER_COUNT: "{{ lookup('config', application_id, 'services.semaphore.pool.runners') }}" # nocheck: lookup-config-path  inventory-only block, read only when SEMAPHORE_POOL_ENABLED
+SEMAPHORE_POOL_CHECKOUT: "{{ lookup('config', application_id, 'services.semaphore.pool.checkout') }}" # nocheck: lookup-config-path  inventory-only block, read only when SEMAPHORE_POOL_ENABLED
+SEMAPHORE_POOL_RUNNERS: >-
+  {{ (SEMAPHORE_POOL_RUNNER_COUNT | semaphore_pool_runners(lookup('config', 'svc-runner', 'services.runner.project_prefix'),
+      lookup('config', application_id, 'secrets.credentials.pool_runner_token'), SEMAPHORE_POOL_PROJECT_NAME, SEMAPHORE_PLATFORM_RUNNER_TAGS.pool))
+     if SEMAPHORE_POOL_ENABLED | bool else [] }}
+SEMAPHORE_RUNNER_ROWS: "{{ SEMAPHORE_PLATFORM_RUNNERS_ACTIVE + SEMAPHORE_POOL_RUNNERS }}"
 SEMAPHORE_PROVISION_RUNNER_SERVICE: "{{ (SEMAPHORE_PLATFORM_RUNNERS | selectattr('key', 'equalto', 'provision') | first).service }}"
 SEMAPHORE_PROVISION_RUNNER_ENV_FILE: "{{ lookup('container', application_id, 'directories.env') }}{{ SEMAPHORE_PROVISION_RUNNER_SERVICE }}.env"
 SEMAPHORE_EXPORT_RUNNER_SERVICE: "export-runner"

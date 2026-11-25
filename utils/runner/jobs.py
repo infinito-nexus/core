@@ -8,7 +8,6 @@ import re
 import secrets
 from typing import TYPE_CHECKING
 
-from utils.env.handlers.infinito.cache.paths import machine
 from utils.runner.store import (
     _ASSIGNMENT,
     _TARGET,
@@ -70,11 +69,20 @@ def queue_root() -> Path:
     The machine-wide queue every checkout submits to: ``jobs`` below the
     cache base the paths SPOT names.
     """
+    from utils.env.handlers.infinito.cache.paths import machine
+
     return machine() / "jobs"
 
 
 def submit(
-    root: Path, checkout: str, target: str, args: Iterable[str], hold: bool, now: float
+    root: Path,
+    checkout: str,
+    target: str,
+    args: Iterable[str],
+    hold: bool,
+    now: float,
+    *,
+    pin: str | None = None,
 ) -> Job:
     """
     Args:
@@ -84,10 +92,12 @@ def submit(
         args: its arguments.
         hold: keep the job's stack after the deploy until a release.
         now: the submission time.
+        pin: the one pool runner that may claim the job, None for any.
 
     Raises:
-        JobError: the target is no make target name or an argument is no
-            ``NAME=value`` assignment, which the runner would refuse to read.
+        JobError: the target is no make target name, an argument is no
+            ``NAME=value`` assignment, which the runner would refuse to read,
+            or the pin is no runner name.
     """
     args = tuple(args)
     if _TARGET.fullmatch(target) is None:
@@ -95,6 +105,8 @@ def submit(
     unassigned = [arg for arg in args if _ASSIGNMENT.fullmatch(arg) is None]
     if unassigned:
         raise JobError(f"{', '.join(unassigned)}: a pool job takes NAME=value only")
+    if pin is not None:
+        checked_name(pin)
     record = Job(
         id=f"{int(now * 1000):012x}-{secrets.token_hex(3)}",
         checkout=checkout,
@@ -103,6 +115,7 @@ def submit(
         hold=hold,
         state=QUEUED,
         submitted_at=now,
+        pin=pin,
     )
     with _locked(root):
         open_log(root, record.id).close()
@@ -246,7 +259,8 @@ def claim(root: Path, runner: str, stack: str, now: float) -> Job | None:
         now: the claim time.
 
     Returns:
-        The oldest queued job, now running on ``runner``; None when the runner is not idle or nothing waits.
+        The oldest queued job pinned to ``runner`` or to none, now running on
+        ``runner``; None when the runner is not idle or nothing waits for it.
 
     Raises:
         JobError: ``runner`` or ``stack`` is no compose project name.
@@ -256,7 +270,11 @@ def claim(root: Path, runner: str, stack: str, now: float) -> Job | None:
     with _locked(root):
         if runners(root).get(runner, IDLE) != IDLE:
             return None
-        queued = [record for record in jobs(root) if record.state == QUEUED]
+        queued = [
+            record
+            for record in jobs(root)
+            if record.state == QUEUED and record.pin in (None, runner)
+        ]
         if not queued:
             return None
         return _write(

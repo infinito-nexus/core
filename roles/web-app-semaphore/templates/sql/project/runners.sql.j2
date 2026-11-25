@@ -1,4 +1,6 @@
-{# Param SEMAPHORE_PLATFORM_RUNNERS_ACTIVE: name, token, project, tag and max_parallel_tasks of every platform runner this deploy runs. #}
+{# Param SEMAPHORE_RUNNER_ROWS: name, token, project, tag and max_parallel_tasks of every platform runner this deploy runs and of every pool runner it seeds. #}
+{# Param SEMAPHORE_POOL_PROJECT_NAME: the project whose runners are exactly the pool runners of SEMAPHORE_RUNNER_ROWS. #}
+\set pool_project '{{ SEMAPHORE_POOL_PROJECT_NAME | string | replace("'", "''") }}'
 CREATE TEMPORARY TABLE wanted_runner (
   name text PRIMARY KEY,
   token text NOT NULL,
@@ -8,7 +10,7 @@ CREATE TEMPORARY TABLE wanted_runner (
 );
 
 INSERT INTO wanted_runner (name, token, project, tag, max_parallel_tasks) VALUES
-{% for runner in SEMAPHORE_PLATFORM_RUNNERS_ACTIVE %}
+{% for runner in SEMAPHORE_RUNNER_ROWS %}
   ({% for value in [runner.name, runner.token, runner.project, runner.tag] %}'{{ value | string | replace("'", "''") }}', {% endfor %}{{ runner.max_parallel_tasks | int }}){{ ';' if loop.last else ',' }}
 {% endfor %}
 
@@ -61,6 +63,21 @@ WHERE NOT EXISTS (
     AND held.tag = wanted.tag
 )
 RETURNING 'CHANGED runner tag ' || tag || ' added';
+
+DELETE FROM public.runner__tag AS held
+USING public.runner AS runner, public.project AS project
+WHERE held.runner_id = runner.id
+  AND runner.project_id = project.id
+  AND project.name = :'pool_project'
+  AND NOT EXISTS (SELECT 1 FROM wanted_runner AS wanted WHERE wanted.name = runner.name)
+RETURNING 'CHANGED runner tag ' || held.tag || ' removed from ' || runner.name;
+
+DELETE FROM public.runner AS runner
+USING public.project AS project
+WHERE runner.project_id = project.id
+  AND project.name = :'pool_project'
+  AND NOT EXISTS (SELECT 1 FROM wanted_runner AS wanted WHERE wanted.name = runner.name)
+RETURNING 'CHANGED runner ' || runner.name || ' removed';
 
 SELECT 'RUNNER ' || json_build_object(
   'name', runner.name,

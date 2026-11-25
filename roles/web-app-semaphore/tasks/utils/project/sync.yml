@@ -13,9 +13,21 @@
     stdin: >-
       {{ (semaphore_project_spec
           | combine({'deploy': semaphore_project_deploy} if SEMAPHORE_DEPLOY_ENABLED | bool else {})
-          | combine({'workspaces': semaphore_project_workspaces} if SEMAPHORE_WORKSPACES_ENABLED | bool else {}))
+          | combine({'workspaces': semaphore_project_workspaces} if SEMAPHORE_WORKSPACES_ENABLED | bool else {})
+          | combine({'pool': semaphore_project_pool} if SEMAPHORE_POOL_ENABLED | bool else {}))
          | to_json }}
   vars:
+    semaphore_project_pool:
+      project: "{{ SEMAPHORE_POOL_PROJECT_NAME }}"
+      runner_tag: "{{ SEMAPHORE_PLATFORM_RUNNER_TAGS.pool }}"
+      inventory: "{{ SEMAPHORE_POOL_NAME }}"
+      repository:
+        name: "{{ SEMAPHORE_POOL_NAME }}"
+        path: "{{ SEMAPHORE_POOL_CHECKOUT }}"
+      environment: "{{ SEMAPHORE_POOL_NAME }}"
+      task_template:
+        name: "{{ SEMAPHORE_POOL_NAME }}"
+        playbook: "{{ SEMAPHORE_POOL_SCRIPT }}"
     semaphore_project_workspaces:
       project: "{{ SEMAPHORE_WORKSPACES_PROJECT_NAME }}"
       runner_tag: "{{ SEMAPHORE_PLATFORM_RUNNER_TAGS.workspaces }}"
