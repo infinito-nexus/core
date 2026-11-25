@@ -37,7 +37,7 @@ fider:
     swarm:
       enabled: true
   image: getfider/fider
-  version: v0.40.0
+  version: v0.41.0
   name: fider
   min_storage: 400MB
   backup:

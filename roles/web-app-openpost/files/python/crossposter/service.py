@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import logging
+import mimetypes
 import random
 import tempfile
 import time
-import urllib.parse
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -26,21 +26,35 @@ SOURCES = {
 }
 JPEG_QUALITY = 90
 SOURCE_MEDIA_UNAVAILABLE = 503
+MAX_JPEG_PIXELS_FOR_256M_MEM_LIMIT = 4096 * 4096
 
 
-def to_jpeg(source: Path) -> Path:
+def _fits_memory(size: tuple[int, int], url: str) -> None:
+    width, height = size
+    if width * height > MAX_JPEG_PIXELS_FOR_256M_MEM_LIMIT:
+        raise web.RefusedError(
+            url,
+            f"{width}x{height} pixels exceed {MAX_JPEG_PIXELS_FOR_256M_MEM_LIMIT}",
+        )
+
+
+def to_jpeg(source: Path, url: str) -> Path:
     from PIL import Image
 
     target = source.with_suffix(".jpg")
-    with Image.open(source) as image:
-        image.convert("RGB").save(target, "JPEG", quality=JPEG_QUALITY)
+    try:
+        with Image.open(source) as image:
+            _fits_memory(image.size, url)
+            image.convert("RGB").save(target, "JPEG", quality=JPEG_QUALITY)
+    except (OSError, ValueError, SyntaxError, Image.DecompressionBombError) as error:
+        raise web.RefusedError(
+            url, f"the source media is no convertible image: {error}"
+        ) from error
     return target
 
 
 def credentials_for(source_url: str, media_url: str, headers: dict) -> dict:
-    source = urllib.parse.urlsplit(source_url)
-    media = urllib.parse.urlsplit(media_url)
-    same_origin = (source.scheme, source.netloc) == (media.scheme, media.netloc)
+    same_origin = web.origin(source_url) == web.origin(media_url)
     return dict(headers) if same_origin else {}
 
 
@@ -155,18 +169,18 @@ class Service:
         uploaded = []
         headers = self.sources[route.name].headers
         for index, attachment in enumerate(plan.media):
-            name = (
-                Path(urllib.parse.urlparse(attachment.media.url).path).name
-                or f"media-{index}"
-            )
+            web.require_fetchable(attachment.media.url)
+            suffix = mimetypes.guess_extension(attachment.media.mime) or ""
             try:
                 local = web.download(
                     attachment.media.url,
                     credentials_for(
                         route.source.base_url, attachment.media.url, headers
                     ),
-                    folder / f"{index}-{name}",
+                    folder / f"media-{index}{suffix}",
                 )
+            except web.RefusedError:
+                raise
             except web.RequestError as error:
                 raise web.RequestError(
                     attachment.media.url,
@@ -176,7 +190,7 @@ class Service:
                 ) from error
             mime = attachment.media.mime
             if attachment.jpeg and mime != "image/jpeg":
-                local, mime = to_jpeg(local), "image/jpeg"
+                local, mime = to_jpeg(local, attachment.media.url), "image/jpeg"
             uploaded.append(
                 (self.openpost.upload(local, local.name, mime), attachment.alt_text)
             )
