@@ -7,7 +7,7 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
 from utils.cache.files import PROJECT_ROOT
-from utils.meta.scan import iter_subnets
+from utils.meta.scan import iter_outside_pool_roles, iter_subnets
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 SERVICES = PROJECT_ROOT / "roles/web-app-openclaw" / ROLE_FILE_META_SERVICES
@@ -39,7 +39,7 @@ class TestTrustedProxySources(unittest.TestCase):
     def test_every_role_network_the_proxy_dials_from_is_trusted_in_each_mode(
         self,
     ) -> None:
-        excepted = set(_network_vars()["NETWORK_ROLE_SUBNET_EXCEPTION_ROLES"])
+        excepted = set(iter_outside_pool_roles())
         pinned = [
             (owner, subnet)
             for owner, subnet in iter_subnets()

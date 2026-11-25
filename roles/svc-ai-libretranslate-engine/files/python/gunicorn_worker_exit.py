@@ -17,5 +17,4 @@ def worker_exit(server, worker):
     code = getattr(sys.exc_info()[1], "code", 1)
     # Exception: a LibreTranslate worker recycled by --max-requests hangs in interpreter shutdown, and the arbiter reaps it only after --timeout (2400 s).
     # upstream: https://github.com/LibreTranslate/LibreTranslate/issues/1042
-    # upstream: https://github.com/LibreTranslate/LibreTranslate/pull/1041
     os._exit(code if isinstance(code, int) else 1)

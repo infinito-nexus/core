@@ -31,23 +31,24 @@
     - "{{ CACHE_PACKAGE_CERTS_DIR_HOST }}"
 
 - name: "📁 Hand the bound Nexus data directory to the image's nexus user"
-  ansible.builtin.file:
-    path: "{{ CACHE_PACKAGE_DATA_PATH }}"
-    state: directory
-    owner: "{{ CACHE_PACKAGE_DOCKER_USER_ID }}"
-    group: "{{ CACHE_PACKAGE_DOCKER_USER_ID }}"
-    mode: "0755"
   when: CACHE_PACKAGE_DATA_PATH | length > 0
+  block:
+    - name: "📁 Create the Nexus data directory for the nexus user"
+      ansible.builtin.file:
+        path: "{{ CACHE_PACKAGE_DATA_PATH }}"
+        state: directory
+        owner: "{{ CACHE_PACKAGE_DOCKER_USER_ID }}"
+        group: "{{ CACHE_PACKAGE_DOCKER_USER_ID }}"
+        mode: "0755"
 
-- name: "📁 Hand every entry the legacy root-run cache left in the Nexus data directory to the nexus user"
-  ansible.builtin.file:
-    path: "{{ CACHE_PACKAGE_DATA_PATH }}"
-    state: directory
-    recurse: true
-    follow: false
-    owner: "{{ CACHE_PACKAGE_DOCKER_USER_ID }}"
-    group: "{{ CACHE_PACKAGE_DOCKER_USER_ID }}"
-  when: CACHE_PACKAGE_DATA_PATH | length > 0
+    - name: "📁 Hand every entry a legacy root-run cache left to the nexus user"
+      ansible.builtin.file:
+        path: "{{ CACHE_PACKAGE_DATA_PATH }}"
+        state: directory
+        recurse: true
+        follow: false
+        owner: "{{ CACHE_PACKAGE_DOCKER_USER_ID }}"
+        group: "{{ CACHE_PACKAGE_DOCKER_USER_ID }}"
 
 - name: "📜 Install the bootstrap the stack re-runs whenever Nexus starts"
   ansible.builtin.copy:

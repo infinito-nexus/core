@@ -72,8 +72,9 @@ def _data_dir(override=None) -> tuple[int, dict, dict]:
         override: the ``services`` keys an inventory sets for the role.
 
     Returns:
-        The position of the role task that prepares the Nexus data directory,
-        the task, and its ``path``, ``owner``, ``group`` and ``when`` resolved
+        The position of the top-level entry holding the role task that
+        prepares the Nexus data directory, the task, and its ``path``,
+        ``owner``, ``group`` and ``when`` (its own or its block's) resolved
         with the role's variables.
     """
     built = render.environment(override)
@@ -82,19 +83,20 @@ def _data_dir(override=None) -> tuple[int, dict, dict]:
         for name in ("CACHE_PACKAGE_DATA_PATH", "CACHE_PACKAGE_DOCKER_USER_ID")
     }
     found = [
-        (index, task)
-        for index, task in enumerate(load_yaml_any(str(TASKS)))
+        (index, task, task.get("when", entry.get("when")))
+        for index, entry in enumerate(load_yaml_any(str(TASKS)))
+        for task in entry.get("block", [entry])
         if "loop" not in task
         and FILE_MODULE in task
         and built.from_string(task[FILE_MODULE]["path"]).render(**values)
         == values["CACHE_PACKAGE_DATA_PATH"]
     ]
-    index, task = found[0]
+    index, task, when = found[0]
     resolved = {
         key: built.from_string(str(task[FILE_MODULE][key])).render(**values)
         for key in ("path", "owner", "group")
     }
-    resolved["when"] = built.compile_expression(task["when"])(**values)
+    resolved["when"] = built.compile_expression(when)(**values)
     return index, task, resolved
 
 

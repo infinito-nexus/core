@@ -242,9 +242,7 @@ def parse(raw: dict) -> Config:
     secrets = json.loads(_secrets_file(str(raw["secrets_file"])).read_text())
     tokens = dict(secrets.get("routes") or {})
     tor_suffix = str(raw["tor_suffix"])
-    routes = tuple(
-        _route(item, tokens, tor_suffix) for item in raw.get("routes") or []
-    )
+    routes = tuple(_route(item, tokens, tor_suffix) for item in raw.get("routes") or [])
     names = [route.name for route in routes]
     duplicates = sorted({name for name in names if names.count(name) > 1})
     if duplicates:
