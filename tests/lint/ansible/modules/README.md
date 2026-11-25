@@ -6,7 +6,7 @@ Each test catches a class of silent or confusing failure that the runtime would 
 Tests in this directory MUST only cover Ansible module / task usage rules.
 
 - `test_network_create_via_util.py` requires that role tasks creating Docker networks route through the shared utility, never inline `community.docker.docker_network` calls.
-- `test_no_legacy_get_url_module_usage.py` forbids the unqualified `get_url:` module name; tasks MUST use `ansible.builtin.get_url`.
+- `test_no_legacy_get_url_module_usage.py` forbids `get_url:` and `ansible.builtin.get_url:`; tasks MUST use `get_url_retry`, except a task that always runs async, which MUST call `ansible.builtin.get_url` because `get_url_retry` retries on the controller and cannot run async. Its own `async` key MUST be a positive integer or `{{ <name> }}` for a name the lint lists as clamped to at least 1 (`lmstudio_fetch_lifetime`); any other templated value, such as `{{ ASYNC_TIME }}`, can resolve to `omit` or 0 and run the task synchronously without a retry, so its synchronous branch belongs in a separate `get_url_retry` task.
 - `test_no_legacy_uri_module_usage.py` forbids the unqualified `uri:` module name; tasks MUST use `ansible.builtin.uri`.
 - `test_no_literal_no_log.py` forbids literal `no_log: true` / `no_log: false`; every gate MUST flow through the `MASK_CREDENTIALS_IN_LOGS` variable.
 - `test_no_redundant_default_on_module_io.py` forbids `| default(...)` on a task's own `register:` output or input arguments inside its own conditionals, where the value is provably set.
