@@ -70,6 +70,8 @@ _deploy_rc=0
 container exec "${RUNNER_PROJECT_PREFIX}-1" bash -c '
     set -euo pipefail
     cd "'"${_iso_src}"'"
+    # scripts/meta/resolve/image/local.sh hashes an absent parent image as empty: without the pull, make build tags one name and the read below gets another.
+    INFINITO_DISTRO=debian make build-dependency
     INFINITO_DISTRO=debian make build
     img="$(INFINITO_DISTRO=debian bash scripts/meta/resolve/image/local.sh)"
 
