@@ -89,12 +89,12 @@ def _strings(value: Any) -> Iterator[str]:
             yield from _strings(item)
 
 
-def _named(name: str, known: frozenset[str]) -> set[str] | None:
+def _named(name: str, known: frozenset[str], *, globs: bool) -> set[str] | None:
     name = name.strip()
     if "{{" not in name:
         return {name}
     pattern = _TEMPLATE_RE.sub("*", name)
-    if not pattern.strip("*"):
+    if not globs or not pattern.strip("*"):
         return None
     return set(fnmatch.filter(known, pattern))
 
@@ -121,12 +121,14 @@ def _looped(task: dict[str, Any]) -> set[str] | None:
 
 
 def included_roles(
-    task: dict[str, Any], known: frozenset[str]
+    task: dict[str, Any], known: frozenset[str], *, globs: bool
 ) -> tuple[set[str], bool]:
     """
     Args:
         task: one task mapping without the tasks nested in its blocks.
         known: every existing role name.
+        globs: whether a template with a literal part names every role its
+            glob matches; else it names a role only through a literal loop.
 
     Returns:
         The roles the task's ``include_role``/``import_role`` names, and
@@ -137,7 +139,7 @@ def included_roles(
     for key in INCLUDE_ROLE_KEYS & task.keys():
         spec = task[key]
         name = spec.get("name") if isinstance(spec, dict) else spec
-        named = _named(name, known) if isinstance(name, str) else None
+        named = _named(name, known, globs=globs) if isinstance(name, str) else None
         if named is None:
             named = _looped(task)
         if named is None:
@@ -162,7 +164,7 @@ def task_invocations(
         invoked.update(
             match.group("role") for match in _ROLE_FILE_REF_RE.finditer(value)
         )
-    included, unresolved = included_roles(own, known)
+    included, unresolved = included_roles(own, known, globs=True)
     return (invoked | included) & known, unresolved
 
 
@@ -245,7 +247,7 @@ def _ungated_includes(
             continue
         held = gates | _own_gates(task.get("when"))
         own = {key: value for key, value in task.items() if key not in NESTED_KEYS}
-        yield from included_roles(own, known)[0] - held
+        yield from included_roles(own, known, globs=False)[0] - held
         for key in NESTED_KEYS:
             yield from _ungated_includes(task.get(key), held, known)
 
@@ -259,8 +261,9 @@ def role_includes(roles_dir: str, role: str) -> frozenset[str]:
 
     Returns:
         Every other role an ``include_role``/``import_role`` in *role*'s task
-        and handler files names, except where that task or an enclosing block
-        requires the included role in the host's groups.
+        and handler files names literally or through a literal loop, except
+        where that task or an enclosing block requires the included role in
+        the host's groups.
     """
     known = role_names(roles_dir)
     included = {

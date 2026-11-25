@@ -6,6 +6,7 @@ from utils.cache.yaml import dump_yaml
 from utils.roles.invocations import (
     deploy_closure,
     expand_roles,
+    role_includes,
     role_invocations,
     stage_files,
     stage_invocations,
@@ -139,6 +140,27 @@ class TestRoleInvocations(_TreeMixin, unittest.TestCase):
         self.assertEqual(
             self._invoked([{"include_role": {"name": "role-b"}}]), {"role-b", "role-c"}
         )
+
+
+class TestRoleIncludes(_TreeMixin, unittest.TestCase):
+    def _includes(self, tasks) -> frozenset[str]:
+        self._write(_role_file("role-a", ROLE_FILE_TASKS_MAIN), tasks)
+        return role_includes(str(self.root / "roles"), "role-a")
+
+    def test_a_template_with_a_literal_part_names_no_role(self):
+        tasks = [{"include_role": {"name": "sys-ctl-hlth-{{ kind }}"}}]
+        self.assertEqual(self._includes(tasks), frozenset())
+
+    def test_literal_names_and_literal_loop_items_are_included(self):
+        tasks = [
+            {"include_role": {"name": "role-b"}},
+            {
+                "include_role": {"name": "{{ dep }}"},
+                "loop": ["role-c"],
+                "loop_control": {"loop_var": "dep"},
+            },
+        ]
+        self.assertEqual(self._includes(tasks), {"role-b", "role-c"})
 
 
 class TestStageInvocations(_TreeMixin, unittest.TestCase):
