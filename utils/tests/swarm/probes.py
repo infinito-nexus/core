@@ -7,6 +7,7 @@ runner lost to either leaves the culprit in the step log.
 from __future__ import annotations
 
 import re
+import socket
 import subprocess
 import time
 from pathlib import Path
@@ -14,6 +15,98 @@ from pathlib import Path
 CONTAINER_ID = re.compile(r"[0-9a-f]{64}")
 RUNNER_PROCESSES = ("Runner.Listener", "Runner.Worker")
 OOM_PROTECTED_SCORE = "-1000"
+CONNTRACK = ("net/netfilter/nf_conntrack_count", "net/netfilter/nf_conntrack_max")
+
+
+def reachable(host: str, port: int, timeout_s: float) -> bool:
+    """
+    Args:
+        host: the name to resolve and connect to.
+        port: the TCP port.
+        timeout_s: how long name lookup plus connect may take.
+
+    Returns:
+        Whether a TCP connection opened, which needs both DNS and a route.
+    """
+    try:
+        with socket.create_connection((host, port), timeout=timeout_s):
+            return True
+    except OSError:
+        return False
+
+
+def conntrack_usage(proc_root: Path) -> str:
+    """
+    Args:
+        proc_root: the procfs mount, ``/proc`` on a live host.
+
+    Returns:
+        ``"conntrack <count>/<max>"``, or ``"conntrack n/a"`` without the module.
+    """
+    values = []
+    for name in CONNTRACK:
+        entry = proc_root / "sys" / name
+        try:
+            value = entry.read_text("utf-8")  # nocheck: cache-read  live
+        except OSError:
+            return "conntrack n/a"
+        values.append(value.strip())
+    return f"conntrack {values[0]}/{values[1]}"
+
+
+def socket_summary(proc_root: Path) -> str:
+    """
+    Args:
+        proc_root: the procfs mount, ``/proc`` on a live host.
+
+    Returns:
+        The ``TCP:`` and ``UDP:`` lines of ``net/sockstat``, joined.
+    """
+    sockstat = proc_root / "net" / "sockstat"
+    try:
+        text = sockstat.read_text("utf-8")  # nocheck: cache-read  live
+    except OSError:
+        return "sockstat n/a"
+    return " | ".join(
+        line.strip() for line in text.splitlines() if line.startswith(("TCP:", "UDP:"))
+    )
+
+
+def network_line(proc_root: Path) -> str:
+    """
+    Args:
+        proc_root: the procfs mount, ``/proc`` on a live host.
+
+    Returns:
+        The ``network`` banner: connection tracking and socket counts.
+    """
+    return (
+        f"=== swarm-matrix: network {conntrack_usage(proc_root)} | "
+        f"{socket_summary(proc_root)} ==="
+    )
+
+
+def network_report(proc_root: Path) -> list[str]:
+    """
+    Args:
+        proc_root: the procfs mount, ``/proc`` on a live host.
+
+    Returns:
+        The network banner plus the routes and the socket summary of the host,
+        printed when the runner can no longer reach GitHub.
+    """
+    lines = [network_line(proc_root)]
+    for argv in (["ip", "route"], ["ss", "-s"]):
+        try:
+            out = subprocess.run(
+                argv, capture_output=True, text=True, timeout=10, check=False
+            ).stdout
+        except (OSError, subprocess.TimeoutExpired):
+            continue
+        lines += [
+            f"=== swarm-matrix: {argv[0]}: {line} ===" for line in out.splitlines()
+        ]
+    return lines
 
 
 def oom_kills(proc_root: Path) -> int | None:

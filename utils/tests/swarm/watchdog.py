@@ -35,9 +35,12 @@ from utils.env.runtime import (
 )
 from utils.tests.swarm.probes import (
     memory_line,
+    network_line,
+    network_report,
     oom_kills,
     oom_victims,
     protect_from_oom,
+    reachable,
     runner_pids,
     spike_report,
 )
@@ -61,6 +64,11 @@ SPIKE_COOLDOWN_S = 30
 FLOOR_ETA_S = 5
 OOM_LINES = 4
 PROC_ROOT = Path("/proc")
+NET_PROBE_HOST = "github.com"
+NET_PROBE_PORT = 443
+NET_PROBE_EVERY_S = 15
+NET_PROBE_TIMEOUT_S = 5.0
+NET_LOST_PROBES = 4
 ABORT_RC = 75
 _FORWARDED_SIGNALS = (signal.SIGINT, signal.SIGTERM)
 
@@ -257,6 +265,35 @@ def _tripwire(
             return
 
 
+def _netwire(
+    proc: subprocess.Popen[bytes], stop: threading.Event, tripped: threading.Event
+) -> None:
+    failures = 0
+    while not stop.wait(NET_PROBE_EVERY_S):
+        if reachable(NET_PROBE_HOST, NET_PROBE_PORT, NET_PROBE_TIMEOUT_S):
+            failures = 0
+            continue
+        failures += 1
+        print(
+            f"=== swarm-matrix: {NET_PROBE_HOST}:{NET_PROBE_PORT} unreachable "
+            f"({failures}/{NET_LOST_PROBES}) ===",
+            flush=True,
+        )
+        if failures < NET_LOST_PROBES:
+            continue
+        for line in network_report(PROC_ROOT):
+            print(line, flush=True)
+        print(memory_line(TOP_ROWS), flush=True)
+        tripped.set()
+        _abort(
+            proc,
+            f"=== swarm-matrix: NETWORK LOST ({NET_PROBE_HOST}:{NET_PROBE_PORT} "
+            f"unreachable for {failures * NET_PROBE_EVERY_S}s) - aborting step ===",
+            ["ip", "-brief", "addr"],
+        )
+        return
+
+
 def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
     """Run a step, aborting visibly before the runner disk, RAM or I/O wedges.
 
@@ -274,7 +311,11 @@ def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
     because a runner that went from a healthy sample to silence within one
     SAMPLE_INTERVAL_S left nothing to attribute the loss to: it names the
     largest and the busiest-writing processes of a spike, and ends the step
-    when the disk would reach DISK_FLOOR_MB before the next slow sample.
+    when the disk would reach DISK_FLOOR_MB before the next slow sample. On a
+    hosted runner a second thread probes GitHub: a runner that keeps its RAM
+    and disk but loses its network is declared lost hours later with no log
+    tail, so NET_LOST_PROBES failures in a row print the network state and end
+    the step, and the teardown that follows can give the network back.
 
     Args:
         cmd: argv of the step.
@@ -292,14 +333,22 @@ def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
     proc = subprocess.Popen(cmd, cwd=str(PROJECT_ROOT), env=env, process_group=0)
     stop = threading.Event()
     tripped = threading.Event()
-    wire = threading.Thread(target=_tripwire, args=(proc, stop, tripped), daemon=True)
+    wires = [
+        threading.Thread(target=_tripwire, args=(proc, stop, tripped), daemon=True)
+    ]
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        wires.append(
+            threading.Thread(target=_netwire, args=(proc, stop, tripped), daemon=True)
+        )
     with _forwarding(proc):
-        wire.start()
+        for wire in wires:
+            wire.start()
         try:
             returned = _watch(proc)
         finally:
             stop.set()
-            wire.join()
+            for wire in wires:
+                wire.join()
     return ABORT_RC if tripped.is_set() else returned
 
 
@@ -387,6 +436,7 @@ def _watch(proc: subprocess.Popen[bytes]) -> int:
                     flush=True,
                 )
                 print(memory_line(TOP_ROWS), flush=True)
+                print(network_line(PROC_ROOT), flush=True)
             if total and avail < total * MEM_FLOOR_RATIO:
                 print(memory_line(TOP_ROWS), flush=True)
                 return _abort(

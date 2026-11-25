@@ -90,6 +90,7 @@ def watch(
         mock.patch.object(watchdog, "runner_pids", return_value=[]),
         mock.patch.object(watchdog, "protect_from_oom", return_value=[]),
         mock.patch.object(watchdog, "oom_kills", return_value=0),
+        mock.patch.object(watchdog, "_netwire"),
         mock.patch("builtins.print", printed),
     ):
         rc = watchdog.run_watched(["step"], env={})

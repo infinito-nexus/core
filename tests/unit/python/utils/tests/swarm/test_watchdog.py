@@ -153,6 +153,7 @@ class TestRunWatched(unittest.TestCase):
             mock.patch.object(watchdog, "runner_pids", return_value=["11"]),
             mock.patch.object(watchdog, "protect_from_oom", return_value=["11"]),
             mock.patch.object(watchdog, "oom_kills", return_value=0),
+            mock.patch.object(watchdog, "_netwire"),
             contextlib.redirect_stdout(buffer),
         ):
             returned = watchdog.run_watched(["true"], env={})
@@ -407,6 +408,7 @@ class TestTripwire(unittest.TestCase):
             mock.patch.object(watchdog.subprocess, "Popen", return_value=proc),
             mock.patch.object(watchdog.signal, "signal", return_value=signal.SIG_DFL),
             mock.patch.object(watchdog, "_tripwire", side_effect=fire),
+            mock.patch.object(watchdog, "_netwire"),
             mock.patch.object(watchdog, "runner_pids", return_value=[]),
             mock.patch.object(watchdog, "protect_from_oom", return_value=[]),
         ):
@@ -426,6 +428,7 @@ class TestTripwire(unittest.TestCase):
             ),
             mock.patch.object(watchdog.signal, "signal", return_value=signal.SIG_DFL),
             mock.patch.object(watchdog, "_tripwire"),
+            mock.patch.object(watchdog, "_netwire"),
             mock.patch.object(watchdog, "runner_pids", return_value=["7", "8"]),
             mock.patch.object(
                 watchdog,
@@ -438,6 +441,74 @@ class TestTripwire(unittest.TestCase):
         protect.assert_called_once_with(["7", "8"])
         self.assertEqual(order, ["protect", "step"])
         self.assertIn("exempt from the OOM killer: 7, 8", buffer.getvalue())
+
+
+class TestNetwire(unittest.TestCase):
+    def _net(self, answers: list[bool]) -> tuple[threading.Event, str, _FakeProc]:
+        proc = _FakeProc(timeouts=0, rc=0)
+        stop = mock.Mock()
+        stop.wait.side_effect = [False] * len(answers) + [True]
+        tripped = threading.Event()
+        buffer = io.StringIO()
+        with (
+            mock.patch.object(watchdog, "reachable", side_effect=answers),
+            mock.patch.object(
+                watchdog, "network_report", return_value=["=== network x ==="]
+            ),
+            mock.patch.object(
+                watchdog, "memory_line", return_value="=== top memory x ==="
+            ),
+            mock.patch.object(
+                watchdog.os,
+                "killpg",
+                side_effect=lambda _pgid, sig: proc.signals.append(sig),
+            ),
+            mock.patch.object(watchdog.subprocess, "run"),
+            contextlib.redirect_stdout(buffer),
+        ):
+            watchdog._netwire(proc, stop, tripped)
+        return tripped, buffer.getvalue(), proc
+
+    def test_a_reachable_github_prints_nothing(self) -> None:
+        tripped, output, proc = self._net([True] * 6)
+        self.assertEqual(output, "")
+        self.assertFalse(tripped.is_set())
+        self.assertFalse(proc.terminated)
+
+    def test_failures_below_the_limit_only_warn(self) -> None:
+        answers = [False] * (watchdog.NET_LOST_PROBES - 1) + [True, False]
+        tripped, output, proc = self._net(answers)
+        self.assertIn(f"unreachable (1/{watchdog.NET_LOST_PROBES})", output)
+        self.assertNotIn("NETWORK LOST", output)
+        self.assertFalse(tripped.is_set())
+        self.assertFalse(proc.terminated)
+
+    def test_a_lost_network_is_reported_and_ends_the_step(self) -> None:
+        tripped, output, proc = self._net([False] * watchdog.NET_LOST_PROBES)
+        self.assertIn("network x", output)
+        self.assertIn("top memory x", output)
+        self.assertIn("NETWORK LOST", output)
+        self.assertTrue(tripped.is_set())
+        self.assertTrue(proc.terminated)
+
+    def test_only_a_hosted_runner_probes_the_network(self) -> None:
+        proc = _FakeProc(timeouts=0, rc=0)
+        for value, expected in (("true", 1), ("", 0)):
+            with (
+                self.subTest(GITHUB_ACTIONS=value),
+                mock.patch.dict(watchdog.os.environ, {"GITHUB_ACTIONS": value}),
+                mock.patch.object(watchdog.subprocess, "Popen", return_value=proc),
+                mock.patch.object(
+                    watchdog.signal, "signal", return_value=signal.SIG_DFL
+                ),
+                mock.patch.object(watchdog, "_tripwire"),
+                mock.patch.object(watchdog, "_netwire") as netwire,
+                mock.patch.object(watchdog, "runner_pids", return_value=[]),
+                mock.patch.object(watchdog, "protect_from_oom", return_value=[]),
+                contextlib.redirect_stdout(io.StringIO()),
+            ):
+                watchdog.run_watched(["true"], env={})
+                self.assertEqual(netwire.call_count, expected)
 
 
 class TestBlockedStreaks(unittest.TestCase):

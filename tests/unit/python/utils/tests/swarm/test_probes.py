@@ -131,5 +131,48 @@ class TestOomGuard(unittest.TestCase):
             )
 
 
+class TestNetworkProbes(unittest.TestCase):
+    def test_conntrack_and_sockstat_form_the_network_line(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            (root / "sys" / "net" / "netfilter").mkdir(parents=True)
+            (root / "sys" / "net" / "netfilter" / "nf_conntrack_count").write_text(
+                "1200\n", encoding="utf-8"
+            )
+            (root / "sys" / "net" / "netfilter" / "nf_conntrack_max").write_text(
+                "262144\n", encoding="utf-8"
+            )
+            (root / "net").mkdir()
+            (root / "net" / "sockstat").write_text(
+                "sockets: used 9\nTCP: inuse 4 orphan 0 tw 2\nUDP: inuse 1\n",
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                probes.network_line(root),
+                "=== swarm-matrix: network conntrack 1200/262144 | "
+                "TCP: inuse 4 orphan 0 tw 2 | UDP: inuse 1 ===",
+            )
+
+    def test_missing_counters_are_named_not_raised(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            self.assertEqual(probes.conntrack_usage(root), "conntrack n/a")
+            self.assertEqual(probes.socket_summary(root), "sockstat n/a")
+
+    def test_a_refused_connection_is_unreachable(self) -> None:
+        with mock.patch.object(
+            probes.socket, "create_connection", side_effect=OSError("refused")
+        ):
+            self.assertFalse(probes.reachable("github.com", 443, 1.0))
+
+    def test_an_open_connection_is_reachable(self) -> None:
+        connection = mock.MagicMock()
+        with mock.patch.object(
+            probes.socket, "create_connection", return_value=connection
+        ) as create:
+            self.assertTrue(probes.reachable("github.com", 443, 1.0))
+        create.assert_called_once_with(("github.com", 443), timeout=1.0)
+
+
 if __name__ == "__main__":
     unittest.main()
