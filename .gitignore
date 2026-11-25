@@ -40,6 +40,7 @@ inventories/production/
 # No-op for Git (ignored implicitly), but Docker needs .git in its ignore-list — keeps make dockerignore as a pure cat of this file.
 .git
 compose/coredns/Corefile
+compose/target/Corefile
 compose/Corefile
 
 # Rendered by `make dotenv` from the cache: declarations in
