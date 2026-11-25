@@ -14,6 +14,7 @@ from utils.roles.mapping import (
     ROLE_FILE_META_MAIN,
     ROLE_FILE_META_SERVICES,
     ROLE_FILE_META_VARIANTS,
+    ROLE_FILE_TASKS_MAIN,
     ROLE_FILE_VARS_MAIN,
 )
 
@@ -62,6 +63,12 @@ def _write_dependencies(root: Path, role: str, deps: list[str]) -> None:
     )
 
 
+def _write_tasks(root: Path, role: str, tasks: list[dict]) -> None:
+    path = root / "roles" / role / ROLE_FILE_TASKS_MAIN
+    path.parent.mkdir(parents=True, exist_ok=True)
+    dump_yaml(path, tasks)
+
+
 class TestAffected(unittest.TestCase):
     def test_seed_only_when_no_consumers(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -75,7 +82,7 @@ class TestAffected(unittest.TestCase):
                     ["leaf"],
                 )
 
-    def test_run_after_consumer_is_included(self) -> None:
+    def test_a_run_after_consumer_is_not_affected(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             _mk_app_role(root, "leaf", "leaf")
@@ -83,10 +90,8 @@ class TestAffected(unittest.TestCase):
             _write_run_after(root, "consumer", ["leaf"])
 
             with patch.object(repo_paths, "PROJECT_ROOT", root):
-                self.assertEqual(
-                    affected_main.affected_roles(["leaf"]),
-                    ["consumer", "leaf"],
-                )
+                self.assertEqual(affected_main.affected_roles(["leaf"]), ["leaf"])
+                self.assertEqual(affected_main.affected_selection(["leaf"]), ["leaf"])
 
     def test_dependencies_consumer_is_included_transitively(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -218,6 +223,157 @@ class TestAffected(unittest.TestCase):
                 got = affected_main.affected_selection(["web-app-keycloak"])
             self.assertIn("web-app-consumer#0,1", got)
 
+    def test_a_role_no_round_of_which_deploys_the_seed_is_left_out(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            for role in ("web-app-n8n", "web-app-matrix", "web-app-discourse"):
+                _mk_app_role(root, role, role)
+            off = {"enabled": False, "shared": False}
+            on = {"enabled": True, "shared": True}
+            dynamic = "{{ 'web-app-n8n' in group_names }}"
+            dump_yaml(
+                root / "roles" / "web-app-matrix" / ROLE_FILE_META_SERVICES,
+                {"matrix": {}, "n8n": {"enabled": dynamic, "shared": dynamic}},
+            )
+            dump_yaml(
+                root / "roles" / "web-app-matrix" / ROLE_FILE_META_VARIANTS,
+                [{"services": {"n8n": off}}, {"services": {"n8n": on}}],
+            )
+            dump_yaml(
+                root / "roles" / "web-app-discourse" / ROLE_FILE_META_SERVICES,
+                {"discourse": {}, "matrix": on},
+            )
+            dump_yaml(
+                root / "roles" / "web-app-discourse" / ROLE_FILE_META_VARIANTS,
+                [{}, {"services": {"matrix": off}}],
+            )
+
+            with patch.object(repo_paths, "PROJECT_ROOT", root):
+                self.assertIn(
+                    "web-app-discourse", affected_main.affected_roles(["web-app-n8n"])
+                )
+                got = affected_main.affected_selection(["web-app-n8n"])
+            self.assertEqual(got, ["web-app-matrix#1", "web-app-n8n"])
+
+    def test_a_service_key_a_variant_switches_on_reaches_the_seed(self) -> None:
+        shapes = {
+            "only the variant declares it": (
+                {"moodle": {}},
+                {"enabled": True, "shared": True},
+            ),
+            "disk shares it, the variant enables it": (
+                {"moodle": {}, "lam": {"shared": True}},
+                {"enabled": True},
+            ),
+        }
+        for label, (disk, variant) in shapes.items():
+            with self.subTest(label), tempfile.TemporaryDirectory() as td:
+                root = Path(td)
+                _mk_app_role(root, "web-app-lam", "web-app-lam")
+                _mk_app_role(root, "web-app-moodle", "web-app-moodle")
+                dump_yaml(
+                    root / "roles" / "web-app-moodle" / ROLE_FILE_META_SERVICES, disk
+                )
+                dump_yaml(
+                    root / "roles" / "web-app-moodle" / ROLE_FILE_META_VARIANTS,
+                    [{"services": {"lam": variant}}, {}],
+                )
+
+                with patch.object(repo_paths, "PROJECT_ROOT", root):
+                    got = affected_main.affected_selection(["web-app-lam"])
+                self.assertEqual(got, ["web-app-lam", "web-app-moodle#0"])
+
+    def test_a_nested_services_demand_on_a_provider_reaches_the_seed(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            for role in ("web-app-keycloak", "web-app-matomo", "web-app-consumer"):
+                _mk_app_role(root, role, role)
+            off = {"enabled": False, "shared": False}
+            on = {"enabled": True, "shared": True}
+            dump_yaml(
+                root / "roles" / "web-app-matomo" / ROLE_FILE_META_SERVICES,
+                {"matomo": {"shared": True}, "sso": off},
+            )
+            dump_yaml(
+                root / "roles" / "web-app-consumer" / ROLE_FILE_META_SERVICES,
+                {"consumer": {}, "matomo": on},
+            )
+            dump_yaml(
+                root / "roles" / "web-app-consumer" / ROLE_FILE_META_VARIANTS,
+                [{"services": {"matomo": {**on, "services": {"sso": on}}}}, {}],
+            )
+
+            with patch.object(repo_paths, "PROJECT_ROOT", root):
+                got = affected_main.affected_selection(["web-app-keycloak"])
+            self.assertIn("web-app-consumer#0", got)
+
+    def test_an_include_selects_the_includer_and_the_rounds_deploying_it(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            for role in ("svc-net-firewall", "svc-net-tor", "web-app-consumer"):
+                _mk_app_role(root, role, role)
+            off = {"enabled": False, "shared": False}
+            on = {"enabled": True, "shared": True}
+            _write_tasks(
+                root,
+                "svc-net-tor",
+                [{"ansible.builtin.include_role": {"name": "svc-net-firewall"}}],
+            )
+            dump_yaml(
+                root / "roles" / "svc-net-tor" / ROLE_FILE_META_VARIANTS, [{}, {}]
+            )
+            dump_yaml(
+                root / "roles" / "web-app-consumer" / ROLE_FILE_META_SERVICES,
+                {"consumer": {}, "tor": on},
+            )
+            dump_yaml(
+                root / "roles" / "web-app-consumer" / ROLE_FILE_META_VARIANTS,
+                [{"services": {"tor": on}}, {"services": {"tor": off}}],
+            )
+
+            with patch.object(repo_paths, "PROJECT_ROOT", root):
+                got = affected_main.affected_selection(["svc-net-firewall"])
+            self.assertEqual(
+                got, ["svc-net-firewall", "svc-net-tor", "web-app-consumer#0"]
+            )
+
+    def test_an_include_gated_on_the_included_roles_group_adds_nothing(self) -> None:
+        gate = "'web-app-openwebui' in group_names"
+        include = {
+            "ansible.builtin.include_role": {
+                "name": "web-app-openwebui",
+                "tasks_from": "utils/refresh_model_grants.yml",
+            }
+        }
+        shapes = {
+            "own when": [{**include, "when": [gate, "flag | bool"]}],
+            "enclosing block": [{"block": [include], "when": gate}],
+        }
+        for label, tasks in shapes.items():
+            with self.subTest(label), tempfile.TemporaryDirectory() as td:
+                root = Path(td)
+                for role in ("web-app-openwebui", "svc-ai-litellm"):
+                    _mk_app_role(root, role, role)
+                _write_tasks(root, "svc-ai-litellm", tasks)
+
+                with patch.object(repo_paths, "PROJECT_ROOT", root):
+                    got = affected_main.affected_selection(["web-app-openwebui"])
+                self.assertEqual(got, ["web-app-openwebui"])
+
+    def test_includes_chain_transitively(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            for role in ("dsk-a", "dsk-b", "dsk-c", "dsk-d"):
+                _mk_app_role(root, role, role)
+            _write_tasks(root, "dsk-b", [{"include_role": {"name": "dsk-a"}}])
+            _write_tasks(root, "dsk-c", [{"block": [{"import_role": "dsk-b"}]}])
+
+            with patch.object(repo_paths, "PROJECT_ROOT", root):
+                got = affected_main.affected_selection(["dsk-a"])
+            self.assertEqual(got, ["dsk-a", "dsk-b", "dsk-c"])
+
     def test_a_seed_keeps_every_variant_of_its_own_role(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -253,7 +409,7 @@ class TestAffected(unittest.TestCase):
                     affected_main.EXIT_NON_MODELLABLE_SEED,
                 )
 
-    def test_non_app_seed_reachable_via_run_after_is_modellable(self) -> None:
+    def test_a_non_app_seed_behind_run_after_is_still_non_modellable(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             _mk_non_app_role(root, "sys-helper")
@@ -261,16 +417,19 @@ class TestAffected(unittest.TestCase):
             _write_run_after(root, "consumer", ["sys-helper"])
 
             with patch.object(repo_paths, "PROJECT_ROOT", root):
-                got = affected_main.affected_roles(["sys-helper"])
-            self.assertIn("sys-helper", got)
-            self.assertIn("consumer", got)
+                with self.assertRaises(SystemExit) as ctx:
+                    affected_main.affected_roles(["sys-helper"])
+                self.assertEqual(
+                    ctx.exception.code,
+                    affected_main.EXIT_NON_MODELLABLE_SEED,
+                )
 
     def test_main_prints_space_separated_sorted(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             _mk_app_role(root, "leaf", "leaf")
             _mk_app_role(root, "consumer", "consumer")
-            _write_run_after(root, "consumer", ["leaf"])
+            _write_dependencies(root, "consumer", ["leaf"])
 
             with patch.object(repo_paths, "PROJECT_ROOT", root):
                 buf = io.StringIO()

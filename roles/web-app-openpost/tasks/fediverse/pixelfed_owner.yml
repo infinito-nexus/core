@@ -1,0 +1,34 @@
+---
+- name: "🔍 Resolve the Pixelfed container that owns OpenPost's app"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: pixelfed
+    resolve_service_name: "{{ lookup('container_service', 'web-app-pixelfed', 'pixelfed') if IS_SWARM_MODE else '' }}"
+    resolve_output_prefix: OPENPOST_PIXELFED
+    resolve_compose_cid: "{{ lookup('config', 'web-app-pixelfed', 'services.pixelfed.name') }}"
+
+- name: "👤 Give OpenPost's Pixelfed app an owner so Passport accepts its tokens"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -u
+      - "{{ OPENPOST_PIXELFED_PHP_USER }}"
+      - -e
+      - "OPENPOST_CLIENT_ID={{ openpost_fediverse_apps[item.url].client_id }}"
+      - -e
+      - "OPENPOST_CLIENT_OWNER={{ lookup('users', 'platform_administrator').username }}"
+      - -e
+      - "PIXELFED_APP_DIR={{ OPENPOST_PIXELFED_APP_DIR }}"
+      - "{{ OPENPOST_PIXELFED_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - php
+    stdin: "{{ lookup('file', 'php/pixelfed/client_owner.php') }}"
+  loop: "{{ OPENPOST_PINNED_PIXELFED }}"
+  loop_control:
+    label: "{{ item.url }}"
+  register: openpost_pixelfed_app_owner
+  changed_when: "'OWNER_SET' in openpost_pixelfed_app_owner.stdout"
+  delegate_to: "{{ OPENPOST_PIXELFED_HOST_NODE }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

@@ -149,6 +149,68 @@ class TestContainerVolumesConfigSecret(unittest.TestCase):
         with self.assertRaises(AnsibleFilterError):
             container_volumes(_apps(meta), "my-app", "app")
 
+    def test_a_mount_hands_its_secret_to_the_service_user(self) -> None:
+        meta = {
+            "tlskey": {
+                "type": "secret",
+                "source": "/etc/ssl/key.pem",
+                "mode": "0400",
+                "mounts": [
+                    {
+                        "service": "app",
+                        "target": "/run/secrets/key",
+                        "uid": "10001",
+                        "gid": "10001",
+                    }
+                ],
+            }
+        }
+        data = _parse(container_volumes(_apps(meta), "my-app", "app"))
+        self.assertEqual(
+            data["secrets"],
+            [
+                {
+                    "source": "tlskey",
+                    "target": "/run/secrets/key",
+                    "mode": 0o400,
+                    "uid": "10001",
+                    "gid": "10001",
+                }
+            ],
+        )
+
+    def test_a_mount_hands_its_config_to_the_service_user(self) -> None:
+        meta = {
+            "settings": {
+                "type": "config",
+                "source": "/etc/app.json",
+                "mounts": [
+                    {"service": "app", "target": "/config/app.json", "uid": "33"}
+                ],
+            }
+        }
+        data = _parse(container_volumes(_apps(meta), "my-app", "app"))
+        self.assertEqual(
+            data["configs"],
+            [{"source": "settings", "target": "/config/app.json", "uid": "33"}],
+        )
+
+    def test_a_mount_owner_overrides_the_volume_owner(self) -> None:
+        meta = {
+            "settings": {
+                "type": "config",
+                "source": "/etc/app.json",
+                "uid": 999,
+                "gid": 999,
+                "mounts": [
+                    {"service": "app", "target": "/config/app.json", "uid": "33"}
+                ],
+            }
+        }
+        data = _parse(container_volumes(_apps(meta), "my-app", "app"))
+        self.assertEqual(data["configs"][0]["uid"], "33")
+        self.assertEqual(data["configs"][0]["gid"], "999")
+
 
 class TestContainerVolumesTmpfs(unittest.TestCase):
     def test_tmpfs_size_renders_as_the_byte_count_the_long_form_takes(self) -> None:

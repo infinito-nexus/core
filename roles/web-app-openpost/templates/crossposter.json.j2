@@ -1,0 +1,30 @@
+{% set _routes = [] %}
+{% for _route in OPENPOST_CROSSPOSTER_ROUTES %}
+{% set _ = _routes.append(_route | combine({'source': _route.source | dict2items | rejectattr('key', 'equalto', 'token') | items2dict})) %}
+{% endfor %}
+{% set _mail = none %}
+{% if OPENPOST_EMAIL_ENABLED | bool %}
+{% set _email = lookup('email', application_id) %}
+{% set _mail = {
+  'host': _email.host,
+  'port': _email.port | int,
+  'security': 'tls' if _email.tls | bool else 'starttls' if _email.start_tls | bool else 'none',
+  'user': _email.username,
+  'sender': _email['from']
+} %}
+{% endif %}
+{{ {
+  'openpost': {
+    'base_url': 'http://openpost:' ~ lookup('config', application_id, 'services.openpost.ports.internal.http'),
+    'host': lookup('domain', application_id),
+    'workspace': openpost_crossposter_workspace
+  },
+  'secrets_file': OPENPOST_CROSSPOSTER_SECRETS_TARGET,
+  'mail': _mail,
+  'heartbeat_file': '/tmp/crossposter-heartbeat',
+  'poll_interval_seconds': OPENPOST_CROSSPOSTER.poll_interval_seconds,
+  'opt_out_tag': OPENPOST_CROSSPOSTER.opt_out_tag,
+  'retry': OPENPOST_CROSSPOSTER.retry,
+  'notify': OPENPOST_CROSSPOSTER.notify,
+  'routes': _routes
+} | to_nice_json }}

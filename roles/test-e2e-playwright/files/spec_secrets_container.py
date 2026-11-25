@@ -322,7 +322,8 @@ def check_stage(stage: Path) -> None:
         stage: the directory the env file sits in.
 
     Raises:
-        SpecSecretsError: it is no directory of root or this user with mode 0755 or tighter.
+        SpecSecretsError: it is no directory of root or this user with mode
+            0755 or tighter.
     """
     info = os.lstat(stage)
     if (
@@ -494,7 +495,6 @@ def check_container(container: list[str], run: Path) -> None:
         f"{shared / 'personas'}:/e2e/tests/personas:ro",
     }
     mounts = check_ca(container, found, stage)
-    if len(set(mounts)) != len(mounts) or not required <= set(mounts) <= (
-        required | optional
-    ):
+    unique = set(mounts)
+    if len(unique) != len(mounts) or not required <= unique <= required | optional:
         raise SpecSecretsError("a run with spec secrets takes no other mounts")

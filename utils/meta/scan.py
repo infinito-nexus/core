@@ -121,6 +121,15 @@ def iter_subnets() -> Iterable[tuple[str, ipaddress.IPv4Network]]:
                 continue
 
 
+def iter_outside_pool_roles() -> Iterable[str]:
+    """Yield every role whose ``meta/networks.yml`` sets ``local.outside_pool``."""
+    for role_dir in iter_role_dirs():
+        networks = _load_yaml(role_dir / ROLE_FILE_META_NETWORKS)
+        local = networks.get("local") if isinstance(networks, dict) else None
+        if isinstance(local, dict) and local.get("outside_pool") is True:
+            yield role_dir.name
+
+
 def occupied_ports_for(scope: str, category: str) -> list[int]:
     """Return the sorted, de-duplicated list of host-bound ports in use for
     ``<scope>.<category>``.

@@ -230,6 +230,7 @@ def render_container_networks(
     roles_only: list[str] | None = None,
     roles_exclude: list[str] | None = None,
     include_default: bool = True,
+    aliases: list[str] | None = None,
 ) -> str:
     """Per-service ``networks:`` attachment.
 
@@ -238,12 +239,15 @@ def render_container_networks(
         roles_only: keep only attachments to these provider roles.
         roles_exclude: drop attachments to these provider roles.
         include_default: attach the stack ``default`` network when it is rendered.
+        aliases: extra aliases on the stack ``default`` network.
     """
     if node_local:
         deployment_mode = "compose"
     attachments, default_aliases = _compute_attachments(
         registry, application_id, deployment_mode, lookup_config, lookup_database
     )
+    if aliases:
+        default_aliases = list(dict.fromkeys([*default_aliases, *aliases]))
     lines: list[str] = ["networks:"]
     if internal and deployment_mode == "swarm":
         lines.append("  internal:")

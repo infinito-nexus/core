@@ -2,27 +2,27 @@
 """
 Resolve the set of roles affected by a change to a given set of seed roles.
 
-A role R is "affected" by seed S iff S appears in R's transitive prerequisite
-closure (run_after + dependencies + services), as defined by
-:class:`cli.meta.roles.applications.resolution.combined.resolver.CombinedResolver`.
-
 Usage:
   python -m cli.meta.roles.applications.resolution.affected --changed-roles ROLE [ROLE ...]
 
 Output:
   Whitespace-separated, sorted list of selection tokens (single line),
-  including the seed roles themselves. A role whose variants do not all
-  reach a seed is narrowed to the ones that do (``role#0,2``,
-  :mod:`utils.github.variant.selection`): a variant that switches its
-  provider off does not inherit the seed's change, so deploying it verifies
-  nothing. The narrowing is transitive over the whole chain, because each
-  round's closure is walked on that round's variant-merged services maps.
+  including the seed roles themselves and every role that runs one of them
+  through an ungated ``include_role``/``import_role``, transitively, each
+  with all its variants. Every other role is kept only with
+  the variants whose round really deploys a seed (``role#0,2``,
+  :mod:`utils.github.variant.selection`), and dropped when none does: a
+  variant that switches its provider off, or reaches the seed only over a
+  ``run_after`` ordering hint, does not inherit the seed's change, so
+  deploying it verifies nothing. The narrowing is transitive over the whole
+  chain, because each round's closure is walked on that round's
+  variant-merged services maps.
 
 Exit codes:
   0  Success. The closure was computed and printed.
   1  Resolver error or unknown seed.
   2  At least one seed role is non-modellable in the resolver
-     (no application_id and not referenced by any role's run_after).
+     (no application_id, so no round closure can contain it).
      Callers MUST treat this as "fall back to a full deploy" because
      the resolver cannot guarantee that downstream consumers are
      enumerated for that seed.
@@ -32,23 +32,33 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections.abc import Mapping
 from typing import TYPE_CHECKING
 
 from cli.meta.roles.applications.resolution.combined.errors import (
     CombinedResolutionError,
 )
-from cli.meta.roles.applications.resolution.combined.repo_paths import roles_dir
+from cli.meta.roles.applications.resolution.combined.repo_paths import (
+    role_config_path,
+    roles_dir,
+)
 from cli.meta.roles.applications.resolution.combined.resolver import CombinedResolver
 from cli.meta.roles.applications.resolution.combined.role_introspection import (
     has_application_id,
-    load_run_after,
 )
+from cli.meta.roles.applications.resolution.combined.yaml_utils import load_yaml_file
 from utils.cache.applications import get_variants
+from utils.roles.applications.services.registry import (
+    build_service_registry_from_roles_dir,
+    is_explicit_truth,
+)
+from utils.roles.applications.topics import provider_of
 from utils.roles.applications.variants import resolve_round
 from utils.roles.display import VARIANT_SEPARATOR
+from utils.roles.invocations import role_includes
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping
+    from collections.abc import Iterable
     from pathlib import Path
 
 EXIT_NON_MODELLABLE_SEED = 2
@@ -61,40 +71,130 @@ def _list_role_names() -> list[str]:
     return sorted(p.name for p in rdir.iterdir() if p.is_dir())
 
 
-def _non_modellable_seeds(seeds: set[str], all_roles: list[str]) -> list[str]:
-    """Return seeds that the resolver cannot reach as a downstream prereq.
+def _non_modellable_seeds(seeds: set[str]) -> list[str]:
+    """
+    Args:
+        seeds: the changed roles.
 
-    A seed is reachable iff at least one of:
-      * it has ``application_id`` (then app-deps and shared-service edges
-        from any consumer can include it), or
-      * some role lists it in its ``run_after`` (then a run_after edge
-        from that consumer includes it).
+    Returns:
+        Every seed without ``application_id``, sorted. A round pulls a role
+        in only over app-only ``dependencies`` and ``services`` edges, never
+        over ``run_after``, so the resolver cannot enumerate who deploys
+        such a seed and the caller MUST fall back to a full deploy.
+    """
+    return sorted(role for role in seeds if not has_application_id(role))
 
-    Any other seed (e.g. a non-app helper role only pulled in via
-    ``include_role`` from tasks) is invisible to the resolver. Returning
-    a partial closure for such a seed silently shrinks the deploy
-    matrix. Callers MUST fall back to a full deploy in that case.
+
+def _switched_on(blocks: list[Mapping]) -> dict[str, dict]:
+    """
+    Args:
+        blocks: services maps of one role.
+
+    Returns:
+        ``{key: enabled and shared}`` for each key some block marks
+        ``enabled`` and some block marks ``shared`` with an explicit truth,
+        which every deep merge of those blocks needs before it pulls the
+        key's provider in.
     """
 
-    if not seeds:
-        return []
+    def flagged(flag: str) -> set[str]:
+        return {
+            str(key)
+            for block in blocks
+            for key, entry in block.items()
+            if isinstance(entry, Mapping) and is_explicit_truth(entry.get(flag))
+        }
 
-    run_after_index: set[str] = set()
-    for role in all_roles:
-        try:
-            for target in load_run_after(role):
-                run_after_index.add(target)
-        except CombinedResolutionError:
-            continue
+    return {
+        key: {"enabled": True, "shared": True}
+        for key in flagged("enabled") & flagged("shared")
+    }
 
-    out: list[str] = []
-    for seed in sorted(seeds):
-        if has_application_id(seed):
-            continue
-        if seed in run_after_index:
-            continue
-        out.append(seed)
-    return out
+
+def _own_blocks(name: str, variants: Mapping[str, list]) -> list[Mapping]:
+    """
+    Args:
+        name: a role.
+        variants: parsed variants per role.
+
+    Returns:
+        The role's ``meta/services.yml`` and each of its variants'
+        ``services`` blocks, the mappings among them.
+    """
+    path = role_config_path(name)
+    blocks = [
+        load_yaml_file(path) if path.exists() else {},
+        *(
+            payload.get("services")
+            for payload in variants.get(name) or ()
+            if isinstance(payload, Mapping)
+        ),
+    ]
+    return [block for block in blocks if isinstance(block, Mapping)]
+
+
+def _nested_demands(
+    sources: Mapping[str, list[Mapping]], registry: Mapping
+) -> list[tuple[str, Mapping]]:
+    """
+    Args:
+        sources: services blocks per role.
+        registry: the service registry of the roles tree.
+
+    Returns:
+        ``(provider, demand)`` for every nested ``services`` map a block
+        places on one of its keys, with the provider of that key.
+    """
+    return [
+        (provider_of(str(key), registry), entry["services"])
+        for blocks in sources.values()
+        for block in blocks
+        for key, entry in block.items()
+        if isinstance(entry, Mapping) and isinstance(entry.get("services"), Mapping)
+    ]
+
+
+def _union_services(
+    names: list[str], variants: Mapping[str, list]
+) -> dict[str, dict[str, dict]]:
+    """
+    Args:
+        names: every role.
+        variants: parsed variants per role.
+
+    Returns:
+        ``{role: services map}`` built by :func:`_switched_on` from the
+        role's ``meta/services.yml``, each variant's ``services`` block, and
+        every nested ``services`` demand another role's block makes of it,
+        the three sources a round deep-merges its map from.
+    """
+    sources = {name: _own_blocks(name, variants) for name in names}
+    registry = build_service_registry_from_roles_dir(roles_dir())
+    for provider, demand in _nested_demands(sources, registry):
+        if provider in sources:
+            sources[provider].append(demand)
+    return {name: _switched_on(blocks) for name, blocks in sources.items()}
+
+
+def _with_includers(seeds: set[str], names: list[str]) -> set[str]:
+    """
+    Args:
+        seeds: the changed roles.
+        names: every role.
+
+    Returns:
+        *seeds* plus every role that includes one of them, transitively, per
+        :func:`utils.roles.invocations.role_includes`.
+    """
+    path = str(roles_dir())
+    found = set(seeds)
+    frontier = set(seeds)
+    while frontier:
+        frontier = {
+            name for name in names if frontier & role_includes(path, name)
+        } - found
+        found |= frontier
+    return found
 
 
 def affected_roles(changed: Iterable[str]) -> list[str]:
@@ -109,7 +209,7 @@ def affected_roles(changed: Iterable[str]) -> list[str]:
             f"Unknown role(s) passed via --changed-roles: {sorted(unknown)}"
         )
 
-    non_modellable = _non_modellable_seeds(seeds, all_roles)
+    non_modellable = _non_modellable_seeds(seeds)
     if non_modellable:
         print(
             "non-modellable seed(s) for resolver: "
@@ -118,17 +218,22 @@ def affected_roles(changed: Iterable[str]) -> list[str]:
         )
         raise SystemExit(EXIT_NON_MODELLABLE_SEED)
 
-    resolver = CombinedResolver()
-    affected: set[str] = set(seeds)
-
-    for role in all_roles:
-        if role in affected:
-            continue
-        prereqs = resolver.resolve(role)
-        if any(p in seeds for p in prereqs):
-            affected.add(role)
-
-    return sorted(affected)
+    resolver = CombinedResolver(
+        services_overrides=_union_services(
+            all_roles, get_variants(roles_dir=str(roles_dir()), readonly=True)
+        ),
+        follow_run_after=False,
+    )
+    changed_roles = _with_includers(seeds, all_roles)
+    return sorted(
+        changed_roles
+        | {
+            role
+            for role in all_roles
+            if role not in changed_roles
+            and changed_roles.intersection(resolver.resolve(role))
+        }
+    )
 
 
 def _round_resolver(
@@ -167,14 +272,19 @@ def _pinned(
     count: int,
     roles_path: Path,
     variants: Mapping[str, list],
-) -> str:
-    """*role*, narrowed to the variants whose own closure reaches a seed.
+) -> str | None:
+    """
+    Args:
+        role: an affected role that is not a seed.
+        seeds: the changed roles.
+        count: the variants *role* runs in, at least one.
+        roles_path: the roles tree.
+        variants: parsed variants per role.
 
-    Returns the bare role id whenever the narrowing cannot be trusted: no
-    variant reaching a seed means the role is affected through an edge the
-    round closure does not model (a ``run_after`` hint, or a resolution the
-    variant merge refused), and verifying none of it is worse than verifying
-    all of it.
+    Returns:
+        ``None`` when no round deploys a seed; the bare role id when every
+        round does, or when a round's resolution fails, because the
+        narrowing cannot be trusted then; else the ``role#i,j`` token.
     """
     try:
         hits = [
@@ -186,36 +296,50 @@ def _pinned(
         ]
     except CombinedResolutionError:
         return role
-    if not hits or len(hits) == count:
+    if not hits:
+        return None
+    if len(hits) == count:
         return role
     return role + VARIANT_SEPARATOR + ",".join(str(index) for index in hits)
 
 
 def affected_selection(changed: Iterable[str]) -> list[str]:
-    """:func:`affected_roles` as selection tokens, variant-narrowed.
+    """
+    Args:
+        changed: the changed roles.
 
-    A seed role keeps every variant: its own files changed, so each of them
-    has to redeploy regardless of which providers it pulls.
+    Returns:
+        Every seed and every role that includes one, transitively, with all
+        its variants, and every other
+        affected role with only the variants whose round deploys one of
+        them; a role none of whose rounds does is left out.
     """
     seeds: set[str] = {r.strip() for r in changed if r and r.strip()}
     affected = affected_roles(changed)
+    changed_roles = _with_includers(seeds, _list_role_names())
     variants = get_variants(roles_dir=str(roles_dir()), readonly=True)
-    counts = {role: len(variants.get(role) or ()) for role in affected}
-    return [
+    tokens = (
         role
-        if role in seeds or counts[role] < 2
-        else _pinned(role, seeds, counts[role], roles_dir(), variants)
+        if role in changed_roles
+        else _pinned(
+            role,
+            changed_roles,
+            max(1, len(variants.get(role) or ())),
+            roles_dir(),
+            variants,
+        )
         for role in affected
-    ]
+    )
+    return [token for token in tokens if token]
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
-            "Print all roles whose transitive prerequisite closure "
-            "(run_after + dependencies + services) contains any of the "
-            "given seed roles, each narrowed to the variants that reach one. "
-            "Seed roles themselves are included, with every variant."
+            "Print every role with a variant whose round deploys one of the "
+            "given seed roles, or a role including one, over dependencies or "
+            "services, narrowed to those variants. Seed roles and the roles "
+            "including them are printed with every variant."
         )
     )
     parser.add_argument(
