@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 #
-# Compute which roles are affected by the current branch's diff against
-# `origin/main`, expanded transitively over run_after + dependencies +
-# services edges via cli.meta.roles.applications.resolution.affected.
-#
 # Output (single line on stdout):
 #   __ALL__                          full deploy needed. Emitted when:
 #                                      * the diff is empty, OR
