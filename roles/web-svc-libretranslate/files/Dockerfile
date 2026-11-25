@@ -8,6 +8,10 @@ USER root
 COPY package-frontend-ca.crt /opt/package-frontend-ca.crt
 COPY package-frontend-ca.sh /usr/local/bin/package-frontend-ca.sh
 RUN /usr/local/bin/package-frontend-ca.sh
+COPY gunicorn_worker_exit.py /tmp/gunicorn_worker_exit.py
+RUN test -f scripts/gunicorn_conf.py \
+    && { echo; cat /tmp/gunicorn_worker_exit.py; } >> scripts/gunicorn_conf.py \
+    && rm /tmp/gunicorn_worker_exit.py
 USER ${APP_USER}
 
 COPY prefetch_models.py scripts/prefetch_models.py
