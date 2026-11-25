@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 from provision import inputs, provider_env, remote, sandbox
+from provision.dns import resolver
 from provision.opentofu import LOCK_ID, FailedError, tofu
 
 PACKAGE = Path(__file__).resolve().parent
@@ -350,11 +351,11 @@ class Session:
             return [
                 (self.reached["DNS_UPDATE_SERVER"], self.reached["DNS_UPDATE_PORT"])
             ]
-        return remote.zone_servers(self.zone, RESOLV_CONF)
+        return resolver.zone_servers(self.zone, RESOLV_CONF)
 
     def refuse_taken(self, label):
         fqdn = f"{label}.{self.workspace}.{self.zone}"
-        if remote.taken(fqdn, self.servers()):
+        if resolver.taken(fqdn, self.servers()):
             raise inputs.RefusedError(
                 f"{fqdn} already holds an A, AAAA or CNAME record"
             )

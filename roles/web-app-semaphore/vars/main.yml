@@ -198,6 +198,7 @@ SEMAPHORE_RUNNER_SOURCE_GLOBS:
   - "python/*"
   - "python/bao/*"
   - "python/provision/*"
+  - "python/provision/dns/*"
   - "python/prune/*"
   - "python/sandbox/*"
   - "opentofu/*"
