@@ -9,9 +9,15 @@
   function initLogoutPatch(logoutUrl, debugMode) {
     const DEBUG = !!debugMode;
 
+    function describe(el) {
+      if (!el || !el.tagName) return '';
+      return `<${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''}>`;
+    }
+
+    // Element's rageshake JSON-serialises console object arguments; a React node there crashes the renderer.
     function log(reason, el, extra) {
       if (!DEBUG) return;
-      console.debug('[logoutPatch]', reason, extra || {}, el || null);
+      console.debug(`[logoutPatch] ${reason} ${describe(el)} ${JSON.stringify(extra || {})}`);
     }
 
     function matchesLogout(str) {
