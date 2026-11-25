@@ -13,7 +13,8 @@
 
 - name: "🧭 Ask OpenPost for the Mastodon authorization it would start"
   uri_retry:
-    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/accounts/mastodon/auth-url?workspace_id={{ openpost_crossposter_target_workspace }}&server_name={{ openpost_crossposter_mastodon_server | urlencode }}"
+    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/accounts/mastodon/auth-url?workspace_id={{ openpost_crossposter_target_workspace }}&server_name={{ openpost_crossposter_mastodon_server
+      | urlencode }}"
     headers: "{{ openpost_breakglass_headers }}"
     status_code: 200
   register: openpost_crossposter_mastodon_authorize

@@ -18,7 +18,8 @@
       routes: >-
         {%- set _routes = [] -%}
         {%- for _route in OPENPOST_CROSSPOSTER_ROUTES -%}
-        {%- set _ = _routes.append({'name': _route.name, 'platform': _route.source.platform, 'base_url': _route.source.base_url, 'account': _route.source.account, 'mode': _route.mode, 'tags': _route.filters.tags, 'social_set': _route.targets.social_set | default('', true)}) -%}
+        {%- set _ = _routes.append({'name': _route.name, 'platform': _route.source.platform, 'base_url': _route.source.base_url, 'account': _route.source.account,
+        'mode': _route.mode, 'tags': _route.filters.tags, 'social_set': _route.targets.social_set | default('', true)}) -%}
         {%- endfor -%}
         {{ _routes }}
 

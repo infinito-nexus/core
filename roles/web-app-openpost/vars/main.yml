@@ -13,7 +13,8 @@ OPENPOST_API_HEADERS:
   X-Forwarded-Proto: "{{ OPENPOST_URL | urlsplit('scheme') }}"
 OPENPOST_RELAY_CONF_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'relay.conf'] | path_join }}"
 
-OPENPOST_OIDC_ENABLED: "{{ (lookup('config', application_id, 'services.sso.enabled') | bool) and (lookup('config', application_id, 'services.openpost.login.method.sso.enabled') | bool) }}"
+OPENPOST_OIDC_ENABLED: "{{ (lookup('config', application_id, 'services.sso.enabled') | bool) and (lookup('config', application_id, 'services.openpost.login.method.sso.enabled')
+  | bool) }}"
 OPENPOST_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.clients.web') }}"
 OPENPOST_OIDC_ONION_ISSUER: "{{ (lookup('tls', 'web-app-keycloak', 'domain') | network_of) == 'tor' }}"
 OPENPOST_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if OPENPOST_OIDC_ONION_ISSUER | bool else '' }}"
@@ -88,7 +89,8 @@ OPENPOST_PROVIDER_CREDENTIALS: >-
   {%- if OPENPOST_SIMULATOR_ENABLED | bool and _provider in lookup('config', application_id, 'services.simulator.providers') -%}
   {%- set _ = _credentials.update({_provider: {'client_id': 'simulator-' ~ _provider, 'client_secret': 'simulator-' ~ _provider ~ '-secret'}}) -%}
   {%- elif lookup('api_enabled', _provider) -%}
-  {%- set _ = _credentials.update({_provider: {'client_id': lookup('api', _provider ~ '.client_id'), 'client_secret': lookup('api', _provider ~ '.client_secret')}}) -%}
+  {%- set _ = _credentials.update({_provider: {'client_id': lookup('api', _provider ~ '.client_id'), 'client_secret': lookup('api', _provider ~ '.client_secret')}})
+  -%}
   {%- endif -%}
   {%- endfor -%}
   {{ _credentials }}
