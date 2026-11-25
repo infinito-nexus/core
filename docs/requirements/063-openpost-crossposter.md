@@ -92,7 +92,9 @@ roles/web-app-openpost/files/python/
     ├── linkedin.py
     └── store.py
 roles/web-app-openpost/files/sql/crossposter/
-└── <statement>.sql        one file per statement crossposter/store.py runs, staged into the image as crossposter/sql/
+├── create/<table>.sql     schema statements crossposter/store.py runs on start
+├── select/<query>.sql     the reads it runs
+└── <statement>.sql        the writes, one file each; the tree is staged into the image as crossposter/sql/
 tests/unit/python/roles/web-app-openpost/files/crossposter/
 tests/unit/python/roles/web-app-openpost/files/provider/
 ```
