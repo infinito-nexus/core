@@ -27,7 +27,7 @@
     userattr={{ OPENBAO_LDAP_USER_ATTR | quote }}
     username_as_alias=true
     groupdn={{ LDAP.DN.OU.ROLES | quote }}
-    groupattr=cn
+    groupattr={{ LDAP.RBAC.NAME_ATTRIBUTE | quote }}
     binddn={{ LDAP.DN.ADMINISTRATOR.DATA | quote }}
     bindpass=-
     insecure_tls=false

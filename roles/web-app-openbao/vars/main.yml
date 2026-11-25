@@ -43,6 +43,13 @@ OPENBAO_RECOVERY_KEY: >-
      .get(IAM_PLATFORM_ADMIN_USER_KEY, {})
      .get('tokens', {})
      .get(OPENBAO_RECOVERY_TOKEN_APP, '') }}
+# Token-store slot the recovery key writer used before 5366788ab1; only that slot is read, never the host account of the same name, which IAM_HOST_ADMIN_USER_KEY reserves for user-administrator.
+OPENBAO_RECOVERY_LEGACY_SLOT: "administrator"
+OPENBAO_RECOVERY_KEY_LEGACY: >-
+  {{ (sys_token_store_users | default({}, true))
+     .get(OPENBAO_RECOVERY_LEGACY_SLOT, {})
+     .get('tokens', {})
+     .get(OPENBAO_RECOVERY_TOKEN_APP, '') }}
 
 OPENBAO_SECRET_ID_REGISTERED: "{{ openbao_secret_id_registered | default('', true) }}"
 OPENBAO_SECRET_ID_ROTATING: "{{ (OPENBAO_SECRET_ID_REGISTERED | length > 0) and (OPENBAO_SECRET_ID_REGISTERED != OPENBAO_APPROLE_SECRET_ID) }}"
@@ -64,6 +71,8 @@ OPENBAO_OIDC_CLAIM_MAPPINGS:
   - "{{ OIDC.ATTRIBUTES.EMAIL }}={{ OIDC.ATTRIBUTES.EMAIL }}"
   - "{{ OIDC.ATTRIBUTES.NAME }}={{ OIDC.ATTRIBUTES.NAME }}"
 OPENBAO_OIDC_DEFAULT_ROLE: "default"
+OPENBAO_OIDC_TOKEN_TTL: "{{ lookup('config', 'web-app-keycloak', 'services.keycloak.realm.sso_session_idle_timeout_seconds') }}"
+OPENBAO_OIDC_TOKEN_MAX_TTL: "{{ lookup('config', 'web-app-keycloak', 'services.keycloak.realm.sso_session_max_lifespan_seconds') }}"
 OPENBAO_OIDC_LISTING_VISIBILITY: "{{ 'unauth' if OPENBAO_LOGIN_SSO | bool else 'hidden' }}"
 
 OPENBAO_OIDC_REDIRECT_URIS: >-
@@ -84,10 +93,7 @@ OPENBAO_USERPASS_PASSWORD: "{{ lookup('users', 'platform_administrator').passwor
 OPENBAO_USERPASS_POLICY: "administrator"
 OPENBAO_PASSWORD_AUTH_MOUNT: "{{ 'ldap' if OPENBAO_LOGIN_LDAP | bool else (OPENBAO_USERPASS_MOUNT if OPENBAO_USERPASS_ENABLED | bool else '') }}"
 
-OPENBAO_RBAC_ROLES:
-  - administrator
-  - operator
-  - reader
+OPENBAO_RBAC_ROLES: "{{ lookup('config', application_id, 'rbac.roles') | list }}"
 
 OPENBAO_WORKSPACES_ENABLED: "{{ lookup('config', application_id, 'services.semaphore.enabled') | bool }}"
 OPENBAO_TENANT_MOUNT: "tenant"
@@ -153,6 +159,7 @@ OPENBAO_DNS_BROKER_CONFIG: "{{ lookup('config', application_id, 'services.openba
 OPENBAO_DNS_BROKER_ROLE_ID: "{{ lookup('config', application_id, 'secrets.credentials.dns_broker_approle_role_id') }}"
 OPENBAO_DNS_BROKER_SECRET_ID: "{{ lookup('config', application_id, 'secrets.credentials.dns_broker_approle_secret_id') }}"
 OPENBAO_RAFT_SNAPSHOT_DIR: "{{ [DIR_BACKUPS, application_id, 'raft'] | path_join }}"
+OPENBAO_RAFT_SNAPSHOT_KEEP: "{{ lookup('config', application_id, 'services.openbao.workspaces.raft_snapshots') }}"
 OPENBAO_TRANSIT_RECORD_PREFIX: "provision/transit"
 OPENBAO_ZONE_TOKEN_PATH: "provision/cloudflare-zones"
 OPENBAO_OWNER_RECORD_PREFIX: "export/owners"

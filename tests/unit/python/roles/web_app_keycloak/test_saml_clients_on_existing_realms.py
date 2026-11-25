@@ -40,6 +40,8 @@ REALM = {
     "adminPermissionsEnabled": True,
     "organizationsEnabled": False,
     "accessTokenLifespan": 600,
+    "ssoSessionIdleTimeout": 900,
+    "ssoSessionMaxLifespan": 7200,
     "attributes": {"adminEventsExpiration": "31536000", "frontendUrl": ""},
     **OTP_POLICY,
 }
@@ -133,6 +135,8 @@ class TestSettingsSpec(unittest.TestCase):
                         "adminPermissionsEnabled": True,
                         "organizationsEnabled": False,
                         "accessTokenLifespan": 600,
+                        "ssoSessionIdleTimeout": 900,
+                        "ssoSessionMaxLifespan": 7200,
                         "attributes": {"adminEventsExpiration": "31536000"},
                         **OTP_POLICY,
                     },

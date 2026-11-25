@@ -166,6 +166,17 @@
     openbao_workspace_record.rc != 0
     and 'No value found' not in (openbao_workspace_record.stderr ~ openbao_workspace_record.stdout)
 
+- name: "✅ Assert the raft snapshots to keep are a whole number above 0"
+  ansible.builtin.assert:
+    that:
+      - OPENBAO_RAFT_SNAPSHOT_KEEP is integer
+      - OPENBAO_RAFT_SNAPSHOT_KEEP >= 1
+    fail_msg: >-
+      services.openbao.workspaces.raft_snapshots is
+      '{{ OPENBAO_RAFT_SNAPSHOT_KEEP }}'; it must be a whole number above 0,
+      because the prune would otherwise delete the snapshot just written.
+    quiet: true
+
 - name: "💾 Back the new transit key up before any state is written with it"
   when: (openbao_workspace_key is changed) or (openbao_workspace_record.rc != 0)
   block:
@@ -189,6 +200,7 @@
           > "$part" || { rm -f "$part"; exit 1; }
         [ -s "$part" ] || { rm -f "$part"; exit 1; }
         mv "$part" "$final"
+        ls -1td {{ OPENBAO_RAFT_SNAPSHOT_DIR | quote }}/ws-*.snap | tail -n +{{ (OPENBAO_RAFT_SNAPSHOT_KEEP | int) + 1 }} | xargs -r rm -f --
         date +%s
       register: openbao_workspace_snapshot
       changed_when: true

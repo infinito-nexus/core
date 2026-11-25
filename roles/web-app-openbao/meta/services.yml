@@ -1,5 +1,5 @@
 ---
-# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
+# nocheck: garbage-collector-required  raft compacts its own log in the data volume; the only other files, the workspace raft snapshots under DIR_BACKUPS, are backups that tasks/workspace/apply.yml prunes to workspaces.raft_snapshots where it writes them
 # nocheck: seaweedfs-required - OpenBao keeps every secret, policy and PKI object in its own encrypted raft store on {{ lookup('volume', 'web-app-openbao', 'data').target }}; it has no S3/object-store surface.
 sso:
   bond: 1
@@ -94,6 +94,7 @@ openbao:
     - web-app-semaphore
   workspaces:
     audience: openbao
+    raft_snapshots: 3
     token_ttl:
       deploy: 4h
       provision: 4h

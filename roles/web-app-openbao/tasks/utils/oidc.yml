@@ -29,6 +29,22 @@
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "🛑 Refuse an OIDC token lifetime that is no whole number of seconds above 0"
+  ansible.builtin.assert:
+    that:
+      - OPENBAO_OIDC_TOKEN_TTL is integer
+      - OPENBAO_OIDC_TOKEN_TTL >= 1
+      - OPENBAO_OIDC_TOKEN_MAX_TTL is integer
+      - OPENBAO_OIDC_TOKEN_MAX_TTL >= 1
+    fail_msg: >-
+      token_ttl reads web-app-keycloak
+      services.keycloak.realm.sso_session_idle_timeout_seconds
+      ('{{ OPENBAO_OIDC_TOKEN_TTL }}') and token_max_ttl reads
+      services.keycloak.realm.sso_session_max_lifespan_seconds
+      ('{{ OPENBAO_OIDC_TOKEN_MAX_TTL }}'); both must be whole seconds above 0,
+      because OpenBao gives a role written with 0s its 768h default.
+    quiet: true
+
 - name: "📇 Configure the default OIDC role, which grants only the 'default' policy"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec {{ OPENBAO_LOCAL_CID | quote }}
@@ -42,8 +58,8 @@
     {% for openbao_claim_mapping in OPENBAO_OIDC_CLAIM_MAPPINGS %}claim_mappings={{ openbao_claim_mapping | quote }} {% endfor %}
     oidc_scopes=openid,profile,email
     token_policies=default
-    token_ttl=30m
-    token_max_ttl=10h
+    token_ttl={{ OPENBAO_OIDC_TOKEN_TTL }}s
+    token_max_ttl={{ OPENBAO_OIDC_TOKEN_MAX_TTL }}s
     allowed_redirect_uris={{ OPENBAO_OIDC_REDIRECT_URIS | quote }} >/dev/null;
     after=$(bao read -format=json $p | grep -v request_id);
     [ "$before" = "$after" ] || echo OPENBAO_CHANGED'

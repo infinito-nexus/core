@@ -29,6 +29,8 @@ ROLE_SERVICES = load_yaml_any(str(ROLE_DIR / ROLE_FILE_META_SERVICES))
 ADMIN_EVENTS_DAYS = ROLE_SERVICES["keycloak"]["events"]["admin"]["expiration_days"]
 REALM_VARIABLES = (
     "KEYCLOAK_REALM_ACCESS_TOKEN_LIFESPAN",
+    "KEYCLOAK_REALM_SSO_SESSION_IDLE_TIMEOUT",
+    "KEYCLOAK_REALM_SSO_SESSION_MAX_LIFESPAN",
     "KEYCLOAK_REALM_TOTP_ENABLED",
     "KEYCLOAK_REALM_TOTP_ENFORCED",
     "KEYCLOAK_REALM_OTP_POLICY_TYPE",
@@ -265,6 +267,7 @@ CONTEXT = {
         "RBAC": {
             "FLAVORS": ["groupOfNames"],
             "MEMBER_ATTRIBUTE": LDAP_VARS["LDAP"]["RBAC"]["MEMBER_ATTRIBUTE"],
+            "NAME_ATTRIBUTE": LDAP_VARS["LDAP"]["RBAC"]["NAME_ATTRIBUTE"],
         },
         "USER": {"ATTRIBUTES": LDAP_USER_ATTRIBUTES},
     },
@@ -1373,6 +1376,34 @@ class TestAccessTokenLifespan(unittest.TestCase):
         realm = otp_realm({"access_token_lifespan_seconds": 600})
         self.assertEqual(600, realm["accessTokenLifespan"])
         self.assertIs(int, type(realm["accessTokenLifespan"]))
+
+
+SSO_SESSION_FIELDS = {
+    "sso_session_idle_timeout_seconds": ("ssoSessionIdleTimeout", 1800),
+    "sso_session_max_lifespan_seconds": ("ssoSessionMaxLifespan", 36000),
+}
+
+
+class TestSsoSessionLifespan(unittest.TestCase):
+    def test_the_realm_renders_the_configured_lifespans(self) -> None:
+        realm = otp_realm()
+        for key, (field, shipped) in SSO_SESSION_FIELDS.items():
+            with self.subTest(key=key):
+                self.assertEqual(shipped, ROLE_SERVICES["keycloak"]["realm"][key])
+                self.assertEqual(shipped, realm[field])
+
+    def test_a_changed_lifespan_reaches_the_realm_as_an_integer(self) -> None:
+        for key, (field, shipped) in SSO_SESSION_FIELDS.items():
+            with self.subTest(key=key):
+                realm = otp_realm({key: shipped + 60})
+                self.assertEqual(shipped + 60, realm[field])
+                self.assertIs(int, type(realm[field]))
+
+    def test_an_existing_realm_converges_to_them(self) -> None:
+        desired = ROLE_VARS["KEYCLOAK_SETTINGS_SPEC"]["realms"][0]["desired"]
+        for field, _ in SSO_SESSION_FIELDS.values():
+            with self.subTest(field=field):
+                self.assertIn(f"KEYCLOAK_DICTIONARY_REALM.{field}", desired[field])
 
 
 class TestAdminEvents(unittest.TestCase):

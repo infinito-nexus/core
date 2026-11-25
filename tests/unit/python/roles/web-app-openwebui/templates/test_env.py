@@ -3,6 +3,9 @@ from __future__ import annotations
 import re
 import unittest
 
+from jinja2 import Environment, StrictUndefined, select_autoescape
+from jinja2.nativetypes import NativeEnvironment
+
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
@@ -13,12 +16,37 @@ SOURCES = {
     "vars": ROLE / ROLE_FILE_VARS_MAIN,
     "services": ROLE / ROLE_FILE_META_SERVICES,
     "client": ROLE / "templates/keycloak/clients.json.j2",
-    "realm": PROJECT_ROOT / "roles/web-app-keycloak/templates/import/realm.json.j2",
+    "core": ROLE / "tasks/00_core.yml",
 }
-UNIT_SECONDS = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
-REALM_LIFESPAN = re.compile(r'"ssoSessionMaxLifespan": (\d+),')
+JWT_ENV = ("JWT_EXPIRES_IN", "{{ OPENWEBUI_JWT_EXPIRES_IN }}s")
 LIFETIME_FINDING = (
     "JWT_EXPIRES_IN is not the realm's ssoSessionMaxLifespan in every variant"
+)
+STAMP_SECONDS = 30 * 86400
+LIFETIME_PROBES = (
+    (36000, True),
+    (1, True),
+    (STAMP_SECONDS, True),
+    (0, False),
+    (-1, False),
+    (STAMP_SECONDS + 1, False),
+    ("36000", False),
+    ("ten hours", False),
+    (True, False),
+)
+NO_GUARD_FINDING = "no assert guards JWT_EXPIRES_IN before the stack renders the env"
+STAMP_FINDING = "OPENWEBUI_REVOCATION_STAMP_SECONDS is not the 30 days of oauth.py"
+MAX_KEY = "services.keycloak.realm.sso_session_max_lifespan_seconds"
+IDLE_KEY = "services.keycloak.realm.sso_session_idle_timeout_seconds"
+RENDER_PROBES = (
+    (36000, 36000),
+    (STAMP_SECONDS, STAMP_SECONDS),
+    (2 * STAMP_SECONDS, STAMP_SECONDS),
+)
+BARE_LIFETIME = f"\"{{{{ lookup('config', 'web-app-keycloak', '{MAX_KEY}') }}}}\""
+CAPPED_LIFETIME = (
+    f"\"{{{{ [lookup('config', 'web-app-keycloak', '{MAX_KEY}'), "
+    'OPENWEBUI_REVOCATION_STAMP_SECONDS] | min }}"'
 )
 OIDC_BLOCK = "{% if OPENWEBUI_OIDC_ENABLED | bool %}"
 OIDC_ENV = {
@@ -78,26 +106,128 @@ def env_entries(source: str) -> dict[str, tuple[str, str]]:
     return entries
 
 
-def seconds(duration: str) -> int:
-    match = re.fullmatch(r"(\d+)([smhdw])", duration)
-    if match is None:
-        raise AssertionError(f"unparsable Open WebUI duration {duration!r}")
-    return int(match.group(1)) * UNIT_SECONDS[match.group(2)]
+def accepts(checks: list, value: object) -> bool:
+    try:
+        return all(
+            check(
+                OPENWEBUI_JWT_EXPIRES_IN=value,
+                OPENWEBUI_REVOCATION_STAMP_SECONDS=STAMP_SECONDS,
+            )
+            for check in checks
+        )
+    except TypeError:
+        return False
 
 
-def realm_lifespan(realm: str) -> int:
-    match = REALM_LIFESPAN.search(realm)
-    if match is None:
-        raise AssertionError("ssoSessionMaxLifespan is missing from the realm import")
-    return int(match.group(1))
+def rendered_lifetime(variables: dict, lifespan: object) -> object:
+    """
+    Args:
+        variables: the role's ``vars/main.yml``.
+        lifespan: the ``sso_session_max_lifespan_seconds`` Keycloak holds.
+
+    Returns:
+        ``OPENWEBUI_JWT_EXPIRES_IN`` as Ansible renders it from that lifespan.
+    """
+    realm = {MAX_KEY: lifespan, IDLE_KEY: 1800}
+    env = NativeEnvironment(undefined=StrictUndefined)
+    env.globals["lookup"] = lambda _kind, application_id, key: {
+        ("web-app-keycloak", name): value for name, value in realm.items()
+    }[(application_id, key)]
+    return env.from_string(variables["OPENWEBUI_JWT_EXPIRES_IN"]).render(
+        OPENWEBUI_REVOCATION_STAMP_SECONDS=variables[
+            "OPENWEBUI_REVOCATION_STAMP_SECONDS"
+        ]
+    )
+
+
+def lifetime_render_findings(variables: dict, core: str) -> list[str]:
+    """
+    Args:
+        variables: the role's ``vars/main.yml``.
+        core: the role's ``tasks/00_core.yml``.
+
+    Returns:
+        Every Keycloak lifespan that does not render the shorter of itself and
+        the revocation stamp, or renders a lifetime the guard refuses, so the
+        Open WebUI deploy would fail on a valid Keycloak realm.
+    """
+    found = []
+    if variables.get("OPENWEBUI_REVOCATION_STAMP_SECONDS") != STAMP_SECONDS:
+        found.append(STAMP_FINDING)
+    checks = guard_checks(core) or []
+    for lifespan, expected in RENDER_PROBES:
+        rendered = rendered_lifetime(variables, lifespan)
+        if rendered != expected or not accepts(checks, rendered):
+            found.append(
+                f"a Keycloak lifespan of {lifespan} renders JWT_EXPIRES_IN {rendered!r}"
+            )
+    return found
+
+
+def guard_checks(core: str) -> list | None:
+    """
+    Args:
+        core: the role's ``tasks/00_core.yml``.
+
+    Returns:
+        The compiled ``that`` expressions of the assert on
+        ``OPENWEBUI_JWT_EXPIRES_IN`` before the stack renders the env, or
+        ``None`` without one.
+    """
+    tasks = load_yaml_str(core)
+    stack = next(
+        index
+        for index, task in enumerate(tasks)
+        if (
+            task.get("include_role") or task.get("ansible.builtin.include_role") or {}
+        ).get("name")
+        == "svc-stack"
+    )
+    guard = next(
+        (
+            task
+            for task in tasks[:stack]
+            if "OPENWEBUI_JWT_EXPIRES_IN" in str(task.get("ansible.builtin.assert"))
+        ),
+        None,
+    )
+    if guard is None:
+        return None
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    return [
+        env.compile_expression(that) for that in guard["ansible.builtin.assert"]["that"]
+    ]
+
+
+def lifetime_guard_findings(core: str) -> list[str]:
+    """
+    Args:
+        core: the role's ``tasks/00_core.yml``.
+
+    Returns:
+        Every lifetime the guard lets through to the env although Open WebUI
+        would issue never-expiring tokens or tokens that outlive the
+        revocation stamp, and every lifetime it refuses although it is valid.
+    """
+    checks = guard_checks(core)
+    if checks is None:
+        return [NO_GUARD_FINDING]
+    return [
+        f"JWT_EXPIRES_IN {value!r} is {'refused' if valid else 'accepted'}"
+        for value, valid in LIFETIME_PROBES
+        if accepts(checks, value) != valid
+    ]
 
 
 def findings(sources: dict[str, str]) -> list[str]:
     """What keeps Open WebUI from its own public client, its sign-out and its revocation store.
 
     Args:
-        sources: the env template, vars, services and Keycloak client fragment
-            of the role and the realm import, keyed as in ``SOURCES``.
+        sources: the env template, vars, services, Keycloak client fragment
+            and core tasks of the role, keyed as in ``SOURCES``.
     """
     entries = env_entries(sources["env"])
     variables = load_yaml_str(sources["vars"])
@@ -115,9 +245,10 @@ def findings(sources: dict[str, str]) -> list[str]:
     )
     if entries.get(REDIS_ENV[0]) != (REDIS_ENV[1], ""):
         found.append("REDIS_URL is not rendered in every variant")
-    lifetime, block = entries.get("JWT_EXPIRES_IN", ("", None))
-    if block != "" or seconds(lifetime) != realm_lifespan(sources["realm"]):
+    if entries.get(JWT_ENV[0]) != (JWT_ENV[1], ""):
         found.append(LIFETIME_FINDING)
+    found.extend(lifetime_guard_findings(sources["core"]))
+    found.extend(lifetime_render_findings(variables, sources["core"]))
     if entries.get("ENABLE_PERSISTENT_CONFIG") != ("false", ""):
         found.append("ENABLE_PERSISTENT_CONFIG is not false in every variant")
     if entries.get("BYPASS_MODEL_ACCESS_CONTROL") != ("false", ""):
@@ -227,18 +358,80 @@ class TestOpenWebuiBackchannelLogout(unittest.TestCase):
         )
 
     def test_a_token_that_outlives_the_longest_sso_session_is_caught(self) -> None:
-        line = "JWT_EXPIRES_IN=10h\n"
+        line = f"{JWT_ENV[0]}={JWT_ENV[1]}\n"
         self.assertEqual(
             planted("env", line, "JWT_EXPIRES_IN=4w\n"), [LIFETIME_FINDING]
         )
         self.assertEqual(planted("env", line, ""), [LIFETIME_FINDING])
         self.assertEqual(
             planted(
-                "realm",
-                '"ssoSessionMaxLifespan": 36000,',
-                '"ssoSessionMaxLifespan": 72000,',
+                "vars",
+                "realm.sso_session_max_lifespan_seconds",
+                "realm.sso_session_idle_timeout_seconds",
+            ),
+            [
+                f"a Keycloak lifespan of {lifespan} renders JWT_EXPIRES_IN 1800"
+                for lifespan, _ in RENDER_PROBES
+            ],
+        )
+        self.assertEqual(
+            planted(
+                "env", line, "JWT_EXPIRES_IN={{ OPENWEBUI_JWT_EXPIRES_IN | int }}s\n"
             ),
             [LIFETIME_FINDING],
+        )
+
+    def test_a_keycloak_lifespan_above_the_stamp_renders_the_stamp(self) -> None:
+        variables = load_yaml_str(role_sources()["vars"])
+        self.assertEqual(rendered_lifetime(variables, 2 * STAMP_SECONDS), STAMP_SECONDS)
+        self.assertEqual(
+            lifetime_render_findings(variables, role_sources()["core"]), []
+        )
+
+    def test_control_a_lifetime_without_the_cap_fails_a_valid_keycloak_realm(
+        self,
+    ) -> None:
+        self.assertEqual(
+            planted("vars", CAPPED_LIFETIME, BARE_LIFETIME),
+            [
+                f"a Keycloak lifespan of {2 * STAMP_SECONDS} renders JWT_EXPIRES_IN {2 * STAMP_SECONDS}"
+            ],
+        )
+
+    def test_control_a_stamp_other_than_open_webuis_is_caught(self) -> None:
+        self.assertIn(
+            STAMP_FINDING,
+            planted(
+                "vars",
+                "OPENWEBUI_REVOCATION_STAMP_SECONDS: 2592000",
+                "OPENWEBUI_REVOCATION_STAMP_SECONDS: 5184000",
+            ),
+        )
+
+    def test_a_lifetime_of_zero_or_no_whole_number_fails_the_deploy(self) -> None:
+        self.assertEqual(lifetime_guard_findings(role_sources()["core"]), [])
+
+    def test_control_a_guard_without_the_lower_bound_lets_zero_through(self) -> None:
+        self.assertEqual(
+            planted("core", "      - OPENWEBUI_JWT_EXPIRES_IN >= 1\n", ""),
+            ["JWT_EXPIRES_IN 0 is accepted", "JWT_EXPIRES_IN -1 is accepted"],
+        )
+
+    def test_control_a_guard_without_the_integer_check_lets_a_bool_through(
+        self,
+    ) -> None:
+        self.assertEqual(
+            planted("core", "      - OPENWEBUI_JWT_EXPIRES_IN is integer\n", ""),
+            ["JWT_EXPIRES_IN True is accepted"],
+        )
+
+    def test_control_a_missing_guard_is_caught(self) -> None:
+        core = role_sources()["core"]
+        self.assertEqual(
+            lifetime_guard_findings(
+                core.replace("OPENWEBUI_JWT_EXPIRES_IN", "OPENWEBUI_OTHER")
+            ),
+            [NO_GUARD_FINDING],
         )
 
     def test_a_persistent_config_is_caught(self) -> None:

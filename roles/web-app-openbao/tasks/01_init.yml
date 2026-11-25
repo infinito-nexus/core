@@ -77,6 +77,19 @@
     tasks_from: 01_load.yml
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "📋 Copy the legacy-slot recovery key to the platform administrator"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: "{{ IAM_PLATFORM_ADMIN_USER_KEY }}"
+    sys_token_store_app: "{{ OPENBAO_RECOVERY_TOKEN_APP }}"
+    sys_token_store_token: "{{ OPENBAO_RECOVERY_KEY_LEGACY }}"
+  when:
+    - (OPENBAO_RECOVERY_KEY | trim) | length == 0
+    - (OPENBAO_RECOVERY_KEY_LEGACY | trim) | length > 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
 - name: "🔐 Log in with the Ansible AppRole"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i {{ OPENBAO_LOCAL_CID | quote }}

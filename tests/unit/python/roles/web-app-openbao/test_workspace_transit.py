@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import shlex
 import tempfile
@@ -44,12 +45,16 @@ def block_task(register: str) -> dict[str, Any]:
     )
 
 
-def snapshot(scratch: Path, mode: str) -> tuple[dict[str, Any], bool]:
+def snapshot(
+    scratch: Path, mode: str, keep: int, older: list[str]
+) -> tuple[dict[str, Any], bool]:
     """
     Args:
         scratch: the directory the fakes and the snapshot directory live in.
         mode: what the fake ``bao operator raft snapshot save`` does: ``ok``,
             ``fail`` or ``empty``.
+        keep: the ``OPENBAO_RAFT_SNAPSHOT_KEEP`` the task renders with.
+        older: names of snapshots already in the directory, oldest first.
 
     Returns:
         What the snapshot task registers, and whether its ``failed_when`` holds.
@@ -60,11 +65,16 @@ def snapshot(scratch: Path, mode: str) -> tuple[dict[str, Any], bool]:
         .from_string(task["ansible.builtin.shell"])
         .render(
             OPENBAO_RAFT_SNAPSHOT_DIR=str(scratch / "raft"),
+            OPENBAO_RAFT_SNAPSHOT_KEEP=str(keep),
             OPENBAO_LOCAL_CID="openbao-cid",
             WORKSPACE=WORKSPACE,
         )
     )
     (scratch / "raft").mkdir(exist_ok=True)
+    for age, name in enumerate(reversed(older), start=1):
+        path = scratch / "raft" / name
+        path.write_bytes(b"older-snapshot")
+        os.utime(path, (path.stat().st_atime - 60 * age,) * 2)
     env = {**install(scratch), "FAKE_BAO_SNAPSHOT": mode}
     completed = run(["sh", "-c", command], env)
     result = {"rc": completed.returncode, "stdout": completed.stdout}
@@ -78,13 +88,13 @@ class TestTheSnapshotFollowsTheKey(unittest.TestCase):
     def test_apply_fails_without_a_snapshot(self) -> None:
         for mode in ("fail", "empty"):
             with self.subTest(mode=mode), tempfile.TemporaryDirectory() as scratch:
-                _, failed = snapshot(Path(scratch), mode)
+                _, failed = snapshot(Path(scratch), mode, 3, [])
                 self.assertTrue(failed)
                 self.assertEqual(list((Path(scratch) / "raft").iterdir()), [])
 
     def test_a_written_snapshot_lands_in_the_backup_directory(self) -> None:
         with tempfile.TemporaryDirectory() as scratch:
-            result, failed = snapshot(Path(scratch), "ok")
+            result, failed = snapshot(Path(scratch), "ok", 3, [])
             self.assertFalse(failed, result)
             written = list((Path(scratch) / "raft").iterdir())
             self.assertEqual(len(written), 1)
@@ -96,6 +106,60 @@ class TestTheSnapshotFollowsTheKey(unittest.TestCase):
                 b"raft-snapshot-bytes",
             )
             self.assertEqual(written[0].stat().st_mode & 0o077, 0)
+
+    def test_only_the_newest_snapshots_stay(self) -> None:
+        older = [f"ws-other-2026010{day}T000000Z.snap" for day in range(1, 5)]
+        with tempfile.TemporaryDirectory() as scratch:
+            result, failed = snapshot(Path(scratch), "ok", 2, older)
+            self.assertFalse(failed, result)
+            kept = sorted(path.name for path in (Path(scratch) / "raft").iterdir())
+            self.assertEqual(len(kept), 2)
+            self.assertIn(older[-1], kept)
+            self.assertTrue(any(name.startswith(f"ws-{WORKSPACE}-") for name in kept))
+
+    def test_a_directory_named_like_a_snapshot_is_not_listed_by_content(self) -> None:
+        older = [f"ws-other-2026010{day}T000000Z.snap" for day in range(1, 4)]
+        with tempfile.TemporaryDirectory() as scratch:
+            nested = Path(scratch) / "raft" / "ws-nested.snap"
+            nested.mkdir(parents=True)
+            (nested / "inner").write_bytes(b"inner")
+            os.utime(nested, (nested.stat().st_atime - 30,) * 2)
+            result, failed = snapshot(Path(scratch), "ok", 2, older)
+            self.assertFalse(failed, result)
+            kept = sorted(path.name for path in (Path(scratch) / "raft").iterdir())
+            self.assertEqual(len(kept), 2)
+            self.assertIn("ws-nested.snap", kept)
+            self.assertTrue((nested / "inner").exists())
+
+    def test_fewer_snapshots_than_kept_are_all_left(self) -> None:
+        older = ["ws-other-20260101T000000Z.snap"]
+        with tempfile.TemporaryDirectory() as scratch:
+            result, failed = snapshot(Path(scratch), "ok", 3, older)
+            self.assertFalse(failed, result)
+            self.assertEqual(len(list((Path(scratch) / "raft").iterdir())), 2)
+
+    def test_only_a_whole_number_above_zero_reaches_the_prune(self) -> None:
+        guard = next(
+            task
+            for task in apply_tasks()
+            if "OPENBAO_RAFT_SNAPSHOT_KEEP" in str(task.get("ansible.builtin.assert"))
+        )
+        registers = [task.get("register") for task in apply_tasks()]
+        self.assertLess(
+            apply_tasks().index(guard),
+            apply_tasks().index(backup_block()),
+            registers,
+        )
+        checks = [
+            environment().compile_expression(check)
+            for check in guard["ansible.builtin.assert"]["that"]
+        ]
+        for keep, accepted in ((3, True), (1, True), (0, False), ("three", False)):
+            with self.subTest(keep=keep):
+                self.assertIs(
+                    all(check(OPENBAO_RAFT_SNAPSHOT_KEEP=keep) for check in checks),
+                    accepted,
+                )
 
     def test_every_new_key_and_every_missing_record_takes_a_snapshot(self) -> None:
         self.assertEqual(

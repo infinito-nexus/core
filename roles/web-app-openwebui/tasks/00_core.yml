@@ -13,6 +13,20 @@
       in the inventory (default true in roles/web-app-openwebui/meta/services.yml).
     quiet: true
 
+- name: "🛑 Refuse a token lifetime that never expires or outlives the revocation stamp"
+  ansible.builtin.assert:
+    that:
+      - OPENWEBUI_JWT_EXPIRES_IN is integer
+      - OPENWEBUI_JWT_EXPIRES_IN >= 1
+      - OPENWEBUI_JWT_EXPIRES_IN <= OPENWEBUI_REVOCATION_STAMP_SECONDS
+    fail_msg: >-
+      JWT_EXPIRES_IN is '{{ OPENWEBUI_JWT_EXPIRES_IN }}', the shorter of web-app-keycloak
+      services.keycloak.realm.sso_session_max_lifespan_seconds and the
+      {{ OPENWEBUI_REVOCATION_STAMP_SECONDS }} seconds the revocation stamp of a
+      back-channel logout lives; it must be whole seconds above 0, because Open WebUI
+      issues tokens that never expire for 0s.
+    quiet: true
+
 - name: "📣 Report the managed Open WebUI settings the env file render overwrites"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/env.yml') }}"
   vars:

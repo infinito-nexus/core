@@ -123,6 +123,7 @@ Roles SHOULD prefer these filters over composing new ones inline so a future sch
 |---|---|
 | `LDAP.RBAC.FLAVORS` | Allowed group flavors, currently `groupOfNames` |
 | `LDAP.RBAC.MEMBER_ATTRIBUTE` | Membership attribute of a role group, `member` |
+| `LDAP.RBAC.NAME_ATTRIBUTE` | Attribute that names a role group, `cn` |
 | `LDAP.RBAC.EMPTY_MEMBER_DN` | Placeholder DN for empty `groupOfNames` groups |
 
 `groupOfNames` requires at least one `member` attribute.

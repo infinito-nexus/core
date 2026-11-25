@@ -5,6 +5,7 @@ require("./test-administrator-persona");
 require("./test-oidc-login");
 require("./test-ldap-login");
 require("./test-login-methods");
+require("./test-login-token-administrator");
 require("./test-logout");
 require("./test-rbac-denial");
 require("./test-rbac-groups");

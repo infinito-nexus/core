@@ -150,7 +150,7 @@
         "subComponents": {},
         "config": {
           "membership.attribute.type": [ "DN" ],
-          "group.name.ldap.attribute": [ "cn" ],
+          "group.name.ldap.attribute": [ "{{ LDAP.RBAC.NAME_ATTRIBUTE }}" ],
           "membership.user.ldap.attribute": [ "dn" ],
           "preserve.group.inheritance": [ "false" ],
           "groups.dn": [ "{{ LDAP.DN.OU.ROLES }}" ],

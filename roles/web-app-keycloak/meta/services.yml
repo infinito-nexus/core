@@ -63,6 +63,8 @@ keycloak:
   realm:
     import_enabled: true
     access_token_lifespan_seconds: 300
+    sso_session_idle_timeout_seconds: 1800
+    sso_session_max_lifespan_seconds: 36000
     totp_enabled: true
     totp_enforced: true
     otp_policy:

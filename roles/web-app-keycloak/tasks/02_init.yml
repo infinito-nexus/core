@@ -39,6 +39,20 @@
       of seconds above 0.
     quiet: true
 
+- name: "✅ Assert SSO sessions of '{{ application_id }}' idle out within their lifespan"
+  ansible.builtin.assert:
+    that:
+      - KEYCLOAK_REALM_SSO_SESSION_IDLE_TIMEOUT is integer
+      - KEYCLOAK_REALM_SSO_SESSION_MAX_LIFESPAN is integer
+      - 0 < KEYCLOAK_REALM_SSO_SESSION_IDLE_TIMEOUT <= KEYCLOAK_REALM_SSO_SESSION_MAX_LIFESPAN
+    fail_msg: >-
+      services.keycloak.realm.sso_session_idle_timeout_seconds is
+      '{{ KEYCLOAK_REALM_SSO_SESSION_IDLE_TIMEOUT }}' and
+      sso_session_max_lifespan_seconds is
+      '{{ KEYCLOAK_REALM_SSO_SESSION_MAX_LIFESPAN }}'; both must be whole
+      numbers of seconds, the idle timeout above 0 and at most the lifespan.
+    quiet: true
+
 - name: "✅ Assert '{{ application_id }}' enforces TOTP only where it offers it"
   ansible.builtin.assert:
     that: KEYCLOAK_REALM_TOTP_ENABLED | bool or not (KEYCLOAK_REALM_TOTP_ENFORCED | bool)

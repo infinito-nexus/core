@@ -99,4 +99,5 @@ LDAP:
     FLAVORS:
       - groupOfNames
     MEMBER_ATTRIBUTE: "member"
+    NAME_ATTRIBUTE: "cn"
     EMPTY_MEMBER_DN: "cn=__empty__,{{ LDAP.DN.ROOT }}"

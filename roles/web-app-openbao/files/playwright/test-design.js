@@ -10,9 +10,9 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, requireDotenvValue } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
-const { signInThroughOidc, uiSessionToken } = require("./_oidc-sign-in");
+const { AUTH_PATH, signInThroughOidc, uiSessionToken } = require("./_oidc-sign-in");
 
 const base =normalizeBaseUrl(requireDotenvValue(process.env.OPENBAO_BASE_URL, "OPENBAO_BASE_URL"));
 const kvMount = requireDotenvValue(process.env.OPENBAO_KV_MOUNT, "OPENBAO_KV_MOUNT");
@@ -22,6 +22,7 @@ const passwordMount = decodeDotenvQuotedValue(process.env.OPENBAO_PASSWORD_AUTH_
 const logoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const faviconUrl = decodeDotenvQuotedValue(process.env.DESIGN_FAVICON_URL || "");
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
+const ssoOffered = isServiceEnabled("sso") && process.env.LOGIN_METHOD_SSO_ENABLED === "true";
 
 const MODES = ["light", "dark"];
 const SIGN_IN_FORM = "#auth-form";
@@ -305,7 +306,7 @@ async function seedShowcase(request, token) {
 function signInViews() {
   const token = `${base}/ui/vault/auth?with=token`;
   const password = `${base}/ui/vault/auth?with=${passwordMount}`;
-  const tokenViews = [
+  const methodViews = [
     { name: "sign-in", url: token, prepare: shown(SIGN_IN_FORM) },
     {
       name: "sign-in-error",
@@ -317,12 +318,13 @@ function signInViews() {
         await shown(".auth-form .message")(page);
       },
     },
+    ...(ssoOffered ? [{ name: "sign-in-oidc", url: `${base}${AUTH_PATH}`, prepare: shown(SUBMIT) }] : []),
   ];
   if (!passwordMount) {
-    return tokenViews;
+    return methodViews;
   }
   return [
-    ...tokenViews,
+    ...methodViews,
     { name: "sign-in-password", url: password, prepare: shown(`${SIGN_IN_FORM} #username`) },
     {
       name: "sign-in-focus",

@@ -5,14 +5,12 @@ import unittest
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
-from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
 TEMPLATE = "roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2"
-REALM_TEMPLATE = PROJECT_ROOT / "roles/web-app-keycloak/templates/import/realm.json.j2"
 SERVICES = load_yaml(
     str(PROJECT_ROOT / "roles/web-app-keycloak" / ROLE_FILE_META_SERVICES)
 )
@@ -29,11 +27,10 @@ def _seconds(duration: str) -> int:
 
 
 def _lifetimes_not_outlived(cookie_refresh: str) -> list[str]:
-    idle = re.search(
-        r'"ssoSessionIdleTimeout":\s*(\d+)', read_text(str(REALM_TEMPLATE))
-    )
     lifetimes = {
-        "ssoSessionIdleTimeout": int(idle.group(1)),
+        "ssoSessionIdleTimeout": SERVICES["keycloak"]["realm"][
+            "sso_session_idle_timeout_seconds"
+        ],
         "cookie_expire": _seconds(OAUTH2_PROXY_DEFAULT_COOKIE_EXPIRE),
     }
     refresh = _seconds(cookie_refresh)

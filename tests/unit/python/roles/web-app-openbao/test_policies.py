@@ -8,11 +8,13 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoes
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_RBAC, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
 ROLE_DIR = PROJECT_ROOT / "roles/web-app-openbao"
+STAGED_POLICY = re.compile(r"^policies/(?P<name>[a-z0-9-]+)\.hcl\.j2$")
+MACHINE_POLICIES = {"ansible-admin"}
 JWT_ACCESSOR = "auth_jwt_1a2b3c4d"
 EXPORT_ACCESSOR = "auth_jwt_5e6f7a8b"
 POLICY_PATH = re.compile(
@@ -551,6 +553,51 @@ class TestTheTransitPolicy(unittest.TestCase):
             for path in TRANSIT_GRANTS:
                 with self.subTest(path=path):
                     self.assertEqual(effective(parse(policy), path), set())
+
+
+def core_template_sources() -> list[str]:
+    return [
+        template["src"]
+        for task in load_yaml_any(str(ROLE_DIR / "tasks/00_core.yml"))
+        for template in (task.get("vars") or {}).get("role_templates") or []
+    ]
+
+
+def staged_human_policies(sources: list[str]) -> set[str]:
+    """
+    Args:
+        sources: the ``src`` of each template ``tasks/00_core.yml`` renders.
+
+    Returns:
+        The policy names those templates stage, the machine policies left out.
+    """
+    return {
+        match["name"] for source in sources if (match := STAGED_POLICY.match(source))
+    } - MACHINE_POLICIES
+
+
+def rbac_roles() -> set[str]:
+    return set(load_yaml_any(str(ROLE_DIR / ROLE_FILE_META_RBAC))["roles"])
+
+
+class TestTheHumanPoliciesFollowTheRbacRoles(unittest.TestCase):
+    def test_every_rbac_role_gets_a_staged_policy_and_no_other_human_policy_is_staged(
+        self,
+    ) -> None:
+        self.assertEqual(staged_human_policies(core_template_sources()), rbac_roles())
+        self.assertEqual(set(HUMAN_POLICIES), rbac_roles())
+
+    def test_control_a_role_without_a_staged_policy_fails(self) -> None:
+        sources = [
+            source
+            for source in core_template_sources()
+            if source != "policies/reader.hcl.j2"
+        ]
+        self.assertNotEqual(staged_human_policies(sources), rbac_roles())
+
+    def test_control_a_staged_policy_without_a_role_fails(self) -> None:
+        sources = [*core_template_sources(), "policies/auditor.hcl.j2"]
+        self.assertNotEqual(staged_human_policies(sources), rbac_roles())
 
 
 class TestThePlatformReaders(unittest.TestCase):
