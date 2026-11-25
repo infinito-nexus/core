@@ -55,7 +55,7 @@ import unittest
 from typing import ClassVar
 
 from utils.annotations.message import warning
-from utils.docker.image.architectures import role_capability
+from utils.docker.image.architectures import role_capability, service_platforms
 from utils.docker.image.discovery import iter_role_images
 from utils.docker.registry import manifest_platforms_probed
 from utils.github.variant.pools import ARCHITECTURES
@@ -79,7 +79,11 @@ class ImageArchitectures(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        refs = [ref for ref in iter_role_images(PROJECT_ROOT) if not ref.derived]
+        refs = [
+            ref
+            for ref in iter_role_images(PROJECT_ROOT)
+            if not ref.derived or ref.architecture
+        ]
         cls.by_role = collections.defaultdict(list)
         for ref in refs:
             cls.by_role[ref.role].append(ref)
@@ -104,7 +108,7 @@ class ImageArchitectures(unittest.TestCase):
         Returns:
             What :func:`role_capability` returns for the role's images.
         """
-        offered = {}
+        probes = collections.defaultdict(list)
         for ref in self.by_role[role]:
             platforms = self.probed.get((_pull_image(ref), ref.version))
             if platforms is None:
@@ -115,8 +119,11 @@ class ImageArchitectures(unittest.TestCase):
                     title="🔍 Unverified image architectures",
                     file=f"roles/{ref.role}/{ROLE_FILE_META_SERVICES}",
                 )
-            offered[f"{ref.service} ({_pull_image(ref)}:{ref.version})"] = platforms
-        return role_capability(offered)
+            label = f"{ref.service} ({_pull_image(ref)})"
+            probes[label].append((ref.architecture, platforms))
+        return role_capability(
+            {label: service_platforms(pairs) for label, pairs in probes.items()}
+        )
 
     @staticmethod
     def _named(blame: dict, architecture: str) -> str:

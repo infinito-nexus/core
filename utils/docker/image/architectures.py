@@ -32,6 +32,42 @@ def runnable_architectures(platforms) -> set[str]:
     return offered
 
 
+def _architecture(platform: str) -> str:
+    return str(platform).partition("/")[2]
+
+
+def service_platforms(probes) -> set[str] | None:
+    """Args:
+        probes: ``(architecture, platforms)`` per tag of the service.
+            ``architecture`` names the one architecture an
+            ``architecture_tags`` tag is pulled on and is empty for the pinned
+            ``version``, which every other architecture pulls; ``platforms``
+            is what the registry reports for the tag, or ``None`` when its
+            answer was indeterminate.
+
+    Returns:
+        The ``os/architecture`` entries the service runs on as deployed, or
+        ``None`` when any of its tags went unread, which
+        :func:`role_capability` then reports as unread instead of reading a
+        missing architecture into it.
+    """
+    rewritten = {architecture for architecture, _platforms in probes if architecture}
+    merged: set[str] = set()
+    for architecture, platforms in probes:
+        if platforms is None:
+            return None
+        merged.update(
+            platform
+            for platform in platforms
+            if (
+                _architecture(platform) == architecture
+                if architecture
+                else _architecture(platform) not in rewritten
+            )
+        )
+    return merged
+
+
 def role_capability(
     offered,
 ) -> tuple[set[str] | None, dict[str, list[str]], list[str]]:
