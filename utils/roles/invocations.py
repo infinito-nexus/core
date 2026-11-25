@@ -49,12 +49,10 @@ DESTRUCTOR_STAGE = "03_destructor.yml"
 _ROLE_FILE_REF_RE = re.compile(r"roles/(?P<role>[a-z0-9-]+)/(?:tasks|handlers)/")
 _QUOTED_NAME_RE = re.compile(r"['\"](?P<name>[a-z0-9][a-z0-9-]*)['\"]")
 _TEMPLATE_RE = re.compile(r"\{\{.*?\}\}")
-_QUOTED_ROLE = r"(?P<quote>['\"])(?P<role>[a-z0-9-]+)(?P=quote)"
 _MEMBERSHIP_GATE_RE = re.compile(
-    rf"^{_QUOTED_ROLE}\s*(?P<test>in\s+group_names|\|\s*application_allowed\b)"
-)
-_OWN_GATE_RE = re.compile(
-    rf"{_QUOTED_ROLE}\s*(?:in\s+group_names|\|\s*application_allowed\([^()]*\))"
+    r"(?P<quote>['\"])(?P<role>[a-z0-9-]+)(?P=quote)\s*"
+    r"(?P<test>in\s+group_names"
+    r"|\|\s*application_allowed\s*\((?:[^()]|\([^()]*\))*\))"
 )
 
 
@@ -234,7 +232,7 @@ def _own_gates(when: Any) -> set[str]:
         match.group("role")
         for condition in conditions
         if isinstance(condition, str)
-        and (match := _OWN_GATE_RE.fullmatch(condition.strip()))
+        and (match := _MEMBERSHIP_GATE_RE.fullmatch(condition.strip()))
     }
 
 
@@ -302,7 +300,7 @@ def _gate_closed(
     for condition in when if isinstance(when, list) else [when]:
         if not isinstance(condition, str):
             continue
-        match = _MEMBERSHIP_GATE_RE.match(condition.strip())
+        match = _MEMBERSHIP_GATE_RE.fullmatch(condition.strip())
         if match is None:
             continue
         members = group_names if match.group("test").startswith("in") else seeds
