@@ -33,6 +33,7 @@ from utils.env.runtime import (
     mem_total_mb,
     uninterruptible_switches,
 )
+from utils.tests.swarm.journalwire import journalwire
 from utils.tests.swarm.probes import (
     memory_line,
     network_line,
@@ -315,7 +316,9 @@ def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
     hosted runner a second thread probes GitHub: a runner that keeps its RAM
     and disk but loses its network is declared lost hours later with no log
     tail, so NET_LOST_PROBES failures in a row print the network state and end
-    the step, and the teardown that follows can give the network back.
+    the step, and the teardown that follows can give the network back. A third
+    thread streams the runner journal, so a death between two samples still
+    leaves the kernel and host-unit records of its last seconds in the log.
 
     Args:
         cmd: argv of the step.
@@ -340,6 +343,7 @@ def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
         wires.append(
             threading.Thread(target=_netwire, args=(proc, stop, tripped), daemon=True)
         )
+        wires.append(threading.Thread(target=journalwire, args=(stop,), daemon=True))
     with _forwarding(proc):
         for wire in wires:
             wire.start()

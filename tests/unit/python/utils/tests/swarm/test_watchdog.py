@@ -154,6 +154,7 @@ class TestRunWatched(unittest.TestCase):
             mock.patch.object(watchdog, "protect_from_oom", return_value=["11"]),
             mock.patch.object(watchdog, "oom_kills", return_value=0),
             mock.patch.object(watchdog, "_netwire"),
+            mock.patch.object(watchdog, "journalwire"),
             contextlib.redirect_stdout(buffer),
         ):
             returned = watchdog.run_watched(["true"], env={})
@@ -409,6 +410,7 @@ class TestTripwire(unittest.TestCase):
             mock.patch.object(watchdog.signal, "signal", return_value=signal.SIG_DFL),
             mock.patch.object(watchdog, "_tripwire", side_effect=fire),
             mock.patch.object(watchdog, "_netwire"),
+            mock.patch.object(watchdog, "journalwire"),
             mock.patch.object(watchdog, "runner_pids", return_value=[]),
             mock.patch.object(watchdog, "protect_from_oom", return_value=[]),
         ):
@@ -429,6 +431,7 @@ class TestTripwire(unittest.TestCase):
             mock.patch.object(watchdog.signal, "signal", return_value=signal.SIG_DFL),
             mock.patch.object(watchdog, "_tripwire"),
             mock.patch.object(watchdog, "_netwire"),
+            mock.patch.object(watchdog, "journalwire"),
             mock.patch.object(watchdog, "runner_pids", return_value=["7", "8"]),
             mock.patch.object(
                 watchdog,
@@ -503,12 +506,14 @@ class TestNetwire(unittest.TestCase):
                 ),
                 mock.patch.object(watchdog, "_tripwire"),
                 mock.patch.object(watchdog, "_netwire") as netwire,
+                mock.patch.object(watchdog, "journalwire") as journal,
                 mock.patch.object(watchdog, "runner_pids", return_value=[]),
                 mock.patch.object(watchdog, "protect_from_oom", return_value=[]),
                 contextlib.redirect_stdout(io.StringIO()),
             ):
                 watchdog.run_watched(["true"], env={})
                 self.assertEqual(netwire.call_count, expected)
+                self.assertEqual(journal.call_count, expected)
 
 
 class TestBlockedStreaks(unittest.TestCase):
