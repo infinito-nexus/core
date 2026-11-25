@@ -2,6 +2,7 @@ const { test, expect } = require("@playwright/test");
 const { apiFetchOnion, gotoOnion, normalizeBaseUrl, requireDotenvValue } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
+const { SSO_PROVIDER } = require("./_shared");
 
 const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
 const nativeOffered = process.env.LOGIN_METHOD_NATIVE_ENABLED === "true";
@@ -26,7 +27,7 @@ test("login methods: with SSO on the instance config offers only the enabled sig
 test("login methods: with SSO on the sign-in page shows the Keycloak entry and the form only for the native method", async ({ page }) => {
   skipUnlessServiceEnabled("sso");
   await gotoOnion(page, `${base}/login`);
-  await expect(page.locator("main#main a[href*='/auth/']").first(), "expected the Keycloak entry on /login").toBeVisible({
+  await expect(page.locator(SSO_PROVIDER).first(), "expected the Keycloak entry on /login").toBeVisible({
     timeout: resolveTimeout(30_000),
   });
   await expect(page.locator("#password")).toHaveCount(nativeOffered ? 1 : 0);

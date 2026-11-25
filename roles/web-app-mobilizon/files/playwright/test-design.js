@@ -13,6 +13,7 @@ const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, requi
 const { performKeycloakLogin } = require("./personas/utils/keycloak");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
+const { MAIN, SSO_PROVIDER } = require("./_shared");
 
 const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
 const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
@@ -24,13 +25,11 @@ const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 const ssoEnabled = process.env.SSO_SERVICE_ENABLED === "true";
 
 const MODES = ["light", "dark"];
-const MAIN = "main#main";
 const NAVBAR = "#navbar";
 const FOOTER = "footer.bg-violet-2";
 const LOGIN_EMAIL = "#email";
 const LOGIN_PASSWORD = "#password";
 const LOGIN_SUBMIT = `${MAIN} form button[type=submit]`;
-const SSO_PROVIDER = `${MAIN} button.o-button:not(form *)`;
 const USER_MENU = "#user-menu-button";
 const TABLE_ROW = `${MAIN} table tbody tr`;
 const SHOWCASE_GROUP = "design_showcase";
