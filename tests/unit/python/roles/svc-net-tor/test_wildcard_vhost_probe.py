@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-import os
-import subprocess
-import tempfile
 import unittest
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from utils.cache.files import read_text
-from utils.networks.reachability import TOR, network
 
 from . import PROJECT_ROOT
+from ._probe import run_probe
+
+if TYPE_CHECKING:
+    import subprocess
 
 TEST_SH = PROJECT_ROOT / "roles" / "svc-net-tor" / "files" / "test" / "test.sh"
 ONION = "example.onion"
@@ -41,11 +41,6 @@ esac
 """
 
 
-def _stub(path: Path, body: str) -> None:
-    path.write_text(f"#!/usr/bin/env bash\n{body}\n", encoding="utf-8")
-    path.chmod(0o755)
-
-
 def _run(script: str) -> subprocess.CompletedProcess[str]:
     """Args:
         script: the text of test.sh to run.
@@ -56,33 +51,7 @@ def _run(script: str) -> subprocess.CompletedProcess[str]:
         name Tor cannot resolve, so following it ends in HTTP 000, and reports
         every request with whether it followed redirects on stderr.
     """
-    with tempfile.TemporaryDirectory() as tmp:
-        root = Path(tmp)
-        (root / "http").mkdir()
-        for vhost in (f"blog.{ONION}", WILDCARD):
-            (root / "http" / f"{vhost}.conf").write_text("", encoding="utf-8")
-        (root / "test.sh").write_text(script, encoding="utf-8")
-        _stub(root / "onion_ports.py", "exit 0")
-        bin_dir = root / "bin"
-        bin_dir.mkdir()
-        _stub(bin_dir / "curl", CURL_STUB)
-        return subprocess.run(
-            ["bash", str(root / "test.sh")],
-            env={
-                "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}",
-                "TOR_SOCKS": "127.0.0.1:9050",
-                "ONION_SUFFIX": network(TOR).suffix,
-                "NGINX_SERVERS_DIR": str(root),
-                "RETRIES": "1",
-                "SLEEP_SECONDS": "0",
-                "TOR_DNSMASQ_CONF": str(root / "tor-onion.conf"),
-                "TOR_CONTAINER": "tor",
-                "TOR_FLAVOR": "public",
-            },
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+    return run_probe(script, (f"blog.{ONION}", WILDCARD), CURL_STUB, 1)
 
 
 class TestTheWildcardVhostAnswersForItself(unittest.TestCase):

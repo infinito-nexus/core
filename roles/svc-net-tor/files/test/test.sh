@@ -55,7 +55,8 @@ echo "[INFO] probing ${#domains[@]} domain(s); onion via socks5://${TOR_SOCKS}"
 
 # Probe one domain with retries. Echoes the final HTTP code; returns 0 on success.
 probe() {
-	local domain="$1" host="$1" scheme curl_proxy=() follow=(--location) attempt=1 code
+	local domain="$1" host="$1" scheme curl_proxy=() follow=(--location) attempt=1 code rc
+	local circuit=()
 	if [[ "${domain}" == "*."* ]]; then
 		host="${WILDCARD_LABEL}.${domain#\*.}"
 		follow=()
@@ -67,11 +68,16 @@ probe() {
 		scheme="https"
 	fi
 	while [[ "${attempt}" -le "${RETRIES}" ]]; do
-		code="$(curl "${curl_proxy[@]}" "${follow[@]}" --silent --show-error \
+		# Exception: Tor reuses a stalled rendezvous circuit for every stream to the same onion, so each retry names its own SOCKS user to get a fresh circuit; the first attempt keeps the shared one.
+		if [[ "${#curl_proxy[@]}" -gt 0 && "${attempt}" -gt 1 ]]; then
+			circuit=(--proxy-user "probe-${attempt}:x")
+		fi
+		rc=0
+		code="$(curl "${curl_proxy[@]}" "${circuit[@]}" "${follow[@]}" --silent --show-error \
 			--insecure --max-time 60 \
 			-o /dev/null -w '%{http_code}' \
-			"${scheme}://${host}/")"
-		if [[ "${code}" =~ ^[234][0-9][0-9]$ ]]; then
+			"${scheme}://${host}/")" || rc=$?
+		if [[ "${rc}" -eq 0 && "${code}" =~ ^[234][0-9][0-9]$ ]]; then
 			echo "${code}"
 			return 0
 		fi
