@@ -33,7 +33,7 @@
       - bin/rails
       - runner
       - "-"
-    stdin: "{{ lookup('file', 'ruby/mastodon_grant_authorization.rb') }}"
+    stdin: "{{ lookup('file', 'ruby/mastodon/grant_authorization.rb') }}"
   register: openpost_crossposter_mastodon_grant
   changed_when: true
   delegate_to: "{{ OPENPOST_SEED_MASTODON_HOST_NODE }}"
