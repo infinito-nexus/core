@@ -54,6 +54,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: "📥 Load rescue-diagnostics SPOT into job env"
+        shell: bash
+        run: grep '^INFINITO_RESCUE_DIAGNOSTICS_BASE=' default.env >> "$GITHUB_ENV"
+
+      - name: 💾 Enlarge swap space
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: ./scripts/github/runner/enlarge_swap.sh
+
+      - name: "📈 Sample host memory, pressure and top RSS into the rescue diagnostics"
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: nohup ./scripts/tests/deploy/ci/host-metrics-sampler.sh "${INFINITO_RESCUE_DIAGNOSTICS_BASE}/host-metrics.log" >/dev/null 2>&1 &
+
       - name: 🔧 Set up Python
         uses: actions/setup-python@v6
         with:
@@ -123,6 +137,11 @@ jobs:
             echo "No agents-verify result table for ${{ matrix.mode }}; the run never reached the scenario stage." >> "$GITHUB_STEP_SUMMARY"
           fi
 
+      - name: 🧠 Kernel OOM kills on the host
+        if: ${{ failure() && !env.ACT }}
+        shell: bash
+        run: sudo dmesg --ctime | grep -E 'Out of memory|oom-kill|Killed process' || [ "$?" -eq 1 ]
+
       - name: ⬆️ Upload agents-verify logs
         if: ${{ always() && !env.ACT }}
         uses: actions/upload-artifact@v7
@@ -131,6 +150,7 @@ jobs:
           path: |
             /tmp/agents-verify-${{ matrix.mode }}.log
             /tmp/agents-scenarios/
+            ${{ env.INFINITO_RESCUE_DIAGNOSTICS_BASE }}/host-metrics.log
           if-no-files-found: ignore
 
       - name: 🧹 Cleanup (swarm)
