@@ -19,6 +19,13 @@
     path: "{{ NVIDIA_RUNTIME_BINARY }}"
   register: sys_svc_container_nvidia_shim
 
+- name: "🔍 Read the cgroup driver the container daemon runs with"
+  ansible.builtin.command: >-
+    container info --format {{ '{{.CgroupDriver}}' }}
+  register: sys_svc_container_cgroup_driver
+  changed_when: false
+  failed_when: false
+
 - name: "🧩 Publish the isolating runtime this host can carry"
   ansible.builtin.set_fact:
     SANDBOX_RUNTIME: >-
@@ -38,7 +45,8 @@
       /dev/kvm {{ 'present' if sys_svc_container_kvm.stat.exists else 'absent' }},
       kata shim {{ 'present' if sys_svc_container_kata_shim.stat.exists else 'absent' }},
       gVisor shim {{ 'present' if sys_svc_container_runsc_shim.stat.exists else 'absent' }},
-      docker-in-docker {{ DOCKER_IN_CONTAINER | bool }} -> {{ SANDBOX_RUNTIME }}
+      docker-in-docker {{ DOCKER_IN_CONTAINER | bool }},
+      cgroup driver {{ sys_svc_container_cgroup_driver.stdout | trim }} -> {{ SANDBOX_RUNTIME }}
 
 - name: "🔧 Configure the container daemon"
   ansible.builtin.template: # nocheck: stack-host-template (per-host docker daemon config, runs on every container-host)

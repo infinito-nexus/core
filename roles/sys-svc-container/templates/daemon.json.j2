@@ -46,7 +46,10 @@
 {% if _present | length > 0 %},
   "runtimes": {
 {% for _name in _present %}
-    "{{ _name }}": {"path": "{{ _shim_paths[_name] }}"{% if _name == 'runsc' and DOCKER_IN_CONTAINER | bool %}, "runtimeArgs": ["--network=host"]{% endif %}}{% if not loop.last %},{% endif %}
+{% set _runtime_args = [] %}
+{% if _name == 'runsc' and DOCKER_IN_CONTAINER | bool %}{% set _ = _runtime_args.append('--network=host') %}{% endif %}
+{% if _name == 'runsc' and (sys_svc_container_cgroup_driver.stdout | trim) == 'systemd' %}{% set _ = _runtime_args.append('--systemd-cgroup') %}{% endif %}
+    "{{ _name }}": {"path": "{{ _shim_paths[_name] }}"{% if _runtime_args %}, "runtimeArgs": {{ _runtime_args | to_json }}{% endif %}}{% if not loop.last %},{% endif %}
 
 {% endfor %}
   }

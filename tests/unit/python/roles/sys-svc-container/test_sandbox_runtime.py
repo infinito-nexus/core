@@ -61,6 +61,7 @@ BASE = {
     "sys_svc_container_kata_shim": _shim(False),
     "sys_svc_container_runsc_shim": _shim(False),
     "sys_svc_container_nvidia_shim": _shim(False),
+    "sys_svc_container_cgroup_driver": SimpleNamespace(stdout="cgroupfs\n"),
 }
 
 
@@ -141,6 +142,46 @@ class TestSandboxRuntimeRegistration(unittest.TestCase):
         )
         self.assertEqual(sorted(parsed["runtimes"]), ["runsc"])
         self.assertEqual(parsed["default-runtime"], "runsc")
+
+    def test_runsc_keeps_the_container_limits_under_systemd_cgroups(self):
+        parsed = self._render(
+            sys_svc_container_runsc_shim=_shim(True),
+            sys_svc_container_cgroup_driver=SimpleNamespace(stdout="systemd\n"),
+        )
+        self.assertEqual(
+            parsed["runtimes"]["runsc"]["runtimeArgs"],
+            ["--network=host", "--systemd-cgroup"],
+        )
+
+    def test_a_bare_systemd_host_passes_only_the_cgroup_flag(self):
+        parsed = self._render(
+            DOCKER_IN_CONTAINER=False,
+            sys_svc_container_runsc_shim=_shim(True),
+            sys_svc_container_cgroup_driver=SimpleNamespace(stdout="systemd"),
+        )
+        self.assertEqual(
+            parsed["runtimes"]["runsc"]["runtimeArgs"], ["--systemd-cgroup"]
+        )
+
+    def test_cgroupfs_never_gets_the_systemd_flag(self):
+        parsed = self._render(sys_svc_container_runsc_shim=_shim(True))
+        self.assertEqual(parsed["runtimes"]["runsc"]["runtimeArgs"], ["--network=host"])
+
+    def test_an_unreadable_driver_adds_no_flag(self):
+        parsed = self._render(
+            DOCKER_IN_CONTAINER=False,
+            sys_svc_container_runsc_shim=_shim(True),
+            sys_svc_container_cgroup_driver=SimpleNamespace(stdout=""),
+        )
+        self.assertNotIn("runtimeArgs", parsed["runtimes"]["runsc"])
+
+    def test_only_runsc_gets_the_cgroup_flag(self):
+        parsed = self._render(
+            sys_svc_container_runsc_shim=_shim(True),
+            sys_svc_container_nvidia_shim=_shim(True),
+            sys_svc_container_cgroup_driver=SimpleNamespace(stdout="systemd"),
+        )
+        self.assertNotIn("runtimeArgs", parsed["runtimes"]["nvidia"])
 
     def test_a_default_runtime_is_always_a_registered_one(self):
         for kata, runsc in ((False, False), (False, True), (True, True)):
