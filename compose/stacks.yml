@@ -130,6 +130,7 @@ unaddressed:
   - install-force
   - install-venv
   - network-trust-ca
+  - quality-check
   - runner-cleanup-report
   - runner-status
   - swarm-clean

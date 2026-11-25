@@ -907,6 +907,11 @@ quality:
 	@"$(MAKE)" autoformat
 	@"$(MAKE)" test
 
+.PHONY: quality-check
+# Gate the staged changes on new findings with infinito-nexus/quality, run from its compose service (profile tools).
+quality-check:
+	@"$${PYTHON}" -m cli.administration.deploy.development quality -- check --staged
+
 .PHONY: quality-high
 # Full gate: autoformat, then the whole test suite and every lint check in parallel.
 quality-high:

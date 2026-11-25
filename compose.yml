@@ -177,6 +177,19 @@ services:
     volumes:
       - ./compose/target/Corefile:/Corefile:ro
 
+  quality:
+    image: ghcr.io/infinito-nexus/quality:v0.2.0@sha256:8a7e5e292063eaac8177cfcdd9813e16cc55f31241a91efab2239b1c5a7256cf
+    profiles:
+      - tools
+    network_mode: none
+    read_only: true
+    tmpfs:
+      - /tmp
+    user: "65534"
+    working_dir: /src
+    volumes:
+      - .:/src:ro
+
 volumes:
   docker:
   infinito:
