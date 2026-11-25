@@ -4,11 +4,12 @@
     {{ lookup('compose_only', 'container_name', GITLAB_WEBSERVICE_CONTAINER) }}
     {{ lookup('container_image', application_id, service_name) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
-    environment: # nocheck: compose-environment-from-env-file six services share this role's single env.j2; CONFIG_TEMPLATE_DIRECTORY is /etc/gitaly/templates in gitaly and /srv/gitlab-config in shell, and GITLAB_WEBSERVER/ACTION_CABLE_IN_APP belong to webservice alone
+    environment: # nocheck: compose-environment-from-env-file six services share this role's single env.j2; CONFIG_TEMPLATE_DIRECTORY is /etc/gitaly/templates in gitaly and /srv/gitlab-config in shell, and GITLAB_WEBSERVER/ACTION_CABLE_IN_APP/WORKER_PROCESSES belong to webservice alone
       CONFIG_TEMPLATE_DIRECTORY: "/var/opt/gitlab/config/templates"
       CONFIG_DIRECTORY: "/srv/gitlab/config"
       GITLAB_WEBSERVER: "PUMA"
       ACTION_CABLE_IN_APP: "true"
+      WORKER_PROCESSES: "{{ GITLAB_WEBSERVICE_WORKERS }}"
       INFINITO_NETWORK_BASE_URLS: "{{ GITLAB_NETWORK_BASE_URLS | join(' ') }}"
     command: ["/scripts/wait-for-deps", "/scripts/process-wrapper"]
     {{ lookup('container_healthcheck', service_name) | indent(4) }}

@@ -80,6 +80,10 @@ GITLAB_SHELL_SERVICE_NAME: "shell"
 GITLAB_MIGRATIONS_SERVICE_NAME: "migrations"
 
 GITLAB_WEBSERVICE_CONTAINER: "{{ lookup('config', application_id, 'services.webservice.name') }}"
+GITLAB_WEBSERVICE_REPLICAS: "{{ (groups[application_id] | length) if (IS_SWARM_MODE | bool) else 1 }}"
+GITLAB_WEBSERVICE_CPUS: "{{ lookup('config', application_id, 'services.webservice.cpus') | float | round(0, 'ceil') | int }}"
+# The CNG image forks three Puma workers per replica whatever the host offers; one task per swarm node then ran twelve ~0.9 GB workers on a four-CPU node set and drove the HA lab out of memory, so all replicas together keep the workers one replica's CPU share would.
+GITLAB_WEBSERVICE_WORKERS: "{{ [1, (GITLAB_WEBSERVICE_CPUS | int) // (GITLAB_WEBSERVICE_REPLICAS | int)] | max }}"
 GITLAB_SIDEKIQ_CONTAINER: "{{ lookup('config', application_id, 'services.sidekiq.name') }}"
 GITLAB_WORKHORSE_CONTAINER: "{{ lookup('config', application_id, 'services.workhorse.name') }}"
 GITLAB_GITALY_CONTAINER: "{{ lookup('config', application_id, 'services.gitaly.name') }}"

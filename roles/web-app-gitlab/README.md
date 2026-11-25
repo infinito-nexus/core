@@ -11,6 +11,7 @@ This role deploys GitLab from the official Cloud Native GitLab (CNG) CE images a
 ## Features
 
 - **CNG multi-service deployment:** webservice, sidekiq, workhorse, gitaly, gitlab-shell and a migrations one-shot from unmodified upstream images.
+- **Puma sizing:** `WORKER_PROCESSES` spreads the CPUs one webservice replica may use (`services.webservice.cpus`) over all replicas, at least one worker each, instead of the image's three workers per replica.
 - **External/central PostgreSQL and Redis:** rails `database.yml`, `resque.yml`, `cable.yml` and the workhorse config are pre-rendered by Ansible and mounted read-only.
 - **Consolidated object storage:** artifacts, LFS, uploads, packages, external diffs, dependency proxy, terraform state, CI secure files and pages buckets on any S3-compatible endpoint; named volumes (`gitlab_shared`, `gitlab_uploads`, `gitlab_builds`) carry the data when object storage is disabled.
 - **OIDC single sign-on and SMTP:** rendered into `gitlab.yml` and an `smtp_settings.rb` initializer.
