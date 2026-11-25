@@ -38,7 +38,7 @@ final class ShowcaseTest extends TestCase
             'responses' => json_decode((string) getenv('STUB_RESPONSES'), true),
         ];
         register_shutdown_function(static function (): void {
-            file_put_contents((string) getenv('STUB_LOG'), json_encode($GLOBALS['STUB']['calls']));
+            file_put_contents((string) getenv('STUB_LOG'), json_encode($GLOBALS['STUB']['calls'], JSON_PRESERVE_ZERO_FRACTION));
         });
         PHP;
 
@@ -180,7 +180,7 @@ final class ShowcaseTest extends TestCase
      * @param string $stdout the script's output
      * @return array<string, mixed> its closing JSON line
      */
-    private static function result(string $stdout): array
+    private static function closingJson(string $stdout): array
     {
         $lines = explode("\n", trim($stdout));
 
@@ -217,7 +217,7 @@ final class ShowcaseTest extends TestCase
                 'themeConfig' => ['sw-color-brand-primary' => '#123456'],
                 'customerPassword' => $password,
             ],
-            self::result($stdout)
+            self::closingJson($stdout)
         );
         $this->assertStringNotContainsString(self::KERNEL_SECRET, $stdout . $stderr);
         $this->assertStringNotContainsString($password, json_encode($customer['customFields']) . $stderr);
@@ -231,7 +231,7 @@ final class ShowcaseTest extends TestCase
 
         $this->assertSame(0, $code, $stderr);
         $this->assertSame([], self::upserts($calls));
-        $this->assertFalse(self::result($stdout)['changed']);
+        $this->assertFalse(self::closingJson($stdout)['changed']);
     }
 
     public function testADriftedProductOrARotatedKernelSecretRewritesOnlyThatRow(): void
@@ -250,7 +250,7 @@ final class ShowcaseTest extends TestCase
             array_keys($upserts)
         );
         $this->assertSame(self::password('rotated-kernel-secret'), $upserts['upsert customer d0000000000000000000000000000002']['password']);
-        $this->assertTrue(self::result($stdout)['changed']);
+        $this->assertTrue(self::closingJson($stdout)['changed']);
     }
 
     public function testNegativeControlADomainNoSalesChannelServesFailsBeforeAnyWrite(): void
