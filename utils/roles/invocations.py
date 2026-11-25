@@ -49,11 +49,12 @@ DESTRUCTOR_STAGE = "03_destructor.yml"
 _ROLE_FILE_REF_RE = re.compile(r"roles/(?P<role>[a-z0-9-]+)/(?:tasks|handlers)/")
 _QUOTED_NAME_RE = re.compile(r"['\"](?P<name>[a-z0-9][a-z0-9-]*)['\"]")
 _TEMPLATE_RE = re.compile(r"\{\{.*?\}\}")
+_QUOTED_ROLE = r"(?P<quote>['\"])(?P<role>[a-z0-9-]+)(?P=quote)"
 _MEMBERSHIP_GATE_RE = re.compile(
-    r"^'(?P<role>[a-z0-9-]+)'\s*(?P<test>in\s+group_names|\|\s*application_allowed\b)"
+    rf"^{_QUOTED_ROLE}\s*(?P<test>in\s+group_names|\|\s*application_allowed\b)"
 )
 _OWN_GATE_RE = re.compile(
-    r"'(?P<role>[a-z0-9-]+)'\s*(?:in\s+group_names|\|\s*application_allowed\([^()]*\))"
+    rf"{_QUOTED_ROLE}\s*(?:in\s+group_names|\|\s*application_allowed\([^()]*\))"
 )
 
 

@@ -162,6 +162,21 @@ class TestRoleIncludes(_TreeMixin, unittest.TestCase):
         ]
         self.assertEqual(self._includes(tasks), {"role-b", "role-c"})
 
+    def test_a_gate_holds_the_include_in_either_quote_style(self):
+        roles = str(self.root / "roles")
+        for role, quote in (("role-a", "'"), ("role-c", '"')):
+            self._write(
+                _role_file(role, ROLE_FILE_TASKS_MAIN),
+                [
+                    {
+                        "include_role": {"name": "role-b"},
+                        "when": f"{quote}role-b{quote} in group_names",
+                    }
+                ],
+            )
+        self.assertEqual(role_includes(roles, "role-a"), frozenset())
+        self.assertEqual(role_includes(roles, "role-c"), role_includes(roles, "role-a"))
+
 
 class TestStageInvocations(_TreeMixin, unittest.TestCase):
     def _stage(self, tasks):
@@ -200,6 +215,14 @@ class TestStageInvocations(_TreeMixin, unittest.TestCase):
         self.assertEqual(
             stage_invocations(path, frozenset(ROLES), seeds=["role-b"], group_names=[]),
             {"role-b"},
+        )
+
+    def test_a_double_quoted_membership_gate_closes_for_a_non_member(self):
+        path = self._stage(
+            [{"include_role": {"name": "role-b"}, "when": '"role-b" in group_names'}]
+        )
+        self.assertEqual(
+            stage_invocations(path, frozenset(ROLES), seeds=[], group_names=[]), set()
         )
 
     def test_any_other_condition_keeps_the_include(self):
