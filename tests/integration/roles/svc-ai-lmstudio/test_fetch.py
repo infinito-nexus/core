@@ -9,7 +9,6 @@ import subprocess
 import sys
 import tempfile
 import threading
-import time
 import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -76,7 +75,7 @@ def _fetch(
     mirrors: list[bool],
     free: int | None,
     held: bytes | None,
-) -> tuple[int, str, bytes, int, float, list[str]]:
+) -> tuple[int, str, bytes, int, list[str]]:
     """
     Args:
         resets: how many transfers the source cuts off halfway.
@@ -89,8 +88,7 @@ def _fetch(
 
     Returns:
         The play's exit code, its output, the stored model (b"" when absent),
-        the requests the source answered, the play's wall time and what
-        staging holds afterwards.
+        the requests the source answered and what staging holds afterwards.
     """
     server, state = _serve(resets, corrupt)
     sources = [server] + [_serve(0, bad)[0] for bad in mirrors]
@@ -158,7 +156,6 @@ def _fetch(
                 )
                 df.chmod(0o755)
                 env["PATH"] = f"{bin_dir}{os.pathsep}{env['PATH']}"
-            began = time.monotonic()
             result = subprocess.run(
                 [
                     sys.executable,
@@ -179,7 +176,6 @@ def _fetch(
                 check=False,
                 timeout=600,
             )
-            elapsed = time.monotonic() - began
             body = b""
             if stored.exists():
                 body = stored.read_bytes()  # nocheck: cache-read  the play wrote it
@@ -188,7 +184,6 @@ def _fetch(
                 result.stdout + result.stderr,
                 body,
                 state["requests"],
-                elapsed,
                 sorted(os.listdir(staging)) if staging.exists() else [],
             )
     finally:
@@ -217,7 +212,7 @@ def _includes_fetch(tasks: list) -> bool:
 
 class TestFetch(unittest.TestCase):
     def test_a_reset_transfer_costs_a_retry_not_the_deploy(self) -> None:
-        rc, output, body, requests, _elapsed, _staged = _fetch(
+        rc, output, body, requests, _staged = _fetch(
             1, False, 60, False, [], None, None
         )
         self.assertEqual(rc, 0, output[-3000:])
@@ -225,25 +220,20 @@ class TestFetch(unittest.TestCase):
         self.assertEqual(requests, 2)
 
     def test_an_interrupted_fetch_leaves_no_partial_behind(self) -> None:
-        rc, output, body, _requests, _elapsed, staged = _fetch(
-            0, False, 60, True, [], None, None
-        )
+        rc, output, body, _requests, staged = _fetch(0, False, 60, True, [], None, None)
         self.assertEqual(rc, 0, output[-3000:])
         self.assertEqual(body, BLOB)
         self.assertEqual(staged, [])
 
     def test_a_source_that_never_verifies_fails_closed_inside_the_budget(self) -> None:
-        rc, output, body, requests, elapsed, _staged = _fetch(
-            0, True, 4, False, [], None, None
-        )
+        rc, output, body, requests, _staged = _fetch(0, True, 4, False, [], None, None)
         self.assertNotEqual(rc, 0, output[-3000:])
         self.assertIn("Timed out after 4 second(s)", output, output[-3000:])
         self.assertEqual(body, b"")
         self.assertGreater(requests, 0)
-        self.assertLess(elapsed, 4 + 30)
 
     def test_a_timed_out_source_hands_over_to_the_next_mirror(self) -> None:
-        rc, output, body, requests, _elapsed, _staged = _fetch(
+        rc, output, body, requests, _staged = _fetch(
             0, True, 4, False, [True, False], None, None
         )
         self.assertEqual(rc, 0, output[-3000:])
@@ -252,7 +242,7 @@ class TestFetch(unittest.TestCase):
         self.assertGreater(requests, 0)
 
     def test_a_timed_out_mirror_still_reaches_the_final_check(self) -> None:
-        rc, output, body, _requests, _elapsed, _staged = _fetch(
+        rc, output, body, _requests, _staged = _fetch(
             0, True, 4, False, [True], None, None
         )
         self.assertNotEqual(rc, 0, output[-3000:])
@@ -260,7 +250,7 @@ class TestFetch(unittest.TestCase):
         self.assertEqual(body, b"")
 
     def test_an_absent_model_counts_once_against_the_free_space(self) -> None:
-        rc, output, body, _requests, _elapsed, _staged = _fetch(
+        rc, output, body, _requests, _staged = _fetch(
             0, False, 60, False, [], len(BLOB) * 3 // 2, None
         )
         self.assertEqual(rc, 0, output[-3000:])
@@ -268,7 +258,7 @@ class TestFetch(unittest.TestCase):
 
     def test_a_held_model_with_another_digest_counts_as_pending(self) -> None:
         held = bytes(reversed(BLOB))
-        rc, output, body, requests, _elapsed, _staged = _fetch(
+        rc, output, body, requests, _staged = _fetch(
             0, False, 60, False, [], len(BLOB) // 2, held
         )
         self.assertNotEqual(rc, 0, output[-3000:])

@@ -187,11 +187,13 @@ networks:
   local:
     subnet: 192.168.101.112/28        # required; CIDR of the role's docker network
     dns_resolver: 192.168.102.29      # optional, only when a fixed DNS resolver IP is needed (today: mailu)
+    outside_pool: true                # optional, only when something outside the repository pins the subnet outside NETWORK_ROLE_SUBNET_POOL (today: bigbluebutton, openpost)
 ```
 
 The role's name is implied by the path.
 There is NO `web-app-<role>` key inside the file.
-The materialised path is `applications.<role>.networks.local.{subnet,dns_resolver}`.
+The materialised path is `applications.<role>.networks.local.{subnet,dns_resolver,outside_pool}`.
+`NETWORK_ROLE_SUBNET_EXCEPTION_ROLES` collects every role that sets `outside_pool` through `lookup('role_subnet_exceptions')`.
 
 ## Per-Entity Ports: `meta/services.yml.<entity>.ports` 🚪
 

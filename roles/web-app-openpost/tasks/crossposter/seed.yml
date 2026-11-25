@@ -1,0 +1,85 @@
+---
+- name: "🧾 Pick the CI routes whose source token the deploy has to mint"
+  ansible.builtin.set_fact:
+    openpost_crossposter_seed_routes: "{{ OPENPOST_CROSSPOSTER_ROUTES | rejectattr('source.token') | list }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔎 Check the source tokens minted by an earlier deploy"
+  uri_retry:
+    url: "{{ item.source.base_url }}{{ OPENPOST_CROSSPOSTER_SEED_PROBES[item.source.platform] }}"
+    headers:
+      Authorization: "Bearer {{ openpost_crossposter_sources[item.name] }}"
+    status_code: [200, 401, 403]
+  loop: "{{ openpost_crossposter_seed_routes | selectattr('name', 'in', openpost_crossposter_sources.keys() | list) | list }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: openpost_crossposter_seed_checks
+  changed_when: false
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧾 Keep the minted source tokens that still authenticate"
+  ansible.builtin.set_fact:
+    openpost_crossposter_sources: >-
+      {%- set _kept = {} -%}
+      {%- for _check in openpost_crossposter_seed_checks.results if _check.status == 200 -%}
+      {%- set _ = _kept.update({_check.item.name: openpost_crossposter_sources[_check.item.name]}) -%}
+      {%- endfor -%}
+      {{ _kept }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧾 Pick the CI routes that still lack a working source token"
+  ansible.builtin.set_fact:
+    openpost_crossposter_seed_missing: "{{ openpost_crossposter_seed_routes | rejectattr('name', 'in', openpost_crossposter_sources.keys() | list) | list }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🐘 Mint the Mastodon source tokens"
+  ansible.builtin.include_tasks: crossposter/seed/mastodon.yml
+  when: openpost_crossposter_seed_missing | selectattr('source.platform', 'equalto', 'mastodon') | list | length > 0
+
+- name: "📷 Mint the Pixelfed source tokens"
+  ansible.builtin.include_tasks: crossposter/seed/pixelfed.yml
+  when: openpost_crossposter_seed_missing | selectattr('source.platform', 'equalto', 'pixelfed') | list | length > 0
+
+- name: "🎞️ Mint the PeerTube source tokens"
+  ansible.builtin.include_tasks:
+    file: crossposter/seed/peertube.yml
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: openpost_crossposter_seed_missing | selectattr('source.platform', 'equalto', 'peertube') | list | length > 0
+
+- name: "🐘 Connect the CI Mastodon account as a target"
+  ansible.builtin.include_tasks: crossposter/seed/target.yml
+  when:
+    - OPENPOST_CROSSPOSTER_ROUTES | selectattr('source.platform', 'equalto', 'mastodon') | list | length > 0
+    - OPENPOST_PINNED_INSTANCES | selectattr('platform', 'equalto', 'mastodon') | list | length > 0
+
+- name: "📚 List the social sets of the organisation workspace"
+  uri_retry:
+    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/social-sets?workspace_id={{ openpost_crossposter_target_workspace }}"
+    headers: "{{ openpost_breakglass_headers }}"
+    status_code: 200
+  register: openpost_crossposter_social_sets
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🗂️ Create the social sets the CI routes target"
+  uri_retry:
+    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/social-sets"
+    method: POST
+    headers: "{{ openpost_breakglass_headers }}"
+    body_format: json
+    body:
+      name: "{{ item }}"
+      workspace_id: "{{ openpost_crossposter_target_workspace }}"
+      accounts: []
+    status_code: [200, 201]
+  loop: >-
+    {{ OPENPOST_CROSSPOSTER_ROUTES
+       | map(attribute='targets') | selectattr('social_set', 'defined')
+       | map(attribute='social_set') | select | unique
+       | reject('in', openpost_crossposter_social_sets.json | map(attribute='name') | list)
+       | list }}
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

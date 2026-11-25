@@ -148,6 +148,8 @@ def argv_triggers(stage: Path, run: Path) -> dict[str, tuple[str, list[str]]]:
         ),
         "entrypoint": ("-w", ["--entrypoint", "/bin/sh", "-w"]),
         "privileged": ("-w", ["--privileged", "-w"]),
+        "core_dumps": ("-w", ["--ulimit=core=-1", "-w"]),
+        "other_ulimit": ("-w", ["--ulimit", "nofile=1048576", "-w"]),
         "other_cidfile": (f"--cidfile={run}/.cid", ["--cidfile=/srv/x/.cid"]),
         "no_log_driver": ("--log-driver=none", []),
         "reports_elsewhere": (f"{run}/reports:/reports", ["/srv/x:/reports"]),
@@ -211,6 +213,12 @@ class TestSpecSecretsContainer(unittest.TestCase):
 
     def test_the_command_a_run_with_spec_secrets_starts_passes(self) -> None:
         self.assertFalse(self.refused(container_argv(self.root, self.run_dir)))
+
+    def test_a_run_without_core_dumps_passes(self) -> None:
+        argv = container_argv(self.root, self.run_dir)
+        at = argv.index("-w")
+        argv[at:at] = ["--ulimit=core=0"]
+        self.assertFalse(self.refused(argv))
 
     def test_a_docker_config_the_caller_exports_stays_out_of_the_checks(self) -> None:
         argv = container_argv(self.root, self.run_dir)
