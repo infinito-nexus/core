@@ -46,6 +46,7 @@ jobs:
         run: make role-skeleton-samples
 
       - name: ▶️ Run the full test suite via make
+        timeout-minutes: 38
         shell: bash
         run: |
           set -euo pipefail
@@ -65,3 +66,13 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: |
           python3 -m utils.annotations.summarize /tmp/test-output.txt "Test Annotation Summary"
+
+      - name: 📦 Keep the test output and junit reports
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: test-output
+          path: |
+            /tmp/test-output.txt
+            build/test-reports
+          if-no-files-found: ignore
