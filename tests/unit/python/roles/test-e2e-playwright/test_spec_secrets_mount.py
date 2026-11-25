@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import re
 import unittest
+from itertools import pairwise
 
 from . import role_task
 from ._spec_secrets_wiring import (
@@ -27,6 +28,7 @@ from ._spec_secrets_wiring import (
     mount_violations,
     prune_violations,
     render,
+    render_argv,
     role_tasks,
     run_argv,
 )
@@ -312,6 +314,14 @@ class TestSpecSecretsMount(unittest.TestCase):
         self.assertEqual(mount_violations(run_argv()), [])
         queued = role_task("03_run_pass.yml", "📬")["vars"]["_playwright_argv"]
         self.assertEqual(queued, run_argv())
+
+    def test_every_run_disables_core_dumps_in_the_container(self) -> None:
+        for exists, directory in ((False, STALE_DIR), (True, SECRETS_DIR)):
+            with self.subTest(template=exists):
+                argv = render_argv(run_argv(), exists, directory)
+                self.assertIn(
+                    ("--shm-size=1g", "--ulimit=core=0"), list(pairwise(argv))
+                )
 
     def test_the_role_level_env_file_is_untouched(self) -> None:
         self.assertEqual(env_task()["ansible.builtin.copy"]["mode"], "0644")

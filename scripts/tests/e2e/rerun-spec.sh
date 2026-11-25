@@ -203,7 +203,7 @@ for sub in addons fixtures; do
 done
 
 run=(docker run --rm
-	--ipc=host --shm-size=1g
+	--ipc=host --shm-size=1g --ulimit=core=0
 	"${net_args[@]}"
 	--env-file "$env_file"
 	-e "INFINITO_PLAYWRIGHT_KEEP=${INFINITO_PLAYWRIGHT_KEEP:-}"
