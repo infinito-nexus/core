@@ -1,6 +1,7 @@
 import pathlib
 import tempfile
 import unittest
+import unittest.mock as mock
 
 from utils.tests.swarm import probes
 
@@ -77,6 +78,57 @@ class TestZramUsage(unittest.TestCase):
     def test_no_zram_device_yields_nothing(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             self.assertEqual(probes.zram_usage(pathlib.Path(tmp)), [])
+
+
+class TestOomGuard(unittest.TestCase):
+    def test_the_oom_kill_counter_comes_from_vmstat(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            (root / "vmstat").write_text(
+                "nr_free_pages 1\noom_kill 3\npswpin 0\n", encoding="utf-8"
+            )
+            self.assertEqual(probes.oom_kills(root), 3)
+
+    def test_a_missing_vmstat_has_no_counter(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertIsNone(probes.oom_kills(pathlib.Path(tmp)))
+
+    def test_only_the_runner_agent_is_selected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            for pid, name in (
+                (5, "Runner.Listener"),
+                (9, "Runner.Worker"),
+                (12, "ruby"),
+            ):
+                (root / str(pid)).mkdir()
+                (root / str(pid) / "comm").write_text(f"{name}\n", encoding="utf-8")
+            self.assertEqual(probes.runner_pids(root), ["5", "9"])
+
+    def test_protection_keeps_only_the_pids_choom_accepted(self) -> None:
+        def choom(argv: list[str], **_kwargs: object) -> mock.Mock:
+            return mock.Mock(returncode=0 if argv[-1] == "5" else 1)
+
+        with mock.patch.object(probes.subprocess, "run", side_effect=choom) as run:
+            self.assertEqual(probes.protect_from_oom(["5", "9"]), ["5"])
+        self.assertEqual(
+            run.call_args_list[0].args[0],
+            ["sudo", "-n", "choom", "-n", "-1000", "-p", "5"],
+        )
+
+    def test_the_kernel_log_yields_only_its_oom_lines(self) -> None:
+        dmesg = (
+            "[1.0] usb 1-1: new device\n"
+            "[2.0] Out of memory: Killed process 42 (ruby)\n"
+            "[3.0] Memory cgroup out of memory: Killed process 51 (node)\n"
+        )
+        with mock.patch.object(
+            probes.subprocess, "run", return_value=mock.Mock(stdout=dmesg)
+        ):
+            self.assertEqual(
+                probes.oom_victims(1),
+                ["[3.0] Memory cgroup out of memory: Killed process 51 (node)"],
+            )
 
 
 if __name__ == "__main__":

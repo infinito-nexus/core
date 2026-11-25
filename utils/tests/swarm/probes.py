@@ -12,6 +12,100 @@ import time
 from pathlib import Path
 
 CONTAINER_ID = re.compile(r"[0-9a-f]{64}")
+RUNNER_PROCESSES = ("Runner.Listener", "Runner.Worker")
+OOM_PROTECTED_SCORE = "-1000"
+
+
+def oom_kills(proc_root: Path) -> int | None:
+    """
+    Args:
+        proc_root: the procfs mount, ``/proc`` on a live host.
+
+    Returns:
+        The kernel's running count of OOM kills, ``None`` when it is unreadable.
+    """
+    try:
+        vmstat = (proc_root / "vmstat").read_text("utf-8")  # nocheck: cache-read  live
+    except OSError:
+        return None
+    for line in vmstat.splitlines():
+        name, _, value = line.partition(" ")
+        if name == "oom_kill" and value.strip().isdigit():
+            return int(value)
+    return None
+
+
+def oom_victims(lines: int) -> list[str]:
+    """
+    Args:
+        lines: how many of the latest kernel OOM lines to return.
+
+    Returns:
+        The latest ``Out of memory`` / ``Killed process`` lines of the kernel
+        log; empty when the log is not readable without a password.
+    """
+    try:
+        out = subprocess.run(
+            ["sudo", "-n", "dmesg"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        ).stdout
+    except (OSError, subprocess.TimeoutExpired):
+        return []
+    hits = [
+        line.strip()
+        for line in out.splitlines()
+        if "Out of memory" in line or "Killed process" in line
+    ]
+    return hits[-lines:]
+
+
+def runner_pids(proc_root: Path) -> list[str]:
+    """
+    Args:
+        proc_root: the procfs mount, ``/proc`` on a live host.
+
+    Returns:
+        The pids of the Actions runner agent, whose loss ends the job without
+        a log tail or an upload.
+    """
+    found = []
+    for comm in sorted(proc_root.glob("[0-9]*/comm")):
+        try:
+            name = comm.read_text("utf-8").strip()  # nocheck: cache-read  live pid
+        except OSError:
+            continue
+        if name in RUNNER_PROCESSES:
+            found.append(comm.parent.name)
+    return found
+
+
+def protect_from_oom(pids: list[str]) -> list[str]:
+    """Exempt the runner agent from the kernel OOM killer.
+
+    Args:
+        pids: runner_pids() of the live host.
+
+    Returns:
+        The pids whose ``oom_score_adj`` is now OOM_PROTECTED_SCORE.
+    """
+    protected = []
+    for pid in pids:
+        try:
+            done = subprocess.run(
+                ["sudo", "-n", "choom", "-n", OOM_PROTECTED_SCORE, "-p", pid],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            continue
+        if done.returncode == 0:
+            protected.append(pid)
+    return protected
 
 
 def parse_write_bytes(text: str) -> dict[str, int]:

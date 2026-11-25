@@ -33,7 +33,14 @@ from utils.env.runtime import (
     mem_total_mb,
     uninterruptible_switches,
 )
-from utils.tests.swarm.probes import memory_line, spike_report
+from utils.tests.swarm.probes import (
+    memory_line,
+    oom_kills,
+    oom_victims,
+    protect_from_oom,
+    runner_pids,
+    spike_report,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -52,6 +59,8 @@ FAST_INTERVAL_S = 1
 SPIKE_MB = 2**10
 SPIKE_COOLDOWN_S = 30
 FLOOR_ETA_S = 5
+OOM_LINES = 4
+PROC_ROOT = Path("/proc")
 ABORT_RC = 75
 _FORWARDED_SIGNALS = (signal.SIGINT, signal.SIGTERM)
 
@@ -206,7 +215,20 @@ def _tripwire(
 ) -> None:
     previous: tuple[int, int] | None = None
     reported = -float(SPIKE_COOLDOWN_S)
+    kills = oom_kills(PROC_ROOT)
     while not stop.wait(FAST_INTERVAL_S):
+        counted = oom_kills(PROC_ROOT)
+        if kills is not None and counted is not None and counted > kills:
+            print(
+                f"=== swarm-matrix: OOM KILL x{counted - kills} "
+                f"({counted} since boot) ===",
+                flush=True,
+            )
+            for line in oom_victims(OOM_LINES):
+                print(f"=== swarm-matrix: kernel: {line} ===", flush=True)
+            print(memory_line(TOP_ROWS), flush=True)
+        if counted is not None:
+            kills = counted
         free_mb, root = lowest_free_mb()
         current = (free_mb, mem_available_mb())
         drop = spike_kind(previous, current) if previous else None
@@ -261,6 +283,12 @@ def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
     Returns:
         The step's exit code, or ABORT_RC when a floor was hit.
     """
+    protected = protect_from_oom(runner_pids(PROC_ROOT))
+    print(
+        "=== swarm-matrix: runner agent exempt from the OOM killer: "
+        f"{', '.join(protected) or 'none'} ===",
+        flush=True,
+    )
     proc = subprocess.Popen(cmd, cwd=str(PROJECT_ROOT), env=env, process_group=0)
     stop = threading.Event()
     tripped = threading.Event()
