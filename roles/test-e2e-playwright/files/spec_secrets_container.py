@@ -322,8 +322,7 @@ def check_stage(stage: Path) -> None:
         stage: the directory the env file sits in.
 
     Raises:
-        SpecSecretsError: it is no directory of root or this user with mode
-            0755 or tighter.
+        SpecSecretsError: it is no directory of root or this user with mode 0755 or tighter.
     """
     info = os.lstat(stage)
     if (
