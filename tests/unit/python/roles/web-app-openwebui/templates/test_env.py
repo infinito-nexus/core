@@ -45,8 +45,8 @@ RENDER_PROBES = (
 )
 BARE_LIFETIME = f"\"{{{{ lookup('config', 'web-app-keycloak', '{MAX_KEY}') }}}}\""
 CAPPED_LIFETIME = (
-    f"\"{{{{ [lookup('config', 'web-app-keycloak', '{MAX_KEY}'), "
-    'OPENWEBUI_REVOCATION_STAMP_SECONDS] | min }}"'
+    f">-\n  {{{{ [lookup('config', 'web-app-keycloak', '{MAX_KEY}'),\n"
+    "      OPENWEBUI_REVOCATION_STAMP_SECONDS] | min }}"
 )
 OIDC_BLOCK = "{% if OPENWEBUI_OIDC_ENABLED | bool %}"
 OIDC_ENV = {

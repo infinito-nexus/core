@@ -36,7 +36,9 @@ OPENWEBUI_QDRANT_API_KEY: "{{ lookup('engine', 'qdrant', application_id, 'passwo
 OPENWEBUI_QDRANT_COLLECTION_PREFIX: "{{ lookup('engine', 'qdrant', application_id, 'prefix') }}"
 OPENWEBUI_REDIS_URL: "{{ lookup('engine', 'redis', application_id, 'url') }}"
 OPENWEBUI_REVOCATION_STAMP_SECONDS: 2592000
-OPENWEBUI_JWT_EXPIRES_IN: "{{ [lookup('config', 'web-app-keycloak', 'services.keycloak.realm.sso_session_max_lifespan_seconds'), OPENWEBUI_REVOCATION_STAMP_SECONDS] | min }}"
+OPENWEBUI_JWT_EXPIRES_IN: >-
+  {{ [lookup('config', 'web-app-keycloak', 'services.keycloak.realm.sso_session_max_lifespan_seconds'),
+      OPENWEBUI_REVOCATION_STAMP_SECONDS] | min }}
 OPENWEBUI_AGENT_BROKER_ENABLED: "{{ lookup('config', application_id, 'services.agent-broker.enabled') }}"
 OPENWEBUI_AGENT_BROKER_URL: "{{ lookup('container_url', 'svc-ai-agent-broker', 'agent-broker') }}/v1"
 OPENWEBUI_AGENT_BROKER_KEY: "{{ lookup('config', 'svc-ai-agent-broker', 'secrets.credentials.api_key') }}"
