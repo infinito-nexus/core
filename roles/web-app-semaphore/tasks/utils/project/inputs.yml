@@ -16,6 +16,11 @@
     loop_var: semaphore_project_record
   register: semaphore_project_record_contents
 
+- name: "📂 Include dependency 'sys-svc-sshd'"
+  ansible.builtin.include_role:
+    name: sys-svc-sshd
+  when: run_once_sys_svc_sshd is not defined
+
 - name: "🔑 Read the SSH host key the runner pins"
   ansible.builtin.slurp:
     src: "{{ SEMAPHORE_APP_CONTROL_HOST_KEY_FILE }}"
