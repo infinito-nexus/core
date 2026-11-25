@@ -49,6 +49,8 @@ A `mount --make-rshared /` runs once in the deploy container before the runner s
 
 **Registry proxy.** When the stack's docker daemon pulls through a registry proxy (the local registry cache), the runner's nested daemon uses the same proxy via a `docker.service` drop-in and, when the outer daemon trusts the cache's CA, fetches that CA from the proxy before it starts.
 
+**Image mirror.** The nested daemon pulls anonymously, so MDAD's Docker Hub images (`hif1/heisenbridge`, `joseluisq/static-web-server` and `livekit/livekit-server`) are declared as mirror-only `mdad_*` entries in `meta/services.yml` and handed to MDAD through the `image` lookup. Production pulls them from Docker Hub; CI pulls the GHCR mirror copies, like every other declared image.
+
 **Nested host network.** Synapse, Element, coturn, LiveKit, its JWT service and Heisenbridge run in the host network of the nested Docker daemon, so they address each other over `127.0.0.1`; Heisenbridge's homeserver URL and its appservice URL in the registration are set accordingly. Jitsi keeps MDAD's own `matrix-jitsi` network and publishes its web port to the runner.
 
 ### `compose` (deprecated)
