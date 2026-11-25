@@ -18,7 +18,7 @@ tor: # nocheck: category-modes
   enabled: true
   shared: true
   image: debian
-  version: 13.7-slim
+  version: 13.8-slim
   custom: true
   name: tor
   node: ""

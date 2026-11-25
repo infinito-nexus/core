@@ -47,7 +47,7 @@ mattermost:
   shared: true
   user_access_token_enabled: "{{ 'web-app-nextcloud' in group_names }}"
   image: debian
-  version: 13.7-slim
+  version: 13.8-slim
   custom: true
   repository: https://github.com/mattermost/mattermost.git
   ref: v12.1.0

@@ -30,6 +30,7 @@ const FOOTER = "footer.bg-violet-2";
 const LOGIN_EMAIL = "#email";
 const LOGIN_PASSWORD = "#password";
 const LOGIN_SUBMIT = `${MAIN} form button[type=submit]`;
+const SSO_PROVIDER = `${MAIN} button.o-button:not(form *)`;
 const USER_MENU = "#user-menu-button";
 const TABLE_ROW = `${MAIN} table tbody tr`;
 const SHOWCASE_GROUP = "design_showcase";
@@ -75,7 +76,7 @@ async function signIn(page) {
   }
   await gotoOnion(page, `${base}/login`);
   if (ssoEnabled) {
-    await page.locator(`${MAIN} a[href*='/auth/']`).first().click({ timeout: resolveTimeout(30_000) });
+    await page.locator(SSO_PROVIDER).first().click({ timeout: resolveTimeout(30_000) });
     await performKeycloakLogin(page, adminUsername, adminPassword, canonicalDomain);
     await gotoOnion(page, `${base}/`);
   } else {

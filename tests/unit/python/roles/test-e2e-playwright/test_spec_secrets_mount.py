@@ -383,31 +383,31 @@ class TestSpecSecretsMountNegativeControls(unittest.TestCase):
         ):
             with self.subTest(mutation=mutation):
                 tasks = copy.deepcopy(role_tasks(SECRETS_TASKS))
-                hand = tasks[8]["ansible.builtin.copy"]
+                hand = tasks[9]["ansible.builtin.copy"]
                 if mutation == "reset":
                     tasks[0]["ansible.builtin.set_fact"] = {"unrelated": ""}
                 elif mutation == "keep":
-                    tasks[7]["ansible.builtin.assert"]["that"] = ["true"]
+                    tasks[8]["ansible.builtin.assert"]["that"] = ["true"]
                 elif mutation == "salt":
                     hand["content"] = hand["content"].split("\n", 1)[1]
                 elif mutation == "diff":
-                    tasks[8].pop("diff")
+                    tasks[9].pop("diff")
                 elif mutation == "remote_tmp":
-                    tasks[8]["vars"].pop("ansible_remote_tmp")
+                    tasks[9]["vars"].pop("ansible_remote_tmp")
                 elif mutation == "no_log":
-                    tasks[9]["no_log"] = True
+                    tasks[10]["no_log"] = True
                 elif mutation == "stdin":
-                    tasks[9]["ansible.builtin.command"]["stdin"] = hand.pop("content")
+                    tasks[10]["ansible.builtin.command"]["stdin"] = hand.pop("content")
                 elif mutation == "runs":
-                    tasks[6]["ansible.builtin.set_fact"][RUNS_FACT] = "{{ [] }}"
+                    tasks[7]["ansible.builtin.set_fact"][RUNS_FACT] = "{{ [] }}"
                 elif mutation == "serial":
-                    tasks[6].pop("when")
+                    tasks[7].pop("when")
                 elif mutation == "check":
-                    tasks[3]["ansible.builtin.command"]["argv"] = UNCHECKED_ARGV
+                    tasks[4]["ansible.builtin.command"]["argv"] = UNCHECKED_ARGV
                 elif mutation == "login":
-                    tasks[4].pop("become")
+                    tasks[5].pop("become")
                 else:
-                    tasks[2]["ansible.builtin.copy"]["src"] = HELPER_CALL
+                    tasks[3]["ansible.builtin.copy"]["src"] = HELPER_CALL
                 self.assertNotEqual(layout_violations(tasks), [])
 
     def test_a_serial_cleanup_that_skips_hides_or_archives_too_early_is_caught(

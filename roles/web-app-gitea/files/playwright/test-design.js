@@ -80,6 +80,7 @@ async function pickTheme(page, theme) {
   await page.locator("#footer-theme-selector").click();
   await page.locator(`#footer-theme-selector .menu > .item[data-value="${theme}"]`).click();
   await assertTheme(page, theme, "gitea theme selector");
+  await page.waitForFunction(() => window.config?.frontendInited === true, null, { timeout: resolveTimeout(30_000) });
 }
 
 function offeredThemes() {

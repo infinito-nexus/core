@@ -120,6 +120,10 @@ if [[ -f "$repo_root/roles/$role/templates/playwright.secrets.j2" ]]; then
 		echo "$role ships templates/playwright.secrets.j2: a TEST_E2E_PLAYWRIGHT_COMMAND override is refused, pass Playwright arguments instead" >&2
 		exit 2
 	}
+	[[ -z "${TEST_E2E_PLAYWRIGHT_IMAGE:-}" ]] || {
+		echo "$role ships templates/playwright.secrets.j2: a TEST_E2E_PLAYWRIGHT_IMAGE override is refused, each of its containers runs the image meta/services.yml pins" >&2
+		exit 2
+	}
 	python3 -I -B "$spec_secrets" arguments "$@" || exit 2
 	ca_trust="$stage_dir/.ca-trust"
 	if [[ -L "$ca_trust" || (-e "$ca_trust" && ! -f "$ca_trust") ]]; then
