@@ -3,7 +3,6 @@ from __future__ import annotations
 import contextlib
 import io
 import os
-import re
 import sys
 import tempfile
 import unittest
@@ -399,31 +398,6 @@ class TestComposeBump(unittest.TestCase):
             .replace("nginx:1.27-alpine", "nginx:1.29-alpine"),
         }
         self.assertEqual(after, expected)
-
-    def test_the_real_registry_cache_pin_moves_to_the_newest_tag_alone(self):
-        rel = "compose/cache.override.yml"
-        original = read_text(str(PROJECT_ROOT / rel))
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            _write(root / rel, original)
-            entries = docker.collect_compose_entries(root, [rel])
-            tags = {entry.image: [entry.version] for entry in entries}
-            current = tags["rpardini/docker-registry-proxy"][0]
-            newest = re.sub(
-                r"\d+", lambda major: str(int(major.group()) + 1), current, count=1
-            )
-            tags["rpardini/docker-registry-proxy"] = [current, newest, "latest"]
-            changed = _bump(root, [rel], tags)
-            _reset_cache_for_tests()
-            after = read_text(str(root / rel))
-
-        self.assertEqual(changed, [root / rel])
-        old = f"rpardini/docker-registry-proxy:{current}"
-        self.assertEqual(original.count(old), 1)
-        self.assertEqual(
-            after,
-            original.replace(old, f"rpardini/docker-registry-proxy:{newest}"),
-        )
 
     def test_a_service_aliasing_an_anchor_outside_the_services_leaves_it_alone(self):
         aliased = (

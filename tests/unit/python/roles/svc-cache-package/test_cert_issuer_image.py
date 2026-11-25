@@ -7,6 +7,7 @@ from typing import Any
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from plugins.lookup.image import LookupModule as ImageLookup
+from plugins.lookup.registry_vendors import route_reference, unrouted
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
 from utils.docker.image.discovery import canonical_image_name, iter_role_images
@@ -22,6 +23,12 @@ APPLICATIONS = {
 INIT_IMAGE = load_yaml_str(read_text(str(ROLE / ROLE_FILE_VARS_MAIN)))[
     "CACHE_PACKAGE_INIT_IMAGE"
 ]
+IMAGE_LOOKUPS = {
+    "applications": mock.MagicMock(run=lambda *_a, **_k: [APPLICATIONS]),
+    "registry_vendors": mock.MagicMock(
+        run=lambda terms, **_k: [route_reference(t, unrouted()) for t in terms]
+    ),
+}
 
 
 def _lookup(name: str, *terms: str, **kwargs: Any) -> Any:
@@ -34,9 +41,7 @@ def _lookup(name: str, *terms: str, **kwargs: Any) -> Any:
     """
     if name == "image":
         with mock.patch("plugins.lookup.image.lookup_loader") as loader:
-            loader.get.return_value = mock.MagicMock(
-                run=lambda *_a, **_k: [APPLICATIONS]
-            )
+            loader.get.side_effect = lambda plugin, **_k: IMAGE_LOOKUPS[plugin]
             return ImageLookup().run(
                 list(terms), variables={"DEPLOYMENT_MODE": "compose"}, **kwargs
             )[0]

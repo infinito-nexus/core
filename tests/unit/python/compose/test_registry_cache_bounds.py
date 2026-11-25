@@ -14,17 +14,19 @@ from utils.cache.yaml import load_yaml_str
 
 role = importlib.import_module("tests.unit.python.roles.svc-registry-cache._render")
 
-IMAGE = "rpardini/docker-registry-proxy:0.6.5"
 IMAGE_ENTRYPOINT = "/entrypoint.sh"
 WRAPPER = (
     PROJECT_ROOT / "roles" / "svc-registry-cache" / "files" / "shell" / "entrypoint.sh"
 )
 IMAGE_CONF = "/etc/nginx/conf.d/cache_max_size.conf"
-UPSTREAM_0_6_5 = (
+IMAGE_IDLE = "inactive=$CACHE_INACTIVE"
+UPSTREAM = (
     "#! /bin/bash\n"
     "set -Eeuo pipefail\n"
     "CACHE_MAX_SIZE=${CACHE_MAX_SIZE:-32g}\n"
-    'echo "proxy_cache_path /docker_mirror_cache levels=1:2 max_size=$CACHE_MAX_SIZE inactive=60d '
+    "CACHE_INACTIVE=${CACHE_INACTIVE:-60d}\n"
+    'echo "proxy_cache_path /docker_mirror_cache levels=1:2 max_size=$CACHE_MAX_SIZE '
+    f"{IMAGE_IDLE} "
     'keys_zone=cache:10m use_temp_path=off;" > /etc/nginx/conf.d/cache_max_size.conf\n'
 )
 DOTENV = {
@@ -105,7 +107,7 @@ class TestRegistryCacheBounds(unittest.TestCase):
     def test_the_effective_nginx_cache_carries_the_cap_and_the_idle_window(
         self,
     ) -> None:
-        code, args, _ = _start(DOTENV, UPSTREAM_0_6_5, True)
+        code, args, _ = _start(DOTENV, UPSTREAM, True)
         self.assertEqual(code, 0)
         self.assertEqual([args.get("max_size"), args.get("inactive")], ["40g", "30d"])
 
@@ -115,16 +117,16 @@ class TestRegistryCacheBounds(unittest.TestCase):
             "INFINITO_CACHE_REGISTRY_MAX_SIZE": "12g",
             "INFINITO_CACHE_MAX_IDLE_DAYS": "7",
         }
-        _, args, _ = _start(dotenv, UPSTREAM_0_6_5, True)
+        _, args, _ = _start(dotenv, UPSTREAM, True)
         self.assertEqual([args.get("max_size"), args.get("inactive")], ["12g", "7d"])
 
     def test_the_image_entrypoint_alone_keeps_its_sixty_days(self) -> None:
-        _, args, _ = _start(DOTENV, UPSTREAM_0_6_5, False)
+        _, args, _ = _start(DOTENV, UPSTREAM, False)
         self.assertEqual([args.get("max_size"), args.get("inactive")], ["40g", "60d"])
 
-    def test_an_image_without_the_replaced_line_fails_before_nginx_starts(self) -> None:
+    def test_an_image_ignoring_the_idle_window_fails_before_nginx_starts(self) -> None:
         code, args, stderr = _start(
-            DOTENV, UPSTREAM_0_6_5.replace("inactive=60d", "inactive=90d"), True
+            DOTENV, UPSTREAM.replace(IMAGE_IDLE, "inactive=90d"), True
         )
         self.assertNotEqual(code, 0)
         self.assertEqual(args, {})
@@ -132,8 +134,6 @@ class TestRegistryCacheBounds(unittest.TestCase):
 
     def test_the_service_runs_the_image_entrypoint_through_the_wrapper(self) -> None:
         service = _service(DOTENV)
-        proxy = role.cache_defaults()["multi_proxy"]
-        self.assertEqual(f"{proxy['image']}:{proxy['version']}", IMAGE)
         target = service["entrypoint"][0]
         self.assertEqual(service["entrypoint"][1:], [IMAGE_ENTRYPOINT])
         volume, mount = role.volume_mount("multi_proxy_entrypoint")

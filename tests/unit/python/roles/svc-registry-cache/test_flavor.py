@@ -115,11 +115,12 @@ class TestMultiProxyFlavor(unittest.TestCase):
         services = load_yaml_str(_multi_proxy()["compose"])["services"]
         self.assertEqual(set(services), {"cache"})
         cache = services["cache"]
+        proxy = render.cache_defaults()["multi_proxy"]
         self.assertEqual(
             _stub_args(cache["container_image"]),
             [
                 ["svc-registry-cache", "cache"],
-                {"image": "rpardini/docker-registry-proxy", "version": "0.6.5"},
+                {"image": proxy["image"], "version": proxy["version"]},
             ],
         )
         self.assertEqual(

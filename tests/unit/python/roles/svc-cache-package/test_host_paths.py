@@ -142,6 +142,28 @@ def _compose_services(override=None) -> dict:
     return load_yaml_str(render.compose(override))["services"]
 
 
+def _conditions(task: dict) -> list:
+    when = task.get("when", [])
+    return when if isinstance(when, list) else [when]
+
+
+def _flat_tasks() -> list[dict]:
+    """Returns:
+    The role tasks in run order, each block replaced by its children, every
+    child guarded by the block's conditions before its own.
+    """
+    flat: list[dict] = []
+    for task in load_yaml_any(str(TASKS)):
+        if "block" not in task:
+            flat.append(task)
+            continue
+        flat.extend(
+            {**child, "when": _conditions(task) + _conditions(child)}
+            for child in task["block"]
+        )
+    return flat
+
+
 def _is_repository_task(task: dict) -> bool:
     return "bootstrap.sh" in task.get("ansible.builtin.shell", {}).get("cmd", "")
 
@@ -165,10 +187,11 @@ def _repositories_task_runs(override=None) -> bool:
         Whether the role task that writes the proxy repositories runs.
     """
     built = render.environment(override)
-    [task] = [task for task in load_yaml_any(str(TASKS)) if _is_repository_task(task)]
+    [task] = [task for task in _flat_tasks() if _is_repository_task(task)]
     enabled = render.role_var(built, "CACHE_PACKAGE_BOOTSTRAP_ENABLED")
-    return built.compile_expression(task["when"])(
-        CACHE_PACKAGE_BOOTSTRAP_ENABLED=enabled
+    return all(
+        built.compile_expression(condition)(CACHE_PACKAGE_BOOTSTRAP_ENABLED=enabled)
+        for condition in task["when"]
     )
 
 
@@ -200,7 +223,7 @@ def _waits_for_the_sidecar(tasks: list[dict]) -> bool:
 
 
 def _sidecar_wait() -> dict:
-    [task] = [task for task in load_yaml_any(str(TASKS)) if _is_sidecar_wait(task)]
+    [task] = [task for task in _flat_tasks() if _is_sidecar_wait(task)]
     return task
 
 
@@ -343,16 +366,14 @@ class TestRepositoriesUnderTheInfraRunner(unittest.TestCase):
 
 class TestOneBootstrapAtATime(unittest.TestCase):
     def test_the_deploy_waits_for_the_sidecar_before_its_own_bootstrap(self) -> None:
-        self.assertTrue(_waits_for_the_sidecar(load_yaml_any(str(TASKS))))
+        self.assertTrue(_waits_for_the_sidecar(_flat_tasks()))
 
     def test_a_deploy_without_the_wait_is_caught(self) -> None:
-        tasks = load_yaml_any(str(TASKS))
-        unguarded = [task for task in tasks if not _is_sidecar_wait(task)]
+        unguarded = [task for task in _flat_tasks() if not _is_sidecar_wait(task)]
         self.assertFalse(_waits_for_the_sidecar(unguarded))
 
     def test_a_wait_after_the_deploy_bootstrap_is_caught(self) -> None:
-        tasks = load_yaml_any(str(TASKS))
-        late = [task for task in tasks if not _is_sidecar_wait(task)]
+        late = [task for task in _flat_tasks() if not _is_sidecar_wait(task)]
         late.append(_sidecar_wait())
         self.assertFalse(_waits_for_the_sidecar(late))
 

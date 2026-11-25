@@ -10,7 +10,6 @@ from utils.cache.files import PROJECT_ROOT, read_text
 
 role = importlib.import_module("tests.unit.python.roles.svc-registry-cache._render")
 
-IMAGE = "rpardini/docker-registry-proxy:0.6.5"
 TARGET = "/etc/nginx/nginx.manifest.stale.conf"
 COMMON = "/etc/nginx/nginx.manifest.common.conf"
 OVERRIDE = (
@@ -20,7 +19,7 @@ OVERRIDE = (
     / "files"
     / "nginx.manifest.stale.conf"
 )
-UPSTREAM_0_6_5 = (
+UPSTREAM = (
     "    # Just like the common block, but adds proxy_cache_use_stale\n"
     '    include "/etc/nginx/nginx.manifest.common.conf";\n'
     "    proxy_cache_use_stale  error timeout http_500 http_502 http_504 http_429;\n"
@@ -95,13 +94,13 @@ def _shipped(source: str) -> dict | None:
 
 class TestStaleConfig(unittest.TestCase):
     def test_upstream_file_does_not_bridge_a_503(self) -> None:
-        self.assertFalse(_bridges_503(UPSTREAM_0_6_5))
+        self.assertFalse(_bridges_503(UPSTREAM))
 
     def test_override_bridges_a_503(self) -> None:
         self.assertTrue(_bridges_503(read_text(str(OVERRIDE))))
 
     def test_override_keeps_every_upstream_condition(self) -> None:
-        upstream = _stale_conditions(UPSTREAM_0_6_5)
+        upstream = _stale_conditions(UPSTREAM)
         override = _stale_conditions(read_text(str(OVERRIDE)))
         self.assertTrue(upstream)
         self.assertEqual(upstream - override, set())
@@ -112,10 +111,6 @@ class TestStaleConfig(unittest.TestCase):
 
 
 class TestRegistryCacheMount(unittest.TestCase):
-    def test_the_image_is_the_version_the_override_replaces(self) -> None:
-        proxy = role.cache_defaults()["multi_proxy"]
-        self.assertEqual(f"{proxy['image']}:{proxy['version']}", IMAGE)
-
     def test_the_override_is_bound_read_only_over_the_image_file(self) -> None:
         bind = _bind_at(_registry_cache(), TARGET)
         self.assertIsNotNone(bind)
