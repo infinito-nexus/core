@@ -52,11 +52,20 @@ USERS_DN = "ou=users,dc=x"
 
 
 def _made_here(dn, uids, home):
-    return {"dn": dn, "uid": uids, "objectClass": ["top", *STRUCTURAL], "homeDirectory": home}
+    return {
+        "dn": dn,
+        "uid": uids,
+        "objectClass": ["top", *STRUCTURAL],
+        "homeDirectory": home,
+    }
 
 
 LEGACY_ENTRIES = [
-    _made_here(OLD_DN, ["platformadmin", "platform_administrator"], "/home/platform_administrator"),
+    _made_here(
+        OLD_DN,
+        ["platformadmin", "platform_administrator"],
+        "/home/platform_administrator",
+    ),
     _made_here(BIBER_DN, "biber", "/home/biber"),
     {"dn": "uid=foreign,ou=users,dc=x", "uid": ["foreign", "extra"]},
 ]
@@ -410,7 +419,10 @@ class TestLdapUserEntries(unittest.TestCase):
         self.assertEqual(self._renames(entries, []), [])
 
     def test_a_clean_directory_plans_nothing(self):
-        entries = [{"dn": NEW_DN, "uid": "platformadmin"}, {"dn": BIBER_DN, "uid": "biber"}]
+        entries = [
+            {"dn": NEW_DN, "uid": "platformadmin"},
+            {"dn": BIBER_DN, "uid": "biber"},
+        ]
         groups = [
             {"dn": ADMIN_GROUP, "member": [BIBER_DN, NEW_DN]},
             {"dn": POSIX_GROUP, "memberUid": "platformadmin"},
@@ -422,7 +434,10 @@ class TestLdapUserEntries(unittest.TestCase):
         groups = [
             {"dn": ADMIN_GROUP, "member": [BIBER_DN, NEW_DN]},
             {"dn": POSIX_GROUP, "memberUid": ["biber", "platform_administrator"]},
-            {"dn": EDITOR_GROUP, "uniqueMember": "UID=platform_administrator, ou=users,dc=x"},
+            {
+                "dn": EDITOR_GROUP,
+                "uniqueMember": "UID=platform_administrator, ou=users,dc=x",
+            },
         ]
         self.assertEqual(
             self._renames(entries, groups),
@@ -462,7 +477,10 @@ class TestLdapUserEntries(unittest.TestCase):
                 "/home/intruder",
             ),
         ):
-            with self.subTest(entry=entry), self.assertRaises(AnsibleFilterError) as ctx:
+            with (
+                self.subTest(entry=entry),
+                self.assertRaises(AnsibleFilterError) as ctx,
+            ):
                 self._renames([entry], [])
             self.assertIn(OLD_DN, str(ctx.exception))
 

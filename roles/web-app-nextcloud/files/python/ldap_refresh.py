@@ -212,20 +212,20 @@ def provisioned_by_user_oidc(environ, run, account, directory):
 
 def remove_from_group(environ, run, group, account):
     """Args:
-        environ: the process environment.
-        run: ``subprocess.run`` or a stand-in.
-        group: the group id.
-        account: the account that leaves the group.
+    environ: the process environment.
+    run: ``subprocess.run`` or a stand-in.
+    group: the group id.
+    account: the account that leaves the group.
     """
     occ(environ, run, "group:removeuser", group, account)
 
 
 def revoke_lapsed_groups(environ, run, mapped, roster):
     """Args:
-        environ: the process environment.
-        run: ``subprocess.run`` or a stand-in.
-        mapped: ``{directory uuid: Nextcloud account}`` of every account ``user_ldap`` mapped.
-        roster: ``{role: [members]}`` the runner hands over.
+    environ: the process environment.
+    run: ``subprocess.run`` or a stand-in.
+    mapped: ``{directory uuid: Nextcloud account}`` of every account ``user_ldap`` mapped.
+    roster: ``{role: [members]}`` the runner hands over.
     """
     logins = set(json.loads(environ["NEXTCLOUD_RBAC_KEEP"]))
     keep = logins | account_names(

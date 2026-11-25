@@ -52,7 +52,7 @@ OPENWEBUI_ARENA_MODELS:
     meta:
       profile_image_url: /favicon.png
       description: Submit your questions to anonymous AI chatbots and vote on the best response.
-      model_ids: null
+      model_ids:
       access_grants:
         - principal_type: user
           principal_id: "*"

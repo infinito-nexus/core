@@ -146,8 +146,12 @@ class TestBootstrap(unittest.TestCase):
                 env=env,
                 check=False,
             )
-            self.acl = held.read_text(encoding="utf-8").splitlines()  # nocheck: cache-read tempdir
-            return result, log.read_text(encoding="utf-8")  # nocheck: cache-read tempdir
+            self.acl = held.read_text(
+                encoding="utf-8"
+            ).splitlines()  # nocheck: cache-read tempdir
+            return result, log.read_text(
+                encoding="utf-8"
+            )  # nocheck: cache-read tempdir
 
     def test_an_acl_entry_whose_only_member_is_gone_is_deleted(self):
         stale = _acl(0, ADMIN_ROLE, OLD_ADMIN)

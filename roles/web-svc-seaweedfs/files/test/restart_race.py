@@ -174,9 +174,11 @@ def check_no_write_landed(
     if status == FOUND:
         return [f"F: an anonymous write landed during the restart: {path} exists"]
     return [
-        f"F: the admin read of {path} answered {status or 'nothing'} instead of "
-        f"{MISSING}, so an anonymous write that landed during the restart is not "
-        "ruled out"
+        (
+            f"F: the admin read of {path} answered {status or 'nothing'} instead of "
+            f"{MISSING}, so an anonymous write that landed during the restart is not "
+            "ruled out"
+        )
     ]
 
 

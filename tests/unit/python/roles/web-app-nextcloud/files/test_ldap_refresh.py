@@ -245,9 +245,9 @@ class NextcloudLdapRefreshTests(unittest.TestCase):
 
     def run_reconcile(self, groups, administrators, backends=None):
         """Args:
-            groups: ``{group id: [accounts]}`` of the Nextcloud groups.
-            administrators: the logins of the administrator role group.
-            backends: ``{account: backend}`` that ``user:info`` reports, or None for none.
+        groups: ``{group id: [accounts]}`` of the Nextcloud groups.
+        administrators: the logins of the administrator role group.
+        backends: ``{account: backend}`` that ``user:info`` reports, or None for none.
         """
         nextcloud = FakeNextcloud(
             RECONCILE_MAPPING, {}, self.script, {}, groups, backends

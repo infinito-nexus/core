@@ -60,7 +60,9 @@ class TestUserRenameTasks(unittest.TestCase):
     def test_the_single_login_is_enforced_after_the_last_move(self):
         exact = _entries("exact")
         self.assertLess(_includes()[1], exact)
-        self.assertIn("openldap_user_login_entries", USERS[exact]["ldap_entries"]["entries"])
+        self.assertIn(
+            "openldap_user_login_entries", USERS[exact]["ldap_entries"]["entries"]
+        )
 
     def test_the_plan_reads_the_inventory_and_both_searches_gathered_before_it(self):
         renames = RENAMES[_index(RENAMES, MOVE)][MOVE]["renames"]

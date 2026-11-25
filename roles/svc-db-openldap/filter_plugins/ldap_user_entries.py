@@ -162,9 +162,7 @@ def _same_login(value, login):
 
 def _created_here(entry, id_attribute, structural):
     classes = {str(value).lower() for value in _values(entry, "objectClass")}
-    homes = {
-        _home_directory(value) for value in _values(entry, id_attribute)
-    }
+    homes = {_home_directory(value) for value in _values(entry, id_attribute)}
     return {name.lower() for name in structural} <= classes and bool(
         homes & {str(value) for value in _values(entry, _HOME_ATTRIBUTE)}
     )

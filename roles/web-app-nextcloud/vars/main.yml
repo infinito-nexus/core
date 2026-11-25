@@ -78,7 +78,8 @@ NEXTCLOUD_USER_OIDC_OPTIONS:
   - "--mapping-groups={{ RBAC.GROUP.CLAIM }}|{{ lookup('config', application_id, 'services.sso.oidc.no_groups_claim') }}"
   - "--group-provisioning=1"
   - "--send-id-token-hint=1"
-NEXTCLOUD_USER_OIDC_GROUP_ROLES: "{{ lookup('config', application_id, 'services.sso.oidc.client_roles.user_oidc') if lookup('sso_oidc_plugin') == 'user_oidc' else {} }}"
+NEXTCLOUD_USER_OIDC_GROUP_ROLES: "{{ lookup('config', application_id, 'services.sso.oidc.client_roles.user_oidc') if lookup('sso_oidc_plugin') == 'user_oidc' else
+  {} }}"
 
 NEXTCLOUD_DOCKER_WORK_DIRECTORY: "{{ lookup('volume', 'web-app-nextcloud', 'data').target }}"
 NEXTCLOUD_DOCKER_CONF_ADD_PATH: "{{ lookup('volume', 'web-app-nextcloud', 'infinito_conf').target }}"
@@ -315,7 +316,8 @@ NEXTCLOUD_NOTIFY_PUSH_PORT: "{{ lookup('config', application_id, 'services.' ~ N
 NEXTCLOUD_NOTIFY_PUSH_LOCATION: "/push/"
 NEXTCLOUD_NOTIFY_PUSH_URL: "{{ [ NEXTCLOUD_URL, NEXTCLOUD_NOTIFY_PUSH_LOCATION ] | url_join }}"
 NEXTCLOUD_NOTIFY_PUSH_SOCKS_PROXY: "{{ NEXTCLOUD_TOR_SOCKS_PROXY if (NEXTCLOUD_DOMAIN | network_of) == 'tor' else '' }}"
-NEXTCLOUD_NOTIFY_PUSH_SETUP_ENV: "{{ ('env HTTP_PROXY=' ~ NEXTCLOUD_NOTIFY_PUSH_SOCKS_PROXY ~ ' HTTPS_PROXY=' ~ NEXTCLOUD_NOTIFY_PUSH_SOCKS_PROXY) if NEXTCLOUD_NOTIFY_PUSH_SOCKS_PROXY else '' }}"
+NEXTCLOUD_NOTIFY_PUSH_SETUP_ENV: "{{ ('env HTTP_PROXY=' ~ NEXTCLOUD_NOTIFY_PUSH_SOCKS_PROXY ~ ' HTTPS_PROXY=' ~ NEXTCLOUD_NOTIFY_PUSH_SOCKS_PROXY) if NEXTCLOUD_NOTIFY_PUSH_SOCKS_PROXY
+  else '' }}"
 NEXTCLOUD_NOTIFY_PUSH_APP_DIRECTORY: "{{ [ NEXTCLOUD_APPS_DIRECTORY, NEXTCLOUD_NOTIFY_PUSH_SERVICE ] | path_join }}"
 NEXTCLOUD_NOTIFY_PUSH_CAPABILITIES: "{{ [ NEXTCLOUD_NOTIFY_PUSH_APP_DIRECTORY, 'lib', 'Capabilities.php' ] | path_join }}"
 # Exception: Docker DNS answers a bare name on the shared network that sorts first (mariadb); swarm pins the openresty overlay proxy_hops trusts

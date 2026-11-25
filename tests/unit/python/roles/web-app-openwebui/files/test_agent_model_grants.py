@@ -100,10 +100,12 @@ def failing_call(url, *_rest):
 class TestGatewayFailure(unittest.TestCase):
     def assert_gateway_failure(self, call):
         script = load_script()
-        with patch.multiple(script, call=call, AGENT_MODELS={}):
-            with patch("sys.stderr") as stderr:
-                with self.assertRaises(SystemExit) as stop:
-                    script.provision("key")
+        with (
+            patch.multiple(script, call=call, AGENT_MODELS={}),
+            patch("sys.stderr") as stderr,
+            self.assertRaises(SystemExit) as stop,
+        ):
+            script.provision("key")
         self.assertEqual(stop.exception.code, GATEWAY_FAILED_RC)
         return "".join(str(c.args[0]) for c in stderr.write.call_args_list)
 
@@ -125,9 +127,11 @@ class TestGatewayFailure(unittest.TestCase):
                 return 502, "bad gateway"
             return fake.call(url, key, payload)
 
-        with patch.multiple(script, call=groups_down, current_grants=fake.stored):
-            with self.assertRaises(SystemExit) as stop:
-                script.provision("key")
+        with (
+            patch.multiple(script, call=groups_down, current_grants=fake.stored),
+            self.assertRaises(SystemExit) as stop,
+        ):
+            script.provision("key")
         self.assertNotEqual(stop.exception.code, GATEWAY_FAILED_RC)
 
 
@@ -171,9 +175,11 @@ class TestProvision(unittest.TestCase):
 
     def test_negative_control_with_a_gateway_the_refusing_call_fires(self):
         script = load_script()
-        with patch.multiple(script, call=refusing_call, AGENT_MODELS={}):
-            with self.assertRaises(AssertionError):
-                script.provision("key")
+        with (
+            patch.multiple(script, call=refusing_call, AGENT_MODELS={}),
+            self.assertRaises(AssertionError),
+        ):
+            script.provision("key")
 
 
 class TestUngrantedModes(unittest.TestCase):

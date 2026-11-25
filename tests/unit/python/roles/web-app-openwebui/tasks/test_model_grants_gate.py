@@ -3,7 +3,7 @@ from __future__ import annotations
 import shlex
 import unittest
 
-from jinja2 import Environment, StrictUndefined
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from tests.utils.ansible_assert import assert_task, evaluate, holds, message
 from utils.cache.yaml import load_yaml_any
@@ -16,9 +16,7 @@ CORE_TASKS = ROLE / "tasks/00_core.yml"
 GRANT_TASKS = ROLE / "tasks/utils/agent_models.yml"
 ADMIN_TASKS = ROLE / "tasks/utils/admin.yml"
 REGISTRY_PASSWORD = "registry-password-sentinel"
-OLD_ADMIN_STDIN = (
-    "{{ OPENWEBUI_ADMIN_USER.password }}\n{{ lookup('file', 'python/administrator.py') }}"
-)
+OLD_ADMIN_STDIN = "{{ OPENWEBUI_ADMIN_USER.password }}\n{{ lookup('file', 'python/administrator.py') }}"
 REFRESH_TASKS = ROLE / "tasks/utils/refresh_model_grants.yml"
 LITELLM_TASKS = PROJECT_ROOT / "roles/svc-ai-litellm/tasks/00_core.yml"
 GRANT_FILE = "agent_models.yml"
@@ -126,7 +124,11 @@ def rendered_admin_step(task, ldap):
     Returns:
         The task's command, stdin and environment as Ansible renders them.
     """
-    environment = Environment(undefined=StrictUndefined, trim_blocks=True)
+    environment = Environment(
+        undefined=StrictUndefined,
+        trim_blocks=True,
+        autoescape=select_autoescape(default_for_string=False),
+    )
     environment.filters["bool"] = lambda value: str(value).lower() == "true"
     environment.filters["quote"] = shlex.quote
     scope = {

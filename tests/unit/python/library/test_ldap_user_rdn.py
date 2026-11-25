@@ -148,9 +148,7 @@ class MoveTests(unittest.TestCase):
     def test_every_listed_group_value_follows_the_entry(self):
         directory = _directory(_Directory, False)
         result = _result()
-        _MOD.migrate(
-            directory, [_rename(True, [MEMBER, MEMBER_UID])], False, result
-        )
+        _MOD.migrate(directory, [_rename(True, [MEMBER, MEMBER_UID])], False, result)
         self.assertEqual(
             directory.entries[ADMIN_GROUP]["member"],
             [BIBER_DN.encode(), NEW_DN.encode()],
@@ -171,7 +169,9 @@ class MoveTests(unittest.TestCase):
         directory = _directory(_Directory, False)
         _MOD.migrate(directory, [_rename(True, [MEMBER, MEMBER_UID])], False, _result())
         self.assertEqual(directory.entries[OTHER_GROUP]["member"], [BIBER_DN.encode()])
-        self.assertFalse([write for write in directory.writes if write[1] == OTHER_GROUP])
+        self.assertFalse(
+            [write for write in directory.writes if write[1] == OTHER_GROUP]
+        )
 
     def test_a_group_naming_only_the_entry_never_runs_empty(self):
         directory = _Directory(

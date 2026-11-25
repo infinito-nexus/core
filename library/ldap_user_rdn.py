@@ -56,8 +56,8 @@ ARGUMENT_SPEC = {
 
 def repoint(conn, reference):
     """Args:
-        conn: the bound LDAP connection.
-        reference: one {dn, attribute, old, new} item of a rename's references.
+    conn: the bound LDAP connection.
+    reference: one {dn, attribute, old, new} item of a rename's references.
     """
     name = reference["attribute"]
     with contextlib.suppress(ldap.TYPE_OR_VALUE_EXISTS):
@@ -74,10 +74,10 @@ def repoint(conn, reference):
 
 def migrate(conn, renames, check_mode, result):
     """Args:
-        conn: the bound LDAP connection.
-        renames: the renames parameter.
-        check_mode: report the work without writing.
-        result: dict whose renamed_dns and rewritten lists collect the work done.
+    conn: the bound LDAP connection.
+    renames: the renames parameter.
+    check_mode: report the work without writing.
+    result: dict whose renamed_dns and rewritten lists collect the work done.
     """
     for rename in renames:
         if rename["move"]:

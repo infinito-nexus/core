@@ -179,5 +179,5 @@ _infinito_env_mtime="$(stat -c %Y "${_infinito_env_dotenv}" 2>/dev/null || echo 
 export INFINITO_ENV_LOADED_MTIME="${_infinito_env_mtime}"
 export INFINITO_ENV_LOADED_DISTRO="${INFINITO_DISTRO:-}"
 export INFINITO_ENV_LOADED_STACK="${INFINITO_STACK_NAME:-}" # nocheck: env-loader-internal-guard
-export INFINITO_ENV_LOADED_JOB="${INFINITO_POOL_JOB:-}" # nocheck: env-loader-internal-guard
+export INFINITO_ENV_LOADED_JOB="${INFINITO_POOL_JOB:-}"     # nocheck: env-loader-internal-guard
 unset _infinito_env_repo_root _infinito_env_dotenv _infinito_env_mtime
