@@ -284,7 +284,7 @@ test("design: evolution badges, trends and native selects take status and surfac
   await expect(page.locator("#multisitesAllWebsitesDashboard .matomo-loader:visible")).toHaveCount(0, {
     timeout: resolveTimeout(10_000),
   });
-  await shown(page, "#multisitesAllWebsitesDashboard .kpiCardEvolutionTrend");
+  await shown(page, "#multisitesAllWebsitesDashboard .kpiCard__trend");
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
     await assertToken(page, "#multisitesAllWebsitesDashboard select", "background-color", "--design-surface-2", `evolution select ${mode}`);
@@ -294,11 +294,10 @@ test("design: evolution badges, trends and native selects take status and surfac
   await assertReadable(
     page,
     [
-      // At 0% KPICard renders kpiTrendNeutral and SitesTableSite leaves its evolution cell unclassed.
-      "#multisitesAllWebsitesDashboard .kpiCardEvolutionTrend",
-      { selector: ".kpiTrendPositive", optional: true },
-      { selector: ".kpiTrendNegative", optional: true },
-      { selector: ".kpiTrendNeutral", optional: true },
+      "#multisitesAllWebsitesDashboard .kpiCard__trend",
+      { selector: ".kpiCard__trend--positive", optional: true },
+      { selector: ".kpiCard__trend--negative", optional: true },
+      { selector: ".kpiCard__trend--neutral", optional: true },
       { selector: ".evolutionTrendPositive", optional: true },
       { selector: ".evolutionTrendNegative", optional: true },
     ],
@@ -378,7 +377,7 @@ function galleryViews() {
     view(
       "all-websites",
       adminUrl("MultiSites", "index"),
-      "#multisitesAllWebsitesDashboard .kpiCardEvolutionTrend",
+      "#multisitesAllWebsitesDashboard .kpiCard__trend",
       `${BUSY}, #multisitesAllWebsitesDashboard .matomo-loader:visible`,
     ),
     view("visitors-overview", reportUrl("General_Visitors", "General_Overview"), ".reporting-page .card", BUSY),

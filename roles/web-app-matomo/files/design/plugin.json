@@ -3,8 +3,5 @@
     "description": "Corporate design of this deployment: maps the Matomo theme variables onto the shared design tokens and ships the generated logo.",
     "version": "1.0.0",
     "theme": true,
-    "stylesheet": "stylesheets/theme.less",
-    "require": {
-        "matomo": ">=5.12.0,<6.0.0-b1"
-    }
+    "stylesheet": "stylesheets/theme.less"
 }

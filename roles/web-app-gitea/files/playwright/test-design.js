@@ -72,6 +72,7 @@ async function pickTheme(page, theme) {
   }).toPass({ timeout: resolveTimeout(30_000) });
   await item.click();
   await assertTheme(page, theme, "gitea theme selector");
+  await page.waitForFunction(() => window.config?.frontendInited === true, null, { timeout: resolveTimeout(30_000) });
 }
 
 function offeredThemes() {

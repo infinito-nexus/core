@@ -7,7 +7,7 @@
     {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
       args:
         MATOMO_IMAGE: "{{ lookup('config', application_id, 'services.' ~ MATOMO_SERVICE ~ '.image') }}"
-        MATOMO_VERSION: "{{ lookup('config', application_id, 'services.' ~ MATOMO_SERVICE ~ '.version') }}"
+        MATOMO_VERSION: "{{ MATOMO_VERSION }}"
         MATOMO_OIDC_PLUGIN_SOURCE: "{{ MATOMO_OIDC_PLUGIN_SOURCE }}"
         MATOMO_OIDC_PLUGIN_ARCHIVE: "{{ MATOMO_OIDC_PLUGIN_ARCHIVE }}"
         MATOMO_RELEASE_DIR: "{{ MATOMO_RELEASE_DIR }}"
