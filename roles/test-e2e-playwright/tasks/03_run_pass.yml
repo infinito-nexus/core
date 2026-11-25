@@ -110,7 +110,7 @@
           {{
             (['python3', '-I', '-B', TEST_E2E_PLAYWRIGHT_TOOLS_DIR ~ '/spec_secrets.py', 'guard'] if (_playwright_secrets_template_stat.stat.exists | bool) else [])
             + TEST_E2E_PLAYWRIGHT_MASK_ARGV
-            + [('docker' if (_playwright_secrets_template_stat.stat.exists | bool) else 'container'), 'run', '--rm', '--ipc=host', '--shm-size=1g']
+            + [('docker' if (_playwright_secrets_template_stat.stat.exists | bool) else 'container'), 'run', '--rm', '--ipc=host', '--shm-size=1g', '--ulimit=core=0']
             + (
                 ['--network', 'host']
                 if IS_SWARM_MODE
