@@ -19,7 +19,7 @@
         resolve_output_prefix: PENPOT_BACKEND
         resolve_compose_cid: "{{ PENPOT_BACKEND_CONTAINER_ADDRESS }}"
 
-    - name: "⏳ Wait until the Penpot backend serves HTTP, which it opens only after its migrations"
+    - name: "⏳ Wait until the Penpot backend serves HTTP after its migrations"
       ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/wait_container_port.yml') }}"
       vars:
         wait_output_prefix: PENPOT_BACKEND
@@ -27,7 +27,11 @@
         wait_timeout: "{{ lookup('timeout', 600) | int }}"
 
 - name: "🥾 Bootstrap the Penpot administrator's local account"
-  ansible.builtin.include_tasks: 01_administrator.yml
+  ansible.builtin.include_tasks:
+    file: 01_administrator.yml
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      delegate_to: "{{ PENPOT_BACKEND_HOST_NODE }}"
   when:
     - IS_STACK_HOST | bool
     - (PENPOT_LOGIN_NATIVE | bool) or (PENPOT_LOGIN_LDAP | bool)

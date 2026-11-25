@@ -10,6 +10,7 @@ const { loadInternals } = require(path.join(PROJECT_ROOT, "tests/unit/javascript
 const { DOMAIN, SOFTWARE_DOMAIN } = require(path.join(PROJECT_ROOT, "tests/unit/javascript/utils/domain.js"));
 
 const SPEC = path.join(PROJECT_ROOT, "roles/web-app-dashboard/files/playwright/test-tile-reachability.js");
+const TO_PASS = /\}\)\.toPass\([^\n]*\);/;
 const DASHBOARD = `https://dashboard.${DOMAIN}/`;
 const CHROME_ERROR = "chrome-error://chromewebdata/";
 const ELEMENT = `https://element.${DOMAIN}/`;
@@ -279,9 +280,10 @@ function planted(replacements) {
  *   The path of a planted copy of the spec that judges the tab once, as soon as its first document loaded.
  */
 function judgedOnce() {
+  const [retry] = fs.readFileSync(SPEC, "utf8").match(TO_PASS);
   return planted([
     ["await expect(() => {", "await (() => {"],
-    ["}).toPass({ timeout: resolveTimeout(30_000) });", "})();"],
+    [retry, "})();"],
   ]);
 }
 

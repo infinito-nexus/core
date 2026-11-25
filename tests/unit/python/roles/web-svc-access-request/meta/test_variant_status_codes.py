@@ -2,9 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-import yaml
-
-from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_any
 from utils.domains.default_primary import default_domain_primary
 from utils.roles.applications.status_codes import DEFAULT_OK, declared_status_codes
 from utils.roles.mapping import ROLE_FILE_META_VARIANTS
@@ -18,7 +16,7 @@ SIGN_IN_PAGE = 401
 
 
 def _variants() -> list[dict]:
-    return yaml.safe_load(read_text(str(VARIANTS)))
+    return load_yaml_any(str(VARIANTS))
 
 
 def _expected_at_root(variant: dict) -> list[int]:

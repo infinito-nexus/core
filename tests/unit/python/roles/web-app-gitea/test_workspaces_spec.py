@@ -21,7 +21,7 @@ KEY_FILE = re.compile(r'sshKey\(\s*directory\s*,\s*"([^"]+)"\s*\)')
 DIRECTORY_ENTRY = re.compile(r'path\.join\(\s*directory\s*,\s*"([^"]+)"\s*\)')
 ROTATION_SKIP = "test.skip(!workspacesApply"
 ROTATION_RUN = "runTemplateTask(sem, null, ROTATION_RUN_MS"
-VIEWER_PUSH = 'httpsGit(["push", "origin", "HEAD"], clone, auth)'
+VIEWER_PUSH = 'httpsGit(["push", "origin", "HEAD"], clone, auth, repoUrl)'
 
 
 def spec_bodies(source: str) -> dict[str, str]:

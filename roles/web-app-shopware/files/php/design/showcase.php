@@ -1,8 +1,9 @@
 <?php
 /**
  * Required env, supplied by the calling task via `container exec -e KEY`:
- *   SHOWCASE         JSON object of SHOPWARE_SHOWCASE: manufacturer, customer and address
- *                    ids, customerEmail, and products with id, number, name and gross
+ *   SHOWCASE         JSON object of SHOPWARE_SHOWCASE: manufacturer with id and name,
+ *                    customer and address ids, customerEmail, active for the seeded
+ *                    products and customer, and products with id, number, name and gross
  *   SHOWCASE_DOMAIN  domain a storefront domain of the sales channel contains
  *
  * Output: "CHANGED <entity> <id>" per written row, then one JSON line
@@ -80,9 +81,9 @@ foreach ($showcase['products'] as $product) {
         'name' => $product['name'],
         'description' => 'Seeded by the design gallery.',
         'stock' => 25,
-        'active' => true,
+        'active' => $showcase['active'],
         'taxId' => $tax['id'],
-        'manufacturer' => ['id' => $showcase['manufacturer'], 'name' => 'Design showcase'],
+        'manufacturer' => $showcase['manufacturer'],
         'price' => [[
             'currencyId' => $channel['currencyId'],
             'gross' => $product['gross'],
@@ -100,7 +101,7 @@ $changed = seed('customer', [
     'firstName' => 'Design',
     'lastName' => 'Showcase',
     'email' => $showcase['customerEmail'],
-    'active' => true,
+    'active' => $showcase['active'],
     'guest' => false,
     'salutationId' => $salutation['id'],
     'groupId' => $channel['customerGroupId'],

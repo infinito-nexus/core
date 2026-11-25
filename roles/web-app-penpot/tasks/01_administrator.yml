@@ -21,8 +21,6 @@
   failed_when:
     - penpot_admin_create.rc != 0
     - "'already exists' not in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default(''))"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  delegate_to: "{{ PENPOT_BACKEND_HOST_NODE }}"
 
 - name: "🔧 Set the Penpot administrator's local password when the profile already exists"
   ansible.builtin.shell:
@@ -36,5 +34,3 @@
     - "'already exists' in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default(''))"
   register: penpot_admin_update
   changed_when: "'Updated' in penpot_admin_update.stdout"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  delegate_to: "{{ PENPOT_BACKEND_HOST_NODE }}"

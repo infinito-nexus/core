@@ -4,6 +4,7 @@ const path = require("node:path");
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../../../../..");
 const { loadInternals } = require(path.join(PROJECT_ROOT, "tests/unit/javascript/utils/internals.js"));
+const { DOMAIN } = require(path.join(PROJECT_ROOT, "tests/unit/javascript/utils/domain.js"));
 
 const SPEC = path.join(PROJECT_ROOT, "roles/web-app-checkmk/files/playwright/test-rbac-roles.js");
 const ROW_SELECTOR = "table.data tr";
@@ -35,11 +36,11 @@ const CI_USER_LIST = [
     "Never",
     "LDAP (ldap_infinito)",
     "Administrator Infinito.Nexus",
-    "administrator@main.infinito.test",
+    `administrator@${DOMAIN}`,
     ["Administrator"],
   ),
   userRow("cmkadmin", "Never", "htpasswd (htpasswd)", "cmkadmin", "", ["Administrator"]),
-  userRow("biber", "2026-11-24 09:10:01", "LDAP (ldap_infinito)", "Harry Beaver", "biber@main.infinito.test", [
+  userRow("biber", "2026-11-24 09:10:01", "LDAP (ldap_infinito)", "Harry Beaver", `biber@${DOMAIN}`, [
     "Guest user",
   ]),
   userRow(
@@ -47,7 +48,7 @@ const CI_USER_LIST = [
     "2026-11-24 08:44:54",
     "LDAP (ldap_infinito)",
     "Platform Administrator",
-    "platformadmin@main.infinito.test",
+    `platformadmin@${DOMAIN}`,
     ["Administrator"],
   ),
 ];

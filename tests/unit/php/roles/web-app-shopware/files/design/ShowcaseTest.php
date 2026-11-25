@@ -49,10 +49,11 @@ final class ShowcaseTest extends TestCase
     {
         return [
             'SHOWCASE' => (string) json_encode([
-                'manufacturer' => 'd0000000000000000000000000000001',
+                'manufacturer' => ['id' => 'd0000000000000000000000000000001', 'name' => 'Design showcase'],
                 'customer' => 'd0000000000000000000000000000002',
                 'address' => 'd0000000000000000000000000000003',
                 'customerEmail' => 'design-showcase@shop.example',
+                'active' => true,
                 'products' => [
                     ['id' => 'd0000000000000000000000000000011', 'number' => 'DESIGN-1', 'name' => 'Design showcase lamp', 'gross' => 119],
                     ['id' => 'd0000000000000000000000000000012', 'number' => 'DESIGN-2', 'name' => 'Design showcase chair', 'gross' => 238],

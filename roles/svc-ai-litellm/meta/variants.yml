@@ -81,6 +81,9 @@
     s1:
       enabled: true
       shared: true
+    speech:
+      enabled: true
+      shared: true
     litellm:
       router:
         speed:

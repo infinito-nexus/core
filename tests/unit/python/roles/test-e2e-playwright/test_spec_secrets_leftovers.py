@@ -531,10 +531,7 @@ class TestSpecSecretsLeftovers(unittest.TestCase):
         self.assertEqual([found["rc"], found["kept"]], [0, []])
 
     def test_a_deploy_pass_archives_no_output_an_earlier_run_left(self) -> None:
-        self.assertEqual(
-            adopted(role_tasks(RUN_PASS)),
-            {"variant-1/sync/playwright-junit.xml": EARLIER},
-        )
+        self.assertEqual(adopted(role_tasks(RUN_PASS)), {ATTEMPT_ONE[2]: EARLIER})
 
     def test_no_collect_path_copies_a_temp_file(self) -> None:
         texts = {path: read_text(str(path)) for path in (DEDICATED, SWARM_COLLECT)}
@@ -601,7 +598,7 @@ class TestSpecSecretsLeftoversNegativeControls(unittest.TestCase):
         run_pass = role_tasks(RUN_PASS)
         kept = [task for task in run_pass if not task["name"].startswith(PASS_CLEAR)]
         self.assertEqual(len(kept), len(run_pass) - 1)
-        self.assertEqual(adopted(kept)["variant-0/sync/playwright-junit.xml"], EARLIER)
+        self.assertEqual(adopted(kept)[ATTEMPT_ONE[0]], EARLIER)
 
     def test_a_collect_path_that_copies_temp_files_is_caught(self) -> None:
         texts = {path: read_text(str(path)) for path in (DEDICATED, SWARM_COLLECT)}

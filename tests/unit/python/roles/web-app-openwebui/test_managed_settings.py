@@ -93,6 +93,7 @@ def _env(settings: dict, **variables) -> str:
         .get_template("env.j2")
         .render(
             OPENWEBUI_SETTINGS=settings,
+            OPENWEBUI_ARENA_MODELS=load_yaml_any(str(VARS))["OPENWEBUI_ARENA_MODELS"],
             DEPLOYMENT_MODE="compose",
             lookup=lambda *terms, **kwargs: {},
             **variables,

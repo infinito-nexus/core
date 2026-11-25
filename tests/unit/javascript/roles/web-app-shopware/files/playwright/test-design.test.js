@@ -61,7 +61,7 @@ test("the channel, theme and theme configuration come from the deploy's seed out
   assert.equal(seeded.productId, "d0000000000000000000000000000011");
   assert.equal(seeded.channelId, "channel");
   assert.equal(seeded.themeId, "theme");
-  assert.deepEqual(seeded.themeConfig, { "sw-color-brand-primary": "#123456" });
+  assert.deepEqual({ ...seeded.themeConfig }, { "sw-color-brand-primary": "#123456" });
 });
 
 test("negative control: a run whose .env carries no seeded password fails instead of signing in with an empty one", () => {
