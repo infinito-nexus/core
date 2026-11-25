@@ -43,7 +43,6 @@ OPENBAO_RECOVERY_KEY: >-
      .get(IAM_PLATFORM_ADMIN_USER_KEY, {})
      .get('tokens', {})
      .get(OPENBAO_RECOVERY_TOKEN_APP, '') }}
-# Token-store slot the recovery key writer used before 5366788ab1; only that slot is read, never the host account of the same name, which IAM_HOST_ADMIN_USER_KEY reserves for user-administrator.
 OPENBAO_RECOVERY_LEGACY_SLOT: "administrator"
 OPENBAO_RECOVERY_KEY_LEGACY: >-
   {{ (sys_token_store_users | default({}, true))
