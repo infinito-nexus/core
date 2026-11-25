@@ -71,8 +71,8 @@ function loadPickTheme(file) {
  *
  * Returns:
  *   { page, footer }: a Gitea page whose footer theme selector opens its menu once wired, and whose item click applies
- *   that theme and its stylesheet. footer counts the toggle clicks and holds the applied theme. A click on a hidden
- *   item fails like Playwright's click once its wait for visibility runs out.
+ *   that theme and its stylesheet, and whose frontend has finished its init. footer counts the toggle clicks and holds
+ *   the applied theme. A click on a hidden item fails like Playwright's click once its wait for visibility runs out.
  */
 function giteaFooter(unwiredClicks) {
   const footer = { clicks: 0, open: false, theme: "corporate-auto" };
@@ -106,6 +106,7 @@ function giteaFooter(unwiredClicks) {
       return item(selector.match(/data-value="([^"]+)"/)[1]);
     },
     evaluate: async (_check, file) => file === `/assets/css/theme-${footer.theme}.`,
+    waitForFunction: async () => true,
   };
   return { page, footer };
 }
