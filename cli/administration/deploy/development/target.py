@@ -165,14 +165,16 @@ def _await_systemd(compose: Compose) -> None:
     raise RuntimeError(f"systemd never came up in the target (last state: {state!r})")
 
 
-def _answer_the_domain_itself(compose: Compose, address: str, domain: str) -> None:
+def _answer_the_domain_itself(
+    compose: Compose, address: str, resolver: str, domain: str
+) -> None:
     _in_target(
         compose,
         "sh",
         "-c",
         'printf "nameserver %s\\n" "$1" >/etc/resolv.conf',
         "sh",
-        address,
+        resolver,
         capture=False,
         check=True,
     )
@@ -314,6 +316,7 @@ def reset_target(compose: Compose, holders: Sequence[Holder], lab: Lab | None) -
             ``SERVICE``, or ``None`` for a compose round.
     """
     address = os.environ["INFINITO_TARGET_IP"]
+    resolver = os.environ["INFINITO_TARGET_RESOLVER_IP"]
     key = os.environ["INFINITO_TARGET_KEY"]
     domain = os.environ["INFINITO_DOMAIN"]
     prefix = os.environ["INFINITO_RUNNER_PREFIX"]
@@ -335,7 +338,7 @@ def reset_target(compose: Compose, holders: Sequence[Holder], lab: Lab | None) -
         _join_lab(compose, lab)
 
     _await_systemd(compose)
-    _answer_the_domain_itself(compose, address, domain)
+    _answer_the_domain_itself(compose, address, resolver, domain)
     _authorize(compose, [_issue_key(holder, key) for holder in holders])
     host_keys = _in_target(
         compose,

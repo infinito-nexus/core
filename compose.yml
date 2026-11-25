@@ -167,11 +167,11 @@ services:
     image: coredns/coredns:1.14.4
     container_name: ${INFINITO_RUNNER_PREFIX:?Run 'make dotenv' to generate the .env single source of truth}-target-resolver
     command: ["-conf", "/Corefile"]
-    network_mode: "service:target"
+    networks:
+      default:
+        ipv4_address: ${INFINITO_TARGET_RESOLVER_IP:?Run 'make dotenv' to generate the .env single source of truth}
     depends_on:
       coredns:
-        condition: service_started
-      target:
         condition: service_started
     restart: "no"
     volumes:

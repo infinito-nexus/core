@@ -102,7 +102,8 @@ The env-var contracts each service expects strictly via `${VAR:?…}` (consumed 
 | `INFINITO_SUBNET` | IPAM subnet for the default bridge network. |
 | `INFINITO_IP_RANGE` | IPAM pool for containers that join the default bridge without a static address, such as worktree stacks on the primary's cache network. It is the upper half of `INFINITO_SUBNET`, derived after `custom.env` by [ip_range.py](../../../../utils/env/handlers/infinito/ip_range.py); every static address stays below it. |
 | `INFINITO_GATEWAY` | IPAM gateway for the default bridge network. |
-| `INFINITO_TARGET_IP` | Static IPv4 address of the `target` service, which `target-resolver` binds and answers `INFINITO_DOMAIN` with. Host `.20` of `INFINITO_SUBNET`, derived after `custom.env` by [target_ip.py](../../../../utils/env/handlers/infinito/target_ip.py). |
+| `INFINITO_TARGET_IP` | Static IPv4 address of the `target` service, which `target-resolver` answers `INFINITO_DOMAIN` with. Host `.20` of `INFINITO_SUBNET`, derived after `custom.env` by [target_ip.py](../../../../utils/env/handlers/infinito/target_ip.py). |
+| `INFINITO_TARGET_RESOLVER_IP` | Static IPv4 address `target-resolver` binds, so port 53 of the target stays free. Host `.21` of `INFINITO_SUBNET`, derived after `custom.env` by [target_ip.py](../../../../utils/env/handlers/infinito/target_ip.py). |
 | `INFINITO_RUNNER_PREFIX` | Prefix of the `coredns`, `target` and `target-resolver` container names and of the target's `-target-docker` volume, so each worktree and runner instance gets its own. |
 | `INFINITO_OUTER_NETWORK_MTU` | MTU for the bridge network. Lower when the host network is tunneled. |
 

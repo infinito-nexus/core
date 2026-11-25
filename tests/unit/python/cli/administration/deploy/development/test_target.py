@@ -11,6 +11,7 @@ from unittest.mock import patch
 from cli.administration.deploy.development import target
 from cli.administration.deploy.development.coredns import CoreDNSCorefileRenderer
 from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_any
 from utils.domains.default_primary import default_domain_primary
 
 from . import PROJECT_ROOT
@@ -18,6 +19,7 @@ from . import PROJECT_ROOT
 DOMAIN = default_domain_primary()
 DNS_IP = "172.30.0.53"
 TARGET_IP = "172.30.0.20"
+RESOLVER_IP = "172.30.0.21"
 KEY = "/root/.infinito-target/id_ed25519"
 HOST_KEY = "ssh-ed25519 AAAAhost root@target"
 PUBLIC_KEY = "ssh-ed25519 AAAAuser infinito-target"
@@ -31,6 +33,7 @@ ENVIRONMENT = {
     "INFINITO_DOMAIN": DOMAIN,
     "INFINITO_TARGET_IP": TARGET_IP,
     "INFINITO_TARGET_KEY": KEY,
+    "INFINITO_TARGET_RESOLVER_IP": RESOLVER_IP,
     "INFINITO_RUNNER_PREFIX": "infinito-test",
 }
 
@@ -124,6 +127,19 @@ class TestTargetCorefile(unittest.TestCase):
         self.assertIn(f"forward . {DNS_IP}", corefile)
 
 
+class TestResolverAddress(unittest.TestCase):
+    def test_the_resolver_holds_its_own_address_off_the_targets_port_53(
+        self,
+    ) -> None:
+        services = load_yaml_any(str(PROJECT_ROOT / "compose.yml"))["services"]
+        resolver = services[target.RESOLVER]
+        self.assertNotIn("network_mode", resolver)
+        self.assertEqual(
+            resolver["networks"]["default"]["ipv4_address"],
+            "${INFINITO_TARGET_RESOLVER_IP:?Run 'make dotenv' to generate the .env single source of truth}",
+        )
+
+
 class TestKnownHosts(unittest.TestCase):
     def test_pins_every_host_key_under_the_address_and_the_hostname(self) -> None:
         pinned = target.known_hosts(
@@ -187,6 +203,12 @@ class TestResetForCompose(unittest.TestCase):
             ],
         )
         self.assertNotIn(("run", ("ps", "-q", target.SERVICE)), stack.calls)
+        nameservers = [
+            args[-1]
+            for kind, args in stack.calls
+            if kind == "run" and "/etc/resolv.conf" in " ".join(args)
+        ]
+        self.assertEqual(nameservers, [RESOLVER_IP])
         authorized = [
             args
             for kind, args in stack.calls

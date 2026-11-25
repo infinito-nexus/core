@@ -22,10 +22,16 @@ class TestAddressIn(unittest.TestCase):
 
     def test_stays_below_the_dynamic_pool(self) -> None:
         subnet = "172.30.0.0/24"
-        self.assertNotIn(
-            ipaddress.ip_address(handler.address_in(subnet)),
-            ipaddress.ip_network(upper_half(subnet)),
-        )
+        pool = ipaddress.ip_network(upper_half(subnet))
+        for offset in (handler.HOST_OFFSET, handler.RESOLVER_OFFSET):
+            with self.subTest(offset=offset):
+                self.assertNotIn(
+                    ipaddress.ip_address(handler.host_in(subnet, offset)), pool
+                )
+
+    def test_a_subnet_too_small_for_the_host_is_refused(self) -> None:
+        with self.assertRaises(ValueError):
+            handler.host_in("172.30.0.0/28", handler.RESOLVER_OFFSET)
 
 
 class TestFinalize(unittest.TestCase):
@@ -34,12 +40,14 @@ class TestFinalize(unittest.TestCase):
         eb.set(handler.SUBNET_KEY, "172.30.7.0/24")
         handler.finalize(eb)
         self.assertEqual(eb.values[handler.KEY], "172.30.7.20")
+        self.assertEqual(eb.values[handler.RESOLVER_KEY], "172.30.7.21")
 
     def test_no_subnet_sets_no_address(self) -> None:
         eb = EnvBuilder()
         with patch.dict(os.environ, {handler.SUBNET_KEY: ""}):
             handler.finalize(eb)
         self.assertNotIn(handler.KEY, eb.values)
+        self.assertNotIn(handler.RESOLVER_KEY, eb.values)
 
     def test_build_env_derives_it_from_the_subnet_custom_env_pins(self) -> None:
         clean = {k: v for k, v in os.environ.items() if not k.startswith("INFINITO_")}
@@ -61,6 +69,7 @@ class TestFinalize(unittest.TestCase):
                     repo_root,
                 )
         self.assertEqual(eb.values[handler.KEY], "172.30.9.20")
+        self.assertEqual(eb.values[handler.RESOLVER_KEY], "172.30.9.21")
 
 
 if __name__ == "__main__":

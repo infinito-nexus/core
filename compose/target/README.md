@@ -7,7 +7,7 @@ Build context and resolver configuration of the `target` and `target-resolver` s
 | Service | What runs there |
 | --- | --- |
 | `target` | systemd and an ssh server on the distribution base image, nothing else; built from [Dockerfile](Dockerfile) and [init.sh](init.sh) with `INFINITO_PARENT_IMAGE` as base |
-| `target-resolver` | CoreDNS in the target's network namespace; answers `INFINITO_DOMAIN` and every name under it with `INFINITO_TARGET_IP` and forwards the rest to the stack's CoreDNS at `INFINITO_DNS_IP`, which starts with it |
+| `target-resolver` | CoreDNS at its own address `INFINITO_TARGET_RESOLVER_IP`, the resolver a provider hands a managed server; answers `INFINITO_DOMAIN` and every name under it with `INFINITO_TARGET_IP` and forwards the rest to the stack's CoreDNS at `INFINITO_DNS_IP`, which starts with it. It holds no socket on the target, so port 53 of the target stays free on every address for a replayed DNS server such as [svc-dns-knot](../../roles/svc-dns-knot/README.md) |
 
 The target carries no container engine and no SSH host key of its own: a deploy under test installs `docker-ce`, and `target-host-keys.service` generates host keys when a container boots. Its `/var/lib/docker` is the named volume `INFINITO_RUNNER_PREFIX-target-docker`, so the engine a deploy installs writes to a real filesystem. The volume is named, not anonymous, because `sys-ctl-hlth-volumes` fails on every anonymous volume of the outer daemon, which is the operator's own host on a workstation that also runs a deployed stack. The checkout is mounted at `INFINITO_SRC_DIR`, where a host install replays from it.
 
@@ -16,6 +16,7 @@ The target carries no container engine and no SSH host key of its own: a deploy 
 | What | Value |
 | --- | --- |
 | Address | `INFINITO_TARGET_IP`, host `.20` of `INFINITO_SUBNET`, derived by [target_ip.py](../../utils/env/handlers/infinito/target_ip.py) so every worktree and runner instance gets its own |
+| Resolver address | `INFINITO_TARGET_RESOLVER_IP`, host `.21` of `INFINITO_SUBNET`, derived by the same handler |
 | Lab address | in a swarm round also host `.20` of the lab network's subnet (`192.168.244.20` in CI, `10.160.<slot>.20` in a worktree), next to the nodes at `.10` to `.14` |
 | Hostname | `target`; Docker's DNS answers it on the stack network and, through the network alias the reset sets, on the lab network; the stack's CoreDNS answers it for containers inside the `infinito` daemon, and each lab node's dnsmasq forwards it to Docker's DNS |
 | Container | `${INFINITO_RUNNER_PREFIX}-target` and `${INFINITO_RUNNER_PREFIX}-target-resolver` |
@@ -42,7 +43,7 @@ python -m cli.administration.deploy.development target-reset \
 2. removes `target`, `target-resolver` and the `/var/lib/docker` volume, then builds and starts both again;
 3. in a swarm round, connects the new target to the lab network at its lab address, under the alias `target`;
 4. waits until systemd reports `running` or `degraded`;
-5. points the target's `/etc/resolv.conf` at its own address and waits until a name under `INFINITO_DOMAIN` resolves to it;
+5. points the target's `/etc/resolv.conf` at `INFINITO_TARGET_RESOLVER_IP` and waits until a name under `INFINITO_DOMAIN` resolves to the target's own address;
 6. generates a new ed25519 pair at `INFINITO_TARGET_KEY` on every holder and authorizes all public halves for `root` on the target;
 7. writes the target's new host keys to `INFINITO_TARGET_KEY.known_hosts` on every holder, under the address that holder uses and under `target`, and that address to `INFINITO_TARGET_KEY.address`;
 8. in a swarm round, waits until `target` resolves to the lab address on every node;
