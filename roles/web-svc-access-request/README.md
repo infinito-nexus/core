@@ -50,7 +50,7 @@ The gate therefore signs in through the service's own confidential client `acces
 
 ## Persona contract opt-outs
 
-The service has no login of its own. [identity.py](files/python/access_request/identity.py) reads the signed-in user only from the headers of the oauth2-proxy gate, so without the gate every request gets the `401` sign-in page. In the `services.sso.enabled: false` matrix variants the gate is gone, so [playwright.env.j2](templates/playwright.env.j2) renders `PERSONA_ADMINISTRATOR_BLOCKED=true` and `PERSONA_BIBER_BLOCKED=true`. With SSO enabled both personas run. The `guest` persona and the forged-identity scenario run in every variant. The same variants declare `server.status_codes.default: 401` in [variants.yml](meta/variants.yml), so the webserver and CSP health checks expect that sign-in page at `/` instead of the gate's redirect.
+The service has no login of its own. [identity.py](files/python/access_request/identity.py) reads the signed-in user only from the headers of the oauth2-proxy gate, so without the gate every request gets the `401` sign-in page. In the `services.sso.enabled: false` matrix variants the gate is gone, so [playwright.env.j2](templates/playwright.env.j2) renders `PERSONA_ADMINISTRATOR_BLOCKED=true` and `PERSONA_BIBER_BLOCKED=true`. With SSO enabled both personas run. The `guest` persona and the forged-identity scenario run in every variant. [server.yml](meta/server.yml) derives `status_codes.default` from `services.sso.enabled`, so without the gate the webserver and CSP health checks expect that `401` sign-in page at `/` instead of the gate's redirect, in a matrix variant and in a bare deploy alike.
 
 ## Further Resources
 

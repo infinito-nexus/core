@@ -19,10 +19,7 @@
       shared: true
     tor:
       enabled: true
-- server:
-    status_codes:
-      default: 401
-  services:
+- services:
     docs:
       enabled: true
       shared: true
