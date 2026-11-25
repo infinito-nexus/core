@@ -146,7 +146,7 @@ def _mail(raw: dict | None, secrets: dict) -> Mail | None:
     )
 
 
-def _route(raw: dict, tokens: dict) -> Route:
+def _route(raw: dict, tokens: dict, tor_suffix: str) -> Route:
     name = str(raw.get("name") or "")
     _require(bool(name), "<unnamed>", "name", "every route needs a name")
     source = raw.get("source") or {}
@@ -161,7 +161,11 @@ def _route(raw: dict, tokens: dict) -> Route:
     parts = urllib.parse.urlsplit(base_url)
     _require(
         parts.scheme == "https"
-        or (parts.scheme == "http" and (parts.hostname or "").endswith(".onion")),
+        or (
+            parts.scheme == "http"
+            and bool(tor_suffix)
+            and (parts.hostname or "").endswith(tor_suffix)
+        ),
         name,
         "source.base_url",
         "must be an https:// URL, or http:// for an onion service",
@@ -237,7 +241,10 @@ def _route(raw: dict, tokens: dict) -> Route:
 def parse(raw: dict) -> Config:
     secrets = json.loads(_secrets_file(str(raw["secrets_file"])).read_text())
     tokens = dict(secrets.get("routes") or {})
-    routes = tuple(_route(item, tokens) for item in raw.get("routes") or [])
+    tor_suffix = str(raw["tor_suffix"])
+    routes = tuple(
+        _route(item, tokens, tor_suffix) for item in raw.get("routes") or []
+    )
     names = [route.name for route in routes]
     duplicates = sorted({name for name in names if names.count(name) > 1})
     if duplicates:

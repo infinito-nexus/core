@@ -35,13 +35,8 @@
 
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-    webserver_extra_configuration: >-
-      {{ lookup('template', 'nginx/echo_routes.conf.j2')
-         ~ (lookup('file', lookup('path_absolute', 'roles/web-app-openpost/files/nginx/deny-password-registration.conf'))
-            if OPENPOST_OIDC_ENABLED | bool else '') }}
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "📄 Render the egress relay config (local + swarm peers)"
   ansible.builtin.include_tasks:

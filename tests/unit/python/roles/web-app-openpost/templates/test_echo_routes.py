@@ -1,12 +1,8 @@
 from __future__ import annotations
 
 import re
-import tempfile
 import unittest
-from pathlib import Path
 
-from ansible.parsing.dataloader import DataLoader
-from ansible.template import Templar, trust_as_template
 from jinja2 import (
     ChoiceLoader,
     DictLoader,
@@ -19,6 +15,7 @@ from jinja2 import (
 from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 from utils.networks.proxy import render_proxy_pass
+from utils.roles.mapping import ROLE_FILE_META_SERVER
 
 ROLE_DIR = PROJECT_ROOT / "roles/web-app-openpost"
 TEMPLATE = "roles/web-app-openpost/templates/nginx/echo_routes.conf.j2"
@@ -144,32 +141,31 @@ def matcher_pattern(matcher: str) -> re.Pattern[str]:
 
 
 def extra_configuration(oidc_enabled: bool) -> str:
-    """Evaluate the vhost extras `tasks/00_core.yml` hands to `sys-stk-full`.
-
+    """
     Args:
         oidc_enabled: the resolved `OPENPOST_OIDC_ENABLED`.
+
+    Returns:
+        The vhost extras `meta/server.yml` hands to `svc-stack`, rendered.
     """
-    task = next(
-        task
-        for task in load_yaml_any(ROLE_DIR / "tasks/00_core.yml")
-        if "vars" in task and "webserver_extra_configuration" in task["vars"]
+    server = load_yaml_any(ROLE_DIR / ROLE_FILE_META_SERVER)
+    env = Environment(
+        loader=ChoiceLoader(
+            [
+                DictLoader({TEMPLATE: "ECHO_ROUTES\n"}),
+                FileSystemLoader(str(PROJECT_ROOT)),
+            ]
+        ),
+        undefined=StrictUndefined,
+        trim_blocks=True,
+        keep_trailing_newline=True,
+        autoescape=select_autoescape(),
     )
-    with tempfile.TemporaryDirectory() as search_path:
-        fragments = Path(search_path, "templates", "nginx")
-        fragments.mkdir(parents=True)
-        (fragments / "echo_routes.conf.j2").write_text(
-            "ECHO_ROUTES\n", encoding="utf-8"
-        )
-        templar = Templar(
-            loader=DataLoader(),
-            variables={
-                "ansible_search_path": [search_path],
-                "OPENPOST_OIDC_ENABLED": oidc_enabled,
-            },
-        )
-        return templar.template(
-            trust_as_template(task["vars"]["webserver_extra_configuration"])
-        )
+    env.filters["bool"] = bool
+    extra = server["vhosts"]["default"]["extra_template"]
+    return env.get_template(f"roles/web-app-openpost/templates/{extra}").render(
+        OPENPOST_OIDC_ENABLED=oidc_enabled
+    )
 
 
 class TestEchoRoutesLocation(unittest.TestCase):

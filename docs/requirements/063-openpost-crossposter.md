@@ -233,7 +233,7 @@ Smoke: post as a test user on the local Mastodon instance, find the draft in the
 ## Prerequisites
 
 Every Acceptance Criterion of [062](062-web-app-openpost.md) MUST be checked off before this requirement starts.
-The agent MUST read [AGENTS.md](../../AGENTS.md), then [Compose Loop](../agents/action/iteration/compose.md), [Unit Tests](../contributing/actions/testing/unit.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md).
+The agent MUST read [AGENTS.md](../../AGENTS.md), then [Compose Loop](../../agents/skills/i8-iterate-compose/SKILL.md), [Unit Tests](../contributing/actions/testing/unit.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md).
 
 ## Implementation Strategy
 
@@ -250,4 +250,4 @@ Verify on the deployed Mastodon, Pixelfed and PeerTube versions that the behavio
 
 - Publishing desk: [062-web-app-openpost.md](062-web-app-openpost.md)
 - Requirement format: [requirements.md](../contributing/requirements.md)
-- How agents process requirements: [requirements.md](../agents/action/requirements.md)
+- How agents process requirements: [requirements.md](../../agents/skills/i8-requirement-implement/SKILL.md)

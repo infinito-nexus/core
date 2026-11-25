@@ -78,6 +78,11 @@ UNSWITCHED = {
         "native",
     ): "LiteLLM has no switch that removes the UI_USERNAME and UI_PASSWORD form, "
     "and /fallback/login keeps it as the break-glass path",
+    (
+        "web-app-openpost",
+        "native",
+    ): "OpenPost has no switch that removes its email and password form, and "
+    "tasks/03_breakglass.yml signs the break-glass admin in with that password",
 }
 
 

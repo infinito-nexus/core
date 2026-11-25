@@ -35,6 +35,7 @@ class CliFixture:
             "opt_out_tag": "nocrosspost",
             "retry": {"max_attempts": 8, "base_seconds": 30, "cap_seconds": 3600},
             "notify": {"recipients": []},
+            "tor_suffix": ".onion",
             "routes": [],
         }
         self.config = folder / "crossposter.json"

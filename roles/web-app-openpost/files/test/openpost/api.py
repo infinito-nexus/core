@@ -6,6 +6,7 @@ OPENPOST_ADMIN_PASSWORD_B64  base64 break-glass password
 OPENPOST_RELAY_TARGETS       JSON map of sibling platform to the domain the relay carries
 OPENPOST_DEADLINE_SECONDS    readiness budget, below the harness timeout
 OPENPOST_PUBLIC_URL          public origin served by the shared proxy
+OPENPOST_TOR_SUFFIX          host suffix the network registry declares for the tor network
 OPENPOST_SSO_ENABLED         true when Keycloak provisions users, so the proxy closes password sign-up
 OPENPOST_CONTAINER           resolved OpenPost container, used to reach the simulator admin API
 OPENPOST_SIMULATOR_PLATFORMS JSON list of OpenPost platforms served by the provider simulator, empty without it
@@ -43,9 +44,13 @@ import urllib.parse
 import urllib.request
 
 
+def is_onion(host: str | None) -> bool:
+    return (host or "").endswith(TOR_SUFFIX)
+
+
 def public_url(url: str) -> str:
     parts = urllib.parse.urlsplit(url)
-    if (parts.hostname or "").endswith(".onion") and parts.scheme == "https":
+    if is_onion(parts.hostname) and parts.scheme == "https":
         return urllib.parse.urlunsplit(("http", *parts[1:]))
     return url
 
@@ -57,7 +62,8 @@ ADMIN_PASSWORD = base64.b64decode(os.environ["OPENPOST_ADMIN_PASSWORD_B64"]).dec
 RELAY_TARGETS = json.loads(os.environ["OPENPOST_RELAY_TARGETS"])
 DEADLINE = time.monotonic() + int(os.environ["OPENPOST_DEADLINE_SECONDS"])
 PUBLIC_URL = os.environ["OPENPOST_PUBLIC_URL"].rstrip("/")
-ONION_ORIGIN = (urllib.parse.urlparse(PUBLIC_URL).hostname or "").endswith(".onion")
+TOR_SUFFIX = os.environ["OPENPOST_TOR_SUFFIX"]
+ONION_ORIGIN = is_onion(urllib.parse.urlparse(PUBLIC_URL).hostname)
 SSO_ENABLED = os.environ["OPENPOST_SSO_ENABLED"] == "true"
 CONTAINER = os.environ["OPENPOST_CONTAINER"]
 SIMULATOR_PLATFORMS = json.loads(os.environ["OPENPOST_SIMULATOR_PLATFORMS"])

@@ -289,7 +289,7 @@ Smoke: open `https://publish.{{ DOMAIN_PRIMARY }}/`, sign in through Keycloak, c
 
 ## Prerequisites
 
-Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Compose Loop](../agents/action/iteration/compose.md), [Swarm Loop](../agents/action/iteration/swarm.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md).
+Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Compose Loop](../../agents/skills/i8-iterate-compose/SKILL.md), [Swarm Loop](../../agents/skills/i8-iterate-swarm/SKILL.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md).
 
 ## Implementation Strategy
 
@@ -306,4 +306,4 @@ Prove every relay and simulator change in the live stack via `make compose-exec`
 
 - Automated crossposting: [063-openpost-crossposter.md](063-openpost-crossposter.md)
 - Requirement format: [requirements.md](../contributing/requirements.md)
-- How agents process requirements: [requirements.md](../agents/action/requirements.md)
+- How agents process requirements: [requirements.md](../../agents/skills/i8-requirement-implement/SKILL.md)

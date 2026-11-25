@@ -33,6 +33,7 @@ from openpost.api import (
     draft,
     failures,
     in_container,
+    is_onion,
     public_url,
     release,
     revoke_invitations,
@@ -158,7 +159,7 @@ def check_sso_administrator(token: str) -> None:
         found,
     )
     mastodon = RELAY_TARGETS.get("mastodon")
-    if found and mastodon and not mastodon.endswith(".onion"):
+    if found and mastodon and not is_onion(mastodon):
         count = found[0].get("publication_count")
         check(
             "the SSO administrator's publications survived the backup drill",
@@ -228,7 +229,7 @@ def check_relay(token: str, workspace: str) -> None:
     for platform, domain in RELAY_TARGETS.items():
         if platform == "peertube":
             continue
-        if domain.endswith(".onion"):
+        if is_onion(domain):
             print(
                 f"[SKIP] relay to {platform}: OpenPost cannot resolve the onion name {domain}"
             )
@@ -408,7 +409,7 @@ def main() -> int:
         check_mail(token, workspace)
     if SIMULATOR_PLATFORMS:
         check_simulator(token, workspace)
-    if RELAY_TARGETS.get("peertube", "").endswith(".onion"):
+    if is_onion(RELAY_TARGETS.get("peertube")):
         print("[SKIP] PeerTube connect: OpenPost cannot resolve an onion PeerTube")
     elif "peertube" in RELAY_TARGETS:
         check_peertube(token, workspace)

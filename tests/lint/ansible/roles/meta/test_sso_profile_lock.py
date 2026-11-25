@@ -123,6 +123,7 @@ NONE_NEEDED: dict[str, str] = {
     "web-app-minio": "no user profile",
     "web-app-openbao": "no self-service profile",
     "web-app-openclaw": "identity per request from the header",
+    "web-app-openpost": "OIDC claims read at JIT creation only, no sync",
     "web-app-phpldapadmin": "edits LDAP live",
     "web-app-phpmyadmin": "gate only, no own profile",
     "web-app-pihole": "gate only, no own profile",
