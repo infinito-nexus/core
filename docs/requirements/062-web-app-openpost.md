@@ -229,7 +229,7 @@ simulator:
 
 ### Single sign-on (story AC3)
 
-- [x] `meta/services.yml` declares `sso.flavor: oidc`, and OpenPost reads its issuer from `OIDC.CLIENT.ISSUER_URL`, its client from `OIDC.CLIENT.ID` and `OIDC.CLIENT.SECRET`, and uses the scopes `openid profile email`.
+- [x] `meta/services.yml` declares `sso.flavor: oidc`, and OpenPost reads its issuer from `OIDC.CLIENT.ISSUER_URL`, its client id from its own client `services.sso.oidc.clients.web` (`openpost-web`, the back-channel client of [066](066-server-side-logout-everywhere.md)) and its secret from `OIDC.CLIENT.SECRET`, and uses the scopes `openid profile email`.
 - [x] Password self-registration is closed and SSO users are provisioned just in time on their first login; because OpenPost gates both with `OPENPOST_DISABLE_REGISTRATIONS`, the role keeps the switch open when Keycloak is deployed and the shared proxy answers `POST /api/v1/auth/register` with HTTP 403.
 - [x] The platform administrator becomes instance administrator through `OPENPOST_OIDC_BOOTSTRAP_ALLOWLIST` on first SSO login.
 - [x] A just-in-time provisioned user without a workspace invitation cannot see or use the organisation workspace or its connected accounts.

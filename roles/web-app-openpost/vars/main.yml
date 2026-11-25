@@ -14,6 +14,7 @@ OPENPOST_API_HEADERS:
 OPENPOST_RELAY_CONF_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'relay.conf'] | path_join }}"
 
 OPENPOST_OIDC_ENABLED: "{{ (lookup('config', application_id, 'services.sso.enabled') | bool) and (lookup('config', application_id, 'services.openpost.login.method.sso.enabled') | bool) }}"
+OPENPOST_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.clients.web') }}"
 OPENPOST_OIDC_ONION_ISSUER: "{{ (lookup('tls', 'web-app-keycloak', 'domain') | network_of) == 'tor' }}"
 OPENPOST_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if OPENPOST_OIDC_ONION_ISSUER | bool else '' }}"
 OPENPOST_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') }}"

@@ -12,10 +12,14 @@ Instance admins manage users, provider apps and instance settings under **Settin
 
 ## Single sign-on
 
-The role configures OpenPost's instance-wide OIDC provider against the shared Keycloak client (`OIDC.CLIENT.*`) whenever `web-app-keycloak` is deployed.
+The role configures OpenPost's instance-wide OIDC provider against its own confidential Keycloak client `services.sso.oidc.clients.web` (`openpost-web`), rendered by [templates/keycloak/clients.json.j2](./templates/keycloak/clients.json.j2) with the shared client secret, whenever `web-app-keycloak` is deployed.
+
+- Keycloak sends that client's OIDC back-channel logout tokens to `/api/v1/auth/oidc/instance/backchannel-logout`, where `instance` is the id OpenPost gives the provider it builds from `OPENPOST_OIDC_*`.
+  OpenPost checks each token's signature, issuer, audience, expiry, event and missing `nonce` itself, answers every other token with HTTP 400 and revokes the OpenPost session whose stored Keycloak `sid` matches the token's.
+  A Keycloak logout therefore ends the matching OpenPost session at its next request; without one, an OpenPost session lives 7 days from sign-in.
 
 - Users sign in with the Keycloak button on the login page.
-  OpenPost provisions them just in time on their first verified login (`OPENPOST_OIDC_JIT_ENABLED=true`) and matches later logins by issuer and subject.
+  OpenPost provisions them just in time on their first verified login (`OPENPOST_OIDC_JIT_ENABLED=true`) and matches later logins by its provider `instance` and the subject, so switching the client id keeps every account.
 - The `platform_administrator` is listed in `OPENPOST_OIDC_BOOTSTRAP_ALLOWLIST` and becomes instance admin on its first SSO login.
 - A just-in-time user starts without access to existing workspaces.
   Grant access by inviting the user from the workspace's team settings; OpenPost does not consume Keycloak groups.

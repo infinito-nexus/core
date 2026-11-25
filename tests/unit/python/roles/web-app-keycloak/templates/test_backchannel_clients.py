@@ -49,6 +49,7 @@ KEYCLOAK_FRAGMENT = ("templates", "keycloak", "clients.json.j2")
 SSO_OIDC_PLUGIN = "user_oidc"
 NEXTCLOUD = "web-app-nextcloud"
 OPENCLOUD = "web-app-opencloud"
+OPENPOST = "web-app-openpost"
 OPENTALK = "web-app-opentalk"
 OPENTALK_CLIENT_TASKS = (
     PROJECT_ROOT / "roles" / OPENTALK / "tasks/02_keycloak_client.yml"
@@ -63,6 +64,7 @@ UPSTREAM_BACKCHANNEL_ENDPOINTS = {
     "web-app-mediawiki": ("", "/rest.php/pluggableauth/v1/logout"),
     NEXTCLOUD: ("", USER_OIDC_BACKCHANNEL_PATH + "keycloak"),
     OPENCLOUD: ("", "/backchannel_logout"),
+    OPENPOST: ("", "/api/v1/auth/oidc/instance/backchannel-logout"),
     OPENTALK: ("", "/v1/auth/logout"),
     "web-app-openwebui": ("", "/oauth/backchannel-logout"),
     XWIKI: ("", "/oidc/authenticator/backchannel_logout"),
@@ -716,6 +718,34 @@ class TestBackchannelClients(unittest.TestCase):
             client["publicClient"],
             True,
             "OpenCloud Web signs in from the browser and cannot keep a secret",
+        )
+
+    def test_the_openpost_client_logs_out_at_its_instance_provider_directly(
+        self,
+    ) -> None:
+        (client,) = render_fragment(
+            PROJECT_ROOT / "roles" / OPENPOST / "templates/keycloak/clients.json.j2"
+        )
+        self.assertFalse(
+            gated(OPENPOST),
+            "OpenPost v7.42.2 checks a logout token with go-oidc v3.21.0 VerifyLogout "
+            "(signature, iss, aud, exp, jti, events, no nonce) and answers every "
+            "failure with a 400, so its receiver needs no logout gate",
+        )
+        self.assertEqual(
+            client["attributes"][BACKCHANNEL_LOGOUT_URL],
+            canonical_origin(OPENPOST) + UPSTREAM_BACKCHANNEL_ENDPOINTS[OPENPOST][1],
+        )
+        self.assertIs(
+            client["publicClient"],
+            False,
+            "OpenPost authenticates its code exchange with OPENPOST_OIDC_CLIENT_SECRET",
+        )
+        self.assertEqual(credential_findings(client), [])
+        self.assertEqual(
+            shared_client_id_reads(role_client_readers(OPENPOST)),
+            [],
+            "OpenPost must sign in through openpost-web, or no logout token names its sessions",
         )
 
     def test_every_backchannel_client_hands_its_app_the_claims_of_the_shared_client(
