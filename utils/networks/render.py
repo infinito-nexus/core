@@ -312,6 +312,7 @@ def render_container_networks(
     reverse_proxy: bool = False,
     internal: str | None = None,
     egress: bool = False,
+    aliases: list[str] | None = None,
 ) -> str:
     """
     Args:
@@ -330,6 +331,7 @@ def render_container_networks(
             service then joins in place of every role network.
         egress: with ``internal``, also join ``default``, without an alias,
             as the one route out of the internal network's members.
+        aliases: extra names of the service on the role's default network.
 
     Returns:
         The per-service ``networks:`` attachment, or ``""`` for none.
@@ -345,6 +347,8 @@ def render_container_networks(
     attachments, default_aliases = _compute_attachments(
         registry, application_id, deployment_mode, lookup_config, lookup_database
     )
+    if aliases:
+        default_aliases = list(dict.fromkeys([*default_aliases, *aliases]))
     lines: list[str] = ["networks:"]
     for att in attachments:
         if att["is_provider"] and att["topology"] == "default_net":

@@ -78,7 +78,11 @@ def _coerce_size_bytes(value: Any) -> int:
 
 
 def _file_reference(
-    semantic_name: str, target: str, entry: dict[str, Any]
+    semantic_name: str,
+    target: str,
+    entry: dict[str, Any],
+    mount: dict[str, Any],
+    render_jinja: Callable[[str], str] | None,
 ) -> dict[str, Any]:
     """Return the per-service reference of a ``config`` or ``secret`` entry.
 
@@ -87,11 +91,19 @@ def _file_reference(
         target: the path the file appears at in the container.
         entry: the canonical entry; ``mode`` is an octal string, ``uid`` and
             ``gid`` own the file in the container.
+        mount: the entry's mount for this service; its ``uid`` and ``gid``
+            override the entry's.
+        render_jinja: renders a templated owner; None leaves it as written.
     """
     reference: dict[str, Any] = {"source": semantic_name, "target": target}
     for owner in ("uid", "gid"):
-        if entry.get(owner) is not None:
-            reference[owner] = str(entry[owner])
+        value = mount.get(owner, entry.get(owner))
+        if value is None:
+            continue
+        text = str(value)
+        if render_jinja is not None and ("{{" in text or "{%" in text):
+            text = str(render_jinja(text))
+        reference[owner] = text
     mode_value = entry.get("mode")
     if mode_value:
         reference["mode"] = _coerce_mode_int(mode_value)
@@ -230,10 +242,14 @@ def container_volumes(
                 volumes_block.append(tmpfs_entry)
 
             elif vtype == "config":
-                configs_block.append(_file_reference(semantic_name, target, entry))
+                configs_block.append(
+                    _file_reference(semantic_name, target, entry, mount, render_jinja)
+                )
 
             elif vtype == "secret":
-                secrets_block.append(_file_reference(semantic_name, target, entry))
+                secrets_block.append(
+                    _file_reference(semantic_name, target, entry, mount, render_jinja)
+                )
 
     volumes_block.extend(_maintenance_mounts(role_data, maintenance_dir, render_jinja))
     if extra_volumes:

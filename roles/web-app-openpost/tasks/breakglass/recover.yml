@@ -1,0 +1,53 @@
+---
+- name: "👤 Register the break-glass account as the first instance admin"
+  uri_retry:
+    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/auth/register"
+    method: POST
+    headers: "{{ OPENPOST_API_HEADERS }}"
+    body_format: json
+    body:
+      email: "{{ OPENPOST_ADMIN_EMAIL }}"
+      password: "{{ OPENPOST_ADMIN_PASSWORD }}"
+      username: "{{ OPENPOST_ADMIN_USERNAME }}"
+    status_code: [200, 403, 409]
+  register: openpost_breakglass_register
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: openpost_breakglass_register.status == 200
+
+- name: "🔐 Recover the existing break-glass account"
+  when: openpost_breakglass_register.status != 200
+  block:
+    - name: "🔐 Realign the password of the existing break-glass account with the inventory"
+      database_query:
+        config: "{{ lookup('database', application_id) }}"
+        query_file: "{{ role_path }}/files/sql/breakglass/password.sql"
+        named_args:
+          email: "{{ OPENPOST_ADMIN_EMAIL }}"
+          password_hash: "{{ OPENPOST_ADMIN_PASSWORD | bcrypt_hash(application_id ~ ':breakglass') }}"
+        mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      register: openpost_breakglass_realign
+      changed_when: openpost_breakglass_realign.stdout is search('UPDATE [1-9]')
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "🔑 Sign in as the break-glass instance admin with the realigned password"
+      uri_retry:
+        url: "{{ OPENPOST_LOCAL_URL }}/api/v1/auth/login"
+        method: POST
+        headers: "{{ OPENPOST_API_HEADERS }}"
+        body_format: json
+        body:
+          email: "{{ OPENPOST_ADMIN_EMAIL }}"
+          password: "{{ OPENPOST_ADMIN_PASSWORD }}"
+        status_code: [200, 401]
+      register: openpost_breakglass_relogin
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      changed_when: false
+
+    - name: "❌ Fail when the break-glass account can neither sign in nor be created"
+      ansible.builtin.fail:
+        msg: >-
+          OpenPost refused the break-glass sign-in, its registration (HTTP
+          {{ openpost_breakglass_register.status }}) and the sign-in after the password
+          realignment. Another account already became the first instance admin; follow
+          the break-glass procedure in Administration.md.
+      when: openpost_breakglass_relogin.status != 200
