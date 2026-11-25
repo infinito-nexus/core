@@ -10,17 +10,17 @@ from .sources import Media, SourceItem
 
 LOCK_ID = 4_103_270_041
 SQL_DIR = Path(__file__).resolve().parent / "sql"
-SCHEMA = ("create_schema", "create_cursors", "create_items")
+SCHEMA = ("create/schema", "create/cursors", "create/items")
 QUERIES = (
     *SCHEMA,
     "try_lock",
-    "select_cursor",
+    "select/cursor",
     "insert_item",
     "upsert_cursor",
-    "select_due",
-    "select_open_publications",
-    "select_unnotified",
-    "select_items",
+    "select/due",
+    "select/open_publications",
+    "select/unnotified",
+    "select/items",
     "update_item",
     "resend_item",
     "mark_notified",
@@ -72,7 +72,7 @@ def item_from_json(raw: dict) -> SourceItem:
 def query(name: str) -> str:
     """
     Args:
-        name: one of QUERIES, the file name of a statement without ``.sql``.
+        name: one of QUERIES, the path of a statement below SQL_DIR without ``.sql``.
 
     Returns:
         The statement's text from SQL_DIR.
@@ -104,7 +104,7 @@ class Store:
 
     def cursor(self, route: str) -> str | None:
         row = self.connection.execute(
-            query("select_cursor"), {"route": route}
+            query("select/cursor"), {"route": route}
         ).fetchone()
         return None if row is None else str(row["cursor"])
 
@@ -129,16 +129,16 @@ class Store:
             )
 
     def due(self) -> list[dict]:
-        return self._rows("select_due")
+        return self._rows("select/due")
 
     def open_publications(self) -> list[dict]:
-        return self._rows("select_open_publications")
+        return self._rows("select/open_publications")
 
     def unnotified(self) -> list[dict]:
-        return self._rows("select_unnotified")
+        return self._rows("select/unnotified")
 
     def everything(self) -> list[dict]:
-        return self._rows("select_items")
+        return self._rows("select/items")
 
     def update(
         self,
