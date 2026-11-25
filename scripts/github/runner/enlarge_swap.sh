@@ -56,8 +56,19 @@ ram_mib="$(awk '/^MemTotal:/ {print int($2 / 1024)}' /proc/meminfo)"
 zram_mib=$((ram_mib * 2))
 zram_ram_cap_mib=$((ram_mib * 6 / 10))
 
+# Hot-add a zram device instead of reusing one: a runner image can hand over /dev/zram0 already held ("failed to reset: Device or resource busy").
+zram_fresh_device() {
+	local index
+	index="$(sudo cat /sys/class/zram-control/hot_add)" || return 1
+	[ -n "$index" ] || return 1
+	sudo zramctl --size "${zram_mib}M" --algorithm zstd "/dev/zram${index}" || return 1
+	echo "/dev/zram${index}"
+}
+
 if zram_module; then
-	zram_dev="$(sudo zramctl --find --size "${zram_mib}M" --algorithm zstd)" || zram_dev=""
+	zram_dev="$(zram_fresh_device)" ||
+		zram_dev="$(sudo zramctl --find --size "${zram_mib}M" --algorithm zstd)" ||
+		zram_dev=""
 	if [ -n "$zram_dev" ] &&
 		echo "${zram_ram_cap_mib}M" | sudo tee "/sys/block/${zram_dev#/dev/}/mem_limit" >/dev/null &&
 		sudo mkswap "$zram_dev" && sudo swapon --priority 100 "$zram_dev"; then

@@ -15,6 +15,12 @@ ZRAM_SUDO_STUB = (
     'printf "%s\\n" "$*" >>"${STUB_LOG}"\n'
     'if [ "$1" = zramctl ] && [ "$2" = --find ]; then echo /dev/zram0; fi\n'
 )
+HOT_ADD_SUDO_STUB = (
+    "#!/usr/bin/env bash\n"
+    'printf "%s\\n" "$*" >>"${STUB_LOG}"\n'
+    'if [ "$1" = cat ] && [ "$2" = /sys/class/zram-control/hot_add ]; then echo 1; fi\n'
+    'if [ "$1" = zramctl ] && [ "$2" = --find ]; then exit 1; fi\n'
+)
 DF_STUB = (
     "#!/usr/bin/env bash\n"
     'echo "Avail"\n'
@@ -40,6 +46,7 @@ def enlarge(
     root_free: int,
     containerd_dev: str,
     zram: bool,
+    hot_add: bool,
 ) -> tuple[subprocess.CompletedProcess, list[str]]:
     """Run enlarge_swap.sh against stubbed disks.
 
@@ -50,6 +57,8 @@ def enlarge(
         containerd_dev: device id stat reports for /var/lib/containerd
             (2049 is the /mnt device).
         zram: whether ``zramctl --find`` hands out a device.
+        hot_add: whether the kernel hot-adds a fresh device while
+            ``zramctl --find`` fails on a busy one.
 
     Returns:
         The finished process and every sudo call in order.
@@ -63,7 +72,10 @@ def enlarge(
         bin_dir.mkdir()
         for path, body in (
             (runner_dir / "dump_state.sh", DUMP_STUB),
-            (bin_dir / "sudo", ZRAM_SUDO_STUB if zram else SUDO_STUB),
+            (
+                bin_dir / "sudo",
+                HOT_ADD_SUDO_STUB if hot_add else ZRAM_SUDO_STUB if zram else SUDO_STUB,
+            ),
             (bin_dir / "df", DF_STUB),
             (bin_dir / "mountpoint", MOUNTPOINT_STUB),
             (bin_dir / "stat", STAT_STUB),
@@ -117,21 +129,36 @@ def swapfile(calls: list[str]) -> list[str]:
 class TestEnlargeSwapPlacement(unittest.TestCase):
     def test_swap_goes_to_root_when_containerd_lives_on_the_spare_disk(self) -> None:
         done, calls = enlarge(
-            mounted=True, mnt_free=200, root_free=54, containerd_dev="2049", zram=False
+            mounted=True,
+            mnt_free=200,
+            root_free=54,
+            containerd_dev="2049",
+            zram=False,
+            hot_add=False,
         )
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(swapfile(calls), ["fallocate -l 16G /swapfile"])
 
     def test_swap_goes_to_mnt_when_containerd_stayed_on_root(self) -> None:
         done, calls = enlarge(
-            mounted=True, mnt_free=60, root_free=54, containerd_dev="66305", zram=False
+            mounted=True,
+            mnt_free=60,
+            root_free=54,
+            containerd_dev="66305",
+            zram=False,
+            hot_add=False,
         )
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(swapfile(calls), ["fallocate -l 16G /mnt/swapfile"])
 
     def test_large_shape_without_mnt_keeps_swap_on_root(self) -> None:
         done, calls = enlarge(
-            mounted=False, mnt_free=0, root_free=123, containerd_dev="66305", zram=False
+            mounted=False,
+            mnt_free=0,
+            root_free=123,
+            containerd_dev="66305",
+            zram=False,
+            hot_add=False,
         )
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(swapfile(calls), ["fallocate -l 16G /swapfile"])
@@ -143,20 +170,31 @@ class TestEnlargeSwapPlacement(unittest.TestCase):
             root_free=54,
             containerd_dev="missing",
             zram=False,
+            hot_add=False,
         )
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(swapfile(calls), ["fallocate -l 16G /mnt/swapfile"])
 
     def test_full_root_still_uses_the_spare_disk(self) -> None:
         done, calls = enlarge(
-            mounted=True, mnt_free=200, root_free=10, containerd_dev="2049", zram=False
+            mounted=True,
+            mnt_free=200,
+            root_free=10,
+            containerd_dev="2049",
+            zram=False,
+            hot_add=False,
         )
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(swapfile(calls), ["fallocate -l 16G /mnt/swapfile"])
 
     def test_zram_takes_the_swap_off_the_disk(self) -> None:
         done, calls = enlarge(
-            mounted=False, mnt_free=0, root_free=88, containerd_dev="66305", zram=True
+            mounted=False,
+            mnt_free=0,
+            root_free=88,
+            containerd_dev="66305",
+            zram=True,
+            hot_add=False,
         )
         self.assertEqual(done.returncode, 0, done.stderr)
         ram_mib = _ram_mib()
@@ -169,9 +207,32 @@ class TestEnlargeSwapPlacement(unittest.TestCase):
             calls.index("swapon --priority 100 /dev/zram0"),
         )
 
+    def test_a_busy_zram0_gives_way_to_a_hot_added_device(self) -> None:
+        done, calls = enlarge(
+            mounted=False,
+            mnt_free=0,
+            root_free=88,
+            containerd_dev="66305",
+            zram=False,
+            hot_add=True,
+        )
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(swapfile(calls), [])
+        self.assertIn(
+            f"zramctl --size {_ram_mib() * 2}M --algorithm zstd /dev/zram1", calls
+        )
+        self.assertIn("tee /sys/block/zram1/mem_limit", calls)
+        self.assertIn("swapon --priority 100 /dev/zram1", calls)
+        self.assertFalse(any(call.startswith("zramctl --find") for call in calls))
+
     def test_zram_needs_no_free_disk(self) -> None:
         done, calls = enlarge(
-            mounted=False, mnt_free=0, root_free=5, containerd_dev="66305", zram=True
+            mounted=False,
+            mnt_free=0,
+            root_free=5,
+            containerd_dev="66305",
+            zram=True,
+            hot_add=False,
         )
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(swapfile(calls), [])
