@@ -352,14 +352,32 @@ jobs:
         run: nohup ./scripts/tests/deploy/ci/host-metrics-sampler.sh "${INFINITO_RESCUE_DIAGNOSTICS_BASE}/host-metrics.log" >/dev/null 2>&1 &
 
       - name: "🍇 Restore the Grype database"
+        id: grype_db
         if: ${{ !env.ACT && matrix.engine != '' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: vulnerability-db-grype
+          path: build/vulnerability-db/grype
+
+      - name: "🍇 Retry the Grype database restore"
+        if: ${{ steps.grype_db.outcome == 'failure' }}
         uses: actions/download-artifact@v8
         with:
           name: vulnerability-db-grype
           path: build/vulnerability-db/grype
 
       - name: "🔬 Restore the ${{ matrix.engine }} database"
+        id: engine_db
         if: ${{ !env.ACT && matrix.engine != '' && matrix.engine != 'grype' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: vulnerability-db-${{ matrix.engine }}
+          path: build/vulnerability-db/${{ matrix.engine }}
+
+      - name: "🔬 Retry the ${{ matrix.engine }} database restore"
+        if: ${{ steps.engine_db.outcome == 'failure' }}
         uses: actions/download-artifact@v8
         with:
           name: vulnerability-db-${{ matrix.engine }}

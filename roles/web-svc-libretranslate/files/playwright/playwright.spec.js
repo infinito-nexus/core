@@ -2,8 +2,10 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
-const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, runBiberFlow, runGuestFlow } = require("./personas");
+const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, runBiberFlow, runGuestFlow } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
+
+const GUNICORN_MAX_REQUESTS = 250;
 
 require("./test-mcp-guest").register();
 require("./test-design").register();
@@ -34,6 +36,14 @@ test("libretranslate /languages API stays reachable without auth", async ({ requ
     contentType.includes("application/json"),
     `Expected JSON content-type for /languages, got "${contentType}"`
   ).toBe(true);
+});
+
+test("libretranslate keeps answering across a gunicorn worker recycle", async ({ request }) => {
+  test.setTimeout(resolveTimeout(120_000));
+  for (let sent = 1; sent <= GUNICORN_MAX_REQUESTS + 1; sent += 1) {
+    const response = await apiGetOnion(request, `${baseUrl}/languages`, { timeout: resolveTimeout(15_000) });
+    expect(response.status(), `libretranslate /languages request ${sent} must answer 200 across the worker recycle`).toBe(200);
+  }
 });
 
 test("administrator: oauth2-proxy gates the LibreTranslate UI through Keycloak", async ({ page }) => {
