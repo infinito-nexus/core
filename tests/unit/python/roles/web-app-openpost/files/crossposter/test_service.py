@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import io
 import json
+import struct
 import tempfile
 import unittest
+import zlib
 from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
@@ -79,6 +81,11 @@ def png(width: int, height: int) -> bytes:
     buffer = io.BytesIO()
     Image.new("1", (width, height)).save(buffer, "PNG")
     return buffer.getvalue()
+
+
+def png_broken_after_open() -> bytes:
+    empty_idat = struct.pack(">I", 0) + b"IDAT" + struct.pack(">I", zlib.crc32(b"IDAT"))
+    return png(1, 1)[:33] + empty_idat + struct.pack(">I", 0) + b"\x01\x02\x03\x04"
 
 
 class FakeSource:
@@ -430,6 +437,10 @@ class TestDelivery(ServiceFixture, unittest.TestCase):
         database = self.to_instagram(b"<html>no image</html>")
         self.assertEqual({row["state"] for row in database.items}, {"dead_lettered"})
         self.assertIn("no convertible image", database.items[0]["last_error"])
+
+    def test_an_image_that_breaks_while_decoding_fails_for_good(self) -> None:
+        database = self.to_instagram(png_broken_after_open())
+        self.assertEqual({row["state"] for row in database.items}, {"dead_lettered"})
 
     def test_a_decompression_bomb_fails_for_good(self) -> None:
         with patch.object(Image, "MAX_IMAGE_PIXELS", 10):

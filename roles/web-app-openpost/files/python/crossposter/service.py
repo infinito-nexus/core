@@ -46,7 +46,7 @@ def to_jpeg(source: Path, url: str) -> Path:
         with Image.open(source) as image:
             _fits_memory(image.size, url)
             image.convert("RGB").save(target, "JPEG", quality=JPEG_QUALITY)
-    except (OSError, ValueError, Image.DecompressionBombError) as error:
+    except (OSError, ValueError, SyntaxError, Image.DecompressionBombError) as error:
         raise web.RefusedError(
             url, f"the source media is no convertible image: {error}"
         ) from error
