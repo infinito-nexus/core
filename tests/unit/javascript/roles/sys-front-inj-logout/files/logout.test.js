@@ -147,3 +147,18 @@ test("a text block over 1000 characters is ignored as a match source", () => {
 
   assert.equal(link.dataset._logoutHandled, undefined);
 });
+
+test("debug mode hands the console one line of text, never the node or an object", () => {
+  const sandbox = patch([]);
+  const lines = [];
+  sandbox.console.debug = (...args) => lines.push(args);
+  const link = element("A", { id: "logout-link" }, "Log out");
+  link.__reactFiber = { stateNode: link };
+  sandbox.document.querySelectorAll = () => [link];
+  sandbox.initLogoutPatch(LOGOUT_URL, true);
+
+  assert.ok(lines.some((args) => args.join(" ").includes("<a#logout-link>")), "the patched node is named in the log");
+  for (const args of lines) {
+    assert.deepEqual(args.map((arg) => typeof arg), ["string"], `console.debug(${args.map(String).join(", ")})`);
+  }
+});

@@ -59,6 +59,7 @@ OPTIONS = {
     "--oom-score-adj": re.compile(r"-?[0-9]+"),
     "--network": re.compile(r"host|none"),
     "--user": re.compile(r"[0-9]+:[0-9]+"),
+    "--ulimit": re.compile(r"core=0"),
     "-w": re.compile(r"/e2e"),
     "-e": re.compile(r"[A-Z][A-Z0-9_]*=.*"),
     "-v": re.compile(r"/[^:]+:/[^:]+(?::ro)?"),
