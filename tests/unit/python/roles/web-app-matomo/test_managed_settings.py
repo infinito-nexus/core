@@ -23,9 +23,15 @@ from utils.templating.ansible import _trust_as_template
 ROLE = PROJECT_ROOT / "roles/web-app-matomo"
 TASKS = "addons/rebeloidc.yml"
 DRIFT = "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+HTTPS_ISSUER = "https://auth.example.test/realms/example"
+HTTP_ISSUERS = (
+    "http://auth." + "a" * 56 + ".onion/realms/example",
+    "http://auth.example.test/realms/example",
+)
 OIDC = {
     "BUTTON_TEXT": "Sign in with Keycloak",
     "CLIENT": {
+        "ISSUER_URL": HTTPS_ISSUER,
         "AUTHORIZE_URL": "https://auth.example.test/authorize",
         "TOKEN_URL": "https://auth.example.test/token",
         "USER_INFO_URL": "https://auth.example.test/userinfo",
@@ -94,7 +100,16 @@ def _position(fragment: str) -> int:
     return next(i for i, task in enumerate(_tasks()) if fragment in task["name"])
 
 
-def _variables(sso: bool = True) -> dict:
+def _variables(sso: bool = True, issuer: str = HTTPS_ISSUER) -> dict:
+    """
+    Args:
+        sso: whether the RebelOIDC sign-in is on.
+        issuer: the OIDC issuer URL of the deployment.
+
+    Returns:
+        The variables vars/main.yml renders against, with the ``_stubs`` lookups.
+    """
+    oidc = {**OIDC, "CLIENT": {**OIDC["CLIENT"], "ISSUER_URL": issuer}}
     declared = DataLoader().load_from_file(
         str(ROLE / ROLE_FILE_META_SERVICES), trusted_as_template=True
     )
@@ -103,7 +118,7 @@ def _variables(sso: bool = True) -> dict:
             "sso": {"enabled": sso},
             "matomo": {
                 "oidc": _templated(
-                    declared["matomo"]["oidc"], {"OIDC": OIDC, "RBAC": RBAC}, {}
+                    declared["matomo"]["oidc"], {"OIDC": oidc, "RBAC": RBAC}, {}
                 )
             },
         }
@@ -113,7 +128,7 @@ def _variables(sso: bool = True) -> dict:
             str(ROLE / ROLE_FILE_VARS_MAIN), trusted_as_template=True
         ),
         "application_id": "web-app-matomo",
-        "OIDC": OIDC,
+        "OIDC": oidc,
         "RBAC": RBAC,
     }
     variables["MATOMO_OIDC_ENABLED"] = sso
@@ -125,8 +140,8 @@ def _variables(sso: bool = True) -> dict:
     return variables
 
 
-def _render(name: str, sso: bool = True):
-    variables = _variables(sso)
+def _render(name: str, sso: bool = True, issuer: str = HTTPS_ISSUER):
+    variables = _variables(sso, issuer)
     stubs = variables.pop("_stubs")
     return _templated(variables[name], variables, stubs)
 
@@ -169,6 +184,24 @@ class TestSink(unittest.TestCase):
             [key for key in OLD_SETTINGS if key != "clientSecret"],
             list(_forms()["rebeloidc"]["fields"]),
         )
+
+
+class TestTransport(unittest.TestCase):
+    def test_an_http_issuer_lets_rebeloidc_call_it(self):
+        for issuer in HTTP_ISSUERS:
+            with self.subTest(issuer=issuer):
+                sections = _render("MATOMO_CONFIG_SECTIONS", issuer=issuer)
+                self.assertEqual(
+                    {**OLD_SETTINGS, "allow_http": True},
+                    dict(sections["RebelOIDC"]),
+                    "RebelOIDC's Protocol::checkSecureUrl throws on every non-https "
+                    "provider URL unless [RebelOIDC] allow_http is set, and the "
+                    "converge rewrites that section to exactly these keys",
+                )
+
+    def test_an_https_issuer_keeps_rebeloidc_on_https(self):
+        sections = _render("MATOMO_CONFIG_SECTIONS", issuer=HTTPS_ISSUER)
+        self.assertNotIn("allow_http", dict(sections["RebelOIDC"]))
 
 
 class TestLock(unittest.TestCase):

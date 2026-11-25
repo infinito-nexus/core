@@ -57,9 +57,11 @@ MATOMO_OIDC_CREDENTIALS:
   clientSecret: "{{ OIDC.CLIENT.SECRET }}"
 MATOMO_OIDC_ONION_ISSUER: "{{ (OIDC.CLIENT.ISSUER_URL | urlsplit('hostname') | network_of) == 'tor' }}"
 MATOMO_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if (MATOMO_OIDC_STATE == 'present' and MATOMO_OIDC_ONION_ISSUER | bool) else '' }}"
+MATOMO_OIDC_TRANSPORT: "{{ {'allow_http': true} if (OIDC.CLIENT.ISSUER_URL | urlsplit('scheme')) == 'http' else {} }}"
 MATOMO_OIDC_GENERAL:
   proxy_scheme_headers: ["HTTP_X_FORWARDED_PROTO"]
   login_logout_url: "{{ MATOMO_SITE_URL if MATOMO_OIDC_ENABLED | bool else '' }}"
+  custom_cacert_pem: "{{ CA_TRUST.inject_bundle_container if lookup('ca_injected', application_id) else '' }}"
 
 MATOMO_RBAC_ROLES: ["view", "write", "admin", "administrator"]
 MATOMO_RBAC_PROTECTED_LOGINS: ["{{ MATOMO_ADMIN_USER_NAME }}", "anonymous"]
@@ -73,7 +75,7 @@ MATOMO_RBAC_LOGIN_SETTINGS:
   protected_logins: "{{ MATOMO_RBAC_PROTECTED_LOGINS }}"
 MATOMO_CONFIG_SECTIONS: >-
   {{ {
-    MATOMO_OIDC_PLUGIN: (MATOMO_OIDC_SETTINGS | combine(MATOMO_OIDC_CREDENTIALS)) if MATOMO_OIDC_ENABLED | bool else {},
+    MATOMO_OIDC_PLUGIN: (MATOMO_OIDC_SETTINGS | combine(MATOMO_OIDC_CREDENTIALS, MATOMO_OIDC_TRANSPORT)) if MATOMO_OIDC_ENABLED | bool else {},
     MATOMO_RBAC_LOGIN_PLUGIN: MATOMO_RBAC_LOGIN_SETTINGS if MATOMO_OIDC_ENABLED | bool else {}
   } }}
 

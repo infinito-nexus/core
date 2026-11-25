@@ -110,9 +110,11 @@ class TestMatomoReachesAnOnionIssuerThroughTor(unittest.TestCase):
         self.assertEqual(
             _socks_proxy(issuer=ONION_ISSUER, oidc_state="present"),
             PROXY,
-            "RebelOIDC calls the token and userinfo endpoints with plain cURL, and "
-            "libcurl refuses an .onion host under RFC 7686 before /etc/hosts or the "
-            "extra_hosts pin is read, so the code exchange needs the Tor proxy",
+            "RebelOIDC calls the token and userinfo endpoints through Matomo's HTTP "
+            "client, whose cURL transport follows the proxy environment while "
+            "[proxy] is empty, and libcurl refuses an .onion host under RFC 7686 "
+            "before /etc/hosts or the extra_hosts pin is read, so the code exchange "
+            "needs the Tor proxy",
         )
 
     def test_a_clearnet_issuer_gets_no_proxy(self):

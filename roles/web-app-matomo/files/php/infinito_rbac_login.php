@@ -4,28 +4,65 @@ namespace Piwik\Plugins\InfinitoRbacLogin;
 
 use Piwik\Access;
 use Piwik\Config;
+use Piwik\Container\StaticContainer;
+use Piwik\Piwik;
 use Piwik\Plugins\SitesManager\API as SitesApi;
 use Piwik\Plugins\UsersManager\API as UsersApi;
 use Piwik\Plugins\UsersManager\Model;
 use Piwik\Request;
+use Piwik\Request\AuthenticationToken;
+use Piwik\Session\SessionFingerprint;
 
 class InfinitoRbacLogin extends \Piwik\Plugin
 {
     private const SECTION = 'InfinitoRbacLogin';
     private const SITE_ROLES = ['view', 'write', 'admin'];
     private const NO_ACCESS = 'noaccess';
+    private const SIGNED_IN_LOGIN = 'infinito_rbac_login.login';
+    private const APPLIED_TOKEN_DIGEST = 'infinito_rbac_login.applied';
 
     public function registerEvents()
     {
         return [
-            'Login.authenticate.successful' => 'applyRoleGroups',
+            'Login.authenticate.successful' => 'recordSignIn',
+            'Platform.initialized' => 'applyRoleGroups',
         ];
     }
 
     /**
-     * Converge the superuser and website access of the account a RebelOIDC callback signs in on
-     * the groups claim of its ID token.
-     *
+     * @param string $login the Matomo login that authenticated
+     */
+    public function recordSignIn($login): void
+    {
+        unset($_SESSION[self::SIGNED_IN_LOGIN]);
+        $_SESSION[self::APPLIED_TOKEN_DIGEST] = hash('sha256', (string) ($_SESSION['loginoidc_idtoken'] ?? ''));
+        $request = Request::fromGet();
+        if (
+            $request->getStringParameter('module', '') === 'RebelOIDC'
+            && $request->getStringParameter('action', '') === 'callback'
+        ) {
+            $_SESSION[self::SIGNED_IN_LOGIN] = (string) $login;
+        }
+    }
+
+    public function applyRoleGroups(): void
+    {
+        $login = self::pendingLogin();
+        if ($login === null) {
+            return;
+        }
+        $idToken = $_SESSION['loginoidc_idtoken'];
+        try {
+            self::applyIdToken($login, $idToken);
+        } catch (\Throwable $exception) {
+            unset($_SESSION[self::SIGNED_IN_LOGIN]);
+            (new SessionFingerprint())->clear();
+            throw $exception;
+        }
+        $_SESSION[self::APPLIED_TOKEN_DIGEST] = hash('sha256', $idToken);
+    }
+
+    /**
      * Config section [InfinitoRbacLogin]:
      *   groups_claim      claim of the ID token that lists the group paths
      *   superuser_group   group path that grants superuser access
@@ -33,24 +70,16 @@ class InfinitoRbacLogin extends \Piwik\Plugin
      *                     group paths that grant that access on every website
      *   protected_logins  list of logins this hook never touches
      *
-     * @param string $login the Matomo login that authenticated
+     * @param string $login the Matomo login the session is bound to
+     * @param string $idToken the ID token RebelOIDC keeps in the session
      */
-    public function applyRoleGroups($login): void
+    private static function applyIdToken(string $login, string $idToken): void
     {
-        $request = Request::fromGet();
-        if (
-            $request->getStringParameter('module', '') !== 'RebelOIDC'
-            || $request->getStringParameter('action', '') !== 'callback'
-        ) {
-            return;
-        }
-
         $settings = self::settings();
         if (in_array($login, $settings['protected_logins'], true)) {
             return;
         }
-
-        $groups = self::groupsClaim($_SESSION['loginoidc_idtoken'] ?? null, $settings['groups_claim']);
+        $groups = self::groupsClaim($idToken, $settings['groups_claim']);
         if ($groups === null) {
             return;
         }
@@ -59,6 +88,36 @@ class InfinitoRbacLogin extends \Piwik\Plugin
         Access::doAsSuperUser(static function () use ($login, $want): void {
             self::converge($login, $want);
         });
+        $access = Access::getInstance();
+        $access->setSuperUserAccess(false);
+        $access->reloadAccess();
+    }
+
+    /**
+     * @return string|null the login whose ID token this request still has to apply, null for none
+     */
+    private static function pendingLogin(): ?string
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            return null;
+        }
+        $login = $_SESSION[self::SIGNED_IN_LOGIN] ?? null;
+        $idToken = $_SESSION['loginoidc_idtoken'] ?? null;
+        if (
+            !is_string($login)
+            || !is_string($idToken)
+            || ($_SESSION['loginoidc_auth'] ?? null) !== true
+            || (new SessionFingerprint())->getUser() !== $login
+            || Piwik::getCurrentUserLogin() !== $login
+            || StaticContainer::get(AuthenticationToken::class)->getAuthToken() !== ''
+        ) {
+            return null;
+        }
+        $applied = $_SESSION[self::APPLIED_TOKEN_DIGEST] ?? null;
+        if (is_string($applied) && hash_equals($applied, hash('sha256', $idToken))) {
+            return null;
+        }
+        return $login;
     }
 
     /**
