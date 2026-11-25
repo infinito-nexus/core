@@ -44,6 +44,8 @@ litellm:
     strategy: "{{ 'system_one' if (lookup('config', 'svc-ai-litellm', 'services.s1.enabled') | bool) else 'weighted' }}"
     min_chars_per_token: 2
     state_chars: 512
+    # Exception: a decider paging its CPU weights back in after memory pressure took about 40 s in CI, past svc-ai-s1's 20 s request_timeout
+    decider_timeout: 60
     weights:
       locality: 1.0
       cost: 0.4

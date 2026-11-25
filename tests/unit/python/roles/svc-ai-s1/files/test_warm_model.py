@@ -8,9 +8,15 @@ from contextlib import redirect_stderr
 from typing import ClassVar, Self
 from unittest.mock import patch
 
+from utils.cache.yaml import load_yaml
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
+
 from . import PROJECT_ROOT
 
 SCRIPT_PATH = PROJECT_ROOT / "roles/svc-ai-s1/files/python/warm_model.py"
+ROUTER = load_yaml(PROJECT_ROOT / "roles/svc-ai-litellm" / ROLE_FILE_META_SERVICES)[
+    "litellm"
+]["router"]
 
 ENVIRONMENT = {
     "S1_PORT": "8080",
@@ -67,6 +73,13 @@ class TestS1WarmModel(unittest.TestCase):
         self.assertEqual(seen["url"], "http://127.0.0.1:8080/v1/systemone")
         self.assertEqual(seen["method"], "POST")
 
+    def test_a_port_that_is_no_number_never_sends_the_key(self) -> None:
+        with (
+            patch.dict(ENVIRONMENT, {"S1_PORT": "80@elsewhere.example"}),
+            self.assertRaises(ValueError),
+        ):
+            run_script(self.ANSWERED)
+
     def test_carries_the_flavor_neutral_alias_and_key(self) -> None:
         seen = run_script(self.ANSWERED)
         self.assertEqual(seen["headers"]["authorization"], "Bearer sk-first-key")
@@ -85,8 +98,8 @@ class TestS1WarmModel(unittest.TestCase):
     def test_waits_longer_than_the_router_would(self) -> None:
         self.assertGreater(
             run_script(self.ANSWERED)["timeout"],
-            20,
-            "the first inference is what overruns services.s1.request_timeout, so a "
+            int(ROUTER["decider_timeout"]),
+            "the first inference is what overruns services.litellm.router.decider_timeout, so a "
             "warm-up on that budget would time out exactly where the router did",
         )
 

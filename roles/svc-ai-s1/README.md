@@ -23,7 +23,7 @@ Self-hosted System One decision service. It answers typed questions (`choice`, `
 | --- | --- |
 | `services.s1.flavor` | `laya`, `torch` or `onnx`; the role refuses anything else |
 | `services.s1.model_alias` | alias the API accepts in a request's `model` field |
-| `services.s1.request_timeout` | seconds the gateway waits for a routing answer |
+| `services.s1.request_timeout` | seconds web-svc-translate waits for a routing answer; the gateway waits `services.litellm.router.decider_timeout` of svc-ai-litellm |
 | `services.s1.laya.checkpoints` | checkpoints the `laya` flavor bakes, each a `name` the server preloads and the `repo` it comes from |
 | `services.s1.jeff.ref` | upstream commit the `torch` and `onnx` flavors build from; upstream publishes no tags |
 | `services.s1.jeff.model_repo` | Hugging Face repository those flavors download at build time |

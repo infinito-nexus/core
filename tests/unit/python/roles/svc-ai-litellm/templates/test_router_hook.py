@@ -12,9 +12,11 @@ cases state which facts they rely on instead of inheriting 1595 of them.
 
 from __future__ import annotations
 
+import asyncio
 import contextlib
 import json
 import sys
+import threading
 import types
 import unittest
 import unittest.mock
@@ -590,6 +592,61 @@ class TestLocalOnly(HookCase, unittest.TestCase):
             remote("big", context=99999),
         ]
         self.assertEqual(self.route(self.hook, self.SECRET, routes)["model"], "home")
+
+
+class TestDeciderWait(HookCase, unittest.TestCase):
+    """A slow decider delays 'auto' alone, within a budget sized for its cold path."""
+
+    COLD_DECISION_SECONDS = 40
+
+    def route(self, data, routes):
+        seen = {}
+
+        def decide(candidates, *_args, **_kwargs):
+            seen["thread"] = threading.get_ident()
+            return candidates[0]["model_name"]
+
+        async def call():
+            seen["loop"] = threading.get_ident()
+            return await self.hook.instance.async_pre_call_hook(
+                None, None, dict(data), "completion"
+            )
+
+        proxy = types.ModuleType("litellm.proxy.proxy_server")
+        proxy.llm_router = types.SimpleNamespace(model_list=routes)
+        sys.modules["litellm.proxy"] = types.ModuleType("litellm.proxy")
+        sys.modules["litellm.proxy.proxy_server"] = proxy
+        with unittest.mock.patch.object(self.hook, "decide", decide):
+            verdict = asyncio.run(call())
+        return verdict, seen
+
+    def test_the_decider_is_asked_off_the_proxy_event_loop(self) -> None:
+        verdict, seen = self.route(
+            {"model": ALIAS, "messages": [{"content": "hi"}]},
+            [local("big", context=99999)],
+        )
+        self.assertEqual(verdict["model"], "big")
+        self.assertNotEqual(
+            seen["thread"],
+            seen["loop"],
+            "a blocking decider call on the loop stalls every request the proxy serves",
+        )
+
+    def test_a_request_for_another_model_never_reaches_the_decider(self) -> None:
+        verdict, seen = self.route({"model": "x"}, [local("x")])
+        self.assertIsNone(verdict)
+        self.assertNotIn("thread", seen)
+
+    def test_the_shipped_budget_covers_a_cold_decision(self) -> None:
+        self.assertGreaterEqual(
+            int(SHIPPED_ROUTER["decider_timeout"]), self.COLD_DECISION_SECONDS
+        )
+
+    def test_the_old_shared_budget_would_not(self) -> None:
+        shared = load_yaml(PROJECT_ROOT / "roles/svc-ai-s1" / ROLE_FILE_META_SERVICES)
+        self.assertLess(
+            int(shared["s1"]["request_timeout"]), self.COLD_DECISION_SECONDS
+        )
 
 
 class TestLoudFailure(HookCase, unittest.TestCase):

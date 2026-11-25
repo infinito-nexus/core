@@ -615,7 +615,9 @@ class SystemOneRouter(CustomLogger):
         request_class = signature(need)
         tally = await self._tally(request_class)
         try:
-            data["model"] = decide(candidates, need, text, tally=tally)
+            data["model"] = await asyncio.to_thread(
+                decide, candidates, need, text, tally=tally
+            )
         except (OSError, ValueError) as error:
             return (
                 f"'{ROUTER_ALIAS}' cannot route: the {ROUTER_STRATEGY} strategy "
