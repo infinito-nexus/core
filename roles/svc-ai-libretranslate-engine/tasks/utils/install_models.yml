@@ -6,6 +6,24 @@
     resolve_output_prefix: LIBRETRANSLATE_ENGINE
     resolve_compose_cid: "{{ LIBRETRANSLATE_ENGINE_CONTAINER_ADDRESS }}"
 
+- name: "⏳ Wait until {{ application_id }} finished its own boot"
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ LIBRETRANSLATE_ENGINE_LOCAL_CID | quote }} ./venv/bin/python -c 'import sys, urllib.request as r
+    try:
+        r.build_opener(r.ProxyHandler({})).open("http://localhost:{{ LIBRETRANSLATE_ENGINE_PORT }}/health", timeout={{ _boot_poll }})
+    except OSError:
+        sys.exit({{ _boot_not_ready }})'
+  vars:
+    _boot_poll: 5
+    _boot_not_ready: 75
+  register: libretranslate_engine_boot
+  retries: "{{ (LIBRETRANSLATE_ENGINE_PREFETCH_TIMEOUT | int) // _boot_poll }}"
+  delay: "{{ _boot_poll }}"
+  until: libretranslate_engine_boot.rc != (_boot_not_ready | int)
+  failed_when: libretranslate_engine_boot.rc != 0
+  changed_when: false
+  delegate_to: "{{ LIBRETRANSLATE_ENGINE_HOST_NODE }}"
+
 - name: "📥 Install the Argos models into {{ application_id }}"
   ansible.builtin.shell:
     cmd: >- # nocheck: raw-docker, container-exec-resolver  the models belong to the served container's own interpreter and land in its mounted model directory, which no other host has

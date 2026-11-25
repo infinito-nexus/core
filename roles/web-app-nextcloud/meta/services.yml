@@ -121,7 +121,7 @@ proxy:
     # nocheck: healthcheck-timing-override  a sidecar of a stack whose main service alone takes minutes; the value predates this default and has not been measured against it
     start_period: 20m
   image: nginx
-  version: 1.31.9-alpine
+  version: 1.31.10-alpine
   backup:
     stop_required: false
   cpus: "0.5"
@@ -209,7 +209,7 @@ talk:
   version: 3.24.4
   custom: nextcloud-talk-janus
   repository: https://github.com/meetecho/janus-gateway.git
-  ref: v1.4.3
+  ref: v1.4.4
   # nocheck: single-replica  the signaling server addresses exactly one Janus by URL and keeps every media session on it
   replicas: 1
   turn_server:

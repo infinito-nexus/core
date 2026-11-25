@@ -668,7 +668,7 @@ test("design: the signed-in web administration takes surfaces and text from the 
   await followColorScheme(page);
   await signInWebui(page);
   const selected = `${WEBUI_SIDEBAR} a:has-text("Mailboxes")`;
-  const unselected = `${WEBUI_SIDEBAR} a:has-text("Calendars")`;
+  const unselected = `${WEBUI_SIDEBAR} a:has-text("Address Books")`;
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
     await gotoOnion(page, WEBUI_HOME);

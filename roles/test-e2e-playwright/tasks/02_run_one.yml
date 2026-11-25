@@ -2,6 +2,7 @@
 - name: 📌 Define per-role paths
   ansible.builtin.set_fact:
     _playwright_env_template: "{{ lookup('path_absolute', 'roles', application_id, 'templates/playwright.env.j2') }}"
+    _playwright_secrets_template: "{{ lookup('path_absolute', 'roles', application_id, 'templates/playwright.secrets.j2') }}"
     _playwright_files_dir: "{{ lookup('path_absolute', 'roles', application_id, 'files/playwright') }}"
     _playwright_spec_src: "{{ lookup('path_absolute', 'roles', application_id, 'files/playwright/playwright.spec.js') }}"
     _playwright_stage_dir: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}/{{ application_id }}"
@@ -20,6 +21,34 @@
   ansible.builtin.fail:
     msg: "Missing Playwright env template: {{ _playwright_env_template }}"
   when: not _env_template_stat.stat.exists
+
+- name: 🔎 Check the optional Playwright spec secrets template
+  ansible.builtin.stat:
+    path: "{{ _playwright_secrets_template }}"
+  register: _playwright_secrets_template_stat
+  delegate_to: localhost
+  become: false
+
+- name: 🔐 Check the image a run with spec secrets and CA trust starts
+  when:
+    - _playwright_secrets_template_stat.stat.exists
+    - _playwright_ca_required | bool
+  block:
+    - name: 🛑 Refuse a run with spec secrets whose image could not be pulled or inspected
+      ansible.builtin.fail:
+        msg: >-
+          {{ TEST_E2E_PLAYWRIGHT_IMAGE }} could not be inspected (pull rc {{ _playwright_shared_pull.rc }}, inspect rc {{ _playwright_image_entrypoint.rc }}),
+          so the run with spec secrets of {{ application_id }} cannot tell which CA trust it needs; fix the pull and deploy again.
+      when: _playwright_image_entrypoint.rc != 0
+
+    - name: 🛑 Refuse a run with spec secrets whose image has an ENTRYPOINT
+      ansible.builtin.fail:
+        msg: >-
+          {{ TEST_E2E_PLAYWRIGHT_IMAGE }} has an ENTRYPOINT; a run with spec secrets of {{ application_id }}
+          trusts the CA the way the container wrapper does for an image without one and does not guess the other branch.
+      when:
+        - _playwright_image_entrypoint.rc == 0
+        - (_playwright_image_entrypoint.stdout | trim) not in ['null', '[]']
 
 - name: ✅ Assert required Playwright spec exists
   ansible.builtin.stat:
@@ -61,6 +90,17 @@
     path: "{{ _playwright_stage_tests_dir }}"
     state: directory
     mode: "0755"
+
+- name: 📁 Create the node_modules and personas mountpoints a read-only stage dir needs
+  ansible.builtin.file:
+    path: "{{ playwright_mountpoint }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ _playwright_stage_dir }}/node_modules"
+    - "{{ _playwright_stage_tests_dir }}/personas"
+  loop_control:
+    loop_var: playwright_mountpoint
 
 - name: 📄 Render package.json from template
   ansible.builtin.template: # nocheck: stack-host-template (per-host playwright stage dir, runs on every test host)

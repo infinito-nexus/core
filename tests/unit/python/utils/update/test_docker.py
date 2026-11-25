@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 import tempfile
 import unittest
+import unittest.mock as mock
 from pathlib import Path
 
 from utils.cache.files import read_text
@@ -12,6 +14,7 @@ from utils.update.docker import (
     sourced_services,
     update_config_versions,
 )
+from utils.update.docker.tags import fetch_mcr_tags
 
 SOURCED = """bundled:
   image: example/app
@@ -113,6 +116,38 @@ nginx:
             update_config_versions(config_path, {"penpot": "2.18.6"})
 
             self.assertEqual(read_text(str(config_path)), expected)
+
+
+_MCR_TAGS = "https://mcr.microsoft.com/v2/dotnet/runtime/tags/list?n=100"
+_MCR_NEXT = "https://mcr.microsoft.com/v2/dotnet/runtime/tags/list?last=a"
+
+
+class TestMcrPaging(unittest.TestCase):
+    def _page(self, link: str) -> tuple[list[str], list[str]]:
+        pages = []
+        for found, header in ((["a"], f'<{link}>; rel="next"'), (["b"], "")):
+            page = mock.MagicMock()
+            page.__enter__.return_value = page
+            page.read.return_value = json.dumps({"tags": found}).encode()
+            page.headers = {"Link": header}
+            pages.append(page)
+        with mock.patch("urllib.request.urlopen", side_effect=pages) as opened:
+            tags = fetch_mcr_tags("mcr.microsoft.com/dotnet/runtime")
+        return tags, [call.args[0].full_url for call in opened.call_args_list]
+
+    def test_a_link_next_on_the_registry_pages(self) -> None:
+        for link in ("/v2/dotnet/runtime/tags/list?last=a", _MCR_NEXT):
+            with self.subTest(link=link):
+                self.assertEqual(self._page(link), (["a", "b"], [_MCR_TAGS, _MCR_NEXT]))
+
+    def test_a_link_next_off_the_registry_stops_paging(self) -> None:
+        for link in (
+            "https://evil.example/v2/dotnet/runtime/tags/list?last=a",
+            "http://mcr.microsoft.com/v2/dotnet/runtime/tags/list?last=a",
+            "//evil.example/v2/dotnet/runtime/tags/list?last=a",
+        ):
+            with self.subTest(link=link):
+                self.assertEqual(self._page(link), (["a"], [_MCR_TAGS]))
 
 
 if __name__ == "__main__":

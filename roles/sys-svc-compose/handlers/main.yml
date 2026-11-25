@@ -4,10 +4,22 @@
   ansible.builtin.script:
     cmd: shell/prune.sh
   environment:
-    PRUNE_FREE_FLOOR_MIB: "{{ compose_prune_free_floor_mib }}"
+    PRUNE_FREE_FLOOR_MIB: "{{ COMPOSE_PRUNE_FREE_FLOOR_MIB }}"
+    PRUNE_REPEAT_BELOW_PERCENT: "{{ COMPOSE_PRUNE_REPEAT_BELOW_PERCENT }}"
+    PRUNE_LAST_FREE_MIB: "{{ compose_prune_last_free_mib }}"
   register: compose_prune_result
   changed_when: "'prune skipped' not in compose_prune_result.stdout"
   when: STORAGE_CONSTRAINED | bool
+  listen:
+    - compose-up
+    - compose-build
+
+- name: 📝 Record the free space the last prune kept below the floor
+  ansible.builtin.set_fact:
+    compose_prune_last_free_mib: "{{ compose_prune_result.stdout | regex_findall('kept ([0-9]+) MiB free after the prune') | last | default('') }}"
+  when:
+    - STORAGE_CONSTRAINED | bool
+    - "compose_prune_result is changed or 'floor: prune skipped' in compose_prune_result.stdout"
   listen:
     - compose-up
     - compose-build
