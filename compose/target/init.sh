@@ -7,6 +7,11 @@ APT_OPTS="-o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::
 HOST_KEYS_UNIT=target-host-keys.service
 SSHD_DROP_IN=/etc/ssh/sshd_config.d/00-target.conf
 
+free_dns_port() {
+	mkdir -p /etc/systemd/resolved.conf.d
+	printf '[Resolve]\nDNSStubListener=no\n' >/etc/systemd/resolved.conf.d/infinito-no-stub.conf
+}
+
 mask_units_that_escape_the_container() {
 	systemctl mask getty.target console-getty.service getty-static.service getty@.service tmp.mount systemd-sysctl.service
 }
@@ -97,4 +102,5 @@ install_init
 install_sshd
 configure_sshd
 enable_sshd
+free_dns_port
 mask_units_that_escape_the_container

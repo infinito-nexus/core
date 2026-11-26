@@ -7,7 +7,7 @@ Build context and resolver configuration of the `target` and `target-resolver` s
 | Service | What runs there |
 | --- | --- |
 | `target` | systemd and an ssh server on the distribution base image, nothing else; built from [Dockerfile](Dockerfile) and [init.sh](init.sh) with `INFINITO_PARENT_IMAGE` as base |
-| `target-resolver` | CoreDNS at its own address `INFINITO_TARGET_RESOLVER_IP`, the resolver a provider hands a managed server; answers `INFINITO_DOMAIN` and every name under it with `INFINITO_TARGET_IP` and forwards the rest to the stack's CoreDNS at `INFINITO_DNS_IP`, which starts with it. It holds no socket on the target, so port 53 of the target stays free on every address for a replayed DNS server such as [svc-dns-knot](../../roles/svc-dns-knot/README.md) |
+| `target-resolver` | CoreDNS at its own address `INFINITO_TARGET_RESOLVER_IP`, the resolver a provider hands a managed server; answers `INFINITO_DOMAIN` and every name under it with `INFINITO_TARGET_IP` and forwards the rest to the stack's CoreDNS at `INFINITO_DNS_IP`, which starts with it. It holds no socket on the target, and `init.sh` turns off the stub listener of `systemd-resolved` the base image may run, as the stack's [Dockerfile](../../Dockerfile) does, so port 53 of the target stays free on every address for a replayed DNS server such as [svc-dns-knot](../../roles/svc-dns-knot/README.md) |
 
 The target carries no container engine and no SSH host key of its own: a deploy under test installs `docker-ce`, and `target-host-keys.service` generates host keys when a container boots. Its `/var/lib/docker` is the named volume `INFINITO_RUNNER_PREFIX-target-docker`, so the engine a deploy installs writes to a real filesystem. The volume is named, not anonymous, because `sys-ctl-hlth-volumes` fails on every anonymous volume of the outer daemon, which is the operator's own host on a workstation that also runs a deployed stack. The checkout is mounted at `INFINITO_SRC_DIR`, where a host install replays from it.
 
@@ -62,7 +62,7 @@ The swarm teardown disconnects the target from the lab network before it removes
 | File | Role |
 | --- | --- |
 | `Dockerfile` | builds the target from `INFINITO_PARENT_IMAGE` and boots `/sbin/init` |
-| `init.sh` | installs systemd and an ssh server, removes the host keys, installs `target-host-keys.service`, masks the units that escape a container |
+| `init.sh` | installs systemd and an ssh server, removes the host keys, installs `target-host-keys.service`, turns off the `systemd-resolved` stub listener on port 53, masks the units that escape a container |
 | `.dockerignore` | keeps the build context to `Dockerfile` and `init.sh` |
 | `Corefile.tmpl` | the resolver's configuration; `${INFINITO_DOMAIN}`, `${INFINITO_TARGET_IP}`, `${INFINITO_TARGET_RESOLVER_IP}` and `${INFINITO_DNS_IP}` come from `.env` |
 | `Corefile` | rendered output, bind-mounted into `target-resolver`; ignored by git |
