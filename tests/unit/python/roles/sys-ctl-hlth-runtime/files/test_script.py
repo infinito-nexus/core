@@ -1382,6 +1382,116 @@ class TestScan(TestCase):
         SCRIPT.prune_sboms(self.layout, [])
         self.assertFalse(SCRIPT.trivy_cache_path(self.layout, CENTOS_TARGET).exists())
 
+    def _provide_sbom_databases(self):
+        grype = self.layout.databases / "grype" / SCRIPT.DB_MARKERS["grype"][0]
+        osv = self.layout.databases / "osv" / SCRIPT.DB_MARKERS["osv"][0] / "npm.zip"
+        for path in (grype, osv):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("db", encoding="utf-8")
+        return osv
+
+    def _sbom_scan(self, engines, fail=(), osv_report=None):
+        for stale in self.layout.work.iterdir():
+            stale.unlink()
+        with contextlib.redirect_stdout(io.StringIO()):
+            return self._scan(
+                _config(targets=["container"], engines=engines, db_update=False),
+                {"json": osv_report or {"results": []}},
+                fail=fail,
+                image_ids={
+                    self.images["grype"]: "sha256:grype-1",
+                    self.images["osv"]: "sha256:osv-1",
+                },
+            )
+
+    @staticmethod
+    def _calls(runner, marker):
+        return [call for call in runner.calls if any(marker in arg for arg in call)]
+
+    def test_unchanged_sboms_reuse_their_osv_and_runtime_reports(self):
+        self.targets = [CENTOS_TARGET]
+        self._provide_sbom_databases()
+        report = json.loads(
+            json.dumps(OSV_HOST).replace(OSV_SOURCE, "/work/abc.osv.cdx.json")
+        )
+        first, first_errors, first_runner = self._sbom_scan(
+            ["syft", "osv"], osv_report=report
+        )
+        second, second_errors, second_runner = self._sbom_scan(["syft", "osv"])
+        self.assertEqual(
+            (
+                len(self._calls(first_runner, "osv.cdx.json")),
+                len(self._calls(first_runner, "runtime.syft.json")),
+                len(self._calls(second_runner, "osv.cdx.json")),
+                len(self._calls(second_runner, "runtime.syft.json")),
+                first_errors + second_errors,
+            ),
+            (1, 1, 0, 0, []),
+        )
+        self.assertEqual(second, first)
+        self.assertTrue(any(f.engine == "osv" for f in second))
+
+    def test_an_unchanged_sbom_reuses_its_grype_report(self):
+        self.targets = [CENTOS_TARGET]
+        self._provide_sbom_databases()
+        self._sbom_scan(["syft", "grype"])
+        _findings, errors, runner = self._sbom_scan(["syft", "grype"])
+        self.assertEqual(
+            (self._calls(runner, "sbom:/sbom/abc.syft.json"), errors), ([], [])
+        )
+
+    def test_a_refreshed_osv_database_scans_the_sboms_again(self):
+        self.targets = [CENTOS_TARGET]
+        database = self._provide_sbom_databases()
+        self._sbom_scan(["syft", "osv"])
+        database.write_text("refreshed db", encoding="utf-8")
+        _findings, errors, runner = self._sbom_scan(["syft", "osv"])
+        self.assertEqual((len(self._calls(runner, "osv.cdx.json")), errors), (1, []))
+
+    def test_osv_scans_only_the_sboms_without_a_reusable_report(self):
+        other = SCRIPT.Target("def", "container", "sha256:def", "quay.io/a/b:1", (), ())
+        self.targets = [CENTOS_TARGET]
+        self._provide_sbom_databases()
+        self._sbom_scan(["syft", "osv"])
+        self.targets = [CENTOS_TARGET, other]
+        _findings, errors, runner = self._sbom_scan(["syft", "osv"])
+        self.assertEqual(
+            (
+                [
+                    arg
+                    for call in self._calls(runner, "osv.cdx.json")
+                    for arg in call
+                    if arg.endswith("osv.cdx.json")
+                ],
+                errors,
+            ),
+            (["/work/def.osv.cdx.json"], []),
+        )
+
+    def test_a_failed_osv_run_leaves_no_report_to_reuse(self):
+        self.targets = [CENTOS_TARGET]
+        self._provide_sbom_databases()
+        _findings, errors, _runner = self._sbom_scan(["syft", "osv"], fail=("-L",))
+        self.assertTrue(errors)
+        self.assertFalse(
+            SCRIPT.report_cache_path(self.layout, CENTOS_TARGET, "osv").exists()
+        )
+        _findings, _errors, runner = self._sbom_scan(["syft", "osv"])
+        self.assertEqual(len(self._calls(runner, "osv.cdx.json")), 1)
+
+    def test_the_reused_sbom_reports_survive_the_sbom_prune(self):
+        self.targets = [CENTOS_TARGET]
+        self._provide_sbom_databases()
+        self._sbom_scan(["syft", "osv"])
+        cached = [
+            SCRIPT.report_cache_path(self.layout, CENTOS_TARGET, name)
+            for name in ("osv", "runtime.grype")
+        ]
+        SCRIPT.prune_sboms(self.layout, [CENTOS_TARGET])
+        self.assertTrue(all(path.is_file() for path in cached))
+        SCRIPT.prune_sboms(self.layout, [])
+        self.assertFalse(any(path.exists() for path in cached))
+
     def test_the_provided_trivy_database_is_read_from_memory_cache(self):
         step = SCRIPT.trivy_step(
             self.layout,

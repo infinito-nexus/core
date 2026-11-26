@@ -69,6 +69,7 @@ JOB_TIMEOUT_SECONDS = 4 * 3600
 RUN_PREFIX = "run-"
 DB_ATTEMPTS = 3
 DB_RETRY_SECONDS = 30
+CACHED_REPORTS = ("trivy", "grype", "runtime.grype", "osv")
 DB_MARKERS = {
     "trivy": ("db/trivy.db", "java-db/trivy-java.db"),
     "grype": ("6/vulnerability.db",),
@@ -1668,7 +1669,114 @@ def cached_trivy_report(
     return cached.get("report")
 
 
-def grype_step(layout: Layout, image: str, target: Target, config: ScanConfig) -> Step:
+def database_stamps(layout: Layout, engine: str) -> list[str] | None:
+    """
+    Args:
+        layout: where the run keeps its files, the databases among them.
+        engine: the engine whose ``DB_MARKERS`` are stamped.
+
+    Returns:
+        The path, size and modification time of every file under the
+        engine's database markers, ``None`` when a marker holds no file.
+    """
+    stamps = []
+    for marker in DB_MARKERS[engine]:
+        path = layout.databases / engine / marker
+        files = (
+            [path]
+            if path.is_file()
+            else sorted(p for p in path.rglob("*") if p.is_file())
+        )
+        if not files:
+            return None
+        for file in files:
+            stat = file.stat()
+            stamps.append(
+                f"{file.relative_to(layout.databases)}:{stat.st_size}:{stat.st_mtime_ns}"
+            )
+    return stamps
+
+
+def sbom_report_fingerprint(
+    layout: Layout,
+    engine: str,
+    image_id: str | None,
+    args: Sequence[str],
+    source: Path,
+) -> str | None:
+    """
+    Args:
+        layout: where the run keeps its files, the databases among them.
+        engine: the engine that reads *source*.
+        image_id: the resolved id of the engine image, see
+            :func:`engine_image_id`.
+        args: the engine arguments that do not name a file of this run.
+        source: the SBOM the engine reads, the complete input of its run.
+
+    Returns:
+        A digest of the engine image id, its arguments, its database stamps
+        and the content of *source*, ``None`` when one of them is missing.
+    """
+    stamps = database_stamps(layout, engine)
+    if image_id is None or stamps is None or not source.is_file():
+        return None
+    digest = hashlib.sha256(json.dumps([image_id, list(args), stamps]).encode())
+    digest.update(source.read_bytes())
+    return digest.hexdigest()
+
+
+def report_cache_path(layout: Layout, target: Target, name: str) -> Path:
+    return layout.sbom / f"{target.key}.{name}.json"
+
+
+def cached_report(
+    layout: Layout, target: Target, name: str, fingerprint: str | None
+) -> dict | None:
+    """
+    Returns:
+        The *name* report of an earlier run with the same fingerprint,
+        ``None`` when there is none.
+    """
+    path = report_cache_path(layout, target, name)
+    if fingerprint is None or not path.is_file():
+        return None
+    try:
+        cached = _read_json(path)
+    except (OSError, ValueError):
+        return None
+    if cached.get("fingerprint") != fingerprint:
+        return None
+    return cached.get("report")
+
+
+def reuse_report(
+    layout: Layout, target: Target, name: str, fingerprint: str | None
+) -> bool:
+    """Write the cached *name* report of *target* into the run's work directory.
+
+    Returns:
+        ``True`` when a report with *fingerprint* was cached and is now
+        where the engine run would have written it.
+    """
+    report = cached_report(layout, target, name, fingerprint)
+    if report is None:
+        return False
+    (layout.work / f"{target.key}.{name}.json").write_text(
+        json.dumps(report), encoding="utf-8"
+    )
+    return True
+
+
+def store_report(
+    layout: Layout, target: Target, name: str, fingerprint: str, report: Mapping
+) -> None:
+    write_atomic(
+        report_cache_path(layout, target, name),
+        json.dumps({"fingerprint": fingerprint, "report": report}),
+    )
+
+
+def grype_args(layout: Layout, target: Target, config: ScanConfig) -> list[str]:
     if config.reads_sbom("grype"):
         source = [f"sbom:{SBOM}/{target.key}.syft.json"]
     elif target.kind == "host":
@@ -1677,7 +1785,11 @@ def grype_step(layout: Layout, image: str, target: Target, config: ScanConfig) -
             source += ["--exclude", path]
     else:
         source = [f"docker:{target.ref}"]
-    args = [*source, "-o", "json", "--file", f"{WORK}/{target.key}.grype.json", "-q"]
+    return [*source, "-o", "json", "--file", f"{WORK}/{target.key}.grype.json", "-q"]
+
+
+def grype_step(layout: Layout, image: str, target: Target, config: ScanConfig) -> Step:
+    args = grype_args(layout, target, config)
     scratch = scratch_of("grype", target.key)
     return Step(
         f"grype {target.kind} {target.label}",
@@ -1977,9 +2089,8 @@ def pause(seconds: float) -> None:
     time.sleep(seconds)
 
 
-def runtime_step(layout: Layout, image: str, target: Target) -> Step:
-    """Scan the binary-classified packages of one SBOM with Grype."""
-    args = [
+def runtime_args(target: Target) -> list[str]:
+    return [
         f"sbom:{WORK}/{target.key}.runtime.syft.json",
         "-o",
         "json",
@@ -1987,6 +2098,11 @@ def runtime_step(layout: Layout, image: str, target: Target) -> Step:
         f"{WORK}/{target.key}.runtime.grype.json",
         "-q",
     ]
+
+
+def runtime_step(layout: Layout, image: str, target: Target) -> Step:
+    """Scan the binary-classified packages of one SBOM with Grype."""
+    args = runtime_args(target)
     scratch = scratch_of(RUNTIME_ENGINE, f"runtime-{target.key}")
     return Step(
         f"grype runtime {target.kind} {target.label}",
@@ -2088,28 +2204,72 @@ def scan(
         if steps:
             trivy_lane = len(lanes)
             lanes.append(steps)
+    fresh: list[tuple[int, Target, str, str]] = []
+    reused_sbom: Counter[str] = Counter()
+    grype_id = (
+        engine_image_id(layout, images["grype"], runner)
+        if runtime or ("grype" in scanners and config.reads_sbom("grype"))
+        else None
+    )
     if "grype" in scanners:
-        lanes.extend(
-            [grype_step(layout, images["grype"], target, config)]
-            for target in targets
-            if not config.reads_sbom("grype") or target in sbom_ready
-        )
+        for target in targets:
+            if config.reads_sbom("grype") and target not in sbom_ready:
+                continue
+            fingerprint = (
+                sbom_report_fingerprint(
+                    layout,
+                    "grype",
+                    grype_id,
+                    grype_args(layout, target, config),
+                    sbom_paths(layout, target)[0],
+                )
+                if config.reads_sbom("grype")
+                else None
+            )
+            if reuse_report(layout, target, "grype", fingerprint):
+                reused_sbom["grype"] += 1
+                continue
+            if fingerprint is not None:
+                fresh.append((len(lanes), target, "grype", fingerprint))
+            lanes.append([grype_step(layout, images["grype"], target, config)])
     for target in sbom_ready if runtime else ():
         reduced = runtime_sbom(_read_json(sbom_paths(layout, target)[0]))
         if reduced is None:
             continue
-        (layout.work / f"{target.key}.runtime.syft.json").write_text(
-            json.dumps(reduced), encoding="utf-8"
+        source = layout.work / f"{target.key}.runtime.syft.json"
+        source.write_text(json.dumps(reduced), encoding="utf-8")
+        fingerprint = sbom_report_fingerprint(
+            layout, RUNTIME_ENGINE, grype_id, runtime_args(target), source
         )
+        if reuse_report(layout, target, "runtime.grype", fingerprint):
+            reused_sbom["runtime.grype"] += 1
+            continue
+        if fingerprint is not None:
+            fresh.append((len(lanes), target, "runtime.grype", fingerprint))
         lanes.append([runtime_step(layout, images[RUNTIME_ENGINE], target)])
+    osv_lane: int | None = None
+    osv_fresh: dict[str, tuple[Target, str]] = {}
     if "osv" in scanners and config.reads_sbom("osv"):
+        osv_id = engine_image_id(layout, images["osv"], runner) if sbom_ready else None
+        queued = []
         for target in sbom_ready:
-            cdx = sbom_paths(layout, target)[1]
-            (layout.work / f"{target.key}.osv.cdx.json").write_text(
-                json.dumps(osv_sbom(_read_json(cdx))), encoding="utf-8"
+            source = layout.work / f"{target.key}.osv.cdx.json"
+            source.write_text(
+                json.dumps(osv_sbom(_read_json(sbom_paths(layout, target)[1]))),
+                encoding="utf-8",
             )
-        if sbom_ready:
-            lanes.append([osv_sbom_step(layout, images["osv"], sbom_ready, config)])
+            fingerprint = sbom_report_fingerprint(
+                layout, "osv", osv_id, osv_args(config, ""), source
+            )
+            if reuse_report(layout, target, "osv", fingerprint):
+                reused_sbom["osv"] += 1
+                continue
+            if fingerprint is not None:
+                osv_fresh[f"{WORK}/{target.key}.osv.cdx.json"] = (target, fingerprint)
+            queued.append(target)
+        if queued:
+            osv_lane = len(lanes)
+            lanes.append([osv_sbom_step(layout, images["osv"], queued, config)])
     elif "osv" in scanners:
         lanes.append(
             [
@@ -2127,6 +2287,24 @@ def scan(
                 trivy_cache_path(layout, target),
                 json.dumps({"fingerprint": fingerprint, "report": _read_json(report)}),
             )
+    for lane, target, name, fingerprint in fresh:
+        report = layout.work / f"{target.key}.{name}.json"
+        if not results[lane] and report.is_file():
+            store_report(layout, target, name, fingerprint, _read_json(report))
+    batched = layout.work / "osv.json"
+    if osv_lane is not None and not results[osv_lane] and batched.is_file():
+        by_source: dict[str, list] = {path: [] for path in osv_fresh}
+        for result in _read_json(batched).get("results") or []:
+            by_source.get(result["source"]["path"], []).append(result)
+        for path, (target, fingerprint) in osv_fresh.items():
+            store_report(
+                layout, target, "osv", fingerprint, {"results": by_source[path]}
+            )
+    for name, count in sorted(reused_sbom.items()):
+        print(
+            f"ℹ️ {name}: {count} report(s) of unchanged SBOMs reused "
+            "against the unchanged database"
+        )
 
     findings: list[Finding] = []
     for target in targets:
@@ -2141,7 +2319,6 @@ def scan(
         report = layout.work / f"{target.key}.osv.json"
         if report.is_file():
             findings += parse_osv(_read_json(report), lambda _path, key=target.key: key)
-    batched = layout.work / "osv.json"
     if batched.is_file():
         by_file = {
             f"{WORK}/{target.key}.osv.cdx.json": target.key for target in sbom_ready
@@ -2151,11 +2328,14 @@ def scan(
 
 
 def prune_sboms(layout: Layout, targets: Iterable[Target]) -> None:
-    """Drop the cached SBOMs of images no container runs any more."""
+    """Drop the cached SBOMs and reports of images no container runs any more."""
     keep = {
         path
         for target in targets
-        for path in (*sbom_paths(layout, target), trivy_cache_path(layout, target))
+        for path in (
+            *sbom_paths(layout, target),
+            *(report_cache_path(layout, target, name) for name in CACHED_REPORTS),
+        )
     }
     for path in layout.sbom.glob("*.json"):
         if path not in keep:
