@@ -33,12 +33,14 @@ Already-set env vars take precedence over `default.env` defaults.
 
 `INFINITO_STACK_NAME` names the compose project of the development stack.
 Every `docker compose` call MUST go through [stack.py](../../../cli/administration/deploy/development/stack.py) (Python) or `infinito_compose` from [compose.sh](../../../scripts/meta/compose.sh) (shell), which pass `-p` and the `-f` list.
+[cache.md](cache.md#stack-kinds-) lists the stack kinds `cache`, `tools`, `test-runner` and `deploy` with their classes.
 
 - Unset, the project name equals the one compose derived before: `COMPOSE_PROJECT_NAME` when set, else the normalized basename of the checkout directory.
   Running stacks, their volumes and their networks are adopted unchanged.
 - Set, `make compose-up`, `compose-exec`, `compose-deploy`, `compose-down`, `test*` and `lint*` address the project `<name>`.
   [load.sh](../../../scripts/meta/env/load.sh) derives `INFINITO_CONTAINER=infinito_nexus_<name>` and `INFINITO_RUNNER_PREFIX=infinito-<name>` from it, so the checkout's default stack stays untouched.
 - Set it per call (`INFINITO_STACK_NAME=<name> make compose-up`) or in `custom.env`; `make dotenv` writes an exported value into `.env` like every other key.
+- A pool job's stack `runner-<N>` runs on the infra runner's daemon, not on the host: `make <target> job=<id>` addresses it through `INFINITO_POOL_JOB` (see [Runner pool](#runner-pool)), and `INFINITO_STACK_NAME=runner-<N>` without `job=` is refused.
 - The [slot registry](#slot-registry) can hold a slot per stack name, but only `make worktree-up` allocates one, for the default stack.
   A named stack still runs on the checkout's pinned slot, so its subnet and bind IP equal those of the default stack; run one of them at a time.
 
@@ -104,6 +106,22 @@ The runner takes these values from the checkout that runs `make infra-up` or `ma
 `make dotenv` also writes `INFINITO_INFRA_RUNNER_IP` into `INFINITO_CACHE_REGISTRY_IP`, `INFINITO_CACHE_PACKAGE_IP` and `INFINITO_CACHE_PACKAGE_FRONTEND_IP`, since the aliases `infinito-registry-cache`, `infinito-package-cache` and `infinito-package-cache-frontend` all resolve to the runner.
 
 `make dotenv` also writes `INFINITO_CACHE_PACKAGE_URL` ([url.py](../../../utils/env/handlers/infinito/package_cache/url.py)): `http://<INFINITO_CACHE_PACKAGE_IP>:<INFINITO_CACHE_PACKAGE_PORT>` while `INFINITO_CACHE_STACK` is true, empty otherwise. It is recomputed on every run, so a value an earlier run wrote never outlives the stack; a line in `custom.env` wins, and an exported value wins for the exporting shell's run only. [compose.yml](../../../compose.yml) hands it to the `infinito` service, and the development inventory that `INFINITO_INVENTORY_VARS_FILE` names makes it the Nix substituter base of `dev-nix`.
+
+## Runner pool
+
+The runner pool is a set of `local` runners of [svc-runner](../../../roles/svc-runner/README.md) inside the infra runner, which run deploys as jobs from the machine-wide queue `<DIR_CACHE>/jobs`, each in a job stack `runner-<N>`; [setup.md](setup.md#runner-pool-) lists its make targets.
+`make infra-up` and `make infra-update` take these values from the checkout that runs them; `make compose-deploy` and `job=<id>` read theirs from the calling checkout.
+
+| Key | Source | Default | Meaning |
+|---|---|---|---|
+| `INFINITO_DEPLOY_VIA_POOL` | [default.env](../../../default.env) | `false` | `true` adds `svc-runner` with its `local` flavor to the roles `make infra-up` and `make infra-update` deploy into the runner, and makes `make compose-deploy` submit a pool job and follow it instead of deploying in this checkout's stack; unset or `false` does neither, any other value is refused, and every pool job runs with it pinned to `false` |
+| `INFINITO_RUNNER_COUNT` | [default.env](../../../default.env) | empty: the count `make runner-count` derives | number of pool runners, a whole number of at least 1; empty takes the minimum of the RAM, CPU and disk terms of [count.py](../../../utils/runner/count.py), at least 1, which `make runner-count` refuses while no measured deploy is recorded in the [calibration](../../../utils/runner/README.md), and `make infra-up` and `make infra-update` then refuse the pool |
+| `INFINITO_RUNNER_SRC_DIR` | [default.env](../../../default.env) | empty | checkout whose pool loop every runner runs, an absolute path below a root of `INFINITO_WORKTREE_ROOTS`; `make infra-up` and `make infra-update` refuse the pool while it is empty or outside every root |
+| `INFINITO_HELD_JOB_WARN_AGE` | [default.env](../../../default.env) | `24h` | `<count><s\|m\|h\|d>` since a held pool job's deploy ended from which its service in the Checkmk local check of [checkmk_local_check.py](../../../utils/runner/checkmk_local_check.py) warns; the check runs in the infra runner while `INFINITO_INFRA_CHECKMK` is `true`, and a value not shorter than `INFINITO_HELD_JOB_CRIT_AGE` turns it into one unknown `Runner pool` service |
+| `INFINITO_HELD_JOB_CRIT_AGE` | [default.env](../../../default.env) | `7d` | `<count><s\|m\|h\|d>` since a held pool job's deploy ended from which that service is critical |
+| `INFINITO_POOL_JOB` | `job=<id>` | empty | id of a held or running pool job; the [Makefile](../../../Makefile) exports `job=<id>` as it and [load.sh](../../../scripts/meta/env/load.sh) points `DOCKER_HOST` and `INFINITO_STACK_NAME` at that job's stack; `make dotenv` refuses it |
+
+svc-runner sets `INFINITO_POOL_RUNNER_NAME`, `INFINITO_RUNNER_CHECKOUT`, `INFINITO_RUNNER_IMAGE`, `INFINITO_RUNNER_INSTALL_DIR`, `INFINITO_RUNNER_QUEUE_DIR` and `INFINITO_RUNNER_WORKTREE_ROOTS` per runner instance, and the runner loop pins `INFINITO_POOL_RUNNER=true` into every job's `custom.env`; outside a runner they stay empty or `false`.
 
 ## Variables NOT in `default.env`
 

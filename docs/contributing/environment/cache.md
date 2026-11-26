@@ -13,6 +13,9 @@ Three local cache services and one shared cache folder accelerate re-deploys, re
 | `test-runner` | long-lived | the shared test runner `infinito-test-<hash>` | the first `make test*` or `make lint*` call, see [variables.md](variables.md) |
 | `deploy` | on-demand | the checkout's own deploy stack | `make compose-up` |
 
+A pool job's stack `runner-<N>` is a `deploy` stack on the infra runner's daemon, see [Runner Pool](#runner-pool-).
+With `INFINITO_STACK_NAME=<name>` set, the deploy, exec, test and lint targets address the stack `<name>` instead of the checkout's default ones, see [variables.md](variables.md#stack-name).
+
 ## Infra Runner 🏗️
 
 One infra runner per machine hosts the caches and, on demand, the tools. It is the service `runner` of the compose project `infinito-infra` ([infra.yml](../../../compose/infra.yml)), a privileged systemd container of the local toolchain image, named by `INFINITO_INFRA_RUNNER_CONTAINER` (default `infinito-infra-runner`).
@@ -32,6 +35,10 @@ The lifecycle targets, all implemented in [infra.py](../../../utils/infra.py):
 - `make infra-status` prints one JSON object: the container name, whether it runs, its address, the gateway URL `http://127.0.0.1:<INFINITO_TOOLS_TRANSLATE_PORT>` that `make i18n-translate gateway=` takes, and per tools project whether it is addressable inside the runner.
 
 The tools (LibreTranslate, LiteLLM, Ollama, System One and the `web-svc-translate` gateway) deploy into the same runner on demand and stop once `INFINITO_TOOLS_IDLE_GRACE` has passed since the last tools target ended, see [web-svc-translate](../../../roles/web-svc-translate/README.md). `make i18n-pause` and `make i18n-resume` pause and resume only the tools projects; the caches keep answering.
+
+## Runner Pool 🏃
+
+With `INFINITO_DEPLOY_VIA_POOL=true`, `make infra-up` and `make infra-update` also deploy `INFINITO_RUNNER_COUNT` `local` runners of [svc-runner](../../../roles/svc-runner/README.md) into the infra runner; they take deploy jobs from the queue `<DIR_CACHE>/jobs` and run each in a job stack `runner-<N>` on the infra runner's daemon. A job uses the caches through the infra runner's address but never starts the infra runner and never joins `infinito-infra`, and the pool is refused while the queue lies outside the cache base `INFINITO_INFRA_CACHE_DIR`. [variables.md](variables.md#runner-pool) lists the pool's keys, and [Operations](#operations-) its targets.
 
 ## Cache Interface 🔌
 
@@ -239,6 +246,11 @@ The token lives in the untracked `custom.env` and `.env` and in the registry cac
 | Stop the infra runner and keep every cache byte | `make infra-down` |
 | Print the runner's state, address, gateway URL and addressable tools projects as JSON | `make infra-status` |
 | Stop this checkout's deploy stack; the infra runner keeps running | `make compose-down` |
+| Run the deploy as a pool job while `INFINITO_DEPLOY_VIA_POOL` is `true`; `hold=true` keeps its stack until the release | `make compose-deploy` |
+| Print one JSON object per pool runner with its state, job, stack and, for a held job, its age and release command | `make runner-status` |
+| Remove the stack of a held or stranded pool job from the infra runner's daemon and free its runner | `make runner-release job=<id>` |
+| Print every held pool job with its age and every job stack no running or held job owns; removes nothing | `make runner-cleanup-report` |
+| Print the default pool size and its RAM, CPU and disk terms as JSON | `make runner-count` |
 | Pin the commit the caches serve and apply it (declarer only) | `make cache-declare ref=<commit>` |
 | Install the pinned commit's `cache:` declarations into the running caches | `make cache-apply` |
 | Evict idle and least recently used entries until every cache fits its cap | `make cache-evict` |
