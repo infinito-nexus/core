@@ -27,6 +27,7 @@ LITELLM_ROUTER_SAMPLE_TRIGGER: "{{ lookup('config', application_id, 'services.li
 LITELLM_ROUTER_SAMPLE_INTERVAL: "{{ lookup('config', application_id, 'services.litellm.router.sample.interval') }}"
 LITELLM_ROUTER_SAMPLE_WIDTH: "{{ lookup('config', application_id, 'services.litellm.router.sample.width') }}"
 LITELLM_ROUTER_HOOK_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'router_hook.py' ] | path_join }}"
+LITELLM_SITECUSTOMIZE_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'sitecustomize.py' ] | path_join }}"
 
 LITELLM_DECIDER_SOURCE_DIR: "{{ lookup('path_absolute', 'roles/svc-ai-s1/files/python/infinito_decider') }}"
 LITELLM_DECIDER_DIR_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'infinito_decider' ] | path_join }}"
@@ -65,5 +66,6 @@ LITELLM_UI_SSO: "{{ (LITELLM_UI_ROLE in group_names) and (lookup('sso', LITELLM_
 LITELLM_UI_ORIGIN: "{{ lookup('tls', LITELLM_UI_ROLE, 'url.origin') }}"
 LITELLM_UI_ADMIN: "{{ lookup('users', 'platform_administrator').username }}"
 LITELLM_UI_SSO_GROUP: "/{{ lookup('rbac_group_path', application_id='web-app-litellm', role='administrator') }}"
+LITELLM_UI_EMAIL_TLD: "{{ lookup('users', 'platform_administrator').email.split('@')[1].split('.')[-1] }}"
 LITELLM_UI_LOGO_URL: "{{ lookup('design', LITELLM_UI_ROLE).urls.logo.svg if ((LITELLM_UI_ROLE in group_names) and (lookup('config', LITELLM_UI_ROLE, 'services.design.enabled')
   | bool) and (lookup('design', LITELLM_UI_ROLE).logo is string)) else '' }}"

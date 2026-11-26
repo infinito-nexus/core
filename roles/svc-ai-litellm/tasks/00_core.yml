@@ -112,6 +112,15 @@
     - compose-up
     - container-recreate
 
+- name: "📧 Stage the interpreter hook that admits the platform e-mail TLD"
+  stack_host_copy:
+    src: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/files/python/sitecustomize.py') }}"
+    dest: "{{ LITELLM_SITECUSTOMIZE_PATH_HOST }}"
+    mode: "0444"
+  notify:
+    - compose-up
+    - container-recreate
+
 - name: "📄 Render LiteLLM gateway config (local + swarm peers)"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"

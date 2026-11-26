@@ -68,6 +68,7 @@ def _render(sso: bool) -> dict[str, str]:
         LITELLM_UI_SSO=sso,
         LITELLM_UI_ORIGIN="https://llm.example",
         LITELLM_UI_ADMIN="administrator",
+        LITELLM_UI_EMAIL_TLD="test",
         OIDC=_OIDC,
     )
     return dict(line.split("=", 1) for line in text.splitlines() if "=" in line)
@@ -79,6 +80,9 @@ class TestEnvSsoRedirect(unittest.TestCase):
 
     def test_without_sso_the_ui_keeps_its_own_password_form(self) -> None:
         self.assertNotIn(_REDIRECT, _render(False))
+
+    def test_sso_hands_the_platform_email_tld_to_the_interpreter_hook(self) -> None:
+        self.assertEqual(_render(True).get("LITELLM_EMAIL_TLD"), "test")
 
 
 if __name__ == "__main__":
