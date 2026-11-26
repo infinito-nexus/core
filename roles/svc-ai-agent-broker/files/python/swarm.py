@@ -7,8 +7,18 @@ import threading
 
 from engine import LABEL_PLATFORM, LABEL_POOL, EngineError
 
-UPDATE_ATTEMPTS = 5
 OUT_OF_SEQUENCE = "update out of sequence"
+UPDATE_ATTEMPTS = 5
+
+
+def _refuse_scaled_out(spec):
+    replicas = ((spec.get("Mode") or {}).get("Replicated") or {}).get("Replicas")
+    if (replicas or 1) > 1:
+        raise EngineError(
+            f"the broker is scaled to {replicas} replicas; it claims agent "
+            "networks and remembers agent keys in one process, so a second "
+            "replica would hand one network to two owners"
+        )
 
 
 class SwarmBackend:
@@ -52,31 +62,50 @@ class SwarmBackend:
         )
         if not service_id:
             raise EngineError(f"{container} carries no swarm service id")
-        current = self.engine.call("GET", f"/services/{service_id}")
-        spec = current["Spec"]
-        replicas = ((spec.get("Mode") or {}).get("Replicated") or {}).get("Replicas")
-        if (replicas or 1) > 1:
-            raise EngineError(
-                f"the broker is scaled to {replicas} replicas; it claims agent "
-                "networks and remembers agent keys in one process, so a second "
-                "replica would hand one network to two owners"
-            )
-        attached = spec["TaskTemplate"].get("Networks") or []
-        missing = [
-            network_id
-            for network_id in self._pool
-            if network_id not in {entry.get("Target") for entry in attached}
-        ]
-        if not missing:
-            return
-        spec["TaskTemplate"]["Networks"] = attached + [
-            {"Target": network_id, "Aliases": [alias]} for network_id in missing
-        ]
-        self.engine.call(
-            "POST",
-            f"/services/{service_id}/update",
-            body=spec,
-            query={"version": current["Version"]["Index"]},
+
+        def join_pool(spec):
+            _refuse_scaled_out(spec)
+            attached = spec["TaskTemplate"].get("Networks") or []
+            missing = [
+                network_id
+                for network_id in self._pool
+                if network_id not in {entry.get("Target") for entry in attached}
+            ]
+            if not missing:
+                return False
+            spec["TaskTemplate"]["Networks"] = attached + [
+                {"Target": network_id, "Aliases": [alias]} for network_id in missing
+            ]
+            return True
+
+        self._update(service_id, join_pool)
+
+    def _update(self, service_id, change):
+        """
+        Args:
+            service_id: id of the service to update.
+            change: edits the spec in place; returns False when nothing changed.
+        """
+        for _ in range(UPDATE_ATTEMPTS):
+            current = self.engine.call("GET", f"/services/{service_id}")
+            spec = current["Spec"]
+            if not change(spec):
+                return
+            try:
+                self.engine.call(
+                    "POST",
+                    f"/services/{service_id}/update",
+                    body=spec,
+                    query={"version": current["Version"]["Index"]},
+                )
+            except EngineError as error:
+                if OUT_OF_SEQUENCE not in str(error):
+                    raise
+            else:
+                return
+        raise EngineError(
+            f"service {service_id} stayed {OUT_OF_SEQUENCE} after "
+            f"{UPDATE_ATTEMPTS} attempts"
         )
 
     def _occupancy(self, name):
@@ -223,46 +252,16 @@ class SwarmBackend:
         self.engine.call("POST", "/services/create", body=body)
         return self.find(spec["name"])
 
-    def _update(self, service_id, change):
-        """Apply *change* to the service spec, rereading it when swarm moved on.
-
-        Swarm bumps a service's version on its own (a fresh service while its
-        endpoint is allocated), so an update built on the version read a
-        moment earlier is refused as out of sequence.
-
-        Args:
-            service_id: the service to update.
-            change: callable that edits the current spec in place.
-
-        Raises:
-            EngineError: any other refusal, or a conflict after UPDATE_ATTEMPTS tries.
-        """
-        for attempt in range(1, UPDATE_ATTEMPTS + 1):
-            current = self.engine.call("GET", f"/services/{service_id}")
-            spec = current["Spec"]
-            change(spec)
-            try:
-                self.engine.call(
-                    "POST",
-                    f"/services/{service_id}/update",
-                    body=spec,
-                    query={"version": current["Version"]["Index"]},
-                )
-            except EngineError as error:
-                if OUT_OF_SEQUENCE not in str(error) or attempt == UPDATE_ATTEMPTS:
-                    raise
-            else:
-                return
-
     def _scale(self, detail, replicas, network_id=None):
-        def change(spec):
+        def rescale(spec):
             spec["Mode"] = {"Replicated": {"Replicas": replicas}}
             if network_id is not None:
                 spec["TaskTemplate"]["Networks"] = [
                     {"Target": network_id, "Aliases": [spec["Name"]]}
                 ]
+            return True
 
-        self._update(detail["ID"], change)
+        self._update(detail["ID"], rescale)
         return self.engine.call("GET", f"/services/{detail['ID']}")
 
     def start(self, detail, network_id=None):

@@ -22,6 +22,52 @@ engine:
 """
 
 
+COMMIT = "d1be6fde11ac6e0407606b4e42fe72d34add8037"
+
+WITH_ARCHITECTURE_TAGS = f"""---
+speech:
+  image: ghcr.io/ggml-org/whisper.cpp
+  version: main-{COMMIT}
+  architecture_tags:
+    arm64:
+      prefix: main-
+      replacement: main-arm64-
+"""
+
+
+def _refs(services_yaml: str) -> list:
+    with tempfile.TemporaryDirectory() as tmp:
+        services = Path(tmp) / "roles" / "svc-demo" / ROLE_FILE_META_SERVICES
+        services.parent.mkdir(parents=True)
+        services.write_text(services_yaml, encoding="utf-8")
+        return list(iter_role_images(Path(tmp)))
+
+
+class TestImageDiscoveryArchitectureTags(unittest.TestCase):
+    def test_the_derived_arm64_tag_yields_its_own_ref(self) -> None:
+        refs = {
+            (ref.version, ref.architecture, ref.derived)
+            for ref in _refs(WITH_ARCHITECTURE_TAGS)
+        }
+
+        self.assertEqual(
+            {(f"main-{COMMIT}", "", False), (f"main-arm64-{COMMIT}", "arm64", True)},
+            refs,
+        )
+
+    def test_the_arm64_ref_pulls_from_the_same_image(self) -> None:
+        sources = {ref.source for ref in _refs(WITH_ARCHITECTURE_TAGS)}
+
+        self.assertIn(f"ghcr.io/ggml-org/whisper.cpp:main-arm64-{COMMIT}", sources)
+
+    def test_a_service_without_architecture_tags_yields_no_arch_ref(self) -> None:
+        self.assertEqual({""}, {ref.architecture for ref in _refs(BASE)})
+
+    def test_a_pin_that_lost_the_rewritten_prefix_fails_the_scan(self) -> None:
+        with self.assertRaises(ValueError):
+            _refs(WITH_ARCHITECTURE_TAGS.replace(f"main-{COMMIT}", "v1.9.6"))
+
+
 class TestImageDiscoveryVersionVariants(unittest.TestCase):
     def _versions(self, services_yaml: str) -> set[str]:
         with tempfile.TemporaryDirectory() as tmp:

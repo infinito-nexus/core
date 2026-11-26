@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from utils.cache.yaml import load_yaml_any as _load_yaml_cached
+from utils.docker.image.architecture_tags import architecture_tags
 from utils.docker.image.pin import pull_reference
 from utils.roles.custom import resolve_role_version
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
@@ -58,9 +59,12 @@ class ImageRef:
         registry: source registry hostname, e.g. ``docker.io``, ``quay.io``
         source_file: file the ref was read from, role-relative for a role
             image and repository-relative for a ``runner`` image
-        derived: the ref carries a ``version_variants`` suffix rather than the
-            version the service declares, so it is a tag the mirror must carry
-            but never the version a role deploys
+        derived: the ref carries a ``version_variants`` suffix or an
+            ``architecture_tags`` rewrite rather than the version the service
+            declares, so it is a tag the mirror must carry but never a version
+            an updater bumps
+        architecture: the one architecture an ``architecture_tags`` ref is
+            pulled on; empty for a ref every other architecture pulls
 
     """
 
@@ -72,6 +76,7 @@ class ImageRef:
     registry: str = "docker.io"
     source_file: str = ROLE_FILE_META_SERVICES
     derived: bool = False
+    architecture: str = ""
 
     @property
     def addressable(self) -> str:
@@ -233,7 +238,8 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
     A role whose vars derive a further tag from ``version`` lists the suffixes
     under ``<entity>.version_variants``; each yields its own ref, because this
     function is the only enumeration the mirror sees and a tag it never emits
-    can never be mirrored.
+    can never be mirrored. ``<entity>.architecture_tags`` yields one ref per
+    rewritten architecture the same way, carrying that architecture.
 
     Two kinds of role are left out. One the updaters do not maintain
     (``is_maintained``), and one whose lifecycle is ``eol``: a retired role sits
@@ -292,6 +298,20 @@ def iter_role_images(repo_root: Path) -> Iterable[ImageRef]:
                     registry=_detect_registry(image),
                     source_file=ROLE_FILE_META_SERVICES,
                     derived=bool(suffix),
+                )
+
+            tags = architecture_tags(version, service.get("architecture_tags"))
+            for architecture, tag in sorted(tags.items()):
+                yield ImageRef(
+                    role=role_name,
+                    service=str(service_name),
+                    name=canonical_image_name(image),
+                    version=tag,
+                    source=image_source(image, tag),
+                    registry=_detect_registry(image),
+                    source_file=ROLE_FILE_META_SERVICES,
+                    derived=True,
+                    architecture=architecture,
                 )
 
 

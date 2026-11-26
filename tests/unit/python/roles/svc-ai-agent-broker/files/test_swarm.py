@@ -212,59 +212,57 @@ class TestSwarmBackendPool(unittest.TestCase):
 class RacingEngine:
     """
     Args:
-        conflicts: how many updates the engine rejects as out of sequence first.
-        error: the message of the rejection.
+        refusals: how many updates swarm refuses before it takes one.
+        error: what a refused update answers.
     """
 
-    def __init__(
-        self, conflicts, error="rpc error: code = Unknown desc = update out of sequence"
-    ):
-        self.conflicts = conflicts
-        self.error = error
+    def __init__(self, refusals, error):
         self.version = 1
+        self.refusals = refusals
+        self.error = error
         self.updates = []
 
-    def call(self, method, path, body=None, query=None, expect=(200,)):
-        if path == "/services/agent-hermes-u1" and method == "GET":
-            return {
-                "ID": "agent-hermes-u1",
-                "Spec": {
-                    "Name": "agent-hermes-u1",
-                    "Mode": {"Replicated": {"Replicas": 0}},
-                    "TaskTemplate": {},
-                },
-                "Version": {"Index": self.version},
-            }
+    def call(self, _method, path, *_args, query=None, **_kwargs):
         if path.endswith("/update"):
             self.updates.append(query["version"])
-            if self.conflicts:
-                self.conflicts -= 1
+            if query["version"] != self.version:
+                raise AssertionError(f"update sent stale version {query['version']}")
+            if self.refusals:
+                self.refusals -= 1
                 self.version += 1
-                raise engine.EngineError(f"POST {path} -> 500: {self.error!r}", 500)
+                raise engine.EngineError(
+                    f"POST {path} -> 500: rpc error: code = Unknown desc = {self.error}",
+                    500,
+                )
             return None
-        raise AssertionError(path)
+        return {
+            "ID": "svc-1",
+            "Spec": {
+                "Name": "agent-hermes-u1",
+                "Mode": {"Replicated": {"Replicas": 0}},
+                "TaskTemplate": {"Networks": []},
+            },
+            "Version": {"Index": self.version},
+        }
 
 
-class TestSwarmBackendUpdateRace(unittest.TestCase):
-    def test_an_update_out_of_sequence_is_retried_on_the_fresh_version(self):
-        """Swarm bumps a freshly created service's version on its own, so a
-        start racing that bump must reread the version instead of failing the
-        agent with a 502."""
-        fake = RacingEngine(conflicts=2)
-        swarm.SwarmBackend(fake, "c", "p", 1).start({"ID": "agent-hermes-u1"})
-        self.assertEqual(fake.updates, [1, 2, 3])
+class TestSwarmBackendUpdate(unittest.TestCase):
+    def test_a_start_survives_swarm_moving_the_version_after_a_create(self):
+        fake = RacingEngine(refusals=1, error="update out of sequence")
+        swarm.SwarmBackend(fake, "c", "p", 1).start({"ID": "svc-1"}, "net-p-0")
+        self.assertEqual(fake.updates, [1, 2])
 
-    def test_another_update_error_is_not_retried(self):
-        fake = RacingEngine(conflicts=1, error="no such image")
+    def test_another_engine_error_is_not_retried(self):
+        fake = RacingEngine(refusals=1, error="no such image")
         with self.assertRaises(engine.EngineError):
-            swarm.SwarmBackend(fake, "c", "p", 1).start({"ID": "agent-hermes-u1"})
+            swarm.SwarmBackend(fake, "c", "p", 1).start({"ID": "svc-1"}, "net-p-0")
         self.assertEqual(fake.updates, [1])
 
-    def test_a_conflict_that_never_settles_gives_up(self):
-        fake = RacingEngine(conflicts=swarm.UPDATE_ATTEMPTS)
+    def test_a_version_that_never_settles_gives_up(self):
+        fake = RacingEngine(refusals=1000, error="update out of sequence")
         with self.assertRaises(engine.EngineError):
-            swarm.SwarmBackend(fake, "c", "p", 1).start({"ID": "agent-hermes-u1"})
-        self.assertEqual(len(fake.updates), swarm.UPDATE_ATTEMPTS)
+            swarm.SwarmBackend(fake, "c", "p", 1).start({"ID": "svc-1"}, "net-p-0")
+        self.assertLess(len(fake.updates), 10)
 
 
 class TestSwarmBackend(unittest.TestCase):
