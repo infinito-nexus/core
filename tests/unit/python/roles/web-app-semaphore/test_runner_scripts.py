@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import fnmatch
 import glob
 import os
 import re
 import unittest
+import unittest.mock as mock
 from pathlib import Path
 
 from utils.cache.files import PROJECT_ROOT, iter_project_files, read_text
@@ -17,6 +19,25 @@ SOURCE_TREES = ("shell", "python", "opentofu")
 CALLED = re.compile(r"\$\{here\}/\.\./\.\./(python/[A-Za-z0-9_]+\.py)")
 
 
+def glob_matches(path: str, pattern: str) -> bool:
+    """Args:
+    path: an absolute project file path.
+    pattern: an absolute, non-recursive glob pattern.
+
+    Returns:
+        Whether ``glob.glob(pattern)`` yields ``path``: component by component,
+        case-sensitive, a wildcard never crossing ``/`` and never matching a
+        name with a leading dot unless the pattern component has one too.
+    """
+    names = Path(path).parts
+    parts = Path(pattern).parts
+    return len(names) == len(parts) and all(
+        fnmatch.fnmatchcase(name, part)
+        and (not name.startswith(".") or part.startswith("."))
+        for name, part in zip(names, parts, strict=True)
+    )
+
+
 def covered(globs: list[str]) -> set[str]:
     """Args:
     globs: ``SEMAPHORE_RUNNER_SOURCE_GLOBS``, relative to the role's ``files``.
@@ -25,15 +46,12 @@ def covered(globs: list[str]) -> set[str]:
         The files those globs match, relative to ``files``, with the semantics
         of Ansible's ``fileglob``: ``glob.glob``, files only.
     """
-    matched = set()
-    for pattern in globs:
-        regex = re.compile(glob.translate(str(FILES / pattern)))
-        matched.update(
-            Path(path).relative_to(FILES).as_posix()
-            for path in iter_project_files()
-            if regex.match(path)
-        )
-    return matched
+    return {
+        Path(path).relative_to(FILES).as_posix()
+        for pattern in globs
+        for path in iter_project_files()
+        if glob_matches(path, str(FILES / pattern))
+    }
 
 
 def uncovered_files(globs: list[str]) -> list[str]:
@@ -95,6 +113,19 @@ class TestRunnerSourcesDigest(unittest.TestCase):
         self.assertIn("python/provision/inputs.py", findings)
         self.assertIn("opentofu/roots/hetzner/.terraform.lock.hcl", findings)
         self.assertIn("opentofu/records/.terraform.lock.hcl", findings)
+
+    def test_negative_control_a_star_skips_dotfiles_like_glob(self) -> None:
+        self.assertNotIn(
+            "opentofu/records/.terraform.lock.hcl", covered(["opentofu/records/*"])
+        )
+        self.assertIn(
+            "opentofu/records/.terraform.lock.hcl", covered(["opentofu/records/.*"])
+        )
+
+    def test_matching_needs_no_python_3_13_glob_api(self) -> None:
+        with mock.patch.dict(glob.__dict__):
+            glob.__dict__.pop("translate", None)
+            self.assertIn("python/provision.py", covered(["python/*"]))
 
 
 if __name__ == "__main__":
