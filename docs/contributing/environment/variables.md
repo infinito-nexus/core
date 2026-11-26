@@ -73,7 +73,7 @@ Slot 0 is the primary checkout; the other slots belong to stacks, not to checkou
   `<name>` names the primary checkout, so every worktree of it uses the same name.
   `<hash>` digests the Dockerfile, every file the `toolchain` stage copies, the stage's build arguments and the ID of the local parent image ([toolchain.py](../../../utils/docker/image/toolchain.py)).
   Worktrees with equal inputs share one image, and a local build sends only those files as its context.
-- With `INFINITO_TEST_RUNNER=docker` and `INFINITO_LINT_RUNNER=docker`, `make test*`, `make lint*` and `make install-lint` run in the shared test runner `infinito-test-<hash>`.
+- With `INFINITO_TEST_RUNNER=docker` and `INFINITO_LINT_RUNNER=docker`, `make test*`, `make lint*` and `make install-lint` run in the shared test runner `infinito-test-<hash>`; `make lint-quality` always runs the `quality` compose service on the host.
   The first call builds the image when it is missing and starts the runner; later calls from every checkout with the same hash reuse it.
   No test or lint target starts a deploy stack.
 - The runner mounts every root of `INFINITO_WORKTREE_ROOTS` (colon-separated) at its host path; empty mounts the primary checkout and `~/.local/share/worktrees`.

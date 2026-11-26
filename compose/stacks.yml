@@ -129,6 +129,7 @@ unaddressed:
   - install-alias
   - install-force
   - install-venv
+  - lint-quality
   - network-trust-ca
   - quality-check
   - runner-cleanup-report

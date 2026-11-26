@@ -320,7 +320,7 @@ class TestDeclaration(unittest.TestCase):
             for target in self.graph
             if target.startswith(("test-unit-", "lint-"))
             or target in ("test-external", "test-integration", "test-lint")
-        }
+        } - set(unaddressed())
         self.assertLessEqual(wrapped, set(self.stacks["test-runner"].targets))
 
 

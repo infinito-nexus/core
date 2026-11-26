@@ -10,8 +10,3 @@ services:
       - ${INFINITO_GIT_COMMON_DIR:?Set by 'make worktree-up' from git rev-parse
         --git-common-dir}:${INFINITO_GIT_COMMON_DIR:?Set by 'make worktree-up'
         from git rev-parse --git-common-dir}
-  quality:
-    volumes:
-      - ${INFINITO_GIT_COMMON_DIR:?Set by 'make worktree-up' from git rev-parse
-        --git-common-dir}:${INFINITO_GIT_COMMON_DIR:?Set by 'make worktree-up'
-        from git rev-parse --git-common-dir}:ro

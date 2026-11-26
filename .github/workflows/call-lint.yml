@@ -23,6 +23,18 @@ jobs:
     steps:
       - name: ⬇️ Checkout repository
         uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: ⬇️ Fetch the upstream main lint-quality diffs against
+        shell: bash
+        env:
+          CI_SYNC_MAIN_SOURCE_REPOSITORY_DEFAULT: infinito-nexus/core
+          CI_SYNC_MAIN_SOURCE_REPOSITORY: ${{ vars.CI_SYNC_MAIN_SOURCE_REPOSITORY }}
+          CI_SYNC_MAIN_SOURCE_REPOSITORY_IS_SET: ${{ contains(toJSON(vars), '"CI_SYNC_MAIN_SOURCE_REPOSITORY"') }}
+        run: |
+          set -euo pipefail
+          git fetch "$(./scripts/meta/resolve/baseline_remote.sh)" main:refs/remotes/origin/main --force
 
       - name: 🔧 Set up Python
         uses: actions/setup-python@v6

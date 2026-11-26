@@ -734,6 +734,7 @@ lint: install-lint roles-pull
 		lint-php \
 		lint-playwright \
 		lint-python \
+		lint-quality \
 		lint-ruby \
 		lint-shellcheck \
 		lint-sql
@@ -817,6 +818,13 @@ lint-playwright: install-lint
 # Run Python lint checks.
 lint-python: install-lint
 	@bash scripts/lint/wrapper.sh python
+
+.PHONY: lint-quality
+# Gate the commits since the merge base of HEAD and base on new test.text-presence findings with infinito-nexus/quality, run from its compose service (profile tools).
+# Usage: make lint-quality [base=<ref>]
+# Param base: ref whose merge base with HEAD the check starts from (empty: INFINITO_LINT_DIFF_BASE)
+lint-quality:
+	@"$${PYTHON}" -m cli.administration.deploy.development quality -- check --base "$(or $(base),$${INFINITO_LINT_DIFF_BASE:?lint-quality needs base=<ref> or INFINITO_LINT_DIFF_BASE})" --rule test.text-presence
 
 .PHONY: lint-role
 # Run the scope-aware lint tests on one role, without the full gate.

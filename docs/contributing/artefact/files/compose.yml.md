@@ -28,7 +28,7 @@ The stacks of this repository are declared in [stacks.yml](../../../../compose/s
 |---|---|---|
 | `cache` | always-on | Registry mirror and package cache inside the machine-wide infra runner `infinito-infra`. |
 | `tools` | on-demand | Translation and model services inside the infra runner, started after `cache`. |
-| `test-runner` | long-lived | Shared test runner `infinito-test-<hash>`, one per toolchain image, which every `make test*` and `make lint*` target uses. |
+| `test-runner` | long-lived | Shared test runner `infinito-test-<hash>`, one per toolchain image, which every `make test*` and `make lint*` target uses, except `make lint-quality`, which runs the networkless `quality` service of the compose profile `tools` on the host. |
 | `deploy` | on-demand | The deploy stack of one checkout, with `infinito`, `coredns`, `target` and `target-resolver`. |
 
 - A test or lint target MUST NOT start a deploy stack; `make test-runner-status` shows the test runner and `make test-runner-down` removes it.

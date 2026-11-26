@@ -178,7 +178,7 @@ services:
       - ./compose/target/Corefile:/Corefile:ro
 
   quality:
-    image: ghcr.io/infinito-nexus/quality:v0.2.0@sha256:8a7e5e292063eaac8177cfcdd9813e16cc55f31241a91efab2239b1c5a7256cf
+    image: ghcr.io/infinito-nexus/quality:v0.3.0@sha256:1bd5f892705fef3ca23335e2250576d9d9f04c5bdd91cd2fa14a9cbc4ced2692
     profiles:
       - tools
     network_mode: none
