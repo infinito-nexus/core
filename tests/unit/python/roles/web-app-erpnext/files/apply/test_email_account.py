@@ -66,6 +66,31 @@ class TestEmailAccount(unittest.TestCase):
 
         self.assertEqual(0, account.get("no_smtp_authentication"))
 
+    def test_a_relay_that_takes_no_login_keeps_no_password(self) -> None:
+        self.frappe.seed(
+            ACCOUNT,
+            NAME,
+            email_account_name=NAME,
+            login_id="no-reply@infinito.example",
+            password="submission-token",
+        )
+
+        account = self._account(port=25, tls=False, start_tls=False, auth=False)
+
+        self.assertIsNone(account.get("password"))
+        self.assertIsNone(account.get("login_id"))
+        self.assertIn(
+            ("remove_encrypted_password", ACCOUNT, NAME, "password"),
+            self.frappe.calls,
+        )
+
+    def test_a_relay_that_takes_a_login_keeps_its_password(self) -> None:
+        account = self._account(port=465, tls=True, start_tls=False, auth=True)
+
+        self.assertEqual("submission-token", account.get("password"))
+        self.assertEqual("no-reply@infinito.example", account.get("login_id"))
+        self.assertNotIn("remove_encrypted_password", [c[0] for c in self.frappe.calls])
+
     def test_an_account_left_on_starttls_converges_to_the_relay_transport(
         self,
     ) -> None:

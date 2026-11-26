@@ -40,7 +40,7 @@ const PROBES = {
     webhook_docevent: "on_update",
     request_url: `https://example.invalid/${slug}`,
     request_method: "POST",
-    request_structure: "Form",
+    request_structure: "Form URL-Encoded",
     webhook_data: [{ fieldname: "name", key: "name" }],
     enabled: 0,
   }),

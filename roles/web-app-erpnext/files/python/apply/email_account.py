@@ -1,6 +1,7 @@
 import os
 
 import frappe
+from frappe.utils.password import remove_encrypted_password
 
 SITE_NAME = os.environ["SITE_NAME"]
 MAIL_FROM_NAME = os.environ["MAIL_FROM_NAME"]
@@ -30,9 +31,9 @@ def upsert_outbound_account():
     ea.smtp_port = SMTP_PORT
     ea.use_ssl_for_outgoing = int(SMTP_TLS and not SMTP_START_TLS)
     ea.use_tls = int(SMTP_TLS and SMTP_START_TLS)
-    ea.login_id_is_different = 1
-    ea.login_id = SMTP_USER
-    ea.password = SMTP_PASS
+    ea.login_id_is_different = int(SMTP_AUTH_ENABLED)
+    ea.login_id = SMTP_USER if SMTP_AUTH_ENABLED else None
+    ea.password = SMTP_PASS if SMTP_AUTH_ENABLED else None
     ea.sender_name = MAIL_FROM_NAME
     ea.flags.ignore_permissions = True
     ea.flags.ignore_validate = True
@@ -44,6 +45,10 @@ def upsert_outbound_account():
         ea.db_insert() if ea.is_new() else ea.db_update()
     except Exception:
         ea.save()
+    if not SMTP_AUTH_ENABLED:
+        # Exception: Frappe logs in whenever a password is stored, despite
+        # no_smtp_authentication, and an MX without AUTH then fails every send.
+        remove_encrypted_password("Email Account", EMAIL_ACCOUNT_NAME, "password")
 
 
 frappe.init(site=SITE_NAME, sites_path="/home/frappe/frappe-bench/sites")
