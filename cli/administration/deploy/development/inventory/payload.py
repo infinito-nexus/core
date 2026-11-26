@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 from utils.cache.applications import get_variant_overrides_only
+from utils.cache.base import _deep_merge
 from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
 )
@@ -116,10 +117,6 @@ def _bake_overrides(
         existing_apps = {}
     apps: dict[str, Any] = dict(variant_payloads.items())
     for app_id, override in existing_apps.items():
-        base_payload = apps.get(app_id)
-        if isinstance(base_payload, Mapping) and isinstance(override, Mapping):
-            apps[app_id] = {**base_payload, **override}
-        else:
-            apps[app_id] = override
+        apps[app_id] = _deep_merge(apps.get(app_id), override)
     merged["applications"] = apps
     return merged
