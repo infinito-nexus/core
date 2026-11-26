@@ -43,26 +43,52 @@ def _target(task: dict) -> str | None:
     return None
 
 
-def _reached(
-    tasks, gates: tuple[str, ...], seen: dict[str, set[tuple[str, ...]]]
-) -> None:
+def _steps(tasks, gates: tuple[str, ...]):
     """Args:
-    tasks: a parsed tasks list of the role.
-    gates: the when conditions every task of ``tasks`` runs under.
-    seen: role task file to the gate sets it is reached under; filled in place.
+        tasks: a parsed tasks list of the role.
+        gates: the when conditions every task of ``tasks`` runs under.
+
+    Yields:
+        Every task in run order, the tasks of its block sections right after it,
+        each with the when conditions it runs under.
     """
     for task in tasks if isinstance(tasks, list) else []:
-        if not isinstance(task, dict):
-            continue
-        own = gates + tuple(_when(task))
+        if isinstance(task, dict):
+            own = gates + tuple(_when(task))
+            yield task, own
+            for section in SECTIONS:
+                yield from _steps(task.get(section), own)
+
+
+def _reach(steps, seen: dict[str, set[tuple[str, ...]]]) -> None:
+    """Args:
+    steps: tasks with their when conditions, as ``_steps`` yields them.
+    seen: role task file to the gate sets it is reached under; filled in place.
+    """
+    for task, gates in steps:
         target = _target(task)
-        if target is not None and own not in seen.setdefault(target, set()):
-            seen[target].add(own)
-            _reached(
-                load_yaml_any(str(TASKS / target), default_if_missing=[]), own, seen
-            )
-        for section in SECTIONS:
-            _reached(task.get(section), own, seen)
+        if target is not None and gates not in seen.setdefault(target, set()):
+            seen[target].add(gates)
+            tasks = load_yaml_any(str(TASKS / target), default_if_missing=[])
+            _reach(_steps(tasks, gates), seen)
+
+
+def _without_producer(tasks: list) -> list:
+    """Args:
+        tasks: a parsed tasks list of the role.
+
+    Returns:
+        The list without every task that includes the producer, block sections
+        included.
+    """
+    return [
+        {
+            key: _without_producer(value) if key in SECTIONS else value
+            for key, value in task.items()
+        }
+        for task in tasks
+        if _target(task) != PRODUCER
+    ]
 
 
 def _unproduced_readers(core: list) -> list[str]:
@@ -73,16 +99,17 @@ def _unproduced_readers(core: list) -> list[str]:
         Every role task file that reads an OPENPOST netns fact on some path that
         does not run the producer first under the same gate.
     """
+    steps = list(_steps(core, ()))
     produced = [
         index
-        for index, task in enumerate(core)
-        if _target(task) == PRODUCER and _when(task) == [GATE]
+        for index, (task, gates) in enumerate(steps)
+        if _target(task) == PRODUCER and gates == (GATE,)
     ]
     before: dict[str, set[tuple[str, ...]]] = {}
     after: dict[str, set[tuple[str, ...]]] = {}
-    split = produced[0] if produced else len(core)
-    _reached(core[:split], (), before)
-    _reached(core[split + 1 :] if produced else [], (), after)
+    split = produced[0] if produced else len(steps)
+    _reach(steps[:split], before)
+    _reach(steps[split + 1 :] if produced else [], after)
     readers = {
         name
         for name, text in _task_files().items()
@@ -114,7 +141,7 @@ class TestOpenPostNetnsProducer(unittest.TestCase):
         self,
     ) -> None:
         core = load_yaml_any(str(TASKS / "00_core.yml"), default_if_missing=[])
-        stripped = [task for task in core if _target(task) != PRODUCER]
+        stripped = _without_producer(core)
         self.assertIn("03_breakglass.yml", _unproduced_readers(stripped))
         self.assertIn("crossposter/provision.yml", _unproduced_readers(stripped))
 
