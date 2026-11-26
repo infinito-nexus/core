@@ -17,7 +17,6 @@ from utils.roles.display import display_names
 _DECISIVE_FILES = ("error-context.md", "meta.txt", "containers.txt")
 _TITLE = "CI failure: {role}"
 _LABEL = "💥 ci-failure"
-# gh --paginate asks for per_page=100 by itself, which GitHub answers with HTTP 502 for a large run (45509759037); 30 is the API's own default page.
 _JOBS_PAGE = 30
 
 
