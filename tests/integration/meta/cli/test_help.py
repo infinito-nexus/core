@@ -3,6 +3,9 @@ import subprocess
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import call, patch
+
+from cli.core import app
 
 
 class CLIHelpIntegrationTest(unittest.TestCase):
@@ -42,21 +45,51 @@ class CLIHelpIntegrationTest(unittest.TestCase):
         commands.sort(key="/".join)
         return commands
 
+    def test_dispatcher_bootstrap_help(self):
+        cmd = [self.python, self.main_py, "--help"]
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=(
+                f"Command `{' '.join(cmd)}` failed\n"
+                f"stdout:\n{result.stdout}\n"
+                f"stderr:\n{result.stderr}"
+            ),
+        )
+        self.assertTrue(result.stdout.strip(), "global --help printed nothing")
+
     def test_all_cli_commands_help(self):
-        for segments in self._discover_command_dirs():
+        commands = self._discover_command_dirs()
+        self.assertGreater(len(commands), 0, "no CLI commands discovered")
+        for segments in commands:
             with self.subTest(command=" ".join(segments)):
-                cmd = [self.python, self.main_py, *segments, "--help"]
-                result = subprocess.run(
-                    cmd, capture_output=True, text=True, check=False
+                argv = [self.main_py, *segments, "--help"]
+                with (
+                    patch.object(sys, "argv", argv),
+                    patch.object(app.subprocess, "run") as dispatched,
+                    self.assertRaises(SystemExit) as raised,
+                ):
+                    app.main()
+
+                self.assertEqual(
+                    raised.exception.code,
+                    0,
+                    msg=f"Command `{' '.join(argv)}` exited {raised.exception.code}",
                 )
                 self.assertEqual(
-                    result.returncode,
-                    0,
-                    msg=(
-                        f"Command `{' '.join(cmd)}` failed\n"
-                        f"stdout:\n{result.stdout}\n"
-                        f"stderr:\n{result.stderr}"
-                    ),
+                    dispatched.call_args_list,
+                    [
+                        call(
+                            [
+                                sys.executable,
+                                "-m",
+                                "cli." + ".".join(segments),
+                                "--help",
+                            ],
+                            check=False,
+                        )
+                    ],
                 )
 
 

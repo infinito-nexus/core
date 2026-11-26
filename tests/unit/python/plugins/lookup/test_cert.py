@@ -8,14 +8,14 @@ from ansible.template import Templar
 
 import utils.tls.common as _tls_common
 from plugins.lookup.cert import LookupModule
-from utils.cache.reset import _reset_cache_for_tests
+from utils.tests.caches import reset_caches
 
 sys.modules.setdefault("ansible.module_utils.tls_common", _tls_common)
 
 
 class TestCertPlanLookup(unittest.TestCase):
     def setUp(self):
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
         self.lookup = LookupModule()
         self.lookup._loader = mock.MagicMock()
 
@@ -73,7 +73,7 @@ class TestCertPlanLookup(unittest.TestCase):
         self.addCleanup(loader_patcher.stop)
 
     def tearDown(self):
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def test_letsencrypt_plan_paths_and_sans_default(self):
         out = self.lookup.run(["web-app-a"], variables=self.vars, mode="app")[0]

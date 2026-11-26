@@ -19,9 +19,9 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar, trust_as_template
 
 from utils.cache.files import PROJECT_ROOT, read_text
-from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml_any, load_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
+from utils.tests.caches import reset_caches
 
 ROLE = "web-app-nextcloud"
 ROLE_DIR = PROJECT_ROOT / "roles" / ROLE
@@ -53,11 +53,11 @@ HARDCODED_CLAIM_MAPPER = "oidc-hardcoded-claim-mapper"
 
 
 def setUpModule() -> None:
-    _reset_cache_for_tests()
+    reset_caches(files_changed=False)
 
 
 def tearDownModule() -> None:
-    _reset_cache_for_tests()
+    reset_caches(files_changed=False)
 
 
 def renderer(plugin: str):

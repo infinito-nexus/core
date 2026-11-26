@@ -22,9 +22,9 @@ from utils.cache.carrier import (
     merged_applications_cache_key,
 )
 from utils.cache.files import PROJECT_ROOT, read_text
-from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml, load_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_TEMPL_COMPOSE
+from utils.tests.caches import reset_caches
 
 _WEBSERVER_VARS = Path(PROJECT_ROOT) / "group_vars" / "all" / "04_webserver.yml"
 _NGINX_CONF = (
@@ -81,7 +81,7 @@ class TestWebserverWorkerLimits(unittest.TestCase):
         cls.group_vars = load_yaml(_WEBSERVER_VARS)
 
     def setUp(self) -> None:
-        self.addCleanup(_reset_cache_for_tests)
+        self.addCleanup(reset_caches, files_changed=False)
 
     def _render(
         self, expression: str, applications: dict[str, Any], **scope: Any
@@ -96,7 +96,7 @@ class TestWebserverWorkerLimits(unittest.TestCase):
         Returns:
             The rendered text, stripped.
         """
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
         variables: dict[str, Any] = {
             key: trust_as_template(value) if isinstance(value, str) else value
             for key, value in self.group_vars.items()

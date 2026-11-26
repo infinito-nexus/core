@@ -27,7 +27,6 @@ from jinja2 import Environment, StrictUndefined, select_autoescape
 from jinja2.nativetypes import NativeEnvironment
 
 from plugins.lookup.applications import LookupModule as ApplicationsLookup
-from plugins.lookup.applications import _reset_cache_for_tests
 from plugins.lookup.container_networks import LookupModule as ContainerNetworksLookup
 from plugins.lookup.proxy_hops import LookupModule as ProxyHopsLookup
 from utils.cache.base import _fingerprint_scope
@@ -42,6 +41,7 @@ from utils.roles.mapping import (
     ROLE_FILE_TEMPL_COMPOSE,
     ROLE_FILE_VARS_MAIN,
 )
+from utils.tests.caches import reset_caches
 
 ROLES_DIR = PROJECT_ROOT / "roles"
 APP = "web-app-nextcloud"
@@ -254,7 +254,7 @@ def _covered(source: str, trusted: list[str]) -> bool:
 class TestNotifyPushTrust(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
         scope = contextlib.ExitStack()
         cls.addClassCleanup(scope.close)
         scope.enter_context(_fingerprint_scope())
@@ -267,7 +267,7 @@ class TestNotifyPushTrust(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def _assert_daemon_accepted(self, stack: _Stack) -> None:
         url = stack.render(ROLE_VARS["NEXTCLOUD_NOTIFY_PUSH_NEXTCLOUD_URL"])

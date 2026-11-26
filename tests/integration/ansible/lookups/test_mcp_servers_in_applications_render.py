@@ -9,8 +9,8 @@ from ansible.plugins.loader import lookup_loader
 from ansible.template import Templar
 
 from utils.cache.applications import get_application_defaults
-from utils.cache.reset import _reset_cache_for_tests
 from utils.roles.mapping import ROLE_FILE_META_MCP
+from utils.tests.caches import reset_caches
 
 from . import PROJECT_ROOT
 
@@ -83,18 +83,18 @@ class TestMcpServersInsideTheApplicationsRender(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         scope = _mcp_host(PUBLIC)
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
         cls.play = _lookup(
             "mcp_servers", {**scope, "application_id": CLIENT}, credentials=False
         )
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
         cls.application = _lookup("applications", scope, CLIENT)
         cls.values = _lookup("form_values", scope, CLIENT, "mcp")
         cls.drift = _lookup("form_drift", scope, CLIENT, {"mcp": {"servers": []}})
 
     @classmethod
     def tearDownClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def test_the_render_discovers_what_the_play_discovers(self) -> None:
         self.assertEqual(self.application["mcp_form"]["servers"], self.play)
@@ -119,13 +119,13 @@ class TestTheCredentialedDiscoveryLeaks(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         scope = _mcp_host(CREDENTIALED)
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
         cls.application = _lookup("applications", scope, CLIENT)
         cls.values = _lookup("form_values", scope, CLIENT, "mcp")
 
     @classmethod
     def tearDownClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def test_the_tokens_reach_the_applications_payload(self) -> None:
         self.assertIn(MARKER, json.dumps(self.application, default=str))

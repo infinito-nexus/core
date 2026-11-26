@@ -12,9 +12,9 @@ from utils.cache.applications import (
     get_merged_applications,
     get_variant_overrides_only,
 )
-from utils.cache.reset import _reset_cache_for_tests
 from utils.domains.default_primary import default_domain_primary
 from utils.roles.applications.status_codes import DEFAULT_OK, declared_status_codes
+from utils.tests.caches import fresh_caches
 
 from . import PROJECT_ROOT
 
@@ -38,11 +38,8 @@ def _rendered(group_names: list[str], override: dict[str, Any]) -> dict[str, Any
     variables = {"group_names": list(group_names), "applications": applications}
     templar = Templar(loader=DataLoader(), variables=dict(variables))
     templar.available_variables = dict(variables)
-    _reset_cache_for_tests()
-    try:
+    with fresh_caches(files_changed=False):
         return get_merged_applications(variables=variables, templar=templar)[APP]
-    finally:
-        _reset_cache_for_tests()
 
 
 @functools.cache

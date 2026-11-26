@@ -26,9 +26,6 @@ from jinja2 import BaseLoader, Environment, StrictUndefined, select_autoescape
 from plugins.lookup.applications import (
     LookupModule as ApplicationsLookup,
 )
-from plugins.lookup.applications import (
-    _reset_cache_for_tests,
-)
 from utils.cache.base import _fingerprint_scope
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
@@ -36,6 +33,7 @@ from utils.networks import attachments
 from utils.networks.proxy import REVERSE_PROXY_APPLICATION_ID
 from utils.roles.mapping import ROLE_FILE_META_NETWORKS, ROLE_FILE_TEMPL_COMPOSE
 from utils.templating.ansible import _trust_as_template
+from utils.tests.caches import reset_caches
 
 from . import PROJECT_ROOT
 
@@ -147,7 +145,7 @@ _MERGED: dict[str, dict] = {}
 def _merged(overrides: dict) -> dict:
     key = json.dumps(overrides, sort_keys=True)
     if key not in _MERGED:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
         applications = ApplicationsLookup()
         applications._templar = Templar(loader=DataLoader())
         _MERGED[key] = applications.run(
@@ -256,7 +254,7 @@ class _BothSwitchStates:
     @classmethod
     def tearDownClass(cls) -> None:
         cls.proof.stop()
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def _both(self, name: str, terms: list, mode: str, application_id: str) -> tuple:
         return tuple(
@@ -274,7 +272,7 @@ class TestTheRelayIsRefusedInSwarmUntilItsProof(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def _assert_refused(self, call) -> None:
         with self.assertRaises(Exception) as raised:

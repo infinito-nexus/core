@@ -12,9 +12,9 @@ from plugins.filter.dotenv import dotenv_names
 from plugins.lookup.form_values import LookupModule as FormValues
 from utils.cache import PROJECT_ROOT
 from utils.cache.files import read_text
-from utils.cache.reset import _reset_cache_for_tests
 from utils.roles.applications.forms import SECRET_SEGMENT, is_secret
 from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_META_SERVICES
+from utils.tests.caches import reset_caches
 
 from . import load_role_meta, role_dirs, role_files
 from .test_forms import _credentials
@@ -151,7 +151,7 @@ def type_findings(roles: list[Path]) -> list[str]:
         reports drift on every run.
     """
     errors = []
-    _reset_cache_for_tests()
+    reset_caches(files_changed=False)
     for where, (role, form) in sorted(env_forms(roles).items()):
         variables = _scope(_partners(role))
         lookup = FormValues()

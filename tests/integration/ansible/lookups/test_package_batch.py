@@ -13,9 +13,9 @@ import unittest
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
-from plugins.lookup.applications import _reset_cache_for_tests
 from plugins.lookup.package_batch import LookupModule as PackageBatchLookup
 from utils.packages.registry import build_registry
+from utils.tests.caches import reset_caches
 
 from . import PROJECT_ROOT
 
@@ -59,7 +59,7 @@ def _variables(group_names: list[str]) -> dict:
 class TestPackageBatchIntegration(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
         lookup = PackageBatchLookup()
         lookup._loader = DataLoader()
         lookup._templar = Templar(loader=lookup._loader)
@@ -68,7 +68,7 @@ class TestPackageBatchIntegration(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def test_supporting_roles_are_covered(self) -> None:
         missing = {

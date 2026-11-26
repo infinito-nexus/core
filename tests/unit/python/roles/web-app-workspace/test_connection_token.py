@@ -17,7 +17,6 @@ from utils.cache.applications import (
     get_variant_overrides_only,
 )
 from utils.cache.files import PROJECT_ROOT, read_text
-from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml, load_yaml_any, load_yaml_str
 from utils.roles.applications.services.sso import get_sso_config
 from utils.roles.applications.status_codes import declared_status_codes
@@ -27,6 +26,7 @@ from utils.roles.mapping import (
     ROLE_FILE_TEMPL_COMPOSE,
     ROLE_FILE_VARS_MAIN,
 )
+from utils.tests.caches import fresh_caches
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -196,13 +196,10 @@ def rendered(group_names: list[str], override: dict[str, Any]) -> dict[str, Any]
     variables = {"group_names": list(group_names), "applications": applications}
     templar = Templar(loader=DataLoader(), variables=dict(variables))
     templar.available_variables = dict(variables)
-    _reset_cache_for_tests()
-    try:
+    with fresh_caches(files_changed=False):
         return get_merged_applications(variables=variables, templar=templar)[
             APPLICATION_ID
         ]
-    finally:
-        _reset_cache_for_tests()
 
 
 @functools.cache

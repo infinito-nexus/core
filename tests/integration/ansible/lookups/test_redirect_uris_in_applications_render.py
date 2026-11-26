@@ -8,9 +8,9 @@ from ansible.template import Templar
 
 from plugins.lookup.redirect_uris import LookupModule
 from utils.cache.base import _RENDER_GUARD
-from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.tests.caches import reset_caches
 
 from . import PROJECT_ROOT
 
@@ -46,7 +46,7 @@ def _keycloak_host(consumers: list[str]) -> dict:
 
 
 def _redirect_uris(scope: dict, *, inside_the_render: bool) -> list[str]:
-    _reset_cache_for_tests()
+    reset_caches(files_changed=False)
     lookup = LookupModule()
     lookup._loader = DataLoader()
     lookup._templar = Templar(loader=lookup._loader)
@@ -67,7 +67,7 @@ class TestRedirectUrisInsideTheApplicationsRender(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def test_the_render_registers_what_the_play_registers(self) -> None:
         self.assertEqual(self.after, self.inside)

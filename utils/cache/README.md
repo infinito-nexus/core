@@ -38,7 +38,7 @@ The cache holds a `LazyApplications` per key, which renders an application on it
 
 ## Test-Only Helpers 🧪
 
-Each module owns a private `_reset()` that clears its own cache dicts. `utils.cache.reset._reset_cache_for_tests()` orchestrates all six (`base`, `applications`, `users`, `domains`, `yaml`, `files`) plus the shared fingerprint memo. Unit tests that exercise the cached paths MUST call it in `setUp` to guarantee clean state across test cases.
+Each module owns a private `_reset()` that clears its own cache dicts. `utils.cache.reset._reset_cache_for_tests()` orchestrates all six (`base`, `applications`, `users`, `domains`, `yaml`, `files`) plus the shared fingerprint memo. Tests that exercise the cached paths MUST pick their reset through `utils.tests.caches.reset_caches(files_changed=...)` in `setUp`: `True` when they write or fake files the caches could hold, else `False`, which keeps the parsed file and YAML caches and clears only the rendered ones.
 
 ## Design Guidelines 📐
 

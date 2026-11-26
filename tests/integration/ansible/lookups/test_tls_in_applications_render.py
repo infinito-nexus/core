@@ -9,7 +9,7 @@ from ansible.template import Templar
 from plugins.lookup.cert import LookupModule as CertLookupModule
 from plugins.lookup.tls import LookupModule
 from utils.cache.base import _RENDER_GUARD
-from utils.cache.reset import _reset_cache_for_tests
+from utils.tests.caches import reset_caches
 
 from . import PROJECT_ROOT
 
@@ -43,7 +43,7 @@ def _keycloak_host() -> dict:
 
 
 def _resolved(scope: dict, lookup_class, *, inside_the_render: bool) -> dict[str, dict]:
-    _reset_cache_for_tests()
+    reset_caches(files_changed=False)
     loader = DataLoader()
     templar = Templar(loader=loader)
     lookup = lookup_class(loader=loader, templar=templar)
@@ -70,7 +70,7 @@ class TestTlsInsideTheApplicationsRender(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def test_the_render_resolves_what_the_play_resolves(self) -> None:
         self.assertEqual(self.after, self.inside)
@@ -91,7 +91,7 @@ class TestCertInsideTheApplicationsRender(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def test_the_render_plans_what_the_play_plans(self) -> None:
         self.assertEqual(self.after, self.inside)

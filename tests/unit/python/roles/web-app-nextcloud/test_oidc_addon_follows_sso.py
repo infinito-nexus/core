@@ -18,7 +18,7 @@ from __future__ import annotations
 import unittest
 
 from utils.cache.applications import get_merged_applications
-from utils.cache.reset import _reset_cache_for_tests
+from utils.tests.caches import fresh_caches
 
 
 def _templar(variables: dict):
@@ -32,13 +32,10 @@ def _templar(variables: dict):
 
 def _addon_flags(*deployed: str) -> dict:
     variables = {"group_names": list(deployed), "applications": {}}
-    _reset_cache_for_tests()
-    try:
+    with fresh_caches(files_changed=False):
         applications = get_merged_applications(
             variables=variables, templar=_templar(variables)
         )
-    finally:
-        _reset_cache_for_tests()
     nextcloud = applications["web-app-nextcloud"]
     addons = nextcloud.get("addons") or {}
     services = nextcloud.get("services") or {}

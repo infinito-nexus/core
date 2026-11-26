@@ -13,10 +13,10 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
 from plugins.lookup.applications import LookupModule as ApplicationsLookup
-from plugins.lookup.applications import _reset_cache_for_tests
 from plugins.lookup.database_consumerless_volumes import (
     LookupModule as ConsumerlessLookup,
 )
+from utils.tests.caches import reset_caches
 
 from . import PROJECT_ROOT
 
@@ -36,7 +36,7 @@ def _variables(applications: dict, group_names: list[str]) -> dict:
 
 
 def _consumerless(group_names: list[str]) -> list[str]:
-    _reset_cache_for_tests()
+    reset_caches(files_changed=False)
     applications = ApplicationsLookup()
     applications._templar = Templar(loader=DataLoader())
     merged = applications.run(
@@ -51,7 +51,7 @@ def _consumerless(group_names: list[str]) -> list[str]:
 class TestDatabaseConsumerlessVolumesIntegration(unittest.TestCase):
     @classmethod
     def tearDownClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def test_the_lean_postgres_variant_leaves_its_volume_unconsumed(self) -> None:
         self.assertEqual(_consumerless(LEAN), ["postgres_data"])

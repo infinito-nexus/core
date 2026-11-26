@@ -19,7 +19,6 @@ from plugins.filter.url.join import url_join
 from plugins.lookup.container_volumes import container_volumes
 from utils.cache.applications import get_merged_applications
 from utils.cache.files import PROJECT_ROOT, read_text
-from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml_any
 from utils.networks.reachability import network_of
 from utils.roles.mapping import (
@@ -27,6 +26,7 @@ from utils.roles.mapping import (
     ROLE_FILE_TEMPL_COMPOSE,
     ROLE_FILE_VARS_MAIN,
 )
+from utils.tests.caches import fresh_caches
 
 ROLE = "roles/web-app-nextcloud"
 APPLICATION_ID = "web-app-nextcloud"
@@ -231,11 +231,8 @@ def _flags(deployed: list[str], applications: dict | None = None) -> dict:
     variables = {"group_names": deployed, "applications": applications or {}}
     templar = Templar(loader=DataLoader(), variables=dict(variables))
     templar.available_variables = dict(variables)
-    _reset_cache_for_tests()
-    try:
+    with fresh_caches(files_changed=False):
         merged = get_merged_applications(variables=variables, templar=templar)
-    finally:
-        _reset_cache_for_tests()
     nextcloud = merged[APPLICATION_ID]
     return {
         "redis": nextcloud["services"]["redis"]["enabled"],

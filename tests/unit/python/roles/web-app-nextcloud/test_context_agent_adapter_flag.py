@@ -13,9 +13,9 @@ import unittest
 
 from utils.cache.applications import get_merged_applications
 from utils.cache.files import PROJECT_ROOT
-from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_MCP, ROLE_FILE_VARS_MAIN
+from utils.tests.caches import fresh_caches
 
 ROLE = "roles/web-app-nextcloud"
 APPLICATION_ID = "web-app-nextcloud"
@@ -34,11 +34,8 @@ def _services(applications: dict) -> dict:
     variables = {"group_names": [APPLICATION_ID], "applications": applications}
     templar = Templar(loader=DataLoader(), variables=dict(variables))
     templar.available_variables = dict(variables)
-    _reset_cache_for_tests()
-    try:
+    with fresh_caches(files_changed=False):
         merged = get_merged_applications(variables=variables, templar=templar)
-    finally:
-        _reset_cache_for_tests()
     return merged[APPLICATION_ID]
 
 

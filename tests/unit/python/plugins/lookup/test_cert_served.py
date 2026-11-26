@@ -6,7 +6,7 @@ import unittest
 import unittest.mock as mock
 
 from plugins.lookup.cert import LookupModule
-from utils.cache.reset import _reset_cache_for_tests
+from utils.tests.caches import reset_caches
 
 APP = "web-app-wordpress"
 WILDCARD = "*.user.blog.main.test"
@@ -17,7 +17,7 @@ SELFSIGNED = "/etc/infinito.nexus/selfsigned"
 
 class TestCertServedNames(unittest.TestCase):
     def setUp(self):
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
         self.lookup = LookupModule()
         self.lookup._loader = mock.MagicMock()
         self.vars = {
@@ -45,7 +45,7 @@ class TestCertServedNames(unittest.TestCase):
         self.addCleanup(loader_patcher.stop)
 
     def tearDown(self):
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def _plan(self, term, **overrides):
         return self.lookup.run([term], variables=dict(self.vars, **overrides))[0]

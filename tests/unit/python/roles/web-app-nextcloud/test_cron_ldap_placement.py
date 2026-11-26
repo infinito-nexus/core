@@ -6,10 +6,10 @@ from ansible.template import Templar, trust_as_template
 from plugins.filter.resource_filter import resource_filter
 from utils.cache.applications import get_merged_applications
 from utils.cache.files import PROJECT_ROOT
-from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml_any
 from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.tests.caches import fresh_caches
 
 APPLICATION_ID = "web-app-nextcloud"
 ROLE = PROJECT_ROOT / "roles" / APPLICATION_ID
@@ -48,11 +48,8 @@ def merged(deployed, directory_hosts, overrides=None):
     }
     templar = Templar(loader=DataLoader(), variables=dict(variables))
     templar.available_variables = dict(variables)
-    _reset_cache_for_tests()
-    try:
+    with fresh_caches(files_changed=False):
         return get_merged_applications(variables=variables, templar=templar)
-    finally:
-        _reset_cache_for_tests()
 
 
 def node_label(applications, service):

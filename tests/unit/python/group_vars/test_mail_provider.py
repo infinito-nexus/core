@@ -12,10 +12,10 @@ from plugins.filter.generate.all_domains import FilterModule as AllDomainsFilter
 from utils.cache.applications import get_merged_applications
 from utils.cache.domains import get_merged_domains
 from utils.cache.files import PROJECT_ROOT
-from utils.cache.reset import _reset_cache_for_tests
 from utils.mail.provider import MAIL_WRAPPER
 from utils.roles.entity.name import entity_name
 from utils.roles.mapping import ROLE_FILE_META_DOMAINS
+from utils.tests.caches import reset_caches
 
 _GENERAL_VARS = Path(PROJECT_ROOT) / "group_vars" / "all" / "00_general.yml"
 _ROLES_DIR = Path(PROJECT_ROOT) / "roles"
@@ -51,7 +51,7 @@ class TestMailProviderRendersWithoutRecursion(unittest.TestCase):
         cls.group_vars = _trusted(_GENERAL_VARS)
 
     def tearDown(self) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def _render(self, scope: dict, value: Any) -> Any:
         return Templar(loader=DataLoader(), variables=scope).template(value)
@@ -113,7 +113,7 @@ class TestMailProviderRendersWithoutRecursion(unittest.TestCase):
 
     def test_the_wrapper_enters_no_domain_map(self) -> None:
         scope = self._payload_scope()
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
         templar = Templar(loader=DataLoader())
         applications = get_merged_applications(
             variables=scope, roles_dir=str(_ROLES_DIR), templar=templar
@@ -135,7 +135,7 @@ class TestMailProviderRendersWithoutRecursion(unittest.TestCase):
 
     def test_the_real_applications_payload_renders_with_the_group_var(self) -> None:
         scope = self._payload_scope()
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
         applications = get_merged_applications(
             variables=scope,
             roles_dir=str(_ROLES_DIR),

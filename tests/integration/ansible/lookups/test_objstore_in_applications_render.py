@@ -16,7 +16,7 @@ from ansible.template import Templar
 
 from plugins.lookup.objstore import LookupModule
 from utils.cache.base import _RENDER_GUARD
-from utils.cache.reset import _reset_cache_for_tests
+from utils.tests.caches import reset_caches
 
 PROVIDER = "web-svc-seaweedfs"
 FORMS = {
@@ -73,7 +73,7 @@ def _host(*, with_store: bool, vaulted: bool) -> dict[str, Any]:
 
 
 def _resolved(scope: dict[str, Any], *, inside_the_render: bool) -> dict[str, dict]:
-    _reset_cache_for_tests()
+    reset_caches(files_changed=False)
     loader = DataLoader()
     lookup = LookupModule(loader=loader, templar=Templar(loader=loader))
     _RENDER_GUARD.applications = inside_the_render
@@ -88,7 +88,7 @@ def _resolved(scope: dict[str, Any], *, inside_the_render: bool) -> dict[str, di
 
 
 def _form_values(scope: dict[str, Any]) -> dict[str, dict]:
-    _reset_cache_for_tests()
+    reset_caches(files_changed=False)
     loader = DataLoader()
     templar = Templar(loader=loader, variables=scope)
     form_values = lookup_loader.get("form_values", loader=loader, templar=templar)
@@ -116,7 +116,7 @@ class TestObjstoreInsideTheApplicationsRender(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def test_the_render_resolves_what_the_play_resolves_beside_the_store(
         self,
@@ -150,7 +150,7 @@ class TestObjstoreFlagsInsideTheApplicationsRender(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def test_a_group_names_flag_is_no_truthy_string_inside_the_render(self) -> None:
         self.assertEqual(self.after, self.inside)
@@ -165,7 +165,7 @@ class TestObjstoreFormSourcesConverge(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def test_the_mattermost_s3_settings_converge_to_the_object_store(self) -> None:
         store = self.play["web-app-mattermost"]

@@ -1,10 +1,14 @@
+import contextlib
+import io
 import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
+from cli.administration.inventory.validate.__main__ import main
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.mapping import (
     ROLE_FILE_META_SERVICES,
@@ -50,18 +54,23 @@ class TestValidateInventory(unittest.TestCase):
         shutil.rmtree(self.temp_dir)
 
     def run_script(self, expected_code=0):
-        result = subprocess.run(
-            [
-                sys.executable,
-                SCRIPT_PATH,
-                str(self.inventory_dir),
-                "--roles-dir",
-                str(self.roles_dir),
-            ],
-            capture_output=True,
-            encoding="utf-8",
-            cwd=self.temp_dir,
-            check=False,
+        argv = [
+            SCRIPT_PATH,
+            str(self.inventory_dir),
+            "--roles-dir",
+            str(self.roles_dir),
+        ]
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with (
+            contextlib.chdir(self.temp_dir),
+            unittest.mock.patch.object(sys, "argv", argv),
+            contextlib.redirect_stdout(stdout),
+            contextlib.redirect_stderr(stderr),
+            self.assertRaises(SystemExit) as raised,
+        ):
+            main()
+        result = subprocess.CompletedProcess(
+            argv, raised.exception.code, stdout.getvalue(), stderr.getvalue()
         )
         if result.returncode != expected_code:
             print("STDOUT:", result.stdout)

@@ -18,11 +18,11 @@ import unittest
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
-from plugins.lookup.applications import _reset_cache_for_tests
 from utils.cache.files import read_text
 from utils.roles.header_trust import header_trust_roles
 from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE, ROLE_FILE_VARS_MAIN
 from utils.templating.ansible import _trust_as_template
+from utils.tests.caches import reset_caches
 
 from . import PROJECT_ROOT
 
@@ -121,7 +121,7 @@ def _mappings(block: str) -> list[str]:
 class TestHeaderTrustPortsBindLoopback(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
         cls.roles = sorted(header_trust_roles(ROLES_DIR))
         cls.rendered = {role: render_ports(role) for role in cls.roles}
 
