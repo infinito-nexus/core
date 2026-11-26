@@ -1,13 +1,48 @@
 ---
 # Param: lmstudio_fetch_store    directory on the target that holds <repo>/<file> of every model
 # Param: lmstudio_fetch_staging  directory on the store's filesystem where a download lands until it verifies
-# Param: lmstudio_fetch_node     the host that owns the store, named in the failure messages
+# Param: lmstudio_fetch_node     the host that owns the store: the fetch is delegated to it, its jobs are collected there and the failure messages name it
+- name: "🛑 Refuse declared models that share a store path but not a digest and size"
+  vars:
+    _repos: "{{ LMSTUDIO_PRELOAD_MODELS | map(attribute='repo') | list }}"
+    _files: "{{ LMSTUDIO_PRELOAD_MODELS | map(attribute='file') | list }}"
+    _identities: >-
+      {{ _repos | zip(_files, LMSTUDIO_PRELOAD_MODELS | map(attribute='sha256'),
+                      LMSTUDIO_PRELOAD_MODELS | map(attribute='bytes') | map('string'))
+         | map('join', '/') | unique(case_sensitive=true) | list }}
+  ansible.builtin.assert:
+    that: _identities | length == _repos | zip(_files) | map('join', '/') | unique(case_sensitive=true) | list | length
+    fail_msg: >-
+      AI_LOCAL_MODELS declares the same repo and file more than once with
+      different sha256 or bytes, so the model store on {{ lmstudio_fetch_node }}
+      could satisfy only one of them: {{ _identities | join(', ') }}.
+    quiet: true
+
+- name: "🛑 Refuse a negative fetch retry count or delay on '{{ lmstudio_fetch_node }}'"
+  ansible.builtin.assert:
+    that:
+      - LMSTUDIO_PRELOAD_RETRIES | int >= 0
+      - LMSTUDIO_PRELOAD_RETRY_DELAY | int >= 0
+    fail_msg: >-
+      services.lmstudio.preload_retries ({{ LMSTUDIO_PRELOAD_RETRIES }}) and
+      preload_retry_delay ({{ LMSTUDIO_PRELOAD_RETRY_DELAY }}) of svc-ai-lmstudio
+      must not be negative.
+    quiet: true
+
+- name: "🧾 Start the fetch on '{{ lmstudio_fetch_node }}' with nothing read yet"
+  ansible.builtin.set_fact:
+    lmstudio_fetch_declared: "{{ LMSTUDIO_PRELOAD_MODELS | lmstudio_declared_models }}"
+    lmstudio_fetch_jobs_file: "{{ lmstudio_fetch_staging }}.jobs.json"
+    lmstudio_fetch_pending: []
+    lmstudio_fetch_settled: []
+    lmstudio_fetch_said: []
+
 - name: "📁 Create the model store directories on '{{ lmstudio_fetch_node }}'"
   ansible.builtin.file:
     path: "{{ lmstudio_fetch_store }}/{{ model.repo }}"
     state: directory
     mode: "0755"
-  loop: "{{ LMSTUDIO_PRELOAD_MODELS }}"
+  loop: "{{ lmstudio_fetch_declared }}"
   loop_control:
     loop_var: model
     label: "{{ model.file }}"
@@ -18,32 +53,52 @@
     state: directory
     mode: "0755"
 
-- name: "🔍 Find partial downloads a broken fetch left on '{{ lmstudio_fetch_node }}'"
-  ansible.builtin.find:
-    paths: "{{ lmstudio_fetch_staging }}"
-    file_type: any
-    hidden: true
-  register: lmstudio_staging_leftovers
+- name: "🔎 Look for downloads a past fetch on '{{ lmstudio_fetch_node }}' left running"
+  ansible.builtin.slurp:
+    src: "{{ lmstudio_fetch_jobs_file }}"
+  register: lmstudio_fetch_leftovers
+  failed_when: >-
+    lmstudio_fetch_leftovers is failed
+    and 'not found' not in lmstudio_fetch_leftovers.msg
 
-- name: "🧹 Remove partial downloads a broken fetch left on '{{ lmstudio_fetch_node }}'"
-  ansible.builtin.file:
-    path: "{{ leftover.path }}"
-    state: absent
-  loop: "{{ lmstudio_staging_leftovers.files }}"
+- name: "⏳ Wait until downloads a past fetch left on '{{ lmstudio_fetch_node }}' end"
+  vars:
+    _leftovers: "{{ lmstudio_fetch_leftovers.content | b64decode | from_json }}"
+    _now: "{{ '%s' | strftime | int }}"
+  ansible.builtin.async_status:
+    jid: "{{ jid }}"
+  loop: "{{ (lmstudio_fetch_leftovers.content | b64decode | from_json).jobs if lmstudio_fetch_leftovers.content is defined else [] }}"
   loop_control:
-    loop_var: leftover
-    label: "{{ leftover.path | basename }}"
-
-- name: "🔍 Read what the model store on '{{ lmstudio_fetch_node }}' already holds"
-  ansible.builtin.stat:
-    path: "{{ lmstudio_fetch_store }}/{{ model.repo }}/{{ model.file }}"
-    checksum_algorithm: sha256
-  register: lmstudio_present
+    loop_var: jid
+  register: lmstudio_fetch_leftover_jobs
+  until: >-
+    (lmstudio_fetch_leftover_jobs.finished
+     and (lmstudio_fetch_leftover_jobs.msg | default('')) != 'could not find job')
+    or (_now | int) > (_leftovers.deadline | int)
+  retries: "{{ [((_leftovers.deadline | int) - (_now | int)) // 5 + 1, 0] | max }}"
+  delay: 5
   changed_when: false
-  loop: "{{ LMSTUDIO_PRELOAD_MODELS }}"
-  loop_control:
-    loop_var: model
-    label: "{{ model.file }}"
+  failed_when: false
+  ignore_errors: true
+
+- name: "⏸️ Wait out unnoted downloads of a past fetch on '{{ lmstudio_fetch_node }}'"
+  ansible.builtin.wait_for:
+    timeout: >-  # nocheck: timeout-lookup
+      {{ [((lmstudio_fetch_leftovers.content | b64decode | from_json).deadline | int)
+          - ('%s' | strftime | int), 0] | max }}
+  when: >-
+    lmstudio_fetch_leftovers.content is defined
+    and (lmstudio_fetch_leftovers.content | b64decode | from_json).jobs | length == 0
+
+- name: "🧾 Clear the jobs file an earlier fetch on '{{ lmstudio_fetch_node }}' left"
+  ansible.builtin.file:
+    path: "{{ lmstudio_fetch_jobs_file }}"
+    state: absent
+
+- name: "📥 Take stock of the model store on '{{ lmstudio_fetch_node }}'"
+  ansible.builtin.include_tasks: utils/fetch/settle.yml
+  vars:
+    lmstudio_fetch_models: "{{ lmstudio_fetch_declared }}"
 
 - name: "🗄️ Measure the free space the model store on '{{ lmstudio_fetch_node }}' offers"
   ansible.builtin.command: "df -P -B1 {{ lmstudio_fetch_store | quote }}"
@@ -53,13 +108,7 @@
 - name: "🛑 Refuse to fetch models the store on '{{ lmstudio_fetch_node }}' cannot hold"
   vars:
     _free: "{{ lmstudio_store_space.stdout_lines[1].split()[3] | int }}"
-    _pending: >-
-      {%- set tally = namespace(bytes=0) -%}
-      {%- for present in lmstudio_present.results
-            if not (present.stat.exists and present.stat.checksum == present.model.sha256) -%}
-      {%- set tally.bytes = tally.bytes + (present.model.bytes | int) -%}
-      {%- endfor -%}
-      {{ tally.bytes }}
+    _pending: "{{ lmstudio_fetch_pending | map(attribute='model.bytes') | map('int') | sum }}"
   ansible.builtin.fail:
     msg: >-
       The model store {{ lmstudio_fetch_store }} on {{ lmstudio_fetch_node }} has
@@ -69,71 +118,68 @@
       group_vars/all/16_ai.yml or give {{ lmstudio_fetch_node }} more space.
   when: _free | int < _pending | int
 
-- name: "⬇️ Fetch the models into the store on '{{ lmstudio_fetch_node }}'"
-  get_url_retry:
-    url: "{{ model.url }}"
-    dest: "{{ lmstudio_fetch_store }}/{{ model.repo }}/{{ model.file }}"
-    tmp_dest: "{{ lmstudio_fetch_staging }}"
-    checksum: "sha256:{{ model.sha256 }}"
-    mode: "0644"
+- name: "🗺️ Plan the sources of each model missing on '{{ lmstudio_fetch_node }}'"
   vars:
-    _bytes: "{{ model.bytes }}"
-    _budget: &lmstudio_fetch_budget >-
-      {{ [ LMSTUDIO_PRELOAD_FLOOR_SECONDS | int,
-           ((_bytes | int) / (LMSTUDIO_PRELOAD_MIN_BYTES_PER_SECOND | int))
-           | round(0, 'ceil') | int ] | max }}
-  timeout: "{{ lookup('timeout', _budget) | int }}"
-  loop: "{{ LMSTUDIO_PRELOAD_MODELS }}"
-  loop_control:
-    loop_var: model
-    label: "{{ model.file }}"
-  register: lmstudio_fetch
-  changed_when: false
-  ignore_errors: true
+    _plan: >-
+      {%- set plan = namespace(jobs=[]) -%}
+      {%- for pending in lmstudio_fetch_pending -%}
+      {%- for url in [pending.model.url] + (pending.model.mirrors | default([])) -%}
+      {%- set plan.jobs = plan.jobs + [{'model': pending.model, 'url': url, 'slot': loop.index0}] -%}
+      {%- endfor -%}
+      {%- endfor -%}
+      {{ plan.jobs }}
+  ansible.builtin.set_fact:
+    lmstudio_fetch_plan: "{{ _plan }}"
+    lmstudio_fetch_rounds: >-
+      {{ _plan | map(attribute='slot') | unique | sort
+         | product(range((LMSTUDIO_PRELOAD_RETRIES | int) + 1 if ASYNC_ENABLED | bool else 1))
+         | list }}
 
-- name: "🪞 Fetch from a mirror when the source failed on '{{ lmstudio_fetch_node }}'"
-  get_url_retry:
-    url: "{{ item.1 }}"
-    dest: "{{ lmstudio_fetch_store }}/{{ item.0.repo }}/{{ item.0.file }}"
-    tmp_dest: "{{ lmstudio_fetch_staging }}"
-    checksum: "sha256:{{ item.0.sha256 }}"
-    mode: "0644"
+- name: "⬇️ Fetch the missing models on '{{ lmstudio_fetch_node }}' round by round"
+  ansible.builtin.include_tasks: utils/fetch/round.yml
   vars:
-    _bytes: "{{ item.0.bytes }}"
-    _budget: *lmstudio_fetch_budget
-  timeout: "{{ lookup('timeout', _budget) | int }}"
-  loop: "{{ LMSTUDIO_PRELOAD_MODELS | subelements('mirrors', skip_missing=True) }}"
+    lmstudio_fetch_slot: "{{ lmstudio_fetch_round[0] }}"
+    lmstudio_fetch_attempt: "{{ lmstudio_fetch_round[1] }}"
+  loop: "{{ lmstudio_fetch_rounds }}"
   loop_control:
-    label: "{{ item.0.file }} from {{ item.1 }}"
-  register: lmstudio_fetch_mirror
-  changed_when: false
-  ignore_errors: true
+    loop_var: lmstudio_fetch_round
 
-- name: "🔍 Read back what the model store on '{{ lmstudio_fetch_node }}' now holds"
+- name: "🔍 Check nothing else rewrote the store on '{{ lmstudio_fetch_node }}'"
   ansible.builtin.stat:
-    path: "{{ lmstudio_fetch_store }}/{{ model.repo }}/{{ model.file }}"
-    checksum_algorithm: sha256
-  register: lmstudio_seeded
+    path: "{{ lmstudio_fetch_store }}/{{ last.model.repo }}/{{ last.model.file }}"
+    get_checksum: false
+    get_mime: false
+    get_attributes: false
+  register: lmstudio_fetch_final
   changed_when: false
-  loop: "{{ LMSTUDIO_PRELOAD_MODELS }}"
+  loop: "{{ lmstudio_fetch_settled + lmstudio_fetch_pending }}"
   loop_control:
-    loop_var: model
-    label: "{{ model.file }}"
+    loop_var: last
+    label: "{{ last.model.file }}"
+
+- name: "📥 Re-read the models something else rewrote on '{{ lmstudio_fetch_node }}'"
+  ansible.builtin.include_tasks: utils/fetch/settle.yml
+  vars:
+    lmstudio_fetch_models: >-
+      {%- set rewritten = namespace(models=[]) -%}
+      {%- for seen in lmstudio_fetch_final.results
+            if seen.stat.exists != seen.last.stat.exists
+               or (seen.stat.exists
+                   and [seen.stat.inode, seen.stat.mtime, seen.stat.ctime, seen.stat.size]
+                       != [seen.last.stat.inode, seen.last.stat.mtime, seen.last.stat.ctime, seen.last.stat.size]) -%}
+      {%- set rewritten.models = rewritten.models + [seen.last.model] -%}
+      {%- endfor -%}
+      {{ rewritten.models }}
+  when: lmstudio_fetch_models | length > 0
 
 - name: "🛑 Fail when no source delivered a declared model to '{{ lmstudio_fetch_node }}'"
   vars:
-    _missing: >-
-      {{ lmstudio_seeded.results
-         | rejectattr('stat.exists')
-         | map(attribute='model.file') | list }}
-    _said: >-
-      {{ (lmstudio_fetch.results | map(attribute='msg') | select | list)
-         + (lmstudio_fetch_mirror.results | default([]) | map(attribute='msg') | select | list) }}
+    _missing: "{{ lmstudio_fetch_pending | rejectattr('stat.exists') | map(attribute='model.file') | list }}"
   ansible.builtin.fail:
     msg: >-
       The model store {{ lmstudio_fetch_store }} on {{ lmstudio_fetch_node }} is missing
       {{ _missing | join(', ') }}. What the sources answered:
-      {{ _said | join(' | ') }}
+      {{ lmstudio_fetch_said | join(' | ') }}
   when: _missing | length > 0
 
 - name: "🛑 Fail when a stored model does not match its declared digest and size"
@@ -142,7 +188,7 @@
       {{ item.model.file }} in the model store {{ lmstudio_fetch_store }} on
       {{ lmstudio_fetch_node }} hashes to {{ item.stat.checksum }} at {{ item.stat.size }} bytes,
       but AI_LOCAL_MODELS declares {{ item.model.sha256 }} at {{ item.model.bytes }} bytes.
-  loop: "{{ lmstudio_seeded.results | selectattr('stat.exists') | list }}"
+  loop: "{{ (lmstudio_fetch_settled + lmstudio_fetch_pending) | selectattr('stat.exists') | list }}"
   loop_control:
     label: "{{ item.model.file }}"
   when: >-
