@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from _pytest.terminal import TerminalReporter
 
 TITLE = "PASSES"
+MASK_COMMAND = "::add-mask::"
 
 
 def _shown(reports: Iterable[TestReport]) -> list[TestReport]:
@@ -43,6 +44,21 @@ def teardowns_by_node(reports: Iterable[TestReport]) -> dict[str, list[TestRepor
     return grouped
 
 
+def without_masks(content: str) -> str:
+    """
+    Args:
+        content: one captured output section of a passed test.
+
+    Returns:
+        The section without its ``::add-mask::`` workflow command lines.
+    """
+    return "\n".join(
+        line
+        for line in content.removesuffix("\n").split("\n")
+        if not line.lstrip().startswith(MASK_COMMAND)
+    )
+
+
 def _write_sections(config: Config, report: TestReport, *, teardown_only: bool) -> None:
     showcapture = config.option.showcapture
     if showcapture == "no":
@@ -53,8 +69,11 @@ def _write_sections(config: Config, report: TestReport, *, teardown_only: bool) 
             continue
         if teardown_only and "teardown" not in name:
             continue
+        text = without_masks(content)
+        if not text:
+            continue
         writer.sep("-", name)
-        writer.line(content.removesuffix("\n"))
+        writer.line(text)
 
 
 def pytest_terminal_summary(terminalreporter: TerminalReporter, config: Config) -> None:

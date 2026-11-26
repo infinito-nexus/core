@@ -42,6 +42,15 @@ def test_quiet():
     pass
 """
 URL_WARNING = "[WARNING] External URL unverified https://example.invalid"
+MASK_LINE = "::add-mask::throwaway-generated-value"
+MASK_SAMPLE = f"""
+import sys
+
+
+def test_generates_a_credential():
+    print("{MASK_LINE}", file=sys.stderr)
+    print("{URL_WARNING}")
+"""
 
 
 def _passes_section(output: str) -> list[str]:
@@ -102,6 +111,16 @@ class TestPassesSection(unittest.TestCase):
         plugin = self._pytest("-n", "1", "-p", "utils.tests.pytest.passes")
 
         self.assertEqual(_passes_section(plugin), _passes_section(stock))
+
+    def test_mask_commands_of_passing_tests_never_reach_the_runner(self) -> None:
+        (self.root / "test_sample.py").write_text(MASK_SAMPLE)
+
+        plugin = _passes_section(self._pytest("-p", "utils.tests.pytest.passes"))
+        stock = _passes_section(self._pytest("-rP"))
+
+        self.assertIn(MASK_LINE, stock)
+        self.assertNotIn(MASK_LINE, plugin)
+        self.assertIn(URL_WARNING, plugin)
 
 
 class TestTeardownIndex(unittest.TestCase):

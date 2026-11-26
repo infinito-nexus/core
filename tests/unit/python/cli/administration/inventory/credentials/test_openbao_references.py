@@ -71,6 +71,7 @@ class TestGeneratedCredentialsGoToOpenBao(unittest.TestCase):
             "BAO_TOKEN": TOKEN,
             "SEMAPHORE_JWT": "",
             "BAO_ROLE": "",
+            "GITHUB_ACTIONS": "",
         }
         output = io.StringIO()
         with (
