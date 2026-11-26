@@ -51,7 +51,7 @@ mediawiki:
     swarm:
       enabled: true
   image: mediawiki
-  version: "1.46"
+  version: "1.46.2"
   custom: true
   min_storage: 546MB
   backup:
