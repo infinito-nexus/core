@@ -644,6 +644,25 @@ class TestOpenTofuLayer(unittest.TestCase):
         self.assertEqual(sorted(seen), expected)
         self.assertEqual(len(validated.stdout.splitlines()), len(expected))
 
+    def test_the_build_stages_every_file_a_dns_module_reads(self) -> None:
+        dns = read_text(str(OPENTOFU / "modules" / "dns-cloudflare" / "main.tf.json"))
+        self.assertIn('file(\\"${path.module}/broker.json\\")', dns)
+        _, validated = self.built()
+        self.assertEqual(validated.returncode, 0, validated.stderr)
+
+    def test_negative_control_a_build_without_the_broker_stand_in_fails(self) -> None:
+        script = read_text(str(BUILD))
+        step = '"${target}/modules/dns/broker.json"\n'
+        self.assertEqual(script.count(step), 1)
+        unfixed = self.build.directory / "build.sh"
+        unfixed.write_text(
+            script.replace(step, '"${target}/unstaged.json"\n'), encoding="utf-8"
+        )
+        self.build.script = unfixed
+        _, validated = self.built()
+        self.assertNotEqual(validated.returncode, 0)
+        self.assertIn('no file exists at "modules/dns/broker.json"', validated.stderr)
+
 
 class TestExportTools(unittest.TestCase):
     def setUp(self) -> None:

@@ -51,6 +51,11 @@ modules = json.loads(record["main"] or "{{}}").get("module", {{}})
 if command in ("providers", "validate") and modules and not manifest.is_file():
     print("Error: Module not installed", file=sys.stderr)
     sys.exit(1)
+if command == "validate":
+    for name in re.findall(r'file\\(\\\\"\\$\\{{path\\.module\\}}/([\\w.-]+)', record["dns"] or ""):
+        if not (cwd / "modules" / "dns" / name).is_file():
+            print(f'no file exists at "modules/dns/{{name}}"', file=sys.stderr)
+            sys.exit(1)
 if args[:2] == ["providers", "mirror"]:
     for provider in providers:
         (pathlib.Path(args[-1]) / provider).mkdir(parents=True, exist_ok=True)

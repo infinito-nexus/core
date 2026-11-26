@@ -9,6 +9,7 @@ set -euo pipefail
 
 readonly FLAVORS=(knot route53 cloudflare)
 readonly STAND_IN_WORKSPACE="ws-00000000-0000-4000-8000-000000000000"
+readonly STAND_IN_BROKER="http://broker.invalid/client/v4" # nocheck: url
 readonly KEEPASSXC_DNF=("libEGL.so.1()(64bit)" "libGLX.so.0()(64bit)" "libOpenGL.so.0()(64bit)"
   "libX11.so.6()(64bit)" "libfontconfig.so.1()(64bit)" "libfreetype.so.6()(64bit)"
   "libharfbuzz.so.0()(64bit)" "libgpg-error.so.0()(64bit)" "libusb-1.0.so.0()(64bit)"
@@ -44,6 +45,7 @@ stage() {
   printf '{"workspace":"%s","dns":{"zone":"example.org","zone_id":"%s"}}\n' \
     "${STAND_IN_WORKSPACE}" "${zone_id}" >"${target}/workspace.json"
   printf '{}\n' >"${target}/catalog.json"
+  printf '{"base_url":"%s"}\n' "${STAND_IN_BROKER}" >"${target}/modules/dns/broker.json"
 }
 
 each_root_and_flavor() {
