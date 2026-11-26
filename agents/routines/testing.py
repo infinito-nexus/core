@@ -20,7 +20,7 @@ STEPS = [
     ),
     Step(
         "recover",
-        "On a validation failure run make clean and rerun, or restart the stack if the infinito service is down",
+        "On a validation failure run make clean and rerun, or restart the stack if the infinito service is down; a test against a pool job (INFINITO_DEPLOY_VIA_POOL=true) runs on its held job stack through job=<id> and ends with make runner-release job=<id>",
         nxt="rerun",
     ),
     Step(

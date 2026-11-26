@@ -15,6 +15,8 @@ Follow the instructions from AGENTS.md, then follow the `iterate_compose` routin
 
 Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill. Completion gate: the role is green end-to-end in compose; for a full web-app change also drive it through swarm via the `i8-iterate-swarm` skill until green in BOTH modes.
 
+When the runner pool serves the deploy (`INFINITO_DEPLOY_VIA_POOL=true`), every deploy of the iteration runs with `hold=true`, the iteration works against that held job stack through `job=<id>`, and it ends with `make runner-release job=<id>`.
+
 Default `disable=matomo,dashboard,prometheus,email,design`. One `mode=update apps=<roles> [variant=<idx>] purge=true` tests app-state involvement, then back to `mode=update`.
 
 ## Matrix-variant commands
