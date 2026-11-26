@@ -15,7 +15,8 @@ sub-entity, plugin map, an addon's ``config``, ...) that declares BOTH
 - a full 40-hex commit SHA moves to the newest release tag when that tag
   contains it, else to the tip of the repository's default branch, read
   with ``git ls-remote <repository> HEAD``; a pin never moves back to an
-  older release.
+  older release. An entity declaring ``ref_kind: commit`` always follows
+  the tip, since a release tag would break its commit refspec.
 
 Branches (`master`, `main`, `stable`) and short SHAs are skipped.
 
@@ -43,6 +44,7 @@ from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.digests import COMMIT
+from utils.git_refspec import REF_KIND_KEY
 from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
 from utils.update.base import (
     declares_source,
@@ -78,6 +80,7 @@ class RepositoryRefEntry:
     ref: str
     config_path: Path
     line: int
+    tracks_tip: bool = False
 
 
 @dataclass(frozen=True)
@@ -335,6 +338,7 @@ def _entries_of_file(
                 ref=ref,
                 config_path=config_path,
                 line=line_no,
+                tracks_tip=entity.get(REF_KIND_KEY) == "commit",
             )
         )
     return entries
@@ -380,7 +384,9 @@ def _target_ref(
             the tag contains.
     """
     if is_commit_sha(entry.ref):
-        release = released.get((entry.repository, entry.ref))
+        release = (
+            None if entry.tracks_tip else released.get((entry.repository, entry.ref))
+        )
         if release:
             return release
         tip = repo_heads.get(entry.repository)
@@ -417,6 +423,7 @@ def find_outdated_updates(repo_root: Path) -> list[RepositoryRefUpdate]:
                 (e.repository, e.ref, release)
                 for e in entries
                 if is_commit_sha(e.ref)
+                and not e.tracks_tip
                 and (release := latest_release(repo_tags[e.repository]))
             }
         )
@@ -430,7 +437,8 @@ def find_outdated_updates(repo_root: Path) -> list[RepositoryRefUpdate]:
             {
                 e.repository
                 for e in entries
-                if is_commit_sha(e.ref) and (e.repository, e.ref) not in released
+                if is_commit_sha(e.ref)
+                and (e.tracks_tip or (e.repository, e.ref) not in released)
             }
         )
         heads = pool.map(git_ls_remote_head, sha_repos)
