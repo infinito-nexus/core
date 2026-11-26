@@ -60,7 +60,7 @@ def repository() -> Iterator[tuple[str, str]]:
 
 
 class TestCosmosProviderByServiceKey(unittest.TestCase):
-    def test_no_core_file_names_the_provider_role(self) -> None:
+    def test_no_core_file_names_the_provider_role(self) -> None:  # nocheck: test.text-presence -- policy lint over every non-ignored file of core  # fmt: skip
         offenders = naming(repository())
         self.assertEqual(
             offenders,

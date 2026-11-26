@@ -47,7 +47,7 @@ def check(routines_dir: Path) -> list[str]:
 
 
 class TestL15(unittest.TestCase):
-    def test_real_tree_passes(self):
+    def test_real_tree_passes(self):  # nocheck: test.text-presence -- policy lint over every push step label of every routine  # fmt: skip
         self.assertEqual(check(ROUTINES), [])
 
     def test_a_push_naming_remote_and_ref_passes(self):

@@ -11,6 +11,7 @@ import unittest
 from pathlib import Path
 
 from cli.administration.deploy.pool import teardown
+from tests.utils.make_target import run_target
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
@@ -257,19 +258,21 @@ class TestRefusals(_Case):
 
 
 class TestMakeWiring(unittest.TestCase):
-    def _recipe(self, target: str) -> str:
-        text = read_text(str(PROJECT_ROOT / "Makefile"))
-        return text.split(f"\n{target}:", 1)[1].split("\n\n", 1)[0]
-
     def test_the_release_target_needs_a_job_and_runs_the_release(self) -> None:
-        recipe = self._recipe("runner-release")
-        self.assertIn("test -n '$(job)'", recipe)
-        self.assertIn("-m cli.administration.deploy.pool.release '$(job)'", recipe)
+        done, calls = run_target("runner-release", (), (), {})
+        self.assertNotEqual(done.returncode, 0)
+        self.assertIn("usage: make runner-release job=<id>", done.stdout)
+        self.assertEqual(calls, [])
+        done, calls = run_target("runner-release", (f"job={UNKNOWN}",), (), {})
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(
+            calls, [f"python -m cli.administration.deploy.pool.release {UNKNOWN}"]
+        )
 
     def test_the_status_target_runs_the_status(self) -> None:
-        self.assertIn(
-            "-m cli.administration.deploy.pool.status", self._recipe("runner-status")
-        )
+        done, calls = run_target("runner-status", (), (), {})
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(calls, ["python -m cli.administration.deploy.pool.status"])
 
     def test_the_release_is_declared_as_a_deploy_stack_stop(self) -> None:
         stacks = load_yaml(PROJECT_ROOT / "compose" / "stacks.yml")["stacks"]

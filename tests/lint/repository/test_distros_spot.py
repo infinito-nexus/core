@@ -62,7 +62,7 @@ class TestDistrosSpot(unittest.TestCase):
             "default.env would be a second source of truth.",
         )
 
-    def test_every_literal_distro_list_matches_spot(self) -> None:
+    def test_every_literal_distro_list_matches_spot(self) -> None:  # nocheck: test.text-presence -- policy lint over every literal distro list of the tree  # fmt: skip
         """A workflow ``env:``/``default:`` value, a shell array and a docs
         table cannot call the SPOT, so they carry the list verbatim. Any run
         of three or more declared distro names in a value position must

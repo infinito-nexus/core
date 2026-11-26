@@ -85,7 +85,7 @@ class TestCiDeployThroughEntry(unittest.TestCase):
     def test_the_entry_exists(self) -> None:
         self.assertTrue((PROJECT_ROOT / ENTRY).is_file())
 
-    def test_every_workflow_deploy_step_calls_the_job_entry(self) -> None:
+    def test_every_workflow_deploy_step_calls_the_job_entry(self) -> None:  # nocheck: test.text-presence -- parses every workflow YAML and splits each run step into commands  # fmt: skip
         workflows = {
             name: load_yaml_str(text) for name, text in workflow_texts().items()
         }

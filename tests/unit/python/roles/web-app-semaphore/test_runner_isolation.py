@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import copy
+import itertools
 import re
 import unittest
 
-from jinja2 import DictLoader, Environment, select_autoescape
+from jinja2 import ChainableUndefined, DictLoader, Environment, select_autoescape
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
@@ -112,8 +113,13 @@ GUARD_CLOSE = "{% endif %}"
 SOCKET_VOLUME = "    volumes:\n      - /var/run/docker.sock:/var/run/docker.sock\n"
 SERVER_FORBIDDEN_KEYS = ("SEMAPHORE_RUNNER_REGISTRATION_TOKEN",)
 GLOBAL_RUNNERS_DISABLED = "SEMAPHORE_DEFAULT_GLOBAL_RUNNERS_MODE=disable"
-_OPEN = re.compile(r"{%-?\s*if\b")
-_CLOSE = re.compile(r"{%-?\s*endif\b")
+SERVER_SWITCHES = (
+    "SEMAPHORE_DEPLOY_ENABLED",
+    "SEMAPHORE_LOGIN_SSO",
+    "SEMAPHORE_LOGIN_LDAP",
+    "SEMAPHORE_OIDC_ENABLED",
+    "SEMAPHORE_LDAP_ENABLED",
+)
 
 
 def _text(path) -> str:
@@ -124,18 +130,47 @@ def _yaml(relative: str):
     return load_yaml_str(_text(ROLE / relative))
 
 
-def remote_runner_findings(env: str) -> list[str]:
-    """Return why the server could still run a template itself.
-
+def remote_runner_settings(env: str, flags: dict[str, bool]) -> list[str]:
+    """
     Args:
         env: the server's ``templates/env.j2``.
+        flags: the switches the template branches on.
+
+    Returns:
+        Every ``SEMAPHORE_USE_REMOTE_RUNNER`` line the template renders.
     """
-    lines = env.splitlines()
-    settings = [line for line in lines if line.startswith(f"{REMOTE_RUNNER_KEY}=")]
-    if settings != [REMOTE_RUNNER_LINE]:
-        return [f"expected exactly {REMOTE_RUNNER_LINE}, found {settings}"]
-    above = "\n".join(lines[: lines.index(REMOTE_RUNNER_LINE)])
-    if len(_OPEN.findall(above)) != len(_CLOSE.findall(above)):
+    environment = Environment(
+        loader=DictLoader({CONTAINER_ENV_TEMPLATE: "", "env.j2": env}),
+        undefined=ChainableUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    environment.filters["bool"] = bool
+    environment.filters["dotenv_quote"] = str
+    environment.globals["lookup"] = lambda *_args, **_kwargs: "stub"
+    rendered = environment.get_template("env.j2").render(**flags)
+    return [
+        line
+        for line in rendered.splitlines()
+        if line.startswith(f"{REMOTE_RUNNER_KEY}=")
+    ]
+
+
+def remote_runner_findings(env: str) -> list[str]:
+    """
+    Args:
+        env: the server's ``templates/env.j2``.
+
+    Returns:
+        Why the server could still run a template itself under some
+        combination of the switches the template branches on.
+    """
+    renders = [
+        remote_runner_settings(env, dict(zip(SERVER_SWITCHES, values, strict=True)))
+        for values in itertools.product((False, True), repeat=len(SERVER_SWITCHES))
+    ]
+    if all(settings != [REMOTE_RUNNER_LINE] for settings in renders):
+        return [f"expected exactly {REMOTE_RUNNER_LINE}, found {renders[0]}"]
+    if any(settings != [REMOTE_RUNNER_LINE] for settings in renders):
         return [f"{REMOTE_RUNNER_LINE} is set only under a condition"]
     return []
 

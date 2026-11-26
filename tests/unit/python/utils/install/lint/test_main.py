@@ -412,7 +412,7 @@ class TestImageBake(unittest.TestCase):
             "group except the ones the bind-mounted tree replaces, in order",
         )
 
-    def test_the_bake_follows_the_system_step_and_skips_a_host_runner(
+    def test_the_bake_follows_the_system_step_and_skips_a_host_runner(  # nocheck: test.text-presence -- checks the Dockerfile RUN steps parsed by image_slice.stage_runs
         self,
     ) -> None:
         runs = image_slice.stage_runs(_TOOLCHAIN_STAGE)

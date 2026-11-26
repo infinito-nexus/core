@@ -368,7 +368,7 @@ class TestDeployAdminCallsBypassTheVhost(unittest.TestCase):
             if "/roles/" in path
         }
 
-    def test_every_kcadm_login_targets_the_container_loopback(self):
+    def test_every_kcadm_login_targets_the_container_loopback(self):  # nocheck: test.text-presence -- repository-wide lint over every role source  # fmt: skip
         servers = [
             (name, match.group(1).strip('"'))
             for name, text in self._role_sources().items()
@@ -384,7 +384,7 @@ class TestDeployAdminCallsBypassTheVhost(unittest.TestCase):
                     "public vhost and its admin allowlist",
                 )
 
-    def test_the_internal_url_is_loopback_wherever_it_is_defined(self):
+    def test_the_internal_url_is_loopback_wherever_it_is_defined(self):  # nocheck: test.text-presence -- repository-wide lint over every role source  # fmt: skip
         definitions = [
             (name, match.group(1))
             for name, text in self._role_sources().items()

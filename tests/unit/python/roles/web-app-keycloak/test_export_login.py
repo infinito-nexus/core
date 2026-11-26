@@ -114,7 +114,7 @@ class TestExportLogin(unittest.TestCase):
                 change(planted)
                 self.assertTrue(login_findings(planted))
 
-    def test_the_secret_travels_on_stdin_and_never_reaches_a_log(self) -> None:
+    def test_the_secret_travels_on_stdin_and_never_reaches_a_log(self) -> None:  # nocheck: test.text-presence -- analyses the parsed kv tasks, negative control below  # fmt: skip
         tasks = load_yaml_any(str(KV_TASKS))
         self.assertEqual(argv_findings(tasks), [])
         write = next(t for t in tasks if t["name"].startswith("🔐 Write"))

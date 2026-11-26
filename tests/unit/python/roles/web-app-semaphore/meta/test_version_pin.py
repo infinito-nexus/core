@@ -49,7 +49,7 @@ def pin_findings(version):
 
 
 class TestVersionPin(unittest.TestCase):
-    def test_the_pin_is_a_release_of_at_least_2_20_1(self):
+    def test_the_pin_is_a_release_of_at_least_2_20_1(self):  # nocheck: test.text-presence -- parses services.yml and validates the pin  # fmt: skip
         services = load_yaml_str(read_text(str(SERVICES)))
         self.assertEqual(pin_findings(services["semaphore"]["version"]), [])
 
@@ -65,7 +65,7 @@ class TestVersionPin(unittest.TestCase):
             with self.subTest(version):
                 self.assertTrue(pin_findings(version))
 
-    def test_the_egress_proxy_runs_the_most_stable_squid_channel(self):
+    def test_the_egress_proxy_runs_the_most_stable_squid_channel(self):  # nocheck: test.text-presence -- parses services.yml and validates the pin  # fmt: skip
         egress = load_yaml_str(read_text(str(SERVICES)))["egress"]
         self.assertEqual(egress_findings(egress["image"], egress["version"]), [])
 

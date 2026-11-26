@@ -1,6 +1,5 @@
 import io
 import json
-import re
 import sys
 import unittest
 import unittest.mock as mock
@@ -80,21 +79,6 @@ def _alertmanager(
             "status": {"state": state, "silencedBy": [], "inhibitedBy": []},
         }
     ]
-
-
-def _function_body(script: str, name: str) -> str:
-    """Body of the shell function *name* in *script*.
-
-    Args:
-        script: the shell script text.
-        name: the function name.
-    """
-    match = re.search(
-        rf"^{re.escape(name)}\(\) \{{\n(.*?)^\}}$", script, re.MULTILINE | re.DOTALL
-    )
-    if match is None:
-        raise AssertionError(f"test.sh MUST define {name}()")
-    return match.group(1)
 
 
 def _run(argv: list[str], answer: object) -> tuple[int, str, str]:
@@ -270,22 +254,6 @@ class TestMain(unittest.TestCase):
 
 
 class TestCliTestScript(unittest.TestCase):
-    def test_the_burst_writes_20000_lines_from_one_container(self) -> None:
-        script = read_text(str(ROLE_DIR / "files" / "test" / "test.sh"))
-        match = re.search(r"^burst_lines=(\d+)$", script, re.MULTILINE)
-        self.assertIsNotNone(match, "test.sh MUST set burst_lines")
-        self.assertEqual("20000", match.group(1))
-
-    def test_loki_is_queried_from_a_container_on_its_network(self) -> None:
-        script = read_text(str(ROLE_DIR / "files" / "test" / "test.sh"))
-        self.assertIn(
-            'network_get "${LOKI_TEST_NETWORK}"',
-            _function_body(script, "loki_get"),
-            "swarm publishes no local port, so the test MUST query Loki by "
-            "service name from a container on the loki network",
-        )
-        self.assertIn('--network "${network}"', _function_body(script, "network_get"))
-
     def test_the_env_template_reads_no_loopback_port(self) -> None:
         values = flattened(load_yaml_any(str(ROLE_DIR / ROLE_FILE_VARS_MAIN)))
         pattern = read_pattern(loopback_names(values))

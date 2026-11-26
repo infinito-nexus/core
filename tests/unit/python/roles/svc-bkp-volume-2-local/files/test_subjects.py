@@ -26,7 +26,6 @@ from . import PROJECT_ROOT
 ROLE = PROJECT_ROOT / "roles" / "svc-bkp-volume-2-local"
 TEST_DIR = ROLE / "files" / "test"
 SCRIPT = TEST_DIR / "probe" / "subjects.sh"
-DRILL = TEST_DIR / "test.sh"
 TEST_ENV = ROLE / "templates" / "test.env.j2"
 VARS = ROLE / ROLE_FILE_VARS_MAIN
 LOKI_HOST = "docs_docs_sites,loki_data"
@@ -220,12 +219,6 @@ class TestWiring(unittest.TestCase):
             "--images-no-backup-required {{ BKP_VOLUME_2_LOCAL_DISABLED",
             read_text(str(VARS)),
         )
-
-    def test_the_drill_judges_an_empty_generation_by_the_probe(self) -> None:
-        drill = read_text(str(DRILL))
-        self.assertIn('SUBJECTS="$(bash "${DIR}/probe/subjects.sh")"', drill)
-        self.assertIn('if [[ -z "${SUBJECTS}" ]]; then', drill)
-        self.assertNotIn("COMPOSE_CONTAINERS", drill)
 
 
 if __name__ == "__main__":

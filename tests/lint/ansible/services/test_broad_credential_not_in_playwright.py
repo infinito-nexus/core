@@ -56,7 +56,7 @@ def _findings(rel: str, content: str) -> list[str]:
 
 
 class TestBroadCredentialNotInPlaywright(unittest.TestCase):
-    def test_no_playwright_env_renders_a_broad_credential(self) -> None:
+    def test_no_playwright_env_renders_a_broad_credential(self) -> None:  # nocheck: test.text-presence -- policy lint over every Playwright env template  # fmt: skip
         findings = sorted(
             finding
             for rel, content in _playwright_envs()
@@ -70,7 +70,7 @@ class TestBroadCredentialNotInPlaywright(unittest.TestCase):
             + "\n".join(f"  - {f}" for f in findings),
         )
 
-    def test_the_scan_reads_playwright_env_templates(self) -> None:
+    def test_the_scan_reads_playwright_env_templates(self) -> None:  # nocheck: test.text-presence -- reach guard of the Playwright env scan  # fmt: skip
         names = {rel for rel, _content in _playwright_envs()}
         self.assertIn(_SEMAPHORE_ENV, names)
         self.assertIn(_PLANT_TARGET, names)

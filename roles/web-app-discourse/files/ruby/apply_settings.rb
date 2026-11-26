@@ -1,6 +1,3 @@
-# nocheck: mirrored-unit-test - runs in the Discourse console against SiteSetting and
-# Discourse.cache; both only exist once the application has booted
-
 require "json"
 
 SiteSetting.force_https = ENV.fetch("DISCOURSE_FORCE_HTTPS") == "true"

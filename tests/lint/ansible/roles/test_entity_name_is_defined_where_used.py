@@ -189,7 +189,7 @@ class TestEntityNameIsDefinedWhereUsed(unittest.TestCase):
     def test_the_scan_reaches_the_roles(self) -> None:
         self.assertTrue(files_by_role(), "no role file was scanned")
 
-    def test_the_convention_it_guards_is_actually_in_use(self) -> None:
+    def test_the_convention_it_guards_is_actually_in_use(self) -> None:  # nocheck: test.text-presence -- vacuity guard: the guarded convention is in use  # fmt: skip
         """Without one, an emptied convention would let the rule pass silently."""
         grouped = files_by_role()
         definers = [role for role, paths in grouped.items() if defines_it(role, paths)]

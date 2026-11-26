@@ -159,7 +159,7 @@ class TestEveryIncludeOfTheMemberUtilsPassesItsParameters(unittest.TestCase):
     def test_the_walk_covers_this_checkout(self) -> None:
         self.assertEqual(Path(WALKED_ROOT).resolve(), PROJECT_ROOT)
 
-    def test_the_utils_document_the_attribute_parameters(self) -> None:
+    def test_the_utils_document_the_attribute_parameters(self) -> None:  # nocheck: test.text-presence -- non-vacuity guard: the parsed Param docs drive the include-parameter lint below  # fmt: skip
         self.assertIn("rbac_sync_attributes", _params(SYNC))
         self.assertIn("rbac_sync_attributes", _params(COLLECT))
         self.assertIn("rbac_members_attributes", _params(MEMBERS))

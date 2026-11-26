@@ -5,6 +5,8 @@ import os
 import unittest
 import unittest.mock as mock
 
+from jinja2 import Environment, StrictUndefined, select_autoescape
+
 from utils.cache.files import read_text
 from utils.cache.render import upstreams_conf
 from utils.cache.yaml import load_yaml
@@ -187,11 +189,20 @@ class TestFrontendContract(unittest.TestCase):
         )
 
     def test_the_probe_is_handed_the_marker_the_role_declares(self) -> None:
-        env = read_text(str(ROLE_DIR / "templates/test.env.j2"))
-        self.assertIn(
-            "CACHE_PACKAGE_TEST_BACKEND_MARKER={{ CACHE_PACKAGE_BACKEND_MARKER }}",
-            env.splitlines(),
+        (line,) = [
+            line
+            for line in read_text(str(ROLE_DIR / "templates/test.env.j2")).splitlines()
+            if line.startswith("CACHE_PACKAGE_TEST_BACKEND_MARKER=")
+        ]
+        rendered = (
+            Environment(
+                undefined=StrictUndefined,
+                autoescape=select_autoescape(default_for_string=False),
+            )
+            .from_string(line)
+            .render(CACHE_PACKAGE_BACKEND_MARKER=MARKER)
         )
+        self.assertEqual(rendered.partition("=")[2], MARKER)
 
 
 if __name__ == "__main__":

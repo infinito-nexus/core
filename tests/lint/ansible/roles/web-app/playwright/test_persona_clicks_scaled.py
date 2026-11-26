@@ -61,7 +61,7 @@ def _click_args_span(text: str, open_paren: int) -> str:
 
 
 class TestPersonaClicksScaled(unittest.TestCase):
-    def test_persona_clicks_carry_scaled_timeout(self):
+    def test_persona_clicks_carry_scaled_timeout(self):  # nocheck: test.text-presence -- policy lint over every persona module  # fmt: skip
         offenders: list[str] = []
         for path in sorted(_PERSONAS_DIR.glob("**/*.js")):
             raw_lines = read_text(str(path)).splitlines()

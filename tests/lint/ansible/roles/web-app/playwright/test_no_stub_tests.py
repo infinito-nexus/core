@@ -164,7 +164,7 @@ def _is_persona_or_contract_test(title: str) -> bool:
 
 
 class TestNoStubTests(unittest.TestCase):
-    def test_persona_and_contract_tests_simulate_real_flows(self):
+    def test_persona_and_contract_tests_simulate_real_flows(self):  # nocheck: test.text-presence -- policy lint over every role Playwright spec  # fmt: skip
         offenders: list[str] = []
         for role_dir in sorted(p for p in ROLES_DIR.iterdir() if p.is_dir()):
             spec = role_dir / ROLE_FILE_PLAYWRIGHT_SPEC

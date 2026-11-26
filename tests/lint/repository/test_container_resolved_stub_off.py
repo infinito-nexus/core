@@ -4,22 +4,43 @@ Fedora's systemd enables systemd-resolved, whose stub holds 127.0.0.53:53 and
 127.0.0.54:53, so docker refused to publish svc-dns-knot on 0.0.0.0:53 with
 "address already in use"."""
 
-import re
+import configparser
 import unittest
+from pathlib import PurePosixPath
 
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 
-DROP_IN = re.compile(
-    r"\[Resolve\]\\nDNSStubListener=no\\n'\s*>\s*/etc/systemd/resolved\.conf\.d/[\w.-]+\.conf"
-)
+from . import dockerfile_commands
+
+DROP_IN_DIR = PurePosixPath("/etc/systemd/resolved.conf.d")
+
+
+def written_drop_ins(text: str) -> list[configparser.ConfigParser]:
+    """Args:
+        text: a Dockerfile.
+
+    Returns:
+        Every resolved.conf drop-in a ``RUN`` writes with ``printf``, parsed.
+    """
+    drop_ins: list[configparser.ConfigParser] = []
+    for argv in dockerfile_commands(text):
+        if argv[:1] != ["printf"] or ">" not in argv[:-1]:
+            continue
+        target = PurePosixPath(argv[argv.index(">") + 1])
+        if target.parent != DROP_IN_DIR or target.suffix != ".conf":
+            continue
+        drop_in = configparser.ConfigParser(interpolation=None)
+        drop_in.optionxform = str
+        drop_in.read_string(argv[1].replace("\\n", "\n"))
+        drop_ins.append(drop_in)
+    return drop_ins
 
 
 def _stub_off(text: str) -> bool:
-    joined = re.sub(r"\\\n", " ", text)
     return any(
-        line.lstrip().startswith("RUN") and DROP_IN.search(line)
-        for line in joined.splitlines()
+        drop_in.get("Resolve", "DNSStubListener", fallback=None) == "no"
+        for drop_in in written_drop_ins(text)
     )
 
 

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import importlib
+import re
 import unittest
 
 from ansible.parsing.dataloader import DataLoader
@@ -10,12 +12,20 @@ from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.templating.ansible import _trust_as_template
 
+collector = importlib.import_module(
+    "tests.unit.python.roles.sys-svc-log-collector.templates.test_collector_alloy"
+)
+loki = importlib.import_module("tests.unit.python.roles.web-svc-loki.test_loki_rules")
+
 TASKS = PROJECT_ROOT / "tasks/utils/forms/drift.yml"
 REPORT = PROJECT_ROOT / "tasks/utils/forms/drift_report.yml"
 LOGGING = PROJECT_ROOT / "group_vars/all/22_logging.yml"
-RULES = PROJECT_ROOT / "roles/web-svc-loki/templates/rules.yaml.j2"
 COLLECTOR = PROJECT_ROOT / "roles/sys-svc-log-collector/templates/collector.alloy.j2"
-LINE = "web-app-demo: general.relay (services.mail.relay): 'old' -> 'new'"
+APPLICATION = "web-app-demo"
+LINE = f"{APPLICATION}: general.relay (services.mail.relay): 'old' -> 'new'"
+STREAM = re.compile(r"count_over_time\(\{(?P<matchers>[^}]*)\}")
+MATCHER = re.compile(r'(?P<label>\w+)="(?P<value>[^"]*)"')
+GROUPING = re.compile(r"^sum by \((?P<labels>[^)]*)\)")
 
 
 def _tasks(path=TASKS) -> list[dict]:
@@ -26,6 +36,72 @@ def _render(expression: str, **variables):
     logging = DataLoader().load_from_file(str(LOGGING), trusted_as_template=True)
     templar = Templar(loader=DataLoader(), variables={**logging, **variables})
     return templar.template(_trust_as_template(expression))
+
+
+def _event_labels() -> dict[str, str]:
+    """
+    Returns:
+        The ``__journal_<field>`` labels Alloy's journal source reads from the
+        event the drift report raises.
+    """
+    stdin = _tasks(REPORT)[1]["ansible.builtin.command"]["stdin"]
+    rendered = _render(stdin, item=LINE, application_id=APPLICATION)
+    return {
+        f"__journal_{field.lower()}": value
+        for field, _, value in (line.partition("=") for line in rendered.splitlines())
+    }
+
+
+def _collected(source: str | None = None) -> dict | None:
+    """
+    Args:
+        source: the collector template, the role's own when None.
+
+    Returns:
+        The labels the rendered collector pipeline gives the drift event, None
+        when a drop rule discards it.
+    """
+    rules = collector._rules(collector._render(source))
+    return collector._relabel(rules, _event_labels())
+
+
+def _drift_query() -> tuple[dict[str, str], list[str]]:
+    """
+    Returns:
+        The stream matchers and the grouping labels of the rendered Loki drift
+        rule.
+    """
+    expr = loki._rules()[loki.VARS["LOKI_DRIFT_RULE_NAME"]]["expr"]
+    matchers = STREAM.search(expr).group("matchers")
+    grouping = GROUPING.match(expr).group("labels")
+    return (
+        {
+            match.group("label"): match.group("value")
+            for match in MATCHER.finditer(matchers)
+        },
+        [label.strip() for label in grouping.split(",")],
+    )
+
+
+def _unread(labels: dict | None) -> list[str]:
+    """
+    Args:
+        labels: the labels the collector gives the drift event, None when it
+            drops the event.
+
+    Returns:
+        Each matcher and grouping label of the Loki drift rule the event lacks.
+    """
+    matchers, grouping = _drift_query()
+    held = labels or {}
+    return [
+        *(
+            f"{label}={value}"
+            for label, value in matchers.items()
+            if held.get(label) != value
+        ),
+        *(label for label in grouping if not held.get(label)),
+    ]
 
 
 class TestDriftReport(unittest.TestCase):
@@ -56,25 +132,32 @@ class TestDriftReport(unittest.TestCase):
 
     def test_the_event_carries_the_line_the_identifier_and_the_application(self):
         stdin = _tasks(REPORT)[1]["ansible.builtin.command"]["stdin"]
-        rendered = _render(stdin, item=LINE, application_id="web-app-demo")
+        rendered = _render(stdin, item=LINE, application_id=APPLICATION)
         self.assertEqual(
             [
                 f"MESSAGE={LINE}",
                 "SYSLOG_IDENTIFIER=infinito-forms-drift",
                 "PRIORITY=4",
-                "INFINITO_APPLICATION=web-app-demo",
+                f"INFINITO_APPLICATION={APPLICATION}",
             ],
             rendered.splitlines(),
         )
 
-    def test_the_collector_turns_the_fields_into_the_labels_the_rule_reads(self):
-        collector = read_text(str(COLLECTOR))
-        self.assertIn('source_labels = ["__journal_syslog_identifier"]', collector)
-        self.assertIn('target_label  = "identifier"', collector)
-        self.assertIn("'__journal_' ~ (DOCKER_LOG_JOURNAL_FIELD | lower)", collector)
-        self.assertIn(
-            "{identifier={{ FORMS_DRIFT_IDENTIFIER | to_json }}}", read_text(str(RULES))
-        )
+    def test_the_collector_gives_the_event_every_label_the_rule_reads(self):
+        labels = _collected()
+        self.assertNotEqual(_drift_query()[0], {})
+        self.assertEqual(_unread(labels), [])
+        self.assertEqual(labels["application"], APPLICATION)
+
+    def test_negative_control_a_collector_without_a_label_fails_the_rule(self):
+        source = read_text(str(COLLECTOR))
+        for label in ("identifier", "application"):
+            with self.subTest(label=label):
+                renamed = source.replace(
+                    f'target_label  = "{label}"', f'target_label  = "{label}_x"'
+                )
+                self.assertNotEqual(source, renamed)
+                self.assertNotEqual(_unread(_collected(renamed)), [])
 
 
 if __name__ == "__main__":

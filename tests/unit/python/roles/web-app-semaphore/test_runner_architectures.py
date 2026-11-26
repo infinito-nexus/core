@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import copy
 import re
+import shlex
 import unittest
 
 from ansible.errors import AnsibleError
@@ -46,6 +47,28 @@ TOOLS = {
 }
 MACHINES = {arch: kernel for kernel, arch in HOST_ARCHITECTURE_BY_KERNEL.items()}
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
+SOURCE = "${INFINITO_SRC_DIR}"
+
+
+def stage_instructions(dockerfile: str, stage: str) -> list[tuple[str, str]]:
+    """
+    Args:
+        dockerfile: the runner Dockerfile.
+        stage: the name its ``FROM ... AS`` line gives the stage.
+
+    Returns:
+        ``(instruction, arguments)`` of every instruction of that stage, with
+        line continuations joined.
+    """
+    stages: dict[str | None, list[tuple[str, str]]] = {}
+    current = None
+    for line in dockerfile.replace("\\\n", " ").splitlines():
+        keyword, _, arguments = line.strip().partition(" ")
+        if keyword == "FROM":
+            current = arguments.rpartition(" AS ")[2] if " AS " in arguments else None
+        elif keyword:
+            stages.setdefault(current, []).append((keyword, arguments.strip()))
+    return stages[stage]
 
 
 def scheduled_architectures() -> tuple[str, ...]:
@@ -175,12 +198,23 @@ class TestMirrorPlatform(unittest.TestCase):
         self.addCleanup(self.build.close)
 
     def test_the_dockerfile_mirrors_the_platform_of_the_build_arguments(self) -> None:
-        dockerfile = read_text(str(DOCKERFILE))
-        self.assertIn("ARG SEMAPHORE_OPENTOFU_PLATFORM\n", dockerfile)
-        self.assertRegex(
-            dockerfile,
-            r'mirror "\$\{INFINITO_SRC_DIR\}/roles/web-app-semaphore/files/opentofu" '
-            r'"\$\{SEMAPHORE_OPENTOFU_PLATFORM\}"',
+        stage = stage_instructions(read_text(str(DOCKERFILE)), "opentofu")
+        self.assertIn(("ARG", "SEMAPHORE_OPENTOFU_PLATFORM"), stage)
+        steps = [
+            shlex.split(step)
+            for keyword, arguments in stage
+            if keyword == "RUN"
+            for step in arguments.split("&&")
+        ]
+        self.assertIn(
+            [
+                "bash",
+                f"{SOURCE}/roles/web-app-semaphore/files/shell/opentofu/build.sh",
+                "mirror",
+                f"{SOURCE}/roles/web-app-semaphore/files/opentofu",
+                "${SEMAPHORE_OPENTOFU_PLATFORM}",
+            ],
+            steps,
         )
 
     def test_the_mirror_fetches_the_providers_of_the_given_platform(self) -> None:

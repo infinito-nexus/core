@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-import re
 import unittest
 
-from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_HANDLERS_MAIN
+
+from .templates.test_journald_conf import journal_section
 
 ROLE = PROJECT_ROOT / "roles" / "sys-svc-journalctl"
 TOPIC = "restart-systemd-journald"
@@ -48,10 +49,7 @@ def argv(handler: dict) -> list[str]:
 
 class TestPersistentStorage(unittest.TestCase):
     def test_the_template_asks_for_persistent_storage(self):
-        self.assertRegex(
-            read_text(str(ROLE / "templates" / "journald.conf.j2")),
-            re.compile(r"^Storage=persistent$", re.MULTILINE),
-        )
+        self.assertEqual(journal_section()["Storage"], "persistent")
 
     def test_the_restart_is_followed_by_a_flush(self):
         handlers = handlers_on(TOPIC)

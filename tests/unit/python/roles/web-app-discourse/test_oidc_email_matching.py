@@ -21,7 +21,7 @@ def oidc_block_settings() -> dict[str, str]:
 
 
 class TestDiscourseOidcEmailMatching(unittest.TestCase):
-    def test_email_matching_requires_a_verified_claim(self) -> None:
+    def test_email_matching_requires_a_verified_claim(self) -> None:  # nocheck: test.text-presence -- parses the OIDC branch assignments into a setting map  # fmt: skip
         settings = oidc_block_settings()
         self.assertEqual(
             settings.get("openid_connect_email_verified_claim_fallback"),
@@ -33,7 +33,7 @@ class TestDiscourseOidcEmailMatching(unittest.TestCase):
             "true would link any account by an unproven address",
         )
 
-    def test_email_matching_is_pinned(self) -> None:
+    def test_email_matching_is_pinned(self) -> None:  # nocheck: test.text-presence -- parses the OIDC branch assignments into a setting map  # fmt: skip
         self.assertEqual(
             oidc_block_settings().get("openid_connect_match_by_email"),
             "true",

@@ -2,16 +2,16 @@ from __future__ import annotations
 
 import unittest
 
-from utils.cache.files import PROJECT_ROOT, read_text
+from jinja2 import Environment, StrictUndefined, select_autoescape
+
+from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
+
+from .templates.test_realm_import_json import LDAP_PROVIDER, realm_for
 
 ROLE_DIR = PROJECT_ROOT / "roles/web-app-keycloak"
 ROUTINES = ROLE_DIR / "tasks/03_manager_ops/update_routines.yml"
 BIND = ROLE_DIR / "tasks/update/03_ldap/bind.yml"
-COMPONENT = (
-    ROLE_DIR
-    / "templates/import/components/org.keycloak.storage.UserStorageProvider.json.j2"
-)
 BIND_INCLUDE = "tasks/update/03_ldap/bind.yml"
 SHARED_INCLUDE = "tasks/update/03_ldap/shared.yml"
 REQUIRED_ACTIONS = "tasks/update/12_required_actions.yml"
@@ -113,12 +113,17 @@ class TestLdapBindTask(unittest.TestCase):
         )
 
     def test_it_writes_the_bind_the_realm_import_writes(self):
-        template = read_text(str(COMPONENT))
-        for key, var in BIND_VARS.items():
+        bind = {var: f"rendered-{key}" for key, var in BIND_VARS.items()}
+        imported = realm_for(bind)["components"][LDAP_PROVIDER][0]["config"]
+        env = Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
+        )
+        for key, values in self.args["desired"]["config"].items():
             with self.subTest(key=key):
-                self.assertRegex(
-                    template,
-                    rf'"{key}":\s*\[\s*"\{{\{{\s*{var}\s*\}}\}}"\s*\]',
+                self.assertEqual(
+                    imported[key],
+                    [env.from_string(value).render(**bind) for value in values],
                 )
 
     def test_it_masks_the_credential(self):

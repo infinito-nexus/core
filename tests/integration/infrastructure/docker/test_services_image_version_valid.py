@@ -93,7 +93,7 @@ class TestVersionShapes(unittest.TestCase):
 
 
 class TestDockerServicesImageVersionValid(unittest.TestCase):
-    def test_declared_docker_service_image_and_version_are_valid(self) -> None:
+    def test_declared_docker_service_image_and_version_are_valid(self) -> None:  # nocheck: test.text-presence -- parses every meta/services.yml and validates its image and version  # fmt: skip
         """
         Rules:
         - `image` is OPTIONAL → only validated if present

@@ -186,7 +186,7 @@ class TestFactsAreNotOverriddenByVars(unittest.TestCase):
         (because that pattern commonly causes scope confusion + accidental persistent overrides).
     """
 
-    def test_no_fact_is_overridden_via_vars_on_includes(self) -> None:
+    def test_no_fact_is_overridden_via_vars_on_includes(self) -> None:  # nocheck: test.text-presence -- repository-wide lint over every parsed task file  # fmt: skip
         repo_root = PROJECT_ROOT
         task_files = _find_task_files(repo_root)
 

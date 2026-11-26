@@ -48,14 +48,14 @@ def _names(role: str, rel: str) -> set[str]:
 
 
 class TestStageSteps(unittest.TestCase):
-    def test_each_pre_up_step_runs_in_the_stage_and_not_in_the_core(self) -> None:
+    def test_each_pre_up_step_runs_in_the_stage_and_not_in_the_core(self) -> None:  # nocheck: test.text-presence -- asserts on the include targets of the parsed stage and core task files  # fmt: skip
         for role, steps in PRE_UP.items():
             for step in steps:
                 with self.subTest(role=role, step=step):
                     self.assertIn(step, _includes(role, STAGE))
                     self.assertNotIn(step, _includes(role, CORE))
 
-    def test_each_pre_up_task_runs_in_the_stage_and_not_in_the_core(self) -> None:
+    def test_each_pre_up_task_runs_in_the_stage_and_not_in_the_core(self) -> None:  # nocheck: test.text-presence -- asserts on the task names of the parsed stage and core task files  # fmt: skip
         for role, names in PRE_UP_NAMES.items():
             for name in names:
                 with self.subTest(role=role, name=name):

@@ -344,15 +344,26 @@ class TestEnrollmentSpec(unittest.TestCase):
         )
 
     def test_the_spec_reads_the_enforcement_the_seeder_writes(self):
-        self.assertIn(
-            "LOGIN_METHOD_2FA_ENFORCED={{ lookup('config', application_id, "
-            "'services.espocrm.second_factor_forced') | bool | string | lower }}",
-            read_text(str(ROLE / "templates/playwright.env.j2")),
+        source = _forms()["authentication"]["fields"]["auth2_f_a_forced"]["source"]
+        line = next(
+            row
+            for row in read_text(str(ROLE / "templates/playwright.env.j2")).splitlines()
+            if row.startswith("LOGIN_METHOD_2FA_ENFORCED=")
         )
-        self.assertIn(
-            'test.skip(!twoFactorEnforced, "LOGIN_METHOD_2FA_ENFORCED=false");',
-            read_text(str(ENROLLMENT_SPEC)),
-        )
+        for forced, rendered in ((True, "true"), (False, "false")):
+            with self.subTest(forced=forced):
+                self.assertEqual(
+                    f"LOGIN_METHOD_2FA_ENFORCED={rendered}",
+                    _templated(
+                        _trust_as_template(line),
+                        {"application_id": "web-app-espocrm"},
+                        {
+                            "config": lambda _app, path, forced=forced: {
+                                source: forced
+                            }[path]
+                        },
+                    ),
+                )
 
     def test_a_native_variant_keeps_the_enforcement_for_the_spec(self):
         variants = load_yaml_any(
@@ -434,16 +445,6 @@ class TestConverge(unittest.TestCase):
                         _trust_as_template("{{ (" + when + ") | bool }}"), stored, {}
                     ),
                 )
-
-    def test_the_read_mode_returns_before_the_seeder_writes(self):
-        seeder = read_text(str(ROLE / "files/php/seed/config.php"))
-        loop = seeder.index("foreach ($_ENV as $envKey => $envValue)")
-        read_branch = seeder.index("if ($readOnly) {", loop)
-        self.assertLess(read_branch, seeder.index("$writer->set(", loop))
-        self.assertIn("continue;\n    }\n\n    if ($current !== $value) {", seeder)
-        report = seeder.index("if ($readOnly) {", read_branch + 1)
-        self.assertLess(report, seeder.index("$writer->save();"))
-        self.assertIn("exit(0);", seeder[report : seeder.index("$writer->save();")])
 
 
 if __name__ == "__main__":

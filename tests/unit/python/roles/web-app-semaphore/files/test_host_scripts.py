@@ -301,7 +301,7 @@ class HostScriptTests(unittest.TestCase):
         self.addCleanup(os.kill, int(call["agent_pid"]), 15)
         self.assertFalse(agent_gone(call["agent_pid"]))
 
-    def test_deploy_and_host_scripts_share_one_key_loader(self):
+    def test_deploy_and_host_scripts_share_one_key_loader(self):  # nocheck: test.text-presence -- lint over every script of the directory  # fmt: skip
         self.assertEqual(loader_findings(SCRIPTS_DIR), [])
 
     def test_negative_control_a_script_starting_its_own_agent_is_caught(self):

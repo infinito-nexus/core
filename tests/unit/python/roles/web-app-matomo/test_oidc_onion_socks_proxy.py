@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+import configparser
+import os
+import subprocess
+import tempfile
 import unittest
+from pathlib import Path
 from urllib.parse import urlsplit
 
 from ansible.module_utils.parsing.convert_bool import boolean
@@ -10,10 +15,13 @@ from plugins.lookup.tor_socks_proxy import resolve_proxy_url
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
 from utils.networks.reachability import network_of
-from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE, ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+
+from .test_oidc_backchannel_pin import RELEASE_DIR, compose_services
 
 APP = "web-app-matomo"
 ROLE = PROJECT_ROOT / "roles" / APP
+DOCKERFILE = ROLE / "files" / "Dockerfile"
 VARS = load_yaml_str(read_text(str(ROLE / ROLE_FILE_VARS_MAIN)))
 NETWORKS_VARS = load_yaml_str(
     read_text(str(PROJECT_ROOT / "group_vars" / "all" / "08_networks.yml"))
@@ -105,6 +113,44 @@ def _render_env(socks_proxy: str) -> dict[str, str]:
     return dict(line.split("=", 1) for line in rendered.splitlines() if "=" in line)
 
 
+def _dockerfile_args() -> set[str]:
+    """
+    Returns:
+        The build arguments the image's Dockerfile declares.
+    """
+    return {
+        line.split()[1]
+        for line in read_text(str(DOCKERFILE)).splitlines()
+        if line.startswith("ARG ")
+    }
+
+
+def _release_config() -> configparser.ConfigParser:
+    """
+    Returns:
+        The config file the Dockerfile's RUN instruction writes into the
+        release, run with sh on an empty release directory.
+    """
+    run = next(
+        line.removeprefix("RUN ")
+        for line in read_text(str(DOCKERFILE)).splitlines()
+        if line.startswith("RUN ") and "common.config.ini.php" in line
+    )
+    parser = configparser.ConfigParser()
+    with tempfile.TemporaryDirectory() as release:
+        (Path(release) / "config").mkdir()
+        subprocess.run(
+            ["sh", "-c", run],
+            env={"PATH": os.environ["PATH"], "MATOMO_RELEASE_DIR": release},
+            check=True,
+            timeout=30,
+        )
+        parser.read_string(
+            read_text(str(Path(release) / "config" / "common.config.ini.php"))
+        )
+    return parser
+
+
 class TestMatomoReachesAnOnionIssuerThroughTor(unittest.TestCase):
     def test_an_onion_issuer_turns_the_tor_proxy_on(self):
         self.assertEqual(
@@ -164,20 +210,20 @@ class TestMatomoReachesAnOnionIssuerThroughTor(unittest.TestCase):
 
 class TestMatomoMakesNoUpdateCallThroughTor(unittest.TestCase):
     def test_the_release_disables_the_update_check(self):
-        dockerfile = read_text(str(ROLE / "files" / "Dockerfile"))
-        self.assertIn(
-            "printf '[General]\\nenable_auto_update = 0\\n' > "
-            '"${MATOMO_RELEASE_DIR}/config/common.config.ini.php"',
-            dockerfile,
+        self.assertEqual(
+            _release_config()["General"]["enable_auto_update"],
+            "0",
             "UpdateCheck calls api.matomo.org through the env proxy with a 5 s "
             "timeout and retries on every request after a failure, which stalls "
             "each installer page behind a Tor without exits",
         )
-        self.assertIn("ARG MATOMO_RELEASE_DIR", dockerfile)
+        self.assertIn("MATOMO_RELEASE_DIR", _dockerfile_args())
 
     def test_the_build_passes_the_release_dir(self):
-        compose = read_text(str(ROLE / ROLE_FILE_TEMPL_COMPOSE))
-        self.assertIn('MATOMO_RELEASE_DIR: "{{ MATOMO_RELEASE_DIR }}"', compose)
+        self.assertEqual(
+            compose_services()["matomo"]["build"]["args"]["MATOMO_RELEASE_DIR"],
+            RELEASE_DIR,
+        )
 
 
 if __name__ == "__main__":

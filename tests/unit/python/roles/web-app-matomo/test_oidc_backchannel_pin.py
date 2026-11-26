@@ -1,30 +1,69 @@
-import re
 import unittest
+
+from jinja2 import DictLoader, Environment, StrictUndefined, select_autoescape
 
 from utils.cache import PROJECT_ROOT
 from utils.cache.files import read_text
-from utils.cache.yaml import load_yaml_any
+from utils.cache.yaml import load_yaml_any, load_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_TEMPL_COMPOSE
 
 ROLE = PROJECT_ROOT / "roles/web-app-matomo"
-COMPOSE = read_text(str(ROLE / ROLE_FILE_TEMPL_COMPOSE))
+TEMPLATE = f"roles/web-app-matomo/{ROLE_FILE_TEMPL_COMPOSE}"
 SERVICES = load_yaml_any(str(ROLE / ROLE_FILE_META_SERVICES))
-SERVICE_START = "{% set service_name = MATOMO_SERVICE %}"
-NEXT_SERVICE = re.compile(r"\{% set service_name = (?!MATOMO_SERVICE )")
-PIN = "lookup('container_extra_hosts')"
+PINNED = ["auth.example.org:host-gateway"]
+RELEASE_DIR = "/opt/matomo"
 SERVER_SIDE = {
     "exchange_url": "{{ OIDC.CLIENT.TOKEN_URL }}",
     "user_info_url": "{{ OIDC.CLIENT.USER_INFO_URL }}",
 }
 
 
-def _matomo_block():
-    """Returns:
-    The template lines of the matomo service, without the bootstrap service.
+def _lookup(name, *terms, **_kwargs):
+    if name == "container_extra_hosts":
+        return "extra_hosts:\n  - " + PINNED[0]
+    if name == "template":
+        return "build:\n  context: ."
+    if name == "compose_only":
+        return f"{terms[0]}: {terms[1]}"
+    if name == "container_image":
+        return f"image: {terms[1]}"
+    return ""
+
+
+def compose_services() -> dict:
     """
-    start = COMPOSE.index(SERVICE_START)
-    end = NEXT_SERVICE.search(COMPOSE, start + len(SERVICE_START))
-    return COMPOSE[start : end.start() if end else len(COMPOSE)]
+    Returns:
+        The ``services`` of the rendered compose file, every lookup stubbed
+        and ``container_extra_hosts`` answering with ``PINNED``.
+    """
+    environment = Environment(
+        loader=DictLoader(
+            {
+                TEMPLATE: read_text(str(PROJECT_ROOT / TEMPLATE)),
+                "roles/sys-svc-compose/templates/base.yml.j2": "services:\n",
+                "roles/sys-svc-container/templates/base.yml.j2": "",
+            }
+        ),
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(),
+    )
+    environment.globals["lookup"] = _lookup
+    rendered = environment.get_template(TEMPLATE).render(
+        application_id="web-app-matomo",
+        MATOMO_SERVICE="matomo",
+        MATOMO_NAME="matomo",
+        MATOMO_VERSION="5",
+        MATOMO_OIDC_PLUGIN_SOURCE="https://plugins.example.org/oidc.zip",
+        MATOMO_OIDC_PLUGIN_ARCHIVE="oidc.zip",
+        MATOMO_RELEASE_DIR=RELEASE_DIR,
+        DOCKER_BIND_HOST="127.0.0.1",
+        MATOMO_BOOTSTRAP_SERVICE="bootstrap",
+        MATOMO_BOOTSTRAP_NAME="matomo-bootstrap",
+        MATOMO_BOOTSTRAP_ENV_FILE="/opt/compose/matomo/bootstrap.env",
+        MATOMO_BOOTSTRAP_PROFILE="bootstrap",
+        IS_COMPOSE_MODE=True,
+    )
+    return load_yaml_str(rendered)["services"]
 
 
 class TestMatomoReachesTheProviderItCallsItself(unittest.TestCase):
@@ -39,7 +78,7 @@ class TestMatomoReachesTheProviderItCallsItself(unittest.TestCase):
         self.assertIn("enabled", SERVICES["sso"])
 
     def test_the_matomo_container_pins_the_provider(self):
-        self.assertIn(PIN, _matomo_block())
+        self.assertEqual(compose_services()["matomo"]["extra_hosts"], PINNED)
 
 
 if __name__ == "__main__":

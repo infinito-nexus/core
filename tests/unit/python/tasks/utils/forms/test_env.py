@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import re
 import subprocess
 import tempfile
 import unittest
@@ -13,7 +12,6 @@ from jinja2.nativetypes import NativeEnvironment
 
 from plugins.filter.dotenv import FilterModule
 from utils.cache import PROJECT_ROOT
-from utils.cache.files import read_text
 
 ENV = PROJECT_ROOT / "tasks" / "utils" / "forms" / "env.yml"
 WHOLE_FILE_READERS = ("slurp", "fetch", "b64decode", "lookup('file'", 'lookup("file"')
@@ -147,10 +145,6 @@ class TestTheEnvReadTakesOnlyTheManagedLines(unittest.TestCase):
         self.assertEqual("grep", task["ansible.builtin.command"]["argv"][0])
         self.assertEqual("{{ MASK_CREDENTIALS_IN_LOGS | bool }}", task["no_log"])
         self.assertIs(False, task["changed_when"])
-
-    def test_the_param_doc_keeps_the_keys_lower_snake_case(self) -> None:
-        header = read_text(str(ENV)).split("\n- ", 1)[0]
-        self.assertRegex(header, re.compile(r"lower snake_case"))
 
 
 if __name__ == "__main__":

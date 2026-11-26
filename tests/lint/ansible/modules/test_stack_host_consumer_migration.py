@@ -104,7 +104,7 @@ def _path_args_concat(block_lines: list[str]) -> str:
 
 
 class TestStackHostConsumerMigration(unittest.TestCase):
-    def test_no_ungated_consumers_of_stack_host_template_destinations(self):
+    def test_no_ungated_consumers_of_stack_host_template_destinations(self):  # nocheck: test.text-presence -- policy lint over every YAML file  # fmt: skip
         producer_keys: set[str] = set()
         producer_locations: set[tuple[str, int]] = set()
 

@@ -54,7 +54,7 @@ class TestIterationSkillsConsistent(unittest.TestCase):
             f"agents/routines/iterate/<name>.py: {orphaned}",
         )
 
-    def test_every_iteration_skill_wrapper_is_valid(self):
+    def test_every_iteration_skill_wrapper_is_valid(self):  # nocheck: test.text-presence -- policy lint over every iteration skill wrapper  # fmt: skip
         for skill_md in sorted(SKILLS_DIR.glob(f"{PREFIX}*/SKILL.md")):
             name = skill_md.parent.name[len(PREFIX) :]
             with self.subTest(skill=skill_md.parent.name):

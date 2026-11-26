@@ -70,7 +70,7 @@ class TestBlenderExecPath(unittest.TestCase):
                 self.assertIn(FLATPAK_COMMAND_DIR, segments)
                 self.assertIn("/usr/bin", segments)
 
-    def test_the_include_path_holds_only_root_owned_dirs(self):
+    def test_the_include_path_holds_only_root_owned_dirs(self):  # nocheck: test.text-presence -- parses EXEC_PATH_SYSTEM from group_vars YAML and checks every segment's owner prefix  # fmt: skip
         segments = str(_system_exec_path()).split(":")
         self.assertTrue(
             all(segment.startswith(ROOT_OWNED) for segment in segments),

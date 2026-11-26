@@ -10,7 +10,10 @@ from __future__ import annotations
 import unittest
 from typing import TYPE_CHECKING
 
-from utils.cache.files import read_text
+from ansible.module_utils.parsing.convert_bool import boolean
+from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
+
+from plugins.filter.resource_filter import resource_filter
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
@@ -23,6 +26,55 @@ ROLES_DIR = PROJECT_ROOT / "roles"
 DEPLOY_TEMPLATE = PROJECT_ROOT / "roles/sys-svc-container/templates/deploy.yml.j2"
 
 DOCKER_ARCHITECTURES = {"x86_64", "aarch64", "armv7l", "ppc64le", "s390x"}
+
+APPLICATION_ID = "web-app-example"
+PINNED_ARCH = "aarch64"
+SERVICES = {
+    "example": {"name": "example"},
+    "pinned": {"platform_arch": PINNED_ARCH},
+}
+
+
+def _swarm_constraints(service_name: str) -> list[str]:
+    """
+    Args:
+        service_name: the service of ``SERVICES`` whose swarm deploy block is rendered.
+
+    Returns:
+        The placement constraints the block renders.
+    """
+    env = Environment(
+        loader=FileSystemLoader(str(DEPLOY_TEMPLATE.parent)),
+        trim_blocks=True,
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(),
+    )
+    env.filters.update(
+        bool=boolean,
+        resource_filter=resource_filter,
+        swarm_restart_condition=str,
+    )
+    answers = {
+        "applications": {APPLICATION_ID: {"services": SERVICES}},
+        "compose_replicas": "replicas: 1",
+        "roles_with_placement": [],
+    }
+    env.globals["lookup"] = lambda name, *_args, **_kwargs: answers[name]
+    rendered = env.get_template(DEPLOY_TEMPLATE.name).render(
+        RUNTIME="local",
+        DOCKER_RESTART_POLICY="unless-stopped",
+        RESOURCE_CPUS="1",
+        RESOURCE_HOST_CPUS="8",
+        RESOURCE_MEM_LIMIT="1g",
+        RESOURCE_MEM_RESERVATION="256m",
+        RESOURCE_PIDS_LIMIT="512",
+        compose_mode="swarm",
+        application_id=APPLICATION_ID,
+        service_name=service_name,
+        groups={},
+    )
+    lines = [line.strip() for line in rendered.splitlines()]
+    return [line[2:] for line in lines if line.startswith("- node.")]
 
 
 def _services(role_dir: Path) -> dict:
@@ -49,9 +101,10 @@ def _declared_arches() -> dict[str, str]:
 
 class TestPlatformArchConstraint(unittest.TestCase):
     def test_renderer_consumes_platform_arch(self) -> None:
-        template = read_text(str(DEPLOY_TEMPLATE))
-        self.assertIn("platform_arch", template)
-        self.assertIn("node.platform.arch ==", template)
+        self.assertEqual(
+            _swarm_constraints("pinned"), [f"node.platform.arch == {PINNED_ARCH}"]
+        )
+        self.assertEqual(_swarm_constraints("example"), [])
 
     def test_declared_arches_are_docker_values(self) -> None:
         for location, arch in _declared_arches().items():

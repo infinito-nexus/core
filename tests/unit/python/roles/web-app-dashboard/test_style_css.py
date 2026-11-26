@@ -5,20 +5,29 @@ from __future__ import annotations
 import re
 import unittest
 
+from jinja2 import DictLoader, Environment, StrictUndefined, select_autoescape
+
 from utils.cache.files import PROJECT_ROOT, read_text
 
 STYLE = read_text(
     str(PROJECT_ROOT / "roles" / "web-app-dashboard" / "files" / "style.css")
 )
-DESIGN_DEFAULTS = read_text(
-    str(
-        PROJECT_ROOT
-        / "roles"
-        / "sys-front-inj-design"
-        / "templates"
-        / "css"
-        / "default.css.j2"
+DESIGN_TEMPLATES = "roles/sys-front-inj-design/templates/css"
+DESIGN_DEFAULTS = (
+    Environment(
+        loader=DictLoader(
+            {
+                f"{DESIGN_TEMPLATES}/default.css.j2": read_text(
+                    str(PROJECT_ROOT / DESIGN_TEMPLATES / "default.css.j2")
+                ),
+                f"{DESIGN_TEMPLATES}/tokens.css.j2": "",
+            }
+        ),
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(),
     )
+    .get_template(f"{DESIGN_TEMPLATES}/default.css.j2")
+    .render()
 )
 PRIMARY = "var(--design-primary)"
 _COMMENT = re.compile(r"/\*.*?\*/", re.DOTALL)
@@ -100,8 +109,9 @@ class TestDashboardAccents(unittest.TestCase):
                 self.assertIn(PRIMARY, DECLARED[selector][prop])
 
     def test_the_badge_accents_take_the_primary_through_bootstrap(self) -> None:
-        self.assertIn("--bs-primary: var(--design-primary);", DESIGN_DEFAULTS)
-        self.assertIn("--bs-primary-rgb: var(--design-primary-rgb);", DESIGN_DEFAULTS)
+        root = declarations(DESIGN_DEFAULTS)[":root"]
+        self.assertEqual(root["--bs-primary"], PRIMARY)
+        self.assertEqual(root["--bs-primary-rgb"], "var(--design-primary-rgb)")
 
 
 class TestDeclarationParser(unittest.TestCase):

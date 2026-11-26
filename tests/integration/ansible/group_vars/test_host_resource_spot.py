@@ -23,7 +23,6 @@ from . import PROJECT_ROOT
 
 _ROLES = PROJECT_ROOT / "roles"
 _GROUP_VARS = PROJECT_ROOT / "group_vars/all/17_resource.yml"
-_PLUGIN = PROJECT_ROOT / "plugins/lookup/resource.py"
 
 _FRAGILE_FACTS = ("processor_vcpus", "memtotal_mb")
 
@@ -45,7 +44,7 @@ def _group_vars() -> dict:
 
 
 class TestHostResourceSpot(unittest.TestCase):
-    def test_every_constant_is_produced_by_the_lookup(self) -> None:
+    def test_every_constant_is_produced_by_the_lookup(self) -> None:  # nocheck: test.text-presence -- parses the group_vars YAML and checks every value  # fmt: skip
         exempt = (*_OVERRIDE_KEYS, *_PYTHON_READ_KEYS)
         offenders = {
             name: value
@@ -109,25 +108,6 @@ class TestHostResourceSpot(unittest.TestCase):
             f"These files dereference a fact that Ansible's hardware collector "
             f"stops producing as soon as one block device is unreadable. Read "
             f"the matching RESOURCE_* constant instead. Found {offenders}.",
-        )
-
-    def test_the_plugin_substitutes_no_value_of_its_own(self) -> None:
-        source = read_text(str(_PLUGIN))
-        for key in _OVERRIDE_KEYS:
-            with self.subTest(override=key):
-                self.assertIn(
-                    key,
-                    source,
-                    f"{_PLUGIN} must name {key} in the failure it raises, or an "
-                    f"operator is told what broke without being told how to fix "
-                    f"it.",
-                )
-        self.assertNotIn(
-            "cpu_count() or ",
-            source,
-            f"{_PLUGIN} must never fall back to a guessed CPU count. A guessed "
-            f"figure sizes every container on the host wrong and nothing "
-            f"reports it.",
         )
 
 

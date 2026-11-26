@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-# nocheck: mirrored-unit-test - runs in `rails runner` against Greenlight's User and
-# Role models; the constants only exist once the app has booted
 
 new_name            = ENV.fetch("NEW_NAME")
 new_email           = ENV.fetch("NEW_EMAIL").downcase

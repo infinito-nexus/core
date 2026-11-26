@@ -38,7 +38,7 @@ _REASON = re.compile(r"#.*\breason\b\s*:\s*\S", re.IGNORECASE)
 
 
 class TestCspUnsafeRequiresJustification(unittest.TestCase):
-    def test_unsafe_flags_are_justified(self) -> None:
+    def test_unsafe_flags_are_justified(self) -> None:  # nocheck: test.text-presence -- policy lint over every role meta/csp.yml  # fmt: skip
         findings: list[str] = []
         for path in sorted(PROJECT_ROOT.glob(f"roles/*/{ROLE_FILE_META_CSP}")):
             try:

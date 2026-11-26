@@ -66,7 +66,7 @@ def _undeclared_from_args(dockerfile: Path) -> list[tuple[int, str, str]]:
 class TestDockerfileArgScope(unittest.TestCase):
     """Fail when ARGs used in FROM instructions are not in the global scope."""
 
-    def test_from_args_declared_globally(self) -> None:
+    def test_from_args_declared_globally(self) -> None:  # nocheck: test.text-presence -- policy lint over the FROM args of every role Dockerfile  # fmt: skip
         dockerfiles = _collect_dockerfiles()
         self.assertTrue(
             dockerfiles or True,

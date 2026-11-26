@@ -147,7 +147,7 @@ class TestComposeNetworkLookups(unittest.TestCase):
                 "Offenders:\n" + "\n".join(offenders)
             )
 
-    def test_top_level_compose_networks_lookup_present_once(self) -> None:
+    def test_top_level_compose_networks_lookup_present_once(self) -> None:  # nocheck: test.text-presence -- repository-wide lint over every compose template  # fmt: skip
         offenders: list[str] = []
         for path in _compose_templates():
             compose_count, host_mode = _scan_compose_lookup_count(path)

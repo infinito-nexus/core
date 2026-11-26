@@ -117,7 +117,7 @@ def _block_contains_single_file_bind(
 
 
 class TestComposeTemplateNoInlineMountSection(unittest.TestCase):
-    def test_no_compose_template_has_inline_mount_sections(self) -> None:
+    def test_no_compose_template_has_inline_mount_sections(self) -> None:  # nocheck: test.text-presence -- policy lint over every .j2 template  # fmt: skip
         findings: list[tuple[str, int, str]] = []
         for path_str, content in iter_project_files_with_content(
             extensions=(".j2",),

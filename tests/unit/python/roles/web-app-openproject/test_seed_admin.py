@@ -39,7 +39,7 @@ class TestSeedAdmin(unittest.TestCase):
     def setUp(self):
         self.settings = seed_settings(read_text(str(ENV)))
 
-    def test_no_seeder_run_locks_an_admin(self):
+    def test_no_seeder_run_locks_an_admin(self):  # nocheck: test.text-presence -- parses both env spellings into settings, mutation-tested  # fmt: skip
         self.assertEqual(
             self.settings.get("seed_admin_user_locked", "false"),
             "false",

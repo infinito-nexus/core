@@ -167,7 +167,7 @@ def type_findings(roles: list[Path]) -> list[str]:
 
 
 class TestEnvForms(unittest.TestCase):
-    def test_at_least_one_role_carries_an_env_form(self) -> None:
+    def test_at_least_one_role_carries_an_env_form(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the env-form scan  # fmt: skip
         self.assertTrue(env_forms(role_dirs()))
 
     def test_no_env_form_field_is_secret_class(self) -> None:

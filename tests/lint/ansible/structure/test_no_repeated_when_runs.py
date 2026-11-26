@@ -191,7 +191,7 @@ class TestNoRepeatedWhenRuns(unittest.TestCase):
         ).splitlines()
         self.assertEqual(_shared_when_runs(lines), [(1, "target | length > 0")])
 
-    def test_no_three_consecutive_tasks_share_a_when(self) -> None:
+    def test_no_three_consecutive_tasks_share_a_when(self) -> None:  # nocheck: test.text-presence -- policy lint over every role task file  # fmt: skip
         findings: list[tuple[str, int, str]] = []
         for path_str, content in iter_project_files_with_content(
             extensions=(".yml", ".yaml"),

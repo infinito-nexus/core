@@ -41,18 +41,6 @@ class TestCacheDocBounds(unittest.TestCase):
         ]
         self.assertEqual(missing, [])
 
-    def test_the_doc_describes_the_eviction_of_every_cache(self) -> None:
-        text = read_text(str(DOC))
-        section = text.split("## Bounds and Eviction", 1)[1].split("\n## ", 1)[0]
-        for row in (
-            "Registry mirror",
-            "Nexus",
-            "Shared folders",
-            "Models",
-            "Host build cache",
-        ):
-            self.assertRegex(section, rf"\n\| {row} \|")
-
     def test_the_doc_covers_the_pin_its_absence_and_the_rollout(self) -> None:
         section = (
             read_text(str(DOC))

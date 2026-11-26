@@ -6,9 +6,10 @@ produces, in the base config and in every declared variant.
 
 from __future__ import annotations
 
-import re
 import unittest
 from typing import TYPE_CHECKING
+
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from plugins.lookup.tor_ports import collect_exposed_ports
 from plugins.lookup.tor_reachable import is_reachable
@@ -21,12 +22,6 @@ if TYPE_CHECKING:
 
 ROLES_DIR = PROJECT_ROOT / "roles"
 
-_GATE_RE = re.compile(
-    r"TOR_ENABLED=\{\{\s*"
-    r"lookup\('tor_reachable',\s*application_id\)"
-    r"\s*\|\s*lower\s*\}\}"
-)
-
 
 def _roles_with_tor_credential_test() -> dict[str, Path]:
     found = {}
@@ -36,6 +31,34 @@ def _roles_with_tor_credential_test() -> dict[str, Path]:
     return found
 
 
+def _rendered_gate(role: str, template: Path, reachable: bool) -> str:
+    """
+    Args:
+        role: the svc-db-* role the template belongs to.
+        template: the role's test.env.j2.
+        reachable: what ``lookup('tor_reachable', role)`` answers.
+
+    Returns:
+        The rendered ``TOR_ENABLED=`` line.
+    """
+    line = next(
+        row
+        for row in read_text(str(template)).splitlines()
+        if row.startswith("TOR_ENABLED=")
+    )
+
+    def lookup(*args):
+        if args != ("tor_reachable", role):
+            raise AssertionError(f"{role} selects its transport by lookup{args!r}")
+        return reachable
+
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    return env.from_string(line).render(lookup=lookup, application_id=role)
+
+
 class TestDbTorTransportGate(unittest.TestCase):
     def setUp(self) -> None:
         self.templates = _roles_with_tor_credential_test()
@@ -43,16 +66,16 @@ class TestDbTorTransportGate(unittest.TestCase):
 
     def test_template_delegates_to_the_shared_lookup(self) -> None:
         for role, template in self.templates.items():
-            with self.subTest(role=role):
-                self.assertRegex(
-                    read_text(str(template)),
-                    _GATE_RE,
-                    f"{role} must select its transport with "
-                    f"lookup('tor_reachable', application_id) rather than a "
-                    f"hand-rolled flag expression, so the credential test and "
-                    f"the onion mapping (plugins/lookup/tor_ports.py) cannot "
-                    f"drift apart.",
-                )
+            for reachable in (True, False):
+                with self.subTest(role=role, reachable=reachable):
+                    self.assertEqual(
+                        _rendered_gate(role, template, reachable),
+                        f"TOR_ENABLED={str(reachable).lower()}",
+                        f"{role} must select its transport with "
+                        f"lookup('tor_reachable', application_id), so the "
+                        f"credential test and the onion mapping "
+                        f"(plugins/lookup/tor_ports.py) cannot drift apart.",
+                    )
 
     def test_gate_agrees_with_the_onion_mapping(self) -> None:
         base = get_merged_applications(roles_dir=str(ROLES_DIR))

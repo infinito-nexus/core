@@ -5,10 +5,12 @@ from __future__ import annotations
 
 import os
 import re
+import shlex
 import subprocess
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 from typing import NamedTuple
 
@@ -228,31 +230,76 @@ def pinned_variant(call: str) -> str:
     return found.group(1) if found else ""
 
 
+def drill_tail(assert_rc: int) -> subprocess.CompletedProcess:
+    """
+    Args:
+        assert_rc: the exit status of the stubbed state assertion.
+
+    Returns:
+        The run of the drill from its state assertion to its end.
+    """
+    lines = read_text(str(DRILL)).splitlines()
+    start = next(
+        index
+        for index, line in enumerate(lines)
+        if line.endswith('/07_assert_state.sh"')
+    )
+    with tempfile.TemporaryDirectory() as tmp:
+        (Path(tmp) / "07_assert_state.sh").write_text(
+            f"echo asserted\nexit {assert_rc}\n", encoding="utf-8"
+        )
+        return subprocess.run(
+            ["bash", "-c", "\n".join(["set -euo pipefail", *lines[start:]])],
+            env={
+                "PATH": os.environ["PATH"],
+                "SCRIPT_DIR": tmp,
+                "APP_ID": APP,
+                "INFINITO_DISTRO": "arch",
+            },
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+
 class TestRoundtripMarker(unittest.TestCase):
     def setUp(self) -> None:
-        self.drill = read_text(str(DRILL))
         self.gate = read_text(str(GATE))
 
-    def test_the_drill_emits_the_marker(self) -> None:
-        self.assertIn(MARKER, self.drill)
+    def test_the_drill_completes_with_the_marker_after_the_state_assertion(
+        self,
+    ) -> None:
+        done = drill_tail(0)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(
+            done.stdout.splitlines(), ["asserted", f"{MARKER}{APP} distro=arch"]
+        )
 
-    def test_the_gate_looks_for_the_same_literal(self) -> None:
-        self.assertIn(MARKER, self.gate)
+    def test_a_failed_state_assertion_emits_no_marker(self) -> None:
+        done = drill_tail(1)
+        self.assertEqual(done.returncode, 1)
+        self.assertNotIn(MARKER, done.stdout)
 
-    def test_the_marker_carries_the_app_id(self) -> None:
-        emitted = re.search(rf'echo "{re.escape(MARKER)}(\S+)', self.drill)
-        self.assertIsNotNone(emitted)
-        self.assertEqual(emitted.group(1), "${APP_ID}")
-
-    def test_the_app_id_is_guarded_against_being_empty(self) -> None:
-        self.assertIn(': "${APP_ID:?', self.drill)
-
-    def test_the_marker_is_emitted_after_the_state_assertion(self) -> None:
-        assertion = self.drill.index("07_assert_state.sh")
-        self.assertGreater(self.drill.index(MARKER), assertion)
-
-    def test_the_gate_matches_the_marker_as_a_fixed_string(self) -> None:
-        self.assertIn("grep -qF", self.gate)
+    def test_the_gate_passes_only_on_what_the_drill_emits(self) -> None:
+        for printed, code in ((drill_tail(0).stdout, 0), ("asserted\n", 1)):
+            stub = (
+                "#!/usr/bin/env bash\n"
+                'printf "%s\\n" "$*" >>"${STUB_LOG}"\n'
+                f"printf %s {shlex.quote(printed)}\n"
+            )
+            with (
+                self.subTest(printed=printed),
+                unittest.mock.patch.object(sys.modules[__name__], "MAKE_STUB", stub),
+            ):
+                run = roundtrip(
+                    APP,
+                    modes="swarm",
+                    disable="",
+                    multi_accepted=True,
+                    keep="",
+                    preflight="",
+                )
+                self.assertEqual(run.returncode, code, run.stderr)
 
     def test_the_gate_no_longer_matches_a_workflow_step_name(self) -> None:
         self.assertNotIn("provision/deploy/e2e/verify per round", self.gate)

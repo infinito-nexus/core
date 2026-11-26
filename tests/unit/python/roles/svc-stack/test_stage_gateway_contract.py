@@ -16,7 +16,7 @@ STAGED = {
 
 
 class TestStageGatewayContract(unittest.TestCase):
-    def test_each_role_runs_its_steps_before_its_bridged_backend(self) -> None:
+    def test_each_role_runs_its_steps_before_its_bridged_backend(self) -> None:  # nocheck: test.text-presence -- asserts on the include targets of the parsed stage and core task files  # fmt: skip
         for role, steps in STAGED.items():
             for step in steps:
                 with self.subTest(role=role, step=step):

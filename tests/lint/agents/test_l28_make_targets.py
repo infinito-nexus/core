@@ -66,7 +66,7 @@ def check(makefile: Path, targets: tuple[str, ...] = TARGETS) -> list[str]:
 
 
 class TestL28(unittest.TestCase):
-    def test_real_tree_passes(self):
+    def test_real_tree_passes(self):  # nocheck: test.text-presence -- parses Makefile rule headers and their make help comment blocks  # fmt: skip
         self.assertEqual(check(MAKEFILE), [])
 
     def test_red_fixture_fails(self):

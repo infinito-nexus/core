@@ -63,7 +63,7 @@ def unresolved_targets() -> list[str]:
 
 
 class TestRolePathTargetsResolve(unittest.TestCase):
-    def test_every_role_path_and_playbook_dir_target_exists(self) -> None:
+    def test_every_role_path_and_playbook_dir_target_exists(self) -> None:  # nocheck: test.text-presence -- policy lint over every role_path reference  # fmt: skip
         findings = unresolved_targets()
         self.assertFalse(
             findings,

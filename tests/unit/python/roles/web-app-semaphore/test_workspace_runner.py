@@ -1218,7 +1218,7 @@ class TestOneWorkspaceOwner(unittest.TestCase):
             ],
         )
 
-    def test_the_stack_host_alone_owns_the_projects_row_and_runner(self):
+    def test_the_stack_host_alone_owns_the_projects_row_and_runner(self):  # nocheck: test.text-presence -- analyzes the parsed task lists, mutation-tested  # fmt: skip
         self.assertEqual(owner_findings(self.tasks), [])
 
     def test_negative_control_a_step_on_every_host_fails(self):

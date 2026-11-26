@@ -319,7 +319,7 @@ class TestApiListener(unittest.TestCase):
         self.assertNotEqual(collision_findings(taken), [])
         self.assertNotEqual(collision_findings({}), [])
 
-    def test_negative_control_the_former_listener_port_is_caught(self):
+    def test_negative_control_the_former_listener_port_is_caught(self):  # nocheck: test.text-presence -- runs band_findings on a planted port  # fmt: skip
         self.assertIn("8006 lies inside PORT_BANDS.local.http", band_findings(8006))
 
     def test_the_listener_publishes_the_port_pveproxy_serves(self):

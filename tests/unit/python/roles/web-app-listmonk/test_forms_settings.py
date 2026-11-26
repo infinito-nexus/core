@@ -6,6 +6,7 @@ import unittest
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
+from jinja2 import DictLoader, Environment, StrictUndefined, select_autoescape
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
@@ -378,14 +379,14 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
         )
         self.assertIn(f"-v forms='{json.dumps(forms)}'", command)
 
-    def test_the_read_never_returns_the_client_secret(self) -> None:
+    def test_the_read_never_returns_the_client_secret(self) -> None:  # nocheck: test.text-presence -- asserts SQL that runs only in the app database; no hermetic database runner yet  # fmt: skip
         sql = read_text(str(READ))
         self.assertIn("jsonb_each(:'forms'::jsonb) AS form", sql)
         self.assertIn("jsonb_object_keys(form.value -> 'fields')", sql)
         self.assertIn("(form.value ->> 'prefix') || field", sql)
         self.assertIn("value - 'client_secret'", sql)
 
-    def test_the_read_returns_only_the_hcaptcha_switch(self) -> None:
+    def test_the_read_returns_only_the_hcaptcha_switch(self) -> None:  # nocheck: test.text-presence -- asserts SQL that runs only in the app database; no hermetic database runner yet  # fmt: skip
         sql = read_text(str(READ))
         self.assertIn("WHERE key = 'security.captcha'", sql)
         self.assertIn(
@@ -409,7 +410,17 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
 
 class TestTheSettingsPageIsLocked(unittest.TestCase):
     def test_the_loader_includes_the_shared_renderer(self) -> None:
-        self.assertIn(SHARED_RENDERER, read_text(str(LOADER)))
+        loader = f"roles/web-app-listmonk/templates/{LOADER.name}"
+        environment = Environment(
+            loader=DictLoader(
+                {loader: read_text(str(LOADER)), SHARED_RENDERER: "shared-lock"}
+            ),
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(),
+        )
+        self.assertEqual(
+            "shared-lock", environment.get_template(loader).render().strip()
+        )
 
     def test_the_javascript_service_is_literally_on(self) -> None:
         services = load_yaml_any(str(SERVICES))

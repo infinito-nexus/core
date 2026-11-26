@@ -45,14 +45,14 @@ def _declared(selector: str, prop: str) -> list[str]:
 
 
 class TestDesignFocus(unittest.TestCase):
-    def test_kix_focus_colors_take_the_tokens(self) -> None:
+    def test_kix_focus_colors_take_the_tokens(self) -> None:  # nocheck: test.text-presence -- asserts on the parsed stylesheet declarations  # fmt: skip
         self.assertIn("var(--design-link-rgb)", _declared(":root", "--focus-color"))
         self.assertIn(
             "var(--design-on-frame-rgb)",
             _declared(":root", "--focus-color-alternative"),
         )
 
-    def test_the_ring_follows_the_focus_token_of_its_frame(self) -> None:
+    def test_the_ring_follows_the_focus_token_of_its_frame(self) -> None:  # nocheck: test.text-presence -- asserts on the parsed stylesheet declarations  # fmt: skip
         for selector in (":root :focus", ":root :focus-within"):
             with self.subTest(selector=selector):
                 self.assertIn(
@@ -60,7 +60,7 @@ class TestDesignFocus(unittest.TestCase):
                     _declared(selector, "--focus-outline"),
                 )
 
-    def test_the_skip_link_sits_on_the_frame(self) -> None:
+    def test_the_skip_link_sits_on_the_frame(self) -> None:  # nocheck: test.text-presence -- asserts on the parsed stylesheet declarations  # fmt: skip
         self.assertIn(
             "var(--design-frame)",
             _declared("#kix-header .skip-to-main", "background-color"),

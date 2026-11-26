@@ -383,7 +383,7 @@ class TestEnvDirServiceNames(unittest.TestCase):
             f"Suppress a genuine exception with `# nocheck: {RULE}`.",
         )
 
-    def test_env_dir_files_reach_the_container_base(self) -> None:
+    def test_env_dir_files_reach_the_container_base(self) -> None:  # nocheck: test.text-presence -- policy lint over every role templates/env file  # fmt: skip
         offenders: list[str] = []
         for role in sorted((PROJECT_ROOT / "roles").iterdir()):
             if role.is_dir():

@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
+import importlib.util
+import json
 import re
 import unittest
+
+from jinja2 import StrictUndefined
+from jinja2.nativetypes import NativeEnvironment
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
 
+FILTERS = PROJECT_ROOT / "roles/web-app-keycloak/filter_plugins"
 TASKS = PROJECT_ROOT / "roles/web-app-keycloak/tasks"
 HELPER = TASKS / "utils/directory_users.yml"
 READER = TASKS / "utils/directory_users/read.yml"
@@ -41,6 +47,22 @@ def login_helper_callers():
             include = task.get(INCLUDE_ROLE) or {}
             if include.get("tasks_from") in LOGIN_HELPERS:
                 yield path, task
+
+
+def role_filters() -> dict:
+    """
+    Returns:
+        The filters the role's kcadm and directory_users plugins register.
+    """
+    filters = {}
+    for name in ("kcadm", "directory_users"):
+        spec = importlib.util.spec_from_file_location(
+            f"keycloak_{name}_filters", str(FILTERS / f"{name}.py")
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        filters.update(module.FilterModule().filters())
+    return filters
 
 
 class TestDirectoryUsersHelper(unittest.TestCase):
@@ -113,13 +135,31 @@ class TestDirectoryUsersHelper(unittest.TestCase):
             argv_value(pages, "--offset"), "{{ keycloak_directory_offset }}"
         )
 
-    def test_a_named_read_matches_the_username_exactly(self):
+    def test_a_named_read_matches_the_username_exactly(self):  # nocheck: test.text-presence -- asserts on the parsed kcadm argv list  # fmt: skip
         named = next(argv for _, argv in self.calls if "exact=true" in argv)
         self.assertIn("username={{ keycloak_directory_username }}", named)
 
     def test_it_publishes_the_fact_through_the_directory_filter(self):
         fact = self.tasks[-1]["ansible.builtin.set_fact"]["keycloak_directory_users"]
-        self.assertIn("kc_directory_users(keycloak_directory_usernames)", fact)
+        environment = NativeEnvironment(undefined=StrictUndefined)
+        environment.filters.update(role_filters())
+        admin = {
+            "id": "6f1c-sub",
+            "username": "administrator",
+            "email": "admin@example.org",
+            "emailVerified": True,
+        }
+        other = {**admin, "id": "7a2d-sub", "username": "administrator2"}
+        self.assertEqual(
+            environment.from_string(fact).render(
+                keycloak_directory_pages={
+                    "results": [{"stdout": json.dumps([admin, other])}]
+                },
+                keycloak_directory_named={"results": []},
+                keycloak_directory_usernames=["administrator"],
+            ),
+            [admin],
+        )
 
 
 def argv_value(argv, flag):

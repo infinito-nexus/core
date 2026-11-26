@@ -53,7 +53,7 @@ class TestPostmarksSiteName(unittest.TestCase):
     def test_a_disabled_design_names_the_site_by_the_role_name(self) -> None:
         self.assertEqual(self._site_name(False), "Postmarks")
 
-    def test_the_container_env_hands_the_site_name_to_the_server(self) -> None:
+    def test_the_container_env_hands_the_site_name_to_the_server(self) -> None:  # nocheck: test.text-presence -- parses env.j2 into KEY=VALUE pairs  # fmt: skip
         env = dict(
             re.findall(
                 r"^([A-Z][A-Z0-9_]*)=(.*)$",

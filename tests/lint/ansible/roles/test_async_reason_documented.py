@@ -157,7 +157,7 @@ class TestAsyncReasonScope(unittest.TestCase):
 
 
 class TestAsyncReasonDocumented(unittest.TestCase):
-    def test_every_async_states_why_it_is_safe(self):
+    def test_every_async_states_why_it_is_safe(self):  # nocheck: test.text-presence -- policy lint over every role task file  # fmt: skip
         offenders: list[str] = []
 
         for path in _task_files():

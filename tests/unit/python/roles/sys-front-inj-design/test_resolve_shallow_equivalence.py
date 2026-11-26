@@ -63,7 +63,7 @@ def _outcome(tasks, app, vhost, logo) -> tuple[object, ...]:
 
 
 class TestResolveTasksRenderShallow(unittest.TestCase):
-    def test_every_template_lookup_of_both_tasks_is_shallow(self) -> None:
+    def test_every_template_lookup_of_both_tasks_is_shallow(self) -> None:  # nocheck: test.text-presence -- non-vacuity guard: the render-equivalence tests swap this lookup in the parsed tasks  # fmt: skip
         for task in resolve_tasks():
             with self.subTest(task=task["name"]):
                 text = repr(task)

@@ -64,7 +64,7 @@ class TestQualityComposeService(unittest.TestCase):
         self.assertEqual(self.service["user"], "65534")
         self.assertEqual(self.service["volumes"], [".:/src:ro"])
 
-    def test_the_image_is_pinned_by_tag_and_digest(self):
+    def test_the_image_is_pinned_by_tag_and_digest(self):  # nocheck: test.text-presence -- matches the image value of the parsed compose service  # fmt: skip
         self.assertRegex(
             self.service["image"],
             r"^ghcr\.io/infinito-nexus/quality:v\d+\.\d+\.\d+@sha256:[0-9a-f]{64}$",

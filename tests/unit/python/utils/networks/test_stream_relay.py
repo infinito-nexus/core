@@ -270,7 +270,7 @@ class TestTheRelayNetworkRenders(unittest.TestCase):
             self._container(PROVIDER, True),
         )
 
-    def test_both_compose_files_reference_the_relay_network_as_external(self):
+    def test_both_compose_files_reference_the_relay_network_as_external(self):  # nocheck: test.text-presence -- asserts on the compose networks the renderer emits, which it runs  # fmt: skip
         for app in (PROXY, PROVIDER):
             with self.subTest(app=app):
                 self.assertIn(

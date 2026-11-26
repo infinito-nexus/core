@@ -107,6 +107,11 @@ CONSUMER_PREFIX = {
 }
 STACK_STAGE = "tasks/utils/stack/stage.yml"
 CONSUMER_TASKS = {"web-app-magento": STACK_STAGE, "web-app-shopware": STACK_STAGE}
+HANDED = {
+    "sys_sysctl_owner": "OWNER",
+    "sys_sysctl_parameters": "PARAMETERS",
+    "sys_sysctl_retired_files": "RETIRED_FILES",
+}
 SYSCTL_MODULE = (
     Path(next(iter(ansible_posix.__path__))) / "plugins" / "modules" / "sysctl.py"
 )
@@ -206,6 +211,28 @@ def _undeclared(declared):
 
 def _consumer_vars(role):
     return load_yaml_any(str(ROLES / role / ROLE_FILE_VARS_MAIN))
+
+
+def _sysctl_includes(role):
+    """
+    Args:
+        role: a consumer role of sys-sysctl.
+
+    Returns:
+        The vars of every task in its consumer task file that includes sys-sysctl.
+    """
+    pending = list(
+        load_yaml_any(str(ROLES / role / CONSUMER_TASKS.get(role, "tasks/00_core.yml")))
+    )
+    found = []
+    while pending:
+        task = pending.pop(0)
+        for key in ("block", "rescue", "always"):
+            pending.extend(task.get(key) or [])
+        include = task.get("ansible.builtin.include_role") or task.get("include_role")
+        if isinstance(include, dict) and include.get("name") == "sys-sysctl":
+            found.append(task.get("vars", {}))
+    return found
 
 
 def _consumer_effect(role, in_container):
@@ -511,13 +538,18 @@ class TestConsumers(unittest.TestCase):
         self.assertIn("container behaviour", _differences("svc-net-wireguard", old))
 
     def test_consumers_hand_their_parameters_to_sys_sysctl(self):
+        env = _env()
         for role, prefix in CONSUMER_PREFIX.items():
-            tasks = CONSUMER_TASKS.get(role, "tasks/00_core.yml")
-            text = read_text(str(ROLES / role / tasks))
+            raw = _consumer_vars(role)
             with self.subTest(role=role):
-                self.assertIn("name: sys-sysctl", text)
-                self.assertIn(f"{prefix}_SYSCTL_PARAMETERS", text)
-                self.assertIn(f"{prefix}_SYSCTL_OWNER", text)
+                (handed,) = _sysctl_includes(role)
+                self.assertLessEqual(
+                    {"sys_sysctl_owner", "sys_sysctl_parameters"}, set(handed)
+                )
+                self.assertEqual(
+                    {key: _render(value, raw, env) for key, value in handed.items()},
+                    {key: raw[f"{prefix}_SYSCTL_{HANDED[key]}"] for key in handed},
+                )
 
     def test_search_engines_raise_the_map_count_in_their_own_dropin(self):
         for role, expected_dropin in SEARCH_ENGINE_CONSUMERS.items():
@@ -544,7 +576,7 @@ class TestConsumers(unittest.TestCase):
         partial = set(CONSUMER_PREFIX) - {"web-app-shopware"}
         self.assertEqual(_undeclared(partial), ["web-app-shopware"])
 
-    def test_no_role_but_sys_sysctl_calls_the_sysctl_module(self):
+    def test_no_role_but_sys_sysctl_calls_the_sysctl_module(self):  # nocheck: test.text-presence -- repository-wide lint over every role task file  # fmt: skip
         role_files = [
             rel
             for rel in (

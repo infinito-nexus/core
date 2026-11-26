@@ -18,7 +18,11 @@ import re
 import unittest
 from pathlib import Path
 
+from ansible.parsing.dataloader import DataLoader
+from ansible.template import Templar, trust_as_template
+
 from utils.cache.files import iter_non_ignored_files, read_text
+from utils.cache.yaml import load_yaml
 
 from . import PROJECT_ROOT
 
@@ -31,6 +35,23 @@ REPLACEMENT = {
     ("!=", "compose"): "not IS_COMPOSE_MODE",
     ("!=", "swarm"): "not IS_SWARM_MODE",
 }
+BOOLEANS = ("IS_COMPOSE_MODE", "IS_SWARM_MODE")
+
+
+def mode_booleans(mode: str) -> dict[str, object]:
+    """
+    Args:
+        mode: the ``DEPLOYMENT_MODE`` the definition sees.
+
+    Returns:
+        Each mode boolean as the definition renders it.
+    """
+    definition = load_yaml(str(PROJECT_ROOT / DEFINITION))
+    templar = Templar(loader=DataLoader(), variables={"DEPLOYMENT_MODE": mode})
+    return {
+        name: templar.template(trust_as_template(str(definition.get(name, ""))))
+        for name in BOOLEANS
+    }
 
 
 def _offenders() -> list[str]:
@@ -68,12 +89,16 @@ class TestDeploymentModeBooleans(unittest.TestCase):
         )
 
     def test_the_definition_still_declares_both(self) -> None:
-        declared = read_text(str(PROJECT_ROOT / DEFINITION))
-
-        for name in ("IS_COMPOSE_MODE", "IS_SWARM_MODE"):
-            self.assertIn(
-                f"{name}:", declared, f"{DEFINITION} no longer defines {name}"
-            )
+        self.assertEqual(
+            {"IS_COMPOSE_MODE": True, "IS_SWARM_MODE": False},
+            mode_booleans("compose"),
+            f"{DEFINITION} no longer answers the compose mode with real booleans",
+        )
+        self.assertEqual(
+            {"IS_COMPOSE_MODE": False, "IS_SWARM_MODE": True},
+            mode_booleans("swarm"),
+            f"{DEFINITION} no longer answers the swarm mode with real booleans",
+        )
 
 
 if __name__ == "__main__":

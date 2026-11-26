@@ -46,7 +46,7 @@ def _parse_env_default(file_text: str) -> str:
 
 
 class TestInventoryVarsFileSpotDriftGuard(unittest.TestCase):
-    def test_env_default_matches_python_fallback(self):
+    def test_env_default_matches_python_fallback(self):  # nocheck: test.text-presence -- parses the default.env assignment and compares it with the imported Python constant  # fmt: skip
         env_default = _parse_env_default(read_text(str(STATIC_ENV)))
         self.assertEqual(
             env_default,

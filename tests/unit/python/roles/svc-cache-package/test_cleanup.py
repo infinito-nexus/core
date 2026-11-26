@@ -9,9 +9,11 @@ import unittest
 import unittest.mock
 from pathlib import Path
 
+from jinja2 import Environment, StrictUndefined, select_autoescape
+
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
-from utils.cache.yaml import load_yaml
+from utils.cache.yaml import load_yaml, load_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles" / "svc-cache-package"
@@ -157,6 +159,23 @@ def _bootstrap(
         request["body"] = json.loads(request["data"]) if request["data"] else None
         requests.append(request)
     return done.returncode, requests
+
+
+def _line(template: Path, prefix: str) -> str:
+    """
+    Args:
+        template: an environment template of the role.
+        prefix: the start of the one line to return.
+
+    Returns:
+        The template line that starts with ``prefix``.
+    """
+    (line,) = [
+        line
+        for line in read_text(str(template)).splitlines()
+        if line.startswith(prefix)
+    ]
+    return line
 
 
 def _posts(requests: list[dict], suffix: str) -> list[dict]:
@@ -322,18 +341,39 @@ class TestRoleDefaults(unittest.TestCase):
         self.assertEqual(package["blobstore_max"], "40g")
 
     def test_both_bootstrap_environments_carry_the_role_window(self) -> None:
-        self.assertIn(
-            "CACHE_PACKAGE_MAX_IDLE_DAYS: \"{{ lookup('config', application_id, 'services.package.max_idle_days') }}\"",
-            read_text(str(ROLE / ROLE_FILE_VARS_MAIN)),
+        services = load_yaml(str(ROLE / ROLE_FILE_META_SERVICES))
+
+        def lookup(name, application_id, path):
+            if (name, application_id) != ("config", ROLE.name):
+                raise AssertionError(f"unexpected lookup {name!r} {application_id!r}")
+            node = {"services": services}
+            for part in path.split("."):
+                node = node[part]
+            return node
+
+        env = Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
         )
-        self.assertIn(
-            "INFINITO_CACHE_MAX_IDLE_DAYS={{ CACHE_PACKAGE_MAX_IDLE_DAYS }}",
-            read_text(str(ROLE / "templates" / "env" / "bootstrap.j2")),
-        )
-        self.assertIn(
-            "INFINITO_CACHE_MAX_IDLE_DAYS: {{ CACHE_PACKAGE_MAX_IDLE_DAYS | to_json }}",
-            read_text(str(ROLE / "templates" / "environment" / "bootstrap.j2")),
-        )
+        env.filters["to_json"] = json.dumps
+        window = env.from_string(
+            load_yaml(str(ROLE / ROLE_FILE_VARS_MAIN))["CACHE_PACKAGE_MAX_IDLE_DAYS"]
+        ).render(lookup=lookup, application_id=ROLE.name)
+        self.assertEqual(window, str(services["package"]["max_idle_days"]))
+        sidecar = env.from_string(
+            _line(
+                ROLE / "templates" / "env" / "bootstrap.j2",
+                "INFINITO_CACHE_MAX_IDLE_DAYS=",
+            )
+        ).render(CACHE_PACKAGE_MAX_IDLE_DAYS=window)
+        self.assertEqual(sidecar.partition("=")[2], window)
+        host = env.from_string(
+            _line(
+                ROLE / "templates" / "environment" / "bootstrap.j2",
+                "INFINITO_CACHE_MAX_IDLE_DAYS:",
+            )
+        ).render(CACHE_PACKAGE_MAX_IDLE_DAYS=window)
+        self.assertEqual(load_yaml_str(host), {"INFINITO_CACHE_MAX_IDLE_DAYS": window})
 
 
 if __name__ == "__main__":

@@ -9,8 +9,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from utils import PROJECT_ROOT
-from utils.cache.files import read_text
+from tests.utils.make_target import run_target
 from utils.runner import jobs
 from utils.runner.jobs import DONE, HELD, RUNNING
 
@@ -20,6 +19,12 @@ NOW = 1_800_000_000.0
 RUNNER = "runner-1"
 OTHER = "runner-2"
 UNKNOWN = "000000000000-abcdef"
+ROLE = "role=web-app-dashboard"
+ROLE_SYNC = "compose-role-sync"
+ROLE_SYNC_SCRIPT = "scripts/tests/deploy/local/sync/role.sh"
+PLAYWRIGHT = "compose-playwright"
+EXEC = "scripts/tests/deploy/local/exec/container.sh"
+RESYNC = f"python -m cli.administration.deploy.pool.attach --sync {UNKNOWN}"
 
 
 class _Case(unittest.TestCase):
@@ -147,38 +152,44 @@ class TestSync(_Case):
 
 class TestMakeWiring(unittest.TestCase):
     def test_role_sync_and_playwright_resync_the_held_copy_first(self) -> None:
-        makefile = read_text(str(PROJECT_ROOT / "Makefile"))
-        sync = (
-            '\t@$(if $(job),"$${PYTHON}" -m cli.administration.deploy.pool.attach '
-            "--sync '$(job)')\n"
-        )
-        for target in ("compose-role-sync", "compose-playwright"):
-            recipe = makefile.split(f"\n{target}:\n", 1)[1].split("\n\n", 1)[0]
+        for target, script in ((ROLE_SYNC, ROLE_SYNC_SCRIPT), (PLAYWRIGHT, EXEC)):
             with self.subTest(target=target):
-                self.assertIn(sync, recipe + "\n")
+                done, calls = run_target(
+                    target, (ROLE, f"job={UNKNOWN}"), (script,), {}
+                )
+                self.assertEqual(done.returncode, 0, done.stderr)
+                self.assertEqual(calls, [RESYNC, script])
+                self.assertEqual(
+                    run_target(target, (ROLE,), (script,), {})[1], [script]
+                )
 
     def test_job_on_the_make_line_reaches_the_env_layer_as_the_pool_job(
         self,
     ) -> None:
-        self.assertIn(
-            "ifdef job\nexport INFINITO_POOL_JOB := $(job)\nendif",
-            read_text(str(PROJECT_ROOT / "Makefile")),
-        )
+        for arguments, job in (((ROLE, f"job={UNKNOWN}"), UNKNOWN), ((ROLE,), "")):
+            with self.subTest(job=job):
+                _done, calls = run_target(
+                    ROLE_SYNC,
+                    arguments,
+                    (ROLE_SYNC_SCRIPT,),
+                    {"STUB_ENV": "INFINITO_POOL_JOB"},
+                )
+                self.assertEqual(
+                    calls[-1], f"{ROLE_SYNC_SCRIPT} INFINITO_POOL_JOB={job}"
+                )
 
     def test_dotenv_refuses_a_job_whose_attached_stack_it_would_persist(
         self,
     ) -> None:
-        makefile = read_text(str(PROJECT_ROOT / "Makefile"))
-        recipe = makefile.split("\ndotenv:\n", 1)[1].split("\n\n", 1)[0]
-        self.assertTrue(
-            recipe.startswith('\t@test -z "$${INFINITO_POOL_JOB:-}" || {'), recipe
-        )
-
-    def test_the_env_layer_attaches_through_this_command(self) -> None:
-        loader = read_text(str(PROJECT_ROOT / "scripts" / "meta" / "env" / "load.sh"))
-        self.assertIn(
-            '-m cli.administration.deploy.pool.attach "${INFINITO_POOL_JOB}"', loader
-        )
+        for arguments, env in (
+            ((f"job={UNKNOWN}",), {}),
+            ((), {"INFINITO_POOL_JOB": UNKNOWN}),
+        ):
+            with self.subTest(arguments=arguments, env=env):
+                done, calls = run_target("dotenv", arguments, (), env)
+                self.assertNotEqual(done.returncode, 0)
+                self.assertIn("takes no job= or INFINITO_POOL_JOB", done.stderr)
+                self.assertEqual(calls, [])
 
 
 if __name__ == "__main__":

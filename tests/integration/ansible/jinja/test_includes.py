@@ -17,7 +17,7 @@ class TestJinjaIncludePaths(unittest.TestCase):
     INCLUDE_STMT_RE = re.compile(r"{%\s*include\s+(.+?)\s*%}")
     LITERAL_PATH_RE = re.compile(r"^[\'\"]([^\'\"]+)[\'\"]$")
 
-    def test_all_jinja_includes_exist(self):
+    def test_all_jinja_includes_exist(self):  # nocheck: test.text-presence -- repository-wide lint that every literal include resolves to a file  # fmt: skip
         template_paths = list(PROJECT_ROOT.glob("**/*.j2"))
         self.assertTrue(
             template_paths, "No .j2 templates found anywhere in the project"

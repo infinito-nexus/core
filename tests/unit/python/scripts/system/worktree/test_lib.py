@@ -237,20 +237,78 @@ class TestWorktreeSlotRegistryCalls(unittest.TestCase):
             )
 
 
+def _up(tmp: str, slot_exit: int) -> tuple[subprocess.CompletedProcess, Path]:
+    """
+    Args:
+        tmp: an empty directory holding the stubs and the worktree base.
+        slot_exit: the exit status of the slot registry's allocation.
+
+    Returns:
+        The finished up.sh run, whose stderr interleaves its messages with one
+        line per stubbed git and python3 call, and the worktree path it uses.
+    """
+    root = Path(tmp)
+    bin_dir = root / "bin"
+    bin_dir.mkdir()
+    _shim(
+        bin_dir,
+        "git",
+        'echo "git $*" >&2\n'
+        'case "$1 $2" in\n'
+        '"worktree add") mkdir -p "$3" ;;\n'
+        '"rev-parse --path-format=absolute") echo /common ;;\n'
+        "esac",
+    )
+    _shim(bin_dir, "docker", "exit 0")
+    _shim(
+        bin_dir,
+        "python3",
+        'echo "python3 $*" >&2\n'
+        'if [ "$3" = allocate ]; then\n'
+        '[ -d "$4" ] || exit 9\n'
+        f"[ {slot_exit} = 0 ] || exit {slot_exit}\n"
+        "echo 7\n"
+        "fi",
+    )
+    env = {**os.environ, "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}"}
+    result = subprocess.run(
+        ["bash", str(LIB.parent / "up.sh"), "feat", str(root / "base")],
+        capture_output=True,
+        text=True,
+        check=False,
+        env={key: value for key, value in env.items() if key != "BASH_ENV"},
+    )
+    return result, root / "base" / "feat"
+
+
 class TestUpScript(unittest.TestCase):
     def test_the_slot_is_allocated_once_the_checkout_exists(self) -> None:
-        up_sh = read_text(str(LIB.parent / "up.sh"))
-        added = up_sh.index('git worktree add "${path}" "${branch}"')
-        allocated = up_sh.index('slot="$(worktree_allocate_slot "${path}")"')
-        pinned = up_sh.index("INFINITO_INSTANCE=${slot}")
-        self.assertLess(added, allocated)
-        self.assertLess(allocated, pinned)
+        with tempfile.TemporaryDirectory() as tmp:
+            result, path = _up(tmp, 0)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            calls = [line for line in result.stderr.splitlines() if " " in line]
+            added = calls.index(f"git worktree add {path} feat")
+            allocated = next(
+                index
+                for index, line in enumerate(calls)
+                if line.startswith(f"python3 -m {SLOTS_MODULE} allocate {path} ")
+            )
+            self.assertLess(added, allocated)
+            pins = dict(
+                line.split("=", 1)
+                for line in read_text(str(path / "custom.env")).splitlines()
+            )
+            self.assertEqual(pins["INFINITO_INSTANCE"], "7")
 
     def test_a_refused_slot_is_reported_before_the_worktree_is_removed(self) -> None:
-        up_sh = read_text(str(LIB.parent / "up.sh"))
-        reported = up_sh.index("FAILURE: the slot registry gave ${path} no slot")
-        removed = up_sh.index('if git worktree remove --force "${path}"; then')
-        self.assertLess(reported, removed)
+        with tempfile.TemporaryDirectory() as tmp:
+            result, path = _up(tmp, 1)
+            self.assertEqual(result.returncode, 1)
+            lines = result.stderr.splitlines()
+            reported = lines.index(f"FAILURE: the slot registry gave {path} no slot")
+            removed = lines.index(f"git worktree remove --force {path}")
+            self.assertLess(reported, removed)
+            self.assertFalse((path / "custom.env").exists())
 
     def test_the_prefixes_match_the_pins_up_sh_writes(self) -> None:
         result = subprocess.run(

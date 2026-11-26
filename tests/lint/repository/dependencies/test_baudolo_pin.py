@@ -13,13 +13,20 @@ the literals cannot drift from the tool that writes them.
 
 from __future__ import annotations
 
-import re
+import ast
 import tomllib
 import unittest
+import unittest.mock as mock
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import PurePath
 
+from ansible.parsing.dataloader import DataLoader
+from ansible.plugins.loader import lookup_loader
+from ansible.plugins.lookup import LookupBase
+from ansible.template import Templar, trust_as_template
+
 from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_any
 from utils.recovery import layout
 
 from . import PROJECT_ROOT
@@ -27,7 +34,13 @@ from . import PROJECT_ROOT
 _PACKAGE = "backup-docker-to-local"
 _PYPROJECT = PROJECT_ROOT / "pyproject.toml"
 _INSTALL_TASK = PROJECT_ROOT / "roles/svc-bkp-volume-2-local/tasks/01_install.yml"
-_TASK_PIN_RE = re.compile(rf"{re.escape(_PACKAGE)}==([0-9][^\"'\s]*)")
+_INSTALLER = "sys-pip-install"
+_LOOKED_UP = "looked-up-"
+
+
+class _Version(LookupBase):
+    def run(self, terms, *_args, **_kwargs):
+        return [f"{_LOOKED_UP}{term}" for term in terms]
 
 
 def _declared_pin() -> str | None:
@@ -38,6 +51,29 @@ def _declared_pin() -> str | None:
     return None
 
 
+def _installed_requirement() -> str:
+    """Returns:
+    The requirement the install task hands to the pip installer, rendered
+    with a ``version`` lookup that answers ``looked-up-<distribution>``.
+    """
+    task = next(
+        task
+        for task in load_yaml_any(str(_INSTALL_TASK))
+        if (task.get("include_role") or {}).get("name") == _INSTALLER
+    )
+    real_get = lookup_loader.get
+
+    def get(name, *args, **kwargs):
+        if name == "version":
+            return _Version()
+        return real_get(name, *args, **kwargs)
+
+    with mock.patch.object(lookup_loader, "get", side_effect=get):
+        return Templar(loader=DataLoader()).template(
+            trust_as_template(task["vars"]["package_name"])
+        )
+
+
 class TestBaudoloPin(unittest.TestCase):
     def test_the_role_installs_the_declared_version(self) -> None:
         declared = _declared_pin()
@@ -45,21 +81,13 @@ class TestBaudoloPin(unittest.TestCase):
             declared,
             f"{_PACKAGE} must be pinned in [project.dependencies] of {_PYPROJECT}",
         )
-
-        task = read_text(str(_INSTALL_TASK))
-        found = _TASK_PIN_RE.findall(task)
         self.assertEqual(
-            found,
-            [],
-            f"{_INSTALL_TASK} pins {found} literally. The pip pin updater bumps "
-            f"that literal and dependabot bumps pyproject.toml, each on its own, "
-            f"so the role must read the version from pyproject.toml.",
-        )
-        self.assertIn(
-            f"{_PACKAGE}=={{{{ lookup('version', '{_PACKAGE}') }}}}",
-            task,
+            _installed_requirement(),
+            f"{_PACKAGE}=={_LOOKED_UP}{_PACKAGE}",
             f"{_INSTALL_TASK} must install {_PACKAGE} at "
-            f"lookup('version', '{_PACKAGE}'), the pin of pyproject.toml.",
+            f"lookup('version', '{_PACKAGE}'), the pin of pyproject.toml. A "
+            f"literal pin is bumped by the pip pin updater while dependabot "
+            f"bumps pyproject.toml, each on its own.",
         )
 
     def test_baudolo_is_installed_here(self) -> None:
@@ -110,11 +138,12 @@ class TestBaudoloPin(unittest.TestCase):
                 )
 
     def test_the_layout_module_imports_nothing(self) -> None:
-        source = read_text(str(PROJECT_ROOT / "utils/recovery/layout.py"))
+        tree = ast.parse(read_text(str(PROJECT_ROOT / "utils/recovery/layout.py")))
         offenders = [
-            line
-            for line in source.splitlines()
-            if re.match(r"^\s*(import|from)\s", line) and "__future__" not in line
+            ast.unparse(node)
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Import)
+            or (isinstance(node, ast.ImportFrom) and node.module != "__future__")
         ]
         self.assertEqual(
             offenders,

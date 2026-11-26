@@ -8,7 +8,13 @@ import json
 import re
 import unittest
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
+from jinja2 import (
+    Environment,
+    FileSystemLoader,
+    StrictUndefined,
+    nodes,
+    select_autoescape,
+)
 
 from plugins.filter.security_headers import FilterModule
 from utils.cache.files import read_text
@@ -51,6 +57,28 @@ def render(override: dict) -> str:
         lookup=lookup,
         WEBSERVER_SECURITY_HEADERS=PLATFORM,
     )
+
+
+def around_include() -> tuple[str, str]:
+    """
+    Returns:
+        The static text the CSP template emits before and after its one
+        top-level include of the snippet.
+    """
+    source = read_text(str(PROJECT_ROOT / CSP_TEMPLATE))
+    parts: list[list[str]] = [[]]
+    for node in Environment(autoescape=True).parse(source).body:
+        if (
+            isinstance(node, nodes.Include)
+            and isinstance(node.template, nodes.Const)
+            and node.template.value == SNIPPET
+        ):
+            parts.append([])
+            continue
+        parts[-1].extend(data.data for data in node.find_all(nodes.TemplateData))
+    if len(parts) != 2:
+        raise AssertionError(f"{CSP_TEMPLATE} includes the snippet {len(parts) - 1}x")
+    return "".join(parts[0]), "".join(parts[1])
 
 
 def assignment(rendered: str, header: str) -> str:
@@ -103,14 +131,11 @@ class TestSecurityHeadersSnippet(unittest.TestCase):
 
 class TestSnippetPlacement(unittest.TestCase):
     def test_the_snippet_runs_inside_the_csp_header_filter_after_is_html(self):
-        text = read_text(str(PROJECT_ROOT / CSP_TEMPLATE))
-        block = text.index("header_filter_by_lua_block {")
-        is_html = text.index("local is_html")
-        include = text.index(f"{{% include '{SNIPPET}' %}}")
-        block_end = text.index("\n}\n", block)
-        self.assertLess(block, is_html)
-        self.assertLess(is_html, include)
-        self.assertLess(include, block_end)
+        before, after = around_include()
+        block = before[before.rindex("header_filter_by_lua_block {") :]
+        self.assertIn("local is_html", block)
+        self.assertNotIn("\n}\n", block)
+        self.assertIn("\n}\n", after)
 
 
 if __name__ == "__main__":

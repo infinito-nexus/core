@@ -1,69 +1,141 @@
 from __future__ import annotations
 
+import importlib
+import shlex
+import subprocess
+import tempfile
 import unittest
+from pathlib import Path
 
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
-from utils.cache.yaml import dump_yaml_str, load_yaml_str
+from utils.cache.yaml import load_yaml_str
 from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE, ROLE_FILE_VARS_MAIN
 
-ROLE = PROJECT_ROOT / "roles" / "svc-ai-lmstudio"
+gates = importlib.import_module(
+    "tests.unit.python.roles.svc-ai-models.test_engine_gates"
+)
+
+APPLICATION = "svc-ai-lmstudio"
+ROLE = PROJECT_ROOT / "roles" / APPLICATION
 FILES = {
     "core": ROLE / "tasks" / "00_core.yml",
     "node": ROLE / "tasks" / "utils" / "preload" / "node.yml",
     "vars": ROLE / ROLE_FILE_VARS_MAIN,
     "compose": ROLE / ROLE_FILE_TEMPL_COMPOSE,
 }
-REQUIRE = "utils/require.yml"
-START = "network/routine.yml"
 DOWNLOADS = ("lms get", "get_url_retry", "preseed.yml", "pull.yml")
+CID = "0123456789ab"
+MODELS = [
+    {
+        "alias": "small",
+        "repo": "org/small-GGUF",
+        "file": "small-Q4_K_M.gguf",
+        "sha256": "a" * 64,
+    },
+    {
+        "alias": "large",
+        "repo": "org/large-GGUF",
+        "file": "large-Q4_K_M.gguf",
+        "sha256": "b" * 64,
+    },
+]
+LINKS = {
+    f"{model['repo']}/{model['file']}": f"store/{model['sha256']}" for model in MODELS
+}
 
 
 def _texts() -> dict[str, str]:
     return {key: read_text(str(path)) for key, path in FILES.items()}
 
 
-def _first(tasks: list[dict], needle: str) -> int:
-    return next(
-        (index for index, task in enumerate(tasks) if needle in dump_yaml_str(task)),
-        len(tasks),
-    )
+def _mount(declared: str) -> str:
+    """
+    Args:
+        declared: the text of the role's ``vars/main.yml``.
+
+    Returns:
+        ``LMSTUDIO_STORE_MOUNT`` as Ansible renders it.
+    """
+    return gates.resolve(APPLICATION, declared, ("LMSTUDIO_STORE_MOUNT",), {}, {})[
+        "LMSTUDIO_STORE_MOUNT"
+    ]
 
 
-def _findings(texts: dict[str, str]) -> list[str]:
-    tasks = load_yaml_str(texts["core"])
-    found = []
-    if _first(tasks, REQUIRE) >= _first(tasks, START):
-        found.append("00_core does not run the store's require.yml before the start")
-    found.extend(
-        f"the preload still downloads through {needle}"
-        for needle in DOWNLOADS
-        if needle in texts["core"] + texts["node"]
-    )
-    if (
-        "ln -sfn" not in texts["node"]
-        or "AI_MODELS_STORE_PATH, model.sha256" not in texts["node"]
-    ):
-        found.append(
-            "the preload does not link <models>/<repo>/<file> to the store file"
-        )
-    if "extra_volumes=[LMSTUDIO_STORE_MOUNT]" not in texts["compose"]:
-        found.append("the compose file does not mount the store")
-    mount = load_yaml_str(texts["vars"]).get("LMSTUDIO_STORE_MOUNT", "")
-    if not str(mount).endswith(":ro"):
-        found.append("the store mount is not read-only")
-    return found
+def _linked(node: str) -> dict[str, str]:
+    """Args:
+        node: the text of ``tasks/utils/preload/node.yml``.
+
+    Returns:
+        Each model path below the models volume, mapped to where it links,
+        relative to the container root; empty when it is no link.
+
+    Raises:
+        AssertionError: the step runs outside the LM Studio container.
+    """
+    (task,) = [
+        task
+        for task in load_yaml_str(node)
+        if task.get("loop") == "{{ LMSTUDIO_PRELOAD_MODELS }}"
+    ]
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        values = {
+            "LMSTUDIO_LOCAL_CID": CID,
+            "LMSTUDIO_MODELS_TARGET": str(root / "models"),
+            "AI_MODELS_STORE_PATH": str(root / "store"),
+        }
+        for model in MODELS:
+            argv = shlex.split(
+                gates.render(
+                    task["ansible.builtin.shell"],
+                    {**values, "model": model},
+                    gates.no_lookup,
+                )
+            )
+            if argv[:3] != ["container", "exec", CID]:
+                raise AssertionError(f"the step runs outside the container: {argv}")
+            subprocess.run(argv[3:], capture_output=True, text=True, check=False)
+        paths = {path: root / "models" / path for path in LINKS}
+        return {
+            path: str(link.readlink().relative_to(root)) if link.is_symlink() else ""
+            for path, link in paths.items()
+        }
 
 
 class TestLmStudioStoreLink(unittest.TestCase):
     def test_lm_studio_links_its_models_to_the_store(self) -> None:
-        self.assertEqual(_findings(_texts()), [])
-
-    def test_the_guard_reports_a_download_and_a_writable_mount(self) -> None:
         texts = _texts()
-        texts["node"] += "\n- shell: lms get --yes --gguf x@q4\n"
-        texts["vars"] = texts["vars"].replace(':ro"', '"')
-        self.assertEqual(len(_findings(texts)), 2)
+        preload = {"LMSTUDIO_PRELOAD_MODELS": MODELS}
+        self.assertEqual(
+            gates.require_gate(texts["core"], gates.ROUTINE, preload), (True, MODELS)
+        )
+        self.assertEqual(
+            gates.require_gate(
+                texts["core"], gates.ROUTINE, {"LMSTUDIO_PRELOAD_MODELS": []}
+            ),
+            (False, []),
+        )
+        mount = _mount(texts["vars"])
+        self.assertEqual(mount, gates.MOUNT)
+        self.assertEqual(
+            gates.compose_volumes(texts["compose"], {"LMSTUDIO_STORE_MOUNT": mount}),
+            [[gates.MOUNT]],
+        )
+        self.assertEqual(_linked(texts["node"]), LINKS)
+        self.assertEqual(
+            [needle for needle in DOWNLOADS if needle in texts["core"] + texts["node"]],
+            [],
+        )
+
+    def test_negative_control_a_writable_mount_or_a_copied_model_fails(self) -> None:
+        texts = _texts()
+        writable = texts["vars"].replace(':ro"', '"')
+        copied = texts["node"].replace(" && ln -sfn ", " && cp ")
+        self.assertNotEqual(writable, texts["vars"])
+        self.assertNotEqual(copied, texts["node"])
+        self.assertNotEqual(_mount(writable), gates.MOUNT)
+        self.assertNotEqual(_linked(copied), LINKS)
 
 
 if __name__ == "__main__":  # pragma: no cover

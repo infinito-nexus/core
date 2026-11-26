@@ -929,9 +929,18 @@ class TestShippedConfiguration(HookCase, unittest.TestCase):
         self.assertEqual(self.hook.ROUTER_WEIGHTS, SHIPPED_WEIGHTS)
 
     def test_the_shipped_strategy_reads_the_decider_service_flag(self) -> None:
-        self.assertIn(
-            "services.s1.enabled",
-            SHIPPED_ROUTER["strategy"],
+        asked: list[tuple] = []
+        env = Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
+        )
+        env.filters["bool"] = bool
+        env.from_string(SHIPPED_ROUTER["strategy"]).render(
+            lookup=lambda *terms: asked.append(terms) or True
+        )
+        self.assertEqual(
+            asked,
+            [("config", "svc-ai-litellm", "services.s1.enabled")],
             "the strategy follows whether the System One service is deployed, "
             "and it reads that from the one flag that decides it",
         )

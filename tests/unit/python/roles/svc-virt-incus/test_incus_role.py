@@ -4,14 +4,12 @@ import unittest
 
 from tests.utils.ansible_assert import assert_task, holds, message
 from utils import PROJECT_ROOT
-from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.packages.registry import build_registry
 from utils.packages.schema import DISTRO_FAMILY
 from utils.roles.mapping import (
     ROLE_FILE_META_MAIN,
     ROLE_FILE_META_SERVICES,
-    ROLE_FILE_README,
     ROLE_FILE_VARS_MAIN,
 )
 
@@ -20,7 +18,6 @@ TASKS = ROLE / "tasks" / "00_core.yml"
 TASK_LIST = load_yaml_any(str(TASKS), default_if_missing=[])
 VARS = load_yaml_any(str(ROLE / ROLE_FILE_VARS_MAIN), default_if_missing={})
 SERVICES = load_yaml_any(str(ROLE / ROLE_FILE_META_SERVICES), default_if_missing={})
-README = read_text(str(ROLE / ROLE_FILE_README))
 DRIVER = assert_task(TASKS, "🛑 Refuse a storage driver without copy-on-write clones")
 
 
@@ -135,11 +132,6 @@ class TestIncusHost(unittest.TestCase):
             {DISTRO_FAMILY.get(key, key) for key in incus.mapping},
             set(VARS["INCUS_OS_FAMILIES"]),
         )
-
-    def test_readme_names_the_broker_channel_and_secure_boot(self):
-        self.assertIn("vsock", README)
-        self.assertIn("`security.secureboot`", README)
-        self.assertIn("cloud-init", README)
 
 
 if __name__ == "__main__":

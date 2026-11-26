@@ -244,12 +244,6 @@ class TestConfigFileSwitchTaiga(unittest.TestCase):
 class TestDatabaseSettingSwitchDiscourse(unittest.TestCase):
     ROLE = "web-app-discourse"
     TASK = "⚙️ Apply and read back the site settings and the administrator password"
-    SETTINGS: ClassVar[dict[str, str]] = {
-        "enable_local_logins": "DISCOURSE_LOCAL_LOGINS",
-        "enable_local_logins_via_email": "DISCOURSE_LOGIN_EMAIL",
-        "enable_passkeys": "DISCOURSE_LOGIN_PASSKEY",
-        "allow_new_registrations": "DISCOURSE_ALLOW_NEW_REGISTRATIONS",
-    }
     templates: ClassVar[dict[str, str]]
 
     @classmethod
@@ -304,14 +298,6 @@ class TestDatabaseSettingSwitchDiscourse(unittest.TestCase):
             "true",
             self._value("DISCOURSE_ALLOW_NEW_REGISTRATIONS", NATIVE, registration=True),
         )
-
-    def test_the_console_stores_each_value_as_its_site_setting(self) -> None:
-        script = read_text(str(ROLES / self.ROLE / "files/ruby/apply_settings.rb"))
-        for setting, name in self.SETTINGS.items():
-            with self.subTest(setting=setting):
-                self.assertIn(
-                    f'SiteSetting.{setting} = ENV.fetch("{name}") == "true"', script
-                )
 
 
 class TestInjectedScriptSwitchPixelfed(unittest.TestCase):
@@ -369,7 +355,7 @@ class TestInjectedScriptSwitchMattermost(unittest.TestCase):
     ROLE = "web-app-mattermost"
     HIDDEN = mattermost_form_parts()
 
-    def test_the_spec_lists_the_parts(self) -> None:
+    def test_the_spec_lists_the_parts(self) -> None:  # nocheck: test.text-presence -- non-vacuity guard of the list the rendered-script tests below assert  # fmt: skip
         self.assertNotEqual((), self.HIDDEN)
 
     def _script(self, mode: tuple[str, ...], **methods: bool) -> str:

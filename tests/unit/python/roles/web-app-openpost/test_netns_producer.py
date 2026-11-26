@@ -125,7 +125,7 @@ def _unproduced_readers(core: list) -> list[str]:
 
 
 class TestOpenPostNetnsProducer(unittest.TestCase):
-    def test_one_file_produces_the_openpost_netns_facts(self) -> None:
+    def test_one_file_produces_the_openpost_netns_facts(self) -> None:  # nocheck: test.text-presence -- lint over every task file of the role  # fmt: skip
         self.assertEqual(
             [PRODUCER],
             sorted(

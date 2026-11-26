@@ -14,7 +14,7 @@ from jinja2 import Environment, StrictUndefined, select_autoescape
 from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
-from ._fake_bao import install, run
+from ._fake_bao import install, read_state, run
 
 ROLE_DIR = PROJECT_ROOT / "roles/web-app-openbao"
 WORKSPACE = "0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d"
@@ -206,11 +206,35 @@ class TestTheTransitKey(unittest.TestCase):
             for task in apply_tasks()
             if task.get("register") == "openbao_workspace_key"
         )
-        command = task["ansible.builtin.shell"]
-        self.assertIn("bao read $k >/dev/null 2>&1 && exit 0", command)
-        self.assertIn(
-            "type=aes256-gcm96 exportable=false allow_plaintext_backup=false", command
+        command = (
+            environment()
+            .from_string(task["ansible.builtin.shell"])
+            .render(
+                OPENBAO_LOCAL_CID="openbao-cid",
+                OPENBAO_TRANSIT_MOUNT="transit",
+                WORKSPACE=WORKSPACE,
+            )
         )
+        key = f"transit/keys/ws-{WORKSPACE}-provision"
+        with tempfile.TemporaryDirectory() as scratch:
+            completed = run(["sh", "-c", command], install(Path(scratch)))
+            state = read_state(Path(scratch))
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(completed.stdout.split(), ["OPENBAO_CHANGED"])
+        self.assertEqual(state["writes"], [key])
+        self.assertEqual(
+            {
+                field: state["config"][key][field]
+                for field in ("type", "exportable", "allow_plaintext_backup")
+            },
+            {
+                "type": "aes256-gcm96",
+                "exportable": "false",
+                "allow_plaintext_backup": "false",
+            },
+        )
+        statements = [part.strip() for part in shlex.split(command)[-1].split(";")]
+        self.assertEqual(statements[1], "bao read $k >/dev/null 2>&1 && exit 0")
 
     def test_apply_fails_on_a_key_that_could_leave_openbao(self) -> None:
         task = next(

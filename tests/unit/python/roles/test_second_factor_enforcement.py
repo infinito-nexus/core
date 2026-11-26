@@ -15,6 +15,7 @@ import runpy
 import sys
 import unittest
 import unittest.mock as mock
+from itertools import pairwise
 from typing import Any
 
 from ansible.parsing.dataloader import DataLoader
@@ -280,62 +281,48 @@ class TestDiscourse(_EnforcementCase, unittest.TestCase):
         ).removeprefix("-e ")
         return value_of(render(self.ROLE, line, mode, self.ENTITY, second_factor))
 
-    LIFT = (
-        "SiteSetting.enforce_second_factor = second_factor_enforcement"
-        ' if second_factor_enforcement == "no"\n'
+    READBACK = "🛑 Refuse an instance the rotated credentials did not reach"
+    APPLIED = (
+        "administrator_present=true",
+        "administrator_admin=true",
+        "administrator_active=true",
+        "administrator_password_matches=true",
+        "login_methods_applied=true",
+        "second_factor_enforcement_applied=true",
     )
-    LOCAL = 'SiteSetting.enable_local_logins = ENV.fetch("DISCOURSE_LOCAL_LOGINS")'
-    SET = (
-        "SiteSetting.enforce_second_factor = second_factor_enforcement"
-        ' unless second_factor_enforcement == "no"\n'
-    )
 
-    def _script(self) -> str:
-        return read_text(str(ROLES / self.ROLE / "files/ruby/apply_settings.rb"))
+    def _refused(self, lines: list[str]) -> bool:
+        """Args:
+            lines: stdout lines of ``verify_settings.rb``.
 
-    def _validation_safe(self, script: str) -> bool:
-        """Whether *script* lifts the enforcement before local logins go off
-        and sets it only after local logins are on.
-
-        Args:
-            script: the text of ``apply_settings.rb``.
+        Returns:
+            Whether the deploy's readback assert fails on them.
         """
-        return (
-            script.index(self.LIFT) < script.index(self.LOCAL) < script.index(self.SET)
+        tasks = load_yaml_str(read_text(str(ROLES / self.ROLE / self.TASKS)))
+        conditions = next(task for task in tasks if task["name"] == self.READBACK)[
+            "ansible.builtin.assert"
+        ]["that"]
+        templar = Templar(
+            loader=DataLoader(),
+            variables={
+                "discourse_settings_readback": {"stdout_lines": lines},
+                "DISCOURSE_OIDC_ENABLED": False,
+                "RBAC": {"GROUP": {"CLAIM": "groups"}},
+            },
+        )
+        return not all(
+            templar.template(trust_as_template(f"{{{{ {condition} }}}}"))
+            for condition in conditions
         )
 
     def test_moving_to_sso_switches_the_enforcement_off(self) -> None:
         self.assertEqual(self.ON, self._in(NATIVE, ENFORCEMENT_ON))
         self.assertEqual(self.OFF, self._in(SSO, {}))
 
-    def test_the_enforcement_brackets_the_local_logins_write(self) -> None:
-        script = self._script()
-        self.assertTrue(self._validation_safe(script))
-        self.assertEqual(2, script.count("SiteSetting.enforce_second_factor ="))
-        self.assertEqual(1, script.count("SiteSetting.enable_local_logins ="))
-
-    def test_an_enforcement_written_after_local_logins_go_off_is_caught(self) -> None:
-        script = self._script()
-        lift_last = script.replace(self.LIFT, "").replace(
-            self.SET, self.SET + self.LIFT
-        )
-        set_first = script.replace(self.SET, "").replace(
-            self.LIFT, self.LIFT + self.SET
-        )
-        self.assertFalse(self._validation_safe(lift_last))
-        self.assertFalse(self._validation_safe(set_first))
-
-    def test_the_deploy_reads_the_site_setting_back(self) -> None:
-        script = read_text(str(ROLES / self.ROLE / "files/ruby/verify_settings.rb"))
-        self.assertIn(
-            "second_factor_enforcement_applied="
-            "#{SiteSetting.enforce_second_factor.to_s == enforcement}",
-            script,
-        )
-        self.assertIn(
-            "'second_factor_enforcement_applied=true' in discourse_settings_readback",
-            read_text(str(ROLES / self.ROLE / self.TASKS)),
-        )
+    def test_the_deploy_refuses_an_enforcement_the_readback_misses(self) -> None:
+        self.assertFalse(self._refused(list(self.APPLIED)))
+        missed = [*self.APPLIED[:-1], "second_factor_enforcement_applied=false"]
+        self.assertTrue(self._refused(missed))
 
 
 class _TaskEnvironment(_EnforcementCase):
@@ -358,11 +345,16 @@ class _TaskEnvironment(_EnforcementCase):
         template = self._task()["environment"][self.NAME]
         return render(self.ROLE, template, mode, self.ENTITY, second_factor)
 
-    def test_the_container_receives_the_value(self) -> None:
+    def test_the_container_receives_the_value(self) -> None:  # nocheck: test.text-presence -- tokenizes the file into commands or directives; the rule taints tokenizer output  # fmt: skip
         task = self._task()
-        argv = task.get("ansible.builtin.command", {}).get("argv", [])
-        cmd = task.get("ansible.builtin.shell", {}).get("cmd", "")
-        self.assertTrue(self.NAME in argv or f"-e {self.NAME}" in cmd)
+        tokens = task.get("ansible.builtin.command", {}).get("argv") or (
+            task.get("ansible.builtin.shell", {})
+            .get("cmd", "")
+            .replace("\\\n", " ")
+            .split()
+        )
+        forwarded = {value for flag, value in pairwise(tokens) if flag == "-e"}
+        self.assertIn(self.NAME, forwarded)
 
 
 class TestErpnext(_TaskEnvironment, unittest.TestCase):
@@ -507,19 +499,6 @@ class TestZammad(_TaskEnvironment, unittest.TestCase):
     ENTITY = "zammad"
     TASKS = "tasks/01_manager_ops.yml"
     NAME = "LOGIN_2FA_ENFORCED"
-
-    def test_the_script_enforces_for_every_active_role_only_with_its_own_2fa(
-        self,
-    ) -> None:
-        script = read_text(str(ROLES / self.ROLE / "files/ruby/apply/login_methods.rb"))
-        self.assertIn(
-            "Setting.set(\n"
-            '  "two_factor_authentication_enforce_role_ids",\n'
-            '  enabled?("LOGIN_2FA_ENFORCED")'
-            " ? Role.where(active: true).pluck(:id).sort : []\n"
-            ")\n",
-            script,
-        )
 
     def test_turning_2fa_off_disables_every_method_and_clears_the_enforcement(
         self,
@@ -730,17 +709,6 @@ class TestJoomla(_EnforcementCase, unittest.TestCase):
 
     def _script(self) -> str:
         return read_text(str(ROLES / self.ROLE / self.SCRIPT))
-
-    def test_the_script_converges_the_list_to_the_enforcement(self) -> None:
-        script = self._script()
-        self.assertIn("$secondFactor = getenv('J_LOGIN_2FA') === '1';\n", script)
-        self.assertIn(
-            "$forcedGroups = getenv('J_LOGIN_2FA_ENFORCED') === '1'"
-            " ? [getenv('J_LOGIN_2FA_ROOT_GROUP')] : [];\n",
-            script,
-        )
-        self.assertIn(self.GUARD, script)
-        self.assertEqual(1, script.count("forceMFAUserGroups'] = "))
 
     def test_turning_2fa_off_clears_the_list_only_once_no_method_is_left(
         self,

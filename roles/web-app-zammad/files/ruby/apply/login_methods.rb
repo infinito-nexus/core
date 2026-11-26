@@ -1,5 +1,3 @@
-# nocheck: mirrored-unit-test - runs in the Zammad console and writes through
-# Setting.set; the model only exists once Zammad has booted
 require "json"
 
 UserInfo.current_user_id = 1

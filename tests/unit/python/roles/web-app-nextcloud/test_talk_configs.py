@@ -11,7 +11,7 @@ from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from plugins.filter.resource_filter import resolve_cpus
 from utils.cache.files import PROJECT_ROOT, read_text
-from utils.cache.yaml import load_yaml
+from utils.cache.yaml import load_yaml, load_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-nextcloud"
@@ -212,6 +212,21 @@ def _build_args(dockerfile: str) -> str:
 
 def _build(name: str) -> str:
     return _build_args(read_text(str(FILES / "Dockerfiles" / name / "Dockerfile")))
+
+
+def _service_command(service_var: str) -> list[str]:
+    """
+    Args:
+        service_var: the variable the compose template names the service by.
+
+    Returns:
+        The rendered ``command`` of that service.
+    """
+    marker = f"{{% set service_name = {service_var} %}}"
+    block = _template("compose.yml.j2").split(marker, 1)[1]
+    block = block.split("{% set service_name", 1)[0]
+    (line,) = [row for row in block.splitlines() if row.strip().startswith("command:")]
+    return load_yaml_str(_render(line.strip()))["command"]
 
 
 def _ini(text: str) -> dict[str, dict[str, str]]:
@@ -514,12 +529,13 @@ class TestTalkDockerfiles(unittest.TestCase):
         )
 
     def test_the_compose_command_points_each_binary_at_its_rendered_config(self):
-        compose = _template("compose.yml.j2")
-        self.assertIn(
-            'command: ["--config={{ NEXTCLOUD_HPB_JANUS_CONFIG_TARGET }}"]', compose
+        self.assertEqual(
+            _service_command("NEXTCLOUD_HPB_SERVICE"),
+            [f"--config={VARIABLES['NEXTCLOUD_HPB_JANUS_CONFIG_TARGET']}"],
         )
-        self.assertIn(
-            'command: ["--config", "{{ NEXTCLOUD_RECORDING_CONFIG_TARGET }}"]', compose
+        self.assertEqual(
+            _service_command("NEXTCLOUD_RECORDING_SERVICE"),
+            ["--config", VARIABLES["NEXTCLOUD_RECORDING_CONFIG_TARGET"]],
         )
 
     def test_no_image_ships_a_start_script_that_writes_its_config(self):

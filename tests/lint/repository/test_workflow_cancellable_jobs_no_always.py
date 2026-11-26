@@ -81,7 +81,7 @@ class TestWorkflowCancellableJobsNoAlways(unittest.TestCase):
                 "!cancelled() instead:\n" + "\n".join(offenders)
             )
 
-    def test_reporters_still_need_the_exemption(self) -> None:
+    def test_reporters_still_need_the_exemption(self) -> None:  # nocheck: test.text-presence -- checks the exemptions against the parsed job conditions  # fmt: skip
         stale = [
             f"{name}:{job_id}"
             for name, job_id in sorted(_REPORTERS)

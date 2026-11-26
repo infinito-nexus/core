@@ -79,14 +79,14 @@ class TestMcpSecretNotInPlaywright(unittest.TestCase):
             + "\n".join(f"  - {f}" for f in sorted(findings)),
         )
 
-    def test_the_scan_reads_playwright_env_templates(self) -> None:
+    def test_the_scan_reads_playwright_env_templates(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the Playwright env scan  # fmt: skip
         self.assertTrue(
             _playwright_envs(),
             f"no role ships a {_ENV_TEMPLATE}, so the rule would pass "
             "vacuously; check that the scan still reads the right topic",
         )
 
-    def test_the_pattern_matches_a_real_credential_reference(self) -> None:
+    def test_the_pattern_matches_a_real_credential_reference(self) -> None:  # nocheck: test.text-presence -- vacuity guard: the lint pattern still matches  # fmt: skip
         """A pattern that matches nothing anywhere would pass silently."""
         matched = any(
             _MCP_SECRET.search(content)

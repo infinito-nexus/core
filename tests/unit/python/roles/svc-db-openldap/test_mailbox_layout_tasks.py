@@ -30,7 +30,7 @@ def _seed_includes(tasks):
 
 
 class TestMailboxLayoutTasks(unittest.TestCase):
-    def test_the_layout_reads_the_current_address(self):
+    def test_the_layout_reads_the_current_address(self):  # nocheck: test.text-presence -- asserts on the attrs list of the parsed ldap_search task  # fmt: skip
         attrs = LAYOUT[0]["community.general.ldap_search"]["attrs"]
         self.assertIn("{{ LDAP.USER.ATTRIBUTES.MAIL }}", attrs)
 

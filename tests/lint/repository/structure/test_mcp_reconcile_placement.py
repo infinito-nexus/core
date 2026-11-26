@@ -9,22 +9,16 @@ it entirely.
 
 Neither mistake fails anything, which is why this is pinned here rather than
 left to review.
-
-Suppression (see ``docs/contributing/actions/testing/suppression.md``):
-
-* ``# nocheck: mcp-reconcile-placement`` on, or directly above, the include.
 """
 
 from __future__ import annotations
 
 import unittest
 
-from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 
-from . import PROJECT_ROOT
+from . import PROJECT_ROOT, includes_role, includes_tasks, position, tasks_of
 
-_RULE = "mcp-reconcile-placement"
 _ROLE = "sys-svc-mcp-reconcile"
 _STAGE = PROJECT_ROOT / "tasks" / "stages" / "02_server.yml"
 _DESTRUCTOR = PROJECT_ROOT / "tasks" / "stages" / "03_destructor.yml"
@@ -32,23 +26,17 @@ _APP_PASS = "tasks/utils/setup/group.yml"
 _READER = "test-e2e-playwright"
 
 
-def _line_of(lines: list[str], needle: str) -> int | None:
-    return next((i for i, raw in enumerate(lines, 1) if needle in raw), None)
-
-
 class TestMcpReconcilePlacement(unittest.TestCase):
     def setUp(self) -> None:
-        self.lines = read_text(str(_STAGE)).splitlines()
+        self.tasks = tasks_of(_STAGE)
 
     def test_the_reconciliation_sits_between_the_app_pass_and_its_reader(self) -> None:
-        reconcile = _line_of(self.lines, _ROLE)
+        reconcile = position(self.tasks, includes_role(_ROLE))
         self.assertIsNotNone(
             reconcile, f"{_ROLE} is not invoked from {_STAGE.name}; nothing converges"
         )
-        if is_suppressed_at(self.lines, reconcile, _RULE):
-            return
-        app_pass = _line_of(self.lines, _APP_PASS)
-        reader = _line_of(self.lines, _READER)
+        app_pass = position(self.tasks, includes_tasks(_APP_PASS))
+        reader = position(self.tasks, includes_role(_READER))
         self.assertIsNotNone(app_pass, f"{_STAGE.name} no longer includes the app pass")
         self.assertIsNotNone(reader, f"{_STAGE.name} no longer runs {_READER}")
         self.assertLess(

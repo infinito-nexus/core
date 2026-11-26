@@ -56,7 +56,7 @@ def _workflow(*runs: str) -> dict:
 
 
 class TestDeployImageBuiltInJob(unittest.TestCase):
-    def test_the_tree_still_has_a_compose_deploy_job(self) -> None:
+    def test_the_tree_still_has_a_compose_deploy_job(self) -> None:  # nocheck: test.text-presence -- vacuity guard of the lint over the parsed workflows  # fmt: skip
         deploying = [
             name
             for name, workflow in _tree().items()
@@ -65,7 +65,7 @@ class TestDeployImageBuiltInJob(unittest.TestCase):
         ]
         self.assertTrue(deploying)
 
-    def test_every_compose_deploy_job_builds_its_image_first(self) -> None:
+    def test_every_compose_deploy_job_builds_its_image_first(self) -> None:  # nocheck: test.text-presence -- lint over the step order of every parsed workflow  # fmt: skip
         self.assertEqual(
             problems(_tree()),
             [],

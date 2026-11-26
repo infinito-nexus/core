@@ -87,7 +87,7 @@ class TestComposeSlot(unittest.TestCase):
         self.assertEqual(_var(binds[0]["target"]), SHARED)
         self.assertFalse(binds[0].get("read_only", False))
 
-    def test_pip_and_npm_cache_below_the_shared_folder(self) -> None:
+    def test_pip_and_npm_cache_below_the_shared_folder(self) -> None:  # nocheck: test.text-presence -- matches environment values of the parsed compose service  # fmt: skip
         env = self.runner["environment"]
         self.assertRegex(env["PIP_CACHE_DIR"], rf"^\$\{{{SHARED}[^}}]*\}}/pip$")
         self.assertRegex(env["npm_config_cache"], rf"^\$\{{{SHARED}[^}}]*\}}/npm$")

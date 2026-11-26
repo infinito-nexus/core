@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 import functools
 import json
-import re
 import unittest
 from typing import TYPE_CHECKING, Any
 
@@ -68,7 +67,8 @@ def stub_lookup(gated: bool) -> Callable[..., Any]:
 
     Returns:
         A ``lookup`` that reads ``config`` and ``volume`` from the role's own
-        meta files and answers every other plugin with an empty string.
+        meta files, renders ``container_ports`` as the ``ports`` its terms
+        request and answers every other plugin with an empty string.
     """
     services = load_yaml(str(ROLE / ROLE_FILE_META_SERVICES))
     volumes = load_yaml(str(ROLE / ROLE_FILE_META_VOLUMES))
@@ -76,6 +76,8 @@ def stub_lookup(gated: bool) -> Callable[..., Any]:
     def lookup(plugin: str, *terms: Any, **_kwargs: Any) -> Any:
         if plugin == "sso" and terms == (APPLICATION_ID, "is_proxy_gated"):
             return gated
+        if plugin == "container_ports":
+            return "ports: " + json.dumps(list(terms))
         if plugin == "volume" and terms[:1] == (APPLICATION_ID,):
             entry = volumes[terms[1]]
             return {**entry, "target": entry["mounts"][0]["target"]}
@@ -305,15 +307,22 @@ class TestTheProxyIsTheAuthentication(unittest.TestCase):
         )
 
     def test_the_editor_port_is_published_on_the_bind_host_only(self):
-        compose = read_text(str(ROLE / ROLE_FILE_TEMPL_COMPOSE))
-        self.assertEqual(
-            re.findall(r"lookup\('container_ports', ([^)]*)\)", compose),
-            ["['workspace', 'http', DOCKER_BIND_HOST]"],
-            "an ip-bound term stays on loopback in compose and is not "
-            "published at all in swarm, so only the proxy reaches the editor",
-        )
+        for gated in (True, False):
+            services = load_yaml_str(render(ROLE / ROLE_FILE_TEMPL_COMPOSE, gated))[
+                "services"
+            ]
+            self.assertEqual(
+                {
+                    name: service["ports"]
+                    for name, service in services.items()
+                    if "ports" in service
+                },
+                {"workspace": [["workspace", "http", "127.0.0.1"]]},
+                "an ip-bound term stays on loopback in compose and is not "
+                "published at all in swarm, so only the proxy reaches the editor",
+            )
 
-    def test_the_entrypoint_does_not_switch_the_token_off(self):
+    def test_the_entrypoint_does_not_switch_the_token_off(self):  # nocheck: test.text-presence -- parses the Dockerfile ENTRYPOINT into argv  # fmt: skip
         argv = entrypoint(read_text(str(DOCKERFILE)))
         self.assertIsNotNone(
             argv,

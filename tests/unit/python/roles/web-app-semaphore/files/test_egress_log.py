@@ -327,7 +327,7 @@ class TestOneSkipSource(unittest.TestCase):
         self.fixture = read_text(str(FIXTURE))
         self.runners = read_text(str(SPEC))
 
-    def test_the_cli_check_and_the_specs_skip_on_one_reason(self):
+    def test_the_cli_check_and_the_specs_skip_on_one_reason(self):  # nocheck: test.text-presence -- cross-file lint: one skip source, mutation-tested  # fmt: skip
         self.assertEqual(skip_findings(self.test_sh, self.fixture, self.runners), [])
 
     def test_negative_control_an_own_skip_on_either_side_is_caught(self):

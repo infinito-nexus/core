@@ -360,7 +360,7 @@ class TestStackBatchClosure(unittest.TestCase):
             "derive it from a lookup keyed by application_id instead",
         )
 
-    def test_every_expansion_still_names_a_live_include(self) -> None:
+    def test_every_expansion_still_names_a_live_include(self) -> None:  # nocheck: test.text-presence -- staleness guard of the lint's own expansion table  # fmt: skip
         stale = [
             f"{source}: {ref}"
             for source, ref in EXPANSIONS

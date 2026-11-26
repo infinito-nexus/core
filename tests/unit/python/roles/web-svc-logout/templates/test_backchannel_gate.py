@@ -11,6 +11,7 @@ from jinja2 import (
     Environment,
     FileSystemLoader,
     StrictUndefined,
+    nodes,
     select_autoescape,
 )
 
@@ -58,6 +59,31 @@ CONFIG = {
     (GATED, "services.sso.oidc.backchannel_logout_path"): RECEIVER_PATH,
     (GATED, "secrets.credentials.logout_gate_key"): GATE_KEY,
 }
+
+
+def include_ancestors(source: str, target: str) -> list[list[nodes.Node]]:
+    """
+    Args:
+        source: the text of a Jinja template.
+        target: a template path the source includes.
+
+    Returns:
+        Per include of ``target``, the nodes enclosing it, outermost first.
+    """
+    found = []
+
+    def walk(node, ancestors: list) -> None:
+        if (
+            isinstance(node, nodes.Include)
+            and isinstance(node.template, nodes.Const)
+            and node.template.value == target
+        ):
+            found.append(ancestors)
+        for child in node.iter_child_nodes():
+            walk(child, [*ancestors, node])
+
+    walk(Environment(autoescape=True).parse(source), [])
+    return found
 
 
 def receiver_url(application_id: str) -> str:
@@ -291,16 +317,21 @@ class TestReceiverSeal(unittest.TestCase):
         self.assertEqual(render_seal(OPEN).strip(), "")
 
     def test_every_vhost_hook_renders_the_seal_outside_any_branch(self) -> None:
-        include = f"{{% include '{SEAL}' %}}"
-        text = read_text(str(PROJECT_ROOT / SERVER_HOOK))
-        self.assertIn(
-            f"{{% with logout_consumer_id = application_id %}}\n{include}\n", text
+        (ancestors,) = include_ancestors(
+            read_text(str(PROJECT_ROOT / SERVER_HOOK)), SEAL
         )
-        before = text.split(include, 1)[0]
         self.assertEqual(
-            len(re.findall(r"\{%-?\s*if\b", before)),
-            len(re.findall(r"\{%-?\s*endif\b", before)),
+            [node for node in ancestors if isinstance(node, (nodes.If, nodes.For))],
+            [],
         )
+        bindings = {
+            target.name: value
+            for node in ancestors
+            if isinstance(node, nodes.With)
+            for target, value in zip(node.targets, node.values, strict=True)
+        }
+        self.assertIsInstance(bindings.get("logout_consumer_id"), nodes.Name)
+        self.assertEqual(bindings["logout_consumer_id"].name, "application_id")
 
 
 class TestPlaywrightGateTargets(unittest.TestCase):

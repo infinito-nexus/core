@@ -1038,7 +1038,7 @@ class TestPerAppClientIdsFailLoudly(unittest.TestCase):
     def setUp(self) -> None:
         self.consumers = client_id_consumers()
 
-    def test_the_scan_sees_the_synapse_client_id(self) -> None:
+    def test_the_scan_sees_the_synapse_client_id(self) -> None:  # nocheck: test.text-presence -- non-vacuity check of the repository-wide client id scan  # fmt: skip
         self.assertIn(f"roles/web-app-matrix/{ROLE_FILE_VARS_MAIN}", self.consumers)
         self.assertIn(
             "roles/web-app-matrix/templates/keycloak/clients.json.j2", self.consumers

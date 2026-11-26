@@ -257,7 +257,7 @@ class TestTheRunningGiteaLoadsTheStoredOAuthSource(unittest.TestCase):
         ]
         self.assertFalse(_reloads_after_write(tasks))
 
-    def test_the_fingerprint_covers_the_whole_oauth_source_config(self) -> None:
+    def test_the_fingerprint_covers_the_whole_oauth_source_config(self) -> None:  # nocheck: test.text-presence -- asserts SQL that runs only in the app database; no hermetic database runner yet  # fmt: skip
         sql = read_text(str(FINGERPRINT_SQL))
         self.assertIn("SHA2(s.cfg, 256)", sql)
         self.assertRegex(sql, r"WHERE s\.type = 6\b")

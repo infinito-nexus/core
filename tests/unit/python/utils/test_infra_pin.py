@@ -119,13 +119,6 @@ class TestThePinSteps(_PinStep):
         self.assertIn("make infra-update", stderr)
         self.assertNotIn("make cache-apply", stderr)
 
-    def test_only_the_map_outside_the_pin_root_returns_that_code(self) -> None:
-        pin_sh = read_text(str(PROJECT_ROOT / APPLY.with_name("pin.sh")))
-        self.assertEqual(pin_sh.count(f"return {cli.FOREIGN_MAP}"), 1)
-        self.assertIn(
-            "cache_pin_frontend_map || exit $?", read_text(str(PROJECT_ROOT / APPLY))
-        )
-
 
 class TestRunnerState(unittest.TestCase):
     def _state(self, names: str | None) -> int:
@@ -143,10 +136,6 @@ class TestRunnerState(unittest.TestCase):
         self.assertEqual(self._state("other\n"), cli.RUNNER_DOWN)
         self.assertEqual(self._state(None), 2)
         self.assertNotIn(cli.RUNNER_DOWN, (0, 1, 2))
-
-    def test_pin_sh_maps_the_stopped_runner_to_a_stopped_frontend(self) -> None:
-        pin_sh = read_text(str(PROJECT_ROOT / APPLY.with_name("pin.sh")))
-        self.assertIn(f"\t{cli.RUNNER_DOWN}) return 1 ;;", pin_sh)
 
 
 class TestCachePort(unittest.TestCase):

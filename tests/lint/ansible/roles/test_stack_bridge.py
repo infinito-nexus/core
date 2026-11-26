@@ -400,7 +400,7 @@ class TestStackBridge(unittest.TestCase):
             "a role whose stack the loader runs includes no svc-stack consumer entry",
         )
 
-    def test_every_stack_consumer_keeps_a_stack_path(self) -> None:
+    def test_every_stack_consumer_keeps_a_stack_path(self) -> None:  # nocheck: test.text-presence -- policy lint over every stack consumer role  # fmt: skip
         offenders = consumers_without_a_stack_path(PROJECT_ROOT)
         self.assertEqual(
             offenders,

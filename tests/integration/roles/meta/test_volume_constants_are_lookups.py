@@ -37,7 +37,7 @@ def _iter_vars_files():
 
 
 class TestVolumeConstantsAreLookups(unittest.TestCase):
-    def test_every_volume_constant_reads_from_volumes_yml(self):
+    def test_every_volume_constant_reads_from_volumes_yml(self):  # nocheck: test.text-presence -- repository-wide lint over every role's vars/main.yml  # fmt: skip
         offenders: list[str] = []
         for role_name, vars_yml in _iter_vars_files():
             text = read_text(str(vars_yml))

@@ -13,6 +13,9 @@ from __future__ import annotations
 
 import unittest
 
+from ansible.parsing.dataloader import DataLoader
+from ansible.template import Templar, trust_as_template
+
 from utils.cache.yaml import load_yaml_any
 from utils.env.parser import parse_static_env
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
@@ -35,6 +38,18 @@ def _gate_tasks(path):
     ]
 
 
+def _stops_polling(task, rc):
+    """Args:
+        task: a parsed gate task.
+        rc: the exit code of one ``stack_ready.sh`` poll.
+
+    Returns:
+        Whether the task's ``until`` ends the retries on that exit code.
+    """
+    templar = Templar(loader=DataLoader(), variables={task["register"]: {"rc": rc}})
+    return templar.evaluate_conditional(trust_as_template(task["until"]))
+
+
 class TestSwarmConvergeBudget(unittest.TestCase):
     def test_every_caller_reads_the_declared_budget(self) -> None:
         for path in CALLERS:
@@ -46,7 +61,11 @@ class TestSwarmConvergeBudget(unittest.TestCase):
 
     def test_every_caller_gives_up_on_a_terminal_gate_verdict(self) -> None:
         for path in CALLERS:
-            self.assertIn("rc in [0, 2]", _gate_tasks(path)[0]["until"], str(path))
+            task = _gate_tasks(path)[0]
+            with self.subTest(path=str(path)):
+                self.assertEqual(
+                    [rc for rc in (0, 1, 2) if _stops_polling(task, rc)], [0, 2]
+                )
 
     def test_every_caller_passes_the_declared_grace(self) -> None:
         for path in CALLERS:

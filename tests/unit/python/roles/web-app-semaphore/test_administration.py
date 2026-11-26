@@ -25,7 +25,7 @@ def missing_failure_facts(text):
 
 
 class TestAdministration(unittest.TestCase):
-    def test_administration_names_the_single_point_of_failure(self):
+    def test_administration_names_the_single_point_of_failure(self):  # nocheck: test.text-presence -- requirement 112 names this docs check as its proof  # fmt: skip
         text = read_text(str(ADMINISTRATION))
         self.assertEqual(missing_failure_facts(text), [])
 

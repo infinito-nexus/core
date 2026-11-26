@@ -68,7 +68,7 @@ def _has_canonical_lookup(rhs: str) -> bool:
 
 
 class TestPlaywrightAppBaseUrlUsesRole(unittest.TestCase):
-    def test_app_base_url_targets_the_role_itself(self):
+    def test_app_base_url_targets_the_role_itself(self):  # nocheck: test.text-presence -- policy lint over every playwright.env.j2  # fmt: skip
         root: Path = PROJECT_ROOT
         roles_dir = root / "roles"
 

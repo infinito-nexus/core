@@ -17,6 +17,7 @@ from typing import Self
 from unittest.mock import patch
 
 from cli.meta.cache.evict import __main__ as evict_cli
+from tests.utils.make_target import run_target
 from utils import PROJECT_ROOT
 from utils.cache import evict
 from utils.cache.artefacts import Artefact
@@ -34,7 +35,6 @@ from utils.cache.evict import (
 from utils.cache.eviction.docker import build_cache_usage
 from utils.cache.eviction.nexus import Asset, NexusRest, nexus_from_env
 from utils.cache.eviction.units import Unit, model_units, shared_units
-from utils.cache.files import read_text
 
 DAY = 86400
 NOW = time.time()
@@ -816,13 +816,14 @@ class TestStatus(unittest.TestCase):
         self.assertEqual(usage, Usage(used=28_500_000_000, complete=True))
 
     def test_the_make_targets_run_the_cache_cli(self) -> None:
-        makefile = read_text(str(PROJECT_ROOT / "Makefile"))
-        self.assertIn(
-            'cache-evict:\n\t@"$${PYTHON}" -m cli.meta.cache.evict\n', makefile
-        )
-        self.assertIn(
-            'cache-status:\n\t@"$${PYTHON}" -m cli.meta.cache.status\n', makefile
-        )
+        for target, module in (
+            ("cache-evict", "cli.meta.cache.evict"),
+            ("cache-status", "cli.meta.cache.status"),
+        ):
+            with self.subTest(target=target):
+                done, calls = run_target(target, (), (), {})
+                self.assertEqual(done.returncode, 0, done.stderr)
+                self.assertEqual(calls, [f"python -m {module}"])
 
 
 if __name__ == "__main__":

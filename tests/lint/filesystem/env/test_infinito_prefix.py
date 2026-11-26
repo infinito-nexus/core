@@ -51,7 +51,7 @@ def _scan_targets() -> list[Path]:
 
 
 class TestEnvFilesInfinitoPrefix(unittest.TestCase):
-    def test_every_env_file_key_carries_infinito_prefix(self) -> None:
+    def test_every_env_file_key_carries_infinito_prefix(self) -> None:  # nocheck: test.text-presence -- naming convention lint over every default.env key  # fmt: skip
         targets = _scan_targets()
         self.assertTrue(targets, "default.env not found to scan")
 

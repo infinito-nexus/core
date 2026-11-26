@@ -106,7 +106,7 @@ class TestDockerfilePipNoVersionPins(unittest.TestCase):
             "no role Dockerfile found; the scan would pass vacuously",
         )
 
-    def test_no_pip_install_pins_a_version(self) -> None:
+    def test_no_pip_install_pins_a_version(self) -> None:  # nocheck: test.text-presence -- policy lint over every pip install of every role Dockerfile  # fmt: skip
         failures = []
         for dockerfile in collect_dockerfiles():
             relative = dockerfile.relative_to(_REPO_ROOT).as_posix()

@@ -228,7 +228,7 @@ class TestAgentVmProblems(unittest.TestCase):
         for group in ("groups.get('svc-virt-incus')", "groups.get('web-app-proxmox')"):
             self.assertIn(group, check["vars"]["vm_capacity_stray"])
 
-    def test_the_hypervisor_and_the_broker_deploy_run_the_target_check(self):
+    def test_the_hypervisor_and_the_broker_deploy_run_the_target_check(self):  # nocheck: test.text-presence -- checks include_tasks entries of the parsed task files  # fmt: skip
         for tasks_file in (CAPACITY_TASKS, BROKER_TASKS):
             with self.subTest(tasks=tasks_file.name):
                 self.assertTrue(_includes(tasks_file, "tasks/utils/vm/agents.yml"))

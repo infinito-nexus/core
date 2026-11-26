@@ -73,19 +73,19 @@ class ReconcileSqlTests(unittest.TestCase):
             with self.subTest(variable=variable):
                 self.assertRegex(tasks, rf"\b{variable}\b")
 
-    def test_the_unchanged_line_sums_every_counter(self):
+    def test_the_unchanged_line_sums_every_counter(self):  # nocheck: test.text-presence -- invariant over every ROW_COUNT counter of the script  # fmt: skip
         unchanged = self.text[self.text.index("SELECT 'UNCHANGED'") :]
         self.assertEqual(len(self.counters), len(set(self.counters)))
         for counter in self.counters:
             with self.subTest(counter=counter):
                 self.assertIn(f":{counter}", unchanged)
 
-    def test_every_write_reports_what_it_changed(self):
+    def test_every_write_reports_what_it_changed(self):  # nocheck: test.text-presence -- invariant over every statement of the script  # fmt: skip
         for statement in statements(self.text)[:-1]:
             with self.subTest(statement=statement[:60]):
                 self.assertRegex(statement, r"(RETURNING|SELECT) 'CHANGED ")
 
-    def test_operators_are_pre_created_without_the_admin_flag(self):
+    def test_operators_are_pre_created_without_the_admin_flag(self):  # nocheck: test.text-presence -- asserts SQL that runs only in the app database; no hermetic database runner yet  # fmt: skip
         creation = next(
             s
             for s in statements(self.text)
@@ -93,7 +93,7 @@ class ReconcileSqlTests(unittest.TestCase):
         )
         self.assertRegex(creation, r"'', FALSE, TRUE\s")
 
-    def test_grants_touch_only_task_runner_rows_of_the_provisioned_project(self):
+    def test_grants_touch_only_task_runner_rows_of_the_provisioned_project(self):  # nocheck: test.text-presence -- asserts SQL that runs only in the app database; no hermetic database runner yet  # fmt: skip
         grants = [
             s
             for s in statements(self.text)
@@ -108,7 +108,7 @@ class ReconcileSqlTests(unittest.TestCase):
         self.assertIn("AND granted.role_id = guest_role.id", promote)
         self.assertIn("AND granted.role_id = task_runner_role.id", revoke)
 
-    def test_only_administrators_are_members_of_the_deploy_project(self):
+    def test_only_administrators_are_members_of_the_deploy_project(self):  # nocheck: test.text-presence -- asserts SQL that runs only in the app database; no hermetic database runner yet  # fmt: skip
         deploy = [s for s in statements(self.text) if ":'deploy_project'" in s]
         self.assertEqual(len(deploy), 2)
         grant, revoke = deploy

@@ -1,5 +1,3 @@
-# nocheck: mirrored-unit-test - runs in the Zammad console and writes through
-# Setting.set; the model only exists once Zammad has booted
 UserInfo.current_user_id = 1
 
 Setting.set("fqdn",      ENV.fetch("ZAMMAD_FQDN"))

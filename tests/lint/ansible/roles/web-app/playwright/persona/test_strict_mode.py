@@ -124,7 +124,7 @@ def _enclosing_if_condition(text: str, idx: int) -> str | None:
 
 
 class TestPersonaStrictMode(unittest.TestCase):
-    def test_persona_skips_only_via_explicit_opt_out(self):
+    def test_persona_skips_only_via_explicit_opt_out(self):  # nocheck: test.text-presence -- policy lint over every persona flow file  # fmt: skip
         offenders: list[str] = []
         for fname in _FLOW_FILES:
             path = PERSONAS_DIR / fname
@@ -161,7 +161,7 @@ class TestPersonaStrictMode(unittest.TestCase):
                 + "\n".join(f"  - {o}" for o in offenders)
             )
 
-    def test_deny_helpers_validate_body_on_200(self):
+    def test_deny_helpers_validate_body_on_200(self):  # nocheck: test.text-presence -- policy lint over every persona deny helper  # fmt: skip
         offenders: list[str] = []
         utils_dir = PERSONAS_DIR / "utils"
         for fname in _DENY_HELPER_FILES:

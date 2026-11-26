@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import posixpath
+import shlex
+import subprocess
+import tempfile
 import unittest
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
@@ -93,12 +96,30 @@ class TestMatomoTrustsTheInjectedCa(unittest.TestCase):
             for task in tasks
             if "build-trust-bundle.sh" in str(task.get("ansible.builtin.script", ""))
         )
-        self.assertIn(
-            "[CA_TRUST.bundle_host, CA_ROOT.cert_host] + _ca_public_bundle",
-            build,
-            "custom_cacert_pem replaces the CA file of every outbound call of "
-            "Matomo, so the bundle has to hold the public roots beside the own CA",
-        )
+        env = _environment()
+        env.filters["quote"] = shlex.quote
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            own = root / "root-ca.crt"
+            own.write_text("OWN CA\n")
+            public = root / "ca-certificates.crt"
+            public.write_text("PUBLIC ROOTS\n")
+            bundle = root / "bundle.pem"
+            argv = shlex.split(
+                env.from_string(build).render(
+                    role_path=str(CA_ROLE),
+                    CA_TRUST={"bundle_host": str(bundle)},
+                    CA_ROOT={"cert_host": str(own)},
+                    _ca_public_bundle=[str(public)],
+                )
+            )
+            subprocess.run(["sh", *argv], check=True, capture_output=True, timeout=30)
+            self.assertEqual(
+                read_text(str(bundle)),
+                "OWN CA\nPUBLIC ROOTS\n",
+                "custom_cacert_pem replaces the CA file of every outbound call of "
+                "Matomo, so the bundle has to hold the public roots beside the own CA",
+            )
 
 
 if __name__ == "__main__":

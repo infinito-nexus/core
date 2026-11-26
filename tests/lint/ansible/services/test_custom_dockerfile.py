@@ -51,7 +51,7 @@ def _custom_services(services_path):
 
 
 class TestCustomDockerfileCoupling(unittest.TestCase):
-    def test_dockerfile_and_custom_declarations_match(self) -> None:
+    def test_dockerfile_and_custom_declarations_match(self) -> None:  # nocheck: test.text-presence -- policy lint over every role Dockerfile and services.yml  # fmt: skip
         dockerfiles: dict[str, list[str]] = {}
         services_files: dict[str, str] = {}
         for path in iter_project_files(exclude_tests=True):

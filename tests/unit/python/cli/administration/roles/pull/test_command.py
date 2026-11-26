@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import contextlib
 import io
-import re
 import tarfile
 import unittest
 import unittest.mock
@@ -12,9 +11,9 @@ from yaml.constructor import ConstructorError
 
 from cli.administration.roles.paths import WORK_DIR
 from cli.administration.roles.pull import command
-from utils.cache import PROJECT_ROOT, ROLES_DIR
-from utils.cache.files import read_text
+from utils.cache import ROLES_DIR
 from utils.roles.custom import CustomRoleError
+from utils.stacks.makefile import makefile_calls
 
 
 class TestPullCommand(unittest.TestCase):
@@ -86,12 +85,10 @@ class TestPullCommand(unittest.TestCase):
 
 class TestMakeTargetsPullFirst(unittest.TestCase):
     def test_test_and_lint_pull_the_pinned_roles_before_their_suites(self):
-        makefile = read_text(str(PROJECT_ROOT / "Makefile"))
+        graph = makefile_calls()
         for target in ("test", "lint"):
             with self.subTest(target=target):
-                header = re.search(rf"(?m)^{target}:(.*)$", makefile)
-                self.assertIsNotNone(header)
-                self.assertIn("roles-pull", header[1].split())
+                self.assertIn("roles-pull", graph[target])
 
 
 if __name__ == "__main__":

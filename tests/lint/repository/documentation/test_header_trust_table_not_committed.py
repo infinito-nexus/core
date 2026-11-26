@@ -69,7 +69,7 @@ class TestHeaderTrustTableNotCommitted(unittest.TestCase):
             2, len(markers.committed_block_problems(text, begin=BEGIN, end=END))
         )
 
-    def test_the_hand_written_candidates_stay_undetected(self) -> None:
+    def test_the_hand_written_candidates_stay_undetected(self) -> None:  # nocheck: test.text-presence -- parses the candidates table and cross-checks it against the role scan  # fmt: skip
         """A candidate the scan finds belongs in the rendered table instead."""
         text = read_text(str(PROJECT_ROOT / DOC))
         self.assertTrue(

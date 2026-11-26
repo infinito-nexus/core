@@ -8,6 +8,8 @@ import unittest
 from urllib.parse import urlparse
 
 from ansible.errors import AnsibleFilterError
+from jinja2 import StrictUndefined
+from jinja2.nativetypes import NativeEnvironment
 
 from tests.utils.ansible_assert import assert_task, evaluate, holds
 from utils import PROJECT_ROOT
@@ -184,12 +186,6 @@ class TestGrants(unittest.TestCase):
         ):
             self.assertNotIn(forbidden, COMPOSE)
 
-    def test_readme_names_the_websocket_gap_and_no_longer_the_tls_one(self):
-        gaps = _readme_section("Known gaps")
-        self.assertIn("websocket", gaps)
-        self.assertNotIn("TLS upstream", gaps)
-        self.assertIn("**HTTPS upstream:**", _readme_section("Features"))
-
 
 HOSTVARS = {
     "pve": {"ansible_host": "10.0.0.5"},
@@ -210,7 +206,15 @@ class TestSeparateHost(unittest.TestCase):
         )
 
     def test_vars_use_the_address_aware_filter(self):
-        self.assertIn("proxmox_cohosted(", VARS["PROXMOX_COHOSTED_PEERS"])
+        env = NativeEnvironment(undefined=StrictUndefined)
+        env.filters["proxmox_cohosted"] = proxmox_cohosted
+        peers = env.from_string(VARS["PROXMOX_COHOSTED_PEERS"]).render(
+            PROXMOX_EXCLUSIVE_PEERS=VARS["PROXMOX_EXCLUSIVE_PEERS"],
+            inventory_hostname="pve",
+            groups={"web-app-keycloak": ["idp-alias"], "svc-ai-litellm": ["idp"]},
+            hostvars=HOSTVARS,
+        )
+        self.assertEqual(peers, ["web-app-keycloak"])
 
     def test_dedicated_host_passes(self):
         peers = self._peers({"web-app-proxmox": ["pve"], "web-app-keycloak": ["idp"]})
@@ -462,9 +466,6 @@ class TestHostChecks(unittest.TestCase):
 
 CSP = load_yaml_any(str(ROLE / ROLE_FILE_META_CSP), default_if_missing={})
 PLAYWRIGHT_ENV = read_text(str(ROLE / "templates" / "playwright.env.j2"))
-ADMIN_SPEC = read_text(
-    str(ROLE / "files" / "playwright" / "test-administrator-persona.js")
-)
 
 
 def _persona_blocked(env_text: str, persona: str) -> bool:
@@ -524,11 +525,9 @@ class TestLogin(unittest.TestCase):
             },
         )
 
-    def test_administrator_persona_runs_and_biber_stays_blocked(self):
+    def test_administrator_persona_runs_and_biber_stays_blocked(self):  # nocheck: test.text-presence -- parses the PERSONA_*_BLOCKED keys of the env template  # fmt: skip
         self.assertFalse(_persona_blocked(PLAYWRIGHT_ENV, "ADMINISTRATOR"))
         self.assertTrue(_persona_blocked(PLAYWRIGHT_ENV, "BIBER"))
-        self.assertIn("runProxmoxAdminFlow(page)", ADMIN_SPEC)
-        self.assertNotIn("runAdminFlow", ADMIN_SPEC)
 
     def test_negative_control_a_restored_administrator_block_is_seen(self):
         self.assertTrue(

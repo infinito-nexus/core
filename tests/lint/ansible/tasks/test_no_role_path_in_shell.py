@@ -139,7 +139,7 @@ def _scan_paths() -> list[Path]:
 
 
 class TestNoRolePathInShell(unittest.TestCase):
-    def test_no_role_path_in_shell_command(self) -> None:
+    def test_no_role_path_in_shell_command(self) -> None:  # nocheck: test.text-presence -- policy lint over every shell task  # fmt: skip
         offenders: dict[str, list[str]] = {}
         for path in _scan_paths():
             found = _file_offenders(path)

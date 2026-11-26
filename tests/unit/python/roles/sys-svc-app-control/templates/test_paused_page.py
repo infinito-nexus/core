@@ -159,9 +159,7 @@ class TestPausedPage(unittest.TestCase):
             ],
         )
 
-    def test_every_word_comes_from_the_catalogue_entry_or_the_contact_data(
-        self,
-    ) -> None:
+    def test_every_word_comes_from_the_catalogue_entry_or_the_contact_data(self) -> None:  # nocheck: test.text-presence -- renders the page and diffs its texts against the catalogue  # fmt: skip
         self.assertEqual(_foreign_texts(self.page), [])
 
     def test_the_page_reads_exactly_the_messages_of_the_catalogue_source(

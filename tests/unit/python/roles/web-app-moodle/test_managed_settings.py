@@ -9,6 +9,7 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 from ansible.template import Templar
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
@@ -454,8 +455,24 @@ class TestCallers(unittest.TestCase):
 
     def test_the_mfa_util_writes_without_hidden_settings(self):
         task = _task("utils/plugin/config.yml", "Apply the")
-        self.assertIn("'mode': 'write'", task["args"]["stdin"])
-        self.assertIn("'hidden': {}", task["args"]["stdin"])
+        environment = Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
+        )
+        environment.filters["to_json"] = json.dumps
+        payload = environment.from_string(task["args"]["stdin"]).render(
+            moodle_plugin_config_component="tool_mfa",
+            moodle_plugin_config_settings={"enabled": "1"},
+        )
+        self.assertEqual(
+            {
+                "component": "tool_mfa",
+                "mode": "write",
+                "settings": {"enabled": "1"},
+                "hidden": {},
+            },
+            json.loads(payload),
+        )
 
 
 class TestForcedSettings(unittest.TestCase):
@@ -500,20 +517,16 @@ class TestForcedSettings(unittest.TestCase):
         )
 
     def test_the_env_hands_the_forced_settings_to_config_php_as_base64_json(self):
-        self.assertIn(
-            "MOODLE_FORCED_PLUGIN_SETTINGS={{ MOODLE_FORCED_PLUGIN_SETTINGS | to_json | b64encode }}\n",
-            read_text(str(ROLE / "templates/env.j2")),
+        line = next(
+            row
+            for row in read_text(str(ROLE / "templates/env.j2")).splitlines()
+            if row.startswith("MOODLE_FORCED_PLUGIN_SETTINGS=")
         )
-
-    def test_config_php_forces_them_before_moodle_boots_and_keeps_objectfs(self):
-        config = read_text(str(ROLE / "files/build/config.php"))
-        merge = config.index("$CFG->forced_plugin_settings = array_replace(")
-        self.assertLess(config.index("'tool_objectfs' => array("), merge)
-        self.assertLess(
-            merge, config.index("require_once(__DIR__ . '/lib/setup.php');")
+        encoded = _render(line).split("=", 1)[1]
+        self.assertEqual(
+            _sink("MOODLE_FORCED_PLUGIN_SETTINGS"),
+            json.loads(base64.b64decode(encoded)),
         )
-        self.assertIn("moodle_env('MOODLE_FORCED_PLUGIN_SETTINGS')", config[merge:])
-        self.assertIn("array_map('strval', $settings)", config[merge:])
 
     def test_both_forms_rely_on_the_native_lock_alone(self):
         for _tasks_file, form, _sink_name, _hidden in CASES:

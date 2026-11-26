@@ -1,5 +1,4 @@
 <?php
-// nocheck: mirrored-unit-test - registers option filters at load that the WordPress core fires on every option write
 /**
  * Plugin Name: Infinito.Nexus Managed Options
  * Description: Keeps every option the deployment manages at its managed value

@@ -145,7 +145,7 @@ def findings_in(text: str) -> list[tuple[int, str]]:
 
 
 class TestComposeLoggingDriver(unittest.TestCase):
-    def test_every_container_logs_to_journald(self) -> None:
+    def test_every_container_logs_to_journald(self) -> None:  # nocheck: test.text-presence -- policy lint over every compose and Jinja file  # fmt: skip
         offenders: list[str] = []
         for path_str, content in iter_project_files_with_content(
             extensions=SCAN_EXTENSIONS,

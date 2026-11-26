@@ -60,7 +60,7 @@ def _is_jinja_control_line(line: str) -> bool:
 
 
 class TestEnvPasswordsQuotedAndFiltered(unittest.TestCase):
-    def test_password_env_vars_are_dotenv_quoted_without_double_quoting(self):
+    def test_password_env_vars_are_dotenv_quoted_without_double_quoting(self):  # nocheck: test.text-presence -- repository-wide lint over every env.j2 template  # fmt: skip
         root = PROJECT_ROOT
         env_templates = sorted(
             Path(p)

@@ -8,6 +8,7 @@ there, and a bare host in that state has to fail instead of silently running
 its GPU services on the CPU.
 """
 
+import shlex
 import unittest
 from pathlib import Path
 
@@ -115,11 +116,12 @@ class TestGpuDetection(unittest.TestCase):
                     self.assertFalse(_device_present(registers))
 
     def test_the_query_runs_the_binary_the_detection_probed(self):
-        self.assertTrue(
-            _role_vars()["SYS_SVC_CONTAINER_GPU_QUERY"].startswith(
-                "{{ SYS_SVC_CONTAINER_GPU_DRIVER }} "
-            )
+        probed = "/opt/driver/bin/nvidia-smi"
+        query = _render(
+            _role_vars()["SYS_SVC_CONTAINER_GPU_QUERY"],
+            {"SYS_SVC_CONTAINER_GPU_DRIVER": probed},
         )
+        self.assertEqual(shlex.split(query)[0], probed)
 
 
 if __name__ == "__main__":

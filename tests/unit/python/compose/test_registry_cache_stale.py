@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import importlib
-import re
+import shlex
 import unittest
 
 from utils.cache.files import PROJECT_ROOT, read_text
@@ -24,16 +24,44 @@ UPSTREAM = (
     '    include "/etc/nginx/nginx.manifest.common.conf";\n'
     "    proxy_cache_use_stale  error timeout http_500 http_502 http_504 http_429;\n"
 )
-_USE_STALE = re.compile(r"^\s*proxy_cache_use_stale\s+([^;]+);", re.MULTILINE)
+
+
+def _parse_directives(conf: str) -> list[list[str]]:
+    """
+    Args:
+        conf: text of an nginx config fragment.
+
+    Returns:
+        Every directive, as its name followed by its arguments, quotes and
+        comments dropped.
+    """
+    lexer = shlex.shlex(conf, posix=True, punctuation_chars=";")
+    lexer.whitespace_split = True
+    directives: list[list[str]] = []
+    current: list[str] = []
+    for token in lexer:
+        if token == ";":
+            directives.append(current)
+            current = []
+        else:
+            current.append(token)
+    return directives
 
 
 def _stale_conditions(conf: str) -> set[str]:
-    """Return the conditions every ``proxy_cache_use_stale`` line names.
-
+    """
     Args:
         conf: text of an nginx config fragment.
+
+    Returns:
+        The conditions every ``proxy_cache_use_stale`` directive names.
     """
-    return {word for line in _USE_STALE.findall(conf) for word in line.split()}
+    return {
+        condition
+        for directive in _parse_directives(conf)
+        if directive[:1] == ["proxy_cache_use_stale"]
+        for condition in directive[1:]
+    }
 
 
 def _bridges_503(conf: str) -> bool:
@@ -96,7 +124,7 @@ class TestStaleConfig(unittest.TestCase):
     def test_upstream_file_does_not_bridge_a_503(self) -> None:
         self.assertFalse(_bridges_503(UPSTREAM))
 
-    def test_override_bridges_a_503(self) -> None:
+    def test_override_bridges_a_503(self) -> None:  # nocheck: test.text-presence -- tokenizes the file into commands or directives; the rule taints tokenizer output  # fmt: skip
         self.assertTrue(_bridges_503(read_text(str(OVERRIDE))))
 
     def test_override_keeps_every_upstream_condition(self) -> None:
@@ -106,8 +134,8 @@ class TestStaleConfig(unittest.TestCase):
         self.assertEqual(upstream - override, set())
         self.assertEqual(override - upstream, {"http_503"})
 
-    def test_override_still_includes_the_common_block(self) -> None:
-        self.assertIn(f'include "{COMMON}";', read_text(str(OVERRIDE)))
+    def test_override_still_includes_the_common_block(self) -> None:  # nocheck: test.text-presence -- tokenizes the file into commands or directives; the rule taints tokenizer output  # fmt: skip
+        self.assertIn(["include", COMMON], _parse_directives(read_text(str(OVERRIDE))))
 
 
 class TestRegistryCacheMount(unittest.TestCase):

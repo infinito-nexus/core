@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import unittest
 
+from jinja2 import Environment, nodes
+
 from plugins.lookup.container_extra_hosts import DOCKER_INTERNAL_HOST
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
@@ -29,6 +31,24 @@ CASES = (
 )
 INVENTORY_NAME_ONLY = "https://{{ inventory_hostname }}:{{ INCUS_API_PORT }}"
 ALIAS_ONLY = f"https://{DOCKER_INTERNAL_HOST}:{{{{ INCUS_API_PORT }}}}"
+
+
+def extra_hosts_calls(source: str) -> list[dict]:
+    """Args:
+        source: the text of a compose template.
+
+    Returns:
+        The keyword arguments of every ``lookup('container_extra_hosts')`` call.
+    """
+    return [
+        {keyword.key: keyword.value.as_const() for keyword in call.kwargs}
+        for call in Environment(autoescape=True).parse(source).find_all(nodes.Call)
+        if isinstance(call.node, nodes.Name)
+        and call.node.name == "lookup"
+        and call.args
+        and isinstance(call.args[0], nodes.Const)
+        and call.args[0].value == "container_extra_hosts"
+    ]
 
 
 def endpoint(expression: str, host: str, listen: str) -> str:
@@ -101,9 +121,7 @@ class TestApiEndpoint(unittest.TestCase):
         )
 
     def test_the_provision_runner_pins_the_alias_to_its_host(self):
-        self.assertIn(
-            "lookup('container_extra_hosts', host_alias=True)", SEMAPHORE_COMPOSE
-        )
+        self.assertIn({"host_alias": True}, extra_hosts_calls(SEMAPHORE_COMPOSE))
 
 
 if __name__ == "__main__":

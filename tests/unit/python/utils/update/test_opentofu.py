@@ -14,7 +14,7 @@ import unittest.mock as mock
 from pathlib import Path
 
 from cli.contributing.update.opentofu.__main__ import main
-from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.update import opentofu
@@ -226,22 +226,6 @@ class TestHostArchitecture(unittest.TestCase):
             self.assertRaisesRegex(ValueError, "maps no architecture for 's390x'"),
         ):
             opentofu.host_architecture()
-
-
-class TestReadme(unittest.TestCase):
-    def test_the_update_readme_names_the_opentofu_updater(self):
-        readme = read_text(
-            str(PROJECT_ROOT / "cli" / "contributing" / "update" / "README.md")
-        )
-        for phrase in (
-            "python -m cli.contributing.update.opentofu",
-            "versions.tf.json",
-            "tofu providers lock",
-            "opentofu_platforms",
-            "scripts/github/update/opentofu_pins.sh",
-        ):
-            with self.subTest(phrase=phrase):
-                self.assertIn(phrase, readme)
 
 
 if __name__ == "__main__":

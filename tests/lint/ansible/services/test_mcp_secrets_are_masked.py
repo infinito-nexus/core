@@ -77,7 +77,7 @@ def unmasked_secret_tasks() -> list[str]:
 
 
 class TestMcpSecretsAreMasked(unittest.TestCase):
-    def test_no_printing_mcp_task_carries_a_secret_unmasked(self) -> None:
+    def test_no_printing_mcp_task_carries_a_secret_unmasked(self) -> None:  # nocheck: test.text-presence -- policy lint over every MCP task file  # fmt: skip
         findings = unmasked_secret_tasks()
         self.assertEqual(
             [],
@@ -92,7 +92,7 @@ class TestMcpSecretsAreMasked(unittest.TestCase):
             "no MCP task file was scanned, so the rule would pass vacuously",
         )
 
-    def test_the_scan_reaches_the_adapter_that_holds_every_provider_credential(
+    def test_the_scan_reaches_the_adapter_that_holds_every_provider_credential(  # nocheck: test.text-presence -- reach guard of the MCP task scan
         self,
     ) -> None:
         """The non-empty guard above passed while this role was invisible.

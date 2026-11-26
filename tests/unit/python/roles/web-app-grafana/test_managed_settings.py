@@ -141,23 +141,38 @@ class TestTheSettingsFormWritesWhatTheEnvWrote(unittest.TestCase):
             self.assertIsInstance(value, str)
 
 
+def _provisioning(form: str) -> str:
+    """
+    Args:
+        form: ``datasources``, ``dashboards`` or ``alerting``.
+
+    Returns:
+        The provisioning file of the form as the role renders it with Loki and
+        Prometheus enabled.
+    """
+    return (
+        _environment(TEMPLATES)
+        .get_template(form)
+        .render(
+            GRAFANA_LOKI_ENABLED=True,
+            GRAFANA_PROMETHEUS_ENABLED=True,
+            GRAFANA_LOKI_DATASOURCE_UID="loki",
+            GRAFANA_PROMETHEUS_DATASOURCE_UID="prometheus",
+            GRAFANA_ALERTMANAGER_RECEIVER="alertmanager",
+            GRAFANA_LOG_ALERT_TITLE="title",
+            GRAFANA_DATASOURCES=PROVISIONING["datasources"],
+            GRAFANA_DASHBOARDS=PROVISIONING["dashboards"],
+            GRAFANA_ALERTING=PROVISIONING["alerting"],
+            GRAFANA_DASHBOARDS_DOCKER_DIR="/var/lib/grafana/dashboards",
+        )
+    )
+
+
 class TestTheProvisioningDriftReadsWhatTheTemplatesRender(unittest.TestCase):
     def _slurped(self) -> list[dict]:
-        env = _environment(TEMPLATES)
         results = []
         for form in ("datasources", "dashboards", "alerting"):
-            rendered = env.get_template(form).render(
-                GRAFANA_LOKI_ENABLED=True,
-                GRAFANA_PROMETHEUS_ENABLED=True,
-                GRAFANA_LOKI_DATASOURCE_UID="loki",
-                GRAFANA_PROMETHEUS_DATASOURCE_UID="prometheus",
-                GRAFANA_ALERTMANAGER_RECEIVER="alertmanager",
-                GRAFANA_LOG_ALERT_TITLE="title",
-                GRAFANA_DATASOURCES=PROVISIONING["datasources"],
-                GRAFANA_DASHBOARDS=PROVISIONING["dashboards"],
-                GRAFANA_ALERTING=PROVISIONING["alerting"],
-                GRAFANA_DASHBOARDS_DOCKER_DIR="/var/lib/grafana/dashboards",
-            )
+            rendered = _provisioning(form)
             load_yaml_str(rendered)
             results.append(
                 {"item": form, "content": base64.b64encode(rendered.encode()).decode()}
@@ -222,10 +237,12 @@ class TestTheFormsAreLockedByGrafana(unittest.TestCase):
         )
 
     def test_the_provisioned_datasources_stay_read_only(self) -> None:
-        text = read_text(str(TEMPLATES / "provisioning" / "datasources.yml.j2"))
-        self.assertEqual(2, text.count("editable: false"))
-        dashboards = read_text(str(TEMPLATES / "provisioning" / "dashboards.yml.j2"))
-        self.assertIn("allowUiUpdates: false", dashboards)
+        datasources = load_yaml_str(_provisioning("datasources"))["datasources"]
+        self.assertEqual([False, False], [source["editable"] for source in datasources])
+        providers = load_yaml_str(_provisioning("dashboards"))["providers"]
+        self.assertEqual(
+            [False], [provider["allowUiUpdates"] for provider in providers]
+        )
 
 
 if __name__ == "__main__":

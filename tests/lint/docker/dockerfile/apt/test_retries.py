@@ -71,7 +71,7 @@ def _violations(dockerfile: Path) -> list[str]:
 
 
 class TestDockerfileAptRetries(unittest.TestCase):
-    def test_apt_calls_set_acquire_retries(self) -> None:
+    def test_apt_calls_set_acquire_retries(self) -> None:  # nocheck: test.text-presence -- policy lint over every RUN block of every role Dockerfile  # fmt: skip
         self.assertTrue(
             _ROLES_ROOT.is_dir(),
             f"'roles' directory not found at: {_ROLES_ROOT}",

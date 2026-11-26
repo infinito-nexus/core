@@ -84,7 +84,7 @@ def _blocks() -> Iterator[tuple[str, Mapping[str, Any], Any]]:
 
 
 class TestTorEgressLists(unittest.TestCase):
-    def test_at_least_the_provider_declares_a_block(self) -> None:
+    def test_at_least_the_provider_declares_a_block(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the parsed egress blocks  # fmt: skip
         """Otherwise the check below passes over nothing."""
         self.assertTrue(
             any(source.startswith("roles/svc-net-tor/") for source, _, _ in _blocks())

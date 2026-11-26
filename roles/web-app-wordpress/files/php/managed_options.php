@@ -1,5 +1,4 @@
 <?php
-// nocheck: mirrored-unit-test - runs through the container's php CLI without booting WordPress, so the guard it feeds cannot refuse it
 /**
  * Arguments:
  *   $argv[1]  path of the PHP file the infinito-managed-options mu-plugin includes

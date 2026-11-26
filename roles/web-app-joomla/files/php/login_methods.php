@@ -1,6 +1,4 @@
 <?php
-// nocheck: mirrored-unit-test - boots Joomla through includes/framework.php, which reads configuration.php and opens the site database,
-// and rewrites plugin rows and the com_users params there; top-level procedural code with no unit to load without that installation
 
 define('_JEXEC', 1);
 define('JPATH_BASE', getenv('J_ROOT'));

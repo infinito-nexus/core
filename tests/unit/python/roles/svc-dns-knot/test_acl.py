@@ -246,8 +246,13 @@ class TestWorkspaceSecret(unittest.TestCase):
         self.assertEqual(fields, set(knot["env"].values()))
 
     def test_destroy_deletes_the_secret_and_apply_writes_it(self):
-        state = self.write["vars"]["openbao_kv_state"]
-        self.assertIn("'present' if WORKSPACE_ACTION == 'apply' else 'absent'", state)
+        state = jinja2.Environment(
+            undefined=jinja2.StrictUndefined,
+            autoescape=jinja2.select_autoescape(default_for_string=False),
+        ).from_string(self.write["vars"]["openbao_kv_state"])
+        for action, expected in (("apply", "present"), ("destroy", "absent")):
+            with self.subTest(action=action):
+                self.assertEqual(state.render(WORKSPACE_ACTION=action), expected)
 
     def test_a_malformed_workspace_is_refused(self):
         (pattern,) = re.findall(

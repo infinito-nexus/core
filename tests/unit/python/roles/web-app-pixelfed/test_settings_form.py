@@ -6,7 +6,6 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
 from utils import PROJECT_ROOT
-from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
 from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_VARS_MAIN
@@ -14,7 +13,6 @@ from utils.templating.ansible import _trust_as_template
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-pixelfed"
 DESIGN_TASKS = ROLE / "tasks" / "05_design.yml"
-DESIGN_SCRIPT = ROLE / "files" / "php" / "design.php"
 DRIFT_TASKS = "tasks/utils/forms/drift.yml"
 TITLE = "Pictures on example.test"
 
@@ -91,14 +89,6 @@ class TestSettingsForm(unittest.TestCase):
                 pixelfed_design_state=state,
                 pixelfed_design_payload={"title": ""},
             ),
-        )
-
-    def test_the_read_mode_exits_before_any_write(self) -> None:
-        script = read_text(str(DESIGN_SCRIPT))
-        read = script.index("if ($payload['mode'] === 'read')")
-        self.assertLess(read, script.index("ConfigCacheService::put("))
-        self.assertIn(
-            "exit(0);", script[read : script.index("ConfigCacheService::put(")]
         )
 
 

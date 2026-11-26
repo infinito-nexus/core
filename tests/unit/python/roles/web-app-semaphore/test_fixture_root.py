@@ -269,21 +269,23 @@ class TestFixtureRoot(unittest.TestCase):
         self.assertNotIn("when", includes[0])
 
     def test_the_drop_in_admits_root_with_the_fixture_key_file_alone(self):
-        drop_in = read_text(
-            str(ROLE / "templates" / "sshd" / "fixture_root.conf.j2")
-        ).split()
+        keys = "/etc/ssh/fixture_root_keys"
+        rendered = (
+            Environment(
+                undefined=StrictUndefined,
+                autoescape=select_autoescape(default_for_string=False),
+            )
+            .from_string(
+                read_text(str(ROLE / "templates" / "sshd" / "fixture_root.conf.j2"))
+            )
+            .render(SEMAPHORE_DEPLOY_FIXTURE_ROOT_KEYS_FILE=keys)
+        )
         self.assertEqual(
-            drop_in,
+            [tuple(line.split(None, 1)) for line in rendered.splitlines()],
             [
-                "Match",
-                "User",
-                "root",
-                "PermitRootLogin",
-                "prohibit-password",
-                "AuthorizedKeysFile",
-                "{{",
-                "SEMAPHORE_DEPLOY_FIXTURE_ROOT_KEYS_FILE",
-                "}}",
+                ("Match", "User root"),
+                ("PermitRootLogin", "prohibit-password"),
+                ("AuthorizedKeysFile", keys),
             ],
         )
 
@@ -297,7 +299,7 @@ class TestFixtureRoot(unittest.TestCase):
             distinct_findings(self.vars, load_yaml_any(str(APP_CONTROL_VARS))), []
         )
 
-    def test_negative_control_a_fixture_key_equal_to_app_control_or_target_is_caught(
+    def test_negative_control_a_fixture_key_equal_to_app_control_or_target_is_caught(  # nocheck: test.text-presence -- runs distinct_findings on planted vars
         self,
     ):
         app_control = load_yaml_any(str(APP_CONTROL_VARS))

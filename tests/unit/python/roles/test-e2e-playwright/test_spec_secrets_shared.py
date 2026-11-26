@@ -221,7 +221,7 @@ class TestSpecSecretsShared(unittest.TestCase):
     def test_a_squatted_stage_base_shared_or_tools_dir_is_refused(self) -> None:
         self.assertEqual(squat_violations(role_tasks(ORCHESTRATE)), [])
 
-    def test_every_helper_starts_isolated_without_bytecode(self) -> None:
+    def test_every_helper_starts_isolated_without_bytecode(self) -> None:  # nocheck: test.text-presence -- policy lint over every task, vars and rerun file that starts python3; negative control below  # fmt: skip
         self.assertEqual(unisolated(helper_texts()), [])
 
     def test_the_isolated_masker_finds_its_helpers_but_no_planted_module(
@@ -230,7 +230,7 @@ class TestSpecSecretsShared(unittest.TestCase):
         self.assertEqual(masker_start(), [2, False, False, False])
         self.assertEqual(masker_start(planted=True), [2, False, False, False])
 
-    def test_the_rerun_hands_each_cancel_signal_to_the_masker(self) -> None:
+    def test_the_rerun_hands_each_cancel_signal_to_the_masker(self) -> None:  # nocheck: test.text-presence -- parses every trap statement of rerun-spec.sh per signal; negative control below  # fmt: skip
         self.assertEqual(unforwarded(read_text(str(RERUN))), [])
 
     def test_a_rerun_whose_run_dir_cannot_be_removed_keeps_its_status(self) -> None:
@@ -307,9 +307,7 @@ class TestSpecSecretsSharedNegativeControls(unittest.TestCase):
         front = SEARCH_PATH.replace("append(", "insert(0, ")
         self.assertEqual(masker_start((SEARCH_PATH, front), planted=True)[2], True)
 
-    def test_a_rerun_that_keeps_a_signal_or_the_pid_from_the_masker_is_caught(
-        self,
-    ) -> None:
+    def test_a_rerun_that_keeps_a_signal_or_the_pid_from_the_masker_is_caught(self) -> None:  # nocheck: test.text-presence -- negative control of the trap parser on mutated scripts  # fmt: skip
         script = read_text(str(RERUN))
         for change, expected in (
             (UNFORWARDED_TERM, ["TERM"]),

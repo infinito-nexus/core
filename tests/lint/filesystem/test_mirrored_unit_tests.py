@@ -127,7 +127,7 @@ def _exemption(source):
 
 
 class TestMirroredUnitTests(unittest.TestCase):
-    def test_every_script_is_tested_or_exempt(self) -> None:
+    def test_every_script_is_tested_or_exempt(self) -> None:  # nocheck: test.text-presence -- policy lint over every shipped role script  # fmt: skip
         missing = []
         for source, _, expected in _shipped_scripts():
             if expected.is_file() or _exemption(source) is not None:

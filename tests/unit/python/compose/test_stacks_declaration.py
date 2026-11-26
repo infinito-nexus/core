@@ -453,7 +453,7 @@ class TestDeployStackLifecycle(unittest.TestCase):
         self.assertTrue(ROLE_REMOVAL.search('compose_cmd("down", path, name)'))
         self.assertIsNone(ROLE_REMOVAL.search("# tearing a compose stack down races\n"))
 
-    def test_the_role_installed_host_timers_that_remove_stacks_are_pinned(
+    def test_the_role_installed_host_timers_that_remove_stacks_are_pinned(  # nocheck: test.text-presence -- repository-wide scan of every role's tasks and scripts for stack-removing timers
         self,
     ) -> None:
         self.assertEqual(ROLE_REMOVERS & _host_unattended_roles(), HOST_TIMER_REMOVERS)

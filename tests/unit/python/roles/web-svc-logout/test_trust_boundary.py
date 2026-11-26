@@ -4,6 +4,15 @@ import importlib.util
 import re
 import unittest
 
+from jinja2 import (
+    ChoiceLoader,
+    DictLoader,
+    Environment,
+    FileSystemLoader,
+    StrictUndefined,
+    select_autoescape,
+)
+
 from plugins.filter.logout_domains import FilterModule as LogoutDomainsFilter
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
@@ -87,6 +96,43 @@ def served_locations(sources: list[str]) -> list[str]:
     return [match.strip() for source in sources for match in LOCATION.findall(source)]
 
 
+def rendered_gate_vhost() -> str:
+    """
+    Returns:
+        The extra configuration the conductor's proxy template hands the
+        generic vhost, rendered with stubbed lookups and includes.
+    """
+    stubs = {
+        "roles/sys-svc-proxy/templates/vhost/basic.conf.j2": (
+            "{{ webserver_extra_configuration }}"
+        ),
+        "roles/sys-svc-proxy/templates/headers/forwarded_base.conf.j2": "",
+        "roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2": "",
+        "roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2": "",
+    }
+    answers = {
+        "config": 8080,
+        "asset": "/bootstrap.js",
+        "proxy_pass": "proxy_pass http://127.0.0.1:8080;",
+    }
+    env = Environment(
+        loader=ChoiceLoader([DictLoader(stubs), FileSystemLoader(str(PROJECT_ROOT))]),
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(),
+    )
+    env.filters["network_of"] = lambda _domain: "clearnet"
+    env.filters["labelled"] = lambda value, _label, _separator: value
+    env.globals["lookup"] = lambda name, *_terms, **_options: answers[name]
+    return env.get_template(str(VHOST_TEMPLATES[1].relative_to(PROJECT_ROOT))).render(
+        application_id=APP,
+        domain="logout.example.test",
+        front_proxy_domain="logout.example.test",
+        LOGOUT_INSTANCES=[{"network": "clearnet", "label": ""}],
+        LOGOUT_CONDUCTOR_BOOTSTRAP_UPSTREAM="/bootstrap-upstream.js",
+        proxy_internal_port=80,
+    )
+
+
 class TestLogoutConductorOwnsNoKeycloakClient(unittest.TestCase):
     def test_the_role_declares_no_sso_service(self) -> None:
         self.assertNotIn("sso", services(ROLE))
@@ -108,10 +154,10 @@ class TestLogoutConductorHoldsNoKeycloakSecret(unittest.TestCase):
     def setUp(self) -> None:
         self.sources = [read_text(str(path)) for path in ENV_TEMPLATES]
 
-    def test_the_env_file_holds_the_port_the_basics_and_the_gate(self) -> None:
+    def test_the_env_file_holds_the_port_the_basics_and_the_gate(self) -> None:  # nocheck: test.text-presence -- trust-boundary allowlist: the exact set of env keys across the env templates  # fmt: skip
         self.assertEqual(env_keys(self.sources), BASIC_ENV_KEYS | GATE_ENV_KEYS)
 
-    def test_the_env_file_reads_only_the_gate_keys_as_credentials(self) -> None:
+    def test_the_env_file_reads_only_the_gate_keys_as_credentials(self) -> None:  # nocheck: test.text-presence -- trust-boundary allowlist: the exact set of credentials the env templates read  # fmt: skip
         self.assertEqual(credentials_read(self.sources), {"logout_gate_key"})
 
     def test_the_keycloak_client_secret_in_the_env_file_is_caught(self) -> None:
@@ -132,7 +178,7 @@ class TestLogoutConductorCallsKeycloakOnlyForItsPublicKeys(unittest.TestCase):
     def setUp(self) -> None:
         self.sources = [read_text(str(path)) for path in CONTAINER_TEMPLATES]
 
-    def test_the_container_reads_only_the_issuer_and_jwks_of_keycloak(self) -> None:
+    def test_the_container_reads_only_the_issuer_and_jwks_of_keycloak(self) -> None:  # nocheck: test.text-presence -- trust-boundary allowlist: the exact set of Keycloak values the container templates read  # fmt: skip
         self.assertEqual(keycloak_references(self.sources), GATE_KEYCLOAK_VALUES)
 
     def test_a_token_endpoint_call_is_caught(self) -> None:
@@ -156,11 +202,11 @@ class TestLogoutConductorServesOnlyTheGateAsNewRoute(unittest.TestCase):
     def setUp(self) -> None:
         self.sources = [read_text(str(path)) for path in VHOST_TEMPLATES]
 
-    def test_the_vhost_serves_the_logout_endpoint_and_the_gate_only(self) -> None:
+    def test_the_vhost_serves_the_logout_endpoint_and_the_gate_only(self) -> None:  # nocheck: test.text-presence -- trust-boundary allowlist: the exact list of locations the vhost templates declare  # fmt: skip
         self.assertEqual(served_locations(self.sources), SERVED_LOCATIONS)
 
     def test_the_gate_admits_post_only(self) -> None:
-        gate = GATE_LOCATION.search(read_text(str(VHOST_TEMPLATES[1])))
+        gate = GATE_LOCATION.search(rendered_gate_vhost())
         self.assertIsNotNone(gate)
         self.assertRegex(gate.group("body"), r"limit_except POST \{\s*deny all;\s*\}")
 
@@ -193,7 +239,7 @@ class TestLogoutConductorSweepsNoKeycloakOrigin(unittest.TestCase):
             ["matrix.example.test"],
         )
 
-    def test_keycloak_with_the_logout_service_on_would_be_swept(self) -> None:
+    def test_keycloak_with_the_logout_service_on_would_be_swept(self) -> None:  # nocheck: test.text-presence -- runs the logout_domains filter on planted applications  # fmt: skip
         self.applications["web-app-keycloak"]["services"] = {
             "logout": {"enabled": True}
         }

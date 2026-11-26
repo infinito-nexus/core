@@ -3,10 +3,15 @@
 from __future__ import annotations
 
 import json
-import re
 import unittest
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
+from jinja2 import (
+    Environment,
+    FileSystemLoader,
+    StrictUndefined,
+    nodes,
+    select_autoescape,
+)
 
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
@@ -17,7 +22,6 @@ from .test_sandbox_runtime import BASE, LOGGING, TEMPLATES, _ansible_bool, _look
 APPLICATION = "web-app-fixture"
 LABEL = LOGGING["DOCKER_LOG_LABEL"]
 LOGGING_TEMPLATE = "roles/sys-svc-container/templates/logging.yml.j2"
-_BLOCK_TAG = re.compile(r"\{%-?\s*(?P<keyword>if|endif|for|endfor)\b")
 
 
 def _environment(root) -> Environment:
@@ -42,18 +46,26 @@ def _logging(**extra) -> dict:
     return load_yaml_str(rendered)
 
 
-def _depth_before(lines: list[str], index: int) -> int:
-    """Count the ``if``/``for`` blocks still open above line *index*.
-
-    Args:
-        lines: the template's lines.
-        index: 0-based index of the line to inspect.
+def _enclosing_blocks(source: str, target: str) -> list[int]:
     """
-    depth = 0
-    for line in lines[:index]:
-        for match in _BLOCK_TAG.finditer(line):
-            depth += -1 if match.group("keyword").startswith("end") else 1
-    return depth
+    Args:
+        source: the text of a Jinja template.
+        target: a template path the source renders.
+
+    Returns:
+        Per reference to ``target``, how many ``if``/``for`` blocks enclose it.
+    """
+    found = []
+
+    def walk(node, depth: int) -> None:
+        if isinstance(node, nodes.Const) and node.value == target:
+            found.append(depth)
+        nested = depth + isinstance(node, (nodes.If, nodes.For))
+        for child in node.iter_child_nodes():
+            walk(child, nested)
+
+    walk(Environment(autoescape=True).parse(source), 0)
+    return found
 
 
 class TestComposeLoggingBlock(unittest.TestCase):
@@ -77,18 +89,22 @@ class TestComposeLoggingBlock(unittest.TestCase):
         )
 
     def test_the_container_base_renders_the_block_unconditionally(self) -> None:
-        lines = read_text(str(TEMPLATES / "base.yml.j2")).splitlines()
-        hits = [index for index, line in enumerate(lines) if LOGGING_TEMPLATE in line]
-        self.assertEqual(1, len(hits), "base.yml.j2 must render the logging block once")
-        self.assertEqual(0, _depth_before(lines, hits[0]))
+        base = read_text(str(TEMPLATES / "base.yml.j2"))
+        self.assertEqual(
+            [0],
+            _enclosing_blocks(base, LOGGING_TEMPLATE),
+            "base.yml.j2 must render the logging block once, outside any branch",
+        )
 
     def test_negative_control_a_conditional_include_is_detected(self) -> None:
-        lines = [
-            "{% if 'web-svc-loki' in group_names %}",
-            f"    {{{{ lookup('template', '{LOGGING_TEMPLATE}') | indent(4) }}}}",
-            "{% endif %}",
-        ]
-        self.assertEqual(1, _depth_before(lines, 1))
+        source = "\n".join(
+            [
+                "{% if 'web-svc-loki' in group_names %}",
+                f"    {{{{ lookup('template', '{LOGGING_TEMPLATE}') | indent(4) }}}}",
+                "{% endif %}",
+            ]
+        )
+        self.assertEqual([1], _enclosing_blocks(source, LOGGING_TEMPLATE))
 
 
 class TestDaemonLoggingDefault(unittest.TestCase):

@@ -26,7 +26,6 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 ROLE = "web-app-nextcloud"
 ROLE_DIR = PROJECT_ROOT / "roles" / ROLE
 SSO = ("web-app-keycloak", "svc-db-openldap")
-SWITCH = "lookup('sso_oidc_plugin') == 'user_oidc'"
 NEXTCLOUD_UID = load_yaml_any(str(PROJECT_ROOT / "group_vars/all/11_oidc.yml"))[
     "defaults_oidc"
 ]["ATTRIBUTES"]["NEXTCLOUD_UID"]
@@ -390,11 +389,15 @@ class TestUserOidcProvider(unittest.TestCase):
         self.assertEqual({}, render(template, "oidc_login"))
 
     def test_the_client_and_the_provider_switch_on_the_same_plugin(self) -> None:
-        services = read_text(str(ROLE_DIR / ROLE_FILE_META_SERVICES))
-        addon = read_text(str(ROLE_DIR / "meta/addons/user_oidc.yml"))
-        clients = next(line for line in services.splitlines() if "clients:" in line)
-        self.assertIn(SWITCH, clients)
-        self.assertIn(SWITCH, addon)
+        clients = "{{ lookup('config', application_id, 'services.sso.oidc.clients') }}"
+        enabled = load_yaml_any(str(ROLE_DIR / "meta/addons/user_oidc.yml"))["enabled"]
+        for plugin, expected in (
+            ("user_oidc", ({"user_oidc": "nextcloud-user-oidc"}, True)),
+            ("oidc_login", ({}, False)),
+        ):
+            with self.subTest(plugin=plugin):
+                scope = renderer(plugin)
+                self.assertEqual(expected, (scope(clients), scope(enabled)))
 
     def test_the_registration_is_one_idempotent_upsert(self) -> None:
         block = registration_block()

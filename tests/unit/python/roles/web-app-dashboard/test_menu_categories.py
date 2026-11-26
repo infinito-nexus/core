@@ -37,7 +37,7 @@ class TestMenuCategories(unittest.TestCase):
     def test_the_top_level_follows_the_agreed_taxonomy(self):
         self.assertEqual(list(TREE), TOP_LEVEL)
 
-    def test_every_folder_has_a_description_and_an_icon(self):
+    def test_every_folder_has_a_description_and_an_icon(self):  # nocheck: test.text-presence -- walks the parsed menu YAML tree  # fmt: skip
         offenders = [
             path
             for path, entry in _walk(TREE, "")

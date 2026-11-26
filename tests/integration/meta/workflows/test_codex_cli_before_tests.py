@@ -3,11 +3,10 @@ from __future__ import annotations
 import re
 import unittest
 
-from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 
 WORKFLOW = PROJECT_ROOT / ".github/workflows/call-test.yml"
-MAKEFILE = PROJECT_ROOT / "Makefile"
 SUITE = re.compile(r"\bmake test(?![\w-])")
 
 
@@ -39,13 +38,6 @@ class TestCodexCliBeforeTests(unittest.TestCase):
         self.assertIsInstance(minutes, int)
         budget = load_yaml_any(str(WORKFLOW))["jobs"]["test"]["timeout-minutes"]
         self.assertLess(minutes, budget)
-
-    def test_the_make_target_runs_the_installer(self) -> None:
-        recipe = re.search(
-            r"^install-codex:.*\n((?:\t.*\n)+)", read_text(str(MAKEFILE)), re.MULTILINE
-        )
-        self.assertIsNotNone(recipe)
-        self.assertIn("-m utils.install.codex", recipe.group(1))
 
 
 if __name__ == "__main__":

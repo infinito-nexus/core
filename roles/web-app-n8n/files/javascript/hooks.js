@@ -1,7 +1,3 @@
-// nocheck: mirrored-unit-test - the hook body resolves n8n's own auth/jwt module
-// through require.resolve('n8n') at call time; without an n8n install there is nothing
-// to invoke. The trusted-header contract is covered end to end by the role's Playwright
-// spec instead
 /**
  * n8n EXTERNAL_HOOK_FILES middleware: trusted-header SSO bridge for n8n
  * Community Edition.

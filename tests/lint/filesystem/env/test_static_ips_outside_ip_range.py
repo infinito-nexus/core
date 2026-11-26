@@ -54,7 +54,7 @@ class TestStaticIpsOutsideIpRange(unittest.TestCase):
             f"static IPs inside the dynamic pool {pool}: {offenders}",
         )
 
-    def test_the_worktree_pins_sit_below_the_pool(self) -> None:
+    def test_the_worktree_pins_sit_below_the_pool(self) -> None:  # nocheck: test.text-presence -- extracts every worktree IP pin and asserts its host octet stays below the pool  # fmt: skip
         pins = {
             match.group("key"): int(match.group("host"))
             for match in _WORKTREE_PIN_RE.finditer(

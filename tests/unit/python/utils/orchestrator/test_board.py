@@ -6,6 +6,9 @@ from __future__ import annotations
 
 import unittest
 
+import jinja2
+
+from plugins.filter.dotenv import FilterModule, dotenv_unquote
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml
 from utils.orchestrator.board import Board, startable
@@ -67,12 +70,24 @@ class TestBoardUrl(unittest.TestCase):
 
     def test_the_default_board_is_the_local_openproject(self) -> None:
         services = load_yaml(str(ROLE / ROLE_FILE_META_SERVICES))
-        self.assertIn(
-            "lookup('tls', 'web-app-openproject', 'url.origin')",
+        self.assertEqual(
             services["agent-orchestrator"]["board_url"],
+            "{{ lookup('tls', 'web-app-openproject', 'url.origin') }}",
         )
-        env = read_text(str(ROLE / "templates" / "env.j2"))
-        self.assertIn("BOARD_URL={{ AGENT_ORCHESTRATOR_BOARD_URL", env)
+        line = next(
+            row
+            for row in read_text(str(ROLE / "templates" / "env.j2")).splitlines()
+            if row.startswith("BOARD_URL=")
+        )
+        environment = jinja2.Environment(
+            autoescape=jinja2.select_autoescape(default_for_string=False)
+        )
+        environment.filters.update(FilterModule().filters())
+        rendered = environment.from_string(line).render(
+            AGENT_ORCHESTRATOR_BOARD_URL=REMOTE
+        )
+        key, value = rendered.split("=", 1)
+        self.assertEqual((key, dotenv_unquote(value)), ("BOARD_URL", REMOTE))
 
 
 class TestStartable(unittest.TestCase):

@@ -3,7 +3,10 @@ from __future__ import annotations
 import configparser
 import importlib
 import json
+import os
 import stat
+import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -45,6 +48,66 @@ QUEUE_ENV_KEYS = (
     "INFINITO_RUNNER_CHECKOUT",
     "RUNNER_SRC_DIR",
 )
+
+
+STUB_PYTHON = (
+    "#!/usr/bin/env bash\n"
+    'printf "%s\\n" "${PWD}" "${PYTHONPATH:-}" "$@" >> "${STUB_LOG}"\n'
+)
+
+
+def _local_entrypoint(overrides: dict[str, str | None]) -> tuple[int, list[dict]]:
+    """
+    Args:
+        overrides: environment values to set, or to drop when None.
+
+    Returns:
+        The entrypoint's exit code and one ``{src, cwd, pythonpath, argv}`` per
+        python3 start, ``src`` being the RUNNER_SRC_DIR it was given.
+    """
+    flavors = render.role_vars()["RUNNER_FLAVORS"]
+    script = render.ROLE / "files" / flavors["local"]["entrypoint"]
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        bin_dir, src = root / "bin", root / "src"
+        bin_dir.mkdir()
+        src.mkdir()
+        stub = bin_dir / "python3"
+        stub.write_text(STUB_PYTHON, encoding="utf-8")
+        stub.chmod(0o755)
+        log = root / "python3.log"
+        env = {
+            "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}",
+            "STUB_LOG": str(log),
+            "COMPOSE_PROJECT_NAME": "runner-1",
+            "INFINITO_RUNNER_QUEUE_DIR": str(root / "queue"),
+            "INFINITO_RUNNER_INSTALL_DIR": str(root / "install"),
+            "INFINITO_RUNNER_CHECKOUT": str(root / "install" / "checkout"),
+            "INFINITO_RUNNER_IMAGE": "toolchain:latest",
+            "RUNNER_SRC_DIR": str(src),
+        }
+        for key, value in overrides.items():
+            if value is None:
+                env.pop(key)
+            else:
+                env[key] = value
+        result = subprocess.run(
+            ["bash", str(script)],
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        written = ""
+        if log.exists():
+            written = log.read_text(encoding="utf-8")  # nocheck: cache-read tempdir
+        lines = written.splitlines()
+    calls = (
+        [{"src": str(src), "cwd": lines[0], "pythonpath": lines[1], "argv": lines[2:]}]
+        if lines
+        else []
+    )
+    return result.returncode, calls
 
 
 def _services(text: str) -> dict:
@@ -537,14 +600,21 @@ class TestLocalJobQueue(unittest.TestCase):
     def test_the_local_entrypoint_runs_the_pool_loop_with_the_queue_env(
         self,
     ) -> None:
-        flavors = render.role_vars()["RUNNER_FLAVORS"]
-        entrypoint = read_text(
-            str(render.ROLE / "files" / flavors["local"]["entrypoint"])
-        )
-        self.assertIn("python3 -m cli.administration.deploy.pool.serve", entrypoint)
-        self.assertNotIn("sleep infinity", entrypoint)
+        code, calls = _local_entrypoint({})
+        self.assertEqual(code, 0)
+        (call,) = calls
+        self.assertEqual(call["argv"], ["-m", "cli.administration.deploy.pool.serve"])
+        self.assertEqual(call["cwd"], call["src"])
+        self.assertEqual(call["pythonpath"], call["src"])
+
+    def test_the_local_entrypoint_refuses_to_start_without_its_queue_env(
+        self,
+    ) -> None:
         for key in ("COMPOSE_PROJECT_NAME", *QUEUE_ENV_KEYS):
-            self.assertIn(f'"${{{key}:?', entrypoint)
+            with self.subTest(key=key):
+                code, calls = _local_entrypoint({key: None})
+                self.assertNotEqual(code, 0)
+                self.assertEqual(calls, [])
 
     def test_a_local_runner_needs_an_absolute_queue(self) -> None:
         self.assertTrue(_queue_accepted("local", render.QUEUE))

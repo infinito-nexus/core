@@ -6,6 +6,9 @@ requirements file."""
 from __future__ import annotations
 
 import ast
+import posixpath
+import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -52,6 +55,22 @@ def _server_imports() -> list[str]:
     return sorted(set(modules))
 
 
+def _instructions(dockerfile: str) -> list[tuple[str, str]]:
+    """
+    Args:
+        dockerfile: the text of a Dockerfile.
+
+    Returns:
+        ``(INSTRUCTION, arguments)`` per instruction, continuation lines joined.
+    """
+    found = []
+    for line in re.sub(r"\\\n", " ", dockerfile).splitlines():
+        keyword, _, arguments = line.strip().partition(" ")
+        if keyword and not keyword.startswith("#"):
+            found.append((keyword.upper(), arguments.strip()))
+    return found
+
+
 def _stage(build: Path) -> None:
     for relative in VARS["AGENT_ORCHESTRATOR_LIBS"]:
         target = build / relative
@@ -82,12 +101,37 @@ class TestImageContents(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr[-2000:])
         self.assertGreater(int(result.stdout.strip()), 0)
 
-    def test_the_image_installs_pinned_langgraph_and_copies_the_routines(self) -> None:
-        requirements = read_text(str(ROLE / "files" / "requirements.txt")).split()
-        self.assertTrue(any(line.startswith("langgraph==") for line in requirements))
-        dockerfile = read_text(str(ROLE / "files" / "Dockerfile"))
-        self.assertIn("pip install --no-cache-dir -r", dockerfile)
-        self.assertIn("COPY agents /opt/orchestrator/agents", dockerfile)
+    def test_the_image_installs_pinned_langgraph_and_copies_the_routines(self) -> None:  # nocheck: test.text-presence -- tokenizes the file into commands or directives; the rule taints tokenizer output  # fmt: skip
+        pins = dict(
+            line.split("==", 1)
+            for line in read_text(str(ROLE / "files" / "requirements.txt")).split()
+            if "==" in line
+        )
+        self.assertIn("langgraph", pins)
+        instructions = _instructions(read_text(str(ROLE / "files" / "Dockerfile")))
+        copies = dict(
+            arguments.split()
+            for keyword, arguments in instructions
+            if keyword == "COPY"
+        )
+        runs = [
+            shlex.split(arguments)
+            for keyword, arguments in instructions
+            if keyword == "RUN"
+        ]
+        self.assertTrue(
+            any(
+                argv[:2] == ["pip", "install"]
+                and argv[argv.index("-r") + 1] == copies["requirements.txt"]
+                for argv in runs
+                if "-r" in argv
+            )
+        )
+        routines_root = VARS["AGENT_ORCHESTRATOR_ROUTINES_DIR"].split("/")[0]
+        self.assertEqual(
+            copies[routines_root],
+            posixpath.join(posixpath.dirname(copies["server.py"]), routines_root),
+        )
 
 
 if __name__ == "__main__":

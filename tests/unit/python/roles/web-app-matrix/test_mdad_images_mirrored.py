@@ -36,9 +36,7 @@ def _routed_images() -> dict[str, str]:
 
 
 class TestMdadImagesMirrored(unittest.TestCase):
-    def test_every_docker_hub_component_image_comes_from_the_image_lookup(
-        self,
-    ) -> None:
+    def test_every_docker_hub_component_image_comes_from_the_image_lookup(self) -> None:  # nocheck: test.text-presence -- parses the image lookup assignments into a variable map  # fmt: skip
         routed = _routed_images()
         for var in _DOCKER_HUB_COMPONENT_IMAGES:
             with self.subTest(var=var):

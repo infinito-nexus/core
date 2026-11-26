@@ -180,7 +180,7 @@ def _value_display(node: yaml.Node) -> str:
 
 
 class TestIncludeUniformApplyKeyword(unittest.TestCase):
-    def test_uniform_keyword_should_hoist_to_apply(self) -> None:
+    def test_uniform_keyword_should_hoist_to_apply(self) -> None:  # nocheck: test.text-presence -- policy lint over every role task file  # fmt: skip
         contents: dict[str, tuple[str, str]] = {}
         include_targets: set[str] = set()
         include_sites: dict[str, set[str]] = {}

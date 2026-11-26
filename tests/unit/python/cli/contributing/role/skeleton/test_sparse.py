@@ -103,7 +103,7 @@ class TestSparse(unittest.TestCase):
         self.addCleanup(tmp.cleanup)
         self.tmp = Path(tmp.name).resolve()
 
-    def test_every_pattern_is_rooted(self):
+    def test_every_pattern_is_rooted(self):  # nocheck: test.text-presence -- sparse.txt is pattern data; checks the form of every parsed pattern the sparse copy relies on  # fmt: skip
         self.assertEqual(
             [], [pattern for pattern in _patterns() if not pattern.startswith("/")]
         )

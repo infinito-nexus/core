@@ -69,7 +69,7 @@ class TestDockerCallsFollowTheStack(unittest.TestCase):
     def test_the_scan_reaches_role_task_files(self) -> None:
         self.assertTrue(role_task_files(), "no role task file was scanned")
 
-    def test_a_file_pairing_both_is_actually_reached(self) -> None:
+    def test_a_file_pairing_both_is_actually_reached(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the task file scan  # fmt: skip
         """Without one, the rule would pass over files it never compares."""
         paired = [
             path

@@ -64,7 +64,7 @@ class TestCspConfigurationConsistency(unittest.TestCase):
         parsed = urlparse(e)
         return parsed.scheme in ("http", "https", "ws", "wss") and bool(parsed.netloc)
 
-    def test_csp_configuration_structure(self):
+    def test_csp_configuration_structure(self):  # nocheck: test.text-presence -- schema lint over every parsed meta/services.yml  # fmt: skip
         roles_dir = PROJECT_ROOT / "roles"
         errors = []
 

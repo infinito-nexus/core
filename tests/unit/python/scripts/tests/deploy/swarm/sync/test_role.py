@@ -4,16 +4,17 @@ sync inside the act job container of its own worktree."""
 from __future__ import annotations
 
 import os
-import re
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 
-from utils.cache.files import PROJECT_ROOT, read_text
+from tests.utils.make_target import run_target
+from utils.cache.files import PROJECT_ROOT
 
 SCRIPT = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "swarm" / "sync" / "role.sh"
-MAKEFILE = PROJECT_ROOT / "Makefile"
+ROLE_SH = "scripts/tests/deploy/swarm/sync/role.sh"
+SYNCED = f"{ROLE_SH} app=web-app-demo"
 MANAGER = "demo-swarm-mgr-01"
 DOCKER_STUB = (
     "#!/usr/bin/env bash\n"
@@ -173,22 +174,34 @@ class TestRefusals(unittest.TestCase):
 
 
 class TestSwarmRoleSyncWiring(unittest.TestCase):
-    def setUp(self) -> None:
-        text = read_text(str(MAKEFILE))
-        self.recipe = re.search(
-            r"^swarm-role-sync:.*?(?=^\.PHONY)", text, re.DOTALL | re.MULTILINE
-        )[0]
+    def _target(self, *arguments: str) -> list[str]:
+        done, calls = run_target(
+            "swarm-role-sync",
+            ("app=web-app-demo", *arguments),
+            (ROLE_SH,),
+            {"STUB_ENV": "app SWARM_NAME variant"},
+        )
+        self.assertEqual(done.returncode, 0, done.stderr)
+        return calls
 
     def test_the_target_names_the_cluster_like_swarm_zombie(self) -> None:
-        self.assertIn("SWARM_NAME='$(or $(name),$(app))'", self.recipe)
-        self.assertIn("variant='$(or $(variant),0)'", self.recipe)
-        self.assertIn("bash scripts/tests/deploy/swarm/sync/role.sh", self.recipe)
+        for arguments, cluster, variant in (
+            ((), "web-app-demo", "0"),
+            (("name=demo", "variant=2"), "demo", "2"),
+        ):
+            with self.subTest(arguments=arguments):
+                synced = f"{SYNCED} SWARM_NAME={cluster} variant={variant}"
+                self.assertEqual(self._target(*arguments), [synced])
 
     def test_pw_reruns_the_spec_through_swarm_playwright_after_the_sync(self) -> None:
-        sync_at = self.recipe.index("scripts/tests/deploy/swarm/sync/role.sh")
-        spec_at = self.recipe.index("swarm-playwright role='$(app)'")
-        self.assertLess(sync_at, spec_at)
-        self.assertIn("$(if $(pw),", self.recipe)
+        rerun = "make swarm-playwright role=web-app-demo name=web-app-demo"
+        self.assertEqual(
+            self._target("pw=--grep design"),
+            [
+                f"{SYNCED} SWARM_NAME=web-app-demo variant=0",
+                f"{rerun} pw=--grep\\ design",
+            ],
+        )
 
 
 if __name__ == "__main__":

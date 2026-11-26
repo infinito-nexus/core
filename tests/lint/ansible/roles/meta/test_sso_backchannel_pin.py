@@ -152,7 +152,7 @@ def offenders(roles_dir: Path) -> list[str]:
 
 
 class TestSsoBackchannelPin(unittest.TestCase):
-    def test_every_app_native_oidc_consumer_pins_the_provider(self) -> None:
+    def test_every_app_native_oidc_consumer_pins_the_provider(self) -> None:  # nocheck: test.text-presence -- policy lint over every OIDC consumer role  # fmt: skip
         found = offenders(ROLES_DIR)
         self.assertEqual(
             [],

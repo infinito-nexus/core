@@ -133,7 +133,7 @@ def _service_declares_name(services_doc: dict, service_key: str) -> bool:
 
 
 class TestContainerVarNameLookup(unittest.TestCase):
-    def test_container_vars_use_name_lookup(self) -> None:
+    def test_container_vars_use_name_lookup(self) -> None:  # nocheck: test.text-presence -- policy lint over every role vars file  # fmt: skip
         missing_lookup: list[tuple[str, int, str]] = []
         missing_name: list[tuple[str, int, str]] = []
 

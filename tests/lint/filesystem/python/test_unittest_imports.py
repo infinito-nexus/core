@@ -10,7 +10,7 @@ from . import PROJECT_ROOT
 class TestUnittestImports(unittest.TestCase):
     TEST_ROOT = str(PROJECT_ROOT / "tests")
 
-    def test_all_test_files_import_unittest(self):
+    def test_all_test_files_import_unittest(self):  # nocheck: test.text-presence -- policy lint over every test file of the tree  # fmt: skip
         missing = []
 
         tests_prefix = self.TEST_ROOT + os.sep

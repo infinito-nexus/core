@@ -81,7 +81,7 @@ class TestRunnerSourcesDigest(unittest.TestCase):
     def test_every_file_the_runner_runs_or_bakes_feeds_the_digest(self) -> None:
         self.assertEqual(uncovered_files(self.globs), [])
 
-    def test_negative_control_the_shell_glob_alone_misses_the_python_files(
+    def test_negative_control_the_shell_glob_alone_misses_the_python_files(  # nocheck: test.text-presence -- runs uncovered_calls on a planted glob list
         self,
     ) -> None:
         findings = uncovered_calls(["shell/repository/*"])

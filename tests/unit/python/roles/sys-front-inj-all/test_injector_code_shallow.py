@@ -190,7 +190,7 @@ BROKEN = {
 
 
 class TestInjectorCodeRendersShallow(unittest.TestCase):
-    def test_every_code_loading_task_uses_the_shallow_lookup(self) -> None:
+    def test_every_code_loading_task_uses_the_shallow_lookup(self) -> None:  # nocheck: test.text-presence -- non-vacuity guard: the render-equivalence test below swaps this lookup in the parsed expression  # fmt: skip
         for injector in INJECTORS:
             with self.subTest(injector=injector):
                 expression = load_expression(injector)

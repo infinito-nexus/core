@@ -266,12 +266,54 @@ final class ClientTest extends TestCase
 
     public function testTheScriptsHoldNoApiCredentialAndNoHttpClient(): void
     {
-        $head = (string) file_get_contents(dirname(__DIR__, 7) . self::DAL);
-        $source = $head . (string) file_get_contents(dirname(__DIR__, 7) . self::SCRIPT);
+        $dal = self::codeTokens(self::DAL);
 
-        foreach (['INTEGRATION_', 'oauth/token', 'grant_type', 'curl_', 'ADMIN_PASSWORD'] as $needle) {
-            $this->assertStringNotContainsString($needle, $source, $needle);
+        foreach ([...$dal, ...self::codeTokens(self::SCRIPT)] as $token) {
+            if (in_array($token[0], [T_STRING, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED], true)) {
+                $this->assertStringStartsNotWith('curl_', ltrim($token[1], '\\'), $token[1]);
+            }
+            if (in_array($token[0], [T_CONSTANT_ENCAPSED_STRING, T_ENCAPSED_AND_WHITESPACE], true)) {
+                foreach (['INTEGRATION_', 'oauth/token', 'grant_type', 'ADMIN_PASSWORD'] as $needle) {
+                    $this->assertStringNotContainsString($needle, $token[1], $needle);
+                }
+            }
         }
-        $this->assertStringContainsString('Context::createCLIContext()', $head);
+        $this->assertContains('Context::createCLIContext(', self::staticCalls($dal));
+    }
+
+    /**
+     * @param string $script script path below the repository root
+     * @return list<array{0: int, 1: string}|string> the script's PHP tokens without whitespace and comments
+     */
+    private static function codeTokens(string $script): array
+    {
+        return array_values(array_filter(
+            token_get_all((string) file_get_contents(dirname(__DIR__, 7) . $script)),
+            static fn ($token): bool => !is_array($token)
+                || !in_array($token[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)
+        ));
+    }
+
+    /**
+     * @param list<array{0: int, 1: string}|string> $tokens PHP tokens without whitespace and comments
+     * @return list<string> the "<Class>::<method>(" of every static call, the class without its namespace
+     */
+    private static function staticCalls(array $tokens): array
+    {
+        $calls = [];
+        foreach (array_keys($tokens) as $index) {
+            [$class, $colons, $method, $open] = array_slice($tokens, $index, 4) + [null, null, null, null];
+            if (
+                is_array($class) && in_array($class[0], [T_STRING, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED], true)
+                && is_array($colons) && $colons[0] === T_DOUBLE_COLON
+                && is_array($method) && $method[0] === T_STRING
+                && $open === '('
+            ) {
+                $segments = explode('\\', $class[1]);
+                $calls[] = end($segments) . '::' . $method[1] . '(';
+            }
+        }
+
+        return $calls;
     }
 }

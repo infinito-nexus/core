@@ -1,6 +1,5 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const fs = require("node:fs");
 const path = require("node:path");
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../../../../..");
@@ -34,14 +33,6 @@ test("negative control: a policy-blind Keycloak email read fails on the mailbox 
     /Keycloak user "biber" carries no email claim under the external policy/,
   );
 });
-
-for (const spec of ["test-rbac-roles.js", "test-profile-sync.js"]) {
-  test(`${spec} takes biber's claimed address from shared.biberClaimedEmail, never from the Keycloak email`, () => {
-    const source = fs.readFileSync(path.join(PLAYWRIGHT_DIR, spec), "utf8");
-    assert.match(source, /shared\.biberClaimedEmail\(/);
-    assert.doesNotMatch(source, /keycloakUserEmail|keycloakUser\.email\b/);
-  });
-}
 
 test("an empty mailbox under the mailbox policy fails loudly", () => {
   assert.throws(

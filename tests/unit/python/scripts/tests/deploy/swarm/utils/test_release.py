@@ -3,18 +3,24 @@
 from __future__ import annotations
 
 import os
-import re
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 
-from utils.cache.files import PROJECT_ROOT, read_text
+from tests.utils.make_target import run_target
+from utils.cache.files import PROJECT_ROOT
 
 RELEASE = (
     PROJECT_ROOT / "scripts" / "tests" / "deploy" / "swarm" / "utils" / "release.sh"
 )
-MAKEFILE = PROJECT_ROOT / "Makefile"
+INSTALL_ACT = "scripts/install/act.sh"
+TEARDOWN = "scripts/tests/deploy/swarm/utils/clean/teardown.sh"
+LAB_SUBNET = "scripts/tests/deploy/swarm/utils/clean/lab_subnet.sh"
+DOWN_ACT = "scripts/tests/deploy/act/down_act_outer.sh"
+RELEASE_SH = "scripts/tests/deploy/swarm/utils/release.sh"
+WORKFLOW_SH = "scripts/tests/deploy/act/workflow.sh"
+ZOMBIE_SCRIPTS = (INSTALL_ACT, TEARDOWN, LAB_SUBNET, DOWN_ACT, RELEASE_SH)
 DOCKER_STUB = (
     "#!/usr/bin/env bash\n"
     'printf "docker %s\\n" "$*" >>"${STUB_LOG}"\n'
@@ -148,41 +154,74 @@ class TestReleaseAfterRescue(unittest.TestCase):
 
 
 class TestSwarmZombieWiring(unittest.TestCase):
-    def setUp(self) -> None:
-        text = read_text(str(MAKEFILE))
-        self.recipe = re.search(
-            r"^swarm-zombie:.*?(?=^\.PHONY)", text, re.DOTALL | re.MULTILINE
-        )[0]
+    def _zombie(
+        self, arguments: tuple[str, ...], env: dict[str, str]
+    ) -> tuple[subprocess.CompletedProcess, list[str]]:
+        return run_target(
+            "swarm-zombie",
+            ("app=web-app-demo", "distros=arch", "arch=x86_64", *arguments),
+            ZOMBIE_SCRIPTS,
+            {"INFINITO_GHCR_MIRROR": "false", **env},
+        )
+
+    def _act_env(self, arguments: tuple[str, ...], env: dict[str, str]) -> str:
+        done, calls = self._zombie(arguments, {"STUB_ENV": "ACT_ENV", **env})
+        self.assertEqual(done.returncode, 0, done.stderr)
+        return calls[-1].split(" ACT_ENV=", 1)[1]
 
     def test_the_drill_runs_inside_release(self) -> None:
-        self.assertIn(
-            "bash scripts/tests/deploy/swarm/utils/release.sh bash scripts/tests/deploy/act/workflow.sh",
-            self.recipe,
+        done, calls = self._zombie((), {})
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(
+            [call.split(" ", 1)[0] for call in calls],
+            [
+                INSTALL_ACT,
+                "python",
+                TEARDOWN,
+                LAB_SUBNET,
+                DOWN_ACT,
+                "python",
+                RELEASE_SH,
+            ],
         )
+        self.assertEqual(calls[-1], f"{RELEASE_SH} bash {WORKFLOW_SH}")
 
     def test_an_env_without_the_cache_keys_still_starts_the_drill(self) -> None:
         for key in (
             "INFINITO_CACHE_SHARED_HOST_PATH",
             "INFINITO_CACHE_HOST_PACMAN_PATH",
         ):
-            self.assertIn(f"{key}=$${{{key}:-}};", self.recipe)
+            with self.subTest(key=key):
+                self.assertIn(f" {key}=;", self._act_env((), {}))
+                self.assertIn(f" {key}=/srv/x;", self._act_env((), {key: "/srv/x"}))
 
     def test_a_row_discovery_cannot_return_stops_the_target_before_act(self) -> None:
-        self.assertIn(
-            "-m cli.meta.ci.validate --require-discovery --modes swarm --whitelist",
-            self.recipe,
-        )
-        self.assertLess(
-            self.recipe.index("cli.meta.ci.validate --require-discovery"),
-            self.recipe.index("clean/teardown.sh"),
+        done, calls = self._zombie((), {"STUB_PYTHON_RC": "1"})
+        self.assertNotEqual(done.returncode, 0)
+        self.assertEqual(len(calls), 2, calls)
+        self.assertEqual(calls[0], INSTALL_ACT)
+        self.assertTrue(
+            calls[1].startswith(
+                "python -m cli.meta.ci.validate --require-discovery --modes swarm "
+                "--whitelist web-app-demo"
+            ),
+            calls[1],
         )
 
     def test_keep_decides_whether_the_act_job_keeps_the_nodes(self) -> None:
-        self.assertIn("keep='$(keep)'", self.recipe)
-        self.assertIn(
-            "INFINITO_KEEP_SWARM_NODES=$(if $(filter true,$(keep)),true,false)",
-            self.recipe,
-        )
+        for arguments, keep, nodes in (
+            ((), "", "false"),
+            (("keep=true",), "true", "true"),
+        ):
+            with self.subTest(keep=keep):
+                done, calls = self._zombie(arguments, {"STUB_ENV": "keep"})
+                self.assertEqual(done.returncode, 0, done.stderr)
+                self.assertTrue(calls[-1].endswith(f" keep={keep}"), calls[-1])
+                self.assertTrue(
+                    self._act_env(arguments, {}).startswith(
+                        f"INFINITO_KEEP_SWARM_NODES={nodes};"
+                    )
+                )
 
 
 if __name__ == "__main__":

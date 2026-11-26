@@ -543,8 +543,14 @@ class TestLoginMethodObserved(unittest.TestCase):
         self.assertTrue(role_lacks(OBSERVED, without_login(self.text)))
 
     def test_the_role_enforces_its_second_factor(self) -> None:
-        self.assertIn(
-            f"      2fa:\n        enabled: {DISCOURSE_2FA}\n{ENFORCED}", self.text
+        (second_factor,) = [
+            entity["login"]["method"]["2fa"]
+            for entity in load_yaml_str(self.text).values()
+            if isinstance(entity, dict) and "login" in entity
+        ]
+        self.assertEqual(
+            second_factor,
+            {"enabled": DISCOURSE_2FA.strip('"'), "enforced": True},
         )
 
     def test_the_role_fails_without_enforced(self) -> None:

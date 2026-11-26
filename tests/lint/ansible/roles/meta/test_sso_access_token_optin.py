@@ -30,6 +30,7 @@ import unittest
 from typing import TYPE_CHECKING
 
 import yaml
+from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from utils.annotations.suppress import is_suppressed_in_head
 from utils.cache.files import iter_project_files_with_content, read_text
@@ -53,6 +54,7 @@ GATE = PROJECT_ROOT / (
 )
 _HEADER_RE = re.compile(r"x[-_]forwarded[-_]access[-_]token", re.IGNORECASE)
 _EMITS_RE = re.compile(r"proxy_set_header|auth_request_set")
+_DIRECTIVE_RE = re.compile(r"(?m)^\s*proxy_set_header\s+(\S+)\s+(.+?)\s*;\s*$")
 _TEXT_SUFFIXES = {
     ".js",
     ".mjs",
@@ -128,6 +130,35 @@ def _roles() -> list[Path]:
     return sorted(p for p in ROLES_DIR.iterdir() if p.is_dir())
 
 
+def gate_access_token(opted_in: bool) -> str:
+    """
+    Args:
+        opted_in: the consumer's ``pass_access_token`` declaration.
+
+    Returns:
+        The value the rendered gate sets ``X-Forwarded-Access-Token`` to.
+    """
+    env = Environment(
+        loader=FileSystemLoader(str(PROJECT_ROOT)),
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(),
+    )
+
+    def lookup(name: str, *terms, **_kwargs):
+        if (name, *terms[1:]) == ("sso", "oauth2_pass_access_token"):
+            return opted_in
+        if (name, *terms[1:]) == ("sso", "oauth2_claim_headers"):
+            return []
+        raise AssertionError(f"unexpected lookup {name}{terms}")
+
+    env.globals["lookup"] = lookup
+    env.filters["oauth2_claim_headers"] = lambda _attributes: []
+    rendered = env.get_template(GATE.relative_to(PROJECT_ROOT).as_posix()).render(
+        application_id="web-app-n8n", group_names=[], OIDC={"ATTRIBUTES": {}}
+    )
+    return dict(_DIRECTIVE_RE.findall(rendered)).get("X-Forwarded-Access-Token", "")
+
+
 class TestSsoAccessTokenOptIn(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -160,17 +191,16 @@ class TestSsoAccessTokenOptIn(unittest.TestCase):
             f"the header: {unused}",
         )
 
-    def test_every_sender_file_exists_and_names_the_header(self) -> None:
+    def test_every_sender_file_exists_and_names_the_header(self) -> None:  # nocheck: test.text-presence -- staleness guard of the lint's own exemption list  # fmt: skip
         for rel in sorted(_SENDER_FILES):
             self.assertRegex(read_text(str(ROLES_DIR / rel)), _HEADER_RE, rel)
 
-    def test_the_scan_finds_the_known_reader(self) -> None:
+    def test_the_scan_finds_the_known_reader(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the repo-wide reader scan  # fmt: skip
         self.assertIn("web-app-n8n", self.readers)
 
     def test_the_gate_makes_the_header_conditional(self) -> None:
-        content = read_text(str(GATE))
-        self.assertIn("oauth2_pass_access_token", content)
-        self.assertIn('proxy_set_header X-Forwarded-Access-Token         "";', content)
+        self.assertEqual('""', gate_access_token(opted_in=False))
+        self.assertEqual("$authrequest_accesstoken", gate_access_token(opted_in=True))
 
 
 if __name__ == "__main__":

@@ -136,7 +136,7 @@ def deploy_lock_findings(tasks: list[dict]) -> list[str]:
 
 
 class TestVmGuestRoot(unittest.TestCase):
-    def test_the_first_boot_locks_root_and_keeps_the_key_channel(self):
+    def test_the_first_boot_locks_root_and_keeps_the_key_channel(self):  # nocheck: test.text-presence -- lock-order analyzer of the hook, mutation-tested below  # fmt: skip
         self.assertEqual(hook_findings(FIRST_BOOT), [])
 
     def test_negative_control_a_hook_without_the_lock_leaves_root_usable(self):

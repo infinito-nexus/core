@@ -1,7 +1,9 @@
 import base64
 import json
 import os
+import shlex
 import unittest
+import urllib.parse
 
 from ansible.errors import AnsibleFilterError
 from ansible.plugins.filter.core import to_bool
@@ -10,6 +12,8 @@ from jinja2 import Environment, StrictUndefined, select_autoescape
 from plugins.filter.seaweedfs import (
     WORKSPACE_MAX_KEY,
     seaweedfs_bucket_state_files,
+    seaweedfs_versioning_enabled,
+    seaweedfs_workspace,
     seaweedfs_workspace_credentials,
     seaweedfs_workspace_slot,
 )
@@ -162,8 +166,19 @@ class TestWorkspaceApply(unittest.TestCase):
 
     def test_versioning_is_turned_on_for_the_bucket(self):
         task = _task(self.apply, "🗂 Turn versioning on")
-        self.assertIn("?versioning", task[SHELL])
-        self.assertIn("<Status>Enabled</Status>", task["args"]["stdin"])
+        _, body = task["args"]["stdin"].splitlines()
+        self.assertTrue(seaweedfs_versioning_enabled(f"{body}\n200"))
+        env = _environment()
+        env.filters["quote"] = shlex.quote
+        command = env.from_string(task[SHELL]).render(
+            SEAWEEDFS_S3_SIGNED_CURL="curl",
+            SEAWEEDFS_S3_LOCAL_URL="http://127.0.0.1:8333",
+            seaweedfs_ws={"bucket": f"ws-{WORKSPACE}-state"},
+        )
+        url = urllib.parse.urlsplit(shlex.split(command)[-1])
+        self.assertEqual(
+            (url.path, url.query), (f"/ws-{WORKSPACE}-state", "versioning")
+        )
 
     def test_the_record_is_private_to_root(self):
         copy = _task(self.apply, "💾 Write the record")["ansible.builtin.copy"]
@@ -350,14 +365,29 @@ class TestWorkspaceEntry(unittest.TestCase):
             for task in _tasks("main.yml")
             if task.get("include_tasks") == "workspace.yml"
         ]
-        self.assertIn("WORKSPACE_ACTION is defined", task["when"])
+
+        def runs(**variables):
+            return all(_evaluate(clause, **variables) for clause in task["when"])
+
+        self.assertTrue(runs(WORKSPACE_ACTION="apply", objstore_init=False))
+        self.assertFalse(runs(objstore_init=False))
 
     def test_the_entry_refuses_an_unknown_action(self):
         (check,) = _tasks("workspace.yml")[:1]
-        self.assertIn(
-            "WORKSPACE_ACTION in ['apply', 'destroy']",
-            check["ansible.builtin.assert"]["that"],
-        )
+        env = _environment()
+        env.filters["seaweedfs_workspace"] = seaweedfs_workspace
+
+        def accepted(action):
+            return all(
+                env.compile_expression(condition)(
+                    WORKSPACE_ACTION=action, WORKSPACE=WORKSPACE
+                )
+                for condition in check["ansible.builtin.assert"]["that"]
+            )
+
+        for action, expected in (("apply", True), ("destroy", True), ("drop", False)):
+            with self.subTest(action=action):
+                self.assertIs(accepted(action), expected)
 
 
 if __name__ == "__main__":

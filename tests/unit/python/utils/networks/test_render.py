@@ -18,7 +18,7 @@ from ._render_helpers import _const_lookup_config, _const_lookup_database, _enti
 
 
 class TestRenderComposeNetworks(unittest.TestCase):
-    def test_provider_swarm_emits_only_default(self):
+    def test_provider_swarm_emits_only_default(self):  # nocheck: test.text-presence -- asserts on the output of render_compose_networks, which it runs  # fmt: skip
         registry = {
             "openresty": {
                 "role": "svc-prx-openresty",
@@ -39,7 +39,7 @@ class TestRenderComposeNetworks(unittest.TestCase):
         self.assertIn("driver: overlay", rendered)
         self.assertNotIn("openresty:\n    external", rendered)
 
-    def test_provider_compose_falls_back_to_bridge(self):
+    def test_provider_compose_falls_back_to_bridge(self):  # nocheck: test.text-presence -- asserts on the output of render_compose_networks, which it runs  # fmt: skip
         registry = {
             "openresty": {
                 "role": "svc-prx-openresty",
@@ -60,7 +60,7 @@ class TestRenderComposeNetworks(unittest.TestCase):
         self.assertIn("driver: bridge", rendered)
         self.assertIn("subnet: 10.0.0.0/24", rendered)
 
-    def test_svc_db_provider_suppresses_default_block(self):
+    def test_svc_db_provider_suppresses_default_block(self):  # nocheck: test.text-presence -- asserts on the output of render_compose_networks, which it runs  # fmt: skip
         registry = {
             "mariadb": {
                 "role": "svc-db-mariadb",
@@ -80,7 +80,7 @@ class TestRenderComposeNetworks(unittest.TestCase):
         self.assertIn("external: true", rendered)
         self.assertNotIn("default:", rendered)
 
-    def test_empty_own_entity_swarm_omits_name(self):
+    def test_empty_own_entity_swarm_omits_name(self):  # nocheck: test.text-presence -- asserts on the output of render_compose_networks, which it runs  # fmt: skip
         rendered = render_compose_networks(
             application_id="svc-runner",
             deployment_mode="swarm",
@@ -271,7 +271,7 @@ class TestRenderComposeNetworks(unittest.TestCase):
         self.assertNotIn("overlay", rendered)
         self.assertIn("driver: bridge", rendered)
 
-    def test_empty_own_entity_compose_omits_name(self):
+    def test_empty_own_entity_compose_omits_name(self):  # nocheck: test.text-presence -- asserts on the output of render_compose_networks, which it runs  # fmt: skip
         rendered = render_compose_networks(
             application_id="svc-runner",
             deployment_mode="compose",

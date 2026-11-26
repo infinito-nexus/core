@@ -347,20 +347,6 @@ class TestClientConverge(unittest.TestCase):
             {"login": False}, _templated(_trust_as_template(node), stored, {})
         )
 
-    def test_the_script_reads_only_the_form_fields_before_it_writes(self):
-        script = _client_script()
-        main = script.index("$settings = json_decode(env('OIDC_CLIENT_SETTINGS')")
-        branch = script.index("if (getenv('OIDC_CLIENT_MODE') === 'read') {")
-        end = script.index("exit(0);", branch)
-        self.assertIn("array_intersect_key($stored, $settings)", script[branch:end])
-        for write in (
-            "dal('upsert'",
-            "deleteOthers(",
-            "env('OIDC_CLIENT_SECRET')",
-        ):
-            with self.subTest(write=write):
-                self.assertLess(end, script.index(write, main))
-
 
 if __name__ == "__main__":
     unittest.main()

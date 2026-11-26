@@ -37,7 +37,7 @@ def check(agents_md: Path) -> list[str]:
 
 
 class TestL34(unittest.TestCase):
-    def test_real_tree_passes(self):
+    def test_real_tree_passes(self):  # nocheck: test.text-presence -- criterion L34 is a docs statement and names this lint as its proof  # fmt: skip
         self.assertEqual(check(TUNER_AGENTS), [])
 
     def test_red_fixture_fails(self):

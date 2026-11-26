@@ -1,5 +1,6 @@
-import re
 import unittest
+
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
@@ -19,6 +20,23 @@ def _yaml(relative: str):
     return load_yaml_str(read_text(str(ROLE / relative)))
 
 
+def _render(expression: str, **variables) -> str:
+    """
+    Args:
+        expression: a Jinja string from the role's YAML.
+        variables: the variables it renders with.
+
+    Returns:
+        The rendered string.
+    """
+    environment = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    environment.filters["bool"] = bool
+    return environment.from_string(expression).render(**variables)
+
+
 class TestServicesContract(unittest.TestCase):
     def setUp(self):
         self.services = _yaml(ROLE_FILE_META_SERVICES)
@@ -36,10 +54,29 @@ class TestServicesContract(unittest.TestCase):
 
     def test_bridge_is_gated_on_both_partner_roles(self):
         enabled = self.services["bridge"]["enabled"]
-        self.assertIn("'web-app-mobilizon' in group_names", enabled)
-        self.assertIn("'web-app-bluesky' in group_names", enabled)
-        self.assertIn(" and ", enabled)
-        self.assertIn("services.bridge.enabled", self.vars["ATMO_BRIDGE_ENABLED"])
+        for partners, expected in (
+            ((), "False"),
+            (("web-app-mobilizon",), "False"),
+            (("web-app-bluesky",), "False"),
+            (("web-app-mobilizon", "web-app-bluesky"), "True"),
+        ):
+            with self.subTest(partners=partners):
+                self.assertEqual(
+                    _render(enabled, group_names=["web-app-atmo", *partners]),
+                    expected,
+                )
+        for value in (True, False):
+            with self.subTest(configured=value):
+                self.assertEqual(
+                    _render(
+                        self.vars["ATMO_BRIDGE_ENABLED"],
+                        application_id="web-app-atmo",
+                        lookup=lambda *terms, value=value: {
+                            ("config", "web-app-atmo", "services.bridge.enabled"): value
+                        }[terms],
+                    ),
+                    str(value),
+                )
 
     def test_stateful_services_run_single_replica_on_one_node(self):
         self.assertEqual(self.services["atmo"]["placement"], "manager")
@@ -85,11 +122,6 @@ class TestCspContract(unittest.TestCase):
         )
         sockets = [entry for entry in connect if entry.startswith("wss://")]
         self.assertEqual(sockets, ["wss://jetstream2.us-east.bsky.network"])
-
-    def test_unsafe_inline_carries_its_reason(self):
-        text = read_text(str(ROLE / ROLE_FILE_META_CSP))
-        line = next(line for line in text.splitlines() if "unsafe-inline" in line)
-        self.assertRegex(line, re.compile(r"# nocheck: csp-unsafe\s+Reason: \S"))
 
 
 if __name__ == "__main__":

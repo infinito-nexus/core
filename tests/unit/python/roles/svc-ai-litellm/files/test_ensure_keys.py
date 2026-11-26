@@ -203,7 +203,7 @@ class TestRevocationRunsWheneverTheGatewayRuns(unittest.TestCase):
             )
         )
 
-    def test_the_check_refuses_the_key_step_gated_on_local_consumers(self):
+    def test_the_check_refuses_the_key_step_gated_on_local_consumers(self):  # nocheck: test.text-presence -- negative control: runs the parsed-task gate checker on planted task lists  # fmt: skip
         key_tasks = load_yaml_any(self.ROLE / "01_keys.yml")
         include = {"ansible.builtin.include_tasks": "01_keys.yml"}
         gated_task = [{**include, "when": "LITELLM_CONSUMER_KEYS | length > 0"}]

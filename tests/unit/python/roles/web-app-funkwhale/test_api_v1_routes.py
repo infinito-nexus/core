@@ -47,7 +47,7 @@ def _v1_references() -> list[tuple[str, str]]:
 
 
 class TestApiV1Routes(unittest.TestCase):
-    def test_the_scan_sees_the_api_healthcheck_path(self) -> None:
+    def test_the_scan_sees_the_api_healthcheck_path(self) -> None:  # nocheck: test.text-presence -- non-vacuity check of the role-wide api/v1 route scan  # fmt: skip
         self.assertIn(
             (ROLE_FILE_META_SERVICES, "instance"),
             _v1_references(),

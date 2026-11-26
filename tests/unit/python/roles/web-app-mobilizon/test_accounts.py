@@ -92,7 +92,7 @@ class TestBridgeAccountProvisioning(unittest.TestCase):
             with self.subTest(field=field):
                 self.assertIn(field, stdin)
 
-    def test_the_script_applies_the_role_it_is_given(self):
+    def test_the_script_applies_the_role_it_is_given(self):  # nocheck: test.text-presence -- asserts Elixir that runs only inside the app container; no Elixir runner yet  # fmt: skip
         script = read_text(str(ACCOUNT_SCRIPT))
         self.assertIn('"role" => role', script)
         self.assertNotIn(":administrator", script)

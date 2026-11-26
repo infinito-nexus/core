@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 import unittest
+from pathlib import Path
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
@@ -64,6 +67,67 @@ def _run(script: str, *args: str, timeout: float) -> subprocess.CompletedProcess
     )
 
 
+def _instructions(dockerfile: str) -> list[tuple[str, str]]:
+    """
+    Args:
+        dockerfile: the text of a Dockerfile.
+
+    Returns:
+        ``(INSTRUCTION, arguments)`` per instruction, continuation lines joined.
+    """
+    found = []
+    for line in re.sub(r"\\\n", " ", dockerfile).splitlines():
+        keyword, _, arguments = line.strip().partition(" ")
+        if keyword and not keyword.startswith("#"):
+            found.append((keyword.upper(), arguments.strip()))
+    return found
+
+
+def _append_step(
+    gunicorn_conf: str | None,
+) -> tuple[str, bool, subprocess.CompletedProcess]:
+    """
+    Args:
+        gunicorn_conf: the entrypoint's ``scripts/gunicorn_conf.py``, or None when
+            the image ships none.
+
+    Returns:
+        The config after the step, whether the staged hook is still there, and
+        the finished step.
+    """
+    instructions = _instructions(read_text(str(DOCKERFILE)))
+    (staged,) = [
+        arguments.split()[1]
+        for keyword, arguments in instructions
+        if keyword == "COPY" and arguments.split()[0] == HOOK.name
+    ]
+    (step,) = [
+        arguments
+        for keyword, arguments in instructions
+        if keyword == "RUN" and staged in arguments
+    ]
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        local = root / "staged" / HOOK.name
+        local.parent.mkdir()
+        shutil.copyfile(HOOK, local)
+        conf = root / "scripts" / "gunicorn_conf.py"
+        conf.parent.mkdir()
+        if gunicorn_conf is not None:
+            conf.write_text(gunicorn_conf, encoding="utf-8")
+        result = subprocess.run(
+            ["bash", "-c", step.replace(staged, str(local))],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        after = ""
+        if conf.is_file():
+            after = conf.read_text(encoding="utf-8")  # nocheck: cache-read tempdir
+        return after, local.exists(), result
+
+
 class TestWorkerExit(unittest.TestCase):
     def test_a_recycled_worker_leaves_with_its_exit_code_past_a_thread_that_never_ends(
         self,
@@ -90,13 +154,14 @@ class TestImageWiring(unittest.TestCase):
     def test_the_image_appends_the_hook_to_the_gunicorn_config_of_the_entrypoint(
         self,
     ) -> None:
-        dockerfile = read_text(str(DOCKERFILE))
-        self.assertIn(f"COPY {HOOK.name} /tmp/{HOOK.name}\n", dockerfile)
-        self.assertIn("RUN test -f scripts/gunicorn_conf.py \\\n", dockerfile)
-        self.assertRegex(
-            dockerfile,
-            rf"cat /tmp/{re.escape(HOOK.name)}; }} >> scripts/gunicorn_conf\.py",
-        )
+        conf, staged, result = _append_step("workers = 2\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(conf, "workers = 2\n\n" + read_text(str(HOOK)))
+        self.assertFalse(staged)
+
+    def test_the_build_fails_when_the_entrypoint_has_no_gunicorn_config(self) -> None:
+        _, _, result = _append_step(None)
+        self.assertNotEqual(result.returncode, 0)
 
     def test_the_build_context_receives_the_hook(self) -> None:
         staged = [

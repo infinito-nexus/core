@@ -65,12 +65,12 @@ def _routine_edges(module: ModuleType) -> set[tuple[str, str]]:
 
 
 class TestGraphDiagrams(unittest.TestCase):
-    def test_edges_match_the_diagram(self) -> None:
+    def test_edges_match_the_diagram(self) -> None:  # nocheck: test.text-presence -- parses the spec's mermaid edges and compares them with the routine's STEPS graph  # fmt: skip
         for name, module, heading in _CASES:
             with self.subTest(routine=name):
                 self.assertEqual(_routine_edges(module), _spec_edges(heading))
 
-    def test_nodes_match_the_diagram(self) -> None:
+    def test_nodes_match_the_diagram(self) -> None:  # nocheck: test.text-presence -- parses the spec's mermaid nodes and compares them with the routine's STEPS ids  # fmt: skip
         for name, module, heading in _CASES:
             with self.subTest(routine=name):
                 spec_ids = {node for edge in _spec_edges(heading) for node in edge}

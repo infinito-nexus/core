@@ -1,6 +1,3 @@
-# nocheck: mirrored-unit-test - reads SiteSetting and User out of the booted
-# application, neither of which exists outside the Discourse console
-
 SiteSetting.refresh!
 
 email = ENV.fetch("DISCOURSE_ADMIN_EMAIL")

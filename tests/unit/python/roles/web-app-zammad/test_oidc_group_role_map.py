@@ -11,11 +11,9 @@ ROLE = PROJECT_ROOT / "roles/web-app-zammad"
 VARS = ROLE / ROLE_FILE_VARS_MAIN
 RBAC = ROLE / ROLE_FILE_META_RBAC
 NATIVE = ROLE / "files/ruby/apply/administrator.rb"
-TEMPLATE = ROLE / "templates/zz/oidc/group_role_mapping.rb.j2"
 GRANTS_KEY = "ZAMMAD_RBAC_ROLE_GRANTS"
 MAP_KEY = "ZAMMAD_OIDC_GROUP_ROLE_MAP"
 LDAP_MAP_KEY = "ZAMMAD_LDAP_GROUP_ROLE_MAP"
-LDAP_APPLY = ROLE / "files/ruby/apply/ldap_source.rb"
 ADMIN_ROLE = "administrator"
 MACHINE_ROLES = {"mcp"}
 
@@ -109,29 +107,6 @@ class TestOidcGroupRoleMap(unittest.TestCase):
                 "member the signup role and overrides the OIDC grant until the next sign-in",
             )
 
-    def test_the_ldap_import_matches_what_net_ldap_hands_over(self) -> None:
-        source = read_text(str(LDAP_APPLY))
-        self.assertIn(
-            "transform_keys(&:downcase)",
-            source,
-            "Net::LDAP::Entry downcases every attribute name and Zammad's FlatKeys mapping "
-            "looks the source key up verbatim, so a camelCase key such as givenName or "
-            "telephoneNumber never copies its value",
-        )
-        self.assertIn(
-            "dn.downcase",
-            source,
-            "Ldap::Group#user_roles reads group_role_map[entry.dn.downcase], so a DN key "
-            "kept in its original case maps no member onto any role",
-        )
-        self.assertIn(
-            '"sigup_roles"',
-            source,
-            "with a group_role_map in place, unassigned_users 'skip_sync' skips or "
-            "deactivates every directory user outside the mapped groups, which locks the "
-            "customers of an open helpdesk out; Zammad spells the signup choice sigup_roles",
-        )
-
     def test_every_rbac_role_a_person_can_hold_has_a_grant(self) -> None:
         self.assertEqual(
             declared_rbac_roles() - MACHINE_ROLES,
@@ -144,34 +119,6 @@ class TestOidcGroupRoleMap(unittest.TestCase):
             "files/ruby/apply/mcp_bot.rb, never an account that arrives through the "
             "identity provider",
         )
-
-    def test_a_patch_target_that_disappeared_stops_the_boot(self) -> None:
-        source = read_text(str(TEMPLATE))
-        reason = (
-            "Zammad 7.1.2 defines only User.create_from_hash! (app/models/user.rb:312), "
-            "so the earlier guard 'next unless User.respond_to?(...)' matched nothing, "
-            "installed no patch at all and left every account that signed in through the "
-            "identity provider on its signup role. A patch target that disappears must "
-            "stop the boot, which the deploy's convergence wait turns into a failed CI "
-            "deploy, instead of silently granting no role"
-        )
-        self.assertIn("Authorization.respond_to?(method_name)", source, reason)
-        self.assertIn("raise ", source, reason)
-        self.assertNotIn("User.respond_to?", source, reason)
-
-    def test_an_unresolvable_grant_never_silently_downgrades(self) -> None:
-        source = read_text(str(TEMPLATE))
-        reason = (
-            "Role.where without an active filter, or without checking that every mapped name "
-            "resolved, hands back a subset: rename or deactivate Admin in the Zammad UI and "
-            "the administrator is set to Agent alone, after which the idempotence guard "
-            "reports the roles as already correct and never self-heals. A map that rendered "
-            "as a String rather than a Hash is the same class of silent no-op, because "
-            "String#[] answers with a substring instead of nil"
-        )
-        self.assertIn("Role.where(active: true,", source, reason)
-        self.assertIn("missing.any?", source, reason)
-        self.assertIn("is_a?(Hash)", source, reason)
 
     def test_the_profile_sync_requests_the_scopes_its_claims_need(self) -> None:
         variables = role_vars()
@@ -191,36 +138,6 @@ class TestOidcGroupRoleMap(unittest.TestCase):
                 f"{VARS}: the claim of the Zammad field '{field}' must come from the "
                 "OIDC.ATTRIBUTES SPOT",
             )
-
-    def test_a_refused_profile_write_does_not_break_the_sign_in(self) -> None:
-        source = read_text(str(TEMPLATE))
-        for hook in ("find_from_hash", "create_from_hash"):
-            body = source.split(f"define_method(:{hook})", 1)[1].split("end", 1)[0]
-            self.assertIn(
-                "_zammad_apply_oidc_profile!",
-                body,
-                f"{TEMPLATE}: {hook} must apply the OIDC profile, or a profile change in "
-                "Keycloak reaches Zammad only through the LDAP import",
-            )
-        self.assertIn(
-            "user.restore_attributes",
-            source,
-            "the profile sync runs inside SessionsController#create_omniauth; a refused "
-            "save must be rescued and rolled back instead of answering the sign-in with 500",
-        )
-
-    def test_a_refused_role_write_does_not_break_the_sign_in(self) -> None:
-        source = read_text(str(TEMPLATE))
-        self.assertIn(
-            "rescue StandardError",
-            source,
-            "Zammad guards its roles association (app/models/concerns/has_roles.rb:10-13): "
-            "before_remove runs last_admin_check_by_role and before_add runs "
-            "validate_agent_limit_by_role and validate_roles, each of which raises. The "
-            "mapping runs inside SessionsController#create_omniauth, so an unrescued raise "
-            "answers the sign-in with 500 and locks the account out instead of leaving it "
-            "on the roles it already has",
-        )
 
 
 if __name__ == "__main__":

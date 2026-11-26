@@ -1401,9 +1401,20 @@ class TestSsoSessionLifespan(unittest.TestCase):
 
     def test_an_existing_realm_converges_to_them(self) -> None:
         desired = ROLE_VARS["KEYCLOAK_SETTINGS_SPEC"]["realms"][0]["desired"]
-        for field, _ in SSO_SESSION_FIELDS.values():
+        env = Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
+        )
+        for field, shipped in SSO_SESSION_FIELDS.values():
             with self.subTest(field=field):
-                self.assertIn(f"KEYCLOAK_DICTIONARY_REALM.{field}", desired[field])
+                realm = otp_realm()
+                realm[field] = shipped + 60
+                self.assertEqual(
+                    str(shipped + 60),
+                    env.from_string(desired[field]).render(
+                        KEYCLOAK_DICTIONARY_REALM=realm
+                    ),
+                )
 
 
 class TestAdminEvents(unittest.TestCase):

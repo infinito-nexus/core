@@ -39,14 +39,14 @@ def _body(prefix: str) -> list[str]:
 
 
 class TestGiteaAccountLinkingPatch(unittest.TestCase):
-    def test_the_patch_targets_only_the_account_linking_code(self):
+    def test_the_patch_targets_only_the_account_linking_code(self):  # nocheck: test.text-presence -- parses the unified diff file headers  # fmt: skip
         headers = [line for line in _diff_lines() if line.startswith(("--- ", "+++ "))]
         self.assertEqual(
             headers,
             ["--- a/routers/web/auth/auth.go", "+++ b/routers/web/auth/auth.go"],
         )
 
-    def test_the_primary_email_lookup_is_removed(self):
+    def test_the_primary_email_lookup_is_removed(self):  # nocheck: test.text-presence -- asserts on the parsed removed and added sides of the diff  # fmt: skip
         reason = (
             "createUserInContext links an OAuth2 sign-in to the account holding its "
             "primary email when no account has its name (gitea v28.2.0 "
@@ -59,13 +59,13 @@ class TestGiteaAccountLinkingPatch(unittest.TestCase):
         )
         self.assertFalse(any("Email(ctx" in line for line in _body("+")), reason)
 
-    def test_an_email_only_collision_is_refused_on_the_sign_in_page(self):
+    def test_an_email_only_collision_is_refused_on_the_sign_in_page(self):  # nocheck: test.text-presence -- asserts on the parsed added side of the diff  # fmt: skip
         added = "\n".join(_body("+"))
         self.assertIn('ctx.Flash.Error(ctx.Tr("form.email_been_used"))', added)
         self.assertIn('ctx.Redirect(setting.AppSubURL + "/user/login")', added)
         self.assertIn("return false", added)
 
-    def test_every_hunk_header_counts_its_lines(self):
+    def test_every_hunk_header_counts_its_lines(self):  # nocheck: test.text-presence -- recounts each parsed hunk against its header  # fmt: skip
         lines = _diff_lines()
         starts = [i for i, line in enumerate(lines) if HUNK.match(line)]
         self.assertTrue(starts)

@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import shlex
 import unittest
+
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
@@ -11,6 +14,37 @@ ADDON = ROLE / "meta/addons/peertube-plugin-auth-openid-connect.yml"
 VARS = ROLE / ROLE_FILE_VARS_MAIN
 SETTINGS = ROLE / "vars/oidc-settings.yml"
 ENABLE = ROLE / "tasks/oidc/enable.yml"
+PLUGIN = "peertube-plugin-auth-openid-connect"
+PINNED = "2.1.1"
+
+
+def environment() -> Environment:
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    env.filters["quote"] = shlex.quote
+    return env
+
+
+def render(command: str) -> str:
+    """
+    Args:
+        command: a shell command of the enable tasks.
+
+    Returns:
+        The command rendered for the pinned plugin in container ``peertube``.
+    """
+    return (
+        environment()
+        .from_string(command)
+        .render(
+            PEERTUBE_LOCAL_CID="peertube",
+            PEERTUBE_OIDC_PLUGIN=PLUGIN,
+            PEERTUBE_OIDC_PLUGIN_VERSION=PINNED,
+            PEERTUBE_OIDC_PLUGIN_INSTALL_MAX_OLD_SPACE_MB=1024,
+        )
+    )
 
 
 def enable_tasks() -> list[dict]:
@@ -52,24 +86,38 @@ class TestPeertubeOidcAccountLinking(unittest.TestCase):
             "a presence-only check keeps an old unpinned install forever, so the pin "
             "would never reach a running PeerTube"
         )
-        check = task_named("🔎 Read the installed OIDC plugin version")
-        self.assertIn("package.json').version", check["shell"], reason)
-        block = task_named("📦 Install auth-openid-connect plugin")
-        self.assertIn(
-            "(peertube_oidc_plugin_check.stdout | trim) != PEERTUBE_OIDC_PLUGIN_VERSION",
-            block["when"],
+        check = shlex.split(
+            render(task_named("🔎 Read the installed OIDC plugin version")["shell"]),
+            comments=True,
+        )
+        self.assertEqual(
+            check[-1],
+            f"require('/data/plugins/node_modules/{PLUGIN}/package.json').version",
             reason,
         )
+        block = task_named("📦 Install auth-openid-connect plugin")
+        when = environment().compile_expression(block["when"])
+        for check_result, installs in (
+            ({"rc": 0, "stdout": f"{PINNED}\n"}, False),
+            ({"rc": 0, "stdout": "2.1.0\n"}, True),
+            ({"rc": 1, "stdout": ""}, True),
+        ):
+            with self.subTest(check=check_result):
+                self.assertIs(
+                    installs,
+                    when(
+                        peertube_oidc_plugin_check=check_result,
+                        PEERTUBE_OIDC_PLUGIN_VERSION=PINNED,
+                    ),
+                    reason,
+                )
         install = next(
             task
             for task in block["block"]
             if "plugin:install" in str(task.get("ansible.builtin.shell"))
         )
-        self.assertIn(
-            "--plugin-version {{ PEERTUBE_OIDC_PLUGIN_VERSION | quote }}",
-            install["ansible.builtin.shell"],
-            reason,
-        )
+        argv = shlex.split(render(install["ansible.builtin.shell"]))
+        self.assertEqual(argv[argv.index("--plugin-version") + 1], PINNED, reason)
 
 
 if __name__ == "__main__":

@@ -139,7 +139,7 @@ def export_findings(identities):
 
 
 class TestS3Identities(unittest.TestCase):
-    def test_the_planted_admin_block_matches_the_template(self):
+    def test_the_planted_admin_block_matches_the_template(self):  # nocheck: test.text-presence -- non-vacuity guard: a negative control below removes this exact block before rendering  # fmt: skip
         self.assertIn(ADMIN_BLOCK, read_text(str(TEMPLATES / TEMPLATE)))
 
     def test_a_workspace_identity_holds_three_actions_on_its_bucket(self):

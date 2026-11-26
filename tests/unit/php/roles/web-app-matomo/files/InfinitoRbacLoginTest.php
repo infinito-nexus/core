@@ -254,15 +254,16 @@ final class InfinitoRbacLoginTest extends TestCase
             \MatomoStub::$superUser = \MatomoStub::storedSuperUser(\Piwik\Piwik::getCurrentUserLogin());
             require (string) getenv('PLUGIN');
             $plugin = new \Piwik\Plugins\InfinitoRbacLogin\InfinitoRbacLogin();
+            $handlers = $plugin->registerEvents();
             try {
                 foreach (json_decode((string) getenv('STUB_EVENTS'), true) as $event) {
                     if ($event['name'] === 'Platform.initialized') {
                         $_GET = [];
-                        $plugin->applyRoleGroups();
+                        $plugin->{$handlers['Platform.initialized']}();
                     } elseif ($event['name'] === 'Login.authenticate.successful') {
                         $_GET = $event['get'];
                         $_SESSION['user.name'] = $event['login'];
-                        $plugin->recordSignIn($event['login']);
+                        $plugin->{$handlers['Login.authenticate.successful']}($event['login']);
                     } else {
                         $_SESSION['loginoidc_idtoken'] = $event['id_token'];
                         $_SESSION['loginoidc_auth'] = true;
@@ -512,12 +513,33 @@ final class InfinitoRbacLoginTest extends TestCase
         $installation = self::installation(['carol' => ['superuser_access' => 0]], [], [1, 2], self::section([]));
         [, , , $session] = $this->request(self::callbackEvents('carol', self::groupsToken([self::SUPERUSER_GROUP])), [], $installation);
 
-        [$output, $code, $after] = $this->request(
+        [$output, $code, $after, $sessionAfter] = $this->request(
             [['name' => 'Login.authenticate.successful', 'login' => 'carol', 'get' => self::PASSWORD_LOGIN], ['name' => 'Platform.initialized']],
             $session,
             $installation
         );
 
+        $this->assertSame('carol', $session['infinito_rbac_login.login']);
+        $this->assertSame(0, $code, $output);
+        $this->assertSame($installation, $after);
+        $this->assertArrayNotHasKey('infinito_rbac_login.login', $sessionAfter);
+    }
+
+    public function testARebelOidcSignInOutsideItsCallbackBindsNothing(): void
+    {
+        $installation = self::installation(['carol' => ['superuser_access' => 0]], [], [1, 2], self::section([]));
+        [, , , $session] = $this->request(
+            [
+                ['name' => 'Login.authenticate.successful', 'login' => 'carol', 'get' => ['module' => 'RebelOIDC', 'action' => 'signin']],
+                ['name' => 'RebelOIDC.markSessionAsSignedIn', 'id_token' => self::groupsToken([self::SUPERUSER_GROUP])],
+            ],
+            [],
+            $installation
+        );
+
+        [$output, $code, $after] = $this->request([['name' => 'Platform.initialized']], $session, $installation);
+
+        $this->assertArrayNotHasKey('infinito_rbac_login.login', $session);
         $this->assertSame(0, $code, $output);
         $this->assertSame($installation, $after);
     }

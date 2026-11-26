@@ -236,7 +236,7 @@ class TestVariableDefinitions(unittest.TestCase):
         with contextlib.suppress(re.error):
             self.dynamic_defined_patterns.append(re.compile("^" + regex + "$"))
 
-    def test_all_used_vars_are_defined(self):
+    def test_all_used_vars_are_defined(self):  # nocheck: test.text-presence -- repository-wide lint that every used variable is defined  # fmt: skip
         """
         Scan all template/YAML files for {{ var }} usage and fail if a variable
         is not known as defined and has no fallback keys (default_<var>/defaults_<var>).

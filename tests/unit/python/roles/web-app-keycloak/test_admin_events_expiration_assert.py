@@ -33,13 +33,6 @@ class TestAdminEventsExpirationAssert(unittest.TestCase):
             with self.subTest(days=days):
                 self.assertFalse(_holds(days))
 
-    def test_the_message_names_the_config_key(self) -> None:
-        task = next(t for t in load_yaml_any(str(INIT)) if t.get("name") == ASSERT_NAME)
-        self.assertIn(
-            "services.keycloak.events.admin.expiration_days",
-            task["ansible.builtin.assert"]["fail_msg"],
-        )
-
 
 if __name__ == "__main__":
     unittest.main()

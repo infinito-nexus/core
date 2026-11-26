@@ -14,6 +14,7 @@ from plugins.filter.libretranslate_store import (
 from utils import PROJECT_ROOT
 from utils.cache.artefacts import records
 from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml
 from utils.roles.applications.services.registry import (
     load_applications_from_roles_dir,
 )
@@ -403,11 +404,16 @@ class TestLibretranslateSelection(unittest.TestCase):
             )
 
     def test_the_engine_hands_its_selection_its_own_records(self) -> None:
-        source = read_text(
+        variables = load_yaml(
             str(Path(PROJECT_ROOT) / "roles" / _ENGINE / ROLE_FILE_VARS_MAIN)
         )
-        self.assertIn(f"application_id: {ENGINE}\n", source)
-        self.assertIn("lookup('cache_artefacts', application_id)", source)
+        self.assertEqual(variables["application_id"], ENGINE)
+        self.assertTrue(
+            any(
+                "lookup('cache_artefacts', application_id)" in str(value)
+                for value in variables.values()
+            )
+        )
 
 
 class TestDockerRootFreeBytes(unittest.TestCase):

@@ -57,7 +57,7 @@ def check(roles_dir: Path) -> list[str]:
 
 
 class TestL02(unittest.TestCase):
-    def test_real_tree_passes(self):
+    def test_real_tree_passes(self):  # nocheck: test.text-presence -- policy lint over every agent role's files and SOUL.md objective  # fmt: skip
         self.assertEqual(check(ROLES_DIR), [])
 
     def test_red_fixture_fails(self):

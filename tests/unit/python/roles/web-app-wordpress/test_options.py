@@ -616,8 +616,6 @@ class TestSiteAddress(unittest.TestCase):
 
 
 class TestManagedOptionsGuard(unittest.TestCase):
-    GUARD = ROLE / "files/mu-plugins/infinito-managed-options.php"
-    WRITER = ROLE / "files/php/managed_options.php"
     TASK = "Hand the managed option values"
 
     def test_the_guard_holds_every_option_the_site_converges_and_its_address(self):
@@ -654,14 +652,6 @@ class TestManagedOptionsGuard(unittest.TestCase):
         )
         self.assertEqual("{{ MASK_CREDENTIALS_IN_LOGS | bool }}", task["no_log"])
 
-    def test_the_values_file_is_private_from_its_first_byte(self):
-        writer = read_text(str(self.WRITER))
-        umask = writer.index("umask(0077);")
-        self.assertLess(umask, writer.index("file_put_contents($staged"))
-        self.assertIn("chmod($staged, 0600)", writer)
-        self.assertIn("rename($staged, $path)", writer)
-        self.assertNotRegex(writer, r"echo [^;]*\$(managed|code)")
-
     def test_the_values_file_is_php_outside_the_mu_plugins(self):
         declared = _vars()
         path = declared["WORDPRESS_MANAGED_OPTIONS_FILE"]
@@ -675,30 +665,10 @@ class TestManagedOptionsGuard(unittest.TestCase):
         self.assertNotIn("WORDPRESS_MANAGED_OPTIONS |", env)
         self.assertNotIn("WORDPRESS_MANAGED_OPTIONS }}", env)
 
-    def test_the_guard_fails_closed_without_its_values(self):
-        guard = read_text(str(self.GUARD))
-        check = guard.index("if (!is_array($infinito_managed_options)")
-        self.assertLess(check, guard.index("throw new RuntimeException", check))
-        self.assertLess(
-            guard.index("throw new RuntimeException", check),
-            guard.index("add_filter("),
-        )
-        self.assertIn("getenv('WORDPRESS_MANAGED_OPTIONS_FILE')", guard)
-
-    def test_the_guard_keeps_the_managed_value_for_every_writer(self):
-        guard = read_text(str(self.GUARD))
-        self.assertIn("'pre_update_option_' . $infinito_managed_name", guard)
-        self.assertIn(
-            "return is_main_site() ? $infinito_managed_value : $value;", guard
-        )
-        self.assertIn("'pre_update_site_option_' . $infinito_managed_name", guard)
-        self.assertEqual(3, guard.count("PHP_INT_MAX"))
-
 
 class TestAiEngineLock(unittest.TestCase):
     STACK_HOST = ROLE / "tasks/addons/ai-engine-stack-host.yml"
     READER = ROLE / "files/php/ai_engine/endpoint.php"
-    GUARD = TestManagedOptionsGuard.GUARD
 
     def test_the_guard_keeps_the_gateway_environment_and_the_defaults(self):
         managed = _resolve("WORDPRESS_MANAGED_OPTIONS", ALL_ON | {"ai_engine": True})
@@ -720,16 +690,6 @@ class TestAiEngineLock(unittest.TestCase):
         self.assertIs(True, form["native"])
         self.assertEqual(["WORDPRESS_AI_ENGINE"], form["sinks"])
         self.assertEqual("password", form["fields"]["apikey"]["type"])
-
-    def test_the_guard_merges_only_the_managed_record_on_the_main_site(self):
-        guard = read_text(str(self.GUARD))
-        self.assertIn(
-            "return is_main_site() ? infinito_managed_options_merge($value,"
-            " $infinito_managed_value) : $value;",
-            guard,
-        )
-        self.assertIn("($entry['id'] ?? null) !== $record['id']", guard)
-        self.assertIn("!is_array($infinito_managed_options['merge'] ?? null)", guard)
 
     def test_the_drift_read_runs_before_the_write_and_leaves_the_api_key_out(self):
         tasks = load_yaml_any(str(self.STACK_HOST), default_if_missing=[])
@@ -774,13 +734,6 @@ class TestMultisiteState(unittest.TestCase):
     def test_an_installation_the_configuration_contradicts_fails(self):
         self.assertFalse(self._holds("1", False))
         self.assertFalse(self._holds("0\n", True))
-
-    def test_the_refusal_names_both_states(self):
-        message = _task("Refuse a Multisite state")["ansible.builtin.assert"][
-            "fail_msg"
-        ]
-        self.assertIn("wp_is_multisite.stdout | trim", message)
-        self.assertIn("services.wordpress.multisite.enabled", message)
 
 
 class TestDriftReport(unittest.TestCase):

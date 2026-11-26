@@ -106,7 +106,7 @@ def _has_ldap_only_variant(variants: list[dict], auth_keys: list[str]) -> bool:
 
 
 class TestAuthVariantsCoverage(unittest.TestCase):
-    def test_oidc_oauth2_ldap_variants_cover_auth_matrix(self):
+    def test_oidc_oauth2_ldap_variants_cover_auth_matrix(self):  # nocheck: test.text-presence -- repository-wide lint over the parsed services and variants  # fmt: skip
         offenders: list[str] = []
 
         for role_dir in sorted(p for p in ROLES_DIR.iterdir() if p.is_dir()):

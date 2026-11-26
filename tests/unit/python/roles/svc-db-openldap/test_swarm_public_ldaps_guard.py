@@ -117,7 +117,7 @@ class TestTheGuardFailsFastAndSaysWhy(unittest.TestCase):
         )
         self.assertLess(_index(tasks, _is_guard), stream)
 
-    def test_the_message_names_the_switch_and_the_requirement(self):
+    def test_the_message_names_the_switch_and_the_requirement(self):  # nocheck: test.text-presence -- subject is the operator-facing fail_msg of the parsed assert task  # fmt: skip
         message = _guard(_tasks())["ansible.builtin.assert"]["fail_msg"]
         self.assertIn(PUBLIC_SWITCH, message)
         self.assertIn(REQUIREMENT_TITLE, message)

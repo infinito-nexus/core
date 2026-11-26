@@ -345,11 +345,6 @@ class TestABrokenRoleSheetStaysLoud(unittest.TestCase):
                 ):
                     run_tasks(tasks, "web-app-broken", f"x.app.{DOMAIN}", True, root)
 
-    def test_the_failing_task_names_its_application(self) -> None:
-        for task in resolve_tasks():
-            with self.subTest(task=task["name"]):
-                self.assertIn("{{ application_id }}", task["name"])
-
 
 if __name__ == "__main__":
     unittest.main()

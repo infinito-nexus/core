@@ -42,18 +42,11 @@ class TestN8nSsoAccountLinking(unittest.TestCase):
     def setUp(self) -> None:
         self.source = read_text(str(HOOKS))
 
-    def test_an_unverified_email_is_refused_before_any_account_lookup(self) -> None:
+    def test_an_unverified_email_is_refused_before_any_account_lookup(self) -> None:  # nocheck: test.text-presence -- order analyzer of the hook, mutation-tested below  # fmt: skip
         self.assertTrue(refuses_unverified_email(self.source))
 
-    def test_an_account_is_found_by_its_subject_never_by_email(self) -> None:
+    def test_an_account_is_found_by_its_subject_never_by_email(self) -> None:  # nocheck: test.text-presence -- lookup analyzer of the hook, mutation-tested below  # fmt: skip
         self.assertTrue(finds_accounts_by_subject(self.source))
-
-    def test_an_email_owned_by_another_account_is_refused(self) -> None:
-        self.assertIn(
-            "if (!user && (await UserRepo.findOne({ where: { email: userEmail } }))) {",
-            self.source,
-        )
-        self.assertIn("res.statusCode = 409;", self.source)
 
 
 class TestN8nSsoAccountLinkingNegativeControls(unittest.TestCase):

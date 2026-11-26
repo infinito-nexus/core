@@ -9,8 +9,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from utils import PROJECT_ROOT
-from utils.cache.files import read_text
+from tests.utils.make_target import run_target
 from utils.runner.count import (
     COUNT_KEY,
     FLOOR_KEY,
@@ -203,10 +202,9 @@ class TestCli(unittest.TestCase):
         self.assertIn("measure a full deploy", err.getvalue())
 
     def test_the_make_target_runs_the_cli(self) -> None:
-        self.assertIn(
-            'runner-count:\n\t@"$${PYTHON}" -m cli.meta.runner.count\n',
-            read_text(str(PROJECT_ROOT / "Makefile")),
-        )
+        done, calls = run_target("runner-count", (), (), {})
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(calls, ["python -m cli.meta.runner.count"])
 
 
 if __name__ == "__main__":

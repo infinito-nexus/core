@@ -226,14 +226,14 @@ class TestServe(unittest.TestCase):
 
 
 class TestFrontNginx(unittest.TestCase):
-    def test_protected_media_proxies_the_unescaped_capture_verbatim(self):
+    def test_protected_media_proxies_the_unescaped_capture_verbatim(self):  # nocheck: test.text-presence -- routes the URI through the parsed nginx regex locations  # fmt: skip
         body = nginx_location("/_protected/media/http://seaweedfs:8333/funkwhale/a")
 
         self.assertIn("internal;", body)
         self.assertIn("proxy_pass $1;", body)
         self.assertIn("proxy_set_header Host $proxy_host;", body)
 
-    def test_protected_media_drops_the_forwarded_host(self):
+    def test_protected_media_drops_the_forwarded_host(self):  # nocheck: test.text-presence -- routes the URI through the parsed nginx regex locations  # fmt: skip
         body = nginx_location("/_protected/media/http://seaweedfs:8333/funkwhale/a")
 
         self.assertIn('proxy_set_header X-Forwarded-Host "";', body)
@@ -247,7 +247,7 @@ class TestFrontNginx(unittest.TestCase):
         self.assertEqual(rewritten, "/media/attachments/ab/cd/ef/0f6c.png")
         self.assertIn("proxy_pass   http://funkwhale-api;", nginx_location(rewritten))
 
-    def test_every_served_prefix_reaches_the_api(self):
+    def test_every_served_prefix_reaches_the_api(self):  # nocheck: test.text-presence -- routes the URI through the parsed nginx regex locations  # fmt: skip
         for uri in (
             "/media/attachments/a.png",
             "/media/__sized__/a.png",

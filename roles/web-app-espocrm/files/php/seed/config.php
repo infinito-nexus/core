@@ -1,6 +1,4 @@
 <?php
-// nocheck: mirrored-unit-test - requires /var/www/html/bootstrap.php at the top level
-// and drives EspoCRM's own config container; nothing here runs without the install
 /**
  * Generic EspoCRM config seeder.
  *

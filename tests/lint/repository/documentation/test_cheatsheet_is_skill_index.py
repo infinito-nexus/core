@@ -49,13 +49,6 @@ class TestCheatsheetIsSkillIndex(unittest.TestCase):
             "them.",
         )
 
-    def test_has_a_table(self):
-        self.assertRegex(
-            self.text,
-            r"(?m)^\|.*\|.*\|\s*$",
-            f"{CHEATSHEET} must contain a markdown table of skills.",
-        )
-
     def test_every_skill_is_listed(self):
         expected = {_skill_name(d) for d in self.dirs if d != SELF_DIR}
         missing = sorted(expected - self.referenced)

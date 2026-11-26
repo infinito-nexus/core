@@ -59,7 +59,7 @@ def _invoke(flag: str) -> subprocess.CompletedProcess:
 
 
 class TestUnitFlagsAreParsable(unittest.TestCase):
-    def test_the_unit_passes_at_least_the_known_flags(self):
+    def test_the_unit_passes_at_least_the_known_flags(self):  # nocheck: test.text-presence -- non-vacuity guard of the extractor whose flags the next test runs against script.py  # fmt: skip
         found = _flags_the_unit_passes()
 
         self.assertIn("--accept-status", found)

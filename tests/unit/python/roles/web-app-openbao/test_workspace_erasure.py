@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import shlex
 import tempfile
 import unittest
 from pathlib import Path
@@ -68,6 +69,28 @@ def apply_task_shell(register: str) -> str:
 
 def child_task_shell() -> str:
     return apply_task_shell("openbao_workspace_child_policy")
+
+
+def policy_script(shell: str, **facts: Any) -> tuple[str, list[str]]:
+    """
+    Args:
+        shell: the command of a policy task, rendered for workspace ``A``.
+        facts: the loop variables the command reads.
+
+    Returns:
+        The policy name its script sets ``p`` to, and the script's statements.
+    """
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    env.filters["quote"] = shlex.quote
+    rendered = env.from_string(shell).render(
+        OPENBAO_LOCAL_CID="openbao", WORKSPACE=A.removeprefix("ws-"), **facts
+    )
+    statements = [part.strip() for part in shlex.split(rendered)[-1].split(";")]
+    (name,) = [part.removeprefix("p=") for part in statements if part.startswith("p=")]
+    return name, statements
 
 
 def token_role_findings(shell: str) -> list[str]:
@@ -351,22 +374,16 @@ class TestTheDestroyOrder(unittest.TestCase):
         self.assertIn("bao policy delete $p", deleted["ansible.builtin.shell"])
 
     def test_destroy_deletes_the_provision_policy_apply_writes(self) -> None:
-        apply = load_yaml_any(str(ROLE_DIR / "tasks/workspace/apply.yml"))
-        written = next(
-            task
-            for task in apply
-            if task.get("register") == "openbao_workspace_provision_policy"
+        written, _ = policy_script(
+            apply_task_shell("openbao_workspace_provision_policy"), openbao_provider=""
         )
-        self.assertIn(
-            "p=ws-{{ WORKSPACE }}-provision{{", written["ansible.builtin.shell"]
+        deleted, statements = policy_script(
+            task_of(destroy_tasks(), "openbao_workspace_provision_policy_delete")[
+                "ansible.builtin.shell"
+            ]
         )
-        deleted = next(
-            task["ansible.builtin.shell"]
-            for task in destroy_tasks()
-            if task.get("register") == "openbao_workspace_provision_policy_delete"
-        )
-        self.assertIn("p=ws-{{ WORKSPACE }}-provision;", deleted)
-        self.assertIn("bao policy delete $p", deleted)
+        self.assertEqual((written, deleted), (f"{A}-provision", f"{A}-provision"))
+        self.assertIn("bao policy delete $p >/dev/null", statements)
 
     def test_the_key_goes_after_the_provider_roles(self) -> None:
         registers = [task.get("register") for task in destroy_tasks()]

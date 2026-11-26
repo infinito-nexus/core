@@ -243,7 +243,7 @@ class TestAppRoleLoginToleratesRotation(unittest.TestCase):
         )
         self.assertIn("openbao_approle_token", store["args"]["stdin"])
 
-    def test_neither_credential_being_accepted_fails_loudly(self):
+    def test_neither_credential_being_accepted_fails_loudly(self):  # nocheck: test.text-presence -- asserts a fail task in the parsed task list  # fmt: skip
         self.assertTrue(
             any("ansible.builtin.fail" in task for task in self.tasks),
             "a rotated-out instance must fail with a message, not a bare 403",

@@ -9,6 +9,7 @@ that spec must drive ``probeForgedIdentity``, which forges every trusted header.
 
 from __future__ import annotations
 
+import ast
 import re
 import unittest
 
@@ -40,6 +41,20 @@ _REQUIRES_SPEC = re.compile(
     r"""require\(\s*['"]\./test-forged-identity(?:\.js)?['"]\s*\)"""
 )
 _DRIVES_PROBE = re.compile(r"\bprobeForgedIdentity\s*\(")
+_FORGED_NAMES = re.compile(
+    r"\bconst\s+FORGED_IDENTITY_HEADER_NAMES\s*=\s*Object\.freeze\(\s*(\[.*?\])\s*\)",
+    re.DOTALL,
+)
+
+
+def forged_header_names() -> list[str]:
+    """
+    Returns:
+        The header names ``forgedIdentityHeaders`` sets, read from the helper's
+        ``FORGED_IDENTITY_HEADER_NAMES`` array literal.
+    """
+    match = _FORGED_NAMES.search(read_text(str(HELPER)))
+    return ast.literal_eval(match.group(1)) if match else []
 
 
 def unwired_roles() -> list[str]:
@@ -67,7 +82,7 @@ def unwired_roles() -> list[str]:
 
 
 class TestHeaderTrustForgedIdentitySpec(unittest.TestCase):
-    def test_every_header_trust_role_runs_the_probe(self) -> None:
+    def test_every_header_trust_role_runs_the_probe(self) -> None:  # nocheck: test.text-presence -- policy lint over every detected header-trust role  # fmt: skip
         findings = unwired_roles()
         self.assertEqual(
             [],
@@ -85,10 +100,10 @@ class TestHeaderTrustForgedIdentitySpec(unittest.TestCase):
         self.assertEqual([], missed, "inventoried header-trust roles not detected")
 
     def test_the_helper_forges_every_trusted_header(self) -> None:
-        content = read_text(str(HELPER))
+        forged = forged_header_names()
         for header in DETECTED_HEADERS:
             with self.subTest(header=header):
-                self.assertIn(f'"{header}"', content)
+                self.assertIn(header, forged)
 
 
 if __name__ == "__main__":

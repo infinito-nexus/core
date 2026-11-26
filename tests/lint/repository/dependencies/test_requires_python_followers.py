@@ -43,7 +43,7 @@ def _roles_installing_core():
 
 
 class TestRequiresPythonFollowers(unittest.TestCase):
-    def test_every_role_installing_core_follows_requires_python(self) -> None:
+    def test_every_role_installing_core_follows_requires_python(self) -> None:  # nocheck: test.text-presence -- policy lint over every core-installing role, asserts on parsed meta/services.yml  # fmt: skip
         roles = _roles_installing_core()
         self.assertIn("web-app-docs", roles)
         missing = [

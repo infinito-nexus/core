@@ -89,7 +89,7 @@ class TestRobotAdmissionGuard(unittest.TestCase):
             + "\n".join(f"  - {m}" for m in missing),
         )
 
-    def test_the_scan_finds_embodiable_agents(self) -> None:
+    def test_the_scan_finds_embodiable_agents(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the agent flag scan  # fmt: skip
         self.assertTrue(
             _embodiable_roles(),
             f"{_ROBOT_ROLE} declares no web-app agent flag, so the rule would "

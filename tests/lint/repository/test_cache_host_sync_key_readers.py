@@ -21,7 +21,7 @@ READERS = {
 
 
 class TestCacheHostSyncKeyReaders(unittest.TestCase):
-    def test_only_the_host_sync_reads_the_key(self) -> None:
+    def test_only_the_host_sync_reads_the_key(self) -> None:  # nocheck: test.text-presence -- policy lint over every non-ignored file reading the key  # fmt: skip
         readers = set()
         for path in iter_non_ignored_files(exclude_tests=True, exclude_dirs=("docs",)):
             rel = Path(path).relative_to(PROJECT_ROOT).as_posix()

@@ -5,6 +5,9 @@ import importlib.util
 import json
 import unittest
 
+from jinja2 import StrictUndefined
+from jinja2.nativetypes import NativeEnvironment
+
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_SECRETS, ROLE_FILE_META_SERVICES
 
@@ -268,10 +271,19 @@ class TestProxyClientConverge(unittest.TestCase):
         )
 
     def test_the_records_follow_the_deployed_applications(self) -> None:
-        self.assertIn(
-            "kc_proxy_clients(lookup('deployment').groups)",
-            ROLE_VARS["KEYCLOAK_PROXY_CLIENTS"],
-        )
+        environment = NativeEnvironment(undefined=StrictUndefined)
+        environment.filters["kc_proxy_clients"] = kc_proxy_clients()
+        template = environment.from_string(ROLE_VARS["KEYCLOAK_PROXY_CLIENTS"])
+        for groups, expected in (
+            ([APP], [{"application_id": APP, "client_id": CLIENT, "scopes": [SCOPE]}]),
+            (["web-app-keycloak"], []),
+        ):
+            answers = {"applications": applications(), "deployment": {"groups": groups}}
+            with self.subTest(groups=groups):
+                self.assertEqual(
+                    template.render(lookup=lambda name, answers=answers: answers[name]),
+                    expected,
+                )
 
 
 if __name__ == "__main__":

@@ -463,7 +463,7 @@ class TestFirstBootRecord(unittest.TestCase):
         self.assertNotEqual(value, "")
         self.assertRegex(value, SPEC_FORMATS["machine_id"])
 
-    def test_the_hook_measures_the_image_first_and_admits_the_launcher_last(self):
+    def test_the_hook_measures_the_image_first_and_admits_the_launcher_last(self):  # nocheck: test.text-presence -- order analyzer of the hook, mutation-tested below  # fmt: skip
         self.assertEqual(order_findings(FIRST_BOOT), [])
 
     def test_negative_control_a_late_image_measurement_is_caught(self):

@@ -77,7 +77,7 @@ def _read(name: str) -> str | None:
 
 
 class TestSupersededPointers(unittest.TestCase):
-    def test_every_superseded_line_points_at_its_successor(self) -> None:
+    def test_every_superseded_line_points_at_its_successor(self) -> None:  # nocheck: test.text-presence -- policy lint over the superseded table of every requirement  # fmt: skip
         findings = [
             finding
             for path in sorted(REQUIREMENTS.iterdir())

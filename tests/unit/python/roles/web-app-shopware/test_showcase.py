@@ -7,6 +7,7 @@ import unittest
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils import PROJECT_ROOT
 from utils.cache.files import iter_project_files, read_text
@@ -14,8 +15,13 @@ from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_META_VARIANTS, ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles/web-app-shopware"
+PLAYWRIGHT_ENV = ROLE / "templates/playwright.env.j2"
 RUNTIME_GATE = re.compile(r"RUNTIME in \[[^\]]*\]")
 SEED = "Seed the showcase"
+SHOWCASE = {
+    "customerEmail": "design-showcase@shop.example",
+    "products": [{"id": "d0000000000000000000000000000011", "name": "Lamp"}],
+}
 
 
 def _vars() -> dict:
@@ -38,6 +44,31 @@ def _seed_task() -> dict:
         for task in load_yaml_any(str(ROLE / "tasks/05_design.yml"))
         if SEED in task["name"]
     )
+
+
+def _showcase_env(seeded: dict) -> dict[str, str]:
+    """
+    Args:
+        seeded: what ``SHOPWARE_SHOWCASE_SEEDED`` holds.
+
+    Returns:
+        ``{key: value}`` of the ``SHOWCASE_*`` lines of the spec env, rendered.
+    """
+    lines = [
+        line
+        for line in read_text(str(PLAYWRIGHT_ENV)).splitlines()
+        if line.startswith("SHOWCASE_")
+    ]
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    env.filters["dotenv_quote"] = str
+    env.filters["to_json"] = json.dumps
+    rendered = env.from_string("\n".join(lines)).render(
+        SHOPWARE_SHOWCASE=SHOWCASE, SHOPWARE_SHOWCASE_SEEDED=seeded
+    )
+    return dict(line.split("=", 1) for line in rendered.splitlines())
 
 
 def _role_text(*parts: str) -> str:
@@ -106,25 +137,29 @@ class TestShowcaseSeed(unittest.TestCase):
         self.assertNotRegex(command["cmd"], r"(?i)password|secret|lookup\('users'")
 
     def test_the_design_spec_gets_the_seed_through_env_and_no_key(self) -> None:
-        template = read_text(str(ROLE / "templates/playwright.env.j2"))
-        keys = re.findall(r"^(SHOWCASE_\w+)=", template, re.MULTILINE)
+        seeded = {
+            "channelId": "c1",
+            "customerPassword": "derived",
+            "themeConfig": {"sw-color-brand-primary": "#123456"},
+            "themeId": "t1",
+        }
         self.assertEqual(
-            keys,
-            [
-                "SHOWCASE_CHANNEL_ID",
-                "SHOWCASE_CUSTOMER_EMAIL",
-                "SHOWCASE_CUSTOMER_PASSWORD",
-                "SHOWCASE_PRODUCT_ID",
-                "SHOWCASE_PRODUCT_NAME",
-                "SHOWCASE_THEME_CONFIG",
-                "SHOWCASE_THEME_ID",
-            ],
+            _showcase_env(seeded),
+            {
+                "SHOWCASE_CHANNEL_ID": "c1",
+                "SHOWCASE_CUSTOMER_EMAIL": SHOWCASE["customerEmail"],
+                "SHOWCASE_CUSTOMER_PASSWORD": "derived",
+                "SHOWCASE_PRODUCT_ID": SHOWCASE["products"][0]["id"],
+                "SHOWCASE_PRODUCT_NAME": SHOWCASE["products"][0]["name"],
+                "SHOWCASE_THEME_CONFIG": json.dumps(seeded["themeConfig"]),
+                "SHOWCASE_THEME_ID": "t1",
+            },
         )
-        self.assertIn(
-            "SHOWCASE_CUSTOMER_PASSWORD={{ SHOPWARE_SHOWCASE_SEEDED.customerPassword | default('') | dotenv_quote }}",
-            template,
-        )
-        self.assertNotIn("INTEGRATION", template)
+        unseeded = _showcase_env({})
+        self.assertEqual(unseeded["SHOWCASE_CUSTOMER_PASSWORD"], "")
+        self.assertEqual(unseeded["SHOWCASE_THEME_CONFIG"], "{}")
+        keys = re.findall(r"^(\w+)=", read_text(str(PLAYWRIGHT_ENV)), re.MULTILINE)
+        self.assertEqual([key for key in keys if "INTEGRATION" in key], [])
 
     def test_the_seed_output_reaches_the_spec_only_where_it_was_seeded(self) -> None:
         seeded = {"changed": False, "customerPassword": "derived"}
@@ -172,7 +207,7 @@ class TestShowcaseSeed(unittest.TestCase):
                 ):
                     self.assertNotIn(needle, text)
 
-    def test_negative_control_the_integration_scan_sees_the_role_files(self) -> None:
+    def test_negative_control_the_integration_scan_sees_the_role_files(self) -> None:  # nocheck: test.text-presence -- control that the role-wide scan reads the role files  # fmt: skip
         self.assertIn("showcase.php", _role_text("tasks"))
 
 

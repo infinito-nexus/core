@@ -293,7 +293,7 @@ class TestHandlerRegistrationOrder(unittest.TestCase):
             [f"task {notifier + 1} notifies compose without a guarded bootstrap"],
         )
 
-    def test_the_owner_still_holds_every_compose_topic_that_is_notified(self) -> None:
+    def test_the_owner_still_holds_every_compose_topic_that_is_notified(self) -> None:  # nocheck: test.text-presence -- repository-wide lint: every notified compose topic across roles has an owner handler  # fmt: skip
         owner = ""
         for path, content in iter_project_files_with_content(
             extensions=(".yml",), exclude_tests=True

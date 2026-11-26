@@ -66,7 +66,7 @@ def findings(root: Path) -> list[str]:
 
 
 class TestComposeCallsThroughHelper(unittest.TestCase):
-    def test_no_raw_compose_call(self) -> None:
+    def test_no_raw_compose_call(self) -> None:  # nocheck: test.text-presence -- policy lint over every cli, scripts and utils file  # fmt: skip
         self.assertEqual(
             findings(PROJECT_ROOT),
             [],

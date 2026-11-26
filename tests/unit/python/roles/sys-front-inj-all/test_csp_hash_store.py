@@ -159,7 +159,7 @@ class TestCspHashStore(unittest.TestCase):
         ]
         self.assertEqual(declarations, [(DECLARATION, {})])
 
-    def test_no_task_replaces_the_whole_store(self):
+    def test_no_task_replaces_the_whole_store(self):  # nocheck: test.text-presence -- repository-wide lint over every parsed task file that writes the store  # fmt: skip
         foreign = [
             (relative, _expression(value))
             for relative, parent, value in self.assignments

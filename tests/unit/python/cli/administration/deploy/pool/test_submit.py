@@ -2,13 +2,12 @@ from __future__ import annotations
 
 import importlib
 import io
-import re
 import tempfile
 import unittest
 from pathlib import Path
 
+from tests.utils.make_target import run_target
 from utils import PROJECT_ROOT
-from utils.cache.files import read_text
 from utils.runner import jobs
 
 pool = importlib.import_module("cli.administration.deploy.pool.__main__")
@@ -19,6 +18,9 @@ OTHER = "runner-2"
 LOG_LINE = "TASK [web-app-dashboard] ok\n"
 TARGET = "compose-deploy"
 ARGS = ["apps=web-app-dashboard", "mode=reinstall"]
+FLAG = "INFINITO_DEPLOY_VIA_POOL"
+ROUTER = "scripts/tests/deploy/local/deploy/main.sh"
+SUBMIT = f"python -m cli.administration.deploy.pool {TARGET}"
 
 
 class _Pool:
@@ -149,38 +151,35 @@ class TestQueue(_Case):
 
 
 class TestMakeWiring(unittest.TestCase):
-    def setUp(self) -> None:
-        text = read_text(str(PROJECT_ROOT / "Makefile"))
-        self.recipe = text.split(f"\n{TARGET}:", 1)[1].split("\n\n", 1)[0]
-
     def test_the_pool_branch_is_gated_on_the_flag_and_runs_the_submitter(
         self,
     ) -> None:
-        self.assertIn('case "$${INFINITO_DEPLOY_VIA_POOL:-}" in', self.recipe)
-        self.assertIn(
-            'true) exec "$${PYTHON}" -m cli.administration.deploy.pool', self.recipe
+        done, calls = run_target(
+            TARGET,
+            (f"{FLAG}=true", "hold=true", "timeout=5m", ARGS[0]),
+            (ROUTER,),
+            {},
         )
-        self.assertRegex(self.recipe, r"--hold '\$\(or \$\(hold\),false\)'")
-        self.assertIn("--timeout '$(timeout)'", self.recipe)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(calls, [f"{SUBMIT} --hold true --timeout 5m {ARGS[0]}"])
 
     def test_the_job_never_carries_the_flag_or_its_own_options(self) -> None:
-        forwarded = re.search(
-            r"\$\(filter-out ([^,]+),\$\(MAKEOVERRIDES\)\)", self.recipe
-        )
-        self.assertIsNotNone(forwarded)
-        self.assertEqual(
-            set(forwarded.group(1).split()),
-            {"hold=%", "timeout=%", "INFINITO_DEPLOY_VIA_POOL=%"},
-        )
+        done, calls = run_target(TARGET, (ARGS[0],), (ROUTER,), {FLAG: "true"})
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(calls, [f"{SUBMIT} --hold false --timeout '' {ARGS[0]}"])
 
     def test_without_the_flag_the_local_router_still_runs(self) -> None:
-        self.assertIn("bash scripts/tests/deploy/local/deploy/main.sh", self.recipe)
-        self.assertIn('"" | false) ;;', self.recipe)
+        for env in ({}, {FLAG: ""}, {FLAG: "false"}):
+            with self.subTest(env=env):
+                done, calls = run_target(TARGET, (ARGS[0],), (ROUTER,), env)
+                self.assertEqual(done.returncode, 0, done.stderr)
+                self.assertEqual(calls, [ROUTER])
 
     def test_any_other_flag_value_aborts_naming_the_key(self) -> None:
-        arm = self.recipe.split("\t*) ", 1)[1].split(";;", 1)[0]
-        self.assertIn("INFINITO_DEPLOY_VIA_POOL=", arm)
-        self.assertIn("exit 2", arm)
+        done, calls = run_target(TARGET, (ARGS[0],), (ROUTER,), {FLAG: "yes"})
+        self.assertEqual(done.returncode, 2)
+        self.assertIn(f"{FLAG}=yes", done.stderr)
+        self.assertEqual(calls, [])
 
 
 class TestUnusableQueue(unittest.TestCase):

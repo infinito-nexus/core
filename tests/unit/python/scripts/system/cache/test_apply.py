@@ -10,7 +10,11 @@ import time
 import unittest
 from pathlib import Path
 
+from cli.administration.infra.__main__ import FOREIGN_MAP, RUNNER_DOWN
+from tests.utils.workflow_words import step_options
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.yaml import load_yaml
+from utils.env.handlers.infinito.cache.pin import ROOT_KEY as PIN_ROOT_KEY
 from utils.stacks.declaration import load, resolve
 from utils.stacks.makefile import make_calls, makefile_calls
 
@@ -22,6 +26,7 @@ WORKSPACE_BOOTSTRAP = (
     PROJECT_ROOT / "scripts" / "tests" / "workspace" / "base" / "04_bootstrap.sh"
 )
 WORKSPACE_WORKFLOW = PROJECT_ROOT / ".github" / "workflows" / "call-test-workspace.yml"
+WORKSPACE_JOB = "test-workspace"
 WORKSPACE_DECLARE = 'make cache-declare ref="$(git rev-parse HEAD)"'
 CACHE_STACK = "cache"
 SHA = "0123456789abcdef0123456789abcdef01234567"
@@ -52,7 +57,7 @@ INFRA_ARMS = f"""cache-name)
 	esac
 	;;
 cache-port) [[ "$4 $5" == "package http" ]] && echo {NEXUS_PORT} ;;
-running) [[ -z "$STUB_RUNNER_DOWN" ]] || exit 3 ;;
+running) [[ -z "$STUB_RUNNER_DOWN" ]] || exit {RUNNER_DOWN} ;;
 docker)
 	[[ -z "$STUB_RUNNER_DOWN" ]] || exit 1
 	shift 3
@@ -360,7 +365,7 @@ class TestApply(unittest.TestCase):
         foreign = run.caller / MAP
         run.env["STUB_MOUNTED"] = str(foreign)
         run.run()
-        self.assertEqual(run.done.returncode, 4, run.done.stderr)
+        self.assertEqual(run.done.returncode, FOREIGN_MAP, run.done.stderr)
         self.assertIn(f"from {foreign}, outside", run.done.stderr)
         self.assertIn(str(run.pin_root), run.done.stderr)
         self.assertEqual(_read(foreign), "caller map\n")
@@ -772,11 +777,17 @@ class TestWorkspaceBootstrap(unittest.TestCase):
     def test_the_pin_root_is_the_same_path_for_the_container_and_the_daemon(
         self,
     ) -> None:
-        workflow = read_text(str(WORKSPACE_WORKFLOW))
-        self.assertIn("INFINITO_CACHE_PIN_ROOT: /mnt/cache/pin", workflow)
-        self.assertIn("-e INFINITO_CACHE_PIN_ROOT \\", workflow)
-        self.assertIn(
-            '-v "${INFINITO_CACHE_PIN_ROOT}:${INFINITO_CACHE_PIN_ROOT}" \\', workflow
+        env = load_yaml(WORKSPACE_WORKFLOW)["jobs"][WORKSPACE_JOB]["env"]
+        self.assertEqual(env[PIN_ROOT_KEY], "/mnt/cache/pin")
+        handed = {
+            ("-e", PIN_ROOT_KEY),
+            ("-v", f"${{{PIN_ROOT_KEY}}}:${{{PIN_ROOT_KEY}}}"),
+        }
+        self.assertTrue(
+            any(
+                handed <= options
+                for options in step_options(WORKSPACE_WORKFLOW, WORKSPACE_JOB)
+            )
         )
 
 

@@ -265,7 +265,7 @@ class TestNoDeprecatedAnsiblePatterns(unittest.TestCase):
         self.assertTrue(_in_scope(f"{role}/{ROLE_FILE_META_SERVICES}"))
         self.assertTrue(_in_scope(f"{role}/{ROLE_FILE_TASKS_MAIN}"))
 
-    def test_no_deprecated_patterns(self) -> None:
+    def test_no_deprecated_patterns(self) -> None:  # nocheck: test.text-presence -- policy lint over every in-scope Ansible file  # fmt: skip
         offenders: dict[Path, list[str]] = {}
         for abs_path in iter_project_files(extensions=SCAN_SUFFIXES):
             rel = Path(abs_path).relative_to(PROJECT_ROOT).as_posix()

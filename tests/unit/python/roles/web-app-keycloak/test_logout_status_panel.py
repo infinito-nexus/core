@@ -31,13 +31,18 @@ served: collapsed by ``to_one_liner`` and inlined under a CSP hash.
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import subprocess
 import tempfile
 import textwrap
 import unittest
+import urllib.parse
 from pathlib import Path
 
+from jinja2 import Environment, StrictUndefined, select_autoescape
+
+from plugins.filter.network_of import network_suffix
 from plugins.filter.text_filters import to_one_liner
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml
@@ -51,9 +56,8 @@ PANEL = ROLE / "files" / "javascript" / "logout-panel.js"
 ASSEMBLY = ROLE / "templates" / "logout-panel.js.j2"
 CATALOGUE_FILE = ROLE / "files" / "logout_i18n.yml"
 VARS = ROLE / ROLE_FILE_VARS_MAIN
-FRAMED_URL_LOOKUP = "lookup('tls', 'web-svc-logout', 'url.base')"
-PANEL_ORIGIN_LOOKUP = "lookup('tls', 'web-svc-logout', 'url.origin')"
 ORIGIN = "https://logout.example.test"
+LOGOUT_TLS = {"url.base": ORIGIN + "/", "url.origin": ORIGIN}
 EVERYWHERE = "https://dashboard.example.test/#logout-everywhere"
 DOMAINS = ("https://shop.example.test", "https://cloud.example.test")
 
@@ -329,6 +333,50 @@ def _collapsed_panel() -> str:
     return to_one_liner(prelude + "\n" + read_text(str(PANEL)))
 
 
+def _logout_lookup(name: str, *terms: str) -> str:
+    if name == "tls" and terms[0] == "web-svc-logout":
+        return LOGOUT_TLS[terms[1]]
+    if name == "file":
+        return ""
+    raise AssertionError(f"unexpected lookup {name}{terms}")
+
+
+def _render(source: str, **variables) -> str:
+    """
+    Args:
+        source: a Jinja template string of the role.
+        variables: the variables it renders with.
+
+    Returns:
+        The rendered text, every lookup answered by ``_logout_lookup``.
+    """
+    environment = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    environment.filters["to_json"] = json.dumps
+    environment.filters["network_suffix"] = network_suffix
+    environment.filters["abs_role_path_by_application_id"] = lambda _app: str(ROLE)
+    return environment.from_string(source).render(lookup=_logout_lookup, **variables)
+
+
+def _assembled_config() -> dict:
+    """
+    Returns:
+        The ``window.__INFINITO_LOGOUT__`` object logout-panel.js.j2 renders.
+    """
+    rendered = _render(
+        read_text(str(ASSEMBLY)),
+        application_id="web-app-keycloak",
+        KEYCLOAK_LOGOUT_EVERYWHERE_URL=EVERYWHERE,
+        KEYCLOAK_LOGOUT_I18N={},
+    )
+    return {
+        key: json.loads(value)
+        for key, value in re.findall(r"^\s+(\w+): (.+?),?$", rendered, re.MULTILINE)
+    }
+
+
 def _have_node() -> bool:
     return shutil.which("node") is not None
 
@@ -360,25 +408,12 @@ class TestPanelTrustsTheFramedOrigin(unittest.TestCase):
     def test_the_panel_trusts_exactly_the_origin_keycloak_is_told_to_frame(
         self,
     ) -> None:
-        declaration = next(
-            (
-                line
-                for line in read_text(str(VARS)).splitlines()
-                if line.startswith("KEYCLOAK_FRONTCHANNEL_LOGOUT_URL:")
-            ),
-            "",
+        framed = urllib.parse.urlsplit(
+            _render(load_yaml(str(VARS))["KEYCLOAK_FRONTCHANNEL_LOGOUT_URL"])
         )
-        self.assertTrue(
-            declaration, f"KEYCLOAK_FRONTCHANNEL_LOGOUT_URL missing from {VARS}"
-        )
-        self.assertIn(
-            FRAMED_URL_LOOKUP,
-            declaration,
-            "the front-channel logout URL decides which origin ends up framed",
-        )
-        self.assertIn(
-            PANEL_ORIGIN_LOOKUP,
-            read_text(str(ASSEMBLY)),
+        self.assertEqual(
+            _assembled_config()["origin"],
+            f"{framed.scheme}://{framed.netloc}",
             "the panel discards messages from any other origin, so its constant must"
             " be the origin of the same tls resolution that builds the framed URL,"
             " or the panel goes silent",
@@ -387,11 +422,7 @@ class TestPanelTrustsTheFramedOrigin(unittest.TestCase):
 
 class TestPanelAsksTheNetworkRegistry(unittest.TestCase):
     def test_the_tor_suffix_is_rendered_from_the_network_registry(self) -> None:
-        self.assertIn(
-            "tor_suffix: {{ 'tor' | network_suffix | to_json }},",
-            read_text(str(ASSEMBLY)),
-        )
-        self.assertIn("config.tor_suffix", read_text(str(PANEL)))
+        self.assertEqual(_assembled_config()["tor_suffix"], network(TOR).suffix)
 
 
 if __name__ == "__main__":

@@ -138,7 +138,7 @@ def _in_scope(rel: str):
 
 
 class TestNameEmojiAndLength(unittest.TestCase):
-    def test_names_start_with_emoji_and_fit_one_line(self) -> None:
+    def test_names_start_with_emoji_and_fit_one_line(self) -> None:  # nocheck: test.text-presence -- naming convention lint over every parsed task, step and workflow name  # fmt: skip
         offenders: list[str] = []
         for path_str in iter_project_files(extensions=(".yml", ".yaml")):
             rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()

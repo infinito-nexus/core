@@ -15,6 +15,8 @@ import urllib.parse
 import urllib.request
 from contextlib import redirect_stderr, redirect_stdout
 
+from jinja2 import Environment, nodes
+
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.roles.mapping import ROLE_FILE_TEMPL_COMPOSE
@@ -24,6 +26,7 @@ ROLE_DIR = PROJECT_ROOT / "roles/web-svc-seaweedfs"
 PROBE_DIR = ROLE_DIR / "files/test"
 TEST_ENV = ROLE_DIR / "templates/test.env.j2"
 COMPOSE = ROLE_DIR / ROLE_FILE_TEMPL_COMPOSE
+CONTAINER_BASE = "roles/sys-svc-container/templates/base.yml.j2"
 sys.path.insert(0, str(PROBE_DIR))
 
 spec = importlib.util.spec_from_file_location(
@@ -45,6 +48,41 @@ TIMING = {"interval": 0.005, "settle": 0.02, "timeout": 0.3}
 DOWN = "down"
 LOADING = "loading"
 LOADED = "loaded"
+
+
+def update_order_at_container_base(source: str) -> str | None:
+    """
+    Args:
+        source: the text of the role's compose template.
+
+    Returns:
+        The ``service_update_order`` an unconditional ``set`` holds where the
+        container base is included, or None when none is set there.
+    """
+    state: dict = {"order": None, "seen": False}
+
+    def walk(node, branched: bool) -> None:
+        if state["seen"]:
+            return
+        if (
+            not branched
+            and isinstance(node, nodes.Assign)
+            and isinstance(node.target, nodes.Name)
+            and node.target.name == "service_update_order"
+        ):
+            state["order"] = node.node.as_const()
+        if (
+            isinstance(node, nodes.Include)
+            and isinstance(node.template, nodes.Const)
+            and node.template.value == CONTAINER_BASE
+        ):
+            state["seen"] = True
+            return
+        for child in node.iter_child_nodes():
+            walk(child, branched or isinstance(node, (nodes.If, nodes.For)))
+
+    walk(Environment(autoescape=True).parse(source), False)
+    return state["order"] if state["seen"] else None
 
 
 class FakeEngine:
@@ -707,12 +745,10 @@ class TestRoleTemplates(unittest.TestCase):
             self.assertFalse(in_compose_branch(text, text.index(name)), name)
 
     def test_the_engine_is_stopped_before_its_replacement_starts(self) -> None:
-        text = read_text(str(COMPOSE))
-        pin = "{% set service_update_order = 'stop-first' %}"
-        self.assertIn(pin, text, "two engines MUST NOT open one data directory")
-        self.assertLess(
-            text.index(pin),
-            text.index("roles/sys-svc-container/templates/base.yml.j2"),
+        self.assertEqual(
+            update_order_at_container_base(read_text(str(COMPOSE))),
+            "stop-first",
+            "two engines MUST NOT open one data directory",
         )
 
 

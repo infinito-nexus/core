@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import posixpath
 import re
 import unittest
+
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache import ROLES_DIR
 from utils.cache.yaml import load_yaml_any
@@ -34,9 +37,7 @@ DIGEST = re.compile(r"\|\s*hash\('sha256'\)\s*\}\}\s*$")
 CREDENTIAL_READ = re.compile(
     r"secrets\.credentials|lookup\('users'[^)]*\)\.password|vault_password|repository\.key"
 )
-SCRATCH_CHILD = re.compile(
-    r"^\{\{ \[semaphore_deploy_fixture_scratch\.path, '([^']+)'\] \| path_join \}\}$"
-)
+SCRATCH = "/scratch/fixture"
 
 
 def _tasks(node):
@@ -231,9 +232,18 @@ def password_outside_inventory(scope):
         two different children of the scratch directory, so the commit,
         which collects the inventory tree alone, never reaches the file.
     """
-    inventory = SCRATCH_CHILD.match(str(scope.get(INVENTORY_VAR, "")))
-    password = SCRATCH_CHILD.match(str(scope.get(PASSWORD_VAR, "")))
-    return bool(inventory and password and inventory[1] != password[1])
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    env.filters["path_join"] = lambda parts: posixpath.join(*parts)
+    facts = {"semaphore_deploy_fixture_scratch": {"path": SCRATCH}}
+    inventory = env.from_string(str(scope[INVENTORY_VAR])).render(**facts)
+    password = env.from_string(str(scope[PASSWORD_VAR])).render(
+        **facts, **{INVENTORY_VAR: inventory}
+    )
+    children = {posixpath.dirname(inventory), posixpath.dirname(password)}
+    return children == {SCRATCH} and inventory != password
 
 
 class TestFixtureCommit(unittest.TestCase):

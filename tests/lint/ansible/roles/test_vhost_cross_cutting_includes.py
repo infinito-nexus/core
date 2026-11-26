@@ -252,14 +252,14 @@ class TestVhostCrossCuttingIncludes(unittest.TestCase):
             + "\n".join(f"  - {f}" for f in findings),
         )
 
-    def test_the_required_set_is_derived_and_not_empty(self) -> None:
+    def test_the_required_set_is_derived_and_not_empty(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the derived include set  # fmt: skip
         """An empty set would pass every override without checking anything."""
         self.assertTrue(
             required_includes(),
             "no include is common to the shared flavours, so the rule is vacuous",
         )
 
-    def test_the_mcp_policy_is_required(self) -> None:
+    def test_the_mcp_policy_is_required(self) -> None:  # nocheck: test.text-presence -- reach guard of the derived include set  # fmt: skip
         """The concern this rule exists for must actually be in the set."""
         self.assertIn(
             "roles/sys-svc-proxy/templates/mcp/vhost.conf.j2", required_includes()
@@ -302,7 +302,7 @@ class TestVhostCrossCuttingIncludes(unittest.TestCase):
             reached, "no role both overrides its vhost and declares an MCP endpoint"
         )
 
-    def test_location_snippets_are_not_required(self) -> None:
+    def test_location_snippets_are_not_required(self) -> None:  # nocheck: test.text-presence -- asserts on the derived include set, not a file  # fmt: skip
         """Locations are what an override exists to replace."""
         self.assertFalse(
             [inc for inc in required_includes() if inc.startswith(_LOCATION_SNIPPETS)]

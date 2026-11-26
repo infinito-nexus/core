@@ -77,11 +77,11 @@ class TestInfinitoAliases(unittest.TestCase):
         self.aliases = _parse_aliases()
         self.targets = _makefile_targets()
 
-    def test_all_names_start_with_i8(self):
+    def test_all_names_start_with_i8(self):  # nocheck: test.text-presence -- naming convention lint over every parsed alias  # fmt: skip
         bad = [name for name, _, _ in self.aliases if not name.startswith("i8")]
         self.assertFalse(bad, f"aliases not starting with 'i8': {bad}")
 
-    def test_names_sorted_ascending(self):
+    def test_names_sorted_ascending(self):  # nocheck: test.text-presence -- order lint over every parsed alias  # fmt: skip
         names = [name for name, _, _ in self.aliases]
         self.assertEqual(
             names, sorted(names), f"aliases not sorted; expected {sorted(names)}"
@@ -113,7 +113,7 @@ class TestInfinitoAliases(unittest.TestCase):
             invalid, f"aliases invoking non-existent make targets: {invalid}"
         )
 
-    def test_comment_presence_matches_make_usage(self):
+    def test_comment_presence_matches_make_usage(self):  # nocheck: test.text-presence -- convention lint over every parsed alias body and comment  # fmt: skip
         offenders: list[str] = []
         for name, body, comment in self.aliases:
             is_make = bool(_make_targets_in(body))

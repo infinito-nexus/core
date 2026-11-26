@@ -111,7 +111,7 @@ def _proxying_locations() -> list[tuple[str, int, str]]:
 
 
 class TestProxyLocationStrips(unittest.TestCase):
-    def test_at_least_one_fragment_is_checked(self) -> None:
+    def test_at_least_one_fragment_is_checked(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the location scan  # fmt: skip
         """Otherwise the assertion below passes over an empty list."""
         self.assertTrue(
             _proxying_locations(), "no proxying location fragment found to check"
@@ -135,7 +135,7 @@ class TestProxyLocationStrips(unittest.TestCase):
         ]
         self.assertEqual([1, 4, 8], [line for line, _ in _location_blocks(lines)])
 
-    def test_openresty_vhosts_with_a_server_block_are_scanned(self) -> None:
+    def test_openresty_vhosts_with_a_server_block_are_scanned(self) -> None:  # nocheck: test.text-presence -- reach guard of the lint's location scanner  # fmt: skip
         scanned = {rel for rel, _, _ in _proxying_locations()}
         self.assertIn("roles/sys-svc-proxy/templates/location/html.conf.j2", scanned)
         self.assertTrue(
@@ -146,7 +146,7 @@ class TestProxyLocationStrips(unittest.TestCase):
             )
         )
 
-    def test_proxying_locations_include_the_strips(self) -> None:
+    def test_proxying_locations_include_the_strips(self) -> None:  # nocheck: test.text-presence -- policy lint over every proxying location block  # fmt: skip
         findings = [
             f"- {rel}:{line}"
             for rel, line, body in _proxying_locations()
@@ -160,7 +160,7 @@ class TestProxyLocationStrips(unittest.TestCase):
                 + f"\n\nFix: add `{{% include '{_STRIPS}' %}}` inside each location."
             )
 
-    def test_proxying_locations_clear_client_identity(self) -> None:
+    def test_proxying_locations_clear_client_identity(self) -> None:  # nocheck: test.text-presence -- policy lint over every proxying location block  # fmt: skip
         """A health, API or exception path of a header-trust vhost reaches the
         same backend as ``/``, so a forged ``X-Forwarded-User`` sent there
         impersonates any user unless the location clears it."""

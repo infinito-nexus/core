@@ -240,7 +240,7 @@ class TestLdapSourceDefinition(unittest.TestCase):
             values["GITEA_LDAP_AUTH_ARGS"][0], '--name "{{ GITEA_LDAP_SOURCE_NAME }}"'
         )
 
-    def test_the_count_matches_the_in_use_check_of_gitea(self) -> None:
+    def test_the_count_matches_the_in_use_check_of_gitea(self) -> None:  # nocheck: test.text-presence -- asserts SQL that runs only in the app database; no hermetic database runner yet  # fmt: skip
         sql = read_text(str(USERS_SQL))
         self.assertIn("u.login_source = s.id", sql)
         self.assertIn("e.login_source_id = s.id", sql)

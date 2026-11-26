@@ -923,7 +923,7 @@ class TestRenderStages(unittest.TestCase):
                     "redeploy and force-recreates XWiki each time",
                 )
 
-    def test_only_the_role_templates_read_the_switches(self) -> None:
+    def test_only_the_role_templates_read_the_switches(self) -> None:  # nocheck: test.text-presence -- repository-wide lint over every role template  # fmt: skip
         readers = {
             str(path.relative_to(PROJECT_ROOT))
             for path in PROJECT_ROOT.glob("roles/*/templates/**/*.j2")

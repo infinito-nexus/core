@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import importlib.util
+import os
+import subprocess
 import tempfile
 import unittest
 import unittest.mock as mock
@@ -31,6 +33,21 @@ SWARM_VARS = PROJECT_ROOT / "group_vars" / "all" / "18_swarm.yml"
 WORKFLOW = PROJECT_ROOT / ".github" / "workflows" / "call-test-deploy.yml"
 KEYCLOAK = "web-app-keycloak"
 PVE = ei.PROXMOX_HOST
+TOPOLOGY = (
+    "MGR=mgr\nWRK1=wrk1\nWRK2=wrk2\nNFS_SERVER=nfs\nBACKUP_NODE=backup\n"
+    "PROXMOX_NODE=pve\n"
+)
+MANAGER_VARS = "manager: true\n"
+PROVISION_STUB = (
+    "#!/usr/bin/env bash\n"
+    'case "$2" in\n'
+    "utils.tests.swarm.derive_includes) echo web-app-proxmox ;;\n"
+    "cli.administration.inventory.provision)\n"
+    '\tmkdir -p "$3/host_vars"\n'
+    f"\tprintf '{MANAGER_VARS}' >\"$3/host_vars/mgr.yml\"\n"
+    "\t;;\n"
+    "esac\n"
+)
 
 _spec = importlib.util.spec_from_file_location(
     "proxmox_cohosted", PROXMOX_ROLE / "filter_plugins" / "proxmox_cohosted.py"
@@ -260,10 +277,33 @@ class TestProxmoxLab(unittest.TestCase):
         )
 
     def test_the_host_gets_the_host_vars_of_the_manager(self) -> None:
-        self.assertIn(
-            'cp "${INV_DIR}/host_vars/${MGR}.yml" "${INV_DIR}/host_vars/${PROXMOX_NODE:?}.yml"',
-            read_text(PROVISION),
-        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for folder in ("routine", "utils", "bin"):
+                (root / folder).mkdir()
+            script = root / "routine" / PROVISION.name
+            script.symlink_to(PROVISION)
+            (root / "utils" / "_context.sh").write_text(TOPOLOGY, encoding="utf-8")
+            stub = root / "bin" / "python3"
+            stub.write_text(PROVISION_STUB, encoding="utf-8")
+            stub.chmod(0o755)
+            inventory = root / "inv"
+            done = subprocess.run(
+                ["bash", str(script)],
+                env={
+                    "PATH": f"{root / 'bin'}{os.pathsep}{os.environ['PATH']}",
+                    "INFINITO_INVENTORY_DIR": str(inventory),
+                    "INFINITO_INVENTORY_VARS_FILE": "vars.yml",
+                    "INFINITO_GHCR_MIRROR": "false",
+                },
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual(done.returncode, 0, done.stderr)
+            self.assertEqual(
+                read_text(str(inventory / "host_vars" / "pve.yml")), MANAGER_VARS
+            )
 
 
 if __name__ == "__main__":

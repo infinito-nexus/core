@@ -6,6 +6,8 @@ import re
 import unittest
 from pathlib import Path
 
+from jinja2 import Environment, StrictUndefined, select_autoescape
+
 from utils.cache.files import PROJECT_ROOT, iter_project_files, read_text
 from utils.cache.yaml import load_yaml_str
 from utils.roles.mapping import (
@@ -21,7 +23,8 @@ COMPOSE = read_text(str(ROLE_DIR / ROLE_FILE_TEMPL_COMPOSE))
 HOST_PORT = re.compile(
     r"svc-dns-unbound['\"]\s*,\s*['\"][^'\"]*ports\.(?:local|public)"
 )
-RESOLVER = "lookup('config', 'svc-dns-unbound', 'networks.local.dns_resolver')"
+RESOLVER = ("config", "svc-dns-unbound", "networks.local.dns_resolver")
+RESOLVER_ADDRESS = "192.0.2.53"
 
 
 def consumer_files():
@@ -77,8 +80,20 @@ class TestNoHostPort(unittest.TestCase):
         self.assertEqual(SERVICES["unbound"]["ports"]["internal"], {"unbound": 53})
 
     def test_mailu_reaches_the_resolver_on_its_network(self):
-        mailu = read_text(str(ROLES / "web-app-mailu" / ROLE_FILE_VARS_MAIN))
-        self.assertIn(f'MAILU_DNS_RESOLVER: "{{{{ {RESOLVER} }}}}"', mailu)
+        mailu = load_yaml_str(
+            read_text(str(ROLES / "web-app-mailu" / ROLE_FILE_VARS_MAIN))
+        )
+        asked = []
+        rendered = (
+            Environment(
+                undefined=StrictUndefined,
+                autoescape=select_autoescape(default_for_string=False),
+            )
+            .from_string(mailu["MAILU_DNS_RESOLVER"])
+            .render(lookup=lambda *terms: asked.append(terms) or RESOLVER_ADDRESS)
+        )
+        self.assertEqual(rendered, RESOLVER_ADDRESS)
+        self.assertEqual(asked, [RESOLVER])
         self.assertIn(f"roles/web-app-mailu/{ROLE_FILE_VARS_MAIN}", self.consumers)
 
     def test_negative_control_a_declared_local_port_fails(self):
@@ -95,7 +110,7 @@ class TestNoHostPort(unittest.TestCase):
         self.assertNotEqual(planted, COMPOSE)
         self.assertNotEqual(host_port_findings(SERVICES, planted, {}), [])
 
-    def test_negative_control_a_consumer_of_the_host_port_fails(self):
+    def test_negative_control_a_consumer_of_the_host_port_fails(self):  # nocheck: test.text-presence -- negative control of the repository-wide consumer scan  # fmt: skip
         planted = {
             f"roles/x/{ROLE_FILE_VARS_MAIN}": (
                 "X: \"{{ lookup('config', 'svc-dns-unbound', "

@@ -99,7 +99,7 @@ def role_findings(role):
 
 
 class TestSemaphoreRunnerRows(unittest.TestCase):
-    def test_every_runner_row_names_a_project(self):
+    def test_every_runner_row_names_a_project(self):  # nocheck: test.text-presence -- parses every runner SQL statement of the role  # fmt: skip
         self.assertEqual(role_findings(ROLE), [])
         self.assertGreaterEqual(
             len(

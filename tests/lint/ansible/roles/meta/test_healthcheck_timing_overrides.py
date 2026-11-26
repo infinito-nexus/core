@@ -390,7 +390,7 @@ class TestHealthcheckTimingOverrides(unittest.TestCase):
             + "\n".join(f"- {f}" for f in undocumented)
         )
 
-    def test_definitions_outside_the_lookup_spell_the_defaults_out(self) -> None:
+    def test_definitions_outside_the_lookup_spell_the_defaults_out(self) -> None:  # nocheck: test.text-presence -- policy lint over every role healthcheck definition  # fmt: skip
         findings = literal_findings()
         if not findings:
             return

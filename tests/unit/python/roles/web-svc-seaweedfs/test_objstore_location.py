@@ -3,7 +3,13 @@ from __future__ import annotations
 import re
 import unittest
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
+from jinja2 import (
+    Environment,
+    FileSystemLoader,
+    StrictUndefined,
+    nodes,
+    select_autoescape,
+)
 
 from utils.cache.files import PROJECT_ROOT, read_text
 
@@ -54,6 +60,32 @@ def _outer_location(rendered: str) -> str:
     )
     assert match, rendered
     return match.group("body")
+
+
+def branch_depths(source: str, target: str) -> list[int]:
+    """
+    Args:
+        source: the text of a Jinja template.
+        target: a template path the source includes.
+
+    Returns:
+        Per include of ``target``, how many ``if``/``for`` blocks enclose it.
+    """
+    found = []
+
+    def walk(node, depth: int) -> None:
+        if (
+            isinstance(node, nodes.Include)
+            and isinstance(node.template, nodes.Const)
+            and node.template.value == target
+        ):
+            found.append(depth)
+        nested = depth + isinstance(node, (nodes.If, nodes.For))
+        for child in node.iter_child_nodes():
+            walk(child, nested)
+
+    walk(Environment(autoescape=True).parse(source), 0)
+    return found
 
 
 def _limited_methods(body: str) -> set[str]:
@@ -122,18 +154,13 @@ class TestObjstoreSameOriginLocation(unittest.TestCase):
         self.assertNotIn("location", rendered)
 
     def test_every_generic_vhost_includes_the_route_outside_any_branch(self):
-        include = f"{{% include '{TEMPLATE}' %}}"
         for vhost in VHOSTS:
-            text = read_text(str(PROJECT_ROOT / vhost))
+            depths = branch_depths(read_text(str(PROJECT_ROOT / vhost)), TEMPLATE)
             with self.subTest(vhost=vhost):
-                self.assertIn(include, text)
-                before = text.split(include, 1)[0]
-                depth = len(re.findall(r"\{%-?\s*if\b", before)) - len(
-                    re.findall(r"\{%-?\s*endif\b", before)
-                )
+                self.assertNotEqual(depths, [])
                 self.assertEqual(
-                    depth,
-                    0,
+                    set(depths),
+                    {0},
                     "an include inside a branch would skip the route on some vhosts",
                 )
 

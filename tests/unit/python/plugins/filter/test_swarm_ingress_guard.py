@@ -1,6 +1,7 @@
 import ipaddress
-import re
+import shlex
 import unittest
+from itertools import pairwise
 
 from ansible.errors import AnsibleFilterError
 
@@ -14,14 +15,20 @@ from plugins.filter.swarm_ingress_guard import (
     swarm_public_ports,
 )
 from utils import PROJECT_ROOT
-from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_any
 
 READ_TASK = PROJECT_ROOT / "roles/svc-swarm-node/tasks/utils/ingress_guard/read.yml"
 
 
 class TestSwarmIngressSections(unittest.TestCase):
     def test_the_read_task_prints_exactly_the_tags_the_filter_splits(self):
-        tags = set(re.findall(r"--format '(\w+) ", read_text(str(READ_TASK))))
+        (task,) = load_yaml_any(str(READ_TASK))
+        words = shlex.split(task["ansible.builtin.shell"])
+        tags = {
+            value.split()[0]
+            for option, value in pairwise(words)
+            if option == "--format"
+        }
         self.assertEqual(tags, set(swarm_ingress_sections([])))
 
     def test_splits_the_one_read_into_service_and_node_lines(self):

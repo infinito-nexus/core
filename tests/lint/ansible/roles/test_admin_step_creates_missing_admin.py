@@ -62,7 +62,7 @@ def _role_scripts(role: str):
 
 
 class TestAdminStepCreatesMissingAdmin(unittest.TestCase):
-    def test_every_admin_step_keeps_its_create_path(self) -> None:
+    def test_every_admin_step_keeps_its_create_path(self) -> None:  # nocheck: test.text-presence -- asserts PHP, SQL and shell steps that run only inside the app containers  # fmt: skip
         offenders = []
         for role, (step, marker) in sorted(ADMIN_STEPS.items()):
             path = _ROLES_DIR / role / step

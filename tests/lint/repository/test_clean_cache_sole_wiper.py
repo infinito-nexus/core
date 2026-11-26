@@ -61,7 +61,7 @@ def _scanned() -> list[str]:
 
 
 class TestCleanCacheIsTheSoleWiper(unittest.TestCase):
-    def test_only_clean_cache_runs_the_wiper(self) -> None:
+    def test_only_clean_cache_runs_the_wiper(self) -> None:  # nocheck: test.text-presence -- parses the recipe of every Makefile target  # fmt: skip
         targets = _targets(read_text(str(PROJECT_ROOT / "Makefile")))
         self.assertIn(WIPER, targets[TARGET][1])
         runners = sorted(
@@ -69,7 +69,7 @@ class TestCleanCacheIsTheSoleWiper(unittest.TestCase):
         )
         self.assertEqual(runners, [TARGET])
 
-    def test_no_other_target_depends_on_or_calls_clean_cache(self) -> None:
+    def test_no_other_target_depends_on_or_calls_clean_cache(self) -> None:  # nocheck: test.text-presence -- parses the prerequisites and recipe of every Makefile target  # fmt: skip
         targets = _targets(read_text(str(PROJECT_ROOT / "Makefile")))
         callers = sorted(
             name

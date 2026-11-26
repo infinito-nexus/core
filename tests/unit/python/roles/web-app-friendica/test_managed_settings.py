@@ -110,11 +110,31 @@ class TestLogSettings(unittest.TestCase):
 
     def test_the_environment_reads_the_log_settings_only_from_the_sink(self):
         text = read_text(str(ROLE / "templates/env.j2"))
-        for name in ("FRIENDICA_DEBUGGING=", "FRIENDICA_LOGLEVEL="):
-            with self.subTest(name=name):
-                line = next(line for line in text.splitlines() if line.startswith(name))
-                self.assertIn("FRIENDICA_LOG_SETTINGS.", line)
-                self.assertNotIn("lookup(", line)
+        for sink, expected in (
+            (
+                {"debugging": True, "loglevel": 7},
+                {"FRIENDICA_DEBUGGING": "true", "FRIENDICA_LOGLEVEL": "7"},
+            ),
+            (
+                {"debugging": False, "loglevel": 3},
+                {"FRIENDICA_DEBUGGING": "false", "FRIENDICA_LOGLEVEL": "3"},
+            ),
+        ):
+            for name, value in expected.items():
+                with self.subTest(sink=sink, name=name):
+                    line = next(
+                        line
+                        for line in text.splitlines()
+                        if line.startswith(f"{name}=")
+                    )
+                    self.assertEqual(
+                        f"{name}={value}",
+                        _templated(
+                            _trust_as_template(line.removesuffix('{{"\\n"}}')),
+                            {"FRIENDICA_LOG_SETTINGS": sink},
+                            {"debug": self.fail},
+                        ),
+                    )
 
     def test_the_form_is_native_and_names_the_page_fields(self):
         form = _forms()["logs"]

@@ -104,7 +104,7 @@ def _core_entries(content: str) -> list[tuple[str, bool, str]]:
 
 
 class TestForeignCoreEntryGuarded(unittest.TestCase):
-    def test_a_foreign_core_entry_carries_the_owning_role_guard(self) -> None:
+    def test_a_foreign_core_entry_carries_the_owning_role_guard(self) -> None:  # nocheck: test.text-presence -- policy lint over every task file  # fmt: skip
         findings: list[tuple[str, int, str, str]] = []
         for path_str, content in iter_project_files_with_content(
             extensions=(".yml", ".yaml"),

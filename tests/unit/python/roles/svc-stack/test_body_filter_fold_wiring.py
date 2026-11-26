@@ -1,12 +1,15 @@
 from __future__ import annotations
 
-import re
 import unittest
 from pathlib import Path
 
 from ansible.parsing.dataloader import DataLoader
+from ansible.plugins.filter.core import FilterModule as CoreFilters
 from ansible.template import Templar, trust_as_template
+from jinja2 import StrictUndefined
+from jinja2.nativetypes import NativeEnvironment
 
+from plugins.filter.network_of import FilterModule as NetworkFilters
 from utils.cache.files import PROJECT_ROOT, iter_project_files_with_content, read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import (
@@ -28,6 +31,7 @@ LUA_SCOPE = (
     "'domain': front_proxy_domain}"
 )
 INCLUDE_KEYS = ("include_role", "ansible.builtin.include_role", "import_role")
+ONION = "a" * 56 + ".onion"
 
 
 def _tasks(path):
@@ -158,10 +162,24 @@ class TestTheVhostWriteCarriesTheLua(unittest.TestCase):
 
     def test_the_probe_queue_tags_each_vhost_with_its_phase(self):
         queue = _named(self.tasks, "🧊 Queue the probe")
-        self.assertIn(
-            "front_proxy_probe | combine({'phase': stack_front_phase})",
-            _flat(queue["ansible.builtin.set_fact"]["front_proxy_deferred_probes"]),
-        )
+        expression = queue["ansible.builtin.set_fact"]["front_proxy_deferred_probes"]
+        queued = {"a.example.org": {"url": "https://a.example.org/"}}
+        probe = {"url": "https://x.example.org/"}
+        env = NativeEnvironment(undefined=StrictUndefined)
+        env.filters.update(CoreFilters().filters())
+        env.filters.update(NetworkFilters().filters())
+        tagged = {**queued, "x.example.org": {**probe, "phase": "entered"}}
+        for domain, expected in (("x.example.org", tagged), (ONION, queued)):
+            with self.subTest(domain=domain):
+                self.assertEqual(
+                    env.from_string(expression).render(
+                        front_proxy_deferred_probes=queued,
+                        front_proxy_domain=domain,
+                        front_proxy_probe=probe,
+                        stack_front_phase="entered",
+                    ),
+                    expected,
+                )
 
     def test_the_batch_records_the_vhost_instead_of_settling_it(self):
         record = _named(self.tasks, "🗂️ Record")
@@ -205,10 +223,11 @@ class TestALuaOnlyChangeSkipsTheVhostRecheck(unittest.TestCase):
         self.assertFalse(self._vhost_changed(False, []))
 
     def test_the_handler_both_writers_notify_exists(self):
-        handlers = read_text(str(ROLES / "svc-prx-openresty" / ROLE_FILE_HANDLERS_MAIN))
-        self.assertRegex(
-            handlers, re.compile(r"^\s*listen: reload-openresty$", re.MULTILINE)
-        )
+        topics = set()
+        for handler in _tasks(ROLES / "svc-prx-openresty" / ROLE_FILE_HANDLERS_MAIN):
+            listen = handler.get("listen") or []
+            topics.update([listen] if isinstance(listen, str) else listen)
+        self.assertIn("reload-openresty", topics)
 
 
 if __name__ == "__main__":

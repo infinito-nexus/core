@@ -4,6 +4,7 @@ import unittest
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
+from plugins.filter.dotenv import dotenv_quote, dotenv_unquote
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any, load_yaml_str
@@ -47,6 +48,22 @@ def _env_template_line(key: str) -> str:
     return match.group(1)
 
 
+def _env_value(key: str) -> str:
+    """
+    Args:
+        key: a variable playwright.env.j2 sets.
+
+    Returns:
+        Its rendered value as the spec reads it back from the env file.
+    """
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    env.filters["dotenv_quote"] = dotenv_quote
+    return dotenv_unquote(env.from_string(_env_template_line(key)).render(**ROLE_VARS))
+
+
 class TestAlertingProvisioning(unittest.TestCase):
     def test_the_policy_routes_to_the_alertmanager_contact_point(self) -> None:
         rendered = _render(prometheus=True, loki=True)
@@ -84,15 +101,17 @@ class TestAlertingProvisioning(unittest.TestCase):
 
 class TestAlertingSpecEnvironment(unittest.TestCase):
     def test_the_spec_reads_the_provisioned_title(self) -> None:
+        rendered = _render(prometheus=True, loki=True)
         self.assertEqual(
-            "{{ GRAFANA_LOG_ALERT_TITLE | dotenv_quote }}",
-            _env_template_line("LOG_ALERT_TITLE"),
+            [rule["title"] for group in rendered["groups"] for rule in group["rules"]],
+            [_env_value("LOG_ALERT_TITLE")],
         )
 
     def test_the_spec_reads_the_provisioned_contact_point(self) -> None:
+        rendered = _render(prometheus=True, loki=True)
         self.assertEqual(
-            "{{ GRAFANA_ALERTMANAGER_RECEIVER | dotenv_quote }}",
-            _env_template_line("LOG_ALERT_RECEIVER"),
+            [point["name"] for point in rendered["contactPoints"]],
+            [_env_value("LOG_ALERT_RECEIVER")],
         )
 
 

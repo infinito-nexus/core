@@ -57,7 +57,7 @@ def _iter_rescue_seqs(node):
 
 
 class TestNoRescueBlocks(unittest.TestCase):
-    def test_rescue_blocks_are_forbidden_without_nocheck(self):
+    def test_rescue_blocks_are_forbidden_without_nocheck(self):  # nocheck: test.text-presence -- parses every task file  # fmt: skip
         offenders: list[str] = []
 
         for abs_path, content in iter_project_files_with_content(

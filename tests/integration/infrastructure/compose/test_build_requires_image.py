@@ -81,7 +81,7 @@ class TestComposeBuildTemplateRequiresImageTag(unittest.TestCase):
                 return i
         return None
 
-    def test_build_lookup_requires_image_or_merge_on_same_level(self):
+    def test_build_lookup_requires_image_or_merge_on_same_level(self):  # nocheck: test.text-presence -- repository-wide lint over every compose template  # fmt: skip
         repo_root = PROJECT_ROOT
         compose_files = self._iter_compose_templates(repo_root)
 

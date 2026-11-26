@@ -221,7 +221,7 @@ class TestConfigureAuthExtraction(unittest.TestCase):
         self.source = read_text(str(SCRIPT))
         self.expressions = _SED.findall(self.source)
 
-    def test_the_script_keeps_exactly_one_authenticate_call_site_per_field(self):
+    def test_the_script_keeps_exactly_one_authenticate_call_site_per_field(self):  # nocheck: test.text-presence -- counts auth call sites; the stubbed-server runs cover their use, not their number  # fmt: skip
         self.assertEqual(self.source.count("Users/AuthenticateByName"), 1)
 
     def test_one_response_yields_both_the_token_and_the_user_id(self):

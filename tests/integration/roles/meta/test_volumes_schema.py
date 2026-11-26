@@ -82,7 +82,7 @@ class TestVolumesSchema(unittest.TestCase):
 
 
 class TestVolumesLookupAttrs(unittest.TestCase):
-    def test_every_volumes_lookup_resolves_to_declared_attr(self):
+    def test_every_volumes_lookup_resolves_to_declared_attr(self):  # nocheck: test.text-presence -- repository-wide lint of lookups against the parsed meta/volumes.yml  # fmt: skip
         files = _collect_volumes_files()
         per_role_schema: dict[str, dict[str, dict]] = {}
         for path in files:

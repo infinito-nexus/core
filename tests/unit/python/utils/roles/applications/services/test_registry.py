@@ -4,8 +4,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from utils.cache.files import PROJECT_ROOT, read_text
-from utils.cache.yaml import dump_yaml_str
+from utils.cache.files import PROJECT_ROOT, iter_project_files
+from utils.cache.yaml import dump_yaml_str, load_yaml_any
 from utils.roles.applications.services.registry import (
     GATED_LOOKUPS,
     GROUP_GATED_CONSTANTS,
@@ -428,10 +428,15 @@ class TestExplicitTruth(unittest.TestCase):
 
     def test_every_registered_constant_is_defined_in_group_vars(self):
         group_vars = PROJECT_ROOT / "group_vars" / "all"
-        defined = "".join(read_text(str(path)) for path in group_vars.glob("*.yml"))
+        defined = {
+            key
+            for path in iter_project_files(extensions=(".yml",))
+            if Path(path).parent == group_vars
+            for key in load_yaml_any(path)
+        }
         for constant in GROUP_GATED_CONSTANTS:
             with self.subTest(constant=constant):
-                self.assertIn(f"{constant}:", defined)
+                self.assertIn(constant, defined)
 
 
 if __name__ == "__main__":

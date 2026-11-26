@@ -8,9 +8,14 @@ The conditions are Jinja; they compile with a plain Jinja environment plus a
 ``bool`` filter shim, since ``bool`` is an Ansible filter.
 """
 
+import os
+import shlex
+import subprocess
+import tempfile
 import unittest
+from pathlib import Path
 
-from jinja2 import Environment
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.yaml import load_yaml_any
 
@@ -58,6 +63,41 @@ def _find(tasks, predicate):
         if predicate(task):
             return task
     return None
+
+
+def _probe(task: dict, config: str | None) -> subprocess.CompletedProcess:
+    """
+    Args:
+        task: the install state probe.
+        config: the content of Matomo's config file, None when it is missing.
+
+    Returns:
+        The finished probe, its ``container exec`` run locally by a stub.
+    """
+    environment = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    environment.filters["quote"] = shlex.quote
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        stub = root / "container"
+        stub.write_text('#!/bin/sh\nshift 2\nexec "$@"\n')
+        stub.chmod(0o755)
+        path = root / "config.ini.php"
+        if config is not None:
+            path.write_text(config)
+        command = environment.from_string(task["ansible.builtin.shell"]).render(
+            MATOMO_LOCAL_CID="matomo", MATOMO_CONFIG=str(path)
+        )
+        return subprocess.run(
+            ["sh", "-c", command],
+            env={"PATH": f"{root}{os.pathsep}{os.environ['PATH']}"},
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=30,
+        )
 
 
 def _reset_include(flavor):
@@ -163,9 +203,16 @@ class TestInstallStateProbe(unittest.TestCase):
         self.assertEqual(self.probe["register"], "matomo_install_state")
 
     def test_the_probe_reports_a_marker_rather_than_an_exit_code(self):
-        command = self.probe["ansible.builtin.shell"]
-        self.assertIn("echo installed", command)
-        self.assertIn("echo fresh", command)
+        for config, marker in (
+            (None, "fresh"),
+            ("[General]\n", "fresh"),
+            ("[database]\nhost = db\n", "installed"),
+        ):
+            with self.subTest(config=config):
+                done = _probe(self.probe, config)
+                self.assertEqual(
+                    (done.returncode, done.stdout.strip()), (0, marker), done.stderr
+                )
 
 
 class TestResetStateSafety(unittest.TestCase):
@@ -176,7 +223,7 @@ class TestResetStateSafety(unittest.TestCase):
         for task in self.tasks:
             self.assertNotIn("when", task)
 
-    def test_the_drop_lives_in_the_shared_reset_only(self):
+    def test_the_drop_lives_in_the_shared_reset_only(self):  # nocheck: test.text-presence -- placement lint over the parsed reset and attempt tasks  # fmt: skip
         self.assertTrue(any("reset_database.php" in str(t) for t in self.tasks))
         for flavor, path in ATTEMPT_FILES.items():
             with self.subTest(flavor=flavor):

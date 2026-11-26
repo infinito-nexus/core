@@ -1,5 +1,4 @@
 <?php
-// nocheck: mirrored-unit-test - registers filters at load that answer the option and settings hooks AI Engine fires
 /**
  * Plugin Name: Infinito.Nexus AI Engine Network Guard
  * Description: Keeps the AI Engine settings to the network administrators and

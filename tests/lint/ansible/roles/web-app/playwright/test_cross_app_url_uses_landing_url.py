@@ -56,7 +56,7 @@ def find_violations(path: str, content: str) -> list[str]:
 
 
 class TestCrossAppUrlUsesLandingUrl(unittest.TestCase):
-    def test_another_application_is_reached_through_landing_url(self) -> None:
+    def test_another_application_is_reached_through_landing_url(self) -> None:  # nocheck: test.text-presence -- policy lint over every Playwright env template  # fmt: skip
         violations: list[str] = []
         for path_str, content in iter_project_files_with_content(extensions=(".j2",)):
             rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()

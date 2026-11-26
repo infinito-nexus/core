@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import unittest
 
+from ansible.plugins.filter.core import FilterModule as CoreFilters
+from jinja2 import Environment, StrictUndefined, select_autoescape
+
 from tests.lint.ansible.services.test_litellm_consumer_contract import (
     _reaches_the_back_unit,
 )
@@ -20,6 +23,16 @@ INSTANCE_DIR = (
     "[lookup('container', application_id, 'directories.instance'), 'mcp'] | path_join"
 )
 CREDENTIAL_FILE = "upstream.env"
+CONSUMER = "web-app-consumer"
+INSTANCE_ROOT = "/srv/instances/web-app-consumer"
+ADAPTER = {
+    "mcp": {
+        "implementation": "adapter",
+        "endpoint": {"service_key": "api"},
+        "adapter": {"upstream_credential": True},
+    },
+    "services": {"api": {"enabled": True}},
+}
 
 
 def _include(task: dict) -> str:
@@ -30,6 +43,53 @@ def _staging() -> dict:
     return next(
         task for task in load_yaml_any(str(BACKEND)) if INSTANCE in _include(task)
     )
+
+
+def _evaluate(expression: str, config: dict):
+    """
+    Args:
+        expression: a ``when`` clause or a templated task var of the staging.
+        config: the consumer's configuration the ``config`` lookup reads.
+
+    Returns:
+        The native value the expression yields.
+    """
+
+    def lookup(name, *terms):
+        if name == "container":
+            return INSTANCE_ROOT
+        if name != "config" or terms[0] != CONSUMER:
+            raise AssertionError(f"unexpected lookup {name!r} {terms!r}")
+        _, path, *default = terms
+        node = config
+        for part in path.split("."):
+            if not isinstance(node, dict) or part not in node:
+                if default:
+                    return default[0]
+                raise KeyError(path)
+            node = node[part]
+        return node
+
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    env.filters.update(CoreFilters().filters())
+    inner = expression.strip().removeprefix("{{").removesuffix("}}")
+    return env.compile_expression(inner)(
+        lookup=lookup, stack_consumer_id=CONSUMER, application_id=CONSUMER
+    )
+
+
+def _staged(config: dict) -> bool:
+    """
+    Args:
+        config: the consumer's configuration the ``config`` lookup reads.
+
+    Returns:
+        Whether every ``when`` clause of the staging task holds.
+    """
+    return all(bool(_evaluate(clause, config)) for clause in _staging()["when"])
 
 
 def _adapter_roles() -> dict[str, dict]:
@@ -50,20 +110,34 @@ class TestBackendMcpAdapter(unittest.TestCase):
         )
         self.assertLess(staging, compose)
 
-    def test_the_staging_is_keyed_by_the_mcp_meta(self) -> None:
-        task = _staging()
-        when = " ".join(task["when"])
-        self.assertIn("'mcp.implementation'", when)
-        self.assertIn("'adapter'", when)
-        self.assertIn("'mcp.endpoint.service_key'", when)
-        self.assertNotIn("default(", when)
-        self.assertIn(INSTANCE_DIR, task["vars"]["mcp_adapter_instance_dir"])
-        self.assertIn(
-            "'mcp.adapter.upstream_credential'",
-            task["vars"]["mcp_adapter_upstream_key"],
+    def test_the_staging_runs_for_an_enabled_adapter_consumer(self) -> None:
+        self.assertTrue(_staged(ADAPTER))
+
+    def test_the_staging_skips_a_native_or_disabled_consumer(self) -> None:
+        native = {**ADAPTER, "mcp": {**ADAPTER["mcp"], "implementation": "native"}}
+        disabled = {**ADAPTER, "services": {"api": {"enabled": False}}}
+        for name, config in (("native", native), ("disabled", disabled)):
+            with self.subTest(consumer=name):
+                self.assertFalse(_staged(config))
+
+    def test_an_adapter_without_an_endpoint_service_fails_loudly(self) -> None:
+        unnamed = {**ADAPTER, "mcp": {"implementation": "adapter"}}
+        with self.assertRaises(KeyError):
+            _staged(unnamed)
+
+    def test_the_staging_builds_in_the_consumer_instance_dir(self) -> None:
+        self.assertEqual(
+            _evaluate(_staging()["vars"]["mcp_adapter_instance_dir"], ADAPTER),
+            f"{INSTANCE_ROOT}/mcp",
         )
 
-    def test_every_adapter_role_builds_from_the_staged_dir(self) -> None:
+    def test_the_upstream_key_follows_the_adapter_meta(self) -> None:
+        upstream_key = _staging()["vars"]["mcp_adapter_upstream_key"]
+        self.assertIs(_evaluate(upstream_key, ADAPTER), True)
+        keyless = {**ADAPTER, "mcp": {**ADAPTER["mcp"], "adapter": {}}}
+        self.assertIs(_evaluate(upstream_key, keyless), False)
+
+    def test_every_adapter_role_builds_from_the_staged_dir(self) -> None:  # nocheck: test.text-presence -- policy lint over every role whose meta/mcp.yml declares an adapter  # fmt: skip
         for role in _adapter_roles():
             with self.subTest(role=role):
                 vars_main = read_text(

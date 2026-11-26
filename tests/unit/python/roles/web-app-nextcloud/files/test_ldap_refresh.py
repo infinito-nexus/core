@@ -6,9 +6,12 @@ import subprocess
 import tempfile
 import types
 import unittest
+import unittest.mock as mock
 from pathlib import Path
 
 from ansible.parsing.dataloader import DataLoader
+from ansible.plugins.loader import lookup_loader
+from ansible.plugins.lookup import LookupBase
 from ansible.template import Templar, trust_as_template
 
 from utils.cache.files import read_text
@@ -72,6 +75,47 @@ def load_module(hook_dir):
     module.__file__ = str(hook_dir / "main.py")
     exec(compile(read_text(str(SCRIPT)), str(SCRIPT), "exec"), module.__dict__)
     return module
+
+
+class _Lookup(LookupBase):
+    def __init__(self, answer):
+        super().__init__()
+        self._answer = answer
+
+    def run(self, terms, variables=None, **kwargs):
+        return [self._answer(*terms)]
+
+
+def render_include(expression, user_directory="false"):
+    """
+    Args:
+        expression: a value of the include's ``vars``.
+        user_directory: what ``addons.user_ldap.config.user_directory.enabled`` answers.
+
+    Returns:
+        The rendered value, with ``PARTS`` as the composed attributes.
+    """
+    answers = {
+        "file": lambda path: read_text(path).rstrip(),
+        "config": lambda *_terms: user_directory,
+    }
+    real_get = lookup_loader.get
+
+    def get(name, *args, **kwargs):
+        if name in answers:
+            return _Lookup(answers[name])
+        return real_get(name, *args, **kwargs)
+
+    templar = Templar(
+        loader=DataLoader(),
+        variables={
+            "application_id": "web-app-nextcloud",
+            "rbac_sync_attributes": PARTS,
+            "role_path": str(PROJECT_ROOT / "roles" / "web-app-nextcloud"),
+        },
+    )
+    with mock.patch.object(lookup_loader, "get", side_effect=get):
+        return templar.template(trust_as_template(expression))
 
 
 class FakeNextcloud:
@@ -427,23 +471,23 @@ class NextcloudLdapRefreshTests(unittest.TestCase):
         self.assertNotIn("RBAC_SYNC_LDAP", source)
 
     def test_the_hook_declares_the_attributes_it_composes(self):
-        include = read_text(str(TASKS))
+        include = load_yaml_any(TASKS)[0]["vars"]
+        env = include["rbac_sync_env"]
+        (module,) = include["rbac_sync_modules"]
 
-        self.assertIn(
-            'NEXTCLOUD_ADDRESS_ATTRIBUTES: "{{ rbac_sync_attributes | to_json }}"',
-            include,
+        self.assertEqual(
+            json.loads(render_include(env["NEXTCLOUD_ADDRESS_ATTRIBUTES"])), PARTS
         )
-        self.assertIn(
-            "- { name: ldap_user_mapping.php, content: \"{{ lookup('file', "
-            "role_path ~ '/files/php/utils/ldap_user_mapping.php') }}\" }",
-            include,
+        self.assertEqual(module["name"], MAPPING.name)
+        self.assertEqual(
+            render_include(module["content"]), read_text(str(MAPPING)).rstrip()
         )
-        self.assertIn(
-            "NEXTCLOUD_LDAP_USER_LISTING: \"{{ 'true' if (lookup('config', "
-            "application_id, 'addons.user_ldap.config.user_directory.enabled') "
-            "| bool) else 'false' }}\"",
-            include,
-        )
+        for enabled in ("true", "false"):
+            with self.subTest(user_directory=enabled):
+                self.assertEqual(
+                    render_include(env["NEXTCLOUD_LDAP_USER_LISTING"], enabled),
+                    enabled,
+                )
 
     def test_user_ldap_locks_the_address_through_the_street(self):
         self.assertEqual(

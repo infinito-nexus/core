@@ -1,5 +1,3 @@
-# nocheck: mirrored-unit-test - runs in the OpenProject console against
-# Storages::NextcloudStorage; the model only exists once OpenProject has booted
 # Param PROVISION_INPUT: defined ahead of this script on the same stdin, with the keys
 # nextcloud_host, nextcloud_base_urls (Nextcloud's base URL on every network it is
 # served on, canonical first), storage_name, nc_op_client_secret, rotate_op_secret,

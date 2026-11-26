@@ -12,11 +12,13 @@ extraction removed: the next fix to the contract would land in one of them.
 from __future__ import annotations
 
 import re
+import shlex
 import unittest
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from utils.cache.files import PROJECT_ROOT, iter_project_files_with_content, read_text
 from utils.cache.yaml import load_yaml
+from utils.docker.image.toolchain import instructions
 from utils.roles.mapping import ROLE_FILE_META_VOLUMES, ROLE_FILE_VARS_MAIN
 
 PACKAGE = "roles/svc-ai-s1/files/python/infinito_decider"
@@ -24,7 +26,7 @@ PACKAGE_DIR = PROJECT_ROOT / PACKAGE
 CONSUMERS = {"svc-ai-litellm": "LITELLM", "web-svc-translate": "TRANSLATE"}
 STAGING_TASKS = "tasks/00_core.yml"
 LITELLM_MOUNT = "/etc/litellm/infinito_decider/{module}"
-TRANSLATE_COPY = "COPY python/infinito_decider /app/infinito_decider"
+TRANSLATE_SOURCE = "python/infinito_decider"
 DEFINITION = re.compile(
     r"^[ \t]*(?:class (?:Sampler|History|Decider)\b|def record_of\b)", re.MULTILINE
 )
@@ -78,6 +80,34 @@ def unmounted_modules(volumes: str, modules: list[str]) -> list[str]:
         for module in modules
         if LITELLM_MOUNT.format(module=module) not in volumes
     ]
+
+
+def workdir_copies(dockerfile: str) -> list[str]:
+    """
+    Args:
+        dockerfile: the Dockerfile's content.
+
+    Returns:
+        The build-context sources a ``COPY`` places directly inside the
+        working directory in effect.
+    """
+    workdir = ""
+    placed: list[str] = []
+    for instruction in instructions(dockerfile):
+        if instruction.keyword == "WORKDIR":
+            workdir = instruction.args.rstrip("/")
+        elif instruction.keyword == "COPY":
+            *sources, target = (
+                word
+                for word in shlex.split(instruction.args)
+                if not word.startswith("--")
+            )
+            placed.extend(
+                source
+                for source in sources
+                if target.rstrip("/") == f"{workdir}/{PurePosixPath(source).name}"
+            )
+    return placed
 
 
 def second_copies(files: list[tuple[str, str]]) -> list[str]:
@@ -136,12 +166,12 @@ class TestDeciderStagedOnce(unittest.TestCase):
         dockerfile = read_text(
             str(PROJECT_ROOT / "roles/web-svc-translate/files/Dockerfile")
         )
-        self.assertIn(TRANSLATE_COPY, dockerfile)
+        self.assertIn(TRANSLATE_SOURCE, workdir_copies(dockerfile))
 
-    def test_no_role_defines_the_mechanism_a_second_time(self) -> None:
+    def test_no_role_defines_the_mechanism_a_second_time(self) -> None:  # nocheck: test.text-presence -- policy lint over every Python source under roles/  # fmt: skip
         self.assertEqual(second_copies(role_sources()), [])
 
-    def test_the_scan_reaches_the_package_itself(self) -> None:
+    def test_the_scan_reaches_the_package_itself(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the role source scan  # fmt: skip
         """Without this the rule would pass on a scan that read nothing."""
         scanned = [path for path, _content in role_sources()]
         self.assertIn(f"{PACKAGE}/history.py", scanned)

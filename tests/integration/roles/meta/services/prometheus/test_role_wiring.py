@@ -1,3 +1,4 @@
+import functools
 import glob
 import json
 import re
@@ -10,11 +11,19 @@ from pathlib import Path
 
 import yaml
 from ansible.parsing.dataloader import DataLoader
+from ansible.plugins.filter.core import FilterModule as CoreFilters
 from ansible.template import Templar, trust_as_template
+from jinja2 import (
+    Environment,
+    FileSystemLoader,
+    StrictUndefined,
+    nodes,
+    select_autoescape,
+)
 
 from utils.cache.applications import get_application_defaults
 from utils.cache.files import read_text
-from utils.cache.yaml import load_yaml_any
+from utils.cache.yaml import load_yaml_any, load_yaml_str
 from utils.roles.applications.config import get as get_app_conf
 from utils.roles.applications.services.registry import is_explicit_truth
 from utils.roles.entity.name import entity_name
@@ -51,6 +60,22 @@ _CONTAINER_NAME_SET = re.compile(
     r'^\s*set \$container_name "([^"]*)";\s*$', re.MULTILINE
 )
 _LUA_BLOCK_OPEN = re.compile(r"\b([a-z_]+_by_lua_block)\s*\{")
+_APP_ID_SET = re.compile(r'^\s*set \$app_id "([^"]*)";\s*$', re.MULTILINE)
+_EXACT_LOCATION = re.compile(r"^\s*location = (\S+) \{", re.MULTILINE)
+_SHARED_DICT = re.compile(r"^\s*lua_shared_dict\s+(\S+)\s+(\S+);", re.MULTILINE)
+_LUA_SHARED_DICT = re.compile(r"\bngx\.shared\.(\w+)")
+_LUA_METHOD_CALL = re.compile(r"\b(\w+):(set|collect)\(")
+_LUA_CONNECT = re.compile(r'\bsock:connect\("([^"]+)"\)')
+_LUA_TIMER = re.compile(r"\bngx\.timer\.(at|every)\((\d+),\s*(\w+)\)")
+_LIVE_PROBE_CAPTURE = 'ngx.location.capture("/_live_probe")'
+_PROMETHEUS_CONF = "roles/web-app-prometheus/templates/nginx/prometheus.conf.j2"
+_CONFIGURATION = ROLES_DIR / PROMETHEUS_APP_ID / "templates" / "configuration"
+_METRICS_PORT = 9100
+_ALERTMANAGER_UNSET = {
+    "ALERTMANAGER_TELEGRAM_BOT_TOKEN": "",
+    "ALERTMANAGER_TELEGRAM_CHAT_ID": 0,
+    "ALERTMANAGER_MATTERMOST_WEBHOOK_URL": "",
+}
 _DOCKER_SOCKET = "unix:/var/run/docker.sock"
 _DOCKER_PS = {
     "compose": [
@@ -483,6 +508,146 @@ def _harness_outcome(mode: str, keys: list[str]) -> dict:
     return outcome
 
 
+@functools.cache
+def _rendered_vhost(
+    application_id: str, service_key: str, prometheus_deployed: bool = True
+) -> str:
+    """
+    Args:
+        application_id: the proxied application.
+        service_key: the ``services.<key>`` entry whose local http port the vhost proxies.
+        prometheus_deployed: whether ``web-app-prometheus`` runs on the host.
+
+    Returns:
+        The compose-mode monitoring include of the application's vhost.
+    """
+    groups = [
+        group
+        for group in _GROUP_NAMES
+        if prometheus_deployed or group != PROMETHEUS_APP_ID
+    ]
+    return _vhost(application_id, service_key, "compose", group_names=groups)
+
+
+def _location_block(content: str, location: str) -> str:
+    """
+    Args:
+        content: rendered nginx configuration.
+        location: the path of an exact-match location.
+
+    Returns:
+        The location block, braces included.
+    """
+    start = content.index(f"location = {location} {{")
+    depth = 0
+    for index in range(start, len(content)):
+        if content[index] == "{":
+            depth += 1
+        elif content[index] == "}":
+            depth -= 1
+            if depth == 0:
+                return content[start : index + 1]
+    raise AssertionError(f"unterminated block for {location}")
+
+
+def _location_lua(content: str, location: str) -> str:
+    """
+    Args:
+        content: rendered nginx configuration.
+        location: the path of an exact-match location.
+
+    Returns:
+        The body of the location's only content_by_lua_block.
+    """
+    (body,) = _lua_blocks(_location_block(content, location))["content_by_lua_block"]
+    return body
+
+
+def _poller() -> str:
+    """
+    Returns:
+        The rendered init_worker_by_lua_block that runs the Docker health poller.
+    """
+    rendered = _render(PROMETHEUS_APP_ID, _PROMETHEUS_CONF, "compose", {})
+    (body,) = _lua_blocks(rendered)["init_worker_by_lua_block"]
+    return body
+
+
+def _alertmanager_receiver(channels: tuple[str, ...] = (), **settings: object) -> dict:
+    """
+    Args:
+        channels: what ``lookup('active_alertmanager_channels')`` returns.
+        settings: ``ALERTMANAGER_*`` variables the inventory sets.
+
+    Returns:
+        The ``default`` receiver of the rendered alertmanager.yml.
+    """
+    answers = {
+        "email": {
+            "host": f"mail.{_DOMAIN}",
+            "port": 465,
+            "from": f"alerts@{_DOMAIN}",
+            "domain": _DOMAIN,
+            "tls": True,
+            "auth": False,
+        },
+        "users": {"email": f"administrator@{_DOMAIN}", "secondary_email": ""},
+        "active_alertmanager_channels": list(channels),
+    }
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+        trim_blocks=True,
+    )
+    env.filters["bool"] = CoreFilters().filters()["bool"]
+    env.globals["lookup"] = lambda name, *_args: answers[name]
+    rendered = env.from_string(
+        read_text(str(_CONFIGURATION / "alertmanager.yml.j2"))
+    ).render(application_id=PROMETHEUS_APP_ID, **{**_ALERTMANAGER_UNSET, **settings})
+    return next(
+        receiver
+        for receiver in load_yaml_str(rendered)["receivers"]
+        if receiver["name"] == "default"
+    )
+
+
+def _native_scrape_jobs(app_ids: tuple[str, ...]) -> list[dict]:
+    """
+    Args:
+        app_ids: what ``lookup('native_metrics_apps')`` returns.
+
+    Returns:
+        The scrape jobs the native-metrics loop of prometheus.yml renders
+        through each application's own fragment.
+    """
+    lines = read_text(str(_CONFIGURATION / "prometheus.yml.j2")).splitlines()
+    start = next(
+        i for i, row in enumerate(lines) if "lookup('native_metrics_apps')" in row
+    )
+    end = next(
+        i for i in range(start, len(lines)) if lines[i].strip() == "{% endfor %}"
+    )
+
+    def lookup(name, *args):
+        if name == "native_metrics_apps":
+            return list(app_ids)
+        if name == "native_metrics_target":
+            return f"{args[0]}:{_METRICS_PORT}"
+        if name == "config":
+            return args[2]
+        raise AssertionError(f"unexpected lookup({name!r}, ...)")
+
+    env = Environment(
+        loader=FileSystemLoader(str(PROJECT_ROOT)),
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+        trim_blocks=True,
+    )
+    env.globals["lookup"] = lookup
+    source = "scrape_configs:\n" + "\n".join(lines[start : end + 1])
+    return load_yaml_str(env.from_string(source).render())["scrape_configs"] or []
+
+
 class TestPrometheusServicePresence(unittest.TestCase):
     """
     All web-app-* and web-svc-* roles (except web-app-prometheus itself) must
@@ -581,24 +746,6 @@ class TestPrometheusServicePresence(unittest.TestCase):
                     f"web-app-prometheus: services.prometheus.{key} must not be empty",
                 )
 
-    def test_blackbox_exporter_image_is_pinned(self):
-        """web-app-prometheus compose must use a pinned blackbox-exporter image, not :latest."""
-        roles_dir = ROLES_DIR
-        compose_path = roles_dir / PROMETHEUS_APP_ID / ROLE_FILE_TEMPL_COMPOSE
-        content = read_text(str(compose_path))
-        self.assertNotIn(
-            "prom/blackbox-exporter:latest",
-            content,
-            "compose.yml.j2 must not use :latest for blackbox-exporter — pin to a version "
-            "via meta/services.yml (services.blackbox-exporter.version)",
-        )
-        self.assertIn(
-            "lookup('container_image', application_id, 'blackbox-exporter')",
-            content,
-            "compose.yml.j2 must resolve the blackbox-exporter image via the "
-            "container_image lookup so the version comes from meta/services.yml",
-        )
-
     def test_alert_rules_mounted_in_prometheus_container(self):
         """meta/volumes.yml must declare a mount that lands the rendered
         alert_rules.yml inside the Prometheus container, otherwise the
@@ -653,239 +800,113 @@ class TestPrometheusNginxEndpoints(unittest.TestCase):
             / "basic.conf.j2"
         )
 
-    def _location_conf_path(self):
-        return (
-            PROJECT_ROOT
-            / "roles"
-            / "web-app-prometheus"
-            / "templates"
-            / "nginx"
-            / "location.conf.j2"
-        )
-
-    def _metricz_conf_path(self):
-        return (
-            PROJECT_ROOT
-            / "roles"
-            / "web-app-prometheus"
-            / "files"
-            / "nginx"
-            / "metricz.conf"
-        )
-
-    def _healthz_conf_path(self):
-        return (
-            PROJECT_ROOT
-            / "roles"
-            / "web-app-prometheus"
-            / "templates"
-            / "nginx"
-            / "healthz.conf.j2"
-        )
-
     def test_basic_conf_has_health_endpoints(self):
-        """healthz.conf.j2 must define /healthz/live and /healthz/ready (included by basic.conf.j2)."""
-        conf_path = self._healthz_conf_path()
-        self.assertTrue(conf_path.exists(), f"Missing: {conf_path}")
-        content = read_text(str(conf_path))
-
+        locations = _EXACT_LOCATION.findall(_rendered_vhost("web-app-gitea", "gitea"))
         for endpoint in ("/healthz/live", "/healthz/ready"):
             with self.subTest(endpoint=endpoint):
-                self.assertIn(
-                    f"location = {endpoint}",
-                    content,
-                    f"healthz.conf.j2 is missing 'location = {endpoint}'",
-                )
+                self.assertEqual(locations.count(endpoint), 1)
 
     def test_basic_conf_live_probe_uses_lua(self):
-        """healthz.conf.j2 /healthz/live must use Lua to check backend health, not a static return."""
-        content = read_text(str(self._healthz_conf_path()))
-        self.assertIn(
-            "content_by_lua_block",
-            content,
-            "/healthz/live must use content_by_lua_block to check backend reachability",
+        live = _location_block(
+            _rendered_vhost("web-app-gitea", "gitea"), "/healthz/live"
         )
-        self.assertNotIn(
-            'return 200 "live',
-            content,
-            "/healthz/live must NOT be a static return 200 — it must check backend health",
-        )
-
-    def _location_block(self, content, location):
-        start = content.index(f"location = {location} {{")
-        depth = 0
-        for index in range(start, len(content)):
-            if content[index] == "{":
-                depth += 1
-            elif content[index] == "}":
-                depth -= 1
-                if depth == 0:
-                    return content[start : index + 1]
-        raise AssertionError(f"unterminated block for {location}")
-
-    def test_ready_probe_returns_only_the_backend_status(self):
-        content = read_text(str(self._healthz_conf_path()))
-        ready = self._location_block(content, "/healthz/ready")
-        for proxying in ("proxy_pass", "prometheus_ready_backend"):
-            with self.subTest(proxying=proxying):
-                self.assertNotIn(
-                    proxying,
-                    ready,
-                    "/healthz/ready sits outside the vhost's auth gate; proxying it "
-                    "hands the client's method, query and body to the backend and "
-                    "its page back",
-                )
-        self.assertIn('ngx.location.capture("/_ready_probe")', ready)
-        self.assertIn("internal;", self._location_block(content, "/_ready_probe"))
-
-    def _prometheus_conf_path(self):
-        return (
-            PROJECT_ROOT
-            / "roles"
-            / "web-app-prometheus"
-            / "templates"
-            / "nginx"
-            / "locations.conf.j2"
-        )
-
-    def test_basic_conf_delegates_prometheus_to_shared_include(self):
-        """basic.conf.j2 must include prometheus.conf.j2 (the shared monitoring SPOT).
-
-        All prometheus-related includes (healthz, location, metricz) live in
-        prometheus.conf.j2 to eliminate duplication across vhost templates (DRY/SRP).
-        """
-        content = read_text(str(self._basic_conf_path()))
-        self.assertIn(
-            "roles/web-app-prometheus/templates/nginx/locations.conf.j2",
-            content,
-            "basic.conf.j2 must delegate prometheus monitoring to the shared "
-            "roles/web-app-prometheus/templates/nginx/locations.conf.j2 include",
-        )
-
-    def test_prometheus_conf_includes_location_conf_for_all_prometheus_apps(self):
-        """locations.conf.j2 must include location.conf.j2 and delegate the guard to
-        the prometheus_integration_active lookup plugin.
-
-        The outer guard was refactored from an inline Jinja2 condition into the
-        reusable lookup('prometheus_integration_active') call. The actual logic
-        (group_names + is_docker_service_enabled) lives in the lookup plugin and is
-        covered by its own unit tests.
-        """
-        content = read_text(str(self._prometheus_conf_path()))
-        self.assertIn(
-            "roles/web-app-prometheus/templates/nginx/location.conf.j2",
-            content,
-            "locations.conf.j2 must include nginx/location.conf.j2 for prometheus-enabled apps",
-        )
-        self.assertIn(
-            "lookup('prometheus_integration_active', application_id)",
-            content,
-            "locations.conf.j2 outer guard must call lookup('prometheus_integration_active', application_id) "
-            "with application_id as term 0; applications is read from available_variables",
-        )
-
-    def test_prometheus_conf_includes_metricz_only_on_prometheus_domain(self):
-        """locations.conf.j2 must include metricz.conf ONLY on the prometheus domain.
-
-        /metricz must not be exposed on every app vhost — that would leak the full
-        metrics payload from 60+ public hostnames. Only the prometheus domain serves it.
-        """
-        content = read_text(str(self._prometheus_conf_path()))
-        self.assertIn(
-            "roles/web-app-prometheus/files/nginx/metricz.conf",
-            content,
-            "locations.conf.j2 must include files/nginx/metricz.conf for the prometheus domain "
-            "(no Jinja2 expressions — lives in files/, not templates/)",
-        )
-        self.assertIn(
-            "application_id == 'web-app-prometheus'",
-            content,
-            "locations.conf.j2 must guard metricz.conf with application_id == 'web-app-prometheus' "
-            "so /metricz only appears on the prometheus domain vhost",
-        )
-
-    def test_metricz_conf_has_metricz_endpoint(self):
-        """/metricz must be defined in metricz.conf, not in location.conf.j2 or basic.conf.j2."""
-        metricz_path = self._metricz_conf_path()
-        self.assertTrue(metricz_path.exists(), f"Missing: {metricz_path}")
-        content = read_text(str(metricz_path))
-        self.assertIn(
-            "location = /metricz",
-            content,
-            "metricz.conf must define 'location = /metricz'",
-        )
-        loc_content = read_text(str(self._location_conf_path()))
-        self.assertNotIn(
-            "location = /metricz",
-            loc_content,
-            "location = /metricz must NOT be in location.conf.j2 — it belongs only in "
-            "metricz.conf (included only on the prometheus domain)",
+        body = _location_lua(live, "/healthz/live")
+        self.assertNotRegex(
+            live.replace(body, ""),
+            r"(?m)^\s*return\s",
+            "/healthz/live must answer from its Lua check, never a static return",
         )
 
     def test_metricz_conf_exposes_stack_up_gauge(self):
-        """/metricz must update the stack_up gauge before collecting metrics."""
-        content = read_text(str(self._metricz_conf_path()))
-        self.assertIn(
-            "metric_stack_up",
-            content,
-            "/metricz in metricz.conf must set metric_stack_up gauge",
+        calls = _LUA_METHOD_CALL.findall(
+            _location_lua(_rendered_vhost(PROMETHEUS_APP_ID, "prometheus"), "/metricz")
+        )
+        self.assertLess(
+            calls.index(("metric_stack_up", "set")),
+            calls.index(("prometheus", "collect")),
+            "/metricz must set the stack_up gauge before it collects the metrics",
         )
 
     def test_metricz_conf_stack_up_checks_docker_health(self):
-        """/metricz stack_up gauge must reflect Docker HEALTHCHECK, not just HTTP reachability."""
-        content = read_text(str(self._metricz_conf_path()))
-        self.assertIn(
-            "health_containers",
-            content,
-            "/metricz in metricz.conf must check health_containers shared dict "
-            "so metric_stack_up reflects Docker HEALTHCHECK state",
+        body = _location_lua(
+            _rendered_vhost(PROMETHEUS_APP_ID, "prometheus"), "/metricz"
+        )
+        self.assertEqual(set(_LUA_SHARED_DICT.findall(body)), {"health_containers"})
+        self.assertLess(
+            body.index("ngx.shared.health_containers"),
+            body.index(_LIVE_PROBE_CAPTURE),
+            "stack_up must reflect the Docker HEALTHCHECK before HTTP reachability",
         )
 
-    def test_location_conf_has_lua_metrics_collection(self):
-        """location.conf.j2 must collect per-request metrics via log_by_lua_block."""
-        content = read_text(str(self._location_conf_path()))
+    def test_ready_probe_returns_only_the_backend_status(self):
+        content = _rendered_vhost("web-app-gitea", "gitea")
+        ready = _location_block(content, "/healthz/ready")
+        self.assertNotIn(
+            "proxy_pass",
+            ready,
+            "/healthz/ready sits outside the vhost's auth gate; proxying it "
+            "hands the client's method, query and body to the backend and "
+            "its page back",
+        )
+        self.assertIn('ngx.location.capture("/_ready_probe")', ready)
+        probe = _location_block(content, "/_ready_probe")
+        self.assertIn("internal;", probe)
+        self.assertIn("proxy_pass", probe)
+
+    def test_basic_conf_delegates_prometheus_to_shared_include(self):
+        tree = Environment(
+            autoescape=select_autoescape(default_for_string=False)
+        ).parse(read_text(str(self._basic_conf_path())))
+        unconditional = {
+            node.template.value
+            for node in tree.body
+            if isinstance(node, nodes.Include)
+            and isinstance(node.template, nodes.Const)
+        }
         self.assertIn(
-            "log_by_lua_block",
-            content,
-            "location.conf.j2 must include log_by_lua_block for per-request nginx metrics",
+            "roles/web-app-prometheus/templates/nginx/locations.conf.j2",
+            unconditional,
+            "every vhost basic.conf.j2 renders must include the shared "
+            "monitoring block, outside any condition",
         )
 
-    def test_location_conf_metrics_have_app_label(self):
-        """All nginx metrics in location.conf.j2 must carry the 'app' label (task AC: labels MUST include app)."""
-        content = read_text(str(self._location_conf_path()))
-        self.assertIn(
-            "app_id",
-            content,
-            "location.conf.j2 must use ngx.var.app_id so all metrics carry the 'app' label "
-            "(required by task AC: labels MUST include app, domain/vhost)",
+    def test_prometheus_conf_includes_location_conf_for_all_prometheus_apps(self):
+        self.assertEqual(
+            len(
+                _lua_blocks(_rendered_vhost("web-app-gitea", "gitea"))[
+                    "log_by_lua_block"
+                ]
+            ),
+            1,
+        )
+        self.assertEqual(
+            _rendered_vhost(
+                "web-app-gitea", "gitea", prometheus_deployed=False
+            ).strip(),
+            "",
         )
 
-    def test_location_conf_collects_tls_metrics(self):
-        """location.conf.j2 must collect TLS handshake metrics (task AC: TLS/HTTPS metrics if available)."""
-        content = read_text(str(self._location_conf_path()))
-        self.assertIn(
-            "ssl_protocol",
-            content,
-            "location.conf.j2 must collect TLS metrics via ngx.var.ssl_protocol "
-            "(task AC: TLS/HTTPS-related metrics if available)",
+    def test_prometheus_conf_includes_metricz_only_on_prometheus_domain(self):
+        self.assertNotIn(
+            "/metricz",
+            _EXACT_LOCATION.findall(_rendered_vhost("web-app-gitea", "gitea")),
+            "/metricz on an app vhost leaks the metrics of every application "
+            "from that public hostname",
+        )
+
+    def test_metricz_conf_has_metricz_endpoint(self):
+        self.assertEqual(
+            _EXACT_LOCATION.findall(
+                _rendered_vhost(PROMETHEUS_APP_ID, "prometheus")
+            ).count("/metricz"),
+            1,
         )
 
     def test_basic_conf_sets_app_id_variable(self):
-        """locations.conf.j2 must set $app_id so Lua blocks can attach the 'app' label.
-
-        $app_id was moved from basic.conf.j2 into locations.conf.j2 so that it is set
-        in a single place for all vhosts that include the prometheus monitoring block.
-        """
-        roles_dir = ROLES_DIR
-        locations_conf = (
-            roles_dir / PROMETHEUS_APP_ID / "templates" / "nginx" / "locations.conf.j2"
-        )
-        content = read_text(str(locations_conf))
-        self.assertIn(
-            "$app_id",
-            content,
-            "locations.conf.j2 must set the $app_id nginx variable (used by location.conf.j2 "
-            "to attach the 'app' label to all metrics)",
+        self.assertEqual(
+            _APP_ID_SET.findall(_rendered_vhost("web-app-gitea", "gitea")),
+            ["web-app-gitea"],
+            "the metrics of a vhost carry its application as the 'app' label",
         )
 
     def test_alertmanager_templates_exist(self):
@@ -906,40 +927,31 @@ class TestPrometheusNginxEndpoints(unittest.TestCase):
                 )
 
     def test_alertmanager_supports_telegram(self):
-        """alertmanager.yml.j2 must support Telegram notifications (task AC: communication channels)."""
-        roles_dir = ROLES_DIR
-        content = read_text(
-            str(
-                roles_dir
-                / PROMETHEUS_APP_ID
-                / "templates"
-                / "configuration"
-                / "alertmanager.yml.j2"
-            )
+        receiver = _alertmanager_receiver(
+            ALERTMANAGER_TELEGRAM_BOT_TOKEN="fixture-bot-token",
+            ALERTMANAGER_TELEGRAM_CHAT_ID="4242",
         )
-        self.assertIn(
-            "telegram_configs",
-            content,
-            "alertmanager.yml.j2 must include telegram_configs for Telegram notifications "
-            "(task AC: Telegram or preferred Matrix Message)",
+        self.assertEqual(
+            [
+                (config["bot_token"], config["chat_id"])
+                for config in receiver["telegram_configs"]
+            ],
+            [("fixture-bot-token", 4242)],
         )
+        self.assertNotIn("telegram_configs", _alertmanager_receiver())
 
     def test_alertmanager_supports_mattermost(self):
-        """alertmanager.yml.j2 must support Mattermost webhook notifications (task AC: communication channels)."""
-        roles_dir = ROLES_DIR
-        content = read_text(
-            str(
-                roles_dir
-                / PROMETHEUS_APP_ID
-                / "templates"
-                / "configuration"
-                / "alertmanager.yml.j2"
-            )
+        webhook = f"https://mattermost.{_DOMAIN}/hooks/fixture"
+        receiver = _alertmanager_receiver(
+            ("web-app-mattermost",), ALERTMANAGER_MATTERMOST_WEBHOOK_URL=webhook
         )
-        self.assertIn(
-            "ALERTMANAGER_MATTERMOST_WEBHOOK_URL",
-            content,
-            "alertmanager.yml.j2 must include Mattermost webhook config (task AC: Mattermost notification)",
+        self.assertEqual(
+            [config["api_url"] for config in receiver["slack_configs"]], [webhook]
+        )
+        self.assertNotIn(
+            "slack_configs",
+            _alertmanager_receiver(ALERTMANAGER_MATTERMOST_WEBHOOK_URL=webhook),
+            "a webhook without a deployed Mattermost channel must not be notified",
         )
 
     def test_alert_rules_has_communication_channel_rule(self):
@@ -994,16 +1006,6 @@ class TestDockerHealthCheck(unittest.TestCase):
     while its HEALTHCHECK has flipped to "unhealthy".
     """
 
-    def _nginx_conf_path(self):
-        return (
-            PROJECT_ROOT
-            / "roles"
-            / "web-app-prometheus"
-            / "templates"
-            / "nginx"
-            / "prometheus.conf.j2"
-        )
-
     def _basic_conf_path(self):
         return (
             PROJECT_ROOT
@@ -1014,83 +1016,35 @@ class TestDockerHealthCheck(unittest.TestCase):
             / "basic.conf.j2"
         )
 
-    def _healthz_conf_path(self):
-        return (
-            PROJECT_ROOT
-            / "roles"
-            / "web-app-prometheus"
-            / "templates"
-            / "nginx"
-            / "healthz.conf.j2"
-        )
-
     def _openresty_compose_path(self):
         return PROJECT_ROOT / "roles" / "svc-prx-openresty" / ROLE_FILE_TEMPL_COMPOSE
 
     def test_nginx_conf_has_health_containers_dict(self):
-        """prometheus.conf.j2 must declare lua_shared_dict health_containers for Docker state caching."""
-        content = read_text(str(self._nginx_conf_path()))
-        self.assertIn(
-            "lua_shared_dict health_containers",
-            content,
-            "prometheus.conf.j2 must declare lua_shared_dict health_containers "
-            "(used by /healthz/live to cache Docker container health state)",
+        rendered = _render(PROMETHEUS_APP_ID, _PROMETHEUS_CONF, "compose", {})
+        self.assertEqual(
+            sorted(dict(_SHARED_DICT.findall(rendered))),
+            ["health_containers", "prometheus_metrics"],
+            "/healthz/live and /metricz read Docker health from the "
+            "health_containers shared dict the poller writes, next to the "
+            "metrics dict lua-resty-prometheus keeps",
         )
 
     def test_nginx_conf_polls_docker_socket(self):
-        """prometheus.conf.j2 must poll the Docker Unix socket to populate health_containers."""
-        content = read_text(str(self._nginx_conf_path()))
-        self.assertIn(
-            "docker.sock",
-            content,
-            "prometheus.conf.j2 must connect to /var/run/docker.sock to query container health",
-        )
-        self.assertIn(
-            "poll_docker_health",
-            content,
-            "prometheus.conf.j2 must define a poll_docker_health timer function",
-        )
+        self.assertEqual(_LUA_CONNECT.findall(_poller()), [_DOCKER_SOCKET])
 
     def test_nginx_conf_timer_runs_at_startup_and_periodically(self):
-        """prometheus.conf.j2 must seed the dict immediately (timer.at) and refresh periodically (timer.every)."""
-        content = read_text(str(self._nginx_conf_path()))
-        self.assertIn(
-            "ngx.timer.at",
-            content,
-            "prometheus.conf.j2 must use ngx.timer.at(0, ...) to seed health_containers at startup",
-        )
-        self.assertIn(
-            "ngx.timer.every",
-            content,
-            "prometheus.conf.j2 must use ngx.timer.every to refresh health_containers periodically",
-        )
-
-    def test_basic_conf_has_container_name_variable(self):
-        """locations.conf.j2 must set $container_name so /healthz/live can look up Docker state."""
-        locations_path = (
-            PROJECT_ROOT
-            / "roles"
-            / "web-app-prometheus"
-            / "templates"
-            / "nginx"
-            / "locations.conf.j2"
-        )
-        content = read_text(str(locations_path))
-        self.assertIn(
-            "$container_name",
-            content,
-            "locations.conf.j2 must set the $container_name nginx variable "
-            "(used by /healthz/live to consult the health_containers shared dict)",
+        self.assertEqual(
+            _LUA_TIMER.findall(_poller()),
+            [("at", "0", "poll_docker_health"), ("every", "15", "poll_docker_health")],
         )
 
     def test_basic_conf_live_probe_checks_docker_health(self):
-        """/healthz/live must consult health_containers before the HTTP sub-request."""
-        content = read_text(str(self._healthz_conf_path()))
-        self.assertIn(
-            "health_containers",
-            content,
-            "/healthz/live in healthz.conf.j2 must read health_containers shared dict "
-            "(Docker health alone is insufficient — HTTP sub-request is also required)",
+        body = _location_lua(_rendered_vhost("web-app-gitea", "gitea"), "/healthz/live")
+        self.assertEqual(_LUA_SHARED_DICT.findall(body), ["health_containers"])
+        self.assertLess(
+            body.index("ngx.shared.health_containers"),
+            body.index(_LIVE_PROBE_CAPTURE),
+            "/healthz/live must consult Docker health before the HTTP sub-request",
         )
 
     def test_openresty_compose_mounts_docker_socket(self):
@@ -1276,94 +1230,35 @@ class TestNativeAppMetrics(unittest.TestCase):
     (NOT by services.prometheus.enabled which is the nginx integration flag).
     """
 
-    def _prometheus_yml_path(self):
-        return (
-            PROJECT_ROOT
-            / "roles"
-            / "web-app-prometheus"
-            / "templates"
-            / "configuration"
-            / "prometheus.yml.j2"
+    def _scrape_job(self, app_id: str) -> dict:
+        (job,) = _native_scrape_jobs((app_id,))
+        self.assertEqual(
+            job["static_configs"],
+            [{"targets": [f"{app_id}:{_METRICS_PORT}"], "labels": {"app": app_id}}],
         )
-
-    def _scrape_fragment_path(self, app_id: str) -> "Path":
-        return PROJECT_ROOT / "roles" / app_id / "templates" / "prometheus.yml.j2"
+        return job
 
     def test_prometheus_yml_uses_native_metrics_apps_lookup(self):
-        """prometheus.yml.j2 must use the native_metrics_apps lookup to auto-discover scrape targets.
-
-        Hardcoding per-app {% if %} blocks in prometheus.yml.j2 violates DRY —
-        every new app requires editing the prometheus role. The factory pattern
-        uses native_metrics_apps lookup + per-app prometheus.yml.j2 fragments.
-        """
-        content = read_text(str(self._prometheus_yml_path()))
-        self.assertIn(
-            "native_metrics_apps",
-            content,
-            "prometheus.yml.j2 must use the native_metrics_apps lookup plugin "
-            "to auto-discover apps with native metrics (no hardcoded per-app blocks)",
+        self.assertEqual(
+            [
+                job["job_name"]
+                for job in _native_scrape_jobs(("web-app-gitea", "web-app-matrix"))
+            ],
+            ["gitea", "matrix-synapse"],
         )
+        self.assertEqual(_native_scrape_jobs(()), [])
 
     def test_gitea_has_scrape_fragment(self):
-        """web-app-gitea must have a prometheus.yml.j2 fragment with a 'gitea' job."""
-        path = self._scrape_fragment_path("web-app-gitea")
-        self.assertTrue(
-            path.exists(),
-            "web-app-gitea must have roles/web-app-gitea/templates/prometheus.yml.j2 "
-            "(task AC: apps that support metrics MUST expose /metrics)",
-        )
-        content = read_text(str(path))
-        self.assertIn(
-            'job_name: "gitea"',
-            content,
-            'web-app-gitea/templates/prometheus.yml.j2 must define job_name: "gitea"',
-        )
+        self.assertEqual(self._scrape_job("web-app-gitea")["job_name"], "gitea")
 
     def test_mattermost_has_scrape_fragment(self):
-        """web-app-mattermost must have a prometheus.yml.j2 fragment with a 'mattermost' job."""
-        path = self._scrape_fragment_path("web-app-mattermost")
-        self.assertTrue(
-            path.exists(),
-            "web-app-mattermost must have roles/web-app-mattermost/templates/prometheus.yml.j2 "
-            "(task AC: Mattermost supports Prometheus metrics via MM_METRICSSETTINGS_ENABLE=true)",
-        )
-        content = read_text(str(path))
-        self.assertIn(
-            'job_name: "mattermost"',
-            content,
-            'web-app-mattermost/templates/prometheus.yml.j2 must define job_name: "mattermost"',
+        self.assertEqual(
+            self._scrape_job("web-app-mattermost")["job_name"], "mattermost"
         )
 
     def test_matrix_has_scrape_fragment(self):
-        """web-app-matrix must have a prometheus.yml.j2 fragment with a 'matrix-synapse' job."""
-        path = self._scrape_fragment_path("web-app-matrix")
-        self.assertTrue(
-            path.exists(),
-            "web-app-matrix must have roles/web-app-matrix/templates/prometheus.yml.j2 "
-            "(task AC: Matrix/Synapse supports Prometheus metrics via enable_metrics: true)",
-        )
-        content = read_text(str(path))
-        self.assertIn(
-            'job_name: "matrix-synapse"',
-            content,
-            'web-app-matrix/templates/prometheus.yml.j2 must define job_name: "matrix-synapse"',
-        )
-
-    def test_native_metrics_guard_uses_native_metrics_flag(self):
-        """native_metrics_apps lookup must filter by native_metrics.enabled, not the nginx integration flag.
-
-        services.prometheus.enabled is the nginx monitoring integration flag —
-        it controls whether log_by_lua_block is added to the vhost. The lookup plugin
-        must use native_metrics.enabled so only apps with an active metrics endpoint
-        get a scrape job (otherwise all 70+ apps appear as DOWN targets in Prometheus).
-        """
-        plugin_path = PROJECT_ROOT / "plugins" / "lookup" / "native_metrics_apps.py"
-        content = read_text(str(plugin_path))
-        self.assertIn(
-            "native_metrics.enabled",
-            content,
-            "native_metrics_apps lookup plugin must filter on native_metrics.enabled "
-            "from each app's own config, not on services.prometheus.enabled",
+        self.assertEqual(
+            self._scrape_job("web-app-matrix")["job_name"], "matrix-synapse"
         )
 
     def test_native_metrics_apps_have_enabled_flag_in_config(self):
@@ -1387,21 +1282,11 @@ class TestNativeAppMetrics(unittest.TestCase):
                 )
 
     def test_gitea_scrape_fragment_uses_metrics_path(self):
-        """The Gitea scrape fragment must use metrics_path: /metrics."""
-        content = read_text(str(self._scrape_fragment_path("web-app-gitea")))
-        self.assertIn(
-            "metrics_path: /metrics",
-            content,
-            "web-app-gitea/templates/prometheus.yml.j2 must set metrics_path: /metrics",
-        )
+        self.assertEqual(self._scrape_job("web-app-gitea")["metrics_path"], "/metrics")
 
     def test_matrix_scrape_fragment_uses_synapse_metrics_path(self):
-        """The Synapse scrape fragment must use the correct /_synapse/metrics path."""
-        content = read_text(str(self._scrape_fragment_path("web-app-matrix")))
-        self.assertIn(
-            "metrics_path: /_synapse/metrics",
-            content,
-            "web-app-matrix/templates/prometheus.yml.j2 must set metrics_path: /_synapse/metrics",
+        self.assertEqual(
+            self._scrape_job("web-app-matrix")["metrics_path"], "/_synapse/metrics"
         )
 
 

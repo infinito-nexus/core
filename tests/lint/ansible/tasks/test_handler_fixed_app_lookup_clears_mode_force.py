@@ -144,7 +144,7 @@ def _scan() -> tuple[list[str], int]:
 
 
 class TestHandlerFixedAppLookupClearsModeForce(unittest.TestCase):
-    def test_container_address_is_known_to_honour_the_override(self) -> None:
+    def test_container_address_is_known_to_honour_the_override(self) -> None:  # nocheck: test.text-presence -- reach guard of the lookup plugin scan  # fmt: skip
         self.assertIn("container_address", _honouring_lookups())
 
     def test_every_fixed_app_lookup_in_a_handler_clears_the_override(self) -> None:

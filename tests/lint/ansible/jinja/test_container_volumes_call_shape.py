@@ -30,7 +30,7 @@ _RAW_ITEM = re.compile(r"^\s*- ")
 
 
 class TestContainerVolumesCallShape(unittest.TestCase):
-    def test_every_call_is_canonical(self) -> None:
+    def test_every_call_is_canonical(self) -> None:  # nocheck: test.text-presence -- policy lint over every .j2 template  # fmt: skip
         findings: list[str] = []
         for path_str, content in iter_project_files_with_content(
             extensions=(".j2",),

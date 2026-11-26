@@ -14,6 +14,8 @@ from unittest.mock import patch
 from cli.administration.deploy.development.extra_mounts import write_mounts_override
 from cli.administration.infra import __main__ as cli
 from cli.meta.cache.base import __main__ as base_cli
+from tests.utils.make_target import run_target
+from tests.utils.workflow_words import step_options
 from utils.cache.evict import CACHES, FLOOR_KEY, IDLE_KEY, parse_size
 from utils.cache.files import (
     PROJECT_ROOT,
@@ -144,7 +146,7 @@ class TestCheckoutRootsStayReadOnly(unittest.TestCase):
         (network,) = infra.values()
         self.assertEqual(network["driver_opts"][mtu], stack["driver_opts"][mtu])
 
-    def test_the_runner_writes_its_ansible_state_to_its_own_volume(self) -> None:
+    def test_the_runner_writes_its_ansible_state_to_its_own_volume(self) -> None:  # nocheck: test.text-presence -- checks volumes and environment of the parsed compose service  # fmt: skip
         runner = load_yaml(PROJECT_ROOT / "compose/infra.yml")["services"][SERVICE]
         self.assertIn("state:/var/lib/infinito-infra", runner["volumes"])
         for key in ("ANSIBLE_HOME", "ANSIBLE_LOCAL_TEMP"):
@@ -224,13 +226,25 @@ class TestHostReachesOnlyLoopbackPorts(unittest.TestCase):
         self.assertEqual(_open_ports([*self.ports, "8081:8081"]), ["8081:8081"])
 
     def test_host_sync_reaches_nexus_on_the_published_loopback_port(self) -> None:
-        recipe = read_text(str(PROJECT_ROOT / "Makefile"))
-        sync = recipe.split("\ncache-host-sync:\n", 1)[1].split("\n\n", 1)[0]
-        self.assertIn(
-            '--nexus "http://$${INFINITO_CACHE_PACKAGE_REST_HOST}:$${INFINITO_CACHE_PACKAGE_PORT}"',
-            sync,
+        done, calls = run_target(
+            "cache-host-sync",
+            (),
+            (),
+            {
+                "INFINITO_CACHE_HOST_SYNC": "pacman",
+                "INFINITO_CACHE_SHARED_HOST_PATH": "/srv/shared",
+                "INFINITO_CACHE_PACKAGE_REST_HOST": "127.0.0.1",
+                "INFINITO_CACHE_PACKAGE_PORT": "8099",
+                "INFINITO_APT_UBUNTU_MIRRORS": "mirror",
+                "INFINITO_BIND_IP": "127.0.0.9",
+            },
         )
-        self.assertNotIn("INFINITO_BIND_IP", sync)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        synced = (
+            "python -m cli.meta.cache.host_sync --sync pacman --shared /srv/shared "
+            "--nexus http://127.0.0.1:8099 --ubuntu-mirrors mirror"
+        )
+        self.assertEqual(calls, [synced])
 
 
 _BASE = Path("/var/cache/infinito")
@@ -321,6 +335,8 @@ class TestUnmountedHostPathsAreRefused(unittest.TestCase):
 
 
 _WORKSPACE = PROJECT_ROOT / ".github" / "workflows" / "call-test-workspace.yml"
+_JOB = "test-workspace"
+_BASE_MOUNT = f"${{{BASE_KEY}}}:${{{BASE_KEY}}}"
 _MOVED = Path("/mnt/cache")
 
 
@@ -383,9 +399,10 @@ class TestWorkspaceCachePathsLieBelowTheBase(unittest.TestCase):
             self.assertTrue(Path(env[key]).is_relative_to(_MOVED), key)
 
     def test_the_job_container_sees_the_base_at_its_host_path(self) -> None:
-        workflow = read_text(str(_WORKSPACE))
-        self.assertIn(f"-e {BASE_KEY} \\", workflow)
-        self.assertIn(f'-v "${{{BASE_KEY}}}:${{{BASE_KEY}}}" \\', workflow)
+        handed = {("-e", BASE_KEY), ("-v", _BASE_MOUNT)}
+        self.assertTrue(
+            any(handed <= options for options in step_options(_WORKSPACE, _JOB))
+        )
 
     def test_legs_moved_without_their_base_are_refused(self) -> None:
         legs = {
@@ -629,15 +646,21 @@ class TestDisabledCacheStackStartsNoInfra(unittest.TestCase):
             self._main("up", "true")
 
 
-_PREPARE = "python3 -m cli.meta.cache.base"
+_PREPARE = ("-m", "cli.meta.cache.base")
 
 
 class TestTheBaseIsPreparedBeforeTheDaemonBindsIt(unittest.TestCase):
     def test_the_workspace_job_prepares_the_base_before_mounting_it(self) -> None:
-        workflow = read_text(str(_WORKSPACE))
-        mount = workflow.find(f'-v "${{{BASE_KEY}}}:${{{BASE_KEY}}}"')
-        self.assertLess(-1, workflow.find(_PREPARE))
-        self.assertLess(workflow.find(_PREPARE), mount)
+        steps = step_options(_WORKSPACE, _JOB)
+        prepared = [index for index, options in enumerate(steps) if _PREPARE in options]
+        mounted = [
+            index
+            for index, options in enumerate(steps)
+            if ("-v", _BASE_MOUNT) in options
+        ]
+        self.assertEqual(len(prepared), 1, prepared)
+        self.assertEqual(len(mounted), 1, mounted)
+        self.assertLess(prepared[0], mounted[0])
 
     def test_the_preparation_creates_the_base_or_refuses_with_status_2(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

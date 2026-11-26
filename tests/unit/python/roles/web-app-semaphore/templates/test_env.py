@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from jinja2 import DictLoader, Environment, select_autoescape
+from jinja2 import DictLoader, Environment, StrictUndefined, select_autoescape
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
@@ -11,8 +11,8 @@ from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 ROLE = PROJECT_ROOT / "roles" / "web-app-semaphore"
 TEMPLATE = ROLE / "templates" / "env.j2"
 INCLUDE = "roles/sys-svc-container/templates/env.j2"
-ORIGIN = "https://semaphore.example.org"
-ORIGIN_SOURCE = "lookup('tls', SEMAPHORE_DOMAIN, 'url.origin')"
+DOMAIN = "semaphore.example.org"
+ORIGIN = f"https://{DOMAIN}"
 
 
 def render(source):
@@ -69,7 +69,18 @@ class TestServerEnv(unittest.TestCase):
 
     def test_the_issuer_is_the_canonical_origin(self):
         variables = load_yaml_str(read_text(str(ROLE / ROLE_FILE_VARS_MAIN)))
-        self.assertIn(ORIGIN_SOURCE, variables["SEMAPHORE_WEB_ROOT"])
+        answers = {("tls", DOMAIN, "url.origin"): ORIGIN}
+        environment = Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
+        )
+        environment.globals["lookup"] = lambda *terms: answers[terms]
+        self.assertEqual(
+            environment.from_string(variables["SEMAPHORE_WEB_ROOT"]).render(
+                SEMAPHORE_DOMAIN=DOMAIN
+            ),
+            ORIGIN,
+        )
 
     def test_negative_control_tokens_off_are_reported(self):
         planted = self.source.replace(

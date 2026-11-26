@@ -37,7 +37,7 @@ _DOTENV_QUOTE = re.compile(r"\|\s*dotenv_quote\b")
 
 
 class TestEnvFileTemplateNoLiteralQuotes(unittest.TestCase):
-    def test_env_templates_have_no_literal_quoted_values(self) -> None:
+    def test_env_templates_have_no_literal_quoted_values(self) -> None:  # nocheck: test.text-presence -- policy lint over every env template  # fmt: skip
         findings: list[tuple[str, int, str]] = []
         for path_str, content in iter_project_files_with_content(
             extensions=(".j2",),

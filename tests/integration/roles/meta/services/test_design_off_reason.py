@@ -56,9 +56,7 @@ def justified(lines: list[str]) -> bool:
 
 
 class TestDesignOffReason(unittest.TestCase):
-    def test_every_ui_role_declares_design_and_justifies_switching_it_off(
-        self,
-    ) -> None:
+    def test_every_ui_role_declares_design_and_justifies_switching_it_off(self) -> None:  # nocheck: test.text-presence -- repository-wide lint over every UI role's meta/services.yml  # fmt: skip
         offenders: list[str] = []
         roles_dir = PROJECT_ROOT / "roles"
         for role_dir in sorted(p for p in roles_dir.iterdir() if p.is_dir()):

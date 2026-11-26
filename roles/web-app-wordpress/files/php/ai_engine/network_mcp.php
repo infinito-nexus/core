@@ -1,5 +1,4 @@
 <?php
-// nocheck: mirrored-unit-test - runs through `wp eval-file` and rewrites the stored mwai_options of the sites of a booted network
 /**
  * Turns the AI Engine MCP module off and deletes the MCP bearer token in the
  * stored mwai_options of every site but the main site of the network. The

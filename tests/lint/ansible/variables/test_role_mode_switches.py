@@ -260,7 +260,7 @@ def _has_application_id(role_dir) -> bool:
 
 
 class TestRoleModeSwitches(unittest.TestCase):
-    def test_no_role_reads_a_global_mode(self):
+    def test_no_role_reads_a_global_mode(self):  # nocheck: test.text-presence -- policy lint over every role file  # fmt: skip
         findings = [
             f"roles/{role}/{relative}:{line}"
             for role, texts in sorted(_role_texts().items())

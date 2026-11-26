@@ -241,7 +241,7 @@ class TestPlaywrightSpecGatesEnvFlags(unittest.TestCase):
                 "spec:\n" + "\n".join(f"  - {o}" for o in offenders)
             )
 
-    def test_every_strict_gate_has_a_declared_flag(self):
+    def test_every_strict_gate_has_a_declared_flag(self):  # nocheck: test.text-presence -- repository-wide lint of spec gates against env templates  # fmt: skip
         offenders: list[str] = []
 
         for role_dir in sorted(p for p in ROLES_DIR.iterdir() if p.is_dir()):

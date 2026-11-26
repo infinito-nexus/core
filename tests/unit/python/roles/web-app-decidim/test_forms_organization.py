@@ -127,7 +127,7 @@ class TestTheDeployReportsBeforeItWrites(unittest.TestCase):
                 )
                 self.assertEqual(current, templar.template(expression))
 
-    def test_the_read_maps_the_stored_mode_to_its_name(self) -> None:
+    def test_the_read_maps_the_stored_mode_to_its_name(self) -> None:  # nocheck: test.text-presence -- asserts SQL that runs only in the app database; no hermetic database runner yet  # fmt: skip
         sql = read_text(str(SQL))
         for stored, name in (("0", "enabled"), ("1", "existing"), ("2", "disabled")):
             with self.subTest(stored=stored):

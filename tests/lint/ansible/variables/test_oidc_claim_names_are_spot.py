@@ -42,6 +42,7 @@ import unittest
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files, read_text
+from utils.cache.yaml import load_yaml
 from utils.roles.mapping import ROLE_FILE_META_FORMS
 
 from . import PROJECT_ROOT
@@ -93,12 +94,13 @@ def _offenders(rel_path: str, content: str) -> list[str]:
 
 class TestOidcClaimNamesAreSpot(unittest.TestCase):
     def test_the_constant_still_declares_every_guarded_claim(self) -> None:
-        declared = read_text(str(PROJECT_ROOT / _SOURCE))
+        defaults = load_yaml(str(PROJECT_ROOT / _SOURCE)).get("defaults_oidc") or {}
+        attributes = defaults.get("ATTRIBUTES") or {}
 
         for claim, key in _GUARDED.items():
-            self.assertIn(
-                f'{key}: "{claim}"',
-                declared,
+            self.assertEqual(
+                claim,
+                attributes.get(key),
                 f"{_SOURCE} no longer declares {key}; this rule points at a "
                 "constant that moved, so fix the rule before the call sites.",
             )
