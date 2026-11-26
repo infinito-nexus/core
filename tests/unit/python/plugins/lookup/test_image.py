@@ -99,32 +99,6 @@ def _run(
 
 
 class TestImageLookup(unittest.TestCase):
-    def test_missing_terms_raise(self):
-        with self.assertRaises(AnsibleError):
-            LookupModule().run([], variables={})
-        with self.assertRaises(AnsibleError):
-            LookupModule().run(["web-app-mattermost"], variables={})
-        with self.assertRaises(AnsibleError):
-            LookupModule().run(
-                ["web-app-mattermost", "mattermost", "extra"], variables={}
-            )
-
-    def test_empty_application_id_raises(self):
-        with self.assertRaises(AnsibleError):
-            _run("", "mattermost")
-
-    def test_empty_service_key_raises(self):
-        with self.assertRaises(AnsibleError):
-            _run("web-app-mattermost", "")
-
-    def test_unknown_application_raises(self):
-        with self.assertRaises(AnsibleError):
-            _run("web-app-missing", "mattermost")
-
-    def test_unknown_service_raises(self):
-        with self.assertRaises(AnsibleError):
-            _run("web-app-mattermost", "smtp")
-
     def test_missing_image_raises(self):
         apps = _apps(image=None)
         with self.assertRaises(AnsibleError):

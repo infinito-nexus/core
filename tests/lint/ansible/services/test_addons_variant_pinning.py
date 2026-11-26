@@ -41,16 +41,8 @@ variant in ``meta/variants.yml``:
    unannounced. Variant-specific pins beyond that set stay allowed, so a
    variant may still switch a statically-off addon on.
 
-A role with a single variant is out of scope of rules 1 to 3 -- there is no
-non-baseline round to trim.
-
-4. Every optional addon (``required`` not ``true``) MUST take both states
-   across the role's variants, so the CI matrix exercises it on and off: a
-   static addon needs a variant resolving it ``true`` and one resolving it
-   ``false``, a dynamic addon needs a second variant to switch its service
-   in. A role without ``meta/variants.yml`` deploys one round. Rule 4 is
-   warn-only until every listed addon has a proving round: it emits one
-   GitHub Actions warning per unexercised addon and never fails.
+A role with a single variant is out of scope -- there is no non-baseline round
+to trim.
 
 Per-addon opt-out: ``# nocheck: addons-variant-pinning`` in the head of
 ``meta/addons/<id>.yml``, with the reason the addon must install everywhere
@@ -59,12 +51,10 @@ or can never be switched on in CI.
 
 from __future__ import annotations
 
-import tempfile
 import unittest
 from collections.abc import Mapping
-from pathlib import Path
+from typing import TYPE_CHECKING
 
-from utils.annotations.message import warning as gha_warning
 from utils.annotations.suppress import is_suppressed_in_head
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
@@ -72,6 +62,9 @@ from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_VARIANTS
 from utils.update.addons import iter_addon_files
 
 from . import PROJECT_ROOT
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 _RULE = "addons-variant-pinning"
 
@@ -242,37 +235,6 @@ def _addons_by_role(roles_root: Path) -> dict:
             continue
         by_role.setdefault(role, []).append(addon_file)
     return by_role
-
-
-def unexercised_addons(roles_root: Path) -> list[str]:
-    """Return one line per optional addon the role's variants never flip.
-
-    Args:
-        roles_root: the repository's ``roles`` directory.
-    """
-    findings: list[str] = []
-    for role, addon_files in sorted(_addons_by_role(roles_root).items()):
-        variants = _variants(roles_root / role) or [{}]
-        for addon_file in addon_files:
-            spec = load_yaml_any(str(addon_file), default_if_missing={}) or {}
-            if not isinstance(spec, Mapping) or spec.get("required") is True:
-                continue
-            base = spec.get("enabled", False)
-            states = []
-            for variant in variants:
-                entry = _pinned_addons(variant).get(addon_file.stem)
-                pinned = entry.get("enabled") if isinstance(entry, Mapping) else None
-                states.append(base if pinned is None else pinned)
-            if any(isinstance(state, str) for state in states):
-                if len(variants) > 1:
-                    continue
-            elif {True, False} <= {bool(state) for state in states}:
-                continue
-            findings.append(
-                f"- {role}/{ROLE_DIR_META_ADDONS}/{addon_file.stem}.yml resolves to "
-                f"{states!r} across {len(variants)} variant(s)"
-            )
-    return findings
 
 
 class TestAddonsVariantPinning(unittest.TestCase):
@@ -530,54 +492,6 @@ class TestAddonsVariantPinning(unittest.TestCase):
             "the addon from the service it follows -- switch the service instead:"
             "\n\n" + "\n".join(findings) + "\n\n"
             f"Per-addon opt-out: `# nocheck: {_RULE}` with a reason."
-        )
-
-    def test_every_optional_addon_takes_both_states(self) -> None:
-        roles_root = PROJECT_ROOT / "roles"
-        if not roles_root.is_dir():
-            self.skipTest("no roles/ directory")
-        for finding in unexercised_addons(roles_root):
-            gha_warning(
-                f"{finding.removeprefix('- ')}: no variant switches it on and "
-                f"off; pin it in meta/variants.yml or opt out with "
-                f"`# nocheck: {_RULE}` and a reason",
-                title="Optional addon never exercised in both states",
-            )
-
-    def test_the_state_rule_reports_each_unexercised_addon(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            roles_root = Path(tmp)
-            for role, variants in (
-                ("web-app-one", None),
-                ("web-app-two", "- {}\n- addons:\n    flipped:\n      enabled: true\n"),
-            ):
-                addons = roles_root / role / ROLE_DIR_META_ADDONS
-                addons.mkdir(parents=True)
-                if variants is not None:
-                    (roles_root / role / ROLE_FILE_META_VARIANTS).write_text(
-                        variants, encoding="utf-8"
-                    )
-                for name, body in (
-                    ("off", "enabled: false\n"),
-                    ("on", "enabled: true\n"),
-                    ("dyn", "enabled: \"{{ x('services.a.enabled') }}\"\n"),
-                    ("core", "required: true\n"),
-                    ("flipped", "enabled: false\n"),
-                    ("exempt", f"# nocheck: {_RULE} paid only\nenabled: false\n"),
-                ):
-                    (addons / f"{name}.yml").write_text(body, encoding="utf-8")
-
-            findings = unexercised_addons(roles_root)
-
-        flagged = {line.split(" resolves")[0].removeprefix("- ") for line in findings}
-        self.assertEqual(
-            flagged,
-            {f"web-app-one/{ROLE_DIR_META_ADDONS}/{n}.yml" for n in ("dyn", "flipped")}
-            | {
-                f"{role}/{ROLE_DIR_META_ADDONS}/{n}.yml"
-                for role in ("web-app-one", "web-app-two")
-                for n in ("off", "on")
-            },
         )
 
 

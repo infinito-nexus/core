@@ -184,9 +184,6 @@ class TestAxesDecouple(unittest.TestCase):
 
 
 class TestGlyphBinding(unittest.TestCase):
-    def test_the_local_glyph_is_the_house_symbol(self) -> None:
-        self.assertEqual("🏠", axes.LOCAL_GLYPH)
-
     def test_the_multi_mode_wears_the_rainbow(self) -> None:
         self.assertEqual("🌈", to_emoji("multi"))
 

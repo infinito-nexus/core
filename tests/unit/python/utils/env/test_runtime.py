@@ -14,6 +14,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
+from tests.utils.unprivileged import unprivileged
 from utils.env.runtime import (
     cpu_stall_pct,
     detect_gha_act,
@@ -60,10 +61,7 @@ class TestIsUserWritable(unittest.TestCase):
             missing = str(Path(td) / "does" / "not" / "exist")
             self.assertTrue(is_user_writable(missing))
 
-    @unittest.skipIf(
-        hasattr(os, "geteuid") and os.geteuid() == 0,
-        "root bypasses POSIX permission checks, so a 0o500 dir is still writable",
-    )
+    @unprivileged
     def test_readonly_path_returns_false(self) -> None:
         with TemporaryDirectory() as td:
             sub = Path(td) / "ro"

@@ -530,8 +530,6 @@ they stay in `meta/services.yml` and MUST NOT appear under `bridges:`.
   block above the addon key) or `# nocheck: addon-secret` (on a `config` leaf).
 - Optional (`required: false`) addons express their enabled/disabled split as
   a [`meta/variants.yml`](#) axis so the CI matrix exercises both states.
-  [test_addons_variant_pinning.py](../../../../../tests/lint/ansible/services/test_addons_variant_pinning.py)
-  warns for every optional addon its role's variants never switch on and off.
 
 > The Ansible-level `plugins/` directory (filters, lookups, modules) is a
 > different concept from the application-level `addons` topic. See the

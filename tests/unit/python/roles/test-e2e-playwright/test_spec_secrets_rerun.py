@@ -11,6 +11,7 @@ import unittest
 from itertools import pairwise
 from pathlib import Path
 
+from tests.utils.unprivileged import unprivileged
 from utils.cache.files import read_text
 from utils.roles.mapping import ROLE_FILE_PLAYWRIGHT_SPEC
 
@@ -407,7 +408,7 @@ class TestSpecSecretsRerun(unittest.TestCase):
         found = rerun((), linked=True, run_code=0, ca_mode=CA_MODE)
         self.assertEqual([found[key] for key in ("rc", "ran")], [1, False])
 
-    @unittest.skipIf(os.geteuid() == 0, "root runs its containers as root")
+    @unprivileged
     def test_a_non_root_rerun_runs_each_container_as_the_caller(self) -> None:
         caller = f"{os.getuid()}:{os.getgid()}"
         found = rerun((), run_code=0, ca_mode=CA_MODE)
@@ -524,7 +525,7 @@ class TestSpecSecretsRerunNegativeControls(unittest.TestCase):
         )
         self.assertEqual(found["command"][-3:], ["--grep", "talk", "admin"])
 
-    @unittest.skipIf(os.geteuid() == 0, "root runs its containers as root")
+    @unprivileged
     def test_a_rerun_that_runs_its_containers_as_root_is_caught(self) -> None:
         found = rerun((), AS_CALLER, run_code=0, ca_mode=CA_MODE)
         self.assertEqual(found["users"], [None, None])

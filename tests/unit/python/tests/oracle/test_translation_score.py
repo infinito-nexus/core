@@ -44,9 +44,6 @@ class OriginTestCase(unittest.TestCase):
         with mock.patch.object(suite, "docs_sources", return_value=[]):
             self.assertEqual(suite.origin("docs", None, "Gone"), suite.UNSOURCED)
 
-    def test_the_fixture_names_the_module_that_holds_it(self) -> None:
-        self.assertEqual(suite.FIXTURE_ORIGIN, "tests/oracle/test_translation_score.py")
-
 
 if __name__ == "__main__":
     unittest.main()

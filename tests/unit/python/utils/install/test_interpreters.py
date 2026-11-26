@@ -6,22 +6,26 @@ import unittest
 import unittest.mock as mock
 
 from utils.install import interpreters as interpreters_mod
+from utils.install.system_pkg import _COMMAND_PACKAGES, _SUPPORTED
 
 
 class TestEnsureInterpretersPresent(unittest.TestCase):
-    def test_installs_both_toolchains(self) -> None:
+    def test_installs_every_toolchain(self) -> None:
         with (
             mock.patch.object(interpreters_mod, "ensure_php_toolchain") as php,
             mock.patch.object(interpreters_mod, "ensure_ruby_present") as ruby,
+            mock.patch.object(interpreters_mod, "ensure_command_present") as command,
         ):
             interpreters_mod.ensure_interpreters_present()
         php.assert_called_once_with()
         ruby.assert_called_once_with()
+        command.assert_called_once_with("luajit")
 
     def test_never_fetches_the_composer_vendor_tree(self) -> None:
         with (
             mock.patch.object(interpreters_mod, "ensure_php_toolchain"),
             mock.patch.object(interpreters_mod, "ensure_ruby_present"),
+            mock.patch.object(interpreters_mod, "ensure_command_present"),
             mock.patch("utils.install.php.subprocess.run") as run,
         ):
             interpreters_mod.ensure_interpreters_present()
@@ -35,10 +39,17 @@ class TestEnsureInterpretersPresent(unittest.TestCase):
                 side_effect=RuntimeError("boom"),
             ),
             mock.patch.object(interpreters_mod, "ensure_ruby_present") as ruby,
+            mock.patch.object(interpreters_mod, "ensure_command_present") as command,
             self.assertRaises(RuntimeError),
         ):
             interpreters_mod.ensure_interpreters_present()
         ruby.assert_not_called()
+        command.assert_not_called()
+
+    def test_the_lua_interpreter_has_a_package_on_every_manager(self) -> None:
+        self.assertEqual(
+            set(_COMMAND_PACKAGES[interpreters_mod.LUA_INTERPRETER]), set(_SUPPORTED)
+        )
 
 
 if __name__ == "__main__":

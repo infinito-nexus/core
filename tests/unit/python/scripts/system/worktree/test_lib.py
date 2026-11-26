@@ -16,10 +16,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tests.utils.unprivileged import unprivileged
 from utils.cache.files import PROJECT_ROOT, read_text
 
 LIB = PROJECT_ROOT / "scripts" / "system" / "worktree" / "lib.sh"
-NEEDS_UNPRIVILEGED = "clearing the write bit does not restrain root"
 SLOTS_MODULE = "cli.administration.deploy.development.slots"
 
 
@@ -67,7 +67,7 @@ class TestWorktreeUnregister(unittest.TestCase):
             self.assertEqual(result.returncode, 0)
             self.assertFalse(entry.exists())
 
-    @unittest.skipIf(os.geteuid() == 0, NEEDS_UNPRIVILEGED)
+    @unprivileged
     def test_pinned_directory_still_unregisters(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             entry = self._entry(tmp)
@@ -83,7 +83,7 @@ class TestWorktreeUnregister(unittest.TestCase):
             self.assertEqual(result.returncode, 1)
             self.assertTrue(entry.exists())
 
-    @unittest.skipIf(os.geteuid() == 0, NEEDS_UNPRIVILEGED)
+    @unprivileged
     def test_undeletable_pointers_report_still_registered(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             entry = self._entry(tmp)

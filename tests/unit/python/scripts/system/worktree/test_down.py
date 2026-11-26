@@ -20,6 +20,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tests.utils.unprivileged import unprivileged
 from utils.cache.files import PROJECT_ROOT, read_text
 
 WORKTREE_SCRIPTS = PROJECT_ROOT / "scripts" / "system" / "worktree"
@@ -38,7 +39,6 @@ GIT_REPO_SCOPE = (
     "GIT_OBJECT_DIRECTORY",
     "GIT_ALTERNATE_OBJECT_DIRECTORIES",
 )
-NEEDS_UNPRIVILEGED = "clearing the write bit does not restrain root"
 
 
 class WorktreeDownFixture:
@@ -160,7 +160,7 @@ class TestWorktreeDown(unittest.TestCase):
             self.assertIn("cannot read the git status", result.stderr)
             self.assertTrue(fixture.checkout.exists())
 
-    @unittest.skipIf(os.geteuid() == 0, NEEDS_UNPRIVILEGED)
+    @unprivileged
     def test_pinned_metadata_dir_still_releases_the_branch(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             fixture = WorktreeDownFixture(tmp)
@@ -175,7 +175,7 @@ class TestWorktreeDown(unittest.TestCase):
             self.assertFalse(fixture.checkout.exists())
             self.assertFalse(fixture.registered())
 
-    @unittest.skipIf(os.geteuid() == 0, NEEDS_UNPRIVILEGED)
+    @unprivileged
     def test_undeletable_pointers_fail_loudly(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             fixture = WorktreeDownFixture(tmp)
@@ -189,7 +189,7 @@ class TestWorktreeDown(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("still registers branch", result.stderr)
 
-    @unittest.skipIf(os.geteuid() == 0, NEEDS_UNPRIVILEGED)
+    @unprivileged
     def test_a_deleted_checkout_gives_its_slots_back_before_a_late_failure(
         self,
     ) -> None:

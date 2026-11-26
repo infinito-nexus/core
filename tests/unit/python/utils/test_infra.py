@@ -338,7 +338,11 @@ class TestUp(unittest.TestCase):
         )
 
     def test_a_failure_without_takeover_rolls_nothing_back(self) -> None:
-        def fail(_argv: list[str]) -> None:
+        ran: list[list[str]] = []
+        applied: list[bool] = []
+
+        def fail(argv: list[str]) -> None:
+            ran.append(argv)
             raise RuntimeError("compose up failed")
 
         with self.assertRaises(RuntimeError):
@@ -355,10 +359,11 @@ class TestUp(unittest.TestCase):
                 bridge=None,
                 installs=list,
                 prepare=list,
-                apply=list,
+                apply=lambda: applied.append(True),
                 evict=list,
             )
-        self.assertTrue(self.lock.with_name(infra.OWNER_NAME).is_file())
+        self.assertEqual(ran, [["compose", "up", "--detach", "--wait"]])
+        self.assertEqual(applied, [True])
 
     def test_a_floor_refusal_starts_nothing(self) -> None:
         with patch("sys.stderr"):

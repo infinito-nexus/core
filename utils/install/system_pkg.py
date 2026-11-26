@@ -158,6 +158,7 @@ _COMMAND_PACKAGES: dict[str, dict[str, list[str]]] = {
         "brew": ["php"],
     },
     "ruby": {m: ["ruby"] for m in _SUPPORTED},
+    "luajit": {m: ["luajit"] for m in _SUPPORTED},
     "composer": {m: ["composer"] for m in _SUPPORTED},
     "npm": {
         "pacman": ["npm", "nodejs"],

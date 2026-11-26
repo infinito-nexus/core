@@ -11,6 +11,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tests.utils.unprivileged import unprivileged
+
 from . import PROJECT_ROOT
 
 SCRIPT = (
@@ -114,7 +116,7 @@ class NfsBackupScriptTests(unittest.TestCase):
         self.assertEqual(first_content, "v1")
         self.assertEqual(second_content, "v2")
 
-    @unittest.skipIf(os.geteuid() == 0, "root reads past chmod 000")
+    @unprivileged
     def test_failed_rsync_removes_incomplete_generation(self):
         secret = self.source / "unreadable.txt"
         secret.write_text("nope")

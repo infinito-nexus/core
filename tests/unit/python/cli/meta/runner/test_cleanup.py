@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import io
 import json
-import os
 import subprocess
 import tempfile
 import unittest
@@ -14,6 +13,7 @@ from cli.meta.runner.cleanup.__main__ import (
     job_stacks,
     run,
 )
+from tests.utils.unprivileged import unprivileged
 from utils.infra_inventory import POOL_KEY
 from utils.runner import jobs
 from utils.runner.jobs import HELD, RUNNING
@@ -148,7 +148,7 @@ class TestUnusableQueue(unittest.TestCase):
         self.assertEqual([code, probe.calls, self.out.getvalue()], [2, [], ""])
         self.assertIn("make infra-update", self.err.getvalue())
 
-    @unittest.skipIf(os.geteuid() == 0, "root writes every directory")
+    @unprivileged
     def test_a_queue_outside_the_users_group_reports_no_orphan(self) -> None:
         self.root.mkdir()
         self.root.chmod(0o550)

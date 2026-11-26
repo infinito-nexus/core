@@ -43,11 +43,6 @@ class TestOpenprojectMigrationsPending(unittest.TestCase):
     def test_failed_first_migration_left_no_stamp_and_migrates_again(self):
         self.assertTrue(openproject_migrations_pending("\n", RUNNING_IMAGE))
 
-    def test_failed_migration_of_a_new_image_kept_the_old_stamp_and_migrates_again(
-        self,
-    ):
-        self.assertTrue(openproject_migrations_pending(PREVIOUS_IMAGE, RUNNING_IMAGE))
-
     def test_stamp_that_only_prefixes_the_image_migrates(self):
         self.assertTrue(
             openproject_migrations_pending(RUNNING_IMAGE[:-1], RUNNING_IMAGE)

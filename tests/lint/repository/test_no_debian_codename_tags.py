@@ -6,8 +6,8 @@ Why
 A codename carries no ordering. ``bookworm`` and ``trixie`` are two
 opaque strings, so neither the image updater at
 [test_image_versions.py](../../external/update/docker/test_image_versions.py)
-nor the semver pin lint at
-[test_semver_pinning.py](../../lint/ansible/services/test_semver_pinning.py)
+nor the pin policy at
+[test_image_pin_policy.py](../../external/update/docker/test_image_pin_policy.py)
 can tell that one supersedes the other. A python image pinned to the Debian
 12 codename is therefore frozen on that release for as long as it stands: no
 job will ever raise it, and the freeze is invisible because the tag keeps

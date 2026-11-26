@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import contextlib
 import io
-import os
 import shutil
 import tempfile
 import unittest
 from pathlib import Path
 
 from cli.administration.recover import stage
+from tests.utils.unprivileged import unprivileged
 
 
 class RemoveTest(unittest.TestCase):
@@ -24,9 +24,8 @@ class RemoveTest(unittest.TestCase):
             self.read_only.chmod(0o700)
         shutil.rmtree(self.stage, ignore_errors=True)
 
+    @unprivileged
     def test_a_read_only_directory_rsync_kept_is_removed_too(self):
-        if os.geteuid() == 0:
-            self.skipTest("root ignores directory permissions")
         stderr = io.StringIO()
         with contextlib.redirect_stderr(stderr):
             stage.remove(self.stage)

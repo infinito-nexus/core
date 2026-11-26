@@ -3,11 +3,11 @@ from __future__ import annotations
 import fcntl
 import importlib
 import json
-import os
 import socket
 import unittest
 from pathlib import Path
 
+from tests.utils.unprivileged import unprivileged
 from utils.cache.files import read_text
 
 from .provision._fake_provision import (
@@ -988,16 +988,16 @@ class TestTheTofuToken(ProvisionCase):
         self.assertIn("failed: OpenBao POST auth/token/revoke-self", result.stderr)
         self.assertNotIn("pins hetzner", result.stderr)
 
+    @unprivileged
     def test_the_python_process_is_undumpable_before_the_login(self):
         text = read_text(str(FILES / "python" / "provision.py"))
         self.assertEqual(dump_order_findings(text), [])
-        if os.geteuid() == 0:
-            self.skipTest("root reads the environ of an undumpable process")
         result = self.sandbox.run("provision-incus")
         self.assertEqual(result.returncode, 0, result.stderr)
         environments = self.runner_environments()
         self.assertEqual([e for e in environments if e is not None], [])
 
+    @unprivileged
     def test_negative_control_a_dumpable_process_is_found(self):
         text = read_text(str(FILES / "python" / "provision.py"))
         held = "    jwt = task_token(TASK_JWT_FD)\n"
@@ -1005,8 +1005,6 @@ class TestTheTofuToken(ProvisionCase):
             held, held + UNDUMPABLE_CALL, 1
         )
         self.assertNotEqual(dump_order_findings(moved), [])
-        if os.geteuid() == 0:
-            self.skipTest("root reads the environ of a dumpable process too")
         self.plant_dumpable()
         result = self.sandbox.run("provision-incus")
         self.assertEqual(result.returncode, 0, result.stderr)

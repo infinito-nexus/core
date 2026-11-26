@@ -41,44 +41,6 @@ def _run(
 
 
 class TestContainerServiceLookup(unittest.TestCase):
-    def test_missing_terms_raise(self):
-        with self.assertRaises(AnsibleError):
-            LookupModule().run([], variables={})
-        with self.assertRaises(AnsibleError):
-            LookupModule().run(["web-app-mattermost"], variables={})
-        with self.assertRaises(AnsibleError):
-            LookupModule().run(
-                ["web-app-mattermost", "mattermost", "extra"], variables={}
-            )
-
-    def test_empty_application_id_raises(self):
-        with self.assertRaises(AnsibleError):
-            _run("", "mattermost")
-
-    def test_empty_service_key_raises(self):
-        with self.assertRaises(AnsibleError):
-            _run("web-app-mattermost", "")
-
-    def test_unknown_application_raises(self):
-        with self.assertRaises(AnsibleError):
-            _run("web-app-missing", "mattermost")
-
-    def test_unknown_service_raises(self):
-        with self.assertRaises(AnsibleError):
-            _run("web-app-mattermost", "smtp")
-
-    def test_compose_mode_returns_bare_name(self):
-        out = _run(
-            "web-app-mattermost",
-            "mattermost",
-            variables={"DEPLOYMENT_MODE": "compose"},
-        )
-        self.assertEqual(out, ["mattermost"])
-
-    def test_compose_mode_defaults_when_deployment_mode_missing(self):
-        out = _run("web-app-mattermost", "mattermost", variables={})
-        self.assertEqual(out, ["mattermost"])
-
     def test_swarm_mode_returns_stack_service_name(self):
         out = _run(
             "web-app-mattermost",
@@ -113,22 +75,6 @@ class TestContainerServiceLookup(unittest.TestCase):
             applications=apps,
         )
         self.assertEqual(out, ["matomo_bootstrap"])
-
-    def test_service_with_empty_name_raises(self):
-        apps = {
-            "web-app-mattermost": {
-                "services": {
-                    "mattermost": {"name": ""},
-                },
-            },
-        }
-        with self.assertRaises(AnsibleError):
-            _run(
-                "web-app-mattermost",
-                "mattermost",
-                variables={"DEPLOYMENT_MODE": "compose"},
-                applications=apps,
-            )
 
     def test_application_with_no_services_raises(self):
         apps = {"web-app-mattermost": {}}

@@ -8,6 +8,8 @@ import unittest
 import unittest.mock as mock
 from pathlib import Path
 
+from tests.utils.unprivileged import unprivileged
+
 from ._fake_provision import harness_directory, load
 
 hardening = load("provision.hardening")
@@ -105,6 +107,7 @@ class TestCloseOpen(unittest.TestCase):
     def test_a_passable_directory_the_walk_cannot_list_refuses_the_start(self):
         self.assertEqual(self.hidden_findings(), [])
 
+    @unprivileged
     def test_negative_control_without_the_check_a_hidden_directory_stays_open(self):
         with mock.patch.object(hardening, "hidden", return_value=[]):
             findings = self.hidden_findings()

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import grp
-import os
 import tempfile
 import unittest
 import unittest.mock as mock
 from pathlib import Path
 
+from tests.utils.unprivileged import unprivileged
 from utils.cache import ROLES_DIR
 from utils.cache.yaml import load_yaml
 from utils.infra_inventory import POOL_ROLE
@@ -103,7 +103,7 @@ class TestQueueRefusal(unittest.TestCase):
         self.root.chmod(store.QUEUE_ROOT_MODE)
         self.assertEqual(len(role.queue_refusal(self.root)), len(store.QUEUE_DIRS))
 
-    @unittest.skipIf(os.geteuid() == 0, "root writes every directory")
+    @unprivileged
     def test_an_unwritable_queue_names_the_group_to_join(self) -> None:
         self.root.mkdir()
         self.root.chmod(0o550)

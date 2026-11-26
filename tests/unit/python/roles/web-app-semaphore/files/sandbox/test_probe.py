@@ -11,6 +11,8 @@ import unittest
 import unittest.mock as mock
 from pathlib import Path
 
+from tests.utils.unprivileged import unprivileged
+
 FAKES = importlib.import_module("..provision._fake_provision", __package__)
 harness_directory = FAKES.harness_directory
 probe = FAKES.load("sandbox.probe")
@@ -109,6 +111,7 @@ class TestProbeClasses(unittest.TestCase):
         self.addCleanup(hidden.chmod, 0o700)
         self.assertIn(f"writes {hidden}", WALK([], self.root))
 
+    @unprivileged
     def test_negative_control_a_walk_of_listed_directories_misses_it(self):
         hidden = self.root / "hidden"
         hidden.mkdir()

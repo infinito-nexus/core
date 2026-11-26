@@ -40,6 +40,7 @@ from cli.administration.deploy.development.stack import (
     normalize,
     stack_name,
 )
+from tests.utils.unprivileged import unprivileged
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.env.handlers.infinito.cache.paths import ENTRIES, machine
 
@@ -56,7 +57,6 @@ SLOTS = "cli.administration.deploy.development.slots"
 WORKTREE_LIB = ROOT / "scripts" / "system" / "worktree" / "lib.sh"
 MAX_SLOT = re.compile(r"^WORKTREE_MAX_SLOT=(\d+)$", re.MULTILINE)
 LAST = int(MAX_SLOT.search(read_text(str(WORKTREE_LIB)))[1])
-NEEDS_UNPRIVILEGED = "clearing the write bit does not restrain root"
 
 
 def scratch_dir(test: unittest.TestCase) -> Path:
@@ -330,7 +330,7 @@ class TestSlotAllocation(SlotRegistryCase):
         self.assertIn(str(first.resolve()), str(refusal.exception))
         self.assertEqual(entries(self.root)["x"].checkout, str(first.resolve()))
 
-    @unittest.skipIf(os.geteuid() == 0, NEEDS_UNPRIVILEGED)
+    @unprivileged
     def test_an_unwritable_registry_is_refused_without_a_traceback(self):
         self.root.mkdir()
         self.root.chmod(0o500)

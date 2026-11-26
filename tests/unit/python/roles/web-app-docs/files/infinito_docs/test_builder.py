@@ -12,6 +12,7 @@ import sys
 import unittest
 from unittest.mock import patch
 
+from tests.utils.unprivileged import unprivileged
 from utils.cache.files import read_text
 
 from .test_library import LibraryFixture, _commit, builder, library
@@ -315,6 +316,7 @@ class TestPrepared(LibraryFixture, unittest.TestCase):
             "the reuse copied instead of linking",
         )
 
+    @unprivileged
     def test_the_cache_refuses_a_write_through_a_link(self) -> None:
         self.library.build("latest")
         cached = next(self.library.prepared.iterdir())
@@ -325,8 +327,6 @@ class TestPrepared(LibraryFixture, unittest.TestCase):
             source.stat().st_mode & 0o222,
             "a writable cached file lets one build rewrite every later reuse",
         )
-        if os.geteuid() == 0:
-            self.skipTest("root writes through the mode bits the seal relies on")
         with self.assertRaises(PermissionError):
             source.write_text("rewritten", encoding="utf-8")
 
