@@ -16,8 +16,8 @@ RUNNER_GUARD = "_cli_runner == inventory_hostname"
 
 def _tasks() -> list[tuple[dict, str]]:
     """Returns:
-        Every task, the tasks inside a ``block`` included, in file order,
-        each with the ``when`` it runs under, its enclosing blocks' included.
+    Every task, the tasks inside a ``block`` included, in file order,
+    each with the ``when`` it runs under, its enclosing blocks' included.
     """
     pending = [(task, "") for task in load_yaml_any(str(RUN_ONE))]
     flat: list[tuple[dict, str]] = []
