@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 PARAM_HEADER = re.compile(r"^#\s*Param:?\s+([A-Za-z_]\w*)", re.MULTILINE)
 VARS_BLOCK = re.compile(r"^(?:\s*[-]\s*)?vars\s*:\s*(?:&[\w-]+\s*)?$")
+RESULT_NAME = re.compile(r"^\s*(?:register|netns_request_result)\s*:\s*([a-zA-Z_]\w*)")
 
 
 def param_names(content: str) -> set[str]:
@@ -99,7 +100,7 @@ class TestVariableDefinitions(unittest.TestCase):
         self.ansible_vars_block = VARS_BLOCK
         self.ansible_loop_var = re.compile(r"^\s*loop_var\s*:\s*([a-zA-Z_]\w*)")
         self.mapping_key = re.compile(r"^\s*([a-zA-Z_]\w*)\s*:\s*")
-        self.register_pat = re.compile(r"^\s*register\s*:\s*([a-zA-Z_]\w*)")
+        self.register_pat = RESULT_NAME
 
         self.templated_mapping_key = re.compile(r'^\s*(["\'])(.*?\{\{.*?\}\}.*?)\1\s*:')
 
@@ -390,6 +391,16 @@ class TestDefinitionSources(unittest.TestCase):
         for line in ("vars: *openbao_kv_session", "vars: {a: 1}", "vars_files:"):
             with self.subTest(line=line):
                 self.assertIsNone(VARS_BLOCK.match(line))
+
+    def test_a_register_or_netns_request_result_names_its_output(self) -> None:
+        for line in ("  register: app_answer", "    netns_request_result: app_answer"):
+            with self.subTest(line=line):
+                self.assertEqual(RESULT_NAME.match(line).group(1), "app_answer")
+
+    def test_negative_control_other_netns_request_keys_name_no_output(self) -> None:
+        for line in ("    netns_request_url: app_answer", "    result: app_answer"):
+            with self.subTest(line=line):
+                self.assertIsNone(RESULT_NAME.match(line))
 
 
 if __name__ == "__main__":

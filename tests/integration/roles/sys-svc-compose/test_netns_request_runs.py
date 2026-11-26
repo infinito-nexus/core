@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import shutil
@@ -91,12 +92,10 @@ def _slow(name: str, **params) -> dict:
 class _SlowHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         time.sleep(SLOW_SECONDS)
-        try:
+        with contextlib.suppress(BrokenPipeError, ConnectionResetError):
             self.send_response(200)
             self.end_headers()
             self.wfile.write(b"SLOWMARK")
-        except (BrokenPipeError, ConnectionResetError):
-            pass
 
     def log_message(self, *_args) -> None:
         pass

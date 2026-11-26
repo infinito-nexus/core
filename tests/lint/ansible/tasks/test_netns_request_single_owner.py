@@ -9,11 +9,14 @@ from typing import TYPE_CHECKING
 import yaml
 
 from utils.cache.files import PROJECT_ROOT, iter_project_files_with_content
+from utils.cache.yaml import load_yaml_str
+from utils.roles.mapping import ROLE_FILE_TASKS_MAIN, ROLE_FILE_TASKS_MCP
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
 HELPER = "roles/sys-svc-compose/tasks/utils/netns_request.yml"
+FIXTURE_PATH = f"roles/x/{ROLE_FILE_TASKS_MAIN}"
 ALLOWLIST: dict[tuple[str, str], str] = {
     (
         "roles/web-app-xwiki/tasks/utils/http.yml",
@@ -32,11 +35,11 @@ ALLOWLIST: dict[tuple[str, str], str] = {
         "🤖 Provision the managed OpenAI credential against the gateway",
     ): "runs its own python script",
     (
-        "roles/web-app-n8n/tasks/utils/mcp.yml",
+        f"roles/web-app-n8n/{ROLE_FILE_TASKS_MCP}",
         "🔌 Provision the managed MCP trigger workflow",
     ): "runs its own python script",
     (
-        "roles/web-app-n8n/tasks/utils/mcp.yml",
+        f"roles/web-app-n8n/{ROLE_FILE_TASKS_MCP}",
         "🔌 Reconcile the managed agent over every discovered MCP provider",
     ): "runs its own python script",
     (
@@ -57,7 +60,7 @@ INLINE = (
 INDIRECT = re.compile(r"""\b(?:lookup|q|query)\s*\(\s*(?!['"\s])""")
 INDIRECT_ALLOWLIST: dict[tuple[str, str], str] = {
     (
-        "roles/sys-front-inj-javascript/tasks/main.yml",
+        f"roles/sys-front-inj-javascript/{ROLE_FILE_TASKS_MAIN}",
         "📄 Load JavaScript code for '{{ application_id }}'",
     ): "picks the template or the file lookup",
 }
@@ -159,14 +162,14 @@ def _offenders(
         )
         if path.endswith((".yml", ".yaml")) and INDIRECT.search(code):
             try:
-                found += _indirect(path, yaml.safe_load(text))
+                found += _indirect(path, load_yaml_str(text))
             except yaml.YAMLError:
                 found.append(f"{path}: not parseable, so not checkable")
     for path, text in files.items():
         if path == HELPER:
             continue
         try:
-            docs[path] = yaml.safe_load(text)
+            docs[path] = load_yaml_str(text)
         except yaml.YAMLError:
             found.append(f"{path}: not parseable, so not checkable")
     results: dict[str, list[tuple[str, dict | None]]] = {}
@@ -235,7 +238,7 @@ def _project() -> tuple[dict[str, str], dict[str, str]]:
 
 
 def _fixture(text: str, others: dict[str, str] | None = None) -> list[str]:
-    return _offenders({"roles/x/tasks/main.yml": text}, {}, others or {})
+    return _offenders({FIXTURE_PATH: text}, {}, others or {})
 
 
 INCLUDE = (
@@ -312,22 +315,20 @@ FIXTURES = {
 """,
 }
 FIXTURE_FINDINGS = {
-    "classic": ["roles/x/tasks/main.yml: task 'probe' calls the namespace inline"],
+    "classic": [f"{FIXTURE_PATH}: task 'probe' calls the namespace inline"],
     "netns_enter_with_script": [
-        "roles/x/tasks/main.yml: task 'probe' calls the namespace inline"
+        f"{FIXTURE_PATH}: task 'probe' calls the namespace inline"
     ],
-    "split_lookup": ["roles/x/tasks/main.yml: task 'probe' calls the namespace inline"],
-    "query": ["roles/x/tasks/main.yml: task 'probe' calls the namespace inline"],
-    "space_before_paren": [
-        "roles/x/tasks/main.yml: task 'probe' calls the namespace inline"
-    ],
-    "indirect_name": ["roles/x/tasks/main.yml: task 'probe' names a lookup indirectly"],
-    "outer_vars": ["roles/x/tasks/main.yml: task 'outer' names netns_request_body"],
+    "split_lookup": [f"{FIXTURE_PATH}: task 'probe' calls the namespace inline"],
+    "query": [f"{FIXTURE_PATH}: task 'probe' calls the namespace inline"],
+    "space_before_paren": [f"{FIXTURE_PATH}: task 'probe' calls the namespace inline"],
+    "indirect_name": [f"{FIXTURE_PATH}: task 'probe' names a lookup indirectly"],
+    "outer_vars": [f"{FIXTURE_PATH}: task 'outer' names netns_request_body"],
     "guarded_reader_outside": [
-        "roles/x/tasks/main.yml: guarded result app_answer is read outside its when block"
+        f"{FIXTURE_PATH}: guarded result app_answer is read outside its when block"
     ],
     "when_on_include": [
-        "roles/x/tasks/main.yml: task 'helper' sets when: on a helper include"
+        f"{FIXTURE_PATH}: task 'helper' sets when: on a helper include"
     ],
 }
 OTHER_FIXTURES = {
