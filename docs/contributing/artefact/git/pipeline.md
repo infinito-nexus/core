@@ -48,7 +48,7 @@ The `build-ci-images` stage uses [call-images-build-ci.yml](../../../../.github/
 
 ### 5. Code Tests 🧪
 
-The `test` job runs [call-test.yml](../../../../.github/workflows/call-test.yml): `make test` fans the unit, integration, lint and external suites out in parallel on the runner host. It MUST pass `code-quality-gate`.
+The `test` job runs [call-test.yml](../../../../.github/workflows/call-test.yml): `make test` runs on three runner hosts, one per suite group (integration, unit, lint plus external), and the job fails unless every group passed. It MUST pass `code-quality-gate`.
 
 ### 6. Code Quality Gate 🚦
 

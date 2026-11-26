@@ -15,8 +15,17 @@ import unittest
 from pathlib import Path
 
 from utils import PROJECT_ROOT
+from utils.cache.files import read_text
+from utils.stacks.makefile import MAKEFILE as REPO_MAKEFILE
+from utils.stacks.makefile import parse
 
 SCRIPT = PROJECT_ROOT / "scripts" / "make" / "parallel.sh"
+UNIT_LANGUAGES = {
+    "test-unit-javascript",
+    "test-unit-php",
+    "test-unit-python",
+    "test-unit-ruby",
+}
 MAKEFILE = (
     "green:\n"
     "\t@echo green-ran\n"
@@ -112,6 +121,20 @@ class TestNestedDispatch(unittest.TestCase):
 
         self.assertEqual(proc.returncode, 0, proc.stdout)
         self.assertNotIn("cpu avg", proc.stdout)
+
+
+class TestUnitLanguagesRunSideBySide(unittest.TestCase):
+    def test_test_unit_dispatches_every_language_as_a_parallel_sibling(self) -> None:
+        graph, bodies = parse(read_text(str(REPO_MAKEFILE)))
+        dispatched = {
+            word
+            for line in bodies["test-unit"]
+            if "scripts/make/parallel.sh" in line
+            for word in line.split()
+        }
+
+        self.assertEqual(dispatched & UNIT_LANGUAGES, UNIT_LANGUAGES)
+        self.assertEqual(graph["test-unit"], UNIT_LANGUAGES)
 
 
 if __name__ == "__main__":

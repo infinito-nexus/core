@@ -48,11 +48,47 @@ jobs:
         shell: bash
         run: make role-skeleton-samples
 
+      - name: 🧰 Install the lint tools ahead of make lint
+        id: install-lint
+        continue-on-error: true
+        shell: bash
+        run: make install-lint
+
+      - name: 🔑 Fingerprint what ansible-lint reads
+        id: ansible-lint-key
+        if: ${{ steps.install-lint.outcome == 'success' }}
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          source scripts/lint/ansible/stamp.sh
+          fingerprint="$(ansible_lint_fingerprint all)"
+          echo "key=ansible-lint-stamp-${fingerprint}" >> "$GITHUB_OUTPUT"
+
+      - name: ♻️ Restore the ansible-lint stamp of these inputs
+        id: ansible-lint-restore
+        if: ${{ steps.ansible-lint-key.outputs.key != '' }}
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/ansible-lint.stamp
+          key: ${{ steps.ansible-lint-key.outputs.key }}
+
       - name: 🧹 Run all lint checks via make
         shell: bash
         run: |
           set -euo pipefail
           make lint 2>&1 | tee /tmp/lint-output.txt
+
+      - name: 💾 Save the ansible-lint stamp of a green run
+        if: >-
+          ${{ !cancelled()
+              && steps.ansible-lint-key.outputs.key != ''
+              && steps.ansible-lint-restore.outputs.cache-hit != 'true'
+              && hashFiles('build/ansible-lint.stamp') != '' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/ansible-lint.stamp
+          key: ${{ steps.ansible-lint-key.outputs.key }}
 
       - name: 🔨 Build step summary from annotations
         if: always()

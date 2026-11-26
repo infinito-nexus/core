@@ -1201,12 +1201,9 @@ system-purge:
 
 .PHONY: test
 # Run the full test pipeline.
+# Param targets: subset of the suites to run side by side; unset runs all four.
 test: roles-pull
-	@bash scripts/make/parallel.sh \
-		test-external \
-		test-integration \
-		test-lint \
-		test-unit
+	@bash scripts/make/parallel.sh $(or $(targets),test-external test-integration test-lint test-unit)
 
 .PHONY: test-external
 # Run the external test suite.
@@ -1314,7 +1311,12 @@ test-single: roles-pull
 
 .PHONY: test-unit
 # Run the unit test suite (every language).
-test-unit: test-unit-python test-unit-javascript test-unit-php test-unit-ruby
+test-unit:
+	@bash scripts/make/parallel.sh \
+		test-unit-python \
+		test-unit-javascript \
+		test-unit-php \
+		test-unit-ruby
 
 .PHONY: test-unit-javascript
 # Run the JavaScript unit test suite (node:test, no npm dependency).

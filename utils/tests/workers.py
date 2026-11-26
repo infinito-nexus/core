@@ -13,10 +13,16 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from utils.tests.pytest.longest_first import scope_durations
 
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
 FALLBACK_WEIGHTS = {"integration": 0.45, "unit": 0.3, "lint": 0.2, "external": 0.05}
+FLOOR_KEYS = {"external": "INFINITO_TEST_EXTERNAL_WORKERS_MIN"}
+MIN_WORKERS = 1
 SUITE_OF_TARGET = {
     "test-external": "external",
     "test-integration": "integration",
@@ -46,8 +52,27 @@ def weights(suites: set[str], reports: Path) -> dict[str, float]:
     return {suite: FALLBACK_WEIGHTS[suite] for suite in suites}
 
 
+def floor(suite: str, environ: Mapping[str, str]) -> int:
+    """
+    Args:
+        suite: this run's ``INFINITO_TEST_TYPE``.
+        environ: the environment holding the keys of ``FLOOR_KEYS``.
+
+    Returns:
+        The fewest workers the suite gets, whatever its share of the budget.
+    """
+    if suite in FLOOR_KEYS:
+        return int(environ[FLOOR_KEYS[suite]])
+    return MIN_WORKERS
+
+
 def workers(
-    suite: str, siblings: list[str], cpus: int, target: float, reports: Path
+    suite: str,
+    siblings: list[str],
+    cpus: int,
+    target: float,
+    reports: Path,
+    least: int,
 ) -> int:
     """
     Args:
@@ -56,16 +81,17 @@ def workers(
         cpus: the CPUs this process may run on.
         target: workers per CPU summed over the suites running side by side.
         reports: the directory holding ``<suite>.xml`` of the last run.
+        least: the fewest workers the suite gets, as :func:`floor` returns it.
 
     Returns:
-        The xdist worker count, at least one.
+        The xdist worker count, at least ``least``.
     """
     budget = cpus * target
     peers = {SUITE_OF_TARGET[name] for name in siblings if name in SUITE_OF_TARGET}
     if suite not in peers:
-        return max(1, round(budget))
+        return max(least, round(budget))
     shares = weights(peers, reports)
-    return max(1, round(budget * shares[suite] / sum(shares.values())))
+    return max(least, round(budget * shares[suite] / sum(shares.values())))
 
 
 def main() -> None:
@@ -73,13 +99,15 @@ def main() -> None:
     target = os.environ[
         "INFINITO_TEST_CPU_TARGET_CI" if on_ci else "INFINITO_TEST_CPU_TARGET_LOCAL"
     ]
+    suite = sys.argv[1]
     print(
         workers(
-            sys.argv[1],
+            suite,
             os.environ.get("PARALLEL_SIBLINGS", "").split(),
             len(os.sched_getaffinity(0)),
             float(target),
             REPORTS,
+            floor(suite, os.environ),
         )
     )
 

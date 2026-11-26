@@ -76,6 +76,7 @@ stacks:
       - test-performance
       - test-session
       - test-single
+      - test-unit
       - test-unit-javascript
       - test-unit-php
       - test-unit-python

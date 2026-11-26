@@ -24,7 +24,7 @@ flowchart TB
         waitfork["wait-fork-prereq-run"] --> forkready["fork-prereqs-ready"]
 
         lintwf["call-lint.yml: make lint"]
-        testwf["call-test.yml: make test"]
+        testwf["call-test.yml: make test, one job per suite"]
         codeql["cron-security-codeql.yml"]
         buildci["build-ci-images: call-images-build-ci.yml"] --> dns["call-test-dns.yml"]
         mirror["call-images-mirror-missing.yml"]
@@ -62,6 +62,12 @@ flowchart TB
     chunk1 --> deploy
     chunk2 --> deploy
 ```
+
+### Test and lint jobs
+
+[call-test.yml](call-test.yml) runs `make test` once per suite on its own runner: `integration`, `unit`, and `lint-external` (the external and lint suites side by side), each passing its share of the suites as `targets`. The three jobs together run exactly the four suites of `make test`, `fail-fast` is off so every suite reports, and the `🧪 Test` job fails unless all three passed. Each job restores the JUnit reports of its suite's last run (same branch first, then `main`) so the longest-first order and the worker split see real durations, drops every restored report the run did not rewrite before the summary and the upload, and saves its fresh reports per commit.
+
+[call-lint.yml](call-lint.yml) keys the ansible-lint stamp `build/ansible-lint.stamp` ([stamp.sh](../../scripts/lint/ansible/stamp.sh)) by the fingerprint of everything ansible-lint reads, tool versions included. A run whose inputs a green run already linted restores the stamp and skips ansible-lint; the playbook syntax check always runs. Only a run that did not restore the stamp and linted green saves one.
 
 ## Sweeps and chunks
 
