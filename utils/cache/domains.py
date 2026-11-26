@@ -35,6 +35,12 @@ if TYPE_CHECKING:
 
 _MERGED_DOMAINS_CACHE: dict[tuple, dict[str, Any]] = {}
 
+_DOMAIN_PATHS: tuple[tuple[str, ...], ...] = (
+    ("domains",),
+    ("networks", "reachability"),
+    ("services", "tor"),
+)
+
 
 def _as_bool(value: Any) -> bool:
     if isinstance(value, bool):
@@ -257,6 +263,9 @@ def get_merged_domains(
     served as the finished map. The tor flags are rendered before they are
     read (``_resolved_flag``), so that mid-render map carries the same onion
     domains the finished one does.
+
+    Exception: only the ``_DOMAIN_PATHS`` of each application render, so a
+    key read here that is missing from them comes back absent.
     """
     from plugins.filter.canonical_domains_map import (
         FilterModule as _CanonicalDomainsFilter,
@@ -293,6 +302,7 @@ def get_merged_domains(
         variables=variables,
         roles_dir=roles_dir,
         templar=templar,
+        paths=_DOMAIN_PATHS,
     )
 
     filter_instance = _CanonicalDomainsFilter()

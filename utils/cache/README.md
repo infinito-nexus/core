@@ -34,6 +34,8 @@ Inside a play the process boundary is the task: Ansible forks a fresh worker per
 
 While one render runs, the re-entry guard also holds that render's unrendered view and its cache key. A nested `get_merged_applications` call from a lookup inside a role template (`config`, `tls`, `domain`, ...) with the same key returns that view instead of copying and merging the role defaults again. The view is shared by every nested call of the render, so callers MUST NOT mutate it. The guard drops it when the render ends.
 
+The cache holds a `LazyApplications` per key, which renders an application on its first read with the variables of the call that created it. `get_lazy_applications` hands it out as is, so `lookup('config', app, ...)` and `lookup('applications', app)` render only `app`; `get_merged_applications` renders the rest and returns one plain dict, and its `paths` argument renders only the named key paths of each application, which is all `get_merged_domains` reads. Every consumer that needs the whole map (`lookup('applications')` without terms, the carrier, `applications_current_play`) still gets the plain dict.
+
 ## Test-Only Helpers 🧪
 
 Each module owns a private `_reset()` that clears its own cache dicts. `utils.cache.reset._reset_cache_for_tests()` orchestrates all six (`base`, `applications`, `users`, `domains`, `yaml`, `files`) plus the shared fingerprint memo. Unit tests that exercise the cached paths MUST call it in `setUp` to guarantee clean state across test cases.

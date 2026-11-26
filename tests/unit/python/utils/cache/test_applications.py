@@ -27,6 +27,7 @@ from ansible.parsing.vault import (
 )
 from ansible.template import Templar
 
+from tests.utils.cross_app_templar import CrossAppTemplar
 from utils.cache import applications as cache_apps
 from utils.cache.carrier import (
     APPLICATIONS_RENDERED_FACT,
@@ -968,6 +969,163 @@ class TestGetMergedApplicationsMemoisesTheGuardedPath(unittest.TestCase):
             self._merged(roles)
 
             self.assertEqual(set(cache_apps._MERGED_APPLICATIONS_CACHE), before)
+
+
+_CROSS_APP_SCOPE = {"DOMAIN_PRIMARY": "example.org"}
+
+_CROSS_APP_SERVICES = {
+    "web-app-a": {
+        "api": {"host": "api.example.org", "owner": "web-app-a", "label": "one"}
+    },
+    "web-app-b": {"client": {"target": "api.example.org", "owner": "web-app-b"}},
+}
+
+
+def _seed_cross_app_roles(tmp: Path) -> Path:
+    roles = tmp / "roles"
+    _write(
+        roles / "web-app-a" / ROLE_FILE_META_SERVICES,
+        """
+        api:
+          host: "api.{{ DOMAIN_PRIMARY }}"
+          owner: "{{ application_id }}"
+          label: "{{ SOFTWARE }}"
+        """,
+    )
+    _write(
+        roles / "web-app-b" / ROLE_FILE_META_SERVICES,
+        """
+        client:
+          target: "{{ ref web-app-a services.api.host }}"
+          owner: "{{ application_id }}"
+        """,
+    )
+    return roles
+
+
+class TestLazyApplications(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+        self.addCleanup(_reset_cache_for_tests)
+        tmpdir = tempfile.TemporaryDirectory()
+        self.addCleanup(tmpdir.cleanup)
+        self.roles = _seed_cross_app_roles(Path(tmpdir.name))
+
+    def _templar(self) -> CrossAppTemplar:
+        return CrossAppTemplar(self.roles, {"SOFTWARE": "one"})
+
+    def _lazy(self, templar: CrossAppTemplar, scope: dict | None = None):
+        return cache_apps.get_lazy_applications(
+            variables=dict(scope or _CROSS_APP_SCOPE),
+            roles_dir=self.roles,
+            templar=templar,
+        )
+
+    def _spy(self):
+        return mock.patch.object(
+            cache_apps,
+            "_render_with_templar",
+            wraps=cache_apps._render_with_templar,
+        )
+
+    def test_reading_one_application_renders_only_that_application(self):
+        templar = self._templar()
+        with self._spy() as spy:
+            services = self._lazy(templar)["web-app-a"]["services"]
+        self.assertEqual(services, _CROSS_APP_SERVICES["web-app-a"])
+        self.assertEqual(
+            [call.kwargs["variables"]["application_id"] for call in spy.call_args_list],
+            ["web-app-a"],
+        )
+        self.assertEqual({app for app, _ in templar.rendered}, {"web-app-a"})
+
+    def test_a_cross_application_read_renders_only_the_reading_application(self):
+        templar = self._templar()
+        with self._spy() as spy:
+            target = self._lazy(templar)["web-app-b"]["services"]["client"]["target"]
+        self.assertEqual(target, "api.example.org")
+        self.assertEqual(
+            [call.kwargs["variables"]["application_id"] for call in spy.call_args_list],
+            ["web-app-b"],
+        )
+
+    def test_reading_one_at_a_time_equals_the_full_render(self):
+        full = cache_apps.get_merged_applications(
+            variables=dict(_CROSS_APP_SCOPE),
+            roles_dir=self.roles,
+            templar=self._templar(),
+        )
+        self.assertIsInstance(full, dict)
+        self.assertEqual(
+            {app: config["services"] for app, config in full.items()},
+            _CROSS_APP_SERVICES,
+        )
+        _reset_cache_for_tests()
+        lazy = self._lazy(self._templar())
+        self.assertIsInstance(lazy, cache_apps.LazyApplications)
+        self.assertEqual(sorted(lazy), sorted(full))
+        self.assertEqual({app: lazy[app] for app in sorted(lazy, reverse=True)}, full)
+
+    def test_the_full_render_serves_the_applications_already_read(self):
+        lazy = self._lazy(self._templar())
+        first = lazy["web-app-b"]
+        full = cache_apps.get_merged_applications(
+            variables=dict(_CROSS_APP_SCOPE),
+            roles_dir=self.roles,
+            templar=self._templar(),
+        )
+        self.assertIs(full["web-app-b"], first)
+        self.assertIs(full, lazy.materialize())
+
+    def test_changed_variables_render_their_own_payload(self):
+        templar = self._templar()
+
+        def target(scope: dict) -> object:
+            return self._lazy(templar, scope)["web-app-b"]["services"]["client"][
+                "target"
+            ]
+
+        self.assertEqual(target({"DOMAIN_PRIMARY": "a.example"}), "api.a.example")
+        self.assertEqual(target({"DOMAIN_PRIMARY": "b.example"}), "api.b.example")
+        pinned = {
+            "DOMAIN_PRIMARY": "a.example",
+            "applications": {
+                "web-app-a": {"services": {"api": {"host": "pinned.example"}}}
+            },
+        }
+        self.assertEqual(target(pinned), "pinned.example")
+        with self._spy() as spy:
+            self.assertEqual(target({"DOMAIN_PRIMARY": "a.example"}), "api.a.example")
+        self.assertEqual(spy.call_count, 0)
+
+    def test_a_later_read_renders_with_the_scope_of_the_creating_call(self):
+        templar = self._templar()
+        lazy = self._lazy(templar)
+        templar.available_variables = {"SOFTWARE": "two"}
+        self.assertEqual(lazy["web-app-a"]["services"]["api"]["label"], "one")
+        self.assertEqual(templar.available_variables, {"SOFTWARE": "two"})
+
+    def test_a_view_renders_only_the_paths_it_names(self):
+        templar = self._templar()
+        view = cache_apps.get_merged_applications(
+            variables=dict(_CROSS_APP_SCOPE),
+            roles_dir=self.roles,
+            templar=templar,
+            paths=(("services", "api"),),
+        )
+        self.assertEqual(
+            view,
+            {
+                "web-app-a": {
+                    "services": {"api": _CROSS_APP_SERVICES["web-app-a"]["api"]}
+                },
+                "web-app-b": {"services": {}},
+            },
+        )
+        self.assertNotIn(
+            "{{ ref web-app-a services.api.host }}",
+            [text for _, text in templar.rendered],
+        )
 
 
 if __name__ == "__main__":

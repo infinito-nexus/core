@@ -12,6 +12,7 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
 from plugins.lookup.config import LookupModule
+from tests.utils.cross_app_templar import CrossAppTemplar
 from utils.cache import applications as cache_applications
 from utils.cache import base as cache_base
 from utils.cache import carrier as cache_carrier
@@ -261,6 +262,64 @@ class TestConfigLookupKeysOnGroupNames(unittest.TestCase):
             for _ in range(2)
         )
         self.assertIs(first, second)
+
+
+class TestConfigLookupRendersOneApplication(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+        self.addCleanup(_reset_cache_for_tests)
+        tmpdir = tempfile.TemporaryDirectory()
+        self.addCleanup(tmpdir.cleanup)
+        base = Path(tmpdir.name)
+        self._roles = base / "roles"
+        _write_config(base, "web-app-a", {"api": {"host": "api.{{ DOMAIN_PRIMARY }}"}})
+        _write_config(
+            base,
+            "web-app-b",
+            {"client": {"target": "{{ ref web-app-a services.api.host }}"}},
+        )
+        self._applications = {"web-app-a": {}}
+        self._variables = {
+            "DOMAIN_PRIMARY": "example.org",
+            "applications": self._applications,
+        }
+
+    def _target(self) -> object:
+        lookup = LookupModule()
+        lookup._templar = CrossAppTemplar(self._roles)
+        return lookup.run(
+            ["web-app-b", "services.client.target"],
+            variables=self._variables,
+            roles_dir=str(self._roles),
+        )[0]
+
+    def test_a_lookup_renders_only_the_application_it_reads(self) -> None:
+        with unittest.mock.patch.object(
+            cache_applications,
+            "_render_with_templar",
+            wraps=cache_applications._render_with_templar,
+        ) as spy:
+            self.assertEqual(self._target(), "api.example.org")
+        self.assertEqual(
+            [call.kwargs["variables"]["application_id"] for call in spy.call_args_list],
+            ["web-app-b"],
+        )
+
+    def test_a_lookup_fingerprints_the_inventory_applications_at_most_twice(
+        self,
+    ) -> None:
+        with unittest.mock.patch.object(
+            cache_base,
+            "_fingerprint_mapping",
+            wraps=cache_base._fingerprint_mapping,
+        ) as spy:
+            self.assertEqual(self._target(), "api.example.org")
+        hashed = [
+            call
+            for call in spy.call_args_list
+            if call.args and call.args[0] is self._applications
+        ]
+        self.assertLessEqual(len(hashed), 2)
 
 
 if __name__ == "__main__":
