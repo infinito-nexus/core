@@ -1677,23 +1677,27 @@ def database_stamps(layout: Layout, engine: str) -> list[str] | None:
 
     Returns:
         The path, size and modification time of every file under the
-        engine's database markers, ``None`` when a marker holds no file.
+        engine's database markers, ``None`` when a marker holds no file or
+        a file cannot be read.
     """
     stamps = []
-    for marker in DB_MARKERS[engine]:
-        path = layout.databases / engine / marker
-        files = (
-            [path]
-            if path.is_file()
-            else sorted(p for p in path.rglob("*") if p.is_file())
-        )
-        if not files:
-            return None
-        for file in files:
-            stat = file.stat()
-            stamps.append(
-                f"{file.relative_to(layout.databases)}:{stat.st_size}:{stat.st_mtime_ns}"
+    try:
+        for marker in DB_MARKERS[engine]:
+            path = layout.databases / engine / marker
+            files = (
+                [path]
+                if path.is_file()
+                else sorted(p for p in path.rglob("*") if p.is_file())
             )
+            if not files:
+                return None
+            for file in files:
+                stat = file.stat()
+                stamps.append(
+                    f"{file.relative_to(layout.databases)}:{stat.st_size}:{stat.st_mtime_ns}"
+                )
+    except OSError:
+        return None
     return stamps
 
 
@@ -1718,10 +1722,14 @@ def sbom_report_fingerprint(
         and the content of *source*, ``None`` when one of them is missing.
     """
     stamps = database_stamps(layout, engine)
-    if image_id is None or stamps is None or not source.is_file():
+    if image_id is None or stamps is None:
+        return None
+    try:
+        content = source.read_bytes()
+    except OSError:
         return None
     digest = hashlib.sha256(json.dumps([image_id, list(args), stamps]).encode())
-    digest.update(source.read_bytes())
+    digest.update(content)
     return digest.hexdigest()
 
 

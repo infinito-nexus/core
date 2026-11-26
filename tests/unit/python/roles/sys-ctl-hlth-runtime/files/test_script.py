@@ -1448,6 +1448,21 @@ class TestScan(TestCase):
         _findings, errors, runner = self._sbom_scan(["syft", "osv"])
         self.assertEqual((len(self._calls(runner, "osv.cdx.json")), errors), (1, []))
 
+    def test_an_unreadable_database_scans_the_sboms_without_reuse(self):
+        self.targets = [CENTOS_TARGET]
+        database = self._provide_sbom_databases()
+        self._sbom_scan(["syft", "osv"])
+        real_stat = Path.stat
+
+        def refuse(path, *args, **kwargs):
+            if path == database:
+                raise PermissionError(13, "Permission denied", str(path))
+            return real_stat(path, *args, **kwargs)
+
+        with mock.patch.object(Path, "stat", refuse):
+            _findings, errors, runner = self._sbom_scan(["syft", "osv"])
+        self.assertEqual((len(self._calls(runner, "osv.cdx.json")), errors), (1, []))
+
     def test_osv_scans_only_the_sboms_without_a_reusable_report(self):
         other = SCRIPT.Target("def", "container", "sha256:def", "quay.io/a/b:1", (), ())
         self.targets = [CENTOS_TARGET]
