@@ -1,15 +1,18 @@
 const crypto = require("node:crypto");
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
+const { decodeDotenvQuotedValue } = require("./personas");
 
 const LOGIN = "/api/method/login";
 const LOGGED_USER = "/api/method/frappe.auth.get_logged_user";
+const senderAddress = decodeDotenvQuotedValue(process.env.EMAIL_FROM_ADDRESS || "");
 
 function probeAccount() {
   const suffix = crypto.randomBytes(4).toString("hex");
+  const [mailbox, domain] = senderAddress.split("@");
   return {
     role: `Infinito 2FA Probe ${suffix}`,
-    email: `infinito-2fa-probe-${suffix}@example.invalid`,
+    email: `${mailbox}+infinito-2fa-probe-${suffix}@${domain}`,
     password: `${crypto.randomBytes(18).toString("base64url")}-Aa9`,
   };
 }
@@ -49,6 +52,7 @@ exports.register = function (shared) {
     test.skip(!shared.env.loginMethods.twoFactor, "LOGIN_METHOD_2FA_ENABLED=false: enable_two_factor_auth is off");
     shared.skipUnlessServiceEnabled("email");
     test.setTimeout(resolveTimeout(240_000));
+    expect(senderAddress, "EMAIL_FROM_ADDRESS must name the outgoing mailbox when the email service is on").toContain("@");
 
     const account = probeAccount();
     const api = await shared.breakGlassApi();
