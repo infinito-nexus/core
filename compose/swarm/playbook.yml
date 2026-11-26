@@ -116,7 +116,7 @@
 
     - name: surface the node's effective data root filesystem
       debug:
-        msg: "{{ lab_dataroot.stdout_lines | select('search', '^docker-dataroot-filesystem: status=') | list }}"
+        msg: "{{ lab_dataroot.stdout_lines | select('search', '^docker-dataroot-filesystem: (status=|capped|raised|WARNING)') | list }}"
       when: not (lab_dataroot is skipped)
 
     - name: probe the registry-cache CA (mounted by cache.override.yml, absent without a local cache stack)

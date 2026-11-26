@@ -44,6 +44,7 @@ REMOUNT_HOOK=/usr/local/sbin/docker-dataroot
 REMOUNT_DROPIN=/etc/systemd/system/docker.service.d/10-dataroot-remount.conf
 MISC_MAJOR=10
 ZFS_ARC_MAX_BYTES=$((1024 * 1024 * 1024))
+ZFS_ARC_DNODE_LIMIT_PERCENT=75
 
 report() { echo "docker-dataroot-filesystem: $*"; }
 
@@ -76,6 +77,19 @@ cap_zfs_arc() {
 		report "capped the zfs ARC at ${ZFS_ARC_MAX_BYTES} bytes"
 	else
 		report "WARNING: the zfs ARC could not be capped at ${ZFS_ARC_MAX_BYTES} bytes"
+	fi
+}
+
+raise_zfs_dnode_limit() {
+	local param=/sys/module/zfs/parameters/zfs_arc_dnode_limit_percent current
+	current="$(cat "${param}" 2>/dev/null)" || return 0
+	if [ "${current}" -ge "${ZFS_ARC_DNODE_LIMIT_PERCENT}" ]; then
+		return 0
+	fi
+	if echo "${ZFS_ARC_DNODE_LIMIT_PERCENT}" >"${param}" 2>/dev/null; then
+		report "raised the zfs ARC dnode limit to ${ZFS_ARC_DNODE_LIMIT_PERCENT} %"
+	else
+		report "WARNING: the zfs ARC dnode limit could not be raised to ${ZFS_ARC_DNODE_LIMIT_PERCENT} %"
 	fi
 }
 
@@ -325,6 +339,7 @@ zfs)
 	zfs_device_ready ||
 		decline "the zfs kernel module is not loaded on the host: ${modprobe_out}"
 	cap_zfs_arc
+	raise_zfs_dnode_limit
 	;;
 esac
 
