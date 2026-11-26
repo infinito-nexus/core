@@ -17,6 +17,7 @@ from utils.roles.display import display_names
 _DECISIVE_FILES = ("error-context.md", "meta.txt", "containers.txt")
 _TITLE = "CI failure: {role}"
 _LABEL = "💥 ci-failure"
+_JOBS_PAGE = 30
 
 
 class Failure(NamedTuple):
@@ -129,9 +130,13 @@ def issue_body(
 
 
 def _gh(args: list[str]) -> str:
-    return subprocess.run(
-        ["gh", *args], capture_output=True, text=True, check=True
-    ).stdout
+    done = subprocess.run(["gh", *args], capture_output=True, text=True, check=False)
+    if done.returncode != 0:
+        sys.stderr.write(done.stderr)
+        raise subprocess.CalledProcessError(
+            done.returncode, done.args, done.stdout, done.stderr
+        )
+    return done.stdout
 
 
 def _existing_issue(repo: str, role: str) -> int | None:
@@ -162,7 +167,7 @@ def list_jobs(run_id: str, repo: str) -> list[dict]:
         [
             "api",
             "--paginate",
-            f"repos/{repo}/actions/runs/{run_id}/jobs",
+            f"repos/{repo}/actions/runs/{run_id}/jobs?per_page={_JOBS_PAGE}",
             "--jq",
             ".jobs[] | {name, conclusion}",
         ]

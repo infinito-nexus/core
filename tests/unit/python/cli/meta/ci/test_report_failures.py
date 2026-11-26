@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import io
 import subprocess
 import tempfile
 import unittest
@@ -10,6 +11,7 @@ from cli.meta.ci.report_failures import (
     _NO_SNAPSHOT,
     Failure,
     _download_excerpt,
+    _gh,
     artifact_name,
     decisive_excerpt,
     failed_roles,
@@ -232,6 +234,25 @@ class TestReportFailures(unittest.TestCase):
     def test_list_jobs_of_an_empty_listing_is_empty(self) -> None:
         with patch("cli.meta.ci.report_failures._gh", return_value=""):
             self.assertEqual(list_jobs("1", "owner/repo"), [])
+
+    def test_list_jobs_asks_for_pages_github_serves_for_large_runs(self) -> None:
+        with patch("cli.meta.ci.report_failures._gh", return_value="") as gh:
+            list_jobs("1", "owner/repo")
+        self.assertIn(
+            "repos/owner/repo/actions/runs/1/jobs?per_page=30", gh.call_args.args[0]
+        )
+
+    def test_a_failed_gh_call_shows_its_error_before_raising(self) -> None:
+        failed = subprocess.CompletedProcess(
+            ["gh", "api"], 1, "", "gh: Server Error (HTTP 502)\n"
+        )
+        with (
+            patch("cli.meta.ci.report_failures.subprocess.run", return_value=failed),
+            patch("sys.stderr", new_callable=io.StringIO) as err,
+            self.assertRaises(subprocess.CalledProcessError),
+        ):
+            _gh(["api", "x"])
+        self.assertEqual(err.getvalue(), "gh: Server Error (HTTP 502)\n")
 
     def test_issue_body_lists_failures_and_run(self) -> None:
         body = issue_body(
