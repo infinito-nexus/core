@@ -33,6 +33,7 @@ TOR_DNSMASQ_CONF="${TOR_DNSMASQ_CONF:?pass TOR_DNSMASQ_CONF as env (the dnsmasq 
 TOR_CONTAINER="${TOR_CONTAINER:?pass TOR_CONTAINER as env (address of the tor container, from svc-net-tor test.env)}"
 TOR_FLAVOR="${TOR_FLAVOR:?pass TOR_FLAVOR as env (public or chutney, from svc-net-tor test.env)}"
 WILDCARD_LABEL="probe"
+ONION_REDIRECT_HOPS=10
 
 discover_domains() {
 	find "${NGINX_SERVERS_DIR}/http" "${NGINX_SERVERS_DIR}/https" \
@@ -53,10 +54,11 @@ fi
 
 echo "[INFO] probing ${#domains[@]} domain(s); onion via socks5://${TOR_SOCKS}"
 
-# Probe one domain with retries. Echoes the final HTTP code; returns 0 on success.
+# Probe one domain with retries. Echoes the final HTTP code, plus the target
+# host when an onion vhost hands over to another network; returns 0 on success.
 probe() {
 	local domain="$1" host="$1" scheme curl_proxy=() follow=(--location) attempt=1 code rc
-	local circuit=()
+	local circuit=() hops=0 max_hops=0 url answer target next handover
 	if [[ "${domain}" == "*."* ]]; then
 		host="${WILDCARD_LABEL}.${domain#\*.}"
 		follow=()
@@ -64,6 +66,10 @@ probe() {
 	if [[ "${host}" == *"${ONION_SUFFIX}" ]]; then
 		scheme="http"
 		curl_proxy=(--socks5-hostname "${TOR_SOCKS}")
+		if [[ "${domain}" != "*."* ]]; then
+			follow=()
+			max_hops="${ONION_REDIRECT_HOPS}"
+		fi
 	else
 		scheme="https"
 	fi
@@ -72,13 +78,35 @@ probe() {
 		if [[ "${#curl_proxy[@]}" -gt 0 && "${attempt}" -gt 1 ]]; then
 			circuit=(--proxy-user "probe-${attempt}:x")
 		fi
-		rc=0
-		code="$(curl "${curl_proxy[@]}" "${circuit[@]}" "${follow[@]}" --silent --show-error \
-			--insecure --max-time 60 \
-			-o /dev/null -w '%{http_code}' \
-			"${scheme}://${host}/")" || rc=$?
+		url="${scheme}://${host}/"
+		hops=0
+		handover=""
+		while true; do
+			rc=0
+			answer="$(curl "${curl_proxy[@]}" "${circuit[@]}" "${follow[@]}" --silent --show-error \
+				--insecure --max-time 60 \
+				-o /dev/null -w '%{http_code} %{redirect_url}' \
+				"${url}")" || rc=$?
+			code="${answer%% *}"
+			target="${answer#"${code}"}"
+			target="${target# }"
+			[[ "${rc}" -ne 0 || "${max_hops}" -eq 0 || ! "${code}" =~ ^3[0-9][0-9]$ || -z "${target}" ]] && break
+			next="${target#*://}"
+			next="${next%%[:/?#]*}"
+			# Exception: a handover vhost redirects its onion name to the clearnet site, which Tor cannot reach, so the probe follows redirects only inside the onion network and takes a redirect out of it as the vhost's answer.
+			if [[ "${next}" != *"${ONION_SUFFIX}" ]]; then
+				handover=" -> handover ${next}"
+				break
+			fi
+			hops=$((hops + 1))
+			if [[ "${hops}" -gt "${max_hops}" ]]; then
+				rc=47
+				break
+			fi
+			url="${target}"
+		done
 		if [[ "${rc}" -eq 0 && "${code}" =~ ^[234][0-9][0-9]$ ]]; then
-			echo "${code}"
+			echo "${code}${handover}"
 			return 0
 		fi
 		attempt=$((attempt + 1))
