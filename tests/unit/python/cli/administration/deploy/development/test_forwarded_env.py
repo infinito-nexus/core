@@ -76,6 +76,14 @@ class TestForwardedEnv(unittest.TestCase):
     def test_an_unset_guide_host_is_not_invented(self):
         self.assertNotIn("guide_host", _deploy())
 
+    @patch.dict(os.environ, {"bundles": "agents"}, clear=True)
+    def test_the_bundle_names_reach_the_container(self):
+        self.assertEqual(_deploy().get("bundles"), "agents")
+
+    @patch.dict(os.environ, {}, clear=True)
+    def test_an_app_deploy_names_no_bundle(self):
+        self.assertNotIn("bundles", _deploy())
+
     @patch.dict(
         os.environ,
         {"GITHUB_ACTIONS": "true", "INFINITO_IMAGE_TAG": f"ci-{HEAD}"},

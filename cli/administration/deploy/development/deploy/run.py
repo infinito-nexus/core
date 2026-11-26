@@ -22,6 +22,7 @@ if TYPE_CHECKING:
 
 _FORWARDED_ENV_KEYS = (
     "APP_ID",
+    "bundles",
     "guide_host",
     "GH_TOKEN",
     "GITHUB_TOKEN",
