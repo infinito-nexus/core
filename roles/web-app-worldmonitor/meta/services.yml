@@ -9,7 +9,7 @@ worldmonitor:
       enabled: true
   custom: true
   repository: https://github.com/koala73/worldmonitor.git
-  ref: e2d6809b71e942a89625bfef4c69d4a3fe8f01d1
+  ref: ea3bd5cba6c9ae299b21e49db2762fe02326caff
   ref_kind: commit
   name: worldmonitor
   healthcheck:

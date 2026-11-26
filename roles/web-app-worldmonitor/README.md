@@ -57,7 +57,7 @@ When LiteLLM is usable, `LLM_API_URL`, `LLM_API_KEY` and `LLM_MODEL` point at th
 
 `services.worldmonitor.ref` pins a full upstream commit of the default branch, declared as `ref_kind: commit`, and the clone fetches exactly that commit at depth 1. Every image the stack builds is tagged with the same commit, so the image tag always matches the clone it was built from. The repository updater moves the `ref` to the tip of the upstream default branch, which moves the clone and every image tag together.
 
-The role pins a commit and not a release tag because the upstream build refuses a live-pulse snapshot older than 10 days (`MAX_LIVE_PULSE_SNAPSHOT_AGE_DAYS` in `scripts/build-crawlable-corpus.mjs`), measured against the build date, so every tag stops building 10 days after its snapshot was captured. Return to `ref_kind: tag` once upstream ships a tag that builds independent of the date.
+The `ref` MUST NOT fall behind upstream commit `ea3bd5cba6c9ae299b21e49db2762fe02326caff` (first released in v2.11.9). Before it, `scripts/build-crawlable-corpus.mjs` refused a live-pulse snapshot older than 10 days, measured against the build date, so every pin stopped building 10 days after its snapshot was captured. From it on, that check runs only in upstream's publishing workflows (`scripts/check-crawlable-live-pulse.mjs`) and a pinned clone builds at any age, so `ref_kind: tag` is viable again from v2.11.9 on.
 
 ## Features
 
