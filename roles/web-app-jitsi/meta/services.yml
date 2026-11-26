@@ -43,6 +43,9 @@ design:
     logo:
       width: 142
       height: 64
+# nocheck: shared-provider a custom role pulled from its own repository registers the key; without it the key resolves to no role and nothing changes
+cosmos:
+  flavor: colors
 # nocheck: dynamic-flag - gated on services.sso.enabled, not on group_names
 # nocheck: playwright-service-flag - runtime DOM patch, no probe-able surface flag
 javascript:

@@ -7,9 +7,11 @@ const {
   assertToken,
   captureDesignGallery,
   galleryEnabled,
+  tokenValue,
 } = require("./design");
 const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, requireDotenvValue } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { assertSky } = require("./cosmos-sky");
+const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 const { pollStatus } = require("./_shared");
 
@@ -236,6 +238,14 @@ test("design: a page without the theme switch follows the browser scheme", async
   await gotoOnion(page, `${base}${NOT_FOUND}`);
   await expect(page.locator("body")).toBeVisible({ timeout: resolveTimeout(READY) });
   await expect(page.locator("html")).not.toHaveAttribute("data-design-theme", /.+/);
+  if (isServiceEnabled("cosmos")) {
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      await assertSky(page, ["html", "body"], [], `server error page ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
+    return;
+  }
   await assertLightAndDark(page, "body", "server error page");
 });
 
@@ -243,25 +253,30 @@ test("design: pages take surface, text, link and dividers from the palette", asy
   skipUnlessServiceEnabled("design");
   test.setTimeout(resolveTimeout(BUILD_TIMEOUT));
   await followScheme(page);
+  const sky = isServiceEnabled("cosmos");
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
     await open(page, README);
     await expectSchemeFollowed(page);
-    await assertToken(page, "body", "background-color", "--design-surface-1", `page ${mode}`);
-    await assertToken(page, "body", "color", "--design-text", `text ${mode}`);
+    if (sky) {
+      await assertSky(page, ["html", "body", SIDEBAR], [MAIN, SIDEBAR], `page ${mode}`);
+    } else {
+      await assertToken(page, "body", "background-color", "--design-surface-1", `page ${mode}`);
+      await assertToken(page, "body", "color", "--design-text", `text ${mode}`);
+    }
     await assertToken(page, HEADER, "border-bottom-color", "--design-border", `header divider ${mode}`);
     await open(page, GUIDE);
     await expectSchemeFollowed(page);
     await assertToken(page, INLINE_CODE, "background-color", "--design-surface-3", `inline code ${mode}`);
     await assertToken(page, INLINE_CODE, "color", "--design-text", `inline code text ${mode}`);
     await assertToken(page, `${MAIN} pre`, "border-top-color", "--design-border", `code block divider ${mode}`);
-    await assertToken(page, CONTENT_LINK, "color", "--design-link", `content link ${mode}`);
+    await assertToken(page, CONTENT_LINK, "color", sky ? "--cosmos-text" : "--design-link", `content link ${mode}`);
   }
   await page.emulateMedia({ colorScheme: null });
-  await assertLightAndDark(page, MAIN, "sphinx page");
+  await assertLightAndDark(page, sky ? INLINE_CODE : MAIN, "sphinx page");
   await assertReadable(
     page,
-    [`${MAIN} h1`, `${MAIN} p`, CONTENT_LINK, CODE, { selector: SIDEBAR_LINK, optional: true }, "footer p"],
+    sky ? [CODE] : [`${MAIN} h1`, `${MAIN} p`, CONTENT_LINK, CODE, { selector: SIDEBAR_LINK, optional: true }, "footer p"],
     "sphinx page",
   );
 });
@@ -273,15 +288,21 @@ test("design: the native switch drives the palette and the design theme attribut
   await page.emulateMedia({ colorScheme: "light" });
   await open(page, HOME);
   await expectSchemeFollowed(page);
-  const light = await bodyBackground(page);
+  const sky = isServiceEnabled("cosmos");
+  const surface = () => (sky ? tokenValue(page, "--design-surface-1", "background-color") : bodyBackground(page));
+  const light = await surface();
   await expect(page.locator(SWITCH)).toBeVisible({ timeout: resolveTimeout(READY) });
   await page.locator(SWITCH).click();
   await expect(page.locator("html")).toHaveAttribute("data-design-theme", "dark");
-  await assertToken(page, "body", "background-color", "--design-surface-1", "page after the switch");
-  expect(await bodyBackground(page), "the switch must change the page surface").not.toBe(light);
+  if (sky) {
+    await assertSky(page, ["html", "body"], [MAIN], "page after the switch");
+  } else {
+    await assertToken(page, "body", "background-color", "--design-surface-1", "page after the switch");
+  }
+  expect(await surface(), "the switch must change the page surface").not.toBe(light);
   await page.locator(SWITCH).click();
   await expect(page.locator("html")).toHaveAttribute("data-design-theme", "light");
-  expect(await bodyBackground(page)).toBe(light);
+  expect(await surface()).toBe(light);
 });
 
 test("design: a stored dark choice wins over a light browser and reaches the design theme on load", async ({ page }) => {
@@ -294,7 +315,11 @@ test("design: a stored dark choice wins over a light browser and reaches the des
   await open(page, ROLE_README);
   await expect(page.locator("html")).toHaveClass(/(^|\s)dark(\s|$)/);
   await expect(page.locator("html")).toHaveAttribute("data-design-theme", "dark");
-  await assertToken(page, "body", "background-color", "--design-surface-1", "stored dark choice");
+  if (isServiceEnabled("cosmos")) {
+    await assertSky(page, ["html", "body"], [MAIN], "stored dark choice");
+  } else {
+    await assertToken(page, "body", "background-color", "--design-surface-1", "stored dark choice");
+  }
 });
 
 test("design: the selected sidebar entry and the search field keep readable palette states", async ({ page }) => {

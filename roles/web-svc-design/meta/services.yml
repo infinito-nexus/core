@@ -53,6 +53,7 @@ cosmos:
   bond: 0.5
   enabled: true
   shared: true
+  flavor: full
 # nocheck: playwright-service-flag — provider role; no consumer surface to gate
 # nocheck: dynamic-flag
 matomo:

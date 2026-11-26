@@ -32,6 +32,9 @@ design:
       width: 200
       height: 40
       frame: true
+# nocheck: shared-provider a custom role pulled from its own repository registers the key; without it the key resolves to no role and nothing changes
+cosmos:
+  flavor: colors
 # nocheck: dynamic-flag
 javascript:
   bond: 1

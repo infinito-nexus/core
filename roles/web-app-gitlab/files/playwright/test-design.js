@@ -16,7 +16,8 @@ const {
   performKeycloakLogin,
   requireDotenvValue,
 } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { assertSky } = require("./cosmos-sky");
+const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
@@ -47,6 +48,20 @@ const ADMIN_CARD = ".admin-dashboard .crud-body";
 const ADMIN_CARD_TITLE = ".admin-dashboard [data-testid='crud-title']";
 const ADMIN_DIVIDER = ".admin-dashboard .crud-body p.gl-border-b";
 const ADMIN_NEW_USER = "main a.btn-confirm[href$='/admin/users/new']";
+const SIDEBAR = ".super-sidebar";
+
+async function assertChrome(page, label) {
+  if (!isServiceEnabled("cosmos")) {
+    await assertToken(page, "body", "background-color", "--design-frame", label);
+    return;
+  }
+  await assertSky(page, ["html", "body", TOPBAR], [], label);
+  await assertToken(page, SIDEBAR, "background-color", "--design-frame", `${label} side bar`);
+}
+
+function topBarToken() {
+  return isServiceEnabled("cosmos") ? "--cosmos-text" : "--design-on-frame";
+}
 
 let session = null;
 
@@ -284,7 +299,11 @@ test("design: the sign-in page takes text, controls and primary action from the 
     await page.emulateMedia({ colorScheme: mode });
     await gotoOnion(page, `${base}/users/sign_in`);
     await shown(SIGN_IN)(page);
-    await assertToken(page, "main", "color", "--design-text", `sign-in ${mode}`);
+    if (isServiceEnabled("cosmos")) {
+      await assertSky(page, ["html", "body"], ["main"], `sign-in ${mode}`);
+    } else {
+      await assertToken(page, "main", "color", "--design-text", `sign-in ${mode}`);
+    }
     await assertToken(page, SIGN_IN, "background-color", "--design-primary", `sign-in ${mode}`);
     await assertToken(page, SIGN_IN, "color", "--design-on-primary", `sign-in ${mode}`);
     await page.locator(USERNAME).focus();
@@ -294,7 +313,7 @@ test("design: the sign-in page takes text, controls and primary action from the 
     expect(shadow, `sign-in field boundary ${mode}`).toContain(control);
   }
   await page.emulateMedia({ colorScheme: null });
-  await assertReadable(page, [SIGN_IN, "main label", "main h1"], "GitLab sign-in");
+  await assertReadable(page, isServiceEnabled("cosmos") ? [SIGN_IN] : [SIGN_IN, "main label", "main h1"], "GitLab sign-in");
 });
 
 test("design: the signed-in interface takes frame, panel, primary action, text and dividers from the palette", async ({ page }) => {
@@ -305,9 +324,9 @@ test("design: the signed-in interface takes frame, panel, primary action, text a
   await shown(CONFIRM)(page);
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
-    await assertToken(page, "body", "background-color", "--design-frame", `chrome ${mode}`);
-    await assertToken(page, `${TOPBAR} a.brand-logo`, "color", "--design-on-frame", `top bar ${mode}`);
-    await assertToken(page, `${TOPBAR} [data-testid='new-menu-toggle']`, "color", "--design-on-frame", `top bar ${mode}`);
+    await assertChrome(page, `chrome ${mode}`);
+    await assertToken(page, `${TOPBAR} a.brand-logo`, "color", topBarToken(), `top bar ${mode}`);
+    await assertToken(page, `${TOPBAR} [data-testid='new-menu-toggle']`, "color", topBarToken(), `top bar ${mode}`);
     await assertToken(page, PANEL, "background-color", "--design-surface-2", `content panel ${mode}`);
     await assertToken(page, "main form", "color", "--design-text", `issue form ${mode}`);
     await assertToken(page, CONFIRM, "background-color", "--design-primary", `issue form ${mode}`);
@@ -398,7 +417,7 @@ test("design: the admin area takes frame, panel, cards, dividers and primary act
   await shown(ADMIN_HEADING)(page);
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
-    await assertToken(page, "body", "background-color", "--design-frame", `admin chrome ${mode}`);
+    await assertChrome(page, `admin chrome ${mode}`);
     await assertToken(page, PANEL, "background-color", "--design-surface-2", `admin panel ${mode}`);
     await assertToken(page, ADMIN_CARD, "background-color", "--design-surface-2", `admin card ${mode}`);
     await assertToken(page, ADMIN_CARD_TITLE, "color", "--design-text", `admin card title ${mode}`);

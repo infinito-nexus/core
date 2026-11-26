@@ -24,6 +24,7 @@ SHEET = Path("templates") / "cosmos.css.j2"
 VARS = ROLES / "sys-front-inj-design" / ROLE_FILE_VARS_MAIN
 ATTRIBUTE = re.compile(r"data-cosmos-(?:mode|legible)")
 PLAYWRIGHT = ("files", "playwright")
+PLAYWRIGHT_RUNNER = "test-e2e-playwright"
 SURFACE = frozenset({"background", "background-color"})
 CLEAR = frozenset({"transparent", "none"})
 COSMOS_TEXT = "var(--cosmos-text)"
@@ -188,8 +189,9 @@ def findings(roles: Path, vars_file: Path, files: list[Path]) -> list[str]:
 
     Returns:
         One line per broken rule of a ``templates/cosmos.css.j2`` and per role
-        file that names a cosmos attribute outside ``vars_file`` and outside
-        the role providing the ``cosmos`` service, which sets them.
+        file that names a cosmos attribute outside ``vars_file``, outside
+        the role providing the ``cosmos`` service, which sets them, and
+        outside the Playwright runner, whose shared helpers assert them.
     """
     sky, top = selectors(vars_file)
     provider = provider_of(SERVICE_KEY, build_service_registry_from_roles_dir(roles))
@@ -209,7 +211,7 @@ def findings(roles: Path, vars_file: Path, files: list[Path]) -> list[str]:
                 )
             else:
                 lines.extend(sheet_findings(name, css, sky, top))
-        if role.name == provider:
+        if role.name in (provider, PLAYWRIGHT_RUNNER):
             continue
         for path in sorted(by_role.get(role.name, [])):
             relative = path.relative_to(role).parts

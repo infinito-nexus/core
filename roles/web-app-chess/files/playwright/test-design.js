@@ -10,7 +10,8 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, requireDotenvValue } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { assertSky } = require("./cosmos-sky");
+const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
@@ -38,6 +39,11 @@ const BOARD = "p.chessboard img";
 const FEN = "p.small.align-center code";
 const PAGER = "div.pagination";
 const PREVIOUS = "div.pagination p.align-left a";
+const CONTENT_BLOCK = "body > :not(cosmos-sky, script, style, template)";
+
+function skyLinkToken() {
+  return isServiceEnabled("cosmos") ? "--cosmos-text" : "--design-link";
+}
 
 const gameUrl = (id) => `${base}/games/${id}`;
 const noteUrl = (key, ply) => `${base}/objects/${prefix}-${key}-${String(ply).padStart(2, "0")}`;
@@ -131,13 +137,18 @@ exports.register = function () {
     requireShowcase();
     await gotoOnion(page, `${base}/`);
     await homeReady(page);
+    const sky = isServiceEnabled("cosmos");
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
-      await assertToken(page, "body", "background-color", "--design-surface-1", `page ${mode}`);
-      await assertToken(page, "body", "color", "--design-text", `page ${mode}`);
-      await assertToken(page, USAGE_LINK, "color", "--design-link", `usage link ${mode}`);
-      await assertToken(page, RECENT_LINK, "color", "--design-link", `recent game link ${mode}`);
-      await assertToken(page, CHALLENGER, "color", "--design-link", `challenger link ${mode}`);
+      if (sky) {
+        await assertSky(page, ["html", "body"], [CONTENT_BLOCK], `page ${mode}`);
+      } else {
+        await assertToken(page, "body", "background-color", "--design-surface-1", `page ${mode}`);
+        await assertToken(page, "body", "color", "--design-text", `page ${mode}`);
+      }
+      await assertToken(page, USAGE_LINK, "color", skyLinkToken(), `usage link ${mode}`);
+      await assertToken(page, RECENT_LINK, "color", skyLinkToken(), `recent game link ${mode}`);
+      await assertToken(page, CHALLENGER, "color", skyLinkToken(), `challenger link ${mode}`);
       await expect(page.locator(USAGE_LINK).first(), `usage link tint ${mode}`).toHaveCSS(
         "background-color",
         await linkTint(page),
@@ -154,21 +165,25 @@ exports.register = function () {
     await assertLightAndDark(page, SAMPLE, "chess sample panel");
     await assertReadable(
       page,
-      [
-        "h1",
-        `${USAGE} > li > p`,
-        USAGE_LINK,
-        SAMPLE,
-        `${USAGE} ul.small li`,
-        CHALLENGER,
-        RECENT_LINK,
-        `${RECENT} .time`,
-        "p.small.align-right a",
-      ],
+      sky
+        ? [SAMPLE]
+        : [
+            "h1",
+            `${USAGE} > li > p`,
+            USAGE_LINK,
+            SAMPLE,
+            `${USAGE} ul.small li`,
+            CHALLENGER,
+            RECENT_LINK,
+            `${RECENT} .time`,
+            "p.small.align-right a",
+          ],
       "chess front page",
     );
-    await page.locator(RECENT_LINK).first().hover();
-    await assertReadable(page, [RECENT_LINK], "chess hovered game link");
+    if (!sky) {
+      await page.locator(RECENT_LINK).first().hover();
+      await assertReadable(page, [RECENT_LINK], "chess hovered game link");
+    }
   });
 
   test("design: a keyboard focus stop draws its indicator in the link tone", async ({ page }) => {
@@ -205,7 +220,12 @@ exports.register = function () {
     }
     await page.emulateMedia({ colorScheme: null });
     await assertLightAndDark(page, MOVES, "chess moves panel");
-    await assertReadable(page, ["h3", MOVES, MOVE, "p.small.align-right", FEN], "chess game page");
+    if (isServiceEnabled("cosmos")) {
+      await assertSky(page, ["html", "body"], [CONTENT_BLOCK], "chess game page sky");
+      await assertReadable(page, [MOVES, MOVE], "chess game page");
+    } else {
+      await assertReadable(page, ["h3", MOVES, MOVE, "p.small.align-right", FEN], "chess game page");
+    }
     const size = await page.locator(BOARD).evaluate((image) => [image.naturalWidth, image.naturalHeight]);
     expect(size[0], "the board drawing is the app's own square raster").toBe(size[1]);
     expect(size[0], "the board drawing is the app's own raster").toBeGreaterThan(0);
@@ -220,11 +240,15 @@ exports.register = function () {
       await page.emulateMedia({ colorScheme: mode });
       await assertToken(page, NOTE, "background-color", "--design-surface-2", `note ${mode}`);
       await assertToken(page, NOTE, "border-top-color", "--design-border", `note divider ${mode}`);
-      await assertToken(page, PREVIOUS, "color", "--design-link", `pager link ${mode}`);
+      await assertToken(page, PREVIOUS, "color", skyLinkToken(), `pager link ${mode}`);
     }
     await page.emulateMedia({ colorScheme: null });
     await assertLightAndDark(page, NOTE, "chess move note");
-    await assertReadable(page, ["h3", NOTE, `${NOTE} a.mention`, `${PAGER} a`, FEN], "chess move note");
+    await assertReadable(
+      page,
+      isServiceEnabled("cosmos") ? [NOTE, `${NOTE} a.mention`] : ["h3", NOTE, `${NOTE} a.mention`, `${PAGER} a`, FEN],
+      "chess move note",
+    );
   });
 
   test("design: every page carries the configured favicon and title", async ({ page }) => {

@@ -20,7 +20,7 @@
             'files': ['templates/cosmos.css.j2'],
             'paths': [app_role_dir]
           }, errors='ignore') | default('', true))
-         if lookup('design', application_id).cosmos else '' }}
+         if lookup('design', application_id).cosmos_sheet else '' }}
     app_body_css: "{{ (lookup('template_shallow', _app_style_src) | trim) if _app_style_src | length > 0 else '' }}"
     app_logo_css: "{{ (lookup('template_shallow', _app_logo_src) | trim) if _app_logo_src | length > 0 else '' }}"
     app_cosmos_css: "{{ (lookup('template_shallow', _app_cosmos_src) | trim) if _app_cosmos_src | length > 0 else '' }}"

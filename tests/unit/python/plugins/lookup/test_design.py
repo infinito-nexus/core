@@ -6,9 +6,12 @@ import unittest
 import unittest.mock as mock
 from pathlib import Path
 
+from ansible.errors import AnsibleError
+
 from plugins.lookup import design
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
+from utils.design.cosmos import FLAVOR_COLORS, FLAVOR_FULL, FLAVOR_KEY, SERVICE_KEY
 from utils.roles.applications.services.registry import (
     load_applications_from_roles_dir,
 )
@@ -18,6 +21,8 @@ PROVIDER = "web-app-cst-cosmos"
 DESIGN = "web-svc-design"
 SILENT = "web-svc-html"
 FORBIDDING = "web-app-forbids-the-sky"
+COLORS = "web-app-keeps-its-colors"
+INVALID = "web-app-names-no-flavor"
 BRANDING = {
     "logo": False,
     "title": False,
@@ -61,6 +66,8 @@ def checkout(root: Path, pulled: bool, design_services: str | None = None) -> No
             design_services, encoding="utf-8"
         )
     _role(roles, FORBIDDING, "cosmos:\n  enabled: false\n")
+    _role(roles, COLORS, f"{SERVICE_KEY}:\n  {FLAVOR_KEY}: {FLAVOR_COLORS}\n")
+    _role(roles, INVALID, f"{SERVICE_KEY}:\n  {FLAVOR_KEY}: sky\n")
     if pulled:
         _role(roles, PROVIDER, "cosmos:\n  enabled: true\n  shared: true\n")
 
@@ -98,6 +105,19 @@ def lookup(root: Path, application_id: str) -> dict:
         )[0]
 
 
+def sky(root: Path, application_id: str) -> tuple[str, str, bool]:
+    """
+    Args:
+        root: the playbook directory :func:`checkout` filled.
+        application_id: the designed role to resolve.
+
+    Returns:
+        ``(cosmos, cosmos_flavor, cosmos_sheet)`` of the lookup entry.
+    """
+    found = lookup(root, application_id)
+    return found["cosmos"], found["cosmos_flavor"], found["cosmos_sheet"]
+
+
 class TestTheDesignLookupResolvesTheProviderFromTheRolesDirectory(unittest.TestCase):
     def setUp(self) -> None:
         self._tmp = tempfile.TemporaryDirectory()
@@ -130,6 +150,39 @@ class TestTheDesignLookupResolvesTheProviderFromTheRolesDirectory(unittest.TestC
             design_services="cosmos:\n  enabled: false\n  shared: true\n",
         )
         self.assertEqual(lookup(self.root, SILENT)["cosmos"], "")
+
+
+class TestTheDesignLookupExposesTheFlavorBesideTheProvider(unittest.TestCase):
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self._tmp.name)
+
+    def tearDown(self) -> None:
+        self._tmp.cleanup()
+
+    def test_a_silent_role_takes_the_full_sky_of_the_design_role(self) -> None:
+        checkout(self.root, pulled=True)
+        self.assertEqual(sky(self.root, SILENT), (PROVIDER, FLAVOR_FULL, True))
+
+    def test_a_role_that_keeps_its_colors_gets_no_sheet(self) -> None:
+        checkout(self.root, pulled=True)
+        self.assertEqual(sky(self.root, COLORS), (PROVIDER, FLAVOR_COLORS, False))
+        self.assertEqual(sky(self.root, SILENT), (PROVIDER, FLAVOR_FULL, True))
+
+    def test_without_an_active_provider_the_flavor_is_empty(self) -> None:
+        checkout(self.root, pulled=True)
+        self.assertEqual(sky(self.root, FORBIDDING), ("", "", False))
+        unpulled = self.root / "unpulled"
+        checkout(unpulled, pulled=False)
+        self.assertEqual(sky(unpulled, COLORS), ("", "", False))
+
+    def test_an_invalid_flavor_fails_naming_the_role_and_the_key(self) -> None:
+        checkout(self.root, pulled=True)
+        with self.assertRaisesRegex(
+            AnsibleError, rf"design: {INVALID}: services\.{SERVICE_KEY}\.{FLAVOR_KEY}"
+        ):
+            lookup(self.root, INVALID)
+        self.assertEqual(sky(self.root, SILENT), (PROVIDER, FLAVOR_FULL, True))
 
 
 if __name__ == "__main__":

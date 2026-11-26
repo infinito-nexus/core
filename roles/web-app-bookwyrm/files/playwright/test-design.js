@@ -10,11 +10,14 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm, requireDotenvValue } = require("./personas");
+const { COSMOS_SKY, TRANSPARENT, assertSky } = require("./cosmos-sky");
 const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const THEME_FILE = "/css/themes/infinito";
 const PROFILE_FORM = 'form[name="edit-profile"]';
+const SKY_CLEARED = ["html", "body", ".navbar", "footer"];
+const SKY_LEGIBLE_BLOCKS = ["main", "footer"];
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -47,8 +50,9 @@ async function openProfile(page) {
 function galleryViews() {
   const ready = (selector, signedIn = true) => async (view) => {
     await view.waitForFunction(
-      () => getComputedStyle(document.documentElement).backgroundColor !== "rgba(0, 0, 0, 0)",
-      null,
+      ([sky, transparent]) =>
+        document.documentElement.matches(sky) || getComputedStyle(document.documentElement).backgroundColor !== transparent,
+      [COSMOS_SKY, TRANSPARENT],
       { timeout: resolveTimeout(10_000) },
     );
     await expect(view.locator(selector).first()).toBeVisible({ timeout: resolveTimeout(10_000) });
@@ -111,10 +115,15 @@ test("design: the corporate theme carries page, primary action, selection and te
     "the site default theme must be the corporate theme",
   ).toHaveCount(1);
   const primary = `${PROFILE_FORM} .button.is-primary`;
+  const sky = isServiceEnabled("cosmos");
   for (const mode of ["light", "dark"]) {
     await page.emulateMedia({ colorScheme: mode });
-    await assertToken(page, "html", "background-color", "--design-surface-1", `bookwyrm page ${mode}`);
-    await assertToken(page, "body", "color", "--design-text", `bookwyrm text ${mode}`);
+    if (sky) {
+      await assertSky(page, SKY_CLEARED, SKY_LEGIBLE_BLOCKS, `bookwyrm sky ${mode}`);
+    } else {
+      await assertToken(page, "html", "background-color", "--design-surface-1", `bookwyrm page ${mode}`);
+      await assertToken(page, "body", "color", "--design-text", `bookwyrm text ${mode}`);
+    }
     await assertToken(page, `${PROFILE_FORM} .box`, "background-color", "--design-surface-2", `bookwyrm panel ${mode}`);
     await assertToken(page, primary, "background-color", "--design-primary", `bookwyrm primary ${mode}`);
     await assertToken(page, primary, "color", "--design-on-primary", `bookwyrm on-primary ${mode}`);
@@ -129,9 +138,10 @@ test("design: the corporate theme carries page, primary action, selection and te
   }
   await page.emulateMedia({ colorScheme: null });
   await assertLightAndDark(page, `${PROFILE_FORM} .box`, "bookwyrm panel");
+  const onSurfaces = [`${PROFILE_FORM} .label`, ".menu-list a.is-active", primary];
   await assertReadable(
     page,
-    ["body", `${PROFILE_FORM} .label`, ".menu-list a:not(.is-active)", ".menu-list a.is-active", primary, { selector: "footer a", optional: true }],
+    sky ? onSurfaces : ["body", ...onSurfaces, ".menu-list a:not(.is-active)", { selector: "footer a", optional: true }],
     "bookwyrm",
   );
 });

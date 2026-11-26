@@ -15,6 +15,7 @@
 {% set __cosmos_settings = {
      'zone': HOST_TIMEZONE,
      'hotkey': lookup('config', __cosmos, 'services.cosmos.hotkey', none),
+     'mode': __design.cosmos_flavor,
    } %}
 {% set __cosmos_config = __cosmos_settings | dict2items | rejectattr('value', 'none') | items2dict
    | combine({'cookieDomain': DOMAIN_PRIMARY} if domain == DOMAIN_PRIMARY or domain.endswith('.' ~ DOMAIN_PRIMARY) else {}) %}

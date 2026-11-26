@@ -1,0 +1,21 @@
+{{ COSMOS_SKY_SELECTOR }},
+{{ COSMOS_SKY_SELECTOR }} body,
+{{ COSMOS_SKY_SELECTOR }} .navbar:not(.is-white, .is-black, .is-light, .is-dark, .is-primary, .is-link, .is-info, .is-success, .is-warning, .is-danger),
+{{ COSMOS_SKY_SELECTOR }} .footer {
+  background: transparent;
+  color: var(--cosmos-text);
+}
+{{ COSMOS_SKY_SELECTOR }} :is(.title, .subtitle, strong, .label, .content :is(h1, h2, h3, h4, h5, h6)):not(:is(.box, .card, .modal-card, .dropdown-content, .navbar-dropdown, .notification, .message, .panel, .table) *) {
+  color: inherit;
+}
+@media screen and (min-width: 1024px) {
+  {{ COSMOS_SKY_SELECTOR }} .navbar :is(.navbar-brand, .navbar-start, .navbar-end) > .navbar-item,
+  {{ COSMOS_SKY_SELECTOR }} .navbar :is(.navbar-start, .navbar-end) > .navbar-item > .navbar-link {
+    color: inherit;
+  }
+}
+{{ COSMOS_LEGIBLE_TOP_SELECTOR }} .section,
+{{ COSMOS_LEGIBLE_TOP_SELECTOR }} .footer {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+}

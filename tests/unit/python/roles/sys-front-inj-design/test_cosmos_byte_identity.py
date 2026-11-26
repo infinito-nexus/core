@@ -166,7 +166,7 @@ class _WithoutAnActiveProviderEveryRoleSheetStaysByteIdentical(_Fixture):
                         tasks, app, vhost, logo, root=cls.root
                     )
             cls.on[app], _ = run_tasks(
-                current, app, VHOSTS[0], True, root=cls.root, cosmos=COSMOS
+                current, app, VHOSTS[0], True, root=cls.root, cosmos=COSMOS, sheet=True
             )
 
     def test_every_role_composes_the_sheet_and_version_it_had_before_cosmos(

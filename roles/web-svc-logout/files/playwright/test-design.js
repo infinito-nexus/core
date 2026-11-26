@@ -10,7 +10,8 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { assertSky } = require("./cosmos-sky");
+const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const MODES = ["light", "dark"];
@@ -28,6 +29,17 @@ const SOURCE_LINK = "p.mt-4 a";
 const WARNING = "#iframe-warning";
 const HEAD_CELL = "thead th";
 const BODY_CELL = "tbody td";
+const CONTAINER = "body > .container";
+
+async function assertPage(page, label) {
+  if (isServiceEnabled("cosmos")) {
+    await assertSky(page, ["html", "body"], [CONTAINER], label);
+    await assertToken(page, HEADING, "color", "--cosmos-text", label);
+    return;
+  }
+  await assertToken(page, "body", "background-color", "--design-surface-1", label);
+  await assertToken(page, HEADING, "color", "--design-text", label);
+}
 
 function base() {
   return decodeDotenvQuotedValue(process.env.APP_BASE_URL).replace(/\/$/, "");
@@ -160,8 +172,7 @@ exports.register = function () {
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
       const label = `logout ${mode}`;
-      await assertToken(page, "body", "background-color", "--design-surface-1", label);
-      await assertToken(page, HEADING, "color", "--design-text", label);
+      await assertPage(page, label);
       await assertToken(page, BODY_CELL, "background-color", "--design-surface-2", label);
       await assertToken(page, BODY_CELL, "color", "--design-text", label);
       await assertToken(page, HEAD_CELL, "background-color", "--design-surface-3", label);
@@ -240,21 +251,19 @@ exports.register = function () {
   test("design: the conductor follows the color mode and stays readable", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     await openConductor(page, "en", "done");
+    const sky = isServiceEnabled("cosmos");
+    const onSurfaces = [WARNING, HEAD_CELL, SERVICE_LINK, STATUS, MANUAL];
     await assertLightAndDark(page, BODY_CELL, "logout");
-    await assertLightAndDark(page, "body", "logout page");
-    await assertReadable(
-      page,
-      [HEADING, "p.lead", WARNING, HEAD_CELL, SERVICE_LINK, STATUS, MANUAL, SOURCE_LINK],
-      "logout",
-    );
+    if (!sky) await assertLightAndDark(page, "body", "logout page");
+    await assertReadable(page, sky ? onSurfaces : [HEADING, "p.lead", ...onSurfaces, SOURCE_LINK], "logout");
   });
 
   test("design: the page renders right to left in Arabic and keeps the tokens", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     await openConductor(page, "ar", "done");
     await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-    await assertToken(page, "body", "background-color", "--design-surface-1", "logout rtl");
-    await assertReadable(page, [HEADING, HEAD_CELL, STATUS], "logout rtl");
+    await assertPage(page, "logout rtl");
+    await assertReadable(page, isServiceEnabled("cosmos") ? [HEAD_CELL, STATUS] : [HEADING, HEAD_CELL, STATUS], "logout rtl");
   });
 
   test("design: favicon and title are the configured ones and the page shows no logo of its own", async ({

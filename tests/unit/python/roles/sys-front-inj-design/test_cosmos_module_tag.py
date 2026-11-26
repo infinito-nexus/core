@@ -12,6 +12,7 @@ from ansible.template import Templar, trust_as_template
 
 from plugins.lookup.cdn import SAME_ORIGIN_PATH, _cdn_paths, _to_url_tree
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.design.cosmos import FLAVOR_FULL, FLAVORS
 from utils.domains.default_primary import default_domain_primary
 
 filter_loader.add_directory(str(PROJECT_ROOT / "plugins" / "filter"))
@@ -81,19 +82,26 @@ def _unexpected(name):
     return answer
 
 
-def render(provider, vhost, services=None):
+def render(provider, vhost, services=None, flavor=FLAVOR_FULL):
     """
     Args:
         provider: the role ``lookup('design', app).cosmos`` returns, or "".
         vhost: the vhost being rendered.
         services: the ``applications.web-app-cst-cosmos`` config paths.
+        flavor: the ``cosmos_flavor`` the lookup returns while ``provider`` is
+            set; ``full`` by default because that is the design role's own
+            default, so a test about another key sees what a silent role sees.
 
     Returns:
         ``(html, calls)``: the rendered head and every ``(lookup, terms)`` call.
     """
     calls: list[tuple[str, tuple]] = []
     answers = {
-        "design": lambda _app: {"bootstrap": False, "cosmos": provider},
+        "design": lambda _app: {
+            "bootstrap": False,
+            "cosmos": provider,
+            "cosmos_flavor": flavor if provider else "",
+        },
         "cdn": _cdn,
         "path_absolute": lambda *parts: "/".join(parts),
         "local_mtime_qs": lambda _path, param="version": f"?{param}={MTIME}",
@@ -145,17 +153,34 @@ class TestACosmosHostLoadsTheModule(unittest.TestCase):
         self,
     ) -> None:
         html, _calls = render(COSMOS, f"html.{DOMAIN}")
-        self.assertEqual(cosmos_config(html), {"zone": ZONE, "cookieDomain": DOMAIN})
+        self.assertEqual(
+            cosmos_config(html),
+            {"zone": ZONE, "mode": FLAVOR_FULL, "cookieDomain": DOMAIN},
+        )
 
     def test_the_primary_domain_itself_shares_the_parent_cookie_domain(self) -> None:
         html, _calls = render(COSMOS, DOMAIN)
-        self.assertEqual(cosmos_config(html), {"zone": ZONE, "cookieDomain": DOMAIN})
+        self.assertEqual(
+            cosmos_config(html),
+            {"zone": ZONE, "mode": FLAVOR_FULL, "cookieDomain": DOMAIN},
+        )
 
     def test_a_vhost_outside_the_primary_domain_gets_a_host_only_cookie(self) -> None:
         for vhost in (f"html.{ONION}", "html.example.org", f"html-{DOMAIN}"):
             with self.subTest(vhost=vhost):
                 html, _calls = render(COSMOS, vhost)
-                self.assertEqual(cosmos_config(html), {"zone": ZONE})
+                self.assertEqual(
+                    cosmos_config(html), {"zone": ZONE, "mode": FLAVOR_FULL}
+                )
+
+    def test_the_config_carries_the_flavor_as_mode(self) -> None:
+        modes = {}
+        for flavor in FLAVORS:
+            with self.subTest(flavor=flavor):
+                html, _calls = render(COSMOS, f"html.{DOMAIN}", flavor=flavor)
+                modes[flavor] = cosmos_config(html)["mode"]
+                self.assertEqual(modes[flavor], flavor)
+        self.assertEqual(len(set(modes.values())), len(FLAVORS))
 
     def test_a_configured_hotkey_reaches_the_config_and_an_unset_one_stays_out(
         self,

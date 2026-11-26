@@ -202,6 +202,9 @@ design:
     logo:
       width: 294
       height: 64
+# nocheck: shared-provider a custom role pulled from its own repository registers the key; without it the key resolves to no role and nothing changes
+cosmos:
+  flavor: colors
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"

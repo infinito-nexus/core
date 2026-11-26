@@ -10,6 +10,7 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, clickOidcLoginLink, decodeDotenvQuotedValue, gotoOnion, performKeycloakLogin } = require("./personas");
+const { assertSky } = require("./cosmos-sky");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 const { awaitSession, espoApi } = require("./_shared");
@@ -129,8 +130,12 @@ exports.register = function () {
     for (const mode of ["light", "dark"]) {
       await page.emulateMedia({ colorScheme: mode });
       const label = `espocrm login ${mode}`;
-      await assertToken(page, "body", "background-color", "--design-surface-1", label);
-      await assertToken(page, "body", "color", "--design-text", label);
+      if (isServiceEnabled("cosmos")) {
+        await assertSky(page, ["html", "body"], [], label);
+      } else {
+        await assertToken(page, "body", "background-color", "--design-surface-1", label);
+        await assertToken(page, "body", "color", "--design-text", label);
+      }
       await assertToken(page, "#login", "background-color", "--design-surface-2", label);
       await assertToken(page, "#login .panel-heading", "background-color", "--design-frame", label);
       if (sso) {
@@ -166,6 +171,9 @@ exports.register = function () {
     for (const mode of ["light", "dark"]) {
       await page.emulateMedia({ colorScheme: mode });
       const label = `espocrm account list ${mode}`;
+      if (isServiceEnabled("cosmos")) {
+        await assertSky(page, ["html", "body"], ["#main > .page-header"], label);
+      }
       await assertToken(page, "#navbar .navbar", "background-color", "--design-frame", label);
       await assertToken(page, "#navbar .navbar ul.tabs > li.tab > a", "color", "--design-on-frame", label);
       await assertToken(page, "#main .list-container .list", "background-color", "--design-surface-2", label);
@@ -173,9 +181,10 @@ exports.register = function () {
     }
     await page.emulateMedia({ colorScheme: null });
     await assertLightAndDark(page, "#main .list-container .list", "espocrm account list");
+    const listOnSurfaces = ["#navbar .navbar ul.tabs > li.tab > a", "#main .list-container table tbody a"];
     await assertReadable(
       page,
-      ["#navbar .navbar ul.tabs > li.tab > a", "#main .page-header", "#main .list-container table tbody a"],
+      isServiceEnabled("cosmos") ? listOnSurfaces : [...listOnSurfaces, "#main .page-header"],
       "espocrm account list",
     );
   });
@@ -292,9 +301,10 @@ exports.register = function () {
     }
     await page.emulateMedia({ colorScheme: null });
     await assertLightAndDark(page, panel, "espocrm administration");
+    const adminOnSurfaces = [`${row} > td:first-child a`, `${row} > td:nth-child(2)`];
     await assertReadable(
       page,
-      ["#main .page-header h3", "#main .admin-content-section > h4", `${row} > td:first-child a`, `${row} > td:nth-child(2)`],
+      isServiceEnabled("cosmos") ? adminOnSurfaces : ["#main .page-header h3", "#main .admin-content-section > h4", ...adminOnSurfaces],
       "espocrm administration",
     );
 

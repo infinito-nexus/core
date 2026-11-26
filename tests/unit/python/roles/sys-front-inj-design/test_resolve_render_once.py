@@ -76,7 +76,7 @@ def _cdn(variables, application_id):
     return {**paths, "urls": _to_url_tree(paths, paths["root"], base)}
 
 
-def _design(logo, cosmos):
+def _design(logo, cosmos, sheet):
     def answer(variables, application_id):
         base = _cdn(variables, application_id)["urls"]["role"]["release"]["img"]
         return {
@@ -88,6 +88,7 @@ def _design(logo, cosmos):
                 "header": {"png": f"{base}/design/header.png"},
             },
             "cosmos": cosmos,
+            "cosmos_sheet": sheet,
         }
 
     return answer
@@ -134,7 +135,7 @@ def _trusted(value):
     return value
 
 
-def run_tasks(tasks, app, vhost, logo, root=PROJECT_ROOT, cosmos=""):
+def run_tasks(tasks, app, vhost, logo, root=PROJECT_ROOT, cosmos="", sheet=False):
     """Template the set_fact arguments of both resolve tasks in order.
 
     Args:
@@ -144,6 +145,8 @@ def run_tasks(tasks, app, vhost, logo, root=PROJECT_ROOT, cosmos=""):
         logo: whether the branding replaces the logo and title.
         root: the playbook directory the role paths resolve against.
         cosmos: the provider ``lookup('design', app).cosmos`` returns.
+        sheet: the ``cosmos_sheet`` the lookup returns, true for a provider
+            in the ``full`` flavor.
 
     Returns:
         ``(facts, renders)``: the facts both tasks set and, per task, a
@@ -153,7 +156,7 @@ def run_tasks(tasks, app, vhost, logo, root=PROJECT_ROOT, cosmos=""):
     stubs = {
         "domains": lambda _v, *terms: tree[terms[0]] if terms else tree,
         "cdn": _cdn,
-        "design": _design(logo, cosmos),
+        "design": _design(logo, cosmos, sheet),
     }
     renders: list[Counter] = []
     real_get = lookup_loader.get
@@ -279,7 +282,12 @@ class TestEachTemplateRendersOncePerFact(unittest.TestCase):
 class TestCosmosClearsASurfaceOnlyWhileItsProviderIsActive(unittest.TestCase):
     def test_an_active_provider_appends_the_mapping_of_the_role(self) -> None:
         facts, _ = run_tasks(
-            resolve_tasks(), COSMOS_APP, f"x.app.{DOMAIN}", True, cosmos=COSMOS
+            resolve_tasks(),
+            COSMOS_APP,
+            f"x.app.{DOMAIN}",
+            True,
+            cosmos=COSMOS,
+            sheet=True,
         )
         self.assertIn(f"{COSMOS_SKY} body {{", facts["app_style_css"])
         self.assertIn(
@@ -302,6 +310,7 @@ class TestCosmosClearsASurfaceOnlyWhileItsProviderIsActive(unittest.TestCase):
             f"x.app.{DOMAIN}",
             True,
             cosmos=COSMOS,
+            sheet=True,
         )
         expected, _ = run_tasks(
             legacy_tasks(), "web-app-wordpress", f"x.app.{DOMAIN}", True
@@ -319,6 +328,20 @@ class TestCosmosClearsASurfaceOnlyWhileItsProviderIsActive(unittest.TestCase):
         )
         self.assertEqual(facts, expected)
         self.assertFalse(facts["app_style_present"])
+
+
+class TestTheColorsFlavorKeepsTheSheetOfTheRole(unittest.TestCase):
+    def test_an_active_provider_without_the_sheet_appends_no_mapping(self) -> None:
+        vhost = f"x.app.{DOMAIN}"
+        colors, _ = run_tasks(resolve_tasks(), COSMOS_APP, vhost, True, cosmos=COSMOS)
+        expected, _ = run_tasks(legacy_tasks(), COSMOS_APP, vhost, True)
+        full, _ = run_tasks(
+            resolve_tasks(), COSMOS_APP, vhost, True, cosmos=COSMOS, sheet=True
+        )
+        self.assertEqual(colors, expected)
+        self.assertNotIn(COSMOS_SKY, colors["app_style_css"])
+        self.assertIn(COSMOS_SKY, full["app_style_css"])
+        self.assertNotEqual(colors, full)
 
 
 class TestABrokenRoleSheetStaysLoud(unittest.TestCase):
