@@ -15,9 +15,7 @@ RUNNER_GUARD = "_cli_runner == inventory_hostname"
 
 
 def _tasks() -> list[tuple[dict, str]]:
-    """Flatten ``run_one.yml`` into its tasks.
-
-    Returns:
+    """Returns:
         Every task, the tasks inside a ``block`` included, in file order,
         each with the ``when`` it runs under, its enclosing blocks' included.
     """
@@ -32,9 +30,7 @@ def _tasks() -> list[tuple[dict, str]]:
 
 
 def _task(prefix: str) -> dict:
-    """Find a task of ``run_one.yml`` by the start of its name.
-
-    Args:
+    """Args:
         prefix: the start of the task name.
 
     Returns:
@@ -47,9 +43,7 @@ def _task(prefix: str) -> dict:
 
 
 def _native(expression: str, **variables):
-    """Render a task value the way Ansible does, keeping its native type.
-
-    Args:
+    """Args:
         expression: the templated value.
         **variables: the variables in scope.
 
@@ -63,9 +57,7 @@ def _native(expression: str, **variables):
 
 
 def _runners(claims: dict[str, str], play_hosts: list[str], stack_host: str):
-    """Elect the runner every claiming host picks for its CLI node.
-
-    Args:
+    """Args:
         claims: the ``_cli_node_claim`` of each host that set one.
         play_hosts: ``ansible_play_hosts`` in play order.
         stack_host: the ``STACK_HOST`` of the play.
