@@ -199,6 +199,13 @@ _PHP_EXTENSION_PACKAGES: dict[str, dict[str, list[str]]] = {
         "yum": ["php-xml"],
         "brew": ["php"],
     },
+    "pdo": {
+        "pacman": ["php"],
+        "apt-get": ["php-cli"],
+        "dnf": ["php-pdo"],
+        "yum": ["php-pdo"],
+        "brew": ["php"],
+    },
 }
 
 

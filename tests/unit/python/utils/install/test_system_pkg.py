@@ -228,6 +228,9 @@ class TestEnsurePhpExtensionPresent(unittest.TestCase):
             system_pkg.ensure_php_extension_present("gd")
         install.assert_not_called()
 
+    def test_pdo_maps_to_the_fedora_subpackage_php_cli_lacks(self) -> None:
+        self.assertEqual(system_pkg._PHP_EXTENSION_PACKAGES["pdo"]["dnf"], ["php-pdo"])
+
     def test_every_extension_maps_every_supported_manager(self) -> None:
         for extension, mapping in system_pkg._PHP_EXTENSION_PACKAGES.items():
             self.assertEqual(
