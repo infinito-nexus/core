@@ -32,6 +32,7 @@ CORRUPT = ("corrupt", 0.0)
 RATE = 1_000_000
 RETRIES = 12
 RETRY_DELAY = 5
+PLAY_TIMEOUT = 900
 
 PLAYBOOK = """
 - hosts: localhost
@@ -122,9 +123,11 @@ def _serve(
             every half second and gives up after a quarter of the body,
             "tamper" replaces every held model with other bytes before it sends
             BLOB, "rewrite" overwrites every held model in place with other
-            bytes of its size and puts its mtime back before it sends BLOB,
-            "forget" deletes every async job state before it sends BLOB.
-            Each of them waits the seconds before it answers, except "outage",
+            bytes of its size and puts its mtime back before it sends BLOB.
+            Each of them waits the seconds before it answers, except "forget",
+            which deletes every async job state and then sends BLOB a byte every
+            half second, never all of it, until a play has ended or the seconds
+            have passed, "outage",
             which answers 503 until the seconds have passed since its first
             request and BLOB after that, "gate", which sends BLOB once every
             "gate" route has been asked or the seconds have passed, "hold",
@@ -135,7 +138,8 @@ def _serve(
         async_dir: the directory of the async job states "forget" deletes.
 
     Returns:
-        The running source and its counters.
+        The running source and its counters, with "ended", the event a play
+        sets once it is over.
     """
     lock = threading.Condition()
     gates = sum(1 for kind, _ in routes.values() if kind == "gate")
@@ -152,6 +156,7 @@ def _serve(
         "holding": 0,
         "released": 0,
         "order": [],
+        "ended": threading.Event(),
     }
 
     class Source(BaseHTTPRequestHandler):
@@ -191,9 +196,9 @@ def _serve(
                 elif kind == "release":
                     with lock:
                         lock.wait_for(lambda: stats["holding"] >= holds, seconds)
-                else:
+                elif kind != "forget":
                     time.sleep(seconds)
-                self._answer(kind, attempt)
+                self._answer(kind, attempt, seconds)
             except OSError:
                 self.close_connection = True
             finally:
@@ -204,7 +209,7 @@ def _serve(
                     stats["order"].append(f"end {self.path}")
                     lock.notify_all()
 
-        def _answer(self, kind: str, attempt: int) -> None:
+        def _answer(self, kind: str, attempt: int, seconds: float) -> None:
             if kind == "tamper":
                 for path in held:
                     forged = path.with_name(path.name + ".forged")
@@ -220,6 +225,15 @@ def _serve(
             self.send_response(200)
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
+            if kind == "forget":
+                cutoff = time.monotonic() + seconds
+                for offset in range(len(body) - 1):
+                    if stats["ended"].wait(0.5) or time.monotonic() > cutoff:
+                        break
+                    self.wfile.write(body[offset : offset + 1])
+                    self.wfile.flush()
+                self.close_connection = True
+                return
             if kind == "trickle":
                 for offset in range(0, len(body) // 4, 1024):
                     self.wfile.write(body[offset : offset + 1024])
@@ -490,37 +504,40 @@ class Probe:
             What one play did, with the source counters of every play so far.
         """
         self._configure(async_enabled)
-        result = subprocess.run(
-            self.command,
-            cwd=str(PROJECT_ROOT),
-            env=self.env,
-            capture_output=True,
-            text=True,
-            check=False,
-            timeout=900,
-        )
-        stored = {}
-        for model in self.models:
-            path = self.store / REPO / model.file
-            stored[model.file] = (
-                path.read_bytes()  # nocheck: cache-read  the play wrote it
-                if path.is_file()
-                else b""
+        try:
+            result = subprocess.run(
+                self.command,
+                cwd=str(PROJECT_ROOT),
+                env=self.env,
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=PLAY_TIMEOUT,
             )
-        return Run(
-            rc=result.returncode,
-            output=result.stdout + result.stderr,
-            stored=stored,
-            requests=dict(self.stats["requests"]),
-            peak=dict(self.stats["peak"]),
-            overlap=self.stats["overlap"],
-            order=list(self.stats["order"]),
-            staged=(
-                sorted(entry.name for entry in self.staging.iterdir())
-                if self.staging.exists()
-                else []
-            ),
-        )
+            stored = {}
+            for model in self.models:
+                path = self.store / REPO / model.file
+                stored[model.file] = (
+                    path.read_bytes()  # nocheck: cache-read  the play wrote it
+                    if path.is_file()
+                    else b""
+                )
+            return Run(
+                rc=result.returncode,
+                output=result.stdout + result.stderr,
+                stored=stored,
+                requests=dict(self.stats["requests"]),
+                peak=dict(self.stats["peak"]),
+                overlap=self.stats["overlap"],
+                order=list(self.stats["order"]),
+                staged=(
+                    sorted(entry.name for entry in self.staging.iterdir())
+                    if self.staging.exists()
+                    else []
+                ),
+            )
+        finally:
+            self.stats["ended"].set()
 
 
 def _fetch(
@@ -620,7 +637,7 @@ class TestFetch(unittest.TestCase):
             with self.subTest(async_enabled=async_enabled):
                 run = _fetch(
                     [Model(FILE, ("reset", 0.0), (), None, BLOB)],
-                    60,
+                    PLAY_TIMEOUT,
                     False,
                     None,
                     async_enabled,
@@ -634,7 +651,7 @@ class TestFetch(unittest.TestCase):
             with self.subTest(async_enabled=async_enabled):
                 run = _fetch(
                     [Model(FILE, ("outage", 20.0), (), None, BLOB)],
-                    60,
+                    PLAY_TIMEOUT,
                     False,
                     None,
                     async_enabled,
@@ -656,7 +673,11 @@ class TestFetch(unittest.TestCase):
 
     def test_a_cut_transfer_leaves_no_partial_for_the_next_attempt(self) -> None:
         run = _fetch(
-            [Model(FILE, ("half", 0.0), (), None, BLOB)], 60, False, None, True
+            [Model(FILE, ("half", 0.0), (), None, BLOB)],
+            PLAY_TIMEOUT,
+            False,
+            None,
+            True,
         )
         self.assertEqual(run.rc, 0, run.output[-3000:])
         self.assertEqual(run.stored[FILE], BLOB)
@@ -793,7 +814,11 @@ class TestFetch(unittest.TestCase):
 
     def test_a_download_whose_job_state_vanishes_stops_the_play(self) -> None:
         with Probe(
-            [Model(FILE, ("forget", 10.0), (), None, BLOB)], 60, RATE, RETRIES, None
+            [Model(FILE, ("forget", float(PLAY_TIMEOUT)), (), None, BLOB)],
+            PLAY_TIMEOUT,
+            RATE,
+            RETRIES,
+            None,
         ) as probe:
             run = probe.play(True)
             noted = probe.noted_jobs()
