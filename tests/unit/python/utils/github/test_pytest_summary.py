@@ -95,5 +95,14 @@ class TestMainBudget(unittest.TestCase):
         self.assertRegex(last, r"^\| _\d+ faster tests left out_ \| \| \|$")
 
 
+class TestKeeps(unittest.TestCase):
+    def test_bytes_one_report_cannot_use_go_to_another_reports_failures(self) -> None:
+        big = (["h", ""], ["x" * 599], [])
+        small = (["h", ""], ["y" * 99] * 6, [])
+        fixed = sum(len(ps._assemble(r, 0, 0).encode("utf-8")) for r in (big, small))
+        failure_keep, _ = ps._keeps([big, small], fixed + 1000)
+        self.assertEqual(failure_keep, [0, 6])
+
+
 if __name__ == "__main__":
     unittest.main()

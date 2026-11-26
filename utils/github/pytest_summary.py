@@ -168,6 +168,10 @@ def _keeps(
         - sum(fixed)
         - sum(_bytes(r[1][:k]) for r, k in zip(loaded, failure_keep, strict=True))
     )
+    for i, report in enumerate(loaded):
+        extra = _fit(report[1][failure_keep[i] :], left)
+        left -= _bytes(report[1][failure_keep[i] : failure_keep[i] + extra])
+        failure_keep[i] += extra
     row_keep = [
         _fit(r[2], a)
         for r, a in zip(
