@@ -1,0 +1,39 @@
+---
+# Param: lmstudio_fetch_collect  async downloads this fetch started: {lifetime: seconds left of their budget, deadline: when every one of them has ended, jobs: [job ids]}
+- name: "⏳ Collect the downloads on '{{ lmstudio_fetch_node }}'"
+  ansible.builtin.include_tasks:
+    file: utils/async/reap.yml
+    apply:
+      delegate_to: "{{ lmstudio_fetch_node }}"
+      ignore_errors: true
+  vars:
+    async_reap_jobs: >-
+      {%- set fired = namespace(jobs=[]) -%}
+      {%- for jid in lmstudio_fetch_collect.jobs -%}
+      {%- set fired.jobs = fired.jobs + [{'ansible_job_id': jid}] -%}
+      {%- endfor -%}
+      {{ fired.jobs }}
+    async_reap_label: "LM Studio model downloads on {{ lmstudio_fetch_node }}"
+    async_reap_tolerate: []
+    ASYNC_TIME: "{{ (lmstudio_fetch_collect.lifetime | int) + 30 }}"
+
+- name: "🛑 Stop when a download still runs on '{{ lmstudio_fetch_node }}'"
+  vars:
+    _running: >-
+      {{ ((async_reap_results.results | selectattr('finished', 'undefined') | list)
+          + (async_reap_results.results | selectattr('finished', 'defined') | rejectattr('finished') | list)
+          + (async_reap_results.results | selectattr('msg', 'defined')
+             | selectattr('msg', 'eq', 'could not find job') | list))
+         | map(attribute='ansible_job_id', default='unknown') | list }}
+  ansible.builtin.fail:
+    msg: >-
+      The downloads {{ _running | join(', ') }} on {{ lmstudio_fetch_node }} still run
+      past their budget or left no job state to read, so another download could write
+      the same model beside them. {{ lmstudio_fetch_jobs_file }} keeps their ids for the
+      next run to wait out.
+  when: _running | length > 0
+
+- name: "🧾 Clear the jobs file on '{{ lmstudio_fetch_node }}' after its downloads ended"
+  ansible.builtin.file:
+    path: "{{ lmstudio_fetch_jobs_file }}"
+    state: absent

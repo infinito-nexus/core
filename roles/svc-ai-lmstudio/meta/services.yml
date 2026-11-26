@@ -35,6 +35,8 @@ lmstudio:
   preload_models: "{{ AI_LOCAL_MODELS }}"
   preload_floor_seconds: 600
   preload_min_bytes_per_second: 1000000
+  preload_retries: 12
+  preload_retry_delay: 5
   lifecycle: beta
 
 # nocheck: playwright-service-flag, dynamic-flag

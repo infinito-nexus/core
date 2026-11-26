@@ -1,0 +1,64 @@
+---
+- name: "⏸️ Wait before retrying source {{ lmstudio_fetch_slot }}"
+  ansible.builtin.wait_for:
+    timeout: "{{ LMSTUDIO_PRELOAD_RETRY_DELAY | int }}"  # nocheck: timeout-lookup
+  when: lmstudio_fetch_attempt | int > 0
+
+- name: "⬇️ Fetch the models of source {{ lmstudio_fetch_slot }} one by one"
+  get_url_retry:
+    url: "{{ lmstudio_fetch_job.url }}"
+    dest: "{{ lmstudio_fetch_store }}/{{ lmstudio_fetch_job.model.repo }}/{{ lmstudio_fetch_job.model.file }}"
+    tmp_dest: "{{ lmstudio_fetch_staging }}"
+    checksum: "sha256:{{ lmstudio_fetch_job.model.sha256 }}"
+    mode: "0644"
+    retries: "{{ LMSTUDIO_PRELOAD_RETRIES | int }}"
+  vars:
+    _own_budget: >-
+      {{ [ LMSTUDIO_PRELOAD_FLOOR_SECONDS | int,
+           ((lmstudio_fetch_job.model.bytes | int) / (LMSTUDIO_PRELOAD_MIN_BYTES_PER_SECOND | int))
+           | round(0, 'ceil') | int ] | max }}
+  timeout: "{{ lookup('timeout', _own_budget) | int }}"
+  delay: "{{ LMSTUDIO_PRELOAD_RETRY_DELAY }}"
+  loop: "{{ lmstudio_fetch_due }}"
+  loop_control:
+    loop_var: lmstudio_fetch_job
+    label: "{{ lmstudio_fetch_job.model.file }} from {{ lmstudio_fetch_job.url }}"
+  register: lmstudio_fetch_sync
+  changed_when: false
+  ignore_errors: true
+  when: not (ASYNC_ENABLED | bool)
+
+- name: "⬇️ Run source {{ lmstudio_fetch_slot }} downloads as async jobs"
+  ansible.builtin.include_tasks: utils/fetch/start.yml
+  vars:
+    lmstudio_fetch_lifetime: "{{ [(lmstudio_fetch_deadline | int) - ('%s' | strftime | int), 1] | max }}"
+    _window:
+      lifetime: "{{ lmstudio_fetch_lifetime | int }}"
+      deadline: "{{ (lmstudio_fetch_deadline | int) + 15 }}"
+    _collect: >-
+      {{ _window | combine({'jobs': lmstudio_fetch_async.results
+                                    | selectattr('ansible_job_id', 'defined')
+                                    | map(attribute='ansible_job_id') | list}) }}
+  when: ASYNC_ENABLED | bool
+
+- name: "📝 Keep what source {{ lmstudio_fetch_slot }} answered"
+  vars:
+    _answers: >-
+      {{ ((async_reap_results.results | selectattr('finished', 'defined') | list)
+          + (lmstudio_fetch_async.results | rejectattr('ansible_job_id', 'defined') | list))
+         if ASYNC_ENABLED | bool else lmstudio_fetch_sync.results }}
+  ansible.builtin.set_fact:
+    lmstudio_fetch_said: >-
+      {%- set said = namespace(lines=lmstudio_fetch_said) -%}
+      {%- for answer in _answers -%}
+      {%- set job = answer.lmstudio_fetch_job if answer.lmstudio_fetch_job is defined
+            else (lmstudio_fetch_async.results | selectattr('ansible_job_id', 'defined')
+                  | selectattr('ansible_job_id', 'eq', answer.ansible_job_id) | first).lmstudio_fetch_job -%}
+      {%- set said.lines = said.lines + [job.model.file ~ ' from ' ~ job.url ~ ': ' ~ answer.msg | default('no answer')] -%}
+      {%- endfor -%}
+      {{ said.lines }}
+
+- name: "📥 Take stock of what source {{ lmstudio_fetch_slot }} delivered"
+  ansible.builtin.include_tasks: utils/fetch/settle.yml
+  vars:
+    lmstudio_fetch_models: "{{ lmstudio_fetch_due | map(attribute='model') | list }}"

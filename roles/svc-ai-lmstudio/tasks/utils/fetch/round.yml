@@ -1,0 +1,26 @@
+---
+# Param: lmstudio_fetch_slot     index into each lacking model's sources: 0 is its url, every further one a mirror
+# Param: lmstudio_fetch_attempt  0 for the first try of the slot, every further one an async retry within the slot's budget
+- name: "🗓️ Pick source {{ lmstudio_fetch_slot }} try {{ lmstudio_fetch_attempt }}"
+  vars:
+    _due: >-
+      {{ lmstudio_fetch_plan
+         | selectattr('slot', 'eq', lmstudio_fetch_slot | int)
+         | selectattr('model', 'in', lmstudio_fetch_pending | map(attribute='model') | list)
+         | list }}
+    _now: "{{ '%s' | strftime | int }}"
+    _deadline: >-
+      {{ ((_now | int) + (lookup('timeout', [ LMSTUDIO_PRELOAD_FLOOR_SECONDS | int,
+            ((_due | map(attribute='model.bytes') | map('int') | sum)
+             / (LMSTUDIO_PRELOAD_MIN_BYTES_PER_SECOND | int)) | round(0, 'ceil') | int ] | max) | int))
+         if lmstudio_fetch_attempt | int == 0 else lmstudio_fetch_deadline | int }}
+  ansible.builtin.set_fact:
+    lmstudio_fetch_deadline: "{{ _deadline | int }}"
+    lmstudio_fetch_due: >-
+      {{ _due if lmstudio_fetch_attempt | int == 0
+         or (_deadline | int) - (_now | int) - (LMSTUDIO_PRELOAD_RETRY_DELAY | int) > 0
+         else [] }}
+
+- name: "⬇️ Fetch source {{ lmstudio_fetch_slot }} try {{ lmstudio_fetch_attempt }}"
+  ansible.builtin.include_tasks: utils/fetch/attempt.yml
+  when: lmstudio_fetch_due | length > 0
