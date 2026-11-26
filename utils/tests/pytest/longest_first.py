@@ -51,7 +51,8 @@ def longest_first(items: list[Item], durations: dict[str, float]) -> list[Item]:
         durations: the summed duration per JUnit ``classname``.
 
     Returns:
-        The same items, scopes ordered by descending recorded duration.
+        The same items, scopes without a recorded duration first, then the
+        recorded scopes by descending duration.
     """
     first_seen: dict[str, int] = {}
     for index, item in enumerate(items):
@@ -59,7 +60,7 @@ def longest_first(items: list[Item], durations: dict[str, float]) -> list[Item]:
 
     def key(item: Item) -> tuple[float, int]:
         scope = junit_classname(item.nodeid)
-        return (-durations.get(scope, 0.0), first_seen[scope])
+        return (-durations.get(scope, float("inf")), first_seen[scope])
 
     return sorted(items, key=key)
 

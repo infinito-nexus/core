@@ -183,6 +183,16 @@ IMPORT_MAKEFILE = (
     'dotted:\n\t@"$${PYTHON}" -m cli.dotted_user\n'
     'dotted-light:\n\t@"$${PYTHON}" -m cli.dotted_light\n'
 )
+SUBCOMMAND = "cli/tool/other.py"
+NAMED_SCRIPT = "scripts/named.sh"
+REWRITE_SOURCES = {
+    "cli/__init__.py": "",
+    "cli/tool/__init__.py": "",
+    "cli/tool/__main__.py": "",
+    SUBCOMMAND: "def add_parser(sub):\n    sub.add_parser('reset')\n",
+    NAMED_SCRIPT: '"${PYTHON}" -m cli.tool reset\n',
+    "scripts/plain.sh": f"bash {NAMED_SCRIPT}\n",
+}
 LINT_WRAPPER = "scripts/lint/wrapper.sh"
 LINT_GUARD_EXIT = (
     '\t\tinfinito_test_runner_exec "${REPO_ROOT}" "${exec_env_args[@]}" -- '
@@ -612,6 +622,36 @@ class TestImportEdges(unittest.TestCase):
                 SHELL_HELPER,
             ],
         )
+
+
+class TestRewrittenGraphReuse(unittest.TestCase):
+    def setUp(self) -> None:
+        self.base = _fixture_graph(REWRITE_SOURCES)
+        self.named = self.base.edges(NAMED_SCRIPT)[0]
+
+    def test_a_shell_rewrite_reuses_the_trees_and_edges_of_every_other_file(
+        self,
+    ) -> None:
+        graph = self.base.rewritten({"scripts/plain.sh": "true\n"})
+        self.assertEqual(graph.edges("scripts/plain.sh"), (frozenset(), frozenset()))
+        self.assertIs(graph.edges(NAMED_SCRIPT), self.base.edges(NAMED_SCRIPT))
+        self.assertIs(graph.tree(SUBCOMMAND), self.base.tree(SUBCOMMAND))
+        self.assertIn("scripts/named.sh", self.base.edges("scripts/plain.sh")[0])
+
+    def test_a_python_rewrite_recomputes_the_edges_that_read_its_subcommands(
+        self,
+    ) -> None:
+        self.assertIn(SUBCOMMAND, self.named)
+        graph = self.base.rewritten(
+            {SUBCOMMAND: "def add_parser(sub):\n    sub.add_parser('other')\n"}
+        )
+        self.assertNotIn(SUBCOMMAND, graph.edges(NAMED_SCRIPT)[0])
+        self.assertIn("cli/tool/__main__.py", graph.edges(NAMED_SCRIPT)[0])
+        self.assertIn(SUBCOMMAND, self.base.edges(NAMED_SCRIPT)[0])
+        self.assertIs(
+            graph.tree("cli/tool/__main__.py"), self.base.tree("cli/tool/__main__.py")
+        )
+        self.assertIsNot(graph.tree(SUBCOMMAND), self.base.tree(SUBCOMMAND))
 
 
 class TestStopsOnTheRealTree(unittest.TestCase):

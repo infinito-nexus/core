@@ -5,7 +5,9 @@ import re
 import tempfile
 import unittest
 from collections.abc import Mapping
+from contextlib import closing
 from pathlib import Path
+from typing import ClassVar
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.plugins.loader import filter_loader
@@ -26,6 +28,7 @@ from utils.roles.mapping import (
     ROLE_FILE_TASKS_MAIN,
     ROLE_FILE_VARS_MAIN,
 )
+from utils.tests.buckets import buckets, register
 
 ROLES = PROJECT_ROOT / "roles"
 STACK = ROLES / "svc-stack"
@@ -264,6 +267,37 @@ def lua_include_tree() -> list[Path]:
     return seen
 
 
+FRONT_PROXY_ROLES = tuple(front_proxy_roles())
+ROLE_BUCKETS = buckets(FRONT_PROXY_ROLES, 6)
+COVERAGE_ORDER = sorted(
+    SCENARIOS, key=lambda scenario: (not scenario[1], not scenario[2])
+)
+BRANCHES = (
+    "top_snippets[#top_snippets + 1]",
+    "head_snippets[#head_snippets + 1]",
+    "body_snippets[#body_snippets + 1]",
+    MIRROR_MARKER.decode("utf-8"),
+    "data-design=",
+    "?version=",
+)
+
+
+def _facts_from(position: int):
+    """
+    Args:
+        position: the role's index in ``FRONT_PROXY_ROLES``.
+
+    Returns:
+        The facts picker ``scopes`` calls with each vhost's position in the
+        role: ``RICH`` and ``SPARSE`` alternate along roles and vhosts.
+    """
+
+    def facts(offset: int) -> dict:
+        return RICH if (position + offset) % 2 == 0 else SPARSE
+
+    return facts
+
+
 class _Harness:
     def __init__(self) -> None:
         self.group_vars: dict = {}
@@ -346,7 +380,8 @@ class _Harness:
             tls: the inventory ``TLS_ENABLED``.
             tor: whether ``svc-net-tor`` serves the host with a node onion.
             providers: whether the injection providers run on the host.
-            facts: the injection facts the ``sys-front-inj-*`` roles set.
+            facts: called with each vhost's position in ``app``, returns the
+                injection facts the ``sys-front-inj-*`` roles set for it.
 
         Returns:
             An iterator of ``(vhost, action_task_vars, fold_task_vars)``, one
@@ -355,7 +390,9 @@ class _Harness:
         variables = self.base(app, tls, tor, providers)
         variables.update(_yaml(STACK / ROLE_FILE_VARS_MAIN))
         variables["application_id"] = app
-        for vhost, stack_facts in self.stack_vhosts(variables, app):
+        for offset, (vhost, stack_facts) in enumerate(
+            self.stack_vhosts(variables, app)
+        ):
             shared = {
                 **variables,
                 **stack_facts,
@@ -369,7 +406,7 @@ class _Harness:
             }
             inj_facts = _template(inj_scope, self.inj["set_fact"])
             shared.update(inj_facts)
-            shared.update(facts)
+            shared.update(facts(offset))
             for feature in ("logout", "dashboard"):
                 if inj_facts["inj_enabled"].get(feature):
                     shared.update(
@@ -393,8 +430,8 @@ class _Harness:
             }
             yield vhost, action_vars, fold_vars
 
-    def render_pair(self, action_vars: dict, fold_vars: dict):
-        def action():
+    def action(self, action_vars: dict):
+        def render():
             dest = render_expression(
                 action_vars, self.lua_task["stack_host_template"]["dest"]
             )
@@ -407,7 +444,38 @@ class _Harness:
             )
             return (result["dest"], result["bytes"], result["mode"])
 
-        return _outcome(action), self.fold(fold_vars, LUA_ENTRY)
+        return _outcome(render)
+
+    def render_pair(self, action_vars: dict, fold_vars: dict):
+        return self.action(action_vars), self.fold(fold_vars, LUA_ENTRY)
+
+    def cases(self, roles, scenarios):
+        """
+        Args:
+            roles: the front proxy roles to render, a subset of
+                ``FRONT_PROXY_ROLES``.
+            scenarios: the ``(tls, tor, providers)`` scenarios, each run on a
+                freshly reset cache in the given order.
+
+        Returns:
+            An iterator of ``(case, action_vars, fold_vars)``; ``case`` is
+            ``(app, vhost, tls, tor, providers, parity)``, and ``parity`` picks
+            ``RICH`` or ``SPARSE`` facts from the role's position in
+            ``FRONT_PROXY_ROLES`` and the vhost's position in the role.
+        """
+        try:
+            for tls, tor, providers in scenarios:
+                _reset_cache_for_tests()
+                for app in roles:
+                    position = FRONT_PROXY_ROLES.index(app)
+                    for offset, (vhost, action_vars, fold_vars) in enumerate(
+                        self.scopes(app, tls, tor, providers, _facts_from(position))
+                    ):
+                        parity = (position + offset) % 2
+                        case = (app, vhost, tls, tor, providers, parity)
+                        yield case, action_vars, fold_vars
+        finally:
+            _reset_cache_for_tests()
 
     def fold(self, fold_vars: dict, entry: str):
         def render():
@@ -491,44 +559,39 @@ class TestEdgeCaseTemplatesRenderAlike(unittest.TestCase):
         )
 
 
-class TestEveryRoleRendersTheSameLua(unittest.TestCase):
+class TestTheScanFindsEveryFrontProxyRole(unittest.TestCase):
+    def test_the_scan_finds_every_front_proxy_role(self) -> None:
+        self.assertGreater(len(FRONT_PROXY_ROLES), 90)
+        self.assertIn("web-app-wordpress", FRONT_PROXY_ROLES)
+        self.assertIn("web-svc-html", FRONT_PROXY_ROLES)
+
+    def test_the_buckets_render_every_front_proxy_role_exactly_once(self) -> None:
+        rendered = [role for bucket in ROLE_BUCKETS for role in bucket]
+        self.assertEqual(sorted(rendered), list(FRONT_PROXY_ROLES))
+        self.assertEqual(len(rendered), len(set(rendered)))
+
+
+class _EveryRoleRendersTheSameLua:
+    """
+    Args:
+        roles: the front proxy roles the class renders.
+    """
+
+    roles: ClassVar[tuple[str, ...]]
+    cases: ClassVar[list]
+    mutated: ClassVar[list]
+
     @classmethod
     def setUpClass(cls) -> None:
-        cls.roles = front_proxy_roles()
-        cls.harness = harness = _Harness()
+        harness = _Harness()
         cls.cases = []
         cls.mutated = []
-        cls.mirrored = []
-        for tls, tor, providers in SCENARIOS:
-            _reset_cache_for_tests()
-            index = 0
-            for app in cls.roles:
-                for vhost, action_vars, fold_vars in harness.scopes(
-                    app,
-                    tls,
-                    tor,
-                    providers,
-                    RICH if index % 2 == 0 else SPARSE,
-                ):
-                    snapshot = copy.deepcopy(fold_vars)
-                    action, fold = harness.render_pair(action_vars, fold_vars)
-                    if fold_vars != snapshot:
-                        cls.mutated.append((app, vhost, tls, tor, providers))
-                    case = (app, vhost, tls, tor, providers, index % 2)
-                    cls.cases.append((case, action, fold))
-                    if (
-                        action[0] == "ok"
-                        and MIRROR_MARKER in action[1][1]
-                        and len(cls.mirrored) < 3
-                    ):
-                        cls.mirrored.append((case, action, fold_vars))
-                    index += 1
-        _reset_cache_for_tests()
-
-    def test_the_scan_finds_every_front_proxy_role(self) -> None:
-        self.assertGreater(len(self.roles), 90)
-        self.assertIn("web-app-wordpress", self.roles)
-        self.assertIn("web-svc-html", self.roles)
+        for case, action_vars, fold_vars in harness.cases(cls.roles, SCENARIOS):
+            snapshot = copy.deepcopy(fold_vars)
+            action, fold = harness.render_pair(action_vars, fold_vars)
+            if fold_vars != snapshot:
+                cls.mutated.append(case[:5])
+            cls.cases.append((case, action, fold))
 
     def test_the_action_and_the_fold_agree_byte_for_byte(self) -> None:
         for case, action, fold in self.cases:
@@ -540,28 +603,6 @@ class TestEveryRoleRendersTheSameLua(unittest.TestCase):
         self.assertGreater(rendered, 0.95 * len(self.cases))
         self.assertGreater(rendered, 4 * len(self.roles))
 
-    def test_the_cases_reach_every_branch_of_the_template(self) -> None:
-        bodies = [
-            action[1][1].decode("utf-8")
-            for _, action, _ in self.cases
-            if action[0] == "ok"
-        ]
-        onion = [
-            c for c, a, _ in self.cases if c[1].endswith(".onion") and a[0] == "ok"
-        ]
-        self.assertTrue(onion)
-        for marker in (
-            "top_snippets[#top_snippets + 1]",
-            "head_snippets[#head_snippets + 1]",
-            "body_snippets[#body_snippets + 1]",
-            MIRROR_MARKER.decode("utf-8"),
-            "data-design=",
-            "?version=",
-        ):
-            with self.subTest(marker=marker):
-                self.assertTrue(any(marker in body for body in bodies))
-        self.assertTrue(any("data-design=" not in body for body in bodies))
-
     def test_the_shallow_render_leaves_every_variable_untouched(self) -> None:
         self.assertEqual(self.mutated, [])
 
@@ -571,6 +612,41 @@ class TestEveryRoleRendersTheSameLua(unittest.TestCase):
                 with self.subTest(case=case):
                     self.assertNotIn(b"\r", action[1][1])
                     action[1][1].decode("utf-8")
+
+
+class TestTheLuaCasesReachEveryBranch(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.harness = harness = _Harness()
+        cls.reached: set[str] = set()
+        cls.undesigned = False
+        cls.onion = False
+        cls.mirrored = []
+        with closing(harness.cases(FRONT_PROXY_ROLES, COVERAGE_ORDER)) as cases:
+            for case, action_vars, fold_vars in cases:
+                action = harness.action(action_vars)
+                if action[0] != "ok":
+                    continue
+                body = action[1][1].decode("utf-8")
+                cls.reached.update(marker for marker in BRANCHES if marker in body)
+                cls.undesigned = cls.undesigned or "data-design=" not in body
+                cls.onion = cls.onion or case[1].endswith(".onion")
+                if MIRROR_MARKER in action[1][1] and len(cls.mirrored) < 3:
+                    cls.mirrored.append((case, action, fold_vars))
+                if (
+                    cls.reached == set(BRANCHES)
+                    and cls.undesigned
+                    and cls.onion
+                    and len(cls.mirrored) == 3
+                ):
+                    break
+
+    def test_the_cases_reach_every_branch_of_the_template(self) -> None:
+        self.assertTrue(self.onion)
+        for marker in BRANCHES:
+            with self.subTest(marker=marker):
+                self.assertIn(marker, self.reached)
+        self.assertTrue(self.undesigned)
 
     def test_an_outranking_include_param_cannot_reach_the_lua(self) -> None:
         self.assertEqual(len(self.mirrored), 3)
@@ -584,6 +660,15 @@ class TestEveryRoleRendersTheSameLua(unittest.TestCase):
                         self.harness.fold(drifted, UNPINNED_ENTRY), action
                     )
         _reset_cache_for_tests()
+
+
+for _index, _bucket in enumerate(ROLE_BUCKETS):
+    register(
+        globals(),
+        f"TestEveryRoleRendersTheSameLua_bucket_{_index}",
+        _EveryRoleRendersTheSameLua,
+        roles=_bucket,
+    )
 
 
 if __name__ == "__main__":

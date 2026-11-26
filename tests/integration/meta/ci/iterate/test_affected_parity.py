@@ -9,6 +9,7 @@ import unittest
 import unittest.mock as mock
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from typing import ClassVar
 
 from cli.meta.ci.iterate import __main__ as entry
 from cli.meta.ci.iterate import diff, plan, tiers
@@ -21,6 +22,7 @@ from utils.roles.mapping import (
     ROLE_FILE_META_VARIANTS,
     ROLE_FILE_VARS_MAIN,
 )
+from utils.tests.buckets import buckets, register
 
 SAMPLE = {
     "8d6040948c": "provider role template plus its unit test",
@@ -51,6 +53,11 @@ diff) cat "$STUB_PATHS" ;;
 *) exec {git} "$@" ;;
 esac
 """
+CONTROLLED = (TESTS_ONLY, ROLE_ONLY, *WIDENS)
+PLAN_BUCKETS = (
+    CONTROLLED,
+    *buckets([sha for sha in SAMPLE if sha not in CONTROLLED], 3),
+)
 KEYCLOAK_VARS = f"roles/web-app-keycloak/{ROLE_FILE_VARS_MAIN}"
 DASHBOARD_VARIANTS = f"roles/web-app-dashboard/{ROLE_FILE_META_VARIANTS}"
 JOB_NAMES_TESTS = tuple(
@@ -161,7 +168,70 @@ class TestRealPathsReachTheirConsumers(unittest.TestCase):
         self.assertEqual((change.effect, change.format_only), (NONE, True))
 
 
-class TestPlanCoversTheAffectedRolesScript(unittest.TestCase):
+def _sampled_span(sha: str) -> tuple[diff.Span, list[str]] | None:
+    """
+    Args:
+        sha: one commit of ``SAMPLE``.
+
+    Returns:
+        The commit's span against its parent and the paths ``git diff
+        --name-only`` lists for it, or ``None`` when this clone lacks it.
+    """
+    try:
+        span = diff.resolve(f"{sha}^", sha)
+        renamed = diff._git("diff", "--name-only", "-z", span.base, span.head)
+    except (SystemExit, LookupError):
+        return None
+    return span, sorted(p for p in renamed.split("\0") if p)
+
+
+class TestTheSampleResolves(unittest.TestCase):
+    def test_ci_clone_holds_every_sampled_commit(self) -> None:
+        if os.environ.get("GITHUB_ACTIONS") != "true":
+            self.skipTest("a local clone may be shallow; CI checks out full history")
+        self.assertEqual(
+            sorted(sha for sha in SAMPLE if _sampled_span(sha) is None), []
+        )
+
+    def test_the_buckets_plan_every_sampled_commit_exactly_once(self) -> None:
+        planned = [sha for bucket in PLAN_BUCKETS for sha in bucket]
+        self.assertEqual(sorted(planned), sorted(SAMPLE))
+        self.assertEqual(len(planned), len(set(planned)))
+
+
+class TestRetargetedVariantPinPlansAReinstall(unittest.TestCase):
+    def test_retargeted_variant_pin_plans_a_reinstall_of_its_role(self) -> None:
+        old, new = _pin_edit()
+        catalog = Catalog()
+        change = classify(
+            DASHBOARD_VARIANTS, _read(old, new), Index(PROJECT_ROOT), _exists
+        )
+        with mock.patch.object(
+            catalog, "free_bytes", side_effect=RuntimeError("no daemon")
+        ):
+            result = plan.build(
+                [DASHBOARD_VARIANTS],
+                [change],
+                catalog,
+                loop="",
+                disable="",
+                timings="",
+            )
+        t1 = [row for row in result["rows"] if row["tier"] == "T1"]
+        self.assertEqual(
+            (result["seeds"], [row["deploy"] for row in t1]),
+            (["web-app-dashboard"], ["reinstall"]),
+        )
+
+
+class _PlanBucket:
+    """
+    Args:
+        shas: the commits of ``SAMPLE`` the class plans.
+    """
+
+    shas: ClassVar[tuple[str, ...]]
+
     @classmethod
     def setUpClass(cls) -> None:
         cls._tmp = tempfile.TemporaryDirectory()
@@ -173,14 +243,11 @@ class TestPlanCoversTheAffectedRolesScript(unittest.TestCase):
         cls.same_paths: dict[str, bool] = {}
         cls.plans: dict[str, dict] = {}
         script_paths: dict[str, list[str]] = {}
-        for sha in SAMPLE:
-            try:
-                span = diff.resolve(f"{sha}^", sha)
-                renamed = diff._git("diff", "--name-only", "-z", span.base, span.head)
-            except (SystemExit, LookupError):
+        for sha in cls.shas:
+            sampled = _sampled_span(sha)
+            if sampled is None:
                 continue
-            cls.spans[sha] = span
-            script_paths[sha] = sorted(p for p in renamed.split("\0") if p)
+            cls.spans[sha], script_paths[sha] = sampled
         with ThreadPoolExecutor(max_workers=max(1, len(cls.spans))) as pool:
             pending = {
                 sha: pool.submit(cls.script.tokens, span.base, script_paths[sha])
@@ -219,13 +286,13 @@ class TestPlanCoversTheAffectedRolesScript(unittest.TestCase):
         return self.script_roles[sha] - plan.accounted(result)
 
     def test_every_role_the_script_deploys_is_in_the_plan(self) -> None:
-        for sha in SAMPLE:
+        for sha in self.shas:
             with self.subTest(sha=sha, diff=SAMPLE[sha]):
                 self._require(sha)
                 self.assertEqual(self._missing(sha, self.plans[sha]), set())
 
     def test_baseline_reproduces_the_script(self) -> None:
-        for sha in SAMPLE:
+        for sha in self.shas:
             with self.subTest(sha=sha, diff=SAMPLE[sha]):
                 self._require(sha)
                 baseline = set(self.plans[sha]["baseline"]["roles"])
@@ -233,6 +300,10 @@ class TestPlanCoversTheAffectedRolesScript(unittest.TestCase):
                     self.assertEqual(baseline, self.script_roles[sha])
                 else:
                     self.assertLessEqual(self.script_roles[sha], baseline)
+
+
+class TestPlanCoversTheAffectedRolesScript(_PlanBucket, unittest.TestCase):
+    shas = PLAN_BUCKETS[0]
 
     def test_deploy_machinery_commits_plan_the_full_set(self) -> None:
         for sha in WIDENS:
@@ -250,34 +321,8 @@ class TestPlanCoversTheAffectedRolesScript(unittest.TestCase):
         result = self.plans[ROLE_ONLY]
         self.assertEqual((result["seeds"], result["full"]), (["web-app-keycloak"], ""))
 
-    def test_ci_clone_holds_every_sampled_commit(self) -> None:
-        if os.environ.get("GITHUB_ACTIONS") != "true":
-            self.skipTest("a local clone may be shallow; CI checks out full history")
-        self.assertEqual(sorted(set(SAMPLE) - set(self.plans)), [])
-
-    def test_retargeted_variant_pin_plans_a_reinstall_of_its_role(self) -> None:
-        old, new = _pin_edit()
-        index = self.index
-        change = classify(DASHBOARD_VARIANTS, _read(old, new), index, _exists)
-        with mock.patch.object(
-            self.catalog, "free_bytes", side_effect=RuntimeError("no daemon")
-        ):
-            result = plan.build(
-                [DASHBOARD_VARIANTS],
-                [change],
-                self.catalog,
-                loop="",
-                disable="",
-                timings="",
-            )
-        t1 = [row for row in result["rows"] if row["tier"] == "T1"]
-        self.assertEqual(
-            (result["seeds"], [row["deploy"] for row in t1]),
-            (["web-app-dashboard"], ["reinstall"]),
-        )
-
     def test_sample_holds_narrowed_and_widened_diffs(self) -> None:
-        present = [sha for sha in SAMPLE if sha in self.plans]
+        present = [sha for sha in self.shas if sha in self.plans]
         if not present:
             self.skipTest("no sampled commit is in this clone's history")
         narrowed = [
@@ -318,6 +363,15 @@ class TestPlanCoversTheAffectedRolesScript(unittest.TestCase):
             (self._missing(ROLE_ONLY, mutant), sorted(cut["paths"])),
             (set(), [f"roles/web-app-keycloak/{ROLE_FILE_META_SERVICES}"]),
         )
+
+
+for _index, _bucket in enumerate(PLAN_BUCKETS[1:], start=1):
+    register(
+        globals(),
+        f"TestPlanCoversTheAffectedRolesScript_bucket_{_index}",
+        _PlanBucket,
+        shas=_bucket,
+    )
 
 
 if __name__ == "__main__":

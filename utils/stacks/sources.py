@@ -109,6 +109,9 @@ class SourceGraph:
                 self._modules[".".join(parts)] = rel
         self._edges: dict[str, tuple[frozenset[str], frozenset[str]]] = {}
         self._trees: dict[str, ast.AST | None] = {}
+        self._base: SourceGraph | None = None
+        self._replaced: frozenset[str] = frozenset()
+        self._shares_edges = False
 
     @property
     def files(self) -> frozenset[str]:
@@ -124,11 +127,19 @@ class SourceGraph:
             texts: replacement texts of some source files.
 
         Returns:
-            The same graph, reading ``texts`` for those files.
+            The same graph, reading ``texts`` for those files. It reuses this
+            graph's syntax trees of every other file, and its edges of every
+            other file while ``texts`` replaces no Python file.
         """
-        return SourceGraph(
-            self._files, lambda rel: texts[rel] if rel in texts else self._read(rel)
+        replaced = dict(texts)
+        graph = SourceGraph(
+            self._files,
+            lambda rel: replaced[rel] if rel in replaced else self._read(rel),
         )
+        graph._base = self
+        graph._replaced = frozenset(replaced)
+        graph._shares_edges = not any(rel.endswith(".py") for rel in texts)
+        return graph
 
     def text(self, rel: str) -> str:
         """
@@ -148,6 +159,8 @@ class SourceGraph:
         return self._tree(rel)
 
     def _tree(self, rel: str) -> ast.AST | None:
+        if self._base is not None and rel not in self._replaced:
+            return self._base._tree(rel)
         if rel not in self._trees:
             try:
                 self._trees[rel] = ast.parse(self._read(rel), filename=rel)
@@ -282,6 +295,8 @@ class SourceGraph:
         Returns:
             The source files it reaches directly, and the make targets it runs.
         """
+        if self._shares_edges and self._base is not None and rel not in self._replaced:
+            return self._base.edges(rel)
         if rel not in self._edges:
             if rel.endswith(".sh"):
                 files, targets = self._shell(rel, self._read(rel))

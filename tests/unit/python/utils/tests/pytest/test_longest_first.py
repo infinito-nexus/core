@@ -46,7 +46,7 @@ class TestLongestFirst(unittest.TestCase):
         self.assertEqual(junit_classname(ITEMS[1].nodeid), "tests.a.test_slow.TestSlow")
         self.assertEqual(junit_classname(ITEMS[3].nodeid), "tests.a.test_new")
 
-    def test_recorded_scopes_lead_by_time_and_new_ones_keep_collection_order(
+    def test_new_scopes_lead_then_recorded_scopes_by_time(
         self,
     ) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -56,13 +56,13 @@ class TestLongestFirst(unittest.TestCase):
         self.assertEqual(
             _ids(ordered),
             [
+                "test_new.py::test_function",
                 "test_slow.py::TestSlow::test_one",
                 "test_slow.py::TestSlow::test_two",
                 "test_many.py::TestMany::test_one",
                 "test_many.py::TestMany::test_two",
                 "test_many.py::TestMany::test_three",
                 "test_fast.py::TestFast::test_one",
-                "test_new.py::test_function",
             ],
         )
 
