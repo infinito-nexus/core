@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -11,12 +12,15 @@ from utils import PROJECT_ROOT
 
 RUN_SCRIPT = PROJECT_ROOT / "scripts" / "tests" / "code" / "run.sh"
 PYTHON_STUB = """#!/usr/bin/env bash
+if [ "$1" = "-c" ]; then
+\texec @PYTHON@ "$@"
+fi
 if [ "$1" = "-m" ]; then
 \tprintf 'PYTHONPYCACHEPREFIX=%s\\n' "${PYTHONPYCACHEPREFIX-<unset>}"
 \tprintf 'PYTHONDONTWRITEBYTECODE=%s\\n' "${PYTHONDONTWRITEBYTECODE-<unset>}"
 fi
 exit 0
-"""
+""".replace("@PYTHON@", sys.executable)
 NO_OP = "#!/usr/bin/env bash\nexit 0\n"
 UNSET = "<unset>"
 
@@ -62,7 +66,7 @@ class TestRunBytecode(unittest.TestCase):
         } | {
             "INFINITO_RUNNING_ON_GITHUB": on_github,
             "INFINITO_TEST_PATTERN": "test*.py",
-            "INFINITO_TEST_TYPE": "unit",
+            "INFINITO_TEST_TYPE": "unit",  # nocheck: makefile-supplied
             "PYTHON": str(self.root / "bin" / "python"),
             "TMPDIR": str(tmpdir),
         }

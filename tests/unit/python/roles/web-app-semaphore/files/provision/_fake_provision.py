@@ -606,7 +606,11 @@ class Sandbox:
         self.directory = harness_directory()
         self.core = self.directory / "core" / "roles" / "web-app-semaphore" / "files"
         for part in ("python", "opentofu", "shell"):
-            shutil.copytree(FILES / part, self.core / part)
+            shutil.copytree(
+                FILES / part,
+                self.core / part,
+                ignore=shutil.ignore_patterns("__pycache__"),
+            )
         self.checkout = self.directory / "checkout"
         (self.checkout / "provision").mkdir(parents=True)
         self.catalogs = self.directory / "catalogs"

@@ -7,10 +7,12 @@ import types
 import unittest
 from unittest.mock import patch
 
+from utils.domains.default_primary import default_domain_primary
+
 from . import PROJECT_ROOT
 
 SCRIPT_PATH = PROJECT_ROOT / "roles/svc-ai-litellm/files/python/sitecustomize.py"
-ADDRESS = "platformadmin@main.infinito.test"
+ADDRESS = f"platformadmin@{default_domain_primary()}"
 
 
 def fake_email_validator() -> types.ModuleType:

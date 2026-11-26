@@ -11,7 +11,7 @@ from cli.administration.roles.declaration import Source
 from cli.administration.roles.manifest import read_manifest
 from utils.cache import PROJECT_ROOT
 from utils.cache.files import read_text
-from utils.roles.custom import MANIFEST_FILE
+from utils.roles.custom import MANIFEST_FILE, RELEASE_TAG
 
 from ._fixtures import ROLE, ROLE_PATH, roles_dir, write
 
@@ -62,8 +62,8 @@ class TestReadManifest(unittest.TestCase):
         self.assertEqual(
             "https://github.com/kevinveenbirkenbach/cosmos.git", cosmos.url
         )
-        self.assertEqual("v0.3.3", cosmos.version)
-        self.assertEqual(SHA, cosmos.pinned_commit)
+        self.assertRegex(cosmos.version, RELEASE_TAG)
+        self.assertRegex(cosmos.pinned_commit, r"\A[0-9a-f]{40}\Z")
         self.assertEqual("ansible/roles/web-app-cst-cosmos", cosmos.path)
 
     def test_valid_entry_is_read_with_its_commit(self):

@@ -38,12 +38,11 @@ if "${PYTHON}" -c 'import pytest, xdist' >/dev/null 2>&1; then
 		export PYTHONDONTWRITEBYTECODE=1
 	else
 		PYTHONPYCACHEPREFIX="${PWD}/build/pycache-$(id -u)/${INFINITO_TEST_TYPE}" # nocheck: makefile-supplied
-		# Exception: /tmp is where Python's tempfile puts scratch files when TMPDIR is unset, so the pruned prefix matches the tests' own scratch root.
-		_scratch_root="${TMPDIR:-/tmp}"
+		_scratch_root="$("${PYTHON}" -c 'import tempfile; print(tempfile.gettempdir())')"
 		_scratch_root="${_scratch_root%/}"
 		case "${PWD}/" in
 		"${_scratch_root}/"*) ;;
-		*) rm -rf "${PYTHONPYCACHEPREFIX:?}${_scratch_root}" ;;
+		*) rm -rf "${PYTHONPYCACHEPREFIX:?}${_scratch_root:?}" ;;
 		esac
 		unset _scratch_root
 		export PYTHONPYCACHEPREFIX

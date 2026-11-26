@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import unittest
-from unittest import mock
+import unittest.mock
 
 from utils.cache import applications, domains
 from utils.cache import yaml as yaml_cache
@@ -18,7 +18,7 @@ class TestResetCaches(unittest.TestCase):
         stack = contextlib.ExitStack()
         self.addCleanup(stack.close)
         for cache in (*PARSED, *RENDERED):
-            stack.enter_context(mock.patch.dict(cache, {KEY: {}}))
+            stack.enter_context(unittest.mock.patch.dict(cache, {KEY: {}}))
 
     def test_unchanged_files_keep_the_parsed_caches(self) -> None:
         reset_caches(files_changed=False)
