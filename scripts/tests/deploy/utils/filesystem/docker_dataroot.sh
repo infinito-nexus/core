@@ -43,6 +43,7 @@ DAEMON=/etc/docker/daemon.json
 REMOUNT_HOOK=/usr/local/sbin/docker-dataroot
 REMOUNT_DROPIN=/etc/systemd/system/docker.service.d/10-dataroot-remount.conf
 MISC_MAJOR=10
+ZFS_ARC_MAX_BYTES=$((1024 * 1024 * 1024))
 
 report() { echo "docker-dataroot-filesystem: $*"; }
 
@@ -63,6 +64,19 @@ verdict() {
 	[ -n "${GITHUB_STEP_SUMMARY:-}" ] || return 0
 	echo "- \`${IDENTITY}\` docker data root: **${effective}** (requested \`${FSTYPE:-none}\`, ${status})${reason:+ - ${reason}}" \
 		>>"${GITHUB_STEP_SUMMARY}"
+}
+
+cap_zfs_arc() {
+	local param=/sys/module/zfs/parameters/zfs_arc_max current
+	current="$(cat "${param}" 2>/dev/null)" || return 0
+	if [ "${current}" -ne 0 ] && [ "${current}" -le "${ZFS_ARC_MAX_BYTES}" ]; then
+		return 0
+	fi
+	if echo "${ZFS_ARC_MAX_BYTES}" >"${param}" 2>/dev/null; then
+		report "capped the zfs ARC at ${ZFS_ARC_MAX_BYTES} bytes"
+	else
+		report "WARNING: the zfs ARC could not be capped at ${ZFS_ARC_MAX_BYTES} bytes"
+	fi
 }
 
 # Param: $1 loop device backed by the image
@@ -310,6 +324,7 @@ zfs)
 	fi
 	zfs_device_ready ||
 		decline "the zfs kernel module is not loaded on the host: ${modprobe_out}"
+	cap_zfs_arc
 	;;
 esac
 
