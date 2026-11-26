@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 
-const { apiFetchOnion, gotoOnion } = require("./personas");
+const { apiFetchOnion, apiGetOnion, gotoOnion } = require("./personas");
 const { resolveTimeout } = require("./timeouts");
 const {
   KEYCLOAK_LOGIN,
@@ -44,13 +44,49 @@ function refusedLogoutTokens(target, keycloakSigned) {
 
 /**
  * Args:
+ *   request: the API request context of the page whose proxy session is
+ *     probed; it sends and updates that page's cookies.
+ *   url: an oauth2-proxy-gated URL of one network.
+ *
+ * Returns:
+ *   The status the oauth2-proxy session check of that network answers with:
+ *   202 while the gate holds a session of the page, 401 once it holds none.
+ */
+async function proxySessionStatus(request, url) {
+  const response = await apiGetOnion(request, `${new URL(url).origin}/oauth2/auth`, {
+    maxRedirects: 0,
+    timeout: resolveTimeout(30_000),
+  });
+  return response.status();
+}
+
+/**
+ * Args:
+ *   page: a page of the context whose proxy session is probed.
+ *   url: an oauth2-proxy-gated URL of one network.
+ *   status: 202 for a session the gate holds, 401 for none.
+ *   timeout: how long the gate may take to answer with that status.
+ */
+async function expectProxySession(page, url, status, timeout) {
+  await expect
+    .poll(() => proxySessionStatus(page.request, url), {
+      timeout,
+      intervals: [1_000, 2_000],
+      message: `${url}: the oauth2-proxy session check must answer ${status}`,
+    })
+    .toBe(status);
+}
+
+/**
+ * Args:
  *   page: a page of the context signed in to Keycloak.
  *   url: an oauth2-proxy-gated URL of one network.
  */
 async function signInBehindProxy(page, url) {
   const origin = new URL(url).origin;
-  await gotoOnion(page, url);
+  await gotoOnion(page, `${origin}/oauth2/start?rd=%2F`);
   await page.waitForURL((landed) => landed.origin === origin, { timeout: resolveTimeout(120_000) });
+  await expectProxySession(page, url, 202, resolveTimeout(30_000));
 }
 
 /**
@@ -170,7 +206,7 @@ exports.register = function () {
         test.skip(!logoutEnv.synapseUrl, "MATRIX_SYNAPSE_URL is empty: the network case signs in to Synapse as its back-channel app");
         test.skip(
           logoutEnv.proxyTargetUrls.length < 2,
-          "this pass reaches one network only: no oauth2-proxy app has an onion sibling, or the clearnet pass has no Tor proxy to reach it",
+          "this pass reaches one network only: no oauth2-proxy app that admits every realm user has an onion sibling, or the clearnet pass has no Tor proxy to reach it",
         );
         test.setTimeout(resolveTimeout(900_000)); // three OIDC round trips over two networks plus one cookie_refresh interval
         const context = await openContext(browser, javaScriptEnabled);
@@ -182,7 +218,12 @@ exports.register = function () {
           }
           await confirmLogoutOnThisDevice(page);
           await expectSynapseSession(context.request, synapse, 401);
-          await page.waitForTimeout(resolveTimeout(durationMs(logoutEnv.cookieRefresh) + 5_000));
+          await expectProxySession(
+            page,
+            logoutEnv.proxyTargetUrls[1],
+            401,
+            resolveTimeout(durationMs(logoutEnv.cookieRefresh) + 5_000),
+          );
           await expectProxyAsksForLogin(page, logoutEnv.proxyTargetUrls[1]);
         } finally {
           await context.close();
