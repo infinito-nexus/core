@@ -35,6 +35,8 @@ jobs:
 
     env:
       INFINITO_DEPLOY_MODE: ${{ matrix.mode }}
+      INIT_VARS_EXTRA: >-
+        "test_e2e_playwright_skip_roles": "{{ lookup('deployment').running }}"
 
     steps:
       - name: 🧹 Free disk space
