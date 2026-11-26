@@ -34,7 +34,8 @@ with `make compose-deploy` or through the `call-test-agents-local.yml` workflow.
 - web-app-matrix
 - web-app-zammad
 - web-app-weblate
-- web-app-mailu
+- web-app-email
+- web-app-stalwart
 - svc-ai-ollama
 - svc-ai-litellm
 - svc-ai-mcp-adapter

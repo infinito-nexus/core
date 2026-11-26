@@ -50,7 +50,10 @@ all:
     web-app-weblate:
       hosts:
         server:
-    web-app-mailu:
+    web-app-email:
+      hosts:
+        server:
+    web-app-stalwart:
       hosts:
         server:
     svc-ai-ollama:
