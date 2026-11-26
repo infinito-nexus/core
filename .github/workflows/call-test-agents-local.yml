@@ -110,13 +110,13 @@ jobs:
         if: ${{ matrix.mode == 'compose' }}
         timeout-minutes: 240
         shell: bash
-        run: ./scripts/tests/deploy/job/entry.sh make compose-deploy bundles=agents
+        run: ./scripts/tests/deploy/job/entry.sh make compose-deploy bundles=agents variant=0
 
       - name: 🐝 Deploy the agents bundle (swarm)
         if: ${{ matrix.mode == 'swarm' }}
         timeout-minutes: 230
         shell: bash
-        run: ./scripts/tests/deploy/job/entry.sh make compose-deploy bundles=agents
+        run: ./scripts/tests/deploy/job/entry.sh make compose-deploy bundles=agents variant=0
 
       - name: 🧪 Play every agent scenario (${{ matrix.mode }})
         timeout-minutes: 120
