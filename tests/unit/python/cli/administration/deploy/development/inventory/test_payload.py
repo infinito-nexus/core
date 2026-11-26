@@ -177,6 +177,38 @@ class TestBakeOverrides(unittest.TestCase):
             {"feature_flag": True, "image": "v1"},
         )
 
+    def test_user_supplied_services_merge_into_the_variant_services(self):
+        baked = _bake_overrides(
+            base_overrides={
+                "applications": {
+                    "web-app-foo": {
+                        "services": {
+                            "quality-check": {"scan": True},
+                            "proxy": {"version": "local"},
+                        },
+                    },
+                },
+            },
+            variant_payloads={
+                "web-app-foo": {
+                    "services": {
+                        "docs": {"enabled": True},
+                        "quality-check": {"access": "anonymous"},
+                        "sso": {"enabled": False},
+                    },
+                },
+            },
+        )
+        self.assertEqual(
+            baked["applications"]["web-app-foo"]["services"],
+            {
+                "docs": {"enabled": True},
+                "quality-check": {"access": "anonymous", "scan": True},
+                "sso": {"enabled": False},
+                "proxy": {"version": "local"},
+            },
+        )
+
     def test_no_variant_payloads_yields_unchanged_base(self):
         base = {"STORAGE_CONSTRAINED": False, "RUNTIME": "dev"}
         baked = _bake_overrides(base_overrides=base, variant_payloads={})
