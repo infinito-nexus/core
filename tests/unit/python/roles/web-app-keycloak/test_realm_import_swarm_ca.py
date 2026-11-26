@@ -8,7 +8,7 @@ from jinja2.nativetypes import NativeEnvironment
 
 from utils import PROJECT_ROOT
 from utils.cache.files import read_text
-from utils.cache.yaml import load_yaml
+from utils.cache.yaml import load_yaml, load_yaml_any
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-keycloak"
@@ -54,7 +54,7 @@ def _import_job_mounts(injected: bool) -> list[str]:
     """
     task = next(
         task
-        for task in load_yaml(str(SWARM_IMPORT))
+        for task in load_yaml_any(str(SWARM_IMPORT))
         if "Run one-shot import job" in task.get("name", "")
     )
     rendered = (
