@@ -223,19 +223,27 @@ probe_did_inner_build() {
 			"(INFINITO_CACHE_STACK off or the runner refused to start)" >&2
 		exit 1
 	fi
+	local base_image
+	if ! base_image="$(bash "${REPO_ROOT:?source common.sh first}/scripts/meta/resolve/image/service_ref.sh" svc-db-openldap openldap mirror-only)"; then
+		echo "[FAIL] DiD probe: no GHCR mirror ref for the Debian base image; Docker Hub is never pulled" >&2
+		exit 1
+	fi
+
 	local before after delta tmpdir tag rc=0
 	before="$(infra_docker logs "${frontend}" 2>&1 | wc -l)"
 
 	tmpdir="$(mktemp -d)"
 	cat >"${tmpdir}/Dockerfile" <<-'EOF'
-		FROM debian:13-slim
+		ARG BASE_IMAGE
+		FROM ${BASE_IMAGE}
 		RUN apt-get update -o Acquire::http::No-Cache=true
 	EOF
 	tag="cache-did-probe-$$"
 
-	echo "[probe-did] docker build --add-host deb.debian.org:${frontend_ip}" \
+	echo "[probe-did] docker build FROM ${base_image} --add-host deb.debian.org:${frontend_ip}" \
 		"--network ${network} (apt-get update via frontend)"
 	if ! DOCKER_BUILDKIT=0 docker build --no-cache \
+		--build-arg "BASE_IMAGE=${base_image}" \
 		--network "${network}" \
 		--add-host "deb.debian.org:${frontend_ip}" \
 		-t "${tag}" "${tmpdir}" 2>&1 | tail -10; then
