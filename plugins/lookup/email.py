@@ -14,12 +14,16 @@ from plugins.lookup.users import LookupModule as UsersLookup
 from utils.cache.carrier import APPLICATIONS_RENDERED_FACT
 from utils.domains.primary_domain import get_domain
 from utils.mail.provider import (
+    MAIL_SERVICE_KEY,
     active_provider,
     provider_deployed,
 )
 from utils.mail.provider_view import provider_view, view_carrier, view_id
+from utils.networks.attachments import _is_consumer
 from utils.networks.reachability import network, network_of
+from utils.roles.applications.services.registry import discover_role_services
 from utils.roles.entity.name import entity_name
+from utils.tls.common import get_path
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -200,6 +204,7 @@ class LookupModule(LookupBase):
 
         templar = getattr(self, "_templar", None)
         resolved: dict[str, Any] = {}
+        last = requested if len(terms) == 0 else None
         for short_key in RESOLUTION_ORDER:
             var_name = _short_to_var(short_key)
             raw = variables.get(var_name)
@@ -211,7 +216,7 @@ class LookupModule(LookupBase):
                 )
             else:
                 resolved[short_key] = _render(raw, templar, variables)
-            if short_key == requested:
+            if short_key == last:
                 break
 
         if len(terms) == 0:
@@ -220,6 +225,7 @@ class LookupModule(LookupBase):
         application_id = str(terms[0]).strip()
         overrides = self._app_email_overrides(application_id, variables)
         merged = dict(resolved)
+        merged.update(self._internal_submission(application_id, resolved, variables))
         for key, value in overrides.items():
             merged[str(key).lower()] = _render(value, templar, variables)
         return [merged if requested is None else merged[requested]]
@@ -268,7 +274,7 @@ class LookupModule(LookupBase):
             external = _as_bool(resolved.get("external"))
             if not external:
                 return 25
-            ports = self._provider_ports(variables)
+            ports = self._provider_ports(variables, "public")
             if _as_bool(resolved.get("tls")):
                 return ports.get("smtps", 465)
             # Plaintext submission is the onion/no-TLS path, but a provider is
@@ -299,7 +305,7 @@ class LookupModule(LookupBase):
             # The MX listener offers no SMTP AUTH: when `port` fell back to it
             # because the provider binds no plaintext submission, announcing
             # AUTH aborts msmtp with EX_UNAVAILABLE before it ever sends.
-            ports = self._provider_ports(variables)
+            ports = self._provider_ports(variables, "public")
             if not ports.get("submission") and resolved.get("port") == ports.get(
                 "smtp", 25
             ):
@@ -337,41 +343,107 @@ class LookupModule(LookupBase):
     def _mail_provider(self, variables: dict[str, Any]) -> str:
         return active_mail_provider(variables, getattr(self, "_templar", None))
 
-    def _provider_services(self, variables: dict[str, Any]) -> dict[str, Any]:
-        """The active provider's ``services`` block, or ``{}`` when it cannot be
-        resolved. The port probe reads the provider's own self-declaration."""
+    def _application(
+        self, application_id: str, variables: dict[str, Any]
+    ) -> dict[str, Any]:
+        """
+        Args:
+            application_id: the application to read.
+            variables: Ansible variables of the current host.
+
+        Returns:
+            Its applications entry, or ``{}`` when it cannot be resolved.
+        """
         apps = ApplicationsLookup()
         apps._templar = getattr(self, "_templar", None)
         forwarded = {
             k: v for k, v in getattr(self, "_kwargs", {}).items() if k == "roles_dir"
         }
         try:
-            entry = apps.run(
-                [self._mail_provider(variables), {}],
-                variables=variables,
-                **forwarded,
-            )[0]
+            entry = apps.run([application_id, {}], variables=variables, **forwarded)[0]
         except AnsibleError:
             return {}
-        if not isinstance(entry, dict):
-            return {}
-        services = entry.get("services") or {}
+        return entry if isinstance(entry, dict) else {}
+
+    def _provider_services(self, variables: dict[str, Any]) -> dict[str, Any]:
+        services = (
+            self._application(self._mail_provider(variables), variables).get("services")
+            or {}
+        )
         return services if isinstance(services, dict) else {}
 
-    def _provider_ports(self, variables: dict[str, Any]) -> dict[str, int]:
-        """The SMTP ports the active provider publishes, keyed by protocol.
+    def _internal_submission(
+        self,
+        application_id: str,
+        resolved: dict[str, Any],
+        variables: dict[str, Any],
+    ) -> dict[str, Any]:
+        """
+        Args:
+            application_id: the application the lookup resolves for.
+            resolved: the system settings resolved so far.
+            variables: Ansible variables of the current host.
 
-        Read from the provider's own ``services.<entity>.ports.public`` rather
-        than assumed, so a provider that binds no plaintext ``submission``
-        (Stalwart) resolves differently from one that does (Mailu) without
-        either being named here.
+        Returns:
+            ``host`` (the provider's service name), ``port``, ``tls``,
+            ``start_tls``, ``auth`` and ``auth_mechanism`` of plaintext
+            submission with ``AUTH PLAIN``, or ``{}`` when the relay keeps
+            TLS, the provider publishes its submission port or binds none,
+            *application_id* is a mail provider itself, or it does not join
+            the provider's network.
+        """
+        if not _as_bool(resolved.get("external")) or _as_bool(resolved.get("tls")):
+            return {}
+        if self._provider_ports(variables, "public").get("submission"):
+            return {}
+        port = self._provider_ports(variables, "internal").get("submission")
+        if not port:
+            return {}
+        own = discover_role_services(
+            application_id, self._application(application_id, variables)
+        ).get(entity_name(application_id))
+        if MAIL_SERVICE_KEY in (own or {}).get("covers", []):
+            return {}
+        provider = self._mail_provider(variables)
+        entity = entity_name(provider)
+        network = discover_role_services(
+            provider, self._application(provider, variables)
+        ).get(entity)
+        if not network or not _is_consumer(
+            network,
+            application_id,
+            lambda app, path, default: get_path(
+                self._application(app, variables), path, default
+            ),
+            lambda _app, _key: None,
+        ):
+            return {}
+        return {
+            "host": entity,
+            "port": port,
+            "tls": False,
+            "start_tls": False,
+            "auth": True,
+            "auth_mechanism": "plain",
+        }
+
+    def _provider_ports(self, variables: dict[str, Any], group: str) -> dict[str, int]:
+        """
+        Args:
+            variables: Ansible variables of the current host.
+            group: ``public`` for the ports it publishes, ``internal`` for
+                the ports its container binds.
+
+        Returns:
+            The SMTP ports of the active provider's own
+            ``services.<entity>.ports.<group>``, keyed by protocol.
         """
         services = self._provider_services(variables)
         entity = entity_name(self._mail_provider(variables))
         entry = services.get(entity) or {}
         if not isinstance(entry, dict):
             return {}
-        ports = (entry.get("ports") or {}).get("public") or {}
+        ports = (entry.get("ports") or {}).get(group) or {}
         if not isinstance(ports, dict):
             return {}
         out: dict[str, int] = {}
@@ -442,24 +514,7 @@ class LookupModule(LookupBase):
         application_id: str,
         variables: dict[str, Any],
     ) -> dict[str, Any]:
-        apps = ApplicationsLookup()
-        apps._templar = getattr(self, "_templar", None)
-        forwarded = {
-            k: v for k, v in getattr(self, "_kwargs", {}).items() if k == "roles_dir"
-        }
-        try:
-            entry = apps.run(
-                [application_id, {}],
-                variables=variables,
-                **forwarded,
-            )[0]
-        except AnsibleError:
-            return {}
-        if not isinstance(entry, dict):
-            return {}
-        # Per the materialised payload exposes services under the
-        # bare ``services`` key (no ``compose.services`` envelope).
-        services = entry.get("services") or {}
+        services = self._application(application_id, variables).get("services") or {}
         email = services.get("email") or {} if isinstance(services, dict) else {}
         if not isinstance(email, dict):
             return {}

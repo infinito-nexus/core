@@ -97,6 +97,7 @@ stalwart:
       http: 8080
       smtp: 25
       smtps: 465
+      submission: 587
       pop3s: 995
       imaps: 993
       sieve: 4190

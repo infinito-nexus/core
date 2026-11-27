@@ -58,6 +58,7 @@ flowchart LR
     MAIL_VHOST -. "SPA login: PKCE<br/>(stalwart-webui client)" .-> KC
     WEBMAIL_VHOST -. "OAuth login" .-> KC
     APPS -- "SMTPS :465, AUTH<br/>(bot credential from the token store)" --> STALWART
+    APPS -. "tls off: SMTP :587, AUTH PLAIN<br/>(internal mail network)" .-> STALWART
     WORLD <-- "public mail ports<br/>(only when active MAIL_PROVIDER)" --> STALWART
 ```
 
@@ -132,6 +133,18 @@ Every deploy compares the registered client with that target and updates it when
 An origin that is no network sibling of the canonical WebUI URL MUST be added in [`templates/jmap/oauth_client/webui.json.j2`](templates/jmap/oauth_client/webui.json.j2), because a URI added in Stalwart alone is removed by the next deploy.
 Stalwart's login page asks for consent for the client after the password form, so a native WebUI login shows an **Allow** step.
 
+## Internal mail network
+
+Stalwart also serves mail submission on port 587 (`services.stalwart.ports.internal.submission`), in plaintext and with `AUTH PLAIN`, on the internal mail network `stalwart`:
+
+- The network is the role's shared network (`overlay` in [`meta/networks.yml`](meta/networks.yml)): a bridge in compose and an attachable swarm overlay with `encrypted=true` (`swarm.network.encryption`) in swarm. [`sys-svc-compose`](../sys-svc-compose/tasks/utils/network/create.yml) creates it before the first stack that references it.
+- Every role whose `services.email` is enabled and shared joins it, and Stalwart carries its service name `stalwart` there. The `webmail` and `clamav` containers join it without that name.
+- [`tasks/18_submission.yml`](tasks/18_submission.yml) creates the `x:NetworkListener` for the port and puts the port first in the `saslMechanisms` and `require` expressions of `x:MtaStageAuth`, so the listener offers `AUTH PLAIN` without TLS and refuses a transaction that has not authenticated. Relaying stays limited to authenticated sessions (`STALWART_RELAY_RULE`).
+
+Deployments with `tls` off use it: an onion deployment, or any deployment whose `lookup('email')` resolves without TLS. There, `lookup('email', application_id)` of a role on the network returns the host `stalwart`, port 587, `auth` on with mechanism `plain` and TLS off, and [`container_extra_hosts`](../../plugins/lookup/container_extra_hosts.py) pins no mail host for it. A deployment with `tls` on keeps implicit TLS on port 465. The host's own mail (`lookup('email')` without an application, read by `msmtp` and `postfix` on the host) reaches no container network and keeps the published MX on port 25.
+
+Port 587 is never published: it is no `ports.public` or `ports.onion` key, so neither the compose file nor the swarm stack maps a host port to it and the onion forwards only port 25. Plaintext authentication is acceptable only where no one outside the deployment can listen, and a published plaintext port behind a `remote_ip` filter would hand that guarantee to a filter.
+
 ## Calendar & Contacts (CalDAV / CardDAV / WebDAV)
 
 Stalwart serves DAV natively on the mail HTTP listener — no extra container
@@ -142,9 +155,10 @@ account (or the Keycloak SSO token when SSO is enabled).
 
 ## Design Decisions
 
-- **Client ports are implicit-TLS only (465/993/995).** Stalwart's default
-  configuration binds no STARTTLS listeners, so the role neither publishes
-  587/143/110 nor advertises them via SRV records.
+- **Published client ports are implicit-TLS only (465/993/995).** The role
+  publishes no STARTTLS port (587/143/110) and advertises none via SRV
+  records; its plaintext submission listener on 587 serves only the
+  [internal mail network](#internal-mail-network).
 - **The WebUI (WebAdmin) bundle is staged by the controller.** Stalwart fetches
   it from GitHub on first boot, which fails behind restricted egress; the
   controller downloads it into a host-level cache (matrix rounds purge the

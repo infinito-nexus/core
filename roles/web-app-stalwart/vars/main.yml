@@ -106,6 +106,12 @@ STALWART_RCPT_THROTTLE_KEY:
   senderDomain: true
   rcpt: true
 STALWART_RCPT_THROTTLE_RULE: "is_empty(authenticated_as)"
+STALWART_SUBMISSION_PORT: "{{ lookup('config', application_id, 'services.stalwart.ports.internal.submission') | int }}"
+STALWART_SUBMISSION_LISTENER:
+  name: "submission"
+  protocol: "smtp"
+  bind:
+    "[::]:{{ STALWART_SUBMISSION_PORT }}": true
 
 STALWART_BAN_PERIODS: "{{ lookup('form_values', application_id, 'security') }}"
 STALWART_ALLOWED_IPS:

@@ -18,7 +18,11 @@ from utils.cache import tokens as cache_tokens
 from utils.cache.carrier import APPLICATIONS_RENDERED_FACT, PROVIDER_VIEW_RENDERED_FACT
 from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import dump_yaml_str
-from utils.roles.mapping import ROLE_FILE_META_DOMAINS, ROLE_FILE_META_SERVICES
+from utils.roles.mapping import (
+    ROLE_FILE_META_DOMAINS,
+    ROLE_FILE_META_NETWORKS,
+    ROLE_FILE_META_SERVICES,
+)
 
 
 def _write_role_config(base_dir: Path, role_name: str, payload: dict) -> None:
@@ -355,6 +359,143 @@ class TestEmailLookup(unittest.TestCase):
         self.assertTrue(result["auth"])
         self.assertEqual(result["auth_mechanism"], "plain")
 
+    def _seed_internal_submission(self, *, consumer_shared: bool) -> str:
+        """
+        Args:
+            consumer_shared: the consumer's ``services.email.shared`` flag.
+
+        Returns:
+            The roles directory.
+        """
+        _write_role_config(
+            self._tmp,
+            "web-app-mailprov",
+            {
+                "mailprov": {
+                    "shared": True,
+                    "covers": ["email"],
+                    "ports": {
+                        "public": {"smtp": 25, "smtps": 465},
+                        "internal": {"smtp": 25, "smtps": 465, "submission": 587},
+                    },
+                },
+                "email": {"enabled": True, "shared": True},
+            },
+        )
+        networks = self._tmp / "roles" / "web-app-mailprov" / ROLE_FILE_META_NETWORKS
+        networks.write_text(
+            dump_yaml_str(
+                {
+                    "overlay": {
+                        "modes": ["compose", "swarm"],
+                        "topology": "shared_net",
+                        "consumer": {"key": "email"},
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+        _write_role_config(
+            self._tmp,
+            "web-app-x",
+            {"email": {"enabled": True, "shared": consumer_shared}},
+        )
+        return str(self._tmp / "roles")
+
+    def _internal_variables(self, host: str, tls_enabled: bool) -> dict:
+        return {
+            "MAIL_PROVIDER": "web-app-mailprov",
+            "group_names": ["web-app-mailprov", "web-app-x"],
+            "groups": {"web-app-mailprov": ["host1"]},
+            "SYSTEM_EMAIL_HOST": host,
+            "TLS_ENABLED": tls_enabled,
+            "DOMAIN_PRIMARY": host.split(".", 1)[1],
+            "inventory_hostname": "host1",
+        }
+
+    def _assert_each_key_matches_the_full_run(
+        self, variables: dict, roles_dir: str, keys
+    ) -> dict:
+        full = self.lookup.run(["web-app-x"], variables=variables, roles_dir=roles_dir)[
+            0
+        ]
+        for short_key in keys:
+            with self.subTest(key=short_key):
+                value = self.lookup.run(
+                    ["web-app-x"],
+                    variables=variables,
+                    roles_dir=roles_dir,
+                    key=short_key,
+                )[0]
+                self.assertEqual(value, full[short_key])
+        return full
+
+    def test_a_network_member_submits_to_the_provider_service_on_tls_off(
+        self,
+    ) -> None:
+        roles_dir = self._seed_internal_submission(consumer_shared=True)
+        for host, tls_enabled in (("mail.x.onion", True), ("mail.x.test", False)):
+            with self.subTest(host=host, tls=tls_enabled):
+                result = self.lookup.run(
+                    ["web-app-x"],
+                    variables=self._internal_variables(host, tls_enabled),
+                    roles_dir=roles_dir,
+                )[0]
+                self.assertEqual(result["host"], "mailprov")
+                self.assertEqual(result["port"], 587)
+                self.assertTrue(result["auth"])
+                self.assertEqual(result["auth_mechanism"], "plain")
+                self.assertFalse(result["tls"])
+                self.assertFalse(result["start_tls"])
+
+    def test_a_network_member_never_falls_back_to_the_mx(self) -> None:
+        roles_dir = self._seed_internal_submission(consumer_shared=True)
+        variables = self._internal_variables("mail.x.onion", True)
+
+        member = self.lookup.run(
+            ["web-app-x"], variables=variables, roles_dir=roles_dir
+        )[0]
+        host_level = self.lookup.run([], variables=variables, roles_dir=roles_dir)[0]
+
+        self.assertEqual((host_level["port"], host_level["auth"]), (25, False))
+        self.assertNotEqual((member["port"], member["auth"]), (25, False))
+        self.assertNotEqual(member["host"], host_level["host"])
+
+    def test_a_network_member_keeps_smtps_when_tls_is_on(self) -> None:
+        roles_dir = self._seed_internal_submission(consumer_shared=True)
+        result = self.lookup.run(
+            ["web-app-x"],
+            variables=self._internal_variables("mail.x.test", True),
+            roles_dir=roles_dir,
+        )[0]
+        self.assertEqual(result["host"], "mail.x.test")
+        self.assertEqual(result["port"], 465)
+        self.assertTrue(result["tls"])
+        self.assertTrue(result["auth"])
+        self.assertEqual(result["auth_mechanism"], "on")
+
+    def test_the_internal_endpoint_needs_membership_of_the_provider_network(
+        self,
+    ) -> None:
+        roles_dir = self._seed_internal_submission(consumer_shared=False)
+        variables = self._internal_variables("mail.x.onion", True)
+        for application_id in ("web-app-x", "web-app-mailprov"):
+            with self.subTest(application_id=application_id):
+                result = self.lookup.run(
+                    [application_id], variables=variables, roles_dir=roles_dir
+                )[0]
+                self.assertEqual(result["host"], "mail.x.onion")
+                self.assertEqual(result["port"], 25)
+
+    def test_key_returns_the_internal_endpoint_the_full_mapping_carries(
+        self,
+    ) -> None:
+        roles_dir = self._seed_internal_submission(consumer_shared=True)
+        variables = self._internal_variables("mail.x.onion", True)
+        self._assert_each_key_matches_the_full_run(
+            variables, roles_dir, RESOLUTION_ORDER
+        )
+
     def test_computed_defaults_are_templated(self) -> None:
         self.lookup._templar = _DummyTemplar(
             {"DOMAIN_PRIMARY_RESOLVED": "mail.example.org"}
@@ -418,18 +559,9 @@ class TestEmailLookup(unittest.TestCase):
             "inventory_hostname": "host1",
         }
         roles_dir = str(self._tmp / "roles")
-        full = self.lookup.run(["web-app-x"], variables=variables, roles_dir=roles_dir)[
-            0
-        ]
-        for short_key in ("host", "port", "external", "from"):
-            with self.subTest(key=short_key):
-                value = self.lookup.run(
-                    ["web-app-x"],
-                    variables=variables,
-                    roles_dir=roles_dir,
-                    key=short_key,
-                )[0]
-                self.assertEqual(value, full[short_key])
+        full = self._assert_each_key_matches_the_full_run(
+            variables, roles_dir, ("host", "port", "external", "from")
+        )
         self.assertEqual(full["host"], "smtp.app.org")
         self.assertEqual(full["port"], 587)
 

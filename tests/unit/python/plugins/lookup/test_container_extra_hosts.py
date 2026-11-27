@@ -93,6 +93,12 @@ class TestContainerExtraHostsLookup(unittest.TestCase):
             "",
         )
 
+    def test_a_relay_on_the_internal_mail_network_is_left_to_its_dns(self):
+        self.assertEqual(
+            self._run(_sso_enabled=False, _email_enabled=True, _mail_host="stalwart"),
+            "",
+        )
+
     def test_mail_disabled_emits_nothing(self):
         self.assertEqual(
             self._run(_sso_enabled=False, _email_enabled=False, _mail_host=MAIL_ONION),

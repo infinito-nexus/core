@@ -1,0 +1,70 @@
+---
+- name: "📖 List Stalwart's network listeners"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/listener/get.json.j2') }}"
+
+- name: "🔍 Resolve whether a listener binds the submission port"
+  ansible.builtin.set_fact:
+    stalwart_submission_listener_missing: >-
+      {{ stalwart_jmap.methodResponses[0][1].list
+         | map(attribute='bind', default={}) | map('list') | flatten
+         | select('search', ':' ~ STALWART_SUBMISSION_PORT ~ '$')
+         | list | length == 0 }}
+
+- name: "📁 Create the submission listener of the internal mail network"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/listener/create.json.j2') }}"
+  when: stalwart_submission_listener_missing | bool
+
+- name: "📖 Read Stalwart's SMTP AUTH stage"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/auth/get.json.j2') }}"
+
+- name: "🔍 Resolve the AUTH stage terms the submission port still lacks"
+  ansible.builtin.set_fact:
+    stalwart_submission_auth: >-
+      {{ stalwart_jmap.methodResponses[0][1].list | first
+         | stalwart_submission_auth(STALWART_SUBMISSION_PORT) }}
+
+- name: "🔐 Offer AUTH PLAIN and require it on the submission port"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ lookup('template', 'jmap/auth/update.json.j2') }}"
+  when: stalwart_submission_auth | length > 0
+
+- name: "🔄 Reload Stalwart's settings"
+  include_tasks: jmap_call.yml
+  vars:
+    stalwart_jmap_body: "{{ STALWART_JMAP_RELOAD_SETTINGS }}"
+  when:
+    - stalwart_submission_auth | length > 0
+    - not (stalwart_submission_listener_missing | bool)
+
+- name: "🔄 Defer the restart that binds the submission listener to the OIDC restart"
+  ansible.builtin.set_fact:
+    stalwart_oidc_restart_pending: true
+  when:
+    - stalwart_submission_listener_missing | bool
+    - STALWART_SSO_ENABLED | bool
+
+- name: "🔄 Restart Stalwart so it binds the submission listener"
+  when:
+    - stalwart_submission_listener_missing | bool
+    - not (STALWART_SSO_ENABLED | bool)
+  block:
+    - name: "🔄 Restart Stalwart so it binds the submission listener (compose)"
+      ansible.builtin.command: "container restart {{ STALWART_CONTAINER }}"
+      changed_when: true
+      when: IS_COMPOSE_MODE
+
+    - name: "🔄 Restart Stalwart so it binds the submission listener (swarm)"
+      ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, 'stalwart') }}"
+      changed_when: true
+      timeout: "{{ lookup('timeout', 600) | int }}"
+      when: IS_SWARM_MODE
+
+    - name: "⏳ Wait for Stalwart API after the submission restart"
+      include_tasks: 01_wait_for_api.yml
