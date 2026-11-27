@@ -23,8 +23,6 @@ def _manifest_exists(ref: str) -> bool:
         True when the registry serves a manifest or index for ``ref``, whatever
         architectures it holds; False when it is missing or unreachable.
     """
-    # Exception: without --raw skopeo resolves the host's platform and fails on
-    # an index without it, so an arm64-only tag read as missing on amd64 runners.
     r = subprocess.run(
         ["skopeo", "inspect", "--raw", f"docker://{ref}"],
         check=False,
