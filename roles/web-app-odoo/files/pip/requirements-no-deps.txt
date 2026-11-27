@@ -1,3 +1,6 @@
-odoo-addon-fs_storage==19.0.1.1.3.5
-odoo-addon-fs_attachment==19.0.1.1.7.1
-odoo-addon-fs_attachment_s3==19.0.1.2.1.4
+# upstream: https://github.com/OCA/storage/pull/670
+odoo-addon-fs_storage @ https://github.com/OCA/storage/archive/a04fdc9495cd8728549f53423c6a1708aeb52633.tar.gz#subdirectory=fs_storage
+# upstream: https://github.com/OCA/storage/pull/679
+odoo-addon-fs_attachment @ https://github.com/OCA/storage/archive/1c150b29c8aee702fab31ebc20fabb169c0563fe.tar.gz#subdirectory=fs_attachment
+# upstream: https://github.com/OCA/storage/pull/686
+odoo-addon-fs_attachment_s3 @ https://github.com/OCA/storage/archive/f99257149745ca3376552e70f6a5110b03cc1b6a.tar.gz#subdirectory=fs_attachment_s3

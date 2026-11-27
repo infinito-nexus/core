@@ -39,7 +39,7 @@ odoo:
     swarm:
       enabled: true
   image: odoo
-  version: "19.0"
+  version: "20.0"
   custom: true
   name: odoo
   min_storage: 897MB
