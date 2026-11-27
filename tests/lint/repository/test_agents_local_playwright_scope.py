@@ -8,10 +8,11 @@ from pathlib import Path
 
 from tests.utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_DEFAULTS_MAIN
 
 WORKFLOW = PROJECT_ROOT / ".github" / "workflows" / "call-test-agents-local.yml"
 PLAYWRIGHT = PROJECT_ROOT / "roles" / "test-e2e-playwright"
-DEFAULTS = PLAYWRIGHT / "defaults" / "main.yml"
+DEFAULTS = PLAYWRIGHT / ROLE_FILE_DEFAULTS_MAIN
 FILTER = PLAYWRIGHT / "filter_plugins" / "discover_playwright_roles.py"
 JOB = "agents-local"
 HOOK = "INIT_VARS_EXTRA"
