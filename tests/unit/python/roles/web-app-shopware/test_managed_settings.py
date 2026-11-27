@@ -272,6 +272,64 @@ class TestStaticConfigLock(unittest.TestCase):
         )
 
 
+def _excluded(script: str, name: str) -> bool:
+    return bool(
+        re.search(
+            r"^use Symfony\\Component\\DependencyInjection\\Attribute\\Exclude;$",
+            script,
+            re.MULTILINE,
+        )
+        and re.search(rf"^#\[Exclude\]\nfinal class {name}\b", script, re.MULTILINE)
+    )
+
+
+class TestAppResourceExclusion(unittest.TestCase):
+    def test_every_app_service_of_the_package_config_is_excluded_from_the_app_resource(
+        self,
+    ):
+        sources = [
+            read_text(str(path))
+            for path in sorted((ROLE / "files/php/oidc").glob("*.php"))
+        ]
+        services = [
+            service
+            for service in _packages({})["services"]
+            if service.startswith("App\\")
+        ]
+        self.assertEqual(
+            {"App\\InfinitoRbac\\AdminOpenAuthRoleGate", LOCK}, set(services)
+        )
+        for service in services:
+            namespace, name = service.rsplit("\\", 1)
+            declaring = [
+                script
+                for script in sources
+                if f"namespace {namespace};" in script
+                and re.search(
+                    rf"^(#\[Exclude\]\n)?final class {name}\b", script, re.MULTILINE
+                )
+            ]
+            with self.subTest(service=service):
+                self.assertEqual(1, len(declaring))
+                self.assertTrue(_excluded(declaring[0], name))
+
+    def test_negative_control_a_class_without_the_attribute_is_not_excluded(self):
+        gate = read_text(str(ROLE / "files/php/oidc/role_gate.php"))
+        self.assertTrue(_excluded(gate, "AdminOpenAuthRoleGate"))
+        self.assertFalse(
+            _excluded(gate.replace("#[Exclude]\n", ""), "AdminOpenAuthRoleGate")
+        )
+        self.assertFalse(
+            _excluded(
+                gate.replace(
+                    "use Symfony\\Component\\DependencyInjection\\Attribute\\Exclude;\n",
+                    "",
+                ),
+                "AdminOpenAuthRoleGate",
+            )
+        )
+
+
 class TestClient(unittest.TestCase):
     def test_the_client_sink_equals_the_old_payload(self):
         self.assertEqual(OLD_CLIENT, _sink("SHOPWARE_OIDC_CLIENT_SETTINGS"))

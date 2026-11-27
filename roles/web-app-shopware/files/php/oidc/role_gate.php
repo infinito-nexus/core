@@ -18,8 +18,10 @@ namespace App\InfinitoRbac;
 use Heptacom\AdminOpenAuth\Contract\RoleAssignment;
 use Heptacom\AdminOpenAuth\Http\Route\Support\UserRedirectReceivedEvent;
 use Shopware\Core\Framework\Struct\ArrayStruct;
+use Symfony\Component\DependencyInjection\Attribute\Exclude;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
+#[Exclude]
 final class AdminOpenAuthRoleGate
 {
     public function __invoke(UserRedirectReceivedEvent $event): void

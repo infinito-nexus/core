@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\InfinitoRbac;
 
+use Symfony\Component\DependencyInjection\Attribute\Exclude;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 
+#[Exclude]
 final class StaticSystemConfigLock
 {
     private const SCHEMA_ROUTE = 'api.action.core.system-config';
