@@ -107,7 +107,7 @@ Each PR-opening job in [cron-update.yml](../../../../../.github/workflows/cron-u
 
 These jobs run on `push` to `main`, `schedule` or `workflow_dispatch` and check out `main`; a dispatch on any other branch fails at the environment's branch rule. No job that declares `updater` may check out or execute pull-request code.
 
-This App MUST NOT be a bypass actor of the `Main` ruleset. It is the only bypass actor of the update-branch ruleset, see [Prerequisites for the bypass](#prerequisites-for-the-bypass-).
+This App MUST NOT be a bypass actor of the `Main` ruleset. It sits on the update-branch ruleset's bypass list beside Dependabot and the admin role, see [Prerequisites for the bypass](#prerequisites-for-the-bypass-).
 
 ## `TRANSLATE_APP_CLIENT_ID` and `TRANSLATE_APP_PRIVATE_KEY` 🌐
 
@@ -152,9 +152,10 @@ The merge gate checks who opened the PR, not who pushed its head commit, so the 
 
 1. A branch ruleset on `update/**` and `dependabot/**` restricts creation, updates and deletion, with only the updater App, Dependabot and the admin role on its bypass list. The admin role lets a maintainer merge a translation PR or push a fixup onto an update branch; the translation App stays off it.
 2. `BOT_APP_CLIENT_ID` and `BOT_APP_PRIVATE_KEY` exist only as secrets of the `updater` environment, restricted to `main`, and no longer as repository secrets, so no `pull_request` run can read them; [entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml) uses the [translation App](#translate_app_client_id-and-translate_app_private_key-). As with `auto-merge`, a `pull_request_target` or `workflow_run` job passes that branch rule, so no job that declares the environment may check out or execute pull-request code; list every workflow that declares it and confirm this before step 4.
-3. The updater App's private key was regenerated after the translation workflow stopped minting from it, the new key is the one in `updater`, and every older key is deleted under **Private keys** on the App's settings page. Same-repository pull requests could read the old key, and a copy taken then stays valid until it is revoked.
+3. The updater App's private key was regenerated after the translation workflow stopped minting from it, the new key is the one in `updater`, and every older key is deleted under **Credentials → Key pairs** on the App's settings page. Same-repository pull requests could read the old key, and a copy taken then stays valid until it is revoked.
+4. Every open pull request on an `update/**` or `dependabot/**` branch whose head was pushed before prerequisite 3 is closed and its branch deleted; the next updater run and Dependabot open fresh ones from heads pushed after the rotation. The gate checks who opened a pull request, not who pushed its head, so a head pushed with the old key would otherwise stay mergeable through the bypass.
 
-With all three in place, pushing a head the gate accepts needs the updater key, which only workflows on `main` can read. Until then the merge App stays off the bypass list, the merge call fails with HTTP 405, and update PRs wait for a manual merge: the ruleset's `update` rule (Restrict updates) lets only bypass actors move `main`, pull-request merges included, whatever reviews the PR holds.
+With all four in place, pushing a head the gate accepts needs the updater key, which only workflows on `main` can read. Until then the merge App stays off the bypass list, the merge call fails with HTTP 405, and update PRs wait for a manual merge: the ruleset's `update` rule (Restrict updates) lets only bypass actors move `main`, pull-request merges included, whatever reviews the PR holds.
 
 The job mints the App token only after its merge gate passed, narrowed to `contents`, `pull-requests` and `workflows` write, and uses it for the merge call alone; the gate reads with the read-only `GITHUB_TOKEN`. The job runs on `workflow_run`, which always runs on the default branch, so the environment's branch rule admits it. Without the bypass, the merge call fails with `Repository rule violations found` (HTTP 405) and the PR stays open.
 

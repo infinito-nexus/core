@@ -10,6 +10,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 
+from cryptography.exceptions import UnsupportedAlgorithm
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.serialization import load_pem_private_key
+
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
@@ -90,12 +94,12 @@ def ensure_environment(gh: Gh, repo: str, say: Say) -> None:
                 "api",
                 f"{path}/deployment-branch-policies",
                 "--jq",
-                ".branch_policies[].name",
+                '.branch_policies[] | "\\(.type):\\(.name)"',
             ],
             None,
         )
     )
-    if policies != [UPDATER_BRANCH]:
+    if policies != [f"branch:{UPDATER_BRANCH}"]:
         raise SystemExit(
             f"environment {UPDATER_ENVIRONMENT} allows {policies or 'every branch'}, "
             f"not only {UPDATER_BRANCH}: fix it under https://github.com/{repo}/settings/environments"
@@ -112,13 +116,17 @@ def read_private_key(path: Path) -> bytes:
         the file's bytes, never printed.
 
     Raises:
-        SystemExit: the file is missing or holds no PEM private key.
+        SystemExit: the file is missing or holds no unencrypted RSA private key.
     """
     if not path.is_file():
         raise SystemExit(f"no file at {path}")
     data = path.read_bytes()  # nocheck: cache-read
-    if b"-----BEGIN" not in data or b"PRIVATE KEY-----" not in data:
-        raise SystemExit(f"{path} holds no PEM private key")
+    try:
+        key = load_pem_private_key(data, password=None)
+    except (ValueError, TypeError, UnsupportedAlgorithm) as exc:
+        raise SystemExit(f"{path} holds no unencrypted PEM private key") from exc
+    if not isinstance(key, rsa.RSAPrivateKey):
+        raise SystemExit(f"{path} holds no RSA private key")
     return data
 
 

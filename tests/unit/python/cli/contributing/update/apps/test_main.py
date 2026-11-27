@@ -5,10 +5,24 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import ec, rsa
+
 import cli.contributing.update.apps.__main__ as apps
 
 REPO = "infinito-nexus/core"
-KEY = b"-----BEGIN RSA PRIVATE KEY-----\nabc\n-----END RSA PRIVATE KEY-----\n"
+KEY = rsa.generate_private_key(public_exponent=65537, key_size=2048).private_bytes(
+    serialization.Encoding.PEM,
+    serialization.PrivateFormat.TraditionalOpenSSL,
+    serialization.NoEncryption(),
+)
+TRUNCATED_KEY = b"-----BEGIN RSA PRIVATE KEY-----\nabc\n-----END RSA PRIVATE KEY-----\n"
+EC_KEY = ec.generate_private_key(ec.SECP256R1()).private_bytes(
+    serialization.Encoding.PEM,
+    serialization.PrivateFormat.PKCS8,
+    serialization.NoEncryption(),
+)
+BRANCH_MAIN = "branch:main\n"
 UPDATER_ID = "Iv23liUpdater01"
 TRANSLATE_ID = "Iv23liTranslate1"
 
@@ -82,7 +96,7 @@ class AppsMainTest(unittest.TestCase):
         ]
 
     def test_keys_reach_gh_through_stdin_only(self) -> None:
-        gh = FakeGh("updater\n", "main\n", "")
+        gh = FakeGh("updater\n", BRANCH_MAIN, "")
         self.assertEqual(self.run_main(gh, self.full_answers()), 0)
         self.assertEqual(
             gh.secrets_set(),
@@ -107,20 +121,28 @@ class AppsMainTest(unittest.TestCase):
         self.assertIn("name=main", api[1])
 
     def test_environment_open_to_other_branches_stops_before_any_secret(self) -> None:
-        gh = FakeGh("updater\n", "main\nfeature/*\n", "")
+        gh = FakeGh("updater\n", "branch:main\nbranch:feature/*\n", "")
         with self.assertRaises(SystemExit):
             self.run_main(gh, self.full_answers())
         self.assertEqual(gh.secrets_set(), [])
 
-    def test_file_without_private_key_stops_before_any_secret(self) -> None:
-        self.updater_pem.write_bytes(b"not a key")
-        gh = FakeGh("updater\n", "main\n", "")
+    def test_tag_policy_named_main_stops_before_any_secret(self) -> None:
+        gh = FakeGh("updater\n", "tag:main\n", "")
         with self.assertRaises(SystemExit):
             self.run_main(gh, self.full_answers())
         self.assertEqual(gh.secrets_set(), [])
+
+    def test_file_without_usable_rsa_key_stops_before_any_secret(self) -> None:
+        for body in (b"not a key", TRUNCATED_KEY, EC_KEY):
+            with self.subTest(body=body[:30]):
+                self.updater_pem.write_bytes(body)
+                gh = FakeGh("updater\n", BRANCH_MAIN, "")
+                with self.assertRaises(SystemExit):
+                    self.run_main(gh, self.full_answers())
+                self.assertEqual(gh.secrets_set(), [])
 
     def test_unconfirmed_old_key_deletion_stops_before_translation(self) -> None:
-        gh = FakeGh("updater\n", "main\n", "")
+        gh = FakeGh("updater\n", BRANCH_MAIN, "")
         answers = ["", str(self.updater_pem), UPDATER_ID, "n"]
         with self.assertRaises(SystemExit):
             self.run_main(gh, answers)
@@ -130,7 +152,7 @@ class AppsMainTest(unittest.TestCase):
         )
 
     def test_repository_copies_of_the_updater_key_are_deleted(self) -> None:
-        gh = FakeGh("updater\n", "main\n", "BOT_APP_PRIVATE_KEY\nDOCKERHUB_TOKEN\n")
+        gh = FakeGh("updater\n", BRANCH_MAIN, "BOT_APP_PRIVATE_KEY\nDOCKERHUB_TOKEN\n")
         answers = ["", "", str(self.translate_pem), TRANSLATE_ID, "y", "n"]
         self.run_main(gh, answers, "--skip-updater")
         deleted = [a[2] for a, _ in gh.calls if a[:2] == ["secret", "delete"]]
@@ -138,7 +160,7 @@ class AppsMainTest(unittest.TestCase):
         self.assertTrue(self.translate_pem.exists())
 
     def test_client_id_must_be_an_app_client_id(self) -> None:
-        gh = FakeGh("updater\n", "main\n", "")
+        gh = FakeGh("updater\n", BRANCH_MAIN, "")
         with self.assertRaises(SystemExit):
             self.run_main(gh, ["", str(self.updater_pem), "12345"])
         self.assertEqual(gh.secrets_set(), [])
@@ -159,7 +181,7 @@ class AppsMainTest(unittest.TestCase):
                 fresh.write_bytes(KEY)
             return next(replies)
 
-        gh = FakeGh("updater\n", "main\n", "")
+        gh = FakeGh("updater\n", BRANCH_MAIN, "")
         with self.assertRaises(SystemExit):
             apps.main(
                 [
