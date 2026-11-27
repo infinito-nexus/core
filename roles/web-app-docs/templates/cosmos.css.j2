@@ -16,13 +16,14 @@
   }
 }
 {{ COSMOS_SKY_SELECTOR }} #content a:not(.toc-backref, .headerlink, .toctree-wrapper a, .contents a) {
-  color: inherit;
+  color: var(--docs-surface-link, currentcolor);
   text-decoration: underline;
 }
 {{ COSMOS_SKY_SELECTOR }} nav[aria-label="breadcrumbs"] :is(a, li, span) {
   color: inherit;
 }
-{{ COSMOS_SKY_SELECTOR }} code:not(pre code) {
+{{ COSMOS_SKY_SELECTOR }} code:not(pre code),
+{{ COSMOS_SKY_SELECTOR }} div.highlight pre {
   color: var(--design-text);
 }
 {{ COSMOS_LEGIBLE_TOP_SELECTOR }} main,
@@ -30,4 +31,5 @@
 {{ COSMOS_LEGIBLE_TOP_SELECTOR }} footer {
   background-color: var(--design-surface-1);
   color: var(--design-text);
+  --docs-surface-link: var(--design-link);
 }

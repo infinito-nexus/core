@@ -28,6 +28,7 @@ PLAYWRIGHT_RUNNER = "test-e2e-playwright"
 SURFACE = frozenset({"background", "background-color"})
 CLEAR = frozenset({"transparent", "none"})
 COSMOS_TEXT = "var(--cosmos-text)"
+DESIGN_SURFACE = re.compile(r"var\(\s*--design-surface-")
 PAGE = frozenset({"html", "body"})
 COMMENT = re.compile(r"/\*.*?\*/", re.DOTALL)
 COMBINATORS = frozenset(">+~")
@@ -167,6 +168,10 @@ def sheet_findings(name: str, css: str, sky: str, top: str) -> list[str]:
                 )
         elif cleared and declared.get("color") != COSMOS_TEXT:
             found.append(f"{label} clears a surface without color: {COSMOS_TEXT}")
+        elif "color" not in declared and any(
+            DESIGN_SURFACE.match(declared.get(prop, "")) for prop in SURFACE
+        ):
+            found.append(f"{label} paints a design surface without a text color")
     if clears and not glow:
         found.append(f"{name}: clears a surface but has no legible-top rule")
     return found
@@ -256,6 +261,12 @@ class TestCosmosSheets(unittest.TestCase):
             "web-app-literal": 'html[data-cosmos-mode="full"] body { background: transparent; color: var(--cosmos-text); }\n'
             "{{ COSMOS_LEGIBLE_TOP_SELECTOR }} main { background: var(--design-surface-1); color: var(--design-text); }",
             "web-app-foreign-variable": "{{ COSMOS_SKY_SELECTOR }} {{ APP_ROOT }} { background: transparent; color: var(--cosmos-text); }",
+            "web-app-bare-surface": "{{ COSMOS_SKY_SELECTOR }} body { background: transparent; color: var(--cosmos-text); }\n"
+            "{{ COSMOS_SKY_SELECTOR }} .panel { background-color: var(--design-surface-2); }\n"
+            "{{ COSMOS_LEGIBLE_TOP_SELECTOR }} main { background: var(--design-surface-1); color: var(--design-text); }",
+            "web-app-kept-surface": "{{ COSMOS_SKY_SELECTOR }} body { background: transparent; color: var(--cosmos-text); }\n"
+            "{{ COSMOS_SKY_SELECTOR }} .panel { background-color: var(--design-surface-2); color: var(--design-text); }\n"
+            "{{ COSMOS_LEGIBLE_TOP_SELECTOR }} main { background: var(--design-surface-1); color: var(--design-text); }",
             "web-app-kept": "{{ COSMOS_SKY_SELECTOR }} body { background: transparent; color: var(--cosmos-text); }\n"
             "@media (min-width: 40rem) { {{ COSMOS_LEGIBLE_TOP_SELECTOR }} body > main { background: var(--design-surface-1); color: var(--design-text); } }",
         }
@@ -266,7 +277,7 @@ class TestCosmosSheets(unittest.TestCase):
                 (roles / role / SHEET).write_text(text, encoding="utf-8")
             sheets = [roles / role / SHEET for role in planted]
             flagged = {line.split("/", 1)[0] for line in findings(roles, VARS, sheets)}
-        self.assertEqual(flagged, set(planted) - {"web-app-kept"})
+        self.assertEqual(flagged, set(planted) - {"web-app-kept", "web-app-kept-surface"})
 
     def test_a_custom_role_is_checked_and_only_the_provider_names_attributes(
         self,

@@ -10,7 +10,7 @@ const {
   tokenValue,
 } = require("./design");
 const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, requireDotenvValue } = require("./personas");
-const { assertSky } = require("./cosmos-sky");
+const { assertSky, pinLegible } = require("./cosmos-sky");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 const { pollStatus } = require("./_shared");
@@ -270,7 +270,15 @@ test("design: pages take surface, text, link and dividers from the palette", asy
     await assertToken(page, INLINE_CODE, "background-color", "--design-surface-3", `inline code ${mode}`);
     await assertToken(page, INLINE_CODE, "color", "--design-text", `inline code text ${mode}`);
     await assertToken(page, `${MAIN} pre`, "border-top-color", "--design-border", `code block divider ${mode}`);
-    await assertToken(page, CONTENT_LINK, "color", sky ? "--cosmos-text" : "--design-link", `content link ${mode}`);
+    if (sky) {
+      await pinLegible(page, "all");
+      await assertToken(page, CONTENT_LINK, "color", "--cosmos-text", `content link on the sky ${mode}`);
+      await pinLegible(page, "top");
+      await assertToken(page, CONTENT_LINK, "color", "--design-link", `content link on the surface ${mode}`);
+      await pinLegible(page, "all");
+    } else {
+      await assertToken(page, CONTENT_LINK, "color", "--design-link", `content link ${mode}`);
+    }
   }
   await page.emulateMedia({ colorScheme: null });
   await assertLightAndDark(page, sky ? INLINE_CODE : MAIN, "sphinx page");

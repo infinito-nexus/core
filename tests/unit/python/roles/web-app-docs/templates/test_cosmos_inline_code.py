@@ -8,6 +8,7 @@ from utils.cache.files import read_text
 
 SHEET = PROJECT_ROOT / "roles" / "web-app-docs" / "templates" / "cosmos.css.j2"
 INLINE_CODE = "code:not(pre code)"
+CODE_BLOCK = "div.highlight pre"
 DESIGN_TEXT = "var(--design-text)"
 COSMOS_TEXT = "var(--cosmos-text)"
 
@@ -40,6 +41,9 @@ class TestDocsCosmosInlineCode(unittest.TestCase):
 
     def test_inline_code_keeps_the_design_text_on_its_own_surface(self) -> None:
         self.assertEqual(sky_colors(read_text(str(SHEET)), INLINE_CODE), [DESIGN_TEXT])
+
+    def test_code_blocks_keep_the_design_text_on_their_own_surface(self) -> None:
+        self.assertEqual(sky_colors(read_text(str(SHEET)), CODE_BLOCK), [DESIGN_TEXT])
 
 
 if __name__ == "__main__":
