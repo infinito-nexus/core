@@ -39,11 +39,11 @@ def handler_for(app: LinkedIn) -> type[BaseHTTPRequestHandler]:
     class Handler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
-        def _dispatch(self) -> None:
+        def _dispatch(self, method: str) -> None:
             url = urllib.parse.urlsplit(self.path)
             length = int(self.headers.get("Content-Length") or 0)
             request = Request(
-                method=self.command,
+                method=method,
                 path=url.path,
                 query=dict(urllib.parse.parse_qsl(url.query, keep_blank_values=True)),
                 headers={key.lower(): value for key, value in self.headers.items()},
@@ -55,19 +55,23 @@ def handler_for(app: LinkedIn) -> type[BaseHTTPRequestHandler]:
                 self.send_header(name, value)
             self.send_header("Content-Length", str(len(response.body)))
             self.end_headers()
-            self.wfile.write(response.body)
+            if self.command != "HEAD":
+                self.wfile.write(response.body)
 
         def do_GET(self) -> None:
-            self._dispatch()
+            self._dispatch(self.command)
+
+        def do_HEAD(self) -> None:
+            self._dispatch("GET")
 
         def do_POST(self) -> None:
-            self._dispatch()
+            self._dispatch(self.command)
 
         def do_PUT(self) -> None:
-            self._dispatch()
+            self._dispatch(self.command)
 
         def do_DELETE(self) -> None:
-            self._dispatch()
+            self._dispatch(self.command)
 
         def log_message(self, message: str, *args: object) -> None:
             LOG.info("%s %s", self.address_string(), message % args)
