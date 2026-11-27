@@ -8,8 +8,10 @@ Repository secrets MUST be set under **Settings → Secrets and variables → Ac
 
 | Secret | Workflow | Purpose | Required when |
 |---|---|---|---|
-| `BOT_APP_CLIENT_ID` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) | GitHub App Client ID (OAuth-style `Iv…` identifier shown on the App's General page) used to mint a short-lived installation token for the update PR and for its automatic merge. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
-| `BOT_APP_PRIVATE_KEY` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) | PEM-encoded private key of the same GitHub App. Used to sign the JWT that exchanges for the installation token. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
+| `BOT_APP_CLIENT_ID` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml) | GitHub App Client ID (OAuth-style `Iv…` identifier shown on the App's General page) used to mint a short-lived installation token for the update PR. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
+| `BOT_APP_PRIVATE_KEY` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml) | PEM-encoded private key of the same GitHub App. Used to sign the JWT that exchanges for the installation token. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
+| `MERGE_APP_CLIENT_ID` | [entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) | Client ID of the separate merge App, an **environment** secret of `auto-merge`, never a repository secret. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
+| `MERGE_APP_PRIVATE_KEY` | [entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) | PEM private key of the merge App, an environment secret of `auto-merge`. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
 | `API_OPENAI_KEY` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | Publishes the `openai/*` models on the LiteLLM gateway and lets the CLI test exercise the route. | Never. Unset leaves the route unpublished. |
 | `API_ANTHROPIC_KEY` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | Publishes the `anthropic/*` models. | Never. |
 | `API_OPENROUTER_KEY` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | Publishes `openrouter/auto`. | Never. |
@@ -99,7 +101,7 @@ A classic personal access token MAY be used as a fallback for unrelated automati
 
 Each PR-opening job in [cron-update.yml](../../../../../.github/workflows/cron-update.yml) runs an `actions/create-github-app-token@v2` step gated on `steps.diff.outputs.changed == 'true'`, then forwards the minted token as `GH_TOKEN` and the resolved `APP_SLUG` to the subsequent PR step. The job's `permissions:` block keeps the workflow-provided `GITHUB_TOKEN` read-only; write access is provided exclusively by the App token, scoped to the App's repository permissions.
 
-[entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) mints the App token only after its merge gate passed, and uses it for the merge call alone; the gate itself reads with the read-only `GITHUB_TOKEN`. Merging needs the App's `Contents` and `Pull requests` write permissions plus a bypass of the `Main` ruleset; a PR that changes `.github/workflows/` additionally needs `Workflows`: **Read and write**, or its merge fails and it stays open.
+This App MUST NOT be a bypass actor of the `Main` ruleset: [entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml) mints its token on `pull_request`, where a same-repository PR can change the workflow and read the key.
 
 ### Commit identity propagation 🪪
 
@@ -118,6 +120,19 @@ A missing secret resolves to an empty string in workflow expressions. The workfl
 | Outcome | The run is marked failed. GitHub notifies repository admins. No PR is created with a wrong identity. |
 
 The behaviour is fail-loud by design. Missing or mistyped secret names MUST surface as a failed workflow run rather than as a PR with an unintended author.
+
+## `MERGE_APP_CLIENT_ID` and `MERGE_APP_PRIVATE_KEY` 🔀
+
+[entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) merges a proven update PR with a second GitHub App that does nothing else. It is the only bypass actor of the `Main` ruleset besides the admins, so its key MUST be reachable from the default branch alone.
+
+### How to set it up 🛠️
+
+1. Create the App as in [How to generate the App](#how-to-generate-the-app-), with `Contents` and `Pull requests`: **Read and write**, plus `Workflows`: **Read and write** so a PR that changes `.github/workflows/` can merge too. Install it on the `core` repository only.
+2. Go to **Settings → Environments → New environment**, name it `auto-merge`, and under **Deployment branches and tags** choose **Selected branches and tags** with the single rule `main`. A run on any other ref, a pull request included, cannot read its secrets.
+3. Add `MERGE_APP_CLIENT_ID` (the `Iv…` Client ID) and `MERGE_APP_PRIVATE_KEY` (the full PEM) as **environment secrets** of `auto-merge`, never as repository secrets.
+4. In **Settings → Rules → Rulesets → Main**, add the App under **Bypass list** with **For pull requests only**.
+
+The job mints the App token only after its merge gate passed and uses it for the merge call alone; the gate reads with the read-only `GITHUB_TOKEN`. The job runs on `workflow_run`, which always runs on the default branch, so the environment's branch rule admits it. Without the bypass, the merge call fails with `Repository rule violations found` (HTTP 405) and the PR stays open.
 
 ## Related 🔗
 

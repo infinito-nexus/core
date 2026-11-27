@@ -19,6 +19,7 @@ jobs:
       || startsWith(github.event.workflow_run.head_branch, 'dependabot/'))
     runs-on: ubuntu-26.04
     timeout-minutes: 15
+    environment: auto-merge
     permissions:
       actions: read
       checks: read
@@ -56,8 +57,8 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v3
         with:
-          client-id: ${{ secrets.BOT_APP_CLIENT_ID }}
-          private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
+          client-id: ${{ secrets.MERGE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MERGE_APP_PRIVATE_KEY }}
 
       - name: 🔀 Merge the update PR at its tested head
         if: steps.gate.outputs.merge == 'true'

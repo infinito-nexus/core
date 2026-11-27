@@ -172,7 +172,7 @@ An update PR merges itself only when all of these hold; otherwise the job prints
 3. Every latest check run on its head commit completed as `success`, `skipped` or `neutral`, and every commit status is `success`. A check still running counts as not green; no later run retries the merge.
 4. Every role under `roles/<role>/` the PR changes appears in the `role` column of a `role-runtimes-*` artifact of that run. A PR that changes no role needs no artifact; a missing artifact proves nothing.
 
-The merge goes through `PUT /repos/{owner}/{repo}/pulls/{number}/merge` with `merge_method=merge` and the tested head `sha`, so a commit pushed after the run makes it fail instead of merging untested code. `gh pr merge` is not used because it refuses a PR the ruleset still blocks before the server can apply the App's bypass. The App MUST be a bypass actor of the `Main` ruleset in `pull_request` mode; without that the merge step fails and the PR stays open.
+The merge goes through `PUT /repos/{owner}/{repo}/pulls/{number}/merge` with `merge_method=merge` and the tested head `sha`, so a commit pushed after the run makes it fail instead of merging untested code. `gh pr merge` is not used because it refuses a PR the ruleset still blocks before the server can apply the App's bypass. The token comes from the separate merge App in the `auto-merge` environment, which MUST be a bypass actor of the `Main` ruleset in `pull_request` mode; without that the merge step fails and the PR stays open. Setup: [secrets.md](secrets.md#merge_app_client_id-and-merge_app_private_key-).
 
 ## `INFINITO_PLAYWRIGHT_KEEP` 🎬
 
