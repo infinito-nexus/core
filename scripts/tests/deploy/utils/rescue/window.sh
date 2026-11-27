@@ -7,7 +7,8 @@
 #
 # Sets in the caller:
 #   rescue_secs   timeout of the step
-#   rescue_until  epoch the step must end by; empty while the step keeps its nominal time
+#   rescue_until  epoch the step's own work must end by, one second before its timeout fires, so a
+#                 capture cut at this deadline still writes its file; empty while the step keeps its nominal time
 
 # Param: $1 seconds the step takes when the trap was not entered by the budget SIGTERM
 rescue_window() {
@@ -19,6 +20,6 @@ rescue_window() {
 	((now >= INFINITO_CI_DISTRO_DEADLINE_EPOCH)) || return 0
 	rescue_secs="$(((INFINITO_CI_DISTRO_KILL_EPOCH - now + 1) / 2))"
 	((rescue_secs > 0)) || rescue_secs=1
-	rescue_until="$((now + rescue_secs))"
+	rescue_until="$((now + rescue_secs - 1))"
 	echo ">>> Budget kill: $((INFINITO_CI_DISTRO_KILL_EPOCH - now))s left until the SIGKILL, ${rescue_secs}s for this rescue step (until epoch ${rescue_until})"
 }
