@@ -7,8 +7,7 @@
 #
 # Sets in the caller:
 #   rescue_secs   timeout of the step
-#   rescue_until  epoch the step's own work must end by, one second before its timeout fires, so a
-#                 capture cut at this deadline still writes its file; empty while the step keeps its nominal time
+#   rescue_until  epoch the step's own work must end by, one second before its timeout; empty while the step keeps its nominal time
 
 # Param: $1 seconds the step takes when the trap was not entered by the budget SIGTERM
 rescue_window() {
