@@ -3,12 +3,15 @@ import imaplib
 import importlib.util
 import io
 import json
+import shlex
 import smtplib
 import ssl
 import subprocess
 import unittest
 import unittest.mock as mock
 import urllib.error
+
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
@@ -182,9 +185,17 @@ class TestCliPlacement(unittest.TestCase):
         self.assertEqual(tests["cli"]["container_service_key"], "stalwart")
 
     def test_the_probe_gets_the_resolved_container_and_its_inner_jmap_url(self):
-        env = read_text(str(_ROLE / "templates/test.env.j2"))
-        self.assertIn("STALWART_CONTAINER={{ CLI_LOCAL_CID | quote }}", env)
-        self.assertIn("STALWART_JMAP_URL={{ STALWART_JMAP_URL | quote }}", env)
+        keys = ("STALWART_CONTAINER", "STALWART_JMAP_URL")
+        source = read_text(str(_ROLE / "templates/test.env.j2"))
+        lines = [line for line in source.splitlines() if line.startswith(keys)]
+        env = Environment(undefined=StrictUndefined, autoescape=select_autoescape())
+        env.filters["quote"] = shlex.quote
+        rendered = env.from_string("\n".join(lines)).render(
+            CLI_LOCAL_CID=_ENV["STALWART_CONTAINER"],
+            STALWART_JMAP_URL=_ENV["STALWART_JMAP_URL"],
+        )
+        values = dict(line.split("=", 1) for line in rendered.splitlines())
+        self.assertEqual(values, {key: _ENV[key] for key in keys})
 
 
 if __name__ == "__main__":

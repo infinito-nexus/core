@@ -8,9 +8,19 @@ from utils.cache import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.converge import values
-from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_META_SERVICES
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_VARS_MAIN,
+)
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-openproject"
+VARIABLES = load_yaml_any(ROLE / ROLE_FILE_VARS_MAIN)
+KEEPALIVE = (
+    "OPENPROJECT_DB_KEEPALIVE_IDLE_SECONDS",
+    "OPENPROJECT_DB_KEEPALIVE_INTERVAL_SECONDS",
+    "OPENPROJECT_DB_KEEPALIVE_COUNT",
+)
 ENV = ROLE / "templates" / "env.j2"
 FORMS = ROLE / ROLE_FILE_META_FORMS
 SERVICES = ROLE / ROLE_FILE_META_SERVICES
@@ -49,6 +59,7 @@ def _env(general: dict, users: dict) -> list[str]:
             OPENPROJECT_HEADER_SSO_ENABLED=False,
             OPENPROJECT_DB_POOL=20,
             OPENPROJECT_RAILS_MAX_THREADS=20,
+            **{key: VARIABLES[key] for key in KEEPALIVE},
         )
         .splitlines()
     )
