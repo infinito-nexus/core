@@ -15,10 +15,12 @@ Output:
 import json
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 PROGRAM = "rbac.exs"
 DONE = "MOBILIZON_RBAC=done"
+CHANGED = "CHANGED "
 
 
 def payload(environ):
@@ -64,9 +66,14 @@ def main(environ, run):
         check=True,
     )
     lines = result.stdout.splitlines()
-    if not lines or lines[-1] != DONE:
-        raise SystemExit(f"mobilizon rpc ended without {DONE}")
-    changes = lines[:-1]
+    if DONE not in lines:
+        raise SystemExit(
+            f"mobilizon rpc ended without {DONE} after {len(lines)} stdout lines"
+        )
+    changes = [line for line in lines if line.startswith(CHANGED)]
+    for line in lines:
+        if line != DONE and not line.startswith(CHANGED):
+            print(line, file=sys.stderr)
     print("\n".join(changes) if changes else "UNCHANGED")
 
 

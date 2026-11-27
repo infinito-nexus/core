@@ -112,6 +112,27 @@ class MobilizonRbacSyncTests(unittest.TestCase):
 
         self.assertIn("MOBILIZON_RBAC=done", str(raised.exception.code))
 
+    def test_an_empty_rpc_output_names_the_line_count(self):
+        with self.assertRaises(SystemExit) as raised:
+            self.run_main(FakeRpc(""), ["alice@example.org"])
+
+        self.assertIn("after 0 stdout lines", str(raised.exception.code))
+
+    def test_output_beside_the_marker_goes_to_stderr(self):
+        stderr = io.StringIO()
+        with contextlib.redirect_stderr(stderr):
+            output = self.run_main(
+                FakeRpc(
+                    "CHANGED alice@example.org created\n"
+                    "MOBILIZON_RBAC=done\n"
+                    "warning: node notice\n"
+                ),
+                ["alice@example.org"],
+            )
+
+        self.assertEqual(output, ["CHANGED alice@example.org created"])
+        self.assertEqual(stderr.getvalue().splitlines(), ["warning: node notice"])
+
     def test_a_failing_rpc_fails_the_hook(self):
         with self.assertRaises(subprocess.CalledProcessError):
             self.run_main(FakeRpc("", returncode=1), ["alice@example.org"])
