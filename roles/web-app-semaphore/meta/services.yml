@@ -309,6 +309,8 @@ provision-runner:
     swarm:
       enabled: true
   bond: 1
+  # nocheck: default-placement-manager  the catalogs bind source is written on the stack host only, so a task on another node is rejected
+  placement: manager
   enabled: "{{ 'deploy' in lookup('config', 'web-app-semaphore', 'services.semaphore') and 'workspaces' in lookup('config', 'web-app-semaphore', 'services.semaphore')
     }}"
   custom: true

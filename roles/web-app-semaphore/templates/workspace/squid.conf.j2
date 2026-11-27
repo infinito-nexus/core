@@ -4,8 +4,8 @@
 http_port 3128
 hosts_file {{ SEMAPHORE_EGRESS_HOSTS_FILE }}
 cache deny all
-access_log stdio:/dev/stdout
-cache_log stdio:/dev/stderr
+access_log stdio:/var/log/squid/access.log
+cache_log /var/log/squid/cache.log
 pid_filename /run/squid.pid
 acl CONNECT method CONNECT
 {% for pair in semaphore_workspace_platform %}
