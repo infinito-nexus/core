@@ -128,11 +128,11 @@ The behaviour is fail-loud by design. Missing or mistyped secret names MUST surf
 ### How to set it up 🛠️
 
 1. Create the App as in [How to generate the App](#how-to-generate-the-app-), with `Contents` and `Pull requests`: **Read and write**, plus `Workflows`: **Read and write** so a PR that changes `.github/workflows/` can merge too. Install it on the `core` repository only.
-2. Go to **Settings → Environments → New environment**, name it `auto-merge`, and under **Deployment branches and tags** choose **Selected branches and tags** with the single rule `main`. A run on any other ref, a pull request included, cannot read its secrets.
+2. Go to **Settings → Environments → New environment**, name it `auto-merge`, and under **Deployment branches and tags** choose **Selected branches and tags** with the single rule `main`. A `pull_request` run, whose ref is the pull request's merge ref, cannot read its secrets. A `pull_request_target` or `workflow_run` job runs with the base branch as its ref and passes this rule, so a job that declares `auto-merge` MUST NOT check out or execute pull-request code; only [entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) declares it, and it runs `main`'s own code.
 3. Add `MERGE_APP_CLIENT_ID` (the `Iv…` Client ID) and `MERGE_APP_PRIVATE_KEY` (the full PEM) as **environment secrets** of `auto-merge`, never as repository secrets.
 4. In **Settings → Rules → Rulesets → Main**, add the App under **Bypass list** with **For pull requests only**.
 
-The job mints the App token only after its merge gate passed and uses it for the merge call alone; the gate reads with the read-only `GITHUB_TOKEN`. The job runs on `workflow_run`, which always runs on the default branch, so the environment's branch rule admits it. Without the bypass, the merge call fails with `Repository rule violations found` (HTTP 405) and the PR stays open.
+The job mints the App token only after its merge gate passed, narrowed to `contents`, `pull-requests` and `workflows` write, and uses it for the merge call alone; the gate reads with the read-only `GITHUB_TOKEN`. The job runs on `workflow_run`, which always runs on the default branch, so the environment's branch rule admits it. Without the bypass, the merge call fails with `Repository rule violations found` (HTTP 405) and the PR stays open.
 
 ## Related 🔗
 

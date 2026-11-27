@@ -59,6 +59,9 @@ jobs:
         with:
           client-id: ${{ secrets.MERGE_APP_CLIENT_ID }}
           private-key: ${{ secrets.MERGE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+          permission-workflows: write
 
       - name: 🔀 Merge the update PR at its tested head
         if: steps.gate.outputs.merge == 'true'
