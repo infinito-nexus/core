@@ -16,7 +16,7 @@ KEY = rsa.generate_private_key(public_exponent=65537, key_size=2048).private_byt
     serialization.PrivateFormat.TraditionalOpenSSL,
     serialization.NoEncryption(),
 )
-TRUNCATED_KEY = b"-----BEGIN RSA PRIVATE KEY-----\nabc\n-----END RSA PRIVATE KEY-----\n"
+TRUNCATED_KEY = b"\n".join([*KEY.splitlines()[:2], KEY.splitlines()[-1]]) + b"\n"
 EC_KEY = ec.generate_private_key(ec.SECP256R1()).private_bytes(
     serialization.Encoding.PEM,
     serialization.PrivateFormat.PKCS8,
