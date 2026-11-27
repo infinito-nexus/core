@@ -140,7 +140,7 @@ context_agent:
   shared: "{{ lookup('config', 'web-app-nextcloud', 'mcp.enabled') | bool }}"
   name: nextcloud-context-agent
   image: ghcr.io/nextcloud/context_agent
-  version: 2.11.0
+  version: 2.12.0
   backup:
     stop_required: false
   # nocheck: single-replica
