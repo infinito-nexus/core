@@ -123,14 +123,23 @@ The behaviour is fail-loud by design. Missing or mistyped secret names MUST surf
 
 ## `MERGE_APP_CLIENT_ID` and `MERGE_APP_PRIVATE_KEY` 🔀
 
-[entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) merges a proven update PR with a second GitHub App that does nothing else. It is the only bypass actor of the `Main` ruleset besides the admins, so its key MUST be reachable from the default branch alone.
+[entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) merges a proven update PR with a second GitHub App that does nothing else. Once enabled, it is the only bypass actor of the `Main` ruleset besides the admins, so its key MUST be reachable from the default branch alone.
 
 ### How to set it up 🛠️
 
 1. Create the App as in [How to generate the App](#how-to-generate-the-app-), with `Contents` and `Pull requests`: **Read and write**, plus `Workflows`: **Read and write** so a PR that changes `.github/workflows/` can merge too. Install it on the `core` repository only.
 2. Go to **Settings → Environments → New environment**, name it `auto-merge`, and under **Deployment branches and tags** choose **Selected branches and tags** with the single rule `main`. A `pull_request` run, whose ref is the pull request's merge ref, cannot read its secrets. A `pull_request_target` or `workflow_run` job runs with the base branch as its ref and passes this rule, so a job that declares `auto-merge` MUST NOT check out or execute pull-request code; only [entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) declares it, and it runs `main`'s own code.
 3. Add `MERGE_APP_CLIENT_ID` (the `Iv…` Client ID) and `MERGE_APP_PRIVATE_KEY` (the full PEM) as **environment secrets** of `auto-merge`, never as repository secrets.
-4. In **Settings → Rules → Rulesets → Main**, add the App under **Bypass list** with **For pull requests only**.
+4. Only after every prerequisite below holds: in **Settings → Rules → Rulesets → Main**, add the App under **Bypass list** with **For pull requests only**. Check the live bypass list first; it MUST NOT hold the updater App.
+
+### Prerequisites for the bypass 🔒
+
+The merge gate checks who opened the PR, not who pushed its head commit, so the head of an `update/*` or `dependabot/*` branch MUST be writable by the updater App and Dependabot alone, and the updater key MUST be out of reach of every pull request:
+
+1. A branch ruleset on `update/**` and `dependabot/**` restricts creation, updates and deletion, with only the updater App and Dependabot on its bypass list.
+2. [entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml) mints its token from an App of its own, and `BOT_APP_CLIENT_ID` and `BOT_APP_PRIVATE_KEY` move into an environment restricted to `main`, so no `pull_request` run can read them.
+
+With both in place, pushing a head the gate accepts needs the updater key, which only workflows on `main` can read. Until then the merge App stays off the bypass list, the merge call fails with HTTP 405, and update PRs wait for a manual merge.
 
 The job mints the App token only after its merge gate passed, narrowed to `contents`, `pull-requests` and `workflows` write, and uses it for the merge call alone; the gate reads with the read-only `GITHUB_TOKEN`. The job runs on `workflow_run`, which always runs on the default branch, so the environment's branch rule admits it. Without the bypass, the merge call fails with `Repository rule violations found` (HTTP 405) and the PR stays open.
 
