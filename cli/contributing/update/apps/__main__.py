@@ -19,8 +19,8 @@ if TYPE_CHECKING:
 GH_TIMEOUT_SECONDS = 120
 UPDATER_ENVIRONMENT = "updater"
 UPDATER_BRANCH = "main"
-UPDATER_SECRETS = ("BOT_APP_CLIENT_ID", "BOT_APP_PRIVATE_KEY")
-TRANSLATE_SECRETS = ("TRANSLATE_APP_CLIENT_ID", "TRANSLATE_APP_PRIVATE_KEY")
+UPDATER_NAMES = ("BOT_APP_CLIENT_ID", "BOT_APP_PRIVATE_KEY")
+TRANSLATE_NAMES = ("TRANSLATE_APP_CLIENT_ID", "TRANSLATE_APP_PRIVATE_KEY")
 _CLIENT_ID = re.compile(r"Iv[0-9A-Za-z.]{8,}")
 
 
@@ -175,9 +175,9 @@ def rotate_updater_key(gh: Gh, repo: str, slug: str, ask: Ask, say: Say) -> Path
     client_id = ask_client_id(ask, slug)
     pem = Path(ask("Path of the downloaded .pem: ").strip()).expanduser()
     key = read_private_key(pem)
-    set_secret(gh, repo, UPDATER_SECRETS[0], client_id.encode(), UPDATER_ENVIRONMENT)
-    set_secret(gh, repo, UPDATER_SECRETS[1], key, UPDATER_ENVIRONMENT)
-    say(f"   stored {', '.join(UPDATER_SECRETS)} in environment {UPDATER_ENVIRONMENT}")
+    set_secret(gh, repo, UPDATER_NAMES[0], client_id.encode(), UPDATER_ENVIRONMENT)
+    set_secret(gh, repo, UPDATER_NAMES[1], key, UPDATER_ENVIRONMENT)
+    say(f"   stored {', '.join(UPDATER_NAMES)} in environment {UPDATER_ENVIRONMENT}")
     say(
         f"   Now delete every OLDER key on {app_page(org, slug)}; keep only the one just made."
     )
@@ -197,10 +197,10 @@ def create_translate_app(gh: Gh, repo: str, slug: str, ask: Ask, say: Say) -> Pa
     client_id = ask_client_id(ask, slug)
     pem = Path(ask("Path of the downloaded .pem: ").strip()).expanduser()
     key = read_private_key(pem)
-    set_secret(gh, repo, TRANSLATE_SECRETS[0], client_id.encode(), None)
-    set_secret(gh, repo, TRANSLATE_SECRETS[1], key, None)
+    set_secret(gh, repo, TRANSLATE_NAMES[0], client_id.encode(), None)
+    set_secret(gh, repo, TRANSLATE_NAMES[1], key, None)
     say(
-        f"   stored {', '.join(TRANSLATE_SECRETS)} as repository secrets; never add {slug} to a bypass list"
+        f"   stored {', '.join(TRANSLATE_NAMES)} as repository secrets; never add {slug} to a bypass list"
     )
     return pem
 
@@ -212,7 +212,7 @@ def drop_repository_copies(gh: Gh, repo: str, say: Say) -> None:
             None,
         )
     )
-    for name in UPDATER_SECRETS:
+    for name in UPDATER_NAMES:
         if name in names:
             gh(["secret", "delete", name, "--repo", repo], None)
             say(f"   deleted repository secret {name}; pull_request runs could read it")
