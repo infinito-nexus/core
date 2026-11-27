@@ -19,6 +19,7 @@ jobs:
     name: ⚖️ Time Galaxy against the git fallback
     if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
     runs-on: ubuntu-26.04
+    environment: updater
     env:
       HISTORY_PATH: build/collection-source-history.json
     steps:

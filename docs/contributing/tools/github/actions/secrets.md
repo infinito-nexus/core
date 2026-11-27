@@ -2,14 +2,18 @@
 
 This page lists every repository secret that GitHub Actions workflows in this repository consume, and documents the failure mode when a secret is missing. For repository **variables** see [configuration.md](configuration.md). For the workflow catalog see [workflows.md](workflows.md).
 
-Repository secrets MUST be set under **Settings → Secrets and variables → Actions → Secrets**.
+Repository secrets MUST be set under **Settings → Secrets and variables → Actions → Secrets**; environment secrets under **Settings → Environments → `<name>` → Environment secrets**.
 
 ## Secrets 📋
 
 | Secret | Workflow | Purpose | Required when |
 |---|---|---|---|
-| `BOT_APP_CLIENT_ID` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) | GitHub App Client ID (OAuth-style `Iv…` identifier shown on the App's General page) used to mint a short-lived installation token for the update PR and for its automatic merge. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
-| `BOT_APP_PRIVATE_KEY` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml), [entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) | PEM-encoded private key of the same GitHub App. Used to sign the JWT that exchanges for the installation token. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
+| `BOT_APP_CLIENT_ID` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml), [cron-collection-source.yml](../../../../../.github/workflows/cron-collection-source.yml) | GitHub App Client ID (OAuth-style `Iv…` identifier shown on the App's General page) used to mint a short-lived installation token for the update PR. An **environment** secret of `updater`, never a repository secret. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
+| `BOT_APP_PRIVATE_KEY` | [cron-update.yml](../../../../../.github/workflows/cron-update.yml), [cron-collection-source.yml](../../../../../.github/workflows/cron-collection-source.yml) | PEM-encoded private key of the same GitHub App. Used to sign the JWT that exchanges for the installation token. An environment secret of `updater`. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
+| `TRANSLATE_APP_CLIENT_ID` | [entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml) | Client ID of the translation App that opens the machine-translation PRs. A repository secret, readable by same-repository pull requests. | `CI_ENABLE_AUTO_TRANSLATIONS == 'true'` |
+| `TRANSLATE_APP_PRIVATE_KEY` | [entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml) | PEM private key of the translation App. | `CI_ENABLE_AUTO_TRANSLATIONS == 'true'` |
+| `MERGE_APP_CLIENT_ID` | [entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) | Client ID of the separate merge App, an **environment** secret of `auto-merge`, never a repository secret. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
+| `MERGE_APP_PRIVATE_KEY` | [entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) | PEM private key of the merge App, an environment secret of `auto-merge`. | `CI_ENABLE_AUTO_UPDATES == 'true'` |
 | `API_OPENAI_KEY` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | Publishes the `openai/*` models on the LiteLLM gateway and lets the CLI test exercise the route. | Never. Unset leaves the route unpublished. |
 | `API_ANTHROPIC_KEY` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | Publishes the `anthropic/*` models. | Never. |
 | `API_OPENROUTER_KEY` | [call-test-deploy.yml](../../../../../.github/workflows/call-test-deploy.yml) | Publishes `openrouter/auto`. | Never. |
@@ -89,17 +93,29 @@ A classic personal access token MAY be used as a fallback for unrelated automati
 
 ### How to hand the credentials to CI 📥
 
+`python -m cli.contributing.update.apps --repo infinito-nexus/core --updater-slug infinito-nexus-updater --translate-slug infinito-nexus-translator --downloads ~/Downloads` walks through the steps below and the [translation App](#translate_app_client_id-and-translate_app_private_key-) through `gh`, passing every key on stdin. Done by hand:
+
 1. Open the repository on GitHub.
-2. Go to **Settings → Secrets and variables → Actions**.
-3. Stay on the **Secrets** tab.
-4. Click **New repository secret** and add `BOT_APP_CLIENT_ID` with the App's Client ID (shown on the App's General page under **About**, in the `Iv…` format — *not* the numeric App ID).
-5. Click **New repository secret** and add `BOT_APP_PRIVATE_KEY` with the complete PEM content, including the `-----BEGIN PRIVATE KEY-----` and `-----END PRIVATE KEY-----` lines.
+2. Go to **Settings → Environments → New environment**, name it `updater`, and under **Deployment branches and tags** choose **Selected branches and tags** with the single rule `main`.
+3. Under **Environment secrets**, add `BOT_APP_CLIENT_ID` with the App's Client ID (shown on the App's General page under **About**, in the `Iv…` format, *not* the numeric App ID).
+4. Add `BOT_APP_PRIVATE_KEY` with the complete PEM content, including the `-----BEGIN PRIVATE KEY-----` and `-----END PRIVATE KEY-----` lines.
+5. Delete any repository secret of the same names under **Settings → Secrets and variables → Actions**; a repository secret would stay readable by `pull_request` runs.
 
 ### How the workflow consumes the secrets ⚙️
 
-Each PR-opening job in [cron-update.yml](../../../../../.github/workflows/cron-update.yml) runs an `actions/create-github-app-token@v2` step gated on `steps.diff.outputs.changed == 'true'`, then forwards the minted token as `GH_TOKEN` and the resolved `APP_SLUG` to the subsequent PR step. The job's `permissions:` block keeps the workflow-provided `GITHUB_TOKEN` read-only; write access is provided exclusively by the App token, scoped to the App's repository permissions.
+Each PR-opening job in [cron-update.yml](../../../../../.github/workflows/cron-update.yml) and [cron-collection-source.yml](../../../../../.github/workflows/cron-collection-source.yml) declares `environment: updater` and runs an `actions/create-github-app-token@v3` step gated on `steps.diff.outputs.changed == 'true'`, then forwards the minted token as `GH_TOKEN` and the resolved `APP_SLUG` to the subsequent PR step. The job's `permissions:` block keeps the workflow-provided `GITHUB_TOKEN` read-only; write access is provided exclusively by the App token, scoped to the App's repository permissions.
 
-[entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) mints the App token only after its merge gate passed, and uses it for the merge call alone; the gate itself reads with the read-only `GITHUB_TOKEN`. Merging needs the App's `Contents` and `Pull requests` write permissions plus a bypass of the `Main` ruleset; a PR that changes `.github/workflows/` additionally needs `Workflows`: **Read and write**, or its merge fails and it stays open.
+These jobs run on `push` to `main`, `schedule` or `workflow_dispatch` and check out `main`; a dispatch on any other branch fails at the environment's branch rule. No job that declares `updater` may check out or execute pull-request code.
+
+This App MUST NOT be a bypass actor of the `Main` ruleset. It sits on the update-branch ruleset's bypass list beside Dependabot and the admin role, see [Prerequisites for the bypass](#prerequisites-for-the-bypass-).
+
+## `TRANSLATE_APP_CLIENT_ID` and `TRANSLATE_APP_PRIVATE_KEY` 🌐
+
+[entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml) mints its token on `pull_request` after running the pull request's own code, so any same-repository pull request can read this key. It therefore belongs to an App of its own that sits on no bypass list: a leaked key grants what every writer already has, and it opens only `translate/pr-*` branches.
+
+1. Create the App as in [How to generate the App](#how-to-generate-the-app-), with `Contents` and `Pull requests`: **Read and write**. Install it on the `core` repository only.
+2. Add `TRANSLATE_APP_CLIENT_ID` and `TRANSLATE_APP_PRIVATE_KEY` as **repository** secrets.
+3. Never add this App to the bypass list of any ruleset.
 
 ### Commit identity propagation 🪪
 
@@ -118,6 +134,30 @@ A missing secret resolves to an empty string in workflow expressions. The workfl
 | Outcome | The run is marked failed. GitHub notifies repository admins. No PR is created with a wrong identity. |
 
 The behaviour is fail-loud by design. Missing or mistyped secret names MUST surface as a failed workflow run rather than as a PR with an unintended author.
+
+## `MERGE_APP_CLIENT_ID` and `MERGE_APP_PRIVATE_KEY` 🔀
+
+[entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) merges a proven update PR with a second GitHub App that does nothing else. Once enabled, it is the only bypass actor of the `Main` ruleset besides the admins, so its key MUST be reachable from the default branch alone.
+
+### How to set it up 🛠️
+
+1. Create the App as in [How to generate the App](#how-to-generate-the-app-), with `Contents` and `Pull requests`: **Read and write**, plus `Workflows`: **Read and write** so a PR that changes `.github/workflows/` can merge too. Install it on the `core` repository only.
+2. Go to **Settings → Environments → New environment**, name it `auto-merge`, and under **Deployment branches and tags** choose **Selected branches and tags** with the single rule `main`. A `pull_request` run, whose ref is the pull request's merge ref, cannot read its secrets. A `pull_request_target` or `workflow_run` job runs with the base branch as its ref and passes this rule, so a job that declares `auto-merge` MUST NOT check out or execute pull-request code; only [entry-pr-green-update-merge.yml](../../../../../.github/workflows/entry-pr-green-update-merge.yml) declares it, and it runs `main`'s own code.
+3. Add `MERGE_APP_CLIENT_ID` (the `Iv…` Client ID) and `MERGE_APP_PRIVATE_KEY` (the full PEM) as **environment secrets** of `auto-merge`, never as repository secrets.
+4. Only after every prerequisite below holds: in **Settings → Rules → Rulesets → Main**, add the App under **Bypass list** with **For pull requests only**. Check the live bypass list first; it MUST NOT hold the updater App.
+
+### Prerequisites for the bypass 🔒
+
+The merge gate checks who opened the PR, not who pushed its head commit, so the head of an `update/*` or `dependabot/*` branch MUST be writable by the updater App, Dependabot and admins alone, and the updater key MUST be out of reach of every pull request:
+
+1. A branch ruleset on `update/**` and `dependabot/**` restricts creation, updates and deletion, with only the updater App, Dependabot and the admin role on its bypass list. The admin role lets a maintainer merge a translation PR or push a fixup onto an update branch; the translation App stays off it.
+2. `BOT_APP_CLIENT_ID` and `BOT_APP_PRIVATE_KEY` exist only as secrets of the `updater` environment, restricted to `main`, and no longer as repository secrets, so no `pull_request` run can read them; [entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml) uses the [translation App](#translate_app_client_id-and-translate_app_private_key-). As with `auto-merge`, a `pull_request_target` or `workflow_run` job passes that branch rule, so no job that declares the environment may check out or execute pull-request code; list every workflow that declares it and confirm this before step 4.
+3. The updater App's private key was regenerated after the translation workflow stopped minting from it, the new key is the one in `updater`, and every older key is deleted under **Credentials → Key pairs** on the App's settings page. Same-repository pull requests could read the old key, and a copy taken then stays valid until it is revoked. Deleting a key stops new installation tokens but does not revoke the ones already minted, which stay valid for up to one hour, so at least one hour passes after the deletion before prerequisite 4 starts.
+4. Every `update/**` and `dependabot/**` branch whose head was pushed before that hour ended is deleted, whether its pull request is open, closed or missing, and an open one is closed; the next updater run and Dependabot open fresh ones from heads pushed afterwards. The gate checks who opened a pull request, not who pushed its head, so a head pushed with the old key would otherwise stay mergeable through the bypass, including a closed pull request that a writer reopens.
+
+With all four in place, and the hour of prerequisite 3 over, pushing a head the gate accepts needs the updater key, which only workflows on `main` can read. Until then the merge App stays off the bypass list, the merge call fails with HTTP 405, and update PRs wait for a manual merge: the ruleset's `update` rule (Restrict updates) lets only bypass actors move `main`, pull-request merges included, whatever reviews the PR holds.
+
+The job mints the App token only after its merge gate passed, narrowed to `contents`, `pull-requests` and `workflows` write, and uses it for the merge call alone; the gate reads with the read-only `GITHUB_TOKEN`. The job runs on `workflow_run`, which always runs on the default branch, so the environment's branch rule admits it. Without the bypass, the merge call fails with `Repository rule violations found` (HTTP 405) and the PR stays open.
 
 ## Related 🔗
 
