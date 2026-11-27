@@ -410,6 +410,11 @@ jobs:
         shell: bash
         run: ./scripts/github/runner/enlarge_swap.sh
 
+      - name: 🎚️ Raise host kernel limits to the self-hosted runner floors
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: ./scripts/github/runner/raise_sysctl_floors.sh roles/svc-runner/vars/main.yml
+
       - name: 🛡️ Tear down host AppArmor profiles (dev-host parity)
         if: ${{ !env.ACT }}
         shell: bash
