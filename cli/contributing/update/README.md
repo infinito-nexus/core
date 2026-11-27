@@ -136,8 +136,10 @@ the PRs, and `tests/external/update/source/` warns about them.
 
 ## App credentials
 
-`python -m cli.contributing.update.apps --repo infinito-nexus/core --updater-slug infinito-nexus-updater --translate-slug infinito-nexus-translator`
-walks the operator through the browser steps and stores the results with `gh`:
+`python -m cli.contributing.update.apps --repo infinito-nexus/core --updater-slug infinito-nexus-updater --translate-slug infinito-nexus-translator --downloads ~/Downloads`
+walks the operator through the browser steps and stores the results with `gh`.
+It names each menu entry to click, waits for Enter after every browser step and
+offers the `.pem` that appeared in `--downloads` during that step:
 it creates the `updater` environment restricted to `main` when it is missing,
 stores a freshly generated updater key there, waits until the older keys are
 deleted, prefills the form for the separate translation App and stores its

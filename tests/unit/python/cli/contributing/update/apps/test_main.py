@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -67,12 +68,15 @@ class AppsMainTest(unittest.TestCase):
 
     def full_answers(self):
         return [
-            UPDATER_ID,
+            "",
             str(self.updater_pem),
+            UPDATER_ID,
             "y",
-            "y",
-            TRANSLATE_ID,
+            "",
+            "",
             str(self.translate_pem),
+            TRANSLATE_ID,
+            "y",
             "y",
             "y",
         ]
@@ -117,7 +121,7 @@ class AppsMainTest(unittest.TestCase):
 
     def test_unconfirmed_old_key_deletion_stops_before_translation(self) -> None:
         gh = FakeGh("updater\n", "main\n", "")
-        answers = [UPDATER_ID, str(self.updater_pem), "n"]
+        answers = ["", str(self.updater_pem), UPDATER_ID, "n"]
         with self.assertRaises(SystemExit):
             self.run_main(gh, answers)
         self.assertEqual(
@@ -127,7 +131,7 @@ class AppsMainTest(unittest.TestCase):
 
     def test_repository_copies_of_the_updater_key_are_deleted(self) -> None:
         gh = FakeGh("updater\n", "main\n", "BOT_APP_PRIVATE_KEY\nDOCKERHUB_TOKEN\n")
-        answers = ["y", TRANSLATE_ID, str(self.translate_pem), "n"]
+        answers = ["", "", str(self.translate_pem), TRANSLATE_ID, "y", "n"]
         self.run_main(gh, answers, "--skip-updater")
         deleted = [a[2] for a, _ in gh.calls if a[:2] == ["secret", "delete"]]
         self.assertEqual(deleted, ["BOT_APP_PRIVATE_KEY"])
@@ -136,8 +140,44 @@ class AppsMainTest(unittest.TestCase):
     def test_client_id_must_be_an_app_client_id(self) -> None:
         gh = FakeGh("updater\n", "main\n", "")
         with self.assertRaises(SystemExit):
-            self.run_main(gh, ["12345", str(self.updater_pem)])
+            self.run_main(gh, ["", str(self.updater_pem), "12345"])
         self.assertEqual(gh.secrets_set(), [])
+
+    def test_downloads_offers_only_the_key_generated_during_the_step(self) -> None:
+        downloads = self.tmp / "downloads"
+        downloads.mkdir()
+        stale = downloads / "old.pem"
+        stale.write_bytes(b"stale")
+        os.utime(stale, (1, 1))
+        fresh = downloads / "infinito-nexus-updater.private-key.pem"
+        replies = iter(["", UPDATER_ID, "n"])
+        prompts: list[str] = []
+
+        def ask(prompt: str) -> str:
+            prompts.append(prompt)
+            if "Press Enter when done" in prompt:
+                fresh.write_bytes(KEY)
+            return next(replies)
+
+        gh = FakeGh("updater\n", "main\n", "")
+        with self.assertRaises(SystemExit):
+            apps.main(
+                [
+                    "--repo",
+                    REPO,
+                    "--updater-slug",
+                    "infinito-nexus-updater",
+                    "--translate-slug",
+                    "infinito-nexus-translator",
+                    "--downloads",
+                    str(downloads),
+                ],
+                gh=gh,
+                ask=lambda p: "" if "use it" in p else ask(p),
+                say=self.said.append,
+            )
+        self.assertIn(f"   Found the new key {fresh}", self.said)
+        self.assertEqual(gh.secrets_set()[1], ("BOT_APP_PRIVATE_KEY", "updater", KEY))
 
 
 if __name__ == "__main__":
