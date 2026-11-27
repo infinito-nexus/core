@@ -1616,6 +1616,97 @@ class TestScan(TestCase):
         _errors, runner, _out = self._layered_scan({})
         self.assertEqual(len(self._calls(runner, f"docker:{CENTOS_TARGET.ref}")), 1)
 
+    def _seeded_engines_scan(self):
+        for stale in self.layout.work.iterdir():
+            stale.unlink()
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            findings, errors, runner = self._scan(
+                _config(
+                    targets=["container"], engines=["syft", "osv"], db_update=False
+                ),
+                {},
+                image_ids={
+                    self.images["grype"]: "sha256:grype-1",
+                    self.images["osv"]: "sha256:osv-1",
+                    CENTOS_TARGET.ref: json.dumps(SEED_LAYERS),
+                },
+            )
+        return findings, errors, runner, out.getvalue()
+
+    def _seed_report(self, name, fingerprint, report):
+        path = (
+            self.layout.databases
+            / SCRIPT.SBOM_SEED
+            / f"{SCRIPT.layer_key(SEED_LAYERS)}.{name}.json"
+        )
+        path.write_text(
+            json.dumps({"fingerprint": fingerprint, "report": report}),
+            encoding="utf-8",
+        )
+
+    def _osv_fingerprint(self):
+        return SCRIPT.sbom_report_fingerprint(
+            self.layout,
+            "osv",
+            "sha256:osv-1",
+            SCRIPT.osv_args(_config(db_update=False), ""),
+            SCRIPT.osv_identity(SCRIPT.osv_sbom(CYCLONEDX)),
+        )
+
+    def test_a_seeded_osv_report_replaces_the_osv_run(self):
+        self.targets = [CENTOS_TARGET]
+        self._provide_sbom_databases()
+        self._seed(SEED_LAYERS, SEED_LAYERS)
+        self._seed_report("osv", self._osv_fingerprint(), OSV_HOST)
+        findings, errors, runner, out = self._seeded_engines_scan()
+        self.assertEqual(
+            (
+                len(self._calls(runner, "osv.cdx.json")),
+                errors,
+                SCRIPT.report_cache_path(self.layout, CENTOS_TARGET, "osv").is_file(),
+            ),
+            (0, [], True),
+        )
+        self.assertTrue(any(finding.engine == "osv" for finding in findings))
+        self.assertIn("osv: 1 report(s) taken from the SBOM seed", out)
+
+    def test_a_seeded_report_of_another_fingerprint_is_not_used(self):
+        self.targets = [CENTOS_TARGET]
+        self._provide_sbom_databases()
+        self._seed(SEED_LAYERS, SEED_LAYERS)
+        self._seed_report("osv", "another", OSV_HOST)
+        _findings, errors, runner, _out = self._seeded_engines_scan()
+        self.assertEqual((len(self._calls(runner, "osv.cdx.json")), errors), (1, []))
+
+    def test_a_seeded_runtime_report_replaces_the_runtime_pass(self):
+        self.targets = [CENTOS_TARGET]
+        self._provide_sbom_databases()
+        self._seed(SEED_LAYERS, SEED_LAYERS)
+        seeded = SCRIPT._read_json(
+            self.layout.databases
+            / SCRIPT.SBOM_SEED
+            / f"{SCRIPT.layer_key(SEED_LAYERS)}.syft.json"
+        )
+        self._seed_report(
+            "runtime.grype",
+            SCRIPT.sbom_report_fingerprint(
+                self.layout,
+                SCRIPT.RUNTIME_ENGINE,
+                "sha256:grype-1",
+                SCRIPT.match_args(
+                    SCRIPT.runtime_args(
+                        SCRIPT.Target("other", "container", "sha256:other", "x", (), ())
+                    )
+                ),
+                SCRIPT.syft_identity(SCRIPT.runtime_sbom(seeded)),
+            ),
+            {"matches": []},
+        )
+        _findings, errors, runner, _out = self._seeded_engines_scan()
+        self.assertEqual(
+            (len(self._calls(runner, "runtime.syft.json")), errors), (0, [])
+        )
+
     def test_the_host_is_never_taken_from_the_seed(self):
         self.targets = [SCRIPT.host_target("node")]
         self._provide_sbom_databases()

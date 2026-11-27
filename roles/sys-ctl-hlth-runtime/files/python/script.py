@@ -1505,7 +1505,7 @@ def image_layers(layout: Layout, image: str, runner: Runner) -> list[str] | None
     return layers if isinstance(layers, list) and layers else None
 
 
-def seed_sbom(layout: Layout, target: Target, runner: Runner) -> bool:
+def seed_sbom(layout: Layout, target: Target, runner: Runner) -> str | None:
     """Take the SBOM of a container target from the SBOM seed.
 
     The seed directory beside the databases holds SBOMs built elsewhere, each
@@ -1513,14 +1513,15 @@ def seed_sbom(layout: Layout, target: Target, runner: Runner) -> bool:
     layers it records are the local image's own.
 
     Returns:
-        ``True`` when both SBOM files of *target* now come from the seed.
+        The layer key when both SBOM files of *target* now come from the
+        seed, ``None`` otherwise.
     """
     seed = layout.databases / SBOM_SEED
     if target.kind != "container" or not seed.is_dir():
-        return False
+        return None
     layers = image_layers(layout, target.ref, runner)
     if layers is None:
-        return False
+        return None
     key = layer_key(layers)
     try:
         syft_text = (seed / f"{key}.syft.json").read_text(encoding="utf-8")
@@ -1531,13 +1532,13 @@ def seed_sbom(layout: Layout, target: Target, runner: Runner) -> bool:
         ]
         json.loads(cyclonedx_text)
     except (OSError, ValueError, KeyError, TypeError):
-        return False
+        return None
     if recorded != layers:
-        return False
+        return None
     syft_json, cyclonedx = sbom_paths(layout, target)
     write_atomic(cyclonedx, cyclonedx_text)
     write_atomic(syft_json, syft_text)
-    return True
+    return key
 
 
 def sbom_step(layout: Layout, image: str, target: Target) -> Step:
@@ -1844,6 +1845,27 @@ def report_cache_path(layout: Layout, target: Target, name: str) -> Path:
     return layout.sbom / f"{target.key}.{name}.json"
 
 
+def seed_report_file(layer: str, name: str) -> str:
+    """Return the file name of the seeded *name* report of the :func:`layer_key` *layer*."""
+    return f"{layer}.{name}.json"
+
+
+def seed_report_path(layout: Layout, layer: str, name: str) -> Path:
+    return layout.databases / SBOM_SEED / seed_report_file(layer, name)
+
+
+def _report_with(path: Path, fingerprint: str | None) -> dict | None:
+    if fingerprint is None or not path.is_file():
+        return None
+    try:
+        cached = _read_json(path)
+    except (OSError, ValueError):
+        return None
+    if not isinstance(cached, dict) or cached.get("fingerprint") != fingerprint:
+        return None
+    return cached.get("report")
+
+
 def cached_report(
     layout: Layout, target: Target, name: str, fingerprint: str | None
 ) -> dict | None:
@@ -1852,16 +1874,37 @@ def cached_report(
         The *name* report of an earlier run with the same fingerprint,
         ``None`` when there is none.
     """
-    path = report_cache_path(layout, target, name)
-    if fingerprint is None or not path.is_file():
-        return None
-    try:
-        cached = _read_json(path)
-    except (OSError, ValueError):
-        return None
-    if cached.get("fingerprint") != fingerprint:
-        return None
-    return cached.get("report")
+    return _report_with(report_cache_path(layout, target, name), fingerprint)
+
+
+def reuse_seed_report(
+    layout: Layout,
+    target: Target,
+    name: str,
+    fingerprint: str | None,
+    layer: str | None,
+) -> bool:
+    """Take the *name* report of a seeded target from the SBOM seed.
+
+    The seed holds the report an engine run elsewhere wrote for the same
+    SBOM, stored under the :func:`layer_key` *layer* with the fingerprint
+    that run computed; it is taken only when that fingerprint is this
+    run's, and then also cached here like a report of this node.
+
+    Returns:
+        ``True`` when the seeded report is now where the engine run would
+        have written it.
+    """
+    if layer is None or fingerprint is None:
+        return False
+    report = _report_with(seed_report_path(layout, layer, name), fingerprint)
+    if report is None:
+        return False
+    (layout.work / f"{target.key}.{name}.json").write_text(
+        json.dumps(report), encoding="utf-8"
+    )
+    store_report(layout, target, name, fingerprint, report)
+    return True
 
 
 def reuse_report(
@@ -2209,6 +2252,25 @@ def pause(seconds: float) -> None:
     time.sleep(seconds)
 
 
+def match_args(args: Sequence[str]) -> list[str]:
+    """Return a Grype argument list without the files of one run.
+
+    The SBOM source and the ``--file`` output are named after the target's
+    image id, which differs between the node that pushed a multi-platform
+    image and the nodes that pulled its single-platform copy.
+    """
+    kept: list[str] = []
+    skip = False
+    for arg in args:
+        if skip:
+            skip = False
+        elif arg == "--file":
+            skip = True
+        elif not arg.startswith("sbom:"):
+            kept.append(arg)
+    return kept
+
+
 def runtime_args(target: Target) -> list[str]:
     return [
         f"sbom:{WORK}/{target.key}.runtime.syft.json",
@@ -2261,6 +2323,7 @@ def scan(
     runtime = config.runtime_pass() and RUNTIME_ENGINE in usable
 
     sbom_ready = list(targets)
+    seeded: dict[str, str] = {}
     if runtime or any(config.reads_sbom(engine) for engine in scanners):
         pending = [
             target
@@ -2268,10 +2331,13 @@ def scan(
             if target.kind == "host"
             or not all(path.is_file() for path in sbom_paths(layout, target))
         ]
-        seeded = [target for target in pending if seed_sbom(layout, target, runner)]
+        for target in pending:
+            layer = seed_sbom(layout, target, runner)
+            if layer is not None:
+                seeded[target.key] = layer
         if seeded:
             print(f"ℹ️ syft: {len(seeded)} SBOM(s) taken from the SBOM seed")
-        pending = [target for target in pending if target not in seeded]
+        pending = [target for target in pending if target.key not in seeded]
         results = run_lanes(
             [[sbom_step(layout, images[SBOM_BUILDER], target)] for target in pending],
             runner,
@@ -2330,6 +2396,7 @@ def scan(
             lanes.append(steps)
     fresh: list[tuple[int, Target, str, str]] = []
     reused_sbom: Counter[str] = Counter()
+    seeded_reports: Counter[str] = Counter()
     grype_id = (
         engine_image_id(layout, images["grype"], runner)
         if runtime or ("grype" in scanners and config.reads_sbom("grype"))
@@ -2344,7 +2411,7 @@ def scan(
                     layout,
                     "grype",
                     grype_id,
-                    grype_args(layout, target, config),
+                    match_args(grype_args(layout, target, config)),
                     read_syft_identity(sbom_paths(layout, target)[0]),
                 )
                 if config.reads_sbom("grype")
@@ -2352,6 +2419,11 @@ def scan(
             )
             if reuse_report(layout, target, "grype", fingerprint):
                 reused_sbom["grype"] += 1
+                continue
+            if reuse_seed_report(
+                layout, target, "grype", fingerprint, seeded.get(target.key)
+            ):
+                seeded_reports["grype"] += 1
                 continue
             if fingerprint is not None:
                 fresh.append((len(lanes), target, "grype", fingerprint))
@@ -2366,11 +2438,16 @@ def scan(
             layout,
             RUNTIME_ENGINE,
             grype_id,
-            runtime_args(target),
+            match_args(runtime_args(target)),
             syft_identity(reduced),
         )
         if reuse_report(layout, target, "runtime.grype", fingerprint):
             reused_sbom["runtime.grype"] += 1
+            continue
+        if reuse_seed_report(
+            layout, target, "runtime.grype", fingerprint, seeded.get(target.key)
+        ):
+            seeded_reports["runtime.grype"] += 1
             continue
         if fingerprint is not None:
             fresh.append((len(lanes), target, "runtime.grype", fingerprint))
@@ -2389,6 +2466,11 @@ def scan(
             )
             if reuse_report(layout, target, "osv", fingerprint):
                 reused_sbom["osv"] += 1
+                continue
+            if reuse_seed_report(
+                layout, target, "osv", fingerprint, seeded.get(target.key)
+            ):
+                seeded_reports["osv"] += 1
                 continue
             if fingerprint is not None:
                 osv_fresh[f"{WORK}/{target.key}.osv.cdx.json"] = (target, fingerprint)
@@ -2431,6 +2513,8 @@ def scan(
             f"ℹ️ {name}: {count} report(s) of unchanged SBOMs reused "
             "against the unchanged database"
         )
+    for name, count in sorted(seeded_reports.items()):
+        print(f"ℹ️ {name}: {count} report(s) taken from the SBOM seed")
 
     findings: list[Finding] = []
     for target in targets:

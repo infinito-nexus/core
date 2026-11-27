@@ -36,6 +36,7 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.security.deploy import HOST_PATH_ENV
 from utils.security.engine import SBOM_BUILDER
 from utils.security.pipeline import engine_image, pipeline, user_runtime
+from utils.tests.swarm import seed_reports
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Sequence
@@ -62,6 +63,7 @@ POLL_S = 60
 JOIN_S = 30
 FREE_FLOOR_BYTES = 20 * 1024**3
 MEMORY_FLOOR_BYTES = 5 * 1024**3 // 2
+REPORT_FLOOR_BYTES = 4 * 1024**3
 CPUS = "1"
 MEMORY_LIMIT = "2g"
 GO_MEMORY_LIMIT = "1800MiB"
@@ -412,9 +414,22 @@ def start_seeder(manager: str, root: Path) -> Callable[[], None]:
     told: set[tuple[str, ...]] = set()
 
     def _loop() -> None:
+        try:
+            names = seed_reports.report_names()
+            engines = seed_reports.engine_images(names)
+        except (OSError, KeyError, ValueError, TypeError) as exc:
+            print(
+                f"=== swarm-matrix: sbom seed reports unavailable: {exc!r} ===",
+                flush=True,
+            )
+            names, engines = (), {}
+        if names and not seed_reports.pull(engines.values()):
+            print("=== swarm-matrix: sbom seed reports unavailable ===", flush=True)
+            names = ()
         while not stop.is_set():
+            entries = registry_entries(base, architecture, http_json)
             seed_pass(
-                registry_entries(base, architecture, http_json),
+                entries,
                 seed,
                 lambda entry: seed_entry(
                     entry,
@@ -428,6 +443,28 @@ def start_seeder(manager: str, root: Path) -> Callable[[], None]:
                 told,
                 stop.is_set,
             )
+            if names and not stop.is_set() and available_memory() >= REPORT_FLOOR_BYTES:
+                try:
+                    stored = seed_reports.seed_reports(
+                        entries, seed, root, names, engines, pipeline().default_runner
+                    )
+                except (
+                    OSError,
+                    ValueError,
+                    KeyError,
+                    TypeError,
+                    subprocess.TimeoutExpired,
+                ) as exc:
+                    print(
+                        f"=== swarm-matrix: sbom seed reports failed: {exc!r} ===",
+                        flush=True,
+                    )
+                    stored = {}
+                if any(stored.values()):
+                    print(
+                        f"=== swarm-matrix: sbom seed reports built: {stored} ===",
+                        flush=True,
+                    )
             stop.wait(POLL_S)
 
     thread = threading.Thread(target=_loop, daemon=True)

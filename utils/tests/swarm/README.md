@@ -78,3 +78,13 @@ reads one image at a time with one CPU and 2 GB of memory, only while the
 runner keeps 20 GB of disk plus twice the image's layers free and 2.5 GB of
 memory available. A read that fails, times out or does not fit only leaves
 that image to the node's own Syft run, so the seed never fails a drill.
+
+When the deploy pins an engine, `seed_reports.py` then runs the engines that
+read the SBOM once per seeded image on the runner: OSV-Scanner when it is the
+pinned engine, and the Grype pass over the source-built runtimes whenever Grype
+is not. It uses the pinned engine images, the databases the nodes mount and the
+arguments the node scan builds, one engine at a time with one CPU and 3 GB of
+memory while the runner has 4 GB available, and stores each report beside the
+SBOM with the fingerprint a node computes for it. A node takes a seeded report
+only when its own fingerprint is the same, so the report replaces exactly the
+run the node would have made.
