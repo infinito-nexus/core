@@ -96,8 +96,8 @@ raise_zfs_dnode_limit() {
 # Param: $1 loop device backed by the image
 mount_image() {
 	case "${FSTYPE}" in
-	ext4) mount -t ext4 -o discard "$1" "${MOUNT}" ;;
-	btrfs) mount -t btrfs -o discard=async "$1" "${MOUNT}" ;;
+	ext4) mount -t ext4 -o discard,noatime "$1" "${MOUNT}" ;;
+	btrfs) mount -t btrfs -o discard=async,noatime "$1" "${MOUNT}" ;;
 	*) mount -t "${FSTYPE}" "$1" "${MOUNT}" ;;
 	esac
 }
@@ -355,7 +355,7 @@ trap restore_docker EXIT
 if mountpoint -q "${MOUNT}"; then
 	if prepared_matches "${FSTYPE}"; then
 		if [ "${FSTYPE}" = zfs ] && zpool list -H -o name "${POOL}" >/dev/null 2>&1; then
-			zfs set acltype=posixacl xattr=sa "${POOL}"
+			zfs set acltype=posixacl xattr=sa atime=off sync=disabled "${POOL}"
 		fi
 		report "${MOUNT} already carries ${FSTYPE}"
 		install_remount_hook
@@ -380,7 +380,7 @@ truncate -s "${SIZE}" "${IMAGE}"
 claim_loop
 
 if [ "${FSTYPE}" = zfs ]; then
-	if ! zpool_out="$(zpool create -f -o autotrim=on -m "${MOUNT}" -O acltype=posixacl -O xattr=sa "${POOL}" "${LOOP}" 2>&1)"; then
+	if ! zpool_out="$(zpool create -f -o autotrim=on -o ashift=12 -m "${MOUNT}" -O acltype=posixacl -O xattr=sa -O dnodesize=auto -O atime=off -O sync=disabled "${POOL}" "${LOOP}" 2>&1)"; then
 		losetup -d "${LOOP}" ||
 			report "WARNING: ${LOOP} refused the detach and will leak into the next round"
 		rm -f "${IMAGE}"
