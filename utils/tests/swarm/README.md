@@ -60,3 +60,21 @@ The three `svc-bkp-*` repository rows come from `backup_repos.repo_placements`.
 `utils/tests/swarm/matrix.py` calls `backup_repos.backup_provider_ips`, which
 resolves the same two closures and returns the nodes as IPs, to build
 `svc-bkp-remote-2-local.services.remote-2-local.backup_providers`.
+
+## SBOM seed
+
+While a drill runs, `sbom_seed.py` reads every image of the lab registry
+(`svc-registry-docker` on the manager) once with Syft's `registry:` source and
+writes its SBOM into the `sbom-seed` directory of
+`INFINITO_VULNERABILITY_DB_HOST_PATH`, which every node mounts read-only with
+the databases. At the end of each deploy pass the node scan of
+[`sys-ctl-hlth-runtime`](../../../roles/sys-ctl-hlth-runtime/README.md) takes
+an image's SBOM from there instead of exporting the image, so an image that
+runs on several nodes is read once and no node exports it behind the shared
+export lock. Seed files are named by the SHA-256 of the image's ordered layer
+digests and kept only when the layers Syft recorded are the image's own; a
+node checks the same against its own image before it takes one. The seeder
+reads one image at a time with one CPU and 2 GB of memory, only while the
+runner keeps 20 GB of disk plus twice the image's layers free and 2.5 GB of
+memory available. A read that fails, times out or does not fit only leaves
+that image to the node's own Syft run, so the seed never fails a drill.

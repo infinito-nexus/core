@@ -13,7 +13,7 @@ from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils import PROJECT_ROOT
 from utils.security.deploy import deploy_inventory_overrides
 from utils.storage.constrained import host_storage_constrained
-from utils.tests.swarm import lab
+from utils.tests.swarm import lab, sbom_seed
 from utils.tests.swarm.derive_includes import derive_includes, variant_scope
 from utils.tests.swarm.extend_inventory import drop_backup_network_mode, mesh_enabled
 from utils.tests.swarm.extra_vars import with_extra_vars
@@ -497,4 +497,4 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main(sys.argv[1:]))
+    raise SystemExit(sbom_seed.seeding(main)(sys.argv[1:]))

@@ -378,6 +378,7 @@ CENTOS_TARGET = SCRIPT.Target(
     (("sys-os", "centos"),),
     (),
 )
+SEED_LAYERS = ["sha256:l1", "sha256:l2"]
 UNMATCHED_OS = [
     {"name": "centos", "version": "10", "until": "2026-11-30"},
     {"name": "rhel", "version": "10", "until": "2026-11-30"},
@@ -1506,6 +1507,74 @@ class TestScan(TestCase):
         self.assertTrue(all(path.is_file() for path in cached))
         SCRIPT.prune_sboms(self.layout, [])
         self.assertFalse(any(path.exists() for path in cached))
+
+    def _seed(self, layers, recorded):
+        seed = self.layout.databases / SCRIPT.SBOM_SEED
+        seed.mkdir(exist_ok=True)
+        key = SCRIPT.layer_key(layers)
+        document = {
+            **SYFT_PHP_IMAGE,
+            "source": {
+                "metadata": {"layers": [{"digest": digest} for digest in recorded]}
+            },
+        }
+        (seed / f"{key}.syft.json").write_text(json.dumps(document), encoding="utf-8")
+        (seed / f"{key}.cdx.json").write_text(json.dumps(CYCLONEDX), encoding="utf-8")
+
+    def _layered_scan(self, image_ids):
+        for stale in self.layout.work.iterdir():
+            stale.unlink()
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            _findings, errors, runner = self._scan(
+                _config(
+                    targets=["container"], engines=["syft", "grype"], db_update=False
+                ),
+                {},
+                image_ids={self.images["grype"]: "sha256:grype-1", **image_ids},
+            )
+        return errors, runner, out.getvalue()
+
+    def test_a_seeded_sbom_replaces_the_syft_run(self):
+        self.targets = [CENTOS_TARGET]
+        self._provide_sbom_databases()
+        self._seed(SEED_LAYERS, SEED_LAYERS)
+        errors, runner, out = self._layered_scan(
+            {CENTOS_TARGET.ref: json.dumps(SEED_LAYERS)}
+        )
+        syft_json, cyclonedx = SCRIPT.sbom_paths(self.layout, CENTOS_TARGET)
+        self.assertEqual(
+            (
+                self._calls(runner, f"docker:{CENTOS_TARGET.ref}"),
+                errors,
+                SCRIPT._read_json(syft_json)["artifacts"],
+                SCRIPT._read_json(cyclonedx),
+            ),
+            ([], [], SYFT_PHP_IMAGE["artifacts"], CYCLONEDX),
+        )
+        self.assertIn("1 SBOM(s) taken from the SBOM seed", out)
+
+    def test_a_seed_recorded_for_other_layers_is_not_used(self):
+        self.targets = [CENTOS_TARGET]
+        self._provide_sbom_databases()
+        self._seed(SEED_LAYERS, ["sha256:other"])
+        _errors, runner, _out = self._layered_scan(
+            {CENTOS_TARGET.ref: json.dumps(SEED_LAYERS)}
+        )
+        self.assertEqual(len(self._calls(runner, f"docker:{CENTOS_TARGET.ref}")), 1)
+
+    def test_an_image_whose_layers_cannot_be_read_runs_syft(self):
+        self.targets = [CENTOS_TARGET]
+        self._provide_sbom_databases()
+        self._seed(SEED_LAYERS, SEED_LAYERS)
+        _errors, runner, _out = self._layered_scan({})
+        self.assertEqual(len(self._calls(runner, f"docker:{CENTOS_TARGET.ref}")), 1)
+
+    def test_the_host_is_never_taken_from_the_seed(self):
+        self.targets = [SCRIPT.host_target("node")]
+        self._provide_sbom_databases()
+        self._seed(SEED_LAYERS, SEED_LAYERS)
+        _errors, runner, _out = self._layered_scan({})
+        self.assertEqual(len(self._calls(runner, f"dir:{SCRIPT.HOST_ROOT}")), 1)
 
     def test_the_provided_trivy_database_is_read_from_memory_cache(self):
         step = SCRIPT.trivy_step(

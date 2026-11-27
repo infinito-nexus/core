@@ -70,6 +70,7 @@ RUN_PREFIX = "run-"
 DB_ATTEMPTS = 3
 DB_RETRY_SECONDS = 30
 CACHED_REPORTS = ("trivy", "grype", "runtime.grype", "osv")
+SBOM_SEED = "sbom-seed"
 DB_MARKERS = {
     "trivy": ("db/trivy.db", "java-db/trivy-java.db"),
     "grype": ("6/vulnerability.db",),
@@ -1466,6 +1467,78 @@ def sbom_paths(layout: Layout, target: Target) -> tuple[Path, Path]:
     )
 
 
+def layer_key(layers: Sequence[str]) -> str:
+    """
+    Returns:
+        The SHA-256 of an image's ordered layer digests, the name its SBOM
+        carries in the SBOM seed.
+    """
+    return hashlib.sha256(json.dumps(list(layers)).encode()).hexdigest()
+
+
+def image_layers(layout: Layout, image: str, runner: Runner) -> list[str] | None:
+    """
+    Returns:
+        The ordered layer digests of a local image, ``None`` when they cannot
+        be read.
+    """
+    try:
+        result = runner(
+            (
+                layout.runtime[0],
+                "image",
+                "inspect",
+                "--format",
+                "{{json .RootFS.Layers}}",
+                image,
+            )
+        )
+    except subprocess.TimeoutExpired:
+        return None
+    if result.returncode != 0:
+        return None
+    try:
+        layers = json.loads(result.stdout)
+    except ValueError:
+        return None
+    return layers if isinstance(layers, list) and layers else None
+
+
+def seed_sbom(layout: Layout, target: Target, runner: Runner) -> bool:
+    """Take the SBOM of a container target from the SBOM seed.
+
+    The seed directory beside the databases holds SBOMs built elsewhere, each
+    named by the :func:`layer_key` of its image. One is taken only when the
+    layers it records are the local image's own.
+
+    Returns:
+        ``True`` when both SBOM files of *target* now come from the seed.
+    """
+    seed = layout.databases / SBOM_SEED
+    if target.kind != "container" or not seed.is_dir():
+        return False
+    layers = image_layers(layout, target.ref, runner)
+    if layers is None:
+        return False
+    key = layer_key(layers)
+    try:
+        syft_text = (seed / f"{key}.syft.json").read_text(encoding="utf-8")
+        cyclonedx_text = (seed / f"{key}.cdx.json").read_text(encoding="utf-8")
+        recorded = [
+            layer["digest"]
+            for layer in json.loads(syft_text)["source"]["metadata"]["layers"]
+        ]
+        json.loads(cyclonedx_text)
+    except (OSError, ValueError, KeyError, TypeError):
+        return False
+    if recorded != layers:
+        return False
+    syft_json, cyclonedx = sbom_paths(layout, target)
+    write_atomic(cyclonedx, cyclonedx_text)
+    write_atomic(syft_json, syft_text)
+    return True
+
+
 def sbom_step(layout: Layout, image: str, target: Target) -> Step:
     """Build one target's SBOM in Syft and CycloneDX JSON."""
     if target.kind == "host":
@@ -2156,6 +2229,10 @@ def scan(
             if target.kind == "host"
             or not all(path.is_file() for path in sbom_paths(layout, target))
         ]
+        seeded = [target for target in pending if seed_sbom(layout, target, runner)]
+        if seeded:
+            print(f"ℹ️ syft: {len(seeded)} SBOM(s) taken from the SBOM seed")
+        pending = [target for target in pending if target not in seeded]
         results = run_lanes(
             [[sbom_step(layout, images[SBOM_BUILDER], target)] for target in pending],
             runner,
