@@ -22,6 +22,7 @@ jobs:
     name: 🐳 Update Docker image versions
     if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
     runs-on: ubuntu-26.04
+    environment: updater
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
@@ -69,6 +70,7 @@ jobs:
     name: 🐳 Update compose file image versions
     if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
     runs-on: ubuntu-26.04
+    environment: updater
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
@@ -116,6 +118,7 @@ jobs:
     name: 🔖 Update declared version sources
     if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
     runs-on: ubuntu-26.04
+    environment: updater
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
@@ -163,6 +166,7 @@ jobs:
     name: 🐍 Update pinned pip requirements
     if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
     runs-on: ubuntu-26.04
+    environment: updater
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
@@ -257,6 +261,7 @@ jobs:
     name: 🌌 Update pinned Ansible collections
     if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
     runs-on: ubuntu-26.04
+    environment: updater
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
@@ -351,6 +356,7 @@ jobs:
     name: 🌿 Update repository refs
     if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
     runs-on: ubuntu-26.04
+    environment: updater
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
@@ -398,6 +404,7 @@ jobs:
     name: 🏃 Update GitHub-hosted runner labels
     if: vars.CI_ENABLE_AUTO_UPDATES == 'true'
     runs-on: ubuntu-26.04
+    environment: updater
     steps:
       - name: ⬇️ Checkout
         uses: actions/checkout@v7.0.0
