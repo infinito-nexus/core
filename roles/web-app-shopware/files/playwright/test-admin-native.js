@@ -77,11 +77,20 @@ async function dismissFirstRunWizard(page) {
 }
 
 async function clickLogout(page) {
-  await page.locator(".sw-admin-menu__user-actions-toggle").click();
+  const toggle = page.locator(".sw-admin-menu__user-actions-toggle");
   const logout = page.locator(".sw-admin-menu__logout-action");
-  await expect(logout, "Shopware's logout lives behind the user-actions toggle").toBeVisible({
-    timeout: resolveTimeout(15_000),
-  });
+  await expect(
+    toggle.locator(".mt-loader"),
+    "sw-admin-menu drops every user-actions click while its loader shows the current user still loading",
+  ).toHaveCount(0, { timeout: resolveTimeout(60_000) });
+  await expect(async () => {
+    if (!(await logout.isVisible())) {
+      await toggle.click();
+    }
+    await expect(logout, "Shopware's logout lives behind the user-actions toggle").toBeVisible({
+      timeout: resolveTimeout(2_000),
+    });
+  }).toPass({ timeout: resolveTimeout(15_000) });
   await logout.click();
 }
 
