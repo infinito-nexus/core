@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import tempfile
-import unittest
+import unittest.mock
 from pathlib import Path
 
 from cryptography.hazmat.primitives import serialization
@@ -23,6 +23,7 @@ EC_KEY = ec.generate_private_key(ec.SECP256R1()).private_bytes(
     serialization.NoEncryption(),
 )
 BRANCH_MAIN = "branch:main\n"
+NOW = 1_800_000_000.0
 UPDATER_ID = "Iv23liUpdater01"
 TRANSLATE_ID = "Iv23liTranslate1"
 
@@ -170,7 +171,7 @@ class AppsMainTest(unittest.TestCase):
         downloads.mkdir()
         stale = downloads / "old.pem"
         stale.write_bytes(b"stale")
-        os.utime(stale, (1, 1))
+        os.utime(stale, (NOW - 1, NOW - 1))
         fresh = downloads / "infinito-nexus-updater.private-key.pem"
         replies = iter(["", UPDATER_ID, "n"])
         prompts: list[str] = []
@@ -179,10 +180,14 @@ class AppsMainTest(unittest.TestCase):
             prompts.append(prompt)
             if "Press Enter when done" in prompt:
                 fresh.write_bytes(KEY)
+                os.utime(fresh, (NOW + 1, NOW + 1))
             return next(replies)
 
         gh = FakeGh("updater\n", BRANCH_MAIN, "")
-        with self.assertRaises(SystemExit):
+        with (
+            unittest.mock.patch.object(apps.time, "time", return_value=NOW),
+            self.assertRaises(SystemExit),
+        ):
             apps.main(
                 [
                     "--repo",

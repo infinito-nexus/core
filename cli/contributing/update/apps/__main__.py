@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     Say = Callable[[str], None]
 
 GH_TIMEOUT_SECONDS = 120
+INSTALLATION_TOKEN_SECONDS = 3600
 UPDATER_ENVIRONMENT = "updater"
 UPDATER_BRANCH = "main"
 UPDATER_NAMES = ("BOT_APP_CLIENT_ID", "BOT_APP_PRIVATE_KEY")
@@ -230,6 +231,11 @@ def rotate_updater_key(
     say("   Back in 'Credentials', tab 'Key pairs': delete every key except the newest")
     say("   one (the one created just now, see its date).")
     confirm(ask, "   Only the new updater key is left?")
+    ready = time.strftime(
+        "%Y-%m-%d %H:%M", time.localtime(time.time() + INSTALLATION_TOKEN_SECONDS)
+    )
+    say("   Tokens minted with the old keys stay valid up to one hour: delete the")
+    say(f"   pre-rotation update/** and dependabot/** branches after {ready}.")
     return pem
 
 
