@@ -19,13 +19,14 @@ Args:
         bounce for a message a Sieve script generated. A transport error while
         sending or polling counts as not yet, within the same poll budget.
 
-Environment: STALWART_ADMIN_USER, STALWART_ADMIN_PASSWORD, STALWART_JMAP_URL,
-MAIL_DOMAIN and, for routing, ADMIN_EMAIL, STALWART_ALIASES_JSON, STALWART_FORWARDS_JSON.
+Environment: STALWART_ADMIN_USER, STALWART_ADMIN_PASSWORD, STALWART_CONTAINER (the
+local container that runs the JMAP call), STALWART_JMAP_URL (the JMAP endpoint inside
+that container), MAIL_DOMAIN and, for routing, ADMIN_EMAIL, STALWART_ALIASES_JSON,
+STALWART_FORWARDS_JSON.
 """
 
 from __future__ import annotations
 
-import base64
 import contextlib
 import email.utils
 import imaplib
@@ -34,9 +35,9 @@ import os
 import re
 import smtplib
 import ssl
+import subprocess
 import sys
 import time
-import urllib.request
 from datetime import datetime
 from email.message import EmailMessage
 
@@ -64,9 +65,13 @@ MONTHS = (
     "Nov",
     "Dec",
 )
-TRANSIENT_ERRORS = (OSError, imaplib.IMAP4.error, smtplib.SMTPException)
+TRANSIENT_ERRORS = (
+    OSError,
+    imaplib.IMAP4.error,
+    smtplib.SMTPException,
+    subprocess.SubprocessError,
+)
 _FLAGS = re.compile(rb"FLAGS \(([^)]*)\)")
-_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 
 def env(name: str) -> str:
@@ -152,16 +157,42 @@ def http(path: str, payload: dict | None, act_as: str) -> dict:
         if act_as
         else env("STALWART_ADMIN_USER")
     )
-    token = base64.b64encode(
-        f"{login}:{env('STALWART_ADMIN_PASSWORD')}".encode()
-    ).decode()
-    request = urllib.request.Request(  # noqa: S310 fixed internal JMAP origin
-        env("STALWART_JMAP_URL") + path,
-        data=None if payload is None else json.dumps(payload).encode(),
-        headers={"Authorization": f"Basic {token}", "Content-Type": "application/json"},
+    config = [
+        "user = "
+        + json.dumps(f"{login}:{env('STALWART_ADMIN_PASSWORD')}", ensure_ascii=False)
+    ]
+    if payload is not None:
+        config.append(
+            "data-binary = " + json.dumps(json.dumps(payload), ensure_ascii=False)
+        )
+    result = subprocess.run(
+        [
+            "container",
+            "exec",
+            "-i",
+            env("STALWART_CONTAINER"),
+            "curl",
+            "-sS",
+            "-f",
+            "--connect-timeout",
+            "5",
+            "--max-time",
+            str(TIMEOUT),
+            "-K",
+            "-",
+            "-H",
+            "Content-Type: application/json",
+            env("STALWART_JMAP_URL") + path,
+        ],
+        input="\n".join(config) + "\n",
+        capture_output=True,
+        text=True,
+        timeout=TIMEOUT + 30,
+        check=False,
     )
-    with _OPENER.open(request, timeout=TIMEOUT) as response:
-        return json.loads(response.read())
+    if result.returncode != 0:
+        raise OSError(f"curl exited {result.returncode}: {result.stderr.strip()}")
+    return json.loads(result.stdout)
 
 
 def call(using: list[str], method: str, arguments: dict, act_as: str) -> dict:

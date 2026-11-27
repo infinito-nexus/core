@@ -1,3 +1,4 @@
 ---
 cli:
+  container_service_key: stalwart
   timeout: 7200

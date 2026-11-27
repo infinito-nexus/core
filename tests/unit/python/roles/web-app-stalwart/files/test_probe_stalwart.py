@@ -2,13 +2,27 @@ import contextlib
 import imaplib
 import importlib.util
 import io
+import json
 import smtplib
 import ssl
+import subprocess
 import unittest
 import unittest.mock as mock
 import urllib.error
 
+from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_META_TESTS
+
 from . import PROJECT_ROOT
+
+_ROLE = PROJECT_ROOT / "roles/web-app-stalwart"
+_ENV = {
+    "STALWART_ADMIN_USER": "admin",
+    "STALWART_ADMIN_PASSWORD": 'pa ss"word',
+    "STALWART_CONTAINER": "stalwart-cid",
+    "STALWART_JMAP_URL": "http://localhost:8080/jmap/",
+}
 
 
 def _load_module():
@@ -121,6 +135,56 @@ class TestSend(unittest.TestCase):
         with self.assertRaises(smtplib.SMTPServerDisconnected):
             self._send(smtp)
         self.assertEqual(smtp.call_count, _M.POLL_ATTEMPTS)
+
+
+class TestHttp(unittest.TestCase):
+    def setUp(self):
+        patcher = mock.patch.dict(_M.os.environ, _ENV)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def _run(self, completed):
+        run = mock.Mock(return_value=completed)
+        with mock.patch.object(_M.subprocess, "run", run):
+            return run, _M.http("session", {"k": "v"}, "biber@example.org")
+
+    def test_jmap_runs_inside_the_stalwart_container(self):
+        done = subprocess.CompletedProcess([], 0, stdout='{"ok": 1}', stderr="")
+        run, body = self._run(done)
+        self.assertEqual(body, {"ok": 1})
+        argv = run.call_args.args[0]
+        self.assertEqual(argv[:5], ["container", "exec", "-i", "stalwart-cid", "curl"])
+        self.assertEqual(argv[-1], "http://localhost:8080/jmap/session")
+        self.assertNotIn('pa ss"word', " ".join(argv))
+
+    def test_credentials_and_payload_travel_as_curl_config_on_stdin(self):
+        done = subprocess.CompletedProcess([], 0, stdout="{}", stderr="")
+        run, _ = self._run(done)
+        config = run.call_args.kwargs["input"].splitlines()
+        self.assertEqual(
+            config[0], "user = " + json.dumps('biber@example.org%admin:pa ss"word')
+        )
+        self.assertEqual(config[1], "data-binary = " + json.dumps('{"k": "v"}'))
+
+    def test_a_failed_call_is_a_transport_error_the_poll_retries(self):
+        done = subprocess.CompletedProcess([], 7, stdout="", stderr="refused")
+        with self.assertRaises(_M.TRANSIENT_ERRORS) as caught:
+            self._run(done)
+        self.assertIn("curl exited 7", str(caught.exception))
+
+    def test_a_hung_exec_is_a_transport_error_the_poll_retries(self):
+        self.assertTrue(issubclass(subprocess.TimeoutExpired, _M.TRANSIENT_ERRORS))
+
+
+class TestCliPlacement(unittest.TestCase):
+    def test_the_cli_test_runs_on_the_node_of_the_stalwart_task(self):
+        tests = load_yaml_any(_ROLE / ROLE_FILE_META_TESTS)
+        self.assertEqual(tests["cli"]["container_service_key"], "stalwart")
+
+    def test_the_probe_gets_the_resolved_container_and_its_inner_jmap_url(self):
+        env = read_text(str(_ROLE / "templates/test.env.j2"))
+        self.assertIn("STALWART_CONTAINER={{ CLI_LOCAL_CID | quote }}", env)
+        self.assertIn("STALWART_JMAP_URL={{ STALWART_JMAP_URL | quote }}", env)
 
 
 if __name__ == "__main__":
