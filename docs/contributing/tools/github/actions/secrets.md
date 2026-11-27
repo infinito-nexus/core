@@ -137,9 +137,9 @@ The behaviour is fail-loud by design. Missing or mistyped secret names MUST surf
 The merge gate checks who opened the PR, not who pushed its head commit, so the head of an `update/*` or `dependabot/*` branch MUST be writable by the updater App and Dependabot alone, and the updater key MUST be out of reach of every pull request:
 
 1. A branch ruleset on `update/**` and `dependabot/**` restricts creation, updates and deletion, with only the updater App and Dependabot on its bypass list.
-2. [entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml) mints its token from an App of its own, and `BOT_APP_CLIENT_ID` and `BOT_APP_PRIVATE_KEY` move into an environment restricted to `main`, so no `pull_request` run can read them.
+2. [entry-pr-translate.yml](../../../../../.github/workflows/entry-pr-translate.yml) mints its token from an App of its own, and `BOT_APP_CLIENT_ID` and `BOT_APP_PRIVATE_KEY` move into an environment restricted to `main`, so no `pull_request` run can read them. As with `auto-merge`, a `pull_request_target` or `workflow_run` job passes that branch rule, so no job that declares the environment may check out or execute pull-request code; list every workflow that declares it and confirm this before step 4.
 
-With both in place, pushing a head the gate accepts needs the updater key, which only workflows on `main` can read. Until then the merge App stays off the bypass list, the merge call fails with HTTP 405, and update PRs wait for a manual merge.
+With both in place, pushing a head the gate accepts needs the updater key, which only workflows on `main` can read. Until then the merge App stays off the bypass list, the merge call fails with HTTP 405, and update PRs wait for a manual merge: the ruleset's `update` rule (Restrict updates) lets only bypass actors move `main`, pull-request merges included, whatever reviews the PR holds.
 
 The job mints the App token only after its merge gate passed, narrowed to `contents`, `pull-requests` and `workflows` write, and uses it for the merge call alone; the gate reads with the read-only `GITHUB_TOKEN`. The job runs on `workflow_run`, which always runs on the default branch, so the environment's branch rule admits it. Without the bypass, the merge call fails with `Repository rule violations found` (HTTP 405) and the PR stays open.
 
