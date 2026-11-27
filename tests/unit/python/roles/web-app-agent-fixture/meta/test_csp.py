@@ -16,27 +16,36 @@ DOMAINS = {
     APPLICATION_ID: ["agent-fixture.example.org"],
     "web-svc-cdn": ["cdn.example.org"],
 }
-GSTATIC = "https://fonts.gstatic.com"
 
 
-class _Stylesheets(HTMLParser):
+class _LinkOrigins(HTMLParser):
     def __init__(self) -> None:
         super().__init__()
-        self.origins: list[str] = []
+        self.origins: dict[str, list[str]] = {}
 
     def handle_starttag(self, tag: str, attrs: list) -> None:
         values = dict(attrs)
-        if tag != "link" or values.get("rel") != "stylesheet":
+        if tag != "link":
             return
         parts = urlsplit(values.get("href") or "")
         if parts.netloc:
-            self.origins.append(f"{parts.scheme}://{parts.netloc}")
+            self.origins.setdefault(values.get("rel") or "", []).append(
+                f"{parts.scheme}://{parts.netloc}"
+            )
+
+
+def _external_origins(rel: str) -> list[str]:
+    parser = _LinkOrigins()
+    parser.feed(read_text(str(INDEX)))
+    return parser.origins.get(rel, [])
 
 
 def _external_stylesheet_origins() -> list[str]:
-    parser = _Stylesheets()
-    parser.feed(read_text(str(INDEX)))
-    return parser.origins
+    return _external_origins("stylesheet")
+
+
+def _font_origins() -> list[str]:
+    return _external_origins("preconnect")
 
 
 def _tokens(csp: dict, directive: str) -> list[str]:
@@ -72,14 +81,22 @@ class TestAgentFixtureCsp(unittest.TestCase):
                     "hlth-csp fails the fixture's vhosts when the browser "
                     "blocks the seeded stylesheet",
                 )
-        self.assertIn(GSTATIC, _tokens(_role_csp(), "font-src"))
+        fonts = _font_origins()
+        self.assertTrue(fonts, "index.html preconnects no font origin")
+        font_src = _tokens(_role_csp(), "font-src")
+        for origin in fonts:
+            with self.subTest(font=origin):
+                self.assertIn(origin, font_src)
 
     def test_default_csp_blocks_the_seeded_stylesheet(self) -> None:
         style_elem = _tokens({}, "style-src-elem")
         for origin in _external_stylesheet_origins():
             with self.subTest(origin=origin):
                 self.assertNotIn(origin, style_elem)
-        self.assertNotIn(GSTATIC, _tokens({}, "font-src"))
+        font_src = _tokens({}, "font-src")
+        for origin in _font_origins():
+            with self.subTest(font=origin):
+                self.assertNotIn(origin, font_src)
 
 
 if __name__ == "__main__":
