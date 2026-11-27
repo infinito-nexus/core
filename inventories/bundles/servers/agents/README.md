@@ -38,7 +38,6 @@ with `make compose-deploy` or through the `call-test-agents-local.yml` workflow.
 - web-app-stalwart
 - svc-ai-ollama
 - svc-ai-litellm
-- svc-ai-mcp-adapter
 - web-app-openwebui
 
 ## Architecture Overview

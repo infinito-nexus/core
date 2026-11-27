@@ -62,9 +62,6 @@ all:
     svc-ai-litellm:
       hosts:
         server:
-    svc-ai-mcp-adapter:
-      hosts:
-        server:
     web-app-openwebui:
       hosts:
         server:
