@@ -1,7 +1,6 @@
 x-op-app: &app
   logging:
     driver: journald
-  {# Exception: Rails' structure_load spawns psql with only PGHOST, PGPORT, PGUSER and PGPASSWORD, so the DATABASE_URL keepalives never reach it and a flap-cut schema load waits on the dead socket for the kernel's 2 h default. #}
   sysctls:
     net.ipv4.tcp_keepalive_time: "{{ OPENPROJECT_DB_KEEPALIVE_IDLE_SECONDS }}"
     net.ipv4.tcp_keepalive_intvl: "{{ OPENPROJECT_DB_KEEPALIVE_INTERVAL_SECONDS }}"
