@@ -9,8 +9,9 @@ DASHBOARD_APP="web-app-dashboard"
 MATOMO_APP="web-app-matomo"
 MARIADB_APP="svc-db-mariadb"
 POSTGRES_APP="svc-db-postgres"
+MATOMO_PERFORMANCE_VARIANTS="0,1"
 
-: "${DASHBOARD_APP}" "${MATOMO_APP}" "${MARIADB_APP}" "${POSTGRES_APP}"
+: "${DASHBOARD_APP}" "${MATOMO_APP}" "${MARIADB_APP}" "${POSTGRES_APP}" "${MATOMO_PERFORMANCE_VARIANTS}"
 
 UTILS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${UTILS_DIR}/../../../.." && pwd)"

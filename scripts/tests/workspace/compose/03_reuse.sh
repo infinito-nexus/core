@@ -6,6 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=scripts/tests/workspace/utils/common.sh
 source "${SCRIPT_DIR}/../utils/common.sh"
 
-echo "Redeploying matomo (variant 1) while keeping inventory and packages to validate state reuse."
-make compose-deploy mode=update apps="${MATOMO_APP}" variant=1
+last_variant="${MATOMO_PERFORMANCE_VARIANTS##*,}"
+echo "Redeploying matomo (variant ${last_variant}, the last round 02_performance deployed) while keeping inventory and packages to validate state reuse."
+make compose-deploy mode=update apps="${MATOMO_APP}" variant="${last_variant}"
 inspect
