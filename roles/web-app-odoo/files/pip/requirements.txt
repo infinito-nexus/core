@@ -2,5 +2,5 @@ python3-saml==1.16.0
 oauthlib==4.0.1
 requests-oauthlib==2.0.0
 PyJWT==2.15.1
-packaging==26.3
+packaging==26.4
 fsspec[s3]==2026.9.0
