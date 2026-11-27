@@ -4,7 +4,9 @@
  *
  * - `COSMOS_SKY`: the selector of a document that draws the live sky.
  * - `TRANSPARENT`: the computed value of a cleared background color.
- * - `pinLegible(page, band)`: pins `data-cosmos-legible` to `all` or `top`.
+ * - `pinLegible(page, band)`: pins `data-cosmos-legible` to `all` or `top`
+ *   and restores the pin whenever the sky's `refresh()` (its minute tick)
+ *   rewrites it, until the next pin or navigation.
  * - `assertSky(page, cleared, blocks, label)`: waits for the live sky, then
  *   with the band pinned to `all` every `cleared` selector's first match has
  *   a transparent background and `body` takes `--cosmos-text`; with the band
@@ -22,7 +24,15 @@ const COSMOS_SKY = "html[data-cosmos-mode='full']";
 const TRANSPARENT = "rgba(0, 0, 0, 0)";
 
 function pinLegible(page, band) {
-  return page.evaluate((value) => document.documentElement.setAttribute("data-cosmos-legible", value), band);
+  return page.evaluate((value) => {
+    const root = document.documentElement;
+    globalThis.cosmosLegiblePin?.disconnect();
+    root.setAttribute("data-cosmos-legible", value);
+    globalThis.cosmosLegiblePin = new MutationObserver(() => {
+      if (root.getAttribute("data-cosmos-legible") !== value) root.setAttribute("data-cosmos-legible", value);
+    });
+    globalThis.cosmosLegiblePin.observe(root, { attributes: true, attributeFilter: ["data-cosmos-legible"] });
+  }, band);
 }
 
 async function assertSky(page, cleared, blocks, label) {

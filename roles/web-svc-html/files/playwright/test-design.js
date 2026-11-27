@@ -9,6 +9,7 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
+const { COSMOS_SKY, TRANSPARENT, pinLegible } = require("./cosmos-sky");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl } = require("./personas");
 const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
@@ -32,13 +33,7 @@ const SHEETS = ["/_shared/css/layer.css", "/_shared/css/default.css", "/roles/we
 const COSMOS_MODULE = /^\/_infinito\/cdn\/roles\/[a-z0-9-]+\/latest\/js\/cosmos\.js$/;
 const COSMOS_CACHE_BUSTER = /^[0-9]+$/;
 const COSMOS_TAG = "script[type='module'][data-cosmos]";
-const COSMOS_SKY = "html[data-cosmos-mode='full']";
-const TRANSPARENT = "rgba(0, 0, 0, 0)";
 const CONTENT_BLOCK = "body > :not(cosmos-sky, script, style, template)";
-
-function pinLegible(page, band) {
-  return page.evaluate((value) => document.documentElement.setAttribute("data-cosmos-legible", value), band);
-}
 
 function base() {
   return normalizeBaseUrl(process.env.APP_BASE_URL || "");

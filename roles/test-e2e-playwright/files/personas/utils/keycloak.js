@@ -134,7 +134,9 @@ async function settleSsoChain(page, state) {
     .toBe("settled");
 
   if (page.isClosed()) return;
-  await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) });
+  await page.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch((error) => {
+    if (!page.isClosed()) throw error;
+  });
 }
 
 async function performKeycloakLoginForm(target, username, password, { settle = true } = {}) {
