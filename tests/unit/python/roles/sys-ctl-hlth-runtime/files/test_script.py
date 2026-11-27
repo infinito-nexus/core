@@ -2123,6 +2123,10 @@ class TestCommands(TestCase):
             {"syft container", "trivy container", "grype image", "osv export"},
         )
 
+    def test_the_osv_sbom_run_takes_turns_behind_the_shared_slot(self):
+        step = SCRIPT.osv_sbom_step(self.layout, "osv:1", [self.container], _config())
+        self.assertTrue(step.exports)
+
     def test_osv_exports_into_the_scratch_its_scan_reads(self):
         export, scan = SCRIPT.osv_image_steps(
             self.layout,

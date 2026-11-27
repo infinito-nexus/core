@@ -259,7 +259,8 @@ class Step:
         accept: exit codes that mean success.
         scratch: the run's temporary directory, a name under the work
             directory; consecutive steps of a lane naming the same one share it.
-        exports: whether the run exports a local image into it.
+        exports: whether the run takes the export slot: it exports a local
+            image into its scratch, or it is the OSV-Scanner SBOM run.
     """
 
     label: str
@@ -1899,7 +1900,12 @@ def osv_args(config: ScanConfig, output: str) -> list[str]:
 def osv_sbom_step(
     layout: Layout, image: str, targets: Sequence[Target], config: ScanConfig
 ) -> Step:
-    """Scan every target's rewritten CycloneDX in one OSV run."""
+    """Scan every target's rewritten CycloneDX in one OSV run.
+
+    The run takes the export slot: OSV-Scanner loads the offline database of
+    every ecosystem the SBOMs name into memory, and the scans that share the
+    slot share the host's memory too.
+    """
     args = ["scan", "source", *osv_args(config, f"{WORK}/osv.json")]
     for target in targets:
         args += ["-L", f"{WORK}/{target.key}.osv.cdx.json"]
@@ -1911,7 +1917,7 @@ def osv_sbom_step(
         ),
         OSV_ACCEPTED_EXIT_CODES,
         scratch,
-        False,
+        True,
     )
 
 
