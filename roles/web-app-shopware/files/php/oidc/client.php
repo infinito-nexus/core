@@ -87,8 +87,9 @@ if (!is_array($editorPrivileges) || $editorPrivileges === []) {
 $editorRoleName = env('ACL_EDITOR_ROLE_NAME');
 $config = array_intersect_key($settings, array_flip(CONFIG_FIELDS));
 $id = is_string($existing['id'] ?? null) ? $existing['id'] : stableId('client');
+$clientWrite = in_array($id, array_column($clients, 'id'), true) ? 'update' : 'create';
 
-dal('upsert', CLIENT, ['id' => $id] + array_diff_key($settings, $config) + [
+dal($clientWrite, CLIENT, ['id' => $id] + array_diff_key($settings, $config) + [
     'provider' => PROVIDER,
     'config' => $config + ['scopes' => [], 'clientSecret' => env('OIDC_CLIENT_SECRET')],
 ]);

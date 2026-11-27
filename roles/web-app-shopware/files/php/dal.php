@@ -74,10 +74,11 @@ function container(): Symfony\Component\DependencyInjection\ContainerInterface
 }
 
 /**
- * @param string $operation "search", "upsert" or "delete"
+ * @param string $operation "search", "create", "update", "upsert" or "delete"
  * @param string $entity the DAL entity name
- * @param array<string, mixed> $argument search: field => value equality filters; upsert: one payload; delete: ['id' => <id>]
- * @return list<array<string, mixed>> search: the matching rows, oldest first; upsert and delete: []
+ * @param array<string, mixed> $argument search: field => value equality filters; create, update and upsert: one payload;
+ *        delete: ['id' => <id>]
+ * @return list<array<string, mixed>> search: the matching rows, oldest first; every write: []
  */
 function dal(string $operation, string $entity, array $argument): array
 {
@@ -85,14 +86,13 @@ function dal(string $operation, string $entity, array $argument): array
         $repository = container()->get("{$entity}.repository");
         $context = Shopware\Core\Framework\Context::createCLIContext();
 
-        if ($operation === 'upsert') {
-            $repository->upsert([$argument], $context);
-
-            return [];
-        }
-
-        if ($operation === 'delete') {
-            $repository->delete([$argument], $context);
+        if ($operation !== 'search') {
+            match ($operation) {
+                'create' => $repository->create([$argument], $context),
+                'update' => $repository->update([$argument], $context),
+                'upsert' => $repository->upsert([$argument], $context),
+                'delete' => $repository->delete([$argument], $context),
+            };
 
             return [];
         }

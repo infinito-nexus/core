@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class ClientTest extends TestCase
@@ -172,9 +173,9 @@ final class ClientTest extends TestCase
 
         $this->assertSame(0, $code, $stderr);
         $writes = self::writes($calls);
-        $this->assertSame('upsert ' . self::CLIENT . ' ' . self::MANAGED, $writes[0]);
+        $this->assertSame('update ' . self::CLIENT . ' ' . self::MANAGED, $writes[0]);
         $this->assertSame([], array_values(array_filter($writes, static fn (string $write): bool => str_starts_with($write, 'delete ' . self::CLIENT . ' '))));
-        $this->assertNotContains('upsert ' . self::CLIENT . ' ' . self::FOREIGN, $writes);
+        $this->assertNotContains('update ' . self::CLIENT . ' ' . self::FOREIGN, $writes);
     }
 
     public function testNegativeControlTheManagedClientsPlantedRuleAndConditionAreDeleted(): void
@@ -192,7 +193,7 @@ final class ClientTest extends TestCase
 
         $this->assertSame(0, $code, $stderr);
         $writes = self::writes($calls);
-        $this->assertSame('upsert ' . self::CLIENT . ' ' . self::MANAGED, $writes[0]);
+        $this->assertSame('update ' . self::CLIENT . ' ' . self::MANAGED, $writes[0]);
         $this->assertNotContains('delete ' . self::CLIENT . ' ' . self::FOREIGN, $writes);
         $this->assertContains('delete ' . self::CONDITION . ' dddddddddddddddddddddddddddddddd', $writes);
         $this->assertContains('delete ' . self::RULE . ' feedfeedfeedfeedfeedfeedfeedfeed', $writes);
@@ -226,10 +227,36 @@ final class ClientTest extends TestCase
         $this->assertSame(0, $code, $stderr);
         $writes = self::writes($calls);
         $this->assertSame(
-            ['upsert ' . self::CLIENT . ' ' . md5('web-app-shopware:client')],
+            ['create ' . self::CLIENT . ' ' . md5('web-app-shopware:client')],
             array_slice($writes, 0, 1)
         );
         $this->assertSame([], array_values(array_filter($writes, static fn (string $write): bool => str_starts_with($write, 'delete '))));
+    }
+
+    /**
+     * @return array<string, array{0: list<list<array<string, mixed>>>, 1: string}> the stored client rows and the
+     *         "<operation> <id>" the client write MUST use
+     */
+    public static function storedClients(): array
+    {
+        $stable = md5('web-app-shopware:client');
+
+        return [
+            'fresh install' => [[[]], "create {$stable}"],
+            'managed client' => [[[self::client(self::MANAGED, 'open_id_connect')]], 'update ' . self::MANAGED],
+            'stable id under another provider' => [[[self::client($stable, 'microsoft_azure_oidc')]], "update {$stable}"],
+        ];
+    }
+
+    #[DataProvider('storedClients')]
+    public function testTheClientIsCreatedOrUpdatedButNeverUpserted(array $responses, string $expected): void
+    {
+        [, $stderr, $code, $calls] = $this->runScript(self::writeEnvironment(), $responses);
+
+        $this->assertSame(0, $code, $stderr);
+        $clientWrites = array_values(array_filter(self::writes($calls), static fn (string $write): bool => str_contains($write, ' ' . self::CLIENT . ' ')));
+        $this->assertSame([str_replace(' ', ' ' . self::CLIENT . ' ', $expected)], $clientWrites);
+        $this->assertSame('open_id_connect', $calls[1][2]['provider']);
     }
 
     public function testTheClientSecretOnlyReachesTheClientConfig(): void
