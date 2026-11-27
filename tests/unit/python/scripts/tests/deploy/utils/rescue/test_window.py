@@ -24,6 +24,7 @@ SKIPPED = b"[skipped: past RESCUE_DEADLINE]\n"
 
 WINDOW = """\
 set -euo pipefail
+date() { printf '%s\\n' 1800000000; }
 . "$1"
 now="$(date +%s)"
 if [ -n "$2" ]; then
