@@ -16,6 +16,9 @@ OPENPROJECT_GITLAB_WEBHOOK_SECRET: "{{ lookup('config', application_id, 'secrets
 OPENPROJECT_GITLAB_TOKEN_HELD: "{{ lookup('users', 'gitlab-web-app-openproject').tokens['web-app-openproject'] | default('') | string | trim }}"
 OPENPROJECT_MIGRATION_WAIT_SECONDS: 600
 OPENPROJECT_MIGRATION_POLL_SECONDS: 10
+OPENPROJECT_DB_KEEPALIVE_IDLE_SECONDS: 60
+OPENPROJECT_DB_KEEPALIVE_INTERVAL_SECONDS: 10
+OPENPROJECT_DB_KEEPALIVE_COUNT: 6
 OPENPROJECT_AWAIT_MIGRATIONS_ABS: "{{ [ lookup('container', application_id, 'directories.config'), 'await_migrations.sh'] | path_join }}"
 OPENPROJECT_AWAIT_MIGRATIONS_TARGET: "{{ (lookup('volume', application_id, 'await_migrations').mounts | first).target }}"
 OPENPROJECT_SEEDER_SERVICE: "seeder"
