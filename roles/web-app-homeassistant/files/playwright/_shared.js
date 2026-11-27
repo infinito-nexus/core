@@ -11,7 +11,9 @@ const env = {
   mcpEnabled: String(process.env.MCP_SERVICE_ENABLED || "").toLowerCase() === "true",
 };
 
-const SIGN_IN_FORM = "ha-authorize ha-auth-flow form";
+const AUTH_FLOW = "ha-authorize ha-auth-flow";
+const LOGIN_FLOW_PATH = "/auth/login_flow";
+const SIGN_IN_FORM = `${AUTH_FLOW} form`;
 const SIGN_IN_ERROR = "ha-authorize ha-alert";
 const PROVIDER_CHOICE = "ha-authorize ha-pick-auth-provider ha-list-item";
 const LOG_OUT_DIALOG = "dialog-box";
@@ -51,6 +53,20 @@ async function signIn(page) {
 
 /**
  * Args:
+ *   page: Playwright page whose sign-in form renders a login flow.
+ *
+ * Returns:
+ *   The flow id of the step the form shows once its pending render is done.
+ */
+function shownFlowId(page) {
+  return page.locator(AUTH_FLOW).evaluate(async (element) => {
+    await element.updateComplete;
+    return element.step?.flow_id;
+  });
+}
+
+/**
+ * Args:
  *   page: Playwright page that submits credentials to a non-default auth provider of the hub.
  *   providerName: name the sign-in page lists the provider under.
  *   username: login name to type.
@@ -59,8 +75,21 @@ async function signIn(page) {
 async function signInWithProvider(page, providerName, username, password) {
   await openSignIn(page);
   const choice = page.locator(PROVIDER_CHOICE, { hasText: providerName });
-  await choice.click();
+  const [flowResponse] = await Promise.all([
+    page.waitForResponse(
+      (response) => response.request().method() === "POST" && new URL(response.url()).pathname === LOGIN_FLOW_PATH,
+      { timeout: resolveTimeout(60_000) },
+    ),
+    choice.click(),
+  ]);
+  const flow = await flowResponse.json();
   await expect(choice, `picking ${providerName} must replace the local sign-in form`).toHaveCount(0);
+  await expect
+    .poll(() => shownFlowId(page), {
+      timeout: resolveTimeout(30_000),
+      message: `the sign-in form must show the ${providerName} flow before the credentials are typed`,
+    })
+    .toBe(flow.flow_id);
   await submitSignIn(page, username, password);
 }
 
