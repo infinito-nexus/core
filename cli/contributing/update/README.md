@@ -133,3 +133,14 @@ fails `tests/lint/ansible/services/test_version_keys.py`.
 Run `python -m cli.contributing.update.source --dry-run` to list pending bumps;
 the `update-version-sources` job of `.github/workflows/cron-update.yml` opens
 the PRs, and `tests/external/update/source/` warns about them.
+
+## App credentials
+
+`python -m cli.contributing.update.apps --repo infinito-nexus/core --updater-slug infinito-nexus-updater --translate-slug infinito-nexus-translator`
+walks the operator through the browser steps and stores the results with `gh`:
+it creates the `updater` environment restricted to `main` when it is missing,
+stores a freshly generated updater key there, waits until the older keys are
+deleted, prefills the form for the separate translation App and stores its
+key as a repository secret. Keys go to `gh` on stdin and are never printed;
+`--skip-updater` resumes after the updater step. See
+[secrets.md](../../../docs/contributing/tools/github/actions/secrets.md).

@@ -93,6 +93,8 @@ A classic personal access token MAY be used as a fallback for unrelated automati
 
 ### How to hand the credentials to CI 📥
 
+`python -m cli.contributing.update.apps --repo infinito-nexus/core --updater-slug infinito-nexus-updater --translate-slug infinito-nexus-translator` walks through the steps below and the [translation App](#translate_app_client_id-and-translate_app_private_key-) through `gh`, passing every key on stdin. Done by hand:
+
 1. Open the repository on GitHub.
 2. Go to **Settings → Environments → New environment**, name it `updater`, and under **Deployment branches and tags** choose **Selected branches and tags** with the single rule `main`.
 3. Under **Environment secrets**, add `BOT_APP_CLIENT_ID` with the App's Client ID (shown on the App's General page under **About**, in the `Iv…` format, *not* the numeric App ID).
