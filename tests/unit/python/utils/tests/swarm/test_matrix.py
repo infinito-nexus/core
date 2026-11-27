@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import tempfile
@@ -8,6 +9,7 @@ import unittest.mock
 
 from cli.administration.deploy.development.deploy import run as deploy_run
 from utils.tests.swarm import deploy as swarm_deploy
+from utils.tests.swarm import matrix as swarm_matrix
 
 DEPLOY_IMAGE_TAG = "cli.administration.deploy.development.deploy.run.deploy_image_tag"
 TOPOLOGY = {
@@ -148,6 +150,25 @@ class TestSwarmDeployImage(unittest.TestCase):
         self.assertEqual(env["INFINITO_IMAGE_TAG"], "dev-0")
         self.assertEqual(
             resolve.call_args.args[0][-1], str(deploy_run._LOCAL_IMAGE_SCRIPT)
+        )
+
+
+class TestSwarmProvisionPayload(unittest.TestCase):
+    @unittest.mock.patch.object(swarm_matrix, "_run", return_value=0)
+    def test_the_vars_payload_keeps_its_declared_key_order(self, run):
+        canonical = {"web": "multi.example", "provider": "provider.multi.example"}
+        swarm_matrix._provision(
+            app_id="web-app-multi",
+            inv_dir="/inv",
+            round_variants={"web-app-multi": 1},
+            vars_payload={
+                "applications": {"web-app-multi": {"domains": {"canonical": canonical}}}
+            },
+        )
+        payload = json.loads(run.call_args.kwargs["env"]["INFINITO_VARS_PAYLOAD"])
+        self.assertEqual(
+            list(payload["applications"]["web-app-multi"]["domains"]["canonical"]),
+            ["web", "provider"],
         )
 
 

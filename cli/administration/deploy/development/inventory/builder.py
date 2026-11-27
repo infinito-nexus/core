@@ -57,7 +57,7 @@ def build_dev_inventory(compose: Compose, spec: DevInventorySpec) -> None:
         "--vars-file",
         DEV_INVENTORY_VARS_FILE,
         "--vars",
-        json.dumps(vars_payload, sort_keys=True),
+        json.dumps(vars_payload),
         "--include",
         ",".join(spec.include),
     ]

@@ -70,7 +70,7 @@ def _provision(
     env["APP_ID"] = app_id
     env["INFINITO_INVENTORY_DIR"] = inv_dir
     env["INFINITO_APP_VARIANTS"] = json.dumps(round_variants, sort_keys=True)
-    env["INFINITO_VARS_PAYLOAD"] = json.dumps(vars_payload, sort_keys=True)
+    env["INFINITO_VARS_PAYLOAD"] = json.dumps(vars_payload)
     return _run(
         ["bash", str(_SWARM_SCRIPTS / "02_provision_inventory.sh")],
         env=env,
