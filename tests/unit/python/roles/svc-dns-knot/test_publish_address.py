@@ -64,11 +64,13 @@ class TestKnotPublishAddress(unittest.TestCase):
     def test_beside_tor_dns_binds_only_the_internet_address(self):
         self.assertEqual(bound_addresses(COMPOSE, TOR_HOST), [ADDRESS, ADDRESS])
 
-    def test_without_tor_dns_binds_every_address(self):
-        self.assertEqual(bound_addresses(COMPOSE, PLAIN_HOST), [None, None])
+    def test_without_tor_dns_binds_only_the_internet_address(self):
+        self.assertEqual(bound_addresses(COMPOSE, PLAIN_HOST), [ADDRESS, ADDRESS])
 
-    def test_negative_control_the_tor_host_renders_a_host_ip(self):
-        self.assertNotEqual(bound_addresses(COMPOSE, TOR_HOST), [None, None])
+    def test_negative_control_no_host_renders_the_wildcard_bind(self):
+        for groups in (TOR_HOST, PLAIN_HOST):
+            with self.subTest(groups=groups):
+                self.assertNotEqual(bound_addresses(COMPOSE, groups), [None, None])
 
     def test_negative_control_a_term_without_the_ip_binds_every_address(self):
         planted = COMPOSE.replace(", 'ip': KNOT_BIND_HOST", "")
