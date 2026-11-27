@@ -17,6 +17,7 @@ const { awaitSession, espoApi } = require("./_shared");
 
 const SEED_PREFIX = "Design showcase";
 const WIDE_VIEWPORT = { width: 1440, height: 900 };
+const ACCOUNT_LIST_READY = "#main .list-container table tbody tr, #main .list-container .no-data";
 
 function baseUrl() {
   return decodeDotenvQuotedValue(process.env.APP_BASE_URL).replace(/\/$/, "");
@@ -193,7 +194,7 @@ exports.register = function () {
     skipUnlessServiceEnabled("design");
     await page.setViewportSize(WIDE_VIEWPORT);
     await signIn(page);
-    await openSignedIn(page, "Account", "#main .list-container");
+    await openSignedIn(page, "Account", ACCOUNT_LIST_READY);
     const links = page.locator("#navbar .navbar ul.tabs > li.tab > a:visible");
     await expect(links.first()).toBeVisible({ timeout: resolveTimeout(30_000) });
     const stops = Math.min(await links.count(), 6);
@@ -202,11 +203,12 @@ exports.register = function () {
       await page.emulateMedia({ colorScheme: mode });
       const onFrame = await tokenValue(page, "--design-on-frame", "outline-color");
       for (let stop = 0; stop < stops; stop += 1) {
-        await links.nth(stop).focus();
         const focus = await links.nth(stop).evaluate((element) => {
+          element.focus();
           const style = getComputedStyle(element);
-          return { style: style.outlineStyle, color: style.outlineColor };
+          return { focused: document.activeElement === element, style: style.outlineStyle, color: style.outlineColor };
         });
+        expect(focus.focused, `espocrm side menu focus stop ${stop} ${mode} holds the focus`).toBe(true);
         expect(focus.style, `espocrm side menu focus stop ${stop} ${mode}`).not.toBe("none");
         expect(focus.color, `espocrm side menu focus stop ${stop} ${mode}`).toBe(onFrame);
       }
