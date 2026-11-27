@@ -414,18 +414,7 @@ def start_seeder(manager: str, root: Path) -> Callable[[], None]:
     told: set[tuple[str, ...]] = set()
 
     def _loop() -> None:
-        try:
-            names = seed_reports.report_names()
-            engines = seed_reports.engine_images(names)
-        except (OSError, KeyError, ValueError, TypeError) as exc:
-            print(
-                f"=== swarm-matrix: sbom seed reports unavailable: {exc!r} ===",
-                flush=True,
-            )
-            names, engines = (), {}
-        if names and not seed_reports.pull(engines.values()):
-            print("=== swarm-matrix: sbom seed reports unavailable ===", flush=True)
-            names = ()
+        names, engines = seed_reports.prepare()
         while not stop.is_set():
             entries = registry_entries(base, architecture, http_json)
             seed_pass(
@@ -444,27 +433,7 @@ def start_seeder(manager: str, root: Path) -> Callable[[], None]:
                 stop.is_set,
             )
             if names and not stop.is_set() and available_memory() >= REPORT_FLOOR_BYTES:
-                try:
-                    stored = seed_reports.seed_reports(
-                        entries, seed, root, names, engines, pipeline().default_runner
-                    )
-                except (
-                    OSError,
-                    ValueError,
-                    KeyError,
-                    TypeError,
-                    subprocess.TimeoutExpired,
-                ) as exc:
-                    print(
-                        f"=== swarm-matrix: sbom seed reports failed: {exc!r} ===",
-                        flush=True,
-                    )
-                    stored = {}
-                if any(stored.values()):
-                    print(
-                        f"=== swarm-matrix: sbom seed reports built: {stored} ===",
-                        flush=True,
-                    )
+                seed_reports.seed_round(entries, seed, root, names, engines)
             stop.wait(POLL_S)
 
     thread = threading.Thread(target=_loop, daemon=True)

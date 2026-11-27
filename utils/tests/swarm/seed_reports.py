@@ -286,3 +286,51 @@ def engine_images(names: Sequence[str]) -> dict[str, str]:
 
 def report_names() -> tuple[str, ...]:
     return seeded_reports(pinned_engine())
+
+
+def prepare() -> tuple[tuple[str, ...], dict[str, str]]:
+    """Return the reports this deploy seeds and their engine images.
+
+    Both are empty when the pinned engines cannot be resolved or pulled, so
+    the seeder then builds SBOMs only.
+    """
+    try:
+        names = report_names()
+        engines = engine_images(names)
+    except (OSError, KeyError, ValueError, TypeError) as exc:
+        print(
+            f"=== swarm-matrix: sbom seed reports unavailable: {exc!r} ===",
+            flush=True,
+        )
+        return (), {}
+    if names and not pull(engines.values()):
+        print("=== swarm-matrix: sbom seed reports unavailable ===", flush=True)
+        return (), {}
+    return names, engines
+
+
+def seed_round(
+    entries: Iterable[Entry],
+    seed: Path,
+    root: Path,
+    names: Sequence[str],
+    engines: dict[str, str],
+) -> None:
+    """Build the missing seeded reports once, never raising into the seeder.
+
+    Args:
+        entries: the registry images.
+        seed: the seed directory.
+        root: the host directory of the databases.
+        names: the reports to build, see :func:`prepare`.
+        engines: their engine images, see :func:`prepare`.
+    """
+    try:
+        stored = seed_reports(
+            entries, seed, root, names, engines, pipeline().default_runner
+        )
+    except (OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired) as exc:
+        print(f"=== swarm-matrix: sbom seed reports failed: {exc!r} ===", flush=True)
+        return
+    if any(stored.values()):
+        print(f"=== swarm-matrix: sbom seed reports built: {stored} ===", flush=True)
