@@ -134,6 +134,10 @@ class RescueWindowTests(unittest.TestCase):
         self.assertIn(secs, (29, 30))
         self.assertLessEqual(abs(int(until) - (now + secs)), 1)
 
+    def test_the_step_deadline_ends_a_second_before_its_timeout(self) -> None:
+        now, secs, until = self._window("-1", "59", 1500)
+        self.assertEqual(int(until), now + secs - 1)
+
     def test_a_kill_already_due_still_leaves_a_timeout_that_fires(self) -> None:
         _now, secs, until = self._window("-10", "-1", 1500)
         self.assertEqual(secs, 1)
