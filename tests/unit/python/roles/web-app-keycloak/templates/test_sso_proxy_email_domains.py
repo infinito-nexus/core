@@ -35,7 +35,11 @@ def _render(
     )
     keycloak = {
         "services": {
-            "sso_proxy": {"cookie_refresh": "1m", "templates_directory": "/templates"},
+            "sso_proxy": {
+                "cookie_refresh": "1m",
+                "csrf_cookie_limit": 10,
+                "templates_directory": "/templates",
+            },
             "keycloak": {"email": {"policy": policy}},
         }
     }

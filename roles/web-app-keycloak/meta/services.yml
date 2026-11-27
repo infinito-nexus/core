@@ -127,6 +127,7 @@ sso_proxy:
   error_template_file: oauth2-proxy-error.html
   templates_directory: /templates
   cookie_refresh: 1m
+  csrf_cookie_limit: 10
   ports:
     internal:
       http: 4180

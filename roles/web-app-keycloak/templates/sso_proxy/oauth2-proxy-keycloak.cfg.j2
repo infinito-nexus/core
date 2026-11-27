@@ -4,6 +4,8 @@ cookie_secret           =   "{{ lookup('config', sso_proxy_application_id, 'secr
 {% set _network_primary = _network_domains | first %}
 cookie_secure           =   "{{ lookup('tls', _network_primary, 'enabled') | string | lower }}"
 cookie_refresh          =   "{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.cookie_refresh') }}"
+cookie_csrf_per_request =   true
+cookie_csrf_per_request_limit = {{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.csrf_cookie_limit') }}
 {% set _cookie_domains = lookup('sso_cookie_domains', sso_proxy_application_id) %}
 {% if _cookie_domains %}
 cookie_domains          =   {{ _cookie_domains | to_json }}

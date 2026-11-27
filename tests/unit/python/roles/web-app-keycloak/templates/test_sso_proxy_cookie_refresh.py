@@ -75,13 +75,13 @@ def _render(sso_proxy: dict) -> str:
 
 class TestSsoProxyCookieRefresh(unittest.TestCase):
     def test_the_config_renders_the_configured_cookie_refresh(self) -> None:
-        rendered = _render({"cookie_refresh": "1m"})
+        rendered = _render({"cookie_refresh": "1m", "csrf_cookie_limit": 10})
 
         self.assertRegex(rendered, r'(?m)^cookie_refresh\s+=\s+"1m"$')
 
     def test_the_render_fails_without_the_key(self) -> None:
         with self.assertRaises(KeyError):
-            _render({})
+            _render({"csrf_cookie_limit": 10})
 
     def test_the_shipped_value_is_shorter_than_both_session_lifetimes(self) -> None:
         shipped = SERVICES["sso_proxy"]["cookie_refresh"]

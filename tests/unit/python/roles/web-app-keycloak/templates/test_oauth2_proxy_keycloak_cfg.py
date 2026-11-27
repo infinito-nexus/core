@@ -43,6 +43,7 @@ OIDC = {
 KEYCLOAK_CONFIG = {
     "services.sso_proxy.ports.internal.http": 4180,
     "services.sso_proxy.cookie_refresh": "1m",
+    "services.sso_proxy.csrf_cookie_limit": 10,
     "services.sso_proxy.templates_directory": "/templates",
 }
 OWN_CLIENT_SECRET_PATH = "secrets.credentials.sso_proxy_client_secret"
@@ -140,16 +141,45 @@ def render(template: str, apps: dict) -> str:
     )
 
 
+def settings(rendered: str) -> dict:
+    """
+    Args:
+        rendered: the rendered config text.
+
+    Returns:
+        The ``key = value`` pairs of the rendered oauth2-proxy config.
+    """
+    pairs = (line.partition("=") for line in rendered.splitlines())
+    return {key.strip(): value.strip() for key, sep, value in pairs if sep}
+
+
 def email_domains(apps: dict) -> str:
     """Return the rendered ``email_domains`` value.
 
     Args:
         apps: the merged applications payload.
     """
-    pairs = (line.partition("=") for line in render(CONFIG_TEMPLATE, apps).splitlines())
-    return {key.strip(): value.strip() for key, sep, value in pairs if sep}[
-        "email_domains"
-    ]
+    return settings(render(CONFIG_TEMPLATE, apps))["email_domains"]
+
+
+def csrf_gaps(config: dict) -> list[str]:
+    """
+    Args:
+        config: the ``key = value`` pairs of a rendered oauth2-proxy config.
+
+    Returns:
+        The setting names that let concurrent sign-ins of one browser overwrite
+        each other's CSRF cookie; empty when none does.
+    """
+    gaps = []
+    if config.get("cookie_csrf_per_request") != "true":
+        gaps.append("cookie_csrf_per_request")
+    if (
+        not config.get("cookie_csrf_per_request_limit", "").isdigit()
+        or int(config["cookie_csrf_per_request_limit"]) < 2
+    ):
+        gaps.append("cookie_csrf_per_request_limit")
+    return gaps
 
 
 def provider(apps: dict) -> dict:
@@ -267,6 +297,37 @@ class TestOwnClient(unittest.TestCase):
             in str((task.get("stack_host_template") or {}).get("src"))
         )
         self.assertEqual(alpha["no_log"], "{{ MASK_CREDENTIALS_IN_LOGS | bool }}")
+
+
+class TestCsrfCookiePerFlow(unittest.TestCase):
+    def setUp(self) -> None:
+        self.config = settings(render(CONFIG_TEMPLATE, applications()))
+
+    def test_every_sign_in_flow_keeps_its_own_csrf_cookie(self) -> None:
+        self.assertEqual(csrf_gaps(self.config), [])
+
+    def test_the_limit_comes_from_the_keycloak_services(self) -> None:
+        self.assertEqual(
+            self.config["cookie_csrf_per_request_limit"],
+            str(KEYCLOAK_CONFIG["services.sso_proxy.csrf_cookie_limit"]),
+        )
+
+    def test_negative_control_one_shared_csrf_cookie_is_flagged(self) -> None:
+        shared = {
+            key: value
+            for key, value in self.config.items()
+            if not key.startswith("cookie_csrf_per_request")
+        }
+        self.assertEqual(
+            csrf_gaps(shared),
+            ["cookie_csrf_per_request", "cookie_csrf_per_request_limit"],
+        )
+
+    def test_negative_control_a_limit_of_one_is_flagged(self) -> None:
+        self.assertEqual(
+            csrf_gaps({**self.config, "cookie_csrf_per_request_limit": "1"}),
+            ["cookie_csrf_per_request_limit"],
+        )
 
 
 class TestConflict(unittest.TestCase):
