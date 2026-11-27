@@ -1,4 +1,13 @@
 ---
+- name: "⏳ Wait until the image entrypoint finished seeding the volume and {{ WORDPRESS_CONFIG_FILE }}"
+  ansible.builtin.shell: >
+    container exec {{ WORDPRESS_CONTAINER_ADDRESS }} cat /proc/1/comm
+  register: wordpress_entrypoint_done
+  retries: 60
+  delay: 2
+  changed_when: false
+  until: (wordpress_entrypoint_done.stdout | trim) == 'apache2'
+
 - name: "🔒 Hand the managed option values to the infinito-managed-options guard"
   ansible.builtin.shell:
     cmd: >-
