@@ -14,6 +14,26 @@ if TYPE_CHECKING:
     from utils.docker.image.discovery import ImageRef
 
 
+def _manifest_exists(ref: str) -> bool:
+    """
+    Args:
+        ref: the image reference to probe.
+
+    Returns:
+        True when the registry serves a manifest or index for ``ref``, whatever
+        architectures it holds; False when it is missing or unreachable.
+    """
+    # Exception: without --raw skopeo resolves the host's platform and fails on
+    # an index without it, so an arm64-only tag read as missing on amd64 runners.
+    r = subprocess.run(
+        ["skopeo", "inspect", "--raw", f"docker://{ref}"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    return r.returncode == 0
+
+
 class RegistryProvider(ABC):
     @abstractmethod
     def image_base(self, image: ImageRef) -> str:
@@ -64,21 +84,7 @@ class GHCRProvider(RegistryProvider):
         )
 
     def tag_exists(self, image: ImageRef) -> bool:
-        """
-        Return True if the destination tag already exists in GHCR.
-
-        Uses ``skopeo inspect docker://<dest>``, whose exit code is 0 when the
-        tag exists and non-zero when it does not exist or cannot be accessed
-        (auth/network).
-        """
-        dest = self.image_ref(image)
-        r = subprocess.run(
-            ["skopeo", "inspect", f"docker://{dest}"],
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-        return r.returncode == 0
+        return _manifest_exists(self.image_ref(image))
 
     def is_stale(self, image: ImageRef) -> bool:
         """Return True if the mirrored tag no longer matches its upstream tag.
@@ -169,21 +175,7 @@ class GiteaProvider(RegistryProvider):
         return f"{self.registry}/{self.namespace}/{self.prefix}/{image.registry}/{image.name}"
 
     def tag_exists(self, image: ImageRef) -> bool:
-        """
-        Return True if the destination tag already exists in the target registry.
-
-        Uses ``skopeo inspect docker://<dest>``, whose exit code is 0 when the
-        tag exists and non-zero when it does not exist or cannot be accessed
-        (auth/network).
-        """
-        dest = self.image_ref(image)
-        r = subprocess.run(
-            ["skopeo", "inspect", f"docker://{dest}"],
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-        return r.returncode == 0
+        return _manifest_exists(self.image_ref(image))
 
     def mirror(self, image: ImageRef) -> None:
         dest = self.image_ref(image)
