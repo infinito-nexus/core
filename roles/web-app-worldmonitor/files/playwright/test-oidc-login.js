@@ -63,6 +63,7 @@ exports.register = function (shared) {
     expect(shared.env.biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();
 
     await shared.loginToDashboard(page, shared.env.biberUsername, shared.env.biberPassword);
+    await shared.leaveDashboard(page);
     await page.context().clearCookies({ name: GATE_SESSION_COOKIE_RE });
 
     const authorizationHops = recordAuthorizationHops(page, shared.KEYCLOAK_AUTH_RE);

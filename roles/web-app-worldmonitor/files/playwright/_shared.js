@@ -48,6 +48,10 @@ async function openApp(page, path) {
   await assertCspInjections(page, { isEnabled: safeIsEnabled });
 }
 
+async function leaveDashboard(page) {
+  await gotoOnion(page, "about:blank");
+}
+
 async function loginToDashboard(page, username, password) {
   await openApp(page, "/");
   if (safeIsEnabled("sso")) {
@@ -60,6 +64,7 @@ async function loginToDashboard(page, username, password) {
 async function logout(page) {
   expect(env.oidcIssuerUrl, "OIDC_ISSUER_URL must be set when SSO is enabled").toBeTruthy();
   const keycloakLogout = `${env.oidcIssuerUrl}/protocol/openid-connect/logout`;
+  await leaveDashboard(page);
   await gotoOnion(page, `${env.appBaseUrl}/oauth2/sign_out?rd=${encodeURIComponent(keycloakLogout)}`, {
     waitUntil: "domcontentloaded",
   });
@@ -79,6 +84,7 @@ module.exports = {
   expectKeycloakLogin,
   expectDashboard,
   openApp,
+  leaveDashboard,
   loginToDashboard,
   logout,
 };
