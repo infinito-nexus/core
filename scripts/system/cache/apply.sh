@@ -64,7 +64,9 @@ if [[ "${stage}" == "apply" ]]; then
 fi
 
 echo "[cache-apply] issuing the frontend leaf certificates"
-(cd "${pinned}" && bash roles/svc-cache-package/files/shell/certs.sh)
+init_image="$("${PYTHON}" -m cli.administration.deploy.development.runner_mirror INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE)" || exit 1
+init_image="${init_image:-${INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE:?INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE is unset; default.env declares it}}"
+(cd "${pinned}" && INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE="${init_image}" bash roles/svc-cache-package/files/shell/certs.sh)
 
 if [[ "${stage}" == "prepare" ]]; then
 	echo "[cache-apply] installing the pinned map at ${INFINITO_CACHE_PACKAGE_FRONTEND_CONF}"

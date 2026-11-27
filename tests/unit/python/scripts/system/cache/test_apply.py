@@ -10,6 +10,7 @@ import time
 import unittest
 from pathlib import Path
 
+from cli.administration.deploy.development import runner_mirror
 from cli.administration.infra.__main__ import FOREIGN_MAP, RUNNER_DOWN
 from tests.utils.workflow_words import step_options
 from utils.cache.files import PROJECT_ROOT, read_text
@@ -49,6 +50,9 @@ FRONTEND = "infinito-package-cache-frontend"
 NEXUS_PORT = "8081"
 PUBLISHED_PORT = "8099"
 PUBLISHED_HOST = "nexus.example"
+INIT_IMAGE_KEY = "INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE"
+RESOLVED_INIT_IMAGE = "ghcr.io/acme/core/mirror/docker.io/alpine:3.24"
+LOCAL_INIT_IMAGE = "registry.example/local-init:1.0"
 
 INFRA_ARMS = f"""cache-name)
 	case "$4" in
@@ -75,6 +79,7 @@ read)
 	cat "$STUB_SHA_FILE"
 	;;
 env) printf '%s\\n' {" ".join(f"'{line}'" for line in PIN_ENV)} ;;
+{INIT_IMAGE_KEY}) [[ "$2" == {runner_mirror.__name__} ]] && echo "${{STUB_MIRROR_IMAGE-{RESOLVED_INIT_IMAGE}}}" ;;
 {INFRA_ARMS}
 esac
 """
@@ -118,7 +123,7 @@ exit 0
 """
 
 ROLE_STUB = """#!/usr/bin/env bash
-printf '%s %s %s %s\\n' "$(basename "$0")" "$PWD" "$INFINITO_CACHE_TLS_HOSTS" "$INFINITO_CACHE_UPSTREAMS" >>"$STUB_LOG"
+printf '%s %s %s %s init=%s\\n' "$(basename "$0")" "$PWD" "$INFINITO_CACHE_TLS_HOSTS" "$INFINITO_CACHE_UPSTREAMS" "${INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE:-}" >>"$STUB_LOG"
 """
 
 BOOTSTRAP_STUB = f"""{ROLE_STUB}printf 'nexus %s:%s\\n' "$INFINITO_CACHE_PACKAGE_REST_HOST" "$INFINITO_CACHE_PACKAGE_PORT" >>"$STUB_LOG"
@@ -350,6 +355,42 @@ class TestApply(unittest.TestCase):
             [["certs.sh", str(run.pinned)]],
         )
         self.assertFalse(any(line.startswith("docker") for line in run.lines))
+
+    def test_the_certificates_run_on_the_init_image_the_runner_mirror_resolves(
+        self,
+    ) -> None:
+        for stage in ("prepare", ""):
+            with self.subTest(stage=stage or "apply"):
+                run = self._run(stage=stage)
+                self.assertEqual(run.done.returncode, 0, run.done.stderr)
+                self.assertEqual(
+                    [
+                        line.rsplit(" ", 1)[1]
+                        for line in run.lines
+                        if line.startswith("certs")
+                    ],
+                    [f"init={RESOLVED_INIT_IMAGE}"],
+                )
+
+    def test_without_the_mirror_the_certificates_run_on_the_environment_image(
+        self,
+    ) -> None:
+        for image, expected in ((LOCAL_INIT_IMAGE, [f"init={LOCAL_INIT_IMAGE}"]), ("", [])):
+            with self.subTest(image=image or "unset"):
+                run = self._setup()
+                run.env["STUB_MIRROR_IMAGE"] = ""
+                if image:
+                    run.env[INIT_IMAGE_KEY] = image
+                run.run()
+                self.assertEqual(run.done.returncode == 0, bool(image), run.done.stderr)
+                self.assertEqual(
+                    [
+                        line.rsplit(" ", 1)[1]
+                        for line in run.lines
+                        if line.startswith("certs")
+                    ],
+                    expected,
+                )
 
     def test_no_pin_fails_loudly_and_touches_nothing(self) -> None:
         run = self._run(sha="")

@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 
+from cli.administration.deploy.development.profile import Profile
 from cli.contributing.mirror.providers import GHCRProvider
 from utils.cache.yaml import dump_yaml
 from utils.docker.image.discovery import iter_runner_images
@@ -56,3 +57,26 @@ def write_override(repo_root: Path, layered: list[str]) -> str:
     dump_yaml(staging, {"services": services})
     staging.replace(target)
     return OVERRIDE
+
+
+def mirror_image(repo_root: Path, key: str) -> str:
+    """
+    Args:
+        repo_root: repository root holding ``default.env``.
+        key: the ``default.env`` key naming the image.
+
+    Returns:
+        The GHCR mirror reference of the declared image while the image mirror
+        is on, otherwise an empty string.
+    """
+    if not Profile().image_mirror_enabled():
+        return ""
+    return mirrored_images(repo_root)[("default.env", key)]
+
+
+if __name__ == "__main__":
+    import sys
+
+    from utils.cache import PROJECT_ROOT
+
+    print(mirror_image(PROJECT_ROOT, sys.argv[1]))

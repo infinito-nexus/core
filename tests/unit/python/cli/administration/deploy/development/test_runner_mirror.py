@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import os
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -10,6 +12,11 @@ from cli.administration.deploy.development import runner_mirror
 from cli.administration.deploy.development.env import compose_file_args
 from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
+from utils.docker.image.pin import SEMVER, pin_class
+from utils.env.parser import parse_static_env
+
+INIT_IMAGE = "INFINITO_CACHE_PACKAGE_FRONTEND_INIT_IMAGE"
+LOCAL_IMAGE = "registry.example/local-init:1.0"
 
 GITHUB = {
     "GITHUB_REPOSITORY_OWNER": "Acme",
@@ -58,8 +65,36 @@ class TestRunnerMirror(unittest.TestCase):
             },
         )
 
-    def test_no_env_image_helper_is_left(self) -> None:
-        self.assertFalse(hasattr(runner_mirror, "env_image"))
+    @patch.dict(os.environ, {**GITHUB, "INFINITO_GHCR_MIRROR": "true"}, clear=False)
+    def test_the_declared_init_image_resolves_to_a_pinned_mirror_tag(self) -> None:
+        name, _, tag = runner_mirror.mirror_image(PROJECT_ROOT, INIT_IMAGE).rpartition(
+            ":"
+        )
+        self.assertEqual(name, "ghcr.io/acme/core/mirror/docker.io/alpine")
+        self.assertEqual(pin_class(tag), SEMVER)
+
+    def test_the_cli_prints_the_mirror_only_while_the_mirror_is_on(self) -> None:
+        declared = parse_static_env(PROJECT_ROOT / "default.env")[INIT_IMAGE]
+        for mirror, expected in (
+            ("true", f"ghcr.io/acme/core/mirror/docker.io/{declared}"),
+            ("false", ""),
+        ):
+            with self.subTest(mirror=mirror):
+                done = subprocess.run(
+                    [sys.executable, "-m", runner_mirror.__name__, INIT_IMAGE],
+                    cwd=PROJECT_ROOT,
+                    env={
+                        **os.environ,
+                        **GITHUB,
+                        "INFINITO_GHCR_MIRROR": mirror,
+                        INIT_IMAGE: LOCAL_IMAGE,
+                    },
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                self.assertEqual(done.returncode, 0, done.stderr)
+                self.assertEqual(done.stdout.strip(), expected)
 
     @patch.dict(
         os.environ,
