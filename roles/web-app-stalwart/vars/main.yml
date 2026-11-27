@@ -110,8 +110,7 @@ STALWART_SUBMISSION_PORT: "{{ lookup('config', application_id, 'services.stalwar
 STALWART_SUBMISSION_LISTENER:
   name: "submission"
   protocol: "smtp"
-  bind:
-    "[::]:{{ STALWART_SUBMISSION_PORT }}": true
+STALWART_SUBMISSION_BIND: "[::]:{{ STALWART_SUBMISSION_PORT }}"
 
 STALWART_BAN_PERIODS: "{{ lookup('form_values', application_id, 'security') }}"
 STALWART_ALLOWED_IPS:

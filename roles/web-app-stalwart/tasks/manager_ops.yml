@@ -35,7 +35,7 @@
   include_tasks: throttle.yml
 
 - name: "📮 Serve authenticated submission on the internal mail network"
-  include_tasks: 18_submission.yml
+  include_tasks: submission.yml
 
 - name: "⚙️ Provision the Stalwart WebUI (WebAdmin) bundle"
   include_tasks: 02_webadmin.yml

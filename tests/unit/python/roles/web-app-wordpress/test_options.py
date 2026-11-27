@@ -637,7 +637,9 @@ class TestManagedOptionsGuard(unittest.TestCase):
         self.assertNotIn("home", managed["option"])
 
     def test_the_values_reach_the_container_before_any_wordpress_command(self):
-        self.assertEqual(0, _position("Wait until the image entrypoint finished"))
+        self.assertEqual(
+            0, _position("Wait until the image entrypoint handed over to Apache")
+        )
         self.assertEqual(1, _position(self.TASK))
         self.assertLess(_position(self.TASK), _position("Install declared mu-plugins"))
 

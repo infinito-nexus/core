@@ -13,17 +13,11 @@ from plugins.lookup.domain import LookupModule as DomainLookup
 from plugins.lookup.users import LookupModule as UsersLookup
 from utils.cache.carrier import APPLICATIONS_RENDERED_FACT
 from utils.domains.primary_domain import get_domain
-from utils.mail.provider import (
-    MAIL_SERVICE_KEY,
-    active_provider,
-    provider_deployed,
-)
+from utils.mail.provider import active_provider, provider_deployed
 from utils.mail.provider_view import provider_view, view_carrier, view_id
-from utils.networks.attachments import _is_consumer
+from utils.mail.submission import internal_submission, smtp_ports
 from utils.networks.reachability import network, network_of
-from utils.roles.applications.services.registry import discover_role_services
 from utils.roles.entity.name import entity_name
-from utils.tls.common import get_path
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -378,81 +372,18 @@ class LookupModule(LookupBase):
         resolved: dict[str, Any],
         variables: dict[str, Any],
     ) -> dict[str, Any]:
-        """
-        Args:
-            application_id: the application the lookup resolves for.
-            resolved: the system settings resolved so far.
-            variables: Ansible variables of the current host.
-
-        Returns:
-            ``host`` (the provider's service name), ``port``, ``tls``,
-            ``start_tls``, ``auth`` and ``auth_mechanism`` of plaintext
-            submission with ``AUTH PLAIN``, or ``{}`` when the relay keeps
-            TLS, the provider publishes its submission port or binds none,
-            *application_id* is a mail provider itself, or it does not join
-            the provider's network.
-        """
         if not _as_bool(resolved.get("external")) or _as_bool(resolved.get("tls")):
             return {}
-        if self._provider_ports(variables, "public").get("submission"):
-            return {}
-        port = self._provider_ports(variables, "internal").get("submission")
-        if not port:
-            return {}
-        own = discover_role_services(
-            application_id, self._application(application_id, variables)
-        ).get(entity_name(application_id))
-        if MAIL_SERVICE_KEY in (own or {}).get("covers", []):
-            return {}
-        provider = self._mail_provider(variables)
-        entity = entity_name(provider)
-        network = discover_role_services(
-            provider, self._application(provider, variables)
-        ).get(entity)
-        if not network or not _is_consumer(
-            network,
+        return internal_submission(
             application_id,
-            lambda app, path, default: get_path(
-                self._application(app, variables), path, default
-            ),
-            lambda _app, _key: None,
-        ):
-            return {}
-        return {
-            "host": entity,
-            "port": port,
-            "tls": False,
-            "start_tls": False,
-            "auth": True,
-            "auth_mechanism": "plain",
-        }
+            self._mail_provider(variables),
+            lambda app: self._application(app, variables),
+            lambda group: self._provider_ports(variables, group),
+        )
 
     def _provider_ports(self, variables: dict[str, Any], group: str) -> dict[str, int]:
-        """
-        Args:
-            variables: Ansible variables of the current host.
-            group: ``public`` for the ports it publishes, ``internal`` for
-                the ports its container binds.
-
-        Returns:
-            The SMTP ports of the active provider's own
-            ``services.<entity>.ports.<group>``, keyed by protocol.
-        """
-        services = self._provider_services(variables)
         entity = entity_name(self._mail_provider(variables))
-        entry = services.get(entity) or {}
-        if not isinstance(entry, dict):
-            return {}
-        ports = (entry.get("ports") or {}).get(group) or {}
-        if not isinstance(ports, dict):
-            return {}
-        out: dict[str, int] = {}
-        for name, value in ports.items():
-            try:
-                out[str(name)] = int(value)
-            except (TypeError, ValueError):
-                continue
-        return out
+        return smtp_ports(self._provider_services(variables).get(entity) or {}, group)
 
     def _provider_onion_primary(self, variables: dict[str, Any]) -> bool:
         """True when the provider's own host serves it onion-first.

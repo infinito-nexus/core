@@ -140,17 +140,16 @@ class TestSubmissionListener(unittest.TestCase):
         self.vars = load_yaml_any(str(VARS))
 
     def test_the_listener_binds_the_port_in_plaintext_smtp(self):
-        listener = dict(self.vars["STALWART_SUBMISSION_LISTENER"])
-        listener["bind"] = {
-            _env()
-            .from_string(bind)
-            .render(STALWART_SUBMISSION_PORT=SUBMISSION_PORT): enabled
-            for bind, enabled in listener["bind"].items()
-        }
+        env = _env()
+        env.filters["combine"] = lambda base, extra: {**base, **extra}
+        bind = env.from_string(self.vars["STALWART_SUBMISSION_BIND"]).render(
+            STALWART_SUBMISSION_PORT=SUBMISSION_PORT
+        )
         body = json.loads(
-            _env()
-            .from_string(read_text(LISTENER_CREATE))
-            .render(STALWART_SUBMISSION_LISTENER=listener)
+            env.from_string(read_text(LISTENER_CREATE)).render(
+                STALWART_SUBMISSION_LISTENER=self.vars["STALWART_SUBMISSION_LISTENER"],
+                STALWART_SUBMISSION_BIND=bind,
+            )
         )
         method, arguments, _ = body["methodCalls"][0]
         created = arguments["create"]["submission"]

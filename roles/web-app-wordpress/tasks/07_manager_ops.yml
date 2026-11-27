@@ -1,5 +1,5 @@
 ---
-- name: "⏳ Wait until the image entrypoint finished seeding the volume and {{ WORDPRESS_CONFIG_FILE }}"
+- name: "⏳ Wait until the image entrypoint handed over to Apache"
   ansible.builtin.shell: >
     container exec {{ WORDPRESS_CONTAINER_ADDRESS }} cat /proc/1/comm
   register: wordpress_entrypoint_done
