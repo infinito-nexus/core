@@ -69,6 +69,28 @@ def render(text: str, sky: str, top: str) -> str:
     )
 
 
+def sky_colors(text: str, subject: str) -> list[str]:
+    """
+    Args:
+        text: a cosmos sheet template.
+        subject: the trailing selector part to match.
+
+    Returns:
+        The color of every rule that applies under the sky outside the
+        legible-top band and selects ``subject``.
+    """
+    sky, top = selectors()
+    return [
+        declared["color"]
+        for chosen, declared in rules(render(text, sky, top))
+        for selector in chosen
+        if "color" in declared
+        and selector.startswith(sky)
+        and not selector.startswith(top)
+        and selector.endswith(subject)
+    ]
+
+
 def _top_level_split(text: str, separator: str) -> list[str]:
     parts, depth, start = [], 0, 0
     for index, char in enumerate(text):

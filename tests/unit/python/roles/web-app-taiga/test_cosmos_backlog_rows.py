@@ -2,13 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from tests.lint.filesystem.test_cosmos_sheets import (
-    ROLES,
-    SHEET,
-    render,
-    rules,
-    selectors,
-)
+from tests.lint.filesystem.test_cosmos_sheets import ROLES, SHEET, sky_colors
 from utils.cache.files import read_text
 
 TAIGA_SHEET = ROLES / "web-app-taiga" / SHEET
@@ -19,28 +13,6 @@ ROW_RULE = (
     "{{ COSMOS_SKY_SELECTOR }} .backlog-table-body .row {\n"
     "  color: var(--design-text);\n}\n"
 )
-
-
-def sky_colors(text: str, subject: str) -> list[str]:
-    """
-    Args:
-        text: a cosmos sheet template.
-        subject: the trailing selector part to match.
-
-    Returns:
-        The color of every rule that applies under the sky outside the
-        legible-top band and selects ``subject``.
-    """
-    sky, top = selectors()
-    return [
-        declared["color"]
-        for chosen, declared in rules(render(text, sky, top))
-        for selector in chosen
-        if "color" in declared
-        and selector.startswith(sky)
-        and not selector.startswith(top)
-        and selector.endswith(subject)
-    ]
 
 
 class TestTaigaCosmosBacklogRows(unittest.TestCase):

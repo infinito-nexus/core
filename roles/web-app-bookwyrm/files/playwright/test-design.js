@@ -16,8 +16,8 @@ const { resolveTimeout } = require("./timeouts");
 
 const THEME_FILE = "/css/themes/infinito";
 const PROFILE_FORM = 'form[name="edit-profile"]';
-const SKY_CLEARED = ["html", "body", ".navbar", "footer"];
-const SKY_LEGIBLE_BLOCKS = ["main", "footer"];
+const SKY_CLEARED = ["html", "body", ".navbar", ".footer"];
+const SKY_LEGIBLE_BLOCKS = ["main", ".footer"];
 
 test.use({ ignoreHTTPSErrors: true });
 
