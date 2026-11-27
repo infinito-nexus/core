@@ -375,7 +375,10 @@ class TestApply(unittest.TestCase):
     def test_without_the_mirror_the_certificates_run_on_the_environment_image(
         self,
     ) -> None:
-        for image, expected in ((LOCAL_INIT_IMAGE, [f"init={LOCAL_INIT_IMAGE}"]), ("", [])):
+        for image, expected in (
+            (LOCAL_INIT_IMAGE, [f"init={LOCAL_INIT_IMAGE}"]),
+            ("", []),
+        ):
             with self.subTest(image=image or "unset"):
                 run = self._setup()
                 run.env["STUB_MIRROR_IMAGE"] = ""

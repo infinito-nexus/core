@@ -277,7 +277,9 @@ class TestCosmosSheets(unittest.TestCase):
                 (roles / role / SHEET).write_text(text, encoding="utf-8")
             sheets = [roles / role / SHEET for role in planted]
             flagged = {line.split("/", 1)[0] for line in findings(roles, VARS, sheets)}
-        self.assertEqual(flagged, set(planted) - {"web-app-kept", "web-app-kept-surface"})
+        self.assertEqual(
+            flagged, set(planted) - {"web-app-kept", "web-app-kept-surface"}
+        )
 
     def test_a_custom_role_is_checked_and_only_the_provider_names_attributes(
         self,
