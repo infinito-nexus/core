@@ -1775,36 +1775,69 @@ def database_stamps(layout: Layout, engine: str) -> list[str] | None:
     return stamps
 
 
+def syft_identity(document: Mapping) -> bytes:
+    """
+    Returns:
+        What Grype matches in a Syft JSON document, its artifacts and its
+        distro, without the descriptor and source data of one Syft run.
+    """
+    artifacts = sorted(
+        json.dumps(artifact, sort_keys=True)
+        for artifact in document.get("artifacts") or []
+    )
+    return json.dumps([artifacts, document.get("distro")], sort_keys=True).encode()
+
+
+def osv_identity(document: Mapping) -> bytes:
+    """
+    Returns:
+        What OSV-Scanner matches in a CycloneDX document, the type, name,
+        version and purl of every component, without the serial number,
+        timestamps and references of one Syft run.
+    """
+    components = sorted(
+        [str(component.get(key) or "") for key in ("type", "name", "version", "purl")]
+        for component in document.get("components") or []
+    )
+    return json.dumps(components).encode()
+
+
 def sbom_report_fingerprint(
     layout: Layout,
     engine: str,
     image_id: str | None,
     args: Sequence[str],
-    source: Path,
+    identity: bytes | None,
 ) -> str | None:
     """
     Args:
         layout: where the run keeps its files, the databases among them.
-        engine: the engine that reads *source*.
+        engine: the engine that reads the SBOM.
         image_id: the resolved id of the engine image, see
             :func:`engine_image_id`.
         args: the engine arguments that do not name a file of this run.
-        source: the SBOM the engine reads, the complete input of its run.
+        identity: what the engine matches in the SBOM, see
+            :func:`syft_identity` and :func:`osv_identity`; ``None`` when the
+            SBOM could not be read.
 
     Returns:
         A digest of the engine image id, its arguments, its database stamps
-        and the content of *source*, ``None`` when one of them is missing.
+        and *identity*, ``None`` when one of them is missing.
     """
     stamps = database_stamps(layout, engine)
-    if image_id is None or stamps is None:
-        return None
-    try:
-        content = source.read_bytes()
-    except OSError:
+    if image_id is None or stamps is None or identity is None:
         return None
     digest = hashlib.sha256(json.dumps([image_id, list(args), stamps]).encode())
-    digest.update(content)
+    digest.update(identity)
     return digest.hexdigest()
+
+
+def read_syft_identity(path: Path) -> bytes | None:
+    """Return the :func:`syft_identity` of a Syft JSON file, ``None`` when unreadable."""
+    try:
+        return syft_identity(_read_json(path))
+    except (OSError, ValueError, AttributeError):
+        return None
 
 
 def report_cache_path(layout: Layout, target: Target, name: str) -> Path:
@@ -2312,7 +2345,7 @@ def scan(
                     "grype",
                     grype_id,
                     grype_args(layout, target, config),
-                    sbom_paths(layout, target)[0],
+                    read_syft_identity(sbom_paths(layout, target)[0]),
                 )
                 if config.reads_sbom("grype")
                 else None
@@ -2330,7 +2363,11 @@ def scan(
         source = layout.work / f"{target.key}.runtime.syft.json"
         source.write_text(json.dumps(reduced), encoding="utf-8")
         fingerprint = sbom_report_fingerprint(
-            layout, RUNTIME_ENGINE, grype_id, runtime_args(target), source
+            layout,
+            RUNTIME_ENGINE,
+            grype_id,
+            runtime_args(target),
+            syft_identity(reduced),
         )
         if reuse_report(layout, target, "runtime.grype", fingerprint):
             reused_sbom["runtime.grype"] += 1
@@ -2345,12 +2382,10 @@ def scan(
         queued = []
         for target in sbom_ready:
             source = layout.work / f"{target.key}.osv.cdx.json"
-            source.write_text(
-                json.dumps(osv_sbom(_read_json(sbom_paths(layout, target)[1]))),
-                encoding="utf-8",
-            )
+            rewritten = osv_sbom(_read_json(sbom_paths(layout, target)[1]))
+            source.write_text(json.dumps(rewritten), encoding="utf-8")
             fingerprint = sbom_report_fingerprint(
-                layout, "osv", osv_id, osv_args(config, ""), source
+                layout, "osv", osv_id, osv_args(config, ""), osv_identity(rewritten)
             )
             if reuse_report(layout, target, "osv", fingerprint):
                 reused_sbom["osv"] += 1

@@ -1464,6 +1464,53 @@ class TestScan(TestCase):
             _findings, errors, runner = self._sbom_scan(["syft", "osv"])
         self.assertEqual((len(self._calls(runner, "osv.cdx.json")), errors), (1, []))
 
+    def _rewrite_sbom(self, index, change):
+        path = SCRIPT.sbom_paths(self.layout, CENTOS_TARGET)[index]
+        document = SCRIPT._read_json(path)
+        change(document)
+        path.write_text(json.dumps(document), encoding="utf-8")
+
+    def test_an_sbom_rebuilt_with_the_same_packages_reuses_its_osv_report(self):
+        self.targets = [CENTOS_TARGET]
+        self._provide_sbom_databases()
+        self._sbom_scan(["syft", "osv"])
+        self._rewrite_sbom(
+            1,
+            lambda document: document.update(
+                serialNumber="urn:uuid:another-run",
+                metadata={"timestamp": "2026-11-28T00:00:00Z"},
+            ),
+        )
+        _findings, errors, runner = self._sbom_scan(["syft", "osv"])
+        self.assertEqual((len(self._calls(runner, "osv.cdx.json")), errors), (0, []))
+
+    def test_an_sbom_with_a_changed_package_scans_osv_again(self):
+        self.targets = [CENTOS_TARGET]
+        self._provide_sbom_databases()
+        self._sbom_scan(["syft", "osv"])
+        self._rewrite_sbom(
+            1, lambda document: document["components"][0].update(version="9.9.9")
+        )
+        _findings, errors, runner = self._sbom_scan(["syft", "osv"])
+        self.assertEqual((len(self._calls(runner, "osv.cdx.json")), errors), (1, []))
+
+    def test_a_syft_sbom_rebuilt_with_the_same_binaries_reuses_its_runtime_report(
+        self,
+    ):
+        self.targets = [CENTOS_TARGET]
+        self._provide_sbom_databases()
+        self._sbom_scan(["syft", "osv"])
+        self._rewrite_sbom(
+            0,
+            lambda document: document.update(
+                descriptor={"timestamp": "2026-11-28T00:00:00Z"}
+            ),
+        )
+        _findings, errors, runner = self._sbom_scan(["syft", "osv"])
+        self.assertEqual(
+            (len(self._calls(runner, "runtime.syft.json")), errors), (0, [])
+        )
+
     def test_osv_scans_only_the_sboms_without_a_reusable_report(self):
         other = SCRIPT.Target("def", "container", "sha256:def", "quay.io/a/b:1", (), ())
         self.targets = [CENTOS_TARGET]
