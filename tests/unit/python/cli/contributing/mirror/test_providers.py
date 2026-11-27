@@ -147,7 +147,8 @@ class TestGHCRProviderImageRef(unittest.TestCase):
             self.assertTrue(self.provider.tag_exists(NODE))
 
         self.assertEqual(
-            run.call_args.args[0], ["skopeo", "inspect", f"docker://{NODE_MIRROR}"]
+            run.call_args.args[0],
+            ["skopeo", "inspect", "--raw", f"docker://{NODE_MIRROR}"],
         )
 
 
