@@ -33,8 +33,8 @@ docs:
   follow: requires-python
   custom: true
   source_repository: "{{ SOFTWARE_REPOSITORY }}"
-  mermaid_version: 12.3.0
-  mermaid_sha256: 336df803d87a38b70a01e736e666c8f7601d2ce42f5e47c8fafe5d721074b9a3
+  mermaid_version: 12.4.0
+  mermaid_sha256: c0891e4c0413d0710ad193b431d8cbbe9d031636e51c467d11daa4721ba22094
   update:
     - key: mermaid_version
       type: npm
