@@ -37,7 +37,9 @@ def record(entry):
 
 
 def digest(password):
-    return hashlib.sha256(password.encode("utf-8")).hexdigest()
+    return hashlib.pbkdf2_hmac(
+        "sha256", password.encode("utf-8"), b"accounts", 4096
+    ).hex()
 
 
 if len(args) == 1 and args[0].startswith(">"):
@@ -79,7 +81,9 @@ sys.exit(2)
 
 
 def digest(password):
-    return hashlib.sha256(password.encode("utf-8")).hexdigest()
+    return hashlib.pbkdf2_hmac(
+        "sha256", password.encode("utf-8"), b"accounts", 4096
+    ).hex()
 
 
 class TestRealignAccounts(unittest.TestCase):
