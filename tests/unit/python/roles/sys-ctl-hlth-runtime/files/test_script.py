@@ -1428,6 +1428,16 @@ class TestScan(TestCase):
             (["syft container quay.io/centos/centos:stream10: exited 2: boom"], False),
         )
 
+    def test_an_sbom_cut_off_mid_write_is_built_again(self):
+        self.targets = [CENTOS_TARGET]
+        syft, cyclonedx = SCRIPT.sbom_paths(self.layout, CENTOS_TARGET)
+        syft.write_text("", encoding="utf-8")
+        cyclonedx.write_text(json.dumps(CENTOS_10), encoding="utf-8")
+        with contextlib.redirect_stdout(io.StringIO()):
+            _findings, errors, runner = self._scan(_config(targets=["container"]), {})
+        self.assertEqual(errors, [])
+        self.assertTrue(any("docker:sha256:abc" in call for call in runner.calls))
+
     def test_a_failed_sbom_skips_the_sbom_readers_of_that_target(self):
         _findings, errors, runner = self._scan(
             _config(targets=["host"], engines=["syft", "grype"]),

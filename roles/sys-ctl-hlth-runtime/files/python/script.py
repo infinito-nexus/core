@@ -1930,6 +1930,18 @@ def _read_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _readable_json(path: Path) -> bool:
+    """
+    Returns:
+        whether ``path`` holds a whole JSON document
+    """
+    try:
+        _read_json(path)
+    except (OSError, ValueError):
+        return False
+    return True
+
+
 def missing_databases(engine: str, databases: Path) -> list[str]:
     """Name every file of a provided database that is not there."""
     return [
@@ -2030,7 +2042,7 @@ def scan(
             target
             for target in targets
             if target.kind == "host"
-            or not all(path.is_file() for path in sbom_paths(layout, target))
+            or not all(_readable_json(path) for path in sbom_paths(layout, target))
         ]
         results = run_lanes(
             [[sbom_step(layout, images[SBOM_BUILDER], target)] for target in pending],
