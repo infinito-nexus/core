@@ -1527,10 +1527,13 @@ def trivy_os_args(
         names an OS release of :attr:`ScanConfig.trivy_unmatched_os` whose
         ``until`` has not passed, else ``[]``.
     """
-    cyclonedx = sbom_paths(layout, target)[1]
-    if "grype" not in scanners or not _readable_json(cyclonedx):
+    if "grype" not in scanners:
         return []
-    release = sbom_os(_read_json(cyclonedx))
+    try:
+        cyclonedx = _read_json(sbom_paths(layout, target)[1])
+    except UNREADABLE_JSON:
+        return []
+    release = sbom_os(cyclonedx)
     for entry in config.trivy_unmatched_os:
         if (entry.name, entry.version) == release and today <= entry.until:
             print(
@@ -1930,6 +1933,9 @@ def _read_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+UNREADABLE_JSON = (OSError, ValueError, RecursionError)
+
+
 def _readable_json(path: Path) -> bool:
     """
     Returns:
@@ -1937,7 +1943,7 @@ def _readable_json(path: Path) -> bool:
     """
     try:
         _read_json(path)
-    except (OSError, ValueError):
+    except UNREADABLE_JSON:
         return False
     return True
 

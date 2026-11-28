@@ -1440,19 +1440,21 @@ class TestScan(TestCase):
 
     def test_without_syft_an_unreadable_sbom_keeps_the_os_packages_in_trivy(self):
         self.targets = [CENTOS_TARGET]
-        SCRIPT.sbom_paths(self.layout, CENTOS_TARGET)[1].write_text(
-            "", encoding="utf-8"
-        )
-        _findings, errors, runner = self._scan(
-            _config(
-                targets=["container"],
-                engines=["trivy", "grype"],
-                trivy_unmatched_os=UNMATCHED_OS,
-            ),
-            {},
-        )
-        (trivy,) = [call for call in runner.calls if "--image-src" in call]
-        self.assertEqual((errors, "--pkg-types" in trivy), ([], False))
+        for name, content in (("empty", ""), ("too deep", "[" * 100_000)):
+            with self.subTest(name):
+                SCRIPT.sbom_paths(self.layout, CENTOS_TARGET)[1].write_text(
+                    content, encoding="utf-8"
+                )
+                _findings, errors, runner = self._scan(
+                    _config(
+                        targets=["container"],
+                        engines=["trivy", "grype"],
+                        trivy_unmatched_os=UNMATCHED_OS,
+                    ),
+                    {},
+                )
+                (trivy,) = [call for call in runner.calls if "--image-src" in call]
+                self.assertEqual((errors, "--pkg-types" in trivy), ([], False))
 
     def test_a_failed_sbom_skips_the_sbom_readers_of_that_target(self):
         _findings, errors, runner = self._scan(
