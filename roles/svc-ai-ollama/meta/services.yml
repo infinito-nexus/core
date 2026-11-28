@@ -13,7 +13,7 @@ ollama:
   backup:
     stop_required: false
   image: ollama/ollama
-  version: 0.40.18
+  version: 0.40.19
   name: ollama
   gpu: true
   min_storage: 3473MB
