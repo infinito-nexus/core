@@ -1,3 +1,4 @@
+import hashlib
 import os
 import subprocess
 import sys
@@ -19,6 +20,7 @@ DECLARED = {
 }
 
 PROSODYCTL_STUB = """#!{python}
+import hashlib
 import os
 import re
 import sys
@@ -34,6 +36,10 @@ def record(entry):
         handle.write(entry + "\\n")
 
 
+def digest(password):
+    return hashlib.sha256(password.encode("utf-8")).hexdigest()
+
+
 if len(args) == 1 and args[0].startswith(">"):
     host, user, password = (
         bytes.fromhex(value).decode("utf-8")
@@ -45,7 +51,7 @@ if len(args) == 1 and args[0].startswith(">"):
     )
     account = store / f"{{user}}@{{host}}"
     record(f"test {{user}}@{{host}}")
-    if account.is_file() and account.read_text(encoding="utf-8") == password:
+    if account.is_file() and account.read_text(encoding="utf-8") == digest(password):
         print("Result: true")
         sys.exit(0)
     print("Error: Auth failed. Invalid username or password.", file=sys.stderr)
@@ -58,18 +64,22 @@ if action == "password":
     if not account.is_file():
         print("Error: No such user", file=sys.stderr)
         sys.exit(1)
-    account.write_text(password, encoding="utf-8")
+    account.write_text(digest(password), encoding="utf-8")
     print("OK: User password changed")
     sys.exit(0)
 if action == "create":
     if account.is_file():
         print("Error: User exists", file=sys.stderr)
         sys.exit(1)
-    account.write_text(password, encoding="utf-8")
+    account.write_text(digest(password), encoding="utf-8")
     print("OK: User created")
     sys.exit(0)
 sys.exit(2)
 """
+
+
+def digest(password):
+    return hashlib.sha256(password.encode("utf-8")).hexdigest()
 
 
 class TestRealignAccounts(unittest.TestCase):
@@ -100,7 +110,9 @@ class TestRealignAccounts(unittest.TestCase):
 
     def plant(self, **passwords):
         for user, password in passwords.items():
-            (self.store / f"{user}@{DOMAIN}").write_text(password, encoding="utf-8")
+            (self.store / f"{user}@{DOMAIN}").write_text(
+                digest(password), encoding="utf-8"
+            )
 
     def realign(self, **env):
         done = subprocess.run(
@@ -132,13 +144,13 @@ class TestRealignAccounts(unittest.TestCase):
         self.plant(**{**DECLARED, "focus": "stale"})
         done = self.realign()
         self.assertEqual(self.writes(), [f"password focus@{DOMAIN}"])
-        self.assertEqual(self.stored("focus"), DECLARED["focus"])
+        self.assertEqual(self.stored("focus"), digest(DECLARED["focus"]))
         self.assertEqual(done.stdout.count("[CHANGED]"), 1)
 
     def test_missing_accounts_are_registered_with_the_declared_password(self):
         done = self.realign()
         for user in ACCOUNTS:
-            self.assertEqual(self.stored(user), DECLARED[user])
+            self.assertEqual(self.stored(user), digest(DECLARED[user]))
         self.assertEqual(done.stdout.count("[CHANGED]"), len(ACCOUNTS))
 
     def test_a_password_with_lua_and_shell_metacharacters_verifies_unchanged(self):

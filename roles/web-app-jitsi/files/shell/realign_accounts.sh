@@ -33,8 +33,6 @@ realign() {
         echo "[FAIL] ${jid}: no password supplied" >&2
         return 1
     fi
-    # Prosody 13 closes every session of an account whose password is set, even to the same value;
-    # a kicked focus session leaves focus.<domain> (mod_client_proxy) without a target, so conference requests get service-unavailable.
     if carries_password "$user" "$password"; then
         return 0
     fi
