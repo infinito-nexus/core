@@ -1,6 +1,6 @@
 """L33: the counsel is read-only. Its agent.yml has write_enabled false, its
 firewall role grants no commit, push or write request to an instance, and its
-agents/skills/i8-advocate skill names the portable advocate skill."""
+agents/skills/i8-advocate skill names the portable kvb-check-legal skill."""
 
 from __future__ import annotations
 
@@ -38,8 +38,8 @@ def check(agents_dir: Path) -> list[str]:
     advocate = agents_dir / "skills" / "i8-advocate" / "SKILL.md"
     if not advocate.is_file():
         problems.append("agents/skills/i8-advocate missing")
-    elif "advocate" not in read_text(str(advocate)):
-        problems.append("i8-advocate does not name the portable advocate skill")
+    elif "kvb-check-legal" not in read_text(str(advocate)):
+        problems.append("i8-advocate does not name the portable kvb-check-legal skill")
     return problems
 
 

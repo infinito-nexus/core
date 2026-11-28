@@ -19,7 +19,7 @@ Take the role from the operator's message when one is named. Otherwise run `make
 
 This skill is a loop. Run it self-paced with a 30 minute tick (`/loop 30m /i8-designer`, or the host's equivalent wake-up): each tick continues the role in progress or starts the next due one, and a finished deploy, gate or gallery run wakes it earlier. Never wait on an approval; publish the gallery, report the link and move on. Stop the loop only when the queue is empty and no gallery awaits an answer, and report the status matrix then.
 
-The procedure fixes the deploy command (single pass against the running stack, no reinstall, no `full_cycle`); the inspect-before-redeploy rules of the `i8-iterate-compose` skill still apply after a failed deploy, and every gate runs through the `i8-quality-high` skill. Work under the `robot` skill; put a question to the operator only where the procedure demands an explicit confirmation (commits, pushes, changes to `roles/test-e2e-playwright/`).
+The procedure fixes the deploy command (single pass against the running stack, no reinstall, no `full_cycle`); the inspect-before-redeploy rules of the `i8-iterate-compose` skill still apply after a failed deploy, and every gate runs through the `i8-quality-high` skill. Work under the `kvb-org-robot` skill; put a question to the operator only where the procedure demands an explicit confirmation (commits, pushes, changes to `roles/test-e2e-playwright/`).
 
 Stylesheet contract (tokens only, `url()` origin, contrast, state colors): the `i8-file-role-style` skill and the `style.css.md` SPOT.
 

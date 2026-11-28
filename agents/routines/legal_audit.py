@@ -1,7 +1,7 @@
 """Counsel routine: review the whole project for legal soundness through the
 i8-advocate skill and file what it finds. Read-only: deterministic nodes read the
 licence declarations, build the licence inventory and probe the instances, the
-model nodes run the advocate checks and harden a blocker with the dialectic, and
+model nodes run the kvb-check-legal checks and harden a blocker with the dialectic, and
 an open blocker holds release tags. The nodes and edges match the counsel diagram;
 a decision node defaults to its forward branch so a stub run reaches a terminal.
 """
@@ -37,7 +37,7 @@ STEPS = [
     ),
     Step(
         "L1",
-        "advocate checks 1 to 7: blocker, finding or note?",
+        "kvb-check-legal checks 1 to 7: blocker, finding or note?",
         "model",
         branches=(
             ("🧾 finding or note", "D5"),

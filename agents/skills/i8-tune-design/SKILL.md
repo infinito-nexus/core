@@ -18,4 +18,4 @@ Follow the instructions from AGENTS.md, then follow the `tune_design` routine ex
 
 It shares the screenshot and gallery code with the `i8-designer` skill: `make design-gallery app=<app>` captures, `python -m cli.meta.roles.design.gallery` names the gallery and its manifest, and `python -m cli.meta.roles.design.propose` files a proposal that `make design-queue` lists as `proposed`.
 
-Stay lean: capture only, judge against the `i8-file-role-style` contract, propose, report. Never edit a role, never commit, never block the loop that ran you; a change you would make yourself is a finding for the designer. Work under the `robot` skill.
+Stay lean: capture only, judge against the `i8-file-role-style` contract, propose, report. Never edit a role, never commit, never block the loop that ran you; a change you would make yourself is a finding for the designer. Work under the `kvb-org-robot` skill.

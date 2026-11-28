@@ -14,7 +14,7 @@ As the operator who ships an Infinito.Nexus release, I want one `i8-release` ski
   - the series layer: `tools/` (film, join, reflow, voice_all, contact_sheet, playground), a setup interview, a scene library, the `infinito` preset (its own colours `#142CAD` against the SPOT `#001f3f`, a 1 MB copy of [logo.png](../../assets/img/logo.png)), about 11 MB of music and voice.
 - Upstream merges no external pull requests: all merged PRs (#1 to #8) are the owner's; #9, a one-line frontmatter fix, was closed on 2026-11-03 without a merge.
 - The design SPOT is `design.colors.base` and `design.font` in [services.yml](../../roles/web-svc-design/meta/services.yml), turned into tokens by [palette.py](../../utils/design/palette.py) (`build_palette`).
-- The general skills repository (`kvb-<category>-<name>`) holds `kvb-git-changelog`, which writes the `pkgmgr release` message, and pins third-party skills in `skills-lock.json`.
+- The general skills repository (`kvb-<category>-<name>`) holds `kvb-release-changelog`, which writes the `pkgmgr release` message, and pins third-party skills in `skills-lock.json`.
 - Reference channels: [blog.infinito.nexus](https://blog.infinito.nexus/) release posts (version, colon, benefit headline; lead; upgrade callout; short benefit subheads; "If you… / Then…" checklist; "More Reliable" and "Updated Applications" lists; about 500 to 600 words), [Mastodon](https://microblog.infinito.nexus/@kevinveenbirkenbach) release posts (about 480 to 510 characters: version and headline, one benefit paragraph, "Also new:" line, a `s.infinito.nexus/infinitoNN` short link, hashtags), the [LinkedIn company page](https://www.linkedin.com/company/107414216/).
 - The core 17.0.0 changelog run (Main, 2026-11-08) spent most hand work on version jumps and contributors: a commit list over 2430 commits misses net changes, and a meta-only scan misses renamed pins, `requirements.yml` collections, `pyproject.toml` and Dockerfiles under `roles/*/files`.
 
@@ -85,7 +85,7 @@ flowchart LR
 | `i8-release-newsletter` | subject, preheader and Markdown body per audience, pasteable as a [listmonk](../../roles/web-app-listmonk/README.md) campaign | `kvb-create-article` |
 | `i8-release-instagram` | 1080 x 1350 image with text, caption | `kvb-create-post` |
 | `i8-release-video` | Reel 9:16 30 s, YouTube 16:9 for developers and for customers (2 to 3 minutes each, chapters), YouTube descriptions with chapter marks | `motion-presenter` |
-| `i8-release-changelog` | the release entry | `kvb-git-changelog` |
+| `i8-release-changelog` | the release entry | `kvb-release-changelog` |
 
 The collector is `kvb-create-release`. The general names follow the skills repository's `kvb-<category>-<name>` rule; the Skills agent confirms them. Outputs land in `/tmp/release-<version>/`. Nothing is published by an agent; the hand-over lists every file for the operator.
 
@@ -125,6 +125,6 @@ The collector is `kvb-create-release`. The general names follow the skills repos
 ### General skills (skills repository, reviewed and merged by the Skills agent)
 
 - [ ] `kvb-create-release` collects the changes since the last `vX.Y.Z` tag, writes the brief, and hands each channel to `<prefix>-release-<channel>` when the project has one, else to the general method.
-- [ ] `kvb-create-article` and `kvb-create-post` exist with one-line descriptions and no project facts; `kvb-git-changelog` stays the changelog method.
+- [ ] `kvb-create-article` and `kvb-create-post` exist with one-line descriptions and no project facts; `kvb-release-changelog` stays the changelog method.
 - [ ] `skills-lock.json` pins `infinito-nexus/motion-presenter` at a tag; no file of it is copied.
 - [ ] `make test` is green in the skills worktree and the listing budget holds.

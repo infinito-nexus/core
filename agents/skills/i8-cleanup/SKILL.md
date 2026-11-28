@@ -2,7 +2,7 @@
 name: i8-cleanup
 description: >
   Free the disk space and /tmp that agents filled on an Infinito.Nexus host:
-  run the portable `cleanup` skill and apply this repository's rules for
+  run the portable `kvb-cleanup` skill and apply this repository's rules for
   stacks, worktrees, images, shared caches and teardown targets on top of it.
   Trigger on /i8-cleanup or when the operator asks to clean up after agents in
   this repository. Infinito.Nexus specific.
@@ -11,9 +11,9 @@ routines: []
 
 # Cleanup After Agents
 
-Follow the instructions from AGENTS.md, then run the `cleanup` skill (installed
+Follow the instructions from AGENTS.md, then run the `kvb-cleanup` skill (installed
 by `make install-skills`) and apply the rules below on top of it; where a rule
-here is stricter, it wins. This skill never runs under the `robot` skill.
+here is stricter, it wins. This skill never runs under the `kvb-org-robot` skill.
 
 ## Attribution
 
@@ -86,8 +86,8 @@ here is stricter, it wins. This skill never runs under the `robot` skill.
 - `make worktree-prune` as a cleanup step: it also drops detached-HEAD
   registrations whose commits may be reachable only through them.
 
-Begin by clarifying every open requirement with the `active-listening` skill.
-The task is finished when the `cleanup` report shows the before and after sizes
+Begin by clarifying every open requirement with the `kvb-think-listen` skill.
+The task is finished when the `kvb-cleanup` report shows the before and after sizes
 and every peer that answered has been told what was removed near its items,
 through the `kvb-org-radio` skill: `radio.py post "<text>" --to <name>`, without
 `--wake`.

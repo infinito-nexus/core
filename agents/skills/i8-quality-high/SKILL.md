@@ -19,8 +19,8 @@ The first test or lint call on the machine starts that runner, and every later c
 `make test-runner-status` shows the runner, whether it runs and the worktree roots it mounts; `make test-runner-down` removes it, and the next call starts a new one.
 With `INFINITO_STACK_NAME` set, the gate runs in that stack's `infinito` container instead.
 
-The fix loop and its forbidden shortcuts are the `test-fix` skill's; this skill
-only pins the command and how to read its result.
+The fix loop and its forbidden shortcuts are those of the `kvb-code-test` skill's
+fix mode; this skill only pins the command and how to read its result.
 
 ## Running a pass
 
@@ -56,9 +56,9 @@ breaks a neighbouring target is not a fix.
 
 ## Working mode
 
-Begin by clarifying every open requirement with the `active-listening` skill,
-escalating any root-cause question you are not ~99% sure of to the `dialectic`
-skill, then work under the `robot` skill until both phases pass clean. Report
+Begin by clarifying every open requirement with the `kvb-think-listen` skill,
+escalating any root-cause question you are not ~99% sure of to the
+`kvb-think-dialectic` skill, then work under the `kvb-org-robot` skill until both phases pass clean. Report
 fix confidence and break risk as the `kvb-check-score` block: the two lines
 `score.py` prints, pasted verbatim. Do not commit unless the operator asked for
 a commit.

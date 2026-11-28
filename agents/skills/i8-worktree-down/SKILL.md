@@ -28,6 +28,6 @@ explicitly ask for it, because it discards the changes.
 When the checkout is already gone but the branch is still held, run
 `make worktree-prune` instead.
 
-Begin by clarifying every open requirement with the `active-listening` skill,
-then work under the `robot` skill. The task is finished only when the slot is
+Begin by clarifying every open requirement with the `kvb-think-listen` skill,
+then work under the `kvb-org-robot` skill. The task is finished only when the slot is
 reported as released and the branch is checkable out again.

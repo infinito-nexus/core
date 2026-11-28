@@ -17,7 +17,7 @@ The first test or lint call on the machine starts that runner, and every later c
 `make test-runner-status` shows the runner, whether it runs and the worktree roots it mounts; `make test-runner-down` removes it, and the next call starts a new one.
 With `INFINITO_STACK_NAME` set, the gate runs in that stack's `infinito` container instead.
 
-Begin by clarifying every open requirement with the `active-listening` skill
+Begin by clarifying every open requirement with the `kvb-think-listen` skill
 (escalating any root-cause or design question you are not ~99% sure of to the
-`dialectic` skill), then work under the `robot` skill. The gate is finished only
+`kvb-think-dialectic` skill), then work under the `kvb-org-robot` skill. The gate is finished only
 when `make quality` passes clean.

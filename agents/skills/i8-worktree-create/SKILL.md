@@ -26,6 +26,6 @@ summary, and hand the operator the `cd <path>` follow-up. Tests and lints need
 no stack, because they run in the shared test runner; name `make compose-up`
 only when the worktree is meant to deploy.
 
-Begin by clarifying every open requirement with the `active-listening` skill,
-then work under the `robot` skill. The task is finished only when the worktree
+Begin by clarifying every open requirement with the `kvb-think-listen` skill,
+then work under the `kvb-org-robot` skill. The task is finished only when the worktree
 exists and its `.env` has been generated.

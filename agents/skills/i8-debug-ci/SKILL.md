@@ -12,7 +12,7 @@ log line, find the root cause and failure class per cluster, and produce a fix
 plan with its evidence or escalate an infra fault. The deterministic steps and
 the order are the `debug_ci` routine; see
 `python -m agents.routines show debug_ci`. Escalate any root-cause you are not
-about 99 percent sure of to the `dialectic` skill.
+about 99 percent sure of to the `kvb-think-dialectic` skill.
 
 A fix for a difference between environments declares a capability, a run fact
 such as `INFINITO_GHCR_MIRROR` or `INFINITO_CACHE_STACK`, and never checks the

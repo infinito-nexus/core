@@ -15,12 +15,12 @@ STEPS = [
     ),
     Step(
         "watch",
-        "Arm /loop 30m /triage <run url>; never dispatch again while the watch is armed",
+        "Arm /loop 30m /kvb-ci-triage <run url>; never dispatch again while the watch is armed",
         nxt="local",
     ),
     Step(
         "local",
-        "Run the local lane serially via the iterate_compose routine under robot on a late fix, a pool-default pin or a container-state failure",
+        "Run the local lane serially via the iterate_compose routine under kvb-org-robot on a late fix, a pool-default pin or a container-state failure",
         nxt="reconcile",
     ),
     Step(

@@ -5,7 +5,7 @@ description: >
 routines: []
 ---
 
-Follow the instructions from AGENTS.md, then refactor and optimize the affected files exactly as this skill describes. Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill.
+Follow the instructions from AGENTS.md, then refactor and optimize the affected files exactly as this skill describes. Begin by clarifying every open requirement with the `kvb-think-listen` skill (escalating any root-cause or design question you are not ~99% sure of to the `kvb-think-dialectic` skill), then work under the `kvb-org-robot` skill.
 
 # Refactoring and Optimization
 

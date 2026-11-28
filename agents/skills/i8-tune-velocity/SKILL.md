@@ -4,7 +4,7 @@ description: >
   Find and apply performance optimizations in Infinito.Nexus without reducing
   logic, coverage or correctness: CI wall-clock, deploy duration, gate runtime
   and the translation pipeline. Every candidate is hardened with the
-  `dialectic` skill before it is applied. Trigger on /i8-tune-velocity, when a
+  `kvb-think-dialectic` skill before it is applied. Trigger on /i8-tune-velocity, when a
   job dies on its time budget, when a gate grows slower, or when the operator
   asks where the time goes. Infinito.Nexus specific.
 routines:
@@ -77,14 +77,14 @@ under the same conditions.
 
 1. Measure, and name the single biggest cost with its line and its number.
 2. Form one candidate optimization for it.
-3. Harden it with the `dialectic` skill. The antithesis must try to show that
+3. Harden it with the `kvb-think-dialectic` skill. The antithesis must try to show that
    the candidate removes coverage, hides a failure, or only moves the cost
    somewhere the measurement does not look.
 4. Apply what survives, re-measure against the saved log of the previous run,
    and report the delta as a before and an after number.
 5. Repeat until the next candidate is worth less than the run that measures it.
 
-Begin by clarifying every open requirement with the `active-listening` skill,
-then work under the `robot` skill. The task is finished when every applied
+Begin by clarifying every open requirement with the `kvb-think-listen` skill,
+then work under the `kvb-org-robot` skill. The task is finished when every applied
 change carries a before and after number from the same measurement source, and
 every rejected candidate is listed with the reason it fell.

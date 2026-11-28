@@ -285,7 +285,7 @@ flowchart LR
     EXR["🎭 maintainer"]
     EXSO["💫 maintainer/SOUL.md"]
     EXO["🎯 Keep the default branch green<br/>and every alert answered"]
-    EXS1["🧰 triage"]
+    EXS1["🧰 kvb-ci-triage"]
     EXS2["🧰 i8-commit"]
     EXT1["🧭 ci-failure-collect"]
     EXT2["🧭 quality-gate"]
@@ -632,11 +632,11 @@ flowchart TD
 
 `agents/roles/counsel/AGENTS.md`:
 
-- Load the `i8-advocate` skill, which runs the portable `advocate` skill over the whole tree instead of the staging index: the project licence declarations, every dependency manifest and lockfile with the transitive dependencies of the resolved versions, the images and packages the roles ship, vendored and copied code, attribution, data protection and trademarks.
+- Load the `i8-advocate` skill, which runs the portable `kvb-check-legal` skill over the whole tree instead of the staging index: the project licence declarations, every dependency manifest and lockfile with the transitive dependencies of the resolved versions, the images and packages the roles ship, vendored and copied code, attribution, data protection and trademarks.
 - `agents/roles/counsel/cron.yml` holds one entry, a full run every Monday at 02:00 UTC; a changed dependency manifest or lockfile on the default branch and every agent pull request start a run scoped to that change.
 - The instance checks run only against `agents.counsel.targets`, only through the public front proxy and only with read requests: every request to a host outside the instance's own domains (fonts, CDNs, analytics, embeds), every cookie or storage entry set before consent, and the reachability of the imprint and privacy pages.
 - Read-only: never edit a licence file, add a header, remove a dependency or change an instance; every fix is proposed in the finding and goes through the planner and the `Approved` gate.
-- Every blocker is hardened with the dialectic skill before it is filed.
+- Every blocker is hardened with the `kvb-think-dialectic` skill before it is filed.
 - Every finding becomes a work package in the confidential legal project with severity (blocker, finding, note), check, location, licence or law, proposed fix and evidence (`proven` or `derived`); a finding that an earlier run already filed updates its work package instead of opening a new one.
 - Every new blocker sends an email to the legal contact from the inventory; the email carries only the severity and a link to the work package.
 - Every report states in one line that it is no legal advice.
@@ -868,7 +868,7 @@ Shared deterministic tool nodes (no model call):
 - idle detection: when a triage round finds the same red job ids, the same heads and no new comments as the round before, the routine stops repeating rounds and hands over to `make ci-wait` until one of them changes;
 - CI liveness: for every open pull request, check that an unfinished `pull_request` run exists for the current head; when none exists, report "CI not active" and hand the operator the `gh run rerun` command.
 
-Shared model nodes: cluster boundaries, root cause (with the dialectic skill), failure class, fix design and scope, infra race versus code defect, selector and token mapping, visual review of screenshots, upstream limit versus fixable, break risk, bundling, commit and pull request text, verification of review findings against the code, cross-agent triage.
+Shared model nodes: cluster boundaries, root cause (with the `kvb-think-dialectic` skill), failure class, fix design and scope, infra race versus code defect, selector and token mapping, visual review of screenshots, upstream limit versus fixable, break risk, bundling, commit and pull request text, verification of review findings against the code, cross-agent triage.
 
 Untrusted input:
 
@@ -933,7 +933,7 @@ flowchart TD
   L1{{"🧠 Which jobs share one cause?"}}
   D3{"🗂️ Fix already on some branch?"}
   D9(["🔗 Link the existing fix, tell the owner"])
-  L2{{"🧠 Root cause and failure class<br/>(dialectic)"}}
+  L2{{"🧠 Root cause and failure class<br/>(kvb-think-dialectic)"}}
   L3["🧠 Fix the shared harness<br/>or pin the tool once"]
   L4["🧠 Design the fix and its scope"]
   D4["🌱 Fresh worktree, free slot, new .env"]
@@ -1152,7 +1152,7 @@ flowchart TD
   D2["📦 Licence inventory: dependencies with transitive ones,<br/>shipped images, vendored files<br/>(make legal-inventory)"]
   D3{"🌐 agents.counsel.targets set?"}
   D4["🕵️ Read-only probe through the front proxy:<br/>third-party requests, cookies before consent,<br/>imprint and privacy pages (make legal-probe)"]
-  L1{{"🧠 advocate checks 1 to 7:<br/>blocker, finding or note?"}}
+  L1{{"🧠 kvb-check-legal checks 1 to 7:<br/>blocker, finding or note?"}}
   L2{{"⚖️ Blocker survives the dialectic?"}}
   D5["📋 Work package in the confidential<br/>legal project (new or updated)"]
   D6["📋 Blocker work package<br/>in the legal project"]
@@ -1616,7 +1616,7 @@ Every rule of this requirement that can be checked without a running stack has a
 | L30 | every `cron.yml` entry has a unique `name`, a valid UTC cron `schedule`, an existing `routine`, an `action` of `start` or `pause`, and a `condition` the orchestrator knows |
 | L31 | no code reads `agent.yml` or `cron.yml` directly; every consumer goes through `lookup('agent_config', ...)`, and every inventory override under `agents.<role>` names an existing role and field |
 | L32 | every skill is Markdown; every routine is a Python graph; routine steps call repository logic in `cli/` or `utils/` instead of reimplementing it (no copy of a function that exists there) |
-| L33 | the counsel's `agent.yml` has `write_enabled: false`, its firewall role grants no commit, push or write request, and `agents/skills/i8-advocate` names the portable `advocate` skill |
+| L33 | the counsel's `agent.yml` has `write_enabled: false`, its firewall role grants no commit, push or write request, and `agents/skills/i8-advocate` names the portable `kvb-check-legal` skill |
 | L34 | the tuner's `AGENTS.md` names its trusted measurement sources, the invalid-comparison cases, the never-traded properties (coverage, budgets, error semantics, masking, concurrency, lint intent), the measured language-choice rule and `python -m cli.tune.logscan` |
 
 ### Iteration plan

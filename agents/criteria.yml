@@ -152,7 +152,7 @@ L32:
   proof: tests/lint/agents/test_l32_skill_routine_shape.py
   red_fixture: yes
 L33:
-  statement: "the counsel is read-only: write_enabled false, firewall grants no commit, push or instance write, advocate skill named"
+  statement: "the counsel is read-only: write_enabled false, firewall grants no commit, push or instance write, kvb-check-legal skill named"
   proof_kind: lint
   proof: tests/lint/agents/test_l33_counsel_readonly.py
   red_fixture: yes

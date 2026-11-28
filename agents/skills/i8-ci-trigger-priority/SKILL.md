@@ -5,7 +5,7 @@ description: >
 routines: []
 ---
 
-Follow the instructions from AGENTS.md, then build and dispatch the priority line exactly as this skill describes. Begin by clarifying every open requirement with the `active-listening` skill (escalating any root-cause or design question you are not ~99% sure of to the `dialectic` skill), then work under the `robot` skill. Every token MUST pin all eight axes; a token that leaves one to the rotation is not a verification row and MUST NOT be dispatched. Never dispatch a line the validator refuses, and report per candidate what each pin rests on and which question the run will not answer.
+Follow the instructions from AGENTS.md, then build and dispatch the priority line exactly as this skill describes. Begin by clarifying every open requirement with the `kvb-think-listen` skill (escalating any root-cause or design question you are not ~99% sure of to the `kvb-think-dialectic` skill), then work under the `kvb-org-robot` skill. Every token MUST pin all eight axes; a token that leaves one to the rotation is not a verification row and MUST NOT be dispatched. Never dispatch a line the validator refuses, and report per candidate what each pin rests on and which question the run will not answer.
 
 # Lead a CI run with a priority line
 
@@ -108,7 +108,7 @@ that satisfies both:
    kind settles it: a delivered kind logs
    `docker-dataroot-filesystem: status=applied requested=<kind> effective=<kind>`,
    a substituted one logs a `fallback out of` note instead. Use the
-   `ci-artifacts` skill to pull that one log rather than every log of the run.
+   `kvb-ci-artifacts` skill to pull that one log rather than every log of the run.
 
 No kind satisfies both, because the branch has no samples yet: pin `btrfs` and
 say in the report that the pin rests on the pool default rather than on

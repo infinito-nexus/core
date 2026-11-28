@@ -3,7 +3,7 @@
 Each operator workflow has a skill that routes the agent to its authoritative
 procedure and drives it — clarifying open requirements first, then acting
 autonomously to completion. Most are `i8-` skills specific to this repository; a
-few (such as `triage`) are portable skills shared across projects.
+few (such as `kvb-ci-triage`) are portable skills shared across projects.
 
 ## How to use 🧭
 
@@ -35,7 +35,7 @@ from its procedure file. Run `make install-skills` to (re)install them; `INFINIT
 | Checking a branch out into a parallel worktree | `i8-worktree-create` |
 | Releasing a parallel worktree, its own deploy stack, its held pool jobs and its slot, while the infra runner and the shared test runners keep running | `i8-worktree-down` |
 | Freeing disk space and `/tmp` that agents filled: toolchain images through `make build-cleanup`, cache space through `make cache-evict`, and the list of stale test runners and of held and orphaned pool job stacks | `i8-cleanup` |
-| A GitHub Actions / CI run failed and needs triage | `triage` |
+| A GitHub Actions / CI run failed and needs triage | `kvb-ci-triage` |
 | A local deploy is failing on the host | `i8-debug-local` |
 | Inspecting a `*.log` or `*job-logs.txt` file dropped in the workdir | `i8-debug-log` |
 | Pulling a sibling feature branch and merging it into the current one | `i8-merge-sibling` |

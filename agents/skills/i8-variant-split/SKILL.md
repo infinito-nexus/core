@@ -124,8 +124,8 @@ Fill the axes column with the union over sweeps 0-5 and the per-sweep
 maximum, and both time columns with their segment source and whether it is a
 lower bound.
 
-Begin by clarifying every open requirement with the `active-listening` skill
-(escalating any design question you are not ~99% sure of to the `dialectic`
-skill), then work under the `robot` skill. The task is finished when every row
+Begin by clarifying every open requirement with the `kvb-think-listen` skill
+(escalating any design question you are not ~99% sure of to the
+`kvb-think-dialectic` skill), then work under the `kvb-org-robot` skill. The task is finished when every row
 the operator named has a filled table line, or a stated reason why no split
 keeps its coverage together with the best candidate and exactly what it loses.

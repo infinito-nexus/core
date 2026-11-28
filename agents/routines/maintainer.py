@@ -163,7 +163,7 @@ STEPS = [
     Step("D9", "Link the existing fix, tell the owner", "terminal"),
     Step(
         "L2",
-        "Root cause and failure class (dialectic)",
+        "Root cause and failure class (kvb-think-dialectic)",
         "model",
         branches=(("🐞 product defect", "L4"), ("🌍 host tool drift", "L3")),
     ),

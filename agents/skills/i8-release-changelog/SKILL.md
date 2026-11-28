@@ -6,7 +6,7 @@ routines:
   - release
 ---
 
-Follow the instructions from AGENTS.md, then write the entry as the `facts`, `prose` and `insert` steps of the `release` routine (`python -m agents.routines show release`) with the general `kvb-git-changelog` method, which also writes the `pkgmgr release` message; this skill holds the project's changelog facts.
+Follow the instructions from AGENTS.md, then write the entry as the `facts`, `prose` and `insert` steps of the `release` routine (`python -m agents.routines show release`) with the general `kvb-release-changelog` method, which also writes the `pkgmgr release` message; this skill holds the project's changelog facts.
 
 ## Facts before prose
 
@@ -21,4 +21,4 @@ Follow the instructions from AGENTS.md, then write the entry as the `facts`, `pr
 - One line per item as `- <Area>: <what changed>`, without a closing period; role names in `*italics*`.
 - Each contributor line gets the person's areas of the range after a colon, read from their commits.
 - `python -m cli.contributing.changelog.extract insert --entry /tmp/release-<version>/changelog/entry.md --out /tmp/release-<version>/changelog` puts the entry into a scratch copy of `CHANGELOG.md` under `lint/` and MUST end with markdownlint's `0 error(s)`; the repository's `CHANGELOG.md` stays untouched.
-- Hand the entry to `kvb-git-changelog` for the `pkgmgr release` message; the operator releases.
+- Hand the entry to `kvb-release-changelog` for the `pkgmgr release` message; the operator releases.

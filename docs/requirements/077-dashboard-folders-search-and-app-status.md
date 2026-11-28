@@ -31,7 +31,7 @@ flowchart TD
         P5 -- "✏️ corrections" --> P4
     end
 
-    P5 -- "🤖 yes, work under /robot" --> A0
+    P5 -- "🤖 yes, work under /kvb-org-robot" --> A0
     P5 -- "🤖 yes, in parallel" --> B1
 
     subgraph A["🧩 A · port-ui, portfolio repo in its own worktree"]
