@@ -164,7 +164,7 @@ def seed_reports(
         )
         config = node_config()
         ids = {
-            engine: p.engine_image_id(layout, images[engine], runner)
+            engine: p.engine_identity(layout, images[engine], runner)
             for engine in {OSV if name == OSV else RUNTIME_ENGINE for name in names}
         }
         lanes: list[list] = []

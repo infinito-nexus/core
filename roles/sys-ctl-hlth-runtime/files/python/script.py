@@ -1672,7 +1672,7 @@ def trivy_args_step(
     )
 
 
-def engine_image_id(layout: Layout, image: str, runner: Runner) -> str | None:
+def engine_identity(layout: Layout, image: str, runner: Runner) -> str | None:
     """
     Args:
         layout: where the run keeps its files, its runtime among them.
@@ -1680,17 +1680,14 @@ def engine_image_id(layout: Layout, image: str, runner: Runner) -> str | None:
         runner: runs one command.
 
     Returns:
-        The local image id the reference resolves to, ``None`` when it does
-        not resolve.
+        The :func:`layer_key` of the layers the reference resolves to,
+        ``None`` when it does not resolve. Not the image id: a runtime on the
+        containerd image store reports the digest of the multi-platform index
+        as the id, one on a graph driver the digest of the platform config,
+        so only the layers name the same engine on both.
     """
-    try:
-        result = runner(
-            (layout.runtime[0], "image", "inspect", "--format", "{{.Id}}", image)
-        )
-    except subprocess.TimeoutExpired:
-        return None
-    resolved = result.stdout.strip()
-    return resolved if result.returncode == 0 and resolved else None
+    layers = image_layers(layout, image, runner)
+    return None if layers is None else layer_key(layers)
 
 
 def trivy_fingerprint(
@@ -1699,14 +1696,13 @@ def trivy_fingerprint(
     """
     Args:
         layout: where the run keeps its files, the Trivy database among them.
-        image_id: the resolved id of the Trivy image, see
-            :func:`engine_image_id`.
+        image_id: the :func:`engine_identity` of the Trivy image.
         args: the Trivy arguments of one container target.
 
     Returns:
-        A digest of the engine image id, its arguments and the size and
+        A digest of the engine identity, its arguments and the size and
         modification time of every Trivy database file, ``None`` when the
-        image id or a database file is missing.
+        identity or a database file is missing.
     """
     if image_id is None:
         return None
@@ -1814,15 +1810,14 @@ def sbom_report_fingerprint(
     Args:
         layout: where the run keeps its files, the databases among them.
         engine: the engine that reads the SBOM.
-        image_id: the resolved id of the engine image, see
-            :func:`engine_image_id`.
+        image_id: the :func:`engine_identity` of the engine image.
         args: the engine arguments that do not name a file of this run.
         identity: what the engine matches in the SBOM, see
             :func:`syft_identity` and :func:`osv_identity`; ``None`` when the
             SBOM could not be read.
 
     Returns:
-        A digest of the engine image id, its arguments, its database stamps
+        A digest of the engine identity, its arguments, its database stamps
         and *identity*, ``None`` when one of them is missing.
     """
     stamps = database_stamps(layout, engine)
@@ -2358,7 +2353,7 @@ def scan(
         steps = []
         reused = 0
         trivy_id = (
-            engine_image_id(layout, images["trivy"], runner)
+            engine_identity(layout, images["trivy"], runner)
             if any(target.kind == "container" for target in targets)
             else None
         )
@@ -2398,7 +2393,7 @@ def scan(
     reused_sbom: Counter[str] = Counter()
     seeded_reports: Counter[str] = Counter()
     grype_id = (
-        engine_image_id(layout, images["grype"], runner)
+        engine_identity(layout, images["grype"], runner)
         if runtime or ("grype" in scanners and config.reads_sbom("grype"))
         else None
     )
@@ -2455,7 +2450,7 @@ def scan(
     osv_lane: int | None = None
     osv_fresh: dict[str, tuple[Target, str]] = {}
     if "osv" in scanners and config.reads_sbom("osv"):
-        osv_id = engine_image_id(layout, images["osv"], runner) if sbom_ready else None
+        osv_id = engine_identity(layout, images["osv"], runner) if sbom_ready else None
         queued = []
         for target in sbom_ready:
             source = layout.work / f"{target.key}.osv.cdx.json"

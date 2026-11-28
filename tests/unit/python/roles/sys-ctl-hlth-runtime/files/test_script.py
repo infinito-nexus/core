@@ -1108,6 +1108,50 @@ EMPTY_REPORTS = {
 }
 
 
+def _engine_layers(layer):
+    return json.dumps([layer]) if layer else ""
+
+
+class TestEngineIdentity(TestCase):
+    @staticmethod
+    def _store(image_id):
+        def runner(argv):
+            stdout = image_id if "{{.Id}}" in argv else json.dumps(SEED_LAYERS)
+            return SimpleNamespace(returncode=0, stdout=stdout, stderr="")
+
+        return runner
+
+    def test_both_image_stores_name_the_same_engine(self):
+        layout = SCRIPT.Layout(
+            runtime=("docker", "run"),
+            databases=Path("/db"),
+            sbom=Path("/sbom"),
+            work=Path("/work"),
+            excludes=(),
+        )
+        self.assertEqual(
+            {
+                SCRIPT.engine_identity(layout, "grype:1", self._store(image_id))
+                for image_id in ("sha256:index", "sha256:config")
+            },
+            {SCRIPT.layer_key(SEED_LAYERS)},
+        )
+
+    def test_an_unresolved_engine_has_no_identity(self):
+        layout = SCRIPT.Layout(
+            runtime=("docker", "run"),
+            databases=Path("/db"),
+            sbom=Path("/sbom"),
+            work=Path("/work"),
+            excludes=(),
+        )
+
+        def runner(_argv):
+            return SimpleNamespace(returncode=1, stdout="", stderr="no such image")
+
+        self.assertIsNone(SCRIPT.engine_identity(layout, "grype:1", runner))
+
+
 class FakeEngines:
     """A runner that answers every engine command with a fixture report."""
 
@@ -1294,7 +1338,7 @@ class TestScan(TestCase):
                 ),
                 {"trivy.json": TRIVY_HOST},
                 fail=fail,
-                image_ids={self.images["trivy"]: trivy_id},
+                image_ids={self.images["trivy"]: _engine_layers(trivy_id)},
             )
 
     def _trivy_calls(self, runner):
@@ -1400,8 +1444,8 @@ class TestScan(TestCase):
                 {"json": osv_report or {"results": []}},
                 fail=fail,
                 image_ids={
-                    self.images["grype"]: "sha256:grype-1",
-                    self.images["osv"]: "sha256:osv-1",
+                    self.images["grype"]: _engine_layers("sha256:grype-1"),
+                    self.images["osv"]: _engine_layers("sha256:osv-1"),
                 },
             )
 
@@ -1577,7 +1621,10 @@ class TestScan(TestCase):
                     targets=["container"], engines=["syft", "grype"], db_update=False
                 ),
                 {},
-                image_ids={self.images["grype"]: "sha256:grype-1", **image_ids},
+                image_ids={
+                    self.images["grype"]: _engine_layers("sha256:grype-1"),
+                    **image_ids,
+                },
             )
         return errors, runner, out.getvalue()
 
@@ -1626,8 +1673,8 @@ class TestScan(TestCase):
                 ),
                 {},
                 image_ids={
-                    self.images["grype"]: "sha256:grype-1",
-                    self.images["osv"]: "sha256:osv-1",
+                    self.images["grype"]: _engine_layers("sha256:grype-1"),
+                    self.images["osv"]: _engine_layers("sha256:osv-1"),
                     CENTOS_TARGET.ref: json.dumps(SEED_LAYERS),
                 },
             )
@@ -1648,7 +1695,7 @@ class TestScan(TestCase):
         return SCRIPT.sbom_report_fingerprint(
             self.layout,
             "osv",
-            "sha256:osv-1",
+            SCRIPT.layer_key(["sha256:osv-1"]),
             SCRIPT.osv_args(_config(db_update=False), ""),
             SCRIPT.osv_identity(SCRIPT.osv_sbom(CYCLONEDX)),
         )
@@ -1692,7 +1739,7 @@ class TestScan(TestCase):
             SCRIPT.sbom_report_fingerprint(
                 self.layout,
                 SCRIPT.RUNTIME_ENGINE,
-                "sha256:grype-1",
+                SCRIPT.layer_key(["sha256:grype-1"]),
                 SCRIPT.match_args(
                     SCRIPT.runtime_args(
                         SCRIPT.Target("other", "container", "sha256:other", "x", (), ())

@@ -31,7 +31,7 @@ CYCLONEDX = {
     ],
 }
 IMAGES = {"osv": "osv:1", "grype": "grype:1"}
-IDS = {"osv:1": "sha256:osv-1", "grype:1": "sha256:grype-1"}
+ENGINE_LAYERS = {"osv:1": ["sha256:osv-1"], "grype:1": ["sha256:grype-1"]}
 
 
 def _fingerprint(path: Path) -> str:
@@ -47,7 +47,9 @@ class FakeDocker:
         argv = list(argv)
         self.calls.append(argv)
         if argv[1:3] == ["image", "inspect"]:
-            return SimpleNamespace(returncode=0, stdout=IDS[argv[-1]], stderr="")
+            return SimpleNamespace(
+                returncode=0, stdout=json.dumps(ENGINE_LAYERS[argv[-1]]), stderr=""
+            )
         work = next(
             mount.split(":")[0]
             for flag, mount in itertools.pairwise(argv)
@@ -129,14 +131,14 @@ class TestSeedReports(unittest.TestCase):
             "osv": p.sbom_report_fingerprint(
                 node,
                 "osv",
-                "sha256:osv-1",
+                p.layer_key(ENGINE_LAYERS["osv:1"]),
                 p.osv_args(seed_reports.node_config(), ""),
                 p.osv_identity(p.osv_sbom(CYCLONEDX)),
             ),
             "runtime.grype": p.sbom_report_fingerprint(
                 node,
                 "grype",
-                "sha256:grype-1",
+                p.layer_key(ENGINE_LAYERS["grype:1"]),
                 p.match_args(p.runtime_args(other_node_target)),
                 p.syft_identity(p.runtime_sbom(SYFT)),
             ),
