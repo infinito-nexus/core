@@ -1,0 +1,19 @@
+---
+- name: "🧩 load docker, proxy for '{{ application_id }}'"
+  include_role:
+    name: svc-stack
+    tasks_from: consumer.yml
+
+- name: "👥 Render the Map Animator users file from the directory users"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "users.txt.j2"
+        dest: "{{ MAP_ANIMATOR_USERS_FILE_HOST }}"
+        mode: "0600"
+
+- name: "🚿 flush compose for '{{ application_id }}'"
+  meta: flush_handlers
+
+- include_tasks: utils/once/flag.yml

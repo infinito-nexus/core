@@ -36,27 +36,27 @@
     label: "{{ item.type }}"
   register: peertube_design_rendered
 
+- name: "📥 PEERTUBE | Read the rendered logos for the upload"
+  ansible.builtin.slurp:
+    src: "{{ [PEERTUBE_DESIGN_DIR, item.file] | path_join }}"
+  loop: "{{ PEERTUBE_DESIGN_LOGOS }}"
+  loop_control:
+    label: "{{ item.type }}"
+  register: peertube_design_files
+
 - name: "📤 PEERTUBE | Upload the corporate logos over fallback or own upload"
   ansible.builtin.command:
-    argv:
-      - curl
-      - --silent
-      - --show-error
-      - --fail
-      - --request
-      - POST
-      - --header
-      - "@-"
-      - --header
-      - "Host: {{ PEERTUBE_HOSTNAME }}"
-      - --form
-      - "logofile=@{{ [PEERTUBE_DESIGN_DIR, item.0.file] | path_join }};type=image/png"
-      - "{{ PEERTUBE_INTERNAL_URL }}/api/v1/config/instance-logo/{{ item.0.type }}/pick"
-    stdin: "Authorization: Bearer {{ peertube_design_token.json.access_token }}"
+    argv: "{{ PEERTUBE_NETNS_PYTHON }}"
+    stdin: |-
+      LOGO_B64 = {{ item.3.content | to_json }}
+      HEADERS_B64 = {{ peertube_design_headers | to_json | b64encode | to_json }}
+      {{ lookup('file', 'python/upload_logo.py') }}
+  environment:
+    HTTP_URL: "{{ PEERTUBE_NETNS_URL }}/api/v1/config/instance-logo/{{ item.0.type }}/pick"
   vars:
-    _served: "{{ peertube_design_config.json.instance.logo | selectattr('type', 'equalto', item.0.type) | first }}"
+    _served: "{{ peertube_design_served | selectattr('type', 'equalto', item.0.type) | first }}"
     _mark: "{{ [] if item.1 is skipped else (item.1.content | b64decode).split() }}"
-  loop: "{{ PEERTUBE_DESIGN_LOGOS | zip(peertube_design_marks.results, peertube_design_rendered.results) | list }}"
+  loop: "{{ PEERTUBE_DESIGN_LOGOS | zip(peertube_design_marks.results, peertube_design_rendered.results, peertube_design_files.results) | list }}"
   loop_control:
     label: "{{ item.0.type }}"
   when: >-
@@ -66,22 +66,36 @@
         and _mark[1] != item.2.stat.checksum)
   register: peertube_design_uploads
   changed_when: true
+  failed_when: peertube_design_uploads.rc != 0 or (peertube_design_uploads.stdout | trim) is not match('2[0-9][0-9]$')
+  delegate_to: "{{ PEERTUBE_HOST_NODE }}"
+  become: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: "🔍 PEERTUBE | Read the logo files PeerTube serves after the upload"
-  uri_retry:
-    url: "{{ PEERTUBE_INTERNAL_URL }}/api/v1/config"
-    headers:
-      Host: "{{ PEERTUBE_HOSTNAME }}"
-    return_content: true
+- name: "🔍 PEERTUBE | Learn the logo files PeerTube serves after the upload"
   when: peertube_design_uploads is changed
-  register: peertube_design_config_uploaded
+  block:
+    - name: "🔍 PEERTUBE | Read the logo files PeerTube serves after the upload"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+      vars:
+        netns_request_argv: "{{ PEERTUBE_NETNS_PYTHON }}"
+        netns_request_host: "{{ PEERTUBE_HOST_NODE }}"
+        netns_request_method: GET
+        netns_request_url: "{{ PEERTUBE_NETNS_URL }}/api/v1/config"
+        netns_request_headers: "{{ PEERTUBE_API_HEADERS }}"
+        netns_request_status: [200]
+        netns_request_retries: 30
+        netns_request_delay: 2
+        netns_request_no_log: false
+        netns_request_result: peertube_design_config_uploaded
+
+    - name: "🔍 PEERTUBE | Keep the logo files PeerTube serves after the upload"
+      ansible.builtin.set_fact:
+        peertube_design_served_uploaded: "{{ (peertube_design_config_uploaded.content | from_json).instance.logo }}"
 
 - name: "🏷️ PEERTUBE | Mark the logos the role uploaded"
   ansible.builtin.copy:
     dest: "{{ [PEERTUBE_DESIGN_DIR, item.0.type ~ '.mark'] | path_join }}"
-    content: "{{ (peertube_design_config_uploaded.json.instance.logo | selectattr('type', 'equalto', item.0.type) | first).fileUrl | urlsplit('path') }} {{ item.2.stat.checksum
-      }}\n"
+    content: "{{ (peertube_design_served_uploaded | selectattr('type', 'equalto', item.0.type) | first).fileUrl | urlsplit('path') }} {{ item.2.stat.checksum }}\n"
     mode: "0644"
   loop: "{{ PEERTUBE_DESIGN_LOGOS | zip(peertube_design_uploads.results, peertube_design_rendered.results) | list }}"
   loop_control:

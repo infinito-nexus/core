@@ -22,8 +22,8 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 
 from plugins.lookup.users import LookupModule as UsersLookup
-from plugins.lookup.users import _reset_cache_for_tests
 from tests.utils.role_users import declared_universe
+from utils.tests.caches import reset_caches
 
 from . import PROJECT_ROOT
 
@@ -52,13 +52,13 @@ def _resolve() -> dict:
 class TestDeclaredUsersResolve(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
         cls.resolved = _resolve()
         cls.declared = declared_universe(ROLES_DIR)
 
     @classmethod
     def tearDownClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def test_every_declared_user_is_resolvable(self) -> None:
         missing = sorted(self.declared - set(self.resolved))

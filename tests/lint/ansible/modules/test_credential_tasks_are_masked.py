@@ -33,7 +33,8 @@ from . import PROJECT_ROOT
 _RULE = "credential-masking"
 _JINJA = re.compile(r"\{\{.*?\}\}|\{%.*?%\}", re.DOTALL)
 _SECRET = re.compile(
-    r"(?i)\b[a-z0-9_]*(?:password|secret|token|api_?key|private_?key)\b(?!\s*\()"
+    r"(?i)\b[a-z0-9_]*(?:password|secret|token|(?:api|app|private)_?key|credentials?"
+    r"|_pw|_pwd|_pass|_otp)\b(?!\s*\()"
     r"|secrets\.credentials\."
 )
 _TRUTHY = re.compile(r"MASK_CREDENTIALS_IN_LOGS|^\s*(?:true|yes|on)\s*$", re.IGNORECASE)
@@ -86,7 +87,14 @@ _TASK_KEYWORDS = frozenset(
     }
 )
 _MODULE_MASKED_PARAMS = frozenset(
-    {"url_password", "login_password", "password", "api_token", "account_api_key"}
+    {
+        "url_password",
+        "login_password",
+        "password",
+        "api_token",
+        "account_api_key",
+        "bind_pw",
+    }
 )
 _PATH_ABSOLUTE = re.compile(r"path_absolute['\"]\s*,\s*['\"]([^'\"]+)['\"]")
 _ROLE_PATH = re.compile(r"\{\{\s*role_path\s*\}\}/(.+)$")
@@ -319,6 +327,54 @@ class TestParentMasking(unittest.TestCase):
             "uri": {"url": "http://x", "url_password": "{{ X_PASSWORD }}"},
         }
         self.assertEqual(self._leaks([task]), [])
+
+    def test_a_credential_on_stdin_needs_no_log(self) -> None:
+        tasks = [
+            {
+                "name": "module stdin",
+                "ansible.builtin.shell": {"cmd": "tool", "stdin": "{{ X_BIND_PW }}"},
+            },
+            {
+                "name": "args stdin",
+                "ansible.builtin.shell": "tool",
+                "args": {"stdin": "{{ LDAP.BIND_CREDENTIAL }}"},
+            },
+            {
+                "name": "pass suffix",
+                "ansible.builtin.shell": {"cmd": "t", "stdin": "{{ X_ADMIN_PASS }}"},
+            },
+            {
+                "name": "otp",
+                "ansible.builtin.shell": {"cmd": "t", "stdin": "{{ x_root_otp }}"},
+            },
+        ]
+        self.assertEqual(
+            self._leaks(tasks), ["module stdin", "args stdin", "pass suffix", "otp"]
+        )
+
+    def test_a_masked_stdin_or_a_bind_pw_the_module_masks_passes(self) -> None:
+        tasks = [
+            {
+                "name": "masked",
+                "ansible.builtin.shell": {"cmd": "t", "stdin": "{{ X_BIND_PW }}"},
+                "no_log": "{{ MASK_CREDENTIALS_IN_LOGS | bool }}",
+            },
+            {
+                "name": "ldap",
+                "community.general.ldap_entry": {
+                    "dn": "{{ X_DN }}",
+                    "bind_pw": "{{ X_BIND_PW }}",
+                },
+            },
+            {
+                "name": "name only",
+                "ansible.builtin.shell": {
+                    "cmd": "t",
+                    "stdin": "{{ X_CREDENTIAL_NAME }} {{ X_PASSWORD_FILE_PATH }}",
+                },
+            },
+        ]
+        self.assertEqual(self._leaks(tasks), [])
 
     def test_a_path_that_only_names_a_secret_is_not_a_credential(self) -> None:
         task = {

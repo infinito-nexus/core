@@ -18,3 +18,10 @@ def _reset_cache_for_tests() -> None:
     _yaml_cache._reset()
     files._reset()
     gitignore._reset()
+
+
+def _reset_rendered_caches_for_tests() -> None:
+    application_domain_index._reset()
+    applications._MERGED_APPLICATIONS_CACHE.clear()
+    users._MERGED_USERS_CACHE.clear()
+    domains._reset()

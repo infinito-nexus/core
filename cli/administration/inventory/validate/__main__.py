@@ -22,11 +22,17 @@ from cli.administration.inventory.validate.loaders import (  # noqa: E402
     load_inventory_files,
     load_yaml_file,
 )
+from cli.administration.inventory.validate.mail import (  # noqa: E402
+    validate_mail_wrapper_for_roles,
+)
 from cli.administration.inventory.validate.open_subtrees import (  # noqa: E402
     open_subtree_paths,
 )
 from cli.administration.inventory.validate.pinned_passwords import (  # noqa: E402
     validate_pinned_passwords,
+)
+from cli.administration.inventory.validate.swarm_storage import (  # noqa: E402
+    validate_swarm_storage,
 )
 from cli.administration.inventory.validate.users import compare_user_keys  # noqa: E402
 from cli.administration.inventory.validate.variables import (  # noqa: E402
@@ -90,6 +96,8 @@ def main() -> None:
     )
     app_errs.extend(validate_api_keys(args.inventory_dir))
     app_errs.extend(validate_pinned_passwords(args.inventory_dir, args.roles_dir))
+    app_errs.extend(validate_swarm_storage(args.inventory_dir))
+    app_errs.extend(validate_mail_wrapper_for_roles(args.inventory_dir, args.roles_dir))
 
     if app_errs or user_errs:
         if app_errs:

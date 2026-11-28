@@ -4,37 +4,22 @@ const { resolveTimeout } = require("./timeouts");
 const { installCspViolationObserver, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 
-// Auto-provisioned LDAP/Keycloak groups drive WordPress roles via the
-// OIDC `groups` claim, consumed by the mu-plugin
-// infinito-oidc-rbac-mapper.php. Test three roles across the privilege
-// spectrum serially so a regression in one mapping does not mask another.
 const RBAC_ROLE_SEQUENCE = ["subscriber", "editor", "administrator"];
-
-// Keycloak group path is hierarchical:
-// /roles/web-app-wordpress/<role> (Single-Site) or
-// /roles/web-app-wordpress/<tenant>/<role> (Multisite).
-// RBAC_GROUP_PATH_PREFIX renders `/roles/web-app-wordpress/`; the spec
-// appends the role segment. Multisite scenarios opt in via
-// services.wordpress.multisite.enabled = true.
 
 exports.register = function (shared) {
   for (const role of RBAC_ROLE_SEQUENCE) {
-    test(`rbac: membership in ${role} group grants WordPress ${role} role`, async ({
+    test(`biber: membership in ${role} group grants WordPress ${role} role`, async ({
       browser,
     }) => {
       skipUnlessServiceEnabled("sso");
-      skipUnlessServiceEnabled("ldap");
       test.skip(
         shared.env.multisiteEnabled,
         "WORDPRESS_MULTISITE_ENABLED=true; Single-Site RBAC scenarios run only when Multisite is disabled"
       );
-      const groupPath = `${shared.env.rbacGroupPathPrefix}${role}`;
+      const groupPath = shared.rbacGroupPath({ role });
       let biberAddedToGroup = false;
       let biberEmail;
 
-      // Each identity runs in its own isolated context so WP session
-      // cookies, Keycloak SSO cookies, and OIDC post-logout redirect
-      // state cannot leak between super-admin, biber, and wp-admin hops.
       const newCtx = async () => {
         const ctx = await browser.newContext({
           ignoreHTTPSErrors: true,
@@ -67,11 +52,13 @@ exports.register = function (shared) {
             groupPath,
             shared.env.biberUsername
           );
-          biberEmail = await shared.keycloakUserEmail(
-            adminKc.page.context().request,
-            shared.env.keycloakBaseUrl,
-            shared.env.realmName,
-            shared.env.biberUsername
+          biberEmail = shared.biberClaimedEmail(
+            await shared.keycloakUserByName(
+              adminKc.page.context().request,
+              shared.env.keycloakBaseUrl,
+              shared.env.realmName,
+              shared.env.biberUsername
+            )
           );
         } finally {
           await adminKc.ctx.close().catch(() => {});
@@ -121,15 +108,12 @@ exports.register = function (shared) {
           ).not.toHaveText(/^\s*email\s*$/i);
           await expect(
             emailCell,
-            `biber's row on /wp-admin/users.php MUST show the Keycloak email "${biberEmail}"`
+            `biber's row on /wp-admin/users.php MUST show the address of biber's Keycloak email claim "${biberEmail}"`
           ).toHaveText(biberEmail, { timeout: resolveTimeout(30_000) });
         } finally {
           await wpAdmin.ctx.close().catch(() => {});
         }
       } finally {
-        // Idempotency: only teardown when this test performed the join.
-        // If biber was already a member at start, leave the membership
-        // untouched.
         if (biberAddedToGroup) {
           try {
             const reqCtx = await browser.newContext({ ignoreHTTPSErrors: true });

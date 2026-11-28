@@ -17,11 +17,8 @@ mcp_servers:{{ ' {}' if renderable | length == 0 else '' }}
 {% endfor %}
 {% if HERMES_WEBUI_ENABLED | bool %}
 dashboard:
-{% if HERMES_DESIGN_THEME_ENABLED | bool %}
-  theme: {{ HERMES_DESIGN_THEME }}
+{% if 'theme' in HERMES_DASHBOARD_CONFIG %}
+  theme: {{ HERMES_DASHBOARD_CONFIG.theme | to_json }}
 {% endif %}
-  trusted_proxies:
-{% for cidr in NETWORK_TRUSTED_PROXY_CIDRS %}
-    - "{{ cidr }}"
-{% endfor %}
+  trusted_proxies: {{ HERMES_DASHBOARD_CONFIG.trusted_proxies | to_json }}
 {% endif %}

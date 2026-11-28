@@ -47,10 +47,12 @@ roles/web-app-matrix/
 │   │   └── 04_webserver.yml
 │   └── flavor/ansible/             # NEW
 │       ├── main.yml                # clone MDAD + render vars + invoke setup.yml
-│       ├── 01_clone_upstream.yml
-│       ├── 02_render_inventory.yml
-│       ├── 03_run_playbook.yml
-│       └── 04_proxy_wiring.yml
+│       ├── 01_carry_over_compose_data.yml
+│       ├── 02_clone_upstream.yml
+│       ├── 03_render_inventory.yml
+│       ├── 04_database.yml
+│       ├── 05_run_playbook.yml
+│       └── 06_proxy_wiring.yml
 ├── templates/
 │   ├── flavor/compose/             # existing compose.yml.j2, synapse.conf.j2, etc moved here
 │   └── flavor/ansible/             # NEW
@@ -149,18 +151,18 @@ matrix:
 
 ### MDAD upstream pulled in cleanly
 
-- [x] `tasks/flavor/ansible/01_clone_upstream.yml` clones the pinned `services.matrix.upstream.ref` of `services.matrix.upstream.repo` into `{{ instance_dir }}mdad/`; rerun is idempotent (fetch + checkout, no destructive reset).
+- [x] `tasks/flavor/ansible/02_clone_upstream.yml` clones the pinned `services.matrix.upstream.ref` of `services.matrix.upstream.repo` into `{{ instance_dir }}mdad/`; rerun is idempotent (fetch + checkout, no destructive reset).
 - [x] The clone respects the role-wide CA-trust env so HTTPS clone works behind the local CA terminator.
 
 ### MDAD inventory rendered
 
-- [x] `tasks/flavor/ansible/02_render_inventory.yml` templates `{{ instance_dir }}mdad/inventory/hosts` (single host: `matrix.{{ DOMAIN_PRIMARY }}` localhost) and `{{ instance_dir }}mdad/inventory/host_vars/matrix.{{ DOMAIN_PRIMARY }}/vars.yml` from `templates/flavor/ansible/mdad-vars.yml.j2`.
+- [x] `tasks/flavor/ansible/03_render_inventory.yml` templates `{{ instance_dir }}mdad/inventory/hosts` (single host: `matrix.{{ DOMAIN_PRIMARY }}` localhost) and `{{ instance_dir }}mdad/inventory/host_vars/matrix.{{ DOMAIN_PRIMARY }}/vars.yml` from `templates/flavor/ansible/mdad-vars.yml.j2`.
 - [x] Every bridge that is `true` under `services.matrix.plugins.<bridge>` shows up enabled in the rendered `vars.yml` with the matching MDAD enable-flag (`matrix_mautrix_telegram_enabled: true` etc.), and every bridge that is `false` shows up disabled. Verified by reading the rendered file.
 - [x] `services.matrix.conferencing.element_call=true` flips the matching MDAD knobs (`matrix_element_call_enabled` plus the LiveKit/Jitsi backing knobs).
 
 ### MDAD playbook invocation
 
-- [ ] `tasks/flavor/ansible/03_run_playbook.yml` invokes `ansible-playbook -i inventory/hosts setup.yml --tags={{ services.matrix.playbook_tags }}` from `{{ instance_dir }}mdad/` and exits cleanly on all three ansible-flavor variants (V1 / V2 / V3) in a fresh-host matrix deploy.
+- [ ] `tasks/flavor/ansible/05_run_playbook.yml` invokes `ansible-playbook -i inventory/hosts setup.yml --tags={{ services.matrix.playbook_tags }}` from `{{ instance_dir }}mdad/` and exits cleanly on all three ansible-flavor variants (V1 / V2 / V3) in a fresh-host matrix deploy.
 - [x] A long-running tag (e.g. `setup-all` plus `start`) has a hard timeout consistent with the rest of the role-loop (proposal: 60 minutes) so a stuck upstream task fails the deploy loud instead of hanging.
 - [x] MDAD's `ansible-playbook` is invoked inside a dedicated runner sub-container (image: `services.matrix.runner.image`, built locally from `files/flavor/ansible/runner/Dockerfile`) so its Ansible runtime is isolated from Infinito-Nexus's. The runner mounts the Docker socket, systemd dirs, `/matrix`, `/usr/local/bin`, and the MDAD checkout from the deploy container. A `mount --make-rshared /` runs once in the deploy container before the runner starts because MDAD's systemd units bind-mount with `bind-propagation=slave`.
 
@@ -188,7 +190,7 @@ matrix:
 
 ### Playwright
 
-- [ ] Existing `test-login-administrator` / `test-login-biber` / `test-login-native-administrator` keep passing against the ansible-flavor Element surface in V1 ansible all-on.
+- [ ] Existing `test-login-admin-oidc.js` / `test-login-biber-oidc.js` / `test-login-admin-native.js` keep passing against the ansible-flavor Element surface in V1 ansible all-on.
 - [x] New `test-element-call.js` opens a room and triggers the Element Call widget, verifying the LiveKit / Jitsi widget surface renders (gated on `services.matrix.conferencing.element_call`).
 - [x] New `test-bridge-roster.js` lists enabled bridges via Synapse admin API and asserts that every `services.matrix.plugins.<bridge>=true` entry has a live appservice record.
 
@@ -200,7 +202,7 @@ matrix:
 ### Documentation
 
 - [x] `roles/web-app-matrix/README.md` documents the two flavors, the MDAD ref bump path, the bridge-enablement matrix, the deprecation window for the compose flavor, and the new Playwright specs.
-- [ ] This requirement file is cross-linked from the implementing PR.
+- [x] This requirement file is cross-linked from the implementing PR. Implementing PR: [#300](https://github.com/infinito-nexus/core/pull/300).
 
 ## Validation Apps
 
@@ -219,7 +221,7 @@ Before starting any implementation work, the agent MUST read [AGENTS.md](../../A
 
 The agent MUST execute this requirement **autonomously** once Proposed Decisions are confirmed. Open clarifications only when a decision is genuinely ambiguous and would otherwise block progress; default to the intent already captured in this document and proceed.
 
-1. Read [Compose Loop](../agents/action/iteration/compose.md) before starting.
+1. Read [Compose Loop](../../agents/skills/i8-iterate-compose/SKILL.md) before starting.
 2. Move the existing compose-flavor tasks + templates into the new `flavor/compose/` subdirectories without behavior change; add a flavor dispatch in `tasks/main.yml`.
 3. Scaffold `tasks/flavor/ansible/` (clone, render inventory, run playbook, wire proxy) plus the matching template tree.
 4. Wire central-service reuse + Keycloak OIDC + Mailu SMTP into the rendered MDAD vars.

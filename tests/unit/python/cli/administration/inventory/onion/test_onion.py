@@ -4,6 +4,7 @@ import unittest.mock as mock
 from pathlib import Path
 
 from cli.administration.inventory.onion import ensure_node_onion, identity_hs_dir
+from tests.utils.unprivileged import unprivileged
 
 HS_NAMES = ("hostname", "hs_ed25519_public_key", "hs_ed25519_secret_key")
 
@@ -37,12 +38,11 @@ class TestEnsureNodeOnion(unittest.TestCase):
             ensure_node_onion(base)
         return chown.call_args_list
 
+    @unprivileged
     def test_root_hands_the_identity_back_to_the_checkout_owner(self):
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
             owner = base.stat()
-            if owner.st_uid == 0:
-                self.skipTest("checkout already belongs to root; nothing to hand back")
             calls = self._chown_calls(base)
             targets = {call.args[0] for call in calls}
             hs = identity_hs_dir(base)
@@ -52,19 +52,17 @@ class TestEnsureNodeOnion(unittest.TestCase):
             for call in calls:
                 self.assertEqual(call.args[1:], (owner.st_uid, owner.st_gid))
 
+    @unprivileged
     def test_the_reuse_path_repairs_ownership_too(self):
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
-            if base.stat().st_uid == 0:
-                self.skipTest("checkout already belongs to root; nothing to hand back")
             ensure_node_onion(base)
             self.assertTrue(self._chown_calls(base))
 
+    @unprivileged
     def test_a_vanished_path_does_not_abort_the_provisioner(self):
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
-            if base.stat().st_uid == 0:
-                self.skipTest("checkout already belongs to root; nothing to hand back")
             with (
                 mock.patch("os.geteuid", return_value=0),
                 mock.patch("os.lchown", side_effect=FileNotFoundError),

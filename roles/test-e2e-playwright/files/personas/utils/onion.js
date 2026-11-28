@@ -4,6 +4,7 @@
 
 const { isOnionTarget, resolveTimeout } = require("../../timeouts");
 const { installCspHeaderRecorder } = require("./csp");
+const { isTorUrl } = require("./network");
 
 function isOnionCanonical() {
   return isOnionTarget();
@@ -11,9 +12,7 @@ function isOnionCanonical() {
 
 function isOnionUrl(url) {
   const isRelative = /^\/(?!\/)/.test(url);
-  return (
-    /\.onion(?::\d+)?(?:\/|$|\?)/i.test(url) || (isRelative && isOnionCanonical())
-  );
+  return isTorUrl(url) || (isRelative && isOnionCanonical());
 }
 
 function onionAttempts(isOnion) {

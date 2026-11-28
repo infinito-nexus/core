@@ -23,6 +23,9 @@ COPY header_auth.js /app/src/sso-header-auth.js
 COPY patch_server.js /app/sso-patch-server.js
 RUN node /app/sso-patch-server.js /app/server.js && rm -f /app/sso-patch-server.js
 
+COPY patch_site_name.js /app/patch-site-name.cjs
+RUN node /app/patch-site-name.cjs /app/server.js && rm -f /app/patch-site-name.cjs
+
 FROM ${NODE_BASE}
 
 ARG CONTAINER_PORT

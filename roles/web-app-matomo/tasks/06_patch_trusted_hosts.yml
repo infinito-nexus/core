@@ -13,7 +13,7 @@
     DOMAIN: "{{ lookup('domain', 'web-app-matomo') }}"
     SIBLINGS: "{{ lookup('network_siblings', lookup('domain', 'web-app-matomo')) | join(' ') }}"
     SERVICE: "{{ MATOMO_SERVICE }}"
-    LOCAL: "{{ DOCKER_REACH_HOST }}:{{ http_port }}"
+    LOCAL: "{{ MATOMO_LOCAL_HOST }}"
   delegate_to: "{{ MATOMO_HOST_NODE }}"
   register: matomo_trusted_hosts_patch
   changed_when: "'PATCHED' in matomo_trusted_hosts_patch.stdout"

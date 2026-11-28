@@ -5,10 +5,16 @@ import re
 import unittest
 import unittest.mock as mock
 
-from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
+from jinja2 import (
+    DictLoader,
+    Environment,
+    FileSystemLoader,
+    StrictUndefined,
+    select_autoescape,
+)
 
 from utils.cache.files import read_text
-from utils.cache.yaml import load_yaml
+from utils.cache.yaml import load_yaml, load_yaml_str
 from utils.roles.mapping import (
     ROLE_FILE_META_VOLUMES,
     ROLE_FILE_TEMPL_COMPOSE,
@@ -91,13 +97,14 @@ def _settings_module(objstore_enabled: bool) -> str:
     Returns:
         FUNKWHALE_DJANGO_SETTINGS_MODULE as vars/main.yml renders it.
     """
-    expression = load_yaml(str(ROLE / ROLE_FILE_VARS_MAIN))[
-        "FUNKWHALE_DJANGO_SETTINGS_MODULE"
-    ]
+    role_vars = load_yaml(str(ROLE / ROLE_FILE_VARS_MAIN))
     return (
         _environment()
-        .from_string(expression)
-        .render(FUNKWHALE_OBJSTORE_ENABLED=objstore_enabled)
+        .from_string(role_vars["FUNKWHALE_DJANGO_SETTINGS_MODULE"])
+        .render(
+            FUNKWHALE_OBJSTORE_ENABLED=objstore_enabled,
+            FUNKWHALE_SETTINGS_MODULE=role_vars["FUNKWHALE_SETTINGS_MODULE"],
+        )
     )
 
 
@@ -115,6 +122,8 @@ def _render_env(domain: str, objstore: dict) -> dict[str, str]:
     def lookup(name: str, *terms, **_kwargs):
         if name == "objstore":
             return objstore[terms[1]]
+        if name == "debug":
+            return False
         if name == "domain":
             return domain
         if name == "tls":
@@ -131,7 +140,6 @@ def _render_env(domain: str, objstore: dict) -> dict[str, str]:
     rendered = env.get_template(f"roles/{APP}/templates/env.j2").render(
         application_id=APP,
         HOST_TIMEZONE="UTC",
-        MODE_DEBUG=False,
         FUNKWHALE_MUSIC_DIR="/var/lib/funkwhale/music",
         FUNKWHALE_MEDIA_DIR="/var/lib/funkwhale/media",
         FUNKWHALE_STATIC_DIR="/var/lib/funkwhale/static",
@@ -161,6 +169,42 @@ def _render_nginx() -> str:
     )
 
 
+def _render_compose() -> dict:
+    """
+    Returns:
+        The ``services`` of compose.yml.j2 with every lookup stubbed; each
+        ``container_volumes`` lookup lists the service it was asked for.
+    """
+    template = f"roles/{APP}/{ROLE_FILE_TEMPL_COMPOSE}"
+    environment = Environment(
+        loader=DictLoader(
+            {
+                template: read_text(str(PROJECT_ROOT / template)),
+                "roles/sys-svc-compose/templates/base.yml.j2": "services:\n",
+                "roles/sys-svc-container/templates/base.yml.j2": "",
+            }
+        ),
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(),
+    )
+
+    def lookup(name: str, *terms, **_kwargs) -> str:
+        if name == "container_volumes":
+            return f"volumes:\n  - {terms[0]}"
+        return ""
+
+    environment.globals["lookup"] = lookup
+    rendered = environment.get_template(template).render(
+        application_id=APP,
+        FUNKWHALE_CELERYD_CONCURRENCY=1,
+        FUNKWHALE_API_CONTAINER="funkwhale-api",
+        FUNKWHALE_TYPESENSE_API_KEY="typesense",
+        DOCKER_BIND_HOST="127.0.0.1",
+        IS_COMPOSE_MODE=True,
+    )
+    return load_yaml_str(rendered)["services"]
+
+
 class TestFunkwhaleSameOriginEnv(unittest.TestCase):
     SCENARIOS = (("clearnet", CLEARNET), ("onion", ONION))
 
@@ -183,8 +227,8 @@ class TestFunkwhaleSameOriginEnv(unittest.TestCase):
 
         self.assertEqual(values["DJANGO_SETTINGS_MODULE"], "same_origin_settings")
 
-    def test_without_the_object_store_the_stock_settings_run(self):
-        self.assertEqual(_settings_module(False), "config.settings.production")
+    def test_without_the_object_store_the_role_settings_run(self):
+        self.assertEqual(_settings_module(False), "config.settings.infinito")
 
 
 class TestFunkwhaleFrontNginx(unittest.TestCase):
@@ -233,11 +277,20 @@ class TestFunkwhaleSameOriginMounts(unittest.TestCase):
     def test_mounts_follow_the_object_store_binding(self):
         for module in MODULES:
             for mount in self.volumes[module]["mounts"]:
-                with self.subTest(module=module, service=mount["service"]):
-                    self.assertIn(
-                        "lookup('objstore', 'web-app-funkwhale', 'enabled')",
-                        mount["when"],
-                    )
+                for bound in (True, False):
+                    with self.subTest(
+                        module=module, service=mount["service"], bound=bound
+                    ):
+                        self.assertEqual(
+                            str(bound),
+                            _environment()
+                            .from_string(mount["when"])
+                            .render(
+                                lookup=lambda *terms, bound=bound: {
+                                    ("objstore", APP, "enabled"): bound
+                                }[terms]
+                            ),
+                        )
 
     def test_every_mounted_module_ships_with_the_role(self):
         for module in MODULES:
@@ -253,10 +306,7 @@ class TestFunkwhaleSameOriginMounts(unittest.TestCase):
                 )
 
     def test_migrate_renders_its_mounts(self):
-        compose = read_text(str(ROLE / ROLE_FILE_TEMPL_COMPOSE))
-        migrate = compose.split("{% set service_name = 'migrate' %}", 1)[1]
-
-        self.assertIn("lookup('container_volumes', service_name)", migrate)
+        self.assertEqual(_render_compose()["migrate"]["volumes"], ["migrate"])
 
 
 if __name__ == "__main__":

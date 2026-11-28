@@ -34,4 +34,4 @@
   register: pkgmgr_path_assert
   changed_when: false
   failed_when: pkgmgr_path_assert.rc != 0
-  when: MODE_ASSERT | bool
+  when: lookup('validate', 'pkgmgr-install') | bool

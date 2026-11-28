@@ -12,6 +12,7 @@ missing: the sweep leaves an eol, deprecated or pre-alpha role out on purpose.
 
 from __future__ import annotations
 
+import functools
 import unittest
 
 from cli.meta.ci import matrix, query
@@ -26,6 +27,7 @@ from utils.roles.playwright_coverage import (
 )
 
 
+@functools.cache
 def _coverage():
     codec = display_names()
     entries = matrix.entries_of(

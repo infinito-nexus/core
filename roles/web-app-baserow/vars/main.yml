@@ -10,6 +10,7 @@ BASEROW_CONTAINER: "{{ lookup('config', application_id, 'services.baserow.name')
 
 BASEROW_SSO_PROXY_GATED: "{{ lookup('sso', application_id, 'is_proxy_gated') }}"
 BASEROW_SSO_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+BASEROW_SSO_USER_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='user') }}"
 BASEROW_SSO_FALLBACK_EMAIL_DOMAIN: "{{ lookup('domain', application_id) }}"
 
 BASEROW_SECRET_KEY: "{{ lookup('config', application_id, 'secrets.credentials.secret_key') }}"

@@ -1,0 +1,37 @@
+---
+- name: "🧾 Prepare the UID, token and compose files of the workspace runner"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/workspace/runner/prepare.yml"
+  when: WORKSPACE_ACTION == 'apply'
+
+- name: "🏷️ Align the runner row of {{ semaphore_workspace_alias }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ SEMAPHORE_DATABASE_LOCAL_CID }}" # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      - psql
+      - -U
+      - "{{ lookup('database', application_id, 'username') }}"
+      - -d
+      - "{{ lookup('database', application_id, 'name') }}"
+      - -v
+      - ON_ERROR_STOP=1
+      - -qtA
+    stdin: "{{ lookup('template', 'sql/workspace/runner.sql.j2') }}"
+  vars:
+    semaphore_workspace_runner_action: "{{ WORKSPACE_ACTION }}"
+    semaphore_workspace_project_id: "{{ semaphore_workspace_applied.result.project_id if WORKSPACE_ACTION == 'apply' else 0 }}"
+    semaphore_workspace_runner_token: "{{ semaphore_workspace_token.content | b64decode | trim if WORKSPACE_ACTION == 'apply' else '' }}"
+  register: semaphore_workspace_runner_row
+  changed_when: semaphore_workspace_runner_row.stdout is search('(?<![A-Z])CHANGED')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ SEMAPHORE_DATABASE_HOST_NODE }}"
+
+- name: "🚀 Start the runner of {{ semaphore_workspace_alias }} and check its own UID"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/workspace/runner/up.yml"
+  when: WORKSPACE_ACTION == 'apply'
+
+- name: "🛑 Remove the compose project, images and files of the workspace runner"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/workspace/runner/remove.yml"
+  when: WORKSPACE_ACTION == 'destroy'

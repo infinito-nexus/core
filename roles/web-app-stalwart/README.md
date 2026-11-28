@@ -58,6 +58,7 @@ flowchart LR
     MAIL_VHOST -. "SPA login: PKCE<br/>(stalwart-webui client)" .-> KC
     WEBMAIL_VHOST -. "OAuth login" .-> KC
     APPS -- "SMTPS :465, AUTH<br/>(bot credential from the token store)" --> STALWART
+    APPS -. "tls off: SMTP :587, AUTH PLAIN<br/>(internal mail network)" .-> STALWART
     WORLD <-- "public mail ports<br/>(only when active MAIL_PROVIDER)" --> STALWART
 ```
 
@@ -107,6 +108,15 @@ credentials it holds.
 With SSO disabled the role uses the Internal directory and the bot's derived
 account password.
 
+### Login methods
+
+`services.stalwart.login.method` declares `sso`, `native` and `2fa`:
+
+- `sso` gates `STALWART_SSO_ENABLED` together with `services.sso.enabled`, so it decides whether the authentication singleton points at the Keycloak OIDC directory (`tasks/06_oidc.yml`) and whether Roundcube logs in over OAuth (`templates/roundcube-oauth.inc.php.j2`). Turning it off on a server that already uses the OIDC directory does not point the singleton back at the Internal directory.
+- `native` is the Internal directory password. Under SSO it only steers Roundcube: `oauth_login_redirect` sends the sign-in straight to Keycloak while `native` is off and shows the password form next to the SSO button while it is on. Without SSO the Internal directory is the only sign-in, so the stack guard [`tasks/utils/stack/guard.yml`](tasks/utils/stack/guard.yml) refuses `native: false` there.
+- `2fa` is the TOTP second factor accounts enrol in the WebUI Account Manager. Stalwart offers it only under the Internal directory and has no server switch for it, so the stack guard refuses a value that differs from "SSO off". Stalwart cannot require the second factor either, so `login.method.2fa.enforced` only offers it here.
+- **Break-glass:** the recovery admin `STALWART_ADMIN_USER` always signs in through Stalwart's own form at `/account/login`, with and without SSO; `files/playwright/test-login-native.js` proves it in every mode.
+
 ## WebUI sign-in
 
 The WebUI Application always names `stalwart-webui` (`STALWART_WEBUI_OAUTH_CLIENT_ID`) as its `oauthClientId`, with and without SSO.
@@ -123,6 +133,18 @@ Every deploy compares the registered client with that target and updates it when
 An origin that is no network sibling of the canonical WebUI URL MUST be added in [`templates/jmap/oauth_client/webui.json.j2`](templates/jmap/oauth_client/webui.json.j2), because a URI added in Stalwart alone is removed by the next deploy.
 Stalwart's login page asks for consent for the client after the password form, so a native WebUI login shows an **Allow** step.
 
+## Internal mail network
+
+Stalwart also serves mail submission on port 587 (`services.stalwart.ports.internal.submission`), in plaintext and with `AUTH PLAIN`, on the internal mail network `stalwart`:
+
+- The network is the role's shared network (`overlay` in [`meta/networks.yml`](meta/networks.yml)): a bridge in compose and an attachable swarm overlay with `encrypted=true` (`swarm.network.encryption`) in swarm. [`sys-svc-compose`](../sys-svc-compose/tasks/utils/network/create.yml) creates it before the first stack that references it.
+- Every role whose `services.email` is enabled and shared joins it, and Stalwart carries its service name `stalwart` there. The `webmail` and `clamav` containers join it without that name.
+- [`tasks/submission.yml`](tasks/submission.yml) creates the `x:NetworkListener` for the port and puts the port first in the `saslMechanisms` and `require` expressions of `x:MtaStageAuth`, so the listener offers `AUTH PLAIN` without TLS and refuses a transaction that has not authenticated. Relaying stays limited to authenticated sessions (`STALWART_RELAY_RULE`).
+
+Deployments with `tls` off use it: an onion deployment, or any deployment whose `lookup('email')` resolves without TLS. There, `lookup('email', application_id)` of a role on the network returns the host `stalwart`, port 587, `auth` on with mechanism `plain` and TLS off, and [`container_extra_hosts`](../../plugins/lookup/container_extra_hosts.py) pins no mail host for it. A deployment with `tls` on keeps implicit TLS on port 465. The host's own mail (`lookup('email')` without an application, read by `msmtp` and `postfix` on the host) reaches no container network and keeps the published MX on port 25.
+
+Port 587 is never published: it is no `ports.public` or `ports.onion` key, so neither the compose file nor the swarm stack maps a host port to it and the onion forwards only port 25. Plaintext authentication is acceptable only where no one outside the deployment can listen, and a published plaintext port behind a `remote_ip` filter would hand that guarantee to a filter.
+
 ## Calendar & Contacts (CalDAV / CardDAV / WebDAV)
 
 Stalwart serves DAV natively on the mail HTTP listener — no extra container
@@ -133,9 +155,10 @@ account (or the Keycloak SSO token when SSO is enabled).
 
 ## Design Decisions
 
-- **Client ports are implicit-TLS only (465/993/995).** Stalwart's default
-  configuration binds no STARTTLS listeners, so the role neither publishes
-  587/143/110 nor advertises them via SRV records.
+- **Published client ports are implicit-TLS only (465/993/995).** The role
+  publishes no STARTTLS port (587/143/110) and advertises none via SRV
+  records; its plaintext submission listener on 587 serves only the
+  [internal mail network](#internal-mail-network).
 - **The WebUI (WebAdmin) bundle is staged by the controller.** Stalwart fetches
   it from GitHub on first boot, which fails behind restricted egress; the
   controller downloads it into a host-level cache (matrix rounds purge the
@@ -181,7 +204,8 @@ account (or the Keycloak SSO token when SSO is enabled).
   an `x:AllowedIp` entry): every container that reaches the published ports
   through the host arrives from that address.
 - **HTTP clients are rate-limited and banned by their own address.** The
-  vhost sets `proxy_forwarded_client_address`, so OpenResty sends
+  default vhost sets `proxy_forwarded_client_address` in its
+  `server.vhosts.default.vars` (`meta/server.yml`), so OpenResty sends
   `Forwarded: for=$remote_addr` on every location and replaces any
   client-supplied value, and Stalwart reads it (`STALWART_HTTP_SETTINGS`:
   `clientIpSource: forwarded` with one trusted hop, `forwardedHops: 1`).
@@ -197,6 +221,7 @@ account (or the Keycloak SSO token when SSO is enabled).
 - ClamAV antivirus as an SMTP DATA-stage milter (`services.clamav.enabled: false` for spam-only)
 - DKIM signing with automatic key management; SPF / DMARC published in DNS
 - OpenID Connect SSO via Keycloak
+- **Administrators:** System Administrator follows the `web-app-stalwart` `administrator` members. [files/python/rbac_sync.py](./files/python/rbac_sync.py) grants and revokes it through the management JMAP API as a host hook of [sys-ctl-mtn-rbac-sync](../sys-ctl-mtn-rbac-sync/), at every SSO deploy and on its timer, so a member who signs in for the first time gets it on the next run. The recovery administrator `stalwartadmin` and the platform administrator keep it.
 - Roundcube webmail
 - PostgreSQL backing store
 
@@ -207,7 +232,7 @@ The provider cutover is an inventory change; mailbox data moves with it when the
 > **Compose only.** The import reads the legacy maildir volume on the stack host and submits over the host-published IMAPS port, neither of which holds under swarm. Migrate in compose mode, then move the stack to swarm.
 
 1. Keep `web-app-mailu` in the host's groups and add `web-app-stalwart` — both MUST be present so Mailu re-renders as a legacy instance (`legacy-mail.<domain>`, no public mail ports) and releases `mail.<domain>` to Stalwart.
-2. Remove `MAIL_PROVIDER` from the inventory (Stalwart is the default).
+2. Remove the `applications.web-app-email.services.email.provider` override from the inventory ([web-app-email](../web-app-email/) selects Stalwart by default).
 3. Declare the [aliases](#aliases-and-forwards) the Mailu instance had, and a `mailbox_map` entry for every Mailu mailbox that belongs in another Stalwart account (see below).
 4. Set `applications["web-app-stalwart"].services.stalwart.migration.import_mailu: true` and run the full deploy. The role reads every `<address>/` directory in Mailu's Dovecot Maildir volume, whether or not the address is an inventory user, and per mailbox:
    - skips it and reports the address when Stalwart does not serve its domain; no domain is created,
@@ -387,6 +412,10 @@ Set `INFINITO_MAIL_PRODUCTION_HOST` to the server's public FQDN (in CI, a GitHub
 | SMTP | port 25 greets with `220` carrying the FQDN, proving the `rejectNonFqdn` identity |
 
 The same variable points [`sys-ctl-mtn-cert-deploy`](../sys-ctl-mtn-cert-deploy/)'s remote check at `:465` and `:993`, so the live TLS chain and its remaining validity are verified alongside. A misconfigured production server therefore fails the deploy instead of surfacing as an outage.
+
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to. A follow-up tightens them.
 
 ## Further Resources
 

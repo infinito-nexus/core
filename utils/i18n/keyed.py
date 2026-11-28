@@ -1,11 +1,16 @@
-"""Catalogues keyed by name, as browser code reads them, built from the ``core`` domain."""
+"""Catalogues keyed by name, as browser code reads them, built from core's or a role's catalogs."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
 from utils.i18n.catalog import catalog_path, read_catalog, translations
-from utils.i18n.languages import SOURCE_LANGUAGE, domain_languages, load_languages
+from utils.i18n.languages import (
+    SOURCE_LANGUAGE,
+    catalog_languages,
+    domain_languages,
+    load_languages,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -13,14 +18,20 @@ if TYPE_CHECKING:
 
 
 def keyed_catalogue(
-    root: Path, context: Callable[[str], str], source: dict[str, str]
+    root: Path,
+    context: Callable[[str], str],
+    source: dict[str, str],
+    catalogs: Path,
+    domain: str,
 ) -> dict[str, dict[str, str]]:
     """Return ``source`` in English and every language that translates any of it.
 
     Args:
-        root: repository root.
+        root: repository root, whose ``meta/languages.yml`` names the languages.
         context: maps a key to the ``msgctxt`` of its message.
         source: key mapped to its English text.
+        catalogs: directory holding the ``locale/`` to read, ``root`` for core.
+        domain: gettext domain of those catalogs.
 
     Returns:
         ISO 639-1 code mapped to ``{key: text, "dir": direction}``; a key a
@@ -30,8 +41,8 @@ def keyed_catalogue(
     catalogue = {
         SOURCE_LANGUAGE: {**source, "dir": languages[SOURCE_LANGUAGE]["direction"]}
     }
-    for code in domain_languages(languages, "core"):
-        path = catalog_path(root, code, "core")
+    for code in catalog_languages(languages):
+        path = catalog_path(catalogs, code, domain)
         if not path.is_file():
             continue
         found = translations(read_catalog(path))

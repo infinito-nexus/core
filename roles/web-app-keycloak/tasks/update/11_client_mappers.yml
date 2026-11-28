@@ -1,0 +1,15 @@
+---
+# Param kc_mapper_client_id: clientId of a client in KEYCLOAK_DICTIONARY_REALM.clients that declares protocolMappers.
+
+- name: "⬇️ Resolve the internal id of '{{ kc_mapper_client_id }}'"
+  ansible.builtin.shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} get clients -r {{ KEYCLOAK_REALM }}
+    -q clientId={{ kc_mapper_client_id | quote }} --fields id --format json
+  register: kc_mapper_client_lookup
+  changed_when: false
+
+- name: "🔄 Converge the protocol mappers of '{{ kc_mapper_client_id }}'"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/converge/protocol_mappers.yml"
+  vars:
+    kc_mappers_path: "clients/{{ (kc_mapper_client_lookup.stdout | kcadm_json | first).id }}/protocol-mappers/models"
+    kc_mappers_desired: "{{ (KEYCLOAK_DICTIONARY_REALM.clients | selectattr('clientId', 'equalto', kc_mapper_client_id) | list | first).protocolMappers }}"

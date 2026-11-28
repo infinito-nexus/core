@@ -1,4 +1,4 @@
 ---
 roles:
   user:
-    description: user
+    description: KIX agent who signs in to the agent portal and works on tickets with the Ticket Agent role, without system administration

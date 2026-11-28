@@ -5,10 +5,11 @@ import re
 from ansible.errors import AnsibleFilterError
 
 from utils.csp.tokens import dedup_preserve, sort_tokens
+from utils.csp.vhost_hashes import register_snippet, vhost_snippets
 from utils.domains.primary_domain import get_domain
 from utils.networks.reachability import TOR, network, network_of
 from utils.roles.applications.config import get
-from utils.tls_common import (
+from utils.tls.common import (
     align_domain_to_consumer,
     issuer_applications,
     iter_domains,
@@ -63,28 +64,10 @@ class FilterModule:
         return {
             "build_csp_header": self.build_csp_header,
             "add_csp_hash": self.add_csp_hash,
+            "csp_hash": self.get_csp_hash,
         }
 
-    @staticmethod
-    def add_csp_hash(current, application_id, directive, snippet):
-        """
-        Return a new ``webserver_csp_hashes_extra_by_app``-shaped dict with
-        ``snippet`` appended (deduplicated) to ``<application_id>.<directive>``.
-
-        Replaces the verbose inline ``combine(..., recursive=True)`` pattern
-        previously duplicated across sys-front-inj-* roles.
-        """
-        try:
-            result = dict(current or {})
-            app_entry = dict(result.get(application_id, {}) or {})
-            existing = list(app_entry.get(directive, []) or [])
-            if snippet not in existing:
-                existing.append(snippet)
-            app_entry[directive] = existing
-            result[application_id] = app_entry
-        except Exception as exc:
-            raise AnsibleFilterError(f"add_csp_hash failed: {exc}") from exc
-        return result
+    add_csp_hash = staticmethod(register_snippet)
 
     # -------------------------------
     # Helpers
@@ -202,7 +185,7 @@ class FilterModule:
         domains,
         web_protocol,
         extra_whitelist=None,
-        extra_hashes=None,
+        extra_hashes_by_vhost=None,
         domain_primary=None,
         vhost_domain=None,
     ):
@@ -215,7 +198,9 @@ class FilterModule:
             domains: the host's merged domain map.
             web_protocol: scheme providers on a TLS network answer on.
             extra_whitelist: extra sources per directive.
-            extra_hashes: extra inline snippets per directive.
+            extra_hashes_by_vhost: ``webserver_csp_hashes_extra_by_vhost``;
+                only the inline snippets of ``vhost_domain`` are hashed, none
+                when no injection pass opened it.
             domain_primary: the node's ``DOMAIN_PRIMARY``.
             vhost_domain: the vhost the header is rendered for. Provider
                 sources follow its network; on a tor vhost, whitelist sources
@@ -246,9 +231,9 @@ class FilterModule:
               * hCaptcha (if services.hcaptcha.enabled) for script-elem/frame-src
               * frame-ancestors extended for dashboard/logout/keycloak if enabled
         """
+        extra_hashes = vhost_snippets(extra_hashes_by_vhost, vhost_domain)
         try:
             extra_whitelist = extra_whitelist or {}
-            extra_hashes = extra_hashes or {}
             directives = [
                 "default-src",
                 "connect-src",

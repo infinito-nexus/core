@@ -81,7 +81,7 @@ class TestGatewayBackendRegistered(unittest.TestCase):
             + "\n".join(f"  - {m}" for m in missing),
         )
 
-    def test_the_scan_finds_backend_flags(self) -> None:
+    def test_the_scan_finds_backend_flags(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the backend flag scan  # fmt: skip
         self.assertTrue(
             _declared_backends(),
             f"{_GATEWAY_ROLE} declares no svc-ai-* backend flag, so the rule "

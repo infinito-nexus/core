@@ -10,7 +10,7 @@ from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 ROLE_DIR = PROJECT_ROOT / "roles/web-app-penpot"
 
 
-def rendered_flags(sso: bool, ldap: bool) -> str:
+def rendered_flags(sso: bool, ldap: bool, native: bool, registration: bool) -> str:
     names = load_yaml(str(ROLE_DIR / ROLE_FILE_VARS_MAIN))
     env = Environment(
         undefined=StrictUndefined,
@@ -20,10 +20,10 @@ def rendered_flags(sso: bool, ldap: bool) -> str:
     return (
         env.from_string(names["PENPOT_FLAGS"])
         .render(
-            PENPOT_SSO_ENABLED=sso,
-            PENPOT_LDAP_ENABLED=ldap,
-            PENPOT_REGISTRATION_ENABLED=sso,
-            PENPOT_NATIVE_LOGIN_ENABLED=not sso,
+            PENPOT_LOGIN_SSO=sso,
+            PENPOT_LOGIN_LDAP=ldap,
+            PENPOT_LOGIN_NATIVE=native,
+            PENPOT_LOGIN_REGISTRATION=registration,
         )
         .strip()
     )
@@ -31,9 +31,13 @@ def rendered_flags(sso: bool, ldap: bool) -> str:
 
 class TestAdminConsoleFlag(unittest.TestCase):
     def test_every_login_mode_opts_out_of_the_undeployed_admin_console(self):
-        for sso, ldap in itertools.product((True, False), repeat=2):
-            with self.subTest(sso=sso, ldap=ldap):
-                flags = rendered_flags(sso, ldap)
+        for sso, ldap, native, registration in itertools.product(
+            (True, False), repeat=4
+        ):
+            with self.subTest(
+                sso=sso, ldap=ldap, native=native, registration=registration
+            ):
+                flags = rendered_flags(sso, ldap, native, registration)
                 self.assertIn(" disable-admin-console ", f" {flags} ")
                 self.assertNotIn("enable-admin-console", flags.split())
 

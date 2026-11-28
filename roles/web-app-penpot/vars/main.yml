@@ -38,18 +38,27 @@ PENPOT_EXPORTER_URI: "http://{{ PENPOT_EXPORTER_SERVICE }}:{{ PENPOT_EXPORTER_IN
 
 PENPOT_SSO_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 PENPOT_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
-PENPOT_NATIVE_LOGIN_ENABLED: "{{ not (PENPOT_SSO_ENABLED | bool) }}"
-PENPOT_REGISTRATION_ENABLED: "{{ PENPOT_SSO_ENABLED | bool }}"
+PENPOT_LOGIN_SSO: "{{ lookup('config', application_id, 'services.penpot.login.method.sso.enabled') | bool }}"
+PENPOT_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.penpot.login.method.ldap.enabled') | bool }}"
+PENPOT_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.penpot.login.method.native.enabled') | bool }}"
+PENPOT_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.penpot.login.method.registration.enabled') | bool }}"
 
 PENPOT_FLAGS: >-
-  {{ 'enable-registration' if PENPOT_REGISTRATION_ENABLED | bool else 'disable-registration' }}
-  {{ 'enable-login-with-password' if PENPOT_NATIVE_LOGIN_ENABLED | bool else 'disable-login-with-password' }}
+  {{ 'enable-registration' if PENPOT_LOGIN_REGISTRATION | bool else 'disable-registration' }}
+  {{ 'enable-login-with-password' if PENPOT_LOGIN_NATIVE | bool else 'disable-login-with-password' }}
   enable-prepl-server
   disable-telemetry
   disable-onboarding
   disable-admin-console
-  {{ 'enable-login-with-oidc' if PENPOT_SSO_ENABLED | bool else '' }}
-  {{ 'enable-login-with-ldap' if PENPOT_LDAP_ENABLED | bool else '' }}
+  {{ 'enable-login-with-oidc enable-oidc-registration' if PENPOT_LOGIN_SSO | bool else '' }}
+  {{ 'enable-login-with-ldap' if PENPOT_LOGIN_LDAP | bool else '' }}
+
+PENPOT_RBAC_TEAM_ID: "{{ (application_id ~ '-rbac-team') | to_uuid }}"
+PENPOT_RBAC_TEAM_NAME: "{{ ORGANIZATION }}"
+PENPOT_RBAC_TEAM_ROLES:
+  administrator: admin
+  editor: editor
+  viewer: viewer
 
 PENPOT_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
 PENPOT_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
@@ -62,6 +71,8 @@ PENPOT_OIDC_AUTH_URI: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
 PENPOT_OIDC_TOKEN_URI: "{{ OIDC.CLIENT.TOKEN_URL }}"
 PENPOT_OIDC_USER_URI: "{{ OIDC.CLIENT.USER_INFO_URL }}"
 PENPOT_OIDC_SCOPES: "openid profile email"
+PENPOT_OIDC_EMAIL_ATTR: "{{ OIDC.ATTRIBUTES.EMAIL }}"
+PENPOT_OIDC_NAME_ATTR: "{{ OIDC.ATTRIBUTES.NAME }}"
 PENPOT_SSRF_ALLOWED_HOSTS: "{{ PENPOT_OIDC_BASE_URI | regex_replace('^https?://', '') | regex_replace('[:/].*$', '') }}"
 
 PENPOT_LDAP_HOST: "{{ LDAP.SERVER.DOMAIN }}"
@@ -72,3 +83,4 @@ PENPOT_LDAP_BIND_PASSWORD: "{{ LDAP.BIND_CREDENTIAL }}"
 PENPOT_LDAP_ATTRS_USERNAME: "{{ LDAP.USER.ATTRIBUTES.ID }}"
 PENPOT_LDAP_ATTRS_EMAIL: "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
 PENPOT_LDAP_ATTRS_FULLNAME: "{{ LDAP.USER.ATTRIBUTES.FULLNAME }}"
+PENPOT_LDAP_USER_QUERY: "({{ PENPOT_LDAP_ATTRS_EMAIL }}=:username)"

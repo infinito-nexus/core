@@ -3,58 +3,64 @@
   include_tasks: utils/rest_session.yml
 
 - name: "🔎 XWIKI | Read the wiki color theme preference"
-  uri_retry:
-    url: "{{ [XWIKI_REST_PREFERENCES, 'colorTheme'] | url_join }}"
-    method: GET
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [200]
-    headers:
-      Accept: application/json
-    return_content: true
-  register: _xwiki_design_color_theme
-  changed_when: false
+  include_tasks: utils/http.yml
+  vars:
+    xwiki_http_method: GET
+    xwiki_http_url: "{{ [XWIKI_REST_PREFERENCES, 'colorTheme'] | url_join }}"
+    xwiki_http_headers: "{{ XWIKI_SUPERADMIN_AUTH_HEADERS | combine({'Accept': 'application/json'}) }}"
+    xwiki_http_body: ""
+    xwiki_http_status: [200]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_design_color_theme
 
 - name: "🔎 XWIKI | Read the wiki title preference"
-  uri_retry:
-    url: "{{ [XWIKI_REST_PREFERENCES, 'title'] | url_join }}"
-    method: GET
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [200]
-    headers:
-      Accept: application/json
-    return_content: true
-  register: _xwiki_design_title
-  changed_when: false
+  include_tasks: utils/http.yml
+  vars:
+    xwiki_http_method: GET
+    xwiki_http_url: "{{ [XWIKI_REST_PREFERENCES, 'title'] | url_join }}"
+    xwiki_http_headers: "{{ XWIKI_SUPERADMIN_AUTH_HEADERS | combine({'Accept': 'application/json'}) }}"
+    xwiki_http_body: ""
+    xwiki_http_status: [200]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_design_title
 
 - name: "🔎 XWIKI | Look for the corporate theme page"
-  uri_retry:
-    url: "{{ XWIKI_REST_THEME_PAGE }}"
-    method: GET
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [200, 404]
-    return_content: false
-  register: _xwiki_design_page
-  changed_when: false
+  include_tasks: utils/http.yml
+  vars:
+    xwiki_http_method: GET
+    xwiki_http_url: "{{ XWIKI_REST_THEME_PAGE }}"
+    xwiki_http_headers: "{{ XWIKI_SUPERADMIN_AUTH_HEADERS }}"
+    xwiki_http_body: ""
+    xwiki_http_status: [200, 404]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_design_page
 
 - name: "🔎 XWIKI | Read the preferences the wiki had before the corporate theme"
-  uri_retry:
-    url: "{{ [XWIKI_REST_THEME_PAGE, 'objects/XWiki.XWikiPreferences/0'] | url_join }}"
-    method: GET
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [200, 404]
-    headers:
-      Accept: application/json
-    return_content: true
-  register: _xwiki_design_previous
-  changed_when: false
+  include_tasks: utils/http.yml
+  vars:
+    xwiki_http_method: GET
+    xwiki_http_url: "{{ [XWIKI_REST_THEME_PAGE, 'objects/XWiki.XWikiPreferences/0'] | url_join }}"
+    xwiki_http_headers: "{{ XWIKI_SUPERADMIN_AUTH_HEADERS | combine({'Accept': 'application/json'}) }}"
+    xwiki_http_body: ""
+    xwiki_http_status: [200, 404]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_design_previous
 
 - name: "🎨 XWIKI | Apply the corporate color theme"
   include_tasks: 06_design/apply.yml
@@ -63,7 +69,7 @@
 - name: "🧹 XWIKI | Remove the corporate color theme"
   include_tasks: 06_design/remove.yml
   vars:
-    xwiki_design_former: "{{ _xwiki_design_previous.json.properties | items2dict(key_name='name', value_name='value') }}"
+    xwiki_design_former: "{{ (_xwiki_design_previous.content | from_json).properties | items2dict(key_name='name', value_name='value') }}"
   when:
     - not (XWIKI_DESIGN_ENABLED | bool)
     - _xwiki_design_previous.status == 200

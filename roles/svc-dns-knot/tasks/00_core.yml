@@ -1,0 +1,53 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "📄 Lay down the knot configuration on the stack host"
+  when: IS_STACK_HOST | bool
+  vars:
+    knot_host: "{{ inventory_hostname }}"
+  block:
+    - name: "✅ Ensure the knot volumes directory exists"
+      ansible.builtin.file:
+        path: "{{ KNOT_VOLUMES_DIR }}"
+        state: directory
+        mode: "0755"
+
+    - include_tasks:
+        file: utils/keys.yml
+        apply:
+          no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - include_tasks: utils/render.yml
+
+- name: "🔧 Setup container network for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
+  vars:
+    compose_handlers_flush: true
+    application_id: "svc-dns-knot"
+
+- name: "⏳ KNOT | Wait until container is running (not restarting)"
+  ansible.builtin.shell: >
+    container inspect --type container --format '{{ "{{.State.Status}}" }} {{ "{{.State.Restarting}}" }}' {{ KNOT_CONTAINER_ADDRESS }}
+  register: knot_state
+  retries: 120
+  delay: 2
+  until: >
+    (knot_state.stdout is search('running')) and
+    (knot_state.stdout is not search('true'))
+  changed_when: false
+
+- include_tasks: utils/reload.yml
+  vars:
+    knot_host: "{{ inventory_hostname }}"
+  when:
+    - IS_STACK_HOST | bool
+    - knot_rendered | bool
+
+- name: "✅ KNOT | Confirm the server serves {{ KNOT_ZONE }}"
+  ansible.builtin.shell: >
+    container exec {{ KNOT_CONTAINER_ADDRESS }} knotc zone-status {{ KNOT_ZONE | quote }}
+  register: knot_zone_status
+  retries: 30
+  delay: 2
+  until: knot_zone_status.rc == 0
+  changed_when: false

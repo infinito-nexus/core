@@ -1,14 +1,20 @@
 from __future__ import annotations
 
 import unittest
-from unittest.mock import patch
+import unittest.mock as mock
 
 from plugins.filter.update.pull import (
     FilterModule,
     update_pull_images,
     update_pull_summary,
 )
+from plugins.lookup.image import LookupModule as ImageLookup
+from plugins.lookup.registry_vendors import CACHE_ROLE, route_reference, unrouted
 from utils.update_check.common import FAIL, OK
+
+FRONT = "192.168.205.1:5002"
+VENDORS = {"front": FRONT, "registries": ["ghcr.io", "quay.io"]}
+MIRROR = "ghcr.io/kevinveenbirkenbach/infinito-nexus-core/mirror/docker.io"
 
 DEPLOYED = [
     "svc-db-postgres",
@@ -140,10 +146,112 @@ class TestUpdatePullImages(unittest.TestCase):
 
     def test_a_custom_service_without_a_name_fails(self):
         with (
-            patch("plugins.filter.update.pull.get_entity_name", return_value=""),
+            mock.patch("plugins.filter.update.pull.get_entity_name", return_value=""),
             self.assertRaises(ValueError),
         ):
             _images()
+
+
+def _vendor_applications():
+    return {
+        **_applications(),
+        "web-app-matrix": {
+            "services": {
+                "bot": {
+                    "image": "ghcr.io/matrixgpt/matrix-chatgpt-bot",
+                    "version": "3.1.2",
+                },
+                "synapse": {"image": "matrixdotorg/synapse", "version": "1.150.0"},
+            }
+        },
+    }
+
+
+def _compose_reference(applications, application_id, service_key, vendors):
+    lookups = {
+        "applications": mock.MagicMock(run=lambda *_a, **_k: [applications]),
+        "registry_vendors": mock.MagicMock(
+            run=lambda terms, **_k: [route_reference(t, vendors) for t in terms]
+        ),
+    }
+    with mock.patch("plugins.lookup.image.lookup_loader") as loader:
+        loader.get.side_effect = lambda name, **_k: lookups[name]
+        lookup = ImageLookup()
+        lookup._loader = mock.MagicMock()
+        return lookup.run([application_id, service_key], variables={})[0]
+
+
+class TestVendorRoute(unittest.TestCase):
+    def test_without_listed_vendors_the_pull_list_is_byte_identical(self):
+        applications = _vendor_applications()
+        deployed = [*DEPLOYED, "web-app-matrix"]
+        today = update_pull_images(applications, deployed)
+        for vendors in (None, unrouted(), {"front": FRONT, "registries": []}):
+            with self.subTest(vendors=vendors):
+                self.assertEqual(
+                    update_pull_images(applications, deployed, vendors), today
+                )
+
+    def test_a_vendor_image_is_pulled_through_the_front(self):
+        pull = update_pull_images(_vendor_applications(), ["web-app-matrix"], VENDORS)[
+            "pull"
+        ]
+        self.assertEqual(
+            pull,
+            [
+                f"{FRONT}/ghcr.io/matrixgpt/matrix-chatgpt-bot:3.1.2",
+                "matrixdotorg/synapse:1.150.0",
+            ],
+        )
+
+    def test_the_base_of_a_locally_built_image_keeps_the_reference_the_build_pulls(
+        self,
+    ):
+        pull = update_pull_images(_applications(), DEPLOYED, VENDORS)["pull"]
+        self.assertIn("ghcr.io/nextcloud-releases/whiteboard:v1.5.9", pull)
+        self.assertFalse(any(reference.startswith(FRONT) for reference in pull))
+
+    def test_the_prepull_pulls_the_reference_compose_pulls(self):
+        applications = _vendor_applications()
+        pull = update_pull_images(applications, ["web-app-matrix"], VENDORS)["pull"]
+        for service in ("bot", "synapse"):
+            with self.subTest(service=service):
+                self.assertIn(
+                    _compose_reference(
+                        applications, "web-app-matrix", service, VENDORS
+                    ),
+                    pull,
+                )
+
+    def test_the_cache_role_prepulls_its_own_vendor_images_upstream(self):
+        applications = {
+            **_vendor_applications(),
+            CACHE_ROLE: {
+                "services": {
+                    "cache": {"image": f"{MIRROR}/registry", "version": "3"},
+                    "front": {"image": f"{MIRROR}/nginx", "version": "1.31-alpine"},
+                }
+            },
+        }
+        pull = update_pull_images(
+            applications, [CACHE_ROLE, "web-app-matrix"], VENDORS
+        )["pull"]
+        self.assertIn(f"{MIRROR}/registry:3", pull)
+        self.assertIn(f"{MIRROR}/nginx:1.31-alpine", pull)
+        self.assertIn(f"{FRONT}/ghcr.io/matrixgpt/matrix-chatgpt-bot:3.1.2", pull)
+        for service in ("cache", "front"):
+            with self.subTest(service=service):
+                self.assertIn(
+                    _compose_reference(applications, CACHE_ROLE, service, VENDORS),
+                    pull,
+                )
+
+    def test_a_swarm_host_pulls_what_it_pulled_before(self):
+        applications = _vendor_applications()
+        self.assertEqual(
+            update_pull_images(applications, ["web-app-matrix"], unrouted()),
+            update_pull_images(applications, ["web-app-matrix"]),
+        )
 
 
 class TestUpdatePullSummary(unittest.TestCase):

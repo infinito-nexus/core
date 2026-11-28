@@ -16,7 +16,10 @@ This role deploys Pretix using Docker, automating the installation, configuratio
 - **NGINX Reverse Proxy Integration:** Provides secure access and HTTPS termination.  
 - **OIDC Authentication:** Seamless integration with identity providers such as Keycloak.  
 - **Centralized Logout:** Unified logout across applications in the ecosystem.  
+- **RBAC teams:** With SSO on, [files/python/rbac_teams.py](./files/python/rbac_teams.py) runs as a container hook of [sys-ctl-mtn-rbac-sync](../sys-ctl-mtn-rbac-sync/) at every deploy and on its timer and converges an `Organizers (SSO)` team (all events, all permissions) and a `Check-in (SSO)` team (all events, check-in only) in each organizer, creating the `pretix` organizer when none exists, and binds them to the `organizer` and `checkin` role groups through pretix-oidc team assignment rules, so every sign-in adds or removes the user. Staff rights stay bound to the `administrator` role group.  
 - **Matomo Analytics & Global CSS:** Built-in support for analytics and unified styling.  
+- **Login methods:** `services.pretix.login.method.*` of [meta/services.yml](./meta/services.yml) switches each sign-in method on its own. `sso` appends the pretix-oidc backend to `PRETIX_PRETIX_AUTH_BACKENDS`; `registration` sets `PRETIX_PRETIX_REGISTRATION`; `native` sets `PRETIX_PRETIX_PASSWORD_RESET`, and since pretix has no setting that hides its native form, [templates/javascript.js.j2](./templates/javascript.js.j2) hides the native tab, form, password reset and registration links on `/control/login` while `native` is off; `2fa` has no pretix setting either, so the same script hides the "Two-factor authentication" enrollment entry of the account settings while it is off. While `2fa` is on, `login.method.2fa.enforced` (default `true`) renders `PRETIX_PRETIX_OBLIGATORY_2FA=True` (`obligatory_2fa` of the `[pretix]` section). With SSO on, the sign-in page shows only the Keycloak entry.  
+- **Break-glass access:** pretix's native backend stays registered in every mode, so `/control/login?backend=native` always shows the native form, which the script leaves untouched. While SSO is on, the deploy converges the local staff account `web-app-pretix-breakglass` of [meta/users.yml](./meta/users.yml) through [files/python/admin_account.py](./files/python/admin_account.py) and it signs in there; while SSO is off the platform administrator is the native account.  
 
 ## Addons
 
@@ -27,6 +30,10 @@ Role-level extensions are declared in `meta/addons/` following the unified addon
 | `pretix-oidc` | plugin | enabled when `sso` is wired (`services.sso.enabled`) | `sso` |
 
 The `oidc` plugin (`pretix-oidc`, pinned to `2.3.1`) is pip-installed at image build time and delivers Keycloak/OIDC login. It auto-enables whenever the SSO partner role (`web-app-keycloak`) is co-deployed and stays off otherwise.
+
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to. A follow-up tightens them.
 
 ## Further Resources
 

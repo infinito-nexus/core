@@ -15,6 +15,7 @@
 
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {% if REDIS_EXPOSE_LOCAL %}
+    {# nocheck: swarm-loopback-port overlay  consumers connect through lookup('engine') by service name and container port #}
     {{ lookup('container_ports', ['redis', 'redis', DOCKER_BIND_HOST]) | indent(4) }}
     {% endif %}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}

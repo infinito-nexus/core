@@ -134,7 +134,7 @@ class TestPlaywrightHelpersStaged(unittest.TestCase):
         findings = stagers_without_the_glob()
         self.assertEqual([], findings, "\n".join(findings))
 
-    def test_the_scan_reaches_the_specs(self) -> None:
+    def test_the_scan_reaches_the_specs(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the spec scan  # fmt: skip
         self.assertTrue(
             spec_files(), "no Playwright spec was scanned, so the rule is vacuous"
         )
@@ -147,7 +147,7 @@ class TestPlaywrightHelpersStaged(unittest.TestCase):
         """It is staged one level up, as the run's config, not beside the specs."""
         self.assertNotIn("playwright.config.js", staged_helpers())
 
-    def test_a_shared_helper_is_actually_reached(self) -> None:
+    def test_a_shared_helper_is_actually_reached(self) -> None:  # nocheck: test.text-presence -- vacuity guard: the scan reaches a shared helper  # fmt: skip
         """Role-local siblings dominate the requires; without a shared one in
         the set the rule would pass while never testing what it exists for."""
         shared = {

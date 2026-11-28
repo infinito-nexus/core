@@ -8,6 +8,12 @@ LTENGINE_PORT: "{{ lookup('config', application_id, 'services.ltengine.ports.int
 LTENGINE_MODEL: "{{ lookup('config', application_id, 'services.ltengine.model') }}"
 LTENGINE_CHAR_LIMIT: "{{ lookup('config', application_id, 'services.ltengine.char_limit') }}"
 LTENGINE_MODELS_TARGET: "{{ lookup('volume', application_id, 'ltengine_models').target }}"
+LTENGINE_ARTEFACTS: "{{ lookup('cache_artefacts', application_id).values() | list }}"
+LTENGINE_STORED: "{{ LTENGINE_ARTEFACTS | length > 0 }}"
+LTENGINE_MODEL_FILE: >-
+  {{ ([AI_MODELS_STORE_PATH, (LTENGINE_ARTEFACTS | first).tree] | path_join)
+     if (LTENGINE_STORED | bool) else '' }}
+LTENGINE_STORE_MOUNTS: "{{ [AI_MODELS_STORE_PATH ~ ':' ~ AI_MODELS_STORE_PATH ~ ':ro'] if (LTENGINE_STORED | bool) else [] }}"
 
 LTENGINE_BASE_IMAGE: "{{ lookup('config', application_id, 'services.ltengine.image') }}"
 LTENGINE_BASE_VERSION: "{{ lookup('config', application_id, 'services.ltengine.version') }}"

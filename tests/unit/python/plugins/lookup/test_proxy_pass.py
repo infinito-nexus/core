@@ -245,5 +245,53 @@ class TestProxyPassLookup(unittest.TestCase):
             )
 
 
+def _stream_apps() -> dict[str, Any]:
+    return {
+        "svc-db-openldap": {
+            "services": {
+                "openldap": {
+                    "ports": {"local": {"ldap": 389}, "internal": {"ldap": 389}},
+                },
+            },
+        },
+    }
+
+
+def _run_stream(mode, **kwargs):
+    lm = LookupModule()
+    lm._templar = _Templar({"DEPLOYMENT_MODE": mode})
+    lm._loader = mock.MagicMock()
+    with mock.patch("plugins.lookup.proxy_pass.lookup_loader") as loader_mock:
+        loader_mock.get.return_value = mock.MagicMock(
+            run=lambda *_a, **_k: [_stream_apps()]
+        )
+        return lm.run(
+            ["svc-db-openldap", "openldap", "ldap"],
+            variables={"DEPLOYMENT_MODE": mode},
+            **kwargs,
+        )[0]
+
+
+class TestProxyPassStream(unittest.TestCase):
+    def test_swarm_stream_resolves_the_service_per_connection(self):
+        self.assertEqual(
+            _run_stream("swarm", stream=True),
+            'set $proxy_pass_upstream "openldap:389";\n'
+            "    proxy_pass $proxy_pass_upstream;",
+        )
+
+    def test_compose_stream_reaches_the_published_loopback_port(self):
+        self.assertEqual(
+            _run_stream("compose", stream=True), "proxy_pass 127.0.0.1:389;"
+        )
+
+    def test_without_stream_the_same_upstream_renders_the_http_form(self):
+        self.assertEqual(_run_stream("compose"), "proxy_pass http://127.0.0.1:389;")
+
+    def test_stream_refuses_the_http_tail(self):
+        with self.assertRaises(AnsibleError):
+            _run_stream("swarm", stream=True, tail="/")
+
+
 if __name__ == "__main__":
     unittest.main()

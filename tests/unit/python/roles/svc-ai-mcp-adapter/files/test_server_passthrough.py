@@ -185,7 +185,7 @@ class TestPassthroughDispatch(unittest.TestCase):
                 "consumer",
                 "cid",
             )
-        self.assertEqual(self.MODULE.upstream_status(caught.exception), 200)
+        self.assertEqual(self.MODULE.passthrough.upstream_status(caught.exception), 200)
 
 
 class TestEventStreamDecoding(unittest.TestCase):

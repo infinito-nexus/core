@@ -1,0 +1,19 @@
+table inet {{ FIREWALL_TABLE }}
+delete table inet {{ FIREWALL_TABLE }}
+table inet {{ FIREWALL_TABLE }} {
+{% for family in ['ipv4', 'ipv6'] %}
+  set api_{{ family }} {
+    type {{ family }}_addr
+    flags interval
+{% if PROXMOX_API_SOURCES[family] | length > 0 %}
+    elements = { {{ PROXMOX_API_SOURCES[family] | join(', ') }} }
+{% endif %}
+  }
+
+{% endfor %}
+  chain prerouting {
+    type filter hook prerouting priority -150; policy accept;
+    meta nfproto ipv4 fib daddr type local tcp dport {{ PROXMOX_API_PORT }} ip saddr != @api_ipv4 drop
+    meta nfproto ipv6 fib daddr type local tcp dport {{ PROXMOX_API_PORT }} ip6 saddr != @api_ipv6 drop
+  }
+}

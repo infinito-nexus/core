@@ -25,3 +25,21 @@ php_hardening:
   mounts:
     - service: pixelfed
       target: /usr/local/etc/php/conf.d/zz-infinito-hardening.ini
+
+rbac_oidc_login:
+  type: config
+  source: "{{ [lookup('container', 'web-app-pixelfed', 'directories.config'), 'InfinitoRbacOidcLogin.php'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: pixelfed
+      target: /var/www/html/app/Listeners/InfinitoRbacOidcLogin.php
+      when: "{{ lookup('config', 'web-app-pixelfed', 'services.sso.enabled') | bool }}"
+
+rbac_userinfo_client:
+  type: config
+  source: "{{ [lookup('container', 'web-app-pixelfed', 'directories.config'), 'InfinitoRbacUserinfoClient.php'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: pixelfed
+      target: /var/www/html/app/Services/InfinitoRbacUserinfoClient.php
+      when: "{{ lookup('config', 'web-app-pixelfed', 'services.sso.enabled') | bool }}"

@@ -7,22 +7,27 @@
 # This task file sets a fact `xwiki_rest_headers_write` that you can reuse.
 
 - name: "⬇️ XWIKI | Fetch REST session + form token (write ops)"
-  uri_retry:
-    url: "{{ [XWIKI_REST_XWIKI, 'spaces'] | url_join }}"
-    method: GET
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [200]
-    return_content: false
-  register: _xwiki_rest_session
-  changed_when: false
+  include_tasks: http.yml
+  vars:
+    xwiki_http_method: GET
+    xwiki_http_url: "{{ [XWIKI_REST_XWIKI, 'spaces'] | url_join }}"
+    xwiki_http_headers: "{{ XWIKI_SUPERADMIN_AUTH_HEADERS }}"
+    xwiki_http_body: ""
+    xwiki_http_status: [200]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_rest_session
 
 - name: "🔧 XWIKI | Set REST write headers"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   set_fact:
-    xwiki_rest_headers_write:
-      Content-Type: "application/xml"
-      Accept: "application/xml"
-      Cookie: "{{ _xwiki_rest_session.cookies_string }}"
-      XWiki-Form-Token: "{{ _xwiki_rest_session.xwiki_form_token }}"
+    xwiki_rest_headers_write: >-
+      {{ XWIKI_SUPERADMIN_AUTH_HEADERS | combine({
+           'Content-Type': 'application/xml',
+           'Accept': 'application/xml',
+           'Cookie': _xwiki_rest_session.cookies_string,
+           'XWiki-Form-Token': _xwiki_rest_session.headers['xwiki-form-token']
+         }) }}

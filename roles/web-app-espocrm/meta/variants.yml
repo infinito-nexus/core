@@ -42,6 +42,12 @@
     tor:
       enabled: true
 - services:
+    espocrm:
+      login:
+        method:
+          2fa:
+            # nocheck: login-methods  Reason: test-2fa-enrollment.js proves here that a regular account without a second factor is sent to setup; every other local sign-in of this round skips
+            enforced: true
     docs:
       enabled: true
       shared: true
@@ -80,6 +86,11 @@
     tor:
       enabled: true
 - services:
+    espocrm:
+      login:
+        method:
+          2fa:
+            enforced: false
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

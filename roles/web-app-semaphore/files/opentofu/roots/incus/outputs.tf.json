@@ -1,0 +1,8 @@
+{
+  "output": {
+    "host": {"value": "${concat(local.ipv4, local.ipv6)}", "description": "Addresses of the instance."},
+    "host_key": {"value": "${trimspace(tls_private_key.host.public_key_openssh)}", "description": "SSH host public key installed by cloud-init."},
+    "server_id": {"value": "${incus_instance.server.name}", "description": "Instance name in the workspace project."},
+    "fqdn": {"value": "${module.dns.fqdn}", "description": "Per-deploy record name."}
+  }
+}

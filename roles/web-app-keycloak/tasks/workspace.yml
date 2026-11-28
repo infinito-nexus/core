@@ -1,0 +1,12 @@
+---
+# Param: WORKSPACE         - workspace id of the workspace operation, a lowercase UUID the store chose
+# Param: WORKSPACE_ACTION  - apply creates the marked organization with its role groups, client roles and mappings; destroy deletes them, the organization last
+- name: "🛑 Workspace | Refuse the workspace operation while organizations are off"
+  ansible.builtin.assert:
+    that: KEYCLOAK_ORGANIZATIONS_ENABLED | bool
+    fail_msg: "The workspace operation needs services.keycloak.organizations.enabled of {{ application_id }}"
+    quiet: true
+
+- name: "🏢 Workspace | Run the organization step on the stack host"
+  ansible.builtin.include_tasks: utils/workspace/organization.yml
+  when: IS_STACK_HOST | bool

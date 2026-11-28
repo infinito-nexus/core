@@ -4,6 +4,12 @@ logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
   shared: "{{ 'web-svc-logout' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag  carries the managed-field lock of meta/forms.yml on every page; no spec gates on it
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"
@@ -13,6 +19,9 @@ sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oauth2
+  oidc:
+    clients:
+      web: gitea-web
   oauth2:
     origin:
       host: gitea
@@ -30,8 +39,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
   bond: 1
@@ -49,7 +58,20 @@ gitea:
   shared: true
   provides: gitea
   image: gitea/gitea
-  version: 28.4.0
+  version: 28.2.0
+  custom: true
+  builder_image: golang
+  builder_version: 1.27.3-alpine
+  source_url: &gitea_source_url "https://dl.gitea.com/gitea/{version}/gitea-src-{version}.tar.gz"
+  source_sha256: b8ad80f8a79ea42fa5cf52bdc3d5fd3457bb6abd6bd57cfcfab6a5ad4f31c3dc
+  update:
+    - type: registry_tags
+      image: gitea/gitea
+      checksum_key: source_sha256
+      checksum_url: *gitea_source_url
+    - key: builder_version
+      type: registry_tags
+      image: golang
   replicas: 1 # nocheck: single-replica  single-writer app state on swarm-shared NFS; concurrent multi-node writers corrupt app.ini
   min_storage: 270MB
   backup:
@@ -70,6 +92,59 @@ gitea:
       enable_push_create_user: true
       default_private: last
       default_push_create_private: true
+    git:
+      gc_args: "--prune=1.day.ago"
+      timeout:
+        gc: 1800
+        mirror: 3600
+    cron:
+      git_gc_repos:
+        enabled: true
+        schedule: "@every 72h"
+        timeout: 60m
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', '2fa') }}"
+        enforced: false
+      passkey:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', 'passkey') }}"
+      openid2:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', 'openid2') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-gitea', 'registration') }}"
+  auth:
+    ldap:
+      names: [LDAP]
+      host: "{{ LDAP.SERVER.DOMAIN }}"
+      port: "{{ LDAP.SERVER.PORT }}"
+      security_protocol: "{{ LDAP.SERVER.SECURITY | trim or 'unencrypted' }}"
+      bind_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+      user_base: "{{ LDAP.DN.OU.USERS }}"
+      filter: "(&(objectClass=inetOrgPerson)({{ LDAP.USER.ATTRIBUTES.ID }}=%s))"
+      admin_filter: "({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}=cn=web-app-gitea-administrator,{{ LDAP.DN.OU.ROLES }})"
+      restricted_filter: "({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}=cn=web-app-gitea-restricted,{{ LDAP.DN.OU.ROLES }})"
+      attribute_username: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+      attribute_name: "{{ LDAP.USER.ATTRIBUTES.FIRSTNAME }}"
+      attribute_surname: "{{ LDAP.USER.ATTRIBUTES.SURNAME }}"
+      attribute_mail: "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
+      attribute_ssh_public_key: "{{ LDAP.USER.ATTRIBUTES.SSH_PUBLIC_KEY }}"
+      attribute_avatar: "{{ LDAP.USER.ATTRIBUTES.PHOTO }}"
+      is_sync_enabled: true
+    oauth:
+      names: [SSO Login]
+      provider: openidConnect
+      discovery_url: "{{ OIDC.CLIENT.DISCOVERY_DOCUMENT }}"
+      scopes: "openid profile email {{ RBAC.GROUP.CLAIM }}"
+      group_claim_name: "{{ RBAC.GROUP.CLAIM }}"
+      admin_group: "/{{ lookup('rbac_group_path', application_id='web-app-gitea', role='administrator') }}"
+      restricted_group: "/{{ lookup('rbac_group_path', application_id='web-app-gitea', role='restricted') }}"
   ports:
     internal:
       http: 3000
@@ -86,9 +161,22 @@ gitea:
   run_after:
     - web-app-matomo
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
+  garbage_collector:
+    type: script
+    setting: "[cron.git_gc_repos] and [git] GC_ARGS in templates/env.j2, fed by configuration.cron and configuration.git"
+    minutes:
+      routine: 1440
+      pressure: 120
+  workspaces:
+    enabled: false
+    organization: workspaces
+    store:
+      username: store
+      email: "store@{{ DOMAIN_PRIMARY }}"
+      scopes: "write:organization,write:repository,read:user"
+      token_prefix: "store-"
 # nocheck: playwright-service-flag
 # nocheck: dockerfile-custom  the Dockerfile is owned by svc-ai-mcp-adapter and staged per instance, so every adapter-backed provider shares one audited build
 # nocheck: dynamic-flag  the sidecar tracks this role's own mcp flag, not another role's presence; a group_names expression would decide its exposure from an unrelated deployment
@@ -96,8 +184,8 @@ giteamcp:
   enabled: "{{ lookup('config', 'web-app-gitea', 'mcp.enabled') | bool }}"
   shared: false
   image: python
-  # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
-  version: "3.13.15-slim"
+  version: "3.13.18-slim"
+  follow: requires-python
   custom: true
   name: giteamcp
   cpus: "0.25"
@@ -110,11 +198,6 @@ giteamcp:
   ports:
     internal:
       http: 8080
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "3.13.15-slim"
-        until: 2026-11-30
 # nocheck: playwright-service-flag
 # nocheck: dynamic-flag  the vendor server exists only behind the adapter, so it tracks this role's own mcp flag rather than another role's presence
 giteamcpupstream:
@@ -220,3 +303,22 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, dynamic-flag, semaphore-contract  control plane: it holds the inventory repository Semaphore deploys from, so a run that paused it would cut off the source of every later run
+semaphore:
+  enabled: false
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

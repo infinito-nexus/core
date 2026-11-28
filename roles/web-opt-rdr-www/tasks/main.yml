@@ -3,8 +3,8 @@
   include_tasks: "utils/load/app.yml"
   vars:
     load_app_id: web-opt-rdr-domains
-    web_opt_rdr_domains_mappings: "{{ REDIRECT_WWW_DOMAINS }}"
-  when: REDIRECT_WWW_FLAVOR == 'origin'
+    web_opt_rdr_domains_mappings: "{{ REDIRECT_WWW_ORIGIN_DOMAINS }}"
+  when: REDIRECT_WWW_ORIGIN_DOMAINS | length > 0
 
 - name: 📂 Include Cloudflare edge redirect
   include_tasks: _01_cloudflare_edge_redirect.yml

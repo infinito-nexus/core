@@ -64,7 +64,7 @@ def _host_line_of_block(lines: list[str], start: int) -> tuple[int, str] | None:
 
 
 class TestWaitForReachHost(unittest.TestCase):
-    def test_every_wait_for_probe_dials_the_reach_host(self) -> None:
+    def test_every_wait_for_probe_dials_the_reach_host(self) -> None:  # nocheck: test.text-presence -- policy lint over every role wait_for task  # fmt: skip
         findings: list[tuple[str, int, str]] = []
 
         for path_str, content in iter_project_files_with_content(extensions=(".yml",)):

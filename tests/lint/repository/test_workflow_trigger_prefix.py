@@ -103,7 +103,7 @@ def issues(rel: str, data) -> list[str]:
 
 
 class TestWorkflowTriggerPrefix(unittest.TestCase):
-    def test_workflow_names_declare_their_trigger(self) -> None:
+    def test_workflow_names_declare_their_trigger(self) -> None:  # nocheck: test.text-presence -- naming convention lint over the parsed triggers of every workflow  # fmt: skip
         offenders: list[str] = []
         for path_str in iter_project_files(extensions=(".yml", ".yaml")):
             rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()

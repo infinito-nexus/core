@@ -4,6 +4,8 @@ import unittest.mock as mock
 from types import ModuleType
 from typing import ClassVar
 
+from ansible.errors import AnsibleError
+
 from . import PROJECT_ROOT
 
 
@@ -27,6 +29,7 @@ def _run(
     applications: dict,
     variables: dict | None = None,
     templar: object | None = None,
+    terms: list[str] | None = None,
 ) -> list[str]:
     loader = mock.MagicMock()
     loader.get.return_value.run.return_value = [applications]
@@ -34,7 +37,7 @@ def _run(
         plugin = module.LookupModule()
         if templar is not None:
             plugin._templar = templar
-        return plugin.run(None, variables=variables or {})[0]
+        return plugin.run(terms, variables=variables or {})[0]
 
 
 class TestBackupVolumeLookup(unittest.TestCase):
@@ -84,6 +87,56 @@ class TestBackupVolumeLookup(unittest.TestCase):
     def test_a_truthy_string_is_not_treated_as_an_opt_out(self) -> None:
         apps = {"r": {"volumes": {"v": {"name": "kept", "backup": "false"}}}}
         self.assertEqual(_run(type(self)._module, apps), [])
+
+
+class TestCodeDerivedTerm(unittest.TestCase):
+    APPS: ClassVar[dict] = {
+        "web-app-docs": {
+            "volumes": {"docs_sites": {"backup": False, "derived": "code"}},
+        },
+        "web-svc-loki": {
+            "volumes": {"data": {"name": "loki_data", "backup": False}},
+        },
+        "r": {
+            "volumes": {
+                "index": {"name": "r_index", "backup": False, "derived": "state"},
+            },
+        },
+    }
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls._module = _load_module()
+
+    def test_only_code_derived_volumes_under_their_deployed_name(self) -> None:
+        self.assertEqual(
+            _run(type(self)._module, self.APPS, terms=["derived"]),
+            ["docs_docs_sites"],
+        )
+
+    def test_negative_control_without_the_term_every_opt_out_is_listed(self) -> None:
+        self.assertEqual(
+            _run(type(self)._module, self.APPS),
+            ["docs_docs_sites", "loki_data", "r_index"],
+        )
+
+    def test_the_pinned_docker_name_wins_for_a_derived_volume(self) -> None:
+        apps = {
+            "r": {
+                "volumes": {
+                    "v": {"name": "pinned", "backup": False, "derived": "code"},
+                }
+            }
+        }
+        self.assertEqual(_run(type(self)._module, apps, terms=["derived"]), ["pinned"])
+
+    def test_a_host_without_derived_volumes_gets_an_empty_list(self) -> None:
+        apps = {"web-svc-loki": self.APPS["web-svc-loki"]}
+        self.assertEqual(_run(type(self)._module, apps, terms=["derived"]), [])
+
+    def test_an_unknown_term_is_refused(self) -> None:
+        with self.assertRaises(AnsibleError):
+            _run(type(self)._module, self.APPS, terms=["code"])
 
 
 class TestSwarmNfsExclusion(unittest.TestCase):

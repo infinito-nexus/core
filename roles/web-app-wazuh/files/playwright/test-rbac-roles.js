@@ -5,9 +5,9 @@ const { resolveTimeout } = require("./timeouts");
 const shared = require("./_shared");
 
 const RBAC_TIERS = [
-  { role: "administrator", expectSecurityUi: true },
-  { role: "security-analyst", expectSecurityUi: false },
-  { role: "readonly-auditor", expectSecurityUi: false },
+  { role: "administrator", expectSecurityUi: true, apiAllows: ["agent:read", "agent:delete"], apiDenies: [] },
+  { role: "security-analyst", expectSecurityUi: false, apiAllows: ["agent:read"], apiDenies: ["agent:delete"] },
+  { role: "readonly-auditor", expectSecurityUi: false, apiAllows: ["agent:read"], apiDenies: ["agent:delete"] },
 ];
 
 async function seenBy(page) {
@@ -74,6 +74,19 @@ exports.register = function () {
               page.locator("[data-test-subj='create-role']"),
               `${tier.role} MUST NOT reach the Security management UI (create-role button rendered, ${seen})`,
             ).toHaveCount(0);
+          }
+
+          const api = await shared.wazuhApiPolicies(page);
+          expect(
+            api.loginStatus,
+            `${tier.role} MUST obtain a Wazuh API token through run_as, which needs a security rule for its group (${api.text.slice(0, 500)})`,
+          ).toBe(200);
+          expect(api.status, `${tier.role} MUST read its own Wazuh API policies (${api.text.slice(0, 500)})`).toBe(200);
+          for (const action of tier.apiAllows) {
+            expect(api.text, `${tier.role} MUST hold the Wazuh API action ${action}`).toContain(`"${action}"`);
+          }
+          for (const action of tier.apiDenies) {
+            expect(api.text, `${tier.role} MUST NOT hold the Wazuh API action ${action}`).not.toContain(`"${action}"`);
           }
         } finally {
           await biberCtx.close().catch(() => {});

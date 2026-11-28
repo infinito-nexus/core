@@ -11,6 +11,8 @@ import time
 import unittest
 from pathlib import Path
 
+from tests.utils.unprivileged import unprivileged
+
 from ._spec_secrets_fakes import (
     MASKER,
     RAW,
@@ -196,7 +198,7 @@ class TestSpecSecretsMasking(unittest.TestCase):
         self.assertEqual(masked_run(code=RUN_CODE), [])
         self.assertEqual(masked_run(owner_gone=True, code=RUN_CODE), [])
 
-    @unittest.skipIf(os.geteuid() == 0, "root writes into a read-only dir")
+    @unprivileged
     def test_a_report_that_cannot_be_rewritten_fails_the_scrub(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             module = load_masker()

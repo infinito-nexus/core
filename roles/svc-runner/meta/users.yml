@@ -6,3 +6,10 @@ github-runner:
   accounts: []
   description: System user for GitHub Actions self-hosted runner containers
   reserved: true
+runner-queue:
+  username: runner-queue
+  uid: 901
+  gid: 901
+  accounts: []
+  description: System group the local runner pool shares its job queue with the operator through
+  reserved: true

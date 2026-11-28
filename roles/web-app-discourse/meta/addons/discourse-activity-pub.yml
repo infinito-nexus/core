@@ -1,5 +1,6 @@
 ---
 # nocheck: addons-variant-pinning: compiled into the image from the addon's ref, so an addon-level disable saves no deploy time and only silences the spec
+# nocheck: addon-partner-gate  ActivityPub federates with every fediverse server, Mastodon is one partner of many; gating on it would also drop the spec, which runs in the SSO variant that carries no Mastodon
 enabled: true
 required: false
 mechanism: plugin

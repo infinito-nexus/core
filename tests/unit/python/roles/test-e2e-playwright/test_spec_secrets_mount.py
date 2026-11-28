@@ -324,7 +324,7 @@ class TestSpecSecretsMount(unittest.TestCase):
                 )
 
     def test_the_role_level_env_file_is_untouched(self) -> None:
-        self.assertEqual(env_task()["ansible.builtin.copy"]["mode"], "0644")
+        self.assertEqual(env_task()["ansible.builtin.copy"]["mode"], "0600")
         self.assertNotIn("secrets", str(env_task()))
 
     def test_the_secrets_reach_the_run_directory_and_no_task_prints_one(self) -> None:

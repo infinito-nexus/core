@@ -10,7 +10,7 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const adminEmail = decodeDotenvQuotedValue(process.env.ADMIN_EMAIL);
@@ -263,7 +263,7 @@ exports.register = function (shared) {
 
   test("design: the sign-in page takes surface, card, primary action and text from the palette", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(shared.env.oidcEnabled, "with sso the sign-in form belongs to the identity provider");
+    skipUnlessServiceDisabled("sso");
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
       await gotoOnion(page, `${base}/login`);

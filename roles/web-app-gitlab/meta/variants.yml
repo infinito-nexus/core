@@ -118,6 +118,11 @@
       enabled: false
       shared: false
 - services:
+    gitlab:
+      login:
+        method:
+          2fa:
+            enforced: false
     docs:
       enabled: true
       shared: true
@@ -169,6 +174,7 @@
       enabled: false
       shared: false
 - services:
+    # nocheck: mem-limit-budget  the 2 GB ceiling of svc-prx-openresty, which always served this round, joins the sum since every vhost role declares openresty (045)
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

@@ -3,9 +3,11 @@
 #
 # Dispatcher for `python -m utils.install.lint` based on INFINITO_LINT_RUNNER:
 #   host             -- install lint tools into the host venv.
-#   docker           -- install lint tools inside the running infinito
-#                       compose container (requires `make compose-up`; auto-brings
-#                       the stack up).
+#   docker           -- install lint tools inside the shared test runner
+#                       infinito-test-<hash> (scripts/tests/runner/lib.sh), where
+#                       scripts/lint/wrapper.sh runs them; with INFINITO_STACK_NAME
+#                       set, inside that stack's infinito container (auto-brings
+#                       it up).
 #
 # The per-environment stamp (build/install-lint-<hash>.stamp; <hash> is
 # of sys.executable) lets host and container track their installs
@@ -22,6 +24,10 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 cd "${REPO_ROOT}"
 # shellcheck source=scripts/meta/env/load.sh
 source scripts/meta/env/load.sh
+# shellcheck source=scripts/meta/compose.sh
+source scripts/meta/compose.sh
+# shellcheck source=scripts/tests/runner/lib.sh
+source scripts/tests/runner/lib.sh
 
 : "${INFINITO_LINT_RUNNER:?INFINITO_LINT_RUNNER must be set}"
 
@@ -30,13 +36,20 @@ host)
 	exec python3 -m utils.install.lint "$@"
 	;;
 docker)
-	if ! docker compose ps -q infinito 2>/dev/null | grep -q .; then
+	if [[ -z "${INFINITO_STACK_NAME:-}" ]]; then
+		infinito_test_runner_exec "${REPO_ROOT}" \
+			-e BASH_ENV="${REPO_ROOT}/scripts/meta/env/load.sh" \
+			-- python3 -m utils.install.lint "$@"
+		exit
+	fi
+
+	if ! infinito_compose ps -q infinito 2>/dev/null | grep -q .; then
 		echo ">>> 'infinito' container not running; starting the stack via 'make compose-up'..."
 		"${MAKE:-make}" compose-up
 	fi
 
 	INFINITO_DISTRO="${INFINITO_DISTRO}" \
-		docker compose exec -T \
+		infinito_compose exec -T \
 		-e BASH_ENV="${INFINITO_SRC_DIR}/scripts/meta/env/load.sh" \
 		--workdir "${INFINITO_SRC_DIR}" \
 		infinito \

@@ -20,32 +20,45 @@ from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
 )
 from utils.roles.applications.topics import apply_topic, provider_of
-from utils.roles.applications.variants import collect_provider_overrides
-from utils.roles.guide import GUIDE_SERVICE_KEY, without_guide
+from utils.roles.applications.variants import (
+    PRIMARY_ONLY_SERVICE_KEYS,
+    collect_provider_overrides,
+)
 
 
-def _guide_services(payload: Any) -> Mapping[str, Any] | None:
+def _services(payload: Any) -> Mapping[str, Any]:
     services = payload.get("services") if isinstance(payload, Mapping) else None
-    if isinstance(services, Mapping) and GUIDE_SERVICE_KEY in services:
-        return services
-    return None
+    return services if isinstance(services, Mapping) else {}
 
 
-def _drop_undeployed_guide(
+def _drop_undeployed_hosts(
     resolved: dict[str, Any], *, roles_dir: str, include: Sequence[str]
 ) -> dict[str, Any]:
-    if not any(_guide_services(payload) for payload in resolved.values()):
+    baked = {
+        key
+        for key in PRIMARY_ONLY_SERVICE_KEYS
+        if any(key in _services(payload) for payload in resolved.values())
+    }
+    if not baked:
         return resolved
     registry = build_service_registry_from_roles_dir(Path(roles_dir))
-    if provider_of(GUIDE_SERVICE_KEY, registry) in include:
+    undeployed = {key for key in baked if provider_of(key, registry) not in include}
+    if not undeployed:
         return resolved
     stripped: dict[str, Any] = {}
     for app_id, payload in resolved.items():
-        services = _guide_services(payload)
+        services = _services(payload)
         stripped[app_id] = (
-            payload
-            if services is None
-            else {**payload, "services": without_guide(services)}
+            {
+                **payload,
+                "services": {
+                    key: entry
+                    for key, entry in services.items()
+                    if key not in undeployed
+                },
+            }
+            if undeployed & set(services)
+            else payload
         )
     return stripped
 
@@ -71,8 +84,9 @@ def _resolve_variant_payloads(
     finally moved onto that service's provider, so the role pulling a
     dependency in is what decides how lean the dependency runs.
 
-    A guide host entry is baked only while the round deploys the guide
-    host itself.
+    An entry for a host of
+    :data:`utils.roles.applications.variants.PRIMARY_ONLY_SERVICE_KEYS` is
+    baked only while the round deploys that host itself.
     """
     overrides_per_app = get_variant_overrides_only(roles_dir=roles_dir)
     resolved: dict[str, Any] = {}
@@ -84,7 +98,7 @@ def _resolve_variant_payloads(
         if not 0 <= index < len(variant_list):
             index = 0
         resolved[app_id] = variant_list[index]
-    resolved = _drop_undeployed_guide(resolved, roles_dir=roles_dir, include=include)
+    resolved = _drop_undeployed_hosts(resolved, roles_dir=roles_dir, include=include)
     for provider, topics in collect_provider_overrides(
         resolved, roles_dir=roles_dir
     ).items():

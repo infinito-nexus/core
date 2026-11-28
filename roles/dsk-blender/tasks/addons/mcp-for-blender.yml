@@ -5,11 +5,21 @@
   become: true
   become_user: root
 
+- name: 🔎 Read the pipx applications the workstation user carries
+  ansible.builtin.command:
+    argv:
+      - pipx
+      - list
+      - --short
+  register: blender_mcp_pipx_list
+  changed_when: false
+
 - name: "📦 install the Blender MCP server {{ blender_mcp_version }}"
   ansible.builtin.command:
     cmd: "pipx install --force {{ blender_mcp_distribution }}=={{ blender_mcp_version }}"
   register: blender_mcp_install
   changed_when: "'installed package' in (blender_mcp_install.stdout | lower)"
+  when: (blender_mcp_distribution ~ ' ' ~ blender_mcp_version) not in blender_mcp_pipx_list.stdout_lines
 
 - name: 📁 Name the user addons directory of the Blender on PATH
   ansible.builtin.command:
@@ -21,16 +31,67 @@
   register: blender_addons_dir
   changed_when: false
 
+- name: 🔎 Fingerprint the Blender side of the MCP bridge before installing it
+  ansible.builtin.stat:
+    path: "{{ blender_mcp_addon_file }}"
+    checksum_algorithm: sha256
+  register: blender_mcp_addon_before
+
 - name: 🧩 Install the Blender side of the MCP bridge
   ansible.builtin.command:
     argv:
       - "{{ blender_mcp_command }}"
       - install-addon
+      - --addons-dir
+      - "{{ blender_mcp_addons_dir }}"
   environment:
-    BLENDERMCP_ADDONS_DIR: "{{ blender_addons_dir.stdout }}"
-    PATH: "{{ blender_pipx_bin_dir }}:{{ blender_exec_path }}"
-  register: blender_mcp_addon
-  changed_when: "'installed' in (blender_mcp_addon.stdout | lower)"
+    PATH: "{{ blender_pipx_bin_dir }}:{{ EXEC_PATH_SYSTEM }}"
+  changed_when: false
+
+- name: 🧩 Report whether the Blender side of the MCP bridge changed
+  ansible.builtin.stat:
+    path: "{{ blender_mcp_addon_file }}"
+    checksum_algorithm: sha256
+  register: blender_mcp_addon_after
+  changed_when: not blender_mcp_addon_before.stat.exists or blender_mcp_addon_before.stat.checksum != blender_mcp_addon_after.stat.checksum
+  failed_when: not blender_mcp_addon_after.stat.exists
+
+- name: 🔎 Start the Flatpak sandbox of the Blender on PATH without Blender
+  ansible.builtin.command:
+    argv:
+      - flatpak
+      - run
+      - --command=true
+      - "{{ blender_mcp_flatpak_app }}"
+  register: blender_mcp_flatpak_sandbox
+  changed_when: false
+  failed_when: false
+  when: blender_mcp_flatpak_app | length > 0
+
+- name: ⚠️ Report that the Flatpak sandbox refused to start, so the add-on stays off
+  ansible.builtin.debug:
+    msg: >-
+      {{ blender_mcp_flatpak_app }} cannot start its Flatpak sandbox on this host
+      (flatpak exited {{ blender_mcp_flatpak_sandbox.rc }}:
+      {{ blender_mcp_flatpak_sandbox.stderr | default('') | trim }}).
+      The MCP add-on is installed in {{ blender_mcp_addons_dir }} but not enabled
+      in the saved preferences; enable it in Blender once the sandbox can start.
+  when: not (blender_mcp_blender_startable | bool)
+
+- name: 🔌 Enable the Blender MCP add-on in the saved preferences
+  when: blender_mcp_blender_startable | bool
+  ansible.builtin.command:
+    argv:
+      - blender
+      - --background
+      - --python-exit-code
+      - "1"
+      - --python-expr
+      - "{{ lookup('file', 'python/addon_enable.py') }}"
+      - --
+      - "{{ blender_mcp_addon_module }}"
+  register: blender_mcp_addon_enable
+  changed_when: "'ADDON=enabled' in blender_mcp_addon_enable.stdout"
 
 - name: 🤖 Wire the Blender MCP server into Claude
   when: blender_mcp_claude_enabled | bool
@@ -54,16 +115,42 @@
           - --scope
           - user
           - "{{ blender_mcp_server_name }}"
-          - "{{ blender_mcp_command }}"
+          - "{{ blender_mcp_bin }}"
       register: blender_mcp_claude_add
       changed_when: blender_mcp_claude_add.rc == 0
       when: blender_mcp_server_name not in blender_mcp_claude_list.stdout
+
+- name: 🧠 Wire the Blender MCP server into Codex
+  when: blender_mcp_codex_enabled | bool
+  block:
+    - name: 🔎 Read the MCP servers Codex already carries
+      ansible.builtin.command:
+        argv:
+          - codex
+          - mcp
+          - list
+          - --json
+      register: blender_mcp_codex_list
+      changed_when: false
+
+    - name: 🧠 Register the Blender MCP server with Codex
+      ansible.builtin.command:
+        argv:
+          - codex
+          - mcp
+          - add
+          - "{{ blender_mcp_server_name }}"
+          - --
+          - "{{ blender_mcp_bin }}"
+      register: blender_mcp_codex_add
+      changed_when: blender_mcp_codex_add.rc == 0
+      when: blender_mcp_server_name not in (blender_mcp_codex_list.stdout | from_json | map(attribute='name'))
 
 - name: 🧰 Wire the Blender MCP server into the editor
   when: blender_mcp_code_enabled | bool
   block:
     - name: 🔎 Look for the editor binary on this host
-      ansible.builtin.shell: "command -v {{ blender_mcp_code_binary }}"
+      ansible.builtin.shell: "command -v {{ blender_mcp_code_binary | quote }}"
       register: blender_mcp_code_lookup
       changed_when: false
       failed_when: blender_mcp_code_lookup.rc not in [0, 1]

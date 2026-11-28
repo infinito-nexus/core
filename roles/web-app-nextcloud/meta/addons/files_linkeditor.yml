@@ -1,4 +1,5 @@
 ---
+# nocheck: addons-variant-pinning upstream 1.1.25 never registers on nc33, see the TODO below
 # TODO(nc33): files_linkeditor 1.1.25 uses the legacy fileList.newFileMenu API
 # removed in nc28, so its New-link entries never register on nc33. Re-enable
 # once an upstream version using addNewFileMenuEntry ships.

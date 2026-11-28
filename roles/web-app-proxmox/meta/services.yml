@@ -1,0 +1,185 @@
+---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
+# nocheck: playwright-service-flag  self-provider
+proxmox:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: false
+  requires_devices:
+    - /dev/kvm
+  bond: 1
+  enabled: true
+  shared: true
+  backup:
+    stop_required: true
+  image: debian
+  version: 13.7-slim
+  custom: true
+  name: proxmox
+  guide_companions:
+    - web-app-keycloak
+  healthcheck:
+    test:
+      - "CMD"
+      - "curl"
+      - "--insecure"
+      - "--fail"
+      - "--silent"
+      - "--show-error"
+      - "--output"
+      - "/dev/null"
+      - "--connect-timeout"
+      - "5"
+      - "https://127.0.0.1:8006/api2/json/version"
+    # nocheck: healthcheck-timing-override  the VM flavor allows 360 ten-second guest-install retries before pveproxy is expected
+    start_period: 60m
+  # nocheck: min-storage-headroom  Reason: the declared image is only the Dockerfile base; under the vm flavor the proxmox_guest volume holds the installer ISO while the base disk builds, the base disk and the copy-on-write overlay of the guest, whose local-lvm holds the workspace templates and VMs; under the container flavor the built image adds the Proxmox VE packages with QEMU, and the proxmox_templates and proxmox_vm_disks volumes hold the ISO and container templates and the VM disks
+  min_storage: 80GB
+  cpus: "2.0"
+  mem_reservation: 2g
+  mem_limit: 6g
+  pids_limit: 4096
+  lifecycle: pre-alpha
+  # nocheck: architecture-pin  Reason: both flavors need hardware virtualization, and the arm64 CI runners have no /dev/kvm; the pinned installer ISO proxmox-ve_9.2-1.iso and the launcher's qemu-system-x86 are the amd64 builds
+  architectures:
+    - amd64
+  flavor: vm
+  ports:
+    local:
+      http: 7992
+      sso: 16503
+    public:
+      api: 8606
+    internal:
+      http: 8006
+      api: 8006
+    onion:
+      api: false # nocheck: onion-flag  the API listener admits services.proxmox.api.allowed_sources only, and the role refuses services.tor.enabled
+  upstream_scheme: https
+  api:
+    enabled: false
+    bind: "0.0.0.0"
+    allowed_sources: []
+  realm:
+    id: keycloak
+    comment: Keycloak
+  ve:
+    iso:
+      mirror: https://enterprise.proxmox.com/iso
+      file: proxmox-ve_9.2-1.iso
+      sha256: "4e88fe416df9b527624a175f24c9aa07c714d3332afb1ee3dbf3879573ef2c6c"
+    repository: http://download.proxmox.com/debian/pve
+    keyring: https://enterprise.proxmox.com/debian/proxmox-archive-keyring-trixie.gpg
+    keyring_sha512: "90eb7f053a54ba0d57f67838a522151449a02e6db245b2becb3338dd7f812b516ff77f95a2ade433f8d90f183570be7efade93b23211d2091eeb7ef21fdc918a"
+    suite: trixie
+    packages:
+      pve-manager: "9.2.26"
+      pve-cluster: "9.1.9"
+      pve-qemu-kvm: "11.1.3-1"
+      qemu-server: "9.2.15"
+    installer:
+      proxmox-auto-install-assistant: "9.2.8"
+  launcher:
+    packages:
+      openssh-client: "1:10.0p1-7+deb13u4"
+      qemu-system-x86: "1:10.0.13+ds-0+deb13u1"
+      qemu-utils: "1:10.0.13+ds-0+deb13u1"
+      xorriso: "1.5.6-1.2+b1"
+  guest:
+    node: pve
+    cpus: 2
+    memory: 4g
+    disk: 64G
+    ssh_port: 2222
+  workspaces:
+    storage: local-lvm
+    bridge: vmbr0
+    image:
+      url: https://cloud.debian.org/images/cloud/trixie/20261026-2643/debian-13-genericcloud-amd64-20261026-2643.qcow2
+      sha256: "dd7f5e92d879a983d757fc6acd8c5df0294abd9ba57137b29f8c863bb74a6904"
+    templates:
+      kvm: 9000
+      emulated: 9001
+  agents:
+    warm_pool: 1
+    reserve:
+      memory: 4GiB
+      disk: 50GiB
+    overhead:
+      cpus: 1
+      memory: 2GiB
+  vm_network:
+    bridge: vmbr1
+    subnet: 192.168.242.0/24
+
+sso:
+  bond: 1
+  mandatory: true
+  enabled: "{{ 'web-app-keycloak' in group_names or (groups.get('web-app-keycloak') or []) | length > 0 }}"
+  shared: "{{ 'web-app-keycloak' in group_names or (groups.get('web-app-keycloak') or []) | length > 0 }}"
+  flavor: oauth2
+  oauth2:
+    origin:
+      host: proxmox
+      port: 8006
+    allowed_groups:
+      - "{{ lookup('rbac_group_path', application_id='web-app-proxmox', role='administrator') }}"
+
+logout:
+  bond: 1
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+
+design:
+  bond: 1
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+  title: "Proxmox VE"
+
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+
+# nocheck: playwright-service-flag
+# nocheck: dynamic-flag, sso-variant-tor  the Proxmox VE UI stays behind the front proxy's clearnet gate, so the role has no onion
+tor:
+  enabled: false
+  shared: false
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true
+
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

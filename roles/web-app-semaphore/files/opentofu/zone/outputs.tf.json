@@ -1,0 +1,8 @@
+{
+  "output": {
+    "zone": {"value": "${cloudflare_zone.zone.name}", "description": "Apex of the zone."},
+    "zone_id": {"value": "${cloudflare_zone.zone.id}", "description": "Cloudflare zone id."},
+    "status": {"value": "${cloudflare_zone.zone.status}", "description": "Zone status the provider reported at the apply."},
+    "name_servers": {"value": "${cloudflare_zone.zone.name_servers}", "description": "Assigned name servers the customer sets at the registrar."}
+  }
+}

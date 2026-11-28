@@ -2,6 +2,11 @@
 {% set _matrix_onion_node = lookup('config', 'svc-net-tor', 'services.tor.node', '') %}
 {% set _matrix_is_onion = (_matrix_onion_node and (lookup('domain', application_id) | network_of) == 'tor') %}
 matrix_domain: {{ MATRIX_SERVER_NAME }}
+matrix_server_fqn_matrix: "{{ MATRIX_MDAD_SERVER_FQN }}"
+matrix_base_data_path: "{{ MATRIX_MDAD_DATA_PATH }}"
+matrix_synapse_config_dir_path: "{{ MATRIX_MDAD_SYNAPSE_CONFIG_PATH }}"
+matrix_synapse_storage_path: "{{ MATRIX_MDAD_SYNAPSE_STORAGE_PATH }}"
+matrix_synapse_media_store_path: "{{ MATRIX_MDAD_MEDIA_STORE_PATH }}"
 matrix_admin: "{{ lookup('mxid', MATRIX_ADMINISTRATOR_USERNAME) }}"
 matrix_playbook_ssl_enabled: {{ 'false' if _matrix_is_onion else 'true' }}
 matrix_homeserver_implementation: synapse
@@ -118,7 +123,7 @@ matrix_synapse_oidc_providers:
 {% if _matrix_is_onion %}
     skip_verification: true
 {% endif %}
-    client_id: "{{ OIDC.CLIENT.ID }}"
+    client_id: "{{ MATRIX_OIDC_CLIENT_ID }}"
     client_secret: "{{ OIDC.CLIENT.SECRET }}"
     scopes:
       - openid
@@ -127,11 +132,14 @@ matrix_synapse_oidc_providers:
     allow_existing_users: true
     user_mapping_provider:
       config:
-        # nocheck: oidc-claim-name-spot  the scalar is !unsafe so Synapse templates it, not Ansible; an OIDC.ATTRIBUTES reference would stay literal
-        localpart_template: !unsafe "{% raw %}{{ user.preferred_username }}{% endraw %}"
-        display_name_template: !unsafe "{% raw %}{{ user.name }}{% endraw %}"
-        email_template: !unsafe "{% raw %}{{ user.email }}{% endraw %}"
+        localpart_template: !unsafe "{% raw %}{{ user.{% endraw %}{{ OIDC.ATTRIBUTES.USERNAME }}{% raw %} }}{% endraw %}"
+        display_name_template: !unsafe "{% raw %}{{ user.{% endraw %}{{ OIDC.ATTRIBUTES.NAME }}{% raw %} }}{% endraw %}"
+        email_template: !unsafe "{% raw %}{{ user.{% endraw %}{{ OIDC.ATTRIBUTES.EMAIL }}{% raw %} }}{% endraw %}"
+    backchannel_logout_enabled: true
 {% endif %}
+
+matrix_synapse_enable_registration: {{ MATRIX_LOGIN_REGISTRATION | string | lower }}
+matrix_synapse_registrations_require_3pid: {{ (['email'] if MATRIX_LOGIN_REGISTRATION | bool else []) | to_json }}
 
 matrix_synapse_ldap_enabled: {{ MATRIX_LDAP_ENABLED | string | lower }}
 {% if MATRIX_LDAP_ENABLED %}
@@ -141,8 +149,8 @@ matrix_synapse_ext_password_provider_ldap_base: "{{ LDAP.DN.OU.USERS }}"
 matrix_synapse_ext_password_provider_ldap_bind_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
 matrix_synapse_ext_password_provider_ldap_bind_password: "{{ LDAP.BIND_CREDENTIAL }}"
 matrix_synapse_ext_password_provider_ldap_attributes_uid: "{{ LDAP.USER.ATTRIBUTES.ID }}"
-matrix_synapse_ext_password_provider_ldap_attributes_mail: mail
-matrix_synapse_ext_password_provider_ldap_attributes_name: givenName
+matrix_synapse_ext_password_provider_ldap_attributes_mail: "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
+matrix_synapse_ext_password_provider_ldap_attributes_name: "{{ LDAP.USER.ATTRIBUTES.FULLNAME }}"
 {% endif %}
 
 matrix_client_element_enabled: true
@@ -156,9 +164,13 @@ matrix_client_element_branding_auth_header_logo_url: {{ MATRIX_DESIGN_LOGO_URL |
 {% if MATRIX_DESIGN_ENABLED | bool %}
 matrix_client_element_branding_welcome_background_url: ""
 {% endif %}
-matrix_client_element_configuration_extension_json: {{ ({'force_verification': MATRIX_ELEMENT_FORCE_VERIFICATION | bool} | combine({'default_theme': none} if MATRIX_DESIGN_ENABLED | bool else {})) | to_json | to_json }}
+matrix_client_element_configuration_extension_json: {{ ({'force_verification': MATRIX_ELEMENT_FORCE_VERIFICATION | bool} | combine({'default_theme': none} if MATRIX_DESIGN_ENABLED | bool else {}) | combine(MATRIX_ELEMENT_LOGIN_CONFIG)) | to_json | to_json }}
 matrix_synapse_configuration_extension_yaml: |
   web_client_location: "{{ lookup('canonical_url', application_id, 'element') }}"
+{% if MATRIX_OIDC_ENABLED %}
+  sso:
+    update_profile_information: true
+{% endif %}
 
 matrix_bridge_appservice_irc_enabled: {{ MATRIX_BRIDGE.appservice_irc | string | lower }}
 matrix_bridge_heisenbridge_enabled: {{ MATRIX_BRIDGE.heisenbridge | string | lower }}

@@ -40,5 +40,6 @@
         name: "{{ lookup('unit_name',system_service_id, suffix=False) ~ escaped_name.stdout }}.service"
         state: started
   when:
-    - MODE_ASSERT_LOCAL | bool
+    - lookup('validate', 'sys-ctl-alm-compose') | bool
+    - IS_STACK_HOST | bool
     - not (service_loader_preloading | default(false) | bool)

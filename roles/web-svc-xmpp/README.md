@@ -6,18 +6,18 @@
 
 ## Overview
 
-This role deploys ejabberd on Docker Compose with the project's standard role-meta wiring. It binds ejabberd's `auth_method` to `svc-db-openldap` so XMPP clients authenticate against the project's central LDAP. The OIDC variant additionally loads `mod_oauth2_client` so a Keycloak-issued bearer token can be exchanged for an ejabberd session, but most XMPP clients still rely on SCRAM-SHA-256 over LDAP, which remains the interoperable default.
+This role deploys ejabberd on Docker Compose with the project's standard role-meta wiring. It binds ejabberd's `auth_method` to `svc-db-openldap` so XMPP clients authenticate against the project's central LDAP. ejabberd has no OIDC client, so the role declares no `sso` service and LDAP is its only sign-in path.
 
 ## Features
 
 - **Containerized deployment:** Run ejabberd through Docker Compose with the project's standard role-meta wiring.
-- **LDAP-backed authentication:** Authenticate XMPP clients against `svc-db-openldap` using SCRAM-SHA-256.
-- **Optional OIDC bridge:** Load `mod_oauth2_client` when the OIDC variant is active, for the small set of XMPP clients that support OAuth bearer-token authentication.
+- **LDAP-backed authentication:** Authenticate XMPP clients against `svc-db-openldap`.
+- **LDAP vCards:** With LDAP enabled, `mod_vcard` reads every vCard from the directory: `FN`, `GIVEN`, `FAMILY`, `EMAIL`, `NICKNAME`, `TEL` and `PHOTO` come from the matching `LDAP.USER.ATTRIBUTES`. Users cannot edit them in their client.
+- **Server administrators:** `acl.admin` lists the platform administrator and every member of the `web-svc-xmpp` `administrator` role, resolved at deploy time. The `configure` and `announce` access rules grant the web admin and announcements to that ACL.
 - **HTTP admin and BOSH:** Expose the ejabberd web admin and BOSH/WebSocket bindings on the role's HTTP port for browser-based interaction.
 
 ## Watch Points
 
-- Many XMPP clients do NOT support OAuth bearer-token authentication. LDAP plus SCRAM-SHA-256 is the interoperable default. If you advertise OIDC, document the small set of XMPP clients confirmed to work (Conversations, Movim, Dino) and keep LDAP plus SCRAM as the fallback path.
 - ejabberd's `mod_admin` HTTP UI is the only Playwright-testable surface; XMPP client login itself runs over 5222/5269 and MUST be exercised by an XMPP-aware client outside the Playwright test loop.
 
 ## Further Resources
@@ -29,4 +29,4 @@ This role deploys ejabberd on Docker Compose with the project's standard role-me
 ## Persona contract opt-outs
 
 ejabberd's only HTTP surface is `ejabberd_web_admin` on `/admin` (see [`templates/configuration.yml.j2`](./templates/configuration.yml.j2)). It authenticates a bare JID against LDAP over HTTP Basic, so there is no Keycloak redirect to follow and no in-app logout control to click; client authentication itself runs over ports 5222/5269 and stays outside the Playwright loop, as noted under Watch Points.
-`acl.admin` additionally lists only the administrator JID, so the web admin refuses every other account outright. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`; the `guest` persona and the baseline reachability assertions run unconditionally.
+`acl.admin` lists only the platform administrator and the members of the `administrator` role, so the web admin pages of a vhost refuse every other account. The landing page `/admin/` admits any valid account by upstream design and only shows it a notice that it holds no administration rights. [`templates/playwright.env.j2`](./templates/playwright.env.j2) therefore declares `PERSONA_BIBER_BLOCKED=true` and `PERSONA_ADMINISTRATOR_BLOCKED=true`; the `guest` persona and the baseline reachability assertions run unconditionally.

@@ -1,0 +1,5 @@
+---
+- name: "🎨 The design mu-plugin needs no integration beyond staging"
+  ansible.builtin.debug:
+    msg: "{{ application_id }}: tasks/09_design.yml stages the design assets the mu-plugin serves"
+  changed_when: false

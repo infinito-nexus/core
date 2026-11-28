@@ -1,4 +1,7 @@
-"""Env files (`*.env`, `*.env.j2`) must list keys in ASC order."""
+"""Env files (`*.env`, `*.env.j2`) must list keys in ASC order.
+
+Under `make lint-file` or `make lint-role` only the scoped env files are read.
+"""
 
 from __future__ import annotations
 
@@ -7,7 +10,12 @@ import unittest
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from utils.cache.files import iter_non_ignored_files, read_text
+from utils.cache.files import (
+    in_lint_scope,
+    iter_non_ignored_files,
+    lint_scope,
+    read_text,
+)
 
 from . import PROJECT_ROOT
 
@@ -38,17 +46,18 @@ def _entries_in(path: Path) -> list[_Entry] | None:
 
 
 def _scan_targets() -> list[Path]:
-    return [
-        PROJECT_ROOT / rel
-        for rel in iter_non_ignored_files(root=str(PROJECT_ROOT))
-        if rel.endswith((".env", ".env.j2"))
+    targets = [
+        PROJECT_ROOT / found
+        for found in iter_non_ignored_files(root=str(PROJECT_ROOT))
+        if found.endswith((".env", ".env.j2"))
     ]
+    return [t for t in targets if in_lint_scope(t.relative_to(PROJECT_ROOT).as_posix())]
 
 
 class TestEnvFilesAlphabetical(unittest.TestCase):
     def test_env_entries_sorted_ascending(self) -> None:
         targets = _scan_targets()
-        self.assertTrue(targets, "no env files found to scan")
+        self.assertTrue(targets or lint_scope(), "no env files found to scan")
 
         violations: list[str] = []
         for path in targets:

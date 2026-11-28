@@ -1,0 +1,39 @@
+---
+# Param PEERTUBE_HOST_NODE, PEERTUBE_NETNS_PYTHON: resolved by 03_admin.yml on the stack host.
+
+- name: "👥 PEERTUBE | Start the member map of the account pre-provisioning"
+  ansible.builtin.set_fact:
+    rbac_sync_members: {}
+
+- name: "👥 PEERTUBE | Resolve the members of every pre-provisioned role"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync/collect_role.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_attributes: []
+  loop: "{{ PEERTUBE_RBAC_ROLES }}"
+  loop_control:
+    loop_var: rbac_sync_role
+
+- name: "👤 PEERTUBE | Create the missing accounts of the role group members"
+  ansible.builtin.command:
+    argv: "{{ PEERTUBE_NETNS_PYTHON }}"
+    stdin: "PAYLOAD_B64 = {{ peertube_rbac_payload | to_json | b64encode | to_json }}\n{{ lookup('file', role_path ~ '/files/python/rbac/provision.py') }}"
+  vars:
+    peertube_rbac_payload:
+      url: "{{ PEERTUBE_NETNS_URL }}"
+      hostname: "{{ PEERTUBE_HOSTNAME }}"
+      root_username: "{{ PEERTUBE_ROOT_USERNAME }}"
+      root_password: "{{ PEERTUBE_ROOT_PASSWORD }}"
+      role_ids: "{{ PEERTUBE_ROLE_IDS }}"
+      members: "{{ rbac_sync_members }}"
+  register: peertube_rbac_provision
+  until: peertube_rbac_provision.rc == 0
+  retries: 3
+  delay: 10
+  failed_when: false
+  changed_when: >-
+    peertube_rbac_provision.stdout | length > 0
+    and (peertube_rbac_provision.stdout | from_json).created | length > 0
+  delegate_to: "{{ PEERTUBE_HOST_NODE }}"
+  become: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

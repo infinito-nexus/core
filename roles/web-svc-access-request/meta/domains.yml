@@ -1,0 +1,4 @@
+---
+canonical:
+  - access.{{ DOMAIN_PRIMARY }}
+aliases: []

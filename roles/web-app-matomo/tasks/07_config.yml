@@ -1,32 +1,57 @@
 ---
+- name: 🔎 Read the global excluded IPs and user agents Matomo stores
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec -i {{ MATOMO_LOCAL_CID | quote }}
+      {{ lookup('timeout', 30) | curl }} -S
+      -H {{ ('Host: ' ~ MATOMO_LOCAL_HOST) | quote }}
+      --data-binary @- {{ matomo_index_php_url | quote }}
+    stdin: >-
+      {{ {'module': 'API', 'method': 'SitesManager.' ~ item, 'format': 'json', 'token_auth': matomo_token_value} | urlencode }}
+    stdin_add_newline: false
+  loop:
+    - getExcludedIpsGlobal
+    - getExcludedUserAgentsGlobal
+  register: matomo_exclusions_stored
+  until: matomo_exclusions_stored.stdout is match('[{]"value":')
+  retries: 30
+  delay: 2
+  changed_when: false
+
 - name: 🚫 Exclude global IPs in Matomo
-  uri_retry:
-    url: "{{ matomo_index_php_url }}"
-    method: POST
-    body_format: form-urlencoded
-    body:
-      module: API
-      method: SitesManager.setGlobalExcludedIps
-      excludedIps: "{{ MATOMO_EXCLUDED_IPS | join(',') }}"
-      format: json
-      token_auth: "{{ matomo_token_value }}"
-    return_content: true
-    status_code: 200
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec -i {{ MATOMO_LOCAL_CID | quote }}
+      {{ lookup('timeout', 30) | curl }} -S -o /dev/null -w '%{http_code}'
+      -H {{ ('Host: ' ~ MATOMO_LOCAL_HOST) | quote }}
+      --data-binary @- {{ matomo_index_php_url | quote }}
+    stdin: >-
+      {{ {'module': 'API', 'method': 'SitesManager.setGlobalExcludedIps',
+          'excludedIps': (((matomo_exclusions_stored.results[0].stdout | from_json).value or '')
+            | split(',') + MATOMO_EXCLUDED_IPS) | unique | select | join(','),
+          'format': 'json', 'token_auth': matomo_token_value} | urlencode }}
+    stdin_add_newline: false
   register: matomo_exclude
-  until: matomo_exclude.status == 200
+  until: (matomo_exclude.stdout | trim) == '200'
   retries: 5
   delay: 10
+  changed_when: false
 
 - name: 🚫 Exclude CSP-CheckerBot user agent in Matomo
-  uri_retry:
-    url: "{{ matomo_index_php_url }}"
-    method: POST
-    body_format: form-urlencoded
-    body:
-      module: API
-      method: SitesManager.setGlobalExcludedUserAgents
-      excludedUserAgents: "CSP-CheckerBot"
-      format: json
-      token_auth: "{{ matomo_token_value }}"
-    return_content: true
-    status_code: 200
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec -i {{ MATOMO_LOCAL_CID | quote }}
+      {{ lookup('timeout', 30) | curl }} -S -o /dev/null -w '%{http_code}'
+      -H {{ ('Host: ' ~ MATOMO_LOCAL_HOST) | quote }}
+      --data-binary @- {{ matomo_index_php_url | quote }}
+    stdin: >-
+      {{ {'module': 'API', 'method': 'SitesManager.setGlobalExcludedUserAgents',
+          'excludedUserAgents': (((matomo_exclusions_stored.results[1].stdout | from_json).value or '')
+            | split(',') + ['CSP-CheckerBot']) | unique | select | join(','),
+          'format': 'json', 'token_auth': matomo_token_value} | urlencode }}
+    stdin_add_newline: false
+  register: matomo_exclude_user_agents
+  until: (matomo_exclude_user_agents.stdout | trim) == '200'
+  retries: 30
+  delay: 2
+  changed_when: false

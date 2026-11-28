@@ -70,6 +70,28 @@ class TestContainerNetworksLookup(unittest.TestCase):
         kwargs = render_mock.call_args.kwargs
         self.assertEqual(kwargs["application_id"], "web-app-baserow")
         self.assertEqual(kwargs["deployment_mode"], "compose")
+        self.assertFalse(kwargs["reverse_proxy"])
+
+    def test_passes_reverse_proxy_through(self):
+        vars_ = {"application_id": "web-svc-loki", "DEPLOYMENT_MODE": "swarm"}
+        lm = _make_lookup(vars_)
+
+        with (
+            mock.patch(
+                "utils.networks.lookup_context.build_service_registry_from_applications",
+                return_value={},
+            ),
+            mock.patch("utils.networks.lookup_context.lookup_loader") as loader_mock,
+            mock.patch(
+                "plugins.lookup.container_networks.render_container_networks",
+                return_value="RENDERED",
+            ) as render_mock,
+        ):
+            loader_mock.get.return_value = mock.MagicMock(run=lambda *_a, **_k: [{}])
+
+            lm.run([], variables=vars_, own_network_only=True, reverse_proxy=True)
+
+        self.assertTrue(render_mock.call_args.kwargs["reverse_proxy"])
 
     def _run_with_configured_aliases(self, configured, render_mock=None):
         vars_ = {"application_id": "web-app-x", "DEPLOYMENT_MODE": "compose"}

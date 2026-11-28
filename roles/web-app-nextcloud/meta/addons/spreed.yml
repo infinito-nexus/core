@@ -1,5 +1,6 @@
 ---
-enabled: "{{ lookup('config', 'web-app-nextcloud', 'services.talk.enabled') }}"
+enabled: "{{ (lookup('config', 'web-app-nextcloud', 'services.talk.enabled') | bool) and (lookup('config', 'web-app-nextcloud', 'services.coturn.enabled') | bool)
+  }}"
 required: true
 mechanism: plugin
 source: upstream
@@ -45,7 +46,10 @@ config:
       configvalue: "{{ NEXTCLOUD_HPB_INTERNAL_SECRET }}"
     - appid: "spreed"
       configkey: "call_recording_summary"
-      configvalue: "{{ 'yes' if (lookup('config', 'web-app-nextcloud', 'addons.integration_openai.enabled') | bool) else 'no' }}"
+      configvalue: "{{ 'yes' if (NEXTCLOUD_SPEECH_TO_TEXT_ENABLED | bool) else 'no' }}"
+    - appid: "spreed"
+      configkey: "call_recording_transcription"
+      configvalue: "{{ 'yes' if (NEXTCLOUD_SPEECH_TO_TEXT_ENABLED | bool) else 'no' }}"
     - appid: "spreed"
       configkey: "recording_servers"
       type: array

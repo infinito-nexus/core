@@ -20,6 +20,8 @@ def logout_target(domain: str, canonical: str, **extra) -> str:
             return canonical
         if name == "tls" and terms == ("web-svc-logout", "url.base"):
             return CONDUCTORS[network_of(domain)]
+        if name == "debug" and terms == ("sys-front-inj-logout",):
+            return False
         raise AssertionError(f"unexpected lookup: {name!r} {terms!r}")
 
     env = Environment(
@@ -31,7 +33,6 @@ def logout_target(domain: str, canonical: str, **extra) -> str:
         lookup=lookup,
         domain=domain,
         application_id="web-app-nextcloud",
-        MODE_DEBUG=False,
         OIDC={"CLIENT": {"LOGOUT_URL": LOGOUT_URL, "ID": "example"}},
         **extra,
     )

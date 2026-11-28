@@ -26,12 +26,13 @@ http
   proxy_cache_path {{ lookup('nginx','directories.cache.image') }} levels=1:2 keys_zone=imgcache:10m inactive=60m use_temp_path=off;
   server_names_hash_bucket_size 128;  # size of each bucket for server_name lookups (in bytes)
   server_names_hash_max_size    512;  # maximum total buckets for the server_name hash table
+  proxy_headers_hash_bucket_size 128;
 {% include 'roles/sys-svc-proxy/templates/headers/buffers.conf.j2' %}
   map $uri $infinito_access_log_path {
     "~*^(?P<infinito_access_log_token_route>[^?]*?/(?:password/reset|password-reset|reset-password|confirm-email|lostpassword/reset/form|email-login|activate-account)/)" "${infinito_access_log_token_route}[redacted]";
     "~^(?P<infinito_access_log_plain_path>[^?]*)" "${infinito_access_log_plain_path}";
   }
-{% if MODE_DEBUG | bool %}
+{% if lookup('debug', 'sys-svc-webserver-core') | bool %}
   log_format debug '$host - $remote_addr [$time_local] '
                   '"$request_method $infinito_access_log_path $server_protocol" $status $body_bytes_sent '
                   '"User-Agent: $http_user_agent" '
@@ -65,5 +66,8 @@ http
   {% endfor %}
 }
 stream{
+{% if IS_SWARM_MODE %}
+  {{ NETWORK_DOCKER_DNS_NGINX_DIRECTIVE }}
+{% endif %}
   include {{ lookup('nginx','directories.configuration.streams') }}*.conf;
 }

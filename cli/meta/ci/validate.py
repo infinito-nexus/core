@@ -5,7 +5,7 @@ Usage:
       [--modes auto] [--network auto] [--vpn auto]
       [--distros "..."] [--filesystem "..."]
       [--architectures "..."]
-      [--lifecycles "..."]
+      [--lifecycles "..."] [--require-discovery]
 
 A selection token names a row that has to exist *on this branch*
 (:mod:`utils.github.variant.selection`). Nothing else in the chain can tell
@@ -29,6 +29,11 @@ legitimately names roles the envelope filters out, and it pins the variants a
 change reaches. Role names themselves are checked against `roles/` before the
 run starts (scripts/github/resolve/effective_whitelist.sh), so a typo is caught
 there rather than swallowed here.
+
+``--require-discovery`` makes that warning an error. It is for a caller that
+deploys exactly the row it names, such as ``make swarm-zombie``: there nothing
+else can be discovered instead, so the run would only bring a job up to find
+it has nothing to deploy.
 """
 
 from __future__ import annotations
@@ -78,7 +83,8 @@ def problems(
         priority: whether the tokens lead the priority line.
 
     Returns:
-        ``(errors, warnings)``.
+        ``(errors, warnings)``; every warning names a token whose role the
+        run never discovers.
     """
     pins = selection.parse_list(display_names().decode_list(tokens))
     if not pins:
@@ -193,6 +199,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--filesystem", default="")
     parser.add_argument("--architectures", default="")
     parser.add_argument("--lifecycles", default="")
+    parser.add_argument(
+        "--require-discovery",
+        action="store_true",
+        help="Fail on a token whose role the run never discovers.",
+    )
     args = parser.parse_args(argv)
 
     modes = query.resolve_modes(args.modes)
@@ -220,9 +231,13 @@ def main(argv: list[str] | None = None) -> int:
         errors += found
         warnings += warned
 
+    undiscovered: list[str] = []
+    if args.require_discovery:
+        undiscovered, warnings = warnings, []
+
     for warning in warnings:
         print(f"::warning::{warning}")
-    for error in errors:
+    for error in errors + undiscovered:
         print(f"::error::{error}", file=sys.stderr)
     if errors:
         print(
@@ -230,6 +245,14 @@ def main(argv: list[str] | None = None) -> int:
             f"chunk's discovery or never deploy, so the run is refused here instead.",
             file=sys.stderr,
         )
+    if undiscovered:
+        print(
+            f"\n{len(undiscovered)} selection(s) name a role this run never "
+            f"discovers, so nothing would deploy for them; --require-discovery "
+            f"refuses the run here instead.",
+            file=sys.stderr,
+        )
+    if errors or undiscovered:
         return 1
     print("Selection inputs are valid for this branch.")
     return 0

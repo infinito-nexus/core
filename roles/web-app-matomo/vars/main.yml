@@ -7,6 +7,7 @@ entity_name: "{{ application_id | entity_name }}"
 MATOMO_SERVICE: "{{ entity_name }}"
 MATOMO_NAME: "{{ lookup('config', application_id, 'services.' ~ MATOMO_SERVICE ~ '.name') }}"
 MATOMO_VERSION: "{{ lookup('config', application_id, 'services.' ~ MATOMO_SERVICE ~ '.version') }}"
+MATOMO_PLUGIN_REQUIRE: ">={{ MATOMO_VERSION.split('.')[0] }}.0.0-b1,<{{ MATOMO_VERSION.split('.')[0] | int + 1 }}.0.0-b1"
 MATOMO_HTML_DIR: "{{ lookup('volume', application_id, 'data').target }}"
 MATOMO_RELEASE_DIR: "/usr/src/matomo"
 MATOMO_RUNTIME_OWNER: "www-data:www-data"
@@ -35,9 +36,48 @@ MATOMO_TOKEN_DESCRIPTION: "{{ lookup('config', application_id, 'services.matomo.
 
 MATOMO_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') }}"
 MATOMO_DESIGN_THEME: "InfinitoDesign"
-MATOMO_DESIGN_REQUIRE: ">={{ MATOMO_VERSION.split('.')[0] }}.0.0-b1,<{{ MATOMO_VERSION.split('.')[0] | int + 1 }}.0.0-b1"
 MATOMO_DESIGN_DIR: "{{ [lookup('container', application_id, 'directories.volumes'), 'design'] | path_join }}"
 MATOMO_DESIGN_ASSETS: ["logo.svg", "logo.png", "favicon.png"]
 MATOMO_DESIGN_THEME_MODE_LOGINS: ["{{ MATOMO_ADMIN_USER_NAME }}", "anonymous"]
 
-matomo_index_php_url: "http://{{ DOCKER_REACH_HOST }}:{{ http_port }}/index.php"
+MATOMO_LOGIN_SSO: "{{ lookup('config', application_id, 'services.matomo.login.method.sso.enabled') | bool }}"
+MATOMO_LOGIN_2FA: "{{ lookup('config', application_id, 'services.matomo.login.method.2fa.enabled') | bool }}"
+MATOMO_TWO_FACTOR_PLUGIN: "TwoFactorAuth"
+MATOMO_TWO_FACTOR_STATE: "{{ 'present' if MATOMO_LOGIN_2FA | bool else 'absent' }}"
+MATOMO_LOGIN_2FA_ENFORCED: "{{ MATOMO_LOGIN_2FA | bool and lookup('config', application_id, 'services.matomo.login.method.2fa.enforced') | bool }}"
+MATOMO_TWO_FACTOR_MODE: "{{ MATOMO_LOGIN_2FA_ENFORCED | bool | ternary('enforced', MATOMO_LOGIN_2FA | bool | ternary('offered', 'off')) }}"
+
+MATOMO_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+MATOMO_OIDC_STATE: "{{ 'present' if MATOMO_OIDC_ENABLED | bool and MATOMO_LOGIN_SSO | bool else 'absent' }}"
+MATOMO_OIDC_PLUGIN: "{{ lookup('config', application_id, 'addons.rebeloidc.config.plugin') }}"
+MATOMO_OIDC_PLUGIN_ARCHIVE: "{{ lookup('config', application_id, 'addons.rebeloidc.config.archive') }}"
+MATOMO_OIDC_PLUGIN_SOURCE: "{{ [MATOMO_RELEASE_DIR, 'plugins', MATOMO_OIDC_PLUGIN] | path_join }}"
+MATOMO_OIDC_SETTINGS: "{{ lookup('form_values', application_id, 'rebeloidc') }}"
+MATOMO_OIDC_CREDENTIALS:
+  clientSecret: "{{ OIDC.CLIENT.SECRET }}"
+MATOMO_OIDC_ONION_ISSUER: "{{ (OIDC.CLIENT.ISSUER_URL | urlsplit('hostname') | network_of) == 'tor' }}"
+MATOMO_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if (MATOMO_OIDC_STATE == 'present' and MATOMO_OIDC_ONION_ISSUER | bool) else '' }}"
+MATOMO_OIDC_TRANSPORT: "{{ {'allow_http': true} if (OIDC.CLIENT.ISSUER_URL | urlsplit('scheme')) == 'http' else {} }}"
+MATOMO_OIDC_GENERAL:
+  proxy_scheme_headers: ["HTTP_X_FORWARDED_PROTO"]
+  login_logout_url: "{{ MATOMO_SITE_URL if MATOMO_OIDC_ENABLED | bool else '' }}"
+  custom_cacert_pem: "{{ CA_TRUST.inject_bundle_container if lookup('ca_injected', application_id) else '' }}"
+
+MATOMO_RBAC_ROLES: ["view", "write", "admin", "administrator"]
+MATOMO_RBAC_PROTECTED_LOGINS: ["{{ MATOMO_ADMIN_USER_NAME }}", "anonymous"]
+MATOMO_RBAC_LOGIN_PLUGIN: "InfinitoRbacLogin"
+MATOMO_RBAC_LOGIN_SETTINGS:
+  groups_claim: "{{ RBAC.GROUP.CLAIM }}"
+  superuser_group: "{{ '/' ~ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+  admin_group: "{{ '/' ~ lookup('rbac_group_path', application_id=application_id, role='admin') }}"
+  write_group: "{{ '/' ~ lookup('rbac_group_path', application_id=application_id, role='write') }}"
+  view_group: "{{ '/' ~ lookup('rbac_group_path', application_id=application_id, role='view') }}"
+  protected_logins: "{{ MATOMO_RBAC_PROTECTED_LOGINS }}"
+MATOMO_CONFIG_SECTIONS: >-
+  {{ {
+    MATOMO_OIDC_PLUGIN: (MATOMO_OIDC_SETTINGS | combine(MATOMO_OIDC_CREDENTIALS, MATOMO_OIDC_TRANSPORT)) if MATOMO_OIDC_ENABLED | bool else {},
+    MATOMO_RBAC_LOGIN_PLUGIN: MATOMO_RBAC_LOGIN_SETTINGS if MATOMO_OIDC_ENABLED | bool else {}
+  } }}
+
+MATOMO_LOCAL_HOST: "127.0.0.1:{{ lookup('config', application_id, 'services.matomo.ports.internal.http') }}"
+matomo_index_php_url: "http://{{ MATOMO_LOCAL_HOST }}/index.php"

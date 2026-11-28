@@ -115,7 +115,7 @@ class TestOtherFlavors(unittest.TestCase):
 
     def test_nc_probes_the_port_only(self):
         self.assertEqual(
-            ["CMD-SHELL", "nc -z localhost 5432 || exit 1"], probe("nc", port=5432)
+            ["CMD-SHELL", "nc -z 127.0.0.1 5432 || exit 1"], probe("nc", port=5432)
         )
 
     def test_tcp_speaks_http_over_a_bash_socket(self):

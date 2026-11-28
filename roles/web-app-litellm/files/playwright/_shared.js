@@ -8,10 +8,11 @@ const env = {
   baseUrl: normalizeBaseUrl(process.env.LITELLM_UI_BASE_URL || ""),
   canonicalDomain: decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN || ""),
   uiPassword: decodeDotenvQuotedValue(process.env.LITELLM_UI_PASSWORD || ""),
+  loginMethodSso: process.env.LOGIN_METHOD_SSO_ENABLED === "true",
 };
 
 const SIGN_IN_FORM = "form:has(input[type=password])";
-const SHELL = "img[alt='LiteLLM Brand']";
+const SHELL = "aside[data-slot='sidebar'] a[aria-label='LiteLLM home'] img:visible";
 
 /**
  * Args:

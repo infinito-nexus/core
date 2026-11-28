@@ -1,7 +1,7 @@
 # Requirements 📋
 
 Requirements live under `docs/requirements/` and define what the project must do.
-Their primary purpose is to drive AI-agent-assisted development: a contributor creates a requirement file and then instructs the agent to iterate by following [requirements.md](../agents/action/requirements.md) and [Compose Loop](../agents/action/iteration/compose.md), continuing until every Acceptance Criterion is fulfilled.
+Their primary purpose is to drive AI-agent-assisted development: a contributor creates a requirement file and then instructs the agent to iterate by following [requirements.md](../../agents/skills/i8-requirement-implement/SKILL.md) and [Compose Loop](../../agents/skills/i8-iterate-compose/SKILL.md), continuing until every Acceptance Criterion is fulfilled.
 
 Creating a requirement is **not mandatory** to work on a task.
 For normal work items, bugs, or feature requests, use the project tools directly:
@@ -40,8 +40,8 @@ As a <role>, I want <goal> so that <benefit>.
 ## Cross-linking
 
 - You MUST cross-link from the requirement to any PR or issue that implements it.
-- You MUST cross-link from the implementing PR template back to the requirement file.
+- You MUST cross-link from the implementing PR description back to the requirement file.
 
 ## See Also
 
-- How agents process requirements: [requirements.md](../agents/action/requirements.md)
+- How agents process requirements: [requirements.md](../../agents/skills/i8-requirement-implement/SKILL.md)

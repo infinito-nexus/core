@@ -1,10 +1,10 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-playwright — the role's persona Playwright flow exercises no SeaweedFS storage surface (no object-browser/upload UI to assert against)
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
   shared: "{{ 'web-svc-logout' in group_names }}"
-# nocheck: playwright-service-flag — identity backend, no distinct Playwright surface (login covered by the persona flow)
 ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"
@@ -19,8 +19,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
   from_name: "{{ service_provider.company.titel }} - Snipe-IT"
 # nocheck: shared
 # nocheck: dynamic-flag
@@ -79,17 +79,52 @@ snipe-it:
       http: 80
   proxy:
     service_key: snipe-it
+  ldap:
+    is_ad: 0
+    ldap_pw_sync: 0
+    ad_domain: ""
+    ldap_server: "{{ LDAP.SERVER.URI }}"
+    ldap_uname: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+    ldap_basedn: "{{ LDAP.DN.OU.USERS }}"
+    ldap_filter: >-
+      &(objectClass=inetOrgPerson)(|({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}=cn=web-app-snipe-it-administrator,{{ LDAP.DN.OU.ROLES
+      }})({{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}=cn=web-app-snipe-it-user,{{ LDAP.DN.OU.ROLES
+      }}))(!({{ LDAP.USER.ATTRIBUTES.ID }}={{ lookup('users', 'platform_administrator').username }}))
+    ldap_auth_filter_query: "{{ LDAP.USER.ATTRIBUTES.ID }}="
+    ldap_username_field: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+    ldap_lname_field: "{{ LDAP.USER.ATTRIBUTES.SURNAME }}"
+    ldap_fname_field: "{{ LDAP.USER.ATTRIBUTES.FIRSTNAME | lower }}"
+    ldap_display_name: "{{ LDAP.USER.ATTRIBUTES.DISPLAY_NAME | lower }}"
+    ldap_emp_num: "{{ LDAP.USER.ATTRIBUTES.EMPLOYEE_NUMBER | lower }}"
+    ldap_dept: "{{ LDAP.USER.ATTRIBUTES.DEPARTMENT | lower }}"
+    ldap_email: "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
+    ldap_phone_field: "{{ LDAP.USER.ATTRIBUTES.PHONE | lower }}"
+    ldap_mobile: "{{ LDAP.USER.ATTRIBUTES.MOBILE | lower }}"
+    ldap_jobtitle: "{{ LDAP.USER.ATTRIBUTES.TITLE | lower }}"
+    ldap_address: "{{ LDAP.USER.ATTRIBUTES.STREET | lower }}"
+    ldap_city: "{{ LDAP.USER.ATTRIBUTES.LOCALITY | lower }}"
+    ldap_state: "{{ LDAP.USER.ATTRIBUTES.REGION | lower }}"
+    ldap_zip: "{{ LDAP.USER.ATTRIBUTES.POSTAL_CODE | lower }}"
+    ldap_country: "{{ LDAP.USER.ATTRIBUTES.COUNTRY | lower }}"
+    reset_url: "{{ OIDC.CLIENT.RESET_CREDENTIALS }}"
+  remote_user:
+    login_remote_user_header_name: INFINITO_SSO_USER
+    login_remote_user_custom_logout_url: "{{ OIDC.CLIENT.LOGOUT_URL }}"
+    login_common_disabled: 0
   run_after:
     - web-app-matomo
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oauth2
+  header_trust:
+    proxy_secret: sso_proxy_secret
+    switch: "lookup('sso', application_id, 'is_proxy_gated')"
+    files: [files/Dockerfile]
   oauth2:
     origin:
       host: snipe-it
@@ -97,6 +132,9 @@ sso:
     acl:
       blacklist:
         - /login
+    allowed_groups:
+      - "{{ lookup('rbac_group_path', application_id='web-app-snipe-it', role='administrator') }}"
+      - "{{ lookup('rbac_group_path', application_id='web-app-snipe-it', role='user') }}"
 # nocheck: playwright-service-flag — design consumer, no Playwright surface (provider: web-svc-design)
 design:
   bond: 1
@@ -111,6 +149,12 @@ design:
     favicon:
       width: 96
       height: 96
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag  carries the managed-field lock of meta/forms.yml on every page; no spec gates on it
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -135,8 +179,8 @@ snipeitmcp:
   enabled: "{{ lookup('config', 'web-app-snipe-it', 'mcp.enabled') | bool }}"
   shared: false
   image: python
-  # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
-  version: "3.13.15-slim"
+  version: "3.13.18-slim"
+  follow: requires-python
   custom: true
   name: snipeitmcp
   cpus: "0.25"
@@ -146,11 +190,6 @@ snipeitmcp:
   ports:
     internal:
       http: 8080
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "3.13.15-slim"
-        until: 2026-11-30
 # nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
 openwebui:
   bond: 0.5
@@ -177,3 +216,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

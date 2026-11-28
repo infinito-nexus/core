@@ -9,11 +9,15 @@ This package contains the in-process cache layers Infinito.Nexus uses to keep CL
 | [yaml.py](yaml.py) | A single YAML file's parsed root, keyed by absolute path. Every other module routes its YAML reads through here so each file is parsed at most once per process. |
 | [files.py](files.py) | The project tree's full path list (one walk per process) and per-file UTF-8 contents (`read_text`). Used by lint/integration tests and CLI tools that scan the repo. |
 | [base.py](base.py) | Cross-cutting helpers: filesystem constants (`PROJECT_ROOT`, `ROLES_DIR`, `DEFAULT_TOKENS_FILE`), `_deep_merge`, cache-key + content-fingerprint signatures, the cross-domain re-entry guard, and the templar-render machinery. The only ansible-coupled symbol is `_render_with_templar`, which lazy-imports its dependency. |
-| [applications.py](applications.py) | Per-app variants + defaults + `get_merged_applications`. **Strictly ansible-free at import time** so the GitHub Actions runner-host CLI path (`cli.administration.deploy.development.init` → `plan_dev_inventory_matrix` → `get_variants`) keeps working without ansible installed. |
+| [applications.py](applications.py) | Per-app defaults + `get_merged_applications`; re-exports the variant getters. **Strictly ansible-free at import time** so the GitHub Actions runner-host CLI path (`cli.administration.deploy.development.init` → `plan_dev_inventory_matrix` → `get_variants`) keeps working without ansible installed. |
+| [variants.py](variants.py) | `get_variants`, `with_variants`, `get_variant_overrides_only`: each role's `meta/variants.yml` merged onto its base config. Ansible-free at import time like `applications.py`. |
+| [role_config.py](role_config.py) | `_build_role_base_config`: one role's `applications.<app>` payload from its `meta/` tree, and the canonical `meta/volumes.yml` kept out of it. |
 | [carrier.py](carrier.py) | The play-scoped carriers of the rendered applications and users payloads: the non-persistent variable names `_INFINITO_APPLICATIONS_RENDERED` and `_INFINITO_USERS_RENDERED`, `merged_applications_cache_key`, `merged_users_cache_key`, and the readers `get_merged_applications` and `get_merged_users` consult before they render. |
 | [tokens.py](tokens.py) | The token store the users are hydrated from: `resolve_tokens_file`, `load_store_users`, the `sys_token_store_users` fact and the digest the users cache and users carrier keys share (`store_signature`). |
 | `users/` | User definitions, token store hydration, alias materialization, `get_user_defaults`, `get_merged_users` (package; `users/placeholders.py` substitutes `DOMAIN_PRIMARY` / `ORGANIZATION` / `SOFTWARE_NAME` ahead of the templar render pass). |
 | [domains.py](domains.py) | Canonical-domains map derived from the merged applications view: `get_merged_domains`. A read issued while the applications render is in progress (the re-entry guard is set) sees the unrendered view, so it is cached under its own key and never answers a later read. |
+| [evict.py](evict.py) | Nothing in process: the on-disk cache bounds behind `make cache-evict` and `make cache-status`, which measure each local cache, check the disk floor, sweep the shared folders and the models and evict the Nexus blob store. See [cache.md](../../docs/contributing/environment/cache.md). |
+| `eviction/` | The pieces `evict.py` builds on: the shared and model cache units with their link grouping ([units.py](eviction/units.py)), the Nexus REST client and its `.env` reader ([nexus.py](eviction/nexus.py)), and the Docker build-cache and running-tool probes ([docker.py](eviction/docker.py)). |
 | [`__init__.py`](__init__.py) | Owns `PROJECT_ROOT` and `ROLES_DIR` and imports nothing, so every module can read them without importing a cache. |
 | [reset.py](reset.py) | Owns the `_reset_cache_for_tests()` orchestrator that clears every cache plus the shared fingerprint memo in one call. |
 
@@ -32,9 +36,11 @@ Inside a play the process boundary is the task: Ansible forks a fresh worker per
 
 While one render runs, the re-entry guard also holds that render's unrendered view and its cache key. A nested `get_merged_applications` call from a lookup inside a role template (`config`, `tls`, `domain`, ...) with the same key returns that view instead of copying and merging the role defaults again. The view is shared by every nested call of the render, so callers MUST NOT mutate it. The guard drops it when the render ends.
 
+The cache holds a `LazyApplications` per key, which renders an application on its first read with the variables of the call that created it. `get_lazy_applications` hands it out as is, so `lookup('config', app, ...)` and `lookup('applications', app)` render only `app`; `get_merged_applications` renders the rest and returns one plain dict, and its `paths` argument renders only the named key paths of each application, which is all `get_merged_domains` reads. Every consumer that needs the whole map (`lookup('applications')` without terms, the carrier, `applications_current_play`) still gets the plain dict.
+
 ## Test-Only Helpers 🧪
 
-Each module owns a private `_reset()` that clears its own cache dicts. `utils.cache.reset._reset_cache_for_tests()` orchestrates all six (`base`, `applications`, `users`, `domains`, `yaml`, `files`) plus the shared fingerprint memo. Unit tests that exercise the cached paths MUST call it in `setUp` to guarantee clean state across test cases.
+Each module owns a private `_reset()` that clears its own cache dicts. `utils.cache.reset._reset_cache_for_tests()` orchestrates all six (`base`, `applications`, `users`, `domains`, `yaml`, `files`) plus the shared fingerprint memo. Tests that exercise the cached paths MUST pick their reset through `utils.tests.caches.reset_caches(files_changed=...)` in `setUp`: `True` when they write or fake files the caches could hold, else `False`, which keeps the parsed file and YAML caches and clears only the rendered ones.
 
 ## Design Guidelines 📐
 

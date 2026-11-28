@@ -1,0 +1,32 @@
+---
+- name: "🔍 Resolve the {{ dashboard_instance.network }} Dashboard node + container"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ 'dashboard' | labelled(dashboard_instance.label, '-') }}"
+    resolve_service_name: "{{ (lookup('container_service', DASHBOARD_APPLICATION_ID, 'dashboard') | labelled(dashboard_instance.label, '-')) if IS_SWARM_MODE else
+      '' }}"
+    resolve_output_prefix: DASHBOARD
+    resolve_compose_cid: "{{ DASHBOARD_CONTAINER | labelled(dashboard_instance.label, '-') }}"
+
+- name: "🔍 Resolve the {{ dashboard_instance.network }} Dashboard network namespace"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+  vars:
+    netns_output_prefix: DASHBOARD
+
+- name: "⏳ Wait for the {{ dashboard_instance.network }} Dashboard instance"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+    apply:
+      run_once: true
+  vars:
+    netns_request_argv: "{{ DASHBOARD_NETNS_PYTHON }}"
+    netns_request_host: "{{ DASHBOARD_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: >-
+      http://127.0.0.1:{{ lookup('config', DASHBOARD_APPLICATION_ID,
+      'services.dashboard.ports.internal.' ~ ('http' | labelled(dashboard_instance.label, '_'))) }}/
+    netns_request_status: [200]
+    netns_request_retries: 60
+    netns_request_delay: 5
+    netns_request_no_log: false
+    netns_request_result: dashboard_http

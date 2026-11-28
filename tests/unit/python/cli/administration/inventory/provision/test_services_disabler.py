@@ -150,7 +150,9 @@ class TestRemoveRolesFromInventory(unittest.TestCase):
         self.assertIn("web-app-nextcloud", result["all"]["children"])
 
     def test_no_op_on_missing_file(self):
-        remove_roles_from_inventory(self.root / "nonexistent.yml", ["web-app-matomo"])
+        missing = self.root / "nonexistent.yml"
+        remove_roles_from_inventory(missing, ["web-app-matomo"])
+        self.assertFalse(missing.exists())
 
     def test_no_op_on_empty_list(self):
         self._write({"all": {"children": {"web-app-foo": {}}}})
@@ -392,9 +394,9 @@ class TestApplyServicesDisabled(unittest.TestCase):
         self.assertEqual(self._read_host_vars(), {"applications": {}})
 
     def test_no_op_when_file_missing(self):
-        apply_services_disabled(
-            self.root / "nonexistent.yml", ["oidc"], roles_dir=self.roles_dir
-        )
+        missing = self.root / "nonexistent.yml"
+        apply_services_disabled(missing, ["oidc"], roles_dir=self.roles_dir)
+        self.assertFalse(missing.exists())
 
     def test_multiple_apps_and_services(self):
         self._write_host_vars(

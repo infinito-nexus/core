@@ -114,6 +114,8 @@ MCP_REJECTED_SERVERS: "{{ MCP_DISCOVERY.rejected }}"
 
 Every rejected entry carries a stable `reason`: `consumer_not_allowed`, `transport_unsupported`, `auth_unsupported`, `credential_missing` or `endpoint_unreachable`.
 
+A computed key in the role's meta, such as the source of an enforced `meta/forms.yml` field, calls `lookup('mcp_servers', credentials=false)` instead. It resolves no credential, and each selected entry keeps only `id`, `url`, `auth`, `transport`, `tools` and `mutating`, so no token reaches the applications payload, `lookup('form_values', ...)` or the drift report. The task that writes the servers into the client joins each token from the task-time `lookup('mcp_servers')` under `no_log`; the [`mcp_with_credentials`](../../../../../plugins/filter/mcp/credentials.py) filter does that join, and `mcp_held` turns what a client holds back into the shape of the form for the drift report.
+
 ## RBAC
 
 Reaching a tool server is a distinct grant from using the application, carried by the provider's `mcp` RBAC role. `mcp` is application-scoped: it is granted through `application_roles`, never through the unscoped `roles` list, so granting it on one application grants it nowhere else.

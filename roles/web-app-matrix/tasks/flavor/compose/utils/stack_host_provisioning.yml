@@ -1,14 +1,15 @@
 ---
 - name: 📁 create admin account
   shell: >-
+    IFS= read -r MATRIX_ADMINISTRATOR_PASSWORD || :; : "${MATRIX_ADMINISTRATOR_PASSWORD:?arrived empty on stdin}" && export MATRIX_ADMINISTRATOR_PASSWORD &&
     container exec -i -e MATRIX_ADMINISTRATOR_PASSWORD {{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}
-    sh -lc 'register_new_matrix_user
+    sh -lc 'printf "%s" "$MATRIX_ADMINISTRATOR_PASSWORD" | register_new_matrix_user
     -u "{{ MATRIX_ADMINISTRATOR_USERNAME }}"
-    -p "$MATRIX_ADMINISTRATOR_PASSWORD"
+    --password-file /dev/stdin
     -a -c "{{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER }}"
     http://localhost:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}'
-  environment:
-    MATRIX_ADMINISTRATOR_PASSWORD: "{{ MATRIX_ADMINISTRATOR_PASSWORD }}"
+  args:
+    stdin: "{{ MATRIX_ADMINISTRATOR_PASSWORD }}"
   register: matrix_create_admin
   changed_when: matrix_create_admin.rc == 0
   failed_when: >
@@ -28,14 +29,15 @@
 
 - name: 📁 create chatgpt bot
   shell: >-
+    IFS= read -r MATRIX_BOT_PASSWORD || :; : "${MATRIX_BOT_PASSWORD:?arrived empty on stdin}" && export MATRIX_BOT_PASSWORD &&
     container exec -i -e MATRIX_BOT_PASSWORD {{ MATRIX_SYNAPSE_CONTAINER_ADDRESS }}
-    sh -lc 'register_new_matrix_user
+    sh -lc 'printf "%s" "$MATRIX_BOT_PASSWORD" | register_new_matrix_user
     -u chatgptbot
-    -p "$MATRIX_BOT_PASSWORD"
+    --password-file /dev/stdin
     -a -c "{{ MATRIX_SYNAPSE_CONFIG_PATH_CONTAINER }}"
     http://localhost:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}'
-  environment:
-    MATRIX_BOT_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.chatgpt_bridge_user_password') }}"
+  args:
+    stdin: "{{ lookup('config', application_id, 'secrets.credentials.chatgpt_bridge_user_password') }}"
   register: matrix_create_chatgptbot
   changed_when: matrix_create_chatgptbot.rc == 0
   failed_when: >

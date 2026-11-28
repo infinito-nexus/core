@@ -1,0 +1,36 @@
+---
+APP_CONTROL_LIB_DIR: "{{ [ DIR_SCRIPTS_ROOT, 'sys-svc-app-control' ] | path_join }}"
+APP_CONTROL_MODULES:
+  - file: app_control.py
+    mode: "0755"
+  - file: app_control_argv.py
+    mode: "0644"
+APP_CONTROL_HOME: "{{ [ '/home', APP_CONTROL_USER ] | path_join }}"
+APP_CONTROL_SSH_KEY_CREDENTIAL: "app_control_ssh_key"
+APP_CONTROL_FORCED_COMMAND: "{{ BIN_APP_CONTROL }} --config {{ FILE_APP_CONTROL_CONFIG }} ssh"
+APP_CONTROL_AUTHORIZED_KEY: >-
+  restrict,command="{{ APP_CONTROL_FORCED_COMMAND }}"
+  {{ lookup('config', 'web-app-semaphore', 'secrets.credentials.' ~ APP_CONTROL_SSH_KEY_CREDENTIAL) | ssh_public_key }}
+  {{ APP_CONTROL_USER }}@web-app-semaphore
+
+APP_CONTROL_CONFIG:
+  compositions: "{{ DIR_COMPOSITIONS }}"
+  registry_file: "{{ APP_CONTROL_REGISTRY_FILE }}"
+  state_file: "{{ APP_CONTROL_STATE_FILE }}"
+  paused_apps: "{{ lookup('nginx', 'directories.data.paused_apps') }}"
+  compose: "{{ BIN_COMPOSE }}"
+  binary: "{{ BIN_APP_CONTROL }}"
+  health_service: "{{ lookup('unit_name', 'sys-ctl-hlth-webserver') }}"
+  health_delay_seconds: 60
+
+APP_CONTROL_CONTACT_BRANDS:
+  mastodon: "Mastodon"
+  matrix: "Matrix"
+  peertube: "PeerTube"
+  pixelfed: "Pixelfed"
+  wordpress: "WordPress"
+  web-app-bluesky: "Bluesky"
+
+APP_CONTROL_PAUSED_I18N: "roles/sys-svc-app-control/files/paused_i18n.yml"
+APP_CONTROL_PAUSED_CATALOGUE: "{{ lookup('i18n_catalogue', 'paused', APP_CONTROL_PAUSED_I18N) }}"
+APP_CONTROL_PAUSED_STYLE: "{{ lookup('file', lookup('path_absolute', APP_CONTROL_PAUSED_STYLE_FILE)) }}"

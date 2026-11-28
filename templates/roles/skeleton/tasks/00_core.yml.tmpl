@@ -1,0 +1,26 @@
+---
+- include_tasks: utils/once/flag.yml
+[% if kind == "static" %]
+
+- name: "🖼️ Copy the site assets of '{{ application_id }}'"
+  stack_host_copy:
+    src: site/
+    dest: "{{ [[ prefix ]]_ROOT }}/"
+    mode: "0644"
+    directory_mode: "0755"
+
+- name: "🌍 Load the strings and languages of '{{ application_id }}'"
+  ansible.builtin.set_fact:
+    [[ lower_prefix ]]_strings: "{{ [[ prefix ]]_I18N }}"
+    [[ lower_prefix ]]_languages: "{{ [[ prefix ]]_LANGUAGES }}"
+
+- name: "🌍 Render the page of '{{ application_id }}' per language"
+  stack_host_template:
+    src: index.html.j2
+    dest: "{{ [ [[ prefix ]]_ROOT, 'index.' ~ [[ lower_prefix ]]_language.key ~ '.html'] | path_join }}"
+    mode: "0644"
+  loop: "{{ [[ lower_prefix ]]_languages | dict2items }}"
+  loop_control:
+    loop_var: [[ lower_prefix ]]_language
+    label: "{{ [[ lower_prefix ]]_language.key }}"
+[% endif %]

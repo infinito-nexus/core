@@ -5,3 +5,40 @@ local:
 overlay:
   modes: [compose, swarm]
   topology: shared_net
+cache:
+  artefacts:
+    nllb-200-distilled-600m--config.json:
+      url: https://huggingface.co/facebook/nllb-200-distilled-600M/resolve/f8d333a098d19b4fd9a8b18f94170487ad3f821d/config.json
+      revision: "f8d333a098d19b4fd9a8b18f94170487ad3f821d"
+      sha256: "f9b4081d3d108e9d06532ea8d92b932c04ed3a15ff2f87e6982f8e14db51fbc5"
+      bytes: "846"
+    nllb-200-distilled-600m--generation_config.json:
+      url: https://huggingface.co/facebook/nllb-200-distilled-600M/resolve/f8d333a098d19b4fd9a8b18f94170487ad3f821d/generation_config.json
+      revision: "f8d333a098d19b4fd9a8b18f94170487ad3f821d"
+      sha256: "0bb604cdb8392649176935a447ce994128f170a6908c135a17d0e3dfb8113cb2"
+      bytes: "189"
+    nllb-200-distilled-600m--pytorch_model.bin:
+      url: https://huggingface.co/facebook/nllb-200-distilled-600M/resolve/f8d333a098d19b4fd9a8b18f94170487ad3f821d/pytorch_model.bin
+      revision: "f8d333a098d19b4fd9a8b18f94170487ad3f821d"
+      sha256: "c266c2cfd19758b6d09c1fc31ecdf1e485509035f6b51dfe84f1ada83eefcc42"
+      bytes: "2460457927"
+    nllb-200-distilled-600m--sentencepiece.bpe.model:
+      url: https://huggingface.co/facebook/nllb-200-distilled-600M/resolve/f8d333a098d19b4fd9a8b18f94170487ad3f821d/sentencepiece.bpe.model
+      revision: "f8d333a098d19b4fd9a8b18f94170487ad3f821d"
+      sha256: "14bb8dfb35c0ffdea7bc01e56cea38b9e3d5efcdcb9c251d6b40538e1aab555a"
+      bytes: "4852054"
+    nllb-200-distilled-600m--special_tokens_map.json:
+      url: https://huggingface.co/facebook/nllb-200-distilled-600M/resolve/f8d333a098d19b4fd9a8b18f94170487ad3f821d/special_tokens_map.json
+      revision: "f8d333a098d19b4fd9a8b18f94170487ad3f821d"
+      sha256: "992bd4ed610d644d6823081937bcc91bb8878dd556cea4ae5327f2480361330e"
+      bytes: "3548"
+    nllb-200-distilled-600m--tokenizer.json:
+      url: https://huggingface.co/facebook/nllb-200-distilled-600M/resolve/f8d333a098d19b4fd9a8b18f94170487ad3f821d/tokenizer.json
+      revision: "f8d333a098d19b4fd9a8b18f94170487ad3f821d"
+      sha256: "e316b82de11d0f951f370943b3c438311629547285129b0b81dadabd01bca665"
+      bytes: "17331176"
+    nllb-200-distilled-600m--tokenizer_config.json:
+      url: https://huggingface.co/facebook/nllb-200-distilled-600M/resolve/f8d333a098d19b4fd9a8b18f94170487ad3f821d/tokenizer_config.json
+      revision: "f8d333a098d19b4fd9a8b18f94170487ad3f821d"
+      sha256: "d1aa8c3697d3e35674f97b5b7e9c99d22b010f528e80140257d97316be90d044"
+      bytes: "564"

@@ -1,0 +1,96 @@
+---
+rebeloidc:
+  path: /index.php?module=CoreAdminHome&action=generalSettings
+  native: true
+  sinks: [MATOMO_OIDC_SETTINGS]
+  fields:
+    authenticationName:
+      source: services.matomo.oidc.authentication_name
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="authenticationName"]'
+      type: text
+    authorizeUrl:
+      source: services.matomo.oidc.authorize_url
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="authorizeUrl"]'
+      type: url
+    tokenUrl:
+      source: services.matomo.oidc.exchange_url
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="tokenUrl"]'
+      type: url
+    userInfoUrl:
+      source: services.matomo.oidc.user_info_url
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="userInfoUrl"]'
+      type: url
+    endSessionUrl:
+      source: services.matomo.oidc.end_session_url
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="endSessionUrl"]'
+      type: url
+    userInfoId:
+      source: services.matomo.oidc.username_claim
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="userInfoId"]'
+      type: text
+    usernameAttribute:
+      source: services.matomo.oidc.username_claim
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="usernameAttribute"]'
+      type: text
+    fallbackToEmail:
+      source: services.matomo.oidc.fallback_to_email
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="fallbackToEmail"]'
+      type: checkbox
+    clientId:
+      source: services.matomo.oidc.client_id
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="clientId"]'
+      type: text
+    scope:
+      source: services.matomo.oidc.scope
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="scope"]'
+      type: text
+    allowSignup:
+      source: services.matomo.oidc.allow_signup
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="allowSignup"]'
+      type: checkbox
+    autoLinking:
+      source: services.matomo.oidc.auto_linking
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="autoLinking"]'
+      type: checkbox
+    disableSuperuser:
+      source: services.matomo.oidc.disable_superuser
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="disableSuperuser"]'
+      type: checkbox
+    disablePasswordConfirmation:
+      source: services.matomo.oidc.skip_reauthentication
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="disablePasswordConfirmation"]'
+      type: checkbox
+    fineGrainedPermissions:
+      source: services.matomo.oidc.fine_grained_permissions
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="fineGrainedPermissions"]'
+      type: checkbox

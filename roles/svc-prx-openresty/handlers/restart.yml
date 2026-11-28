@@ -49,8 +49,8 @@
     - IS_SWARM_MODE
     - IS_STACK_HOST | bool
 
-- name: "🐛 MODE_DEBUG: wait + validate OpenResty"
-  when: MODE_DEBUG | bool
+- name: "🐛 Debug: wait + validate OpenResty"
+  when: lookup('debug', 'svc-prx-openresty') | bool
   block:
     - ansible.builtin.command: container ps -a --format '{{"{{.Names}} {{.Status}}"}}'
       register: docker_ps

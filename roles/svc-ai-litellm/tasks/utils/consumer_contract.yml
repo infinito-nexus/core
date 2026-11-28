@@ -6,41 +6,71 @@
 - name: "✅ Assert '{{ application_id }}' carries a gateway virtual key"
   ansible.builtin.assert:
     that:
-      - (lookup('config', application_id, 'secrets.credentials.litellm_api_key', '') | trim) | length > 0
+      - (lookup('litellm_api_key', application_id) | trim) | length > 0
     fail_msg: >-
-      {{ application_id }} enables services.litellm but its
-      credentials.litellm_api_key is empty, so its native AI surface would
-      reach the gateway unauthenticated.
+      {{ application_id }} enables services.litellm but its gateway virtual key
+      is empty, so its native AI surface would reach the gateway
+      unauthenticated. Beside its own gateway that key is the consumer's
+      credentials.litellm_api_key; on a host that names a gateway host in
+      svc-ai-litellm's services.litellm.gateway_host it is svc-ai-litellm's
+      credentials.gateway_key, which cli.administration.inventory.gateway
+      writes.
 
 - name: "✅ Assert the AI base URL of '{{ application_id }}' stays inside the deployment"
   ansible.builtin.assert:
     that:
-      - (LITELLM_BASE_LOCAL_URL | urlsplit('scheme')) == 'http'
-      - "'.' not in (LITELLM_BASE_LOCAL_URL | urlsplit('hostname'))"
-      - (application_id not in lookup('domains')) or ((LITELLM_BASE_LOCAL_URL | urlsplit('hostname')) != lookup('domain', application_id))
-      - (LITELLM_BASE_LOCAL_URL | urlsplit('port') | int) == (lookup('config', 'svc-ai-litellm', 'services.litellm.ports.internal.http') | int)
+      - (LITELLM_BASE_LOCAL_URL | litellm_gateway_refusal('container', _litellm_port_internal, own_domain=_litellm_consumer_domain)) == ''
     fail_msg: >-
       {{ application_id }} would send inference traffic to
-      '{{ LITELLM_BASE_LOCAL_URL }}'. Only the container-network gateway is
-      allowed: plain http, an undotted service name (the dns-search suffix
-      turns a dotted host into the public FQDN and routes it through the
-      ingress), a host that is not this role's own domain, and the gateway's
-      internal port {{ lookup('config', 'svc-ai-litellm', 'services.litellm.ports.internal.http') }}
-      rather than its published one.
-  when: not (_litellm_consumer_on_host | bool)
+      '{{ LITELLM_BASE_LOCAL_URL }}':
+      {{ LITELLM_BASE_LOCAL_URL | litellm_gateway_refusal('container', _litellm_port_internal, own_domain=_litellm_consumer_domain) }}.
+      Only the container-network gateway is allowed: plain http, an undotted
+      service name, a host that is not this role's own domain, and the
+      gateway's internal port {{ _litellm_port_internal }} rather than its
+      published one.
+  vars:
+    _litellm_port_internal: "{{ lookup('config', 'svc-ai-litellm', 'services.litellm.ports.internal.http') }}"
+    _litellm_consumer_domain: "{{ lookup('domain', application_id) if application_id in lookup('domains') else '' }}"
+  when:
+    - not (_litellm_consumer_on_host | bool)
+    - not (LITELLM_GATEWAY_REMOTE | bool)
 
+# nocheck: swarm-loopback-port open  host consumers reach LiteLLM on this published loopback port, which swarm drops; 074 :28 tracks it
 - name: "✅ Assert the AI base URL of '{{ application_id }}' stays on this machine"
   ansible.builtin.assert:
     that:
-      - (LITELLM_BASE_LOOPBACK_URL | urlsplit('scheme')) == 'http'
-      - (LITELLM_BASE_LOOPBACK_URL | urlsplit('hostname')) in LITELLM_LOOPBACK_HOSTS
-      - (LITELLM_BASE_LOOPBACK_URL | urlsplit('port') | int) == (lookup('config', 'svc-ai-litellm', 'services.litellm.ports.local.http') | int)
+      - (LITELLM_BASE_LOOPBACK_URL | litellm_gateway_refusal('loopback', _litellm_port_published, loopback_hosts=LITELLM_LOOPBACK_HOSTS)) == ''
     fail_msg: >-
       {{ application_id }} runs on the host rather than in the deployment's
       container network, so it would send inference traffic to
-      '{{ LITELLM_BASE_LOOPBACK_URL }}'. A workstation reaches the gateway only
-      over the loopback address the engine publishes it on: plain http, one of
+      '{{ LITELLM_BASE_LOOPBACK_URL }}':
+      {{ LITELLM_BASE_LOOPBACK_URL | litellm_gateway_refusal('loopback', _litellm_port_published, loopback_hosts=LITELLM_LOOPBACK_HOSTS) }}.
+      A workstation reaches the gateway only over the loopback address the
+      engine publishes it on: plain http, one of
       {{ LITELLM_LOOPBACK_HOSTS | join(', ') }}, and the published port
-      {{ lookup('config', 'svc-ai-litellm', 'services.litellm.ports.local.http') }}.
-      Anything routable would carry the workstation's key off this machine.
-  when: _litellm_consumer_on_host | bool
+      {{ _litellm_port_published }}. Anything routable would carry the
+      workstation's key off this machine.
+  vars:
+    _litellm_port_published: "{{ lookup('config', 'svc-ai-litellm', 'services.litellm.ports.local.http') }}"
+  when:
+    - _litellm_consumer_on_host | bool
+    - not (LITELLM_GATEWAY_REMOTE | bool)
+
+# nocheck: swarm-loopback-port open  a consuming host reaches the gateway host on this published port over the mesh, which swarm drops; 076 :40 tracks it
+- name: "✅ Assert the AI base URL of '{{ application_id }}' is the gateway's mesh URL"
+  ansible.builtin.assert:
+    that:
+      - (_litellm_consumer_url | litellm_gateway_refusal('mesh', _litellm_port_published, mesh_address=LITELLM_GATEWAY_MESH_ADDRESS)) == ''
+    fail_msg: >-
+      {{ inventory_hostname }} names '{{ LITELLM_GATEWAY_HOST }}' as its
+      gateway host, so {{ application_id }} would send inference traffic to
+      '{{ _litellm_consumer_url }}':
+      {{ _litellm_consumer_url | litellm_gateway_refusal('mesh', _litellm_port_published, mesh_address=LITELLM_GATEWAY_MESH_ADDRESS) }}.
+      Only plain http to the mesh address this host lists for
+      {{ LITELLM_GATEWAY_HOST }}, on the published port
+      {{ _litellm_port_published }}, is allowed; a domain, including the one of
+      web-app-litellm, or another host's mesh address is refused.
+  vars:
+    _litellm_port_published: "{{ lookup('config', 'svc-ai-litellm', 'services.litellm.ports.local.http') }}"
+    _litellm_consumer_url: "{{ LITELLM_BASE_LOOPBACK_URL if (_litellm_consumer_on_host | bool) else LITELLM_BASE_LOCAL_URL }}"
+  when: LITELLM_GATEWAY_REMOTE | bool

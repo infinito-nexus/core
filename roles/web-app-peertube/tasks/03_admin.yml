@@ -6,30 +6,43 @@
     resolve_output_prefix: PEERTUBE
     resolve_compose_cid: "{{ PEERTUBE_CONTAINER }}"
 
+- name: "🔍 Resolve the PeerTube network namespace for host-side API calls"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+  vars:
+    netns_output_prefix: PEERTUBE
+
 - name: "🔑 PEERTUBE | Read the OAuth client of the web interface"
-  uri_retry:
-    url: "{{ PEERTUBE_INTERNAL_URL }}/api/v1/oauth-clients/local"
-    headers:
-      Host: "{{ PEERTUBE_HOSTNAME }}"
-    return_content: true
-  register: peertube_admin_client
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ PEERTUBE_NETNS_PYTHON }}"
+    netns_request_host: "{{ PEERTUBE_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "{{ PEERTUBE_NETNS_URL }}/api/v1/oauth-clients/local"
+    netns_request_headers: "{{ PEERTUBE_API_HEADERS }}"
+    netns_request_status: [200]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: peertube_admin_client
+
+- name: "🔑 PEERTUBE | Keep the OAuth client of the web interface"
+  ansible.builtin.set_fact:
+    peertube_oauth_client: "{{ peertube_admin_client.content | from_json }}"
 
 - name: "🔎 PEERTUBE | Probe whether root signs in with the administrator password"
-  uri_retry:
-    url: "{{ PEERTUBE_INTERNAL_URL }}/api/v1/users/token"
-    method: POST
-    headers:
-      Host: "{{ PEERTUBE_HOSTNAME }}"
-    body_format: form-urlencoded
-    body:
-      client_id: "{{ peertube_admin_client.json.client_id }}"
-      client_secret: "{{ peertube_admin_client.json.client_secret }}"
-      grant_type: password
-      username: "{{ PEERTUBE_ROOT_USERNAME }}"
-      password: "{{ PEERTUBE_ROOT_PASSWORD }}"
-    status_code: [200, 400]
-  register: peertube_admin_probe
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ PEERTUBE_NETNS_PYTHON }}"
+    netns_request_host: "{{ PEERTUBE_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ PEERTUBE_NETNS_URL }}/api/v1/users/token"
+    netns_request_headers: "{{ PEERTUBE_TOKEN_HEADERS }}"
+    netns_request_body: "{{ PEERTUBE_ROOT_TOKEN_FORM }}"
+    netns_request_status: [200, 400]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: peertube_admin_probe
 
 - name: "🔐 PEERTUBE | Converge the root password through the reset-password CLI"
   when: peertube_admin_probe.status != 200
@@ -57,18 +70,16 @@
       delegate_to: "{{ PEERTUBE_HOST_NODE }}"
 
     - name: "✅ PEERTUBE | Root signs in with the administrator password"
-      uri_retry:
-        url: "{{ PEERTUBE_INTERNAL_URL }}/api/v1/users/token"
-        method: POST
-        headers:
-          Host: "{{ PEERTUBE_HOSTNAME }}"
-        body_format: form-urlencoded
-        body:
-          client_id: "{{ peertube_admin_client.json.client_id }}"
-          client_secret: "{{ peertube_admin_client.json.client_secret }}"
-          grant_type: password
-          username: "{{ PEERTUBE_ROOT_USERNAME }}"
-          password: "{{ PEERTUBE_ROOT_PASSWORD }}"
-        status_code: [200]
-      retries: 0
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+      vars:
+        netns_request_argv: "{{ PEERTUBE_NETNS_PYTHON }}"
+        netns_request_host: "{{ PEERTUBE_HOST_NODE }}"
+        netns_request_method: POST
+        netns_request_url: "{{ PEERTUBE_NETNS_URL }}/api/v1/users/token"
+        netns_request_headers: "{{ PEERTUBE_TOKEN_HEADERS }}"
+        netns_request_body: "{{ PEERTUBE_ROOT_TOKEN_FORM }}"
+        netns_request_status: [200]
+        netns_request_retries: 0
+        netns_request_delay: 0
+        netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+        netns_request_result: peertube_admin_confirm

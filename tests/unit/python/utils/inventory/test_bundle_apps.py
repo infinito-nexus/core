@@ -172,5 +172,48 @@ class TestMain(_BundleFsMixin, unittest.TestCase):
         self.assertIn("no role groups", err)
 
 
+class TestResolveVars(_BundleFsMixin, unittest.TestCase):
+    def write_vars_bundle(self, name: str, body: str) -> None:
+        bundle_dir = self.servers / name
+        bundle_dir.mkdir()
+        (bundle_dir / "inventory.yml").write_text(body, encoding="utf-8")
+
+    def test_returns_the_bundle_vars(self):
+        self.write_vars_bundle(
+            "fix",
+            "all:\n  vars:\n    FLAG: true\n  children:\n    app_a:\n",
+        )
+        self.assertEqual(bundle_apps.resolve_vars(["fix"]), {"FLAG": True})
+
+    def test_later_bundle_wins_per_key(self):
+        self.write_vars_bundle("one", "all:\n  vars:\n    K: 1\n    A: x\n")
+        self.write_vars_bundle("two", "all:\n  vars:\n    K: 2\n")
+        self.assertEqual(bundle_apps.resolve_vars(["one", "two"]), {"K": 2, "A": "x"})
+
+    def test_bundle_without_vars_yields_nothing(self):
+        self.write_bundle(self.servers, "plain", ["app_a"])
+        self.assertEqual(bundle_apps.resolve_vars(["plain"]), {})
+
+    def test_drops_the_catalogue_metadata(self):
+        self.write_vars_bundle(
+            "shop",
+            "all:\n  vars:\n    FLAG: true\n"
+            f"    {bundle_apps.CATALOG_KEY}:\n      bundle:\n        title: Shop\n",
+        )
+        self.assertEqual(bundle_apps.resolve_vars(["shop"]), {"FLAG": True})
+
+    def test_catalogue_only_bundle_yields_nothing(self):
+        self.write_vars_bundle(
+            "meta",
+            f"all:\n  vars:\n    {bundle_apps.CATALOG_KEY}:\n      bundle: {{}}\n",
+        )
+        self.assertEqual(bundle_apps.resolve_vars(["meta"]), {})
+
+    def test_missing_bundle_raises(self):
+        with self.assertRaises(FileNotFoundError) as ctx:
+            bundle_apps.resolve_vars(["ghost"])
+        self.assertIn("ghost", str(ctx.exception))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -10,12 +10,14 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, clickOidcLoginLink, decodeDotenvQuotedValue, gotoOnion, performKeycloakLogin } = require("./personas");
+const { assertSky } = require("./cosmos-sky");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
-const { awaitSession } = require("./_shared");
+const { awaitSession, espoApi } = require("./_shared");
 
 const SEED_PREFIX = "Design showcase";
 const WIDE_VIEWPORT = { width: 1440, height: 900 };
+const ACCOUNT_LIST_READY = "#main .list-container table tbody tr, #main .list-container .no-data";
 
 function baseUrl() {
   return decodeDotenvQuotedValue(process.env.APP_BASE_URL).replace(/\/$/, "");
@@ -78,31 +80,6 @@ async function openSignedIn(page, route, ready) {
   await expect(page.locator(ready).first()).toBeVisible({ timeout: resolveTimeout(30_000) });
 }
 
-async function espoApi(page, method, path, data) {
-  return page.evaluate(
-    async ([verb, route, body]) => {
-      const key = Object.keys(localStorage).find((name) => /user-auth$/.test(name));
-      const raw = key ? localStorage.getItem(key) : "";
-      const auth = raw.startsWith('"') ? JSON.parse(raw) : raw;
-      const response = await fetch(`api/v1/${route}`, {
-        method: verb,
-        headers: {
-          "Content-Type": "application/json",
-          "Espo-Authorization": auth,
-          "Espo-Authorization-By-Token": "true",
-        },
-        body: body === undefined ? undefined : JSON.stringify(body),
-      });
-      return {
-        status: response.status,
-        json: response.ok ? await response.json() : null,
-        error: response.ok ? "" : response.headers.get("X-Status-Reason") || (await response.text()).slice(0, 200),
-      };
-    },
-    [method, path, data],
-  );
-}
-
 async function currentUserId(page) {
   const me = await espoApi(page, "GET", "App/user");
   expect(me.status, "EspoCRM must answer App/user for the signed-in administrator").toBe(200);
@@ -154,8 +131,12 @@ exports.register = function () {
     for (const mode of ["light", "dark"]) {
       await page.emulateMedia({ colorScheme: mode });
       const label = `espocrm login ${mode}`;
-      await assertToken(page, "body", "background-color", "--design-surface-1", label);
-      await assertToken(page, "body", "color", "--design-text", label);
+      if (isServiceEnabled("cosmos")) {
+        await assertSky(page, ["html", "body"], [], label);
+      } else {
+        await assertToken(page, "body", "background-color", "--design-surface-1", label);
+        await assertToken(page, "body", "color", "--design-text", label);
+      }
       await assertToken(page, "#login", "background-color", "--design-surface-2", label);
       await assertToken(page, "#login .panel-heading", "background-color", "--design-frame", label);
       if (sso) {
@@ -191,6 +172,9 @@ exports.register = function () {
     for (const mode of ["light", "dark"]) {
       await page.emulateMedia({ colorScheme: mode });
       const label = `espocrm account list ${mode}`;
+      if (isServiceEnabled("cosmos")) {
+        await assertSky(page, ["html", "body"], ["#main > .page-header"], label);
+      }
       await assertToken(page, "#navbar .navbar", "background-color", "--design-frame", label);
       await assertToken(page, "#navbar .navbar ul.tabs > li.tab > a", "color", "--design-on-frame", label);
       await assertToken(page, "#main .list-container .list", "background-color", "--design-surface-2", label);
@@ -198,9 +182,10 @@ exports.register = function () {
     }
     await page.emulateMedia({ colorScheme: null });
     await assertLightAndDark(page, "#main .list-container .list", "espocrm account list");
+    const listOnSurfaces = ["#navbar .navbar ul.tabs > li.tab > a", "#main .list-container table tbody a"];
     await assertReadable(
       page,
-      ["#navbar .navbar ul.tabs > li.tab > a", "#main .page-header", "#main .list-container table tbody a"],
+      isServiceEnabled("cosmos") ? listOnSurfaces : [...listOnSurfaces, "#main .page-header"],
       "espocrm account list",
     );
   });
@@ -209,7 +194,7 @@ exports.register = function () {
     skipUnlessServiceEnabled("design");
     await page.setViewportSize(WIDE_VIEWPORT);
     await signIn(page);
-    await openSignedIn(page, "Account", "#main .list-container");
+    await openSignedIn(page, "Account", ACCOUNT_LIST_READY);
     const links = page.locator("#navbar .navbar ul.tabs > li.tab > a:visible");
     await expect(links.first()).toBeVisible({ timeout: resolveTimeout(30_000) });
     const stops = Math.min(await links.count(), 6);
@@ -218,11 +203,12 @@ exports.register = function () {
       await page.emulateMedia({ colorScheme: mode });
       const onFrame = await tokenValue(page, "--design-on-frame", "outline-color");
       for (let stop = 0; stop < stops; stop += 1) {
-        await links.nth(stop).focus();
         const focus = await links.nth(stop).evaluate((element) => {
+          element.focus();
           const style = getComputedStyle(element);
-          return { style: style.outlineStyle, color: style.outlineColor };
+          return { focused: document.activeElement === element, style: style.outlineStyle, color: style.outlineColor };
         });
+        expect(focus.focused, `espocrm side menu focus stop ${stop} ${mode} holds the focus`).toBe(true);
         expect(focus.style, `espocrm side menu focus stop ${stop} ${mode}`).not.toBe("none");
         expect(focus.color, `espocrm side menu focus stop ${stop} ${mode}`).toBe(onFrame);
       }
@@ -317,9 +303,10 @@ exports.register = function () {
     }
     await page.emulateMedia({ colorScheme: null });
     await assertLightAndDark(page, panel, "espocrm administration");
+    const adminOnSurfaces = [`${row} > td:first-child a`, `${row} > td:nth-child(2)`];
     await assertReadable(
       page,
-      ["#main .page-header h3", "#main .admin-content-section > h4", `${row} > td:first-child a`, `${row} > td:nth-child(2)`],
+      isServiceEnabled("cosmos") ? adminOnSurfaces : ["#main .page-header h3", "#main .admin-content-section > h4", ...adminOnSurfaces],
       "espocrm administration",
     );
 

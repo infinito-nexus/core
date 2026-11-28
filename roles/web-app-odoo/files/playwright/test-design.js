@@ -10,7 +10,7 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
@@ -26,6 +26,7 @@ const LOGIN_FORM = "form.oe_login_form";
 const LOGIN_FIELD = `${LOGIN_FORM} input[name="login"]`;
 const LOGIN_SUBMIT = `${LOGIN_FORM} button[type="submit"].btn-primary`;
 const LOGIN_ERROR = `${LOGIN_FORM} .alert-danger`;
+const SIGN_IN_READY = `${LOGIN_FIELD}:visible, ${LOGIN_FORM} .o_login_auth:visible`;
 const SITE_HEADER = "#wrapwrap > header .navbar.d-lg-block";
 const SITE_LOGO = "#wrapwrap > header .navbar-brand img:visible";
 const SITE_FOOTER = "#wrapwrap > footer";
@@ -197,7 +198,7 @@ exports.register = function (shared) {
 
   async function openLogin(page) {
     await gotoOnion(page, `${base}/web/login`);
-    await shown(`${LOGIN_FIELD}, .o_login_auth`)(page);
+    await shown(SIGN_IN_READY)(page);
   }
 
   async function openActionMenu(page) {
@@ -226,7 +227,7 @@ exports.register = function (shared) {
     const login = `${base}/web/login`;
     const views = [
       { name: "website-home", url: `${base}/`, prepare: shown(SITE_FOOTER) },
-      { name: "sign-in", url: login, prepare: shown(`${LOGIN_FIELD}, .o_login_auth`) },
+      { name: "sign-in", url: login, prepare: shown(SIGN_IN_READY) },
       { name: "contact-us", url: `${base}/contactus`, prepare: shown("#wrapwrap main form") },
       { name: "not-found", url: `${base}/design-showcase-missing`, prepare: shown("#wrapwrap main") },
     ];
@@ -444,7 +445,7 @@ exports.register = function (shared) {
 
   test("design: the sign-in page takes surfaces, text and primary action from the palette", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(isServiceEnabled("sso"), "the native form stays hidden behind the provider list when sso is on");
+    skipUnlessServiceDisabled("sso");
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
       await openLogin(page);

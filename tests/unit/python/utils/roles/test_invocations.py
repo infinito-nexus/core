@@ -265,7 +265,7 @@ class TestStageInvocations(_TreeMixin, unittest.TestCase):
 
     def test_any_other_condition_keeps_the_include(self):
         path = self._stage(
-            [{"include_role": {"name": "role-c"}, "when": ["MODE_CLEANUP | bool"]}]
+            [{"include_role": {"name": "role-c"}, "when": ["CLEANUP | bool"]}]
         )
         self.assertEqual(
             stage_invocations(path, frozenset(ROLES), seeds=[], group_names=[]),

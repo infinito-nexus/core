@@ -45,14 +45,113 @@ def _collect_local_tcp_ports(port_categories: Any, into: set[int]) -> None:
             into.add(value)
 
 
+def onion_forwards(entity: object, protocol: str) -> bool:
+    """Whether the node onion forwards the ``ports.local`` port of a category.
+
+    Args:
+        entity: the service's variant-merged config.
+        protocol: the port category a ``container_ports`` term names.
+
+    Returns:
+        True for a single-int TCP ``ports.local`` port of a service that opts
+        in with ``exposed: true`` or names the category under ``ports.onion``,
+        the two opt-ins this lookup turns into ``HiddenServicePort`` lines.
+    """
+    if not isinstance(entity, dict) or protocol in UDP_ONLY_CATEGORIES:
+        return False
+    declared = _mapping(entity.get("ports"))
+    if not isinstance(_mapping(declared.get("local")).get(protocol), int):
+        return False
+    return _as_bool(entity.get("exposed")) or _as_bool(
+        _mapping(declared.get("onion")).get(protocol)
+    )
+
+
+def _services(applications: object, application_id: str) -> dict[str, Any]:
+    return _mapping(
+        _mapping(_mapping(applications).get(application_id)).get("services")
+    )
+
+
+def tor_enabled(applications: object, application_id: str) -> bool:
+    """Whether svc-net-tor is deployed for an application.
+
+    Args:
+        applications: the variant-merged applications view.
+        application_id: the application to check.
+
+    Returns:
+        True when the application's ``services.tor.enabled`` is true.
+    """
+    tor = _services(applications, application_id).get("tor")
+    return isinstance(tor, dict) and _as_bool(tor.get("enabled"))
+
+
+def host_published(
+    applications: object, application_id: str, service: str, protocol: str
+) -> bool:
+    """Whether a loopback-bound ``ports.local`` term is published in ``mode: host`` in swarm.
+
+    Args:
+        applications: the variant-merged applications view.
+        application_id: the application that owns the service.
+        service: the service a ``container_ports`` term names.
+        protocol: the port category the term names.
+
+    Returns:
+        True when svc-net-tor is deployed for the application and the node
+        onion forwards the category; every other such term stays unpublished.
+    """
+    return tor_enabled(applications, application_id) and onion_forwards(
+        _services(applications, application_id).get(service), protocol
+    )
+
+
+def collect_host_mode_backends(
+    applications: object, deployed_roles: list[str]
+) -> list[dict[str, Any]]:
+    """Every service port ``host_published`` accepts, for the swarm guard and placement.
+
+    Args:
+        applications: the variant-merged applications view.
+        deployed_roles: role ids present in this deploy.
+
+    Returns:
+        One ``{"application", "service", "port"}`` entry per published port,
+        sorted by port, application and service.
+    """
+    backends = []
+    for application_id in sorted({str(role) for role in deployed_roles}):
+        for service, entity in _services(applications, application_id).items():
+            local = _mapping(_mapping(_mapping(entity).get("ports")).get("local"))
+            for category, port in local.items():
+                if host_published(applications, application_id, service, category):
+                    backends.append(
+                        {
+                            "application": application_id,
+                            "service": service,
+                            "port": port,
+                        }
+                    )
+    return sorted(
+        backends,
+        key=lambda entry: (entry["port"], entry["application"], entry["service"]),
+    )
+
+
 def _provided_capabilities(
     applications: dict[str, Any], deployed: set[str]
 ) -> dict[str, set[str]]:
-    """Capability key -> the deployed roles whose service ``provides:`` it.
+    """Capability key -> the deployed roles serving it.
 
     Args:
         applications: the variant-merged applications view.
         deployed: role ids present in this deploy.
+
+    Returns:
+        Per capability key, every deployed role whose service ``provides:``
+        it, plus the deployed role a deployed entity of that name selects
+        with ``provider:``.
     """
     provided: dict[str, set[str]] = {}
     for app_id, cfg in applications.items():
@@ -61,12 +160,15 @@ def _provided_capabilities(
         services = cfg.get("services")
         if not isinstance(services, dict):
             continue
-        for entity in services.values():
+        for name, entity in services.items():
             if not isinstance(entity, dict):
                 continue
             key = entity.get("provides")
             if isinstance(key, str) and key:
                 provided.setdefault(key, set()).add(app_id)
+            selected = entity.get("provider")
+            if isinstance(selected, str) and selected.strip() in deployed:
+                provided.setdefault(str(name), set()).add(selected.strip())
     return provided
 
 
@@ -178,6 +280,7 @@ class LookupModule(LookupBase):
     """
     Usage:
         {{ lookup('tor_ports') }}
+        {{ lookup('tor_ports', host_mode=true) }}
 
     Returns the HiddenServicePort mappings for the roles in the current deploy
     (``group_names``): a list of ``{'onion_port': <port>, 'target':
@@ -193,6 +296,13 @@ class LookupModule(LookupBase):
     host-network container. Composed with the flagged forwards by
     ``lookup('tor_extra_ports')`` and rendered as ``HiddenServicePort`` lines in
     svc-net-tor's torrc.
+
+    ``host_mode=true`` returns ``collect_host_mode_backends`` instead and fails
+    when the applications view does not render. Every play that places the
+    shared services evaluates it once, on the stack host, right after placement, into ``swarm_onion_host_backends``: the only ports
+    ``container_ports`` publishes in ``mode: host``, ports the swarm node
+    baseline drops for every packet that does not arrive on ``lo``, and the
+    services the deploy pins to the stack host.
     """
 
     def run(
@@ -210,12 +320,17 @@ class LookupModule(LookupBase):
             group_names = []
         deployed = [str(g) for g in group_names]
 
-        try:
-            applications = lookup_loader.get(
+        def applications_view() -> dict[str, Any]:
+            return lookup_loader.get(
                 "applications",
                 loader=getattr(self, "_loader", None),
                 templar=getattr(self, "_templar", None),
             ).run([], variables=variables, roles_dir=kwargs.get("roles_dir"))[0]
+
+        if _as_bool(kwargs.get("host_mode")):
+            return [collect_host_mode_backends(applications_view(), deployed)]
+        try:
+            applications = applications_view()
         except Exception:  # noqa: BLE001  no merged view -> no ports to forward
             applications = {}
         ports = set(collect_onion_ports(applications, deployed))

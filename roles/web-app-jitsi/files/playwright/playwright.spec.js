@@ -13,4 +13,6 @@ require("./test-guest-persona").register(shared);
 require("./test-login-biber").register(shared);
 require("./test-login-administrator").register(shared);
 require("./test-login-via-ldap").register(shared);
+require("./test-ldap-auth").register(shared);
+require("./test-keycloak-adapter").register(shared);
 require("./test-design").register(shared);

@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-required — object storage not implemented for this role
 # nocheck: dynamic-flag
 # nocheck: logout
@@ -26,12 +27,13 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
+# nocheck: dynamic-flag
 javascript:
   bond: 1
-  enabled: "{{ 'web-svc-logout' in group_names }}"
-  shared: "{{ 'web-svc-logout' in group_names }}"
+  enabled: true
+  shared: true
 # nocheck: playwright-service-flag — self-provider
 keycloak:
   healthcheck:
@@ -60,9 +62,28 @@ keycloak:
   pids_limit: 1024
   realm:
     import_enabled: true
+    access_token_lifespan_seconds: 300
+    sso_session_idle_timeout_seconds: 1800
+    sso_session_max_lifespan_seconds: 36000
     totp_enabled: true
+    totp_enforced: true
+    otp_policy:
+      type: totp
+      algorithm: HmacSHA1
+      digits: 6
+      period: 30
+      look_ahead_window: 1
+      initial_counter: 0
+      code_reusable: false
   users:
     emails_verified: true
+  events:
+    admin:
+      expiration_days: 365
+  email:
+    policy: external
+    switch: false
+    secondary_required: true
   design:
     theme: infinito-corporate
   scopes:
@@ -73,6 +94,16 @@ keycloak:
       username: "{{ SOFTWARE_NAME | replace('.', '_') | lower }}"
   admin:
     allowed_networks: []
+  client:
+    ids:
+      - "{{ OIDC.CLIENT.ID }}"
+    redirect_uris: "{{ lookup('redirect_uris') }}"
+    web_origins: "{{ lookup('redirect_uris', wildcard='') }}"
+    post_logout_redirect_uris: "{{ (['+'] + lookup('network_urls', lookup('tls', 'web-svc-logout', 'url.base') ~ '*')) | join('##') }}"
+  usage_client:
+    enabled: false
+  organizations:
+    enabled: false
   ports:
     local:
       http: 8032
@@ -83,8 +114,7 @@ keycloak:
     service_key: keycloak
   run_after:
     - web-app-matomo
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
 # nocheck: dynamic-flag — per-consumer fan-out
 # nocheck: playwright-service-flag — sidecar shape, no probe-able surface flag
@@ -93,6 +123,11 @@ sso_proxy:
   version: "v7.15.6"
   min_storage: 220MB
   configuration_file: oauth2-proxy-keycloak.cfg
+  alpha_configuration_file: oauth2-proxy-keycloak-alpha.yml
+  error_template_file: oauth2-proxy-error.html
+  templates_directory: /templates
+  cookie_refresh: 1m
+  csrf_cookie_limit: 10
   ports:
     internal:
       http: 4180
@@ -135,3 +170,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, dynamic-flag, semaphore-contract  control plane: Semaphore signs its users in through Keycloak, so a run that paused it would lock everyone out of the UI that resumes it
+semaphore:
+  enabled: false
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  flush: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

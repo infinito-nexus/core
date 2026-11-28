@@ -172,6 +172,36 @@ def main(argv: list[str] | None = None) -> int:
         ),
     )
     p.add_argument(
+        "--any-axes",
+        action="store_true",
+        help=(
+            "With --failed: put every role that did not come out green on the "
+            "priority line by name -- hard failures (❌), cancelled or aborted "
+            "(🚫) and still-running (⏳) jobs alike -- together with the "
+            "priority entries the source run never deployed, their pins "
+            "dropped too. Like any bare priority entry, each role then runs "
+            "in every variant and in every deploy mode, network and mesh "
+            "state the run offers, while distro, filesystem and architecture "
+            "rotate afresh; a cancelled run can therefore fan out to more "
+            "chunk blocks than call-orchestrator.yml declares, which the "
+            "planner refuses. A green role stays off the priority line. "
+            "Cannot be combined with --strict, "
+            "which would leave the unfinished roles out, or --roles-only, "
+            "which this already covers."
+        ),
+    )
+    p.add_argument(
+        "--print",
+        dest="print_only",
+        action="store_true",
+        help=(
+            "With --failed: print the priority line the retrigger would "
+            "dispatch, its tokens separated by single spaces, and exit "
+            "without dispatching. The line is ready to paste into the "
+            "priority input of a manual dispatch."
+        ),
+    )
+    p.add_argument(
         "--chunk-gate",
         choices=("true", "false"),
         default=None,
@@ -236,6 +266,12 @@ def main(argv: list[str] | None = None) -> int:
         p.error("--strict only applies with --failed")
     if args.roles_only and args.failed is None:
         p.error("--roles-only only applies with --failed")
+    if args.any_axes and args.failed is None:
+        p.error("--any-axes only applies with --failed")
+    if args.print_only and args.failed is None:
+        p.error("--print only applies with --failed")
+    if args.any_axes and (args.strict or args.roles_only):
+        p.error("--any-axes cannot be combined with --strict or --roles-only")
     if args.priority is not None and args.failed is not None:
         p.error("--priority and --failed both build the priority line")
 
@@ -265,14 +301,21 @@ def main(argv: list[str] | None = None) -> int:
         whitelist = apps
     elif args.failed is not None:
         failed, untriggered = selections.retrigger_entries(
-            source, repo, strict=args.strict, roles_only=args.roles_only
+            source,
+            repo,
+            strict=args.strict,
+            roles_only=args.roles_only,
+            any_axes=args.any_axes,
         )
         if not failed and not untriggered:
             print("Nothing failed in that run; not triggering.")
             return 0
+        priority_entries = set(failed) | set(untriggered)
+        if args.print_only:
+            print(" ".join(sorted(priority_entries)))
+            return 0
         if untriggered:
             print(f"Priority roles that never deployed: {' '.join(untriggered)}")
-        priority_entries = set(failed) | set(untriggered)
     else:
         whitelist = _ALL
 

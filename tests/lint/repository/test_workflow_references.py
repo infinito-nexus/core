@@ -130,7 +130,7 @@ class TestWorkflowReferences(unittest.TestCase):
                 "that is still to be created:\n" + "\n".join(sorted(offenders))
             )
 
-    def test_dispatch_targets_are_dispatchable(self) -> None:
+    def test_dispatch_targets_are_dispatchable(self) -> None:  # nocheck: test.text-presence -- policy lint over every manual dispatch reference of the tree  # fmt: skip
         offenders = undispatchable_targets()
         if offenders:
             self.fail(

@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 255
+  username_pattern: .+
+  source: https://github.com/bigbluebutton/greenlight/blob/release-3.9.0.1/app/models/user.rb#L40-L41
+  agent_reachable: true

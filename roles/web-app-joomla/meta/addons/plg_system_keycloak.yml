@@ -1,10 +1,11 @@
 ---
-enabled: "{{ lookup('config', 'web-app-joomla', 'services.sso.enabled') | bool }}"
+enabled: "{{ (lookup('config', 'web-app-joomla', 'services.sso.enabled') | bool) and (lookup('config', 'web-app-joomla', 'services.joomla.login.method.sso.enabled')
+  | bool) }}"
 required: false
 mechanism: plugin
 source: built
 # nocheck: unwatched-version  Reason: the plugin is built in this repository from files/joomla-oidc-plugin, so the version is ours and has no upstream
-version: "1.0.0"
+version: "1.4.0"
 bridges:
   - sso
 config:
@@ -14,6 +15,31 @@ config:
   redirect_uri: "{{ lookup('tls', 'web-app-joomla', 'url.base') }}index.php?option=keycloak&task=callback"
   end_session_url: "{{ OIDC.CLIENT.LOGOUT_URL }}"
   fallback_enabled: "{{ lookup('config', 'web-app-joomla', 'services.sso.oidc.fallback_enabled') | string | lower }}"
-  group_admin: "/{{ lookup('rbac_group_path', application_id='web-app-joomla', role='administrator') }}"
-  group_editor: "/{{ lookup('rbac_group_path', application_id='web-app-joomla', role='editor') }}"
-  group_user: "/roles/web-app-joomla"
+  claims:
+    username: "{{ OIDC.ATTRIBUTES.USERNAME }}"
+    email: "{{ OIDC.ATTRIBUTES.EMAIL }}"
+    given_name: "{{ OIDC.ATTRIBUTES.GIVEN_NAME }}"
+    family_name: "{{ OIDC.ATTRIBUTES.FAMILY_NAME }}"
+    locale: "{{ OIDC.ATTRIBUTES.LOCALE }}"
+    zoneinfo: "{{ OIDC.ATTRIBUTES.ZONEINFO }}"
+    address: "{{ OIDC.ATTRIBUTES.ADDRESS }}"
+    groups: "{{ RBAC.GROUP.CLAIM }}"
+  profile:
+    claims:
+      phone: "{{ OIDC.ATTRIBUTES.PHONE_NUMBER }}"
+      website: "{{ OIDC.ATTRIBUTES.WEBSITE }}"
+    address:
+      address1: "{{ OIDC.ADDRESS_CLAIMS.STREET }}"
+      city: "{{ OIDC.ADDRESS_CLAIMS.LOCALITY }}"
+      region: "{{ OIDC.ADDRESS_CLAIMS.REGION }}"
+      postal_code: "{{ OIDC.ADDRESS_CLAIMS.POSTAL_CODE }}"
+      country: "{{ OIDC.ADDRESS_CLAIMS.COUNTRY }}"
+  group_map: >-
+    {{ {
+         '/' ~ lookup('rbac_group_path', application_id='web-app-joomla', role='administrator'): 8,
+         '/' ~ lookup('rbac_group_path', application_id='web-app-joomla', role='manager'): 6,
+         '/' ~ lookup('rbac_group_path', application_id='web-app-joomla', role='publisher'): 5,
+         '/' ~ lookup('rbac_group_path', application_id='web-app-joomla', role='editor'): 4,
+         '/' ~ lookup('rbac_group_path', application_id='web-app-joomla', role='author'): 3,
+         '/' ~ lookup('rbac_group_path', application_id='web-app-joomla', role='registered'): 2,
+       } }}

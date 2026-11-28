@@ -1,6 +1,5 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const fs = require("node:fs");
 const path = require("node:path");
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../../../../..");
@@ -11,34 +10,32 @@ const ICON = "link[rel~='icon']";
 const FAVICON = "https://cdn.example.test/roles/web-app-penpot/latest/img/design/favicon.ico";
 const PENPOT_SVG = "images/favicon.svg";
 const PENPOT_PNG = "images/favicon.png";
-const STYLESHEET = fs.readFileSync(path.join(PROJECT_ROOT, "roles/web-app-penpot/templates/style.css.j2"), "utf8");
-const PERSONAL_TEAM_SLOTS = [
-  "main_ui_dashboard_organization_team_switch__personal-projects-icon",
-  "main_ui_dashboard_organization_team_switch__team-item-personal-icon",
-];
+const PERSONAL_TEAM_SLOT = "main_ui_dashboard_organization_team_switch__personal-projects-icon";
 
-const { screenUrl, assertEveryIcon, SIDEBAR_LOGO } = loadInternals(
+const {
+  screenUrl,
+  assertEveryIcon,
+  credentialFormOffered,
+  signInReadable,
+  SIDEBAR_LOGO,
+  AUTH_SECTION,
+  LOGIN_TITLE,
+  LOGIN_SUBMIT,
+} = loadInternals(
   path.join(PROJECT_ROOT, "roles/web-app-penpot/files/playwright/test-design.js"),
-  ["screenUrl", "assertEveryIcon", "SIDEBAR_LOGO"],
+  [
+    "screenUrl",
+    "assertEveryIcon",
+    "credentialFormOffered",
+    "signInReadable",
+    "SIDEBAR_LOGO",
+    "AUTH_SECTION",
+    "LOGIN_TITLE",
+    "LOGIN_SUBMIT",
+  ],
   {},
   {},
 );
-
-/**
- * Args:
- *   css: role stylesheet template.
- *   slot: class Penpot renders on the element whose icon the logo replaces.
- *
- * Returns:
- *   Whether a rule names the slot in its selector list, paints the generated logo onto it and hides the icon inside.
- */
-function brandsSlot(css, slot) {
-  const selector = `\\[class\\*="${slot}"\\]`;
-  return (
-    new RegExp(`${selector}[^{]*\\{\\s*background: url\\("\\{\\{ design\\.urls\\.logo\\.svg \\}\\}"\\)`).test(css) &&
-    new RegExp(`${selector} > svg[^{]*\\{\\s*visibility: hidden;`).test(css)
-  );
-}
 
 /**
  * Args:
@@ -123,11 +120,25 @@ test("two views of one screen get documents of their own", () => {
 
 test("the spec looks for the dashboard logo in the personal-team slot of the Penpot 2.19 team switch", () => {
   assert.ok(SIDEBAR_LOGO.startsWith("[data-testid='dashboard-sidebar'] "));
-  assert.ok(SIDEBAR_LOGO.endsWith(`[class*='${PERSONAL_TEAM_SLOTS[0]}']`));
+  assert.ok(SIDEBAR_LOGO.endsWith(`[class*='${PERSONAL_TEAM_SLOT}']`));
 });
 
-test("the stylesheet puts the generated logo into every personal-team slot of the Penpot 2.19 team switch", () => {
-  for (const slot of PERSONAL_TEAM_SLOTS) {
-    assert.ok(brandsSlot(STYLESHEET, slot), `style.css.j2 must brand ${slot}`);
-  }
+test("the sign-in page offers the credential form while native or LDAP login is on", () => {
+  assert.equal(credentialFormOffered({ LOGIN_METHOD_NATIVE_ENABLED: "true", LOGIN_METHOD_LDAP_ENABLED: "false" }), true);
+  assert.equal(credentialFormOffered({ LOGIN_METHOD_NATIVE_ENABLED: "false", LOGIN_METHOD_LDAP_ENABLED: "true" }), true);
+  assert.equal(credentialFormOffered({ LOGIN_METHOD_NATIVE_ENABLED: "true", LOGIN_METHOD_LDAP_ENABLED: "true" }), true);
+});
+
+test("an SSO-only sign-in page offers no credential form", () => {
+  assert.equal(credentialFormOffered({ LOGIN_METHOD_NATIVE_ENABLED: "false", LOGIN_METHOD_LDAP_ENABLED: "false" }), false);
+});
+
+test("the form labels are a required contrast probe wherever the credential form is offered", () => {
+  const probes = signInReadable(true);
+  assert.ok(probes.includes(`${AUTH_SECTION} label`), "a required string entry, never an optional one");
+  assert.ok(probes.includes(LOGIN_TITLE));
+});
+
+test("an SSO-only sign-in page measures its title and no form label", () => {
+  assert.deepEqual(structuredClone(signInReadable(false)), [LOGIN_TITLE, { selector: LOGIN_SUBMIT, optional: true }]);
 });

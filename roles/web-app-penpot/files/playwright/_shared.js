@@ -6,8 +6,9 @@ const { resolveTimeout } = require("./timeouts");
 
 const zlib = require("zlib");
 const { test, expect } = require("@playwright/test");
-const { skipUnlessServiceEnabled, isServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled, isServiceEnabled } = require("./service-gating");
 const {
+  apiFetchOnion,
   decodeDotenvQuotedValue,
   normalizeBaseUrl,
   performKeycloakLoginForm,
@@ -81,6 +82,10 @@ const env = {
   biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
   biberEmail: decodeDotenvQuotedValue(process.env.BIBER_EMAIL),
+  keycloakBaseUrl: normalizeBaseUrl(process.env.KEYCLOAK_BASE_URL || ""),
+  keycloakRealm: decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME),
+  keycloakAdminUsername: decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_USERNAME),
+  keycloakAdminPassword: decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_PASSWORD),
 };
 
 const screenRoute = (base, screen) => `${base.replace(/\/$/, "")}/?screen=${screen}`;
@@ -97,30 +102,32 @@ async function assertAuthenticated(page) {
   ).toBeVisible({ timeout: resolveTimeout(60_000) });
 }
 
+function onOidcRegistration(page) {
+  return screenOf(page.url()) === "auth-register-validate";
+}
+
 /**
  * Args:
- *   page: Playwright page that has just come back from the Keycloak login form.
- *   fullname: name entered when Penpot's first sign-in form arrives without one.
+ *   page: Playwright page on Penpot's first sign-in form.
+ *   fullname: name entered when the form arrives without one.
+ *
+ * Returns:
+ *   The full name the form arrived with.
  */
 async function confirmFirstOidcSignIn(page, fullname) {
-  await expect
-    .poll(() => screenOf(page.url()), {
-      timeout: resolveTimeout(60_000),
-      message: "expected Penpot to answer the OIDC callback with the dashboard or its first sign-in form",
-    })
-    .toMatch(/^(dashboard-|auth-register-validate$)/);
-  if (screenOf(page.url()) !== "auth-register-validate") return;
   const nameField = page.getByLabel(/full ?name/i);
   await expect(nameField, "Expected the first sign-in form to ask for the full name").toBeVisible({ timeout: resolveTimeout(30_000) });
-  if (!(await nameField.inputValue())) await nameField.fill(fullname);
+  const prefilled = await nameField.inputValue();
+  if (!prefilled) await nameField.fill(fullname);
   const createAccount = page.getByRole("button", { name: /^create an account$/i });
   await expect(createAccount, "Expected the first sign-in form to enable its submit button").toBeEnabled({ timeout: resolveTimeout(30_000) });
   await createAccount.click({ timeout: resolveTimeout(30_000) });
+  return prefilled;
 }
 
 // In-app OIDC (flavor: oidc): the login page renders an "OpenID" provider entry
 // (clickable text, not a role=button) that redirects to Keycloak.
-async function penpotOidcLogin(page, username, password) {
+async function penpotOidcAuthenticate(page, username, password) {
   const expectedAuth = `${env.oidcIssuerUrl}/protocol/openid-connect/auth`;
   await gotoOnion(page, loginRoute(env.baseUrl));
   const oidcEntry = page.getByText("OpenID", { exact: true });
@@ -130,8 +137,24 @@ async function penpotOidcLogin(page, username, password) {
     .poll(() => page.url(), { timeout: resolveTimeout(60_000), message: `expected redirect to ${expectedAuth}` })
     .toContain(expectedAuth);
   await performKeycloakLoginForm(page, username, password);
-  await confirmFirstOidcSignIn(page, username);
+  await expect
+    .poll(() => screenOf(page.url()), {
+      timeout: resolveTimeout(60_000),
+      message: "expected Penpot to answer the OIDC callback with the dashboard or its first sign-in form",
+    })
+    .toMatch(/^(dashboard-|auth-register-validate$)/);
+}
+
+async function penpotOidcLogin(page, username, password) {
+  await penpotOidcAuthenticate(page, username, password);
+  if (onOidcRegistration(page)) await confirmFirstOidcSignIn(page, username);
   await assertAuthenticated(page);
+}
+
+async function penpotProfile(page) {
+  const response = await apiFetchOnion(page.request, `${env.baseUrl}/api/rpc/command/get-profile?_fmt=json`, { method: "GET" });
+  expect(response.status(), "Expected get-profile to answer for the signed-in Penpot session").toBe(200);
+  return response.json();
 }
 
 // LDAP: a dedicated "LDAP" submit button (enabled once the form is filled)
@@ -197,6 +220,7 @@ async function penpotNativeLogin(page, email, password) {
 module.exports = {
   test,
   expect,
+  skipUnlessServiceDisabled,
   skipUnlessServiceEnabled,
   isServiceEnabled,
   runAdminFlow,
@@ -205,7 +229,12 @@ module.exports = {
   env,
   loginRoute,
   screenOf,
+  assertAuthenticated,
+  penpotOidcAuthenticate,
+  onOidcRegistration,
+  confirmFirstOidcSignIn,
   penpotOidcLogin,
+  penpotProfile,
   penpotLdapLogin,
   penpotNativeLogin,
   penpotRegister,

@@ -1,0 +1,2 @@
+plugin.json {{ lookup('file', 'rbac_login/plugin.json') | from_json | combine({'require': {'matomo': MATOMO_PLUGIN_REQUIRE}}) | to_json | b64encode }}
+InfinitoRbacLogin.php {{ lookup('file', 'php/infinito_rbac_login.php') | b64encode }}

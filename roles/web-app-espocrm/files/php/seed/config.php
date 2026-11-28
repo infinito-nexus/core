@@ -1,6 +1,4 @@
 <?php
-// nocheck: mirrored-unit-test - requires /var/www/html/bootstrap.php at the top level
-// and drives EspoCRM's own config container; nothing here runs without the install
 /**
  * Generic EspoCRM config seeder.
  *
@@ -11,6 +9,12 @@
  *   ESPOCRM_SEED_RECAPTCHA_SECRET_KEY=xyz
  * becomes:
  *   recaptchaSecretKey => "xyz"
+ *
+ * Param ESPOCRM_SEEDER_MODE: "read" compares only and prints
+ *   {"settings": {<field>: <stored value>}, "hidden": <count>}; anything else writes.
+ * Param ESPOCRM_SEEDER_FORM_FIELDS: comma-separated meta/forms.yml fields, the
+ *   lower-cased ESPOCRM_SEED_ suffixes whose stored value the read may print;
+ *   every other differing key only counts towards "hidden".
  */
 
 require "/var/www/html/bootstrap.php";
@@ -86,6 +90,10 @@ if ($debug) {
 }
 
 $changed = false;
+$readOnly = getenv('ESPOCRM_SEEDER_MODE') === 'read';
+$formFields = array_filter(explode(',', (string) getenv('ESPOCRM_SEEDER_FORM_FIELDS')));
+$drift = [];
+$hidden = 0;
 
 foreach ($_ENV as $envKey => $envValue) {
     if (strpos($envKey, 'ESPOCRM_SEED_') !== 0) {
@@ -113,6 +121,18 @@ foreach ($_ENV as $envKey => $envValue) {
 
     $current = $config->get($configKey);
 
+    if ($readOnly) {
+        if ($current === $value) {
+            continue;
+        }
+        if (in_array(strtolower($rawKey), $formFields, true)) {
+            $drift[strtolower($rawKey)] = $current;
+        } else {
+            $hidden++;
+        }
+        continue;
+    }
+
     if ($current !== $value) {
         if ($debug) {
             seed_debug(sprintf(
@@ -134,6 +154,11 @@ foreach ($_ENV as $envKey => $envValue) {
             ));
         }
     }
+}
+
+if ($readOnly) {
+    echo json_encode(['settings' => (object) $drift, 'hidden' => $hidden], JSON_THROW_ON_ERROR) . "\n";
+    exit(0);
 }
 
 if ($changed) {

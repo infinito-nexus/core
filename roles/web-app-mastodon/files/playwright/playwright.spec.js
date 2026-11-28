@@ -14,6 +14,8 @@ const {
 
 require("./test-seaweedfs");
 require("./test-design");
+require("./test-rbac");
+require("./test-login-methods");
 
 
 test.use({ ignoreHTTPSErrors: true });

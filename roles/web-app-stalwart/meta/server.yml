@@ -5,3 +5,12 @@ status_codes:
     - 302
     - 301
     - 200
+vhosts:
+  default:
+    extra_configuration: "location ^~ /webmail { return 301 {{ lookup('canonical_url', 'web-app-stalwart', 'webmail') }}/; }"
+    vars:
+      proxy_forwarded_client_address: true
+  webmail:
+    service_key: webmail
+    http_port: "{{ lookup('config', 'web-app-stalwart', 'services.webmail.ports.local.http') }}"
+    internal_port: "{{ lookup('config', 'web-app-stalwart', 'services.webmail.ports.internal.http') }}"

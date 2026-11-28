@@ -64,6 +64,30 @@ let session = null;
 
 /**
  * Args:
+ *   environment: process environment of the spec run.
+ *
+ * Returns:
+ *   Whether the sign-in page renders the credential form; Penpot shows it only while native or LDAP login is on.
+ */
+function credentialFormOffered(environment) {
+  return environment.LOGIN_METHOD_NATIVE_ENABLED === "true" || environment.LOGIN_METHOD_LDAP_ENABLED === "true";
+}
+
+const formOffered = credentialFormOffered(process.env);
+
+/**
+ * Args:
+ *   offered: whether the sign-in page renders the credential form.
+ *
+ * Returns:
+ *   The sign-in elements whose contrast is measured; the form labels are required wherever the form is offered.
+ */
+function signInReadable(offered) {
+  return [LOGIN_TITLE, { selector: LOGIN_SUBMIT, optional: true }, ...(offered ? [`${AUTH_SECTION} label`] : [])];
+}
+
+/**
+ * Args:
  *   page: Playwright page. Penpot 2.19 ships an SVG and a PNG icon link, and design.js points both at the generated favicon.
  *   expect: Playwright's expect.
  *   href: URL of the generated favicon.
@@ -265,8 +289,7 @@ exports.register = function (shared) {
   }
 
   function visitorViews() {
-    return [
-      { name: "sign-in", url: url("sign-in", "auth-login"), prepare: shown(LOGIN_TITLE, VIEW_TIMEOUT) },
+    const formViews = [
       {
         name: "sign-in-focus",
         url: url("sign-in-focus", "auth-login"),
@@ -286,6 +309,10 @@ exports.register = function (shared) {
           await animationsSettled(page);
         },
       },
+    ];
+    return [
+      { name: "sign-in", url: url("sign-in", "auth-login"), prepare: shown(LOGIN_TITLE, VIEW_TIMEOUT) },
+      ...(formOffered ? formViews : []),
       {
         name: "recovery-request",
         url: url("recovery-request", "auth-recovery-request"),
@@ -388,11 +415,7 @@ exports.register = function (shared) {
     }
     await page.emulateMedia({ colorScheme: null });
     await assertLightAndDark(page, AUTH_SECTION, "Penpot sign-in");
-    await assertReadable(
-      page,
-      [LOGIN_TITLE, { selector: LOGIN_SUBMIT, optional: true }, `${AUTH_SECTION} label`],
-      "Penpot sign-in",
-    );
+    await assertReadable(page, signInReadable(formOffered), "Penpot sign-in");
   });
 
   test("design: the signed-in interface takes surfaces, dividers, actions and text from the palette", async ({

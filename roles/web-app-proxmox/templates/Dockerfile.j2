@@ -1,0 +1,77 @@
+ARG PROXMOX_BASE_IMAGE
+ARG PROXMOX_BASE_VERSION
+FROM ${PROXMOX_BASE_IMAGE}:${PROXMOX_BASE_VERSION}
+
+ARG PROXMOX_REPOSITORY
+ARG PROXMOX_KEYRING
+ARG PROXMOX_KEYRING_SHA512
+ARG PROXMOX_SUITE
+ARG PROXMOX_PACKAGES
+{% if PROXMOX_IS_VM | bool %}
+ARG PROXMOX_LAUNCHER_ID
+ARG PROXMOX_LAUNCHER_SHARE
+ARG PROXMOX_GUEST_DIR
+ARG PROXMOX_GUEST_BASE_DIR
+ARG PROXMOX_ISO_SHA256
+{% endif %}
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN test -n "${PROXMOX_KEYRING_SHA512}" \
+ && for pin in ${PROXMOX_PACKAGES}; do printf '%s\n' "${pin}" | grep -Eq '^[a-z0-9][a-z0-9.+-]*=[0-9A-Za-z.+~:-]+$' || { echo "unpinned or malformed package: ${pin}" >&2; exit 1; }; done \
+ && rm -rf /var/lib/apt/lists/* \
+ && apt-get -o Acquire::Retries=3 update \
+ && apt-get -o Acquire::Retries=3 install -y --no-install-recommends ca-certificates curl \
+ && curl --retry 3 --connect-timeout 10 --max-time 120 -fsSL "${PROXMOX_KEYRING}" -o /usr/share/keyrings/proxmox-archive-keyring.gpg \
+ && echo "${PROXMOX_KEYRING_SHA512}  /usr/share/keyrings/proxmox-archive-keyring.gpg" | sha512sum -c - \
+ && printf 'Types: deb\nURIs: %s\nSuites: %s\nComponents: pve-no-subscription\nSigned-By: /usr/share/keyrings/proxmox-archive-keyring.gpg\n' \
+    "${PROXMOX_REPOSITORY}" "${PROXMOX_SUITE}" > /etc/apt/sources.list.d/pve-no-subscription.sources \
+ && rm -rf /var/lib/apt/lists/* \
+ && apt-get -o Acquire::Retries=3 update \
+{% if PROXMOX_IS_VM | bool %}
+ && apt-get -o Acquire::Retries=3 install -y --no-install-recommends ${PROXMOX_PACKAGES} openssl \
+{% else %}
+ && apt-get -o Acquire::Retries=3 install -y --no-install-recommends ${PROXMOX_PACKAGES} systemd-sysv \
+ && usermod -L root \
+{% endif %}
+ && rm -rf /var/lib/apt/lists/*
+{% if PROXMOX_IS_VM | bool %}
+
+RUN test -n "${PROXMOX_LAUNCHER_ID}" \
+ && test -n "${PROXMOX_ISO_SHA256}" \
+ && groupadd --gid "${PROXMOX_LAUNCHER_ID}" launcher \
+ && useradd --uid "${PROXMOX_LAUNCHER_ID}" --gid "${PROXMOX_LAUNCHER_ID}" --home-dir "${PROXMOX_GUEST_DIR}" --no-create-home --shell /usr/sbin/nologin launcher \
+ && install -d -o launcher -g launcher -m 0700 "${PROXMOX_GUEST_DIR}" "${PROXMOX_GUEST_BASE_DIR}" \
+ && install -d -m 0755 "${PROXMOX_LAUNCHER_SHARE}" \
+ && printf '%s\n' "${PROXMOX_ISO_SHA256}" > "${PROXMOX_LAUNCHER_SHARE}/iso.sha256"
+
+COPY --chmod=0755 <<'PROXMOX_LAUNCHER_EOF' /usr/local/bin/proxmox-launcher
+{{ lookup('file', lookup('path_absolute', 'roles/web-app-proxmox/files/shell/proxmox-launcher.sh')) }}
+PROXMOX_LAUNCHER_EOF
+
+COPY --chmod=0755 <<'PVE_GUEST_EOF' /usr/local/bin/pve-guest
+{{ lookup('file', lookup('path_absolute', 'roles/web-app-proxmox/files/shell/pve-guest.sh')) }}
+PVE_GUEST_EOF
+
+COPY --chmod=0644 <<'ANSWER_EOF' ${PROXMOX_LAUNCHER_SHARE}/answer.toml
+{{ lookup('file', lookup('path_absolute', 'roles/web-app-proxmox/files/image/answer.toml')) }}
+ANSWER_EOF
+
+COPY --chmod=0755 <<'FIRST_BOOT_EOF' ${PROXMOX_LAUNCHER_SHARE}/first-boot.sh
+{{ lookup('file', lookup('path_absolute', 'roles/web-app-proxmox/files/shell/first-boot.sh')) }}
+FIRST_BOOT_EOF
+
+ENV PROXMOX_LAUNCHER_SHARE=${PROXMOX_LAUNCHER_SHARE} \
+    PROXMOX_GUEST_DIR=${PROXMOX_GUEST_DIR} \
+    PROXMOX_GUEST_BASE_DIR=${PROXMOX_GUEST_BASE_DIR}
+
+USER launcher
+
+ENTRYPOINT ["proxmox-launcher"]
+CMD ["run"]
+{% else %}
+
+STOPSIGNAL SIGRTMIN+3
+
+CMD ["/sbin/init"]
+{% endif %}

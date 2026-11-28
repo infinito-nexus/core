@@ -2,6 +2,10 @@
 application_id: svc-db-elasticsearch
 entity_name: "{{ application_id | entity_name }}"
 
+ELASTICSEARCH_SYSCTL_OWNER: "{{ application_id | entity_name }}"
+ELASTICSEARCH_SYSCTL_PARAMETERS:
+  vm.max_map_count: "262144"
+
 database_type: "{{ entity_name }}"
 
 ELASTICSEARCH_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
@@ -14,6 +18,6 @@ ELASTICSEARCH_HEAP_MB: "{{ lookup('service_memory_mb', application_id, entity_na
 ELASTICSEARCH_RETRIES: 5
 ELASTICSEARCH_DELAY: 2
 ELASTICSEARCH_API_BASE: "http://{{ ELASTICSEARCH_LOCAL_HOST }}:{{ ELASTICSEARCH_INTERNAL_PORT }}"
-ELASTICSEARCH_AUTH_FROM_STDIN: "IFS= read -r ELASTIC_PW && export ELASTIC_PW &&"
+ELASTICSEARCH_AUTH_FROM_STDIN: 'IFS= read -r ELASTIC_PW || :; : "${ELASTIC_PW:?arrived empty on stdin}" && export ELASTIC_PW &&'
 ELASTICSEARCH_EXEC_SHELL: "{{ ELASTICSEARCH_AUTH_FROM_STDIN }} container exec -e ELASTIC_PW {{ ELASTICSEARCH_CONTAINER_ADDRESS }} sh -lc"
 ELASTICSEARCH_EXEC_SHELL_STDIN: "{{ ELASTICSEARCH_AUTH_FROM_STDIN }} container exec -i -e ELASTIC_PW {{ ELASTICSEARCH_CONTAINER_ADDRESS }} sh -lc"

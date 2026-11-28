@@ -5,6 +5,7 @@ flags:
   script-src-elem:
     unsafe-inline: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface
   script-src-attr:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: WordPress core wires wp-admin controls through inline on* attributes no hash can admit (the admin bar Command Palette, the dashboard Activity Reply carrying the comment id); blocked, they log a script-src-attr violation and do nothing. script-src-elem already admits inline scripts.
     unsafe-eval: true # nocheck: csp-unsafe  Reason: historical, TODO: re-verify it is really required and does not open attack surface
 whitelist:
   worker-src:

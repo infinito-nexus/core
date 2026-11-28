@@ -46,12 +46,20 @@
           create_stdout='{{ nextcloud_ldap_config_create.stdout | default('') }}'
           create_stderr='{{ nextcloud_ldap_config_create.stderr | default('') }}'
 - name: 🔧 Set Nextcloud LDAP bind password
-  shell: >- # nocheck: container-exec-resolver  NEXTCLOUD_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
-    container exec -u {{ NEXTCLOUD_DOCKER_USER }} -e NC_LDAP_AGENT_PASSWORD {{ NEXTCLOUD_LOCAL_CID | quote }}
-    sh -c 'exec "$1" ldap:set-config "$2" ldapAgentPassword "$NC_LDAP_AGENT_PASSWORD"'
-    _ {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} {{ nextcloud_ldap_config_id | quote }}
-  environment:
-    NC_LDAP_AGENT_PASSWORD: "{{ LDAP.BIND_CREDENTIAL }}"
+  ansible.builtin.shell:
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} php -- {{ NEXTCLOUD_DOCKER_WORK_DIRECTORY | quote }}"
+    stdin: >-
+      <?php $occBatch = '{{ nextcloud_ldap_agent_password_batch | to_json | b64encode }}'; ?>{{ lookup('file', 'php/utils/occ_batch.php')
+      }}
+  vars:
+    nextcloud_ldap_agent_password_batch:
+      - argv:
+          - "ldap:set-config"
+          - "--"
+          - "{{ nextcloud_ldap_config_id }}"
+          - ldapAgentPassword
+          - "{{ LDAP.BIND_CREDENTIAL }}"
+        label: user_ldap/ldapAgentPassword
   when: IS_STACK_HOST | bool
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 - name: 🟢 Activate Nextcloud LDAP configuration
@@ -60,3 +68,7 @@
 - name: 🗂️ Warm LDAP cache (to guaranty that all LDAP users are present)
   shell: >
     {{ NEXTCLOUD_DOCKER_EXEC_OCC }} ldap:search ""
+- name: 🛂 Map the Nextcloud role groups of the directory
+  shell: >
+    {{ NEXTCLOUD_DOCKER_EXEC_OCC }} ldap:search --group ""
+  changed_when: false

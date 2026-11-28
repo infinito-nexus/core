@@ -146,7 +146,7 @@ class RescueWindowTests(unittest.TestCase):
 
 
 class DedicatedWiringTests(unittest.TestCase):
-    def test_every_capture_runs_inside_the_window(self) -> None:
+    def test_every_capture_runs_inside_the_window(self) -> None:  # nocheck: test.text-presence -- call-site lint: every container.py capture of dedicated.sh runs under the rescue window timeout  # fmt: skip
         text = read_text(str(DEDICATED))
         self.assertIn("utils/rescue/window.sh", text)
         self.assertIn("rescue_window 1500", text)

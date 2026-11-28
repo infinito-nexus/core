@@ -1,0 +1,40 @@
+---
+application_id: "web-app-atmo"
+
+container_port: "{{ lookup('config', application_id, 'services.atmo.ports.internal.http') }}"
+domain: "{{ container_hostname }}"
+http_port: "{{ lookup('config', application_id, 'services.atmo.ports.local.http') }}"
+container_hostname: "{{ lookup('container_hostname', application_id) }}"
+
+ATMO_CONTAINER: "{{ lookup('config', application_id, 'services.atmo.name') }}"
+ATMO_CRON_CONTAINER: "{{ lookup('config', application_id, 'services.cron.name') }}"
+ATMO_BRIDGE_CONTAINER: "{{ lookup('config', application_id, 'services.bridge.name') }}"
+
+ATMO_NODE_BASE: "{{ lookup('config', application_id, 'services.atmo.image') }}:{{ lookup('config', application_id, 'services.atmo.version') }}"
+ATMO_REPO_URL: "{{ lookup('config', application_id, 'services.atmo.repository') }}"
+ATMO_REF: "{{ lookup('config', application_id, 'services.atmo.ref') }}"
+
+ATMO_DOMAIN: "{{ lookup('domain', application_id) }}"
+ATMO_PUBLIC_URL: "{{ lookup('tls', application_id, 'url.base') }}"
+ATMO_DATA_DIR: "/data"
+ATMO_SCRIPTS: "/opt/atmo"
+
+ATMO_PDS_ENABLED: "{{ 'web-app-bluesky' in group_names }}"
+ATMO_PDS_URL: "{{ lookup('canonical_url', 'web-app-bluesky', 'api') | regex_replace('/+$', '') }}"
+ATMO_SIGNUP_PDS: "{{ (ATMO_PDS_URL ~ '/') if ATMO_PDS_ENABLED | bool else '' }}"
+
+ATMO_MODERATOR_DIDS: "{{ lookup('config', application_id, 'services.atmo.moderator_dids') | join(',') }}"
+ATMO_CLIENT_ASSERTION_KEY: "{{ lookup('config', application_id, 'secrets.credentials.client_assertion_key') | atmo_client_assertion_jwk(lookup('config', application_id,
+  'services.atmo.client_assertion_kid')) }}"
+ATMO_CRON_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.cron_secret') }}"
+
+ATMO_CRON_URL: "http://atmo:{{ container_port }}/api/cron"
+ATMO_CRON_INTERVAL_SECONDS: "{{ lookup('config', application_id, 'services.cron.interval_seconds') }}"
+ATMO_CRON_TIMEOUT_SECONDS: "{{ lookup('config', application_id, 'services.cron.timeout_seconds') }}"
+ATMO_CRON_BEAT_PATH: "/tmp/atmo-cron.beat"
+
+ATMO_BRIDGE_ENABLED: "{{ lookup('config', application_id, 'services.bridge.enabled') | bool }}"
+ATMO_BRIDGE_INTERVAL_SECONDS: "{{ lookup('config', application_id, 'services.bridge.interval_seconds') }}"
+ATMO_BRIDGE_STATE_DIR: "{{ lookup('volume', application_id, 'bridge_state').target }}"
+ATMO_MOBILIZON_URL: "{{ lookup('tls', 'web-app-mobilizon', 'url.base') }}"
+ATMO_BRIDGE_ACCOUNT: "{{ lookup('users', 'web-app-mobilizon-atmo-bridge') }}"

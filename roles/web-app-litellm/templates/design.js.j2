@@ -1,6 +1,7 @@
 {% set design = lookup('design', application_id) %}
-{% if design.title is string or design.logo is string %}
 (function () {
+  var root = document.documentElement;
+{% if design.title is string or design.logo is string %}
   function brand() {
 {% if design.title is string %}
     if (document.title !== {{ design.title | to_json }}) {
@@ -26,5 +27,33 @@
   new MutationObserver(brand).observe(document.head, { childList: true, subtree: true, characterData: true });
   brand();
   document.addEventListener("DOMContentLoaded", brand);
-})();
 {% endif %}
+  function chosenTheme() {
+    try {
+      return window.localStorage.getItem("theme");
+    } catch (error) {
+      return null;
+    }
+  }
+  function handSystemChoice() {
+    try {
+      if (window.localStorage.getItem("theme") === null) {
+        window.localStorage.setItem("theme", "system");
+      }
+    } catch (error) {
+      return;
+    }
+  }
+  function mirrorTheme() {
+    var theme = chosenTheme();
+    if (theme !== "dark" && theme !== "light") {
+      if (root.hasAttribute("data-design-theme")) root.removeAttribute("data-design-theme");
+    } else if (root.getAttribute("data-design-theme") !== theme) {
+      root.setAttribute("data-design-theme", theme);
+    }
+  }
+  new MutationObserver(mirrorTheme).observe(root, { attributes: true, attributeFilter: ["class"] });
+  window.addEventListener("storage", mirrorTheme);
+  handSystemChoice();
+  mirrorTheme();
+})();

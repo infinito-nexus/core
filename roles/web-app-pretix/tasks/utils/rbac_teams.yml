@@ -1,0 +1,43 @@
+---
+- name: "🔍 Report the RBAC team fields that drifted in Pretix"
+  when: PRETIX_OIDC_ENABLED | bool
+  block:
+    - name: "⬇️ Read the managed fields of the RBAC teams Pretix holds"
+      database_query:
+        config: "{{ lookup('database', application_id) }}"
+        query_file: "{{ [role_path, 'files/sql/select-teams.sql'] | path_join }}"
+        named_args:
+          names: "{{ PRETIX_TEAM_NAMES | to_json }}"
+        expect_rows: true
+      register: pretix_teams_stored
+      changed_when: false
+      run_once: true
+
+    - name: "📣 Report the managed team fields the converge reverts"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+      vars:
+        forms_drift_current: "{{ pretix_teams_stored.rows[0][0] | from_json }}"
+
+- name: "👥 Converge the RBAC teams and their pretix-oidc team assignment rules"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ PRETIX_OIDC_ENABLED | bool }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: false
+    rbac_sync_roles: []
+    rbac_sync_service_key: pretix
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ PRETIX_CONTAINER }}"
+    rbac_sync_kind: container
+    rbac_sync_user: ""
+    rbac_sync_argv: [pretix, shell_scoped, --override]
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/rbac_teams.py', rstrip=false) }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      RBAC_CLAIM: "{{ RBAC.GROUP.CLAIM }}"
+      RBAC_TEAMS: "{{ PRETIX_RBAC_TEAMS | to_json }}"
+      ORGANIZER_NAME: "{{ PRETIX_ORGANIZER_NAME }}"
+      ORGANIZER_SLUG: "{{ PRETIX_ORGANIZER_SLUG }}"
+    rbac_sync_attributes: []
+    rbac_sync_members_env: []

@@ -5,8 +5,7 @@ entity_name: "{{ application_id | entity_name }}"
 domain: "{{ lookup('domain', application_id) }}"
 
 PIHOLE_CONTAINER: "{{ entity_name }}"
-PIHOLE_WEBHOME: "/admin/"
-PIHOLE_UPSTREAM_DNS: "{{ lookup('config', application_id, 'services.pihole.upstream_dns') | join(';') }}"
-
-PIHOLE_OAUTH2_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') | bool }}"
-PIHOLE_PASSWORD: "{{ '' if PIHOLE_OAUTH2_ENABLED else lookup('users', 'platform_administrator').password }}"
+PIHOLE_WEBSERVER: "{{ lookup('form_values', application_id, 'webserver') }}"
+PIHOLE_WEBHOME: "{{ PIHOLE_WEBSERVER.webhome }}"
+PIHOLE_LOGIN: "{{ lookup('form_values', application_id, 'login') }}"
+PIHOLE_PASSWORD: "{{ PIHOLE_LOGIN.web_login | default('') }}"

@@ -13,28 +13,62 @@
   delay: 5
   changed_when: false
 
+- name: "🔎 Resolve the Keycloak id Greenlight links the administrator's SSO login by"
+  when: BBB_LOGIN_SSO | bool
+  block:
+    - name: "🔎 Look up the administrator in the Keycloak directory"
+      ansible.builtin.include_role:
+        name: web-app-keycloak
+        tasks_from: utils/directory_users.yml
+      vars:
+        keycloak_directory_usernames:
+          - "{{ lookup('users', 'platform_administrator').username }}"
+
+    - name: "🛑 Refuse an SSO deploy whose administrator Keycloak does not know"
+      ansible.builtin.assert:
+        that:
+          - keycloak_directory_users | length == 1
+        fail_msg: >-
+          Keycloak holds no user '{{ lookup('users', 'platform_administrator').username }}',
+          so Greenlight could not link the administrator's SSO login to its account.
+
 - name: "✅ Ensure Greenlight admin (verified, idempotent)"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - NEW_NAME
-      - -e
-      - NEW_EMAIL
-      - -e
-      - NEW_PASSWORD
-      - "{{ BBB_GREENLIGHT_CONTAINER_ADDRESS | quote }}" # nocheck: container-address-quote, container-address-needs-shell  compose_mode_force role, so the lookup can only yield a bare name
-      - bash
-      - -lc
-      - "bundle exec rails runner -"
-    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/ruby/greenlight_ensure_admin.rb') }}"
+  ansible.builtin.shell:
+    cmd: >-
+      IFS= read -r NEW_PASSWORD && : "${NEW_PASSWORD:?arrived empty on stdin}" && export NEW_PASSWORD && container exec -i
+      -e NEW_NAME -e NEW_EMAIL -e NEW_PASSWORD -e NEW_EXTERNAL_ID
+      {{ BBB_GREENLIGHT_CONTAINER_ADDRESS }}
+      bash -lc 'bundle exec rails runner -'
+    stdin: |-
+      {{ lookup('users', 'platform_administrator').password }}
+      {{ lookup('ansible.builtin.file', role_path ~ '/files/ruby/greenlight/ensure_admin.rb') }}
   environment:
     NEW_NAME: "{{ lookup('users', 'platform_administrator').username | upper }}"
     NEW_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
-    NEW_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+    NEW_EXTERNAL_ID: "{{ (keycloak_directory_users | first).id if (BBB_LOGIN_SSO | bool) else '' }}"
   register: greenlight_admin_map
   changed_when: "'CHANGED' in greenlight_admin_map.stdout"
   failed_when: greenlight_admin_map.rc != 0
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "👑 Reconcile the Greenlight Administrator role with the administrator members"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: true
+    rbac_sync_mode: "{{ compose_mode_force or DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: [administrator]
+    rbac_sync_service_key: greenlight
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ BBB_GREENLIGHT_CONTAINER_ADDRESS }}"
+    rbac_sync_kind: container
+    rbac_sync_user: ""
+    rbac_sync_argv: [bash, -lc, "bundle exec rails runner -"]
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/ruby/greenlight/reconcile_roles.rb') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      RBAC_PROTECTED_EMAILS: "{{ [lookup('users', 'platform_administrator').email] | to_json }}"
+    rbac_sync_attributes: []
+    rbac_sync_members_env:
+      - { name: RBAC_ADMIN_EMAILS, role: administrator, field: email }

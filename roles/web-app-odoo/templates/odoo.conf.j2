@@ -39,8 +39,10 @@ limit_time_real_cron = 600
 ; SMTP settings
 smtp_server = {{ ODOO_SMTP_HOST }}
 smtp_port = {{ ODOO_SMTP_PORT }}
+{% if email.auth | bool %}
 smtp_user = {{ ODOO_SMTP_USER }}
 smtp_password = {{ ODOO_SMTP_PASSWORD }}
+{% endif %}
 smtp_ssl = {{ ODOO_SMTP_SSL | lower }}
 email_from = {{ email['from'] }}
 {% endif %}

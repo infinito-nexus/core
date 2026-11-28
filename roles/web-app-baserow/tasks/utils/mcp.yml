@@ -7,29 +7,18 @@
     resolve_compose_cid: "{{ BASEROW_CONTAINER }}"
 
 - name: "🔑 Create the MCP endpoint, its owner and its workspace"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - "DJANGO_SETTINGS_MODULE={{ BASEROW_DJANGO_SETTINGS_MODULE }}"
-      - -e
-      - "MCP_OWNER_EMAIL={{ BASEROW_MCP_OWNER_EMAIL }}"
-      - -e
-      - "MCP_WORKSPACE_NAME={{ BASEROW_MCP_WORKSPACE_NAME }}"
-      - -e
-      - "MCP_ENDPOINT_NAME={{ BASEROW_MCP_ENDPOINT_NAME }}"
-      - -e
-      - MCP_ENDPOINT_KEY
-      - "{{ BASEROW_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - "{{ BASEROW_PYTHON }}"
-      - "{{ BASEROW_MANAGE_PY }}"
-      - shell
-      - -c
-      - "{{ lookup('file', 'python/provision_mcp.py') }}"
-  environment:
-    MCP_ENDPOINT_KEY: "{{ BASEROW_MCP_ENDPOINT_KEY }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      IFS= read -r MCP_ENDPOINT_KEY || :; : "${MCP_ENDPOINT_KEY:?arrived empty on stdin}" && export MCP_ENDPOINT_KEY && container exec -i
+      -e DJANGO_SETTINGS_MODULE={{ BASEROW_DJANGO_SETTINGS_MODULE | quote }}
+      -e MCP_OWNER_EMAIL={{ BASEROW_MCP_OWNER_EMAIL | quote }}
+      -e MCP_WORKSPACE_NAME={{ BASEROW_MCP_WORKSPACE_NAME | quote }}
+      -e MCP_ENDPOINT_NAME={{ BASEROW_MCP_ENDPOINT_NAME | quote }}
+      -e MCP_ENDPOINT_KEY
+      {{ BASEROW_LOCAL_CID | quote }}
+      {{ BASEROW_PYTHON | quote }} {{ BASEROW_MANAGE_PY | quote }} shell
+      -c {{ lookup('file', 'python/provision_mcp.py') | quote }}
+    stdin: "{{ BASEROW_MCP_ENDPOINT_KEY }}"
   register: baserow_mcp_provision
   retries: 30
   delay: 10
@@ -40,23 +29,17 @@
   run_once: true
 
 - name: "🩺 Probe the MCP endpoint on the internal origin"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - "MCP_BASE_URL={{ BASEROW_INTERNAL_URL }}"
-      - -e
-      - "MCP_ENDPOINT_PATH={{ BASEROW_MCP_ENDPOINT_PATH }}"
-      - -e
-      - MCP_ENDPOINT_KEY
-      - "{{ BASEROW_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - "{{ BASEROW_PYTHON }}"
-      - "-"
-    stdin: "{{ lookup('file', 'python/probe_mcp_endpoint.py') }}"
-  environment:
-    MCP_ENDPOINT_KEY: "{{ BASEROW_MCP_ENDPOINT_KEY }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      IFS= read -r MCP_ENDPOINT_KEY && : "${MCP_ENDPOINT_KEY:?arrived empty on stdin}" && export MCP_ENDPOINT_KEY && container exec -i
+      -e MCP_BASE_URL={{ BASEROW_INTERNAL_URL | quote }}
+      -e MCP_ENDPOINT_PATH={{ BASEROW_MCP_ENDPOINT_PATH | quote }}
+      -e MCP_ENDPOINT_KEY
+      {{ BASEROW_LOCAL_CID | quote }}
+      {{ BASEROW_PYTHON | quote }} -
+    stdin: |-
+      {{ BASEROW_MCP_ENDPOINT_KEY }}
+      {{ lookup('file', 'python/probe_mcp_endpoint.py') }}
   register: baserow_mcp_probe
   retries: 30
   delay: 10

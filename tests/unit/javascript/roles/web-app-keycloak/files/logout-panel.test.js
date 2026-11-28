@@ -15,8 +15,10 @@ const CATALOGUE = path.join(
 const LOCALE = path.join(PROJECT_ROOT, "locale");
 const LANGUAGES = path.join(PROJECT_ROOT, "meta/languages.yml");
 const ORIGIN = "https://logout.example.test";
+const EVERYWHERE = "https://dashboard.example.test/#logout-everywhere";
 const DOMAINS = ["https://shop.example.test", "https://cloud.example.test"];
 const SIBLING = `http://logout.${"a".repeat(56)}.onion/?handoff=`;
+const TOR_SUFFIX = ".onion";
 
 function readEnglish() {
   const out = {};
@@ -122,8 +124,43 @@ function element() {
   return node;
 }
 
+/**
+ * The stock confirmation form Keycloak renders without the corporate theme.
+ *
+ * Args:
+ *   withEverywhere: also render the "Log out everywhere" link the corporate theme adds.
+ */
+function confirmationPage(withEverywhere = false) {
+  const placed = [];
+  const form = {
+    insertAdjacentElement(where, node) {
+      placed.push({ where, node });
+      return node;
+    },
+  };
+  const confirm = {
+    tagName: "INPUT",
+    id: "kc-logout",
+    value: "Sign out",
+    className: "pf-v5-c-button pf-v5-c-button pf-m-primary pf-m-block",
+    form,
+  };
+  const byId = { "kc-logout": confirm };
+  if (withEverywhere) {
+    byId["kc-logout-everywhere"] = { tagName: "A", id: "kc-logout-everywhere" };
+  }
+  return { byId, confirm, placed };
+}
+
 /** Load the panel against a stubbed page and return handles for assertions. */
-function mount({ lang = "en", hostname = "auth.example.test", path: pathname = "/realms/x/protocol/openid-connect/logout" } = {}) {
+function mount({
+  lang = "en",
+  hostname = "auth.example.test",
+  path: pathname = "/realms/x/protocol/openid-connect/logout",
+  everywhere = EVERYWHERE,
+  torSuffix = TOR_SUFFIX,
+  byId = {},
+} = {}) {
   const body = element();
   const listeners = {};
   const timers = {};
@@ -131,7 +168,12 @@ function mount({ lang = "en", hostname = "auth.example.test", path: pathname = "
   let next = 0;
 
   global.window = {
-    __INFINITO_LOGOUT__: { origin: ORIGIN, i18n: readCatalogue() },
+    __INFINITO_LOGOUT__: {
+      origin: ORIGIN,
+      everywhere,
+      tor_suffix: torSuffix,
+      i18n: readCatalogue(),
+    },
     location: { pathname, hostname, replace: (url) => visited.push(url) },
     addEventListener(type, fn) {
       listeners[type] = listeners[type] || [];
@@ -145,7 +187,7 @@ function mount({ lang = "en", hostname = "auth.example.test", path: pathname = "
     readyState: "complete",
     createElement: element,
     querySelector: () => null,
-    getElementById: () => null,
+    getElementById: (id) => byId[id] || null,
     documentElement: { lang },
     body,
     addEventListener() {},
@@ -206,7 +248,8 @@ test("a clean sweep ends by telling the visitor they may leave", () => {
   page.post({ type: "host", host: DOMAINS[1], ok: true });
   page.post({ type: "done", total: 2, failed: 0 });
 
-  assert.match(page.status(), /Signed out everywhere/);
+  assert.match(page.status(), /Signed out on this device/);
+  assert.doesNotMatch(page.status(), /everywhere/, "a sweep of this browser must not claim every device");
   assert.match(page.hint(), /You can close this page now/);
   assert.equal(page.counter(), "2 of 2 services signed out");
   assert.equal(page.armed(), 0, "the guard is released once the sweep is done");
@@ -249,6 +292,18 @@ test("onion sessions are told to expect a longer wait", () => {
   assert.match(page.hint(), /Over Tor this can take a while/);
 });
 
+test("the longer wait follows the tor suffix the server renders", () => {
+  const page = mount({ hostname: "auth.example.test", torSuffix: ".example.test" });
+  page.post({ type: "start", domains: DOMAINS });
+  assert.match(page.hint(), /Over Tor this can take a while/);
+});
+
+test("without a rendered tor suffix no host gets the longer wait", () => {
+  const page = mount({ hostname: "abcdefghij.onion", torSuffix: "" });
+  page.post({ type: "start", domains: DOMAINS });
+  assert.match(page.hint(), /This usually takes a few seconds/);
+});
+
 test("a sweep that stalls says so instead of spinning forever", () => {
   const page = mount();
   page.post({ type: "start", domains: DOMAINS });
@@ -259,13 +314,72 @@ test("a sweep that stalls says so instead of spinning forever", () => {
   sweep.fn();
 
   assert.match(page.status(), /Could not confirm every sign-out/);
-  assert.doesNotMatch(page.status(), /Signed out everywhere/);
+  assert.doesNotMatch(page.status(), /Signed out on this device/);
   assert.equal(page.armed(), 0, "the guard fails open");
 });
 
 test("the panel stays off every other Keycloak page", () => {
   const page = mount({ path: "/realms/x/account" });
   assert.equal(page.armed(), 0);
+});
+
+test("without the corporate theme the confirmation page still offers both choices", () => {
+  const stock = confirmationPage();
+  mount({ byId: stock.byId });
+
+  assert.equal(stock.confirm.value, "Log out on this device");
+  assert.equal(stock.placed.length, 1, "exactly one link joins the form");
+  const { where, node } = stock.placed[0];
+  assert.equal(where, "afterend");
+  assert.equal(node.id, "kc-logout-everywhere");
+  assert.equal(node.href, EVERYWHERE);
+  assert.equal(node.textContent, "Log out everywhere");
+  assert.match(node.className, /pf-m-secondary/);
+  assert.doesNotMatch(node.className, /pf-m-primary/, "the device submit stays the primary action");
+});
+
+test("the everywhere link carries nothing but the marker", () => {
+  const stock = confirmationPage();
+  mount({ byId: stock.byId });
+
+  const url = new URL(stock.placed[0].node.href);
+  assert.equal(url.search, "", "no query parameter may ride along");
+  assert.equal(url.hash, "#logout-everywhere");
+});
+
+test("the confirmation page is a choice, not a sweep in progress", () => {
+  const stock = confirmationPage();
+  const page = mount({ byId: stock.byId });
+
+  assert.equal(page.panel(), undefined, "no status is painted before the visitor chose");
+  assert.equal(page.armed(), 0, "no unload guard may hold either choice back");
+  assert.equal(page.live(20000).length, 0, "no grace timer turns the choice into a failure");
+});
+
+test("the choices speak the visitor's language", () => {
+  const stock = confirmationPage();
+  mount({ lang: "de", byId: stock.byId });
+
+  const catalogue = readCatalogue();
+  assert.equal(stock.confirm.value, catalogue.de.choice_device);
+  assert.equal(stock.placed[0].node.textContent, catalogue.de.choice_everywhere);
+});
+
+test("without the dashboard the confirmation page offers no everywhere link", () => {
+  const stock = confirmationPage();
+  const page = mount({ everywhere: "", byId: stock.byId });
+
+  assert.equal(stock.placed.length, 0);
+  assert.equal(stock.confirm.value, "Sign out", "the stock submit keeps its label");
+  assert.equal(page.armed(), 0);
+});
+
+test("the corporate theme's own choices are left as rendered", () => {
+  const themed = confirmationPage(true);
+  mount({ byId: themed.byId });
+
+  assert.equal(themed.placed.length, 0, "the server-side link is not duplicated");
+  assert.equal(themed.confirm.value, "Sign out");
 });
 
 test("a hand-off moves the whole page to the next network's conductor", () => {

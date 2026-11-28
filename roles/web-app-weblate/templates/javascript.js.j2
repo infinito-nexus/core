@@ -1,0 +1,22 @@
+(function () {
+  const enrollment = [
+    'a[href*="/accounts/auth/tokens/"]',
+    'form[action*="/accounts/auth/tokens/"]',
+    "#passkey-register-button",
+  ].join(", ");
+
+  function run() {
+    document.documentElement.setAttribute("data-infinito-2fa-enrollment", "hidden");
+    document.querySelectorAll(enrollment).forEach(function (element) {
+      element.style.setProperty("display", "none", "important");
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run, { once: true });
+  } else {
+    run();
+  }
+
+  new MutationObserver(run).observe(document.documentElement, { childList: true, subtree: true });
+})();

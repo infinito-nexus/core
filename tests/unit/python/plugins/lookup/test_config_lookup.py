@@ -4,12 +4,20 @@ from __future__ import annotations
 import os
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 from ansible.errors import AnsibleError
+from ansible.parsing.dataloader import DataLoader
+from ansible.template import Templar
 
 from plugins.lookup.config import LookupModule
+from tests.utils.cross_app_templar import CrossAppTemplar
+from utils.cache import applications as cache_applications
 from utils.cache import base as cache_base
+from utils.cache import carrier as cache_carrier
+from utils.cache import domains as cache_domains
+from utils.cache import users as cache_users
 from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import dump_yaml_str
 from utils.roles.applications.config import AppConfigKeyError, ConfigEntryNotSetError
@@ -190,6 +198,128 @@ class TestConfigLookup(unittest.TestCase):
         variables = {"applications": {"web-app-foo": {"hosts": ["a.example.org"]}}}
         out = self.lm.run(["web-app-foo", "hosts[5]", "fallback"], variables=variables)
         self.assertEqual(out, ["fallback"])
+
+
+class TestConfigLookupKeysOnGroupNames(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+        self.addCleanup(_reset_cache_for_tests)
+        tmpdir = tempfile.TemporaryDirectory()
+        self.addCleanup(tmpdir.cleanup)
+        self._roles = Path(tmpdir.name) / "roles"
+        _write_config(
+            Path(tmpdir.name),
+            "web-app-foo",
+            {"logout": {"enabled": "{{ 'web-svc-logout' in group_names }}"}},
+        )
+
+    def _variables(self, *groups: str) -> dict:
+        return {
+            "DOMAIN_PRIMARY": "example.org",
+            "group_names": ["web-app-foo", *groups],
+        }
+
+    def _enabled(self, *groups: str) -> object:
+        lookup = LookupModule()
+        lookup._templar = Templar(loader=DataLoader())
+        return lookup.run(
+            ["web-app-foo", "services.logout.enabled"],
+            variables=self._variables(*groups),
+            roles_dir=str(self._roles),
+        )[0]
+
+    def _member_then_outsider(self) -> tuple[object, object]:
+        return self._enabled("web-svc-logout"), self._enabled()
+
+    def test_a_host_outside_the_group_does_not_read_a_member_payload(self) -> None:
+        self.assertEqual(self._member_then_outsider(), (True, False))
+
+    def test_a_key_without_group_names_serves_the_member_payload(self) -> None:
+        signature = cache_base._stable_variables_signature
+
+        def without_group_names(variables):
+            return signature(variables)[:4]
+
+        with (
+            unittest.mock.patch.object(
+                cache_carrier, "_stable_variables_signature", without_group_names
+            ),
+            unittest.mock.patch.object(
+                cache_domains, "_stable_variables_signature", without_group_names
+            ),
+            unittest.mock.patch.object(
+                cache_users, "_stable_variables_signature", without_group_names
+            ),
+        ):
+            self.assertEqual(self._member_then_outsider(), (True, True))
+
+    def test_identical_scopes_render_once(self) -> None:
+        templar = Templar(loader=DataLoader())
+        first, second = (
+            cache_applications.get_merged_applications(
+                variables=self._variables(), roles_dir=self._roles, templar=templar
+            )
+            for _ in range(2)
+        )
+        self.assertIs(first, second)
+
+
+class TestConfigLookupRendersOneApplication(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+        self.addCleanup(_reset_cache_for_tests)
+        tmpdir = tempfile.TemporaryDirectory()
+        self.addCleanup(tmpdir.cleanup)
+        base = Path(tmpdir.name)
+        self._roles = base / "roles"
+        _write_config(base, "web-app-a", {"api": {"host": "api.{{ DOMAIN_PRIMARY }}"}})
+        _write_config(
+            base,
+            "web-app-b",
+            {"client": {"target": "{{ ref web-app-a services.api.host }}"}},
+        )
+        self._applications = {"web-app-a": {}}
+        self._variables = {
+            "DOMAIN_PRIMARY": "example.org",
+            "applications": self._applications,
+        }
+
+    def _target(self) -> object:
+        lookup = LookupModule()
+        lookup._templar = CrossAppTemplar(self._roles)
+        return lookup.run(
+            ["web-app-b", "services.client.target"],
+            variables=self._variables,
+            roles_dir=str(self._roles),
+        )[0]
+
+    def test_a_lookup_renders_only_the_application_it_reads(self) -> None:
+        with unittest.mock.patch.object(
+            cache_applications,
+            "_render_with_templar",
+            wraps=cache_applications._render_with_templar,
+        ) as spy:
+            self.assertEqual(self._target(), "api.example.org")
+        self.assertEqual(
+            [call.kwargs["variables"]["application_id"] for call in spy.call_args_list],
+            ["web-app-b"],
+        )
+
+    def test_a_lookup_fingerprints_the_inventory_applications_at_most_twice(
+        self,
+    ) -> None:
+        with unittest.mock.patch.object(
+            cache_base,
+            "_fingerprint_mapping",
+            wraps=cache_base._fingerprint_mapping,
+        ) as spy:
+            self.assertEqual(self._target(), "api.example.org")
+        hashed = [
+            call
+            for call in spy.call_args_list
+            if call.args and call.args[0] is self._applications
+        ]
+        self.assertLessEqual(len(hashed), 2)
 
 
 if __name__ == "__main__":

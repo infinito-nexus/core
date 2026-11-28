@@ -156,7 +156,7 @@ def offenders() -> list[str]:
 
 
 class TestServiceGuardSpot(unittest.TestCase):
-    def test_every_service_guard_reads_its_services_entry(self) -> None:
+    def test_every_service_guard_reads_its_services_entry(self) -> None:  # nocheck: test.text-presence -- policy lint over every compose service guard  # fmt: skip
         findings = offenders()
         self.assertEqual(
             [],
@@ -165,7 +165,7 @@ class TestServiceGuardSpot(unittest.TestCase):
             + "\n".join(f"  - {f}" for f in findings),
         )
 
-    def test_the_scan_finds_service_guards(self) -> None:
+    def test_the_scan_finds_service_guards(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the service guard scan  # fmt: skip
         seen = 0
         for role_dir in sorted(p for p in ROLES_DIR.iterdir() if p.is_dir()):
             template = role_dir / _TEMPLATE_REL

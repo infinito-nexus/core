@@ -9,8 +9,9 @@ DASHBOARD_APP="web-app-dashboard"
 MATOMO_APP="web-app-matomo"
 MARIADB_APP="svc-db-mariadb"
 POSTGRES_APP="svc-db-postgres"
+MATOMO_PERFORMANCE_VARIANTS="0,1"
 
-: "${DASHBOARD_APP}" "${MATOMO_APP}" "${MARIADB_APP}" "${POSTGRES_APP}"
+: "${DASHBOARD_APP}" "${MATOMO_APP}" "${MARIADB_APP}" "${POSTGRES_APP}" "${MATOMO_PERFORMANCE_VARIANTS}"
 
 UTILS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${UTILS_DIR}/../../../.." && pwd)"
@@ -110,11 +111,13 @@ assert_http_status() {
 }
 
 # Print every group-conditional service key, comma-separated for `disable=`.
-# Usage: variable_services [keep_key ...]
-# Param keep_key: service keys the deploy under test needs, kept enabled.
+# Usage: variable_services <role> [keep_key ...]
+# Param role: role under test; every service key it enables literally stays enabled.
+# Param keep_key: further service keys the deploy under test needs, kept enabled.
 variable_services() {
-	local out
-	out="$(cd "${REPO_ROOT}" && "${PYTHON}" -m cli.meta.roles.applications.dynamic_services --exclude "$@")"
+	local role="${1:?variable_services needs the role under test}" out
+	shift
+	out="$(cd "${REPO_ROOT}" && "${PYTHON}" -m cli.meta.roles.applications.dynamic_services --role "${role}" --exclude "$@")"
 	[ -n "${out}" ] || {
 		echo "[FAIL] variable_services resolved to an empty disable set" >&2
 		exit 1

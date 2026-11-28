@@ -1,15 +1,82 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🔐 Verify the gateway contract for {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
-  when: OPENWEBUI_LITELLM_ENABLED | bool
+- name: "🛑 Refuse the grant steps while Open WebUI refuses API keys"
+  ansible.builtin.assert:
+    that:
+      - "(OPENWEBUI_ENABLE_API_KEYS | bool) or not (OPENWEBUI_API_KEY_NEEDED | bool)"
+    fail_msg: >-
+      The model grants (on with the LiteLLM gateway or svc-ai-agent-broker) and the
+      MCP tool-server grants sign in with an administrator API key, which Open WebUI
+      answers with HTTP 403 while ENABLE_API_KEYS is off, so
+      applications.web-app-openwebui.services.openwebui.enable_api_keys must be true
+      in the inventory (default true in roles/web-app-openwebui/meta/services.yml).
+    quiet: true
+
+- name: "🛑 Refuse a token lifetime that never expires or outlives the revocation stamp"
+  ansible.builtin.assert:
+    that:
+      - OPENWEBUI_JWT_EXPIRES_IN is integer
+      - OPENWEBUI_JWT_EXPIRES_IN >= 1
+      - OPENWEBUI_JWT_EXPIRES_IN <= OPENWEBUI_REVOCATION_STAMP_SECONDS
+    fail_msg: >-
+      JWT_EXPIRES_IN is '{{ OPENWEBUI_JWT_EXPIRES_IN }}', the shorter of web-app-keycloak
+      services.keycloak.realm.sso_session_max_lifespan_seconds and the
+      {{ OPENWEBUI_REVOCATION_STAMP_SECONDS }} seconds the revocation stamp of a
+      back-channel logout lives; it must be whole seconds above 0, because Open WebUI
+      issues tokens that never expire for 0s.
+    quiet: true
+
+- name: "📣 Report the managed Open WebUI settings the env file render overwrites"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/env.yml') }}"
+  vars:
+    forms_env_form: settings
+    forms_env_fields: "{{ OPENWEBUI_SETTINGS }}"
+
+- name: "🔎 Read the MCP tool servers the env file of {{ application_id }} holds"
+  ansible.builtin.command:
+    argv:
+      - python3
+      - -I
+      - -c
+      - "{{ lookup('file', 'python/tool_servers_held.py') }}"
+      - "{{ lookup('container', application_id, 'files.env') }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+  register: openwebui_tool_servers_held
+  changed_when: false
+  when: "'servers' in OPENWEBUI_MCP_CONFIG"
+
+- name: "📣 Report the MCP tool servers the env file render overwrites"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    openwebui_tool_servers_current: "{{ openwebui_tool_servers_held.stdout | from_json }}"
+    forms_drift_current: "{{ {'tools': {'servers': OPENWEBUI_MCP_CONFIG.servers | mcp_held(openwebui_tool_servers_current, '-')}} }}"
+  when:
+    - openwebui_tool_servers_held is not skipped
+    - openwebui_tool_servers_held.stdout != 'null'
+
+# nocheck: ansible-repeated-when-run  a block guard would be evaluated inside svc-ai-models, whose vars bind its own application_id
+- name: "📦 Seed the model store before {{ application_id }} starts"
+  ansible.builtin.include_role:
+    name: svc-ai-models
+  when:
+    - OPENWEBUI_STORED | bool
+    - run_once_svc_ai_models is not defined
+
+- name: "🛑 Refuse to start {{ application_id }} without its artefacts in the store"
+  ansible.builtin.include_role:
+    name: svc-ai-models
+    tasks_from: utils/require.yml
+  vars:
+    models_consumer: "{{ application_id }}"
+    models_required: "{{ OPENWEBUI_ARTEFACTS }}"
+  when: OPENWEBUI_STORED | bool
 
 - name: "🧩 load docker, proxy for '{{ application_id }}'"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_repository_pull: false
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🎨 Render the in-house custom.css of {{ application_id }}"
   ansible.builtin.include_tasks:
@@ -24,16 +91,14 @@
 - name: "🚿 Flush compose handlers for {{ application_id }}"
   ansible.builtin.meta: flush_handlers
 
-- name: "👤 Converge the native administrator of {{ application_id }}"
+- name: "👤 Converge the platform administrator of {{ application_id }} before any grant"
   ansible.builtin.include_tasks: utils/admin.yml
-  when:
-    - not (OPENWEBUI_OIDC_ENABLED | bool)
-    - not (OPENWEBUI_LDAP_ENABLED | bool)
+  when: not (OPENWEBUI_OIDC_ENABLED | bool)
 
 - name: "🔌 Provision MCP tool-server access grants"
   ansible.builtin.include_tasks: utils/mcp.yml
   when: OPENWEBUI_MCP_SERVERS | length > 0
 
-- name: "🤖 Provision per-group access to the agent models"
+- name: "🤖 Grant the gateway models to all users and each agent model to its group"
   ansible.builtin.include_tasks: utils/agent_models.yml
-  when: OPENWEBUI_AGENT_BROKER_ENABLED | bool
+  when: OPENWEBUI_MODEL_GRANTS_ENABLED | bool

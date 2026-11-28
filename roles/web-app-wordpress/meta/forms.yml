@@ -1,0 +1,146 @@
+---
+general:
+  path: /wp-admin/options-general.php
+  sinks: [WORDPRESS_OPTIONS]
+  fields:
+    blogname:
+      source: services.design.title
+      when: services.design.enabled
+      mode: enforced
+      selector: "#blogname"
+      type: text
+      label: Site Title
+    admin_email:
+      source: users.platform_administrator.email
+      mode: enforced
+      selector: "#new_admin_email"
+      type: email
+      label: Administration Email Address
+    users_can_register:
+      source: services.wordpress.login.method.registration.enabled
+      when: "!services.wordpress.multisite.enabled"
+      mode: enforced
+      selector: "#users_can_register"
+      type: checkbox
+      map: { true: "1", false: "0" }
+      label: Membership
+address:
+  path: /wp-admin/options-general.php
+  sinks: [WORDPRESS_ADDRESS]
+  fields:
+    siteurl:
+      source: services.wordpress.address
+      when: "!services.wordpress.multisite.enabled"
+      mode: enforced
+      selector: "#siteurl"
+      type: url
+      label: WordPress Address (URL)
+    home:
+      source: services.wordpress.address
+      when: "!services.wordpress.multisite.enabled"
+      mode: enforced
+      selector: "#home"
+      type: url
+      label: Site Address (URL)
+permalink:
+  path: /wp-admin/options-permalink.php
+  sinks: [WORDPRESS_OPTIONS]
+  fields:
+    permalink_structure:
+      source: services.wordpress.options.permalink_structure
+      mode: enforced
+      selector: "#permalink_structure"
+      type: text
+      label: Permalink structure
+translate:
+  path: /wp-admin/options-general.php?page=freedomtranslate
+  sinks: [WORDPRESS_OPTIONS]
+  fields:
+    freedomtranslate_service:
+      source: addons.freedomtranslate-wp.config.options.freedomtranslate_service
+      when: addons.freedomtranslate-wp.enabled
+      mode: enforced
+      selector: 'input[name="translation_service"]'
+      type: select
+      enum: [ollama, libretranslate, google_official, googlehash]
+      label: Translation service
+    freedomtranslate_api_url:
+      source: addons.freedomtranslate-wp.config.options.freedomtranslate_api_url
+      when: addons.freedomtranslate-wp.enabled
+      mode: enforced
+      selector: "#freedomtranslate_api_url"
+      type: url
+      label: Translation API URL
+ai_engine:
+  path: /wp-admin/admin.php?page=mwai_settings
+  native: true
+  sinks: [WORDPRESS_AI_ENGINE]
+  fields:
+    endpoint:
+      source: addons.ai-engine.config.environment.endpoint
+      when: addons.ai-engine.enabled
+      mode: enforced
+      selector: 'input[name="endpoint"]'
+      type: url
+      label: Endpoint
+    apikey:
+      source: addons.ai-engine.config.environment.apikey
+      when: addons.ai-engine.enabled
+      mode: enforced
+      selector: 'input[name="apikey"]'
+      type: password
+      label: API Key
+    ai_default_env:
+      source: addons.ai-engine.config.environment.id
+      when: addons.ai-engine.enabled
+      mode: enforced
+      selector: '[name="ai_default_env"]'
+      type: select
+      label: Default environment
+    ai_default_model:
+      source: addons.ai-engine.config.default_model
+      when: addons.ai-engine.enabled
+      mode: enforced
+      selector: '[name="ai_default_model"]'
+      type: select
+      label: Default model
+network:
+  path: /wp-admin/network/settings.php
+  sinks: [WORDPRESS_NETWORK_OPTIONS]
+  fields:
+    registration:
+      source: services.wordpress.login.method.registration.enabled
+      when: services.wordpress.multisite.enabled
+      mode: enforced
+      selector: 'input[name="registration"]'
+      type: select
+      enum: [none, user, blog, all]
+      map: { true: user, false: none }
+      label: Allow new registrations
+profile:
+  path: /wp-admin/
+  fields:
+    first_name:
+      source: sso.GIVEN_NAME
+      mode: enforced
+      selector: "body.infinito-sso-managed #your-profile #first_name"
+    last_name:
+      source: sso.FAMILY_NAME
+      mode: enforced
+      selector: "body.infinito-sso-managed #your-profile #last_name"
+    display_name:
+      source: sso.NAME
+      mode: enforced
+      selector: "body.infinito-sso-managed #your-profile #display_name"
+    email:
+      source: sso.EMAIL
+      mode: enforced
+      selector: "body.infinito-sso-managed #your-profile #email"
+    website:
+      source: sso.WEBSITE
+      mode: enforced
+      selector: "body.infinito-sso-managed #your-profile #url"
+    language:
+      source: sso.LOCALE
+      mode: enforced
+      selector: "body.infinito-sso-managed #your-profile #locale"

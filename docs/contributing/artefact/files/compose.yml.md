@@ -10,7 +10,7 @@ The top-level `compose.yml` is scoped to **local development and CI testing only
 It MUST NOT be used to deploy or run a live Infinito.Nexus stack.
 Production deployments MUST go through the Ansible roles and their own rendered compose files under `roles/<role>/templates/`.
 
-Within its scope, `compose.yml` MUST stay a thin orchestration surface for the `infinito` runner container and its CoreDNS sidecar.
+Within its scope, `compose.yml` MUST stay a thin orchestration surface for the `infinito` runner container, its CoreDNS sidecar, and the shared `target` machine with its `target-resolver` (see [compose/target](../../../../compose/target/README.md)).
 It MUST NOT host application roles, fixtures, or test harnesses.
 
 ## Structure 📐
@@ -19,6 +19,22 @@ It MUST NOT host application roles, fixtures, or test harnesses.
 - You MUST NOT hardcode values that differ between operators (paths, image tags, CPU or memory caps).
 - You SHOULD annotate non-obvious keys with a short inline comment that explains why they exist, not what they do.
 - You MUST document every new env var by adding the row below AND committing a one-line `# ...` comment above its key in [default.env](../../../../default.env).
+
+## Stack Kinds 🧱
+
+The stacks of this repository are declared in [stacks.yml](../../../../compose/stacks.yml); the `infinito` runner container of `compose.yml` belongs to the `deploy` stack.
+
+| Stack | Class | Purpose |
+|---|---|---|
+| `cache` | always-on | Registry mirror and package cache inside the machine-wide infra runner `infinito-infra`. |
+| `tools` | on-demand | Translation and model services inside the infra runner, started after `cache`. |
+| `test-runner` | long-lived | Shared test runner `infinito-test-<hash>`, one per toolchain image, which every `make test*` and `make lint*` target uses, except `make lint-quality`, which runs the networkless `quality` service of the compose profile `tools` on the host. |
+| `deploy` | on-demand | The deploy stack of one checkout, with `infinito`, `coredns`, `target` and `target-resolver`. |
+
+- A test or lint target MUST NOT start a deploy stack; `make test-runner-status` shows the test runner and `make test-runner-down` removes it.
+- With `INFINITO_STACK_NAME=<name>` set, every deploy, exec, test and lint target addresses the stack `<name>` instead of the default ones, so the test and lint targets then run in that stack's `infinito` container.
+- With `INFINITO_DEPLOY_VIA_POOL=true`, `make compose-deploy` submits a pool job to the runner pool of [svc-runner](../../../../roles/svc-runner/README.md); `hold=true` keeps the job's stack until `make runner-release job=<id>` removes it.
+- `make runner-status` lists the pool runners and their jobs, `make runner-cleanup-report` lists held jobs and orphaned job stacks, and `make runner-count` prints the default pool size.
 
 ## Environment Variables 📋
 
@@ -29,17 +45,19 @@ The per-variable default + comment lives next to the key in [default.env](../../
 
 | Variable | Purpose |
 |---|---|
-| `INFINITO_IMAGE` | Image reference used by the `infinito` service. Composed at runtime by the env generator on GHA, empty locally so the `build:` block builds from source. |
+| `INFINITO_IMAGE` | Image reference used by the `infinito` service. Composed at runtime by the env generator on GHA, empty locally so the `build:` block builds the Dockerfile's `toolchain` stage under the tag of [local.sh](../../../../scripts/meta/resolve/image/local.sh); the checkout is bind-mounted over it. |
+| `INFINITO_PARENT_IMAGE` | Distribution base image both the `infinito` and the `target` builds start from. |
 | `INFINITO_BUILD` | `1` builds the `infinito` image from source before `up`; the env generator sets `0` on GHA, where the service runs the published `INFINITO_IMAGE`, unless the job sets it. |
 | `INFINITO_PULL_POLICY` | Compose `pull_policy`, also exported into the `infinito` container. Defaults to `never` for local builds, generator overrides to `always` on GHA. |
-| `INFINITO_LINT_RUNNER` | Build-arg naming the stage the image builds on: `docker` adds the lint toolchain through the cached `lint-docker` layer below `COPY .`, `host` builds on `lint-host` without it. The generator defaults it to `host` on GHA and act unless the job sets it, and CI's [push.sh](../../../../scripts/image/push.sh) passes nothing, so CI images stay without the toolchain. |
+| `INFINITO_LINT_RUNNER` | Build-arg deciding whether the `toolchain` stage bakes the lint toolchain in: `docker` bakes it in a cached layer below `COPY .`, `host` skips the bake, any other value fails the build. The generator defaults it to `host` on GHA and act unless the job sets it, and CI's [push.sh](../../../../scripts/image/push.sh) passes nothing, so CI images stay without the toolchain. |
 | `INFINITO_CONTAINER` | Used directly as `container_name`. Derived from `INFINITO_DISTRO` by [container.py](../../../../utils/env/handlers/infinito/container.py). |
 | `NIX_CONFIG` | Build-arg forwarded to the Dockerfile for Nix configuration. Pass-through if set in the calling shell. |
 
 ### Resource Caps (OOM Reproduction)
 
-These variables cap the `infinito` container so local runs can reproduce GitHub-hosted runner pressure.
-Each default is `0`, which Docker interprets as "unlimited" and is identical to omitting the key.
+These variables cap the `infinito` container, so a runaway deploy hits the container's own limit before the host runs out of memory, and local runs can reproduce GitHub-hosted runner pressure.
+Outside GitHub Actions and act, `make dotenv` sets `INFINITO_MEM_LIMIT` and `INFINITO_MEMSWAP_LIMIT` to 75 % of the host's `MemTotal` ([memory.py](../../../../utils/env/handlers/infinito/memory.py)); there, and wherever a value is `0`, Docker reads the key as "unlimited".
+`INFINITO_OOM_SCORE_ADJ` sets `oom_score_adj` on the `infinito` and `target` containers, so the kernel's OOM killer picks the stack before the editor and the rest of the host.
 See [ci.md](../../actions/debugging/ci.md) for runner specs and reproduction profiles.
 
 | Variable | Compose key | Example override |
@@ -47,6 +65,7 @@ See [ci.md](../../actions/debugging/ci.md) for runner specs and reproduction pro
 | `INFINITO_MEM_LIMIT` | `mem_limit` | `16g` |
 | `INFINITO_MEMSWAP_LIMIT` | `memswap_limit` | `16g` |
 | `INFINITO_CPUS` | `cpus` | `4` |
+| `INFINITO_OOM_SCORE_ADJ` | `oom_score_adj` | `1000` |
 
 You SHOULD set `INFINITO_MEMSWAP_LIMIT` to the same value as `INFINITO_MEM_LIMIT` to disable swap inflation.
 Allowing swap masks OOM conditions that the real runner would hit.
@@ -62,19 +81,20 @@ Allowing swap masks OOM conditions that the real runner would hit.
 
 For activation, coverage, and operations of the `registry-cache`, `package-cache`, and `package-cache-frontend` services, see [cache.md](../../environment/cache.md).
 
-The env-var contracts each service expects strictly via `${VAR:?…}` (consumed in [compose.yml](../../../../compose.yml) and [compose/cache.override.yml](../../../../compose/cache.override.yml)):
+The env-var contracts each service expects strictly via `${VAR:?…}` (consumed in [compose.yml](../../../../compose.yml) and [compose/infra.yml](../../../../compose/infra.yml)):
 
 | Variable | Purpose |
 |---|---|
 | `INFINITO_CACHE_REGISTRY_HOST_PATH` | Host path bind-mounted into `registry-cache` for blob/manifest persistence. |
 | `INFINITO_CACHE_REGISTRY_CA_HOST_PATH` | Host path holding the proxy MITM CA bundle. Mounted writable into `registry-cache`, read-only into `infinito`. |
-| `INFINITO_CACHE_REGISTRY_MAX_SIZE` | Maximum on-disk size. Computed by [registry_cache_max_size.py](../../../../utils/env/handlers/infinito/registry_cache_max_size.py) as half the free disk at the cache path, floor `1g`, fallback `2g`. |
+| `INFINITO_CACHE_REGISTRY_MAX_SIZE` | `max_size` of the mirror's nginx cache, fixed `40g` in [default.env](../../../../default.env). |
+| `INFINITO_CACHE_MAX_IDLE_DAYS` | `inactive` window of the mirror's nginx cache in days, fixed `30`; [entrypoint.sh](../../../../roles/svc-registry-cache/files/shell/entrypoint.sh) writes it into the image's `proxy_cache_path` line. |
 | `INFINITO_CACHE_REGISTRY_AUTH` | `AUTH_REGISTRIES` of `registry-cache`. Consumed bare, because empty is valid and pulls anonymously; `auth.docker.io:<user>:<token>` pulls with that Docker Hub account. Set it in `custom.env` as described in [cache.md](../../environment/cache.md). |
 | `INFINITO_CACHE_REGISTRY_PROXY_CONF` | Bind source for the systemd drop-in inside `infinito`. Set by the dev tooling to the real `proxy.conf` under the `cache` profile. Driver-injected; not produced by `make dotenv`. |
 | `INFINITO_CACHE_PACKAGE_HOST_PATH` | Host path bind-mounted at `/nexus-data`. |
 | `INFINITO_CACHE_PACKAGE_HEAP` | JVM heap (`-Xms`/`-Xmx`). Computed as half free RAM, capped `2g`, floor `1g`. |
 | `INFINITO_CACHE_PACKAGE_DIRECT_MEM` | `MaxDirectMemorySize`. Mirrors `INFINITO_CACHE_PACKAGE_HEAP`. |
-| `INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX` | Soft quota for the default blobstore. Computed as half free disk at the cache path, floor `2g`. |
+| `INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX` | Cap and soft quota of the default blobstore, fixed `20g` in [default.env](../../../../default.env); `make cache-evict` holds the blob store at or below it. |
 | `INFINITO_CACHE_PACKAGE_MAX_AGE_MIN` | Cache freshness window in minutes, applied to every Nexus proxy repo (`contentMaxAge`/`metadataMaxAge`/negative-cache TTL). Stays strictly below the 7-day `Valid-Until` window Debian / Ubuntu generate in their apt `Release` files, so `apt-get update` never aborts with "Release file ... is expired". |
 | `INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD` | Target value for the rotated Nexus admin password. Default is a stable per-host hash. |
 | `INFINITO_CACHE_PACKAGE_PORT` | Host-side port mapped to Nexus REST/UI. Bound to `${INFINITO_BIND_IP}` only. |
@@ -98,6 +118,9 @@ The env-var contracts each service expects strictly via `${VAR:?…}` (consumed 
 | `INFINITO_SUBNET` | IPAM subnet for the default bridge network. |
 | `INFINITO_IP_RANGE` | IPAM pool for containers that join the default bridge without a static address, such as worktree stacks on the primary's cache network. It is the upper half of `INFINITO_SUBNET`, derived after `custom.env` by [ip_range.py](../../../../utils/env/handlers/infinito/ip_range.py); every static address stays below it. |
 | `INFINITO_GATEWAY` | IPAM gateway for the default bridge network. |
+| `INFINITO_TARGET_IP` | Static IPv4 address of the `target` service, which `target-resolver` answers `INFINITO_DOMAIN` with. Host `.20` of `INFINITO_SUBNET`, derived after `custom.env` by [target_ip.py](../../../../utils/env/handlers/infinito/target_ip.py). |
+| `INFINITO_TARGET_RESOLVER_IP` | Static IPv4 address `target-resolver` binds, so port 53 of the target stays free. Host `.21` of `INFINITO_SUBNET`, derived after `custom.env` by [target_ip.py](../../../../utils/env/handlers/infinito/target_ip.py). |
+| `INFINITO_RUNNER_PREFIX` | Prefix of the `coredns`, `target` and `target-resolver` container names and of the target's `-target-docker` volume, so each worktree and runner instance gets its own. |
 | `INFINITO_OUTER_NETWORK_MTU` | MTU for the bridge network. Lower when the host network is tunneled. |
 
 ## Adding a Variable ➕

@@ -68,7 +68,7 @@ def _sandboxed_roles() -> set[str]:
 
 
 class TestSandboxNoHostEscape(unittest.TestCase):
-    def test_sandboxed_roles_do_not_escape_to_the_host(self) -> None:
+    def test_sandboxed_roles_do_not_escape_to_the_host(self) -> None:  # nocheck: test.text-presence -- policy lint over every sandboxed role template  # fmt: skip
         sandboxed = _sandboxed_roles()
         self.assertTrue(
             sandboxed,

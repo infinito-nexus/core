@@ -1,0 +1,13 @@
+server {
+    listen {{ LIBRETRANSLATE_PORT }};
+    client_max_body_size 0;
+
+    location / {
+        {{ NETWORK_DOCKER_DNS_NGINX_DIRECTIVE }}
+        set $libretranslate_engine http://{{ LIBRETRANSLATE_BACKEND_HOST }}:{{ LIBRETRANSLATE_BACKEND_PORT }};
+        proxy_pass $libretranslate_engine;
+        proxy_set_header Host $http_host;
+        proxy_read_timeout 900s;
+        proxy_send_timeout 900s;
+    }
+}

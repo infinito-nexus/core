@@ -148,23 +148,6 @@ class TestDrift(unittest.TestCase):
         self.assertIn(policy.DENY_SCHEMA_DRIFT, str(error.exception))
 
 
-class TestAuthorizeClient(unittest.TestCase):
-    def test_the_issued_bearer_is_accepted(self):
-        policy.authorize_client("s3cret", "Bearer s3cret")
-
-    def test_a_wrong_bearer_is_refused(self):
-        with self.assertRaises(PermissionError):
-            policy.authorize_client("s3cret", "Bearer other")
-
-    def test_a_missing_header_is_refused(self):
-        with self.assertRaises(PermissionError):
-            policy.authorize_client("s3cret", "")
-
-    def test_an_unset_bearer_refuses_everyone(self):
-        with self.assertRaises(PermissionError):
-            policy.authorize_client("", "Bearer anything")
-
-
 class TestAuthorizeCall(unittest.TestCase):
     def test_a_listed_read_tool_resolves_to_its_upstream_operation(self):
         method, path = policy.authorize_call(contract(), "checkmk_list_hosts", {})

@@ -3,11 +3,9 @@ application_id: "web-app-xwiki"
 entity_name: "{{ application_id | entity_name }}"
 domain: "{{ lookup('domain',application_id) }}"
 
-container_hostname: "{{ lookup('container_hostname', application_id) }}"
+XWIKI_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.xwiki.ports.internal.http') }}"
 
-XWIKI_HOST_PORT: "{{ lookup('config', application_id, 'services.xwiki.ports.local.http') }}"
-
-XWIKI_HOSTNAME: "{{ container_hostname }}"
+XWIKI_HOSTNAME: "{{ entity_name }}"
 XWIKI_URL: "{{ lookup('tls', application_id, 'url.origin') }}"
 
 XWIKI_HOST_PROPERTIES_PATH: "{{ [lookup('container', application_id, 'directories.config'), 'xwiki.properties'] | path_join }}"
@@ -22,6 +20,11 @@ XWIKI_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_
 XWIKI_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 XWIKI_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 XWIKI_SSO_ENABLED: "{{ (XWIKI_OIDC_ENABLED | bool) or (XWIKI_LDAP_ENABLED | bool) }}"
+XWIKI_LOGIN_SSO: "{{ (XWIKI_OIDC_ENABLED | bool) and (lookup('config', application_id, 'services.xwiki.login.method.sso.enabled') | bool) }}"
+XWIKI_LOGIN_LDAP: "{{ (XWIKI_LDAP_ENABLED | bool) and (lookup('config', application_id, 'services.xwiki.login.method.ldap.enabled') | bool) }}"
+XWIKI_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.xwiki.login.method.native.enabled') | bool }}"
+XWIKI_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.xwiki.login.method.registration.enabled') | bool }}"
+XWIKI_REGISTRATION_GUEST: "XWiki.XWikiGuest"
 
 XWIKI_ADMIN_USER: "{{ lookup('users', 'platform_administrator').username }}"
 XWIKI_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
@@ -31,13 +34,17 @@ XWIKI_ADMIN_GROUP_PAGE: "XWikiAdminGroup"
 
 XWIKI_SUPERADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.superadminpassword') }}"
 XWIKI_SUPERADMIN_USERNAME: "superadmin"
+XWIKI_SUPERADMIN_AUTH_HEADERS:
+  Authorization: "Basic {{ (XWIKI_SUPERADMIN_USERNAME ~ ':' ~ XWIKI_SUPERADMIN_PASSWORD) | b64encode }}"
 
-XWIKI_DOCKER_REACH_URL: "http://{{ DOCKER_REACH_HOST }}:{{ XWIKI_HOST_PORT }}"
+XWIKI_INTERNAL_URL: "http://127.0.0.1:{{ XWIKI_INTERNAL_PORT }}"
 
-XWIKI_REST_BASE: "{{ [XWIKI_DOCKER_REACH_URL, '/rest/'] | url_join  }}"
+XWIKI_REST_BASE: "{{ [XWIKI_INTERNAL_URL, '/rest/'] | url_join  }}"
 XWIKI_REST_XWIKI: "{{ [XWIKI_REST_BASE, 'wikis/xwiki'] | url_join  }}"
 XWIKI_REST_XWIKI_PAGES: "{{ [XWIKI_REST_BASE, 'wikis/xwiki/spaces/XWiki/pages'] | url_join }}"
 XWIKI_REST_DESCRIPTOR: "{{ [XWIKI_REST_XWIKI_PAGES, 'XWikiServerXwiki'] | url_join }}"
+XWIKI_REST_PREFERENCES_OBJECTS: "{{ [XWIKI_REST_XWIKI_PAGES, 'XWikiPreferences/objects'] | url_join }}"
+XWIKI_REST_GLOBAL_RIGHTS: "{{ [XWIKI_REST_PREFERENCES_OBJECTS, 'XWiki.XWikiGlobalRights'] | url_join }}"
 XWIKI_DESCRIPTOR_SERVER: "{{ lookup('domain', application_id) }}"
 XWIKI_DESCRIPTOR_SECURE: "{{ '1' if (lookup('tls', XWIKI_DESCRIPTOR_SERVER, 'enabled') | bool) else '0' }}"
 
@@ -46,20 +53,28 @@ XWIKI_LDAP_PORT: "{{ LDAP.SERVER.PORT }}"
 XWIKI_LDAP_BASE_DN: "{{ LDAP.DN.ROOT }}"
 XWIKI_LDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
 XWIKI_LDAP_BIND_PASS: "{{ LDAP.BIND_CREDENTIAL }}"
-XWIKI_LDAP_TRYLOCAL: "{{ lookup('config', application_id, 'services.ldap.trylocal') }}"
-XWIKI_LDAP_FIELDS_MAPPING: "last_name={{ LDAP.USER.ATTRIBUTES.SURNAME }},first_name={{ LDAP.USER.ATTRIBUTES.FIRSTNAME }},email={{ LDAP.USER.ATTRIBUTES.MAIL }}"
-XWIKI_LDAP_ADMIN_GROUP_DN: "cn={{ XWIKI_ADMIN_GROUP }},ou={{ application_id }},{{ LDAP.DN.OU.ROLES }}"
+XWIKI_LDAP_UID_ATTR: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+XWIKI_LDAP_FIELDS_MAPPING: "last_name={{ LDAP.USER.ATTRIBUTES.SURNAME }},first_name={{ LDAP.USER.ATTRIBUTES.FIRSTNAME }},email={{ LDAP.USER.ATTRIBUTES.MAIL }},phone={{
+  LDAP.USER.ATTRIBUTES.PHONE }},blog={{ LDAP.USER.ATTRIBUTES.WEBSITE }},company={{ LDAP.USER.ATTRIBUTES.ORGANIZATION }}"
+XWIKI_LDAP_ADMIN_GROUP_DN: "cn={{ application_id }}-{{ XWIKI_ADMIN_GROUP }},{{ LDAP.DN.OU.ROLES }}"
 
 XWIKI_OIDC_PROVIDER: "{{ OIDC.CLIENT.ISSUER_URL }}"
 XWIKI_OIDC_AUTHORIZATION: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
 XWIKI_OIDC_TOKEN: "{{ OIDC.CLIENT.TOKEN_URL }}"
 XWIKI_OIDC_USERINFO: "{{ OIDC.CLIENT.USER_INFO_URL }}"
 XWIKI_OIDC_LOGOUT: "{{ OIDC.CLIENT.LOGOUT_URL }}"
-XWIKI_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
+XWIKI_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.clients.web') }}"
 XWIKI_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
-XWIKI_OIDC_SCOPES: "openid,email,profile,{{ RBAC.GROUP.CLAIM }}"
+XWIKI_OIDC_SCOPES: "openid,email,profile,phone,address,{{ RBAC.GROUP.CLAIM }}"
 XWIKI_OIDC_GROUPS_CLAIM: "{{ RBAC.GROUP.CLAIM }}"
-XWIKI_OIDC_ADMIN_PROVIDER_GROUP: "{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+XWIKI_OIDC_ADMIN_PROVIDER_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+XWIKI_OIDC_ADDRESS_FIELD: "${oidc.user.{{ OIDC.ATTRIBUTES.ADDRESS }}.%s}"
+XWIKI_OIDC_USER_MAPPING: >-
+  address={{ [
+    XWIKI_OIDC_ADDRESS_FIELD | format(OIDC.ADDRESS_CLAIMS.STREET),
+    (XWIKI_OIDC_ADDRESS_FIELD | format(OIDC.ADDRESS_CLAIMS.POSTAL_CODE)) ~ ' ' ~ (XWIKI_OIDC_ADDRESS_FIELD | format(OIDC.ADDRESS_CLAIMS.LOCALITY)),
+    XWIKI_OIDC_ADDRESS_FIELD | format(OIDC.ADDRESS_CLAIMS.COUNTRY)
+  ] | join('\\n') }}
 
 XWIKI_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') }}"
 XWIKI_OBJSTORE_BUCKET: "{{ lookup('objstore', application_id, 'bucket') }}"

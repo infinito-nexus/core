@@ -2,6 +2,9 @@
 application_id: "web-app-erpnext"
 entity_name: "{{ application_id | entity_name }}"
 
+ERPNEXT_IMAGE: "{{ lookup('config', application_id, 'services.erpnext.image') }}"
+ERPNEXT_VERSION: "{{ lookup('config', application_id, 'services.erpnext.version') }}"
+
 ERPNEXT_BACKEND_CONTAINER: "{{ lookup('config', application_id, 'services.backend.name') }}"
 ERPNEXT_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services.frontend.name') }}"
 ERPNEXT_WEBSOCKET_CONTAINER: "{{ lookup('config', application_id, 'services.websocket.name') }}"
@@ -18,13 +21,21 @@ ERPNEXT_SITE_NAME: "{{ ERPNEXT_HOSTNAME }}"
 ERPNEXT_TRUSTED_PROXIES: "{{ lookup('proxy_hops', application_id) }}"
 
 ERPNEXT_SITES_DIR: "{{ lookup('volume', application_id, 'sites').target }}"
-ERPNEXT_BENCH_PYTHON: "bash -c 'cd {{ ERPNEXT_SITES_DIR }} && {{ ERPNEXT_SITES_DIR | dirname }}/env/bin/python -'"
+ERPNEXT_BENCH_PYTHON_ARGV:
+  - bash
+  - -c
+  - "cd {{ ERPNEXT_SITES_DIR }} && {{ ERPNEXT_SITES_DIR | dirname }}/env/bin/python -"
+ERPNEXT_BENCH_PYTHON: "{{ ERPNEXT_BENCH_PYTHON_ARGV | map('quote') | join(' ') }}"
+ERPNEXT_MIGRATE_MARKER: "{{ ERPNEXT_SITES_DIR }}/{{ ERPNEXT_SITE_NAME }}/migrate.pending"
 
 ERPNEXT_INITIAL_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.initial_admin_password') }}"
 ERPNEXT_API_BOT_PASSWORD: "{{ ERPNEXT_API_BOT_USER.password }}"
 ERPNEXT_API_KEY_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.api_key_secret') }}"
+ERPNEXT_API_KEY: "{{ ERPNEXT_API_KEY_SECRET[:(ERPNEXT_API_KEY_SECRET | length) // 2] }}"
+ERPNEXT_API_SECRET: "{{ ERPNEXT_API_KEY_SECRET[(ERPNEXT_API_KEY_SECRET | length) // 2:] }}"
 
 ERPNEXT_API_BOT_USER: "{{ lookup('users', 'erpnext-api-bot') }}"
+ERPNEXT_API_BOT_ENABLED: "{{ lookup('config', application_id, 'services.erpnext.api_bot.enabled') | bool }}"
 ERPNEXT_API_BOT_EXTRA_ROLES: "{{ lookup('config', application_id, 'services.erpnext.api_bot.extra_roles') }}"
 
 ERPNEXT_COMPANY_NAME: "{{ service_provider.company.titel }}"
@@ -36,6 +47,20 @@ ERPNEXT_SERVER_SCRIPTS_ENABLED: "{{ lookup('config', application_id, 'services.e
 ERPNEXT_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled')   | bool }}"
 ERPNEXT_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled')  | bool }}"
 ERPNEXT_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') | bool }}"
+
+ERPNEXT_LOGIN_SSO: "{{ lookup('config', application_id, 'services.erpnext.login.method.sso.enabled') | bool }}"
+ERPNEXT_LOGIN_LDAP: "{{ lookup('config', application_id, 'services.erpnext.login.method.ldap.enabled') | bool }}"
+ERPNEXT_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.erpnext.login.method.native.enabled') | bool }}"
+ERPNEXT_LOGIN_2FA: "{{ lookup('config', application_id, 'services.erpnext.login.method.2fa.enabled') | bool }}"
+ERPNEXT_LOGIN_2FA_ENFORCEMENT: "{{ ERPNEXT_LOGIN_2FA | bool and lookup('config', application_id, 'services.erpnext.login.method.2fa.enforced') | bool }}"
+ERPNEXT_LOGIN_2FA_ENFORCED: "{{ ERPNEXT_LOGIN_2FA_ENFORCEMENT | bool and ERPNEXT_EMAIL_ENABLED | bool }}"
+ERPNEXT_LOGIN_EMAIL: "{{ lookup('config', application_id, 'services.erpnext.login.method.email.enabled') | bool }}"
+ERPNEXT_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.erpnext.login.method.registration.enabled') | bool }}"
+ERPNEXT_SYSTEM_SETTINGS: "{{ lookup('form_values', application_id, 'system_settings') }}"
+ERPNEXT_WEBSITE_SETTINGS: "{{ lookup('form_values', application_id, 'website_settings') }}"
+ERPNEXT_BRANDING: "{{ lookup('form_values', application_id, 'branding') }}"
+ERPNEXT_SYSTEM_ROUNDING: "{{ lookup('form_values', application_id, 'system_rounding') }}"
+ERPNEXT_ACCOUNTS_ROUNDING: "{{ lookup('form_values', application_id, 'accounts_rounding') }}"
 
 ERPNEXT_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 ERPNEXT_DESIGN_LOGO_ENABLED: "{{ ERPNEXT_DESIGN_ENABLED | bool and lookup('design', application_id).logo is string }}"
@@ -54,9 +79,18 @@ ERPNEXT_DB_ROOT_PASSWORD: >-
 
 ERPNEXT_REDIS_URL: "{{ lookup('engine', 'redis', application_id, 'url') }}"
 
+ERPNEXT_COMMON_SITE_CONFIG:
+  db_host: "{{ ERPNEXT_DB_HOST }}"
+  db_port: "{{ ERPNEXT_DB_PORT | int }}"
+  redis_cache: "{{ ERPNEXT_REDIS_URL }}/0"
+  redis_queue: "{{ ERPNEXT_REDIS_URL }}/1"
+  redis_socketio: "{{ ERPNEXT_REDIS_URL }}/2"
+  socketio_port: "{{ ERPNEXT_WEBSOCKET_PORT | int }}"
+  host_name: "{{ lookup('tls', application_id, 'url.origin') }}"
+
 ERPNEXT_MAIL: "{{ lookup('email', application_id) if ERPNEXT_EMAIL_ENABLED else {} }}"
 
-ERPNEXT_OIDC_ROLE_GRANTS:
+ERPNEXT_RBAC_ROLE_GRANTS:
   administrator:
     - "System Manager"
   manager:
@@ -66,9 +100,48 @@ ERPNEXT_OIDC_ROLE_GRANTS:
     - "Accounts User"
   customer:
     - "Customer"
-ERPNEXT_OIDC_GROUP_ROLE_MAP: >-
+ERPNEXT_RBAC_CORE_GRANTS: >-
   {{ {
-       '/' ~ lookup('rbac_group_path', application_id=application_id, role='administrator'): ERPNEXT_OIDC_ROLE_GRANTS.administrator,
-       '/' ~ lookup('rbac_group_path', application_id=application_id, role='manager'): ERPNEXT_OIDC_ROLE_GRANTS.manager,
-       '/' ~ lookup('rbac_group_path', application_id=application_id, role='customer'): ERPNEXT_OIDC_ROLE_GRANTS.customer,
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='administrator'): ERPNEXT_RBAC_ROLE_GRANTS.administrator,
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='manager'): ERPNEXT_RBAC_ROLE_GRANTS.manager,
+       '/' ~ lookup('rbac_group_path', application_id=application_id, role='customer'): ERPNEXT_RBAC_ROLE_GRANTS.customer,
      } }}
+ERPNEXT_RBAC_GROUP_ROLES: "{{ lookup('config', application_id, 'services.erpnext.group_roles') }}"
+ERPNEXT_RBAC_GROUP_PATTERN: "^/{{ RBAC.GROUP.NAME.strip('/') | regex_escape }}/[a-z0-9-]+/[a-z0-9-]+\\Z"
+ERPNEXT_RBAC_RESERVED_ROLES:
+  - "Administrator"
+  - "Guest"
+  - "All"
+ERPNEXT_RBAC_GROUP_GRANTS: >-
+  {{ ([{}] + (ERPNEXT_RBAC_GROUP_ROLES | batch(1) | map('items2dict', key_name='group', value_name='roles') | list))
+     | combine(list_merge='append_rp') }}
+ERPNEXT_RBAC_GRANTS: "{{ [ERPNEXT_RBAC_CORE_GRANTS, ERPNEXT_RBAC_GROUP_GRANTS] | combine(list_merge='append_rp') }}"
+ERPNEXT_RBAC_PROTECTED_USERS:
+  - "Administrator"
+  - "Guest"
+  - "{{ ERPNEXT_API_BOT_USER.email }}"
+  - "{{ lookup('users', 'platform_administrator').email }}"
+ERPNEXT_RBAC_PROTECTED_OWNERS: >-
+  {{ {lookup('users', 'platform_administrator').email: lookup('users', 'platform_administrator').username} }}
+ERPNEXT_SSO_PROVIDER_NAME: "keycloak"
+ERPNEXT_RBAC_DIRECTORY_PROVIDER_NAME: "directory"
+
+ERPNEXT_LOGIN_RBAC_APP: "infinito_rbac"
+ERPNEXT_LOGIN_RBAC_BUILD_DIR: "{{ [lookup('container', application_id, 'directories.instance'), ERPNEXT_LOGIN_RBAC_APP] | path_join }}"
+ERPNEXT_LOGIN_RBAC_RESTART_MARKER: "{{ ERPNEXT_LOGIN_RBAC_BUILD_DIR }}.restart.pending"
+ERPNEXT_LOGIN_RBAC_SETTINGS:
+  groups_claim: "{{ RBAC.GROUP.CLAIM }}"
+  username_claim: "{{ OIDC.ATTRIBUTES.USERNAME }}"
+  given_name_claim: "{{ OIDC.ATTRIBUTES.GIVEN_NAME }}"
+  family_name_claim: "{{ OIDC.ATTRIBUTES.FAMILY_NAME }}"
+  role_grants: "{{ ERPNEXT_RBAC_CORE_GRANTS }}"
+  group_roles: "{{ ERPNEXT_RBAC_GROUP_GRANTS }}"
+  protected_users: "{{ ERPNEXT_RBAC_PROTECTED_USERS }}"
+  protected_owners: "{{ ERPNEXT_RBAC_PROTECTED_OWNERS }}"
+  directory_provider: "{{ ERPNEXT_RBAC_DIRECTORY_PROVIDER_NAME }}"
+  uuid_attribute: "{{ LDAP.USER.ATTRIBUTES.UUID }}"
+  directory_ids: "{{ ERPNEXT_LDAP_ENABLED | bool }}"
+
+ERPNEXT_LDAP_MEMBER_OF_ATTRIBUTE: "{{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}"
+ERPNEXT_LDAP_GROUP_MEMBER_ATTRIBUTE: "{{ LDAP.RBAC.MEMBER_ATTRIBUTE }}"
+ERPNEXT_LDAP_GROUP_OBJECTCLASS: "{{ LDAP.RBAC.FLAVORS | first }}"

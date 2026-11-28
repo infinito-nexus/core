@@ -63,7 +63,7 @@ def resolves_the_hub(task: dict[str, Any]) -> bool:
 
 
 class TestOwnerRealignResolvesRecreatedHub(unittest.TestCase):
-    def test_the_check_after_the_recreation_targets_the_new_container(self) -> None:
+    def test_the_check_after_the_recreation_targets_the_new_container(self) -> None:  # nocheck: test.text-presence -- walks the parsed task list and its includes  # fmt: skip
         tasks = load_tasks(REALIGN)
         flush = next(
             index

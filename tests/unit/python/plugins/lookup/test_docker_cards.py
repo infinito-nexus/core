@@ -1,5 +1,5 @@
+import importlib.util
 import shutil
-import sys
 import tempfile
 import unittest
 import unittest.mock as mock
@@ -8,21 +8,19 @@ from pathlib import Path
 from ansible.errors import AnsibleError
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
-sys.path.insert(
-    0,
-    str(
-        Path(str(Path(__file__).parent))
-        / "../../../../../roles/web-app-dashboard/lookup_plugins"
-    ),
-)
-
-import docker_cards as docker_cards_module
-
+from utils.cache.files import PROJECT_ROOT
 from utils.roles.mapping import (
     ROLE_FILE_META_INFO,
     ROLE_FILE_META_MAIN,
     ROLE_FILE_VARS_MAIN,
 )
+
+_SPEC = importlib.util.spec_from_file_location(
+    "lookup_plugins_docker_cards",
+    PROJECT_ROOT / "plugins" / "lookup" / "docker_cards.py",
+)
+docker_cards_module = importlib.util.module_from_spec(_SPEC)
+_SPEC.loader.exec_module(docker_cards_module)
 
 
 def _ansible_bool(value):
@@ -243,6 +241,47 @@ logo:
         self.assertEqual(card["icon"]["class"], "fa-solid fa-briefcase")
         self.assertEqual(card["url"], "https://myportfolio.com")
         self.assertTrue(card["iframe"])
+
+    def test_card_carries_its_application_id(self):
+        result = self._run_lookup(
+            docker_cards_module.LookupModule(), self._base_fake_variables()
+        )
+
+        self.assertEqual(result[0][0]["id"], "portfolio")
+
+    def test_proxy_gated_card_carries_its_allowed_groups_as_token_paths(self):
+        fake_variables = self._base_fake_variables()
+        fake_variables["GROUP_ROOT"] = "roles"
+        fake_variables["applications"]["portfolio"]["services"]["sso"] = {
+            "enabled": True,
+            "flavor": "oauth2",
+            "oauth2": {
+                "allowed_groups": [
+                    "{{ GROUP_ROOT }}/portfolio/administrator",
+                    "/roles/portfolio/user",
+                ]
+            },
+        }
+
+        result = self._run_lookup(docker_cards_module.LookupModule(), fake_variables)
+        card = result[0][0]
+
+        self.assertEqual(
+            card["allowed_groups"],
+            ["/roles/portfolio/administrator", "/roles/portfolio/user"],
+        )
+
+    def test_oidc_native_card_is_not_role_gated(self):
+        fake_variables = self._base_fake_variables()
+        fake_variables["applications"]["portfolio"]["services"]["sso"] = {
+            "enabled": True,
+            "flavor": "oidc",
+            "oauth2": {"allowed_groups": ["roles/portfolio/administrator"]},
+        }
+
+        result = self._run_lookup(docker_cards_module.LookupModule(), fake_variables)
+
+        self.assertNotIn("allowed_groups", result[0][0])
 
     def test_iframe_flag_defaults_to_enabled(self):
         lookup_module = docker_cards_module.LookupModule()

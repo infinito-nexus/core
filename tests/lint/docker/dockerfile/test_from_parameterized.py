@@ -72,7 +72,7 @@ def _from_violations(dockerfile: Path) -> list[tuple[int, str]]:
 class TestDockerfileFromParameterized(unittest.TestCase):
     """FROM in role Dockerfiles MUST reference an ARG or Jinja variable."""
 
-    def test_role_dockerfile_from_is_parameterized(self) -> None:
+    def test_role_dockerfile_from_is_parameterized(self) -> None:  # nocheck: test.text-presence -- policy lint over every FROM of every role Dockerfile  # fmt: skip
         self.assertTrue(
             _ROLES_ROOT.is_dir(),
             f"'roles' directory not found at: {_ROLES_ROOT}",

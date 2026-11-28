@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import argparse
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml
@@ -27,6 +27,7 @@ SEARCH_DIRS = (
     PROJECT_ROOT / "inventories" / "bundles" / "servers",
     PROJECT_ROOT / "inventories" / "bundles" / "workstations",
 )
+CATALOG_KEY = "infinito"
 
 
 def _split_csv(raw: str) -> list[str]:
@@ -41,13 +42,19 @@ def _locate(bundle: str) -> Path | None:
     return None
 
 
-def resolve(bundles: Iterable[str]) -> list[str]:
-    """Return deduplicated role-group names from the given bundle inventories.
+def _all_groups(bundles: Iterable[str]) -> list[dict[str, Any]]:
+    """Return the ``all`` group of every named bundle inventory, in order.
 
-    Raises FileNotFoundError if any bundle is missing.
+    Args:
+        bundles: bundle names.
+
+    Returns:
+        One mapping per bundle, empty when the inventory has no ``all`` group.
+
+    Raises:
+        FileNotFoundError: one or more bundles are missing; all are named.
     """
-    apps: list[str] = []
-    seen: set[str] = set()
+    groups: list[dict[str, Any]] = []
     missing: list[str] = []
 
     for bundle in bundles:
@@ -56,12 +63,7 @@ def resolve(bundles: Iterable[str]) -> list[str]:
             missing.append(bundle)
             continue
         data = load_yaml(inventory, default_if_missing={}) or {}
-        children = (data.get("all") or {}).get("children") or {}
-        for app in children:
-            if app in seen:
-                continue
-            seen.add(app)
-            apps.append(app)
+        groups.append(data.get("all") or {})
 
     if missing:
         raise FileNotFoundError(
@@ -69,7 +71,46 @@ def resolve(bundles: Iterable[str]) -> list[str]:
             "{servers,workstations}: " + ", ".join(missing)
         )
 
+    return groups
+
+
+def resolve(bundles: Iterable[str]) -> list[str]:
+    """Return deduplicated role-group names from the given bundle inventories.
+
+    Raises FileNotFoundError if any bundle is missing.
+    """
+    apps: list[str] = []
+    seen: set[str] = set()
+
+    for group in _all_groups(bundles):
+        for app in group.get("children") or {}:
+            if app in seen:
+                continue
+            seen.add(app)
+            apps.append(app)
+
     return apps
+
+
+def resolve_vars(bundles: Iterable[str]) -> dict[str, Any]:
+    """Return the ``all.vars`` of the given bundle inventories a deploy reads.
+
+    Args:
+        bundles: bundle names, merged in order; a later bundle wins per
+            top-level key, as with several ``-i`` sources in Ansible.
+
+    Returns:
+        The merged vars without ``CATALOG_KEY``; empty when no bundle
+        declares any other var.
+
+    Raises:
+        FileNotFoundError: one or more bundles are missing; all are named.
+    """
+    merged: dict[str, Any] = {}
+    for group in _all_groups(bundles):
+        merged.update(group.get("vars") or {})
+    merged.pop(CATALOG_KEY, None)
+    return merged
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -117,6 +117,8 @@ def _meta_role_config(role_path: Path) -> dict[str, Any]:
 
 
 class InventoryManager:
+    value_generator_type: type = ValueGenerator
+
     def __init__(
         self,
         role_path: Path,
@@ -140,7 +142,7 @@ class InventoryManager:
 
         self.vault_handler = VaultHandler(vault_pw)
         self.roles_root = self.role_path.parent
-        self.value_generator = ValueGenerator()
+        self.value_generator = self.value_generator_type()
 
     # ---------------------------------------------------------------------
     # File loading helpers
@@ -401,8 +403,19 @@ class InventoryManager:
             dest[key] = ""
             return
 
+        dest[key] = self.seal(plain, key)
+
+    def seal(self, plain: str, key: str) -> Any:
+        """
+        Args:
+            plain: a generated or supplied credential value.
+            key: the credential's key, the label of its vault block.
+
+        Returns:
+            The value as the inventory stores it, a vault block.
+        """
         snippet = self.vault_handler.encrypt_string(plain, key)
         lines = snippet.splitlines()
         indent = len(lines[1]) - len(lines[1].lstrip())
         body = "\n".join(line[indent:] for line in lines[1:])
-        dest[key] = VaultScalar(body)
+        return VaultScalar(body)

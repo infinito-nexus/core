@@ -100,9 +100,29 @@ jobs:
       - name: 📦 Install jq
         run: ./scripts/install/apt.sh jq
 
+      - name: 🧹 Drop the runner's preinstalled Docker images
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: docker image prune --all --force
+
+      - name: 💽 Mount the empty spare disk at /mnt
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: ./scripts/github/runner/mount_spare_disk.sh /mnt 75
+
+      - name: 📦 Relocate containerd and the Docker data-root onto /mnt when roomier
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: ./scripts/github/runner/relocate_docker_dataroot.sh 75
+
+      - name: 🩺 Runner state after the disk layout
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: ./scripts/github/runner/dump_state.sh "image build disk layout"
+
       - name: 💽 Disk pressure (start)
         shell: bash
-        run: bash scripts/github/runner/disk_pressure_report.sh START
+        run: bash scripts/github/runner/disk/pressure_report.sh START
 
       - name: 🔍 Resolve buildkit image ref
         id: buildkit
@@ -141,7 +161,7 @@ jobs:
 
       - name: 💽 Disk pressure (pre-build)
         shell: bash
-        run: bash scripts/github/runner/disk_pressure_report.sh PRE-BUILD
+        run: bash scripts/github/runner/disk/pressure_report.sh PRE-BUILD
 
       - name: 🔍 Resolve repository owner
         id: owner
@@ -165,7 +185,7 @@ jobs:
           NIX_GITHUB_TOKEN: ${{ github.token }}
           MAX_ATTEMPTS: "7"
           RETRY_DELAY_SECONDS: "20"
-        run: ./scripts/image/push_all.sh
+        run: ./scripts/github/runner/disk/guard.sh / 6 10 -- ./scripts/image/push_all.sh
 
       - name: 📤 Upload the ${{ matrix.architecture }} digests
         if: ${{ !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) }}
@@ -188,7 +208,7 @@ jobs:
       - name: 💽 Disk pressure (post-build)
         if: always()
         shell: bash
-        run: bash scripts/github/runner/disk_pressure_report.sh POST-BUILD
+        run: bash scripts/github/runner/disk/pressure_report.sh POST-BUILD
 
       - name: 🧹 Cleanup (always)
         if: always()

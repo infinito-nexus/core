@@ -1,0 +1,34 @@
+---
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: Browser editor for keyframe camera animations on a VersaTiles map, with a render server that turns them into videos
+  license: Infinito.Nexus Community License (Non-Commercial)
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  galaxy_tags:
+    - infinito
+    - map
+    - animation
+    - video
+    - versatiles
+    - webapp
+  issue_tracker_url: https://github.com/versatiles-org/versatiles-map-animator/issues
+  min_ansible_version: "2.9"
+  platforms:
+    - name: ArchLinux
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+dependencies: []

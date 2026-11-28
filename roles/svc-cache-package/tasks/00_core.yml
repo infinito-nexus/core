@@ -30,6 +30,26 @@
     - "{{ CACHE_PACKAGE_CA_DIR_HOST }}"
     - "{{ CACHE_PACKAGE_CERTS_DIR_HOST }}"
 
+- name: "📁 Hand the bound Nexus data directory to the image's nexus user"
+  when: CACHE_PACKAGE_DATA_PATH | length > 0
+  block:
+    - name: "📁 Create the Nexus data directory for the nexus user"
+      ansible.builtin.file:
+        path: "{{ CACHE_PACKAGE_DATA_PATH }}"
+        state: directory
+        owner: "{{ CACHE_PACKAGE_DOCKER_USER_ID }}"
+        group: "{{ CACHE_PACKAGE_DOCKER_USER_ID }}"
+        mode: "0755"
+
+    - name: "📁 Hand every entry a legacy root-run cache left to the nexus user"
+      ansible.builtin.file:
+        path: "{{ CACHE_PACKAGE_DATA_PATH }}"
+        state: directory
+        recurse: true
+        follow: false
+        owner: "{{ CACHE_PACKAGE_DOCKER_USER_ID }}"
+        group: "{{ CACHE_PACKAGE_DOCKER_USER_ID }}"
+
 - name: "📜 Install the bootstrap the stack re-runs whenever Nexus starts"
   ansible.builtin.copy:
     src: "shell/bootstrap.sh"
@@ -49,10 +69,31 @@
   vars:
     compose_handlers_flush: true
 
-- name: "📦 Create the proxy repositories the frontend maps onto"
-  ansible.builtin.command:
-    cmd: "{{ [CACHE_PACKAGE_SHELL_DIR, 'bootstrap.sh'] | path_join }}"
-  environment: "{{ lookup('template', 'environment/bootstrap.j2') | from_yaml }}"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  register: cache_package_bootstrap
-  changed_when: "'created' in cache_package_bootstrap.stderr"
+- name: "📦 Bootstrap the proxy repositories once the sidecar is done"
+  when: CACHE_PACKAGE_BOOTSTRAP_ENABLED | bool
+  block:
+    - name: "⏳ Wait for the bootstrap sidecar before the deploy runs the same bootstrap"
+      ansible.builtin.command:
+        argv:
+          - container
+          - wait
+          - "{{ CACHE_PACKAGE_BOOTSTRAP_CONTAINER }}"
+      register: cache_package_bootstrap_sidecar
+      changed_when: false
+      failed_when:
+        - cache_package_bootstrap_sidecar.rc != 0
+        - "'No such container' not in cache_package_bootstrap_sidecar.stderr"
+      when: not (IS_SWARM_MODE | bool)
+
+    - name: "📦 Create the proxy repositories the frontend maps onto"
+      ansible.builtin.shell:
+        cmd: >-
+          IFS= read -r INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD || :;
+          : "${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD:?arrived empty on stdin}" &&
+          export INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD &&
+          exec {{ [CACHE_PACKAGE_SHELL_DIR, 'bootstrap.sh'] | path_join | quote }}
+        stdin: "{{ CACHE_PACKAGE_ADMIN_PASSWORD }}"
+      environment: "{{ lookup('template', 'environment/bootstrap.j2') | from_yaml }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      register: cache_package_bootstrap
+      changed_when: "'created' in cache_package_bootstrap.stderr"

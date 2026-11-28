@@ -24,11 +24,12 @@
         - target
         - source
       to non‑empty values in your configuration file.
-  when: MODE_ASSERT | bool
+  when: lookup('validate') | bool
 
 - include_role:
     name: sys-service
   vars:
     system_service_timer_enabled: true
     system_service_on_calendar: "{{ SYS_SCHEDULE_BACKUP_LOCAL_TO_DEVICE }}"
+    system_service_force_linear_sync: false
     system_service_suppress_flush: true # plug-triggered via the .mount unit or the timer; no USB device at deploy time, so never ExecStart the oneshot during the flush

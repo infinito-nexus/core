@@ -13,6 +13,7 @@ BOT_EMAIL = "erpnext-api-bot@infinito.example"
 def _env(**overrides):
     return {
         "SITE_NAME": "next.erp.infinito.example",
+        "API_BOT_ENABLED": "True",
         "API_BOT_LOGIN": "erpnext-api-bot",
         "API_BOT_EMAIL": BOT_EMAIL,
         "API_BOT_FIRSTNAME": "ERPNext",
@@ -192,6 +193,40 @@ class TestApiBot(unittest.TestCase):
     ) -> None:
         with self.assertRaises(KeyError):
             self._run(SERVER_SCRIPTS_ENABLED="yes")
+
+        self.assertEqual(self.frappe.calls, [])
+
+    def test_disabled_retires_an_existing_bot(self) -> None:
+        self._seed_bot("System Manager", "Script Manager", "Provisioning Bot")
+        self.frappe.records["User"][BOT_EMAIL].update(
+            enabled=1,
+            api_key="keykeysec",
+            api_secret="retsecret",
+            role_profile_name="Store",
+        )
+
+        self._run(API_BOT_ENABLED="False", SERVER_SCRIPTS_ENABLED="True")
+
+        bot = self.frappe.records["User"][BOT_EMAIL]
+        self.assertEqual(bot["enabled"], 0)
+        self.assertIsNone(bot["api_key"])
+        self.assertNotIn("api_secret", bot)
+        self.assertIsNone(bot["role_profile_name"])
+        self.assertEqual(self._roles(), [])
+
+    def test_disabled_creates_no_bot_and_still_completes_the_setup_wizard(
+        self,
+    ) -> None:
+        self._run(API_BOT_ENABLED="false")
+
+        self.assertNotIn(BOT_EMAIL, self.frappe.records.get("User", {}))
+        self.assertEqual(self.frappe.defaults["setup_complete"], "1")
+
+    def test_an_undeclared_api_bot_enabled_value_fails_before_touching_the_site(
+        self,
+    ) -> None:
+        with self.assertRaises(KeyError):
+            self._run(API_BOT_ENABLED="yes")
 
         self.assertEqual(self.frappe.calls, [])
 

@@ -1,0 +1,4 @@
+{% include 'roles/web-app-openpost/templates/nginx/echo_routes.conf.j2' %}
+{% if OPENPOST_OIDC_ENABLED | bool %}
+{% include 'roles/web-app-openpost/files/nginx/deny-password-registration.conf' %}
+{% endif %}

@@ -1,0 +1,5 @@
+---
+- name: "🛂 The RBAC mapper mu-plugin needs no integration beyond staging"
+  ansible.builtin.debug:
+    msg: "{{ application_id }}: the mu-plugin maps the groups claim of every OIDC sign-in"
+  changed_when: false

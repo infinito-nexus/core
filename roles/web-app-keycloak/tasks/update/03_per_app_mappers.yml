@@ -14,7 +14,7 @@
 # is keyed by name and the second "administrator" silently overwrites
 # the first. The filter solution is to run **one mapper per deployed
 # application**: each mapper's LDAP filter
-#   (&(objectClass=groupOfNames)(cn=<application_id>-*))
+#   (&(objectClass=groupOfNames)(|(cn=<application_id>-<role>)...))
 # sees only that app's role groups, anchors them under
 # `/roles/<application_id>`, and names each by the `description`
 # attribute (set by build_ldap_role_entries to the final path segment).

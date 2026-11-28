@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 # Resolve the pull ref of a service declared in a role's meta/services.yml.
-# Usage: service_ref.sh <role> <service> <upstream|mirror>
-#   upstream  the declared upstream ref; never touches the network
-#   mirror    the GHCR mirror ref when that tag exists, otherwise the upstream ref
+# Usage: service_ref.sh <role> <service> <upstream|mirror|mirror-only>
+#   upstream     the declared upstream ref; never touches the network
+#   mirror       the GHCR mirror ref when that tag exists, otherwise the upstream ref
+#   mirror-only  the GHCR mirror ref, never the upstream; fails when the GHCR namespace is unresolvable
 # Output format: <image>:<version>
 # This is the SPOT for image refs consumed outside Ansible (CI workflows, helper scripts).
 set -euo pipefail
 
-usage="Usage: service_ref.sh <role> <service> <upstream|mirror>"
+usage="Usage: service_ref.sh <role> <service> <upstream|mirror|mirror-only>"
 role="${1:?${usage}}"
 service="${2:?${usage}}"
 source_kind="${3:?${usage}}"
 
 case "${source_kind}" in
-upstream | mirror) ;;
+upstream | mirror | mirror-only) ;;
 *)
 	echo "Unknown source '${source_kind}'. ${usage}" >&2
 	exit 2
@@ -51,7 +52,7 @@ if [[ "${source_kind}" == upstream ]]; then
 	exit 0
 fi
 
-if ! command -v docker >/dev/null 2>&1; then
+if [[ "${source_kind}" == mirror ]] && ! command -v docker >/dev/null 2>&1; then
 	echo "docker is unavailable; using upstream ${upstream}" >&2
 	printf '%s\n' "${upstream}"
 	exit 0
@@ -59,6 +60,10 @@ fi
 
 if ! namespace="$("${repo_root}/scripts/meta/resolve/repository/owner.sh")" ||
 	! repository="$("${repo_root}/scripts/meta/resolve/repository/name.sh")"; then
+	if [[ "${source_kind}" == mirror-only ]]; then
+		echo "Could not resolve the GHCR namespace/repository for ${upstream}" >&2
+		exit 1
+	fi
 	echo "Could not resolve the GHCR namespace/repository; using upstream ${upstream}" >&2
 	printf '%s\n' "${upstream}"
 	exit 0
@@ -86,6 +91,11 @@ docker.io | registry-1.docker.io | index.docker.io)
 esac
 
 mirror="ghcr.io/${namespace}/${repository}/${INFINITO_GHCR_MIRROR_PREFIX}/${registry}/${name}:${version}"
+
+if [[ "${source_kind}" == mirror-only ]]; then
+	printf '%s\n' "${mirror}"
+	exit 0
+fi
 
 if docker manifest inspect "${mirror}" >/dev/null 2>&1; then
 	echo "Resolved ${upstream} to GHCR mirror ${mirror}" >&2

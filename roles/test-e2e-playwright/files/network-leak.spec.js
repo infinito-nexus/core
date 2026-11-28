@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { gotoOnion, normalizeUrl, readEnv, runGuestFlow } = require("./personas");
-const { crossNetworkLeaks } = require("./personas/utils/network");
+const { crossNetworkLeaks, registrySuffixes } = require("./personas/utils/network");
 const { resolveTimeout } = require("./timeouts");
 
 test.use({ ignoreHTTPSErrors: true });
@@ -50,7 +50,7 @@ test.describe("network isolation", () => {
     const leaks = crossNetworkLeaks({
       requests,
       consoleErrors,
-      suffixes: JSON.parse(readEnv("PLAYWRIGHT_NETWORK_SUFFIXES")),
+      suffixes: registrySuffixes(),
       allowedHosts: readEnv("PLAYWRIGHT_NETWORK_ALLOWED_HOSTS").split(",").filter(Boolean),
     });
     expect(leaks, leaks.join("\n")).toEqual([]);

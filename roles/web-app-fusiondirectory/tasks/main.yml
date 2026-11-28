@@ -1,7 +1,19 @@
 ---
+# The guard renders before the compose file, which names the swarm secret after the content hash it reads at render time.
+- name: "🔐 Render the proxy-secret guard of the identity header for {{ application_id }}"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "sso_proxy.conf.j2"
+        dest: "{{ FUSIONDIRECTORY_SSO_PROXY_CONF_HOST }}"
+        mode: "0400"
+        notify: []
+
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🎨 Render the in-house theme.css and headers.tpl of {{ application_id }}"
   ansible.builtin.include_tasks:

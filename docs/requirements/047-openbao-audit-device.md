@@ -10,10 +10,10 @@ OpenBao writes nothing about who read which secret unless an audit device is ena
 
 ## Acceptance Criteria
 
-- [ ] The server configuration declares `audit "file" "stdout"` with `file_path = "stdout"`.
-- [ ] The `ansible-admin` policy grants `read` and `sudo` on `sys/audit` to list audit devices, and no other policy of the role gains access to `sys/audit`.
-- [ ] Every deploy fails unless `bao audit list` reports `stdout/` of type `file`; the check never reports changed.
-- [ ] The deploy reads a probe secret with its AppRole session and fails unless the container log then holds an audit response entry for that read, carrying the request path, the `read` operation, a `display_name` and a `time`.
-- [ ] Audit entries carry no plaintext secret value: the probe secret's value does not appear in the container log.
-- [ ] The role README documents the audit device, its stdout destination and the deploy probe.
+- [x] The server configuration declares `audit "file" "stdout"` with `file_path = "stdout"`.
+- [x] The `ansible-admin` policy grants `read` and `sudo` on `sys/audit` to list audit devices, and no other policy of the role gains access to `sys/audit`.
+- [x] Every deploy fails unless `bao audit list` reports `stdout/` of type `file`; the check never reports changed.
+- [x] The deploy reads a probe secret with its AppRole session and fails unless the container log then holds an audit response entry for that read, carrying the request path, the `read` operation, a `display_name` and a `time`.
+- [ ] Audit entries carry no plaintext secret value: the probe secret's value does not appear in the container log. *Every deploy enforces it with the plaintext check in [03_policies.yml](../../roles/web-app-openbao/tasks/03_policies.yml), and [test_audit_device.py](../../tests/unit/python/roles/web-app-openbao/test_audit_device.py) runs that check against a synthetic container log: it fails on a log carrying the probe value and passes on one carrying only its HMAC. Ticking needs one green deploy of the role.*
+- [x] The role README documents the audit device, its stdout destination and the deploy probe.
 - [ ] `make compose-deploy` of `web-app-openbao` is green on a fresh stack and on a re-run.

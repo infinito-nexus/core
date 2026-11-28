@@ -1,0 +1,67 @@
+---
+- name: "👤 PEERTUBE | Pre-provision the accounts of the role group members"
+  when: PEERTUBE_OIDC_ENABLED | bool
+  block:
+    - name: "🛂 PEERTUBE | Require the stack host, which alone creates them"
+      ansible.builtin.assert:
+        that: STACK_HOST in ansible_play_hosts_all
+        fail_msg: >-
+          {{ STACK_HOST }} is not in this play (a --limit without it?), so no
+          host would create the accounts of the PeerTube role group members.
+        quiet: true
+
+    - name: "👤 PEERTUBE | Create the accounts through the API on the stack host"
+      ansible.builtin.include_tasks: rbac/provision.yml
+      when: inventory_hostname == STACK_HOST
+
+- name: "🛂 PEERTUBE | Hand the accounts to the OIDC plugin and converge their roles"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ PEERTUBE_OIDC_ENABLED | bool }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: "{{ PEERTUBE_RBAC_ROLES }}"
+    rbac_sync_service_key: postgres
+    rbac_sync_service_name: "{{ lookup('database', application_id, 'service_name') }}"
+    rbac_sync_container: "{{ lookup('database', application_id, 'container') }}"
+    rbac_sync_kind: host
+    rbac_sync_user: ""
+    rbac_sync_argv: []
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/rbac/sync.py') }}"
+    rbac_sync_modules:
+      - { name: link-preprovisioned-accounts.sql, content: "{{ lookup('file', role_path ~ '/files/sql/rbac/link-preprovisioned-accounts.sql') }}" }
+      - { name: reconcile-roles.sql, content: "{{ lookup('file', role_path ~ '/files/sql/rbac/reconcile-roles.sql') }}" }
+    rbac_sync_env:
+      PGPASSWORD: "{{ lookup('database', application_id, 'password') }}"
+      PEERTUBE_DB_USER: "{{ lookup('database', application_id, 'username') }}"
+      PEERTUBE_DB_NAME: "{{ lookup('database', application_id, 'name') }}"
+      PEERTUBE_ROOT_USERNAME: "{{ PEERTUBE_ROOT_USERNAME }}"
+      PEERTUBE_RBAC_ROLE_IDS: "{{ PEERTUBE_ROLE_IDS | to_json }}"
+      PEERTUBE_OIDC_PLUGIN: "{{ PEERTUBE_OIDC_PLUGIN }}"
+    rbac_sync_attributes: []
+    rbac_sync_members_env:
+      - { name: RBAC_MEMBERS, role: "*", field: "" }
+
+- name: "📣 PEERTUBE | Report the members the pre-provisioning left without an account"
+  when: peertube_rbac_provision is defined
+  block:
+    - name: "⚠️ PEERTUBE | Name the members a local account of somebody else blocks"
+      ansible.builtin.debug:
+        msg: >-
+          These role group members got no account, because a local PeerTube account
+          of somebody else holds their username or e-mail; resolve it in PeerTube:
+          {{ (peertube_rbac_provision.stdout | from_json).failed | selectattr('warning') | list }}
+      when:
+        - peertube_rbac_provision.stdout | length > 0
+        - (peertube_rbac_provision.stdout | from_json).failed | selectattr('warning') | list | length > 0
+
+    - name: "❌ PEERTUBE | Name the members whose account could not be pre-provisioned"
+      ansible.builtin.fail:
+        msg: >-
+          PeerTube account pre-provisioning failed after 4 attempts; the link and
+          the role convergence above still ran:
+          {{ (peertube_rbac_provision.stdout | from_json).failed | rejectattr('warning') | list
+             if (peertube_rbac_provision.stdout | length > 0)
+             else (peertube_rbac_provision.stderr_lines | default(['no output'], true) | last) }}
+      when: peertube_rbac_provision.rc | default(0) != 0

@@ -1,2 +1,5 @@
 ---
 client_max_body_size: 2g
+vhosts:
+  default:
+    extra_template: nginx/vhost_extra.conf.j2

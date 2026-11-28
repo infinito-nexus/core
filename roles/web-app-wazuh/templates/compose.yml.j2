@@ -38,12 +38,14 @@
     hostname: "{{ WAZUH_INDEXER_CONTAINER }}"
     entrypoint: ["{{ WAZUH_INDEXER_ENTRYPOINT_TARGET }}"]
     command: ["opensearchwrapper"]
+    {# nocheck: swarm-loopback-port overlay  the manager and the dashboard reach the indexer at WAZUH_INDEXER_URL by container name and internal port; host tasks query it from inside the container #}
     {{ lookup('container_ports', ['indexer', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     ulimits:
       nofile:
         soft: {{ lookup('config', application_id, 'services.indexer.nofile') }}
         hard: {{ lookup('config', application_id, 'services.indexer.nofile') }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra=certs_generator_dependency) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
@@ -57,6 +59,7 @@
     hostname: "{{ WAZUH_DASHBOARD_CONTAINER }}"
     {{ lookup('container_ports', ['console', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_depends_on', application_id, extra={
   'indexer': {'condition': 'service_healthy'},

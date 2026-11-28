@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  host network configuration; holds no growing application data
 # nocheck: playwright-service-flag — Tor Browser users need third-party assets
 # served first-party; deploying tor therefore always deploys the mirror.
 # nocheck: dynamic-flag — hard dependency: every tor deployment serves the mirror.
@@ -12,8 +13,9 @@ tor: # nocheck: category-modes
       enabled: true
     swarm:
       enabled: true
-  # nocheck: default-placement-manager  node onion ingress: host-published SOCKS/DNS/Trans ports and the HiddenService loopback forward must live on the stack host
+  # nocheck: default-placement-manager  the role's tasks run on the stack host, which holds the hidden-service keys, renders every node's torrc and runs the egress router; replicas global puts the daemon itself on every node
   placement: manager
+  replicas: global
   bond: 0.5
   enabled: true
   shared: true
@@ -24,11 +26,48 @@ tor: # nocheck: category-modes
   node: ""
   use_entry_guards: true
   flavor: public
+  chutney:
+    net: hs-v3-min
+    port_bases:
+      orport: 15000
+      dirport: 15100
+      controlport: 15200
+      socksport: 15300
+      dnsport: 15400
+    port_span: 100
   forwards:
     ssh: true
     http: true
   egress:
-    enabled: true
+    route: onion
+    tor:
+      include: []
+      except: []
+    direct:
+      include: "{{ lookup('tor_egress_infrastructure') }}"
+      except: []
+    infrastructure:
+      mirrors:
+        - deb.debian.org
+        - security.debian.org
+        - archive.ubuntu.com
+        - security.ubuntu.com
+        - ports.ubuntu.com
+        - mirrors.fedoraproject.org
+        - dl.fedoraproject.org
+        - mirrors.centos.org
+        - mirror.stream.centos.org
+        - geo.mirror.pkgbuild.com
+      ntp:
+        - pool.ntp.org
+        - ntp.ubuntu.com
+      registry_blob_hosts:
+        docker.io:
+          - production.cloudflare.docker.com
+        ghcr.io:
+          - pkg-containers.githubusercontent.com
+      acme:
+        - acme-v02.api.letsencrypt.org
   timeout_multipliers:
     chutney: 2
     public: 5
@@ -46,7 +85,7 @@ tor: # nocheck: category-modes
       dns: false
   min_storage: 100MB
   cpus: "1.0"
-  mem_reservation: 128m
+  mem_reservation: 64m
   mem_limit: 256m
   pids_limit: 128
   lifecycle: beta
@@ -55,3 +94,11 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started

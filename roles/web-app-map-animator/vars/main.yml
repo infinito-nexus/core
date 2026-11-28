@@ -1,0 +1,12 @@
+---
+application_id: web-app-map-animator
+entity_name: "{{ application_id | entity_name }}"
+
+MAP_ANIMATOR_CONTAINER: "{{ lookup('config', application_id, 'services.map-animator.name') }}"
+MAP_ANIMATOR_PORT_INTERNAL: "{{ lookup('config', application_id, 'services.map-animator.ports.internal.http') }}"
+MAP_ANIMATOR_DATA_DIR: "{{ lookup('volume', application_id, 'map_animator_data').target }}"
+MAP_ANIMATOR_USERS_FILE_HOST: "{{ [ lookup('container', application_id, 'directories.instance'), 'users.txt' ] | path_join }}"
+MAP_ANIMATOR_USERS_FILE: "{{ lookup('volume', application_id, 'map_animator_users').target }}"
+MAP_ANIMATOR_USERS_SALT_KEY: "{{ lookup('config', application_id, 'secrets.credentials.users_salt_key') }}"
+MAP_ANIMATOR_KEEP_DAYS: "{{ lookup('config', application_id, 'services.map-animator.keep_days') }}"
+MAP_ANIMATOR_MAX_QUEUED_PER_USER: "{{ lookup('config', application_id, 'services.map-animator.max_queued_per_user') }}"

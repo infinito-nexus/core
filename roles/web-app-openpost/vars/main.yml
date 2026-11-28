@@ -5,15 +5,16 @@ container_port: "{{ lookup('config', application_id, 'services.openpost.ports.in
 OPENPOST_NAME: "{{ lookup('config', application_id, 'services.openpost.name') }}"
 OPENPOST_RELAY_NAME: "{{ lookup('config', application_id, 'services.relay.name') }}"
 OPENPOST_URL: "{{ lookup('tls', application_id, 'url.origin') }}"
-OPENPOST_LOCAL_HOST: "{{ DOCKER_REACH_HOST if IS_COMPOSE_MODE else '127.0.0.1' }}"
-OPENPOST_LOCAL_URL: "http://{{ OPENPOST_LOCAL_HOST }}:{{ lookup('config', application_id, 'services.openpost.ports.local.http') }}"
+OPENPOST_NETNS_URL: "http://127.0.0.1:{{ container_port }}"
 OPENPOST_API_HEADERS:
   Host: "{{ lookup('domain', application_id) }}"
   X-Forwarded-Proto: "{{ OPENPOST_URL | urlsplit('scheme') }}"
 OPENPOST_RELAY_CONF_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'relay.conf'] | path_join }}"
 
-OPENPOST_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
-OPENPOST_OIDC_ONION_ISSUER: "{{ lookup('tls', 'web-app-keycloak', 'domain').endswith('.onion') }}"
+OPENPOST_OIDC_ENABLED: "{{ (lookup('config', application_id, 'services.sso.enabled') | bool) and (lookup('config', application_id, 'services.openpost.login.method.sso.enabled')
+  | bool) }}"
+OPENPOST_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.clients.web') }}"
+OPENPOST_OIDC_ONION_ISSUER: "{{ (lookup('tls', 'web-app-keycloak', 'domain') | network_of) == 'tor' }}"
 OPENPOST_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if OPENPOST_OIDC_ONION_ISSUER | bool else '' }}"
 OPENPOST_EMAIL_ENABLED: "{{ lookup('config', application_id, 'services.email.enabled') }}"
 OPENPOST_SMTP_ENABLED: "{{ OPENPOST_EMAIL_ENABLED | bool and (lookup('email', application_id).tls | bool or lookup('email', application_id).start_tls | bool) }}"
@@ -46,7 +47,7 @@ OPENPOST_PINNED_INSTANCES: >-
   {%- for _key in ['mastodon', 'pixelfed'] -%}
   {%- if lookup('config', application_id, 'services.' ~ _key ~ '.enabled') | bool -%}
   {%- set _url = lookup('tls', OPENPOST_RELAY_SIBLINGS[_key], 'url.origin') -%}
-  {%- if _url is not search('\\.onion$') -%}
+  {%- if (_url | urlsplit('hostname') | network_of) != 'tor' -%}
   {%- set _ = _instances.append({'platform': _key, 'url': _url, 'name': _url ~ '/'}) -%}
   {%- endif -%}
   {%- endif -%}
@@ -74,8 +75,7 @@ OPENPOST_PROVIDER_BUILD_CONTEXT: "{{ [lookup('container', application_id, 'direc
 OPENPOST_PROVIDER_IMAGE: "openpost_provider_custom"
 OPENPOST_PROVIDER_BASE_IMAGE: "{{ OPENPOST_PROVIDER.image }}"
 OPENPOST_PROVIDER_BASE_VERSION: "{{ OPENPOST_PROVIDER.version }}"
-OPENPOST_PROVIDER_LOCAL_URL: "http://{{ OPENPOST_LOCAL_HOST }}:{{ OPENPOST_PROVIDER.ports.local.http }}"
-OPENPOST_PROVIDER_BROWSER_URL: "http://{{ 'host.docker.internal' if IS_COMPOSE_MODE else '127.0.0.1' }}:{{ OPENPOST_PROVIDER.ports.local.http }}"
+OPENPOST_PROVIDER_URL: "{{ lookup('canonical_url', application_id, 'provider') }}"
 OPENPOST_LINKEDIN_CALLBACK: "{{ OPENPOST_URL }}/api/v1/accounts/linkedin/callback"
 OPENPOST_SIMULATOR_KEYSTORE_PASSWORD: "password"
 
@@ -85,7 +85,8 @@ OPENPOST_PROVIDER_CREDENTIALS: >-
   {%- if OPENPOST_SIMULATOR_ENABLED | bool and _provider in lookup('config', application_id, 'services.simulator.providers') -%}
   {%- set _ = _credentials.update({_provider: {'client_id': 'simulator-' ~ _provider, 'client_secret': 'simulator-' ~ _provider ~ '-secret'}}) -%}
   {%- elif lookup('api_enabled', _provider) -%}
-  {%- set _ = _credentials.update({_provider: {'client_id': lookup('api', _provider ~ '.client_id'), 'client_secret': lookup('api', _provider ~ '.client_secret')}}) -%}
+  {%- set _ = _credentials.update({_provider: {'client_id': lookup('api', _provider ~ '.client_id'), 'client_secret': lookup('api', _provider ~ '.client_secret')}})
+  -%}
   {%- endif -%}
   {%- endfor -%}
   {{ _credentials }}

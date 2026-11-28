@@ -1,15 +1,21 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: dynamic-flag - the gateway is a single shared instance, never deployed per consumer
 litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 # nocheck: dockerfile-custom
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oidc
+  oidc:
+    clients:
+      web: matrix-synapse
+    backchannel_logout_path: /_synapse/client/oidc/backchannel_logout
+    backchannel_logout_gate: true
 ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"
@@ -29,8 +35,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 gitlab:
   bond: 0.5
   enabled: "{{ 'web-app-gitlab' in group_names }}"
@@ -50,7 +56,10 @@ coturn:
 # nocheck: variants-coverage — the onion gate is a hard invariant; no variant may force Jitsi on a tor node.
 jitsi:
   bond: 0.5
-  enabled: "{{ lookup('config', 'web-app-matrix', 'services.matrix.flavor') == 'ansible' and 'svc-net-tor' not in group_names }}" # nocheck: dynamic-flag — Matrix offers Jitsi from the ansible flavor and off tor nodes only
+  enabled: >- # nocheck: dynamic-flag  Matrix offers Jitsi from the ansible flavor and off tor nodes only
+    {{ lookup('config', 'web-app-matrix', 'services.matrix.flavor') == 'ansible' and 'svc-net-tor' not in group_names
+    and not ((lookup('config', 'svc-net-tor', 'services.tor.node', '') | length > 0)
+    and ((lookup('domain', 'web-app-matrix') | network_of) == 'tor')) }}
   shared: "{{ 'web-app-jitsi' in group_names }}"
   domains:
     - jitsi
@@ -217,11 +226,20 @@ matrix:
     mautrix_whatsapp: false
   conferencing:
     element_call: true
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-matrix', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-matrix', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-matrix', 'native') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-matrix', 'registration') }}"
   run_after:
     - web-app-matomo
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
   min_storage: "1GB"
   cpus: "0.5"
@@ -271,3 +289,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

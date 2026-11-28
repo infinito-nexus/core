@@ -1,0 +1,26 @@
+---
+organization:
+  path: /system/organizations/
+  sinks: [DECIDIM_ORGANIZATION]
+  fields:
+    host:
+      source: services.decidim.organization.host
+      mode: enforced
+      selector: 'form[action^="/system/organizations/"] [name="organization[host]"]'
+      type: text
+      label: Host
+    users_registration_mode:
+      source: services.decidim.organization.users_registration_mode
+      mode: enforced
+      selector: 'form[action^="/system/organizations/"] [name="organization[users_registration_mode]"]'
+      type: select
+      enum: [enabled, existing, disabled]
+      label: Users registration mode
+    omniauth_settings_openid_connect_enabled:
+      source: services.decidim.login.method.sso.enabled
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'form[action^="/system/organizations/"] [name="organization[omniauth_settings_openid_connect_enabled]"]'
+      type: checkbox
+      map: { true: true, false: false }
+      label: OpenID Connect enabled

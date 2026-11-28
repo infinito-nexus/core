@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import subprocess
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -72,6 +73,18 @@ class TestRunOneEnvSourcing(unittest.TestCase):
         result = _run('A=1\nPORTS="25 80"\n', 'printf %s "$PORTS"\nexit 3\n')
         self.assertEqual(result.stdout, "25 80", "test.env values must be exported")
         self.assertEqual(result.returncode, 3, result.stderr)
+
+    def test_the_script_learns_the_second_the_harness_kills_it(self) -> None:
+        before = int(time.time())
+        result = _run("A=1\n", 'printf %s "$CLI_DEADLINE"\n')
+        after = int(time.time())
+        self.assertLessEqual(before + 30, int(result.stdout), result.stderr)
+        self.assertLessEqual(
+            int(result.stdout),
+            after + 30,
+            "a deadline past the kill lets a retrying script plan an attempt "
+            "the harness never lets it finish",
+        )
 
 
 if __name__ == "__main__":

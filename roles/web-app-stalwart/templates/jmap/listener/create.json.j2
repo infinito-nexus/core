@@ -1,0 +1,4 @@
+{
+  "using": ["urn:ietf:params:jmap:core", "urn:stalwart:jmap"],
+  "methodCalls": [["x:NetworkListener/set", {"create": {"submission": {{ STALWART_SUBMISSION_LISTENER | combine({'bind': {STALWART_SUBMISSION_BIND: true}}) | to_json }}}}, "c0"]]
+}

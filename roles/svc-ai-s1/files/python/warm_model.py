@@ -1,6 +1,6 @@
 """Put one question to the decider so the deploy pays its first inference.
 
-svc-ai-litellm's router hook allows one attempt of services.s1.request_timeout
+svc-ai-litellm's router hook allows one attempt of services.litellm.router.decider_timeout
 and refuses to route on any error rather than substituting a decider, so a
 consumer that arrives before the server answers gets a 400 while every later
 one is served. Asking here moves that first answer into the deploy.
@@ -23,7 +23,7 @@ import os
 import sys
 import urllib.request
 
-PORT = os.environ["S1_PORT"]
+PORT = int(os.environ["S1_PORT"])
 MODEL = os.environ["S1_MODEL_ALIAS"]
 KEY = os.environ["S1_API_KEY"]
 QUESTION = "warmup"

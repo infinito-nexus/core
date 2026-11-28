@@ -1,0 +1,37 @@
+---
+- name: "🔐 Hand the zone token of the zone templates to OpenBao from stdin"
+  ansible.builtin.include_role:
+    name: web-app-openbao
+    tasks_from: utils/kv.yml
+  vars:
+    openbao_kv_state: "{{ SEMAPHORE_CLOUDFLARE_ZONES_WRITE.state }}"
+    openbao_kv_mount: "{{ SEMAPHORE_CLOUDFLARE_ZONES_WRITE.mount }}"
+    openbao_kv_path: "{{ SEMAPHORE_CLOUDFLARE_ZONES_WRITE.path }}"
+    openbao_kv_data: "{{ SEMAPHORE_CLOUDFLARE_ZONES_WRITE.data }}"
+
+- name: "🔐 Hand the mail relay login of the export announcements to OpenBao"
+  ansible.builtin.include_role:
+    name: web-app-openbao
+    tasks_from: utils/kv.yml
+  vars:
+    openbao_kv_state: "{{ 'present' if SEMAPHORE_EMAIL.auth | bool else 'absent' }}"
+    openbao_kv_mount: "{{ SEMAPHORE_EXPORT_MAIL_LOGIN.mount }}"
+    openbao_kv_path: "{{ SEMAPHORE_EXPORT_MAIL_LOGIN.path }}"
+    openbao_kv_data: "{{ SEMAPHORE_EXPORT_MAIL_LOGIN.data if SEMAPHORE_EMAIL.auth | bool else {} }}"
+
+- name: "🔐 Hand the S3 keys of the export identity to OpenBao"
+  ansible.builtin.include_role:
+    name: web-app-openbao
+    tasks_from: utils/kv.yml
+  vars:
+    openbao_kv_state: present
+    openbao_kv_mount: "{{ SEMAPHORE_EXPORT_S3_LOGIN.mount }}"
+    openbao_kv_path: "{{ SEMAPHORE_EXPORT_S3_LOGIN.path }}"
+    openbao_kv_data: "{{ SEMAPHORE_EXPORT_S3_LOGIN.data }}"
+
+- name: "🔐 Hand the login of the Keycloak client of the export to OpenBao"
+  ansible.builtin.include_role:
+    name: web-app-keycloak
+    tasks_from: utils/export_login.yml
+  vars:
+    application_id: web-app-keycloak

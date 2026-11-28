@@ -127,6 +127,21 @@ class TestParseLabel(unittest.TestCase):
             ),
         )
 
+    def test_a_full_label_with_mesh_and_engine_glyphs_reads_every_axis(
+        self,
+    ) -> None:
+        pasted = (
+            f"{to_emoji('host')}{to_emoji('test_host')}{to_emoji('direct')}"
+            f"{to_emoji('ubuntu')}{to_emoji('zfs')}{to_emoji('amd64')}"
+            f"{to_emoji('trivy')}web-app-a#0"
+        )
+        self.assertEqual(
+            selection.parse(pasted),
+            selection.Pin(
+                "web-app-a", (0,), "host", None, "ubuntu", "zfs", "amd64", False
+            ),
+        )
+
     def test_a_title_pasted_with_its_caller_path_aborts_rather_than_guessing(
         self,
     ) -> None:

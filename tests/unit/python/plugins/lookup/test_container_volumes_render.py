@@ -121,6 +121,33 @@ class TestContainerVolumesConfigSecret(unittest.TestCase):
             },
         )
 
+    def test_secret_owner_reaches_a_non_root_container(self) -> None:
+        meta = {
+            "token": {
+                "type": "secret",
+                "source": "/opt/compose/app/token",
+                "mode": "0400",
+                "uid": 64101,
+                "gid": 64101,
+                "mounts": [{"service": "app", "target": "/run/secrets/token"}],
+            }
+        }
+        data = _parse(container_volumes(_apps(meta), "my-app", "app"))
+        self.assertEqual(
+            data,
+            {
+                "secrets": [
+                    {
+                        "source": "token",
+                        "target": "/run/secrets/token",
+                        "uid": "64101",
+                        "gid": "64101",
+                        "mode": 0o400,
+                    }
+                ]
+            },
+        )
+
     def test_a_mount_hands_its_secret_to_the_service_user(self) -> None:
         meta = {
             "tlskey": {

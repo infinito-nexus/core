@@ -8,18 +8,46 @@
     resolve_converge_retries: 60
     resolve_converge_delay: 5
 
+- name: "📥 Read the enforced settings the FusionDirectory configuration holds"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i -e FD_READ_ATTRIBUTES
+      {{ FUSIONDIRECTORY_LOCAL_CID | quote }}
+      bash -s
+    stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/shell/ldap/read_config.sh') }}"
+  environment:
+    FD_READ_ATTRIBUTES: "{{ lookup('form_values', application_id, 'config', mode='enforced') | list | join(' ') }}"
+  delegate_to: "{{ FUSIONDIRECTORY_HOST_NODE }}"
+  register: fusiondirectory_config_held
+  changed_when: false
+
+- name: "📣 Report the enforced settings the bootstrap overwrites"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current:
+      config: "{{ fusiondirectory_config_held.stdout | from_yaml | default({}, true) }}"
+
 - name: "📇 Add the FusionDirectory schemas, admin ACL and configuration to LDAP"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      container exec -i -e FD_ADMIN_DN -e FD_GROUP_RDN -e FD_TIMEZONE -e FD_USER_RDN
+      container exec -i -e FD_ADMIN_DN -e FD_ADMINISTRATOR_GROUP_DN -e FD_USER_MANAGER_GROUP_DN -e FD_SELF_SERVICE_GROUP_DN
+      -e FD_GROUP_RDN -e FD_HTTP_HEADER_NAME -e FD_LOGIN_ATTRIBUTE -e FD_LOGIN_METHOD -e FD_OGROUP_RDN -e FD_THEME -e FD_TIMEZONE -e FD_USER_RDN
       {{ FUSIONDIRECTORY_LOCAL_CID | quote }}
       bash -s
     stdin: "{{ lookup('ansible.builtin.file', role_path ~ '/files/shell/ldap/bootstrap.sh') }}"
   environment:
-    FD_ADMIN_DN: "{{ LDAP.USER.ATTRIBUTES.ID }}=platform_administrator,{{ LDAP.DN.OU.USERS }}"
-    FD_GROUP_RDN: "{{ LDAP.DN.OU.GROUPS | regex_replace(',.*$', '') }}"
-    FD_TIMEZONE: "{{ HOST_TIMEZONE }}"
-    FD_USER_RDN: "{{ LDAP.DN.OU.USERS | regex_replace(',.*$', '') }}"
+    FD_ADMIN_DN: "{{ lookup('users', 'platform_administrator') | ldap_user_dn(LDAP.USER.ATTRIBUTES.ID, LDAP.DN.OU.USERS) }}"
+    FD_ADMINISTRATOR_GROUP_DN: "{{ FUSIONDIRECTORY_ADMINISTRATOR_GROUP_DN }}"
+    FD_USER_MANAGER_GROUP_DN: "{{ FUSIONDIRECTORY_USER_MANAGER_GROUP_DN }}"
+    FD_SELF_SERVICE_GROUP_DN: "{{ FUSIONDIRECTORY_SELF_SERVICE_GROUP_DN }}"
+    FD_GROUP_RDN: "{{ FUSIONDIRECTORY_CONFIG.fdGroupRDN }}"
+    FD_HTTP_HEADER_NAME: "{{ FUSIONDIRECTORY_HTTP_HEADER_NAME }}"
+    FD_LOGIN_ATTRIBUTE: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+    FD_LOGIN_METHOD: "{{ FUSIONDIRECTORY_CONFIG.fdLoginMethod }}"
+    FD_OGROUP_RDN: "{{ FUSIONDIRECTORY_CONFIG.fdOGroupRDN }}"
+    FD_THEME: "{{ FUSIONDIRECTORY_CONFIG.fdTheme }}"
+    FD_TIMEZONE: "{{ FUSIONDIRECTORY_CONFIG.fdTimezone }}"
+    FD_USER_RDN: "{{ FUSIONDIRECTORY_CONFIG.fdUserRDN }}"
   delegate_to: "{{ FUSIONDIRECTORY_HOST_NODE }}"
   register: fusiondirectory_ldap_bootstrap
   changed_when: fusiondirectory_ldap_bootstrap.stdout | trim | length > 0

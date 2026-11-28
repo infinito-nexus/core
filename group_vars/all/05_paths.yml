@@ -3,12 +3,16 @@
 DIR_HOME_ADMINISTRATOR: "/home/administrator/"
 DIR_SCRIPTS_ROOT: "/opt/scripts/"
 DIR_SCRIPTS_SYSTEMCTL: "{{ [ DIR_SCRIPTS_ROOT, 'systemctl' ] | path_join }}"
+DIR_GARBAGE_COLLECTOR_MANIFESTS: "{{ [ DIR_SCRIPTS_ROOT, 'garbage-collector' ] | path_join }}"
 DIR_COMPOSITIONS: "/opt/compose/"
 DIR_SYSTEM_SERVICE: "/etc/systemd/system"
 DIR_SYSTEM_SERVICE_USER: "$HOME/.config/systemd/user"
 DIR_COMPOSE_PULL_LOCK: "/run/ansible/compose-pull/"
+DIR_MAINTENANCE: "/run/infinito/maintenance"
+FILE_MAINTENANCE_BACKUP: "{{ [DIR_MAINTENANCE, 'backup.json'] | path_join }}"
 
 DIR_BIN: "/usr/bin"
+EXEC_PATH_SYSTEM: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 BIN_COMPOSE: "{{ [ DIR_BIN, 'compose' ] | path_join }}"
 BIN_CONTAINER: "{{ [ DIR_BIN, 'container' ] | path_join }}"
 BIN_LOCK: "{{ [ DIR_BIN, 'lock' ] | path_join }}"
@@ -16,10 +20,18 @@ BIN_CA_TRUST: "{{ [ DIR_BIN, 'ca-trust-wrapper' ] | path_join }}"
 BIN_CA_INJECT: "{{ [ DIR_BIN, 'ca-inject' ] | path_join }}"
 BIN_CA_PHP_INI: "{{ [ DIR_BIN, 'ca-trust-php.ini' ] | path_join }}"
 BIN_RESOLVE_CONTAINER_ID: "{{ [ DIR_BIN, 'resolve-container-id' ] | path_join }}"
+BIN_APP_CONTROL: "{{ [ DIR_BIN, 'app-control' ] | path_join }}"
+
+FILE_APP_CONTROL_CONFIG: "{{ [ '/etc', SOFTWARE_DOMAIN, 'app-control.json' ] | path_join }}"
+APP_CONTROL_STATE_FILE: ".app-control-state" # Name of the per-instance marker holding 'started' or 'stopped'; the single source of truth of the pause state
+APP_CONTROL_REGISTRY_FILE: ".app-control.json" # Name of the per-instance record each deploy writes so app-control can pause and resume the application
+APP_CONTROL_PAUSED_STYLE_FILE: "roles/sys-svc-app-control/files/paused.css" # Stylesheet inlined into the paused page; the nginx hook hashes the same file for its CSP
+APP_CONTROL_USER: "app-control" # Host account the Semaphore runner signs in as; its forced command accepts only app-control stop|start
 
 DIR_CACHE: "/var/cache/infinito/core/cache"
 
 DIR_VAR_LIB: "/var/lib/infinito"
+DIR_VAR_LIB_NODE: "{{ DIR_VAR_LIB.rstrip('/') ~ '-node' }}" # Swarm nodes mount DIR_VAR_LIB from one NFS export; state that must differ per node lives here, on the node's own disk. Without the rstrip a trailing slash would put it inside that mount
 DIR_BACKUPS: "{{ [DIR_VAR_LIB, 'backup'] | path_join }}"
 DIR_BACKUPS_NODE: "{{ DIR_VAR_LIB ~ '-backup' }}"
 BACKUP_REPOSITORIES:
@@ -36,6 +48,8 @@ DIR_HEALTH_RUNTIME_REPORT: "{{ DIR_VAR_LIB ~ '-hlth-runtime' }}"
 DIR_LOG: "/var/log/infinito"
 DIR_HEALTH_RUNTIME_LOG: "{{ [DIR_LOG, 'hlth-runtime'] | path_join }}"
 
+DIR_RBAC_SYNC: "{{ [DIR_VAR_LIB, 'rbac-sync'] | path_join }}"
+
 DIR_PHP_HARDENING: "/etc/{{ SOFTWARE_DOMAIN }}/php"
 PHP_HARDENING_INI_DIGEST: "{{ (lookup('file', lookup('path_absolute', 'roles/sys-svc-compose-php/files/hardening.ini')) | hash('sha1'))[:8] }}"
 PHP_MEMORY_UNLIMITED_INI_DIGEST: "{{ (lookup('file', lookup('path_absolute', 'roles/sys-svc-compose-php/files/memory-unlimited.ini')) | hash('sha1'))[:8] }}"
@@ -43,6 +57,8 @@ PHP_FPM_HARDENING_CONF_DIGEST: "{{ (lookup('template', lookup('path_absolute', '
 FILE_PHP_HARDENING_INI: "{{ [DIR_PHP_HARDENING, 'hardening-' ~ PHP_HARDENING_INI_DIGEST ~ '.ini'] | path_join }}"
 FILE_PHP_MEMORY_UNLIMITED_INI: "{{ [DIR_PHP_HARDENING, 'memory-unlimited-' ~ PHP_MEMORY_UNLIMITED_INI_DIGEST ~ '.ini'] | path_join }}"
 FILE_PHP_FPM_HARDENING_CONF: "{{ [DIR_PHP_HARDENING, 'fpm-hardening-' ~ PHP_FPM_HARDENING_CONF_DIGEST ~ '.conf'] | path_join }}"
+
+DIR_SSHD_DROPINS: "/etc/{{ SOFTWARE_DOMAIN }}/sshd" # Read by the main sshd_config last; distribution drop-ins stay ignored
 
 DIR_RESCUE_DIAGNOSTICS: "/tmp/infinito-rescue-diagnostics"
 FILE_DNS53_SAMPLER_LOG: "/var/log/infinito/dns53-sampler.log"

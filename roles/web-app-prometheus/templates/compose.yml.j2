@@ -42,6 +42,7 @@
       - "--config.file={{ ALERTMANAGER_CONFIG_DOCKER }}"
       - "--storage.path={{ lookup('volume', 'web-app-prometheus', 'alertmanager_data').target }}"
     {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_networks', provider_self_alias=False) | indent(4) }}
 
   {% set service_name = 'cadvisor' %}
   {{ service_name }}:

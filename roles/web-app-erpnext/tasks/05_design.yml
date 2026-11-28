@@ -1,0 +1,15 @@
+---
+- name: "⬇️ Read the branding fields {{ application_id }} holds"
+  ansible.builtin.include_tasks: utils/design_settings.yml
+  vars:
+    erpnext_design_mode: read
+
+- name: "📣 Report the branding fields the write reverts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current: "{{ erpnext_design_result.stdout_lines | last | from_json }}"
+
+- name: "🎨 Converge corporate branding and theme file of {{ application_id }}"
+  ansible.builtin.include_tasks: utils/design_settings.yml
+  vars:
+    erpnext_design_mode: converge

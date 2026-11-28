@@ -1,0 +1,30 @@
+---
+# Param semaphore_workspace_alias: ws-<id> of the workspace the operation runs for.
+# Output semaphore_route53_admin: access_key_id and secret_access_key of platform/data/workspaces/route53, the AWS credential that creates and removes the workspace IAM users; the workspace operation reads it and no provision task does.
+- name: "📖 Read the AWS credential that manages the workspace IAM users"
+  ansible.builtin.include_role:
+    name: web-app-openbao
+    tasks_from: utils/kv.yml
+  vars:
+    openbao_kv_state: read
+    openbao_kv_mount: platform
+    openbao_kv_path: workspaces/route53
+    openbao_kv_data: {}
+
+- name: "🔑 Hold the AWS credential and the fields it lacks"
+  ansible.builtin.set_fact:
+    semaphore_route53_admin: "{{ openbao_kv_current }}"
+    semaphore_route53_admin_missing: "{{ openbao_kv_current | semaphore_route53_admin_missing }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛑 Require the AWS credential that manages the workspace IAM users"
+  ansible.builtin.assert:
+    that:
+      - semaphore_route53_admin_missing | length == 0
+    fail_msg: >-
+      web-app-semaphore: the route53 DNS flavor manages the IAM user of {{ semaphore_workspace_alias }}
+      with the AWS credential at platform/data/workspaces/route53, which lacks
+      {{ semaphore_route53_admin_missing | join(', ') }}: set secrets.credentials.route53_access_key_id
+      and secrets.credentials.route53_secret_access_key of web-app-semaphore and deploy it, which writes
+      that credential there
+    quiet: true

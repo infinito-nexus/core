@@ -36,7 +36,7 @@ These decisions were confirmed by the operator before implementation starts and 
 | 1 | Canonical hostname `monitoring.{{ DOMAIN_PRIMARY }}`; GUI served under the site path `/<site>/check_mk/`. | Standard single-host convention; Checkmk serves its GUI under the OMD site path. |
 | 2 | Edition is **Raw / Community** (`checkmk/check-mk-raw`). | Operator decision: 100% open source, matches the platform; OIDC handled via the oauth2-proxy gate. |
 | 3 | SSO is the **oauth2-proxy gate + Checkmk header-auth (`auth_by_http_header = "X-Remote-User"`) + native LDAP**. | Operator decision: Keycloak SSO at the proxy, Checkmk trusts the proxy-supplied user, LDAP supplies the user record/roles/contact groups. |
-| 4 | The **agent receiver (port 8000) IS exposed** (mapped + proxied) for TLS agent registration. | Operator decision: enable remote-host agent registration in v1. |
+| 4 | The **agent receiver (port 8000) is mapped** to a host port on the localhost bind (`local.agent`) only; proxying it for remote-host TLS agent registration is a follow-up. | Operator decision, amended to the shipped mapping in `templates/compose.yml.j2` and the README. |
 | 5 | Image pinned to a concrete stable Checkmk 2.x patch tag (no `:latest`). | Standard upstream-pin policy. |
 | 6 | OMD site id `cmk`; single site; no external DB; one persistent volume for `/omd/sites`. | Checkmk Raw bundles its own core/RRD; nothing external needed. |
 
@@ -47,8 +47,8 @@ These decisions were confirmed by the operator before implementation starts and 
 ```
 roles/web-app-checkmk/
 ├── README.md
-├── files/playwright/{_shared,playwright.spec,test-guest,test-login-oidc-biber,test-login-oidc-administrator,test-login-ldap-biber}.js
-├── meta/{main,info,server,services,schema,users,rbac,variants,volumes}.yml
+├── files/playwright/*.js
+├── meta/{main,info,domains,csp,services,secrets,users,rbac,variants,volumes}.yml
 ├── tasks/{main,00_core}.yml
 ├── templates/{compose.yml.j2,env.j2,playwright.env.j2}
 └── vars/main.yml
@@ -84,16 +84,18 @@ checkmk:
 - [ ] `monitoring.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` (and, when SSO is on, the oauth2-proxy gate) to the Checkmk site Apache; `GET /<site>/check_mk/` returns the Checkmk login/GUI.
 - [ ] The site-path redirect (`/` → `/<site>/check_mk/`) works behind the proxy.
 - [x] The role emits a `Content-Security-Policy` header on the canonical surface.
-- [ ] The agent receiver (container port `8000`) is mapped to a host port (Decision #4) and reachable for TLS agent registration.
+- [x] The agent receiver (container port `8000`) is mapped to a host port (Decision #4).
+- [ ] The mapped agent receiver is reachable for TLS agent registration.
 
 ### Role layout & image
 
-- [ ] `roles/web-app-checkmk/` exists per the [Target Schema](#role-layout); image pinned to a concrete Checkmk 2.x patch (no `:latest`).
-- [ ] All `meta/*.yml` exist and pass the role-meta lint.
+- [x] `roles/web-app-checkmk/` exists per the [Target Schema](#role-layout); image pinned to a concrete Checkmk 2.x patch (no `:latest`).
+- [x] All `meta/*.yml` exist and pass the role-meta lint.
 
 ### Bootstrap
 
-- [ ] `CMK_SITE_ID`, `CMK_PASSWORD` (from a rendered credential), `TZ` seed the site + `cmkadmin` on first run; the stack reaches a steady running state on one persistent volume.
+- [x] `CMK_SITE_ID`, `CMK_PASSWORD` (from a rendered credential) and `TZ` reach the container env, and all site state lives on one persistent volume (`/omd/sites`).
+- [ ] On first run they seed the site + `cmkadmin`, and the stack reaches a steady running state.
 
 ### SSO / oauth2 + header auth (Decision #3)
 
@@ -103,15 +105,17 @@ checkmk:
 
 ### LDAP (Decision #3)
 
-- [ ] When `svc-db-openldap` is in `group_names`, an LDAP connection is provisioned (`files/configure-sso.sh`) so LDAP users (matching the `X-Remote-User`) exist with roles/contact groups. LDAP is a backend identity source behind the oauth2 gate — there is no separate LDAP login surface, so it is exempted from a Playwright gate (`# nocheck: playwright-service-flag`), mirroring [`web-app-openproject`](../../roles/web-app-openproject/).
+- [x] When `svc-db-openldap` is in `group_names`, an LDAP connection is provisioned (`files/shell/configure-sso.sh`) whose `groups_to_roles` plugin maps the role groups onto the Checkmk roles `admin`, `user` and `guest`, so LDAP users (matching the `X-Remote-User`) exist with their roles. With SSO off, the LDAP login form admits a member of the administrator group and refuses `biber` without a Checkmk role group (`files/playwright/test-rbac-roles.js`, gated on `ldap`).
 
 ### Variants
 
-- [ ] `meta/variants.yml` defines three variants (V1 sso+ldap, V2 all-false, V3 ldap-only); all deploy cleanly on a fresh box.
+- [x] `meta/variants.yml` defines three variants (V1 every integration on except `docs` and the AI consumers, V2 `sso` plus the AI consumers `openwebui`, `hermes` and `openclaw`, V3 `ldap` plus `docs`; `tor` stays on in every variant).
+- [ ] All three variants deploy cleanly on a fresh box.
 
 ### Playwright
 
-- [ ] Persona coverage via the shared oauth2-gate helpers (mirroring [`web-app-openproject`](../../roles/web-app-openproject/)): `test-baseline.js` (reachability + guest/biber/administrator personas), `test-oidc-login.js` (oauth2 gate + `X-Remote-User` session, gated on `sso`), `test-oidc-security.js` (forged-header bypass guard). `biber`/`administrator` are gated to SSO via `PERSONA_*_BLOCKED`. `templates/playwright.env.j2` exposes every read env var; `make compose-playwright role=web-app-checkmk` exits 0 with no stub tests and a clean logged-out final state.
+- [x] Persona coverage via the shared oauth2-gate helpers (mirroring [`web-app-openproject`](../../roles/web-app-openproject/)): `test-baseline.js` (reachability + guest/biber/administrator personas), `test-oidc-login.js` (oauth2 gate + `X-Remote-User` session, gated on `sso`), `test-oidc-security.js` (forged-header bypass guard). `biber`/`administrator` are gated to SSO via `PERSONA_*_BLOCKED`. `templates/playwright.env.j2` exposes every read env var, and no spec is a stub.
+- [ ] `make compose-playwright role=web-app-checkmk` exits 0 with a clean logged-out final state.
 
 ### Health & quality
 
@@ -120,7 +124,7 @@ checkmk:
 ### Documentation
 
 - [x] `README.md` documents edition + bump policy, the oauth2-proxy+header-auth+LDAP model, the site-path routing, the agent-receiver decision, and the no-external-DB design.
-- [ ] This requirement is cross-linked from the implementing PR.
+- [x] This requirement is cross-linked from the implementing PR. Implementing PR: [#358](https://github.com/infinito-nexus/core/pull/358).
 
 ## Validation Apps
 
@@ -132,7 +136,7 @@ Smoke: visit `https://monitoring.{{ DOMAIN_PRIMARY }}/` → (SSO) Keycloak chain
 
 ## Prerequisites
 
-Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Role Loop](../agents/action/iteration/compose.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md).
+Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Role Loop](../../agents/skills/i8-iterate-compose/SKILL.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md).
 
 ## Implementation Strategy
 

@@ -1,7 +1,8 @@
 ---
 - name: "🔑 Ensure the MediaWiki administrator account exists and accepts its password"
-  ansible.builtin.command:
+  ansible.builtin.shell:
     cmd: >-
+      IFS= read -r MEDIAWIKI_ADMIN_PASSWORD && : "${MEDIAWIKI_ADMIN_PASSWORD:?arrived empty on stdin}" && export MEDIAWIKI_ADMIN_PASSWORD &&
       container run --rm -i
       --network {{ MEDIAWIKI_NETWORK_DATABASE }}
       -u {{ MEDIAWIKI_USER }}
@@ -13,11 +14,12 @@
       -e MEDIAWIKI_ADMIN_EMAIL -e MEDIAWIKI_LOCAL_LOGIN -e MEDIAWIKI_ADMIN_STATE_SQL
       {{ SWARM_REGISTRY_PREFIX }}{{ MEDIAWIKI_CUSTOM_IMAGE }}:{{ MEDIAWIKI_VERSION }}
       sh -s
-    stdin: "{{ lookup('file', 'shell/realign_admin_password.sh') }}"
+    stdin: |-
+      {{ MEDIAWIKI_ADMINISTRATOR_PASSWORD }}
+      {{ lookup('file', 'shell/realign_admin_password.sh') }}
   environment:
     MEDIAWIKI_HTML_DIR: "{{ MEDIAWIKI_HTML_DIR }}"
     MEDIAWIKI_ADMIN_NAME: "{{ MEDIAWIKI_ADMINISTRATOR_NAME }}"
-    MEDIAWIKI_ADMIN_PASSWORD: "{{ MEDIAWIKI_ADMINISTRATOR_PASSWORD }}"
     MEDIAWIKI_ADMIN_EMAIL: "{{ MEDIAWIKI_ADMINISTRATOR_EMAIL }}"
     MEDIAWIKI_LOCAL_LOGIN: "{{ MEDIAWIKI_LOCAL_PASSWORD_LOGIN | string | lower }}"
     MEDIAWIKI_ADMIN_STATE_SQL: "{{ lookup('file', 'sql/admin_state.sql') }}"

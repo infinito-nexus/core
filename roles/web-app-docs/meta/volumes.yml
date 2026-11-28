@@ -4,6 +4,7 @@
 docs_sites:
   type: volume
   backup: false
+  derived: code
   mounts:
     - service: docs
       target: /data

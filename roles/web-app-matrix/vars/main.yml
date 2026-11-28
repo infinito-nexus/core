@@ -6,10 +6,17 @@ compose_mode_force: "{{ 'compose' if lookup('config', application_id, 'services.
 location_upload: "~ ^/_matrix/media/v3/"
 
 MATRIX_ONION_NODE: "{{ lookup('config', 'svc-net-tor', 'services.tor.node', '') }}"
-MATRIX_ONION_PRIMARY: "{{ (MATRIX_ONION_NODE | length > 0) and (lookup('domain', application_id) is search('\\.onion$')) }}"
+MATRIX_ONION_PRIMARY: "{{ (MATRIX_ONION_NODE | length > 0) and ((lookup('domain', application_id) | network_of) == 'tor') }}"
 MATRIX_SERVER_NAME: "{{ lookup('matrix_server_name') }}"
 MATRIX_ADMINISTRATOR_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
 MATRIX_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+MATRIX_RBAC_USER_PAGE_SIZE: 100000
+MATRIX_RBAC_PROTECTED_MXIDS: >-
+  {{ ([MATRIX_ADMINISTRATOR_USERNAME, 'chatgptbot']
+      + ([MATRIX_ADDON_BAIBOT_LOCALPART] if MATRIX_ADDON_BAIBOT_ENABLED | bool else []))
+     | map('mxid', MATRIX_SERVER_NAME) | list }}
+MATRIX_SYNAPSE_LOOPBACK_URL: "http://127.0.0.1:{{ MATRIX_SYNAPSE_PORT }}"
+MATRIX_SYNAPSE_CONTAINER_URL: "http://127.0.0.1:{{ MATRIX_SYNAPSE_CONTAINER_PORT }}"
 MATRIX_WELL_KNOWN_DIRECTORY: "{{ [ lookup('nginx','directories.data.well_known'), MATRIX_SERVER_NAME, 'matrix' ] | path_join }}"
 MATRIX_WELL_KNOWN_FILE: "{{ [ MATRIX_WELL_KNOWN_DIRECTORY, 'server' ] | path_join }}"
 MATRIX_REGISTRATION_FILE_FOLDER: "/registrations/"
@@ -17,7 +24,14 @@ MATRIX_BRIDGE_SOURCE_DIR: "{{ [ lookup('container', application_id, 'directories
 MATRIX_BRIDGE_CONFIG_TARGET: "/config/config.yaml"
 MATRIX_REGISTRATION_SHARED_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.registration_shared_secret') }}"
 MATRIX_FEDERATION_PORT: "{{ lookup('config', 'web-app-matrix', 'services.synapse.ports.public.federation') }}"
-MATRIX_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+MATRIX_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.matrix.login.method.sso.enabled') | bool }}"
+MATRIX_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.clients.web') }}"
+MATRIX_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.matrix.login.method.native.enabled') | bool }}"
+MATRIX_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.matrix.login.method.registration.enabled') | bool }}"
+MATRIX_ELEMENT_SSO_REDIRECT: "{{ MATRIX_OIDC_ENABLED | bool and not (MATRIX_LOGIN_NATIVE | bool or MATRIX_LDAP_ENABLED | bool) }}"
+MATRIX_ELEMENT_LOGIN_CONFIG: >-
+  {{ {'sso_redirect_options': {'on_welcome_page': MATRIX_ELEMENT_SSO_REDIRECT | bool, 'on_login_page': MATRIX_ELEMENT_SSO_REDIRECT | bool},
+      'setting_defaults': {'UIFeature.registration': MATRIX_LOGIN_REGISTRATION | bool}} }}
 MATRIX_OIDC_HOST: "{{ lookup('tls', 'web-app-keycloak', 'domain') }}"
 MATRIX_OIDC_HOST_IS_ONION: "{{ (MATRIX_OIDC_HOST | network_of) == 'tor' }}"
 MATRIX_BASE_URL: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ DOMAIN_PRIMARY }}"
@@ -26,14 +40,17 @@ MATRIX_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.e
 MATRIX_CHATGPT_BRIDGE_ENDPOINT: "{{ (LITELLM_OPENAI_BASE_LOCAL_URL ~ '/chat/completions') if (MATRIX_LITELLM_ENABLED | bool) else 'https://api.openai.com/v1/chat/completions'
   }}"
 MATRIX_CHATGPT_BRIDGE_MODEL: "{{ LITELLM_CHAT_MODEL if (MATRIX_LITELLM_ENABLED | bool) else 'gpt-3.5-turbo' }}"
-MATRIX_CHATGPT_BRIDGE_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') if (MATRIX_LITELLM_ENABLED | bool) else lookup('config',
-  application_id, 'secrets.credentials.chatgpt_bridge_openai_api_key') }}"
+MATRIX_CHATGPT_BRIDGE_API_KEY: "{{ lookup('litellm_api_key', application_id) if (MATRIX_LITELLM_ENABLED | bool) else lookup('config', application_id, 'secrets.credentials.chatgpt_bridge_openai_api_key')
+  }}"
 
 MATRIX_SYNAPSE_NAME: "{{ lookup('config', application_id, 'services.synapse.name') }}"
 MATRIX_SYNAPSE_IMAGE: "{{ lookup('config', application_id, 'services.synapse.image') }}:{{ lookup('config', application_id, 'services.synapse.version') }}"
 MATRIX_SYNAPSE_SERVICE: "{{ lookup('container_service', application_id, 'synapse') }}"
 MATRIX_SYNAPSE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'synapse') }}"
 MATRIX_SYNAPSE_VOLUME: "{{ lookup('volume', application_id, 'synapse_data').name }}"
+MATRIX_SYNAPSE_DATA_PATH: "{{ lookup('volume', application_id, 'synapse_data').target }}"
+MATRIX_SYNAPSE_SIGNING_KEY_PATH: "{{ [ MATRIX_SYNAPSE_DATA_PATH, MATRIX_SYNAPSE_DOMAIN ~ '.signing.key' ] | path_join }}"
+MATRIX_SYNAPSE_MEDIA_STORE_PATH: "{{ [ MATRIX_SYNAPSE_DATA_PATH, 'media_store' ] | path_join }}"
 MATRIX_SYNAPSE_UID: 991
 MATRIX_SYNAPSE_GID: 991
 MATRIX_MDAD_SERVICE_KEY: "matrix"
@@ -55,9 +72,7 @@ MATRIX_CHATGPT_ENCRYPTION: "false"
 MATRIX_SYNAPSE_LISTEN_FLAGS: "{{ MATRIX_FEDERATION_PORT }} {{ 'ssl ' if (lookup('tls', application_id, 'enabled') | bool) else '' }} default_server"
 
 MATRIX_ELEMENT_NAME: "{{ lookup('config', application_id, 'services.element.name') }}"
-MATRIX_ELEMENT_DOMAIN: "{{ lookup('domains', application_id).element }}"
 MATRIX_ELEMENT_PORT: "{{ lookup('config', 'web-app-matrix', 'services.element.ports.local.http') }}"
-MATRIX_ELEMENT_CONTAINER_PORT: "{{ lookup('config', application_id, 'services.element.ports.internal.http') }}"
 MATRIX_ELEMENT_CONFIG_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'element-config.json' ] | path_join }}"
 MATRIX_ELEMENT_FORCE_VERIFICATION: "{{ lookup('config', application_id, 'services.element.force_verification') | bool }}"
 
@@ -67,6 +82,12 @@ MATRIX_DESIGN_LOGO_URL: "{{ lookup('design', application_id).urls.logo.svg if (M
   '' }}"
 
 MATRIX_MDAD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}mdad"
+MATRIX_MDAD_DATA_PATH: "{{ lookup('volume', application_id, 'matrix_mdad_matrix').target }}"
+MATRIX_MDAD_SERVER_FQN: "matrix.{{ MATRIX_SERVER_NAME }}"
+MATRIX_MDAD_SYNAPSE_CONFIG_PATH: "{{ [ MATRIX_MDAD_DATA_PATH, 'synapse', 'config' ] | path_join }}"
+MATRIX_MDAD_SYNAPSE_STORAGE_PATH: "{{ [ MATRIX_MDAD_DATA_PATH, 'synapse', 'storage' ] | path_join }}"
+MATRIX_MDAD_SIGNING_KEY_PATH: "{{ [ MATRIX_MDAD_SYNAPSE_CONFIG_PATH, MATRIX_MDAD_SERVER_FQN ~ '.signing.key' ] | path_join }}"
+MATRIX_MDAD_MEDIA_STORE_PATH: "{{ [ MATRIX_MDAD_SYNAPSE_STORAGE_PATH, 'media-store' ] | path_join }}"
 MATRIX_MDAD_RUNNER_BUILD_DIR: "{{ [ lookup('container', application_id, 'directories.instance'), 'runner' ] | path_join }}"
 MATRIX_MDAD_REGISTRY_PROXY: "{{ matrix_mdad_registry_proxy_probe.stdout | from_json }}"
 MATRIX_MDAD_REGISTRY_PROXY_DROPIN: "{{ [ MATRIX_MDAD_RUNNER_BUILD_DIR, 'registry-cache-proxy.conf' ] | path_join }}"
@@ -83,10 +104,9 @@ MATRIX_MDAD_DAEMON_JSON:
   default-address-pools: "{{ NETWORK_NESTED_DOCKER_ADDRESS_POOLS }}"
   exec-opts: ["native.cgroupdriver=systemd"]
   iptables: true
-  log-driver: "json-file"
+  log-driver: "journald"
   log-opts:
-    max-size: "10m"
-    max-file: "3"
+    tag: "{{ '{{' }}.Name{{ '}}' }}"
   default-ulimits:
     nofile:
       Name: nofile
@@ -107,11 +127,10 @@ MATRIX_BRIDGE: "{{ lookup('config', application_id, 'services.matrix.plugins') |
   '^', 'mautrix_') | zip(MATRIX_BRIDGE_ADDONS | map(attribute='value.enabled')))) }}"
 
 MATRIX_JITSI_ENABLED: "{{ lookup('config', application_id, 'services.jitsi.enabled') | bool and lookup('config', application_id, 'services.matrix.flavor') == 'ansible'
-  and not MATRIX_ONION_PRIMARY }}"
+  }}"
 MATRIX_JITSI_SHARED: "{{ MATRIX_JITSI_ENABLED and lookup('config', application_id, 'services.jitsi.shared') | bool }}"
 MATRIX_JITSI_INTERNAL: "{{ MATRIX_JITSI_ENABLED and not MATRIX_JITSI_SHARED }}"
 MATRIX_JITSI_DOMAIN: "{{ lookup('domain', 'web-app-jitsi') if MATRIX_JITSI_SHARED else lookup('domains', application_id).jitsi }}"
-MATRIX_JITSI_PORT: "{{ lookup('config', application_id, 'services.jitsi.ports.local.http') }}"
 MATRIX_JITSI_CONTAINER_PORT: "{{ lookup('config', application_id, 'services.jitsi.ports.internal.http') }}"
 MATRIX_JITSI_MEDIA_PORT: "{{ lookup('config', application_id, 'services.jitsi.ports.public.media') }}"
 MATRIX_JITSI_COMPONENT_ACCOUNTS:
@@ -146,7 +165,7 @@ MATRIX_ADDON_HOOKSHOT_FEEDS_ENABLED: "{{ lookup('config', application_id, 'addon
 MATRIX_ADDON_JITSI_ENABLED: "{{ lookup('config', application_id, 'addons.jitsi.enabled') | bool }}"
 MATRIX_ADDON_JITSI_PREFERRED_DOMAIN: "{{ lookup('config', application_id, 'addons.jitsi.config.preferred_domain') }}"
 
-MATRIX_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
+MATRIX_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.matrix.login.method.ldap.enabled') | bool }}"
 
 MATRIX_CA_INJECTED: "{{ lookup('ca_injected', application_id) | bool }}"
 MATRIX_CA_MOUNT_PATH: "{{ CA_TRUST.cert_container }}"

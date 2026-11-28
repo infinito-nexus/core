@@ -1,5 +1,10 @@
+import dataclasses
 import importlib.util
 import unittest
+import unittest.mock as mock
+
+from utils.networks import reachability
+from utils.networks.reachability import TOR
 
 from . import PROJECT_ROOT
 
@@ -63,6 +68,18 @@ class TestUnservedNginxConfigs(unittest.TestCase):
     def test_onion_services_are_kept(self):
         found = ["/etc/nginx/servers/http/abcdef0123456789.onion.conf"]
         self.assertEqual(self.unserved(found, SERVED), [])
+
+    def test_the_kept_network_is_the_registry_tor_suffix(self):
+        found = [
+            "/etc/nginx/servers/http/abcdef0123456789.exit.conf",
+            "/etc/nginx/servers/http/abcdef0123456789.onion.conf",
+        ]
+        moved = dataclasses.replace(reachability.NETWORKS[TOR], suffix=".exit")
+        with mock.patch.dict(reachability.NETWORKS, {TOR: moved}):
+            self.assertEqual(
+                self.unserved(found, SERVED),
+                ["/etc/nginx/servers/http/abcdef0123456789.onion.conf"],
+            )
 
     def test_matching_ignores_case(self):
         found = ["/etc/nginx/servers/https/Dashboard.Example.org.conf"]

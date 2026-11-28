@@ -6,8 +6,8 @@ Why
 A codename carries no ordering. ``bookworm`` and ``trixie`` are two
 opaque strings, so neither the image updater at
 [test_image_versions.py](../../external/update/docker/test_image_versions.py)
-nor the semver pin lint at
-[test_semver_pinning.py](../../lint/ansible/services/test_semver_pinning.py)
+nor the pin policy at
+[test_image_pin_policy.py](../../external/update/docker/test_image_pin_policy.py)
 can tell that one supersedes the other. A python image pinned to the Debian
 12 codename is therefore frozen on that release for as long as it stands: no
 job will ever raise it, and the freeze is invisible because the tag keeps
@@ -33,7 +33,9 @@ do not match.
 
 Out of scope: an apt suite name (``deb ... bookworm main``, a Nexus proxy
 ``"distribution"``). A sources.list has no numeric form, so the rule would
-have no fix to offer there.
+have no fix to offer there. Neither are the ``locale/**/*.po`` catalogs:
+``i18n-extract`` copies them from the documentation this lint already reads,
+and a fix lands in that source.
 
 Suppression
 -----------
@@ -51,7 +53,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from utils.annotations.suppress import is_suppressed_at
-from utils.cache.files import read_text, repository_files
+from utils.cache.files import is_translation_catalog, read_text, repository_files
 
 from . import PROJECT_ROOT
 
@@ -150,7 +152,11 @@ def _targets() -> set[str]:
     A role added but not yet staged carries its pins like any other, so the
     lint MUST see it before the commit rather than after.
     """
-    return set(repository_files(untracked=True))
+    return {
+        rel
+        for rel in repository_files(untracked=True)
+        if not is_translation_catalog(rel)
+    }
 
 
 def _scan_file(path: Path) -> list[Violation]:

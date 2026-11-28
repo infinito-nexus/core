@@ -1,5 +1,4 @@
 <?php
-// nocheck: mirrored-unit-test - needs a booted Nextcloud, which only exists inside the container
 
 define("OC_CONSOLE", 1);
 

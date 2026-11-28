@@ -1082,6 +1082,30 @@ class TestCoveredBy(unittest.TestCase):
         )
         self.assertEqual([m.covered_by for m in marked], [0, 1])
 
+    def test_a_coverer_running_a_provider_of_the_row_in_another_variant_does_not_cover(
+        self,
+    ) -> None:
+        rows = [_row("A", ["B", "C"], variant=0), _row("B", ["C"], variant=0)]
+        marked = _mark_covered(
+            rows,
+            planner=_planner(
+                {("A", 0): {"A": 0, "B": 0, "C": 0}, ("B", 0): {"B": 0, "C": 1}}
+            ),
+        )
+        self.assertEqual([m.covered_by for m in marked], [0, 0])
+
+    def test_a_coverer_running_the_row_providers_as_its_round_does_covers_it(
+        self,
+    ) -> None:
+        rows = [_row("A", ["B", "C"], variant=0), _row("B", ["C"], variant=0)]
+        marked = _mark_covered(
+            rows,
+            planner=_planner(
+                {("A", 0): {"A": 0, "B": 0, "C": 1}, ("B", 0): {"B": 0, "C": 1}}
+            ),
+        )
+        self.assertEqual([m.covered_by for m in marked], [0, 1])
+
 
 CLEARNET_ONLY = frozenset({"clearnet"})
 CLEARNET_AND_TOR = frozenset({"clearnet", "tor"})

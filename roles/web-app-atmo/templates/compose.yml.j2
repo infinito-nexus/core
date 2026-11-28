@@ -1,0 +1,61 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+  {% set service_name = 'atmo' %}
+  {{ service_name }}:
+    {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+      args:
+        NODE_BASE: "{{ ATMO_NODE_BASE }}"
+        ATMO_REPO_URL: "{{ ATMO_REPO_URL }}"
+        ATMO_REF: "{{ ATMO_REF }}"
+        ATMO_SIGNUP_PDS: "{{ ATMO_SIGNUP_PDS }}"
+        ATMO_DATA_DIR: "{{ ATMO_DATA_DIR }}"
+        ATMO_BRIDGE_STATE_DIR: "{{ ATMO_BRIDGE_STATE_DIR }}"
+    {{ lookup('container_image', application_id, service_name) }}
+    {{ lookup('compose_only', 'container_name', ATMO_CONTAINER) }}
+    hostname: "{{ container_hostname }}"
+    command:
+      - node_modules/.bin/wrangler
+      - dev
+      - --local
+      - --ip
+      - "0.0.0.0"
+      - --port
+      - "{{ container_port }}"
+      - --local-upstream
+      - "{{ ATMO_DOMAIN }}"
+      - --upstream-protocol
+      - https
+      - --persist-to
+      - "{{ ATMO_DATA_DIR }}"
+      - --show-interactive-dev-session=false
+    {{ lookup('container_ports', [service_name, 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
+
+  {% set service_name = 'cron' %}
+  {{ service_name }}:
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
+    {{ lookup('container_image', application_id, 'atmo') }}
+    {{ lookup('compose_only', 'container_name', ATMO_CRON_CONTAINER) }}
+    command: ["python3", "{{ ATMO_SCRIPTS }}/cron.py", "run"]
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
+
+  {% if ATMO_BRIDGE_ENABLED | bool %}
+  {% set service_name = 'bridge' %}
+  {{ service_name }}:
+    {{ lookup('compose_only', 'pull_policy', 'never') }}
+    {{ lookup('container_image', application_id, 'atmo') }}
+    {{ lookup('compose_only', 'container_name', ATMO_BRIDGE_CONTAINER) }}
+    command: ["python3", "{{ ATMO_SCRIPTS }}/bridge.py", "run"]
+    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_networks') | indent(4) }}
+
+  {% endif %}
+{{ lookup('compose_volumes') }}
+
+{{ lookup('compose_networks') }}

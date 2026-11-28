@@ -181,7 +181,7 @@ def extract_replacement(expr: str) -> tuple[str, str] | None:
 
 
 class TestSedEscapeUsage(unittest.TestCase):
-    def test_all_sed_replacements_use_sed_escape_filter_for_jinja_in_replacement(
+    def test_all_sed_replacements_use_sed_escape_filter_for_jinja_in_replacement(  # nocheck: test.text-presence -- policy lint over every task file
         self,
     ) -> None:
         violations: list[str] = []

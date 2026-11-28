@@ -8,8 +8,9 @@ from ansible.plugins.test.core import TestModule as JinjaTests
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from plugins.filter.dotenv import dotenv_quote
-from plugins.filter.network_of import in_network, network_of, network_suffixes
+from plugins.filter.network_of import in_network, network_of
 from plugins.lookup.network_siblings import served_siblings
+from plugins.lookup.network_suffixes import LookupModule as NetworkSuffixes
 from utils.cache.yaml import load_yaml_any
 from utils.domains.default_primary import default_domain_primary
 from utils.networks.reachability import browser_proxy_bypass
@@ -24,7 +25,7 @@ CLEARNET = [f"api.s3.{PRIMARY}", f"console.s3.{PRIMARY}"]
 TOR = [f"api.s3.{NODE}", f"console.s3.{NODE}"]
 
 
-def render(pass_domain: str) -> str:
+def render(pass_domain: str, passes: tuple[str, ...] = (CLEARNET[0], TOR[0])) -> str:
     tasks = load_yaml_any(str(TASKS))
     task = next(t for t in tasks if t.get("name") == TASK_NAME)
     env = Environment(
@@ -36,27 +37,32 @@ def render(pass_domain: str) -> str:
         dotenv_quote=dotenv_quote,
         in_network=in_network,
         network_of=network_of,
-        network_suffixes=network_suffixes,
         to_json=json.dumps,
         urlsplit=lambda url, part: getattr(urlsplit(url), part),
     )
     env.tests.update(JinjaTests().tests())
 
-    def lookup(name, term, *extra, template_vars=None):
+    def lookup(name, *terms, template_vars=None):
         if name == "template":
             return (
                 f'APP_BASE_URL="https://{template_vars["domain"]}/"\n'
                 f'CANONICAL_DOMAIN="{CLEARNET[1]}"\n'
             )
         if name == "browser_proxy_bypass":
-            return browser_proxy_bypass(term, "multi", [*CLEARNET, *TOR, *extra])
-        return served_siblings(term, {"web-app-minio": CLEARNET + TOR}, PRIMARY, NODE)
+            return browser_proxy_bypass(
+                terms[0], "multi", [*CLEARNET, *TOR, *terms[1:]]
+            )
+        if name == "network_suffixes":
+            return NetworkSuffixes().run(list(terms))[0]
+        return served_siblings(
+            terms[0], {"web-app-minio": CLEARNET + TOR}, PRIMARY, NODE
+        )
 
     return env.from_string(task["ansible.builtin.copy"]["content"]).render(
         lookup=lookup,
         _playwright_env_template="playwright.env.j2",
         _playwright_pass_domain=pass_domain,
-        _playwright_passes=[CLEARNET[0], TOR[0]],
+        _playwright_passes=list(passes),
         TEST_E2E_PLAYWRIGHT_CONFIG_TIMEOUTS={},
         OIDC={"URL": f"https://auth.{PRIMARY}/realms/main"},
         DOMAIN_PRIMARY=PRIMARY,
@@ -76,6 +82,18 @@ class TestEnvCanonicalDomain(unittest.TestCase):
             render(TOR[0]),
         )
         self.assertNotIn("PLAYWRIGHT_PROXY_BYPASS", render(CLEARNET[0]))
+
+    def test_every_pass_carries_the_suffix_of_every_registry_network(self):
+        line = f"PLAYWRIGHT_NETWORK_SUFFIXES={json.dumps({'tor': '.onion'})}\n"
+        for passes in ((CLEARNET[0], TOR[0]), (CLEARNET[0],)):
+            with self.subTest(passes=passes):
+                self.assertIn(line, render(passes[0], passes))
+
+    def test_a_domainless_pass_keeps_the_env_without_leak_check_or_bypass(self):
+        rendered = render("", ("",))
+        self.assertIn(f'CANONICAL_DOMAIN="{CLEARNET[1]}"\n', rendered)
+        self.assertIn("PLAYWRIGHT_NETWORK_LEAK=false\n", rendered)
+        self.assertNotIn("PLAYWRIGHT_PROXY_BYPASS", rendered)
 
     def test_canonical_network_pick_keeps_the_rendered_env(self):
         self.assertTrue(

@@ -42,5 +42,15 @@
     - name: 🧊 Render the applications SPOT once and carry it into every task's worker
       applications_carrier: {}
 
+    - name: "🧅 Evaluate the onion backends and load their drop before the sync publishes them"
+      when: sync_scope in ['role', 'task']
+      block:
+        - name: "🧅 Evaluate the onion backends from the parked applications SPOT"
+          ansible.builtin.include_tasks: tasks/utils/constructor/onion_backends.yml
+
+        - name: "🛡️ Load the onion backend drop before the sync publishes it"
+          ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-swarm-node/tasks/utils/ingress_guard/refresh.yml') }}"
+          when: IS_SWARM_MODE | bool
+
     - name: "🔁 Sync the {{ sync_scope }} of '{{ sync_application_id }}'"
       ansible.builtin.include_tasks: "tasks/utils/sync/{{ sync_scope }}.yml"

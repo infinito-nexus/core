@@ -1,0 +1,96 @@
+---
+- name: "📂 Include dependency 'sys-svc-sshd'"
+  ansible.builtin.include_role:
+    name: sys-svc-sshd
+  when: run_once_sys_svc_sshd is not defined
+
+- name: "🛑 Refuse a showroom access user without an SSH key"
+  ansible.builtin.assert:
+    that:
+      - lookup('users', showroom_access_user).authorized_keys | length > 0
+    fail_msg: >-
+      users.{{ showroom_access_user }}.authorized_keys in the inventory of
+      {{ inventory_hostname }} holds no SSH public key, so nobody could use the
+      showroom access this user grants. Add the operator's key there.
+    quiet: true
+  loop: "{{ SHOWROOM_ACCESS_USERS }}"
+  loop_control:
+    loop_var: showroom_access_user
+
+- name: "🛑 Refuse {{ SHOWROOM_OPERATOR_USER }} without an inventory password"
+  ansible.builtin.assert:
+    that:
+      - (((users | default({})).get('incus-operator') or {}).get('password') | default('', true) | string | length) > 0
+    fail_msg: >-
+      users.incus-operator.password is missing in the inventory of
+      {{ inventory_hostname }}. Without it the user gets a random password
+      nobody knows, and its sudo break-glass path is dead. Let the inventory
+      provisioning vault one.
+    quiet: true
+
+- name: "👤 Create the break-glass user {{ SHOWROOM_OPERATOR_USER }}"
+  ansible.builtin.user:
+    name: "{{ SHOWROOM_OPERATOR_USER }}"
+    shell: /bin/bash
+    create_home: true
+    update_password: on_create
+    password: "{{ lookup('users', 'incus-operator').password | password_hash('sha512') }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  become: true
+
+- name: "👤 Create the jump user {{ SHOWROOM_BASTION_USER }}"
+  ansible.builtin.user:
+    name: "{{ SHOWROOM_BASTION_USER }}"
+    shell: /usr/sbin/nologin
+    create_home: true
+  become: true
+
+- name: "🔑 Install the SSH keys of the showroom access users"
+  ansible.builtin.include_role:
+    name: user
+  vars:
+    user_key: "{{ showroom_access_user }}"
+  loop: "{{ SHOWROOM_ACCESS_USERS }}"
+  loop_control:
+    loop_var: showroom_access_user
+
+- name: "🔐 Limit {{ SHOWROOM_OPERATOR_USER }} to one root shell per showroom server"
+  ansible.builtin.template: # nocheck: stack-host-template (per-host /etc/sudoers.d)
+    src: sudoers.j2
+    dest: "/etc/sudoers.d/{{ SHOWROOM_OPERATOR_USER }}"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: visudo -cf %s
+  become: true
+
+- name: "🔍 Read the members of incus-admin"
+  ansible.builtin.getent:
+    database: group
+    key: incus-admin
+    fail_key: false
+  become: true
+
+- name: "🚫 Take every user out of incus-admin, so only root drives Incus"
+  ansible.builtin.command:
+    argv:
+      - gpasswd
+      - --delete
+      - "{{ showroom_incus_admin }}"
+      - incus-admin
+  loop: "{{ ((ansible_facts.getent_group['incus-admin'] or ['', '', ''])[2] or '') | split(',') | select | list }}"
+  loop_control:
+    loop_var: showroom_incus_admin
+  changed_when: true
+  become: true
+
+- name: "🧱 Confine {{ SHOWROOM_BASTION_USER }} to forwarding SSH to the showroom servers"
+  ansible.builtin.template: # nocheck: stack-host-template (per-host sshd drop-in)
+    src: sshd_bastion.conf.j2
+    dest: "{{ SHOWROOM_BASTION_DROPIN }}"
+    owner: root
+    group: root
+    mode: "0644"
+    validate: /usr/sbin/sshd -t -f %s
+  notify: sshd-restart
+  become: true

@@ -26,12 +26,14 @@ import json
 import subprocess
 import unittest
 from collections.abc import Mapping
+from typing import ClassVar
 from urllib.parse import urlparse
 
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar, trust_as_template
 
 from utils.cache.applications import get_application_defaults
+from utils.cache.base import _fingerprint_scope
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_any
 from utils.domains.default_primary import default_domain_primary
@@ -116,7 +118,7 @@ def _group_vars_all() -> dict:
 
 
 def _role_scoped_vars(application_id: str) -> dict:
-    """Mirror the ``include_vars`` chain ``run_one.yml:44-70`` runs before rendering."""
+    """Mirror the ``include_vars`` chain ``run_one.yml`` runs before rendering."""
     loaded: dict = {}
     for candidate in (
         PROJECT_ROOT / "roles" / application_id / ROLE_FILE_DEFAULTS_MAIN,
@@ -150,9 +152,12 @@ def _render(application_id: str, group_names: list[str], mode: str = "compose") 
         "SYSTEM_EMAIL_DOMAIN": _DOMAIN,
     }
     templar = Templar(loader=DataLoader(), variables=variables)
-    return templar.template(
-        trust_as_template(f"{{{{ lookup('template', '{role_template.resolve()}') }}}}")
-    )
+    with _fingerprint_scope():
+        return templar.template(
+            trust_as_template(
+                f"{{{{ lookup('template', '{role_template.resolve()}') }}}}"
+            )
+        )
 
 
 def _entries(rendered: str) -> dict[str, str]:
@@ -168,22 +173,36 @@ def _entries(rendered: str) -> dict[str, str]:
     return pairs
 
 
-class TestMcpEnvRender(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        cls.providers = _providers()
-        cls.on = {p: _render(p, [*_CONSUMERS, p]) for p in cls.providers}
+_PROVIDER_BUCKETS = 5
 
+
+class TestMcpEnvRender(unittest.TestCase):
     def test_the_scan_finds_providers(self) -> None:
-        self.assertTrue(self.providers)
+        providers = _providers()
+        self.assertTrue(providers)
         self.assertEqual(
             [],
             [
                 p
-                for p in self.providers
+                for p in providers
                 if not (PROJECT_ROOT / "roles" / p / "templates/test.env.j2").is_file()
             ],
         )
+
+
+class _ProviderEnvRender:
+    """One generated class per bucket of providers, so pytest-xdist spreads the buckets.
+
+    Args:
+        providers: the role ids whose env templates the class renders.
+    """
+
+    providers: ClassVar[tuple[str, ...]]
+    rendered: ClassVar[dict[str, str]]
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.rendered = {p: _render(p, [*_CONSUMERS, p]) for p in cls.providers}
 
     def test_every_role_renders_the_shared_template(self) -> None:
         shared = read_text(str(PROJECT_ROOT / _SHARED))
@@ -192,7 +211,7 @@ class TestMcpEnvRender(unittest.TestCase):
             for line in shared.splitlines()
             if line and not line.startswith("{%")
         )
-        for provider, rendered in self.on.items():
+        for provider, rendered in self.rendered.items():
             with self.subTest(provider=provider):
                 missing = [key for key in keys if key not in _entries(rendered)]
                 self.assertEqual(
@@ -202,26 +221,26 @@ class TestMcpEnvRender(unittest.TestCase):
                 )
 
     def test_nothing_reaches_the_shell_unrendered(self) -> None:
-        for provider, rendered in self.on.items():
+        for provider, rendered in self.rendered.items():
             with self.subTest(provider=provider):
                 leaked = [k for k, v in _entries(rendered).items() if "{{" in v]
                 self.assertEqual([], leaked)
 
     def test_the_required_keys_are_non_empty(self) -> None:
-        for provider, rendered in self.on.items():
-            entries = _entries(rendered)
+        for provider, rendered in self.rendered.items():
             with self.subTest(provider=provider):
+                entries = _entries(rendered)
                 self.assertEqual(
                     [], [k for k in _REQUIRED if not entries[k].strip("'")]
                 )
 
     def test_the_flag_resolves_to_a_boolean(self) -> None:
-        for provider, rendered in self.on.items():
+        for provider, rendered in self.rendered.items():
             with self.subTest(provider=provider):
                 self.assertIn(_entries(rendered)["MCP_TEST_ENABLED"], ("true", "false"))
 
     def test_the_endpoint_url_is_addressable(self) -> None:
-        for provider, rendered in self.on.items():
+        for provider, rendered in self.rendered.items():
             with self.subTest(provider=provider):
                 parsed = urlparse(_entries(rendered)["MCP_URL"])
                 self.assertEqual("http", parsed.scheme)
@@ -230,31 +249,31 @@ class TestMcpEnvRender(unittest.TestCase):
                 self.assertTrue(parsed.path)
 
     def test_the_read_probe_is_inside_the_served_contract(self) -> None:
-        for provider, rendered in self.on.items():
-            entries = _entries(rendered)
-            tool = entries["MCP_READ_TOOL"]
-            allowlist = json.loads(entries["MCP_EXPECTED_TOOLS"].strip("'"))
+        for provider, rendered in self.rendered.items():
             with self.subTest(provider=provider):
+                entries = _entries(rendered)
+                tool = entries["MCP_READ_TOOL"]
+                allowlist = json.loads(entries["MCP_EXPECTED_TOOLS"].strip("'"))
                 if tool and allowlist:
                     self.assertIn(tool, allowlist)
 
     def test_the_deadline_stays_under_the_harness_timeout(self) -> None:
-        for provider, rendered in self.on.items():
-            budget = load_yaml_any(
-                str(PROJECT_ROOT / "roles" / provider / ROLE_FILE_META_TESTS),
-                default_if_missing={},
-            )
+        for provider, rendered in self.rendered.items():
             with self.subTest(provider=provider):
+                budget = load_yaml_any(
+                    str(PROJECT_ROOT / "roles" / provider / ROLE_FILE_META_TESTS),
+                    default_if_missing={},
+                )
                 deadline = int(_entries(rendered)["MCP_DEADLINE_SECONDS"])
                 self.assertLess(deadline, int(budget["cli"]["timeout"]))
 
     def test_a_shell_reads_every_value_back_whole(self) -> None:
-        for provider, rendered in self.on.items():
-            entries = _entries(rendered)
-            script = "set -a\n. /dev/stdin\nset +a\n" + "".join(
-                f'printf "%s\\n" "${{{key}}}"\n' for key in sorted(entries)
-            )
+        for provider, rendered in self.rendered.items():
             with self.subTest(provider=provider):
+                entries = _entries(rendered)
+                script = "set -a\n. /dev/stdin\nset +a\n" + "".join(
+                    f'printf "%s\\n" "${{{key}}}"\n' for key in sorted(entries)
+                )
                 result = subprocess.run(
                     ["/bin/bash", "-c", script],
                     input=rendered,
@@ -281,37 +300,77 @@ class TestMcpClientEnvRender(unittest.TestCase):
     reach the mode split.
     """
 
+    def test_the_scan_finds_clients_with_a_cli_test(self) -> None:
+        self.assertTrue(_clients())
+
+
+class _ClientEnvRender:
+    """One generated class per client that renders every mode.
+
+    Args:
+        client: the client role id whose env template the class renders.
+    """
+
+    client: ClassVar[str]
+    rendered: ClassVar[dict[str, str]]
+
     @classmethod
     def setUpClass(cls) -> None:
-        cls.clients = _clients()
         cls.rendered = {
-            (client, mode): _render(client, [*_CONSUMERS, client], mode)
-            for client in cls.clients
+            mode: _render(cls.client, [*_CONSUMERS, cls.client], mode)
             for mode in _MODES
         }
 
-    def test_the_scan_finds_clients_with_a_cli_test(self) -> None:
-        self.assertTrue(self.clients)
-
     def test_nothing_reaches_the_shell_unrendered(self) -> None:
-        for (client, mode), rendered in self.rendered.items():
-            with self.subTest(client=client, mode=mode):
+        for mode, rendered in self.rendered.items():
+            with self.subTest(mode=mode):
                 leaked = [k for k, v in _entries(rendered).items() if "{{" in v]
                 self.assertEqual([], leaked)
 
     def test_every_key_resolves_to_something(self) -> None:
-        for (client, mode), rendered in self.rendered.items():
-            entries = _entries(rendered)
-            with self.subTest(client=client, mode=mode):
+        for mode, rendered in self.rendered.items():
+            with self.subTest(mode=mode):
+                entries = _entries(rendered)
                 self.assertTrue(entries)
                 self.assertEqual(
                     [], [k for k, v in entries.items() if not v.strip("'")]
                 )
 
     def test_the_flag_resolves_to_a_boolean(self) -> None:
-        for (client, mode), rendered in self.rendered.items():
-            with self.subTest(client=client, mode=mode):
+        for mode, rendered in self.rendered.items():
+            with self.subTest(mode=mode):
                 self.assertIn(_entries(rendered)["MCP_TEST_ENABLED"], ("true", "false"))
+
+
+def _register(base: type, name: str, **attributes: object) -> None:
+    """Add one generated ``unittest.TestCase`` to this module.
+
+    Args:
+        base: the mixin that carries the tests.
+        name: the class name; two render targets must never share one.
+        attributes: the class attributes the mixin reads.
+    """
+    if name in globals():
+        raise AssertionError(f"two render targets collapse into {name}")
+    globals()[name] = type(name, (base, unittest.TestCase), attributes)
+
+
+_ALL_PROVIDERS = _providers()
+for _index in range(_PROVIDER_BUCKETS):
+    _bucket = tuple(_ALL_PROVIDERS[_index::_PROVIDER_BUCKETS])
+    if _bucket:
+        _register(
+            _ProviderEnvRender,
+            f"TestMcpEnvRender_bucket_{_index}",
+            providers=_bucket,
+        )
+
+for _client in _clients():
+    _register(
+        _ClientEnvRender,
+        f"TestMcpClientEnvRender_{_client.replace('-', '_')}",
+        client=_client,
+    )
 
 
 if __name__ == "__main__":

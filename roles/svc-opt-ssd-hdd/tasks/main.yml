@@ -16,3 +16,4 @@
       }} {{ SYS_SERVICE_GROUP_CLEANUP | join(" ")  }} --timeout "{{ SYS_TIMEOUT_STORAGE_OPTIMIZER }}"'
     system_service_tpl_exec_start: "{{ system_service_script_exec }} --mass-storage-path {{ OPT_DRIVE_MASS_STORAGE_PATH }} --rapid-storage-path {{ OPT_DRIVE_RAPID_STORAGE_PATH
       }}"
+    system_service_force_linear_sync: false

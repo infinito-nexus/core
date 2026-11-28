@@ -9,6 +9,7 @@ and reinstalls.
 from __future__ import annotations
 
 import contextlib
+import fcntl
 import hashlib
 import os
 import shutil
@@ -41,6 +42,7 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES
 
 _STAMP_KEY = hashlib.sha256(sys.executable.encode("utf-8")).hexdigest()[:8]
 _STAMP = f"build/install-lint-{_STAMP_KEY}.stamp"
+_LOCK = "build/install-lint.lock"
 _PINS = f"roles/sys-lint/{ROLE_FILE_META_SERVICES}"
 _STAMP_DEPS = (
     "scripts/install/lint.sh",
@@ -209,10 +211,37 @@ def _dispatch(group: str) -> None:
     globals()[fn_name]()
 
 
+@contextlib.contextmanager
+def _exclusive(repo_root: Path):
+    """Admit one installer run at a time, whatever its groups.
+
+    ``make lint`` dispatches its targets in parallel and every one of them
+    starts this installer again, so without the lock two runs install the same
+    tool at once and a third imports it half-written. The lock is not keyed by
+    interpreter like the stamp: host and container share ``node_modules``.
+    It is opened read-only so a run under another uid can still take it.
+
+    Args:
+        repo_root: repository root holding ``build/``.
+    """
+    lock = repo_root / _LOCK
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    handle = os.open(lock, os.O_RDONLY | os.O_CREAT, 0o644)
+    try:
+        fcntl.flock(handle, fcntl.LOCK_EX)
+        yield
+    finally:
+        os.close(handle)
+
+
 def main(argv: list[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
     repo_root = Path(PROJECT_ROOT)
+    with _exclusive(repo_root):
+        return _install(args, repo_root)
 
+
+def _install(args: list[str], repo_root: Path) -> int:
     force = False
     if args and args[0] == "--force":
         force = True

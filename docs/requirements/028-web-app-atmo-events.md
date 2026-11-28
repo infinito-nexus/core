@@ -135,10 +135,10 @@ A long-running worker (own image, gated on both endpoints present) that:
 
 ### Phase 1 — `web-app-atmo` deploys and serves (MVP)
 
-- [ ] `roles/web-app-atmo/` exists with the standard meta surface and passes the repo's role-meta lint (per [008](README.md#archive)/[011](README.md#archive)).
-- [ ] Open Question 1 (worker runtime) is resolved and the chosen approach is recorded in the role README.
+- [x] `roles/web-app-atmo/` exists with the standard meta surface and passes the repo's role-meta lint (per [008](README.md#archive)/[011](README.md#archive)). `roles/web-app-atmo/meta/` carries `main`, `info`, `domains`, `csp`, `services`, `secrets`, `users`, `variants`, `volumes`, `networks` and `license`, where `domains`, `csp` and `secrets` are the current names of the proposed `server` and `schema` files, and the role-meta suite `tests/lint/ansible/roles/meta/` passes over the tree (141 tests, 296 subtests).
+- [x] Open Question 1 (worker runtime) is resolved and the chosen approach is recorded in the role README.
 - [ ] `rsvp.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` and returns HTTP 200 on `GET /` with the atmo appview HTML.
-- [ ] The image is self-built from `files/` and pinned to a concrete upstream git ref in `meta/services.yml` (no `:latest`).
+- [x] The image is self-built from `files/` and pinned to a concrete upstream git ref in `meta/services.yml` (no `:latest`).
 - [ ] The aggregator cache persists to a role-local volume declared in `meta/volumes.yml` and survives a container restart.
 - [ ] The deploy succeeds in **both** compose and swarm iteration loops (swarm/compose parity rule), `make autoformat` + `make test` green.
 
@@ -146,21 +146,35 @@ A long-running worker (own image, gated on both endpoints present) that:
 
 - [ ] "Sign in with Bluesky" completes an AT Protocol OAuth round-trip against the platform PDS provided by [`web-app-bluesky`](../../roles/web-app-bluesky/), and an authenticated user can create a `community.lexicon.calendar.event` record that is written to their PDS repo.
 - [ ] A created event is visible in the atmo appview after firehose/aggregator catch-up.
-- [ ] CSP `connect-src` whitelists the PDS host, the appview host, and any `wss://` firehose endpoint atmo connects to.
+- [x] CSP `connect-src` whitelists the PDS host, the appview host, and any `wss://` firehose endpoint atmo connects to.
 
 ### Phase 2 — AT → ActivityPub bridge (one-way)
 
 - [ ] A bridge component exists, gated on both `web-app-atmo` and `web-app-mobilizon` being in `group_names`; absent either, it is not scheduled and the deploy still succeeds.
-- [ ] The field mapping (start/end/tz/location/title/description/url, per Open Question 5) is documented in the bridge README; unmapped fields are listed explicitly, not dropped silently.
+- [x] The field mapping (start/end/tz/location/title/description/url, per Open Question 5) is documented in the bridge README; unmapped fields are listed explicitly, not dropped silently.
 - [ ] Creating a calendar event on the atmo instance results, within a bounded delay, in a matching event published by [`web-app-mobilizon`](../../roles/web-app-mobilizon/) at `event.{{ DOMAIN_PRIMARY }}` and thus federated over ActivityPub.
 - [ ] Updating the source AT record updates the mirrored Mobilizon event (mapping table resolves the target id); deleting the source record removes or cancels the Mobilizon event.
-- [ ] The `{ at_uri ↔ mobilizon_event_id }` mapping persists to a role-local store and is designed to support future dedup for a reverse path (Open Question 4).
+- [x] The `{ at_uri ↔ mobilizon_event_id }` mapping persists to a role-local store and is designed to support future dedup for a reverse path (Open Question 4).
+- [ ] Before the role leaves `pre-alpha`, the bridge signs in to Mobilizon with a dedicated account and its own secret, which `web-app-mobilizon` provisions with a profile, and no bridge env file carries a credential of `users.platform_administrator`. *The bridge's account is `web-app-mobilizon-atmo-bridge` (Mobilizon username `atmo_bridge`, `accounts: []`) in [web-app-mobilizon/meta/users.yml](../../roles/web-app-mobilizon/meta/users.yml), and the inventory pins it its own password. [test_bridge_env.py](../../tests/unit/python/roles/web-app-atmo/templates/test_bridge_env.py) renders [env/bridge.j2](../../roles/web-app-atmo/templates/env/bridge.j2) and finds the account's email and password with no credential of the platform administrator; the same render of the former template reports both keys. [tasks/01_design.yml](../../roles/web-app-mobilizon/tasks/01_design.yml) creates it with a profile and the Mobilizon role `user` through [account.exs](../../roles/web-app-mobilizon/files/elixir/account.exs) whenever the atmo `bridge` flag is on, which [test_accounts.py](../../tests/unit/python/roles/web-app-mobilizon/test_accounts.py) resolves for atmo absent, bridge off and bridge on. Ticking needs one deploy of `web-app-atmo` with `web-app-mobilizon` and `web-app-bluesky` in which the account script runs and the bridge's heartbeat follows a successful login.*
 
 ### Deferred to a follow-up requirement (NOT in scope here)
 
-- [ ] ActivityPub → AT Protocol direction (blocked on Open Question 3: AT write identity).
-- [ ] Bidirectional sync with loop prevention.
-- [ ] RSVP mirroring across protocols (Mobilizon participation ↔ `community.lexicon.calendar.rsvp`).
+- ActivityPub → AT Protocol direction (blocked on Open Question 3: AT write identity). Deferred to a follow-up requirement.
+- Bidirectional sync with loop prevention. Deferred to a follow-up requirement.
+- RSVP mirroring across protocols (Mobilizon participation ↔ `community.lexicon.calendar.rsvp`). Deferred to a follow-up requirement.
+
+## Implementation Notes
+
+Recorded from the first implementation round, upstream read at commit `83e3d1067a5c13de2e850ad290f62de82a727923`. Each item departs from or settles a proposal above and awaits operator confirmation.
+
+- **Open Question 1:** option (a). Upstream reads its bindings from `cloudflare:workers`, so no Node adapter build exists. The worker runs unchanged under `wrangler dev --local` (workerd plus Miniflare's D1, KV and R2), persisted to the `data` volume. Details: [README.md](../../roles/web-app-atmo/README.md#worker-runtime).
+- **Open Question 2:** self-built from `roles/web-app-atmo/files/Dockerfile`, pinned by commit in `services.atmo.ref`; upstream publishes no tags.
+- **Cron:** Wrangler's local mode fires no cron triggers, so a `cron` sidecar posts to `/api/cron`.
+- **Decision 3:** upstream no longer uses Meilisearch; search runs on SQLite FTS inside the aggregator, so no `meilisearch` flag exists.
+- **Decision 4:** the bridge ships as the `bridge` sidecar of `web-app-atmo`, gated on `web-app-mobilizon` and `web-app-bluesky` in `group_names`, because its source is the platform PDS.
+- **Decision 5:** the bridge reconciles against the platform PDS (`listRepos` revisions plus `listRecords`) instead of subscribing to Jetstream. Deletes fall out of the comparison, and a PDS the public relay does not crawl still mirrors.
+- **Mobilizon identity:** the bridge publishes as the platform administrator through Mobilizon's database login, which is off whenever Mobilizon's native login method is off. The sidecar parses records any platform PDS user can write while it holds the global administrator password, so a dedicated bridge account replaces this before `alpha` (operator, 2026-11-04).
+- **Lifecycle:** `pre-alpha` until a deploy round proves the `alpha` criteria.
 
 ## Cross-linking
 
@@ -170,5 +184,5 @@ A long-running worker (own image, gated on both endpoints present) that:
 
 ## See Also
 
-- How agents process requirements: [requirements.md](../agents/action/requirements.md)
+- How agents process requirements: [requirements.md](../../agents/skills/i8-requirement-implement/SKILL.md)
 - Requirement format: [requirements.md](../contributing/requirements.md)

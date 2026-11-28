@@ -1,0 +1,41 @@
+---
+# Param: application_id  - role whose files/shell/garbage_collector.sh is installed; names the manifest entry
+# Param: garbage_collector_service_key  - services.<key> whose container the garbage collector acts on
+# Param: garbage_collector_environment  - extra KEY: value pairs the role's garbage_collector.sh reads from garbage_collector.env
+# Param: compose_mode_force - optional per-role deploy mode (see sys-svc-compose); wins over DEPLOYMENT_MODE in garbage_collector.env
+- name: "📁 Create the garbage collector manifest entry of {{ application_id }}"
+  ansible.builtin.file:
+    path: "{{ garbage_collector_manifest_entry }}"
+    state: directory
+    mode: "0755"
+  vars:
+    garbage_collector_manifest_entry: "{{ [DIR_GARBAGE_COLLECTOR_MANIFESTS, application_id] | path_join }}"
+
+- name: "📋 Install the garbage collector script of {{ application_id }}"
+  ansible.builtin.copy:
+    src: "{{ [role_path, 'files', 'shell', 'garbage_collector.sh'] | path_join }}"
+    dest: "{{ [DIR_GARBAGE_COLLECTOR_MANIFESTS, application_id, 'garbage_collector.sh'] | path_join }}"
+    mode: "0755"
+
+- name: "🧾 Write the garbage collector environment of {{ application_id }}"
+  ansible.builtin.copy:
+    content: |
+      {% for garbage_collector_key, garbage_collector_value in garbage_collector_env.items() %}
+      {{ garbage_collector_key }}={{ garbage_collector_value | string | quote }}
+      {% endfor %}
+    dest: "{{ [DIR_GARBAGE_COLLECTOR_MANIFESTS, application_id, 'garbage_collector.env'] | path_join }}"
+    mode: "0644"
+  vars:
+    garbage_collector_env: >-
+      {{
+        {
+          'DEPLOYMENT_MODE': (compose_mode_force | default('')) or DEPLOYMENT_MODE,
+          'GARBAGE_COLLECTOR_CONTAINER': lookup('config', application_id, 'services.' ~ garbage_collector_service_key ~ '.name'),
+          'GARBAGE_COLLECTOR_STACK': application_id | entity_name,
+          'GARBAGE_COLLECTOR_SERVICE_KEY': garbage_collector_service_key,
+        } | combine(garbage_collector_environment)
+      }}
+
+- name: "📝 Record {{ application_id }} as a garbage collector manifest entry of this play"
+  ansible.builtin.set_fact:
+    garbage_collector_installed_application_ids: "{{ (garbage_collector_installed_application_ids | default([])) | union([application_id]) }}"

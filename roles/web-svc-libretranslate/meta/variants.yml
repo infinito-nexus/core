@@ -9,10 +9,9 @@
     docs:
       enabled: false
       shared: false
-    libretranslate:
-      load_only:
-        - en
-        - de
+    libretranslate-engine:
+      enabled: true
+      shared: true
     matomo:
       enabled: true
       shared: true
@@ -42,10 +41,9 @@
     docs:
       enabled: true
       shared: true
-    libretranslate:
-      load_only:
-        - en
-        - de
+    libretranslate-engine:
+      enabled: true
+      shared: true
     matomo:
       enabled: false
       shared: false

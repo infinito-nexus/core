@@ -1,0 +1,54 @@
+---
+application_id: "svc-virt-incus"
+
+INCUS_OS_FAMILIES:
+  - Archlinux
+  - Debian
+  - RedHat
+INCUS_COW_DRIVERS:
+  - btrfs
+  - zfs
+  - lvm
+INCUS_STORAGE_POOL: "{{ lookup('config', application_id, 'services.incus.storage_pool') }}"
+INCUS_NETWORK: "{{ lookup('config', application_id, 'services.incus.network') }}"
+INCUS_AGENTS: "{{ lookup('config', application_id, 'services.incus.agents') }}"
+INCUS_PROJECT: "agents-{{ DOMAIN_PRIMARY | replace('.', '-') }}"
+INCUS_STORAGE_PATH: /var/lib/incus
+INCUS_MAX_RUNNING: "{{ lookup('config', 'svc-ai-agent-broker', 'services.agent-broker.agents.max_running') }}"
+INCUS_PROJECT_CONFIG:
+  restricted: "true"
+  restricted.containers.privilege: unprivileged
+  restricted.containers.nesting: block
+  restricted.devices.disk: managed
+  restricted.devices.nic: managed
+  restricted.networks.access: "{{ INCUS_NETWORK.name }}"
+  restricted.virtual-machines.lowlevel: block
+  limits.instances: "{{ (INCUS_MAX_RUNNING | int) + (INCUS_AGENTS.warm_pool | int) }}"
+  limits.disk: "{{ INCUS_STORAGE_POOL.size }}"
+INCUS_API: "{{ lookup('config', application_id, 'services.incus.api') }}"
+INCUS_API_PORT: "{{ INCUS_API.listen | api_listener_port('services.incus.api.listen') }}"
+INCUS_API_ENDPOINT: "https://{{ 'host.docker.internal' if inventory_hostname in NETWORK_LOOPBACK_HOSTS else inventory_hostname }}:{{ INCUS_API_PORT }}"
+INCUS_API_SOURCES: "{{ INCUS_API.allowed_sources | api_listener_sources('services.incus.api.allowed_sources') }}"
+INCUS_SERVER_CONFIG:
+  core.https_address: "{{ INCUS_API.listen if INCUS_API.enabled | bool else '' }}"
+  core.remote_token_expiry: "{{ lookup('config', application_id, 'services.incus.remote_token_expiry') }}"
+INCUS_WORKSPACES: "{{ lookup('config', application_id, 'services.incus.workspaces') }}"
+INCUS_WORKSPACE_RESTRICTIONS: "{{ INCUS_PROJECT_CONFIG | dict2items | rejectattr('key', 'in', ['restricted.networks.access', 'limits.instances', 'limits.disk']) |
+  list | items2dict }}"
+INCUS_WORKSPACE_CERT_DAYS: 3650
+INCUS_PROVISION_MOUNT: platform
+INCUS_PROVISION_PATH: "provision/incus-{{ inventory_hostname }}"
+INCUS_TENANT_MOUNT: tenant
+INCUS_PRESEED:
+  networks:
+    - name: "{{ INCUS_NETWORK.name }}"
+      type: bridge
+      config:
+        ipv4.address: "{{ INCUS_NETWORK.ipv4 }}"
+        ipv4.nat: "false"
+        ipv6.address: none
+  storage_pools:
+    - name: "{{ INCUS_STORAGE_POOL.name }}"
+      driver: "{{ INCUS_STORAGE_POOL.driver }}"
+      config:
+        size: "{{ INCUS_STORAGE_POOL.size }}"

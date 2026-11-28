@@ -27,7 +27,6 @@ from . import PROJECT_ROOT
 _ROLE = PROJECT_ROOT / "roles/test-e2e-playwright"
 _CONFIG = _ROLE / "files/playwright.config.js"
 _VARS = _ROLE / ROLE_FILE_VARS_MAIN
-_LINT = PROJECT_ROOT / "scripts/lint/playwright.sh"
 _SPOT = "TEST_E2E_PLAYWRIGHT_CONFIG_TIMEOUTS"
 
 _REQUIRED = re.compile(r'requiredTimeout\("(PLAYWRIGHT_\w+)"\)')
@@ -50,16 +49,6 @@ class TestConfigTimeoutsHaveOneSource(unittest.TestCase):
             f"the config and {_SPOT} must name the same timeouts: a demanded "
             "one nobody renders aborts every run, and a rendered one nobody "
             "demands is dead weight that reads as configuration",
-        )
-
-    def test_the_lint_stager_reads_the_same_map(self) -> None:
-        self.assertIn(
-            _SPOT,
-            read_text(str(_LINT)),
-            f"{_LINT.name} stages the config and runs 'playwright test --list', "
-            "which loads it and therefore hits the same demand. It has to take "
-            f"the names from {_SPOT}, or a rename leaves every role red with a "
-            "missing-variable abort that has nothing to do with its spec",
         )
 
     def test_the_config_keeps_no_timeout_of_its_own(self) -> None:

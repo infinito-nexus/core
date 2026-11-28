@@ -4,8 +4,7 @@
   {{ lookup('database', application_id, 'host') }}:
     {{ lookup('container_deploy', replicas=1) | indent(4) }}
     {{ lookup('compose_only', 'container_name', ((application_id | entity_name) ~ '-database')) }}
-    logging:
-      driver: journald
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
     {{ lookup('container_image', 'svc-db-mariadb', 'mariadb', image=lookup('database', application_id, 'image'), version=lookup('database', application_id, 'version')) }}
     {{ lookup('compose_restart') }}
     env_file:
@@ -18,7 +17,7 @@
       - database:/var/lib/mysql
     # nocheck: container-healthcheck-literal  shared partial rendered for the consuming role's application_id, so the declaration has no single meta/services.yml to live in
     healthcheck:
-      test: [ "CMD", "sh", "-c", "/usr/bin/mariadb --user=$$MYSQL_USER --password=$$MYSQL_PASSWORD --execute 'SHOW DATABASES;'" ]
+      test: [ "CMD", "sh", "-c", "MYSQL_PWD=$$MYSQL_PASSWORD /usr/bin/mariadb --user=$$MYSQL_USER --execute 'SHOW DATABASES;'" ]
       interval: 2m
       timeout: 5s
       retries: 18

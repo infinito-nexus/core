@@ -58,6 +58,24 @@ class TestLitellmChatModel(unittest.TestCase):
         lmstudio_models=(),
         remote_aliases=None,
     ):
+        if name == "LITELLM_CHAT_MODEL":
+            local = self._render(
+                "LITELLM_LOCAL_CHAT_MODEL",
+                roles=roles,
+                api_key=api_key,
+                preload_models=preload_models,
+                lmstudio_models=lmstudio_models,
+                remote_aliases=remote_aliases,
+            )
+            return (
+                self.env.from_string(self.source[name])
+                .render(
+                    LITELLM_GATEWAY_REMOTE="False",
+                    LITELLM_GATEWAY_MODEL="",
+                    LITELLM_LOCAL_CHAT_MODEL=local,
+                )
+                .strip()
+            )
         return (
             self.env.from_string(self.source[name])
             .render(
@@ -232,7 +250,7 @@ class TestAiRemoteAliases(unittest.TestCase):
         )
         return ast.literal_eval(
             env.from_string(self.template).render(
-                lookup=lookup, AI_MOCK_PROVIDER="mock"
+                lookup=lookup, AI_MOCK_PROVIDER="mock", AI_FREELLMAPI_MODELS=[]
             )
         )
 

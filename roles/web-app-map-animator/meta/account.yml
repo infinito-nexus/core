@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 64
+  username_pattern: "[A-Za-z0-9_.@-]+"
+  source: https://github.com/versatiles-org/versatiles-map-animator/blob/88a98f465ef00d1b43b3600e62aabbfaa1da80b9/server/auth.mjs#L22-L23
+  agent_reachable: false

@@ -17,7 +17,7 @@ const {
   performKeycloakLoginForm,
   requireDotenvValue,
 } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const MODES = ["light", "dark"];
@@ -474,7 +474,7 @@ exports.register = function () {
 
   test("design: the open client picker and the file button follow the palette", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(Boolean(issuer), "behind the identity provider the role script sends both pages to the dashboard");
+    skipUnlessServiceDisabled("sso");
     await signedIn(page, async () => {
       await open(page, "groups/clients", "#clientsTable");
       await page.locator(PICKER).first().click();
@@ -544,7 +544,7 @@ exports.register = function () {
 
   test("design: the sign-in page carries the palette, the logo and the title", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(Boolean(issuer), "behind the identity provider Pi-hole runs without a password and shows no sign-in page");
+    skipUnlessServiceDisabled("sso");
     await gotoOnion(page, admin("login"));
     await expect(page.locator(PASSWORD)).toBeVisible({ timeout: resolveTimeout(60_000) });
     await inBothModes(page, async (mode) => {

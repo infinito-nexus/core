@@ -14,19 +14,23 @@
       delegate_to: "{{ MATOMO_HOST_NODE }}"
   when: (matomo_install_state.stdout | trim) == 'installed'
 
-- name: "🥾 Bootstrap Matomo (Initialisation and setting of API token if not defined)"
+- name: "🥾 Bootstrap Matomo (Initialisation and setting of API token)"
   include_tasks: 04_bootstrap.yml
-  when: >
-    ((matomo_install_state.stdout | trim) != 'installed') or
-    ((lookup('users', 'platform_administrator').tokens['web-app-matomo'] | default('') | string | trim) == "")
+  when: (matomo_install_state.stdout | trim) != 'installed'
 
-- name: "🩹 Patch database credentials for {{ application_id }}"
-  include_tasks:
-    file: 05_patch_database.yml
-    apply:
-      delegate_to: "{{ MATOMO_HOST_NODE }}"
-      notify: compose-up
+- name: "🩹 Matomo install | Converge the token and database of an existing install"
   when: (matomo_install_state.stdout | trim) == 'installed'
+  block:
+    - name: "🪙 Mint the API token of an existing install without a stored one"
+      include_tasks: utils/mint_token.yml
+      when: (lookup('users', 'platform_administrator').tokens['web-app-matomo'] | default('') | string | trim) == ""
+
+    - name: "🩹 Patch database credentials for {{ application_id }}"
+      include_tasks:
+        file: 05_patch_database.yml
+        apply:
+          delegate_to: "{{ MATOMO_HOST_NODE }}"
+          notify: compose-up
 
 - name: "🩹 Patch Trusted Hosts for {{ application_id }}"
   include_tasks: 06_patch_trusted_hosts.yml
@@ -96,8 +100,9 @@
   include_tasks:
     file: 07_config.yml
     apply:
-      delegate_to: "{{ STACK_HOST }}"
+      delegate_to: "{{ MATOMO_HOST_NODE }}"
       run_once: true
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🧹 Matomo | Drop the site list cache of every host before re-injecting"
   ansible.builtin.set_fact:
@@ -118,3 +123,33 @@
 
 - name: "🎨 Apply the corporate design of {{ application_id }}"
   include_tasks: 09_design.yml
+
+- name: "🔐 Wire the Keycloak login of {{ application_id }}"
+  include_tasks:
+    file: addons/rebeloidc.yml
+    apply:
+      delegate_to: "{{ MATOMO_HOST_NODE }}"
+
+- name: "🔢 Switch {{ MATOMO_TWO_FACTOR_PLUGIN }} ({{ MATOMO_TWO_FACTOR_STATE }})"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+      container exec --user www-data {{ MATOMO_LOCAL_CID | quote }}
+      sh -c {{ lookup('file', 'shell/core_plugin_state.sh') | quote }} core_plugin_state
+      {{ MATOMO_TWO_FACTOR_STATE | quote }}
+      {{ MATOMO_TWO_FACTOR_PLUGIN | quote }}
+  register: matomo_two_factor_plugin
+  changed_when: "'CHANGED' in matomo_two_factor_plugin.stdout"
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+
+- name: "🔢 Require 2FA of every user while it is enforced ({{ MATOMO_TWO_FACTOR_MODE }})"
+  ansible.builtin.shell: # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    cmd: >
+      container exec -i --user root -e MATOMO_CONFIG -e MATOMO_TWO_FACTOR_MODE
+      {{ MATOMO_LOCAL_CID | quote }} php
+    stdin: "{{ lookup('file', 'php/two_factor_required.php') }}"
+  environment:
+    MATOMO_CONFIG: "{{ MATOMO_CONFIG }}"
+    MATOMO_TWO_FACTOR_MODE: "{{ MATOMO_TWO_FACTOR_MODE }}"
+  register: matomo_two_factor_required
+  changed_when: matomo_two_factor_required.stdout is search('\[CHANGED\]')
+  delegate_to: "{{ MATOMO_HOST_NODE }}"

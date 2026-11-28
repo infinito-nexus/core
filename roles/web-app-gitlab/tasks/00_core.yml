@@ -1,25 +1,15 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
-  vars:
-    mcp_adapter_instance_dir: "{{ GITLAB_MCP_INSTANCE_DIR }}"
-    mcp_adapter_upstream_key: true
-  when: GITLAB_MCP_ENABLED | bool
-
 - name: "📂 Include setup for domain '{{ lookup('domain', application_id) }}'"
   include_role:
-    name: sys-stk-front-proxy
-  vars:
-    domain: "{{ lookup('domain', application_id) }}"
-    http_port: "{{ lookup('config', application_id, 'services.gitlab.ports.local.http') }}"
+    name: svc-stack
+    tasks_from: consumer/front.yml
 
 - name: "🧩 load docker and db for {{ application_id }}"
   include_role:
-    name: sys-stk-backend
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer/back.yml
 
 - name: "📄 Render GitLab CNG configuration"
   include_tasks: 01_config.yml
@@ -36,6 +26,12 @@
 
 - name: "💎 Converge root, the platform administrator and the appearance"
   include_tasks: utils/platform_admin.yml
+
+- name: "🚪 Converge the sign-in methods of GitLab"
+  include_tasks: utils/login_methods.yml
+
+- name: "🛂 Reconcile GitLab administrators and external users with the role groups"
+  include_tasks: utils/rbac.yml
 
 - name: "🔌 Provision the MCP server surface"
   include_tasks: utils/mcp.yml

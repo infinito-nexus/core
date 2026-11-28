@@ -1,10 +1,4 @@
 ---
-- name: "🧩 load docker, proxy for '{{ application_id }}'"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-
 - name: "📄 Render socialhome.toml for '{{ application_id }}'"
   stack_host_template:
     src: socialhome.toml.j2

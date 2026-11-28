@@ -4,6 +4,8 @@
   var title = {{ design.title | to_json }};
   var tail = " · " + title;
   var stock = /^KIX \d+$/;
+  // KIX titles its sign-in page with a translated "Welcome to KIX", so the route, not the text, marks it as stock.
+  var signIn = /(^|\/)auth\/?$/.test(location.pathname);
   function brand() {
     // KIX titles its sign-in page with a translated "Welcome to KIX", so the route, not the text, marks it as stock.
     var signIn = /(^|\/)auth\/?$/.test(location.pathname);

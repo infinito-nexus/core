@@ -11,3 +11,4 @@ test.beforeEach(shared.beforeEach);
 require("./test-guest").register(shared);
 require("./test-design").register(shared);
 require("./test-mcp-guest").register(shared);
+require("./test-ldap-login").register(shared);

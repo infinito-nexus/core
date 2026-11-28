@@ -23,7 +23,7 @@ class TestEnsurePhpToolchain(unittest.TestCase):
         )
         self.assertEqual(
             [c.args[0] for c in extension.call_args_list],
-            list(php_mod._PHPUNIT_EXTENSIONS),
+            list(php_mod._PHPUNIT_EXTENSIONS + php_mod._SUITE_EXTENSIONS),
         )
         run.assert_not_called()
 
@@ -31,6 +31,14 @@ class TestEnsurePhpToolchain(unittest.TestCase):
         self.assertLessEqual(
             {"dom", "mbstring", "xmlwriter"}, set(php_mod._PHPUNIT_EXTENSIONS)
         )
+
+    def test_provisions_pdo_for_the_scripts_typed_against_it(self) -> None:
+        with (
+            mock.patch.object(php_mod, "ensure_command_present"),
+            mock.patch.object(php_mod, "ensure_php_extension_present") as extension,
+        ):
+            php_mod.ensure_php_toolchain()
+        self.assertIn("pdo", [c.args[0] for c in extension.call_args_list])
 
 
 class TestEnsurePhpPresent(unittest.TestCase):

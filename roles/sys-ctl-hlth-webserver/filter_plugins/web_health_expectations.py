@@ -4,6 +4,7 @@ from pathlib import Path
 
 from ansible.errors import AnsibleError
 
+from utils.docker.paths_utils import get_docker_paths
 from utils.domains.unserved import unserved_canonical_keys
 from utils.networks.reachability import (
     CLEARNET,
@@ -14,7 +15,7 @@ from utils.networks.reachability import (
 )
 from utils.roles.applications.config import get
 from utils.roles.applications.status_codes import DEFAULT_OK, codes_by_key
-from utils.tls_common import resolve_enabled, resolve_term
+from utils.tls.common import resolve_enabled, resolve_term
 
 # nocheck: project-root-import
 _BASE_DIR = str(Path(__file__).resolve().parents[3])
@@ -247,19 +248,47 @@ def web_health_expectations(
     return {k: expectations[k] for k in sorted(expectations.keys())}
 
 
-def web_health_targets(expectations, applications, served_domains, tls_enabled):
-    """Attach the probe scheme and timeout to every expected domain.
+def _paused_marker(app_id, app, compositions_dir, state_file):
+    """Return the app-control state marker of an application, empty outside app control.
+
+    Args:
+        app_id: the application that serves the domain.
+        app: its merged configuration, empty when no application serves it.
+        compositions_dir: ``DIR_COMPOSITIONS``.
+        state_file: ``APP_CONTROL_STATE_FILE``.
+    """
+    if not app or not app["services"]["semaphore"]["control"]:
+        return ""
+    instance = get_docker_paths(app_id, compositions_dir)["directories"]["instance"]
+    return str(Path(instance) / state_file)
+
+
+def web_health_targets(
+    expectations,
+    applications,
+    served_domains,
+    tls_enabled,
+    compositions_dir,
+    state_file,
+):
+    """Attach the probe scheme, timeout and app-control marker to every expected domain.
 
     Args:
         expectations: output of ``web_health_expectations``.
         applications: merged applications tree.
         served_domains: ``lookup('domains')`` of this host.
         tls_enabled: ``TLS_ENABLED``.
+        compositions_dir: ``DIR_COMPOSITIONS``.
+        state_file: ``APP_CONTROL_STATE_FILE``.
 
     Returns:
-        ``{domain: {"codes": [...], "scheme": "http"|"https", "timeout": s}}``;
-        the scheme follows the same per-domain resolution as ``lookup('tls')``
-        and the timeout comes from the domain's network.
+        ``{domain: {"codes": [...], "scheme": "http"|"https", "timeout": s,
+        "paused_marker": path, "application_id": id}}``; the scheme follows the
+        same per-domain resolution as ``lookup('tls')``, the timeout comes from
+        the domain's network, ``paused_marker`` names the state marker the
+        checker reads to accept the paused page, empty outside app control,
+        and ``application_id`` names the application serving the domain, empty
+        when none does.
     """
     targets = {}
     for domain, codes in (expectations or {}).items():
@@ -273,12 +302,14 @@ def web_health_targets(expectations, applications, served_domains, tls_enabled):
             )
             app = (applications or {}).get(app_id) or {}
         except AnsibleError:
-            resolved, app = domain, {}
+            app_id, resolved, app = "", domain, {}
         enabled = resolve_enabled(app, bool(tls_enabled), primary_domain=resolved)
         targets[domain] = {
             "codes": list(codes),
             "scheme": "https" if enabled else "http",
             "timeout": network(network_of(domain)).probe_timeout,
+            "paused_marker": _paused_marker(app_id, app, compositions_dir, state_file),
+            "application_id": app_id,
         }
     return targets
 

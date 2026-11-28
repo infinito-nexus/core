@@ -44,13 +44,32 @@ Keys:
 ``mode``
     ``ingress`` (default) emits the short ``"host:published:container"`` string;
     ``host`` emits the long block with ``mode: host``, which is what an edge
-    role needs in swarm so the client address survives the hop.
+    role needs in swarm so the client address survives the hop. Its ``ip``
+    becomes ``host_ip`` in compose; a swarm port carries no host address, so
+    swarm publishes it on every interface of the node.
 ``publish``
     ``ephemeral`` publishes the container port on a host port docker picks, for
     a service addressed only through the compose network.
+``application_id``
+    The application whose ``services.<service>.ports`` the term reads; omit to
+    read the call's application. A stream relay publishes another
+    application's port this way, as ``lookup('stream_relay_ports')`` returns.
 
 A declared value that is a ``{start, end}`` mapping renders as ``start-end`` on
 both sides, so a relay range needs no special term.
+
+In the effective swarm mode (``compose_mode_force`` or ``DEPLOYMENT_MODE``) a
+``ports`` term that carries an ``ip`` and resolves ``ports.local`` is not
+published: the routing mesh ignores the ip and would open the port on every
+node. A TCP port listed in ``SWARM_ONION_HOST_BACKENDS`` (evaluated once, on the
+stack host) is published in ``mode: host`` instead: the deploy pins its service
+to the stack host, whose hidden service dials it from the host network, and
+the swarm node baseline, loaded from the same list before the first stack
+deploy of the run, drops every packet to it that does not arrive on ``lo``
+until no service publishes it in host mode any more.
+``expose``
+feeds ``docker run -p``, which honours the ip, so it keeps such terms. A block
+left without entries renders as an empty string.
 
 ``application_id`` is read from the play variables unless given as
 ``application_id=``. ``key='expose'`` names the block instead of ``ports``, for
@@ -69,10 +88,20 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 from ansible.template import trust_as_template
 
+from utils.networks.lookup_context import resolve_var
 from utils.roles.applications.config import get
 
 _TERM_KEYS = frozenset(
-    {"service", "protocol", "ip", "transport", "container", "mode", "publish"}
+    {
+        "service",
+        "protocol",
+        "ip",
+        "transport",
+        "container",
+        "mode",
+        "publish",
+        "application_id",
+    }
 )
 _TRANSPORTS = ("tcp", "udp")
 _CONTAINER_SOURCES = ("internal", "same")
@@ -138,6 +167,7 @@ def _normalised(term: Any) -> dict[str, Any]:
         "container": _as_str(term.get("container")) or "internal",
         "mode": _as_str(term.get("mode")) or "ingress",
         "publish": _as_str(term.get("publish")),
+        "application_id": _as_str(term.get("application_id")),
     }
     if not normalised["service"] or not normalised["protocol"]:
         raise AnsibleError("container_ports: service and protocol must be non-empty")
@@ -155,11 +185,6 @@ def _normalised(term: Any) -> dict[str, Any]:
             "container_ports: publish accepts only 'ephemeral', "
             f"got {normalised['publish']!r}"
         )
-    if normalised["mode"] == "host" and normalised["ip"]:
-        raise AnsibleError(
-            "container_ports: mode 'host' binds the node's own interface and "
-            "takes no ip"
-        )
     return normalised
 
 
@@ -171,13 +196,34 @@ def _short_line(term: Mapping, published: str, container: str, transport: str) -
     return f'  - "{head}{published}:{container}{suffix}"'
 
 
-def _host_lines(published: str, container: str, transport: str) -> list[str]:
-    return [
+def _onion_backend(backends: Any, owner: str, service: str, published: str) -> bool:
+    """Whether a port is in the stack host's ``SWARM_ONION_HOST_BACKENDS``.
+
+    Args:
+        backends: the list as the play renders it; anything else is empty.
+        owner: the application that owns the service.
+        service: the service the term names.
+        published: the ``ports.local`` port the term resolves.
+
+    Returns:
+        True when an ``{"application", "service", "port"}`` entry matches.
+    """
+    return isinstance(backends, list) and any(
+        isinstance(entry, Mapping)
+        and (entry.get("application"), entry.get("service"), _as_str(entry.get("port")))
+        == (owner, service, published)
+        for entry in backends
+    )
+
+
+def _host_lines(published: str, container: str, transport: str, ip: str) -> list[str]:
+    lines = [
         f"  - target: {container}",
         f"    published: {published}",
         f"    protocol: {transport or 'tcp'}",
         "    mode: host",
     ]
+    return [*lines, f"    host_ip: {ip}"] if ip else lines
 
 
 class LookupModule(LookupBase):
@@ -220,11 +266,13 @@ class LookupModule(LookupBase):
             "applications", loader=self._loader, templar=getattr(self, "_templar", None)
         ).run([], variables=variables)[0]
 
-        def _port(service: str, scope: str, protocol: str, *, required: bool) -> str:
+        def _port(
+            owner: str, service: str, scope: str, protocol: str, *, required: bool
+        ) -> str:
             value = _rendered(
                 get(
                     applications=applications,
-                    application_id=application_id,
+                    application_id=owner,
                     config_path=f"services.{service}.ports.{scope}.{protocol}",
                     strict=False,
                     default="",
@@ -233,7 +281,7 @@ class LookupModule(LookupBase):
             if not value and required:
                 raise AnsibleError(
                     f"container_ports: services.{service}.ports.{scope}.{protocol} "
-                    f"is not set for '{application_id}'"
+                    f"is not set for '{owner}'"
                 )
             return value
 
@@ -242,19 +290,51 @@ class LookupModule(LookupBase):
             raise AnsibleError(
                 f"container_ports: key must be 'ports' or 'expose', got {block_key!r}"
             )
+        effective_mode = _as_str(
+            resolve_var(templar, variables.get("compose_mode_force", ""))
+            or resolve_var(templar, variables.get("DEPLOYMENT_MODE", "compose"))
+        )
+        routing_mesh = block_key == "ports" and effective_mode == "swarm"
+        onion_backends = (
+            resolve_var(templar, variables.get("SWARM_ONION_HOST_BACKENDS"))
+            if routing_mesh
+            else []
+        )
         lines = [f"{block_key}:"]
         for term in parsed:
             service, protocol = term["service"], term["protocol"]
-            published = _port(service, "local", protocol, required=False) or _port(
-                service, "public", protocol, required=term["publish"] != "ephemeral"
+            owner = term["application_id"] or application_id
+            local = _port(owner, service, "local", protocol, required=False)
+            mode = term["mode"]
+            transports = _transports_of(term)
+            if routing_mesh and term["ip"] and local:
+                transports = [t for t in transports if t in ("", "tcp")]
+                if not transports or not _onion_backend(
+                    onion_backends, owner, service, local
+                ):
+                    continue
+                mode = "host"
+            published = local or _port(
+                owner,
+                service,
+                "public",
+                protocol,
+                required=term["publish"] != "ephemeral",
             )
             if term["container"] == "same":
                 container = published
             else:
-                container = _port(service, "internal", protocol, required=True)
-            for transport in _transports_of(term):
-                if term["mode"] == "host":
-                    lines.extend(_host_lines(published, container, transport))
+                container = _port(owner, service, "internal", protocol, required=True)
+            for transport in transports:
+                if mode == "host":
+                    lines.extend(
+                        _host_lines(
+                            published,
+                            container,
+                            transport,
+                            "" if routing_mesh else term["ip"],
+                        )
+                    )
                 else:
                     lines.append(_short_line(term, published, container, transport))
-        return ["\n".join(lines)]
+        return ["\n".join(lines) if len(lines) > 1 else ""]

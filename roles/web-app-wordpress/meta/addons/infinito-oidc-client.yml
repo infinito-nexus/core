@@ -1,0 +1,8 @@
+---
+enabled: "{{ (lookup('config', 'web-app-wordpress', 'services.sso.enabled') | bool) and (lookup('config', 'web-app-wordpress', 'services.wordpress.login.method.sso.enabled')
+  | bool) }}"
+required: true
+mechanism: mu_plugin
+source: vendored
+bridges:
+  - sso

@@ -25,7 +25,7 @@ class TestDockerComposeTemplates(unittest.TestCase):
     )
     HOST_MODE = 'network_mode: "host"'
 
-    def test_docker_compose_includes(self):
+    def test_docker_compose_includes(self):  # nocheck: test.text-presence -- repository-wide lint over every compose template  # fmt: skip
         """
         Verifies for each found compose.yml.j2:
         1. BASE_INCLUDE is present exactly once

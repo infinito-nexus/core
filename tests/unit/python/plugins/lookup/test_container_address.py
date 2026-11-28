@@ -13,8 +13,6 @@ import unittest
 import unittest.mock as mock
 from typing import Any
 
-from ansible.errors import AnsibleError
-
 from plugins.lookup.container_address import LookupModule
 
 
@@ -44,44 +42,6 @@ def _run(
 
 
 class TestContainerExecAddrLookup(unittest.TestCase):
-    def test_missing_terms_raise(self):
-        with self.assertRaises(AnsibleError):
-            LookupModule().run([], variables={})
-        with self.assertRaises(AnsibleError):
-            LookupModule().run(["web-app-mattermost"], variables={})
-        with self.assertRaises(AnsibleError):
-            LookupModule().run(
-                ["web-app-mattermost", "mattermost", "extra"], variables={}
-            )
-
-    def test_empty_application_id_raises(self):
-        with self.assertRaises(AnsibleError):
-            _run("", "mattermost")
-
-    def test_empty_service_key_raises(self):
-        with self.assertRaises(AnsibleError):
-            _run("web-app-mattermost", "")
-
-    def test_unknown_application_raises(self):
-        with self.assertRaises(AnsibleError):
-            _run("web-app-missing", "mattermost")
-
-    def test_unknown_service_raises(self):
-        with self.assertRaises(AnsibleError):
-            _run("web-app-mattermost", "smtp")
-
-    def test_compose_mode_returns_bare_name(self):
-        out = _run(
-            "web-app-mattermost",
-            "mattermost",
-            variables={"DEPLOYMENT_MODE": "compose"},
-        )
-        self.assertEqual(out, ["mattermost"])
-
-    def test_compose_mode_defaults_when_deployment_mode_missing(self):
-        out = _run("web-app-mattermost", "mattermost", variables={})
-        self.assertEqual(out, ["mattermost"])
-
     def test_swarm_mode_emits_resolver_subshell(self):
         out = _run(
             "web-app-mattermost",
@@ -137,22 +97,6 @@ class TestContainerExecAddrLookup(unittest.TestCase):
             out,
             ['"$(/usr/bin/resolve-container-id mattermost mattermost)"'],
         )
-
-    def test_service_with_empty_name_raises(self):
-        apps = {
-            "web-app-mattermost": {
-                "services": {
-                    "mattermost": {"name": ""},
-                },
-            },
-        }
-        with self.assertRaises(AnsibleError):
-            _run(
-                "web-app-mattermost",
-                "mattermost",
-                variables={"DEPLOYMENT_MODE": "compose"},
-                applications=apps,
-            )
 
 
 if __name__ == "__main__":

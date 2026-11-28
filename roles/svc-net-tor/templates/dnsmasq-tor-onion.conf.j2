@@ -6,6 +6,10 @@ listen-address={{ TOR_CONTAINER_DNS_HOST }}
 bind-interfaces
 no-resolv
 {% endif %}
+{% if TOR_EGRESS_ROUTE == 'all' %}
+user={{ TOR_DNSMASQ_USER }}
+max-cache-ttl={{ TOR_EGRESS_DNS_MAX_CACHE_TTL }}
+{% endif %}
 no-hosts
 filter-AAAA
 {% if TOR_NODE_ONION | length > 0 %}
@@ -13,8 +17,27 @@ address=/{{ TOR_NODE_ONION }}/{{ TOR_HS_BACKEND_HOST }}
 local=/{{ TOR_NODE_ONION }}/
 {% endif %}
 server=/onion/127.0.0.1#{{ TOR_DNS_PORT }}
+{% for _rule in TOR_EGRESS_PLAN.dns %}
+{% if _rule.path == 'tor' %}
+server=/{{ _rule.domain }}/127.0.0.1#{{ TOR_DNS_PORT }}
+{% if TOR_EGRESS_ROUTE == 'all' %}
+nftset=/{{ _rule.domain }}/4#inet#{{ TOR_EGRESS_NFT_TABLE }}#tor_dns_v4,6#inet#{{ TOR_EGRESS_NFT_TABLE }}#tor_dns_v6
+{% endif %}
+{% elif TOR_EGRESS_ROUTE == 'all' %}
+{% for _ns in TOR_DNS_UPSTREAMS %}
+server=/{{ _rule.domain }}/{{ _ns }}
+{% endfor %}
+nftset=/{{ _rule.domain }}/4#inet#{{ TOR_EGRESS_NFT_TABLE }}#direct_dns_v4,6#inet#{{ TOR_EGRESS_NFT_TABLE }}#direct_dns_v6
+{% else %}
+server=/{{ _rule.domain }}/#
+{% endif %}
+{% endfor %}
 {% if TOR_DNSMASQ_OWNS_LISTENER %}
+{% if TOR_EGRESS_ROUTE == 'all' %}
+server=127.0.0.1#{{ TOR_DNS_PORT }}
+{% else %}
 {% for _ns in TOR_DNS_UPSTREAMS %}
 server={{ _ns }}
 {% endfor %}
+{% endif %}
 {% endif %}

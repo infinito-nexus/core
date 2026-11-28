@@ -4,7 +4,7 @@ import io
 import subprocess
 import unittest
 import unittest.mock as mock
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from typing import ClassVar
 
 from cli.administration.deploy.ci import gh, runs
@@ -63,8 +63,23 @@ _SOURCE_CONFIG = {
 }
 _SOURCE_RUN = {"jobs": _JOBS, "displayTitle": render(_SOURCE_CONFIG)}
 
+_REAL_PROBLEMS = trigger.validate.problems
+
 
 class TestTriggerMain(unittest.TestCase):
+    def setUp(self) -> None:
+        """Stub the validator: each real call runs a full role discovery.
+
+        ``autospec`` keeps the call checked against the real signature, and
+        ``test_priority_is_dispatched_with_the_axis_overrides`` runs the real
+        one.
+        """
+        patcher = mock.patch.object(
+            trigger.validate, "problems", autospec=True, return_value=([], [])
+        )
+        self.problems = patcher.start()
+        self.addCleanup(patcher.stop)
+
     def _run(
         self,
         argv: list[str],
@@ -100,6 +115,7 @@ class TestTriggerMain(unittest.TestCase):
         )
 
     def test_priority_is_dispatched_with_the_axis_overrides(self) -> None:
+        self.problems.side_effect = _REAL_PROBLEMS
         rc, calls = self._run(
             [
                 "--priority",
@@ -330,6 +346,36 @@ class TestTriggerMain(unittest.TestCase):
         fetch.assert_called_once_with("55", repo="o/r")
         find_last.assert_not_called()
 
+    def test_print_writes_the_retrigger_line_and_dispatches_nothing(self) -> None:
+        out = io.StringIO()
+        with (
+            mock.patch.object(gh, "current_branch", return_value="feature/x"),
+            mock.patch.object(gh, "resolve_repo", return_value="o/r"),
+            mock.patch.object(gh, "fetch_run", return_value=_SOURCE_RUN),
+            mock.patch.object(
+                runs,
+                "inputs_from_jobs",
+                return_value={"priority": "web-app-x web-app-never"},
+            ),
+            mock.patch.object(matrix, "entries_of", return_value=[]),
+            mock.patch.object(runs, "dispatch_workflow") as dispatch,
+            redirect_stdout(out),
+        ):
+            rc = trigger.main(["--failed", "--run", _RUN_URL, "--print"])
+        self.assertEqual(rc, 0)
+        dispatch.assert_not_called()
+        self.assertEqual(out.getvalue(), f"web-app-never {_FAILED_TOKENS}\n")
+
+    def test_print_without_failed_is_refused(self) -> None:
+        with (
+            mock.patch.object(runs, "dispatch_workflow") as dispatch,
+            self.assertRaises(SystemExit) as ctx,
+            redirect_stderr(io.StringIO()),
+        ):
+            trigger.main(["--print"])
+        self.assertEqual(ctx.exception.code, 2)
+        dispatch.assert_not_called()
+
     def test_apps_with_a_run_reproduces_its_configuration(self) -> None:
         calls: list = []
         with (
@@ -389,6 +435,85 @@ class TestTriggerMain(unittest.TestCase):
         with self.assertRaises(SystemExit) as ctx, redirect_stdout(io.StringIO()):
             trigger.main(["--failed", "--apps", "x"])
         self.assertEqual(ctx.exception.code, 2)
+
+
+class TestAnyAxes(unittest.TestCase):
+    _JOBS: ClassVar[list[dict]] = [
+        _job("docker", "web-app-green", "success"),
+        _job("swarm", "web-app-red", "failure"),
+        _job("docker", "web-app-aborted", "cancelled"),
+        {
+            "name": deploy_job_name("swarm", "web-app-pending", "0,1"),
+            "status": "in_progress",
+            "conclusion": None,
+        },
+    ]
+    _SOURCE_PRIORITY = "web-app-green web-app-never#1@swarm+tor"
+    _BARE = "web-app-aborted web-app-never web-app-pending web-app-red"
+
+    def setUp(self) -> None:
+        patcher = mock.patch.object(
+            trigger.validate, "problems", autospec=True, return_value=([], [])
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def _priority(self, *flags: str) -> str:
+        source = {"jobs": self._JOBS, "displayTitle": render({})}
+        calls: list[str] = []
+        with (
+            mock.patch.object(gh, "current_branch", return_value="feature/x"),
+            mock.patch.object(gh, "resolve_repo", return_value="o/r"),
+            mock.patch.object(gh, "fetch_run", return_value=source),
+            mock.patch.object(
+                runs,
+                "inputs_from_jobs",
+                return_value={"priority": self._SOURCE_PRIORITY},
+            ),
+            mock.patch.object(matrix, "entries_of", return_value=[]),
+            mock.patch.object(
+                runs,
+                "dispatch_workflow",
+                side_effect=lambda wf, ref, wl="", priority="", config=None, repo=None: (
+                    calls.append(priority)
+                ),
+            ),
+            redirect_stdout(io.StringIO()),
+            redirect_stderr(io.StringIO()),
+        ):
+            rc = trigger.main(["--failed", *flags, "--run", _RUN_URL])
+        self.assertEqual(rc, 0)
+        return calls[0]
+
+    def test_every_role_that_was_not_green_comes_back_by_bare_name(self) -> None:
+        self.assertEqual(self._priority("--any-axes"), self._BARE)
+
+    def test_without_it_some_entry_keeps_its_axes(self) -> None:
+        for flags in ((), ("--roles-only",), ("--strict", "--roles-only")):
+            with self.subTest(flags=flags):
+                self.assertNotEqual(self._priority(*flags), self._BARE)
+
+    def test_it_refuses_strict_and_roles_only(self) -> None:
+        for flag in ("--strict", "--roles-only"):
+            err = io.StringIO()
+            with (
+                self.subTest(flag=flag),
+                self.assertRaises(SystemExit) as ctx,
+                redirect_stderr(err),
+            ):
+                trigger.main(["--failed", "--any-axes", flag])
+            self.assertEqual(ctx.exception.code, 2)
+            self.assertIn(
+                "--any-axes cannot be combined with --strict or --roles-only",
+                err.getvalue(),
+            )
+
+    def test_it_only_applies_with_failed(self) -> None:
+        err = io.StringIO()
+        with self.assertRaises(SystemExit) as ctx, redirect_stderr(err):
+            trigger.main(["--any-axes"])
+        self.assertEqual(ctx.exception.code, 2)
+        self.assertIn("--any-axes only applies with --failed", err.getvalue())
 
 
 class TestBranchRemote(unittest.TestCase):

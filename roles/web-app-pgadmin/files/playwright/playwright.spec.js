@@ -11,6 +11,7 @@ const {
   runBiberFlow,
   runGuestFlow,
 } = require("./personas");
+const { requestUserList, watchMasterPasswordPrompt } = require("./pgadmin-client");
 test.use({ ignoreHTTPSErrors: true });
 
 const appBaseUrl = normalizeBaseUrl(process.env.APP_BASE_URL || "");
@@ -23,6 +24,9 @@ test.beforeEach(async ({ page }) => {
 });
 
 require("./test-design").register();
+require("./test-rbac-roles");
+require("./test-login-methods").register();
+require("./test-2fa-enrollment").register();
 
 test("pgAdmin front page is served under canonical domain with TLS", async ({ page }) => {
   const response = await gotoOnion(page, `${appBaseUrl}/`);
@@ -58,5 +62,12 @@ test("biber: app → universal logout", async ({ page }) => {
 });
 
 test("administrator: app → universal logout", async ({ page }) => {
-  await runAdminFlow(page);
+  const settleMasterPassword = watchMasterPasswordPrompt(page);
+  await runAdminFlow(page, {
+    adminInteraction: async () => {
+      await settleMasterPassword();
+      const users = await requestUserList(page, appBaseUrl);
+      expect(users.status(), "the administrator MUST reach pgAdmin's user management").toBe(200);
+    },
+  });
 });

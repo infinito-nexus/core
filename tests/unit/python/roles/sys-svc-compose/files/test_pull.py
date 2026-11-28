@@ -1,11 +1,15 @@
 import importlib.util
 import os
+import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
 from types import ModuleType
 from unittest.mock import patch
+
+from ansible.plugins.filter.core import FilterModule as CoreFilters
+from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from utils.cache.yaml import load_yaml_any
 
@@ -449,22 +453,92 @@ services:
             self.assertIn("missing locally", str(ctx.exception))
 
 
+BUILD_HANDLERS = (
+    "🔨 Build compose",
+    "🔨 Build the services queued for a lone recreate",
+)
+TARGETS = ["web", "worker"]
+FAKE_COMPOSE = (
+    "#!/usr/bin/env bash\n"
+    'printf "%s\\n" "$*" >> "${STUB_LOG}"\n'
+    'if [[ " $* " == *" --pull "* && -n "${STUB_PULL_FAILS:-}" ]]; then\n'
+    "    exit 1\n"
+    "fi\n"
+)
+
+
+def _build_calls(name: str, pull_fails: bool) -> tuple[int, list[str]]:
+    """
+    Args:
+        name: the name of a build handler of sys-svc-compose.
+        pull_fails: whether the fake ``compose build --pull`` fails.
+
+    Returns:
+        The handler shell's exit code and the ``compose`` calls it made.
+    """
+    (handler,) = [
+        handler
+        for handler in load_yaml_any(
+            str(PROJECT_ROOT / "roles/sys-svc-compose/handlers/compose.yml")
+        )
+        if handler["name"] == name
+    ]
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    env.filters.update(CoreFilters().filters())
+    script = env.from_string(handler["ansible.builtin.shell"]).render(
+        compose_service_up_targets=TARGETS
+    )
+    with tempfile.TemporaryDirectory() as tmp:
+        stub = Path(tmp) / "compose"
+        stub.write_text(FAKE_COMPOSE, encoding="utf-8")
+        stub.chmod(0o755)
+        log = Path(tmp) / "compose.log"
+        run_env = {
+            "PATH": f"{tmp}{os.pathsep}{os.environ['PATH']}",
+            "STUB_LOG": str(log),
+        }
+        if pull_fails:
+            run_env["STUB_PULL_FAILS"] = "1"
+        result = subprocess.run(
+            [handler["args"]["executable"], "-c", script],
+            cwd=tmp,
+            env=run_env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        written = log.read_text(encoding="utf-8")  # nocheck: cache-read tempdir
+    return result.returncode, written.splitlines()
+
+
 class TestBuildHandlersSharePullCache(unittest.TestCase):
     def test_build_handlers_build_with_pull_and_fall_back_like_pull_py(self) -> None:
-        handlers = {
-            handler["name"]: handler.get("ansible.builtin.shell", "")
-            for handler in load_yaml_any(
-                str(PROJECT_ROOT / "roles/sys-svc-compose/handlers/compose.yml")
-            )
-        }
-        for name in (
-            "🔨 Build compose",
-            "🔨 Build the services queued for a lone recreate",
-        ):
+        for name in BUILD_HANDLERS:
             with self.subTest(handler=name):
-                self.assertRegex(
-                    handlers[name], r"compose build --pull\b.*\|\| compose build\b"
+                code, calls = _build_calls(name, pull_fails=True)
+                self.assertEqual(code, 0)
+                self.assertEqual(len(calls), 2, calls)
+                self.assertEqual(calls[0].split()[:2], ["build", "--pull"])
+                self.assertEqual(calls[1].split(), ["build", *calls[0].split()[2:]])
+
+    def test_a_successful_pull_build_builds_once(self) -> None:
+        for name in BUILD_HANDLERS:
+            with self.subTest(handler=name):
+                code, calls = _build_calls(name, pull_fails=False)
+                self.assertEqual(code, 0)
+                self.assertEqual(
+                    [call.split()[:2] for call in calls], [["build", "--pull"]]
                 )
+
+    def test_the_lone_recreate_builds_only_its_queued_services(self) -> None:
+        _, calls = _build_calls(BUILD_HANDLERS[1], pull_fails=True)
+        self.assertEqual(
+            [call.split() for call in calls],
+            [["build", "--pull", *TARGETS], ["build", *TARGETS]],
+        )
 
 
 if __name__ == "__main__":

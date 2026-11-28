@@ -39,6 +39,14 @@ SCANNERS = ("trivy", "grype", "osv")
 SBOM_BUILDER = "syft"
 ENGINES = (*SCANNERS, SBOM_BUILDER)
 SBOM_READERS = frozenset({"grype", "osv"})
+IMAGE_MOUNT_READERS = frozenset({SBOM_BUILDER})
+IMAGE_CATALOGERS = "image,file"
+IMAGE_MOUNT_SINCE = (28, 0, 0)
+IMAGE_MOUNT_LONG_LAYER_NAMES = ((29, 0, 0), (29, 1, 4))
+IMAGE_MOUNT_API = (1, 48)
+DOCKER_RELEASE = re.compile(r"([0-9]+)\.([0-9]+)\.([0-9]+)")
+DOCKER_API = re.compile(r"([0-9]+)\.([0-9]+)")
+DOCKER_VERSION_FORMAT = "{{.Server.Version}} {{.Client.APIVersion}}"
 RUNTIME_ENGINE = "grype"
 RUNTIME_ARTIFACT_TYPE = "binary"
 TARGET_KINDS = ("host", "container")
@@ -60,11 +68,12 @@ OSV_SOURCE_PURL_TYPES = ("deb", "apk")
 UPSTREAM_QUALIFIER = re.compile(r"([?&])upstream=([^&#]+)")
 MAJOR_VERSION = re.compile(r"[0-9]+")
 HOST_ROOT = "/host"
+IMAGE_ROOT = "/image"
 WORK = "/work"
 SBOM = "/sbom"
 CACHE = "/cache"
 DOCKER_SOCKET = "/var/run/docker.sock"
-SOCKET_RUNTIME = "runc"
+IMAGE_RUNTIME = "runc"
 JOB_TIMEOUT_SECONDS = 4 * 3600
 RUN_PREFIX = "run-"
 DB_ATTEMPTS = 3
@@ -257,14 +266,16 @@ class Step:
         accept: exit codes that mean success.
         scratch: the run's temporary directory, a name under the work
             directory; consecutive steps of a lane naming the same one share it.
-        exports: whether the run exports a local image into it.
+        reads_image: whether the run reads a local image, through an image
+            mount or by exporting it into its scratch; such runs take turns,
+            see :class:`ImageSlot`.
     """
 
     label: str
     argv: tuple[str, ...]
     accept: frozenset[int]
     scratch: str
-    exports: bool
+    reads_image: bool
 
     @property
     def container(self) -> str | None:
@@ -1334,6 +1345,9 @@ class Layout:
         sbom: the SBOM directory.
         work: the per-run scratch directory.
         excludes: absolute host paths the host scan skips.
+        image_mount: whether Syft reads a container image through a read-only
+            image mount instead of exporting it through the Docker socket,
+            see :func:`syft_image_mount`.
     """
 
     runtime: tuple[str, ...]
@@ -1341,6 +1355,7 @@ class Layout:
     sbom: Path
     work: Path
     excludes: tuple[str, ...]
+    image_mount: bool = False
 
 
 def run_argv(
@@ -1360,10 +1375,13 @@ def run_argv(
         engine: the engine, which picks its database mount and environment.
         image: the engine image.
         args: the engine's arguments.
-        target: the target, which picks the host or Docker socket mount;
-            ``None`` for a run that reads neither. A run with the Docker
-            socket runs on :data:`SOCKET_RUNTIME`, every other run on the
-            daemon's default runtime.
+        target: the target, which picks the host mount, the read-only image
+            mount at :data:`IMAGE_ROOT` for an engine of
+            :data:`IMAGE_MOUNT_READERS` on a layout with
+            :attr:`Layout.image_mount`, or the Docker socket for every other
+            run; ``None`` for a run that reads neither. A run that reads a
+            container target runs on :data:`IMAGE_RUNTIME`, every other run on
+            the daemon's default runtime.
         extra_env: environment on top of the engine's own.
         scratch: :attr:`Step.scratch` of the run, its ``TMPDIR`` under
             :data:`WORK`; with the work directory and a random suffix it also
@@ -1378,8 +1396,14 @@ def run_argv(
     if target is not None and target.kind == "host":
         mounts += ["-v", f"/:{HOST_ROOT}:ro"]
     if target is not None and target.kind == "container":
-        options += ["--runtime", SOCKET_RUNTIME]
-        mounts += ["-v", f"{DOCKER_SOCKET}:{DOCKER_SOCKET}:ro"]
+        options += ["--runtime", IMAGE_RUNTIME]
+        if engine in IMAGE_MOUNT_READERS and layout.image_mount:
+            mounts += [
+                "--mount",
+                f"type=image,source={target.ref},destination={IMAGE_ROOT},readonly",
+            ]
+        else:
+            mounts += ["-v", f"{DOCKER_SOCKET}:{DOCKER_SOCKET}:ro"]
     environment = {"TMPDIR": f"{WORK}/{scratch}", **ENGINE_ENV[engine], **extra_env}
     return (*layout.runtime, *options, *mounts, *_env(environment), image, *args)
 
@@ -1466,11 +1490,30 @@ def sbom_paths(layout: Layout, target: Target) -> tuple[Path, Path]:
 
 
 def sbom_step(layout: Layout, image: str, target: Target) -> Step:
-    """Build one target's SBOM in Syft and CycloneDX JSON."""
+    """Build one target's SBOM in Syft and CycloneDX JSON.
+
+    Args:
+        layout: where the run keeps its files; with
+            :attr:`Layout.image_mount` a container target's image is read
+            through the read-only image mount of :func:`run_argv` with
+            :data:`IMAGE_CATALOGERS`, the catalogers Syft picks for an image
+            source, and every path reported relative to the image root,
+            without it Syft exports the image through the Docker socket.
+        image: the Syft image.
+        target: the target.
+    """
     if target.kind == "host":
         source = [f"dir:{HOST_ROOT}", "--override-default-catalogers", "image"]
         for path in _relative_excludes(layout):
             source += ["--exclude", path]
+    elif layout.image_mount:
+        source = [
+            f"dir:{IMAGE_ROOT}",
+            "--base-path",
+            IMAGE_ROOT,
+            "--override-default-catalogers",
+            IMAGE_CATALOGERS,
+        ]
     else:
         source = [f"docker:{target.ref}"]
     args = [
@@ -1790,7 +1833,7 @@ def _remove(step: Step, runner: Runner) -> None:
     """Remove the container of a run whose client is gone.
 
     A killed ``run`` client leaves its container running, so this happens
-    before the run's export slot and scratch are given up.
+    before the run's image slot and scratch are given up.
     """
     if step.container is not None:
         runner((step.argv[0], "rm", "--force", step.container))
@@ -1818,19 +1861,22 @@ def _run_steps(steps: Sequence[Step], runner: Runner) -> list[str]:
 
 
 class SlotError(RuntimeError):
-    """The export slot could not be taken."""
+    """The image slot could not be taken."""
 
 
-class ExportSlot:
-    """Let one exporting engine run at a time hold its scratch on the host.
+class ImageSlot:
+    """Let one engine run at a time read a local image on the host.
 
-    An export costs up to three times the image on disk: the daemon stages
-    it, the engine saves it, and Syft copies every layer uncompressed. Every
+    Syft reads the image through a read-only image mount where the daemon
+    supports one (see :func:`image_export_reason`) and then writes no copy of
+    it. Every other engine run that reads a local image exports it, which
+    costs up to three times the image on disk: the daemon stages it, the
+    engine saves it, and an engine that unpacks it copies every layer. Every
     scan on a host reads one database directory: the swarm lab nodes and the
     local stacks of every worktree bind-mount the same host directory there
     (``INFINITO_VULNERABILITY_DB_HOST_PATH``), while a production node keeps
-    its own. A lock on that directory thus also holds back the exports of the
-    other nodes and worktree stacks whose scratch shares the disk.
+    its own. A lock on that directory thus also holds back the image reads of
+    the other nodes and worktree stacks whose scratch shares the disk.
 
     Args:
         anchor: the database directory.
@@ -1849,7 +1895,7 @@ class ExportSlot:
             fcntl.flock(self._held, fcntl.LOCK_EX)
         except OSError as exc:
             self._release()
-            raise SlotError(f"no export slot on {self._anchor}: {exc}") from exc
+            raise SlotError(f"no image slot on {self._anchor}: {exc}") from exc
         except BaseException:
             self._release()
             raise
@@ -1868,7 +1914,7 @@ def run_lane(
     lane: Sequence[Step],
     runner: Runner,
     work: Path,
-    exports: contextlib.AbstractContextManager,
+    images: contextlib.AbstractContextManager,
 ) -> list[str]:
     """Run steps in order and stop at the first failing one.
 
@@ -1877,10 +1923,10 @@ def run_lane(
         runner: runs one command.
         work: the run's work directory, which holds every
             :attr:`Step.scratch`.
-        exports: held by a group of steps sharing a scratch directory while
-            one of them exports an image, from its creation to the removal of
-            it and of a container left behind; a :class:`SlotError` taking it
-            fails the lane with one line instead of the whole scan.
+        images: held by a group of steps sharing a scratch directory while
+            one of them reads a local image, from its creation to the removal
+            of it and of a container left behind; a :class:`SlotError` taking
+            it fails the lane with one line instead of the whole scan.
 
     Returns:
         Error lines, empty when every step succeeded.
@@ -1888,7 +1934,9 @@ def run_lane(
     for scratch, group in itertools.groupby(lane, key=lambda step: step.scratch):
         steps = list(group)
         gate = (
-            exports if any(step.exports for step in steps) else contextlib.nullcontext()
+            images
+            if any(step.reads_image for step in steps)
+            else contextlib.nullcontext()
         )
         try:
             with gate:
@@ -1910,18 +1958,18 @@ def run_lanes(
 ) -> list[list[str]]:
     """Run lanes in parallel, at most *workers* at a time.
 
-    Steps that export an image take turns across every scan sharing
-    :attr:`Layout.databases`, whatever *workers* is (see :class:`ExportSlot`).
+    Steps that read a local image take turns across every scan sharing
+    :attr:`Layout.databases`, whatever *workers* is (see :class:`ImageSlot`).
 
     Returns:
         The error lines of each lane, in lane order.
     """
     if not lanes:
         return []
-    exports = ExportSlot(layout.databases)
+    images = ImageSlot(layout.databases)
     with ThreadPoolExecutor(max_workers=workers) as pool:
         return list(
-            pool.map(lambda lane: run_lane(lane, runner, layout.work, exports), lanes)
+            pool.map(lambda lane: run_lane(lane, runner, layout.work, images), lanes)
         )
 
 
@@ -2190,6 +2238,83 @@ def docker_root() -> str:
     ).stdout.strip()
 
 
+def image_export_reason(version: str | None, api: str | None) -> str | None:
+    """
+    Args:
+        version: the Docker daemon's server version, ``None`` when it could
+            not be read.
+        api: the API version the ``docker`` CLI negotiated with the daemon,
+            ``None`` when it could not be read.
+
+    Returns:
+        Why Syft exports container images instead of reading them through a
+        read-only image mount, ``None`` when the daemon mounts them.
+    """
+    release = DOCKER_RELEASE.match(version or "")
+    if release is None:
+        return f"Docker server version {version!r} is unreadable"
+    found = tuple(int(part) for part in release.groups())
+    if found < IMAGE_MOUNT_SINCE:
+        since = ".".join(map(str, IMAGE_MOUNT_SINCE))
+        return f"Docker {version} predates image mounts, which need {since}"
+    first, fixed = IMAGE_MOUNT_LONG_LAYER_NAMES
+    if first <= found < fixed:
+        fix = ".".join(map(str, fixed))
+        return (
+            f"Docker {version} names an image mount's layer beyond 255 "
+            f"characters, fixed in {fix}"
+        )
+    negotiated = DOCKER_API.fullmatch(api or "")
+    if negotiated is None:
+        return f"Docker API version {api!r} is unreadable"
+    if tuple(int(part) for part in negotiated.groups()) < IMAGE_MOUNT_API:
+        need = ".".join(map(str, IMAGE_MOUNT_API))
+        return f"the docker CLI talks API {api}, image mounts need {need}"
+    return None
+
+
+def docker_versions() -> tuple[str | None, str | None]:
+    """
+    Returns:
+        The Docker daemon's server version and the API version the CLI
+        negotiated with it, each ``None`` when ``container version`` fails or
+        prints none.
+    """
+    try:
+        result = subprocess.run(
+            ["container", "version", "--format", DOCKER_VERSION_FORMAT],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=EXEC_TIMEOUT_SECONDS,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None, None
+    version, _, api = result.stdout.strip().partition(" ")
+    return version or None, api or None
+
+
+def syft_image_mount(config: ScanConfig, targets: Sequence[Target]) -> bool:
+    """
+    Args:
+        config: the scan configuration.
+        targets: the targets of the run.
+
+    Returns:
+        Whether Syft reads the container images through a read-only image
+        mount. The daemon is read only when Syft runs and a container is a
+        target; when it cannot mount them, one ``ℹ️`` line names the reason.
+    """
+    if SBOM_BUILDER not in config.engines or not any(
+        target.kind == "container" for target in targets
+    ):
+        return False
+    reason = image_export_reason(*docker_versions())
+    if reason is not None:
+        print(f"ℹ️ syft exports container images instead of mounting them: {reason}")
+    return reason is None
+
+
 MOUNTINFO = Path("/proc/self/mountinfo")
 NETWORK_FSTYPES = frozenset(
     {
@@ -2293,6 +2418,7 @@ def vulnerability_check(
             excludes=tuple(
                 sorted({*excludes, str(cache), str(databases), docker_root()})
             ),
+            image_mount=syft_image_mount(config, targets),
         )
         findings, errors = scan(targets, config, images, layout, runner)
         prune_sboms(

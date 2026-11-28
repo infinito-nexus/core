@@ -10,18 +10,20 @@
 - block:
     - name: "🧩 load docker, db and proxy for {{ application_id }}"
       include_role:
-        name: sys-stk-full
-      vars:
-        compose_handlers_flush: false
+        name: svc-stack
+        tasks_from: consumer.yml
 
     - name: "🎬 Stage and bootstrap the XWiki config on the stack host"
       when: IS_STACK_HOST | bool
       block:
-        - name: "🎬 Stage the XWiki entrypoint wrapper into the compose build context"
+        - name: "🎬 Stage the XWiki entrypoint chain into the compose build context"
           stack_host_copy:
-            src: shell/xwiki-entrypoint.sh
-            dest: "{{ [ lookup('container', application_id, 'directories.instance'), 'xwiki-entrypoint.sh' ] | path_join }}"
+            src: "{{ item }}"
+            dest: "{{ [ lookup('container', application_id, 'directories.instance'), item | basename ] | path_join }}"
             mode: "0755"
+          loop:
+            - shell/xwiki-entrypoint.sh
+            - "{{ lookup('path_absolute', 'roles/sys-ca-selfsigned/files/shell/java-with-ca-trust.sh') }}"
           notify:
             - compose-build
             - compose-up
@@ -29,9 +31,9 @@
         - name: 🚀 Deploy Bootstrap Config
           include_tasks: utils/flush_config.yml
   vars:
-    xwiki_oidc_enabled_switch: "{{ (XWIKI_OIDC_ENABLED | bool) and (xwiki_extensions_ready | bool) }}"
-    xwiki_ldap_enabled_switch: "{{ (XWIKI_LDAP_ENABLED | bool) and (xwiki_extensions_ready | bool) }}"
-    xwiki_blobstore_s3_enabled_switch: false
+    xwiki_oidc_enabled_switch: "{{ (XWIKI_LOGIN_SSO | bool) and (xwiki_extensions_ready | bool) }}"
+    xwiki_ldap_enabled_switch: "{{ (XWIKI_LOGIN_LDAP | bool) and (xwiki_extensions_ready | bool) }}"
+    xwiki_blobstore_s3_enabled_switch: "{{ (XWIKI_OBJSTORE_ENABLED | bool) and (xwiki_extensions_ready | bool) }}"
 
 - name: "👔 XWiki manager-side operations (file deploys + container exec)"
   include_tasks: 02_manager_ops.yml

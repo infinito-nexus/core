@@ -18,6 +18,7 @@ from __future__ import annotations
 import re
 import unittest
 
+from plugins.lookup.i18n_catalogue import LookupModule
 from tests.utils.gpu import FLAG, gpu_tests_enabled
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml
@@ -27,16 +28,40 @@ from utils.i18n.languages import load_languages
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-keycloak"
 CATALOGUE_FILE = ROLE / "files" / "logout_i18n.yml"
+CATALOGUE_TERM = "roles/web-app-keycloak/files/logout_i18n.yml"
 TEMPLATE = ROLE / "files" / "javascript" / "logout-panel.js"
+DASHBOARD_TEMPLATE = (
+    PROJECT_ROOT
+    / "roles"
+    / "web-app-dashboard"
+    / "templates"
+    / "javascript"
+    / "oidc.js.j2"
+)
 REFERENCE = "en"
 MINIMUM_LANGUAGES = 30
 TOLERATED_ENGLISH_KEYS = 2
+CHOICE_KEYS = ("choice_device", "choice_everywhere")
+RESULT_KEYS = ("everywhere_done", "everywhere_partial")
+
+
+def _keys_read() -> set[str]:
+    """Return the catalogue keys the logout panel and the dashboard read."""
+    panel = set(re.findall(r"\bs\.([a-z_]+)", read_text(str(TEMPLATE))))
+    dashboard = set(
+        re.findall(r"\bmessages\.([a-z_]+)", read_text(str(DASHBOARD_TEMPLATE)))
+    )
+    return panel | dashboard
 
 
 class TestLogoutCatalogue(unittest.TestCase):
     def setUp(self) -> None:
         self.catalogue = keyed_catalogue(
-            PROJECT_ROOT, logout_context, load_yaml(CATALOGUE_FILE)
+            PROJECT_ROOT,
+            logout_context,
+            load_yaml(CATALOGUE_FILE),
+            PROJECT_ROOT,
+            "core",
         )
         self.template = read_text(str(TEMPLATE))
 
@@ -81,8 +106,13 @@ class TestLogoutCatalogue(unittest.TestCase):
                 )
 
     def test_no_catalogue_key_is_dead(self) -> None:
-        used = set(re.findall(r"\bs\.([a-z_]+)", self.template)) | {"dir"}
+        used = _keys_read() | {"dir"}
         self.assertFalse(sorted(set(self.catalogue[REFERENCE]) - used))
+
+    def test_the_device_success_names_its_scope(self) -> None:
+        done = self.catalogue[REFERENCE]["all_done"]
+        self.assertIn("this device", done)
+        self.assertNotIn("everywhere", done)
 
     def test_placeholders_survive_translation(self) -> None:
         reference = self.catalogue[REFERENCE]
@@ -97,11 +127,42 @@ class TestLogoutCatalogue(unittest.TestCase):
                     )
 
 
+class TestLogoutChoicesAreTranslated(unittest.TestCase):
+    def setUp(self) -> None:
+        self.catalogue = LookupModule().run(
+            ["logout", CATALOGUE_TERM], variables={"playbook_dir": str(PROJECT_ROOT)}
+        )[0]
+
+    def test_every_language_block_translates_the_choices_and_their_outcome(
+        self,
+    ) -> None:
+        reference = self.catalogue[REFERENCE]
+        for lang, entry in self.catalogue.items():
+            for key in (*CHOICE_KEYS, *RESULT_KEYS):
+                with self.subTest(language=lang, key=key):
+                    self.assertTrue(str(entry[key]).strip())
+                    if lang != REFERENCE:
+                        self.assertNotEqual(
+                            entry[key],
+                            reference[key],
+                            "the English fallback is not a translation",
+                        )
+
+    def test_the_choices_are_two_different_labels_in_every_language(self) -> None:
+        for lang, entry in self.catalogue.items():
+            with self.subTest(language=lang):
+                self.assertNotEqual(entry["choice_device"], entry["choice_everywhere"])
+
+
 @unittest.skipUnless(gpu_tests_enabled(), f"{FLAG} is false")
 class TestLogoutCatalogueIsTranslated(unittest.TestCase):
     def setUp(self) -> None:
         self.catalogue = keyed_catalogue(
-            PROJECT_ROOT, logout_context, load_yaml(CATALOGUE_FILE)
+            PROJECT_ROOT,
+            logout_context,
+            load_yaml(CATALOGUE_FILE),
+            PROJECT_ROOT,
+            "core",
         )
 
     def test_translations_are_not_copies_of_english(self) -> None:

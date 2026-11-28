@@ -1,0 +1,6 @@
+---
+whitelist:
+  style-src-elem:
+    - https://fonts.googleapis.com # nocheck: external-cdn,url  Reason: the seeded third-party web font of files/app/html/index.html; the counsel agent's privacy probe must observe the request, and a blocked stylesheet fails hlth-csp
+  font-src:
+    - https://fonts.gstatic.com # nocheck: external-cdn,url  Reason: the font files the seeded fonts.googleapis.com stylesheet loads

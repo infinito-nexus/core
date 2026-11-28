@@ -6,24 +6,19 @@ from utils.distros import distro_names
 
 VALID_DISTROS: tuple[str, ...] = distro_names()
 
-TOOLS_LANE_KEYS: tuple[str, ...] = (
-    "INFINITO_TOOLS_LIBRETRANSLATE_PORT",
-    "INFINITO_TOOLS_LITELLM_PORT",
-    "INFINITO_TOOLS_MODELS_HOST_PATH",
-    "INFINITO_TOOLS_S1_PORT",
-    "INFINITO_TOOLS_TRANSLATE_PORT",
-)
+INFRA_CONSUMER = "compose/infra-consumer.override.yml"
+POOL_CONSUMER = "compose/pool-consumer.override.yml"
 
 
 def compose_file_args() -> list[str]:
     """Compose `-f` flags shared by up and down flows.
 
-    Each override is gated on the resource it needs being present, not on the
-    instance slot: an override whose `:?` guard is unsatisfied would abort the
-    stack outright, so a checkout that was never handed a shared git dir or
-    cache network simply does not layer that file in.
+    Returns:
+        The `-f` flags; whenever the cache stack is enabled the infra consumer
+        override joins the machine-wide infra network, and a pool runner's job
+        takes the pool consumer override, which wires the caches without it.
     """
-    from .extra_mounts import parse_mounts, write_mounts_override
+    from .extra_mounts import OVERRIDE, parse_mounts, write_mounts_override
     from .profile import Profile
 
     profile = Profile()
@@ -31,9 +26,7 @@ def compose_file_args() -> list[str]:
     if profile.shared_git_dir():
         out += ["-f", "compose/worktree.override.yml"]
     if profile.cache_stack_enabled():
-        out += ["-f", "compose/cache.override.yml"]
-        if profile.shared_cache_network():
-            out += ["-f", "compose/cache.shared.override.yml"]
+        out += ["-f", POOL_CONSUMER if profile.pool_runner() else INFRA_CONSUMER]
         if profile.shared_package_cache():
             out += ["-f", "compose/shared-cache.override.yml"]
             if profile.host_pacman_cache():
@@ -42,8 +35,6 @@ def compose_file_args() -> list[str]:
         out += ["-f", "compose/gpu.override.yml"]
     if (os.environ.get("INFINITO_PUBLISH_PORTS") or "").strip().lower() == "false":
         out += ["-f", "compose/noports.override.yml"]
-    if all((os.environ.get(key) or "").strip() for key in TOOLS_LANE_KEYS):
-        out += ["-f", "compose/tools.override.yml"]
 
     if profile.image_mirror_enabled():
         from utils.cache.files import PROJECT_ROOT
@@ -55,7 +46,12 @@ def compose_file_args() -> list[str]:
     if mounts:
         from utils.cache.files import PROJECT_ROOT
 
-        out += ["-f", write_mounts_override(PROJECT_ROOT, mounts)]
+        out += [
+            "-f",
+            write_mounts_override(
+                PROJECT_ROOT, mounts, service="infinito", override=OVERRIDE
+            ),
+        ]
     return out
 
 

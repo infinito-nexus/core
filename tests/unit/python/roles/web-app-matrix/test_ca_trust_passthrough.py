@@ -19,7 +19,11 @@ from __future__ import annotations
 import re
 import unittest
 
+from ansible.module_utils.parsing.convert_bool import boolean
+from jinja2 import Environment, select_autoescape
+
 from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_str
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
@@ -33,6 +37,36 @@ _BOUND_BY_SYNAPSE = re.compile(r"src='?\s*~?\s*CA_TRUST\.(\w+)")
 _PASSED_THROUGH = re.compile(
     r"\{\{\s*CA_TRUST\.(\w+)\s*\}\}\s*:\s*\{\{\s*CA_TRUST\.(\w+)\s*\}\}"
 )
+_IF = re.compile(r"^\s*\{%-?\s*if\s+(.+?)\s*-?%\}\s*$")
+_ENDIF = re.compile(r"^\s*\{%-?\s*endif\s*-?%\}\s*$")
+
+
+def _environment() -> Environment:
+    env = Environment(autoescape=select_autoescape(default_for_string=False))
+    env.filters["bool"] = lambda value: boolean(value, strict=False)
+    return env
+
+
+def _ca_gates(template: str) -> set[str | None]:
+    """
+    Args:
+        template: the text of a template that binds CA_TRUST paths.
+
+    Returns:
+        The condition of the innermost ``{% if %}`` around every CA_TRUST
+        line, None for a line outside every block.
+    """
+    gates: set[str | None] = set()
+    open_blocks: list[str] = []
+    for line in template.splitlines():
+        opened = _IF.match(line)
+        if opened:
+            open_blocks.append(opened.group(1))
+        elif _ENDIF.match(line):
+            open_blocks.pop()
+        elif "CA_TRUST" in line:
+            gates.add(open_blocks[-1] if open_blocks else None)
+    return gates
 
 
 class TestCaTrustPassthrough(unittest.TestCase):
@@ -82,21 +116,28 @@ class TestCaTrustPassthrough(unittest.TestCase):
             "file appears fails with 'not a directory' (run 34653754175, "
             "Matrix#1)"
         )
-        self.assertIn(
-            f"{_CA_GATE}: \"{{{{ lookup('ca_injected', application_id) | bool }}}}\"",
-            read_text(str(_VARS)),
-            drift,
-        )
+        env = _environment()
+        declared = load_yaml_str(read_text(str(_VARS)))[_CA_GATE]
         for name in ("services.yml.j2", "vars.yml.j2"):
-            with self.subTest(template=name):
-                template = read_text(str(_MATRIX / name))
-                gate = next(
-                    line
-                    for line in template.splitlines()
-                    if "CA_TRUST" in template and line.strip().startswith("{% if ")
-                    if _CA_GATE in line or "TLS_MODE" in line
-                )
-                self.assertIn(_CA_GATE, gate, drift)
+            gates = _ca_gates(read_text(str(_MATRIX / name)))
+            self.assertTrue(gates, name)
+            for gate in gates:
+                for injected, tls_mode in ((True, "off"), (False, "self_signed")):
+                    with self.subTest(template=name, gate=gate, injected=injected):
+                        self.assertIsNotNone(gate, drift)
+                        flag = env.from_string(declared).render(
+                            application_id="web-app-matrix",
+                            lookup=lambda *_terms, injected=injected: injected,
+                        )
+                        self.assertIs(
+                            bool(
+                                env.compile_expression(gate)(
+                                    **{_CA_GATE: flag, "TLS_MODE": tls_mode}
+                                )
+                            ),
+                            injected,
+                            drift,
+                        )
 
 
 if __name__ == "__main__":  # pragma: no cover

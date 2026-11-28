@@ -80,7 +80,7 @@ def _distinct_hits(target: str, roots: list[Path]) -> list[Path]:
 
 
 class TestIncludeTargetsResolve(unittest.TestCase):
-    def test_every_static_include_resolves_uniquely(self) -> None:
+    def test_every_static_include_resolves_uniquely(self) -> None:  # nocheck: test.text-presence -- parses every role task file  # fmt: skip
         findings: list[str] = []
 
         for path_str in sorted(iter_project_files(extensions=(".yml", ".yaml"))):

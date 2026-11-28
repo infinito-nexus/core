@@ -9,8 +9,9 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
+const { COSMOS_SKY, TRANSPARENT, pinLegible } = require("./cosmos-sky");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const MODES = ["light", "dark"];
@@ -29,6 +30,10 @@ const WEB_LINK = "a[href^='http']";
 const SERVER_LINE = "center:last-of-type";
 const INJECTION_MARK = "infinito-inj";
 const SHEETS = ["/_shared/css/layer.css", "/_shared/css/default.css", "/roles/web-svc-html/"];
+const COSMOS_MODULE = /^\/_infinito\/cdn\/roles\/[a-z0-9-]+\/latest\/js\/cosmos\.js$/;
+const COSMOS_CACHE_BUSTER = /^[0-9]+$/;
+const COSMOS_TAG = "script[type='module'][data-cosmos]";
+const CONTENT_BLOCK = "body > :not(cosmos-sky, script, style, template)";
 
 function base() {
   return normalizeBaseUrl(process.env.APP_BASE_URL || "");
@@ -161,6 +166,7 @@ exports.register = function () {
 
     test("design: the 403 page of the proxy takes surface, text, font and divider from the tokens", async ({ page }) => {
       skipUnlessServiceEnabled("design");
+      skipUnlessServiceDisabled("cosmos");
       const response = await open(page, `${base()}/`);
       test.skip(response.status() !== FORBIDDEN, "an index document replaces the 403 page of the proxy");
       for (const mode of MODES) {
@@ -173,6 +179,53 @@ exports.register = function () {
       await page.emulateMedia({ colorScheme: null });
       await assertLightAndDark(page, "body", "html 403");
       await assertReadable(page, [HEADING, SERVER_LINE], "html 403", AAA);
+    });
+
+    test("design: on a cosmos host the module loads same-origin and the page surface clears for the sky", async ({ page, request }) => {
+      skipUnlessServiceEnabled("design");
+      skipUnlessServiceEnabled("cosmos");
+      await open(page, `${base()}/`);
+      const src = await page.locator(COSMOS_TAG).getAttribute("src", { timeout: resolveTimeout(10_000) });
+      const url = new URL(src, page.url());
+      expect(url.origin, "html cosmos: the module loads from the origin of the page").toBe(new URL(page.url()).origin);
+      expect(url.pathname, "html cosmos: the module loads from the same-origin CDN path").toMatch(COSMOS_MODULE);
+      expect(url.searchParams.get("v") || "", "html cosmos: the module URL carries the mtime cache buster").toMatch(COSMOS_CACHE_BUSTER);
+      const module = await apiGetOnion(request, url.href, { timeout: resolveTimeout(30_000) });
+      expect(module.status(), "html cosmos: the module must be served").toBe(200);
+      expect(module.headers()["content-type"] || "", "html cosmos: the module must be served as JavaScript").toContain("javascript");
+      await page.locator(COSMOS_SKY).waitFor({ state: "attached", timeout: resolveTimeout(20_000) });
+      for (const mode of MODES) {
+        const label = `html cosmos ${mode}`;
+        await page.emulateMedia({ colorScheme: mode });
+        await pinLegible(page, "all");
+        await expect
+          .poll(() => page.locator("body").evaluate((body) => getComputedStyle(body).backgroundColor), {
+            message: `${label}: the page surface must let the sky through`,
+          })
+          .toBe(TRANSPARENT);
+        await assertToken(page, "body", "color", "--cosmos-text", label);
+        await pinLegible(page, "top");
+        expect(
+          await page.locator("body").evaluate((body) => getComputedStyle(body).backgroundColor),
+          `${label} legible top: the body stays clear so the sky keeps drawing`,
+        ).toBe(TRANSPARENT);
+        await assertToken(page, CONTENT_BLOCK, "background-color", "--design-surface-1", `${label} legible top`);
+        await assertToken(page, CONTENT_BLOCK, "color", "--design-text", `${label} legible top`);
+      }
+      await page.emulateMedia({ colorScheme: null });
+    });
+
+    test("design: without cosmos no module loads and the page keeps its surface", async ({ page }) => {
+      skipUnlessServiceEnabled("design");
+      skipUnlessServiceDisabled("cosmos");
+      await open(page, `${base()}/`);
+      await expect(page.locator("script[data-cosmos]"), "html: no cosmos module without the cosmos role").toHaveCount(0);
+      await expect(page.locator("html[data-cosmos-mode]"), "html: no cosmos mode without the cosmos role").toHaveCount(0);
+      for (const mode of MODES) {
+        await page.emulateMedia({ colorScheme: mode });
+        await assertToken(page, "body", "background-color", "--design-surface-1", `html without cosmos ${mode}`);
+      }
+      await page.emulateMedia({ colorScheme: null });
     });
 
     test("design: the root and the 404 page carry the title of the vhost and the corporate favicon", async ({ page }) => {
@@ -202,6 +255,7 @@ exports.register = function () {
 
     test("design: the imprint takes surface, text, headings and links from the tokens in both modes", async ({ page }) => {
       skipUnlessServiceEnabled("design");
+      skipUnlessServiceDisabled("cosmos");
       skipWithoutImprint();
       await open(page, imprintUrl());
       for (const mode of MODES) {
@@ -219,6 +273,7 @@ exports.register = function () {
 
     test("design: the imprint stays readable in light and dark mode, also on a hovered and a focused link", async ({ page }) => {
       skipUnlessServiceEnabled("design");
+      skipUnlessServiceDisabled("cosmos");
       skipWithoutImprint();
       await open(page, imprintUrl());
       await assertLightAndDark(page, "body", "html imprint");

@@ -12,15 +12,13 @@
  *     scheme         {"name", "colors": [<swatch>, ...], "icons": {"base", "focus", "current"}}
  *     tokens         URLs of the token stylesheets the editor canvas loads
  *
- * Site icon, site logo and a global styles post are written only while they are unset or still hold what an earlier
- * run wrote. An account moves from the default admin color scheme to the corporate one once.
- *
  * Stdout, last line: changed | unchanged
  */
 
 require_once ABSPATH . 'wp-admin/includes/image.php';
 require_once ABSPATH . 'wp-admin/includes/class-wp-site-icon.php';
 
+const NEXUS_DESIGN_WRITER = true;
 const INFINITO_DESIGN_OPTION = 'infinito_design';
 const INFINITO_DESIGN_ASSET = '_infinito_design_asset';
 const INFINITO_DESIGN_ACCOUNT = '_infinito_design_scheme';
@@ -90,9 +88,6 @@ $logos = $enabled ? $config['logos'] : [];
 foreach (array_unique(array_merge(array_keys($applied['logos']), array_keys($logos))) as $option) {
     $present = (int) get_option($option);
     $ours = (int) ($applied['logos'][$option] ?? 0);
-    if ($present !== 0 && $present !== $ours && get_post($present) !== null) {
-        continue;
-    }
     if (isset($logos[$option])) {
         $id = $attachment($option, $directory . '/' . $logos[$option]);
         if ($present !== $id) {
@@ -100,7 +95,7 @@ foreach (array_unique(array_merge(array_keys($applied['logos']), array_keys($log
             $changed = true;
         }
         $owned['logos'][$option] = $id;
-    } elseif ($present !== 0) {
+    } elseif ($present !== 0 && ($present === $ours || get_post($present) === null)) {
         delete_option($option);
         $changed = true;
     }
@@ -138,10 +133,10 @@ foreach (array_unique(array_merge(array_keys($applied['global_styles']), array_k
     $present = $post === null ? null : json_decode($post->post_content, true);
     $ours = $applied['global_styles'][$theme] ?? null;
     $untouched = $present === null || $present == $ours || !array_diff_key($present, $pristine);
-    if (!$untouched) {
+    $wanted = $styles[$theme] ?? null;
+    if ($wanted === null && !$untouched) {
         continue;
     }
-    $wanted = $styles[$theme] ?? null;
     if ($wanted !== null) {
         $owned['global_styles'][$theme] = $wanted;
     }

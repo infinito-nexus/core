@@ -28,6 +28,8 @@ from typing import Any
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
+GLOBAL = "global"
+
 
 class LookupModule(LookupBase):
     def run(
@@ -63,6 +65,8 @@ class LookupModule(LookupBase):
             hosts = groups.get(app_id, []) if app_id else []
             replicas = len(hosts or [])
 
+        if str(replicas).strip() == GLOBAL:
+            return [f"mode: {GLOBAL}"]
         try:
             n = int(replicas)
         except (TypeError, ValueError) as exc:

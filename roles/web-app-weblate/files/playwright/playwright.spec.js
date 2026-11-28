@@ -55,3 +55,7 @@ test("biber: app → universal logout", async ({ page }) => {
 test("administrator: app → universal logout", async ({ page }) => {
   await runAdminFlow(page);
 });
+
+require("./test-rbac").register();
+require("./test-two-factor").register();
+require("./test-login-methods");

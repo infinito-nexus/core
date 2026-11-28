@@ -1,0 +1,7 @@
+---
+# Param knot_host: inventory host whose running server rereads its configuration and zone file.
+- name: "🔄 Reload the knot server on {{ knot_host }}"
+  ansible.builtin.shell: >
+    container exec {{ KNOT_CONTAINER_ADDRESS }} knotc reload
+  delegate_to: "{{ knot_host }}"
+  changed_when: true

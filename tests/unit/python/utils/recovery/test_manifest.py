@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
+from typing import ClassVar
 
 from utils.recovery import layout, manifest
 from utils.recovery.layout import MANIFEST_FILE, MANIFEST_SCHEMA
@@ -119,6 +121,74 @@ class TestLayoutOf(unittest.TestCase):
                 f"*/{layout.SQL_DIR}/*.backup.sql",
             ),
         )
+
+
+class TestLayoutNamesStayInsideTheGeneration(unittest.TestCase):
+    VALID: ClassVar[dict[str, str]] = {
+        "files_dir": "files",
+        "sql_dir": "sql",
+        "dump_suffix": ".backup.sql.gz",
+        "cluster_suffix": ".cluster.backup.sql.gz",
+    }
+
+    def _layout(self, **override: object) -> Path:
+        return generation({}, layout_names={**self.VALID, **override})
+
+    def test_single_segment_names_are_returned(self) -> None:
+        self.assertEqual(manifest.layout_of(self._layout()), self.VALID)
+
+    def test_the_layout_baudolo_8_writes_is_accepted(self) -> None:
+        baudolo_8_layout = {
+            "files_dir": "files",
+            "sql_dir": "sql",
+            "dump_suffix": ".backup.sql.gz",
+            "cluster_suffix": ".cluster.backup.sql.gz",
+            "dump_compression": "gzip",
+        }
+        directory = generation({}, layout_names=baudolo_8_layout)
+        self.assertEqual(manifest.layout_of(directory), baudolo_8_layout)
+
+    def test_a_field_no_path_is_built_from_is_left_alone(self) -> None:
+        names = manifest.layout_of(self._layout(dump_compression=None))
+        self.assertIsNone(names["dump_compression"])
+
+    def test_a_missing_name_is_refused_as_unreadable(self) -> None:
+        for field in manifest.LAYOUT_NAMES:
+            names = {key: value for key, value in self.VALID.items() if key != field}
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                manifest.layout_of(generation({}, layout_names=names))
+
+    def test_an_absolute_name_is_refused(self) -> None:
+        with self.assertRaises(ValueError):
+            manifest.layout_of(self._layout(files_dir="/etc"))
+
+    def test_a_parent_reference_is_refused(self) -> None:
+        for name in (os.path.pardir, "../outside", "files/.."):
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                manifest.layout_of(self._layout(files_dir=name))
+
+    def test_a_nested_name_is_refused(self) -> None:
+        for name in ("a/b", "files/", "./files"):
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                manifest.layout_of(self._layout(sql_dir=name))
+
+    def test_a_suffix_carrying_a_separator_is_refused(self) -> None:
+        with self.assertRaises(ValueError):
+            manifest.layout_of(self._layout(dump_suffix="/../../x.sql"))
+
+    def test_an_empty_dot_or_non_string_name_is_refused(self) -> None:
+        for name in ("", ".", 7, None):
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                manifest.layout_of(self._layout(files_dir=name))
+
+    def test_a_layout_that_is_no_mapping_is_refused(self) -> None:
+        directory = Path(tempfile.mkdtemp())
+        (directory / MANIFEST_FILE).write_text(
+            json.dumps({"schema": MANIFEST_SCHEMA, "layout": ["files"]}),
+            encoding="utf-8",
+        )
+        with self.assertRaises(ValueError):
+            manifest.layout_of(directory)
 
 
 class TestDumpSuffixes(unittest.TestCase):

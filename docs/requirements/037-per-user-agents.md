@@ -19,13 +19,15 @@ As a platform user with agent access, I want Open WebUI to start my own Hermes o
 1. Open WebUI sends `POST /v1/chat/completions` with `model: hermes` or `model: openclaw` to the broker, authenticated with the broker key and carrying the `X-OpenWebUI-User-*` headers (`ENABLE_FORWARD_USER_INFO_HEADERS=true`).
 2. The broker rejects any request whose bearer is not the broker key, and any request without a user id header.
 3. The broker resolves the caller's groups from Keycloak on every completion and refuses with HTTP 403 when the caller is not in the `agent-user` group of the requested platform.
+   - Superseded by [089](089-agents-restructuring.md#superseded-criteria): the group `agent-<role>` grants starting that catalog profile; `agent-user` no longer grants a personal agent.
 4. The broker looks up the caller's agent for that platform by name. When none exists it creates one; when it is stopped it starts it; it then waits until the agent answers its health endpoint.
 5. The broker forwards the request to the agent with the agent's own bearer key and streams the answer back unchanged.
 6. `GET /v1/models` lists both platforms; Open WebUI shows each only to its group through model access grants.
+   - Superseded by [089](089-agents-restructuring.md#superseded-criteria): the broker spawns any discovered runtime instead of hard-enabling Hermes and OpenClaw, and Open WebUI offers one model `agent/<role>` per catalog profile instead of the models `hermes` and `openclaw`.
 
 ### Model visibility
 
-With the broker deployed, Open WebUI runs with `BYPASS_MODEL_ACCESS_CONTROL=false`. A deploy-time step grants every LiteLLM model public read access and each agent model read access for its `agent-user` group only. A `svc-ai-litellm` deploy repeats that step in a running Open WebUI, so a model added to the gateway is visible to every user without an Open WebUI deploy.
+Open WebUI always runs with `BYPASS_MODEL_ACCESS_CONTROL=false`, with or without the broker. While the LiteLLM gateway or the broker is on, a deploy-time step grants public read access to every LiteLLM model except the ones LiteLLM's `/v1/model/info` declares with an `audio_transcription`, `audio_speech` or `embedding` mode, and each agent model read access for its `agent-user` group only. A `svc-ai-litellm` deploy repeats that step in a running Open WebUI, so a chat model added to the gateway is visible to every user without an Open WebUI deploy. The arena model carries its own public read grant through `EVALUATION_ARENA_MODELS`. Users see only granted models and their own, so a workspace preset another user keeps private stays hidden from them. Administrators with SSO follow the same grants, because the role sets `BYPASS_ADMIN_ACCESS_CONTROL=false` there for the MCP grants and Open WebUI applies that flag to models too; they still see a model that has no model entry in Open WebUI, while a model whose entry carries no grant, such as a revoked audio route, stays hidden from every SSO administrator who does not own it. LDAP and native administrators keep Open WebUI's default administrator bypass and see every model. Without SSO the deploy converges the platform administrator before any grant step; with LDAP that account gets a random local password nobody knows, as Open WebUI's own LDAP sign-up does, so the password endpoint offers no login path beside LDAP.
 
 ### Agent container
 
@@ -36,6 +38,7 @@ With the broker deployed, Open WebUI runs with `BYPASS_MODEL_ACCESS_CONTROL=fals
 - A dedicated network per agent whose only other member is the broker.
 - A random bearer key per agent, known only to the broker, used in both directions.
 - The agent holds no model credential: it calls `http://agent-broker:<port>/llm/v1`, and the broker relays the call to LiteLLM with the broker's own virtual key and the owner in the OpenAI `user` field, and logs a `relay` event with owner, platform, path and upstream status.
+  - Superseded by [089](089-agents-restructuring.md#superseded-criteria): every agent, user-started or team, has its own LiteLLM virtual key, and every agent acts under its own account bound to an owner instead of carrying the owner only in the OpenAI `user` field.
 - CPU, memory and pids limits come from the platform role's `meta/services.yml`.
 
 ### Lifecycle
@@ -49,6 +52,8 @@ With the broker deployed, Open WebUI runs with `BYPASS_MODEL_ACCESS_CONTROL=fals
 | `idle_minutes` | idle time before a stop |
 | `max_running` | upper bound of concurrently running agents; a request beyond it gets HTTP 503 |
 | `start_timeout` | seconds an agent gets to answer its health endpoint |
+
+Superseded by [089](089-agents-restructuring.md#superseded-criteria): the single `model` key per agent gives way to a `models` list per role, chosen within by `svc-ai-s1`.
 
 A stopped agent is started again on the next request with its volume re-attached. An agent serving a request is never stopped, and the idle time is re-read under the agent's lock before the stop. When a caller has lost the `agent-user` group, the broker refuses the request and stops that caller's running agent.
 
@@ -76,8 +81,8 @@ The proxy filters methods and paths, not request bodies. `POST /volumes/create` 
 ### Access control
 
 - [x] `web-app-hermes` and `web-app-openclaw` each declare the RBAC role `agent-user`, which provisions a Keycloak group.
-- [x] Open WebUI lists `hermes` and `openclaw` only to a user in the matching group, while every LiteLLM model stays visible to all users.
-- [x] A model added to LiteLLM becomes visible to all Open WebUI users after a `svc-ai-litellm` deploy alone.
+- [x] Open WebUI lists `hermes` and `openclaw` only to a user in the matching group, while every LiteLLM chat model stays visible to all users; audio and embedding routes get no grant.
+- [x] A chat model added to LiteLLM becomes visible to all Open WebUI users after a `svc-ai-litellm` deploy alone.
 - [x] A direct call to the broker for a user outside the group gets HTTP 403 and creates no container.
 - [x] A request with a wrong or missing broker key gets HTTP 401.
 

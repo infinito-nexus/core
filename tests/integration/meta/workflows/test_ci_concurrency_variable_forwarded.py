@@ -57,7 +57,7 @@ class TestCiConcurrencyVariableForwarded(unittest.TestCase):
             "workflow that sizes deploy chunks",
         )
 
-    def test_the_guard_finds_the_chunk_sizing_workflows(self) -> None:
+    def test_the_guard_finds_the_chunk_sizing_workflows(self) -> None:  # nocheck: test.text-presence -- vacuity guard of the workflow-wide forwarding lint  # fmt: skip
         self.assertGreaterEqual(
             len(_sizing_workflows()),
             2,

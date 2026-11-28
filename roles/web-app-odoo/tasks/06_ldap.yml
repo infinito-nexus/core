@@ -1,12 +1,9 @@
 ---
-# Configure LDAP authentication for Odoo
-# ODOO_LDAP_CONFIG is defined in vars/main.yml
-
 - name: "🔎 Check if LDAP configuration exists"
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/select/res-company-ldap-exists.sql"
+    query_file: "{{ role_path }}/files/sql/select/res_company_ldap/exists.sql"
     named_args:
       ldap_server: "{{ ODOO_LDAP_CONFIG.ldap_server }}"
     expect_rows: true
@@ -17,17 +14,7 @@
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/update/res-company-ldap.sql"
-    named_args:
-      sequence: "{{ ODOO_LDAP_CONFIG.sequence }}"
-      company_id: "{{ ODOO_LDAP_CONFIG.company_id }}"
-      ldap_server_port: "{{ ODOO_LDAP_CONFIG.ldap_server_port }}"
-      ldap_binddn: "{{ ODOO_LDAP_CONFIG.ldap_binddn }}"
-      ldap_password: "{{ ODOO_LDAP_CONFIG.ldap_password }}"
-      ldap_base: "{{ ODOO_LDAP_CONFIG.ldap_base }}"
-      ldap_filter: "{{ ODOO_LDAP_CONFIG.ldap_filter }}"
-      create_user: "{{ ODOO_LDAP_CONFIG.create_user }}"
-      ldap_tls: "{{ ODOO_LDAP_CONFIG.ldap_tls }}"
-      ldap_server: "{{ ODOO_LDAP_CONFIG.ldap_server }}"
+    named_args: "{{ ODOO_LDAP_DIRECTORY | combine(ODOO_LDAP_CONFIG) }}"
   when: ldap_check.rows | length > 0
 
 - name: "📁 Create new LDAP configuration"
@@ -35,15 +22,5 @@
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/insert-res-company-ldap.sql"
-    named_args:
-      sequence: "{{ ODOO_LDAP_CONFIG.sequence }}"
-      company_id: "{{ ODOO_LDAP_CONFIG.company_id }}"
-      ldap_server: "{{ ODOO_LDAP_CONFIG.ldap_server }}"
-      ldap_server_port: "{{ ODOO_LDAP_CONFIG.ldap_server_port }}"
-      ldap_binddn: "{{ ODOO_LDAP_CONFIG.ldap_binddn }}"
-      ldap_password: "{{ ODOO_LDAP_CONFIG.ldap_password }}"
-      ldap_base: "{{ ODOO_LDAP_CONFIG.ldap_base }}"
-      ldap_filter: "{{ ODOO_LDAP_CONFIG.ldap_filter }}"
-      create_user: "{{ ODOO_LDAP_CONFIG.create_user }}"
-      ldap_tls: "{{ ODOO_LDAP_CONFIG.ldap_tls }}"
+    named_args: "{{ ODOO_LDAP_DIRECTORY | combine(ODOO_LDAP_CONFIG) }}"
   when: ldap_check.rows | length == 0

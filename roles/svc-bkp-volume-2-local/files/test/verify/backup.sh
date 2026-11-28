@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Verify the newest backup generation is stored, non-empty, and dumped where a
 # dump was owed: a volume counts as payload with a files/ tree or a sql dump
-# that holds data once decompressed, and a volume the run recorded as a
-# database must carry the dump unless its provider has no consumer on this host.
+# that holds data once decompressed (baudolo 8 gzips them, older ones did not;
+# an empty gzip is not 0 bytes), and a volume the run recorded as a database
+# must carry the dump unless its provider has no consumer on this host.
 # The generation's own manifest is the authority; a generation written before
 # baudolo wrote one is judged by the engine's on-disk footprint instead.
 # Requires REPO_DIR/NEWEST_GENERATION/BKP_TEST_REPO_ROOT from test.sh.

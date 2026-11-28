@@ -1,0 +1,308 @@
+"""Integration test: host-side provisioning reaches no published local port in swarm.
+
+Swarm publishes no ``ports.local`` port of a term bound to ``DOCKER_BIND_HOST``
+(074), so a host-side task that dials one there reaches nothing. For the
+central Postgres and MariaDB init, the RBAC directory searches and the Synapse
+RBAC hook, the task that dials the local port runs only in compose, and in
+swarm a sibling reaches the app inside its container or, for OpenLDAP, through
+the ldapi socket the role binds into its volumes directory. Each check
+evaluates the real ``when:`` and value expressions in both modes.
+"""
+
+from __future__ import annotations
+
+import posixpath
+import unittest
+from itertools import product
+from urllib.parse import unquote
+
+from ansible.plugins.filter.core import path_join, regex_replace
+from ansible.plugins.test.core import search
+from jinja2.nativetypes import NativeEnvironment
+
+from plugins.filter.rbac.members import rbac_ldap_members
+from utils import PROJECT_ROOT
+from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+
+_ENV = NativeEnvironment()
+_ENV.filters.update(
+    {
+        "bool": bool,
+        "dirname": posixpath.dirname,
+        "path_join": path_join,
+        "rbac_ldap_members": rbac_ldap_members,
+        "regex_replace": regex_replace,
+    }
+)
+_ENV.tests["search"] = search
+MODES = {
+    "compose": {"IS_COMPOSE_MODE": True, "IS_SWARM_MODE": False},
+    "swarm": {"IS_COMPOSE_MODE": False, "IS_SWARM_MODE": True},
+}
+LDAP_VARS = {
+    "LDAP": {
+        "USER": {
+            "ATTRIBUTES": {
+                "ID": "uid",
+                "MAIL": "mail",
+                "FULLNAME": "cn",
+                "UUID": "entryUUID",
+            }
+        }
+    },
+    "group_names": ["svc-db-openldap"],
+}
+
+
+def _value(text: object, variables: dict) -> object:
+    return _ENV.from_string(str(text)).render(**variables)
+
+
+def _runs(task: dict, variables: dict) -> bool:
+    conditions = task.get("when", [])
+    conditions = conditions if isinstance(conditions, list) else [conditions]
+    return all(
+        _value("{{ " + str(condition) + " }}", variables) for condition in conditions
+    )
+
+
+def _tasks(rel: str) -> list[dict]:
+    return load_yaml_any(str(PROJECT_ROOT / rel))
+
+
+def _including(tasks: list[dict], target: str) -> dict:
+    return next(
+        task for task in tasks if task.get("ansible.builtin.include_tasks") == target
+    )
+
+
+def _named(tasks: list[dict], name: str) -> dict:
+    for task in tasks:
+        if task.get("name") == name:
+            return task
+        nested = [
+            found
+            for key in ("block", "rescue", "always")
+            if (found := _named(task.get(key, []), name))
+        ]
+        if nested:
+            return nested[0]
+    return {}
+
+
+def _with(tasks: list[dict], key: str, needle: str = "") -> list[dict]:
+    found = []
+    for task in tasks:
+        body = [task, *task.get("block", [])]
+        if any(key in item and needle in str(item[key]) for item in body):
+            found.append(task)
+    return found
+
+
+class TestPostgresInit(unittest.TestCase):
+    def test_swarm_provisions_inside_the_container_even_when_exposed(self) -> None:
+        tasks = _tasks("roles/svc-db-postgres/tasks/01_init.yml")
+        published = _including(tasks, "01_init/published.yml")
+        container = _including(tasks, "01_init/container.yml")
+        for mode, exposed in product(MODES, (True, False)):
+            variables = {**MODES[mode], "POSTGRES_EXPOSE_LOCAL": exposed}
+            through_port = mode == "compose" and exposed
+            with self.subTest(mode=mode, exposed=exposed):
+                self.assertEqual(through_port, _runs(published, variables))
+                self.assertEqual(not through_port, _runs(container, variables))
+
+
+class TestMariadbInit(unittest.TestCase):
+    def test_swarm_never_dials_the_local_port(self) -> None:
+        waits = _with(
+            _tasks("roles/svc-db-mariadb/tasks/00_core.yml"),
+            "ansible.mariadb.mariadb_db",
+        )
+        init = _tasks("roles/svc-db-mariadb/tasks/01_init.yml")
+        host = _with(init, "ansible.mariadb.mariadb_db")
+        cli = _with(init, "ansible.builtin.shell", "container exec")
+        self.assertEqual((1, 1, 1), (len(waits), len(host), len(cli)))
+        for mode, exposed in product(MODES, (True, False)):
+            variables = {**MODES[mode], "MARIADB_EXPOSE_LOCAL": exposed}
+            through_port = mode == "compose" and exposed
+            with self.subTest(mode=mode, exposed=exposed):
+                self.assertEqual(through_port, _runs(waits[0], variables))
+                self.assertEqual(through_port, _runs(host[0], variables))
+                self.assertEqual(not through_port, _runs(cli[0], variables))
+
+
+class TestRbacDirectorySearch(unittest.TestCase):
+    def _check(self, rel: str, output: str) -> None:
+        tasks = _tasks(rel)
+        searches = _with(tasks, "community.general.ldap_search")
+        assign = _with(tasks, "ansible.builtin.set_fact", output)[0]
+        alice = {"uid": "alice", "mail": "alice@example.org", "cn": "Alice"}
+        for mode in MODES:
+            variables = {**MODES[mode], **LDAP_VARS}
+            ran = [task for task in searches if _runs(task, variables)]
+            with self.subTest(file=rel, mode=mode):
+                self.assertEqual(1, len(ran))
+                uri = ran[0]["community.general.ldap_search"]["server_uri"]
+                self.assertEqual(mode == "compose", "ports.local." in uri)
+                self.assertEqual(mode == "swarm", "LDAP.SERVER.SOCKET_URI" in uri)
+                registers = {
+                    task["register"]: {"results": [alice]}
+                    if task is ran[0]
+                    else {"skipped": True}
+                    for task in searches
+                }
+                members = _value(
+                    assign["ansible.builtin.set_fact"][output],
+                    {**variables, **registers},
+                )
+                self.assertEqual(["alice"], [m["username"] for m in members])
+
+    def test_members_search_the_socket_in_swarm(self) -> None:
+        self._check("tasks/utils/rbac/members.yml", "rbac_members")
+
+    def test_users_search_the_socket_in_swarm(self) -> None:
+        self._check("tasks/utils/rbac/users.yml", "rbac_users")
+
+    def test_the_socket_uri_is_the_socket_openldap_binds(self) -> None:
+        server = load_yaml_any(str(PROJECT_ROOT / "group_vars/all/12_ldap.yml"))
+        role = load_yaml_any(
+            str(PROJECT_ROOT / "roles/svc-db-openldap" / ROLE_FILE_VARS_MAIN)
+        )
+        variables = {
+            "application_id": "svc-db-openldap",
+            "lookup": lambda *_: "/opt/compose/openldap/volumes/",
+        }
+        socket = path_join(
+            [_value(role["OPENLDAP_SOCKET_PATH_HOST"], variables), "ldapi"]
+        )
+        self.assertEqual("{{ LDAP.SERVER.SOCKET_URI }}", role["OPENLDAP_SERVER_URI"])
+        self.assertEqual(
+            "ldapi://" + socket.replace("/", "%2F"),
+            _value(server["LDAP"]["SERVER"]["SOCKET_URI"], variables),
+        )
+
+
+class TestPlaywrightDirectoryWrites(unittest.TestCase):
+    VOLUMES = "/opt/compose/openldap/volumes/"
+    STACK_HOST = "mgr-01"
+    LDAP_URL = "LDAP_URL={{ LDAP.SERVER.SOCKET_URI | dotenv_quote }}"
+
+    @staticmethod
+    def _env_lines(template) -> list[str]:
+        return [
+            line
+            for line in read_text(str(template)).splitlines()
+            if line.startswith("LDAP_URL=")
+        ]
+
+    def _templates(self) -> tuple[list, list]:
+        templates = sorted(
+            (PROJECT_ROOT / "roles").glob("*/templates/playwright.env.j2")
+        )
+        ldap = [path for path in templates if self._env_lines(path)]
+        plain = [path for path in templates if not self._env_lines(path)]
+        self.assertTrue(ldap and plain)
+        return ldap, plain
+
+    def _lookup(self, kind: str, *args: str) -> str:
+        return read_text(str(args[0])) if kind == "file" else self.VOLUMES
+
+    def test_every_playwright_ldap_url_is_the_socket_openldap_binds(self) -> None:
+        server = load_yaml_any(str(PROJECT_ROOT / "group_vars/all/12_ldap.yml"))
+        self.assertNotIn("HOST_URI", server["LDAP"]["SERVER"])
+        for template in self._templates()[0]:
+            with self.subTest(template=template.parent.parent.name):
+                self.assertEqual([self.LDAP_URL], self._env_lines(template))
+
+    def test_only_ldap_roles_mount_the_socket_dir_of_the_stack_host(self) -> None:
+        server = load_yaml_any(str(PROJECT_ROOT / "group_vars/all/12_ldap.yml"))
+        socket_uri = _value(
+            server["LDAP"]["SERVER"]["SOCKET_URI"], {"lookup": self._lookup}
+        )
+        socket = unquote(socket_uri.removeprefix("ldapi://"))
+        self.assertEqual(path_join([self.VOLUMES, "run", "ldapi"]), socket)
+        socket_dir = posixpath.dirname(socket)
+        role = load_yaml_any(
+            str(PROJECT_ROOT / "roles/test-e2e-playwright" / ROLE_FILE_VARS_MAIN)
+        )
+        for key in ("SOCKET_DIR", "SOCKET_MOUNTED"):
+            self.assertIn(f"TEST_E2E_PLAYWRIGHT_LDAP_{key}", role)
+        run = _named(
+            _tasks("roles/test-e2e-playwright/tasks/03_run_pass.yml"),
+            "▶️ Run Playwright container",
+        )
+        mount = f"{socket_dir}:{socket_dir}:ro"
+        ldap, plain = self._templates()
+        cases = product(
+            MODES,
+            ((ldap[0], True), (plain[0], False)),
+            ({"svc-db-openldap": [self.STACK_HOST]}, {}),
+        )
+        for mode, (template, carries_url), groups in cases:
+            variables = {
+                **MODES[mode],
+                "LDAP": {"SERVER": {"SOCKET_URI": socket_uri}},
+                "STACK_HOST": self.STACK_HOST,
+                "groups": groups,
+                "group_names": [] if groups else ["svc-db-openldap"],
+                "lookup": self._lookup,
+                "_playwright_env_template": str(template),
+                "_playwright_secrets_template_stat": {"stat": {"exists": False}},
+                "TEST_E2E_PLAYWRIGHT_MASK_ARGV": [],
+            }
+            variables["TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_DIR"] = _value(
+                role["TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_DIR"], variables
+            )
+            variables["TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_MOUNTED"] = _value(
+                role["TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_MOUNTED"], variables
+            )
+            argv = _value(run["ansible.builtin.command"]["argv"], variables)
+            mounts = [argv[i + 1] for i, arg in enumerate(argv) if arg == "-v"]
+            role_name = template.parent.parent.name
+            with self.subTest(mode=mode, role=role_name, groups=groups):
+                self.assertEqual(carries_url and bool(groups), mount in mounts)
+                self.assertFalse(
+                    any(socket_dir in item for item in mounts if item != mount)
+                )
+
+
+class TestMatrixRbacHook(unittest.TestCase):
+    def test_the_hook_runs_inside_synapse_in_swarm(self) -> None:
+        task = _tasks("roles/web-app-matrix/tasks/01_rbac_administrator.yml")[0]
+        hook = task["vars"]
+        for flavor_pin, cluster in product(("", "compose"), ("compose", "swarm")):
+            variables = {"compose_mode_force": flavor_pin, "DEPLOYMENT_MODE": cluster}
+            variables["rbac_sync_mode"] = _value(hook["rbac_sync_mode"], variables)
+            variables.update(
+                MATRIX_SYNAPSE_LOOPBACK_URL="loopback",
+                MATRIX_SYNAPSE_CONTAINER_URL="container",
+            )
+            inside = variables["rbac_sync_mode"] == "swarm"
+            with self.subTest(flavor_pin=flavor_pin, cluster=cluster):
+                self.assertEqual(
+                    "container" if inside else "host",
+                    _value(hook["rbac_sync_kind"], variables),
+                )
+                self.assertEqual(
+                    ["python3", "-"] if inside else [],
+                    _value(hook["rbac_sync_argv"], variables),
+                )
+                self.assertEqual(
+                    "container" if inside else "loopback",
+                    _value(hook["rbac_sync_env"]["MATRIX_SYNAPSE_URL"], variables),
+                )
+
+    def test_the_container_url_is_synapse_s_internal_port(self) -> None:
+        matrix = load_yaml_any(
+            str(PROJECT_ROOT / "roles/web-app-matrix" / ROLE_FILE_VARS_MAIN)
+        )
+        self.assertIn(
+            "MATRIX_SYNAPSE_CONTAINER_PORT", matrix["MATRIX_SYNAPSE_CONTAINER_URL"]
+        )
+        self.assertIn("ports.internal.http", matrix["MATRIX_SYNAPSE_CONTAINER_PORT"])
+
+
+if __name__ == "__main__":
+    unittest.main()

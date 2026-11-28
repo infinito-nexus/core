@@ -1,0 +1,8 @@
+---
+# Param: entry_role - the role the caller enters right after this file.
+# Param: entry_application_id - the application_id the caller binds for that role.
+# Param: entry_domain - true when the caller also binds domain for that role.
+# Param: entry_post_run - true on a post-load path, where no flush follows the entry.
+- name: "🧩 Run the stack of '{{ entry_application_id }}' before its first entry"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/load/entry/first.yml') }}"
+  when: STACK_ENTRY_PENDING | bool

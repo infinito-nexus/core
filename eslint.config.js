@@ -77,6 +77,12 @@ module.exports = [
     },
   },
   {
+    files: ["roles/web-app-cst-cosmos/files/javascript/**/*.js"],
+    languageOptions: {
+      sourceType: "module",
+    },
+  },
+  {
     files: [
       "roles/**/files/playwright/**/*.js",
       "roles/test-e2e-playwright/files/personas/**/*.js",
@@ -106,6 +112,7 @@ module.exports = [
       // dropping the `await getAttribute("href")` step and leaving a
       // trailing-comma `toHaveAttribute("href", )` call). Keep off until
       // a hand-migration pass; promote to "error" as those are reviewed.
+      // upstream: https://github.com/mskelton/eslint-plugin-playwright/issues/507
       "playwright/prefer-web-first-assertions": "off",
       "playwright/no-wait-for-navigation": "error",
       // An empty collection out of a catch reads downstream as "nothing to

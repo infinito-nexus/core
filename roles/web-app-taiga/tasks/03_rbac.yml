@@ -1,0 +1,22 @@
+---
+- name: "🛂 Reconcile the Taiga superuser flag with the administrator role group"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: true
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: [administrator]
+    rbac_sync_service_key: "{{ TAIGA_MANAGER_SERVICE }}"
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ TAIGA_MANAGER_CONTAINER }}"
+    rbac_sync_kind: container
+    rbac_sync_user: ""
+    rbac_sync_argv: [python, manage.py, shell]
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/reconcile_superusers.py') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      TAIGA_RBAC_KEPT_SUPERUSERS: "{{ [TAIGA_SUPERUSER_NAME] | to_json }}"
+    rbac_sync_attributes: []
+    rbac_sync_members_env:
+      - { name: TAIGA_RBAC_ADMINISTRATORS, role: administrator, field: "" }

@@ -11,10 +11,14 @@ from __future__ import annotations
 import unittest
 
 from utils.mail.provider import (
-    declaring_roles,
+    MAIL_WRAPPER,
+    configured_provider,
+    default_provider,
     deployed_roles,
+    provider_roles,
     resolve_active_provider,
 )
+from utils.roles.applications.services.registry import expand_service_tokens
 
 from . import PROJECT_ROOT
 
@@ -24,19 +28,46 @@ STALWART = "web-app-stalwart"
 MAILU = "web-app-mailu"
 
 
-class TestDeclaringRoles(unittest.TestCase):
+class TestProviderRoles(unittest.TestCase):
     def test_both_providers_are_discovered(self):
-        roles = declaring_roles(ROLES_DIR)
+        roles = provider_roles(ROLES_DIR)
         self.assertIn(STALWART, roles)
         self.assertIn(MAILU, roles)
 
-    def test_provides_outranks_covers(self):
-        roles = declaring_roles(ROLES_DIR)
-        self.assertLess(
-            roles.index(STALWART),
-            roles.index(MAILU),
-            "the role declaring provides: email must win the fallback",
-        )
+    def test_the_wrapper_default_outranks_covers(self):
+        roles = provider_roles(ROLES_DIR)
+        self.assertEqual(roles[0], default_provider(ROLES_DIR))
+        self.assertLess(roles.index(STALWART), roles.index(MAILU))
+
+
+class TestDisablingTheProvider(unittest.TestCase):
+    def test_disabling_the_selected_provider_disables_the_wrapper(self):
+        self.assertIn("email", expand_service_tokens([STALWART], ROLES_DIR))
+
+    def test_disabling_the_wrapper_keeps_the_provider(self):
+        self.assertEqual(["email"], expand_service_tokens([MAIL_WRAPPER], ROLES_DIR))
+
+    def test_disabling_the_alternative_keeps_the_wrapper(self):
+        self.assertNotIn("email", expand_service_tokens([MAILU], ROLES_DIR))
+
+
+class TestConfiguredProvider(unittest.TestCase):
+    def test_the_wrapper_ships_stalwart(self):
+        self.assertEqual(default_provider(ROLES_DIR), STALWART)
+
+    def test_no_override_yields_the_wrapper_default(self):
+        for applications in (None, {}, {MAIL_WRAPPER: {}}, {"web-app-x": {}}):
+            self.assertEqual(configured_provider(applications, ROLES_DIR), STALWART)
+
+    def test_an_inventory_override_wins(self):
+        applications = {
+            MAIL_WRAPPER: {"services": {"email": {"provider": "web-app-other"}}}
+        }
+        self.assertEqual(configured_provider(applications, ROLES_DIR), "web-app-other")
+
+    def test_an_empty_override_yields_the_wrapper_default(self):
+        applications = {MAIL_WRAPPER: {"services": {"email": {"provider": " "}}}}
+        self.assertEqual(configured_provider(applications, ROLES_DIR), STALWART)
 
 
 class TestResolveActiveProvider(unittest.TestCase):

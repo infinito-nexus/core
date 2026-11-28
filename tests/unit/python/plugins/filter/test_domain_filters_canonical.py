@@ -25,6 +25,17 @@ class TestDomainFilters(unittest.TestCase):
         result = self.filter_module.canonical_domains_map(apps, self.primary)
         self.assertEqual(result, expected)
 
+    def test_an_empty_canonical_list_serves_no_domain(self):
+        apps = {"web-app-app1": {"domains": {"canonical": []}}, "web-app-app2": {}}
+        result = self.filter_module.canonical_domains_map(apps, self.primary)
+        self.assertEqual(result, {"web-app-app2": ["app2.example.com"]})
+
+    def test_an_empty_canonical_mapping_serves_no_domain(self):
+        apps = {"web-app-app1": {"domains": {"canonical": {}}}}
+        self.assertEqual(
+            self.filter_module.canonical_domains_map(apps, self.primary), {}
+        )
+
     def test_canonical_with_list(self):
         apps = {"web-app-app1": {"domains": {"canonical": ["foo.com", "bar.com"]}}}
         result = self.filter_module.canonical_domains_map(apps, self.primary)

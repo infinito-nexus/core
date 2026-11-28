@@ -1,0 +1,13 @@
+[Unit]
+Description=Shield the Code - OSS editor from the OOM killer and idle its ripgrep children
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/protect-code-oss /sys/fs/cgroup /proc /usr/lib
+# CAP_SYS_PTRACE: the kernel resolves another user's /proc/PID/exe only after a ptrace read check.
+CapabilityBoundingSet=CAP_SYS_RESOURCE CAP_SYS_NICE CAP_DAC_OVERRIDE CAP_SYS_PTRACE
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateNetwork=yes
+LogLevelMax=notice

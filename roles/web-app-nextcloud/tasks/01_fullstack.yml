@@ -22,11 +22,8 @@
 
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-    application_id: web-app-nextcloud
-    webserver_client_max_body_size: 10G
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "📄 Deploy '{{ NEXTCLOUD_INIT_GATE_HOST }}'"
   copy:
@@ -37,6 +34,14 @@
   notify:
     - compose-build
     - compose-up
+
+- name: "📄 Deploy the notify_push launcher to {{ NEXTCLOUD_NOTIFY_PUSH_LAUNCHER_HOST }}"
+  stack_host_copy:
+    src: shell/addons/notify_push/notify-push.sh
+    dest: "{{ NEXTCLOUD_NOTIFY_PUSH_LAUNCHER_HOST }}"
+    mode: "0555"
+  when: NEXTCLOUD_NOTIFY_PUSH_ENABLED | bool
+  notify: compose-up
 
 - when: NEXTCLOUD_WHITEBOARD_ENABLED | bool
   block:

@@ -131,7 +131,7 @@ class TestCancelSupersededWorkflow(unittest.TestCase):
             "an event that starts a PR run but no fallback keeps the deadlock",
         )
 
-    def test_pull_request_job_runs_for_pull_request_target_only(self):
+    def test_pull_request_job_runs_for_pull_request_target_only(self):  # nocheck: test.text-presence -- asserts on the if condition of the parsed workflow job  # fmt: skip
         self.assertTrue(
             self.workflow["jobs"]["cancel-pull-request-runs"]["if"].startswith(
                 "${{ github.event_name == 'pull_request_target'\n"
@@ -164,7 +164,7 @@ class TestCancelHelperReferences(unittest.TestCase):
                     f"{path.name} references missing {match}",
                 )
 
-    def test_every_sourced_helper_exists(self):
+    def test_every_sourced_helper_exists(self):  # nocheck: test.text-presence -- reference lint that every sourced helper exists on disk  # fmt: skip
         pattern = re.compile(r'source "\$\{SCRIPT_DIR\}/([A-Za-z0-9_.-]+)"')
         cancel_dir = PROJECT_ROOT / "scripts" / "github" / "cancel"
         sourced = set()

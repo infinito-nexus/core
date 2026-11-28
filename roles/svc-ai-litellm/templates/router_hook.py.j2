@@ -34,6 +34,7 @@ import urllib.request
 from datetime import date
 
 import litellm
+from litellm.constants import RETURN_RAW_MODEL_NAME_METADATA_KEY
 from litellm.integrations.custom_logger import CustomLogger
 from infinito_decider import Decider, History, Sampler, record_of
 
@@ -196,7 +197,7 @@ def capabilities(entry, catalog, today=None):
         "audio": bool(known.get("supports_audio_input")),
         "images": known.get("max_images_per_prompt"),
         "system": known.get("supports_system_messages") is not False,
-        "servable": known.get("mode") in CHAT_MODES or not known,
+        "servable": (info.get("mode") or known.get("mode")) in CHAT_MODES,
         "deprecated": _deprecated(known, today),
         "input_cost": known.get(
             "input_cost_per_token", 0.0 if local else UNPRICED_REMOTE_COST
@@ -259,6 +260,7 @@ def local_reason(data, deployments, catalog):
         capabilities(entry, catalog)["local"]
         for entry in deployments or []
         if entry.get("model_name") not in (None, ROUTER_ALIAS)
+        and (entry.get("model_info") or {}).get("mode") in CHAT_MODES
     ):
         return ""
     if carries_secret(data):
@@ -309,6 +311,8 @@ def eligible(deployments, need, exclude, catalog, today=None):
     for entry in deployments or []:
         alias = entry.get("model_name")
         if not alias or alias == exclude:
+            continue
+        if ((entry.get("model_info") or {}).get("traits") or {}).get("auto") is False:
             continue
         caps = capabilities(entry, catalog, today)
         if serves(caps, need):
@@ -527,6 +531,13 @@ def decide(candidates, need, text="", weights=None, strategy=None, tally=None):
     return decide_weighted(candidates, ROUTER_WEIGHTS if weights is None else weights)
 
 
+def keep_served_model(data):
+    bucket = "litellm_metadata" if isinstance(data.get("litellm_metadata"), dict) else "metadata"
+    if not isinstance(data.get(bucket), dict):
+        data[bucket] = {}
+    data[bucket][RETURN_RAW_MODEL_NAME_METADATA_KEY] = True
+
+
 async def collect(router, data, candidates, width):
     """Ask the first *width* candidates the same question.
 
@@ -604,7 +615,9 @@ class SystemOneRouter(CustomLogger):
         request_class = signature(need)
         tally = await self._tally(request_class)
         try:
-            data["model"] = decide(candidates, need, text, tally=tally)
+            data["model"] = await asyncio.to_thread(
+                decide, candidates, need, text, tally=tally
+            )
         except (OSError, ValueError) as error:
             return (
                 f"'{ROUTER_ALIAS}' cannot route: the {ROUTER_STRATEGY} strategy "
@@ -612,6 +625,7 @@ class SystemOneRouter(CustomLogger):
                 f"Answering from a substitute decider would make the alias mean "
                 f"something the caller did not ask for"
             )
+        keep_served_model(data)
         if SAMPLE_ENABLED and len(candidates) > 1 and self._sampler.due():
             await self._compare(llm_router, data, candidates, text, request_class)
         return data

@@ -18,14 +18,29 @@ from __future__ import annotations
 
 import unittest
 
-from utils.cache.files import read_text
-from utils.roles.mapping import ROLE_FILE_DEFAULTS_MAIN
+from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_DEFAULTS_MAIN, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
 _ENV_TEMPLATE = "templates/test.env.j2"
 _SCRIPT = "files/test/test.sh"
 _STRAY_SCRIPT = "files/test.sh"
+_HARNESS = "roles/test-e2e-cli/tasks/run_one.yml"
+_INCLUDE_VARS = "ansible.builtin.include_vars"
+
+
+def harness_vars_files() -> list[str]:
+    """
+    Returns:
+        The ``file`` of every ``include_vars`` task of the CLI harness, in run order.
+    """
+    tasks = load_yaml_any(str(PROJECT_ROOT / _HARNESS))
+    return [
+        str(task[_INCLUDE_VARS].get("file", ""))
+        for task in tasks
+        if isinstance(task, dict) and isinstance(task.get(_INCLUDE_VARS), dict)
+    ]
 
 
 def _role_dirs():
@@ -39,12 +54,21 @@ def _role_dirs():
 
 class TestCliTestAssetsPaired(unittest.TestCase):
     def test_harness_resets_leaked_compose_mode_before_role_vars(self) -> None:
-        harness = read_text(str(PROJECT_ROOT / "roles/test-e2e-cli/tasks/run_one.yml"))
-        reset = f"roles/sys-svc-compose/{ROLE_FILE_DEFAULTS_MAIN}"
-        role_vars = "roles', application_id, 'vars/main.yml"
+        files = harness_vars_files()
+        resets = [
+            index
+            for index, path in enumerate(files)
+            if f"'roles/sys-svc-compose/{ROLE_FILE_DEFAULTS_MAIN}'" in path
+        ]
+        role_vars = [
+            index
+            for index, path in enumerate(files)
+            if f"'roles', application_id, '{ROLE_FILE_VARS_MAIN}'" in path
+        ]
 
-        self.assertIn(reset, harness)
-        self.assertLess(harness.index(reset), harness.index(role_vars))
+        self.assertTrue(resets, f"{_HARNESS} never loads the compose-mode reset")
+        self.assertTrue(role_vars, f"{_HARNESS} never loads the role vars")
+        self.assertLess(resets[0], role_vars[0])
 
     def test_env_template_and_script_come_as_a_pair(self) -> None:
         offenders: dict[str, str] = {}

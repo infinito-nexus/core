@@ -1,7 +1,7 @@
 """Runtime-context lookups for the .env generator.
 
 Each helper resolves a single piece of information from the host the
-generator runs on (disk free space, RAM, hostname, /proc/version,
+generator runs on (RAM, hostname, /proc/version,
 GitHub Actions env vars, ...). They are intentionally tiny and
 side-effect-free apart from the OS read they need to perform, so they
 can be exercised independently in tests.
@@ -27,29 +27,6 @@ def is_user_writable(path: str) -> bool:
     while not p.exists() and str(p) not in ("/", "."):
         p = p.parent
     return os.access(p, os.W_OK)
-
-
-def df_avail_gb(path: str) -> int:
-    """Return free space in GB at `path` (or the closest existing
-    ancestor). 0 when `df` fails or the output is unparseable."""
-    p = Path(path)
-    while not p.exists() and str(p) not in ("/", "."):
-        p = p.parent
-    try:
-        out = subprocess.check_output(
-            ["df", "--output=avail", "-B1G", str(p)],
-            text=True,
-            stderr=subprocess.DEVNULL,
-        )
-    except (subprocess.CalledProcessError, OSError):
-        return 0
-    lines = out.strip().splitlines()
-    if len(lines) < 2:
-        return 0
-    try:
-        return int(lines[1].strip())
-    except ValueError:
-        return 0
 
 
 def _meminfo_mb(field: str) -> int:

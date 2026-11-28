@@ -4,8 +4,9 @@ const {
   gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
+  signInToLam,
 } = require("./personas");
-const { skipUnlessServiceEnabled, isServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled, isServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const baseUrl = normalizeBaseUrl(requireDotenvValue(process.env.OPENBAO_BASE_URL, "OPENBAO_BASE_URL"));
@@ -13,10 +14,8 @@ const kvMount = requireDotenvValue(process.env.OPENBAO_KV_MOUNT, "OPENBAO_KV_MOU
 const biberUsername = requireDotenvValue(process.env.BIBER_USERNAME, "BIBER_USERNAME");
 const biberPassword = requireDotenvValue(process.env.BIBER_PASSWORD, "BIBER_PASSWORD");
 const lamBaseUrl = normalizeBaseUrl(process.env.LAM_BASE_URL || ""); // nocheck: unguarded-env-default -- emitted only when lam is enabled; the spec skips otherwise
-const lamOauth2Fronted = String(process.env.LAM_OAUTH2_FRONTED || "").toLowerCase() === "true";
-const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
-const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
-const ldapAdminPassword = decodeDotenvQuotedValue(process.env.LDAP_ADMIN_PASSWORD || ""); // nocheck: unguarded-env-default -- emitted only when ldap is enabled; the spec skips otherwise
+const adminUsername = decodeDotenvQuotedValue(requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME"));
+const adminPassword = decodeDotenvQuotedValue(requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD"));
 const groupDnTemplate = decodeDotenvQuotedValue(process.env.LDAP_RBAC_GROUP_DN_TEMPLATE || ""); // nocheck: unguarded-env-default -- emitted only when ldap is enabled; the spec skips otherwise
 const userDnTemplate = decodeDotenvQuotedValue(process.env.LDAP_USER_DN_TEMPLATE || ""); // nocheck: unguarded-env-default -- emitted only when ldap is enabled; the spec skips otherwise
 const ldapDnBase = decodeDotenvQuotedValue(process.env.LDAP_DN_BASE || ""); // nocheck: unguarded-env-default -- emitted only when ldap is enabled; the spec skips otherwise
@@ -30,39 +29,6 @@ const biberDn = () => userDnTemplate.replace("<uid>", biberUsername);
 const groupCn = (role) => groupDn(role).replace(/^cn=/, "").split(",")[0];
 
 test.use({ ignoreHTTPSErrors: true });
-
-async function signInToLam(page) {
-  await gotoOnion(page, `${lamBaseUrl}/lam/templates/login.php`, { waitUntil: "load" });
-
-  if (lamOauth2Fronted) {
-    const keycloakUsername = page.locator("input[name='username'], input#username").first();
-    if (await keycloakUsername.isVisible().catch(() => false)) {
-      await keycloakUsername.fill(adminUsername);
-      await page.locator("input[name='password'], input#password").first().fill(adminPassword);
-      await page
-        .locator("button[type='submit'], input[name='login'], input[type='submit']")
-        .first()
-        .click({ timeout: resolveTimeout(30_000) });
-      await page.waitForLoadState("networkidle");
-    }
-  }
-
-  const lamPassword = page.locator("input[name='passwd'], input#passwd").first();
-  await expect(lamPassword, "LAM must present its bind-password form").toBeVisible({
-    timeout: resolveTimeout(30_000),
-  });
-  await lamPassword.fill(ldapAdminPassword);
-  await page
-    .locator("button[type='submit'], input[type='submit']")
-    .first()
-    .click({ timeout: resolveTimeout(30_000) });
-  await page.waitForLoadState("networkidle");
-
-  await expect(
-    page.locator("a[href*='list.php?type=user']").first(),
-    "the administrator must reach LAM's account menu after signing in",
-  ).toBeVisible({ timeout: resolveTimeout(30_000) });
-}
 
 // LAM's group list only renders posixGroup entries, and the RBAC role groups are
 // groupOfNames under ou=roles, so the members are edited through the Multi edit
@@ -168,8 +134,9 @@ const TIER_CAPABILITIES = {
 test.describe("rbac: the OpenBao tiers follow LDAP group membership", () => {
   test.describe.configure({ mode: "serial" });
 
-  test("rbac: biber starts outside every OpenBao role group", async ({ request }) => {
+  test("biber: starts outside every OpenBao role group", async ({ request }) => {
     skipUnlessServiceEnabled("ldap");
+    skipUnlessServiceDisabled("sso");
 
     const { policies, token } = await loginAsBiber(request);
     for (const role of RBAC_ROLES) {
@@ -188,15 +155,16 @@ test.describe("rbac: the OpenBao tiers follow LDAP group membership", () => {
   });
 
   for (const role of RBAC_ROLES) {
-    test(`rbac: LAM granting the ${role} group hands biber that tier, and revoking takes it back`, async ({
+    test(`biber: LAM granting the ${role} group hands biber that tier, and revoking takes it back`, async ({
       page,
       request,
     }) => {
       skipUnlessServiceEnabled("ldap");
+      skipUnlessServiceDisabled("sso");
       test.skip(!isServiceEnabled("lam"), "LAM not deployed (LAM_SERVICE_ENABLED=false)");
       test.setTimeout(resolveTimeout(180_000));
 
-      await signInToLam(page);
+      await signInToLam(page, lamBaseUrl, adminUsername, adminPassword);
       await setGroupMembership(page, role, "add");
 
       const granted = await expectTierAfterLam(request, role, true);

@@ -1,0 +1,5 @@
+---
+locked: "Managed by your central account. Change it there, because your next sign-in overwrites changes made here."
+managed: "Managed by the deployment, which overwrites changes made here. Change it in the inventory at"
+banner: "The deployment manages these fields of this page:"
+unlock: "The deployment manages this field and writes the inventory value back on its next run. Edit it here anyway?"

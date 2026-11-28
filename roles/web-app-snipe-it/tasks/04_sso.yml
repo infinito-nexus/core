@@ -1,4 +1,3 @@
-# @See https://raw.githubusercontent.com/snipe/snipe-it/master/app/Http/Controllers/Auth/LoginController.php
 ---
 - name: "⏳ snipe-it: wait until settings table is seeded"
   ansible.builtin.shell:
@@ -11,20 +10,38 @@
   changed_when: false
   failed_when: snipe_sso_settings_ready.rc != 0
 
-- name: "📌 snipe-it: apply trusted-header SSO configuration via Setting model"
+- name: "🔎 snipe-it: read the stored remote user settings meta/forms.yml manages"
   ansible.builtin.shell:
     cmd: >-
       container exec -i
-      -e SNIPE_IT_SSO_ENABLED=1
-      -e SNIPE_IT_SSO_HEADER_NAME={{ SNIPE_IT_SSO_HEADER_NAME | quote }}
-      -e SNIPE_IT_SSO_LOGOUT_URL={{ SNIPE_IT_SSO_LOGOUT_URL | quote }}
+      -e SNIPE_IT_SETTINGS_MODE=read
+      -e SNIPE_IT_SETTINGS={{ SNIPE_IT_REMOTE_USER_SETTINGS | to_json | b64encode | quote }}
       {{ SNIPE_IT_CONTAINER_ADDRESS }} php
-    stdin: "{{ lookup('file', 'php/apply/sso_config.php') }}"
-  changed_when: true
+    stdin: "{{ lookup('file', 'php/apply/settings.php') }}"
+  register: snipe_it_remote_user_stored
+  changed_when: false
 
-- name: "🧹 snipe-it: clear Laravel caches"
+- name: "📣 snipe-it: report the managed remote user settings the write reverts"
+  include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current: "{{ {'remote_user': snipe_it_remote_user_stored.stdout | from_json} }}"
+
+- name: "📌 snipe-it: write the managed remote user settings that differ via Setting model"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec -i
+      -e SNIPE_IT_SETTINGS_MODE=write
+      -e SNIPE_IT_SETTINGS={{ SNIPE_IT_REMOTE_USER_SETTINGS | to_json | b64encode | quote }}
+      {{ SNIPE_IT_CONTAINER_ADDRESS }} php
+    stdin: "{{ lookup('file', 'php/apply/settings.php') }}"
+  register: snipe_it_remote_user_written
+  changed_when: snipe_it_remote_user_written.stdout | trim == 'changed'
+  when: snipe_it_remote_user_stored.stdout | from_json | length > 0
+
+- name: "🧹 snipe-it: clear Laravel caches after a remote user settings change"
   ansible.builtin.shell:
     cmd: "container exec {{ SNIPE_IT_CONTAINER_ADDRESS }} php artisan optimize:clear"
+  when: snipe_it_remote_user_written is changed
   changed_when: true
 
 - name: "🔒 snipe-it: the SSO header bridge logs in only proxy-secret requests"

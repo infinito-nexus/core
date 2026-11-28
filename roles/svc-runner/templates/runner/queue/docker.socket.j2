@@ -1,0 +1,9 @@
+[Unit]
+Description=Docker API of the local runner pool for the {{ RUNNER_QUEUE_GROUP }} group
+
+[Socket]
+ListenStream={{ RUNNER_QUEUE_SOCKET }}
+SocketMode=0660
+SocketUser=root
+SocketGroup={{ RUNNER_QUEUE_GROUP }}
+Service=docker.service

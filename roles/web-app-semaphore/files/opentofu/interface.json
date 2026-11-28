@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Provision root module inputs",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "flavor", "size", "region", "ssh_public_key", "dns_label"],
+  "properties": {
+    "name": {
+      "description": "State key name: <sales order>-<line>; it names the server, so it is a hostname label that every provider accepts.",
+      "type": "string",
+      "pattern": "^[A-Za-z](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$"
+    },
+    "flavor": {
+      "description": "Order flavor; selects the catalog of the root.",
+      "type": "string",
+      "enum": ["demo", "cloud"]
+    },
+    "size": {
+      "description": "Catalog size the root maps to a server type.",
+      "type": "string",
+      "pattern": "^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$"
+    },
+    "region": {
+      "description": "Catalog region the root maps to provider settings.",
+      "type": "string",
+      "pattern": "^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$"
+    },
+    "ssh_public_key": {
+      "description": "Workspace public key installed for the first login.",
+      "type": "string",
+      "pattern": "^(ssh-ed25519|ecdsa-sha2-nistp256|ecdsa-sha2-nistp384|ecdsa-sha2-nistp521|sk-ssh-ed25519@openssh\\.com|sk-ecdsa-sha2-nistp256@openssh\\.com|ssh-rsa) [A-Za-z0-9+/]{32,1400}={0,3}$"
+    },
+    "dns_label": {
+      "description": "Label of the per-deploy record <dns_label>.<workspace>.<zone>.",
+      "type": "string",
+      "pattern": "^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$"
+    }
+  },
+  "outputs": ["host", "host_key", "server_id", "fqdn"],
+  "$defs": {
+    "order": {
+      "description": "Survey variables of provision, destroy, unlock and dns: the order line whose <SALES_ORDER>-<LINE> is the name.",
+      "type": "object",
+      "required": ["SALES_ORDER", "LINE"],
+      "properties": {
+        "SALES_ORDER": {
+          "description": "Sales Order: a letter first, at most 56 characters, so the joined name stays a hostname label.",
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9-]{0,55}$"
+        },
+        "LINE": {
+          "description": "Line of the Sales Order: digits only without a leading zero, so the last '-' of the name separates both and 7 and 007 cannot name the same line twice.",
+          "type": "string",
+          "pattern": "^[1-9][0-9]{0,5}$"
+        }
+      }
+    },
+    "host_name": {
+      "description": "Survey variable HOST of dns create when it is no address: a fully qualified host name, the pattern workspace.py checks WORKSPACE_TARGETS with, that MUST be the host of a pair of WORKSPACE_TARGETS. create then writes a CNAME <DNS_LABEL>.<workspace>.<zone> to it and never resolves it; an address writes A or AAAA.",
+      "type": "string",
+      "pattern": "^(?=.{1,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}$"
+    },
+    "provider_token": {
+      "description": "Survey variable PROVIDER_TOKEN of provision and destroy: platform takes the provider token of the platform, workspace the customer's own token at tenant/data/<workspace>-provision/providers/<provider>; neither falls back to the other.",
+      "type": "string",
+      "enum": ["platform", "workspace"]
+    },
+    "workspace": {
+      "description": "workspace.json the provision script writes into the task directory beside the root.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workspace", "dns"],
+      "properties": {
+        "workspace": {
+          "description": "Workspace name ws-<id>: DNS suffix, Proxmox pool and Incus project.",
+          "type": "string",
+          "pattern": "^ws-[a-z0-9](?:[a-z0-9-]{0,58}[a-z0-9])?$"
+        },
+        "dns": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["zone", "zone_id"],
+          "properties": {
+            "zone": {
+              "description": "Deploy zone apex without trailing dot.",
+              "type": "string",
+              "pattern": "^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$"
+            },
+            "zone_id": {
+              "description": "Provider zone id: Route 53 hosted zone or Cloudflare zone; empty for knot.",
+              "type": "string",
+              "pattern": "^[A-Za-z0-9]{0,64}$"
+            }
+          }
+        }
+      }
+    },
+    "catalog": {
+      "description": "services.semaphore.workspaces.catalog.<provider>, copied beside the root as catalog.json: per flavor the sizes and regions the root maps to provider settings.",
+      "type": "object",
+      "propertyNames": {"enum": ["demo", "cloud"]},
+      "additionalProperties": {
+        "type": "object",
+        "required": ["sizes", "regions"],
+        "properties": {
+          "sizes": {
+            "type": "object",
+            "minProperties": 1,
+            "propertyNames": {"pattern": "^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$"},
+            "additionalProperties": {"type": "object"}
+          },
+          "regions": {
+            "type": "object",
+            "minProperties": 1,
+            "propertyNames": {"pattern": "^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$"},
+            "additionalProperties": {"type": "object"}
+          }
+        }
+      }
+    }
+  }
+}

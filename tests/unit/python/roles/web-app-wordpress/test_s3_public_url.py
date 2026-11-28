@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import unittest
 import unittest.mock as mock
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from utils.cache.yaml import load_yaml
-from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.roles.applications import sso_fields
+from utils.roles.mapping import ROLE_FILE_META_FORMS, ROLE_FILE_META_SERVICES
 
 from . import PROJECT_ROOT
 
@@ -15,6 +17,7 @@ APP = "web-app-wordpress"
 PROVIDER_HOST = "api.seaweedfs.s3.example.com"
 SERVED_ON = ["blog.example.com", "blog." + "a" * 56 + ".onion"]
 SERVICES = load_yaml(str(PROJECT_ROOT / "roles" / APP / ROLE_FILE_META_SERVICES))
+FORMS = load_yaml(str(PROJECT_ROOT / "roles" / APP / ROLE_FILE_META_FORMS))
 
 
 def _objstore() -> dict:
@@ -74,11 +77,16 @@ def _render_env(objstore: dict) -> dict[str, str]:
             return objstore[terms[1]]
         if name == "database":
             return "db"
+        if (name, *terms) == ("field_locks", APP):
+            return {"profile": sso_fields.selectors(FORMS)}
+        if (name, *terms) == ("debug",):
+            return False
         raise AssertionError(f"env.j2 renders an unexpected lookup {name}{terms}")
 
     env.globals["lookup"] = lookup
     env.filters["bool"] = bool
     env.filters["dotenv_quote"] = lambda value: value
+    env.filters["to_json"] = json.dumps
     env.filters["urlsplit"] = lambda _url, _part: "sso.example.com"
     env.filters["network_of"] = lambda _host: "clearnet"
     rendered = env.get_template(f"roles/{APP}/templates/env.j2").render(
@@ -86,8 +94,26 @@ def _render_env(objstore: dict) -> dict[str, str]:
         HOST_TIMEZONE="UTC",
         WORDPRESS_MCP_SERVICE_KEY="wordpress",
         WORDPRESS_NETWORK_BASE_URLS="",
-        MODE_DEBUG=False,
-        OIDC={"CLIENT": {"ISSUER_URL": "https://sso.example.com/realms/x"}},
+        WORDPRESS_MANAGED_OPTIONS_FILE="/var/www/html/wp-content/infinito-managed-options.php",
+        OIDC={
+            "CLIENT": {"ISSUER_URL": "https://sso.example.com/realms/x"},
+            "ATTRIBUTES": dict.fromkeys(
+                (
+                    "EMAIL",
+                    "NAME",
+                    "GIVEN_NAME",
+                    "FAMILY_NAME",
+                    "WEBSITE",
+                    "LOCALE",
+                    "USERNAME",
+                ),
+                "claim",
+            ),
+        },
+        RBAC={"GROUP": {"CLAIM": "groups"}},
+        WORDPRESS_RBAC_GROUP_MAP={},
+        WORDPRESS_LOGIN_SSO=False,
+        WORDPRESS_SITE_OWNER_ENABLED=False,
     )
     return dict(
         line.split("=", 1)

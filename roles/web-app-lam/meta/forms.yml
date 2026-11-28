@@ -1,0 +1,53 @@
+---
+config:
+  path: /lam/templates/config/
+  sinks: [LAM_CONFIG]
+  fields:
+    master_login:
+      source: users.platform_administrator.password
+      mode: enforced
+      selector: "#masterpassword, #masterpassword2, #passwd1, #passwd2"
+      type: password
+      label: Master and server profile password
+    serverurl:
+      source: services.lam.profile.server_url
+      mode: enforced
+      selector: "#serverurl"
+      type: text
+      label: Server address
+    admins:
+      source: services.lam.profile.admins
+      mode: enforced
+      selector: "#admins"
+      type: textarea
+      label: List of valid users
+    lang:
+      source: services.lam.profile.language
+      mode: enforced
+      selector: "#lang"
+      type: select
+      label: Default language
+    loginSearchSuffix:
+      source: services.lam.profile.login_search_suffix
+      mode: enforced
+      selector: "#loginSearchSuffix"
+      type: text
+      label: LDAP suffix
+    loginSearchFilter:
+      source: services.lam.profile.login_search_filter
+      mode: enforced
+      selector: "#loginSearchFilter"
+      type: text
+      label: LDAP filter
+    suffix_user:
+      source: services.lam.profile.base_dn
+      mode: enforced
+      selector: "#suffix_user"
+      type: text
+      label: LDAP suffix of the users
+    suffix_group:
+      source: services.lam.profile.base_dn
+      mode: enforced
+      selector: "#suffix_group"
+      type: text
+      label: LDAP suffix of the groups

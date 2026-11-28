@@ -1,15 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🧩 For '{{ application_id }}': load docker, db and proxy"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_repository_url: "{{ AKAUNTING_REPOSITORY }}"
-    compose_repository_pull: true
-    compose_repository_ref: "{{ AKAUNTING_REF }}"
-    compose_handlers_flush: true
-
 - name: "🏗️ Akaunting | Install and configure on the stack host"
   when: IS_STACK_HOST | bool
   block:

@@ -1,0 +1,4 @@
+---
+canonical:
+  - worldmonitor.{{ DOMAIN_PRIMARY }}
+aliases: []

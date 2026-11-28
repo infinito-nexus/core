@@ -45,7 +45,7 @@ def _address_re(zone: str) -> re.Pattern[str]:
 
 
 class TestDnsmasqAaaaCoverage(unittest.TestCase):
-    def test_ipv4_zones_answer_aaaa_locally(self) -> None:
+    def test_ipv4_zones_answer_aaaa_locally(self) -> None:  # nocheck: test.text-presence -- policy lint over every dnsmasq address= declaration  # fmt: skip
         offenders: list[str] = []
         for glob in _GLOBS:
             for path in sorted(PROJECT_ROOT.glob(glob)):

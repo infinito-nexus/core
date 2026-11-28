@@ -37,15 +37,69 @@ KIX_DESIGN_ICONS:
     builtin: "/opt/kix/static/img/kix_start_icon.png"
 
 KIX_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
-KIX_LDAP_HOST: "{{ LDAP.SERVER.DOMAIN }}"
-KIX_LDAP_PORT: "{{ LDAP.SERVER.PORT }}"
-KIX_LDAP_BASE_DN: "{{ LDAP.DN.OU.USERS }}"
-KIX_LDAP_BIND_DN: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+KIX_LDAP_SETTINGS: "{{ lookup('form_values', application_id, 'ldap') }}"
 KIX_LDAP_BIND_PW: "{{ LDAP.BIND_CREDENTIAL }}"
-KIX_LDAP_UID_ATTR: "{{ LDAP.USER.ATTRIBUTES.ID }}"
-KIX_LDAP_ADMINISTRATOR_GROUP_DN: "cn={{ application_id }}-administrator,{{ LDAP.DN.OU.ROLES }}"
-KIX_LDAP_USER_GROUP_DN: "cn={{ application_id }}-user,{{ LDAP.DN.OU.ROLES }}"
+KIX_LDAP_ADMINISTRATOR_GROUP_DN: "{{ lookup('config', application_id, 'services.kix.ldap.administrator_group_dn') }}"
+KIX_LDAP_USER_GROUP_DN: "{{ lookup('config', application_id, 'services.kix.ldap.user_group_dn') }}"
+KIX_ROLE_SUPERUSER: "Superuser"
+KIX_ROLE_AGENT: "Ticket Agent"
+KIX_LDAP_CONTACT_SYNC: "{{ lookup('config', application_id, 'services.kix.ldap.contact_sync') }}"
+KIX_LDAP_ROLE_SYNC: >-
+  {{
+    {
+      KIX_LDAP_ADMINISTRATOR_GROUP_DN: {KIX_ROLE_SUPERUSER: 1},
+      KIX_LDAP_USER_GROUP_DN: {KIX_ROLE_AGENT: 1}
+    }
+  }}
+KIX_LDAP_USAGE_CONTEXT_SYNC: >-
+  {{
+    {
+      KIX_LDAP_ADMINISTRATOR_GROUP_DN: {'IsAgent': 1, 'IsCustomer': 0},
+      KIX_LDAP_USER_GROUP_DN: {'IsAgent': 1, 'IsCustomer': 0}
+    }
+  }}
+KIX_LDAP_SYNC:
+  - Enabled: 1
+    Module: "Kernel::System::Auth::Sync::LDAP"
+    Config:
+      ContactUserSync: "{{ KIX_LDAP_SETTINGS.contact_sync }}"
+      GroupDNBasedRoleSync: "{{ KIX_LDAP_ROLE_SYNC }}"
+      GroupDNBasedUsageContextSync: "{{ KIX_LDAP_USAGE_CONTEXT_SYNC }}"
+KIX_LDAP_BACKEND_CONFIG:
+  Host: "{{ KIX_LDAP_SETTINGS.host }}"
+  Params:
+    async: 0
+    port: "{{ KIX_LDAP_SETTINGS.port | int }}"
+    timeout: 10
+    version: 3
+  BaseDN: "{{ KIX_LDAP_SETTINGS.base_dn }}"
+  AlwaysFilter: "(objectclass=inetOrgPerson)"
+  Charset: "utf-8"
+  SearchUserDN: "{{ KIX_LDAP_SETTINGS.search_user_dn }}"
+  SearchUserPw: "{{ KIX_LDAP_BIND_PW }}"
+  AccessAttr: "{{ KIX_LDAP_SETTINGS.access_attr }}"
+  UID: "{{ KIX_LDAP_SETTINGS.uid }}"
+  UserAttr: "DN"
+  AuthAttr: "{{ KIX_LDAP_SETTINGS.uid }}"
+  UserSuffix: ""
+  Debug: 1
+KIX_LDAP_AUTHENTICATION:
+  "Authentication###100-Infinito-LDAP":
+    - Name: "{{ SOFTWARE_NAME }} svc-db-openldap (Agent, web-app-kix-administrator)"
+      Enabled: 1
+      UsageContext: "Agent"
+      Module: "Kernel::System::Auth::LDAP"
+      Config: "{{ KIX_LDAP_BACKEND_CONFIG | combine({'GroupDN': KIX_LDAP_SETTINGS.administrator_group_dn}) }}"
+      Sync: "{{ KIX_LDAP_SYNC }}"
+  "Authentication###200-Infinito-LDAP-User":
+    - Name: "{{ SOFTWARE_NAME }} svc-db-openldap (Agent, web-app-kix-user)"
+      Enabled: 1
+      UsageContext: "Agent"
+      Module: "Kernel::System::Auth::LDAP"
+      Config: "{{ KIX_LDAP_BACKEND_CONFIG | combine({'GroupDN': KIX_LDAP_SETTINGS.user_group_dn}) }}"
+      Sync: "{{ KIX_LDAP_SYNC }}"
 
 KIX_AUTH_LDAP_HOST_PATH: "{{ lookup('container', application_id, 'directories.volumes') }}auth_ldap.xml"
+KIX_AUTH_LDAP_LOCK_HOST_PATH: "{{ lookup('container', application_id, 'directories.volumes') }}auth_ldap.conf"
 
 KIX_PROXY_NGINX_HOST_PATH: "{{ lookup('container', application_id, 'directories.volumes') }}kix-proxy.default.conf"

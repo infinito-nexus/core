@@ -6,6 +6,8 @@ import tempfile
 import unittest.mock
 from pathlib import Path
 
+from tests.utils.unprivileged import unprivileged
+
 from .test_spec_secrets_helper import (
     SENTINEL,
     aged,
@@ -117,7 +119,7 @@ class TestSpecSecretsParentNamesNegativeControls(unittest.TestCase):
         )
 
 
-@unittest.skipIf(os.geteuid() == 0, "root removes a run whatever its modes")
+@unprivileged
 class TestSpecSecretsPrune(unittest.TestCase):
     def test_a_run_that_cannot_be_removed_is_named_and_the_prune_goes_on(
         self,
@@ -127,7 +129,7 @@ class TestSpecSecretsPrune(unittest.TestCase):
         self.assertIn("spec secrets prune skipped stuck: ", printed)
 
 
-@unittest.skipIf(os.geteuid() == 0, "root removes a run whatever its modes")
+@unprivileged
 class TestSpecSecretsPruneNegativeControls(unittest.TestCase):
     def test_a_prune_that_gives_up_the_parent_on_one_run_is_caught(self) -> None:
         code, printed, _left = stuck_prune(load_helper(PER_RUN))

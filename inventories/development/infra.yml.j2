@@ -1,0 +1,84 @@
+---
+TLS_MODE: self_signed
+
+TIMEOUT_FACTOR: 4
+
+DOCKER_BIND_HOST: 0.0.0.0
+[% if pool %]
+
+RUNNER_COUNT: [[ pool.count ]]
+[% endif %]
+
+users:
+  administrator:
+    authorized_keys:
+      - ssh-ed25519 AAAA_TEST_DUMMY_KEY github-ci-dummy@infinito
+
+applications:
+  svc-registry-cache:
+    services:
+      cache:
+        flavor: multi-proxy
+        max_idle_days: [[ idle_days ]]
+        multi_proxy:
+          registries:
+[% for registry in registries %]
+            - [[ registry ]]
+[% endfor %]
+          max_size: [[ registry_cap ]]
+          auth: [[ registry_auth | tojson ]]
+          mirror_path: [[ registry_mirror ]]
+          ca_path: [[ registry_ca ]]
+  svc-cache-package:
+    services:
+      package:
+        blobstore_max: [[ package_cap ]]
+        max_idle_days: [[ idle_days ]]
+        data_path: [[ package_data ]]
+        ports:
+          local:
+            http: [[ package_port ]]
+      bootstrap:
+        enabled: false
+      frontend:
+        ca_path: [[ frontend_ca ]]
+        certs_path: [[ frontend_certs ]]
+        map_path: [[ frontend_map ]]
+        ports:
+          local:
+            http: 80
+            https: 443
+  sys-ctl-hlth-runtime:
+    services:
+      runtime:
+        severity:
+          CRITICAL: warn
+[% if pool %]
+  svc-runner:
+    services:
+      runner:
+        flavor: local
+        queue_dir: [[ pool.queue ]]
+        src_dir: [[ pool.src ]]
+        toolchain_image: [[ pool.image ]]
+        operator_uid: [[ pool.uid ]]
+        operator_gid: [[ pool.gid ]]
+        worktree_roots:
+[% for root in pool.roots %]
+          - [[ root ]]
+[% endfor %]
+[% endif %]
+[% if pool and semaphore %]
+  web-app-semaphore:
+    services:
+      semaphore:
+        pool:
+          runners: [[ pool.count ]]
+          checkout: [[ pool.src ]]
+[% endif %]
+[% if checkmk_dir %]
+  web-app-checkmk:
+    services:
+      checkmk:
+        local_check_dir: [[ checkmk_dir ]]
+[% endif %]

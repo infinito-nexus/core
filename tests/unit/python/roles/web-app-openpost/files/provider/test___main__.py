@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+import http.client
 import json
 import tempfile
 import threading
 import unittest
-import urllib.request
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 
@@ -33,15 +33,31 @@ class TestEntry(unittest.TestCase):
         client = app.clients["simulator-linkedin"]
         self.assertEqual(client.redirect_uris, ("https://publish.example/cb",))
 
-    def test_the_http_handler_serves_the_app(self) -> None:
+    def _request(self, method: str, path: str) -> http.client.HTTPResponse:
         server = ThreadingHTTPServer(
             ("127.0.0.1", 0), entry.handler_for(entry.application(CONFIG))
         )
         threading.Thread(target=server.serve_forever, daemon=True).start()
         self.addCleanup(server.shutdown)
-        url = f"http://127.0.0.1:{server.server_address[1]}/__fake/health"
-        with urllib.request.urlopen(url, timeout=5) as answer:
-            self.assertEqual((answer.status, answer.read()), (200, b"ok"))
+        connection = http.client.HTTPConnection(
+            "127.0.0.1", server.server_address[1], timeout=5
+        )
+        self.addCleanup(connection.close)
+        connection.request(method, path)
+        return connection.getresponse()
+
+    def test_the_http_handler_serves_the_app(self) -> None:
+        answer = self._request("GET", "/__fake/health")
+        self.assertEqual((answer.status, answer.read()), (200, b"ok"))
+
+    def test_head_answers_like_get_without_a_body(self) -> None:
+        get = self._request("GET", "/")
+        head = self._request("HEAD", "/")
+        self.assertEqual(head.status, 200)
+        self.assertEqual(
+            head.getheader("Content-Length"), get.getheader("Content-Length")
+        )
+        self.assertEqual(head.read(), b"")
 
     def test_health_fails_without_a_server(self) -> None:
         with tempfile.TemporaryDirectory() as folder:

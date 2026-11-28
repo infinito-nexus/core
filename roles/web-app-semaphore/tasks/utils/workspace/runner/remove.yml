@@ -1,0 +1,35 @@
+---
+- name: "🔎 Find the compose project of {{ semaphore_workspace_alias }}"
+  ansible.builtin.stat:
+    path: "{{ semaphore_workspace_dir }}/compose.yml"
+  register: semaphore_workspace_compose
+
+- name: "🛑 Stop the runner and egress of {{ semaphore_workspace_alias }}"
+  ansible.builtin.command:
+    argv:
+      - container
+      - compose
+      - -f
+      - "{{ semaphore_workspace_dir }}/compose.yml"
+      - down
+      - --volumes
+      - --remove-orphans
+  register: semaphore_workspace_down
+  changed_when: semaphore_workspace_down.stderr is search('(Removed|Stopped)')
+  when: semaphore_workspace_compose.stat.exists
+
+- name: "🧹 Remove the runner images of {{ semaphore_workspace_alias }}"
+  ansible.builtin.shell: |
+    set -o pipefail
+    container image ls --format '{{ SEMAPHORE_RUNNER_LIST_FORMAT }}' \
+      | { grep -F ':{{ SEMAPHORE_WORKSPACE_RUNNER_TAG_PREFIX }}' || [ "$?" -eq 1 ]; } \
+      | xargs --no-run-if-empty container image rm
+  args:
+    executable: /bin/bash
+  register: semaphore_workspace_images
+  changed_when: semaphore_workspace_images.stdout | length > 0
+
+- name: "🧹 Remove the compose project directory of {{ semaphore_workspace_alias }}"
+  ansible.builtin.file:
+    path: "{{ semaphore_workspace_dir }}"
+    state: absent

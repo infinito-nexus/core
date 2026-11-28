@@ -16,13 +16,13 @@ class TestDockerignore(unittest.TestCase):
             "Run 'make fix-dockerignore': .dockerignore must be a copy of .gitignore.",
         )
 
-    def test_nested_checkouts_stay_out_of_the_build_context(self) -> None:
+    def test_nested_checkouts_stay_out_of_the_build_context(self) -> None:  # nocheck: test.text-presence -- a .dockerignore line is one pattern, asserts exact pattern entries  # fmt: skip
         lines = read_text(str(PROJECT_ROOT / ".dockerignore")).splitlines()
         for entry in NESTED_CHECKOUTS:
             with self.subTest(entry=entry):
                 self.assertIn(entry, lines)
 
-    def test_compose_up_regenerates_the_dockerignore(self) -> None:
+    def test_compose_up_regenerates_the_dockerignore(self) -> None:  # nocheck: test.text-presence -- parses the prerequisite list of the compose-up rule  # fmt: skip
         makefile = read_text(str(PROJECT_ROOT / "Makefile"))
         match = re.search(r"^compose-up:(.*)$", makefile, re.MULTILINE)
         self.assertIsNotNone(match, "Makefile has no compose-up target")

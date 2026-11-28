@@ -204,7 +204,6 @@ ignore = [
 # ``patch.object(sut, "os")`` replacements). Converting these call
 # sites to ``pathlib.Path`` would require rewriting every coupled
 # test in lockstep — out of scope for the use-pathlib pass.
-"roles/sys-ctl-rpr-container-hard/files/python/script.py" = ["PTH"]
 "roles/sys-ctl-rpr-container-soft/files/python/script.py" = ["PTH"]
 
 # BLE001 (flake8-blind-except) ratchet.

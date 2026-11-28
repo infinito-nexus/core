@@ -42,7 +42,6 @@ DENY_UNKNOWN_TOOL = "unknown_tool"
 DENY_MUTATION = "mutation_not_enabled"
 DENY_REQUEST_TOO_LARGE = "request_too_large"
 DENY_SCHEMA_DRIFT = "schema_drift"
-DENY_UNAUTHENTICATED = "unauthenticated"
 DENY_TOO_MANY_REQUESTS = "too_many_concurrent_requests"
 DENY_UNKNOWN_ARGUMENT = "undeclared_argument"
 DENY_MISSING_ARGUMENT = "missing_required_argument"
@@ -338,23 +337,6 @@ def listed_tools(contract: Mapping[str, Any]) -> list[str]:
     return sorted(contract["tools"])
 
 
-def authorize_client(expected: str, presented: str) -> None:
-    """Refuse a caller that did not present the adapter's own bearer.
-
-    Args:
-        expected: the bearer this instance was issued.
-        presented: the ``Authorization`` header value the caller sent.
-
-    The upstream credential authenticates the adapter *to* the provider. It
-    says nothing about who called the adapter, which is exactly the gap the
-    project-owned MCP sidecars leave open.
-    """
-    prefix = "Bearer "
-    token = presented[len(prefix) :] if presented.startswith(prefix) else ""
-    if not expected or not token or token != expected:
-        raise PermissionError(DENY_UNAUTHENTICATED)
-
-
 def authorize_call(
     contract: Mapping[str, Any], name: str, arguments: Mapping[str, Any] | None
 ) -> tuple[str, str]:
@@ -464,3 +446,27 @@ def audit_event(
         "duration_ms": duration_ms,
         "correlation_id": correlation_id,
     }
+
+
+def refusal(
+    contract: Mapping[str, Any],
+    consumer: str,
+    request: Mapping[str, Any],
+    error: PermissionError,
+    correlation_id: str,
+) -> dict[str, Any]:
+    """Return the audit record of a refused call: no upstream call ran, so the
+    duration is 0 and the status is the deny reason.
+
+    Args:
+        contract: the loaded contract.
+        consumer: the calling client's application id.
+        request: the decoded JSON-RPC request object.
+        error: the refusal; its message is the deny reason.
+        correlation_id: identifier tying the record to the client request.
+    """
+    params = request.get("params")
+    name = params.get("name") if isinstance(params, dict) else None
+    return audit_event(
+        contract, consumer, str(name or ""), str(error), 0, correlation_id
+    )

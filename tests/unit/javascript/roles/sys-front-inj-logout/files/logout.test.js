@@ -1,75 +1,15 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const fs = require("node:fs");
-const path = require("node:path");
-const vm = require("node:vm");
 
-const SOURCE = path.join(
-  __dirname,
-  "..", "..", "..", "..", "..", "..",
-  "roles", "sys-front-inj-logout", "files", "javascript", "logout.js",
-);
+const { element, patch: patchPage } = require("../../../utils/logout-patch.js");
 
 const LOGOUT_URL = "https://logout.example.org/";
 
-function element(tagName, attributes = {}, text = "") {
-  const el = {
-    tagName,
-    dataset: {},
-    style: {},
-    listeners: [],
-    innerText: text,
-    attributes: [],
-    getAttribute(name) {
-      const found = el.attributes.find((a) => a.name === name);
-      return found ? found.value : null;
-    },
-    setAttribute(name, value) {
-      const found = el.attributes.find((a) => a.name === name);
-      if (found) {
-        found.value = value;
-        return;
-      }
-      el.attributes.push({ name, value });
-    },
-    hasAttribute(name) {
-      return el.attributes.some((a) => a.name === name);
-    },
-    addEventListener(type, handler, options) {
-      el.listeners.push({ type, handler, options });
-    },
-    querySelectorAll() {
-      return [];
-    },
-  };
-
-  for (const [name, value] of Object.entries(attributes)) {
-    el.setAttribute(name, value);
-  }
-  el.id = el.getAttribute("id") || "";
-  el.className = el.getAttribute("class") || "";
-  return el;
+function patch(elements, logoutUrl = LOGOUT_URL) {
+  return patchPage(elements, logoutUrl);
 }
 
-function patch(elements) {
-  const sandbox = {
-    console: { debug() {} },
-    location: { href: "" },
-    Element: class Element {},
-    MutationObserver: class MutationObserver {
-      observe() {}
-    },
-    document: {
-      body: {},
-      querySelectorAll: () => elements,
-    },
-  };
-  sandbox.window = sandbox;
-  vm.createContext(sandbox);
-  vm.runInContext(fs.readFileSync(SOURCE, "utf8"), sandbox);
-  sandbox.initLogoutPatch(LOGOUT_URL, false);
-  return sandbox;
-}
+const KEYCLOAK_LOGOUT_URL = "https://auth.example.org/realms/example.org/protocol/openid-connect/logout";
 
 test("an anchor whose text reads 'Log out' is redirected", () => {
   const link = element("A", { href: "/account/exit" }, "Log out");
@@ -92,6 +32,27 @@ test("a click on a patched element is intercepted, not followed", () => {
   assert.equal(sandbox.window.location.href, LOGOUT_URL);
 });
 
+test("the dashboard's Log out on this device stays on the Keycloak confirmation page", () => {
+  const item = element("A", { href: KEYCLOAK_LOGOUT_URL, target: "_top" }, "Log out on this device");
+  const sandbox = patch([item], KEYCLOAK_LOGOUT_URL);
+
+  assert.equal(item.getAttribute("href"), KEYCLOAK_LOGOUT_URL);
+  item.listeners[0].handler({ preventDefault() {} });
+  assert.equal(sandbox.window.location.href, KEYCLOAK_LOGOUT_URL);
+  assert.doesNotMatch(sandbox.window.location.href, /id_token_hint/);
+});
+
+test("on another network the item reaches the confirmation page through that network's conductor", () => {
+  const aligned = `${KEYCLOAK_LOGOUT_URL}?client_id=example.org&post_logout_redirect_uri=http%3A%2F%2Flogout.onion%2F`;
+  const item = element("A", { href: KEYCLOAK_LOGOUT_URL, target: "_top" }, "Log out on this device");
+  const sandbox = patch([item], aligned);
+
+  item.listeners[0].handler({ preventDefault() {} });
+  const landed = new URL(sandbox.window.location.href);
+  assert.equal(`${landed.origin}${landed.pathname}`, KEYCLOAK_LOGOUT_URL);
+  assert.equal(landed.searchParams.has("id_token_hint"), false, "without a hint Keycloak asks for confirmation");
+});
+
 test("an href pointing at /logout is NOT enough to match", () => {
   const link = element("A", { href: "/logout" }, "My profile");
   patch([link]);
@@ -109,7 +70,7 @@ test("a non-interactive tag is never patched, whatever it says", () => {
 });
 
 test("a button carrying formaction has that formaction rewritten", () => {
-  const button = element("BUTTON", { formaction: "/session/end", title: "Logout" });
+  const button = element("BUTTON", { formaction: "/session/end", title: "Logout" }, "");
   patch([button]);
 
   assert.equal(button.getAttribute("formaction"), LOGOUT_URL);
@@ -133,7 +94,7 @@ test("an element already handled is not bound a second time", () => {
 });
 
 test("a role-injected logout control keeps its own target and click handler", () => {
-  const button = element("A", { "data-injected-logout": "true", href: "/oauth2/sign_out?rd=x", "aria-label": "Logout" });
+  const button = element("A", { "data-injected-logout": "true", href: "/oauth2/sign_out?rd=x", "aria-label": "Logout" }, "");
   patch([button]);
 
   assert.equal(button.getAttribute("href"), "/oauth2/sign_out?rd=x");

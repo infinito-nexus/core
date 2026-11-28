@@ -1,0 +1,8 @@
+---
+proxy_config:
+  type: config
+  source: "{{ [lookup('container', 'web-svc-libretranslate', 'directories.volumes'), 'nginx.conf'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: libretranslate
+      target: /etc/nginx/conf.d/default.conf

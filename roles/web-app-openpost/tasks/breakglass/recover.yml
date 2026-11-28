@@ -1,53 +1,58 @@
 ---
 - name: "👤 Register the break-glass account as the first instance admin"
-  uri_retry:
-    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/auth/register"
-    method: POST
-    headers: "{{ OPENPOST_API_HEADERS }}"
-    body_format: json
-    body:
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ OPENPOST_NETNS_PYTHON }}"
+    netns_request_host: "{{ OPENPOST_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ OPENPOST_NETNS_URL }}/api/v1/auth/register"
+    netns_request_headers: "{{ OPENPOST_API_HEADERS }}"
+    netns_request_body: "{{ {'email': OPENPOST_ADMIN_EMAIL, 'password': OPENPOST_ADMIN_PASSWORD, 'username': OPENPOST_ADMIN_USERNAME} | to_json }}"
+    netns_request_status: [200, 403, 409]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_timeout: "{{ lookup('timeout', 30) | int }}"
+    netns_request_changed: [200]
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: openpost_breakglass_register
+
+- name: "🔐 Realign the password of the existing break-glass account with the inventory"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/breakglass/password.sql"
+    named_args:
       email: "{{ OPENPOST_ADMIN_EMAIL }}"
-      password: "{{ OPENPOST_ADMIN_PASSWORD }}"
-      username: "{{ OPENPOST_ADMIN_USERNAME }}"
-    status_code: [200, 403, 409]
-  register: openpost_breakglass_register
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  changed_when: openpost_breakglass_register.status == 200
-
-- name: "🔐 Recover the existing break-glass account"
+      password_hash: "{{ OPENPOST_ADMIN_PASSWORD | bcrypt_hash(application_id ~ ':breakglass') }}"
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: openpost_breakglass_realign
+  changed_when: openpost_breakglass_realign.stdout is search('UPDATE [1-9]')
   when: openpost_breakglass_register.status != 200
-  block:
-    - name: "🔐 Realign the password of the existing break-glass account with the inventory"
-      database_query:
-        config: "{{ lookup('database', application_id) }}"
-        query_file: "{{ role_path }}/files/sql/breakglass/password.sql"
-        named_args:
-          email: "{{ OPENPOST_ADMIN_EMAIL }}"
-          password_hash: "{{ OPENPOST_ADMIN_PASSWORD | bcrypt_hash(application_id ~ ':breakglass') }}"
-        mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-      register: openpost_breakglass_realign
-      changed_when: openpost_breakglass_realign.stdout is search('UPDATE [1-9]')
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-    - name: "🔑 Sign in as the break-glass instance admin with the realigned password"
-      uri_retry:
-        url: "{{ OPENPOST_LOCAL_URL }}/api/v1/auth/login"
-        method: POST
-        headers: "{{ OPENPOST_API_HEADERS }}"
-        body_format: json
-        body:
-          email: "{{ OPENPOST_ADMIN_EMAIL }}"
-          password: "{{ OPENPOST_ADMIN_PASSWORD }}"
-        status_code: [200, 401]
-      register: openpost_breakglass_relogin
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-      changed_when: false
+- name: "🔑 Sign in as the break-glass instance admin with the realigned password"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ OPENPOST_NETNS_PYTHON }}"
+    netns_request_host: "{{ OPENPOST_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ OPENPOST_NETNS_URL }}/api/v1/auth/login"
+    netns_request_headers: "{{ OPENPOST_API_HEADERS }}"
+    netns_request_body: "{{ {'email': OPENPOST_ADMIN_EMAIL, 'password': OPENPOST_ADMIN_PASSWORD} | to_json }}"
+    netns_request_status: [200, 401]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_timeout: "{{ lookup('timeout', 30) | int }}"
+    netns_request_skip: "{{ openpost_breakglass_register.status == 200 }}"
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: openpost_breakglass_relogin
 
-    - name: "❌ Fail when the break-glass account can neither sign in nor be created"
-      ansible.builtin.fail:
-        msg: >-
-          OpenPost refused the break-glass sign-in, its registration (HTTP
-          {{ openpost_breakglass_register.status }}) and the sign-in after the password
-          realignment. Another account already became the first instance admin; follow
-          the break-glass procedure in Administration.md.
-      when: openpost_breakglass_relogin.status != 200
+- name: "❌ Fail when the break-glass account can neither sign in nor be created"
+  ansible.builtin.fail:
+    msg: >-
+      OpenPost refused the break-glass sign-in, its registration (HTTP
+      {{ openpost_breakglass_register.status }}) and the sign-in after the password
+      realignment. Another account already became the first instance admin; follow
+      the break-glass procedure in Administration.md.
+  when:
+    - openpost_breakglass_relogin is not skipped
+    - openpost_breakglass_relogin.status != 200

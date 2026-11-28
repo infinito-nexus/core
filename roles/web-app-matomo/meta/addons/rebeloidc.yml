@@ -1,0 +1,17 @@
+---
+enabled: "{{ lookup('config', 'web-app-matomo', 'services.sso.enabled') | bool }}"
+required: false
+mechanism: plugin
+source: built
+# upstream: https://github.com/Digitalist-Open-Cloud/Matomo-Plugin-RebelOIDC/issues/54
+# upstream: https://github.com/Digitalist-Open-Cloud/Matomo-Plugin-RebelOIDC/pull/71
+version: "6.0.0"
+update:
+  monitored: true
+  catalog: github-releases
+  upstream_id: kevinveenbirkenbach/Matomo-Plugin-RebelOIDC
+bridges:
+  - sso
+config:
+  plugin: RebelOIDC
+  archive: "https://github.com/kevinveenbirkenbach/Matomo-Plugin-RebelOIDC/archive/refs/tags/6.0.0.tar.gz"

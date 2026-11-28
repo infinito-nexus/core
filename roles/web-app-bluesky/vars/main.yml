@@ -112,7 +112,6 @@ BLUESKY_PDS_GUARD_DOWNGRADE_RC: 3
 
 BLUESKY_WEB_ENABLED: "{{ lookup('config', application_id, 'services.web.enabled') }}"
 BLUESKY_WEB_DOMAIN: "{{ lookup('domains', application_id).web }}"
-BLUESKY_WEB_PORT: "{{ lookup('config', 'web-app-bluesky', 'services.web.ports.local.http') }}"
 BLUESKY_WEB_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.web.ports.internal.http') }}"
 BLUESKY_WEB_IMAGE_CUSTOM: "bluesky_web_custom"
 
@@ -121,10 +120,8 @@ BLUESKY_VIEW_DOMAIN_LOCAL: "{{ lookup('domains', application_id).view }}"
 BLUESKY_VIEW_DOMAIN_FINAL: "{{ BLUESKY_VIEW_DOMAIN_LOCAL if BLUESKY_VIEW_ENABLED | bool else 'api.bsky.app' }}"
 BLUESKY_VIEW_URL: "{{ lookup('tls', application_id, 'protocols.web') if BLUESKY_VIEW_ENABLED | bool else 'https' }}://{{ BLUESKY_VIEW_DOMAIN_FINAL }}"
 BLUESKY_VIEW_DID: "did:web:{{ BLUESKY_VIEW_DOMAIN_FINAL }}"
-BLUESKY_VIEW_PORT: "{{ lookup('config', 'web-app-bluesky', 'services.view.ports.local.http') }}"
 
 BLUESKY_API_DOMAIN: "{{ lookup('domains', application_id).api }}"
-BLUESKY_API_PORT: "{{ lookup('config', 'web-app-bluesky', 'services.api.ports.local.http') }}"
 BLUESKY_PDS_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.api.ports.internal.http') }}"
 
 BLUESKY_PDS_HANDLE_DOMAIN: "{{ DOMAIN_PRIMARY | regex_replace('\\.test$', '.app') }}"
@@ -138,9 +135,10 @@ BLUESKY_ADMIN_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
 BLUESKY_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
 BLUESKY_ADMIN_HANDLE: "{{ lookup('users', 'platform_administrator').username }}.{{ BLUESKY_PDS_HANDLE_DOMAIN }}"
 BLUESKY_ADMIN_HANDLE_RESERVED: "i8-{{ BLUESKY_ADMIN_HANDLE }}"
-BLUESKY_PDS_INTERNAL_URL: "http://127.0.0.1:{{ BLUESKY_API_PORT }}"
+BLUESKY_PDS_INTERNAL_URL: "http://127.0.0.1:{{ BLUESKY_PDS_INTERNAL_PORT }}"
+BLUESKY_PDS_CONTAINER: "{{ lookup('config', application_id, 'services.pds.name') }}"
+BLUESKY_PDS_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'pds') }}"
 
-BLUESKY_FRONT_PROXY_CONTENT: "{{ lookup('template', 'extra_locations.conf.j2') }}"
 BLUESKY_FRONT_PROXY_TIMEOUT: 5s
 BLUESKY_FRONT_PROXY_ENDPOINTS:
   - path: /config
@@ -153,9 +151,9 @@ BLUESKY_BROKER_SRC_DIR: "{{ role_path }}/files/login-broker"
 BLUESKY_BROKER_BASE_IMAGE: "{{ lookup('config', application_id, 'services.broker.image') }}"
 BLUESKY_BROKER_BASE_VERSION: "{{ lookup('config', application_id, 'services.broker.version') }}"
 BLUESKY_BROKER_SERVICE: "broker"
+BLUESKY_BROKER_ENABLED: "{{ (BLUESKY_WEB_ENABLED | bool) and (lookup('config', application_id, 'services.sso.enabled') | bool) }}"
 BLUESKY_BROKER_STORE_PATH: "/data/accounts.json"
 BLUESKY_BROKER_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ BLUESKY_BROKER_SERVICE ~ '.name') }}"
-BLUESKY_BROKER_PORT: "{{ lookup('config', application_id, 'services.broker.ports.local.http') }}"
 BLUESKY_BROKER_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.broker.ports.internal.http') }}"
 
 BLUESKY_BRIDGE_ENCRYPTION_KEY: "{{ lookup('config', application_id, 'secrets.credentials.bridge_encryption_key') }}"

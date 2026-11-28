@@ -16,11 +16,16 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from tests.utils.cross_app_templar import CrossAppTemplar
 from utils.cache import domains as cache_domains
 from utils.cache.base import _RENDER_GUARD
 from utils.cache.reset import _reset_cache_for_tests
 from utils.domains.default_primary import default_domain_primary
-from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_META_USERS
+from utils.roles.mapping import (
+    ROLE_FILE_META_DOMAINS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_META_USERS,
+)
 
 from . import PROJECT_ROOT
 
@@ -423,8 +428,7 @@ class TestOnionNodeIsRequiredWhenTorIsDeployed(unittest.TestCase):
     """A deploy carrying `svc-net-tor` without a provisioned node used to
     answer the clearnet map and cache it under its own key, because
     `group_names` is part of that key. One scope then served onion while
-    another froze a clearnet asset URL into a stylesheet, which
-    `body_filter.lua`'s `onionize` returns before rewriting.
+    another froze a clearnet asset URL into a stylesheet.
     """
 
     ONION = TestNetworkSiblingInjection.ONION
@@ -457,6 +461,44 @@ class TestOnionNodeIsRequiredWhenTorIsDeployed(unittest.TestCase):
 
     def test_an_empty_node_is_fine_without_tor_in_the_groups(self):
         self.assertIsInstance(self._merge("", ["web-app-x"]), dict)
+
+
+class TestTheMapRendersOnlyTheDomainPaths(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+        self.addCleanup(_reset_cache_for_tests)
+
+    def test_a_service_value_never_renders_for_the_map(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roles = Path(tmp) / "roles"
+            for app, label in (("web-app-a", "a"), ("web-app-b", "b")):
+                _write(
+                    roles / app / ROLE_FILE_META_DOMAINS,
+                    f"""
+                    canonical:
+                      - {label}.{{{{ DOMAIN_PRIMARY }}}}
+                    """,
+                )
+                _write(
+                    roles / app / ROLE_FILE_META_SERVICES,
+                    """
+                    api:
+                      owner: "{{ application_id }}"
+                    """,
+                )
+            templar = CrossAppTemplar(roles)
+            result = cache_domains.get_merged_domains(
+                variables={"DOMAIN_PRIMARY": "example.org"},
+                roles_dir=roles,
+                templar=templar,
+            )
+        self.assertEqual(
+            result,
+            {"web-app-a": ["a.example.org"], "web-app-b": ["b.example.org"]},
+        )
+        texts = [text for _, text in templar.rendered]
+        self.assertIn("a.{{ DOMAIN_PRIMARY }}", texts)
+        self.assertNotIn("{{ application_id }}", texts)
 
 
 if __name__ == "__main__":

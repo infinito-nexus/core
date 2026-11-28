@@ -21,6 +21,9 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from ansible.plugins.filter.core import regex_replace
+from jinja2 import Environment, StrictUndefined, select_autoescape
+
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 
@@ -28,6 +31,33 @@ from . import PROJECT_ROOT
 
 SCRIPT = PROJECT_ROOT / "roles/web-app-wordpress/files/shell/install_plugin.sh"
 TASK_FILE = PROJECT_ROOT / "roles/web-app-wordpress/tasks/utils/install/plugin.yml"
+
+
+def pinned_version(release: str, catalog: str) -> str:
+    """
+    Args:
+        release: the ``version`` the addon declares.
+        catalog: the ``update.catalog`` the addon declares.
+
+    Returns:
+        The ``wp_plugin_pinned_version`` the install contract renders.
+    """
+    tasks = load_yaml_any(str(TASK_FILE), default_if_missing=[])
+    normalise = next(t for t in tasks if "Normalise the install contract" in t["name"])
+    env = Environment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    env.filters["regex_replace"] = regex_replace
+    env.globals["lookup"] = lambda *_terms: release
+    return env.from_string(
+        normalise["ansible.builtin.set_fact"]["wp_plugin_pinned_version"]
+    ).render(
+        application_id="web-app-wordpress",
+        plugin_name="mcp-adapter",
+        wp_plugin_catalog=catalog,
+    )
+
 
 FINISHED_BUT_255 = (
     "Installing MCP Adapter\n"
@@ -184,14 +214,13 @@ class TestInstallDecision(unittest.TestCase):
         self.assertTrue(result.matching("--force"))
 
     def test_the_pin_is_compared_without_its_tag_prefix(self):
-        tasks = load_yaml_any(str(TASK_FILE), default_if_missing=[])
-        normalise = next(
-            t for t in tasks if "Normalise the install contract" in t["name"]
-        )
-        self.assertIn(
-            "regex_replace('^v', '')",
-            normalise["ansible.builtin.set_fact"]["wp_plugin_pinned_version"],
-        )
+        for release, catalog, pinned in (
+            ("v0.5.0", "github-releases", "0.5.0"),
+            ("0.5.0", "github-releases", "0.5.0"),
+            ("v0.5.0", "wordpress.org", ""),
+        ):
+            with self.subTest(release=release, catalog=catalog):
+                self.assertEqual(pinned_version(release, catalog), pinned)
 
     def test_an_unreadable_version_aborts_instead_of_reinstalling(self):
         result = run_installer(

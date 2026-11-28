@@ -1,0 +1,62 @@
+---
+# Param: vm_capacity_kind - VM kind this host serves, incus or proxmox
+# Param: vm_capacity_warm_pool - VMs this host keeps started ahead of a task
+# Param: vm_capacity_reserve - memory and disk sizes the host keeps for itself
+# Param: vm_capacity_running_memory - bytes the role's own running agent VMs hold now
+# Param: vm_capacity_storage_path - path the agent VM disks live under
+# Param: vm_capacity_pool_size - fixed size of the VM storage pool, which holds the demand without the reserve; "" when the disks use the free space of the storage path
+# Param: vm_capacity_pool_used - bytes the fixed VM storage pool already holds; 0 without a fixed pool or before the pool exists
+# Param: vm_capacity_own_disk - bytes the role's own agent VM disks take, part of the pool's and the storage path's used space; 0 before the hypervisor runs or where it is not read
+# Param: vm_capacity_overhead - the hypervisor's own cpus and memory size
+# Param: vm_capacity_limits - the container's cpus and mem_limit to prove; an empty mapping on a bare host
+- name: "📋 Collect the agent configs {{ inventory_hostname }} may serve"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-agent-broker/tasks/utils/vm/agents.yml') }}"
+
+- name: "🛑 Refuse an agent VM workspace that breaks the workspace contract"
+  ansible.builtin.assert:
+    that:
+      - vm_capacity_problems | length == 0
+    fail_msg: >-
+      The agents targeting {{ inventory_hostname }} break the workspace
+      contract after the inventory overrides: {{ vm_capacity_problems | join('; ') }}.
+    quiet: true
+  vars:
+    vm_capacity_problems: >-
+      {{ vm_capacity_agents | agent_vm_problems(vm_capacity_kind, inventory_hostname, groups['all']) }}
+
+- name: "🛑 Refuse a VM host that cannot hold the warm pool and the running agents"
+  ansible.builtin.assert:
+    that:
+      - vm_capacity_shortages | length == 0
+    fail_msg: >-
+      {{ inventory_hostname }} cannot hold its agent VMs:
+      {{ vm_capacity_shortages | join('; ') }}. Lower the warm pool or
+      services.agent-broker.agents.max_running, shrink workspace.resources of
+      the agents that target this host, or give the host more memory, storage
+      or container limits.
+    quiet: true
+  vars:
+    vm_capacity_shortages: >-
+      {{ vm_capacity_agents | dict2items | map(attribute='value.workspace') | list | agent_vm_capacity(
+           vm_capacity_kind,
+           inventory_hostname,
+           lookup('config', 'svc-ai-agent-broker', 'services.agent-broker.agents.max_running'),
+           vm_capacity_warm_pool,
+           vm_capacity_reserve,
+           (ansible_facts['memory_mb']['nocache']['free'] | int) * 1048576,
+           vm_capacity_running_memory,
+           ansible_facts['mounts'],
+           vm_capacity_storage_path,
+           vm_capacity_pool_size,
+           vm_capacity_pool_used,
+           vm_capacity_own_disk,
+           vm_capacity_overhead,
+           vm_capacity_limits) }}
+
+- name: "⚠️ Warn about agent VMs in login mode on {{ inventory_hostname }}"
+  ansible.builtin.debug:
+    msg: "{{ vm_capacity_login_notice }}"
+  when: vm_capacity_login_notice | length > 0
+  vars:
+    vm_capacity_login_notice: "{{ vm_capacity_agents | dict2items | map(attribute='value.workspace') | list | agent_login_notice(vm_capacity_kind, inventory_hostname)
+      }}"

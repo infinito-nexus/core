@@ -25,6 +25,7 @@ MOODLE_BUILD_FILES:
   install_mcp: "install/webservice-mcp.sh"
   install_objectfs: "install/tool-objectfs.sh"
   patch_objectfs: "patch/tool-objectfs-path-style.patch"
+  plugin_mfa_enforce: "local/mfaenforce"
   opcache_ini: "php-conf/opcache-recommended.ini"
   runtime_ini: "php-conf/moodle-runtime.ini"
   fpm_pool: "php-conf/zz-moodle-pool.conf"
@@ -74,11 +75,73 @@ MOODLE_CRON_FAILURE_LIMIT: 3
 
 MOODLE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
 MOODLE_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
-MOODLE_OIDC_ONION_ISSUER: "{{ lookup('tls', 'web-app-keycloak', 'domain').endswith('.onion') }}"
+MOODLE_LOGIN_SSO: "{{ (MOODLE_OIDC_ENABLED | bool) and (lookup('config', application_id, 'services.moodle.login.method.sso.enabled') | bool) }}"
+MOODLE_LOGIN_LDAP: "{{ (MOODLE_LDAP_ENABLED | bool) and (lookup('config', application_id, 'services.moodle.login.method.ldap.enabled') | bool) }}"
+MOODLE_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.moodle.login.method.native.enabled') | bool }}"
+MOODLE_LOGIN_2FA: "{{ lookup('config', application_id, 'services.moodle.login.method.2fa.enabled') | bool }}"
+MOODLE_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.moodle.login.method.registration.enabled') | bool }}"
+MOODLE_AUTH_PLUGINS: >-
+  {{ (['oidc'] if MOODLE_LOGIN_SSO | bool else [])
+     + (['ldap'] if (MOODLE_LOGIN_LDAP | bool) or ((MOODLE_LDAP_ENABLED | bool) and (MOODLE_LOGIN_SSO | bool)) else [])
+     + (['email'] if MOODLE_LOGIN_REGISTRATION | bool else []) }}
+MOODLE_ALTERNATE_LOGIN_URL: "{{ (lookup('tls', application_id, 'url.base') ~ MOODLE_OIDC_PLUGIN_URL_PATH ~ '/') if (MOODLE_LOGIN_SSO | bool) and not (MOODLE_LOGIN_NATIVE
+  | bool) else '' }}"
+MOODLE_CORE_LOGIN_SETTINGS:
+  - name: auth
+    value: "{{ MOODLE_AUTH_PLUGINS | join(',') }}"
+  - name: alternateloginurl
+    value: "{{ MOODLE_ALTERNATE_LOGIN_URL }}"
+  - name: registerauth
+    value: "{{ 'email' if MOODLE_LOGIN_REGISTRATION | bool else '' }}"
+MOODLE_MFA_ENABLED: "{{ MOODLE_LOGIN_2FA | bool | ternary(1, 0) }}"
+MOODLE_LOGIN_2FA_ENFORCED: "{{ MOODLE_LOGIN_2FA | bool and lookup('config', application_id, 'services.moodle.login.method.2fa.enforced') | bool }}"
+MOODLE_MFA_NOSETUP_ENABLED: "{{ (MOODLE_LOGIN_2FA | bool and not MOODLE_LOGIN_2FA_ENFORCED | bool) | ternary(1, 0) }}"
+MOODLE_MFA_GRACE_ENABLED: "{{ MOODLE_LOGIN_2FA_ENFORCED | bool | ternary(1, 0) }}"
+MOODLE_MFA_GRACE_MODE: "{{ MOODLE_LOGIN_2FA_ENFORCED | bool | ternary('enforced', MOODLE_LOGIN_2FA | bool | ternary('offered', 'off')) }}"
+MOODLE_MFA_ENFORCE_PLUGIN_RELPATH: "{{ [MOODLE_WEBROOT_SUBDIR, MOODLE_BUILD_FILES.plugin_mfa_enforce] | path_join }}"
+MOODLE_MFA_ENFORCE_PLUGIN_SOURCE_DIR: "{{ [MOODLE_SOURCE_DIR, MOODLE_MFA_ENFORCE_PLUGIN_RELPATH] | path_join }}"
+MOODLE_MFA_ENFORCE_PLUGIN_DIR: "{{ [MOODLE_CODE_DIR, MOODLE_MFA_ENFORCE_PLUGIN_RELPATH] | path_join }}"
+MOODLE_LDAP_GROUP_MEMBER_ATTRIBUTE: "{{ LDAP.RBAC.MEMBER_ATTRIBUTE }}"
+MOODLE_LDAP_ROLE_GROUP_DNS:
+  manager: "{{ lookup('config', application_id, 'services.moodle.auth_ldap.managercontext') }}"
+  coursecreator: "{{ lookup('config', application_id, 'services.moodle.auth_ldap.coursecreatorcontext') }}"
+MOODLE_OIDC_SETTINGS: "{{ lookup('form_values', application_id, 'auth_oidc') }}"
+MOODLE_LDAP_SETTINGS: "{{ lookup('form_values', application_id, 'auth_ldap') }}"
+MOODLE_OIDC_CREDENTIALS:
+  clientsecret: "{{ OIDC.CLIENT.SECRET }}"
+MOODLE_LDAP_CREDENTIALS:
+  bind_pw: "{{ LDAP.BIND_CREDENTIAL }}"
+MOODLE_OIDC_TOKEN_FIELDS:
+  - bindingusernameclaim
+  - objectId
+  - userPrincipalName
+  - givenName
+  - surname
+  - mail
+MOODLE_OIDC_CUSTOM_CLAIMS: >-
+  {{ MOODLE_OIDC_SETTINGS | dict2items | selectattr('key', 'match', '^field_map_') | map(attribute='value')
+     | reject('in', MOODLE_OIDC_TOKEN_FIELDS) | unique | sort | join(' ') }}
+MOODLE_OIDC_UNLISTED_SETTINGS:
+  oidcscope: "{{ MOODLE_OIDC_SCOPES }}"
+  customclaims: "{{ MOODLE_OIDC_CUSTOM_CLAIMS }}"
+MOODLE_LDAP_UNLISTED_SETTINGS: "{{ {'removecontexts': 1} if MOODLE_OIDC_ENABLED | bool else {} }}"
+MOODLE_FORCED_PLUGIN_SETTINGS: >-
+  {{ ({'auth_oidc': MOODLE_OIDC_SETTINGS | combine(MOODLE_OIDC_UNLISTED_SETTINGS)} if MOODLE_OIDC_ENABLED | bool else {})
+     | combine({'auth_ldap': MOODLE_LDAP_SETTINGS | combine(MOODLE_LDAP_UNLISTED_SETTINGS)} if MOODLE_LDAP_ENABLED | bool else {}) }}
+
+MOODLE_RBAC_ACCOUNT_AUTH: "{{ 'oidc' if MOODLE_OIDC_ENABLED | bool else 'ldap' }}"
+MOODLE_RBAC_SYSTEM_ROLES:
+  - manager
+  - coursecreator
+MOODLE_RBAC_PROTECTED_USERNAMES:
+  - "{{ MOODLE_ADMIN_USERNAME }}"
+  - "{{ MOODLE_MCP_ACCOUNT_USERNAME }}"
+  - "guest"
+MOODLE_OIDC_ONION_ISSUER: "{{ (lookup('tls', 'web-app-keycloak', 'domain') | network_of) == 'tor' }}"
 MOODLE_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if MOODLE_OIDC_ONION_ISSUER | bool else '' }}"
 
 MOODLE_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') | bool }}"
-MOODLE_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+MOODLE_LITELLM_API_KEY: "{{ lookup('litellm_api_key', application_id) }}"
 MOODLE_LITELLM_CHAT_ENDPOINT: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}/chat/completions"
 MOODLE_LITELLM_IMAGE_ENDPOINT: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}/images/generations"
 MOODLE_LITELLM_PROVIDER_NAME: "LiteLLM gateway"
@@ -98,9 +161,9 @@ MOODLE_EGRESS_WEB_PORTS:
 MOODLE_EGRESS_ALLOWED_PORTS: "{{ MOODLE_EGRESS_WEB_PORTS + ([MOODLE_LITELLM_CHAT_ENDPOINT | urlsplit('port') | string] if MOODLE_LITELLM_ENABLED | bool else []) }}"
 MOODLE_DEBUG_SETTINGS:
   - name: debug
-    value: "{{ (MODE_DEBUG | bool) | ternary('32767', '0') }}"
+    value: "{{ (lookup('debug') | bool) | ternary('32767', '0') }}"
   - name: debugdisplay
-    value: "{{ (MODE_DEBUG | bool) | ternary('1', '0') }}"
+    value: "{{ (lookup('debug') | bool) | ternary('1', '0') }}"
 MOODLE_PROXY_EXCLUDED_HOSTS: "{{ lookup('proxy_excluded_hosts', application_id) + [MOODLE_MCP_SERVICE_KEY] + ([MOODLE_LITELLM_CHAT_ENDPOINT | urlsplit('hostname')]
   if MOODLE_LITELLM_ENABLED | bool else []) }}"
 

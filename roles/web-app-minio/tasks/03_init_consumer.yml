@@ -16,12 +16,13 @@
 - name: "🔧 Provision bucket + scoped service account for '{{ objstore_consumer_id }}'"
   environment:
     MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
-    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
     MINIO_CONSUMER_ACCESS_KEY: "{{ _minio_consumer_access_key }}"
-    MINIO_CONSUMER_SECRET_KEY: "{{ _minio_consumer_secret_key }}"
     MINIO_CONSUMER_POLICY_B64: "{{ lookup('template', 'consumer-policy.json.j2') | b64encode }}"
   shell: |
     set -euo pipefail
+    IFS= read -r MINIO_ROOT_PASSWORD || :; : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
+    IFS= read -r MINIO_CONSUMER_SECRET_KEY || :; : "${MINIO_CONSUMER_SECRET_KEY:?arrived empty on stdin}"
+    export MINIO_ROOT_PASSWORD MINIO_CONSUMER_SECRET_KEY
     container run --rm \
         -e MINIO_ROOT_USER \
         -e MINIO_ROOT_PASSWORD \
@@ -31,7 +32,7 @@
         --entrypoint /bin/sh \
         {{ MINIO_MC_IMAGE }} \
         -c 'set -eu
-            mc alias set minio {{ MINIO_API_URL | quote }} "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null
+            printf "%s\n" "$MINIO_ROOT_PASSWORD" | mc alias set minio {{ MINIO_API_URL | quote }} "$MINIO_ROOT_USER" >/dev/null
             mc mb --ignore-existing minio/{{ _minio_consumer_bucket }}
             printf "%s" "$MINIO_CONSUMER_POLICY_B64" | base64 -d > /tmp/consumer-policy.json
             if ! mc admin user svcacct info minio "$MINIO_CONSUMER_ACCESS_KEY" >/dev/null 2>&1; then
@@ -41,7 +42,11 @@
                 --policy /tmp/consumer-policy.json \
                 minio "$MINIO_ROOT_USER"
             fi'
-  args: { executable: /bin/bash }
+  args:
+    executable: /bin/bash
+    stdin: |-
+      {{ lookup('users', 'platform_administrator').password }}
+      {{ _minio_consumer_secret_key }}
   register: minio_consumer_provision
   changed_when: >-
     ('Bucket created' in (minio_consumer_provision.stdout | default('')))
@@ -52,15 +57,16 @@
   when: lookup('objstore', objstore_consumer_id, 'public') | bool
   environment:
     MINIO_ROOT_USER: "{{ lookup('users', 'platform_administrator').username }}"
-    MINIO_ROOT_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
   ansible.builtin.shell: |
     set -euo pipefail
+    IFS= read -r MINIO_ROOT_PASSWORD || :; : "${MINIO_ROOT_PASSWORD:?arrived empty on stdin}"
+    export MINIO_ROOT_PASSWORD
     container run --rm \
         -e MINIO_ROOT_USER \
         -e MINIO_ROOT_PASSWORD \
         --entrypoint /bin/sh \
         {{ MINIO_MC_IMAGE }} \
-        -c 'mc alias set minio {{ MINIO_API_URL | quote }} "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" >/dev/null
+        -c 'printf "%s\n" "$MINIO_ROOT_PASSWORD" | mc alias set minio {{ MINIO_API_URL | quote }} "$MINIO_ROOT_USER" >/dev/null
             if mc anonymous get minio/{{ _minio_consumer_bucket }} | grep -q download; then
               echo unchanged
             else
@@ -68,6 +74,7 @@
             fi'
   args:
     executable: /bin/bash
+    stdin: "{{ lookup('users', 'platform_administrator').password }}"
   register: minio_consumer_anonymous
   changed_when: "'unchanged' not in minio_consumer_anonymous.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

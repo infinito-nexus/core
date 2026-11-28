@@ -10,7 +10,8 @@ const {
   tokenValue,
 } = require("./design");
 const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLoginForm, requireDotenvValue } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { assertSky } = require("./cosmos-sky");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL")).replace(/\/$/, "");
@@ -21,7 +22,6 @@ const iconUrl = decodeDotenvQuotedValue(process.env.DESIGN_ICON_URL || "");
 const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 
 const MODES = ["light", "dark"];
-const NO_SIGN_IN_PAGE = "with sso on local login is off, so Special:UserLogin hands straight to Keycloak and the wiki serves no sign-in page";
 const SHOWCASE = "Design_showcase";
 const CONTENT = "#mw-content-text .mw-parser-output";
 const HEADER = ".vector-header";
@@ -30,6 +30,18 @@ const PREFS_TARGET = ".oo-ui-fieldsetLayout:target > .oo-ui-fieldsetLayout-heade
 const LOGIN_FORM = "#userloginForm";
 const LOGIN_SUBMIT = "#wpLoginAttempt";
 const READY = 10_000;
+const BODY = ".mw-body";
+const FOOTER = ".mw-footer-container";
+
+async function assertPageSurface(page_, label) {
+  if (!isServiceEnabled("cosmos")) {
+    await assertToken(page_, PAGE, "background-color", "--design-surface-1", label);
+    return;
+  }
+  await assertSky(page_, ["html", "body", PAGE], [FOOTER], label);
+  await assertToken(page_, BODY, "background-color", "--design-surface-1", `${label} reading surface`);
+  await assertToken(page_, BODY, "color", "--design-text", `${label} reading surface`);
+}
 const page = (title_, query = "") => `${base}/index.php?title=${encodeURIComponent(title_)}${query}`;
 
 const SHOWCASE_TEXT = [
@@ -204,7 +216,7 @@ function signedInViews() {
 }
 
 test("design: the platform administrator signs in with the platform password and holds sysop and bureaucrat", async ({ page: page_ }) => {
-  test.skip(ssoEnabled, NO_SIGN_IN_PAGE);
+  skipUnlessServiceDisabled("sso");
   await signIn(page_);
   expect(await signedInName(page_)).toBe(adminUsername.charAt(0).toUpperCase() + adminUsername.slice(1));
   const groups = await pageConfig(page_, "wgUserGroups");
@@ -235,7 +247,7 @@ test("design: articles take surfaces, links, dividers and text from the palette"
     await page_.emulateMedia({ colorScheme: mode });
     await gotoOnion(page_, page(SHOWCASE));
     await shown(`${CONTENT} table.wikitable`)(page_);
-    await assertToken(page_, PAGE, "background-color", "--design-surface-1", `article ${mode}`);
+    await assertPageSurface(page_, `article ${mode}`);
     await assertToken(page_, CONTENT, "color", "--design-text", `article ${mode}`);
     await assertToken(page_, `${CONTENT} a[href*='Main_Page']`, "color", "--design-link", `article link ${mode}`);
     await assertToken(page_, `${CONTENT} .mw-heading2`, "border-bottom-color", "--design-border", `heading divider ${mode}`);
@@ -277,12 +289,12 @@ test("design: the primary action takes its fill and text from the palette", asyn
 
 test("design: the sign-in page takes surface, primary action and text from the palette", async ({ page: page_ }) => {
   skipUnlessServiceEnabled("design");
-  test.skip(ssoEnabled, NO_SIGN_IN_PAGE);
+  skipUnlessServiceDisabled("sso");
   for (const mode of MODES) {
     await page_.emulateMedia({ colorScheme: mode });
     await gotoOnion(page_, page("Special:UserLogin"));
     await shown(LOGIN_SUBMIT)(page_);
-    await assertToken(page_, PAGE, "background-color", "--design-surface-1", `sign-in ${mode}`);
+    await assertPageSurface(page_, `sign-in ${mode}`);
     await assertToken(page_, LOGIN_SUBMIT, "background-color", "--design-primary", `sign-in ${mode}`);
     await assertToken(page_, LOGIN_SUBMIT, "color", "--design-on-primary", `sign-in ${mode}`);
     await assertToken(page_, "#wpPassword1", "border-top-color", "--design-border-strong", `sign-in ${mode}`);
@@ -308,7 +320,7 @@ test("design: a Vector theme stored for the account is respected and mirrored", 
     await expect(html).toHaveClass(/skin-theme-clientpref-night/);
     await expect(html).toHaveAttribute("data-design-theme", "dark");
     expect(await surface(), "night stored in Vector must switch the tokens while the browser prefers light").not.toBe(light);
-    await assertToken(page_, PAGE, "background-color", "--design-surface-1", "night stored in Vector");
+    await assertPageSurface(page_, "night stored in Vector");
     await page_.emulateMedia({ colorScheme: "dark" });
     await storeTheme(page_, "day");
     await openMainPage(page_);

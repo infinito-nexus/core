@@ -53,6 +53,18 @@ SSO with auto-account-creation, which collapses the chain to a single
 
 - An account whose `user.theme` is still empty (every account the role or a visitor creates) loses the frio scheme on its first save of `/settings/display`: `src/Module/Settings/Display.php:194` calls `theme_post()` only when the posted theme equals the stored one, so the first post only stores `theme = frio` (measured 2026-10-14: a post with `frio_scheme=dark` while the stored theme differed left the scheme at `---`; the second post stored it); options: report upstream to compare against `$user['theme'] ?: system.theme`, or let the role store `theme = frio` for the accounts it provisions.
 
+## Identity sync
+
+- A change to the `administrator` role group reaches `config.admin_email` only on the next deploy, and a changed directory name or email never reaches an existing account, because the list is rendered into `FRIENDICA_ADMIN_MAIL` at deploy time and `ldapauth` reads the directory only when it creates the account; options: the `saml` addon migration above with an attribute and group map, or a cron that refreshes the account and the list from LDAP.
+
 ## Open self-registration
 
 - `/register` serves the sign-up form to every visitor because the installer writes `'register_policy' => \Friendica\Module\Register::OPEN` into `config/local.config.php:27` (`bin/console config config register_policy` reports `2`), while upstream's own default in `static/settings.config.php:27` is `CLOSED`; options: set `config.register_policy` to `CLOSED` (or `APPROVE`) from the role through `bin/console config` or a mounted `config/*.config.php`, or make it an inventory switch.
+
+## Flaky native administrator login
+
+- `files/playwright/test-native-login-administrator.js` failed its first attempt in the B1 compose round of 2026-11-01 on the 60 s wait for `/network` after the sign-in (`files/playwright/_shared.js`) and passed on retry (log `/tmp/compose-deploy-iam-15.log:312348`); options: wait for the session cookie and the post-login redirect response instead of the `/network` render, or raise the cause in Friendica's post-login page load first.
+
+## Missing smiley icon upstream
+
+- `files/playwright/test-smiley-icons.js` exempts `/addon/smiley_pack/icons/opensource/vivaldi.png` (`UPSTREAM_MISSING_ICON`), which the `smiley_pack` addon references but does not ship. The fix PR friendica/friendica-addons#1390 on GitHub was closed unmerged on 2026-11-01 because the repository moved to <https://git.friendi.ca/friendica/friendica-addons>. Open the PR again there (it needs an account on git.friendi.ca; the instance offers OpenID 2.0, which Keycloak does not provide), then put an `upstream:` directive with the new PR URL back above `UPSTREAM_MISSING_ICON`.

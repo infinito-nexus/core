@@ -32,7 +32,7 @@ Every deploy checks this before the PDS starts: [pds_migrations.js](files/javasc
 - When the check passes, the pinned version is recorded in `infinito-pds-version` in the volume. Data written before that record existed is reported as written by a PDS newer than the pin.
 - You MUST NOT lower `services.pds.version` on its own.
 - To roll back, you MUST restore the `bluesky_pds_data` volume from the backup generation taken before the update and pin the old version in the same step. Follow [A single volume](../svc-bkp-volume-2-local/README.md#a-single-volume) for the restore.
-- That backup generation exists only when `svc-bkp-volume-2-local` is deployed and `MODE_BACKUP` is enabled.
+- That backup generation exists only when `svc-bkp-volume-2-local` is deployed and `BACKUP` is enabled.
 - The restore discards everything the PDS stored after the update.
 
 ## Debugging

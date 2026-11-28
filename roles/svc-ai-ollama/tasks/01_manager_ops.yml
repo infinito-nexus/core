@@ -6,36 +6,37 @@
     resolve_output_prefix: OLLAMA
     resolve_compose_cid: "{{ OLLAMA_CONTAINER }}"
 
-- name: ⬇️ Pre-pull Ollama models
+- name: "🛑 Refuse a preload model that is not pinned to one file"
+  ansible.builtin.assert:
+    that:
+      - (model | local_model_refusal) | length == 0
+    fail_msg: "{{ model.alias | default(model) }}: {{ model | local_model_refusal }}"
+    quiet: true
+  loop: "{{ OLLAMA_PRELOAD_MODELS }}"
+  loop_control:
+    loop_var: model
+    label: "{{ model.alias | default(model) }}"
+
+- name: "🔍 Read the file Ollama holds each preload model at"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i {{ OLLAMA_LOCAL_CID | quote }} ollama pull {{ model.alias }}
-  register: pull_result
+    container exec {{ OLLAMA_LOCAL_CID | quote }} ollama show {{ model.alias | quote }} --modelfile
+  register: ollama_held
+  changed_when: false
+  failed_when: false
   loop: "{{ OLLAMA_PRELOAD_MODELS }}"
   loop_control:
     loop_var: model
     label: "{{ model.alias }}"
-  # rationale: async; model pulls run overlapped, results reaped below before playwright
-  async: "{{ OLLAMA_PRELOAD_ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
-  retries: "{{ 0 if ASYNC_ENABLED | bool else 5 }}"
-  delay: 15
-  until: >
-    (pull_result.rc | default(0)) == 0 or
-    ('up to date' in (pull_result.stdout | default('')))
-  changed_when: false
-  failed_when: >-
-    (pull_result.failed | default(false))
-    and 'up to date' not in ((pull_result.stdout | default('')) ~ (pull_result.stderr | default('')))
   delegate_to: "{{ OLLAMA_HOST_NODE }}"
 
-- name: "⏳ Reap the Ollama model pulls"
-  ansible.builtin.include_tasks:
-    file: utils/async/reap.yml
-    apply:
-      delegate_to: "{{ OLLAMA_HOST_NODE }}"
+- name: "📥 Create the preload models Ollama does not hold at their pinned file"
+  ansible.builtin.include_tasks: 02_import.yml
+  loop: "{{ ollama_held.results | local_models_missing | unique(attribute='sha256') }}"
+  loop_control:
+    loop_var: ollama_file
+    label: "{{ ollama_file.url | basename }}"
   vars:
-    async_reap_jobs: "{{ pull_result.results | default([]) }}"
-    async_reap_label: "Ollama model pre-pull"
-    async_reap_tolerate:
-      - "up to date"
-    ASYNC_TIME: "{{ OLLAMA_PRELOAD_ASYNC_TIME }}"
+    ollama_models: "{{ ollama_held.results | local_models_missing | selectattr('sha256', 'equalto', ollama_file.sha256) | list }}"
+    ollama_handed: "{{ [AI_MODELS_STORE_PATH, ollama_file.sha256] | path_join }}"
+    ollama_blob: "{{ [OLLAMA_BLOBS_DIR, 'sha256-' ~ ollama_file.sha256] | path_join }}"
+    ollama_modelfile: "{{ [OLLAMA_IMPORT_DIR, ollama_file.sha256 ~ '.Modelfile'] | path_join }}"

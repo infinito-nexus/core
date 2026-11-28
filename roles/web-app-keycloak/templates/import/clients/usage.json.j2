@@ -1,0 +1,6 @@
+{% from "clients/service_account.json.j2" import service_account_client %}
+{{ service_account_client(
+     KEYCLOAK_USAGE_CLIENT_ID,
+     "Usage",
+     "Confidential client of the workspace usage template; its service account only reads the users of this realm to count its active people.",
+     KEYCLOAK_USAGE_CLIENT_SECRET) }}

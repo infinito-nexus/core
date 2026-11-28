@@ -7,10 +7,11 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.cache.base import _render_with_templar
 from utils.manager.credential_key import OVERRIDE_SECTION
 from utils.roles.applications.config import get
 from utils.roles.entity.name import entity_name
-from utils.tls_common import (
+from utils.tls.common import (
     collect_domains_for_app,
     is_onion_domain,
     resolve_enabled,
@@ -28,18 +29,6 @@ OBJSTORE_DEFAULT_IMAGE = {
 }
 OBJSTORE_DEFAULT_REGION = "us-east-1"
 OBJSTORE_PROXY_PREFIX = "/_infinito/objstore"
-
-
-def _is_enabled(applications: dict[str, Any], consumer_id: str, engine: str) -> bool:
-    return bool(
-        get(
-            applications,
-            consumer_id,
-            f"services.{engine}.enabled",
-            strict=False,
-            default=False,
-        )
-    )
 
 
 class LookupModule(LookupBase):
@@ -81,10 +70,45 @@ class LookupModule(LookupBase):
         ).run([], variables=vars_)[0]
         path_instances = self._require_var(vars_, "DIR_COMPOSITIONS")
         consumer_entity = entity_name(consumer_id)
+        templar = getattr(self, "_templar", None)
 
-        active = [
-            e for e in OBJSTORE_ENGINES if _is_enabled(applications, consumer_id, e)
-        ]
+        def _config(application_id: str, path: str, default: Any, **kw: Any) -> Any:
+            """Read one value of an application, rendered.
+
+            Args:
+                application_id: the application the value belongs to.
+                path: dotted path below ``applications.<application_id>``.
+                default: the value of a missing path.
+                kw: further ``get`` arguments, e.g. ``skip_missing_app``.
+
+            Returns:
+                The value rendered with its vault strings decrypted. Inside the
+                applications render ``applications`` is the unrendered payload,
+                where a flag such as ``{{ 'web-svc-seaweedfs' in group_names }}``
+                is a truthy string and a vaulted credential an
+                ``EncryptedString``, not a ``str``.
+            """
+            value = get(
+                applications,
+                application_id,
+                path,
+                strict=False,
+                default=default,
+                **kw,
+            )
+            if value is None or isinstance(value, (bool, int, float)):
+                return value
+            return _render_with_templar(
+                value,
+                templar=templar,
+                variables=vars_,
+                raw_applications=applications,
+            )
+
+        def _is_enabled(engine: str) -> bool:
+            return bool(_config(consumer_id, f"services.{engine}.enabled", False))
+
+        active = [e for e in OBJSTORE_ENGINES if _is_enabled(e)]
         if len(active) > 1:
             raise AnsibleError(
                 f"objstore: multiple object-store engines enabled for "
@@ -119,6 +143,7 @@ class LookupModule(LookupBase):
                 "public_bucket": "",
                 "public_endpoint": "",
                 "public_url": "",
+                "public_scheme": "",
                 "relative_url": "",
                 "proxy_required": False,
                 "proxy_prefix": "",
@@ -129,24 +154,11 @@ class LookupModule(LookupBase):
             return [resolved if want == "all" else resolved.get(want, "")]
 
         provider_role = OBJSTORE_PROVIDER_ROLE[engine]
-        shared = bool(
-            get(
-                applications,
-                consumer_id,
-                f"services.{engine}.shared",
-                strict=False,
-                default=False,
-            )
-        )
+        shared = bool(_config(consumer_id, f"services.{engine}.shared", False))
         central_enabled = shared
 
-        central_name = get(
-            applications,
-            provider_role,
-            f"services.{engine}.name",
-            strict=False,
-            default=engine,
-            skip_missing_app=True,
+        central_name = _config(
+            provider_role, f"services.{engine}.name", engine, skip_missing_app=True
         )
         central_name = (
             str(central_name) if central_name is not None else ""
@@ -155,92 +167,53 @@ class LookupModule(LookupBase):
         host = central_name if central_enabled else engine
         network = entity_name(provider_role) if central_enabled else consumer_entity
         container = central_name if central_enabled else f"{consumer_entity}-{engine}"
-        port = get(
-            applications,
+        port = _config(
             provider_role,
             f"services.{engine}.api_port",
-            strict=False,
-            default=OBJSTORE_DEFAULT_PORT[engine],
+            OBJSTORE_DEFAULT_PORT[engine],
             skip_missing_app=True,
         )
-        region = get(
-            applications,
+        region = _config(
             provider_role,
             f"services.{engine}.region",
-            strict=False,
-            default=OBJSTORE_DEFAULT_REGION,
+            OBJSTORE_DEFAULT_REGION,
             skip_missing_app=True,
         )
 
         access_key = consumer_entity
-        secret_key = get(
-            applications,
-            consumer_id,
-            f"{OVERRIDE_SECTION}.objstore_secret_key",
-            strict=False,
-            default="",
-        )
+        secret_key = _config(consumer_id, f"{OVERRIDE_SECTION}.objstore_secret_key", "")
         bucket = consumer_entity
-        public = bool(
-            get(
-                applications,
-                consumer_id,
-                f"services.{engine}.public",
-                strict=False,
-                default=False,
-            )
-        )
+        public = bool(_config(consumer_id, f"services.{engine}.public", False))
 
-        image = get(
-            applications,
+        image = _config(
             provider_role,
             f"services.{engine}.image",
-            strict=False,
-            default=OBJSTORE_DEFAULT_IMAGE[engine],
+            OBJSTORE_DEFAULT_IMAGE[engine],
             skip_missing_app=True,
         )
-        default_version = get(
-            applications,
-            provider_role,
-            f"services.{engine}.version",
-            strict=False,
-            default="latest",
-            skip_missing_app=True,
+        default_version = _config(
+            provider_role, f"services.{engine}.version", "latest", skip_missing_app=True
         )
-        version = get(
-            applications,
-            consumer_id,
-            f"services.{engine}.version",
-            strict=False,
-            default=default_version,
-        )
+        version = _config(consumer_id, f"services.{engine}.version", default_version)
 
         env = f"{path_instances}{consumer_entity}/.env/objstore.env"
         volume_prefix = "" if central_enabled else f"{consumer_entity}_"
-        volume = (
-            f"{volume_prefix}{engine}"
-            if bool(_is_enabled(applications, consumer_id, engine) and not shared)
-            else ""
-        )
+        volume = f"{volume_prefix}{engine}" if not shared else ""
         endpoint = f"{host}:{port}"
         url = f"http://{endpoint}"
         userinfo = f"{quote(access_key, safe='')}:{quote(secret_key, safe='')}"
         credentialed_url = f"http://{userinfo}@{endpoint}"
 
-        public_domain = get(
-            applications,
-            provider_role,
-            "domains.canonical.api",
-            strict=False,
-            default="",
-            skip_missing_app=True,
+        public_domain = _config(
+            provider_role, "domains.canonical.api", "", skip_missing_app=True
         )
         public_domain = (
             str(public_domain) if public_domain is not None else ""
         ).strip()
-        provider_app = applications.get(provider_role) or {}
-        if not isinstance(provider_app, dict):
-            provider_app = {}
+        provider_tls = _config(provider_role, "server.tls", {}, skip_missing_app=True)
+        provider_app = {
+            "server": {"tls": provider_tls if isinstance(provider_tls, dict) else {}}
+        }
         scheme = (
             "https"
             if resolve_enabled(provider_app, bool(vars_.get("TLS_ENABLED", True)))
@@ -308,6 +281,7 @@ class LookupModule(LookupBase):
             "public_bucket": public_bucket,
             "public_endpoint": public_endpoint,
             "public_url": public_url,
+            "public_scheme": browser_scheme,
             "relative_url": relative_url,
             "proxy_required": proxy_required,
             "proxy_prefix": OBJSTORE_PROXY_PREFIX,

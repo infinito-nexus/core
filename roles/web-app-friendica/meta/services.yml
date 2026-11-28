@@ -1,9 +1,13 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-required, object storage not implemented for this role
 # nocheck: playwright-service-flag, self-provider
 friendica:
   backup:
     stop_required: false
+  logging:
+    debugging: "{{ lookup('debug') | bool }}"
+    level: "{{ 9 if lookup('debug') | bool else 5 }}"
   healthcheck:
     flavor: msmtp_curl
   modes:
@@ -77,6 +81,8 @@ sso:
         - /attach/
         - /static/
         - /view/
+        - /images/
+        - /addon/smiley_pack/icons/
         - /robots.txt
         - /opensearch
         - /friendica
@@ -94,8 +100,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag, DB engine, covered by role-local integration tests
 mariadb:
   bond: 1
@@ -137,3 +143,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

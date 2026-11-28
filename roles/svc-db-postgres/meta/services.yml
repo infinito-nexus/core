@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  database engine; the rows belong to the consuming applications, which expire their own data
 postgres:
   modes:
     compose:
@@ -49,3 +50,10 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, dynamic-flag, semaphore-contract  control plane: Semaphore keeps its whole state in this database, so a run that paused it would stop Semaphore itself
+semaphore:
+  enabled: false
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false
+  status: started

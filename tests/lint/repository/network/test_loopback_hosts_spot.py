@@ -29,8 +29,12 @@ import re
 import unittest
 from pathlib import Path
 
+from ansible.parsing.dataloader import DataLoader
+from ansible.template import Templar, trust_as_template
+
 from utils.annotations.suppress import is_suppressed_at
-from utils.cache.files import PROJECT_ROOT, iter_project_files_with_content, read_text
+from utils.cache.files import PROJECT_ROOT, iter_project_files_with_content
+from utils.cache.yaml import load_yaml_any
 
 _RULE = "loopback-hosts-literal"
 _SPOT_FILE = "group_vars/all/08_networks.yml"
@@ -108,7 +112,7 @@ class TestLoopbackHostsSpot(unittest.TestCase):
                 f"Offending lines:\n{formatted}"
             )
 
-    def test_internal_proxy_exclusions_come_from_the_lookup(self) -> None:
+    def test_internal_proxy_exclusions_come_from_the_lookup(self) -> None:  # nocheck: test.text-presence -- policy lint over every proxy exclusion variable of the tree  # fmt: skip
         findings: list[tuple[str, int, str]] = []
         for path_str, content in iter_project_files_with_content(
             extensions=(".yml",),
@@ -212,21 +216,12 @@ class TestLoopbackHostsSpot(unittest.TestCase):
         )
 
     def test_the_spot_covers_every_loopback_form(self) -> None:
-        spot = read_text(str(PROJECT_ROOT / _SPOT_FILE))
-        declared = [
-            line for line in spot.splitlines() if line.startswith(f"{_SPOT_VAR}:")
-        ]
-        self.assertEqual(
-            1,
-            len(declared),
-            f"{_SPOT_FILE} must declare {_SPOT_VAR} exactly once, found "
-            f"{len(declared)}",
+        spot = load_yaml_any(str(PROJECT_ROOT / _SPOT_FILE))
+        hosts = Templar(loader=DataLoader(), variables=spot).template(
+            trust_as_template(spot[_SPOT_VAR])
         )
-        missing = sorted(
-            name
-            for name in _FORMS
-            if f"NETWORK_LOOPBACK_{name.upper()}" not in declared[0]
-        )
+        self.assertIsInstance(hosts, list, f"{_SPOT_VAR} must render to a list")
+        missing = sorted(set(_FORMS) - forms_in(" ".join(hosts)))
         self.assertEqual(
             [],
             missing,

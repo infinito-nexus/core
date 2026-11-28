@@ -1,0 +1,163 @@
+---
+ldap_source:
+  path: /-/admin/auths/
+  record:
+    selector: "#auth_name"
+    source: services.gitea.auth.ldap.names
+  sinks: [GITEA_LDAP_SOURCE]
+  fields:
+    host: { source: services.gitea.auth.ldap.host, when: services.ldap.enabled, mode: enforced, selector: "#host", type: text, label: Host }
+    port:
+      source: services.gitea.auth.ldap.port
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#port"
+      type: number
+      label: Port
+    security_protocol:
+      source: services.gitea.auth.ldap.security_protocol
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#security_protocol, .security-protocol.dropdown input"
+      type: select
+      label: Security protocol
+    bind_dn:
+      source: services.gitea.auth.ldap.bind_dn
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#bind_dn"
+      type: text
+      label: Bind DN
+    user_base:
+      source: services.gitea.auth.ldap.user_base
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#user_base"
+      type: text
+      label: User search base
+    filter:
+      source: services.gitea.auth.ldap.filter
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#filter"
+      type: text
+      label: User filter
+    admin_filter:
+      source: services.gitea.auth.ldap.admin_filter
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#admin_filter"
+      type: text
+      label: Admin filter
+    restricted_filter:
+      source: services.gitea.auth.ldap.restricted_filter
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#restricted_filter"
+      type: text
+      label: Restricted filter
+    attribute_username:
+      source: services.gitea.auth.ldap.attribute_username
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#attribute_username"
+      type: text
+      label: Username attribute
+    attribute_name:
+      source: services.gitea.auth.ldap.attribute_name
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#attribute_name"
+      type: text
+      label: First name attribute
+    attribute_surname:
+      source: services.gitea.auth.ldap.attribute_surname
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#attribute_surname"
+      type: text
+      label: Surname attribute
+    attribute_mail:
+      source: services.gitea.auth.ldap.attribute_mail
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#attribute_mail"
+      type: text
+      label: Email attribute
+    attribute_ssh_public_key:
+      source: services.gitea.auth.ldap.attribute_ssh_public_key
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#attribute_ssh_public_key"
+      type: text
+      label: Public SSH key attribute
+    attribute_avatar:
+      source: services.gitea.auth.ldap.attribute_avatar
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "#attribute_avatar"
+      type: text
+      label: Avatar attribute
+    is_sync_enabled:
+      source: services.gitea.auth.ldap.is_sync_enabled
+      when: services.ldap.enabled
+      mode: enforced
+      selector: "input[name='is_sync_enabled']"
+      type: checkbox
+      label: Periodic synchronization
+oauth_source:
+  path: /-/admin/auths/
+  record:
+    selector: "#auth_name"
+    source: services.gitea.auth.oauth.names
+  sinks: [GITEA_OAUTH_SOURCE]
+  fields:
+    oauth2_provider:
+      source: services.gitea.auth.oauth.provider
+      when: services.gitea.login.method.sso.enabled
+      mode: enforced
+      selector: "#oauth2_provider, .oauth2_provider.dropdown input"
+      type: select
+      label: OAuth2 provider
+    oauth2_key:
+      source: services.sso.oidc.clients.web
+      when: services.gitea.login.method.sso.enabled
+      mode: enforced
+      selector: "#oauth2_key"
+      type: text
+      label: Client ID
+    open_id_connect_auto_discovery_url:
+      source: services.gitea.auth.oauth.discovery_url
+      when: services.gitea.login.method.sso.enabled
+      mode: enforced
+      selector: "#open_id_connect_auto_discovery_url"
+      type: url
+      label: OpenID Connect auto discovery URL
+    oauth2_scopes:
+      source: services.gitea.auth.oauth.scopes
+      when: services.gitea.login.method.sso.enabled
+      mode: enforced
+      selector: "#oauth2_scopes"
+      type: text
+      label: Scopes
+    oauth2_group_claim_name:
+      source: services.gitea.auth.oauth.group_claim_name
+      when: services.gitea.login.method.sso.enabled
+      mode: enforced
+      selector: "#oauth2_group_claim_name"
+      type: text
+      label: Group claim name
+    oauth2_admin_group:
+      source: services.gitea.auth.oauth.admin_group
+      when: services.gitea.login.method.sso.enabled
+      mode: enforced
+      selector: "#oauth2_admin_group"
+      type: text
+      label: Admin group
+    oauth2_restricted_group:
+      source: services.gitea.auth.oauth.restricted_group
+      when: services.gitea.login.method.sso.enabled
+      mode: enforced
+      selector: "#oauth2_restricted_group"
+      type: text
+      label: Restricted group

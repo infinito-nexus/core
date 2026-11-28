@@ -69,7 +69,7 @@ def _target_files() -> list:
 
 
 class TestNoRawTimeoutLiterals(unittest.TestCase):
-    def test_timeouts_route_through_resolve_timeout(self):
+    def test_timeouts_route_through_resolve_timeout(self):  # nocheck: test.text-presence -- policy lint over every Playwright source  # fmt: skip
         offenders: list[str] = []
         for path in _target_files():
             raw_lines = read_text(str(path)).splitlines()

@@ -16,13 +16,13 @@ from jinja2 import (
 import plugins.lookup.container_ports as container_ports_lookup
 from plugins.lookup.container_volumes import container_volumes
 from utils.cache.files import PROJECT_ROOT, read_text
-from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import (
     ROLE_FILE_META_SERVICES,
     ROLE_FILE_TEMPL_COMPOSE,
     ROLE_FILE_VARS_MAIN,
 )
+from utils.tests.caches import reset_caches
 
 ROLE = "roles/web-app-nextcloud"
 TEMPLATE = f"{ROLE}/{ROLE_FILE_TEMPL_COMPOSE}"
@@ -335,13 +335,7 @@ def _direct_media(
         variables["ansible_facts"] = {"all_ipv4_addresses": [PUBLIC_IP, "10.208.0.1"]}
     templar = Templar(loader=DataLoader(), variables=dict(variables))
     templar.available_variables = dict(variables)
-    _reset_cache_for_tests()
-    try:
-        return templar.template(
-            trust_as_template(ROLE_VARS["NEXTCLOUD_HPB_MEDIA_DIRECT"])
-        )
-    finally:
-        _reset_cache_for_tests()
+    return templar.template(trust_as_template(ROLE_VARS["NEXTCLOUD_HPB_MEDIA_DIRECT"]))
 
 
 STANDALONE_TURN = ("web-app-nextcloud", "web-svc-coturn")
@@ -355,6 +349,14 @@ OPTED_IN = _talk(direct_media=True)
 
 
 class TestDirectMediaFlag(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        reset_caches(files_changed=False)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        reset_caches(files_changed=False)
+
     def test_by_default_every_stream_goes_through_turn(self):
         self.assertIs(_direct_media(list(STANDALONE_TURN)), False)
 

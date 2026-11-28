@@ -24,3 +24,8 @@ RUN set -eu; \
         'redis.session.lock_retries = -1' \
         > "${conf_dir}/99-infinito-session.ini"; \
     done
+
+COPY login_search.php /usr/local/share/infinito-lam/login_search.php
+COPY entrypoint.sh /usr/local/bin/infinito-lam-entrypoint.sh
+RUN chmod 0755 /usr/local/bin/infinito-lam-entrypoint.sh
+CMD ["/usr/local/bin/infinito-lam-entrypoint.sh"]

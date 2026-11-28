@@ -1,0 +1,28 @@
+---
+LOG_COLLECTOR_ROLE: "sys-svc-log-collector"
+LOG_COLLECTOR_ENTITY: "{{ LOG_COLLECTOR_ROLE | entity_name }}"
+LOG_COLLECTOR_CONTAINER: "{{ lookup('config', LOG_COLLECTOR_ROLE, 'services.' ~ LOG_COLLECTOR_ENTITY ~ '.name') }}"
+LOG_COLLECTOR_DIR: "{{ [DIR_COMPOSITIONS, LOG_COLLECTOR_ENTITY] | path_join }}"
+LOG_COLLECTOR_CONFIG_HOST: "{{ [LOG_COLLECTOR_DIR, 'config.alloy'] | path_join }}"
+LOG_COLLECTOR_ENV_FILE: "{{ [LOG_COLLECTOR_DIR, '.env'] | path_join }}"
+LOG_COLLECTOR_COMPOSE_FILE: "{{ [LOG_COLLECTOR_DIR, 'compose.yml'] | path_join }}"
+LOG_COLLECTOR_CONFIG_CONTAINER: "/etc/alloy/config.alloy" # nocheck: container-var-name-lookup  in-container path, not a container name
+LOG_COLLECTOR_STORAGE_CONTAINER: "/var/lib/alloy/data" # nocheck: container-var-name-lookup  in-container path, not a container name
+LOG_COLLECTOR_JOURNAL_PATH: "/var/log/journal"
+LOG_COLLECTOR_JOURNAL_MAX_AGE: "{{ lookup('config', LOG_COLLECTOR_ROLE, 'services.' ~ LOG_COLLECTOR_ENTITY ~ '.journal_max_age') }}"
+LOG_COLLECTOR_MAX_BACKOFF_PERIOD: "{{ lookup('config', LOG_COLLECTOR_ROLE, 'services.' ~ LOG_COLLECTOR_ENTITY ~ '.push.max_backoff_period') }}"
+LOG_COLLECTOR_MAX_BACKOFF_RETRIES: "{{ lookup('config', LOG_COLLECTOR_ROLE, 'services.' ~ LOG_COLLECTOR_ENTITY ~ '.push.max_backoff_retries') }}"
+
+LOG_COLLECTOR_LOKI_ROLE: "web-svc-loki"
+LOG_COLLECTOR_PUSH_URL: "{{ lookup('tls', LOG_COLLECTOR_LOKI_ROLE, 'url.origin') }}/loki/api/v1/push"
+LOG_COLLECTOR_PUSH_DOMAIN: "{{ lookup('domain', LOG_COLLECTOR_LOKI_ROLE) }}"
+LOG_COLLECTOR_PUSH_TOKEN: "{{ lookup('config', LOG_COLLECTOR_LOKI_ROLE, 'secrets.credentials.push_token') }}"
+LOG_COLLECTOR_TENANT: "{{ lookup('config', LOG_COLLECTOR_LOKI_ROLE, 'services.loki.tenant') }}"
+LOG_COLLECTOR_SELF_EXCLUDED:
+  - "{{ LOG_COLLECTOR_ROLE }}"
+  - "{{ LOG_COLLECTOR_LOKI_ROLE }}"
+  - "web-app-grafana"
+LOG_COLLECTOR_ACCESS_LOG_APPLICATIONS:
+  - "svc-prx-openresty"
+LOG_COLLECTOR_STDOUT_PRIORITY: "6"
+LOG_COLLECTOR_CA_ENABLED: "{{ (TLS_MODE | lower) == 'self_signed' }}"

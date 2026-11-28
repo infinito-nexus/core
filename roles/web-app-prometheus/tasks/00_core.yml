@@ -1,12 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
-  vars:
-    mcp_adapter_instance_dir: "{{ PROMETHEUS_MCP_INSTANCE_DIR }}"
-  when: PROMETHEUS_MCP_ENABLED | bool
-
 - name: "🧩 Load the container CLI the data root probe calls"
   include_role:
     name: sys-svc-container
@@ -21,9 +15,8 @@
 
 - name: "🧩 load docker and proxy for '{{ application_id }}'"
   include_role:
-    name: sys-stk-backend
-  vars:
-    compose_handlers_flush: false
+    name: svc-stack
+    tasks_from: consumer/back.yml
 
 - name: "📁 Ensure the node-exporter textfile directory exists"
   ansible.builtin.file:
@@ -60,12 +53,10 @@
 - name: "🚿 flush handlers for '{{ application_id }}'"
   meta: flush_handlers
 
-- name: "📂 Include role sys-stk-front-proxy for '{{ application_id }}'"
+- name: "📂 Include role svc-stack for '{{ application_id }}'"
   include_role:
-    name: sys-stk-front-proxy
-  vars:
-    domain: "{{ lookup('domain', application_id) }}"
-    http_port: "{{ lookup('config', application_id, 'services.prometheus.ports.local.http') }}"
+    name: svc-stack
+    tasks_from: consumer/front.yml
 
 - name: "🚀 Deploy prometheus nginx http-block config"
   stack_host_template:

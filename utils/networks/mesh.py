@@ -218,3 +218,20 @@ def primary_address(applications: Any, host: str) -> str:
             if isinstance(address, str) and address:
                 return address
     return ""
+
+
+def peer_address(applications: Any, host: str, peer: str) -> str:
+    """The address ``host``'s own interfaces list for ``peer``, primary first.
+
+    Args:
+        applications: ``host``'s ``applications`` block.
+        host: the host whose interfaces are read.
+        peer: the inventory hostname of the peer.
+    """
+    owned = [entry for entry in interfaces(applications) if entry.get("host") == host]
+    for entry in sorted(owned, key=lambda entry: not entry.get("primary")):
+        for listed in _peers(entry):
+            address = listed.get("address")
+            if listed.get("host") == peer and isinstance(address, str) and address:
+                return address
+    return ""

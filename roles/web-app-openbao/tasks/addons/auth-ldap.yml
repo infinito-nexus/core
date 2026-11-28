@@ -1,5 +1,5 @@
 ---
-# include-gated: when: OPENBAO_LDAP_ENABLED | bool
+# include-gated: when: OPENBAO_LOGIN_LDAP | bool
 - name: "🧩 Enable the LDAP auth method"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec {{ OPENBAO_LOCAL_CID | quote }}
@@ -27,7 +27,7 @@
     userattr={{ OPENBAO_LDAP_USER_ATTR | quote }}
     username_as_alias=true
     groupdn={{ LDAP.DN.OU.ROLES | quote }}
-    groupattr=cn
+    groupattr={{ LDAP.RBAC.NAME_ATTRIBUTE | quote }}
     binddn={{ LDAP.DN.ADMINISTRATOR.DATA | quote }}
     bindpass=-
     insecure_tls=false

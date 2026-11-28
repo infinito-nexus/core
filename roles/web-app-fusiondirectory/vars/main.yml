@@ -8,3 +8,11 @@ FUSIONDIRECTORY_THEME_CSS_HOST: "{{ [lookup('container', application_id, 'direct
 FUSIONDIRECTORY_DESIGN_TITLE: "{{ lookup('design', application_id).title if (FUSIONDIRECTORY_DESIGN_ENABLED | bool and lookup('design', application_id).title is string)
   else '' }}"
 FUSIONDIRECTORY_HEADERS_TPL_HOST: "{{ [lookup('container', application_id, 'directories.volumes'), 'headers.tpl'] | path_join }}"
+FUSIONDIRECTORY_ADMINISTRATOR_GROUP_DN: "cn={{ application_id }}-administrator,{{ LDAP.DN.OU.ROLES }}"
+FUSIONDIRECTORY_USER_MANAGER_GROUP_DN: "cn={{ application_id }}-user-manager,{{ LDAP.DN.OU.ROLES }}"
+FUSIONDIRECTORY_SELF_SERVICE_GROUP_DN: "cn={{ application_id }}-self-service,{{ LDAP.DN.OU.ROLES }}"
+FUSIONDIRECTORY_CONFIG: "{{ lookup('form_values', application_id, 'config') }}"
+FUSIONDIRECTORY_HTTP_HEADER_NAME: "{{ FUSIONDIRECTORY_CONFIG.fdHttpHeaderAuthHeaderName }}"
+FUSIONDIRECTORY_SSO_PROXY_HEADER: "X-Infinito-Sso-Proxy"
+FUSIONDIRECTORY_SSO_PROXY_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.sso_proxy_secret') }}"
+FUSIONDIRECTORY_SSO_PROXY_CONF_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'sso-proxy.conf'] | path_join }}"

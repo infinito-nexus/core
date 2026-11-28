@@ -1,13 +1,13 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { gotoOnion } = require("./personas");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 exports.register = function (shared) {
   test.describe("moodle LDAP-only (variant 1)", () => {
-    test.skip(shared.env.ssoEnabled, "SSO shared service enabled — variant 1 not active");
-    test.skip(!shared.env.ldapEnabled, "LDAP shared service disabled");
-
     test("biber: direct LDAP-bind login via Moodle form", async ({ page }) => {
+      skipUnlessServiceEnabled("ldap");
+      skipUnlessServiceDisabled("sso");
       await gotoOnion(page, `${shared.env.moodleBaseUrl}/login/index.php`);
       const usernameInput = page.locator("input[name='username'], input#username").first();
       await expect(usernameInput).toBeVisible({ timeout: resolveTimeout(30_000) });
@@ -24,7 +24,9 @@ exports.register = function (shared) {
       await expect(userMenu).toBeVisible({ timeout: resolveTimeout(30_000) });
     });
 
-    test("login page does NOT expose an OIDC entry point", async ({ page }) => {
+    test("guest: login page does NOT expose an OIDC entry point", async ({ page }) => {
+      skipUnlessServiceEnabled("ldap");
+      skipUnlessServiceDisabled("sso");
       await gotoOnion(page, `${shared.env.moodleBaseUrl}/login/index.php`);
       const oidcButton = page.locator("a, button").filter({
         hasText: /openid|oidc|keycloak|single.?sign.?on|sso/i,

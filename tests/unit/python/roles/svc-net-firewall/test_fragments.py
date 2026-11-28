@@ -30,14 +30,17 @@ from functools import lru_cache
 from pathlib import Path
 
 import jinja2
+from jinja2.nativetypes import NativeEnvironment
 
+from plugins.filter.api_listener import api_listener_port, api_listener_sources
 from plugins.filter.swarm_ingress_guard import (
     swarm_ingress_published,
     swarm_node_addresses,
 )
 from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_any
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.networks.tor_egress import plan as tor_egress_plan
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 from . import PROJECT_ROOT
 
@@ -70,11 +73,77 @@ def _guarded_ports() -> list[dict]:
     ]
 
 
+def _chutney_guarded_ports() -> list[dict]:
+    role = PROJECT_ROOT / "roles" / "svc-net-tor"
+    declared = load_yaml_any(str(role / ROLE_FILE_VARS_MAIN))
+    chutney = load_yaml_any(str(role / ROLE_FILE_META_SERVICES))["tor"]["chutney"]
+    environment = NativeEnvironment()
+    window = environment.from_string(declared["TOR_CHUTNEY_PORT_RANGE"]).render(
+        TOR_CHUTNEY_BASES=chutney["port_bases"],
+        TOR_CHUTNEY_PORT_SPAN=chutney["port_span"],
+    )
+    return environment.from_string(declared["TOR_CHUTNEY_GUARDED_PORTS"]).render(
+        TOR_FLAVOR="chutney", TOR_CHUTNEY_PORT_RANGE=window
+    )
+
+
+def _incus_variables() -> dict:
+    """
+    Returns:
+        The incus fragment's inputs: the role's own network, workspace and
+        listen declaration, and one stand-in API source per family shaped by
+        the shared ``api_listener_sources`` filter.
+    """
+    role = PROJECT_ROOT / "roles" / "svc-virt-incus"
+    incus = load_yaml_any(str(role / ROLE_FILE_META_SERVICES))["incus"]
+    return {
+        "INCUS_API_SOURCES": api_listener_sources(
+            ["192.0.2.7", "2001:db8::7"], "services.incus.api.allowed_sources"
+        ),
+        "INCUS_API_PORT": api_listener_port(
+            incus["api"]["listen"], "services.incus.api.listen"
+        ),
+        "INCUS_WORKSPACES": incus["workspaces"],
+        "INCUS_NETWORK": incus["network"],
+    }
+
+
+def _proxmox_variables() -> dict:
+    """
+    Returns:
+        The proxmox fragment's inputs: the role's own bind address and
+        registered listener port, and one stand-in API source per family
+        shaped by the shared ``api_listener_sources`` filter.
+    """
+    role = PROJECT_ROOT / "roles" / "web-app-proxmox"
+    proxmox = load_yaml_any(str(role / ROLE_FILE_META_SERVICES))["proxmox"]
+    return {
+        "PROXMOX_API_SOURCES": api_listener_sources(
+            ["192.0.2.8", "2001:db8::8"], "services.proxmox.api.allowed_sources"
+        ),
+        "PROXMOX_API_PORT": api_listener_port(
+            f"{proxmox['api']['bind']}:{proxmox['ports']['public']['api']}",
+            "services.proxmox.api.bind",
+        ),
+    }
+
+
 COMMON = {
     "FIREWALL_TABLE": TABLE,
     "TOR_EGRESS_CLIENT_CIDRS": ["127.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"],
     "TOR_EGRESS_GUARDED_PORTS": _guarded_ports(),
+    "TOR_CHUTNEY_GUARDED_PORTS": _chutney_guarded_ports(),
     "TOR_EGRESS_VIRTUAL_NET_IPV4": "10.192.0.0/10",
+    "TOR_EGRESS_SOCKET_UID": 0,
+    "TOR_EGRESS_SOCKET_GID": 9050,
+    "TOR_EGRESS_CT_MARK": "0x544f5200",
+    "TOR_EGRESS_NFTSET_TIMEOUT": "1h",
+    "TOR_DNSMASQ_UID": 977,
+    "TOR_DNS_UPSTREAMS": ["172.30.0.53"],
+    "TOR_EGRESS_RESOLVER_PORTS": [53, 853],
+    "TOR_EGRESS_RESOLVER_CIDRS": ["127.0.0.0/8", "172.17.0.1", "192.168.74.0/24"],
+    "TOR_EGRESS_NONROUTABLE_IPV4": ["169.254.0.0/16", "224.0.0.0/4", "255.255.255.255"],
+    "TOR_EGRESS_LOCAL_IPV6": ["::1", "fe80::/10", "fc00::/7", "ff00::/8"],
     **PROBE_PORTS,
     "TOR_CONTAINER_DNS_HOST": "172.17.0.1",
     "NETWORK_INTERNAL_CIDRS": [
@@ -92,9 +161,18 @@ COMMON = {
         ]
     ),
     "SWARM_INGRESS_PEER_ADDRESSES": swarm_node_addresses(["10.0.0.2"]),
+    "SWARM_ONION_GUARDED_PORTS": [389, 3306],
+    **_incus_variables(),
+    **_proxmox_variables(),
 }
 
 MODES = ("compose", "swarm")
+
+EGRESS_LISTS = {
+    "tor": {"include": ["198.51.100.0/24", "2001:db8::/32"], "except": []},
+    "direct": {"include": ["docker.io", "192.0.2.0/28"], "except": ["192.0.2.10"]},
+}
+ROUTES = ("none", "onion", "all")
 
 
 def _run(argv: list[str]) -> subprocess.CompletedProcess[str]:
@@ -138,14 +216,18 @@ def _fragments() -> list[str]:
     )
 
 
-def _render(path: str, mode: str = "swarm") -> str:
+def _render(path: str, mode: str = "swarm", route: str = "onion") -> str:
     environment = jinja2.Environment(
         keep_trailing_newline=True,
         trim_blocks=True,
         autoescape=jinja2.select_autoescape(default_for_string=False),
     )
     return environment.from_string(read_text(path)).render(
-        DEPLOYMENT_MODE=mode, **COMMON
+        DEPLOYMENT_MODE=mode,
+        TOR_EGRESS_ROUTE=route,
+        TOR_NODE_ROUTES=route != "none",
+        TOR_EGRESS_PLAN=tor_egress_plan(EGRESS_LISTS, route),
+        **COMMON,
     )
 
 
@@ -181,10 +263,10 @@ class TestFirewallFragments(unittest.TestCase):
         nft = shutil.which("nft")
         for path in _fragments():
             rel = Path(path).relative_to(PROJECT_ROOT).as_posix()
-            for mode in MODES:
-                with self.subTest(fragment=rel, mode=mode):
+            for mode, route in ((mode, route) for mode in MODES for route in ROUTES):
+                with self.subTest(fragment=rel, mode=mode, route=route):
                     with tempfile.NamedTemporaryFile("w", suffix=".conf") as handle:
-                        handle.write(_render(path, mode))
+                        handle.write(_render(path, mode, route))
                         handle.flush()
                         result = subprocess.run(
                             [nft, "-c", "-f", handle.name],
@@ -209,13 +291,13 @@ class TestFirewallFragments(unittest.TestCase):
             self.skipTest("loading a ruleset needs nft with CAP_NET_ADMIN and ip")
         for index, path in enumerate(_fragments()):
             rel = Path(path).relative_to(PROJECT_ROOT).as_posix()
-            for mode in MODES:
-                with self.subTest(fragment=rel, mode=mode):
+            for mode, route in ((mode, route) for mode in MODES for route in ROUTES):
+                with self.subTest(fragment=rel, mode=mode, route=route):
                     with (
                         tempfile.NamedTemporaryFile("w", suffix=".conf") as handle,
                         _network_namespace(f"nftprobe{os.getpid()}x{index}") as netns,
                     ):
-                        handle.write(_render(path, mode))
+                        handle.write(_render(path, mode, route))
                         handle.flush()
                         listings = []
                         for attempt in ("first", "second"):

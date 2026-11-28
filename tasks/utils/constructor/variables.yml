@@ -15,7 +15,7 @@
   loop: "{{ group_names }}"
   loop_control:
     loop_var: group_name
-  when: MODE_ASSERT | bool
+  when: VALIDATE | bool
 
 - name: 🔀 Merge current play applications
   ansible.builtin.set_fact:
@@ -39,6 +39,10 @@
   ansible.builtin.set_fact:
     CURRENT_PLAY_REDIRECT_DOMAINS: "{{ lookup('current_play_redirect_domains') }}"
 
+- name: 🔧 Set CURRENT_PLAY_SERVED_DOMAINS
+  ansible.builtin.set_fact:
+    CURRENT_PLAY_SERVED_DOMAINS: "{{ lookup('served_domains', application_ids=CURRENT_PLAY_DOMAINS.keys() | list).entries }}"
+
 - name: 🔧 Set current play all domains incl. www redirect if enabled
   ansible.builtin.set_fact:
     CURRENT_PLAY_DOMAINS_ALL: >-
@@ -50,6 +54,7 @@
               | items2dict(key_name='source', value_name='source'),
               recursive=True
             )
+          | combine(CURRENT_PLAY_SERVED_DOMAINS | items2dict(key_name='name', value_name='name'))
         )
         | generate_all_domains(WWW_REDIRECT_ENABLED | bool)
       }}

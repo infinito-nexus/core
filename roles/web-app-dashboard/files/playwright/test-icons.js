@@ -20,8 +20,13 @@ exports.register = function (shared) {
       "No card icon may point at the internal Docker bridge IP"
     ).toHaveCount(0);
 
+    const data = await shared.dashboardData(page);
+    const cardIds = data ? data.cards.map((card) => card.key).filter(Boolean) : [];
+    expect(cardIds.length, "Expected the dashboard data to list at least one application card").toBeGreaterThan(0);
+
     if (shared.isServiceEnabled("simpleicons")) {
-      const simpleiconsImg = page.locator(".card-img-top img[src*='//icon.']").first();
+      await shared.revealCard(page, "web-app-keycloak");
+      const simpleiconsImg = page.locator("[data-portui-card] .card-img-top img[src*='//icon.']:visible").first();
       await expect(
         simpleiconsImg,
         "Expected at least one card icon to load from the public Simple Icons domain (icon.<DOMAIN>)"
@@ -33,8 +38,9 @@ exports.register = function (shared) {
         "Expected the Simple Icons URL to be an absolute SVG under icon.<DOMAIN>"
       ).toMatch(/^https?:\/\/icon\.[^/]+\/[^/]+\.svg$/);
     } else {
+      await shared.revealCard(page, cardIds[0]);
       await expect(
-        page.locator(".card-img-top i[class*='fa']:visible").first(),
+        page.locator("[data-portui-card] .card-img-top i[class*='fa']:visible").first(),
         "Expected card icons to fall back to a Font Awesome icon when the Simple Icons service is disabled"
       ).toBeVisible({ timeout: resolveTimeout(60_000) });
     }

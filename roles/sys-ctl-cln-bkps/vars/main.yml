@@ -1,2 +1,4 @@
 ---
 system_service_id: "sys-ctl-cln-bkps"
+sys_ctl_cln_bkps_container_debug: "{{ (DOCKER_IN_CONTAINER | bool) and (lookup('debug', 'sys-ctl-cln-bkps') | bool) }}"
+sys_ctl_cln_bkps_lock_timeout: "{{ '60s' if (sys_ctl_cln_bkps_container_debug | bool) else SYS_TIMEOUT_BACKUP_SERVICES }}"

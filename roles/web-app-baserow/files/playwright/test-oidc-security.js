@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { skipUnlessServiceEnabled, isServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { normalizeBaseUrl, decodeDotenvQuotedValue, performKeycloakLoginForm, gotoOnion } = require("./personas");
 
 const baseUrl = normalizeBaseUrl(process.env.BASEROW_BASE_URL || "");
@@ -80,7 +80,7 @@ test("oidc-security: a forged identity header cannot mint a Baserow JWT through 
 });
 
 test("oidc-security: the trusted-header bridge stays inert while SSO is disabled", async ({ browser }) => {
-  test.skip(isServiceEnabled("sso"), "SSO enabled — forged-header gating is covered by the tests above");
+  skipUnlessServiceDisabled("sso");
   expect(baseUrl, "BASEROW_BASE_URL must be set").toBeTruthy();
 
   const expectedBase = baseUrl.replace(/\/$/, "");
@@ -146,7 +146,7 @@ test("oidc-security: injected identity headers cannot re-identify an authenticat
   ).toBe(true);
 
   const tokenData = JSON.parse(body);
-  const resolvedIdentity = `${tokenData.user?.email || ""} ${tokenData.user?.username || ""}`.toLowerCase();
+  const resolvedIdentity = `${tokenData.user?.email || ""} ${tokenData.user?.username || ""} ${tokenData.user?.first_name || ""}`.toLowerCase();
   expect(
     resolvedIdentity,
     `the oauth2-proxy identity must win over injected headers (resolved: ${resolvedIdentity})`,

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-IDENTIFIER = re.compile(r"^[a-z_][a-z0-9_]*$")
+IDENTIFIER = re.compile(r"[a-z_][a-z0-9_]*")
 
 
 class FailureLog:
@@ -27,7 +27,7 @@ class FailureLog:
     """
 
     def __init__(self, client, table):
-        if not IDENTIFIER.match(table or ""):
+        if not IDENTIFIER.fullmatch(table or ""):
             raise ValueError(f"{table!r} is not a bare lowercase SQL identifier")
         self._client = client
         self._table = table
@@ -69,10 +69,24 @@ class FailureLog:
             engine,
         )
 
-    async def streaks(self):
-        """``{engine: consecutive failures}`` for every engine that has any."""
+    async def counts(self):
+        """``{engine: (streak, total)}`` for every engine that ever failed.
+
+        The streak is what drops an engine from the candidate set; the total
+        is what the criteria line of the next decision states.
+        """
         await self._ensure()
         rows = await self._client.query_raw(
-            f"SELECT engine, streak FROM {self._table} WHERE streak > 0"  # noqa: S608 table validated against IDENTIFIER in __init__
+            f"SELECT engine, streak, total FROM {self._table} WHERE total > 0"  # noqa: S608 table validated against IDENTIFIER in __init__
         )
-        return {row["engine"]: int(row["streak"]) for row in rows or []}
+        return {
+            row["engine"]: (int(row["streak"]), int(row["total"])) for row in rows or []
+        }
+
+    async def streaks(self):
+        """``{engine: consecutive failures}`` for every engine that has any."""
+        return {
+            engine: streak
+            for engine, (streak, _total) in (await self.counts()).items()
+            if streak > 0
+        }

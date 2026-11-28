@@ -29,8 +29,9 @@
 - name: "🏛️ Decidim | Create the organization"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
     container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
-    -e DECIDIM_ORG_HOST={{ domain | quote }}
+    -e DECIDIM_ORG_HOST={{ DECIDIM_ORGANIZATION.host | quote }}
     -e DECIDIM_ORG_NAME={{ DECIDIM_ORGANIZATION_NAME | quote }}
+    -e DECIDIM_USERS_REGISTRATION_MODE={{ DECIDIM_ORGANIZATION.users_registration_mode | quote }}
     {{ DECIDIM_LOCAL_CID | quote }}
     bundle exec rails runner -
   args:
@@ -46,7 +47,33 @@
     bundle exec rails db:seed
   register: decidim_demo_seed
   changed_when: true
-  when: MODE_DEMO | bool
+  when: DEMO | bool
+  delegate_to: "{{ DECIDIM_HOST_NODE }}"
+
+- name: "⬇️ Decidim | Read the managed organization settings"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ [role_path, 'files/sql/select/organization.sql'] | path_join }}"
+    expect_rows: true
+  register: decidim_organization_stored
+  changed_when: false
+
+- name: "📣 Decidim | Report the managed organization settings the run reverts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current:
+      organization: "{{ decidim_organization_stored.rows[0][0] | default('{}', true) | from_json }}"
+
+- name: "🚪 Decidim | Converge the local sign-in and sign-up of the organization"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
+    container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
+    -e DECIDIM_USERS_REGISTRATION_MODE={{ DECIDIM_ORGANIZATION.users_registration_mode | quote }}
+    {{ DECIDIM_LOCAL_CID | quote }}
+    bundle exec rails runner -
+  args:
+    stdin: "{{ lookup('file', 'ruby/ensure/registration_mode.rb') }}"
+  register: decidim_registration_mode_result
+  changed_when: "'Registration mode set to' in decidim_registration_mode_result.stdout"
   delegate_to: "{{ DECIDIM_HOST_NODE }}"
 
 - name: "📄 Decidim | Ensure default static pages exist (terms-of-service)"
@@ -63,7 +90,7 @@
 - name: "🔧 Decidim | Set organization host"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
     container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
-    -e DECIDIM_ORG_HOST={{ domain | quote }}
+    -e DECIDIM_ORG_HOST={{ DECIDIM_ORGANIZATION.host | quote }}
     {{ DECIDIM_LOCAL_CID | quote }}
     bundle exec rails runner -
   args:
@@ -74,7 +101,8 @@
 
 - name: "✅ Decidim | Ensure administrator user exists with correct credentials"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
-    IFS= read -r DECIDIM_ADMIN_PASSWORD && export DECIDIM_ADMIN_PASSWORD && container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
+    IFS= read -r DECIDIM_ADMIN_PASSWORD && : "${DECIDIM_ADMIN_PASSWORD:?arrived empty on stdin}" && export DECIDIM_ADMIN_PASSWORD && container exec -i -e RAILS_ENV={{
+    ENVIRONMENT | quote }}
     -e DECIDIM_ADMIN_EMAIL={{ lookup('users', 'platform_administrator').email | quote }}
     -e DECIDIM_ADMIN_PASSWORD
     {{ DECIDIM_LOCAL_CID | quote }}
@@ -91,6 +119,7 @@
 - name: "🔧 Decidim | Configure OIDC omniauth settings in organization"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  DECIDIM_LOCAL_CID resolved at delegate_to runtime
     container exec -i -e RAILS_ENV={{ ENVIRONMENT | quote }}
+    -e DECIDIM_OIDC_LOGIN_ENABLED={{ DECIDIM_ORGANIZATION.omniauth_settings_openid_connect_enabled | string | lower | quote }}
     {{ DECIDIM_LOCAL_CID | quote }}
     bundle exec rails runner -
   args:

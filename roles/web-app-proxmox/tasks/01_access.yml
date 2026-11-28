@@ -1,0 +1,37 @@
+---
+- name: "🔍 Resolve the Proxmox VE container of {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: proxmox
+    resolve_output_prefix: PROXMOX
+    resolve_compose_cid: "{{ PROXMOX_CONTAINER }}"
+
+- name: "🧭 Bring up the {{ PROXMOX_FLAVOR }} flavor of {{ application_id }}"
+  ansible.builtin.include_tasks: "flavors/{{ PROXMOX_FLAVOR }}.yml"
+
+- name: "🪪 Converge the OpenID realm, admin group and ACL of {{ application_id }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      IFS= read -r PROXMOX_REALM_CLIENT_SECRET_B64 || :; : "${PROXMOX_REALM_CLIENT_SECRET_B64:?arrived empty on stdin}" &&
+      export PROXMOX_REALM_CLIENT_SECRET_B64 &&
+      container exec -i
+      -e PROXMOX_REALM -e PROXMOX_REALM_CONFIG -e PROXMOX_REALM_CLIENT_SECRET_B64
+      -e PROXMOX_LOCAL_REALMS -e PROXMOX_LOCAL_REALM_TFA
+      -e PROXMOX_GROUP -e PROXMOX_GROUP_COMMENT -e PROXMOX_ROLE
+      {{ PROXMOX_LOCAL_CID | quote }} {{ (PROXMOX_GUEST_EXEC + ['perl', '-']) | map('quote') | join(' ') }}
+    stdin: |-
+      {{ PROXMOX_OIDC_CLIENT_SECRET | b64encode }}
+      {{ lookup('file', 'perl/access.pl') }}
+  environment:
+    PROXMOX_REALM: "{{ PROXMOX_REALM }}"
+    PROXMOX_REALM_CONFIG: "{{ PROXMOX_REALM_CONFIG | to_json }}"
+    PROXMOX_LOCAL_REALMS: "{{ PROXMOX_LOCAL_REALMS | join(',') }}"
+    PROXMOX_LOCAL_REALM_TFA: "{{ PROXMOX_LOCAL_REALM_TFA }}"
+    PROXMOX_GROUP: "{{ PROXMOX_ADMIN_GROUP }}"
+    PROXMOX_GROUP_COMMENT: "{{ PROXMOX_ADMIN_GROUP_COMMENT }}"
+    PROXMOX_ROLE: "{{ PROXMOX_ADMIN_ROLE }}"
+  register: proxmox_access
+  changed_when: proxmox_access.stdout is search('\[CHANGED\]')
+  failed_when: proxmox_access.rc != 0 or proxmox_access.stdout is search('\[FAIL\]')
+  delegate_to: "{{ PROXMOX_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

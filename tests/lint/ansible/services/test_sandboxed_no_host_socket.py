@@ -79,7 +79,7 @@ class TestSandboxedNoHostSocket(unittest.TestCase):
             + "\n".join(f"  - {f}" for f in sorted(findings)),
         )
 
-    def test_the_scan_finds_sandboxed_roles(self) -> None:
+    def test_the_scan_finds_sandboxed_roles(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the sandboxed role scan  # fmt: skip
         self.assertTrue(
             _sandboxed_roles(),
             f"no role template pins {_RUNTIME_PIN}, so the rule would pass "

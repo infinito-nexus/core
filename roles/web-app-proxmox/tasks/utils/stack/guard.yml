@@ -1,0 +1,46 @@
+---
+- name: "🛑 Refuse a flavor the role does not ship"
+  ansible.builtin.assert:
+    that:
+      - PROXMOX_FLAVOR in PROXMOX_FLAVORS
+    fail_msg: >-
+      services.proxmox.flavor is '{{ PROXMOX_FLAVOR }}' for {{ inventory_hostname }},
+      and web-app-proxmox ships the flavors {{ PROXMOX_FLAVORS | join(' and ') }}
+      only. Set applications.web-app-proxmox.services.proxmox.flavor to vm, the
+      default, or to container for a dedicated host.
+    quiet: true
+
+- name: "🛑 Refuse a container flavor host shared with identity, gateway or vault"
+  ansible.builtin.assert:
+    that:
+      - (PROXMOX_FLAVOR != 'container') or (PROXMOX_COHOSTED_PEERS | length == 0)
+    fail_msg: >-
+      {{ inventory_hostname }} runs the container flavor of web-app-proxmox and
+      also {{ PROXMOX_COHOSTED_PEERS | join(', ') }}. Root in the container flavor
+      is root on the host, so a VM escape out of Proxmox VE would land next to the
+      identity provider, the model gateway keys or the vault. Move
+      web-app-proxmox to a host of its own, or deploy the vm flavor, which runs
+      Proxmox VE as a guest of an unprivileged container.
+    quiet: true
+
+- name: "🛑 Refuse to serve the hypervisor UI without the SSO group gate"
+  ansible.builtin.assert:
+    that:
+      - PROXMOX_SSO_ENABLED | bool
+    fail_msg: >-
+      services.sso.enabled resolves to false for {{ inventory_hostname }}: no
+      web-app-keycloak host is in the inventory, so no OAuth2 proxy would stand
+      in front of the Proxmox VE web UI. Deploy web-app-keycloak in the same
+      inventory first.
+    quiet: true
+
+- name: "🛑 Refuse to publish the hypervisor UI on an onion address"
+  ansible.builtin.assert:
+    that:
+      - not (PROXMOX_TOR_ENABLED | bool)
+    fail_msg: >-
+      services.tor.enabled resolves to true for {{ inventory_hostname }}: the
+      Proxmox VE web UI would get an onion address outside the front proxy's
+      clearnet gate. Set applications.web-app-proxmox.services.tor.enabled to
+      false for this host.
+    quiet: true

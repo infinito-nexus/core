@@ -1,0 +1,23 @@
+---
+- name: "🛂 Reconcile the admin and moderator flags with the role groups"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: true
+    rbac_sync_mode: compose
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: [administrator, moderator]
+    rbac_sync_service_key: "{{ entity_name }}"
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ DISCOURSE_CONTAINER }}"
+    rbac_sync_kind: container
+    rbac_sync_user: ""
+    rbac_sync_argv: [rails, r, "-"]
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/ruby/reconcile_staff.rb') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      DISCOURSE_RBAC_KEPT_ADMINISTRATORS: "{{ [lookup('users', 'platform_administrator').username] | to_json }}"
+    rbac_sync_attributes: []
+    rbac_sync_members_env:
+      - { name: DISCOURSE_RBAC_ADMINISTRATORS, role: administrator, field: "" }
+      - { name: DISCOURSE_RBAC_MODERATORS, role: moderator, field: "" }

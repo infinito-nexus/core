@@ -159,7 +159,7 @@ def each_database(generation_dir: Path):
 
 
 def in_file(path: Path, token: str) -> bool:
-    """Whether a token appears anywhere in a file, without holding it in memory."""
+    """Whether a token appears anywhere in a dump, without holding it in memory."""
     with io.TextIOWrapper(
         open_dump(str(path)), encoding="utf-8", errors="replace"
     ) as handle:

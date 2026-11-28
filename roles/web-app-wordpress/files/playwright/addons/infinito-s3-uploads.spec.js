@@ -23,7 +23,7 @@ test("addon infinito-s3-uploads: the S3 endpoint mu-plugin is loaded by WordPres
       shared.env.adminPassword
     );
 
-    await gotoOnion(page, `${shared.env.wpBaseUrl}/wp-admin/plugins.php?plugin_status=mustuse`, {
+    await gotoOnion(page, shared.wpPluginsScreenUrl("?plugin_status=mustuse"), {
       waitUntil: "domcontentloaded",
       timeout: resolveTimeout(60_000),
     });

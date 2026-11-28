@@ -2,7 +2,7 @@
 
 This page covers role-local Dockerfiles.
 Use this page for placement rules, variable handling, and build wiring.
-For the agent-side review workflow during development, see [Development](../../../../agents/action/develop.md).
+For the agent-side review workflow during development, see [Development](../../../../../agents/skills/i8-develop/SKILL.md).
 
 ## Placement 📁
 

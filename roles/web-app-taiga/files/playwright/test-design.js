@@ -10,7 +10,8 @@ const {
   tokenValue,
 } = require("./design");
 const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion, requireDotenvValue } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { assertSky } = require("./cosmos-sky");
+const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const SHOWCASE = "Design Showcase";
@@ -226,8 +227,10 @@ exports.register = function (shared) {
     skipUnlessServiceEnabled("design");
     await gotoOnion(page, `${base()}/discover`);
     await ready(page, ".discover-header");
+    const sky = isServiceEnabled("cosmos");
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
+      if (sky) await assertSky(page, ["html", "body", "div.master"], ["div.master"], `taiga discover sky ${mode}`);
       await assertToken(page, "nav.navbar", "background-color", "--design-frame", `taiga navbar ${mode}`);
       await assertToken(page, ".discover-header", "background-color", "--design-surface-3", `taiga discover header ${mode}`);
       await assertToken(page, ".discover-header input[type='text']", "background-color", "--design-surface-1", `taiga search ${mode}`);
@@ -236,7 +239,13 @@ exports.register = function (shared) {
     }
     await page.emulateMedia({ colorScheme: null });
     await assertLightAndDark(page, ".discover-header", "taiga discover");
-    await assertReadable(page, ["div.master h1", { selector: ".discover-header .project-number", optional: true }], "taiga discover");
+    await assertReadable(
+      page,
+      sky
+        ? [".discover-header input[type='text']", { selector: ".discover-header .project-number", optional: true }]
+        : ["div.master h1", { selector: ".discover-header .project-number", optional: true }],
+      "taiga discover",
+    );
   });
 
   test("design: the navbar and the sign-in page show the corporate logo", async ({ page, request }) => {
@@ -316,12 +325,20 @@ exports.register = function (shared) {
     skipUnlessServiceEnabled("design");
     await gotoOnion(page, `${base()}/forgot-password`);
     await ready(page, ".forgot-form-container .forgot-text");
+    const sky = isServiceEnabled("cosmos");
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
-      await assertToken(page, ".forgot-form-container .forgot-text", "color", "--design-text", `taiga recovery text ${mode}`);
+      if (sky) {
+        await assertSky(page, ["html", "body", ".auth"], [".auth"], `taiga recovery sky ${mode}`);
+        await assertToken(page, ".forgot-form-container .forgot-text", "color", "--cosmos-text", `taiga recovery text ${mode}`);
+      } else {
+        await assertToken(page, ".forgot-form-container .forgot-text", "color", "--design-text", `taiga recovery text ${mode}`);
+      }
     }
     await page.emulateMedia({ colorScheme: null });
-    await assertReadable(page, [".forgot-form-container .forgot-text", { selector: ".auth .login-text a", optional: true }], "taiga recovery");
+    if (!sky) {
+      await assertReadable(page, [".forgot-form-container .forgot-text", { selector: ".auth .login-text a", optional: true }], "taiga recovery");
+    }
   });
 
   test("design: the comment editor on a story follows the tokens", async ({ page, request }) => {
@@ -350,14 +367,19 @@ exports.register = function (shared) {
     }
     await page.emulateMedia({ colorScheme: null });
     await signInDjangoAdmin(page);
+    const sky = isServiceEnabled("cosmos");
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
-      await assertToken(page, "body", "background-color", "--design-surface-1", `django body ${mode}`);
+      if (sky) {
+        await assertSky(page, ["html", "body"], ["#container"], `django sky ${mode}`);
+      } else {
+        await assertToken(page, "body", "background-color", "--design-surface-1", `django body ${mode}`);
+      }
       await assertToken(page, ".module caption", "background-color", "--design-frame", `django module caption ${mode}`);
       await assertToken(page, "#content-main td, #content-main th", "border-bottom-color", "--design-border", `django table divider ${mode}`);
     }
     await page.emulateMedia({ colorScheme: null });
-    await assertLightAndDark(page, "#content-main", "django index");
+    await assertLightAndDark(page, sky ? "#content-main .module" : "#content-main", "django index");
     await assertReadable(page, ["#content-main th a", ".module caption a"], "django index");
   });
 

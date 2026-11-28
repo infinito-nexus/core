@@ -1,0 +1,21 @@
+---
+map_animator_data:
+  type: volume
+  mounts:
+    - service: map-animator
+      target: /data
+
+map_animator_out:
+  type: tmpfs
+  mounts:
+    - service: map-animator
+      target: /out
+      size: 16m
+
+map_animator_users:
+  type: secret
+  source: "{{ [ lookup('container', 'web-app-map-animator', 'directories.instance'), 'users.txt' ] | path_join }}"
+  mode: "0400"
+  mounts:
+    - service: map-animator
+      target: /run/secrets/map-animator-users.txt

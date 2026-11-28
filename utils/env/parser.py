@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 _LINE_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$")
+CUSTOM_ENV = "custom.env"
 
 
 def env_setting(key: str) -> str:
@@ -65,6 +66,20 @@ def parse_static_env(path: Path) -> dict[str, str]:
     """Return the `KEY: value` map declared in `path`."""
     values, _ = parse_static_env_with_comments(path)
     return values
+
+
+def custom_env_value(repo_root: Path, key: str) -> str:
+    """
+    Args:
+        repo_root: the checkout whose ``custom.env`` is read.
+        key: the variable looked up there.
+
+    Returns:
+        The value ``custom.env`` sets for *key*, stripped; empty when the file
+        or the key is missing.
+    """
+    custom = repo_root / CUSTOM_ENV
+    return parse_static_env(custom).get(key, "").strip() if custom.is_file() else ""
 
 
 def parse_static_env_with_comments(

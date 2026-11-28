@@ -26,17 +26,19 @@ source "scripts/meta/env/load.sh"
 # shellcheck source=scripts/meta/env/load.sh
 source "scripts/meta/env/load.sh"
 
-if docker ps --format '{{.Names}}' | grep -qE '^infinito-(registry|package)-cache$'; then
-	echo "[clean-cache] stopping infinito-registry-cache + infinito-package-cache"
-	docker stop infinito-registry-cache infinito-package-cache 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
-	docker rm infinito-registry-cache infinito-package-cache 2>/dev/null || true   # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+registry="$("${PYTHON}" -m cli.administration.infra cache-name registry)"
+package="$("${PYTHON}" -m cli.administration.infra cache-name package)"
+if "${PYTHON}" -m cli.administration.infra docker ps --format '{{.Names}}' 2>/dev/null | grep -xE "${registry}|${package}" >/dev/null; then
+	echo "[clean-cache] stopping ${registry} + ${package} in the infra runner"
+	"${PYTHON}" -m cli.administration.infra docker stop "${registry}" "${package}" 2>/dev/null || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+	"${PYTHON}" -m cli.administration.infra docker rm "${registry}" "${package}" 2>/dev/null || true   # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 fi
 
 PATHS=(
 	"${INFINITO_CACHE_REGISTRY_HOST_PATH}"
 	"${INFINITO_CACHE_REGISTRY_CA_HOST_PATH}"
 	"${INFINITO_CACHE_PACKAGE_HOST_PATH}"
-	"${INFINITO_CACHE_SHARED_HOST_PATH}"
+	"${INFINITO_CACHE_SHARED_HOST_PATH:-}"
 )
 
 # Remove each cache path individually (keeps the parent /var/cache/
@@ -65,4 +67,4 @@ remove_path "${PATHS[1]}"
 remove_path "${PATHS[2]}"
 remove_path "${PATHS[3]}"
 
-echo "[clean-cache] done. Re-run 'make compose-up' to recreate empty caches."
+echo "[clean-cache] done. Re-run 'make infra-update' to recreate empty caches."

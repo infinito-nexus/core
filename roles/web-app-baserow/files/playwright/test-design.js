@@ -20,7 +20,7 @@ const {
   performKeycloakLoginForm,
   requireDotenvValue,
 } = require("./personas");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { isSplitRealmOidc, resolveTimeout } = require("./timeouts");
 
 const base = normalizeBaseUrl(requireDotenvValue(process.env.BASEROW_BASE_URL, "BASEROW_BASE_URL")).replace(/\/$/, "");
@@ -47,7 +47,6 @@ const TABLE_LINK = `.tree__sub-link:has-text('${SHOWCASE.table}')`;
 const ROLE_STYLESHEET = "link[rel='stylesheet'][href*='/roles/web-app-baserow/']";
 const ADMIN_CHART = ".admin-dashboard__box canvas";
 const ADMIN_TOTALS = ".admin-dashboard__box:has-text('Total users')";
-const NO_SSO = "with SSO the sign-in form sits behind the identity provider";
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -330,7 +329,7 @@ function signedInViews(ids) {
 }
 
 test("sign-in: a visitor gets the password form instead of the first-administrator signup", async ({ page }) => {
-  test.skip(ssoEnabled, NO_SSO);
+  skipUnlessServiceDisabled("sso");
   await gotoOnion(page, `${base}/login`);
   await shown(PASSWORD)(page);
   expect(new URL(page.url()).pathname, "the sign-in page must not hand a visitor the first-administrator signup").toBe("/login");
@@ -344,7 +343,7 @@ test("sign-in: the instance settings no longer offer the first-administrator sig
 });
 
 test("sign-in: the administrator signs in with the e-mail address", async ({ page }) => {
-  test.skip(ssoEnabled, NO_SSO);
+  skipUnlessServiceDisabled("sso");
   await signIn(page);
   expect(await apiHeaders(page)).toHaveProperty("Authorization");
 });
@@ -357,7 +356,7 @@ test("design: corporate tokens apply in light and dark mode", async ({ page }) =
 
 test("design: the sign-in page takes surface, primary action and text from the palette", async ({ page }) => {
   skipUnlessServiceEnabled("design");
-  test.skip(ssoEnabled, NO_SSO);
+  skipUnlessServiceDisabled("sso");
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
     await gotoOnion(page, `${base}/login`);

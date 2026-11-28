@@ -24,16 +24,19 @@ flowchart TB
         waitfork["wait-fork-prereq-run"] --> forkready["fork-prereqs-ready"]
 
         lintwf["call-lint.yml: make lint"]
-        testwf["call-test.yml: make test"]
+        testwf["call-test.yml: make test, one job per suite"]
         codeql["cron-security-codeql.yml"]
         buildci["build-ci-images: call-images-build-ci.yml"] --> dns["call-test-dns.yml"]
         mirror["call-images-mirror-missing.yml"]
+        vulndb["call-vulnerability-db.yml"]
 
         subgraph chain["serial chunk chain"]
             chunk0["test-deploy-chunk-0"]
             chunk0 --> chunk1["test-deploy-chunk-1"]
             chunk1 --> chunk2["test-deploy-chunk-2"]
             chunk2 --> chunk3["test-deploy-chunk-3"]
+            chunk3 --> chunk4["test-deploy-chunk-4"]
+            chunk4 --> chunk5["test-deploy-chunk-5"]
         end
 
         lintwf --> chain
@@ -41,6 +44,7 @@ flowchart TB
         dns --> chain
         mirror --> chain
         buildci --> chain
+        vulndb --> chain
 
         chunk0 --> smoke["call-test-runner-smoke.yml"]
         chain --> report["report-main-failures"]
@@ -58,6 +62,12 @@ flowchart TB
     chunk1 --> deploy
     chunk2 --> deploy
 ```
+
+### Test and lint jobs
+
+[call-test.yml](call-test.yml) runs `make test` once per suite on its own runner: `integration`, `unit`, and `lint-external` (the external and lint suites side by side), each passing its share of the suites as `targets`. The three jobs together run exactly the four suites of `make test`, `fail-fast` is off so every suite reports, and the `🧪 Test` job fails unless all three passed. Each job restores the JUnit reports of its suite's last run (same branch first, then `main`) so the longest-first order and the worker split see real durations, drops every restored report the run did not rewrite before the summary and the upload, and saves its fresh reports per commit.
+
+[call-lint.yml](call-lint.yml) keys the ansible-lint stamp `build/ansible-lint.stamp` ([stamp.sh](../../scripts/lint/ansible/stamp.sh)) by the fingerprint of everything ansible-lint reads, tool versions included. A run whose inputs a green run already linted restores the stamp and skips ansible-lint; the playbook syntax check always runs. Only a run that did not restore the stamp and linted green saves one.
 
 ## Sweeps and chunks
 
@@ -103,14 +113,21 @@ chunks. Rows beyond that roll into the next sweep, which starts reading the
 regular line at an offset (`cli.meta.ci.chunks`), so consecutive sweeps walk
 the whole list instead of re-testing the same head forever.
 
+`INFINITO_CI_JOB_LIMIT=0`, the default, sets no such cap: `available` reads
+`unlimited` and the split plans every row of the job list from the offset on.
+Each chunk is still one matrix, so the chunk size never exceeds GitHub's
+256-job matrix cap. When the declared blocks cannot hold every row, the plan
+fails and names the block count it needs instead of dropping the tail.
+
 GitHub Actions cannot generate a variable number of jobs, so the chunk blocks
 are written out in the orchestrator. `INFINITO_CI_MAX_CHUNKS` must equal how
 many exist there — `slots` plans a sweep against that key, and a sweep planned
-larger than the chain silently drops its tail. Declare one block more than
-`available` fills (`ceil(available / chunk size) + 1`): the split receives
-every declared block, so after a short priority chunk the regular rows still
-fill the rest of the budget. Blocks whose slice comes back empty skip
-themselves and cost nothing.
+larger than the chain silently drops its tail. Declare one block more than the
+planned rows fill (`ceil(rows / chunk size) + 1`, where rows is `available`,
+or the whole job list without a job limit): the split receives every declared
+block, so after a short priority chunk the regular rows still fill the rest of
+the budget. Blocks whose slice comes back empty skip themselves and cost
+nothing.
 
 Run `python -m cli.meta.ci.slots --matrix` to see the whole budget.
 
@@ -122,7 +139,7 @@ either all priority or all regular — the seam chunk stays short rather than
 being topped up. That is what guarantees every priority row is deployed before
 the first regular one starts. Priority rows never move with the sweep offset.
 
-Each chunk block shows up as `<keycap> Batch`, from `0️⃣ Batch` to `3️⃣ Batch`,
+Each chunk block shows up as `<keycap> Batch`, from `0️⃣ Batch` to `5️⃣ Batch`,
 and its discover job as `🔍 Batch <index>`. A batch that holds priority rows
 wears a trailing `⭐` on both (`0️⃣ Batch ⭐`, `🔍 Batch 0 ⭐`); its deploy rows
 carry no star of their own. The selection job counts those batches before any
@@ -152,7 +169,7 @@ row would otherwise be assigned. Two spellings are accepted:
 | Form | Example |
 |---|---|
 | ASCII | `web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64` |
-| the job label, pasted back out of the failed run | `🐳🧅🌀🦓🦾𓏴𓏛Nextcloud#0` |
+| the job label, pasted back out of the failed run | `🐳🧅🛣️🌀🦓🦾🔺𓏛Nextcloud#0` |
 
 | Separator | Axis | Values |
 |---|---|---|
@@ -320,13 +337,22 @@ priority role proves several distributions in one sweep.
 Because the same variant can run several times in one sweep, the network mode
 is part of what identifies a job: it is in the job label (`🌐`, `🧅` or `🌈`)
 and in every artifact name. Two jobs uploading under one artifact name is a
-conflict, not an overwrite. The distro, filesystem and architecture glyphs
-follow it in the label (`🐳🧅🌀🦓🦾`), so a title says which combination died
-without opening the job.
+conflict, not an overwrite. The mesh state follows it (`🚇` over the WireGuard
+mesh, `🛣️` direct), then the distro, filesystem and architecture glyphs
+(`🐳🧅🛣️🌀🦓🦾`), so a title says which combination died without opening the
+job.
 
-The vulnerability engine is the odometer digit above distro and filesystem, and its glyph follows the architecture glyph in the label (`🐳🧅🌀🦓🦾🔺`).
+The vulnerability engine is the odometer digit above distro and filesystem, and its glyph follows the architecture glyph in the label (`🐳🧅🛣️🌀🦓🦾🔺`).
+
+Every label carries the same seven axis glyphs in this order, whatever the
+mode: a host row shows `🏠` in the network slot and `🛣️` in the mesh slot, since
+it neither picks a network mode nor meshes. The role follows as the one
+hieroglyph of its deepest category (`𓏛` for `web-app`), unique across
+the [category tree](../../meta/categories.yml), then its name.
 The deploy-time scan of `sys-ctl-hlth-runtime` then runs Syft and that engine only, plus Grype over the source-built runtimes Syft finds.
-The `vulnerability-db` job of [call-test-deploy.yml](call-test-deploy.yml) downloads the Trivy, Grype and OSV databases once per day into the Actions cache; each deploy job restores the Grype database and the drawn engine's into `build/vulnerability-db`, which the stack and every swarm node mount read-only. A failed restore gets one more attempt with a fresh download URL, and the job fails when a database is still missing, so no deploy job downloads a database itself.
+[call-vulnerability-db.yml](call-vulnerability-db.yml) downloads the Trivy, Grype and OSV databases once per day into the Actions cache and hands them to the run as the `vulnerability-db-<engine>` artifacts. The orchestrator calls it once per run, beside lint and test, and every chunk block waits for it; [call-test-deploy.yml](call-test-deploy.yml) calls it itself only when it runs standalone (`vulnerability_db_built: false`). Each deploy job restores the Grype database and the drawn engine's into `build/vulnerability-db`, which the stack and every swarm node mount read-only. A failed restore gets one more attempt with a fresh download URL, and the job fails when a database is still missing, so no deploy job downloads a database itself.
+[call-test-agents-local.yml](call-test-agents-local.yml) has no engine axis and runs beside the orchestrator, so it does not reuse the run's artifacts: it pins Grype, whose database every pinned deploy reads anyway, and downloads only that database into `build/vulnerability-db` before its deploy.
+For the same reason it does not deploy the run's `ci-<sha>` image: it and [call-test-agents-saas.yml](call-test-agents-saas.yml) build the image of their checkout on the runner with [build_deploy_image.sh](../../scripts/github/runner/build_deploy_image.sh) before the deploy, since a lightweight PR scope, a fork's `pull_request` run and the nightly cron build no `ci-<sha>` image, and the orchestrator's build is not ordered before them.
 Under act these steps are skipped: the deploy draws its engine and refreshes the shared host directory `INFINITO_VULNERABILITY_DB_HOST_PATH`, which [workflow.sh](../../scripts/tests/deploy/act/workflow.sh) binds into the job container at the same path.
 `cron-images-mirror-all.yml` writes the findings of its `scan` job per image and per CVE into the job summary and the `vulnerability-findings` artifact; dispatched with `issues: false` it is a dry run that leaves the issues untouched.
 
@@ -354,6 +380,18 @@ comes back by name, so the rotation re-picks its axes; a job that never reached
 a verdict comes back as the exact `role#variant@mode+tor` it was given, instead
 of waiting for the regular line to reach it. Use it to finish a run that was
 cancelled with most of its matrix still pending.
+
+`i8cianyon` drops the axes everywhere: `trigger --failed --any-axes` puts every
+role that did not come out green (hard-failed, cancelled, aborted or still
+running) and every priority entry the source run never deployed on the priority
+line by bare role name, with `chunk_gate: false` like `i8cifailon`. Like any
+bare priority entry, each role then runs in every variant and in every deploy
+mode, network and mesh state the run offers, while distro, filesystem and
+architecture rotate afresh, so a mostly cancelled run can need more chunk blocks
+than [call-orchestrator.yml](call-orchestrator.yml) declares, which the planner
+refuses. Green roles stay off the priority line. `--any-axes` refuses
+`--strict` and `--roles-only`: the first would leave the unfinished roles out,
+the second is already covered.
 
 ## Cancellation
 

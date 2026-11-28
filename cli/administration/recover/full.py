@@ -13,12 +13,13 @@ The source is one of:
 
 from __future__ import annotations
 
+import re
 import shlex
 import subprocess
 import sys
 from pathlib import Path
 
-from cli.administration.recover import paths, recoverers, remote
+from cli.administration.recover import paths, recoverers, remote, stage
 from utils.recovery import manifest
 
 _REPOS: tuple[tuple[str, str], ...] = (
@@ -26,7 +27,8 @@ _REPOS: tuple[tuple[str, str], ...] = (
     ("volume", "backup-docker-to-local"),
     ("secrets", "backup-secrets-to-local"),
 )
-PULL_STAGE = "/tmp/infinito-recover-pull"  # noqa: S108 - operator recovery staging dir
+PULL_STAGE_PREFIX = "infinito-recover-pull-"
+VOLUME_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]*")
 
 
 def _newest_gen(root: Path, repo: str) -> Path | None:
@@ -50,6 +52,7 @@ def plan(root: Path) -> tuple[list[tuple[str, str]], list[str]]:
     """
     steps: list[tuple[str, str]] = []
     unreadable: list[str] = []
+    inside = root.resolve()
     for rtype, repo in _REPOS:
         generation = _newest_gen(root, repo)
         if generation is None:
@@ -61,18 +64,89 @@ def plan(root: Path) -> tuple[list[tuple[str, str]], list[str]]:
             continue
         files_glob, dump_globs = manifest.globs_of(names)
         files_dir = names["files_dir"]
+        if ":" in str(generation / files_dir):
+            unreadable.append(
+                f"{repo}: {generation / files_dir} holds a ':', "
+                "which would read as a restore target"
+            )
+            continue
+        if not generation.resolve().is_relative_to(inside):
+            unreadable.append(f"{repo}: {generation} leads outside {root}")
+            continue
         if rtype == "volume":
-            steps += [(rtype, str(vol)) for vol in sorted(generation.glob(files_glob))]
+            for vol in sorted(generation.glob(files_glob)):
+                volume = paths.volume_from_source(str(vol))
+                if not VOLUME_NAME.fullmatch(volume):
+                    unreadable.append(f"{repo}: {volume!r} is no docker volume name")
+                elif not vol.resolve().is_relative_to(inside):
+                    unreadable.append(f"{repo}: {vol} leads outside {root}")
+                else:
+                    steps.append((rtype, str(vol)))
             if any(hit for glob in dump_globs for hit in generation.glob(glob)):
                 steps.append(("database", str(generation)))
         elif (generation / files_dir).is_dir():
-            steps.append((rtype, str(generation / files_dir)))
+            if (generation / files_dir).resolve().is_relative_to(inside):
+                steps.append((rtype, str(generation / files_dir)))
+            else:
+                unreadable.append(
+                    f"{repo}: {generation / files_dir} leads outside {root}"
+                )
     return steps, unreadable
 
 
-def _pull_cmd(source: str) -> list[str]:
+def _pull_cmd(source: str, destination: str) -> list[str]:
+    """The rsync pulling a remote backup-root into *destination*.
+
+    Args:
+        source: ``[user@]host[:/path]``; a bare host means its standard root.
+        destination: the local directory the tree lands in.
+    """
     remote = source if ":" in source else f"{source}:{paths.BACKUP_ROOT}"
-    return ["rsync", "-aHAX", f"{remote}/", f"{PULL_STAGE}/"]
+    return ["rsync", "-aHAX", f"{remote}/", f"{destination}/"]
+
+
+def _pull_and_recover(source: str, target: str, *, service_backup: bool) -> int:
+    """Pull *source* into a private stage, recover from it, then remove it.
+
+    Args:
+        source: ``[user@]host[:/path]`` whose backup tree is pulled.
+        target: the host to restore onto.
+        service_backup: run each role's pre-recover backup unit.
+    """
+    with stage.private(PULL_STAGE_PREFIX) as private:
+        root = private / stage.TREE
+        pull = _pull_cmd(source, str(root))
+        print(f"# full: pull remote backup tree\n  {shlex.join(pull)}")
+        if subprocess.run(pull, check=False).returncode != 0:
+            return 2
+        return _recover_under(
+            root, target, preview=False, service_backup=service_backup
+        )
+
+
+def _remote_device_and_recover(
+    source: str, target: str, *, service_backup: bool
+) -> int:
+    """Recover a remote device into a private stage, recover from it, remove it.
+
+    Args:
+        source: ``[user@]host:/device[:segments]``.
+        target: the host to restore onto.
+        service_backup: run each role's pre-recover backup unit.
+    """
+    with stage.private(remote.STAGE_PREFIX) as private:
+        returncode, root = remote.run(
+            source,
+            local_stage=private,
+            preview=False,
+            service_backup=service_backup,
+            passphrase_stdin=not sys.stdin.isatty(),
+        )
+        if root is None:
+            return returncode
+        return _recover_under(
+            root, target, preview=False, service_backup=service_backup
+        )
 
 
 def _is_device(source: str) -> bool:
@@ -130,29 +204,28 @@ def run(source: str, target: str, *, preview: bool, service_backup: bool) -> int
         root = Path(_device_restore_root(source))
     elif source.startswith("/"):
         root = Path(source)
-    elif remote.split_host(source)[1].split(":", 1)[0].startswith("/dev/"):
-        returncode, root_str = remote.run(
+    elif remote.is_block_device(source):
+        if not preview:
+            return _remote_device_and_recover(
+                source, target, service_backup=service_backup
+            )
+        remote.run(
             source,
-            preview=preview,
+            local_stage=stage.preview(remote.STAGE_PREFIX),
+            preview=True,
             service_backup=service_backup,
             passphrase_stdin=not sys.stdin.isatty(),
         )
-        if preview:
-            print(
-                "  # then discover + recover nfs -> volume -> secrets under the pulled root"
-            )
-            return 0
-        if returncode != 0:
-            return returncode
-        root = Path(root_str)
+        print(
+            "  # then discover + recover nfs -> volume -> secrets under the pulled root"
+        )
+        return 0
     else:
-        pull = _pull_cmd(source)
+        if not preview:
+            return _pull_and_recover(source, target, service_backup=service_backup)
+        placeholder = stage.preview(PULL_STAGE_PREFIX) / stage.TREE
+        pull = _pull_cmd(source, str(placeholder))
         print(f"# full: pull remote backup tree\n  {shlex.join(pull)}")
-        if preview:
-            print("  # then discover + recover nfs -> volume -> secrets")
-            return 0
-        subprocess.run(["mkdir", "-p", PULL_STAGE], check=False)
-        if subprocess.run(pull, check=False).returncode != 0:
-            return 2
-        root = Path(PULL_STAGE)
+        print("  # then discover + recover nfs -> volume -> secrets")
+        return 0
     return _recover_under(root, target, preview=preview, service_backup=service_backup)

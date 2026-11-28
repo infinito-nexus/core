@@ -4,6 +4,7 @@ FROM ${NLLB_BASE_IMAGE}:${NLLB_BASE_VERSION}
 
 ARG NLLB_GPU
 ARG NLLB_MODELS_DIR
+ARG TORCH_VERSION
 
 COPY package-frontend-ca.crt /opt/package-frontend-ca.crt
 COPY package-frontend-ca.sh /usr/local/bin/package-frontend-ca.sh

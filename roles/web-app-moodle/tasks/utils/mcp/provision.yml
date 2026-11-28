@@ -1,7 +1,7 @@
 ---
 - name: "🔑 Register the MCP web service and mint its permanent token"
   ansible.builtin.shell: | # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    IFS= read -r MCP_ACCOUNT_PASSWORD && export MCP_ACCOUNT_PASSWORD && container exec -i --user {{ MOODLE_RUNTIME_USER }} \
+    IFS= read -r MCP_ACCOUNT_PASSWORD && : "${MCP_ACCOUNT_PASSWORD:?arrived empty on stdin}" && export MCP_ACCOUNT_PASSWORD && container exec -i --user {{ MOODLE_RUNTIME_USER }} \
       -e MOODLE_CONFIG={{ MOODLE_CONFIG | quote }} \
       -e MCP_SERVICE_NAME={{ MOODLE_MCP_EXTERNAL_SERVICE_NAME | quote }} \
       -e MCP_SERVICE_SHORTNAME={{ MOODLE_MCP_EXTERNAL_SERVICE_SHORTNAME | quote }} \

@@ -3,8 +3,8 @@
 This page describes what every role's `roles/<role>/files/playwright/playwright.spec.js` MUST contain: file placement, the two persona flows, per-service assertions, technical rules, and final-state guarantees.
 
 For framework and runner mechanics see [Playwright Tests](../../../actions/testing/playwright.md).
-For the authoring procedure see [Agent `playwright.spec.js`](../../../../agents/files/role/playwright.spec.js.md).
-For the env contract see [Agent `playwright.env.j2`](../../../../agents/files/role/playwright.env.j2.md).
+For the authoring procedure see the [`playwright.spec.js` authoring skill](../../../../../agents/skills/i8-file-role-playwright-spec/SKILL.md).
+For the env contract see the [`playwright.env.j2` skill](../../../../../agents/skills/i8-file-role-playwright-env/SKILL.md).
 
 ## File placement 📁
 
@@ -168,7 +168,7 @@ The deny-checks live in the provider's own spec (`web-app-prometheus/files/playw
 - Every persona scenario MUST run the CSP injection assertion at least once on the role's canonical surface.
   When an injector service (`asset`, `cdn`, `css`, `javascript`, `simpleicons`, `matomo`) is enabled, the page's `Content-Security-Policy` header MUST list the injector's host.
   The assertion is centralised in [`personas/utils/csp.js`](../../../../../roles/test-e2e-playwright/files/personas/utils/csp.js) so every spec gets the check by default.
-- The full CSP test surface lives in the same module: `assertCspResponseHeader(response, label)` (returns the parsed directive map), `assertCspMetaParity(page, headerDirectives, label)` (verifies the optional `<meta http-equiv>` echo is a subset of the response header), `installCspViolationObserver(page)` + `readCspViolations(page)` (DOM-side `securitypolicyviolation` capture), `expectNoCspViolations(page, diagnostics, label)` (asserts neither the DOM stream nor `diagnostics.cspRelated` carries a violation), and the `EXPECTED_CSP_DIRECTIVES` constant.
+- The full CSP test surface lives in the same module: `assertCspResponseHeader(response, label)` (returns the parsed directive map), `assertCspMetaParity(page, headerDirectives, label)` (verifies the optional `<meta http-equiv>` echo is a subset of the response header), `installCspViolationObserver(page)` + `readCspViolations(page)` (DOM-side `securitypolicyviolation` capture), `expectNoCspViolations(page, diagnostics, label, { expected })` (asserts neither the DOM stream nor `diagnostics.cspRelated` carries a violation; the optional `expected: [{ host, directive }]` drops only blocks of that exact host under that directive or its `directive-*` sub-directives, for an upstream request the policy is meant to refuse), and the `EXPECTED_CSP_DIRECTIVES` constant.
   Specs MUST require these from `./personas`; inline copies are forbidden and caught at review.
 - Every service-dependent step uses `skipUnlessServiceEnabled(...)`.
   Direct `process.env` reads of `<NAME>_SERVICE_ENABLED` are forbidden.
@@ -305,11 +305,13 @@ The teardown MUST:
 - The minimum env set for any spec following the persona flows is `APP_BASE_URL`, `CANONICAL_DOMAIN`, and `LOGOUT_URL`.
   `DASHBOARD_BASE_URL` is rendered only by the dashboard role's own spec, because consumer personas enter at `APP_BASE_URL` directly.
   Specs that gate on auth additionally read at least one of `OIDC_ISSUER_URL`, `KEYCLOAK_BASE_URL`, plus the persona credentials `ADMIN_USERNAME` / `ADMIN_PASSWORD` and `BIBER_USERNAME` / `BIBER_PASSWORD`.
-  Specs that exercise integrations (Matomo, Discourse, Email, Prometheus, …) read the integration-specific keys defined in [Agent `playwright.env.j2`](../../../../agents/files/role/playwright.env.j2.md).
+  Specs that exercise integrations (Matomo, Discourse, Email, Prometheus, …) read the integration-specific keys defined in the [`playwright.env.j2` skill](../../../../../agents/skills/i8-file-role-playwright-env/SKILL.md).
 - `docker --env-file` preserves the quotes emitted by the `dotenv_quote` Jinja filter.
   Specs MUST decode quoted values before building URLs or typing credentials.
   The recurring helpers `decodeDotenvQuotedValue(value)` and `normalizeBaseUrl(value)` live in [`personas/utils/dotenv.js`](../../../../../roles/test-e2e-playwright/files/personas/utils/dotenv.js) and are re-exported through `require("./personas")`.
   Specs that need them MUST import from `./personas`; inline copies are forbidden and caught at review.
+- A scenario that proves an LDAP-backed behaviour MUST change directory state through `withLdapGroupMember(groupDn, memberDn, body)` or `withLdapAttributes(dn, attributes, body)` from [`personas/utils/ldap.js`](../../../../../roles/test-e2e-playwright/files/personas/utils/ldap.js), re-exported through `require("./personas")`, not through the Keycloak admin API, so it gates on `ldap` alone and runs in LDAP-only variants.
+  The role's `templates/playwright.env.j2` then renders `LDAP_URL` (`ldap://` plus `DOCKER_REACH_HOST` and the local `svc-db-openldap` port), `LDAP_BIND_DN`, `LDAP_BIND_PASSWORD` (empty while `ldap` is disabled) and, for membership changes, `LDAP_GROUP_MEMBER_ATTRIBUTE`, plus the DNs the spec passes in (`BIBER_LDAP_DN`, `LDAP_<ROLE>_GROUP_DN`).
 - A role whose spec files cannot run in parallel MUST set `PLAYWRIGHT_MAX_WORKERS` in `templates/playwright.env.j2`.
   The central `playwright.config.js` runs the suite on the smaller of that value and the worker count the harness computed.
 

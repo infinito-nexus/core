@@ -626,6 +626,21 @@ class TestCommitShaPins(unittest.TestCase):
             written = config.read_text()  # nocheck: cache-read  just rewritten here
             self.assertIn('ref: "v1.2.0"', written)
 
+    def test_a_declared_commit_pin_follows_the_tip_past_a_release(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            _write_role(root, SHA_PINNED + "    ref_kind: commit\n")
+            ls_remote = _LsRemote(
+                heads={SHA_REPO: TIP_SHA}, tags={SHA_REPO: ["v1.0.0", "v1.2.0"]}
+            )
+
+            updates = _find(root, ls_remote)
+
+            self.assertEqual([u.latest for u in updates], [TIP_SHA])
+            self.assertEqual(
+                sorted(ls_remote.calls), [("--tags", SHA_REPO), (SHA_REPO, "HEAD")]
+            )
+
     def test_a_sha_newer_than_the_newest_release_follows_the_tip(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)

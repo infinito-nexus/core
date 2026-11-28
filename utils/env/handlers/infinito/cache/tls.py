@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from utils.cache.hosts import HTTPS_PORT, declarations
+from utils.cache.hosts import declarations
 
 if TYPE_CHECKING:
     from utils.env.context import BuildContext, EnvBuilder
@@ -17,8 +17,6 @@ COMMENT = "Hostnames the cache frontend needs a leaf cert for; derived from the 
 def apply(eb: EnvBuilder, ctx: BuildContext) -> None:
     eb.set(
         KEY,
-        " ".join(
-            entry.host for entry in declarations().hosts if HTTPS_PORT in entry.listen
-        ),
+        " ".join(entry.host for entry in declarations().hosts if entry.tls()),
         comment=COMMENT,
     )

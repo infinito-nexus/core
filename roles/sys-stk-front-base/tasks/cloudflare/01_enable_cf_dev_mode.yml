@@ -13,7 +13,6 @@
       Content-Type: "application/json"
     return_content: true
   register: cf_dev_mode_current
-  when: ASYNC_ENABLED | bool
 
 - name: "🟢 Enable Cloudflare Development Mode"
   uri_retry:
@@ -28,9 +27,8 @@
     return_content: true
   register: cf_dev_mode_enable
   changed_when: >
-    ASYNC_ENABLED | bool and
     cf_dev_mode_current.json.result.value is defined and
     cf_dev_mode_current.json.result.value != 'on'
   # rationale: async; last task of the file, cf_dev_mode_enable is read nowhere else
-  async: "{{ ASYNC_TIME if ASYNC_ENABLED | bool else omit }}"
-  poll: "{{ ASYNC_POLL if ASYNC_ENABLED | bool else omit }}"
+  async: "{{ ASYNC_TIME }}"
+  poll: "{{ ASYNC_POLL }}"

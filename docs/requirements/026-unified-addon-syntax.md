@@ -33,45 +33,70 @@ These choices are settled at requirement creation time and bound the implementat
 6. **Required addons are explicit, and install failure is gated by `required`.** Every addon carries a boolean `required` field (default `false`). Core components that are part of the deployed app contract, such as Odoo's core modules, use `required: true`: they are always installed, MAY omit `enabled`, and MUST NOT set `enabled: false`. The field also governs install-failure behaviour: when an addon's installation fails, a `required: true` addon MUST hard-fail the play (the deploy stops), while a `required: false` addon MUST only emit a warning, skip that addon, and let the play continue.
 7. **Workload-neutral contract.** The `meta/addons/` contract applies to any role type that declares role-level extensions, including desktop roles such as `desk-gnome-extensions`. The materialised path still uses the role's assembled application entry, `applications.<role_id>.addons`.
 8. **First slice.** The first end-to-end migration is `web-app-friendica` (`ldapauth`, bridges `ldap` to `svc-db-openldap`), because it already exercises the bridge rule and the service-flag enablement path.
-9. **External drift monitoring.** Addon freshness is checked by opt-in external tests under `tests/external/update/addons/`. These tests are warn-only, emit GitHub Actions warning annotations, and are excluded from `make test` in the same way as Docker image and repository-ref external update checks.
+9. **External drift monitoring.** Addon freshness is checked by opt-in external tests under `tests/external/update/addons/`. These tests are warn-only, emit GitHub Actions warning annotations, and run through `make test-external`, which `make test` runs alongside the other suites, in the same way as Docker image and repository-ref external update checks.
 10. **Update PR behaviour.** The scheduled update workflow MAY open or refresh an update pull request for addon version bumps and newly discovered catalog entries. Addon entries *discovered by update automation* MUST be added disabled by default (`enabled: false`) and MUST NOT silently enable new runtime behaviour. This hard-off default applies to auto-discovered addons only; it does NOT override the auto-enable-with-partner rule for deliberately-wired integrations (Decision 5).
 11. **Every addon ships a Playwright test.** Each addon with a user-facing surface MUST add a matching Playwright spec under `roles/<role>/files/playwright/` that exercises that addon's behaviour (e.g. an `ldapauth`/`sociallogin` login path, a `wp-discourse` round-trip, an enabled Odoo module's UI entry point). Desktop roles (`desk-*`) drive no web surface a Playwright test could exercise and therefore NEVER ship addon specs — the lint forbids spec files under `desk-*` roles. For every web-facing role there is no per-addon exemption: an addon is considered migrated only once its Playwright spec is present and green. Cross-role integration specs (proving two roles are actually connected) run under a dedicated **integration-pair deploy variant** that co-deploys both partner roles, and are added incrementally as each ✅ pair is wired rather than all upfront.
-12. **Addon state is a variant axis.** Optional addons (`required: false`) MUST express their enabled/disabled split through the role's [`meta/variants.yml`](../contributing/design/role/services/layout.md) so CI matrix runs exercise both states, mirroring requirement 025's MCP variant axis. Required addons (`required: true`) are not a variant axis because they are always installed.
+12. **Addon state is a variant axis.** Optional addons (`required: false`) MUST express their enabled/disabled split through the role's [`meta/variants.yml`](../contributing/design/role/services/layout.md) so CI matrix runs exercise both states, mirroring requirement 050's MCP variant axis. Required addons (`required: true`) are not a variant axis because they are always installed.
 13. **Network bridges are addons.** Appservice / network bridges (e.g. the Matrix `mautrix` bridges to WhatsApp, Telegram, Signal, Slack, Facebook, Instagram) are addons declared under `meta/addons/` with `mechanism: bridge`, one file per bridged network. Each bridge owns its credentials in [`meta/secrets.yml`](../contributing/design/role/services/layout.md) and is `required: false` and disabled by default. The role's former bridge declarations (e.g. `web-app-matrix`'s `vars/bridges.yml`) are absorbed into `meta/addons/`.
 14. **The integration matrix is the cross-role addon backlog.** The role×role capability map is generated on every docs build by [infinito_docs/generators/integrations.py](../../roles/web-app-docs/files/python/infinito_docs/generators/integrations.py) and reached from [docs/architecture/integrations.rst](../architecture/integrations.rst); [027-integration-matrix.md](027-integration-matrix.md) states where an integration's truth lives and which ones are still open. **Wired** edges are integrations already active through an infinito-native service flag in the row role's `meta/services.yml` (e.g. `sso`→keycloak, `matomo`, `prometheus`, `email`→mailu), derived by scanning the repository, no action required. **Declared** edges are upstream app↔app plugins wired as addons. **Open** edges are verified upstream plugins that nothing declares yet, the backlog this requirement commits to wire. **Paid** edges are the same as open but gated behind a commercial tier (opt-in, operator-enabled). No committed copy of the map exists to drift, so there is nothing to regenerate by hand; the `meta/addons/` migrations move an edge from open to declared over time.
 15. **Scope is the full backlog, executed in phases.** The definition of done is the FULL set: every ✅ cell in the matrix wired as an addon, and an exhaustive per-`web-app-*`-role upstream-plugin survey completed so the ✅ layer is exhaustive rather than hub-biased. Delivery is phased: the shared contract plus the first-slice roles land first (see [Implementation Strategy](#implementation-strategy)), then the remaining roles and ✅ wirings sweep incrementally, but no phase reduces scope. The requirement is not complete until the full ✅ set is wired and every `web-app-*` role surveyed.
 16. **The integration matrix is a generated artifact with a sanctioned generator.** The generator is a [docs-build generator](../../roles/web-app-docs/files/python/infinito_docs/generators/integrations.py) that emits its pages on every docs build, so no copy is committed and none can drift. It MUST satisfy the repo lints: it stays under the 500-line limit, it uses the shared project-root helper instead of a local `__file__` upward walk, and it carries no self-path literal or `requirement NNN` token. It derives every edge from the repository, so a dead upstream URL cannot outlive the declaration it came from.
 17. **Only bridging addons add a service block.** A `<target>:` service block is added to the row role ONLY for addons that declare a `bridges:` dependency (per Decision 3), i.e. the in-repo cross-role integrations; a plain addon with no cross-role dependency adds no service block. Each bridging addon's `<target>:` block carries the standard dynamic `enabled`/`shared` flags with matching true/false `meta/variants.yml` coverage, and (for web-facing pairs) a co-deploy Playwright spec. Across the in-repo ✅ set this is a bounded, mechanical expansion scoped to the bridging integrations, accepted as part of Decision 15's full scope.
-18. **Numbering.** This document is `026-unified-addon-syntax.md`, forming the trio `025-mcp-role-integration` → `026-unified-addon-syntax` → `027-integration-matrix`. The pre-existing `025-mcp-role-integration` vs `025-web-app-matrix-ansible-flavor` number collision is out of this requirement's scope; a separate doc owns its resolution.
+18. **Numbering.** This document is `026-unified-addon-syntax.md`. It builds on [050-mcp-role-integration](050-mcp-role-integration.md), formerly numbered 025, and is continued by [027-integration-matrix](027-integration-matrix.md).
 
 ## Current State Audit
 
-Each row is a migration target. The "Bridges" column is the cross-role dependency this requirement makes explicit. "Today's location" is where the declaration lives before migration.
+Each row was a migration target and now states what its `meta/addons/` declares after the migration. "Addons" counts the addon files, "Required" those with `required: true`, and "Bridged services" are the service keys their `bridges:` lists name, each resolving to a service block of the same role. [test_addons_audit.py](../../tests/lint/ansible/services/test_addons_audit.py) classifies every role under `roles/` and fails when a row no longer matches or a role with addons has no row.
 
-| Role | App-native term (`mechanism`) | Addon ids today | Bridges (service → role) | Today's location |
+| Role | App-native term (`mechanism`) | Addons | Required | Bridged services |
 |---|---|---|---|---|
-| [web-app-friendica](../../roles/web-app-friendica/) | `addon` | `ldapauth` | `ldap` → `svc-db-openldap` | [meta/services.yml](../../roles/web-app-friendica/meta/services.yml) `friendica.addons` |
-| [web-app-odoo](../../roles/web-app-odoo/) | `module` | `crm, contacts, sale_management, account, website, project, stock` (core); `[]` (optional) | none today | [meta/services.yml](../../roles/web-app-odoo/meta/services.yml) `odoo.modules` |
-| [web-app-nextcloud](../../roles/web-app-nextcloud/) | `plugin` | `bbb, onlyoffice, richdocuments, sociallogin, spreed, user_ldap, whiteboard, xwiki` | `sociallogin` → `web-app-keycloak`, `user_ldap` → `svc-db-openldap` | `vars/plugins/` |
-| [web-app-wordpress](../../roles/web-app-wordpress/) | `plugin`, `mu_plugin` | `daggerhart-openid-connect-generic, wp-discourse` (+ mu-plugins) | OIDC → `web-app-keycloak`, `wp-discourse` → `web-app-discourse` | `tasks/plugins/` |
-| [web-app-mediawiki](../../roles/web-app-mediawiki/) | `extension` | `PluggableAuth, OpenIDConnect` | `OpenIDConnect` → `web-app-keycloak` | [vars/main.yml](../../roles/web-app-mediawiki/vars/main.yml) |
-| [web-app-xwiki](../../roles/web-app-xwiki/) | `plugin` | `oidc-authenticator, ldap-authenticator, ai-llm` | `sso` → `web-app-keycloak`, `ldap` → `svc-db-openldap`, `litellm` → `web-app-litellm` | [meta/services.yml](../../roles/web-app-xwiki/meta/services.yml) `xwiki.plugins` |
-| [web-app-joomla](../../roles/web-app-joomla/) | `plugin` | `plg_system_keycloak` | `sso` → `web-app-keycloak` | [tasks/08_oidc_plugin.yml](../../roles/web-app-joomla/tasks/08_oidc_plugin.yml) |
-| [web-app-matrix](../../roles/web-app-matrix/) | `bridge` | `mautrix-whatsapp, mautrix-telegram, mautrix-signal, mautrix-slack, mautrix-meta` | external networks (no in-repo service); each owns a DB credential | `vars/bridges.yml` |
-| [web-app-discourse](../../roles/web-app-discourse/) | `plugin` | `docker_manager, discourse-activity-pub, discourse-akismet, discourse-ldap-auth` | `discourse-ldap-auth` → `svc-db-openldap` | [meta/services.yml](../../roles/web-app-discourse/meta/services.yml) `discourse.plugins` |
-| [web-app-pretix](../../roles/web-app-pretix/) | `plugin` | `oidc` (v2.3.1) | `sso` → `web-app-keycloak` | [meta/services.yml](../../roles/web-app-pretix/meta/services.yml) `pretix.plugins` |
-| [web-app-mattermost](../../roles/web-app-mattermost/) | `plugin` | volume-managed plugins (`plugins`, `client-plugins`) | none declared today | [vars/main.yml](../../roles/web-app-mattermost/vars/main.yml), [meta/volumes.yml](../../roles/web-app-mattermost/meta/volumes.yml) |
-| [dsk-chromium](../../roles/dsk-chromium/) | `extension` | CRX ids, `force_installed` (e.g. uBlock Origin) | none (desktop role) | [meta/services.yml](../../roles/dsk-chromium/meta/services.yml) `plugins` |
-| [dsk-firefox](../../roles/dsk-firefox/) | `extension` | XPI urls (uBlock Origin, KeePassXC) | none (desktop role) | [meta/services.yml](../../roles/dsk-firefox/meta/services.yml) `plugins` |
-| [dsk-gnome](../../roles/dsk-gnome/) | `extension` | gnome-shell extensions (enable/disable tuples) | none (desktop role) | [meta/services.yml](../../roles/dsk-gnome/meta/services.yml) `plugins` |
-| [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) | `extension` | configured list (`services.gnome-extensions.plugins`) | none (desktop role) | [meta/services.yml](../../roles/dsk-gnome-extensions/meta/services.yml) |
+| [web-app-friendica](../../roles/web-app-friendica/) | `addon` | 1 | 0 | `ldap` |
+| [web-app-odoo](../../roles/web-app-odoo/) | `module` | 10 | 7 | `email`, `nextcloud`, `sso` |
+| [web-app-nextcloud](../../roles/web-app-nextcloud/) | `plugin` | 54 | 45 | `bigbluebutton`, `collabora`, `coturn`, `discourse`, `flowise`, `gitlab`, `ldap`, `litellm`, `mastodon`, `matrix`, `mattermost`, `moodle`, `onlyoffice`, `openproject`, `openwebui`, `peertube`, `sso`, `suitecrm`, `talk`, `xwiki`, `zammad` |
+| [web-app-wordpress](../../roles/web-app-wordpress/) | `mu_plugin`, `plugin` | 20 | 12 | `bigbluebutton`, `design`, `discourse`, `listmonk`, `litellm`, `peertube`, `sso`, `translate` |
+| [web-app-mediawiki](../../roles/web-app-mediawiki/) | `extension` | 8 | 3 | `discourse`, `litellm`, `peertube`, `seaweedfs`, `sso`, `translate` |
+| [web-app-xwiki](../../roles/web-app-xwiki/) | `extension` | 3 | 0 | `ldap`, `litellm`, `sso` |
+| [web-app-joomla](../../roles/web-app-joomla/) | `plugin` | 1 | 0 | `sso` |
+| [web-app-matrix](../../roles/web-app-matrix/) | `addon`, `bridge`, `module` | 12 | 0 | `gitlab`, `jira`, `jitsi`, `litellm`, `n8n`, `prometheus` |
+| [web-app-discourse](../../roles/web-app-discourse/) | `plugin`, `theme` | 12 | 1 | `bigbluebutton`, `jitsi`, `ldap`, `litellm`, `mastodon`, `matrix`, `mattermost`, `prometheus`, `sso`, `translate` |
+| [web-app-pretix](../../roles/web-app-pretix/) | `plugin` | 1 | 0 | `sso` |
+| [web-app-mattermost](../../roles/web-app-mattermost/) | `addon`, `plugin` | 7 | 0 | `gitlab`, `jenkins`, `jira`, `jitsi`, `openwebui`, `prometheus`, `sso` |
+| [dsk-chromium](../../roles/dsk-chromium/) | `extension` | 3 | 3 | none (desktop role) |
+| [dsk-firefox](../../roles/dsk-firefox/) | `extension` | 2 | 2 | none (desktop role) |
+| [dsk-gnome](../../roles/dsk-gnome/) | `extension` | 3 | 2 | none (desktop role) |
+| [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) | none | 0 | 0 | none (desktop role) |
+
+These roles were no migration target and gained their addons later through the [integration matrix](027-integration-matrix.md) wiring; the same test keeps their rows current.
+
+| Role | App-native term (`mechanism`) | Addons | Required | Bridged services |
+|---|---|---|---|---|
+| [web-app-baserow](../../roles/web-app-baserow/) | `plugin` | 1 | 0 | `sso` |
+| [web-app-bigbluebutton](../../roles/web-app-bigbluebutton/) | `module` | 1 | 0 | `sso` |
+| [web-app-erpnext](../../roles/web-app-erpnext/) | `module` | 2 | 0 | `email`, `sso` |
+| [web-app-espocrm](../../roles/web-app-espocrm/) | `extension` | 2 | 0 | `email`, `sso` |
+| [web-app-gitlab](../../roles/web-app-gitlab/) | `plugin` | 6 | 0 | `confluence`, `jenkins`, `jira`, `matrix`, `mattermost`, `sso` |
+| [web-app-jellyfin](../../roles/web-app-jellyfin/) | `plugin` | 2 | 0 | none |
+| [web-app-jenkins](../../roles/web-app-jenkins/) | `plugin` | 5 | 5 | `gitea`, `gitlab`, `mattermost`, `prometheus`, `sso` |
+| [web-app-matomo](../../roles/web-app-matomo/) | `plugin` | 1 | 0 | `sso` |
+| [web-app-moodle](../../roles/web-app-moodle/) | `plugin` | 7 | 0 | `bigbluebutton`, `jitsi`, `matrix`, `nextcloud`, `openwebui`, `seaweedfs`, `sso` |
+| [web-app-openbao](../../roles/web-app-openbao/) | `plugin` | 1 | 1 | `ldap` |
+| [web-app-openproject](../../roles/web-app-openproject/) | `module` | 3 | 1 | `gitlab`, `nextcloud`, `sso` |
+| [web-app-peertube](../../roles/web-app-peertube/) | `plugin` | 1 | 0 | `sso` |
+| [web-app-suitecrm](../../roles/web-app-suitecrm/) | `module` | 2 | 0 | `email`, `sso` |
+| [web-app-taiga](../../roles/web-app-taiga/) | `plugin` | 1 | 0 | `sso` |
+| [web-app-zammad](../../roles/web-app-zammad/) | `bridge`, `module` | 2 | 0 | `email`, `sso` |
+| [dsk-blender](../../roles/dsk-blender/) | `addon` | 2 | 0 | none (desktop role) |
+| [dsk-code](../../roles/dsk-code/) | `extension` | 3 | 0 | none (desktop role) |
 
 ### Out of scope: database/runtime engine extensions
 
-Two roles declare an `extensions:` key that is **not** an application addon but a database/cache engine feature, provisioned at the storage layer. These MUST stay where they are and MUST NOT move into `meta/addons/`:
+These roles declare an `extensions:` key that is **not** an application addon but a database/cache engine feature, provisioned at the storage layer. These MUST stay where they are and MUST NOT move into `meta/addons/`:
 
 - [web-app-mobilizon](../../roles/web-app-mobilizon/): PostgreSQL extensions `postgis, pg_trgm, unaccent` ([meta/services.yml](../../roles/web-app-mobilizon/meta/services.yml)).
 - [web-app-bookwyrm](../../roles/web-app-bookwyrm/): engine extension `bloom` ([meta/services.yml](../../roles/web-app-bookwyrm/meta/services.yml)).
+- [web-app-discourse](../../roles/web-app-discourse/): PostgreSQL extension `vector` ([meta/services.yml](../../roles/web-app-discourse/meta/services.yml)), beside its plugin addons.
+- [web-app-kix](../../roles/web-app-kix/): PostgreSQL extension `pg_trgm` ([meta/services.yml](../../roles/web-app-kix/meta/services.yml)).
+- [web-svc-assistant](../../roles/web-svc-assistant/): PostgreSQL extension `vector` for its knowledge index ([meta/services.yml](../../roles/web-svc-assistant/meta/services.yml)).
 
 The audit MUST classify these as `db-extension` (out of scope), so a later sweep does not mistake them for app addons. If a future role mixes app addons and DB extensions under one key, the migration MUST split them by destination.
 
@@ -205,7 +230,7 @@ Rules:
 
 ### Proprietary API credentials (the `API` SPOT)
 
-- Credentials for proprietary / external (non-self-hosted) providers MUST be declared once in `group_vars/all/18_api.yml` under the `API` mapping (a key per provider, e.g. `cloudflare`, `telegram`, `github`, `google`, `jira`), sourced from the vault and defaulting to empty.
+- Credentials for proprietary / external (non-self-hosted) providers MUST be declared once in `group_vars/all/18_api.yml` under `API_DECLARATIONS` (a key per provider, e.g. `cloudflare`, `telegram`, `github`, `google`, `jira`), defaulting to empty. Vault-backed inventory values belong under `API`; the API lookup merges them over the declarations.
 - All access to those values MUST go through the `lookup('api', '<provider>.<key>')` plugin ([plugins/lookup/api.py](../../plugins/lookup/api.py)), giving the proprietary-API logic a single point to change.
 - An integration whose partner is self-hostable in-repo (e.g. `gitlab`) is wired as a local `bridges:` integration gated on the partner role being present. An integration whose target is purely proprietary / external (e.g. `github`, `google`, Atlassian Cloud) carries NO `bridges:` and MUST be enabled only when its `lookup('api', '<provider>.client_id')` and `client_secret` are present.
 - `jira` names two different things and the rule splits along that line. The in-repo role `web-app-jira` is a self-hostable partner, so `roles/web-app-gitlab/meta/addons/jira.yml`, `roles/web-app-matrix/meta/addons/hookshot-jira.yml` and `roles/web-app-mattermost/meta/addons/mattermost-plugin-jira.yml` declare `bridges: [jira]`; the role is `lifecycle: eol`, so those three stay dormant behind a literal `false` rather than being removed, which the `eol-dependency` rule enforces. Atlassian Cloud is the proprietary target, reached by `roles/web-app-nextcloud/meta/addons/integration_jira.yml` through `lookup('api_enabled', 'jira')` with no `bridges:` at all.
@@ -222,7 +247,7 @@ Addon monitoring MUST follow the existing external-update pattern used for Docke
 
 Rules:
 
-- Live upstream checks MUST live under `tests/external/update/addons/` and run through `make test-external`, not through the default `make test` flow.
+- Live upstream checks MUST live under `tests/external/update/addons/` and run through `make test-external`, which the default `make test` flow runs, staying warn-only there.
 - The external addon test MUST emit warnings, not failures, when a monitored addon has a newer upstream version.
 - The external addon test MUST emit warnings, not failures, when a supported catalog adapter detects a new relevant addon that is not listed in `meta/addons/`.
 - Catalog discovery MUST be bounded by explicit adapters and curated relevance rules. The test MUST NOT warn for every package in broad public marketplaces such as the full WordPress plugin directory.
@@ -235,8 +260,8 @@ Rules:
 
 ### Repository-wide audit
 
-- [ ] A deterministic audit command or test enumerates every role under `roles/` and classifies addon support by `mechanism` (`addon`, `plugin`, `mu_plugin`, `extension`, `module`, `bridge`), `db-extension` (out of scope), or `none`.
-- [ ] The audit reproduces every row of the [Current State Audit](#current-state-audit), including the `bridge`-mechanism (`web-app-matrix`), the newly surveyed `plugin`/`extension` roles (`web-app-discourse`, `web-app-pretix`, `web-app-mattermost`, `desk-chromium`, `desk-firefox`, `desk-gnome`), and the out-of-scope `db-extension` roles (`web-app-mobilizon`, `web-app-bookwyrm`), and records, per role, the addon ids, their `mechanism`, their `required` state, and their `bridges`.
+- [x] A deterministic audit command or test enumerates every role under `roles/` and classifies addon support by `mechanism` (`addon`, `plugin`, `mu_plugin`, `extension`, `module`, `bridge`), `db-extension` (out of scope), or `none`. ([test_addons_audit.py](../../tests/lint/ansible/services/test_addons_audit.py) `audit()` walks every role directory; Discourse also ships a `theme` mechanism and is both addon-bearing and `db-extension`.)
+- [x] The audit reproduces every row of the [Current State Audit](#current-state-audit), including the `bridge`-mechanism (`web-app-matrix`), the newly surveyed `plugin`/`extension` roles (`web-app-discourse`, `web-app-pretix`, `web-app-mattermost`, `dsk-chromium`, `dsk-firefox`, `dsk-gnome`), and the out-of-scope `db-extension` roles (`web-app-mobilizon`, `web-app-bookwyrm`, `web-app-discourse`, `web-app-kix`), and records, per role, the addon ids, their `mechanism`, their `required` state, and their `bridges`. (`table_problems()` fails on a stale row, a row for a missing role, an addon-bearing role without a row, and an out-of-scope list that differs from the `db-extension` roles; the fixture test proves each.)
 - [ ] A grep for `meta/addons/` before implementation is recorded in the implementing PR to show the baseline was empty.
 
 ### Shared contract
@@ -244,7 +269,7 @@ Rules:
 - [x] [layout.md](../contributing/design/role/services/layout.md) documents `meta/addons/`: file-root convention, the addon schema, field defaults, allowed values, and the materialised path; and removes `addons` from the inlined-key list.
 - [x] The application loader reads `meta/addons/` for every role and exposes `applications.<role_id>.addons.<addon_id>` through `lookup('config', application_id, 'addons.<addon_id>')`.
 - [x] Role-meta lint under [`tests/lint/ansible/services/`](../../tests/lint/ansible/services/) rejects an invalid `mechanism` (outside the `addon`/`plugin`/`mu_plugin`/`extension`/`module`/`bridge` set), an invalid `source`, an invalid `update.catalog`, an empty `bridges: []`, a non-string `version`, a non-boolean `required`, `required: true` combined with `enabled: false`, a non-mapping `config`, a literal secret inlined in `config`, and missing required fields, honouring the `# nocheck:` suppression convention.
-- [ ] After the Nextcloud migration, no `roles/web-app-nextcloud/vars/plugins/*.yml` plugin-config file remains; a test asserts the directory's former per-plugin payloads now live under `applications.web-app-nextcloud.addons.<id>.config`.
+- [x] After the Nextcloud migration, no `roles/web-app-nextcloud/vars/plugins/*.yml` plugin-config file remains; a test asserts the directory's former per-plugin payloads now live under `applications.web-app-nextcloud.addons.<id>.config`. (`tests/unit/python/roles/web-app-nextcloud/test_plugin_config_absorbed.py` loads the application defaults and checks the eight payloads `b2fddf70a6` deleted: `bbb`, `onlyoffice`, `richdocuments`, `sociallogin`, `spreed`, `user_ldap`, `whiteboard`, `xwiki`.)
 
 ### Bridge contract
 
@@ -260,35 +285,29 @@ Rules:
 - [x] [web-app-nextcloud](../../roles/web-app-nextcloud/) declares each plugin in `meta/addons/`; `sociallogin` bridges `sso` and `user_ldap` bridges `ldap`, both present in `meta/services.yml`; each plugin's full runtime config from `vars/plugins/` is absorbed into its addon `config:` block and the superseded `vars/plugins/*.yml` files are deleted; the install/enable/configure tasks read the addon `config:` payload; deploy behaviour is unchanged.
 - [x] [web-app-wordpress](../../roles/web-app-wordpress/) declares its `plugin` and `mu_plugin` entries in `meta/addons/`; the OIDC plugin bridges `sso` and `wp-discourse` bridges the Discourse service.
 - [x] [web-app-mediawiki](../../roles/web-app-mediawiki/) declares `PluggableAuth` and `OpenIDConnect` in `meta/addons/` with `mechanism: extension`; `OpenIDConnect` bridges `sso`.
-- [ ] [web-app-xwiki](../../roles/web-app-xwiki/) declares its three plugins in `meta/addons/`, preserving `version` pins; bridges `sso`, `ldap`, and `litellm` resolve to service blocks.
+- [x] [web-app-xwiki](../../roles/web-app-xwiki/) declares its three plugins in `meta/addons/`, preserving `version` pins; bridges `sso`, `ldap`, and `litellm` resolve to service blocks.
 - [x] [web-app-joomla](../../roles/web-app-joomla/) declares `plg_system_keycloak` in `meta/addons/` with `mechanism: plugin`, `source: built`, and `bridges: [sso]`.
 - [x] [web-app-matrix](../../roles/web-app-matrix/) declares each mautrix network bridge in `meta/addons/` with `mechanism: bridge`, `required: false`, `enabled: false` by default, and its DB credential referenced from `meta/secrets.yml`; `vars/bridges.yml` is absorbed and deleted.
 - [x] [web-app-discourse](../../roles/web-app-discourse/) declares its plugins in `meta/addons/` with `mechanism: plugin`; `discourse-ldap-auth` carries `bridges: [ldap]` resolving to the `ldap` service block, while `docker_manager`, `discourse-activity-pub`, and `discourse-akismet` carry no `bridges`.
 - [x] [web-app-pretix](../../roles/web-app-pretix/) declares its `oidc` plugin in `meta/addons/` with `mechanism: plugin`, the `2.3.1` pin preserved as a string `version`, and `bridges: [sso]`.
-- [ ] [web-app-mattermost](../../roles/web-app-mattermost/) declares its plugins in `meta/addons/` with `mechanism: plugin`; the plugin volumes remain in `meta/volumes.yml`.
+- [x] [web-app-mattermost](../../roles/web-app-mattermost/) declares its plugins in `meta/addons/` with `mechanism: plugin`; the plugin volumes remain in `meta/volumes.yml`.
 - [x] [dsk-chromium](../../roles/dsk-chromium/) and [dsk-firefox](../../roles/dsk-firefox/) declare their browser extensions in `meta/addons/` with `mechanism: extension`, no `bridges`, and ship NO Playwright specs (desktop roles have no web surface; the lint forbids specs under `dsk-*`).
 - [x] [dsk-gnome](../../roles/dsk-gnome/) declares its gnome-shell extensions in `meta/addons/` with `mechanism: extension` and no `bridges`.
-- [ ] [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) declares its extensions in `meta/addons/` with `mechanism: extension` and no `bridges`.
+- [x] [dsk-gnome-extensions](../../roles/dsk-gnome-extensions/) declares its extensions in `meta/addons/` with `mechanism: extension` and no `bridges`. (Vacuously true: the role ships the extension manager with `plugins: []` in [meta/services.yml](../../roles/dsk-gnome-extensions/meta/services.yml), so it has no extension to declare; the concrete gnome-shell extensions live in the `meta/addons/` of [dsk-gnome](../../roles/dsk-gnome/). The audit classifies it `none`.)
 - [x] [web-app-mobilizon](../../roles/web-app-mobilizon/) and [web-app-bookwyrm](../../roles/web-app-bookwyrm/) keep their `extensions:` (PostgreSQL/engine extensions) in `meta/services.yml`; they are classified `db-extension` and explicitly NOT migrated to `meta/addons/`.
 
 ### Cross-role integration (matrix backlog)
 
-- [ ] The matrix is emitted by [infinito_docs/generators/integrations.py](../../roles/web-app-docs/files/python/infinito_docs/generators/integrations.py) on every docs build, so no copy is committed and none can drift. The generator derives ☑️ edges by scanning every role's `meta/services.yml` keys and ✅ edges from every `meta/addons/*.yml` `bridges:` list.
-- [ ] The matrix axes contain the entity name of **every** `web-app-*` and `web-svc-*` role; a role added later forces a matrix regeneration.
+- [x] The matrix is emitted by [infinito_docs/generators/integrations.py](../../roles/web-app-docs/files/python/infinito_docs/generators/integrations.py) on every docs build, so no copy is committed and none can drift. The generator derives ☑️ edges by scanning every role's `meta/services.yml` keys and ✅ edges from every `meta/addons/*.yml` `bridges:` list.
+- [x] The matrix axes list the role id of **every** `web-app-*` and `web-svc-*` role the generator finds under `roles/`; a role added later appears in the next generated matrix.
 - [ ] ☑️ cells (infinito-native service flags already declared in `meta/services.yml`) are NOT re-declared as `meta/addons/` addons; they remain service integrations, and only ✅/🪙 cells become new addons.
-- [ ] A per-role upstream-plugin survey is completed for **every** `web-app-*` role, not only the integration hubs, so the ✅/🪙 layer is exhaustive rather than hub-biased. Each survey records, per partner role, the real upstream plugin (or its documented absence) with a source URL; the MediaWiki survey (which surfaced `DiscourseSsoConsumer`, `PeerTubeEmbed`, `MachineTranslation`→libretranslate, `Extension:AWS`→minio, an LLM editor→openwebui) is the template for depth.
-- [ ] **Every ✅ cell is wired**: for each ✅ pair (row → column), the row role declares an addon in its `meta/addons/` that integrates the column role, with `mechanism` set appropriately and (when the column role is an in-repo role) a `bridges:` entry resolving to the row role's `meta/services.yml` service for that target.
-- [ ] Each wired integration addon is `required: false` and disabled by default, and its enablement is gated on the target role being present (the relevant `services.<target>.enabled` flag), so an integration never activates when its partner role is not deployed.
-- [ ] **🪙 (commercial) cells are opt-in**: they are declared in `meta/addons/` but remain disabled, and the role README documents the required commercial tier; they are NOT enabled by default and do not block the requirement.
-- [ ] Where the cell links to an already-wired plugin (e.g. Nextcloud↔Collabora/BBB, WordPress↔Discourse), the migration reconciles the existing wiring with the matrix entry instead of duplicating it.
-- [ ] Each newly wired ✅ integration with a user-facing surface ships a Playwright spec (per Confirmed Decision 11) proving the two roles are actually connected when both are deployed.
-- [ ] SSO-to-`keycloak` cells already satisfied centrally by the `sso` service (requirement 021) are marked as such and are NOT re-implemented as duplicate per-role OIDC addons.
+- The matrix and survey backlog (the per-role upstream-plugin survey, wiring every open cell, gating integration addons on their partner, opt-in paid cells, reconciling already-wired plugins, the cross-role integration specs and the SSO cells) moved to the acceptance criteria of [027](027-integration-matrix.md).
 
 ### External drift and update PRs
 
-- [ ] `tests/external/update/addons/` contains a warn-only external test that checks every addon with `update.monitored=true` for newer upstream versions.
+- [x] `tests/external/update/addons/` contains a warn-only external test that checks every addon with `update.monitored=true` for newer upstream versions. (`tests/external/update/addons/test_addon_versions.py::test_monitored_addon_pins_are_current` resolves every addon pin through `utils/update/source.py` `addon_entries` and `outdated` and warns per outdated pin; a monitored addon without a pin tracks the application's default. `tests/lint/repository/test_version_pins_are_watched.py` keeps every pinned addon resolvable, so no monitored pin escapes the check. `tests/external/update/source/test_version_sources.py` reads `service_entries` only, so no addon is checked twice; `tests/unit/python/utils/update/test_source.py::TestEntriesSplitByOwner` pins the split.)
 - [ ] The external addon test emits GitHub Actions warning annotations for outdated addon versions and for relevant new catalog entries that are not listed in `meta/addons/`.
-- [ ] The external addon test is runnable through `make test-external` and is intentionally excluded from the default `make test` flow.
+- [x] The external addon test is runnable through `make test-external`, which the default `make test` flow runs, and stays warn-only inside it.
 - [x] The supported catalog adapters are documented and bounded so broad marketplaces do not produce unreviewable warning noise.
 - [ ] The scheduled update workflow opens or refreshes an update pull request when addon versions can be bumped or when relevant new addon entries can be added.
 - [ ] Update automation adds newly discovered addons with `enabled: false`, `required: false`, complete `update` metadata, and no credentials.
@@ -300,10 +319,10 @@ Rules:
 - [x] A parity test (in the spirit of requirement 019) asserts that every addon `bridges:` key has a matching `meta/services.yml` block, repo-wide.
 - [x] A schema test verifies that `enabled` may be omitted, defaults to `false` for optional addons, defaults to true for `required: true`, and rejects `required: true` with `enabled: false`.
 - [ ] An install-failure test proves that a failing `required: true` addon hard-fails the play, while a failing `required: false` addon emits a warning, is skipped, and the play continues.
-- [ ] Each role with optional (`required: false`) addons expresses the enabled/disabled split as a `meta/variants.yml` axis so the CI matrix exercises both states (mirroring requirement 025).
+- [ ] Each role with optional (`required: false`) addons expresses the enabled/disabled split as a `meta/variants.yml` axis so the CI matrix exercises both states (mirroring requirement 050).
 - [x] Unit tests cover the external addon discovery logic with fixture catalogs for a version bump, a newly discovered addon, and a marketplace entry intentionally ignored by the curated relevance rules.
 - [ ] Each migrated role's existing deploy path stays green; no addon behaviour regresses.
-- [ ] LDAP- and SSO-bridging addons remain covered by the existing Playwright LDAP/SSO requirements (017/018) without new per-role wiring.
+- LDAP- and SSO-bridging addons remain covered by the existing Playwright LDAP/SSO requirements (017/018) without new per-role wiring. Superseded by the per-addon spec rule below: every addon of a web-facing role ships its own `files/playwright/addons/<id>.spec.js`, guarded by `skipUnlessAddonEnabled`.
 - [ ] Every addon of a web-facing role ships a matching Playwright spec under `roles/<role>/files/playwright/addons/` covering that addon's behaviour, and that spec is green before the addon is marked migrated. Desktop (`desk-*`) roles ship NO specs (the lint forbids them).
 
 ### Per-addon tasks, specs, and the API SPOT
@@ -312,7 +331,7 @@ Rules:
 - [x] The `test-e2e-playwright` role stages `files/playwright/` recursively and discovers specs recursively, so `files/playwright/addons/*.spec.js` are staged and run.
 - [x] Each addon spec guards on the addon being enabled (`skipUnlessAddonEnabled`) via the `ADDON_<ID>_ENABLED` flags rendered into `templates/playwright.env.j2`.
 - [x] Per-addon task hooks live in `roles/<role>/tasks/addons/<id>.yml`; the former per-plugin task logic was moved there for a uniform schema.
-- [x] Proprietary / external API credentials are declared once in `group_vars/all/18_api.yml` (`API` mapping) and accessed exclusively through the `lookup('api', '<provider>.<key>')` plugin; the existing cloudflare/telegram code routes through it.
+- [x] Proprietary / external API credentials are declared once in `group_vars/all/18_api.yml` (`API_DECLARATIONS` mapping), overridden through the inventory's `API` mapping, and accessed exclusively through the `lookup('api', '<provider>.<key>')` plugin; the existing cloudflare/telegram code routes through it.
 - [x] Self-hostable integration partners (e.g. `gitlab`, and the EOL `jira`, whose three bridged addons stay dormant behind a literal `false`) are wired as local `bridges:` integrations; purely proprietary targets (`github`, `google`, Atlassian Cloud via `integration_jira`) carry no `bridges:` and are enabled only when their `API` credentials are present.
 - [ ] Each cross-role integration spec drives the full OAuth connect-flow and is green when both the host and partner roles are deployed (deploy-gated; skips cleanly when the integration is not provisioned).
 

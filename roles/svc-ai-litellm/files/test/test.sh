@@ -9,12 +9,15 @@
 #   LITELLM_CONTAINER          resolved gateway container (CLI_LOCAL_CID)
 #   LITELLM_PORT               gateway http port inside the container
 #   LITELLM_ROUTER_MIN_CHARS_PER_TOKEN  the hook's characters-per-token floor
+#   LITELLM_UPSTREAM_TIMEOUT   seconds every route waits upstream, the probe's wait too
+#   CLI_DEADLINE               epoch second the test-e2e-cli harness kills this script
 #   LITELLM_CHAT_MODEL         the model every consumer asks for
 #   LITELLM_CHAT_MODEL_SERVED  true|false
 #   LITELLM_EXPECTED_MODELS    JSON list the config template published
 #   LITELLM_LMSTUDIO_ALIASES   JSON list of aliases only LM Studio provides
 #   LITELLM_MOCK_ALIASES       JSON list of aliases answered from a canned string
 #   LITELLM_REMOTE_ALIASES     JSON list of aliases a configured provider key adds
+#   LITELLM_AUDIO_ALIASES      JSON list of audio aliases svc-ai-speech backs
 #   LITELLM_OLLAMA_ENABLED     true|false
 #   LITELLM_LMSTUDIO_ENABLED   true|false
 #   READY_RETRIES              gateway readiness attempts (default 30)
@@ -47,12 +50,15 @@ probe() {
 	MIN_CHARS_PER_TOKEN="${LITELLM_ROUTER_MIN_CHARS_PER_TOKEN}" container exec -i \
 		-e "PORT=${LITELLM_PORT}" \
 		-e MIN_CHARS_PER_TOKEN \
+		-e "UPSTREAM_TIMEOUT=${LITELLM_UPSTREAM_TIMEOUT}" \
+		-e "CLI_DEADLINE=${CLI_DEADLINE}" \
 		-e "CHAT_MODEL=${LITELLM_CHAT_MODEL}" \
 		-e "CHAT_MODEL_SERVED=${LITELLM_CHAT_MODEL_SERVED}" \
 		-e "EXPECTED_MODELS=${LITELLM_EXPECTED_MODELS}" \
 		-e "LMSTUDIO_ALIASES=${LITELLM_LMSTUDIO_ALIASES}" \
 		-e "MOCK_ALIASES=${LITELLM_MOCK_ALIASES}" \
 		-e "REMOTE_ALIASES=${LITELLM_REMOTE_ALIASES}" \
+		-e "AUDIO_ALIASES=${LITELLM_AUDIO_ALIASES}" \
 		-e "OLLAMA_ENABLED=${LITELLM_OLLAMA_ENABLED}" \
 		-e "LMSTUDIO_ENABLED=${LITELLM_LMSTUDIO_ENABLED}" \
 		-e "ROUTER_ALIAS=${LITELLM_ROUTER_ALIAS}" \

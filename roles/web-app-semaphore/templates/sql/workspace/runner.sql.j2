@@ -1,0 +1,81 @@
+{# Param semaphore_workspace_runner_action: hint, apply or destroy. #}
+{# Param semaphore_workspace_alias: ws-<id>, the runner's name and its only tag. #}
+{# Param semaphore_workspace_project_id: apply only, the id of the project ws-<id>. #}
+{# Param semaphore_workspace_runner_token: apply only, the token the workspace runner signs in with. #}
+\set name '{{ semaphore_workspace_alias | replace("'", "''") }}'
+{% if semaphore_workspace_runner_action == 'hint' %}
+SELECT 'HINT ' || project_id
+FROM public.runner
+WHERE name = :'name'
+  AND project_id IS NOT NULL;
+{% if SEMAPHORE_DNS_FLAVOR == 'cloudflare' %}
+\set provision '{{ SEMAPHORE_PROVISION_PROJECT_NAME | replace("'", "''") }}'
+SELECT 'PLACED ' || json_build_object(
+  'zone', held.env::json ->> 'WORKSPACE_DNS_ZONE',
+  'zone_id', held.env::json ->> 'WORKSPACE_DNS_ZONE_ID'
+)::text
+FROM public.project__environment AS held
+JOIN public.project AS project ON project.id = held.project_id
+WHERE project.name = :'provision'
+  AND held.name = :'name'
+  AND COALESCE(held.env::json ->> 'WORKSPACE_DNS_ZONE', '') <> '';
+{% endif %}
+{% elif semaphore_workspace_runner_action == 'apply' %}
+\set project_id '{{ semaphore_workspace_project_id | int }}'
+\set token '{{ semaphore_workspace_runner_token | replace("'", "''") }}'
+UPDATE public.runner
+SET token = :'token',
+    project_id = :'project_id'::int,
+    webhook = '',
+    max_parallel_tasks = 1,
+    active = TRUE,
+    is_default = FALSE
+WHERE name = :'name'
+  AND (
+    token IS DISTINCT FROM :'token'
+    OR project_id IS DISTINCT FROM :'project_id'::int
+    OR webhook IS DISTINCT FROM ''
+    OR max_parallel_tasks IS DISTINCT FROM 1
+    OR active IS DISTINCT FROM TRUE
+    OR is_default IS DISTINCT FROM FALSE
+  )
+RETURNING 'CHANGED runner ' || name || ' realigned';
+
+INSERT INTO public.runner (project_id, token, webhook, max_parallel_tasks, name, active, is_default)
+SELECT :'project_id'::int, :'token', '', 1, :'name', TRUE, FALSE
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM public.runner
+  WHERE name = :'name'
+)
+RETURNING 'CHANGED runner ' || name || ' created';
+
+DELETE FROM public.runner__tag
+USING public.runner
+WHERE runner__tag.runner_id = runner.id
+  AND runner.name = :'name'
+  AND runner__tag.tag IS DISTINCT FROM :'name'
+RETURNING 'CHANGED runner tag ' || runner__tag.tag || ' dropped';
+
+INSERT INTO public.runner__tag (runner_id, tag)
+SELECT runner.id, :'name'
+FROM public.runner
+WHERE runner.name = :'name'
+  AND NOT EXISTS (
+    SELECT 1
+    FROM public.runner__tag AS held
+    WHERE held.runner_id = runner.id
+      AND held.tag = :'name'
+  )
+RETURNING 'CHANGED runner tag ' || tag || ' added';
+{% else %}
+DELETE FROM public.runner__tag
+USING public.runner
+WHERE runner__tag.runner_id = runner.id
+  AND runner.name = :'name'
+RETURNING 'CHANGED runner tag ' || runner__tag.tag || ' removed';
+
+DELETE FROM public.runner
+WHERE name = :'name'
+RETURNING 'CHANGED runner ' || name || ' removed';
+{% endif %}

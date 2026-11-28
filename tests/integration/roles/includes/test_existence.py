@@ -1,4 +1,5 @@
 import re
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -14,8 +15,9 @@ class TestIncludeImportExistence(unittest.TestCase):
     """
     Every include_role / import_role name must resolve to a directory under roles/,
     and every include_tasks / import_tasks file reference must resolve to an existing
-    YAML file either locally (same dir as the referencing file), globally (from repo
-    root), or under the top-level tasks/ directory.
+    YAML file under the including role's tasks/ directory, locally (same dir as the
+    referencing file), globally (from repo root), or under the top-level tasks/
+    directory.
     """
 
     def setUp(self):
@@ -116,65 +118,96 @@ class TestIncludeImportExistence(unittest.TestCase):
             ]
             self.fail("\n".join(messages))
 
+    def _resolves(self, file_path: str, task_ref: str) -> bool:
+        """
+        Args:
+            file_path: the YAML file that holds the include.
+            task_ref: the file the include names.
+
+        Returns:
+            Whether the reference names an existing task file. A relative
+            reference inside a role is tried against the role's ``tasks/``
+            first, which is where Ansible resolves it
+            (``path_dwim_relative(role_path, 'tasks', target, is_role=True)``),
+            then against the including file's directory, the project root and
+            the top-level ``tasks/``.
+        """
+        file_dir = str(Path(file_path).parent)
+
+        role_path_dir = None
+        if self.roles_dir in file_dir:
+            parts = list(Path(file_dir).parts)
+            idx = parts.index("roles")
+            if idx + 1 < len(parts):
+                role_path_dir = str(Path(self.roles_dir) / parts[idx + 1])
+
+        pattern_ref = task_ref
+        if "{{ role_path }}" in pattern_ref and role_path_dir:
+            pattern_ref = pattern_ref.replace("{{ role_path }}", role_path_dir)
+        if "{{ playbook_dir }}" in pattern_ref:
+            pattern_ref = pattern_ref.replace("{{ playbook_dir }}", self.project_root)
+        pattern_ref = re.sub(r"\{\{.*?\}\}", "*", pattern_ref)
+        if not Path(pattern_ref).suffix:
+            pattern_ref += ".yml"
+
+        has_wildcard = "*" in pattern_ref or "?" in pattern_ref
+        if Path(pattern_ref).is_absolute():
+            if not has_wildcard:
+                return Path(pattern_ref).is_file()
+            anchor = Path(pattern_ref).anchor
+            relative = Path(pattern_ref).relative_to(anchor)
+            return any(p.is_file() for p in Path(anchor).glob(str(relative)))
+
+        bases = [
+            Path(file_dir),
+            Path(self.project_root),
+            Path(self.project_root) / "tasks",
+        ]
+        if role_path_dir:
+            bases.insert(0, Path(role_path_dir) / "tasks")
+        for base in bases:
+            if has_wildcard:
+                if any(p.is_file() for p in base.glob(pattern_ref)):
+                    return True
+            elif (base / pattern_ref).is_file():
+                return True
+        return False
+
+    def test_a_role_include_resolves_against_the_role_tasks_dir(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.project_root = tmp
+            self.roles_dir = str(Path(tmp) / "roles")
+            tasks = Path(self.roles_dir) / "web-app-x" / "tasks"
+            (tasks / "utils" / "stack").mkdir(parents=True)
+            (tasks / "guard.yml").write_text("---\n[]\n", encoding="utf-8")
+            stage = tasks / "utils" / "stack" / "stage.yml"
+            stage.write_text("---\n[]\n", encoding="utf-8")
+            self.assertTrue(self._resolves(str(stage), "guard.yml"))
+            self.assertTrue(self._resolves(str(stage), "utils/stack/stage.yml"))
+
+    def test_negative_control_a_missing_role_include_is_reported(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.project_root = tmp
+            self.roles_dir = str(Path(tmp) / "roles")
+            tasks = Path(self.roles_dir) / "web-app-x" / "tasks"
+            (tasks / "utils" / "stack").mkdir(parents=True)
+            (tasks / "guard.yml").write_text("---\n[]\n", encoding="utf-8")
+            stage = str(tasks / "utils" / "stack" / "stage.yml")
+            self.assertFalse(self._resolves(stage, "missing_guard.yml"))
+            self.assertFalse(self._resolves(stage, "utils/guard.yml"))
+            outside = str(Path(tmp) / "tasks" / "utils" / "entry.yml")
+            self.assertFalse(self._resolves(outside, "guard.yml"))
+
     def test_include_import_tasks_exist(self):
         missing = []
         for file_path, doc in self._iter_docs():
-            file_dir = str(Path(file_path).parent)
-
-            role_name = None
-            role_path_dir = None
-            if self.roles_dir in file_dir:
-                parts = list(Path(file_dir).parts)
-                idx = parts.index("roles")
-                if idx + 1 < len(parts):
-                    role_name = parts[idx + 1]
-                    role_path_dir = str(Path(self.roles_dir) / role_name)
-
-            for task_ref in self._collect_refs(
-                doc, ("include_tasks", "import_tasks"), "file"
-            ):
-                pattern_ref = task_ref
-                if "{{ role_path }}" in pattern_ref and role_path_dir:
-                    pattern_ref = pattern_ref.replace("{{ role_path }}", role_path_dir)
-                if "{{ playbook_dir }}" in pattern_ref:
-                    pattern_ref = pattern_ref.replace(
-                        "{{ playbook_dir }}", self.project_root
-                    )
-                pattern_ref = re.sub(r"\{\{.*?\}\}", "*", pattern_ref)
-                if not Path(pattern_ref).suffix:
-                    pattern_ref += ".yml"
-
-                has_wildcard = "*" in pattern_ref or "?" in pattern_ref
-                matches: list[str] = []
-                if Path(pattern_ref).is_absolute():
-                    candidates = [Path(pattern_ref)]
-                    if has_wildcard:
-                        anchor = Path(pattern_ref).anchor
-                        relative = Path(pattern_ref).relative_to(anchor)
-                        matches.extend(
-                            str(p)
-                            for p in Path(anchor).glob(str(relative))
-                            if p.is_file()
-                        )
-                    elif candidates[0].is_file():
-                        matches.append(str(candidates[0]))
-                else:
-                    for base in (
-                        Path(file_dir),
-                        Path(self.project_root),
-                        Path(self.project_root) / "tasks",
-                    ):
-                        if has_wildcard:
-                            matches.extend(
-                                str(p) for p in base.glob(pattern_ref) if p.is_file()
-                            )
-                        else:
-                            candidate = base / pattern_ref
-                            if candidate.is_file():
-                                matches.append(str(candidate))
-
-                if not matches:
-                    missing.append((file_path, task_ref))
+            missing.extend(
+                (file_path, task_ref)
+                for task_ref in self._collect_refs(
+                    doc, ("include_tasks", "import_tasks"), "file"
+                )
+                if not self._resolves(file_path, task_ref)
+            )
 
         if missing:
             messages = [

@@ -13,20 +13,45 @@
 set -euo pipefail
 
 LAUNCHER=baudolo-snapshot
+SIGNAL=baudolo-maintenance
+STATE_FILE=.app-control-state
+SIGNAL_DIR="$(mktemp -d)"
+SIGNAL_FILE="${SIGNAL_DIR}/backup.json"
+trap 'rm -rf "${SIGNAL_DIR}"' EXIT
+ANNOUNCE=(--maintenance-bin "${SIGNAL}" --maintenance-file "${SIGNAL_FILE}" --maintenance-seconds 600 --stopping probe-app)
 
 if ! command -v "${LAUNCHER}" >/dev/null; then
     echo "FAIL: ${LAUNCHER} is not on PATH; the backup unit's ExecStart would fail"
     exit 1
 fi
+if ! command -v "${SIGNAL}" >/dev/null; then
+    echo "FAIL: ${SIGNAL} is not on PATH; the backup unit could not announce its stops"
+    exit 1
+fi
 
-echo "OK: ${LAUNCHER} is deployed and executable"
+echo "OK: ${LAUNCHER} and ${SIGNAL} are deployed and executable"
 
-PASSTHROUGH="$("${LAUNCHER}" --mode never -- /bin/echo CMD --backups-dir /b)"
+announced() {
+    "${SIGNAL}" active --file "${SIGNAL_FILE}"
+}
+
+PASSTHROUGH="$("${LAUNCHER}" --mode never --state-file "${STATE_FILE}" "${ANNOUNCE[@]}" -- /bin/echo CMD --backups-dir /b)"
 if [[ "${PASSTHROUGH}" != "CMD --backups-dir /b" ]]; then
     echo "FAIL: --mode never altered the command: '${PASSTHROUGH}'"
     exit 1
 fi
 echo "OK: --mode never hands the command through unchanged"
+if [[ "$(announced)" != '["probe-app"]' ]]; then
+    echo "FAIL: a live copy announced '$(announced)' instead of the application it stops"
+    exit 1
+fi
+echo "OK: a live copy announces the application it stops before the run"
+"${SIGNAL}" clear --file "${SIGNAL_FILE}"
+if [[ "$(announced)" != '[]' ]]; then
+    echo "FAIL: the cleared signal still announces '$(announced)'"
+    exit 1
+fi
+echo "OK: the cleared signal announces no application"
 
 if [[ "$(id -u)" != "0" ]] || ! command -v mkfs.btrfs >/dev/null || ! command -v losetup >/dev/null; then
     echo "SKIP: no root or no btrfs tooling; the snapshot matrix needs both"
@@ -39,7 +64,7 @@ LOOP=""
 cleanup() {
     mountpoint -q "${WORK}/mnt" && umount "${WORK}/mnt"
     [[ -n "${LOOP}" ]] && losetup -d "${LOOP}" 2>/dev/null
-    rm -rf "${WORK}"
+    rm -rf "${WORK}" "${SIGNAL_DIR}"
     return 0
 }
 trap cleanup EXIT
@@ -75,12 +100,21 @@ export PATH="${WORK}/bin:${PATH}"
 
 expect() {
     local mode="$1" want="CMD${2:+ $2}" label="$3" got
-    got="$("${LAUNCHER}" --mode "${mode}" -- /bin/echo CMD)"
+    got="$("${LAUNCHER}" --mode "${mode}" --state-file "${STATE_FILE}" "${ANNOUNCE[@]}" -- /bin/echo CMD)"
     if [[ "${got}" != "${want}" ]]; then
         echo "FAIL: mode=${mode} emitted '${got}', expected '${want}'"
         exit 1
     fi
     echo "OK: ${label}"
+    local stops='["probe-app"]'
+    if [[ -n "${2:-}" ]]; then
+        stops='[]'
+    fi
+    if [[ "$(announced)" != "${stops}" ]]; then
+        echo "FAIL: mode=${mode} announced '$(announced)', expected '${stops}'"
+        exit 1
+    fi
+    echo "OK: the run announced ${stops} before baudolo started"
 }
 
 expect auto "--snapshot btrfs --snapshot-subject ${SUBJECT}" \
@@ -113,7 +147,7 @@ echo "OK: the leftover of the killed run was reaped"
 mkdir -p "${WORK}/mnt/plain/volumes/probe_vol/_data"
 echo "${WORK}/mnt/plain" > "${WORK}/root"
 expect auto "" "a plain directory is not a snapshot source"
-if "${LAUNCHER}" --mode btrfs -- /bin/echo CMD >/dev/null 2>&1; then
+if "${LAUNCHER}" --mode btrfs --state-file "${STATE_FILE}" "${ANNOUNCE[@]}" -- /bin/echo CMD >/dev/null 2>&1; then
     echo "FAIL: a stated kind degraded silently instead of aborting the run"
     exit 1
 fi

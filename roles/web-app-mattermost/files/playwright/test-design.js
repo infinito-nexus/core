@@ -25,6 +25,7 @@ const ONYX_SURFACE = "rgb(25, 27, 31)";
 const LOGIN_ID = "#input_loginId";
 const PASSWORD = "#input_password-input";
 const SUBMIT = "#saveSetting";
+const SIGN_IN_CARD = ".login-body-card";
 const SIGN_IN_LOGO = ".hfroute-header .header-logo-link > svg";
 const EDITOR = "#post-create";
 const POSTS = "#post-list";
@@ -111,7 +112,7 @@ exports.register = function (shared) {
   async function openSignIn(page) {
     await seenLanding(page);
     await gotoOnion(page, `${base}/login`);
-    await shown(LOGIN_ID)(page);
+    await shown(shared.nativeForm ? LOGIN_ID : SIGN_IN_CARD)(page);
   }
 
   /**
@@ -245,19 +246,20 @@ exports.register = function (shared) {
   }
 
   function publicViews() {
-    return [
-      { name: "sign-in", url: `${base}/login`, prepare: shown(LOGIN_ID) },
-      {
-        name: "sign-in-error",
-        url: `${base}/login`,
-        prepare: async (page) => {
-          await shown(LOGIN_ID)(page);
-          await page.locator(LOGIN_ID).fill(SHOWCASE);
-          await page.locator(PASSWORD).fill("wrong-on-purpose");
-          await page.locator(SUBMIT).click();
-          await shown(".login-body-card .AlertBanner")(page);
-        },
+    const signInError = {
+      name: "sign-in-error",
+      url: `${base}/login`,
+      prepare: async (page) => {
+        await shown(LOGIN_ID)(page);
+        await page.locator(LOGIN_ID).fill(SHOWCASE);
+        await page.locator(PASSWORD).fill("wrong-on-purpose");
+        await page.locator(SUBMIT).click();
+        await shown(".login-body-card .AlertBanner")(page);
       },
+    };
+    return [
+      { name: "sign-in", url: `${base}/login`, prepare: shown(shared.nativeForm ? LOGIN_ID : SIGN_IN_CARD) },
+      ...(shared.nativeForm ? [signInError] : []),
       { name: "password-reset", url: `${base}/reset_password`, prepare: shown(HEADER_FOOTER) },
       { name: "landing", url: `${base}/landing#/login`, prepare: shown(".get-app__dialog") },
     ];
@@ -343,18 +345,25 @@ exports.register = function (shared) {
 
   test("design: the sign-in page takes surface, primary action and text from the palette", async ({ page }) => {
     skipUnlessServiceEnabled("design");
+    const form = shared.nativeForm;
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
       await openSignIn(page);
-      await assertToken(page, ".login-body-card", "background-color", "--design-surface-1", `sign-in card ${mode}`);
-      await assertToken(page, SUBMIT, "background-color", "--design-primary", `sign-in ${mode}`);
-      await assertToken(page, SUBMIT, "color", "--design-on-primary", `sign-in ${mode}`);
+      await assertToken(page, SIGN_IN_CARD, "background-color", "--design-surface-1", `sign-in card ${mode}`);
+      if (form) {
+        await assertToken(page, SUBMIT, "background-color", "--design-primary", `sign-in ${mode}`);
+        await assertToken(page, SUBMIT, "color", "--design-on-primary", `sign-in ${mode}`);
+      }
       await assertToken(page, ".login-body-message-title", "color", "--design-text", `sign-in ${mode}`);
       await expect(page.locator(SIGN_IN_BACKDROP), `sign-in backdrop ${mode}`).toHaveCSS("background-image", "none");
     }
     await page.emulateMedia({ colorScheme: null });
-    await assertLightAndDark(page, ".login-body-card", "Mattermost sign-in");
-    await assertReadable(page, [".login-body-message-title", ".login-body-card-title", SUBMIT, LOGIN_ID], "Mattermost sign-in");
+    await assertLightAndDark(page, SIGN_IN_CARD, "Mattermost sign-in");
+    await assertReadable(
+      page,
+      [".login-body-message-title", ".login-body-card-title", ...(form ? [SUBMIT, LOGIN_ID] : [])],
+      "Mattermost sign-in",
+    );
   });
 
   test("design: the signed-in interface takes surfaces, frame, primary action and text from the palette", async ({ page }) => {

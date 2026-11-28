@@ -3,6 +3,8 @@
 This directory contains project requirements documents.
 Its scope is user stories and acceptance criteria that define what the project must do and that guide agent-assisted implementation.
 
+Superseded by [089](089-agents-restructuring.md#superseded-criteria): requirements become OpenProject work packages once the board migration ran; until then this directory stays the source.
+
 ## Open
 
 - [070 - sys-ctl-hlth-runtime: Vulnerability Engines Instead of Version Floors](070-hlth-runtime-vulnerability-engines.md)
@@ -31,9 +33,8 @@ Its scope is user stories and acceptance criteria that define what the project m
 - 019 - Playwright meta/services.yml parity coverage
 - 020 - CI Run 25705903504 Deploy-Failure Remediation Loop
 - 022 - Zammad Helpdesk Role with OIDC SSO
-- 023 - Setup Penpot
+- 049 - Setup Penpot
 - 025 - Matrix Role Ansible Flavor (matrix-docker-ansible-deploy)
-- 028 - atmo.rsvp (AT Protocol Events) Role + Mobilizon/ActivityPub Bridge
 - 031 - svc-net-tor: Tor Onion-Service Provider (injected alongside the clearnet domain)
 - 037 - svc-net-wireguard: WireGuard Transport for Swarm Deployments
 - 038 - svc-net-wireguard: Full-Mesh WireGuard for Compose Deployments

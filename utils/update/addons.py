@@ -44,6 +44,7 @@ ADDON_KEYS: frozenset[str] = frozenset(
         "update",
         "config",
         "architectures",
+        "skipped",
     }
 )
 
@@ -226,6 +227,7 @@ class CatalogResult:
 
     version_updates: list[VersionSuggestion] = field(default_factory=list)
     new_addons: list[CatalogSuggestion] = field(default_factory=list)
+    unreachable: list[str] = field(default_factory=list)
 
 
 def worker_fetch_limit(default: int = 8) -> int:

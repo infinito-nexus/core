@@ -5,6 +5,11 @@ update_pull_images:
         applications: ``lookup('applications')`` of the host.
         deployed: ``lookup('application_closure', group_names)``, the roles a
         deploy of the host runs.
+        vendors: ``lookup('registry_vendors')`` of the host, or None. A
+        reference from a listed vendor registry is routed through its front,
+        as the image lookup routes it for compose; the base of a locally
+        built image stays as the build pulls it, and so does every image
+        of ``svc-registry-cache``, which runs the front itself.
 
     Returns:
         ``{"pull": [...], "built": [...]}``: ``pull`` holds the sorted pull
@@ -27,6 +32,7 @@ from __future__ import annotations
 from collections import defaultdict
 from functools import partial
 
+from plugins.lookup.registry_vendors import routable, route_reference
 from utils.docker.image.custom import custom_image_name
 from utils.docker.image.pin import pull_reference
 from utils.roles.entity.name import get_entity_name
@@ -36,10 +42,17 @@ PULLED = "pulled"
 PRESENT = "present"
 
 
-def update_pull_images(applications, deployed):
+def _pulled(app, service, vendors):
+    reference = pull_reference(str(service["image"]).strip(), service["version"])
+    if service.get("custom") or not routable(app):
+        return reference
+    return route_reference(reference, vendors)
+
+
+def update_pull_images(applications, deployed, vendors=None):
     apps = sorted(app for app in deployed if app in applications)
     pull = {
-        pull_reference(str(service["image"]).strip(), service["version"])
+        _pulled(app, service, vendors)
         for app in apps
         for _, service in pinned(app, applications[app])
     }

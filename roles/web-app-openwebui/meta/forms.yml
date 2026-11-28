@@ -1,0 +1,54 @@
+---
+settings:
+  path: /admin/settings
+  lock: pending
+  issue: open-webui/open-webui, drafted and not yet filed, read-only Admin Panel settings while ENABLE_PERSISTENT_CONFIG is false
+  sinks: [OPENWEBUI_SETTINGS]
+  fields:
+    enable_signup:
+      source: services.openwebui.login.method.registration.enabled
+      mode: enforced
+      selector: '[name="ENABLE_SIGNUP"]'
+      type: checkbox
+      map: { true: "true", false: "false" }
+      label: Enable new sign ups
+    enable_login_form:
+      source: services.openwebui.login.method.native.enabled
+      mode: enforced
+      selector: '[name="ENABLE_LOGIN_FORM"]'
+      type: checkbox
+      map: { true: "true", false: "false" }
+      label: Enable the login form
+    default_user_role:
+      source: services.openwebui.default_user_role
+      mode: enforced
+      selector: '[name="DEFAULT_USER_ROLE"]'
+      type: select
+      label: Default user role
+    offline_mode:
+      source: services.openwebui.offline_mode
+      mode: enforced
+      selector: '[name="OFFLINE_MODE"]'
+      type: checkbox
+      map: { true: "1", false: "0" }
+      label: Offline mode
+    hf_hub_offline:
+      source: services.openwebui.hf_hub_offline
+      mode: enforced
+      selector: '[name="HF_HUB_OFFLINE"]'
+      type: checkbox
+      map: { true: "1", false: "0" }
+      label: Hugging Face hub offline
+tools:
+  path: /admin/settings/tools
+  lock: pending
+  issue: open-webui/open-webui, drafted and not yet filed, read-only Admin Panel settings while ENABLE_PERSISTENT_CONFIG is false
+  sinks: [OPENWEBUI_MCP_CONFIG]
+  fields:
+    servers:
+      source: services.openwebui.mcp_servers.selected
+      when: mcp.enabled
+      mode: enforced
+      selector: '[name="TOOL_SERVER_CONNECTIONS"]'
+      type: textarea
+      label: MCP tool servers

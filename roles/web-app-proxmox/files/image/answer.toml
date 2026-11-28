@@ -1,0 +1,19 @@
+[global]
+keyboard = "en-us"
+country = "us"
+fqdn = "pve.example.invalid"
+mailto = "root@example.invalid"
+timezone = "UTC"
+root-password-hashed = "@ROOT_PASSWORD_HASHED@"
+reboot-mode = "power-off"
+
+[network]
+source = "from-dhcp"
+
+[disk-setup]
+filesystem = "ext4"
+disk-list = ["vda"]
+
+[first-boot]
+source = "from-iso"
+ordering = "fully-up"

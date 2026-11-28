@@ -42,8 +42,51 @@ flowchart TD
 - **Database-aware:** consumer apps seed their connection metadata into a central `databases.csv`, so the same run can dump SQL state alongside the file payload.
 - **Live-aware:** containers tagged `stop_required: false` stay running during the dump; others stop briefly and resume.
 - **Snapshot-aware:** on a btrfs data root the whole run is captured from one atomic filesystem snapshot with no container stopped; the host is probed before every run and falls back to the live copy when a snapshot would not be faithful.
-- **Systemd-driven:** a generated unit fires on the configured schedule (`SYS_SCHEDULE_BACKUP_CONTAINER_TO_LOCAL`), serialised against other backup/cleanup/repair groups by `sys-lock`.
+- **Systemd-driven:** a generated unit fires on the configured schedule (`SYS_SCHEDULE_BACKUP_CONTAINER_TO_LOCAL`), waiting for the other backup/cleanup/repair groups through `sys-lock`, up to `SYS_TIMEOUT_BACKUP_SERVICES`.
 - **Self-cleaning:** failed backup attempts are torn down by `sys-ctl-cln-faild-bkps` so a broken run cannot poison the next.
+- **Maintenance signal:** every run announces the applications it stops in `/run/infinito/maintenance/backup.json` before the first stop, so another service can hold its tasks back.
+
+## Backup set
+
+One generation of this role plus the inventory restores a stack host, its workspaces included.
+The generation holds every docker volume and every database dump of the host: the Semaphore and Keycloak databases, and the volumes of OpenBao, SeaweedFS and Gitea, which carry the workspace resources of requirements 102 to 111.
+No second backup of any of them belongs to the set.
+
+Two secrets a restore needs live in no volume, only in the inventory, and MUST be kept beside the generation:
+
+| Credential | Role | Without it |
+| --- | --- | --- |
+| `access_key_encryption` | `web-app-semaphore` (`meta/secrets.yml`) | every key stored in Semaphore's database stays unreadable, so no task clones its repository |
+| `seal_key` | `web-app-openbao` (`meta/secrets.yml`) | the restored OpenBao storage never unseals, so no secret and no transit key is readable |
+
+## Maintenance signal
+
+A live copy stops the containers of the applications that declare `backup.stop_required: true` for a service.
+Other services learn about the stop from one document, `/run/infinito/maintenance/backup.json` (`FILE_MAINTENANCE_BACKUP` in `group_vars/all/05_paths.yml`).
+baudolo also stops a container whose service declares no `stop_required` at all, but the signal does not list it; a role whose stop matters to a reader declares `stop_required: true`.
+
+It is a JSON object with exactly three fields:
+
+| Field | Content |
+| --- | --- |
+| `applications` | the ids of the applications this run stops, taken from the services that declare `backup.stop_required: true` (for example `web-app-openbao` and `web-svc-seaweedfs`) |
+| `started` | the start of the run |
+| `until` | `started` plus `SYS_TIMEOUT_BACKUP_SERVICES` |
+
+Both times are RFC 3339 in UTC with a numeric offset, for example `2026-11-13T02:00:00+00:00`.
+
+Lifetime:
+
+1. `baudolo-snapshot` writes the document right before it hands over to baudolo, so it leads every container stop. A snapshot run stops nothing and lists no application during the whole run.
+2. After the run, `ExecStartPost` rewrites it with an empty `applications`; `ExecStopPost` does the same when the run fails.
+3. Every write lands by an atomic rename of a file staged in the same directory, so a reader never sees half a document.
+4. `/run` is a `tmpfs`: a reboot drops the document, and `/etc/tmpfiles.d/infinito-maintenance.conf` recreates the empty directory at boot.
+
+A reader MUST treat a missing document, an empty `applications` and a document past its `until` as no maintenance, and MUST take the stopped applications from the list instead of assuming a fixed set: Gitea and Semaphore keep running during a copy and appear only once their `stop_required` turns true.
+`baudolo-maintenance active --file <document>` (`files/python/baudolo/maintenance.py`, function `active`) is that reader; it prints the applications under maintenance as a JSON list.
+
+A role that sets `services.maintenance.enabled` in its `meta/services.yml` gets `/run/infinito/maintenance` mounted read-only into its containers through `lookup('container_volumes', ...)`; no other role mounts it.
+The signal is host-local, so its reader runs on the stack host, and no vhost serves it: unlike `/status.json`, it would publish the platform's backup window.
 
 ## Filesystem snapshots
 
@@ -164,6 +207,17 @@ the volume's own driver options, restores through it, and asserts the
 marker on the server's disk.
 
 ## Recover
+
+### A stack host with workspaces
+
+The order follows the [backup set](#backup-set):
+
+1. Restore the inventory with `access_key_encryption` and `seal_key` and deploy the stack, so the engines run.
+2. Stop the consumers, restore the volumes and replay the databases of one generation, as the sections below describe.
+3. Start the stack: OpenBao unseals with the inventory's seal key and Semaphore reads its stored keys with the access key encryption key.
+4. Run `workspace apply` for every workspace project in Semaphore. Some files live on the host outside the volumes: the runner compose projects and token files, `identities.d` of SeaweedFS and the egress lists. `apply` rebuilds them from Semaphore's database and OpenBao and keeps every token and key those hold, as a second `apply` always does.
+
+The deploy drill proves this order in its workspace pass (`files/test/README.md`).
 
 ### The databases of a generation
 

@@ -1,0 +1,61 @@
+---
+- name: "🔍 Probe the DNS broker AppRole with the pair of this deploy"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'IFS= read -r secret || :; : "${secret:?arrived empty on stdin}";
+    token=$(printf "%s" "$secret" | bao write -field=token auth/approle/login
+    role_id={{ OPENBAO_DNS_BROKER_ROLE_ID | quote }} secret_id=- 2>/dev/null) || exit 3;
+    BAO_TOKEN="$token" bao token revoke -self >/dev/null'
+  args:
+    stdin: "{{ OPENBAO_DNS_BROKER_SECRET_ID }}"
+  register: openbao_dns_broker_probe
+  changed_when: false
+  failed_when: openbao_dns_broker_probe.rc not in [0, 3]
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧹 Drop the DNS broker AppRole whose pair OpenBao refused"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao delete auth/approle/role/{{ OPENBAO_DNS_BROKER_APPROLE | quote }}
+  when: openbao_dns_broker_probe.rc != 0
+  changed_when: true
+
+- name: "🧩 Write the DNS broker AppRole, bound to the dns-broker policy alone"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p=auth/approle/role/{{ OPENBAO_DNS_BROKER_APPROLE }};
+    before=$(bao read -format=json $p 2>/dev/null | grep -v request_id || true);
+    bao write $p
+    token_policies={{ OPENBAO_DNS_BROKER_APPROLE | quote }}
+    token_no_default_policy=true
+    token_ttl={{ OPENBAO_DNS_BROKER_CONFIG.token_ttl | quote }}
+    token_max_ttl={{ OPENBAO_DNS_BROKER_CONFIG.token_max_ttl | quote }}
+    secret_id_ttl={{ OPENBAO_DNS_BROKER_CONFIG.secret_id_ttl | quote }}
+    secret_id_num_uses=0 >/dev/null;
+    after=$(bao read -format=json $p | grep -v request_id);
+    [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+  register: openbao_dns_broker_role
+  changed_when: "'OPENBAO_CHANGED' in openbao_dns_broker_role.stdout"
+
+- name: "🔑 Pin the DNS broker RoleID to the inventory value"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c '[ "$(bao read -field=role_id auth/approle/role/{{ OPENBAO_DNS_BROKER_APPROLE }}/role-id)" = {{ OPENBAO_DNS_BROKER_ROLE_ID | quote }} ] ||
+    { bao write auth/approle/role/{{ OPENBAO_DNS_BROKER_APPROLE }}/role-id role_id={{ OPENBAO_DNS_BROKER_ROLE_ID | quote }} >/dev/null && echo OPENBAO_CHANGED; }'
+  register: openbao_dns_broker_role_id
+  changed_when: "'OPENBAO_CHANGED' in openbao_dns_broker_role_id.stdout"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 Register the DNS broker SecretID while the role holds none"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'held=$(bao list -format=json auth/approle/role/{{ OPENBAO_DNS_BROKER_APPROLE }}/secret-id 2>&1) && exit 0;
+    case "$held" in *"No value found"*) ;; *) echo "$held" >&2; exit 1 ;; esac;
+    bao write auth/approle/role/{{ OPENBAO_DNS_BROKER_APPROLE }}/custom-secret-id secret_id=- >/dev/null && echo OPENBAO_CHANGED'
+  args:
+    stdin: "{{ OPENBAO_DNS_BROKER_SECRET_ID }}"
+    stdin_add_newline: false
+  register: openbao_dns_broker_secret_id
+  changed_when: "'OPENBAO_CHANGED' in openbao_dns_broker_secret_id.stdout"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

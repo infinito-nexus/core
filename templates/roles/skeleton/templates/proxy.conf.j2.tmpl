@@ -1,0 +1,31 @@
+[% if kind == "static" %]
+{% set application_id = front_proxy_application_id | default(application_id) %}
+{% set domain = front_proxy_domain | default(domain) %}
+server
+{
+  server_name {{ domain }};
+  {% include 'roles/sys-svc-proxy/templates/cdn.conf.j2' %}
+
+  {% include 'roles/sys-front-tls/templates/nginx_ssl_header.j2' %}
+
+  {% include 'roles/sys-front-inj-all/templates/server.conf.j2' %}
+
+  {% include 'roles/sys-svc-proxy/templates/headers/content_security_policy.conf.j2' %}
+
+  charset utf-8;
+
+  location ~ "^/(?<[[ lower_prefix ]]_lang>[a-z]{2})/$"
+  {
+    root {{ [[ prefix ]]_ROOT }};
+    try_files /index.$[[ lower_prefix ]]_lang.html =404;
+    {% include 'roles/sys-front-inj-all/templates/location.lua.j2' %}
+  }
+
+  location /
+  {
+    root {{ [[ prefix ]]_ROOT }};
+    index index.[[ source_language ]].html;
+    {% include 'roles/sys-front-inj-all/templates/location.lua.j2' %}
+  }
+}
+[% endif %]

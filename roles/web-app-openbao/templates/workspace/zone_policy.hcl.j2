@@ -1,0 +1,16 @@
+{% set openbao_provision = 'ws-' ~ WORKSPACE ~ '-provision' %}
+path "{{ OPENBAO_TENANT_MOUNT }}/data/{{ openbao_provision }}/s3" {
+  capabilities = ["read"]
+}
+
+path "auth/token/create/ws-{{ WORKSPACE }}-transit-child" {
+  capabilities = ["update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/{{ OPENBAO_TRANSIT_RECORD_PREFIX }}/ws-{{ WORKSPACE }}" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/{{ OPENBAO_ZONE_TOKEN_PATH }}" {
+  capabilities = ["read"]
+}

@@ -26,6 +26,7 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.cache.base import _render_with_templar
 from utils.roles.applications.config import get
 from utils.roles.applications.services.sso import (
     get_sso_config,
@@ -35,6 +36,35 @@ from utils.roles.applications.services.sso import (
 
 
 class LookupModule(LookupBase):
+    def _rendered_sso(
+        self, applications: dict[str, Any], application_id: str, variables: dict
+    ) -> dict[str, Any]:
+        """Render the ``services.sso`` the resolver reads.
+
+        Args:
+            applications: the merged applications, unrendered while the
+                applications payload itself renders.
+            application_id: the consumer application.
+            variables: the templating context of the lookup.
+
+        Returns:
+            ``{application_id: {"services": {"sso": <rendered services.sso>}}}``.
+        """
+        sso = _render_with_templar(
+            get(
+                applications=applications,
+                application_id=application_id,
+                config_path="services.sso",
+                strict=False,
+                default={},
+                skip_missing_app=True,
+            ),
+            templar=getattr(self, "_templar", None),
+            variables=variables,
+            raw_applications=applications,
+        )
+        return {application_id: {"services": {"sso": sso}}}
+
     def run(
         self,
         terms: list[Any],
@@ -58,7 +88,9 @@ class LookupModule(LookupBase):
             "applications", loader=self._loader, templar=getattr(self, "_templar", None)
         ).run([], variables=vars_)[0]
 
-        resolved = get_sso_config(applications, application_id)
+        resolved = get_sso_config(
+            self._rendered_sso(applications, application_id, vars_), application_id
+        )
 
         if want == "logout_url":
             if "OIDC" not in vars_:
@@ -83,7 +115,19 @@ class LookupModule(LookupBase):
                 config_path="services.sso_proxy.configuration_file",
                 strict=True,
             )
-            return [proxy_instances(domains.get(application_id), str(config_file))]
+            alpha_config_file = get(
+                applications=applications,
+                application_id="web-app-keycloak",
+                config_path="services.sso_proxy.alpha_configuration_file",
+                strict=True,
+            )
+            return [
+                proxy_instances(
+                    domains.get(application_id),
+                    str(config_file),
+                    str(alpha_config_file),
+                )
+            ]
         if want == "all":
             return [resolved]
         if want not in resolved:

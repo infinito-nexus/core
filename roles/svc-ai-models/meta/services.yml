@@ -1,0 +1,27 @@
+---
+# nocheck: garbage-collector-required  the store evicts through make cache-evict and keeps every artefact a deployed role declares
+models:
+  modes:
+    host:
+      enabled: true
+  min_storage: 7023309299
+  cpus: "0.5"
+  mem_reservation: "64m"
+  mem_limit: "256m"
+  pids_limit: 256
+  artefact_base: ""
+  timeout: 600
+  lifecycle: pre-alpha
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  the role runs no container, so Semaphore has nothing to pause
+  status: started

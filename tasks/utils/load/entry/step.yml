@@ -1,0 +1,31 @@
+---
+# Param: entry_role - the role the caller enters right after the entry.
+# Param: entry_application_id - the application_id the caller binds for that role.
+# Param: entry_domain - true when the caller also binds domain for that role.
+# Param: entry_tasks_from - the task file of entry_role to run, relative to its tasks directory.
+- name: "🧩 Run {{ entry_tasks_from }} of '{{ entry_application_id }}' with its domain"
+  ansible.builtin.include_role:
+    name: "{{ entry_role }}"
+    tasks_from: "{{ entry_tasks_from }}"
+    public: false
+  loop: "{{ [entry_application_id] }}"
+  loop_control:
+    loop_var: stack_batch_consumer
+  vars:
+    application_id: "{{ stack_batch_consumer }}"
+    domain: "{{ lookup('domain', stack_batch_consumer) }}"
+    stack_batch_stage: back
+  when: entry_domain | bool
+
+- name: "🧩 Run {{ entry_tasks_from }} of '{{ entry_application_id }}' without a domain"
+  ansible.builtin.include_role:
+    name: "{{ entry_role }}"
+    tasks_from: "{{ entry_tasks_from }}"
+    public: false
+  loop: "{{ [entry_application_id] }}"
+  loop_control:
+    loop_var: stack_batch_consumer
+  vars:
+    application_id: "{{ stack_batch_consumer }}"
+    stack_batch_stage: back
+  when: not (entry_domain | bool)

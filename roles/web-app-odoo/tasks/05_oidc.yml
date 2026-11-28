@@ -3,7 +3,7 @@
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/select/keycloak/provider-id.sql"
+    query_file: "{{ role_path }}/files/sql/oidc/select/keycloak/provider/id.sql"
     expect_rows: true
   register: oauth_check
 
@@ -12,10 +12,7 @@
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/oidc/update/keycloak-provider.sql"
-    named_args:
-      auth_endpoint: "{{ ODOO_OIDC_AUTHORIZE_URL }}"
-      userinfo_endpoint: "{{ ODOO_OIDC_USERINFO_URL }}"
-      client_id: "{{ ODOO_OIDC_CLIENT_ID }}"
+    named_args: "{{ ODOO_OAUTH_PROVIDER }}"
   when: oauth_check.rows | length > 0
 
 - name: "📁 Create new Keycloak OAuth provider"
@@ -23,10 +20,7 @@
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/oidc/insert/keycloak-provider.sql"
-    named_args:
-      auth_endpoint: "{{ ODOO_OIDC_AUTHORIZE_URL }}"
-      userinfo_endpoint: "{{ ODOO_OIDC_USERINFO_URL }}"
-      client_id: "{{ ODOO_OIDC_CLIENT_ID }}"
+    named_args: "{{ ODOO_OAUTH_PROVIDER }}"
   when: oauth_check.rows | length == 0
 
 - name: "🟢 Enable OAuth authentication in system parameters"
@@ -38,20 +32,13 @@
       key: "auth_oauth.oauth_providers"
       value: "True"
 
-- name: "🟢 Enable OAuth signup (allow user creation on first OAuth login)"
+- name: "🚫 Switch the shipped Odoo.com provider to the odoo_com login method"
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/upsert-ir-config-parameter.sql"
+    query_file: "{{ role_path }}/files/sql/oidc/update/odoo-com-provider.sql"
     named_args:
-      key: "auth_signup.invitation_scope"
-      value: "b2c"
-
-- name: "🔑 Allow uninvited OAuth signup on website"
-  database_query:
-    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-    config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/update/website-uninvited-b2c.sql"
+      enabled: "{{ ODOO_LOGIN_ODOO_COM | bool }}"
 
 - name: "🔎 Check if OAuth template user exists"
   database_query:
@@ -90,11 +77,11 @@
     config: "{{ lookup('database', application_id) }}"
     query_file: "{{ role_path }}/files/sql/oidc/update/activate-oauth-template.sql"
 
-- name: "🔐 Grant Internal User group to OAuth template"
+- name: "🔐 Make the OAuth template a portal user so self-signups never turn internal"
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/grant/internal-user-to-oauth/template.sql"
+    query_file: "{{ role_path }}/files/sql/oidc/grant/portal-to-oauth/template.sql"
 
 - name: "🔐 Grant company access to OAuth template"
   database_query:
@@ -118,6 +105,20 @@
     named_args:
       key: "auth_signup.template_user_id"
 
+- name: "🔐 Move earlier website self-signups that copied Internal User to the portal"
+  ansible.builtin.shell:
+    cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i {{ ODOO_LOCAL_CID | quote }}
+      odoo shell --no-http -d {{ ODOO_DB_NAME | quote }}
+    stdin: "{{ lookup('ansible.builtin.file', ODOO_SIGNUP_PORTAL_SCRIPT) }}"
+  delegate_to: "{{ ODOO_HOST_NODE }}"
+  register: odoo_signup_portal
+  changed_when: "'SIGNUP_PORTAL_CHANGED' in odoo_signup_portal.stdout"
+  failed_when: >-
+    odoo_signup_portal.rc != 0
+    or ('SIGNUP_PORTAL_CHANGED' not in odoo_signup_portal.stdout and 'SIGNUP_PORTAL_UNCHANGED' not in odoo_signup_portal.stdout)
+  timeout: "{{ lookup('timeout', 300) | int }}"
+
 - name: "🔑 Use Authorization header for OAuth token validation"
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -134,7 +135,7 @@
     query_file: "{{ role_path }}/files/sql/oidc/upsert-ir-config-parameter.sql"
     named_args:
       key: "web.base.url"
-      value: "{{ ODOO_URL }}"
+      value: "{{ ODOO_BASE_URL.web_base_url }}"
 
 - name: "🧊 Freeze web.base.url to prevent automatic detection"
   database_query:
@@ -143,19 +144,13 @@
     query_file: "{{ role_path }}/files/sql/oidc/upsert-ir-config-parameter.sql"
     named_args:
       key: "web.base.url.freeze"
-      value: "True"
-
-- name: "🔐 Grant Internal User group to OAuth-created users"
-  database_query:
-    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-    config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/grant/internal-user-to-oauth/users-repair.sql"
+      value: "{{ ODOO_BASE_URL.web_base_url_freeze }}"
 
 - name: "⬇️ Get Keycloak OAuth provider id in Odoo"
   database_query:
     mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
     config: "{{ lookup('database', application_id) }}"
-    query_file: "{{ role_path }}/files/sql/oidc/select/keycloak/provider-id.sql"
+    query_file: "{{ role_path }}/files/sql/oidc/select/keycloak/provider/id.sql"
     expect_rows: true
   register: keycloak_provider
 

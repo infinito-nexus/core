@@ -1,26 +1,3 @@
-"""Lint guard for the per-role unified SSO service-block contract.
-
-When a role's ``meta/services.yml`` declares an ``sso:`` block whose
-``flavor`` is ``oauth2`` AND ``enabled`` is anything other than literal
-``false`` (i.e. it MAY resolve truthy at runtime, including the common
-``"{{ 'web-app-keycloak' in group_names }}"`` form), the role MUST also
-carry every key that the SSO-proxy template chain reads back. Missing
-fields surface only at deploy time as opaque
-``lookup('config', application_id, '...') failed`` errors — exactly the
-trap that hit ``web-app-shopware`` on the Bundle 2 V0 deploy.
-
-Required for a role with ``services.sso.flavor: oauth2`` potentially
-enabled:
-  * ``sso.oauth2.origin.host`` — non-empty string, names the upstream
-    service the SSO-proxy forwards authenticated traffic to.
-  * ``sso.oauth2.origin.port`` — non-empty value (string or int), the
-    upstream service port.
-  * ``<entity>.ports.local.sso`` — non-empty int, the local port the
-    role's own SSO-proxy listens on (consumed by
-    ``sys-stk-front-proxy/templates/vhost/basic.conf.j2`` via
-    ``lookup('config', application_id, 'services.<entity>.ports.local.sso')``).
-"""
-
 from __future__ import annotations
 
 import unittest
@@ -161,7 +138,7 @@ class TestSsoRoleContract(unittest.TestCase):
                 "service-block fields:\n"
                 + "\n".join(f"  - {v}" for v in violations)
                 + "\n\nThese fields are consumed at deploy time by:\n"
-                + "  - roles/sys-stk-front-proxy/tasks/main.yml "
+                + "  - roles/web-app-keycloak/templates/sso_proxy/endpoint.conf.j2 "
                 + "(lookup('config', application_id, 'services.<entity>.ports.local.sso'))\n"
                 + "  - roles/web-app-keycloak/templates/sso_proxy/"
                 + "oauth2-proxy-keycloak.cfg.j2 "

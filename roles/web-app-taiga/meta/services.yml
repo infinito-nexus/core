@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: dockerfile-custom
 sso:
   bond: 1
@@ -8,6 +9,7 @@ sso:
   oidc:
     repository: https://github.com/infinito-nexus/taiga-oidc.git
     ref: c623b753047ce9923f3e38614d86e81fc5eb2bb1
+    rbac: false
 ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"
@@ -27,8 +29,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
   bond: 1
@@ -50,6 +52,7 @@ taiga:
   placement: manager
   repository: https://github.com/taigaio/taiga-docker
   ref: main
+  ref_kind: branch
   version: latest
   min_storage: 10GB
   cpus: "1.0"
@@ -69,6 +72,16 @@ taiga:
     - web-app-matomo
     - web-app-keycloak
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-taiga', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-taiga', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-taiga', 'native') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-taiga', 'registration') }}"
 async:
   healthcheck:
     test: ["CMD-SHELL", "tr '\\0' ' ' </proc/1/cmdline | grep -qi celery"]
@@ -208,3 +221,26 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  checkout:
+    ref: "{{ lookup('config', 'web-app-taiga', 'services.taiga.ref') }}"
+    url: "{{ lookup('config', 'web-app-taiga', 'services.taiga.repository') }}"
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

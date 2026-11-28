@@ -17,20 +17,20 @@
     { "name": "organization",             "value": "{{ ORGANIZATION }}" },
     { "name": "product_name",             "value": "{{ ZAMMAD_PRODUCT_NAME }}" },
     { "name": "developer_mode",           "value": false },
-    { "name": "user_create_account",      "value": false },
+    { "name": "user_create_account",      "value": {{ ZAMMAD_LOGIN_REGISTRATION | bool | to_json }} },
     { "name": "user_lost_password",       "value": true }
 {% if ZAMMAD_OIDC_ENABLED %}
     ,
-    { "name": "auth_openid_connect",      "value": true },
+    { "name": "auth_openid_connect",      "value": {{ ZAMMAD_LOGIN_SSO | bool | to_json }} },
     {
       "name":  "auth_openid_connect_credentials",
       "value": {
         "display_name":               "{{ OIDC.BUTTON_TEXT }}",
-        "identifier":                 "{{ OIDC.CLIENT.ID }}",
-        "secret":                     "{{ OIDC.CLIENT.SECRET }}",
+        "identifier":                 "{{ ZAMMAD_OIDC_CLIENT_ID }}",
         "issuer":                     "{{ OIDC.CLIENT.ISSUER_URL }}",
         "scope":                      "openid email profile",
         "uid_field":                  "sub",
+        "pkce":                       true,
         "send_scope_to_token_endpoint":  true
       }
     }

@@ -1,0 +1,4 @@
+---
+roles:
+  user:
+    description: SuiteCRM user (signs in through the directory as a regular, non-administrator user)

@@ -1,4 +1,6 @@
 ---
 roles:
+  collaborator:
+    description: Fider collaborator (moderates posts and comments, changes post status and manages tags)
   mcp:
     description: Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own

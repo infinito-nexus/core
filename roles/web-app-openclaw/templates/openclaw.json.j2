@@ -1,14 +1,24 @@
 {
   "gateway": {
     "mode": "local",
-    "trustedProxies": {{ NETWORK_TRUSTED_PROXY_CIDRS | to_json }},
+    "trustedProxies": {{ OPENCLAW_TRUSTED_PROXY_SOURCES | to_json }},
+{% if OPENCLAW_TRUSTED_PROXY_ENABLED | bool %}
+    "auth": {
+      "mode": {{ OPENCLAW_TRUSTED_PROXY_MODE | to_json }},
+      "trustedProxy": {
+        "userHeader": {{ OPENCLAW_TRUSTED_PROXY_USER_HEADER | to_json }},
+        "requiredHeaders": {{ OPENCLAW_TRUSTED_PROXY_REQUIRED_HEADERS | to_json }},
+        "allowUsers": []
+      }
+    },
+{% endif %}
     "controlUi": {
       "allowedOrigins": {{ OPENCLAW_CONTROL_UI_ORIGINS | to_json }}
     }
   }{% if OPENCLAW_LITELLM_ENABLED | bool %},
   "agents": {
     "defaults": {
-      "model": {"primary": {{ (OPENCLAW_LITELLM_PROVIDER ~ '/' ~ OPENCLAW_LITELLM_MODEL) | to_json }}}
+      "model": {"primary": {{ OPENCLAW_LITELLM_PRIMARY | to_json }}}
     }
   },
   "models": {

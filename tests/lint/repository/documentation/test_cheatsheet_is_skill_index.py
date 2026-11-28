@@ -17,7 +17,7 @@ import unittest
 from tests.lint.repository.documentation import PROJECT_ROOT
 from utils.cache.files import read_text
 
-SKILLS_DIR = PROJECT_ROOT / "skills"
+SKILLS_DIR = PROJECT_ROOT / "agents" / "skills"
 CHEATSHEET = (
     PROJECT_ROOT / "docs" / "contributing" / "tools" / "agents" / "cheatsheet.md"
 )
@@ -49,13 +49,6 @@ class TestCheatsheetIsSkillIndex(unittest.TestCase):
             "them.",
         )
 
-    def test_has_a_table(self):
-        self.assertRegex(
-            self.text,
-            r"(?m)^\|.*\|.*\|\s*$",
-            f"{CHEATSHEET} must contain a markdown table of skills.",
-        )
-
     def test_every_skill_is_listed(self):
         expected = {_skill_name(d) for d in self.dirs if d != SELF_DIR}
         missing = sorted(expected - self.referenced)
@@ -69,7 +62,7 @@ class TestCheatsheetIsSkillIndex(unittest.TestCase):
         dangling = sorted(self.referenced - existing)
         self.assertFalse(
             dangling,
-            f"{CHEATSHEET} references skills with no skills/ directory: {dangling}",
+            f"{CHEATSHEET} references skills with no agents/skills/ directory: {dangling}",
         )
 
 

@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 
 const { gotoOnion, normalizeBaseUrl, requireDotenvValue } = require("./personas");
+const { skipUnlessServiceDisabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 test.use({ ignoreHTTPSErrors: true });
@@ -12,13 +13,12 @@ const base = normalizeBaseUrl(
   )
 ).replace(/\/$/, "");
 const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
-const ssoEnabled = (process.env.SSO_SERVICE_ENABLED || "").toLowerCase() === "true";
 
 const SEEDED_LOGIN = "admin";
 const SEEDED_PUBLISHED_PASSWORD = "admin";
 
 test("seeded admin: the upstream account with the published password cannot sign in", async ({ page }) => {
-  test.skip(ssoEnabled, "with sso oauth2-proxy sends every request to the identity provider");
+  skipUnlessServiceDisabled("sso");
   test.skip(adminUsername.toLowerCase() === SEEDED_LOGIN, "the platform administrator owns the seeded login and its password is converged");
   await page.context().clearCookies();
   await gotoOnion(page, `${base}/login`);

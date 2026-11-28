@@ -1,11 +1,4 @@
 ---
-- name: "🔍 Resolve the node that holds the Penpot backend and its local id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
-  vars:
-    resolve_service_key: "{{ PENPOT_BACKEND_SERVICE }}"
-    resolve_output_prefix: PENPOT_BACKEND
-    resolve_compose_cid: "{{ PENPOT_BACKEND_CONTAINER_ADDRESS }}"
-
 - name: "🥾 Bootstrap the Penpot administrator's local account (idempotent)"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
@@ -13,7 +6,11 @@
       python3 manage.py create-profile
       -n {{ PENPOT_ADMIN_FULLNAME | quote }}
       -e {{ PENPOT_ADMIN_EMAIL | quote }}
-    stdin: "{{ PENPOT_ADMIN_PASSWORD }}"
+    stdin: >-
+      {{
+        PENPOT_ADMIN_PASSWORD if PENPOT_LOGIN_NATIVE | bool
+        else lookup('ansible.builtin.password', '/dev/null', length=48, chars=['ascii_letters', 'digits'])
+      }}
   register: penpot_admin_create
   retries: 30
   delay: 5
@@ -24,8 +21,6 @@
   failed_when:
     - penpot_admin_create.rc != 0
     - "'already exists' not in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default(''))"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  delegate_to: "{{ PENPOT_BACKEND_HOST_NODE }}"
 
 - name: "🔧 Set the Penpot administrator's local password when the profile already exists"
   ansible.builtin.shell:
@@ -34,8 +29,8 @@
       python3 manage.py update-profile
       -e {{ PENPOT_ADMIN_EMAIL | quote }}
     stdin: "{{ PENPOT_ADMIN_PASSWORD }}"
-  when: "'already exists' in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default(''))"
+  when:
+    - PENPOT_LOGIN_NATIVE | bool
+    - "'already exists' in (penpot_admin_create.stdout | default('') ~ penpot_admin_create.stderr | default(''))"
   register: penpot_admin_update
   changed_when: "'Updated' in penpot_admin_update.stdout"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
-  delegate_to: "{{ PENPOT_BACKEND_HOST_NODE }}"

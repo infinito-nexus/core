@@ -1,0 +1,7 @@
+{% include 'roles/sys-svc-container/templates/env.j2' %}
+
+ATMO_CRON_URL={{ ATMO_CRON_URL | dotenv_quote }}
+ATMO_CRON_SECRET={{ ATMO_CRON_SECRET | dotenv_quote }}
+ATMO_CRON_INTERVAL_SECONDS={{ ATMO_CRON_INTERVAL_SECONDS }}
+ATMO_CRON_TIMEOUT_SECONDS={{ ATMO_CRON_TIMEOUT_SECONDS }}
+ATMO_CRON_BEAT_PATH={{ ATMO_CRON_BEAT_PATH | dotenv_quote }}

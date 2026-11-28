@@ -43,12 +43,12 @@ class TestTriggerUnitsContract(unittest.TestCase):
         self.trigger = read_text(str(TRIGGER))
         self.drill = read_text(str(DRILL))
 
-    def test_every_call_site_supplies_both(self) -> None:
+    def test_every_call_site_supplies_both(self) -> None:  # nocheck: test.text-presence -- call-site lint: every TRIGGER_UNITS call of the drill passes the dumps directory  # fmt: skip
         self.assertEqual(
             len(CALL.findall(self.drill)), len(FULL_CALL.findall(self.drill))
         )
 
-    def test_the_drill_has_at_least_one_call_site(self) -> None:
+    def test_the_drill_has_at_least_one_call_site(self) -> None:  # nocheck: test.text-presence -- non-vacuity guard of the call-site lint above  # fmt: skip
         self.assertGreater(len(CALL.findall(self.drill)), 0)
 
     def test_the_rescue_path_is_not_copied_into_the_script(self) -> None:

@@ -63,6 +63,11 @@ The security-check and deny-list overrides are then not rendered.
 
 ## Persona contract opt-outs
 
-The shared `biber` and `administrator` persona journeys are opted out via `PERSONA_BIBER_BLOCKED` / `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`.
-Flowise has no in-app OIDC adapter: SSO is an oauth2-proxy sidecar (`services.sso.flavor: oauth2`), and behind that gate Flowise still presents its own sign-in form for the single instance account seeded from `FLOWISE_USERNAME` / `FLOWISE_PASSWORD` in `templates/env.j2`.
-`biber` has no Flowise identity at all, and the shared helpers only drive Keycloak forms while `services.sso` is enabled, so neither persona can reach an authenticated Flowise surface; the OIDC gate itself is covered by `files/playwright/test-oidc-login.js`.
+The shared `administrator` persona journey is opted out via `PERSONA_ADMINISTRATOR_BLOCKED` in `templates/playwright.env.j2`.
+Flowise has no in-app OIDC adapter: SSO is an oauth2-proxy sidecar (`services.sso.flavor: oauth2`), and behind that gate Flowise still presents its own sign-in form for its single instance account `flowise-api-bot`, which `tasks/utils/owner.yml` registers.
+The Keycloak administrator credential the persona types is not that account's, so the journey cannot reach an authenticated Flowise surface; the OIDC gate itself is covered by `files/playwright/test-oidc-login.js`.
+
+`biber` runs in `files/playwright/test-biber-persona.js` while `sso` is enabled and is skipped with `SSO_SERVICE_ENABLED=false`.
+Without a Flowise role group, the oauth2-proxy refuses `biber` with a 403 at `/oauth2/callback`, because `sso.oauth2.allowed_groups` in `meta/services.yml` admits only the `administrator` and `mcp` role groups.
+In the `mcp` role group, `biber` passes the gate and lands on Flowise's own sign-in form: the role grants no Flowise account, so the app shell stays absent and `/api/v1/chatflows` answers 401.
+The scenario joins `biber` to the group through the Keycloak Admin REST API and removes the membership afterwards.

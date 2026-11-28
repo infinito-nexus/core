@@ -1,0 +1,24 @@
+---
+- name: "🪙 Matomo | Mint the API token of {{ MATOMO_ADMIN_USER_NAME }} in the container"
+  ansible.builtin.shell: # nocheck: container-exec-resolver  MATOMO_LOCAL_CID resolved at delegate_to runtime; container_address would return a manager-only subshell
+    cmd: >
+      container exec -i --user root
+      -e MATOMO_CONFIG -e MATOMO_TOKEN_LOGIN -e MATOMO_TOKEN_DESCRIPTION
+      {{ MATOMO_LOCAL_CID | quote }} php
+    stdin: "{{ lookup('file', 'php/mint_token_auth.php') }}"
+  environment:
+    MATOMO_CONFIG: "{{ MATOMO_CONFIG }}"
+    MATOMO_TOKEN_LOGIN: "{{ MATOMO_ADMIN_USER_NAME }}"
+    MATOMO_TOKEN_DESCRIPTION: "{{ MATOMO_TOKEN_DESCRIPTION }}"
+  register: matomo_token_mint
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ MATOMO_HOST_NODE }}"
+
+- name: "🔧 Matomo | Take the minted token"
+  ansible.builtin.set_fact:
+    matomo_token_value: "{{ matomo_token_mint.stdout | trim }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "💾 Matomo | Persist the minted token"
+  ansible.builtin.include_tasks: store_token.yml

@@ -686,37 +686,84 @@ class TestWebHealthExpectationsFilter(unittest.TestCase):
         self.assertIn(f"www.a.{DOMAIN}", out)
         self.assertNotIn(f"www.a.{self.ONION}", out)
 
+    COMPOSITIONS = "/opt/compose/"
+    STATE_FILE = ".app-control-state"
+
+    def _targets(self, expectations, applications, served):
+        return self.mod.web_health_targets(
+            expectations,
+            applications,
+            served,
+            True,
+            self.COMPOSITIONS,
+            self.STATE_FILE,
+        )
+
     def test_targets_use_the_per_domain_scheme_and_network_timeout(self):
         served = {"app-a": [f"a.{DOMAIN}", f"a.{self.ONION}"]}
-        targets = self.mod.web_health_targets(
+        targets = self._targets(
             {f"a.{DOMAIN}": [200], f"a.{self.ONION}": [200]},
             {"app-a": {}},
             served,
-            True,
         )
         self.assertEqual(
             targets[f"a.{DOMAIN}"],
-            {"codes": [200], "scheme": "https", "timeout": 10},
+            {
+                "codes": [200],
+                "scheme": "https",
+                "timeout": 10,
+                "paused_marker": "",
+                "application_id": "app-a",
+            },
         )
         self.assertEqual(
             targets[f"a.{self.ONION}"],
-            {"codes": [200], "scheme": "http", "timeout": 30},
+            {
+                "codes": [200],
+                "scheme": "http",
+                "timeout": 30,
+                "paused_marker": "",
+                "application_id": "app-a",
+            },
         )
 
     def test_targets_follow_an_app_tls_override(self):
-        targets = self.mod.web_health_targets(
+        targets = self._targets(
             {f"a.{DOMAIN}": [200]},
-            {"app-a": {"server": {"tls": {"enabled": False}}}},
+            {
+                "app-a": {
+                    "server": {"tls": {"enabled": False}},
+                    "services": {"semaphore": {"control": False}},
+                }
+            },
             {"app-a": [f"a.{DOMAIN}"]},
-            True,
         )
         self.assertEqual(targets[f"a.{DOMAIN}"]["scheme"], "http")
 
     def test_targets_of_an_unknown_domain_use_the_global_default(self):
-        targets = self.mod.web_health_targets(
-            {"elsewhere.example": [301]}, {}, {}, True
-        )
+        targets = self._targets({"elsewhere.example": [301]}, {}, {})
         self.assertEqual(targets["elsewhere.example"]["scheme"], "https")
+        self.assertEqual(targets["elsewhere.example"]["paused_marker"], "")
+        self.assertEqual(targets["elsewhere.example"]["application_id"], "")
+
+    def test_a_controlled_app_points_its_targets_at_its_state_marker(self):
+        targets = self._targets(
+            {f"a.{DOMAIN}": [200]},
+            {"web-app-wiki": {"services": {"semaphore": {"control": True}}}},
+            {"web-app-wiki": [f"a.{DOMAIN}"]},
+        )
+        self.assertEqual(
+            targets[f"a.{DOMAIN}"]["paused_marker"],
+            "/opt/compose/wiki/.app-control-state",
+        )
+
+    def test_an_app_outside_app_control_has_no_state_marker(self):
+        targets = self._targets(
+            {f"a.{DOMAIN}": [200]},
+            {"web-app-wiki": {"services": {"semaphore": {"control": False}}}},
+            {"web-app-wiki": [f"a.{DOMAIN}"]},
+        )
+        self.assertEqual(targets[f"a.{DOMAIN}"]["paused_marker"], "")
 
     # --------- Reverse-proxy bare apex gating ---------
 

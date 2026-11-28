@@ -16,5 +16,7 @@ test("addon sso-authentication: biber signs in via the SSO/OIDC plugin and lands
 
   await shared.signInViaOidc(page, shared.env.biberUsername, shared.env.biberPassword, "biber-oidc");
   await expect(page.locator("body")).toContainText(/home|library|media|jellyfin/i, { timeout: resolveTimeout(60_000) });
+  const user = await shared.sessionUser(page, "biber-oidc");
+  expect(user.Name, "the Jellyfin account the SSO plugin signs biber into must carry the username claim").toBe(shared.env.biberUsername);
   await shared.logout(page, "biber-oidc");
 });

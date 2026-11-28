@@ -71,7 +71,7 @@ class TestApp(unittest.TestCase):
             sys.argv = old_argv
 
     def test_parse_flags_tree_unbounded(self):
-        argv = ["infinito", "--tree", "meta"]
+        argv = ["infinito", "meta", "--tree"]
         flags = parse_flags(argv)
         self.assertTrue(flags.tree)
         self.assertIsNone(flags.tree_depth)

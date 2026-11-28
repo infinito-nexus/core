@@ -10,10 +10,82 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from utils.networks import STREAM_RELAY
+from utils.networks.proxy import REVERSE_PROXY_APPLICATION_ID
 from utils.roles.entity.name import entity_name
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+UNPROVEN_STREAM_RELAY_MODES = frozenset({"swarm"})
+
+
+def stream_relay_active(
+    entry: dict[str, Any],
+    deployment_mode: str,
+    lookup_config: Callable[[str, str, Any], Any],
+) -> bool:
+    """Whether the reverse proxy relays the provider's streams in this mode.
+
+    Args:
+        entry: the provider's service_registry entry.
+        deployment_mode: compose or swarm, after any per-role override.
+        lookup_config: config value accessor.
+
+    Returns:
+        True when the provider's overlay declares ``stream_relay``, the
+        reverse proxy's own overlay applies in ``deployment_mode`` (it runs on
+        the host network everywhere else), and the provider's
+        ``stream_relay.switch`` config path is true.
+
+    Raises:
+        ValueError: the provider declares ``stream_relay`` without a switch,
+            or switches it on in one of ``UNPROVEN_STREAM_RELAY_MODES``. Every
+            network lookup of the provider and the reverse proxy reaches this
+            refusal, so no role of a deploy can render the relay before its
+            live proof.
+    """
+    relay = (entry.get("overlay") or {}).get(STREAM_RELAY)
+    if not relay:
+        return False
+    proxy_modes = lookup_config(
+        REVERSE_PROXY_APPLICATION_ID, "networks.overlay.modes", []
+    )
+    if deployment_mode not in (proxy_modes or []):
+        return False
+    role = entry.get("role") or ""
+    switch = str(relay.get("switch") or "").strip()
+    if not switch:
+        raise ValueError(f"{role}: overlay.{STREAM_RELAY} needs a switch")
+    active = _coerce_bool(lookup_config(role, switch, False))
+    if active and deployment_mode in UNPROVEN_STREAM_RELAY_MODES:
+        raise ValueError(
+            f"{role}: {switch} is true on a {deployment_mode} deploy, and the "
+            "stream relay through the reverse proxy is not proven there: see "
+            "the requirement 'OpenLDAP LDAPS through openresty in swarm' under "
+            f"docs/requirements/. Set {switch} to false for this deploy."
+        )
+    return active
+
+
+def _stream_relay_attachment(
+    entry: dict[str, Any],
+    application_id: str,
+    deployment_mode: str,
+    lookup_config: Callable[[str, str, Any], Any],
+) -> dict[str, Any] | None:
+    is_provider = application_id == entry.get("role")
+    if not is_provider and application_id != REVERSE_PROXY_APPLICATION_ID:
+        return None
+    if not stream_relay_active(entry, deployment_mode, lookup_config):
+        return None
+    return {
+        "role": entry["role"],
+        "network": f"{entry['entity_name']}-relay",
+        "topology": STREAM_RELAY,
+        "aliases": [entry["entity_name"]] if is_provider else [],
+        "is_provider": is_provider,
+    }
 
 
 def _is_consumer(
@@ -77,19 +149,6 @@ def _matches_kind(
             entry.get("role") or "", f"services.{consumer_key}.mcp_consumer", True
         )
         return refusal is not False
-    if kind == "onion_sso":
-        provider = consumer.get("provider")
-        if not provider:
-            return False
-        key = consumer.get("key") or "sso"
-        if not _coerce_bool(
-            lookup_config(application_id, f"services.{key}.enabled", False)
-        ):
-            return False
-        provider_key = consumer.get("provider_key") or "tor"
-        return _coerce_bool(
-            lookup_config(provider, f"services.{provider_key}.enabled", False)
-        )
     if kind == "web_facing":
         return application_id.startswith(("web-app-", "web-svc-"))
     return False
@@ -111,6 +170,7 @@ def _compute_attachments(
     lookup_database: Callable[[str, str], Any],
 ) -> tuple[list[dict[str, Any]], list[str]]:
     attachments: list[dict[str, Any]] = []
+    relays: list[dict[str, Any]] = []
     default_aliases: list[str] = []
 
     for entry in registry.values():
@@ -119,6 +179,11 @@ def _compute_attachments(
         overlay = entry.get("overlay")
         if not overlay:
             continue
+        relay = _stream_relay_attachment(
+            entry, application_id, deployment_mode, lookup_config
+        )
+        if relay:
+            relays.append(relay)
         if deployment_mode not in overlay.get("modes", []):
             continue
 
@@ -190,7 +255,7 @@ def _compute_attachments(
                 }
             )
 
-    return attachments, default_aliases
+    return attachments + relays, default_aliases
 
 
 def _suppress_default(

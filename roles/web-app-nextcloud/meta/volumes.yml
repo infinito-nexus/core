@@ -12,6 +12,9 @@ data:
     - service: proxy
       target: *var_www_html_target
       read_only: true
+    - service: notify_push
+      target: *var_www_html_target
+      read_only: true
 
 whiteboard_tmp:
   name: nextcloud_whiteboard_tmp
@@ -93,6 +96,15 @@ talk_recording_conf:
     - service: talk_recording
       target: /conf/recording.conf
       when: "{{ lookup('config', 'web-app-nextcloud', 'services.talk.enabled') | bool }}"
+
+notify_push_launcher:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-nextcloud', 'directories.volumes'), 'notify-push.sh' ] | path_join }}"
+  mode: "0555"
+  mounts:
+    - service: notify_push
+      target: /usr/local/bin/notify-push.sh
+      when: "{{ lookup('config', 'web-app-nextcloud', 'services.notify_push.enabled') | bool }}"
 
 php_hardening:
   type: config

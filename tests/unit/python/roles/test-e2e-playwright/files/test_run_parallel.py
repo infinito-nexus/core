@@ -28,6 +28,8 @@ def _load_module():
 
 rp = _load_module()
 
+ANNOUNCE_TIMEOUT = 20
+
 ROW = [
     ("web-app-keycloak", 118),
     ("web-app-hermes", 50),
@@ -648,8 +650,6 @@ class TestRunSignals(unittest.TestCase):
 
 
 class TestTorRecreateWaitsForOnionRuns(unittest.TestCase):
-    """The probe script recreates Tor only once no onion run holds the lock."""
-
     SCRIPT = (
         PROJECT_ROOT
         / "roles"
@@ -665,121 +665,137 @@ class TestTorRecreateWaitsForOnionRuns(unittest.TestCase):
         self.bin = self.root / "bin"
         self.bin.mkdir()
         self.marker = self.root / "recreated"
-        self.answers = self.root / "onion-answers"
         self.lock = self.root / "tor.lock"
         self.pending = self.root / "tor.lock.recreate-pending"
-        (self.bin / "curl").write_text(
-            f"#!/bin/sh\nif [ -e {self.answers} ]; then printf 200; exit 0; fi\nexit 7\n"
+        self.stub(
+            "#!/usr/bin/env python3\n"
+            "import fcntl, json, os, sys, time\n"
+            "if sys.argv[2:3] == ['update']:\n"
+            "    held = None\n"
+            f"    if os.path.exists({str(self.lock)!r}):\n"
+            f"        fd = os.open({str(self.lock)!r}, os.O_RDONLY)\n"
+            "        try:\n"
+            "            fcntl.flock(fd, fcntl.LOCK_SH | fcntl.LOCK_NB)\n"
+            "            held = False\n"
+            "        except BlockingIOError:\n"
+            "            held = True\n"
+            f"    with open({str(self.marker)!r}, 'w') as out:\n"
+            "        json.dump({'at': time.time(), 'argv': sys.argv[1:], 'held': held}, out)\n"
         )
-        (self.bin / "docker").write_text(
-            "#!/bin/sh\n"
-            f"if [ \"$2\" = update ]; then python3 -c \"import time; open('{self.marker}','w').write(str(time.time()))\"; fi\n"
-            "exit 0\n"
-        )
-        for stub in ("curl", "docker"):
-            (self.bin / stub).chmod(0o755)
 
-    def start(self, script: Path, lock: str) -> subprocess.Popen:
-        """Start *script* with one attempt, a 2 s delay and a 1 s max time.
+    def stub(self, text: str) -> None:
+        """Put a ``docker`` stub first on the script's PATH.
 
         Args:
-            script: the probe script under test.
+            text: the stub's source.
+        """
+        (self.bin / "docker").write_text(text)
+        (self.bin / "docker").chmod(0o755)
+
+    def start(self, lock: str, wait: int) -> subprocess.Popen:
+        """Start the recreate script.
+
+        Args:
             lock: the Tor lock argument, empty for the serial run.
+            wait: seconds the script waits for the exclusive lock.
 
         Returns:
             The running script.
         """
         return subprocess.Popen(
-            [
-                "bash",
-                str(script),
-                "127.0.0.1:9050",
-                "x.onion",
-                "1",
-                "2",
-                "1",
-                str(self.root),
-                lock,
-            ],
+            ["bash", str(self.SCRIPT), str(self.root), lock, str(wait)],
             env={**os.environ, "PATH": f"{self.bin}:{os.environ['PATH']}"},
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
         )
 
-    def run_script(
-        self, script: Path, hold: float, answer_at: float | None = None
-    ) -> tuple[float | None, int, str, bool]:
-        """Run *script* in the parallel mode while a reader holds the Tor lock.
-
-        Args:
-            script: the probe script under test.
-            hold: seconds the shared lock is held after the script starts.
-            answer_at: second at which the onion starts to answer, None for never.
+    def recreated(self) -> dict | None:
+        """Read what the docker stub saw when the script recreated Tor.
 
         Returns:
-            Recreate time minus release time (None when it never recreated),
-            the exit code, stderr, and whether the pending marker existed
-            while the script waited.
+            The time, the argv and whether the Tor lock was held exclusively,
+            None when Tor was not recreated.
+        """
+        if not self.marker.exists():
+            return None
+        return json.loads(self.marker.read_text())  # nocheck: cache-read
+
+    def announced(self, proc: subprocess.Popen) -> bool:
+        """Wait until the script marks the recreate pending.
+
+        Args:
+            proc: the running script.
+
+        Returns:
+            Whether the pending marker appeared before the script ended or
+            ANNOUNCE_TIMEOUT seconds passed.
+        """
+        deadline = time.monotonic() + ANNOUNCE_TIMEOUT
+        while proc.poll() is None and time.monotonic() < deadline:
+            if self.pending.exists():
+                return True
+            time.sleep(0.01)
+        return self.pending.exists()
+
+    def run_script(
+        self, hold: float, wait: int
+    ) -> tuple[dict | None, float, int, str, bool]:
+        """Run the script in the parallel mode while a reader holds the Tor lock.
+
+        Args:
+            hold: seconds the shared lock stays held after the script marked
+                the recreate pending, the moment it starts to wait.
+            wait: seconds the script waits for the exclusive lock.
+
+        Returns:
+            What the docker stub saw (None when Tor was not recreated), the
+            release time, the exit code, stderr, and whether the pending
+            marker appeared while the script waited.
         """
         reader = os.open(self.lock, os.O_RDONLY | os.O_CREAT, 0o600)
         fcntl.flock(reader, fcntl.LOCK_SH)
-        proc = self.start(script, str(self.lock))
-        began = time.monotonic()
-        announced, released = False, None
-        events = [(min(hold, 2.5), "look"), (hold, "release")]
-        if answer_at is not None:
-            events.append((answer_at, "answer"))
-        for at, event in sorted(events):
-            time.sleep(max(0.0, at - (time.monotonic() - began)))
-            if event == "look":
-                announced = self.pending.exists()
-            elif event == "answer":
-                self.answers.touch()
-            else:
-                released = time.time()
-                fcntl.flock(reader, fcntl.LOCK_UN)
-                os.close(reader)
+        proc = self.start(str(self.lock), wait)
+        announced = self.announced(proc)
+        time.sleep(hold)
+        released = time.time()
+        fcntl.flock(reader, fcntl.LOCK_UN)
+        os.close(reader)
         _, stderr = proc.communicate(timeout=20)
-        recreated = None
-        if self.marker.exists():
-            recreated = float(self.marker.read_text()) - released  # nocheck: cache-read
-        self.assertFalse(self.pending.exists())
-        return recreated, proc.returncode, stderr, announced
+        return self.recreated(), released, proc.returncode, stderr, announced
 
     def test_the_recreate_waits_until_the_onion_run_releases_tor(self):
-        recreated, rc, _, announced = self.run_script(self.SCRIPT, hold=3.0)
-        self.assertIsNotNone(recreated)
-        self.assertGreaterEqual(recreated, 0)
-        self.assertTrue(announced)
-        self.assertEqual(rc, 1)
-
-    def test_onion_runs_outlasting_the_wait_skip_the_recreate_and_a_recovered_onion_passes(
-        self,
-    ):
-        recreated, rc, stderr, _ = self.run_script(self.SCRIPT, hold=6.0, answer_at=3.0)
-        self.assertIsNone(recreated)
+        seen, released, rc, _, announced = self.run_script(hold=3.0, wait=10)
         self.assertEqual(rc, 0)
-        self.assertIn(
-            "skipped recreating Tor for x.onion: onion Playwright runs held", stderr
-        )
+        self.assertTrue(announced)
+        self.assertGreaterEqual(seen["at"], released)
+        self.assertEqual(seen["argv"], ["service", "update", "--force", "tor_tor"])
+        self.assertTrue(seen["held"])
+        self.assertTrue(self.pending.exists())
 
-    def test_onion_runs_outlasting_the_wait_fail_only_this_probe_when_the_onion_stays_silent(
-        self,
-    ):
-        recreated, rc, stderr, _ = self.run_script(self.SCRIPT, hold=6.0)
-        self.assertIsNone(recreated)
-        self.assertEqual(rc, 1)
-        self.assertIn("skipped recreating Tor", stderr)
+    def test_onion_runs_outlasting_the_wait_skip_the_recreate(self):
+        seen, _, rc, stderr, announced = self.run_script(hold=6.0, wait=3)
+        self.assertIsNone(seen)
+        self.assertEqual(rc, 75)
+        self.assertTrue(announced)
+        self.assertIn("skipped recreating Tor: onion Playwright runs held", stderr)
+        self.assertFalse(self.pending.exists())
 
     def test_the_serial_run_recreates_at_once_without_touching_the_lock(self):
         began = time.time()
-        proc = self.start(self.SCRIPT, "")
+        proc = self.start("", 600)
         stdout, _ = proc.communicate(timeout=20)
-        self.assertEqual(proc.returncode, 1)
-        recreated = float(self.marker.read_text())  # nocheck: cache-read
-        self.assertLess(recreated - began, 2 + 1.5)
+        self.assertEqual(proc.returncode, 0)
+        seen = self.recreated()
+        self.assertLess(seen["at"] - began, 2)
+        self.assertIsNone(seen["held"])
         self.assertIn("recreating Tor for fresh circuits", stdout)
         self.assertNotIn("waiting up to", stdout)
         self.assertFalse(self.lock.exists())
         self.assertFalse(self.pending.exists())
+
+    def test_a_failed_recreate_exits_with_neither_success_nor_skip(self):
+        self.stub('#!/bin/sh\n[ "$2" = update ] && exit 3\nexit 0\n')
+        proc = self.start("", 600)
+        proc.communicate(timeout=20)
+        self.assertNotIn(proc.returncode, (0, 75))

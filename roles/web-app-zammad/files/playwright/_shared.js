@@ -10,7 +10,7 @@ const {
   performKeycloakLoginForm,
   runGuestFlow,
 } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const oidcEnabled    = isServiceEnabled("sso");
 const oidcIssuerUrl  = normalizeBaseUrl(process.env.OIDC_ISSUER_URL || "");
@@ -23,6 +23,13 @@ const adminApiPassword = decodeDotenvQuotedValue(process.env.ADMIN_API_PASSWORD)
 const biberUsername  = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword  = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const canonicalDomain = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
+const loginMethods = {
+  sso: process.env.LOGIN_METHOD_SSO_ENABLED === "true",
+  ldap: process.env.LOGIN_METHOD_LDAP_ENABLED === "true",
+  native: process.env.LOGIN_METHOD_NATIVE_ENABLED === "true",
+  registration: process.env.LOGIN_METHOD_REGISTRATION_ENABLED === "true",
+};
+const passwordFormShown = loginMethods.native || loginMethods.ldap || !loginMethods.sso;
 
 async function zammadLogout(page) {
   await gotoOnion(page, `${zammadBaseUrl}/#logout`, { waitUntil: "commit" }).catch(() => {});
@@ -176,6 +183,8 @@ module.exports = {
     biberUsername,
     biberPassword,
     canonicalDomain,
+    loginMethods,
+    passwordFormShown,
   },
   seedTicketViaApi,
   signInViaZammadOidc,
@@ -183,6 +192,7 @@ module.exports = {
   signInAsApiBot,
   zammadLogout,
   beforeEach,
+  skipUnlessServiceDisabled,
   skipUnlessServiceEnabled,
   runGuestFlow,
 };

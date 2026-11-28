@@ -9,6 +9,16 @@
 # checks.
 set -euo pipefail
 
+# Param infra_docker ARGS: docker ARGS on the infra runner's daemon, where the caches run.
+# Param infra_cache NAME: the container name of the registry, package or frontend cache.
+infra_docker() {
+	"${PYTHON:?source scripts/meta/env/load.sh}" -m cli.administration.infra docker "$@"
+}
+
+infra_cache() {
+	"${PYTHON:?source scripts/meta/env/load.sh}" -m cli.administration.infra cache-name "$1"
+}
+
 # Map runtime image to the Nexus proxy repo that proxies its system
 # package manager. Empty string means no system-level proxy is wired
 # for that runtime (e.g. Arch / Manjaro use pacman, which is not
@@ -35,7 +45,7 @@ nexus_repo_requests() {
 	else
 		pattern="\"(GET|HEAD|POST|PUT) /repository/[^/ ]+/"
 	fi
-	docker exec infinito-package-cache sh -c \
+	infra_docker exec "$(infra_cache package)" sh -c \
 		"grep -cE '${pattern}' /nexus-data/log/request.log 2>/dev/null || echo 0" \
 		2>/dev/null | awk '{print $1+0}'
 }
@@ -44,7 +54,7 @@ nexus_repo_requests() {
 # STALE). Both HIT and MISS prove the cache layer is engaged; counting
 # only HITs misses cold deploys where everything is a first pull.
 registry_cache_flows() {
-	docker logs infinito-registry-cache 2>&1 |
+	infra_docker logs "$(infra_cache registry)" 2>&1 |
 		grep -cE '"upstream_cache_status":"(HIT|MISS|REVALIDATED|UPDATING|STALE)"' ||
 		true
 }
@@ -156,18 +166,19 @@ _probe_target_for_runtime() {
 # proxying (mis-routed nginx, dead upstream, broken auth, expired CA,
 # etc.). Calls ``exit 1`` if either probe fails.
 probe_caches() {
-	local probe_target proxy_repo upstream_path
+	local probe_target proxy_repo upstream_path nexus_port
 	probe_target="$(_probe_target_for_runtime)"
 	if [[ -z "${probe_target}" ]]; then
 		echo "[probe] no probe target mapped for" \
 			"DEV_RUNTIME_IMAGE='${DEV_RUNTIME_IMAGE:-?}'; skipping package probe"
 	else
 		read -r proxy_repo upstream_path <<<"${probe_target}"
+		nexus_port="$("${PYTHON:?source scripts/meta/env/load.sh}" -m cli.administration.infra cache-port package http)"
 		echo "[probe] package-cache: GET /repository/${proxy_repo}/${upstream_path}"
-		if ! docker exec infinito-package-cache curl \
+		if ! infra_docker exec "$(infra_cache package)" curl \
 			--silent --fail --show-error --max-time 60 \
 			--output /dev/null \
-			"http://localhost:8081/repository/${proxy_repo}/${upstream_path}"; then
+			"http://localhost:${nexus_port}/repository/${proxy_repo}/${upstream_path}"; then
 			echo "[FAIL] package-cache: proxy '${proxy_repo}' did not serve" \
 				"'${upstream_path}'. The cache stack is up but pull-through is broken." >&2
 			exit 1
@@ -176,7 +187,7 @@ probe_caches() {
 	fi
 
 	echo "[probe] registry-cache: GET /ca.crt"
-	if ! docker exec infinito-registry-cache wget \
+	if ! infra_docker exec "$(infra_cache registry)" wget \
 		--quiet --tries=1 --timeout=10 \
 		--output-document=/dev/null \
 		"http://127.0.0.1:3128/ca.crt"; then
@@ -202,31 +213,37 @@ probe_did_inner_build() {
 		return 0
 	fi
 
-	local network="${COMPOSE_NETWORK:-}"
+	local network="${COMPOSE_NETWORK:-}" frontend
+	frontend="$(infra_cache frontend)"
 	if [[ -z "${network}" ]]; then
-		network="$(docker inspect -f \
-			'{{range $k,$_ := .NetworkSettings.Networks}}{{$k}}{{"\n"}}{{end}}' \
-			infinito-package-cache-frontend 2>/dev/null |
-			head -n1)"
+		network="$("${PYTHON:?source scripts/meta/env/load.sh}" -m cli.administration.infra attach)"
 	fi
 	if [[ -z "${network}" ]]; then
-		echo "[FAIL] DiD probe: could not discover compose network for" \
-			"infinito-package-cache-frontend (container missing or not connected)" >&2
+		echo "[FAIL] DiD probe: the infra runner attached no network" \
+			"(INFINITO_CACHE_STACK off or the runner refused to start)" >&2
 		exit 1
 	fi
+	local base_image
+	if ! base_image="$(bash "${REPO_ROOT:?source common.sh first}/scripts/meta/resolve/image/service_ref.sh" svc-db-openldap openldap mirror-only)"; then
+		echo "[FAIL] DiD probe: no GHCR mirror ref for the Debian base image; Docker Hub is never pulled" >&2
+		exit 1
+	fi
+
 	local before after delta tmpdir tag rc=0
-	before="$(docker logs infinito-package-cache-frontend 2>&1 | wc -l)"
+	before="$(infra_docker logs "${frontend}" 2>&1 | wc -l)"
 
 	tmpdir="$(mktemp -d)"
 	cat >"${tmpdir}/Dockerfile" <<-'EOF'
-		FROM debian:13-slim
+		ARG BASE_IMAGE
+		FROM ${BASE_IMAGE}
 		RUN apt-get update -o Acquire::http::No-Cache=true
 	EOF
 	tag="cache-did-probe-$$"
 
-	echo "[probe-did] docker build --add-host deb.debian.org:${frontend_ip}" \
+	echo "[probe-did] docker build FROM ${base_image} --add-host deb.debian.org:${frontend_ip}" \
 		"--network ${network} (apt-get update via frontend)"
 	if ! DOCKER_BUILDKIT=0 docker build --no-cache \
+		--build-arg "BASE_IMAGE=${base_image}" \
 		--network "${network}" \
 		--add-host "deb.debian.org:${frontend_ip}" \
 		-t "${tag}" "${tmpdir}" 2>&1 | tail -10; then
@@ -240,7 +257,7 @@ probe_did_inner_build() {
 		exit 1
 	fi
 
-	after="$(docker logs infinito-package-cache-frontend 2>&1 | wc -l)"
+	after="$(infra_docker logs "${frontend}" 2>&1 | wc -l)"
 	delta=$((after - before))
 	if [[ "${delta}" -le 0 ]]; then
 		echo "[FAIL] DiD probe: build succeeded but frontend logged no new requests" >&2

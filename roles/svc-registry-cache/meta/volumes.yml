@@ -7,3 +7,48 @@ data:
   mounts:
     - service: cache
       target: /var/lib/registry
+      when: "{{ lookup('config', 'svc-registry-cache', 'services.cache.flavor') == 'registry' }}"
+multi_proxy_mirror:
+  type: bind
+  source: "{{ lookup('config', 'svc-registry-cache', 'services.cache.multi_proxy.mirror_path') }}"
+  mounts:
+    - service: cache
+      target: /docker_mirror_cache
+      when: "{{ lookup('config', 'svc-registry-cache', 'services.cache.flavor') == 'multi-proxy' }}"
+multi_proxy_ca:
+  type: bind
+  source: "{{ lookup('config', 'svc-registry-cache', 'services.cache.multi_proxy.ca_path') }}"
+  mounts:
+    - service: cache
+      target: /ca
+      when: "{{ lookup('config', 'svc-registry-cache', 'services.cache.flavor') == 'multi-proxy' }}"
+multi_proxy_entrypoint:
+  type: bind
+  source: "{{ [lookup('container', 'svc-registry-cache', 'directories.config'), 'multi-proxy', 'entrypoint.sh'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: cache
+      target: /usr/local/bin/infinito-registry-cache-entrypoint.sh
+      when: "{{ lookup('config', 'svc-registry-cache', 'services.cache.flavor') == 'multi-proxy' }}"
+multi_proxy_stale:
+  type: bind
+  source: "{{ [lookup('container', 'svc-registry-cache', 'directories.config'), 'multi-proxy', 'nginx.manifest.stale.conf'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: cache
+      target: /etc/nginx/nginx.manifest.stale.conf
+      when: "{{ lookup('config', 'svc-registry-cache', 'services.cache.flavor') == 'multi-proxy' }}"
+front_conf:
+  type: bind
+  source: "{{ [lookup('container', 'svc-registry-cache', 'directories.config'), 'front'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: front
+      target: /etc/nginx/conf.d
+front_tls:
+  type: bind
+  source: "{{ [lookup('container', 'svc-registry-cache', 'directories.config'), 'front-tls'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: front
+      target: /etc/nginx/tls

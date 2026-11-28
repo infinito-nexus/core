@@ -14,22 +14,32 @@
   set_fact:
     portfolio_cards: "{{ lookup('docker_cards', 'roles') }}"
 
-- name: 🔍 Probe Simple Icons reachability per card slug (on the stack host)
-  uri_probe_batch:
-    urls: "{{ DASHBOARD_SIMPLEICONS_PROBE_URLS }}"
-    method: HEAD
-    status_codes: [200, 404]
-    attempts: 3
-    delay: 2
-    timeout: "{{ lookup('timeout', 10) | int }}"
-    validate_certs: false
-    follow_redirects: safe
-    workers: 16
-  register: dashboard_simpleicons_probe
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
+- name: "🆕 Look up the first-deploy registry of the dashboard cards"
+  stat:
+    path: "{{ DASHBOARD_FIRST_SEEN_FILE }}"
+  register: dashboard_first_seen_stat
+
+- name: "🆕 Read the first-deploy registry"
+  slurp:
+    src: "{{ DASHBOARD_FIRST_SEEN_FILE }}"
+  register: dashboard_first_seen_raw
+  when: dashboard_first_seen_stat.stat.exists
+
+- name: "🆕 Merge every new card into the first-deploy registry"
+  set_fact:
+    dashboard_first_seen: >-
+      {{ ((dashboard_first_seen_raw.content | b64decode | from_json) if dashboard_first_seen_stat.stat.exists else None)
+         | first_seen_merge(portfolio_cards, now(utc=true).strftime('%Y-%m-%d')) }}
+
+- name: "🆕 Store the first-deploy registry"
+  copy:
+    content: "{{ dashboard_first_seen | to_nice_json }}\n"
+    dest: "{{ DASHBOARD_FIRST_SEEN_FILE }}"
+    mode: "0644"
+
+- name: 🔍 Probe Simple Icons reachability per card slug
+  include_tasks: _simpleicons_probe.yml
   when: DASHBOARD_SIMPLEICONS_ENABLED | bool
-  changed_when: false
 
 - name: "📄 Render one Dashboard config per network"
   include_tasks: _instance_config.yml
@@ -116,17 +126,8 @@
       include_tasks: "03_simpleicons_refresh.yml"
 
 - name: ⏳ Wait for every Dashboard instance (so all logos can download during init)
-  uri_retry:
-    url: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.ports.local.' ~ ('http' | labelled(dashboard_instance.label,
-      '_'))) }}/"
-    status_code: 200
-  register: dashboard_http
-  retries: 60
-  delay: 5
-  until: dashboard_http.status == 200
+  include_tasks: _instance_wait.yml
   loop: "{{ DASHBOARD_INSTANCES }}"
   loop_control:
     loop_var: dashboard_instance
     label: "{{ dashboard_instance.network }}"
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true

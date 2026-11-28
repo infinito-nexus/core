@@ -1,46 +1,54 @@
 ---
 - name: "↩️ XWIKI | Give the wiki its former color theme back"
-  uri_retry:
-    url: "{{ [XWIKI_REST_PREFERENCES, 'colorTheme'] | url_join }}"
-    method: PUT
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [202]
-    headers: "{{ xwiki_rest_headers_write }}"
-    body: "{{ lookup('template', 'xml/property.xml.j2') }}"
+  include_tasks: ../utils/http.yml
   vars:
     xwiki_property_value: "{{ xwiki_design_former.colorTheme }}"
-  when: _xwiki_design_color_theme.json.value == XWIKI_DESIGN_THEME_REFERENCE
-  changed_when: true
+    xwiki_http_method: PUT
+    xwiki_http_url: "{{ [XWIKI_REST_PREFERENCES, 'colorTheme'] | url_join }}"
+    xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+    xwiki_http_body: "{{ lookup('template', 'xml/property.xml.j2') }}"
+    xwiki_http_status: [202]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_design_color_theme_restored
+  when: (_xwiki_design_color_theme.content | from_json).value == XWIKI_DESIGN_THEME_REFERENCE
 
 - name: "↩️ XWIKI | Give the wiki its former title back"
-  uri_retry:
-    url: "{{ [XWIKI_REST_PREFERENCES, 'title'] | url_join }}"
-    method: PUT
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [202]
-    headers: "{{ xwiki_rest_headers_write }}"
-    body: "{{ lookup('template', 'xml/property.xml.j2') }}"
+  include_tasks: ../utils/http.yml
   vars:
     xwiki_property_value: "{{ xwiki_design_former.title }}"
+    xwiki_http_method: PUT
+    xwiki_http_url: "{{ [XWIKI_REST_PREFERENCES, 'title'] | url_join }}"
+    xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+    xwiki_http_body: "{{ lookup('template', 'xml/property.xml.j2') }}"
+    xwiki_http_status: [202]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_design_title_restored
   when:
-    - _xwiki_design_title.json.value == XWIKI_DESIGN_TITLE
+    - (_xwiki_design_title.content | from_json).value == XWIKI_DESIGN_TITLE
     - xwiki_design_former.title != XWIKI_DESIGN_TITLE
-  changed_when: true
 
 - name: "🗑️ XWIKI | Delete the corporate theme page"
-  uri_retry:
-    url: "{{ XWIKI_REST_THEME_PAGE }}"
-    method: DELETE
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [204]
-    headers: "{{ xwiki_rest_headers_write }}"
-  changed_when: true
+  include_tasks: ../utils/http.yml
+  vars:
+    xwiki_http_method: DELETE
+    xwiki_http_url: "{{ XWIKI_REST_THEME_PAGE }}"
+    xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+    xwiki_http_body: ""
+    xwiki_http_status: [204]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_design_page_deleted
 
 - name: "🗑️ XWIKI | Remove the rendered logo set"
   ansible.builtin.file:

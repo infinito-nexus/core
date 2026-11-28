@@ -1,0 +1,40 @@
+---
+- name: "⏳ Wait until the gateway answers with the current identities"
+  include_tasks: utils/s3_config/ready.yml
+
+- name: "📋 List SeaweedFS buckets"
+  include_tasks: utils/bucket/list.yml
+
+- name: "📦 Hold the platform bucket of the workspace exports private"
+  when: SEAWEEDFS_EXPORT.enabled | bool
+  block:
+    - name: "📁 Create the platform bucket of the workspace exports"
+      ansible.builtin.shell: |
+        set -euo pipefail
+        echo 's3.bucket.create -name {{ SEAWEEDFS_EXPORT.bucket }}' | container exec -i {{ SEAWEEDFS_CONTAINER_ADDRESS }} weed shell -master=localhost:{{ SEAWEEDFS_MASTER_PORT_INTERNAL }}
+      args:
+        executable: /bin/bash
+      register: _seaweedfs_export_bucket
+      changed_when: true
+      timeout: "{{ lookup('timeout', 60) | int }}"
+      retries: 3
+      delay: 10
+      until: _seaweedfs_export_bucket is succeeded
+      when: SEAWEEDFS_EXPORT.bucket not in (_seaweedfs_buckets.stdout | seaweedfs_bucket_names)
+
+    - name: "🔐 Converge the bucket policy of the workspace exports"
+      include_tasks: utils/bucket/policy.yml
+      vars:
+        seaweedfs_bucket_policy_bucket: "{{ SEAWEEDFS_EXPORT.bucket }}"
+        seaweedfs_bucket_policy_public: false
+      when: (SEAWEEDFS_EXPORT.bucket in (_seaweedfs_buckets.stdout | seaweedfs_bucket_names)) or (_seaweedfs_export_bucket is changed)
+
+- name: "🔐 Converge the bucket policy of each consumer whose bucket exists"
+  include_tasks: utils/bucket/policy.yml
+  loop: "{{ lookup('objstore_consumers', 'seaweedfs') }}"
+  loop_control:
+    loop_var: seaweedfs_bucket_policy_consumer
+  vars:
+    seaweedfs_bucket_policy_bucket: "{{ lookup('objstore', seaweedfs_bucket_policy_consumer, 'bucket') }}"
+    seaweedfs_bucket_policy_public: "{{ lookup('objstore', seaweedfs_bucket_policy_consumer, 'public') | bool }}"
+  when: seaweedfs_bucket_policy_bucket in (_seaweedfs_buckets.stdout | seaweedfs_bucket_names)

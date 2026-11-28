@@ -31,6 +31,10 @@ TEST_E2E_PLAYWRIGHT_PERSONAS_ARCHIVE: "/tmp/infinito-playwright-personas.tar"
 TEST_E2E_PLAYWRIGHT_HELPERS_DIR: "{{ lookup('path_absolute', 'roles/test-e2e-playwright/files') }}"
 TEST_E2E_PLAYWRIGHT_HELPERS_ARCHIVE: "/tmp/infinito-playwright-helpers.tar"
 TEST_E2E_PLAYWRIGHT_SHARED_STAMP: "{{ TEST_E2E_PLAYWRIGHT_SHARED_DIR }}/.installed-version"
+TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_DIR: "{{ LDAP.SERVER.SOCKET_URI | regex_replace('^ldapi://', '') | replace('%2F', '/') | dirname }}"
+TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_MOUNTED: >-
+  {{ STACK_HOST in (groups['svc-db-openldap'] | default([]))
+     and lookup('file', _playwright_env_template) is search('^LDAP_URL=', multiline=True) }}
 TEST_E2E_PLAYWRIGHT_TOOLS_DIR: "{{ TEST_E2E_PLAYWRIGHT_STAGE_BASE_DIR }}/_tools"
 TEST_E2E_PLAYWRIGHT_MASKER: "{{ TEST_E2E_PLAYWRIGHT_TOOLS_DIR }}/spec_secrets_mask.py"
 TEST_E2E_PLAYWRIGHT_MASK_ARGV: >-
@@ -56,7 +60,8 @@ TEST_E2E_PLAYWRIGHT_PARALLEL_BUDGET: >-
   {%- set ns = namespace(total=0) -%}
   {%- for app in TEST_E2E_PLAYWRIGHT_APPS -%}
   {%- set role_timeout = lookup('role_tests', app, 'playwright.timeout', default='') | string | trim -%}
-  {%- set picks = [lookup('domain', app)] if lookup('config', app, 'networks.reachability.handover', False)
+  {%- set picks = [''] if app not in lookup('domains')
+        else [lookup('domain', app)] if lookup('config', app, 'networks.reachability.handover', False)
         else lookup('network_siblings', lookup('domain', app)) -%}
   {%- set worst = namespace(seconds=0) -%}
   {%- for network in picks | map('network_of') | unique -%}
@@ -77,6 +82,8 @@ TEST_E2E_PLAYWRIGHT_ONION_RUN_TIMEOUT: 5400
 TEST_E2E_PLAYWRIGHT_ROLE_RUN_TIMEOUT: "{{ lookup('role_tests', application_id, 'playwright.timeout', default='') }}"
 TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT_EFFECTIVE: "{{ (TEST_E2E_PLAYWRIGHT_ROLE_RUN_TIMEOUT | int) if (TEST_E2E_PLAYWRIGHT_ROLE_RUN_TIMEOUT | string | trim | length > 0)
   else (TEST_E2E_PLAYWRIGHT_ONION_RUN_TIMEOUT if (TEST_E2E_PLAYWRIGHT_IS_ONION | bool) else test_e2e_playwright_run_timeout) }}"
+TEST_E2E_PLAYWRIGHT_RUN_BUDGET: "{{ lookup('timeout', TEST_E2E_PLAYWRIGHT_RUN_TIMEOUT_EFFECTIVE) | int }}"
+TEST_E2E_PLAYWRIGHT_RUN_POLL_DELAY: 10
 TEST_E2E_PLAYWRIGHT_ONION_TEST_TIMEOUT: 900000
 TEST_E2E_PLAYWRIGHT_ONION_TIMEOUT_MULTIPLIER: "{{ lookup('config', 'svc-net-tor', 'services.tor.timeout_multipliers')[lookup('config', 'svc-net-tor', 'services.tor.flavor')]
   }}"
@@ -84,6 +91,23 @@ TEST_E2E_PLAYWRIGHT_WAIT_ENABLED: true
 TEST_E2E_PLAYWRIGHT_ONION_PROBE_RETRIES: 40
 TEST_E2E_PLAYWRIGHT_ONION_PROBE_DELAY: 15
 TEST_E2E_PLAYWRIGHT_ONION_PROBE_MAX_TIME: 120
+TEST_E2E_PLAYWRIGHT_RBAC_HOOK_DIR: "{{ [ DIR_RBAC_SYNC, 'hooks', application_id ] | path_join }}"
+TEST_E2E_PLAYWRIGHT_RBAC_SYNC_UNIT: "playwright-rbac-sync"
+TEST_E2E_PLAYWRIGHT_RBAC_SYNC_INTERVAL: 60
+TEST_E2E_PLAYWRIGHT_RBAC_SYNC_START:
+  - systemd-run
+  - --unit
+  - "{{ TEST_E2E_PLAYWRIGHT_RBAC_SYNC_UNIT }}"
+  - --collect
+  - --on-active=1
+  - "--on-unit-active={{ TEST_E2E_PLAYWRIGHT_RBAC_SYNC_INTERVAL }}"
+  - --timer-property=AccuracySec=1s
+  - systemctl
+  - start
+  - --no-block
+  - "{{ lookup('unit_name', 'sys-ctl-mtn-rbac-sync') }}"
+TEST_E2E_PLAYWRIGHT_RBAC_SYNC_STOP: [systemctl, stop, "{{ TEST_E2E_PLAYWRIGHT_RBAC_SYNC_UNIT }}.timer"]
+TEST_E2E_PLAYWRIGHT_POST_PASS_CHECK: "{{ lookup('path_absolute', 'roles', application_id, 'tasks/utils/playwright_post_pass.yml') }}"
 TEST_E2E_PLAYWRIGHT_NAVIGATION_TIMEOUT: 60000
 TEST_E2E_PLAYWRIGHT_ONION_NAVIGATION_TIMEOUT: 180000
 TEST_E2E_PLAYWRIGHT_EXPECT_TIMEOUT: 10000

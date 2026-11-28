@@ -9,12 +9,14 @@
  * forwards the resolved identity to this upstream as request headers. This
  * Express middleware turns that trusted header into the owner session.
  *
- * Security: the identity header is trusted unconditionally. This is only safe
- * because Postmarks is reachable exclusively through the oauth2-proxy, which
- * overwrites the header on every request, and the application port is bound to
- * 127.0.0.1. The bridge activates only when PROXY_HEADER_SSO is truthy (wired
- * by the role's env template behind the oauth2 SSO flavor) and is otherwise a
- * transparent pass-through.
+ * Security: the identity header is trusted unconditionally, so openresty is the
+ * only trust boundary: every front-proxy location must clear or overwrite it.
+ * Anything that reaches the application port without passing openresty can
+ * open the owner session, and that port is published on DOCKER_BIND_HOST
+ * (0.0.0.0 under DOCKER_IN_CONTAINER) and, in swarm, on every node through the
+ * routing mesh. The bridge activates only when PROXY_HEADER_SSO is truthy
+ * (wired by the role's env template behind the oauth2 SSO flavor) and is
+ * otherwise a transparent pass-through.
  *
  * Only the `X-Forwarded-*` headers nginx overwrites are read; the
  * `X-Auth-Request-*`/`Remote-User` variants are deliberately excluded so a

@@ -6,7 +6,9 @@ A comment is VALID only when it is one of:
 * a **doc comment** directly above a class / function / method / rule,
 * a **tool directive** (`noqa`, `nocheck`, `variant-pin`, `type: ignore`,
   `shellcheck`, `rubocop:`, `stylelint-disable`, `pragma`, language
-  annotations, ...),
+  annotations, ...), including an ``upstream:`` directive whose body opens
+  with that keyword (``utils.upstream.directive``; its URL is checked by
+  ``test_upstream_directives.py``),
 * a **marked exception** -- a mid-code comment that flags a real trip-wire
   (warning, pitfall, deliberate non-idiomatic choice) whose text starts with
   one of the exception markers (`Exception`, ...),
@@ -28,7 +30,8 @@ for explanation, the code body is only interrupted for genuine exceptions.
 
 Checks ``.py .sh .yml/.yaml .rb .php .css`` plus ``.j2`` templates: the ``.j2``
 suffix is stripped so the underlying language's comments are linted (``foo.yml.j2``
--> ``.yml`` rules, ``foo.php.j2`` -> ``.php`` rules, anything else -> ``#``), and
+-> ``.yml`` rules, ``foo.php.j2`` -> ``.php`` rules, ``foo.md.j2`` -> none, since
+a Markdown ``#`` is a heading, anything else -> ``#``), and
 Jinja ``{# #}`` comments are checked on top. Python is parsed with ``tokenize``
 (string-aware, exact). Python additionally flags bare string-expression
 statements (``\"\"\"...\"\"\"`` / ``'''...'''`` / plain literals) outside
@@ -56,18 +59,20 @@ import ast
 import io
 import re
 import subprocess
+import tempfile
 import tokenize
 import unittest
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from utils.annotations.suppress import is_suppressed_in_head
 from utils.cache.files import read_text, repository_files, untracked_files
+from utils.upstream.directive import opens_directive
 
 from . import PROJECT_ROOT
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from pathlib import Path
 
 _FILE_NOCHECK_RULE = "comments-valid"
 
@@ -417,6 +422,8 @@ def find_invalid_comments(path: Path):
         comments = _php_comments(lines)
     elif underlying == ".css":
         comments = _css_comments(lines)
+    elif underlying == ".md":
+        comments = []
     elif ext == ".j2":
         comments = _hash_comments(lines)
     else:
@@ -442,7 +449,7 @@ def find_invalid_comments(path: Path):
         for lineno, body, _end, _full in block:
             if not body:
                 continue
-            if _DIRECTIVE_RE.search(body) or block_marker:
+            if _DIRECTIVE_RE.search(body) or opens_directive(body) or block_marker:
                 continue
             if lineno <= header_end or block_def:
                 continue
@@ -466,7 +473,8 @@ def _all_targets():
     A failing git listing loses only its own files.
     """
     targets = []
-    for r in sorted(_listed(repository_files) | _listed(untracked_files)):
+    tracked = _listed(lambda: repository_files(untracked=False))
+    for r in sorted(tracked | _listed(untracked_files)):
         if r.endswith(_EXTS) or r.rsplit("/", 1)[-1] == "Dockerfile":
             path = PROJECT_ROOT / r
             if path.is_file():
@@ -491,6 +499,53 @@ class TestCommentsValid(unittest.TestCase):
                 "(move real explanation into the file header or a doc comment):\n"
                 + shown
             )
+
+
+NARRATION = "narration restating the next line"
+FIXTURES = {
+    "body.md.j2": (
+        "# Title\n\nText.\n\n{% if x %}\n{# "
+        + NARRATION
+        + " #}\n- {{ x }}\n{% endif %}\n",
+        "# Title\n\nText.\n\n{% if x %}\n## Heading after code\n\n- {{ x }}\n{% endif %}\n",
+    ),
+    "notes.txt.j2": (
+        "x = {{ x }}\n# " + NARRATION + "\ny = {{ y }}\n",
+        "x = {{ x }}\ny = {{ y }}\n",
+    ),
+    "module.py": (
+        "import os\n\nx = os.sep\n# " + NARRATION + "\ny = 2\n",
+        "import os\n\nx = os.sep\ny = 2\n",
+    ),
+    "config.yml": (
+        "key: 1\n# " + NARRATION + "\nother: 2\n",
+        "key: 1\nother: 2\n",
+    ),
+}
+
+
+class TestCommentsValidFixtures(unittest.TestCase):
+    def _findings(self, name: str, text: str) -> list[tuple[int, str]]:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / name
+            path.write_text(text, encoding="utf-8")
+            return find_invalid_comments(path)
+
+    def test_a_forbidden_comment_is_flagged_in_every_kind(self) -> None:
+        for name, (red, _green) in FIXTURES.items():
+            with self.subTest(name=name):
+                bodies = [body for _line, body in self._findings(name, red)]
+                self.assertIn(NARRATION, bodies)
+
+    def test_the_same_file_without_it_passes(self) -> None:
+        for name, (_red, green) in FIXTURES.items():
+            with self.subTest(name=name):
+                self.assertEqual(self._findings(name, green), [])
+
+    def test_a_markdown_heading_after_code_is_flagged_outside_markdown(self) -> None:
+        heading = "x = {{ x }}\n## Heading after code\n"
+        self.assertEqual(self._findings("body.md.j2", heading), [])
+        self.assertNotEqual(self._findings("notes.txt.j2", heading), [])
 
 
 if __name__ == "__main__":

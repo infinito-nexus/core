@@ -19,6 +19,7 @@ import unittest
 from pathlib import Path
 
 from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
 
@@ -152,22 +153,31 @@ class TestPlayEnvironmentFrozen(unittest.TestCase):
         self.assertIn("A source of the play environment changed", output)
 
 
+def _included(task: dict) -> tuple[str, list[str], list[str]]:
+    """
+    Args:
+        task: a task of the play.
+
+    Returns:
+        ``(included file, tags applied to its tasks, tags of the include)``.
+    """
+    include = task["ansible.builtin.include_tasks"]
+    return include["file"], include["apply"]["tags"], task["tags"]
+
+
 class TestPlaybookUsesTheFrozenEnvironment(unittest.TestCase):
     def test_the_playbook_freezes_first_and_checks_last(self):
-        text = read_text(str(PLAYBOOK))
-        self.assertIn('environment: "{{ PLAY_ENVIRONMENT }}"', text)
-        self.assertIn('PLAY_ENVIRONMENT: "{{ PLAY_ENVIRONMENT_SOURCE }}"', text)
-        pre_tasks = text.index("pre_tasks:")
-        self.assertLess(
-            pre_tasks, text.index("tasks/utils/play/environment/freeze.yml")
+        (play,) = load_yaml_any(str(PLAYBOOK))
+        self.assertEqual(play["environment"], "{{ PLAY_ENVIRONMENT }}")
+        self.assertEqual(
+            play["vars"]["PLAY_ENVIRONMENT"], "{{ PLAY_ENVIRONMENT_SOURCE }}"
         )
-        self.assertLess(
-            text.index("tasks/utils/play/environment/freeze.yml"),
-            text.index("ansible.builtin.script: scripts/system/python"),
-        )
-        self.assertLess(
-            text.index("post_tasks:"),
-            text.index("tasks/utils/play/environment/check.yml"),
+        self.assertEqual(
+            [_included(play["pre_tasks"][0]), _included(play["post_tasks"][-1])],
+            [
+                (str(FREEZE.relative_to(PROJECT_ROOT)), ["always"], ["always"]),
+                (str(CHECK.relative_to(PROJECT_ROOT)), ["always"], ["always"]),
+            ],
         )
 
 

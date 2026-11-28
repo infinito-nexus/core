@@ -1,0 +1,69 @@
+---
+- name: "🔍 List networks named '{{ stream_relay.name }}'"
+  ansible.builtin.command:
+    argv:
+      - container
+      - network
+      - ls
+      - --filter
+      - "name={{ stream_relay.name }}"
+      - --format
+      - "{{ '{{json .}}' }}"
+  register: sys_svc_compose_relay_ls
+  changed_when: false
+
+- name: "🔎 Note whether '{{ stream_relay.name }}' exists"
+  ansible.builtin.set_fact:
+    sys_svc_compose_relay_present: >-
+      {{ sys_svc_compose_relay_ls.stdout_lines | map('from_json')
+         | selectattr('Name', 'equalto', stream_relay.name) | list | length > 0 }}
+
+- name: "🔎 Check the existing stream relay network '{{ stream_relay.name }}'"
+  when: sys_svc_compose_relay_present | bool
+  block:
+    - name: "🔍 Inspect the stream relay network '{{ stream_relay.name }}'"
+      ansible.builtin.command:
+        argv:
+          - container
+          - network
+          - inspect
+          - --format
+          - "{{ '{{json .}}' }}"
+          - "{{ stream_relay.name }}"
+      register: sys_svc_compose_relay_inspect
+      changed_when: false
+
+    - name: "📥 Parse the stream relay network '{{ stream_relay.name }}'"
+      ansible.builtin.set_fact:
+        sys_svc_compose_relay: "{{ sys_svc_compose_relay_inspect.stdout | from_json }}"
+
+    - name: "🛑 Fail on drift of the stream relay network '{{ stream_relay.name }}'"
+      ansible.builtin.assert:
+        that:
+          - sys_svc_compose_relay.Driver == 'overlay'
+          - sys_svc_compose_relay.Scope == 'swarm'
+          - sys_svc_compose_relay.Attachable | bool
+          - ('encrypted' in (sys_svc_compose_relay.Options or {})) == (swarm.network.encryption | bool)
+          - (sys_svc_compose_relay.IPAM.Config or []) | map(attribute='Subnet') | list == [stream_relay.subnet]
+          - (sys_svc_compose_relay.Labels or {}).get('com.docker.stack.namespace') == stream_relay.stack
+        fail_msg: >-
+          Network '{{ stream_relay.name }}' exists but is no attachable swarm overlay
+          on {{ stream_relay.subnet }} with encryption
+          {{ 'on' if swarm.network.encryption | bool else 'off' }} in stack
+          '{{ stream_relay.stack }}'. Remove it so the next deploy creates it again.
+        quiet: true
+
+- name: "✅ Create the stream relay overlay '{{ stream_relay.name }}'"
+  ansible.builtin.command:
+    argv: "{{ sys_svc_compose_relay_create_argv }}"
+  vars:
+    sys_svc_compose_relay_create_argv: >-
+      {{ ['container', 'network', 'create', '--driver', 'overlay', '--attachable',
+          '--scope', 'swarm', '--subnet', stream_relay.subnet]
+         + (['--opt', 'encrypted=true'] if swarm.network.encryption | bool else [])
+         + ['--label', 'com.docker.compose.network=' ~ stream_relay.name,
+            '--label', 'com.docker.compose.project=' ~ stream_relay.stack,
+            '--label', 'com.docker.stack.namespace=' ~ stream_relay.stack,
+            stream_relay.name] }}
+  when: not (sys_svc_compose_relay_present | bool)
+  changed_when: true

@@ -2,10 +2,27 @@
   {% for i in range(1, RUNNER_COUNT | int + 1) %}
   {% set service_name = 'runner-' ~ i %}
   {{ service_name }}:
+    {% if RUNNER_TAKES_LOCAL_JOBS | bool %}
+    # nocheck: container-image-lookup  the toolchain image of the invoking checkout, loaded into the infra runner's daemon
+    image: "{{ RUNNER_TOOLCHAIN_IMAGE }}"
+    user: "{{ RUNNER_OPERATOR_UID }}:{{ RUNNER_OPERATOR_GID }}"
+    entrypoint: ["bash", "{{ RUNNER_SRC_DIR }}/roles/svc-runner/files/shell/entrypoint-local.sh"]
+    {{ lookup('container_healthcheck', 'runner') | indent(4) }}
+    {% else %}
+    {% if i == 1 and not IS_SWARM_MODE %}
+    {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+      args:
+        RUNNER_BASE_IMAGE: "{{ RUNNER_BASE_IMAGE }}"
+        RUNNER_UID: "{{ RUNNER_UID }}"
+        RUNNER_GID: "{{ RUNNER_GID }}"
+        RUNNER_USER: "{{ RUNNER_USER }}"
+    {% endif %}
     # nocheck: container-image-lookup  locally-built runner image, not a services.yml registry entry
     image: "{{ RUNNER_IMAGE_REF }}"
+    {% endif %}
     {{ lookup('compose_only', 'container_name', 'runner-' ~ i, node_local=True) }}
     {{ lookup('compose_restart', node_local=True) }}
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
     working_dir: "{{ RUNNER_INSTALL_DIR }}/{{ i }}"
     env_file: "{{ RUNNER_INSTALL_DIR }}/{{ i }}/.env"
     # nocheck: compose-inline-mount-section  per-instance host bind mounts, not services.yml volumes
@@ -13,13 +30,52 @@
       - "{{ RUNNER_INSTALL_DIR }}/{{ i }}:{{ RUNNER_INSTALL_DIR }}/{{ i }}"
       - /var/run/docker.sock:/var/run/docker.sock
       - "{{ RUNNER_DOCKER_BASE }}/{{ i }}:{{ RUNNER_DOCKER_BASE }}/{{ i }}"
+      {% if RUNNER_MOUNTS_WORKTREES | bool %}
+      {% for root in RUNNER_WORKTREE_ROOTS %}
+      - "{{ root }}:{{ root }}:ro"
+      {% endfor %}
+      {% endif %}
+      {% if RUNNER_TAKES_LOCAL_JOBS | bool %}
+      - "{{ RUNNER_QUEUE_DIR }}:{{ RUNNER_QUEUE_DIR }}"
+      {% endif %}
     group_add:
       - "{{ _runner_docker_gid }}"
+      {% if RUNNER_TAKES_LOCAL_JOBS | bool %}
+      - "{{ RUNNER_QUEUE_GID }}"
+      {% endif %}
     {{ lookup('container_networks', node_local=True) | indent(4) }}
     {% if IS_SWARM_MODE %}
     deploy:
       {{ lookup('compose_replicas', 1) }}
     {% endif %}
+  {% if RUNNER_TAKES_LOCAL_JOBS | bool and RUNNER_SEMAPHORE_ENABLED | bool %}
+  {% set service_name = 'semaphore-runner-' ~ i %}
+  {{ service_name }}:
+    # nocheck: container-image-lookup  the Semaphore server image of web-app-semaphore, whose binary serves the Semaphore tasks of this pool runner
+    image: "{{ RUNNER_SEMAPHORE_IMAGE }}"
+    user: "{{ RUNNER_OPERATOR_UID }}:{{ RUNNER_OPERATOR_GID }}"
+    entrypoint: ["/usr/local/bin/semaphore", "runner", "start", "--no-config"]
+    {{ lookup('compose_only', 'container_name', service_name, node_local=True) }}
+    {{ lookup('compose_restart', node_local=True) }}
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
+    {{ lookup('container_extra_hosts', extra_hosts=['host.docker.internal:host-gateway']) | indent(4) }}
+    env_file: "{{ RUNNER_INSTALL_DIR }}/{{ i }}/semaphore.env"
+    # nocheck: compose-inline-mount-section  per-instance host bind mounts, not services.yml volumes
+    volumes:
+      - "{{ RUNNER_INSTALL_DIR }}/{{ i }}/semaphore.token:{{ RUNNER_SEMAPHORE_TOKEN_FILE }}:ro" # nocheck: bind-mount-single-file-swarm-fragile  node-local instance (compose_mode_force: compose), rendered and run on the same host, never stack-deployed
+      - "{{ RUNNER_INSTALL_DIR }}/{{ i }}/{{ RUNNER_SEMAPHORE_WORK_DIR }}:{{ RUNNER_INSTALL_DIR }}/{{ i }}/{{ RUNNER_SEMAPHORE_WORK_DIR }}"
+      {% for root in RUNNER_WORKTREE_ROOTS %}
+      - "{{ root }}:{{ root }}:ro"
+      {% endfor %}
+      - "{{ RUNNER_QUEUE_DIR }}:{{ RUNNER_QUEUE_DIR }}"
+    group_add:
+      - "{{ RUNNER_QUEUE_GID }}"
+    {{ lookup('container_networks', node_local=True) | indent(4) }}
+    {% if IS_SWARM_MODE %}
+    deploy:
+      {{ lookup('compose_replicas', 1) }}
+    {% endif %}
+  {% endif %}
   {% endfor %}
 
 {{ lookup('compose_networks', node_local=True) }}

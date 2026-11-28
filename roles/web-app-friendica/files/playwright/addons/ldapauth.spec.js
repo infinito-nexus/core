@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("../timeouts");
 const { skipUnlessAddonEnabled } = require("../addon-gating");
-const { skipUnlessServiceEnabled } = require("../service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("../service-gating");
 const { gotoOnion } = require("../personas");
 const shared = require("../_shared");
 
@@ -13,16 +13,12 @@ const shared = require("../_shared");
 // merely re-rendering. We reuse the role's LDAP login idiom (the exact
 // ldapauth bind path) and gate behind both the addon flag and the ldap
 // service. Both assertions FAIL if the integration is not wired.
-test("addon ldapauth: a valid LDAP credential binds against openldap and a bogus one is rejected", async ({ browser }) => {
-  skipUnlessAddonEnabled("ldapauth");
-  skipUnlessServiceEnabled("ldap");
-
+async function assertValidCredentialBinds(browser, login) {
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
 
   try {
     const baseUrl = shared.trimmedBaseUrl();
-    const login = shared.pickLoginPath();
 
     // 1) Positive path: the real LDAP credential must establish a session.
     await login(page, shared.env.adminUsername, shared.env.adminPassword);
@@ -65,45 +61,41 @@ test("addon ldapauth: a valid LDAP credential binds against openldap and a bogus
     await page.close().catch(() => {});
     await context.close().catch(() => {});
   }
+}
 
-  // 3) Negative path on a fresh context: a credential with the right username
-  // but a deliberately WRONG password must NOT authenticate. ldapauth binds
-  // that password against openldap and the bind fails, so no Friendica session
-  // is created. If auth were stubbed/bypassed (integration not wired), the
-  // session would establish and this assertion would fail — which is exactly
-  // the regression we want to catch.
+async function assertBogusCredentialIsRejected(browser) {
   const negContext = await browser.newContext({ ignoreHTTPSErrors: true });
   const negPage = await negContext.newPage();
   try {
     const baseUrl = shared.trimmedBaseUrl();
-    await negPage.goto(`${baseUrl}/login`, { waitUntil: "domcontentloaded" }).catch(() => {});
+    await gotoOnion(negPage, `${baseUrl}/login`, { waitUntil: "domcontentloaded" }).catch(() => {});
 
-    const hasForm = await negPage
-      .locator("input[name='password']")
-      .first()
-      .waitFor({ state: "visible", timeout: resolveTimeout(2_000) })
-      .then(() => true)
-      .catch(() => false);
+    await shared.loginViaFriendicaForm(
+      negPage,
+      shared.env.adminUsername,
+      `wrong-${Date.now()}-${shared.env.adminPassword}`
+    );
+    await gotoOnion(negPage, `${baseUrl}/network`, { waitUntil: "domcontentloaded" }).catch(() => {});
 
-    // Only meaningful where Friendica's own login form is directly reachable
-    // (the ldap-only matrix variant). With oauth2-proxy in front, the bogus
-    // password is rejected at Keycloak before ldapauth is ever consulted, so
-    // the negative assertion would test Keycloak, not this addon — skip it.
-    if (hasForm && !shared.isServiceEnabled("sso")) {
-      await shared.loginViaFriendicaForm(
-        negPage,
-        shared.env.adminUsername,
-        `wrong-${Date.now()}-${shared.env.adminPassword}`
-      );
-      await negPage.goto(`${baseUrl}/network`, { waitUntil: "domcontentloaded" }).catch(() => {});
-
-      await expect(
-        negPage.locator("#topbar-first, #navbar-apps-menu, a[href*='/logout']").first(),
-        "Expected NO authenticated session when ldapauth rejects a bogus password against openldap"
-      ).toHaveCount(0);
-    }
+    await expect(
+      negPage.locator("#topbar-first, #navbar-apps-menu, a[href*='/logout']").first(),
+      "Expected NO authenticated session when ldapauth rejects a bogus password against openldap"
+    ).toHaveCount(0);
   } finally {
     await negPage.close().catch(() => {});
     await negContext.close().catch(() => {});
   }
+}
+
+test("administrator: addon ldapauth binds a valid LDAP credential against openldap", async ({ browser }) => {
+  skipUnlessAddonEnabled("ldapauth");
+  skipUnlessServiceEnabled("ldap");
+  await assertValidCredentialBinds(browser, shared.loginViaFriendica);
+});
+
+test("administrator: addon ldapauth rejects a bogus LDAP credential against openldap", async ({ browser }) => {
+  skipUnlessAddonEnabled("ldapauth");
+  skipUnlessServiceEnabled("ldap");
+  skipUnlessServiceDisabled("sso");
+  await assertBogusCredentialIsRejected(browser);
 });

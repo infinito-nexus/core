@@ -2,16 +2,15 @@ const { expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const {
+  apiFetchOnion,
   decodeDotenvQuotedValue,
   gotoOnion,
   normalizeBaseUrl,
   performKeycloakLoginForm,
   requireDotenvValue,
 } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 
-const ssoEnabled        = isServiceEnabled("sso");
-const ldapEnabled       = isServiceEnabled("ldap");
 const oidcIssuerUrl     = normalizeBaseUrl(requireDotenvValue(process.env.OIDC_ISSUER_URL, "OIDC_ISSUER_URL"));
 const jellyfinBaseUrl   = normalizeBaseUrl(process.env.JELLYFIN_BASE_URL || "");
 const adminUsername     = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
@@ -19,13 +18,26 @@ const adminNativePassword = decodeDotenvQuotedValue(process.env.ADMIN_NATIVE_PAS
 const biberUsername     = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword     = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
 const canonicalDomain   = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
+const adminGroupPath    = decodeDotenvQuotedValue(process.env.JELLYFIN_ADMIN_GROUP_PATH);
+const keycloakBaseUrl   = normalizeBaseUrl(requireDotenvValue(process.env.KEYCLOAK_BASE_URL, "KEYCLOAK_BASE_URL"));
+const keycloakRealm     = decodeDotenvQuotedValue(process.env.KEYCLOAK_REALM_NAME);
+const keycloakAdminUsername = decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_USERNAME);
+const keycloakAdminPassword = decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_PASSWORD);
+const ldapAdminUsername = decodeDotenvQuotedValue(process.env.LDAP_ADMIN_USERNAME);
+const ldapAdminPassword = decodeDotenvQuotedValue(process.env.LDAP_ADMIN_PASSWORD);
+const loginMethodSso    = process.env.LOGIN_METHOD_SSO_ENABLED === "true";
+const loginMethodLdap   = process.env.LOGIN_METHOD_LDAP_ENABLED === "true";
+const loginMethodNative = process.env.LOGIN_METHOD_NATIVE_ENABLED === "true";
+const loginFormShown    = loginMethodLdap || loginMethodNative;
+
+const BREAK_GLASS_CLIENT = 'MediaBrowser Client="playwright", Device="break-glass", DeviceId="infinito-break-glass", Version="1.0.0"';
 
 async function gotoLogin(page) {
   await gotoOnion(page, `${jellyfinBaseUrl}/web/`, { waitUntil: "domcontentloaded" });
 }
 
 function onLoginSurface(page) {
-  return /login\.html|\/web\/?($|#\/?$)/.test(page.url());
+  return /\/web\/(?:index\.html)?#\/login(?:\.html)?(?:[?/]|$)/.test(page.url());
 }
 
 async function assertAuthenticated(page, label) {
@@ -62,6 +74,63 @@ async function signInViaLdap(page, username, password, label) {
   await signInViaLocal(page, username, password, label);
 }
 
+/**
+ * Args:
+ *   page: Playwright page the API session of the local account is handed to.
+ *   username: local Jellyfin account, normally the break-glass administrator.
+ *   password: its local password.
+ *   label: assertion label.
+ */
+async function signInViaBreakGlass(page, username, password, label) {
+  const response = await apiFetchOnion(page.request, `${jellyfinBaseUrl}/Users/AuthenticateByName`, {
+    method: "POST",
+    headers: { "X-Emby-Authorization": BREAK_GLASS_CLIENT },
+    data: { Username: username, Pw: password },
+  });
+  expect(response.status(), `${label}: POST /Users/AuthenticateByName must sign the local account in`).toBe(200);
+  const session = await response.json();
+  await gotoLogin(page);
+  await expect
+    .poll(
+      () => page.evaluate(() => (JSON.parse(window.localStorage.getItem("jellyfin_credentials") || "{}").Servers || []).length),
+      {
+        timeout: resolveTimeout(30_000),
+        message: `${label}: the Jellyfin web client must register its server before it takes over an API session`,
+      },
+    )
+    .toBeGreaterThan(0);
+  await expect
+    .poll(() => onLoginSurface(page), {
+      timeout: resolveTimeout(30_000),
+      message: `${label}: the Jellyfin web client must settle on its login surface before it takes over an API session`,
+    })
+    .toBe(true);
+  await page.evaluate(
+    ({ serverId, accessToken, userId }) => {
+      const credentials = JSON.parse(window.localStorage.getItem("jellyfin_credentials"));
+      for (const server of credentials.Servers) {
+        server.Id = serverId;
+        server.AccessToken = accessToken;
+        server.UserId = userId;
+      }
+      window.localStorage.setItem("jellyfin_credentials", JSON.stringify(credentials));
+    },
+    { serverId: session.ServerId, accessToken: session.AccessToken, userId: session.User.Id },
+  );
+  await gotoOnion(page, `${jellyfinBaseUrl}/web/index.html`, { waitUntil: "domcontentloaded" });
+  await assertAuthenticated(page, label);
+}
+
+/**
+ * Args:
+ *   page: Playwright page that signs the local administrator in.
+ *   label: assertion label.
+ */
+async function signInAsLocalAdministrator(page, label) {
+  const signIn = loginFormShown ? signInViaLocal : signInViaBreakGlass;
+  await signIn(page, adminUsername, adminNativePassword, label);
+}
+
 async function signInViaOidc(page, username, password, label) {
   await gotoLogin(page);
   const oidcButton = page
@@ -83,6 +152,24 @@ async function signInViaOidc(page, username, password, label) {
 
   await performKeycloakLoginForm(page, username, password);
   await assertAuthenticated(page, label);
+}
+
+async function sessionUser(page, label) {
+  const credentials = await page.evaluate(() => window.localStorage.getItem("jellyfin_credentials"));
+  expect(credentials, `${label}: the Jellyfin web client must store its credentials after sign-in`).toBeTruthy();
+  const token = JSON.parse(credentials).Servers.map((server) => server.AccessToken).find(Boolean);
+  expect(token, `${label}: the stored Jellyfin credentials must carry an access token`).toBeTruthy();
+  const response = await apiFetchOnion(page.request, `${jellyfinBaseUrl}/Users/Me`, {
+    method: "GET",
+    headers: { "X-Emby-Token": token },
+  });
+  expect(response.status(), `${label}: GET /Users/Me must answer for the signed-in user`).toBe(200);
+  return response.json();
+}
+
+async function sessionIsAdministrator(page, label) {
+  const user = await sessionUser(page, label);
+  return user.Policy.IsAdministrator === true;
 }
 
 async function logout(page, label = "session") {
@@ -136,8 +223,6 @@ async function beforeEach({ page }) {
 
 module.exports = {
   env: {
-    ssoEnabled,
-    ldapEnabled,
     oidcIssuerUrl,
     jellyfinBaseUrl,
     adminUsername,
@@ -145,6 +230,17 @@ module.exports = {
     biberUsername,
     biberPassword,
     canonicalDomain,
+    adminGroupPath,
+    keycloakBaseUrl,
+    keycloakRealm,
+    keycloakAdminUsername,
+    keycloakAdminPassword,
+    ldapAdminUsername,
+    ldapAdminPassword,
+    loginMethodSso,
+    loginMethodLdap,
+    loginMethodNative,
+    loginFormShown,
   },
   gotoLogin,
   onLoginSurface,
@@ -152,7 +248,12 @@ module.exports = {
   signInViaLocal,
   signInViaLdap,
   signInViaOidc,
+  signInViaBreakGlass,
+  signInAsLocalAdministrator,
+  sessionUser,
+  sessionIsAdministrator,
   logout,
   beforeEach,
+  skipUnlessServiceDisabled,
   skipUnlessServiceEnabled,
 };

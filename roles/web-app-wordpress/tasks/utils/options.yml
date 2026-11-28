@@ -1,0 +1,41 @@
+---
+# Param wordpress_options: WordPress option name mapped to the value the role writes.
+# Param wordpress_options_command: the WP-CLI command of the options, `option` for the site or `site option` for the network.
+
+- name: "⬇️ Read the stored WordPress {{ wordpress_options_command }}s the forms manage"
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp {{ wordpress_options_command }} get {{ item.key | quote }} --format=json
+    --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  loop: "{{ wordpress_options | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  register: wp_options_stored
+  changed_when: false
+  failed_when: >-
+    wp_options_stored.rc != 0
+    and 'Could not get' not in wp_options_stored.stderr
+
+- name: "📣 Report the managed WordPress {{ wordpress_options_command }}s a write reverts"
+  include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current: "{{ wp_options_stored.results | wordpress_options_overwritten(lookup('config', application_id, 'forms')) }}"
+
+- name: "🔧 Write each managed WordPress {{ wordpress_options_command }} that drifted"
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp {{ wordpress_options_command }} update {{ item.item.key | quote }} {{ item.item.value | to_json | quote }}
+    --format=json --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  loop: "{{ wp_options_stored.results }}"
+  loop_control:
+    label: "{{ item.item.key }}"
+  when: item | wordpress_option_drifted
+  register: wp_options_written
+  changed_when: >-
+    'option is unchanged.' not in wp_options_written.stdout
+
+- name: "🚿 Flush the rewrite rules once a {{ wordpress_options_command }} changed"
+  shell: >
+    container exec -u {{ WORDPRESS_USER }} {{ WORDPRESS_CONTAINER_ADDRESS }}
+    wp rewrite flush --path={{ WORDPRESS_DOCKER_HTML_PATH }}
+  when: wp_options_written is changed

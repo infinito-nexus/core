@@ -9,6 +9,9 @@
 - name: "🎨 Apply the corporate design inside Discourse"
   include_tasks: stack_host/03_design.yml
 
+- name: "🛂 Reconcile the staff flags with the RBAC role groups"
+  include_tasks: stack_host/04_rbac.yml
+
 - name: "🤖 Bind the native AI surface to the platform gateway"
   include_tasks: addons/discourse-ai.yml
   when: DISCOURSE_LITELLM_ENABLED | bool

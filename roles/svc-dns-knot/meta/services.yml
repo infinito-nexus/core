@@ -1,0 +1,54 @@
+---
+# nocheck: garbage-collector-required  knotd compacts its own zone journal and key database
+knot:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  every host of the group runs its own server: the primary holds the signing keys, a secondary its transferred copy
+  placement: manager
+  enabled: true
+  shared: true
+  bond: 1
+  backup:
+    stop_required: true
+  image: cznic/knot
+  name: knot
+  version: "v3.6.2"
+  healthcheck:
+    test: ["CMD", "knotc", "status"]
+  min_storage: 200MB
+  cpus: "0.5"
+  mem_reservation: "128m"
+  mem_limit: "512m"
+  pids_limit: 256
+  ports:
+    internal:
+      dns: 53
+    public:
+      dns: 53
+    onion:
+      # nocheck: onion-flag  an authoritative server answers resolvers of the clearnet, which reach no onion listener
+      dns: false
+  lifecycle: alpha
+
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true
+
+# nocheck: variants-coverage the role has a single variant, and the guide edge is not a dimension of it: a second round would differ only by the README replay
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  authoritative server of the workspace subzone, so pausing it would take every workspace name off the internet
+  status: started

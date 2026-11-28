@@ -1,0 +1,24 @@
+---
+flags:
+  script-src:
+    wasm-unsafe-eval: true # nocheck: csp-unsafe  Reason: the bundled nginx.conf of the pinned release grants 'wasm-unsafe-eval' in the dashboard script-src, and the proxy replaces that policy with this one; the token admits WebAssembly compilation only, no JavaScript eval
+  script-src-elem:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: the dashboard boots from six inline scripts that upstream admits by sha256 hash and a static nonce, and those hashes change with every release, and a pinned nonce or hash would make browsers drop the 'unsafe-inline' the platform's injected logout and tracking snippets rely on
+whitelist:
+  connect-src:
+    - "https:"
+    - "wss:"
+    - "blob:"
+    - "data:"
+  worker-src:
+    - "blob:"
+  font-src:
+    - "data:"
+  media-src:
+    - "data:"
+    - "blob:"
+    - "https:"
+  frame-src:
+    - https://www.youtube.com
+    - https://www.youtube-nocookie.com # nocheck: url  Reason: CSP origin, not a page; its root answers HTTP 404
+    - https://webcams.windy.com

@@ -1,6 +1,6 @@
 """Network diagnostics for the infinito container (DNS, TCP, TLS, MTU, routing).
 
-Intended to run early in MODE_DEBUG playbooks so handshake / DNS / MITM-style
+Intended to run early in DEBUG playbooks so handshake / DNS / MITM-style
 failures show up loudly before any role-level pull/build hits them.
 """
 

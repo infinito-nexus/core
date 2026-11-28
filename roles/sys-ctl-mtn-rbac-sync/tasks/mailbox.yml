@@ -1,0 +1,27 @@
+---
+# Param rbac_sync_mailbox_enabled: true once the mailbox layout is applied to the directory, false to stop the timer from seeding mailboxes.
+- name: "✉️ Seed the mailbox layout for the RBAC sync timer"
+  when: rbac_sync_mailbox_enabled | bool
+  block:
+    - name: "📁 Create the root-only RBAC sync directory for the mailbox seed"
+      ansible.builtin.file:
+        path: "{{ DIR_RBAC_SYNC }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+
+    - name: "✉️ Write the mailbox seed the RBAC sync timer reads"
+      ansible.builtin.copy:
+        content: "{{ RBAC_SYNC_MAILBOX | to_nice_json }}\n"
+        dest: "{{ RBAC_SYNC_MAILBOX_FILE }}"
+        owner: root
+        group: root
+        mode: "0600"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧹 Remove the mailbox seed of the RBAC sync timer"
+  ansible.builtin.file:
+    path: "{{ RBAC_SYNC_MAILBOX_FILE }}"
+    state: absent
+  when: not (rbac_sync_mailbox_enabled | bool)

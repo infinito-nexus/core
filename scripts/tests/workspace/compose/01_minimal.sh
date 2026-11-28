@@ -13,7 +13,7 @@ CACHE_BEFORE="$(cache_snapshot)"
 
 echo "Deploying dashboard with all variable (group-conditional) services disabled, except the asset provider, to speed up the deploy and verify disable= suppresses them from the inventory."
 # Exception: without the asset provider the dashboard loads its logo from the public file.infinito.nexus, which ties this test to that host's uptime; variant 1 pins the provider off, so only round 0 runs here.
-make compose-deploy mode=reinstall apps="${DASHBOARD_APP}" variant=0 disable="$(variable_services dashboard javascript asset)"
+make compose-deploy mode=reinstall apps="${DASHBOARD_APP}" variant=0 disable="$(variable_services "${DASHBOARD_APP}" asset)"
 inspect
 
 echo "Actively probing both caches to confirm pull-through works end-to-end."

@@ -2,18 +2,17 @@
 
 Rationale
 =========
-``roles/svc-ai-lmstudio/tasks/utils/fetch.yml`` downloads the entry's ``url``
-into ``<models>/<repo>/<file>`` and verifies it against ``sha256`` and
-``bytes``. ``quant`` names the variant those four fields describe, so an entry
-whose ``file`` carries another variant pins a digest to the wrong blob.
+LM Studio once downloaded with ``lms get --yes --gguf <source>@<quant>``, and
+without the ``@<quant>`` suffix it picked the variant itself, so the ``file``,
+``sha256`` and ``bytes`` an entry declared became a guess about that pick. The
+role now links the pinned store file, and the quantization stays pinned so the
+declared ``file`` keeps naming the variant the manifest digest describes.
 
-Two shipped checks measure against those fields, so the drift is not harmless.
 ``roles/svc-ai-lmstudio/files/test/test.sh`` looks for
 ``<models>/<repo>/<file>`` and reports ``is not in the model store`` when the
-store holds a different variant. ``fetch.yml`` derives the download budget from
-``bytes``, so a declaration smaller than the real file cuts the transfer off.
+link names a different variant.
 
-Run 36107421422 hit both at once: the entry declared ``Q4_K_M`` at 808 MB while
+Run 36107421422 hit this: the entry declared ``Q4_K_M`` at 808 MB while
 ``lms get`` fetched ``Q8_0`` at 1.32 GB. The declared quantization is therefore
 pinned here against the other three fields, because an entry whose fields
 disagree fails far from the line that introduced the disagreement.
@@ -29,6 +28,7 @@ from __future__ import annotations
 import unittest
 from typing import ClassVar
 
+from plugins.filter.litellm.local_model import declared_local_models
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
@@ -37,12 +37,11 @@ from . import PROJECT_ROOT
 
 _RULE = "local-model-quant-pinned"
 _VARS_FILE = PROJECT_ROOT / "group_vars" / "all" / "16_ai.yml"
-_KEY = "AI_LOCAL_MODELS"
 
 
 def _entries() -> list[dict]:
-    declared = load_yaml(_VARS_FILE).get(_KEY)
-    return [entry for entry in (declared or []) if isinstance(entry, dict)]
+    declared = declared_local_models(load_yaml(_VARS_FILE))
+    return [entry for entry in declared if isinstance(entry, dict)]
 
 
 def _line_of(alias: str) -> int:

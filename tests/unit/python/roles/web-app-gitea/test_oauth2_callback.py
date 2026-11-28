@@ -79,10 +79,18 @@ def render_env(
         "services.gitea.configuration.repository.enable_push_create_user": True,
         "services.gitea.configuration.repository.default_private": "last",
         "services.gitea.configuration.repository.default_push_create_private": True,
+        "services.gitea.configuration.git.gc_args": "--prune=1.day.ago",
+        "services.gitea.configuration.git.timeout.gc": 1800,
+        "services.gitea.configuration.git.timeout.mirror": 3600,
+        "services.gitea.configuration.cron.git_gc_repos.enabled": True,
+        "services.gitea.configuration.cron.git_gc_repos.schedule": "@every 72h",
+        "services.gitea.configuration.cron.git_gc_repos.timeout": "60m",
         "services.prometheus.native_metrics.enabled": False,
     }
 
     def lookup(name: str, *terms):
+        if name == "debug":
+            return False
         if name == "domain":
             return DOMAIN
         if name == "tls" and terms[1:] == ("url.base",):
@@ -104,11 +112,11 @@ def render_env(
 
     env.globals["lookup"] = lookup
     env.filters["bool"] = bool
+    env.filters["dotenv_quote"] = lambda value: value
     rendered = env.get_template(f"roles/{APP}/templates/env.j2").render(
         application_id=APP,
         HOST_TIMEZONE="UTC",
         ENVIRONMENT="production",
-        MODE_DEBUG=False,
         GITEA_REDIS_ENABLED=False,
         GITEA_DESIGN_ENABLED=False,
         GITEA_THEMES={"auto": "corporate-auto"},
@@ -117,6 +125,12 @@ def render_env(
         GITEA_LDAP_ENABLED=False,
         GITEA_IAM_ENABLED=not without_oidc,
         GITEA_OAUTH2_USERNAME_SOURCES=role_vars()["GITEA_OAUTH2_USERNAME_SOURCES"],
+        GITEA_LOGIN_OPENID2=False,
+        GITEA_LOGIN_FORM=False,
+        GITEA_LOGIN_PASSKEY=False,
+        GITEA_LOGIN_REGISTRATION=False,
+        GITEA_LOGIN_2FA=False,
+        GITEA_LOGIN_2FA_ENFORCED=False,
     )
     return dict(
         line.split("=", 1)
@@ -279,18 +293,28 @@ class TestGiteaOAuth2AccountLinking(unittest.TestCase):
         with self.assertRaises(UndefinedError):
             render_env({**shipped_oauth2_client(), "username": "uid"})
 
-    def test_without_keycloak_gitea_gets_no_oauth2_client_settings(self) -> None:
+    def test_without_keycloak_gitea_turns_auto_linking_off(self) -> None:
         env = render_env(without_oidc=True)
         self.assertEqual(
-            [key for key in env if key.startswith("GITEA__oauth2_client__")], []
+            {
+                key: value
+                for key, value in env.items()
+                if key.startswith("GITEA__oauth2_client__")
+            },
+            {
+                "GITEA__oauth2_client__ENABLE_AUTO_REGISTRATION": "false",
+                "GITEA__oauth2_client__ACCOUNT_LINKING": "login",
+            },
         )
 
     def test_the_source_requests_the_claims_auto_linking_matches(self) -> None:
-        task = read_text(str(ROLE_DIR / "tasks" / "setup" / "oidc.yml"))
-        scopes = re.findall(r'--scopes\s+"([^"]+)"', task)
-        self.assertTrue(scopes)
-        for requested in scopes:
-            self.assertLessEqual({"profile", "email"}, set(requested.split()))
+        services = load_yaml_str(read_text(str(ROLE_DIR / ROLE_FILE_META_SERVICES)))
+        self.assertIn(
+            '--scopes "{{ GITEA_OAUTH_SOURCE.oauth2_scopes }}"',
+            role_vars()["GITEA_OIDC_AUTH_ARGS"],
+        )
+        scopes = services["gitea"]["auth"]["oauth"]["scopes"]
+        self.assertLessEqual({"profile", "email"}, set(scopes.split()))
 
 
 class TestGiteaAuthSourceConvergence(unittest.TestCase):

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 from typing import Any
 
+from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
 from utils.roles.validation.invokable import list_invokable_app_ids
@@ -25,6 +27,18 @@ def _coerce_to_list(raw: Any) -> list[str]:
     return [str(item) for item in raw]
 
 
+def _json_list(name: str, raw: Any) -> list[str]:
+    if not isinstance(raw, str):
+        return _coerce_to_list(raw)
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise AnsibleError(f"deployment: {name} is not a JSON list: {raw!r}") from exc
+    if not isinstance(parsed, list):
+        raise AnsibleError(f"deployment: {name} is not a JSON list: {raw!r}")
+    return [str(item) for item in parsed]
+
+
 def running_apps(vars_: dict[str, Any]) -> list[str]:
     """Return the apps the operator asked for, the round's groups otherwise.
 
@@ -33,6 +47,21 @@ def running_apps(vars_: dict[str, Any]) -> list[str]:
     """
     whitelist = _coerce_to_list(vars_.get("APPLICATIONS_WHITELIST"))
     return whitelist or _coerce_to_list(vars_.get("group_names"))
+
+
+def primary_apps(vars_: dict[str, Any]) -> list[str]:
+    """Return the apps this deploy was asked for, without their providers.
+
+    Args:
+        vars_: the task variables the lookup was called with. The matrix
+            deploy passes ``PRIMARY_APPS`` as JSON text, because its
+            ``APPLICATIONS_WHITELIST`` is the whole round closure; every other
+            deploy leaves it empty and asks through the whitelist.
+
+    Raises:
+        AnsibleError: ``PRIMARY_APPS`` is text that is not a JSON list.
+    """
+    return _json_list("PRIMARY_APPS", vars_.get("PRIMARY_APPS")) or running_apps(vars_)
 
 
 class LookupModule(LookupBase):
@@ -52,7 +81,14 @@ class LookupModule(LookupBase):
             if hosts and name not in _IMPLICIT_GROUPS
         )
         runtime = str(vars_.get("RUNTIME", "")).strip().lower()
-        key = (tuple(whitelist), tuple(groups), tuple(inventory), runtime)
+        primary = primary_apps(vars_)
+        key = (
+            tuple(whitelist),
+            tuple(groups),
+            tuple(inventory),
+            runtime,
+            tuple(primary),
+        )
 
         cached = _STATUS_CACHE.get(key)
         if cached is not None:
@@ -63,6 +99,7 @@ class LookupModule(LookupBase):
         deployed = list(running) if ephemeral else list(groups)
         result = {
             "whitelist": whitelist,
+            "primary": primary,
             "running": list(running),
             "groups": groups,
             "inventory": inventory,

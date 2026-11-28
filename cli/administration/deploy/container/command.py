@@ -265,7 +265,7 @@ def run_in_container(
             "-p",
             pw_file,
             "-vv",
-            "--assert",
+            "--validate",
             "true",
             "--skip-pull",
             *deploy_args,

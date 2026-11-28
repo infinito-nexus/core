@@ -8,6 +8,7 @@ from utils.domains.default_primary import default_domain_primary
 from utils.networks.reachability import (
     CLEARNET,
     MULTI,
+    NODE_MODES,
     TOR,
     allowed_networks,
     browser_proxy_bypass,
@@ -146,18 +147,27 @@ class TestRoleReachability(unittest.TestCase):
 class TestEffectiveNetworks(unittest.TestCase):
     """Every combination of node mode, ``modes`` and ``single_mode``."""
 
+    MODES = ((), (CLEARNET,), (TOR,), (CLEARNET, TOR))
+
     CASES = (
         (CLEARNET, (), False, (CLEARNET,)),
-        (TOR, (), False, (TOR,)),
-        (MULTI, (), False, (CLEARNET, TOR)),
         (CLEARNET, (), True, (CLEARNET,)),
-        (TOR, (), True, (TOR,)),
-        (MULTI, (), True, (TOR,)),
         (CLEARNET, (CLEARNET,), False, (CLEARNET,)),
+        (CLEARNET, (CLEARNET,), True, (CLEARNET,)),
+        (CLEARNET, (CLEARNET, TOR), False, (CLEARNET,)),
+        (CLEARNET, (CLEARNET, TOR), True, (CLEARNET,)),
+        (TOR, (), False, (TOR,)),
+        (TOR, (), True, (TOR,)),
+        (TOR, (TOR,), False, (TOR,)),
+        (TOR, (TOR,), True, (TOR,)),
+        (TOR, (CLEARNET, TOR), False, (TOR,)),
+        (TOR, (CLEARNET, TOR), True, (TOR,)),
+        (MULTI, (), False, (CLEARNET, TOR)),
+        (MULTI, (), True, (TOR,)),
         (MULTI, (CLEARNET,), False, (CLEARNET,)),
         (MULTI, (CLEARNET,), True, (CLEARNET,)),
-        (TOR, (TOR,), False, (TOR,)),
         (MULTI, (TOR,), False, (TOR,)),
+        (MULTI, (TOR,), True, (TOR,)),
         (MULTI, (CLEARNET, TOR), False, (CLEARNET, TOR)),
         (MULTI, (CLEARNET, TOR), True, (TOR,)),
     )
@@ -168,6 +178,17 @@ class TestEffectiveNetworks(unittest.TestCase):
         (CLEARNET, (TOR,), False),
         (CLEARNET, (TOR,), True),
     )
+
+    def test_the_table_covers_every_combination(self) -> None:
+        covered = [case[:3] for case in self.CASES] + list(self.FAILURES)
+        expected = [
+            (node_mode, modes, single)
+            for node_mode in NODE_MODES
+            for modes in self.MODES
+            for single in (False, True)
+        ]
+        self.assertEqual(len(covered), len(set(covered)))
+        self.assertCountEqual(covered, expected)
 
     def test_served_networks(self) -> None:
         for node_mode, modes, single, expected in self.CASES:

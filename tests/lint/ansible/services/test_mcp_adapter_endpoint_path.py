@@ -64,7 +64,7 @@ def drifting_providers() -> list[str]:
 
 
 class TestMcpAdapterEndpointPath(unittest.TestCase):
-    def test_every_adapter_provider_declares_the_served_path(self) -> None:
+    def test_every_adapter_provider_declares_the_served_path(self) -> None:  # nocheck: test.text-presence -- parses every role meta/mcp.yml  # fmt: skip
         findings = drifting_providers()
         self.assertEqual(
             [],

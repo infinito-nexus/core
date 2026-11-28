@@ -35,7 +35,7 @@ from unittest.mock import patch
 from cli.meta.roles.applications.resolution.combined import repo_paths
 from utils.cache.applications import get_variants
 from utils.cache.files import read_text
-from utils.roles.applications.variant_pins import (
+from utils.roles.applications.variant.pins import (
     PIN,
     VariantPinError,
     _service_key_lines,

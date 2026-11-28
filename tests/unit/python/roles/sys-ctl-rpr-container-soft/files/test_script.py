@@ -1,6 +1,8 @@
+import tempfile
 import types
 import unittest
 from importlib.util import module_from_spec, spec_from_file_location
+from pathlib import Path
 
 from . import PROJECT_ROOT
 
@@ -139,7 +141,12 @@ class TestRepairDockerSoft(unittest.TestCase):
             s.print_bash = fake_print_bash
             s.os.path.isfile = fake_isfile
 
-            errors = s.main("/BASE", manipulation_services=[], timeout=None)
+            errors = s.main(
+                "/BASE",
+                manipulation_services=[],
+                timeout=None,
+                state_file=".app-control-state",
+            )
 
             self.assertEqual(errors, 0)
 
@@ -164,6 +171,42 @@ class TestRepairDockerSoft(unittest.TestCase):
         finally:
             s.print_bash = old_print_bash
             s.os.path.isfile = old_isfile2
+
+    def test_a_project_paused_by_app_control_is_not_restarted(self):
+        s = self.script
+        cmd_log = []
+        with tempfile.TemporaryDirectory() as base:
+            project = Path(base) / "app1"
+            project.mkdir()
+            (project / "compose.yml").write_text("services: {}\n")
+            (project / ".app-control-state").write_text("stopped\n")
+
+            def fake_print_bash(cmd):
+                cmd_log.append(cmd)
+                if "health=unhealthy" in cmd:
+                    return []
+                if "status=exited" in cmd:
+                    return ["app1-web-1\tExited (1) 2 minutes ago"]
+                if "com.docker.compose.project.working_dir" in cmd:
+                    return [str(project)]
+                if "com.docker.compose.project" in cmd:
+                    return ["app1"]
+                return []
+
+            old_print_bash = s.print_bash
+            try:
+                s.print_bash = fake_print_bash
+                errors = s.main(
+                    base,
+                    manipulation_services=[],
+                    timeout=None,
+                    state_file=".app-control-state",
+                )
+            finally:
+                s.print_bash = old_print_bash
+
+        self.assertEqual(errors, 0)
+        self.assertFalse([c for c in cmd_log if c.startswith("compose ")])
 
 
 if __name__ == "__main__":

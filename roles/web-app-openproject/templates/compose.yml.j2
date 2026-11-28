@@ -1,6 +1,5 @@
 x-op-app: &app
-  logging:
-    driver: journald
+  {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(2) }}
   sysctls:
     net.ipv4.tcp_keepalive_time: "{{ OPENPROJECT_DB_KEEPALIVE_IDLE_SECONDS }}"
     net.ipv4.tcp_keepalive_intvl: "{{ OPENPROJECT_DB_KEEPALIVE_INTERVAL_SECONDS }}"

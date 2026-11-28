@@ -159,8 +159,8 @@ if [[ -f "$repo_root/roles/$role/templates/playwright.secrets.j2" ]]; then
 	python3 -I -B "$spec_secrets" split "$secrets_dir"
 	reports_mount="$secrets_dir/reports"
 	stage_ro=":ro"
-	trap '[[ -z "$masker_pid" ]] || kill -HUP "$masker_pid" 2>/dev/null || :; wait; exit 129' HUP # nocheck: shell-or-true -- the masker may have exited already
-	trap '[[ -z "$masker_pid" ]] || kill -INT "$masker_pid" 2>/dev/null || :; wait; exit 130' INT # nocheck: shell-or-true -- the masker may have exited already
+	trap '[[ -z "$masker_pid" ]] || kill -HUP "$masker_pid" 2>/dev/null || :; wait; exit 129' HUP   # nocheck: shell-or-true -- the masker may have exited already
+	trap '[[ -z "$masker_pid" ]] || kill -INT "$masker_pid" 2>/dev/null || :; wait; exit 130' INT   # nocheck: shell-or-true -- the masker may have exited already
 	trap '[[ -z "$masker_pid" ]] || kill -TERM "$masker_pid" 2>/dev/null || :; wait; exit 143' TERM # nocheck: shell-or-true -- the masker may have exited already
 	user_args=()
 	((EUID == 0)) || user_args=(--user "$(id -u):$(id -g)" -e HOME=/tmp)

@@ -34,6 +34,18 @@ The wrapper loads the docker-python deps, calls `create.yml` for the role's own 
     compose_handlers_flush: true
 ```
 
+### `create/relay.yml`: a stream relay network
+
+The swarm deploy handler includes it for every network `lookup('stream_relay_networks')` returns, on the reverse proxy and on the provider, so whichever stack deploys first finds the network.
+The handler runs the lookup only in swarm, so a compose flush pays nothing for it.
+A relay network belongs to no role network: its name is `<entity>-relay`, its subnet is the provider's `overlay.stream_relay.subnet` from the role subnet pool, and it carries the stack namespace of the provider, so `docker stack rm <entity>` removes it with the provider's stack.
+A network of that name that is not an attachable swarm overlay on that subnet, with the configured encryption and namespace, fails the deploy; a probe that fails fails it too.
+Encryption is the presence of the `encrypted` option, whatever its value, so the option is left out when `swarm.network.encryption` is off.
+
+Required var:
+
+- `stream_relay`: one entry of `lookup('stream_relay_networks')`, with `name`, `subnet` and `stack`.
+
 ## Decision rule 📌
 
 Pick `routine.yml` when "create network → compose-up immediately" is the entire pre-condition chain.

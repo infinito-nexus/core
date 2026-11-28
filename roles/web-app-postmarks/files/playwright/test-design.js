@@ -257,6 +257,27 @@ exports.register = function () {
     if (title) {
       await expect.poll(() => page.title(), { message: "the page carries the configured title" }).toMatch(new RegExp(`\\| ${title}$`));
       await expect(page.locator(".header .logo a")).toContainText(title);
+      const html = await (await apiGetOnion(page.request, `${base}/about`)).text();
+      const feed = await (await apiGetOnion(page.request, `${base}/index.xml`)).text();
+      const tagged = await (await apiGetOnion(page.request, `${base}/tagged/${SHOWCASE_TAG}.xml`)).text();
+      const served = await page.evaluate(
+        ([markup, atoms]) => {
+          const parsed = new DOMParser().parseFromString(markup, "text/html");
+          const feedTitle = (atom) =>
+            new DOMParser().parseFromString(atom, "application/xml").querySelector("feed > title")?.textContent || "";
+          return {
+            page: parsed.title,
+            header: (parsed.querySelector(".header .logo a")?.textContent || "").trim(),
+            feeds: atoms.map(feedTitle),
+          };
+        },
+        [html, [feed, tagged]],
+      );
+      expect(served, "the server renders the configured title into the page, its header and both Atom feeds").toEqual({
+        page: `About | ${title}`,
+        header: title,
+        feeds: [title, `${title}: Bookmarks tagged '${SHOWCASE_TAG}'`],
+      });
     }
     if (faviconUrl) {
       await expect(page.locator("link[rel='icon']")).toHaveAttribute("href", faviconUrl);

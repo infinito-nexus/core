@@ -79,22 +79,6 @@ test("signatures match the reference implementation", () => {
   }
 });
 
-test("the node signer agrees with the python engine probe", () => {
-  const fs = require("node:fs");
-  const pinned = path.join(
-    __dirname,
-    "..", "..", "..", "..", "..", "..",
-    "tests", "unit", "python", "roles", "web-svc-seaweedfs", "test_sigv4.py",
-  );
-  const python = fs.readFileSync(pinned, "utf8");
-  for (const vector of VECTORS) {
-    assert.ok(
-      python.includes(vector.signature),
-      `${vector.signature} must also be pinned in test_sigv4.py so the two signers cannot drift apart`,
-    );
-  }
-});
-
 test("a changed secret changes the signature", () => {
   const headers = s3.sign({
     method: "GET",

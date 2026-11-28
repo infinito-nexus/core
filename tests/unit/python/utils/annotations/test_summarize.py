@@ -29,7 +29,7 @@ class TestParseProps(unittest.TestCase):
         self.assertEqual(parse_props(""), {})
 
     def test_none_like_empty(self) -> None:
-        self.assertEqual(parse_props(""), {})
+        self.assertEqual(parse_props(None), {})
 
 
 class TestParseLog(unittest.TestCase):

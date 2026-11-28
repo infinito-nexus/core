@@ -1,73 +1,99 @@
 ---
 - name: "🔑 Request an administrator token for the household theme"
-  uri_retry:
-    url: "{{ SOCIALHOME_INTERNAL_URL }}/api/auth/token"
-    method: POST
-    body_format: json
-    body:
-      username: "{{ SOCIALHOME_ADMIN_USERNAME }}"
-      password: "{{ SOCIALHOME_ADMIN_PASSWORD }}"
-    status_code: 200
-  register: socialhome_theme_token
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ SOCIALHOME_NETNS_PYTHON }}"
+    netns_request_host: "{{ SOCIALHOME_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ SOCIALHOME_INTERNAL_URL }}/api/auth/token"
+    netns_request_body: "{{ {'username': SOCIALHOME_ADMIN_USERNAME, 'password': SOCIALHOME_ADMIN_PASSWORD} | to_json }}"
+    netns_request_status: [200]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: socialhome_theme_token
+
+- name: "🔑 Keep the administrator headers for the household theme"
+  ansible.builtin.set_fact:
+    socialhome_theme_headers:
+      Authorization: "Bearer {{ (socialhome_theme_token.content | from_json).token }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🎨 Read the household theme"
-  uri_retry:
-    url: "{{ SOCIALHOME_INTERNAL_URL }}/api/theme"
-    method: GET
-    headers:
-      Authorization: "Bearer {{ socialhome_theme_token.json.token }}"
-    status_code: 200
-  register: socialhome_theme
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ SOCIALHOME_NETNS_PYTHON }}"
+    netns_request_host: "{{ SOCIALHOME_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "{{ SOCIALHOME_INTERNAL_URL }}/api/theme"
+    netns_request_headers: "{{ socialhome_theme_headers }}"
+    netns_request_status: [200]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: socialhome_theme_answer
+
+- name: "🎨 Hold the household primary colour"
+  ansible.builtin.set_fact:
+    socialhome_theme_primary_current: "{{ (socialhome_theme_answer.content | from_json).primary_color | lower }}"
 
 - name: "🎨 Write the household primary colour"
-  uri_retry:
-    url: "{{ SOCIALHOME_INTERNAL_URL }}/api/theme"
-    method: PUT
-    body_format: json
-    body:
-      primary_color: "{{ SOCIALHOME_THEME_PRIMARY }}"
-    headers:
-      Authorization: "Bearer {{ socialhome_theme_token.json.token }}"
-    status_code: 200
-  register: socialhome_theme_written
-  changed_when: true
-  when:
-    - socialhome_theme.json.primary_color | lower != SOCIALHOME_THEME_PRIMARY
-    - socialhome_theme.json.primary_color | lower == SOCIALHOME_BRAND_PRIMARY or (socialhome_theme_marker.stat.exists and socialhome_theme_marker.stat.checksum
-      == (socialhome_theme.json.primary_color | lower | hash('sha1')))
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ SOCIALHOME_NETNS_PYTHON }}"
+    netns_request_host: "{{ SOCIALHOME_HOST_NODE }}"
+    netns_request_method: PUT
+    netns_request_url: "{{ SOCIALHOME_INTERNAL_URL }}/api/theme"
+    netns_request_headers: "{{ socialhome_theme_headers }}"
+    netns_request_body: "{{ {'primary_color': SOCIALHOME_THEME_PRIMARY} | to_json }}"
+    netns_request_status: [200]
+    netns_request_retries: 0
+    netns_request_delay: 0
+    netns_request_changed: [200]
+    netns_request_skip: >-
+      {{ not (socialhome_theme_primary_current != SOCIALHOME_THEME_PRIMARY
+              and (socialhome_theme_primary_current == SOCIALHOME_BRAND_PRIMARY
+                   or (socialhome_theme_marker.stat.exists
+                       and socialhome_theme_marker.stat.checksum == (socialhome_theme_primary_current | hash('sha1'))))) }}
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: socialhome_theme_written
 
 - name: "🏷️ Read the household name"
-  uri_retry:
-    url: "{{ SOCIALHOME_INTERNAL_URL }}/api/instance/config"
-    method: GET
-    status_code: 200
-  register: socialhome_instance_config
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ SOCIALHOME_NETNS_PYTHON }}"
+    netns_request_host: "{{ SOCIALHOME_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "{{ SOCIALHOME_INTERNAL_URL }}/api/instance/config"
+    netns_request_status: [200]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_no_log: false
+    netns_request_result: socialhome_instance_config
 
 - name: "🏷️ Hold the household name and the name the role wrote last"
   ansible.builtin.set_fact:
-    socialhome_name_current: "{{ socialhome_instance_config.json.instance_name }}"
+    socialhome_name_current: "{{ (socialhome_instance_config.content | from_json).instance_name }}"
     socialhome_name_state: "{{ (socialhome_name_state_file.content | b64decode | from_json) if socialhome_name_marker.stat.exists else {} }}"
 
 - name: "🏷️ Rename the household"
-  uri_retry:
-    url: "{{ SOCIALHOME_INTERNAL_URL }}/api/admin/instance"
-    method: PATCH
-    body_format: json
-    body:
-      display_name: "{{ socialhome_name_target }}"
-    headers:
-      Authorization: "Bearer {{ socialhome_theme_token.json.token }}"
-    status_code: 200
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
   vars:
     socialhome_name_ours: "{{ socialhome_name_state | length > 0 and socialhome_name_current == socialhome_name_state.applied }}"
     socialhome_name_target: >-
       {{ (socialhome_name_state.previous if socialhome_name_ours | bool else '') if SOCIALHOME_DESIGN_TITLE | length == 0
          else ('' if (socialhome_name_state | length > 0 and not (socialhome_name_ours | bool)) or socialhome_name_current == SOCIALHOME_DESIGN_TITLE
          else SOCIALHOME_DESIGN_TITLE) }}
-  register: socialhome_name_written
-  changed_when: true
-  when: socialhome_name_target | length > 0
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_argv: "{{ SOCIALHOME_NETNS_PYTHON }}"
+    netns_request_host: "{{ SOCIALHOME_HOST_NODE }}"
+    netns_request_method: PATCH
+    netns_request_url: "{{ SOCIALHOME_INTERNAL_URL }}/api/admin/instance"
+    netns_request_headers: "{{ socialhome_theme_headers }}"
+    netns_request_body: "{{ {'display_name': socialhome_name_target} | to_json }}"
+    netns_request_status: [200]
+    netns_request_retries: 0
+    netns_request_delay: 0
+    netns_request_changed: [200]
+    netns_request_skip: "{{ socialhome_name_target | length == 0 }}"
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: socialhome_name_written

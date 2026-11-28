@@ -117,8 +117,8 @@
     litellm:
       enabled: false
     sso:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      enabled: true
+      shared: true
     prometheus:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -144,6 +144,38 @@
       - blog.{{ DOMAIN_PRIMARY }}
       - biberblog.{{ DOMAIN_PRIMARY }}
       - biber.blog.{{ DOMAIN_PRIMARY }}
+    served:
+      - parent: user.blog.{{ DOMAIN_PRIMARY }}
+        role: site-owner
+  rbac:
+    tenancy:
+      axis: domain
+      source: domains.canonical
+    roles:
+      network-administrator:
+        description: Holds super-admin rights across every site of the Multisite network
+        scope: global
+      global-administrator:
+        description: Holds the Administrator role on every site of the Multisite network
+        scope: global
+      global-editor:
+        description: Holds the Editor role on every site of the Multisite network
+        scope: global
+      global-author:
+        description: Holds the Author role on every site of the Multisite network
+        scope: global
+      global-contributor:
+        description: Holds the Contributor role on every site of the Multisite network
+        scope: global
+      global-subscriber:
+        description: Holds the Subscriber role on every site of the Multisite network
+        scope: global
+      site-owner:
+        description: Administers an own site <username>.<domains.served parent>, created on the first SSO login and archived when the membership ends; a deploy
+          or the next sign-in applies a membership change
+        scope: global
+      mcp:
+        scope: global
 
 - services:
     docs:

@@ -1,2 +1,3 @@
 ---
 SYS_SVC_SSHD_CONFIG_FILE: /etc/ssh/sshd_config
+SYS_SVC_SSHD_SERVICE: "{{ 'ssh' if ansible_facts['os_family'] == 'Debian' else 'sshd' }}"

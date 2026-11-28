@@ -13,6 +13,10 @@ this lint pins both:
   what a compromised container can do, and its length (which grows with the
   realm's registered origins) re-enters the upstream's header-size limit.
 
+``web-app-keycloak`` names the header without consuming it, since it emits the
+header through the gate, and so does one file of ``test-e2e-playwright``: the
+shared forged-identity helper, which forges it as a client request header.
+
 Suppression (see ``docs/contributing/actions/testing/suppression.md``):
 
 * ``# nocheck: sso-access-token-optin`` in the head of ``meta/services.yml``,
@@ -26,6 +30,7 @@ import unittest
 from typing import TYPE_CHECKING
 
 import yaml
+from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from utils.annotations.suppress import is_suppressed_in_head
 from utils.cache.files import iter_project_files_with_content, read_text
@@ -38,6 +43,10 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 _RULE = "sso-access-token-optin"
+_SENDERS = frozenset({"web-app-keycloak"})
+_SENDER_FILES = frozenset(
+    {"test-e2e-playwright/files/personas/utils/forged-identity.js"}
+)
 
 ROLES_DIR = PROJECT_ROOT / "roles"
 GATE = PROJECT_ROOT / (
@@ -45,6 +54,7 @@ GATE = PROJECT_ROOT / (
 )
 _HEADER_RE = re.compile(r"x[-_]forwarded[-_]access[-_]token", re.IGNORECASE)
 _EMITS_RE = re.compile(r"proxy_set_header|auth_request_set")
+_DIRECTIVE_RE = re.compile(r"(?m)^\s*proxy_set_header\s+(\S+)\s+(.+?)\s*;\s*$")
 _TEXT_SUFFIXES = {
     ".js",
     ".mjs",
@@ -103,7 +113,11 @@ def _reading_roles() -> set[str]:
     for path, content in iter_project_files_with_content(
         extensions=tuple(_TEXT_SUFFIXES), exclude_tests=True
     ):
-        if not path.startswith(prefix) or path.endswith(meta_name):
+        if (
+            not path.startswith(prefix)
+            or path.endswith(meta_name)
+            or path[len(prefix) :] in _SENDER_FILES
+        ):
             continue
         for line in content.splitlines():
             if _HEADER_RE.search(line) and not _EMITS_RE.search(line):
@@ -114,6 +128,35 @@ def _reading_roles() -> set[str]:
 
 def _roles() -> list[Path]:
     return sorted(p for p in ROLES_DIR.iterdir() if p.is_dir())
+
+
+def gate_access_token(opted_in: bool) -> str:
+    """
+    Args:
+        opted_in: the consumer's ``pass_access_token`` declaration.
+
+    Returns:
+        The value the rendered gate sets ``X-Forwarded-Access-Token`` to.
+    """
+    env = Environment(
+        loader=FileSystemLoader(str(PROJECT_ROOT)),
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(),
+    )
+
+    def lookup(name: str, *terms, **_kwargs):
+        if (name, *terms[1:]) == ("sso", "oauth2_pass_access_token"):
+            return opted_in
+        if (name, *terms[1:]) == ("sso", "oauth2_claim_headers"):
+            return []
+        raise AssertionError(f"unexpected lookup {name}{terms}")
+
+    env.globals["lookup"] = lookup
+    env.filters["oauth2_claim_headers"] = lambda _attributes: []
+    rendered = env.get_template(GATE.relative_to(PROJECT_ROOT).as_posix()).render(
+        application_id="web-app-n8n", group_names=[], OIDC={"ATTRIBUTES": {}}
+    )
+    return dict(_DIRECTIVE_RE.findall(rendered)).get("X-Forwarded-Access-Token", "")
 
 
 class TestSsoAccessTokenOptIn(unittest.TestCase):
@@ -127,7 +170,7 @@ class TestSsoAccessTokenOptIn(unittest.TestCase):
                 cls.declared.add(role.name)
             if text and is_suppressed_in_head(text.splitlines(), _RULE):
                 cls.suppressed.add(role.name)
-        cls.readers = _reading_roles() - {"web-app-keycloak"}
+        cls.readers = _reading_roles() - _SENDERS
 
     def test_every_reader_of_the_token_declares_the_opt_in(self) -> None:
         missing = sorted(self.readers - self.declared - self.suppressed)
@@ -148,13 +191,16 @@ class TestSsoAccessTokenOptIn(unittest.TestCase):
             f"the header: {unused}",
         )
 
-    def test_the_scan_finds_the_known_reader(self) -> None:
+    def test_every_sender_file_exists_and_names_the_header(self) -> None:  # nocheck: test.text-presence -- staleness guard of the lint's own exemption list  # fmt: skip
+        for rel in sorted(_SENDER_FILES):
+            self.assertRegex(read_text(str(ROLES_DIR / rel)), _HEADER_RE, rel)
+
+    def test_the_scan_finds_the_known_reader(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the repo-wide reader scan  # fmt: skip
         self.assertIn("web-app-n8n", self.readers)
 
     def test_the_gate_makes_the_header_conditional(self) -> None:
-        content = read_text(str(GATE))
-        self.assertIn("oauth2_pass_access_token", content)
-        self.assertIn('proxy_set_header X-Forwarded-Access-Token         "";', content)
+        self.assertEqual('""', gate_access_token(opted_in=False))
+        self.assertEqual("$authrequest_accesstoken", gate_access_token(opted_in=True))
 
 
 if __name__ == "__main__":

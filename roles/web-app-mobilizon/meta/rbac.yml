@@ -1,0 +1,4 @@
+---
+roles:
+  moderator:
+    description: Mobilizon moderator (handles reports, suspends profiles and groups, and reviews the instance moderation log)

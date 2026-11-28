@@ -37,6 +37,8 @@ Requires:       systemd
 Requires:       tar
 Requires:       zstd
 Recommends:     bind-utils
+Recommends:     perl(JSON::PP)
+Recommends:     procps-ng
 Recommends:     shellcheck
 Recommends:     shfmt
 

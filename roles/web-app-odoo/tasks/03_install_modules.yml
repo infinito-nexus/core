@@ -59,3 +59,6 @@
   retries: 60
   delay: 10
   until: odoo_health_after_update.rc == 0
+
+- name: "🌐 Activate the platform language"
+  include_tasks: 03_install_modules/language.yml

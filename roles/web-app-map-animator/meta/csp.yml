@@ -1,0 +1,11 @@
+---
+whitelist:
+  connect-src:
+    - https://tiles.versatiles.org
+  img-src:
+    - https://versatiles.org
+  worker-src:
+    - "blob:"
+flags:
+  script-src-elem:
+    unsafe-inline: true # nocheck: csp-unsafe  Reason: the SvelteKit static build boots the editor from an inline script whose global name and version change with every build, and the server's login page shows its error message from an inline script, so neither can be pinned by hash

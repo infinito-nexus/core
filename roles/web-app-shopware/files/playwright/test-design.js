@@ -1,5 +1,3 @@
-const crypto = require("node:crypto");
-
 const { test, expect } = require("@playwright/test");
 
 const {
@@ -12,7 +10,6 @@ const {
   tokenValue,
 } = require("./design");
 const {
-  apiFetchOnion,
   apiGetOnion,
   decodeDotenvQuotedValue,
   gotoOnion,
@@ -24,25 +21,10 @@ const { resolveTimeout } = require("./timeouts");
 const { signIn, dismissFirstRunWizard } = require("./test-admin-native");
 
 const base = normalizeBaseUrl(requireDotenvValue(process.env.APP_BASE_URL, "APP_BASE_URL"));
-const adminUsername = requireDotenvValue(process.env.ADMIN_USERNAME, "ADMIN_USERNAME");
-const adminPassword = requireDotenvValue(process.env.ADMIN_PASSWORD, "ADMIN_PASSWORD");
-const canonicalDomain = requireDotenvValue(process.env.CANONICAL_DOMAIN, "CANONICAL_DOMAIN");
 const designLogoUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
 const designMenuLogoUrl = decodeDotenvQuotedValue(process.env.DESIGN_MENU_LOGO_URL || "");
 const designTitle = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 
-const SHOWCASE = {
-  manufacturer: "d0000000000000000000000000000001",
-  customer: "d0000000000000000000000000000002",
-  address: "d0000000000000000000000000000003",
-  products: [
-    { id: "d0000000000000000000000000000011", number: "DESIGN-1", name: "Design showcase lamp", gross: 119 },
-    { id: "d0000000000000000000000000000012", number: "DESIGN-2", name: "Design showcase chair", gross: 238 },
-    { id: "d0000000000000000000000000000013", number: "DESIGN-3", name: "Design showcase table", gross: 476 },
-  ],
-  customerEmail: `design-showcase@${canonicalDomain}`,
-  customerPassword: crypto.randomBytes(32).toString("hex"),
-};
 const THEME_FIELDS = [
   ["sw-color-brand-primary", "--design-primary"],
   ["sw-color-buy-button", "--design-primary"],
@@ -57,124 +39,16 @@ const ROLE_SHEET = "link[href*='/roles/web-app-shopware/'][href*='style.css']";
 const COLOR_PROPERTY =
   /^(?:--[\w-]+|(?:[a-z-]*-)?color|background(?:-image)?|fill|stroke|box-shadow|text-shadow|border(?:-(?:top|right|bottom|left))?|outline|column-rule)$/;
 
-async function adminApi(request, token, method, path, data) {
-  const response = await apiFetchOnion(request, `${base}${path}`, {
-    method,
-    headers: { Accept: "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    data,
-    timeout: resolveTimeout(120_000),
-  });
-  if (response.status() >= 400) {
-    const body = await response.json().catch(() => ({}));
-    const details = (body.errors || []).map(
-      (error) => `${error.source?.pointer || ""} ${error.code || ""} ${error.detail || ""}`,
-    );
-    expect(response.status(), `${method} ${path}: ${details.join(" | ")}`).toBeLessThan(400);
-  }
-  return response.status() === 204 ? {} : response.json();
-}
-
-async function adminToken(request) {
-  const body = await adminApi(request, null, "POST", "/api/oauth/token", {
-    client_id: "administration",
-    grant_type: "password",
-    scopes: "write",
-    username: adminUsername,
-    password: adminPassword,
-  });
-  return body.access_token;
-}
-
-async function storefrontTheme(request, token) {
-  const themes = await adminApi(request, token, "POST", "/api/search/theme", {
-    limit: 1,
-    filter: [{ type: "equals", field: "technicalName", value: "Storefront" }],
-  });
-  return themes.data[0];
-}
-
-async function seedShowcase(request) {
-  const token = await adminToken(request);
-  const channels = await adminApi(request, token, "POST", "/api/search/sales-channel", {
-    limit: 25,
-    associations: { domains: {} },
-  });
-  const channel = channels.data.find((entry) =>
-    (entry.domains || []).some((domain) => domain.url.includes(canonicalDomain)),
-  );
-  expect(channel, "a storefront sales channel must serve the canonical domain").toBeTruthy();
-  const tax = (await adminApi(request, token, "POST", "/api/search/tax", { limit: 1, sort: [{ field: "position" }] }))
-    .data[0];
-  const theme = await storefrontTheme(request, token);
-  const salutation = (
-    await adminApi(request, token, "POST", "/api/search/salutation", {
-      limit: 1,
-      filter: [{ type: "equals", field: "salutationKey", value: "not_specified" }],
-    })
-  ).data[0];
-
-  await adminApi(request, token, "POST", "/api/_action/sync", {
-    "design-showcase-products": {
-      entity: "product",
-      action: "upsert",
-      payload: SHOWCASE.products.map((product) => ({
-        id: product.id,
-        productNumber: product.number,
-        name: product.name,
-        description: "Seeded by the design gallery.",
-        stock: 25,
-        active: true,
-        taxId: tax.id,
-        manufacturer: { id: SHOWCASE.manufacturer, name: "Design showcase" },
-        price: [
-          {
-            currencyId: channel.currencyId,
-            gross: product.gross,
-            net: Math.round((product.gross / (1 + tax.taxRate / 100)) * 100) / 100,
-            linked: true,
-          },
-        ],
-        categories: [{ id: channel.navigationCategoryId }],
-        visibilities: [{ id: product.id, salesChannelId: channel.id, visibility: 30 }],
-      })),
-    },
-    "design-showcase-customer": {
-      entity: "customer",
-      action: "upsert",
-      payload: [
-        {
-          id: SHOWCASE.customer,
-          customerNumber: "DESIGN-1",
-          firstName: "Design",
-          lastName: "Showcase",
-          email: SHOWCASE.customerEmail,
-          password: SHOWCASE.customerPassword,
-          active: true,
-          guest: false,
-          salutationId: salutation.id,
-          groupId: channel.customerGroupId,
-          salesChannelId: channel.id,
-          languageId: channel.languageId,
-          defaultBillingAddressId: SHOWCASE.address,
-          defaultShippingAddressId: SHOWCASE.address,
-          addresses: [
-            {
-              id: SHOWCASE.address,
-              salutationId: salutation.id,
-              firstName: "Design",
-              lastName: "Showcase",
-              street: "Showcase 1",
-              zipcode: "10115",
-              city: "Berlin",
-              countryId: channel.countryId,
-            },
-          ],
-        },
-      ],
-    },
-  });
-
-  return { token, channel, theme };
+function showcase() {
+  return {
+    productId: requireDotenvValue(process.env.SHOWCASE_PRODUCT_ID, "SHOWCASE_PRODUCT_ID"),
+    productName: requireDotenvValue(process.env.SHOWCASE_PRODUCT_NAME, "SHOWCASE_PRODUCT_NAME"),
+    customerEmail: requireDotenvValue(process.env.SHOWCASE_CUSTOMER_EMAIL, "SHOWCASE_CUSTOMER_EMAIL"),
+    customerPassword: requireDotenvValue(process.env.SHOWCASE_CUSTOMER_PASSWORD, "SHOWCASE_CUSTOMER_PASSWORD"),
+    channelId: requireDotenvValue(process.env.SHOWCASE_CHANNEL_ID, "SHOWCASE_CHANNEL_ID"),
+    themeId: requireDotenvValue(process.env.SHOWCASE_THEME_ID, "SHOWCASE_THEME_ID"),
+    themeConfig: JSON.parse(requireDotenvValue(process.env.SHOWCASE_THEME_CONFIG, "SHOWCASE_THEME_CONFIG")),
+  };
 }
 
 async function openStorefront(page, path, ready) {
@@ -211,8 +85,8 @@ async function declineOptionalCookies(page) {
 async function signInCustomer(page) {
   await gotoOnion(page, `${base}/account/login`);
   const form = page.locator("form.login-form");
-  await form.locator("input[name='username']").fill(SHOWCASE.customerEmail);
-  await form.locator("input[name='password']").fill(SHOWCASE.customerPassword);
+  await form.locator("input[name='username']").fill(showcase().customerEmail);
+  await form.locator("input[name='password']").fill(showcase().customerPassword);
   await form.locator("input[name='password']").press("Enter");
   await expect(
     page.locator(".account-welcome"),
@@ -235,8 +109,8 @@ async function overlaySettled(page, selector) {
   );
 }
 
-function galleryViews({ channel, theme, productUrl }) {
-  const product = SHOWCASE.products[0].id;
+function galleryViews({ productUrl }) {
+  const { productId: product, productName, channelId, themeId } = showcase();
   const ready = (selector) => (view) =>
     view.locator(selector).first().waitFor({ state: "visible", timeout: resolveTimeout(30_000) });
   const ensureCart = async (view) => {
@@ -302,7 +176,7 @@ function galleryViews({ channel, theme, productUrl }) {
         await ready(".register-form")(view);
       },
     },
-    { name: "admin-sign-in", url: `${base}/admin#/login`, prepare: ready(".sw-login__content input[type='password']") },
+    { name: "admin-sign-in", url: `${base}/admin#/login`, prepare: ready(".sw-login__content-headline") },
   ];
 
   const views = [
@@ -367,7 +241,7 @@ function galleryViews({ channel, theme, productUrl }) {
     admin("admin-dashboard", "/sw/dashboard/index", ".sw-dashboard-index"),
     admin("admin-product-list", "/sw/product/index", ".sw-product-list .sw-data-grid__row"),
     admin("admin-product-detail", `/sw/product/detail/${product}/base`, ".sw-product-detail .mt-card", null, (view) =>
-      expect(view).toHaveTitle(new RegExp(SHOWCASE.products[0].name), { timeout: resolveTimeout(30_000) }),
+      expect(view).toHaveTitle(new RegExp(productName), { timeout: resolveTimeout(30_000) }),
     ),
     admin("admin-order-list", "/sw/order/index", ".sw-order-list"),
     admin("admin-customer-list", "/sw/customer/index", ".sw-customer-list .sw-data-grid__row"),
@@ -380,8 +254,8 @@ function galleryViews({ channel, theme, productUrl }) {
     admin("admin-users", "/sw/users/permissions/index", ".sw-users-permissions .sw-data-grid__row"),
     admin("admin-profile", "/sw/profile/index/general", ".sw-profile-index"),
     admin("admin-flow", "/sw/flow/index/flows", ".sw-flow-list-index .sw-data-grid__row"),
-    admin("admin-theme-detail", `/sw/theme/manager/detail/${theme.id}`, ".sw-theme-manager-detail"),
-    admin("admin-sales-channel", `/sw/sales/channel/detail/${channel.id}/base`, ".sw-sales-channel-detail"),
+    admin("admin-theme-detail", `/sw/theme/manager/detail/${themeId}`, ".sw-theme-manager-detail"),
+    admin("admin-sales-channel", `/sw/sales/channel/detail/${channelId}/base`, ".sw-sales-channel-detail"),
     admin("admin-user-menu-open", "/sw/dashboard/index", ".sw-dashboard-index", async (view) => {
       if (view.viewportSize().width <= 500) return;
       await view.locator(".sw-admin-menu__user-actions-toggle").click();
@@ -397,8 +271,7 @@ function galleryViews({ channel, theme, productUrl }) {
   return { guestViews, views };
 }
 
-async function galleryContexts(page, browser, request) {
-  const seeded = await seedShowcase(request);
+async function galleryContexts(page, browser) {
   const guest = await browser.newContext({ ignoreHTTPSErrors: true });
   const guestPage = await guest.newPage();
   await declineOptionalCookies(guestPage);
@@ -406,8 +279,8 @@ async function galleryContexts(page, browser, request) {
   await dismissFirstRunWizard(page);
   await declineOptionalCookies(page);
   await signInCustomer(page);
-  await gotoOnion(page, `${base}/detail/${SHOWCASE.products[0].id}`);
-  return { ...galleryViews({ ...seeded, productUrl: page.url() }), guest, guestPage };
+  await gotoOnion(page, `${base}/detail/${showcase().productId}`);
+  return { ...galleryViews({ productUrl: page.url() }), guest, guestPage };
 }
 
 test("design: corporate tokens apply in light and dark mode", async ({ page }) => {
@@ -416,13 +289,9 @@ test("design: corporate tokens apply in light and dark mode", async ({ page }) =
   await assertDesignTokens(page, "shopware storefront");
 });
 
-test("design: the storefront takes surface, text, buy button and dividers from the tokens", async ({
-  page,
-  request,
-}) => {
+test("design: the storefront takes surface, text, buy button and dividers from the tokens", async ({ page }) => {
   skipUnlessServiceEnabled("design");
-  await seedShowcase(request);
-  await openStorefront(page, `/detail/${SHOWCASE.products[0].id}`, ".btn-buy");
+  await openStorefront(page, `/detail/${showcase().productId}`, ".btn-buy");
   for (const mode of ["light", "dark"]) {
     await page.emulateMedia({ colorScheme: mode });
     await assertToken(page, "body", "background-color", "--design-surface-1", `storefront ${mode}`);
@@ -454,10 +323,9 @@ test("design: the storefront takes surface, text, buy button and dividers from t
   await page.emulateMedia({ colorScheme: null });
 });
 
-test("design: storefront text stays readable in light and dark mode", async ({ page, request }) => {
+test("design: storefront text stays readable in light and dark mode", async ({ page }) => {
   skipUnlessServiceEnabled("design");
-  await seedShowcase(request);
-  await openStorefront(page, `/detail/${SHOWCASE.products[0].id}`, ".btn-buy");
+  await openStorefront(page, `/detail/${showcase().productId}`, ".btn-buy");
   await assertLightAndDark(page, "main.content-main", "shopware storefront");
   await assertReadable(
     page,
@@ -473,10 +341,9 @@ test("design: storefront text stays readable in light and dark mode", async ({ p
   );
 });
 
-test("design: the secondary button of the cart drawer stays a quiet surface", async ({ page, request }) => {
+test("design: the secondary button of the cart drawer stays a quiet surface", async ({ page }) => {
   skipUnlessServiceEnabled("design");
-  await seedShowcase(request);
-  await openStorefront(page, `/detail/${SHOWCASE.products[0].id}`, ".btn-buy");
+  await openStorefront(page, `/detail/${showcase().productId}`, ".btn-buy");
   await addToCart(page);
   const close = ".offcanvas.show .offcanvas-close.btn-secondary";
   await expect(page.locator(close)).toBeVisible({ timeout: resolveTimeout(30_000) });
@@ -488,27 +355,23 @@ test("design: the secondary button of the cart drawer stays a quiet surface", as
   await page.emulateMedia({ colorScheme: null });
 });
 
-test("design: the Storefront theme configuration holds the light palette", async ({ page, request }) => {
+test("design: the Storefront theme configuration holds the light palette", async ({ page }) => {
   skipUnlessServiceEnabled("design");
-  const theme = await storefrontTheme(request, await adminToken(request));
+  const { themeConfig } = showcase();
   await openStorefront(page, "/", "main.content-main");
   await page.emulateMedia({ colorScheme: "light" });
   for (const [field, token] of THEME_FIELDS) {
     expect(
-      hexToRgb(String(theme.configValues?.[field]?.value)),
+      hexToRgb(String(themeConfig[field])),
       `theme field ${field} must hold the light value of ${token}`,
     ).toBe(await tokenValue(page, token, "color"));
   }
   await page.emulateMedia({ colorScheme: null });
 });
 
-test("design: the compiled Storefront theme carries the light palette without the injected sheets", async ({
-  page,
-  request,
-}) => {
+test("design: the compiled Storefront theme carries the light palette without the injected sheets", async ({ page }) => {
   skipUnlessServiceEnabled("design");
-  await seedShowcase(request);
-  await openStorefront(page, `/detail/${SHOWCASE.products[0].id}`, ".btn-buy");
+  await openStorefront(page, `/detail/${showcase().productId}`, ".btn-buy");
   await page.emulateMedia({ colorScheme: "light" });
   const expected = {
     primary: await tokenValue(page, "--design-primary", "color"),
@@ -590,14 +453,13 @@ test("design: the role stylesheet sets every color through a token, also inside 
   expect(offenders, "every color of the role stylesheet, also inside its SVG images, comes from a --design-* token").toEqual([]);
 });
 
-test("design: the administration maps its tokens and keeps the menu on the frame", async ({ page, request }) => {
+test("design: the administration maps its tokens and keeps the menu on the frame", async ({ page }) => {
   skipUnlessServiceEnabled("design");
   expect(
     designMenuLogoUrl,
     "DESIGN_MENU_LOGO_URL must be set, toContain against an empty string passes always"
   ).toBeTruthy();
   test.setTimeout(resolveTimeout(240_000));
-  await seedShowcase(request);
   await openAdmin(page, "/sw/product/index", ".sw-product-list .sw-data-grid__row");
   for (const mode of ["light", "dark"]) {
     await page.emulateMedia({ colorScheme: mode });
@@ -674,7 +536,7 @@ test("design: the administration sign-in page sits on the palette", async ({ pag
     "DESIGN_MENU_LOGO_URL must be set, toContain against an empty string passes always"
   ).toBeTruthy();
   await gotoOnion(page, `${base}/admin#/login`);
-  await expect(page.locator(".sw-login__content input[type='password']")).toBeVisible({
+  await expect(page.locator(".sw-login__content-headline")).toBeVisible({
     timeout: resolveTimeout(60_000),
   });
   for (const mode of ["light", "dark"]) {
@@ -693,12 +555,12 @@ test("design: the administration sign-in page sits on the palette", async ({ pag
   ).toBe("none");
 });
 
-test("design: gallery of storefront and administration", async ({ page, browser, request }) => {
+test("design: gallery of storefront and administration", async ({ page, browser }) => {
   skipUnlessServiceEnabled("design");
   test.skip(!galleryEnabled(), "INFINITO_PLAYWRIGHT_KEEP is not true");
   test.setTimeout(resolveTimeout(3_600_000));
 
-  const { guestViews, views, guest, guestPage } = await galleryContexts(page, browser, request);
+  const { guestViews, views, guest, guestPage } = await galleryContexts(page, browser);
   const failures = [];
   for (const [target, group] of [
     [guestPage, guestViews],

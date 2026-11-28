@@ -48,4 +48,4 @@
 - name: "🧹 Queue the zone of '{{ domain }}' for the Cloudflare cache purge"
   ansible.builtin.set_fact:
     cf_zones_to_purge: "{{ ((cf_zones_to_purge | default([])) + [cf_zone_id]) | unique }}"
-  when: MODE_CLEANUP | bool
+  when: CLEANUP | bool

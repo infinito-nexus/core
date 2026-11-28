@@ -30,6 +30,8 @@
     "uisi_autorageshake_app": "element-auto-uisi",
     "show_labs_settings": true,
     "force_verification": {{ MATRIX_ELEMENT_FORCE_VERIFICATION | bool | to_json }},
+    "sso_redirect_options": {{ MATRIX_ELEMENT_LOGIN_CONFIG.sso_redirect_options | to_json }},
+    "setting_defaults": {{ MATRIX_ELEMENT_LOGIN_CONFIG.setting_defaults | to_json }},
     "room_directory": {
         "servers": ["matrix.org", "gitter.im", "libera.chat"]
     },

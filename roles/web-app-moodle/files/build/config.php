@@ -81,4 +81,12 @@ if (moodle_env_bool('MOODLE_OBJECTFS_ENABLED')
     );
 }
 
+$CFG->forced_plugin_settings = array_replace(
+    $CFG->forced_plugin_settings ?? array(),
+    array_map(
+        static fn (array $settings): array => array_map('strval', $settings),
+        json_decode(base64_decode(moodle_env('MOODLE_FORCED_PLUGIN_SETTINGS'), true), true, 512, JSON_THROW_ON_ERROR)
+    )
+);
+
 require_once(__DIR__ . '/lib/setup.php');

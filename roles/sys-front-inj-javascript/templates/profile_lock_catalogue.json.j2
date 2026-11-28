@@ -1,0 +1,6 @@
+{%- set profile_lock_languages = lookup('field_locks', application_id).languages -%}
+{%- set profile_lock_catalogue = lookup('i18n_catalogue', 'profile_lock', 'roles/sys-front-inj-javascript/files/profile_lock_i18n.yml') -%}
+{%- if profile_lock_languages is not none -%}
+{%- set profile_lock_catalogue = profile_lock_catalogue | dict2items | selectattr('key', 'in', profile_lock_languages) | list | items2dict -%}
+{%- endif -%}
+{{- profile_lock_catalogue | to_inline_js -}}

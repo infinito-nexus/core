@@ -3,6 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 
 const {
   OIDC_LOGIN_READY_FLAG,
+  gotoOnion,
   normalizeBaseUrl,
   requireDotenvValue,
 } = require("./personas");
@@ -126,6 +127,35 @@ async function waitForDashboardReady(page) {
   }
 }
 
+/**
+ * Args:
+ *   page: a page showing the dashboard.
+ * Returns: the dashboard data port-ui embeds (cards with key and folders;
+ *   folders by path), or null when the page has none.
+ */
+async function dashboardData(page) {
+  return page.evaluate(() => {
+    const block = document.getElementById("portui-dashboard-data");
+    return block ? JSON.parse(block.textContent) : null;
+  });
+}
+
+/**
+ * Args:
+ *   page: a page showing the dashboard.
+ *   id: the application id of the card to show.
+ * Opens the first folder holding the card, so its tile is visible in the
+ * folder view; leaves the page alone when the card sits at the top level.
+ */
+async function revealCard(page, id) {
+  const data = await dashboardData(page);
+  const card = data ? data.cards.find((entry) => entry.key === id) : null;
+  if (card && card.folders.length > 0) {
+    await gotoOnion(page, `/?folder=${encodeURIComponent(card.folders[0])}`, { waitUntil: "domcontentloaded" });
+    await waitForDashboardReady(page);
+  }
+}
+
 async function waitForResourceResponse(records, partialUrl, label) {
   await expect
     .poll(
@@ -149,6 +179,8 @@ module.exports = {
   beforeEach,
   attachDiagnostics,
   expectNoUnexpectedDiagnostics,
+  dashboardData,
+  revealCard,
   waitForDashboardReady,
   waitForResourceResponse,
 };

@@ -1,19 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
-  vars:
-    mcp_adapter_instance_dir: "{{ JELLYFIN_MCP_INSTANCE_DIR }}"
-    mcp_adapter_upstream_key: true
-  when: JELLYFIN_MCP_ENABLED | bool
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-  vars:
-    application_id: "web-app-jellyfin"
-    compose_handlers_flush: true
-
 - name: "🔐 Provision auth and apply the corporate design on the stack host"
   when: IS_STACK_HOST | bool
   block:
@@ -22,9 +9,10 @@
         jellyfin_auth_env_base:
           JELLYFIN_API: "{{ JELLYFIN_API }}"
           JELLYFIN_ADMIN_USERNAME: "{{ JELLYFIN_ADMIN_USERNAME }}"
-          JELLYFIN_ADMIN_PASSWORD: "{{ JELLYFIN_ADMIN_PASSWORD }}"
           JELLYFIN_SSO_ENABLED: "{{ JELLYFIN_SSO_ENABLED | string | lower }}"
           JELLYFIN_LDAP_ENABLED: "{{ JELLYFIN_LDAP_ENABLED | string | lower }}"
+          JELLYFIN_LOGIN_SSO_ENABLED: "{{ JELLYFIN_LOGIN_SSO | string | lower }}"
+          JELLYFIN_LOGIN_FORM_ENABLED: "{{ (JELLYFIN_LOGIN_NATIVE | bool or JELLYFIN_LOGIN_LDAP | bool) | string | lower }}"
         jellyfin_auth_env_ldap:
           JELLYFIN_LDAP_PLUGIN_VERSION: "{{ JELLYFIN_LDAP_PLUGIN_VERSION }}"
           JELLYFIN_LDAP_PLUGIN_URL: "{{ JELLYFIN_LDAP_PLUGIN_URL }}"
@@ -32,26 +20,43 @@
           JELLYFIN_LDAP_SERVER: "{{ JELLYFIN_LDAP_SERVER }}"
           JELLYFIN_LDAP_PORT: "{{ JELLYFIN_LDAP_PORT }}"
           JELLYFIN_LDAP_BIND_DN: "{{ JELLYFIN_LDAP_BIND_DN }}"
-          JELLYFIN_LDAP_BIND_PASSWORD: "{{ JELLYFIN_LDAP_BIND_PASSWORD }}"
           JELLYFIN_LDAP_BASE_DN: "{{ JELLYFIN_LDAP_BASE_DN }}"
           JELLYFIN_LDAP_UID_ATTR: "{{ JELLYFIN_LDAP_UID_ATTR }}"
+          JELLYFIN_LDAP_SEARCH_FILTER: "{{ JELLYFIN_LDAP_SEARCH_FILTER }}"
+          JELLYFIN_LDAP_SEARCH_ATTRIBUTES: "{{ JELLYFIN_LDAP_SEARCH_ATTRIBUTES }}"
+          JELLYFIN_LDAP_ADMIN_FILTER: "{{ JELLYFIN_LDAP_ADMIN_FILTER }}"
+          JELLYFIN_LDAP_PHOTO_ATTR: "{{ JELLYFIN_LDAP_PHOTO_ATTR }}"
+          JELLYFIN_LDAP_PASSWORD_ATTR: "{{ JELLYFIN_LDAP_PASSWORD_ATTR }}"
         jellyfin_auth_env_sso:
           JELLYFIN_SSO_PLUGIN_MANIFEST: "{{ JELLYFIN_SSO_PLUGIN_MANIFEST }}"
           JELLYFIN_OIDC_ISSUER: "{{ JELLYFIN_OIDC_ISSUER }}"
           JELLYFIN_OIDC_DISABLE_HTTPS: "{{ (JELLYFIN_OIDC_ISSUER | urlsplit('scheme') != 'https') | string | lower }}"
           JELLYFIN_OIDC_CLIENT_ID: "{{ JELLYFIN_OIDC_CLIENT_ID }}"
-          JELLYFIN_OIDC_CLIENT_SECRET: "{{ JELLYFIN_OIDC_CLIENT_SECRET }}"
+          JELLYFIN_OIDC_USERNAME_CLAIM: "{{ JELLYFIN_OIDC_USERNAME_CLAIM }}"
+          JELLYFIN_OIDC_ROLE_CLAIM: "{{ JELLYFIN_OIDC_ROLE_CLAIM }}"
+          JELLYFIN_OIDC_ADMIN_ROLE: "{{ JELLYFIN_OIDC_ADMIN_ROLE }}"
         jellyfin_auth_env: >-
           {{ jellyfin_auth_env_base
              | combine(jellyfin_auth_env_ldap if JELLYFIN_LDAP_ENABLED | bool else {})
              | combine(jellyfin_auth_env_sso if JELLYFIN_SSO_ENABLED | bool else {}) }}
+        jellyfin_auth_stdin: |-
+          {{ JELLYFIN_ADMIN_PASSWORD }}
+          {{ JELLYFIN_LDAP_BIND_PASSWORD if JELLYFIN_LDAP_ENABLED | bool else '' }}
+          {{ JELLYFIN_OIDC_CLIENT_SECRET if JELLYFIN_SSO_ENABLED | bool else '' }}
       ansible.builtin.include_tasks: 00_core/auth.yml
+
+    - name: "🔍 Resolve the {{ application_id }} network namespace for the corporate design"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+      vars:
+        netns_output_prefix: JELLYFIN
 
     - name: "🎨 Apply the corporate design of {{ application_id }}"
       vars:
-        jellyfin_design_authorization: 'MediaBrowser Token="{{ jellyfin_design_session.json.AccessToken }}"'
-        jellyfin_design_title: "{{ lookup('design', application_id).title if JELLYFIN_DESIGN_ENABLED | bool else false }}"
-        jellyfin_design_css_current: "{{ jellyfin_design_branding.json.get('CustomCss') or '' }}"
+        jellyfin_design_headers:
+          Authorization: 'MediaBrowser Token="{{ (jellyfin_design_session.content | from_json).AccessToken }}"'
+        jellyfin_design_branding: "{{ jellyfin_design_branding_answer.content | from_json }}"
+        jellyfin_design_title: "{{ JELLYFIN_SETTINGS.server_name | default(false) }}"
+        jellyfin_design_css_current: "{{ jellyfin_design_branding.get('CustomCss') or '' }}"
         jellyfin_design_css_foreign: "{{ jellyfin_design_css_current | regex_replace(JELLYFIN_DESIGN_CSS_PATTERN, '') | trim }}"
         jellyfin_design_urls: "{{ lookup('design', application_id).relative_urls }}"
         jellyfin_design_css_block: "{{ (JELLYFIN_DESIGN_CSS_OPEN ~ (lookup('template', 'branding.css.j2') | trim) ~ JELLYFIN_DESIGN_CSS_CLOSE) if JELLYFIN_DESIGN_ENABLED
@@ -61,7 +66,11 @@
         file: utils/design.yml
         apply:
           delegate_to: "{{ JELLYFIN_HOST_NODE }}"
+          become: true
           no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🖼️ Keep the profile images of {{ application_id }} on the directory photos"
+  ansible.builtin.include_tasks: utils/photo_sync.yml
 
 - name: "🔌 Serve MCP from {{ application_id }}"
   ansible.builtin.include_tasks: utils/mcp.yml

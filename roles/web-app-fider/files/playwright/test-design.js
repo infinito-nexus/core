@@ -10,7 +10,7 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm, requireDotenvValue } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 const { clickFiderSsoButton } = require("./_shared");
 
@@ -215,7 +215,7 @@ exports.register = function () {
   test.describe("design", () => {
     test.beforeEach(() => {
       skipUnlessServiceEnabled("design");
-      test.skip(!isServiceEnabled("sso"), "the role bootstraps the Fider tenant only together with the identity provider");
+      skipUnlessServiceEnabled("sso");
     });
 
     test("design: tokens are present and switch with the color scheme", async ({ page }) => {

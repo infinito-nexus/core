@@ -41,11 +41,12 @@ variant in ``meta/variants.yml``:
    unannounced. Variant-specific pins beyond that set stay allowed, so a
    variant may still switch a statically-off addon on.
 
-A role with a single variant is out of scope entirely -- there is no
-non-baseline round to trim.
+A role with a single variant is out of scope -- there is no non-baseline round
+to trim.
 
 Per-addon opt-out: ``# nocheck: addons-variant-pinning`` in the head of
-``meta/addons/<id>.yml``, with the reason the addon must install everywhere.
+``meta/addons/<id>.yml``, with the reason the addon must install everywhere
+or can never be switched on in CI.
 """
 
 from __future__ import annotations
@@ -222,17 +223,26 @@ def _pinned_addons(variant) -> Mapping:
     return addons if isinstance(addons, Mapping) else {}
 
 
+def _addons_by_role(roles_root: Path) -> dict:
+    """Return ``{role: [addon file, ...]}`` for every addon not opted out.
+
+    Args:
+        roles_root: the repository's ``roles`` directory.
+    """
+    by_role: dict = {}
+    for role, addon_file in iter_addon_files(roles_root):
+        if is_suppressed_in_head(read_text(str(addon_file)).splitlines(), _RULE):
+            continue
+        by_role.setdefault(role, []).append(addon_file)
+    return by_role
+
+
 class TestAddonsVariantPinning(unittest.TestCase):
     def _roles(self) -> dict:
         roles_root = PROJECT_ROOT / "roles"
         if not roles_root.is_dir():
             self.skipTest("no roles/ directory")
-        by_role: dict = {}
-        for role, addon_file in iter_addon_files(roles_root):
-            if is_suppressed_in_head(read_text(str(addon_file)).splitlines(), _RULE):
-                continue
-            by_role.setdefault(role, []).append(addon_file)
-        return by_role
+        return _addons_by_role(roles_root)
 
     def test_statically_enabled_addons_are_disabled_in_variant_1(self) -> None:
         findings: list[str] = []

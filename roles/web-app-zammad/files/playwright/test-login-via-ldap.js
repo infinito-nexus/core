@@ -3,11 +3,9 @@ const { resolveTimeout } = require("./timeouts");
 const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
-  test("biber (ldap): regular sign-in form authenticates against svc-db-openldap", async ({ page }) => {
+  test("biber: the regular sign-in form authenticates against svc-db-openldap", async ({ page }) => {
     shared.skipUnlessServiceEnabled("ldap");
-    if (shared.env.oidcEnabled) {
-      test.skip(true, "OIDC also enabled — LDAP-form login only exercised in LDAP-only variant (V3)");
-    }
+    shared.skipUnlessServiceDisabled("sso");
     expect(shared.env.biberUsername, "BIBER_USERNAME must be set").toBeTruthy();
     expect(shared.env.biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();
 

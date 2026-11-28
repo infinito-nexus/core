@@ -1,0 +1,69 @@
+---
+- name: 📂 Include dependency 'sys-ctl-alm-compose'
+  include_role:
+    name: sys-ctl-alm-compose
+  when: run_once_sys_ctl_alm_compose is not defined
+
+- name: "📁 Create the root-only RBAC sync directories"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+  loop:
+    - "{{ DIR_RBAC_SYNC }}"
+    - "{{ RBAC_SYNC_HOOKS_DIR }}"
+
+- name: "📁 Create the RBAC sync script directory on every node"
+  ansible.builtin.file:
+    path: "{{ RBAC_SYNC_SCRIPT_DIR }}"
+    state: directory
+    mode: "0755"
+  delegate_to: "{{ item }}"
+  loop: "{{ query('node_hosts') }}"
+  run_once: "{{ IS_SWARM_MODE | bool }}"
+
+- name: "📋 Install the RBAC sync script and the modules it imports on every node"
+  ansible.builtin.copy:
+    src: "{{ lookup('path_absolute', item.1.src) }}"
+    dest: "{{ [ RBAC_SYNC_SCRIPT_DIR, item.1.dest ] | path_join }}"
+    mode: "{{ item.1.mode }}"
+  delegate_to: "{{ item.0 }}"
+  loop: "{{ query('node_hosts') | product(RBAC_SYNC_RUNNER_FILES) | list }}"
+  loop_control:
+    label: "{{ item.0 }}: {{ item.1.dest }}"
+  run_once: "{{ IS_SWARM_MODE | bool }}"
+
+- name: "🧾 Write the RBAC sync configuration"
+  ansible.builtin.copy:
+    content: "{{ RBAC_SYNC_CONFIG | to_nice_json }}\n"
+    dest: "{{ [ DIR_RBAC_SYNC, 'config.json' ] | path_join }}"
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔎 Check whether an earlier deploy applied the mailbox layout"
+  ansible.builtin.stat:
+    path: "{{ RBAC_SYNC_MAILBOX_FILE }}"
+  register: rbac_sync_mailbox_seed
+
+- name: "🔑 Rewrite the applied mailbox seed with the current bind credential"
+  ansible.builtin.include_tasks: mailbox.yml
+  vars:
+    rbac_sync_mailbox_enabled: true
+  when: rbac_sync_mailbox_seed.stat.exists
+
+- name: "⏱️ Install the RBAC sync service and its timer"
+  include_role:
+    name: sys-service
+  vars:
+    system_service_copy_files: false
+    system_service_timer_enabled: "{{ RBAC_SYNC_TIMER_ENABLED | bool }}"
+    system_service_on_calendar: "{{ SYS_SCHEDULE_MAINTANANCE_RBAC_SYNC }}"
+    system_service_tpl_exec_start: "{{ system_service_script_exec }} {{ RBAC_SYNC_RUNNER_ARGS }}"
+    system_service_force_flush_final: "{{ SYS_SERVICE_ALL_ENABLED | bool }}"
+    system_service_run_once: true
+
+- include_tasks: utils/once/flag.yml

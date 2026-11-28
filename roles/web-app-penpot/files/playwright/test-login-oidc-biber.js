@@ -5,7 +5,7 @@ const { resolveTimeout } = require("./timeouts");
 exports.register = (shared) => {
   const { test, expect, skipUnlessServiceEnabled, env, penpotOidcLogin } = shared;
 
-  test("OIDC: biber non-admin RBAC user signs in via Keycloak", async ({ page }) => {
+  test("biber: non-admin RBAC user signs in via Keycloak over OIDC", async ({ page }) => {
     skipUnlessServiceEnabled("sso");
     test.setTimeout(resolveTimeout(120_000)); // OIDC round-trip + Keycloak login form
     expect(env.biberUsername).toBeTruthy();

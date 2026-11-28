@@ -1,0 +1,32 @@
+---
+- name: 🛡️ Install the Code - OSS protection
+  when: code_protect | bool
+  block:
+    - name: 🛡️ Install the Code - OSS protection script
+      ansible.builtin.copy:
+        src: shell/protect-code-oss.sh
+        dest: "{{ code_protect_script }}"
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: 🛡️ Install the Code - OSS protection units
+      ansible.builtin.copy:
+        src: "systemd/{{ item }}"
+        dest: "{{ [DIR_SYSTEM_SERVICE, item] | path_join }}"
+        owner: root
+        group: root
+        mode: "0644"
+      loop: "{{ code_protect_units }}"
+      register: code_protect_installed
+
+    - name: ⏱️ Re-apply the Code - OSS protection every 30 seconds
+      ansible.builtin.systemd:
+        name: protect-code-oss.timer
+        enabled: true
+        state: "{{ 'restarted' if code_protect_installed is changed else 'started' }}"
+        daemon_reload: "{{ code_protect_installed is changed }}"
+
+- name: 🧹 Retire the Code - OSS protection from a host without Code - OSS
+  when: not (code_protect | bool)
+  ansible.builtin.include_tasks: 02_protect/retire.yml

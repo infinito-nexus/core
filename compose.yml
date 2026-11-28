@@ -24,6 +24,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: toolchain
       args:
         INFINITO_PARENT_IMAGE: ${INFINITO_PARENT_IMAGE:?Run 'make dotenv' to generate the .env single source of truth}
         INFINITO_LINT_RUNNER: ${INFINITO_LINT_RUNNER:?Run 'make dotenv' to generate the .env single source of truth}
@@ -61,6 +62,7 @@ services:
     restart: "no"
     mem_limit: ${INFINITO_MEM_LIMIT:?Run 'make dotenv' to generate the .env single source of truth}
     memswap_limit: ${INFINITO_MEMSWAP_LIMIT:?Run 'make dotenv' to generate the .env single source of truth}
+    oom_score_adj: ${INFINITO_OOM_SCORE_ADJ:?Run 'make dotenv' to generate the .env single source of truth}
     cpus: ${INFINITO_CPUS:?Run 'make dotenv' to generate the .env single source of truth}
     <<: *ci_defaults
     volumes:
@@ -81,8 +83,10 @@ services:
       INFINITO_API_ANTHROPIC_KEY: ${INFINITO_API_ANTHROPIC_KEY}
       INFINITO_API_OPENAI_KEY: ${INFINITO_API_OPENAI_KEY}
       INFINITO_API_OPENROUTER_KEY: ${INFINITO_API_OPENROUTER_KEY}
+      INFINITO_ARTEFACT_BASE: ${INFINITO_ARTEFACT_BASE}
       INFINITO_BUILDKIT_ENABLED: ${INFINITO_BUILDKIT_ENABLED}
       INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD: ${INFINITO_CACHE_PACKAGE_ADMIN_PASSWORD}
+      INFINITO_CACHE_PACKAGE_URL: ${INFINITO_CACHE_PACKAGE_URL}
       INFINITO_CONTAINER_CA_ENABLED: ${INFINITO_CONTAINER_CA_ENABLED}
       INFINITO_DIR_VAR_LIB: ${INFINITO_DIR_VAR_LIB}
       INFINITO_DNS_IP: ${INFINITO_DNS_IP}
@@ -94,6 +98,7 @@ services:
       INFINITO_GPU_COUNT: ${INFINITO_GPU_COUNT}
       INFINITO_IMAGE: ${INFINITO_IMAGE}
       INFINITO_IMAGE_TAG: ${INFINITO_IMAGE_TAG}
+      INFINITO_INFRA_RUNNER_CONTAINER: ${INFINITO_INFRA_RUNNER_CONTAINER}
       INFINITO_IP4: ${INFINITO_IP4}
       INFINITO_IP6: ${INFINITO_IP6}
       INFINITO_MAIL_PRODUCTION_HOST: ${INFINITO_MAIL_PRODUCTION_HOST}
@@ -135,10 +140,62 @@ services:
       - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:48081-48083:48081-48083"
       - "${INFINITO_BIND_IP:?Run 'make dotenv' to generate the .env single source of truth}:48087:48087"
 
+  target:
+    build:
+      context: compose/target
+      args:
+        INFINITO_PARENT_IMAGE: ${INFINITO_PARENT_IMAGE:?Run 'make dotenv' to generate the .env single source of truth}
+    container_name: ${INFINITO_RUNNER_PREFIX:?Run 'make dotenv' to generate the .env single source of truth}-target
+    hostname: target
+    networks:
+      default:
+        ipv4_address: ${INFINITO_TARGET_IP:?Run 'make dotenv' to generate the .env single source of truth}
+    privileged: true
+    cgroup: host
+    pids_limit: 32768
+    oom_score_adj: ${INFINITO_OOM_SCORE_ADJ:?Run 'make dotenv' to generate the .env single source of truth}
+    tmpfs:
+      - /run
+      - /run/lock
+    restart: "no"
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - .:${INFINITO_SRC_DIR:?Run 'make dotenv' to generate the .env single source of truth}
+      - target-docker:/var/lib/docker
+
+  target-resolver:
+    image: coredns/coredns:1.14.4
+    container_name: ${INFINITO_RUNNER_PREFIX:?Run 'make dotenv' to generate the .env single source of truth}-target-resolver
+    command: ["-conf", "/Corefile"]
+    networks:
+      default:
+        ipv4_address: ${INFINITO_TARGET_RESOLVER_IP:?Run 'make dotenv' to generate the .env single source of truth}
+    depends_on:
+      coredns:
+        condition: service_started
+    restart: "no"
+    volumes:
+      - ./compose/target/Corefile:/Corefile:ro
+
+  quality:
+    image: ghcr.io/infinito-nexus/quality:v0.3.0@sha256:1bd5f892705fef3ca23335e2250576d9d9f04c5bdd91cd2fa14a9cbc4ced2692
+    profiles:
+      - tools
+    network_mode: none
+    read_only: true
+    tmpfs:
+      - /tmp
+    user: "65534"
+    working_dir: /src
+    volumes:
+      - .:/src:ro
+
 volumes:
   docker:
   infinito:
   letsencrypt:
+  target-docker:
+    name: ${INFINITO_RUNNER_PREFIX:?Run 'make dotenv' to generate the .env single source of truth}-target-docker
 networks:
   default:
     driver: bridge

@@ -24,7 +24,9 @@ def apply(eb: EnvBuilder, ctx: BuildContext) -> None:
     eb.set(
         KEY,
         ",".join(
-            entry.host for entry in declarations().hosts if HTTP_PORT in entry.listen
+            entry.host
+            for entry in declarations().hosts
+            if any(port == HTTP_PORT for port, _ in entry.listeners())
         ),
         comment=COMMENT,
     )

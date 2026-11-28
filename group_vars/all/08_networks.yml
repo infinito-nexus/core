@@ -41,7 +41,7 @@ defaults_networks:
 PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outside the YAML/Jinja scope
   local:
     http:
-      start: 8001
+      start: 7950
       end: 8107
     agent:
       start: 8500
@@ -90,7 +90,10 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
       end: 53
     registry:
       start: 5000
-      end: 5001
+      end: 5002
+    proxy:
+      start: 3128
+      end: 3128
     socks:
       start: 9050
       end: 9050
@@ -100,6 +103,18 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
     dns:
       start: 9053
       end: 9053
+    grafana:
+      start: 3300
+      end: 3300
+    grafana_onion:
+      start: 3301
+      end: 3301
+    loki:
+      start: 3310
+      end: 3310
+    push:
+      start: 3311
+      end: 3311
   public:
     http:
       start: 80
@@ -107,6 +122,9 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
     https:
       start: 443
       end: 443
+    dns:
+      start: 53
+      end: 53
     ssh:
       start: 2201
       end: 2299
@@ -122,6 +140,9 @@ PORT_BANDS: # nocheck: unused-var  # consumed by the port-allocation plugin outs
     federation:
       start: 8448
       end: 8499
+    api:
+      start: 8600
+      end: 8699
     ldaps:
       start: 636
       end: 636

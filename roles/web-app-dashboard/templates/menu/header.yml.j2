@@ -38,13 +38,20 @@
             class: fa-solid fa-user-gear
           url: {{ OIDC.CLIENT.ACCOUNT.SECURITY_URL }}
           iframe: {{ DASHBOARD_KEYCLOAK_IFRAME_ENABLED }}
-        - name: Logout
-          description: "Logout from {{ ORGANIZATION }} on {{ DOMAIN_PRIMARY }}"
-          target: "_top"  
+        - name: "{{ DASHBOARD_LOGOUT_I18N.en.choice_device }}"
+          description: "Log out of {{ ORGANIZATION }} on {{ DOMAIN_PRIMARY }} in this browser"
+          target: "_top"
           icon:
             class: fa-solid fa-right-from-bracket
           url: {{ OIDC.CLIENT.LOGOUT_URL }}
-          iframe: false # Neccesary to refresh dashboard page after logout
+          iframe: false
+        - name: "{{ DASHBOARD_LOGOUT_I18N.en.choice_everywhere }}"
+          description: "Log out of {{ ORGANIZATION }} on {{ DOMAIN_PRIMARY }} on every device"
+          target: "_top"
+          icon:
+            class: "fa-solid fa-users-slash {{ DASHBOARD_LOGOUT_EVERYWHERE_CLASS }}"
+          url: "{{ DASHBOARD_APP_BASE_URL ~ DASHBOARD_LOGOUT_EVERYWHERE_MARKER }}"
+          iframe: false
     - name: Login
       description: "Login to {{ ORGANIZATION }} on {{ DOMAIN_PRIMARY }}"
       target: "_top"

@@ -29,6 +29,19 @@
   notify:
     - compose-up
 
+- name: "🛂 Deploy the SuiteCRM IAM extension classes"
+  stack_host_copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "0444"
+  loop:
+    - { src: "php/iam/saml_directory_sync.php", dest: "{{ SUITECRM_IAM_SAML_SYNC_HOST }}" }
+    - { src: "php/iam/profile_ldap_user_provider.php", dest: "{{ SUITECRM_IAM_LDAP_PROVIDER_HOST }}" }
+  loop_control:
+    label: "{{ item.src }}"
+  notify:
+    - compose-up
+
 - name: "🚀 Deploy '{{ SUITECRM_ENTRYPOINT_SCRIPT_HOST_ABS }}'"
   copy:
     src: "{{ SUITECRM_ENTRYPOINT_SCRIPT_SRC }}"
@@ -60,13 +73,15 @@
 - name: "🔑 Ensure the SuiteCRM administrator exists and accepts the declared password"
   ansible.builtin.shell:
     cmd: >-
+      IFS= read -r SUITECRM_REALIGN_PASSWORD && : "${SUITECRM_REALIGN_PASSWORD:?arrived empty on stdin}" && export SUITECRM_REALIGN_PASSWORD &&
       container exec -i --user {{ SUITECRM_WEB_USER }}
       -e SUITECRM_REALIGN_USERNAME -e SUITECRM_REALIGN_PASSWORD -e SUITECRM_REALIGN_EMAIL
       {{ SUITECRM_CONTAINER_ADDRESS }} php
-    stdin: "{{ lookup('file', 'php/realign_admin_password.php') }}"
+    stdin: |-
+      {{ SUITECRM_ADMIN_PASSWORD }}
+      {{ lookup('file', 'php/realign_admin_password.php') }}
   environment:
     SUITECRM_REALIGN_USERNAME: "{{ SUITECRM_ADMIN_USERNAME }}"
-    SUITECRM_REALIGN_PASSWORD: "{{ SUITECRM_ADMIN_PASSWORD }}"
     SUITECRM_REALIGN_EMAIL: "{{ SUITECRM_ADMIN_EMAIL }}"
   register: suitecrm_admin_password_realign
   changed_when: suitecrm_admin_password_realign.stdout is search('\[CHANGED\]')

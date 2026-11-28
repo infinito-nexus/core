@@ -18,11 +18,16 @@ Env (rendered into test.env from templates/test.env.j2):
                        reported prompt token count is litellm's own constant
     REMOTE_ALIASES     JSON list of aliases a configured provider key publishes
                        (OpenAI, Anthropic, OpenRouter)
+    AUDIO_ALIASES      JSON list of audio aliases svc-ai-speech backs; empty
+                       when it is not deployed
     OLLAMA_ENABLED     true|false
     LMSTUDIO_ENABLED   true|false
     MIN_CHARS_PER_TOKEN the hook's own characters-per-token floor, so the probe
                        sizes its prompt against the number the hook will use
-    RETRIES            completion attempts (default 10)
+    UPSTREAM_TIMEOUT   seconds every route waits upstream (LITELLM_UPSTREAM_TIMEOUT),
+                       also the probe's own wait per request
+    CLI_DEADLINE       epoch second the test-e2e-cli harness kills the test
+    RETRIES           completion attempts (default 10)
     SLEEP_SECONDS      wait between attempts (default 6)
 """
 
@@ -46,6 +51,7 @@ def evaluate(
     lmstudio_enabled: bool,
     lmstudio_aliases: list[str],
     remote_aliases: list[str],
+    audio_aliases: list[str],
     router_alias: str = "",
 ) -> list[str]:
     """Every routing violation the published model list shows, as messages.
@@ -59,6 +65,10 @@ def evaluate(
         lmstudio_enabled: svc-ai-lmstudio is deployed on the gateway's host.
         lmstudio_aliases: aliases only LM Studio provides, whatever is deployed.
         remote_aliases: aliases a configured remote provider key publishes.
+        audio_aliases: aliases the config routes to svc-ai-speech; empty when
+            it is not deployed. They answer no chat request, so they are
+            accounted for separately and then held out of the backend
+            arithmetic.
         router_alias: the alias the pre-call hook rewrites. It is backed by no
             backend of its own, so it is accounted for separately and then held
             out of the backend arithmetic.
@@ -67,6 +77,14 @@ def evaluate(
         One message per violation; empty when the routing is consistent.
     """
     failures: list[str] = []
+
+    unrouted_audio = sorted(set(audio_aliases) - served)
+    if unrouted_audio:
+        failures.append(
+            f"svc-ai-speech is deployed but the gateway does not serve "
+            f"{unrouted_audio}; its audio routes were declared and not routed"
+        )
+    served = served - set(audio_aliases)
 
     if router_alias:
         if served and router_alias not in served:
@@ -120,7 +138,23 @@ def evaluate(
     return failures
 
 
-def _call(base: str, key: str, path: str, payload: dict | None = None):
+VERDICT_RESERVE_SECONDS = 5
+
+
+def request_timeout(now: float) -> float:
+    """
+    Args:
+        now: the epoch second the request would start.
+
+    Returns:
+        UPSTREAM_TIMEOUT, cut so the verdict still prints
+        VERDICT_RESERVE_SECONDS before CLI_DEADLINE; 0 once no request fits.
+    """
+    left = float(os.environ["CLI_DEADLINE"]) - VERDICT_RESERVE_SECONDS - now
+    return max(0.0, min(float(os.environ["UPSTREAM_TIMEOUT"]), left))
+
+
+def _call(base: str, key: str, path: str, timeout: float, payload: dict | None = None):
     body = None if payload is None else json.dumps(payload).encode()
     request = urllib.request.Request(  # noqa: S310 - literal http:// to loopback
         base + path,
@@ -131,9 +165,9 @@ def _call(base: str, key: str, path: str, payload: dict | None = None):
         },
     )
     with urllib.request.urlopen(  # noqa: S310 - literal http:// to loopback
-        request, timeout=120
+        request, timeout=timeout
     ) as response:
-        return json.loads(response.read().decode() or "{}")
+        return json.loads(response.read().decode() or "{}"), response.headers
 
 
 def _completion(
@@ -147,21 +181,29 @@ def _completion(
     """The answer, the model that produced it, and the tokens it counted.
 
     The second element is what makes a router observable: the request names an
-    alias, the response names whatever the pre-call hook rewrote it to. The
+    alias, the x-litellm-model-group header names whatever the pre-call hook
+    rewrote it to, while the body's model is restamped to the alias. The
     third is the backend's own prompt token count, the only number here that
     does not come from this deployment's own declarations.
     """
-    last_error = "no attempt ran"
-    for attempt in range(1, retries + 1):
+    last_error = "no attempt fit before CLI_DEADLINE"
+    attempt = 0
+    while attempt < retries:
+        wait = request_timeout(time.time())
+        if not wait:
+            break
+        attempt += 1
         try:
-            completion = _call(
+            completion, headers = _call(
                 base,
                 key,
                 "/v1/chat/completions",
+                wait,
                 {
                     "model": model,
                     "messages": [{"role": "user", "content": prompt}],
                     "max_tokens": 16,
+                    "num_retries": 0,
                 },
             )
             choices = completion.get("choices") or [{}]
@@ -170,7 +212,7 @@ def _completion(
                 usage = completion.get("usage") or {}
                 return (
                     answer,
-                    str(completion.get("model") or ""),
+                    str(headers.get("x-litellm-model-group") or ""),
                     int(usage.get("prompt_tokens") or 0),
                 )
             last_error = "empty content"
@@ -178,9 +220,10 @@ def _completion(
             last_error = f"HTTP {exc.code}: {exc.read().decode(errors='replace')[:400]}"
         except (urllib.error.URLError, TimeoutError, ValueError) as exc:
             last_error = f"{type(exc).__name__}: {exc}"
-        if attempt < retries:
-            time.sleep(pause)
-    raise RuntimeError(last_error)
+        if attempt == retries or not request_timeout(time.time() + pause):
+            break
+        time.sleep(pause)
+    raise RuntimeError(f"{last_error} ({attempt} of {retries} attempts ran)")
 
 
 TRUNCATION_RATIO = 0.9
@@ -300,7 +343,7 @@ def _probe_router(
         return [
             (
                 f"'{router_alias}' answered nothing for a prompt of about {needed} "
-                f"tokens after {retries} attempts; last failure: {exc}"
+                f"tokens; last failure: {exc}"
             )
         ]
     verdict = route_verdict(
@@ -327,7 +370,7 @@ def main() -> int:
     # nocheck: environ-get-default  likewise unlisted in test.sh's -e set; the wait between attempts is the probe's own
     pause = float(os.environ.get("SLEEP_SECONDS", "6"))
 
-    listing = _call(base, key, "/v1/models")
+    listing, _ = _call(base, key, "/v1/models", request_timeout(time.time()))
     served = {entry.get("id") for entry in listing.get("data", [])}
     print(f"[INFO] gateway answered /v1/models, serving {sorted(served)}")
 
@@ -340,6 +383,7 @@ def main() -> int:
         lmstudio_enabled=os.environ["LMSTUDIO_ENABLED"] == "true",
         lmstudio_aliases=json.loads(os.environ["LMSTUDIO_ALIASES"]),
         remote_aliases=json.loads(os.environ["REMOTE_ALIASES"]),
+        audio_aliases=json.loads(os.environ["AUDIO_ALIASES"]),
         router_alias=os.environ.get("ROUTER_ALIAS", "").strip(),
     )
 
@@ -349,8 +393,7 @@ def main() -> int:
             print(f"[OK]   '{chat_model}' answered: {answer[:60]}")
         except RuntimeError as exc:
             failures.append(
-                f"'{chat_model}' is published but answered nothing after "
-                f"{retries} attempts; last failure: {exc}"
+                f"'{chat_model}' is published but answered nothing; last failure: {exc}"
             )
 
     router_alias = os.environ.get("ROUTER_ALIAS", "").strip()

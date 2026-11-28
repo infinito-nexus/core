@@ -1,9 +1,10 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: dynamic-flag - the gateway is a single shared instance, never deployed per consumer
 litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -23,8 +24,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 ldap:
   bond: 1
   enabled: "{{ 'svc-db-openldap' in group_names }}"
@@ -88,6 +89,91 @@ moodle:
   run_after:
     - web-app-keycloak
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-moodle', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-moodle', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-moodle', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-moodle', '2fa') }}"
+        enforced: true
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-moodle', 'registration') }}"
+  auth_oidc:
+    idptype: 3
+    clientauthmethod: 1
+    clientid: "{{ OIDC.CLIENT.ID }}"
+    authendpoint: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
+    exchange_endpoint: "{{ OIDC.CLIENT.TOKEN_URL }}"
+    username_claim: "{{ OIDC.ATTRIBUTES.USERNAME }}"
+    single_sign_off: 1
+    logouturi: "{{ OIDC.CLIENT.LOGOUT_URL }}"
+    opname: "{{ OIDC.BUTTON_TEXT }}"
+    icon: "moodle:t/lock"
+    lock: locked
+    update: always
+    claims:
+      firstname: givenName
+      lastname: surname
+      middlename: moodle_middle_name
+      alternatename: moodle_nickname
+      email: mail
+      phone1: moodle_phone_number
+      phone2: phone_number_alt
+      address: street
+      city: locality
+      country: moodle_country
+      institution: institution
+      department: moodle_department
+      description: description
+      idnumber: id_number
+      url: moodle_website
+      lang: moodle_locale
+      timezone: moodle_zoneinfo
+      firstnamephonetic: name_phonetic_given
+      lastnamephonetic: name_phonetic_family
+  auth_ldap:
+    host_url: "{{ LDAP.SERVER.URI }}"
+    ldap_version: 3
+    start_tls: 0
+    admin_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+    user_type: rfc2307
+    contexts: "{{ LDAP.DN.OU.USERS }}"
+    search_sub: 1
+    user_attribute: "{{ LDAP.USER.ATTRIBUTES.ID }}"
+    memberattribute: "{{ LDAP.RBAC.MEMBER_ATTRIBUTE }}"
+    memberattribute_isdn: 1
+    objectclass: "{{ LDAP.FILTERS.USERS.ALL }}"
+    creators: "*"
+    managercontext: "cn=web-app-moodle-manager,{{ LDAP.DN.OU.ROLES }}"
+    coursecreatorcontext: "cn=web-app-moodle-coursecreator,{{ LDAP.DN.OU.ROLES }}"
+    removeuser: 1
+    sync_suspended: 1
+    lock: locked
+    update: onlogin
+    attributes:
+      firstname: "{{ LDAP.USER.ATTRIBUTES.FIRSTNAME }}"
+      lastname: "{{ LDAP.USER.ATTRIBUTES.SURNAME }}"
+      middlename: "{{ LDAP.USER.ATTRIBUTES.INITIALS }}"
+      alternatename: "{{ LDAP.USER.ATTRIBUTES.DISPLAY_NAME }}"
+      email: "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
+      phone1: "{{ LDAP.USER.ATTRIBUTES.PHONE }}"
+      phone2: "{{ LDAP.USER.ATTRIBUTES.MOBILE }}"
+      address: "{{ LDAP.USER.ATTRIBUTES.STREET }}"
+      city: "{{ LDAP.USER.ATTRIBUTES.LOCALITY }}"
+      country: "{{ LDAP.USER.ATTRIBUTES.COUNTRY }}"
+      institution: "{{ LDAP.USER.ATTRIBUTES.ORGANIZATION }}"
+      department: "{{ LDAP.USER.ATTRIBUTES.DEPARTMENT }}"
+      description: "{{ LDAP.USER.ATTRIBUTES.DESCRIPTION }}"
+      idnumber: "{{ LDAP.USER.ATTRIBUTES.EMPLOYEE_NUMBER }}"
+      url: "{{ LDAP.USER.ATTRIBUTES.WEBSITE }}"
+      lang: "{{ LDAP.USER.ATTRIBUTES.LOCALE }}"
+      firstnamephonetic: "{{ LDAP.USER.ATTRIBUTES.PHONETIC_GIVEN }}"
+      lastnamephonetic: "{{ LDAP.USER.ATTRIBUTES.PHONETIC_FAMILY }}"
+      timezone: "{{ LDAP.USER.ATTRIBUTES.TIMEZONE }}"
 nginx:
   backup:
     stop_required: false
@@ -198,3 +284,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

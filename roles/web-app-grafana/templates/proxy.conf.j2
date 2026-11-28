@@ -1,0 +1,4 @@
+{% set _grafana_label = (GRAFANA_INSTANCES | selectattr('network', 'equalto', domain | network_of) | first).label %}
+{% set http_port = lookup('config', application_id, 'services.grafana.ports.local.' ~ ('grafana' | labelled(_grafana_label, '_'))) %}
+{% set proxy_service_key = 'grafana' | labelled(_grafana_label, '-') %}
+{% include 'roles/sys-svc-proxy/templates/vhost/basic.conf.j2' %}

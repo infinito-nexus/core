@@ -1,0 +1,32 @@
+---
+application_id: svc-ai-freellmapi
+entity_name: "{{ application_id | entity_name }}"
+
+FREELLMAPI_CONTAINER: "{{ lookup('config', application_id, 'services.freellmapi.name') }}"
+FREELLMAPI_PORT: "{{ lookup('config', application_id, 'services.freellmapi.ports.internal.http') }}"
+FREELLMAPI_ENCRYPTION_KEY: "{{ lookup('config', application_id, 'secrets.credentials.encryption_key') }}"
+FREELLMAPI_STARTUP_CONFIG: "{{ lookup('config', application_id, 'services.freellmapi.startup_config') }}"
+FREELLMAPI_RESULT_PREFIX: FREELLMAPI_RESULT=
+FREELLMAPI_ADMIN:
+  email: "{{ lookup('users', 'platform_administrator').email }}"
+  password: "{{ lookup('users', 'platform_administrator').password }}"
+
+FREELLMAPI_MOCK_ENABLED: "{{ lookup('config', application_id, 'services.mock.enabled') | bool }}"
+FREELLMAPI_MOCK_CONTAINER: "{{ lookup('config', application_id, 'services.mock.name') }}"
+FREELLMAPI_MOCK_PORT: "{{ lookup('config', application_id, 'services.mock.ports.internal.http') }}"
+FREELLMAPI_MOCK_MODEL: "{{ lookup('config', application_id, 'services.mock.model') }}"
+FREELLMAPI_MOCK_SCRIPT_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'mock_upstream.js' ] | path_join }}"
+FREELLMAPI_MOCK_SCRIPT_DOCKER: "{{ lookup('volume', application_id, 'freellmapi_mock_script').target }}"
+# FreeLLMAPI's zod schema rejects a string contextWindow and aborts the boot, so the provider is built in one expression that keeps the integer. no-key is the upstream sentinel for an endpoint without auth.
+FREELLMAPI_MOCK_PROVIDER: >-
+  {{ {'baseUrl': 'http://' ~ FREELLMAPI_MOCK_CONTAINER ~ ':' ~ FREELLMAPI_MOCK_PORT ~ '/v1',
+      'apiKey': 'no-key',
+      'label': 'Infinito.Nexus deterministic test upstream',
+      'models': [{'model': FREELLMAPI_MOCK_MODEL,
+                  'contextWindow': lookup('config', application_id, 'services.mock.context') | int,
+                  'supportsTools': true}]} }}
+FREELLMAPI_CONFIG: >-
+  {{ FREELLMAPI_STARTUP_CONFIG | combine(
+       {'admin': FREELLMAPI_ADMIN},
+       {'customProviders': (FREELLMAPI_STARTUP_CONFIG.customProviders | default([])) + [FREELLMAPI_MOCK_PROVIDER]}
+         if FREELLMAPI_MOCK_ENABLED | bool else {}) }}

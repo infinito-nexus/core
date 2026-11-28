@@ -1,4 +1,3 @@
-# nocheck: mirrored-unit-test - a Rails initializer the Dockerfile copies into /code/config/initializers; it patches ActiveStorage while Decidim boots and only loads inside that Rails app
 require "active_storage/service/disk_service"
 require "active_storage/service/s3_service"
 require "rack/attack"

@@ -29,6 +29,20 @@ Canonical shape (dict-of-dicts; the YAML key is the semantic short name)::
           target: /var/run/synapse
           size: 64m                     # per-mount tmpfs size
 
+    sites:
+      type: volume
+      backup: false                     # baudolo skips it (--volumes-no-backup-required)
+      derived: code                     # rebuilt from the deployed code alone; requires backup: false
+      mounts:
+        - service: docs
+          target: /data
+
+``derived: code`` marks a volume whose content the service builds from the
+deployed code and keys by it, so that a copy built for other code is rebuilt
+rather than served. The restore drill of ``svc-bkp-volume-2-local`` keeps such a
+volume instead of emptying it. A volume derived from state (a search index,
+a thumbnail cache) is not ``derived: code``.
+
 The legacy list-of-dicts shape is no longer accepted.
 """
 
@@ -46,6 +60,9 @@ _TYPE_HAS_MODE = frozenset({"config", "secret"})
 _TYPE_HAS_READ_ONLY = frozenset({"bind", "volume"})
 _TYPE_HAS_NFS = frozenset({"volume"})
 _TYPE_HAS_BACKUP = frozenset({"volume"})
+_TYPE_HAS_DERIVED = frozenset({"volume"})
+DERIVED_FROM_CODE = "code"
+_VALID_DERIVED = frozenset({DERIVED_FROM_CODE})
 
 
 class VolumesSchemaError(ValueError):
@@ -57,6 +74,35 @@ def _is_octal_mode(value: Any) -> bool:
     return (
         isinstance(value, str) and value.startswith("0") and value.lstrip("0").isdigit()
     )
+
+
+def _derived_violations(prefix: str, entry: dict[str, Any], vtype: Any) -> list[str]:
+    """Return the schema violations of an entry's ``derived`` key.
+
+    Args:
+        prefix: the location the violations are reported under.
+        entry: one canonical ``meta/volumes.yml`` entry.
+        vtype: the entry's ``type``.
+    """
+    if "derived" not in entry:
+        return []
+    violations = []
+    if vtype not in _TYPE_HAS_DERIVED:
+        violations.append(
+            f"{prefix}: 'derived' is only valid for type volume (got type={vtype!r})"
+        )
+    if not isinstance(entry["derived"], str) or entry["derived"] not in _VALID_DERIVED:
+        violations.append(
+            f"{prefix}: 'derived' must be one of {sorted(_VALID_DERIVED)}, "
+            f"got {entry['derived']!r}"
+        )
+    if entry["derived"] == DERIVED_FROM_CODE and entry.get("backup") is not False:
+        violations.append(
+            f"{prefix}: 'derived: {DERIVED_FROM_CODE}' requires 'backup: false'; "
+            "the restore drill keeps such a volume instead of emptying it, so "
+            "it must hold nothing the backup is meant to carry"
+        )
+    return violations
 
 
 def normalize_volumes_meta(
@@ -143,6 +189,17 @@ def validate_volumes_meta(
                 f"{prefix}: 'mode' must be an octal string like \"0440\", "
                 f"got {entry['mode']!r}"
             )
+        for owner in ("uid", "gid"):
+            if owner in entry and vtype not in _TYPE_HAS_MODE:
+                violations.append(
+                    f"{prefix}: '{owner}' is only valid for type config/secret (got type={vtype!r})"
+                )
+            if owner in entry and (
+                isinstance(entry[owner], bool) or not isinstance(entry[owner], int)
+            ):
+                violations.append(
+                    f"{prefix}: '{owner}' must be a numeric id, got {entry[owner]!r}"
+                )
 
         if "read_only" in entry and vtype not in _TYPE_HAS_READ_ONLY:
             violations.append(
@@ -170,6 +227,8 @@ def validate_volumes_meta(
             violations.append(
                 f"{prefix}: 'backup' must be bool, got {type(entry['backup']).__name__}"
             )
+
+        violations.extend(_derived_violations(prefix, entry, vtype))
 
         if "swarm_safe" in entry and vtype != "bind":
             violations.append(

@@ -22,6 +22,6 @@ exports.register = function (shared) {
         message: "guest must remain on the Jellyfin login surface",
       })
       .toBe(true);
-    await expect(page.locator(".headerUserButton")).toHaveCount(0);
+    await expect(page.locator(".headerUserButton")).toBeHidden();
   });
 };

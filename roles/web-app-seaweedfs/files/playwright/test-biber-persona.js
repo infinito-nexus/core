@@ -1,27 +1,33 @@
 const { test } = require("@playwright/test");
 const { gotoOnion } = require("./personas");
+const { skipUnlessServiceEnabled } = require("./service-gating");
+const { resolveTimeout } = require("./timeouts");
 
 exports.register = function (shared) {
-  const { env, keycloakLogin, isAuthChain, expect } = shared;
+  const { env, keycloakLogin, expect } = shared;
 
   async function assertDenied(page, targetUrl) {
-    const response = await gotoOnion(page, targetUrl, { waitUntil: "domcontentloaded" });
-    if (isAuthChain(page.url())) {
-      await keycloakLogin(page, env.biberUsername, env.biberPassword);
-    }
-    await page.waitForLoadState("networkidle").catch(() => {});
-    const status = response ? response.status() : 0;
-    const body = (await page.locator("body").innerText().catch(() => "")) || "";
-    const onAppHost = page.url().includes(new URL(targetUrl).host) && !isAuthChain(page.url());
-    const forbidden = status === 403 || /forbidden|not a member|unauthorized|access denied/i.test(body);
+    const [callback] = await Promise.all([
+      page.waitForResponse((response) => new URL(response.url()).pathname === "/oauth2/callback", {
+        timeout: resolveTimeout(120_000),
+      }),
+      (async () => {
+        await gotoOnion(page, targetUrl, { waitUntil: "domcontentloaded" });
+        await keycloakLogin(page, env.biberUsername, env.biberPassword);
+      })(),
+    ]);
     expect(
-      forbidden || !onAppHost,
-      `biber (non-admin) must be denied at ${targetUrl}`
-    ).toBe(true);
+      callback.status(),
+      `oauth2-proxy MUST refuse biber at ${targetUrl}: sso.oauth2.allowed_groups admits only the SeaweedFS administrator role group`
+    ).toBe(403);
+    expect(
+      new URL(page.url()).pathname,
+      `Expected biber to stay on the oauth2-proxy refusal, never on a SeaweedFS page (at ${page.url()})`
+    ).toBe("/oauth2/callback");
   }
 
   test("biber: denied on Filer and Master (admin-only)", async ({ page }) => {
-    test.skip(!env.ssoEnabled, "SSO disabled");
+    skipUnlessServiceEnabled("sso");
     await assertDenied(page, env.filerUrl);
     await page.context().clearCookies();
     await assertDenied(page, env.masterUrl);

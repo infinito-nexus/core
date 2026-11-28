@@ -1,16 +1,3 @@
-"""The node onion forwards HTTP whether or not the proxy is in the inventory.
-
-``lookup('tor_ports')`` collects what the roles in ``group_names`` declare under
-``ports.onion``. Port 80 belongs to ``svc-prx-openresty``, which a node acquires
-through ``sys-stk-front-proxy`` and which therefore appears in no dependency
-list an inventory holds. A node provisioned with ``--include svc-net-tor`` alone
-published an onion forwarding SSH and nothing else.
-
-These run the real lookup over a stubbed ``tor_ports``, so a flag that stops
-reaching the forward list, or a derived port that starts duplicating a flagged
-one, fails here rather than on the node.
-"""
-
 from __future__ import annotations
 
 import importlib.util

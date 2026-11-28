@@ -1,0 +1,21 @@
+{
+  "terraform": {
+    "required_version": ">= 1.10.0",
+    "required_providers": {
+      "proxmox": {"source": "bpg/proxmox", "version": "0.119.0"},
+      "dns": {"source": "hashicorp/dns", "version": "3.6.2"},
+      "aws": {"source": "hashicorp/aws", "version": "6.71.0"},
+      "cloudflare": {"source": "cloudflare/cloudflare", "version": "5.28.1"}
+    },
+    "backend": {
+      "s3": {
+        "use_lockfile": true,
+        "use_path_style": true,
+        "skip_credentials_validation": true,
+        "skip_region_validation": true,
+        "skip_requesting_account_id": true,
+        "skip_metadata_api_check": true
+      }
+    }
+  }
+}

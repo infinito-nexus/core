@@ -1,0 +1,14 @@
+{% include 'roles/web-app-keycloak/templates/nginx/helper_iframes.conf.j2' %}
+
+{% if KEYCLOAK_ADMIN_NETWORKS | length > 0 %}
+{% include 'roles/web-app-keycloak/templates/nginx/admin_allowlist.conf.j2' %}
+
+{% endif %}
+{% if KEYCLOAK_LOGOUT_PANEL_ENABLED | bool %}
+{% include 'roles/web-app-keycloak/templates/nginx/logout_panel.conf.j2' %}
+
+{% endif %}
+{% if KEYCLOAK_JAVASCRIPT_ENABLED | bool %}
+{% include 'roles/web-app-keycloak/templates/nginx/field_lock.conf.j2' %}
+
+{% endif %}

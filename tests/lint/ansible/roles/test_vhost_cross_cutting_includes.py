@@ -1,25 +1,3 @@
-"""Lint: a role-local vhost must carry the includes every vhost needs.
-
-`sys-stk-front-proxy` renders a role's own ``templates/proxy.conf.j2`` when it
-exists and one of the shared flavours otherwise. Overriding the file is how a
-role expresses its own locations, and that is fine. What is not fine is that
-overriding it silently drops every cross-cutting concern the shared flavours
-carry, because those live as includes inside the file being replaced.
-
-The MCP policy is the case that made this visible: it decides whether an
-application's own vhost serves its declared endpoint path or returns 404, it was
-added to both shared flavours, and the one provider whose native path most
-needed hiding rendered from its own template and kept serving it.
-
-The required set is derived from the shared flavours rather than listed here, so
-a concern added to them is required of the overrides on the next run.
-
-Suppression (see ``docs/contributing/actions/testing/suppression.md``):
-
-* ``# nocheck: vhost-cross-cutting-include`` in the head of the role's
-  ``templates/proxy.conf.j2``, naming why the concern does not apply.
-"""
-
 from __future__ import annotations
 
 import re
@@ -269,18 +247,19 @@ class TestVhostCrossCuttingIncludes(unittest.TestCase):
         self.assertEqual(
             [],
             findings,
-            f"role vhost(s) dropping a cross-cutting include ({len(findings)}):\n"
+            f"role vhost(s) dropping a cross-cutting include ({len(findings)}; "
+            f"'# nocheck: {_RULE} <reason>' in the head of the override opts out):\n"
             + "\n".join(f"  - {f}" for f in findings),
         )
 
-    def test_the_required_set_is_derived_and_not_empty(self) -> None:
+    def test_the_required_set_is_derived_and_not_empty(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the derived include set  # fmt: skip
         """An empty set would pass every override without checking anything."""
         self.assertTrue(
             required_includes(),
             "no include is common to the shared flavours, so the rule is vacuous",
         )
 
-    def test_the_mcp_policy_is_required(self) -> None:
+    def test_the_mcp_policy_is_required(self) -> None:  # nocheck: test.text-presence -- reach guard of the derived include set  # fmt: skip
         """The concern this rule exists for must actually be in the set."""
         self.assertIn(
             "roles/sys-svc-proxy/templates/mcp/vhost.conf.j2", required_includes()
@@ -323,7 +302,7 @@ class TestVhostCrossCuttingIncludes(unittest.TestCase):
             reached, "no role both overrides its vhost and declares an MCP endpoint"
         )
 
-    def test_location_snippets_are_not_required(self) -> None:
+    def test_location_snippets_are_not_required(self) -> None:  # nocheck: test.text-presence -- asserts on the derived include set, not a file  # fmt: skip
         """Locations are what an override exists to replace."""
         self.assertFalse(
             [inc for inc in required_includes() if inc.startswith(_LOCATION_SNIPPETS)]

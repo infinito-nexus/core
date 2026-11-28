@@ -106,6 +106,9 @@ def config_with(source: str, mount: bool = False, **variables: str) -> dict:
         stub = Path(tmp) / "node_modules" / "@playwright" / "test"
         stub.mkdir(parents=True)
         (stub / "index.js").write_text("exports.defineConfig = (config) => config;\n")
+        utils = Path(tmp) / "tests" / "personas" / "utils"
+        utils.mkdir(parents=True)
+        shutil.copy(ROLE / "files" / "personas" / "utils" / "network.js", utils)
         absent = Path(tmp) / "absent"
         (Path(tmp) / CONFIG.name).write_text(
             mounted(source, str(stub if mount else absent))

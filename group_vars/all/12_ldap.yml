@@ -19,7 +19,7 @@ _ldap_user_id: "uid"
 _ldap_ou_users: "ou=users"
 _ldap_ou_groups: "ou=groups"
 _ldap_ou_roles: "ou=roles"
-_ldap_filters_users_all: "(|(objectclass=inetOrgPerson))"
+_ldap_filters_users_all: "(objectclass=inetOrgPerson)"
 
 LDAP:
   DN:
@@ -43,6 +43,8 @@ LDAP:
     DOMAIN: "{{ _ldap_name if _ldap_docker_network_enabled else _ldap_domain }}" # Mapping for public or locale access
     PORT: "{{ _ldap_server_port }}"
     URI: "{{ _ldap_protocol }}://{{ _ldap_name if _ldap_docker_network_enabled else _ldap_domain }}:{{ _ldap_server_port }}"
+    SOCKET_URI: "ldapi://{{ [lookup('container', 'svc-db-openldap', 'directories.volumes'), 'run', 'ldapi'] | path_join | replace('/', '%2F') }}"
+    NODE_LABEL: "ldap-socket"
     SECURITY: "" # TLS, SSL - Leave empty for none
   NETWORK:
     LOCAL: "{{ _ldap_docker_network_enabled }}" # Uses the application configuration to define if local network should be available or not
@@ -55,14 +57,40 @@ LDAP:
       AUXILIARY:
         NEXTCLOUD_USER: "nextcloudUser" # Auxiliary Classes attach optional attributes without
         SSH_PUBLIC_KEY: "ldapPublicKey" # Allows storing SSH public keys for services like Gitea.
+        INFINITO_USER: "infinitoUser"
+        INFINITO_MAILBOX_USER: "infinitoMailboxUser"
     ATTRIBUTES:
       ID: "{{ _ldap_user_id }}"
       MAIL: "mail"
+      SECONDARY_MAIL: "infinitoSecondaryMail"
       FULLNAME: "cn"
       FIRSTNAME: "givenName"
       SURNAME: "sn"
+      DISPLAY_NAME: "displayName"
+      INITIALS: "initials"
+      PHONE: "telephoneNumber"
+      MOBILE: "mobile"
+      STREET: "street"
+      POSTAL_CODE: "postalCode"
+      LOCALITY: "l"
+      REGION: "st"
+      COUNTRY: "c"
+      ORGANIZATION: "o"
+      DEPARTMENT: "ou"
+      TITLE: "title"
+      DESCRIPTION: "description"
+      EMPLOYEE_NUMBER: "employeeNumber"
+      WEBSITE: "labeledURI"
+      LOCALE: "preferredLanguage"
+      TIMEZONE: "infinitoTimezone"
+      PHONETIC_GIVEN: "infinitoNamePhoneticGiven"
+      PHONETIC_FAMILY: "infinitoNamePhoneticFamily"
+      PHOTO: "jpegPhoto"
       SSH_PUBLIC_KEY: "sshPublicKey"
       NEXTCLOUD_QUOTA: "nextcloudQuota"
+      MEMBER_OF: "memberOf"
+      PASSWORD: "userPassword"
+      UUID: "entryUUID"
   FILTERS:
     USERS:
       LOGIN: "(&{{ _ldap_filters_users_all }}({{_ldap_user_id}}=%{{_ldap_user_id}}))"
@@ -70,4 +98,6 @@ LDAP:
   RBAC:
     FLAVORS:
       - groupOfNames
+    MEMBER_ATTRIBUTE: "member"
+    NAME_ATTRIBUTE: "cn"
     EMPTY_MEMBER_DN: "cn=__empty__,{{ LDAP.DN.ROOT }}"

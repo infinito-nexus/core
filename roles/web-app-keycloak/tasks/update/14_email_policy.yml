@@ -1,0 +1,65 @@
+---
+- name: "⬇️ Read the email policy realm '{{ KEYCLOAK_REALM }}' holds"
+  ansible.builtin.shell: >
+    {{ KEYCLOAK_EXEC_KCADM }} get realms/{{ KEYCLOAK_REALM }} --format json
+  register: kc_email_policy_realm
+  changed_when: false
+
+- name: "🔎 Decide how this deploy moves the email policy of realm '{{ KEYCLOAK_REALM }}'"
+  ansible.builtin.set_fact:
+    kc_email_policy_change: >-
+      {{ kc_email_policy_realm.stdout | kcadm_json
+         | kc_held_email_policy(KEYCLOAK_EMAIL_POLICY_ATTRIBUTE, KEYCLOAK_EMAIL_POLICIES)
+         | kc_email_policy_change(KEYCLOAK_EMAIL_POLICY, KEYCLOAK_EMAIL_SWITCH) }}
+
+- name: "⬇️ Read the addresses Keycloak holds before the switch"
+  when:
+    - kc_email_policy_change == 'switch'
+    - KEYCLOAK_LDAP_ENABLED | bool
+  block:
+    - name: "⬇️ Fetch components (JSON) for the LDAP federation id"
+      ansible.builtin.shell: >
+        {{ KEYCLOAK_EXEC_KCADM }} get components -r {{ KEYCLOAK_REALM }} --format json
+      register: kc_email_policy_components
+      changed_when: false
+
+    - name: "⬇️ Read every user's address after a full LDAP synchronisation"
+      ansible.builtin.include_tasks:
+        file: "{{ role_path }}/tasks/utils/rest_script.yml"
+        apply:
+          delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+      vars:
+        rest_script: realm/emails.py
+        rest_script_env:
+          LDAP_COMPONENT_ID: >-
+            {{ kc_email_policy_components.stdout | kcadm_json
+               | selectattr('providerType', 'equalto', 'org.keycloak.storage.UserStorageProvider')
+               | selectattr('name', 'equalto', KEYCLOAK_LDAP_CMP_NAME)
+               | map(attribute='id') | first }}
+        rest_script_stdin: ""
+        rest_script_ok_rcs: [0]
+        rest_script_changed: "^$"
+        rest_script_register: kc_email_policy_captured
+
+- name: "🔎 Resolve whether realm '{{ KEYCLOAK_REALM }}' applies the mailbox layout"
+  ansible.builtin.set_fact:
+    kc_email_mailbox_layout: "{{ KEYCLOAK_EMAIL_MAILBOX | bool and KEYCLOAK_LDAP_ENABLED | bool }}"
+
+- name: "📮 Seed and apply the mailbox layout of realm '{{ KEYCLOAK_REALM }}'"
+  when: kc_email_mailbox_layout | bool
+  block:
+    - name: "🔎 Resolve the secondary addresses the mailbox layout seeds"
+      ansible.builtin.set_fact:
+        kc_email_mailbox_secondaries: >-
+          {{ ((kc_email_policy_captured.stdout | from_json) if kc_email_policy_change == 'switch' else {})
+             | kc_email_sources(KEYCLOAK_EMAIL_INVENTORY_SECONDARIES) }}
+
+    - name: "📮 Apply the mailbox layout to the directory"
+      ansible.builtin.include_role:
+        name: svc-db-openldap
+        tasks_from: 06_mailbox.yml
+        apply:
+          delegate_to: "{{ groups['svc-db-openldap'] | first }}"
+      vars:
+        application_id: svc-db-openldap
+        openldap_mailbox_secondaries: "{{ kc_email_mailbox_secondaries }}"

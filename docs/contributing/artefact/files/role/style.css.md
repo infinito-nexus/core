@@ -2,7 +2,7 @@
 
 This page covers role-local CSS and theming.
 Use this page for repository wiring, inventory keys, and the design token contract.
-For implementation scope, override strategy, and live review, see [Agent `style.css`](../../../../agents/files/role/style.css.md).
+For implementation scope, override strategy, and live review, see the [`style.css` authoring skill](../../../../../agents/skills/i8-file-role-style/SKILL.md).
 For browser-side validation requirements after visible UI changes, see [Playwright Tests](../../../actions/testing/playwright.md).
 
 ## `style.css.j2` ⚙️

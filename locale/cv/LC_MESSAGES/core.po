@@ -19,6 +19,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
+msgctxt "paused:illustration"
+msgid "A beaver sleeping behind a pause sign"
+msgstr ""
+
 # cüvlərləri yaradılış və təsil etmək üçün Let's Encrypt SSL/TLS
 # certifikətinin otorizasyonu və yenilənməsində使用现代英语：ACME 客户端用于通过 Webroot 或
 # DNS-01 挑战颁发和续签 Let's Encrypt SSL/TLS 证书的自动化。
@@ -40,13 +44,37 @@ msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
 msgstr "AI-chökhed khövtrlu khövsgölü системтүр эр bi туура жагылган, чөлөмө урусунун урумчулук таасирини чагатай башкаруу бага"
 
-# translated-by: ollama
+#, python-brace-format
+msgctxt "access_request:mail_request_subject"
+msgid "Access request for {application} by {requester}"
+msgstr ""
+
+msgctxt "rbac:web-app-weblate:manager:description"
+msgid "Administers every project through Weblate's Managers team, without site-wide superuser rights"
+msgstr ""
+
+msgctxt "menu:Administration:title"
+msgid "Administration"
+msgstr ""
+
 msgctxt "menu:Server Administration:description"
-msgid "Administration Tools für servers"
-msgstr "Адміністративні навікuli для серверів"
+msgid "Administration tools for servers"
+msgstr ""
+
+msgctxt "access_request:form_administrator"
+msgid "Administrator role"
+msgstr ""
 
 msgctxt "category:dsk.gnt:title"
 msgid "Agents"
+msgstr ""
+
+msgctxt "role:svc-ai-agent-orchestrator:description"
+msgid "Agents control plane: LangGraph routine runner with webhook and poll intake, cron, channels and a hashed audit trail"
+msgstr ""
+
+msgctxt "role:svc-ai-agent-provisioner:description"
+msgid "Agents control plane: instance API, IAM account provisioner and lease reaper for detached instances"
 msgstr ""
 
 # tražninga, šemantika globalno, iframu važnelərini vuruga bəyriməni qoşma ilə
@@ -81,6 +109,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "Анселим хелпер роль эс для идиМОПтентного уержунгук шундук шундук эмчык унтык сүрөттөө эс эми локал уйгуун YAML шундук"
 
+msgctxt "access_request:form_application"
+msgid "Application"
+msgstr ""
+
 msgctxt "category:web.app.cst:description"
 msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
 msgstr ""
@@ -90,10 +122,9 @@ msgctxt "category:web.app:title"
 msgid "Applications"
 msgstr "Аппараты"
 
-# translated-by: ollama
-msgctxt "menu:Sales:description"
-msgid "Applications for e-commerce, ticketing, and sales management."
-msgstr "Аппаратура для электронной коммерции, продаж и управления билетами."
+msgctxt "menu:Other:description"
+msgid "Applications without a matching folder."
+msgstr ""
 
 # multifunktionalnui drukatoriiv va snayzgorii va chun escpr va imagescan
 msgctxt "role:drv-epson-multiprinter:description"
@@ -109,6 +140,14 @@ msgstr "Алгоритмик AI"
 msgctxt "menu:Asset Management:title"
 msgid "Asset Management"
 msgstr "Асеманагаммандос"
+
+msgctxt "rbac:web-app-joomla:author:description"
+msgid "Author in Joomla, maps onto the built-in `Author` user group (id 3) and may create and edit own articles in the frontend."
+msgstr ""
+
+msgctxt "role:svc-dns-knot:description"
+msgid "Authoritative Knot DNS for the Semaphore workspace subzone, a DNSSEC-signing primary with TSIG-fed secondaries"
+msgstr ""
 
 # Docker Compose, taškaların tiliňkok televshišteňkiň tiliňkok okeňkiň
 # tiliňkok televshišteňkiň koordinatsiyak okeňkiň televshišteňkiň okeňkiň
@@ -161,10 +200,38 @@ msgctxt "role:dsk-blender:description"
 msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
 msgstr "Блендер workstation жүркөн жайгашкан қосуу модел көбүнчө протоколуна жеңилтудunde"
 
+msgctxt "rbac:web-app-bookwyrm:editor:description"
+msgid "BookWyrm editor (edits book, author and edition data)"
+msgstr ""
+
+msgctxt "rbac:web-app-bookwyrm:moderator:description"
+msgid "BookWyrm moderator (moderates users, posts, federation and invites)"
+msgstr ""
+
+msgctxt "rbac:web-app-bookwyrm:owner:description"
+msgid "BookWyrm owner (edits the instance settings and moderates users, federation and invites)"
+msgstr ""
+
+msgctxt "rbac:web-app-mailu:bot:description"
+msgid "Bot/service account with an API token (e.g. email send/receive)"
+msgstr ""
+
+msgctxt "rbac:web-app-stalwart:bot:description"
+msgid "Bot/service account with an API token (e.g. email send/receive)"
+msgstr ""
+
+msgctxt "role:web-app-workspace:description"
+msgid "Browser IDE (openvscode-server) with the Claude Code extension, one per agent and user, sandboxed by svc-virt-kata"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "Браузер эр тандоо жашогосон интерфейс SeaweedFS нуткаарлага, СSO-ын сүрөттөп файлер жана мастер консольтарын чейин ээ"
+
+msgctxt "role:web-app-map-animator:description"
+msgid "Browser editor for keyframe camera animations on a VersaTiles map, with a render server that turns them into videos"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:web-app-roulette-wheel:description"
@@ -181,10 +248,174 @@ msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
 msgstr "Күч-өкүмчүлүктөн жайлашында файл түшүмөн нерселерди өзгөчө жайлылыктар түсүп түшкен операциялоруунун ээ ээ бапка жайлашында эсептөө"
 
+msgctxt "menu:Business:title"
+msgid "Business"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "category:svc.runner:title"
 msgid "CI Runner"
 msgstr "Кыpzак Чаптар"
+
+msgctxt "rbac:web-app-jenkins:developer:description"
+msgid "Can create, configure, build and delete jobs, without access to the Jenkins management pages"
+msgstr ""
+
+msgctxt "rbac:svc-db-qdrant:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-baserow:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-checkmk:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-fider:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-gitea:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-gitlab:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-homeassistant:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-jellyfin:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-jenkins:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-listmonk:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-mattermost:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-moodle:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-n8n:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-nextcloud:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-pretix:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-prometheus:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-snipe-it:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-wordpress:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-zammad:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-svc-libretranslate:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-mediawiki:interface-admin:description"
+msgid "Can edit the sitewide CSS and JavaScript pages of the wiki"
+msgstr ""
+
+msgctxt "rbac:web-app-mediawiki:bureaucrat:description"
+msgid "Can grant and revoke the wiki's user groups and rename accounts"
+msgstr ""
+
+msgctxt "rbac:web-app-mastodon:moderator:description"
+msgid "Can handle reports, limit and suspend accounts and moderate posts without access to the server settings"
+msgstr ""
+
+msgctxt "rbac:web-app-matomo:admin:description"
+msgid "Can manage the settings and the access of other users on every tracked website"
+msgstr ""
+
+msgctxt "rbac:web-app-discourse:moderator:description"
+msgid "Can moderate topics, posts and users without access to the site settings"
+msgstr ""
+
+msgctxt "rbac:web-app-semaphore:operator:description"
+msgid "Can pause and resume the deployed applications through the stop and start templates of the Infinito.Nexus project"
+msgstr ""
+
+msgctxt "rbac:web-app-wordpress:editor:description"
+msgid "Can publish and manage all posts, including those by other users"
+msgstr ""
+
+msgctxt "rbac:web-app-jenkins:viewer:description"
+msgid "Can read jobs, builds and their logs"
+msgstr ""
+
+msgctxt "rbac:web-app-wordpress:subscriber:description"
+msgid "Can read posts and leave comments but cannot write or manage content"
+msgstr ""
+
+msgctxt "rbac:web-app-matomo:write:description"
+msgid "Can read the reports and manage goals, segments and annotations of every tracked website"
+msgstr ""
+
+msgctxt "rbac:web-app-matomo:view:description"
+msgid "Can read the reports of every tracked website"
+msgstr ""
+
+msgctxt "rbac:web-app-baserow:user:description"
+msgid "Can sign in to Baserow and work in their own and shared workspaces, without instance administration"
+msgstr ""
+
+msgctxt "rbac:web-app-openproject:user:description"
+msgid "Can sign in to OpenProject and work in the projects they are a member of"
+msgstr ""
+
+msgctxt "rbac:web-app-semaphore:user:description"
+msgid "Can sign in to Semaphore through LDAP and work in the projects they are a member of"
+msgstr ""
+
+msgctxt "rbac:web-app-snipe-it:user:description"
+msgid "Can sign in to Snipe-IT and view assets, licenses, accessories, consumables and components without administrative rights"
+msgstr ""
+
+msgctxt "rbac:web-app-taiga:user:description"
+msgid "Can sign in to Taiga and work in the projects that invite them, without instance administration"
+msgstr ""
+
+msgctxt "rbac:web-app-homeassistant:user:description"
+msgid "Can sign in to the hub through the directory and use it without administrator rights"
+msgstr ""
+
+msgctxt "rbac:web-app-wordpress:author:description"
+msgid "Can write and manage own posts"
+msgstr ""
+
+msgctxt "rbac:web-app-wordpress:contributor:description"
+msgid "Can write and submit posts for review but cannot publish"
+msgstr ""
 
 # bonyadidan va miliyadan xato karobarakar berilgan API keylari haqiqiyiga
 # mavjuştur
@@ -252,8 +483,20 @@ msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
 msgstr "Күчтөөлөрдүн түштөрөгө ACME сервиси Лейтс Актридын өкүмчө TLS күчтөрү NGINX тармаларларына эрежелерин аткарып ээ түштөрөн жеңтишке"
 
+msgctxt "menu:Chat & Messaging:title"
+msgid "Chat & Messaging"
+msgstr ""
+
+msgctxt "menu:Communication & Collaboration:description"
+msgid "Chat, mail, meetings, shared files and project work."
+msgstr ""
+
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
+msgstr ""
+
+msgctxt "rbac:web-app-pretix:checkin:description"
+msgid "Checks attendees in at every event of each Pretix organizer through the \"Check-in (SSO)\" team, without access to orders or settings"
 msgstr ""
 
 # translated-by: ollama
@@ -281,10 +524,9 @@ msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "Контрольні елементи з редактируемимою історією, користуваючими додатковими діями та підтримкою скриптів"
 
-# translated-by: ollama
-msgctxt "menu:Cloud:title"
-msgid "Cloud"
-msgstr "Кваал"
+msgctxt "menu:Cloud & Office:title"
+msgid "Cloud & Office"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:sys-svc-dns:description"
@@ -327,25 +569,27 @@ msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr "Commerce"
 
-# translated-by: ollama
-msgctxt "menu:Communication:title"
-msgid "Communication"
-msgstr "Коммуникацыя"
+msgctxt "menu:Communication & Collaboration:title"
+msgid "Communication & Collaboration"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "Коммунальные услуги"
 
+msgctxt "menu:Community & Social:title"
+msgid "Community & Social"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr "Композицыйн HTML ин injection ролл (CSS, JS, logout interceptor, analytics, dashboard iframe) для Nginx/OpenResty через sub_filter/Lua с ассеттер кутаиши камтамерт."
 
-# translated-by: ollama
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "Композиционна роль для бандо гъBASH пакета базирана на контейнер с HTTP реверс-прокси frontend за достъп от интернет"
+msgctxt "access_request:review_confirm"
+msgid "Confirm grant"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "category:svc.swarm:title"
@@ -401,6 +645,10 @@ msgctxt "role:web-app-wordpress:description"
 msgid "Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
 msgstr "Коркмуğu систем бул сайтов, блоогу жана мультисайтту нутугу жана темалар жана плагинлерди билдирүү жана ишке алынашуу саяк"
 
+msgctxt "role:svc-ai-models:description"
+msgid "Content-addressed store that holds every pinned model artefact of a host once"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "category:sys.ctl:title"
 msgid "Control"
@@ -441,6 +689,10 @@ msgctxt "logout:stalled"
 msgid "Could not confirm every sign-out."
 msgstr "Не балдэх ээ нэс эсээ аял уу."
 
+msgctxt "rbac:web-app-fusiondirectory:user-manager:description"
+msgid "Creates, edits, moves and deletes user accounts and their POSIX settings (FusionDirectory user-manager ACL role)"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:dev-nix:description"
 msgid "Cross-distribution installer for the Nix package manager with checksum-verified, reproducible multi-user setup"
@@ -450,6 +702,10 @@ msgstr "Кросс-дистрибутивный инсталлятор для м
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "Кросс-дистрибутивный рутинный обходок для рекапірування диска між CI, контейнерами та екімукаями‌‌"
+
+msgctxt "access_request:review_current_groups"
+msgid "Current groups"
+msgstr ""
 
 msgctxt "category:web.app.cst:title"
 msgid "Custom Applications"
@@ -462,6 +718,10 @@ msgstr "Кэйчунчүүгү"
 
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
+msgstr ""
+
+msgctxt "menu:Business:description"
+msgid "Customers, finance, sales and assets of your organization."
 msgstr ""
 
 # translated-by: ollama
@@ -479,10 +739,9 @@ msgctxt "category:sys.dns:description"
 msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
 msgstr "DNS-хандах, хуугаанчлалт, рDNS-хандах (Cloudflare, Hetzner, etc.)."
 
-# translated-by: ollama
 msgctxt "role:sys-dns-cloudflare-records:description"
-msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
-msgstr "Датадрайвн уулууга ачилшооллордун менеджери Кларр DNS борборлорлору (A/AAAA, CNAME, MX, TXT, SRV) ар бир аркылуу айтык болгон учурдуга"
+msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, NS, TXT, SRV, DS) across apps and environments"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "category:svc.db:description"
@@ -509,6 +768,10 @@ msgctxt "role:web-app-friendica:description"
 msgid "Decentralized, federated social-networking platform for peer-to-peer communication and community building"
 msgstr ""
 
+msgctxt "rbac:web-app-decidim:user-manager:description"
+msgid "Decidim user manager (manages participants, impersonations and verifications without full administrator rights)"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:user-administrator:description"
 msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
@@ -522,6 +785,10 @@ msgstr "Дакетек систем бакчак сактам окроп SSH-т�
 # čëš čëšš čëš čëš čëš čëšš
 msgctxt "role:sys-service-terminator:description"
 msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
+msgstr ""
+
+msgctxt "role:web-app-agent-fixture:description"
+msgid "Deliberately vulnerable fixture web app with seeded security and legal findings for the agents scenarios"
 msgstr ""
 
 msgctxt "category:web.app:description"
@@ -583,6 +850,10 @@ msgctxt "menu:Development:description"
 msgid "Development and CI/CD tools"
 msgstr "Развитие и инструменты CI/CD"
 
+msgctxt "role:sys-ctl-cln-apps:description"
+msgid "Dispatcher for the garbage collectors of deployed application roles, daily and under disc pressure"
+msgstr ""
+
 # per-konsumer bucket koshishta proverting tashkilato vārda-xalqan
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
@@ -597,11 +868,6 @@ msgstr "Даска агул устумук системасы для жекеш�
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "Distro-specific baznaiuulaii bolbolitoolkhiig ( компилятор, линкер, make) дээг сооноonusуunosunуу компилилуу"
-
-# translated-by: ollama
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "Докер КомPOSE стак с контейнеризованных relational баз логик ji, ёмчычы, жана чарбактар менен айтым берүүсиңеги"
 
 # translated-by: ollama
 msgctxt "category:svc.swarm:description"
@@ -633,8 +899,40 @@ msgctxt "category:drv:title"
 msgid "Drivers"
 msgstr "Таганыкы"
 
+msgctxt "rbac:web-app-erpnext:administrator:description"
+msgid "ERPNext System Manager (full admin desk + role profile management)"
+msgstr ""
+
+msgctxt "rbac:web-app-erpnext:manager:description"
+msgid "ERPNext business operations manager (Sales + Purchase + Stock + Accounts roles)"
+msgstr ""
+
+msgctxt "rbac:web-app-erpnext:customer:description"
+msgid "ERPNext customer (portal access, can view own quotes/orders)"
+msgstr ""
+
+msgctxt "rbac:web-app-joomla:editor:description"
+msgid "Editor in Joomla, maps onto the built-in `Editor` user group (id 4) and may edit every article in the frontend."
+msgstr ""
+
+msgctxt "rbac:web-app-penpot:editor:description"
+msgid "Edits the files of the shared platform team"
+msgstr ""
+
+msgctxt "rbac:web-app-fusiondirectory:self-service:description"
+msgid "Edits the own user account and its POSIX settings (FusionDirectory self-service ACL role)"
+msgstr ""
+
 msgctxt "menu:Education:title"
 msgid "Education"
+msgstr ""
+
+msgctxt "paused:channel_email"
+msgid "Email"
+msgstr ""
+
+msgctxt "menu:Mail:description"
+msgid "Email servers and webmail."
 msgstr ""
 
 # translated-by: ollama
@@ -656,6 +954,14 @@ msgstr "Система інтегрального відєлок для спіл
 msgctxt "role:web-app-confluence:description"
 msgid "Enterprise wiki and team collaboration platform for creating, organizing, and sharing content"
 msgstr "Инштилек вики жөнө таасириш платформаси жана салым көрүнүштөрдүн өзгөчөлүктөрүн жазуу, айтаалоо жөнүнүн байланышын босуу"
+
+msgctxt "rbac:web-app-espocrm:manager:description"
+msgid "EspoCRM manager (Managers team, full access to every CRM record, export and mass update)"
+msgstr ""
+
+msgctxt "rbac:web-app-espocrm:user:description"
+msgid "EspoCRM user (Users team, reads team records, edits own records)"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "menu:Events:description"
@@ -691,6 +997,10 @@ msgstr "Федералдагь, эмчигийн хөгжлийн платфор
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
 msgstr "Федерационный мост соединяющий ActivityPub (Fediverse), AT-Протокол (Bluesky), и IndieWeb"
+
+msgctxt "rbac:web-app-fider:collaborator:description"
+msgid "Fider collaborator (moderates posts and comments, changes post status and manages tags)"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "menu:Finance & Accounting:title"
@@ -732,15 +1042,29 @@ msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
 msgstr "Frontend helper-рөөнөрдү (инжинирлугу, шары-шарыт, CDN-дын төмөл töö)."
 
-# translated-by: ollama
-msgctxt "menu:Games:title"
-msgid "Games"
-msgstr "Игры"
+msgctxt "rbac:web-app-minio:readwrite:description"
+msgid "Full S3 access to every bucket and object, without MinIO administration"
+msgstr ""
 
-# translated-by: ollama
-msgctxt "menu:Games:description"
+msgctxt "rbac:web-app-wazuh:administrator:description"
+msgid "Full administrative access: agents, rules, and security configuration."
+msgstr ""
+
+msgctxt "rbac:web-app-funkwhale:librarian:description"
+msgid "Funkwhale librarian (manages the library, uploads, artists and albums of the instance)"
+msgstr ""
+
+msgctxt "rbac:web-app-funkwhale:moderator:description"
+msgid "Funkwhale moderator (handles reports, domain and account moderation)"
+msgstr ""
+
+msgctxt "rbac:web-app-funkwhale:settings-manager:description"
+msgid "Funkwhale settings manager (edits the instance settings)"
+msgstr ""
+
+msgctxt "menu:Leisure:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr "Геймплагстры и күн-экимдүүлүгү."
+msgstr ""
 
 # translated-by: ollama
 msgctxt "category:gen:title"
@@ -762,6 +1086,14 @@ msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "Global JavaScript injection layera t NGINX HTML-респонсв через sub_filter, с CSP хешингом"
 
+msgctxt "access_request:forbidden_back"
+msgid "Go back"
+msgstr ""
+
+msgctxt "access_request:review_added_groups"
+msgid "Groups this grant adds"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
@@ -771,6 +1103,10 @@ msgstr "Тагалантян OpenSSHdaemon конфигурацыя для кл�
 msgctxt "role:dsk-chromium:description"
 msgid "Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
 msgstr "Искушенний кабінетний веб-браузер з обмежених приватності та розшифровувальником паролів через Правила Enterprise"
+
+msgctxt "rbac:web-app-wordpress:administrator:description"
+msgid "Has full administrative access: manage themes, plugins, settings, and users"
+msgstr ""
 
 # AI-tol kompatibelnä API kontainer üzün təzəliqində
 msgctxt "role:svc-ai-lmstudio:description"
@@ -786,6 +1122,10 @@ msgstr "Іншот саналаналан анонім Docker бұрықтары
 msgctxt "menu:Help:title"
 msgid "Help"
 msgstr "Хоохуй"
+
+msgctxt "role:web-svc-assistant:description"
+msgid "Help assistant answering from the deployment's own documentation, with sources"
+msgstr ""
 
 # xitxari Docker Compose xitxari va xitxari xitxaryan va xitxar xitxaryan
 # xitxar-xitxari xitxar-xitxaryan xitxar-xitxaryan xitxar-xitxari
@@ -803,10 +1143,17 @@ msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr "Кэвээ Доосавтагч Тулгыт"
 
-# translated-by: ollama
 msgctxt "menu:Storage:description"
-msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
-msgstr "Хай-эффективны, самостійний храненінг-рішення для керування, розширення і доступу до незакінчених даних — включаючи об'єкт-хранення, який компатівний з API-ми Amazon S3."
+msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data, including object storage compatible with Amazon S3 APIs."
+msgstr ""
+
+msgctxt "rbac:web-app-moodle:coursecreator:description"
+msgid "Holds Moodle's Course creator role in the system context and can create new courses"
+msgstr ""
+
+msgctxt "rbac:web-app-moodle:manager:description"
+msgid "Holds Moodle's Manager role in the system context and can manage every course, category and enrolment of the site"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:sys-svc-journalctl:description"
@@ -818,6 +1165,10 @@ msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
 msgstr "Хост-уровнь тақ bids Bash жана Zsh кабылыс қосуларын бөлүмдө жазууға тақ байланысты жеке .profile-ге жетишиň consistent environmen тягырышына"
 
+msgctxt "role:sys-svc-log-collector:description"
+msgid "Host-level journal collector that ships the redacted logs of every server host to Loki"
+msgstr ""
+
 # için /etc/environment üzerinden duyuruluyor
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
@@ -826,6 +1177,10 @@ msgstr ""
 # pariruščišče ščuniti za ščanu automatičesku administrativeske pristope
 msgctxt "role:user-root:description"
 msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
+msgstr ""
+
+msgctxt "role:sys-svc-app-control:description"
+msgid "Host-side pause and resume of Semaphore-controlled applications with their state marker, SSH account and paused page"
 msgstr ""
 
 # translated-by: ollama
@@ -837,6 +1192,14 @@ msgstr "Идентычные сёлек, PKI жээк жана эскир чөй
 msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
 msgstr "Кэш-хранитель ключа-значения в памяти и по централизованному доступу, с персональными ограничениями на уровне контекста, или встроенный как вспомогательный узел"
+
+msgctxt "role:svc-virt-incus:description"
+msgid "Incus VM host for agent workspaces with a copy-on-write storage pool, an agent bridge and a restricted project"
+msgstr ""
+
+msgctxt "role:svc-virt-showroom:description"
+msgid "Incus showroom host that runs one isolated server per customer demo project behind the host's reverse proxy"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:web-app-docs:description"
@@ -873,6 +1236,10 @@ msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr ""
 
+msgctxt "menu:Chat & Messaging:description"
+msgid "Instant messaging and team chat."
+msgstr ""
+
 # video decode and encode across Linux-distributs
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
@@ -893,6 +1260,10 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr ""
 
+msgctxt "rbac:web-app-kix:user:description"
+msgid "KIX agent who signs in to the agent portal and works on tickets with the Ticket Agent role, without system administration"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
@@ -902,6 +1273,10 @@ msgstr "Керnek WireGuard тунеллер, хаб-и-анкара топша�
 msgctxt "role:svc-ai-jupyter:description"
 msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
 msgstr "Консольн эд бекенд эс чат таасрыг хавтооо, борбор бекенд тандоос буулгык таасырлагык тармакында"
+
+msgctxt "role:sys-sysctl:description"
+msgid "Kernel parameters in one sysctl.d drop-in per owner, applied at once, host-global ones never from a container"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:web-app-hermes:description"
@@ -924,6 +1299,22 @@ msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
 msgstr "Кернел-схемин NFS сервер для экспорта управляющего деревьев подключения с ограничениями на доступ по IP для хостов swarm-рэдхусы"
 
+msgctxt "rbac:web-app-keycloak:auditor:description"
+msgid "Keycloak auditor (read-only view of the application realm, its users and events)"
+msgstr ""
+
+msgctxt "rbac:web-app-keycloak:impersonator:description"
+msgid "Keycloak impersonator (signs in as another user of the application realm)"
+msgstr ""
+
+msgctxt "rbac:web-app-keycloak:user-manager:description"
+msgid "Keycloak user manager (create, edit and assign groups to users in the application realm)"
+msgstr ""
+
+msgctxt "menu:Knowledge & Content:title"
+msgid "Knowledge & Content"
+msgstr ""
+
 # LibreTranslate API, yazykuyet po nyuzhnym, khodymachykh vlyadannym
 msgctxt "role:svc-ai-ltengine:description"
 msgid "LLM-backed translation engine speaking the LibreTranslate API, for pipelines that call it directly"
@@ -932,6 +1323,10 @@ msgstr ""
 # ochidragi edukatsiyan ambasad.
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
+msgstr ""
+
+msgctxt "menu:Leisure:title"
+msgid "Leisure"
 msgstr ""
 
 # TLS teikot automātisko telemēka izveidošanu un pieētiņu
@@ -952,6 +1347,18 @@ msgstr "Надник легкостепен SMTP и заменитель sendmai
 # koda, kontrolya versiy i upravleniya repozitoriyami
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
+msgstr ""
+
+msgctxt "rbac:web-app-listmonk:manager:description"
+msgid "Listmonk manager (lists, subscribers, campaigns, templates, media and bounces)"
+msgstr ""
+
+msgctxt "rbac:web-app-listmonk:viewer:description"
+msgid "Listmonk viewer (read-only lists, subscribers, campaigns and analytics)"
+msgstr ""
+
+msgctxt "role:dsk-agentbox:description"
+msgid "Local agent workspace, a per-project dev-container sandbox that runs coding agents and the editor off the host"
 msgstr ""
 
 # tahe myhostname NSS modulyes
@@ -979,6 +1386,24 @@ msgctxt "role:sys-lock:description"
 msgid "Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
 msgstr "Ключначаччо хууга хувилбaryн талын халыкгын учуруу үчүн, кэчкөрүүнөнөн түзөтө, өнөрчүүнөнөн чаруу салым коогөтүү салым коогоо негиздөө жаасыз булак бар"
 
+msgctxt "role:web-app-grafana:description"
+msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
+msgstr ""
+
+# translated-by: unnamed
+msgctxt "logout:choice_everywhere"
+msgid "Log out everywhere"
+msgstr "Пур ҫӗртен те тух"
+
+# translated-by: unnamed
+msgctxt "logout:choice_device"
+msgid "Log out on this device"
+msgstr "Ку хатӗрте тух"
+
+msgctxt "role:web-svc-loki:description"
+msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:sys-svc-mail-smtp:description"
 msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
@@ -994,6 +1419,18 @@ msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr "Машинно эхтешавт хос хос шаар борилган, бул пайдапи нинчи борилган салардан так салор борилган эхтешавт"
 
+msgctxt "menu:Mail:title"
+msgid "Mail"
+msgstr ""
+
+msgctxt "role:web-app-email:description"
+msgid "Mail server wrapper that consumers depend on, dispatching to the configured mail provider role"
+msgstr ""
+
+msgctxt "rbac:web-app-mailu:domain-manager:description"
+msgid "Mailu domain manager of the mail domain (manages its users, aliases and relays)"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
@@ -1004,6 +1441,30 @@ msgctxt "category:sys.ctl.mtn:description"
 msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
 msgstr "Кэлекэ хэсэгт халуулуу хэсэгт, тохиргоололуудуудад тооцоололтод, нэгэн тоглоомуудад эрчим нэмж илгээх."
 
+msgctxt "profile_lock:managed"
+msgid "Managed by the deployment, which overwrites changes made here. Change it in the inventory at"
+msgstr ""
+
+msgctxt "profile_lock:locked"
+msgid "Managed by your central account. Change it there, because your next sign-in overwrites changes made here."
+msgstr ""
+
+msgctxt "rbac:web-app-joomla:manager:description"
+msgid "Manager in Joomla, maps onto the built-in `Manager` user group (id 6) and may sign in to the administrator backend to manage content."
+msgstr ""
+
+msgctxt "rbac:web-app-pretix:organizer:description"
+msgid "Manages every event and the settings of each Pretix organizer through the \"Organizers (SSO)\" team"
+msgstr ""
+
+msgctxt "rbac:web-app-opencloud:spaceadmin:description"
+msgid "Manages every project space in OpenCloud, including its members and quota"
+msgstr ""
+
+msgctxt "rbac:web-app-proxmox:administrator:description"
+msgid "Manages the Proxmox VE node and every agent VM through the web UI"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:svc-swarm-manager:description"
 msgid "Marker role tagging a host as the Docker Swarm manager node, with the init logic delegated to svc-swarm-node"
@@ -1011,6 +1472,34 @@ msgstr "Docker Swarm мендэгч нод мэдээллээр, хийх лог
 
 msgctxt "menu:Marketing:title"
 msgid "Marketing"
+msgstr ""
+
+msgctxt "rbac:web-app-hermes:mcp:description"
+msgid "May drive this agent's MCP clients, which reach every admitted provider with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-openclaw:mcp:description"
+msgid "May drive this agent's MCP clients, which reach every admitted provider with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-flowise:mcp:description"
+msgid "May drive this application's MCP clients, which reach every admitted provider with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-hermes:agent-user:description"
+msgid "May start a personal Hermes agent from Open WebUI through svc-ai-agent-broker"
+msgstr ""
+
+msgctxt "rbac:web-app-openclaw:agent-user:description"
+msgid "May start a personal OpenClaw agent from Open WebUI through svc-ai-agent-broker"
+msgstr ""
+
+msgctxt "rbac:web-app-workspace:agent-user:description"
+msgid "May start a personal workspace IDE instance through svc-ai-agent-broker"
+msgstr ""
+
+msgctxt "menu:Meetings:title"
+msgid "Meetings"
 msgstr ""
 
 # translated-by: ollama
@@ -1022,6 +1511,10 @@ msgstr "Метасеан чөнүгү жыйындык жазуугу өкүмч
 msgctxt "role:dsk-gnt-pi:description"
 msgid "Minimal terminal coding agent with a lazy-loading skill system, wired to the platform's own model gateway"
 msgstr "Минималний тақыяч термінал кодуучу башкарик сапасы бар, қурулут көркөм сапасы менен платформанын моделгейт кересінде арттырулукталышынын қурулуттарына сапасынан айлануы керек"
+
+msgctxt "rbac:web-app-mobilizon:moderator:description"
+msgid "Mobilizon moderator (handles reports, suspends profiles and groups, and reviews the instance moderation log)"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "category:sys.ctl.hlth:title"
@@ -1087,6 +1580,10 @@ msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "Джинс санал DNS блокер для забору адверстейс и трекерш савакал Device-ларда, с DHCP жана веб-админ джэшшида"
 
+msgctxt "paused:channel_newsletter"
+msgid "Newsletter"
+msgstr ""
+
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
 msgstr ""
@@ -1126,6 +1623,18 @@ msgctxt "role:sys-svc-objstore:description"
 msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
 msgstr ""
 
+msgctxt "rbac:web-app-odoo:manager:description"
+msgid "Odoo business manager (internal user with the Sales, Accounting, Inventory and Project administrator rights)"
+msgstr ""
+
+msgctxt "rbac:web-app-odoo:user:description"
+msgid "Odoo internal user (backend access with the default rights of the installed apps)"
+msgstr ""
+
+msgctxt "rbac:web-app-odoo:portal:description"
+msgid "Odoo portal user (customer portal only, no backend access)"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
@@ -1145,6 +1654,10 @@ msgstr "Корокт эр biro"
 msgctxt "logout:no_check_hint"
 msgid "Open the logout page and sign out of the remaining services yourself."
 msgstr "Дарёх нам огогон хуулийг нодоо жилиш мезгламыг оосонд салуу салуу чарло0н учруу салуу салуу."
+
+msgctxt "access_request:review_console"
+msgid "Open the user's groups in the Keycloak admin console"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:web-app-espocrm:description"
@@ -1245,6 +1758,18 @@ msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
 msgstr "OpenAI-хэдэн LLM-гэгээр нээлттөр /v1 эндпоинттуу локтчих нь урвуулснагаагаа хамтран хийсэн хэдийгээ LLM-ийг хэзээд хийсэн төрөлөөрүүсөө хэзээгүүсөө оруулснаар бүтээснийг нэрлэхэн эсэхиийг талаарх нэрлэгдсэн нэрийн хэдийгээ локтчих нь урвуулснагаа хийсэн локтчих нь урвуулснагаа хийсэн хэдийгээ урвуулсан төрөлүүсөө оруулсныг нэрлэгдсэн нэрийн хэдийгээ"
 
+msgctxt "rbac:web-app-openbao:administrator:description"
+msgid "OpenBao administrator (policy, auth-method and mount management)"
+msgstr ""
+
+msgctxt "rbac:web-app-openbao:operator:description"
+msgid "OpenBao operator (read/write on the application secret paths)"
+msgstr ""
+
+msgctxt "rbac:web-app-openbao:reader:description"
+msgid "OpenBao reader (read-only on the application secret paths)"
+msgstr ""
+
 msgctxt "role:dev-java:description"
 msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
 msgstr ""
@@ -1264,9 +1789,8 @@ msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "Өгүүлт нэген тээвэрлэгт нэгэн төрөлд цэвэрлөө"
 
-# sertifikatlagov per OAuth2
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
+msgctxt "menu:Other:title"
+msgid "Other"
 msgstr ""
 
 # translated-by: ollama
@@ -1289,6 +1813,10 @@ msgctxt "role:sys-pip:description"
 msgid "Package manager for installing and managing Python packages on the target host"
 msgstr "Пакетный управляющий для установки и управления пакетами Python на целевом хосте"
 
+msgctxt "rbac:web-app-peertube:moderator:description"
+msgid "PeerTube moderator (manages abuse reports, blocklists, comments and video blacklisting, but not the instance configuration)"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:svc-ai-agent-broker:description"
 msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
@@ -1304,6 +1832,10 @@ msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
 msgstr "Persistent systemd user-service SSH-agent для Wayland-дэкас, с конфигом .ssh сөйлөт из Git"
 
+msgctxt "paused:channel_phone"
+msgid "Phone"
+msgstr ""
+
 msgctxt "role:sys-os:description"
 msgid "Pins the upstream operating system images the development environment boots each distribution from"
 msgstr ""
@@ -1313,10 +1845,9 @@ msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr "Placeholder stub role для ближайшего XMPP сервер/контейнер-установки, внедрениеpending"
 
-# translated-by: ollama
 msgctxt "menu:Commerce:description"
-msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "Платформы для создания и управления онлайн-магазинами, каталогами товаров и цифровыми каналами продаж — включая платежи, запасы и функции клиентов."
+msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels, including payment, inventory, and customer features."
+msgstr ""
 
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
@@ -1352,6 +1883,10 @@ msgctxt "role:sys-sudo:description"
 msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
 msgstr ""
 
+msgctxt "role:sys-preflight:description"
+msgid "Probes that stop a deploy before it changes a host that cannot take it"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "menu:Project Management:title"
 msgid "Project Management"
@@ -1367,6 +1902,10 @@ msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
 msgstr "Кэвэй эс эм гүзүрткүү GPU драйвер менеджери эрежелүү системалордо маалыматка байланыштуу mhwd бул махсустартардын тандык түзүлүктөгө иштеп чыгуудан ээ"
 
+msgctxt "role:svc-stack:description"
+msgid "Provider of the shared stack service that every application with a compose project or a vhost declares"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:sys-dns-wildcards:description"
 msgid "Provisioning role for Cloudflare wildcard DNS records (*.parent) on parent hosts and the apex domain"
@@ -1380,6 +1919,10 @@ msgstr "Көркөм таласын агылшын тарабынан жана �
 # managir shell dotfiles a SSH authorized_keys
 msgctxt "role:user:description"
 msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
+msgstr ""
+
+msgctxt "role:web-app-proxmox:description"
+msgid "Proxmox VE in a Docker container as the hypervisor for agent VMs, behind the front proxy and a Keycloak group gate"
 msgstr ""
 
 # translated-by: ollama
@@ -1397,6 +1940,10 @@ msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
 msgstr ""
 
+msgctxt "rbac:web-app-joomla:publisher:description"
+msgid "Publisher in Joomla, maps onto the built-in `Publisher` user group (id 5) and may publish and unpublish articles."
+msgstr ""
+
 # TLS frontend har qanday yozuvbor qanday.
 msgctxt "category:svc.cache:description"
 msgid "Pull-through caches for package upstreams - proxy repositories and the TLS frontend that answers for them."
@@ -1405,6 +1952,38 @@ msgstr ""
 # kod-repositorijäriga och automatizs fläm vanamöttiga Git ämmer
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
+msgstr ""
+
+msgctxt "paused:contact"
+msgid "Questions? Reach the operator here:"
+msgstr ""
+
+msgctxt "rbac:web-app-wazuh:readonly-auditor:description"
+msgid "Read-only access to dashboards and alerts. No agent, rule, or configuration actions."
+msgstr ""
+
+msgctxt "rbac:web-app-wazuh:security-analyst:description"
+msgid "Reads alerts, logs, and dashboards. No security-configuration or RBAC-management access."
+msgstr ""
+
+msgctxt "rbac:web-app-minio:readonly:description"
+msgid "Reads objects and bucket locations in every bucket"
+msgstr ""
+
+msgctxt "role:web-app-worldmonitor:description"
+msgid "Real-time global intelligence dashboard that maps public data feeds, self-hosted behind the platform SSO gate"
+msgstr ""
+
+msgctxt "access_request:form_reason"
+msgid "Reason"
+msgstr ""
+
+msgctxt "rbac:web-app-joomla:registered:description"
+msgid "Registered user in Joomla, maps onto the built-in `Registered` user group (id 2) that every signed-in user holds without a higher role."
+msgstr ""
+
+msgctxt "access_request:review_reject"
+msgid "Reject"
 msgstr ""
 
 # translated-by: ollama
@@ -1421,6 +2000,18 @@ msgstr "Тагалаган"
 msgctxt "category:sys.ctl.rpr:description"
 msgid "Repair and recovery roles—handling hard/soft recovery of Docker, Btrfs balancers, and other low-level system fixes."
 msgstr "Ремонт и восстановление ролей—управление восстановлением жесткого/мягкого, балансировками Docker, балансировками Btrfs и другими низкоуровневымиfixами системы."
+
+msgctxt "access_request:forbidden_action"
+msgid "Request access"
+msgstr ""
+
+msgctxt "access_request:form_title"
+msgid "Request access"
+msgstr ""
+
+msgctxt "access_request:review_requester"
+msgid "Requester"
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:sys-util-git-pull:description"
@@ -1445,6 +2036,18 @@ msgstr "Reverse-proxy TLS оршатоо төрөлүгө Лets Encrypt, төр�
 # trafik till bakend-service
 msgctxt "category:svc.prx:description"
 msgid "Reverse-proxy roles for routing and load-balancing traffic to backend services"
+msgstr ""
+
+msgctxt "access_request:review_title"
+msgid "Review access request"
+msgstr ""
+
+msgctxt "rbac:web-app-weblate:reviewer:description"
+msgid "Reviews and approves translations in every project through Weblate's Reviewers team"
+msgstr ""
+
+msgctxt "access_request:form_roles"
+msgid "Roles"
 msgstr ""
 
 # translated-by: ollama
@@ -1476,11 +2079,6 @@ msgstr ""
 msgctxt "role:svc-net-tor-smtp:description"
 msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
 msgstr "SMTP gateway, čегех сом ачилор төмөн. Onion ачилорду Тордун SOCKС ачкыркыларында шыгышы"
-
-# translated-by: ollama
-msgctxt "menu:Sales:title"
-msgid "Sales"
-msgstr "Халчонын"
 
 # translated-by: ollama
 msgctxt "category:svc.virt:title"
@@ -1566,6 +2164,10 @@ msgctxt "role:sys-ctl-mtn-cert-renew:description"
 msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
 msgstr "Scheduled systemd-timer-өөрөөт сүрөттөрү renewing Let's Encrypt SSL/TLS-тикелерин жайлоо жана NGINX-ди жаратыштып туруу Certbot-доо туралышнын"
 
+msgctxt "role:svc-ai-freellmapi:description"
+msgid "Selectable FreeLLMAPI gateway for provider routing with OpenAI and Anthropic compatible APIs"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:svc-runner:description"
 msgid "Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers"
@@ -1616,14 +2218,17 @@ msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr "Кэсээрлэгээний эсэх WebRTC кэсээрч чөлөөтөрчүүгө илгөөн видео конференциямдук саялуу сүрөттөрү менен эрчилөт"
 
+msgctxt "role:web-app-atmo:description"
+msgid "Self-hosted atmo.rsvp appview for AT Protocol calendar events and RSVPs, with an optional mirror into Mobilizon"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
 msgstr "Собственное использование веб-браузерного инструмента для генерации QR-кодов из текста или URL с локальной отображаемостью, удобной для приватности"
 
-# yzyrga yoronooyan xarakterlarni xamana backendlarga kesib qilib, Ollama
 msgctxt "role:web-app-openwebui:description"
-msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
+msgid "Self-hosted chat interface for interacting with local and private AI models through the platform's model gateway"
 msgstr ""
 
 # translated-by: ollama
@@ -1631,10 +2236,9 @@ msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr "Свой облачный платформа для синхронизации, обмениваясь файлами, реальным виртуальным кооперация и командные пространства под собственным доменом"
 
-# translated-by: ollama
-msgctxt "menu:Cloud:description"
+msgctxt "menu:Cloud & Office:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
-msgstr "Свойскія клавінуеры для симхалю шығымдары, көбөрөктери жана буланымдардың бурунтууынің симхалылыš."
+msgstr ""
 
 # netwok ku otkrytomu AT Protocolu, s kymn leningrutovnu svyatoj Serveru
 # Personal Data
@@ -1766,6 +2370,14 @@ msgctxt "role:web-app-matomo:description"
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
 msgstr "Собственное хостинг, аналитический платформа веб-сайт для первоочередного приватности,实时 визитер отслеживание и метрики сайта"
 
+msgctxt "role:web-svc-access-request:description"
+msgid "Self-service requests for application roles that administrators grant with their own Keycloak rights"
+msgstr ""
+
+msgctxt "access_request:form_submit"
+msgid "Send request"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "menu:Server Administration:title"
 msgid "Server Administration"
@@ -1775,6 +2387,10 @@ msgstr "Хаалбалга administration"
 msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
 msgstr "Освіттар Оптімізацыя"
+
+msgctxt "paused:title"
+msgid "Service paused"
+msgstr ""
 
 # säilytyskomponentti—ohjaavat automaattiset datavinkkien säätäminen, ulkoiset
 # säilytykset, välinpitävyysservisiöitä ja säilytysasennukset tietokantojen,
@@ -1825,10 +2441,32 @@ msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr "Сылкылын тармактуу базасы жүйеси көрсөк SQL-деген централдык бүтүнесте жүрүмдөнөн алуууга туура эмес басуууга жаңы бүтүнесте көркөм"
 
-# translated-by: ollama
-msgctxt "logout:all_done"
+msgctxt "rbac:web-app-shopware:editor:description"
+msgid "Shopware catalogue and content editor (products, categories, media and shopping experiences through the Editor ACL role)"
+msgstr ""
+
+msgctxt "access_request:signin_action"
+msgid "Sign in"
+msgstr ""
+
+msgctxt "access_request:signin_title"
+msgid "Sign in again"
+msgstr ""
+
+# translated-by: unnamed
+msgctxt "logout:everywhere_done"
 msgid "Signed out everywhere."
-msgstr "Жайгачоо нүүр бүт'tээ."
+msgstr "Пур ҫӗртен те тухрӑр."
+
+# translated-by: unnamed
+msgctxt "logout:all_done"
+msgid "Signed out on this device."
+msgstr "Ку хатӗрте тухрӑр."
+
+# translated-by: unnamed
+msgctxt "logout:everywhere_partial"
+msgid "Signed out on this device. Other devices may still be signed in."
+msgstr "Ку хатӗрте тухрӑр. Ытти хатӗрсенче халӗ те кӗнӗ пулма пултаратӑр."
 
 #, python-brace-format
 msgctxt "logout:partial"
@@ -1837,6 +2475,34 @@ msgstr ""
 
 msgctxt "logout:running"
 msgid "Signing you out of your services…"
+msgstr ""
+
+msgctxt "rbac:web-app-gitlab:external:description"
+msgid "Signs in as a GitLab external user who sees only the projects and groups they are a member of and cannot create projects or groups"
+msgstr ""
+
+msgctxt "rbac:web-app-gitea:restricted:description"
+msgid "Signs in as a restricted Gitea user who sees only the organizations and repositories shared with them explicitly"
+msgstr ""
+
+msgctxt "rbac:web-app-checkmk:user:description"
+msgid "Signs in to Checkmk with the Normal monitoring user role and may use Setup for the hosts it is a contact for"
+msgstr ""
+
+msgctxt "rbac:web-app-checkmk:guest:description"
+msgid "Signs in to Checkmk with the read-only Guest user role"
+msgstr ""
+
+msgctxt "rbac:web-app-grafana:auditor:description"
+msgid "Signs in to Grafana with the Viewer role, reads logs, metrics and dashboards, and cannot change datasources, dashboards or alert rules"
+msgstr ""
+
+msgctxt "rbac:web-app-opencloud:guest:description"
+msgid "Signs in to OpenCloud as a guest without a personal space, working only in the spaces and shares opened to them"
+msgstr ""
+
+msgctxt "rbac:web-app-pgadmin:user:description"
+msgid "Signs in to pgAdmin through Keycloak with the pgAdmin User role and manages only the servers it registers itself"
 msgstr ""
 
 # public bookmarks to Mastodon išvauxyva vaikintolai apetykti žymus
@@ -1861,6 +2527,10 @@ msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
 msgstr "Социальные медиа инструменты"
 
+msgctxt "menu:Community & Social:description"
+msgid "Social networks, forums and events for your community."
+msgstr ""
+
 # translated-by: ollama
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
@@ -1869,6 +2539,10 @@ msgstr "Компилитацыя энгізу сапалары"
 # audio/videokach, sreen shööring, break-out möörd, och SSO
 msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
+msgstr ""
+
+msgctxt "role:svc-ai-speech:description"
+msgid "Speech-to-text engine with an OpenAI-compatible transcription endpoint, for consumers that call it directly"
 msgstr ""
 
 # translated-by: ollama
@@ -1898,6 +2572,10 @@ msgstr "Статичний сіт-генератор створює HTML з вх
 
 msgctxt "menu:Storage:title"
 msgid "Storage"
+msgstr ""
+
+msgctxt "rbac:web-app-suitecrm:user:description"
+msgid "SuiteCRM user (signs in through the directory as a regular, non-administrator user)"
 msgstr ""
 
 msgctxt "category:sys:title"
@@ -1944,6 +2622,10 @@ msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
 msgstr ""
 
+msgctxt "role:sys-ctl-mtn-rbac-sync:description"
+msgid "Systemd timer that reconciles each application's role mapping with the current members of its role groups"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:sys-timer:description"
 msgid "Systemd timer unit for starting a service on a recurring calendar schedule for automated task execution"
@@ -1952,11 +2634,6 @@ msgstr "Системдик тайм тайт унтуу үчүн айырмач�
 # kalaas, plus imaj, konteyner, neterlir, va qulutuun
 msgctxt "role:sys-ctl-cln-docker:description"
 msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
-msgstr ""
-
-# Compose stack restart, med hård restartar för stackar som Mailu
-msgctxt "role:sys-ctl-rpr-container-hard:description"
-msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
 msgstr ""
 
 # translated-by: ollama
@@ -1977,6 +2654,10 @@ msgstr "Системд таасрэлдийн msmtp цэвэрч мэйл цаг
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
 msgstr "Systemd-төрсөн нотификатор төртчилород жер-төркөмдөн аткарылыштарын Telegram чатга ооруу дайылып көрөүүдөн жазып туруўqu"
+
+msgctxt "access_request:form_reason_required"
+msgid "Tell the approvers why you need these roles."
+msgstr ""
 
 # translated-by: ollama
 msgctxt "role:dsk-gnt-claude:description"
@@ -2003,6 +2684,34 @@ msgctxt "role:test-e2e-cli:description"
 msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
 msgstr "Тест-хаус роль жакто руннан end-to-end CLI тест скриптар для роллар жакто тест энvironмент тэмплейт ооноо"
 
+msgctxt "profile_lock:banner"
+msgid "The deployment manages these fields of this page:"
+msgstr ""
+
+msgctxt "profile_lock:unlock"
+msgid "The deployment manages this field and writes the inventory value back on its next run. Edit it here anyway?"
+msgstr ""
+
+msgctxt "paused:notice"
+msgid "The operator has paused this service. It will be back as soon as it is resumed."
+msgstr ""
+
+msgctxt "access_request:review_rejected"
+msgid "The request was rejected."
+msgstr ""
+
+msgctxt "access_request:review_granted"
+msgid "The selected roles were granted."
+msgstr ""
+
+msgctxt "access_request:form_unknown_application"
+msgid "This application offers no roles to request."
+msgstr ""
+
+msgctxt "paused:heading"
+msgid "This service is taking a break"
+msgstr ""
+
 # translated-by: ollama
 msgctxt "logout:pace"
 msgid "This usually takes a few seconds."
@@ -2027,11 +2736,6 @@ msgstr "Хавчоormом"
 msgctxt "menu:User Management:description"
 msgid "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
 msgstr "Инструменты для управления идентификацией и доступом, включая аутентификацию, provisioning пользователей и управление безопасным доступом."
-
-# translated-by: ollama
-msgctxt "menu:Communication:description"
-msgid "Tools for communication"
-msgstr "Инструменты для коммуникации"
 
 # translated-by: ollama
 msgctxt "menu:Marketing:description"
@@ -2114,6 +2818,10 @@ msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr "Ихтарлар жана абайлык"
 
+msgctxt "menu:Administration:description"
+msgid "Users, servers, infrastructure and development."
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
@@ -2123,6 +2831,14 @@ msgstr "Клиент системы контроля версий для лок�
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "Сверженная структура ресурсного дерева версий для доставки с CDN с общей, поставщиковой и по ролю релизными директориями"
+
+msgctxt "menu:Meetings:description"
+msgid "Video conferences and live events."
+msgstr ""
+
+msgctxt "rbac:web-app-penpot:viewer:description"
+msgid "Views and comments on the files of the shared platform team without editing them"
+msgstr ""
 
 msgctxt "role:dsk-code:description"
 msgid "Visual Studio Code workstation editor in a selectable flavor, carrying the extensions of the agents the host deploys"
@@ -2167,6 +2883,10 @@ msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
 msgstr "Веб-сервер Optimation"
 
+msgctxt "menu:Knowledge & Content:description"
+msgid "Websites, documentation and learning."
+msgstr ""
+
 # translated-by: ollama
 msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
@@ -2182,10 +2902,69 @@ msgctxt "role:pkgmgr-install:description"
 msgid "Wrapper role for idempotent package installation and updates through the pkgmgr universal package manager"
 msgstr ""
 
+msgctxt "access_request:review_same_approver"
+msgid "You already confirmed this request. A different approver must confirm it."
+msgstr ""
+
 # translated-by: ollama
 msgctxt "logout:may_close"
 msgid "You can close this page now."
 msgstr "Өкүл сүрөгүni кurtiring."
+
+msgctxt "access_request:forbidden_title"
+msgid "You do not have access to this application"
+msgstr ""
+
+msgctxt "access_request:review_not_allowed"
+msgid "You may not approve roles of this application."
+msgstr ""
+
+#, python-brace-format
+msgctxt "access_request:mail_granted_subject"
+msgid "Your access request for {application} was granted"
+msgstr ""
+
+#, python-brace-format
+msgctxt "access_request:mail_partial_subject"
+msgid "Your access request for {application} was partly granted"
+msgstr ""
+
+#, python-brace-format
+msgctxt "access_request:mail_rejected_subject"
+msgid "Your access request for {application} was rejected"
+msgstr ""
+
+msgctxt "access_request:forbidden_text"
+msgid "Your account holds none of the roles this application requires."
+msgstr ""
+
+msgctxt "access_request:review_waiting_second"
+msgid "Your approval is recorded. A second approver must confirm before the roles take effect."
+msgstr ""
+
+msgctxt "access_request:form_updated"
+msgid "Your open request for this application was updated."
+msgstr ""
+
+msgctxt "access_request:form_created"
+msgid "Your request was sent to the approvers."
+msgstr ""
+
+msgctxt "access_request:signin_text"
+msgid "Your session expired. Sign in again to continue."
+msgstr ""
+
+msgctxt "rbac:web-app-zammad:administrator:description"
+msgid "Zammad administrator (full admin panel access)"
+msgstr ""
+
+msgctxt "rbac:web-app-zammad:agent:description"
+msgid "Zammad agent (helpdesk staff, can answer tickets)"
+msgstr ""
+
+msgctxt "rbac:web-app-zammad:customer:description"
+msgid "Zammad customer (end user, can open tickets)"
+msgstr ""
 
 msgctxt "logout:st_failed"
 msgid "failed"

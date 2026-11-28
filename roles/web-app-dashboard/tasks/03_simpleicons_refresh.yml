@@ -1,29 +1,6 @@
 ---
-- name: ⏳ Wait for a known Simple Icons asset before rebuilding dashboard cards
-  uri_retry:
-    url: "{{ DASHBOARD_SIMPLEICONS_SYNC_URL_BASE }}keycloak.svg"
-    status_code: 200
-    validate_certs: false
-  register: simpleicons_http
-  retries: 60
-  delay: 5
-  until: simpleicons_http.status == 200
-
-- name: 🔍 Probe Simple Icons reachability per card slug (on the stack host)
-  uri_probe_batch:
-    urls: "{{ DASHBOARD_SIMPLEICONS_PROBE_URLS }}"
-    method: HEAD
-    status_codes: [200, 404]
-    attempts: 3
-    delay: 2
-    timeout: "{{ lookup('timeout', 10) | int }}"
-    validate_certs: false
-    follow_redirects: safe
-    workers: 16
-  register: dashboard_simpleicons_probe
-  delegate_to: "{{ STACK_HOST }}"
-  run_once: true
-  changed_when: false
+- name: 🔄 Reprobe Simple Icons once it is reachable
+  include_tasks: _simpleicons_probe.yml
 
 - name: "🔄 Refresh one Dashboard config per network once Simple Icons is reachable"
   include_tasks: _instance_config.yml

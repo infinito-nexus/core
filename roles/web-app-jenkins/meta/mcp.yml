@@ -13,6 +13,7 @@ credential:
   key: mcp_bearer
 adapter:
   type: mcp_passthrough
+  upstream_credential: true
   specification_path: roles/web-app-jenkins/files/mcp/tools.json
   specification_sha256: sha256:05d96a67cd799cdf2e74caaf4560c9282462ead555a6159fd2e0c74a705b6cf5
   upstream_path: /mcp-server/mcp

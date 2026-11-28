@@ -510,6 +510,44 @@ class TestGetMergedUsersWithOverrides(unittest.TestCase):
                 )
 
 
+class TestGetMergedUsersEmailPolicy(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    def _merged(self, tmp: str, **extra) -> dict:
+        roles = _seed_minimal_user_role(Path(tmp), "web-app-foo")
+        _seed_minimal_user_role(Path(tmp), "web-app-bar")
+        return cache_users.get_merged_users(
+            variables={
+                "DOMAIN_PRIMARY": "example.com",
+                "users": {"foo": {"email": "foo@example.org"}},
+                **extra,
+            },
+            roles_dir=roles,
+            templar=None,
+        )
+
+    @staticmethod
+    def _policy(value):
+        return {
+            "web-app-keycloak": {"services": {"keycloak": {"email": {"policy": value}}}}
+        }
+
+    def test_the_mailbox_policy_makes_the_inventory_address_secondary(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            merged = self._merged(tmp, applications=self._policy("mailbox"))
+        self.assertEqual(merged["foo"]["email"], "foo@example.com")
+        self.assertEqual(merged["foo"]["secondary_email"], "foo@example.org")
+        self.assertEqual(merged["bar"]["email"], "bar@example.com")
+        self.assertEqual(merged["bar"]["secondary_email"], "")
+
+    def test_an_inventory_without_policy_keeps_the_address_primary(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            merged = self._merged(tmp, groups={"web-app-stalwart": ["host"]})
+        self.assertEqual(merged["foo"]["email"], "foo@example.org")
+        self.assertEqual(merged["foo"]["secondary_email"], "")
+
+
 class TestGetMergedUsersTokenSource(unittest.TestCase):
     def setUp(self) -> None:
         _reset_cache_for_tests()

@@ -6,8 +6,10 @@
 > superseded by [`web-app-stalwart`](../web-app-stalwart/), the default email
 > provider. New deployments MUST NOT adopt it and existing ones MUST migrate. Follow
 > [Migration from Mailu](../web-app-stalwart/README.md#migration-from-mailu) to move
-> the mailboxes over. Until then, set `MAIL_PROVIDER: web-app-mailu` to keep routing
-> the mail abstraction (`plugins/lookup/email.py`, `sys-svc-mail`) to Mailu.
+> the mailboxes over. Until then, set
+> `applications.web-app-email.services.email.provider: web-app-mailu` to keep routing
+> the mail abstraction ([web-app-email](../web-app-email/), `plugins/lookup/email.py`,
+> `sys-svc-mail`) to Mailu.
 
 ## Description
 
@@ -30,7 +32,13 @@ More information about this role is available in these GitHub repositories:
 - **Customizable Webmail and Administration:** Provides a modern web interface for managing emails and administrative tasks with ease.
 - **Flexible Deployment:** Easily scale and customize using Docker Compose, with configurable settings for networking, storage, and external services.
 - **OIDC Support:** Optionally integrate with OpenID Connect for centralized authentication across your services.
+- **Administrators and domain managers:** [files/python/rbac_sync.py](./files/python/rbac_sync.py) sets `global_admin` from the `web-app-mailu` `administrator` members and the managers of the mail domain from the `domain-manager` members through the Mailu REST API inside the admin container. Members are promoted, every other global administrator and domain manager is demoted. The platform administrator stays a global administrator. It runs as a host hook of [sys-ctl-mtn-rbac-sync](../sys-ctl-mtn-rbac-sync/) at every deploy and on its timer.
+- **Login methods:** `services.mailu.login.method.<method>.enabled` in [meta/services.yml](./meta/services.yml) declares `sso` and `native`. `sso` switches the OIDC fork on (`OIDC_ENABLED` in [templates/env.j2](./templates/env.j2), driven by the `sso` service) and [templates/javascript.js.j2](./templates/javascript.js.j2) hides its `openid-connect/auth` link on `/sso/login` when the method is off. The fork has no setting that drops the local form, so with `native` off the same script hides the form of `/sso/login`, which serves the Webmail and the Admin sign-in alike. Self-registration stays off in every mode (no domain enables `signup_enabled`, `DOMAIN_REGISTRATION` is unset), and Mailu has no second factor of its own. Break-glass: `/sso/login?fallback=local` shows the form again for the platform administrator's mailbox, which keeps its password and the global administrator flag; the Mailu API (`API_TOKEN`) and `flask mailu` in the admin container remain as well.
 - **DMARC Reports:** The published `_dmarc` record sends aggregate reports (`rua`) to `<username>@<mail domain>` of the user key in `services.mailu.dmarc.rua_user` (`platform_administrator` unless the inventory names another one). That user MUST carry a `mailbox` account or a `forward` to a user that carries one and whose `email` is that mailbox (`<username>@<mail domain>`), otherwise the deploy fails before any record is written.
+
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to. A follow-up tightens them.
 
 ## Further Resources
 

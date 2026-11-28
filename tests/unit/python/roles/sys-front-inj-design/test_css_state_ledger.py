@@ -48,7 +48,7 @@ class Replay:
         core = load_yaml_any(str(core_path))
         self.deploy = next(task for task in tasks if "stack_host_copy" in task)
         self.remove = next(task for task in tasks if "ansible.builtin.file" in task)
-        self.record = _set_fact_with(tasks, "design_js_one_liner")
+        self.record = _set_fact_with(tasks, "design_css_states")
         start = _set_fact_with(core, "design_assets_published")
         self.state = {fact: start[fact] for fact in STATE_FACTS}
         self.role_vars = DataLoader().load_from_file(

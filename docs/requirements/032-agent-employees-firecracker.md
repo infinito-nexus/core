@@ -2,7 +2,7 @@
 
 ## User Story
 
-As a platform administrator of Infinito.Nexus, I want to deploy self-hostable AI agent platforms (Hermes Agent, OpenClaw) as kernel-isolated, scalable "employees" across my nodes, coordinated by a Flowise supervisor over MCP and routed to models through the [031](031-llm-gateway-model-backends.md) gateway, so that I run a fleet of isolated agents with cross-agent pipelines and kernel-level isolation, without bespoke per-agent wiring.
+As a platform administrator of Infinito.Nexus, I want to deploy self-hostable AI agent platforms (Hermes Agent, OpenClaw) as kernel-isolated, scalable "employees" across my nodes, coordinated by a Flowise supervisor over MCP and routed to models through the [052](052-llm-gateway-model-backends.md) gateway, so that I run a fleet of isolated agents with cross-agent pipelines and kernel-level isolation, without bespoke per-agent wiring.
 
 ## Background
 
@@ -11,7 +11,7 @@ The agents are real, self-hostable, open-source platforms, each deployed as its 
 - **[Hermes Agent](https://hermes-agent.nousresearch.com/)** (Nous Research, MIT). Self-hostable with `local`, `Docker`, `SSH`, `Singularity`, `Modal` backends plus container hardening. Ships an official web dashboard with **self-hosted OIDC** auth (fits the platform SSO), delegates work through **isolated subagents**, has persistent memory, scheduling, vision web browsing, and MCP support (**client since v0.2.0, server since v0.6.0**). Deployed as `web-app-hermes`.
 - **[OpenClaw](https://openclaw.ai/)** (open-source, npm/pnpm). Built-in Gateway web dashboard (default port `18789`) plus CLI/TUI, browser control, filesystem sandbox, persistent memory, skills/plugins, and native MCP (`@modelcontextprotocol/sdk`, both client and server). Deployed as `web-app-openclaw`.
 
-Both bring their own agent logic and internal sandboxing. This requirement adds the **isolation and scaling substrate** around them plus a **Flowise supervisor** for cross-agent coordination. Model routing is the [031](031-llm-gateway-model-backends.md) gateway; the MCP tool contract is [025](025-mcp-role-integration.md).
+Both bring their own agent logic and internal sandboxing. This requirement adds the **isolation and scaling substrate** around them plus a **Flowise supervisor** for cross-agent coordination. Model routing is the [052](052-llm-gateway-model-backends.md) gateway; the MCP tool contract is [050](050-mcp-role-integration.md).
 
 Both platforms run model-generated code, which is untrusted, so a kernel-level boundary is required on top of their in-app sandboxing. [gVisor](https://gvisor.dev/) provides that boundary behind an OCI runtime, so each agent app stays a normal container spec and only pins `runtime: runsc`, reusing the existing image pipeline, replicas, healthchecks, and dual-mode machinery. [Kata Containers](https://katacontainers.io/) wrapping Firecracker was the original choice; Decision #2 records why it is unreachable on this container engine. ([E2B](https://github.com/e2b-dev/infra) is the higher-level alternative but brings its own Nomad/Consul orchestration and x86-cloud self-host, which would replace the swarm model.)
 
@@ -34,8 +34,8 @@ These choices are settled at requirement creation time and bound the implementat
 
    The embodied deployment of [034](034-svc-ai-robot.md) is the deliberate exception: it drops the runtime because a guest kernel between the agent and the hardware it drives defeats the purpose, and it narrows the grant to an explicit device allowlist instead.
 5. **Raspberry Pi is a real deploy target.** Agent images MUST publish an `arm64` manifest so a Pi-class node can pull them, and the agents MUST schedule across at least two labelled worker nodes. This is arch coverage, not arch exclusivity: the same images keep running on the amd64 nodes that CI and the lab use, so the requirement is that every architecture a node may have is published, never that a deploy is pinned to one.
-6. **Models go through the [031](031-llm-gateway-model-backends.md) gateway.** Each agent's BYO-model config points only at the `svc-ai-litellm` `/v1` + a model alias; it never addresses a provider directly. The Pis run no large models locally; heavy inference is routed to a GPU/external backend by the gateway.
-7. **Agents consume tools as MCP clients via the [025](025-mcp-role-integration.md) mechanism.** Hermes and OpenClaw are configured as MCP clients of the repository's MCP server roles over HTTP/SSE (not stdio: under microVM isolation and multi-node placement a stdio subprocess cannot reach an MCP server in another container). Discovery and credentials reuse 025's [`roles_with_service`](../../plugins/lookup/roles_with_service.py) lookup and `credentials:` blocks. Both roles are added to 025's MCP audit as client roles. Only 025's shared contract (the `services.mcp` schema) and the lookup extension are prerequisites for this requirement; 025's audit tooling, full lint set, and baserow+openwebui slice are independent later work.
+6. **Models go through the [052](052-llm-gateway-model-backends.md) gateway.** Each agent's BYO-model config points only at the `svc-ai-litellm` `/v1` + a model alias; it never addresses a provider directly. The Pis run no large models locally; heavy inference is routed to a GPU/external backend by the gateway.
+7. **Agents consume tools as MCP clients via the [050](050-mcp-role-integration.md) mechanism.** Hermes and OpenClaw are configured as MCP clients of the repository's MCP server roles over HTTP/SSE (not stdio: under microVM isolation and multi-node placement a stdio subprocess cannot reach an MCP server in another container). Discovery and credentials reuse 050's [`roles_with_service`](../../plugins/lookup/roles_with_service.py) lookup and `credentials:` blocks. Both roles are added to 050's MCP audit as client roles. Only 050's shared contract (the `services.mcp` schema) and the lookup extension are prerequisites for this requirement; 050's audit tooling, full lint set, and baserow+openwebui slice are independent later work.
 8. **Flowise cross-agent supervisor is Phase 2, deferred.** The supervisor (Flowise as MCP client delegating to Hermes' MCP-server mode v0.6.0+ and OpenClaw's MCP-server, chaining cross-agent pipelines) is a separate later slice, not the first implementation. Rationale: it depends on the young hermes MCP-server mode and adds a second orchestration tier. The first slice ships each agent standalone; the supervisor design below is retained as the Phase 2 target. Single-agent use MUST always work without Flowise.
 9. **Agent dashboards are public behind proxy + Keycloak OIDC.** `web-app-hermes` and `web-app-openclaw` follow the standard `web-app-*` contract: own canonical domain, reverse-proxy routing, SSO enforced via [`web-app-keycloak`](../../roles/web-app-keycloak/). Hermes uses its native self-hosted OIDC support. OpenClaw's native OIDC is unverified upstream: if absent, the dashboard sits behind the platform's standard auth-proxy pattern (SSO enforced at the proxy, OpenClaw's own token auth staying internal-only). No unauthenticated public surface either way.
 
@@ -43,7 +43,7 @@ These choices are settled at requirement creation time and bound the implementat
 10. **First slice is dashboard-only.** The first implementation wires each agent through its web dashboard only. Chat-platform connectors (Telegram/Discord/Signal/...), which need operator-supplied bot tokens, are deferred to a follow-up and MUST NOT block the first green deploy.
 11. **Agents that spin up containers use nested Docker inside the isolated runtime; host socket passthrough is forbidden.** When an agent needs to run compose workloads (see the scenario below), it runs a nested Docker daemon inside its own isolated runtime. Mounting the host `/var/run/docker.sock` into an agent that executes model-generated code is **forbidden**: it grants root-equivalent host control and defeats the isolation entirely. Nested Docker costs performance and, on gVisor, may need `runsc` with the appropriate platform; the role README MUST document the overhead. An agent role that requires containers MUST declare this capability explicitly.
 12. **Embodied / dedicated-device mode moves the trust boundary to the whole device.** For an agent that owns and explores a single-purpose machine (a robot platform, a home-assistant appliance), the isolation boundary is the entire dedicated node, not a guest kernel inside it. Privileged/full host access (`/dev`, GPIO, sensors, cameras, host network) is allowed **only** on a node that is dedicated, single-tenant, network-segmented, and explicitly opted in, with the blast radius documented in the role README. It is **forbidden on any shared cluster node**: agents on shared infrastructure always stay under Decision #4. This is the deliberate exception that keeps the general rule intact rather than a hole in it.
-13. **An agent can be provisioned with its own platform user account.** Creating an agent employee optionally provisions a dedicated identity through the platform's existing user mechanism (the `users` lookup, LDAP via [`svc-db-openldap`](../../roles/svc-db-openldap/), SSO via [`web-app-keycloak`](../../roles/web-app-keycloak/)); no new account system is built. The account is a **non-privileged standard user** by default (never administrator/service-account-with-mutating-tools). When enabled, the agent authenticates as its own user: OIDC login to its dashboard, a distinct mailbox/identity, and MCP calls made with `auth_subject: user` ([025](025-mcp-role-integration.md)) scoped to that account rather than a shared service account. The account is opt-in per agent; its password/token lives in the role's `meta/secrets.yml` `credentials:` block, never in README or env. An agent MUST also be deployable against an existing account (no forced account creation).
+13. **An agent can be provisioned with its own platform user account.** Creating an agent employee optionally provisions a dedicated identity through the platform's existing user mechanism (the `users` lookup, LDAP via [`svc-db-openldap`](../../roles/svc-db-openldap/), SSO via [`web-app-keycloak`](../../roles/web-app-keycloak/)); no new account system is built. The account is a **non-privileged standard user** by default (never administrator/service-account-with-mutating-tools). When enabled, the agent authenticates as its own user: OIDC login to its dashboard, a distinct mailbox/identity, and MCP calls made with `auth_subject: user` ([050](050-mcp-role-integration.md)) scoped to that account rather than a shared service account. The account is opt-in per agent; its password/token lives in the role's `meta/secrets.yml` `credentials:` block, never in README or env. An agent MUST also be deployable against an existing account (no forced account creation).
 
 ## Architecture
 
@@ -55,7 +55,7 @@ flowchart TB
     subgraph host["Swarm cluster"]
         subgraph mgr["Manager / normal-runtime nodes (runc)"]
             flowise["web-app-flowise<br/>supervisor (MCP client)"]
-            gw["svc-ai-litellm<br/>LLM gateway /v1 (031)"]
+            gw["svc-ai-litellm<br/>LLM gateway /v1 (052)"]
         end
 
         subgraph anode["Agent nodes (label: kata-capable, arm64)"]
@@ -68,11 +68,11 @@ flowchart TB
         end
     end
 
-    mcpservers["025 MCP server roles<br/>(nextcloud, gitlab, baserow...)"]
+    mcpservers["050 MCP server roles<br/>(nextcloud, gitlab, baserow...)"]
 
     flowise -->|"delegate via MCP"| hermes
     flowise -->|"delegate via MCP"| openclaw
-    hermes & openclaw -->|"tools via MCP (025)"| mcpservers
+    hermes & openclaw -->|"tools via MCP (050)"| mcpservers
     flowise & hermes & openclaw -->|"models /v1"| gw
 
     kvm["/dev/kvm + nested virt"]:::pre --> anode
@@ -108,7 +108,7 @@ A concrete end-to-end illustration of how the pieces compose. Nothing here is a 
 **Admin sets it up once:**
 
 1. Deploy an agent employee (`web-app-hermes` or `web-app-openclaw`) with its **own non-privileged account** (Decision #13) provisioned via `users`/LDAP/Keycloak, plus a matching account on the git forge ([`web-app-gitea`](../../roles/web-app-gitea/) / [`web-app-gitlab`](../../roles/web-app-gitlab/)).
-2. Grant it three tool surfaces: the git-forge **MCP server** (025) for branches/PRs/review comments, a **local-deploy/exec** capability inside its isolated sandbox (to `make compose-deploy` a role and drive a browser), and its **model alias** via the 031 gateway.
+2. Grant it three tool surfaces: the git-forge **MCP server** (050) for branches/PRs/review comments, a **local-deploy/exec** capability inside its isolated sandbox (to `make compose-deploy` a role and drive a browser), and its **model alias** via the 052 gateway.
 3. Give it the task prompt: "iterate every role, align its CSS to the corporate design, screenshot, open a PR, wait for review".
 
 **The agent then runs autonomously, step by step:**
@@ -118,8 +118,8 @@ sequenceDiagram
     actor Admin
     participant A as Agent employee<br/>(own account, isolated runtime)
     participant S as Local sandbox<br/>(compose + browser)
-    participant G as svc-ai-litellm /v1 (031)
-    participant F as git forge MCP (025)
+    participant G as svc-ai-litellm /v1 (052)
+    participant F as git forge MCP (050)
 
     Admin->>A: create agent + assign task
     loop for each role under roles/
@@ -141,8 +141,8 @@ Key points this scenario pins down:
 
 - **"Spins up local containers"** happens inside the agent's isolated sandbox, which MUST therefore be able to run compose workloads (nested Docker inside the isolated runtime). This is a real capability constraint the agent role MUST declare; it is exactly the kind of host-near need Decision #4's runtime selection has to accommodate.
 - **"Created its own account"** = the git-forge identity from Decision #13; the PR is authored by the agent, not a shared bot.
-- **"Waits for feedback"** = the agent polls the PR through the git-forge MCP server (025); the human review gate stays human.
-- Models, tools, and identity are the three separate planes (031 gateway, 025 MCP, IAM account) meeting in one workflow.
+- **"Waits for feedback"** = the agent polls the PR through the git-forge MCP server (050); the human review gate stays human.
+- Models, tools, and identity are the three separate planes (052 gateway, 050 MCP, IAM account) meeting in one workflow.
 
 ## Example Scenario (orientation): Hermes as an isolated home assistant on a Raspberry Pi
 
@@ -151,8 +151,8 @@ Formalised as its own role in [033-web-app-homeassistant.md](033-web-app-homeass
 **Setup:**
 
 1. One Pi joins as a `kata-capable` arm64 node; `web-app-hermes` deploys there under the isolating runtime selected by the preflight (Decision #4).
-2. Models route through the 031 gateway: light intents to a small local `svc-ai-ollama`, heavy reasoning to an external backend.
-3. Home devices are reached as **MCP tool servers** (025) over HTTP/SSE, e.g. a smart-home hub MCP server. Hermes is an MCP client only; it never touches the Pi host.
+2. Models route through the 052 gateway: light intents to a small local `svc-ai-ollama`, heavy reasoning to an external backend.
+3. Home devices are reached as **MCP tool servers** (050) over HTTP/SSE, e.g. a smart-home hub MCP server. Hermes is an MCP client only; it never touches the Pi host.
 4. The dashboard sits behind proxy + Keycloak OIDC (Decision #9); voice/chat connectors are the follow-up (Decision #10).
 
 ```mermaid
@@ -161,8 +161,8 @@ flowchart LR
     subgraph pi["Raspberry Pi (kata-capable, arm64)"]
         hermes["web-app-hermes<br/>gVisor isolated"]
     end
-    gw["svc-ai-litellm /v1 (031)"]
-    hub["smart-home hub<br/>MCP server (025)"]
+    gw["svc-ai-litellm /v1 (052)"]
+    hub["smart-home hub<br/>MCP server (050)"]
     hermes -->|models /v1| gw
     hermes -->|"devices via MCP (tools)"| hub
 ```
@@ -177,7 +177,7 @@ The inverse of every other scenario, and deliberately so. Formalised as its own 
 
 1. A **dedicated, single-tenant, network-segmented** device (robot controller / SBC), NOT a shared cluster node. This device is Hermes' body.
 2. `web-app-hermes` is deployed there with privileged host access (`/dev`, GPIO, sensors, cameras, host network). The trust boundary is the whole device (Decision #12), so there is no microVM around the agent here.
-3. Hermes self-explores: enumerates devices, probes sensors/actuators, maps what the machine can do, then controls it. Models via the 031 gateway; higher-level tools still via MCP (025) where useful.
+3. Hermes self-explores: enumerates devices, probes sensors/actuators, maps what the machine can do, then controls it. Models via the 052 gateway; higher-level tools still via MCP (050) where useful.
 4. Explicit operator opt-in; the README documents the blast radius (this agent can do anything the device can).
 
 ```mermaid
@@ -187,7 +187,7 @@ flowchart TB
         hw["/dev, GPIO, sensors,<br/>cameras, actuators"]
         hermes -->|explore + control| hw
     end
-    gw["svc-ai-litellm /v1 (031)"]
+    gw["svc-ai-litellm /v1 (052)"]
     hermes -->|models /v1| gw
 
     shared["Shared cluster nodes"]:::no
@@ -216,7 +216,7 @@ flowchart LR
         u3(["Build cross-agent pipeline in Flowise"])
         u4(["Deploy stack + preflight KVM"])
         u5(["Scale agent replicas"])
-        u6(["Connect MCP tool servers (025)"])
+        u6(["Connect MCP tool servers (050)"])
     end
 
     operator --- u2
@@ -262,7 +262,7 @@ flowchart TB
 
 | Guarantee | Enforced by |
 | --- | --- |
-| Isolation is real in compose | `svc-virt-kata/tasks/utils/assert_isolated.yml` reads `HostConfig.Runtime` off the running container and refuses `runc` |
+| Isolation is real in compose | `svc-virt-kata/tasks/utils/assert/isolated.yml` reads `HostConfig.Runtime` off the running container and refuses `runc` |
 | Isolation is real in swarm | `svc-virt-kata/tasks/00_core.yml` reads `container info --format DefaultRuntime` and refuses `runc` **before** labelling the node, so the label never promises what the node cannot deliver |
 | The sandbox cannot be escaped through the host daemon | [test_sandboxed_no_host_socket.py](../../tests/lint/ansible/services/test_sandboxed_no_host_socket.py), scoped to the roles whose templates pin `SANDBOX_RUNTIME` |
 | Inference reaches only the gateway | [test_litellm_consumer_contract.py](../../tests/lint/ansible/services/test_litellm_consumer_contract.py) and [test_model_backend_via_gateway.py](../../tests/lint/ansible/jinja/test_model_backend_via_gateway.py) |
@@ -301,14 +301,17 @@ That is what stops the supervisor flow rather than effort. Flowise reaches an MC
 - [x] The agent runtime stays isolated; any host-metrics dashboard is either embedded or a separate `runc` sidecar and does not force the agent tier out of the isolated runtime.
 - [x] A preflight probes `/dev/kvm` and each runtime binary, selects the strongest one installed, and logs the choice with an actionable line.
 - [x] The first slice is dashboard-only; no chat-platform connector is required for a green deploy.
-- [ ] Agent count scales up and down by changing swarm replicas.
+- [ ] Agent count scales per user through the [037](037-per-user-agents.md) agent broker: a user's first request starts that user's agent, an idle agent is stopped, and `agents.max_running` bounds the concurrently running agents.
+  - Superseded by [089](089-agents-restructuring.md#superseded-criteria): agent count no longer scales through swarm replicas; there is one instance per team agent role, and the broker owns its lifecycle.
 - [ ] Agents run on `arm64` and are scheduled across at least two `kata-capable` nodes (Raspberry Pi class); joining an additional labelled node adds capacity without a code change.
-- [x] Both agents reach inference only through the [031](031-llm-gateway-model-backends.md) gateway (BYO-model config points at `/v1`); switching a backend is a gateway config change, no agent redeploy.
-- [ ] Each agent is configured as an MCP client of at least one [025](025-mcp-role-integration.md) MCP server role over HTTP/SSE, and a tool call through that server succeeds; both roles are added to 025's MCP audit.
+- [x] Both agents reach inference only through the [052](052-llm-gateway-model-backends.md) gateway (BYO-model config points at `/v1`); switching a backend is a gateway config change, no agent redeploy.
+- [ ] Each agent is configured as an MCP client of at least one [050](050-mcp-role-integration.md) MCP server role over HTTP/SSE, and a tool call through that server succeeds; both roles are added to 050's MCP audit.
 - [ ] Creating an agent optionally provisions a dedicated platform user account via the existing `users`/LDAP/Keycloak mechanism; the agent authenticates as that account (OIDC dashboard login, MCP `auth_subject: user`), and deploying against an existing account instead also works. **Partly done:** the account half is implemented and linted (see [Agent identity](#agent-identity)); the MCP half is **blocked** on no deployed provider offering per-user OAuth, which is the bar [ADR 0003](../architecture/decisions/0003-mcp-surface-per-provider.md) sets before `auth_subject: user` may be declared.
 - [x] An agent that runs container workloads does so via a nested Docker daemon inside its isolated runtime; no agent mounts the host `/var/run/docker.sock`. Neither agent runs container workloads today, so the enforceable half is the socket ban, held by `tests/lint/ansible/services/test_sandboxed_no_host_socket.py`; wiring a nested daemon is due with the first agent that needs one.
 - [ ] (Phase 2) Hermes' and OpenClaw's MCP-server mode is enabled; Flowise connects to both as MCP clients and delegates a task to each. **Blocked:** `stdio_only`, see [Blocked on hardware and on Phase 2](#blocked-on-hardware-and-on-phase-2).
+  - Superseded by [089](089-agents-restructuring.md#superseded-criteria): `svc-ai-agent-orchestrator` drives the routines; Flowise no longer supervises the agents.
 - [ ] (Phase 2) A Flowise supervisor flow runs a cross-agent pipeline that hands a result from one agent to the other and returns a combined output; single-agent use still works without Flowise. **Blocked:** depends on the criterion above.
+  - Superseded by [089](089-agents-restructuring.md#superseded-criteria): `svc-ai-agent-orchestrator` drives the routines; Flowise no longer supervises the agents.
 - [ ] Compose mode brings up an isolated agent via the compose `runtime:` key; swarm mode brings up an isolated agent via the node-default runtime on a placement-labelled node. Both modes are green end to end.
 - [x] Each agent role ships a Playwright spec exercising its deployed surface, and both are green.
 
@@ -318,8 +321,8 @@ That is what stops the supervisor flow rather than effort. Flowise reaches an MC
 
 ## See Also
 
-- Model plane (LLM gateway) this depends on: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)
-- MCP tool plane: [025-mcp-role-integration.md](025-mcp-role-integration.md)
+- Model plane (LLM gateway) this depends on: [052-llm-gateway-model-backends.md](052-llm-gateway-model-backends.md)
+- MCP tool plane: [050-mcp-role-integration.md](050-mcp-role-integration.md)
 - Hermes Agent: [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/)
 - OpenClaw: [openclaw.ai](https://openclaw.ai/)
 - Firecracker sandbox reference: [E2B infra](https://github.com/e2b-dev/infra)

@@ -20,7 +20,7 @@
 
 - name: "📁 Create Taiga admin user (idempotent)"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    IFS= read -r DJANGO_SUPERUSER_PASSWORD && export DJANGO_SUPERUSER_PASSWORD && container exec -i
+    IFS= read -r DJANGO_SUPERUSER_PASSWORD || :; : "${DJANGO_SUPERUSER_PASSWORD:?arrived empty on stdin}" && export DJANGO_SUPERUSER_PASSWORD && container exec -i
     -e DJANGO_SUPERUSER_PASSWORD
     {{ TAIGA_MANAGER_LOCAL_CID | quote }}
     python manage.py createsuperuser --noinput
@@ -41,7 +41,7 @@
 - name: "📝 Upsert Taiga admin via manage.py shell"
   ansible.builtin.shell: # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     cmd: >
-      IFS= read -r DJANGO_SUPERUSER_PASSWORD && export DJANGO_SUPERUSER_PASSWORD &&
+      IFS= read -r DJANGO_SUPERUSER_PASSWORD && : "${DJANGO_SUPERUSER_PASSWORD:?arrived empty on stdin}" && export DJANGO_SUPERUSER_PASSWORD &&
       container exec -i
       -e TAIGA_SUPERUSER_NAME -e TAIGA_SUPERUSER_EMAIL -e DJANGO_SUPERUSER_PASSWORD
       {{ TAIGA_MANAGER_LOCAL_CID | quote }}

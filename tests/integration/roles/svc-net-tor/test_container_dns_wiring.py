@@ -1,11 +1,14 @@
 import unittest
+import unittest.mock as mock
 
 from ansible.module_utils.parsing.convert_bool import boolean as ansible_boolean
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from plugins.lookup import container_dns
 from tests.integration.roles import PROJECT_ROOT
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_str
+from utils.networks.tor_egress import plan as tor_egress_plan
 
 ROUTER = PROJECT_ROOT / "roles/svc-net-tor/tasks/router.yml"
 CORE = PROJECT_ROOT / "roles/svc-net-tor/tasks/00_core.yml"
@@ -14,8 +17,14 @@ RESOLV_TASK = "🔀 Egress router | Point the host resolver at dnsmasq (127.0.0.
 DROPIN_BLOCK = "🔁 Egress router | Retry dnsmasq until docker0 exists after a boot"
 START_TASK = "🚀 Egress router | Enable + (re)start dnsmasq"
 REGATHER_TASK = (
-    "📊 Re-gather the docker0 fact so torrc and dnsmasq bind the live bridge"
+    "📊 Re-gather every node's docker0 fact so torrc and dnsmasq bind the live bridge"
 )
+TOR_NODE_VARIABLES = {
+    "group_names": ["svc-net-tor"],
+    "NETWORK_DOCKER_ADDRESS_POOLS": [{"base": "10.208.0.0/12", "size": 24}],
+    "NETWORK_PUBLIC_DNS_RESOLVERS": ["9.9.9.9"],
+    "networks": {"internet": {"dns": "172.30.0.53"}},
+}
 
 
 def _walk(tasks):
@@ -33,6 +42,14 @@ def _render_dnsmasq(**overrides):
         "TOR_HS_BACKEND_HOST": "172.17.0.1",
         "TOR_DNS_PORT": 9053,
         "TOR_DNS_UPSTREAMS": ["172.30.0.53"],
+        "TOR_EGRESS_ROUTE": "onion",
+        "TOR_EGRESS_PLAN": tor_egress_plan(
+            {
+                "tor": {"include": [], "except": []},
+                "direct": {"include": [], "except": []},
+            },
+            "onion",
+        ),
     }
     variables.update(overrides)
     env = Environment(
@@ -174,7 +191,11 @@ class TestStaticBindSurvivesBoot(unittest.TestCase):
             "the play-start docker0 fact predates default-address-pools moving the "
             "bridge, and a static bind on the stale address makes dnsmasq exit",
         )
-        self.assertLess(names.index(REGATHER_TASK), names.index("📝 Render torrc"))
+        self.assertEqual(regather["delegate_to"], "{{ item }}")
+        self.assertIs(regather["delegate_facts"], True)
+        self.assertLess(
+            names.index(REGATHER_TASK), names.index("📝 Render the torrc of every node")
+        )
         self.assertLess(
             names.index(REGATHER_TASK),
             names.index("🧅 Wire the host-level transparent .onion egress router"),
@@ -187,7 +208,7 @@ class TestHostResolver(unittest.TestCase):
     it stops. systemd-resolved does keep state, which is why the role has to
     stay out of its way rather than drop the entry."""
 
-    def _resolv_conf(self) -> str:
+    def _resolv_conf(self, route: str) -> str:
         tasks = _walk(load_yaml_str(read_text(str(ROUTER))))
         task = next(t for t in tasks if t.get("name") == RESOLV_TASK)
         env = Environment(
@@ -197,16 +218,57 @@ class TestHostResolver(unittest.TestCase):
         template = env.get_template(
             f"roles/svc-net-tor/templates/{task['ansible.builtin.template']['src']}"
         )
-        return template.render(networks={"internet": {"dns": "172.30.0.53"}})
+        return template.render(
+            networks={"internet": {"dns": "172.30.0.53"}}, TOR_EGRESS_ROUTE=route
+        )
 
-    def test_dnsmasq_answers_first_and_the_upstream_carries_the_host(self):
-        servers = [
+    def _servers(self, route: str) -> list[str]:
+        return [
             line.split()[1]
-            for line in self._resolv_conf().splitlines()
+            for line in self._resolv_conf(route).splitlines()
             if line.startswith("nameserver ")
         ]
+
+    def test_dnsmasq_answers_first_and_the_upstream_carries_the_host(self):
+        servers = self._servers("onion")
         self.assertEqual(len(servers), 2)
         self.assertEqual(servers[0], "127.0.0.1")
+
+    def test_route_all_leaves_the_host_no_clearnet_fallback(self):
+        self.assertEqual(self._servers("all"), ["127.0.0.1"])
+
+
+class TestContainerResolversUnderRouteAll(unittest.TestCase):
+    """Docker moves to the next nameserver whenever dnsmasq answers SERVFAIL,
+    which is what it answers while Tor is down. Under route all the bridge must
+    therefore be the only resolver containers get, or a stopped Tor turns into
+    clearnet DNS for every container."""
+
+    def _daemon_dns(self, route: str) -> list[str]:
+        lookup = container_dns.LookupModule()
+        with mock.patch.object(container_dns, "lookup_loader") as loader:
+            loader.get.return_value = mock.MagicMock(
+                run=mock.MagicMock(return_value=[route])
+            )
+            emitted = lookup.run([], variables=dict(TOR_NODE_VARIABLES))[0]
+        self.assertEqual(
+            loader.get.return_value.run.call_args.args[0],
+            ["svc-net-tor", "services.tor.egress.route"],
+        )
+        return emitted
+
+    def test_route_all_hands_containers_only_the_bridge(self):
+        self.assertEqual(self._daemon_dns("all"), ["10.208.0.1"])
+
+    def test_route_onion_keeps_the_clearnet_second_entry(self):
+        self.assertEqual(self._daemon_dns("onion"), ["10.208.0.1", "172.30.0.53"])
+
+    def test_off_a_tor_node_the_route_is_never_read(self):
+        with mock.patch.object(container_dns, "lookup_loader") as loader:
+            self.assertEqual(
+                container_dns.tor_route({"group_names": []}, None, None), ""
+            )
+        loader.get.assert_not_called()
 
 
 if __name__ == "__main__":

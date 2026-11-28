@@ -47,6 +47,11 @@ from ansible import constants
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files, read_text
 from utils.cache.yaml import load_yaml_str
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_SERVICES,
+    ROLE_FILE_TASKS_MAIN,
+)
 
 from . import PROJECT_ROOT
 
@@ -62,6 +67,7 @@ _YAML_PREFIXES = (
     "playbook.yml",
     "playbook-sync.yml",
 )
+_YAML_EXCLUDED_SUFFIXES = ("/" + ROLE_FILE_META_FORMS,)
 _PY_EXCLUDED_PREFIXES = ("tests/",)
 _PY_EXCLUDED_PARTS = ("/files/",)
 _ANSIBLE_PLUGINS = Path(constants.__file__).parent / "plugins"
@@ -249,11 +255,17 @@ def _in_scope(rel: str) -> bool:
         return not rel.startswith(_PY_EXCLUDED_PREFIXES) and not any(
             part in f"/{rel}" for part in _PY_EXCLUDED_PARTS
         )
-    return rel.startswith(_YAML_PREFIXES)
+    return rel.startswith(_YAML_PREFIXES) and not rel.endswith(_YAML_EXCLUDED_SUFFIXES)
 
 
 class TestNoDeprecatedAnsiblePatterns(unittest.TestCase):
-    def test_no_deprecated_patterns(self) -> None:
+    def test_form_specs_are_out_of_scope(self) -> None:
+        role = "roles/web-app-wordpress"
+        self.assertFalse(_in_scope(f"{role}/{ROLE_FILE_META_FORMS}"))
+        self.assertTrue(_in_scope(f"{role}/{ROLE_FILE_META_SERVICES}"))
+        self.assertTrue(_in_scope(f"{role}/{ROLE_FILE_TASKS_MAIN}"))
+
+    def test_no_deprecated_patterns(self) -> None:  # nocheck: test.text-presence -- policy lint over every in-scope Ansible file  # fmt: skip
         offenders: dict[Path, list[str]] = {}
         for abs_path in iter_project_files(extensions=SCAN_SUFFIXES):
             rel = Path(abs_path).relative_to(PROJECT_ROOT).as_posix()

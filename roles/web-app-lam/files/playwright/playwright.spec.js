@@ -60,3 +60,4 @@ test("administrator: app → universal logout", async ({ page }) => {
 });
 
 require("./test-design").register();
+require("./test-directory-login").register();

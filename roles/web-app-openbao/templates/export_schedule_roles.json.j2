@@ -1,0 +1,20 @@
+[
+{% for openbao_role, openbao_template in OPENBAO_EXPORT_SCHEDULE_ROLES.items() %}
+  {
+    "name": {{ openbao_role | to_json }},
+    "body": {
+      "role_type": "jwt",
+      "bound_audiences": [{{ OPENBAO_JWT_AUDIENCE | to_json }}],
+      "user_claim": "sub",
+      "bound_claims_type": "string",
+      "bound_claims": {
+        "project_id": {{ semaphore_export_schedule_identity.project_id | to_json }},
+        "template_id": [{{ semaphore_export_schedule_identity.templates[openbao_template] | to_json }}]
+      },
+      "token_policies": ["export-shared"],
+      "token_ttl": {{ OPENBAO_JWT_TOKEN_TTL.export | to_json }},
+      "token_max_ttl": {{ OPENBAO_JWT_TOKEN_TTL.export | to_json }}
+    }
+  }{{ "," if not loop.last }}
+{% endfor %}
+]

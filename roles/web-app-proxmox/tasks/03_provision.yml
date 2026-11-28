@@ -1,0 +1,16 @@
+---
+- name: "📇 Record the provision target of {{ inventory_hostname }} in OpenBao"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/web-app-openbao/tasks/utils/kv.yml') }}"
+  vars:
+    openbao_kv_state: present
+    openbao_kv_mount: "{{ PROXMOX_PROVISION_MOUNT }}"
+    openbao_kv_path: "{{ PROXMOX_PROVISION_PATH }}"
+    openbao_kv_data:
+      endpoint: "{{ PROXMOX_API_ENDPOINT }}"
+      certificate: "{{ proxmox_api_certificate.stdout | regex_search('(?s)-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----') }}"
+      fingerprint: "{{ proxmox_api_certificate.stdout | regex_search('(?m)^fingerprint=[0-9a-f]{64}$') | replace('fingerprint=', '') }}"
+      node: "{{ PROXMOX_NODE }}"
+      kvm: "{{ PROXMOX_VM_KVM | bool }}"
+      storage: "{{ PROXMOX_WORKSPACES.storage }}"
+      bridge: "{{ PROXMOX_WORKSPACES.bridge }}"
+      templates: "{{ PROXMOX_WORKSPACES.templates }}"

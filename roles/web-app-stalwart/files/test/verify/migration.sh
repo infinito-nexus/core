@@ -17,7 +17,7 @@ fi
 : "${MAIL_DOMAIN:?missing MAIL_DOMAIN}"
 : "${STALWART_ADMIN_USER:?missing STALWART_ADMIN_USER}"
 : "${STALWART_ADMIN_PASSWORD:?missing STALWART_ADMIN_PASSWORD}"
-: "${STALWART_JMAP_URL:?missing STALWART_JMAP_URL}"
+: "${STALWART_IMPORT_JMAP_URL:?missing STALWART_IMPORT_JMAP_URL}"
 : "${STALWART_MAILBOX_MAP:?missing STALWART_MAILBOX_MAP}"
 
 RUN_ID="$(date +%s)"
@@ -141,7 +141,7 @@ run_migration() {
 	"${PYTHON_BIN}" "${MIGRATION_SCRIPT}" \
 		--maildir-root "${maildir}" \
 		--imap-host 127.0.0.1 --imap-port 993 --imap-insecure \
-		--jmap-url "${STALWART_JMAP_URL}" \
+		--jmap-url "${STALWART_IMPORT_JMAP_URL}" \
 		--admin-file "${WORKDIR}/admin.json" \
 		--mailbox-map "${STALWART_MAILBOX_MAP}" \
 		--workers "${STALWART_IMPORT_WORKERS}" \

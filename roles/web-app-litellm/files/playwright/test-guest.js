@@ -16,7 +16,7 @@ exports.register = function (shared) {
     expect(response, "Expected a LiteLLM UI response").toBeTruthy();
     expect(response.status(), "Expected LiteLLM UI status to be < 400").toBeLessThan(400);
 
-    if (isServiceEnabled("sso")) {
+    if (isServiceEnabled("sso") && shared.env.loginMethodSso) {
       await expect
         .poll(() => page.url(), {
           timeout: resolveTimeout(60_000),

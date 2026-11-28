@@ -1,0 +1,68 @@
+---
+- name: "🧊 Queue the probe of '{{ front_proxy_domain }}'"
+  ansible.builtin.set_fact:
+    front_proxy_deferred_probes: >-
+      {{ front_proxy_deferred_probes
+         | combine({front_proxy_domain: front_proxy_probe | combine({'phase': stack_front_phase})}
+                   if (front_proxy_domain | network_of) != 'tor' else {}) }}
+  changed_when: false
+  when: IS_STACK_HOST | bool
+
+- name: "📌 TLS | Apply tls layer for '{{ front_proxy_domain }}'"
+  include_role:
+    name: sys-front-tls
+  when: lookup('tls', front_proxy_domain, 'enabled') | bool
+  vars:
+    application_id: "{{ front_proxy_application_id }}"
+    domain: "{{ front_proxy_domain }}"
+
+- name: "📌 CSP/INJ | Apply global injections for {{ front_proxy_domain }}"
+  ansible.builtin.include_role:
+    name: sys-front-inj-all
+  vars:
+    application_id: "{{ front_proxy_application_id }}"
+    domain: "{{ front_proxy_domain }}"
+
+- name: "🚀 Deploy NGINX config for '{{ front_proxy_domain }}'"
+  stack_host_contents:
+    files: >-
+      {{ ([{'path': lookup('nginx', 'files.lua', front_proxy_domain),
+            'content': lookup('template_shallow', lookup('path_absolute', 'roles/sys-front-inj-all/templates/body_filter.lua.j2'),
+                              template_vars={'application_id': front_proxy_application_id, 'domain': front_proxy_domain})}]
+          if IS_STACK_HOST | bool else [])
+         + ([{'path': lookup('nginx', 'files.domain', front_proxy_domain, protocol='http'),
+            'content': lookup('template', lookup('path_absolute', 'roles/sys-front-tls/templates/http.conf.j2'),
+                              template_vars={'domain': front_proxy_domain})}]
+          if lookup('tls', front_proxy_domain, 'enabled') | bool else [])
+         + [{'path': front_proxy_domain_conf_dst_resolved,
+             'content': lookup('template', front_proxy_template_src, template_vars=front_proxy_render_vars)}] }}
+    mode: "0644"
+    diff_paths:
+      - "{{ lookup('nginx', 'files.lua', front_proxy_domain) }}"
+  vars:
+    webserver_extra_configuration: >-
+      {{ (lookup('template', front_proxy_extra_template) | default('', true)) if front_proxy_extra_template else front_proxy_extra_configuration }}
+    webserver_websocket_location: "{{ front_proxy_websocket_location }}"
+    webserver_client_max_body_size: "{{ front_proxy_client_max_body_size }}"
+    front_proxy_render_vars: >-
+      {{
+        front_proxy_template_vars
+        | combine({'webserver_location_extra_configuration': lookup('template', front_proxy_location_extra_template) | default('', true)}
+                  if front_proxy_location_extra_template else {})
+      }}
+  register: nginx_conf
+  notify: reload-openresty
+
+- name: "🔄 Reload and re-check '{{ front_proxy_domain }}' right after its render"
+  ansible.builtin.include_tasks: proxy/settle.yml
+  when: stack_front_phase == 'entered'
+
+- name: "🗂️ Record '{{ front_proxy_domain }}' for the front batch reload"
+  ansible.builtin.set_fact:
+    front_proxy_batch_vhosts: >-
+      {{ front_proxy_batch_vhosts
+         | combine({front_proxy_domain: {'consumer': front_proxy_application_id,
+                                         'changed': front_proxy_vhost_changed,
+                                         'probe': front_proxy_probe}}) }}
+  changed_when: false
+  when: stack_front_phase != 'entered'

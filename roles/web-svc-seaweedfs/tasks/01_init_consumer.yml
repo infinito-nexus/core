@@ -30,5 +30,6 @@
     - name: "🔐 Converge the bucket policy of '{{ objstore_consumer_id }}'"
       include_tasks: utils/bucket/policy.yml
       vars:
-        seaweedfs_bucket_policy_consumer: "{{ objstore_consumer_id }}"
+        seaweedfs_bucket_policy_bucket: "{{ lookup('objstore', objstore_consumer_id, 'bucket') }}"
+        seaweedfs_bucket_policy_public: "{{ lookup('objstore', objstore_consumer_id, 'public') | bool }}"
       when: _seaweedfs_bucket_listed or _seaweedfs_create is changed

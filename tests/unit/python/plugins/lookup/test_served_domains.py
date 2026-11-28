@@ -1,0 +1,175 @@
+"""The served_domains lookup resolves member hosts without ever failing a play."""
+
+from __future__ import annotations
+
+import unittest
+import unittest.mock as mock
+
+from ansible.errors import AnsibleError
+from ansible.parsing.dataloader import DataLoader
+from ansible.template import Templar
+
+from plugins.lookup.served_domains import LookupModule
+
+APP = "web-app-wordpress"
+APPLICATIONS = {
+    APP: {
+        "domains": {
+            "canonical": ["blog.main.test"],
+            "served": [{"parent": "user.blog.main.test", "role": "site-owner"}],
+        },
+    },
+    "web-app-plain": {},
+}
+USERS = {
+    "biber": {"username": "biber", "roles": ["site-owner"]},
+    "dotted": {"username": "harry.beaver", "roles": ["site-owner"]},
+}
+SELF_SIGNED = {"TLS_ENABLED": True, "TLS_MODE": "self_signed"}
+WEBROOT = {
+    "TLS_ENABLED": True,
+    "TLS_MODE": "letsencrypt",
+    "CERTBOT_FLAVOR": "dedicated",
+    "CERTBOT_ACME_CHALLENGE_METHOD": "webroot",
+}
+ONION = "b5abfs7uwr23x6vbjxqjatyscpmkm6qkmkla7eyapdi4zpwtrz6o4nqd.onion"
+ONION_PARENT = f"user.blog.{ONION}"
+TOR_NODE = dict(SELF_SIGNED, DOMAIN_PRIMARY="main.test", group_names=["svc-net-tor"])
+
+
+class _Stub:
+    def __init__(self, payload):
+        self.payload = payload
+
+    def run(self, terms, variables=None, **kwargs):
+        return [self.payload]
+
+
+class TestServedDomainsLookup(unittest.TestCase):
+    def setUp(self):
+        self.lookup = LookupModule()
+        self.lookup._templar = None
+        self.lookup._loader = None
+
+    def _run(self, variables, application_ids, domains=None, applications=None):
+        payloads = {
+            "applications": applications or APPLICATIONS,
+            "domains": domains or {APP: ["blog.main.test"]},
+            "users": USERS,
+            "config": ONION,
+        }
+        with mock.patch(
+            "plugins.lookup.served_domains.lookup_loader.get",
+            side_effect=lambda name, **kwargs: _Stub(payloads[name]),
+        ):
+            return self.lookup.run(
+                [], variables=variables, application_ids=application_ids
+            )[0]
+
+    def test_a_self_signed_host_serves_the_wildcard(self):
+        result = self._run(SELF_SIGNED, [APP])
+        self.assertEqual(
+            ["*.user.blog.main.test"], [entry["name"] for entry in result["entries"]]
+        )
+
+    def test_a_webroot_host_serves_every_member_host(self):
+        result = self._run(WEBROOT, [APP])
+        self.assertEqual(
+            ["biber.user.blog.main.test"],
+            [entry["name"] for entry in result["entries"]],
+        )
+
+    def test_an_invalid_member_is_a_problem_of_the_role_not_of_the_play(self):
+        problems = self._run(WEBROOT, [APP])["problems"]
+        self.assertEqual(1, len(problems))
+        self.assertIn("harry.beaver", problems[0])
+
+    def test_a_member_host_that_repeats_a_redirect_source_is_a_problem(self):
+        source = {"source": "biber.user.blog.main.test", "target": "blog.main.test"}
+        variables = dict(WEBROOT, CURRENT_PLAY_REDIRECT_DOMAINS=[source])
+        result = self._run(variables, [APP])
+        self.assertEqual([], result["entries"])
+        self.assertTrue(
+            [problem for problem in result["problems"] if "repeats" in problem]
+        )
+
+    def test_a_play_without_a_declaring_application_serves_nothing(self):
+        self.assertEqual(
+            {"entries": [], "problems": [], "parents": []},
+            self._run({}, ["web-app-plain"]),
+        )
+
+    def test_a_tor_only_node_serves_the_wildcard_below_the_onion_parent(self):
+        result = self._run(TOR_NODE, [APP], domains={APP: [f"blog.{ONION}"]})
+        self.assertEqual(
+            [f"*.{ONION_PARENT}"], [entry["name"] for entry in result["entries"]]
+        )
+        self.assertEqual(
+            [{"application_id": APP, "role": "site-owner", "parent": ONION_PARENT}],
+            result["parents"],
+        )
+
+    def test_a_tor_only_node_names_member_hosts_below_the_onion_parent(self):
+        variables = dict(
+            WEBROOT, DOMAIN_PRIMARY="main.test", group_names=["svc-net-tor"]
+        )
+        result = self._run(variables, [APP], domains={APP: [f"blog.{ONION}"]})
+        self.assertEqual(
+            [f"biber.{ONION_PARENT}"], [entry["name"] for entry in result["entries"]]
+        )
+        self.assertEqual([f"biber.{ONION_PARENT}"], result["entries"][0]["hosts"])
+
+    def test_a_multi_node_keeps_the_clearnet_parent(self):
+        domains = {APP: ["blog.main.test", f"blog.{ONION}"]}
+        result = self._run(TOR_NODE, [APP], domains=domains)
+        self.assertEqual(
+            ["*.user.blog.main.test"], [entry["name"] for entry in result["entries"]]
+        )
+        self.assertEqual(
+            ["user.blog.main.test"], [entry["parent"] for entry in result["parents"]]
+        )
+
+    def test_a_node_without_tor_keeps_the_declared_parent(self):
+        self.assertEqual(
+            [
+                {
+                    "application_id": APP,
+                    "role": "site-owner",
+                    "parent": "user.blog.main.test",
+                }
+            ],
+            self._run(SELF_SIGNED, [APP])["parents"],
+        )
+
+    def _templated(self, tls, **scope):
+        applications = {
+            **APPLICATIONS,
+            APP: {**APPLICATIONS[APP], "server": {"tls": tls}},
+        }
+        return self._run(dict(WEBROOT, **scope), [APP], applications=applications)
+
+    def test_a_templated_tls_override_decides_the_wildcard(self):
+        self.lookup._templar = Templar(loader=DataLoader())
+        for tls, scope in (
+            ({"enabled": "{{ T_TLS }}"}, {"T_TLS": False}),
+            ({"mode": "{{ T_MODE }}"}, {"T_MODE": "self_signed"}),
+        ):
+            with self.subTest(tls=tls):
+                entries = self._templated(tls, **scope)["entries"]
+                self.assertEqual(
+                    ["*.user.blog.main.test"], [entry["name"] for entry in entries]
+                )
+
+    def test_a_tls_override_that_stays_template_text_raises(self):
+        with self.assertRaises(AnsibleError):
+            self._templated({"enabled": "{{ T_TLS }}"})
+
+    def test_terms_or_a_missing_id_list_fail(self):
+        with self.assertRaises(AnsibleError):
+            self.lookup.run(["x"], variables=SELF_SIGNED, application_ids=[APP])
+        with self.assertRaises(AnsibleError):
+            self.lookup.run([], variables=SELF_SIGNED)
+
+
+if __name__ == "__main__":
+    unittest.main()

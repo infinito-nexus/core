@@ -14,10 +14,10 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
+from tests.utils.unprivileged import unprivileged
 from utils.env.runtime import (
     cpu_stall_pct,
     detect_gha_act,
-    df_avail_gb,
     hostname,
     io_stall_pct,
     is_user_writable,
@@ -61,10 +61,7 @@ class TestIsUserWritable(unittest.TestCase):
             missing = str(Path(td) / "does" / "not" / "exist")
             self.assertTrue(is_user_writable(missing))
 
-    @unittest.skipIf(
-        hasattr(os, "geteuid") and os.geteuid() == 0,
-        "root bypasses POSIX permission checks, so a 0o500 dir is still writable",
-    )
+    @unprivileged
     def test_readonly_path_returns_false(self) -> None:
         with TemporaryDirectory() as td:
             sub = Path(td) / "ro"
@@ -74,44 +71,6 @@ class TestIsUserWritable(unittest.TestCase):
                 self.assertFalse(is_user_writable(str(sub)))
             finally:
                 sub.chmod(0o700)  # so cleanup can remove it
-
-
-class TestDfAvailGb(unittest.TestCase):
-    def test_parses_df_output(self) -> None:
-        sample = "Avail\n42\n"
-        with patch(
-            "utils.env.runtime.subprocess.check_output",
-            return_value=sample,
-        ):
-            self.assertEqual(df_avail_gb("/"), 42)
-
-    def test_returns_zero_on_short_output(self) -> None:
-        with patch(
-            "utils.env.runtime.subprocess.check_output",
-            return_value="Avail\n",
-        ):
-            self.assertEqual(df_avail_gb("/"), 0)
-
-    def test_returns_zero_on_unparseable_output(self) -> None:
-        with patch(
-            "utils.env.runtime.subprocess.check_output",
-            return_value="Avail\nnot-a-number\n",
-        ):
-            self.assertEqual(df_avail_gb("/"), 0)
-
-    def test_returns_zero_on_subprocess_error(self) -> None:
-        with patch(
-            "utils.env.runtime.subprocess.check_output",
-            side_effect=subprocess.CalledProcessError(1, "df"),
-        ):
-            self.assertEqual(df_avail_gb("/"), 0)
-
-    def test_returns_zero_when_df_missing(self) -> None:
-        with patch(
-            "utils.env.runtime.subprocess.check_output",
-            side_effect=FileNotFoundError(),
-        ):
-            self.assertEqual(df_avail_gb("/"), 0)
 
 
 class TestMemAvailableMb(unittest.TestCase):

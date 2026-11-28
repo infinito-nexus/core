@@ -1,0 +1,13 @@
+---
+services:
+  infinito:
+    extends:
+      file: compose.cache-consumer.yml
+      service: cache-consumer
+    networks:
+      infra:
+
+networks:
+  infra:
+    external: true
+    name: infinito-infra

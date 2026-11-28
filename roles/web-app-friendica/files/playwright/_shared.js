@@ -8,13 +8,11 @@ const { resolveTimeout } = require("./timeouts");
 //   v0  oauth2 + ldap + oidc all enabled — double-login pattern below
 //   v1  every dynamic flag disabled      — only guest test runs
 //   v2  ldap enabled, oauth2 + oidc off  — direct in-app login (no Keycloak hop)
-// All three are selected at runtime by inspecting `SSO_SERVICE_ENABLED`
-// and `LDAP_SERVICE_ENABLED` — the spec stays one file across variants.
 
 const { expect } = require("@playwright/test");
 
 const { decodeDotenvQuotedValue, performKeycloakLoginForm, runGuestFlow, gotoOnion } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const friendicaBaseUrl = decodeDotenvQuotedValue(process.env.FRIENDICA_BASE_URL);
 const canonicalDomain  = decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN);
@@ -105,8 +103,12 @@ async function loginViaFriendicaDirect(page, username, password) {
   await profileMenu.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
 }
 
-function pickLoginPath() {
-  return isServiceEnabled("sso") ? loginViaOauth2ProxyAndFriendica : loginViaFriendicaDirect;
+async function loginViaFriendica(page, username, password) {
+  if (isServiceEnabled("sso")) {
+    await loginViaOauth2ProxyAndFriendica(page, username, password);
+  } else {
+    await loginViaFriendicaDirect(page, username, password);
+  }
 }
 
 async function friendicaLogout(page) {
@@ -119,8 +121,7 @@ async function friendicaLogout(page) {
 // before any test that asserts on /profile/biber (without this seeding
 // the profile would 404). Logs out at the end so the caller starts from
 // a clean session.
-async function provisionBiberAccount(browser) {
-  const login = pickLoginPath();
+async function provisionBiberAccount(browser, login) {
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   try {
     const page = await context.newPage();
@@ -142,11 +143,12 @@ module.exports = {
   },
   trimmedBaseUrl,
   isServiceEnabled,
+  skipUnlessServiceDisabled,
   skipUnlessServiceEnabled,
   loginViaFriendicaForm,
   loginViaOauth2ProxyAndFriendica,
   loginViaFriendicaDirect,
-  pickLoginPath,
+  loginViaFriendica,
   friendicaLogout,
   provisionBiberAccount,
   runGuestFlow,

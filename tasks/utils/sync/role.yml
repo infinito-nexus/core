@@ -26,6 +26,22 @@
   vars:
     handler_role_name: svc-prx-openresty
 
+- name: "🌐 Serve the front of '{{ sync_application_id }}' in a preload context"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/sync/front.yml') }}"
+  vars:
+    entry_role: "{{ sync_application_id }}"
+    entry_application_id: "{{ sync_application_id }}"
+  when: STACK_ENTRY_PENDING | bool
+
+- name: "🧩 Run the stack backend '{{ sync_application_id }}' enters with"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/load/entry.yml') }}"
+  vars:
+    entry_role: "{{ sync_application_id }}"
+    entry_application_id: "{{ sync_application_id }}"
+    entry_domain: false
+    entry_post_run: false
+  when: STACK_ENTRY_PENDING | bool
+
 - name: "🔧 Run the role of '{{ sync_application_id }}'"
   ansible.builtin.include_role:
     name: "{{ sync_application_id }}"

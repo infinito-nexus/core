@@ -14,8 +14,10 @@ import unittest
 
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
+from plugins.filter.network_of import network_suffix
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
+from utils.networks.reachability import TOR, network
 
 from . import PROJECT_ROOT
 
@@ -70,8 +72,16 @@ class TestOutboundStrategyExpression(unittest.TestCase):
         """then is a Stalwart expression string literal naming the route, from
         the same SPOT var the relay route registers itself under."""
         onion = self.expr["match"]["1"]
-        self.assertEqual(onion["if"], "ends_with(rcpt_domain, '.onion')")
+        env = Environment(autoescape=select_autoescape(default_for_string=False))
+        env.filters["network_suffix"] = network_suffix
+        self.assertEqual(
+            env.from_string(onion["if"]).render(),
+            f"ends_with(rcpt_domain, '{network(TOR).suffix}')",
+        )
         self.assertEqual(onion["then"], "'{{ STALWART_ONION_ROUTE_NAME }}'")
+
+    def test_the_onion_suffix_comes_from_the_network_registry(self):
+        self.assertIn("'tor' | network_suffix", self.expr["match"]["1"]["if"])
 
     def test_everything_else_falls_back_to_mx(self):
         self.assertEqual(self.expr["else"], "'mx'")

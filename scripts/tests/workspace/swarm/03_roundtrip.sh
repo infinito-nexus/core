@@ -9,4 +9,4 @@ source "${SCRIPT_DIR}/../utils/common.sh"
 cd "${REPO_ROOT}"
 
 echo "Running the full compose+swarm roundtrip against the PostgreSQL database role ${POSTGRES_APP}."
-make roundtrip apps="${POSTGRES_APP}" disable="$(variable_services postgres node nfs-server)"
+make roundtrip apps="${POSTGRES_APP}" disable="$(variable_services "${POSTGRES_APP}" node nfs-server)"

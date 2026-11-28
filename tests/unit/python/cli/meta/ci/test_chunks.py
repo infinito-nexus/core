@@ -102,6 +102,56 @@ class TestPlan(unittest.TestCase):
         self.assertEqual(chunks.plan([], [], size=80, blocks=3, budget=211), [])
 
 
+class TestUnlimitedBudget(unittest.TestCase):
+    def test_every_row_is_planned(self) -> None:
+        plan = chunks.plan(
+            list(range(5)), list(range(100, 331)), size=80, blocks=4, budget=None
+        )
+        self.assertEqual([len(c) for c in plan], [5, 80, 80, 71])
+        self.assertEqual(
+            [row for chunk in plan for row in chunk],
+            list(range(5)) + list(range(100, 331)),
+        )
+
+    def test_rows_a_budget_would_cut_are_planned(self) -> None:
+        capped = chunks.plan([], list(range(231)), size=80, blocks=4, budget=205)
+        unlimited = chunks.plan([], list(range(231)), size=80, blocks=4, budget=None)
+        self.assertEqual(sum(len(c) for c in capped), 205)
+        self.assertEqual(sum(len(c) for c in unlimited), 231)
+
+    def test_no_chunk_exceeds_its_size(self) -> None:
+        plan = chunks.plan([], list(range(600)), size=256, blocks=3, budget=None)
+        self.assertEqual([len(c) for c in plan], [256, 256, 88])
+
+    def test_the_offset_still_moves_the_start(self) -> None:
+        plan = chunks.plan(
+            [], list(range(300)), size=80, blocks=4, budget=None, offset=50
+        )
+        self.assertEqual(plan[0][0], 50)
+        self.assertEqual(sum(len(c) for c in plan), 250)
+
+    def test_an_offset_past_the_tail_leaves_only_priority(self) -> None:
+        plan = chunks.plan(
+            list(range(3)), list(range(10)), size=80, blocks=4, budget=None, offset=99
+        )
+        self.assertEqual(plan, [[0, 1, 2]])
+
+    def test_too_few_blocks_fail_naming_the_blocks_needed(self) -> None:
+        with self.assertRaises(SystemExit) as raised:
+            chunks.plan(
+                list(range(5)), list(range(320)), size=80, blocks=4, budget=None
+            )
+        self.assertIn("needs 5 chunk blocks", str(raised.exception))
+        self.assertIn("INFINITO_CI_MAX_CHUNKS=5", str(raised.exception))
+
+    def test_priority_beyond_the_blocks_fails_instead_of_being_cut(self) -> None:
+        with self.assertRaises(SystemExit):
+            chunks.plan(list(range(300)), [], size=80, blocks=3, budget=None)
+
+    def test_an_empty_selection_yields_no_chunk(self) -> None:
+        self.assertEqual(chunks.plan([], [], size=80, blocks=3, budget=None), [])
+
+
 class TestChunkBeyondTheBudget(unittest.TestCase):
     def test_the_whole_budget_goes_into_one_regular_chunk(self) -> None:
         plan = chunks.plan([], list(range(500)), size=2000, blocks=4, budget=203)

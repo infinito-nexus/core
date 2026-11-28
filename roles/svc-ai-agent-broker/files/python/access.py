@@ -19,14 +19,18 @@ class Keycloak:
         username: master-realm administrator.
         password: its password.
         timeout: seconds per HTTP call.
+        email_attribute: user attribute the realm's ``email`` claim is mapped
+            from, ``OIDC.EMAIL.CLAIM_SOURCE``; ``email`` is the built-in field,
+            anything else a custom attribute.
     """
 
-    def __init__(self, base_url, realm, username, password, timeout):
+    def __init__(self, base_url, realm, username, password, timeout, email_attribute):
         self.base_url = base_url.rstrip("/")
         self.realm = realm
         self.username = username
         self.password = password
         self.timeout = timeout
+        self.email_attribute = email_attribute
         self._token = ""
         self._token_expiry = 0.0
 
@@ -75,14 +79,43 @@ class Keycloak:
             raise AccessError(f"Keycloak GET {path} -> {status}")
         return body
 
+    def _claims(self, user, email):
+        if self.email_attribute == "email":
+            values = [user.get("email") or ""]
+        else:
+            values = (user.get("attributes") or {}).get(self.email_attribute) or []
+        return email in (str(value).lower() for value in values)
+
+    def user_by_email(self, email):
+        """
+        Args:
+            email: the address the realm's ``email`` claim carried.
+
+        Returns:
+            The one user whose claim attribute holds exactly that address, or
+            None when no user or more than one does.
+        """
+        email = email.lower()
+        query = (
+            {"email": email}
+            if self.email_attribute == "email"
+            else {"q": f"{self.email_attribute}:{email}"}
+        )
+        users = [
+            user
+            for user in self._get("/users", {**query, "exact": "true"})
+            if self._claims(user, email)
+        ]
+        return users[0] if len(users) == 1 else None
+
     def groups_of(self, email):
-        users = self._get("/users", {"email": email.lower(), "exact": "true"})
-        if len(users) != 1:
+        user = self.user_by_email(email)
+        if user is None:
             return frozenset()
         return frozenset(
             group["path"]
             for group in self._get(
-                f"/users/{users[0]['id']}/groups",
+                f"/users/{user['id']}/groups",
                 {"briefRepresentation": "true", "max": "1000"},
             )
         )

@@ -1,0 +1,61 @@
+---
+- name: "🗑️ Drop the inventory repository an earlier key or target left behind"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
+    netns_request_host: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
+    netns_request_method: DELETE
+    netns_request_url: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/repos/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH }}"
+    netns_request_headers: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS }}"
+    netns_request_status: [204, 404]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_changed: [204]
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: semaphore_deploy_fixture_drop
+
+- name: "📦 Create the private inventory repository"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ SEMAPHORE_GITEA_NETNS_PYTHON }}"
+    netns_request_host: "{{ SEMAPHORE_GITEA_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_API }}/admin/users/{{ SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH.split('/')[0] }}/repos"
+    netns_request_headers: "{{ SEMAPHORE_DEPLOY_FIXTURE_GITEA_HEADERS }}"
+    netns_request_body: >-
+      {{ {
+        'name': SEMAPHORE_DEPLOY_FIXTURE_REPOSITORY_PATH.split('/')[1],
+        'private': true,
+        'auto_init': true,
+        'readme': 'Default',
+        'default_branch': SEMAPHORE_DEPLOY_REPOSITORY_BRANCH,
+      } | to_json }}
+    netns_request_status: [201]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_changed: [201]
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: semaphore_deploy_fixture_create
+
+- name: "📁 Stage a scratch directory for the inventory on the controller"
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: -semaphore-inventory
+  register: semaphore_deploy_fixture_scratch
+  delegate_to: localhost
+  become: false
+
+- name: "🗂️ Provision the inventory of the shared target and commit it"
+  block:
+    - name: "🗂️ Provision and commit the inventory from the scratch directory"
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/project/fixture/commit.yml"
+      vars:
+        semaphore_deploy_fixture_inventory: "{{ [semaphore_deploy_fixture_scratch.path, 'inventory'] | path_join }}"
+        semaphore_deploy_fixture_password_file: "{{ [semaphore_deploy_fixture_scratch.path, 'vault-password'] | path_join }}"
+  always:
+    - name: "🧹 Remove the scratch directory of the inventory"
+      ansible.builtin.file:
+        path: "{{ semaphore_deploy_fixture_scratch.path }}"
+        state: absent
+      delegate_to: localhost
+      become: false

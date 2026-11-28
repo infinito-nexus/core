@@ -7,6 +7,7 @@ LITELLM_PORT: "{{ lookup('config', application_id, 'services.litellm.ports.inter
 LITELLM_MASTER_KEY: "{{ lookup('config', application_id, 'secrets.credentials.master_key') }}"
 LITELLM_MAX_OUTPUT_TOKENS: "{{ lookup('config', application_id, 'services.litellm.max_output_tokens') }}"
 LITELLM_UPSTREAM_TIMEOUT: "{{ lookup('config', application_id, 'services.litellm.upstream_timeout') }}"
+LITELLM_VALIDATION_ENABLED: "{{ lookup('config', application_id, 'services.litellm.validation.enabled') }}"
 LITELLM_ROUTER_ALIAS: "{{ lookup('config', application_id, 'services.litellm.router.alias') }}"
 LITELLM_ROUTER_REMOTE_FALLBACK: "{{ lookup('config', application_id, 'services.litellm.router.remote_fallback') }}"
 LITELLM_ROUTER_WEIGHTS: "{{ lookup('config', application_id, 'services.litellm.router.weights') }}"
@@ -14,7 +15,7 @@ LITELLM_ROUTER_STRATEGY: "{{ lookup('config', application_id, 'services.litellm.
 LITELLM_S1_URL: "{{ S1_BASE_LOCAL_URL }}"
 LITELLM_S1_KEY: "{{ lookup('config', 'svc-ai-s1', 'secrets.credentials.api_key') }}"
 LITELLM_S1_MODEL: "{{ lookup('config', 'svc-ai-s1', 'services.s1.model_alias') }}"
-LITELLM_S1_TIMEOUT: "{{ lookup('config', 'svc-ai-s1', 'services.s1.request_timeout') }}"
+LITELLM_S1_TIMEOUT: "{{ lookup('config', application_id, 'services.litellm.router.decider_timeout') }}"
 LITELLM_ROUTER_MIN_CHARS_PER_TOKEN: "{{ lookup('config', application_id, 'services.litellm.router.min_chars_per_token') }}"
 LITELLM_ROUTER_STATE_CHARS: "{{ lookup('config', application_id, 'services.litellm.router.state_chars') }}"
 LITELLM_ROUTER_SPEED_SAMPLES: "{{ lookup('config', application_id, 'services.litellm.router.speed.samples') }}"
@@ -26,6 +27,7 @@ LITELLM_ROUTER_SAMPLE_TRIGGER: "{{ lookup('config', application_id, 'services.li
 LITELLM_ROUTER_SAMPLE_INTERVAL: "{{ lookup('config', application_id, 'services.litellm.router.sample.interval') }}"
 LITELLM_ROUTER_SAMPLE_WIDTH: "{{ lookup('config', application_id, 'services.litellm.router.sample.width') }}"
 LITELLM_ROUTER_HOOK_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'router_hook.py' ] | path_join }}"
+LITELLM_SITECUSTOMIZE_PATH_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'sitecustomize.py' ] | path_join }}"
 
 LITELLM_DECIDER_SOURCE_DIR: "{{ lookup('path_absolute', 'roles/svc-ai-s1/files/python/infinito_decider') }}"
 LITELLM_DECIDER_DIR_HOST: "{{ [ lookup('container', application_id, 'directories.config'), 'infinito_decider' ] | path_join }}"
@@ -41,20 +43,29 @@ LITELLM_PROVIDER_KEYS:
   openai: "{{ lookup('config', application_id, 'secrets.credentials.openai_api_key') }}"
   anthropic: "{{ lookup('config', application_id, 'secrets.credentials.anthropic_api_key') }}"
   openrouter: "{{ lookup('config', application_id, 'secrets.credentials.openrouter_api_key') }}"
+  freellmapi: "{{ lookup('users', 'platform_administrator', {}).get('tokens', {}).get('svc-ai-freellmapi', '') if LITELLM_FREELLMAPI_BACKEND | bool else '' }}"
 LITELLM_KEYED_PROVIDERS: "{{ LITELLM_PROVIDER_KEYS | dict2items | selectattr('value') | map(attribute='key') | list }}"
 
 LITELLM_SERVED_PROVIDERS: "{{ LITELLM_KEYED_PROVIDERS + [AI_MOCK_PROVIDER] }}"
-LITELLM_UNRANKED_ALIASES: "{{ ([LITELLM_ROUTER_ALIAS] + (LITELLM_REMOTE_MODELS | selectattr('provider', 'equalto', AI_MOCK_PROVIDER) | map(attribute='alias') | list))
-  | join(',') }}"
-LITELLM_REMOTE_MODELS: "{{ lookup('config', application_id, 'services.litellm.remote_models') }}"
+LITELLM_UNRANKED_ALIASES: "{{ ([LITELLM_ROUTER_ALIAS] + (AI_FREELLMAPI_MODELS | map(attribute='alias') | list) + (LITELLM_REMOTE_MODELS | selectattr('provider', 'equalto',
+  AI_MOCK_PROVIDER) | map(attribute='alias') | list) + LITELLM_AUDIO_ALIASES) | join(',') }}"
+LITELLM_REMOTE_MODELS: "{{ lookup('config', application_id, 'services.litellm.remote_models') + AI_FREELLMAPI_MODELS }}"
+
 LITELLM_TEST_CONTRACT:
   ollama: "{{ LITELLM_OLLAMA_BACKEND | bool }}"
   lmstudio: "{{ LITELLM_LMSTUDIO_BACKEND | bool }}"
   served: "{{ LITELLM_CHAT_MODEL_SERVED | bool }}"
 
+LITELLM_HOST_KEYS: "{{ lookup('config', application_id, 'secrets.credentials.host_keys') }}"
+LITELLM_SERVES_HOSTS: "{{ LITELLM_HOST_KEYS | length > 0 }}"
+LITELLM_MESH_BIND_HOST: "{{ lookup('mesh_address', inventory_hostname) if (LITELLM_SERVES_HOSTS | bool) else '' }}"
+
 LITELLM_UI_ROLE: "web-app-litellm"
-LITELLM_UI_SSO: "{{ (LITELLM_UI_ROLE in group_names) and (lookup('sso', LITELLM_UI_ROLE, 'is_oidc_native') | bool) }}"
+LITELLM_UI_LOGIN_SSO: "{{ lookup('config', LITELLM_UI_ROLE, 'services.litellm.login.method.sso.enabled') | bool }}"
+LITELLM_UI_SSO: "{{ (LITELLM_UI_ROLE in group_names) and (lookup('sso', LITELLM_UI_ROLE, 'is_oidc_native') | bool) and (LITELLM_UI_LOGIN_SSO | bool) }}"
 LITELLM_UI_ORIGIN: "{{ lookup('tls', LITELLM_UI_ROLE, 'url.origin') }}"
 LITELLM_UI_ADMIN: "{{ lookup('users', 'platform_administrator').username }}"
+LITELLM_UI_SSO_GROUP: "/{{ lookup('rbac_group_path', application_id='web-app-litellm', role='administrator') }}"
+LITELLM_UI_EMAIL_TLD: "{{ lookup('users', 'platform_administrator').email.split('@')[1].split('.')[-1] }}"
 LITELLM_UI_LOGO_URL: "{{ lookup('design', LITELLM_UI_ROLE).urls.logo.svg if ((LITELLM_UI_ROLE in group_names) and (lookup('config', LITELLM_UI_ROLE, 'services.design.enabled')
   | bool) and (lookup('design', LITELLM_UI_ROLE).logo is string)) else '' }}"

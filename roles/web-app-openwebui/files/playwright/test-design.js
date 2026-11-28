@@ -9,7 +9,7 @@ const {
   galleryEnabled,
 } = require("./design");
 const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const MODES = ["light", "dark"];
@@ -87,10 +87,10 @@ async function animationsSettled(page) {
 /**
  * Args:
  *   page: Playwright page that shows the sign-in page of the app.
- *   base: base URL of the app.
+ *   url: the sign-in page with its credential form, the `?form=` break-glass entry while the form is off.
  */
-async function openSignIn(page, base) {
-  await gotoOnion(page, `${base}/auth`);
+async function openSignIn(page, url) {
+  await gotoOnion(page, url);
   await expect(page.locator(AUTH_CARD)).toBeVisible({ timeout: resolveTimeout(30_000) });
   await expect(page.locator("#splash-screen")).toHaveCount(0);
 }
@@ -237,8 +237,7 @@ async function openModelSelector(page) {
   await animationsSettled(page);
 }
 
-function signInViews(base) {
-  const url = `${base}/auth`;
+function signInViews(url) {
   return [
     { name: "sign-in", url, prepare: visible(AUTH_CARD) },
     {
@@ -303,7 +302,7 @@ exports.register = function (shared) {
 
   test("design: corporate tokens apply in light and dark mode", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    await openSignIn(page, base);
+    await openSignIn(page, shared.signInPageUrl);
     await assertDesignTokens(page, "openwebui");
   });
 
@@ -311,7 +310,7 @@ exports.register = function (shared) {
     skipUnlessServiceEnabled("design");
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
-      await openSignIn(page, base);
+      await openSignIn(page, shared.signInPageUrl);
       await expect(page.locator("html")).toHaveClass(new RegExp(`\\b${mode}\\b`));
       await assertToken(page, "body", "background-color", "--design-surface-1", `sign-in ${mode}`);
       await assertToken(page, AUTH_CARD, "color", "--design-text", `sign-in ${mode}`);
@@ -402,7 +401,8 @@ exports.register = function (shared) {
 
   test("design: provisioning: the role provisions the administrator the native sign-in accepts", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(isServiceEnabled("sso") || isServiceEnabled("ldap"), "the native administrator exists only without sso and ldap");
+    skipUnlessServiceDisabled("sso");
+    skipUnlessServiceDisabled("ldap");
     const response = await apiFetchOnion(page.request, `${base}/api/v1/auths/signin`, {
       method: "POST",
       data: { email: shared.env.adminEmail, password: shared.env.adminPassword },
@@ -428,7 +428,7 @@ exports.register = function (shared) {
       "Open WebUI LICENSE clause 4 forbids replacing its name and logo above 50 users without an enterprise license, so the role keeps both by operator decision",
     );
 
-    await openSignIn(page, base);
+    await openSignIn(page, shared.signInPageUrl);
     if (title) await expect(page).toHaveTitle(new RegExp(title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     if (logoUrl) {
       const logo = page.locator("img#logo").first();
@@ -446,8 +446,8 @@ exports.register = function (shared) {
     test.setTimeout(resolveTimeout(2_400_000));
 
     const failures = [];
-    await openSignIn(page, base);
-    await captureDesignGallery(page, signInViews(base)).catch((error) => failures.push(error.message));
+    await openSignIn(page, shared.signInPageUrl);
+    await captureDesignGallery(page, signInViews(shared.signInPageUrl)).catch((error) => failures.push(error.message));
 
     await signIn(page, shared);
     const chatId = await seedShowcase(page, base);

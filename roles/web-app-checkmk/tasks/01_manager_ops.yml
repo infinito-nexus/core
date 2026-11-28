@@ -46,7 +46,7 @@
 - name: "🔐 Configure Checkmk header-auth and LDAP connection"
   ansible.builtin.shell:
     cmd: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      IFS= read -r LDAP_BIND_PASSWORD && export LDAP_BIND_PASSWORD && container exec -i
+      IFS= read -r LDAP_BIND_PASSWORD && : "${LDAP_BIND_PASSWORD:?arrived empty on stdin}" && export LDAP_BIND_PASSWORD && container exec -i
       -e CMK_SITE_ID={{ CHECKMK_SITE | quote }}
       -e CHECKMK_SSO_ENABLED={{ CHECKMK_SSO_ENABLED | string | lower | quote }}
       -e CHECKMK_LDAP_ENABLED={{ CHECKMK_LDAP_ENABLED | string | lower | quote }}
@@ -56,7 +56,14 @@
       -e LDAP_BIND_PASSWORD
       -e LDAP_USER_DN={{ CHECKMK_LDAP_USER_DN | quote }}
       -e LDAP_GROUP_DN={{ CHECKMK_LDAP_GROUP_DN | quote }}
+      -e LDAP_GROUP_FILTER={{ CHECKMK_LDAP_GROUP_FILTER | quote }}
+      -e LDAP_GROUP_MEMBER_ATTR={{ CHECKMK_LDAP_GROUP_MEMBER_ATTR | quote }}
       -e LDAP_UID_ATTR={{ CHECKMK_LDAP_USER_ID_ATTR | quote }}
+      -e LDAP_USER_FILTER={{ CHECKMK_LDAP_USER_FILTER | quote }}
+      -e LDAP_PAGER_ATTR={{ CHECKMK_LDAP_PAGER_ATTR | quote }}
+      -e LDAP_ROLE_ADMIN_DN={{ CHECKMK_LDAP_ROLE_ADMIN_DN | quote }}
+      -e LDAP_ROLE_USER_DN={{ CHECKMK_LDAP_ROLE_USER_DN | quote }}
+      -e LDAP_ROLE_GUEST_DN={{ CHECKMK_LDAP_ROLE_GUEST_DN | quote }}
       {{ CHECKMK_LOCAL_CID | quote }}
       bash -s
     stdin: |-

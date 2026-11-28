@@ -1,26 +1,43 @@
 ---
+- name: "🔍 Resolve {{ application_id }} hosting node + container id"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_output_prefix: SOCIALHOME
+    resolve_compose_cid: "{{ SOCIALHOME_CONTAINER }}"
+
+- name: "🔍 Resolve the Social Home network namespace for host-side API calls"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+  vars:
+    netns_output_prefix: SOCIALHOME
+
 - name: "⏳ Wait for Social Home at {{ SOCIALHOME_INTERNAL_URL }}/healthz"
-  uri_retry:
-    url: "{{ SOCIALHOME_INTERNAL_URL }}/healthz"
-    method: GET
-    status_code: 200
-  register: socialhome_health
-  retries: 30
-  delay: 5
-  until: socialhome_health.status == 200
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ SOCIALHOME_NETNS_PYTHON }}"
+    netns_request_host: "{{ SOCIALHOME_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "{{ SOCIALHOME_INTERNAL_URL }}/healthz"
+    netns_request_status: [200]
+    netns_request_retries: 30
+    netns_request_delay: 5
+    netns_request_no_log: false
+    netns_request_result: socialhome_health
 
 - name: "🔐 Mark the standalone first-boot setup complete"
-  uri_retry:
-    url: "{{ SOCIALHOME_INTERNAL_URL }}/api/setup/standalone"
-    method: POST
-    body_format: json
-    body:
-      username: "{{ SOCIALHOME_ADMIN_USERNAME }}"
-      password: "{{ SOCIALHOME_ADMIN_PASSWORD }}"
-    status_code: [201, 409]
-  register: socialhome_setup
-  changed_when: socialhome_setup.status == 201
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ SOCIALHOME_NETNS_PYTHON }}"
+    netns_request_host: "{{ SOCIALHOME_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ SOCIALHOME_INTERNAL_URL }}/api/setup/standalone"
+    netns_request_body: "{{ {'username': SOCIALHOME_ADMIN_USERNAME, 'password': SOCIALHOME_ADMIN_PASSWORD} | to_json }}"
+    netns_request_status: [201, 409]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_changed: [201]
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: socialhome_setup
 
 - name: "🔍 Resolve the hosting node + container id of '{{ application_id }}'"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
@@ -32,13 +49,15 @@
 - name: "🔑 Realign the Social Home administrator password with the declared one"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      container exec -i
+      IFS= read -r SOCIALHOME_REALIGN_PASSWORD && : "${SOCIALHOME_REALIGN_PASSWORD:?arrived empty on stdin}" && export SOCIALHOME_REALIGN_PASSWORD && container exec
+      -i
       -e SOCIALHOME_REALIGN_USERNAME -e SOCIALHOME_REALIGN_PASSWORD
       {{ SOCIALHOME_LOCAL_CID | quote }} python
-    stdin: "{{ lookup('file', 'python/realign_admin_password.py') }}"
+    stdin: |-
+      {{ SOCIALHOME_ADMIN_PASSWORD }}
+      {{ lookup('file', 'python/realign_admin_password.py') }}
   environment:
     SOCIALHOME_REALIGN_USERNAME: "{{ SOCIALHOME_ADMIN_USERNAME }}"
-    SOCIALHOME_REALIGN_PASSWORD: "{{ SOCIALHOME_ADMIN_PASSWORD }}"
   register: socialhome_admin_password_realign
   changed_when: socialhome_admin_password_realign.stdout is search('\[CHANGED\]')
   failed_when: >-

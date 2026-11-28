@@ -3,11 +3,12 @@ import re
 import unittest
 from unittest.mock import patch
 
-from cryptography.hazmat.primitives.asymmetric import ec, rsa
+from cryptography.hazmat.primitives.asymmetric import ec, ed25519, rsa
 from cryptography.hazmat.primitives.serialization import (
     Encoding,
     PublicFormat,
     load_pem_private_key,
+    load_ssh_private_key,
 )
 
 from utils.manager import value_generator
@@ -113,6 +114,18 @@ class TestValueGenerator(unittest.TestCase):
         self.assertNotEqual(
             self.vg.generate_value("rsa_pem_2048"),
             self.vg.generate_value("rsa_pem_2048"),
+        )
+
+    def test_generate_value_ssh_ed25519_is_an_openssh_private_key(self):
+        v = self.vg.generate_value("ssh_ed25519")
+        self.assertTrue(v.startswith("-----BEGIN OPENSSH PRIVATE KEY-----"))
+        key = load_ssh_private_key(v.encode(), password=None)
+        self.assertIsInstance(key, ed25519.Ed25519PrivateKey)
+
+    def test_generate_value_ssh_ed25519_is_not_cached(self):
+        self.assertNotEqual(
+            self.vg.generate_value("ssh_ed25519"),
+            self.vg.generate_value("ssh_ed25519"),
         )
 
     def test_vapid_keypair_is_cached(self):

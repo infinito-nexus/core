@@ -7,10 +7,7 @@ const { resolveTimeout } = require("./timeouts");
 // between contexts. Skips when LDAP is disabled.
 
 exports.register = function (shared) {
-  test("friendica: biber + administrator side by side in isolated contexts", async ({ browser }) => {
-    shared.skipUnlessServiceEnabled("ldap");
-
-    const login = shared.pickLoginPath();
+  async function sideBySide(browser, login) {
     const biberContext = await browser.newContext({ ignoreHTTPSErrors: true });
     const adminContext = await browser.newContext({ ignoreHTTPSErrors: true });
     try {
@@ -20,7 +17,6 @@ exports.register = function (shared) {
       const adminPage = await adminContext.newPage();
       await login(adminPage, shared.env.adminUsername, shared.env.adminPassword);
 
-      // biber logs out first — admin session must stay alive.
       await shared.friendicaLogout(biberPage);
       await adminPage.goto(`${shared.trimmedBaseUrl()}/network`, { waitUntil: "domcontentloaded" });
       await expect(
@@ -32,5 +28,10 @@ exports.register = function (shared) {
       await biberContext.close().catch(() => {});
       await adminContext.close().catch(() => {});
     }
+  }
+
+  test("biber: biber ↔ administrator: side by side in isolated friendica contexts, biber's logout keeps the administrator signed in", async ({ browser }) => {
+    shared.skipUnlessServiceEnabled("ldap");
+    await sideBySide(browser, shared.loginViaFriendica);
   });
 };

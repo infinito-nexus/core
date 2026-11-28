@@ -42,7 +42,7 @@ _RULE = "persona-required-envs"
 
 
 class TestPersonaRequiredEnvs(unittest.TestCase):
-    def test_dashboard_flag_implies_persona_base_urls(self):
+    def test_dashboard_flag_implies_persona_base_urls(self):  # nocheck: test.text-presence -- policy lint over every role Playwright env template  # fmt: skip
         offenders: list[str] = []
 
         for role_dir in sorted(p for p in ROLES_DIR.iterdir() if p.is_dir()):

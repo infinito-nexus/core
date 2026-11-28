@@ -97,7 +97,9 @@
   failed_when: dc_validate.rc != 0
   listen:
     - compose-up
-  when: MODE_ASSERT_LOCAL | bool
+  when:
+    - lookup('validate', 'sys-svc-compose') | bool
+    - IS_STACK_HOST | bool
 
 - name: "🌐 compose: pre-create external provider networks for the stack"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"

@@ -11,13 +11,11 @@
   delay: "{{ cloudflare_collect_interval | int }}"
   changed_when: false
   ignore_errors: true
-  when: ASYNC_ENABLED | bool
 
 - name: 🧮 Split this attempt's failures into records to retry and records to stop for
   ansible.builtin.set_fact:
     _cf_split: >-
-      {{ ((_cf_reaped.results + (_cf_judged | rejectattr('ansible_job_id', 'defined') | list))
-          if ASYNC_ENABLED | bool else _cf_judged)
+      {{ (_cf_reaped.results + (_cf_judged | rejectattr('ansible_job_id', 'defined') | list))
          | async_retry_split(cloudflare_tolerate, cloudflare_transient) }}
 
 - name: 🛑 Fail at once for every Cloudflare record a retry cannot fix

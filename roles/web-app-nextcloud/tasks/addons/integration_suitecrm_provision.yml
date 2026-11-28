@@ -1,4 +1,5 @@
 ---
+# nocheck: swarm-loopback-port unused  integration_suitecrm.yml includes this file only when its partner probe finds a running container under SuiteCRM's bare compose name, and swarm suffixes every task container's name, so the probe never passes there
 - name: ⏳ Wait for the SuiteCRM web endpoint
   wait_for:
     host: "{{ DOCKER_REACH_HOST }}"
@@ -7,24 +8,17 @@
     timeout: "{{ lookup('timeout', 600) | int }}"
 
 - name: 🔧 Provision SuiteCRM OAuth2 password client (idempotent), capture credentials
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - "NC_CLIENT_NAME={{ nextcloud_crm_client_name }}"
-      - -e
-      - NC_CLIENT_SECRET
-      - "{{ nextcloud_crm_container }}" # nocheck: container-exec-resolver  runs only behind the bare-name partner probe gate, compose co-location
-      - php
-      - -d
-      - error_reporting=E_ERROR
-      - -
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver, container-exec-stack-host-gate  runs only behind the bare-name partner probe gate, compose co-location; reached only via 04_configure.yml's templated plugin hook include inside 02_manager_ops.yml, which 00_core.yml includes under IS_STACK_HOST
+      IFS= read -r NC_CLIENT_SECRET && : "${NC_CLIENT_SECRET:?arrived empty on stdin}" && export NC_CLIENT_SECRET && container exec -i
+      -e NC_CLIENT_NAME={{ nextcloud_crm_client_name | quote }}
+      -e NC_CLIENT_SECRET
+      {{ nextcloud_crm_container | quote }}
+      php -d error_reporting=E_ERROR -
     chdir: "{{ nextcloud_crm_instance_dir }}"
-    stdin: "{{ lookup('file', 'php/addons/suitecrm/provision_oauth_password_client.php') }}"
-  environment:
-    NC_CLIENT_SECRET: "{{ nextcloud_crm_client_secret }}"
+    stdin: |-
+      {{ nextcloud_crm_client_secret }}
+      {{ lookup('file', 'php/addons/suitecrm/provision_oauth_password_client.php') }}
   register: nextcloud_crm_provision
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
@@ -36,10 +30,13 @@
 
 - name: 🔗 Link the SuiteCRM OAuth password client into integration_suitecrm
   ansible.builtin.shell:
-    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} sh -s"
-    stdin: |
-      set -eu
-      {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} config:app:set integration_suitecrm oauth_instance_url --value={{ nextcloud_crm_base_url | quote }}
-      {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} config:app:set integration_suitecrm client_id --value={{ nextcloud_crm_client_id | quote }}
-      {{ NEXTCLOUD_INTERNAL_OCC_COMMAND | quote }} config:app:set integration_suitecrm client_secret --value={{ nextcloud_crm_client_secret | quote }}
+    cmd: "{{ NEXTCLOUD_DOCKER_EXEC_INTERACTIVE }} php -- {{ NEXTCLOUD_DOCKER_WORK_DIRECTORY | quote }}"
+    stdin: >-
+      <?php $occBatch = '{{ nextcloud_crm_link_config | nextcloud_occ_config_set_batch | to_json | b64encode }}'; ?>{{ lookup('file', 'php/utils/occ_batch.php')
+      }}
+  vars:
+    nextcloud_crm_link_config:
+      - { appid: integration_suitecrm, configkey: oauth_instance_url, type: !!null "", value: "{{ nextcloud_crm_base_url }}" }
+      - { appid: integration_suitecrm, configkey: client_id, type: !!null "", value: "{{ nextcloud_crm_client_id }}" }
+      - { appid: integration_suitecrm, configkey: client_secret, type: !!null "", value: "{{ nextcloud_crm_client_secret }}" }
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

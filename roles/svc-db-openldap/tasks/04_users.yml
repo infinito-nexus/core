@@ -7,7 +7,8 @@
 # - Set user passwords:
 #   * default: on every deploy
 #   * optional per-user override: set once on create via password_update: false
-# - Keep objectClass list and mail attribute up to date
+# - Keep the objectClass list up to date; seed mail only on entries that hold none,
+#   or apply the mailbox layout when no Keycloak realm owns the email policy
 # ##############################################################################
 
 # ##############################################################################
@@ -70,6 +71,13 @@
       description: "Container for application access profiles"
     state: present
 
+- name: 🚚 Move user entries still named by their inventory key before any is created
+  ansible.builtin.include_tasks:
+    file: _user_renames.yml
+    apply:
+      run_once: true
+      delegate_to: "{{ STACK_HOST }}"
+
 - name: ✅ Ensure LDAP users exist
   ldap_entries:
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
@@ -85,6 +93,24 @@
   throttle: 1
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: 🚚 Repoint the group values whose username-named entry exists only now
+  ansible.builtin.include_tasks:
+    file: _user_renames.yml
+    apply:
+      run_once: true
+      delegate_to: "{{ STACK_HOST }}"
+
+- name: 🔑 Leave every user entry its username as its only login
+  ldap_entries:
+    server_uri: "{{ OPENLDAP_SERVER_URI }}"
+    bind_dn: "{{ OPENLDAP_BIND_DN }}"
+    bind_pw: "{{ OPENLDAP_BIND_PW }}"
+    state: exact
+    entries: >-
+      {{ OPENLDAP_USERS | openldap_user_login_entries(LDAP.USER.ATTRIBUTES.ID,
+                                                      LDAP.DN.OU.USERS) }}
+  throttle: 1
+
 - name: 🔧 Set LDAP user passwords (per-user update policy)
   ldap_passwords:
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
@@ -96,16 +122,39 @@
                                                   openldap_users_created.changed_dns) }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
-- name: ✅ Ensure required objectClass values and mail address are present
+- name: ✅ Ensure required objectClass values are present
   ldap_entries:
     server_uri: "{{ OPENLDAP_SERVER_URI }}"
     bind_dn: "{{ OPENLDAP_BIND_DN }}"
     bind_pw: "{{ OPENLDAP_BIND_PW }}"
-    state: "{{ 'exact' if MODE_CLEANUP | bool else 'present' }}"
+    state: "{{ 'exact' if CLEANUP | bool else 'present' }}"
+    entries: >-
+      {{ OPENLDAP_USERS | openldap_user_class_entries(LDAP.USER.ATTRIBUTES.ID,
+                                                      LDAP.DN.OU.USERS,
+                                                      LDAP.USER.OBJECTS.STRUCTURAL) }}
+  changed_when: false
+  throttle: 1
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: ✉️ Seed the mail address of every user entry that holds none
+  ldap_entries:
+    server_uri: "{{ OPENLDAP_SERVER_URI }}"
+    bind_dn: "{{ OPENLDAP_BIND_DN }}"
+    bind_pw: "{{ OPENLDAP_BIND_PW }}"
+    state: missing
     entries: >-
       {{ OPENLDAP_USERS | openldap_user_mail_entries(LDAP.USER.ATTRIBUTES.ID,
                                                      LDAP.DN.OU.USERS,
                                                      LDAP.USER.OBJECTS.STRUCTURAL) }}
+  when: not (OPENLDAP_EMAIL_MAILBOX | bool)
   changed_when: false
   throttle: 1
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: 📮 Apply the mailbox layout when no Keycloak realm owns the policy
+  ansible.builtin.include_tasks: 06_mailbox.yml
+  vars:
+    openldap_mailbox_secondaries: "{{ OPENLDAP_SECONDARY_ADDRESSES }}"
+  when:
+    - OPENLDAP_EMAIL_MAILBOX | bool
+    - not (OPENLDAP_KEYCLOAK_DEPLOYED | bool)

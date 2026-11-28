@@ -2,18 +2,17 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const { decodeDotenvQuotedValue, gotoOnion, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow } = require("./personas");
-const { isServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 const { clickFiderSsoButton } = require("./_shared");
 
 require("./test-seaweedfs");
 require("./test-mcp-guest").register();
 require("./test-design").register();
+require("./test-login-methods").register();
 
 test.use({
   ignoreHTTPSErrors: true
 });
-
-const oidcEnabled = isServiceEnabled("sso");
 
 // `docker --env-file` preserves the quotes emitted by `dotenv_quote`,
 // so normalize these values before building URLs or typing credentials.
@@ -36,7 +35,7 @@ test.beforeEach(() => {
 // Scenario I: Fider → SSO login as admin → verify admin UI → logout
 // (dashboard-iframe mechanics covered by web-app-dashboard SPOT)
 test("fider: admin sso login, verify ui, logout", async ({ page }) => {
-  test.skip(!oidcEnabled, "OIDC shared service disabled");
+  skipUnlessServiceEnabled("sso");
   const expectedFiderBaseUrl = fiderBaseUrl.replace(/\/$/, "");
 
   // 1. Navigate directly to Fider
@@ -53,6 +52,12 @@ test("fider: admin sso login, verify ui, logout", async ({ page }) => {
   //    is logged in (.c-menu-user is only rendered when fider.session.isAuthenticated)
   await expect(page.locator(".c-menu-user").first()).toBeVisible({ timeout: resolveTimeout(60_000) });
 
+  const usersResponse = await page.request.get(`${expectedFiderBaseUrl}/api/v1/users`);
+  expect(
+    usersResponse.status(),
+    "the administrator role group MUST give the administrator the Fider administrator role, which lists the users",
+  ).toBe(200);
+
   // 5. Logout — navigate to Fider's sign-out endpoint
   await gotoOnion(page, `${expectedFiderBaseUrl}/signout`, { waitUntil: "domcontentloaded" }).catch(() => {});
 
@@ -68,7 +73,7 @@ test("fider: admin sso login, verify ui, logout", async ({ page }) => {
 // This test verifies that the SSO flow works for non-admin users and that they land
 // on the Fider main page (not an admin panel).
 test("fider: biber sso login as regular user, verify access, logout", async ({ browser }) => {
-  test.skip(!oidcEnabled, "OIDC shared service disabled");
+  skipUnlessServiceEnabled("sso");
   const expectedOidcAuthUrl  = `${oidcIssuerUrl.replace(/\/$/, "")}/protocol/openid-connect/auth`;
   const expectedFiderBaseUrl = fiderBaseUrl.replace(/\/$/, "");
 
@@ -111,11 +116,56 @@ test("fider: biber sso login as regular user, verify access, logout", async ({ b
     //    never in the DOM for a regular user (regardless of dropdown state).
     await expect(biberPage.locator("a[href='/admin']").first()).not.toBeAttached({ timeout: resolveTimeout(5_000) });
 
+    const usersResponse = await biberPage.request.get(`${expectedFiderBaseUrl}/api/v1/users`);
+    expect(
+      usersResponse.ok(),
+      "biber holds no role group, so the deploy MUST keep the visitor role, which cannot list the users",
+    ).toBe(false);
+
     // 8. Logout
     await biberPage.goto(`${expectedFiderBaseUrl}/signout`, { waitUntil: "domcontentloaded" }).catch(() => {});
 
   } finally {
     await biberContext.close().catch(() => {});
+  }
+});
+
+test("administrator: Fider lists biber with the name claim and the visitor role", async ({ browser }) => {
+  skipUnlessServiceEnabled("sso");
+  test.setTimeout(resolveTimeout(120_000)); // two Keycloak round trips, biber then the administrator
+  const biberFullName = decodeDotenvQuotedValue(process.env.BIBER_FULL_NAME);
+  expect(biberFullName, "BIBER_FULL_NAME must be set in the Playwright env file").toBeTruthy();
+  const expectedFiderBaseUrl = fiderBaseUrl.replace(/\/$/, "");
+
+  const signIn = async (username, password) => {
+    const context = await browser.newContext({ ignoreHTTPSErrors: true });
+    const page = await context.newPage();
+    await gotoOnion(page, `${expectedFiderBaseUrl}/`);
+    await clickFiderSsoButton(page);
+    await performKeycloakLoginForm(page, username, password);
+    await expect(page.locator(".c-menu-user").first()).toBeVisible({ timeout: resolveTimeout(60_000) });
+    return { context, page };
+  };
+
+  const biber = await signIn(biberUsername, biberPassword);
+  await biber.context.close().catch(() => {});
+
+  const admin = await signIn(adminUsername, adminPassword);
+  try {
+    const usersResponse = await admin.page.request.get(
+      `${expectedFiderBaseUrl}/api/v1/users?query=${encodeURIComponent(biberFullName)}&limit=100`,
+    );
+    expect(usersResponse.status(), "the administrator MUST list the Fider users").toBe(200);
+    const listing = await usersResponse.json();
+    expect(
+      Array.isArray(listing?.users),
+      `Fider MUST answer a page of users (got the keys ${JSON.stringify(Object.keys(listing ?? {}))})`,
+    ).toBe(true);
+    const biberAccount = listing.users.find((user) => user.name === biberFullName);
+    expect(biberAccount, `json_user_name_path MUST read the name claim, so a user named "${biberFullName}" exists`).toBeTruthy();
+    expect(biberAccount.role, "biber holds no role group, so the deploy keeps the visitor role").toBe("visitor");
+  } finally {
+    await admin.context.close().catch(() => {});
   }
 });
 

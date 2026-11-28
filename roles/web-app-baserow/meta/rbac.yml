@@ -1,4 +1,6 @@
 ---
 roles:
+  user:
+    description: Can sign in to Baserow and work in their own and shared workspaces, without instance administration
   mcp:
     description: Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own

@@ -148,6 +148,25 @@ gnuchess:
   fedora:
     - gnuchess
 
+incus:
+  Archlinux:
+    - edk2-ovmf
+    - incus
+    - qemu-base
+  Debian:
+    - incus
+    - ovmf
+    - qemu-system-x86
+  RedHat:
+    - incus
+  centos:
+    source: copr
+    names:
+      - incus
+    repo:
+      copr: neelc/incus
+      chroot: rhel+epel-10-x86_64
+
 iproute:
   Archlinux:
     - iproute2

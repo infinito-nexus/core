@@ -1,0 +1,125 @@
+---
+# nocheck: garbage-collector-required  the role keeps no data beyond its knowledge index, which every deploy replaces as a whole
+# nocheck: playwright-service-flag: the role's own entity, which the spec only meets where the role is deployed
+assistant:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  bond: 1
+  enabled: true
+  shared: true
+  image: python
+  # nocheck: docker-version  base of the self-built assistant, not the served application
+  version: "3.13.15-slim"
+  custom: true
+  name: assistant
+  min_storage: 256MB
+  cpus: "1.0"
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 256
+  backup:
+    stop_required: false
+  healthcheck:
+    flavor: tcp
+  ports:
+    local:
+      http: 7994
+    internal:
+      http: 8000
+  path: /infinito-assistant
+  rate_limit:
+    requests: 10
+    window: 60
+  retrieval:
+    threshold: 0.55
+    passages: 4
+    passage_chars: 1200
+    max_question_chars: 500
+  models:
+    end_user: ""
+    consultant: ""
+    embedding: ""
+  model_timeout: 60
+  index:
+    table: assistant_passages
+    platform_docs: docs/administration
+    link_base: https://github.com/infinito-nexus/core/blob/main
+    tenant_sources: []
+  lifecycle: pre-alpha
+# nocheck: playwright-service-flag: DB engine, covered by role-local integration tests
+postgres:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag  the knowledge index lives in PostgreSQL through pgvector; without it there is nothing to answer from
+  shared: "{{ 'svc-db-postgres' in group_names }}"
+  extensions:
+    - vector
+# nocheck: playwright-service-flag: the model service is covered by svc-ai-ollama's own tests
+ollama:
+  bond: 1
+  enabled: "{{ 'svc-ai-ollama' in group_names }}"
+  shared: "{{ 'svc-ai-ollama' in group_names }}"
+# nocheck: playwright-service-flag: the model gateway the ollama backend is reached through, covered by svc-ai-litellm's own tests
+# nocheck: dynamic-flag  LITELLM_USABLE already carries the group-membership test plus the served-model check
+litellm:
+  bond: 1
+  enabled: "{{ LITELLM_USABLE }}"
+  shared: "{{ LITELLM_SHARED }}"
+# nocheck: playwright-service-flag: statically off, so the spec has no polarity to branch on
+# nocheck: dynamic-flag  the assistant's own vhost stays open, because anonymous use is part of its contract; the identity it reads is set by the oauth2 gate of the consumer vhost that includes templates/nginx/location.conf.j2
+sso:
+  enabled: false
+  shared: false
+  header_trust:
+    proxy_secret: false
+    switch: "lookup('sso', <consumer>, 'is_proxy_gated') of the vhost including templates/nginx/location.conf.j2; every other location blanks the headers"
+    files: [files/python/assistant/persona.py]
+# nocheck: playwright-service-flag: statically off, so the spec has no polarity to branch on
+# nocheck: dynamic-flag  the assistant holds no browser session, so no logout surface can exist in any round
+logout:
+  enabled: false
+  shared: false
+# nocheck: playwright-service-flag: statically off, so the spec has no polarity to branch on
+# nocheck: dynamic-flag
+# nocheck: design-off  Reason: the assistant answers JSON, so there is no HTML surface the shared stylesheet could reach
+design:
+  enabled: false
+  shared: false
+# nocheck: playwright-service-flag: scrape target, covered by web-app-prometheus' own spec
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag
+# nocheck: variants-coverage: sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

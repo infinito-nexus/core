@@ -94,7 +94,7 @@ def _findings(file: Path, root: Path) -> list[Linkable]:
 
 
 class TestMarkdownCodeSpanLinks(unittest.TestCase):
-    def test_a_linkable_directory_is_written_as_a_link(self) -> None:
+    def test_a_linkable_directory_is_written_as_a_link(self) -> None:  # nocheck: test.text-presence -- policy lint over every markdown file of the tree  # fmt: skip
         findings: list[Linkable] = []
         for file in sorted(markdown_files()):
             findings.extend(_findings(file, PROJECT_ROOT))

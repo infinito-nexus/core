@@ -1,0 +1,79 @@
+---
+system_settings:
+  path: /app/system-settings
+  sinks: [ERPNEXT_SYSTEM_SETTINGS]
+  fields:
+    login_with_email_link:
+      source: services.erpnext.login.method.email.enabled
+      mode: enforced
+      selector: 'input[data-doctype="System Settings"][data-fieldname="login_with_email_link"]'
+      type: checkbox
+      map: { true: 1, false: 0 }
+      label: Login with email link
+    enable_two_factor_auth:
+      source: services.erpnext.login.method.2fa.enabled
+      mode: enforced
+      selector: 'input[data-doctype="System Settings"][data-fieldname="enable_two_factor_auth"]'
+      type: checkbox
+      map: { true: 1, false: 0 }
+      label: Enable Two Factor Auth
+    disable_user_pass_login:
+      source: services.erpnext.login.method.native.enabled
+      mode: enforced
+      selector: 'input[data-doctype="System Settings"][data-fieldname="disable_user_pass_login"]'
+      type: checkbox
+      map: { true: 0, false: 1 }
+      label: Disable Username/Password Login
+system_rounding:
+  path: /app/system-settings
+  sinks: [ERPNEXT_SYSTEM_ROUNDING]
+  fields:
+    rounding_method:
+      source: services.erpnext.rounding.method
+      mode: enforced
+      selector: 'select[data-doctype="System Settings"][data-fieldname="rounding_method"]'
+      type: select
+      enum: ["Banker's Rounding (legacy)", "Banker's Rounding", "Commercial Rounding"]
+      label: Rounding Method
+accounts_rounding:
+  path: /app/accounts-settings
+  sinks: [ERPNEXT_ACCOUNTS_ROUNDING]
+  fields:
+    round_row_wise_tax:
+      source: services.erpnext.rounding.row_wise_tax
+      mode: enforced
+      selector: 'input[data-doctype="Accounts Settings"][data-fieldname="round_row_wise_tax"]'
+      type: checkbox
+      map: { true: 1, false: 0 }
+      label: Round tax amount row-wise
+website_settings:
+  path: /app/website-settings
+  sinks: [ERPNEXT_WEBSITE_SETTINGS]
+  fields:
+    disable_signup:
+      source: services.erpnext.login.method.registration.enabled
+      mode: enforced
+      selector: 'input[data-doctype="Website Settings"][data-fieldname="disable_signup"]'
+      type: checkbox
+      map: { true: 0, false: 1 }
+      label: Disable signups
+branding:
+  path: /app/website-settings
+  sinks: [ERPNEXT_BRANDING]
+  fields:
+    app_name:
+      source: services.erpnext.title
+      when: services.design.enabled
+      optional: true
+      mode: enforced
+      selector: 'input[data-doctype="Website Settings"][data-fieldname="app_name"]'
+      type: text
+      label: App Name
+    title_prefix:
+      source: services.erpnext.title
+      when: services.design.enabled
+      optional: true
+      mode: enforced
+      selector: 'input[data-doctype="Website Settings"][data-fieldname="title_prefix"]'
+      type: text
+      label: Title Prefix

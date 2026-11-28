@@ -5,7 +5,7 @@ import secrets
 import string
 
 import bcrypt
-from cryptography.hazmat.primitives.asymmetric import ec, rsa
+from cryptography.hazmat.primitives.asymmetric import ec, ed25519, rsa
 from cryptography.hazmat.primitives.serialization import (
     Encoding,
     NoEncryption,
@@ -88,6 +88,7 @@ class ValueGenerator:
         • "vapid_private"
         • "vapid_public"
         • "rsa_pem_2048"
+        • "ssh_ed25519"
 
         Returns:
             the value, already registered with GitHub Actions for masking, or
@@ -135,5 +136,10 @@ class ValueGenerator:
             key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
             return key.private_bytes(
                 Encoding.PEM, PrivateFormat.TraditionalOpenSSL, NoEncryption()
+            ).decode()
+        if algorithm == "ssh_ed25519":
+            ssh_key = ed25519.Ed25519PrivateKey.generate()
+            return ssh_key.private_bytes(
+                Encoding.PEM, PrivateFormat.OpenSSH, NoEncryption()
             ).decode()
         return UNDEFINED

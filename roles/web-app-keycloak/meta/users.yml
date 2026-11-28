@@ -1,6 +1,7 @@
 ---
 keycloak_bootstrap:
+  description: Temporary master-realm administrator Keycloak creates from KC_BOOTSTRAP_ADMIN_* on an empty database
   username: keycloakbootstrap
-  roles:
-    - bot
+  accounts: []
 platform_administrator: {}
+web-app-semaphore-breakglass: {}

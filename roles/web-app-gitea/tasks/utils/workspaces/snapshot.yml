@@ -1,0 +1,18 @@
+---
+# Returns: gitea_workspaces_snapshot, the store account and the workspace organization with every grant they hold
+- name: "🔍 Read the store account and the workspace organization with their grants"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/workspaces-snapshot.sql"
+    named_args:
+      store: "{{ GITEA_WORKSPACES_STORE_USERNAME }}"
+      organization: "{{ GITEA_WORKSPACES_ORGANIZATION }}"
+    expect_rows: true
+    mask_values: false
+  register: gitea_workspaces_rows
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧭 Fold the rows into the workspace snapshot"
+  ansible.builtin.set_fact:
+    gitea_workspaces_snapshot: "{{ gitea_workspaces_rows.rows | gitea_workspaces_snapshot }}"

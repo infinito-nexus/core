@@ -1,3 +1,6 @@
 ---
 status_codes:
   default: 404
+vhosts:
+  default:
+    extra_template: nginx/public_api.conf.j2

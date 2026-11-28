@@ -1,7 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
-const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, gotoOnion } = require("./personas");
+const { decodeDotenvQuotedValue, normalizeBaseUrl, performKeycloakLoginForm, gotoOnion, isOnionUrl } = require("./personas");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const env = {
@@ -231,8 +231,9 @@ function mastodonChannelActions(page, account) {
 }
 
 function skipOnOnionSibling(platform) {
+  // nocheck: playwright-sso-ldap-gate -- gates on the sibling's onion host; env, which it indexes, only also carries the OIDC values
   test.skip(
-    env[`${platform}BaseUrl`].includes(".onion"),
+    isOnionUrl(env[`${platform}BaseUrl`]),
     `OpenPost cannot connect an onion ${platform} instance: its Go resolver refuses .onion names`,
   );
 }

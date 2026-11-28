@@ -18,6 +18,7 @@ The primary purpose of this role is to ensure that Docker-based services remain 
 - **Automated Health Checks:** Detects containers in `unhealthy` state or exited with non-zero exit codes.
 - **Systemd Integration:** Installs a one-shot service and timer to run health checks on a schedule.
 - **Alerting Support:** Works with the [`sys-ctl-alm-compose`](../sys-ctl-alm-compose/README.md) role for failure notifications.
+- **Redacted Log Excerpts:** The 200-line excerpt of a failed container passes through `files/python/redact.py` with the `LOG_REDACTION_RULES` of [22_logging.yml](../../group_vars/all/22_logging.yml), the same rules the log collector and the Loki ingest gateway apply.
 - **Configurable Script Location:** Controlled via the `PATH_ADMINISTRATOR_SCRIPTS` variable.
 
 ## Further Resources

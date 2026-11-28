@@ -1,0 +1,45 @@
+---
+system_service_id: sys-ctl-mtn-rbac-sync
+RBAC_SYNC_HOOKS_DIR: "{{ [ DIR_RBAC_SYNC, 'hooks' ] | path_join }}"
+RBAC_SYNC_SCRIPT_DIR: "{{ [ DIR_SCRIPTS_SYSTEMCTL, system_service_id ] | path_join }}"
+RBAC_SYNC_RUNNER_FILES:
+  - { src: roles/sys-ctl-mtn-rbac-sync/files/python/script.py, dest: script.py, mode: "0755" }
+  - { src: roles/svc-db-openldap/files/python/ldap/client.py, dest: ldap_client.py, mode: "0644" }
+  - { src: roles/svc-db-openldap/files/python/ldap/mailbox.py, dest: ldap_mailbox.py, mode: "0644" }
+  - { src: roles/svc-bkp-volume-2-local/files/python/baudolo/maintenance.py, dest: backup_maintenance.py, mode: "0644" }
+  - { src: roles/sys-ctl-mtn-rbac-sync/files/python/mailbox_seed.py, dest: mailbox_seed.py, mode: "0644" }
+  - { src: roles/sys-ctl-mtn-rbac-sync/files/python/member_reader.py, dest: member_reader.py, mode: "0644" }
+  - { src: roles/sys-ctl-mtn-rbac-sync/files/python/hook_runner.py, dest: hook_runner.py, mode: "0644" }
+RBAC_SYNC_LDAP_ENABLED: "{{ STACK_HOST in (groups['svc-db-openldap'] | default([])) }}"
+RBAC_SYNC_LDAP_URI: "{{ LDAP.SERVER.SOCKET_URI }}"
+RBAC_SYNC_DIRECTORY_HOST: "{{ 'svc-db-openldap' in group_names }}"
+RBAC_SYNC_TIMER_ENABLED: "{{ (RBAC_SYNC_LDAP_ENABLED | bool) and (RBAC_SYNC_DIRECTORY_HOST | bool) }}"
+RBAC_SYNC_RUNNER_ARGS: "--directory {{ DIR_RBAC_SYNC }}{{ '' if (RBAC_SYNC_DIRECTORY_HOST | bool) else ' --remote-directory' }}"
+RBAC_SYNC_MAILBOX_FILE: "{{ [ DIR_RBAC_SYNC, 'mailbox.json' ] | path_join }}"
+RBAC_SYNC_MAILBOX:
+  bind_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+  bind_password: "{{ LDAP.BIND_CREDENTIAL }}"
+  domain: "{{ DOMAIN_PRIMARY }}"
+  object_class: "{{ LDAP.USER.OBJECTS.AUXILIARY.INFINITO_MAILBOX_USER }}"
+RBAC_SYNC_HOOK_TIMEOUT_SECONDS: 600
+RBAC_SYNC_REFRESH_SECONDS: 86400
+RBAC_SYNC_CONFIG:
+  container_bin: "{{ BIN_CONTAINER }}"
+  maintenance_file: "{{ FILE_MAINTENANCE_BACKUP }}"
+  timeout_seconds: "{{ RBAC_SYNC_HOOK_TIMEOUT_SECONDS | int }}"
+  refresh_seconds: "{{ RBAC_SYNC_REFRESH_SECONDS | int }}"
+  ldap: >-
+    {{
+      {
+        'uri': RBAC_SYNC_LDAP_URI,
+        'users_dn': LDAP.DN.OU.USERS,
+        'roles_dn': LDAP.DN.OU.ROLES,
+        'attributes': {
+          'id': LDAP.USER.ATTRIBUTES.ID,
+          'mail': LDAP.USER.ATTRIBUTES.MAIL,
+          'name': LDAP.USER.ATTRIBUTES.FULLNAME,
+          'member_of': LDAP.USER.ATTRIBUTES.MEMBER_OF,
+          'uuid': LDAP.USER.ATTRIBUTES.UUID,
+        },
+      } if (RBAC_SYNC_LDAP_ENABLED | bool) else None
+    }}

@@ -10,7 +10,7 @@
       provider(
         :openid_connect,
         name: :openid_connect,
-        scope: [:openid, :email, :profile],
+        scope: [:openid, :email, :profile, ENV.fetch("OIDC_GROUPS_CLAIM").to_sym],
         response_type: :code,
         discovery: true,
         issuer: ENV.fetch("OIDC_ISSUER"),

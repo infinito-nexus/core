@@ -23,6 +23,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("libretranslate /languages API stays reachable without auth", async ({ request }) => {
+  skipUnlessServiceEnabled("libretranslate_engine");
   // The /languages endpoint is part of the API surface that
   // LibreTranslate authenticates with API keys; per requirement
   // 013 it MUST stay reachable even when the UI is OIDC-gated by

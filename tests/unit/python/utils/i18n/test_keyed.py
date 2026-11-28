@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 from utils.i18n.catalog import catalog_path, new_catalog, write_catalog
-from utils.i18n.keyed import source_keyed_catalogues
+from utils.i18n.keyed import keyed_catalogue, source_keyed_catalogues
 from utils.i18n.languages import LANGUAGES_FILE
 
 LANGUAGES = """\
@@ -13,13 +13,42 @@ fr: {name: French, native: Français, direction: ltr, libretranslate: true}
 """
 
 
-def _catalog(root: Path, code: str, entries: dict[tuple[str, str], str]) -> None:
-    catalog = new_catalog("core", code)
+def _catalog(
+    root: Path, code: str, entries: dict[tuple[str, str], str], domain: str
+) -> None:
+    catalog = new_catalog(domain, code)
     for (context, msgid), msgstr in entries.items():
         catalog.add(msgid, msgstr, context=context)
-    path = catalog_path(root, code, "core")
+    path = catalog_path(root, code, domain)
     path.parent.mkdir(parents=True)
     write_catalog(path, catalog)
+
+
+class TestKeyedCatalogue(unittest.TestCase):
+    def setUp(self) -> None:
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name) / "core"
+        self.role = Path(tmp.name) / "role"
+        (self.root / LANGUAGES_FILE).parent.mkdir(parents=True)
+        (self.root / LANGUAGES_FILE).write_text(LANGUAGES, encoding="utf-8")
+        _catalog(self.root, "de", {("team:title", "The team"): "Kern"}, "core")
+        _catalog(self.role, "de", {("team:title", "The team"): "Das Team"}, "team")
+
+    def _read(self, catalogs: Path, domain: str) -> dict:
+        return keyed_catalogue(
+            self.root,
+            lambda key: f"team:{key}",
+            {"title": "The team"},
+            catalogs,
+            domain,
+        )
+
+    def test_a_role_catalog_is_read_from_the_role(self) -> None:
+        self.assertEqual(self._read(self.role, "team")["de"]["title"], "Das Team")
+
+    def test_without_the_role_core_catalogs_answer(self) -> None:
+        self.assertEqual(self._read(self.root, "core")["de"]["title"], "Kern")
 
 
 class TestSourceKeyedCatalogues(unittest.TestCase):
@@ -36,8 +65,9 @@ class TestSourceKeyedCatalogues(unittest.TestCase):
                     ("menu:help:title", "Help"): "Hilfe",
                     ("logout:checking", "Checking"): "Prüfe",
                 },
+                "core",
             )
-            _catalog(root, "fr", {("role:web-app-x:description", "A wiki"): ""})
+            _catalog(root, "fr", {("role:web-app-x:description", "A wiki"): ""}, "core")
 
             catalogues = source_keyed_catalogues(root, ("role:", "menu:"))
 

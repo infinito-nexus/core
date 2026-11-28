@@ -8,16 +8,24 @@
 {% set _replicas_line = lookup('compose_replicas', _replicas) if _replicas != '' else lookup('compose_replicas') %}
     deploy:
       {{ _replicas_line }}
+{% set _global = _replicas_line == 'mode: global' %}
 {% set _constraints = [] %}
 {% set _placement = ((lookup('applications') | resource_filter(application_id, 'placement', service_name | default(''), '')) or '') | trim %}
-{% if _placement %}
+{% if _placement and not _global %}
 {% set _ = _constraints.append('node.role == ' ~ _placement) %}
-{% elif application_id in lookup('roles_with_placement', 'manager') %}
+{% elif not _global and application_id in lookup('roles_with_placement', 'manager') %}
 {% set _ = _constraints.append('node.role == manager') %}
+{% endif %}
+{% if SWARM_ONION_HOST_BACKENDS | default([]) | selectattr('application', 'equalto', application_id) | selectattr('service', 'equalto', service_name | default('')) | list | length > 0 %}
+{% set _ = _constraints.append('node.hostname == ' ~ STACK_HOST_NODE) %}
 {% endif %}
 {% set _arch = lookup('applications') | resource_filter(application_id, 'platform_arch', service_name | default(''), '') %}
 {% if _arch != '' %}
 {% set _ = _constraints.append('node.platform.arch == ' ~ _arch) %}
+{% endif %}
+{% set _node_label = lookup('applications') | resource_filter(application_id, 'node_label', service_name | default(''), '') %}
+{% if _node_label %}
+{% set _ = _constraints.append('node.labels.' ~ _node_label ~ ' == true') %}
 {% endif %}
 {% if groups['svc-virt-kata'] is defined %}
 {% if lookup('config', application_id, 'services.kata.enabled', false) | bool %}

@@ -2,7 +2,7 @@
 - name: 🧹 Aggressively prune Docker data (keep networks + in-use images)
   become: true
   ansible.builtin.script:
-    cmd: shell/prune.sh
+    cmd: "shell/prune.sh {{ CONTAINER_PRUNE_KEEP_LABEL | quote }}"
   environment:
     PRUNE_FREE_FLOOR_MIB: "{{ COMPOSE_PRUNE_FREE_FLOOR_MIB }}"
     PRUNE_REPEAT_BELOW_PERCENT: "{{ COMPOSE_PRUNE_REPEAT_BELOW_PERCENT }}"

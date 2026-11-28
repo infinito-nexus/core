@@ -1,0 +1,5 @@
+---
+- name: daily-cve-scan
+  schedule: "0 3 * * *"
+  routine: security_audit
+  action: start

@@ -3,4 +3,51 @@ application_id: svc-registry-cache
 entity_name: "{{ application_id | entity_name }}"
 
 REGISTRY_CACHE_CONTAINER: "{{ lookup('config', application_id, 'services.cache.name') }}"
+REGISTRY_CACHE_DATA_TARGET: "{{ lookup('volume', application_id, 'data').target }}"
 REGISTRY_CACHE_PROXY_REMOTE_URL: "{{ lookup('config', application_id, 'services.cache.proxy.remote_url') }}"
+REGISTRY_CACHE_PROXY_TTL: "{{ (lookup('config', application_id, 'services.cache.max_idle_days') | int) * 24 }}h"
+REGISTRY_CACHE_FLAVOR: "{{ lookup('config', application_id, 'services.cache.flavor') }}"
+
+REGISTRY_CACHE_MULTI_PROXY_IMAGE: "{{ lookup('config', application_id, 'services.cache.multi_proxy.image') }}"
+REGISTRY_CACHE_MULTI_PROXY_VERSION: "{{ lookup('config', application_id, 'services.cache.multi_proxy.version') }}"
+REGISTRY_CACHE_MULTI_PROXY_REGISTRIES: "{{ lookup('config', application_id, 'services.cache.multi_proxy.registries') }}"
+REGISTRY_CACHE_MULTI_PROXY_MAX_SIZE: "{{ lookup('config', application_id, 'services.cache.multi_proxy.max_size') }}"
+REGISTRY_CACHE_MULTI_PROXY_AUTH: "{{ lookup('config', application_id, 'services.cache.multi_proxy.auth') }}"
+REGISTRY_CACHE_MULTI_PROXY_IDLE_DAYS: "{{ lookup('config', application_id, 'services.cache.max_idle_days') }}"
+REGISTRY_CACHE_MULTI_PROXY_ENTRYPOINT: "{{ lookup('volume', application_id, 'multi_proxy_entrypoint').target }}"
+REGISTRY_CACHE_MULTI_PROXY_DIRS:
+  - "{{ lookup('volume', application_id, 'multi_proxy_entrypoint').source | dirname }}"
+  - "{{ lookup('volume', application_id, 'multi_proxy_mirror').source }}"
+  - "{{ lookup('volume', application_id, 'multi_proxy_ca').source }}"
+REGISTRY_CACHE_MULTI_PROXY_FILES:
+  - src: shell/entrypoint.sh
+    dest: "{{ lookup('volume', application_id, 'multi_proxy_entrypoint').source }}"
+    mode: "0755"
+  - src: nginx.manifest.stale.conf
+    dest: "{{ lookup('volume', application_id, 'multi_proxy_stale').source }}"
+    mode: "0644"
+
+REGISTRY_CACHE_VENDORS: "{{ lookup('registry_vendors').registries if REGISTRY_CACHE_FLAVOR == 'registry' else [] }}"
+REGISTRY_CACHE_VENDOR_SERVICES: "{{ dict(REGISTRY_CACHE_VENDORS | zip(REGISTRY_CACHE_VENDORS | map('regex_replace', '[^a-z0-9]+', '-') | map('regex_replace', '^',
+  'vendor-'))) }}"
+REGISTRY_CACHE_ENV_DIR: "{{ lookup('container', application_id, 'directories.env') }}"
+REGISTRY_CACHE_VENDOR_ENV_FILES: "{{ dict(REGISTRY_CACHE_VENDOR_SERVICES.values() | zip(REGISTRY_CACHE_VENDOR_SERVICES.values() | map('regex_replace', '^', REGISTRY_CACHE_ENV_DIR)
+  | map('regex_replace', '$', '.env'))) }}"
+REGISTRY_CACHE_VENDOR_PORT: "{{ lookup('config', application_id, 'services.vendor.ports.internal.registry') }}"
+REGISTRY_CACHE_FRONT_CONTAINER: "{{ lookup('config', application_id, 'services.front.name') }}"
+REGISTRY_CACHE_FRONT_HOST: "{{ lookup('subnet_gateway') }}"
+REGISTRY_CACHE_FRONT_PORT: "{{ lookup('config', application_id, 'services.front.ports.local.registry') }}"
+REGISTRY_CACHE_FRONT_LISTEN_PORT: "{{ lookup('config', application_id, 'services.front.ports.internal.registry') }}"
+REGISTRY_CACHE_FRONT_ENDPOINT: "{{ REGISTRY_CACHE_FRONT_HOST }}:{{ REGISTRY_CACHE_FRONT_PORT }}"
+REGISTRY_CACHE_FRONT_CONF: "{{ [lookup('container', application_id, 'directories.config'), 'front', 'default.conf'] | path_join }}"
+REGISTRY_CACHE_FRONT_TLS_DIR: "{{ [lookup('container', application_id, 'directories.config'), 'front-tls'] | path_join }}"
+REGISTRY_CACHE_FRONT_TLS_TARGET: "{{ lookup('volume', application_id, 'front_tls').target }}"
+REGISTRY_CACHE_FRONT_CERT_NAME: "{{ REGISTRY_CACHE_FRONT_HOST }}.crt"
+REGISTRY_CACHE_FRONT_KEY_NAME: "{{ REGISTRY_CACHE_FRONT_HOST }}.key"
+REGISTRY_CACHE_FRONT_CERT: "{{ [REGISTRY_CACHE_FRONT_TLS_DIR, REGISTRY_CACHE_FRONT_CERT_NAME] | path_join }}"
+REGISTRY_CACHE_FRONT_KEY: "{{ [REGISTRY_CACHE_FRONT_TLS_DIR, REGISTRY_CACHE_FRONT_KEY_NAME] | path_join }}"
+REGISTRY_CACHE_FRONT_CERT_DAYS: 397
+REGISTRY_CACHE_FRONT_CERT_RENEW_SECONDS: 2592000
+REGISTRY_CACHE_FRONT_KEY_BITS: 3072
+REGISTRY_CACHE_FRONT_TRUST_DIR: "{{ ['/etc/docker/certs.d', REGISTRY_CACHE_FRONT_ENDPOINT] | path_join }}"
+REGISTRY_CACHE_FRONT_RESOLVER: 127.0.0.11

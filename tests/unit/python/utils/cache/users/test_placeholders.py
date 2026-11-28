@@ -22,7 +22,6 @@ import unittest
 from typing import Any
 
 from utils.cache.users.placeholders import (
-    _SCALAR_USER_PLACEHOLDERS,
     substitute_primary_domain_placeholder,
     substitute_scalar_placeholders,
 )
@@ -215,13 +214,6 @@ class TestSubstituteScalarPlaceholders(unittest.TestCase):
         self.assertEqual(nested["tokens"]["web-app-matomo"], "owned by Infinito.Nexus")
         self.assertEqual(nested["aliases"][0], "Infinito.Nexus-admin")
         self.assertEqual(nested["history"], ("first: Infinito.Nexus",))
-
-
-class TestScalarPlaceholderSet(unittest.TestCase):
-    def test_default_set_contains_known_keys(self) -> None:
-        self.assertEqual(
-            set(_SCALAR_USER_PLACEHOLDERS), {"ORGANIZATION", "SOFTWARE_NAME"}
-        )
 
 
 if __name__ == "__main__":  # pragma: no cover

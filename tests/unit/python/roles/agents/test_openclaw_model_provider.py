@@ -26,10 +26,11 @@ FILTERS = PROJECT_ROOT / "plugins/filter/mcp/authorization.py"
 MODEL = "qwen2.5:0.5b"
 
 CONTEXT = {
-    "NETWORK_TRUSTED_PROXY_CIDRS": ["127.0.0.1/32", "::1/128", "10.0.0.0/8"],
+    "OPENCLAW_TRUSTED_PROXY_SOURCES": ["192.168.0.0/16"],
     "OPENCLAW_CONTROL_UI_ORIGINS": ["https://claw.example.org"],
     "OPENCLAW_LITELLM_ENABLED": True,
     "OPENCLAW_LITELLM_PROVIDER": "litellm",
+    "OPENCLAW_LITELLM_PRIMARY": f"litellm/{MODEL}",
     "OPENCLAW_LITELLM_MODEL": MODEL,
     "OPENCLAW_LITELLM_BASE_URL": "http://litellm:4000/v1",
     "OPENCLAW_LITELLM_API_KEY": "sk-" + "x" * 20,

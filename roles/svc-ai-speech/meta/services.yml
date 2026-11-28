@@ -1,0 +1,87 @@
+---
+# nocheck: garbage-collector-required  the server deletes each upload and its converted WAV when the request ends; no other leftovers known
+# nocheck: playwright-service-flag  speech-to-text engine consumed over the container network, without a browser surface
+speech:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  bond: 1
+  enabled: true
+  shared: true
+  image: ghcr.io/ggml-org/whisper.cpp
+  # nocheck: docker-version  upstream tags its CPU image only as main-<commit>; this commit is release v1.9.5
+  version: main-d1be6fde11ac6e0407606b4e42fe72d34add8037
+  architecture_tags:
+    arm64:
+      prefix: main-
+      replacement: main-arm64-
+  name: speech
+  healthcheck:
+    flavor: http_status
+    path: health
+  api_path: /v1
+  model_alias: whisper-1
+  artefact: whisper-small--ggml-small-q5_1.bin
+  language: auto
+  request_timeout: 3600
+  # nocheck: min-storage-headroom  Reason: the extracted image plus the upload and its 16 kHz WAV, about 450 MB per recorded hour, which the server writes to /tmp while it transcribes
+  min_storage: 2GB
+  cpus: "4.0"
+  mem_reservation: 1g
+  mem_limit: 3g
+  pids_limit: 256
+  ports:
+    internal:
+      http: 8080
+  lifecycle: alpha
+
+# nocheck: dynamic-flag  second container of this role, deployed with it on every host; a group_names gate would only restate the role's own presence
+piper:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  bond: 1
+  enabled: true
+  shared: true
+  image: python
+  # nocheck: docker-version  base of the self-built synthesis server, held on the 3.12 minor tag (patches still arrive) because the hash-pinned wheels of files/python/requirements.txt are the set the skills orchestrator image installs on python:3.12-slim
+  version: "3.12-slim"
+  custom: true
+  name: piper
+  healthcheck:
+    flavor: http_status
+    path: health
+  api_path: /v1
+  model_alias: tts-1
+  artefact: piper-libritts-high--en_us-libritts-high.onnx
+  speaker: 0
+  max_input_chars: 4096
+  request_timeout: 300
+  # nocheck: min-storage-headroom  Reason: the declared image is the Dockerfile base; the built image adds the piper, onnxruntime and numpy wheels, and each answer is one WAV the server writes to /tmp and deletes once it is sent
+  min_storage: 1GB
+  cpus: "2.0"
+  mem_reservation: 512m
+  mem_limit: 2g
+  pids_limit: 128
+  ports:
+    internal:
+      http: 5000
+  lifecycle: alpha
+
+# nocheck: variants-coverage the role has a single variant, and the guide edge is not a dimension of it: a second round would differ only by the README replay
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started

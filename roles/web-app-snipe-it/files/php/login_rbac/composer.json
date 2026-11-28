@@ -1,0 +1,18 @@
+{
+  "name": "infinito/snipe-it-login-rbac",
+  "description": "Applies the role groups of a sign-in to the Snipe-IT account that signs in",
+  "type": "library",
+  "version": "1.0.0",
+  "autoload": {
+    "classmap": [
+      "src/"
+    ]
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Infinito\\SnipeItLoginRbac\\LoginRbacServiceProvider"
+      ]
+    }
+  }
+}

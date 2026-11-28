@@ -25,19 +25,22 @@ outside its guard, so the whole body lives in one blank-line-free function and
 the last statement is a top-level print of a marker the task matches on.
 
 Environment:
-    MCP_TEAM:  team name to converge.
-    MCP_TOKEN: token value to pin on it.
+    MCP_TEAM:          team name to converge.
+    MCP_TEAM_DEFAULTS: JSON object of the permission fields a new team starts with.
+    MCP_TOKEN:         token value to pin on it.
 
 Output:
     PRETIX_RESULT=CHANGED or PRETIX_RESULT=UNCHANGED on its own line.
 """
 
+import json
 import os
 
 from pretix.base.models import Organizer
 from pretix.base.models.organizer import Team, TeamAPIToken
 
 TEAM = os.environ["MCP_TEAM"]
+TEAM_DEFAULTS = json.loads(os.environ["MCP_TEAM_DEFAULTS"])
 TOKEN = os.environ["MCP_TOKEN"]
 TOKEN_NAME = "mcp-upstream"  # noqa: S105 a label, not a secret
 
@@ -49,13 +52,7 @@ def converge():
     team, team_created = Team.objects.get_or_create(
         organizer=organizer,
         name=TEAM,
-        defaults={
-            "all_events": True,
-            "all_event_permissions": False,
-            "limit_event_permissions": {"event.orders:read": True},
-            "all_organizer_permissions": False,
-            "limit_organizer_permissions": {},
-        },
+        defaults=TEAM_DEFAULTS,
     )
     _, token_created = TeamAPIToken.objects.update_or_create(
         team=team,

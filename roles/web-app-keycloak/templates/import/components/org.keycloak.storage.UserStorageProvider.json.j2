@@ -64,13 +64,29 @@
         "providerId": "user-attribute-ldap-mapper",
         "subComponents": {},
         "config": {
-          "ldap.attribute": [ "{{ LDAP.USER.ATTRIBUTES.MAIL }}" ],
+          "ldap.attribute": [ "{{ LDAP.USER.ATTRIBUTES.SECONDARY_MAIL if KEYCLOAK_EMAIL_MAILBOX | bool else LDAP.USER.ATTRIBUTES.MAIL }}" ],
           "is.mandatory.in.ldap": [ "false" ],
           "read.only": [ "false" ],
           "always.read.value.from.ldap": [ "false" ],
           "user.model.attribute": [ "email" ]
         }
       },
+{% if KEYCLOAK_EMAIL_MAILBOX | bool %}
+      {
+        "name": "{{ KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE }}",
+        "providerId": "user-attribute-ldap-mapper",
+        "subComponents": {},
+        "config": {
+          "ldap.attribute": [ "{{ LDAP.USER.ATTRIBUTES.MAIL }}" ],
+          "is.mandatory.in.ldap": [ "false" ],
+          "attribute.force.default": [ "false" ],
+          "is.binary.attribute": [ "false" ],
+          "read.only": [ "true" ],
+          "always.read.value.from.ldap": [ "true" ],
+          "user.model.attribute": [ "{{ KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE }}" ]
+        }
+      },
+{% endif %}
 
       {
         "name": "SSH Public Key",
@@ -134,44 +150,20 @@
         "subComponents": {},
         "config": {
           "membership.attribute.type": [ "DN" ],
-          "group.name.ldap.attribute": [ "cn" ],
+          "group.name.ldap.attribute": [ "{{ LDAP.RBAC.NAME_ATTRIBUTE }}" ],
           "membership.user.ldap.attribute": [ "dn" ],
           "preserve.group.inheritance": [ "false" ],
           "groups.dn": [ "{{ LDAP.DN.OU.ROLES }}" ],
           "mode": [ "LDAP_ONLY" ],
           "user.roles.retrieve.strategy": [ "LOAD_GROUPS_BY_MEMBER_ATTRIBUTE" ],
           "groups.ldap.filter": ["{{ LDAP.RBAC.FLAVORS | ldap_groups_filter }}"],
-          "membership.ldap.attribute": [ "member" ],
+          "membership.ldap.attribute": [ "{{ LDAP.RBAC.MEMBER_ATTRIBUTE }}" ],
           "ignore.missing.groups": [ "true" ],
           "group.object.classes": [ "groupOfNames" ],
-          "memberof.ldap.attribute": [ "memberOf" ],
+          "memberof.ldap.attribute": [ "{{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}" ],
           "drop.non.existing.groups.during.sync": [ "false" ],
           "groups.path.group": ["6ea39fb8-d29a-48f7-8baa-c8952ca97650"],
           "groups.path": [ "{{ KEYCLOAK_RBAC_GROUP_NAME }}" ]
-        }
-      },
-      {
-        "name": "phone number",
-        "providerId": "user-attribute-ldap-mapper",
-        "subComponents": {},
-        "config": {
-          "ldap.attribute": [ "telephoneNumber" ],
-          "is.mandatory.in.ldap": [ "false" ],
-          "always.read.value.from.ldap": [ "true" ],
-          "read.only": [ "false" ],
-          "user.model.attribute": [ "phoneNumber" ]
-        }
-      },
-      {
-        "name": "locale",
-        "providerId": "user-attribute-ldap-mapper",
-        "subComponents": {},
-        "config": {
-          "ldap.attribute": [ "preferredLanguage" ],
-          "is.mandatory.in.ldap": [ "false" ],
-          "always.read.value.from.ldap": [ "true" ],
-          "read.only": [ "false" ],
-          "user.model.attribute": [ "locale" ]
         }
       },
       {
@@ -186,37 +178,19 @@
           "user.model.attribute": [ "uidNumber" ]
         }
       }
-      {% if KEYCLOAK_MOODLE_ENABLED | bool %}
-      {% set _moodle_ldap_pairs = [
-        ['middleName',         'initials'],
-        ['nickname',           'displayName'],
-        ['phoneNumberAlt',     'mobile'],
-        ['street',             'street'],
-        ['locality',           'l'],
-        ['country',            'c'],
-        ['institution',        'o'],
-        ['department',         'ou'],
-        ['description',        'description'],
-        ['idNumber',           'employeeNumber'],
-        ['website',            'labeledURI'],
-        ['zoneinfo',           'infinitoTimezone'],
-        ['namePhoneticGiven',  'infinitoNamePhoneticGiven'],
-        ['namePhoneticFamily', 'infinitoNamePhoneticFamily']
-      ] %}
-      {% for kc_attr, ldap_attr in _moodle_ldap_pairs %},
+      {% for attribute in KEYCLOAK_PROFILE_ATTRIBUTES %},
       {
-        "name": {{ ('moodle:' ~ kc_attr) | to_json }},
+        "name": {{ (KEYCLOAK_PROFILE_MAPPER_PREFIX ~ attribute.name) | to_json }},
         "providerId": "user-attribute-ldap-mapper",
         "subComponents": {},
         "config": {
-          "ldap.attribute": [ {{ ldap_attr | to_json }} ],
+          "ldap.attribute": [ {{ attribute.ldap | to_json }} ],
           "is.mandatory.in.ldap": [ "false" ],
           "always.read.value.from.ldap": [ "true" ],
           "read.only": [ "false" ],
-          "user.model.attribute": [ {{ kc_attr | to_json }} ]
+          "user.model.attribute": [ {{ attribute.name | to_json }} ]
         }
       }{% endfor %}
-      {% endif %}
       {% if keycloak_map_ldap_realm_roles | default(false) %},
       {
         "name": "ldap-realm-roles",
@@ -227,9 +201,9 @@
           "membership.attribute.type": [ "DN" ],
           "user.roles.retrieve.strategy": [ "LOAD_ROLES_BY_MEMBER_ATTRIBUTE" ],
           "roles.dn": [ "{{ LDAP.DN.OU.ROLES }}" ],
-          "membership.ldap.attribute": [ "member" ],
+          "membership.ldap.attribute": [ "{{ LDAP.RBAC.MEMBER_ATTRIBUTE }}" ],
           "membership.user.ldap.attribute": [ "dn" ],
-          "memberof.ldap.attribute": [ "memberOf" ],
+          "memberof.ldap.attribute": [ "{{ LDAP.USER.ATTRIBUTES.MEMBER_OF }}" ],
           "role.name.ldap.attribute": [ "cn" ],
           "use.realm.roles.mapping": [ "true" ],
           "role.object.classes": [ "groupOfNames" ]
@@ -262,7 +236,7 @@
     "searchScope": [ "1" ],
     "useTruststoreSpi": [ "always" ],
     "usePasswordModifyExtendedOp": [ "true" ],
-    "trustEmail": [ "false" ],
+    "trustEmail": [ "true" ],
 
     "userObjectClasses": [
       {{ KEYCLOAK_LDAP_USER_OBJECT_CLASSES | trim | to_json }}

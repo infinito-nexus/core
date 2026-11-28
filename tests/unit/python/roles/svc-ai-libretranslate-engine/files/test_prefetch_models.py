@@ -151,6 +151,52 @@ class TestMain(unittest.TestCase):
 
         self.assertEqual(self.minisbd_got, [None])
 
+    def _unpacking(self) -> list[tuple[str, bool]]:
+        unpacked: list[tuple[str, bool]] = []
+        self.module.package.install_from_path = lambda path: unpacked.append(
+            (Path(path).name, zipfile.is_zipfile(path))
+        )
+        return unpacked
+
+    def test_an_archive_is_unpacked_whole_then_leaves_no_copy_in_the_layer(
+        self,
+    ) -> None:
+        archive = self.root / "en_zh.argosmodel"
+        unpacked = self._unpacking()
+
+        with unittest.mock.patch.object(sys, "argv", ["prefetch_models.py"]):
+            self.assertEqual(self.module.main(), 0)
+
+        self.assertEqual(unpacked, [(archive.name, True)])
+        self.assertFalse(archive.exists())
+
+    def test_a_retry_unpacks_what_the_failed_run_fetched_then_removes_it(
+        self,
+    ) -> None:
+        archive = self.root / "en_zh.argosmodel"
+        broken = self.root / "en_de.argosmodel"
+        broken.write_bytes(b"half a download")
+        unpacked = self._unpacking()
+        self.module.package.get_available_packages = lambda: [
+            FakePackage("en", "zh-Hans", archive),
+            FakePackage("en", "de", broken),
+        ]
+
+        with (
+            unittest.mock.patch.object(sys, "argv", ["prefetch_models.py"]),
+            self.assertRaises(RuntimeError),
+        ):
+            self.module.main()
+        fetched_before_the_retry = zipfile.is_zipfile(archive)
+        with zipfile.ZipFile(broken, "w") as handle:
+            handle.writestr("metadata.json", "{}")
+        with unittest.mock.patch.object(sys, "argv", ["prefetch_models.py"]):
+            self.assertEqual(self.module.main(), 0)
+
+        self.assertTrue(fetched_before_the_retry)
+        self.assertEqual(unpacked, [(archive.name, True), (broken.name, True)])
+        self.assertEqual(sorted(self.root.iterdir()), [])
+
 
 class TestFetch(unittest.TestCase):
     def setUp(self) -> None:

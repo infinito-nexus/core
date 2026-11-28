@@ -11,7 +11,7 @@ The body then re-runs once per calling task rather than once per play.
 That is not merely wasteful. ``roles/sys-svc-compose/tasks/00_core.yml`` removes
 the shared compose pull-lock directory, which ``files/python/pull.py`` uses to
 skip a pull it already did, so a second pass makes every stack deployed so far
-pull again; and under ``MODE_RESET`` it reaches ``01_reset.yml``, which brings
+pull again; and under ``RESET`` it reaches ``01_reset.yml``, which brings
 every project in ``DIR_COMPOSITIONS`` down and deletes the directory that holds
 every application's instance, env and volume paths.
 ``roles/sys-svc-container/tasks/00_core.yml`` carries an unconditional
@@ -104,7 +104,7 @@ def _core_entries(content: str) -> list[tuple[str, bool, str]]:
 
 
 class TestForeignCoreEntryGuarded(unittest.TestCase):
-    def test_a_foreign_core_entry_carries_the_owning_role_guard(self) -> None:
+    def test_a_foreign_core_entry_carries_the_owning_role_guard(self) -> None:  # nocheck: test.text-presence -- policy lint over every task file  # fmt: skip
         findings: list[tuple[str, int, str, str]] = []
         for path_str, content in iter_project_files_with_content(
             extensions=(".yml", ".yaml"),
@@ -140,7 +140,7 @@ class TestForeignCoreEntryGuarded(unittest.TestCase):
                 "`tasks_from` without the guard that `main.yml` would have "
                 "applied. The body then runs once per calling task instead of "
                 "once per play, which re-runs installs, wipes the shared "
-                "compose pull-lock directory, and under MODE_RESET tears down "
+                "compose pull-lock directory, and under RESET tears down "
                 "DIR_COMPOSITIONS after other applications are already "
                 "deployed into it.\n\n"
                 "Default: add the `when:` shown. Use the nocheck only where "

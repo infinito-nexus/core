@@ -1,3 +1,7 @@
+{% include 'roles/sys-svc-app-control/templates/nginx/paused.conf.j2' %}
 {% if inj_enabled.logout %}
 {% include 'roles/web-svc-logout/templates/logout-proxy.conf.j2' %}
 {% endif %}
+{% with logout_consumer_id = application_id %}
+{% include 'roles/web-svc-logout/templates/backchannel-seal.conf.j2' %}
+{% endwith %}

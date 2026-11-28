@@ -52,7 +52,7 @@ system_service_copy_files: true # When set to false file copying will be skipped
 system_service_timer_enabled: false # When set to true timer will be loaded
 system_service_state: "{{ SYS_SERVICE_DEFAULT_STATE }}"
 
-system_service_async_enabled: "{{ ASYNC_ENABLED | bool and not (system_service_force_linear_sync | bool) and system_service_state == omit }}"
+system_service_async_enabled: "{{ not (system_service_force_linear_sync | bool) and system_service_state == omit }}"
 system_service_async: "{{ ASYNC_TIME if system_service_async_enabled | bool else omit }}"
 system_service_poll: "{{ ASYNC_POLL if system_service_async_enabled | bool else omit }}"
 
@@ -73,4 +73,5 @@ system_service_tpl_runtime: "{{ '' if system_service_tpl_type == 'oneshot' else 
 system_service_tpl_exec_start_pre: ""
 system_service_tpl_exec_start: "{{ system_service_script_exec }}"
 system_service_tpl_exec_start_post: ""
+system_service_tpl_exec_stop_post: ""
 system_service_tpl_timeout_start_sec: "{{ SYS_SERVICE_DEFAULT_RUNTIME if system_service_tpl_type == 'oneshot' else '' }}"

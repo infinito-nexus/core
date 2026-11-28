@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: playwright-service-flag — translation engine without a browser surface of its own
 libretranslate-engine:
   name: libretranslate-engine
@@ -70,7 +71,8 @@ libretranslate-engine:
     - vi
     - zh
   loading_model: lazy
-  models_dir: "{{ [DIR_CACHE, 'models', 'libretranslate'] | path_join }}"
+  model_store: true
+  models_dir: "{{ [AI_MODELS_STORE_PATH, 'libretranslate'] | path_join }}"
   directions: both
   prefetch_timeout_seconds: 1800
   prefetch_retries: 6
@@ -90,3 +92,11 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started

@@ -1,0 +1,16 @@
+---
+- name: "🖥️ Check the release, root lock and first-boot digests of the Proxmox VE guest"
+  ansible.builtin.include_tasks: flavors/vm/guest.yml
+  when: IS_STACK_HOST | bool
+
+- name: "🔍 Read whether the KVM module of {{ inventory_hostname }} nests guests"
+  ansible.builtin.command:
+    argv: [cat, /sys/module/kvm_intel/parameters/nested, /sys/module/kvm_amd/parameters/nested]
+  register: proxmox_nested_parameter
+  changed_when: false
+  failed_when: false
+  delegate_to: "{{ PROXMOX_HOST_NODE }}"
+
+- name: "🧭 Run the VMs inside the guest with KVM only when the host nests it"
+  ansible.builtin.set_fact:
+    PROXMOX_VM_KVM: "{{ proxmox_nested_parameter.stdout | proxmox_nested }}"

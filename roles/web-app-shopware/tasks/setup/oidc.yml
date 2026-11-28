@@ -16,23 +16,46 @@
       printf '%s' "$installed" | grep -qi installed
   changed_when: false
 
-- name: "🔐 Ensure the Keycloak login provider is configured"
+- name: "🔎 Read the stored Keycloak login provider"
   ansible.builtin.shell:
     cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-      IFS= read -r ADMIN_PASSWORD && IFS= read -r OIDC_CLIENT_SECRET && export ADMIN_PASSWORD OIDC_CLIENT_SECRET && container exec -i --user {{ SHOPWARE_USER }}
-      -e SHOPWARE_API_BASE={{ SHOPWARE_API_BASE | quote }}
-      -e ADMIN_USER={{ lookup('users', 'platform_administrator').username | quote }}
-      -e ADMIN_PASSWORD
-      -e OIDC_AUTH_SERVER={{ OIDC.URL | quote }}
-      -e OIDC_INTERNAL_BASE={{ SHOPWARE_OIDC_INTERNAL_BASE | quote }}
-      -e OIDC_REALM={{ OIDC.CLIENT.REALM | quote }}
-      -e OIDC_CLIENT_ID={{ OIDC.CLIENT.ID | quote }}
-      -e OIDC_CLIENT_SECRET
+      container exec -i --user {{ SHOPWARE_USER }}
+      -e SHOPWARE_ROOT={{ SHOPWARE_ROOT | quote }}
+      -e OIDC_CLIENT_MODE=read
+      -e OIDC_CLIENT_SETTINGS={{ SHOPWARE_OIDC_CLIENT_SETTINGS | to_json | quote }}
       {{ SHOPWARE_WEB_LOCAL_CID | quote }}
       php
     stdin: |-
-      {{ lookup('users', 'platform_administrator').password }}
+      {{ lookup('ansible.builtin.file', role_path ~ '/files/php/dal.php') }}
+      {{ lookup('ansible.builtin.file', role_path ~ '/files/php/oidc/client.php') }}
+  register: shopware_oidc_client_stored
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📣 Report the managed Keycloak login provider settings the deploy reverts"
+  include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current:
+      client: "{{ (shopware_oidc_client_stored.stdout_lines | last | from_json).settings }}"
+
+- name: "🔐 Ensure the Keycloak login provider is configured"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      IFS= read -r OIDC_CLIENT_SECRET && : "${OIDC_CLIENT_SECRET:?arrived empty on stdin}" && export OIDC_CLIENT_SECRET
+      && container exec -i --user {{ SHOPWARE_USER }}
+      -e SHOPWARE_ROOT={{ SHOPWARE_ROOT | quote }}
+      -e OIDC_CLIENT_SECRET
+      -e OIDC_CLIENT_SETTINGS={{ SHOPWARE_OIDC_CLIENT_SETTINGS | to_json | quote }}
+      -e RBAC_GROUP_CLAIM={{ RBAC.GROUP.CLAIM | quote }}
+      -e RBAC_GROUP_ADMIN={{ SHOPWARE_OIDC_ADMIN_GROUP | quote }}
+      -e RBAC_GROUP_EDITOR={{ SHOPWARE_OIDC_EDITOR_GROUP | quote }}
+      -e ACL_EDITOR_ROLE_NAME={{ SHOPWARE_ACL_EDITOR_ROLE_NAME | quote }}
+      -e ACL_EDITOR_PRIVILEGES={{ SHOPWARE_ACL_EDITOR_PRIVILEGES | to_json | quote }}
+      {{ SHOPWARE_WEB_LOCAL_CID | quote }}
+      php
+    stdin: |-
       {{ OIDC.CLIENT.SECRET }}
+      {{ lookup('ansible.builtin.file', role_path ~ '/files/php/dal.php') }}
       {{ lookup('ansible.builtin.file', role_path ~ '/files/php/oidc/client.php') }}
   changed_when: false
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

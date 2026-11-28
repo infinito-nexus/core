@@ -1,0 +1,10 @@
+---
+- name: "🛑 Refuse desktop mode while pgAdmin signs users in through Keycloak"
+  ansible.builtin.assert:
+    that:
+      - not (PGADMIN_SERVER_MODE | bool)
+    fail_msg: >-
+      services.pgadmin.server_mode switches pgAdmin to desktop mode, which has no
+      login at all; with SSO the role no longer puts an oauth2-proxy gate in front,
+      so desktop mode would expose every server to anyone who reaches the domain.
+  when: PGADMIN_OIDC_ENABLED | bool

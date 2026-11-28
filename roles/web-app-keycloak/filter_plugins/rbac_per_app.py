@@ -1,17 +1,4 @@
-"""Per-application RBAC naming for Keycloak.
-
-Single SPOT for the strings that vary per deployed application in the
-per-app `group-ldap-mapper` setup:
-
-* the Keycloak component name `ldap-roles-<application_id>`
-* the LDAP filter that surfaces only that application's role groups
-
-These names are referenced from `vars/main.yml`
-(`KEYCLOAK_PER_APP_LDAP_ROLES_MAPPER_PAYLOADS`), which hands them to the
-`files/python/rbac/reconcile.py` REST client. Centralising them here means a future
-rename of the mapper convention is a one-line change in this plugin
-and stays consistent everywhere.
-"""
+"""Per-application RBAC naming for Keycloak: the `ldap-roles-<application_id>` component name of a deployed application's `group-ldap-mapper`."""
 
 from __future__ import annotations
 
@@ -26,17 +13,6 @@ def kc_per_app_mapper_name(application_id):
             "kc_per_app_mapper_name: application_id must be a non-empty string"
         )
     return f"ldap-roles-{application_id}"
-
-
-def kc_per_app_ldap_filter(application_id):
-    """Return the LDAP filter that surfaces an application's role groups
-    (`cn=<application_id>-...`) without leaking entries that belong to
-    other applications."""
-    if not isinstance(application_id, str) or not application_id:
-        raise ValueError(
-            "kc_per_app_ldap_filter: application_id must be a non-empty string"
-        )
-    return f"(&(objectClass=groupOfNames)(cn={application_id}-*))"
 
 
 def rbac_app_ids(app_ids):
@@ -55,6 +31,5 @@ class FilterModule:
     def filters(self):
         return {
             "kc_per_app_mapper_name": kc_per_app_mapper_name,
-            "kc_per_app_ldap_filter": kc_per_app_ldap_filter,
             "rbac_app_ids": rbac_app_ids,
         }

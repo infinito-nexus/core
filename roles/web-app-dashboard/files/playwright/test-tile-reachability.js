@@ -6,6 +6,7 @@
 // personas no longer drive the dashboard click; they go straight to the
 // app URL.
 
+const { inflateRawSync } = require("node:zlib");
 const { test, expect } = require("./fixtures/onion-test");
 const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvJsonList, gotoOnion } = require("./personas");
@@ -72,6 +73,150 @@ function embeddedHost(dashboardUrl) {
   } catch {
     return "";
   }
+}
+
+/**
+ * Args:
+ *   request: a request of the browser context.
+ *   opener: the dashboard page the Tab button sits on.
+ * Returns: true for a top-level navigation of a page other than opener. A
+ *   navigation whose frame Playwright has not announced yet counts too: that is
+ *   the first request of a new tab, and request.frame() throws for it.
+ */
+function isTabNavigation(request, opener) {
+  if (!request.isNavigationRequest()) {
+    return false;
+  }
+  let frame;
+  try {
+    frame = request.frame();
+  } catch {
+    return true;
+  }
+  return frame.page() !== opener && !frame.parentFrame();
+}
+
+/**
+ * Args:
+ *   context: the browser context the Tab button opens its tab in.
+ *   opener: the dashboard page the Tab button sits on.
+ * Returns: { hops, stop }: hops() lists every top-level navigation of the new
+ *   tab as { url, status }, its redirect hops and the app's own login redirects
+ *   included, until stop(); status stays null for a request that got no
+ *   response, such as a refused connection or a failed DNS lookup.
+ */
+function recordTabNavigations(context, opener) {
+  const hops = new Map();
+  const onRequest = (request) => {
+    if (isTabNavigation(request, opener)) {
+      hops.set(request, { url: request.url(), status: null });
+    }
+  };
+  const onResponse = (response) => {
+    const hop = hops.get(response.request());
+    if (hop) {
+      hop.status = response.status();
+    }
+  };
+  context.on("request", onRequest);
+  context.on("response", onResponse);
+  return {
+    hops: () => [...hops.values()],
+    stop: () => {
+      context.off("request", onRequest);
+      context.off("response", onResponse);
+    },
+  };
+}
+
+/**
+ * Args:
+ *   url: a URL a tab navigated to or landed on.
+ * Returns: the URL the IdP sign-in request at url returns the visitor to: the
+ *   redirect_uri of an OpenID Connect authorization request, or the
+ *   AssertionConsumerServiceURL of a SAML AuthnRequest in the HTTP-Redirect
+ *   binding; empty when url is neither.
+ */
+function signInReturnUrl(url) {
+  const { searchParams } = new URL(url);
+  if (["response_type", "client_id", "redirect_uri"].every((name) => searchParams.has(name))) {
+    return searchParams.get("redirect_uri");
+  }
+  const samlRequest = searchParams.get("SAMLRequest");
+  if (!samlRequest) {
+    return "";
+  }
+  try {
+    const authnRequest = inflateRawSync(Buffer.from(samlRequest, "base64")).toString("utf8");
+    return (authnRequest.match(/\bAssertionConsumerServiceURL=["']([^"']+)["']/) || ["", ""])[1];
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Args:
+ *   url: the URL a tab landed on.
+ * Returns: true when it is an IdP sign-in request: an OpenID Connect
+ *   authorization request or a SAML AuthnRequest.
+ */
+function isAuthorizationRequest(url) {
+  return signInReturnUrl(url) !== "";
+}
+
+/**
+ * Args:
+ *   url: the URL a tab started on.
+ *   hosts: the hosts the hand-off may return to.
+ * Returns: true when url is an IdP sign-in request whose return URL is on one
+ *   of hosts.
+ */
+function handsOffTo(url, hosts) {
+  try {
+    return hosts.includes(new URL(signInReturnUrl(url)).host);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Args:
+ *   hops: the new tab's top-level navigations, each { url, status }.
+ *   landing: the URL the tab shows once its document loaded.
+ *   host: the embedded host the Tab button opened.
+ *   roleDomains: every domain the role behind the tile serves, such as the
+ *     Synapse homeserver that signs Element's users in.
+ *   acceptedCodes: the status codes the role behind the tile accepts at its
+ *     host, its server.status_codes on top of the default, so a 4xx the role
+ *     serves by design counts as an answer.
+ * Returns: true when the last hop on host got a response below 400 or one of
+ *   acceptedCodes, and the tab either lands on host, so that hop is the page it
+ *   shows, or lands on an IdP authorization request elsewhere, the SSO
+ *   hand-off. A tab with no hop on host passes only when it starts on an
+ *   authorization request that returns to host or to another of roleDomains,
+ *   gets a response below 400 and lands on an authorization request: the
+ *   iframe already followed the role's login redirect, so the dashboard reopens
+ *   that IdP page. A request without a response, a page of host that ends in an
+ *   error status its role does not accept and a redirect that leaves host for
+ *   anywhere but the IdP return false.
+ */
+function hostAnsweredTab(hops, landing, host, roleDomains, acceptedCodes) {
+  const hostHops = hops.filter(({ url }) => new URL(url).host === host);
+  const last = hostHops[hostHops.length - 1];
+  if (!last) {
+    const [first] = hops;
+    return (
+      Boolean(first) &&
+      first.status !== null &&
+      first.status < 400 &&
+      handsOffTo(first.url, [host, ...roleDomains]) &&
+      isAuthorizationRequest(landing)
+    );
+  }
+  if (last.status === null || (last.status >= 400 && !acceptedCodes.includes(last.status))) {
+    return false;
+  }
+  return new URL(landing).host === host || isAuthorizationRequest(landing);
 }
 
 async function findVisibleTile(page, canonicalDomain) {
@@ -219,17 +364,30 @@ async function assertTabButtonOpensNewTab(page, context, target) {
   ).toBeVisible({ timeout: resolveTimeout(30_000) });
 
   const expectedHost = target.handover_domain || embeddedHost(page.url()) || landingDomain(target);
-  const [popup] = await Promise.all([
-    context.waitForEvent("page", { timeout: resolveTimeout(30_000) }),
-    tabButton.click(),
-  ]);
+  const tabNavigations = recordTabNavigations(context, page);
+  try {
+    const [popup] = await Promise.all([
+      context.waitForEvent("page", { timeout: resolveTimeout(30_000) }),
+      tabButton.click(),
+    ]);
 
-  await popup.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
-  expect(
-    referencesHost(popup.url(), expectedHost),
-    `Expected popup tab URL to address the embedded ${expectedHost}, got ${popup.url()}`
-  ).toBe(true);
-  await popup.close();
+    await popup.waitForLoadState("domcontentloaded", { timeout: resolveTimeout(30_000) }).catch(() => {});
+    // An app may answer the anonymous tab with an interstitial page whose script
+    // redirects on to its login, e.g. Jenkins' 403 to /securityRealm/commenceLogin,
+    // so domcontentloaded can fire while that redirect is still in flight.
+    await expect(() => {
+      const landing = popup.url();
+      const hops = tabNavigations.hops();
+      const walked = hops.map(({ url, status }) => `${url} (${status === null ? "no response" : status})`).join(" -> ");
+      expect(
+        hostAnsweredTab(hops, landing, expectedHost, target.domains, target.status_codes),
+        `Expected the embedded ${expectedHost} to answer the new tab, it navigated ${walked || "nowhere"} and landed on ${landing}`
+      ).toBe(true);
+    }).toPass({ timeout: resolveTimeout(30_000) });
+    await popup.close();
+  } finally {
+    tabNavigations.stop();
+  }
 }
 
 exports.register = function (shared) {
@@ -242,6 +400,7 @@ exports.register = function (shared) {
       test(`dashboard tile for ${target.id} embeds ${target.canonical_domain} in iframe and opens it in a new tab`, async ({ page, context }) => {
         await gotoOnion(page, "/", { waitUntil: "domcontentloaded" });
         await shared.waitForDashboardReady(page);
+        await shared.revealCard(page, target.id);
         await assertTileLoadsInIframe(page, target);
         await assertTabButtonOpensNewTab(page, context, target);
       });
@@ -249,6 +408,7 @@ exports.register = function (shared) {
       test(`dashboard tile for ${target.id} opens ${target.canonical_domain} via top-level navigation`, async ({ page, context }) => {
         await gotoOnion(page, "/", { waitUntil: "domcontentloaded" });
         await shared.waitForDashboardReady(page);
+        await shared.revealCard(page, target.id);
         await assertTileNavigatesTopLevel(page, context, target);
       });
     }

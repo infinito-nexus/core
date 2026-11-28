@@ -139,6 +139,8 @@ class FilterModule:
     def _process_canonical_domains(
         self, app_id, canonical_domains, seen_domains, result
     ):
+        if isinstance(canonical_domains, (dict, list)) and not canonical_domains:
+            return
         if isinstance(canonical_domains, dict):
             for domain in canonical_domains.values():
                 self._validate_and_check_domain(app_id, domain, seen_domains)

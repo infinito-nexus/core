@@ -1,0 +1,49 @@
+---
+- name: "🔍 Read the instances of ws-{{ WORKSPACE }}"
+  ansible.builtin.command:
+    argv: [incus, query, "/1.0/instances?recursion=1&project={{ svc_virt_incus_ws_project }}"]
+  register: svc_virt_incus_ws_instances
+  when: svc_virt_incus_ws_project in (svc_virt_incus_ws_projects | map(attribute='name') | list)
+  changed_when: false
+  become: true
+
+- name: "🛑 Refuse to destroy ws-{{ WORKSPACE }} while it holds an instance"
+  ansible.builtin.assert:
+    that:
+      - svc_virt_incus_ws_instances is skipped or (svc_virt_incus_ws_instances.stdout | from_json | length == 0)
+    fail_msg: >-
+      ws-{{ WORKSPACE }} still holds the instances
+      {{ svc_virt_incus_ws_instances.stdout | from_json | map(attribute='name') | join(', ') }}.
+      Destroy them through the provision run first.
+    quiet: true
+
+- name: "🗑️ Remove the trust entries of ws-{{ WORKSPACE }}"
+  ansible.builtin.command:
+    argv: [incus, config, trust, remove, "{{ item.fingerprint }}"]
+  loop: "{{ svc_virt_incus_ws_trust }}"
+  loop_control:
+    label: "{{ item.fingerprint }}"
+  changed_when: true
+  become: true
+
+- name: "🗑️ Remove the project ws-{{ WORKSPACE }}"
+  ansible.builtin.command:
+    argv: [incus, project, delete, "{{ svc_virt_incus_ws_project }}"]
+  when: svc_virt_incus_ws_instances is not skipped
+  changed_when: true
+  become: true
+
+- name: "🗑️ Remove the bridge of ws-{{ WORKSPACE }}"
+  ansible.builtin.command:
+    argv: [incus, network, delete, "{{ item }}"]
+  loop: "{{ svc_virt_incus_ws_bridges }}"
+  changed_when: true
+  become: true
+
+- name: "🗑️ Drop the client key of ws-{{ WORKSPACE }} from OpenBao"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/web-app-openbao/tasks/utils/kv.yml') }}"
+  vars:
+    openbao_kv_state: absent
+    openbao_kv_mount: "{{ INCUS_TENANT_MOUNT }}"
+    openbao_kv_path: "ws-{{ WORKSPACE }}-provision/incus"
+    openbao_kv_data: {}

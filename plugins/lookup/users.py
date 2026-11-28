@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import Any
 
 from ansible.errors import AnsibleError
@@ -10,6 +11,14 @@ from utils.cache.reset import _reset_cache_for_tests as _reset_runtime_lookup_ca
 
 # nocheck: lookup-cache-import (this lookup IS the users SPOT provider)
 from utils.cache.users import get_merged_users
+from utils.openbao_client import OpenBaoError, resolve_users
+
+
+def _resolved(value: Any, path: tuple[str, ...]) -> Any:
+    try:
+        return resolve_users(value, path, os.environ)
+    except OpenBaoError as exc:
+        raise AnsibleError(f"users: {exc}") from None
 
 
 def _reset_cache_for_tests() -> None:
@@ -57,14 +66,14 @@ class LookupModule(LookupBase):
             return [{"key": [key[0], list(key[1])], "users": users}]
 
         if len(terms) == 0:
-            return [users]
+            return [_resolved(users, ())]
 
         user_key = str(terms[0]).strip()
         default_provided = len(terms) == 2
         default_value = terms[1] if default_provided else None
 
         if user_key in users:
-            return [users[user_key]]
+            return [_resolved(users[user_key], (user_key,))]
 
         if default_provided:
             return [default_value]

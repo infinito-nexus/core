@@ -46,11 +46,13 @@ from __future__ import annotations
 import contextlib
 import re
 import unittest
+import unittest.mock as mock
 from pathlib import Path
 
+from tests.utils.healthcheck import healthcheck_entries
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files_with_content, read_text
-from utils.cache.yaml import load_yaml_any
+from utils.cache.yaml import load_yaml_any, load_yaml_str
 from utils.docker.healthcheck.compose import compose, timing_rank
 from utils.docker.healthcheck.probes import TIMING_DEFAULTS
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
@@ -61,6 +63,19 @@ RULE = "healthcheck-timing-override"
 COVER_RULE = "healthcheck-start-period-covers-interval"
 
 DOCUMENTED_KEYS = ("interval", "timeout", "start_interval", "start_period")
+TABLE_META = (
+    "cache:\n"
+    "  flavor: registry\n"
+    "  healthcheck: \"{{ lookup('config', 'svc-x', 'services.cache.healthchecks')"
+    "[lookup('config', 'svc-x', 'services.cache.flavor')] }}\"\n"
+    "  healthchecks:\n"
+    "    registry:\n"
+    "      flavor: wget\n"
+    "      interval: 7s\n"
+    "    multi-proxy:\n"
+    "      flavor: http\n"
+    "      start_period: 1m\n"
+)
 
 
 def _means_the_same(declared: object, default: object) -> bool:
@@ -90,58 +105,103 @@ def _effective_defaults(flavor: object) -> dict[str, object]:
     return dict(TIMING_DEFAULTS)
 
 
-def _timing_line(lines: list[str], service: str, key: str) -> int | None:
-    """1-based line of ``key`` inside *service*'s healthcheck block."""
-    in_service = False
-    in_health = False
+def _timing_line(lines: list[str], path: tuple[str, ...]) -> int | None:
+    """Args:
+        lines: the lines of a ``meta/services.yml``.
+        path: the keys from the top-level service down to the timing.
+
+    Returns:
+        The 1-based line of the path's last key, ``None`` when the file does
+        not spell it out.
+    """
+    opened: list[int] = []
     for index, line in enumerate(lines, start=1):
-        if re.match(rf"^{re.escape(service)}\s*:", line):
-            in_service, in_health = True, False
+        text = line.lstrip()
+        if not text or text.startswith("#"):
             continue
-        if in_service and re.match(r"^\S", line):
-            return None
-        if in_service and re.match(r"^\s+healthcheck\s*:", line):
-            in_health = True
-            continue
-        if in_health and re.match(r"^\s{0,2}\S", line):
-            in_health = False
-        if in_health and re.match(rf"^\s+{re.escape(key)}\s*:", line):
-            return index
+        indent = len(line) - len(text)
+        while opened and indent <= opened[-1]:
+            opened.pop()
+        if (opened or not indent) and re.match(
+            rf"{re.escape(path[len(opened)])}\s*:", text
+        ):
+            if len(opened) == len(path) - 1:
+                return index
+            opened.append(indent)
     return None
 
 
-def timing_findings() -> tuple[list[str], list[str]]:
-    """Return ``(redundant, undocumented)`` findings as printable lines."""
+def _declared_healthchecks(data: dict) -> list[tuple[tuple[str, ...], dict]]:
+    """Args:
+        data: a parsed ``meta/services.yml``.
+
+    Returns:
+        ``(path, entry)`` of every healthcheck mapping a service declares or
+        selects, as :func:`tests.utils.healthcheck.healthcheck_entries` finds them.
+    """
+    return [
+        (path, health)
+        for service, entry in data.items()
+        if isinstance(entry, dict)
+        for path, health in healthcheck_entries(data, service)
+        if isinstance(health, dict)
+    ]
+
+
+def meta_timing_findings(
+    rel: str, data: dict, lines: list[str]
+) -> tuple[list[str], list[str]]:
+    """Args:
+        rel: the file's path relative to the project root.
+        data: the file, parsed.
+        lines: the file's lines.
+
+    Returns:
+        ``(redundant, undocumented)`` findings of that file as printable lines.
+    """
     redundant: list[str] = []
     undocumented: list[str] = []
+    for path, health in _declared_healthchecks(data):
+        defaults = _effective_defaults(health.get("flavor"))
+        for key, default in defaults.items():
+            if key not in health:
+                continue
+            line_no = _timing_line(lines, (*path, key))
+            where = f"{rel}:{line_no or '?'} {'.'.join((*path, key))}"
+            if _means_the_same(health[key], default):
+                redundant.append(f"{where} = {health[key]} (the default)")
+            elif key in DOCUMENTED_KEYS and (
+                line_no is None or not is_suppressed_at(lines, line_no, RULE)
+            ):
+                undocumented.append(f"{where} = {health[key]}, default {default}")
+    return redundant, undocumented
+
+
+def _services_files() -> list[tuple[str, dict, list[str]]]:
+    """Returns:
+    ``(rel, data, lines)`` of every role's readable ``meta/services.yml``.
+    """
+    found: list[tuple[str, dict, list[str]]] = []
     for meta in sorted((PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}")):
         try:
             content = read_text(str(meta))
             data = load_yaml_any(str(meta), default_if_missing={}) or {}
         except (OSError, ValueError):
             continue
-        if not isinstance(data, dict):
-            continue
-        lines = content.splitlines()
-        rel = meta.relative_to(PROJECT_ROOT).as_posix()
-        for service, entry in data.items():
-            if not isinstance(entry, dict):
-                continue
-            health = entry.get("healthcheck")
-            if not isinstance(health, dict):
-                continue
-            defaults = _effective_defaults(health.get("flavor"))
-            for key, default in defaults.items():
-                if key not in health:
-                    continue
-                line_no = _timing_line(lines, service, key)
-                where = f"{rel}:{line_no or '?'} {service}.{key}"
-                if _means_the_same(health[key], default):
-                    redundant.append(f"{where} = {health[key]} (the default)")
-                elif key in DOCUMENTED_KEYS and (
-                    line_no is None or not is_suppressed_at(lines, line_no, RULE)
-                ):
-                    undocumented.append(f"{where} = {health[key]}, default {default}")
+        if isinstance(data, dict):
+            rel = meta.relative_to(PROJECT_ROOT).as_posix()
+            found.append((rel, data, content.splitlines()))
+    return found
+
+
+def timing_findings() -> tuple[list[str], list[str]]:
+    """Return ``(redundant, undocumented)`` findings as printable lines."""
+    redundant: list[str] = []
+    undocumented: list[str] = []
+    for rel, data, lines in _services_files():
+        found = meta_timing_findings(rel, data, lines)
+        redundant += found[0]
+        undocumented += found[1]
     return redundant, undocumented
 
 
@@ -244,36 +304,37 @@ def _uncovered(start_period: object, interval: object) -> bool:
     return window <= tick
 
 
+def meta_window_findings(rel: str, data: dict, lines: list[str]) -> list[str]:
+    """Args:
+        rel: the file's path relative to the project root.
+        data: the file, parsed.
+        lines: the file's lines.
+
+    Returns:
+        Every healthcheck of that file whose start window does not outlast one
+        interval, as printable lines.
+    """
+    findings: list[str] = []
+    for path, health in _declared_healthchecks(data):
+        effective = _effective_defaults(health.get("flavor"))
+        effective.update({k: v for k, v in health.items() if k in effective})
+        if not _uncovered(effective["start_period"], effective["interval"]):
+            continue
+        line_no = _timing_line(lines, (*path, "start_period")) or 1
+        if is_suppressed_at(lines, line_no, COVER_RULE):
+            continue
+        findings.append(
+            f"{rel}:{line_no} {'.'.join(path)} start_period "
+            f"{effective['start_period']} <= interval {effective['interval']}"
+        )
+    return findings
+
+
 def windows_shorter_than_a_tick() -> list[str]:
     """Every healthcheck whose start window does not outlast one interval."""
     findings: list[str] = []
-    for meta in sorted((PROJECT_ROOT / "roles").glob(f"*/{ROLE_FILE_META_SERVICES}")):
-        try:
-            content = read_text(str(meta))
-            data = load_yaml_any(str(meta), default_if_missing={}) or {}
-        except (OSError, ValueError):
-            continue
-        if not isinstance(data, dict):
-            continue
-        lines = content.splitlines()
-        rel = meta.relative_to(PROJECT_ROOT).as_posix()
-        for service, entry in data.items():
-            if not isinstance(entry, dict):
-                continue
-            health = entry.get("healthcheck")
-            if not isinstance(health, dict):
-                continue
-            effective = _effective_defaults(health.get("flavor"))
-            effective.update({k: v for k, v in health.items() if k in effective})
-            if not _uncovered(effective["start_period"], effective["interval"]):
-                continue
-            line_no = _timing_line(lines, service, "start_period") or 1
-            if is_suppressed_at(lines, line_no, COVER_RULE):
-                continue
-            findings.append(
-                f"{rel}:{line_no} {service} start_period "
-                f"{effective['start_period']} <= interval {effective['interval']}"
-            )
+    for rel, data, lines in _services_files():
+        findings += meta_window_findings(rel, data, lines)
 
     for path_str, content in iter_project_files_with_content(exclude_tests=True):
         rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()
@@ -329,7 +390,7 @@ class TestHealthcheckTimingOverrides(unittest.TestCase):
             + "\n".join(f"- {f}" for f in undocumented)
         )
 
-    def test_definitions_outside_the_lookup_spell_the_defaults_out(self) -> None:
+    def test_definitions_outside_the_lookup_spell_the_defaults_out(self) -> None:  # nocheck: test.text-presence -- policy lint over every role healthcheck definition  # fmt: skip
         findings = literal_findings()
         if not findings:
             return
@@ -360,6 +421,41 @@ class TestHealthcheckTimingOverrides(unittest.TestCase):
             f"    # nocheck: {COVER_RULE}  <why>\n\n"
             + "\n".join(f"- {f}" for f in findings)
         )
+
+
+class TestSelectedTableEntries(unittest.TestCase):
+    def _findings(self):
+        data = load_yaml_str(TABLE_META)
+        lines = TABLE_META.splitlines()
+        return (
+            meta_timing_findings("x.yml", data, lines),
+            meta_window_findings("x.yml", data, lines),
+        )
+
+    def test_a_timing_inside_a_selected_table_entry_is_judged(self) -> None:
+        (redundant, undocumented), windows = self._findings()
+        self.assertEqual(redundant, [])
+        self.assertEqual(
+            undocumented,
+            [
+                "x.yml:7 cache.healthchecks.registry.interval = 7s, default 2m",
+                "x.yml:10 cache.healthchecks.multi-proxy.start_period = 1m, default 10m",
+            ],
+        )
+        self.assertEqual(
+            windows,
+            ["x.yml:10 cache.healthchecks.multi-proxy start_period 1m <= interval 2m"],
+        )
+
+    def test_negative_control_without_the_table_both_rules_miss_it(self) -> None:
+        with mock.patch(
+            f"{__name__}.healthcheck_entries",
+            side_effect=lambda services, key: [
+                ((key, "healthcheck"), services[key].get("healthcheck"))
+            ],
+        ):
+            (redundant, undocumented), windows = self._findings()
+        self.assertEqual([redundant, undocumented, windows], [[], [], []])
 
 
 if __name__ == "__main__":  # pragma: no cover

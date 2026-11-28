@@ -1,7 +1,11 @@
 ---
-# General
 application_id: "web-opt-rdr-www"
 
-# Redirect WWW
 REDIRECT_WWW_FLAVOR: "{{ lookup('config', application_id, 'services.rdr-www.prefered_flavor') if DNS_PROVIDER == 'cloudflare' else 'origin' }}"
 REDIRECT_WWW_DOMAINS: "{{ lookup('www_redirect_domains') }}"
+REDIRECT_WWW_EDGE_DOMAINS: >-
+  {{ (REDIRECT_WWW_DOMAINS
+      | selectattr('source', 'in', REDIRECT_WWW_DOMAINS | map(attribute='source') | in_network('clearnet'))
+      | selectattr('target', 'in', REDIRECT_WWW_DOMAINS | map(attribute='target') | in_network('clearnet'))
+      | list) if REDIRECT_WWW_FLAVOR == 'edge' else [] }}
+REDIRECT_WWW_ORIGIN_DOMAINS: "{{ REDIRECT_WWW_DOMAINS | reject('in', REDIRECT_WWW_EDGE_DOMAINS) | list }}"

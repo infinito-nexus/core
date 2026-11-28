@@ -81,7 +81,7 @@ class TestApiAccessedViaLookup(unittest.TestCase):
                 "on lookup('api_enabled', '<provider>')."
             )
 
-    def test_the_scan_reaches_jinja_in_every_scope(self) -> None:
+    def test_the_scan_reaches_jinja_in_every_scope(self) -> None:  # nocheck: test.text-presence -- reach guard of the Jinja scan  # fmt: skip
         """A suffix or scope typo would make the rule above pass forever."""
         scanned = _scoped_files()
         for scope in _SCOPES:

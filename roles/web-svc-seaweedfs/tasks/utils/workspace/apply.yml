@@ -1,0 +1,63 @@
+---
+# Param: seaweedfs_ws              - the names of the workspace (filter seaweedfs_workspace)
+# Param: seaweedfs_ws_record_path  - path of the workspace's record in identities.d
+- name: "✅ Require OpenBao, where the provision runner reads the workspace keys"
+  ansible.builtin.assert:
+    that:
+      - SEAWEEDFS_OPENBAO_ID in group_names
+    fail_msg: >-
+      workspace apply keeps the keys of {{ seaweedfs_ws.identity }} in
+      {{ SEAWEEDFS_OPENBAO_ID }}, which this inventory does not deploy.
+    quiet: true
+
+- name: "🔍 Look for the record of the workspace in identities.d"
+  ansible.builtin.stat:
+    path: "{{ seaweedfs_ws_record_path }}"
+  register: _seaweedfs_ws_record_stat
+
+- name: "📥 Read the record of the workspace"
+  ansible.builtin.slurp:
+    src: "{{ seaweedfs_ws_record_path }}"
+  register: _seaweedfs_ws_record_read
+  when: _seaweedfs_ws_record_stat.stat.exists
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔎 Find the records of every workspace"
+  ansible.builtin.find:
+    paths: "{{ SEAWEEDFS_IDENTITIES_DIR }}"
+    patterns: "ws-*.json"
+    file_type: file
+  register: _seaweedfs_ws_records
+
+- name: "🧮 Refuse the workspace when every workspace slot is taken"
+  ansible.builtin.assert:
+    that:
+      - >-
+        _seaweedfs_ws_records.files | map(attribute='path') | map('basename') | list
+        | seaweedfs_workspace_slot(WORKSPACE, SEAWEEDFS_WORKSPACES_MAX)
+    quiet: true
+
+- name: "🔑 Keep the workspace keys in identities.d and in OpenBao"
+  include_tasks: utils/workspace/keys.yml
+
+- name: "🪣 Create the versioned state bucket of the workspace"
+  include_tasks: utils/workspace/bucket.yml
+
+- name: "📄 Assemble s3.json with the workspace identity"
+  include_tasks: utils/s3_config/render.yml
+
+- name: "📣 Reload the S3 identities"
+  include_tasks: utils/s3_config/reload.yml
+
+- name: "⏳ Wait until the workspace identity lists its own bucket"
+  ansible.builtin.shell: >-
+    {{ SEAWEEDFS_S3_SIGNED_CURL }} -f -o /dev/null {{ (SEAWEEDFS_S3_LOCAL_URL ~ '/' ~ seaweedfs_ws.bucket ~ '?list-type=2&max-keys=1') | quote }}
+  args:
+    executable: /bin/bash
+    stdin: "{{ seaweedfs_ws_record.access_key }}:{{ seaweedfs_ws_record.secret_key }}"
+  register: _seaweedfs_ws_probe
+  changed_when: false
+  retries: 10
+  delay: 3
+  until: _seaweedfs_ws_probe is succeeded
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

@@ -2,17 +2,18 @@ const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const { awaitOnionHandoff, decodeDotenvQuotedValue, isVisible, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
-const { isServiceEnabled } = require("./service-gating");
-const { onionOptions } = require("./_shared");
+const { skipUnlessServiceEnabled } = require("./service-gating");
+const { clickOdooSsoButton, onionOptions } = require("./_shared");
 
 require("./test-seaweedfs");
+require("./test-login-methods");
+require("./test-2fa-enforcement");
+const { env: rbacEnv, withBiberIn } = require("./test-rbac");
 
 test.use({
   ignoreHTTPSErrors: true,
   ...onionOptions
 });
-
-const oidcEnabled = isServiceEnabled("sso");
 
 // `docker --env-file` preserves the quotes emitted by `dotenv_quote`,
 // so normalize these values before building URLs or typing credentials.
@@ -22,32 +23,6 @@ const adminUsername  = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword  = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const biberUsername  = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword  = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
-
-// Click the "Login with SSO" button on Odoo's login page.
-// Odoo renders OAuth provider links inside a ".o_login_auth" container (modern
-// layout; older variants used ".o_auth_oauth_providers"). The oe_login_form has
-// class "d-none" when OAuth is enabled, so we wait for either container OR the
-// SSO link itself directly.
-async function clickOdooSsoButton(locator) {
-  const providerList = locator.locator(".o_login_auth, .o_auth_oauth_providers");
-  const ssoButton = locator
-    .locator('a[href*="/auth_oauth/signin"], a[href*="auth_oauth/signin"]')
-    .filter({ hasText: /login with sso|sign in with|continue with/i })
-    .first();
-  const ssoButtonByText = locator.getByRole("link", { name: /login with sso/i }).first();
-
-  await Promise.any([
-    providerList.first().waitFor({ state: "visible", timeout: resolveTimeout(60_000) }),
-    ssoButton.waitFor({ state: "visible", timeout: resolveTimeout(60_000) }),
-    ssoButtonByText.waitFor({ state: "visible", timeout: resolveTimeout(60_000) })
-  ]);
-
-  if (await ssoButtonByText.isVisible().catch(() => false)) {
-    await ssoButtonByText.click({ timeout: resolveTimeout(30_000) });
-  } else {
-    await ssoButton.click({ timeout: resolveTimeout(30_000) });
-  }
-}
 
 // Check if user is authenticated in Odoo
 // Odoo is a SPA - after login, the web client loads asynchronously.
@@ -103,7 +78,7 @@ test("odoo: the suite runs on one worker", async () => {
 // Scenario I: Odoo → SSO login as admin → verify authenticated → logout
 // (dashboard-iframe mechanics covered by web-app-dashboard SPOT)
 test("odoo: admin sso login, verify ui, logout", async ({ page }) => {
-  test.skip(!oidcEnabled, "OIDC shared service disabled");
+  skipUnlessServiceEnabled("sso");
   const expectedOdooBaseUrl = odooBaseUrl.replace(/\/$/, "");
   const odooLoginUrl = `${expectedOdooBaseUrl}/web/login`;
 
@@ -157,13 +132,13 @@ test("odoo: admin sso login, verify ui, logout", async ({ page }) => {
     .toBe(true);
 });
 
-// Scenario II: Odoo → SSO login as biber (regular user) → verify authenticated → logout
-//
-// Similar to admin test but verifies regular (non-admin) user SSO flow works.
-// Biber is a standard user without admin privileges - this confirms OIDC works
-// for all Keycloak users, not just the administrator.
-test("odoo: biber sso login, verify ui, logout", async ({ page }) => {
-  test.skip(!oidcEnabled, "OIDC shared service disabled");
+test("odoo: biber sso login, verify ui, logout", async ({ page, browser }) => {
+  skipUnlessServiceEnabled("sso");
+  test.setTimeout(resolveTimeout(240_000)); // group join, OAuth round-trip and group teardown
+  await withBiberIn(browser, rbacEnv.groups.user, () => biberSsoJourney(page));
+});
+
+async function biberSsoJourney(page) {
   const expectedOdooBaseUrl = odooBaseUrl.replace(/\/$/, "");
   const odooLoginUrl = `${expectedOdooBaseUrl}/web/login`;
 
@@ -214,7 +189,7 @@ test("odoo: biber sso login, verify ui, logout", async ({ page }) => {
       }
     )
     .toBe(true);
-});
+}
 
 // Persona scenarios.
 // Bodies live in the shared helper roles/test-e2e-playwright/files/personas.js

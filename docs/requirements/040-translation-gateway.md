@@ -13,7 +13,7 @@ Present today:
 - [`svc-ai-libretranslate-engine`](../../roles/svc-ai-libretranslate-engine/) runs LibreTranslate as an engine without a browser surface, and [`web-svc-libretranslate`](../../roles/web-svc-libretranslate/) publishes it at `libre.translate.{{ DOMAIN_PRIMARY }}` behind SSO.
 - [`svc-ai-ollama`](../../roles/svc-ai-ollama/) serves local models.
 - [`svc-ai-s1`](../../roles/svc-ai-s1/) answers typed questions on `POST /v1/systemone`, and [`web-svc-s1`](../../roles/web-svc-s1/) publishes that contract.
-- [`svc-ai-litellm`](../../roles/svc-ai-litellm/) already implements, for model routing, every mechanism this requirement needs for engine routing: `Sampler` ([router_hook.py.j2:405](../../roles/svc-ai-litellm/templates/router_hook.py.j2#L405)) decides when to explore, `History` ([:441](../../roles/svc-ai-litellm/templates/router_hook.py.j2#L441)) keeps one row per offered route per decision in the proxy's own database, `wins()` returns `{alias: (won, seen)}`, `record_of()` ([:496](../../roles/svc-ai-litellm/templates/router_hook.py.j2#L496)) turns that into a clause inside the criteria line, `judge_answers()` ([:610](../../roles/svc-ai-litellm/templates/router_hook.py.j2#L610)) puts the replies themselves to the decider while hiding which route produced them, and `_compare()` ([:783](../../roles/svc-ai-litellm/templates/router_hook.py.j2#L783)) runs the fan-out in a `serve` or a `shadow` mode.
+- [`svc-ai-litellm`](../../roles/svc-ai-litellm/) already implements, for model routing, every mechanism this requirement needs for engine routing: `Sampler` ([router_hook.py.j2:405](../../roles/svc-ai-litellm/templates/router_hook.py.j2)) decides when to explore, `History` ([:441](../../roles/svc-ai-litellm/templates/router_hook.py.j2)) keeps one row per offered route per decision in the proxy's own database, `wins()` returns `{alias: (won, seen)}`, `record_of()` ([:496](../../roles/svc-ai-litellm/templates/router_hook.py.j2)) turns that into a clause inside the criteria line, `judge_answers()` ([:610](../../roles/svc-ai-litellm/templates/router_hook.py.j2)) puts the replies themselves to the decider while hiding which route produced them, and `_compare()` ([:783](../../roles/svc-ai-litellm/templates/router_hook.py.j2)) runs the fan-out in a `serve` or a `shadow` mode.
 
 Absent today:
 
@@ -29,7 +29,7 @@ Out of scope, and deliberately left alone:
 
 - [039 - Core i18n Consumers](039-core-i18n-consumers.md) wires this project's own surfaces onto those catalogs. 040 also serves the content users put into the applications, at request time. Neither requirement is used to fix a defect belonging to the other.
 
-The build-time catalog run of [037 - Gettext Catalogs LibreTranslate](037-gettext-catalogs-libretranslate.md) was out of scope until the measurement under [Re-opened Decisions](#re-opened-decisions) overturned the reason for it. It now routes through the gateway too.
+The build-time catalog run of [054 - Gettext Catalogs LibreTranslate](054-gettext-catalogs-libretranslate.md) was out of scope until the measurement under [Re-opened Decisions](#re-opened-decisions) overturned the reason for it. It now routes through the gateway too.
 
 ## Findings That Constrain the Design
 
@@ -82,11 +82,13 @@ Re-opening any of these MUST be recorded in the implementing PR.
 
 ## Re-opened Decisions
 
-**Decision 3, the backend gate.** As first written it demanded `lookup('config', '<providing role>', …)` and forbade `group_names`. That gate cannot work: `lookup('config', …)` resolves through `get_merged_applications` ([plugins/lookup/config.py:45](../../plugins/lookup/config.py#L45)), which merges every role in the repository rather than the ones this deploy carries, so `services.ltengine.enabled` reads `true` whether or not LTEngine is deployed and every backend would always be offered. The play-scoped set lives behind a separate lookup ([plugins/lookup/applications_current_play.py:69](../../plugins/lookup/applications_current_play.py#L69)), and the applications cache keys its renders on `group_names` ([utils/cache/base.py:108](../../utils/cache/base.py#L108)) rather than on the whole inventory, so a deployment-wide presence test inside `meta/services.yml` would be cached across inventories that differ.
+**Decision 3, the backend gate.** As first written it demanded `lookup('config', '<providing role>', …)` and forbade `group_names`. That gate cannot work: `lookup('config', …)` resolves through `get_merged_applications` ([plugins/lookup/config.py](../../plugins/lookup/config.py)), which merges every role in the repository rather than the ones this deploy carries, so `services.ltengine.enabled` reads `true` whether or not LTEngine is deployed and every backend would always be offered. The play-scoped set lives behind a separate lookup ([plugins/lookup/applications_current_play.py](../../plugins/lookup/applications_current_play.py)), and the applications cache keys its renders on `group_names` ([utils/cache/base.py](../../utils/cache/base.py)) rather than on the whole inventory, so a deployment-wide presence test inside `meta/services.yml` would be cached across inventories that differ.
 
 The gate is therefore the house idiom every other consumer declaration uses, `'<providing role>' in group_names`, and the part of the decision that carries the design survives unchanged: no code inside the gateway tests a deployment, every reader asks its own `services.<backend>.enabled`, and adding a backend stays a declaration.
 
-**The 037 boundary.** The Scope section kept `make i18n-translate` on the engine, arguing that one batch of known strings against one engine needs neither a cache nor a router. The catalogs since measured say otherwise: across the 47 `docs` catalogs, each of 22577 entries, 34098 translations carry a refusal, from 35 in `tl` to 2832 in `ar`, and the largest family of them is a mangled protected span at 11150, just ahead of a stuttered repetition at 10717. The catalog client masks those spans as `<x id="N"></x>` tags and asks LibreTranslate in `html` mode; whether an engine leaves that tag alone is a property of the engine and the language pair, which is exactly the fact the gateway's learning log is keyed on. One engine cannot be compared against itself, so the direct path had no way to improve. The run therefore goes through the gateway.
+Superseded by [089](089-agents-restructuring.md#superseded-criteria): only the service flags in `meta/services.yml` test `'<role>' in group_names`; every other peer-presence test goes through a services lookup.
+
+**The 054 boundary.** The Scope section kept `make i18n-translate` on the engine, arguing that one batch of known strings against one engine needs neither a cache nor a router. The catalogs since measured say otherwise: across the 47 `docs` catalogs, each of 22577 entries, 34098 translations carry a refusal, from 35 in `tl` to 2832 in `ar`, and the largest family of them is a mangled protected span at 11150, just ahead of a stuttered repetition at 10717. The catalog client masks those spans as `<x id="N"></x>` tags and asks LibreTranslate in `html` mode; whether an engine leaves that tag alone is a property of the engine and the language pair, which is exactly the fact the gateway's learning log is keyed on. One engine cannot be compared against itself, so the direct path had no way to improve. The run therefore goes through the gateway.
 
 Two mechanical consequences follow and are implemented with it. `format` travels with a request instead of being pinned to `text` in the LibreTranslate backend, because a tag sent in text mode is translated rather than preserved, and it joins the cache key so a text-mode answer is never served to an html-mode request. A caller may name protected spans of its own alongside the Weblate glossary, because a masked placeholder is not a glossary term and a prompted backend has no html mode to protect it with.
 
@@ -177,70 +179,71 @@ flowchart TD
 
 ### Gateway
 
-- [ ] A `web-svc-translate` role exists and is published at `api.translate.{{ DOMAIN_PRIMARY }}`.
-- [ ] `POST /translate`, `POST /detect` and `GET /languages` answer in the LibreTranslate request and response shapes.
-- [ ] The gateway's backends are consumer declarations in its own `meta/services.yml`, and every reader inside the role resolves a backend through `lookup('config', application_id, 'services.<backend>.enabled')`.
-- [ ] `services.translate.router.strategy` derives from `services.s1.enabled` and resolves to `system_one` with the decider deployed and to `preference` without it.
-- [ ] With no backend reachable the gateway answers an error and never returns the untranslated source as a translation.
-- [ ] An engine that errors repeatedly leaves the candidate set, and its failure count is stored separately from its lost comparisons.
-- [ ] An answer rejected for a mangled protected term sends the same request to the next candidate engine, and the first answer that survives the check is returned.
-- [ ] A request every candidate refuses is reported as a refusal, and no mangled translation is returned or cached.
-- [ ] Refusals, failures and lost comparisons are three separate counts, and the criteria line of the next decision can tell them apart.
+- [x] A `web-svc-translate` role exists and is published at `api.translate.{{ DOMAIN_PRIMARY }}`.
+- [x] `POST /translate`, `POST /detect` and `GET /languages` answer in the LibreTranslate request and response shapes. (`tests/unit/python/roles/web-svc-translate/files/translate_gateway/test_app.py`)
+- [x] The gateway's backends are consumer declarations in its own `meta/services.yml`, and every reader inside the role resolves a backend through `lookup('config', application_id, 'services.<backend>.enabled')`.
+- [x] `services.translate.router.strategy` derives from `services.s1.enabled` and resolves to `system_one` with the decider deployed and to `preference` without it.
+- [x] With no backend reachable the gateway answers an error and never returns the untranslated source as a translation.
+- [x] An engine that errors repeatedly leaves the candidate set, and its failure count is stored separately from its lost comparisons.
+- [x] An answer rejected for a mangled protected term sends the same request to the next candidate engine, and the first answer that survives the check is returned.
+- [x] A request every candidate refuses is reported as a refusal, and no mangled translation is returned or cached.
+- [x] Refusals, failures and lost comparisons are three separate counts, and the criteria line of the next decision can tell them apart.
 
 ### Backends
 
-- [ ] An `svc-ai-ltengine` role serves translations and is reachable by the gateway.
-- [ ] `svc-ai-libretranslate-engine` is the default backend and the only one enabled without a further deployment.
-- [ ] `svc-ai-ollama` serves as a backend through a local model.
-- [ ] LTEngine and Ollama are never enabled in the same variant, and `cli/meta/roles/applications/ressources` reports every variant inside the budget.
+- [x] An `svc-ai-ltengine` role serves translations and is reachable by the gateway.
+- [x] `svc-ai-libretranslate-engine` is the default backend and the only one enabled without a further deployment.
+- [x] `svc-ai-ollama` serves as a backend through a local model.
+- [x] LTEngine and Ollama are never enabled in the same variant, and `cli/meta/roles/applications/ressources` reports every variant inside the budget.
 
 ### Decision and learning
 
-- [ ] The gateway asks the decider one `choice` question whose options are the candidate engines and whose criteria lines state only measured or catalogued facts.
-- [ ] A `choice` naming an engine the gateway did not offer is refused and no request is routed to it.
-- [ ] One row per offered engine per decision is stored, marking which engine won, keyed on a signature of source language, target language and content class.
-- [ ] Earlier outcomes reach the next decision as a clause in the criteria line.
-- [ ] While sampling, several engines answer the same request and the decider chooses between the returned translations, labelled so that no engine name is visible to it.
-- [ ] A signature with a clear leader over the configured number of comparisons routes directly to that engine without a decider call, and the configured re-sample rate still re-opens it.
-- [ ] A log that cannot be read is logged and the decision proceeds without it; no request fails because of it.
+- [x] The gateway asks the decider one `choice` question whose options are the candidate engines and whose criteria lines state only measured or catalogued facts.
+- [x] A `choice` naming an engine the gateway did not offer is refused and no request is routed to it.
+- [x] One row per offered engine per decision is stored, marking which engine won, keyed on a signature of source language, target language and content class.
+- [x] Earlier outcomes reach the next decision as a clause in the criteria line.
+- [x] While sampling, several engines answer the same request and the decider chooses between the returned translations, labelled so that no engine name is visible to it.
+- [x] A signature with a clear leader over the configured number of comparisons routes directly to that engine without a decider call, and the configured re-sample rate still re-opens it.
+- [x] A log that cannot be read is logged and the decision proceeds without it; no request fails because of it.
 
 ### Weblate
 
-- [ ] A `web-app-weblate` role exists with translation memory, glossaries and a review workflow.
-- [ ] The gateway returns a reviewed Weblate translation verbatim without calling any engine.
-- [ ] Machine output never overwrites a reviewed translation.
-- [ ] Glossary terms are passed to engines that accept them, and an answer that mangles a protected term is rejected and not cached.
+- [x] A `web-app-weblate` role exists with translation memory, glossaries and a review workflow.
+- [x] The gateway returns a reviewed Weblate translation verbatim without calling any engine.
+- [x] Machine output never overwrites a reviewed translation.
+- [x] Glossary terms are passed to engines that accept them, and an answer that mangles a protected term is rejected and not cached.
 
 ### Cache
 
-- [ ] A translation is cached on engine, source language, target language and the digest of the source text, in the gateway's own database.
-- [ ] A repeated identical request is answered from the cache without reaching an engine.
+- [x] A translation is cached on engine, source language, target language and the digest of the source text, in the gateway's own database.
+- [x] A repeated identical request is answered from the cache without reaching an engine.
 
 ### Shared mechanism
 
-- [ ] `Sampler`, `History`, `record_of`, `judge_answers` and `decide` live in one package owned by `svc-ai-s1` and are staged into both `svc-ai-litellm` and `web-svc-translate`.
-- [ ] No second copy of that mechanism remains in the repository.
-- [ ] The existing `svc-ai-litellm` router tests pass unchanged after the extraction.
+- [x] `Sampler`, `History`, `record_of` and `judge_answers` live in one package owned by `svc-ai-s1` and are staged into both `svc-ai-litellm` and `web-svc-translate`.
+- [x] No second copy of that mechanism remains in the repository.
+- [x] The existing `svc-ai-litellm` router tests pass unchanged after the extraction.
 
 ### Consumers
 
-- [ ] WordPress and Discourse each declare a `translate` consumer entry and an addon under [026](026-unified-addon-syntax.md) that bridges it; Nextcloud, Moodle, Matrix and OpenProject stay open for the reason stated under [Re-opened Decisions](#re-opened-decisions).
-- [ ] Every one of those addons passes the 026 addon lints, including the bridge resolution and the per-addon Playwright spec check.
+- [x] WordPress and Discourse each declare a `translate` consumer entry and an addon under [026](026-unified-addon-syntax.md) that bridges it; Nextcloud, Moodle, Matrix and OpenProject stay open for the reason stated under [Re-opened Decisions](#re-opened-decisions).
+- [x] Every one of those addons passes the 026 addon lints, including the bridge resolution and the per-addon Playwright spec check.
 
 ### Translation quality
 
-- [ ] An external test samples entries per language the way `tests/external/i18n/test_back_translation.py` does, and asks the decider one `score` question per sampled entry.
-- [ ] That question carries the source text, the translation and the file the entry was extracted from, and places the answer on an ordered scale whose middle level is "carries the source but distorts a detail".
-- [ ] Every sampled entry the decider places below the middle level fails the test, and the report names each one with its language, its catalogue and its source file.
-- [ ] The test skips rather than fails when the decider is not deployed, the way the other external tests treat an absent service.
+- [x] The oracle test `tests/oracle/test_translation_score.py`, run by `make test-oracle`, samples machine-translated entries per language and asks a LiteLLM chat judge (`utils/i18n/judge.py`) one score question per sampled entry.
+- [x] That question carries the source text and the translation, and places the answer on an ordered scale whose middle level is "states the first text but distorts a detail".
+- [x] Every sampled entry the judge places below the middle level fails the test, and the report names each one with its language and its catalogue.
+- [x] The question also carries the file the entry was extracted from, and the report names that source file for every failing entry.
+- [x] The test skips rather than fails when the judge or the translation gateway does not answer.
 
 ### Tests and documentation
 
-- [ ] A Playwright spec translates a known string through `api.translate.<domain>` and asserts the response.
-- [ ] A Playwright spec asserts a reviewed Weblate override wins over the engine.
-- [ ] Unit tests cover the saturation rule, the unreadable log, the blind verdict and the loud failure.
-- [ ] Each new role carries a `README.md` describing what it does and how it is wired.
-- [ ] This requirement's boundary against [037](037-gettext-catalogs-libretranslate.md) and [039](039-core-i18n-consumers.md) is stated in the gateway's README.
+- [x] A Playwright spec translates a known string through `api.translate.<domain>` and asserts the response.
+- [x] A Playwright spec asserts a reviewed Weblate override wins over the engine.
+- [x] Unit tests cover the saturation rule, the unreadable log, the blind verdict and the loud failure.
+- [x] Each new role carries a `README.md` describing what it does and how it is wired.
+- [x] This requirement's boundary against [054](054-gettext-catalogs-libretranslate.md) and [039](039-core-i18n-consumers.md) is stated in the gateway's README.
 
 ## Cross-linking
 
@@ -249,6 +252,6 @@ flowchart TD
 ## See Also
 
 - [026 - Unified Addon Syntax](026-unified-addon-syntax.md)
-- [037 - Gettext Catalogs LibreTranslate](037-gettext-catalogs-libretranslate.md)
 - [038 - System One Model Router](038-system-one-model-router.md)
 - [039 - Core i18n Consumers](039-core-i18n-consumers.md)
+- [054 - Gettext Catalogs LibreTranslate](054-gettext-catalogs-libretranslate.md)

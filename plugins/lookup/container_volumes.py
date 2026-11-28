@@ -77,32 +77,71 @@ def _coerce_size_bytes(value: Any) -> int:
         ) from exc
 
 
+def _file_reference(
+    semantic_name: str,
+    target: str,
+    entry: dict[str, Any],
+    mount: dict[str, Any],
+    render_jinja: Callable[[str], str] | None,
+) -> dict[str, Any]:
+    """Return the per-service reference of a ``config`` or ``secret`` entry.
+
+    Args:
+        semantic_name: the entry's key in ``meta/volumes.yml``.
+        target: the path the file appears at in the container.
+        entry: the canonical entry; ``mode`` is an octal string, ``uid`` and
+            ``gid`` own the file in the container.
+        mount: the entry's mount for this service; its ``uid`` and ``gid``
+            override the entry's.
+        render_jinja: renders a templated owner; None leaves it as written.
+    """
+    reference: dict[str, Any] = {"source": semantic_name, "target": target}
+    for owner in ("uid", "gid"):
+        value = mount.get(owner, entry.get(owner))
+        if value is None:
+            continue
+        text = str(value)
+        if render_jinja is not None and ("{{" in text or "{%" in text):
+            text = str(render_jinja(text))
+        reference[owner] = text
+    mode_value = entry.get("mode")
+    if mode_value:
+        reference["mode"] = _coerce_mode_int(mode_value)
+    return reference
+
+
 def _short_form_volume(source_name: str, target: str, read_only: bool) -> str:
     suffix = ":ro" if read_only else ""
     return f"{source_name}:{target}{suffix}"
 
 
-def _with_owner(
-    reference: dict[str, Any], mount: dict[str, Any], render_jinja: Any
-) -> dict[str, Any]:
-    """Add the mount's ``uid``/``gid`` to a config or secret reference.
-
+def _maintenance_mounts(
+    role_data: dict[str, Any],
+    maintenance_dir: str | None,
+    render_jinja: Callable[[str], str] | None,
+) -> list[str]:
+    """
     Args:
-        reference: long-syntax ``configs:``/``secrets:`` entry of the service.
-        mount: the meta/volumes.yml mount that may name the owning user and group.
-        render_jinja: renderer for templated values, or ``None`` outside Ansible.
+        role_data: the application's merged config.
+        maintenance_dir: DIR_MAINTENANCE, the directory of the maintenance signal.
+        render_jinja: renders a Jinja flag; None disables rendering.
 
     Returns:
-        The reference with ``uid``/``gid`` as strings when the mount sets them.
+        The read-only mount of the maintenance directory when the role sets
+        ``services.maintenance.enabled``, otherwise no mount.
     """
-    for key in ("uid", "gid"):
-        if mount.get(key) is None:
-            continue
-        text = str(mount[key])
-        if render_jinja is not None and ("{{" in text or "{%" in text):
-            text = str(render_jinja(text))
-        reference[key] = text
-    return reference
+    services = role_data.get("services")
+    entry = services.get("maintenance") if isinstance(services, dict) else None
+    if not isinstance(entry, dict) or entry.get("enabled") is None:
+        return []
+    if not mount_when_passes({"when": entry["enabled"]}, render_jinja):
+        return []
+    if not maintenance_dir:
+        raise AnsibleFilterError(
+            "container_volumes: services.maintenance.enabled is set, but "
+            "DIR_MAINTENANCE names no directory to mount"
+        )
+    return [_short_form_volume(maintenance_dir, maintenance_dir, True)]
 
 
 def container_volumes(
@@ -114,6 +153,7 @@ def container_volumes(
     extra_configs: list[dict[str, Any]] | None = None,
     extra_secrets: list[dict[str, Any]] | None = None,
     render_jinja: Callable[[str], str] | None = None,
+    maintenance_dir: str | None = None,
 ) -> str:
     """Return the per-service mount block (``volumes:`` + ``configs:`` +
     ``secrets:``) as a YAML string starting at column 0.
@@ -202,19 +242,16 @@ def container_volumes(
                 volumes_block.append(tmpfs_entry)
 
             elif vtype == "config":
-                cfg_ref: dict[str, Any] = {"source": semantic_name, "target": target}
-                mode_value = entry.get("mode")
-                if mode_value:
-                    cfg_ref["mode"] = _coerce_mode_int(mode_value)
-                configs_block.append(_with_owner(cfg_ref, mount, render_jinja))
+                configs_block.append(
+                    _file_reference(semantic_name, target, entry, mount, render_jinja)
+                )
 
             elif vtype == "secret":
-                sec_ref: dict[str, Any] = {"source": semantic_name, "target": target}
-                mode_value = entry.get("mode")
-                if mode_value:
-                    sec_ref["mode"] = _coerce_mode_int(mode_value)
-                secrets_block.append(_with_owner(sec_ref, mount, render_jinja))
+                secrets_block.append(
+                    _file_reference(semantic_name, target, entry, mount, render_jinja)
+                )
 
+    volumes_block.extend(_maintenance_mounts(role_data, maintenance_dir, render_jinja))
     if extra_volumes:
         volumes_block.extend(to_plain(extra_volumes))
     if extra_configs:
@@ -269,6 +306,10 @@ class LookupModule(LookupBase):
             "applications", loader=self._loader, templar=getattr(self, "_templar", None)
         ).run([], variables=vars_)[0]
 
+        maintenance_dir = vars_.get("DIR_MAINTENANCE")
+        if templar is not None and maintenance_dir is not None:
+            maintenance_dir = templar.template(maintenance_dir)
+
         render_jinja = None
         if templar is not None:
             # Closure captures the templar so mount-level `when:` Jinja
@@ -290,6 +331,7 @@ class LookupModule(LookupBase):
             extra_configs=kwargs.get("extra_configs"),
             extra_secrets=kwargs.get("extra_secrets"),
             render_jinja=render_jinja,
+            maintenance_dir=maintenance_dir,
         )
         if rendered and not rendered.startswith("\n"):
             rendered = "\n" + rendered

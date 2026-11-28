@@ -2,11 +2,22 @@
 # General
 application_id: "web-app-lam"
 
-LAM_CONTAINER: "{{ application_id | entity_name }}"
+LAM_CONTAINER: "{{ lookup('config', application_id, 'services.lam.name') }}"
 LAM_IMAGE: "{{ lookup('config', application_id, 'services.lam.image') }}"
 LAM_VERSION: "{{ lookup('config', application_id, 'services.lam.version') }}"
 LAM_SESSION_SAVE_PATH: "{{ lookup('engine', 'redis', application_id, 'session_path') }}"
-LAM_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+LAM_CONFIG: "{{ lookup('form_values', application_id, 'config') }}"
+LAM_PASSWORD: "{{ LAM_CONFIG.master_login }}"
+LAM_CONFIG_PROFILE_FILE: "/var/lib/ldap-account-manager/config/lam.conf"
+LAM_CONFIG_PROFILE_VALUE: '"([^"\\]|\\.)*"'
+LAM_CONFIG_PROFILE_FIELDS:
+  ServerURL: serverurl
+  Admins: admins
+  defaultLanguage: lang
+  loginSearchSuffix: loginSearchSuffix
+  loginSearchFilter: loginSearchFilter
+  suffix_user: suffix_user
+  suffix_group: suffix_group
 LAM_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') }}"
 LAM_DESIGN_CSS_HOST: "{{ [lookup('container', application_id, 'directories.volumes'), '900_infinito.css'] | path_join }}"
 LAM_DESIGN_JS_HOST: "{{ [lookup('container', application_id, 'directories.volumes'), '900_infinito.js'] | path_join }}"

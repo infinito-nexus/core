@@ -4,6 +4,11 @@
 # unittest discover otherwise. Invoked either directly on the host or
 # inside the infinito compose container by scripts/tests/code/wrapper.sh
 # -- the body is identical for both runners.
+#
+# Param test_paths: optional space-separated test files run instead of the
+#                   whole suite directory (make lint-file, make lint-role).
+# Param pytest_workers: optional pytest-xdist worker count (make test-session);
+#                       empty means one worker per CPU.
 set -euo pipefail
 
 _run_sh_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -26,15 +31,31 @@ make setup
 bash "$(dirname "${BASH_SOURCE[0]}")/../../install/dev-extras.sh" || echo "dev extras install failed; running serial" >&2
 _suite_dir="tests/${INFINITO_TEST_TYPE}"                     # nocheck: makefile-supplied
 _junit_report="build/test-reports/${INFINITO_TEST_TYPE}.xml" # nocheck: makefile-supplied
+read -r -a _targets <<<"${test_paths:-${_suite_dir}}"
 if "${PYTHON}" -c 'import pytest, xdist' >/dev/null 2>&1; then
 	mkdir -p build/test-reports
-	PYTHONDONTWRITEBYTECODE=1 "${PYTHON}" -m pytest "${_suite_dir}" -q -n auto --dist loadscope -rP -p no:cacheprovider \
+	if [[ "${INFINITO_RUNNING_ON_GITHUB}" == "true" ]]; then
+		export PYTHONDONTWRITEBYTECODE=1
+	else
+		PYTHONPYCACHEPREFIX="${PWD}/build/pycache-$(id -u)/${INFINITO_TEST_TYPE}" # nocheck: makefile-supplied
+		_scratch_root="$("${PYTHON}" -c 'import tempfile; print(tempfile.gettempdir())')"
+		_scratch_root="${_scratch_root%/}"
+		case "${PWD}/" in
+		"${_scratch_root}/"*) ;;
+		*) rm -rf "${PYTHONPYCACHEPREFIX:?}${_scratch_root:?}" ;;
+		esac
+		unset _scratch_root
+		export PYTHONPYCACHEPREFIX
+	fi
+	"${PYTHON}" -m pytest "${_targets[@]}" -q -n "${pytest_workers:-auto}" --dist loadscope --no-loadscope-reorder -p utils.tests.pytest.passes -p utils.tests.pytest.longest_first -p no:cacheprovider \
 		--import-mode=importlib \
 		--junitxml="${_junit_report}" \
 		-o consider_namespace_packages=true \
 		-o "norecursedirs=.* *.egg dist node_modules venv" \
 		-o python_functions= \
 		-o "python_files=${INFINITO_TEST_PATTERN}"
+elif [ -n "${test_paths:-}" ]; then
+	"${PYTHON}" -m unittest "${_targets[@]}"
 else
 	"${PYTHON}" -m unittest discover -s "${_suite_dir}" -t . -p "${INFINITO_TEST_PATTERN}"
 fi

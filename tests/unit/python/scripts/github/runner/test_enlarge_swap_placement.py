@@ -25,7 +25,7 @@ STAT_STUB = (
     "*) exit 1 ;;\n"
     "esac\n"
 )
-DUMP_STUB = "#!/usr/bin/env bash\nexit 0\n"
+DUMP_STUB = '#!/usr/bin/env bash\nprintf "dump %s\\n" "$1" >>"${STUB_LOG}"\n'
 
 
 def enlarge(
@@ -129,6 +129,14 @@ class TestEnlargeSwapPlacement(unittest.TestCase):
         )
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertEqual(swapfile(calls), ["fallocate -l 16G /mnt/swapfile"])
+
+    def test_state_is_dumped_before_swap_changes_anything(self) -> None:
+        done, calls = enlarge(
+            mounted=False, mnt_free=0, root_free=123, containerd_dev="66305"
+        )
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(calls[0], "dump before swap resize")
+        self.assertIn("swapoff -a", calls[1:])
 
 
 if __name__ == "__main__":

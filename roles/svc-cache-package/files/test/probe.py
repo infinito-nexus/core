@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 
@@ -21,8 +22,10 @@ PORT = os.environ["CACHE_PACKAGE_TEST_PORT"]
 CERTS_DIR = os.environ["CACHE_PACKAGE_TEST_CERTS_DIR"]
 REPOS = json.loads(os.environ["CACHE_PACKAGE_TEST_REPOS"])
 HOSTS = json.loads(os.environ["CACHE_PACKAGE_TEST_HOSTS"])
+MARKER = os.environ["CACHE_PACKAGE_TEST_BACKEND_MARKER"]
 
-UNREACHABLE = {"502", "503", "504", "000", ""}
+NO_HEADER = "-"
+NEXUS_IO_FAILURE = "502"
 TIMEOUT = 60
 
 failures: list[str] = []
@@ -62,6 +65,91 @@ def status(container: str, url: str, host: str = "") -> str:
         argv += ["-H", f"Host: {host}"]
     code, out = run(container, [*argv, url])
     return out if code == 0 else ""
+
+
+def response_head(container: str, url: str, host: str) -> str:
+    """Return the response header block *url* answers with through *container*.
+
+    Args:
+        container: the container to send the request from.
+        url: the URL to request.
+        host: the Host header to send.
+    """
+    argv = [
+        "curl",
+        "-sS",
+        "-o",
+        "/dev/null",
+        "-D",
+        "-",
+        "-k",
+        "--max-time",
+        "30",
+        "-H",
+        f"Host: {host}",
+        url,
+    ]
+    _, out = run(container, argv)
+    return out
+
+
+def parse_head(head: str) -> tuple[str, dict[str, str]]:
+    """Return the status code and headers of the last response in *head*.
+
+    Args:
+        head: what ``curl -D -`` printed, interim ``1xx`` responses first.
+
+    Returns:
+        The status code, empty when no status line arrived, and the headers
+        keyed by their lower-cased name.
+    """
+    code, headers = "", {}
+    for raw in head.splitlines():
+        line = raw.strip()
+        if line.startswith("HTTP/"):
+            parts = line.split()
+            code, headers = (parts[1] if len(parts) > 1 else ""), {}
+        elif ":" in line:
+            name, _, value = line.partition(":")
+            headers[name.strip().lower()] = value.strip()
+    return code, headers
+
+
+def nexus_answered(timing: str) -> bool:
+    """Whether nginx parsed a response header from Nexus on its final attempt.
+
+    Args:
+        timing: nginx's ``$upstream_header_time`` as the marker carries it:
+            one entry per attempt, ``,`` between peers and `` : `` across an
+            internal redirect such as the mirror fallback, ``-`` for an
+            attempt that got no header, empty when nginx never proxied.
+    """
+    last = re.split(r"[,:]", timing)[-1].strip()
+    return last not in {"", NO_HEADER}
+
+
+def proxied_verdict(target: str, repo: str, head: str, marker: str) -> str:
+    """Return why *head* shows the cache cannot serve *repo*, or ``""``.
+
+    Args:
+        target: the host, path and port the request went to, for the message.
+        repo: the repository the route proxies onto.
+        head: the response header block from :func:`response_head`.
+        marker: the header the frontend carries ``$upstream_header_time`` in.
+    """
+    code, headers = parse_head(head)
+    timing = headers.get(marker.lower(), "")
+    if not nexus_answered(timing):
+        return (
+            f"{target} answered {code!r} with {marker} {timing!r}, so nginx got "
+            f"no response from Nexus; the frontend did not reach repository {repo}"
+        )
+    if code == NEXUS_IO_FAILURE:
+        return (
+            f"{target} answered {code!r} from Nexus: Nexus could not reach "
+            f"upstream for repository {repo}, or could not store what it fetched"
+        )
+    return ""
 
 
 def check_nexus_is_up() -> None:
@@ -118,12 +206,14 @@ def check_every_host_is_proxied() -> None:
             port = listener.get("port")
             for route in entry.get("routes", []):
                 url = f"{scheme}://127.0.0.1:{port}{route['path']}"
-                code = status(FRONTEND, url, host=host)
-                if code in UNREACHABLE:
-                    failures.append(
-                        f"{host}{route['path']} on port {port} answered {code!r}; "
-                        f"the frontend did not reach repository {route['repo']}"
-                    )
+                verdict = proxied_verdict(
+                    f"{host}{route['path']} on port {port}",
+                    route["repo"],
+                    response_head(FRONTEND, url, host),
+                    MARKER,
+                )
+                if verdict:
+                    failures.append(verdict)
 
 
 def main() -> int:

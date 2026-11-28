@@ -89,6 +89,12 @@ class Fixture:
         return json.loads(response.body)
 
 
+class TestRoot(Fixture, unittest.TestCase):
+    def test_the_root_answers_a_status_the_ready_probe_accepts(self) -> None:
+        response = self.app.handle(Request("GET", "/", {}, {}, b""))
+        self.assertEqual(response.status, 200)
+
+
 class TestSignUpAndConsent(Fixture, unittest.TestCase):
     def test_the_sign_up_page_offers_a_form(self) -> None:
         page = self.app.handle(Request("GET", "/signup", {"next": ""}, {}, b""))

@@ -276,12 +276,16 @@ class LibreTranslate:
                 names[index] = (retry.engines or ("",))[0]
         return answered, names
 
-    def translate(self, texts: list[str], target: str) -> Outcome:
+    def translate(
+        self, texts: list[str], target: str, exclude: tuple[str, ...] = ()
+    ) -> Outcome:
         """Translate ``texts`` from English into ``target``.
 
         Args:
             texts: source messages.
             target: ISO 639-1 code.
+            exclude: engines no request of this call may be answered by,
+                because a judge pass failed their earlier answer to it.
 
         Returns:
             One translation per source, ``None`` where it was discarded, plus
@@ -302,7 +306,9 @@ class LibreTranslate:
         refusal = ""
         with ThreadPoolExecutor(self.workers) as pool:
             translated = pool.map(
-                lambda batch: self._batch([texts[index] for index in batch], target),
+                lambda batch: self._batch(
+                    [texts[index] for index in batch], target, exclude
+                ),
                 batches,
             )
             for batch, outcome in zip(batches, translated, strict=True):

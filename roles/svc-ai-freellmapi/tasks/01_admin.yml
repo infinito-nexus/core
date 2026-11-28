@@ -1,0 +1,60 @@
+---
+- name: "🔐 Reconcile dashboard administrator and verify HTTP login"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - "{{ FREELLMAPI_CONTAINER }}" # nocheck: container-exec-resolver  Compose-only role runs on its inventory host
+      - node
+      - --input-type=commonjs
+      - -e
+      - "{{ lookup('file', lookup('path_absolute', 'roles/svc-ai-freellmapi/files/javascript/reconcile_admin.js')) ~ '\nmain();' }}"
+    stdin: >-
+      {{ {
+        'admin': FREELLMAPI_ADMIN,
+        'base_url': 'http://127.0.0.1:' ~ (FREELLMAPI_PORT | string),
+        'timeout_ms': (lookup('timeout', 60) | int) * 1000
+      } | to_json }}
+  register: freellmapi_admin_result
+  changed_when: false
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📦 Keep only the marked reconciliation result, not the image's import output"
+  ansible.builtin.set_fact:
+    freellmapi_admin: >-
+      {{ freellmapi_admin_result.stdout_lines
+         | select('match', '^' ~ FREELLMAPI_RESULT_PREFIX)
+         | map('regex_replace', '^' ~ FREELLMAPI_RESULT_PREFIX, '')
+         | map('from_json') | list | last | default({}) }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "✅ Require the platform administrator to authenticate"
+  ansible.builtin.assert:
+    that:
+      - freellmapi_admin_result.rc == 0
+      - freellmapi_admin.ok | default(false) | bool
+      - freellmapi_admin.login_verified | default(false) | bool
+    fail_msg: >-
+      FreeLLMAPI administrator reconciliation or HTTP login failed. Verify the
+      configured image supports its auth service API and the install has at most
+      one dashboard account. Credentials and upstream exceptions are masked.
+      Stage: {{ freellmapi_admin.stage | default('no_marked_result') }}
+    success_msg: "FreeLLMAPI platform administrator credentials and HTTP login verified."
+
+- name: "🔁 Report an administrator account write as a change"
+  ansible.builtin.debug:
+    msg: "FreeLLMAPI administrator account updated."
+  changed_when: true
+  when: freellmapi_admin.changed | bool
+
+- name: "💾 Persist the unified key FreeLLMAPI issued for the LiteLLM upstream"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: platform_administrator
+    sys_token_store_app: "{{ application_id }}"
+    sys_token_store_token: "{{ freellmapi_admin.api_key }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

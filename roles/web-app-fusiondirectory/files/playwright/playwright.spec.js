@@ -35,7 +35,7 @@ test("baseline: FusionDirectory responds on the canonical domain", async ({ page
   expect(r.url().includes(canonicalDomain)).toBe(true);
 });
 
-test("OIDC: oauth2-proxy redirects unauthenticated visitors through Keycloak (variant 0)", async ({ page }) => {
+test("OIDC: the Keycloak sign-in lands in FusionDirectory through the header login (variant 0)", async ({ page }) => {
   skipUnlessServiceEnabled("sso");
   expect(adminUsername).toBeTruthy(); expect(adminPassword).toBeTruthy(); expect(oidcIssuerUrl).toBeTruthy();
   const expectedAuth = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
@@ -43,11 +43,17 @@ test("OIDC: oauth2-proxy redirects unauthenticated visitors through Keycloak (va
   await gotoOnion(page, `${expectedBase}/`);
   await expect.poll(() => page.url(), { timeout: resolveTimeout(60_000) }).toContain(expectedAuth);
   await performKeycloakLoginForm(page, adminUsername, adminPassword);
-  await expect.poll(() => page.url(), { timeout: resolveTimeout(90_000) }).toContain(expectedBase);
-  await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible({ timeout: resolveTimeout(60_000) });
+  await expect.poll(() => page.url(), { timeout: resolveTimeout(90_000) }).toContain(`${expectedBase}/main.php`);
+  await expect(page.locator("div.plugin-window").first(), "the oauth2-proxy identity must open a FusionDirectory session").toBeVisible({
+    timeout: resolveTimeout(60_000),
+  });
+  await expect(page.locator("#loginform"), "no second login form may follow the Keycloak sign-in").toHaveCount(0);
 });
 
-test("LDAP: FusionDirectory backend points at svc-db-openldap (variant 1)", async ({ page }) => {
+require("./test-rbac").register();
+require("./test-forged-identity");
+
+test("guest: FusionDirectory backend points at svc-db-openldap (variant 1)", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
   const expectedBase = baseUrl.replace(/\/$/, "");
   await gotoOnion(page, `${expectedBase}/`);

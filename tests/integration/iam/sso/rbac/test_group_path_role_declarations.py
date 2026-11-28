@@ -177,7 +177,7 @@ def _iter_callsites():
 
 
 class TestRbacGroupPathRoleDeclarations(unittest.TestCase):
-    def test_every_callsite_role_is_declared(self):
+    def test_every_callsite_role_is_declared(self):  # nocheck: test.text-presence -- repository-wide lint of lookup call sites against the parsed rbac.yml  # fmt: skip
         offenders = []
         unresolved = []
 

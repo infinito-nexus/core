@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 agent-broker:
   backup:
     stop_required: false
@@ -13,8 +14,8 @@ agent-broker:
   enabled: true
   shared: true
   image: python
-  # nocheck: docker-version  base of a self-built stdlib-only image, not the served application
-  version: "3.13.15-slim"
+  version: "3.13.18-slim"
+  follow: requires-python
   custom: true
   ca_client: true
   name: agent-broker
@@ -62,9 +63,9 @@ socket-proxy:
 litellm:
   bond: 1
   enabled: true
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 # nocheck: playwright-service-flag, dynamic-flag  the broker authorizes every request against Keycloak group paths and has no LDAP or no-auth path, so a group_names gate would only defer the failure to runtime
-sso:
+sso: # nocheck: login-methods  Reason: an API service without a sign-in page; it authorizes each request by the caller's Keycloak groups that Open WebUI forwards, so no browser ever picks a login method here
   bond: 1
   enabled: true
   shared: true
@@ -85,3 +86,11 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started

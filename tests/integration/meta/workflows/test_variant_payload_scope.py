@@ -77,19 +77,49 @@ class TestVariantPayloadScope(unittest.TestCase):
                 include=variant_scope(primary, variants=round_variants),
                 active_variants=round_variants,
             )
-            realm = (
-                payloads.get("web-app-keycloak", {})
-                .get("services", {})
-                .get("keycloak", {})
-                .get("realm", {})
+            services = payloads.get("web-app-keycloak", {}).get("services", {})
+            self.assertIs(
+                services.get("tor", {}).get("enabled"),
+                True,
+                f"{primary}#{round_index} deploys keycloak with "
+                f"{len(round_include)} planned app(s), but the payload lacks the "
+                f"services.tor.enabled override every keycloak variant declares, so "
+                f"keycloak silently runs on its base config",
             )
             self.assertIs(
-                realm.get("totp_enabled"),
+                services.get("keycloak", {}).get("realm", {}).get("totp_enforced"),
                 False,
                 f"{primary}#{round_index} deploys keycloak with "
                 f"{len(round_include)} planned app(s); without its variant override "
-                f"the realm demands CONFIGURE_TOTP and every SSO persona times out",
+                f"the realm enforces TOTP and every SSO persona stops at the "
+                f"enrollment page",
             )
+
+    def test_every_compose_round_that_deploys_keycloak_switches_enforcement_off(
+        self,
+    ) -> None:
+        deployed = 0
+        for primary in (*self.PRIMARIES, "web-app-keycloak"):
+            for round_index, _inv, round_variants, round_include, *_ in _rounds(
+                primary
+            ):
+                if "web-app-keycloak" not in round_include:
+                    continue
+                deployed += 1
+                payloads = _resolve_variant_payloads(
+                    roles_dir=_ROLES_DIR,
+                    include=round_include,
+                    active_variants=round_variants,
+                )
+                realm = (
+                    payloads.get("web-app-keycloak", {})
+                    .get("services", {})
+                    .get("keycloak", {})
+                    .get("realm", {})
+                )
+                with self.subTest(primary=primary, round=round_index):
+                    self.assertIs(False, realm.get("totp_enforced"))
+        self.assertGreater(deployed, 0)
 
 
 if __name__ == "__main__":

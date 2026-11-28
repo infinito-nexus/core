@@ -98,7 +98,7 @@ def _read_js_sources(directory: Path) -> list[str]:
 
 
 class TestPlaywrightEnvKeysUsed(unittest.TestCase):
-    def test_env_keys_referenced_in_specs(self):
+    def test_env_keys_referenced_in_specs(self):  # nocheck: test.text-presence -- policy lint over every playwright.env.j2  # fmt: skip
         root = PROJECT_ROOT
         roles_dir = root / "roles"
         shared_helpers_dir = roles_dir / "test-e2e-playwright" / "files"

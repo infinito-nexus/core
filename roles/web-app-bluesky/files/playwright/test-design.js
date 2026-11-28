@@ -11,13 +11,24 @@ const {
 } = require("./design");
 const { NOTIFICATIONS_SCREEN } = require("./_appview");
 const { apiFetchOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { assertSky } = require("./cosmos-sky");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const HOME = '[data-testid="HomeScreen"]';
 const SETTINGS = '[aria-label="Privacy and security"]';
 const APPEARANCE = '[data-testid="preferencesThreadsScreen"]';
 const NAVIGATION_ROOT_BACKGROUNDS = ["rgb(242, 242, 242)", "rgb(1, 1, 1)"];
+const SKY_CLEARED = ["html", "body", "#root"];
+const SKY_LEGIBLE_BLOCKS = ["#root > div"];
+
+async function assertPageSurface(page, label) {
+  if (isServiceEnabled("cosmos")) {
+    await assertSky(page, SKY_CLEARED, SKY_LEGIBLE_BLOCKS, label);
+    return;
+  }
+  await assertToken(page, "body", "background-color", "--design-surface-1", label);
+}
 const THEME_TOKENS = [
   "surface-1",
   "surface-2",
@@ -218,7 +229,7 @@ async function inlineColors(page) {
 exports.register = function (shared) {
   test("design: the desktop sign-in layout paints its legacy panels with tokens", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(isServiceEnabled("sso"), "the oauth2 gate hands every visitor a session, so the sign-in form never renders");
+    skipUnlessServiceDisabled("sso");
     await page.setViewportSize({ width: 1440, height: 900 });
     for (const mode of ["light", "dark"]) {
       await page.emulateMedia({ colorScheme: mode });
@@ -261,7 +272,7 @@ exports.register = function (shared) {
       const label = `bluesky ${mode}`;
       const tokens = await tokenValues(page);
       const census = await inlineColors(page);
-      await assertToken(page, "body", "background-color", "--design-surface-1", label);
+      await assertPageSurface(page, label);
       expect(census.background, `${label}: the ALF page surface is --design-surface-1`).toContain(tokens["--design-surface-1"]);
       expect(census.background, `${label}: the ALF panel surface is --design-surface-3`).toContain(tokens["--design-surface-3"]);
       expect(census.border, `${label}: the ALF dividers are --design-border`).toContain(tokens["--design-border"]);
@@ -297,7 +308,7 @@ exports.register = function (shared) {
     await expect(page.locator("html")).toHaveAttribute("data-design-theme", "dark");
     const darkSurface = await tokenValue(page, "--design-surface-1", "background-color");
     expect(darkSurface, "the app's Dark choice switches the tokens in a light browser").not.toBe(lightSurface);
-    await assertToken(page, "body", "background-color", "--design-surface-1", "bluesky app dark mode");
+    await assertPageSurface(page, "bluesky app dark mode");
     await expect.poll(async () => (await inlineColors(page)).background, { timeout: resolveTimeout(10_000) }).toContain(darkSurface);
     await page.emulateMedia({ colorScheme: "dark" });
     await colorMode.getByRole("radio", { name: "Light" }).click();
@@ -351,7 +362,7 @@ exports.register = function (shared) {
 
   test("design: the visitor splash shows the configured title as its wordmark", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(isServiceEnabled("sso"), "the oauth2 gate hands every visitor a session, so the splash never renders");
+    skipUnlessServiceDisabled("sso");
     const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
     const logotypeUrl = decodeDotenvQuotedValue(process.env.DESIGN_LOGOTYPE_URL || "");
     test.skip(!logotypeUrl, "logo or title replacement is disabled for this role");
@@ -372,7 +383,7 @@ exports.register = function (shared) {
 
   test("design: the SSO handoff page takes the configured title and the design tokens", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(!isServiceEnabled("sso"), "the login broker renders its handoff page only behind the oauth2 gate");
+    skipUnlessServiceEnabled("sso");
     const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
     test.skip(!title, "the title replacement is disabled for this role");
     await signIn(page, shared);
@@ -475,14 +486,14 @@ exports.register = function (shared) {
 
   test("design: the visitor splash takes the tokens", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    test.skip(isServiceEnabled("sso"), "the oauth2 gate hands every visitor a session, so the splash never renders");
+    skipUnlessServiceDisabled("sso");
     for (const mode of ["light", "dark"]) {
       await page.emulateMedia({ colorScheme: mode });
       await gotoOnion(page, `${shared.env.baseUrl}/settings`);
       const create = page.locator('[data-testid="createAccountButton"]');
       await create.waitFor({ timeout: resolveTimeout(30_000) });
       const label = `bluesky splash ${mode}`;
-      await assertToken(page, "body", "background-color", "--design-surface-1", label);
+      await assertPageSurface(page, label);
       await assertToken(page, '[data-testid="createAccountButton"]', "background-color", "--design-primary", label);
       expect(
         await create.evaluate((element) => getComputedStyle(element.querySelector('[dir="auto"]') || element).color),

@@ -131,6 +131,54 @@ def _variant_overrides_for(variant: dict, service_key: str, flag: str) -> object
 _MISSING = object()
 
 
+def polarity_findings(
+    role_name: str, services: dict, pairs: list[tuple[str, str]], variants: list
+) -> list[str]:
+    """Args:
+        role_name: the role the findings name.
+        services: the role's ``meta/services.yml`` mapping.
+        pairs: the role's unsuppressed dynamic ``(service_key, flag)`` pairs.
+        variants: the role's ``meta/variants.yml`` list.
+
+    Returns:
+        One message per missing ``true`` pin, per missing ``false`` pin of a
+        service without ``mandatory: true``, and per ``false`` pin of a
+        service with ``mandatory: true``.
+    """
+    offenders: list[str] = []
+    normalised_variants = [v if isinstance(v, dict) else {} for v in variants]
+    for service_key, flag in sorted(pairs):
+        overrides = [
+            _variant_overrides_for(variant, service_key, flag)
+            for variant in normalised_variants
+        ]
+        seen_true = any(override is True for override in overrides)
+        seen_false = any(override is False for override in overrides)
+        entry = services.get(service_key)
+        mandatory = isinstance(entry, dict) and entry.get("mandatory") is True
+        if not seen_true:
+            offenders.append(
+                f"{role_name}: services.{service_key}.{flag} is "
+                f"dynamic but no variant in meta/variants.yml pins "
+                f"it to ``true``. Add an entry with "
+                f"``services.{service_key}.{flag}: true``."
+            )
+        if mandatory and seen_false:
+            offenders.append(
+                f"{role_name}: services.{service_key} declares "
+                f"``mandatory: true`` but a variant in meta/variants.yml pins "
+                f"``services.{service_key}.{flag}: false``. Drop that pin."
+            )
+        if not mandatory and not seen_false:
+            offenders.append(
+                f"{role_name}: services.{service_key}.{flag} is "
+                f"dynamic but no variant in meta/variants.yml pins "
+                f"it to ``false``. Add an entry with "
+                f"``services.{service_key}.{flag}: false``."
+            )
+    return offenders
+
+
 class TestVariantsCoverage(unittest.TestCase):
     def test_every_dynamic_flag_has_true_and_false_variant(self):
         offenders: list[str] = []
@@ -160,31 +208,7 @@ class TestVariantsCoverage(unittest.TestCase):
                 )
                 continue
 
-            normalised_variants = [v if isinstance(v, dict) else {} for v in variants]
-
-            for service_key, flag in sorted(pairs):
-                seen_true = False
-                seen_false = False
-                for variant in normalised_variants:
-                    override = _variant_overrides_for(variant, service_key, flag)
-                    if override is True:
-                        seen_true = True
-                    elif override is False:
-                        seen_false = True
-                if not seen_true:
-                    offenders.append(
-                        f"{role_name}: services.{service_key}.{flag} is "
-                        f"dynamic but no variant in meta/variants.yml pins "
-                        f"it to ``true``. Add an entry with "
-                        f"``services.{service_key}.{flag}: true``."
-                    )
-                if not seen_false:
-                    offenders.append(
-                        f"{role_name}: services.{service_key}.{flag} is "
-                        f"dynamic but no variant in meta/variants.yml pins "
-                        f"it to ``false``. Add an entry with "
-                        f"``services.{service_key}.{flag}: false``."
-                    )
+            offenders.extend(polarity_findings(role_name, services, pairs, variants))
 
         if offenders:
             self.fail(
@@ -193,6 +217,51 @@ class TestVariantsCoverage(unittest.TestCase):
                 "false-pinning variant entry):\n"
                 + "\n".join(f"  - {o}" for o in offenders)
             )
+
+
+_GATE = "{{ 'web-app-keycloak' in group_names }}"
+_PAIRS = [("sso", "enabled"), ("sso", "shared")]
+_ON = {"services": {"sso": {"enabled": True, "shared": True}}}
+_OFF = {"services": {"sso": {"enabled": False, "shared": False}}}
+
+
+def _sso(**extra: object) -> dict:
+    """Args:
+        extra: fields added to the ``sso`` entry.
+
+    Returns:
+        A services mapping whose ``sso`` entry is gated on the Keycloak group.
+    """
+    return {"sso": {"enabled": _GATE, "shared": _GATE, **extra}}
+
+
+class TestMandatoryService(unittest.TestCase):
+    def test_a_mandatory_service_needs_no_false_pin(self) -> None:
+        self.assertEqual(
+            polarity_findings("app", _sso(mandatory=True), _PAIRS, [_ON, _ON]), []
+        )
+
+    def test_negative_control_without_mandatory_the_false_pin_is_demanded(
+        self,
+    ) -> None:
+        self.assertEqual(
+            len(polarity_findings("app", _sso(), _PAIRS, [_ON, _ON])), len(_PAIRS)
+        )
+
+    def test_negative_control_a_false_pin_on_a_mandatory_service_is_reported(
+        self,
+    ) -> None:
+        findings = polarity_findings("app", _sso(mandatory=True), _PAIRS, [_ON, _OFF])
+        self.assertEqual(len(findings), len(_PAIRS))
+        self.assertTrue(all("mandatory: true" in finding for finding in findings))
+
+    def test_negative_control_a_mandatory_service_still_needs_a_true_pin(
+        self,
+    ) -> None:
+        self.assertEqual(
+            len(polarity_findings("app", _sso(mandatory=True), _PAIRS, [{}])),
+            len(_PAIRS),
+        )
 
 
 if __name__ == "__main__":  # pragma: no cover

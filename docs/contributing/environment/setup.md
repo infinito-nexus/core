@@ -36,12 +36,44 @@ make network-trust-ca
 |---|---|---|
 | Initial setup | `make bootstrap` | Installs project dependencies and runs the first repository setup. |
 | Host preparation | `make environment-bootstrap` | Prepares the local development machine for the project workflow. |
-| Start stack | `make compose-up` | Starts the local development stack. |
+| Start stack | `make compose-up` | Runs `make infra-up` first, then starts the local development stack and resets its shared [target](../../../compose/target/README.md), the bare server foreign deploys are tested against. |
 | Browser trust | `make network-trust-ca` | Trusts the generated local [CA](https://en.wikipedia.org/wiki/Certificate_authority) so `*.infinito.test` works correctly in your browser. |
 | Stack domains | `make network-dns-setup` | Routes each stack's domain to its bind IP: `main.infinito.test` for the primary checkout, `<branch>.infinito.test` for every worktree. Re-run it after `make worktree-up` or `make worktree-down`. |
 
 The `pre-commit` hooks are installed automatically by `make environment-bootstrap`.
 Per-machine overrides go into the process environment before invoking `make` (e.g. `export INFINITO_FOO=…`); `make dotenv` honors caller-set values via setdefault semantics.
+
+### Stacks 🧱
+
+[cache.md](cache.md#stack-kinds-) lists the local stack kinds `cache` (always-on), `tools` (on-demand), `test-runner` (long-lived) and `deploy` (on-demand) and the targets that start them.
+With `INFINITO_STACK_NAME=<name>` set, the deploy, exec, test and lint targets address the stack `<name>` instead of the checkout's default ones, see [variables.md](variables.md#stack-name).
+
+### Infra Runner 🏗️
+
+One infra runner per machine, the compose project `infinito-infra`, hosts the package and registry caches and, on demand, the translation tools. Every checkout's deploy stack and the shared test runner join its network `infinito-infra` and reach it by name; no checkout starts a cache or tools service of its own. With `INFINITO_CACHE_STACK=false` no target starts it. See [cache.md](cache.md) for the caches and the [translation gateway](../../../roles/web-svc-translate/README.md) for the tools.
+
+| Command | What it does |
+|---|---|
+| `make infra-up` | Starts the runner once per machine and deploys the caches into it; refuses before anything starts when the cache caps leave less than `INFINITO_CACHE_DISK_FLOOR` free. `make compose-up` runs it first. |
+| `make infra-update` | Applies changed caps, worktree roots (`INFINITO_WORKTREE_ROOTS`) or image to the running runner. |
+| `make infra-down` | Stops the runner and keeps every cache byte. |
+| `make infra-status` | Prints the runner's state, address, the gateway URL that `make i18n-translate gateway=` takes, and whether each tools project is addressable. |
+| `make i18n-pause` / `make i18n-resume` | Pauses or resumes only the tools inside the runner; the caches keep answering. |
+
+The tools start on demand from `make i18n-translate`, `make i18n-tune` and `make test-oracle`, and stop once `INFINITO_TOOLS_IDLE_GRACE` has passed since the last of these targets ended.
+
+### Runner Pool 🏃
+
+With `INFINITO_DEPLOY_VIA_POOL=true`, `make infra-up` and `make infra-update` also deploy a pool of `local` runners of [svc-runner](../../../roles/svc-runner/README.md) into the infra runner, and `make compose-deploy` runs the deploy as a job of one of them, in a job stack `runner-<N>` on the infra runner's daemon, instead of in this checkout's stack. The operator MUST join the `runner-queue` group once, as the svc-runner README describes; until then every target below that reads the queue refuses. See [variables.md](variables.md#runner-pool) for the pool's keys.
+
+| Command | What it does |
+|---|---|
+| `make compose-deploy` | With the pool on, submits the deploy as a pool job, prints its id and queue position, follows its log and exits with its status; `hold=true` keeps the job's stack until its release, `timeout=<duration>` withdraws a job still queued after that long. |
+| `make <target> job=<id>` | Points `make compose-exec`, `make compose-inner-run`, `make compose-playwright` and `make compose-role-sync` at the stack of a held or running job; the last two first mirror the submitting checkout into the job's copy. |
+| `make runner-status` | Prints one JSON object per pool runner with its state (`idle`, `busy`, `held` or `failed`), whether a process serves the queue as it, its job and stack, and for a held job its age and release command; exits 3 while no runner has registered. |
+| `make runner-release job=<id>` | Removes the stack of a held job, or of a running one no runner serves any longer, from the infra runner's daemon, then ends the job and frees its runner. |
+| `make runner-cleanup-report` | Prints every held job with its age and every job stack no running or held job owns; removes nothing. |
+| `make runner-count` | Prints the default pool size and its RAM, CPU and disk terms as JSON; `INFINITO_RUNNER_COUNT` overrides it. |
 
 ### Teardown 🧹
 
@@ -56,7 +88,8 @@ make environment-teardown
 
 | Phase | Command | What it does |
 |---|---|---|
-| Stop stack | `make compose-down` | Stops the local development stack. |
+| Stop stack | `make compose-down` | Stops the local development stack; the infra runner keeps running for the other checkouts. |
+| Stop infra runner | `make infra-down` | Stops the machine-wide infra runner and keeps every cache byte. |
 | Host cleanup | `make environment-teardown` | Reverts local development environment changes where supported. |
 
 ### Full Development Flow 🔁
@@ -71,7 +104,7 @@ The repository already contains a modular environment test suite at [scripts/tes
 | 2 | `make environment-bootstrap` | Prepares the host machine for local development. |
 | 3 | `make compose-up` | Starts the development stack. |
 | 4 | `make test` | Runs the main combined validation flow. |
-| 5 | `make compose-deploy mode=reinstall apps=web-app-matomo` | Runs the baseline validation path for one concrete app. For the retry-loop policy, see [Compose Loop](../../agents/action/iteration/compose.md). |
+| 5 | `make compose-deploy mode=reinstall apps=web-app-matomo` | Runs the baseline validation path for one concrete app. For the retry-loop policy, see [Compose Loop](../../../agents/skills/i8-iterate-compose/SKILL.md). |
 | 6 | `make network-trust-ca` | Makes the generated local certificates trusted by the host browser. |
 | 7 | `make compose-down` | Stops the running development stack. |
 | 8 | `make environment-teardown` | Cleans up host-side development environment changes. |

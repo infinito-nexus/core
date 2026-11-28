@@ -11,12 +11,11 @@ Absolute paths starting with '/' are resolved against the repository root.
 from __future__ import annotations
 
 import re
-import subprocess
 import unittest
 from functools import lru_cache
 from typing import TYPE_CHECKING, NamedTuple
 
-from utils.cache.files import read_text
+from utils.cache.files import read_text, repository_files
 from utils.roles.custom import is_custom_path
 
 from . import INDEX_FILES, PROJECT_ROOT, index_page, markdown_files
@@ -49,21 +48,13 @@ class BrokenLink(NamedTuple):
 
 @lru_cache(maxsize=1)
 def _tracked_files() -> frozenset[str]:
-    """Return every path git tracks, repo-root relative.
+    """Return every path git tracks and every file of a placed custom role, repo-root relative.
 
-    ``safe.directory`` is set for this invocation because the test
-    container mounts the repository under a different owner, where git
-    otherwise refuses the directory outright. Asking ``.gitignore`` instead
-    would answer a different question, since a pattern keeps matching a file
-    that was committed before it and git tracks it regardless.
+    Asking ``.gitignore`` instead would answer a different question, since a
+    pattern keeps matching a file that was committed before it and git tracks
+    it regardless.
     """
-    listed = subprocess.run(
-        ["git", "-c", "safe.directory=*", "-C", str(PROJECT_ROOT), "ls-files", "-z"],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    return frozenset(entry for entry in listed.stdout.split("\0") if entry)
+    return frozenset(repository_files())
 
 
 def _unresolvable(resolved: Path, source: Path) -> str:
@@ -96,10 +87,11 @@ def _unresolvable(resolved: Path, source: Path) -> str:
             return f"directory without any of {', '.join(INDEX_FILES)}"
         return ""
     target = resolved.relative_to(PROJECT_ROOT).as_posix()
-    pulled = is_custom_path(target) and is_custom_path(
-        source.relative_to(PROJECT_ROOT).as_posix()
-    )
-    if not pulled and target not in _tracked_files():
+    if is_custom_path(target):
+        shipped = is_custom_path(source.relative_to(PROJECT_ROOT).as_posix())
+    else:
+        shipped = target in _tracked_files()
+    if not shipped:
         return "untracked, so it is absent from a fresh checkout and the docs build"
     return ""
 

@@ -100,7 +100,7 @@ class TestErtsGuard(unittest.TestCase):
 
 
 class TestShimWiring(unittest.TestCase):
-    def test_the_last_stage_preloads_the_shim_the_build_stage_compiles(self):
+    def test_the_last_stage_preloads_the_shim_the_build_stage_compiles(self):  # nocheck: test.text-presence -- parses the Dockerfile stages and their wiring, negative controls below  # fmt: skip
         self.assertEqual(_shim_wiring_errors(read_text(str(DOCKERFILE))), [])
 
     def test_negative_control_a_copy_to_another_path_is_reported(self):

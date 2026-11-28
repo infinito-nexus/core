@@ -1,0 +1,85 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- include_tasks: utils/load/handlers.yml
+  vars:
+    handler_role_name: "sys-svc-compose"
+
+- name: "🗓️  Collect the deploy-time cron schedules from every agent role"
+  ansible.builtin.set_fact:
+    AGENT_ORCHESTRATOR_CRON_ENTRIES: "{{ AGENT_ORCHESTRATOR_CRON_ENTRIES + (lookup('agent_config', item, 'cron', []) | map('combine', {'role': item}) | list) }}"
+  loop: "{{ AGENT_ORCHESTRATOR_AGENT_ROLES }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: "🎯 Collect the triggers, the owner and the repositories of every agent role"
+  ansible.builtin.set_fact:
+    AGENT_ORCHESTRATOR_AGENTS: "{{ AGENT_ORCHESTRATOR_AGENTS | combine({item: {'triggers': lookup('agent_config', item, 'triggers'), 'owner': lookup('agent_config',
+      item, 'owner'), 'repositories': lookup('agent_config', item, 'repositories')}}) }}"
+  loop: "{{ AGENT_ORCHESTRATOR_AGENT_ROLES }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: "🧩 Load the central RDBMS (checkpoints, audit) for {{ application_id }}"
+  include_role:
+    name: sys-svc-rdbms
+    public: false
+  vars:
+    database_consumer_id: "{{ application_id }}"
+  when: lookup('database', application_id, 'enabled') | bool
+
+- name: "🔐 Verify the gateway contract for {{ application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+
+- name: "📁 Create the control-plane package dirs for {{ application_id }}"
+  ansible.builtin.file:
+    path: "{{ [AGENT_ORCHESTRATOR_BUILD_DIR, item] | path_join }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ AGENT_ORCHESTRATOR_STAGED_DIRS }}"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🧩 Stage the committed control-plane libraries beside the server"
+  stack_host_copy:
+    src: "{{ lookup('path_absolute', item) }}"
+    dest: "{{ [AGENT_ORCHESTRATOR_BUILD_DIR, item] | path_join }}"
+    mode: "0644"
+  loop: "{{ AGENT_ORCHESTRATOR_LIBS }}"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "🧭 Stage the routines of the deployed revision beside the server"
+  stack_host_copy:
+    src: "{{ lookup('path_absolute', AGENT_ORCHESTRATOR_ROUTINES_DIR) }}/"
+    dest: "{{ [AGENT_ORCHESTRATOR_BUILD_DIR, AGENT_ORCHESTRATOR_ROUTINES_DIR] | path_join }}/"
+    directory_mode: "0755"
+    mode: "0644"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "📦 Stage the orchestrator's pinned Python requirements"
+  stack_host_copy:
+    src: requirements.txt
+    dest: "{{ [AGENT_ORCHESTRATOR_BUILD_DIR, 'requirements.txt'] | path_join }}"
+    mode: "0644"
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "📦 Stage the agent orchestrator server"
+  ansible.builtin.include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
+  vars:
+    role_templates:
+      - src: "{{ lookup('path_absolute', 'roles/svc-ai-agent-orchestrator/files/python/server.py') }}"
+        dest: "{{ [AGENT_ORCHESTRATOR_BUILD_DIR, 'server.py'] | path_join }}"
+        mode: "0644"
+        notify: [compose-build, compose-up]
+
+- name: "🔧 Setup container network for {{ application_id }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/routine.yml') }}"
+  vars:
+    compose_handlers_flush: true

@@ -14,39 +14,30 @@
       - "{{ SNIPEIT_IDENTITY_LOCAL_CID }}" # nocheck: container-exec-resolver
       - chown
       - -R
-      - apache:root
+      - "{{ SNIPE_IT_WEB_USER }}:root"
       - /var/lib/snipeit/keys
   changed_when: false
   delegate_to: "{{ SNIPEIT_IDENTITY_HOST_NODE }}"
   run_once: true
 
 - name: "🔑 Mint the read-only Snipe-IT token the MCP adapter presents"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -u
-      - apache
-      - -e
-      - APP_KEY
-      - -e
-      - "MCP_USER={{ SNIPEIT_MCP_UPSTREAM_USER }}"
-      - -e
-      - MCP_PASSWORD
-      - -e
-      - "MCP_TOKEN_NAME={{ SNIPEIT_MCP_UPSTREAM_TOKEN_NAME }}"
-      - -e
-      - "MCP_API_HOST={{ SNIPE_IT_DOMAIN }}"
-      - -e
-      - MCP_CURRENT_TOKEN
-      - "{{ SNIPEIT_IDENTITY_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - php
-    stdin: "{{ lookup('file', 'php/provision_mcp_identity.php') }}"
-  environment:
-    APP_KEY: "{{ SNIPE_IT_APP_KEY }}"
-    MCP_PASSWORD: "{{ SNIPEIT_MCP_UPSTREAM_PASSWORD }}"
-    MCP_CURRENT_TOKEN: "{{ MCP_UPSTREAM_CURRENT_KEY }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      IFS= read -r APP_KEY && IFS= read -r MCP_PASSWORD && IFS= read -r MCP_CURRENT_TOKEN && : "${APP_KEY:?arrived empty on stdin}" && : "${MCP_PASSWORD:?arrived
+      empty on stdin}" && export APP_KEY MCP_PASSWORD MCP_CURRENT_TOKEN && container exec -i -u {{ SNIPE_IT_WEB_USER | quote }}
+      -e APP_KEY
+      -e MCP_USER={{ SNIPEIT_MCP_UPSTREAM_USER | quote }}
+      -e MCP_PASSWORD
+      -e MCP_TOKEN_NAME={{ SNIPEIT_MCP_UPSTREAM_TOKEN_NAME | quote }}
+      -e MCP_API_HOST={{ SNIPE_IT_DOMAIN | quote }}
+      -e MCP_CURRENT_TOKEN
+      {{ SNIPEIT_IDENTITY_LOCAL_CID | quote }}
+      php
+    stdin: |-
+      {{ SNIPE_IT_APP_KEY }}
+      {{ SNIPEIT_MCP_UPSTREAM_PASSWORD }}
+      {{ MCP_UPSTREAM_CURRENT_KEY }}
+      {{ lookup('file', 'php/provision_mcp_identity.php') }}
   register: snipeit_mcp_identity
   retries: 30
   delay: 10

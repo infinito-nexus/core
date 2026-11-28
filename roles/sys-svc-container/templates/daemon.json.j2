@@ -20,8 +20,8 @@
   "dns-opts": ["ndots:0"],
   "default-address-pools": {{ NETWORK_DOCKER_ADDRESS_POOLS | tojson }},
   "userland-proxy": false,
-  "log-driver": "json-file",
-  "log-opts": {"max-size": "10m", "max-file": "2"}
+  "log-driver": "journald",
+  "log-opts": {"tag": {{ ('{{with index .ContainerLabels "' ~ DOCKER_LOG_LABEL ~ '"}}{{.}}{{else}}{{.Name}}{{end}}') | to_json }}, "labels": {{ DOCKER_LOG_LABEL | to_json }}}
 {% if DOCKER_IN_CONTAINER | bool %},
   "storage-driver": "fuse-overlayfs"
 {% endif %}

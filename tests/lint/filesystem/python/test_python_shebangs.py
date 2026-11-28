@@ -38,7 +38,7 @@ class TestPythonShebangs(unittest.TestCase):
             return True
         return len(parts) >= 2 and parts[0] == "plugins" and parts[1] == "modules"
 
-    def test_python_shebangs_are_portable(self):
+    def test_python_shebangs_are_portable(self):  # nocheck: test.text-presence -- policy lint over the shebang of every tracked Python file  # fmt: skip
         portable_violations: list[str] = []
         ansible_module_violations: list[str] = []
 

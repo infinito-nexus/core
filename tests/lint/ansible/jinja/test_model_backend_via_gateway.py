@@ -76,7 +76,7 @@ class TestModelBackendViaGateway(unittest.TestCase):
                 f"Offending lines:\n{formatted}"
             )
 
-    def test_the_pattern_still_matches_a_real_provider_reference(self) -> None:
+    def test_the_pattern_still_matches_a_real_provider_reference(self) -> None:  # nocheck: test.text-presence -- vacuity guard: the lint pattern still matches  # fmt: skip
         gateway_templates = str(PROJECT_ROOT / "roles" / _GATEWAY_ROLE / "templates")
         matched = [
             Path(path).name

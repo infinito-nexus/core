@@ -12,12 +12,13 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, performKeycloakLogin } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { isSplitRealmOidc, resolveTimeout } = require("./timeouts");
 
 const READY_MS = 10_000;
 const MODES = ["light", "dark"];
 const LIST_CELL = "table.listingTable > tbody > tr td";
+const HEADER_LOGIN = isServiceEnabled("sso");
 
 function env(name) {
   return decodeDotenvQuotedValue(process.env[name] || "");
@@ -35,13 +36,20 @@ async function restMouse(page) {
   await page.mouse.move(1, page.viewportSize().height - 1);
 }
 
-async function openLogin(page) {
-  test.skip(isServiceEnabled("sso") && isSplitRealmOidc(), "split-realm OIDC");
+async function passGate(page) {
+  if (isSplitRealmOidc()) {
+    skipUnlessServiceDisabled("sso");
+  }
   await gotoOnion(page, `${base()}/index.php`);
   if (isServiceEnabled("sso") && (await page.locator("#kc-form-login").isVisible())) {
     await performKeycloakLogin(page, env("ADMIN_USERNAME"), env("ADMIN_PASSWORD"), env("CANONICAL_DOMAIN"));
     await gotoOnion(page, `${base()}/index.php`);
   }
+}
+
+async function openLogin(page) {
+  skipUnlessServiceDisabled("sso");
+  await passGate(page);
   await ready(page, "#loginform input#username");
 }
 
@@ -58,11 +66,23 @@ async function submitLogin(page, username, password) {
 }
 
 async function signIn(page) {
-  await submitLogin(page, env("ADMIN_USERNAME"), env("ADMIN_PASSWORD"));
+  if (HEADER_LOGIN) {
+    await passGate(page);
+  } else {
+    await submitLogin(page, env("ADMIN_USERNAME"), env("ADMIN_PASSWORD"));
+  }
   await expect(page, "the administrator must land on the signed-in frame").toHaveURL(/main\.php/, {
     timeout: resolveTimeout(READY_MS),
   });
   await ready(page, "div.plugin-window");
+}
+
+async function openStyledPage(page) {
+  if (HEADER_LOGIN) {
+    await signIn(page);
+  } else {
+    await openLogin(page);
+  }
 }
 
 async function ensureSignedIn(page) {
@@ -126,7 +146,7 @@ function galleryViews() {
     await item.click({ timeout: resolveTimeout(READY_MS) });
     await ready(p, field);
   };
-  return [
+  const loginViews = [
     {
       name: "login",
       url: `${b}/index.php`,
@@ -144,6 +164,9 @@ function galleryViews() {
         await ready(p, "div#window-footer");
       },
     },
+  ];
+  return [
+    ...(HEADER_LOGIN ? [] : loginViews),
     {
       name: "recovery",
       url: `${b}/recovery.php`,
@@ -196,7 +219,7 @@ function galleryViews() {
 }
 
 exports.register = function () {
-  test("admin-rights: the administrator signs in natively and reaches the user and ACL management", async ({
+  test("admin-rights: the administrator signs in and reaches the user and ACL management", async ({
     page,
   }) => {
     await signIn(page);
@@ -224,7 +247,7 @@ exports.register = function () {
   test("design: corporate tokens apply in light and dark mode", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     expect(process.env.DESIGN_SERVICE_ENABLED).toBe("true");
-    await openLogin(page);
+    await openStyledPage(page);
     await assertDesignTokens(page, "fusiondirectory");
   });
 
@@ -251,12 +274,14 @@ exports.register = function () {
     test.skip(!logo, "the logo replacement is disabled");
     await openLogin(page);
     const logoUrl = new URL(logo, page.url()).href;
-    const login = page.locator("div#window-titlebar img#fd-logo");
-    expect(await login.evaluate((img) => getComputedStyle(img).content)).toContain(logoUrl);
     const served = await apiGetOnion(page.request, logoUrl);
     expect(`${served.status()} ${served.headers()["content-type"]}`).toMatch(/^200 image\/svg/);
-    const loginBox = await login.boundingBox();
-    expect(loginBox.width, "the login lockup must be wider than high").toBeGreaterThan(loginBox.height * 2);
+    if (!HEADER_LOGIN) {
+      const login = page.locator("div#window-titlebar img#fd-logo");
+      expect(await login.evaluate((img) => getComputedStyle(img).content)).toContain(logoUrl);
+      const loginBox = await login.boundingBox();
+      expect(loginBox.width, "the login lockup must be wider than high").toBeGreaterThan(loginBox.height * 2);
+    }
     await page.setViewportSize({ width: 1440, height: 900 });
     await signIn(page);
     const header = page.locator("div#header-left img#fd-logo");
@@ -271,8 +296,10 @@ exports.register = function () {
     test.skip(!title, "the title replacement is disabled");
     const pattern = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const lead = new RegExp(`^${pattern} - .+`);
-    await openLogin(page);
-    await expect(page).toHaveTitle(lead);
+    if (!HEADER_LOGIN) {
+      await openLogin(page);
+      await expect(page).toHaveTitle(lead);
+    }
     await signIn(page);
     await expect(page).toHaveTitle(lead);
     const logo = decodeDotenvQuotedValue(process.env.DESIGN_LOGO_URL || "");
@@ -285,9 +312,10 @@ exports.register = function () {
 
   test("design: every image the theme sheet references is served", async ({ page }) => {
     skipUnlessServiceEnabled("design");
-    await openLogin(page);
+    await openStyledPage(page);
     const sheet = `${base()}/themes/breezy/theme.css`;
     const css = await (await apiGetOnion(page.request, sheet)).text();
+    expect(css, "the mounted theme.css must carry the token mapping").toContain("var(--design-surface-1)");
     const targets = [...new Set([...css.matchAll(/url\(\s*["']?([^"')]+)["']?\s*\)/g)].map((match) => match[1]))]
       .filter((target) => !target.startsWith("data:"))
       .map((target) => new URL(target, sheet).href);

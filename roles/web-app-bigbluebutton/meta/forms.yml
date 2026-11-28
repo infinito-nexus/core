@@ -1,0 +1,12 @@
+---
+registration:
+  path: /admin/site_settings
+  sinks: [BBB_REGISTRATION]
+  fields:
+    registration_method:
+      source: services.greenlight.registration_method
+      mode: enforced
+      selector: '#admin-panel:has(.nav-link.active[data-rr-ui-event-key="registration"]) .tab-pane.active > .hstack:first-child .setting-select .dropdown-toggle'
+      type: select
+      enum: [open, invite, approval]
+      label: Registration Method

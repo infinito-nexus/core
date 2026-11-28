@@ -13,30 +13,23 @@
     resolve_compose_cid: "{{ CHECKMK_MCP_CONTAINER }}"
 
 - name: "🔑 Converge the read-only Checkmk identity the MCP adapter presents"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - "CHECKMK_API={{ CHECKMK_MCP_UPSTREAM_URL }}"
-      - -e
-      - "CHECKMK_ADMIN_USER=cmkadmin"
-      - -e
-      - CHECKMK_ADMIN_PASSWORD
-      - -e
-      - "CHECKMK_SITE={{ CHECKMK_SITE }}"
-      - -e
-      - "MCP_USER={{ CHECKMK_MCP_UPSTREAM_USER }}"
-      - -e
-      - MCP_SECRET
-      - "{{ CHECKMK_IDENTITY_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - python3
-      - "-"
-    stdin: "{{ lookup('file', 'python/provision_mcp_identity.py') }}"
-  environment:
-    CHECKMK_ADMIN_PASSWORD: "{{ CHECKMK_ADMIN_PASSWORD }}"
-    MCP_SECRET: "{{ CHECKMK_MCP_UPSTREAM_KEY }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      IFS= read -r CHECKMK_ADMIN_PASSWORD && IFS= read -r MCP_SECRET &&
+      : "${CHECKMK_ADMIN_PASSWORD:?arrived empty on stdin}" && : "${MCP_SECRET:?arrived empty on stdin}" &&
+      export CHECKMK_ADMIN_PASSWORD MCP_SECRET && container exec -i
+      -e CHECKMK_API={{ CHECKMK_MCP_UPSTREAM_URL | quote }}
+      -e CHECKMK_ADMIN_USER=cmkadmin
+      -e CHECKMK_ADMIN_PASSWORD
+      -e CHECKMK_SITE={{ CHECKMK_SITE | quote }}
+      -e MCP_USER={{ CHECKMK_MCP_UPSTREAM_USER | quote }}
+      -e MCP_SECRET
+      {{ CHECKMK_IDENTITY_LOCAL_CID | quote }}
+      python3 -
+    stdin: |-
+      {{ CHECKMK_ADMIN_PASSWORD }}
+      {{ CHECKMK_MCP_UPSTREAM_KEY }}
+      {{ lookup('file', 'python/provision_mcp_identity.py') }}
   register: checkmk_mcp_identity
   retries: 30
   delay: 10

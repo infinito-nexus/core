@@ -59,7 +59,6 @@ cmd=(infinito administration deploy dedicated "${INFINITO_INVENTORY_FILE}"
 	--diff
 	-vv
 	--password-file "${pw_file}"
-	-e ASYNC_ENABLED=false
 	-e SYS_SERVICE_ALL_ENABLED=false
 	-e SYS_SERVICE_DEFAULT_STATE=started
 )

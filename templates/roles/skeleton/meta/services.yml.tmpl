@@ -1,0 +1,225 @@
+---
+[% if kind == "static" %]
+# nocheck: garbage-collector-required  the site keeps no runtime state; its webroot holds only the files the deploy copies there
+# nocheck: playwright-service-flag  self-provider; the static site is served whenever the role runs
+# nocheck: dynamic-flag  self-provider
+[[ entity ]]:
+  modes:
+    host:
+      enabled: true
+  bond: 1
+  enabled: true
+  shared: true
+  lifecycle: alpha
+  min_storage: 50MB
+  cpus: "0.1"
+  mem_reservation: 16m
+  mem_limit: 32m
+  pids_limit: 32
+# nocheck: dynamic-flag, playwright-service-flag  the site links the brand kit's own tokens.css; the injected default.css would declare the same tokens twice
+# nocheck: design-off  Reason: the site styles itself through the brand kit, so the shared design queue has nothing to style
+design:
+  enabled: false
+  shared: false
+# nocheck: dynamic-flag
+# nocheck: logout  the public site has no SSO session to end
+logout:
+  enabled: false
+  shared: false
+# nocheck: dynamic-flag
+# nocheck: sso  the public site has no account
+sso:
+  enabled: false
+  shared: false
+  backchannel:
+    logout: "no, the public site signs nobody in"
+    endpoint: "-"
+    documentation: "-"
+    session: "-"
+# nocheck: dynamic-flag, playwright-service-flag
+# nocheck: email
+email:
+  enabled: false
+  shared: false
+[% else %]
+# nocheck: garbage-collector-required  no app-specific leftovers known; audit the application's housekeeping before go-live
+[% if database != "none" %]
+# nocheck: seaweedfs-required  the manifest declares no object storage; add seaweedfs once the application stores uploads
+[% endif %]
+[[ entity ]]:
+  healthcheck:
+    flavor: http
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  image: [[ repository | yaml ]]
+  version: [[ version | yaml ]]
+  ports:
+    internal:
+      http: [[ port ]]
+    local:
+      http: [[ local_port ]]
+  lifecycle: alpha
+  min_storage: 512MB
+  cpus: "0.5"
+  mem_reservation: 256m
+  mem_limit: 512m
+  pids_limit: 512
+[% if volumes %]
+  backup:
+    stop_required: true
+[% endif %]
+[% if login == "oidc" %]
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', '[[ application_id ]]', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', '[[ application_id ]]', 'native') }}"
+[% endif %]
+[% if login == "oidc" %]
+logout:
+  bond: 1
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+sso:
+  bond: 1
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: oidc
+  profile:
+    none_needed: skeleton default, the application's own profile handling is reviewed per README
+  backchannel:
+    logout: "no, the skeleton registers no back-channel logout endpoint; the application's OIDC client is reviewed per README"
+    endpoint: "-"
+    documentation: "-"
+    session: "until the application's own logout or the Keycloak session ends"
+[% else %]
+# nocheck: dynamic-flag
+# nocheck: logout
+logout:
+  enabled: false
+  shared: false
+# nocheck: dynamic-flag
+# nocheck: sso
+sso:
+  enabled: false
+  shared: false
+  backchannel:
+    logout: "no, the role signs nobody in through SSO"
+    endpoint: "-"
+    documentation: "-"
+    session: "-"
+[% if login == "ldap" %]
+  profile:
+    none_needed: skeleton default, the application's own profile handling is reviewed per README
+[% endif %]
+[% endif %]
+[% if login == "ldap" %]
+# nocheck: playwright-service-flag  no baseline scenario signs in through LDAP; the application's login form is wired per README
+ldap:
+  bond: 1
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
+[% endif %]
+[% if database != "none" %]
+# nocheck: playwright-service-flag  DB engine, no browser-visible surface of its own
+[[ database ]]:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-[[ database ]]' in group_names }}"
+[% endif %]
+[% if "email" in features %]
+# nocheck: playwright-service-flag  no baseline scenario triggers a mail send
+email:
+  bond: 1
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
+[% else %]
+# nocheck: dynamic-flag, playwright-service-flag
+# nocheck: email
+email:
+  enabled: false
+  shared: false
+[% endif %]
+[% if "redis" in features %]
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag  cache engine, no browser-visible surface of its own
+redis:
+  bond: 1
+  backup:
+    disabled: true
+  enabled: true # nocheck: dynamic-flag
+  shared: "{{ 'svc-db-redis' in group_names }}"
+  cpus: "0.5"
+  mem_reservation: 128m
+  mem_limit: 512m
+  pids_limit: 512
+[% endif %]
+design:
+  bond: 1
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+[% if volumes %]
+
+# nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
+container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true
+[% endif %]
+[% endif %]
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+[% if kind == "static" %]
+  # nocheck: prometheus-scrape  the site runs no container, so its vhost has no backend health for Prometheus to probe
+  scrape: false
+[% endif %]
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+[% if kind == "static" %]
+  control: false # nocheck: semaphore-contract  the static site runs no container, so Semaphore has nothing to pause
+[% else %]
+  control: true
+[% endif %]
+  status: started
+matomo:
+  bond: 1
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+
+# nocheck: playwright-service-flag
+# nocheck: variants-coverage  sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

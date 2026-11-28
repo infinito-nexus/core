@@ -1,2 +1,7 @@
 ---
 application_id: dev-nix
+
+DEV_NIX_PACKAGE_CACHE: "{{ lookup('config', application_id, 'services.nix.package_cache') }}"
+DEV_NIX_CACHE_REPO: raw-nixos-cache
+DEV_NIX_SUBSTITUTER: "{{ [DEV_NIX_PACKAGE_CACHE, 'repository', DEV_NIX_CACHE_REPO] | join('/') if DEV_NIX_PACKAGE_CACHE else '' }}"
+DEV_NIX_UPSTREAM_KEY: "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="

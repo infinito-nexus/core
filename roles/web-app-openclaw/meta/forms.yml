@@ -1,0 +1,54 @@
+---
+config:
+  path: /config
+  lock: pending
+  issue: openclaw/openclaw, drafted and not yet filed, read-only config paths the deployment manages in the Control UI config editor
+  sinks:
+    - OPENCLAW_CONFIG
+    - OPENCLAW_TRUSTED_PROXY_SOURCES
+    - OPENCLAW_TRUSTED_PROXY_MODE
+    - OPENCLAW_TRUSTED_PROXY_USER_HEADER
+    - OPENCLAW_LITELLM_PRIMARY
+    - OPENCLAW_LITELLM_BASE_URL
+  fields:
+    trustedProxies:
+      source: services.openclaw.config.trustedProxies
+      mode: enforced
+      selector: '[name="gateway.trustedProxies"]'
+      type: textarea
+      label: Trusted proxies
+    mode:
+      source: services.openclaw.config.mode
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="gateway.auth.mode"]'
+      type: select
+      label: Gateway auth mode
+    userHeader:
+      source: services.openclaw.config.userHeader
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="gateway.auth.trustedProxy.userHeader"]'
+      type: text
+      label: Trusted proxy user header
+    primary:
+      source: services.openclaw.config.primary
+      when: services.litellm.enabled
+      mode: enforced
+      selector: '[name="agents.defaults.model.primary"]'
+      type: text
+      label: Default model
+    baseUrl:
+      source: services.openclaw.config.baseUrl
+      when: services.litellm.enabled
+      mode: enforced
+      selector: '[name="models.providers.litellm.baseUrl"]'
+      type: url
+      label: LiteLLM provider base URL
+    servers:
+      source: services.openclaw.mcp_servers.selected
+      when: mcp.enabled
+      mode: enforced
+      selector: '[name="mcp.servers"]'
+      type: textarea
+      label: MCP servers

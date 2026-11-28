@@ -1,14 +1,14 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 
 const moodleScopeName = decodeDotenvQuotedValue(process.env.MOODLE_OIDC_SCOPE_NAME);
 
 exports.register = function (shared) {
   test.describe("moodle keycloak scope wiring (variant 0)", () => {
-    test.skip(!shared.env.ssoEnabled, "SSO shared service disabled");
-
     test("Keycloak realm discovery advertises the moodle OIDC scope", async ({ request }) => {
+      skipUnlessServiceEnabled("sso");
       expect(shared.env.oidcIssuerUrl, "OIDC_ISSUER_URL must be set in env").toBeTruthy();
       const r = await request.get(`${shared.env.oidcIssuerUrl}/.well-known/openid-configuration`, { timeout: resolveTimeout(30_000) });
       expect(r.ok(), `discovery doc must be reachable at ${shared.env.oidcIssuerUrl}`).toBeTruthy();
@@ -21,6 +21,7 @@ exports.register = function (shared) {
     });
 
     test("biber can edit middleName via Keycloak Account REST API and value persists", async ({ page }) => {
+      skipUnlessServiceEnabled("sso");
       expect(shared.env.oidcIssuerUrl, "OIDC_ISSUER_URL must be set in env").toBeTruthy();
       expect(shared.env.oidcClientId, "OIDC_CLIENT_ID must be set in env").toBeTruthy();
 

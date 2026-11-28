@@ -174,6 +174,9 @@ def real_run(case: unittest.TestCase) -> tuple[int, str, str]:
         (stage / ".env.keys").write_text("GITHUB_ACTIONS\n", encoding="utf-8")
         reports.mkdir()
         shutil.copy(FILES / "playwright.config.js", stage)
+        utils = stage / "tests" / "personas" / "utils"
+        utils.mkdir(parents=True)
+        shutil.copy(FILES / "personas" / "utils" / "network.js", utils)
         (stage / "tests" / "secret.spec.js").write_text(SPEC, encoding="utf-8")
         install = ["npm", "install", "--no-fund", "--no-audit", "--no-save"]
         fetch(

@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { gotoOnion } = require("./personas");
+const { gotoOnion, isOnionUrl } = require("./personas");
 const { resolveTimeout } = require("./timeouts");
 const { REVIEW_TAG, routeReview, postOnMastodon, awaitCrosspostedDraft, openDraftInDesk } = require("./test-crossposter-draft");
 
@@ -79,7 +79,7 @@ exports.register = function (shared) {
     shared.skipUnlessServiceEnabled("provider");
     shared.skipOnOnionSibling("mastodon");
     test.skip(
-      shared.env.appBaseUrl.includes(".onion"),
+      isOnionUrl(shared.env.appBaseUrl),
       "LinkedIn cannot redirect a member back to an onion OpenPost origin",
     );
     test.setTimeout(resolveTimeout(480_000));

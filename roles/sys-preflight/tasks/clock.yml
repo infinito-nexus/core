@@ -1,0 +1,26 @@
+---
+# include-gated: when: not (DOCKER_IN_CONTAINER | bool)
+- name: "🔍 Check whether chrony keeps the host clock"
+  ansible.builtin.stat:
+    path: /usr/bin/chronyc
+  register: preflight_chronyc
+
+- name: "⏳ Wait up to 2 min until chrony reports leap status Normal"
+  ansible.builtin.command:
+    argv: [chronyc, tracking]
+  register: preflight_chrony
+  changed_when: false
+  retries: 24
+  delay: 5
+  until: preflight_chrony.stdout is search('Leap status +[:] +Normal')
+  when: preflight_chronyc.stat.exists
+
+- name: "⏳ Wait up to 2 min until timedatectl reports NTPSynchronized=yes"
+  ansible.builtin.command:
+    argv: [timedatectl, show, --property=NTPSynchronized, --value]
+  register: preflight_clock
+  changed_when: false
+  retries: 24
+  delay: 5
+  until: preflight_clock.stdout | trim == 'yes'
+  when: not preflight_chronyc.stat.exists

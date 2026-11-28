@@ -6,7 +6,7 @@ As a visitor of an Infinito.Nexus deployment, I want the documentation, the univ
 
 ## Scope
 
-This requirement moves the core roles that render translated text onto the catalogs of [037 - Gettext Catalogs with LibreTranslate Autotranslation](037-gettext-catalogs-libretranslate.md) and opens the API of [038 - web-svc-api](README.md#archive) to browser consumers.
+This requirement moves the core roles that render translated text onto the catalogs of [054 - Gettext Catalogs with LibreTranslate Autotranslation](054-gettext-catalogs-libretranslate.md) and opens the API of [038 - web-svc-api](README.md#archive) to browser consumers.
 The consumer repositories change afterwards and are not part of this requirement.
 
 ## Findings That Constrain the Design
@@ -20,18 +20,18 @@ The consumer repositories change afterwards and are not part of this requirement
 
 ## Acceptance Criteria
 
-- [ ] For every version whose tree holds a `locale/<code>/LC_MESSAGES/docs.po` with at least one translation, web-app-docs publishes the English site first and then one site per such language at `/<version>/<code>/`.
-- [ ] web-app-docs builds the deployed working tree as the unlisted version `deployed`, because the git mirror only holds what is pushed to `main`.
+- [x] For every version whose tree holds a `locale/<code>/LC_MESSAGES/docs.po` with at least one translation, web-app-docs publishes the English site first, then builds the site of every such language listed in `preload_languages` eagerly, and builds every further translated language at `/<version>/<code>/` on its first request.
+- [x] web-app-docs builds the deployed working tree as the unlisted version `deployed`, because the git mirror only holds what is pushed to `main`.
 - [ ] `/deployed/de/` serves a page whose `<html lang>` is `de` and whose body contains the German translation of a message from the German `docs.po`; `/latest/de/` follows once the catalogs are on `main`.
-- [ ] Every documentation page offers a language switcher that lists English and every language built for that version, and switching keeps the page path.
-- [ ] A request for a language of `meta/languages.yml` that has no site for the version returns a 404, not the English page.
+- [x] Every documentation page offers a language switcher that lists English and every language built for that version, and switching keeps the page path.
+- [x] A request for a language of `meta/languages.yml` that has no site for the version returns a 404, not the English page.
 - [x] `min_storage` of web-app-docs states the storage of the English site plus the translated sites.
 - [x] `logout_i18n.yml` holds only the English source strings, and the logout panel reads every other language from `core.po`.
-- [ ] For each of the 29 languages of the former `logout_i18n.yml`, the rendered panel catalogue holds the same strings as before the migration.
+- [x] For each of the 29 languages of the former `logout_i18n.yml`, the rendered panel catalogue holds the same strings as before the migration.
 - [x] The logout panel takes the text direction of every language from `meta/languages.yml`.
 - [x] web-app-dashboard bakes one port-ui content catalog per language that has a translated dashboard string into its image, generated from `core.po` at deploy time.
 - [x] The dashboard at `/de/` shows the German translation of at least one card description and one menu category.
 - [x] A role that enables the `api` service gets the web-svc-api origin in its `connect-src`, and a role without it does not.
 - [x] web-app-meta enables the `api` service when web-svc-api is deployed and renders the API base URL into its environment.
-- [ ] The Playwright specs of web-app-docs, web-app-keycloak and web-app-dashboard cover the German page, the German logout panel and the German dashboard.
+- [x] The Playwright specs of web-app-docs, web-app-keycloak and web-app-dashboard cover the German page, the German logout panel and the German dashboard.
 - [ ] `make compose-deploy` is green for web-app-docs, web-app-keycloak, web-app-dashboard and web-app-meta.

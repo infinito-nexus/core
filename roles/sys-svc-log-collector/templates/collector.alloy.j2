@@ -1,0 +1,114 @@
+{% set journal_application_field = '__journal_' ~ (DOCKER_LOG_JOURNAL_FIELD | lower) %}
+loki.relabel "journal" {
+  forward_to = []
+
+  rule {
+    source_labels = [{{ journal_application_field | to_json }}]
+    regex         = {{ LOG_COLLECTOR_SELF_EXCLUDED | join('|') | to_json }}
+    action        = "drop"
+  }
+
+  rule {
+    source_labels = ["__journal_syslog_identifier"]
+    regex         = {{ LOG_COLLECTOR_SELF_EXCLUDED | join('|') | to_json }}
+    action        = "drop"
+  }
+
+  rule {
+    target_label = "host"
+    replacement  = {{ inventory_hostname | to_json }}
+  }
+
+  rule {
+    source_labels = [{{ journal_application_field | to_json }}]
+    target_label  = "application"
+  }
+
+  rule {
+    source_labels = ["__journal_container_name"]
+    target_label  = "container"
+  }
+
+  rule {
+    source_labels = ["__journal__systemd_unit"]
+    target_label  = "unit"
+  }
+
+  rule {
+    source_labels = ["__journal_syslog_identifier"]
+    target_label  = "identifier"
+  }
+
+  rule {
+    source_labels = ["__journal_priority_keyword"]
+    target_label  = "level"
+  }
+
+  rule {
+    target_label = "log_class"
+    replacement  = "system"
+  }
+
+  rule {
+    source_labels = ["__journal__systemd_unit"]
+    regex         = "(sshd|ssh|sudo|systemd-logind|polkit)\\.service"
+    target_label  = "log_class"
+    replacement   = "security"
+  }
+
+  rule {
+    source_labels = ["__journal_syslog_facility"]
+    regex         = "4|10"
+    target_label  = "log_class"
+    replacement   = "security"
+  }
+
+  rule {
+    source_labels = ["__journal_container_name"]
+    regex         = ".+"
+    target_label  = "log_class"
+    replacement   = "application"
+  }
+
+  rule {
+    source_labels = [{{ journal_application_field | to_json }}, "__journal_priority"]
+    regex         = {{ ('(' ~ (LOG_COLLECTOR_ACCESS_LOG_APPLICATIONS | join('|')) ~ ');' ~ LOG_COLLECTOR_STDOUT_PRIORITY) | to_json }}
+    target_label  = "log_class"
+    replacement   = "access"
+  }
+}
+
+loki.source.journal "host" {
+  path          = {{ LOG_COLLECTOR_JOURNAL_PATH | to_json }}
+  max_age       = {{ LOG_COLLECTOR_JOURNAL_MAX_AGE | to_json }}
+  relabel_rules = loki.relabel.journal.rules
+  labels        = {source = "journal"}
+  forward_to    = [loki.process.redact.receiver]
+}
+
+loki.process "redact" {
+{% for rule in LOG_REDACTION_RULES %}
+  stage.replace {
+    expression = `{{ rule.pattern }}`
+    replace    = {{ LOG_REDACTION_REPLACEMENT | to_json }}
+  }
+
+{% endfor %}
+  forward_to = [loki.write.loki.receiver]
+}
+
+loki.write "loki" {
+  endpoint {
+    url                 = {{ LOG_COLLECTOR_PUSH_URL | to_json }}
+    tenant_id           = {{ LOG_COLLECTOR_TENANT | to_json }}
+    bearer_token        = sys.env("LOKI_PUSH_TOKEN")
+    max_backoff_period  = {{ LOG_COLLECTOR_MAX_BACKOFF_PERIOD | to_json }}
+    max_backoff_retries = {{ LOG_COLLECTOR_MAX_BACKOFF_RETRIES | int }}
+{% if LOG_COLLECTOR_CA_ENABLED | bool %}
+
+    tls_config {
+      ca_file = {{ CA_TRUST.cert_host | to_json }}
+    }
+{% endif %}
+  }
+}

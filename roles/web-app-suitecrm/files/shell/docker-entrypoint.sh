@@ -129,9 +129,9 @@ if [ "$_have_lock" = "1" ]; then
     log "SuiteCRM already installed - skipping installer."
   fi
 
-  if [ -d "${APP_DIR}/cache/prod" ] && [ -n "$(find "${APP_DIR}/extensions" -path '*/config/*' -type f -newer "${APP_DIR}/cache/prod" -print -quit)" ]; then
+  if [ -d "${APP_DIR}/cache/prod" ] && [ -n "$(find "${APP_DIR}/extensions" \( -path '*/config/*' -o -path '*/backend/*' \) -type f -newer "${APP_DIR}/cache/prod" -print -quit)" ]; then
     CACHE_REFRESH=1
-    log "Extension config is newer than the prod cache - refreshing it."
+    log "Extension config or backend code is newer than the prod cache - refreshing it."
   fi
 
   if [ "$CACHE_REFRESH" = "1" ] || [ ! -d "${APP_DIR}/cache/prod" ]; then

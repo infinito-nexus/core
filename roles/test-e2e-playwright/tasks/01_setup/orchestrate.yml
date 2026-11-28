@@ -19,8 +19,8 @@
 - name: ✅ Refuse a stage base, shared or tools dir another user created or may write
   ansible.builtin.assert:
     that:
-      - not playwright_owned.stat.exists or (playwright_owned.stat.isdir and not playwright_owned.stat.islnk
-        and playwright_owned.stat.uid == 0 and not playwright_owned.stat.wgrp and not playwright_owned.stat.woth)
+      - not playwright_owned.stat.exists or (playwright_owned.stat.isdir and not playwright_owned.stat.islnk and playwright_owned.stat.uid == 0 and not
+        playwright_owned.stat.wgrp and not playwright_owned.stat.woth)
     fail_msg: >-
       {{ playwright_owned.playwright_owned_dir }} is a link, not root's or writable by others, so the masker, its helpers
       or node_modules there could be swapped; remove it.

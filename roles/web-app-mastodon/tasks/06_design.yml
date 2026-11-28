@@ -32,6 +32,25 @@
         label: "{{ item.key }}"
       register: mastodon_design_files
 
+- name: "⬇️ Read the managed branding settings Mastodon holds"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ [role_path, 'files/sql/select/settings.sql'] | path_join }}"
+    named_args:
+      fields: "{{ MASTODON_BRANDING | list | to_json }}"
+    expect_rows: true
+  register: mastodon_branding_stored
+  changed_when: false
+  delegate_to: "{{ MASTODON_DATABASE_HOST_NODE }}"
+
+- name: "📣 Report the managed branding settings the write reverts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current:
+      branding: >-
+        {{ dict(mastodon_branding_stored.rows | map('first')
+           | zip(mastodon_branding_stored.rows | map('last') | map('from_yaml'))) }}
+
 - name: "🎨 Converge custom CSS, title and logos of {{ application_id }}"
   ansible.builtin.command:
     argv:
@@ -51,7 +70,7 @@
       css: "{{ lookup('ansible.builtin.template', 'custom.css.j2') if MASTODON_DESIGN_ENABLED | bool else '' }}"
       begin: "{{ MASTODON_CUSTOM_CSS_BEGIN }}"
       end: "{{ MASTODON_CUSTOM_CSS_END }}"
-      title: "{{ lookup('design', application_id).title if lookup('design', application_id).title is string else '' }}"
+      title: "{{ MASTODON_BRANDING.site_title if 'site_title' in MASTODON_BRANDING else lookup('design', application_id).label }}"
       mark: "{{ MASTODON_DESIGN_UPLOAD_MARK }}"
       uploads: "{{ dict(mastodon_design_slurped | map(attribute='item.key') | zip(mastodon_design_slurped | map(attribute='content'))) }}"
   register: mastodon_design

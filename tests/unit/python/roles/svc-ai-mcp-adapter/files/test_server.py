@@ -288,6 +288,89 @@ class TestConcurrencyCeiling(unittest.TestCase):
         self.assertEqual(200, recorder.status)
 
 
+AGENT_POLICY = {
+    "allow": [
+        {
+            "rule": "mcp(web-app-example/example_list):read",
+            "target": "web-app-example/example_list",
+            "actions": ["read"],
+        }
+    ],
+    "ask": [],
+    "deny": [],
+}
+
+
+class TestAgentCallers(unittest.TestCase):
+    """Each agent authenticates with its own token and reaches only its grants."""
+
+    def setUp(self):
+        self.module = load()
+        self.module.AGENT_TOKENS = {"mant0a": "tok-mant", "impl0a": "tok-impl"}
+        self.module.AGENT_POLICIES = {"mant0a": AGENT_POLICY}
+        self.module.CONTRACT["limits"]["request_bytes"] = 4096
+
+    def _handle(self, agent, token, tool):
+        handler = self.module.Handler.__new__(self.module.Handler)
+        recorder = Recorder()
+        handler.send_response = recorder.send_response
+        handler.send_header = recorder.send_header
+        handler.end_headers = recorder.end_headers
+        written = []
+        handler.wfile = type(
+            "W", (), {"write": lambda _s, data: written.append(data)}
+        )()
+        handler.path = self.module.ENDPOINT
+        request = {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": {"name": tool, "arguments": {}},
+        }
+        payload = json.dumps(request).encode()
+        handler.rfile = type("R", (), {"read": lambda _s, _n: payload})()
+        handler.headers = {
+            "Content-Length": str(len(payload)),
+            "Authorization": f"Bearer {token}",
+            self.module.AGENT_HEADER: agent,
+        }
+        with patch.object(self.module, "call_upstream", lambda *_a: {"ok": True}):
+            handler.do_POST()
+        recorder.body = b"".join(written)
+        return recorder
+
+    def test_an_agent_reaches_a_granted_tool_with_its_own_token(self):
+        self.assertEqual(200, self._handle("mant0a", "tok-mant", "example_list").status)
+
+    def test_a_token_of_one_agent_is_refused_for_another(self):
+        recorder = self._handle("impl0a", "tok-mant", "example_list")
+        self.assertEqual(401, recorder.status)
+        self.assertIn("unauthenticated", recorder.body.decode())
+
+    def test_the_shared_bearer_does_not_authenticate_an_agent(self):
+        self.assertEqual(401, self._handle("mant0a", "real", "example_list").status)
+
+    def test_a_call_outside_the_grants_is_refused_with_the_matched_rule(self):
+        recorder = self._handle("mant0a", "tok-mant", "example_get")
+        self.assertEqual(403, recorder.status)
+        self.assertIn(
+            "firewall_refused: deny by no rule matched", recorder.body.decode()
+        )
+
+    def test_a_refused_call_is_audited_with_its_deny_reason(self):
+        events = []
+        with patch.object(self.module, "log", events.append):
+            self._handle("mant0a", "tok-mant", "example_get")
+        self.assertEqual(
+            [("mant0a", "example_get", "firewall_refused: deny by no rule matched", 0)],
+            [(e["consumer"], e["tool"], e["status"], e["duration_ms"]) for e in events],
+        )
+
+    def test_an_agent_without_a_policy_reaches_nothing(self):
+        recorder = self._handle("impl0a", "tok-impl", "example_list")
+        self.assertEqual(403, recorder.status)
+
+
 class TestContentLength(unittest.TestCase):
     def setUp(self):
         self.module = load()

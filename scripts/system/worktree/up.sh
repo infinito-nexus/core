@@ -3,8 +3,7 @@
 #
 # Create an isolated git worktree for a branch and pin it to a free slot, so
 # its compose stack no longer collides with the primary checkout on subnet,
-# host ports, container names or volumes. The cache stack is not duplicated:
-# the worktree joins the running one over an external network.
+# host ports, container names or volumes.
 #
 # Use `make worktree-up` rather than calling this script directly.
 
@@ -36,19 +35,19 @@ if [ -e "${path}" ]; then
 	exit 1
 fi
 
-slot="$(worktree_next_slot)"
-if [ "${slot}" -gt "${WORKTREE_MAX_SLOT}" ]; then
-	echo "FAILURE: no free slot left (max ${WORKTREE_MAX_SLOT}); tear down an existing worktree" >&2
+echo ">>> Creating worktree for '${branch}' at ${path}"
+git worktree add "${path}" "${branch}"
+
+if ! slot="$(worktree_allocate_slot "${path}")"; then
+	echo "FAILURE: the slot registry gave ${path} no slot" >&2
+	if git worktree remove --force "${path}"; then
+		echo ">>> Removed the worktree ${path} again" >&2
+	else
+		echo "FAILURE: could not remove ${path}; run 'make worktree-down branch=${branch} force=true'" >&2
+	fi
 	exit 1
 fi
-
-cache_network="$(worktree_cache_network)"
-if [ -z "${cache_network}" ]; then
-	echo ">>> WARNING: no running cache stack found; the worktree will start without a shared cache"
-fi
-
-echo ">>> Creating worktree for '${branch}' at ${path} (slot ${slot})"
-git worktree add "${path}" "${branch}"
+echo ">>> Slot ${slot} recorded for the default stack of ${path}"
 
 git_common_dir="$(git rev-parse --path-format=absolute --git-common-dir)"
 
@@ -71,7 +70,6 @@ INFINITO_SWARM_NFS_IP=${lab_prefix}.13
 INFINITO_SWARM_BACKUP_IP=${lab_prefix}.14
 INFINITO_RUNNER_PREFIX=infinito-${slug}
 INFINITO_CONTAINER=infinito_nexus_${slug//[.-]/_}
-INFINITO_CACHE_NETWORK=${cache_network}
 PINS
 
 echo ">>> Generating .env from the pins"
@@ -92,7 +90,6 @@ env -i -C "${path}" \
 	INFINITO_SWARM_NFS_IP="${lab_prefix}.13" \
 	INFINITO_SWARM_BACKUP_IP="${lab_prefix}.14" \
 	INFINITO_RUNNER_PREFIX="infinito-${slug}" \
-	INFINITO_CACHE_NETWORK="${cache_network}" \
 	python3 -m cli.meta.env
 
 cat <<SUMMARY
@@ -105,7 +102,6 @@ Worktree ready.
   subnet     172.30.${slot}.0/24
   bind IP    127.0.0.$((slot + 1))
   container  infinito_nexus_${slug//[.-]/_}
-  cache net  ${cache_network:-<none>}
   domain     $(awk -F= '$1 == "INFINITO_DOMAIN" { print $2 }' "${path}/.env")
 
 Next:

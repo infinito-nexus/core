@@ -97,6 +97,7 @@ ARGV_VARS = {
     "_playwright_ca_required": False,
     "TEST_E2E_PLAYWRIGHT_SHARED_NODE_MODULES": "/shared/node_modules",
     "TEST_E2E_PLAYWRIGHT_SHARED_PERSONAS": "/shared/personas",
+    "TEST_E2E_PLAYWRIGHT_LDAP_SOCKET_MOUNTED": False,
     "TEST_E2E_PLAYWRIGHT_IMAGE": IMAGE,
     "TEST_E2E_PLAYWRIGHT_COMMAND": "npx playwright test",
     "TEST_E2E_PLAYWRIGHT_ARGUMENTS": ["--max-failures=5"],

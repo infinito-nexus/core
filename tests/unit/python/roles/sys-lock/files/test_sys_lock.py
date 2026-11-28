@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import importlib.util
+import io
 from unittest import TestCase, main, mock
 
 from . import PROJECT_ROOT
@@ -76,28 +77,118 @@ class GetMaxAttemptsTests(TestCase):
         self.assertIsInstance(SCRIPT.get_max_attempts(61), int)
 
 
-class CheckServiceActiveTests(TestCase):
-    def _with_status(self, status):
+def fake_systemctl(active_state, sub_state):
+    """Build a ``subprocess.run`` stand-in answering like systemctl.
+
+    Args:
+        active_state: value reported for ``ActiveState`` and by ``is-active``.
+        sub_state: value reported for ``SubState``.
+
+    Returns:
+        A callable for ``mock.patch.object(..., side_effect=...)``.
+    """
+
+    def run(argv, **_kwargs):
         completed = mock.Mock()
-        completed.stdout = status.encode("utf-8")
-        return mock.patch.object(SCRIPT.subprocess, "run", return_value=completed)
+        if "is-active" in argv:
+            completed.stdout = f"{active_state}\n".encode()
+        else:
+            completed.stdout = (
+                f"ActiveState={active_state}\nSubState={sub_state}\n".encode()
+            )
+        return completed
 
-    def test_active_counts_as_active(self):
-        with self._with_status("active"):
+    return run
+
+
+class CheckServiceActiveTests(TestCase):
+    def _with_state(self, active_state, sub_state):
+        return mock.patch.object(
+            SCRIPT.subprocess,
+            "run",
+            side_effect=fake_systemctl(active_state, sub_state),
+        )
+
+    def test_a_running_simple_service_holds_the_lock(self):
+        with self._with_state("active", "running"):
             self.assertTrue(SCRIPT.check_service_active("x.service"))
 
-    def test_activating_also_counts_as_active(self):
-        """A service still starting must hold the lock, or the gate races it."""
-        with self._with_status("activating"):
+    def test_a_oneshot_in_its_main_process_holds_the_lock(self):
+        with self._with_state("activating", "start"):
             self.assertTrue(SCRIPT.check_service_active("x.service"))
+
+    def test_a_unit_winding_down_holds_the_lock(self):
+        with self._with_state("deactivating", "stop-post"):
+            self.assertTrue(SCRIPT.check_service_active("x.service"))
+
+    def test_a_reloading_unit_holds_the_lock(self):
+        with self._with_state("reloading", "reload"):
+            self.assertTrue(SCRIPT.check_service_active("x.service"))
+
+    def test_a_unit_past_its_main_process_holds_the_lock(self):
+        with self._with_state("activating", "start-post"):
+            self.assertTrue(SCRIPT.check_service_active("x.service"))
+
+    def test_a_unit_waiting_in_its_own_lock_does_not(self):
+        with self._with_state("activating", "start-pre"):
+            self.assertFalse(SCRIPT.check_service_active("x.service"))
+
+    def test_a_finished_remain_after_exit_unit_does_not(self):
+        with self._with_state("active", "exited"):
+            self.assertFalse(SCRIPT.check_service_active("x.service"))
 
     def test_inactive_does_not(self):
-        with self._with_status("inactive"):
+        with self._with_state("inactive", "dead"):
             self.assertFalse(SCRIPT.check_service_active("x.service"))
 
     def test_failed_does_not(self):
-        with self._with_status("failed"):
+        with self._with_state("failed", "failed"):
             self.assertFalse(SCRIPT.check_service_active("x.service"))
+
+    def test_an_unknown_unit_does_not(self):
+        with self._with_state("inactive", "dead"):
+            self.assertFalse(SCRIPT.check_service_active("missing.service"))
+
+
+class TwoWaitersTests(TestCase):
+    def test_two_units_waiting_on_each_other_both_pass(self):
+        with (
+            mock.patch.object(
+                SCRIPT.subprocess,
+                "run",
+                side_effect=fake_systemctl("activating", "start-pre"),
+            ),
+            mock.patch.object(SCRIPT.time, "sleep") as sleep,
+        ):
+            SCRIPT.main(["a.service", "b.service"], ["a.service"], 60)
+            SCRIPT.main(["a.service", "b.service"], ["b.service"], 60)
+        sleep.assert_not_called()
+
+
+class TimeoutTests(TestCase):
+    def test_a_timeout_fails_the_unit_by_default(self):
+        with (
+            mock.patch.object(SCRIPT, "check_service_active", return_value=True),
+            mock.patch.object(SCRIPT.time, "sleep"),
+            self.assertRaises(SCRIPT.AttemptError),
+        ):
+            SCRIPT.main(["busy.service"], [], SCRIPT.BREAK_TIME_SECONDS * 2)
+
+    def test_a_timeout_warns_and_returns_when_asked_to_proceed(self):
+        with (
+            mock.patch.object(SCRIPT, "check_service_active", return_value=True),
+            mock.patch.object(SCRIPT.time, "sleep"),
+            mock.patch("sys.stderr", new_callable=io.StringIO) as stderr,
+            mock.patch("sys.stdout", new_callable=io.StringIO) as stdout,
+        ):
+            SCRIPT.main(
+                ["busy.service"],
+                [],
+                SCRIPT.BREAK_TIME_SECONDS * 2,
+                proceed_on_timeout=True,
+            )
+        self.assertIn("proceeding without it", stderr.getvalue())
+        self.assertNotIn("All required services have stopped", stdout.getvalue())
 
 
 class CheckAnyServiceActiveTests(TestCase):

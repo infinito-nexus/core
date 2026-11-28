@@ -1,16 +1,17 @@
 """Env (rendered into test.env from templates/test.env.j2):
-OPENPOST_LOCAL_URL           published OpenPost origin on the stack host
+OPENPOST_INTERNAL_URL        OpenPost origin inside its own container
 OPENPOST_API_HEADERS_B64     base64 JSON of the Host and proto headers the proxy would send
 OPENPOST_ADMIN_EMAIL         break-glass instance admin e-mail
 OPENPOST_ADMIN_PASSWORD_B64  base64 break-glass password
 OPENPOST_RELAY_TARGETS       JSON map of sibling platform to the domain the relay carries
 OPENPOST_DEADLINE_SECONDS    readiness budget, below the harness timeout
 OPENPOST_PUBLIC_URL          public origin served by the shared proxy
+OPENPOST_TOR_SUFFIX          host suffix the network registry declares for the tor network
 OPENPOST_SSO_ENABLED         true when Keycloak provisions users, so the proxy closes password sign-up
 OPENPOST_CONTAINER           resolved OpenPost container, used to reach the simulator admin API
 OPENPOST_SIMULATOR_PLATFORMS JSON list of OpenPost platforms served by the provider simulator, empty without it
 OPENPOST_SIMULATOR_HOST      one simulator alias, whose /__admin API holds the request journal
-OPENPOST_PROVIDER_URL        published plain-HTTP origin of the fake provider that plays LinkedIn, empty without it
+OPENPOST_PROVIDER_URL        public origin of the fake provider that plays LinkedIn, served by the shared proxy, empty without it
 OPENPOST_UNCONFIGURED_PLATFORMS JSON list of commercial platforms without credentials, which must not connect
 OPENPOST_S3_PUBLIC_URL       public bucket URL with a trailing slash, empty when media stays in the role volume
 OPENPOST_DB_CONTAINER        Postgres container on the probe's node, empty when swarm placed it elsewhere
@@ -43,21 +44,27 @@ import urllib.parse
 import urllib.request
 
 
+def is_onion(host: str | None) -> bool:
+    return (host or "").endswith(TOR_SUFFIX)
+
+
 def public_url(url: str) -> str:
     parts = urllib.parse.urlsplit(url)
-    if (parts.hostname or "").endswith(".onion") and parts.scheme == "https":
+    if is_onion(parts.hostname) and parts.scheme == "https":
         return urllib.parse.urlunsplit(("http", *parts[1:]))
     return url
 
 
-BASE = os.environ["OPENPOST_LOCAL_URL"].rstrip("/") + "/api/v1"
 HEADERS = json.loads(base64.b64decode(os.environ["OPENPOST_API_HEADERS_B64"]))
 ADMIN_EMAIL = os.environ["OPENPOST_ADMIN_EMAIL"]
 ADMIN_PASSWORD = base64.b64decode(os.environ["OPENPOST_ADMIN_PASSWORD_B64"]).decode()
 RELAY_TARGETS = json.loads(os.environ["OPENPOST_RELAY_TARGETS"])
 DEADLINE = time.monotonic() + int(os.environ["OPENPOST_DEADLINE_SECONDS"])
 PUBLIC_URL = os.environ["OPENPOST_PUBLIC_URL"].rstrip("/")
-ONION_ORIGIN = (urllib.parse.urlparse(PUBLIC_URL).hostname or "").endswith(".onion")
+TOR_SUFFIX = os.environ["OPENPOST_TOR_SUFFIX"]
+ONION_ORIGIN = is_onion(urllib.parse.urlparse(PUBLIC_URL).hostname)
+BASE = public_url(PUBLIC_URL) + "/api/v1"
+INTERNAL_URL = os.environ["OPENPOST_INTERNAL_URL"].rstrip("/")
 SSO_ENABLED = os.environ["OPENPOST_SSO_ENABLED"] == "true"
 CONTAINER = os.environ["OPENPOST_CONTAINER"]
 SIMULATOR_PLATFORMS = json.loads(os.environ["OPENPOST_SIMULATOR_PLATFORMS"])
@@ -170,7 +177,11 @@ def _open(request: urllib.request.Request) -> tuple[int, str, object]:
 
 
 def in_container(
-    container: str, *argv: str, env: dict[str, str] | None = None, user: str = ""
+    container: str,
+    *argv: str,
+    env: dict[str, str] | None = None,
+    user: str = "",
+    stdin: bytes | None = None,
 ) -> bytes:
     flags = [
         item
@@ -178,8 +189,10 @@ def in_container(
         for item in ("-e", f"{name}={value}")
     ]
     flags += ["-u", user] if user else []
+    flags += ["-i"] if stdin is not None else []
     result = subprocess.run(
         ["container", "exec", *flags, container, *argv],
+        input=stdin,
         capture_output=True,
         timeout=300,
         check=False,
@@ -189,6 +202,24 @@ def in_container(
             f"[FAIL] {argv[0]} in {container} exited {result.returncode}: {result.stderr.decode()[-400:]}"
         )
     return result.stdout
+
+
+def post_inside(path: str, body: object) -> object:
+    headers = {**HEADERS, "Content-Type": "application/json"}
+    raw = in_container(
+        CONTAINER,
+        "wget",
+        "-q",
+        "-O",
+        "-",
+        "-Y",
+        "off",
+        *(f"--header={name}: {value}" for name, value in headers.items()),
+        "--post-file=/dev/stdin",
+        INTERNAL_URL + "/api/v1" + path,
+        stdin=json.dumps(body).encode(),
+    )
+    return json.loads(raw) if raw.strip() else None
 
 
 def check(label: str, ok: bool, detail: object = "") -> None:

@@ -1,8 +1,14 @@
 {# The following directives enforce OAuth2 authentication: #}
 
-auth_request /oauth2/auth;
+auth_request {{ sso_proxy_auth_uri | default('/oauth2/auth') }};
 
 error_page 401 = @oauth2_start;
+{% if sso_proxy_auth_uri is defined and 'web-svc-access-request' in group_names %}
+{% set _gate = lookup('sso', application_id, 'oauth2_restricted_locations') | selectattr('auth_uri', 'equalto', sso_proxy_auth_uri) | first %}
+{% set _role_prefix = '/' ~ (RBAC.GROUP.NAME | trim('/')) ~ '/' ~ application_id ~ '/' %}
+{% set _roles = _gate.groups | select('match', _role_prefix) | map('replace', _role_prefix, '') | list %}
+error_page 403 "{{ lookup('tls', 'web-svc-access-request', 'url.base') }}?{{ ({'application': application_id} | urlencode) ~ (_roles | map('urlencode') | map('regex_replace', '^', '&role=') | join) }}";
+{% endif %}
 
 auth_request_set $authrequest_user        $upstream_http_x_auth_request_user;
 auth_request_set $authrequest_username    $upstream_http_x_auth_request_preferred_username;
@@ -18,4 +24,14 @@ proxy_set_header X-Forwarded-Access-Token         $authrequest_accesstoken;
 {% else %}
 proxy_set_header X-Forwarded-Access-Token         "";
 {% endif %}
+{% set _declared_claim_headers = lookup('sso', application_id, 'oauth2_claim_headers') %}
+{% for header in OIDC.ATTRIBUTES | oauth2_claim_headers %}
+{% if header.key in _declared_claim_headers %}
+auth_request_set $authrequest_claim_{{ header.key | lower }} ${{ header.variable }};
+proxy_set_header {{ header.request }} $authrequest_claim_{{ header.key | lower }};
+{% else %}
+proxy_set_header {{ header.request }} "";
+{% endif %}
+proxy_set_header {{ header.response }} "";
+{% endfor %}
 {% include 'roles/sys-svc-proxy/templates/headers/untrusted_identity_strips.conf.j2' %}

@@ -12,23 +12,15 @@
   until: lmstudio_daemon_ready.rc == 0
   delegate_to: "{{ lmstudio_node }}"
 
-- name: "⬇️ Preload the LM Studio models into the volume on '{{ lmstudio_node }}'"
-  when: not (LMSTUDIO_PRESEED_ENABLED | bool)
-  block:
-    - name: "🧭 Resolve the model volume's mountpoint on '{{ lmstudio_node }}'"
-      ansible.builtin.command: >-
-        container volume inspect --format '{{ "{{" }}.Mountpoint{{ "}}" }}'
-        {{ lookup('volume', application_id, 'lmstudio_models').name | quote }}
-      register: lmstudio_models_mountpoint
-      changed_when: false
-      delegate_to: "{{ lmstudio_node }}"
-
-    - name: "⬇️ Fetch the LM Studio models from their sources on '{{ lmstudio_node }}'"
-      ansible.builtin.include_tasks:
-        file: utils/fetch.yml
-        apply:
-          delegate_to: "{{ lmstudio_node }}"
-      vars:
-        lmstudio_fetch_store: "{{ lmstudio_models_mountpoint.stdout | trim }}"
-        lmstudio_fetch_staging: "{{ [lmstudio_models_mountpoint.stdout | trim, '.staging'] | path_join }}"
-        lmstudio_fetch_node: "{{ lmstudio_node }}"
+- name: "🔗 Link each preload model on '{{ lmstudio_node }}' to its store file"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ LMSTUDIO_LOCAL_CID | quote }}
+    sh -c {{ ('mkdir -p ' ~ ([LMSTUDIO_MODELS_TARGET, model.repo] | path_join | quote)
+              ~ ' && ln -sfn ' ~ ([AI_MODELS_STORE_PATH, model.sha256] | path_join | quote)
+              ~ ' ' ~ ([LMSTUDIO_MODELS_TARGET, model.repo, model.file] | path_join | quote)) | quote }}
+  changed_when: true
+  loop: "{{ LMSTUDIO_PRELOAD_MODELS }}"
+  loop_control:
+    loop_var: model
+    label: "{{ model.alias }}"
+  delegate_to: "{{ lmstudio_node }}"

@@ -1,8 +1,9 @@
-"""Application-domain cache: variants, defaults, merged lookup.
+"""Application-domain cache: defaults, merged lookup.
 
-Owns `_APPLICATIONS_DEFAULTS_CACHE`, `_VARIANTS_CACHE`, and
-`_MERGED_APPLICATIONS_CACHE`. Public API: `get_application_defaults`,
-`get_variants`, `get_merged_applications`. Strictly ansible-free at
+Owns `_APPLICATIONS_DEFAULTS_CACHE` and `_MERGED_APPLICATIONS_CACHE`; the
+variants live in `utils.cache.variants`, the per-role base config in
+`utils.cache.role_config`. Public API: `get_application_defaults`,
+`get_variants`, `get_merged_applications`, `get_lazy_applications`. Strictly ansible-free at
 import time so the GitHub Actions runner-host CLI path
 (`cli.administration.deploy.development.init` -> `plan_dev_inventory_matrix` ->
 `get_variants`) keeps working without ansible installed.
@@ -10,259 +11,65 @@ import time so the GitHub Actions runner-host CLI path
 
 from __future__ import annotations
 
+import contextlib
 import copy
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
 from typing import TYPE_CHECKING, Any
 
 from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils.roles.applications.mcp import derive_mcp_presence
-from utils.roles.mapping import ROLE_FILE_META_VARIANTS, ROLE_FILE_META_VOLUMES
+from utils.roles.mapping import (
+    ROLE_FILE_META_FORMS,
+    ROLE_FILE_META_VOLUMES,
+)
 
-from .addons import META_ADDONS_DIR, load_addons_dir
 from .base import (
     _RENDER_GUARD,
     _cache_key,
-    _deep_merge,
+    _decrypt_ansible_encrypted_strings,
+    _fingerprint_scope,
     _render_with_templar,
     _resolve_override_mapping,
     _resolve_roles_dir,
 )
 from .carrier import _carried_applications, merged_applications_cache_key
-from .schema_credentials import extract_default_credentials
-from .yaml import load_yaml as _load_yaml_cached
+from .role_config import (
+    _CANONICAL_VOLUMES_BY_ROLE,
+    _build_role_base_config,
+    _iter_application_role_dirs,
+)
+from .variants import (
+    _VARIANT_OVERRIDES_ONLY_CACHE,
+    _VARIANTS_CACHE,
+    _build_variants,
+    _load_variants_overrides,
+    get_variant_overrides_only,
+    get_variants,
+    with_variants,
+)
 from .yaml import load_yaml_any as _load_yaml_any_cached
+
+__all__ = [
+    "_build_role_base_config",
+    "_build_variants",
+    "_load_variants_overrides",
+    "get_application_defaults",
+    "get_canonical_volumes",
+    "get_lazy_applications",
+    "get_merged_applications",
+    "get_variant_overrides_only",
+    "get_variants",
+    "with_variants",
+]
 
 if TYPE_CHECKING:
     import os
     from pathlib import Path
 
 _APPLICATIONS_DEFAULTS_CACHE: dict[str, dict[str, Any]] = {}
-_VARIANTS_CACHE: dict[str, dict[str, list[Any]]] = {}
-_VARIANT_OVERRIDES_ONLY_CACHE: dict[str, dict[str, list[dict[str, Any]]]] = {}
-_MERGED_APPLICATIONS_CACHE: dict[tuple, dict[str, Any]] = {}
+_MERGED_APPLICATIONS_CACHE: dict[tuple, Mapping[str, Any]] = {}
 
-_CANONICAL_VOLUMES_BY_ROLE: dict[str, dict[str, Any]] = {}
-
-_META_TOPICS: tuple[str, ...] = (
-    "server",
-    "rbac",
-    "services",
-    "volumes",
-    "csp",
-    "domains",
-    "networks",
-)
-
-
-_META_NON_GENERIC_TOPICS: frozenset[str] = frozenset(
-    {"main", "variants", "volumes", "secrets", "users"}
-)
-
-
-def _has_application_metadata(role_dir: Path) -> bool:
-    """Detect whether a role behaves as an application.
-
-    A role is an "application" iff at least one of its `meta/<topic>.yml`
-    files exists (plus `meta/secrets.yml` and `meta/users.yml` for the
-    schema-only / users-only special cases).
-    """
-    meta_dir = role_dir / "meta"
-    if not meta_dir.is_dir():
-        return False
-    for topic in _META_TOPICS:
-        if (meta_dir / f"{topic}.yml").is_file():
-            return True
-    if (meta_dir / "secrets.yml").is_file():
-        return True
-    if (meta_dir / "users.yml").is_file():
-        return True
-    addons_dir = meta_dir / META_ADDONS_DIR
-    return addons_dir.is_dir() and any(addons_dir.glob("*.yml"))
-
-
-def _assign_nested(root: dict[str, Any], parts: tuple[str, ...], value: Any) -> None:
-    """Place *value* at the nested key path *parts* inside *root*, mirroring
-    the `meta/` directory layout onto `applications.<app>`: ``("addons", "x")``
-    lands at ``root["addons"]["x"]``. A non-dict value already sitting on an
-    intermediate segment is replaced by a fresh dict so a deeper file always
-    wins its own path.
-    """
-    node = root
-    for key in parts[:-1]:
-        child = node.get(key)
-        if not isinstance(child, dict):
-            child = {}
-            node[key] = child
-        node = child
-    node[parts[-1]] = value
-
-
-def _build_role_base_config(
-    role_dir: Path,
-    roles_dir: Path,
-) -> dict[str, Any]:
-    """Assemble a role's effective `applications.<app>` payload by walking its
-    entire `meta/` tree.
-
-    Every `meta/**/*.yml` maps to `applications.<app>.<relpath>` (directory
-    segments become nested keys, the filename stem the leaf), so nested topics
-    work without per-topic wiring:
-
-    `meta/server.yml`   → `server`
-    `meta/rbac.yml`     → `rbac`
-    `meta/services.yml` → `services`
-    `meta/info.yml`     → `info`
-    `meta/addons/x.yml` → `addons.x`
-    `meta/a/b/c.yml`    → `a.b.c`   (any depth)
-
-    Bespoke topics are reshaped instead of placed verbatim:
-
-    `meta/main.yml`, `meta/variants.yml` → skipped (ansible/build mechanism).
-    `meta/volumes.yml`  → canonical dict-of-dicts parked in
-                         `_CANONICAL_VOLUMES_BY_ROLE` (kept OUT of this payload
-                         so its raw Jinja `source:` strings never hit the
-                         templar; `get_merged_applications` re-attaches them).
-    `meta/addons/*.yml` → `addons` (enable state normalised by
-                         `utils.cache.addons.normalize_addons`).
-    `meta/secrets.yml`   → `credentials` (only literal `default:` values;
-                         non-defaults come from the inventory apply_schema step
-                         and are merged in by the caller).
-    `meta/users.yml`    → `users` (rewritten to `lookup('users', ...)` so the
-                         user-domain cache stays the source of truth).
-    Empty role collapses to ``{}`` (no overrides applied).
-    """
-    from plugins.lookup.application_gid import compute_application_gid
-
-    application_id = role_dir.name
-    config_data: dict[str, Any] = {}
-    meta_dir = role_dir / "meta"
-    if not meta_dir.is_dir():
-        return {}
-
-    for path in sorted(meta_dir.rglob("*.yml")):
-        parts = path.relative_to(meta_dir).with_suffix("").parts
-        if parts[0] == META_ADDONS_DIR:
-            continue
-        if len(parts) == 1 and parts[0] in _META_NON_GENERIC_TOPICS:
-            continue
-        data = _load_yaml_cached(path, default_if_missing={})
-        if data:
-            _assign_nested(config_data, parts, data)
-
-    volumes_data = _load_yaml_any_cached(
-        meta_dir / "volumes.yml", default_if_missing={}
-    )
-    if isinstance(volumes_data, dict) and volumes_data:
-        _CANONICAL_VOLUMES_BY_ROLE[role_dir.name] = volumes_data
-
-    addons_data = load_addons_dir(meta_dir)
-    if addons_data:
-        config_data["addons"] = addons_data
-
-    schema_data = _load_yaml_cached(meta_dir / "secrets.yml", default_if_missing={})
-    if schema_data:
-        creds_defaults = extract_default_credentials(
-            schema_data.get("credentials") or {}
-        )
-        if creds_defaults:
-            config_data.setdefault("secrets", {})["credentials"] = creds_defaults
-
-    users_meta = _load_yaml_cached(meta_dir / "users.yml", default_if_missing={})
-    if isinstance(users_meta, dict) and users_meta:
-        config_data["users"] = {
-            user_key: "{{ lookup('users', " + repr(user_key) + ") }}"
-            for user_key in users_meta
-        }
-
-    if not config_data:
-        return {}
-
-    config_data["group_id"] = compute_application_gid(application_id, str(roles_dir))
-    return config_data
-
-
-def _iter_application_role_dirs(roles_dir: Path):
-    """Yield application role directories in deterministic alphabetical order."""
-    for child in sorted(p for p in roles_dir.iterdir() if p.is_dir()):
-        if _has_application_metadata(child):
-            yield child
-
-
-def _load_variants_overrides(path: Path) -> list[dict[str, Any]]:
-    """Load a `roles/<role>/meta/variants.yml` variant list through the
-    shared YAML cache.
-
-    Each entry is a deep-merge override for the role's
-    `meta/services.yml`; ``null`` and ``{}`` are valid no-op entries.
-    Missing file or empty list collapses to a single empty variant so
-    the role keeps its pre-variant behaviour.
-    """
-    if not path.exists():
-        return [{}]
-
-    raw = _load_yaml_any_cached(path)
-    if raw in (None, {}):
-        return [{}]
-    if not isinstance(raw, list):
-        raise TypeError(
-            f"{path} must contain a YAML list of override mappings (or be empty)."
-        )
-    if not raw:
-        return [{}]
-
-    normalised: list[dict[str, Any]] = []
-    for index, entry in enumerate(raw):
-        if entry is None:
-            normalised.append({})
-        elif isinstance(entry, Mapping):
-            normalised.append(dict(entry))
-        else:
-            raise ValueError(
-                f"{path}[{index}] must be a mapping (or null); got {type(entry).__name__}"
-            )
-    return normalised
-
-
-def _build_variants(roles_dir: Path) -> dict[str, list[Any]]:
-    """Return ``{application_id: [variant_0, variant_1, ...]}``.
-
-    Each variant is the role's assembled `meta/<topic>.yml` payload
-    deep-merged with the corresponding entry from
-    `roles/<role>/meta/variants.yml`. A missing/empty `meta/variants.yml`
-    collapses to a single empty variant so the role keeps its pre-variant
-    behaviour.
-    """
-    variants: dict[str, list[Any]] = {}
-    bases: dict[str, Any] = {}
-
-    for role_dir in _iter_application_role_dirs(roles_dir):
-        application_id = role_dir.name
-        base_config = _build_role_base_config(role_dir, roles_dir)
-        bases[application_id] = base_config
-        meta_path = role_dir / ROLE_FILE_META_VARIANTS
-        override_list = _load_variants_overrides(meta_path)
-        role_variants: list[Any] = []
-        for override in override_list:
-            if base_config:
-                role_variants.append(_deep_merge(base_config, override))
-            else:
-                role_variants.append(copy.deepcopy(override))
-        variants[application_id] = role_variants
-
-    derive_mcp_presence(bases)
-    for application_id, role_variants in variants.items():
-        derived = (bases.get(application_id) or {}).get("mcp")
-        if not isinstance(derived, dict):
-            continue
-        for variant_config in role_variants:
-            block = (
-                variant_config.get("mcp") if isinstance(variant_config, dict) else None
-            )
-            if isinstance(block, dict):
-                block.setdefault("enabled", derived["enabled"])
-                block.setdefault("shared", derived["shared"])
-
-    return {key: variants[key] for key in sorted(variants)}
+_UNRENDERED_FORMS_KEY = ROLE_FILE_META_FORMS.rsplit("/", 1)[-1].removesuffix(".yml")
 
 
 def _build_application_defaults(roles_dir: Path) -> dict[str, Any]:
@@ -289,92 +96,276 @@ def get_application_defaults(
     return copy.deepcopy(cached)
 
 
-def get_variants(
-    *, roles_dir: str | os.PathLike[str] | None = None, readonly: bool = False
-) -> dict[str, list[Any]]:
-    """Return ``{application_id: [variant_0, ...]}`` cached per
-    ``roles_dir``. Each variant is the role's effective configuration
-    after the corresponding `meta/variants.yml` override has been
-    deep-merged on top of `meta/services.yml`.
+_POST_RENDER_KEYS: frozenset[str] = frozenset({"volumes", _UNRENDERED_FORMS_KEY})
 
+KeyPaths = tuple[tuple[str, ...], ...]
+
+
+def _select(config: Mapping[str, Any], paths: KeyPaths) -> tuple[dict[str, Any], bool]:
+    """
     Args:
-        roles_dir: roles tree to read, defaulting to the project's own.
-        readonly: hand out the cached structure itself instead of a deep
-            copy. The copy is what keeps one caller's mutation out of every
-            later caller's data, so this is only for a caller that provably
-            reads: a sweep resolves hundreds of rounds, and copying the whole
-            map per round costs more than building it once did.
+        config: one application, rendered or not.
+        paths: key paths to keep; a path ends at its first missing key.
+
+    Returns:
+        The selected tree and whether it is exact. It is not exact when a
+        path meets a non-mapping before its last key: that value is kept
+        whole, as a reader of the full application would see it.
     """
-    resolved_roles_dir = _resolve_roles_dir(roles_dir=roles_dir)
-    key = _cache_key(resolved_roles_dir)
-    cached = _VARIANTS_CACHE.get(key)
-    if cached is None:
-        cached = _build_variants(resolved_roles_dir)
-        _VARIANTS_CACHE[key] = cached
-    return cached if readonly else copy.deepcopy(cached)
+    selected: dict[str, Any] = {}
+    exact = True
+    for path in paths:
+        node: Any = config
+        target = selected
+        for depth, key in enumerate(path):
+            if key not in node:
+                break
+            node = node[key]
+            if depth == len(path) - 1:
+                target[key] = node
+                break
+            if not isinstance(node, Mapping):
+                target[key] = node
+                exact = False
+                break
+            child = target.get(key)
+            if child is node:
+                break
+            if child is None:
+                child = target[key] = {}
+            target = child
+    return selected, exact
 
 
-def _build_variant_overrides_only(
-    roles_dir: Path,
-) -> dict[str, list[dict[str, Any]]]:
-    overrides: dict[str, list[dict[str, Any]]] = {}
-    for role_dir in _iter_application_role_dirs(roles_dir):
-        meta_path = role_dir / ROLE_FILE_META_VARIANTS
-        overrides[role_dir.name] = _load_variants_overrides(meta_path)
-    return {key: overrides[key] for key in sorted(overrides)}
-
-
-def get_variant_overrides_only(
-    *, roles_dir: str | os.PathLike[str] | None = None
-) -> dict[str, list[dict[str, Any]]]:
-    """Return ``{application_id: [override_0, ...]}``, the raw
-    `meta/variants.yml` entries per role WITHOUT deep-merging
-    `meta/services.yml`.
-
-    Used by matrix-deploy's `--vars` bake so the host_vars payload
-    stays sparse: only the variant-specific overrides land there,
-    leaving `meta/services.yml` fields (notably `image`/`version`)
-    blank in host_vars so `apply_mirror_overrides` can populate them
-    from `mirrors.yml`.
+class LazyApplications(Mapping[str, Any]):
+    """Exception: an application renders on its first read against the
+    variables and templar variables of the call that created the payload,
+    not of the call that first reads it.
     """
-    resolved_roles_dir = _resolve_roles_dir(roles_dir=roles_dir)
-    key = _cache_key(resolved_roles_dir)
-    cached = _VARIANT_OVERRIDES_ONLY_CACHE.get(key)
-    if cached is None:
-        cached = _build_variant_overrides_only(resolved_roles_dir)
-        _VARIANT_OVERRIDES_ONLY_CACHE[key] = cached
-    return copy.deepcopy(cached)
+
+    def __init__(
+        self,
+        cache_key: tuple,
+        merged: dict[str, Any],
+        *,
+        variables: Mapping[str, Any],
+        roles_dir: str | os.PathLike[str] | None,
+        templar: Any,
+    ) -> None:
+        """
+        Args:
+            cache_key: the key this payload is cached under.
+            merged: role defaults merged with the inventory overrides.
+            variables: the variables scope of the creating call.
+            roles_dir: the roles tree as the creating call passed it.
+            templar: the templar to render with; ``None`` renders nothing.
+        """
+        from .users import get_merged_users
+
+        self._key = cache_key
+        self._templar = templar
+        self._variables = dict(variables)
+        available = getattr(templar, "available_variables", None)
+        self._available = dict(available) if available else available
+        self._view = _decrypt_ansible_encrypted_strings(merged)
+        for config in merged.values():
+            if isinstance(config, dict):
+                config.pop("volumes", None)
+        self._forms = {
+            app_id: config.pop(_UNRENDERED_FORMS_KEY)
+            for app_id, config in merged.items()
+            if isinstance(config, dict) and _UNRENDERED_FORMS_KEY in config
+        }
+        self._merged = merged
+        with self._guard():
+            self._users = get_merged_users(
+                variables=variables, roles_dir=roles_dir, templar=None
+            )
+        self._volumes = {app_id: get_canonical_volumes(app_id) for app_id in merged}
+        self._rendered: dict[str, Any] = {}
+        self._busy: set[str] = set()
+        self._full: dict[str, Any] | None = None
+        self._views: dict[KeyPaths, dict[str, Any]] = {}
+
+    @contextlib.contextmanager
+    def _guard(self) -> Iterator[None]:
+        flag = getattr(_RENDER_GUARD, "applications", False)
+        payloads = getattr(_RENDER_GUARD, "nested_payloads", {})
+        keys = getattr(_RENDER_GUARD, "rendering_keys", ())
+        _RENDER_GUARD.applications = True
+        _RENDER_GUARD.nested_payloads = {self._key: self._view}
+        _RENDER_GUARD.rendering_keys = (*keys, self._key)
+        try:
+            yield
+        finally:
+            _RENDER_GUARD.applications = flag
+            _RENDER_GUARD.nested_payloads = payloads if flag else {}
+            _RENDER_GUARD.rendering_keys = keys
+
+    def _render(self, value: Any, application_id: str) -> Any:
+        templar = self._templar
+        swap = templar is not None and hasattr(templar, "available_variables")
+        if swap:
+            current = templar.available_variables
+            templar.available_variables = self._available
+        try:
+            return _render_with_templar(
+                value,
+                templar=templar,
+                variables={**self._variables, "application_id": application_id},
+                raw_applications=self._merged,
+                raw_users=self._users,
+            )
+        finally:
+            if swap:
+                templar.available_variables = current
+
+    def _render_applications(self, application_ids: list[str]) -> None:
+        pending = [a for a in application_ids if a not in self._rendered]
+        if not pending:
+            return
+        reentered = self._busy.intersection(pending)
+        if reentered:
+            raise RuntimeError(
+                f"applications: {sorted(reentered)} read while rendering itself"
+            )
+        rendered: dict[str, Any] = {}
+        with _fingerprint_scope(), self._guard():
+            for app_id in pending:
+                if app_id in self._rendered:
+                    continue
+                self._busy.add(app_id)
+                try:
+                    rendered[app_id] = self._render(self._merged[app_id], app_id)
+                finally:
+                    self._busy.discard(app_id)
+        for app_id, config in rendered.items():
+            if not isinstance(config, dict):
+                continue
+            if self._volumes.get(app_id):
+                config["volumes"] = copy.deepcopy(self._volumes[app_id])
+            if app_id in self._forms:
+                config[_UNRENDERED_FORMS_KEY] = copy.deepcopy(self._forms[app_id])
+        self._rendered.update(rendered)
+
+    def materialize(self) -> dict[str, Any]:
+        """
+        Returns:
+            The same dict on every call, in the order of the merged payload.
+        """
+        if self._full is None:
+            self._render_applications(list(self._merged))
+            self._full = {app_id: self._rendered[app_id] for app_id in self._merged}
+        return self._full
+
+    def view(self, paths: KeyPaths) -> dict[str, Any]:
+        """
+        Args:
+            paths: key paths to keep per application, e.g.
+                ``(("domains",), ("services", "tor"))``.
+
+        Returns:
+            ``{application_id: selected parts}``, cached per *paths*.
+        """
+        cached = self._views.get(paths)
+        if cached is not None:
+            return cached
+        cuttable = not any(path and path[0] in _POST_RENDER_KEYS for path in paths)
+        selected: dict[str, dict[str, Any]] = {}
+        whole: list[str] = []
+        for app_id, config in self._merged.items():
+            if app_id in self._rendered:
+                continue
+            if cuttable and isinstance(config, Mapping):
+                parts, exact = _select(config, paths)
+                if exact:
+                    selected[app_id] = parts
+                    continue
+            whole.append(app_id)
+        self._render_applications(whole)
+        with _fingerprint_scope(), self._guard():
+            rendered = {
+                app_id: self._render(parts, app_id)
+                for app_id, parts in selected.items()
+            }
+        view: dict[str, Any] = {}
+        for app_id in self._merged:
+            if app_id in rendered:
+                view[app_id] = rendered[app_id]
+                continue
+            config = self._rendered[app_id]
+            view[app_id] = (
+                _select(config, paths)[0] if isinstance(config, Mapping) else config
+            )
+        self._views[paths] = view
+        return view
+
+    def __getitem__(self, application_id: str) -> Any:
+        if application_id not in self._rendered:
+            if application_id not in self._merged:
+                raise KeyError(application_id)
+            self._render_applications([application_id])
+        return self._rendered[application_id]
+
+    def __contains__(self, application_id: object) -> bool:
+        return application_id in self._merged
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self._merged)
+
+    def __len__(self) -> int:
+        return len(self._merged)
+
+    def __repr__(self) -> str:
+        return repr(self.materialize())
+
+    def __copy__(self) -> dict[str, Any]:
+        return dict(self.materialize())
+
+    def __deepcopy__(self, memo: dict[int, Any]) -> dict[str, Any]:
+        return copy.deepcopy(self.materialize(), memo)
+
+    def __reduce__(self) -> tuple:
+        return (dict, (self.materialize(),))
 
 
-def get_merged_applications(
+def get_lazy_applications(
     *,
-    variables: dict[str, Any] | None = None,
+    variables: Mapping[str, Any] | None = None,
     roles_dir: str | os.PathLike[str] | None = None,
     templar: Any = None,
-) -> dict[str, Any]:
-    """Return the applications payload for *variables*, cached per key.
+) -> Mapping[str, Any]:
+    """Return the applications payload for *variables*, rendering nothing yet.
 
-    A re-entrant call returns before ``_MERGED_APPLICATIONS_CACHE``
-    is written, because its payload carries no users and keeps its volumes. It
-    is therefore memoised on the render guard instead, which drops it when the
-    guard releases. Without that, one template render recomputed the payload
-    for every ``lookup('applications')`` it made.
+    A re-entrant call for the key being rendered returns the unrendered
+    payload, memoised on the render guard with every vault value decrypted,
+    so a nested lookup reads the same plaintext credential.
+
+    Args:
+        variables: the variables scope; only the parts the cache key reads
+            and the ``applications`` overrides shape the payload.
+        roles_dir: roles tree to build from, defaulting to the project's own.
+        templar: the templar to render with; ``None`` renders nothing.
+
+    Returns:
+        The carried payload when the carrier key matches, the unrendered
+        payload inside a render of the same key, else the cached
+        :class:`LazyApplications` of the key.
     """
-    from .users import get_merged_users
-
     variables = variables or {}
     resolved_roles_dir = _resolve_roles_dir(roles_dir=roles_dir)
     cache_key = merged_applications_cache_key(variables, roles_dir=resolved_roles_dir)
-    cached = _MERGED_APPLICATIONS_CACHE.get(cache_key)
+    nested = getattr(_RENDER_GUARD, "applications", False)
+    in_render = nested and cache_key in getattr(_RENDER_GUARD, "rendering_keys", ())
+    cached = None if in_render else _MERGED_APPLICATIONS_CACHE.get(cache_key)
     if cached is not None:
         return cached
 
     carried = _carried_applications(variables, cache_key)
     if carried is not None:
-        _MERGED_APPLICATIONS_CACHE[cache_key] = carried
+        _MERGED_APPLICATIONS_CACHE.setdefault(cache_key, carried)
         return carried
 
-    nested = getattr(_RENDER_GUARD, "applications", False)
     if nested:
         carried_nested = getattr(_RENDER_GUARD, "nested_payloads", {}).get(cache_key)
         if carried_nested is not None:
@@ -390,40 +381,51 @@ def get_merged_applications(
         payloads = getattr(_RENDER_GUARD, "nested_payloads", None)
         if payloads is None:
             payloads = _RENDER_GUARD.nested_payloads = {}
-        payloads[cache_key] = merged
-        return merged
+        payloads[cache_key] = _decrypt_ansible_encrypted_strings(merged)
+        return payloads[cache_key]
 
-    _RENDER_GUARD.nested_payloads = {cache_key: copy.deepcopy(merged)}
+    applications = LazyApplications(
+        cache_key,
+        merged,
+        variables=variables,
+        roles_dir=roles_dir,
+        templar=templar,
+    )
+    _MERGED_APPLICATIONS_CACHE[cache_key] = applications
+    return applications
 
-    for app_cfg in merged.values():
-        if isinstance(app_cfg, dict):
-            app_cfg.pop("volumes", None)
 
-    _RENDER_GUARD.applications = True
-    try:
-        raw_users = get_merged_users(
-            variables=variables,
-            roles_dir=roles_dir,
-            templar=None,
-        )
-        rendered = _render_with_templar(
-            merged,
-            templar=templar,
-            variables=variables,
-            raw_applications=merged,
-            raw_users=raw_users,
-        )
-    finally:
-        _RENDER_GUARD.applications = False
-        _RENDER_GUARD.nested_payloads = {}
+def get_merged_applications(
+    *,
+    variables: dict[str, Any] | None = None,
+    roles_dir: str | os.PathLike[str] | None = None,
+    templar: Any = None,
+    paths: KeyPaths | None = None,
+) -> dict[str, Any]:
+    """Return the rendered applications payload for *variables*, cached per key.
 
-    for app_id in rendered:
-        raw_volumes = get_canonical_volumes(app_id)
-        if raw_volumes and isinstance(rendered[app_id], dict):
-            rendered[app_id]["volumes"] = copy.deepcopy(raw_volumes)
+    ``forms`` and ``volumes`` stay unrendered; each application renders with
+    ``application_id`` bound to its own id.
 
-    _MERGED_APPLICATIONS_CACHE[cache_key] = rendered
-    return rendered
+    Args:
+        variables: the variables scope, see `get_lazy_applications`.
+        roles_dir: roles tree to build from, defaulting to the project's own.
+        templar: the templar to render with; ``None`` renders nothing.
+        paths: key paths to return per application instead of the whole
+            payload; ``None`` returns everything.
+
+    Returns:
+        The same dict for every call with one key, or the unrendered payload
+        when called from inside a render of that key.
+    """
+    applications = get_lazy_applications(
+        variables=variables, roles_dir=roles_dir, templar=templar
+    )
+    if not isinstance(applications, LazyApplications):
+        return applications
+    if paths is None:
+        return applications.materialize()
+    return applications.view(paths)
 
 
 def get_canonical_volumes(application_id: str) -> dict[str, Any]:

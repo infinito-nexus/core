@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
+import sys
 from typing import Any
 
 from cli.administration.roles.pull import pull_or_exit
 
 from .apps import validate_application_ids
 from .modes import add_dynamic_mode_args, build_modes_from_args, load_modes_from_yaml
+from .openbao import OpenBaoPreflightError
+from .openbao import prepare as openbao_prepare
 from .paths import INVENTORY_VALIDATOR_PATH, MODES_FILE, PLAYBOOK_PATH, PROJECT_ROOT
 from .runner import run_ansible_playbook
 
@@ -44,9 +48,9 @@ def _passthrough_explanation() -> str:
         "  are NOT parsed by this wrapper and are forwarded 1:1 to ansible-playbook.\n"
         "\n"
         "Important behavior:\n"
-        "  - The wrapper injects its own -e variables first (MODE_*, APPLICATIONS_WHITELIST, ...).\n"
+        "  - The wrapper injects its own -e variables first (the modes of group_vars/all/01_modes.yml, APPLICATIONS_WHITELIST, ...).\n"
         "  - Your own ansible-playbook options come last and can therefore override them,\n"
-        "    e.g. -e MODE_DEBUG=true.\n"
+        "    e.g. -e DEBUG=true.\n"
         "\n"
         "Examples:\n"
         "  Dry-run using Ansible check mode:\n"
@@ -59,7 +63,7 @@ def _passthrough_explanation() -> str:
         "    infinito administration deploy dedicated --skip-tags docker,build\n"
         "\n"
         "  Set or override extra variables:\n"
-        "    infinito administration deploy dedicated -e MODE_DEBUG=true -e foo=bar\n"
+        "    infinito administration deploy dedicated -e DEBUG=true -e foo=bar\n"
         "\n"
         "  Increase parallelism (Ansible forks):\n"
         "    infinito administration deploy dedicated --forks 20\n"
@@ -214,6 +218,12 @@ def run_from_args(
     validate_application_ids(args.inventory, args.id)
 
     modes: dict[str, Any] = build_modes_from_args(modes_spec, args)
+
+    try:
+        openbao_prepare(args.inventory, os.environ)
+    except OpenBaoPreflightError as exc:
+        print(f"\n[ERROR] {exc}\n", file=sys.stderr)
+        raise SystemExit(1) from None
 
     run_ansible_playbook(
         repo_root=str(PROJECT_ROOT),

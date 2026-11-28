@@ -11,25 +11,23 @@ after the tests, or in the destructor that ``any_errors_fatal`` skips, a stale
 consumer passes; retired without disconnecting the clients, a connection the old
 password opened stays usable; verified before the retire, there is nothing to
 refuse yet.
-
-Suppression (see ``docs/contributing/actions/testing/suppression.md``):
-
-* ``# nocheck: redis-password-retire-placement`` on, or directly above, the
-  retire include in the server stage.
 """
 
 from __future__ import annotations
 
 import unittest
+from typing import TYPE_CHECKING
 
-from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml_any
 
-from . import PROJECT_ROOT
+from . import PROJECT_ROOT, includes_role, includes_tasks, position, tasks_of
 
-_RULE = "redis-password-retire-placement"
-_ROLE_DIR = PROJECT_ROOT / "roles" / "svc-db-redis" / "tasks"
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+_REDIS = "svc-db-redis"
+_ROLE_DIR = PROJECT_ROOT / "roles" / _REDIS / "tasks"
 _CORE = _ROLE_DIR / "00_core.yml"
 _RETIRE = _ROLE_DIR / "utils" / "rotation" / "retire.yml"
 _STAGE = PROJECT_ROOT / "tasks" / "stages" / "02_server.yml"
@@ -40,15 +38,21 @@ _APP_PASS = "tasks/utils/setup/group.yml"
 _E2E = "test-e2e-playwright"
 
 
-def _line_of(lines: list[str], needle: str) -> int | None:
-    return next((i for i, raw in enumerate(lines, 1) if needle in raw), None)
+def _runs(command: str) -> Callable[[dict], bool]:
+    """Args:
+        command: a redis-cli command line.
+
+    Returns:
+        A predicate that holds for a shell task running that command.
+    """
+    return lambda task: command in str(task.get("ansible.builtin.shell", ""))
 
 
 class TestRedisPasswordRetirePlacement(unittest.TestCase):
     def test_the_accepted_passwords_are_read_before_the_restart(self) -> None:
-        lines = read_text(str(_CORE)).splitlines()
-        read = _line_of(lines, "ACL LIST")
-        restart = _line_of(lines, "network/routine.yml")
+        tasks = tasks_of(_CORE)
+        read = position(tasks, _runs("ACL LIST"))
+        restart = position(tasks, includes_tasks("network/routine.yml"))
         self.assertIsNotNone(read, f"{_CORE.name} no longer reads the passwords")
         self.assertIsNotNone(restart, f"{_CORE.name} no longer deploys the stack")
         self.assertLess(
@@ -61,9 +65,9 @@ class TestRedisPasswordRetirePlacement(unittest.TestCase):
     def test_the_replaced_passwords_are_added_back_once_the_engine_answers(
         self,
     ) -> None:
-        lines = read_text(str(_CORE)).splitlines()
-        ping = _line_of(lines, "REDIS_CLI }} ping")
-        carry = _line_of(lines, "ACL SETUSER default")
+        tasks = tasks_of(_CORE)
+        ping = position(tasks, _runs("REDIS_CLI }} ping"))
+        carry = position(tasks, _runs("ACL SETUSER default"))
         self.assertIsNotNone(ping, f"{_CORE.name} no longer waits for the engine")
         self.assertIsNotNone(carry, f"{_CORE.name} no longer carries the passwords")
         self.assertLess(
@@ -73,18 +77,16 @@ class TestRedisPasswordRetirePlacement(unittest.TestCase):
         )
 
     def test_the_retire_sits_between_the_app_pass_and_the_tests(self) -> None:
-        lines = read_text(str(_STAGE)).splitlines()
-        retire = _line_of(lines, _RETIRE_REF)
+        tasks = tasks_of(_STAGE)
+        retire = position(tasks, includes_role(_REDIS, _RETIRE_REF))
         self.assertIsNotNone(
             retire,
             f"{_STAGE.name} never retires a replaced Redis password, so a stale "
             "consumer passes every check",
         )
-        if is_suppressed_at(lines, retire, _RULE):
-            return
-        app_pass = _line_of(lines, _APP_PASS)
-        e2e = _line_of(lines, _E2E)
-        verify = _line_of(lines, _VERIFY_REF)
+        app_pass = position(tasks, includes_tasks(_APP_PASS))
+        e2e = position(tasks, includes_role(_E2E))
+        verify = position(tasks, includes_role(_REDIS, _VERIFY_REF))
         self.assertIsNotNone(app_pass, f"{_STAGE.name} no longer includes the app pass")
         self.assertIsNotNone(e2e, f"{_STAGE.name} no longer runs {_E2E}")
         self.assertIsNotNone(
@@ -141,10 +143,10 @@ class TestRedisPasswordRetirePlacement(unittest.TestCase):
             )
 
     def test_the_retire_makes_every_client_authenticate_again(self) -> None:
-        lines = read_text(str(_RETIRE)).splitlines()
-        reset = _line_of(lines, "resetpass")
-        log_reset = _line_of(lines, "ACL LOG RESET")
-        kill = _line_of(lines, "CLIENT KILL USER default")
+        tasks = tasks_of(_RETIRE)
+        reset = position(tasks, _runs("resetpass"))
+        log_reset = position(tasks, _runs("ACL LOG RESET"))
+        kill = position(tasks, _runs("CLIENT KILL USER default"))
         self.assertIsNotNone(reset, f"{_RETIRE.name} no longer drops the passwords")
         self.assertIsNotNone(
             kill, "removing a password leaves the connections it opened usable"

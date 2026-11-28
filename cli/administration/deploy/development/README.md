@@ -25,11 +25,10 @@ flowchart TD
     UPDEXEC -.->|reuses inventory, disable = ansible extra-var only| INV
 ```
 
-- `initialize` / `reinstall` rebuild the inventory through `init.py`; this
-  is the only path that prunes the include set. `deploy` re-derives the
-  same pruned set for its deploy ids (see below).
-- `update` reuses the existing inventory; `disable` reaches ansible as an
-  extra-var that renders services disabled, but does not touch the include.
+- `initialize` / `reinstall` rebuild the inventory through `init.py`; this is the only path that prunes the include set.
+  `deploy` re-derives the same pruned set for its deploy ids (see below).
+- `update` reuses the existing inventory; `disable` reaches ansible as an extra-var that renders services disabled, but does not touch the include.
+  The inventory bakes in the included roles' `meta/services.yml`, `meta/variants.yml`, `meta/secrets.yml` and `meta/users.yml`, so an `update` after a change to one of them deploys the old include set, overrides, credentials and users; such a change takes `reinstall` with `full_cycle=true`.
 
 ## init.py: plan then prune
 
@@ -86,6 +85,17 @@ flowchart TD
 Both sides pass `primary_apps` (not the round closure) as the BFS seed and
 the variant-merged services map for that round, so the reachability walk
 sees the same topology the inventory baked.
+
+## Host devices: `requires_devices`
+
+Before a round purges, resets the target or deploys, `deploy/cli.py` collects
+the devices its deploy ids declare in `requires_devices` and probes each one
+with `test -c` inside the `infinito` container, where the deploy runs. When a
+device is missing, [deploy/devices.py](deploy/devices.py) declines that round
+and every later one: it prints `requires-devices: status=declined` naming the
+device and the roles that need it, appends a **not run** line to
+`GITHUB_STEP_SUMMARY` and the handler exits 0. The key's schema is in
+[layout.md](../../../../docs/contributing/design/role/services/layout.md#host-devices-requires_devices-).
 
 ## Closure resolution (per round)
 

@@ -103,7 +103,7 @@ class TestComposeTemplateUsesDependsOnLookup(unittest.TestCase):
                 f"Offending lines:\n{formatted}"
             )
 
-    def test_container_depends_on_calls_use_indent_filter(self) -> None:
+    def test_container_depends_on_calls_use_indent_filter(self) -> None:  # nocheck: test.text-presence -- policy lint over every .j2 template  # fmt: skip
         findings: list[tuple[str, int, str]] = []
         for path_str, content in iter_project_files_with_content(
             extensions=(".j2",),

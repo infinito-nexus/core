@@ -35,6 +35,7 @@ PATTERNS = (
     "*/templates/javascript.js.j2",
     "*/templates/javascript.js",
     "*/files/javascript/javascript.js",
+    "sys-front-inj-javascript/templates/profile_lock.js.j2",
     "*/templates/design.js.j2",
     "*/templates/design.js",
     "*/templates/js/design.js.j2",

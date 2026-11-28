@@ -1,20 +1,15 @@
 ---
 - name: "🩺 Ask the hub whether the stored token still authenticates"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - "HA_PORT={{ HOMEASSISTANT_PORT_INTERNAL }}"
-      - -e
-      - HA_TOKEN
-      - "{{ HOMEASSISTANT_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - python3
-      - "-"
-    stdin: "{{ lookup('file', 'python/probe_mcp_token.py') }}"
-  environment:
-    HA_TOKEN: "{{ homeassistant_mcp_token }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      IFS= read -r HA_TOKEN && : "${HA_TOKEN:?arrived empty on stdin}" && export HA_TOKEN && container exec -i
+      -e HA_PORT={{ HOMEASSISTANT_PORT_INTERNAL | quote }}
+      -e HA_TOKEN
+      {{ HOMEASSISTANT_LOCAL_CID | quote }}
+      python3 -
+    stdin: |-
+      {{ homeassistant_mcp_token }}
+      {{ lookup('file', 'python/probe_mcp_token.py') }}
   register: homeassistant_token_probe
   retries: 30
   delay: 10

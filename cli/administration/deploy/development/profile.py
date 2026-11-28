@@ -3,16 +3,8 @@
 from __future__ import annotations
 
 import os
-import sys
 
-from utils.env.handlers.infinito.cache import paths
-
-_NOTICED: set[str] = set()
-
-
-def infra_owns_cache() -> bool:
-    """True iff the infra runner marked the cache base as its own."""
-    return (paths.base() / "infra.owner").is_file()
+from utils.runner import POOL_RUNNER_KEY
 
 
 def _declared(name: str) -> bool | None:
@@ -42,17 +34,12 @@ class Profile:
 
     def cache_stack_enabled(self) -> bool:
         """True iff the pull-through cache stack should be loaded."""
-        if infra_owns_cache():
-            if not _NOTICED:
-                _NOTICED.add("infra.owner")
-                print(
-                    f"NOTICE: the infra runner owns {paths.base()} (infra.owner); "
-                    "the legacy cache stack stays off",
-                    file=sys.stderr,
-                )
-            return False
         declared = _declared("INFINITO_CACHE_STACK")
         return (not self.is_ci()) if declared is None else declared
+
+    def pool_runner(self) -> bool:
+        """True iff a pool runner declared it runs this job: caches yes, infra start and attach no."""
+        return _declared(POOL_RUNNER_KEY) is True
 
     def gpu_reservable(self) -> bool:
         """True iff the docker daemon registers an NVIDIA runtime."""
@@ -80,14 +67,6 @@ class Profile:
     def shared_git_dir(self) -> str:
         """Path of the checkout's shared .git directory, empty when it owns one."""
         return (os.environ.get("INFINITO_GIT_COMMON_DIR") or "").strip()
-
-    def shared_cache_network(self) -> str:
-        """Docker network of a cache stack owned elsewhere, empty when unset."""
-        return (os.environ.get("INFINITO_CACHE_NETWORK") or "").strip()
-
-    def owns_cache_stack(self) -> bool:
-        """True iff this instance runs the cache stack rather than sharing it."""
-        return self.cache_stack_enabled() and not self.shared_cache_network()
 
     def shared_package_cache(self) -> str:
         """Shared package and tool cache folder the runner mounts, empty when unset."""

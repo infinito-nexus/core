@@ -14,6 +14,7 @@ const {
 const { hideUsageNotice, twoFactorEnabled } = require("./admin");
 require("./test-admin-sign-in");
 require("./test-design");
+require("./test-rbac");
 
 test.use({ ignoreHTTPSErrors: true });
 

@@ -1,44 +1,92 @@
 ---
 - name: "🔎 XWIKI | Probe whether the running wiki answers the superadmin"
-  uri_retry:
-    url: "{{ [XWIKI_REST_XWIKI, 'spaces'] | url_join }}"
-    method: GET
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    follow_redirects: none
-    return_content: false
-    status_code: "{{ [-1] + range(100, 600) | list }}"
-  register: _xwiki_running
-  changed_when: false
   when:
     - IS_STACK_HOST | bool
-    - XWIKI_SSO_ENABLED | bool
+    - (XWIKI_SSO_ENABLED | bool) or (XWIKI_OBJSTORE_ENABLED | bool)
+  block:
+    - name: "🔍 XWIKI | Check whether the {{ application_id }} swarm service runs converged"
+      ansible.builtin.script: "{{ lookup('path_absolute', 'roles/sys-svc-compose/files/shell/swarm/service_converged.sh') }}"
+      environment:
+        SERVICE: "{{ lookup('container_service', application_id, entity_name) }}"
+      register: _xwiki_running_service
+      changed_when: false
+      failed_when: false
+      delegate_to: "{{ STACK_HOST }}"
+      when: IS_SWARM_MODE
+
+    - name: "🔍 XWIKI | Check whether the {{ application_id }} container runs healthy"
+      ansible.builtin.command:
+        argv:
+          - container
+          - ps
+          - -q
+          - --filter
+          - status=running
+          - --filter
+          - health=healthy
+          - --filter
+          - "name=^{{ XWIKI_CONTAINER }}$"
+      register: _xwiki_running_container
+      changed_when: false
+      when: not IS_SWARM_MODE
+
+    - name: "🔎 XWIKI | Reach the running wiki inside its network namespace"
+      when: >-
+        (_xwiki_running_service.rc == 0)
+        if IS_SWARM_MODE
+        else (_xwiki_running_container.stdout | trim | length > 0)
+      block:
+        - name: "🔍 XWIKI | Resolve the XWiki hosting node + container id"
+          ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+          vars:
+            resolve_service_key: "{{ entity_name }}"
+            resolve_output_prefix: XWIKI
+            resolve_compose_cid: "{{ XWIKI_CONTAINER }}"
+
+        - name: "🔍 XWIKI | Resolve the XWiki network namespace for host-side REST calls"
+          ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+          vars:
+            netns_output_prefix: XWIKI
+
+        - name: "🔎 XWIKI | Ask the running wiki who the superadmin credentials sign in as"
+          include_tasks: http.yml
+          vars:
+            xwiki_http_method: GET
+            xwiki_http_url: "{{ [XWIKI_REST_XWIKI, 'spaces'] | url_join }}"
+            xwiki_http_headers: "{{ XWIKI_SUPERADMIN_AUTH_HEADERS }}"
+            xwiki_http_body: ""
+            xwiki_http_status: "{{ range(100, 600) | list }}"
+            xwiki_http_retry_markers: []
+            xwiki_http_retries: 30
+            xwiki_http_delay: 2
+            xwiki_http_timeout: 30
+            xwiki_http_follow_redirects: "none"
+            xwiki_http_result: _xwiki_running
 
 - name: "🔎 XWIKI | Read the core version of the running wiki"
-  uri_retry:
-    url: "{{ XWIKI_REST_BASE }}"
-    method: GET
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    follow_redirects: none
-    headers:
-      Accept: "application/xml"
-    return_content: true
-    status_code: "{{ [-1] + range(100, 600) | list }}"
-  register: _xwiki_running_core
-  changed_when: false
+  include_tasks: http.yml
+  vars:
+    xwiki_http_method: GET
+    xwiki_http_url: "{{ XWIKI_REST_BASE }}"
+    xwiki_http_headers: "{{ XWIKI_SUPERADMIN_AUTH_HEADERS | combine({'Accept': 'application/xml'}) }}"
+    xwiki_http_body: ""
+    xwiki_http_status: "{{ range(100, 600) | list }}"
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "none"
+    xwiki_http_result: _xwiki_running_core
   when:
-    - _xwiki_running is not skipped
+    - _xwiki_running is defined
     - _xwiki_running.status == 200
-    - _xwiki_running.xwiki_user is defined
-    - _xwiki_running.xwiki_user.endswith(':XWiki.' ~ XWIKI_SUPERADMIN_USERNAME)
+    - "'xwiki-user' in _xwiki_running.headers"
+    - _xwiki_running.headers['xwiki-user'].endswith(':XWiki.' ~ XWIKI_SUPERADMIN_USERNAME)
 
 - name: "🧭 XWIKI | Compare the running core with the pinned core {{ XWIKI_CORE_VERSION }}"
   set_fact:
     _xwiki_core_on_pin: >-
-      {{ _xwiki_running_core is not skipped
+      {{ _xwiki_running_core is defined
          and _xwiki_running_core.status == 200
          and _xwiki_running_core.content is search('<version>' ~ (XWIKI_CORE_VERSION | regex_escape) ~ '</version>') }}
 

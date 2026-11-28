@@ -1,0 +1,10 @@
+---
+- name: "📣 Send SIGHUP so the gateway reloads s3.json without a restart"
+  ansible.builtin.shell: >-
+    container kill --signal HUP {{ SEAWEEDFS_CONTAINER_ADDRESS }}
+  args:
+    executable: /bin/bash
+  changed_when: true
+  when:
+    - IS_STACK_HOST | bool
+    - seaweedfs_s3_config is changed

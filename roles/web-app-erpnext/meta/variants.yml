@@ -4,6 +4,12 @@
 
 # V1: sso + ldap + everything that can be true, is true
 - services:
+    erpnext:
+      group_roles:
+        - group: /roles/svc-db-openldap/administrator
+          roles:
+            - Auditor
+      server_scripts: true
     docs:
       enabled: false
       shared: false
@@ -41,6 +47,11 @@
       enabled: true
 
 - services:
+    erpnext:
+      login:
+        method:
+          2fa:
+            enforced: false
     docs:
       enabled: true
       shared: true
@@ -54,8 +65,8 @@
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
     email:
-      enabled: false
-      shared: false # nocheck: variants-static-override backup shared stays literally true
+      enabled: true
+      shared: true
     ldap:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true
@@ -79,6 +90,15 @@
       enabled: true
 
 - services:
+    erpnext:
+      login:
+        method:
+          2fa:
+            enforced: false
+      group_roles:
+        - group: /roles/svc-db-openldap/administrator
+          roles:
+            - Auditor
     container_backup:
       enabled: false
       shared: false # nocheck: variants-static-override backup shared stays literally true

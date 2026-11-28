@@ -1,3 +1,7 @@
 ---
 status_codes:
   default: [200, 302, 301, 303]
+vhosts:
+  default:
+    domains: canonical
+    client_max_body_size: "{{ ((lookup('config', 'web-app-joomla', 'services.joomla.upload.size_mb') | int) * 12 // 10) }}M"

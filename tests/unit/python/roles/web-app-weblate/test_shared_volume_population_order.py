@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-import re
+import json
 import unittest
+
+from jinja2 import DictLoader, Environment, select_autoescape
 
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
@@ -11,19 +13,30 @@ ROLE = PROJECT_ROOT / "roles" / "web-app-weblate"
 COMPOSE = ROLE / ROLE_FILE_TEMPL_COMPOSE
 VOLUMES = ROLE / ROLE_FILE_META_VOLUMES
 POPULATING_SERVICE = "beat"
+INCLUDES = {
+    "roles/sys-svc-compose/templates/base.yml.j2": "services:\n",
+    "roles/sys-svc-container/templates/base.yml.j2": "",
+}
 
 
-def service_blocks(template: str) -> dict[str, str]:
-    """Split a compose template into one text block per ``service_name``.
+def _lookup(name, *_terms, extra=None, **_kwargs):
+    if name == "container_depends_on" and extra:
+        return "depends_on: " + json.dumps(extra)
+    return ""
 
-    Args:
-        template: the raw ``compose.yml.j2`` source.
 
-    Returns:
-        Mapping of service name to the template text that renders it.
+def rendered_services() -> dict[str, dict]:
     """
-    parts = re.split(r"{%\s*set service_name = '([^']+)'\s*%}", template)
-    return dict(zip(parts[1::2], parts[2::2], strict=True))
+    Returns:
+        The services of the rendered compose file, each with the ``depends_on``
+        its ``container_depends_on`` lookup adds beyond the shared ones.
+    """
+    env = Environment(
+        loader=DictLoader({**INCLUDES, "compose.yml.j2": read_text(str(COMPOSE))}),
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    env.globals["lookup"] = _lookup
+    return load_yaml_str(env.get_template("compose.yml.j2").render())["services"]
 
 
 class TestSharedVolumePopulationOrder(unittest.TestCase):
@@ -36,11 +49,11 @@ class TestSharedVolumePopulationOrder(unittest.TestCase):
             for entry in volumes.values()
             for mount in entry.get("mounts") or []
         }
-        blocks = service_blocks(read_text(str(COMPOSE)))
+        services = rendered_services()
         for service in sorted(sharers - {POPULATING_SERVICE}):
             self.assertIn(
                 POPULATING_SERVICE,
-                blocks[service],
+                services[service].get("depends_on") or {},
                 f"docker fills a fresh named volume from the image once per container "
                 f"create and the copy's mkdir is not EEXIST-safe, so '{service}' must "
                 f"depend on '{POPULATING_SERVICE}' instead of being created beside it, "

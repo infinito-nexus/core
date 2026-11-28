@@ -1,0 +1,76 @@
+---
+security:
+  path: /#settings/security
+  sinks: [ZAMMAD_SECURITY]
+  fields:
+    auth_openid_connect:
+      source: services.zammad.login.method.sso.enabled
+      mode: enforced
+      selector: '[name="auth_openid_connect"]'
+      type: checkbox
+      map: { true: true, false: false }
+      label: Authentication via OpenID Connect
+    user_show_password_login:
+      source: services.zammad.login.password_form
+      mode: enforced
+      selector: '[name="user_show_password_login"]'
+      type: checkbox
+      map: { true: true, false: false }
+      label: Password login
+    user_create_account:
+      source: services.zammad.login.method.registration.enabled
+      mode: enforced
+      selector: '[name="user_create_account"]'
+      type: checkbox
+      map: { true: true, false: false }
+      label: New user accounts
+ldap:
+  path: /#system/integration/ldap
+  sinks: [ZAMMAD_LDAP_SOURCE]
+  fields:
+    host:
+      source: services.zammad.ldap_source.host
+      when: services.ldap.enabled
+      mode: enforced
+      selector: 'form.js-discover [name="host"]'
+      type: text
+      label: LDAP host
+    port:
+      source: services.zammad.ldap_source.port
+      when: services.ldap.enabled
+      mode: enforced
+      selector: 'form.js-discover [name="host"]'
+      type: number
+      label: LDAP port
+email:
+  path: /#channels/email
+  sinks: [ZAMMAD_EMAIL_CHANNEL]
+  fields:
+    inbound_host:
+      source: services.zammad.email_channel.inbound_host
+      when: services.email.enabled
+      mode: enforced
+      selector: '.js-inbound [name="options::host"]'
+      type: text
+      label: IMAP host
+    inbound_port:
+      source: services.zammad.email_channel.inbound_port
+      when: services.email.enabled
+      mode: enforced
+      selector: '.js-inbound [name="options::port"]'
+      type: number
+      label: IMAP port
+    outbound_host:
+      source: services.zammad.email_channel.outbound_host
+      when: services.email.enabled
+      mode: enforced
+      selector: '.js-outbound [name="options::host"]'
+      type: text
+      label: SMTP host
+    outbound_port:
+      source: services.zammad.email_channel.outbound_port
+      when: services.email.enabled
+      mode: enforced
+      selector: '.js-outbound [name="options::port"]'
+      type: number
+      label: SMTP port

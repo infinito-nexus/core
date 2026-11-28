@@ -7,3 +7,4 @@ mcp-web-app-gitea:
 platform_administrator:
   tokens:
     web-app-gitea: ""
+web-app-semaphore-breakglass: {}

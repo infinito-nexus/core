@@ -37,6 +37,7 @@ import sys
 from utils.cache.files import PROJECT_ROOT
 from utils.env.parser import env_setting
 from utils.github.variant.axes import MODES
+from utils.roles import lifecycle
 from utils.roles.display import display_names
 
 ALL_MODES = "auto"
@@ -109,7 +110,7 @@ def _query_argv(
         sort_spec(),
         *fmt,
     ]
-    envelope = lifecycles or env_setting("INFINITO_LIFECYCLES")
+    envelope = lifecycles or lifecycle.envelope()
     if envelope.strip():
         args += ["--lifecycles", envelope]
     return args

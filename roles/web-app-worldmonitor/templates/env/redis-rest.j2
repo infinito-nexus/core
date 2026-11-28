@@ -1,0 +1,5 @@
+{% include 'roles/sys-svc-container/templates/env.j2' %}
+
+PORT={{ WORLDMONITOR_REST_PORT_INTERNAL }}
+SRH_TOKEN={{ WORLDMONITOR_REDIS_TOKEN | dotenv_quote }}
+SRH_CONNECTION_STRING={{ WORLDMONITOR_CACHE_URL | dotenv_quote }}

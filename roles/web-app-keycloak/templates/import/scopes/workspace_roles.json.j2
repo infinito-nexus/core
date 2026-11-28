@@ -1,0 +1,29 @@
+{
+  "name": "{{ KEYCLOAK_WORKSPACE_ROLES_SCOPE }}",
+  "description": "Flat claim of every <workspace id>:<role> client role of the client {{ KEYCLOAK_WORKSPACES_CLIENT_ID }} the user holds.",
+  "protocol": "openid-connect",
+  "attributes": {
+    "include.in.token.scope": "false",
+    "display.on.consent.screen": "false"
+  },
+  "protocolMappers": [
+    {
+      "name": "{{ KEYCLOAK_WORKSPACE_ROLES_CLAIM }}",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-client-role-mapper",
+      "consentRequired": false,
+      "config": {
+        "usermodel.clientRoleMapping.clientId": "{{ KEYCLOAK_WORKSPACES_CLIENT_ID }}",
+        "usermodel.clientRoleMapping.rolePrefix": "",
+        "multivalued": "true",
+        "claim.name": "{{ KEYCLOAK_WORKSPACE_ROLES_CLAIM }}",
+        "jsonType.label": "String",
+        "access.token.claim": "true",
+        "id.token.claim": "true",
+        "userinfo.token.claim": "true",
+        "introspection.token.claim": "true",
+        "lightweight.claim": "false"
+      }
+    }
+  ]
+}

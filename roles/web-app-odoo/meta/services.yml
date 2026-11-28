@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -22,8 +23,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
   bond: 1
@@ -60,11 +61,60 @@ odoo:
       websocket: 8072
   proxy:
     service_key: odoo
+  base_url:
+    parameters: [web.base.url]
+    value: "{{ lookup('tls', 'web-app-odoo', 'url.base') }}"
+  base_url_freeze:
+    parameters: [web.base.url.freeze]
+    value: "True"
+  oauth:
+    providers: [Keycloak]
+    client_id: "{{ OIDC.CLIENT.ID }}"
+    body: Login with SSO
+    css_class: fa fa-fw fa-key
+    auth_endpoint: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
+    scope: openid email profile phone
+    validation_endpoint: "{{ OIDC.CLIENT.USER_INFO_URL }}"
+    data_endpoint: "{{ OIDC.CLIENT.USER_INFO_URL }}"
+  directory:
+    managed: "{{ lookup('config', 'web-app-odoo', 'services.ldap.enabled') | bool and lookup('config', 'web-app-odoo', 'services.odoo.login.method.ldap.enabled')
+      | bool }}"
+    servers: ["{{ LDAP.SERVER.DOMAIN }}"]
+    port: "{{ LDAP.SERVER.PORT | int }}"
+    tls: "{{ LDAP.SERVER.SECURITY in ['TLS', 'SSL'] }}"
+    base: "{{ LDAP.DN.OU.USERS }}"
+    filter: "({{ LDAP.USER.ATTRIBUTES.ID }}=%s)"
+    create_user: true
+  objstore:
+    managed: "{{ lookup('objstore', 'web-app-odoo', 'enabled') | bool }}"
+    codes: ["{{ lookup('objstore', 'web-app-odoo', 'engine') }}"]
+    name: Infinito Object Store
+    bucket: "{{ lookup('objstore', 'web-app-odoo', 'bucket') }}"
+    cacheable: true
+    default_for_attachments: true
+    base_url: ""
+    directory_path_in_url: false
   run_after:
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-odoo', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-odoo', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-odoo', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-odoo', '2fa') }}"
+        enforced: true
+      passkey:
+        enabled: "{{ lookup('login_method', 'web-app-odoo', 'passkey') }}"
+      odoo_com:
+        enabled: "{{ lookup('login_method', 'web-app-odoo', 'odoo_com') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-odoo', 'registration') }}"
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 redis:
@@ -89,9 +139,10 @@ design:
       width: 280
       height: 80
 # nocheck: dynamic-flag
-# nocheck: playwright-service-flag — canonical:cdn alias of static-asset provider
+# nocheck: playwright-service-flag  runtime DOM patch of the sign-in and preference pages, asserted by test-login-methods.js
 javascript:
-  enabled: false
+  bond: 1
+  enabled: true
   shared: true
 prometheus:
   bond: 1
@@ -120,3 +171,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

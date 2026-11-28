@@ -67,7 +67,7 @@ def _is_truthy_flag(value: object) -> bool:
 
 
 class TestSeaweedfsConsumerPlaywright(unittest.TestCase):
-    def test_seaweedfs_consumer_ships_gated_storage_spec(self):
+    def test_seaweedfs_consumer_ships_gated_storage_spec(self):  # nocheck: test.text-presence -- repository-wide lint over every seaweedfs consumer role  # fmt: skip
         offenders: list[str] = []
 
         for role_dir in sorted(p for p in ROLES_DIR.iterdir() if p.is_dir()):

@@ -71,13 +71,46 @@
   changed_when: "'CHANGED' in espocrm_config_override.stdout"
   delegate_to: "{{ ESPOCRM_HOST_NODE }}"
 
-- name: ▶️ Run flag setter as root (fallback)
+- name: "🔎 Read the stored EspoCRM settings the seeder manages"
+  shell: |
+    # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec --user {{ ESPOCRM_USER }} -e ESPOCRM_SEEDER_MODE=read \
+      -e ESPOCRM_SEEDER_FORM_FIELDS={{ ESPOCRM_FORM_SETTINGS | join(',') | quote }} \
+      {{ ESPOCRM_LOCAL_CID | quote }} php {{ ESPOCRM_SCRIPT_SEED_DOCKER }}
+  register: espocrm_settings_stored
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  delegate_to: "{{ ESPOCRM_HOST_NODE }}"
+
+- name: "📣 Report the managed EspoCRM settings the seeder reverts"
+  include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    espocrm_settings_drift: "{{ (espocrm_settings_stored.stdout_lines | last | from_json).settings }}"
+    forms_drift_current:
+      authentication: "{{ espocrm_settings_drift | dict2items | selectattr('key', 'in', ESPOCRM_AUTHENTICATION_SETTINGS) | items2dict }}"
+      system: "{{ espocrm_settings_drift | dict2items | selectattr('key', 'in', ESPOCRM_SYSTEM_SETTINGS) | items2dict }}"
+
+- name: "▶️ Write the EspoCRM settings that differ"
   shell: |
     # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec --user root {{ ESPOCRM_LOCAL_CID | quote }} \
       php {{ ESPOCRM_SCRIPT_SEED_DOCKER }}
   register: flags_result_root
   changed_when: "'CHANGED' in flags_result_root.stdout"
+  when: >-
+    (espocrm_settings_stored.stdout_lines | last | from_json).settings | length > 0
+    or (espocrm_settings_stored.stdout_lines | last | from_json).hidden > 0
+  delegate_to: "{{ ESPOCRM_HOST_NODE }}"
+
+- name: "🔒 Lock the managed EspoCRM settings read-only in the admin UI and settings API"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i --user {{ ESPOCRM_USER }} {{ ESPOCRM_LOCAL_CID | quote }}
+      sh -c {{ lookup('file', 'shell/module_sync.sh') | quote }} module_sync
+      {{ ESPOCRM_FORMS_MODULE_PATH | quote }}
+    stdin: "{{ lookup('template', 'forms_module_payload.j2') }}"
+  register: espocrm_forms_module
+  changed_when: "'CHANGED' in espocrm_forms_module.stdout"
   delegate_to: "{{ ESPOCRM_HOST_NODE }}"
 
 - name: 🚿 Flush handlers to make DB available before password reset
@@ -107,6 +140,18 @@
   changed_when: espocrm_admin_password.rc == 0
   delegate_to: "{{ ESPOCRM_HOST_NODE }}"
 
+- name: "🧩 Install the role-group OIDC user provider and LDAP sign-in hook"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec -i --user {{ ESPOCRM_USER }} {{ ESPOCRM_LOCAL_CID | quote }}
+      sh -c {{ lookup('file', 'shell/module_sync.sh') | quote }} module_sync
+      {{ ESPOCRM_RBAC_MODULE_PATH | quote }}
+    stdin: "{{ lookup('template', 'rbac_module_payload.j2') }}"
+  register: espocrm_rbac_module
+  changed_when: "'CHANGED' in espocrm_rbac_module.stdout"
+  delegate_to: "{{ ESPOCRM_HOST_NODE }}"
+  when: (ESPOCRM_OIDC_ENABLED | bool) or (ESPOCRM_LDAP_ENABLED | bool)
+
 - name: "📮 Provision the group email account EspoCRM sends system mail through"
   ansible.builtin.shell:
     cmd: |
@@ -119,4 +164,4 @@
   when: lookup('email', application_id).enabled | bool
 
 - name: "🎨 Apply the corporate design of {{ application_id }}"
-  ansible.builtin.include_tasks: 03_design.yml
+  ansible.builtin.include_tasks: 04_design.yml

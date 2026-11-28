@@ -1,0 +1,189 @@
+---
+# nocheck: garbage-collector-required  the only state is the Redis cache in cache_data, bounded by maxmemory with allkeys-lru eviction; no service writes other files to clean
+# nocheck: dockerfile-custom  every image of the stack builds from an upstream Dockerfile inside the pinned clone, so the role ships no build recipe of its own
+worldmonitor:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: true
+  custom: true
+  repository: https://github.com/koala73/worldmonitor.git
+  ref: ea3bd5cba6c9ae299b21e49db2762fe02326caff
+  ref_kind: commit
+  name: worldmonitor
+  healthcheck:
+    flavor: http
+    path: api/sidecar-health
+  ports:
+    internal:
+      http: 8080
+    local:
+      http: 7993
+      sso: 16514
+      sso_onion: 16539
+  lifecycle: alpha
+  backup:
+    stop_required: false
+  min_storage: 6GB
+  cpus: "1.0"
+  mem_reservation: 512m
+  mem_limit: 1g
+  pids_limit: 512
+ais-relay:
+  custom: worldmonitor-ais-relay
+  name: worldmonitor-ais-relay
+  healthcheck:
+    flavor: http
+    path: health
+  ports:
+    internal:
+      http: 3004
+  # nocheck: single-replica  the relay holds one upstream AIS stream and runs the in-container seed loops; a second replica would open a second stream on the same key and write every loop twice
+  replicas: 1
+  cpus: "0.5"
+  mem_reservation: 256m
+  mem_limit: 768m
+  pids_limit: 256
+redis-rest:
+  custom: worldmonitor-redis-rest
+  name: worldmonitor-redis-rest
+  healthcheck:
+    test:
+      - CMD
+      - node
+      - -e
+      - "fetch('http://127.0.0.1:80/ping',{headers:{authorization:'Bearer '+process.env.SRH_TOKEN}}).then((r)=>process.exit(r.ok?0:1),()=>process.exit(1))"
+  ports:
+    internal:
+      http: 80
+  cpus: "0.5"
+  mem_reservation: 128m
+  mem_limit: 512m
+  pids_limit: 128
+cache:
+  name: worldmonitor-cache
+  healthcheck:
+    test: ["CMD-SHELL", "REDISCLI_AUTH=\"$$REDIS_PASSWORD\" redis-cli ping | grep -q PONG"]
+    retries: 30
+  ports:
+    internal:
+      redis: 6379
+  # nocheck: single-replica  one Redis without replication; a second replica would hold a second, diverging cache behind the same service name
+  replicas: 1
+  cpus: "0.5"
+  mem_reservation: 128m
+  mem_limit: 320m
+  pids_limit: 128
+seeder:
+  custom: worldmonitor-seeder
+  name: worldmonitor-seeder
+  interval_seconds: 1800
+  timeout_seconds: 600
+  healthcheck:
+    test:
+      - CMD
+      - node
+      - -e
+      - "fetch('http://redis-rest:80/ping',{headers:{authorization:'Bearer '+process.env.UPSTASH_REDIS_REST_TOKEN}}).then((r)=>process.exit(r.ok?0:1),()=>process.exit(1))"
+  # nocheck: single-replica  each replica would run every seeder of the round against the same Redis, doubling the upstream fetches without seeding anything new
+  replicas: 1
+  cpus: "1.0"
+  mem_reservation: 256m
+  mem_limit: 1g
+  pids_limit: 256
+# nocheck: playwright-service-flag, dynamic-flag  build base of every image the role builds, never run as a container
+node:
+  image: node
+  # nocheck: docker-digest  every FROM of the pinned upstream Dockerfiles names this digest, and the build swaps the base in by it
+  version: "sha256:116b800c3754b440ee0aa3ed2f20f5bf3d99a554bfd9adeea09ea8017f6e85f5"
+  enabled: false
+sso:
+  bond: 1
+  enabled: "{{ 'web-app-keycloak' in group_names }}"
+  shared: "{{ 'web-app-keycloak' in group_names }}"
+  flavor: oauth2
+  oauth2:
+    origin:
+      host: worldmonitor
+      port: "{{ lookup('config', 'web-app-worldmonitor', 'services.worldmonitor.ports.internal.http') }}"
+# nocheck: dynamic-flag  gated on services.sso.enabled, not on group_names: the fetch patch only exists to carry the oauth2 gate session
+# nocheck: playwright-service-flag  runtime fetch patch without a probe-able surface flag, asserted by the biber scenario of test-live-updates.js
+javascript:
+  bond: 1
+  enabled: "{{ lookup('config', 'web-app-worldmonitor', 'services.sso.enabled') | bool }}"
+  shared: "{{ lookup('config', 'web-app-worldmonitor', 'services.sso.enabled') | bool }}"
+# nocheck: playwright-service-flag, dynamic-flag  the gateway is a single shared instance, never deployed per consumer
+litellm:
+  bond: 1
+  enabled: "{{ LITELLM_USABLE }}"
+  shared: true
+logout:
+  bond: 1
+  enabled: "{{ 'web-svc-logout' in group_names }}"
+  shared: "{{ 'web-svc-logout' in group_names }}"
+dashboard:
+  bond: 1
+  enabled: "{{ 'web-app-dashboard' in group_names }}"
+  shared: "{{ 'web-app-dashboard' in group_names }}"
+matomo:
+  bond: 1
+  enabled: "{{ 'web-app-matomo' in group_names }}"
+  shared: "{{ 'web-app-matomo' in group_names }}"
+design:
+  bond: 1
+  enabled: "{{ 'web-svc-design' in group_names }}"
+  shared: "{{ 'web-svc-design' in group_names }}"
+# nocheck: shared-provider a custom role pulled from its own repository registers the key; without it the key resolves to no role and nothing changes
+cosmos:
+  flavor: colors
+prometheus:
+  bond: 1
+  enabled: "{{ 'web-app-prometheus' in group_names }}"
+  shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: playwright-service-flag
+# nocheck: variants-coverage  sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
+tor:
+  bond: 0.5
+  enabled: "{{ 'svc-net-tor' in group_names }}"
+  shared: true # nocheck: dynamic-flag
+# nocheck: playwright-service-flag, dynamic-flag
+container_backup: # nocheck: bond-baseline
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true
+
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  checkout:
+    build:
+      bases:
+        node: "node:24-alpine@{{ lookup('config', 'web-app-worldmonitor', 'services.node.version') }}"
+      dockerfiles:
+        worldmonitor: Dockerfile
+        ais-relay: Dockerfile.relay
+        redis-rest: docker/Dockerfile.redis-rest
+    ref: "{{ lookup('config', 'web-app-worldmonitor', 'services.worldmonitor.ref') }}"
+    url: "{{ lookup('config', 'web-app-worldmonitor', 'services.worldmonitor.repository') }}"
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

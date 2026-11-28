@@ -26,7 +26,7 @@ from ansible.template import Templar
 
 from utils.cache.applications import get_merged_applications
 from utils.cache.errors import is_unresolvable
-from utils.cache.reset import _reset_cache_for_tests
+from utils.tests.caches import reset_caches
 
 from . import PROJECT_ROOT
 
@@ -58,7 +58,7 @@ def _scope(**overrides):
 
 
 def _render(scope):
-    _reset_cache_for_tests()
+    reset_caches(files_changed=False)
     return get_merged_applications(
         variables=scope,
         roles_dir=str(_ROLES_DIR),
@@ -68,7 +68,7 @@ def _render(scope):
 
 class TestResourceInApplicationsRender(unittest.TestCase):
     def tearDown(self) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def test_the_render_completes_and_sizes_its_consumer(self) -> None:
         applications = _render(_scope(RESOURCE_HOST_MEM_MB_OVERRIDE=64000))

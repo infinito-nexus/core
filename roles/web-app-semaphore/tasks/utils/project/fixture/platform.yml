@@ -1,0 +1,24 @@
+---
+- name: "📖 Read the inventory and the host_vars of the platform host"
+  ansible.builtin.slurp:
+    src: "{{ semaphore_deploy_fixture_platform_source }}"
+  loop:
+    - "{{ inventory_file }}"
+    - "{{ [inventory_dir, 'host_vars', inventory_hostname ~ '.yml'] | path_join }}"
+  loop_control:
+    loop_var: semaphore_deploy_fixture_platform_source
+  register: semaphore_deploy_fixture_platform_sources
+  delegate_to: localhost
+  become: false
+
+- name: "🗂️ Hold the Workspaces inventory and the reference-only platform host_vars"
+  ansible.builtin.set_fact:
+    semaphore_deploy_fixture_platform_files:
+      - path: "{{ SEMAPHORE_WORKSPACES_INVENTORY_FILE }}"
+        content: >-
+          {{ semaphore_deploy_fixture_platform_sources.results[0].content | b64decode
+             | semaphore_fixture_workspaces(inventory_hostname, SEMAPHORE_DEPLOY_FIXTURE_PLATFORM_HOST) }}
+      - path: "{{ ['host_vars', SEMAPHORE_DEPLOY_FIXTURE_PLATFORM_HOST ~ '.yml'] | path_join }}"
+        content: >-
+          {{ semaphore_deploy_fixture_platform_sources.results[1].content | b64decode
+             | semaphore_fixture_host_vars(SEMAPHORE_DEPLOY_FIXTURE_REFERENCES, SEMAPHORE_DEPLOY_FIXTURE_PLATFORM_CONNECTION) }}

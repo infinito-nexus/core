@@ -1,10 +1,21 @@
 ---
-- name: "🔧 setup {{ role_entry.app }}"
-  ansible.builtin.include_role:
-    name: "{{ role_entry.role }}"
-  vars:
-    application_id: "{{ role_entry.app }}"
+- name: "🔧 setup {{ role_entry.app }} when the deployment allows it"
   when: (role_entry.app | application_allowed(group_names, lookup('deployment').whitelist))
+  block:
+    - name: "🧩 Run the stack backend {{ role_entry.app }} enters with"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/load/entry.yml') }}"
+      vars:
+        entry_role: "{{ role_entry.role }}"
+        entry_application_id: "{{ role_entry.app }}"
+        entry_domain: false
+        entry_post_run: false
+      when: STACK_ENTRY_PENDING | bool
+
+    - name: "🔧 setup {{ role_entry.app }}"
+      ansible.builtin.include_role:
+        name: "{{ role_entry.role }}"
+      vars:
+        application_id: "{{ role_entry.app }}"
 
 - name: "🚿 flush handlers after {{ role_entry.app }}"
   ansible.builtin.meta: flush_handlers

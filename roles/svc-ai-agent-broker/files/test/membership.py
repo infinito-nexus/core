@@ -21,6 +21,7 @@ keycloak = Keycloak(
     os.environ["KEYCLOAK_ADMIN_USERNAME"],
     os.environ["KEYCLOAK_ADMIN_PASSWORD"],
     60,
+    os.environ["KEYCLOAK_EMAIL_ATTRIBUTE"],
 )
 users = keycloak._get("/users", {"username": os.environ["MEMBER"], "exact": "true"})
 if len(users) != 1:

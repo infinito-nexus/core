@@ -63,6 +63,7 @@ Excluded, with the reason recorded so the question is not reopened:
 
 - [ ] Each unverified candidate is probed against a running instance and moved into the confirmed table or the exclusion table with its reason, so the scope rests on measurement rather than vendor claims.
 - [x] Every role in the confirmed table declares its native AI surface in `meta/services.yml` with `enabled` and `shared` bound to `'svc-ai-litellm' in group_names`, so a deployment without the gateway configures no AI surface at all.
+  - Superseded by [089](089-agents-restructuring.md#superseded-criteria): the service flags in `meta/services.yml` keep their `group_names` test, and every other reader tests peer presence through a services lookup instead of `'<role>' in group_names`.
 - [x] Every role in the confirmed table carries a `credentials.litellm_api_key` entry in `meta/secrets.yml`, and the deploy writes that virtual key into the application's own AI configuration rather than a shared or hardcoded key.
 - [x] Every role in the confirmed table points its AI base URL at the in-cluster gateway address, and a deploy-time assertion fails when the configured URL resolves outside the deployment.
 - [x] No role in the confirmed table retains a default that sends requests to a third-party provider when the gateway is enabled.
@@ -81,5 +82,5 @@ The gateway is therefore pinned on **variant 2** for every consumer that ships t
 
 ## See Also
 
-- [031 - LLM Gateway Model Backends](031-llm-gateway-model-backends.md)
-- [025 - MCP Role Integration](025-mcp-role-integration.md)
+- [052 - LLM Gateway Model Backends](052-llm-gateway-model-backends.md)
+- [050 - MCP Role Integration](050-mcp-role-integration.md)

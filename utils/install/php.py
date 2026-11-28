@@ -15,15 +15,19 @@ _PHPUNIT = PROJECT_ROOT / "vendor" / "bin" / "phpunit"
 
 _PHPUNIT_EXTENSIONS = ("dom", "mbstring", "xmlwriter")
 
+_SUITE_EXTENSIONS = ("pdo",)
+
 
 def ensure_php_toolchain() -> None:
-    """Install the PHP interpreter, Composer and the extensions PHPUnit needs.
+    """Install the PHP interpreter, Composer and the extensions the suite needs.
 
     ``phpunit/phpunit`` declares ``_PHPUNIT_EXTENSIONS`` as platform
     requirements and Composer refuses to resolve the vendor tree without them,
     so they are part of the toolchain rather than of the suite consuming it.
-    A distro ships them as packages separate from the interpreter, which is why
-    a present ``php`` binary does not imply they are there.
+    ``_SUITE_EXTENSIONS`` are the ones the PHP under test calls into, such as
+    the ``PDO`` class the database scripts type against. A distro ships them as
+    packages separate from the interpreter, which is why a present ``php``
+    binary does not imply they are there.
 
     Composer needs an archive extractor for its dist downloads. Without one it
     silently falls back to ``--prefer-source`` and mirror-clones every
@@ -38,7 +42,7 @@ def ensure_php_toolchain() -> None:
     ensure_command_present("php")
     ensure_command_present("composer")
     ensure_command_present("unzip")
-    for extension in _PHPUNIT_EXTENSIONS:
+    for extension in _PHPUNIT_EXTENSIONS + _SUITE_EXTENSIONS:
         ensure_php_extension_present(extension)
 
 

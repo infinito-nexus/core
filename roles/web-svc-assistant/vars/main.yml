@@ -1,0 +1,38 @@
+---
+application_id: "web-svc-assistant"
+entity_name: "{{ application_id | entity_name }}"
+
+ASSISTANT_SERVICE: "{{ entity_name }}"
+ASSISTANT_CONTAINER: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.name') }}"
+ASSISTANT_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, entity_name) }}"
+ASSISTANT_IMAGE: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.image') }}"
+ASSISTANT_VERSION: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.version') }}"
+ASSISTANT_PORT: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.ports.internal.http') }}"
+ASSISTANT_PATH: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.path') }}"
+ASSISTANT_RATE_LIMIT: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.rate_limit') }}"
+ASSISTANT_RETRIEVAL: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.retrieval') }}"
+ASSISTANT_MODELS: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.models') }}"
+ASSISTANT_MODEL_TIMEOUT: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.model_timeout') }}"
+ASSISTANT_INDEX: "{{ lookup('config', application_id, 'services.' ~ entity_name ~ '.index') }}"
+ASSISTANT_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+
+ASSISTANT_MODEL_SERVICE_ENABLED: >-
+  {{ lookup('config', application_id, 'services.ollama.enabled') | bool
+     and lookup('config', application_id, 'services.litellm.enabled') | bool }}
+ASSISTANT_MODELS_NAMED: "{{ ASSISTANT_MODELS.values() | map('string') | map('trim') | select | list | length > 0 }}"
+ASSISTANT_MODEL_URL: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
+ASSISTANT_MODEL_KEY: "{{ lookup('litellm_api_key', application_id) }}"
+
+ASSISTANT_BUILD_DIR: "{{ lookup('container', application_id, 'directories.instance') }}"
+ASSISTANT_KNOWLEDGE_HOST: "{{ lookup('volume', application_id, 'knowledge').source }}"
+ASSISTANT_KNOWLEDGE_MOUNT: "{{ lookup('volume', application_id, 'knowledge').target }}"
+ASSISTANT_REDACT_SOURCE: "{{ lookup('path_absolute', 'utils/agents/redact.py') }}"
+ASSISTANT_REDACT_DIR: "{{ [ASSISTANT_BUILD_DIR, 'python', 'utils', 'agents'] | path_join }}"
+ASSISTANT_PLATFORM_DOCS: "{{ lookup('path_absolute', ASSISTANT_INDEX.platform_docs) }}"
+ASSISTANT_DEPLOYED_ROLES: "{{ lookup('deployment').deployed | intersect(lookup('deployment').all) | sort }}"
+
+ASSISTANT_DATABASE_NAME: "{{ lookup('database', application_id, 'name') }}"
+ASSISTANT_DATABASE_USER: "{{ lookup('database', application_id, 'username') }}"
+ASSISTANT_DATABASE_PASSWORD: "{{ lookup('database', application_id, 'password') }}"
+ASSISTANT_DATABASE_HOST: "{{ lookup('database', application_id, 'host') }}"
+ASSISTANT_DATABASE_PORT: "{{ lookup('database', application_id, 'port') }}"

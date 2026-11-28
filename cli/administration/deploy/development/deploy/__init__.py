@@ -6,6 +6,8 @@ Internal layout (one module per responsibility):
 * :mod:`.drill` — :func:`_maybe_recover_drill`, backup/recover verification
 * :mod:`.purge` — :func:`_purge_app_entities`, inter-round entity cleanup
 * :mod:`.rotate` — :func:`_rotate_credentials`, inter-pass credential rotation
+* :mod:`.devices`: :func:`decline`, a round whose ``requires_devices`` the
+  deploy target lacks is declined, not failed
 * :mod:`.cli`   — :func:`add_parser` + :func:`handler`, arg parsing and the
   round/pass orchestration loop
 

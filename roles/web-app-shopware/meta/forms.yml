@@ -1,0 +1,91 @@
+---
+plugin_config:
+  path: /admin#/sw/extension/config/KskHeptacomAdminOpenAuth
+  native: true
+  sinks: [SHOPWARE_OIDC_PLUGIN_SETTINGS]
+  fields:
+    denyPasswordLogin:
+      source: services.shopware.login.method.native.enabled
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="KskHeptacomAdminOpenAuth.config.denyPasswordLogin"]'
+      type: checkbox
+      map: { true: false, false: true }
+    enableAutoRedirect:
+      source: services.shopware.admin_auto_redirect
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="KskHeptacomAdminOpenAuth.config.enableAutoRedirect"]'
+      type: checkbox
+client:
+  path: /admin#/heptacom/admin/open/auth/client/edit
+  lock: pending
+  issue: HEPTACOM/HeptacomShopwarePlatformAdminOpenAuth, drafted and not yet filed, stable name props on the client and provider fields
+  sinks: [SHOPWARE_OIDC_CLIENT_SETTINGS]
+  fields:
+    name:
+      source: services.shopware.oidc_client.display_name
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="name"]'
+      type: text
+    active:
+      source: services.shopware.oidc_client.active
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="active"]'
+      type: checkbox
+    login:
+      source: services.shopware.login.method.sso.enabled
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="login"]'
+      type: checkbox
+    connect:
+      source: services.shopware.oidc_client.connect
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="connect"]'
+      type: checkbox
+    storeUserToken:
+      source: services.shopware.oidc_client.store_user_session
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="storeUserToken"]'
+      type: checkbox
+    keepUserUpdated:
+      source: services.shopware.oidc_client.keep_user_updated
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="keepUserUpdated"]'
+      type: checkbox
+    discoveryDocumentUrl:
+      source: services.shopware.oidc_client.discovery_url
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="config.discoveryDocumentUrl"]'
+      type: url
+    authorization_endpoint:
+      source: services.shopware.oidc_client.authorize_url
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="config.authorization_endpoint"]'
+      type: url
+    token_endpoint:
+      source: services.shopware.oidc_client.exchange_url
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="config.token_endpoint"]'
+      type: url
+    userinfo_endpoint:
+      source: services.shopware.oidc_client.user_info_url
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="config.userinfo_endpoint"]'
+      type: url
+    clientId:
+      source: services.shopware.oidc_client.client_id
+      when: services.sso.enabled
+      mode: enforced
+      selector: '[name="config.clientId"]'
+      type: text

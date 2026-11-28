@@ -1,4 +1,96 @@
 ---
+- name: "✅ Assert the email policy of '{{ application_id }}' is known"
+  ansible.builtin.assert:
+    that: KEYCLOAK_EMAIL_POLICY in KEYCLOAK_EMAIL_POLICIES
+    fail_msg: >-
+      services.keycloak.email.policy is '{{ KEYCLOAK_EMAIL_POLICY }}';
+      it must be one of {{ KEYCLOAK_EMAIL_POLICIES | join(', ') }}.
+    quiet: true
+
+- name: "✅ Assert the mailbox email policy of '{{ application_id }}' has a directory"
+  ansible.builtin.assert:
+    that: not (KEYCLOAK_EMAIL_MAILBOX | bool) or (KEYCLOAK_LDAP_ENABLED | bool)
+    fail_msg: >-
+      services.keycloak.email.policy is 'mailbox', but services.ldap.enabled is
+      false: the mailbox policy keeps every address in the svc-db-openldap
+      directory. Deploy svc-db-openldap with services.ldap.enabled true, or set
+      services.keycloak.email.policy to external.
+    quiet: true
+
+- name: "✅ Assert admin events of '{{ application_id }}' expire after whole days above 0"
+  ansible.builtin.assert:
+    that:
+      - KEYCLOAK_ADMIN_EVENTS_EXPIRATION_DAYS is integer
+      - KEYCLOAK_ADMIN_EVENTS_EXPIRATION_DAYS > 0
+    fail_msg: >-
+      services.keycloak.events.admin.expiration_days is
+      '{{ KEYCLOAK_ADMIN_EVENTS_EXPIRATION_DAYS }}'; it must be a whole number
+      of days above 0, because Keycloak keeps admin events forever at 0.
+    quiet: true
+
+- name: "✅ Assert access tokens of '{{ application_id }}' live whole seconds above 0"
+  ansible.builtin.assert:
+    that:
+      - KEYCLOAK_REALM_ACCESS_TOKEN_LIFESPAN is integer
+      - KEYCLOAK_REALM_ACCESS_TOKEN_LIFESPAN > 0
+    fail_msg: >-
+      services.keycloak.realm.access_token_lifespan_seconds is
+      '{{ KEYCLOAK_REALM_ACCESS_TOKEN_LIFESPAN }}'; it must be a whole number
+      of seconds above 0.
+    quiet: true
+
+- name: "✅ Assert SSO sessions of '{{ application_id }}' idle out within their lifespan"
+  ansible.builtin.assert:
+    that:
+      - KEYCLOAK_REALM_SSO_SESSION_IDLE_TIMEOUT is integer
+      - KEYCLOAK_REALM_SSO_SESSION_MAX_LIFESPAN is integer
+      - 0 < KEYCLOAK_REALM_SSO_SESSION_IDLE_TIMEOUT <= KEYCLOAK_REALM_SSO_SESSION_MAX_LIFESPAN
+    fail_msg: >-
+      services.keycloak.realm.sso_session_idle_timeout_seconds is
+      '{{ KEYCLOAK_REALM_SSO_SESSION_IDLE_TIMEOUT }}' and
+      sso_session_max_lifespan_seconds is
+      '{{ KEYCLOAK_REALM_SSO_SESSION_MAX_LIFESPAN }}'; both must be whole
+      numbers of seconds, the idle timeout above 0 and at most the lifespan.
+    quiet: true
+
+- name: "✅ Assert '{{ application_id }}' enforces TOTP only where it offers it"
+  ansible.builtin.assert:
+    that: KEYCLOAK_REALM_TOTP_ENABLED | bool or not (KEYCLOAK_REALM_TOTP_ENFORCED | bool)
+    fail_msg: >-
+      services.keycloak.realm.totp_enforced is true, but
+      services.keycloak.realm.totp_enabled is false: a new user would be sent
+      to an OTP enrollment the realm does not offer. Set totp_enabled to true,
+      or totp_enforced to false.
+    quiet: true
+
+- name: "✅ Assert the OTP policy of '{{ application_id }}' is one Keycloak supports"
+  ansible.builtin.assert:
+    that:
+      - KEYCLOAK_REALM_OTP_POLICY_TYPE in KEYCLOAK_REALM_OTP_POLICY_TYPES
+      - KEYCLOAK_REALM_OTP_POLICY_ALGORITHM in KEYCLOAK_REALM_OTP_POLICY_ALGORITHMS
+      - KEYCLOAK_REALM_OTP_POLICY_DIGITS is integer
+      - KEYCLOAK_REALM_OTP_POLICY_DIGITS in KEYCLOAK_REALM_OTP_POLICY_DIGIT_COUNTS
+      - KEYCLOAK_REALM_OTP_POLICY_PERIOD is integer
+      - KEYCLOAK_REALM_OTP_POLICY_PERIOD > 0
+      - KEYCLOAK_REALM_OTP_POLICY_LOOK_AHEAD_WINDOW is integer
+      - KEYCLOAK_REALM_OTP_POLICY_LOOK_AHEAD_WINDOW >= 0
+      - KEYCLOAK_REALM_OTP_POLICY_INITIAL_COUNTER is integer
+      - KEYCLOAK_REALM_OTP_POLICY_INITIAL_COUNTER >= 0
+    fail_msg: >-
+      services.keycloak.realm.otp_policy needs type one of
+      {{ KEYCLOAK_REALM_OTP_POLICY_TYPES | join(', ') }}, algorithm one of
+      {{ KEYCLOAK_REALM_OTP_POLICY_ALGORITHMS | join(', ') }}, digits one of
+      {{ KEYCLOAK_REALM_OTP_POLICY_DIGIT_COUNTS | join(', ') }}, a whole number
+      of seconds above 0 as period, and whole numbers of 0 or more as
+      look_ahead_window and initial_counter; it holds
+      type '{{ KEYCLOAK_REALM_OTP_POLICY_TYPE }}',
+      algorithm '{{ KEYCLOAK_REALM_OTP_POLICY_ALGORITHM }}',
+      digits '{{ KEYCLOAK_REALM_OTP_POLICY_DIGITS }}',
+      period '{{ KEYCLOAK_REALM_OTP_POLICY_PERIOD }}',
+      look_ahead_window '{{ KEYCLOAK_REALM_OTP_POLICY_LOOK_AHEAD_WINDOW }}' and
+      initial_counter '{{ KEYCLOAK_REALM_OTP_POLICY_INITIAL_COUNTER }}'.
+    quiet: true
+
 - name: "🔍 Resolve reserved usernames for '{{ application_id }}' at task runtime"
   set_fact:
     KEYCLOAK_RESERVED_USERNAMES_LIST: "{{ lookup('users') | reserved_usernames }}"

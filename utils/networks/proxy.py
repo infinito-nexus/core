@@ -24,10 +24,53 @@ if TYPE_CHECKING:
 
 _UPSTREAM_VAR = "proxy_pass_upstream"
 REVERSE_PROXY_APPLICATION_ID = "svc-prx-openresty"
+UPSTREAM_SCHEMES = ("http", "https")
 
 
 def _as_str(value: Any) -> str:
     return "" if value is None else str(value).strip()
+
+
+def resolve_upstream_scheme(
+    applications: dict[str, Any],
+    application_id: str,
+    service_key: str,
+) -> str:
+    """Scheme the reverse proxy speaks to an application's own frontend.
+
+    Args:
+        applications: the ``lookup('applications')`` map.
+        application_id: the proxied application.
+        service_key: the service the location reaches; empty means the frontend.
+
+    Returns:
+        ``services.<entity>.upstream_scheme`` for the frontend, ``http`` when it
+        is unset and for every sidecar (sso-proxy, logout), which stay plaintext.
+
+    Raises:
+        ValueError: the declared scheme is neither ``http`` nor ``https``.
+    """
+    entity = entity_name(application_id)
+    if (_as_str(service_key) or entity) != entity:
+        return UPSTREAM_SCHEMES[0]
+    scheme = (
+        _as_str(
+            get(
+                applications=applications,
+                application_id=application_id,
+                config_path=f"services.{entity}.upstream_scheme",
+                strict=False,
+                default="",
+            )
+        ).lower()
+        or UPSTREAM_SCHEMES[0]
+    )
+    if scheme not in UPSTREAM_SCHEMES:
+        raise ValueError(
+            f"resolve_upstream_scheme: services.{entity}.upstream_scheme of "
+            f"{application_id!r} is {scheme!r}, expected one of {UPSTREAM_SCHEMES}"
+        )
+    return scheme
 
 
 def resolve_upstream(
@@ -119,21 +162,53 @@ def render_proxy_pass(
     deployment_mode: str,
     tail: str = "request",
     host_gateway: bool = False,
+    scheme: str = UPSTREAM_SCHEMES[0],
 ) -> str:
     """``proxy_pass`` directive; swarm prepends a ``set`` line (request-time DNS).
 
     A ``host_gateway`` upstream resolves through ``host.docker.internal`` in
     ``/etc/hosts`` (host gateway), which the request-time ``resolver`` cannot
-    see, so it renders as a literal directive like compose."""
+    see, so it renders as a literal directive like compose.
+
+    ``scheme`` comes from :func:`resolve_upstream_scheme`; an ``https``
+    upstream is reached without certificate verification, nginx's
+    ``proxy_ssl_verify off`` default, because the hop is the loopback or the
+    container network, never a public route."""
     if not authority:
         raise ValueError("render_proxy_pass: authority must be non-empty")
+    if scheme not in UPSTREAM_SCHEMES:
+        raise ValueError(
+            f"render_proxy_pass: scheme {scheme!r} not in {UPSTREAM_SCHEMES}"
+        )
 
     if deployment_mode == "swarm" and not host_gateway:
         return (
             f'set ${_UPSTREAM_VAR} "{authority}";\n'
-            f"    proxy_pass http://${_UPSTREAM_VAR}{_swarm_tail(tail)};"
+            f"    proxy_pass {scheme}://${_UPSTREAM_VAR}{_swarm_tail(tail)};"
         )
-    return f"proxy_pass http://{authority}{_compose_suffix(tail)};"
+    return f"proxy_pass {scheme}://{authority}{_compose_suffix(tail)};"
+
+
+def render_stream_proxy_pass(
+    authority: str, deployment_mode: str, host_gateway: bool
+) -> str:
+    """``proxy_pass`` directive of an nginx ``stream`` server.
+
+    Args:
+        authority: upstream ``host:port`` from :func:`resolve_upstream`.
+        deployment_mode: ``compose`` or ``swarm``, after any per-role override.
+        host_gateway: the upstream resolves through ``host.docker.internal``.
+
+    Returns:
+        Under swarm a ``set`` line and a ``proxy_pass`` of that variable, so the
+        stream ``resolver`` looks the upstream up per connection; otherwise
+        the literal directive.
+    """
+    if not authority:
+        raise ValueError("render_stream_proxy_pass: authority must be non-empty")
+    if deployment_mode == "swarm" and not host_gateway:
+        return f'set ${_UPSTREAM_VAR} "{authority}";\n    proxy_pass ${_UPSTREAM_VAR};'
+    return f"proxy_pass {authority};"
 
 
 def proxy_hops(

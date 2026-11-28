@@ -18,7 +18,7 @@ DEPRECATED_PIPE_RE = re.compile(r"\|\s*compose_volumes\s*\(")
 
 
 class TestComposeVolumesCallRequired(unittest.TestCase):
-    def test_every_compose_template_calls_compose_volumes(self) -> None:
+    def test_every_compose_template_calls_compose_volumes(self) -> None:  # nocheck: test.text-presence -- repository-wide lint over every compose template  # fmt: skip
         roles_dir = PROJECT_ROOT / "roles"
         offenders: list[str] = []
 

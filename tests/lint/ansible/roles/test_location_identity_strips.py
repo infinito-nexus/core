@@ -30,16 +30,44 @@ from __future__ import annotations
 import re
 import unittest
 
+from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
+
 from utils.annotations.suppress import is_suppressed_in_head
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.roles.header_trust import TRUSTED_IDENTITY_HEADERS
 
 _RULE = "location-identity-strip"
 
 LOCATION_DIR = PROJECT_ROOT / "roles/sys-svc-proxy/templates/location"
 
 STRIP_INCLUDE = "roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2"
+UNTRUSTED_STRIP_INCLUDE = (
+    "roles/sys-svc-proxy/templates/headers/untrusted_identity_strips.conf.j2"
+)
 
 _PROXIES_RE = re.compile(r"proxy_pass|lookup\(\s*['\"]proxy_pass['\"]")
+_DIRECTIVE_RE = re.compile(r"(?m)^\s*proxy_set_header\s+(\S+)\s+(.+?)\s*;\s*$")
+
+
+def cleared_headers(template: str) -> set[str]:
+    """
+    Args:
+        template: a header snippet, relative to the project root.
+
+    Returns:
+        The request headers the rendered snippet sets to an empty value.
+    """
+    rendered = (
+        Environment(
+            loader=FileSystemLoader(str(PROJECT_ROOT)),
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(),
+        )
+        .get_template(template)
+        .render()
+    )
+    values = dict(_DIRECTIVE_RE.findall(rendered))
+    return {header for header, value in values.items() if value == '""'}
 
 
 def snippets() -> list:
@@ -70,7 +98,7 @@ def unstripped() -> list[str]:
 
 
 class TestLocationIdentityStrips(unittest.TestCase):
-    def test_no_proxying_location_forwards_client_identity(self) -> None:
+    def test_no_proxying_location_forwards_client_identity(self) -> None:  # nocheck: test.text-presence -- policy lint over every shared location snippet  # fmt: skip
         findings = unstripped()
         self.assertEqual(
             [],
@@ -79,16 +107,12 @@ class TestLocationIdentityStrips(unittest.TestCase):
             f"({len(findings)}):\n" + "\n".join(f"  - {f}" for f in findings),
         )
 
-    def test_the_scan_finds_proxying_snippets(self) -> None:
+    def test_the_scan_finds_proxying_snippets(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the snippet scan  # fmt: skip
         self.assertTrue(proxying_snippets(), "no proxying location snippet was scanned")
-
-    def test_a_non_proxying_snippet_is_not_demanded(self) -> None:
-        """A snippet that serves from disk cannot forge an upstream identity."""
-        self.assertLessEqual(len(proxying_snippets()), len(snippets()))
 
     def test_the_strip_snippet_covers_the_oauth2_proxy_headers(self) -> None:
         """The strip is only worth requiring if it names what the bridge trusts."""
-        content = read_text(str(PROJECT_ROOT / STRIP_INCLUDE))
+        cleared = cleared_headers(STRIP_INCLUDE)
         for header in (
             "X-Forwarded-User",
             "X-Forwarded-Email",
@@ -97,7 +121,23 @@ class TestLocationIdentityStrips(unittest.TestCase):
             "X-Forwarded-Preferred-Username",
         ):
             with self.subTest(header=header):
-                self.assertIn(f'proxy_set_header {header} ""', content)
+                self.assertIn(header, cleared)
+
+    def test_the_untrusted_strips_cover_every_role_trusted_header(self) -> None:
+        """Checkmk and OpenProject trust X-Remote-User, n8n Remote-Email. The SSO
+        branch overwrites X-Forwarded-*, so only the others rely on this file."""
+        cleared = cleared_headers(UNTRUSTED_STRIP_INCLUDE)
+        for header in TRUSTED_IDENTITY_HEADERS:
+            if header.startswith("X-Forwarded-"):
+                continue
+            with self.subTest(header=header):
+                self.assertIn(header, cleared)
+
+    def test_the_identity_strips_cover_every_role_trusted_header(self) -> None:
+        cleared = cleared_headers(STRIP_INCLUDE)
+        for header in TRUSTED_IDENTITY_HEADERS:
+            with self.subTest(header=header):
+                self.assertIn(header, cleared)
 
 
 if __name__ == "__main__":

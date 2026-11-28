@@ -8,9 +8,11 @@ switched off with ``enabled: false``. Every candidate carries exactly one state:
 * ``new``: HEAD carries no design spec for it.
 * ``stale``: the image version or the shared design base moved since the last
   commit of its design spec.
-* ``current``: nothing moved since then.
+* ``proposed``: nothing moved, but a tune-design run filed a design proposal
+  next to the role's gallery.
+* ``current``: nothing moved since then and no proposal waits.
 
-``new`` and ``stale`` roles are due, in that order.
+``new``, ``stale`` and ``proposed`` roles are due, in that order.
 
 CLI: ``python -m cli.meta.roles.design --help``
 """
@@ -22,14 +24,15 @@ import subprocess
 from collections import defaultdict
 from dataclasses import dataclass
 from operator import attrgetter
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from utils.cache.yaml import load_yaml_str
+from utils.design.spec import DESIGN_ENTITY, SPEC_FILE, UI_PREFIXES
 from utils.roles.applications.services.registry import read_yaml_file
 from utils.roles.entity.name import entity_name
 from utils.roles.lifecycle import tested_lifecycles
-from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_PLAYWRIGHT_SPEC
+from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.roles.meta_lookup import get_role_lifecycle
 
 if TYPE_CHECKING:
@@ -37,20 +40,16 @@ if TYPE_CHECKING:
 
 Gap = tuple[int, int, int]
 
-SPEC_FILE = (
-    PurePosixPath(ROLE_FILE_PLAYWRIGHT_SPEC).with_name("test-design.js").as_posix()
-)
 BASE_PATHS: tuple[str, ...] = (
     "roles/sys-front-inj-design/templates/css",
     "roles/sys-front-inj-design/templates/js",
     "utils/design/palette.py",
 )
-UI_PREFIXES: tuple[str, ...] = ("web-app-", "web-svc-")
-DESIGN_ENTITY = "design"
 
 STATE_REVIEW = "review"
 STATE_NEW = "new"
 STATE_STALE = "stale"
+STATE_PROPOSED = "proposed"
 STATE_CURRENT = "current"
 
 NO_GAP: Gap = (0, 0, 0)
@@ -93,6 +92,8 @@ class RoleFacts:
         designed_version: Image version of the primary entity at ``designed``.
         current_version: Image version of the primary entity in the working
             tree. Both versions are ``None`` when undeclared.
+        proposed: Whether a tune-design run filed a design proposal for the
+            role (``utils.design.proposal.proposed_apps``).
     """
 
     role: str
@@ -103,6 +104,7 @@ class RoleFacts:
     base_changed: bool
     designed_version: str | None
     current_version: str | None
+    proposed: bool
 
     @property
     def version_gap(self) -> Gap:
@@ -171,13 +173,15 @@ def version_gap(designed: str | None, current: str | None) -> Gap:
 
 
 def state_of(facts: RoleFacts) -> str:
-    """Return the state of a candidate: review, new, stale or current."""
+    """Return the state of a candidate: review, new, stale, proposed or current."""
     if facts.in_review:
         return STATE_REVIEW
     if facts.designed is None:
         return STATE_NEW
     if facts.base_changed or facts.version_gap != NO_GAP:
         return STATE_STALE
+    if facts.proposed:
+        return STATE_PROPOSED
     return STATE_CURRENT
 
 
@@ -192,6 +196,8 @@ def reason_of(facts: RoleFacts) -> str:
         return "design spec awaits approval"
     if state == STATE_NEW:
         return "never designed"
+    if state == STATE_PROPOSED:
+        return "tune-design proposal awaits a design pass"
     if state == STATE_CURRENT:
         return "up to date"
     reasons = []
@@ -216,6 +222,10 @@ def _new_order(facts: RoleFacts) -> tuple[object, ...]:
 def _stale_order(facts: RoleFacts) -> tuple[object, ...]:
     major, minor, patch = facts.version_gap
     return ((-major, -minor, -patch), _newest_first(facts.changed), facts.role)
+
+
+def _proposed_order(facts: RoleFacts) -> tuple[object, ...]:
+    return (_newest_first(facts.changed), facts.role)
 
 
 def _in_state(
@@ -244,13 +254,15 @@ def build_queue(facts: list[RoleFacts]) -> list[QueueEntry]:
 
     Returns:
         The ``new`` roles, newest first, followed by the ``stale`` roles,
-        largest version gap first. A tie falls to the most recently changed
-        role and then to the role name. A role no commit touched sorts behind
-        the committed ones. Ranks count from 1.
+        largest version gap first, and the ``proposed`` roles, most recently
+        changed first. A tie falls to the most recently changed role and then
+        to the role name. A role no commit touched sorts behind the committed
+        ones. Ranks count from 1.
     """
     due = [
         *_in_state(facts, STATE_NEW, _new_order),
         *_in_state(facts, STATE_STALE, _stale_order),
+        *_in_state(facts, STATE_PROPOSED, _proposed_order),
     ]
     return [_entry(item, rank) for rank, item in enumerate(due, start=1)]
 
@@ -450,6 +462,7 @@ def _role_facts(
             None if designed is None else _designed_version(root, role, designed)
         ),
         current_version=_primary_version(services, role),
+        proposed=False,
     )
 
 

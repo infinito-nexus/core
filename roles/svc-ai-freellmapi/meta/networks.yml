@@ -1,0 +1,7 @@
+---
+meshes: []
+local:
+  subnet: 192.168.87.0/24
+overlay:
+  modes: [compose]
+  topology: shared_net

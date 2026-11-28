@@ -8,10 +8,10 @@ from ansible.template import Templar
 from utils.cache.files import PROJECT_ROOT, read_text
 from utils.cache.yaml import load_yaml_str
 from utils.packages.sources import FLATPAK_COMMAND_DIR
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 from utils.templating.ansible import _trust_as_template
 
 ROLE = PROJECT_ROOT / "roles/dsk-blender"
+PATHS = PROJECT_ROOT / "group_vars/all/05_paths.yml"
 PIPX_BIN_DIR = "/home/alice/.local/bin"
 USER_TASKS = ("addons/bonsai.yml", "addons/mcp-for-blender.yml")
 ROOT_OWNED = ("/usr/", "/sbin", "/bin")
@@ -21,11 +21,15 @@ def _yaml(relative):
     return load_yaml_str(read_text(str(ROLE / relative)))
 
 
+def _system_exec_path():
+    return load_yaml_str(read_text(str(PATHS))).get("EXEC_PATH_SYSTEM")
+
+
 def _search_path(template):
     templar = Templar(
         loader=DataLoader(),
         variables={
-            "blender_exec_path": _yaml(ROLE_FILE_VARS_MAIN).get("blender_exec_path"),
+            "EXEC_PATH_SYSTEM": _system_exec_path(),
             "blender_pipx_bin_dir": PIPX_BIN_DIR,
         },
     )
@@ -66,8 +70,8 @@ class TestBlenderExecPath(unittest.TestCase):
                 self.assertIn(FLATPAK_COMMAND_DIR, segments)
                 self.assertIn("/usr/bin", segments)
 
-    def test_the_include_path_holds_only_root_owned_dirs(self):
-        segments = str(_yaml(ROLE_FILE_VARS_MAIN).get("blender_exec_path")).split(":")
+    def test_the_include_path_holds_only_root_owned_dirs(self):  # nocheck: test.text-presence -- parses EXEC_PATH_SYSTEM from group_vars YAML and checks every segment's owner prefix  # fmt: skip
+        segments = str(_system_exec_path()).split(":")
         self.assertTrue(
             all(segment.startswith(ROOT_OWNED) for segment in segments),
             f"{segments}: the include PATH also reaches the package_install of "

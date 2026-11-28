@@ -126,7 +126,7 @@ def _violations(dockerfile: Path) -> list[str]:
 
 
 class TestDockerfileAptUpdatePurgeLists(unittest.TestCase):
-    def test_apt_update_purges_lists_first_and_no_valid_until_bypass(self) -> None:
+    def test_apt_update_purges_lists_first_and_no_valid_until_bypass(self) -> None:  # nocheck: test.text-presence -- policy lint over every RUN block of every role Dockerfile  # fmt: skip
         self.assertTrue(
             _ROLES_ROOT.is_dir(),
             f"'roles' directory not found at: {_ROLES_ROOT}",

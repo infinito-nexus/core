@@ -5,8 +5,9 @@ Two rules, both opting out through ``# nocheck: sso-variant-tor``.
 The second: every variant of a role that declares a ``tor:`` block MUST pin
 ``services.tor.enabled: true``. The onion is the shape the platform breaks in -
 plaintext origins drop ``Secure`` cookies, an https identity provider cannot
-embed in an http page, ``crypto.subtle`` is undefined outside a secure context -
-so a variant that never runs it is not testing the deployment users get.
+embed in an http page, and every secure-context API rests on the browser
+treating ``http://*.onion`` as a secure context - so a variant
+that never runs it is not testing the deployment users get.
 
 No variant is exempt, not even the minimal round: the onion is part of the
 deployment under test, not a feature bolted onto the full shape. Roles without a
@@ -19,8 +20,9 @@ The first: a variant that turns SSO on must also turn the onion on.
 Single sign-on over a plaintext ``http://<onion>`` origin is where the platform
 breaks in ways clearnet never shows: a framework's ``Secure`` session-cookie
 default silently drops the cookie, an https identity provider cannot be embedded
-in an http page, and ``crypto.subtle`` is undefined because an onion is not a
-secure context. None of that surfaces unless a variant deploys SSO and the onion
+in an http page, and ``crypto.subtle`` exists only because the browser treats
+the onion as a secure context, as Tor Browser does and as the Playwright harness
+makes Chromium do. None of that surfaces unless a variant deploys SSO and the onion
 together, so every ``meta/variants.yml`` entry pinning
 ``services.sso.enabled: true`` MUST also pin ``services.tor.enabled: true``.
 
@@ -29,7 +31,7 @@ A role that genuinely cannot serve SSO over the onion opts out with
 ``meta/services.yml``, naming the reason. Three kinds qualify: a role whose
 ``meta/services.yml`` pins ``tor.enabled`` to a literal false (it has no onion at
 all), a role whose SSO gate is itself disabled on a tor node, and a role whose
-login flow needs a browser API that a non-secure context withholds.
+login flow needs a capability Tor cannot carry, such as WebRTC media over UDP.
 """
 
 from __future__ import annotations

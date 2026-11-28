@@ -9,7 +9,9 @@ set -euo pipefail
 # Behavior:
 #   - Aggregates and deduplicates all role groups declared in each bundle's
 #     inventory.yml (see utils.inventory.bundle_apps).
-#   - Exports apps=<csv> and delegates to apps/reinstall/selection.sh.
+#   - Exports apps=<csv> and bundles, and delegates to apps/reinstall/selection.sh,
+#     which seeds the inventory with each bundle's all.vars except the
+#     infinito catalogue key.
 #   - Defaults full_cycle=false (override via `full_cycle=true`).
 #
 # Required env (set by the compose-deploy recipe from `bundles=`):
@@ -27,6 +29,7 @@ cd "${REPO_ROOT}"
 
 PYTHON="${PYTHON:-python3}"
 export full_cycle
+export bundles
 
 echo "=== resolving bundles: ${bundles} ==="
 

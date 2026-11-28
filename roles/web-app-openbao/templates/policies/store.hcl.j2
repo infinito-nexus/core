@@ -1,0 +1,55 @@
+path "{{ OPENBAO_TENANT_MOUNT }}/data/ws-*" {
+  capabilities = ["create", "update"]
+}
+
+path "{{ OPENBAO_TENANT_MOUNT }}/metadata/ws-*" {
+  capabilities = ["read", "delete"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/store/*" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/store/hostkeys/*" {
+  capabilities = ["create", "read", "update", "delete"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/metadata/store/hostkeys/*" {
+  capabilities = ["create", "read", "update", "delete"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/metadata/store/hostkeys/+/" {
+  capabilities = ["list"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/metadata/store/hostkeys/+/+/" {
+  capabilities = ["list"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/store/workspace-keys/*" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/metadata/store/workspace-keys/*" {
+  capabilities = ["delete"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/store/invites/*" {
+  capabilities = ["create", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/metadata/store/invites/*" {
+  capabilities = ["delete"]
+}
+
+path "auth/approle/role/{{ OPENBAO_STORE_APPROLE }}/secret-id" {
+  capabilities = ["update"]
+}
+
+path "auth/approle/role/{{ OPENBAO_STORE_APPROLE }}/secret-id-accessor/destroy" {
+  capabilities = ["update"]
+}
+
+path "auth/approle/role/{{ OPENBAO_STORE_APPROLE }}/secret-id/lookup" {
+  capabilities = ["update"]
+}

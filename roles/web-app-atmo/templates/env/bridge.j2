@@ -1,0 +1,9 @@
+{% include 'roles/sys-svc-container/templates/env.j2' %}
+
+BRIDGE_PDS_URL={{ ATMO_PDS_URL | dotenv_quote }}
+BRIDGE_APPVIEW_URL={{ ATMO_PUBLIC_URL | dotenv_quote }}
+BRIDGE_MOBILIZON_URL={{ ATMO_MOBILIZON_URL | dotenv_quote }}
+BRIDGE_MOBILIZON_EMAIL={{ ATMO_BRIDGE_ACCOUNT.email | dotenv_quote }}
+BRIDGE_MOBILIZON_PASSWORD={{ ATMO_BRIDGE_ACCOUNT.password | dotenv_quote }}
+BRIDGE_STATE_PATH={{ [ATMO_BRIDGE_STATE_DIR, 'state.sqlite'] | path_join | dotenv_quote }}
+BRIDGE_INTERVAL_SECONDS={{ ATMO_BRIDGE_INTERVAL_SECONDS }}

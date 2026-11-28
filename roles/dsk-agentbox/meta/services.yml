@@ -1,0 +1,31 @@
+---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
+# nocheck: dynamic-flag  the desktop base is the premise of every dsk role, not a per-host option
+desktop-base:
+  bond: 1
+  enabled: true
+  shared: true
+agentbox:
+  modes:
+    host:
+      enabled: true
+  lifecycle: pre-alpha
+  min_storage: "2GB"
+  cpus: "0.5"
+  mem_reservation: "128m"
+  mem_limit: "512m"
+  pids_limit: 512
+
+# nocheck: variants-coverage the role has a single variant, and the guide edge is not a dimension of it: a second round would differ only by the README replay
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  the role runs no container, so Semaphore has nothing to pause
+  status: started

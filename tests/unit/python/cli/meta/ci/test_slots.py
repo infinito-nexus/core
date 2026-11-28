@@ -7,7 +7,7 @@ import unittest.mock as mock
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from cli.meta.ci import slots
+from cli.meta.ci import chunks, slots
 from utils.cache.files import PROJECT_ROOT
 from utils.env.parser import parse_static_env
 
@@ -187,6 +187,32 @@ class TestChunkArithmetic(unittest.TestCase):
             root = Path(tmp)
             self.assertLessEqual(slots.rows_per_sweep(root), slots.available(root))
 
+    def test_a_job_limit_leaves_what_the_chain_does_not_reserve(self) -> None:
+        with _tree() as tmp, mock.patch.dict("os.environ", _SETTINGS):
+            root = Path(tmp)
+            self.assertEqual(
+                slots.available(root),
+                256 - slots.reserved_slots(root) - slots.entry_overhead(root),
+            )
+
+    def test_a_derived_chunk_stops_at_the_matrix_cap(self) -> None:
+        with (
+            _tree() as tmp,
+            mock.patch.dict(
+                "os.environ", {**_SETTINGS, "INFINITO_CI_CONCURRENCY": "100"}
+            ),
+        ):
+            self.assertEqual(slots.chunk_size(Path(tmp)), slots.MATRIX_CAP)
+
+    def test_an_explicit_chunk_size_stops_at_the_matrix_cap(self) -> None:
+        with (
+            _tree() as tmp,
+            mock.patch.dict(
+                "os.environ", {**_SETTINGS, "INFINITO_CI_CHUNK_SIZE": "300"}
+            ),
+        ):
+            self.assertEqual(slots.chunk_size(Path(tmp)), slots.MATRIX_CAP)
+
     def test_enterprise_concurrency_leaves_the_job_cap_as_the_only_limit(
         self,
     ) -> None:
@@ -205,6 +231,65 @@ class TestChunkArithmetic(unittest.TestCase):
             self.assertGreater(slots.chunk_size(root), slots.available(root))
             self.assertEqual(slots.chunk_count(root), 1)
             self.assertEqual(slots.rows_per_sweep(root), slots.available(root))
+
+
+_UNLIMITED = {**_SETTINGS, "INFINITO_CI_JOB_LIMIT": "0"}
+
+
+class TestUnlimitedBudget(unittest.TestCase):
+    def test_a_zero_job_limit_sets_no_budget(self) -> None:
+        with _tree() as tmp, mock.patch.dict("os.environ", _UNLIMITED):
+            self.assertIsNone(slots.available(Path(tmp)))
+
+    def test_every_declared_block_may_fill(self) -> None:
+        with _tree() as tmp, mock.patch.dict("os.environ", _UNLIMITED):
+            root = Path(tmp)
+            self.assertEqual(slots.chunk_count(root), slots.chunk_blocks())
+            self.assertEqual(
+                slots.rows_per_sweep(root),
+                slots.chunk_blocks() * slots.chunk_size(root),
+            )
+
+    def test_every_row_lands_in_a_chunk_within_the_matrix_cap(self) -> None:
+        with (
+            _tree() as tmp,
+            mock.patch.dict(
+                "os.environ", {**_UNLIMITED, "INFINITO_CI_CHUNK_SIZE": "300"}
+            ),
+        ):
+            root = Path(tmp)
+            plan = chunks.plan(
+                [],
+                list(range(700)),
+                size=slots.chunk_size(root),
+                blocks=slots.chunk_blocks(),
+                budget=slots.available(root),
+            )
+        self.assertEqual(sum(len(chunk) for chunk in plan), 700)
+        self.assertLessEqual(max(len(chunk) for chunk in plan), slots.MATRIX_CAP)
+
+    def test_rows_beyond_the_declared_blocks_fail_the_plan(self) -> None:
+        with _tree() as tmp, mock.patch.dict("os.environ", _UNLIMITED):
+            root = Path(tmp)
+            with self.assertRaises(SystemExit) as raised:
+                chunks.plan(
+                    [],
+                    list(range(241)),
+                    size=slots.chunk_size(root),
+                    blocks=slots.chunk_blocks(),
+                    budget=slots.available(root),
+                )
+        self.assertIn("needs 4 chunk blocks", str(raised.exception))
+
+    def test_the_table_reads_unlimited(self) -> None:
+        with (
+            _tree() as tmp,
+            mock.patch.object(slots, "PROJECT_ROOT", Path(tmp)),
+            mock.patch.dict("os.environ", _UNLIMITED),
+        ):
+            table = slots.render_matrix()
+        self.assertRegex(table, r"available\s+unlimited\n")
+        self.assertRegex(table, r"job limit \(INFINITO_CI_JOB_LIMIT\)\s+0\n")
 
 
 class TestConcurrencySetting(unittest.TestCase):

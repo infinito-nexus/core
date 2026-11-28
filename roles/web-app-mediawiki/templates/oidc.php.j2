@@ -17,7 +17,8 @@ if ( file_exists( $pa ) && file_exists( $oidc ) && file_exists( $oidcVendor ) ) 
     wfLoadExtension( 'OpenIDConnect' );
 
     $wgPluggableAuth_EnableAutoLogin = {{ MEDIAWIKI_OIDC_AUTOLOGIN | bool }};
-    $wgPluggableAuth_EnableLocalLogin = {{ MEDIAWIKI_OIDC_LOCALLOGIN | bool }};
+    $wgPluggableAuth_EnableLocalLogin = {{ MEDIAWIKI_LOCAL_PASSWORD_LOGIN | bool }};
+    $wgGroupPermissions['*']['autocreateaccount'] = true;
     $wgPluggableAuth_ButtonLabel = '{{ MEDIAWIKI_OIDC_BUTTON_TEXT }}';
 
     $wgPluggableAuth_Config = [
@@ -32,11 +33,58 @@ if ( file_exists( $pa ) && file_exists( $oidc ) && file_exists( $oidcVendor ) ) 
                 'proxy'        => '{{ MEDIAWIKI_OIDC_SOCKS_PROXY }}',
 {% endif %}
             ],
+            'groupsyncs' => [
+                'rbac' => [
+                    'type' => 'mapped',
+                    'map'  => [
+{% for mediawiki_group, provider_groups in MEDIAWIKI_RBAC_GROUP_MAP.items() %}
+                        '{{ mediawiki_group }}' => [ '{{ RBAC.GROUP.CLAIM }}' => [ {% for provider_group in provider_groups %}'{{ provider_group }}'{{ ', ' if not loop.last else '' }}{% endfor %} ] ],
+{% endfor %}
+                    ],
+                ],
+            ],
         ],
     ];
 
     $wgOpenIDConnect_UseEmailNameAsUserName = true;
-    $wgOpenIDConnect_MigrateUsers = true;
+    $wgOpenIDConnect_MigrateUsersByUserName = true;
+
+    $wgHooks['UserLoggedIn'][] = static function ( $user ) {
+        $services = MediaWiki\MediaWikiServices::getInstance();
+        $claims = [];
+        foreach ( $services->getService( 'PluggableAuthFactory' )->getInstances() as $plugin ) {
+            if ( $plugin instanceof MediaWiki\Extension\OpenIDConnect\OpenIDConnect ) {
+                $claims = $plugin->getAttributes( $user );
+            }
+        }
+        if ( $claims === [] ) {
+            return;
+        }
+        $options = $services->getUserOptionsManager();
+        $locale = strtolower( str_replace( '_', '-', trim( (string)( $claims['{{ OIDC.ATTRIBUTES.LOCALE }}'] ?? '' ) ) ) );
+        $language = $options->getDefaultOption( 'language', $user );
+        foreach ( [ $locale, explode( '-', $locale )[0] ] as $candidate ) {
+            if ( $candidate !== '' && $services->getLanguageNameUtils()->isSupportedLanguage( $candidate ) ) {
+                $language = $candidate;
+                break;
+            }
+        }
+        $zone = trim( (string)( $claims['{{ OIDC.ATTRIBUTES.ZONEINFO }}'] ?? '' ) );
+        $timecorrection = in_array( $zone, DateTimeZone::listIdentifiers(), true )
+            ? 'ZoneInfo|' . intdiv( ( new DateTimeZone( $zone ) )->getOffset( new DateTime( 'now' ) ), 60 ) . '|' . $zone
+            : $options->getDefaultOption( 'timecorrection', $user );
+        $options->setOption( $user, 'language', $language );
+        $options->setOption( $user, 'timecorrection', $timecorrection );
+        $options->saveOptions( $user );
+    };
+
+    $wgHooks['GetPreferences'][] = static function ( $user, &$preferences ) {
+        foreach ( [ 'language', 'timecorrection' ] as $preference ) {
+            if ( isset( $preferences[$preference] ) ) {
+                $preferences[$preference]['disabled'] = true;
+            }
+        }
+    };
 
 } else {
 }

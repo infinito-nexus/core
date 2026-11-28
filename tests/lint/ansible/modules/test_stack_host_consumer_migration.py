@@ -43,7 +43,7 @@ MODULE_LINE = re.compile(
     r"^(?P<indent>\s*)-?\s*(?:ansible\.builtin\.)?(?P<module>[a-z_]+)\s*:\s*(?:#.*)?$"
 )
 PATH_ARG_KEYS = ("path", "dest", "src", "cmd", "argv", "file", "name")
-GATE_RE = re.compile(r"\b(?:IS_STACK_HOST|MODE_ASSERT_LOCAL)\s*\|\s*bool\b")
+GATE_RE = re.compile(r"\bIS_STACK_HOST\s*\|\s*bool\b")
 DELEGATE_RE = re.compile(r"delegate_to\s*:\s*[\"']?\{\{\s*STACK_HOST\s*\}\}")
 NOCHECK_MARKER = "nocheck: stack-host-consumer"
 
@@ -104,7 +104,7 @@ def _path_args_concat(block_lines: list[str]) -> str:
 
 
 class TestStackHostConsumerMigration(unittest.TestCase):
-    def test_no_ungated_consumers_of_stack_host_template_destinations(self):
+    def test_no_ungated_consumers_of_stack_host_template_destinations(self):  # nocheck: test.text-presence -- policy lint over every YAML file  # fmt: skip
         producer_keys: set[str] = set()
         producer_locations: set[tuple[str, int]] = set()
 
@@ -177,7 +177,7 @@ class TestStackHostConsumerMigration(unittest.TestCase):
                 "not IS_STACK_HOST-gated. On workers the file does not exist, so "
                 "these tasks will abort.\n\n"
                 "Gate the task (or its enclosing block) with "
-                "`when: IS_STACK_HOST | bool` or `when: MODE_ASSERT_LOCAL | bool`, "
+                "`when: IS_STACK_HOST | bool`, "
                 f"or suppress with `# {NOCHECK_MARKER} (<reason>)` if the consumer "
                 "is structurally safe (parent include already manager-only, file "
                 "produced unconditionally elsewhere, ...).\n\n"

@@ -3,6 +3,7 @@
 location /oauth2/ {
     {{ lookup('proxy_pass', application_id, sso_proxy_instance.service, 'http', tail='oauth2', local_port=lookup('config', application_id, 'services.' ~ (application_id | entity_name) ~ '.ports.local.' ~ sso_proxy_instance.port_key), internal_port=lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http')) }}
 
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
 
     {% include 'roles/sys-svc-proxy/templates/headers/forwarded_base.conf.j2' %}
@@ -14,6 +15,7 @@ location /oauth2/ {
 location @oauth2_start {
     {{ lookup('proxy_pass', application_id, sso_proxy_instance.service, 'http', tail='oauth2', local_port=lookup('config', application_id, 'services.' ~ (application_id | entity_name) ~ '.ports.local.' ~ sso_proxy_instance.port_key), internal_port=lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http')) }}
 
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
     {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
 
     {% include 'roles/sys-svc-proxy/templates/headers/forwarded_base.conf.j2' %}
@@ -31,3 +33,18 @@ location @oauth2_start {
     proxy_pass_request_body off;
     proxy_set_header Content-Length "";
 }
+{% for gate in lookup('sso', application_id, 'oauth2_restricted_locations') %}
+
+location = {{ gate.auth_uri }} {
+    internal;
+    {{ lookup('proxy_pass', application_id, sso_proxy_instance.service, 'http', tail=gate.upstream, local_port=lookup('config', application_id, 'services.' ~ (application_id | entity_name) ~ '.ports.local.' ~ sso_proxy_instance.port_key), internal_port=lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http')) }}
+
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
+
+    {% include 'roles/sys-svc-proxy/templates/headers/forwarded_base.conf.j2' %}
+
+    proxy_pass_request_body off;
+    proxy_set_header Content-Length "";
+}
+{% endfor %}

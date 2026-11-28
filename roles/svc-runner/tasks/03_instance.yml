@@ -1,0 +1,85 @@
+---
+- name: 📂 Create runner instance {{ runner_instance }} directory
+  file:
+    path: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}"
+    state: directory
+    owner: "{{ RUNNER_RUN_OWNER }}"
+    group: "{{ RUNNER_RUN_GROUP }}"
+    mode: "0755"
+
+- name: 🔍 Check runner binary installed for instance {{ runner_instance }}
+  ansible.builtin.stat:
+    path: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}/run.sh"
+  register: _runner_binary_stat
+
+- name: 📦 Extract runner archive for instance {{ runner_instance }}
+  unarchive: # nocheck: stack-host-consumer (node-local runner: every node extracts its own run.sh)
+    src: "{{ RUNNER_INSTALL_DIR }}/actions-runner.tar.gz"
+    dest: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}"
+    remote_src: true
+    owner: "{{ RUNNER_USER }}"
+    group: "{{ RUNNER_USER }}"
+  when:
+    - RUNNER_REGISTERS_WITH_GITHUB | bool
+    - not _runner_binary_stat.stat.exists
+
+- name: 🔍 Find runner configuration for instance {{ runner_instance }}
+  ansible.builtin.find:
+    paths: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}"
+    patterns: ".*"
+    hidden: true
+    file_type: file
+    depth: 1
+  register: _runner_config_files
+
+- name: 🗑️ Delete stale runner config files for instance {{ runner_instance }}
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ _runner_config_files.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+  when: item.path | basename not in ['.env']
+
+- name: 📄 Write runner environment file for instance {{ runner_instance }}
+  template: # nocheck: stack-host-template (node-local runner: each node registers its own instances)
+    src: runner/instance_env.j2
+    dest: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}/.env"
+    owner: "{{ RUNNER_USER }}"
+    group: "{{ RUNNER_USER }}"
+    mode: "0600"
+  notify: compose-up
+
+- name: 📂 Create the Semaphore runner work directory of instance {{ runner_instance }}
+  file:
+    path: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}/{{ RUNNER_SEMAPHORE_WORK_DIR }}"
+    state: "{{ 'directory' if RUNNER_SEMAPHORE_ENABLED | bool else 'absent' }}"
+    owner: "{{ RUNNER_RUN_OWNER }}"
+    group: "{{ RUNNER_RUN_GROUP }}"
+    mode: "0700"
+
+- name: 🎟️ Write the Semaphore runner env and token of {{ runner_instance }}
+  template: # nocheck: stack-host-template (node-local runner: each instance signs in with its own token)
+    src: "{{ runner_semaphore_file.src }}"
+    dest: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}/{{ runner_semaphore_file.dest }}"
+    owner: "{{ RUNNER_RUN_OWNER }}"
+    group: "{{ RUNNER_RUN_GROUP }}"
+    mode: "{{ runner_semaphore_file.mode }}"
+  loop: "{{ RUNNER_SEMAPHORE_FILES }}"
+  loop_control:
+    loop_var: runner_semaphore_file
+    label: "{{ runner_semaphore_file.dest }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  notify: compose-up
+  when: RUNNER_SEMAPHORE_ENABLED | bool
+
+- name: 🗑️ Remove the Semaphore runner env and token of {{ runner_instance }}
+  file:
+    path: "{{ RUNNER_INSTALL_DIR }}/{{ runner_instance }}/{{ runner_semaphore_file.dest }}"
+    state: absent
+  loop: "{{ RUNNER_SEMAPHORE_FILES }}"
+  loop_control:
+    loop_var: runner_semaphore_file
+    label: "{{ runner_semaphore_file.dest }}"
+  notify: compose-up
+  when: not (RUNNER_SEMAPHORE_ENABLED | bool)

@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-playwright - the object store is reached only through the Flysystem amazon-s3 public/private/theme/sitemap adapters; Shopware exposes no object-browser surface to script
 logout:
   bond: 1
@@ -25,8 +26,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 mariadb:
   bond: 1
   enabled: true # nocheck: dynamic-flag
@@ -62,9 +63,28 @@ shopware:
       http: 8060
   run_after:
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
+  admin_auto_redirect: false
+  oidc_client:
+    display_name: Keycloak
+    active: true
+    connect: true
+    store_user_session: true
+    keep_user_updated: true
+    discovery_url: ""
+    authorize_url: "{{ OIDC.CLIENT.AUTHORIZE_URL }}"
+    internal_origin: "http://{{ lookup('container_service', 'web-app-keycloak', 'keycloak') }}:{{ lookup('config', 'web-app-keycloak', 'services.keycloak.ports.internal.http')
+      }}" # nocheck: literal-protocol-lookup  container-to-container hop that must bypass the canonical URL, because cURL refuses the .onion name the tls lookup returns
+    exchange_url: "{{ lookup('config', 'web-app-shopware', 'services.shopware.oidc_client.internal_origin') }}/realms/{{ OIDC.CLIENT.REALM }}/protocol/openid-connect/token"
+    user_info_url: "{{ lookup('config', 'web-app-shopware', 'services.shopware.oidc_client.internal_origin') }}/realms/{{ OIDC.CLIENT.REALM }}/protocol/openid-connect/userinfo"
+    client_id: "{{ OIDC.CLIENT.ID }}"
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-shopware', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-shopware', 'native') }}"
   cpus: "1.0"
   mem_reservation: 1g
   mem_limit: 2g
@@ -204,3 +224,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

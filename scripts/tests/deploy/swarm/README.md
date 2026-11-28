@@ -35,6 +35,7 @@ flowchart TB
     subgraph deploy["🚀 Matrix deploy (per variant round)"]
         direction TB
         prov["📋 02_provision_inventory<br/>per-round inventory + extend_inventory + write_extras"]:::deploy
+        tgt["🎯 target-reset --lab --node ...<br/>recreate the shared target, join it to the lab at .20,<br/>hand every swarm node a key"]:::deploy
         dep["📦 deploy round N: swarm init/join (svc-swarm-node)<br/>+ docker stack deploy + Playwright e2e"]:::deploy
         conv["✅ 03_wait_converge + 04_verify_reachable"]:::deploy
         purge["🧽 purge_stacks (between rounds)"]:::deploy
@@ -53,7 +54,7 @@ flowchart TB
             s1 --> s2 --> s3 --> s4 --> s5 --> s6 --> s7 --> s8 --> s9
         end
 
-        prov --> dep --> conv --> drill --> purge
+        prov --> tgt --> dep --> conv --> drill --> purge
     end
 
     subgraph chaos["💪 Reschedule chaos (after the matrix)"]
@@ -78,6 +79,7 @@ flowchart TB
         nW2["⚙️ swarm-wrk-02 (worker)"]:::wrk
         nNfs["📦 nfs-server (non-swarm)<br/>NFS export, nfs-2-local, sshd"]:::nfsnode
         nBkp["💽 backup-host (non-swarm)<br/>deployed remote-2-local + local-2-device units,<br/>LUKS device"]:::bkpnode
+        nTgt["🎯 shared target (.20, alias target)<br/>the stack's target service, joined per round"]:::bkpnode
     end
 
     infra --> deploy --> chaos --> teardown
@@ -85,6 +87,7 @@ flowchart TB
     cluster -->|▶️ compose up all 5| nMgr & nW1 & nW2 & nNfs & nBkp
     boot -->|🌐 hosts + dnsmasq| nMgr & nW1 & nW2 & nNfs
     boot -->|📥 repo + .deb install| nMgr & nW1 & nW2 & nNfs & nBkp
+    tgt -->|🎯 recreate + docker network connect| nTgt
     dep -->|🚀 swarm init/join + docker stack deploy| nMgr
     s2 -->|⏱️ trigger volume + nfs units| nMgr & nNfs
     s4 -->|⬇️ pull backup@source| nBkp
@@ -152,6 +155,7 @@ the cluster declaration (image, containers, network, DNS play) in
 | bring-up | `routine/01_bootstrap.sh` | host side: pre-clean, `compose build` + one `compose up`, sudo `.deb` build, then the play |
 | bring-up | `compose/swarm/playbook.yml` | node side over docker connection: systemd wait, NFS-export wipe, lab DNS, repo + `.deb` install |
 | deploy | `routine/02_provision_inventory.sh` | provision the per-round inventory |
+| deploy | [`target.py`](../../../../cli/administration/deploy/development/target.py) via `matrix.py` | reset the shared [target](../../../../compose/target/README.md) before every round: recreate it, join it to the lab at host `.20` under the alias `target`, give the manager and both workers a root key at `INFINITO_TARGET_KEY` |
 | deploy | `routine/03_wait_converge.sh` | wait for every stack service to converge |
 | deploy | `routine/04_verify_reachable.sh` | probe the app is reachable in-cluster |
 | deploy | `routine/backup/base.sh` (+ per-host routines in [`routine/backup/`](routine/backup/)) | backup+restore DR drill between rounds |
@@ -163,8 +167,9 @@ the cluster declaration (image, containers, network, DNS play) in
 | teardown | `../utils/rescue/index.sh` | list the collected rescue tree so a reader knows what the artifact holds |
 | teardown | `utils/collect/playwright_reports.sh` | pull Playwright reports from the manager into `/tmp/playwright-artifacts/<distro>/<app>` |
 | teardown | `utils/collect/topology_summary.sh` | render the node list + service placement into `$GITHUB_STEP_SUMMARY` |
-| teardown | `utils/clean/teardown.sh` | kill the nodes + remove the lab network |
+| teardown | `utils/clean/teardown.sh` | kill the nodes, disconnect the shared target, remove the lab network |
 | teardown | `utils/release.sh` | local runs: copy the act job's rescue and Playwright artefacts to the host, then run `utils/clean/teardown.sh` and remove the act outer container unless `keep=true` |
+| iterate | `sync/role.sh` | `make swarm-role-sync`: refuse unless the manager and exactly one act job container of this worktree run, then run [`utils/tests/swarm/sync.py`](../../../../utils/tests/swarm/sync.py) in that container: `playbook-sync.yml` for the app's group on the round inventory, with the round's extra vars; a fresh `make swarm-zombie` without `keep=true` stays the gate |
 | helper | `utils/_context.sh` | per-app facts (entity, service, NFS volume, probes) |
 | helper | `utils/unmount/nfs_mounts.sh` | best-effort NFS unmount before node removal |
 | helper | `utils/unmount/host_state.sh` | release the host mount of the shared state so the next cycle cannot inherit it |
@@ -179,3 +184,21 @@ distro loop. Run one app locally with
 `make swarm-zombie app=<id>` or the whole matrix via `make roundtrip`. Both
 copy the rescue bundle to the host through `utils/release.sh` and then
 release the cluster; `keep=true` keeps it for inspection.
+
+Before act starts, `make swarm-zombie` runs a disk pre-flight
+([`swarm_preflight.py`](../../../../cli/meta/ci/swarm_preflight.py)): it prints
+the include set the provision step derives for the round, pruned by `disable=`
+as the provision step prunes it, with the `min_storage` each role declares, and
+refuses when that total plus the watchdog floor exceeds the lowest free space
+of Docker's data root and the roots the watchdog samples, so a round that never
+fit fails in seconds instead of at the watchdog an hour in. The total is a
+heuristic: it leaves out the roles `extend_inventory` adds per host and a
+disable list of the CI matrix row, and `min_storage` mixes image bytes with
+data reservations. `preflight=false` skips it. A host-mode-only role such as
+`svc-bkp-volume-2-local` has no swarm row of its own; it rides on a host row,
+and [`host_rows.py`](../../../../cli/meta/ci/host_rows.py) ranks the rows whose
+include set carries it by that same declared storage, lightest first
+(`python -m cli.meta.ci.host_rows --provides container_backup --mode swarm`).
+A light host does not carry every subject kind the role's own restore cycle
+handles, such as the Discourse launcher container, so keep one heavy host for
+the final or CI round.

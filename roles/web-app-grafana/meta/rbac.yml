@@ -1,0 +1,4 @@
+---
+roles:
+  auditor:
+    description: Signs in to Grafana with the Viewer role, reads logs, metrics and dashboards, and cannot change datasources, dashboards or alert rules

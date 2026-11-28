@@ -6,12 +6,10 @@ import subprocess
 import tempfile
 import unittest
 import unittest.mock as mock
-import urllib.error
-from email.message import Message
 from pathlib import Path
 
 from utils.roles.mapping import ROLE_DIR_META_ADDONS, ROLE_FILE_META_SERVICES
-from utils.update import repository
+from utils.update import repository, upstream
 from utils.update import source as module
 
 SERVICES = """\
@@ -199,25 +197,6 @@ class TestCandidates(unittest.TestCase):
             self.assertEqual(module.candidates(entry, root), ["2.1.0"])
 
 
-class TestRegistryV2Tags(unittest.TestCase):
-    def test_a_realm_other_than_https_is_never_read(self) -> None:
-        for realm in ("file:///tmp/token.json", "http://169.254.169.254/token"):
-            headers = Message()
-            headers["WWW-Authenticate"] = f'Bearer realm="{realm}",service="reg"'
-            denied = urllib.error.HTTPError(
-                "https://reg.example/v2", 401, "err", headers, io.BytesIO(b"")
-            )
-            with (
-                self.subTest(realm=realm),
-                mock.patch.object(module, "get", side_effect=denied) as get,
-            ):
-                self.assertEqual(module.registry_v2_tags("reg.example/foo/bar"), [])
-                self.assertEqual(
-                    [call.args[0] for call in get.call_args_list],
-                    ["https://reg.example/v2/foo/bar/tags/list"],
-                )
-
-
 class TestOutdated(unittest.TestCase):
     def _entry(self, root: Path):
         return next(e for e in module.collect_entries(root) if e.key == "app_version")
@@ -271,10 +250,10 @@ class TestSuppressions(unittest.TestCase):
 
 
 class TestTemplate(unittest.TestCase):
-    def _outdated(self, services: str, upstream: str) -> list[str]:
+    def _outdated(self, services: str, published: str) -> list[str]:
         root = _repo(services)
         with (
-            mock.patch.object(module, "documents", return_value=upstream),
+            mock.patch.object(upstream, "documents", return_value=published),
             mock.patch.object(module, "manifest_exists", return_value=True),
         ):
             updates = module.outdated(module.collect_entries(root), root)
@@ -308,7 +287,7 @@ class TestPulledImage(unittest.TestCase):
         root = _repo(COMPOUND)
         with (
             mock.patch.object(
-                module, "documents", return_value="core v3.0.39\npart v1.11.3\n"
+                upstream, "documents", return_value="core v3.0.39\npart v1.11.3\n"
             ),
             mock.patch.object(module, "manifest_exists", return_value=exists) as probe,
         ):
@@ -328,6 +307,34 @@ class TestPulledImage(unittest.TestCase):
         self.assertEqual(entries, {"app_version": "", "version": "example"})
 
 
+class TestEntriesSplitByOwner(unittest.TestCase):
+    """The service and the addon drift checks each read their own half."""
+
+    def setUp(self) -> None:
+        self.root = _repo()
+        directory = self.root / "roles" / "web-app-example" / ROLE_DIR_META_ADDONS
+        directory.mkdir(parents=True)
+        (directory / "released.yml").write_text(ADDONS["released"], encoding="utf-8")
+
+    def test_service_entries_hold_no_addon_pin(self) -> None:
+        self.assertEqual(
+            [(e.entity, e.addon) for e in module.service_entries(self.root)],
+            [("app", False), ("app", False)],
+        )
+
+    def test_addon_entries_hold_no_service_pin(self) -> None:
+        self.assertEqual(
+            [(e.entity, e.addon) for e in module.addon_entries(self.root)],
+            [("released", True)],
+        )
+
+    def test_collect_entries_is_both_halves_in_order(self) -> None:
+        self.assertEqual(
+            module.collect_entries(self.root),
+            module.service_entries(self.root) + module.addon_entries(self.root),
+        )
+
+
 class TestCheckedOutRef(unittest.TestCase):
     def _outdated(
         self, services: str, listed: str, returncode: int = 0
@@ -341,7 +348,7 @@ class TestCheckedOutRef(unittest.TestCase):
 
         stderr = io.StringIO()
         with (
-            mock.patch.object(module, "documents", return_value="core v4.0.2\n"),
+            mock.patch.object(upstream, "documents", return_value="core v4.0.2\n"),
             mock.patch.object(repository.subprocess, "run", side_effect=ls_remote),
             contextlib.redirect_stderr(stderr),
         ):

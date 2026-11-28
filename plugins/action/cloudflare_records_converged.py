@@ -17,8 +17,9 @@ ZONES = "https://api.cloudflare.com/client/v4/zones"
 REVIEWED_COMMUNITY_GENERAL = "14.0.1"
 PAGE_SIZE = 5000
 ARGUMENTS = frozenset({"api_token", "records", "timeout"})
-JUDGED_TYPES = ("A", "AAAA", "CNAME", "MX", "TXT", "SRV")
-LOWERED_TYPES = ("CNAME", "MX", "SRV")
+JUDGED_TYPES = ("A", "AAAA", "CNAME", "MX", "NS", "TXT", "SRV", "DS")
+LOWERED_TYPES = ("CNAME", "MX", "NS", "SRV")
+DS_DATA = {"key_tag": "key_tag", "algorithm": "algorithm", "digest_type": "hash_type"}
 PROXIABLE_TYPES = ("A", "AAAA", "CNAME")
 APPLY_TTL = 1
 APPLY_PROXIED = False
@@ -131,7 +132,7 @@ def _owner(record: Any) -> tuple[str, str, str] | None:
     Returns:
         ``(zone, type, name)`` of the record set the module edits for the
         entry, normalised as the module normalises them, or ``None`` when the
-        entry names no A, AAAA, CNAME, MX, TXT or SRV record set.
+        entry names no A, AAAA, CNAME, MX, NS, TXT, SRV or DS record set.
     """
     if not isinstance(record, dict):
         return None
@@ -187,8 +188,8 @@ def expected(record: Any) -> dict[str, Any] | None:
     Returns:
         ``type``, ``name``, ``content``, ``ttl``, ``priority``, ``proxied``,
         ``data`` and ``solo`` of the record the module converges the entry
-        to, or ``None`` unless the entry is a present A, AAAA, CNAME, MX, TXT
-        or SRV record whose every field reads as the module reads it.
+        to, or ``None`` unless the entry is a present A, AAAA, CNAME, MX, NS,
+        TXT, SRV or DS record whose every field reads as the module reads it.
     """
     owner = _owner(record)
     if owner is None:
@@ -202,7 +203,7 @@ def expected(record: Any) -> dict[str, Any] | None:
 
     if rtype in LOWERED_TYPES:
         content = raw.rstrip(".").lower()
-    elif rtype == "AAAA":
+    elif rtype in ("AAAA", "DS"):
         content = raw.lower()
     else:
         content = raw
@@ -233,6 +234,11 @@ def expected(record: Any) -> dict[str, Any] | None:
         if weight is None or port is None:
             return None
         data = {"target": content, "port": port, "weight": weight, "priority": priority}
+    elif rtype == "DS":
+        data = {name: _int(record.get(field)) for name, field in DS_DATA.items()}
+        if None in data.values():
+            return None
+        data["digest"] = content
 
     return {
         "type": rtype,
@@ -265,6 +271,27 @@ def _srv_key(rr: dict[str, Any]) -> tuple[Any, Any, str] | None:
     )
 
 
+def _ds_key(data: Any) -> tuple[Any, Any, Any, str] | None:
+    """
+    Args:
+        data: the ``data`` of a DS record, as the Cloudflare API returns it
+            or ``expected`` builds it.
+
+    Returns:
+        ``(key_tag, algorithm, digest_type, digest)`` with the digest
+        case-folded, since Cloudflare may store it in either case, or
+        ``None`` when the record carries no DS data.
+    """
+    if not isinstance(data, dict):
+        return None
+    return (
+        data.get("key_tag"),
+        data.get("algorithm"),
+        data.get("digest_type"),
+        str(data.get("digest")).lower(),
+    )
+
+
 def _unquoted(content: Any) -> str:
     """
     Args:
@@ -286,12 +313,15 @@ def _identity(want: dict[str, Any]) -> Any:
 
     Returns:
         The key the module finds the record by within its record set:
-        ``(weight, port, target)`` for SRV, ``()`` for CNAME, whose record
-        set holds one record, and the case-folded content otherwise, TXT
-        without one pair of surrounding quotes.
+        ``(weight, port, target)`` for SRV, the DS data ``_ds_key`` reads for
+        DS, ``()`` for CNAME, whose record set holds one record, and the
+        case-folded content otherwise, TXT without one pair of surrounding
+        quotes.
     """
     if want["type"] == "SRV":
         return (want["data"]["weight"], want["data"]["port"], want["content"])
+    if want["type"] == "DS":
+        return _ds_key(want["data"])
     if want["type"] == "CNAME":
         return ()
     if want["type"] == "TXT":
@@ -319,6 +349,8 @@ def converged(want: dict[str, Any], zone_rrs: list[Any]) -> bool:
     key = _identity(want)
     if want["type"] == "SRV":
         matches = [rr for rr in same_name if _srv_key(rr) == key]
+    elif want["type"] == "DS":
+        matches = [rr for rr in same_name if _ds_key(rr.get("data")) == key]
     elif want["type"] == "CNAME":
         matches = same_name
     elif want["type"] == "TXT":
@@ -342,7 +374,7 @@ def converged(want: dict[str, Any], zone_rrs: list[Any]) -> bool:
         return False
     if want["type"] == "SRV":
         return rr.get("data") == want["data"]
-    return rr.get("content") == want["content"]
+    return want["type"] == "DS" or rr.get("content") == want["content"]
 
 
 def split(

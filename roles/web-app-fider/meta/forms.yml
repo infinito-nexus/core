@@ -1,0 +1,98 @@
+---
+authentication:
+  path: /admin/authentication
+  sinks: [FIDER_AUTHENTICATION]
+  fields:
+    is_email_auth_allowed:
+      source: services.fider.login.method.native.enabled
+      mode: enforced
+      selector: 'h2.text-display + form.c-form button[role="switch"]'
+      type: checkbox
+      map: { true: true, false: false }
+      label: Allow Email Authentication
+oauth_provider:
+  path: /admin/authentication
+  sinks: [FIDER_OAUTH_PROVIDER]
+  record:
+    selector: "#input-clientID"
+    source: services.fider.oauth.client_ids
+  fields:
+    display_name:
+      source: services.fider.oauth.display_name
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#input-displayName"
+      type: text
+      label: Display Name
+    client_id:
+      source: services.fider.oauth.client_id
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#input-clientID"
+      type: text
+      label: Client ID
+    authorize_url:
+      source: services.fider.oauth.authorize_url
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#input-authorizeURL"
+      type: url
+      label: Authorize URL
+    token_url:
+      source: services.fider.oauth.exchange_url
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#input-tokenURL"
+      type: url
+      label: Token URL
+    scope:
+      source: services.fider.oauth.scope
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#input-scope"
+      type: text
+      label: Scope
+    profile_url:
+      source: services.fider.oauth.profile_url
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#input-profileURL"
+      type: url
+      label: Profile API URL
+    json_user_id_path:
+      source: services.fider.oauth.json_user_id_path
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#input-jsonUserIDPath"
+      type: text
+      label: JSON Path ID
+    json_user_name_path:
+      source: services.fider.oauth.json_user_name_path
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#input-jsonUserNamePath"
+      type: text
+      label: JSON Path Name
+    json_user_email_path:
+      source: services.fider.oauth.json_user_email_path
+      when: services.sso.enabled
+      mode: enforced
+      selector: "#input-jsonUserEmailPath"
+      type: text
+      label: JSON Path Email
+    is_trusted:
+      source: services.fider.oauth.trusted
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'form.c-form > div.c-form-field:nth-last-child(3) button[role="switch"]'
+      type: checkbox
+      map: { true: true, false: false }
+      label: Trusted Source
+    status:
+      source: services.fider.login.method.sso.enabled
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'form.c-form > div.c-form-field:nth-last-child(2) button[role="switch"]'
+      type: checkbox
+      map: { true: 2, false: 1 }
+      label: Status

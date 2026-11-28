@@ -7,8 +7,11 @@ const {
   decodeDotenvQuotedValue,
   gotoOnion,
   installCspViolationObserver,
+  keycloakRemoveUserFromGroupViaRest,
   normalizeBaseUrl,
+  requireDotenvValue,
 } = require("./personas");
+const { claimedEmail } = require("./claimed-email");
 
 const env = {
   appBaseUrl: normalizeBaseUrl(process.env.APP_BASE_URL || ""),
@@ -20,12 +23,19 @@ const env = {
   superAdminPassword: decodeDotenvQuotedValue(process.env.SUPER_ADMIN_PASSWORD),
   adminUsername: decodeDotenvQuotedValue(process.env.ADMIN_USERNAME),
   adminPassword: decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD),
+  adminEmail: decodeDotenvQuotedValue(process.env.ADMIN_EMAIL),
   biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
   localAdminUsername: decodeDotenvQuotedValue(process.env.WORDPRESS_ADMIN_USERNAME),
   localAdminPassword: decodeDotenvQuotedValue(process.env.WORDPRESS_ADMIN_PASSWORD),
   canonicalDomain: decodeDotenvQuotedValue(process.env.CANONICAL_DOMAIN),
-  rbacGroupPathPrefix: decodeDotenvQuotedValue(process.env.RBAC_GROUP_PATH_PREFIX),
+  rbacGroupMapJson: decodeDotenvQuotedValue(process.env.WORDPRESS_RBAC_GROUP_MAP),
+  networkBaseUrls: decodeDotenvQuotedValue(process.env.WORDPRESS_NETWORK_BASE_URLS),
+  siteOwnerEnabled: (process.env.WORDPRESS_SITE_OWNER_ENABLED || "").toLowerCase() === "true",
+  siteOwnerParentDomain: decodeDotenvQuotedValue(process.env.WORDPRESS_SITE_OWNER_PARENT_DOMAIN),
+  siteOwnerWildcard: (process.env.WORDPRESS_SITE_OWNER_WILDCARD || "").toLowerCase() === "true",
+  profileAttributeLocale: decodeDotenvQuotedValue(process.env.PROFILE_ATTRIBUTE_LOCALE),
+  profileAttributeWebsite: decodeDotenvQuotedValue(process.env.PROFILE_ATTRIBUTE_WEBSITE),
   multisiteEnabled:
     (process.env.WORDPRESS_MULTISITE_ENABLED || "").toLowerCase() === "true",
   discourseBaseUrl: normalizeBaseUrl(process.env.DISCOURSE_BASE_URL || ""),
@@ -124,6 +134,21 @@ async function wpAdminLogin(page) {
     .toContain("/wp-admin");
 }
 
+/**
+ * Args:
+ *   query: query string appended to the plugins screen path, "" for none.
+ * Returns:
+ *   The plugins screen URL; under Multisite the Network Admin one, because the site screen silently
+ *   falls back to the All view for plugin_status=mustuse and lists network-active plugins without
+ *   a deactivate action.
+ */
+function wpPluginsScreenUrl(query) {
+  const screen = env.multisiteEnabled ? "wp-admin/network/plugins.php" : "wp-admin/plugins.php";
+  return `${env.wpBaseUrl}/${screen}${query}`;
+}
+
+const wpActivePluginAction = env.multisiteEnabled ? /network deactivate/i : /deactivate/i;
+
 // Client-side sign-out: clearing cookies achieves the same test-isolation
 // goal as wp-login.php?action=logout but avoids the OIDC plugin's
 // `redirect_on_logout: true` SLO-confirmation hop which is fragile to
@@ -215,9 +240,9 @@ async function keycloakAdminToken(request, keycloakBaseUrl) {
  *   realmName: realm that holds the user.
  *   username: Keycloak user name, matched case-insensitively.
  * Returns:
- *   The email Keycloak stores for the user; throws when the user or its email is missing.
+ *   The Keycloak admin representation of the user; throws when the lookup fails or finds no such user.
  */
-async function keycloakUserEmail(request, keycloakBaseUrl, realmName, username) {
+async function keycloakUserByName(request, keycloakBaseUrl, realmName, username) {
   const accessToken = await keycloakAdminToken(request, keycloakBaseUrl);
   const resp = await request.get(
     `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/users?username=${encodeURIComponent(username)}&exact=true`,
@@ -229,10 +254,24 @@ async function keycloakUserEmail(request, keycloakBaseUrl, realmName, username) 
   const user = (await resp.json()).find(
     (u) => (u.username || "").toLowerCase() === username.toLowerCase()
   );
-  if (!user?.email) {
-    throw new Error(`Keycloak user "${username}" has no email`);
+  if (!user) {
+    throw new Error(`Keycloak user "${username}" not found in realm "${realmName}"`);
   }
-  return user.email;
+  return user;
+}
+
+/**
+ * Args:
+ *   keycloakUser: Keycloak admin representation of biber.
+ * Returns:
+ *   The address biber's OIDC email claim carries under KEYCLOAK_EMAIL_POLICY, as claimedEmail resolves it.
+ */
+function biberClaimedEmail(keycloakUser) {
+  return claimedEmail(
+    keycloakUser,
+    requireDotenvValue(process.env.KEYCLOAK_EMAIL_POLICY, "KEYCLOAK_EMAIL_POLICY") === "mailbox",
+    requireDotenvValue(process.env.BIBER_EMAIL, "BIBER_EMAIL")
+  );
 }
 
 // Resolve via /admin/realms/<realm>/group-by-path/...; fall back to a
@@ -470,60 +509,6 @@ async function keycloakAdminAddUserToGroupViaUi(
   return true;
 }
 
-// REST teardown: the admin-UI Groups tab's row-level Leave affordance is
-// fragile across Keycloak UI versions; the REST API keeps the
-// idempotency guarantee deterministic.
-async function keycloakRemoveUserFromGroupViaRest(
-  request,
-  keycloakBaseUrl,
-  realmName,
-  adminUsername,
-  adminPassword,
-  groupPath,
-  username
-) {
-  const tokenResp = await request.post(
-    `${keycloakBaseUrl}/realms/master/protocol/openid-connect/token`,
-    {
-      form: {
-        client_id: "admin-cli",
-        grant_type: "password",
-        username: adminUsername,
-        password: adminPassword,
-      },
-      timeout: resolveTimeout(30_000),
-    }
-  );
-  if (!tokenResp.ok()) {
-    throw new Error(
-      `Admin token request failed (${tokenResp.status()}): ${await tokenResp.text()}`
-    );
-  }
-  const { access_token: accessToken } = await tokenResp.json();
-  const auth = { Authorization: `Bearer ${accessToken}` };
-
-  const usersResp = await request.get(
-    `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/users?username=${encodeURIComponent(username)}&exact=true`,
-    { headers: auth, timeout: resolveTimeout(30_000) }
-  );
-  const users = await usersResp.json();
-  const userId = users?.[0]?.id;
-  if (!userId) return;
-
-  const groupResp = await request.get(
-    `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/group-by-path/${groupPath.replace(/^\//, "")}`,
-    { headers: auth, timeout: resolveTimeout(30_000) }
-  );
-  if (!groupResp.ok()) return;
-  const group = await groupResp.json();
-  if (!group?.id) return;
-
-  await request.delete(
-    `${keycloakBaseUrl}/admin/realms/${encodeURIComponent(realmName)}/users/${userId}/groups/${group.id}`,
-    { headers: auth, timeout: resolveTimeout(30_000) }
-  );
-}
-
 async function discourseApiRequest(request, path, init = {}) {
   if (!env.discourseBaseUrl) {
     throw new Error("DISCOURSE_BASE_URL is not set");
@@ -566,6 +551,28 @@ async function discourseDeleteTopic(request, topicId) {
   }).catch(() => {});
 }
 
+/**
+ * Args:
+ *   wanted: { role, tenant } for a site role (tenant only under Multisite), { network: true } or { siteOwner: true }.
+ * Returns:
+ *   The Keycloak group path WORDPRESS_RBAC_GROUP_MAP maps to that entry.
+ */
+function rbacGroupPath(wanted) {
+  const entries = Object.entries(JSON.parse(env.rbacGroupMapJson));
+  const matches = ([, entry]) => {
+    if (wanted.network) return entry.network === true;
+    if (wanted.siteOwner) return entry.site_owner === true;
+    return entry.role === wanted.role && (entry.tenant || "") === (wanted.tenant || "").toLowerCase();
+  };
+  const match = entries.find(matches);
+  if (!match) {
+    throw new Error(
+      `WORDPRESS_RBAC_GROUP_MAP has no group for ${JSON.stringify(wanted)}; groups: ${entries.map(([path]) => path).join(", ")}`
+    );
+  }
+  return match[0];
+}
+
 async function beforeEach({ page }) {
   await page.setViewportSize({ width: 1440, height: 1100 });
   expect(env.appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
@@ -582,7 +589,7 @@ async function beforeEach({ page }) {
   expect(env.biberUsername, "BIBER_USERNAME must be set").toBeTruthy();
   expect(env.biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();
   expect(env.canonicalDomain, "CANONICAL_DOMAIN must be set").toBeTruthy();
-  expect(env.rbacGroupPathPrefix, "RBAC_GROUP_PATH_PREFIX must be set").toBeTruthy();
+  expect(env.rbacGroupMapJson, "WORDPRESS_RBAC_GROUP_MAP must be set").toBeTruthy();
   await page.context().clearCookies();
   await installCspViolationObserver(page);
 }
@@ -593,9 +600,12 @@ module.exports = {
   fillKeycloakLoginForm,
   wpAdminLogin,
   wpAdminLoginViaOidc,
+  wpPluginsScreenUrl,
+  wpActivePluginAction,
   wpSignOut,
   keycloakAdminToken,
-  keycloakUserEmail,
+  keycloakUserByName,
+  biberClaimedEmail,
   keycloakResolveGroupId,
   keycloakAdminAddUserToGroup,
   keycloakAdminOpenUserProfile,
@@ -605,5 +615,6 @@ module.exports = {
   discourseApiRequest,
   discourseSearchTopicByTitle,
   discourseDeleteTopic,
+  rbacGroupPath,
   beforeEach,
 };

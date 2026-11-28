@@ -77,6 +77,19 @@
     tasks_from: 01_load.yml
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "📋 Copy the legacy-slot recovery key to the platform administrator"
+  ansible.builtin.include_role:
+    name: sys-token-store
+    tasks_from: write.yml
+  vars:
+    sys_token_store_user_key: "{{ IAM_PLATFORM_ADMIN_USER_KEY }}"
+    sys_token_store_app: "{{ OPENBAO_RECOVERY_TOKEN_APP }}"
+    sys_token_store_token: "{{ OPENBAO_RECOVERY_KEY_LEGACY }}"
+  when:
+    - (OPENBAO_RECOVERY_KEY | trim) | length == 0
+    - (OPENBAO_RECOVERY_KEY_LEGACY | trim) | length > 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
 - name: "🔐 Log in with the Ansible AppRole"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec -i {{ OPENBAO_LOCAL_CID | quote }}
@@ -187,6 +200,19 @@
     apply:
       delegate_to: "{{ OPENBAO_HOST_NODE }}"
   when: OPENBAO_PKI_ENABLED | bool
+
+- name: "🏢 Configure the workspace mounts, task token logins and the store AppRole"
+  ansible.builtin.include_tasks:
+    file: 07_workspaces.yml
+    apply:
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
+  when: OPENBAO_WORKSPACES_ENABLED | bool
+
+- name: "🎭 Reconcile the read-only AppRole of the Playwright specs"
+  ansible.builtin.include_tasks:
+    file: 08_playwright.yml
+    apply:
+      delegate_to: "{{ OPENBAO_HOST_NODE }}"
 
 - name: "♻️ Re-pin the AppRole and record what this deploy applied"
   ansible.builtin.include_tasks: 06_rotate.yml

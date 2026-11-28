@@ -1,5 +1,9 @@
 import unittest
 
+import jinja2
+from ansible.plugins.test.core import TestModule as CoreTests
+
+from plugins.filter.network_of import FilterModule
 from utils.cache.yaml import load_yaml_any
 
 from . import PROJECT_ROOT
@@ -86,6 +90,28 @@ class TestConstructorBootstrapCarrier(unittest.TestCase):
             [task["name"] for task in window if _clears(task)],
             [],
         )
+
+
+class TestConstructorDnsCheck(unittest.TestCase):
+    def test_only_a_clearnet_primary_domain_is_resolved_up_front(self):
+        task = next(
+            task
+            for task in load_yaml_any(str(CONSTRUCTOR))
+            if task.get("name") == "🔎 Check DNS resolution for test domain"
+        )
+        environment = jinja2.Environment(
+            autoescape=jinja2.select_autoescape(default_for_string=False)
+        )
+        environment.filters.update(FilterModule().filters())
+        environment.tests.update(CoreTests().tests())
+        skip_onion = environment.compile_expression(task["when"][1])
+        for primary, resolves in (
+            ("example.org", True),
+            ("abcdefghijklmnop.onion", False),
+            ("ABCDEFGHIJKLMNOP.ONION.", False),
+        ):
+            with self.subTest(primary=primary):
+                self.assertEqual(skip_onion(DOMAIN_PRIMARY=primary), resolves)
 
 
 if __name__ == "__main__":

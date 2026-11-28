@@ -150,7 +150,7 @@ def _scan_file_for_missing_image(path: Path) -> list[Finding]:
 
 
 class TestComposeBuildRequiresImage(unittest.TestCase):
-    def test_all_compose_templates_and_files_have_image_for_build(self) -> None:
+    def test_all_compose_templates_and_files_have_image_for_build(self) -> None:  # nocheck: test.text-presence -- repository-wide lint over every compose template and file  # fmt: skip
         roles_dir = PROJECT_ROOT / "roles"
 
         patterns = [

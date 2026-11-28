@@ -301,6 +301,71 @@ test("mailu: biber sends email to administrator, administrator receives it", asy
   }
 });
 
+async function signInMailuViaSso(page, username, password) {
+  const expectedOidcAuthUrl = `${oidcIssuerUrl.replace(/\/$/, "")}/protocol/openid-connect/auth`;
+  await gotoOnion(page, mailuBaseUrl);
+  const ssoButton = page.getByRole("button", { name: /sso|single sign.?on|login with/i });
+  if (await ssoButton.first().isVisible().catch(() => false)) {
+    await ssoButton.first().click({ timeout: resolveTimeout(30_000) });
+  }
+  await clickThroughMailuSsoPage(page);
+  await expect
+    .poll(() => page.url(), {
+      timeout: resolveTimeout(30_000),
+      message: `Expected redirect to Keycloak OIDC: ${expectedOidcAuthUrl}`
+    })
+    .toContain(expectedOidcAuthUrl);
+  await performKeycloakLoginForm(page, username, password);
+  await expect
+    .poll(() => page.url(), {
+      timeout: resolveTimeout(60_000),
+      message: `Expected redirect back to Mailu webmail after ${username} login`
+    })
+    .toContain(`${mailuBaseUrl.replace(/\/$/, "")}/webmail/`);
+}
+
+async function mailuAdminStatus(page, path) {
+  const response = await page.request.get(`${mailuBaseUrl.replace(/\/$/, "")}${path}`, {
+    failOnStatusCode: false,
+    maxRedirects: 0,
+    timeout: resolveTimeout(30_000)
+  });
+  return response.status();
+}
+
+test("rbac: global_admin and domain manager rights follow the administrator and domain-manager members", async ({ browser }) => {
+  safeSkipUnlessEnabled("sso");
+  const domain = biberEmail.split("@")[1];
+  const adminContext = await browser.newContext({ ignoreHTTPSErrors: true });
+  const biberContext = await browser.newContext({ ignoreHTTPSErrors: true });
+  try {
+    const adminPage = await adminContext.newPage();
+    await signInMailuViaSso(adminPage, adminUsername, adminPassword);
+    await gotoOnion(adminPage, `${mailuBaseUrl.replace(/\/$/, "")}/admin`);
+    expect(
+      await mailuAdminStatus(adminPage, "/admin/ui/admin/list"),
+      "the administrator MUST be a Mailu global administrator"
+    ).toBe(200);
+
+    const biberPage = await biberContext.newPage();
+    await signInMailuViaSso(biberPage, biberUsername, biberPassword);
+    await gotoOnion(biberPage, `${mailuBaseUrl.replace(/\/$/, "")}/admin`);
+    expect(
+      await mailuAdminStatus(biberPage, "/admin/ui/admin/list"),
+      "biber holds no administrator role and MUST NOT list the Mailu global administrators"
+    ).toBe(403);
+    expect(
+      await mailuAdminStatus(biberPage, `/admin/ui/user/list/${domain}`),
+      "biber holds no domain-manager role and MUST NOT manage the users of the mail domain"
+    ).toBe(403);
+  } finally {
+    await adminContext.close().catch(() => {});
+    await biberContext.close().catch(() => {});
+  }
+});
+
+require("./test-login-methods").register();
+
 // Persona scenarios.
 // Bodies live in the shared helper roles/test-e2e-playwright/files/personas.js
 // so every role's persona flow stays consistent.

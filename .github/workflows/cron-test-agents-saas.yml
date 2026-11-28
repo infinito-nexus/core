@@ -1,0 +1,31 @@
+name: "🤖 Agents SaaS nightly"
+run-name: "${{ github.event_name == 'schedule' && '⏰ ' || '' }}🤖 Agents SaaS nightly"
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+    inputs:
+      whitelist:
+        description: "🎯 Apps to integrate. Empty integrates every app."
+        required: false
+        type: string
+        default: "__ALL__"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agents-saas-nightly-${{ github.repository }}-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  nightly:
+    name: 🤖 Agents SaaS
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/call-test-agents-saas.yml
+    with:
+      whitelist: ${{ inputs.whitelist || '__ALL__' }}
+    secrets: inherit

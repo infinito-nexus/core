@@ -15,27 +15,58 @@ const { resolveTimeout } = require("./timeouts");
 
 const MODES = ["light", "dark"];
 const SUBMIT = "form input[type=submit]";
-const NAVBAR = "nav";
-const SIDEBAR = ".ant-layout-sider";
-const SELECTED = `${SIDEBAR} .ant-menu-item-selected`;
-const UNSELECTED = `${SIDEBAR} .ant-menu-item:not(.ant-menu-item-selected)`;
-const CREATE_KEY = "button.tremor-Button-root";
-const MODAL = ".ant-modal-content";
+const SIDEBAR = "aside[data-slot='sidebar']";
+const LAYOUT = `div:has(> div > ${SIDEBAR})`;
+const HEADER = "header:has(> [data-slot='breadcrumb'])";
+const ENTRY = `${SIDEBAR} [data-slot='sidebar-menu-item'] > a`;
+const SELECTED = `${ENTRY}[data-active]`;
+const UNSELECTED = `${ENTRY}:not([data-active])`;
+const OPEN_NAVIGATION = "button[aria-label='Open navigation']";
+const ACCOUNT_MENU = `${SIDEBAR} button[aria-label^='Account menu']`;
+const POPOVER = "[data-slot='popover-content']";
+const THEME_TOGGLE = `${HEADER} button[aria-label^='Switch to']:visible`;
+const PROBE_ID = "design-palette-probe";
+const PROBE = `#${PROBE_ID}`;
+const LIGHT_ONLY_CHIP = `${PROBE} > .text-amber-700`;
+const DARK_BOX = `${PROBE} > .bg-purple-50`;
+const BOXED_CHIP = `${DARK_BOX} > .text-purple-700`;
+const WHITE_BUTTON = `${PROBE} > .text-white`;
+const GRADIENT_BOX = `${PROBE} > .from-blue-50`;
+const CODE_TEXT = `${PROBE} > [class*='bg-[#1e1e1e]'] > .text-gray-200`;
+const CODE_LINE = `${PROBE} > [class*='bg-[#1e1e1e]'] > .text-muted-foreground`;
+const STATUS_TILE = `${PROBE} > .from-teal-400`;
+const STATUS_AVATAR = `${PROBE} > .bg-info`;
+const PROBE_MARKUP = [
+  '<span class="border text-amber-700 bg-amber-50 border-amber-200">Via tool permissions</span>',
+  '<div class="bg-purple-50 dark:bg-purple-950"><span class="text-purple-700 bg-purple-50">Agent</span></div>',
+  '<button type="button" class="bg-gray-900 text-white">Continue</button>',
+  '<div class="bg-linear-to-r from-blue-50 dark:from-blue-950">Code Interpreter</div>',
+  '<div class="bg-[#1e1e1e]"><span class="text-muted-foreground">1</span><span class="text-gray-200">def apply_guardrail():</span></div>',
+  '<div class="bg-linear-to-br from-teal-400 to-cyan-600 text-white">L</div>',
+  '<span class="bg-info text-white">G</span>',
+].join("");
+const CREATE_KEY = "[data-testid='create-key-button']";
+const CREATE_TEAM = "[data-testid='create-team-button']";
+const MODAL = "[data-slot='dialog-content']";
 const MODAL_SUBMIT = `${MODAL} button[type=submit]`;
-const SELECT = `${MODAL} .ant-select-selector`;
-const CARD = ".tremor-Card-root";
-const TEXT_FIELD = `${MODAL} .tremor-TextInput-root`;
-const NUMBER_FIELD = `${MODAL} .tremor-NumberInput-root`;
-const SELECT_FIELD = "button[id^='headlessui-listbox-button']";
+const FIELD_LABEL = `${MODAL} [data-slot='field-label']`;
+const RADIO_LABEL = `${MODAL} label:has([data-slot='radio-group-item'])`;
+const AGENT_BOX = `${MODAL} .bg-purple-50`;
+const AGENT_LABEL = `${AGENT_BOX} label[for='create-key-agent']`;
+const SELECT = `${MODAL} [data-slot='select-trigger']`;
+const DROPDOWN = "[data-slot='select-content']";
+const CARD = "[data-slot='card']";
+const TEXT_FIELD = `${MODAL} [data-slot='input']:not([type='number'])`;
+const NUMBER_FIELD = `${MODAL} [data-slot='input'][type='number']`;
+const SELECT_FIELD = "[data-slot='select-trigger']";
 const CODE_BLOCK = "pre:has(> code[class*='language-'])";
-const NARROW_BELOW = 768;
 const SHOWCASE_TEAM = "Design Review";
 const SHOWCASE_KEY = "design-showcase";
 const PANELS = [
   ["keys", "api-keys"],
-  ["test-key", "llm-playground"],
-  ["models", "models"],
-  ["usage", "new_usage"],
+  ["test-key", "playground"],
+  ["models", "models-and-endpoints"],
+  ["usage", "usage"],
   ["teams", "teams"],
   ["organizations", "organizations"],
   ["users", "users"],
@@ -45,11 +76,23 @@ const PANELS = [
   ["caching", "caching"],
   ["budgets", "budgets"],
   ["tags", "tag-management"],
-  ["router-settings", "general-settings"],
-  ["logging-alerts", "settings"],
+  ["router-settings", "router-settings"],
+  ["logging-alerts", "logging-and-alerts"],
   ["admin-settings", "admin-panel"],
   ["ui-theme", "ui-theme"],
 ];
+
+/**
+ * Args:
+ *   base: base URL of the admin UI.
+ *   route: route segment of the panel, as the sidebar links it.
+ *
+ * Returns:
+ *   The panel URL with the trailing slash the static export serves its index.html under.
+ */
+function panelUrl(base, route) {
+  return `${base}/ui/${route}/`;
+}
 
 /**
  * Args:
@@ -84,27 +127,24 @@ async function animationsSettled(page) {
 
 /**
  * Args:
- *   page: Playwright page that shows a signed-in view whose data must have arrived.
+ *   page: Playwright page that shows a signed-in view whose data must have arrived; the header is the shell part every viewport shows.
  */
-async function loaded(page) {
-  await expect(page.locator(SIDEBAR)).toBeVisible({ timeout: resolveTimeout(60_000) });
+async function ready(page) {
+  await expect(page.locator(HEADER)).toBeVisible({ timeout: resolveTimeout(60_000) });
   await page.waitForLoadState("networkidle");
-  await expect(page.locator(".ant-spin-spinning:visible, .animate-spin:visible")).toHaveCount(0);
+  await expect(page.locator(".animate-spin:visible")).toHaveCount(0);
   await animationsSettled(page);
 }
 
 /**
  * Args:
- *   page: Playwright page that shows a signed-in view; a narrow viewport gets the sidebar collapsed so the panel is visible.
+ *   page: Playwright page that shows a signed-in view; below the desktop breakpoint the sidebar lives in a sheet that this opens.
  */
-async function ready(page) {
-  await loaded(page);
-  const collapse = page.locator(`${NAVBAR} button[title='Collapse sidebar']`);
-  if (page.viewportSize().width < NARROW_BELOW && (await collapse.count()) > 0) {
-    await collapse.click();
-    await expect(page.locator(SIDEBAR)).toHaveClass(/ant-layout-sider-collapsed/);
-    await animationsSettled(page);
-  }
+async function showNavigation(page) {
+  if (await page.locator(`${SIDEBAR}:visible`).count()) return;
+  await page.locator(OPEN_NAVIGATION).click();
+  await expect(page.locator(`${SIDEBAR}:visible`)).toHaveCount(1);
+  await animationsSettled(page);
 }
 
 function opened(selector, trigger) {
@@ -123,7 +163,18 @@ async function openKeyDialog(page) {
 }
 
 async function openTeamDialog(page) {
-  await page.getByRole("button", { name: /Create New Team/ }).first().click();
+  await page.locator(CREATE_TEAM, { hasText: "Create Team" }).first().click();
+}
+
+async function openAccountMenu(page) {
+  await showNavigation(page);
+  await page.locator(`${ACCOUNT_MENU}:visible`).click();
+}
+
+async function openExamples(page) {
+  await page.getByRole("tab", { name: "Examples" }).click();
+  await expect(page.locator(CODE_BLOCK).first()).toBeVisible();
+  await animationsSettled(page);
 }
 
 /**
@@ -168,14 +219,14 @@ function signInViews(base) {
 }
 
 function signedInViews(base) {
-  const panel = (key) => `${base}/ui/?page=${key}`;
+  const panel = (route) => panelUrl(base, route);
   return [
-    ...PANELS.map(([name, key]) => ({ name, url: panel(key), prepare: ready })),
+    ...PANELS.map(([name, route]) => ({ name, url: panel(route), prepare: ready })),
     { name: "key-create", url: panel("api-keys"), prepare: opened(MODAL, openKeyDialog) },
     {
       name: "key-create-select",
       url: panel("api-keys"),
-      prepare: opened(".ant-select-dropdown:not(.ant-select-dropdown-hidden)", async (page) => {
+      prepare: opened(DROPDOWN, async (page) => {
         await openKeyDialog(page);
         await expect(page.locator(MODAL).first()).toBeVisible();
         await animationsSettled(page);
@@ -185,27 +236,22 @@ function signedInViews(base) {
     { name: "team-create", url: panel("teams"), prepare: opened(MODAL, openTeamDialog) },
     {
       name: "model-add",
-      url: panel("models"),
+      url: panel("models-and-endpoints"),
       prepare: async (page) => {
         await ready(page);
         await page.getByRole("tab", { name: "Add Model" }).first().click();
-        await expect(page.locator(".ant-form").first()).toBeVisible();
-        await loaded(page);
+        await expect(page.locator("[data-slot='tabs-content']:visible").first()).toBeVisible();
+        await ready(page);
       },
     },
-    {
-      name: "user-menu",
-      url: panel("api-keys"),
-      prepare: opened(".ant-dropdown:not(.ant-dropdown-hidden)", (page) =>
-        page.locator(`${NAVBAR} button`, { hasText: "User" }).hover(),
-      ),
-    },
+    { name: "user-menu", url: panel("api-keys"), prepare: opened(POPOVER, openAccountMenu) },
     {
       name: "navigation",
       url: panel("api-keys"),
       prepare: async (page) => {
-        await loaded(page);
-        await page.locator(UNSELECTED).first().hover();
+        await ready(page);
+        await showNavigation(page);
+        await page.locator(`${UNSELECTED}:visible`).first().hover();
       },
     },
   ];
@@ -235,11 +281,7 @@ exports.register = function (shared) {
     }
     await page.emulateMedia({ colorScheme: null });
     await assertLightAndDark(page, "form", "litellm sign-in");
-    await assertReadable(
-      page,
-      ["form h2", "form .subtitle", "form label", "form .info-header", "form .info-box p", "form .info-box a", SUBMIT],
-      "litellm sign-in",
-    );
+    await assertReadable(page, ["form h2", "form .subtitle", "form label", SUBMIT], "litellm sign-in");
   });
 
   test("design: the signed-in shell takes surfaces, primary action and text from the palette", async ({ page }) => {
@@ -248,12 +290,12 @@ exports.register = function (shared) {
     await seedShowcase(page, base);
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
-      await gotoOnion(page, `${base}/ui/?page=api-keys`);
+      await gotoOnion(page, panelUrl(base, "api-keys"));
       await ready(page);
       await expect(page.locator(CREATE_KEY).first()).toContainText("Create New Key");
       await assertToken(page, "body", "background-color", "--design-surface-1", `shell ${mode}`);
-      await assertToken(page, ".ant-layout", "background-color", "--design-surface-1", `shell ${mode}`);
-      await assertToken(page, NAVBAR, "background-color", "--design-surface-2", `shell ${mode}`);
+      await assertToken(page, LAYOUT, "background-color", "--design-surface-1", `shell ${mode}`);
+      await assertToken(page, HEADER, "background-color", "--design-surface-2", `shell ${mode}`);
       await assertToken(page, SIDEBAR, "background-color", "--design-surface-2", `shell ${mode}`);
       await assertToken(page, SELECTED, "background-color", "--design-surface-active", `shell ${mode}`);
       await assertToken(page, SELECTED, "color", "--design-link", `shell ${mode}`);
@@ -266,14 +308,14 @@ exports.register = function (shared) {
       await assertToken(page, CREATE_KEY, "background-color", "--design-primary-hover", `hovered action ${mode}`);
     }
     await page.emulateMedia({ colorScheme: null });
-    await assertLightAndDark(page, NAVBAR, "litellm shell");
+    await assertLightAndDark(page, HEADER, "litellm shell");
     await assertLightAndDark(page, SIDEBAR, "litellm shell");
     await assertReadable(
       page,
       [
-        `${NAVBAR} a`,
-        `${SELECTED} .ant-menu-title-content`,
-        `${UNSELECTED} .ant-menu-title-content`,
+        `${HEADER} [data-slot='breadcrumb-page']`,
+        `${SELECTED} > span`,
+        `${UNSELECTED} > span`,
         CREATE_KEY,
         "table th",
         { selector: "table td", optional: true },
@@ -287,29 +329,32 @@ exports.register = function (shared) {
     await shared.signIn(page);
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
-      await gotoOnion(page, `${base}/ui/?page=api-keys`);
+      await gotoOnion(page, panelUrl(base, "api-keys"));
       await opened(MODAL, openKeyDialog)(page);
+      await expect(page.locator("html"), `the app must render its ${mode} variants`).toHaveClass(
+        new RegExp(`(^|\\s)${mode}(\\s|$)`),
+      );
       await assertToken(page, MODAL, "background-color", "--design-surface-2", `dialog ${mode}`);
-      await assertToken(page, `${MODAL} .ant-form-item-label > label`, "color", "--design-text", `dialog ${mode}`);
+      await assertToken(page, FIELD_LABEL, "color", "--design-text", `dialog ${mode}`);
       await assertToken(page, SELECT, "background-color", "--design-surface-2", `dialog ${mode}`);
       await assertToken(page, SELECT, "border-top-color", "--design-border-strong", `dialog ${mode}`);
-      await assertToken(page, MODAL_SUBMIT, "background-color", "--design-surface-2", `dialog ${mode}`);
-      await assertToken(page, MODAL_SUBMIT, "border-top-color", "--design-border-strong", `dialog ${mode}`);
-      await assertToken(page, MODAL_SUBMIT, "color", "--design-text", `dialog ${mode}`);
+      await assertToken(page, MODAL_SUBMIT, "background-color", "--design-primary", `dialog ${mode}`);
+      await assertToken(page, TEXT_FIELD, "border-top-color", "--design-border-strong", `dialog ${mode}`);
+      await assertToken(page, MODAL_SUBMIT, "color", "--design-on-primary", `dialog ${mode}`);
+      await page.locator(RADIO_LABEL).filter({ hasText: /^Agent/ }).click();
+      await expect(page.locator(AGENT_BOX)).toBeVisible();
+      await expect(page.locator(AGENT_BOX)).toHaveClass(/dark:bg-purple-950/);
+      await assertToken(page, AGENT_BOX, "background-color", "--design-info-subtle", `agent box ${mode}`);
+      await assertToken(page, AGENT_BOX, "border-top-color", "--design-info-border", `agent box ${mode}`);
       await page.locator(SELECT).first().click();
-      const dropdown = ".ant-select-dropdown:not(.ant-select-dropdown-hidden)";
-      await expect(page.locator(dropdown).first()).toBeVisible();
+      await expect(page.locator(DROPDOWN).first()).toBeVisible();
       await animationsSettled(page);
-      await assertToken(page, dropdown, "background-color", "--design-surface-2", `dropdown ${mode}`);
+      await assertToken(page, DROPDOWN, "background-color", "--design-surface-2", `dropdown ${mode}`);
       await page.keyboard.press("Escape");
     }
     await page.emulateMedia({ colorScheme: null });
     await assertLightAndDark(page, MODAL, "litellm dialog");
-    await assertReadable(
-      page,
-      [`${MODAL} .ant-form-item-label > label`, `${MODAL} .ant-radio-wrapper`, MODAL_SUBMIT],
-      "litellm dialog",
-    );
+    await assertReadable(page, [FIELD_LABEL, RADIO_LABEL, AGENT_LABEL, MODAL_SUBMIT], "litellm dialog");
   });
 
   test("design: code samples take surface and text from the palette", async ({ page }) => {
@@ -317,8 +362,9 @@ exports.register = function (shared) {
     await shared.signIn(page);
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
-      await gotoOnion(page, `${base}/ui/?page=budgets`);
+      await gotoOnion(page, panelUrl(base, "budgets"));
       await ready(page);
+      await openExamples(page);
       await assertToken(page, CODE_BLOCK, "background-color", "--design-surface-3", `code sample ${mode}`);
       await assertToken(page, `${CODE_BLOCK} > code`, "color", "--design-text", `code sample ${mode}`);
       await expect(page.locator(`${CODE_BLOCK} > code`).first()).toHaveCSS("text-shadow", "none");
@@ -333,7 +379,7 @@ exports.register = function (shared) {
     await shared.signIn(page);
     for (const mode of MODES) {
       await page.emulateMedia({ colorScheme: mode });
-      await gotoOnion(page, `${base}/ui/?page=new_usage`);
+      await gotoOnion(page, panelUrl(base, "ui-theme"));
       await ready(page);
       const outline = escapeRegex(await tokenValue(page, "--design-border", "color"));
       await expect(
@@ -341,18 +387,19 @@ exports.register = function (shared) {
         `card ${mode}: the outline ring must take --design-border`,
       ).toHaveCSS("box-shadow", new RegExp(`${outline} 0px 0px 0px 1px`));
 
-      await gotoOnion(page, `${base}/ui/?page=api-keys`);
+      await gotoOnion(page, panelUrl(base, "api-keys"));
       await opened(MODAL, openKeyDialog)(page);
       await assertToken(page, TEXT_FIELD, "border-top-color", "--design-border-strong", `text field ${mode}`);
-      await page.locator(`${TEXT_FIELD} input`).first().focus();
-      await expect(page.locator(TEXT_FIELD).first()).toHaveClass(/ring-tremor-brand-muted/);
+      await page.locator(TEXT_FIELD).first().focus();
+      await expect(page.locator(TEXT_FIELD).first()).toBeFocused();
+      await assertToken(page, TEXT_FIELD, "border-top-color", "--design-link", `focused text field ${mode}`);
       await assertToken(page, TEXT_FIELD, "background-color", "--design-surface-2", `focused text field ${mode}`);
 
-      await gotoOnion(page, `${base}/ui/?page=teams`);
+      await gotoOnion(page, panelUrl(base, "teams"));
       await opened(MODAL, openTeamDialog)(page);
       await assertToken(page, NUMBER_FIELD, "border-top-color", "--design-border-strong", `number field ${mode}`);
 
-      await gotoOnion(page, `${base}/ui/?page=general-settings`);
+      await gotoOnion(page, panelUrl(base, "router-settings"));
       await ready(page);
       await assertToken(page, SELECT_FIELD, "border-top-color", "--design-border-strong", `select field ${mode}`);
     }
@@ -378,8 +425,8 @@ exports.register = function (shared) {
       const settings = await (await apiGetOnion(page.request, `${base}/get/ui_theme_settings`)).json();
       expect(settings.values.logo_url, "LiteLLM's own logo_url setting must carry the corporate lockup").toBe(logoUrl);
       const brand = page.locator(shared.SHELL);
-      await expect(brand, "the navbar must take its logo from the setting").toHaveAttribute("src", logoUrl);
-      await expect(brand, "no stylesheet may swap the navbar logo").toHaveCSS("content", "normal");
+      await expect(brand, "the sidebar must take its logo from the setting").toHaveAttribute("src", logoUrl);
+      await expect(brand, "no stylesheet may swap the sidebar logo").toHaveCSS("content", "normal");
       await expect
         .poll(() => brand.evaluate((image) => image.complete && image.naturalWidth > 0), { message: "the lockup must load" })
         .toBe(true);
@@ -391,13 +438,116 @@ exports.register = function (shared) {
       for (const url of [logoUrl, faviconUrl]) {
         expect((await apiGetOnion(page.request, url)).ok(), `${url} is published on the CDN`).toBe(true);
       }
-      await gotoOnion(page, `${base}/ui/?page=ui-theme`);
+      await gotoOnion(page, panelUrl(base, "ui-theme"));
       await ready(page);
       await expect(
         page.locator("input[placeholder='https://example.com/logo.png']"),
         "the UI theme page must show the configured logo URL",
       ).toHaveValue(logoUrl);
     }
+  });
+
+  test("design: the admin UI theme follows the browser like the palette until the switch carries a choice", async ({
+    page,
+  }) => {
+    skipUnlessServiceEnabled("design");
+    await shared.signIn(page);
+    const html = page.locator("html");
+    const stored = () => page.evaluate(() => window.localStorage.getItem("theme"));
+    expect(await stored(), "the design script must hand the browser choice to next-themes").toBe("system");
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      await gotoOnion(page, panelUrl(base, "api-keys"));
+      await ready(page);
+      await expect(html, `the app must follow a ${mode} browser`).toHaveClass(new RegExp(`(^|\\s)${mode}(\\s|$)`));
+      await expect(html, "the system choice must leave the palette on the browser").not.toHaveAttribute(
+        "data-design-theme",
+        /.*/,
+      );
+      await assertToken(page, "body", "background-color", "--design-surface-1", `system ${mode}`);
+      await expect(page.locator(shared.SHELL), `the ${mode} logo must show`).toBeVisible();
+      await expect(page.locator(THEME_TOGGLE)).toHaveAttribute(
+        "aria-label",
+        mode === "dark" ? "Switch to light mode" : /^Switch to dark mode/,
+      );
+    }
+
+    await page.emulateMedia({ colorScheme: "light" });
+    await gotoOnion(page, panelUrl(base, "api-keys"));
+    await ready(page);
+    const background = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    const light = await background();
+
+    await page.locator(THEME_TOGGLE).click();
+    await expect(html).toHaveAttribute("data-design-theme", "dark");
+    await assertToken(page, "body", "background-color", "--design-surface-1", "theme dark");
+    expect(await background(), "the dark choice must change the surface").not.toBe(light);
+
+    await page.locator(THEME_TOGGLE).click();
+    await expect(html).toHaveAttribute("data-design-theme", "light");
+    await assertToken(page, "body", "background-color", "--design-surface-1", "theme light");
+    expect(await background(), "the light choice must restore the surface").toBe(light);
+
+    await page.emulateMedia({ colorScheme: "dark" });
+    await gotoOnion(page, panelUrl(base, "api-keys"));
+    await ready(page);
+    expect(await stored(), "a reload must keep the light choice").toBe("light");
+    await expect(html, "a stored light choice must beat a dark browser").toHaveClass(/(^|\s)light(\s|$)/);
+    await expect(html).toHaveAttribute("data-design-theme", "light");
+    expect(await background(), "a stored light choice must keep the light surface in a dark browser").toBe(light);
+    await page.emulateMedia({ colorScheme: null });
+  });
+
+  test("design: palette steps flip in dark mode only where the element carries a dark variant", async ({ page }) => {
+    skipUnlessServiceEnabled("design");
+    await shared.signIn(page);
+    await gotoOnion(page, panelUrl(base, "api-keys"));
+    await ready(page);
+    await page.evaluate(
+      ([id, markup]) => {
+        const probe = document.createElement("div");
+        probe.id = id;
+        probe.innerHTML = markup;
+        document.body.append(probe);
+      },
+      [PROBE_ID, PROBE_MARKUP],
+    );
+    for (const mode of MODES) {
+      await page.emulateMedia({ colorScheme: mode });
+      await expect(page.locator("html")).toHaveClass(new RegExp(`(^|\\s)${mode}(\\s|$)`));
+      await assertToken(page, LIGHT_ONLY_CHIP, "background-color", "--design-warning-subtle", `light-only chip ${mode}`);
+      await assertToken(page, LIGHT_ONLY_CHIP, "color", "--design-warning", `light-only chip ${mode}`);
+      await assertToken(page, DARK_BOX, "background-color", "--design-info-subtle", `dark-variant box ${mode}`);
+      await assertToken(page, BOXED_CHIP, "background-color", "--design-info-subtle", `chip in a dark-variant box ${mode}`);
+      await assertToken(page, BOXED_CHIP, "color", "--design-info", `chip in a dark-variant box ${mode}`);
+      await assertToken(
+        page,
+        WHITE_BUTTON,
+        "background-color",
+        mode === "dark" ? "--design-surface-hover" : "--design-text",
+        `white-text fill ${mode}`,
+      );
+      await assertToken(page, GRADIENT_BOX, "--tw-gradient-from", "--design-primary-50", `dark-variant gradient ${mode}`);
+      const dark = mode === "dark";
+      await assertToken(page, CODE_TEXT, "color", dark ? "--design-text" : "--design-border", `code view text ${mode}`);
+      await assertToken(
+        page,
+        CODE_LINE,
+        "color",
+        dark ? "--design-text-muted" : "--design-border-strong",
+        `code view line number ${mode}`,
+      );
+      for (const stop of ["--tw-gradient-from", "--tw-gradient-to"]) {
+        await assertToken(page, STATUS_TILE, stop, dark ? "--design-info-border" : "--design-info", `white tile ${mode}`);
+      }
+      await assertToken(page, STATUS_AVATAR, "color", "--design-on-info", `white text on a status fill ${mode}`);
+    }
+    await page.emulateMedia({ colorScheme: null });
+    await assertReadable(
+      page,
+      [LIGHT_ONLY_CHIP, BOXED_CHIP, WHITE_BUTTON, CODE_TEXT, CODE_LINE, STATUS_AVATAR],
+      "litellm palette steps",
+    );
   });
 
   test("design: gallery of sign-in, administration panels, dialogs and menus", async ({ page }) => {

@@ -16,6 +16,9 @@ This role deploys Baserow using Docker Compose, integrating key components such 
 - **Scalable Architecture:** Efficiently handle increasing workloads while maintaining high performance.
 - **Robust API Integration:** Leverage a comprehensive API to extend functionalities and integrate with other systems.
 - **MCP Server:** Serve four read-only Baserow tools to AI clients through a bearer-guarded adapter sidecar that fronts the native SSE endpoint.
+- **Restricted access:** The oauth2-proxy admits only members of the `administrator` and `user` role groups.
+- **Role mapping:** Every SSO login sets `is_staff` and `is_superuser` from membership of the `administrator` role group, promoting and demoting alike; the bootstrap administrator is never changed.
+- **Profile Sync:** The gate forwards the Keycloak name and locale (`sso.oauth2.claim_headers`), and every SSO login writes them onto the Baserow name and, when Baserow offers it, the interface language.
 
 ## Further Resources
 
@@ -30,6 +33,9 @@ community image with the shared Keycloak oauth2-proxy and installs a small
 trusted-header bridge in the Baserow backend. The bridge trusts the identity
 headers injected by nginx after oauth2-proxy authentication and converts them
 into native Baserow JWT refresh/access tokens for the frontend.
+
+Staff flags follow `PROXY_HEADER_SSO_ADMIN_GROUP` on every login, except for the
+account whose email is `PROXY_HEADER_SSO_BOOTSTRAP_ADMIN_EMAIL`.
 
 Directory-backed identities are handled before they reach this role: Keycloak
 can federate external user stores and then expose the result to Baserow via OIDC.
@@ -161,6 +167,6 @@ This role reads it from `credentials.secret_key` and writes it into the containe
 
 ## Persona contract opt-outs
 
-The Playwright `biber` persona is blocked permanently. `meta/services.yml` restricts `sso.oauth2.allowed_groups` to the `web-app-baserow` administrator RBAC group, so a non-admin identity is rejected by the oauth2-proxy before Baserow renders, and no deploy step provisions a Baserow account for that user.
+The Playwright `biber` persona is blocked permanently. `meta/services.yml` restricts `sso.oauth2.allowed_groups` to the `web-app-baserow` administrator and user RBAC groups, and the persona holds neither, so it is rejected by the oauth2-proxy before Baserow renders. [files/playwright/test-rbac.js](./files/playwright/test-rbac.js) asserts that denial and drives biber through Baserow after adding it to the user group.
 
 The `administrator` persona is blocked only while SSO is off. In that configuration `PROXY_HEADER_SSO` is false, so the trusted-header bridge is inactive and the sole account is the Django superuser bootstrapped by `tasks/01_manager_ops.yml` via `files/bootstrap_admin.py`, whose identifier is the ORM `username` rather than the e-mail Baserow's own sign-in form asks for. With SSO enabled the header bridge supplies the session and the persona runs.

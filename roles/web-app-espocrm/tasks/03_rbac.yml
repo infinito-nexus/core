@@ -1,0 +1,29 @@
+---
+- name: "🛂 Reconcile the EspoCRM roles, teams and administrators of the RBAC groups"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: "{{ (ESPOCRM_OIDC_ENABLED | bool) or (ESPOCRM_LDAP_ENABLED | bool) }}"
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: "{{ ['administrator'] + (ESPOCRM_RBAC_TIERS | list) }}"
+    rbac_sync_service_key: "{{ entity_name }}"
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ ESPOCRM_CONTAINER }}"
+    rbac_sync_kind: container
+    rbac_sync_user: ""
+    rbac_sync_argv: [php]
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/php/seed/rbac.php') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      ESPOCRM_RBAC_ROOT: "{{ ESPOCRM_APP_DIR }}"
+      ESPOCRM_RBAC_TIERS: "{{ ESPOCRM_RBAC_TIERS | to_json }}"
+      ESPOCRM_RBAC_ADMIN_GROUP: "{{ ESPOCRM_RBAC_ADMIN_GROUP }}"
+      ESPOCRM_RBAC_ADMIN_DN: "{{ ESPOCRM_RBAC_ADMIN_DN }}"
+      ESPOCRM_RBAC_MEMBER_OF: "{{ ESPOCRM_LDAP_MEMBER_OF_ATTRIBUTE }}"
+      ESPOCRM_RBAC_PROTECTED: "{{ [ESPOCRM_ADMIN_USERNAME] | to_json }}"
+      ESPOCRM_RBAC_CLAIM: "{{ RBAC.GROUP.CLAIM }}"
+    rbac_sync_attributes: []
+    rbac_sync_members_env:
+      - { name: ESPOCRM_RBAC_ADMINS, role: administrator, field: username }
+      - { name: ESPOCRM_RBAC_MEMBERS, role: "*", field: "" }

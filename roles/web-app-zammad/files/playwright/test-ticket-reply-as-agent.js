@@ -3,7 +3,7 @@ const { resolveTimeout } = require("./timeouts");
 const { gotoOnion } = require("./personas");
 
 exports.register = function (shared) {
-  test("administrator (agent): replies to an API-seeded ticket via the SPA", async ({ page }) => {
+  test("administrator: replies as agent to an API-seeded ticket via the SPA", async ({ page }) => {
     expect(shared.env.adminApiUsername, "ADMIN_API_USERNAME must be set").toBeTruthy();
     expect(shared.env.adminApiPassword, "ADMIN_API_PASSWORD must be set").toBeTruthy();
 

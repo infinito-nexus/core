@@ -14,7 +14,7 @@ set -euo pipefail
 #   APP_ID                              app id under test
 #   SWARM_NAME                          cluster id
 #   INFINITO_DISTRO                     distro under test (exported by distros.sh)
-#   INFINITO_IMAGE_TAG                  tag the node image is looked up under
+#   INFINITO_IMAGE_TAG                  tag the published node image is looked up under
 #   INFINITO_RESCUE_DIAGNOSTICS_BASE    host dir the rescue snapshots land under
 #   INFINITO_SWARM_STEP_TIMEOUT_MINUTES deploy-step ceiling
 #   variant                             optional matrix variant pin
@@ -130,7 +130,7 @@ trap 'collect_and_teardown 143' TERM
 . "${REPO_ROOT}/scripts/tests/deploy/utils/filesystem/pick.sh"
 filesystem_pick "swarm/${APP_ID}/${INFINITO_DISTRO}" node
 
-INFINITO_IMAGE="$(bash "${REPO_ROOT}/scripts/meta/resolve/image/local.sh"):${INFINITO_IMAGE_TAG}"
+INFINITO_IMAGE="$(bash "${REPO_ROOT}/scripts/meta/resolve/image/local.sh")"
 if docker image inspect "${INFINITO_IMAGE}" >/dev/null 2>&1; then
 	echo "==> node image: locally built ${INFINITO_IMAGE}"
 else

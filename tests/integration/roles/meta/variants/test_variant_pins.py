@@ -5,7 +5,7 @@ Rationale
 ---------
 
 ``# variant-pin: <role>#<index>`` forces a partner into one variant for the
-round (:mod:`utils.roles.applications.variant_pins`). The index is a position
+round (:mod:`utils.roles.applications.variant.pins`). The index is a position
 in someone else's list: inserting a variant in the partner shifts every later
 entry, and the pin then silently selects a round that does not enable the
 pairing at all. Nothing at deploy time notices, because the pin resolves fine
@@ -23,7 +23,7 @@ from __future__ import annotations
 import unittest
 
 from utils.cache.applications import get_variants
-from utils.roles.applications.variant_pins import (
+from utils.roles.applications.variant.pins import (
     RECIPROCAL,
     VariantPinError,
     intended_index,

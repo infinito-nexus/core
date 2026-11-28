@@ -41,7 +41,7 @@ def _misplaced() -> list[str]:
 
 
 class TestDockerVersionMarkerPlacement(unittest.TestCase):
-    def test_every_marker_sits_directly_above_a_version_key(self) -> None:
+    def test_every_marker_sits_directly_above_a_version_key(self) -> None:  # nocheck: test.text-presence -- policy lint over every marker of every meta/services.yml  # fmt: skip
         findings = _misplaced()
         self.assertEqual(
             findings,

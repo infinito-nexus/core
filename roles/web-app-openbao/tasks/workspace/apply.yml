@@ -1,0 +1,227 @@
+---
+- name: "✅ Require integer Semaphore ids and the pinned Owner group of ws-{{ WORKSPACE }}"
+  ansible.builtin.assert:
+    that:
+      - workspace_semaphore.project_id is integer
+      - workspace_semaphore.provision_project_id is integer
+      - workspace_semaphore.provider_templates.keys() | sort == OPENBAO_PROVISION_SECRETS.keys() | sort
+      - workspace_semaphore.provider_templates.values() | map('list') | map('sort') | reject('equalto', ['destroy', 'provision']) | list | length == 0
+      - workspace_semaphore.provider_templates.values() | map(attribute='provision') | reject('integer') | list | length == 0
+      - workspace_semaphore.provider_templates.values() | map(attribute='destroy') | reject('integer') | list | length == 0
+      - workspace_semaphore.unlock_template_id is integer
+      - workspace_semaphore.dns_template_id is integer
+      - workspace_semaphore.zone_template_id is integer
+      - workspace_semaphore.export_project_id is integer
+      - workspace_semaphore.export_template_id is integer
+      - workspace_semaphore.workspaces_project_id is integer
+      - workspace_semaphore.members_template_id is integer
+      - workspace_owner_group is string
+      - workspace_owner_group is match('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+      - workspace_dns.zone is string
+      - workspace_dns.zone is match('^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$')
+      - workspace_dns.zone_id is string
+      - workspace_dns.zone_id is match('^[A-Za-z0-9]{0,64}$')
+      - WORKSPACE_PLATFORM_TOKENS is boolean
+    fail_msg: >-
+      workspace apply needs every id of workspace_semaphore as an integer, since a
+      jwt role matches a numeric claim only against a JSON number, one provision
+      and one destroy template per provider of OPENBAO_PROVISION_SECRETS, the Keycloak
+      id of the pinned Owner group, a lowercase UUID, in workspace_owner_group,
+      the zone of the workspace in workspace_dns.zone, its zone id, empty under knot,
+      in workspace_dns.zone_id and the store's switch WORKSPACE_PLATFORM_TOKENS as a boolean.
+    quiet: true
+
+- name: "📜 Write the provision policies of ws-{{ WORKSPACE }}"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p=ws-{{ WORKSPACE }}-provision{{ ('-' ~ openbao_provider) if openbao_provider else '' }};
+    before=$(bao policy read $p 2>/dev/null || true);
+    bao policy write $p - >/dev/null;
+    after=$(bao policy read $p);
+    [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+  args:
+    stdin: "{{ lookup('template', 'workspace/provision_policy.hcl.j2') }}"
+  loop: "{{ [''] + (OPENBAO_PROVISION_SECRETS | list) }}"
+  loop_control:
+    loop_var: openbao_provider
+  register: openbao_workspace_provision_policy
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_provision_policy.stdout"
+
+- name: "📜 Write the zone policy of ws-{{ WORKSPACE }}"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p=ws-{{ WORKSPACE }}-zone;
+    before=$(bao policy read $p 2>/dev/null || true);
+    bao policy write $p - >/dev/null;
+    after=$(bao policy read $p);
+    [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+  args:
+    stdin: "{{ lookup('template', 'workspace/zone_policy.hcl.j2') }}"
+  register: openbao_workspace_zone_policy
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_zone_policy.stdout"
+
+- name: "📜 Write the child policies and token roles of ws-{{ WORKSPACE }}"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p=ws-{{ WORKSPACE }}-{{ item.suffix }};
+    before=$(bao policy read $p 2>/dev/null || true);
+    bao policy write $p - >/dev/null;
+    after=$(bao policy read $p);
+    [ "$before" = "$after" ] || echo OPENBAO_CHANGED;
+    r=auth/token/roles/$p-child;
+    before=$(bao read -format=json $r 2>/dev/null | grep -v request_id || true);
+    bao write $r allowed_policies=$p disallowed_policies=default orphan=false renewable=false
+    token_explicit_max_ttl={{ OPENBAO_JWT_TOKEN_TTL.provision }} token_no_default_policy=true >/dev/null;
+    after=$(bao read -format=json $r | grep -v request_id);
+    [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+  args:
+    stdin: "{{ lookup('template', item.policy) }}"
+  loop:
+    - suffix: transit
+      policy: workspace/transit_policy.hcl.j2
+    - suffix: dns
+      policy: workspace/dns_policy.hcl.j2
+  loop_control:
+    label: "{{ item.suffix }}"
+  register: openbao_workspace_child_policy
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_child_policy.stdout"
+
+- name: "🌐 Pin the DNS scope of ws-{{ WORKSPACE }} for the DNS broker"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'p={{ OPENBAO_DNS_SCOPE_PREFIX }}/ws-{{ WORKSPACE }};
+    [ "$(bao kv get -mount={{ OPENBAO_PLATFORM_MOUNT }} -field=zone $p 2>/dev/null)" = "{{ workspace_dns.zone }}" ] &&
+    [ "$(bao kv get -mount={{ OPENBAO_PLATFORM_MOUNT }} -field=zone_id $p 2>/dev/null)" = "{{ workspace_dns.zone_id }}" ] ||
+    { bao kv put -mount={{ OPENBAO_PLATFORM_MOUNT }} $p zone="{{ workspace_dns.zone }}" zone_id="{{ workspace_dns.zone_id }}" >/dev/null &&
+    echo OPENBAO_CHANGED; }'
+  register: openbao_workspace_dns_scope
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_dns_scope.stdout"
+
+- name: "🎫 Write the task token roles of ws-{{ WORKSPACE }}"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'set -e;
+    p=auth/{{ item.mount }}/role/{{ item.name }};
+    before=$(bao read -format=json $p 2>/dev/null | grep -v request_id || true);
+    bao write $p - >/dev/null;
+    after=$(bao read -format=json $p | grep -v request_id);
+    [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+  args:
+    stdin: "{{ item.body | to_json }}"
+  loop: "{{ lookup('template', 'workspace/jwt_roles.json.j2') | from_json }}"
+  loop_control:
+    label: "{{ item.mount }}/{{ item.name }}"
+  register: openbao_workspace_role
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_role.stdout"
+
+- name: "🧹 Prune the provider roles and policies of ws-{{ WORKSPACE }} the table dropped"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -s -- {{ OPENBAO_JWT_MOUNT | quote }} ws-{{ WORKSPACE }} {{ OPENBAO_PROVISION_PROVIDER_NAMES | map('quote') | join(' ') }}
+  args:
+    stdin: "{{ lookup('file', 'shell/prune-provider-access.sh') }}"
+  register: openbao_workspace_provider_prune
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_provider_prune.stdout"
+
+- name: "🔐 Create the transit key ws-{{ WORKSPACE }}-provision once"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'k={{ OPENBAO_TRANSIT_MOUNT }}/keys/ws-{{ WORKSPACE }}-provision;
+    bao read $k >/dev/null 2>&1 && exit 0;
+    bao write $k type=aes256-gcm96 exportable=false allow_plaintext_backup=false >/dev/null && echo OPENBAO_CHANGED'
+  register: openbao_workspace_key
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_key.stdout"
+
+- name: "🔒 Keep the transit key ws-{{ WORKSPACE }}-provision undeletable"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c 'k={{ OPENBAO_TRANSIT_MOUNT }}/keys/ws-{{ WORKSPACE }}-provision;
+    [ "$(bao read -field=deletion_allowed $k)" = false ] ||
+    { bao write $k/config deletion_allowed=false >/dev/null && echo OPENBAO_CHANGED; }'
+  register: openbao_workspace_key_lock
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_key_lock.stdout"
+
+- name: "🔍 Read the transit key ws-{{ WORKSPACE }}-provision"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao read -format=json {{ OPENBAO_TRANSIT_MOUNT }}/keys/ws-{{ WORKSPACE }}-provision
+  register: openbao_workspace_key_info
+  changed_when: false
+  failed_when: >-
+    openbao_workspace_key_info.rc != 0
+    or (openbao_workspace_key_info.stdout | from_json).data.exportable
+    or (openbao_workspace_key_info.stdout | from_json).data.allow_plaintext_backup
+    or (openbao_workspace_key_info.stdout | from_json).data.deletion_allowed
+
+- name: "🔍 Read the snapshot record of the transit key"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    bao kv get -mount={{ OPENBAO_PLATFORM_MOUNT }} -format=json {{ OPENBAO_TRANSIT_RECORD_PREFIX }}/ws-{{ WORKSPACE }}
+  register: openbao_workspace_record
+  changed_when: false
+  failed_when: >-
+    openbao_workspace_record.rc != 0
+    and 'No value found' not in (openbao_workspace_record.stderr ~ openbao_workspace_record.stdout)
+
+- name: "✅ Assert the raft snapshots to keep are a whole number above 0"
+  ansible.builtin.assert:
+    that:
+      - OPENBAO_RAFT_SNAPSHOT_KEEP is integer
+      - OPENBAO_RAFT_SNAPSHOT_KEEP >= 1
+    fail_msg: >-
+      services.openbao.workspaces.raft_snapshots is
+      '{{ OPENBAO_RAFT_SNAPSHOT_KEEP }}'; it must be a whole number above 0,
+      because the prune would otherwise delete the snapshot just written.
+    quiet: true
+
+- name: "💾 Back the new transit key up before any state is written with it"
+  when: (openbao_workspace_key is changed) or (openbao_workspace_record.rc != 0)
+  block:
+    - name: "📁 Ensure the raft snapshot directory in the backup tree"
+      ansible.builtin.file:
+        path: "{{ OPENBAO_RAFT_SNAPSHOT_DIR }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+
+    - name: "💾 Write a raft snapshot after the new key"
+      ansible.builtin.shell: |
+        set -eu
+        umask 077
+        final={{ OPENBAO_RAFT_SNAPSHOT_DIR | quote }}/ws-{{ WORKSPACE }}-$(date -u +%Y%m%dT%H%M%SZ).snap
+        part="$final.part"
+        # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec {{ OPENBAO_LOCAL_CID | quote }} \
+          sh -c 'f=$(mktemp) && bao operator raft snapshot save "$f" >/dev/null && cat "$f"; rc=$?; rm -f "$f"; exit $rc' \
+          > "$part" || { rm -f "$part"; exit 1; }
+        [ -s "$part" ] || { rm -f "$part"; exit 1; }
+        mv "$part" "$final"
+        ls -1td {{ OPENBAO_RAFT_SNAPSHOT_DIR | quote }}/ws-*.snap | tail -n +{{ (OPENBAO_RAFT_SNAPSHOT_KEEP | int) + 1 }} | xargs -r rm -f --
+        date +%s
+      register: openbao_workspace_snapshot
+      changed_when: true
+      failed_when: >-
+        openbao_workspace_snapshot.rc != 0
+        or not (openbao_workspace_snapshot.stdout | trim is match('^[0-9]+$'))
+
+    - name: "🧾 Record when the key was created and when its snapshot was written"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec {{ OPENBAO_LOCAL_CID | quote }}
+        bao kv put -mount={{ OPENBAO_PLATFORM_MOUNT }} {{ OPENBAO_TRANSIT_RECORD_PREFIX }}/ws-{{ WORKSPACE }}
+        key_created_at={{ (openbao_workspace_key_info.stdout | from_json).data['keys'].values() | max }}
+        snapshot_at={{ openbao_workspace_snapshot.stdout | trim }}
+      changed_when: true
+
+- name: "👥 Pin the Owner group of ws-{{ WORKSPACE }} for the export"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec {{ OPENBAO_LOCAL_CID | quote }}
+    sh -c '[ "$(bao kv get -mount={{ OPENBAO_PLATFORM_MOUNT }} -field=group {{ OPENBAO_OWNER_RECORD_PREFIX }}/ws-{{ WORKSPACE }} 2>/dev/null)" = {{ workspace_owner_group
+    | quote }} ] ||
+    { bao kv put -mount={{ OPENBAO_PLATFORM_MOUNT }} {{ OPENBAO_OWNER_RECORD_PREFIX }}/ws-{{ WORKSPACE }} group={{ workspace_owner_group | quote }} >/dev/null &&
+    echo OPENBAO_CHANGED; }'
+  register: openbao_workspace_owner
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_owner.stdout"

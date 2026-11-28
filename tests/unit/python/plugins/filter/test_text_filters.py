@@ -1,8 +1,15 @@
+import json
 import unittest
 
 from ansible.errors import AnsibleFilterError
 
-from plugins.filter.text_filters import to_one_liner
+from plugins.filter.text_filters import to_inline_js, to_one_liner
+
+HOSTILE = {"text": ']=] /*x*/ </script> // a=b "q" \\ ü'}
+SPACED = {
+    "text": "two  spaces,   three and a trailing ",
+    "key with  space": [" a", "b  "],
+}
 
 
 class TestTextFilters(unittest.TestCase):
@@ -61,6 +68,30 @@ Line three"""
         """
         expected = 'var a = "foo // still part of string"; var b = 2;'
         self.assertEqual(to_one_liner(s), expected)
+
+    def test_inline_js_round_trips_as_json(self):
+        self.assertEqual(json.loads(to_inline_js(HOSTILE)), HOSTILE)
+
+    def test_inline_js_hides_every_breakout_sequence(self):
+        literal = to_inline_js(HOSTILE)
+        for sequence in ("]=]", "</", "/*", "*/", "//", "<", "="):
+            self.assertNotIn(sequence, literal)
+
+    def test_inline_js_survives_the_one_liner(self):
+        script = f"const value = {to_inline_js(HOSTILE)};"
+        self.assertEqual(to_one_liner(script), script)
+
+    def test_inline_js_keeps_a_run_of_spaces_through_the_one_liner(self):
+        script = to_one_liner(f"const value = {to_inline_js(SPACED)};")
+        literal = script.removeprefix("const value = ").removesuffix(";")
+        self.assertEqual(json.loads(literal), SPACED)
+
+    def test_inline_js_writes_no_raw_space(self):
+        self.assertNotIn(" ", to_inline_js(SPACED))
+
+    def test_inline_js_rejects_what_json_cannot_hold(self):
+        with self.assertRaises(AnsibleFilterError):
+            to_inline_js({"value": object()})
 
 
 if __name__ == "__main__":

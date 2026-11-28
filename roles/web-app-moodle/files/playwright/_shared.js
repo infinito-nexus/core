@@ -8,11 +8,13 @@ const {
   readEnv,
   runAdminFlow,
   runGuestFlow,
+  signInToLam,
 } = require("./personas");
 const { isServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const USER_MENU = ".usermenu, [data-region='user-menu-toggle'], a[href*='profile.php']";
+const USER_TOUR_END = '[data-role="flexitour-step"] [data-role="end"]';
 
 const env = {
   moodleBaseUrl: normalizeBaseUrl(process.env.APP_BASE_URL),
@@ -21,10 +23,11 @@ const env = {
   adminUsername: decodeDotenvQuotedValue(process.env.ADMIN_USERNAME),
   adminPassword: decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD),
   adminNativePassword: decodeDotenvQuotedValue(process.env.ADMIN_NATIVE_PASSWORD || ""),
+  rbacAdminUsername: decodeDotenvQuotedValue(process.env.RBAC_ADMIN_USERNAME),
+  rbacAdminPassword: decodeDotenvQuotedValue(process.env.RBAC_ADMIN_PASSWORD),
   biberUsername: decodeDotenvQuotedValue(process.env.BIBER_USERNAME),
   biberPassword: decodeDotenvQuotedValue(process.env.BIBER_PASSWORD),
   ssoEnabled: isServiceEnabled("sso"),
-  ldapEnabled: isServiceEnabled("ldap"),
 };
 
 /**
@@ -81,6 +84,71 @@ async function loginAsSiteAdmin(page) {
     page.locator(USER_MENU).first(),
     "the site administrator must reach an authenticated session; a failure here means the auth chain the deploy configured does not admit the administrator account",
   ).toBeVisible({ timeout: resolveTimeout(60_000) });
+}
+
+/**
+ * Submit Moodle's own login form.
+ *
+ * @param {import('@playwright/test').Page} page browser page without a Moodle session
+ * @param {string} username login of the account
+ * @param {string} password password of the account
+ */
+async function submitLoginForm(page, username, password) {
+  await gotoOnion(page, `${env.moodleBaseUrl}/login/index.php`, {
+    waitUntil: "domcontentloaded",
+    timeout: resolveTimeout(60_000),
+  });
+  await page.locator("input[name='username'], input#username").first().fill(username);
+  const passwordInput = page
+    .locator(".toggle-sensitive-wrapper input[name='password'], .toggle-sensitive-wrapper input#password, input[name='password']")
+    .first();
+  await expect(passwordInput).toBeAttached({ timeout: resolveTimeout(30_000) });
+  await expect(async () => {
+    await passwordInput.fill(password);
+    await expect(passwordInput).toHaveValue(password);
+  }).toPass({ timeout: resolveTimeout(30_000) });
+  await page.locator("#loginbtn, button[type='submit'], input[type='submit']").first().click();
+  await page.waitForLoadState("load");
+}
+
+/**
+ * Open a session for a directory account through the login path the deploy configured.
+ *
+ * @param {import('@playwright/test').Page} page browser page to authenticate
+ * @param {string} username directory login of the account
+ * @param {string} password directory password of the account
+ */
+async function loginAsDirectoryUser(page, username, password) {
+  if (env.ssoEnabled) {
+    await gotoOnion(page, `${env.moodleBaseUrl}/auth/oidc/?source=loginpage`, {
+      waitUntil: "domcontentloaded",
+      timeout: resolveTimeout(60_000),
+    });
+    await performKeycloakLogin(page, username, password, readEnv("CANONICAL_DOMAIN"));
+  } else {
+    await submitLoginForm(page, username, password);
+  }
+
+  await expect(
+    page.locator(USER_MENU).first(),
+    `${username} must reach an authenticated Moodle session through the ${env.ssoEnabled ? "OIDC" : "LDAP"} login`,
+  ).toBeVisible({ timeout: resolveTimeout(60_000) });
+}
+
+/**
+ * Args:
+ *   page: Moodle page that may have started a user tour, whose backdrop swallows every click until the tour ends.
+ */
+async function endUserTour(page) {
+  if (!(await page.content()).includes('"startTour":true')) return;
+  const end = page.locator(USER_TOUR_END).first();
+  const shown = await end.waitFor({ timeout: resolveTimeout(10_000) }).then(
+    () => true,
+    () => false,
+  );
+  if (!shown) return;
+  await end.click();
+  await expect(page.locator("[data-flexitour]")).toHaveCount(0);
 }
 
 async function beforeEach({ page }) {
@@ -176,8 +244,12 @@ const setMiddleNameViaAccountRest = async ({
 module.exports = {
   env,
   beforeEach,
+  endUserTour,
+  loginAsDirectoryUser,
   loginAsSiteAdmin,
   runAdminFlow,
   runGuestFlow,
   setMiddleNameViaAccountRest,
+  signInToLam,
+  submitLoginForm,
 };

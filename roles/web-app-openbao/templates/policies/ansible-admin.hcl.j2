@@ -42,6 +42,102 @@ path "{{ OPENBAO_PKI_MOUNT }}/*" {
   capabilities = ["create", "read", "update", "delete", "list", "sudo"]
 }
 
+path "{{ OPENBAO_TRANSIT_MOUNT }}/keys/*" {
+  capabilities = ["create", "read", "update", "delete"]
+}
+
+path "sys/storage/raft/snapshot" {
+  capabilities = ["read", "sudo"]
+}
+
+path "{{ OPENBAO_TENANT_MOUNT }}/data/*" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/workspaces/route53" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/provision/cloudflare/*" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/{{ OPENBAO_ZONE_TOKEN_PATH }}" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/metadata/{{ OPENBAO_ZONE_TOKEN_PATH }}" {
+  capabilities = ["delete"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/provision/proxmox-*" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/provision/incus-*" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/store/semaphore/workspaces" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/store/erpnext/*" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/export/mail" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/metadata/export/mail" {
+  capabilities = ["delete"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/export/s3" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/export/keycloak" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_TENANT_MOUNT }}/metadata/*" {
+  capabilities = ["list", "delete"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/{{ OPENBAO_TRANSIT_RECORD_PREFIX }}/*" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/metadata/{{ OPENBAO_TRANSIT_RECORD_PREFIX }}/*" {
+  capabilities = ["read", "delete"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/{{ OPENBAO_OWNER_RECORD_PREFIX }}/*" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/metadata/{{ OPENBAO_OWNER_RECORD_PREFIX }}/*" {
+  capabilities = ["read", "delete"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/{{ OPENBAO_DNS_SCOPE_PREFIX }}/*" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/metadata/{{ OPENBAO_DNS_SCOPE_PREFIX }}/*" {
+  capabilities = ["read", "delete"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/playwright/*" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/metadata/playwright/*" {
+  capabilities = ["delete"]
+}
+
 path "sys/health" {
   capabilities = ["read"]
 }

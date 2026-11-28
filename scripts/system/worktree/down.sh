@@ -24,7 +24,14 @@ cd "${REPO_ROOT}"
 base="${base:-$(worktree_default_base)}"
 path="$(worktree_path "${branch}" "${base}")"
 
+release_slots() {
+	if ! worktree_release_slots "${path}"; then
+		echo ">>> WARNING: the slot registry kept the slots of ${path}; the first make worktree-up after git stops listing it frees them" >&2
+	fi
+}
+
 if [ ! -d "${path}" ]; then
+	release_slots
 	echo "FAILURE: no worktree at ${path} for branch '${branch}'" >&2
 	exit 1
 fi
@@ -42,9 +49,8 @@ if [ "${force}" != "true" ]; then
 	fi
 fi
 
-slot="$(worktree_slot_of "${path}")"
 meta="$(worktree_meta_dir "${path}")"
-echo ">>> Stopping the compose stack in ${path} (slot ${slot})"
+echo ">>> Stopping the compose stack in ${path}"
 if ! make -C "${path}" compose-down; then
 	echo ">>> WARNING: compose-down failed; removing the worktree anyway"
 fi
@@ -57,11 +63,14 @@ else
 	git worktree remove "${path}" || remove_rc=$?
 fi
 
+if [ "${remove_rc}" -ne 0 ] && [ -e "${path}" ]; then
+	echo "FAILURE: git worktree remove failed and ${path} is untouched" >&2
+	exit "${remove_rc}"
+fi
+
+release_slots
+
 if [ "${remove_rc}" -ne 0 ]; then
-	if [ -e "${path}" ]; then
-		echo "FAILURE: git worktree remove failed and ${path} is untouched" >&2
-		exit "${remove_rc}"
-	fi
 	if [ -z "${meta}" ]; then
 		echo "FAILURE: could not resolve the metadata dir of ${path}; run 'make worktree-prune'" >&2
 		exit "${remove_rc}"
@@ -77,5 +86,3 @@ if [ "${remove_rc}" -ne 0 ]; then
 		;;
 	esac
 fi
-
-echo "Slot ${slot} released."

@@ -18,7 +18,9 @@ _NEVER_DEPLOYED = "web-app-z#1@compose+tor"
 
 
 class TestPriorityLine(unittest.TestCase):
-    def _run(self, source: dict, inputs: dict[str, str]) -> tuple[int, str, str]:
+    def _run(
+        self, source: dict, inputs: dict[str, str], *flags: str
+    ) -> tuple[int, str, str]:
         out, err = io.StringIO(), io.StringIO()
         with (
             mock.patch.object(gh, "resolve_repo", return_value="o/r"),
@@ -27,7 +29,7 @@ class TestPriorityLine(unittest.TestCase):
             redirect_stdout(out),
             redirect_stderr(err),
         ):
-            rc = priority.main([_RUN_URL])
+            rc = priority.main([_RUN_URL, *flags])
         return rc, out.getvalue(), err.getvalue()
 
     def test_failed_and_never_deployed_entries_print_on_one_line(self) -> None:
@@ -37,6 +39,11 @@ class TestPriorityLine(unittest.TestCase):
             out,
             " ".join(sorted([*_FAILED_TOKENS.split(), _NEVER_DEPLOYED])) + "\n",
         )
+
+    def test_any_axes_prints_every_entry_as_a_bare_role_name(self) -> None:
+        rc, out, _ = self._run(_SOURCE_RUN, {"priority": _NEVER_DEPLOYED}, "--any-axes")
+        self.assertEqual(rc, 0)
+        self.assertEqual(out, "web-app-x web-app-y web-app-z\n")
 
     def test_a_green_run_prints_nothing(self) -> None:
         green = {

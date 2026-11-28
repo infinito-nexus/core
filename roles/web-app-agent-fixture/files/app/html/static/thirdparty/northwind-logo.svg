@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Northwind">
+  <title>Northwind (R) - third-party brand mark</title>
+  <circle cx="32" cy="32" r="30" fill="#0b6e4f" />
+  <path d="M18 44V20l14 16 14-16v24" fill="none" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" />
+  <text x="32" y="58" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#0b6e4f">NORTHWIND</text>
+</svg>

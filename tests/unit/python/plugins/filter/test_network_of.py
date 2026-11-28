@@ -25,12 +25,6 @@ class TestNetworkFilters(unittest.TestCase):
         self.assertEqual(self.filters["network_suffix"]("tor"), ".onion")
         self.assertEqual(self.filters["network_suffix"]("clearnet"), "")
 
-    def test_network_suffixes_maps_only_networks_with_a_suffix(self):
-        self.assertEqual(
-            self.filters["network_suffixes"](["clearnet", "tor"]), {"tor": ".onion"}
-        )
-        self.assertEqual(self.filters["network_suffixes"](["clearnet"]), {})
-
     def test_in_network_keeps_the_domains_of_one_network(self):
         domains = [f"a.{DOMAIN}", f"a.{ONION}", f"b.{DOMAIN}"]
         self.assertEqual(

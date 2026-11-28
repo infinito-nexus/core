@@ -1,14 +1,22 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: playwright-service-flag, dynamic-flag - shared gateway consumer; inference wiring is covered by the gateway role, and the gateway is a single shared instance
 litellm:
   bond: 0.5
   enabled: "{{ LITELLM_USABLE }}"
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oidc
+  profile:
+    languages: [en]
+# nocheck: dynamic-flag
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -23,8 +31,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag, DB engine, covered by role-local integration tests
 mariadb:
   bond: 1
@@ -78,8 +86,17 @@ wordpress:
   mem_limit: 1.5g
   pids_limit: 512
   max_upload_size: 256M
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-wordpress', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-wordpress', 'native') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-wordpress', 'registration') }}"
   multisite:
     enabled: false
+  address: "{{ lookup('tls', 'web-app-wordpress', 'url.origin') }}"
   options: # nocheck: inventory-open-subtree  wordpress_options_checked refuses owned, secret and malformed option names at deploy time
     permalink_structure: "/blog/%year%/%monthnum%/%day%/%postname%/"
   ports:
@@ -147,3 +164,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

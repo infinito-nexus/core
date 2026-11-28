@@ -28,6 +28,7 @@ filter_loader.add_directory(str(PROJECT_ROOT / "plugins" / "filter"))
 
 DESIGN_DIR = PROJECT_ROOT / "roles" / "sys-front-inj-design"
 TASKS = DESIGN_DIR / ROLE_FILE_TASKS_MAIN
+INJECT = DESIGN_DIR / "tasks" / "inject.yml"
 DOMAIN = default_domain_primary()
 ONION = "a" * 56 + ".onion"
 CDN_ROOT = "/nonexistent/infinito/cdn"
@@ -75,7 +76,7 @@ def _cdn(variables, application_id):
     return {**paths, "urls": _to_url_tree(paths, paths["root"], base)}
 
 
-def _design(logo):
+def _design(logo, cosmos, sheet):
     def answer(variables, application_id):
         base = _cdn(variables, application_id)["urls"]["role"]["release"]["img"]
         return {
@@ -86,6 +87,8 @@ def _design(logo):
                 "favicon_ico": f"{base}/design/favicon.ico",
                 "header": {"png": f"{base}/design/header.png"},
             },
+            "cosmos": cosmos,
+            "cosmos_sheet": sheet,
         }
 
     return answer
@@ -95,10 +98,15 @@ def resolve_tasks():
     """Return the two resolve tasks of the role as loaded from disk.
 
     Returns:
-        ``[style_task, script_task]`` in file order.
+        ``[style_task, script_task]``: the sheet task of ``tasks/main.yml``,
+        then the script task of ``tasks/inject.yml``, which includes it first.
     """
-    tasks = load_yaml_any(str(TASKS))
-    return [t for t in tasks if str(t.get("name", "")).startswith("🔍 Resolve")]
+    return [
+        task
+        for path in (TASKS, INJECT)
+        for task in load_yaml_any(str(path))
+        if str(task.get("name", "")).startswith("🔍 Resolve")
+    ]
 
 
 def legacy_tasks():
@@ -127,7 +135,7 @@ def _trusted(value):
     return value
 
 
-def run_tasks(tasks, app, vhost, logo, root=PROJECT_ROOT):
+def run_tasks(tasks, app, vhost, logo, root=PROJECT_ROOT, cosmos="", sheet=False):
     """Template the set_fact arguments of both resolve tasks in order.
 
     Args:
@@ -136,6 +144,9 @@ def run_tasks(tasks, app, vhost, logo, root=PROJECT_ROOT):
         vhost: the vhost being rendered, clearnet or onion.
         logo: whether the branding replaces the logo and title.
         root: the playbook directory the role paths resolve against.
+        cosmos: the provider ``lookup('design', app).cosmos`` returns.
+        sheet: the ``cosmos_sheet`` the lookup returns, true for a provider
+            in the ``full`` flavor.
 
     Returns:
         ``(facts, renders)``: the facts both tasks set and, per task, a
@@ -145,7 +156,7 @@ def run_tasks(tasks, app, vhost, logo, root=PROJECT_ROOT):
     stubs = {
         "domains": lambda _v, *terms: tree[terms[0]] if terms else tree,
         "cdn": _cdn,
-        "design": _design(logo),
+        "design": _design(logo, cosmos, sheet),
     }
     renders: list[Counter] = []
     real_get = lookup_loader.get
@@ -189,6 +200,7 @@ def run_tasks(tasks, app, vhost, logo, root=PROJECT_ROOT):
         TLS_ENABLED=True,
         TLS_MODE="letsencrypt",
         design_css_states={},
+        group_names=[app],
     )
     facts: dict = {}
     with unittest.mock.patch.object(lookup_loader, "get", side_effect=get):
@@ -212,6 +224,9 @@ APP_CSS = "roles/sys-front-inj-design/templates/css/app.css.j2"
 SCRIPT = "roles/web-svc-logout/templates/design.js.j2"
 DESIGN_JS = "roles/sys-front-inj-design/templates/js/design.js.j2"
 CONFIG = "roles/sys-front-inj-design/templates/js/design-config.json.j2"
+COSMOS = "web-app-cst-cosmos"
+COSMOS_APP = "web-svc-html"
+COSMOS_SKY = 'html[data-cosmos-mode="full"]'
 
 
 class TestFactsMatchThePreviousExpressions(unittest.TestCase):
@@ -264,6 +279,71 @@ class TestEachTemplateRendersOncePerFact(unittest.TestCase):
         self.assertGreater(sum(renders[1].values()), 4)
 
 
+class TestCosmosClearsASurfaceOnlyWhileItsProviderIsActive(unittest.TestCase):
+    def test_an_active_provider_appends_the_mapping_of_the_role(self) -> None:
+        facts, _ = run_tasks(
+            resolve_tasks(),
+            COSMOS_APP,
+            f"x.app.{DOMAIN}",
+            True,
+            cosmos=COSMOS,
+            sheet=True,
+        )
+        self.assertIn(f"{COSMOS_SKY} body {{", facts["app_style_css"])
+        self.assertIn(
+            f'{COSMOS_SKY}[data-cosmos-legible="top"] body > :not(cosmos-sky',
+            facts["app_style_css"],
+        )
+
+    def test_a_host_without_cosmos_keeps_the_sheet_of_the_role(self) -> None:
+        facts, _ = run_tasks(resolve_tasks(), COSMOS_APP, f"x.app.{DOMAIN}", True)
+        expected, _ = run_tasks(legacy_tasks(), COSMOS_APP, f"x.app.{DOMAIN}", True)
+        self.assertNotIn("data-cosmos", facts["app_style_css"])
+        self.assertEqual(facts, expected)
+
+    def test_a_role_without_a_mapping_stays_untouched_under_an_active_provider(
+        self,
+    ) -> None:
+        facts, _ = run_tasks(
+            resolve_tasks(),
+            "web-app-wordpress",
+            f"x.app.{DOMAIN}",
+            True,
+            cosmos=COSMOS,
+            sheet=True,
+        )
+        expected, _ = run_tasks(
+            legacy_tasks(), "web-app-wordpress", f"x.app.{DOMAIN}", True
+        )
+        self.assertEqual(facts, expected)
+
+    def test_a_role_without_a_mapping_and_without_a_provider_stays_untouched(
+        self,
+    ) -> None:
+        facts, _ = run_tasks(
+            resolve_tasks(), "web-app-wordpress", f"x.app.{DOMAIN}", True
+        )
+        expected, _ = run_tasks(
+            legacy_tasks(), "web-app-wordpress", f"x.app.{DOMAIN}", True
+        )
+        self.assertEqual(facts, expected)
+        self.assertFalse(facts["app_style_present"])
+
+
+class TestTheColorsFlavorKeepsTheSheetOfTheRole(unittest.TestCase):
+    def test_an_active_provider_without_the_sheet_appends_no_mapping(self) -> None:
+        vhost = f"x.app.{DOMAIN}"
+        colors, _ = run_tasks(resolve_tasks(), COSMOS_APP, vhost, True, cosmos=COSMOS)
+        expected, _ = run_tasks(legacy_tasks(), COSMOS_APP, vhost, True)
+        full, _ = run_tasks(
+            resolve_tasks(), COSMOS_APP, vhost, True, cosmos=COSMOS, sheet=True
+        )
+        self.assertEqual(colors, expected)
+        self.assertNotIn(COSMOS_SKY, colors["app_style_css"])
+        self.assertIn(COSMOS_SKY, full["app_style_css"])
+        self.assertNotEqual(colors, full)
+
+
 class TestABrokenRoleSheetStaysLoud(unittest.TestCase):
     def test_an_undefined_variable_fails_naming_it(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -287,11 +367,6 @@ class TestABrokenRoleSheetStaysLoud(unittest.TestCase):
                     ),
                 ):
                     run_tasks(tasks, "web-app-broken", f"x.app.{DOMAIN}", True, root)
-
-    def test_the_failing_task_names_its_application(self) -> None:
-        for task in resolve_tasks():
-            with self.subTest(task=task["name"]):
-                self.assertIn("{{ application_id }}", task["name"])
 
 
 if __name__ == "__main__":

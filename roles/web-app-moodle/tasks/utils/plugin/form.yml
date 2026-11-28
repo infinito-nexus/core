@@ -1,0 +1,40 @@
+---
+# Param: moodle_plugin_form_component - frankenstyle plugin and meta/forms.yml form the settings belong to, e.g. auth_oidc
+# Param: moodle_plugin_form_settings  - the form's sink, mapping of setting name to its string or integer value
+# Param: moodle_plugin_form_hidden    - credentials and settings without a form field: compared and written like the form's settings, never printed
+- name: "📄 Stage the plugin settings applier for {{ moodle_plugin_form_component }}"
+  include_tasks: "{{ role_path }}/tasks/utils/plugin/stage.yml"
+
+- name: "🔎 Read the stored {{ moodle_plugin_form_component }} settings the form manages"
+  ansible.builtin.shell: >
+    container exec -i --user {{ MOODLE_RUNTIME_USER }}
+    -e MOODLE_CONFIG={{ MOODLE_CONFIG | quote }}
+    {{ MOODLE_CONTAINER_ADDRESS }}
+    php {{ MOODLE_PLUGIN_CONFIG_SCRIPT | quote }}
+  args:
+    stdin: "{{ {'component': moodle_plugin_form_component, 'mode': 'read', 'settings': moodle_plugin_form_settings, 'hidden': moodle_plugin_form_hidden} | to_json
+      }}"
+  register: moodle_plugin_form_stored
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📣 Report the {{ moodle_plugin_form_component }} settings the write reverts"
+  include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current: "{{ {moodle_plugin_form_component: (moodle_plugin_form_stored.stdout_lines | last | from_json).settings} }}"
+
+- name: "🔧 Write the {{ moodle_plugin_form_component }} settings that differ in one run"
+  ansible.builtin.shell: >
+    container exec -i --user {{ MOODLE_RUNTIME_USER }}
+    -e MOODLE_CONFIG={{ MOODLE_CONFIG | quote }}
+    {{ MOODLE_CONTAINER_ADDRESS }}
+    php {{ MOODLE_PLUGIN_CONFIG_SCRIPT | quote }}
+  args:
+    stdin: "{{ {'component': moodle_plugin_form_component, 'mode': 'write', 'settings': moodle_plugin_form_settings, 'hidden': moodle_plugin_form_hidden} | to_json
+      }}"
+  register: moodle_plugin_form_written
+  changed_when: moodle_plugin_form_written.stdout is search('^CHANGED [1-9]', multiline=True)
+  when: >-
+    (moodle_plugin_form_stored.stdout_lines | last | from_json).settings | length > 0
+    or (moodle_plugin_form_stored.stdout_lines | last | from_json).hidden > 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

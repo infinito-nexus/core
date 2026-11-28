@@ -11,6 +11,12 @@ import unittest.mock as mock
 from typing import ClassVar
 
 from ansible.errors import AnsibleError
+from ansible.parsing.vault import (
+    EncryptedString,
+    VaultLib,
+    VaultSecret,
+    VaultSecretsContext,
+)
 
 from . import PROJECT_ROOT
 
@@ -108,6 +114,7 @@ class ObjstoreLookupTests(unittest.TestCase):
         self.assertEqual(out["public_bucket"], "")
         self.assertEqual(out["public_endpoint"], "")
         self.assertEqual(out["public_url"], "")
+        self.assertEqual(out["public_scheme"], "")
         self.assertEqual(out["relative_url"], "")
         self.assertEqual(out["reach_host"], "127.0.0.1")
 
@@ -198,6 +205,37 @@ class ObjstoreLookupTests(unittest.TestCase):
             "http://foo:a%2Fb%2Bc%3Dd@seaweedfs-central:8334",
         )
         self.assertEqual(out["url"], "http://seaweedfs-central:8334")
+
+    def test_a_vaulted_secret_key_resolves_like_a_rendered_one(self):
+        secrets = [("default", VaultSecret(b"unit-test-vault-password"))]
+        ciphertext = VaultLib(secrets).encrypt("a/b+c=d").decode()
+        applications = {
+            "web-app-foo": {
+                "services": {"seaweedfs": {"enabled": True, "shared": True}},
+                "secrets": {
+                    "credentials": {
+                        "objstore_secret_key": EncryptedString(ciphertext=ciphertext)
+                    }
+                },
+            },
+            "web-svc-seaweedfs": {
+                "services": {
+                    "seaweedfs": {"name": "seaweedfs-central", "api_port": 8334}
+                },
+            },
+        }
+
+        with mock.patch.object(
+            VaultSecretsContext, "_current", VaultSecretsContext(secrets)
+        ):
+            out = self._run(["web-app-foo"], applications)[0]
+
+        self.assertIs(True, out["enabled"])
+        self.assertEqual(
+            out["credentialed_url"],
+            "http://foo:a%2Fb%2Bc%3Dd@seaweedfs-central:8334",
+        )
+        self.assertIsInstance(out["secret_key"], str)
 
     def test_credentialed_url_is_empty_without_an_engine(self):
         applications = {"web-app-foo": {"services": {}}}
@@ -390,6 +428,27 @@ class ObjstoreSameOriginProxyTests(unittest.TestCase):
             ("api.seaweedfs.s3.example.com", "https"),
             "the nginx fragment still has to reach the provider's own vhost, so "
             "the rebase must not overwrite the upstream it proxies to",
+        )
+
+    def test_an_onion_only_consumer_gets_the_scheme_of_its_own_origin(self):
+        out = self._resolve(consumer_domains=["foo.abcdefghij.onion"])
+
+        self.assertEqual(
+            out["public_scheme"],
+            "http",
+            "a client that joins its own scheme to public_bucket must not dial "
+            "https on an onion that maps no port 443",
+        )
+        self.assertEqual(
+            f"{out['public_scheme']}://{out['public_bucket']}", out["public_url"]
+        )
+
+    def test_a_clearnet_consumer_keeps_the_provider_scheme(self):
+        out = self._resolve(consumer_domains=["foo.example.com"], consumer_web="http")
+
+        self.assertEqual(out["public_scheme"], "https")
+        self.assertEqual(
+            f"{out['public_scheme']}://{out['public_bucket']}", out["public_url"]
         )
 
     def test_the_consumer_origin_is_resolved_for_the_named_consumer(self):

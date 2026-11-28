@@ -23,7 +23,7 @@
     - name: "🪣 Fider | Read the tenant id"
       database_query:
         config: "{{ lookup('database', application_id) }}"
-        query_file: "{{ role_path }}/files/sql/select-tenant-id.sql"
+        query_file: "{{ role_path }}/files/sql/select/tenant-id.sql"
         expect_rows: true
         mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
       register: fider_design_tenant

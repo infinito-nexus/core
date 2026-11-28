@@ -2,13 +2,13 @@
 /**
  * File: debug.php
  * Note: This file is always present via bind mount.
- *       Its effect is controlled by MODE_DEBUG at template-render time.
+ *       Its effect is controlled by services.mediawiki.debug.enabled at template-render time.
  */
 if ( !defined( 'MEDIAWIKI' ) ) {
     exit;
 }
 
-{% if MODE_DEBUG | bool %}
+{% if lookup('debug') | bool %}
 $wgShowExceptionDetails = true;
 $wgShowDBErrorBacktrace = true;
 $wgShowSQLErrors        = true;

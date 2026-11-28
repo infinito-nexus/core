@@ -4,7 +4,7 @@
 
     ATTRIBUTES:
       USERNAME: "preferred_username"
-      GIVEN_NAME: "givenName"
+      GIVEN_NAME: "given_name"
 
 Every template, vars file and meta file is rendered with ``OIDC`` in scope and
 must read ``OIDC.ATTRIBUTES.<KEY>`` instead of repeating the literal. A claim
@@ -15,10 +15,10 @@ own vocabulary will not find: ``username_claim``, ``userNameField``,
 for one value.
 
 Only ``preferred_username`` is guarded. The sibling names are not distinctive
-enough to carry a rule: ``email`` and ``surname`` are ordinary words, and
-``givenName`` belongs to two constants at once, because
-``LDAP.USER.ATTRIBUTES.FIRSTNAME`` declares the same string for the directory
-attribute. A rule on it would send an LDAP template to an OIDC constant.
+enough to carry a rule: ``email``, ``name``, ``locale`` and ``website`` are
+ordinary words that also name unrelated configuration keys, and Keycloak's own
+protocol mapper templates have to spell ``given_name`` and ``family_name`` to
+define the claims in the first place.
 
 Scope: the renderable surface, where the constant is reachable. A static
 payload under ``roles/*/files/`` is deliberately out of scope: it is shipped
@@ -42,12 +42,15 @@ import unittest
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import iter_project_files, read_text
+from utils.cache.yaml import load_yaml
+from utils.roles.mapping import ROLE_FILE_META_FORMS
 
 from . import PROJECT_ROOT
 
 _RULE = "oidc-claim-name-spot"
 _SOURCE = "group_vars/all/11_oidc.yml"
 _GUARDED = {"preferred_username": "USERNAME"}
+_FORMS = f"roles/x/{ROLE_FILE_META_FORMS}"
 _SCOPES = ("templates/", "vars/", "defaults/", "meta/")
 
 
@@ -91,12 +94,13 @@ def _offenders(rel_path: str, content: str) -> list[str]:
 
 class TestOidcClaimNamesAreSpot(unittest.TestCase):
     def test_the_constant_still_declares_every_guarded_claim(self) -> None:
-        declared = read_text(str(PROJECT_ROOT / _SOURCE))
+        defaults = load_yaml(str(PROJECT_ROOT / _SOURCE)).get("defaults_oidc") or {}
+        attributes = defaults.get("ATTRIBUTES") or {}
 
         for claim, key in _GUARDED.items():
-            self.assertIn(
-                f'{key}: "{claim}"',
-                declared,
+            self.assertEqual(
+                claim,
+                attributes.get(key),
                 f"{_SOURCE} no longer declares {key}; this rule points at a "
                 "constant that moved, so fix the rule before the call sites.",
             )
@@ -167,6 +171,18 @@ class TestClaimDetection(unittest.TestCase):
 
     def test_a_template_is_in_scope(self) -> None:
         self.assertTrue(_is_renderable("roles/x/templates/casc.yaml.j2"))
+
+    def test_a_forms_file_is_in_scope(self) -> None:
+        self.assertTrue(_is_renderable(_FORMS))
+
+    def test_a_form_source_spelling_the_claim_is_reported(self) -> None:
+        self.assertEqual(
+            [f"{_FORMS}:1: preferred_username -> OIDC.ATTRIBUTES.USERNAME"],
+            _offenders(_FORMS, "source: sso.preferred_username"),
+        )
+
+    def test_a_form_source_naming_the_attribute_key_is_accepted(self) -> None:
+        self.assertEqual([], _offenders(_FORMS, "source: sso.USERNAME"))
 
 
 if __name__ == "__main__":

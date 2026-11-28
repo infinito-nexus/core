@@ -1,0 +1,1 @@
+# nocheck: role-files-layout - Playwright discovers this suite by path and the runner imports its shared helpers relatively; sorting by extension would break discovery.

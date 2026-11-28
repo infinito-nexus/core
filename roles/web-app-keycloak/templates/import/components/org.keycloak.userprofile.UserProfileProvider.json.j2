@@ -1,49 +1,76 @@
-{% set _moodle_attrs = [
-  { "name": "middleName",          "displayName": "Middle name",        "validations": {"length": {"max": 255}}, "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "group": "moodle", "multivalued": false },
-  { "name": "nickname",            "displayName": "Nickname",            "validations": {"length": {"max": 255}}, "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "group": "moodle", "multivalued": false },
-  { "name": "phoneNumber",         "displayName": "Phone number",        "validations": {"length": {"max": 64}},  "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "group": "moodle", "multivalued": false },
-  { "name": "phoneNumberAlt",      "displayName": "Mobile",              "validations": {"length": {"max": 64}},  "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "group": "moodle", "multivalued": false },
-  { "name": "street",              "displayName": "Street",              "validations": {"length": {"max": 255}}, "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "group": "moodle", "multivalued": false },
-  { "name": "locality",            "displayName": "City",                "validations": {"length": {"max": 128}}, "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "group": "moodle", "multivalued": false },
-  { "name": "country",             "displayName": "Country (ISO-3166-1 alpha-2)", "validations": {"length": {"max": 2}},   "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "group": "moodle", "multivalued": false },
-  { "name": "institution",         "displayName": "Institution",         "validations": {"length": {"max": 255}}, "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "group": "moodle", "multivalued": false },
-  { "name": "department",          "displayName": "Department",          "validations": {"length": {"max": 255}}, "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "group": "moodle", "multivalued": false },
-  { "name": "description",         "displayName": "Description",         "validations": {"length": {"max": 1024}},"permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "group": "moodle", "multivalued": false },
-  { "name": "idNumber",            "displayName": "ID number",           "validations": {"length": {"max": 64}},  "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "group": "moodle", "multivalued": false },
-  { "name": "website",             "displayName": "Website",             "validations": {"length": {"max": 255}}, "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "group": "moodle", "multivalued": false },
-  { "name": "locale",              "displayName": "Locale",              "validations": {"length": {"max": 16}},  "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "group": "moodle", "multivalued": false },
-  { "name": "zoneinfo",            "displayName": "Time zone (IANA)",    "validations": {"length": {"max": 64}},  "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "group": "moodle", "multivalued": false },
-  { "name": "namePhoneticGiven",   "displayName": "Phonetic given name", "validations": {"length": {"max": 255}}, "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "group": "moodle", "multivalued": false },
-  { "name": "namePhoneticFamily",  "displayName": "Phonetic family name","validations": {"length": {"max": 255}}, "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "group": "moodle", "multivalued": false }
-] %}
-{% set _moodle_group = {
-  "name": "moodle",
-  "displayHeader": "Moodle profile",
-  "displayDescription": "Attributes consumed by Moodle (OIDC + LDAP)."
+{% set _profile = namespace(attrs=[], groups=[], lookaheads='') %}
+{% for pattern in IAM_USERNAME_PATTERNS %}
+{% set _profile.lookaheads = _profile.lookaheads ~ '(?=(?:' ~ pattern ~ ')$)' %}
+{% endfor %}
+{% for attribute in KEYCLOAK_PROFILE_ATTRIBUTES %}
+{% set _profile.attrs = _profile.attrs + [{
+  "name": attribute.name,
+  "displayName": attribute.display,
+  "validations": {"length": {"max": attribute.max}},
+  "permissions": {"view": ["admin","user"], "edit": KEYCLOAK_PROFILE_GROUPS[attribute.group].edit},
+  "group": attribute.group,
+  "multivalued": false
+}] %}
+{% endfor %}
+{% for group_name, group in KEYCLOAK_PROFILE_GROUPS.items() %}
+{% set _profile.groups = _profile.groups + [{
+  "name": group_name,
+  "displayHeader": group.header,
+  "displayDescription": group.description
+}] %}
+{% endfor %}
+{% set _email = {
+  "name": "email",
+  "displayName": "Secondary email" if KEYCLOAK_EMAIL_MAILBOX | bool else "${email}",
+  "validations": {"email": {}, "length": {"max": 255}},
+  "permissions": {"view": ["admin","user"], "edit": ["admin","user"] if KEYCLOAK_EMAIL_UPDATE_ENABLED | bool else ["admin"]},
+  "multivalued": false
 } %}
+{% if KEYCLOAK_EMAIL_MAILBOX | bool %}
+{% set _ = _email.validations.update({"pattern": {
+  "pattern": KEYCLOAK_EMAIL_SECONDARY_PATTERN,
+  "error-message": "An address in " ~ KEYCLOAK_EMAIL_DOMAIN ~ " is a mailbox of this platform and cannot be the secondary address."
+}}) %}
+{% endif %}
+{% if not (KEYCLOAK_EMAIL_MAILBOX | bool) or (KEYCLOAK_EMAIL_SECONDARY_REQUIRED | bool and KEYCLOAK_REGISTRATION_ALLOWED | bool) %}
+{% set _ = _email.update({"required": {"roles": ["user"]}}) %}
+{% endif %}
+{% set _mailbox_attrs = [{
+  "name": KEYCLOAK_EMAIL_MAILBOX_ATTRIBUTE,
+  "displayName": "Mailbox",
+  "validations": {"email": {}, "length": {"max": 255}},
+  "annotations": {},
+  "permissions": {"view": ["admin","user"], "edit": ["admin"]},
+  "multivalued": false
+}] if KEYCLOAK_EMAIL_MAILBOX | bool else [] %}
+{% set _export_attrs = [{
+  "name": KEYCLOAK_EXPORT_RECIPIENT_ATTRIBUTE,
+  "displayName": "Export recipient (age public key)",
+  "validations": {"pattern": {
+    "pattern": KEYCLOAK_EXPORT_RECIPIENT_PATTERN,
+    "error-message": "Enter exactly one age recipient: age1 followed by 58 lowercase bech32 characters."
+  }},
+  "annotations": {},
+  "permissions": {"view": ["admin","user"], "edit": ["user"]},
+  "group": "user-metadata",
+  "multivalued": false
+}] if KEYCLOAK_ORGANIZATIONS_ENABLED | bool else [] %}
 {% set _base_attrs = [
   {
     "name": "username",
     "displayName": "${username}",
     "validations": {
-      "length": { "min": 3, "max": IAM_USERNAME_MAX_LENGTH },
+      "length": { "min": 3, "max": IAM_ACCOUNT_MAX_LENGTH },
       "pattern": {
-        "pattern": "^(?!(?:" ~ KEYCLOAK_RESERVED_USERNAMES_REGEX | replace('\\', '\\\\') ~ ")$)[a-z0-9]+$",
-        "error-message": "Username is reserved or contains invalid characters. Only lowercase letters (a–z) and digits (0–9) are allowed."
+        "pattern": "^(?!(?:" ~ KEYCLOAK_RESERVED_USERNAMES_REGEX | replace('\\', '\\\\') ~ ")$)" ~ _profile.lookaheads ~ "(?:[a-z1-9]+|[a-z1-9]{4}0[a-z1-9]+)$",
+        "error-message": "Username is reserved or contains invalid characters. Only lowercase letters (a–z) and digits (1–9) are allowed."
       }
     },
     "annotations": {},
     "permissions": {"view": ["admin","user"], "edit": ["admin","user"]},
     "multivalued": false
   },
-  {
-    "name": "email",
-    "displayName": "${email}",
-    "validations": {"email": {}, "length": {"max": 255}},
-    "required": {"roles": ["user"]},
-    "permissions": {"view": ["admin","user"], "edit": ["admin"]},
-    "multivalued": false
-  },
+  _email,
   {
     "name": "firstName",
     "displayName": "${firstName}",
@@ -77,17 +104,35 @@
     "permissions": {"view": ["admin","user"], "edit": ["admin"]},
     "group": "user-metadata",
     "multivalued": false
+  },
+  {
+    "name": LDAP.USER.ATTRIBUTES.NEXTCLOUD_QUOTA,
+    "displayName": "Nextcloud quota",
+    "validations": {"integer": {}},
+    "annotations": {},
+    "permissions": {"view": ["admin","user"], "edit": ["admin"]},
+    "group": "user-metadata",
+    "multivalued": false
+  },
+  {
+    "name": OIDC.ATTRIBUTES.NEXTCLOUD_UID,
+    "displayName": "Nextcloud user id",
+    "validations": {"length": {"max": 64}},
+    "annotations": {},
+    "permissions": {"view": ["admin"], "edit": ["admin"]},
+    "group": "user-metadata",
+    "multivalued": false
   }
 ] %}
 {% set user_profile = {
-  "attributes": _base_attrs + (_moodle_attrs if KEYCLOAK_MOODLE_ENABLED | bool else []),
+  "attributes": _base_attrs + _mailbox_attrs + _export_attrs + _profile.attrs,
   "groups": [
     {
       "name": "user-metadata",
       "displayHeader": "User metadata",
       "displayDescription": "Attributes, which refer to user metadata"
     }
-  ] + ([_moodle_group] if KEYCLOAK_MOODLE_ENABLED | bool else [])
+  ] + _profile.groups
 } %}
 "org.keycloak.userprofile.UserProfileProvider": [
   {

@@ -19,7 +19,7 @@ def _line_of(lines: list[str], setting: str) -> int:
 
 
 class TestDiscourseOidcSettingOrder(unittest.TestCase):
-    def test_oidc_is_enabled_only_after_its_prerequisites_are_set(self) -> None:
+    def test_oidc_is_enabled_only_after_its_prerequisites_are_set(self) -> None:  # nocheck: test.text-presence -- asserts assignment order Discourse validates at runtime  # fmt: skip
         lines = read_text(str(SETTINGS)).splitlines()
         enable = _line_of(lines, "openid_connect_enabled")
         for setting in PREREQUISITES:
@@ -31,6 +31,15 @@ class TestDiscourseOidcSettingOrder(unittest.TestCase):
                     "database until the discovery document, client ID and client "
                     "secret are set",
                 )
+
+    def test_email_override_is_set_only_after_email_editing_is_locked(self) -> None:  # nocheck: test.text-presence -- asserts assignment order Discourse validates at runtime  # fmt: skip
+        lines = read_text(str(SETTINGS)).splitlines()
+        self.assertLess(
+            _line_of(lines, "email_editable"),
+            _line_of(lines, "auth_overrides_email"),
+            "SsoOverridesEmailValidator rejects auth_overrides_email = true while "
+            "email_editable is still true",
+        )
 
 
 if __name__ == "__main__":

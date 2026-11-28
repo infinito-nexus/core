@@ -15,9 +15,7 @@ line or the one above it. The mirror case is the reason the second one exists:
 a tag whose bytes moved is worth pinning past, even though the tag exists.
 
 Opt-in external test: it reads live third-party registries and runs only under
-the external suite. The offline sibling at
-[test_semver_pinning.py](../../../lint/ansible/services/test_semver_pinning.py)
-warns about the same pins without failing.
+the external suite.
 """
 
 from __future__ import annotations
@@ -72,7 +70,9 @@ class TestImagePinPolicy(unittest.TestCase):
             f"  roles/{ref.role}/{ROLE_FILE_META_SERVICES}: {ref.service} pins "
             f"{ref.version!r}, which is neither a version nor a digest"
             for ref in refs
-            if pin_class(ref.version) == REF and not _declared(ref, RULE_BY_CLASS[REF])
+            if not ref.derived
+            and pin_class(ref.version) == REF
+            and not _declared(ref, RULE_BY_CLASS[REF])
         ]
 
         if offenders:

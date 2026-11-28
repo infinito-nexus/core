@@ -20,6 +20,12 @@ when shared, the embedded ``<entity>-<engine>`` sidecar otherwise::
 
     FOO_CONTAINER: "{{ lookup('engine', 'memcached', application_id, 'container') }}"
 
+A container the controller's dev stack runs, outside every role, is named by
+the ``.env`` generator, and the role reads that name whole from the
+controller environment::
+
+    FOO_CONTAINER: "{{ lookup('env', 'INFINITO_INFRA_RUNNER_CONTAINER') }}"
+
 Hard-coding the name (``FOO_CONTAINER: "foo"``) or composing it inline
 bypasses both: the value drifts from the role's declared identity. And if
 the var *does* use the lookup but the service has no ``name:`` field, the
@@ -74,7 +80,25 @@ _ENTITY_NAME_RE = re.compile(
     r"^\{\{\s*(?:entity_name|[A-Za-z_]\w*\s*\|\s*entity_name)\s*\}\}$"
 )
 
+_ENV_NAME_RE = re.compile(
+    r"""^\{\{\s*lookup\(\s*(['"])env\1\s*,\s*(['"])[A-Z][A-Z0-9_]*\2\s*\)\s*\}\}$"""
+)
+
 _SERVICE_KEY_RE = re.compile(r"services\.(?P<key>.*?)\.name", re.DOTALL)
+
+
+def _owned_without_service(value: str) -> bool:
+    """Whether a value takes its container name whole from an owner other than a role service.
+
+    Args:
+        value: the var's value as written in ``vars/main.yml``.
+    """
+    bare = value.strip().strip("\"'")
+    return bool(
+        _ENTITY_NAME_RE.match(bare)
+        or _ENV_NAME_RE.match(bare)
+        or _USES_ENGINE_CONTAINER_RE.search(value)
+    )
 
 
 def _is_vars_main(rel_path: str) -> bool:
@@ -109,7 +133,7 @@ def _service_declares_name(services_doc: dict, service_key: str) -> bool:
 
 
 class TestContainerVarNameLookup(unittest.TestCase):
-    def test_container_vars_use_name_lookup(self) -> None:
+    def test_container_vars_use_name_lookup(self) -> None:  # nocheck: test.text-presence -- policy lint over every role vars file  # fmt: skip
         missing_lookup: list[tuple[str, int, str]] = []
         missing_name: list[tuple[str, int, str]] = []
 
@@ -136,9 +160,7 @@ class TestContainerVarNameLookup(unittest.TestCase):
                     continue
 
                 value = match.group("val")
-                if _ENTITY_NAME_RE.match(value.strip().strip("\"'")):
-                    continue
-                if _USES_ENGINE_CONTAINER_RE.search(value):
+                if _owned_without_service(value):
                     continue
                 if not _USES_NAME_LOOKUP_RE.search(value):
                     missing_lookup.append((rel, idx + 1, match.group("name")))
@@ -190,6 +212,22 @@ class TestContainerVarNameLookup(unittest.TestCase):
 
         if messages:
             self.fail("\n\n".join(messages))
+
+    def test_only_a_whole_env_name_is_owned_by_the_controller(self) -> None:
+        for value, owned in (
+            ("\"{{ lookup('env', 'INFINITO_INFRA_RUNNER_CONTAINER') }}\"", True),
+            ('"{{ entity_name }}"', True),
+            ("\"{{ lookup('engine', 'redis', application_id, 'container') }}\"", True),
+            ('"runner"', False),
+            ("\"{{ lookup('env', 'INFINITO_INFRA_RUNNER_CONTAINER') }}-lane\"", False),
+            (
+                "\"{{ lookup('env', 'INFINITO_INFRA_RUNNER_CONTAINER', default='x') }}\"",
+                False,
+            ),
+            ("\"{{ lookup('env', RUNNER_KEY) }}\"", False),
+        ):
+            with self.subTest(value=value):
+                self.assertEqual(owned, _owned_without_service(value))
 
 
 if __name__ == "__main__":  # pragma: no cover

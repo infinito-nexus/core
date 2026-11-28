@@ -1,10 +1,4 @@
 ---
-- name: "🧩 load docker, proxy and db for '{{ application_id }}'"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-
 - name: "👔 Decidim manager-side operations (file deploys + container exec)"
   include_tasks: 02_manager_ops.yml
   when: IS_STACK_HOST | bool

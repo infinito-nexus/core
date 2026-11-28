@@ -14,6 +14,8 @@ from typing import TYPE_CHECKING
 
 from ansible.module_utils.testing import patch_module_args
 
+from tests.utils.unprivileged import unprivileged
+
 from . import PROJECT_ROOT
 
 if TYPE_CHECKING:
@@ -207,7 +209,7 @@ class DirectoryBatchTests(unittest.TestCase):
         self.assertTrue(result["failed"])
         self.assertIn("not an absolute path", result["msg"])
 
-    @unittest.skipIf(os.geteuid() == 0, "root ignores directory permissions")
+    @unprivileged
     def test_unwritable_parent_fails_loudly(self):
         parent = self._path("locked")
         self._mkdir(parent, 0o500)

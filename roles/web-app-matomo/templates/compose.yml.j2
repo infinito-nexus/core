@@ -8,10 +8,14 @@
       args:
         MATOMO_IMAGE: "{{ lookup('config', application_id, 'services.' ~ MATOMO_SERVICE ~ '.image') }}"
         MATOMO_VERSION: "{{ MATOMO_VERSION }}"
+        MATOMO_OIDC_PLUGIN_SOURCE: "{{ MATOMO_OIDC_PLUGIN_SOURCE }}"
+        MATOMO_OIDC_PLUGIN_ARCHIVE: "{{ MATOMO_OIDC_PLUGIN_ARCHIVE }}"
+        MATOMO_RELEASE_DIR: "{{ MATOMO_RELEASE_DIR }}"
     {{ lookup('container_ports', ['matomo', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_depends_on', application_id) | indent(4) }}
+    {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 
   {% set service_name = MATOMO_BOOTSTRAP_SERVICE %}

@@ -1,0 +1,9 @@
+---
+status_codes:
+  default:
+    - 200
+    - 302
+vhosts:
+  default:
+    http_port: "{{ lookup('config', 'web-app-grafana', 'services.grafana.ports.local.grafana') }}"
+    internal_port: "{{ lookup('config', 'web-app-grafana', 'services.grafana.ports.internal.grafana') }}"

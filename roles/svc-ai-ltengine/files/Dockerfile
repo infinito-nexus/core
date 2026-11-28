@@ -61,4 +61,4 @@ RUN useradd --system --no-create-home --shell /usr/sbin/nologin ltengine \
 COPY --from=build /out/ltengine /usr/local/bin/ltengine
 
 USER ltengine
-CMD ["sh", "-c", "exec ltengine --host \"${LTENGINE_HOST}\" --port \"${LTENGINE_PORT}\" --model \"${LTENGINE_MODEL}\" --char-limit \"${LTENGINE_CHAR_LIMIT}\""]
+CMD ["sh", "-c", "exec ltengine --host \"${LTENGINE_HOST}\" --port \"${LTENGINE_PORT}\" --model \"${LTENGINE_MODEL}\" --model-file \"${LTENGINE_MODEL_FILE}\" --char-limit \"${LTENGINE_CHAR_LIMIT}\""]

@@ -100,6 +100,42 @@ class TestBuildDevInventory(unittest.TestCase):
         self.assertEqual(baked["RUNTIME"], "dev")
 
     @patch(
+        "cli.administration.deploy.development.inventory.payload.get_variant_overrides_only",
+        autospec=True,
+        return_value={
+            "web-app-multi": [
+                {
+                    "domains": {
+                        "canonical": {
+                            "web": "multi.example",
+                            "provider": "provider.multi.example",
+                        }
+                    }
+                },
+            ],
+        },
+    )
+    @patch(
+        "cli.administration.deploy.development.inventory.builder.should_use_mirrors",
+        autospec=True,
+        return_value=False,
+    )
+    def test_baked_canonical_domains_keep_their_declared_order(
+        self,
+        _mirrors_mock: MagicMock,
+        _variants_mock: MagicMock,
+    ) -> None:
+        build_dev_inventory(self.compose, make_spec(include=("web-app-multi",)))
+
+        first_cmd = self.compose.exec.call_args_list[0].args[0]
+        baked = json.loads(first_cmd[first_cmd.index("--vars") + 1])
+
+        self.assertEqual(
+            list(baked["applications"]["web-app-multi"]["domains"]["canonical"]),
+            ["web", "provider"],
+        )
+
+    @patch(
         "cli.administration.deploy.development.inventory.builder.generate_ci_mirrors_file",
         autospec=True,
         return_value="/etc/mirrors.yml",

@@ -146,7 +146,9 @@ class TestApplicationIdSurvivesAForeignLoad(unittest.TestCase):
             task
             for doc in load_yaml_all_str(read_text(str(INCLUDE_SITE)))
             if doc
-            for task in doc
+            for entry in doc
+            if isinstance(entry, dict)
+            for task in (entry, *(entry.get("block") or []))
             if isinstance(task, dict) and "ansible.builtin.include_role" in task
         ]
         self.assertTrue(tasks, f"no include_role task in {INCLUDE_SITE}")

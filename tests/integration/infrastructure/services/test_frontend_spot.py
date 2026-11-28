@@ -1,15 +1,78 @@
+import importlib.util
 import unittest
-from pathlib import Path
 
-from utils.cache.files import read_text
+from jinja2 import StrictUndefined, select_autoescape
+from jinja2.nativetypes import NativeEnvironment
+
+from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.services.registry import (
     build_service_registry_from_roles_dir,
     load_applications_from_roles_dir,
     ordered_primary_service_entries,
 )
-from utils.roles.mapping import ROLE_FILE_TASKS_MAIN
+from utils.roles.entity.name import entity_name
 
 from . import PROJECT_ROOT
+
+STACK = PROJECT_ROOT / "roles" / "svc-stack"
+CONSUMER = "web-app-gitea"
+CANONICAL_DOMAIN = "git.infinito.test"
+CANONICAL_PORT = 8031
+DECLARED_PORT = 9000
+
+
+def _include(tasks_file: str) -> dict:
+    """
+    Args:
+        tasks_file: a task file of svc-stack, relative to its tasks directory.
+
+    Returns:
+        The file's include_tasks task.
+    """
+    return next(
+        task
+        for task in load_yaml_any(str(STACK / "tasks" / tasks_file))
+        if "ansible.builtin.include_tasks" in task
+    )
+
+
+def _stack_vhosts():
+    spec = importlib.util.spec_from_file_location(
+        "stack_vhosts", STACK / "filter_plugins" / "stack_vhosts.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)  # type: ignore[union-attr]
+    return module.stack_vhosts
+
+
+def _lookup(name, *args):
+    if name == "config":
+        canonical = {
+            f"services.{entity_name(CONSUMER)}.ports.local.http": CANONICAL_PORT
+        }
+        return canonical.get(args[1], args[2])
+    if name == "domain":
+        return CANONICAL_DOMAIN
+    if name == "domains":
+        return []
+    raise AssertionError(f"unexpected lookup({name!r}, ...)")
+
+
+def _render(expression: str, **variables):
+    """
+    Args:
+        expression: one Jinja expression of a svc-stack task.
+        variables: the variables the task sees.
+
+    Returns:
+        The native value the expression renders to.
+    """
+    env = NativeEnvironment(
+        undefined=StrictUndefined,
+        autoescape=select_autoescape(default_for_string=False),
+    )
+    env.filters.update(entity_name=entity_name, stack_vhosts=_stack_vhosts())
+    return env.from_string(expression).render(lookup=_lookup, **variables)
 
 
 class TestFrontendServiceSpot(unittest.TestCase):
@@ -52,23 +115,30 @@ class TestFrontendServiceSpot(unittest.TestCase):
         self.assertLess(
             self._index("web-app-stalwart"), self._index("web-app-keycloak")
         )
-        self.assertLess(self._index("web-app-mailu"), self._index("web-app-keycloak"))
+        self.assertLess(self._index("web-app-email"), self._index("web-app-keycloak"))
 
+
+class TestFrontProxyFallback(unittest.TestCase):
     def test_front_proxy_falls_back_to_canonical_port_and_domain(self):
-        content = read_text(
-            str(Path(f"roles/sys-stk-front-proxy/{ROLE_FILE_TASKS_MAIN}"))
+        vhosts = _render(_include("proxy.yml")["loop"], application_id=CONSUMER)
+        self.assertEqual(vhosts, [{"key": "default", "domain": CANONICAL_DOMAIN}])
+        self.assertEqual(
+            _render(
+                _include("proxy/domain.yml")["vars"]["front_proxy_http_port"],
+                front_proxy_vhost=vhosts[0],
+                front_proxy_application_id=CONSUMER,
+            ),
+            CANONICAL_PORT,
         )
-        self.assertIn(
-            "lookup('config', application_id,",
-            content,
-        )
-        self.assertIn(
-            ".ports.local.http",
-            content,
-        )
-        self.assertIn(
-            "domain | default(lookup('domain', application_id))",
-            content,
+
+    def test_a_declared_vhost_port_wins_over_the_canonical_port(self):
+        self.assertEqual(
+            _render(
+                _include("proxy/domain.yml")["vars"]["front_proxy_http_port"],
+                front_proxy_vhost={"http_port": DECLARED_PORT},
+                front_proxy_application_id=CONSUMER,
+            ),
+            DECLARED_PORT,
         )
 
 

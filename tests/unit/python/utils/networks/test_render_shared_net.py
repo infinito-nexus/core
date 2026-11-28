@@ -65,7 +65,7 @@ class TestOwnSharedNetProvider(unittest.TestCase):
         self.assertFalse(_own_shared_net_provider(consumer, "baserow", _entity_name))
         self.assertFalse(_own_shared_net_provider([], "seaweedfs", _entity_name))
 
-    def test_compose_default_drops_name_and_subnet(self):
+    def test_compose_default_drops_name_and_subnet(self):  # nocheck: test.text-presence -- asserts on the output of render_compose_networks, which it runs  # fmt: skip
         rendered = render_compose_networks(
             application_id="web-svc-seaweedfs",
             deployment_mode="compose",
@@ -81,7 +81,7 @@ class TestOwnSharedNetProvider(unittest.TestCase):
         self.assertNotIn("192.168.206", rendered)
         self.assertNotIn("name: seaweedfs", rendered)
 
-    def test_swarm_default_is_nameless_overlay(self):
+    def test_swarm_default_is_nameless_overlay(self):  # nocheck: test.text-presence -- asserts on the output of render_compose_networks, which it runs  # fmt: skip
         rendered = render_compose_networks(
             application_id="web-svc-seaweedfs",
             deployment_mode="swarm",

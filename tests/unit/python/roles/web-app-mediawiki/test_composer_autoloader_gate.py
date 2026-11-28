@@ -51,7 +51,7 @@ def _guards(template: str) -> dict[str, str]:
 
 
 class TestComposerAutoloaderGate(unittest.TestCase):
-    def test_composer_autoloaded_extensions_wait_for_their_vendor_tree(self) -> None:
+    def test_composer_autoloaded_extensions_wait_for_their_vendor_tree(self) -> None:  # nocheck: test.text-presence -- parses the PHP block nesting around each extension load  # fmt: skip
         for extension, template in COMPOSER_AUTOLOADED.items():
             with self.subTest(extension=extension):
                 guard = _guards(template)[extension]

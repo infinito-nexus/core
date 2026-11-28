@@ -1,0 +1,74 @@
+---
+# Param: openldap_mailbox_secondaries - mapping of login to the address an entry without a secondary address gets as such
+- name: 📊 Gather every user entry for the mailbox layout
+  community.general.ldap_search:
+    server_uri: "{{ OPENLDAP_SERVER_URI }}"
+    bind_dn: "{{ OPENLDAP_BIND_DN }}"
+    bind_pw: "{{ OPENLDAP_BIND_PW }}"
+    dn: "{{ LDAP.DN.OU.USERS }}"
+    scope: subordinate
+    filter: "{{ LDAP.FILTERS.USERS.ALL }}"
+    attrs:
+      - dn
+      - "{{ LDAP.USER.ATTRIBUTES.ID }}"
+      - "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
+  register: openldap_mailbox_users
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: ➕ Attach the secondary address class to every user entry
+  ldap_entries:
+    server_uri: "{{ OPENLDAP_SERVER_URI }}"
+    bind_dn: "{{ OPENLDAP_BIND_DN }}"
+    bind_pw: "{{ OPENLDAP_BIND_PW }}"
+    state: present
+    entries: >-
+      {{ openldap_mailbox_users.results | map(attribute='dn')
+         | ldap_dn_entries({'objectClass': [LDAP.USER.OBJECTS.AUXILIARY.INFINITO_MAILBOX_USER]}) }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: ✉️ Keep the current external address of every entry as its secondary address
+  ldap_entries:
+    server_uri: "{{ OPENLDAP_SERVER_URI }}"
+    bind_dn: "{{ OPENLDAP_BIND_DN }}"
+    bind_pw: "{{ OPENLDAP_BIND_PW }}"
+    state: missing
+    entries: >-
+      {{ openldap_mailbox_users.results
+         | openldap_current_mail_secondary_entries(LDAP.USER.ATTRIBUTES.MAIL,
+                                                   LDAP.USER.ATTRIBUTES.SECONDARY_MAIL,
+                                                   OPENLDAP_MAIL_DOMAIN) }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: ✉️ Seed the secondary address of every entry that holds none
+  ldap_entries:
+    server_uri: "{{ OPENLDAP_SERVER_URI }}"
+    bind_dn: "{{ OPENLDAP_BIND_DN }}"
+    bind_pw: "{{ OPENLDAP_BIND_PW }}"
+    state: missing
+    entries: >-
+      {{ openldap_mailbox_users.results
+         | openldap_secondary_mail_entries(openldap_mailbox_secondaries,
+                                           LDAP.USER.ATTRIBUTES.ID,
+                                           LDAP.USER.ATTRIBUTES.SECONDARY_MAIL,
+                                           OPENLDAP_MAIL_DOMAIN) }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: 📮 Set the primary address of every entry to its mailbox
+  ldap_entries:
+    server_uri: "{{ OPENLDAP_SERVER_URI }}"
+    bind_dn: "{{ OPENLDAP_BIND_DN }}"
+    bind_pw: "{{ OPENLDAP_BIND_PW }}"
+    state: exact
+    entries: >-
+      {{ openldap_mailbox_users.results
+         | openldap_mailbox_entries(LDAP.USER.ATTRIBUTES.ID,
+                                    LDAP.USER.ATTRIBUTES.MAIL,
+                                    OPENLDAP_MAIL_DOMAIN) }}
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: ⏱️ Let the RBAC sync timer seed the mailbox of accounts created at runtime
+  ansible.builtin.include_role:
+    name: sys-ctl-mtn-rbac-sync
+    tasks_from: mailbox.yml
+  vars:
+    rbac_sync_mailbox_enabled: true

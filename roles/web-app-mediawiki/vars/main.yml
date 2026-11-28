@@ -36,16 +36,29 @@ MEDIAWIKI_ADMINISTRATOR_PASSWORD: "{{ lookup('users', 'platform_administrator').
 MEDIAWIKI_ADMINISTRATOR_EMAIL: "{{ lookup('users', 'platform_administrator').email }}"
 MEDIAWIKI_SECRET_KEY: "{{ lookup('config', application_id, 'secrets.credentials.secret_key') }}"
 
-MEDIAWIKI_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
-MEDIAWIKI_OIDC_CLIENT_ID: "{{ OIDC.CLIENT.ID }}"
+MEDIAWIKI_LOGIN_SSO: "{{ lookup('config', application_id, 'services.mediawiki.login.method.sso.enabled') | bool }}"
+MEDIAWIKI_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.mediawiki.login.method.registration.enabled') | bool }}"
+MEDIAWIKI_LOCAL_PASSWORD_LOGIN: "{{ lookup('config', application_id, 'services.mediawiki.login.method.native.enabled') | bool }}"
+MEDIAWIKI_OIDC_ENABLED: "{{ (lookup('config', application_id, 'services.sso.enabled') | bool) and (MEDIAWIKI_LOGIN_SSO | bool) }}"
+MEDIAWIKI_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.clients.web') }}"
 MEDIAWIKI_OIDC_CLIENT_SECRET: "{{ OIDC.CLIENT.SECRET }}"
 MEDIAWIKI_OIDC_ISSUER: "{{ OIDC.CLIENT.ISSUER_URL }}"
-MEDIAWIKI_OIDC_ONION_ISSUER: "{{ lookup('tls', 'web-app-keycloak', 'domain').endswith('.onion') }}"
+MEDIAWIKI_OIDC_ONION_ISSUER: "{{ (lookup('tls', 'web-app-keycloak', 'domain') | network_of) == 'tor' }}"
 MEDIAWIKI_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if MEDIAWIKI_OIDC_ONION_ISSUER | bool else '' }}"
 MEDIAWIKI_OIDC_BUTTON_TEXT: "{{ OIDC.BUTTON_TEXT }}"
-MEDIAWIKI_OIDC_AUTOLOGIN: true
-MEDIAWIKI_OIDC_LOCALLOGIN: false
-MEDIAWIKI_LOCAL_PASSWORD_LOGIN: "{{ (not (MEDIAWIKI_OIDC_ENABLED | bool)) or (MEDIAWIKI_OIDC_LOCALLOGIN | bool) }}"
+MEDIAWIKI_OIDC_AUTOLOGIN: "{{ not (MEDIAWIKI_LOCAL_PASSWORD_LOGIN | bool or MEDIAWIKI_LOGIN_REGISTRATION | bool) }}"
+MEDIAWIKI_RBAC_ADMINISTRATOR_PATH: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+MEDIAWIKI_RBAC_BUREAUCRAT_PATH: "/{{ lookup('rbac_group_path', application_id=application_id, role='bureaucrat') }}"
+MEDIAWIKI_RBAC_INTERFACE_ADMIN_PATH: "/{{ lookup('rbac_group_path', application_id=application_id, role='interface-admin') }}"
+MEDIAWIKI_RBAC_GROUP_MAP:
+  sysop:
+    - "{{ MEDIAWIKI_RBAC_ADMINISTRATOR_PATH }}"
+  bureaucrat:
+    - "{{ MEDIAWIKI_RBAC_ADMINISTRATOR_PATH }}"
+    - "{{ MEDIAWIKI_RBAC_BUREAUCRAT_PATH }}"
+  interface-admin:
+    - "{{ MEDIAWIKI_RBAC_ADMINISTRATOR_PATH }}"
+    - "{{ MEDIAWIKI_RBAC_INTERFACE_ADMIN_PATH }}"
 
 MEDIAWIKI_OBJSTORE_ENABLED: "{{ lookup('objstore', application_id, 'enabled') | bool }}"
 MEDIAWIKI_OBJSTORE_BUCKET: "{{ lookup('objstore', application_id, 'bucket') }}"
@@ -61,7 +74,7 @@ MEDIAWIKI_LITELLM_CONNECTION:
   url: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
   endpoint: "chat/completions"
   model: "{{ LITELLM_CHAT_MODEL }}"
-  secret: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+  secret: "{{ lookup('litellm_api_key', application_id) }}"
 MEDIAWIKI_LITELLM_HTTP_TIMEOUT: 120
 
 MEDIAWIKI_TRANSLATE_ENABLED: "{{ lookup('config', application_id, 'services.translate.enabled') | bool }}"

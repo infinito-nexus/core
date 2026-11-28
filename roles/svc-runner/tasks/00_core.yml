@@ -1,24 +1,93 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: 🧭 Validate the runner flavor
+  ansible.builtin.assert:
+    that:
+      - RUNNER_FLAVOR in RUNNER_FLAVORS
+    fail_msg: >-
+      services.runner.flavor '{{ RUNNER_FLAVOR }}' must be one of
+      {{ RUNNER_FLAVORS | list | join(', ') }}
+    quiet: true
+
+- name: 🧭 Validate the checkout, image and user of the pool runners
+  ansible.builtin.assert:
+    that:
+      - RUNNER_SRC_DIR | length > 0
+      - RUNNER_TOOLCHAIN_IMAGE | length > 0
+      - RUNNER_OPERATOR_UID | string is match('[1-9][0-9]*$')
+      - RUNNER_OPERATOR_GID | string is match('[1-9][0-9]*$')
+    fail_msg: >-
+      the {{ RUNNER_FLAVOR }} flavor runs its pool loop from
+      services.runner.src_dir in services.runner.toolchain_image as
+      services.runner.operator_uid:operator_gid, a user other than root;
+      make infra-update sets them from INFINITO_RUNNER_SRC_DIR (export the
+      checkout whose code the pool runs, below a worktree root, in .env or
+      the environment), INFINITO_IMAGE and the invoking user
+      (got {{ [RUNNER_SRC_DIR, RUNNER_TOOLCHAIN_IMAGE, RUNNER_OPERATOR_UID,
+      RUNNER_OPERATOR_GID] | to_json }})
+    quiet: true
+  when: RUNNER_TAKES_LOCAL_JOBS | bool
+
+- name: 🧭 Validate the worktree roots the runner flavor mounts
+  ansible.builtin.assert:
+    that:
+      - >-
+        RUNNER_WORKTREE_ROOTS is sequence
+        and RUNNER_WORKTREE_ROOTS is not string
+        and RUNNER_WORKTREE_ROOTS is not mapping
+        and RUNNER_WORKTREE_ROOTS | length > 0
+        and RUNNER_WORKTREE_ROOTS | reject('string') | list | length == 0
+        and RUNNER_WORKTREE_ROOTS | reject('match', '/[^/]') | list | length == 0
+        and RUNNER_WORKTREE_ROOTS | select('search', '(^|/)[.][.]?(/|$)')
+        | list | length == 0
+        and RUNNER_WORKTREE_ROOTS | select('search', ':') | list | length == 0
+        and RUNNER_WORKTREE_ROOTS | map('regex_replace', '/+', '/')
+        | map('regex_replace', '/$', '')
+        | select('match', '/(root|home(/[^/]+)?|Users(/[^/]+)?|var(/home(/[^/]+)?)?)$')
+        | list | length == 0
+      - >-
+        RUNNER_SRC_DIR is match('/[^/]')
+        and RUNNER_SRC_DIR is not search('(^|/)[.][.]?(/|$)')
+        and RUNNER_SRC_DIR is match('(' ~
+        (RUNNER_WORKTREE_ROOTS | map('regex_replace', '/+$', '')
+        | map('regex_escape') | join('|')) ~ ')(/|$)')
+    fail_msg: >-
+      the {{ RUNNER_FLAVOR }} flavor mounts its worktree roots and needs
+      services.runner.worktree_roots as a list of absolute directories other
+      than /, without ':' and neither a home directory nor a parent of one,
+      that holds its checkout {{ RUNNER_SRC_DIR }}
+      (roots: {{ RUNNER_WORKTREE_ROOTS | to_json }})
+    quiet: true
+  when: RUNNER_MOUNTS_WORKTREES | bool
+
+- name: 🧭 Validate the job queue the runner flavor takes its jobs from
+  ansible.builtin.assert:
+    that:
+      - >-
+        RUNNER_QUEUE_DIR is string
+        and RUNNER_QUEUE_DIR is match('/[^/]')
+        and RUNNER_QUEUE_DIR is not search('(^|/)[.][.]?(/|$)')
+        and RUNNER_QUEUE_DIR is not search(':')
+    fail_msg: >-
+      the {{ RUNNER_FLAVOR }} flavor takes its jobs from a local queue and
+      needs services.runner.queue_dir as an absolute directory other than /,
+      without ':' (got {{ RUNNER_QUEUE_DIR | to_json }})
+    quiet: true
+  when: RUNNER_TAKES_LOCAL_JOBS | bool
+
 - name: 🐳 Ensure Docker is installed and running
   ansible.builtin.include_role:
     name: sys-svc-container
     tasks_from: 00_core.yml
   when: run_once_sys_svc_container is not defined
 
-- name: 🔧 Tune kernel inotify limits for parallel runner containers
-  ansible.posix.sysctl:
-    name: "{{ item.key }}"
-    value: "{{ item.value }}"
-    state: present
-    reload: true
-    sysctl_file: "{{ RUNNER_SYSCTL_CONF }}"
-  loop:
-    - { key: fs.inotify.max_user_instances, value: "8192" }
-    - { key: fs.inotify.max_user_watches, value: "524288" }
-    - { key: fs.inotify.max_queued_events, value: "65536" }
-  when: not (DOCKER_IN_CONTAINER | bool)
+- name: 🔧 Tune the runner-host kernel limits for parallel DiD containers
+  ansible.builtin.include_role:
+    name: sys-sysctl
+  vars:
+    sys_sysctl_owner: "{{ RUNNER_SYSCTL_OWNER }}"
+    sys_sysctl_parameters: "{{ RUNNER_SYSCTL_PARAMETERS }}"
 
 - name: 👥 Create GitHub Actions runner system group
   group:
@@ -54,26 +123,33 @@
     group: "{{ RUNNER_USER }}"
     mode: "0755"
 
-- name: 🔍 Fetch latest GitHub Actions runner version tag
-  uri_retry:
-    url: https://api.github.com/repos/actions/runner/releases/latest
-    return_content: true
-  register: _runner_latest_release
-  delegate_to: localhost
-  become: false
-  changed_when: false
+- name: 📂 Provide the local job queue and its Docker socket for the queue group
+  include_tasks: 01_queue.yml
+  when: RUNNER_TAKES_LOCAL_JOBS | bool
 
-- name: 🏷️ Set resolved runner version
-  set_fact:
-    runner_resolved_version: "{{ _runner_latest_release.json.tag_name | regex_replace('^v', '') }}"
+- name: 📦 Provide the GitHub Actions runner binary
+  when: RUNNER_REGISTERS_WITH_GITHUB | bool
+  block:
+    - name: 🔍 Fetch latest GitHub Actions runner version tag
+      uri_retry:
+        url: https://api.github.com/repos/actions/runner/releases/latest
+        return_content: true
+      register: _runner_latest_release
+      delegate_to: localhost
+      become: false
+      changed_when: false
 
-- name: ⬇️ Download GitHub Actions runner binary
-  get_url_retry:
-    url: "https://github.com/actions/runner/releases/download/v{{ runner_resolved_version }}/actions-runner-linux-x64-{{ runner_resolved_version }}.tar.gz"
-    dest: "{{ RUNNER_INSTALL_DIR }}/actions-runner.tar.gz"
-    owner: "{{ RUNNER_USER }}"
-    group: "{{ RUNNER_USER }}"
-    mode: "0644"
+    - name: 🏷️ Set resolved runner version
+      set_fact:
+        runner_resolved_version: "{{ _runner_latest_release.json.tag_name | regex_replace('^v', '') }}"
+
+    - name: ⬇️ Download GitHub Actions runner binary
+      get_url_retry:
+        url: "https://github.com/actions/runner/releases/download/v{{ runner_resolved_version }}/actions-runner-linux-x64-{{ runner_resolved_version }}.tar.gz"
+        dest: "{{ RUNNER_INSTALL_DIR }}/actions-runner.tar.gz"
+        owner: "{{ RUNNER_USER }}"
+        group: "{{ RUNNER_USER }}"
+        mode: "0644"
 
 - name: 🔍 Find existing runner instance directories
   find:
@@ -94,7 +170,7 @@
          | list }}
 
 - name: 🗑️ Remove runner instances beyond RUNNER_COUNT
-  include_tasks: 01_cleanup_instance.yml
+  include_tasks: 02_cleanup_instance.yml
   loop: "{{ _runners_to_remove }}"
   loop_control:
     loop_var: runner_instance
@@ -151,12 +227,6 @@
     mode: "0755"
   loop: "{{ range(1, RUNNER_COUNT | int + 1) | list }}"
 
-- name: 🚀 Provision runner instances
-  include_tasks: 02_instance.yml
-  loop: "{{ range(1, RUNNER_COUNT | int + 1) | list }}"
-  loop_control:
-    loop_var: runner_instance
-
 - name: 🔍 Look up docker group GID
   ansible.builtin.command: getent group docker
   register: _docker_group_entry
@@ -167,24 +237,32 @@
   ansible.builtin.set_fact:
     _runner_docker_gid: "{{ (_docker_group_entry.stdout | split(':'))[2] | default(RUNNER_DOCKER_GID_FALLBACK) }}"
 
-- name: 🧩 Install compose wrapper
+- name: 🧩 Load the compose flow of the runner stack
   ansible.builtin.include_role:
     name: sys-svc-compose
-    tasks_from: 00_core.yml
-  when: run_once_sys_svc_compose is not defined
+  vars:
+    compose_handlers_flush: false
 
-- name: 📄 Render runner compose file
-  template: # nocheck: stack-host-template (node-local runner: every node renders + deploys its own compose stack)
-    src: compose.yml.j2
-    dest: "{{ RUNNER_INSTALL_DIR }}/compose.yml"
-    owner: "{{ RUNNER_USER }}"
-    group: "{{ RUNNER_USER }}"
-    mode: "0640"
-    lstrip_blocks: true
+- name: 📄 Stage the runner entrypoint into the build context
+  stack_host_copy:
+    src: "{{ RUNNER_ENTRYPOINT }}"
+    dest: "{{ [lookup('container', application_id, 'directories.instance'), 'entrypoint.sh'] | path_join }}"
+    mode: "0755"
+  notify:
+    - compose-build
+    - compose-up
 
-- name: 📦 Build and publish the runner image on the stack host
-  include_tasks: 03_image.yml
-  when: IS_STACK_HOST | bool
+- name: 🚀 Provision runner instances
+  include_tasks: 03_instance.yml
+  loop: "{{ range(1, RUNNER_COUNT | int + 1) | list }}"
+  loop_control:
+    loop_var: runner_instance
+
+- name: 📦 Build and publish the runner image to the swarm registry
+  include_tasks: 04_image.yml
+  when:
+    - IS_SWARM_MODE | bool
+    - IS_STACK_HOST | bool
 
 - name: 📥 Pull runner image from the swarm registry
   ansible.builtin.command:
@@ -195,10 +273,39 @@
   changed_when: true
   when: (SWARM_REGISTRY_PREFIX | length > 0) and not (IS_STACK_HOST | bool)
 
-- name: 🚀 Deploy runner compose stack
-  ansible.builtin.shell: |
-    set -euo pipefail
-    compose --chdir {{ RUNNER_INSTALL_DIR }} --project {{ application_id | entity_name }} up -d --remove-orphans
-  args:
-    executable: /bin/bash
-  changed_when: true
+- name: 🖥️ Prepare the node-local runner stack on a swarm worker
+  include_tasks: 05_node.yml
+  when: not (IS_STACK_HOST | bool)
+
+- name: 📌 Recreate the runner stack when the registry image of this node changed
+  when: SWARM_REGISTRY_PREFIX | length > 0
+  block:
+    - name: 🔍 Read the registry image id of the runner on this node
+      ansible.builtin.command:
+        argv:
+          - container
+          - image
+          - inspect
+          - "--format={% raw %}{{.Id}}{% endraw %}"
+          - "{{ RUNNER_IMAGE_REF }}"
+      register: _runner_image_id
+      changed_when: false
+
+    - name: 📌 Record the registry image id of the runner on this node
+      ansible.builtin.copy: # nocheck: stack-host-copy, stack-host-consumer (node-local runner: every swarm node records the image it runs)
+        content: "{{ _runner_image_id.stdout }}\n"
+        dest: "{{ [lookup('container', application_id, 'directories.instance'), '.image-id'] | path_join }}"
+        mode: "0640"
+      notify: compose-up
+
+- name: 🚿 Flush the compose handlers of the runner stack
+  ansible.builtin.meta: flush_handlers
+
+- name: 🧹 Remove the runner stack files the default instance dir replaced
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ [RUNNER_INSTALL_DIR, 'compose.yml'] | path_join }}"
+    - "{{ [RUNNER_INSTALL_DIR, 'build'] | path_join }}"
+    - /etc/sysctl.d/99-github-runner.conf

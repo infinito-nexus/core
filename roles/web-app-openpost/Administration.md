@@ -12,10 +12,14 @@ Instance admins manage users, provider apps and instance settings under **Settin
 
 ## Single sign-on
 
-The role configures OpenPost's instance-wide OIDC provider against the shared Keycloak client (`OIDC.CLIENT.*`) whenever `web-app-keycloak` is deployed.
+The role configures OpenPost's instance-wide OIDC provider against its own confidential Keycloak client `services.sso.oidc.clients.web` (`openpost-web`), rendered by [templates/keycloak/clients.json.j2](./templates/keycloak/clients.json.j2) with the shared client secret, whenever `web-app-keycloak` is deployed.
+
+- Keycloak sends that client's OIDC back-channel logout tokens to `/api/v1/auth/oidc/instance/backchannel-logout`, where `instance` is the id OpenPost gives the provider it builds from `OPENPOST_OIDC_*`.
+  OpenPost checks each token's signature, issuer, audience, expiry, event and missing `nonce` itself, answers every other token with HTTP 400 and revokes the OpenPost session whose stored Keycloak `sid` matches the token's.
+  A Keycloak logout therefore ends the matching OpenPost session at its next request; without one, an OpenPost session lives 7 days from sign-in.
 
 - Users sign in with the Keycloak button on the login page.
-  OpenPost provisions them just in time on their first verified login (`OPENPOST_OIDC_JIT_ENABLED=true`) and matches later logins by issuer and subject.
+  OpenPost provisions them just in time on their first verified login (`OPENPOST_OIDC_JIT_ENABLED=true`) and matches later logins by its provider `instance` and the subject, so switching the client id keeps every account.
 - The `platform_administrator` is listed in `OPENPOST_OIDC_BOOTSTRAP_ALLOWLIST` and becomes instance admin on its first SSO login.
 - A just-in-time user starts without access to existing workspaces.
   Grant access by inviting the user from the workspace's team settings; OpenPost does not consume Keycloak groups.
@@ -89,7 +93,7 @@ Variant 0 of `meta/variants.yml` starts a WireMock `simulator` on the role netwo
 Next to it runs the fake `provider`, a small stateful Python service built from `files/provider/Dockerfile` and the `files/python/provider/` package that plays LinkedIn on `www.linkedin.com` and `api.linkedin.com`: members sign up on `/signup`, grant OpenPost access on the consent page, and the fake keeps the tokens, images and posts it receives.
 The deploy signs a certificate for all those names with a per-deploy test CA in the role's config directory, OpenPost trusts that CA through `SSL_CERT_DIR`, and the role renders `simulator-<provider>` credentials instead of the `API` entries for the simulated providers.
 The keystore that carries the certificate uses WireMock's built-in keystore password, so WireMock starts without any password on its command line.
-The fake also publishes plain HTTP on the local port of `services.provider.ports.local.http`; Playwright routes `https://www.linkedin.com/` there, and `/__fake/linkedin/posts` lists what OpenPost delivered.
+The variants that run the fake also declare its `provider` domain and vhost, so the shared proxy serves it on `provider.publish.<DOMAIN_PRIMARY>` in compose and swarm alike; Playwright routes `https://www.linkedin.com/` there, the CLI probe signs its member up there, and `/__fake/linkedin/posts` lists what OpenPost delivered.
 The mappings live in `files/simulator/openpost.json`; a post whose text contains `[simulate-429]`, `[simulate-503]` or `[simulate-400]` gets that answer from the X endpoint once.
 OpenPost v7.22.9 retries a 429 by itself after the reset header, but treats a 503 to a write as an ambiguous delivery: the destination stays in "Manual review required", its retry is refused, and after confirming on the network that nothing was posted the post has to be published again to that destination.
 A destination that failed with a definite rejection can be retried on its own.

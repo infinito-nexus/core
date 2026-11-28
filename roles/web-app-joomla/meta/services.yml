@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-required — object storage not implemented for this role
 sso:
   bond: 1
@@ -7,10 +8,18 @@ sso:
   flavor: oidc
   oidc:
     fallback_enabled: true
+  profile:
+    languages: [en]
 # nocheck: dynamic-flag
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
+# nocheck: bond-baseline variant 0 is the OIDC-only round and variant 1 the LDAP-only round, so the directory joins the LDAP round only
 ldap:
-  enabled: false
-  shared: false
+  bond: 1
+  enabled: "{{ 'svc-db-openldap' in group_names }}"
+  shared: "{{ 'svc-db-openldap' in group_names }}"
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -25,8 +34,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 mariadb:
   bond: 1
@@ -59,6 +68,35 @@ joomla:
   upload:
     size_mb: 100
   autocreate_users: true
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-joomla', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-joomla', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-joomla', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-joomla', '2fa') }}"
+        enforced: true
+      passkey:
+        enabled: "{{ lookup('login_method', 'web-app-joomla', 'passkey') }}"
+      registration:
+        enabled: "{{ lookup('login_method', 'web-app-joomla', 'registration') }}"
+  ldap:
+    host: "{{ LDAP.SERVER.DOMAIN }}"
+    port: "{{ LDAP.SERVER.PORT }}"
+    use_ldapV3: "1"
+    encryption: "{{ 'ssl' if (LDAP.SERVER.URI is match('ldaps://')) else ((LDAP.SERVER.SECURITY | lower) if LDAP.SERVER.SECURITY else 'none') }}"
+    no_referrals: "0"
+    auth_method: search
+    base_dn: "{{ LDAP.DN.OU.USERS }}"
+    search_string: "{{ LDAP.USER.ATTRIBUTES.ID }}=[search]"
+    users_dn: "[username]"
+    admin_dn: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+    ldap_fullname: "{{ LDAP.USER.ATTRIBUTES.FULLNAME }}"
+    ldap_email: "{{ LDAP.USER.ATTRIBUTES.MAIL }}"
+    ldap_uid: "{{ LDAP.USER.ATTRIBUTES.ID }}"
   ports:
     local:
       http: 8014
@@ -67,8 +105,7 @@ joomla:
   run_after:
     - web-app-matomo
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
   cpus: "0.5"
   mem_reservation: 256m
@@ -113,3 +150,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

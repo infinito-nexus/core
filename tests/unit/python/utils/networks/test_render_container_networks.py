@@ -220,7 +220,7 @@ class TestRenderContainerNetworks(unittest.TestCase):
 
 
 class TestRenderEncryption(unittest.TestCase):
-    def test_swarm_encrypted_false_emits_lowercase_quoted_literal(self):
+    def test_swarm_encrypted_false_emits_lowercase_quoted_literal(self):  # nocheck: test.text-presence -- asserts on the quoting render_compose_networks emits, which it runs  # fmt: skip
         rendered = render_compose_networks(
             application_id="web-app-x",
             deployment_mode="swarm",

@@ -1,6 +1,6 @@
 # Local Deploy 🚀
 
-Contributor guidance for running deploys against a local development stack on your workstation. For production deploy guidance see the [Deploy Guide](../../administration/deploy.md). For the agent-driven role iteration loop see [compose.md](../../agents/action/iteration/compose.md). For the matrix-variant mechanism that this page references throughout see [variants.md](../design/variants.md).
+Contributor guidance for running deploys against a local development stack on your workstation. For production deploy guidance see the [Deploy Guide](../../administration/deploy.md). For the agent-driven role iteration loop see [compose.md](../../../agents/skills/i8-iterate-compose/SKILL.md). For the matrix-variant mechanism that this page references throughout see [variants.md](../design/variants.md).
 
 ## Entry Points 🧭
 
@@ -21,7 +21,7 @@ Use `mode=reinstall` to bring up a clean slate (cycles the dev stack and purges 
 make compose-deploy mode=reinstall apps="<role> <role>" full_cycle=true
 ```
 
-- `full_cycle=true` adds the async update pass (pass 2) and SHOULD stay on for the baseline. The behaviour, per-variant interleaving, and `--full-cycle` flag mechanics are documented in [variants.md](../design/variants.md).
+- `full_cycle=true` adds the update pass (pass 2) and SHOULD stay on for the baseline. The behaviour, per-variant interleaving, and `--full-cycle` flag mechanics are documented in [variants.md](../design/variants.md).
 - The router runs init, then deploy. Init materialises the inventory under `${INFINITO_INVENTORY_DIR}` (resolved by `make dotenv` via [resolve.sh](../../../scripts/inventory/resolve.sh); see [variables.md](../environment/variables.md)).
 - For roles with a `roles/<role>/meta/variants.yml` the init step produces one inventory folder per variant; the deploy step iterates them. Folder layout, round semantics, cleanup rules, and the link to the file-format reference live in [variants.md](../design/variants.md).
 
@@ -34,6 +34,7 @@ make compose-deploy mode=update apps="<role>"
 ```
 
 - Reuses the existing inventory, keeps app state, runs the deploy only.
+- The inventory bakes in every included role's `meta/services.yml`, `meta/variants.yml`, `meta/secrets.yml` and `meta/users.yml`, so after a change to any of them `mode=update` deploys the include set, overrides, credentials and users of the old inventory. Such a change MUST take `make compose-deploy mode=reinstall apps="<role>" full_cycle=true [variant=<idx>]` instead, whose `full_cycle` pass is the update pass.
 - For multi-variant roles you MUST set `variant=<idx>` (see [Pinning Variants](#pinning-variants-single-or-bundle-)) so the reuse path targets the round's folder. Without `variant=`, the reuse target points at `<INFINITO_INVENTORY_DIR>` which only exists for single-variant roles.
 
 If the reuse path keeps reproducing the same failure and you want to test whether app entity state is involved:
@@ -44,11 +45,11 @@ make compose-deploy mode=update apps="<role>" purge=true
 
 This purges the app's containers + volumes + Ansible-managed state on the host, then re-deploys. Use it once, then return to `mode=update` without `purge=true`. Do NOT loop with `purge=true`; if the failure survives a single purge it is not a state issue.
 
-Only return to `mode=reinstall` when you have concrete evidence that the inventory or the host stack itself is broken (for example DNS or network failures during the deploy).
+Return to `mode=reinstall` after a change to one of the inventory-baked meta files above, or when you have concrete evidence that the inventory or the host stack itself is broken (for example DNS or network failures during the deploy).
 
 ## Pinning Variants (Single Or Bundle) 🎯
 
-For multi-variant roles you MAY restrict any of the `make compose-deploy` invocations above (and the dev CLI subcommands) to one or more matrix rounds by setting `variant=<csv>` — a single index pins one round, a comma-separated list iterates that subset (the runner-split bundle CI produces), and empty/unset is the full matrix:
+For multi-variant roles you MAY restrict any of the `make compose-deploy` invocations above (and the dev CLI subcommands) to one or more matrix rounds by setting `variant=<csv>`. A single index pins one round, a comma-separated list iterates that subset (the runner-split bundle CI produces), and empty/unset is the full matrix:
 
 ```bash
 # Variant 1 baseline only (no full matrix):
@@ -82,6 +83,12 @@ Use [`make compose-exec`](../../../Makefile) to drop into the running container 
 
 For TLS-enabled local sites, run [`make network-trust-ca`](../../../Makefile) once after the first deploy and restart the browser; alternatively use `curl -k` on the command line.
 
+## Backend Port Binding in the Dev Stack 🔌
+
+Production compose publishes every backend port on `DOCKER_BIND_HOST`, which is `127.0.0.1` there. Inside the dev stack (`DOCKER_IN_CONTAINER`) [00_general.yml](../../../group_vars/all/00_general.yml) sets it to `0.0.0.0` on purpose. Host-side provisioning reaches an app through `DOCKER_REACH_HOST`, which [sys-svc-container](../../../roles/sys-svc-container/tasks/00_core.yml) points at the docker bridge gateway, and a port bound to loopback would not answer there.
+
+The exposure stays inside the outer bridge network, because the outer [compose.yml](../../../compose.yml) publishes no backend port out of the dev container. Openresty, not the bind address, is the trust boundary of a header-trust backend. [test_header_trust_backends_bind_loopback.py](../../../tests/lint/ansible/roles/test_header_trust_backends_bind_loopback.py) fails when the outer `compose.yml` publishes a `ports.local` port of a header-trust role, or when `DOCKER_BIND_HOST` stops being `127.0.0.1` outside the dev stack.
+
 ## Reference Files 📌
 
 | File | Purpose |
@@ -91,4 +98,4 @@ For TLS-enabled local sites, run [`make network-trust-ca`](../../../Makefile) on
 | [`make dotenv`](../../../Makefile) | Resolves `INFINITO_INVENTORY_DIR`, `INFINITO_INVENTORY_FILE`, and `INFINITO_INVENTORY_VARS_FILE` into `.env` for the dev CLI (see [variables.md](../environment/variables.md)). |
 | [local deploy scripts](../../../scripts/tests/deploy/local/) | Bash glue behind the make targets (fresh / reuse / purge variants). |
 | [variants.md](../design/variants.md) | Matrix-variant deep dive. |
-| [compose.md](../../agents/action/iteration/compose.md) | Role-iteration loop for agents. Recommended reading even for human contributors. |
+| [compose.md](../../../agents/skills/i8-iterate-compose/SKILL.md) | Role-iteration loop for agents. Recommended reading even for human contributors. |

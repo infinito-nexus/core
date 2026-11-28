@@ -1,0 +1,9 @@
+---
+vhosts:
+  default:
+    domains: canonical
+    flavour: ws_generic
+    websocket_location: /api/v1/streaming
+    client_max_body_size: 80m
+    vars:
+      websocket_port: "{{ lookup('config', 'web-app-mastodon', 'services.mastodon.ports.local.websocket') }}"

@@ -82,7 +82,7 @@ class TestUserLookupsResolve(unittest.TestCase):
             + "\n".join(f"  - {o}" for o in offenders),
         )
 
-    def test_the_scan_finds_lookups(self) -> None:
+    def test_the_scan_finds_lookups(self) -> None:  # nocheck: test.text-presence -- vacuity guard of the repository-wide user lookup lint  # fmt: skip
         roles_root = PROJECT_ROOT / "roles"
         if not roles_root.is_dir():
             self.skipTest("no roles/ directory")

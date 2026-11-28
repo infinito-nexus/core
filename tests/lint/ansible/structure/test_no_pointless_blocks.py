@@ -47,7 +47,7 @@ def _iter_block_tasks(node):
 
 
 class TestNoPointlessBlocks(unittest.TestCase):
-    def test_blocks_justify_their_wrapper(self):
+    def test_blocks_justify_their_wrapper(self):  # nocheck: test.text-presence -- parses every task file  # fmt: skip
         offenders: list[str] = []
 
         for abs_path, content in iter_project_files_with_content(

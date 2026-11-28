@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 200
+  username_pattern: .+
+  source: https://github.com/kix-service-software/kix-backend/blob/5afff08c6c0ace290c0e5b565a079f6af830fdc3/scripts/database/kix-schema.xml#L24
+  agent_reachable: true

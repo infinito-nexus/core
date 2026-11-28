@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-required — object storage not implemented for this role
 sso:
   bond: 1
@@ -23,8 +24,8 @@ matomo:
 # nocheck: dynamic-flag
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag — self-provider
 mailu:
   modes:
@@ -80,8 +81,14 @@ mailu:
     service_key: front
   run_after:
     - web-app-matomo
-    - web-app-stalwart
+    - web-app-email
   lifecycle: eol
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-mailu', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-mailu', 'native') }}"
   cpus: "1.0"
   mem_reservation: 512m
   mem_limit: 2g
@@ -202,9 +209,12 @@ fetchmail:
 # nocheck: dynamic-flag
 # nocheck: playwright-service-flag — internal sub-component
 webmail:
+  backup:
+    stop_required: true
   name: mailu-webmail
   enabled: true # nocheck: dynamic-flag
   shared: false
+  image: ghcr.io/mailu/webmail
   cpus: "0.3"
   mem_reservation: 256m
   mem_limit: 1g
@@ -224,6 +234,12 @@ design:
   bond: 1
   enabled: "{{ 'web-svc-design' in group_names }}"
   shared: "{{ 'web-svc-design' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag - carries the login-method script of templates/javascript.js.j2, whose effect files/playwright/test-login-methods.js asserts
+javascript:
+  bond: 1
+  enabled: true # nocheck: dynamic-flag
+  shared: true
 prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
@@ -246,3 +262,24 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  mail provider every role's email entry reaches through MAIL_PROVIDER, so pausing it would cut mail for all of them
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  flush: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

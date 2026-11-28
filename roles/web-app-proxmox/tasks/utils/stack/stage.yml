@@ -1,0 +1,9 @@
+---
+- name: "🛡️ Prove hardware virtualization before {{ application_id }} starts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/assert/kvm.yml') }}"
+  vars:
+    assert_kvm_consumer: "{{ application_id }}"
+
+- name: "🔑 Hand the group of /dev/kvm to the launcher of {{ application_id }}"
+  ansible.builtin.set_fact:
+    PROXMOX_KVM_GID: "{{ assert_kvm_device.stat.gid }}"

@@ -40,5 +40,5 @@ print(json.dumps(extra))
 ' "${role}" "${scope}" "${task:-}" "${base:-}" "${pw:-}" "${keep:-false}")"
 printf -v extra_word '%q' "${extra}"
 
-cmd="\"\${INFINITO_VENV_DIR}/bin/ansible-playbook\" -i '${inv_dir}/devices.yml' playbook-sync.yml -l localhost --vault-password-file '${inv_dir}/.password' -e ${extra_word} -e ASYNC_ENABLED=false" \
+cmd="\"\${INFINITO_VENV_DIR}/bin/ansible-playbook\" -i '${inv_dir}/devices.yml' playbook-sync.yml -l localhost --vault-password-file '${inv_dir}/.password' -e ${extra_word}" \
 	bash scripts/tests/deploy/local/exec/container.sh

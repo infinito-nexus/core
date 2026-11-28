@@ -70,13 +70,13 @@ jobs:
       INFINITO_WORKSPACE_TRACKS: base ${{ matrix.track }}
       NIX_CONFIG: |
         access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+      INFINITO_INFRA_CACHE_DIR: /mnt/cache
       INFINITO_CACHE_REGISTRY_MAX_SIZE: 16g
-      INFINITO_CACHE_REGISTRY_HOST_PATH: /mnt/cache/registry/mirror
-      INFINITO_CACHE_REGISTRY_CA_HOST_PATH: /mnt/cache/registry/ca
       INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX: 8g
       INFINITO_CACHE_PACKAGE_HEAP: 1g
       INFINITO_CACHE_PACKAGE_DIRECT_MEM: 1g
-      INFINITO_CACHE_PACKAGE_HOST_PATH: /mnt/cache/package/data
+      INFINITO_TOOLS_MODELS_MAX_SIZE: 4g
+      INFINITO_CACHE_PIN_ROOT: /mnt/cache/pin
       INFINITO_GHCR_MIRROR: "true"
       INFINITO_GHCR_MIRROR_PREFIX: mirror
 
@@ -121,6 +121,13 @@ jobs:
           } >> "$GITHUB_ENV"
           rm -f .env
 
+      - name: "📁 Prepare the cache base for the root job container"
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo env PYTHONDONTWRITEBYTECODE=1 INFINITO_INFRA_CACHE_DIR="${INFINITO_INFRA_CACHE_DIR}" \
+            python3 -m cli.meta.cache.base
+
       - name: ▶️ Run workspace routine
         shell: bash
         run: |
@@ -141,22 +148,23 @@ jobs:
             -e DEV_RUNTIME_IMAGE \
             -e INFINITO_WORKSPACE_TRACKS \
             -e INFINITO_DISTRO \
-            -e INFINITO_IMAGE="infinito-${INFINITO_DISTRO}" \
             -e INFINITO_PULL_POLICY=never \
             -e INFINITO_BUILD=1 \
             -e NIX_CONFIG \
+            -e INFINITO_INFRA_CACHE_DIR \
             -e INFINITO_CACHE_REGISTRY_MAX_SIZE \
-            -e INFINITO_CACHE_REGISTRY_HOST_PATH \
-            -e INFINITO_CACHE_REGISTRY_CA_HOST_PATH \
             -e INFINITO_CACHE_PACKAGE_BLOBSTORE_MAX \
             -e INFINITO_CACHE_PACKAGE_HEAP \
             -e INFINITO_CACHE_PACKAGE_DIRECT_MEM \
-            -e INFINITO_CACHE_PACKAGE_HOST_PATH \
+            -e INFINITO_TOOLS_MODELS_MAX_SIZE \
+            -e INFINITO_CACHE_PIN_ROOT \
             -e INFINITO_GHCR_MIRROR \
             -e INFINITO_GHCR_MIRROR_PREFIX \
             -e INFINITO_VULNERABILITY_DB_HOST_PATH="${db_host_path}" \
             --network host \
             -v "${HOST_WORKDIR}:${HOST_WORKDIR}" \
+            -v "${INFINITO_INFRA_CACHE_DIR}:${INFINITO_INFRA_CACHE_DIR}" \
+            -v "${INFINITO_CACHE_PIN_ROOT}:${INFINITO_CACHE_PIN_ROOT}" \
             -v "${db_host_path}:${db_host_path}" \
             -v "/mnt/docker:/var/lib/docker" \
             -v "/var/run/docker.sock:/var/run/docker.sock" \

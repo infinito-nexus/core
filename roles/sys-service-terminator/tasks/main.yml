@@ -6,7 +6,7 @@
 - name: "👁️ Show final run list (debug)"
   ansible.builtin.debug:
     var: system_service_run_list
-  when: MODE_DEBUG | bool
+  when: lookup('debug', 'sys-service-terminator') | bool
 
 - name: "▶️ Run collected services"
   ansible.builtin.include_tasks:

@@ -1,6 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
-const { skipUnlessServiceEnabled } = require("./service-gating");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 const { decodeDotenvQuotedValue, gotoOnion, normalizeBaseUrl, runBiberFlow, runGuestFlow } = require("./personas");
 test.use({ ignoreHTTPSErrors: true });
@@ -135,6 +135,7 @@ test("administrator: OIDC integrated login path via STS AssumeRoleWithWebIdentit
 
 test("administrator: MinIO Console form login under LDAP variant", async ({ page }) => {
   skipUnlessServiceEnabled("ldap");
+  skipUnlessServiceDisabled("sso");
 
   await minioConsoleFormLogin(page, consoleBaseUrl, adminUsername, adminPassword);
 
@@ -150,6 +151,16 @@ test("administrator: MinIO Console form login under LDAP variant", async ({ page
   ).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
+test("login methods: with SSO on the root break-glass account signs in through the Console form", async ({ page }) => {
+  skipUnlessServiceEnabled("sso");
+
+  await minioConsoleFormLogin(page, consoleBaseUrl, adminUsername, adminPassword);
+
+  await expect(page.locator("body")).toContainText(/object browser|buckets|access keys|monitoring/i, { timeout: resolveTimeout(60_000) });
+
+  await minioConsoleLogout(page, consoleBaseUrl);
+});
+
 // Persona scenarios.
 // Bodies live in the shared helper roles/test-e2e-playwright/files/personas.js
 // so every role's persona flow stays consistent.
@@ -161,3 +172,6 @@ test("guest: public-landing → auth chain → never authenticated", async ({ pa
 test("biber: app → universal logout", async ({ page }) => {
   await runBiberFlow(page);
 });
+
+require("./test-login-methods");
+require("./test-rbac-roles");

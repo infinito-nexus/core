@@ -1,0 +1,24 @@
+{# Param SEMAPHORE_ADMIN_USERNAME: the administrator the deploy token acts as. #}
+{# Param SEMAPHORE_API_TOKEN_NAME: the name every deploy token carries. #}
+{% for name, value in {
+     'admin': SEMAPHORE_ADMIN_USERNAME,
+     'token_name': SEMAPHORE_API_TOKEN_NAME,
+     'token_minutes': SEMAPHORE_API_TOKEN_MINUTES
+   }.items() %}
+\set {{ name }} '{{ value | string | replace("'", "''") }}'
+{% endfor %}
+DELETE FROM public.user__token
+WHERE name = :'token_name'
+  AND expires_at < now();
+
+INSERT INTO public.user__token (id, created, expired, user_id, expires_at, name)
+SELECT left(replace(gen_random_uuid()::text, '-', '') || replace(gen_random_uuid()::text, '-', ''), 44),
+       now(),
+       FALSE,
+       account.id,
+       now() + make_interval(mins => :'token_minutes'::int),
+       :'token_name'
+FROM public."user" AS account
+WHERE account.username = :'admin'
+  AND account.admin
+RETURNING 'TOKEN ' || id;

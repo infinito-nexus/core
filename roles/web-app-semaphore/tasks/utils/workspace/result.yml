@@ -1,0 +1,32 @@
+---
+- name: "📝 Write the result of destroy for workspace.sh"
+  ansible.builtin.copy:
+    content: >-
+      {{ semaphore_workspace_destroyed.result
+         | combine({'stopped_tasks': (semaphore_workspace_destroyed.result.stopped_tasks | int) + (semaphore_workspace_stopped | int)})
+         | to_json }}
+    dest: "{{ WORKSPACE_RESULT_FILE }}"
+    mode: "0600"
+  delegate_to: localhost
+  become: false
+  when: WORKSPACE_ACTION == 'destroy'
+
+- name: "📤 Hand the result of apply to workspace.sh and the later roles"
+  when: WORKSPACE_ACTION == 'apply'
+  block:
+    - name: "📝 Write the result of apply for workspace.sh"
+      ansible.builtin.copy:
+        content: "{{ semaphore_workspace_applied.result | to_json }}"
+        dest: "{{ WORKSPACE_RESULT_FILE }}"
+        mode: "0600"
+      delegate_to: localhost
+      become: false
+
+    - name: "📤 Hand the Semaphore ids to the roles that run after this one on every host"
+      ansible.builtin.set_fact:
+        workspace_semaphore: "{{ semaphore_workspace_applied.semaphore }}"
+      delegate_to: "{{ semaphore_workspace_host }}"
+      delegate_facts: true
+      loop: "{{ ansible_play_hosts_all }}"
+      loop_control:
+        loop_var: semaphore_workspace_host

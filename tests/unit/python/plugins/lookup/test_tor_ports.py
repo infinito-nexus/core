@@ -273,6 +273,55 @@ class TestTorPortsLookup(unittest.TestCase):
             both, collect_onion_ports(self._mail_apps(), ["web-app-stalwart"])
         )
 
+    def _wrapped_mail_apps(self, provider: str) -> dict:
+        return self._apps(
+            **{
+                "web-app-email": {"email": {"provider": provider}},
+                "web-app-stalwart": {
+                    "stalwart": {
+                        "covers": ["email"],
+                        "ports": {
+                            "public": {"smtp": 25, "imaps": 993},
+                            "onion": {"smtp": True},
+                        },
+                    }
+                },
+                "web-app-mailu": {
+                    "mailu": {
+                        "covers": ["email"],
+                        "ports": {
+                            "public": {"smtp": 25, "submission": 587, "imap": 143},
+                            "onion": {"smtp": True, "submission": True, "imap": True},
+                        },
+                    }
+                },
+            }
+        )
+
+    def test_the_wrapper_default_forwards_only_its_provider(self) -> None:
+        ports = collect_onion_ports(
+            self._wrapped_mail_apps("web-app-stalwart"),
+            ["web-app-email", "web-app-stalwart", "web-app-mailu"],
+        )
+
+        self.assertEqual(ports, [25])
+
+    def test_a_wrapper_override_forwards_the_selected_provider(self) -> None:
+        ports = collect_onion_ports(
+            self._wrapped_mail_apps("web-app-mailu"),
+            ["web-app-email", "web-app-stalwart", "web-app-mailu"],
+        )
+
+        self.assertEqual(ports, [25, 143, 587])
+
+    def test_an_undeployed_selection_silences_no_provider(self) -> None:
+        ports = collect_onion_ports(
+            self._wrapped_mail_apps("web-app-mailu"),
+            ["web-app-email", "web-app-stalwart"],
+        )
+
+        self.assertEqual(ports, [25])
+
     def test_collect_onion_ports_ignores_non_mappings(self) -> None:
         self.assertEqual(collect_onion_ports({}, ["a"]), [])
         self.assertEqual(collect_onion_ports(None, ["a"]), [])

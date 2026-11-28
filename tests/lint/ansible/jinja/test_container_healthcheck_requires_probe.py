@@ -39,6 +39,7 @@ import unittest
 from pathlib import Path
 from typing import Any
 
+from tests.utils.healthcheck import declares_healthcheck, healthcheck_entries
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.applications import get_application_defaults
 from utils.cache.files import iter_project_files_with_content
@@ -142,7 +143,21 @@ def _probe_defect(services: dict[str, Any], key: str) -> str | None:
     """
     if key not in services:
         return f"service '{key}' missing in services config"
-    config = services[key].get("healthcheck")
+    for _path, config in healthcheck_entries(services, key):
+        defect = _config_defect(key, config)
+        if defect:
+            return defect
+    return None
+
+
+def _config_defect(key: str, config: Any) -> str | None:
+    """Args:
+        key: the service key the call site targets.
+        config: one entry the service's ``healthcheck`` renders to.
+
+    Returns:
+        Why that entry would fail at render time, ``None`` when it renders.
+    """
     if not isinstance(config, dict):
         return (
             f"service '{key}' declares no healthcheck.flavor, so healthcheck.test "
@@ -159,15 +174,26 @@ def _probe_defect(services: dict[str, Any], key: str) -> str | None:
             f"service '{key}' healthcheck has neither flavor nor test. "
             f"Known flavors: {known_flavors()}"
         )
-    for name in resolve_flavors(flavor) if flavor else []:
+    return _flavor_defect(key, flavor, config) if flavor else None
+
+
+def _flavor_defect(key: str, flavor: str | list[str], config: dict) -> str | None:
+    """Report why one renderable flavor would fail at render time.
+
+    Args:
+        key: the service key the call site targets.
+        flavor: the declared ``healthcheck.flavor``.
+        config: the service's ``healthcheck`` mapping.
+    """
+    for name in resolve_flavors(flavor):
         if name not in PROBES and name not in PREFIXES:
             return f"service '{key}' has unknown flavor '{name}'"
-    if flavor and len([n for n in resolve_flavors(flavor) if n in PROBES]) != 1:
+    if len([n for n in resolve_flavors(flavor) if n in PROBES]) != 1:
         return (
             f"service '{key}' must name exactly one probe, "
             f"got '{flavor}'. Known flavors: {known_flavors()}"
         )
-    if flavor and config.get("test"):
+    if config.get("test"):
         return (
             f"service '{key}' declares both flavor '{flavor}' and test; "
             "the test would be ignored"
@@ -219,7 +245,7 @@ class TestContainerHealthcheckRequiresProbe(unittest.TestCase):
         for app, config in sorted(get_application_defaults().items()):
             services = config.get("services", {}) or {}
             for key in sorted(services):
-                if not isinstance(services[key].get("healthcheck"), dict):
+                if not declares_healthcheck(services, key):
                     continue
                 defect = _probe_defect(services, key)
                 if defect:
@@ -230,6 +256,37 @@ class TestContainerHealthcheckRequiresProbe(unittest.TestCase):
                 "services declare healthcheck blocks the container_healthcheck "
                 "lookup would refuse at render time:\n\n" + "\n".join(findings)
             )
+
+    def test_a_templated_flavor_is_an_unknown_flavor(self) -> None:
+        found = _probe_defect({"x": {"healthcheck": {"flavor": "{{ X_FLAVOR }}"}}}, "x")
+        self.assertEqual(found, "service 'x' has unknown flavor '{{ X_FLAVOR }}'")
+
+    def test_a_table_choice_is_judged_on_every_entry(self) -> None:
+        choice = (
+            "{{ lookup('config', 'svc-x', 'services.x.healthchecks')"
+            "[lookup('config', 'svc-x', 'services.x.flavor')] }}"
+        )
+        for table, defect in (
+            ({"a": {"flavor": "wget"}, "b": {"flavor": "http"}}, None),
+            (
+                {"a": {"flavor": "wget"}, "b": {"flavor": "nope"}},
+                "service 'x' has unknown flavor 'nope'",
+            ),
+            (
+                {"a": {"flavor": "wget"}, "b": "wget"},
+                "service 'x' declares no healthcheck.flavor",
+            ),
+            ({}, "service 'x' declares no healthcheck.flavor"),
+        ):
+            with self.subTest(table=table):
+                services = {"x": {"healthcheck": choice, "healthchecks": table}}
+                found = _probe_defect(services, "x")
+                if defect is None:
+                    self.assertIsNone(found)
+                    self.assertTrue(declares_healthcheck(services, "x"))
+                else:
+                    self.assertIsNotNone(found)
+                    self.assertTrue(found.startswith(defect), found)
 
 
 if __name__ == "__main__":  # pragma: no cover

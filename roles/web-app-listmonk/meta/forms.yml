@@ -1,0 +1,162 @@
+---
+general:
+  path: /admin/settings
+  sinks: [LISTMONK_GENERAL_SETTINGS]
+  fields:
+    root_url:
+      source: services.listmonk.settings.root_url
+      mode: enforced
+      selector: 'input[name="app.root_url"]'
+      type: url
+      label: Root URL
+    from_email:
+      source: services.listmonk.settings.from_email
+      mode: enforced
+      selector: 'input[name="app.from_email"]'
+      type: text
+      label: Default from email
+    lang:
+      source: services.listmonk.settings.lang
+      mode: enforced
+      selector: 'select[name="app.lang"]'
+      type: select
+      label: Language
+    check_updates:
+      source: services.listmonk.settings.check_updates
+      mode: enforced
+      selector: 'input[name="app.check_updates"]'
+      type: checkbox
+      map: { true: true, false: false }
+      label: Check for updates
+    enable_public_archive_rss_content:
+      source: services.listmonk.settings.enable_public_archive_rss_content
+      mode: enforced
+      selector: 'input[name="app.enable_public_archive_rss_content"]'
+      type: checkbox
+      map: { true: true, false: false }
+      label: Show full content in RSS
+    site_name:
+      source: services.listmonk.settings.site_name
+      mode: enforced
+      selector: 'input[name="app.site_name"]'
+      type: text
+      label: Site name
+    logo_url:
+      source: services.listmonk.settings.logo_url
+      mode: enforced
+      selector: 'input[name="app.logo_url"]'
+      type: url
+      label: Logo URL
+    favicon_url:
+      source: services.listmonk.settings.favicon_url
+      mode: enforced
+      selector: 'input[name="app.favicon_url"]'
+      type: url
+      label: Favicon URL
+upload:
+  path: /admin/settings
+  sinks: [LISTMONK_UPLOAD_SETTINGS]
+  fields:
+    provider:
+      source: services.listmonk.upload.provider
+      when: services.listmonk.upload.s3.enabled
+      mode: enforced
+      selector: 'select[name="upload.provider"]'
+      type: select
+      label: Media provider
+s3:
+  path: /admin/settings
+  sinks: [LISTMONK_S3_SETTINGS]
+  fields:
+    aws_default_region:
+      source: services.listmonk.upload.s3.aws_default_region
+      when: services.listmonk.upload.s3.enabled
+      mode: enforced
+      selector: 'input[name="upload.s3.aws_default_region"]'
+      type: text
+      label: S3 region
+    bucket:
+      source: services.listmonk.upload.s3.bucket
+      when: services.listmonk.upload.s3.enabled
+      mode: enforced
+      selector: 'input[name="upload.s3.bucket"]'
+      type: text
+      label: S3 bucket
+    bucket_type:
+      source: services.listmonk.upload.s3.bucket_type
+      when: services.listmonk.upload.s3.enabled
+      mode: enforced
+      selector: 'select[name="upload.s3.bucket_type"]'
+      type: select
+      label: S3 bucket type
+    url:
+      source: services.listmonk.upload.s3.url
+      when: services.listmonk.upload.s3.enabled
+      mode: enforced
+      selector: 'input[name="upload.s3.url"]'
+      type: url
+      label: S3 backend URL
+    public_url:
+      source: services.listmonk.upload.s3.public_url
+      when: services.listmonk.upload.s3.enabled
+      mode: enforced
+      selector: 'input[name="upload.s3.public_url"]'
+      type: url
+      label: S3 public URL
+bounce:
+  path: /admin/settings
+  sinks: [LISTMONK_BOUNCE_SETTINGS]
+  fields:
+    enabled:
+      source: services.listmonk.bounce.enabled
+      mode: enforced
+      selector: 'input[name="bounce.enabled"]'
+      type: checkbox
+      map: { true: true, false: false }
+      label: Enable bounce processing
+security:
+  path: /admin/settings
+  sinks: [LISTMONK_OIDC_SETTINGS]
+  fields:
+    enabled:
+      source: services.listmonk.login.method.sso.enabled
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'input[name="security.oidc"]'
+      type: checkbox
+      map: { true: true, false: false }
+      label: OpenID Connect enabled
+    provider_url:
+      source: services.listmonk.oidc.provider_url
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'input[name="oidc.provider_url"]'
+      type: url
+      label: OpenID Connect provider URL
+    client_id:
+      source: services.listmonk.oidc.client_id
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'input[name="oidc.client_id"]'
+      type: text
+      label: OpenID Connect client ID
+    auto_create_users:
+      source: services.listmonk.oidc.auto_create_users
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'input[name="oidc.auto_create_users"]'
+      type: checkbox
+      map: { true: true, false: false }
+      label: Auto-create users from SSO
+captcha:
+  path: /admin/settings
+  sinks: [LISTMONK_CAPTCHA_SETTINGS]
+  fields:
+    enabled:
+      source: services.hcaptcha.enabled
+      when: services.hcaptcha.enabled
+      mode: enforced
+      selector: 'input[name="security.captcha"]'
+      type: checkbox
+      map: { true: true, false: false }
+      label: Enable CAPTCHA

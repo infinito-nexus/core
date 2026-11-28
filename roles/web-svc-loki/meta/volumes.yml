@@ -1,0 +1,34 @@
+---
+data:
+  type: volume
+  name: loki_data
+  backup: false
+  # nocheck: nfs-false-data-loss  Reason: the TSDB index, the WAL and, without the object store, the chunk store are mmap- and fsync-heavy and corrupt over NFS; log chunks are not backed up and the single replica is pinned with placement: manager.
+  nfs: false
+  mounts:
+    - service: loki
+      target: /loki
+
+config:
+  type: config
+  source: "{{ [lookup('container', 'web-svc-loki', 'directories.config'), 'loki.yaml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: loki
+      target: /etc/loki/loki.yaml
+
+rules:
+  type: config
+  source: "{{ [lookup('container', 'web-svc-loki', 'directories.config'), 'rules.yaml'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: loki
+      target: "/etc/loki/rules/{{ lookup('config', 'web-svc-loki', 'services.loki.tenant') }}/rules.yaml"
+
+gateway:
+  type: config
+  source: "{{ [lookup('container', 'web-svc-loki', 'directories.config'), 'gateway.alloy'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: gateway
+      target: /etc/alloy/config.alloy

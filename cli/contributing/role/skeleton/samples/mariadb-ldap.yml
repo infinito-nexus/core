@@ -1,0 +1,11 @@
+---
+name: skeleton-mariadb-ldap
+description: Sample web application with a MariaDB database, LDAP login and a Redis cache
+homepage: https://nginx.org/
+license: BSD-2-Clause
+image: nginx:1.27.3-alpine
+port: 80
+database: mariadb
+login: ldap
+features:
+  - redis

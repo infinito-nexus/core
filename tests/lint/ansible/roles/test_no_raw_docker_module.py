@@ -1,5 +1,9 @@
-"""Enforce that role tasks manage containers through the ``container``
+"""Enforce that role YAML manages containers through the ``container``
 CLI wrapper instead of the raw ``community.docker.docker_*`` modules.
+
+Every ``roles/**/*.yml`` / ``*.yaml`` file is scanned, for both the plain
+``community.docker.docker_*:`` key and its ``- community.docker.docker_*:``
+list-item form.
 
 Rationale
 =========
@@ -41,13 +45,11 @@ from . import PROJECT_ROOT
 
 _RULE = "docker-module-uses-container-cli"
 
-_MODULE_RE = re.compile(r"^\s*community\.docker\.docker_[a-z_]+\s*:")
+_MODULE_RE = re.compile(r"^\s*(?:-\s*)?community\.docker\.docker_[a-z_]+\s*:")
 
 
 def _is_scan_target(rel_path: str) -> bool:
-    return rel_path.startswith("roles/") and (
-        "/tasks/" in rel_path or "/handlers/" in rel_path
-    )
+    return rel_path.startswith("roles/")
 
 
 def _is_comment_line(line: str) -> bool:
@@ -85,7 +87,7 @@ class TestNoRawDockerModule(unittest.TestCase):
             )
             self.fail(
                 "Found `community.docker.docker_*` module calls in role "
-                "tasks/handlers. These bypass the CA-aware `container` "
+                "YAML. These bypass the CA-aware `container` "
                 "wrapper (roles/sys-svc-container/files/python/container.py) and "
                 "are blind to swarm service naming.\n\n"
                 "Fix: drive the operation through the `container` CLI, e.g.\n\n"

@@ -5,13 +5,16 @@
 
 from __future__ import annotations
 
+from functools import partial
 from typing import Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
-from utils.tls_common import (
+from utils.cache.base import _render_with_templar
+from utils.domains.served import served_owners
+from utils.tls.common import (
     AVAILABLE_FLAVORS,
     align_domain_to_consumer,
     as_str,
@@ -25,6 +28,7 @@ from utils.tls_common import (
     uniq_preserve,
     want_get,
 )
+from utils.tls.overrides import with_rendered_tls
 
 
 class LookupModule(LookupBase):
@@ -65,6 +69,7 @@ class LookupModule(LookupBase):
             domains=domains,
             applications=applications,
             redirects=redirect_targets(variables),
+            served=served_owners(variables),
             forced_mode=forced_mode,
             err_prefix="tls",
         )
@@ -91,6 +96,16 @@ class LookupModule(LookupBase):
         app = applications.get(app_id, {})
         if not isinstance(app, dict):
             app = {}
+        app = with_rendered_tls(
+            app,
+            partial(
+                _render_with_templar,
+                templar=templar,
+                variables=variables,
+                raw_applications=applications,
+            ),
+            where=f"tls: '{app_id}'",
+        )
 
         enabled = resolve_enabled(
             app, bool(enabled_default), primary_domain=primary_domain

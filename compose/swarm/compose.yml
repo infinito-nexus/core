@@ -33,6 +33,7 @@ x-node: &node
     - "${WRK2:?run utils/topology/export.sh first}:${INFINITO_SWARM_WRK2_IP:?run utils/topology/export.sh first}"
     - "${NFS_SERVER:?run utils/topology/export.sh first}:${INFINITO_SWARM_NFS_IP:?run utils/topology/export.sh first}"
     - "${BACKUP_NODE:?run utils/topology/export.sh first}:${INFINITO_SWARM_BACKUP_IP:?run utils/topology/export.sh first}"
+    - "${PROXMOX_NODE:?run utils/topology/export.sh first}:${INFINITO_SWARM_PROXMOX_IP:?run utils/topology/export.sh first}"
 
 services:
   nfs-server:
@@ -80,6 +81,15 @@ services:
     networks:
       lab:
         ipv4_address: "${INFINITO_SWARM_BACKUP_IP:?run utils/topology/export.sh first}"
+
+  proxmox-host:
+    <<: *node
+    container_name: "${PROXMOX_NODE:?run utils/topology/export.sh first}"
+    hostname: "${PROXMOX_NODE:?run utils/topology/export.sh first}"
+    profiles: ["proxmox"]
+    networks:
+      lab:
+        ipv4_address: "${INFINITO_SWARM_PROXMOX_IP:?run utils/topology/export.sh first}"
 
 volumes:
   nfs-export:

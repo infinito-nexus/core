@@ -1,0 +1,25 @@
+{% include 'roles/sys-svc-compose/templates/base.yml.j2' %}
+  {% set service_name = ACCESS_REQUEST_SERVICE %}
+  {{ service_name }}:
+    {{ lookup('compose_only', 'container_name', ACCESS_REQUEST_CONTAINER) }}
+    {{ lookup('template', 'roles/sys-svc-container/templates/build.yml.j2') | indent(4) }}
+      args:
+        ACCESS_REQUEST_IMAGE: "{{ ACCESS_REQUEST_IMAGE }}"
+        ACCESS_REQUEST_VERSION: "{{ ACCESS_REQUEST_VERSION }}"
+    {{ lookup('container_image', application_id, entity_name) }}
+    {{ lookup('container_ports', [entity_name, 'http', DOCKER_BIND_HOST]) | indent(4) }}
+    {{ lookup('container_volumes', service_name, extra_volumes=ACCESS_REQUEST_MOUNTS) | indent(4) }}
+    {{ lookup('container_networks') | indent(4) }}
+    {{ lookup('container_extra_hosts', extra_hosts=(
+         ([] if (lookup('domain', 'web-app-keycloak') | network_of) == 'tor'
+          else [lookup('domain', 'web-app-keycloak') ~ ':host-gateway'])
+         + ([lookup('domain', 'web-app-zammad') ~ ':host-gateway']
+            if (ACCESS_REQUEST_ZAMMAD_ENABLED | bool) and IS_COMPOSE_MODE and (lookup('domain', 'web-app-zammad') | network_of) != 'tor'
+            else [])
+       ), onion_peers=([ACCESS_REQUEST_ZAMMAD_URL] if (ACCESS_REQUEST_ZAMMAD_ENABLED | bool) else [])) | indent(4) }}
+    {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
+    {{ lookup('container_healthcheck', service_name) | indent(4) }}
+
+{{ lookup('compose_volumes') }}
+
+{{ lookup('compose_networks') }}

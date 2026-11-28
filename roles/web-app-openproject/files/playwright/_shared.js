@@ -3,18 +3,31 @@ const { runAdminFlow } = require("./personas");
 const { resolveTimeout } = require("./timeouts");
 
 /**
- * Skip the guided tour OpenProject starts on a first login.
+ * Close the language dialog and skip the guided tour OpenProject shows on a first login.
  *
  * @param {import('@playwright/test').Page} page authenticated browser page
  */
 async function skipOnboardingTour(page) {
   if (!new URL(page.url()).searchParams.has("first_time_user")) return;
-  const skip = page.locator(".enjoyhint_skip_btn");
-  const shown = await skip
-    .waitFor({ state: "visible", timeout: resolveTimeout(15_000) })
-    .then(() => true)
-    .catch(() => false);
-  if (!shown) return;
+  const languageDialog = page.locator(".spot-modal-overlay_active").first();
+  const skip = page.locator(".enjoyhint_skip_btn").first();
+  const visibleWithin = (locator) =>
+    locator
+      .waitFor({ state: "visible", timeout: resolveTimeout(15_000) })
+      .then(() => true)
+      .catch(() => false);
+  if (!(await visibleWithin(languageDialog.or(skip).first()))) return;
+  if (await languageDialog.isVisible().catch(() => false)) {
+    await page
+      .locator("[data-tour-selector='modal-close-button']")
+      .first()
+      .click({ timeout: resolveTimeout(10_000) });
+    await expect(
+      languageDialog,
+      "closing the first-login language dialog must remove its overlay, which otherwise swallows every click on the page",
+    ).toBeHidden({ timeout: resolveTimeout(10_000) });
+    if (!(await visibleWithin(skip))) return;
+  }
   await skip.click({ timeout: resolveTimeout(10_000) });
   await expect(
     page.locator(".enjoyhint"),

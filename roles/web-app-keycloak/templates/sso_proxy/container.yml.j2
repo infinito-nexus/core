@@ -1,18 +1,27 @@
 {% if lookup('sso', application_id, 'is_proxy_gated') %}
+{% set _sso_proxy_error_page = (lookup('sso', application_id, 'oauth2_allowed_groups') | length > 0) and ('web-svc-access-request' in group_names) %}
 {% for sso_proxy_instance in lookup('sso', application_id, 'proxy_instances') %}
   {{ sso_proxy_instance.service }}:
     {{ lookup('container_image', 'web-app-keycloak', 'sso_proxy') }}
     {{ lookup('compose_restart') }}
-    command: --config /oauth2-proxy.cfg
+    command: --config /oauth2-proxy.cfg --alpha-config /oauth2-proxy-alpha.yml
     {{ lookup('compose_only', 'container_name', ((application_id | entity_name) ~ '-' ~ sso_proxy_instance.service)) }}
     hostname: {{ sso_proxy_instance.service }}
     labels:
-      infinito.sso-proxy.config-sha256: "{{ lookup('template', lookup('path_absolute', 'roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2'), template_vars={'sso_proxy_application_id': application_id, 'sso_proxy_network': sso_proxy_instance.network}) | hash('sha256') }}"
+      infinito.sso-proxy.config-sha256: "{{ (lookup('template', lookup('path_absolute', 'roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2'), template_vars={'sso_proxy_application_id': application_id, 'sso_proxy_network': sso_proxy_instance.network}) ~ lookup('template', lookup('path_absolute', 'roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak-alpha.yml.j2'), template_vars={'sso_proxy_application_id': application_id}) ~ (lookup('template', lookup('path_absolute', 'roles/web-svc-access-request/templates/sso_proxy/error.html.j2'), template_vars={'sso_proxy_application_id': application_id, 'access_request_role': ''}) if _sso_proxy_error_page else '')) | hash('sha256') }}"
+      {{ DOCKER_LOG_LABEL }}: {{ application_id | to_json }}
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2', template_vars={'logging_labels_declared': true}) | indent(4) }}
+{% if ((compose_mode_force | default('')) or DEPLOYMENT_MODE) != 'swarm' %}
     ports:
       # nocheck: compose-ports-must-use-container-ports  the published port belongs to the consuming role's own entity and the container port to web-app-keycloak's sso_proxy, so the mapping spans two application_ids and no single container_ports call can read both
       - {{ DOCKER_BIND_HOST }}:{{ lookup('config', application_id, 'services.' ~ (application_id | entity_name) ~ '.ports.local.' ~ sso_proxy_instance.port_key) }}:{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.ports.internal.http') }}/tcp
+{% endif %}
     volumes:
       - "{{ lookup('container', application_id, 'directories.volumes') }}{{ sso_proxy_instance.config_file }}:/oauth2-proxy.cfg"
+      - "{{ lookup('container', application_id, 'directories.volumes') }}{{ sso_proxy_instance.alpha_config_file }}:/oauth2-proxy-alpha.yml"
+{% if _sso_proxy_error_page %}
+      - "{{ lookup('container', application_id, 'directories.volumes') }}{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.error_template_file') }}:{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.templates_directory') }}/error.html:ro"
+{% endif %}
 {% if (TLS_MODE | lower) == 'self_signed' and OIDC.CLIENT.ISSUER_URL.startswith('https') %}
       - "{{ CA_TRUST.cert_host }}:{{ CA_TRUST.cert_container }}:ro"
 {% endif %}

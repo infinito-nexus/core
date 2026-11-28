@@ -14,7 +14,10 @@ This role deploy Decidim, an open-source participatory democracy platform for pu
 - PostgreSQL database via the shared platform instance
 - Redis for caching and Action Cable
 - OIDC SSO via Keycloak using `omniauth_openid_connect`
+- **Role Groups:** Every OIDC registration and login sets `admin` from the `administrator` role group and the `user_manager` role from the `user-manager` role group ([files/ruby/initializers/infinito_rbac.rb](./files/ruby/initializers/infinito_rbac.rb)). Only accounts with an OIDC identity change; the administrator the deploy seeds keeps its rights.
 - Accessible at `https://decidim.<your-domain>`
+- **Login methods:** `services.decidim.login.method` declares `sso`, `native` and `registration`. `sso` sets the organization's `omniauth_settings_openid_connect_enabled` ([files/ruby/configure_oidc.rb](./files/ruby/configure_oidc.rb)), which shows or hides the OpenID Connect entry. `native` and `registration` set the organization's `users_registration_mode` ([files/ruby/ensure/registration_mode.rb](./files/ruby/ensure/registration_mode.rb)): `enabled` with both on, `existing` (local sign-in without sign-up) with `native` alone, and `disabled` (external accounts only, no password form, no password reset, no sign-up) with `native` off. Decidim has no LDAP or second factor of its own, and Keycloak accounts keep registering through OpenID Connect in every mode.
+- **Break-glass path:** `disabled` also refuses the password login on the server, so with SSO on the seeded administrator signs in through Keycloak by e-mail. When Keycloak is unavailable, set `users_registration_mode` back to `existing` with `bundle exec rails runner 'Decidim::Organization.first.update!(users_registration_mode: :existing)'` inside the Decidim container, or redeploy with `applications.web-app-decidim.services.decidim.login.method.native.enabled: true`; the administrator then signs in at `/users/sign_in` with its e-mail address and password.
 
 ## SSO / Authentication
 

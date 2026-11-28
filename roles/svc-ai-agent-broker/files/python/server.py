@@ -14,15 +14,17 @@ Environment:
     AGENT_MODEL:              model alias agents are configured with.
     AGENT_CONTEXT:            context window of that model in tokens; empty leaves it to the agent.
     AGENT_PLATFORMS:          JSON platform name -> spec.
+    AGENT_ROLES:              JSON agent role of agents/roles/ -> its runtime, listed as agent/<role>.
     KEYCLOAK_URL:             Keycloak base URL.
     KEYCLOAK_REALM:           realm of the platform users.
     KEYCLOAK_ADMIN_USERNAME:  master-realm administrator.
     KEYCLOAK_ADMIN_PASSWORD:  its password.
+    KEYCLOAK_EMAIL_ATTRIBUTE: user attribute the realm's email claim is mapped from.
     IDLE_STOP:                ``true`` stops idle agents.
     IDLE_MINUTES:             idle time before a stop.
     MAX_RUNNING:              bound on concurrently running agents.
     START_TIMEOUT:            seconds an agent gets to become healthy.
-    REQUEST_TIMEOUT:          seconds a proxied request may take.
+    REQUEST_TIMEOUT:          seconds a proxied request may take, and a start may wait in the queue.
 """
 
 from __future__ import annotations
@@ -38,9 +40,18 @@ import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from access import AccessError, Keycloak
-from agents import RELAY_PATHS, Agents, CapacityError, pick
 from engine import ComposeBackend, Engine, EngineError
 from swarm import SwarmBackend
+
+from agents import (
+    RELAY_PATHS,
+    Agents,
+    CapacityError,
+    model_list,
+    pick,
+    profile_catalog,
+    resolve,
+)
 
 ENV = os.environ
 PORT = int(ENV["BROKER_PORT"])
@@ -49,6 +60,7 @@ LITELLM = urllib.parse.urlsplit(ENV["LITELLM_URL"])
 LITELLM_KEY = ENV["LITELLM_KEY"]
 REQUEST_TIMEOUT = float(ENV["REQUEST_TIMEOUT"])
 PLATFORMS = json.loads(ENV["AGENT_PLATFORMS"])
+PROFILES = profile_catalog(json.loads(ENV["AGENT_ROLES"]))
 USER_ID_HEADER = "X-OpenWebUI-User-Id"
 USER_EMAIL_HEADER = "X-OpenWebUI-User-Email"
 HOP_BY_HOP = {"connection", "transfer-encoding", "keep-alive", "content-length"}
@@ -82,6 +94,7 @@ AGENTS = Agents(
     idle_seconds=int(ENV["IDLE_MINUTES"]) * 60,
     max_running=MAX_RUNNING,
     start_timeout=int(ENV["START_TIMEOUT"]),
+    queue_timeout=REQUEST_TIMEOUT,
     log=log,
 )
 ACCESS = Keycloak(
@@ -90,6 +103,7 @@ ACCESS = Keycloak(
     ENV["KEYCLOAK_ADMIN_USERNAME"],
     ENV["KEYCLOAK_ADMIN_PASSWORD"],
     timeout=15,
+    email_attribute=ENV["KEYCLOAK_EMAIL_ATTRIBUTE"],
 )
 
 
@@ -147,16 +161,7 @@ class Handler(BaseHTTPRequestHandler):
             self._error(401, "invalid broker key")
             return
         if self.path == "/v1/models":
-            self._json(
-                200,
-                {
-                    "object": "list",
-                    "data": [
-                        {"id": name, "object": "model", "owned_by": "agent-broker"}
-                        for name in sorted(PLATFORMS)
-                    ],
-                },
-            )
+            self._json(200, {"object": "list", "data": model_list(PLATFORMS, PROFILES)})
             return
         self._error(404, "unknown path")
 
@@ -184,9 +189,14 @@ class Handler(BaseHTTPRequestHandler):
             self._error(400, "body is not JSON")
             return
         requested = payload.get("model")
-        platform = pick(requested, PLATFORMS)
-        if platform is None:
+        platform, instance = resolve(requested, PLATFORMS, PROFILES)
+        if instance is None:
             self._error(404, f"unknown agent platform '{requested}'")
+            return
+        if platform is None:
+            self._error(
+                404, f"'{requested}' runs on a runtime this broker does not offer"
+            )
             return
         try:
             allowed = ACCESS.allows(email, PLATFORMS[platform]["group"])
@@ -196,11 +206,11 @@ class Handler(BaseHTTPRequestHandler):
             return
         if not allowed:
             log("refused", platform=platform, owner=owner)
-            AGENTS.stop_owner(platform, owner)
+            AGENTS.stop_owner(instance, owner)
             self._error(403, f"not entitled to the {platform} agent")
             return
         try:
-            address, key = AGENTS.ensure(platform, owner)
+            address, key = AGENTS.ensure(platform, owner, instance)
         except CapacityError as error:
             self._error(503, str(error))
             return
@@ -211,8 +221,8 @@ class Handler(BaseHTTPRequestHandler):
         payload["model"] = AGENTS.agent_model(platform, address, key)
         payload["user"] = owner
         target = urllib.parse.urlsplit(address)
-        log("forward", platform=platform, owner=owner)
-        name = AGENTS.begin(platform, owner)
+        log("forward", platform=platform, owner=owner, model=requested)
+        name = AGENTS.begin(instance, owner)
         try:
             self._proxy(
                 target.hostname,

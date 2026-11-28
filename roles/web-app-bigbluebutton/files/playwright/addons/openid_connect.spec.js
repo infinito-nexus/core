@@ -15,7 +15,8 @@ test("addon openid_connect: Greenlight's external authentication resolves to Key
   test.skip(isOnionTarget(), "BigBlueButton is WebRTC (UDP/ICE); not served over Tor");
   test.setTimeout(resolveTimeout(180_000));
 
-  test.skip(!bbbBaseUrl || !oidcIssuerUrl, "BBB_BASE_URL / OIDC_ISSUER_URL are not staged for this role");
+  expect(bbbBaseUrl, "BBB_BASE_URL must be set").toBeTruthy();
+  expect(oidcIssuerUrl, "OIDC_ISSUER_URL must be set while the sso service is enabled").toBeTruthy();
 
   const expectedOidcAuthUrl = `${oidcIssuerUrl}/protocol/openid-connect/auth`;
 

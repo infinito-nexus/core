@@ -39,11 +39,10 @@ STALWART_DOMAIN: "{{ lookup('config', application_id, 'services.stalwart.domain'
 STALWART_DOMAIN_DNS_ZONE: "{{ STALWART_DOMAIN | to_zone }}"
 STALWART_EMAIL: "{{ lookup('email', application_id) }}"
 STALWART_HOSTNAME: "{{ STALWART_EMAIL.host }}"
-STALWART_WEB_DOMAIN: "{{ lookup('domain', application_id) }}"
 STALWART_HOSTNAME_DNS_ZONE: "{{ STALWART_HOSTNAME | to_zone }}"
 container_hostname: "{{ lookup('container_hostname', application_id) }}"
 
-STALWART_OIDC_ONION_ISSUER: "{{ lookup('tls', 'web-app-keycloak', 'domain').endswith('.onion') }}"
+STALWART_OIDC_ONION_ISSUER: "{{ (lookup('tls', 'web-app-keycloak', 'domain') | network_of) == 'tor' }}"
 STALWART_OIDC_SOCKS_PROXY: "{{ lookup('tor_socks_proxy') if STALWART_OIDC_ONION_ISSUER | bool else '' }}"
 # Keycloak access tokens carry neither a Stalwart audience nor a urn:ietf:params:oauth:scope:mail scope, so the v1 defaults reject every one of them.
 STALWART_OIDC_TOKEN_VALIDATION:
@@ -72,7 +71,6 @@ STALWART_CLAMAV_MILTER_TIMEOUT_DATA_MS: 15000
 STALWART_CLAMAV_MILTER_CONF: "{{ [ STALWART_CONFIG_DIR, 'clamav-milter.conf' ] | path_join }}"
 STALWART_WEBMAIL_BASE_URL: "{{ lookup('canonical_url', application_id, 'webmail') }}"
 STALWART_WEBMAIL_DOMAIN: "{{ STALWART_WEBMAIL_BASE_URL | regex_replace('^https?://', '') }}"
-STALWART_WEBMAIL_HTTP_PORT: "{{ lookup('config', application_id, 'services.webmail.ports.local.http') }}"
 STALWART_WEBMAIL_CONFIG_DIR: "{{ [ STALWART_VOLUMES_DIR, 'webmail' ] | path_join }}"
 STALWART_WEBMAIL_OAUTH_CONFIG: "{{ [ STALWART_WEBMAIL_CONFIG_DIR, 'oauth.inc.php' ] | path_join }}"
 STALWART_WEBMAIL_DESIGN_CONFIG: "{{ [ STALWART_WEBMAIL_CONFIG_DIR, 'design.inc.php' ] | path_join }}"
@@ -80,7 +78,7 @@ STALWART_WEBMAIL_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.
 
 STALWART_WEBUI_VERSION: "{{ lookup('config', application_id, 'services.stalwart.webui_version') }}"
 STALWART_WEBUI_RESOURCE_URL: "https://github.com/stalwartlabs/webui/releases/download/{{ STALWART_WEBUI_VERSION }}/webui.zip"
-STALWART_WEBUI_CACHE_FILE: "/var/cache/infinito/core/cache/package/stalwart-webui/webui-{{ STALWART_WEBUI_VERSION }}.zip"
+STALWART_WEBUI_CACHE_FILE: "{{ [ DIR_CACHE, 'package', 'stalwart-webui', 'webui-' ~ STALWART_WEBUI_VERSION ~ '.zip' ] | path_join }}"
 STALWART_WEBUI_LOCAL_FILE: "{{ [ STALWART_CONFIG_DIR, 'webui.zip' ] | path_join }}"
 STALWART_WEBUI_CONTAINER_FILE: "{{ lookup('volume', application_id, 'webui_bundle').target }}"
 STALWART_WEBUI_LOCAL_URL: "file://{{ STALWART_WEBUI_CONTAINER_FILE }}"
@@ -95,11 +93,6 @@ STALWART_ADMIN_USER: "{{ lookup('users', 'stalwartadmin').username }}"
 STALWART_ADMIN_PASSWORD: "{{ lookup('users', 'stalwartadmin').password }}"
 
 STALWART_USERS: "{{ lookup('stalwart_users') }}"
-STALWART_ADMIN_ACCOUNT_NAMES: >-
-  {{ STALWART_USERS | dict2items | map(attribute='value')
-     | selectattr('roles', 'defined')
-     | selectattr('roles', 'contains', 'administrator')
-     | map(attribute='username') | list }}
 
 STALWART_DMARC_RUF: "{{ lookup('config', application_id, 'users.platform_administrator.email') }}"
 STALWART_DMARC_RUA_USER: "{{ lookup('config', application_id, 'services.stalwart.dmarc.rua_user') }}"
@@ -113,21 +106,22 @@ STALWART_RCPT_THROTTLE_KEY:
   senderDomain: true
   rcpt: true
 STALWART_RCPT_THROTTLE_RULE: "is_empty(authenticated_as)"
+STALWART_SUBMISSION_PORT: "{{ lookup('config', application_id, 'services.stalwart.ports.internal.submission') | int }}"
+STALWART_SUBMISSION_LISTENER:
+  name: "submission"
+  protocol: "smtp"
+STALWART_SUBMISSION_BIND: "[::]:{{ STALWART_SUBMISSION_PORT }}"
 
-STALWART_BAN_PERIOD_MS: "{{ (lookup('config', application_id, 'services.stalwart.ban_period_seconds') | int) * 1000 }}"
-STALWART_BAN_PERIODS:
-  authBanPeriod: "{{ STALWART_BAN_PERIOD_MS | int }}"
-  abuseBanPeriod: "{{ STALWART_BAN_PERIOD_MS | int }}"
-  loiterBanPeriod: "{{ STALWART_BAN_PERIOD_MS | int }}"
-  scanBanPeriod: "{{ STALWART_BAN_PERIOD_MS | int }}"
+STALWART_BAN_PERIODS: "{{ lookup('form_values', application_id, 'security') }}"
 STALWART_ALLOWED_IPS:
   - "{{ lookup('subnet_gateway') }}"
 STALWART_ALLOWED_IP_REASON: "Docker gateway: reverse-proxied HTTP and container hairpin traffic share this address"
-STALWART_HTTP_SETTINGS:
-  clientIpSource: forwarded
-  forwardedHops: 1
+STALWART_HTTP_SETTINGS: "{{ lookup('form_values', application_id, 'http') }}"
 
-STALWART_SSO_ENABLED: "{{ lookup('sso', application_id, 'is_enabled') | bool }}"
+STALWART_LOGIN_SSO: "{{ lookup('config', application_id, 'services.stalwart.login.method.sso.enabled') | bool }}"
+STALWART_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.stalwart.login.method.native.enabled') | bool }}"
+STALWART_LOGIN_2FA: "{{ lookup('config', application_id, 'services.stalwart.login.method.2fa.enabled') | bool }}"
+STALWART_SSO_ENABLED: "{{ (lookup('sso', application_id, 'is_enabled') | bool) and (STALWART_LOGIN_SSO | bool) }}"
 
 STALWART_IMPORT_MAILU: "{{ lookup('config', application_id, 'services.stalwart.migration.import_mailu') | bool }}"
 STALWART_MAILBOX_MAP: "{{ lookup('config', application_id, 'services.stalwart.migration.mailbox_map') }}"

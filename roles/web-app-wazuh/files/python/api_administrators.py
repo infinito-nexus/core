@@ -1,12 +1,13 @@
-"""Grant the Wazuh API administrator role to the platform's administrator backend roles.
+"""Grant one Wazuh API role to the platform backend roles that hold it.
 
 Environment:
     API_USERNAME: Wazuh API account name, set in the wazuh.manager container.
     API_PASSWORD: Wazuh API account password, set in the wazuh.manager container.
     WAZUH_RBAC_RULE_NAME: Name of the security rule this script owns.
-    WAZUH_RBAC_BACKEND_ROLES: JSON list of backend roles that receive the administrator role.
+    WAZUH_RBAC_BACKEND_ROLES: JSON list of backend roles that receive the API role.
+    WAZUH_RBAC_API_ROLE: Name of the Wazuh API role the rule is linked to.
 
-Prints CHANGED when the rule or its link to the administrator role was written, OK otherwise.
+Prints CHANGED when the rule or its link to the API role was written, OK otherwise.
 """
 
 import base64
@@ -17,7 +18,6 @@ import urllib.error
 import urllib.request
 
 API = "https://localhost:55000"
-ADMINISTRATOR = "administrator"
 
 
 def call(method, path, token=None, body=None, auth=None):
@@ -48,6 +48,7 @@ def items(path, token):
 
 def main():
     name = os.environ["WAZUH_RBAC_RULE_NAME"]
+    api_role = os.environ["WAZUH_RBAC_API_ROLE"]
     rule = {
         "OR": [
             {"FIND": {"backend_roles": role}}
@@ -72,9 +73,7 @@ def main():
         call("PUT", f"/security/rules/{current['id']}", token, {"rule": rule})
         changed = True
     role = next(
-        item
-        for item in items("/security/roles", token)
-        if item["name"] == ADMINISTRATOR
+        item for item in items("/security/roles", token) if item["name"] == api_role
     )
     if current["id"] not in role["rules"]:
         call(

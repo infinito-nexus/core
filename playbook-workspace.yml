@@ -1,0 +1,65 @@
+---
+# Param: WORKSPACE              - the workspace id, a lowercase UUID
+# Param: WORKSPACE_ACTION       - apply or destroy
+# Param: WORKSPACE_RESULT_FILE  - file the operation writes its result to for workspace.sh
+# Param: WORKSPACE_CORE_VERSION - apply only: the core version the tree of the workspace runner declares, without v
+# Param: WORKSPACE_CORE_BASE    - apply only: the own build of a dev or CI deploy the runner builds on, empty for a release
+# Param: WORKSPACE_TARGETS      - apply only: the pinned targets of the workspace, [{host, port, address}]
+# Param: WORKSPACE_PLATFORM_TOKENS - apply only: true or false, whether the provider policies of the workspace read the platform provider tokens
+- name: "Run one workspace operation on the platform hosts"
+  hosts: all
+  any_errors_fatal: true
+  become: true
+  environment:
+    CA_TRUST_CERT_HOST: "{{ CA_TRUST.cert_host }}"
+    CA_TRUST_WRAPPER_HOST: "{{ CA_TRUST.wrapper_host }}"
+    CA_TRUST_NAME: "{{ CA_TRUST.trust_name }}"
+    CA_TRUST_CERT_CONTAINER: "{{ CA_TRUST.inject_cert_container }}"
+    CA_TRUST_WRAPPER_CONTAINER: "{{ CA_TRUST.inject_wrapper_container }}"
+    CA_CONTAINER_ENABLED: "{{ CA_CONTAINER_ENABLED | int }}"
+    COMPOSE_HTTP_TIMEOUT: "600"
+    DOCKER_CLIENT_TIMEOUT: "600"
+    DOCKER_BUILDKIT: "{{ BUILDKIT_ENABLED | int }}"
+    COMPOSE_DOCKER_CLI_BUILD: "{{ BUILDKIT_ENABLED | int }}"
+    CONTAINER_EXEC_TIMEOUT: "{{ SYS_TIMEOUT_CONTAINER_EXEC }}"
+  vars:
+    workspace_roles:
+      - web-app-keycloak
+      - svc-dns-knot
+      - web-app-semaphore
+      - web-app-openbao
+      - web-svc-seaweedfs
+      - svc-virt-incus
+      - web-app-proxmox
+  tasks:
+    - name: ✅ Assert the operation workspace.sh handed over
+      ansible.builtin.assert:
+        that:
+          - WORKSPACE is match('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+          - WORKSPACE_ACTION in ['apply', 'destroy']
+          - WORKSPACE_RESULT_FILE | length > 0
+        fail_msg: "Pass WORKSPACE, WORKSPACE_ACTION and WORKSPACE_RESULT_FILE as workspace.sh does, got '{{ WORKSPACE }}' and '{{ WORKSPACE_ACTION }}'"
+        quiet: true
+
+    - name: 🔀 Merge variables
+      ansible.builtin.include_tasks: tasks/utils/constructor/variables.yml
+
+    - name: 🧊 Render the applications SPOT once and carry it into every task's worker
+      applications_carrier: {}
+
+    - name: "🛑 Stop every unfinished task of ws-{{ WORKSPACE }} before any role erases"
+      ansible.builtin.include_role:
+        name: web-app-semaphore
+        tasks_from: workspace_stop
+      when:
+        - WORKSPACE_ACTION == 'destroy'
+        - "'web-app-semaphore' in group_names"
+
+    - name: "🧭 Run {{ WORKSPACE_ACTION }} of ws-{{ WORKSPACE }} in each role that owns a workspace resource"
+      ansible.builtin.include_role:
+        name: "{{ workspace_role }}"
+        tasks_from: workspace
+      loop: "{{ workspace_roles if WORKSPACE_ACTION == 'apply' else workspace_roles | reverse | list }}"
+      loop_control:
+        loop_var: workspace_role
+      when: workspace_role in group_names

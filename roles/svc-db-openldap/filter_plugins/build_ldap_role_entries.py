@@ -28,6 +28,7 @@ silently dropped during sync. This filter therefore:
   referring parent, building the required hierarchy.
 """
 
+from plugins.filter.ldap.user_dn import ldap_user_dn
 from utils.roles.rbac.scoped import granted_roles
 
 _ENTRY_KIND_GROUP = "group"
@@ -187,11 +188,12 @@ def build_ldap_role_entries(applications, users, ldap, group_names=None):
 
             member_dns = []
             member_uids = []
-            for username, user_config in (users or {}).items():
+            for user_config in (users or {}).values():
                 if role_name in granted_roles(user_config or {}, application_id):
-                    user_dn = f"{ldap_user_attr}={username},{user_dn_base}"
-                    member_dns.append(user_dn)
-                    member_uids.append(username)
+                    member_dns.append(
+                        ldap_user_dn(user_config, ldap_user_attr, user_dn_base)
+                    )
+                    member_uids.append(user_config["username"])
 
             if effective_scope == _SCOPE_GLOBAL:
                 role_cn = f"{application_id}-{role_name}"

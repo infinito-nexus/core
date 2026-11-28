@@ -1,8 +1,10 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 const { resolveTimeout } = require("./timeouts");
-const { decodeDotenvQuotedValue, performKeycloakLoginForm, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
+const { decodeDotenvQuotedValue, runAdminFlow, runBiberFlow, runGuestFlow, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
+const shared = require("./_shared");
+const { oidcLogin } = shared;
 
 test.use({
   ignoreHTTPSErrors: true
@@ -46,79 +48,6 @@ async function login(page, email, password) {
   await page.waitForLoadState("networkidle");
 }
 
-// Helper: dismiss the cookie consent banner if present. Decidim renders a
-// modal overlay that steals pointer events from form buttons — without this
-// the "Create an account" submit on the OIDC registration form is not hittable.
-async function dismissCookieBanner(page) {
-  const acceptBtn = page.getByRole("button", { name: /accept all|accept only essential|accept/i }).first();
-  if (await acceptBtn.isVisible().catch(() => false)) {
-    await acceptBtn.click().catch(() => {});
-    await page.waitForLoadState("networkidle", { timeout: resolveTimeout(5000) }).catch(() => {});
-  }
-}
-
-// Helper: OIDC login via Keycloak
-async function oidcLogin(page, username, password) {
-  await gotoOnion(page, `${baseUrl}/users/sign_in`);
-  await page.waitForLoadState("networkidle");
-  await dismissCookieBanner(page);
-  const ssoButton = page.locator("a[href*='openid_connect']").first();
-  const ssoVisible = await ssoButton.isVisible().catch(() => false);
-  if (!ssoVisible) {
-    return null; // OIDC not configured
-  }
-  // Submit form manually replicating Rails UJS data-method="post"
-  const ssoHref = await ssoButton.getAttribute("href");
-  console.log("SSO href:", ssoHref);
-  await page.waitForFunction(() => document.readyState === "complete");
-  const oidcAuthHost = new URL(oidcIssuerUrl).host;
-  const navigated = page.waitForURL((url) => url.host === oidcAuthHost, { timeout: resolveTimeout(30000) });
-  await page.evaluate((href) => {
-    const csrfToken = document.querySelector("meta[name='csrf-token']")?.getAttribute("content") || "";
-    const form = document.createElement("form");
-    form.setAttribute("method", "post");
-    form.setAttribute("action", href);
-    const token = document.createElement("input");
-    token.setAttribute("type", "hidden");
-    token.setAttribute("name", "authenticity_token");
-    token.setAttribute("value", csrfToken);
-    form.appendChild(token);
-    document.body.appendChild(form);
-    form.submit();
-  }, ssoHref);
-  await navigated.catch(e => console.log("nav error:", e.message, "url:", page.url()));
-  console.log("After form submit URL:", page.url());
-  await performKeycloakLoginForm(page, username, password);
-  console.log("Login clicked, waiting for redirect back...");
-  await page.waitForLoadState("networkidle", { timeout: resolveTimeout(30000) }).catch(e => console.log("networkidle error:", e.message));
-  console.log("After login URL:", page.url());
-  await dismissCookieBanner(page);
-
-  // First-time OIDC users land on Decidim's registration form (TOS + nickname
-  // confirmation). Returning users skip this and sign in directly — detection
-  // is by form presence, not URL, so the flow is idempotent across runs.
-  const tosCheckbox = page.locator("input[type='checkbox'][name='user[tos_agreement]']").first();
-  const onRegistrationForm = await tosCheckbox.isVisible().catch(() => false);
-  if (onRegistrationForm) {
-    console.log("First-time OIDC registration form detected, accepting TOS...");
-    await tosCheckbox.check({ force: true });
-    // Decidim's `user-registration-form` Stimulus controller cancels submit and
-    // opens a newsletter modal when `user[newsletter]` is unchecked. Click the
-    // decline button on that modal to proceed without subscribing — that path
-    // sets the continue flag and re-submits the form.
-    await page.evaluate(() => document.getElementById("omniauth-register-form").requestSubmit());
-    const declineBtn = page.locator("#sign-up-newsletter-modal [data-check='false']").first();
-    await declineBtn.waitFor({ state: "visible", timeout: resolveTimeout(10000) });
-    await Promise.all([
-      page.waitForURL((url) => !/auth\/openid_connect\/callback/.test(url.toString()), { timeout: resolveTimeout(30000) }).catch(e => console.log("post-submit nav error:", e.message)),
-      declineBtn.click({ force: true, timeout: resolveTimeout(30_000) }),
-    ]);
-    console.log("After registration URL:", page.url());
-    await page.waitForURL((url) => url.host === new URL(baseUrl).host, { timeout: resolveTimeout(30000) }).catch(() => {});
-    await page.waitForLoadState("load", { timeout: resolveTimeout(30000) }).catch(() => {});
-  }
-}
-
 // Scenario I: Homepage loads
 test("homepage loads and shows Decidim", async ({ page }) => {
   await gotoOnion(page, baseUrl);
@@ -129,9 +58,14 @@ test("homepage loads and shows Decidim", async ({ page }) => {
   ).toBeVisible({ timeout: resolveTimeout(60_000) });
 });
 
-// Scenario II: Admin local login and logout
+// Scenario II: Admin login and logout
 test("admin can log in and out", async ({ page }) => {
-  await login(page, adminEmail, adminPassword);
+  if (shared.env.loginMethodNative) {
+    await login(page, adminEmail, adminPassword);
+  } else {
+    skipUnlessServiceEnabled("sso");
+    await oidcLogin(page, shared.adminKeycloakLoginId(), adminPassword);
+  }
   await expect(page).not.toHaveURL(/sign_in/);
   await expect(
     page.locator("#main-bar"),
@@ -144,8 +78,8 @@ test("admin can log in and out", async ({ page }) => {
 
 // Scenario III: Biber OIDC login and logout
 test("biber can log in via OIDC and log out", async ({ page }) => {
-  const result = await oidcLogin(page, biberUsername, biberPassword);
-  if (result === null) { test.skip(); return; }
+  skipUnlessServiceEnabled("sso");
+  await oidcLogin(page, biberUsername, biberPassword);
   await expect(page).not.toHaveURL(/sign_in/);
   await expect(
     page.locator("#main-bar"),
@@ -158,9 +92,8 @@ test("biber can log in via OIDC and log out", async ({ page }) => {
 
 // Scenario IV: Admin and biber can communicate via conversations
 test("biber can access profile after OIDC login", async ({ page }) => {
-  // Biber logs in via OIDC
-  const result = await oidcLogin(page, biberUsername, biberPassword);
-  if (result === null) { test.skip(); return; }
+  skipUnlessServiceEnabled("sso");
+  await oidcLogin(page, biberUsername, biberPassword);
   await expect(page).not.toHaveURL(/sign_in/);
 
   // Biber accesses their account page
@@ -202,3 +135,8 @@ test("guest: public-landing → auth chain → never authenticated", async ({ pa
 
 require("./test-seaweedfs");
 require("./test-design");
+require("./test-login-methods").register(shared, baseUrl);
+require("./test-rbac").register({
+  env: { baseUrl, biberUsername, biberPassword },
+  oidcLogin,
+});

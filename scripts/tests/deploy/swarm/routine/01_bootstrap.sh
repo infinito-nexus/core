@@ -37,14 +37,23 @@ fi
 
 bash "${SCRIPT_DIR}/../utils/unmount/nfs_mounts.sh" "${NFS_SERVER}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 bash "${SCRIPT_DIR}/../utils/unmount/host_state.sh" "${INFINITO_DIR_VAR_LIB:?}"
-for node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" "${BACKUP_NODE}"; do
+for node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" "${BACKUP_NODE}" "${PROXMOX_NODE}"; do
 	docker rm -f "${node}" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 done
 docker volume rm "${SWARM_NAME}_nfs-export" >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../../.." && pwd)"
+LAB_NODES=("${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" "${BACKUP_NODE}")
+LAB_PROFILES=(--profile drill)
+proxmox_profile="$(PYTHONPATH="${REPO_ROOT}" python3 -m utils.tests.swarm.proxmox_host "${APP_ID}")"
+if [ -n "${proxmox_profile}" ]; then
+	echo "==> ${APP_ID} deploys a flavor that runs alone on ${PROXMOX_NODE}; bringing it up"
+	LAB_NODES+=("${PROXMOX_NODE}")
+	LAB_PROFILES+=(--profile "${proxmox_profile}")
+fi
+LAB_BAND=6
 if [ -z "${INFINITO_IMAGE:-}" ]; then
-	INFINITO_IMAGE="$(bash "${REPO_ROOT}/scripts/meta/resolve/image/local.sh"):${INFINITO_IMAGE_TAG:?}"
+	INFINITO_IMAGE="$(bash "${REPO_ROOT}/scripts/meta/resolve/image/local.sh")"
 	export INFINITO_IMAGE
 	if ! docker image inspect "${INFINITO_IMAGE}" >/dev/null 2>&1; then
 		echo "==> building local infinito image ${INFINITO_IMAGE} for distro ${INFINITO_DISTRO}"
@@ -54,20 +63,10 @@ fi
 
 COMPOSE_FILE="${SCRIPT_DIR}/../../../../../compose/swarm/compose.yml"
 COMPOSE_ARGS=(-f "${COMPOSE_FILE}")
-CACHE_FRONTEND="infinito-package-cache-frontend"
-REGISTRY_CACHE="infinito-registry-cache"
-CACHE_NET=""
-if docker inspect "${CACHE_FRONTEND}" >/dev/null 2>&1; then
-	CACHE_NET="$(docker inspect "${CACHE_FRONTEND}" --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}}{{"\n"}}{{end}}' | head -n1)"
-	echo "==> package-cache detected on ${CACHE_NET}; wiring swarm nodes to it"
-	registry_ca_src="$(docker inspect "${REGISTRY_CACHE}" \
-		--format '{{range .Mounts}}{{if eq .Destination "/ca"}}{{.Source}}{{end}}{{end}}' 2>/dev/null || true)"
-	if [ -z "${registry_ca_src}" ]; then
-		echo "FAILURE: ${CACHE_FRONTEND} is up but ${REGISTRY_CACHE} exposes no /ca bind; the nodes cannot learn its MITM CA" >&2
-		exit 1
-	fi
-	export INFINITO_CACHE_REGISTRY_CA_HOST_PATH="${registry_ca_src}"
-	echo "==> registry-cache CA source: ${INFINITO_CACHE_REGISTRY_CA_HOST_PATH}"
+CACHE_NET="$(cd "${REPO_ROOT}" && python3 -m cli.administration.infra attach)"
+if [ -n "${CACHE_NET}" ]; then
+	echo "==> infra runner attached on ${CACHE_NET}; wiring swarm nodes to it"
+	echo "==> registry-cache CA source: ${INFINITO_CACHE_REGISTRY_CA_HOST_PATH:?Run 'make dotenv' to generate the .env single source of truth}"
 	python3 -m cli.meta.cache
 	COMPOSE_ARGS+=(-f "${SCRIPT_DIR}/../../../../../compose/swarm/cache.override.yml")
 	if [ -n "${INFINITO_CACHE_SHARED_HOST_PATH:-}" ]; then
@@ -82,7 +81,7 @@ fi
 
 build_attempts=3
 for attempt in $(seq 1 "${build_attempts}"); do
-	docker compose "${COMPOSE_ARGS[@]}" -p "${SWARM_NAME}" --profile drill build && break
+	docker compose "${COMPOSE_ARGS[@]}" -p "${SWARM_NAME}" "${LAB_PROFILES[@]}" build && break
 	if [ "${attempt}" -eq "${build_attempts}" ]; then
 		echo "FAILURE: node image build failed after ${build_attempts} attempts" >&2
 		exit 1
@@ -90,7 +89,7 @@ for attempt in $(seq 1 "${build_attempts}"); do
 	sleep $((attempt * 5))
 done
 
-docker compose "${COMPOSE_ARGS[@]}" -p "${SWARM_NAME}" --profile drill up -d
+docker compose "${COMPOSE_ARGS[@]}" -p "${SWARM_NAME}" "${LAB_PROFILES[@]}" up -d
 
 if [ -n "${CACHE_NET}" ]; then
 	cache_subnet="$(docker network inspect "${CACHE_NET}" \
@@ -105,14 +104,14 @@ if [ -n "${CACHE_NET}" ]; then
 	esac
 	cache_prefix="${cache_subnet%.0/24}"
 
-	node_octet=$((200 + INFINITO_INSTANCE * 5))
+	node_octet=$((200 + INFINITO_INSTANCE * LAB_BAND))
 	pin_nodes=true
-	if [ "$((node_octet + 4))" -gt 254 ]; then
+	if [ "$((node_octet + LAB_BAND - 1))" -gt 254 ]; then
 		echo "==> INFINITO_INSTANCE=${INFINITO_INSTANCE} leaves no pinned node band in ${cache_prefix}.0/24; Docker assigns the node addresses from ${CACHE_NET}'s pool" >&2
 		pin_nodes=false
 	fi
 
-	for node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}" "${BACKUP_NODE}"; do
+	for node in "${LAB_NODES[@]}"; do
 		connect_args=()
 		if [ "${pin_nodes}" = true ]; then
 			connect_args=(--ip "${cache_prefix}.${node_octet}")
@@ -133,6 +132,9 @@ if [ -n "${CACHE_NET}" ]; then
 fi
 
 ansible-playbook \
-	-i "${MGR},${WRK1},${WRK2},${NFS_SERVER},${BACKUP_NODE}," \
+	-i "$(
+		IFS=,
+		echo "${LAB_NODES[*]}"
+	)," \
 	-c docker \
 	"${SCRIPT_DIR}/../../../../../compose/swarm/playbook.yml"

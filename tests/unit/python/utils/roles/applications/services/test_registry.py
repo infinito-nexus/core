@@ -4,19 +4,22 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from utils.cache.files import PROJECT_ROOT, read_text
-from utils.cache.yaml import dump_yaml_str
+from utils.cache.files import PROJECT_ROOT, iter_project_files
+from utils.cache.yaml import dump_yaml_str, load_yaml_any
 from utils.roles.applications.services.registry import (
     GATED_LOOKUPS,
     GROUP_GATED_CONSTANTS,
     ServiceRegistryError,
     build_service_registry_from_applications,
+    build_service_registry_from_roles_dir,
     detect_service_bucket,
     detect_service_channel,
+    expand_service_tokens,
     is_explicit_truth,
     ordered_primary_service_entries,
     resolve_service_dependency_roles_from_config,
 )
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 
 class TestServiceRegistryDiscovery(unittest.TestCase):
@@ -339,6 +342,50 @@ class TestServiceRegistryOrdering(unittest.TestCase):
                 ordered_primary_service_entries(registry, roles_dir)
 
 
+class TestDispatcherExpansion(unittest.TestCase):
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.roles_dir = Path(self._tmp.name) / "roles"
+        self._role(
+            "web-app-email", {"email": {"shared": True, "provider": "web-app-mx"}}
+        )
+        self._role("web-app-mx", {"mx": {"shared": True, "covers": ["email"]}})
+        self._role("web-app-other", {"other": {"shared": True}})
+
+    def _role(self, role: str, services: dict) -> None:
+        services_file = self.roles_dir / role / ROLE_FILE_META_SERVICES
+        vars_file = self.roles_dir / role / ROLE_FILE_VARS_MAIN
+        services_file.parent.mkdir(parents=True)
+        vars_file.parent.mkdir(parents=True)
+        services_file.write_text(dump_yaml_str(services), encoding="utf-8")
+        vars_file.write_text(f"application_id: {role}\n", encoding="utf-8")
+
+    def test_disabling_the_selected_provider_disables_the_dispatcher(self):
+        self.assertEqual(
+            ["mx", "email"], expand_service_tokens(["web-app-mx"], self.roles_dir)
+        )
+
+    def test_the_provider_service_key_disables_the_dispatcher_too(self):
+        self.assertEqual(["mx", "email"], expand_service_tokens(["mx"], self.roles_dir))
+
+    def test_disabling_the_dispatcher_leaves_its_provider(self):
+        self.assertEqual(
+            ["email"], expand_service_tokens(["web-app-email"], self.roles_dir)
+        )
+
+    def test_an_unrelated_role_disables_no_dispatcher(self):
+        self.assertEqual(
+            ["other", "unknown"],
+            expand_service_tokens(["web-app-other", "unknown"], self.roles_dir),
+        )
+
+    def test_the_registry_records_the_selected_provider(self):
+        registry = build_service_registry_from_roles_dir(self.roles_dir)
+        self.assertEqual("web-app-mx", registry["email"]["provider"])
+        self.assertNotIn("provider", registry["mx"])
+
+
 class TestExplicitTruth(unittest.TestCase):
     """A flag may resolve a dependency through a group-gated constant.
 
@@ -381,10 +428,15 @@ class TestExplicitTruth(unittest.TestCase):
 
     def test_every_registered_constant_is_defined_in_group_vars(self):
         group_vars = PROJECT_ROOT / "group_vars" / "all"
-        defined = "".join(read_text(str(path)) for path in group_vars.glob("*.yml"))
+        defined = {
+            key
+            for path in iter_project_files(extensions=(".yml",))
+            if Path(path).parent == group_vars
+            for key in load_yaml_any(path)
+        }
         for constant in GROUP_GATED_CONSTANTS:
             with self.subTest(constant=constant):
-                self.assertIn(f"{constant}:", defined)
+                self.assertIn(constant, defined)
 
 
 if __name__ == "__main__":

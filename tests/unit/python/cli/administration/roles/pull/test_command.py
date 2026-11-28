@@ -13,6 +13,7 @@ from cli.administration.roles.paths import WORK_DIR
 from cli.administration.roles.pull import command
 from utils.cache import ROLES_DIR
 from utils.roles.custom import CustomRoleError
+from utils.stacks.makefile import makefile_calls
 
 
 class TestPullCommand(unittest.TestCase):
@@ -76,9 +77,18 @@ class TestPullCommand(unittest.TestCase):
         self.assertEqual(1, exit_.exception.code)
         self.assertIn("web-app-cst-demo: refused", err.getvalue())
 
-    def test_inventory_argument_is_required(self):
-        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
-            command.main([])
+    @unittest.mock.patch.object(command, "pull", return_value=[])
+    def test_without_an_inventory_only_the_manifest_is_pulled(self, pull):
+        self.assertEqual(0, command.main([]))
+        pull.assert_called_once_with(None, ROLES_DIR, WORK_DIR)
+
+
+class TestMakeTargetsPullFirst(unittest.TestCase):
+    def test_test_and_lint_pull_the_pinned_roles_before_their_suites(self):
+        graph = makefile_calls()
+        for target in ("test", "lint"):
+            with self.subTest(target=target):
+                self.assertIn("roles-pull", graph[target])
 
 
 if __name__ == "__main__":

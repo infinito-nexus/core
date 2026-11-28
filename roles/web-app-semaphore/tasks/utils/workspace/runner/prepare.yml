@@ -1,0 +1,77 @@
+---
+- name: "🔎 Find the UIDs the workspace runners of this host hold"
+  ansible.builtin.find:
+    paths: "{{ SEMAPHORE_WORKSPACES_DIR }}"
+    patterns: uid
+    recurse: true
+    depth: 2
+  register: semaphore_workspace_uid_files
+
+- name: "📖 Read the UIDs the workspace runners of this host hold"
+  ansible.builtin.slurp:
+    src: "{{ semaphore_workspace_uid_file }}"
+  loop: "{{ semaphore_workspace_uid_files.files | map(attribute='path') | sort }}"
+  loop_control:
+    loop_var: semaphore_workspace_uid_file
+  register: semaphore_workspace_uids
+
+- name: "🧮 Keep or allocate the UID of {{ semaphore_workspace_alias }}"
+  ansible.builtin.set_fact:
+    semaphore_workspace_runner_uid: >-
+      {{ (semaphore_workspace_uids.results
+          | selectattr('semaphore_workspace_uid_file', 'equalto', semaphore_workspace_dir ~ '/uid')
+          | map(attribute='content') | map('b64decode') | map('trim') | map('int') | list
+          + [semaphore_workspace_uids.results | map(attribute='content') | map('b64decode') | map('trim')
+             | list | semaphore_workspace_uid(SEMAPHORE_WORKSPACE_UID_BASE)]) | first }}
+
+- name: "📁 Hold the compose project of {{ semaphore_workspace_alias }}"
+  ansible.builtin.file:
+    path: "{{ semaphore_workspace_dir }}"
+    state: directory
+    mode: "0750"
+
+- name: "🔢 Record the UID of {{ semaphore_workspace_alias }}"
+  ansible.builtin.copy:
+    content: "{{ semaphore_workspace_runner_uid }}\n"
+    dest: "{{ semaphore_workspace_dir }}/uid"
+    mode: "0644"
+
+- name: "🔎 Find the runner token of {{ semaphore_workspace_alias }}"
+  ansible.builtin.stat:
+    path: "{{ semaphore_workspace_dir }}/runner.token"
+  register: semaphore_workspace_token_file
+
+- name: "🎟️ Create the runner token of {{ semaphore_workspace_alias }} once"
+  ansible.builtin.copy:
+    content: "{{ lookup('ansible.builtin.password', '/dev/null length=48 chars=ascii_letters,digits') }}"
+    dest: "{{ semaphore_workspace_dir }}/runner.token"
+    owner: "{{ semaphore_workspace_runner_uid }}"
+    group: "{{ semaphore_workspace_runner_uid }}"
+    mode: "0400"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: not semaphore_workspace_token_file.stat.exists
+
+- name: "📖 Read the runner token of {{ semaphore_workspace_alias }}"
+  ansible.builtin.slurp:
+    src: "{{ semaphore_workspace_dir }}/runner.token"
+  register: semaphore_workspace_token
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧾 Render the runner and egress of {{ semaphore_workspace_alias }}"
+  ansible.builtin.template: # nocheck: stack-host-template (node-local workspace project: the host that renders it runs it)
+    src: "workspace/{{ semaphore_workspace_file }}.j2"
+    dest: "{{ semaphore_workspace_dir }}/{{ semaphore_workspace_file }}"
+    mode: "0644"
+    lstrip_blocks: true
+  vars:
+    semaphore_workspace_runner_image_tag: "{{ SEMAPHORE_WORKSPACE_RUNNER_IMAGE_TAG }}"
+    semaphore_workspace_runner_base: "{{ SEMAPHORE_WORKSPACE_RUNNER_BASE }}"
+    semaphore_workspace_platform: "{{ SEMAPHORE_WORKSPACE_PLATFORM }}"
+    semaphore_workspace_targets: "{{ WORKSPACE_TARGETS }}"
+    semaphore_workspace_closed: "{{ SEMAPHORE_EGRESS_CLOSED }}"
+  loop:
+    - compose.yml
+    - squid.conf
+    - hosts
+  loop_control:
+    loop_var: semaphore_workspace_file

@@ -1,16 +1,18 @@
 from __future__ import annotations
 
+import os
 from typing import Any
 
 from ansible.errors import AnsibleError
 from ansible.plugins.lookup import LookupBase
 
 # nocheck: lookup-cache-import (this lookup IS the config SPOT accessor)
-from utils.cache.applications import get_merged_applications
-from utils.cache.base import _render_with_templar
+from utils.cache.applications import get_lazy_applications
+from utils.cache.base import _fingerprint_scope, _render_with_templar
 
 # nocheck: lookup-cache-import (config resolves user values via the users SPOT)
 from utils.cache.users import get_merged_users
+from utils.openbao_client import OpenBaoError, resolve, resolve_users
 from utils.roles.applications.config import get
 
 
@@ -33,6 +35,22 @@ class LookupModule(LookupBase):
                 "lookup('config', application_id, config_path[, default]) expects 2 or 3 terms."
             )
 
+        variables = variables or getattr(self._templar, "available_variables", {}) or {}
+        with _fingerprint_scope():
+            return self._resolve(terms, variables, kwargs.get("roles_dir"))
+
+    def _resolve(
+        self, terms: list[Any], variables: dict[str, Any], roles_dir: Any
+    ) -> list[Any]:
+        """
+        Args:
+            terms: the validated lookup terms.
+            variables: the variables scope of the lookup.
+            roles_dir: roles tree to build from, ``None`` for the project's own.
+
+        Returns:
+            The one-element lookup result.
+        """
         application_id = terms[0]
         config_path = terms[1]
 
@@ -41,10 +59,9 @@ class LookupModule(LookupBase):
         strict = not default_provided
 
         templar = getattr(self, "_templar", None)
-        variables = variables or getattr(self._templar, "available_variables", {}) or {}
-        applications = get_merged_applications(
+        applications = get_lazy_applications(
             variables=variables,
-            roles_dir=kwargs.get("roles_dir"),
+            roles_dir=roles_dir,
             templar=templar,
         )
 
@@ -72,7 +89,7 @@ class LookupModule(LookupBase):
                 )
             users = get_merged_users(
                 variables=variables,
-                roles_dir=kwargs.get("roles_dir"),
+                roles_dir=roles_dir,
                 templar=templar,
             )
             user_value = users.get(canonical_user_key)
@@ -92,15 +109,20 @@ class LookupModule(LookupBase):
                         f"lookup('config', ...): missing user path '{config_path}'."
                     )
                 value = value[part]
-            return [
-                _render_with_templar(
-                    value,
-                    templar=templar,
-                    variables=variables,
-                    raw_applications=applications,
-                    raw_users=users,
+            value = _render_with_templar(
+                value,
+                templar=templar,
+                variables=variables,
+                raw_applications=applications,
+                raw_users=users,
+            )
+            try:
+                value = resolve_users(
+                    value, (canonical_user_key, *user_path[2:]), os.environ
                 )
-            ]
+            except OpenBaoError as exc:
+                raise AnsibleError(f"lookup('config', ...): {exc}") from None
+            return [value]
 
         value = get(
             applications=applications,
@@ -117,5 +139,10 @@ class LookupModule(LookupBase):
             variables=variables,
             raw_applications=applications,
         )
+
+        try:
+            value = resolve(value, config_path, application_id, os.environ)
+        except OpenBaoError as exc:
+            raise AnsibleError(f"lookup('config', ...): {exc}") from None
 
         return [value]

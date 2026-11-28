@@ -173,7 +173,7 @@ The single `make compose-deploy` target resolves one or more bundles into the ro
 
 | Command | Path | Behavior |
 |---|---|---|
-| `make compose-deploy bundles="<a>[,<b>]"` | reinstall | Brings the stack down/up, purges entities, then deploys every role group from the listed bundles. Set `full_cycle=true` to also run the async update pass. |
+| `make compose-deploy bundles="<a>[,<b>]"` | reinstall | Brings the stack down/up, purges entities, then deploys every role group from the listed bundles. Set `full_cycle=true` to also run the update pass. |
 | `make compose-deploy mode=update bundles="<a>[,<b>]"` | update | No down/up, no entity purge. Requires a prior initialize/reinstall run that materialized the inventory. |
 
 Example:

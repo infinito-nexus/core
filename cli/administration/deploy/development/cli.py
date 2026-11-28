@@ -54,7 +54,9 @@ def _build_parser(base_pkg: str) -> argparse.ArgumentParser:
         "run",
         "exec",
         "logs",
+        "quality",
         "recreate",
+        "target",
     ]
 
     for _, mod in _iter_command_modules(base_pkg, command_names):

@@ -5,11 +5,16 @@ Implements the three methods a tools-only server needs — ``initialize``,
 tools-only server never has to stream, so every response is a plain JSON body
 and no SSE session state exists to get wrong.
 
-Every decision lives in :mod:`policy`; this module only moves bytes.
+Every decision lives in :mod:`policy` and :mod:`firewall`; this module only moves bytes.
 
 Environment:
     ADAPTER_CONTRACT:            the rendered contract JSON.
     ADAPTER_BEARER:              bearer a client MUST present to this adapter.
+    ADAPTER_AGENT_TOKENS:        JSON object, agent account to its own bearer;
+                                 a caller naming an agent in X-Infinito-Agent
+                                 MUST present that agent's bearer.
+    ADAPTER_AGENT_POLICIES:      JSON object, agent account to its compiled
+                                 firewall ``mcp_policy``.
     ADAPTER_UPSTREAM_KEY:        credential this adapter presents to the provider.
     ADAPTER_UPSTREAM_AUTH_HEADER: header carrying it, default ``Authorization``.
     ADAPTER_UPSTREAM_AUTH_FORMAT: template for its value, default ``Bearer {key}``.
@@ -32,6 +37,8 @@ import urllib.request
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+import auth
+import firewall
 import passthrough
 import policy
 import sse
@@ -53,6 +60,9 @@ UPSTREAM_TRANSPORT = (
     else passthrough.TRANSPORT_STREAMABLE
 )
 BEARER = os.environ.get("ADAPTER_BEARER", "")
+AGENT_TOKENS = json.loads(os.environ.get("ADAPTER_AGENT_TOKENS") or "{}")
+AGENT_POLICIES = json.loads(os.environ.get("ADAPTER_AGENT_POLICIES") or "{}")
+AGENT_HEADER = "X-Infinito-Agent"
 UPSTREAM_KEY = os.environ.get("ADAPTER_UPSTREAM_KEY", "")
 UPSTREAM_AUTH_HEADER = os.environ.get("ADAPTER_UPSTREAM_AUTH_HEADER") or "Authorization"
 UPSTREAM_AUTH_FORMAT = os.environ.get("ADAPTER_UPSTREAM_AUTH_FORMAT") or "Bearer {key}"
@@ -269,30 +279,10 @@ def call_upstream_mcp(name, arguments):
         parsed, status = exchange(envelope)
 
     if isinstance(parsed, dict) and parsed.get("error"):
-        raise UpstreamError(
+        raise passthrough.UpstreamError(
             f"upstream_error: {str(parsed['error'])[:200]}", status=status
         )
     return parsed.get("result") if isinstance(parsed, dict) else None
-
-
-class UpstreamError(ValueError):
-    def __init__(self, message, status):
-        super().__init__(message)
-        self.code = status
-
-
-def upstream_status(error):
-    """Return the status the provider answered with, 0 when it never answered.
-
-    Args:
-        error: the exception raised while calling the provider.
-
-    The caller cannot otherwise tell a provider that is still starting from one
-    that refuses the adapter's credential, and those need opposite reactions:
-    the first is worth waiting for, the second never resolves.
-    """
-    code = getattr(error, "code", None)
-    return int(code) if isinstance(code, int) else 0
 
 
 def tool_descriptors():
@@ -407,10 +397,16 @@ class Handler(BaseHTTPRequestHandler):
             self._respond(404, {"error": "not_found"})
             return
 
+        agent = self.headers.get(AGENT_HEADER, "")
         try:
-            policy.authorize_client(BEARER, self.headers.get("Authorization", ""))
+            if agent:
+                auth.authorize_agent(
+                    AGENT_TOKENS, agent, self.headers.get("Authorization", "")
+                )
+            else:
+                auth.authorize_client(BEARER, self.headers.get("Authorization", ""))
         except PermissionError:
-            self._respond(401, {"error": policy.DENY_UNAUTHENTICATED})
+            self._respond(401, {"error": auth.DENY_UNAUTHENTICATED})
             return
 
         length = policy.request_length(self.headers.get("Content-Length"))
@@ -427,7 +423,7 @@ class Handler(BaseHTTPRequestHandler):
             self._respond(400, {"error": "invalid_json"})
             return
 
-        consumer = self.headers.get("X-Infinito-Consumer", "unknown")
+        consumer = agent or self.headers.get("X-Infinito-Consumer", "unknown")
         correlation_id = self.headers.get("X-Correlation-Id") or str(uuid.uuid4())
 
         if "id" not in request:
@@ -446,8 +442,11 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         try:
+            if agent:
+                firewall.authorize_request(CONTRACT, AGENT_POLICIES, request, agent)
             result = dispatch(request, consumer, correlation_id)
         except PermissionError as error:
+            log(policy.refusal(CONTRACT, consumer, request, error, correlation_id))
             self._respond(
                 403,
                 {
@@ -476,7 +475,7 @@ class Handler(BaseHTTPRequestHandler):
                     "error": {
                         "code": -32000,
                         "message": "upstream_error",
-                        "data": {"upstream_status": upstream_status(error)},
+                        "data": {"upstream_status": passthrough.upstream_status(error)},
                     },
                 },
             )

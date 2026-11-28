@@ -16,76 +16,75 @@
 # rate limit of 5 attempts per 5-minute window: delay=30s/retries=4 caps this
 # task at 5 attempts total, spanning 120s, so it never crosses the window.
 - name: "🔎 Probe n8n owner account via single login attempt"
-  uri_retry:
-    url: "{{ N8N_INTERNAL_API_URL }}/rest/login"
-    method: POST
-    body_format: json
-    body:
-      emailOrLdapLoginId: "{{ lookup('users', 'platform_administrator').email }}"
-      password: "{{ N8N_OWNER_PASSWORD }}"
-    status_code: [200, 401, 403]
-    return_content: false
+  ansible.builtin.command:
+    argv: "{{ N8N_NETNS_PYTHON }}"
+    stdin: "{{ lookup('http_request_program', {'emailOrLdapLoginId': N8N_OWNER_EMAIL, 'password': N8N_OWNER_PASSWORD} | to_json) }}"
+  environment:
+    HTTP_METHOD: POST
+    HTTP_URL: "{{ N8N_NETNS_API_URL }}/rest/login"
   register: n8n_owner_probe
-  until: "'json' in (n8n_owner_probe.content_type | default(''))"
+  until: n8n_owner_probe.rc == 0 and 'json' in (n8n_owner_probe.stdout | from_json).content_type
   retries: 4
   delay: 30
+  changed_when: false
+  failed_when: n8n_owner_probe.rc != 0 or (n8n_owner_probe.stdout | from_json).status not in [200, 401, 403]
+  delegate_to: "{{ N8N_HOST_NODE }}"
+  become: true
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "🔧 Keep the owner probe status"
+  ansible.builtin.set_fact:
+    n8n_owner_probe_status: "{{ (n8n_owner_probe.stdout | from_json).status }}"
+
 - name: "🔧 Initialise n8n owner account (first-time only)"
-  uri_retry:
-    url: "{{ N8N_INTERNAL_API_URL }}/rest/owner/setup"
-    method: POST
-    body_format: json
-    body:
-      email: "{{ lookup('users', 'platform_administrator').email }}"
-      firstName: "{{ lookup('users', 'platform_administrator').firstname | replace('.', ' ') | trim }}"
-      lastName: "{{ lookup('users', 'platform_administrator').lastname | replace('.', ' ') | trim }}"
-      password: "{{ N8N_OWNER_PASSWORD }}"
-    status_code: [200, 201, 400]
-    return_content: true
-  register: n8n_owner_setup
-  when: n8n_owner_probe.status != 200
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ N8N_NETNS_PYTHON }}"
+    netns_request_host: "{{ N8N_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ N8N_NETNS_API_URL }}/rest/owner/setup"
+    netns_request_body: >-
+      {{ {
+        'email': N8N_OWNER_EMAIL,
+        'firstName': lookup('users', 'platform_administrator').firstname | replace('.', ' ') | trim,
+        'lastName': lookup('users', 'platform_administrator').lastname | replace('.', ' ') | trim,
+        'password': N8N_OWNER_PASSWORD,
+      } | to_json }}
+    netns_request_status: [200, 201, 400]
+    netns_request_retries: 0
+    netns_request_delay: 0
+    netns_request_changed: [200, 201]
+    netns_request_skip: "{{ n8n_owner_probe_status | int == 200 }}"
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: n8n_owner_setup
 
 - name: "✅ Assert n8n owner setup succeeded or was already done"
   ansible.builtin.assert:
     that:
       - >-
-        (n8n_owner_setup is skipped)
-        or (n8n_owner_setup.status in [200, 201])
-        or ('already setup' in (n8n_owner_setup.content | default('')))
-    fail_msg: "n8n owner setup returned {{ n8n_owner_setup.status | default('n/a') }}: {{ n8n_owner_setup.content | default('') }}"
-
-- name: "🔍 Resolve {{ application_id }} hosting node + container id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
-  vars:
-    resolve_service_key: "{{ entity_name }}"
-    resolve_output_prefix: N8N
-    resolve_compose_cid: "{{ N8N_CONTAINER }}"
+        (n8n_owner_setup.status in [200, 201])
+        or ('already setup' in n8n_owner_setup.content)
+    fail_msg: "n8n owner setup returned {{ n8n_owner_setup.status }}: {{ n8n_owner_setup.content }}"
+  when: n8n_owner_setup is not skipped
 
 - name: "🔐 Converge a rotated owner password n8n still rejects"
   when:
-    - n8n_owner_probe.status in [401, 403]
-    - "'already setup' in (n8n_owner_setup.content | default(''))"
+    - n8n_owner_probe_status | int in [401, 403]
+    - n8n_owner_setup is not skipped
+    - "'already setup' in n8n_owner_setup.content"
   block:
     - name: "🔐 Write the deployed owner password into n8n's user row"
-      ansible.builtin.command:
-        argv:
-          - container
-          - exec
-          - -i
-          - -e
-          - "NODE_PATH={{ N8N_NODE_MODULES }}"
-          - -e
-          - "N8N_OWNER_EMAIL={{ N8N_OWNER_EMAIL }}"
-          - -e
-          - N8N_OWNER_PASSWORD
-          - "{{ N8N_LOCAL_CID }}" # nocheck: container-exec-resolver
-          - node
-          - "-"
-        stdin: "{{ lookup('file', 'javascript/reconcile/owner_password.js') }}"
-      environment:
-        N8N_OWNER_PASSWORD: "{{ N8N_OWNER_PASSWORD }}"
+      ansible.builtin.shell:
+        cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+          IFS= read -r N8N_OWNER_PASSWORD && : "${N8N_OWNER_PASSWORD:?arrived empty on stdin}" && export N8N_OWNER_PASSWORD && container exec -i
+          -e NODE_PATH={{ N8N_NODE_MODULES | quote }}
+          -e N8N_OWNER_EMAIL={{ N8N_OWNER_EMAIL | quote }}
+          -e N8N_OWNER_PASSWORD
+          {{ N8N_LOCAL_CID | quote }}
+          node -
+        stdin: |-
+          {{ N8N_OWNER_PASSWORD }}
+          {{ lookup('file', 'javascript/reconcile/owner_password.js') }}
       register: n8n_owner_password
       retries: 30
       delay: 10
@@ -95,14 +94,15 @@
       no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
     - name: "🔎 Confirm the owner signs in with the deployed password"
-      uri_retry:
-        url: "{{ N8N_INTERNAL_API_URL }}/rest/login"
-        method: POST
-        body_format: json
-        body:
-          emailOrLdapLoginId: "{{ lookup('users', 'platform_administrator').email }}"
-          password: "{{ N8N_OWNER_PASSWORD }}"
-        status_code: [200]
-        return_content: false
-      retries: 0
-      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+      vars:
+        netns_request_argv: "{{ N8N_NETNS_PYTHON }}"
+        netns_request_host: "{{ N8N_HOST_NODE }}"
+        netns_request_method: POST
+        netns_request_url: "{{ N8N_NETNS_API_URL }}/rest/login"
+        netns_request_body: "{{ {'emailOrLdapLoginId': N8N_OWNER_EMAIL, 'password': N8N_OWNER_PASSWORD} | to_json }}"
+        netns_request_status: [200]
+        netns_request_retries: 0
+        netns_request_delay: 0
+        netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+        netns_request_result: n8n_owner_confirm

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import importlib.util
 import unittest
 import unittest.mock
 
@@ -11,6 +10,7 @@ from ansible.template import Templar
 from jinja2 import DictLoader, Environment, StrictUndefined, select_autoescape
 
 from plugins.filter.cookie_scope import domain_strings
+from plugins.filter.logout_domains import FilterModule as LogoutDomainsFilter
 from plugins.filter.network_of import in_network
 from plugins.lookup.tls import LookupModule as TlsLookup
 from utils.cache.files import read_text
@@ -27,12 +27,7 @@ ROLE = PROJECT_ROOT / "roles" / APP
 TEMPLATE = ROLE / ROLE_FILE_TEMPL_COMPOSE
 VARS = ROLE / ROLE_FILE_VARS_MAIN
 
-_spec = importlib.util.spec_from_file_location(
-    "logout_domain_filters", ROLE / "filter_plugins" / "domain_filters.py"
-)
-_domain_filters = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(_domain_filters)
-logout_domains = _domain_filters.FilterModule().filters()["logout_domains"]
+logout_domains = LogoutDomainsFilter().filters()["logout_domains"]
 
 NODE = "a" * 56 + ".onion"
 CLEAR = "logout.example.test"
@@ -114,6 +109,7 @@ def render(conductor: list[str], shop: list[str]) -> dict:
             application_id=APP,
             group_names=sorted(domains),
             LOGOUT_INSTANCES=instances,
+            LOGOUT_GATE_APPS=[],
             LOGOUT_CONTAINER="logout",
             DOCKER_BIND_HOST="127.0.0.1",
         )

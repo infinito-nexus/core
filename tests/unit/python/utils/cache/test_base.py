@@ -10,11 +10,14 @@ files; this file pins the contract of base itself.
 
 from __future__ import annotations
 
+import hashlib
 import os
 import tempfile
 import textwrap
+import threading
 import unittest
 import unittest.mock as mock
+import weakref
 from pathlib import Path
 
 from utils.cache import PROJECT_ROOT, base
@@ -28,6 +31,17 @@ DOMAIN = default_domain_primary()
 def _write(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(textwrap.dedent(content), encoding="utf-8")
+
+
+def _repr_digest(obj: dict) -> str:
+    return hashlib.md5(
+        repr(sorted(obj.items())).encode("utf-8", errors="replace"),
+        usedforsecurity=False,
+    ).hexdigest()
+
+
+def _mapping_calls(spy: mock.MagicMock) -> int:
+    return sum(1 for call in spy.call_args_list if call.args[0] is not None)
 
 
 class TestProjectRootInvariants(unittest.TestCase):
@@ -108,6 +122,223 @@ class TestFingerprintMapping(unittest.TestCase):
         a = {"a": 1, "b": 2}
         b = {"b": 2, "a": 1}
         self.assertEqual(base._fingerprint_mapping(a), base._fingerprint_mapping(b))
+
+    def test_an_equal_value_of_another_type_changes_the_digest(self):
+        obj = {"web-app-x": {"port": 1, "ratio": 0.0}}
+        digests = [base._fingerprint_mapping(obj)]
+        for key, value in (("port", True), ("port", 1.0), ("ratio", -0.0)):
+            obj["web-app-x"][key] = value
+            digests.append(base._fingerprint_mapping(obj))
+
+        self.assertEqual(len(digests), len(set(digests)))
+
+    def test_nested_key_order_changes_the_digest_as_repr_does(self):
+        first = base._fingerprint_mapping({"a": {"x": 1, "y": 2}})
+        second = base._fingerprint_mapping({"a": {"y": 2, "x": 1}})
+
+        self.assertNotEqual(first, second)
+
+
+class _WeakDict(dict):
+    pass
+
+
+class _CountingTemplar:
+    def __init__(self, variables: dict) -> None:
+        self.available_variables = variables
+        self.signatures: list[tuple] = []
+
+    def template(self, data, **_kwargs):
+        self.signatures.append(
+            base._stable_variables_signature(self.available_variables)
+        )
+        return data
+
+
+class TestScopedFingerprint(unittest.TestCase):
+    def setUp(self) -> None:
+        _reset_cache_for_tests()
+
+    def _signature(self, applications) -> str:
+        return base._stable_variables_signature({"applications": applications})[0]
+
+    def test_outside_a_scope_every_call_fingerprints(self):
+        obj = {"web-app-x": {"port": 1}}
+        with mock.patch.object(
+            base, "_fingerprint_mapping", wraps=base._fingerprint_mapping
+        ) as spy:
+            self._signature(obj)
+            self._signature(obj)
+
+        self.assertEqual(2, _mapping_calls(spy))
+
+    def test_a_scope_fingerprints_a_mapping_once_and_checks_it_on_exit(self):
+        obj = {"web-app-x": {"port": 1}}
+        with (
+            mock.patch.object(
+                base, "_fingerprint_mapping", wraps=base._fingerprint_mapping
+            ) as spy,
+            base._fingerprint_scope(),
+        ):
+            digests = {self._signature(obj) for _ in range(50)}
+
+        self.assertEqual({_repr_digest(obj)}, digests)
+        self.assertEqual(2, _mapping_calls(spy))
+
+    def test_a_freed_mapping_never_answers_for_a_new_one_inside_a_scope(self):
+        with base._fingerprint_scope():
+            digests = []
+            for i in range(400):
+                transient = {"web-app-x": {"port": i}}
+                digests.append(self._signature(transient))
+                self.assertEqual(_repr_digest(transient), digests[-1])
+                del transient
+
+        self.assertEqual(400, len(set(digests)))
+
+    def test_a_reused_address_across_scopes_gets_its_own_digest(self):
+        by_address: dict[int, list[str]] = {}
+        for i in range(400):
+            transient = {"web-app-x": {"port": i}}
+            with base._fingerprint_scope():
+                digest = self._signature(transient)
+            self.assertEqual(_repr_digest(transient), digest)
+            by_address.setdefault(id(transient), []).append(digest)
+            del transient
+
+        for address, digests in by_address.items():
+            with self.subTest(address=address, reuses=len(digests)):
+                self.assertEqual(len(digests), len(set(digests)))
+
+    def test_in_place_mutation_between_two_renders_changes_the_key(self):
+        obj = {"web-app-x": {"server": {"domains": ["a.test"]}}}
+        with base._fingerprint_scope():
+            first = self._signature(obj)
+            self._signature(obj)
+
+        obj["web-app-x"]["server"]["domains"].append("b.test")
+
+        with base._fingerprint_scope():
+            second = self._signature(obj)
+
+        self.assertNotEqual(first, second)
+        self.assertEqual(_repr_digest(obj), second)
+
+    def test_the_released_guard_holds_no_mapping(self):
+        obj = _WeakDict({"web-app-x": {"port": 1}})
+        ref = weakref.ref(obj)
+        with base._fingerprint_scope():
+            self._signature(obj)
+            self._signature(obj)
+
+        self.assertIsNone(getattr(base._RENDER_GUARD, "fingerprints", None))
+        del obj
+        self.assertIsNone(ref(), "the scope kept the mapping alive after release")
+
+    def test_in_place_mutation_inside_a_render_raises(self):
+        obj = {"web-app-x": {"port": 1}}
+        with (
+            self.assertRaises(base.ScopedFingerprintMutatedError),
+            base._fingerprint_scope(),
+        ):
+            self._signature(obj)
+            self._signature(obj)
+            obj["web-app-x"]["port"] = True
+
+        self.assertIsNone(getattr(base._RENDER_GUARD, "fingerprints", None))
+
+    def test_a_nested_scope_joins_the_outer_one(self):
+        obj = {"web-app-x": {"port": 1}}
+        with (
+            self.assertRaises(base.ScopedFingerprintMutatedError),
+            base._fingerprint_scope(),
+        ):
+            self._signature(obj)
+            with base._fingerprint_scope():
+                self._signature(obj)
+                obj["web-app-x"]["port"] = 2
+            self.assertIsNotNone(base._RENDER_GUARD.fingerprints)
+
+    def test_a_failing_render_releases_the_guard(self):
+        with self.assertRaises(KeyError), base._fingerprint_scope():
+            self._signature({"web-app-x": {}})
+            raise KeyError("render failed")
+
+        self.assertIsNone(getattr(base._RENDER_GUARD, "fingerprints", None))
+
+    def test_a_failing_render_keeps_its_own_error_over_a_mutation(self):
+        obj = {"web-app-x": {"port": 1}}
+        with self.assertRaises(KeyError) as caught, base._fingerprint_scope():
+            self._signature(obj)
+            self._signature(obj)
+            obj["web-app-x"]["port"] = 2
+            raise KeyError("render failed")
+
+        self.assertEqual(("render failed",), caught.exception.args)
+        self.assertIsNone(getattr(base._RENDER_GUARD, "fingerprints", None))
+
+    def test_a_scope_in_one_thread_is_invisible_in_another(self):
+        obj = {"web-app-x": {"port": 1}}
+        opened = threading.Event()
+        probed = threading.Event()
+        calls: dict[str, list] = {"a": [], "b": []}
+        seen: dict[str, object] = {}
+        real = base._fingerprint_mapping
+
+        def spy(value):
+            if value is not None:
+                calls[threading.current_thread().name].append(value)
+            return real(value)
+
+        def thread_a():
+            with base._fingerprint_scope():
+                seen["a_first"] = self._signature(obj)
+                opened.set()
+                probed.wait(timeout=10)
+                seen["a_second"] = self._signature(obj)
+
+        def thread_b():
+            opened.wait(timeout=10)
+            seen["b_guard"] = getattr(base._RENDER_GUARD, "fingerprints", None)
+            seen["b_first"] = self._signature(obj)
+            seen["b_second"] = self._signature(obj)
+            probed.set()
+
+        with mock.patch.object(base, "_fingerprint_mapping", side_effect=spy):
+            workers = [
+                threading.Thread(target=thread_a, name="a"),
+                threading.Thread(target=thread_b, name="b"),
+            ]
+            for worker in workers:
+                worker.start()
+            for worker in workers:
+                worker.join(timeout=10)
+
+        self.assertIsNone(seen["b_guard"])
+        self.assertEqual(2, len(calls["b"]))
+        self.assertEqual(2, len(calls["a"]))
+        self.assertEqual(
+            {_repr_digest(obj)},
+            {seen[k] for k in ("a_first", "a_second", "b_first", "b_second")},
+        )
+
+    def test_render_with_templar_keys_its_nested_lookups_once(self):
+        applications = {"web-app-x": {"port": 1}}
+        templar = _CountingTemplar({"applications": applications})
+        value = {
+            "a": "{{ x }}",
+            "b": ["{{ y }}", "{{ z }}"],
+            "c": "{% if w %}{% endif %}",
+        }
+        with mock.patch.object(
+            base, "_fingerprint_mapping", wraps=base._fingerprint_mapping
+        ) as spy:
+            base._render_with_templar(value, templar=templar, variables={})
+
+        self.assertGreaterEqual(len(templar.signatures), 4)
+        self.assertEqual(1, len(set(templar.signatures)))
+        self.assertEqual(_repr_digest(applications), templar.signatures[0][0])
+        self.assertEqual(2, _mapping_calls(spy))
 
 
 class TestStableVariablesSignature(unittest.TestCase):

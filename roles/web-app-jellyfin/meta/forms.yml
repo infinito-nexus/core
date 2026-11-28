@@ -1,0 +1,12 @@
+---
+settings:
+  path: /web/#/dashboard/settings
+  sinks: [JELLYFIN_SETTINGS]
+  fields:
+    server_name:
+      source: services.jellyfin.server_name
+      when: services.design.enabled
+      mode: enforced
+      selector: 'input[name="ServerName"]'
+      type: text
+      label: Server name

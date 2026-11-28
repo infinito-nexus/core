@@ -1,0 +1,46 @@
+---
+application_id: "web-app-grafana"
+entity_name: "{{ application_id | entity_name }}"
+
+GRAFANA_CONTAINER: "{{ lookup('config', application_id, 'services.grafana.name') }}"
+GRAFANA_INTERNAL_PORT: "{{ lookup('config', application_id, 'services.grafana.ports.internal.grafana') }}"
+
+GRAFANA_INSTANCES: "{{ lookup('domains')[application_id] | network_instances }}"
+GRAFANA_INSTANCE_NETNS_URL: "http://127.0.0.1:{{ lookup('config', application_id, 'services.grafana.ports.internal.' ~ ('grafana' | labelled(grafana_instance.label,
+  '_'))) }}"
+GRAFANA_INSTANCE_CONTAINER: "{{ GRAFANA_CONTAINER | labelled(grafana_instance.label, '-') }}" # nocheck: container-var-name-lookup  composite: the config name suffixed with the network label of the instance
+
+GRAFANA_CONFIG_DIR: "{{ lookup('container', application_id, 'directories.config') }}"
+GRAFANA_DASHBOARDS_DOCKER_DIR: "{{ lookup('volume', application_id, 'dashboard_logs').target | dirname }}"
+
+GRAFANA_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.grafana.login.method.sso.enabled') | bool }}"
+GRAFANA_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.grafana.login.method.native.enabled') | bool }}"
+GRAFANA_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.grafana.login.method.registration.enabled') | bool }}"
+GRAFANA_LOKI_ENABLED: "{{ lookup('config', application_id, 'services.loki.enabled') | bool }}"
+GRAFANA_PROMETHEUS_ENABLED: "{{ lookup('config', application_id, 'services.prometheus.enabled') | bool }}"
+
+GRAFANA_BREAKGLASS_USERNAME: "{{ lookup('users', 'web-app-grafana-breakglass').username }}"
+GRAFANA_BREAKGLASS_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.breakglass_password') }}"
+
+GRAFANA_RBAC_ADMIN_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"
+GRAFANA_RBAC_AUDITOR_GROUP: "/{{ lookup('rbac_group_path', application_id=application_id, role='auditor') }}"
+GRAFANA_ROLE_ATTRIBUTE_PATH: >-
+  contains({{ RBAC.GROUP.CLAIM }}[*] || `[]`, '{{ GRAFANA_RBAC_ADMIN_GROUP }}') && 'Admin'
+  || contains({{ RBAC.GROUP.CLAIM }}[*] || `[]`, '{{ GRAFANA_RBAC_AUDITOR_GROUP }}') && 'Viewer'
+GRAFANA_SIGNOUT_URL_PREFIX: >-
+  {{ OIDC.CLIENT.LOGOUT_URL }}?client_id={{ OIDC.CLIENT.ID | urlencode }}&post_logout_redirect_uri=
+
+GRAFANA_SETTINGS: "{{ lookup('form_values', application_id, 'settings') }}"
+GRAFANA_DATASOURCES: "{{ lookup('form_values', application_id, 'datasources') }}"
+GRAFANA_DASHBOARDS: "{{ lookup('form_values', application_id, 'dashboards') }}"
+GRAFANA_ALERTING: "{{ lookup('form_values', application_id, 'alerting') }}"
+
+GRAFANA_LOKI_DATASOURCE_UID: "loki"
+GRAFANA_LOG_ALERT_TITLE: "Critical line in an application log"
+
+GRAFANA_PROMETHEUS_ROLE: "web-app-prometheus"
+GRAFANA_PROMETHEUS_DATASOURCE_UID: "prometheus"
+GRAFANA_PROMETHEUS_NETWORK: "{{ GRAFANA_PROMETHEUS_ROLE | entity_name }}"
+GRAFANA_ALERTMANAGER_RECEIVER: "alertmanager"
+
+GRAFANA_LOG_PROBE_APPLICATION: "svc-prx-openresty"

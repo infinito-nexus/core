@@ -1,9 +1,6 @@
 ---
-- name: ▶️ Execute OIDC Setup Routine
-  include_tasks:
-    file: setup/oidc.yml
-    apply:
-      delegate_to: "{{ GITEA_HOST_NODE }}"
+- name: 🔐 Report and converge the OAuth2 auth source
+  include_tasks: setup/oauth_source.yml
   when: GITEA_OIDC_ENABLED | bool
 - name: ▶️ Execute LDAP Setup Routine
   include_tasks: setup/ldap.yml
@@ -14,3 +11,6 @@
 - name: ▶️ Execute Theme Removal Routine
   include_tasks: setup/theme_removal.yml
   when: not (GITEA_DESIGN_ENABLED | bool)
+- name: ▶️ Execute Workspaces Setup Routine
+  include_tasks: setup/workspaces.yml
+  when: GITEA_WORKSPACES_ENABLED | bool

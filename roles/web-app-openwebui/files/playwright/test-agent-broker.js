@@ -2,7 +2,10 @@ const { test, expect, request } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const {
+  decodeDotenvJsonList,
   decodeDotenvQuotedValue,
+  keycloakAdminAddUserToGroup,
+  keycloakRemoveUserFromGroupViaRest,
   requireDotenvValue,
 } = require("./personas");
 
@@ -15,37 +18,24 @@ function agentGroups() {
   expect(raw, "AGENT_GROUP_PATHS must be rendered while the broker is enabled").toBeTruthy();
   return JSON.parse(raw);
 }
-
-async function keycloakAdmin() {
-  const api = await request.newContext({ ignoreHTTPSErrors: true });
-  const tokenResp = await api.post(`${kcBaseUrl}/realms/master/protocol/openid-connect/token`, {
-    form: { client_id: "admin-cli", username: kcAdminUser, password: kcAdminPw, grant_type: "password" },
-  });
-  expect(tokenResp.ok(), `Keycloak admin token (HTTP ${tokenResp.status()})`).toBeTruthy();
-  const headers = { Authorization: `Bearer ${(await tokenResp.json()).access_token}` };
-  return { api, headers };
-}
+const ungrantedModels = decodeDotenvJsonList(process.env.GATEWAY_UNGRANTED_MODELS_JSON, "GATEWAY_UNGRANTED_MODELS_JSON");
 
 /**
- * Put one user into, or take it out of, the named agent groups.
+ * Put one user into, or take it out of, the named agent groups, leaving every group first.
  *
  * Args:
  *   username: the Keycloak username to change.
  *   membership: group path -> whether the user must end up a member.
  */
 async function applyAgentGroups(username, membership) {
-  const { api, headers } = await keycloakAdmin();
+  const entries = Object.entries(membership);
+  const api = await request.newContext({ ignoreHTTPSErrors: true });
   try {
-    const users = await (
-      await api.get(`${kcBaseUrl}/admin/realms/${kcRealm}/users?username=${encodeURIComponent(username)}&exact=true`, { headers })
-    ).json();
-    expect(users, `Keycloak user ${username} must exist`).toHaveLength(1);
-    for (const [path, member] of Object.entries(membership)) {
-      const groupResp = await api.get(`${kcBaseUrl}/admin/realms/${kcRealm}/group-by-path${path}`, { headers });
-      expect(groupResp.ok(), `Keycloak group ${path} must exist (HTTP ${groupResp.status()})`).toBeTruthy();
-      const url = `${kcBaseUrl}/admin/realms/${kcRealm}/users/${users[0].id}/groups/${(await groupResp.json()).id}`;
-      const resp = member ? await api.put(url, { headers }) : await api.delete(url, { headers });
-      expect([200, 204, 404]).toContain(resp.status());
+    for (const [path] of entries.filter(([, member]) => !member)) {
+      await keycloakRemoveUserFromGroupViaRest(api, kcBaseUrl, kcRealm, kcAdminUser, kcAdminPw, path, username);
+    }
+    for (const [path] of entries.filter(([, member]) => member)) {
+      await keycloakAdminAddUserToGroup(api, kcBaseUrl, kcRealm, path, username, kcAdminUser, kcAdminPw);
     }
   } finally {
     await api.dispose();
@@ -191,12 +181,17 @@ exports.register = function (shared) {
       return listedModels(adminPage, admin, "/openai/models");
     });
     const models = await listedModels(page, session, "/api/models?refresh=true");
-    const gatewayModels = servedModels.filter((id) => !(id in agentGroups()));
+    const gatewayModels = servedModels.filter(
+      (id) => !(id in agentGroups()) && !id.startsWith("agent/") && !ungrantedModels.includes(id),
+    );
     if (isServiceEnabled("litellm")) {
       expect(gatewayModels.length, "the connections must serve the gateway models").toBeGreaterThan(0);
     }
     for (const model of gatewayModels) {
       expect(models, `the gateway model ${model} must be granted to every user`).toContain(model);
+    }
+    for (const model of ungrantedModels) {
+      expect(models, `the audio model ${model} is granted to no user`).not.toContain(model);
     }
     for (const platform of Object.keys(agentGroups())) {
       expect(models, `${platform} is granted to its agent-user group only`).not.toContain(platform);

@@ -1,0 +1,22 @@
+---
+- name: "▶️ Run Moodle DB upgrade for auth_ldap plugin"
+  shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    php {{ MOODLE_CLI_DIR }}/upgrade.php --non-interactive
+  failed_when: false
+  changed_when: false
+
+- name: "🔧 Converge the auth_ldap connection, role and field mapping of meta/forms.yml"
+  include_tasks: utils/plugin/form.yml
+  vars:
+    moodle_plugin_form_component: auth_ldap
+    moodle_plugin_form_settings: "{{ MOODLE_LDAP_SETTINGS }}"
+    moodle_plugin_form_hidden: "{{ MOODLE_LDAP_UNLISTED_SETTINGS | combine(MOODLE_LDAP_CREDENTIALS) }}"
+
+- name: "⚡ Trigger auth_ldap sync to pre-provision LDAP users"
+  shell: >
+    container exec --user {{ MOODLE_RUNTIME_USER }} {{ MOODLE_CONTAINER_ADDRESS }}
+    php {{ MOODLE_CLI_DIR }}/scheduled_task.php
+    --execute='\auth_ldap\task\sync_task'
+  failed_when: false
+  changed_when: false

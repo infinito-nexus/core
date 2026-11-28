@@ -1,15 +1,19 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oauth2
+  header_trust:
+    proxy_secret: false
+    switch: "lookup('sso', application_id, 'is_proxy_gated')"
+    files: [files/sso/header_auth.py]
   oauth2:
     origin:
       host: bookwyrm
       port: 8000
-    allowed_groups:
-      - "{{ lookup('rbac_group_path', application_id='web-app-bookwyrm', role='administrator') }}"
+    claim_headers: [NAME, LOCALE, ZONEINFO]
 logout:
   bond: 1
   enabled: "{{ 'web-svc-logout' in group_names }}"
@@ -24,8 +28,8 @@ matomo:
   shared: "{{ 'web-app-matomo' in group_names }}"
 email:
   bond: 1
-  enabled: "{{ MAIL_PROVIDER in group_names }}"
-  shared: "{{ MAIL_PROVIDER in group_names }}"
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag — DB engine, covered by role-local integration tests
 postgres:
   bond: 1
@@ -66,8 +70,6 @@ bookwyrm:
   repository: https://github.com/bookwyrm-social/bookwyrm.git
   ref: v0.9.5
   min_storage: 579MB
-  registration_open: false
-  allow_invite_request: false
   ports:
     local:
       http: 8049
@@ -78,13 +80,13 @@ bookwyrm:
   run_after:
     - web-app-matomo
     - web-app-keycloak
-    - web-app-stalwart
-    - web-app-mailu
+    - web-app-email
   lifecycle: beta
   cpus: "0.5"
   mem_reservation: 256m
   mem_limit: 1g
   pids_limit: 512
+  site_name: "{{ lookup('design', 'web-app-bookwyrm').label }}"
 migrate:
   name: bookwyrm-migrate
   # nocheck: single-replica  run-once bootstrap; concurrent migrate/initdb deadlock the migration graph and double-insert the SiteSettings singleton
@@ -126,6 +128,12 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
@@ -144,3 +152,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

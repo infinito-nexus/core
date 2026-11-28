@@ -15,6 +15,14 @@ litellm_router_hook:
     - service: litellm
       target: /etc/litellm/router_hook.py
 
+litellm_sitecustomize:
+  type: config
+  source: "{{ [ lookup('container', 'svc-ai-litellm', 'directories.config'), 'sitecustomize.py' ] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: litellm
+      target: /etc/litellm/sitecustomize.py
+
 litellm_decider_init:
   type: config
   source: "{{ [ lookup('container', 'svc-ai-litellm', 'directories.config'), 'infinito_decider', '__init__.py' ] | path_join }}"

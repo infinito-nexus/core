@@ -29,6 +29,7 @@ def _daemon_json(**overrides):
         "IS_STACK_HOST": True,
         "DOCKER_IN_CONTAINER": False,
         "DOMAIN_PRIMARY": "infinito.test",
+        "DOCKER_LOG_LABEL": "infinito.application",
         "KATA_SHIM_BINARY": "/usr/bin/containerd-shim-kata-v2",
         "RUNSC_SHIM_BINARY": "/usr/local/bin/runsc",
         "NVIDIA_RUNTIME_BINARY": "/usr/bin/nvidia-container-runtime",

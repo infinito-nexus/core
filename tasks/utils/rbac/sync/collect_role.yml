@@ -1,0 +1,33 @@
+---
+# Param rbac_sync_application_id: application the role belongs to.
+# Param rbac_sync_role: role whose members are added to rbac_sync_members; "@users" stands for every account, "@users:<attribute>" for every account that holds the attribute, a group path "/<root>/<application>/<role>" for a role of any application.
+# Param rbac_sync_attributes: further directory attributes every member carries base64-encoded under "attributes", [] for none.
+# Output rbac_sync_members: {role: [{username, email, name}]} extended by this role; members from the directory also carry their uuid.
+
+- name: "🔍 Check the group path {{ rbac_sync_role }}"
+  ansible.builtin.assert:
+    that:
+      - rbac_sync_role.strip('/').split('/') | length == 3
+    fail_msg: "{{ rbac_sync_role }} is no group path /<root>/<application>/<role>"
+    quiet: true
+  when: "'/' in rbac_sync_role"
+
+- name: "👥 Resolve the members of {{ rbac_sync_application_id }}/{{ rbac_sync_role }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/members.yml') }}"
+  vars:
+    rbac_members_application_id: "{{ rbac_sync_role.strip('/').split('/')[1] if '/' in rbac_sync_role else rbac_sync_application_id }}"
+    rbac_members_role: "{{ rbac_sync_role.strip('/').split('/') | last }}"
+    rbac_members_attributes: "{{ rbac_sync_attributes }}"
+  when: rbac_sync_role.split(':')[0] != '@users'
+
+- name: "👥 Resolve the {{ rbac_sync_role }} accounts of {{ rbac_sync_application_id }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/users.yml') }}"
+  vars:
+    rbac_users_holding: "{{ rbac_sync_role.split(':', 1)[1] if ':' in rbac_sync_role else LDAP.USER.ATTRIBUTES.ID }}"
+    rbac_users_attributes: "{{ rbac_sync_attributes }}"
+  when: rbac_sync_role.split(':')[0] == '@users'
+
+- name: "👥 Add {{ rbac_sync_role }} to the member map of {{ rbac_sync_application_id }}"
+  ansible.builtin.set_fact:
+    rbac_sync_members: "{{ rbac_sync_members | combine({rbac_sync_role: (rbac_users if rbac_sync_role.split(':')[0] == '@users' else rbac_members)}) }}"
+  no_log: "{{ (MASK_CREDENTIALS_IN_LOGS | bool) or (rbac_sync_attributes | length > 0) }}"

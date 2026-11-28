@@ -1,0 +1,35 @@
+{{ COSMOS_SKY_SELECTOR }},
+{{ COSMOS_SKY_SELECTOR }} body {
+  background: transparent;
+  color: var(--cosmos-text);
+}
+@media (min-width: 768px) {
+  {{ COSMOS_SKY_SELECTOR }} #left-sidebar {
+    background: transparent;
+    color: var(--cosmos-text);
+  }
+  {{ COSMOS_SKY_SELECTOR }} #left-sidebar a:not(.current) {
+    color: inherit;
+  }
+  {{ COSMOS_SKY_SELECTOR }} #left-sidebar a.current {
+    color: var(--design-text);
+  }
+}
+{{ COSMOS_SKY_SELECTOR }} #content a:not(.toc-backref, .headerlink, .toctree-wrapper a, .contents a) {
+  color: var(--docs-surface-link, currentcolor);
+  text-decoration: underline;
+}
+{{ COSMOS_SKY_SELECTOR }} nav[aria-label="breadcrumbs"] :is(a, li, span) {
+  color: inherit;
+}
+{{ COSMOS_SKY_SELECTOR }} code:not(pre code),
+{{ COSMOS_SKY_SELECTOR }} div.highlight pre {
+  color: var(--design-text);
+}
+{{ COSMOS_LEGIBLE_TOP_SELECTOR }} main,
+{{ COSMOS_LEGIBLE_TOP_SELECTOR }} #left-sidebar,
+{{ COSMOS_LEGIBLE_TOP_SELECTOR }} footer {
+  background-color: var(--design-surface-1);
+  color: var(--design-text);
+  --docs-surface-link: var(--design-link);
+}

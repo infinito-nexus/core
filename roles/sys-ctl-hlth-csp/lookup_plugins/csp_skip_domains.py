@@ -8,7 +8,7 @@ from ansible.plugins.lookup import LookupBase
 
 from utils.networks.reachability import network_of, role_handover
 from utils.roles.applications.config import get
-from utils.tls_common import iter_domains
+from utils.tls.common import iter_domains
 
 
 def _to_list(x: Any) -> list[str]:

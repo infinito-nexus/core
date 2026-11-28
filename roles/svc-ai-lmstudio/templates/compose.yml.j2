@@ -13,7 +13,7 @@
     {{ lookup('compose_only', 'container_name', LMSTUDIO_CONTAINER) }}
     expose:
       - "{{ LMSTUDIO_PORT }}"
-    {{ lookup('container_volumes', service_name) | indent(4) }}
+    {{ lookup('container_volumes', service_name, extra_volumes=[LMSTUDIO_STORE_MOUNT]) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
 

@@ -10,14 +10,12 @@ from ansible.template import Templar
 from plugins.lookup.applications import (
     LookupModule as ApplicationsLookup,
 )
-from plugins.lookup.applications import (
-    _reset_cache_for_tests,
-)
 from plugins.lookup.proxy_hops import LookupModule as ProxyHopsLookup
 from utils.cache.yaml import load_yaml
 from utils.networks.address import subnet_gateway
 from utils.networks.proxy import REVERSE_PROXY_APPLICATION_ID
 from utils.roles.mapping import ROLE_FILE_META_NETWORKS
+from utils.tests.caches import reset_caches
 
 from . import PROJECT_ROOT
 
@@ -63,7 +61,7 @@ def _hops(applications: dict, mode: str) -> list[str]:
 class TestProxyHopsIntegration(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
         applications = ApplicationsLookup()
         applications._templar = Templar(loader=DataLoader())
         merged = applications.run(
@@ -74,7 +72,7 @@ class TestProxyHopsIntegration(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def test_compose_trusts_the_gateway_of_every_network_the_proxy_service_joins(
         self,

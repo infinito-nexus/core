@@ -24,6 +24,7 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
+from tests.utils.healthcheck import declares_healthcheck
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.applications import get_application_defaults
 from utils.cache.files import iter_project_files_with_content, read_text
@@ -95,7 +96,7 @@ class TestContainerHealthcheckDeclaredIsUsed(unittest.TestCase):
                 entry = services[key]
                 if not isinstance(entry, dict):
                     continue
-                if not isinstance(entry.get("healthcheck"), dict):
+                if not declares_healthcheck(services, key):
                     continue
                 if key in called.get(app, set()):
                     continue

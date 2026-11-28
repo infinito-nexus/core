@@ -1,39 +1,26 @@
 from __future__ import annotations
 
-import json
-import re
-import subprocess
 import sys
-import urllib.error
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
-from urllib.parse import urlencode, urlparse
 
 from utils.annotations.suppress import is_suppressed_at
 from utils.cache.files import read_text
 from utils.cache.yaml import load_yaml
-from utils.docker.image.ref import dockerhub_repo, is_dockerhub
 from utils.docker.registry import manifest_exists
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.security.suppressions import drop_image_tag_entries
 from utils.update import checksum
 from utils.update.addons import GITHUB_RELEASES_CATALOG, iter_addon_files
-from utils.update.base import (
-    captured_versions,
-    is_maintained,
-    is_semver,
-    newer_version,
-)
-from utils.update.docker.tags import (
-    fetch_dockerhub_tags,
-    fetch_ghcr_tags,
-    fetch_mcr_tags,
-    is_ghcr,
-    is_mcr,
-)
-from utils.update.fetch import TIMEOUT_SECONDS, documents, get
+from utils.update.base import is_maintained, is_semver, newer_version
 from utils.update.pins import archive_index, bump_archive, key_line, top_level_line
 from utils.update.repository import git_ls_remote_tags, git_ref_resolves
+from utils.update.upstream import (
+    http_regex_versions,
+    npm_versions,
+    registry_v2_tags,
+    script_versions,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -85,106 +72,6 @@ class VersionSourceEntry:
 class VersionSourceUpdate:
     entry: VersionSourceEntry
     latest: str
-
-
-def dockerhub_named_tags(image: str, match: str) -> list[str]:
-    """Return the Docker Hub tags of *image* whose name contains *match*.
-
-    Args:
-        image: Docker Hub reference.
-        match: substring the registry filters on, reaching tags beyond the
-            first pages of the unfiltered listing.
-    """
-    query = urlencode({"name": match, "page_size": 100})
-    url = f"https://hub.docker.com/v2/repositories/{dockerhub_repo(image)}/tags?{query}"
-    try:
-        payload = json.loads(get(url))
-    except (OSError, ValueError):
-        return []
-    return [str(result["name"]) for result in payload.get("results") or []]
-
-
-def registry_v2_tags(image: str, match: str = "") -> list[str]:
-    """Return the tags of *image* from its registry's v2 API.
-
-    Args:
-        image: reference including the registry host, e.g.
-            ``gcr.io/cadvisor/cadvisor``.
-        match: when set and the registry can filter server-side, the
-            substring every returned tag carries.
-    """
-    if is_dockerhub(image):
-        return (
-            dockerhub_named_tags(image, match) if match else fetch_dockerhub_tags(image)
-        )
-    if is_ghcr(image):
-        return fetch_ghcr_tags(image)
-    if is_mcr(image):
-        return fetch_mcr_tags(image)
-    host, _, repository = image.partition("/")
-    url = f"https://{host}/v2/{repository}/tags/list"
-    try:
-        return list(json.loads(get(url)).get("tags") or [])
-    except urllib.error.HTTPError as error:
-        if error.code != 401:
-            return []
-        challenge = error.headers.get("WWW-Authenticate", "")
-    except (OSError, ValueError):
-        return []
-    fields = dict(re.findall(r'(\w+)="([^"]*)"', challenge))
-    realm = fields.pop("realm", "")
-    if not realm or urlparse(realm).scheme != "https":
-        return []
-    query = "&".join(f"{name}={value}" for name, value in fields.items())
-    try:
-        token = json.loads(get(f"{realm}?{query}")).get("token", "")
-        payload = get(url, {"Authorization": f"Bearer {token}"})
-        return list(json.loads(payload).get("tags") or [])
-    except (OSError, ValueError):
-        return []
-
-
-def npm_versions(package: str) -> list[str]:
-    """Return every published version of an npm *package*."""
-    try:
-        payload = json.loads(get(f"https://registry.npmjs.org/{package}"))
-    except (OSError, ValueError):
-        return []
-    return list((payload.get("versions") or {}).keys())
-
-
-def http_regex_versions(
-    urls: str | list[str], pattern: str, template: str = ""
-) -> list[str]:
-    """Return every version *pattern* names in the documents at *urls*."""
-    try:
-        body = documents(urls)
-    except OSError:
-        return []
-    return captured_versions(body, pattern, template)
-
-
-def script_versions(repo_root: Path, role: str, path: str, current: str) -> list[str]:
-    """Return what a role-local updater prints for its pin.
-
-    Args:
-        repo_root: repository root.
-        role: role the script belongs to.
-        path: role-relative path of the script.
-        current: the version currently pinned, passed as the first argument.
-    """
-    script = repo_root / "roles" / role / path
-    try:
-        proc = subprocess.run(
-            [str(script), current],
-            capture_output=True,
-            text=True,
-            timeout=TIMEOUT_SECONDS,
-            check=False,
-        )
-    except (OSError, subprocess.TimeoutExpired):
-        return []
-    return proc.stdout.split() if proc.returncode == 0 else []
 
 
 def candidates(entry: VersionSourceEntry, repo_root: Path) -> list[str]:
@@ -334,7 +221,12 @@ def invalid_declarations(repo_root: Path) -> list[str]:
     return problems
 
 
-def _addon_entries(repo_root: Path) -> list[VersionSourceEntry]:
+def addon_entries(repo_root: Path) -> list[VersionSourceEntry]:
+    """Return every addon version source that is not suppressed.
+
+    Args:
+        repo_root: repository root.
+    """
     roles_root = repo_root / "roles"
     entries: list[VersionSourceEntry] = []
     for role, addon_path in iter_addon_files(roles_root):
@@ -368,8 +260,12 @@ def _addon_entries(repo_root: Path) -> list[VersionSourceEntry]:
     return entries
 
 
-def collect_entries(repo_root: Path) -> list[VersionSourceEntry]:
-    """Return every declared version source that is not suppressed."""
+def service_entries(repo_root: Path) -> list[VersionSourceEntry]:
+    """Return every ``meta/services.yml`` version source that is not suppressed.
+
+    Args:
+        repo_root: repository root.
+    """
     roles_root = repo_root / "roles"
     entries: list[VersionSourceEntry] = []
     for config_path in sorted(roles_root.glob(f"*/{ROLE_FILE_META_SERVICES}")):
@@ -405,7 +301,12 @@ def collect_entries(repo_root: Path) -> list[VersionSourceEntry]:
                         else "",
                     )
                 )
-    return entries + _addon_entries(repo_root)
+    return entries
+
+
+def collect_entries(repo_root: Path) -> list[VersionSourceEntry]:
+    """Return every declared version source that is not suppressed."""
+    return service_entries(repo_root) + addon_entries(repo_root)
 
 
 def _ref_resolves(entry: VersionSourceEntry, ref: str) -> bool:

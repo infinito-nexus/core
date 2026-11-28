@@ -1,5 +1,5 @@
 # Managed by Ansible role svc-storage-nfs-server (flavor: ganesha / FSAL_VFS).
-{% if MODE_DEBUG | bool %}
+{% if lookup('debug') | bool %}
 LOG {
     components {
         INIT = FULL_DEBUG;

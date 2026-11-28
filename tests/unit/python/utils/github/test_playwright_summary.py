@@ -166,15 +166,15 @@ class TestPathInfo(unittest.TestCase):
     def test_full_variant_pass_layout(self) -> None:
         self.assertEqual(
             ps._path_info(
-                Path("/tmp/root/web-app-foo/variant-3/async/playwright-junit.xml")
+                Path("/tmp/root/web-app-foo/variant-3/update/playwright-junit.xml")
             ),
-            ("web-app-foo", "3", "async"),
+            ("web-app-foo", "3", "update"),
         )
         self.assertEqual(
             ps._path_info(
-                Path("/tmp/root/web-app-foo/variant-0/sync/playwright-junit.xml")
+                Path("/tmp/root/web-app-foo/variant-0/initial/playwright-junit.xml")
             ),
-            ("web-app-foo", "0", "sync"),
+            ("web-app-foo", "0", "initial"),
         )
 
     def test_variant_only_layout_leaves_pass_empty(self) -> None:
@@ -197,8 +197,8 @@ class TestPathInfo(unittest.TestCase):
 
     def test_pass_dir_without_variant_parent_is_not_recognized(self) -> None:
         self.assertEqual(
-            ps._path_info(Path("/tmp/root/web-app-foo/sync/playwright-junit.xml")),
-            ("sync", "", ""),
+            ps._path_info(Path("/tmp/root/web-app-foo/initial/playwright-junit.xml")),
+            ("initial", "", ""),
         )
 
 
@@ -225,7 +225,7 @@ class TestSummarizeFile(unittest.TestCase):
                 Path(tmp)
                 / "web-app-foo"
                 / "variant-2"
-                / "async"
+                / "update"
                 / "playwright-junit.xml",
                 _TWO_SUITES_FIXTURE,
             )
@@ -233,7 +233,7 @@ class TestSummarizeFile(unittest.TestCase):
         assert summary is not None
         self.assertEqual(summary["app"], "web-app-foo")
         self.assertEqual(summary["variant"], "2")
-        self.assertEqual(summary["pass"], "async")
+        self.assertEqual(summary["pass"], "update")
 
     def test_per_case_timestamp_uses_suite_timestamp_plus_offset(self) -> None:
         with TemporaryDirectory() as tmp:
@@ -306,7 +306,7 @@ class TestRender(unittest.TestCase):
                         (_T0, "test skip", "skipped", "blocked", 0.0),
                     ],
                     variant="variant-1",
-                    pass_="sync",
+                    pass_="initial",
                 ),
             ],
             "web-app-foo",
@@ -317,15 +317,15 @@ class TestRender(unittest.TestCase):
             out,
         )
         self.assertIn(
-            f"| `{_T0}` | `web-app-foo` | variant-1 | sync | test pass | 🟢 | 0.3s |  |",
+            f"| `{_T0}` | `web-app-foo` | variant-1 | initial | test pass | 🟢 | 0.3s |  |",
             out,
         )
         self.assertIn(
-            f"| `{_T0}` | `web-app-foo` | variant-1 | sync | test fail | 🔴 | 12.4s | boom |",
+            f"| `{_T0}` | `web-app-foo` | variant-1 | initial | test fail | 🔴 | 12.4s | boom |",
             out,
         )
         self.assertIn(
-            f"| `{_T0}` | `web-app-foo` | variant-1 | sync | test skip | 🔵 | 0.0s | blocked |",
+            f"| `{_T0}` | `web-app-foo` | variant-1 | initial | test skip | 🔵 | 0.0s | blocked |",
             out,
         )
 
@@ -342,21 +342,23 @@ class TestRender(unittest.TestCase):
                     "a",
                     [(_T0, "t1", "passed", "", 0.1)],
                     variant="variant-0",
-                    pass_="sync",
+                    pass_="initial",
                 ),
                 self._summary(
                     "b",
                     [(_T0, "t2", "failed", "x", 65.0)],
                     variant="variant-0",
-                    pass_="async",
+                    pass_="update",
                 ),
             ],
             "",
         )
         self.assertTrue(out.startswith("### 🎭 Playwright\n"))
-        self.assertIn(f"| `{_T0}` | `a` | variant-0 | sync | t1 | 🟢 | 0.1s |  |", out)
         self.assertIn(
-            f"| `{_T0}` | `b` | variant-0 | async | t2 | 🔴 | 1m 5s | x |", out
+            f"| `{_T0}` | `a` | variant-0 | initial | t1 | 🟢 | 0.1s |  |", out
+        )
+        self.assertIn(
+            f"| `{_T0}` | `b` | variant-0 | update | t2 | 🔴 | 1m 5s | x |", out
         )
         self.assertEqual(
             out.count(
@@ -463,7 +465,7 @@ class TestMain(unittest.TestCase):
                 Path(tmp)
                 / "web-app-foo"
                 / "variant-1"
-                / "sync"
+                / "initial"
                 / "playwright-junit.xml",
                 _TWO_SUITES_FIXTURE,
             )
@@ -471,17 +473,17 @@ class TestMain(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertIn("### 🎭 Playwright — web-app-foo", out)
         self.assertIn(
-            "| `2026-05-17T12:00:00Z` | `web-app-foo` | 1 | sync | passes | "
+            "| `2026-05-17T12:00:00Z` | `web-app-foo` | 1 | initial | passes | "
             "🟢 | 1.0s |  |",
             out,
         )
         self.assertIn(
-            "| `2026-05-17T12:00:01Z` | `web-app-foo` | 1 | sync | "
+            "| `2026-05-17T12:00:01Z` | `web-app-foo` | 1 | initial | "
             "fails on assertion | 🔴 | 2.5s | expected 1 got 0 |",
             out,
         )
         self.assertIn(
-            "| `2026-05-17T12:05:00Z` | `web-app-foo` | 1 | sync | "
+            "| `2026-05-17T12:05:00Z` | `web-app-foo` | 1 | initial | "
             "skipped one | 🔵 | 0.0s | persona blocked by env |",
             out,
         )

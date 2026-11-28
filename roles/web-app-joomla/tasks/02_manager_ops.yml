@@ -20,7 +20,9 @@
 
 - name: 📂 Include assert routines
   include_tasks: "06_assert.yml"
-  when: MODE_ASSERT_LOCAL | bool
+  when:
+    - lookup('validate') | bool
+    - IS_STACK_HOST | bool
 
 - name: ♻️ Reset Admin Password
   include_tasks: 07_reset_admin_password.yml
@@ -31,3 +33,15 @@
 
 - name: "🎨 Converge the corporate design of {{ application_id }}"
   include_tasks: 09_design.yml
+
+- name: "🔐 Converge the LDAP authentication of {{ application_id }}"
+  include_tasks:
+    file: 10_ldap.yml
+    apply:
+      delegate_to: "{{ JOOMLA_HOST_NODE }}"
+
+- name: "🚪 Converge the sign-in methods of {{ application_id }}"
+  include_tasks:
+    file: 11_login_methods.yml
+    apply:
+      delegate_to: "{{ JOOMLA_HOST_NODE }}"

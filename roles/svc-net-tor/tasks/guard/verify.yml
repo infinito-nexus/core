@@ -1,0 +1,17 @@
+---
+- name: "🛡️ Tor guard | Read back the chain bounding the Tor listeners on {{ tor_node }}"
+  become: true
+  ansible.builtin.command:
+    argv: [nft, list, chain, inet, "{{ firewall_loaded_table }}", guard]
+  register: tor_guard_chain
+  changed_when: false
+
+- name: "🛡️ Tor guard | Refuse a guard on {{ tor_node }} that drops nothing"
+  ansible.builtin.assert:
+    that:
+      - "'drop' in tor_guard_chain.stdout"
+    fail_msg: >-
+      The guard chain in {{ firewall_loaded_table }} on {{ tor_node }} carries
+      no drop, so every Tor listener bound there answers every source that can
+      route to the node. TransPort and DNSPort have no access policy of their
+      own, and this chain is the packet-level boundary of the SocksPort.

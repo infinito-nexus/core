@@ -1,0 +1,41 @@
+---
+- name: "🔑 Workspace | Resolve the Keycloak container of '{{ application_id }}'"
+  ansible.builtin.include_tasks: utils/login.yml
+
+- name: "🏢 Workspace | {{ WORKSPACE_ACTION }} the organization of '{{ WORKSPACE }}'"
+  ansible.builtin.include_tasks:
+    file: "{{ role_path }}/tasks/utils/rest_script.yml"
+    apply:
+      delegate_to: "{{ KEYCLOAK_HOST_NODE }}"
+  vars:
+    rest_script: workspace/organization.py
+    rest_script_env:
+      KC_WORKSPACES_CLIENT: "{{ KEYCLOAK_WORKSPACES_CLIENT_ID }}"
+      WORKSPACE: "{{ WORKSPACE }}"
+      WORKSPACE_ACTION: "{{ WORKSPACE_ACTION }}"
+    rest_script_stdin: ""
+    rest_script_ok_rcs: [0, 1]
+    rest_script_changed: "(created|deleted)=[1-9]"
+    rest_script_register: kc_workspace_organization
+
+- name: "📣 Workspace | Report the organization of workspace '{{ WORKSPACE }}'"
+  ansible.builtin.debug:
+    msg: "{{ kc_workspace_organization.stdout_lines }}"
+
+- name: "⚠️ Workspace | Fail on a refused or failed organization step"
+  ansible.builtin.fail:
+    msg: "{{ kc_workspace_organization.stdout_lines | select('match', '^failed ') | list }}"
+  when: kc_workspace_organization.rc != 0
+
+- name: "📤 Workspace | Hand the Owner group id to the roles after this one"
+  ansible.builtin.set_fact:
+    workspace_owner_group: >-
+      {{ kc_workspace_organization.stdout_lines
+         | select('match', '^owner_group [0-9a-f-]+$')
+         | map('regex_replace', '^owner_group ', '') | first }}
+  delegate_to: "{{ kc_workspace_host }}"
+  delegate_facts: true
+  loop: "{{ ansible_play_hosts_all }}"
+  loop_control:
+    loop_var: kc_workspace_host
+  when: WORKSPACE_ACTION == 'apply'

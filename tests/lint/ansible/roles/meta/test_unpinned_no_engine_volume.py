@@ -72,7 +72,7 @@ def _is_engine_target(target: str) -> bool:
 
 
 class TestUnpinnedNoEngineVolume(unittest.TestCase):
-    def test_unpinned_roles_declare_no_engine_data_volume(self) -> None:
+    def test_unpinned_roles_declare_no_engine_data_volume(self) -> None:  # nocheck: test.text-presence -- parses every role meta/volumes.yml  # fmt: skip
         roles_root = PROJECT_ROOT / "roles"
         if not roles_root.is_dir():
             self.skipTest(f"roles/ not present at {roles_root}")

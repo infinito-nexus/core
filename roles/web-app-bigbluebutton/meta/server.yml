@@ -1,2 +1,5 @@
 ---
 ip6_enabled: "{{ NETWORK_IPV6_ENABLED | bool }}"
+vhosts:
+  default:
+    extra_template: nginx/html5client.conf.j2

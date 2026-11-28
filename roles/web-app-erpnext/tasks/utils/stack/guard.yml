@@ -1,0 +1,18 @@
+---
+- name: "🔍 Check every entry of services.erpnext.group_roles"
+  ansible.builtin.assert:
+    that:
+      - item.group is string
+      - item.group is match(ERPNEXT_RBAC_GROUP_PATTERN)
+      - item.roles is sequence and item.roles is not string and item.roles is not mapping
+      - item.roles | length > 0
+      - item.roles | select('string') | list | length == item.roles | length
+      - item.roles | map('lower') | list | intersect(ERPNEXT_RBAC_ROLE_GRANTS | dict2items | map(attribute='value') | flatten |
+        union(ERPNEXT_RBAC_RESERVED_ROLES) | map('lower') | list) | length == 0
+    fail_msg: >-
+      {{ item }} must name a group path matching {{ ERPNEXT_RBAC_GROUP_PATTERN }}
+      and a non-empty list of ERPNext roles, none of which the role groups of this
+      role already grant and none of which is one of {{ ERPNEXT_RBAC_RESERVED_ROLES }},
+      in any case.
+    quiet: true
+  loop: "{{ ERPNEXT_RBAC_GROUP_ROLES }}"

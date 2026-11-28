@@ -1,0 +1,5 @@
+---
+# nocheck: info-media Self-written host-provisioning role that wraps Incus into per-project demo servers; it is not a consumer-facing upstream product with a demo video of its own.
+logo:
+  class: fa-solid fa-cubes
+homepage: https://linuxcontainers.org/incus/

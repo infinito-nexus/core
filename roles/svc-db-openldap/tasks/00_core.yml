@@ -1,10 +1,37 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🛑 Refuse public LDAPS on a swarm deploy before OpenLDAP starts"
+  ansible.builtin.assert:
+    that:
+      - not (IS_SWARM_MODE | bool and OPENLDAP_NETWORK_SWITCH_PUBLIC | bool)
+    fail_msg: >-
+      services.openldap.network.public is true on a swarm deploy. Public LDAPS
+      relays through the stream module of openresty, and in swarm that relay is
+      not proven to reach slapd: see the requirement 'OpenLDAP LDAPS through
+      openresty in swarm' under docs/requirements/. Set
+      services.openldap.network.public to false for this swarm deploy.
+    quiet: true
+
 - name: "📁 Create LDIF dirs {{ OPENLDAP_LDIF_PATH_HOST }} before swarm bind-mount"
   directory_batch:
     paths: "{{ [OPENLDAP_LDIF_PATH_HOST] | product(OPENLDAP_LDIF_TYPES) | map('join') | list }}"
     mode: "0755"
+
+- name: "📁 Create the ldapi socket dir before the bind-mount"
+  file:
+    path: "{{ OPENLDAP_SOCKET_PATH_HOST }}"
+    state: directory
+    mode: "0755"
+
+- name: "🏷️ Label this swarm node as a holder of the ldapi socket"
+  ansible.builtin.command: >-
+    container node update --label-add {{ LDAP.SERVER.NODE_LABEL }}=true
+    {{ inventory_hostname }}
+  register: openldap_node_label
+  changed_when: openldap_node_label.rc == 0
+  delegate_to: "{{ STACK_HOST }}"
+  when: IS_SWARM_MODE
 
 - name: 🎬 Initialize docker
   include_tasks: 01_docker.yml
@@ -22,6 +49,7 @@
   file:
     path: "{{ lookup('nginx','directories.configuration.streams') }}{{ lookup('domain',application_id) }}.conf"
     state: absent
+  notify: restart-openresty
   when: not OPENLDAP_NETWORK_SWITCH_PUBLIC | bool
 
 - name: "⏳ Wait for LDAP to be available"
@@ -35,15 +63,17 @@
 
 - name: 🔎 Check if current RootDN/RootPW already work
   ansible.builtin.shell: >
+    IFS= read -r OPENLDAP_BIND_PW || :; : "${OPENLDAP_BIND_PW:?arrived empty on stdin}" && export OPENLDAP_BIND_PW &&
     container exec -e OPENLDAP_BIND_PW {{ OPENLDAP_CONTAINER_ADDRESS }}
-    sh -c 'exec ldapwhoami -x -H ldap://127.0.0.1:389 -D "{{ OPENLDAP_BIND_DN }}" -w "$OPENLDAP_BIND_PW"'
-  environment:
-    OPENLDAP_BIND_PW: "{{ OPENLDAP_BIND_PW }}"
+    sh -c 'printf "%s" "$OPENLDAP_BIND_PW" | ldapwhoami -x -H ldap://127.0.0.1:389 -D "{{ OPENLDAP_BIND_DN }}" -y /dev/stdin'
+  args:
+    stdin: "{{ OPENLDAP_BIND_PW }}"
   register: openldap_bind_check
   delegate_to: "{{ STACK_HOST }}"
   run_once: true
   changed_when: false
   failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: ✅ Ensure LDAP RootPW is set on every deploy
   include_tasks: 02_credentials.yml
@@ -153,7 +183,7 @@
         raise
     EOF
   changed_when: false
-  when: MODE_DEBUG | bool
+  when: lookup('debug') | bool
 
 - name: "📂 Include Schemas (if enabled)"
   include_tasks:
@@ -188,3 +218,18 @@
       run_once: true
       delegate_to: "{{ STACK_HOST }}"
   when: OPENLDAP_PROVISION_UPDATE | bool
+
+- name: "⏱️ Load the RBAC sync timer that seeds mailboxes of runtime accounts"
+  ansible.builtin.include_role:
+    name: sys-ctl-mtn-rbac-sync
+  when:
+    - OPENLDAP_EMAIL_MAILBOX | bool
+    - run_once_sys_ctl_mtn_rbac_sync is not defined
+
+- name: "🧹 Stop the RBAC sync timer from seeding mailboxes under the external policy"
+  ansible.builtin.include_role:
+    name: sys-ctl-mtn-rbac-sync
+    tasks_from: mailbox.yml
+  vars:
+    rbac_sync_mailbox_enabled: false
+  when: not (OPENLDAP_EMAIL_MAILBOX | bool)

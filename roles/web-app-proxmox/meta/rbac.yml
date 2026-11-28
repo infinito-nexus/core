@@ -1,0 +1,4 @@
+---
+roles:
+  administrator:
+    description: Manages the Proxmox VE node and every agent VM through the web UI

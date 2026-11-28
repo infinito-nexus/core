@@ -9,6 +9,14 @@
     name: user-administrator
   when: run_once_user_administrator is not defined
 
+- name: "📁 Create {{ DIR_SSHD_DROPINS }} for role-owned sshd drop-ins"
+  ansible.builtin.file:
+    path: "{{ DIR_SSHD_DROPINS }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
 - name: 📁 create sshd_config
   template: # nocheck: stack-host-template (per-host sshd_config)
     src: "sshd_config.j2"
@@ -17,5 +25,11 @@
     group: root
     mode: "0644"
   notify: sshd-restart
+
+- name: ▶️ Keep the SSH daemon enabled and running
+  ansible.builtin.systemd:
+    name: "{{ SYS_SVC_SSHD_SERVICE }}"
+    state: started
+    enabled: true
 
 - include_tasks: utils/once/flag.yml

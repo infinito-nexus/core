@@ -1,0 +1,10 @@
+{# Param: application_id names the application; it becomes the journald tag and the DOCKER_LOG_LABEL container label. Param: logging_labels_declared optional; when defined the service writes its own labels block, which then MUST carry DOCKER_LOG_LABEL, and only the logging block is rendered. #}
+{% if logging_labels_declared is not defined %}
+labels:
+  {{ DOCKER_LOG_LABEL }}: {{ application_id | to_json }}
+{% endif %}
+logging:
+  driver: journald
+  options:
+    tag: {{ application_id | to_json }}
+    labels: {{ DOCKER_LOG_LABEL | to_json }}

@@ -1,12 +1,31 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: true
+- name: "📦 Stage the {{ ERPNEXT_LOGIN_RBAC_APP }} Frappe app into the build context"
+  stack_host_copy:
+    src: "python/{{ ERPNEXT_LOGIN_RBAC_APP }}/"
+    dest: "{{ ERPNEXT_LOGIN_RBAC_BUILD_DIR }}/"
+    directory_mode: "0755"
+  register: erpnext_login_rbac_stage
+  notify:
+    - compose-build
+    - compose-up
+
+- name: "📌 Mark the Frappe restart of the staged sign-in app as pending"
+  ansible.builtin.file:
+    path: "{{ ERPNEXT_LOGIN_RBAC_RESTART_MARKER }}"
+    state: touch
+    mode: "0644"
+    modification_time: preserve
+    access_time: preserve
+  when: erpnext_login_rbac_stage is changed
+
+- name: "🐳 Build and start {{ application_id }}"
+  ansible.builtin.meta: flush_handlers
 
 - name: "👔 ERPNext manager-side operations (file deploys + container exec)"
   include_tasks: 01_manager_ops.yml
   when: IS_STACK_HOST | bool
+
+- name: "🛂 Reconcile the ERPNext roles of the RBAC groups"
+  include_tasks: 04_rbac.yml

@@ -4,16 +4,23 @@ entity_name: "{{ application_id | entity_name }}"
 
 OPENWEBUI_URL: "{{ lookup('tls', application_id, 'url.base') }}"
 OPENWEBUI_CONTAINER: "{{ lookup('config', application_id, 'services.openwebui.name') }}"
-OPENWEBUI_OFFLINE_MODE: "{{ lookup('config', application_id, 'services.openwebui.offline_mode') }}"
-OPENWEBUI_HF_HUB_OFFLINE: "{{ lookup('config', application_id, 'services.openwebui.hf_hub_offline') }}"
+OPENWEBUI_SETTINGS: "{{ lookup('form_values', application_id, 'settings') }}"
 OPENWEBUI_ENABLE_API_KEYS: "{{ lookup('config', application_id, 'services.openwebui.enable_api_keys') }}"
-OPENWEBUI_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
+OPENWEBUI_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.openwebui.login.method.ldap.enabled') | bool }}"
+OPENWEBUI_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.openwebui.login.method.native.enabled') | bool }}"
+OPENWEBUI_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.openwebui.login.method.registration.enabled') | bool }}"
 OPENWEBUI_LITELLM_ENABLED: "{{ lookup('config', application_id, 'services.litellm.enabled') }}"
-OPENWEBUI_LITELLM_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.litellm_api_key') }}"
+OPENWEBUI_LITELLM_API_KEY: "{{ lookup('litellm_api_key', application_id) }}"
 OPENWEBUI_COMFYUI_URL: "{{ lookup('config', application_id, 'services.openwebui.comfyui_url') }}"
 OPENWEBUI_COMFYUI_API_KEY: "{{ lookup('config', application_id, 'secrets.credentials.comfyui_api_key') }}"
 OPENWEBUI_IMAGE_MODEL: "{{ lookup('config', application_id, 'services.openwebui.image_model') }}"
 OPENWEBUI_EMBEDDING_MODEL: "{{ lookup('config', application_id, 'services.openwebui.embedding_model') }}"
+OPENWEBUI_ARTEFACTS: "{{ lookup('cache_artefacts', application_id).values() | list }}"
+OPENWEBUI_STORED: "{{ OPENWEBUI_ARTEFACTS | length > 0 }}"
+OPENWEBUI_EMBEDDING_SOURCE: >-
+  {{ ([AI_MODELS_STORE_PATH, (OPENWEBUI_ARTEFACTS | first).root] | path_join)
+     if (OPENWEBUI_STORED | bool) else '' }}
+OPENWEBUI_STORE_MOUNTS: "{{ [AI_MODELS_STORE_PATH ~ ':' ~ AI_MODELS_STORE_PATH ~ ':ro'] if (OPENWEBUI_STORED | bool) else [] }}"
 OPENWEBUI_STT_MODEL: "{{ lookup('config', application_id, 'services.openwebui.speech_to_text_model') }}"
 OPENWEBUI_TTS_MODEL: "{{ lookup('config', application_id, 'services.openwebui.text_to_speech_model') }}"
 OPENWEBUI_JUPYTER_ENABLED: "{{ lookup('config', application_id, 'services.jupyter.enabled') }}"
@@ -27,18 +34,39 @@ OPENWEBUI_QDRANT_ENABLED: "{{ lookup('config', application_id, 'services.qdrant.
 OPENWEBUI_QDRANT_URL: "{{ lookup('engine', 'qdrant', application_id, 'url') }}"
 OPENWEBUI_QDRANT_API_KEY: "{{ lookup('engine', 'qdrant', application_id, 'password') }}"
 OPENWEBUI_QDRANT_COLLECTION_PREFIX: "{{ lookup('engine', 'qdrant', application_id, 'prefix') }}"
+OPENWEBUI_REDIS_URL: "{{ lookup('engine', 'redis', application_id, 'url') }}"
+OPENWEBUI_REVOCATION_STAMP_SECONDS: 2592000
+OPENWEBUI_JWT_EXPIRES_IN: >-
+  {{ [lookup('config', 'web-app-keycloak', 'services.keycloak.realm.sso_session_max_lifespan_seconds'),
+      OPENWEBUI_REVOCATION_STAMP_SECONDS] | min }}
 OPENWEBUI_AGENT_BROKER_ENABLED: "{{ lookup('config', application_id, 'services.agent-broker.enabled') }}"
 OPENWEBUI_AGENT_BROKER_URL: "{{ lookup('container_url', 'svc-ai-agent-broker', 'agent-broker') }}/v1"
 OPENWEBUI_AGENT_BROKER_KEY: "{{ lookup('config', 'svc-ai-agent-broker', 'secrets.credentials.api_key') }}"
 OPENWEBUI_AGENT_BROKER_TIMEOUT: "{{ lookup('config', 'svc-ai-agent-broker', 'services.agent-broker.request_timeout') }}"
-OPENWEBUI_AGENT_MODELS:
+OPENWEBUI_AGENT_GROUPS:
   hermes: "/{{ lookup('rbac_group_path', application_id='web-app-hermes', role='agent-user') }}"
   openclaw: "/{{ lookup('rbac_group_path', application_id='web-app-openclaw', role='agent-user') }}"
+OPENWEBUI_AGENT_MODELS: "{{ OPENWEBUI_AGENT_GROUPS if (OPENWEBUI_AGENT_BROKER_ENABLED | bool) else {} }}"
+OPENWEBUI_MODEL_GRANTS_ENABLED: "{{ (OPENWEBUI_LITELLM_ENABLED | bool) or (OPENWEBUI_AGENT_MODELS | length > 0) }}"
+OPENWEBUI_API_KEY_NEEDED: "{{ (OPENWEBUI_MODEL_GRANTS_ENABLED | bool) or (OPENWEBUI_MCP_SERVERS | length > 0) }}"
+OPENWEBUI_GATEWAY_FAILED_RC: 3
+OPENWEBUI_ARENA_MODELS:
+  - id: arena-model
+    name: Arena Model
+    meta:
+      profile_image_url: /favicon.png
+      description: Submit your questions to anonymous AI chatbots and vote on the best response.
+      model_ids:
+      access_grants:
+        - principal_type: user
+          principal_id: "*"
+          permission: read
 OPENWEBUI_OPENAI_CONNECTIONS: >-
   {{ ([{'url': LITELLM_BASE_LOCAL_URL ~ '/v1', 'key': OPENWEBUI_LITELLM_API_KEY}] if (OPENWEBUI_LITELLM_ENABLED | bool) else [])
      + ([{'url': OPENWEBUI_AGENT_BROKER_URL, 'key': OPENWEBUI_AGENT_BROKER_KEY}] if (OPENWEBUI_AGENT_BROKER_ENABLED | bool) else []) }}
 OPENWEBUI_SECRET_KEY: "{{ lookup('config', application_id, 'secrets.credentials.webui_secret_key') }}"
-OPENWEBUI_MCP_SERVERS: "{{ MCP_DISCOVERED_SERVERS if (lookup('config', application_id, 'mcp.enabled') | bool) else [] }}"
+OPENWEBUI_MCP_CONFIG: "{{ lookup('form_values', application_id, 'tools') }}"
+OPENWEBUI_MCP_SERVERS: "{{ (OPENWEBUI_MCP_CONFIG.servers | mcp_with_credentials(MCP_DISCOVERED_SERVERS)) if 'servers' in OPENWEBUI_MCP_CONFIG else [] }}"
 OPENWEBUI_MCP_GROUP_OWNER: "openwebui-mcp-groups"
 OPENWEBUI_MCP_GROUP_IDS: "{{ (lookup('users', OPENWEBUI_MCP_GROUP_OWNER, {}) | default({}, true)).get('tokens', {}) }}"
 OPENWEBUI_MCP_MEMBERS: "{{ lookup('users') | mcp_group_members(OPENWEBUI_MCP_SERVERS, 'mcp-reader') }}"
@@ -48,6 +76,10 @@ OPENWEBUI_ADMIN_USER: "{{ lookup('users', 'platform_administrator') }}"
 OPENWEBUI_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') }}"
 OPENWEBUI_CUSTOM_CSS_HOST: "{{ [lookup('container', application_id, 'directories.volumes'), 'custom.css'] | path_join }}"
 
-OPENWEBUI_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+OPENWEBUI_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.openwebui.login.method.sso.enabled') | bool }}"
+OPENWEBUI_OIDC_CLIENT_ID: "{{ lookup('config', application_id, 'services.sso.oidc.clients.web') }}"
 OPENWEBUI_OIDC_REDIRECT_URL: "{{ [OPENWEBUI_URL,'/oauth/oidc/callback'] | url_join }}"
+OPENWEBUI_OIDC_END_SESSION_URL: >-
+  {{ OIDC.CLIENT.LOGOUT_URL ~ '?' ~ ({'client_id': OPENWEBUI_OIDC_CLIENT_ID,
+     'post_logout_redirect_uri': [OPENWEBUI_URL, '/auth'] | url_join} | urlencode) }}
 OPENWEBUI_OIDC_ADMIN_GROUP: "{{ lookup('rbac_group_path', application_id=application_id, role='administrator') }}"

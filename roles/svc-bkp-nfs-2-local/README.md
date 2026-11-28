@@ -7,7 +7,7 @@ Each run stores a discrete snapshot under `<backups>/<machine-hash>/backup-nfs-t
 
 ## Overview
 
-This role installs the backup script and the systemd service that drives it on the configured schedule (`SYS_SCHEDULE_BACKUP_NFS_TO_LOCAL`), and serialises the run against the rest of the manipulation group via [sys-lock](../sys-lock/).
+This role installs the backup script and the systemd service that drives it on the configured schedule (`SYS_SCHEDULE_BACKUP_NFS_TO_LOCAL`), and first waits for the rest of the manipulation group via [sys-lock](../sys-lock/), up to `SYS_TIMEOUT_BACKUP_SERVICES`.
 The source path is the NFS export base resolved from the [svc-storage-nfs-server](../svc-storage-nfs-server/) services SPOT; deploy the role on the host that serves the export.
 Deploy [sys-ctl-cln-bkps](../sys-ctl-cln-bkps/) to keep the snapshot tree bounded and [user-backup](../user-backup/) so downstream hosts can pull the tree.
 
@@ -16,7 +16,7 @@ Deploy [sys-ctl-cln-bkps](../sys-ctl-cln-bkps/) to keep the snapshot tree bounde
 ```mermaid
 flowchart TD
     TIMER["systemd timer<br>SYS_SCHEDULE_BACKUP_NFS_TO_LOCAL (01:30)"] --> UNIT
-    PRELOAD["sys-service-loader preload<br>MODE_BACKUP, run_after svc-storage-nfs-server<br>(force_flush_instant + state started)"] --> UNIT
+    PRELOAD["sys-service-loader preload<br>BACKUP, run_after svc-storage-nfs-server<br>(force_flush_instant + state started)"] --> UNIT
     UNIT["svc-bkp-nfs-2-local.&lt;version&gt;.&lt;domain&gt;.service"] --> LOCK["ExecStartPre: sys-lock against the manipulation group"]
     LOCK --> SCRIPT["ExecStart: script.sh &lt;export_base&gt; &lt;backups_dir&gt;<br>backup-nfs-to-local &lt;state&gt;/backup &lt;state&gt;/&lt;backup-disabled volume&gt;..."]
     SCRIPT -->|export_base missing| ALARM["ERROR exit 1<br>OnFailure alarm"]

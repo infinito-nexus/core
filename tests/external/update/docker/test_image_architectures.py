@@ -26,6 +26,9 @@ Two rules, one per polarity of the declaration:
   compatible with, keeping it tested narrower than it could be while nothing
   says so. The second half is what retires a declaration by itself once
   upstream starts publishing the manifest its ``nocheck`` was written for.
+  It only warns for a role that builds an image (``custom``): the pinned
+  image is then the build's base, whose manifest bounds the build but says
+  nothing about the packages installed on top of it.
 
 A ``version_variants`` ref is skipped: it is a tag the mirror must carry, not
 a version a role deploys.
@@ -52,12 +55,12 @@ import unittest
 from typing import ClassVar
 
 from utils.annotations.message import warning
-from utils.docker.image.architectures import role_capability
+from utils.docker.image.architectures import role_capability, service_platforms
 from utils.docker.image.discovery import iter_role_images
 from utils.docker.registry import manifest_platforms_probed
 from utils.github.variant.pools import ARCHITECTURES
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
-from utils.roles.meta_lookup import get_role_architectures
+from utils.roles.meta_lookup import get_role_architectures, get_role_built_services
 from utils.update.base import resolve_max_fetch_workers
 
 from . import PROJECT_ROOT
@@ -76,7 +79,11 @@ class ImageArchitectures(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        refs = [ref for ref in iter_role_images(PROJECT_ROOT) if not ref.derived]
+        refs = [
+            ref
+            for ref in iter_role_images(PROJECT_ROOT)
+            if not ref.derived or ref.architecture
+        ]
         cls.by_role = collections.defaultdict(list)
         for ref in refs:
             cls.by_role[ref.role].append(ref)
@@ -101,7 +108,7 @@ class ImageArchitectures(unittest.TestCase):
         Returns:
             What :func:`role_capability` returns for the role's images.
         """
-        offered = {}
+        probes = collections.defaultdict(list)
         for ref in self.by_role[role]:
             platforms = self.probed.get((_pull_image(ref), ref.version))
             if platforms is None:
@@ -112,8 +119,11 @@ class ImageArchitectures(unittest.TestCase):
                     title="🔍 Unverified image architectures",
                     file=f"roles/{ref.role}/{ROLE_FILE_META_SERVICES}",
                 )
-            offered[f"{ref.service} ({_pull_image(ref)}:{ref.version})"] = platforms
-        return role_capability(offered)
+            label = f"{ref.service} ({_pull_image(ref)})"
+            probes[label].append((ref.architecture, platforms))
+        return role_capability(
+            {label: service_platforms(pairs) for label, pairs in probes.items()}
+        )
 
     @staticmethod
     def _named(blame: dict, architecture: str) -> str:
@@ -171,11 +181,20 @@ class ImageArchitectures(unittest.TestCase):
                 for architecture in sorted(declared - capability)
             )
             stale = sorted(capability - declared)
+            built = get_role_built_services(role)
             if stale and unread:
                 warning(
                     f"{role}: every image that answered runs on {stale}, but "
                     f"{len(unread)} did not answer, and an unread image may be "
                     "the one the narrowing exists for",
+                    title="🔍 Narrowing not judged",
+                    file=f"roles/{role}/{ROLE_FILE_META_SERVICES}",
+                )
+            elif stale and built:
+                warning(
+                    f"{role}: every pinned image runs on {stale}, but {built} "
+                    "build on it, and a base image publishes no architectures "
+                    "for what a build installs on top of it",
                     title="🔍 Narrowing not judged",
                     file=f"roles/{role}/{ROLE_FILE_META_SERVICES}",
                 )

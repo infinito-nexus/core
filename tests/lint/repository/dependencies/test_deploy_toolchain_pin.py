@@ -45,7 +45,7 @@ class TestDeployToolchainPin(unittest.TestCase):
             f"'{_PACKAGE}' exactly once; found {declared}.",
         )
 
-    def test_ansible_is_pinned_to_one_exact_version(self) -> None:
+    def test_ansible_is_pinned_to_one_exact_version(self) -> None:  # nocheck: test.text-presence -- parses pyproject.toml with tomllib and asserts on the parsed requirement  # fmt: skip
         requirement = next(
             requirement
             for requirement in _deploy_requirements()

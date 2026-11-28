@@ -32,3 +32,14 @@ http:
 {% for cidr in NETWORK_TRUSTED_PROXY_CIDRS %}
     - {{ cidr }}
 {% endfor %}
+{% if HOMEASSISTANT_LDAP_ENABLED | bool %}
+
+homeassistant:
+  auth_providers:
+    - type: homeassistant
+    - type: command_line
+      name: {{ HOMEASSISTANT_LDAP_PROVIDER_NAME | to_json }}
+      command: {{ HOMEASSISTANT_PYTHON | to_json }}
+      args: {{ HOMEASSISTANT_LDAP_LOGIN_ARGUMENTS | to_json }}
+      meta: true
+{% endif %}

@@ -10,6 +10,8 @@ import unittest
 from contextlib import redirect_stderr, suppress
 from pathlib import Path
 
+from tests.utils.unprivileged import unprivileged
+
 from ._spec_secrets_fakes import RAW, load_masker, scratch_text
 
 FOLLOWING = (
@@ -272,7 +274,7 @@ class TestSpecSecretsPublish(unittest.TestCase):
         self.assertEqual((code, LINKED_VALUE in printed), (1, False))
         self.assertIn("container unnamed may still run", printed)
 
-    @unittest.skipIf(os.geteuid() == 0, "root deletes below a 0555 dir")
+    @unprivileged
     def test_staged_reports_that_cannot_be_deleted_fail_the_settlement(self) -> None:
         self.assertEqual(undeletable_settle(load_masker()), (1, ["report.xml"]))
 
@@ -310,7 +312,7 @@ class TestSpecSecretsPublishNegativeControls(unittest.TestCase):
         _code, printed = unproven_settle(load_masker(UNNAMED))
         self.assertNotIn(CONTAINER_ID, printed)
 
-    @unittest.skipIf(os.geteuid() == 0, "root deletes below a 0555 dir")
+    @unprivileged
     def test_a_settlement_that_ignores_a_failed_deletion_is_caught(self) -> None:
         self.assertEqual(
             undeletable_settle(load_masker(UNCHECKED_DELETION)), (0, ["report.xml"])

@@ -16,6 +16,8 @@ from typing import Any
 from unittest.mock import patch
 
 from ansible.errors import AnsibleError
+from ansible.parsing.dataloader import DataLoader
+from ansible.template import Templar
 
 from plugins.lookup.volume import LookupModule
 
@@ -146,6 +148,22 @@ class TestVolumeLookup(unittest.TestCase):
         self.assertEqual(shared["semantic_name"], "shared")
         self.assertIs(shared["nfs"], True)
 
+    def test_owner_is_returned_only_when_declared(self):
+        canonical = {
+            "token": {
+                "type": "secret",
+                "source": "/x/token",
+                "uid": 64101,
+                "gid": 64102,
+            },
+            "plain": {"type": "secret", "source": "/x/plain"},
+        }
+        token = _run("web-app-semaphore", "token", canonical=canonical)[0]
+        self.assertEqual((token["uid"], token["gid"]), (64101, 64102))
+        plain = _run("web-app-semaphore", "plain", canonical=canonical)[0]
+        self.assertNotIn("uid", plain)
+        self.assertNotIn("gid", plain)
+
     def test_raises_when_name_not_found(self):
         canonical = {
             "data": {"type": "volume", "name": "mattermost_data"},
@@ -225,6 +243,40 @@ class TestVolumeLookup(unittest.TestCase):
         ):
             LookupModule().run(["web-app-mattermost"], variables={})
         gad.assert_not_called()
+
+
+class TestBindSourceRendering(unittest.TestCase):
+    def _source(self, source: str, variables: dict[str, Any]) -> str:
+        canonical = {
+            "mirror": {
+                "type": "bind",
+                "source": source,
+                "mounts": [{"service": "cache", "target": "/docker_mirror_cache"}],
+            }
+        }
+        lookup = LookupModule(templar=Templar(loader=DataLoader(), variables=variables))
+        with (
+            patch(
+                "plugins.lookup.volume.get_canonical_volumes", return_value=canonical
+            ),
+            patch("plugins.lookup.volume.get_application_defaults"),
+        ):
+            return lookup.run(["svc-registry-cache", "mirror"], variables=variables)[0][
+                "source"
+            ]
+
+    def test_a_templated_source_is_rendered_in_the_callers_context(self):
+        self.assertEqual(
+            self._source("{{ [base, 'mirror'] | path_join }}", {"base": "/srv/cache"}),
+            "/srv/cache/mirror",
+        )
+
+    def test_a_plain_source_is_returned_as_declared(self):
+        self.assertEqual(self._source("/srv/cache/mirror", {}), "/srv/cache/mirror")
+
+    def test_an_unrenderable_source_fails_naming_the_entry(self):
+        with self.assertRaisesRegex(AnsibleError, "'mirror' of 'svc-registry-cache'"):
+            self._source("{{ undefined_base }}/mirror", {})
 
 
 if __name__ == "__main__":

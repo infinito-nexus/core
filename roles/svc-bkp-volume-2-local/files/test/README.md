@@ -7,8 +7,9 @@ orchestrates the rest. They use `systemctl`, the `container` wrapper and
 
 ## Orchestration
 
-`test.sh` runs two different passes, selected by `ASYNC_ENABLED`. The snapshot
-probe runs first in both, because it depends on nothing the backup produces.
+`test.sh` runs two different passes, selected by `DEPLOY_IS_UPDATE`. The
+snapshot probe runs first in both, because it depends on nothing the backup
+produces.
 
 ```mermaid
 flowchart TD
@@ -16,16 +17,16 @@ flowchart TD
     HOST -->|false| SKIP["exit 0<br>the role deploys on the stack host only"]
     HOST -->|"true, but a swarm node"| SWARMSKIP["probes + backup verification,<br>then exit 0 before the marker is seeded"]
     HOST -->|true| PROBE["probe/snapshot.sh<br>runs on every deploy"]
-    PROBE --> WAIT["wait for the backup unit to terminate,<br>then force one post-deploy run"]
+    PROBE --> WAIT["wait for the backup unit to terminate,<br>workspace/pass.sh prepare when BKP_TEST_WORKSPACES,<br>then force one post-deploy run,<br>polled by verify/maintenance.sh on compose"]
     WAIT --> COUNT{"generations stored"}
     COUNT -->|none| FAIL["fail: nothing was backed up"]
-    COUNT -->|"some, no backup subjects on the host"| EMPTY["exit 0<br>a stamped empty generation is the expected outcome"]
-    COUNT -->|some| PASS{"ASYNC_ENABLED"}
-    PASS -->|true| ASYNC["verify/backup.sh<br>requires two differential generations"]
-    PASS -->|false| SYNC["verify/backup.sh<br>seed/marker.py seed + one more backup<br>restore_cycle.sh<br>sys-ctl-hlth-container's own script"]
+    COUNT -->|"some, probe/subjects.sh lists nothing"| EMPTY["exit 0<br>a stamped empty generation is the expected outcome"]
+    COUNT -->|some| PASS{"DEPLOY_IS_UPDATE"}
+    PASS -->|true| UPDATE["verify/backup.sh<br>requires two differential generations"]
+    PASS -->|false| FIRST["verify/backup.sh<br>seed/marker.py seed + one more backup<br>restore_cycle.sh, with the workspace pass when BKP_TEST_WORKSPACES<br>sys-ctl-hlth-container's own script"]
 ```
 
-The sync pass is the whole disaster drill against the host this role deploys on
+The first pass is the whole disaster drill against the host this role deploys on
 (`BKP_TEST_IS_STACK_HOST`), in one sequence: back up, seed the marker, back up
 again so the tested generation carries it, take every project down, restore
 through the recover chain, require the marker and every recorded container
@@ -92,12 +93,25 @@ a throwaway privileged container and run it there. Note that a container's
 matrix reports `SKIP` unless they are created first (`mknod /dev/loop0 b 7 0`,
 …) or the host's `/dev` is bind-mounted in.
 
+## `probe/subjects.sh`
+
+Lists the host's backup subjects: every volume `container volume ls` reports,
+minus the two kinds baudolo skips. The first is `BKP_TEST_VOLUMES_NO_BACKUP`,
+the very list the role hands baudolo as `--volumes-no-backup-required`. The
+second is a volume whose running containers all run an image of
+`BKP_TEST_IMAGES_NO_BACKUP`, the role's `--images-no-backup-required` list,
+read with baudolo's own `{{.Config.Image}}` field; a volume no container runs
+on stays a subject, as it does for baudolo. baudolo skips both without leaving
+a trace in the generation, so a host whose every volume is skipped
+(`web-svc-loki` next to `web-app-docs`, for instance) stamps an empty
+generation, and that is the expected outcome rather than a missing payload.
+
 ## `verify/backup.sh`
 
 Requires the newest generation to hold real payload — a volume counts when it has
 a `files/` tree or a non-empty `sql` dump. A dump is `*.backup.sql.gz` since
 baudolo 8 and `*.backup.sql` before; the gzip one counts by what it decompresses
-to, because an empty gzip file is still some twenty bytes. In the async pass it additionally
+to, because an empty gzip file is still some twenty bytes. In the update pass it additionally
 requires `PREVIOUS_GENERATION` to be a distinct, older generation, which is what
 proves the differential `--link-dest` chain advanced.
 
@@ -108,15 +122,26 @@ flowchart TD
     VOLS -->|some| PAY{"payload non-empty?"}
     PAY -->|no| F2["fail: the generation holds only empty dirs"]
     PAY -->|yes| PREV{"PREVIOUS_GENERATION set?"}
-    PREV -->|no| OK1["sync pass satisfied"]
+    PREV -->|no| OK1["first pass satisfied"]
     PREV -->|yes| DIFF{"distinct and older?"}
     DIFF -->|no| F3["fail: no differential advance"]
-    DIFF -->|yes| OK2["async pass satisfied"]
+    DIFF -->|yes| OK2["update pass satisfied"]
 ```
+
+## `verify/maintenance.sh`
+
+Starts the forced post-deploy run with `--no-block` and polls
+`baudolo-maintenance active` and the compose projects of the applications the
+run stops (`BKP_TEST_STOPPING`, `BKP_TEST_STOPPING_PROJECTS`) every half
+second until the unit terminates. It fails when the signal lists anything
+before the run, names an application the run never stops, omits one it does,
+lags behind a stopped project, clears while a project is still down, or stays
+set after the run. A run that announces nothing and stops nothing is the
+snapshot path and passes. It runs on compose only, like the restore half.
 
 ## `restore_cycle.sh`
 
-The destructive drill, sync pass only. It proves the backup is restorable rather
+The destructive drill, first pass only. It proves the backup is restorable rather
 than merely present — the property a backup exists for.
 
 The drill owns the **lifecycle** and nothing else. Every restore is
@@ -129,7 +154,7 @@ flowchart TD
     SWARM{"swarm node?"} -->|yes| SK["skip: the compose down/up cycle races the reconciler<br>swarm is drilled by scripts/tests/deploy/swarm/routine/backup"]
     SWARM -->|no| REC["record running containers, their projects and volumes,<br>plus launcher-run containers holding a backed-up volume"]
     REC --> DOWN["compose down every project, stop the launcher containers"]
-    DOWN --> RM["container volume rm every mounted volume<br>except the engines' own data directories"]
+    DOWN --> RM["container volume rm every mounted volume<br>except the engines' own data directories<br>and the volumes declared derived: code"]
     RM --> CREATE["compose create every project<br>so the volumes exist again, empty"]
     CREATE --> BLANK["seed/marker.py blank:<br>drop the live marker, only a restore returns it"]
     BLANK --> VOL["recover volume &lt;dir&gt; localhost, per files/ tree"]
@@ -149,11 +174,25 @@ the chain from the repository's service definitions.
 **Every mounted volume is discarded**, not only the backed-up ones. A volume
 declared `backup: false` claims to be disposable; a drill that spares it never
 tests the claim. If its service cannot rebuild it, the health gate goes red —
-that is the finding, not a false alarm. The single exception is the data
+that is the finding, not a false alarm. One exception is the data
 directory of an engine whose dump is about to be replayed: it carries the
 database and its role, which the deploy creates and the container does not, so
 wiping it would leave `baudolo-restore --empty -d <db>` with nothing to connect
 to and the drill would fail at itself instead of at a defect.
+
+**A volume declared `derived: code` is kept.** The service builds its content
+from the deployed code and keys it by that code: `web-app-docs` keys every
+site by the digest of the deployed snapshot, so a kept site either matches the
+code the drill brings back or is rebuilt on its next visit. The drill restores
+into the same image, so the kept site is the one the service would build
+again. Emptying it would only time a rebuild, which for the docs site outlasts
+the job's budget. `test.env.j2` hands the drill these names as
+`BKP_TEST_VOLUMES_CODE_DERIVED`, from `lookup('backup_volume', 'derived')`,
+which names each volume as the engine does. The schema in
+`utils/roles/applications/mounts.py` refuses `derived: code` without
+`backup: false`, so the drill never keeps a volume the backup is meant to
+carry. A volume derived from state, a search index or a thumbnail cache, is
+not `derived: code` and is still emptied.
 
 **A cluster dump is replayed, not skipped.** The recover chain sends it through
 `baudolo-restore cluster` with the superuser of its cluster row, so a
@@ -195,6 +234,56 @@ that got the order wrong would fail loudly instead of flaking.
 Bringing the apps up **after** the replay also means their healthcheck now runs
 against the restored dump, rather than against the data the drill is about to
 overwrite.
+
+## `workspace/pass.sh`
+
+The workspace pass of requirement 112. `BKP_TEST_WORKSPACES` is true when the
+host holds `web-app-semaphore`, `web-app-openbao`, `web-svc-seaweedfs` and
+`web-app-gitea` with `services.gitea.workspaces.enabled`, and some host of the
+inventory holds `svc-virt-incus`, the e2e target of requirement 109 the pass
+provisions on. The target may sit in the dev stack's separate `target`
+container, so that half reads `groups`, as Semaphore's own provision switch
+does, not this host's `group_names`. Only then does `test.env.j2` render the
+URLs, the admin credentials and the provision order the pass reads.
+
+```mermaid
+flowchart TD
+    PREP["prepare, before the forced backup:<br>workspace apply twice, create both repositories,<br>commit the order's tfvars, provision one server<br>through the Incus e2e target, record the state"] --> CYCLE["restore_cycle.sh<br>takes every project down and restores"]
+    CYCLE --> PROVE["prove: workspace apply for both,<br>restore time, state against the record,<br>provision again: clone and no change"]
+    PROVE --> CTRL["controls: without the access key encryption key<br>the clone fails; without the seal key<br>OpenBao stays sealed"]
+    CTRL --> CLEAN["cleanup: destroy the server,<br>both repositories and both workspaces"]
+```
+
+`workspace/drill.py` speaks to Semaphore's API for every workspace step and
+records OpenBao's seal state, the Gitea repositories, the Keycloak organizations
+and groups, and the object versions of the SeaweedFS buckets of both
+workspaces. The controls take the key out of the project's env file, recreate
+the project, and put the file back from a copy in the pass's `0700` scratch
+directory, also when the pass fails. `BKP_TEST_WORKSPACE_ORDER`, the provision
+order for the Incus e2e target, is the survey of `provision-incus ws-<id>` and
+`destroy-incus ws-<id>` (`SALES_ORDER`, `LINE`, `PROVIDER_TOKEN`) as one JSON
+object. `test.env.j2` renders it from `services.test.workspace_order` of the
+role's `meta/services.yml`, shell-quoted because `test-e2e-cli` sources the
+file; the pass fails on its absence instead of skipping.
+
+Before step 2 the pass does for the order what the store does. For each
+workspace, `drill.py repository create` creates the repository its templates
+clone (`git_url` and `git_branch` of the apply result) and registers the
+`read_key` apply printed as its read-only deploy key. `drill.py order` then
+commits `provision/<SALES_ORDER>-<LINE>.tfvars.json`
+(`provision/DRILL-1.tfvars.json` for the configured order) to the repository
+of the first workspace, in the format `commitValues` of `web-app-semaphore`'s
+`test-provision.js` writes: the name from the order, the smallest size by
+vCPUs, memory and disk of the Incus catalog the provision runner mounts
+(`BKP_TEST_WORKSPACE_CATALOGS`), in the alphabetically first region of its
+flavor that names a host, a login key line of the ed25519 OpenSSH form whose
+32 key bytes are random, so no private half exists, and the lowercased name
+as DNS label. A size without `vcpus`, `memory_mib` or `disk_gib` fails the
+pass with its name. The cleanup deletes the server, both repositories and
+both workspaces, runs every step even when one fails, and fails afterwards
+naming what it left behind. When the server destroy fails, it keeps the
+repository and the workspace of that server, which a retried `destroy-incus`
+needs, and still cleans the other workspace.
 
 ## `seed/marker.py`
 

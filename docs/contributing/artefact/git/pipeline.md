@@ -48,7 +48,7 @@ The `build-ci-images` stage uses [call-images-build-ci.yml](../../../../.github/
 
 ### 5. Code Tests 🧪
 
-The `test` job runs [call-test.yml](../../../../.github/workflows/call-test.yml): `make test` fans the unit, integration, lint and external suites out in parallel on the runner host. It MUST pass `code-quality-gate`.
+The `test` job runs [call-test.yml](../../../../.github/workflows/call-test.yml): `make test` runs on three runner hosts, one per suite group (integration, unit, lint plus external), and the job fails unless every group passed. It MUST pass `code-quality-gate`.
 
 ### 6. Code Quality Gate 🚦
 
@@ -78,6 +78,7 @@ The two deploy-test workflows listed in the `Infrastructure tests` table of [wor
 2. **Any other non-empty `whitelist`** (forwarded from `entry-manual-steer.yml` and similar). The explicit value MUST win over the diff and is passed through verbatim.
 3. **Diff vs `origin/main`**, applied only when the `whitelist` input is empty:
    - **Skipped paths:** `.md` and `.rst` files and everything under `tests/` outside `roles/<role>/...` neither seed a role nor widen the deploy.
+   - **Role tests:** a path under `tests/` whose first `roles/<role>/` segment names an existing role (for example `tests/unit/python/roles/<role>/...`) seeds that role instead of being skipped.
    - **No diff at all**, OR **any other changed path outside `roles/<role>/...`**, OR **only skipped paths**: no whitelist is set, so the full deploy across the workflow's scope runs.
    - **All remaining changed paths under `roles/<role>/...`**: the changed roles become the seed set, and the candidates are the transitive closure of those seeds expanded upwards over `dependencies` and shared services. In other words, every role whose prerequisite set as defined by [combined resolver](../../../../cli/meta/roles/applications/resolution/combined/resolver.py) contains one of the seeds is a candidate, together with the seeds themselves. The closure reads each role's services as the union of `meta/services.yml`, every `meta/variants.yml` entry, and every nested `services` demand another role makes of it, so it contains every round's closure.
    - **Includers**: a role whose task or handler files run a seed through `include_role`/`import_role` ([`role_includes`](../../../../utils/roles/invocations.py)), transitively, counts as a seed itself, because each of its rounds runs the seed's tasks. An include whose task or enclosing block requires the included role in `group_names` is skipped: it only runs where the round deploys that role anyway.

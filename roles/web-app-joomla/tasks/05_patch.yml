@@ -2,7 +2,7 @@
 - name: "✅ Ensure configuration.php DB settings match inventory"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   shell: >
-    IFS= read -r J_DBPASS && export J_DBPASS && container exec -i
+    IFS= read -r J_DBPASS && : "${J_DBPASS:?arrived empty on stdin}" && export J_DBPASS && container exec -i
     -e J_CONFIG_FILE={{ JOOMLA_CONFIG_FILE | quote }}
     -e J_DBTYPE={{ JOOMLA_DB_CONNECTOR | quote }}
     -e J_DBHOST={{ (lookup('database', application_id, 'host') ~ ':' ~ lookup('database', application_id, 'port')) | quote }}

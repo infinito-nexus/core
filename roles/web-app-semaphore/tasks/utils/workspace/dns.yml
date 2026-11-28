@@ -1,0 +1,20 @@
+---
+# Param semaphore_workspace_alias: ws-<id> of the workspace apply runs for.
+# Output workspace_dns: zone and zone_id of the workspace, placed here under cloudflare and route53 and set by svc-dns-knot before this role under knot.
+- name: "🌐 Place {{ semaphore_workspace_alias }} in a cloudflare zone"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/flavors/dns/workspace/cloudflare.yml"
+  when: SEMAPHORE_DNS_FLAVOR == 'cloudflare'
+
+- name: "👤 Give {{ semaphore_workspace_alias }} its route53 IAM user and hosted zone"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/flavors/dns/workspace/route53.yml"
+  when: SEMAPHORE_DNS_FLAVOR == 'route53'
+
+- name: "✅ Require the DNS zone of {{ semaphore_workspace_alias }}"
+  ansible.builtin.assert:
+    that:
+      - workspace_dns is defined
+    fail_msg: >-
+      web-app-semaphore: apply needs the DNS zone of the workspace as workspace_dns, which this
+      role places under the cloudflare and route53 DNS flavors and svc-dns-knot sets before it
+      under knot
+    quiet: true

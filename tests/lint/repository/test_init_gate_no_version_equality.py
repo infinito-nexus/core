@@ -92,7 +92,7 @@ class TestInitGateNoVersionEquality(unittest.TestCase):
                 f"line with `# nocheck: {_RULE}`.\n" + "\n".join(offenders)
             )
 
-    def test_gate_hands_over_through_the_init_lock(self) -> None:
+    def test_gate_hands_over_through_the_init_lock(self) -> None:  # nocheck: test.text-presence -- policy lint over every discovered init-gate script  # fmt: skip
         offenders: list[str] = []
         for path_str in _gate_files():
             rel = Path(path_str).relative_to(PROJECT_ROOT).as_posix()

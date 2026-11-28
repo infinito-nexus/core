@@ -1,0 +1,67 @@
+---
+- name: "⏳ Wait until the Proxmox VE guest answers on the guest channel"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec {{ PROXMOX_LOCAL_CID | quote }} pve-guest pveversion
+  register: proxmox_guest_version
+  until: proxmox_guest_version.rc == 0
+  retries: "{{ PROXMOX_GUEST_WAIT_RETRIES }}"
+  delay: 10
+  changed_when: false
+  delegate_to: "{{ PROXMOX_HOST_NODE }}"
+
+- name: "🛑 Refuse a guest that does not run the pinned Proxmox VE release"
+  ansible.builtin.assert:
+    that:
+      - proxmox_guest_version.stdout is match('pve-manager/' ~ (PROXMOX_VE.iso.file | proxmox_iso_release | regex_escape) ~ '\.')
+    fail_msg: >-
+      The guest of {{ application_id }} reports {{ proxmox_guest_version.stdout | trim }},
+      but services.proxmox.ve.iso pins {{ PROXMOX_VE.iso.file }}. A guest keeps the
+      release it was installed from, so remove the proxmox_guest volume to install
+      the pinned release anew, or upgrade the guest in place.
+    quiet: true
+
+- name: "🔍 Read whether root of the Proxmox VE guest has a locked password"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec {{ PROXMOX_LOCAL_CID | quote }} pve-guest passwd -S root
+  register: proxmox_guest_root_status
+  changed_when: false
+  delegate_to: "{{ PROXMOX_HOST_NODE }}"
+
+- name: "🔒 Lock root of a Proxmox VE guest installed before the first-boot lock"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec {{ PROXMOX_LOCAL_CID | quote }} pve-guest usermod -L root
+  when: "proxmox_guest_root_status.stdout.split()[1:2] != ['L']"
+  changed_when: true
+  delegate_to: "{{ PROXMOX_HOST_NODE }}"
+
+- name: "🔍 Read the root password status of the Proxmox VE guest after the lock"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec {{ PROXMOX_LOCAL_CID | quote }} pve-guest passwd -S root
+  register: proxmox_guest_root_locked
+  changed_when: false
+  delegate_to: "{{ PROXMOX_HOST_NODE }}"
+
+- name: "🛑 Refuse a Proxmox VE guest whose root password is not locked"
+  ansible.builtin.assert:
+    that:
+      - "proxmox_guest_root_locked.stdout.split()[1:2] == ['L']"
+    fail_msg: >-
+      passwd -S root inside the guest of {{ application_id }} reports
+      {{ proxmox_guest_root_locked.stdout | trim }} after usermod -L root, not the
+      status L, so root@pam would keep a usable password.
+    quiet: true
+
+- name: "🔍 Read the identity digests the first boot of the guest recorded"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+      container exec {{ PROXMOX_LOCAL_CID | quote }} pve-guest cat {{ PROXMOX_FIRST_BOOT_DIGESTS_FILE | quote }}
+  register: proxmox_first_boot_digests
+  changed_when: false
+  failed_when: >-
+    proxmox_first_boot_digests.rc != 0
+    and proxmox_first_boot_digests.stderr is not search('No such file or directory')
+  delegate_to: "{{ PROXMOX_HOST_NODE }}"

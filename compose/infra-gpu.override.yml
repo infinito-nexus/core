@@ -1,0 +1,10 @@
+---
+services:
+  runner:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: ${INFINITO_GPU_COUNT:?Run 'make dotenv' to generate the .env single source of truth}
+              capabilities: [gpu]

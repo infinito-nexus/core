@@ -25,70 +25,8 @@ ONION = "decidim." + "a" * 56 + ".onion"
 SERVICES = load_yaml(str(ROLE / ROLE_FILE_META_SERVICES))
 INITIALIZER = ROLE / "files" / "ruby" / "initializers" / "same_origin_storage.rb"
 VERIFIED_DECIDIM = "0.31.6"
-DECIDIM_0_31_6 = {
-    ("Decidim::ContentRenderers::BlobRenderer", "blob_url"): [
-        ("req", "blob"),
-        ("opt", "variation"),
-    ],
-    ("Decidim::ContentRenderers::BlobRenderer", "local_blob_url"): [
-        ("req", "blob"),
-        ("opt", "variation"),
-    ],
-}
-PREPENDED_ROUTES = [
-    ("/blobs/redirect/:signed_id/*filename", "active_storage/blobs/proxy#show"),
-    ("/blobs/proxy/:signed_id/*filename", "active_storage/blobs/proxy#show"),
-    ("/blobs/:signed_id/*filename", "active_storage/blobs/proxy#show"),
-    (
-        "/representations/redirect/:signed_blob_id/:variation_key/*filename",
-        "active_storage/representations/proxy#show",
-    ),
-    (
-        "/representations/proxy/:signed_blob_id/:variation_key/*filename",
-        "active_storage/representations/proxy#show",
-    ),
-    (
-        "/representations/:signed_blob_id/:variation_key/*filename",
-        "active_storage/representations/proxy#show",
-    ),
-]
-ACTIVESTORAGE_7_2_2_2 = {
-    ("S3Service", "url_for_direct_upload"): [
-        ("req", "key"),
-        ("keyreq", "expires_in"),
-        ("keyreq", "content_type"),
-        ("keyreq", "content_length"),
-        ("keyreq", "checksum"),
-        ("key", "custom_metadata"),
-    ],
-    ("DiskService", "url_for_direct_upload"): [
-        ("req", "key"),
-        ("keyreq", "expires_in"),
-        ("keyreq", "content_type"),
-        ("keyreq", "content_length"),
-        ("keyreq", "checksum"),
-        ("key", "custom_metadata"),
-    ],
-    ("S3Service", "headers_for_direct_upload"): [
-        ("req", "key"),
-        ("keyreq", "content_type"),
-        ("keyreq", "checksum"),
-        ("key", "filename"),
-        ("key", "disposition"),
-        ("key", "custom_metadata"),
-        ("keyrest", "**"),
-    ],
-    ("S3Service", "upload"): [
-        ("req", "key"),
-        ("req", "io"),
-        ("key", "checksum"),
-        ("key", "filename"),
-        ("key", "content_type"),
-        ("key", "disposition"),
-        ("key", "custom_metadata"),
-        ("keyrest", "**"),
-    ],
-}
+BLOB_PROXY = "active_storage/blobs/proxy#show"
+REPRESENTATION_PROXY = "active_storage/representations/proxy#show"
 
 
 def _objstore(served_on: list[str]) -> dict:
@@ -165,6 +103,8 @@ def _render_env(origin: str, objstore: dict) -> dict[str, str]:
             return "x"
         if name == "email":
             return {"enabled": False}
+        if name == "debug":
+            return False
         raise AssertionError(f"env.j2 renders an unexpected lookup {name}{terms}")
 
     env.globals["lookup"] = lookup
@@ -177,7 +117,6 @@ def _render_env(origin: str, objstore: dict) -> dict[str, str]:
         application_id=APP,
         HOST_TIMEZONE="UTC",
         ENVIRONMENT="production",
-        MODE_DEBUG=False,
         DECIDIM_SECRET_KEY_BASE="kb",
         DECIDIM_ORGANIZATION_NAME="Org",
         DECIDIM_OIDC_ENABLED=False,
@@ -187,24 +126,6 @@ def _render_env(origin: str, objstore: dict) -> dict[str, str]:
         for line in rendered.splitlines()
         if "=" in line and not line.startswith("#")
     )
-
-
-def _initializer_signatures() -> dict[tuple[str, str], list[tuple[str, str]]]:
-    """
-    Returns:
-        The parameter lists the initializer's boot guard expects, keyed by class and method; ActiveStorage service classes by their bare name.
-    """
-    entries = re.findall(
-        r"\[([\w:]+), :(\w+)\] => \[(.*?)\n    \]",
-        read_text(str(INITIALIZER)),
-        flags=re.DOTALL,
-    )
-    return {
-        (owner.removeprefix("ActiveStorage::Service::"), method): re.findall(
-            r"\[:(\w+), :(\w+|\*\*)\]", body
-        )
-        for owner, method, body in entries
-    }
 
 
 def _prepended_routes() -> list[tuple[str, str]]:
@@ -271,46 +192,23 @@ class TestDecidimSameOriginEnv(unittest.TestCase):
 
 
 class TestDecidimSameOriginInitializer(unittest.TestCase):
-    def test_active_storage_routes_proxy_through_the_app(self):
-        self.assertRegex(
-            read_text(str(INITIALIZER)),
-            r"(?m)^Rails\.application\.config\.active_storage\.resolve_model_to_route = :rails_storage_proxy$",
-        )
+    def test_redirect_routes_serve_through_the_proxy(self):  # nocheck: test.text-presence -- tokenizes the file into commands or directives; the rule taints tokenizer output  # fmt: skip
+        actions = dict(_prepended_routes())
+        for path, action in (
+            ("/blobs/redirect/SIGNED/logo.png", BLOB_PROXY),
+            ("/blobs/proxy/SIGNED/logo.png", BLOB_PROXY),
+            ("/blobs/SIGNED/logo.png", BLOB_PROXY),
+            (
+                "/representations/redirect/SIGNED/VARIANT/logo.png",
+                REPRESENTATION_PROXY,
+            ),
+            ("/representations/proxy/SIGNED/VARIANT/logo.png", REPRESENTATION_PROXY),
+            ("/representations/SIGNED/VARIANT/logo.png", REPRESENTATION_PROXY),
+        ):
+            with self.subTest(path=path):
+                self.assertEqual(actions[_first_pattern(path)], action)
 
-    def test_direct_uploads_go_to_the_same_origin_disk_route(self):
-        source = read_text(str(INITIALIZER))
-
-        self.assertIn("update_rails_disk_service_path(token)", source)
-        self.assertIn("purpose: :blob_token", source)
-        self.assertIn(
-            "ActiveStorage::Service::S3Service.prepend(InfinitoSameOriginStorage::DirectUpload)",
-            source,
-        )
-
-    def test_boot_guard_pins_the_patched_signatures(self):
-        self.assertEqual(
-            _initializer_signatures(),
-            {**ACTIVESTORAGE_7_2_2_2, **DECIDIM_0_31_6},
-            "the boot guard must expect exactly the activestorage 7.2.2.2 and "
-            "decidim 0.31.6 signatures the patch was written against",
-        )
-
-    def test_rich_text_blobs_render_through_the_app_route(self):
-        source = read_text(str(INITIALIZER))
-
-        self.assertRegex(
-            source,
-            r"(?ms)^  module LocalBlobUrl\n    protected\n\n    def blob_url\(blob, variation = nil\)\n      local_blob_url\(blob, variation\)\n    end\n  end$",
-        )
-        self.assertIn(
-            "Decidim::ContentRenderers::BlobRenderer.prepend(InfinitoSameOriginStorage::LocalBlobUrl)",
-            source,
-        )
-
-    def test_redirect_routes_serve_through_the_proxy(self):
-        self.assertEqual(_prepended_routes(), PREPENDED_ROUTES)
-
-    def test_each_path_shape_takes_the_route_of_its_own_shape(self):
+    def test_each_path_shape_takes_the_route_of_its_own_shape(self):  # nocheck: test.text-presence -- simulates Rails first-match routing over the parsed route table  # fmt: skip
         for path, pattern in (
             ("/blobs/proxy/SIGNED/logo.png", "/blobs/proxy/:signed_id/*filename"),
             ("/blobs/redirect/SIGNED/logo.png", "/blobs/redirect/:signed_id/*filename"),
@@ -331,29 +229,6 @@ class TestDecidimSameOriginInitializer(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertEqual(_first_pattern(path), pattern)
 
-    def test_storage_reads_skip_the_request_throttle(self):
-        source = read_text(str(INITIALIZER))
-
-        self.assertIn('require "rack/attack"', source)
-        self.assertIn(
-            'Rack::Attack.safelist("same-origin storage reads") { |request| '
-            "InfinitoSameOriginStorage.storage_read?(request) }",
-            source,
-        )
-        self.assertRegex(
-            source,
-            r'\(request\.get\? \|\| request\.head\?\) &&\n\s+request\.path\.start_with\?\("#\{ActiveStorage\.routes_prefix\}/blobs/", "#\{ActiveStorage\.routes_prefix\}/representations/"\)',
-        )
-
-    def test_boot_guard_runs_before_the_patch(self):
-        source = read_text(str(INITIALIZER))
-
-        self.assertLess(
-            source.index("SIGNATURES.each"),
-            source.index("S3Service.prepend"),
-            "after the prepend instance_method answers with the patch's own parameters",
-        )
-
     def test_decidim_version_is_the_verified_one(self):
         self.assertEqual(
             SERVICES["decidim"]["version"],
@@ -361,12 +236,6 @@ class TestDecidimSameOriginInitializer(unittest.TestCase):
             "re-verify the initializer's SIGNATURES and Decidim::AssetRouter::Storage "
             "against the activestorage and decidim-core this image ships, then "
             "move VERIFIED_DECIDIM",
-        )
-
-    def test_the_image_installs_the_initializer(self):
-        self.assertIn(
-            "COPY ${DECIDIM_PATCH_RUBY_HOST_REL}/initializers/ /code/config/initializers/",
-            read_text(str(ROLE / "files" / "Dockerfile")),
         )
 
 

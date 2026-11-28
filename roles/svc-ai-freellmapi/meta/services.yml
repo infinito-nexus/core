@@ -1,0 +1,76 @@
+---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
+# nocheck: playwright-service-flag the local dashboard is configured interactively; no public web role is deployed
+# nocheck: category-modes SQLite state is node-local; this role supports the workstation compose mode only
+freellmapi:
+  modes:
+    compose:
+      enabled: true
+    swarm:
+      enabled: false
+  bond: 1
+  enabled: true
+  shared: true
+  backup:
+    stop_required: true
+  image: ghcr.io/tashfeenahmed/freellmapi
+  version: v0.16.15
+  name: freellmapi
+  healthcheck:
+    test:
+      - CMD
+      - node
+      - -e
+      - "fetch('http://127.0.0.1:' + process.env.PORT + '/api/ping').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+  min_storage: 1GB
+  cpus: "1.0"
+  mem_reservation: 256m
+  mem_limit: 1g
+  pids_limit: 512
+  ports:
+    local:
+      http: 7991
+    internal:
+      http: 3001
+  startup_config: {}
+  lifecycle: pre-alpha
+
+# nocheck: playwright-service-flag, dynamic-flag, variants-coverage  own CI-only container, not a shared provider; only the variant 0 matrix round switches it on so production never routes to it
+mock:
+  enabled: false
+  name: freellmapi-mock
+  model: infinito-mock
+  context: 131072
+  healthcheck:
+    test:
+      - CMD
+      - node
+      - -e
+      - "fetch('http://127.0.0.1:' + process.env.PORT + '/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+  ports:
+    internal:
+      http: 3002
+  cpus: "0.25"
+  mem_reservation: 32m
+  mem_limit: 128m
+  pids_limit: 64
+
+# nocheck: playwright-service-flag, dynamic-flag
+container_backup: # nocheck: bond-baseline
+  bond: 1
+  enabled: "{{ 'svc-bkp-volume-2-local' in group_names }}"
+  shared: true
+
+# nocheck: variants-coverage single compose gateway with optional operator-supplied startup configuration
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider the LiteLLM gateway consumes, so pausing it would take its consumers down with it
+  status: started

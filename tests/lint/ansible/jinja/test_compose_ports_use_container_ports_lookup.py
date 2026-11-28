@@ -128,7 +128,7 @@ def _raw_port_lines(lines: list[str]) -> list[int]:
 
 
 class TestComposePortsUseContainerPortsLookup(unittest.TestCase):
-    def test_no_raw_port_mapping_in_compose_template(self) -> None:
+    def test_no_raw_port_mapping_in_compose_template(self) -> None:  # nocheck: test.text-presence -- policy lint over every .j2 template  # fmt: skip
         findings: list[tuple[str, int, str]] = []
         for path_str, content in iter_project_files_with_content(
             extensions=(".j2",),

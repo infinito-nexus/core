@@ -5,8 +5,9 @@ const {
   decodeDotenvQuoted,
   gotoOnion,
   normalizeBaseUrl,
-  safeIsEnabled,
 } = require("./personas");
+const { holdsAdministration } = require("./saml-login");
+const { skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 
 test.use({ ignoreHTTPSErrors: true });
 
@@ -17,8 +18,8 @@ const adminUsername = decodeDotenvQuoted(process.env.ADMIN_USERNAME);
 const adminPassword = decodeDotenvQuoted(process.env.ADMIN_PASSWORD);
 
 test.beforeEach(async ({ page }) => {
-  test.skip(safeIsEnabled("sso"), "SSO is enabled — templates/env.j2 selects saml, not ldap");
-  test.skip(!safeIsEnabled("ldap"), "LDAP is disabled — AUTH_TYPE is native here");
+  skipUnlessServiceEnabled("ldap");
+  skipUnlessServiceDisabled("sso");
   expect(appBaseUrl, "APP_BASE_URL must be set").toBeTruthy();
   expect(biberUsername, "BIBER_USERNAME must be set").toBeTruthy();
   expect(biberPassword, "BIBER_PASSWORD must be set").toBeTruthy();
@@ -29,12 +30,19 @@ test.beforeEach(async ({ page }) => {
 
 /** Sign in through SuiteCRM's own login view and return its session state. */
 async function formLogin(page, username, password) {
+  const loginStrings = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/graphql") &&
+      /"operationName"\s*:\s*"appStrings"/.test(response.request().postData() || ""),
+    { timeout: resolveTimeout(60_000) },
+  );
   const landing = await gotoOnion(page, `${appBaseUrl}/`, { waitUntil: "domcontentloaded" });
   expect(landing, "the app must answer the initial navigation").toBeTruthy();
   expect(landing.status(), "the login view must render, not error").toBeLessThan(400);
 
   const usernameField = page.locator("input[name='username']").first();
   await usernameField.waitFor({ state: "visible", timeout: resolveTimeout(60_000) });
+  await loginStrings;
   await usernameField.fill(username);
   await page.locator("input[type='password']").first().fill(password);
 
@@ -52,21 +60,25 @@ async function formLogin(page, username, password) {
   return { login, status: await response.json() };
 }
 
-test("biber: the directory account signs in and is created from the directory entry", async ({ page }) => {
-  const { login, status } = await formLogin(page, biberUsername, biberPassword);
+test("biber: a directory account outside every role group is refused", async ({ page }) => {
+  const { status } = await formLogin(page, biberUsername, biberPassword);
 
-  expect(login.status(), "the directory bind must be accepted").toBeLessThan(400);
   expect(
     status.active,
-    "LDAP_AUTO_CREATE must mint the account from the bind and leave a session behind",
-  ).toBe(true);
-  expect(status.userName).toBe(biberUsername);
+    "LDAP_PROVIDER_FILTER and LDAP_QUERY_STRING admit only members of a declared role group, so biber must not get a session",
+  ).toBe(false);
+  await page.context().clearCookies();
 });
 
-test("administrator: the directory account signs in", async ({ page }) => {
+test("administrator: the directory account signs in and keeps the admin flag", async ({ page }) => {
   const { login, status } = await formLogin(page, adminUsername, adminPassword);
 
   expect(login.status(), "the directory bind must be accepted").toBeLessThan(400);
   expect(status.active, "the administrator must reach an authenticated session").toBe(true);
   expect(status.userName).toBe(adminUsername);
+  expect(
+    await holdsAdministration(page, appBaseUrl),
+    "the platform administrator must keep the SuiteCRM admin flag",
+  ).toBe(true);
+  await page.context().clearCookies();
 });

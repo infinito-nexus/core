@@ -16,6 +16,7 @@ const env = require("./env");
 const onion = require("./onion");
 const tls = require("./tls");
 const keycloak = require("./keycloak");
+const lam = require("./lam");
 const mapache = require("./mapache");
 const logout = require("./logout");
 const landing = require("./landing");
@@ -25,12 +26,15 @@ const dotenv = require("./dotenv");
 const dom = require("./dom");
 const seaweedfs = require("./seaweedfs");
 const mailbox = require("./mailbox");
+const ldap = require("./ldap");
+const forgedIdentity = require("./forged-identity");
 
 module.exports = {
   ...env,
   ...onion,
   ...tls,
   ...keycloak,
+  ...lam,
   ...mapache,
   ...logout,
   ...landing,
@@ -40,4 +44,6 @@ module.exports = {
   ...dom,
   ...seaweedfs,
   ...mailbox,
+  ...ldap,
+  ...forgedIdentity,
 };

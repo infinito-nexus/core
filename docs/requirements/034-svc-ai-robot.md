@@ -19,7 +19,7 @@ These choices are settled at requirement creation time and bound the implementat
 3. **Hardware access is declared, not blanket-by-accident.** The role exposes a device allowlist (`/dev/*`, GPIO, I2C/SPI, video/camera, serial) that the operator sets; "full access" is an explicit, documented opt-in, not the silent default. The README documents the blast radius: the agent can do anything the granted devices allow.
 4. **Control is raw device access plus agent code execution; no robotics middleware is mandated.** Hermes drives the hardware by executing code directly against the granted devices (GPIO/I2C/SPI/serial/video libraries), consistent with its self-exploration. This is the deliberate choice over a ROS2/middleware abstraction: the embodied device is already the trust boundary (there is no microVM here), so the agent runs code on the device itself. A middleware layer MAY be added later per robot but is not required by this role.
 5. **Self-exploration is a first-class capability.** Hermes enumerates and probes the granted hardware to build a capability map (which sensors/actuators exist, what they report/do) before or during control, and that map is retrievable.
-6. **Models via the [031](031-llm-gateway-model-backends.md) gateway; higher-level tools via [025](025-mcp-role-integration.md) MCP.** Embodiment changes the host boundary, not the model or tool planes: inference still goes through the gateway, and non-hardware tools still come via MCP.
+6. **Models via the [052](052-llm-gateway-model-backends.md) gateway; higher-level tools via [050](050-mcp-role-integration.md) MCP.** Embodiment changes the host boundary, not the model or tool planes: inference still goes through the gateway, and non-hardware tools still come via MCP.
 7. **`arm64` robot SBCs are a target.** The role runs on `arm64` single-board computers typical of robotics, not only x86.
 8. **Opt-in and off by default.** Privileged embodied mode is never a default; enabling it is an explicit operator action with the guardrails above in force.
 9. **Physical safety is the operator's responsibility, and the role MUST say so.** This role does NOT mandate an emergency-stop or motion rate-limits as a platform acceptance criterion. Because an agent driving motors/actuators can cause physical harm, the README MUST prominently warn that hardware safety (e-stop, current/motion limits, fail-safe wiring) is the operator's responsibility and is out of the platform's scope. The role MUST NOT claim any safety guarantee it does not enforce.
@@ -36,8 +36,8 @@ flowchart TB
         robot -->|"explore + control"| hw
     end
 
-    gw["svc-ai-litellm /v1 (031)"]
-    mcp["025 MCP tool servers"]
+    gw["svc-ai-litellm /v1 (052)"]
+    mcp["050 MCP tool servers"]
     robot -->|models /v1| gw
     robot -.->|"non-hardware tools"| mcp
 
@@ -61,7 +61,7 @@ Closing probes once the device exists: deploy with `ROBOT_DEVICE_ALLOWLIST` nami
 | Every embodiable agent runs the admission checks | [test_robot_admission_guard.py](../../tests/lint/ansible/services/test_robot_admission_guard.py), deriving the agent set from `svc-ai-robot`'s own service flags |
 | No blanket device grant, no shared host | [admit.yml](../../roles/svc-ai-robot/tasks/utils/admit.yml), included by each agent before it deploys |
 | Inference reaches only the gateway | [test_litellm_consumer_contract.py](../../tests/lint/ansible/services/test_litellm_consumer_contract.py) and [test_model_backend_via_gateway.py](../../tests/lint/ansible/jinja/test_model_backend_via_gateway.py) |
-| Tools arrive over MCP | `web-app-hermes/meta/mcp.yml` `direction: client`, held to the 025 schema by the MCP lint suite |
+| Tools arrive over MCP | `web-app-hermes/meta/mcp.yml` `direction: client`, held to the 050 schema by the MCP lint suite |
 | The agent images run on arm64 | [test_arm64_images.py](../../tests/external/update/docker/test_arm64_images.py) |
 
 ## Acceptance Criteria
@@ -71,7 +71,7 @@ Closing probes once the device exists: deploy with `ROBOT_DEVICE_ALLOWLIST` nami
 - [x] Hardware access is limited to an operator-set device allowlist; no device outside the allowlist is exposed to the agent.
 - [ ] Hermes produces a retrievable capability map of the granted hardware (self-exploration). **Blocked:** see [Hardware blockers](#hardware-blockers).
 - [ ] The agent can read a granted sensor and actuate a granted output through its embodied access. **Blocked:** see [Hardware blockers](#hardware-blockers).
-- [x] Inference still routes through the [031](031-llm-gateway-model-backends.md) gateway; non-hardware tools still come via [025](025-mcp-role-integration.md) MCP.
+- [x] Inference still routes through the [052](052-llm-gateway-model-backends.md) gateway; non-hardware tools still come via [050](050-mcp-role-integration.md) MCP.
 - [x] The role runs on `arm64`.
 - [x] Privileged mode is off by default; enabling it is an explicit, documented operator opt-in, and the README states the blast radius.
 - [x] The README prominently warns that physical hardware safety (e-stop, motion/current limits, fail-safe wiring) is the operator's responsibility and out of platform scope; the role claims no safety guarantee it does not enforce.
@@ -83,5 +83,5 @@ Closing probes once the device exists: deploy with `ROBOT_DEVICE_ALLOWLIST` nami
 ## See Also
 
 - Embodied-mode decision and scenario: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)
-- LLM gateway: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)
-- MCP tool plane: [025-mcp-role-integration.md](025-mcp-role-integration.md)
+- LLM gateway: [052-llm-gateway-model-backends.md](052-llm-gateway-model-backends.md)
+- MCP tool plane: [050-mcp-role-integration.md](050-mcp-role-integration.md)

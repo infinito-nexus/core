@@ -43,7 +43,7 @@ def _is_self_reference(value, role_name: str) -> bool:
 
 
 class TestServicesNoSelfReference(unittest.TestCase):
-    def test_primary_entity_does_not_self_reference_in_group_names(self):
+    def test_primary_entity_does_not_self_reference_in_group_names(self):  # nocheck: test.text-presence -- repository-wide lint over every parsed meta/services.yml  # fmt: skip
         offenders: list[str] = []
 
         for role_dir in sorted(p for p in ROLES_DIR.iterdir() if p.is_dir()):

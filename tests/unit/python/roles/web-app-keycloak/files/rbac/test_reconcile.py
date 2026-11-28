@@ -114,6 +114,22 @@ def _app(app_id, fingerprint="fp-1", filter_suffix=""):
     )
 
 
+def _tenant(app_id, tenant):
+    name = f"{app_id}-{tenant}"
+    payload = json.dumps(
+        {
+            "name": f"ldap-roles-{name}",
+            "parentId": LDAP,
+            "providerId": "group-ldap-mapper",
+            "config": {
+                "groups.path": [f"/roles/{app_id}/{tenant}"],
+                "groups.ldap.filter": [f"(cn={name}-*)"],
+            },
+        }
+    )
+    return m.App(f"{app_id}/{tenant}", f"ldap-roles-{name}", payload, "fp-1")
+
+
 def _reconciler(kc, attempts=2):
     groups = {g["name"]: g["id"] for g in kc.children("root")}
     mappers = {c["name"]: c for c in kc.components.values()}
@@ -189,6 +205,29 @@ class TestReconciler(unittest.TestCase):
         group = next(g for g in kc.groups.values() if g["name"] == "web-app-a")
         self.assertEqual(group["attributes"]["LDAP_ID"], ["x"])
 
+    def test_a_tenant_gets_its_group_below_the_app_group_created_in_the_same_run(self):
+        kc = FakeKeycloak()
+        reconciler = _reconciler(kc)
+        reconciler.run(_app("web-app-a"))
+        self.assertEqual(reconciler.run(_tenant("web-app-a", "example.org")), "synced")
+        app_id = next(g["id"] for g in kc.children("root") if g["name"] == "web-app-a")
+        self.assertEqual([g["name"] for g in kc.children(app_id)], ["example.org"])
+        self.assertEqual(len(kc.syncs), 2)
+
+    def test_an_existing_tenant_group_is_reused(self):
+        kc = FakeKeycloak()
+        app_id = kc.add_group("web-app-a")
+        tenant_id = kc.add_group("example.org", parent=app_id)
+        _reconciler(kc).run(_tenant("web-app-a", "example.org"))
+        self.assertEqual([g["id"] for g in kc.children(app_id)], [tenant_id])
+
+    def test_a_tenant_without_its_app_group_fails_the_ensure_step(self):
+        kc = FakeKeycloak()
+        with self.assertRaises(m.StepError) as raised:
+            _reconciler(kc).run(_tenant("web-app-a", "example.org"))
+        self.assertEqual(raised.exception.step, "ensure")
+        self.assertEqual(kc.syncs, [])
+
 
 class TestHousekeeping(unittest.TestCase):
     def test_orphans_go_and_app_groups_stay(self):
@@ -217,10 +256,22 @@ class TestHousekeeping(unittest.TestCase):
         apps = m.read_payloads(handle.name)
         Path(handle.name).unlink()
         self.assertEqual(
-            [(a.app_id, a.mapper_name, a.fingerprint) for a in apps],
+            [(a.group_path, a.mapper_name, a.fingerprint) for a in apps],
             [("web-app-a", "ldap-roles-web-app-a", "fp-9")],
         )
         self.assertEqual(json.loads(apps[0].payload)["name"], "ldap-roles-web-app-a")
+
+    def test_apps_run_before_the_tenants_below_them(self):
+        tenant = _tenant("web-app-a", "example.org")
+        app = _app("web-app-a")
+        other = _app("web-app-b")
+        self.assertEqual(
+            [
+                [a.group_path for a in phase]
+                for phase in m.in_phases([tenant, app, other])
+            ],
+            [["web-app-a", "web-app-b"], ["web-app-a/example.org"]],
+        )
 
 
 if __name__ == "__main__":

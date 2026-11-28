@@ -11,7 +11,12 @@ Pass the service key for a service that answers to extra names on the role's
 default network; they are read from ``services.<service>.network_aliases`` of
 the rendering role. Pass ``provider_self_alias=False`` for a sidecar service
 that must not carry the provider's own alias, and ``own_network_only=True`` for
-one that must not inherit the networks its provider joins as a consumer.
+one that must not inherit the networks its provider joins as a consumer; add
+``reverse_proxy=True`` when a vhost forwards to it, so it keeps the reverse
+proxy's network. Pass ``internal='<name>'`` for a service whose only network is
+the role-private network ``<name>`` without a route out (``compose_networks``
+defines it), and add ``egress=True`` for the one member that also joins
+``default``.
 """
 
 from __future__ import annotations
@@ -69,6 +74,9 @@ class LookupModule(LookupBase):
                 provider_self_alias=bool(kwargs.get("provider_self_alias", True)),
                 node_local=bool(kwargs.get("node_local", False)),
                 own_network_only=bool(kwargs.get("own_network_only", False)),
+                reverse_proxy=bool(kwargs.get("reverse_proxy", False)),
+                internal=kwargs.get("internal"),
+                egress=bool(kwargs.get("egress", False)),
                 aliases=aliases,
             )
         ]

@@ -1,4 +1,8 @@
 ---
 roles:
+  manager:
+    description: Holds Moodle's Manager role in the system context and can manage every course, category and enrolment of the site
+  coursecreator:
+    description: Holds Moodle's Course creator role in the system context and can create new courses
   mcp:
     description: Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own

@@ -95,6 +95,36 @@ def wordpress_options_checked(options, owned_elsewhere):
     return options
 
 
+def wordpress_options_unread(pins, forms) -> list[str]:
+    """Return the ``services.wordpress.options`` pins no field of the forms reads.
+
+    Args:
+        pins: WordPress option name mapped to the value the inventory pins.
+        forms: ``applications.web-app-wordpress.forms``.
+
+    Returns:
+        The sorted names of the pins that are no field's ``source``.
+    """
+    sources = {
+        spec.get("source")
+        for block in forms.values()
+        if isinstance(block, Mapping) and isinstance(block.get("fields"), Mapping)
+        for spec in block["fields"].values()
+        if isinstance(spec, Mapping)
+    }
+    return sorted(str(name) for name in pins if _where(name) not in sources)
+
+
+def _stored(result):
+    lines = result["stdout"].strip().splitlines()
+    try:
+        return json.loads(lines[-1] if lines else "")
+    except ValueError as exc:
+        raise AnsibleFilterError(
+            f"{_where(result['item']['key'])}: wp option get printed no JSON ({exc})"
+        ) from exc
+
+
 def wordpress_option_drifted(result) -> bool:
     """Tell whether WordPress stores something other than the pinned value.
 
@@ -113,16 +143,32 @@ def wordpress_option_drifted(result) -> bool:
     if result["rc"] != 0:
         return True
     desired = result["item"]["value"]
-    lines = result["stdout"].strip().splitlines()
-    try:
-        stored = json.loads(lines[-1] if lines else "")
-    except ValueError as exc:
-        raise AnsibleFilterError(
-            f"{_where(result['item']['key'])}: wp option get printed no JSON ({exc})"
-        ) from exc
+    stored = _stored(result)
     if isinstance(desired, (Mapping, list)):
         return stored != (desired or [])
     return str(stored) != str(desired)
+
+
+def wordpress_options_overwritten(results, forms):
+    """Group what WordPress stores for each managed option the write task overwrites.
+
+    Args:
+        results: the results of the ``wp option get --format=json`` loop.
+        forms: ``applications.web-app-wordpress.forms``.
+
+    Returns:
+        Each form mapped to its fields that WordPress stores with a value
+        other than the pinned one, each mapped to the stored value.
+    """
+    stored = {
+        result["item"]["key"]: _stored(result)
+        for result in results
+        if result["rc"] == 0 and wordpress_option_drifted(result)
+    }
+    return {
+        form: {field: stored[field] for field in block["fields"] if field in stored}
+        for form, block in forms.items()
+    }
 
 
 class FilterModule:
@@ -131,5 +177,7 @@ class FilterModule:
     def filters(self):
         return {
             "wordpress_options_checked": wordpress_options_checked,
+            "wordpress_options_unread": wordpress_options_unread,
             "wordpress_option_drifted": wordpress_option_drifted,
+            "wordpress_options_overwritten": wordpress_options_overwritten,
         }

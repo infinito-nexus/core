@@ -1,11 +1,13 @@
 """The one GitLab ``rails runner`` that realigns root, ensures the platform
 administrator and converges the appearance.
 
-The stdin of ``tasks/utils/platform_admin.yml`` is rendered the way Ansible renders it and
-run under ``eval($stdin.read, TOPLEVEL_BINDING, "stdin")``, which is what
-``rails runner -`` does, against stub models. The scripts end early with
-``exit(0)`` and fail with ``abort``; one boot is only equivalent to three if
-neither ends the run for the steps behind it.
+The command and stdin of ``tasks/utils/platform_admin.yml`` are rendered the
+way Ansible renders them and run under ``sh`` with a stub ``container`` that
+evaluates the rest of stdin like ``rails runner -`` does
+(``eval($stdin.read, TOPLEVEL_BINDING, "stdin")``) against stub models. Both
+passwords reach the steps only through the first two stdin lines. The scripts
+end early with ``exit(0)`` and fail with ``abort``; one boot is only
+equivalent to three if neither ends the run for the steps behind it.
 """
 
 from __future__ import annotations
@@ -14,9 +16,12 @@ import base64
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
+import tempfile
 import unittest
+from pathlib import Path
 
 from jinja2 import Environment, StrictUndefined, select_autoescape
 
@@ -99,19 +104,30 @@ eval($stdin.read, TOPLEVEL_BINDING, 'stdin')
 """
 
 
-def _runner_stdin(design_enabled: bool, design_files: list[dict]) -> str:
-    """Render the runner task's stdin with Ansible's block trimming.
+ROOT_SECRET = "stub-root secret $x"
+ADMIN_SECRET = "stub-admin 'secret' \\n"
+SECRET_READS = re.compile(r"IFS= read -r (\w+)")
+
+
+def _shell_task() -> dict:
+    """Return the runner task, the one shell task of ``platform_admin.yml``."""
+    return next(
+        task for task in load_yaml_any(str(TASKS)) if "ansible.builtin.shell" in task
+    )
+
+
+def _runner_task(design_enabled: bool, design_files: list[dict]) -> tuple[str, str]:
+    """Render the runner task's command and stdin with Ansible's block trimming.
 
     Args:
         design_enabled: value of ``GITLAB_DESIGN_ENABLED``
         design_files: ``gitlab_design_files.results`` of the slurp loop
 
     Returns:
-        the Ruby program the task feeds ``rails runner -``
+        the shell command and the stdin (one line per secret the host shell
+        reads, then the Ruby program ``rails runner -`` evaluates)
     """
-    task = next(
-        task for task in load_yaml_any(str(TASKS)) if "ansible.builtin.command" in task
-    )
+    task = _shell_task()
     environment = Environment(
         trim_blocks=True,
         undefined=StrictUndefined,
@@ -119,16 +135,68 @@ def _runner_stdin(design_enabled: bool, design_files: list[dict]) -> str:
     )
     environment.filters["bool"] = bool
     environment.filters["to_json"] = json.dumps
+    environment.filters["quote"] = shlex.quote
 
     def lookup(kind: str, relative: str) -> str:
         assert kind == "file", kind
         return read_text(str(ROLE / "files" / relative)).rstrip()
 
-    return environment.from_string(task["ansible.builtin.command"]["stdin"]).render(
-        lookup=lookup,
-        GITLAB_DESIGN_ENABLED=design_enabled,
-        gitlab_design_files={"results": design_files},
-    )
+    values = {
+        "lookup": lookup,
+        "GITLAB_DESIGN_ENABLED": design_enabled,
+        "gitlab_design_files": {"results": design_files},
+        "GITLAB_RAILS_LOCAL_CID": "stub-cid",
+        "GITLAB_RAILS_BIN": "gitlab-rails",
+        "GITLAB_INIT_ROOT_PASSWORD": ROOT_SECRET,
+        "GITLAB_ADMIN_PASSWORD": ADMIN_SECRET,
+    }
+    shell = task["ansible.builtin.shell"]
+    command = environment.from_string(shell["cmd"]).render(**values)
+    stdin = environment.from_string(shell["stdin"]).render(**values) + "\n"
+    return command, stdin
+
+
+class TestRunnerSecrets(unittest.TestCase):
+    def test_the_passwords_reach_the_host_shell_on_stdin_in_read_order(self) -> None:
+        task = _shell_task()
+        cmd = task["ansible.builtin.shell"]["cmd"]
+        _, stdin = _runner_task(False, [])
+
+        self.assertEqual(
+            SECRET_READS.findall(cmd.split("container exec")[0]),
+            ["GITLAB_ROOT_PASSWORD", "GITLAB_ADMIN_PASSWORD"],
+        )
+        self.assertEqual(stdin.split("\n")[:2], [ROOT_SECRET, ADMIN_SECRET])
+        self.assertFalse(
+            {"GITLAB_ROOT_PASSWORD", "GITLAB_ADMIN_PASSWORD"} & set(task["environment"])
+        )
+
+    def test_the_passwords_stay_off_the_rendered_command(self) -> None:
+        command, _ = _runner_task(False, [])
+
+        self.assertNotIn(ROOT_SECRET, command)
+        self.assertNotIn(ADMIN_SECRET, command)
+
+    def test_every_read_is_checked_for_an_empty_value_before_the_exec(self) -> None:
+        host = _shell_task()["ansible.builtin.shell"]["cmd"].split("container exec")[0]
+        for read in SECRET_READS.finditer(host):
+            self.assertIn(f'"${{{read.group(1)}:?', host[read.end() :], read.group(1))
+
+    def test_the_host_shell_refuses_an_empty_password_line(self) -> None:
+        host = _shell_task()["ansible.builtin.shell"]["cmd"].split("container exec")[0]
+        for stdin, reached in (
+            ("root\nadmin\n", True),
+            ("\nadmin\n", False),
+            ("root\n\n", False),
+        ):
+            result = subprocess.run(
+                ["sh", "-c", host + "echo REACHED"],
+                input=stdin,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual("REACHED" in result.stdout, reached, stdin)
 
 
 @unittest.skipUnless(shutil.which("ruby"), "needs a ruby interpreter")
@@ -140,31 +208,36 @@ class TestRailsSteps(unittest.TestCase):
         design_enabled: bool = False,
         design_files: list[dict] | None = None,
     ) -> subprocess.CompletedProcess:
-        env = {
-            "PATH": os.environ["PATH"],
-            "STUB_USERS": json.dumps(users),
-            "GITLAB_ROOT_USERNAME": "root",
-            "GITLAB_ROOT_PASSWORD": "stub-root-secret",
-            "GITLAB_ADMIN_USERNAME": "administrator",
-            "GITLAB_ADMIN_EMAIL": "administrator@example.invalid",
-            "GITLAB_ADMIN_NAME": "Platform Administrator",
-            "GITLAB_ADMIN_PASSWORD": "stub-admin-secret",
-            "GITLAB_DESIGN_TITLE": title,
-        }
-        return subprocess.run(
-            ["ruby", "-e", STUBS],
-            input=_runner_stdin(design_enabled, design_files or []),
-            capture_output=True,
-            text=True,
-            env=env,
-            check=False,
-        )
+        command, stdin = _runner_task(design_enabled, design_files or [])
+        with tempfile.TemporaryDirectory() as bin_dir:
+            stub = Path(bin_dir) / "container"
+            stub.write_text('#!/bin/sh\nexec ruby -e "$STUB_RUBY"\n')
+            stub.chmod(0o755)
+            env = {
+                "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}",
+                "STUB_RUBY": STUBS,
+                "STUB_USERS": json.dumps(users),
+                "GITLAB_ROOT_USERNAME": "root",
+                "GITLAB_ADMIN_USERNAME": "administrator",
+                "GITLAB_ADMIN_EMAIL": "administrator@example.invalid",
+                "GITLAB_ADMIN_NAME": "Platform Administrator",
+                "GITLAB_ADMIN_SSO_UID": "",
+                "GITLAB_DESIGN_TITLE": title,
+            }
+            return subprocess.run(
+                ["sh", "-c", command],
+                input=stdin,
+                capture_output=True,
+                text=True,
+                env=env,
+                check=False,
+            )
 
     def test_three_unchanged_steps_each_report_and_nothing_changes(self) -> None:
         result = self._run(
             {
-                "root": ["stub-root-secret", True],
-                "administrator": ["stub-admin-secret", True],
+                "root": [ROOT_SECRET, True],
+                "administrator": [ADMIN_SECRET, True],
             }
         )
 
@@ -191,8 +264,8 @@ class TestRailsSteps(unittest.TestCase):
     def test_the_uploads_reach_the_appearance_step(self) -> None:
         result = self._run(
             {
-                "root": ["stub-root-secret", True],
-                "administrator": ["stub-admin-secret", True],
+                "root": [ROOT_SECRET, True],
+                "administrator": [ADMIN_SECRET, True],
             },
             title="Infinito",
             design_enabled=True,

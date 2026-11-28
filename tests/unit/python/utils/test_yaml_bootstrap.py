@@ -22,6 +22,8 @@ IN_SUBSET = (
     "---\na: b\n",
     'tpl: "example.test/{owner}/{slug}:{tag}"\n',
     "a:\n  b:\n    - x\nc: d\n",
+    "url:\n  https://example.test/org/repo/resolve/0123abcd/model-Q4_K_M.gguf\n",
+    "a:\n  b:\n    c\n    d\n  e: f\n",
 )
 
 OUT_OF_SUBSET = (
@@ -38,6 +40,10 @@ OUT_OF_SUBSET = (
     "a:\n\tb: c\n",
     "a: b\n---\nc: d\n",
     "a:\n  - one\n   - two\n",
+    "a:\n  b\n  c: d\n",
+    "a:\n  b\n\n  c\n",
+    "a:\n  b\n  # note\n  c\n",
+    "a:\n  b\n  - c\n",
 )
 
 
@@ -94,6 +100,10 @@ TEMPLATES = (
     "k:\n  - {t}\n",
     "k:\n  {t}: v\n",
     "k:\n  - {t}\n  - z\n",
+    "k:\n  {t}\n",
+    "k:\n  {t}\n  z\n",
+    "k:\n  z\n  {t}\n",
+    "k:\n  z\n {t}\n",
 )
 
 STRUCTURES = (

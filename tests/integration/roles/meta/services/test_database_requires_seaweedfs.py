@@ -48,7 +48,7 @@ def _is_truthy_flag(value: object) -> bool:
 
 
 class TestDatabaseRequiresSeaweedfs(unittest.TestCase):
-    def test_web_app_with_database_declares_seaweedfs_or_is_exempted(self):
+    def test_web_app_with_database_declares_seaweedfs_or_is_exempted(self):  # nocheck: test.text-presence -- repository-wide lint over every parsed meta/services.yml  # fmt: skip
         offenders: list[str] = []
 
         for role_dir in sorted(p for p in ROLES_DIR.iterdir() if p.is_dir()):

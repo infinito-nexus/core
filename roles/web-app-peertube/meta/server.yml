@@ -1,0 +1,6 @@
+---
+vhosts:
+  default:
+    domains: canonical
+    vars:
+      websocket_port: "{{ lookup('config', 'web-app-peertube', 'services.peertube.ports.local.http') }}"

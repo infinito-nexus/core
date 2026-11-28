@@ -63,6 +63,8 @@ const SHOWCASE_TODO = "Design showcase";
 
 exports.register = function (shared) {
   const base = shared.env.erpnextBaseUrl;
+  const nativeForm = shared.env.loginMethods.native;
+  const SIGN_IN_READY = shared.env.localFormShown ? LOGIN_EMAIL : `${LOGIN_SECTION} .page-card-actions .btn-login-option`;
 
   function shown(selector) {
     return async (page) => {
@@ -98,10 +100,14 @@ exports.register = function (shared) {
 
   /**
    * Args:
-   *   page: Playwright page that ends signed in as the native Administrator, the break-glass account every variant keeps, on a desk that links the theme file and whose theme follows the browser.
+   *   page: Playwright page that ends signed in, as the native Administrator while the native method is on and as the administrator persona through Keycloak otherwise, on a desk that links the theme file and whose theme follows the browser.
    */
   async function signIn(page) {
-    await shared.signInViaErpnextLocal(page, "Administrator", shared.env.adminNativePassword, "design");
+    if (nativeForm) {
+      await shared.signInViaErpnextLocal(page, "Administrator", shared.env.adminNativePassword, "design");
+    } else {
+      await shared.signInViaErpnextOidc(page, shared.env.adminUsername, shared.env.adminPassword, "design");
+    }
     await expect
       .poll(
         async () => {
@@ -166,7 +172,7 @@ exports.register = function (shared) {
 
   async function openLogin(page) {
     await gotoOnion(page, `${base}/login`);
-    await shown(LOGIN_EMAIL)(page);
+    await shown(SIGN_IN_READY)(page);
   }
 
   /**
@@ -223,8 +229,7 @@ exports.register = function (shared) {
 
   function publicViews() {
     const url = `${base}/login`;
-    return [
-      { name: "sign-in", url, prepare: shown(LOGIN_EMAIL) },
+    const formViews = [
       {
         name: "sign-in-focus",
         url,
@@ -236,6 +241,7 @@ exports.register = function (shared) {
       { name: "sign-in-error", url, prepare: failedSignIn },
       { name: "forgot-password", url: `${base}/login#forgot`, prepare: shown("#forgot_email") },
     ];
+    return [{ name: "sign-in", url, prepare: shown(SIGN_IN_READY) }, ...(nativeForm ? formViews : [])];
   }
 
   function deskViews() {
@@ -342,6 +348,7 @@ exports.register = function (shared) {
       await openLogin(page);
       await assertToken(page, "body", "background-color", "--design-surface-2", `sign-in ${mode}`);
       await assertToken(page, LOGIN_CARD, "background-color", "--design-surface-2", `sign-in ${mode}`);
+      if (!nativeForm) continue;
       await assertToken(page, LOGIN_EMAIL, "background-color", "--design-surface-2", `sign-in field ${mode}`);
       await assertToken(page, LOGIN_EMAIL, "color", "--design-text", `sign-in ${mode}`);
       await assertToken(page, LOGIN_SUBMIT, "background-color", "--design-primary", `sign-in ${mode}`);
@@ -353,14 +360,13 @@ exports.register = function (shared) {
     await page.emulateMedia({ colorScheme: null });
     await openLogin(page);
     await assertLightAndDark(page, LOGIN_CARD, "erpnext sign-in");
+    const formTexts = nativeForm ? [`${LOGIN_CARD} label[for='login_email']`, `${LOGIN_CARD} a[href='#forgot']`, LOGIN_SUBMIT] : [];
     await assertReadable(
       page,
       [
         `${LOGIN_CARD} h4`,
         `${LOGIN_CARD} .page-card-subtitle`,
-        `${LOGIN_CARD} label[for='login_email']`,
-        `${LOGIN_CARD} a[href='#forgot']`,
-        LOGIN_SUBMIT,
+        ...formTexts,
         { selector: `${LOGIN_CARD} .btn-login-option`, optional: true },
       ],
       "erpnext sign-in",
@@ -428,7 +434,7 @@ exports.register = function (shared) {
   }) => {
     shared.skipUnlessServiceEnabled("design");
     test.setTimeout(resolveTimeout(240_000));
-    for (const mode of MODES) {
+    for (const mode of nativeForm ? MODES : []) {
       await page.emulateMedia({ colorScheme: mode });
       await gotoOnion(page, `${base}/login`);
       await failedSignIn(page);

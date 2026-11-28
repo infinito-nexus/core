@@ -2,7 +2,7 @@
 
 **Status:** accepted
 
-Supersedes the design half of requirement 025, which assumed an empty baseline, treated metadata as enforcement, and marked client provisioning and end-to-end authorization complete.
+Supersedes the design half of requirement 050, which assumed an empty baseline, treated metadata as enforcement, and marked client provisioning and end-to-end authorization complete.
 
 > **Work:** TODO — the acceptance criteria and the order of implementation live in [035 - MCP Proxy Expansion and Application Interconnection](../../requirements/035-mcp-proxy-expansion.md).
 > This record holds the decision, the forces behind it, the standing contract and the per-role audit; that document holds what is still to be built and which artifact proves each criterion.
@@ -12,7 +12,7 @@ Supersedes the design half of requirement 025, which assumed an empty baseline, 
 
 An MCP client turns an application's API into tools a model may call. The cheap way to build that is one process holding administrator credentials for every application and translating an OpenAPI document into tools on demand. That process is a single credential store, a single network position reaching every application, and a tool surface that grows with every upstream release nobody reviewed.
 
-Requirement 025 established the first metadata and the Open WebUI integration. Reading the code against it showed the gap between what was declared and what ran:
+Requirement 050 established the first metadata and the Open WebUI integration. Reading the code against it showed the gap between what was declared and what ran:
 
 - [`plugins/lookup/mcp_servers.py`](../../../plugins/lookup/mcp_servers.py) read every provider token from `users.administrator.tokens` and copied that deployment credential to every selected client. `auth_subject` was returned as metadata and selected nothing.
 - [`plugins/filter/mcp/authorization.py`](../../../plugins/filter/mcp/authorization.py) rendered `oidc` as a stored bearer. It acquired, refreshed, exchanged and revoked nothing, so a rendered deployment bearer was user delegation in name only.
@@ -230,11 +230,11 @@ The list was held against the repository by three lints that parsed this section
 
 `svc-db-qdrant`, `web-app-baserow`, `web-app-checkmk`, `web-app-fider`, `web-app-gitea`, `web-app-gitlab`, `web-app-jellyfin`, `web-app-jenkins`, `web-app-listmonk`, `web-app-mattermost`, `web-app-nextcloud`, `web-app-pretix`, `web-app-prometheus`, `web-app-snipe-it`, `web-app-zammad`, `web-svc-libretranslate`.
 
-### blocked (11)
+### blocked (12)
 
 An upstream path exists or is claimed, and something concrete stops it here. Each row names what, using the reason vocabulary above, so "blocked" never reads as "nobody looked".
 
-`svc-ai-litellm`, `svc-ai-lmstudio`, `svc-db-elasticsearch`, `svc-db-mariadb`, `svc-db-redis`, `web-app-discourse`, `web-app-erpnext`, `web-app-matomo`, `web-app-odoo`, `web-app-penpot`, `web-app-shopware`.
+`svc-ai-litellm`, `svc-ai-lmstudio`, `svc-db-elasticsearch`, `svc-db-mariadb`, `svc-db-redis`, `web-app-discourse`, `web-app-erpnext`, `web-app-matomo`, `web-app-odoo`, `web-app-openpost`, `web-app-penpot`, `web-app-shopware`.
 
 | role | reason | blocker |
 | --- | --- | --- |
@@ -247,6 +247,7 @@ An upstream path exists or is claimed, and something concrete stops it here. Eac
 | `web-app-erpnext` | `version_unverified` | The Frappe MCP component is experimental and unverified against the pinned Frappe v16. |
 | `web-app-matomo` | `unreviewed_third_party` | The project-owned plugin is unaudited: endpoint, transport, auth and tool scope are unverified in source. |
 | `web-app-odoo` | `unreviewed_third_party` | Neither Odoo SA nor the OCA publishes a server; the leading third party carries 197 of 231 commits from one author, keeps its access control in a separate Odoo Apps store module outside any pinnable tag, and defaults to a mutating tool scope. |
+| `web-app-openpost` | `version_unverified` | The pinned v7.42.2 serves a native `/mcp` endpoint, but its tool list, client registration and publishing side effects on external networks are not audited against that release. |
 | `web-app-penpot` | `interactive_browser_session` | The server needs an active browser tab and plugin connection, and can execute powerful design-context operations. |
 | `web-app-shopware` | `version_unverified` | The pinned 6.7.8.2 predates the experimental native `/api/_mcp` server. |
 

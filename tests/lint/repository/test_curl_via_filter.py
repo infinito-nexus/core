@@ -59,7 +59,7 @@ def _healthcheck_exempt_lines(lines: list[str]) -> set[int]:
 
 
 class TestCurlViaFilter(unittest.TestCase):
-    def test_curl_invocations_use_the_curl_filter(self) -> None:
+    def test_curl_invocations_use_the_curl_filter(self) -> None:  # nocheck: test.text-presence -- policy lint over every role task, template and script  # fmt: skip
         offenders: list[str] = []
         for glob in _GLOBS:
             for path in sorted(PROJECT_ROOT.glob(glob)):

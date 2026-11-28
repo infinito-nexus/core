@@ -1,0 +1,36 @@
+---
+- name: "⬇️ Read the managed settings and system parameters Odoo holds"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ [role_path, 'files/sql/select/managed-settings.sql'] | path_join }}"
+    expect_rows: true
+  register: odoo_managed_settings_stored
+  changed_when: false
+
+- name: "⬇️ Read the managed fields of the Keycloak OAuth provider"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ [role_path, 'files/sql/oidc/select/keycloak/provider/fields.sql'] | path_join }}"
+    expect_rows: true
+  register: odoo_oauth_provider_stored
+  changed_when: false
+  when: ODOO_OIDC_ENABLED | bool
+
+- name: "⬇️ Read the managed fields of the LDAP server"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ [role_path, 'files/sql/select/res_company_ldap/fields.sql'] | path_join }}"
+    named_args:
+      ldap_server: "{{ ODOO_LDAP_SERVER }}"
+    expect_rows: true
+  register: odoo_ldap_directory_stored
+  changed_when: false
+  when: ODOO_LDAP_MANAGED | bool
+
+- name: "📣 Report the managed settings the deploy reverts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current: >-
+      {{ odoo_managed_settings_stored.rows[0][0] | from_json
+      | combine({'oauth_provider': (odoo_oauth_provider_stored.rows | default([['{}']]))[0][0] | from_json})
+      | combine({'ldap_directory': (odoo_ldap_directory_stored.rows[0][0] | from_json) if ODOO_LDAP_MANAGED | bool else {}}) }}

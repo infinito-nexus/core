@@ -1,0 +1,162 @@
+name: "🤖 Test: Agents (local)"
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  NIX_CONFIG: |
+    access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+  INFINITO_IMAGE_TAG: ci-${{ github.sha }}
+  INFINITO_GHCR_MIRROR_PREFIX: mirror
+  INFINITO_API_OPENAI_KEY: ${{ secrets.API_OPENAI_KEY || vars.API_OPENAI_KEY }}
+  INFINITO_API_ANTHROPIC_KEY: ${{ secrets.API_ANTHROPIC_KEY || vars.API_ANTHROPIC_KEY }}
+  INFINITO_API_OPENROUTER_KEY: ${{ secrets.API_OPENROUTER_KEY || vars.API_OPENROUTER_KEY }}
+
+jobs:
+  agents-local:
+    name: "🤖 Agents (${{ matrix.mode }})"
+    runs-on: ubuntu-26.04
+    timeout-minutes: 355
+
+    concurrency:
+      group: "infinito-agents-local-${{ matrix.mode }}"
+      cancel-in-progress: false
+      queue: max
+
+    strategy:
+      fail-fast: ${{ github.event_name == 'pull_request' || github.event_name == 'pull_request_target' }}
+      matrix:
+        mode: [compose, swarm]
+
+    env:
+      INFINITO_DEPLOY_MODE: ${{ matrix.mode }}
+      INIT_VARS_EXTRA: >-
+        "test_e2e_playwright_skip_roles": "{{ lookup('deployment').running }}"
+
+    steps:
+      - name: 🧹 Free disk space
+        if: ${{ !env.ACT }}
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: "📥 Load rescue-diagnostics SPOT into job env"
+        shell: bash
+        run: grep '^INFINITO_RESCUE_DIAGNOSTICS_BASE=' default.env >> "$GITHUB_ENV"
+
+      - name: 💾 Enlarge swap space
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: ./scripts/github/runner/enlarge_swap.sh
+
+      - name: "📈 Sample host memory, pressure and top RSS into the rescue diagnostics"
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: nohup ./scripts/tests/deploy/ci/host-metrics-sampler.sh "${INFINITO_RESCUE_DIAGNOSTICS_BASE}/host-metrics.log" >/dev/null 2>&1 &
+
+      - name: 🔧 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: 📦 Install project (host venv)
+        shell: bash
+        run: |
+          make install-force
+          # shellcheck source=/dev/null
+          source scripts/meta/env/load.sh
+          echo "${VENV}/bin" >> "${GITHUB_PATH}"
+
+      - name: 🔨 Build the deploy image from this checkout
+        timeout-minutes: 60
+        shell: bash
+        run: ./scripts/github/runner/build_deploy_image.sh
+
+      - name: 🍇 Pin the deploy to a freshly downloaded Grype database
+        if: ${{ !env.ACT }}
+        shell: bash
+        env:
+          ENGINE: grype
+        run: |
+          set -euo pipefail
+          root="${GITHUB_WORKSPACE}/build/vulnerability-db"
+          python -m cli.contributing.security.database --dir "${root}" --engines "${ENGINE}"
+          {
+            echo "INFINITO_VULNERABILITY_ENGINE=${ENGINE}"
+            echo "INFINITO_VULNERABILITY_DB_HOST_PATH=${root}"
+          } >> "${GITHUB_ENV}"
+
+      - name: 📦 Preseed large images (Ollama) by host pull and load
+        shell: bash
+        run: make agents-preseed
+
+      - name: 🐳 Deploy the agents bundle (compose)
+        if: ${{ matrix.mode == 'compose' }}
+        timeout-minutes: 240
+        shell: bash
+        run: ./scripts/tests/deploy/job/entry.sh make compose-deploy bundles=agents variant=0
+
+      - name: 🐝 Deploy the agents bundle (swarm)
+        if: ${{ matrix.mode == 'swarm' }}
+        timeout-minutes: 230
+        shell: bash
+        run: ./scripts/tests/deploy/job/entry.sh make compose-deploy bundles=agents variant=0
+
+      - name: 🧪 Play every agent scenario (${{ matrix.mode }})
+        timeout-minutes: 120
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m cli.agents.scenarios --mode "${{ matrix.mode }}" 2>&1 | tee "/tmp/agents-verify-${{ matrix.mode }}.log"
+
+      - name: 📊 Result table (id, mode, result, duration, log)
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          log="/tmp/agents-verify-${{ matrix.mode }}.log"
+          if [ -f "${log}" ]; then
+            cat "${log}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No agents-verify result table for ${{ matrix.mode }}; the run never reached the scenario stage." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: 🧠 Kernel OOM kills on the host
+        if: ${{ failure() && !env.ACT }}
+        shell: bash
+        run: sudo dmesg --ctime | grep -E 'Out of memory|oom-kill|Killed process' || [ "$?" -eq 1 ]
+
+      - name: ⬆️ Upload agents-verify logs
+        if: ${{ always() && !env.ACT }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: agents-verify-${{ matrix.mode }}
+          path: |
+            /tmp/agents-verify-${{ matrix.mode }}.log
+            /tmp/agents-scenarios/
+            ${{ env.INFINITO_RESCUE_DIAGNOSTICS_BASE }}/host-metrics.log
+          if-no-files-found: ignore
+
+      - name: 🧹 Cleanup (swarm)
+        if: ${{ always() && matrix.mode == 'swarm' }}
+        timeout-minutes: 15
+        shell: bash
+        run: scripts/tests/deploy/swarm/utils/clean/teardown.sh

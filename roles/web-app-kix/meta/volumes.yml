@@ -54,6 +54,15 @@ auth_ldap:
       target: /opt/kix/Kernel/Config/Files/zzz_auth_ldap.xml
       when: "{{ lookup('config', 'web-app-kix', 'services.ldap.enabled') | bool }}"
 
+auth_ldap_lock:
+  type: config
+  source: "{{ [lookup('container', 'web-app-kix', 'directories.volumes'), 'auth_ldap.conf'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: backend
+      target: /opt/kix/config/zzz_infinito_auth_ldap.conf
+      when: "{{ lookup('config', 'web-app-kix', 'services.ldap.enabled') | bool }}"
+
 proxy_nginx_conf:
   type: config
   source: "{{ [lookup('container', 'web-app-kix', 'directories.volumes'), 'kix-proxy.default.conf'] | path_join }}"

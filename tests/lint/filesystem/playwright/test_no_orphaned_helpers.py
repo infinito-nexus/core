@@ -55,7 +55,7 @@ def _required_targets(files: list[Path]) -> set[Path]:
 
 
 class TestNoOrphanedPlaywrightHelpers(unittest.TestCase):
-    def test_every_playwright_file_is_collected_or_required(self) -> None:
+    def test_every_playwright_file_is_collected_or_required(self) -> None:  # nocheck: test.text-presence -- policy lint resolving the requires of every role Playwright file  # fmt: skip
         findings: list[str] = []
         for _role, files in sorted(_playwright_files_by_role().items()):
             reached = _required_targets(files)

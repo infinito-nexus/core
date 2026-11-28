@@ -25,6 +25,11 @@
     authority "${INFINITO_DOMAIN}. 60 IN SOA ns.${INFINITO_DOMAIN}. hostmaster.${INFINITO_DOMAIN}. 1 60 60 60 60"
   }
 
+  hosts {
+    ${INFINITO_TARGET_IP} target
+    fallthrough
+  }
+
   forward . 1.1.1.1 8.8.8.8  # noqa: hardcoded-dns-resolver
   log
   errors

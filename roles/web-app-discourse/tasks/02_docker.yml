@@ -1,11 +1,8 @@
 ---
 - name: "🧩 load docker, db and proxy for {{ application_id }}"
   include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: true
-    webserver_vhost_flavour: "basic"
-    application_id: "web-app-discourse"
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "📁 Create discourse network {{ DISCOURSE_NETWORK }} for launcher to attach"
   include_tasks:
@@ -15,6 +12,16 @@
       run_once: true
   vars:
     network_role_id: "{{ application_id }}"
+
+- name: "📁 Create the mail network {{ DISCOURSE_MAIL_NETWORK }} for launcher to attach"
+  include_tasks:
+    file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
+    apply:
+      delegate_to: "{{ STACK_HOST }}"
+      run_once: true
+  vars:
+    network_role_id: "{{ lookup('mail_provider') }}"
+  when: DISCOURSE_MAIL_INTERNAL | bool
 
 - name: "▶️ Run the standalone Discourse launcher container"
   include_tasks: 03_launcher.yml

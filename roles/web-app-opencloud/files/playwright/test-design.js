@@ -10,7 +10,7 @@ const {
   tokenValue,
 } = require("./design");
 const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { isServiceEnabled, skipUnlessServiceDisabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 const { adminPassword, adminUsername, baseUrl, ssoLoginAndAssertUsername } = require("./_shared");
 
@@ -544,7 +544,7 @@ test("design: OpenCloud serves the generated logo and the configured title", asy
 
 test("design: the administration shows the logo symbol in its round box", async ({ page }) => {
   skipUnlessServiceEnabled("design");
-  test.skip(isServiceEnabled("sso"), "the account of the identity provider is no OpenCloud administrator");
+  skipUnlessServiceDisabled("sso");
   test.skip(!logoUrl, "the logo replacement is disabled for this role");
   await signIn(page);
   await open(page, "/admin-settings/general", 'img[alt="OpenCloud logo"]');
@@ -568,7 +568,7 @@ test("design: the administration shows the logo symbol in its round box", async 
 
 test("design: the built-in sign-in page takes the palette", async ({ page }) => {
   skipUnlessServiceEnabled("design");
-  test.skip(isServiceEnabled("sso"), "the identity provider renders the sign-in page when sso is enabled");
+  skipUnlessServiceDisabled("sso");
   await allowBrowser(page);
   await open(page, "/", "#oc-login-username");
   await assertDesignTokens(page, "opencloud sign-in");

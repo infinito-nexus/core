@@ -1,0 +1,48 @@
+{
+  "locals": {
+    "catalog": "${jsondecode(file(\"${path.module}/catalog.json\"))[var.flavor]}",
+    "size": "${local.catalog.sizes[var.size]}",
+    "region": "${local.catalog.regions[var.region]}",
+    "workspace_file": "${path.module}/workspace.json",
+    "workspace": "${fileexists(local.workspace_file) ? jsondecode(file(local.workspace_file)) : {workspace = \"ws-missing\", dns = {zone = \"invalid\", zone_id = \"\"}}}",
+    "ipv4": ["${hcloud_server.server.ipv4_address}"],
+    "ipv6": ["${hcloud_server.server.ipv6_address}"],
+    "user_data": "#cloud-config\n${yamlencode({disable_root = false, ssh_authorized_keys = [var.ssh_public_key], ssh_deletekeys = true, ssh_genkeytypes = [], ssh_keys = {ed25519_private = tls_private_key.host.private_key_openssh, ed25519_public = tls_private_key.host.public_key_openssh}})}"
+  },
+  "resource": {
+    "tls_private_key": {
+      "host": {"algorithm": "ED25519"}
+    },
+    "hcloud_ssh_key": {
+      "access": {
+        "name": "${var.name}",
+        "public_key": "${var.ssh_public_key}",
+        "labels": {"workspace": "${local.workspace.workspace}", "flavor": "${var.flavor}"}
+      }
+    },
+    "hcloud_server": {
+      "server": {
+        "name": "${var.name}",
+        "server_type": "${local.size.server_type}",
+        "image": "${local.catalog.image}",
+        "location": "${local.region.location}",
+        "ssh_keys": ["${hcloud_ssh_key.access.id}"],
+        "user_data": "${local.user_data}",
+        "labels": {"workspace": "${local.workspace.workspace}", "flavor": "${var.flavor}"},
+        "public_net": [{"ipv4_enabled": true, "ipv6_enabled": true}],
+        "lifecycle": [{"precondition": [{"condition": "${fileexists(local.workspace_file)}", "error_message": "workspace.json is missing beside the root module."}]}]
+      }
+    }
+  },
+  "module": {
+    "dns": {
+      "source": "./modules/dns",
+      "zone": "${local.workspace.dns.zone}",
+      "zone_id": "${local.workspace.dns.zone_id}",
+      "name": "${var.dns_label}.${local.workspace.workspace}",
+      "ipv4": "${local.ipv4}",
+      "ipv6": "${local.ipv6}",
+      "cname": ""
+    }
+  }
+}

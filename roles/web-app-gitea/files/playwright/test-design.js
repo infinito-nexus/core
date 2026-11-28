@@ -9,8 +9,8 @@ const {
   galleryEnabled,
   tokenValue,
 } = require("./design");
-const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion, performKeycloakLogin } = require("./personas");
-const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
+const { apiFetchOnion, apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
 const SHOWCASE_REPO = "design-showcase";
@@ -29,22 +29,6 @@ function env(name) {
 
 function baseUrl() {
   return env("APP_BASE_URL").replace(/\/$/, "");
-}
-
-async function signIn(page, base, username, password) {
-  await gotoOnion(page, `${base}/user/login`);
-  if (isServiceEnabled("sso") && (await page.locator("#kc-form-login").isVisible())) {
-    await performKeycloakLogin(page, username, password, env("CANONICAL_DOMAIN"));
-    await gotoOnion(page, `${base}/user/login`);
-  }
-  await expect(page.locator("#user_name")).toBeEditable({ timeout: resolveTimeout(30_000) });
-  await page.locator("#user_name").fill(username);
-  await expect(page.locator("#password")).toBeEditable({ timeout: resolveTimeout(30_000) });
-  await page.locator("#password").fill(password);
-  await page.locator("#password").press("Enter");
-  await page.waitForURL((url) => !url.pathname.startsWith("/user/login"), {
-    timeout: resolveTimeout(60_000),
-  });
 }
 
 function basicAuth(username, password) {
@@ -77,8 +61,16 @@ async function assertTheme(page, theme, label) {
 }
 
 async function pickTheme(page, theme) {
-  await page.locator("#footer-theme-selector").click();
-  await page.locator(`#footer-theme-selector .menu > .item[data-value="${theme}"]`).click();
+  const item = page.locator(`#footer-theme-selector .menu > .item[data-value="${theme}"]`);
+  // Gitea renders the footer toggle before its script wires it, so a click right after
+  // the previous pick's reload can open nothing.
+  await expect(async () => {
+    if (!(await item.isVisible())) {
+      await page.locator("#footer-theme-selector").click();
+    }
+    await expect(item, `the theme selector must offer ${theme}`).toBeVisible({ timeout: resolveTimeout(5_000) });
+  }).toPass({ timeout: resolveTimeout(30_000) });
+  await item.click();
   await assertTheme(page, theme, "gitea theme selector");
   await page.waitForFunction(() => window.config?.frontendInited === true, null, { timeout: resolveTimeout(30_000) });
 }
@@ -131,7 +123,7 @@ async function seedPublicRepos(page, base, username, password) {
   }
 }
 
-exports.register = function () {
+exports.register = function (shared) {
   test("design: corporate tokens apply in light and dark mode", async ({ page }) => {
     skipUnlessServiceEnabled("design");
     await gotoOnion(page, `${baseUrl()}/`);
@@ -201,7 +193,7 @@ exports.register = function () {
     const username = env("ADMIN_USERNAME");
     const password = env("ADMIN_PASSWORD");
     const issue = `${base}/${username}/${SHOWCASE_REPO}/issues/1`;
-    await signIn(page, base, username, password);
+    await shared.signIn(page, username, password);
     await seedShowcase(page, base, username, password);
     for (const mode of ["light", "dark"]) {
       await page.emulateMedia({ colorScheme: mode });
@@ -283,7 +275,7 @@ exports.register = function () {
       expect((await response.json()).theme, "the theme the account stores").toBe(theme);
     };
 
-    await signIn(page, base, username, password);
+    await shared.signIn(page, username, password);
     await page.emulateMedia({ colorScheme: "light" });
     try {
       await storeTheme(THEMES.auto);
@@ -432,7 +424,7 @@ exports.register = function () {
       },
     ]);
 
-    await signIn(page, base, username, password);
+    await shared.signIn(page, username, password);
     await seedShowcase(page, base, username, password);
     const repo = `${base}/${username}/${SHOWCASE_REPO}`;
 

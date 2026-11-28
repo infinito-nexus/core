@@ -10,6 +10,7 @@
 # INFINITO_CONTAINER, INFINITO_PARENT_IMAGE and INFINITO_IMAGE derive from the
 # distro: a caller INFINITO_DISTRO other than the one `.env` was generated for
 # loads a set generated for that distro instead, and `.env` stays untouched.
+# Param INFINITO_POOL_JOB: id of a held or running pool job (`make <target> job=<id>`); sets DOCKER_HOST and INFINITO_STACK_NAME to its stack.
 
 # zsh cannot run this loader's bash-isms (BASH_SOURCE, ${!indirect}, assoc-array
 # key expansion). When sourced from zsh, delegate to bash and import the
@@ -47,7 +48,7 @@ if [[ -n "${VENV:-}" && -d "${VENV%/}/bin" ]]; then
 fi
 
 _infinito_env_mtime="$(stat -c %Y "${_infinito_env_dotenv}" 2>/dev/null || echo 0)"
-if [[ "${INFINITO_ENV_LOADED:-}" == "1" && "${INFINITO_ENV_LOADED_FILE:-}" == "${_infinito_env_dotenv}" && "${INFINITO_ENV_LOADED_MTIME:-}" == "${_infinito_env_mtime}" && "${INFINITO_ENV_LOADED_DISTRO:-}" == "${INFINITO_DISTRO:-}" ]]; then # nocheck: env-loader-internal-guard
+if [[ "${INFINITO_ENV_LOADED:-}" == "1" && "${INFINITO_ENV_LOADED_FILE:-}" == "${_infinito_env_dotenv}" && "${INFINITO_ENV_LOADED_MTIME:-}" == "${_infinito_env_mtime}" && "${INFINITO_ENV_LOADED_DISTRO:-}" == "${INFINITO_DISTRO:-}" && "${INFINITO_ENV_LOADED_STACK:-}" == "${INFINITO_STACK_NAME:-}" && "${INFINITO_ENV_LOADED_JOB:-}" == "${INFINITO_POOL_JOB:-}" ]]; then # nocheck: env-loader-internal-guard
 	unset _infinito_env_repo_root _infinito_env_dotenv _infinito_env_mtime
 	return 0
 fi
@@ -58,6 +59,9 @@ fi
 
 if [[ -n "${INFINITO_ENV_LOADED_DISTRO:-}" && "${INFINITO_ENV_LOADED_DISTRO}" != "${INFINITO_DISTRO:-}" ]]; then # nocheck: env-loader-internal-guard
 	unset INFINITO_CONTAINER INFINITO_PARENT_IMAGE INFINITO_IMAGE
+fi
+if [[ "${INFINITO_ENV_LOADED:-}" == "1" && "${INFINITO_ENV_LOADED_STACK:-}" != "${INFINITO_STACK_NAME:-}" ]]; then # nocheck: env-loader-internal-guard
+	unset INFINITO_CONTAINER INFINITO_RUNNER_PREFIX
 fi
 
 _infinito_env_source="${_infinito_env_dotenv}"
@@ -137,6 +141,27 @@ for _infinito_env_key in "${!_infinito_env_preserved[@]}"; do
 done
 unset _infinito_env_key _infinito_env_preserved
 
+if [[ -n "${INFINITO_POOL_JOB:-}" ]]; then
+	if ! _infinito_env_job="$(cd "${_infinito_env_repo_root}" && "${PYTHON}" -m cli.administration.deploy.pool.attach "${INFINITO_POOL_JOB}")"; then
+		unset _infinito_env_repo_root _infinito_env_dotenv _infinito_env_mtime _infinito_env_job
+		[[ $- == *i* ]] && return 2
+		exit 2
+	fi
+	export DOCKER_HOST="${_infinito_env_job%%$'\n'*}"
+	export INFINITO_STACK_NAME="${_infinito_env_job#*$'\n'}"
+	unset _infinito_env_job
+elif [[ "${INFINITO_POOL_RUNNER:-}" != true && "${INFINITO_STACK_NAME:-}" =~ ^runner-[1-9][0-9]*$ ]]; then
+	echo "[runner] INFINITO_STACK_NAME=${INFINITO_STACK_NAME} is a pool job stack on the infra runner's daemon, not on this host: address it with make <target> job=<id>" >&2
+	unset _infinito_env_repo_root _infinito_env_dotenv _infinito_env_mtime
+	[[ $- == *i* ]] && return 2
+	exit 2
+fi
+
+if [[ -n "${INFINITO_STACK_NAME:-}" ]]; then
+	export INFINITO_RUNNER_PREFIX="infinito-${INFINITO_STACK_NAME}"
+	export INFINITO_CONTAINER="infinito_nexus_${INFINITO_STACK_NAME//[.-]/_}"
+fi
+
 if [[ -z "${REQUESTS_CA_BUNDLE:-}" ]]; then
 	for _infinito_env_ca in ${INFINITO_CA_BUNDLE_CANDIDATES}; do
 		if [[ -r "${_infinito_env_ca}" ]]; then
@@ -153,4 +178,6 @@ export INFINITO_ENV_LOADED_FILE="${_infinito_env_dotenv}"
 _infinito_env_mtime="$(stat -c %Y "${_infinito_env_dotenv}" 2>/dev/null || echo 0)"
 export INFINITO_ENV_LOADED_MTIME="${_infinito_env_mtime}"
 export INFINITO_ENV_LOADED_DISTRO="${INFINITO_DISTRO:-}"
+export INFINITO_ENV_LOADED_STACK="${INFINITO_STACK_NAME:-}" # nocheck: env-loader-internal-guard
+export INFINITO_ENV_LOADED_JOB="${INFINITO_POOL_JOB:-}"     # nocheck: env-loader-internal-guard
 unset _infinito_env_repo_root _infinito_env_dotenv _infinito_env_mtime

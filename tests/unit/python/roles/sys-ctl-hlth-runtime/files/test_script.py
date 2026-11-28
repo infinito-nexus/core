@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import dataclasses
 import datetime as dt
 import fcntl
 import importlib.util
@@ -1500,8 +1501,8 @@ class TestScan(TestCase):
         self.assertEqual(errors, ["trivy host node: no result within 5s"])
 
 
-def _step(label, *, accept=SCRIPT.SUCCESS, scratch="tmp-x", exports=False):
-    return SCRIPT.Step(label, ("x",), accept, scratch, exports)
+def _step(label, *, accept=SCRIPT.SUCCESS, scratch="tmp-x", reads_image=False):
+    return SCRIPT.Step(label, ("x",), accept, scratch, reads_image)
 
 
 def _host_path(layout, container_path):
@@ -1562,6 +1563,7 @@ class TestScratch(TestCase):
             sbom=root / "sbom",
             work=root / "work",
             excludes=("/proc",),
+            image_mount=True,
         )
         self.images = {engine: f"{engine}:1" for engine in SCRIPT.ENGINES}
         self.containers = SCRIPT.container_targets(
@@ -1591,9 +1593,86 @@ class TestScratch(TestCase):
             _config(), [*self.containers, SCRIPT.host_target("node")]
         )
         self.assertEqual(errors, [])
-        self.assertEqual(runner.exports, 6)
+        self.assertEqual(runner.exports, 3)
         self.assertEqual(runner.on_disk_peak, 1)
         self.assertEqual(self._left_on_disk(), [])
+
+    def test_a_scan_without_trivy_exports_no_image(self):
+        for engine in ("grype", "osv"):
+            with self.subTest(engine=engine):
+                for stale in (*self.layout.sbom.iterdir(), *self.layout.work.iterdir()):
+                    stale.unlink()
+                runner, errors = self._scan(
+                    _config(engines=["syft", engine]),
+                    [*self.containers, SCRIPT.host_target("node")],
+                )
+                self.assertEqual(errors, [])
+                self.assertEqual(runner.exports, 0)
+                self.assertEqual(
+                    sorted(path.name for path in self.layout.sbom.glob("*.cdx.json")),
+                    ["a.cdx.json", "b.cdx.json", "c.cdx.json", "host.cdx.json"],
+                )
+                self.assertEqual(self._left_on_disk(), [])
+
+    def _check(self, engine, reason):
+        runner = ExportingEngines(None, {})
+        real_scan = SCRIPT.scan
+
+        def scan(targets, config, images, layout, engines):
+            engines.layout = layout
+            return real_scan(targets, config, images, layout, engines)
+
+        cache = Path(tempfile.mkdtemp(dir=self.tmp.name))
+        with (
+            mock.patch.object(SCRIPT, "docker_root", return_value="/var/lib/docker"),
+            mock.patch.object(SCRIPT, "docker_versions", return_value=(None, None)),
+            mock.patch.object(SCRIPT, "image_export_reason", return_value=reason),
+            mock.patch.object(SCRIPT, "scan", side_effect=scan),
+            mock.patch.object(SCRIPT, "pause"),
+            contextlib.redirect_stdout(io.StringIO()) as out,
+        ):
+            _targets, _judged, errors = SCRIPT.vulnerability_check(
+                [_container(name, image=f"sha256:{name}") for name in ("a", "b", "c")],
+                _config(engines=["syft", engine]),
+                self.images,
+                _suppressions(),
+                cache,
+                cache / "db",
+                [],
+                runner,
+                SCRIPT.Run("id", dt.datetime.now(tz=dt.UTC), "node", "test"),
+            )
+        return runner, errors, out.getvalue()
+
+    def test_negative_control_an_sbom_row_exports_only_behind_the_export_gate(self):
+        for engine in ("grype", "osv"):
+            with self.subTest(engine=engine):
+                exported, export_errors, export_output = self._check(engine, "forced")
+                mounted, mount_errors, mount_output = self._check(engine, None)
+                self.assertEqual((export_errors, mount_errors), ([], []))
+                self.assertEqual((exported.exports, exported.on_disk_peak), (3, 1))
+                self.assertEqual(
+                    export_output.count("syft exports container images"), 1
+                )
+                self.assertEqual(sum(map(_reads_image, mounted.calls)), 3)
+                self.assertEqual(mounted.exports, 0)
+                self.assertNotIn("syft exports container images", mount_output)
+
+    def test_syft_reads_every_image_through_its_own_image_mount(self):
+        runner, errors = self._scan(_config(targets=["container"]), self.containers)
+        mounts = [
+            call[call.index("--mount") + 1]
+            for call in runner.calls
+            if "--mount" in call
+        ]
+        self.assertEqual(errors, [])
+        self.assertEqual(
+            sorted(mounts),
+            [
+                f"type=image,source=sha256:{name},destination=/image,readonly"
+                for name in ("a", "b", "c")
+            ],
+        )
 
     def test_engines_reading_the_image_without_syft_export_one_at_a_time(self):
         runner, errors = self._scan(
@@ -1610,7 +1689,7 @@ class TestScratch(TestCase):
         runner, errors = self._scan(
             _config(targets=["container"]),
             self.containers,
-            fail=("docker:sha256:",),
+            fail=("dir:/image",),
         )
         self.assertEqual(
             errors,
@@ -1636,7 +1715,7 @@ class TestScratch(TestCase):
 
         with self.assertRaises(OSError):
             SCRIPT.run_lane(
-                [_step("trivy container a:1", exports=True)],
+                [_step("trivy container a:1", reads_image=True)],
                 crash,
                 self.layout.work,
                 threading.BoundedSemaphore(1),
@@ -1670,14 +1749,14 @@ class TestScratch(TestCase):
         self.assertTrue(keep.is_file())
 
 
-def _exports(argv):
-    return any(arg.startswith("docker:") for arg in argv)
+def _reads_image(argv):
+    return any(arg.startswith("type=image,") for arg in argv)
 
 
 OK = SimpleNamespace(returncode=0, stdout="", stderr="")
 
 
-class TestExportsAcrossNodes(TestCase):
+class TestImageReadsAcrossNodes(TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
@@ -1695,6 +1774,7 @@ class TestExportsAcrossNodes(TestCase):
             sbom=self.root / node / "sbom",
             work=self.root / node / "work",
             excludes=(),
+            image_mount=True,
         )
 
     def _scan(self, node, databases, runner):
@@ -1717,23 +1797,25 @@ class TestExportsAcrossNodes(TestCase):
             os.close(probe)
         return False
 
-    def test_another_scan_of_the_database_directory_waits_while_one_exports(self):
+    def test_another_scan_of_the_database_directory_waits_while_one_reads_an_image(
+        self,
+    ):
         taken = []
 
         def engines(argv):
-            if _exports(argv):
+            if _reads_image(argv):
                 taken.append(self._slot_taken())
             return OK
 
         errors = self._scan("wrk-01", self.shared, engines)
         self.assertEqual((errors, taken, self._slot_taken()), ([], [True], False))
 
-    def test_nodes_with_their_own_database_directory_export_side_by_side(self):
+    def test_nodes_with_their_own_database_directory_read_images_side_by_side(self):
         both = threading.Barrier(2, timeout=60)
         errors = []
 
         def engines(argv):
-            if _exports(argv):
+            if _reads_image(argv):
                 both.wait()
             return OK
 
@@ -1755,7 +1837,7 @@ class TestExportsAcrossNodes(TestCase):
         started, removals = [], []
 
         def engines(argv):
-            if _exports(argv):
+            if _reads_image(argv):
                 started.append(argv[argv.index("--name") + 1])
                 raise failure
             if argv[1] == "rm":
@@ -1764,7 +1846,7 @@ class TestExportsAcrossNodes(TestCase):
 
         return started, removals, engines
 
-    def test_a_timed_out_export_removes_its_container_before_the_slot_frees(self):
+    def test_a_timed_out_image_read_removes_its_container_before_the_slot_frees(self):
         started, removals, engines = self._removals(
             subprocess.TimeoutExpired(cmd="container", timeout=5)
         )
@@ -1772,7 +1854,7 @@ class TestExportsAcrossNodes(TestCase):
         self.assertEqual(errors, ["syft container wrk-01:1: no result within 5s"])
         self.assertEqual(removals, [(started[0], True)])
 
-    def test_a_crashed_export_removes_its_container_before_the_slot_frees(self):
+    def test_a_crashed_image_read_removes_its_container_before_the_slot_frees(self):
         started, removals, engines = self._removals(OSError("client vanished"))
         with self.assertRaises(OSError):
             self._scan("wrk-01", self.shared, engines)
@@ -1802,7 +1884,7 @@ class TestExportsAcrossNodes(TestCase):
         self.assertEqual(len(errors), 1)
         self.assertTrue(
             errors[0].startswith(
-                f"syft container wrk-01:1: no export slot on {self.shared}: "
+                f"syft container wrk-01:1: no image slot on {self.shared}: "
             )
         )
 
@@ -1815,7 +1897,7 @@ class SandboxNodeEngines(FakeEngines):
         runtime = argv[argv.index("--runtime") + 1] if "--runtime" in argv else "runsc"
         if (
             argv[:2] == ["container", "run"]
-            and self.SOCKET in argv
+            and (self.SOCKET in argv or _reads_image(argv))
             and runtime != "runc"
         ):
             with self.lock:
@@ -1824,8 +1906,13 @@ class SandboxNodeEngines(FakeEngines):
         return super().__call__(argv)
 
 
+MOUNT_API = "1.52"
+MOUNTING_DOCKER = ("29.1.4", MOUNT_API)
+EXPORTING_DOCKER = ("29.1.3", MOUNT_API)
+
+
 class TestSandboxNode(TestCase):
-    def _check(self, containers):
+    def _check(self, containers, docker):
         runner = SandboxNodeEngines(None, {})
         real_scan = SCRIPT.scan
 
@@ -1839,8 +1926,10 @@ class TestSandboxNode(TestCase):
                 mock.patch.object(
                     SCRIPT, "docker_root", return_value="/var/lib/docker"
                 ),
+                mock.patch.object(SCRIPT, "docker_versions", return_value=docker),
                 mock.patch.object(SCRIPT, "scan", side_effect=scan),
                 mock.patch.object(SCRIPT, "pause"),
+                contextlib.redirect_stdout(io.StringIO()) as out,
             ):
                 _targets, _judged, errors = SCRIPT.vulnerability_check(
                     containers,
@@ -1853,25 +1942,210 @@ class TestSandboxNode(TestCase):
                     runner,
                     SCRIPT.Run("id", dt.datetime.now(tz=dt.UTC), "node", "test"),
                 )
-        return runner, errors
+        return runner, errors, out.getvalue()
 
     def test_container_scans_pass_where_the_daemon_defaults_to_the_sandbox(self):
-        runner, errors = self._check([_container("a", image="sha256:a")])
-        self.assertEqual(errors, [])
-        self.assertTrue(any(SandboxNodeEngines.SOCKET in call for call in runner.calls))
+        for docker in (MOUNTING_DOCKER, EXPORTING_DOCKER):
+            with self.subTest(docker=docker):
+                runner, errors, _output = self._check(
+                    [_container("a", image="sha256:a")], docker
+                )
+                self.assertEqual(errors, [])
+                self.assertTrue(
+                    any(SandboxNodeEngines.SOCKET in call for call in runner.calls)
+                )
 
-    def test_only_runs_with_the_docker_socket_leave_the_sandbox(self):
-        runner, _errors = self._check([_container("a", image="sha256:a")])
+    def test_a_daemon_without_image_mounts_gives_syft_the_socket_on_runc(self):
+        runner, errors, output = self._check(
+            [_container("a", image="sha256:a")], EXPORTING_DOCKER
+        )
+        (syft,) = [call for call in runner.calls if "docker:sha256:a" in call]
+        self.assertEqual(errors, [])
+        self.assertFalse(any(_reads_image(call) for call in runner.calls))
+        self.assertIn(SandboxNodeEngines.SOCKET, syft)
+        self.assertEqual(syft[syft.index("--runtime") + 1], "runc")
+        self.assertEqual(
+            output,
+            "ℹ️ syft exports container images instead of mounting them: Docker "
+            "29.1.3 names an image mount's layer beyond 255 characters, fixed in "
+            "29.1.4\n",
+        )
+
+    def test_only_runs_that_read_a_container_image_leave_the_sandbox(self):
+        runner, _errors, _output = self._check(
+            [_container("a", image="sha256:a")], MOUNTING_DOCKER
+        )
         runs = [call for call in runner.calls if call[:2] == ["container", "run"]]
         socket = [call for call in runs if SandboxNodeEngines.SOCKET in call]
-        others = [call for call in runs if SandboxNodeEngines.SOCKET not in call]
+        mounted = [call for call in runs if _reads_image(call)]
+        others = [call for call in runs if call not in socket and call not in mounted]
         self.assertTrue(socket)
+        self.assertTrue(mounted)
         self.assertTrue(any("/:/host:ro" in call for call in others))
-        for call in socket:
+        for call in (*socket, *mounted):
             self.assertIn("--runtime", call)
             self.assertEqual(call[call.index("--runtime") + 1], "runc")
         for call in others:
             self.assertNotIn("--runtime", call)
+
+
+class TestImageMountGate(TestCase):
+    def test_a_daemon_before_28_exports(self):
+        self.assertEqual(
+            SCRIPT.image_export_reason("27.5.1", MOUNT_API),
+            "Docker 27.5.1 predates image mounts, which need 28.0.0",
+        )
+
+    def test_a_28_daemon_mounts(self):
+        for version in ("28.0.0", "28.5.2"):
+            with self.subTest(version=version):
+                self.assertIsNone(SCRIPT.image_export_reason(version, MOUNT_API))
+
+    def test_29_0_0_to_29_1_3_export_on_every_image_store(self):
+        for version in ("29.0.0", "29.1.0", "29.1.3"):
+            with self.subTest(version=version):
+                self.assertEqual(
+                    SCRIPT.image_export_reason(version, MOUNT_API),
+                    f"Docker {version} names an image mount's layer beyond 255 "
+                    "characters, fixed in 29.1.4",
+                )
+
+    def test_29_1_4_and_later_mount(self):
+        for version in ("29.1.4", "29.2.0", "29.10.1", "30.0.0"):
+            with self.subTest(version=version):
+                self.assertIsNone(SCRIPT.image_export_reason(version, MOUNT_API))
+
+    def test_a_suffixed_release_is_judged_by_its_patch_level(self):
+        self.assertIsNone(SCRIPT.image_export_reason("29.1.4-ce", MOUNT_API))
+        self.assertEqual(
+            SCRIPT.image_export_reason("29.1.3-rc.1", MOUNT_API),
+            "Docker 29.1.3-rc.1 names an image mount's layer beyond 255 "
+            "characters, fixed in 29.1.4",
+        )
+
+    def test_an_unreadable_version_exports(self):
+        for version in (None, "", "dev", "v29.2.0", "29.2"):
+            with self.subTest(version=version):
+                self.assertEqual(
+                    SCRIPT.image_export_reason(version, MOUNT_API),
+                    f"Docker server version {version!r} is unreadable",
+                )
+
+    def test_a_cli_below_api_1_48_exports_from_a_mounting_daemon(self):
+        for api in ("1.47", "1.41"):
+            with self.subTest(api=api):
+                self.assertEqual(
+                    SCRIPT.image_export_reason("29.1.4", api),
+                    f"the docker CLI talks API {api}, image mounts need 1.48",
+                )
+
+    def test_a_cli_from_api_1_48_mounts(self):
+        for api in ("1.48", "1.52", "2.0"):
+            with self.subTest(api=api):
+                self.assertIsNone(SCRIPT.image_export_reason("29.1.4", api))
+
+    def test_an_unreadable_api_exports(self):
+        for api in (None, "", "1", "v1.52", "1.52.0"):
+            with self.subTest(api=api):
+                self.assertEqual(
+                    SCRIPT.image_export_reason("29.1.4", api),
+                    f"Docker API version {api!r} is unreadable",
+                )
+
+
+class TestDockerVersions(TestCase):
+    def _version(self, run):
+        with mock.patch.object(SCRIPT.subprocess, "run", **run) as called:
+            return SCRIPT.docker_versions(), called
+
+    def test_one_version_call_reads_the_server_and_the_negotiated_api(self):
+        versions, called = self._version(
+            {"return_value": SimpleNamespace(stdout="29.1.4 1.52\n")}
+        )
+        self.assertEqual(versions, ("29.1.4", "1.52"))
+        self.assertEqual(called.call_count, 1)
+        self.assertEqual(
+            called.call_args.args[0],
+            [
+                "container",
+                "version",
+                "--format",
+                "{{.Server.Version}} {{.Client.APIVersion}}",
+            ],
+        )
+
+    def test_a_failing_or_empty_version_call_reads_nothing(self):
+        cases = {
+            "no cli": {"side_effect": FileNotFoundError("container")},
+            "daemon down": {
+                "side_effect": subprocess.CalledProcessError(1, "container")
+            },
+            "hung": {"side_effect": subprocess.TimeoutExpired("container", 60)},
+            "empty": {"return_value": SimpleNamespace(stdout="\n")},
+        }
+        for name, run in cases.items():
+            with self.subTest(case=name):
+                self.assertEqual(self._version(run)[0], (None, None))
+
+    def test_a_server_without_an_api_reads_only_the_server(self):
+        versions, _ = self._version(
+            {"return_value": SimpleNamespace(stdout="29.1.4\n")}
+        )
+        self.assertEqual(versions, ("29.1.4", None))
+
+
+class TestSyftImageMount(TestCase):
+    CONTAINERS = SCRIPT.container_targets([_container("a", image="sha256:a")])
+
+    def _mount(self, config, targets, docker):
+        with (
+            mock.patch.object(SCRIPT, "docker_versions", return_value=docker) as read,
+            contextlib.redirect_stdout(io.StringIO()) as out,
+        ):
+            mount = SCRIPT.syft_image_mount(config, targets)
+        return mount, read.call_count, out.getvalue()
+
+    def test_a_daemon_that_mounts_images_is_read_once_and_mounts(self):
+        self.assertEqual(
+            self._mount(_config(), self.CONTAINERS, MOUNTING_DOCKER), (True, 1, "")
+        )
+
+    def test_a_daemon_that_cannot_mount_names_the_reason_in_one_line(self):
+        self.assertEqual(
+            self._mount(_config(), self.CONTAINERS, ("27.5.1", "1.47")),
+            (
+                False,
+                1,
+                (
+                    "ℹ️ syft exports container images instead of mounting them: "
+                    "Docker 27.5.1 predates image mounts, which need 28.0.0\n"
+                ),
+            ),
+        )
+
+    def test_an_unreadable_daemon_falls_back_to_the_export(self):
+        self.assertEqual(
+            self._mount(_config(), self.CONTAINERS, (None, None)),
+            (
+                False,
+                1,
+                (
+                    "ℹ️ syft exports container images instead of mounting them: "
+                    "Docker server version None is unreadable\n"
+                ),
+            ),
+        )
+
+    def test_the_daemon_is_not_read_when_syft_reads_no_container(self):
+        cases = {
+            "without syft": (_config(engines=["trivy", "grype"]), self.CONTAINERS),
+            "host only": (_config(), [SCRIPT.host_target("node")]),
+        }
+        for name, (config, targets) in cases.items():
+            with self.subTest(case=name):
+                self.assertEqual(
+                    self._mount(config, targets, MOUNTING_DOCKER), (False, 0, "")
+                )
 
 
 class TestCommands(TestCase):
@@ -1882,6 +2156,7 @@ class TestCommands(TestCase):
             sbom=Path("/var/cache/v/sbom"),
             work=Path("/var/cache/v/run"),
             excludes=("/proc", "/var/lib/docker"),
+            image_mount=True,
         )
         self.host = SCRIPT.host_target("node")
         self.container = SCRIPT.Target(
@@ -1928,7 +2203,7 @@ class TestCommands(TestCase):
         scratches = [step.scratch for step in steps]
         self.assertEqual(len(set(scratches)), len(scratches))
 
-    def test_only_runs_that_read_a_local_image_export_it(self):
+    def test_only_runs_that_read_a_local_image_take_the_image_slot(self):
         without_syft = _config(engines=["grype", "osv"], targets=["container"])
         cases = {
             "syft container": SCRIPT.sbom_step(self.layout, "syft:1", self.container),
@@ -1953,9 +2228,43 @@ class TestCommands(TestCase):
             )[1],
         }
         self.assertEqual(
-            {name for name, step in cases.items() if step.exports},
+            {name for name, step in cases.items() if step.reads_image},
             {"syft container", "trivy container", "grype image", "osv export"},
         )
+
+    def test_syft_reads_a_container_image_through_a_read_only_image_mount(self):
+        step = SCRIPT.sbom_step(self.layout, "syft:1", self.container)
+        self.assertEqual(
+            step.argv[step.argv.index("--mount") + 1],
+            "type=image,source=sha256:abc,destination=/image,readonly",
+        )
+        self.assertNotIn("/var/run/docker.sock:/var/run/docker.sock:ro", step.argv)
+        self.assertFalse(any(arg.startswith("docker:") for arg in step.argv))
+        self.assertEqual(step.argv[step.argv.index("--runtime") + 1], "runc")
+
+    def test_syft_catalogs_the_mounted_image_like_an_image_source(self):
+        step = SCRIPT.sbom_step(self.layout, "syft:1", self.container)
+        start = step.argv.index("scan") + 1
+        self.assertEqual(
+            list(step.argv[start : start + 5]),
+            [
+                "dir:/image",
+                "--base-path",
+                "/image",
+                "--override-default-catalogers",
+                "image,file",
+            ],
+        )
+
+    def test_without_an_image_mount_syft_exports_the_image_through_the_socket(self):
+        layout = dataclasses.replace(self.layout, image_mount=False)
+        step = SCRIPT.sbom_step(layout, "syft:1", self.container)
+        start = step.argv.index("scan") + 1
+        self.assertEqual(step.argv[start], "docker:sha256:abc")
+        self.assertIn("/var/run/docker.sock:/var/run/docker.sock:ro", step.argv)
+        self.assertNotIn("--mount", step.argv)
+        self.assertEqual(step.argv[step.argv.index("--runtime") + 1], "runc")
+        self.assertTrue(step.reads_image)
 
     def test_osv_exports_into_the_scratch_its_scan_reads(self):
         export, scan = SCRIPT.osv_image_steps(

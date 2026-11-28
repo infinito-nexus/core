@@ -1,4 +1,31 @@
 ---
+# Required actions converge first: every user this run creates or imports gets the default actions the realm holds at that moment.
+- name: "📂 Load required action routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/12_required_actions.yml"
+
+- name: "🔑 Load LDAP bind routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/03_ldap/bind.yml"
+  when:
+    - KEYCLOAK_LDAP_ENABLED | bool
+    - KEYCLOAK_LDAP_SHARED | bool
+
+- name: "📂 Load email policy routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/14_email_policy.yml"
+
+- name: "📂 Load directory email trust routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/06_users/email/federated.yml"
+  when:
+    - KEYCLOAK_LDAP_ENABLED | bool
+    - KEYCLOAK_DICTIONARY_REALM.verifyEmail | bool
+
+- name: "📂 Load the Admin API client scope check for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/utils/admin_api_scope.yml"
+  vars:
+    keycloak_admin_api_kcadm: "{{ KEYCLOAK_EXEC_KCADM }}"
+    keycloak_admin_api_realm: "{{ KEYCLOAK_REALM }}"
+    keycloak_admin_api_clients: []
+  when: KEYCLOAK_ADMIN_API_CLIENT_IDS | length > 0
+
 - name: "📂 Load client and mail settings routines for '{{ application_id }}'"
   include_tasks: "{{ role_path }}/tasks/update/01_settings.yml"
 
@@ -37,6 +64,63 @@
     - name: "📂 Load RBAC realm group provisioning routines for '{{ application_id }}'"
       include_tasks: "{{ role_path }}/tasks/update/06_rbac_groups_realm.yml"
 
+- name: "📂 Load admin console RBAC routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/09_console_rbac.yml"
+
+- name: "📂 Load realm role grant routines for '{{ application_id }}'"
+  include_tasks:
+    file: "{{ role_path }}/tasks/update/10_realm_role_grants.yml"
+    apply:
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📂 Load client role grant routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/16_client_role_grants.yml"
+  when: KEYCLOAK_CLIENT_ROLE_GRANTS | length > 0
+
+- name: "📂 Load usage client routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/18_usage_client/enabled.yml"
+  when: KEYCLOAK_USAGE_CLIENT_ENABLED | bool
+
+- name: "🧹 Remove the usage client of '{{ application_id }}' while its switch is off"
+  include_tasks: "{{ role_path }}/tasks/update/18_usage_client/disabled.yml"
+  when: not KEYCLOAK_USAGE_CLIENT_ENABLED | bool
+
+- name: "📂 Load workspace organization routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/17_organizations.yml"
+  when: KEYCLOAK_ORGANIZATIONS_ENABLED | bool
+
+- name: "📂 Load fine-grained admin permission routines for '{{ application_id }}'"
+  include_tasks: "{{ role_path }}/tasks/update/15_admin_permissions.yml"
+  when: KEYCLOAK_ADMIN_PERMISSIONS_ENABLED | bool
+
 - name: "📂 Load Users Update routines for '{{ application_id }}' (emailVerified)"
-  include_tasks: "{{ role_path }}/tasks/update/06_users/email_verified.yml"
+  include_tasks: "{{ role_path }}/tasks/update/06_users/email/verified.yml"
   when: KEYCLOAK_USER_EMAILS_VERIFIED | bool
+
+- name: "📂 Converge the protocol mappers of SAML and declared clients"
+  include_tasks: "{{ role_path }}/tasks/update/11_client_mappers.yml"
+  vars:
+    kc_mapper_client_id: "{{ mapper_client }}"
+  loop: "{{ (KEYCLOAK_SAML_CLIENT_IDS + KEYCLOAK_DECLARED_MAPPER_CLIENT_IDS) | unique | list }}"
+  loop_control:
+    loop_var: mapper_client
+
+- name: "📂 Converge the email client scope of existing realms"
+  include_tasks: "{{ role_path }}/tasks/update/13_email_scope.yml"
+
+- name: "🔀 Finish the email policy switch of realm '{{ KEYCLOAK_REALM }}'"
+  when: kc_email_policy_change == 'switch'
+  block:
+    - name: "🔄 Re-read every user from LDAP through the switched email mappers"
+      ansible.builtin.shell: >
+        {{ KEYCLOAK_EXEC_KCADM }} create
+        "user-storage/{{ ldap_cmp_id | trim }}/sync?action=triggerFullSync" -r {{ KEYCLOAK_REALM }}
+      when: KEYCLOAK_LDAP_ENABLED | bool
+      changed_when: true
+
+    - name: "📝 Record the email policy realm '{{ KEYCLOAK_REALM }}' now holds"
+      ansible.builtin.shell: >
+        {{ KEYCLOAK_EXEC_KCADM }} update realms/{{ KEYCLOAK_REALM }}
+        -s {{ ('attributes.' ~ KEYCLOAK_EMAIL_POLICY_ATTRIBUTE ~ '=' ~ KEYCLOAK_EMAIL_POLICY) | quote }}
+        -s verifyEmail={{ KEYCLOAK_DICTIONARY_REALM.verifyEmail | bool | lower }}
+      changed_when: true

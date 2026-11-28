@@ -19,8 +19,10 @@ from utils.roles.mapping import ROLE_FILE_META_SERVICES
 from utils.roles.meta_lookup import (
     MetaServicesShapeError,
     get_role_architectures,
+    get_role_built_services,
     get_role_lifecycle,
     get_role_placement,
+    get_role_requires_devices,
     get_role_run_after,
     get_role_skip,
     iter_roles_with_placement,
@@ -331,6 +333,116 @@ class TestRoleArchitectures(unittest.TestCase):
         )
         with self.assertRaises(MetaServicesShapeError):
             get_role_architectures(role_dir, role_name="web-app-empty")
+
+
+class TestRoleBuiltServices(unittest.TestCase):
+    def setUp(self) -> None:
+        self._tmp = TemporaryDirectory()
+        self.fx = _RoleFixtures(Path(self._tmp.name))
+        self.addCleanup(self._tmp.cleanup)
+
+    def test_only_the_services_with_a_custom_build_are_named(self) -> None:
+        role_dir = self.fx.write(
+            "web-app-built",
+            """
+            built:
+              image: debian
+              custom: true
+            sidecar:
+              image: nginx
+            """,
+        )
+        self.assertEqual(
+            get_role_built_services(role_dir, role_name="web-app-built"), ["built"]
+        )
+
+    def test_a_role_that_pulls_every_image_builds_none(self) -> None:
+        role_dir = self.fx.write(
+            "web-app-pulled",
+            """
+            pulled:
+              image: nginx
+              custom: false
+            """,
+        )
+        self.assertEqual(
+            get_role_built_services(role_dir, role_name="web-app-pulled"), []
+        )
+
+
+class TestRoleRequiresDevices(unittest.TestCase):
+    def setUp(self) -> None:
+        self._tmp = TemporaryDirectory()
+        self.fx = _RoleFixtures(Path(self._tmp.name))
+        self.addCleanup(self._tmp.cleanup)
+
+    def _declare(self, value: str) -> Path:
+        """Args:
+            value: the YAML text of ``requires_devices`` on the primary entity.
+
+        Returns:
+            The fixture role directory.
+        """
+        return self.fx.write(
+            "svc-virt-box",
+            f"""
+            box:
+              requires_devices: {value}
+            """,
+        )
+
+    def test_declared_devices_are_returned_in_order(self) -> None:
+        role_dir = self._declare("[/dev/kvm, /dev/net/tun]")
+        self.assertEqual(
+            get_role_requires_devices(role_dir, role_name="svc-virt-box"),
+            ["/dev/kvm", "/dev/net/tun"],
+        )
+
+    def test_no_declaration_needs_no_device(self) -> None:
+        role_dir = self.fx.write(
+            "svc-virt-box",
+            """
+            box:
+              lifecycle: alpha
+            """,
+        )
+        self.assertEqual(
+            get_role_requires_devices(role_dir, role_name="svc-virt-box"), []
+        )
+
+    def test_a_declaration_off_the_primary_entity_is_not_read(self) -> None:
+        role_dir = self.fx.write(
+            "svc-virt-box",
+            """
+            box:
+              lifecycle: alpha
+            sidecar:
+              requires_devices: [/dev/kvm]
+            """,
+        )
+        self.assertEqual(
+            get_role_requires_devices(role_dir, role_name="svc-virt-box"), []
+        )
+
+    def test_a_malformed_declaration_raises(self) -> None:
+        malformed = {
+            "a scalar": "/dev/kvm",
+            "an empty list": "[]",
+            "a mapping": "{kvm: /dev/kvm}",
+            "a relative path": "[dev/kvm]",
+            "a path outside /dev": "[/etc/passwd]",
+            "a path that climbs out of /dev": "[/dev/../etc/shadow]",
+            "a trailing slash": "[/dev/kvm/]",
+            "the bare /dev": "[/dev]",
+            "a duplicate": "[/dev/kvm, /dev/kvm]",
+            "a number": "[42]",
+            "a shell word": '["/dev/kvm; true"]',
+        }
+        for label, value in malformed.items():
+            with self.subTest(label), self.assertRaises(MetaServicesShapeError):
+                get_role_requires_devices(
+                    self._declare(value), role_name="svc-virt-box"
+                )
 
 
 if __name__ == "__main__":

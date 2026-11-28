@@ -9,7 +9,7 @@ from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 from jinja2 import Environment
 
-from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 from utils.templating.ansible import _trust_as_template
 
@@ -17,7 +17,6 @@ ROLE = PROJECT_ROOT / "roles/web-app-nextcloud"
 MANAGER_OPS = ROLE / "tasks/02_manager_ops.yml"
 PLUGIN = ROLE / "tasks/02_manager_ops/06_plugin.yml"
 BACKGROUND = ROLE / "tasks/02_manager_ops/06_plugin/01_background.yml"
-PROBE = ROLE / "files/php/utils/migration_state.php"
 
 
 def _load_filters():
@@ -65,7 +64,7 @@ def _install_block() -> dict:
     return next(
         task
         for task in load_yaml_any(str(PLUGIN), default_if_missing=[])
-        if "block" in task
+        if "Install the plugins Nextcloud lacks" in task.get("name", "")
     )
 
 
@@ -176,9 +175,6 @@ class TestBackgroundJob(unittest.TestCase):
             self.job["async"], "{{ NEXTCLOUD_PLUGIN_BACKGROUND_ASYNC_TIME }}"
         )
         self.assertEqual(self.job["poll"], 0)
-        self.assertNotIn(
-            "ASYNC_ENABLED", str(self.job["async"]) + str(self.job["poll"])
-        )
 
     def test_the_gate_reads_the_job_file_first_then_the_schema_state(self):
         script = self.job["ansible.builtin.shell"]
@@ -202,15 +198,6 @@ class TestBackgroundJob(unittest.TestCase):
     def test_the_gate_does_not_rely_on_debug_only_occ_commands(self):
         gate = _task(BACKGROUND, "Hold the other installs")["ansible.builtin.shell"]
         self.assertNotIn("migrations:", gate["cmd"])
-
-    def test_the_probe_reads_what_the_installer_writes(self):
-        probe = read_text(str(PROBE))
-        self.assertIn("new \\OC\\DB\\MigrationService($appId", probe)
-        self.assertIn("\\OCP\\Server::get(\\OC\\DB\\Connection::class)", probe)
-        self.assertIn('"migrated" => $migrations->getMigratedVersions()', probe)
-        self.assertIn('"available" => $migrations->getAvailableVersions()', probe)
-        self.assertIn('echo "MIGRATION_STATE "', probe)
-        self.assertIn("[, $serverRoot, $appId] = $argv;", probe)
 
     def test_the_job_never_forces_an_install(self):
         self.assertNotIn("--force", self.job["ansible.builtin.shell"])

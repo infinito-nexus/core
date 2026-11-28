@@ -1,0 +1,18 @@
+---
+# Param gitea_auth_drift_form: the form of meta/forms.yml whose auth source the next task overwrites, ldap_source or oauth_source.
+# Param gitea_auth_drift_id: the id of the LDAP source the deploy keeps; the OAuth2 source is always the first one.
+
+- name: "⬇️ Read the managed settings of the {{ gitea_auth_drift_form }} auth source"
+  database_query:
+    config: "{{ lookup('database', application_id) }}"
+    query_file: "{{ role_path }}/files/sql/login-source-settings.sql"
+    expect_rows: true
+    mask_values: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  register: gitea_auth_sources_held
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📣 Report the managed {{ gitea_auth_drift_form }} settings the update reverts"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current: "{{ {gitea_auth_drift_form: gitea_auth_sources_held.rows | gitea_auth_source_held(gitea_auth_drift_form, gitea_auth_drift_id)} }}"

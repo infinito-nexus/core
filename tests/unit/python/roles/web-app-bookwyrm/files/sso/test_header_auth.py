@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import importlib.util
+import json
+import os
 import sys
 import unittest
 from types import ModuleType, SimpleNamespace
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from utils.domains.default_primary import default_domain_primary
 
@@ -52,7 +54,7 @@ def _fake_user_model(*, existing):
 def _load_module(user_model):
     """Import header_auth.py with Django stubbed out (no Django dependency)."""
     conf = ModuleType("django.conf")
-    conf.settings = SimpleNamespace(DOMAIN=DOMAIN)
+    conf.settings = SimpleNamespace(DOMAIN=DOMAIN, LANGUAGES=[("en-us", "English")])
     backends = ModuleType("django.contrib.auth.backends")
     backends.RemoteUserBackend = _FakeRemoteUserBackend
     middleware = ModuleType("django.contrib.auth.middleware")
@@ -95,28 +97,14 @@ class TestFirstHeader(unittest.TestCase):
         self.mod = _load_module(_fake_user_model(existing=None))
 
     def test_returns_first_present_candidate(self):
-        meta = {
-            "HTTP_X_FORWARDED_PREFERRED_USERNAME": "alice",
-            "HTTP_X_FORWARDED_USER": "bob",
-        }
+        meta = {"HTTP_X_FORWARDED_EMAIL": "alice@example.org"}
         self.assertEqual(
-            self.mod._first_header(meta, self.mod.CANDIDATE_USERNAME_HEADERS), "alice"
+            self.mod._first_header(meta, self.mod.CANDIDATE_EMAIL_HEADERS),
+            "alice@example.org",
         )
 
     def test_returns_none_when_absent(self):
-        self.assertIsNone(
-            self.mod._first_header({}, self.mod.CANDIDATE_USERNAME_HEADERS)
-        )
-
-    def test_ignores_proxy_uncontrolled_headers(self):
-        meta = {
-            "HTTP_X_AUTH_REQUEST_USER": "attacker",
-            "HTTP_X_AUTH_REQUEST_PREFERRED_USERNAME": "attacker",
-            "HTTP_REMOTE_USER": "attacker",
-        }
-        self.assertIsNone(
-            self.mod._first_header(meta, self.mod.CANDIDATE_USERNAME_HEADERS)
-        )
+        self.assertIsNone(self.mod._first_header({}, self.mod.CANDIDATE_EMAIL_HEADERS))
 
 
 class TestProxyHeaderMiddleware(unittest.TestCase):
@@ -124,10 +112,28 @@ class TestProxyHeaderMiddleware(unittest.TestCase):
         self.mod = _load_module(_fake_user_model(existing=None))
         self.mw = self.mod.ProxyHeaderMiddleware(lambda request: request)
 
-    def test_copies_candidate_into_canonical_header(self):
-        request = SimpleNamespace(META={"HTTP_X_FORWARDED_USER": "alice"})
+    def test_the_identity_header_is_the_preferred_username(self):
+        self.assertEqual(
+            self.mod.CANONICAL_HEADER, "HTTP_X_FORWARDED_PREFERRED_USERNAME"
+        )
+
+    def test_forwarded_user_never_becomes_the_identity(self):
+        request = SimpleNamespace(
+            META={"HTTP_X_FORWARDED_USER": "administrator@attacker.example"}
+        )
         self.mw.process_request(request)
-        self.assertEqual(request.META[self.mod.CANONICAL_HEADER], "alice")
+        self.assertNotIn(self.mod.CANONICAL_HEADER, request.META)
+
+    def test_proxy_uncontrolled_headers_never_become_the_identity(self):
+        request = SimpleNamespace(
+            META={
+                "HTTP_X_AUTH_REQUEST_USER": "attacker",
+                "HTTP_X_AUTH_REQUEST_PREFERRED_USERNAME": "attacker",
+                "HTTP_REMOTE_USER": "attacker",
+            }
+        )
+        self.mw.process_request(request)
+        self.assertNotIn(self.mod.CANONICAL_HEADER, request.META)
 
     def test_keeps_existing_canonical_header(self):
         request = SimpleNamespace(
@@ -180,6 +186,199 @@ class TestProxyHeaderBackend(unittest.TestCase):
             backend.authenticate(SimpleNamespace(META={}), "administrator")
         )
         model.objects.create_user.assert_not_called()
+
+
+GROUP_MAP = {
+    "/roles/web-app-bookwyrm/administrator": "admin",
+    "/roles/web-app-bookwyrm/moderator": "moderator",
+    "/roles/web-app-bookwyrm/editor": "editor",
+    "/roles/web-app-bookwyrm/owner": "owner",
+}
+
+
+def _filter_groups_by_name(name__in):
+    return sorted(name__in)
+
+
+class _FakeGroups:
+    def __init__(self, names):
+        self.names = set(names)
+        self.model = SimpleNamespace(
+            objects=SimpleNamespace(filter=_filter_groups_by_name)
+        )
+
+    def values_list(self, field, flat):
+        return sorted(self.names)
+
+    def set(self, groups):
+        self.names = set(groups)
+
+
+def _identity(groups=(), name=None, language=None, timezone=None):
+    return {
+        "groups": list(groups),
+        "name": name,
+        "language": language,
+        "timezone": timezone,
+    }
+
+
+def _fake_user(groups=(), **fields):
+    user = SimpleNamespace(
+        groups=_FakeGroups(groups),
+        is_superuser=False,
+        is_staff=False,
+        is_authenticated=True,
+        local=True,
+        localname="biber",
+        name="biber",
+        preferred_language="en-us",
+        preferred_timezone="UTC",
+        saves=0,
+    )
+    for key, value in fields.items():
+        setattr(user, key, value)
+
+    def save(broadcast):
+        user.saves += 1
+        user.broadcast = broadcast
+
+    user.save = save
+    return user
+
+
+class TestIdentityMapping(unittest.TestCase):
+    def setUp(self):
+        self.mod = _load_module(_fake_user_model(existing=None))
+
+    def test_desired_groups_maps_only_declared_paths(self):
+        header = "/roles/web-app-bookwyrm/moderator,/roles/web-app-other/administrator"
+        self.assertEqual(self.mod.desired_groups(header, GROUP_MAP), {"moderator"})
+
+    def test_identity_reads_the_groups_header(self):
+        request = SimpleNamespace(
+            META={self.mod.GROUPS_HEADER: "/roles/web-app-bookwyrm/editor"}
+        )
+        self.assertEqual(
+            self.mod.identity_from_request(request, GROUP_MAP),
+            _identity(groups=["editor"]),
+        )
+
+    def test_identity_reads_name_locale_and_zoneinfo(self):
+        self.mod.settings.LANGUAGES = [("en-us", "English"), ("de-de", "Deutsch")]
+        request = SimpleNamespace(
+            META={
+                self.mod.NAME_HEADER: " Harry Beaver ",
+                self.mod.LOCALE_HEADER: "de",
+                self.mod.ZONEINFO_HEADER: "Europe/Berlin",
+            }
+        )
+        self.assertEqual(
+            self.mod.identity_from_request(request, GROUP_MAP),
+            _identity(name="Harry Beaver", language="de-de", timezone="Europe/Berlin"),
+        )
+
+    def test_language_prefers_an_exact_code(self):
+        self.mod.settings.LANGUAGES = [
+            ("pt-pt", "Português"),
+            ("pt-br", "Português do Brasil"),
+        ]
+        self.assertEqual(self.mod.language_for("pt_BR"), "pt-br")
+        self.assertEqual(self.mod.language_for("pt"), "pt-pt")
+
+    def test_unknown_language_and_zone_are_dropped(self):
+        self.mod.settings.LANGUAGES = [("en-us", "English")]
+        self.assertIsNone(self.mod.language_for("xx"))
+        self.assertIsNone(self.mod.language_for(""))
+        self.assertIsNone(self.mod.timezone_for("Mars/Olympus"))
+        self.assertIsNone(self.mod.timezone_for("../etc/passwd"))
+
+    def test_apply_writes_the_forwarded_profile(self):
+        user = _fake_user()
+        changed = self.mod.apply_identity(
+            user,
+            _identity(name="Harry Beaver", language="de-de", timezone="Europe/Berlin"),
+            GROUP_MAP,
+        )
+        self.assertTrue(changed)
+        self.assertEqual(
+            (user.name, user.preferred_language, user.preferred_timezone),
+            ("Harry Beaver", "de-de", "Europe/Berlin"),
+        )
+        self.assertEqual(user.saves, 1)
+        self.assertTrue(
+            user.broadcast, "a changed display name must reach the followers"
+        )
+
+    def test_a_staff_change_alone_is_not_broadcast(self):
+        user = _fake_user()
+        self.mod.apply_identity(user, _identity(groups=["admin"]), GROUP_MAP)
+        self.assertEqual(user.saves, 1)
+        self.assertFalse(user.broadcast)
+
+    def test_absent_profile_fields_keep_the_stored_values(self):
+        user = _fake_user()
+        self.mod.apply_identity(user, _identity(), GROUP_MAP)
+        self.assertEqual(
+            (user.name, user.preferred_language, user.preferred_timezone),
+            ("biber", "en-us", "UTC"),
+        )
+        self.assertEqual(user.saves, 0)
+
+    def test_apply_promotes_and_keeps_unmanaged_groups(self):
+        user = _fake_user(groups=["readers"])
+        changed = self.mod.apply_identity(user, _identity(groups=["admin"]), GROUP_MAP)
+        self.assertTrue(changed)
+        self.assertEqual(user.groups.names, {"admin", "readers"})
+        self.assertTrue(user.is_staff)
+        self.assertEqual(user.saves, 1)
+
+    def test_apply_demotes_managed_groups(self):
+        user = _fake_user(groups=["moderator", "readers"], is_staff=True)
+        self.mod.apply_identity(user, _identity(), GROUP_MAP)
+        self.assertEqual(user.groups.names, {"readers"})
+        self.assertFalse(user.is_staff)
+
+    def test_apply_leaves_superuser_staff_flag(self):
+        user = _fake_user(is_superuser=True, is_staff=True)
+        self.mod.apply_identity(user, _identity(), GROUP_MAP)
+        self.assertTrue(user.is_staff)
+        self.assertEqual(user.saves, 0)
+
+
+class TestSyncIdentity(unittest.TestCase):
+    def setUp(self):
+        self.mod = _load_module(_fake_user_model(existing=None))
+        self.env = patch.dict(
+            os.environ,
+            {
+                self.mod.GROUP_MAP_ENV: json.dumps(GROUP_MAP),
+                self.mod.BOOTSTRAP_ADMIN_ENV: "platformadmin",
+            },
+        )
+        self.env.start()
+        self.addCleanup(self.env.stop)
+
+    def test_bootstrap_admin_is_left_alone(self):
+        user = _fake_user(groups=["admin", "moderator"], localname="PlatformAdmin")
+        request = SimpleNamespace(META={}, user=user, session={})
+        self.mod.sync_identity(request)
+        self.assertEqual(user.groups.names, {"admin", "moderator"})
+        self.assertEqual(request.session, {})
+
+    def test_unchanged_identity_is_applied_once_per_session(self):
+        user = _fake_user()
+        request = SimpleNamespace(
+            META={self.mod.GROUPS_HEADER: "/roles/web-app-bookwyrm/owner"},
+            user=user,
+            session={},
+        )
+        self.mod.sync_identity(request)
+        self.assertEqual(user.groups.names, {"owner"})
+        user.groups.names = set()
+        self.mod.sync_identity(request)
+        self.assertEqual(user.groups.names, set())
+        self.assertIn(self.mod.SESSION_KEY, request.session)
 
 
 if __name__ == "__main__":

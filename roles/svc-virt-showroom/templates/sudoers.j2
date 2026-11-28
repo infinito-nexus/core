@@ -1,0 +1,3 @@
+{% for instance in SHOWROOM_INSTANCES %}
+{{ SHOWROOM_OPERATOR_USER }} ALL=(root) {{ SHOWROOM_INCUS_BIN }} exec --project {{ instance.project }} {{ instance.name }} -- /bin/bash -l
+{% endfor %}

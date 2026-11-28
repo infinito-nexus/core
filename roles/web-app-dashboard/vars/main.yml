@@ -10,16 +10,12 @@ DASHBOARD_NETWORK_LABEL: "{{ (DASHBOARD_INSTANCES | selectattr('network', 'equal
 DASHBOARD_ASSET_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.asset.enabled') }}"
 DASHBOARD_SIMPLEICONS_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.simpleicons.enabled') }}"
 DASHBOARD_SIMPLEICONS_URL_BASE: "{{ lookup('tls', 'web-svc-simpleicons', 'url.base') }}"
-DASHBOARD_SIMPLEICONS_SYNC_URL_BASE: "{{ 'http://' ~ DOCKER_REACH_HOST ~ ':' ~ (lookup('config', 'web-svc-simpleicons', 'services.simpleicons.ports.local.http') |
-  string) ~ '/' }}"
-DASHBOARD_SIMPLEICONS_PROBE_URLS: >-
-  {{ dict(portfolio_cards | simpleicon_slugs
-          | zip(portfolio_cards | simpleicon_slugs
-                | map('regex_replace', '^', DASHBOARD_SIMPLEICONS_SYNC_URL_BASE)
-                | map('regex_replace', '$', '.svg'))) }}
+DASHBOARD_SIMPLEICONS_SYNC_URL_BASE: "http://127.0.0.1:{{ lookup('config', 'web-svc-simpleicons', 'services.simpleicons.ports.internal.http') }}/"
+DASHBOARD_SIMPLEICONS_CONTAINER_ADDRESS: "{{ lookup('container_address', 'web-svc-simpleicons', 'simpleicons') }}"
 
 DASHBOARD_JS_FILES: >-
   {{ ['iframe.js']
+     + (['chips.js'] if (DASHBOARD_STATUS_ENABLED | bool) or (DASHBOARD_LOCKS_ENABLED | bool) else [])
      + (['oidc.js'] if (DASHBOARD_OIDC_ENABLED | bool) else []) }}
 DASHBOARD_JS_BASE_PATH: "{{ DASHBOARD_APPLICATION_ID | entity_name }}/{{ 'js' | labelled(DASHBOARD_NETWORK_LABEL, '-') }}"
 DASHBOARD_JS_SERVER_DIR: "{{ [ lookup('nginx','directories.data.cdn'), DASHBOARD_JS_BASE_PATH ] | path_join }}"
@@ -32,6 +28,17 @@ DASHBOARD_CONFIG_INV_PATH: "{{ [ inventory_dir, 'files', inventory_hostname ,'do
 DASHBOARD_CONFIG_YML_DEST: "{{ [ lookup('container', DASHBOARD_APPLICATION_ID, 'directories.volumes'), 'config.yaml' | labelled_file(DASHBOARD_NETWORK_LABEL) ] |
   path_join }}"
 DASHBOARD_I18N_CONTENT_DIR: "{{ [ lookup('container', DASHBOARD_APPLICATION_ID, 'directories.instance'), 'i18n-content' ] | path_join }}"
+DASHBOARD_FIRST_SEEN_FILE: "{{ [ lookup('container', DASHBOARD_APPLICATION_ID, 'directories.instance'), 'first_seen.json' ] | path_join }}"
+DASHBOARD_FOLDERS_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.folders') }}"
+DASHBOARD_NEW_DAYS: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.new_days') }}"
+DASHBOARD_STATUS_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.status.enabled') }}"
+DASHBOARD_STATUS_PATH: "/status.json"
+DASHBOARD_STATUS_FILE: "{{ lookup('nginx', 'files.health_status') }}"
+DASHBOARD_STATUS_POLL_SECONDS: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.status.poll_seconds') }}"
+DASHBOARD_STATUS_STALE_AFTER_SECONDS: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.status.stale_after_seconds') }}"
+DASHBOARD_LOCKS_ENABLED: "{{ (lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.locks.enabled') | bool) and (DASHBOARD_OIDC_ENABLED | bool) }}"
+DASHBOARD_ACCESS_REQUEST_ENABLED: "{{ 'web-svc-access-request' in group_names }}"
+DASHBOARD_ACCESS_REQUEST_URL: "{{ lookup('tls', 'web-svc-access-request', 'url.base') ~ '?application={id}' }}"
 DASHBOARD_IMAGE: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.image') }}"
 DASHBOARD_VERSION: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.version') }}"
 
@@ -44,6 +51,10 @@ DASHBOARD_KEYCLOAK_LOGIN_URL: >-
      ~ '&redirect_uri=' ~ (DASHBOARD_APP_BASE_URL | urlencode) }}
 DASHBOARD_KEYCLOAK_IFRAME_ENABLED: "{{ lookup('config','web-app-keycloak', 'services.dashboard.enabled') }}"
 DASHBOARD_OIDC_ENABLED: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.sso.enabled') }}"
+DASHBOARD_OIDC_CLIENT_ID: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.sso.oidc.clients.dashboard') }}"
+DASHBOARD_LOGOUT_I18N: "{{ lookup('i18n_catalogue', 'logout', 'roles/web-app-keycloak/files/logout_i18n.yml') }}"
+DASHBOARD_LOGOUT_EVERYWHERE_MARKER: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.sso.oidc.logout_everywhere') }}"
+DASHBOARD_LOGOUT_EVERYWHERE_CLASS: "infinito-logout-everywhere"
 
 DASHBOARD_CONTAINER: "{{ lookup('config', DASHBOARD_APPLICATION_ID, 'services.dashboard.name') }}"
 

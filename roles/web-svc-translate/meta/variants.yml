@@ -36,9 +36,6 @@
     prometheus:
       enabled: true
       shared: true
-    sso:
-      enabled: true
-      shared: true
     postgres:
       shared: true
     tor:
@@ -69,9 +66,6 @@
     prometheus:
       enabled: false
       shared: false
-    sso:
-      enabled: false
-      shared: false
     postgres:
       shared: false
     tor:
@@ -97,9 +91,6 @@
       enabled: false
       shared: false
     prometheus:
-      enabled: false
-      shared: false
-    sso:
       enabled: false
       shared: false
     postgres:
@@ -130,9 +121,6 @@
     prometheus:
       enabled: true
       shared: true
-    sso:
-      enabled: false
-      shared: false
     postgres:
       shared: true
     tor:
@@ -161,9 +149,6 @@
       enabled: false
       shared: false
     prometheus:
-      enabled: false
-      shared: false
-    sso:
       enabled: false
       shared: false
     postgres:

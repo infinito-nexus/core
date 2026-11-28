@@ -1,0 +1,11 @@
+---
+[% if kind == "static" %]
+# nocheck: info-media  self-written site of the Infinito.Nexus family; no third-party upstream product
+logo:
+  class: fa-solid fa-globe
+[% else %]
+# nocheck: info-media the manifest names no demo video; add `video:` once the application has one
+logo:
+  class: fa-solid fa-cube
+homepage: [[ homepage | yaml ]]
+[% endif %]

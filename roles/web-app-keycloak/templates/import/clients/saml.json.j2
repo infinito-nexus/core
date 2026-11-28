@@ -33,9 +33,9 @@
         {
           "name": "email",
           "protocol": "saml",
-          "protocolMapper": "saml-user-property-mapper",
+          "protocolMapper": "{{ 'saml-user-attribute-mapper' if KEYCLOAK_EMAIL_MAILBOX | bool else 'saml-user-property-mapper' }}",
           "config": {
-            "user.attribute": "email",
+            "user.attribute": "{{ OIDC.EMAIL.CLAIM_SOURCE }}",
             "attribute.name": "email",
             "attribute.nameformat": "Basic"
           }
@@ -59,7 +59,30 @@
             "attribute.name": "lastName",
             "attribute.nameformat": "Basic"
           }
+        },
+        {
+          "name": "{{ KEYCLOAK_RBAC_GROUP_CLAIM }}",
+          "protocol": "saml",
+          "protocolMapper": "saml-group-membership-mapper",
+          "config": {
+            "attribute.name": "{{ KEYCLOAK_RBAC_GROUP_CLAIM }}",
+            "attribute.nameformat": "Basic",
+            "full.path": "true",
+            "single": "true"
+          }
         }
+{% for attribute in KEYCLOAK_PROFILE_ATTRIBUTES %}
+        ,{
+          "name": "{{ KEYCLOAK_PROFILE_MAPPER_PREFIX }}{{ attribute.name }}",
+          "protocol": "saml",
+          "protocolMapper": "saml-user-attribute-mapper",
+          "config": {
+            "user.attribute": "{{ attribute.name }}",
+            "attribute.name": "{{ attribute.ldap }}",
+            "attribute.nameformat": "Basic"
+          }
+        }
+{% endfor %}
       ]
     }
 {% endfor %}

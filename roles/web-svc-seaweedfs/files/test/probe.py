@@ -1,4 +1,4 @@
-"""Verify the deployed SeaweedFS engine through its published S3 port.
+"""Verify the deployed SeaweedFS engine through its S3 gateway.
 
 Every write lands under one reserved key prefix inside a bucket a consumer
 already owns. Creating a bucket here would allocate a whole SeaweedFS
@@ -7,7 +7,10 @@ consumers only, so a probe that creates buckets can exhaust the volume slots
 its own consumers write through.
 
 Env (rendered into test.env from templates/test.env.j2):
-    SEAWEEDFS_TEST_LOCAL_URL              S3 gateway on this host
+    SEAWEEDFS_TEST_LOCAL_URL              compose only: S3 gateway on its published host port
+    SEAWEEDFS_TEST_LOOPBACK_URL           swarm only: S3 gateway inside the engine's container
+    SEAWEEDFS_TEST_SWARM_SERVICE          swarm only: the engine's swarm service
+    SEAWEEDFS_TEST_BIND_HOST              host address the console ports must not answer on
     SEAWEEDFS_TEST_REGION                 SigV4 credential-scope region
     SEAWEEDFS_TEST_FILER_PORT             filer port, expected unpublished
     SEAWEEDFS_TEST_MASTER_PORT            master port, expected unpublished
@@ -20,6 +23,7 @@ Env (rendered into test.env from templates/test.env.j2):
     SEAWEEDFS_TEST_PUBLIC_BUCKET          a public consumer's bucket, or empty
     SEAWEEDFS_TEST_PUBLIC_ACCESS_KEY_B64  base64 that consumer's access key
     SEAWEEDFS_TEST_PUBLIC_SECRET_KEY_B64  base64 that consumer's secret key
+    SEAWEEDFS_TEST_CONTAINER              the engine's compose container on this host
 """
 
 from __future__ import annotations
@@ -27,236 +31,60 @@ from __future__ import annotations
 import base64
 import os
 import secrets
-import socket
 import sys
-import urllib.error
-import urllib.parse
-import urllib.request
+from typing import TYPE_CHECKING
 
-import sigv4
+from access_checks import (
+    check_admin_roundtrip,
+    check_anonymous_cannot_read_private,
+    check_anonymous_reads_public,
+    check_console_ports_unpublished,
+    check_consumer_is_bucket_scoped,
+    check_unsigned_is_refused,
+)
+from restart_race import (
+    check_restart_serves_no_anonymous_write,
+    restart_container,
+    restart_service,
+    running_container,
+)
+from s3_engine import ContainerEngine, Engine
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
 
 KEY_PREFIX = "infinito-engine-check/"
-CONNECT_TIMEOUT = 10
-REQUEST_TIMEOUT = 60
 
 
 def _b64(name: str) -> str:
     return base64.b64decode(os.environ.get(name, "")).decode("utf-8")
 
 
-class Engine:
-    """One S3 gateway reachable over plain HTTP on this host."""
+def gateway(env: Mapping[str, str]) -> tuple[Engine, Callable[[], list[str]]]:
+    """
+    Args:
+        env: the rendered test.env.
 
-    def __init__(self, base_url: str, region: str) -> None:
-        parsed = urllib.parse.urlsplit(base_url)
-        self.scheme = parsed.scheme
-        self.host = parsed.netloc
-        self.region = region
-
-    def request(
-        self,
-        method: str,
-        path: str,
-        *,
-        query: dict[str, str] | None = None,
-        payload: bytes = b"",
-        access_key: str = "",
-        secret_key: str = "",
-    ) -> tuple[int, bytes, dict[str, str]]:
-        """Perform one request and return its status, body and headers.
-
-        Args:
-            method: HTTP verb, uppercase.
-            path: Absolute URI path starting with a slash.
-            query: Query parameters, unencoded.
-            payload: Request body.
-            access_key: Identity to sign as; unsigned when empty.
-            secret_key: Matching secret; never logged.
-
-        Returns:
-            The status code, the body and the response headers. A transport
-            failure yields status 0 and the error text as the body.
-        """
-        url = f"{self.scheme}://{self.host}{path}"
-        if query:
-            url = f"{url}?{sigv4.canonical_query(query)}"
-        headers = {"Host": self.host}
-        if access_key:
-            headers = sigv4.sign(
-                method,
-                self.host,
-                path,
-                region=self.region,
-                access_key=access_key,
-                secret_key=secret_key,
-                query=query,
-                payload=payload,
-            )
-        if not url.startswith(("http://", "https://")):
-            raise ValueError(f"refusing a non-HTTP S3 endpoint: {self.scheme}:")
-        req = urllib.request.Request(  # noqa: S310 fixed internal http origin from test.env, scheme asserted above
-            url, data=payload or None, method=method, headers=headers
+    Returns:
+        The S3 gateway as this deploy mode exposes it, and the restart of the
+        engine behind it.
+    """
+    region = env["SEAWEEDFS_TEST_REGION"]
+    service = env.get("SEAWEEDFS_TEST_SWARM_SERVICE", "")
+    if service:
+        engine = ContainerEngine(
+            env["SEAWEEDFS_TEST_LOOPBACK_URL"],
+            region,
+            lambda: running_container(service),
         )
-        opener = urllib.request.build_opener(_NoRedirect())
-        try:
-            with opener.open(req, timeout=REQUEST_TIMEOUT) as res:
-                return res.status, res.read(), dict(res.headers)
-        except urllib.error.HTTPError as exc:
-            return exc.code, exc.read(), dict(exc.headers)
-        except (urllib.error.URLError, OSError, ValueError) as exc:
-            return 0, str(exc).encode("utf-8"), {}
-
-
-class _NoRedirect(urllib.request.HTTPRedirectHandler):
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        return None
-
-
-def check_unsigned_is_refused(engine: Engine) -> list[str]:
-    status, body, headers = engine.request("GET", "/")
-    if status == 0:
-        return [
-            f"A: S3 gateway unreachable at {engine.host}: {body.decode(errors='replace')[:200]}"
-        ]
-    if status in (301, 302, 303, 307, 308):
-        return [
-            (
-                f"A: unsigned GET / redirected ({status}) to {headers.get('Location', '?')} — "
-                "the S3 vhost must not be SSO-gated"
-            )
-        ]
-    if status == 200:
-        return [
-            "A: unsigned GET / answered 200 — anonymous is over-granted at the service root"
-        ]
-    if status != 403:
-        return [f"A: unsigned GET / answered {status}, expected 403"]
-    if b"<Error" not in body:
-        return [
-            f"A: unsigned GET / answered 403 without an S3 <Error> body: {body[:200]!r}"
-        ]
-    return []
-
-
-def check_admin_roundtrip(
-    engine: Engine, admin: tuple[str, str], bucket: str, key: str, blob: bytes
-) -> list[str]:
-    ak, sk = admin
-    status, body, _ = engine.request(
-        "PUT", f"/{bucket}/{key}", payload=blob, access_key=ak, secret_key=sk
-    )
-    if status not in (200, 204):
-        return [f"B: admin could not write {bucket}/{key}: {status} {body[:200]!r}"]
-
-    status, body, _ = engine.request(
-        "GET", f"/{bucket}/{key}", access_key=ak, secret_key=sk
-    )
-    if status != 200:
-        return [f"B: admin could not read back {bucket}/{key}: {status}"]
-    if body != blob:
-        return [f"B: {bucket}/{key} read back {len(body)} bytes, wrote {len(blob)}"]
-    return []
-
-
-def check_consumer_is_bucket_scoped(
-    engine: Engine,
-    primary: tuple[str, str],
-    bucket: str,
-    other_bucket: str,
-) -> list[str]:
-    ak, sk = primary
-    failures = []
-
-    status, body, _ = engine.request(
-        "GET",
-        f"/{bucket}",
-        query={"list-type": "2", "max-keys": "1"},
-        access_key=ak,
-        secret_key=sk,
-    )
-    if status != 200:
-        failures.append(
-            f"C: consumer identity cannot list its own bucket {bucket}: {status} {body[:200]!r}"
-        )
-
-    if not other_bucket:
-        print(
-            "SKIP: only one object-store consumer on this host; cross-tenant denial unverified"
-        )
-        return failures
-
-    status, _, _ = engine.request(
-        "GET",
-        f"/{other_bucket}",
-        query={"list-type": "2", "max-keys": "1"},
-        access_key=ak,
-        secret_key=sk,
-    )
-    if status != 403:
-        failures.append(
-            f"C: the '{bucket}' identity listed the '{other_bucket}' bucket with {status}, "
-            "expected 403 — the identity is not bucket-scoped"
-        )
-    return failures
-
-
-def check_anonymous_cannot_read_private(
-    engine: Engine, bucket: str, key: str
-) -> list[str]:
-    status, _, _ = engine.request("GET", f"/{bucket}/{key}")
-    if status == 404:
-        return [
-            f"D1: {bucket}/{key} answered 404 unsigned although the signed read succeeded"
-        ]
-    if status != 403:
-        return [f"D1: unsigned read of {bucket}/{key} answered {status}, expected 403"]
-    return []
-
-
-def check_anonymous_reads_public(
-    engine: Engine, public: tuple[str, str], bucket: str, key: str, blob: bytes
-) -> list[str]:
-    ak, sk = public
-    status, body, _ = engine.request(
-        "PUT", f"/{bucket}/{key}", payload=blob, access_key=ak, secret_key=sk
-    )
-    if status not in (200, 204):
-        return [f"D2: consumer could not write {bucket}/{key}: {status} {body[:200]!r}"]
-
-    status, body, _ = engine.request("GET", f"/{bucket}/{key}")
-    if status != 200:
-        return [
-            (
-                f"D2: unsigned read of public {bucket}/{key} answered {status}, expected 200 — "
-                "the anonymous Read grant is missing"
-            )
-        ]
-    if body != blob:
-        return [
-            f"D2: public {bucket}/{key} read back {len(body)} bytes, wrote {len(blob)}"
-        ]
-    return []
-
-
-def check_console_ports_unpublished(engine: Engine, ports: dict[str, int]) -> list[str]:
-    host = engine.host.rsplit(":", 1)[0]
-    failures = []
-    for name, port in ports.items():
-        try:
-            with socket.create_connection((host, port), timeout=CONNECT_TIMEOUT):
-                failures.append(
-                    f"E: {name} port {port} accepts connections on {host} — the engine must not "
-                    "publish it, the console proxies it over the shared network"
-                )
-        except OSError:
-            continue
-    return failures
+        return engine, lambda: restart_service(service)
+    container = env["SEAWEEDFS_TEST_CONTAINER"]
+    engine = Engine(env["SEAWEEDFS_TEST_LOCAL_URL"], region)
+    return engine, lambda: restart_container(container)
 
 
 def main() -> int:
-    engine = Engine(
-        os.environ["SEAWEEDFS_TEST_LOCAL_URL"], os.environ["SEAWEEDFS_TEST_REGION"]
-    )
+    engine, restart = gateway(os.environ)
     admin = (
         _b64("SEAWEEDFS_TEST_ADMIN_ACCESS_KEY_B64"),
         _b64("SEAWEEDFS_TEST_ADMIN_SECRET_KEY_B64"),
@@ -328,12 +156,34 @@ def main() -> int:
             )
 
     failures += check_console_ports_unpublished(
-        engine,
+        os.environ["SEAWEEDFS_TEST_BIND_HOST"],
         {
             "filer": int(os.environ["SEAWEEDFS_TEST_FILER_PORT"]),
             "master": int(os.environ["SEAWEEDFS_TEST_MASTER_PORT"]),
         },
     )
+
+    if not primary_bucket:
+        print(
+            "SKIP: no object-store consumer on this host; the restart race has no bucket to write into"
+        )
+    else:
+        race_key = f"{probe_key}-restart-race"
+        try:
+            failures += check_restart_serves_no_anonymous_write(
+                engine,
+                admin,
+                primary_bucket,
+                race_key,
+                restart,
+            )
+        finally:
+            engine.request(
+                "DELETE",
+                f"/{primary_bucket}/{race_key}",
+                access_key=admin[0],
+                secret_key=admin[1],
+            )
 
     if failures:
         for failure in failures:
@@ -341,7 +191,8 @@ def main() -> int:
         return 1
     print(
         "[OK]   seaweedfs engine: unsigned refused, admin round-trip, bucket scoping, "
-        "anonymous polarity, console ports unpublished"
+        "anonymous polarity, console ports unpublished, no anonymous write served "
+        "across a restart"
     )
     return 0
 

@@ -1,7 +1,14 @@
 {# The Linebreak here are intentional due to tab bugs #}
 ---
 cards:
-{{ portfolio_cards | to_nice_yaml(indent=2) }}
+{{ portfolio_menu_data.cards | map('dict2items') | map('rejectattr', 'key', 'equalto', 'allowed_groups') | map('items2dict') | list | to_nice_yaml(indent=2) }}
+
+dashboard:
+{% if DASHBOARD_FOLDERS_ENABLED | bool %}
+  folders:
+{{ portfolio_menu_data.folders | to_nice_yaml(indent=2) | indent(4, true) }}
+{% endif %}
+  new_days: {{ DASHBOARD_NEW_DAYS | int }}
 
 {% include 'menu/applications.yml.j2' %}
 {% include 'menu/followus.yml.j2' %}

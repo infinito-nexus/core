@@ -3,7 +3,8 @@
 
 - name: "🧩 load docker and db for {{ application_id }}"
   include_role:
-    name: sys-stk-full
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "📁 Pre-create the shared MCP overlay network (idempotent)"
   include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/network/create.yml') }}"
@@ -18,6 +19,17 @@
       - src: "configuration.yaml.j2"
         dest: "{{ HOMEASSISTANT_CONFIG_PATH_HOST }}"
 
+- name: "📋 Stage the directory sign-in script of the hub and its LDAP client"
+  stack_host_copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "0444"
+  loop:
+    - { src: python/ldap_login.py, dest: "{{ HOMEASSISTANT_LDAP_LOGIN_PATH_HOST }}" }
+    - { src: "{{ lookup('path_absolute', 'roles/svc-db-openldap/files/python/ldap/client.py') }}", dest: "{{ HOMEASSISTANT_LDAP_CLIENT_PATH_HOST }}" }
+  notify: compose-up
+  when: HOMEASSISTANT_LDAP_ENABLED | bool
+
 - name: "🔄 Start the hub before talking to its API"
   meta: flush_handlers
 
@@ -26,6 +38,9 @@
 
 - name: "👤 Provision the owner account of the hub"
   ansible.builtin.include_tasks: utils/owner.yml
+
+- name: "👥 Align the directory accounts of the hub with the role groups"
+  ansible.builtin.include_tasks: utils/ldap.yml
 
 - name: "🔌 Provision the MCP server surface"
   ansible.builtin.include_tasks: utils/mcp.yml

@@ -1,33 +1,19 @@
 ---
-# Per-consumer SSO-proxy sidecar wiring.
-#
-# This task is invoked from `sys-stk-backend` during a consumer role's
-# deploy (`application_id` is the consumer, e.g. `web-app-postmarks`)
-# whenever the consumer's `services.sso.flavor` resolves to `oauth2`.
-# It renders the oauth2-proxy upstream-config file into the consumer's
-# volume directory; the compose stack picks up the sidecar container
-# via `roles/web-app-keycloak/templates/sso_proxy/container.yml.j2`,
-# included by `sys-svc-compose/templates/base.yml.j2`.
-#
-# `sso_proxy_application_id` is set by the caller to the consumer's
-# `application_id`. The config lookups inside the template resolve
-# against the consumer's `services.sso.*` block, NOT against
-# `web-app-keycloak`'s own config — that is why the static scan cannot
-# see the cross-role config path.
+# Param: sso_proxy_application_id - consumer role whose services.sso block the sidecar templates read.
 
 - name: "✅ SSO-proxy | sanity-check consumer is in the resolved list"
   ansible.builtin.assert:
     that:
       - sso_proxy_application_id in (lookup('sso_proxy_consumers') | flatten)
     fail_msg: >-
-      sys-stk-backend asked web-app-keycloak/tasks/sso_proxy.yml to render
+      svc-stack asked web-app-keycloak/tasks/sso_proxy.yml to render
       the SSO-proxy sidecar for '{{ sso_proxy_application_id }}', but that
       app does not appear in lookup('sso_proxy_consumers'). Either the
       consumer's services.sso.flavor is not 'oauth2', or sso.enabled is
       falsy. Fix the consumer's meta/services.yml.
-  when: MODE_DEBUG | bool
+  when: lookup('debug', 'web-app-keycloak') | bool
 
-- name: "📄 SSO-proxy | render upstream-config for '{{ sso_proxy_application_id }}'"
+- name: "📄 SSO-proxy | render core config for '{{ sso_proxy_application_id }}'"
   stack_host_template:
     src: "{{ lookup('path_absolute', 'roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak.cfg.j2') }}"
     dest: >-
@@ -39,5 +25,33 @@
   loop_control:
     loop_var: sso_proxy_instance
     label: "{{ sso_proxy_instance.service }}"
+  notify:
+    - compose-up
+
+- name: "📄 SSO-proxy | render the 403 page for '{{ sso_proxy_application_id }}'"
+  stack_host_template:
+    src: "{{ lookup('path_absolute', 'roles/web-svc-access-request/templates/sso_proxy/error.html.j2') }}"
+    dest: >-
+      {{ (sso_proxy_application_id | get_docker_paths(DIR_COMPOSITIONS)).directories.volumes
+         }}{{ lookup('config', 'web-app-keycloak', 'services.sso_proxy.error_template_file') }}
+  vars:
+    access_request_role: ""
+  when:
+    - lookup('sso', sso_proxy_application_id, 'oauth2_allowed_groups') | length > 0
+    - "'web-svc-access-request' in group_names"
+  notify:
+    - compose-up
+
+- name: "📄 SSO-proxy | render alpha config for '{{ sso_proxy_application_id }}'"
+  stack_host_template:
+    src: "{{ lookup('path_absolute', 'roles/web-app-keycloak/templates/sso_proxy/oauth2-proxy-keycloak-alpha.yml.j2') }}"
+    dest: >-
+      {{ (sso_proxy_application_id | get_docker_paths(DIR_COMPOSITIONS)).directories.volumes
+         }}{{ sso_proxy_instance.alpha_config_file }}
+  loop: "{{ lookup('sso', sso_proxy_application_id, 'proxy_instances') }}"
+  loop_control:
+    loop_var: sso_proxy_instance
+    label: "{{ sso_proxy_instance.service }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   notify:
     - compose-up

@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-required — object storage not implemented for this role
 sso:
   bond: 1
@@ -24,6 +25,12 @@ matomo:
   bond: 1
   enabled: "{{ 'web-app-matomo' in group_names }}"
   shared: "{{ 'web-app-matomo' in group_names }}"
+# nocheck: playwright-service-flag
+# nocheck: variants-coverage
+email:
+  bond: 1
+  enabled: "{{ 'web-app-email' in group_names }}"
+  shared: "{{ 'web-app-email' in group_names }}"
 # nocheck: playwright-service-flag, dynamic-flag infrastructure backup consumer
 container_backup: # nocheck: bond-baseline backup host joins outside the variant topology
   bond: 1
@@ -34,7 +41,8 @@ stalwart:
   bond: 1
   enabled: true
   shared: true
-  provides: email
+  covers:
+    - email
   modes:
     compose:
       enabled: true
@@ -62,6 +70,11 @@ stalwart:
   forwards: []
   alias_domains: []
   ban_period_seconds: 3600
+  bans:
+    period_ms: "{{ (lookup('config', 'web-app-stalwart', 'services.stalwart.ban_period_seconds') | int) * 1000 }}"
+  client_ip:
+    source: forwarded
+    forwarded_hops: 1
   # nocheck: min-storage-headroom  Reason: the mail store (maildir blobs, FTS index, queue) lives in this service's volumes and dwarfs the image transfer size
   min_storage: 20GB
   domain: "{{ lookup('email').domain }}"
@@ -84,12 +97,22 @@ stalwart:
       http: 8080
       smtp: 25
       smtps: 465
+      submission: 587
       pop3s: 995
       imaps: 993
       sieve: 4190
   run_after:
     - web-app-matomo
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-stalwart', 'sso') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-stalwart', 'native') }}"
+      2fa:
+        enabled: "{{ lookup('login_method', 'web-app-stalwart', '2fa') }}"
+        enforced: true
   cpus: "1.0"
   mem_reservation: 512m
   mem_limit: 2g
@@ -180,3 +203,24 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  flush: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

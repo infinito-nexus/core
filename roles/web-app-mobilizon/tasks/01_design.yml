@@ -25,7 +25,7 @@
   changed_when: false
   delegate_to: "{{ MOBILIZON_HOST_NODE }}"
 
-- name: "👤 MOBILIZON | Ensure the platform administrator with a profile"
+- name: "👤 MOBILIZON | Ensure the local accounts with a profile"
   ansible.builtin.command:
     argv:
       - container
@@ -34,13 +34,15 @@
       - "{{ MOBILIZON_LOCAL_CID }}" # nocheck: container-exec-resolver  MOBILIZON_LOCAL_CID resolved at delegate_to runtime
       - /bin/mobilizon
       - rpc
-      - "{{ lookup('file', 'elixir/administrator.exs') }}"
+      - "{{ lookup('file', 'elixir/account.exs') }}"
     expand_argument_vars: false
-    stdin: "{{ {'email': lookup('users', 'platform_administrator').email, 'password': lookup('users', 'platform_administrator').password, 'username': lookup('users',
-      'platform_administrator').username} | to_json }}"
-  register: mobilizon_administrator
-  changed_when: "'MOBILIZON_ADMINISTRATOR=changed' in mobilizon_administrator.stdout"
-  failed_when: mobilizon_administrator.rc != 0 or 'MOBILIZON_ADMINISTRATOR=' not in mobilizon_administrator.stdout
+    stdin: "{{ {'email': item.user.email, 'password': item.user.password, 'username': item.user.username, 'role': item.role} | to_json }}"
+  loop: "{{ MOBILIZON_ACCOUNTS }}"
+  loop_control:
+    label: "{{ item.user.username }}"
+  register: mobilizon_account
+  changed_when: "'MOBILIZON_ACCOUNT=changed' in mobilizon_account.stdout"
+  failed_when: mobilizon_account.rc != 0 or 'MOBILIZON_ACCOUNT=' not in mobilizon_account.stdout
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   delegate_to: "{{ MOBILIZON_HOST_NODE }}"
 

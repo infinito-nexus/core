@@ -108,14 +108,14 @@ class TestConfigVolumeSecrets(unittest.TestCase):
             + "\n".join(f"  - {v}" for v in leaking),
         )
 
-    def test_the_scan_finds_rendered_config_volumes(self) -> None:
+    def test_the_scan_finds_rendered_config_volumes(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the config volume scan  # fmt: skip
         self.assertTrue(
             _non_secret_config_volumes(),
             "no config volume resolves to a template, so this rule would pass "
             "vacuously; check that the source expression is still parsed",
         )
 
-    def test_the_credential_vocabulary_still_matches_the_repository(self) -> None:
+    def test_the_credential_vocabulary_still_matches_the_repository(self) -> None:  # nocheck: test.text-presence -- vacuity guard: the lint vocabulary still matches  # fmt: skip
         for pattern in _CREDENTIALS:
             hits = [
                 path

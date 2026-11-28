@@ -63,6 +63,7 @@ class ConfigFixture:
             "opt_out_tag": "nocrosspost",
             "retry": {"max_attempts": 8, "base_seconds": 30, "cap_seconds": 3600},
             "notify": {"recipients": ["press@example.org"]},
+            "tor_suffix": ".onion",
             "routes": [route()],
         }
 

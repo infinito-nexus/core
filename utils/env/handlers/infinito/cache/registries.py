@@ -59,12 +59,11 @@ def _image_values() -> set[str]:
     return values
 
 
-def declared_registries() -> list[str]:
-    """Return every registry the cache must bump, sorted.
+def image_registries() -> list[str]:
+    """Return every registry other than Docker Hub that a role image names.
 
-    Docker Hub is excluded: the proxy's entrypoint always bumps
-    ``registry-1.docker.io`` and ``auth.docker.io``, and naming a Hub alias
-    here would only duplicate that.
+    Returns:
+        The registry hosts, sorted; Docker Hub aliases are left out.
     """
     found: set[str] = set()
     for value in _image_values():
@@ -74,7 +73,17 @@ def declared_registries() -> list[str]:
         registry = parts[0]
         if registry and registry not in DOCKER_HUB_REGISTRIES:
             found.add(registry)
-    return sorted(found | BASE)
+    return sorted(found)
+
+
+def declared_registries() -> list[str]:
+    """Return every registry the cache must bump, sorted.
+
+    Docker Hub is excluded: the proxy's entrypoint always bumps
+    ``registry-1.docker.io`` and ``auth.docker.io``, and naming a Hub alias
+    here would only duplicate that.
+    """
+    return sorted(set(image_registries()) | BASE)
 
 
 def apply(eb: EnvBuilder, ctx: BuildContext) -> None:

@@ -12,7 +12,10 @@
 #                                        tests/, OR
 #                                      * the diff contains only such
 #                                        skipped paths and no role seeds
-#                                        could be derived, OR
+#                                        could be derived (a path under
+#                                        tests/ seeds the role of its first
+#                                        roles/<role>/ segment when
+#                                        roles/<role> exists), OR
 #                                      * any seed role is non-modellable
 #                                        in the reverse resolver
 #                                        (resolver exit 2), OR
@@ -70,9 +73,17 @@ declare -A seed_roles=()
 
 for path in "${changed_paths[@]}"; do
 	[[ -z "${path}" ]] && continue
+	if [[ "${path}" == tests/* ]]; then
+		rest="${path#*/roles/}"
+		role="${rest%%/*}"
+		if [[ "${rest}" != "${path}" && "${rest}" == */* && -n "${role}" && -d "roles/${role}" ]]; then
+			seed_roles["${role}"]=1
+		fi
+		continue
+	fi
 	if [[ "${path}" != roles/*/* ]]; then
 		case "${path}" in
-		*.md | *.rst | tests/*)
+		*.md | *.rst)
 			continue
 			;;
 		esac

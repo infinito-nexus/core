@@ -1,0 +1,40 @@
+---
+- name: "🪪 snipe-it: hand an existing LDAP log and file cache to {{ SNIPE_IT_WEB_USER }}"
+  ansible.builtin.shell:
+    cmd: >-
+      container exec {{ SNIPE_IT_CONTAINER_ADDRESS }} sh -c
+      'changed=;
+      if [ -e "$2" ] && [ "$(stat -c %U "$2")" != "$1" ]; then chown "$1" "$2" || exit 1; changed=1; fi;
+      if [ -d "$3" ]; then foreign=$(find "$3" ! -user "$1" -print -quit) || exit 1;
+      if [ -n "$foreign" ]; then find "$3" ! -user "$1" -exec chown "$1" {} + || exit 1; changed=1; fi; fi;
+      [ -z "$changed" ] || echo changed'
+      _ {{ SNIPE_IT_WEB_USER | quote }} {{ SNIPE_IT_LDAP_LOG_PATH | quote }} {{ SNIPE_IT_FILE_CACHE_PATH | quote }}
+  register: snipe_it_ldap_log_owner
+  changed_when: snipe_it_ldap_log_owner.stdout | trim == 'changed'
+  when: IS_STACK_HOST | bool
+
+- name: "🛂 snipe-it: converge every account to the role groups"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: true
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: false
+    rbac_sync_roles: [administrator, user]
+    rbac_sync_service_key: "{{ SNIPE_IT_SERVICE }}"
+    rbac_sync_service_name: ""
+    rbac_sync_container: "{{ SNIPE_IT_CONTAINER }}"
+    rbac_sync_kind: container
+    rbac_sync_user: "{{ SNIPE_IT_WEB_USER }}"
+    rbac_sync_argv: [php]
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/php/apply/rbac_sync.php') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      SNIPE_IT_RBAC_LDAP_SYNC: "{{ SNIPE_IT_LDAP_ENABLED | bool | to_json }}"
+      SNIPE_IT_RBAC_PROTECTED: "{{ SNIPE_IT_RBAC_PROTECTED_USERNAMES | to_json }}"
+      SNIPE_IT_RBAC_USER_GROUP: "{{ SNIPE_IT_RBAC_USER_GROUP }}"
+      SNIPE_IT_RBAC_USER_PERMISSIONS: "{{ SNIPE_IT_RBAC_USER_PERMISSIONS | to_json }}"
+    rbac_sync_attributes: []
+    rbac_sync_members_env:
+      - { name: SNIPE_IT_RBAC_ADMINISTRATORS, role: administrator, field: "" }
+      - { name: SNIPE_IT_RBAC_USERS, role: user, field: "" }

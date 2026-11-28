@@ -1,29 +1,3 @@
-"""Lint: a task that talks to docker must come after the stack that installs it.
-
-The image ships only ``docker-ce-cli``; the daemon is installed and started by
-``sys-svc-container``, which a role pulls in through one of the ``sys-stk-*``
-stacks. A docker call placed before that include therefore runs against a
-socket that does not exist yet.
-
-It fails late and unrecognisably. The play spends minutes in the constructor
-and the base roles, the container reports healthy the whole time because its
-probe cannot ask about a daemon that is not due yet, and the first role to
-touch docker reports ``FileNotFoundError(2)`` from whatever it happened to be
-doing - a network probe, in the case that produced this rule.
-
-Swarm hides it: there the nodes are provisioned with docker before the play
-reaches the role, so only the compose path fails.
-
-The comparison is per file. A role that puts the docker call in one task file
-and the stack include in another escapes, because resolving that needs the
-include graph rather than two line numbers. Every current caller keeps both in
-the same file, which is the shape this rule guards.
-
-Suppression (see ``docs/contributing/actions/testing/suppression.md``):
-
-* ``# nocheck: docker-before-stack`` on, or directly above, the include.
-"""
-
 from __future__ import annotations
 
 import re
@@ -36,7 +10,7 @@ _RULE = "docker-before-stack"
 
 DOCKER_INCLUDES = ("sys-svc-compose/tasks/utils/network/create.yml",)
 
-_STACK_RE = re.compile(r"name:\s*(sys-stk-[a-z-]+|sys-svc-container)")
+_STACK_RE = re.compile(r"name:\s*(sys-stk-[a-z-]+|svc-stack|sys-svc-container)")
 
 
 def role_task_files() -> list:
@@ -86,14 +60,16 @@ class TestDockerCallsFollowTheStack(unittest.TestCase):
         self.assertEqual(
             [],
             findings,
-            f"docker call(s) that run before docker exists ({len(findings)}):\n"
+            f"docker call(s) that run before docker exists ({len(findings)}); "
+            "move each after the stack include that installs docker, or mark it "
+            f"with '# nocheck: {_RULE} <reason>' on or directly above the call:\n"
             + "\n".join(f"  - {f}" for f in findings),
         )
 
     def test_the_scan_reaches_role_task_files(self) -> None:
         self.assertTrue(role_task_files(), "no role task file was scanned")
 
-    def test_a_file_pairing_both_is_actually_reached(self) -> None:
+    def test_a_file_pairing_both_is_actually_reached(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the task file scan  # fmt: skip
         """Without one, the rule would pass over files it never compares."""
         paired = [
             path

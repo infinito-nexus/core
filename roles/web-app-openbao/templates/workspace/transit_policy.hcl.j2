@@ -1,0 +1,8 @@
+{% set openbao_provision = 'ws-' ~ WORKSPACE ~ '-provision' %}
+path "{{ OPENBAO_TRANSIT_MOUNT }}/datakey/plaintext/{{ openbao_provision }}" {
+  capabilities = ["update"]
+}
+
+path "{{ OPENBAO_TRANSIT_MOUNT }}/decrypt/{{ openbao_provision }}" {
+  capabilities = ["update"]
+}

@@ -73,7 +73,7 @@ class TestMakefilePhonyDeclarations(unittest.TestCase):
         self.assertTrue(self.path.is_file(), "Makefile not found at project root")
         self.targets, self.phonys, self.lines = _parse_makefile(self.path)
 
-    def test_every_target_has_phony_above_comment(self) -> None:
+    def test_every_target_has_phony_above_comment(self) -> None:  # nocheck: test.text-presence -- policy lint over every parsed Makefile target  # fmt: skip
         violations: list[str] = [
             f"  Makefile:{target.line_no}: '{target.name}' has no `.PHONY: {target.name}` "
             "line directly above its comment block"
@@ -86,7 +86,7 @@ class TestMakefilePhonyDeclarations(unittest.TestCase):
                 "above the comment:\n" + "\n".join(violations)
             )
 
-    def test_no_orphan_phony(self) -> None:
+    def test_no_orphan_phony(self) -> None:  # nocheck: test.text-presence -- policy lint over every parsed .PHONY entry  # fmt: skip
         target_names = {t.name for t in self.targets}
         orphans = [p for p in self.phonys if p.name not in target_names]
         if orphans:

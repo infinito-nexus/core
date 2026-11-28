@@ -1,0 +1,14 @@
+[% if volumes %]
+---
+[% for volume in volumes %]
+[% if not loop.first %]
+
+[% endif %]
+[[ volume.key ]]:
+  type: volume
+  name: [[ entity | replace("-", "_") ]]_[[ volume.key ]]
+  mounts:
+    - service: [[ entity ]]
+      target: [[ volume.path | yaml ]]
+[% endfor %]
+[% endif %]

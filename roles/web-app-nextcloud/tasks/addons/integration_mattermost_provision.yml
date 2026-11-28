@@ -51,31 +51,39 @@
     nextcloud_mm_token_id: "{{ (nextcloud_mm_pat.stdout | from_json | first).id }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "🔍 Resolve the Mattermost network namespace for host-side API calls"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns.yml') }}"
+  vars:
+    netns_output_prefix: NEXTCLOUD_MM
+
 - name: "⏳ Wait until the Mattermost HTTP API serves (mmctl local mode skips it)"
-  uri_retry:
-    url: "{{ nextcloud_mm_local_url }}/api/v4/system/ping"
-    timeout: "{{ lookup('timeout', 10) | int }}"
-    status_code: 200
-  delegate_to: "{{ NEXTCLOUD_MM_HOST_NODE }}"
-  register: nextcloud_mm_http_ready
-  retries: 30
-  delay: 5
-  until: nextcloud_mm_http_ready is succeeded
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ NEXTCLOUD_MM_NETNS_PYTHON }}"
+    netns_request_host: "{{ NEXTCLOUD_MM_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "{{ nextcloud_mm_local_url }}/api/v4/system/ping"
+    netns_request_status: [200]
+    netns_request_retries: 30
+    netns_request_delay: 5
+    netns_request_no_log: false
+    netns_request_result: nextcloud_mm_http_ready
 
 - name: 🔧 Provision Mattermost OAuth app for Nextcloud and capture creds (idempotent)
-  ansible.builtin.command:
-    argv:
-      - bash
-      - -s
-    stdin: "{{ lookup('file', 'shell/addons/mattermost/provision_oauth_app.sh') }}"
+  ansible.builtin.shell:
+    cmd: >-
+      IFS= read -r MM_TOKEN && : "${MM_TOKEN:?arrived empty on stdin}" && export MM_TOKEN &&
+      exec {{ (NEXTCLOUD_MM_NETNS_ENTER + ['bash', '-s']) | map('quote') | join(' ') }}
+    stdin: "{{ nextcloud_mm_token ~ '\n' ~ lookup('file', 'shell/addons/mattermost/provision_oauth_app.sh') }}"
   environment:
     MM_LOCAL_URL: "{{ nextcloud_mm_local_url }}"
-    MM_TOKEN: "{{ nextcloud_mm_token }}"
     MM_APP_NAME: Nextcloud
     NC_BASE_URL: "{{ NEXTCLOUD_URL }}"
     NC_REDIRECT_PATH: "{{ nextcloud_mm_redirect_path }}"
     MM_HOMEPAGE: "{{ NEXTCLOUD_URL }}"
+    NO_PROXY: "{{ NETWORK_LOOPBACK_HOSTS | join(',') }}"
   delegate_to: "{{ NEXTCLOUD_MM_HOST_NODE }}"
+  become: true
   register: nextcloud_mm_provision
   changed_when: false
   retries: 5
@@ -101,14 +109,15 @@
 - name: 🔐 Store integration_mattermost OAuth credentials Nextcloud-encrypted (lazy)
   ansible.builtin.shell:
     cmd: >-
+      IFS= read -r NC_ENC_B64 && : "${NC_ENC_B64:?arrived empty on stdin}" && export NC_ENC_B64 &&
       container exec -i -u {{ NEXTCLOUD_DOCKER_USER }}
       -e NC_APP_ID=integration_mattermost
       -e NC_ENC_MODE=sensitive
       -e NC_ENC_B64
       {{ NEXTCLOUD_LOCAL_CID | quote }} php
-    stdin: "{{ lookup('file', 'php/utils/set_encrypted_appconfig.php') }}"
-  environment:
-    NC_ENC_B64: "{{ {'client_id': nextcloud_mm_client_id, 'client_secret': nextcloud_mm_client_secret} | to_json | b64encode }}"
+    stdin: |-
+      {{ {'client_id': nextcloud_mm_client_id, 'client_secret': nextcloud_mm_client_secret} | to_json | b64encode }}
+      {{ lookup('file', 'php/utils/set_encrypted_appconfig.php') }}
   register: nextcloud_mm_enc_set
   changed_when: "'OK' in nextcloud_mm_enc_set.stdout"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"

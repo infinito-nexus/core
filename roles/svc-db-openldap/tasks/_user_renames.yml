@@ -1,0 +1,41 @@
+---
+- name: 📊 Gather every user entry with its logins and creation markers
+  community.general.ldap_search:
+    server_uri: "{{ OPENLDAP_SERVER_URI }}"
+    bind_dn: "{{ OPENLDAP_BIND_DN }}"
+    bind_pw: "{{ OPENLDAP_BIND_PW }}"
+    dn: "{{ LDAP.DN.OU.USERS }}"
+    scope: subordinate
+    filter: "{{ LDAP.FILTERS.USERS.ALL }}"
+    attrs:
+      - dn
+      - "{{ LDAP.USER.ATTRIBUTES.ID }}"
+      - objectClass
+      - homeDirectory
+  register: openldap_users_named
+
+- name: 📊 Gather every group with its member values
+  community.general.ldap_search:
+    server_uri: "{{ OPENLDAP_SERVER_URI }}"
+    bind_dn: "{{ OPENLDAP_BIND_DN }}"
+    bind_pw: "{{ OPENLDAP_BIND_PW }}"
+    dn: "{{ LDAP.DN.ROOT }}"
+    scope: subordinate
+    filter: "{{ OPENLDAP_MEMBER_FILTER }}"
+    attrs: "{{ OPENLDAP_MEMBER_ATTRIBUTES }}"
+  register: openldap_member_groups
+
+- name: 🚚 Move user entries still named by their inventory key and repoint group values
+  ldap_user_rdn:
+    server_uri: "{{ OPENLDAP_SERVER_URI }}"
+    bind_dn: "{{ OPENLDAP_BIND_DN }}"
+    bind_pw: "{{ OPENLDAP_BIND_PW }}"
+    renames: >-
+      {{ OPENLDAP_USERS | openldap_user_renames(openldap_users_named.results,
+                                                openldap_member_groups.results,
+                                                LDAP.USER.ATTRIBUTES.ID,
+                                                LDAP.DN.OU.USERS,
+                                                LDAP.USER.OBJECTS.STRUCTURAL,
+                                                OPENLDAP_DN_MEMBER_ATTRIBUTES,
+                                                OPENLDAP_LOGIN_MEMBER_ATTRIBUTES) }}
+  throttle: 1

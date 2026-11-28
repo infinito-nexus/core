@@ -24,6 +24,8 @@ import unittest
 from collections.abc import Mapping
 from pathlib import Path
 
+from tests.lint.ansible.roles.test_stack_bridge import BRIDGE
+from tests.lint.ansible.roles.test_stack_service_declared import STACK_ENTRY_RE
 from utils.annotations.suppress import is_suppressed_in_head
 from utils.cache.files import iter_project_files_with_content, read_text
 from utils.cache.yaml import load_yaml_any
@@ -35,6 +37,8 @@ _RULE = "litellm-consumer-contract"
 _SERVICE = "litellm"
 _CREDENTIAL = "litellm_api_key"
 _CONTRACT = "roles/svc-ai-litellm/tasks/utils/consumer_contract.yml"
+_BACK_UNIT = "roles/svc-stack/tasks/batch/back.yml"
+_FRONT_ONLY = "/front"
 
 
 def _consumer_roles() -> list[Path]:
@@ -63,8 +67,20 @@ def _declares_credential(role: Path) -> bool:
     return isinstance(credentials, Mapping) and _CREDENTIAL in credentials
 
 
+def _reaches_the_back_unit(role: Path) -> bool:
+    return (role / BRIDGE).is_file() or any(
+        match.group(1) != _FRONT_ONLY
+        for path in role.glob("tasks/**/*.yml")
+        for match in STACK_ENTRY_RE.finditer(read_text(str(path)))
+    )
+
+
 def _includes_contract(role: Path) -> bool:
     tasks_dir = str(role / "tasks") + os.sep
+    if _reaches_the_back_unit(role) and _CONTRACT in read_text(
+        str(Path(PROJECT_ROOT, _BACK_UNIT))
+    ):
+        return True
     return any(
         path.startswith(tasks_dir) and _CONTRACT in content
         for path, content in iter_project_files_with_content(extensions=(".yml",))
@@ -89,8 +105,8 @@ class TestLitellmConsumerContract(unittest.TestCase):
 
     def test_every_consumer_includes_the_gateway_contract(self) -> None:
         missing = [
-            f"{role.name}: declares services.{_SERVICE} but no task includes "
-            f"{_CONTRACT}, so neither the empty-key guard nor the "
+            f"{role.name}: declares services.{_SERVICE} but neither reaches "
+            f"{_BACK_UNIT} nor includes {_CONTRACT}, so neither the empty-key guard nor the "
             f"stays-in-the-deployment guard runs for this role"
             for role in _consumer_roles()
             if not _includes_contract(role)

@@ -8,15 +8,32 @@ from plugins.filter.seaweedfs import (
     MIN_FREE_SPACE_VOLUMES,
     VOLUME_GROW_BATCH,
     VOLUME_SIZE_LIMIT_MB,
+    WORKSPACE_MAX_KEY,
     min_free_space,
     seaweedfs_anonymous_deny_policy,
     seaweedfs_bucket_names,
     seaweedfs_bucket_policy_target,
+    seaweedfs_bucket_state_files,
     seaweedfs_command,
+    seaweedfs_location_configured,
+    seaweedfs_s3_identities,
     seaweedfs_sidecar_script,
     seaweedfs_stored_bucket_policy,
+    seaweedfs_versioning_enabled,
+    seaweedfs_workspace,
+    seaweedfs_workspace_credentials,
+    seaweedfs_workspace_identity,
+    seaweedfs_workspace_slot,
     volume_slots,
 )
+
+WORKSPACE_A = "0b5e8c1e-6f43-4c3a-9d6b-2a1f0e9c7d11"
+WORKSPACE_B = "7c2d9e40-1a5b-4e8f-b3c6-90d4a2f1e5aa"
+ADMIN = {
+    "name": "admin",
+    "credentials": [{"accessKey": "admin-ak", "secretKey": "admin-sk"}],
+    "actions": ["Admin", "Read", "Write", "List", "Tagging"],
+}
 
 FOREIGN_STATEMENT = {
     "Sid": "OperatorReadOnly",
@@ -74,7 +91,7 @@ BASE = [
     "-ip=localhost",
     "-ip.bind=0.0.0.0",
     f"-master.volumeSizeLimitMB={VOLUME_SIZE_LIMIT_MB}",
-    f"-volume.max={volume_slots(1)}",
+    f"-volume.max={volume_slots(1, 0)}",
     f"-volume.minFreeSpace={min_free_space()}",
     "-filer",
     "-s3",
@@ -83,32 +100,45 @@ BASE = [
 
 class TestSeaweedfsCommandFilter(unittest.TestCase):
     def test_sidecar_omits_s3_config(self):
-        self.assertEqual(seaweedfs_command("", collections=1), BASE)
+        self.assertEqual(seaweedfs_command("", collections=1, workspaces=0), BASE)
 
     def test_standalone_appends_s3_config(self):
         self.assertEqual(
-            seaweedfs_command("/etc/seaweedfs/s3.json", collections=1),
-            [*BASE, "-s3.config=/etc/seaweedfs/s3.json"],
+            seaweedfs_command("/etc/seaweedfs/s3/s3.json", collections=1, workspaces=0),
+            [*BASE, "-s3.config=/etc/seaweedfs/s3/s3.json"],
         )
 
     def test_ip_localhost_present(self):
-        self.assertIn("-ip=localhost", seaweedfs_command(collections=1))
+        self.assertIn("-ip=localhost", seaweedfs_command(collections=1, workspaces=0))
 
     def test_volume_slots_are_stated_so_the_entrypoint_does_not_autosize(self):
-        command = seaweedfs_command(collections=1)
-        self.assertIn(f"-volume.max={volume_slots(1)}", command)
+        command = seaweedfs_command(collections=1, workspaces=0)
+        self.assertIn(f"-volume.max={volume_slots(1, 0)}", command)
         self.assertNotIn("-volume.max=0", command)
 
     def test_a_missing_collection_count_is_refused(self):
         with self.assertRaises(ValueError):
-            seaweedfs_command("/etc/seaweedfs/s3.json")
+            seaweedfs_command("/etc/seaweedfs/s3/s3.json", workspaces=0)
+
+    def test_a_missing_workspace_maximum_is_refused(self):
+        with self.assertRaisesRegex(ValueError, WORKSPACE_MAX_KEY):
+            seaweedfs_command("/etc/seaweedfs/s3/s3.json", collections=1)
 
     def test_slots_cover_every_consumer_plus_the_default_collection(self):
-        self.assertEqual(volume_slots(0), VOLUME_GROW_BATCH)
-        self.assertEqual(volume_slots(54), 55 * VOLUME_GROW_BATCH)
+        self.assertEqual(volume_slots(0, 0), VOLUME_GROW_BATCH)
+        self.assertEqual(volume_slots(54, 0), 55 * VOLUME_GROW_BATCH)
+
+    def test_volume_slots_reserve_one_per_workspace(self):
+        for workspaces in (0, 1, 2, 50):
+            with self.subTest(workspaces=workspaces):
+                self.assertEqual(
+                    volume_slots(3, workspaces) - volume_slots(3, 0), workspaces
+                )
+        command = seaweedfs_command(collections=3, workspaces=50)
+        self.assertIn(f"-volume.max={4 * VOLUME_GROW_BATCH + 50}", command)
 
     def test_slots_accept_the_string_a_jinja_lookup_yields(self):
-        self.assertEqual(volume_slots("54"), volume_slots(54))
+        self.assertEqual(volume_slots("54", "50"), volume_slots(54, 50))
 
     def test_the_free_space_floor_clears_a_whole_allocation_unit(self):
         floor_mb = int(min_free_space().removesuffix("MiB"))
@@ -116,7 +146,7 @@ class TestSeaweedfsCommandFilter(unittest.TestCase):
         self.assertEqual(floor_mb, VOLUME_SIZE_LIMIT_MB * MIN_FREE_SPACE_VOLUMES)
 
     def test_the_volume_size_limit_is_stated_not_inherited(self):
-        command = seaweedfs_command(collections=1)
+        command = seaweedfs_command(collections=1, workspaces=0)
         self.assertIn(f"-master.volumeSizeLimitMB={VOLUME_SIZE_LIMIT_MB}", command)
         self.assertIn(f"-volume.minFreeSpace={min_free_space()}", command)
 
@@ -284,6 +314,235 @@ class TestSeaweedfsBucketPolicyTargetFilter(unittest.TestCase):
     def test_public_must_be_a_bool(self):
         with self.assertRaises(AnsibleFilterError):
             seaweedfs_bucket_policy_target({}, "mastodon", "False")
+
+
+def _record(workspace, access_key="AK", **overrides):
+    return {
+        "workspace": workspace,
+        "access_key": access_key,
+        "secret_key": "SK",
+        **overrides,
+    }
+
+
+class TestSeaweedfsWorkspaceNames(unittest.TestCase):
+    def test_names_follow_the_workspace_id(self):
+        self.assertEqual(
+            seaweedfs_workspace(WORKSPACE_A),
+            {
+                "bucket": f"ws-{WORKSPACE_A}-state",
+                "identity": f"ws-{WORKSPACE_A}-provision",
+                "file": f"ws-{WORKSPACE_A}.json",
+            },
+        )
+
+    def test_an_id_that_is_no_lowercase_uuid_is_refused(self):
+        for bad in (
+            WORKSPACE_A.upper(),
+            "ws-1",
+            "",
+            f"{WORKSPACE_A}/../x",
+            f"{WORKSPACE_A} ",
+        ):
+            with self.subTest(workspace=bad), self.assertRaises(AnsibleFilterError):
+                seaweedfs_workspace(bad)
+
+
+class TestSeaweedfsWorkspaceCredentials(unittest.TestCase):
+    def test_new_keys_differ_on_every_call(self):
+        first = seaweedfs_workspace_credentials(WORKSPACE_A)
+        second = seaweedfs_workspace_credentials(WORKSPACE_A)
+        self.assertEqual(set(first), {"workspace", "access_key", "secret_key"})
+        self.assertNotEqual(first["access_key"], second["access_key"])
+        self.assertNotEqual(first["secret_key"], second["secret_key"])
+
+    def test_keys_carry_no_character_the_signed_curl_splits_on(self):
+        record = seaweedfs_workspace_credentials(WORKSPACE_A)
+        for field in ("access_key", "secret_key"):
+            with self.subTest(field=field):
+                self.assertRegex(record[field], r"^[A-Za-z0-9_-]{20,}$")
+
+
+class TestSeaweedfsWorkspaceIdentity(unittest.TestCase):
+    def test_an_identity_holds_read_write_and_list_on_its_bucket_only(self):
+        identity = seaweedfs_workspace_identity(_record(WORKSPACE_A))
+        bucket = f"ws-{WORKSPACE_A}-state"
+        self.assertEqual(identity["name"], f"ws-{WORKSPACE_A}-provision")
+        self.assertEqual(
+            identity["actions"], [f"Read:{bucket}", f"Write:{bucket}", f"List:{bucket}"]
+        )
+        self.assertEqual(
+            identity["credentials"], [{"accessKey": "AK", "secretKey": "SK"}]
+        )
+
+    def test_a_record_with_another_field_is_refused(self):
+        with self.assertRaises(AnsibleFilterError):
+            seaweedfs_workspace_identity({**_record(WORKSPACE_A), "actions": ["Admin"]})
+
+    def test_a_record_with_an_empty_key_is_refused(self):
+        with self.assertRaises(AnsibleFilterError):
+            seaweedfs_workspace_identity(_record(WORKSPACE_A, secret_key=""))
+
+
+class TestSeaweedfsS3Identities(unittest.TestCase):
+    def test_workspaces_follow_the_inventory_identities(self):
+        document = seaweedfs_s3_identities(
+            [ADMIN], [_record(WORKSPACE_B, "B"), _record(WORKSPACE_A, "A")]
+        )
+        self.assertEqual(
+            [identity["name"] for identity in document["identities"]],
+            ["admin", f"ws-{WORKSPACE_A}-provision", f"ws-{WORKSPACE_B}-provision"],
+        )
+
+    def test_the_admin_alone_is_a_valid_document(self):
+        self.assertEqual(seaweedfs_s3_identities([ADMIN], []), {"identities": [ADMIN]})
+
+    def test_an_assembly_without_the_admin_is_refused(self):
+        consumer = {**ADMIN, "name": "web-app-nextcloud", "actions": ["Read:nc"]}
+        for identities in ([], [consumer], [{**ADMIN, "actions": ["Read"]}]):
+            with (
+                self.subTest(identities=identities),
+                self.assertRaises(AnsibleFilterError),
+            ):
+                seaweedfs_s3_identities(identities, [_record(WORKSPACE_A)])
+
+    def test_an_admin_without_a_key_is_refused(self):
+        with self.assertRaises(AnsibleFilterError):
+            seaweedfs_s3_identities([{**ADMIN, "credentials": []}], [])
+
+    def test_a_repeated_identity_name_is_refused(self):
+        with self.assertRaises(AnsibleFilterError):
+            seaweedfs_s3_identities(
+                [ADMIN], [_record(WORKSPACE_A, "A"), _record(WORKSPACE_A, "B")]
+            )
+
+    def test_a_shared_access_key_is_refused_without_naming_it(self):
+        with self.assertRaises(AnsibleFilterError) as caught:
+            seaweedfs_s3_identities([ADMIN], [_record(WORKSPACE_A, "admin-ak")])
+        self.assertNotIn("admin-ak", str(caught.exception))
+
+
+class TestSeaweedfsWorkspaceSlot(unittest.TestCase):
+    def test_a_free_slot_admits_a_new_workspace(self):
+        self.assertTrue(
+            seaweedfs_workspace_slot([f"ws-{WORKSPACE_B}.json"], WORKSPACE_A, 2)
+        )
+
+    def test_a_workspace_beyond_the_maximum_is_refused_naming_the_key(self):
+        with self.assertRaisesRegex(AnsibleFilterError, WORKSPACE_MAX_KEY):
+            seaweedfs_workspace_slot([f"ws-{WORKSPACE_B}.json"], WORKSPACE_A, 1)
+
+    def test_a_workspace_that_holds_a_slot_stays_when_all_are_taken(self):
+        self.assertTrue(
+            seaweedfs_workspace_slot([f"ws-{WORKSPACE_A}.json"], WORKSPACE_A, 1)
+        )
+
+    def test_a_stray_file_name_is_refused(self):
+        with self.assertRaises(AnsibleFilterError):
+            seaweedfs_workspace_slot(["ws-notes.json"], WORKSPACE_A, 5)
+
+    def test_a_boolean_maximum_is_refused(self):
+        with self.assertRaises(AnsibleFilterError):
+            seaweedfs_workspace_slot([], WORKSPACE_A, True)
+
+
+FILER_CONF = """> {
+  "version": 0,
+  "locations": [
+    {
+      "locationPrefix": "/buckets/ws-",
+      "volumeGrowthCount": 1
+    }
+  ]
+}
+> """
+
+
+class TestSeaweedfsLocationConfigured(unittest.TestCase):
+    def test_the_rule_is_found(self):
+        self.assertTrue(seaweedfs_location_configured(FILER_CONF, "/buckets/ws-", 1))
+
+    def test_another_growth_count_is_not_the_rule(self):
+        self.assertFalse(seaweedfs_location_configured(FILER_CONF, "/buckets/ws-", 7))
+
+    def test_an_empty_configuration_holds_no_rule(self):
+        self.assertFalse(seaweedfs_location_configured("> {}\n> ", "/buckets/ws-", 1))
+
+    def test_output_without_a_configuration_is_refused(self):
+        with self.assertRaises(AnsibleFilterError):
+            seaweedfs_location_configured("> error\n> ", "/buckets/ws-", 1)
+
+
+VERSIONING_ENABLED = (
+    '<?xml version="1.0" encoding="UTF-8"?>\n'
+    '<VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">'
+    "<Status>Enabled</Status></VersioningConfiguration>"
+)
+VERSIONING_NEVER = (
+    '<VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">'
+    "</VersioningConfiguration>"
+)
+
+
+class TestSeaweedfsVersioningEnabled(unittest.TestCase):
+    def test_enabled_is_read(self):
+        self.assertTrue(
+            seaweedfs_versioning_enabled(_curl_output(VERSIONING_ENABLED, 200))
+        )
+
+    def test_a_bucket_that_never_versioned_is_not_enabled(self):
+        self.assertFalse(
+            seaweedfs_versioning_enabled(_curl_output(VERSIONING_NEVER, 200))
+        )
+
+    def test_suspended_is_not_enabled(self):
+        suspended = VERSIONING_ENABLED.replace("Enabled", "Suspended")
+        self.assertFalse(seaweedfs_versioning_enabled(_curl_output(suspended, 200)))
+
+    def test_a_missing_bucket_is_refused(self):
+        with self.assertRaises(AnsibleFilterError):
+            seaweedfs_versioning_enabled(_curl_output(NO_SUCH_BUCKET_XML, 404))
+
+    def test_access_denied_is_refused(self):
+        with self.assertRaises(AnsibleFilterError):
+            seaweedfs_versioning_enabled(_curl_output("<Error/>", 403))
+
+
+def _listing(*keys, truncated=False):
+    contents = "".join(f"<Contents><Key>{key}</Key></Contents>" for key in keys)
+    return (
+        "<ListBucketResult><Name>b</Name>"
+        f"<IsTruncated>{'true' if truncated else 'false'}</IsTruncated>"
+        f"{contents}</ListBucketResult>"
+    )
+
+
+class TestSeaweedfsBucketStateFiles(unittest.TestCase):
+    def test_state_files_are_named(self):
+        output = _curl_output(_listing("SO1/1.tfstate", "SO1/1.tflock", "x"), 200)
+        self.assertEqual(seaweedfs_bucket_state_files(output), ["SO1/1.tfstate"])
+
+    def test_an_empty_bucket_holds_none(self):
+        self.assertEqual(
+            seaweedfs_bucket_state_files(_curl_output(_listing(), 200)), []
+        )
+
+    def test_a_missing_bucket_holds_none(self):
+        output = _curl_output(NO_SUCH_BUCKET_XML, 404)
+        self.assertEqual(seaweedfs_bucket_state_files(output), [])
+
+    def test_a_truncated_listing_is_refused(self):
+        output = _curl_output(_listing("a", truncated=True), 200)
+        with self.assertRaises(AnsibleFilterError):
+            seaweedfs_bucket_state_files(output)
+
+    def test_a_404_without_no_such_bucket_is_refused(self):
+        with self.assertRaises(AnsibleFilterError):
+            seaweedfs_bucket_state_files(_curl_output("", 404))
+
+    def test_access_denied_is_refused(self):
+        with self.assertRaises(AnsibleFilterError):
+            seaweedfs_bucket_state_files(_curl_output("<Error/>", 403))
 
 
 if __name__ == "__main__":

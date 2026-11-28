@@ -1,4 +1,4 @@
-const { expect } = require("@playwright/test");
+const { expect, test } = require("@playwright/test");
 const { resolveTimeout } = require("./timeouts");
 
 const {
@@ -8,6 +8,7 @@ const {
   normalizeBaseUrl,
   performKeycloakLoginForm,
 } = require("./personas");
+const { skipUnlessServiceEnabled } = require("./service-gating");
 
 const env = {
   oidcIssuerUrl: normalizeBaseUrl(process.env.OIDC_ISSUER_URL || ""),
@@ -22,11 +23,26 @@ const env = {
   mcpExpectedTools: decodeDotenvQuotedValue(process.env.MCP_EXPECTED_TOOLS),
   lamBaseUrl: normalizeBaseUrl(process.env.LAM_BASE_URL || ""),
   keycloakLdapFederation: decodeDotenvQuotedValue(process.env.KEYCLOAK_LDAP_FEDERATION),
-  ldapBindDn: decodeDotenvQuotedValue(process.env.LDAP_BIND_DN),
-  ldapBindPassword: decodeDotenvQuotedValue(process.env.LDAP_BIND_PASSWORD),
   ldapUserDnBase: decodeDotenvQuotedValue(process.env.LDAP_USER_DN_BASE),
   ldapRoleDnBase: decodeDotenvQuotedValue(process.env.LDAP_ROLE_DN_BASE),
 };
+
+const loginMethods = {
+  ldap: process.env.LOGIN_METHOD_LDAP_ENABLED === "true",
+  native: process.env.LOGIN_METHOD_NATIVE_ENABLED === "true",
+  registration: process.env.LOGIN_METHOD_REGISTRATION_ENABLED === "true",
+};
+
+const signInPageUrl = `${env.openwebuiBaseUrl}/auth${loginMethods.native || loginMethods.ldap ? "" : "?form=1"}`;
+
+function skipUnlessLdapLogin() {
+  skipUnlessServiceEnabled("ldap");
+  // nocheck: playwright-sso-ldap-gate -- gates on the ldap login method, which is off under SSO while the ldap service stays on
+  test.skip(
+    !loginMethods.ldap,
+    "LOGIN_METHOD_LDAP_ENABLED=false: LDAP accounts sign in through Keycloak's LDAP federation, not Open WebUI's LDAP form",
+  );
+}
 
 function attachDiagnostics(page) {
   const consoleErrors = [];
@@ -70,17 +86,18 @@ async function dismissAllOpenModals(page) {
   }
 }
 
+const SIGN_OUT_CONTROLS = ":is(a, button, [role='menuitem']):not([inert], [inert] *)";
+const SIGN_OUT_TEXT = /^\s*(sign\s*out|log\s*out|abmelden)\s*$/i;
+
 async function openwebuiLogout(page, _openwebuiBaseUrl) {
   await dismissAllOpenModals(page);
 
-  const signOutTextFilter = { hasText: /^\s*(sign\s*out|log\s*out|abmelden)\s*$/i };
-
-  const topLevelSignOut = page
-    .locator("a, button, [role='menuitem']")
-    .filter(signOutTextFilter)
+  const signOut = page
+    .locator(SIGN_OUT_CONTROLS)
+    .filter({ hasText: SIGN_OUT_TEXT })
     .first();
-  if (await topLevelSignOut.isVisible().catch(() => false)) {
-    await actionableClick(topLevelSignOut);
+  if (await signOut.isVisible().catch(() => false)) {
+    await actionableClick(signOut);
     return;
   }
 
@@ -99,16 +116,12 @@ async function openwebuiLogout(page, _openwebuiBaseUrl) {
   await dismissAllOpenModals(page);
   await actionableClick(menuTrigger);
 
-  const dropdownSignOut = page
-    .locator("a, button, [role='menuitem']")
-    .filter(signOutTextFilter)
-    .first();
   await expect(
-    dropdownSignOut,
+    signOut,
     "Sign Out item must be reachable inside the user-profile menu"
   ).toBeVisible({ timeout: resolveTimeout(10_000) });
   await dismissAllOpenModals(page);
-  await actionableClick(dropdownSignOut);
+  await actionableClick(signOut);
 }
 
 // Native DOM click; OpenWebUI's auth panel parks the SSO/LDAP buttons outside the viewport scroll container.
@@ -355,6 +368,8 @@ async function beforeEach({ page }) {
 
 module.exports = {
   env,
+  loginMethods,
+  signInPageUrl,
   attachDiagnostics,
   dismissAllOpenModals,
   openwebuiLogout,
@@ -363,5 +378,6 @@ module.exports = {
   signInViaNativePassword,
   signInViaLdap,
   expectSignInRequiredAfterLogout,
+  skipUnlessLdapLogin,
   beforeEach,
 };

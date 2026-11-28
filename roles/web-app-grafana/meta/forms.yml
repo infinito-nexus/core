@@ -1,0 +1,112 @@
+---
+profile:
+  path: /profile
+  fields:
+    name:
+      source: sso.NAME
+      mode: enforced
+      selector: "#edit-user-profile-name:disabled"
+    email:
+      source: sso.EMAIL
+      mode: enforced
+      selector: "#edit-user-profile-email:disabled"
+    username:
+      source: sso.USERNAME
+      mode: enforced
+      selector: "#edit-user-profile-username:disabled"
+settings:
+  path: /admin/settings
+  native: true
+  sinks: [GRAFANA_SETTINGS]
+  fields:
+    gf_users_allow_sign_up:
+      source: services.grafana.login.method.registration.enabled
+      mode: enforced
+      selector: table.filter-table
+      type: checkbox
+      map: { true: "true", false: "false" }
+      label: Allow sign-up
+    gf_users_allow_org_create:
+      source: services.grafana.settings.allow_org_create
+      mode: enforced
+      selector: table.filter-table
+      type: checkbox
+      map: { true: "true", false: "false" }
+      label: Allow organization creation
+    gf_auth_disable_login_form:
+      source: services.grafana.login.method.native.enabled
+      mode: enforced
+      selector: table.filter-table
+      type: checkbox
+      map: { true: "false", false: "true" }
+      label: Disable login form
+    gf_auth_anonymous_enabled:
+      source: services.grafana.settings.anonymous_enabled
+      mode: enforced
+      selector: table.filter-table
+      type: checkbox
+      map: { true: "true", false: "false" }
+      label: Anonymous access
+    gf_auth_basic_enabled:
+      source: services.grafana.settings.basic_auth_enabled
+      mode: enforced
+      selector: table.filter-table
+      type: checkbox
+      map: { true: "true", false: "false" }
+      label: Basic authentication
+datasources:
+  path: /connections/datasources/edit/
+  native: true
+  sinks: [GRAFANA_DATASOURCES]
+  fields:
+    loki_url:
+      source: services.grafana.provisioning.loki_url
+      when: services.loki.enabled
+      mode: enforced
+      selector: "#connection-url"
+      type: url
+      label: Loki data source URL
+    loki_tenant:
+      source: services.grafana.provisioning.loki_tenant
+      when: services.loki.enabled
+      mode: enforced
+      selector: "[id^='headers-value']"
+      type: text
+      label: Loki tenant header
+    prometheus_url:
+      source: services.grafana.provisioning.prometheus_url
+      when: services.prometheus.enabled
+      mode: enforced
+      selector: "#connection-url"
+      type: url
+      label: Prometheus data source URL
+dashboards:
+  path: /dashboards
+  native: true
+  sinks: [GRAFANA_DASHBOARDS]
+  fields:
+    folder:
+      source: services.grafana.provisioning.folder
+      mode: enforced
+      selector: "[data-testid='data-testid Folder picker select container']"
+      type: text
+      label: Dashboard and alert rule folder
+alerting:
+  path: /alerting/
+  native: true
+  sinks: [GRAFANA_ALERTING]
+  fields:
+    alertmanager_url:
+      source: services.grafana.provisioning.alertmanager_url
+      when: services.prometheus.enabled
+      mode: enforced
+      selector: "input[name='items.0.settings.url']"
+      type: url
+      label: Alertmanager contact point URL
+    log_alert_expr:
+      source: services.grafana.provisioning.log_alert_expr
+      when: services.loki.enabled
+      mode: enforced
+      selector: "[data-testid='query-editor-row']"
+      type: textarea
+      label: Critical log line alert query

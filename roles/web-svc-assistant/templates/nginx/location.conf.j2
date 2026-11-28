@@ -1,0 +1,19 @@
+location ^~ {{ lookup('config', 'web-svc-assistant', 'services.assistant.path') }}/ {
+  {% if lookup('sso', application_id, 'is_proxy_gated') %}
+    {% include 'roles/web-app-keycloak/templates/sso_proxy/following_directives.conf.j2' %}
+  {% else %}
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
+  {% endif %}
+
+  limit_except POST {
+    deny all;
+  }
+  client_max_body_size 16k;
+
+  {{ lookup('proxy_pass', 'web-svc-assistant', 'assistant', 'http', tail='request') }}
+  {% include 'roles/sys-svc-proxy/templates/headers/forwarded_base.conf.j2' %}
+  {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
+  proxy_http_version 1.1;
+
+  add_header Cache-Control "no-store" always;
+}

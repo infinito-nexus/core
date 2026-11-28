@@ -1,0 +1,108 @@
+---
+# Param: seaweedfs_ws              - the names of the workspace (filter seaweedfs_workspace)
+# Param: seaweedfs_ws_record_path  - path of the workspace's record in identities.d
+- name: "📋 List SeaweedFS buckets"
+  include_tasks: utils/bucket/list.yml
+
+- name: "🔧 Note whether the workspace bucket is still there"
+  ansible.builtin.set_fact:
+    _seaweedfs_ws_bucket_present: "{{ seaweedfs_ws.bucket in (_seaweedfs_buckets.stdout | seaweedfs_bucket_names) }}"
+
+- name: "🛑 Refuse while the workspace bucket still holds a state file"
+  when: _seaweedfs_ws_bucket_present | bool
+  block:
+    - name: "🔍 List the objects of the workspace bucket"
+      ansible.builtin.shell: >-
+        {{ SEAWEEDFS_S3_SIGNED_CURL }} -w '\n%{http_code}' {{ (SEAWEEDFS_S3_LOCAL_URL ~ '/' ~ seaweedfs_ws.bucket ~ '?list-type=2&max-keys=1000') | quote }}
+      args:
+        executable: /bin/bash
+        stdin: "{{ SEAWEEDFS_ADMIN_CREDENTIALS }}"
+      register: _seaweedfs_ws_objects
+      changed_when: false
+      retries: 3
+      delay: 5
+      until: _seaweedfs_ws_objects is succeeded
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "🛑 Fail while a state file is left"
+      ansible.builtin.assert:
+        that:
+          - (_seaweedfs_ws_objects.stdout | seaweedfs_bucket_state_files) | length == 0
+        fail_msg: >-
+          {{ seaweedfs_ws.bucket }} still holds
+          {{ _seaweedfs_ws_objects.stdout | seaweedfs_bucket_state_files | join(', ') }};
+          destroy the servers of the workspace first, which removes their state.
+        quiet: true
+
+- name: "📤 Hand the state files left in the workspace bucket to the roles after this one"
+  ansible.builtin.set_fact:
+    workspace_state_objects: >-
+      {{ (_seaweedfs_ws_objects.stdout | seaweedfs_bucket_state_files | length)
+         if (_seaweedfs_ws_bucket_present | bool) else 0 }}
+  delegate_to: "{{ seaweedfs_ws_host }}"
+  delegate_facts: true
+  loop: "{{ ansible_play_hosts_all }}"
+  loop_control:
+    loop_var: seaweedfs_ws_host
+
+- name: "🔍 Look for the record of the workspace in identities.d"
+  ansible.builtin.stat:
+    path: "{{ seaweedfs_ws_record_path }}"
+  register: _seaweedfs_ws_record_stat
+
+- name: "📥 Read the record of the workspace"
+  ansible.builtin.slurp:
+    src: "{{ seaweedfs_ws_record_path }}"
+  register: _seaweedfs_ws_record_read
+  when: _seaweedfs_ws_record_stat.stat.exists
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧹 Remove the record of the workspace from identities.d"
+  ansible.builtin.file:
+    path: "{{ seaweedfs_ws_record_path }}"
+    state: absent
+
+- name: "📄 Assemble s3.json without the workspace identity"
+  include_tasks: utils/s3_config/render.yml
+
+- name: "📣 Reload the S3 identities"
+  include_tasks: utils/s3_config/reload.yml
+
+- name: "⏳ Wait until the removed keys are refused"
+  when: _seaweedfs_ws_record_stat.stat.exists
+  vars:
+    _seaweedfs_ws_removed: "{{ _seaweedfs_ws_record_read.content | b64decode | from_json }}"
+  block:
+    - name: "🔍 Ask with the removed keys until the gateway refuses them"
+      ansible.builtin.shell: >-
+        {{ SEAWEEDFS_S3_SIGNED_CURL }} -s -o /dev/null -w '%{http_code}' {{ (SEAWEEDFS_S3_LOCAL_URL ~ '/' ~ seaweedfs_ws.bucket ~ '?list-type=2&max-keys=1') | quote
+        }}
+      args:
+        executable: /bin/bash
+        stdin: "{{ _seaweedfs_ws_removed.access_key }}:{{ _seaweedfs_ws_removed.secret_key }}"
+      register: _seaweedfs_ws_refused
+      changed_when: false
+      failed_when: false
+      retries: 10
+      delay: 3
+      until: (_seaweedfs_ws_refused.stdout | trim) == '403'
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "🛑 Fail when the removed keys still reach the bucket"
+      ansible.builtin.assert:
+        that:
+          - (_seaweedfs_ws_refused.stdout | trim) == '403'
+        fail_msg: >-
+          The keys of {{ seaweedfs_ws.identity }} still answer
+          {{ _seaweedfs_ws_refused.stdout | trim }} after the reload.
+        quiet: true
+
+- name: "🗑 Delete the workspace bucket with every object version"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    echo 's3.bucket.delete -name {{ seaweedfs_ws.bucket }}' | container exec -i {{ SEAWEEDFS_CONTAINER_ADDRESS }} weed shell -master=localhost:{{ SEAWEEDFS_MASTER_PORT_INTERNAL }}
+  args:
+    executable: /bin/bash
+  changed_when: true
+  timeout: "{{ lookup('timeout', 60) | int }}"
+  when: _seaweedfs_ws_bucket_present | bool

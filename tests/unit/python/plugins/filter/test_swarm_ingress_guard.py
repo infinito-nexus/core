@@ -1,6 +1,7 @@
 import ipaddress
-import re
+import shlex
 import unittest
+from itertools import pairwise
 
 from ansible.errors import AnsibleFilterError
 
@@ -10,17 +11,24 @@ from plugins.filter.swarm_ingress_guard import (
     swarm_ingress_published,
     swarm_ingress_sections,
     swarm_node_addresses,
+    swarm_onion_guarded,
     swarm_public_ports,
 )
 from utils import PROJECT_ROOT
-from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_any
 
 READ_TASK = PROJECT_ROOT / "roles/svc-swarm-node/tasks/utils/ingress_guard/read.yml"
 
 
 class TestSwarmIngressSections(unittest.TestCase):
     def test_the_read_task_prints_exactly_the_tags_the_filter_splits(self):
-        tags = set(re.findall(r"--format '(\w+) ", read_text(str(READ_TASK))))
+        (task,) = load_yaml_any(str(READ_TASK))
+        words = shlex.split(task["ansible.builtin.shell"])
+        tags = {
+            value.split()[0]
+            for option, value in pairwise(words)
+            if option == "--format"
+        }
         self.assertEqual(tags, set(swarm_ingress_sections([])))
 
     def test_splits_the_one_read_into_service_and_node_lines(self):
@@ -152,6 +160,47 @@ class TestSwarmIngressGuarded(unittest.TestCase):
         )
 
 
+def _host(port, protocol="tcp"):
+    return (
+        f'[{{"Protocol":"{protocol}","TargetPort":{port},'
+        f'"PublishedPort":{port},"PublishMode":"host"}}]'
+    )
+
+
+class TestSwarmOnionGuarded(unittest.TestCase):
+    def test_keeps_a_port_a_live_service_still_publishes_in_host_mode(self):
+        self.assertEqual(
+            swarm_onion_guarded(
+                [
+                    {
+                        "application": "svc-db-openldap",
+                        "service": "openldap",
+                        "port": 389,
+                    }
+                ],
+                [_host(3306), _host(443), "null"],
+                [443],
+            ),
+            [389, 3306],
+        )
+
+    def test_ingress_and_udp_entries_stay_with_the_ingress_guard(self):
+        ingress = '[{"Protocol":"tcp","TargetPort":1,"PublishedPort":5432,"PublishMode":"ingress"}]'
+        self.assertEqual(swarm_onion_guarded([], [ingress, _host(53, "udp")], []), [])
+
+    def test_a_port_leaves_once_nothing_publishes_it(self):
+        self.assertEqual(swarm_onion_guarded([], [], [443]), [])
+
+    def test_refuses_a_backend_list_that_did_not_render(self):
+        for backends in ("{{ hostvars[STACK_HOST]['unset'] }}", None, [{"port": 1}, 2]):
+            with self.subTest(backends=backends), self.assertRaises(AnsibleFilterError):
+                swarm_onion_guarded(backends, [], [])
+
+    def test_refuses_a_read_that_is_not_json(self):
+        with self.assertRaises(AnsibleFilterError):
+            swarm_onion_guarded([], ["Error: no such service"], [])
+
+
 class TestSwarmNodeAddresses(unittest.TestCase):
     def test_splits_by_family_and_drops_the_unspecified_address(self):
         unspecified = str(ipaddress.IPv4Address(0))
@@ -170,7 +219,7 @@ class TestSwarmNodeAddresses(unittest.TestCase):
 
 
 class TestFilterModule(unittest.TestCase):
-    def test_registers_the_five_filters(self):
+    def test_registers_the_six_filters(self):
         self.assertEqual(
             set(FilterModule().filters()),
             {
@@ -178,6 +227,7 @@ class TestFilterModule(unittest.TestCase):
                 "swarm_ingress_published",
                 "swarm_public_ports",
                 "swarm_ingress_guarded",
+                "swarm_onion_guarded",
                 "swarm_node_addresses",
             },
         )

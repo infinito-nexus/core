@@ -1,0 +1,4 @@
+---
+canonical:
+  - assistant.{{ DOMAIN_PRIMARY }}
+aliases: []

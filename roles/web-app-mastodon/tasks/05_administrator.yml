@@ -1,16 +1,46 @@
 ---
 - name: 👑 Ensure the administrator exists, unblocked, approved and on its password
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec -i -u root
+    IFS= read -r MASTODON_ADMIN_PASSWORD && : "${MASTODON_ADMIN_PASSWORD:?arrived empty on stdin}" && export MASTODON_ADMIN_PASSWORD && container exec -i -u root
     -e MASTODON_ADMIN_USERNAME={{ lookup('users', 'platform_administrator').username | quote }}
     -e MASTODON_ADMIN_EMAIL={{ lookup('users', 'platform_administrator').email | quote }}
     -e MASTODON_ADMIN_PASSWORD
+    -e MASTODON_ADMIN_SSO_UID={{ (lookup('users', 'platform_administrator').username if MASTODON_OIDC_ENABLED | bool else '') | quote }}
     {{ MASTODON_LOCAL_CID | quote }}
     bundle exec rails runner -
   args:
-    stdin: "{{ lookup('file', 'ruby/ensure_administrator.rb') }}"
-  environment:
-    MASTODON_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+    stdin: |-
+      {{ lookup('users', 'platform_administrator').password }}
+      {{ lookup('file', 'ruby/ensure/administrator.rb') }}
   register: mastodon_administrator
   changed_when: mastodon_administrator.stdout_lines | last == 'changed'
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔗 Bind the existing Mastodon accounts to their Keycloak identity"
+  when: MASTODON_OIDC_ENABLED | bool
+  block:
+    - name: "🔑 Read the Keycloak directory users"
+      ansible.builtin.include_role:
+        name: web-app-keycloak
+        tasks_from: utils/directory_users.yml
+      vars:
+        keycloak_directory_usernames: []
+
+    - name: "🔗 Link every account whose username and verified email match its Keycloak user"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i -u root
+        -e MASTODON_SSO_DIRECTORY_USERS
+        {{ MASTODON_LOCAL_CID | quote }}
+        bundle exec rails runner -
+      args:
+        stdin: "{{ lookup('file', 'ruby/ensure/sso_identities.rb') }}"
+      environment:
+        MASTODON_SSO_DIRECTORY_USERS: "{{ keycloak_directory_users | to_json }}"
+      register: mastodon_sso_identities
+      changed_when: mastodon_sso_identities.stdout_lines | last == 'changed'
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "📋 Report the accounts left unbound"
+      ansible.builtin.debug:
+        msg: "{{ mastodon_sso_identities.stdout_lines | select('match', '^skipped ') | list }}"
+      when: mastodon_sso_identities.stdout_lines | select('match', '^skipped ') | list | length > 0

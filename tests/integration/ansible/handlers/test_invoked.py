@@ -68,13 +68,23 @@ def _load(path: str):
         return None
 
 
-def _walk(node):
-    """Every mapping in the document, whatever nests it."""
+def _walk(node, listed: bool = False):
+    """
+    Args:
+        node: a parsed YAML node.
+        listed: whether a sequence holds ``node`` directly.
+
+    Returns:
+        Every mapping in the document, whatever nests it, each with whether a
+        sequence holds it. Ansible reads tasks and handlers only as sequence
+        items, so a ``listen:`` of a mapping held by a key, such as the bind
+        address ``services.incus.api.listen``, is data and names no topic.
+    """
     if isinstance(node, list):
         for item in node:
-            yield from _walk(item)
+            yield from _walk(item, True)
     elif isinstance(node, dict):
-        yield node
+        yield node, listed
         for value in node.values():
             yield from _walk(value)
 
@@ -128,6 +138,27 @@ def patterns(value) -> list[tuple[str, re.Pattern[str]]]:
     return shapes
 
 
+def harvest(data, rel: str, notified: dict, listened: dict, shapes: dict) -> None:
+    """
+    Args:
+        data: one parsed YAML document.
+        rel: the document's path relative to the project root.
+        notified: notified topic to files, extended in place.
+        listened: listen topic to files, extended in place.
+        shapes: raw notify shape to its pattern and files, extended in place.
+    """
+    for node, listed in _walk(data):
+        for key in ("listen", *NOTIFY_KEYS):
+            if key not in node or (key == "listen" and not listed):
+                continue
+            bucket = listened if key == "listen" else notified
+            for topic in topics(node[key]):
+                bucket.setdefault(topic, []).append(rel)
+            if key != "listen":
+                for raw, shape in patterns(node[key]):
+                    shapes.setdefault(raw, (shape, []))[1].append(rel)
+
+
 def collect():
     """Every notified topic, every declared listener and every notify shape,
     each mapped to the files it appears in."""
@@ -139,17 +170,41 @@ def collect():
         data = _load(path_str)
         if data is None:
             continue
-        for node in _walk(data):
-            for key in ("listen", *NOTIFY_KEYS):
-                if key not in node:
-                    continue
-                bucket = listened if key == "listen" else notified
-                for topic in topics(node[key]):
-                    bucket.setdefault(topic, []).append(rel)
-                if key != "listen":
-                    for raw, shape in patterns(node[key]):
-                        shapes.setdefault(raw, (shape, []))[1].append(rel)
+        harvest(data, rel, notified, listened, shapes)
     return notified, listened, shapes
+
+
+def _listened(text: str) -> dict[str, list[str]]:
+    """
+    Args:
+        text: YAML source of one document.
+
+    Returns:
+        The listen topics :func:`harvest` takes from it, mapped to a fixed path.
+    """
+    listened: dict[str, list[str]] = {}
+    harvest(_yaml.load(text), "probe.yml", {}, listened, {})
+    return listened
+
+
+class TestListenScope(unittest.TestCase):
+    def test_a_handler_listen_is_a_topic(self) -> None:
+        handlers = (
+            "- name: Restart x\n  listen: restart-x\n  ansible.builtin.debug: {}\n"
+        )
+        play = (
+            "- hosts: all\n"
+            "  handlers:\n"
+            "    - name: Reload y\n"
+            "      listen: [reload-y]\n"
+            "      ansible.builtin.debug: {}\n"
+        )
+        self.assertEqual(_listened(handlers), {"restart-x": ["probe.yml"]})
+        self.assertEqual(_listened(play), {"reload-y": ["probe.yml"]})
+
+    def test_negative_control_a_config_listen_is_no_topic(self) -> None:
+        config = 'incus:\n  api:\n    enabled: false\n    listen: "[::]:8443"\n'
+        self.assertEqual(_listened(config), {})
 
 
 class TestHandlersInvoked(unittest.TestCase):

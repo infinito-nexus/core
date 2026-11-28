@@ -50,7 +50,7 @@ from utils.i18n.untranslatable import untranslatable
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 SUITE = "catalog-scan"
 CACHE_FILE = PROJECT_ROOT / "build" / "catalog-scan-cache.json"
-RULES_VERSION = 5
+RULES_VERSION = 6
 EXAMPLES_PER_TRANSLATION = 3
 MEMINFO = Path("/proc/meminfo")
 BYTES_PER_WORKER = 512 * 1024**2
@@ -140,7 +140,7 @@ def scan_one(path_and_label: tuple[str, str]) -> tuple[list[str], list[str]]:
         if reads_echoes and source == translation and not untranslatable(source):
             echoes.append(f"{label}: {message.context or '-'} -> {source[:60]!r}")
         seen = sources_of[translation]
-        if len(seen) <= EXAMPLES_PER_TRANSLATION:
+        if source not in seen and len(seen) <= EXAMPLES_PER_TRANSLATION:
             seen.append(source)
 
     collapses = [

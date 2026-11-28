@@ -51,12 +51,48 @@ test("guest: public-landing → auth chain → never authenticated", async ({ pa
   await runGuestFlow(page);
 });
 
-test("biber: app → universal logout", async ({ page }) => {
-  await runBiberFlow(page);
+async function loggedUserRole(page) {
+  await expect
+    .poll(() => page.evaluate(() => Boolean(window.localStorage.getItem("auth-access-token"))), {
+      timeout: resolveTimeout(30_000),
+      message: "Mobilizon MUST store the access token of the signed-in account",
+    })
+    .toBe(true);
+  return page.evaluate(async () => {
+    const response = await fetch("/api", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${window.localStorage.getItem("auth-access-token")}`,
+      },
+      body: JSON.stringify({ query: "{ loggedUser { role } }" }),
+    });
+    const body = await response.json();
+    return body?.data?.loggedUser?.role ?? null;
+  });
+}
+
+test("biber: app → user role → universal logout", async ({ page }) => {
+  await runBiberFlow(page, {
+    biberInteraction: async (interactivePage) => {
+      expect(
+        await loggedUserRole(interactivePage),
+        "biber holds no role group, so the deploy MUST keep the Mobilizon user role",
+      ).toBe("USER");
+    },
+  });
 });
 
-test("administrator: app → universal logout", async ({ page }) => {
-  await runAdminFlow(page);
+test("administrator: app → administrator role → universal logout", async ({ page }) => {
+  await runAdminFlow(page, {
+    adminInteraction: async (interactivePage) => {
+      expect(
+        await loggedUserRole(interactivePage),
+        "the administrator persona MUST hold the Mobilizon administrator role",
+      ).toBe("ADMINISTRATOR");
+    },
+  });
 });
 
 require("./test-design");
+require("./test-login-methods");

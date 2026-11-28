@@ -2,6 +2,12 @@ name: "🧪 Test"
 
 on:
   workflow_call:
+    inputs:
+      role_skeleton:
+        description: "True renders the role skeleton sample roles into roles/ before the suite runs."
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
 
 permissions:
@@ -9,9 +15,19 @@ permissions:
 
 jobs:
   test:
-    name: 🧪 Test
+    name: "🧪 Test ${{ matrix.suite }}"
     runs-on: ubuntu-26.04
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - suite: integration
+            targets: test-integration
+          - suite: unit
+            targets: test-unit
+          - suite: lint-external
+            targets: test-external test-lint
     env:
       INFINITO_TEST_RUNNER: host
     steps:
@@ -28,11 +44,49 @@ jobs:
           cache: pip
           cache-dependency-path: pyproject.toml
 
-      - name: ▶️ Run the full test suite via make
+      - name: 🤖 Install the pinned Codex CLI
+        continue-on-error: true
+        timeout-minutes: 5
+        shell: bash
+        run: make install-codex
+
+      - name: 🧩 Render the role skeleton sample roles
+        if: ${{ inputs.role_skeleton }}
+        shell: bash
+        run: make role-skeleton-samples
+
+      - name: ♻️ Restore the last junit reports of this suite
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/test-reports
+          key: test-reports-${{ matrix.suite }}-${{ github.head_ref || github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            test-reports-${{ matrix.suite }}-${{ github.head_ref || github.ref_name }}-
+            test-reports-${{ matrix.suite }}-main-
+
+      - name: ▶️ Run the suite's share of make test
+        timeout-minutes: 38
+        shell: bash
+        env:
+          TEST_TARGETS: ${{ matrix.targets }}
+        run: |
+          set -euo pipefail
+          touch /tmp/test-started
+          vmstat -w 15 &
+          monitor_pid=$!
+          trap 'kill "${monitor_pid}" 2>/dev/null || :' EXIT
+          make test targets="${TEST_TARGETS}" 2>&1 | tee /tmp/test-output.txt
+
+      - name: 🗑️ Drop restored junit reports this run did not rewrite
+        if: ${{ always() && hashFiles('build/test-reports/*.xml') != '' }}
         shell: bash
         run: |
           set -euo pipefail
-          make test 2>&1 | tee /tmp/test-output.txt
+          if [[ -f /tmp/test-started ]]; then
+            find build/test-reports -name '*.xml' ! -newer /tmp/test-started -delete
+          else
+            find build/test-reports -name '*.xml' -delete
+          fi
 
       - name: 📊 Per-test summary from junit reports
         if: always()
@@ -43,5 +97,37 @@ jobs:
       - name: 🔨 Build step summary from annotations
         if: always()
         working-directory: ${{ github.workspace }}
+        env:
+          SUMMARY_TITLE: "Test Annotation Summary (${{ matrix.suite }})"
         run: |
-          python3 -m utils.annotations.summarize /tmp/test-output.txt "Test Annotation Summary"
+          python3 -m utils.annotations.summarize /tmp/test-output.txt "${SUMMARY_TITLE}"
+
+      - name: 📦 Keep the test output and junit reports
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: test-output-${{ matrix.suite }}
+          path: |
+            /tmp/test-output.txt
+            build/test-reports
+          if-no-files-found: ignore
+
+      - name: 💾 Save the junit reports for the next run's scheduling
+        if: ${{ !cancelled() && hashFiles('build/test-reports/*.xml') != '' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/test-reports
+          key: test-reports-${{ matrix.suite }}-${{ github.head_ref || github.ref_name }}-${{ github.sha }}
+
+  verdict:
+    name: 🧪 Test
+    needs: test
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    steps:
+      - name: ✅ Pass only when every suite passed
+        shell: bash
+        env:
+          SUITES_RESULT: ${{ needs.test.result }}
+        run: test "${SUITES_RESULT}" = success

@@ -172,7 +172,7 @@ class TestPackagesRegistry(unittest.TestCase):
             lines.append(f"  - {entry}: missing {', '.join(missing)}")
         self.fail("\n".join(lines))
 
-    def test_empty_entries_carry_a_nocheck_reason(self) -> None:
+    def test_empty_entries_carry_a_nocheck_reason(self) -> None:  # nocheck: test.text-presence -- policy lint over every entry of every meta/packages.yml  # fmt: skip
         offenders: list[str] = []
         for _role, path in iter_package_files(PROJECT_ROOT):
             rel = path.relative_to(PROJECT_ROOT)

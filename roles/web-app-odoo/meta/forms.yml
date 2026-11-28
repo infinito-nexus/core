@@ -1,0 +1,208 @@
+---
+general:
+  path: /odoo/settings
+  sinks: [ODOO_SIGNUP_SETTINGS]
+  fields:
+    auth_signup_uninvited:
+      source: services.odoo.login.method.registration.enabled
+      mode: enforced
+      selector: 'div[name="auth_signup_uninvited"] input'
+      type: select
+      enum: [b2b, b2c]
+      map: { true: b2c, false: b2b }
+      label: Customer Account
+    auth_signup_reset_password:
+      source: services.odoo.login.method.native.enabled
+      mode: enforced
+      selector: 'div[name="auth_signup_reset_password"] input'
+      type: checkbox
+      map: { true: "True", false: "False" }
+      label: Password Reset
+base_url:
+  path: /odoo/system-parameters
+  sinks: [ODOO_BASE_URL]
+  record:
+    selector: 'div[name="key"] input'
+    source: services.odoo.base_url.parameters
+  fields:
+    web_base_url:
+      source: services.odoo.base_url.value
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="value"] textarea'
+      type: url
+      label: web.base.url
+base_url_freeze:
+  path: /odoo/system-parameters
+  sinks: [ODOO_BASE_URL]
+  record:
+    selector: 'div[name="key"] input'
+    source: services.odoo.base_url_freeze.parameters
+  fields:
+    web_base_url_freeze:
+      source: services.odoo.base_url_freeze.value
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="value"] textarea'
+      type: text
+      label: web.base.url.freeze
+oauth_provider:
+  path: /odoo/
+  sinks: [ODOO_OAUTH_PROVIDER]
+  record:
+    selector: 'div[name="name"] input'
+    source: services.odoo.oauth.providers
+  fields:
+    enabled:
+      source: services.odoo.login.method.sso.enabled
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="enabled"] input'
+      type: checkbox
+      map: { true: true, false: false }
+      label: Allowed
+    client_id:
+      source: services.odoo.oauth.client_id
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="client_id"] input'
+      type: text
+      label: Client ID
+    body:
+      source: services.odoo.oauth.body
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="body"] input'
+      type: text
+      label: Login button label
+    css_class:
+      source: services.odoo.oauth.css_class
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="css_class"] input'
+      type: text
+      label: CSS class
+    auth_endpoint:
+      source: services.odoo.oauth.auth_endpoint
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="auth_endpoint"] input'
+      type: url
+      label: Authorization URL
+    scope:
+      source: services.odoo.oauth.scope
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="scope"] input'
+      type: text
+      label: Scope
+    validation_endpoint:
+      source: services.odoo.oauth.validation_endpoint
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="validation_endpoint"] input'
+      type: url
+      label: UserInfo URL
+    data_endpoint:
+      source: services.odoo.oauth.data_endpoint
+      when: services.sso.enabled
+      mode: enforced
+      selector: 'div[name="data_endpoint"] input'
+      type: url
+      label: Data Endpoint
+ldap_directory:
+  path: /odoo/
+  sinks: [ODOO_LDAP_DIRECTORY]
+  record:
+    selector: 'div[name="ldap_server"] input'
+    source: services.odoo.directory.servers
+  fields:
+    ldap_server_port:
+      source: services.odoo.directory.port
+      when: services.odoo.directory.managed
+      mode: enforced
+      selector: 'div[name="ldap_server_port"] input'
+      type: number
+      label: LDAP Server port
+    ldap_tls:
+      source: services.odoo.directory.tls
+      when: services.odoo.directory.managed
+      mode: enforced
+      selector: 'div[name="ldap_tls"] input'
+      type: checkbox
+      map: { true: true, false: false }
+      label: Use TLS
+    ldap_base:
+      source: services.odoo.directory.base
+      when: services.odoo.directory.managed
+      mode: enforced
+      selector: 'div[name="ldap_base"] input'
+      type: text
+      label: LDAP base
+    ldap_filter:
+      source: services.odoo.directory.filter
+      when: services.odoo.directory.managed
+      mode: enforced
+      selector: 'div[name="ldap_filter"] input'
+      type: text
+      label: LDAP filter
+    create_user:
+      source: services.odoo.directory.create_user
+      when: services.odoo.directory.managed
+      mode: enforced
+      selector: 'div[name="create_user"] input'
+      type: checkbox
+      map: { true: true, false: false }
+      label: Create User
+attachment_storage:
+  path: /odoo/
+  sinks: [ODOO_OBJSTORE_SETTINGS]
+  record:
+    selector: 'div[name="code"] input'
+    source: services.odoo.objstore.codes
+  fields:
+    storage_name:
+      source: services.odoo.objstore.name
+      when: services.odoo.objstore.managed
+      mode: enforced
+      selector: '.oe_title div[name="name"] input'
+      type: text
+      label: Name
+    directory_path:
+      source: services.odoo.objstore.bucket
+      when: services.odoo.objstore.managed
+      mode: enforced
+      selector: 'div[name="directory_path"] input'
+      type: text
+      label: Directory Path
+    is_cacheable:
+      source: services.odoo.objstore.cacheable
+      when: services.odoo.objstore.managed
+      mode: enforced
+      selector: 'div[name="is_cacheable"] input'
+      type: checkbox
+      map: { true: true, false: false }
+      label: Cacheable
+    use_as_default_for_attachments:
+      source: services.odoo.objstore.default_for_attachments
+      when: services.odoo.objstore.managed
+      mode: enforced
+      selector: 'div[name="use_as_default_for_attachments"] input'
+      type: checkbox
+      map: { true: true, false: false }
+      label: Use As Default For Attachments
+    storage_base_url:
+      source: services.odoo.objstore.base_url
+      when: services.odoo.objstore.managed
+      mode: enforced
+      selector: 'div[name="base_url"] input'
+      type: text
+      label: Base URL
+    is_directory_path_in_url:
+      source: services.odoo.objstore.directory_path_in_url
+      when: services.odoo.objstore.managed
+      mode: enforced
+      selector: 'div[name="is_directory_path_in_url"] input'
+      type: checkbox
+      map: { true: true, false: false }
+      label: Directory Path In URL

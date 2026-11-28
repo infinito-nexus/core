@@ -1,13 +1,7 @@
 ---
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-    webserver_websocket_location: "/ws"
-    webserver_vhost_flavour: "ws_generic"
-    webserver_client_max_body_size: "100m"
-
 - name: "👔 EspoCRM manager-side operations (file deploys + container exec)"
   include_tasks: 02_manager_ops.yml
   when: IS_STACK_HOST | bool
+
+- name: "🛂 Reconcile the RBAC roles of {{ application_id }}"
+  include_tasks: 03_rbac.yml

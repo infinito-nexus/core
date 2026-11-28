@@ -16,6 +16,10 @@ Deploy OpenLDAP in a Docker environment with support for TLS-secured communicati
 - **Dynamic Configuration:** Leverage runtime configuration overlays to adjust directory settings without downtime.
 - **Comprehensive Query Capabilities:** Utilize LDAP search tools to efficiently query and manage directory data.
 - **High Performance and Scalability:** Designed to handle large-scale deployments with rapid lookup and authentication response times.
+- **Profile Attributes:** The auxiliary class `infinitoUser` allows the country, phonetic name and time zone attributes that `inetOrgPerson` lacks, so Keycloak can write the full profile back to the directory.
+- **Login-Named Entries:** Every user entry is `uid=<username>`, so it holds one `uid`. On an existing host the next deploy moves the entry of a user whose inventory key differs from its username (the platform administrator) to that DN and repoints its group values; XWiki keeps the profile page it created under the old name.
+- **Socket Node Label:** In swarm every host of this role labels its node `LDAP.SERVER.NODE_LABEL=true` (`ldap-socket`), because only these hosts hold the bind-mount source of the `ldapi` socket that host-side clients such as the RBAC sync timer read. A service declares `node_label: "{{ LDAP.SERVER.NODE_LABEL }}"` in its `meta/services.yml` to run next to the directory, as the `cron` service of [web-app-nextcloud](../web-app-nextcloud/README.md) does. With more than one host of this role, OpenLDAP and such a service can still land on different labelled hosts, and a label stays on a node that leaves the role.
+- **Directory Editor ACL:** Members of the `web-app-lam` and `web-app-phpldapadmin` administrator groups get write access to the data tree, `userPassword` included, so LAM and phpLDAPadmin can set and reset passwords; a changed ACL is applied to an existing directory as well.
 
 ## User Password Update Policy
 
@@ -31,6 +35,21 @@ users:
 ```
 
 With `password_update: false`, existing LDAP users keep their current password on later runs.
+
+## Public LDAPS
+
+`services.openldap.network.public: true` opens LDAPS on `ports.public.ldaps` (636) through the stream module of openresty, which terminates TLS with the certificate of the role's domain and relays plain LDAP to slapd:
+
+- In compose, openresty runs on the host network and relays to the port OpenLDAP publishes on the loopback (`ports.local.ldap`).
+- In swarm, OpenLDAP publishes no port. Its overlay declares `stream_relay` in `meta/networks.yml`, so openresty and OpenLDAP share the network `openldap-relay` on its pinned subnet and no other role joins it. Openresty publishes 636 in host mode on its node and relays to `openldap:<ports.internal.ldap>`, which the resolver of `stream{}` looks up per connection. The relay leaves the openldap overlay and the trusted proxy addresses of the LDAP clients as they are.
+
+Until the swarm path has its live proof, a swarm deploy with the switch on stops: this role right after its run-once flag, and every other role as soon as it looks up the networks of openresty or OpenLDAP, openresty itself and every proxied application included.
+
+## Email Addresses
+
+The inventory address only seeds an entry: a deploy writes it into `mail` of an entry that holds no `mail` and never changes an address the entry already holds. A changed inventory `email` therefore does not reach an existing user. Change an existing user's address in the Keycloak console, or in the directory through LAM or phpLDAPadmin.
+
+Under the `mailbox` email policy of `web-app-keycloak`, the deploy applies the mailbox layout to every entry. It attaches `infinitoMailboxUser`, keeps the current `mail` of an entry as its `infinitoSecondaryMail` when that address lies outside `DOMAIN_PRIMARY` and the entry holds no secondary address yet, and then sets `mail` to `<uid>@<DOMAIN_PRIMARY>`. An entry without a kept address gets the inventory address as secondary address, which is seeded the same way, once.
 
 ## Developer Notes
 

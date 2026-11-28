@@ -65,7 +65,7 @@ def _resolves(ref: str | None, f: Path, *, vars_include: bool) -> bool:
 
 
 class TestRelativeIncludesResolve(unittest.TestCase):
-    def test_relative_includes_resolve(self) -> None:
+    def test_relative_includes_resolve(self) -> None:  # nocheck: test.text-presence -- parses every role task file  # fmt: skip
         offenders: list[str] = []
         for path_str in iter_project_files(extensions=(".yml", ".yaml")):
             f = Path(path_str)

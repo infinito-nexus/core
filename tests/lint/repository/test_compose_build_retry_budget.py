@@ -16,7 +16,10 @@ import re
 import unittest
 from pathlib import Path
 
-from utils.cache.files import iter_project_files, read_text
+from ansible.parsing.dataloader import DataLoader
+from ansible.template import Templar, trust_as_template
+
+from utils.cache.files import iter_project_files
 from utils.cache.yaml import load_yaml_any
 from utils.env.parser import parse_static_env
 
@@ -36,6 +39,30 @@ TIMEOUT_LOOKUP = re.compile(r"lookup\('timeout',\s*(\d+)\s*\)")
 
 ROLE = PROJECT_ROOT / "roles" / "sys-svc-compose"
 GATE = "shell/swarm/stack_ready.sh"
+
+REGISTRY = "svc-registry-docker"
+OTHER_APP = "web-app-dashboard"
+SWARM_WITH_REGISTRY = {"registry": {"host": "registry.example"}}
+SKIPPED = {"skipped": True, "changed": False}
+SYNCED = {"changed": True, "rc": 0}
+
+
+def _runs(task, **variables):
+    """Args:
+        task: a parsed handler.
+        variables: the play variables beside a swarm with a local registry.
+
+    Returns:
+        Whether every condition of the handler's ``when`` holds.
+    """
+    when = task.get("when", [])
+    templar = Templar(
+        loader=DataLoader(), variables={"swarm": SWARM_WITH_REGISTRY, **variables}
+    )
+    return all(
+        templar.evaluate_conditional(trust_as_template(condition))
+        for condition in (when if isinstance(when, list) else [when])
+    )
 
 
 def _tasks(path):
@@ -111,7 +138,7 @@ class TestComposeBuildRetryBudget(unittest.TestCase):
             self.assertLess(worst, budget, f"{var} outgrows the sweep budget")
             self.assertLess(worst, cap, f"{var} outgrows the deploy step cap")
 
-    def test_every_convergence_gate_waits_the_same_budget(self) -> None:
+    def test_every_convergence_gate_waits_the_same_budget(self) -> None:  # nocheck: test.text-presence -- parses every role task file and compares the parsed retries and delay  # fmt: skip
         """Both callers poll the same script for the same stack, so a budget that
         fits one fits the other. They drifted once -- the handler was raised to
         600 while post_deploy kept a hardcoded 150 -- and the shorter one then
@@ -136,8 +163,19 @@ class TestComposeBuildRetryBudget(unittest.TestCase):
             f"convergence gate callers disagree on their budget: {budgets}",
         )
 
-    def test_the_registry_exclusion_has_a_single_source(self) -> None:
-        self.assertEqual(read_text(str(SWARM)).count("svc-registry-docker"), 1)
+    def test_the_pre_pull_follows_the_registry_sync_not_the_application_id(
+        self,
+    ) -> None:
+        sync = _by_register(SWARM, "_swarm_registry_sync")
+        pull = _by_register(SWARM, "_swarm_bypass_pull")
+        self.assertFalse(_runs(sync, application_id=REGISTRY))
+        self.assertTrue(_runs(sync, application_id=OTHER_APP))
+        self.assertTrue(
+            _runs(pull, application_id=OTHER_APP, _swarm_registry_sync=SKIPPED)
+        )
+        self.assertFalse(
+            _runs(pull, application_id=REGISTRY, _swarm_registry_sync=SYNCED)
+        )
 
 
 if __name__ == "__main__":

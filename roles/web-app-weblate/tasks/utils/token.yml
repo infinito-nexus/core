@@ -6,16 +6,31 @@
     resolve_output_prefix: WEBLATE
     resolve_compose_cid: "{{ WEBLATE_CONTAINER }}"
 
-- name: "🔗 Look up the Keycloak user the administrator signs in as"
+- name: "🔎 Resolve the Keycloak id Weblate links the administrator's SSO login by"
   when: WEBLATE_OIDC_ENABLED | bool
-  ansible.builtin.include_tasks: utils/admin_oidc_subject.yml
+  block:
+    - name: "🔎 Look up the administrator in the Keycloak directory"
+      ansible.builtin.include_role:
+        name: web-app-keycloak
+        tasks_from: utils/directory_users.yml
+      vars:
+        keycloak_directory_usernames:
+          - "{{ lookup('users', 'platform_administrator').username }}"
+
+    - name: "🛑 Refuse an SSO deploy whose administrator Keycloak does not know"
+      ansible.builtin.assert:
+        that:
+          - keycloak_directory_users | length == 1
+        fail_msg: >-
+          Keycloak holds no user '{{ WEBLATE_ADMIN_USERNAME }}', so Weblate could not
+          link the administrator's SSO login to its account.
 
 - name: "👤 Let the platform administrator own the superuser Weblate bootstrapped"
   ansible.builtin.shell: # nocheck: container-exec-resolver  only Weblate's own management shell can reach its user table
     cmd: >
       container exec -i
       -e WEBLATE_ADMIN_BOOTSTRAP_USERNAME -e WEBLATE_ADMIN_USERNAME -e WEBLATE_OIDC_ENABLED
-      -e WEBLATE_ADMIN_OIDC_SUBJECT
+      -e WEBLATE_OIDC_BACKEND -e WEBLATE_ADMIN_OIDC_UID
       {{ WEBLATE_LOCAL_CID | quote }}
       weblate shell
     stdin: "{{ lookup('file', 'python/adopt_admin.py') }}"
@@ -23,7 +38,8 @@
     WEBLATE_ADMIN_BOOTSTRAP_USERNAME: "{{ WEBLATE_ADMIN_BOOTSTRAP_USERNAME }}"
     WEBLATE_ADMIN_USERNAME: "{{ WEBLATE_ADMIN_USERNAME }}"
     WEBLATE_OIDC_ENABLED: "{{ WEBLATE_OIDC_ENABLED | bool | lower }}"
-    WEBLATE_ADMIN_OIDC_SUBJECT: "{{ (weblate_admin_oidc_subjects | first) if (WEBLATE_OIDC_ENABLED | bool) else '' }}"
+    WEBLATE_OIDC_BACKEND: "{{ WEBLATE_OIDC_BACKEND }}"
+    WEBLATE_ADMIN_OIDC_UID: "{{ (keycloak_directory_users | first).id if (WEBLATE_OIDC_ENABLED | bool) else '' }}"
   register: weblate_admin_adopt
   retries: 30
   delay: 10

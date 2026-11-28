@@ -3,6 +3,7 @@
   {% set service_name = 'pds' %}
   {{ service_name }}:
     {{ lookup('container_image', application_id, 'pds') }}
+    {{ lookup('compose_only', 'container_name', BLUESKY_PDS_CONTAINER) }}
     {% include 'roles/sys-svc-container/templates/base.yml.j2' %}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_ports', ['api', 'http', DOCKER_BIND_HOST]) | indent(4) }}
@@ -22,11 +23,14 @@
     {{ lookup('container_image', application_id, 'web', image=BLUESKY_WEB_IMAGE_CUSTOM, version=BLUESKY_SOCIAL_APP_REF) }}
     {{ lookup('compose_only', 'pull_policy', 'never') }}
     {{ lookup('compose_restart') }}
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
     {{ lookup('container_ports', ['web', 'http', DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_healthcheck', service_name) | indent(4) }}
     {{ lookup('container_extra_hosts') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
+  {% endif %}
 
+  {% if BLUESKY_BROKER_ENABLED | bool %}
   {% set service_name = BLUESKY_BROKER_SERVICE %}
   {{ service_name }}:
     {% include 'roles/sys-svc-container/templates/deploy.yml.j2' %}
@@ -41,6 +45,7 @@
     hostname: {{ service_name }}
     {{ lookup('compose_only', 'pull_policy', 'never') }}
     {{ lookup('compose_restart') }}
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('container_ports', [BLUESKY_BROKER_SERVICE, 'http', DOCKER_BIND_HOST]) | indent(4) }}
     environment: # nocheck: compose-environment-from-env-file broker has no env_file (only pds includes the container base), and PDS_ADMIN_PASSWORD carries compose $$ escaping that an env_file would not unescape
@@ -52,7 +57,8 @@
       PDS_HANDLE_DOMAIN: "{{ BLUESKY_PDS_HANDLE_DOMAIN }}"
       PDS_ADMIN_PASSWORD: "{{ BLUESKY_ADMIN_PASSWORD | replace('$', '$$') }}"
       BLUESKY_BRIDGE_ENCRYPTION_KEY: "{{ BLUESKY_BRIDGE_ENCRYPTION_KEY }}"
-      INSECURE_TLS: "{{ MODE_DEBUG | string | lower }}"
+      INSECURE_TLS: "{{ lookup('debug') | string | lower }}"
+      OIDC_NAME_CLAIM: "{{ OIDC.ATTRIBUTES.NAME }}"
       SITE_TITLE: {{ lookup('design', application_id).label | replace('$', '$$') | to_json }}
     healthcheck:
       test: ["CMD", "wget", "-q", "-O-", "http://127.0.0.1:{{ BLUESKY_BROKER_INTERNAL_PORT }}/healthz"]

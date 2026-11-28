@@ -1,3 +1,18 @@
+{% if DASHBOARD_STATUS_ENABLED | bool %}
+location = {{ DASHBOARD_STATUS_PATH }} {
+    alias {{ DASHBOARD_STATUS_FILE }};
+    default_type application/json;
+    expires -1;
+    error_page 404 = @dashboard_status_empty;
+}
+
+location @dashboard_status_empty {
+    default_type application/json;
+    expires -1;
+    return 200 '{"generated": null, "applications": {}}';
+}
+{% endif %}
+
 location = {{ DASHBOARD_LOCATION_SILENT_CHECK }} {
     default_type text/html;
     add_header Cache-Control "no-store";

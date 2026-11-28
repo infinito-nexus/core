@@ -21,7 +21,10 @@ When a user logs in via Keycloak for the first time, Fider matches their email t
 
 - **Single-container deployment** via Docker Compose.
 - **PostgreSQL database:** all data including attachments stored in the database, no extra volumes needed.
-- **SSO via Keycloak:** configured automatically on first deploy.
+- **SSO via Keycloak:** configured automatically on first deploy; name and email of a new account come from the `name` and `email` claims.
+- **Role Groups:** [files/sql/reconcile-roles.sql](./files/sql/reconcile-roles.sql) creates the accounts of the `administrator` and `collaborator` role group members that have none yet and sets the role of every account to administrator, collaborator or visitor from its groups. It runs through `psql` in the database container as an RBAC hook of [sys-ctl-mtn-rbac-sync](../sys-ctl-mtn-rbac-sync/) at every deploy and on its timer, so a group change reaches Fider within one timer interval. The platform administrator keeps its role.
+- **Login methods:** `services.fider.login.method` declares `sso` and `native`; Fider has no password form, LDAP or second factor of its own, and its email code sign-in is its local sign-in. `sso` sets the `status` of the Keycloak row in `oauth_providers` (`2` lists "Continue with … SSO" on the sign-in modal, `1` hides it, [files/sql/configure-oidc-provider.sql](./files/sql/configure-oidc-provider.sql)). `native` sets the tenant setting `is_email_auth_allowed` ([files/sql/email-auth.sql](./files/sql/email-auth.sql)), which shows or removes the email code form: without SSO every account signs in by email code, with SSO the form is gone.
+- **Break-glass path:** with `is_email_auth_allowed` off, Fider keeps an administrator bypass on the sign-in modal ("If you have an administrator account … click here"): it reveals the email form, and Fider sends a sign-in code only to an account with the administrator role, so the platform administrator signs in with the code from its mailbox while Keycloak is unavailable.
 - **Email notifications** via Mailu (optional).
 - **HTTPS** enforced via NGINX reverse proxy.
 
@@ -37,6 +40,10 @@ Key settings in `meta/services.yml` and `meta/server.yml`:
 | `services.fider.version` | `v0.39.0` | Docker image tag |
 | `domains.canonical` | `fider.{{ DOMAIN_PRIMARY }}` | Public domain |
 | `server.status_codes.default` | `[200, 301, 302, 405]` | Expected HTTP codes for health check (405 because Fider returns 405 on HEAD requests to `/`) |
+
+## Biber coverage
+
+No `biber:` assertion pins the application role that [`meta/rbac.yml`](./meta/rbac.yml) offers biber: none checks a role-scoped element or the absence of an admin-scoped one, so the scenarios prove the non-admin sign-in but not the role it maps to. A follow-up tightens them.
 
 ## Further Resources
 

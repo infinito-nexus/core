@@ -36,6 +36,13 @@
   ansible.builtin.set_fact:
     TOR_DNSMASQ_OWNS_LISTENER: "{{ _tor_dnsmasq_foreign.matched == 0 }}"
 
+- name: "✅ Egress router | Check what route all depends on before touching dnsmasq"
+  ansible.builtin.include_tasks:
+    file: router/preflight.yml
+    apply:
+      become: true
+  when: TOR_EGRESS_ROUTE == 'all'
+
 - name: "📝 Egress router | Render dnsmasq .onion split-DNS drop-in"
   ansible.builtin.template: # nocheck: stack-host-template (per-host dnsmasq system config in /etc/dnsmasq.d)
     src: dnsmasq-tor-onion.conf.j2
@@ -43,8 +50,6 @@
     owner: root
     group: root
     mode: "0644"
-  vars:
-    TOR_DNS_UPSTREAMS: "{{ [ networks.internet.dns ] }}"
   register: _tor_dnsmasq_conf
 - name: "🔁 Egress router | Retry dnsmasq until docker0 exists after a boot"
   when: TOR_DNSMASQ_OWNS_LISTENER | bool
@@ -88,22 +93,34 @@
         regexp: "^(hosts:.*\\bresolve)\\s*\\[!UNAVAIL=return\\](.*)$"
         line: "\\1 [SUCCESS=return NOTFOUND=continue TRYAGAIN=return]\\2"
         backrefs: true
+- name: "🔀 Egress router | Keep systemd-resolved from resolving beside Tor"
+  ansible.builtin.include_tasks:
+    file: router/resolvers.yml
+    apply:
+      become: true
+  when: TOR_EGRESS_ROUTE == 'all'
 - name: "🔀 Egress router | Route .onion traffic and bound the ports that carry no policy"
   ansible.builtin.include_role:
     name: svc-net-firewall
+  vars:
+    tor_node: "{{ inventory_hostname }}"
 
-- name: "🛡️ Egress guard | Read back the chain that bounds the ports"
-  become: true
-  ansible.builtin.command:
-    argv: [nft, list, chain, inet, "{{ firewall_loaded_table }}", guard]
-  register: tor_egress_guard_chain
-  changed_when: false
-
-- name: "🛡️ Egress guard | Refuse a guard that drops nothing"
+- name: "✅ Egress router | Refuse dnsmasq sets that name another table"
   ansible.builtin.assert:
     that:
-      - "'drop' in tor_egress_guard_chain.stdout"
+      - TOR_EGRESS_NFT_TABLE == firewall_loaded_table
     fail_msg: >-
-      The guard chain in {{ firewall_loaded_table }} carries no drop, so
-      TransPort and DNSPort are reachable from every source. These two ports
-      have no access policy of their own; this chain is the only boundary.
+      dnsmasq fills sets in {{ TOR_EGRESS_NFT_TABLE }}, but svc-net-firewall
+      loaded {{ firewall_loaded_table }}; direct host names would never reach
+      the packet filter.
+
+- name: "🧹 Egress router | Clear the dnsmasq cache so answers refill the reloaded sets"
+  ansible.builtin.command:
+    argv: [systemctl, kill, --signal=SIGHUP, dnsmasq]
+  changed_when: true
+  when: TOR_EGRESS_ROUTE == 'all'
+
+- name: "🛡️ Egress guard | Check the chain that bounds the ports"
+  ansible.builtin.include_tasks: guard/verify.yml
+  vars:
+    tor_node: "{{ inventory_hostname }}"

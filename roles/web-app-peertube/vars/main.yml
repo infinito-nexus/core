@@ -4,9 +4,20 @@ entity_name: "{{ application_id | entity_name }}"
 
 PEERTUBE_CONTAINER: "{{ lookup('config', application_id, 'services.peertube.name') }}"
 PEERTUBE_HOSTNAME: "{{ lookup('domain', application_id) }}"
-PEERTUBE_INTERNAL_URL: "http://{{ DOCKER_REACH_HOST }}:{{ lookup('config', application_id, 'services.peertube.ports.local.http') }}"
+PEERTUBE_NETNS_URL: "http://127.0.0.1:{{ lookup('config', application_id, 'services.peertube.ports.internal.http') }}"
+PEERTUBE_API_HEADERS:
+  Host: "{{ PEERTUBE_HOSTNAME }}"
+PEERTUBE_TOKEN_HEADERS:
+  Host: "{{ PEERTUBE_HOSTNAME }}"
+  Content-Type: application/x-www-form-urlencoded
 PEERTUBE_ROOT_USERNAME: "root"
 PEERTUBE_ROOT_PASSWORD: "{{ (lookup('users', IAM_PLATFORM_ADMIN_USER_KEY).password | string)[:50] }}"
+PEERTUBE_ROOT_TOKEN_FORM: >-
+  {{ {'client_id': peertube_oauth_client.client_id,
+      'client_secret': peertube_oauth_client.client_secret,
+      'grant_type': 'password',
+      'username': PEERTUBE_ROOT_USERNAME,
+      'password': PEERTUBE_ROOT_PASSWORD} | urlencode }}
 
 PEERTUBE_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"
 PEERTUBE_DESIGN: "{{ lookup('design', application_id) }}"
@@ -37,7 +48,17 @@ PEERTUBE_MIGRATION_SCRIPTS_DIR: "dist/scripts/migrations"
 PEERTUBE_MIGRATION_HEALTH_RETRIES: 360
 
 PEERTUBE_OIDC_PLUGIN: "peertube-plugin-auth-openid-connect"
+PEERTUBE_OIDC_PLUGIN_VERSION: "{{ lookup('config', application_id, 'addons.' ~ PEERTUBE_OIDC_PLUGIN ~ '.version') }}"
 PEERTUBE_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+PEERTUBE_LOGIN_SSO: "{{ lookup('config', application_id, 'services.peertube.login.method.sso.enabled') | bool }}"
+PEERTUBE_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.peertube.login.method.native.enabled') | bool }}"
+PEERTUBE_LOGIN_2FA: "{{ lookup('config', application_id, 'services.peertube.login.method.2fa.enabled') | bool }}"
+PEERTUBE_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.peertube.login.method.registration.enabled') | bool }}"
+PEERTUBE_ROLE_IDS:
+  administrator: 0
+  moderator: 1
+  user: 2
+PEERTUBE_RBAC_ROLES: [administrator, moderator]
 
 PEERTUBE_LIVE_ENABLED: "{{ lookup('config', application_id, 'services.peertube.live.enabled') | bool }}"
 PEERTUBE_RTMP_PORT: "{{ lookup('config', application_id, 'services.peertube.ports.internal.rtmp') }}"

@@ -1,6 +1,57 @@
 ---
 - include_tasks: utils/once/flag.yml
 
+- name: "🛑 Refuse a gateway on a host that uses another host's gateway"
+  ansible.builtin.fail:
+    msg: >-
+      {{ inventory_hostname }} carries svc-ai-litellm but names
+      '{{ LITELLM_GATEWAY_HOST }}' as its gateway host in
+      applications.svc-ai-litellm.services.litellm.gateway_host. A consuming
+      host runs no gateway of its own: remove svc-ai-litellm from the
+      inventory of {{ inventory_hostname }} to use the gateway on
+      {{ LITELLM_GATEWAY_HOST }}, or clear the value to keep this host's own.
+  when: LITELLM_GATEWAY_REMOTE | bool
+
+- name: "🛑 Refuse to serve consuming hosts from a host off the mesh"
+  ansible.builtin.fail:
+    msg: >-
+      {{ inventory_hostname }} holds gateway keys for
+      {{ LITELLM_HOST_KEYS | list | join(', ') }}, which reach it only over the
+      WireGuard mesh, but has no mesh address. Run
+      cli.administration.inventory.mesh over every inventory of the deploy
+      before cli.administration.inventory.gateway.
+  when:
+    - LITELLM_SERVES_HOSTS | bool
+    - LITELLM_MESH_BIND_HOST | length == 0
+
+- name: "✅ Require a usable FreeLLMAPI upstream configuration"
+  when: LITELLM_FREELLMAPI_BACKEND | bool
+  block:
+    - name: ✅ Require a provisioned FreeLLMAPI key for the shared upstream
+      ansible.builtin.assert:
+        that:
+          - LITELLM_PROVIDER_KEYS.freellmapi | trim | length > 0
+          - lookup('config', application_id, 'services.litellm.freellmapi.alias') | length > 0
+          - lookup('config', application_id, 'services.litellm.freellmapi.alias') != LITELLM_ROUTER_ALIAS
+          - lookup('config', application_id, 'services.litellm.freellmapi.model') | length > 0
+        fail_msg: >-
+          The token store holds no FreeLLMAPI unified key. Deploy svc-ai-freellmapi
+          before svc-ai-litellm so it persists the key its dashboard issued. The
+          LiteLLM upstream alias must be nonempty and distinct from its router alias.
+        quiet: true
+
+    - name: ✅ Require explicit FreeLLMAPI pool capabilities before automatic routing
+      ansible.builtin.assert:
+        that:
+          - lookup('config', application_id, 'services.litellm.freellmapi.context') is integer
+          - lookup('config', application_id, 'services.litellm.freellmapi.context') > 0
+          - lookup('config', application_id, 'services.litellm.freellmapi.traits') is mapping
+          - lookup('config', application_id, 'services.litellm.freellmapi.traits').get('tools') is boolean
+        fail_msg: >-
+          Set services.litellm.freellmapi.context and traits.tools to the guaranteed
+          capabilities of the configured FreeLLMAPI pool before include_in_auto=true.
+      when: lookup('config', application_id, 'services.litellm.freellmapi.include_in_auto') | bool
+
 - include_tasks: utils/load/handlers.yml
   vars:
     handler_role_name: "sys-svc-compose"
@@ -61,6 +112,15 @@
     - compose-up
     - container-recreate
 
+- name: "📧 Stage the interpreter hook that admits the platform e-mail TLD"
+  stack_host_copy:
+    src: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/files/python/sitecustomize.py') }}"
+    dest: "{{ LITELLM_SITECUSTOMIZE_PATH_HOST }}"
+    mode: "0444"
+  notify:
+    - compose-up
+    - container-recreate
+
 - name: "📄 Render LiteLLM gateway config (local + swarm peers)"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"
@@ -76,6 +136,13 @@
   vars:
     compose_handlers_flush: true
 
+- name: "✅ Validate remote providers before configuring consumers"
+  ansible.builtin.include_tasks: utils/validate/providers.yml
+  when:
+    - IS_STACK_HOST | bool
+    - LITELLM_VALIDATION_ENABLED | bool
+    - LITELLM_REMOTE_MODELS | selectattr('provider', 'in', LITELLM_KEYED_PROVIDERS) | list | length > 0
+
 - name: "🔍 Build consumer key list"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   ansible.builtin.set_fact:
@@ -87,13 +154,19 @@
           {%- set _ = out.append({'alias': consumer.id, 'key': key}) -%}
         {%- endif -%}
       {%- endfor -%}
-      {{ out }}
+      {{ out | litellm_gateway_keys(LITELLM_HOST_KEYS) }}
 
-- name: "🔑 Provision per-consumer virtual keys"
-  ansible.builtin.include_tasks: 01_keys.yml
-  when:
-    - IS_STACK_HOST | bool
-    - LITELLM_CONSUMER_KEYS | length > 0
+- name: "🔑 Provision consumer keys and validate the FreeLLMAPI upstream"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "🔑 Provision consumer keys and revoke stale host keys"
+      ansible.builtin.include_tasks: 01_keys.yml
+
+    - name: "✅ Validate the FreeLLMAPI upstream protocols through LiteLLM"
+      ansible.builtin.include_tasks: utils/validate/freellmapi.yml
+      when:
+        - LITELLM_VALIDATION_ENABLED | bool
+        - LITELLM_FREELLMAPI_BACKEND | bool
 
 - name: "🔁 Publish the current gateway models in Open WebUI"
   ansible.builtin.include_role:
@@ -101,6 +174,4 @@
     tasks_from: utils/refresh_model_grants.yml
   vars:
     application_id: web-app-openwebui
-  when:
-    - "'web-app-openwebui' in group_names"
-    - lookup('config', 'web-app-openwebui', 'services.agent-broker.enabled') | bool
+  when: "'web-app-openwebui' in group_names"

@@ -121,6 +121,30 @@ class TestValidateVolumesMeta(unittest.TestCase):
         )
         self.assertTrue(any("octal string" in v for v in violations))
 
+    def test_owner_only_on_config_secret(self) -> None:
+        violations = validate_volumes_meta(
+            {"x": {"type": "volume", "uid": 1000, "gid": 1000}},
+            "r",
+        )
+        self.assertTrue(any("'uid' is only valid for" in v for v in violations))
+        self.assertTrue(any("'gid' is only valid for" in v for v in violations))
+
+    def test_owner_must_be_numeric(self) -> None:
+        violations = validate_volumes_meta(
+            {"x": {"type": "secret", "source": "/a", "uid": "runner"}},
+            "r",
+        )
+        self.assertTrue(any("numeric id" in v for v in violations))
+
+    def test_numeric_owner_on_secret_passes(self) -> None:
+        self.assertEqual(
+            validate_volumes_meta(
+                {"x": {"type": "secret", "source": "/a", "uid": 1000, "gid": 1000}},
+                "r",
+            ),
+            [],
+        )
+
     def test_read_only_only_on_bind_volume(self) -> None:
         violations = validate_volumes_meta(
             {"x": {"type": "config", "source": "/a", "read_only": True}},
@@ -167,6 +191,44 @@ class TestValidateVolumesMeta(unittest.TestCase):
             "r",
         )
         self.assertEqual(result, [])
+
+    def test_derived_code_beside_backup_false_passes(self) -> None:
+        result = validate_volumes_meta(
+            {"x": {"type": "volume", "backup": False, "derived": "code"}},
+            "r",
+        )
+        self.assertEqual(result, [])
+
+    def test_negative_control_derived_code_requires_backup_false(self) -> None:
+        for entry in (
+            {"type": "volume", "derived": "code"},
+            {"type": "volume", "backup": True, "derived": "code"},
+        ):
+            with self.subTest(entry=entry):
+                violations = validate_volumes_meta({"x": entry}, "r")
+                self.assertTrue(
+                    any("requires 'backup: false'" in v for v in violations),
+                    violations,
+                )
+
+    def test_derived_only_on_volume(self) -> None:
+        violations = validate_volumes_meta(
+            {"x": {"type": "bind", "source": "/a", "derived": "code"}},
+            "r",
+        )
+        self.assertTrue(any("'derived' is only valid for" in v for v in violations))
+
+    def test_derived_rejects_an_unknown_origin(self) -> None:
+        for value in ("state", ["code"], True):
+            with self.subTest(value=value):
+                violations = validate_volumes_meta(
+                    {"x": {"type": "volume", "backup": False, "derived": value}},
+                    "r",
+                )
+                self.assertTrue(
+                    any("'derived' must be one of" in v for v in violations),
+                    violations,
+                )
 
     def test_mount_requires_service_and_target(self) -> None:
         violations = validate_volumes_meta(

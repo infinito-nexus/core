@@ -1,0 +1,23 @@
+---
+- name: "🔍 Find the garbage collector manifest entries"
+  ansible.builtin.find:
+    paths: "{{ DIR_GARBAGE_COLLECTOR_MANIFESTS }}"
+    file_type: directory
+  register: garbage_collector_manifest_entries
+
+- name: "🗑️ Drop the garbage collector manifests of inactive roles"
+  ansible.builtin.file:
+    path: "{{ garbage_collector_manifest_entry }}"
+    state: absent
+  loop: "{{ garbage_collector_manifest_entries.files | map(attribute='path') | list }}"
+  loop_control:
+    loop_var: garbage_collector_manifest_entry
+  when: (garbage_collector_manifest_entry | basename) not in garbage_collector_manifest_active_roles
+  vars:
+    garbage_collector_manifest_active_roles: >-
+      {{
+        lookup('deployment').inventory
+        + group_names
+        + (CURRENT_PLAY_APPLICATIONS | list)
+        + (garbage_collector_installed_application_ids | default([]))
+      }}

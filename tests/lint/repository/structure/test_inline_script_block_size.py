@@ -104,7 +104,7 @@ def _iter_yaml_files(repo_root: Path) -> Iterable[Path]:
     """Yield .yml/.yaml files under any of SCAN_DIRS, routed through
     `utils.cache.files.iter_project_files` so the project-tree walk is
     shared with every other lint test in the same pytest process. See
-    ``docs/agents/action/testing.md``.
+    ``agents/skills/i8-test/SKILL.md``.
     """
     scan_set = set(SCAN_DIRS)
     repo_str = str(repo_root)

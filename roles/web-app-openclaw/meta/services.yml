@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: playwright-service-flag
 openclaw:
   mcp_consumer: true
@@ -16,6 +17,9 @@ openclaw:
   image: ghcr.io/openclaw/openclaw
   version: "2026.7.1"
   name: openclaw
+  agent_runtime:
+    name: openclaw
+    host: broker
   min_storage: 562MB
   cpus: "2.0"
   mem_reservation: 2g
@@ -36,6 +40,14 @@ openclaw:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
       - image_tag: "2026.7.1"
         until: 2026-11-30
+  config:
+    trustedProxies: "{{ [NETWORK_ROLE_SUBNET_POOL] }}"
+    mode: trusted-proxy
+    userHeader: x-forwarded-preferred-username
+    primary: "litellm/{{ LITELLM_CHAT_MODEL }}"
+    baseUrl: "{{ LITELLM_OPENAI_BASE_LOCAL_URL }}"
+  mcp_servers:
+    selected: "{{ lookup('mcp_servers', credentials=false).selected }}"
 
 # nocheck: playwright-service-flag, dynamic-flag
 kata:
@@ -48,6 +60,10 @@ sso:
   enabled: "{{ 'web-app-keycloak' in group_names }}"
   shared: "{{ 'web-app-keycloak' in group_names }}"
   flavor: oauth2
+  header_trust:
+    proxy_secret: sso_proxy_secret
+    switch: services.sso.enabled
+    files: [templates/openclaw.json.j2]
   oauth2:
     origin:
       host: openclaw
@@ -60,7 +76,7 @@ sso:
 litellm:
   bond: 1
   enabled: "{{ LITELLM_USABLE }}"
-  shared: true
+  shared: "{{ LITELLM_SHARED }}"
 
 logout:
   bond: 1
@@ -108,3 +124,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  shared provider other roles consume, so pausing it would take its consumers down with it
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

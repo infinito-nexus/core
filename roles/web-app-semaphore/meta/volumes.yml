@@ -4,3 +4,171 @@ semaphore_data:
   mounts:
     - service: semaphore
       target: /var/lib/semaphore
+
+semaphore_runner_token:
+  type: secret
+  source: "{{ [ lookup('container', 'web-app-semaphore', 'directories.instance'), 'runner.token' ] | path_join }}"
+  mode: "0400"
+  uid: 64101
+  gid: 64101
+  mounts:
+    - service: task-runner
+      target: &semaphore_runner_token_target /run/secrets/semaphore-runner-token
+
+semaphore_deploy_runner_token:
+  type: secret
+  source: "{{ [ lookup('container', 'web-app-semaphore', 'directories.instance'), 'deploy-runner.token' ] | path_join }}"
+  mode: "0400"
+  uid: 64101
+  gid: 64101
+  mounts:
+    - service: deploy-runner
+      target: *semaphore_runner_token_target
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.deploy-runner.enabled') | bool }}"
+
+semaphore_workspaces_runner_token:
+  type: secret
+  source: "{{ [ lookup('container', 'web-app-semaphore', 'directories.instance'), 'workspaces-runner.token' ] | path_join }}"
+  mode: "0400"
+  uid: 64101
+  gid: 64101
+  mounts:
+    - service: workspaces-runner
+      target: *semaphore_runner_token_target
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.workspaces-runner.enabled') | bool }}"
+
+semaphore_provision_runner_token:
+  type: secret
+  source: "{{ [ lookup('container', 'web-app-semaphore', 'directories.instance'), 'provision-runner.token' ] | path_join }}"
+  mode: "0400"
+  uid: 64101
+  gid: 64101
+  mounts:
+    - service: provision-runner
+      target: *semaphore_runner_token_target
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.provision-runner.enabled') | bool }}"
+
+semaphore_dns_broker_login:
+  type: secret
+  source: "{{ [ lookup('container', 'web-app-semaphore', 'directories.instance'), 'dns-broker.json' ] | path_join }}"
+  mode: "0400"
+  uid: 64102
+  gid: 64102
+  mounts:
+    - service: provision-runner
+      target: /run/secrets/dns-broker-login
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.provision-runner.enabled') | bool }}"
+
+semaphore_export_runner_token:
+  type: secret
+  source: "{{ [ lookup('container', 'web-app-semaphore', 'directories.instance'), 'export-runner.token' ] | path_join }}"
+  mode: "0400"
+  uid: 64101
+  gid: 64101
+  mounts:
+    - service: export-runner
+      target: *semaphore_runner_token_target
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.export-runner.enabled') | bool }}"
+
+semaphore_provision_catalogs:
+  type: bind
+  source: "{{ [ lookup('container', 'web-app-semaphore', 'directories.instance'), 'catalogs' ] | path_join }}"
+  read_only: true
+  mounts:
+    - service: provision-runner
+      target: /etc/provision/catalogs
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.provision-runner.enabled') | bool }}"
+
+semaphore_runner_tmp:
+  type: tmpfs
+  mounts:
+    - service: task-runner
+      target: &semaphore_runner_tmp_target /tmp
+      mode: "1777"
+    - service: deploy-runner
+      target: *semaphore_runner_tmp_target
+      mode: "1777"
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.deploy-runner.enabled') | bool }}"
+    - service: workspaces-runner
+      target: *semaphore_runner_tmp_target
+      mode: "1777"
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.workspaces-runner.enabled') | bool }}"
+    - service: provision-runner
+      target: *semaphore_runner_tmp_target
+      mode: "0700"
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.provision-runner.enabled') | bool }}"
+    - service: export-runner
+      target: *semaphore_runner_tmp_target
+      mode: "1777"
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.export-runner.enabled') | bool }}"
+
+semaphore_runner_work:
+  type: tmpfs
+  mounts:
+    - service: task-runner
+      target: &semaphore_runner_work_target /tmp/semaphore
+      mode: "1777"
+    - service: deploy-runner
+      target: *semaphore_runner_work_target
+      mode: "1777"
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.deploy-runner.enabled') | bool }}"
+    - service: workspaces-runner
+      target: *semaphore_runner_work_target
+      mode: "1777"
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.workspaces-runner.enabled') | bool }}"
+    - service: provision-runner
+      target: *semaphore_runner_work_target
+      mode: "1777"
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.provision-runner.enabled') | bool }}"
+    - service: export-runner
+      target: *semaphore_runner_work_target
+      mode: "1777"
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.export-runner.enabled') | bool }}"
+
+semaphore_provision_sandboxes:
+  type: tmpfs
+  mounts:
+    - service: provision-runner
+      target: /run/provision
+      mode: "0711"
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.provision-runner.enabled') | bool }}"
+
+semaphore_export_runner_home:
+  type: tmpfs
+  mounts:
+    - service: export-runner
+      target: "/home/{{ lookup('config', 'web-app-semaphore', 'services.task-runner.name') }}"
+      mode: "1777"
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.export-runner.enabled') | bool }}"
+
+semaphore_egress_squid_conf:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-semaphore', 'directories.instance'), 'export-egress', 'squid.conf' ] | path_join }}"
+  mounts:
+    - service: egress
+      target: /etc/squid/squid.conf
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.export-runner.enabled') | bool }}"
+
+semaphore_egress_hosts:
+  type: config
+  source: "{{ [ lookup('container', 'web-app-semaphore', 'directories.instance'), 'export-egress', 'hosts' ] | path_join }}"
+  mounts:
+    - service: egress
+      target: /etc/squid/workspace.hosts
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.export-runner.enabled') | bool }}"
+
+semaphore_egress_scratch:
+  type: tmpfs
+  mounts:
+    - service: egress
+      target: /var/spool/squid
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.export-runner.enabled') | bool }}"
+    - service: egress
+      target: /var/log/squid
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.export-runner.enabled') | bool }}"
+    - service: egress
+      target: /var/cache/squid
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.export-runner.enabled') | bool }}"
+    - service: egress
+      target: /run
+      when: "{{ lookup('config', 'web-app-semaphore', 'services.export-runner.enabled') | bool }}"

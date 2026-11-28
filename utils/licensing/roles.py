@@ -13,7 +13,7 @@ from utils.roles.mapping import ROLE_FILE_META_LICENSE
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from utils.licensing.contexts import Context
+    from utils.licensing import contexts
 
 RULE = "license-declared"
 OWN_LICENSE = "LicenseRef-Infinito-Nexus-Community"
@@ -44,7 +44,7 @@ class Declared(NamedTuple):
     spdx: str
     url: str
     rights: dict[str, bool] | None
-    context: Context
+    context: contexts.Context
 
 
 def declared(role_dir: Path) -> Declared | None:

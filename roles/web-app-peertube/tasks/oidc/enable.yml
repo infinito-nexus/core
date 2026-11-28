@@ -10,17 +10,17 @@
     resolve_output_prefix: PEERTUBE
     resolve_compose_cid: "{{ PEERTUBE_CONTAINER }}"
 
-- name: 🔎 Check if OIDC plugin is already installed
+- name: 🔎 Read the installed OIDC plugin version
   shell: |
     # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
-    container exec {{ PEERTUBE_LOCAL_CID | quote }} test -d /data/plugins/node_modules/{{ PEERTUBE_OIDC_PLUGIN }}
+    container exec {{ PEERTUBE_LOCAL_CID | quote }} node -p "require('/data/plugins/node_modules/{{ PEERTUBE_OIDC_PLUGIN }}/package.json').version"
   register: peertube_oidc_plugin_check
   failed_when: false
   changed_when: false
   delegate_to: "{{ PEERTUBE_HOST_NODE }}"
 
 - name: "📦 Install auth-openid-connect plugin for Peertube (mem_limit bump + diagnostics)"
-  when: peertube_oidc_plugin_check.rc != 0
+  when: peertube_oidc_plugin_check.rc != 0 or (peertube_oidc_plugin_check.stdout | trim) != PEERTUBE_OIDC_PLUGIN_VERSION
   block:
     - name: "📦 PEERTUBE | Raise mem_limit for plugin install"
       ansible.builtin.shell: |
@@ -35,7 +35,8 @@
       ansible.builtin.shell: >
         container exec
         -e NODE_OPTIONS=--max-old-space-size={{ PEERTUBE_OIDC_PLUGIN_INSTALL_MAX_OLD_SPACE_MB }}
-        {{ PEERTUBE_LOCAL_CID | quote }} npm run plugin:install -- --npm-name {{ PEERTUBE_OIDC_PLUGIN }}
+        {{ PEERTUBE_LOCAL_CID | quote }} npm run plugin:install -- --npm-name {{ PEERTUBE_OIDC_PLUGIN }} --plugin-version {{ PEERTUBE_OIDC_PLUGIN_VERSION | quote
+        }}
       register: peertube_oidc_install
       changed_when: peertube_oidc_install.rc == 0
       retries: 3

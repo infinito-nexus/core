@@ -13,9 +13,15 @@ from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils import PROJECT_ROOT
 from utils.security.deploy import deploy_inventory_overrides
 from utils.storage.constrained import host_storage_constrained
+from utils.tests.swarm.deploy import (
+    deploy_backup_host,
+    deploy_proxmox_host,
+    deploy_round,
+)
 from utils.tests.swarm.derive_includes import derive_includes, variant_scope
-from utils.tests.swarm.extend_inventory import drop_backup_network_mode, mesh_enabled
+from utils.tests.swarm.extend_inventory import SWARM_NODES, mesh_enabled
 from utils.tests.swarm.extra_vars import with_extra_vars
+from utils.tests.swarm.lab_ports import lab_port_overrides
 from utils.tests.swarm.mesh import (
     bootstrap_mesh,
     converge_mesh,
@@ -31,8 +37,9 @@ from utils.tests.swarm.write.extras import ensure_swarm_keypairs
 _SWARM_DIR = PROJECT_ROOT / "scripts" / "tests" / "deploy" / "swarm"
 _SWARM_SCRIPTS = _SWARM_DIR / "routine"
 _ROLES_DIR = str(PROJECT_ROOT / "roles")
-_SWARM_EXTRAS_VARS = "inventories/development/swarm.yml"
 _DEFAULT_INVENTORY_DIR = "/tmp/inv"  # noqa: S108 - ephemeral swarm-test inventory base in CI
+EXTRAS_FILE = "swarm-nfs-extras.yml"
+DEPLOY_EXTRAS_FILE = "swarm-nfs-extras.deploy.yml"
 
 
 def _run(cmd: list[str], *, env: dict[str, str], label: str) -> int:
@@ -63,7 +70,7 @@ def _provision(
     env["APP_ID"] = app_id
     env["INFINITO_INVENTORY_DIR"] = inv_dir
     env["INFINITO_APP_VARIANTS"] = json.dumps(round_variants, sort_keys=True)
-    env["INFINITO_VARS_PAYLOAD"] = json.dumps(vars_payload, sort_keys=True)
+    env["INFINITO_VARS_PAYLOAD"] = json.dumps(vars_payload)
     return _run(
         ["bash", str(_SWARM_SCRIPTS / "02_provision_inventory.sh")],
         env=env,
@@ -132,81 +139,8 @@ def _reset_credentials(
             "administrator",
         ],
         env=os.environ.copy(),
-        label="reset credentials (rotation gate before the async pass)",
+        label="reset credentials (rotation gate before the update pass)",
     )
-
-
-def _deploy(
-    *,
-    app_id: str,
-    inv_dir: str,
-    extras_path: str,
-    round_index: int,
-    total: int,
-    update_pass: bool = False,
-) -> int:
-    """Run one deploy of the round.
-
-    Args:
-        update_pass: run it as the async update pass.
-    """
-    env = os.environ.copy()
-    env["APP_ID"] = app_id
-    cmd = [
-        "python3",
-        "-m",
-        "cli.administration.deploy.swarm",
-        f"{inv_dir}/devices.yml",
-        "-p",
-        f"{inv_dir}/.password",
-        "--skip-build",
-        "--skip-pull",
-        "--skip-cleanup",
-        "--skip-backup",
-        "-e",
-        f"@{_SWARM_EXTRAS_VARS}",
-        "-e",
-        f"@{extras_path}",
-        "-e",
-        f"VARIANT_INDEX={json.dumps(round_index)}",
-        "-e",
-        f"PRIMARY_APPS={json.dumps([app_id], separators=(',', ':'))}",
-    ]
-    pass_label = (
-        f"matrix-deploy: round {round_index + 1}/{total} "
-        f"variants=[{round_index}] apps=['{app_id}']"
-    )
-    if update_pass:
-        cmd += ["-e", "ASYNC_ENABLED=true"]
-        label = f"update pass (round {round_index + 1}/{total})"
-        print(f"=== {pass_label} PASS 2 (async) ===", flush=True)
-    else:
-        label = f"deploy round {round_index + 1}/{total}"
-        print(f"=== {pass_label} PASS 1 (sync) ===", flush=True)
-    return _run(env=env, cmd=cmd, label=label)
-
-
-def _deploy_backup_host(*, app_id: str, inv_dir: str, extras_path: str) -> int:
-    drop_backup_network_mode(inv_dir)
-    env = os.environ.copy()
-    env["APP_ID"] = app_id
-    cmd = [
-        "python3",
-        "-m",
-        "cli.administration.deploy.dedicated",
-        f"{inv_dir}/backup.yml",
-        "-p",
-        f"{inv_dir}/.password",
-        "--skip-build",
-        "--skip-pull",
-        "--skip-cleanup",
-        "--skip-backup",
-        "-e",
-        f"@{_SWARM_EXTRAS_VARS}",
-        "-e",
-        f"@{extras_path}",
-    ]
-    return _run(env=env, cmd=cmd, label="deploy backup host (backup.yml)")
 
 
 def _converge_and_verify(*, app_id: str) -> int:
@@ -263,7 +197,7 @@ def _backup_restore_drill(*, app_id: str, inv_dir: str, extras_path: str) -> int
 def _backup_phase(
     *, app_id: str, inv_dir: str, deploy_extras: str, drill_extras: str
 ) -> int:
-    rc = _deploy_backup_host(app_id=app_id, inv_dir=inv_dir, extras_path=deploy_extras)
+    rc = deploy_backup_host(app_id=app_id, inv_dir=inv_dir, extras_path=deploy_extras)
     if rc == 0:
         rc = _backup_restore_drill(
             app_id=app_id, inv_dir=inv_dir, extras_path=drill_extras
@@ -384,7 +318,7 @@ def main(argv: list[str] | None = None) -> int:
         round_index,
         inv_dir,
         round_variants,
-        _round_include,
+        round_include,
         round_purge_set,
     ) in enumerate(plan):
         inv_root = inv_dir.rstrip("/")
@@ -418,21 +352,27 @@ def main(argv: list[str] | None = None) -> int:
         if meshed:
             applications = merge_with_defaults(applications, layout_applications())
         applications = merge_with_defaults(applications, scan_pin)
+        applications = merge_with_defaults(
+            applications, lab_port_overrides(round_include)
+        )
         base_overrides = {
             "applications": applications,
             "users": {
                 name: {"authorized_keys": [key]} for name, key in pubkeys.items()
             },
             "STORAGE_CONSTRAINED": host_storage_constrained(
-                [app_id], round_variants, local_vantage="/"
+                [app_id],
+                round_variants,
+                local_vantage="/",
+                store_nodes=len(SWARM_NODES),
             ),
         }
         vars_payload = _bake_overrides(
             base_overrides=with_extra_vars(base_overrides),
             variant_payloads=variant_payloads,
         )
-        extras_path = f"{inv_root}/swarm-nfs-extras.yml"
-        deploy_extras = f"{inv_root}/swarm-nfs-extras.deploy.yml"
+        extras_path = f"{inv_root}/{EXTRAS_FILE}"
+        deploy_extras = f"{inv_root}/{DEPLOY_EXTRAS_FILE}"
 
         rc = _provision(
             app_id=app_id,
@@ -469,8 +409,16 @@ def main(argv: list[str] | None = None) -> int:
             rc = _mesh_prologue(
                 app_id=app_id, inv_dir=inv_root, round_variants=round_variants
             )
+        proxmox_args = {
+            "app_id": app_id,
+            "inv_dir": inv_root,
+            "extras_path": deploy_extras,
+            "round_index": round_index,
+        }
         if rc == 0:
-            rc = _deploy(**deploy_args)
+            rc = deploy_round(**deploy_args)
+        if rc == 0:
+            rc = deploy_proxmox_host(**proxmox_args)
         if rc == 0:
             rc = _converge_and_verify(app_id=app_id)
         if rc == 0 and drills:
@@ -485,7 +433,9 @@ def main(argv: list[str] | None = None) -> int:
                 app_id=app_id, inv_dir=inv_root, round_variants=round_variants
             )
         if rc == 0:
-            rc = _deploy(**deploy_args, update_pass=True)
+            rc = deploy_round(**deploy_args, update_pass=True)
+        if rc == 0:
+            rc = deploy_proxmox_host(**proxmox_args, update_pass=True)
         if rc == 0:
             rc = _converge_and_verify(app_id=app_id)
         if rc == 0 and round_index == 0:

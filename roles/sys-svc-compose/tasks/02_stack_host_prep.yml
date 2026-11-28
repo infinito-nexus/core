@@ -12,6 +12,9 @@
   ansible.builtin.set_fact:
     compose_prepared_application_ids: "{{ compose_prepared_application_ids | union([application_id]) }}"
 
+- name: "⏯️ Register '{{ application_id }}' with app-control"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-app-control/tasks/utils/register.yml') }}"
+
 - name: "🛡️ Ensure PHP hardening assets are installed"
   ansible.builtin.include_role:
     name: sys-svc-compose-php

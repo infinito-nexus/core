@@ -1,0 +1,4 @@
+---
+# nocheck: required-by-coverage — pulled in by tasks/utils/rbac/sync.yml from every role that registers an RBAC hook and by svc-db-openldap under the mailbox email policy, not by a role id or category
+rbac-sync:
+  lifecycle: beta

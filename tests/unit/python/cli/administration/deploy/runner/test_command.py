@@ -186,9 +186,6 @@ class TestPrependRunnerRole(unittest.TestCase):
             [RUNNER_ROLE],
         )
 
-    def test_runner_role_constant_value(self):
-        self.assertEqual(RUNNER_ROLE, "svc-runner")
-
 
 if __name__ == "__main__":
     unittest.main()

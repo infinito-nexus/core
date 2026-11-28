@@ -6,13 +6,14 @@
 
 ## Overview
 
-This role deploys n8n Community Edition using the upstream `docker.n8n.io/n8nio/n8n` image backed by a PostgreSQL database (consumed from the central `svc-db-postgres` via `sys-stk-full`). Authentication is handled by an **oauth2-proxy** sidecar (Keycloak OIDC) in V1, or left to n8n's own user-management UI in V2. n8n Community Edition does not support LDAP — it is gated behind n8n's Enterprise license (`ldap.controller.ee.js` is not registered in CE) — so no LDAP variant is offered. Credentials stored inside n8n are encrypted at rest with a stable `N8N_ENCRYPTION_KEY`.
+This role deploys n8n Community Edition using the upstream `docker.n8n.io/n8nio/n8n` image backed by a PostgreSQL database (consumed from the central `svc-db-postgres` via [svc-stack](../svc-stack/README.md)). Authentication is handled by an **oauth2-proxy** sidecar (Keycloak OIDC) in V1, or left to n8n's own user-management UI in V2. n8n Community Edition does not support LDAP — it is gated behind n8n's Enterprise license (`ldap.controller.ee.js` is not registered in CE) — so no LDAP variant is offered. Credentials stored inside n8n are encrypted at rest with a stable `N8N_ENCRYPTION_KEY`.
 
 ## Features
 
 - **Visual workflow editor:** Drag-and-drop canvas with 400+ built-in integrations.
 - **Webhook triggers:** Expose workflow endpoints for external systems to call.
-- **SSO via oauth2-proxy with auto-provisioning:** V1 gates all access through the shared Keycloak OIDC client (oauth2-proxy edge). openresty forwards the authenticated identity to n8n as a trusted `Remote-Email` header (`templates/proxy.conf.j2`); an `EXTERNAL_HOOK_FILES` script (`files/hooks.js`, adapted from [PavelSozonov/n8n-community-sso](https://github.com/PavelSozonov/n8n-community-sso)) reads that header, auto-provisions a local n8n user on first sign-in, and issues n8n's own session cookie — so every Keycloak user lands directly in the workflow editor, with no second, n8n-local login step.
+- **SSO via oauth2-proxy with auto-provisioning:** V1 gates all access through the shared Keycloak OIDC client (oauth2-proxy edge). openresty forwards the authenticated identity to n8n as a trusted `Remote-Email` header (`templates/proxy.conf.j2`); an `EXTERNAL_HOOK_FILES` script (`files/hooks.js`, adapted from [PavelSozonov/n8n-community-sso](https://github.com/PavelSozonov/n8n-community-sso)) reads that header, auto-provisions a local n8n user on first sign-in, and issues n8n's own session cookie, so an admitted user lands directly in the workflow editor, with no second, n8n-local login step.
+- **Restricted access:** `sso.oauth2.allowed_groups` in `meta/services.yml` admits only members of the `web-app-n8n` `administrator` and `mcp` RBAC groups. Every other Keycloak user, biber included, is refused by oauth2-proxy with a 403. n8n Community Edition offers no group-to-role mapping, so every admitted user except the owner (`users.administrator.email`) is provisioned as `global:member`.
 - **Encrypted credential storage:** `N8N_ENCRYPTION_KEY` protects all saved credentials at rest; the key is stable across re-deploys.
 - **Postgres backend:** Workflow definitions, execution history, and user data persist in the central `svc-db-postgres`.
 
@@ -27,7 +28,7 @@ This role deploys n8n Community Edition using the upstream `docker.n8n.io/n8nio/
 
 The deployment bootstrap (`tasks/01_bootstrap.yml`) automatically creates the owner account on first run using the platform-generated `owner_password` credential. No manual wizard step is required.
 
-**V1 (SSO):** The oauth2-proxy edge gate redirects all requests to Keycloak. `files/hooks.js` reads the trusted `Remote-Email` header openresty sets once the gate passes and auto-provisions/logs in the matching n8n user (role `global:member`, or the pre-existing owner for `users.administrator.email`), so every Keycloak user — administrator and regular users alike — lands directly on n8n's own workflow surface with no second, n8n-local login step.
+**V1 (SSO):** The oauth2-proxy edge gate redirects all requests to Keycloak and admits only members of the `web-app-n8n` `administrator` and `mcp` groups. `files/hooks.js` reads the trusted `Remote-Email` header openresty sets once the gate passes and auto-provisions/logs in the matching n8n user (role `global:member`, or the pre-existing owner for `users.administrator.email`), so an admitted user lands directly on n8n's own workflow surface with no second, n8n-local login step. To admit a user, add them to the `administrator` or `mcp` role group of `web-app-n8n` in Keycloak.
 
 **V2 (no auth):** n8n presents its native login UI. The administrator logs in with the email configured in `users.administrator.email` and the password stored in the platform credential `credentials.owner_password`. Retrieve it with:
 

@@ -56,30 +56,41 @@
     - OPENPOST_PINNED_INSTANCES | selectattr('platform', 'equalto', 'mastodon') | list | length > 0
 
 - name: "📚 List the social sets of the organisation workspace"
-  uri_retry:
-    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/social-sets?workspace_id={{ openpost_crossposter_target_workspace }}"
-    headers: "{{ openpost_breakglass_headers }}"
-    status_code: 200
-  register: openpost_crossposter_social_sets
-  changed_when: false
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
+  vars:
+    netns_request_argv: "{{ OPENPOST_NETNS_PYTHON }}"
+    netns_request_host: "{{ OPENPOST_HOST_NODE }}"
+    netns_request_method: GET
+    netns_request_url: "{{ OPENPOST_NETNS_URL }}/api/v1/social-sets?workspace_id={{ openpost_crossposter_target_workspace }}"
+    netns_request_headers: "{{ openpost_breakglass_headers }}"
+    netns_request_status: [200]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_timeout: "{{ lookup('timeout', 30) | int }}"
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: openpost_crossposter_social_sets
 
 - name: "🗂️ Create the social sets the CI routes target"
-  uri_retry:
-    url: "{{ OPENPOST_LOCAL_URL }}/api/v1/social-sets"
-    method: POST
-    headers: "{{ openpost_breakglass_headers }}"
-    body_format: json
-    body:
-      name: "{{ item }}"
-      workspace_id: "{{ openpost_crossposter_target_workspace }}"
-      accounts: []
-    status_code: [200, 201]
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
   loop: >-
     {{ OPENPOST_CROSSPOSTER_ROUTES
        | map(attribute='targets') | selectattr('social_set', 'defined')
        | map(attribute='social_set') | select | unique
-       | reject('in', openpost_crossposter_social_sets.json | map(attribute='name') | list)
+       | reject('in', openpost_crossposter_social_sets.content | from_json | map(attribute='name') | list)
        | list }}
-  changed_when: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  loop_control:
+    loop_var: openpost_crossposter_social_set
+  vars:
+    netns_request_argv: "{{ OPENPOST_NETNS_PYTHON }}"
+    netns_request_host: "{{ OPENPOST_HOST_NODE }}"
+    netns_request_method: POST
+    netns_request_url: "{{ OPENPOST_NETNS_URL }}/api/v1/social-sets"
+    netns_request_headers: "{{ openpost_breakglass_headers }}"
+    netns_request_body: "{{ {'name': openpost_crossposter_social_set, 'workspace_id': openpost_crossposter_target_workspace, 'accounts': []} | to_json }}"
+    netns_request_status: [200, 201]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_timeout: "{{ lookup('timeout', 30) | int }}"
+    netns_request_changed: [200, 201]
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: openpost_crossposter_social_set_created

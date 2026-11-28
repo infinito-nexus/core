@@ -121,7 +121,7 @@ class TestAgentIdentity(unittest.TestCase):
             + "\n".join(f"  - {d}" for d in doubled),
         )
 
-    def test_the_scan_finds_agents(self) -> None:
+    def test_the_scan_finds_agents(self) -> None:  # nocheck: test.text-presence -- vacuity guard on the agent role scan  # fmt: skip
         self.assertTrue(
             _claimed_roles(),
             "no sandboxed agent role found, so every rule here would pass "

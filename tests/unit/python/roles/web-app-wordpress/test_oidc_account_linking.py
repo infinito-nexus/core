@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import base64
+import copy
 import json
 import os
 import re
@@ -19,6 +19,7 @@ from utils.cache import base as cache_base
 from utils.cache.files import read_text
 from utils.cache.reset import _reset_cache_for_tests
 from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 from utils.templating.ansible import _trust_as_template
 
 from . import PROJECT_ROOT
@@ -26,10 +27,12 @@ from . import PROJECT_ROOT
 ROLE = PROJECT_ROOT / "roles/web-app-wordpress"
 ADDON_TASKS_ENTRY = ROLE / "tasks/addons/daggerhart-openid-connect-generic.yml"
 ADDON_TASKS = ROLE / "tasks/addons/daggerhart-openid-connect-generic-stack-host.yml"
+ROLE_VARS = ROLE / ROLE_FILE_VARS_MAIN
 REALM = PROJECT_ROOT / "roles/web-app-keycloak/templates/import/realm.json.j2"
 OIDC_VARS = PROJECT_ROOT / "group_vars/all/11_oidc.yml"
 EMAIL_CLAIM = re.compile(
-    r'"user\.attribute":\s*"email",[^{}]*?"claim\.name":\s*"(?P<claim>[^"]+)"'
+    r'"user\.attribute":\s*"(?:email|\{\{[^"]* else \'email\' \}\}|\{\{ OIDC\.EMAIL\.CLAIM_SOURCE \}\})",'
+    r'[^{}]*?"claim\.name":\s*"(?P<claim>[^"]+)"'
 )
 SUBJECT_META_KEY = "openid-connect-generic-subject-identity"
 PREFIXED = "wp_" + SUBJECT_META_KEY
@@ -59,7 +62,7 @@ ADMIN_KEYS = "{{ WORDPRESS_ADMIN_USER | quote }} --fields=meta_key --format"
 ADMIN_IDENTITY_KEYS = "wordpress_oidc_admin_identity_keys"
 ADMIN_IDENTITY_READ = "--keys={{ " + ADMIN_IDENTITY_KEYS + " | join(',') | quote }}"
 SUBJECT_FACT = "wordpress_oidc_admin_subject"
-SETTINGS_WRITE = "wp eval-file"
+SETTINGS_CLEAR = "wp eval-file"
 STORE = "wp user meta update"
 HOLDERS = "--fields=ID,user_login"
 STRAY_KEYS = "{{ item.ID | quote }} --fields=meta_key --format"
@@ -182,28 +185,36 @@ def _keycloak_origin(app: str, key: str) -> str:
 
 
 class TestSettingsWordPressReceives(unittest.TestCase):
-    def setUp(self) -> None:
+    @classmethod
+    def setUpClass(cls) -> None:
         _reset_cache_for_tests()
         cache_base._reset()
-        self._cwd = str(Path.cwd())
-        self._tmpdir = tempfile.TemporaryDirectory()
-        os.chdir(self._tmpdir.name)
+        cwd = str(Path.cwd())
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                os.chdir(tmpdir)
+                try:
+                    cls._rendered = cls._render_settings()
+                finally:
+                    os.chdir(cwd)
+        finally:
+            _reset_cache_for_tests()
 
-    def tearDown(self) -> None:
-        os.chdir(self._cwd)
-        self._tmpdir.cleanup()
-        _reset_cache_for_tests()
-
-    def _settings(self) -> dict:
-        sent = _task_running(SETTINGS_WRITE)["environment"]["WP_OIDC_SETTINGS"]
+    @staticmethod
+    def _render_settings() -> dict:
+        served = load_yaml_any(str(ROLE_VARS), default_if_missing={})[
+            "WORDPRESS_OIDC_SETTINGS"
+        ]
         oidc = load_yaml_any(str(OIDC_VARS), default_if_missing={})["defaults_oidc"]
-        encoded = _render(
-            sent,
+        return _render(
+            served,
             application_id="web-app-wordpress",
             applications={"web-app-wordpress": {}},
             OIDC=oidc,
         )
-        return json.loads(base64.b64decode(encoded))
+
+    def _settings(self) -> dict:
+        return copy.deepcopy(self._rendered)
 
     def test_the_email_format_reads_the_claim_keycloak_emits(self):
         self.assertEqual(
@@ -245,8 +256,8 @@ class TestIssuerIsTheLocalKeycloak(unittest.TestCase):
         self.assertLess(index, resolver)
         self.assertLess(index, lookup)
 
-    def test_the_issuer_is_checked_before_the_settings_are_written(self):
-        self.assertLess(_index(_issuer_assert()), _index(_task_running(SETTINGS_WRITE)))
+    def test_the_issuer_is_checked_before_wordpress_is_touched(self):
+        self.assertLess(_index(_issuer_assert()), _index(_task_running(SETTINGS_CLEAR)))
 
     def test_only_the_local_keycloak_passes(self):
         for client, passes in (

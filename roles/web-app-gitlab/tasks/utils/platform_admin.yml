@@ -7,30 +7,19 @@
     resolve_compose_cid: "{{ lookup('container_address', application_id, GITLAB_WEBSERVICE_SERVICE_NAME) }}"
 
 - name: "💎 Realign root, ensure the platform administrator, converge the appearance"
-  ansible.builtin.command:
-    argv:
-      - container
-      - exec
-      - -i
-      - -e
-      - GITLAB_ROOT_USERNAME
-      - -e
-      - GITLAB_ROOT_PASSWORD
-      - -e
-      - GITLAB_DESIGN_TITLE
-      - -e
-      - GITLAB_ADMIN_USERNAME
-      - -e
-      - GITLAB_ADMIN_EMAIL
-      - -e
-      - GITLAB_ADMIN_NAME
-      - -e
-      - GITLAB_ADMIN_PASSWORD
-      - "{{ GITLAB_RAILS_LOCAL_CID }}" # nocheck: container-exec-resolver
-      - "{{ GITLAB_RAILS_BIN }}"
-      - runner
-      - "-"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      IFS= read -r GITLAB_ROOT_PASSWORD && IFS= read -r GITLAB_ADMIN_PASSWORD
+      && : "${GITLAB_ROOT_PASSWORD:?arrived empty on stdin}" && : "${GITLAB_ADMIN_PASSWORD:?arrived empty on stdin}"
+      && export GITLAB_ROOT_PASSWORD GITLAB_ADMIN_PASSWORD && container exec -i
+      -e GITLAB_ROOT_USERNAME -e GITLAB_ROOT_PASSWORD -e GITLAB_DESIGN_TITLE
+      -e GITLAB_ADMIN_USERNAME -e GITLAB_ADMIN_EMAIL -e GITLAB_ADMIN_NAME -e GITLAB_ADMIN_PASSWORD
+      -e GITLAB_ADMIN_SSO_UID
+      {{ GITLAB_RAILS_LOCAL_CID | quote }}
+      {{ GITLAB_RAILS_BIN | quote }} runner -
     stdin: |-
+      {{ GITLAB_INIT_ROOT_PASSWORD }}
+      {{ GITLAB_ADMIN_PASSWORD }}
       {{ lookup('file', 'ruby/run_steps.rb') }}
       InfinitoSteps.run('realign_root_password') do
       {{ lookup('file', 'ruby/realign_root_password.rb') }}
@@ -51,12 +40,11 @@
       InfinitoSteps.finish
   environment:
     GITLAB_ROOT_USERNAME: "{{ GITLAB_ROOT_USERNAME }}"
-    GITLAB_ROOT_PASSWORD: "{{ GITLAB_INIT_ROOT_PASSWORD }}"
     GITLAB_DESIGN_TITLE: "{{ lookup('design', application_id).label if GITLAB_DESIGN_ENABLED | bool else '' }}"
     GITLAB_ADMIN_USERNAME: "{{ GITLAB_ADMIN_USERNAME }}"
     GITLAB_ADMIN_EMAIL: "{{ GITLAB_ADMIN_EMAIL }}"
     GITLAB_ADMIN_NAME: "{{ GITLAB_ADMIN_NAME }}"
-    GITLAB_ADMIN_PASSWORD: "{{ GITLAB_ADMIN_PASSWORD }}"
+    GITLAB_ADMIN_SSO_UID: "{{ GITLAB_ADMIN_USERNAME if (GITLAB_OIDC_ENABLED | bool and GITLAB_LOGIN_SSO | bool) else '' }}"
   register: gitlab_platform_admin
   changed_when: gitlab_platform_admin.stdout is search('\[CHANGED\]')
   failed_when: >-

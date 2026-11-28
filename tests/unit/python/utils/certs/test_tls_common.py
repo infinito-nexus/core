@@ -4,7 +4,7 @@ import unittest
 
 from ansible.errors import AnsibleError
 
-from utils.tls_common import (
+from utils.tls.common import (
     AVAILABLE_FLAVORS,
     align_domain_to_consumer,
     as_str,
@@ -28,7 +28,7 @@ from utils.tls_common import (
     want_get,
 )
 
-_tls_common = importlib.import_module("utils.tls_common")
+_tls_common = importlib.import_module("utils.tls.common")
 
 sys.modules.setdefault("ansible.module_utils.tls_common", _tls_common)
 

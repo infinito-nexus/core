@@ -5,6 +5,7 @@ import json
 import os
 
 import frappe
+from frappe.defaults import clear_default
 from frappe.utils.password import get_decrypted_password
 
 SITE_NAME = os.environ["SITE_NAME"]
@@ -13,7 +14,8 @@ BUTTON_TEXT = os.environ["BUTTON_TEXT"]
 CLIENT_ID = os.environ["CLIENT_ID"]
 CLIENT_SECRET = os.environ["CLIENT_SECRET"]
 ISSUER_URL = os.environ["ISSUER_URL"]
-GROUP_ROLE_MAP = json.loads(os.environ["GROUP_ROLE_MAP_JSON"])
+USER_ID_PROPERTY = os.environ["USER_ID_PROPERTY"]
+SOCIAL_LOGIN_ENABLED = os.environ["SOCIAL_LOGIN_ENABLED"] == "true"
 
 TRACKED_FIELDS = (
     "enable_social_login",
@@ -58,8 +60,8 @@ def upsert_social_login_key():
         before_secret = get_decrypted_password(
             "Social Login Key", PROVIDER_NAME, "client_secret", raise_exception=False
         )
-    slk.enable_social_login = 1
-    slk.sign_ups = "Allow"
+    slk.enable_social_login = 1 if SOCIAL_LOGIN_ENABLED else 0
+    slk.sign_ups = "Deny"
     slk.icon = "fa fa-key"
     slk.client_id = CLIENT_ID
     slk.client_secret = CLIENT_SECRET
@@ -72,7 +74,7 @@ def upsert_social_login_key():
         "/api/method/frappe.integrations.oauth2_logins.login_via_keycloak/keycloak"
     )
     slk.auth_url_data = json.dumps({"response_type": "code", "scope": "openid"})
-    slk.user_id_property = "preferred_username"
+    slk.user_id_property = USER_ID_PROPERTY
     slk.custom_button_text = BUTTON_TEXT
     slk.flags.ignore_permissions = True
     after_fields = _tracked(slk)
@@ -84,19 +86,12 @@ def upsert_social_login_key():
     )
 
 
-def store_group_role_map():
-    frappe.db.set_default(
-        "erpnext_oidc_group_role_map",
-        json.dumps(GROUP_ROLE_MAP),
-    )
-
-
 frappe.init(site=SITE_NAME, sites_path="/home/frappe/frappe-bench/sites")
 frappe.connect()
 changed = False
 try:
     changed = upsert_social_login_key()
-    store_group_role_map()
+    clear_default(key="erpnext_oidc_group_role_map")
     frappe.db.commit()
     frappe.clear_cache()
 finally:

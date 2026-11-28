@@ -11,7 +11,7 @@ from jinja2 import Environment, StrictUndefined, select_autoescape
 
 from plugins.filter.resource_filter import resolve_cpus
 from utils.cache.files import PROJECT_ROOT, read_text
-from utils.cache.yaml import load_yaml
+from utils.cache.yaml import load_yaml, load_yaml_str
 from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-nextcloud"
@@ -212,6 +212,21 @@ def _build_args(dockerfile: str) -> str:
 
 def _build(name: str) -> str:
     return _build_args(read_text(str(FILES / "Dockerfiles" / name / "Dockerfile")))
+
+
+def _service_command(service_var: str) -> list[str]:
+    """
+    Args:
+        service_var: the variable the compose template names the service by.
+
+    Returns:
+        The rendered ``command`` of that service.
+    """
+    marker = f"{{% set service_name = {service_var} %}}"
+    block = _template("compose.yml.j2").split(marker, 1)[1]
+    block = block.split("{% set service_name", 1)[0]
+    (line,) = [row for row in block.splitlines() if row.strip().startswith("command:")]
+    return load_yaml_str(_render(line.strip()))["command"]
 
 
 def _ini(text: str) -> dict[str, dict[str, str]]:
@@ -426,6 +441,13 @@ class TestJanusConfig(unittest.TestCase):
         self.assertNotEqual(_settings(rendered), STOCK_JANUS)
 
 
+def _configure_flags(dockerfile: str) -> list[str]:
+    configure = re.search(r"/src/configure((?: --[\w-]+)*);", dockerfile)
+    if configure is None:
+        raise AssertionError("the Janus build runs no /src/configure")
+    return configure.group(1).split()
+
+
 class TestTalkDockerfiles(unittest.TestCase):
     AIO_JANUS_BUILD_PACKAGES: ClassVar[list[str]] = [
         "ca-certificates",
@@ -459,9 +481,14 @@ class TestTalkDockerfiles(unittest.TestCase):
             '--depth=1 --single-branch --branch "v1.4.0" /src',
             rendered,
         )
-        self.assertIn(
-            "/src/configure --disable-rabbitmq --disable-mqtt --disable-boringssl",
-            rendered,
+        self.assertEqual(
+            _configure_flags(rendered),
+            [
+                "--disable-rabbitmq",
+                "--disable-mqtt",
+                "--disable-boringssl",
+                "--disable-rest",
+            ],
         )
         build_stage = rendered.split("\nFROM ")[1]
         for package in self.AIO_JANUS_BUILD_PACKAGES:
@@ -502,12 +529,13 @@ class TestTalkDockerfiles(unittest.TestCase):
         )
 
     def test_the_compose_command_points_each_binary_at_its_rendered_config(self):
-        compose = _template("compose.yml.j2")
-        self.assertIn(
-            'command: ["--config={{ NEXTCLOUD_HPB_JANUS_CONFIG_TARGET }}"]', compose
+        self.assertEqual(
+            _service_command("NEXTCLOUD_HPB_SERVICE"),
+            [f"--config={VARIABLES['NEXTCLOUD_HPB_JANUS_CONFIG_TARGET']}"],
         )
-        self.assertIn(
-            'command: ["--config", "{{ NEXTCLOUD_RECORDING_CONFIG_TARGET }}"]', compose
+        self.assertEqual(
+            _service_command("NEXTCLOUD_RECORDING_SERVICE"),
+            ["--config", VARIABLES["NEXTCLOUD_RECORDING_CONFIG_TARGET"]],
         )
 
     def test_no_image_ships_a_start_script_that_writes_its_config(self):
@@ -520,6 +548,13 @@ class TestTalkDockerfiles(unittest.TestCase):
                     rendered.split("\nFROM ")[-1].replace("COPY --from=build", ""),
                 )
                 self.assertNotIn("SECRET", rendered)
+
+    def test_negative_control_a_janus_build_with_the_rest_transport_is_reported(
+        self,
+    ):
+        drifted = _build("Janus").replace(" --disable-rest;", ";")
+        self.assertNotEqual(drifted, _build("Janus"))
+        self.assertNotIn("--disable-rest", _configure_flags(drifted))
 
     def test_negative_control_an_arg_compose_does_not_pass_fails_the_build(self):
         with self.assertRaisesRegex(AssertionError, "JANUS_UNPASSED"):

@@ -41,14 +41,14 @@ function declarations(css, selector) {
   );
 }
 
-test("the sign-in call to action of the access-denied page, secondary-filled since OpenCloud Web 8, takes the primary color and its on-color", () => {
+test("the sign-in call to action of the access-denied page, secondary-filled since OpenCloud Web 8, takes the primary color and its on-color", () => { // nocheck: test.text-presence -- parses the stylesheet rule into its declarations
   assert.deepEqual(declarations(STYLESHEET, "#exitAnchor"), {
     "--oc-button-color": "var(--design-primary)",
     "--oc-button-on-color": "var(--design-on-primary)",
   });
 });
 
-test("the hovered or pressed call to action takes the hover and active shade of the primary color", () => {
+test("the hovered or pressed call to action takes the hover and active shade of the primary color", () => { // nocheck: test.text-presence -- parses the stylesheet rules into their declarations
   assert.equal(
     declarations(STYLESHEET, `${FILLED_CONTROLS}:hover:not([disabled], .no-hover)`)?.["background-color"],
     "var(--design-primary-hover)",
@@ -59,14 +59,14 @@ test("the hovered or pressed call to action takes the hover and active shade of 
   );
 });
 
-test("a checked checkbox, which OpenCloud Web 8 fills with the secondary role, takes the primary color", () => {
+test("a checked checkbox, which OpenCloud Web 8 fills with the secondary role, takes the primary color", () => { // nocheck: test.text-presence -- parses the stylesheet rule into its declarations
   assert.deepEqual(declarations(STYLESHEET, ".oc-checkbox:checked:not(:disabled)"), {
     "border-color": "var(--design-primary)",
     "background-color": "var(--design-primary)",
   });
 });
 
-test("the check and dash marks of a checkbox take the on-primary color without touching its focus outline", () => {
+test("the check and dash marks of a checkbox take the on-primary color without touching its focus outline", () => { // nocheck: test.text-presence -- parses the stylesheet rule into its declarations
   assert.equal(
     declarations(STYLESHEET, '.oc-checkbox[type="checkbox"]:is(:checked, :indeterminate):not(:disabled)::before')?.[
       "background-color"

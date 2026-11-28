@@ -1,12 +1,6 @@
-# Certificate planning lookup for Infinito.Nexus:
-# - Computes certificate file paths (cert/key/ca)
-# - Computes effective SAN list (domains.san)
-# - Supports self-signed scope: "app" | "global"
-#
-# See utils/tls_common.py for shared resolution logic.
-
 from __future__ import annotations
 
+from functools import partial
 from pathlib import Path
 from typing import Any
 
@@ -14,9 +8,11 @@ from ansible.errors import AnsibleError
 from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
+from utils.cache.base import _render_with_templar
+from utils.domains.served import served_owners
 from utils.networks.reachability import network, network_of
 from utils.templating.jinja import render_strict
-from utils.tls_common import (
+from utils.tls.common import (
     AVAILABLE_FLAVORS,
     as_str,
     collect_domains_for_app,
@@ -34,6 +30,7 @@ from utils.tls_common import (
     uniq_preserve,
     want_get,
 )
+from utils.tls.overrides import with_rendered_tls
 
 LE_FULLCHAIN = "fullchain.pem"
 LE_PRIVKEY = "privkey.pem"
@@ -114,18 +111,31 @@ class LookupModule(LookupBase):
             )
 
         forced_mode = as_str(kwargs.get("mode", "auto")).lower()
+        served = served_owners(variables)
         app_id, primary_domain = resolve_term(
             term,
             domains=domains,
             applications=applications,
             redirects=redirect_targets(variables),
+            served=served,
             forced_mode=forced_mode,
             err_prefix="cert",
         )
+        app_served = [name for name, owner in served.items() if owner == app_id]
 
         app = applications.get(app_id, {})
         if not isinstance(app, dict):
             app = {}
+        app = with_rendered_tls(
+            app,
+            partial(
+                _render_with_templar,
+                templar=getattr(self, "_templar", None),
+                variables=variables,
+                raw_applications=applications,
+            ),
+            where=f"cert: '{app_id}'",
+        )
 
         enabled = resolve_enabled(app, bool(enabled_default))
         mode = resolve_mode(app, enabled, mode_default, err_prefix="cert")
@@ -216,11 +226,7 @@ class LookupModule(LookupBase):
                 all_domains = collect_domains_for_app(
                     domains, app_id, err_prefix="cert"
                 )
-                all_domains = (
-                    uniq_preserve([primary_domain, *all_domains])
-                    if all_domains
-                    else [primary_domain]
-                )
+                all_domains = uniq_preserve([primary_domain, *all_domains, *app_served])
 
                 san_override = override_san_list(app)
                 if san_override is None:

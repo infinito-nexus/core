@@ -12,6 +12,7 @@ const {
 const { decodeDotenvQuotedValue, gotoOnion } = require("./personas");
 const { skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
+const { SSO_ENTRY, adminKeycloakLoginId, env: login, oidcLogin } = require("./_shared");
 
 const base = decodeDotenvQuotedValue(process.env.DECIDIM_BASE_URL || process.env.APP_BASE_URL);
 const adminEmail = decodeDotenvQuotedValue(process.env.ADMIN_EMAIL);
@@ -35,6 +36,8 @@ const SIGN_IN_PASSWORD = `${SIGN_IN_FORM} input[type='password']`;
 const SIGN_IN_SUBMIT = `${SIGN_IN_FORM} button[type='submit']`;
 const SIGN_IN_LABEL = `${SIGN_IN_FORM} label`;
 const SIGN_IN_LINK = ".login__info a";
+const SIGN_IN_READY = login.loginMethodNative ? SIGN_IN_EMAIL : SSO_ENTRY;
+const SIGN_UP_SHOWN = login.loginMethodNative && login.loginMethodRegistration;
 const HEADING = "main h1";
 const HERO = ".hero__container, .home__section-image";
 const SEARCH_ICON = "#form-search_topbar button svg";
@@ -108,13 +111,18 @@ async function acceptConsent(page) {
 
 /**
  * Args:
- *   page: Playwright page that ends signed in as the organization administrator through the local form.
+ *   page: Playwright page that ends signed in as the organization administrator, through the local form while native sign-in is on and through Keycloak otherwise.
  *   consent: false when the context has accepted the data consent already.
  */
 async function signIn(page, consent = true) {
   await gotoOnion(page, `${base}/users/sign_in`);
-  await shown(SIGN_IN_EMAIL)(page);
+  await shown(SIGN_IN_READY)(page);
   if (consent) await acceptConsent(page);
+  if (!login.loginMethodNative) {
+    await oidcLogin(page, adminKeycloakLoginId(), adminPassword);
+    await expect(page).not.toHaveURL(/sign_in/, { timeout: resolveTimeout(60_000) });
+    return;
+  }
   await page.locator(SIGN_IN_EMAIL).fill(adminEmail);
   await page.locator(SIGN_IN_PASSWORD).fill(adminPassword);
   await page.locator(SIGN_IN_SUBMIT).click();
@@ -257,14 +265,18 @@ function visitorViews(processUrl) {
       },
     },
     view("home", `${base}/`, MAIN_BAR),
-    view("sign-in", `${base}/users/sign_in`, SIGN_IN_EMAIL),
-    view("sign-in-error", `${base}/users/sign_in`, SIGN_IN_EMAIL, async (page) => {
-      await page.locator(SIGN_IN_EMAIL).fill("design-showcase@example.org");
-      await page.locator(SIGN_IN_PASSWORD).fill("not-a-real-password");
-      await page.locator(SIGN_IN_SUBMIT).click();
-      await shown(FLASH)(page);
-    }),
-    view("sign-up", `${base}/users/sign_up`, "#register-form, form.new_user"),
+    view("sign-in", `${base}/users/sign_in`, SIGN_IN_READY),
+    ...(login.loginMethodNative
+      ? [
+          view("sign-in-error", `${base}/users/sign_in`, SIGN_IN_EMAIL, async (page) => {
+            await page.locator(SIGN_IN_EMAIL).fill("design-showcase@example.org");
+            await page.locator(SIGN_IN_PASSWORD).fill("not-a-real-password");
+            await page.locator(SIGN_IN_SUBMIT).click();
+            await shown(FLASH)(page);
+          }),
+        ]
+      : []),
+    ...(SIGN_UP_SHOWN ? [view("sign-up", `${base}/users/sign_up`, "#register-form, form.new_user")] : []),
     view("pages", `${base}/pages`, MENU_BAR),
     view("terms-of-service", `${base}/pages/terms-of-service`, MENU_BAR),
     view("search", `${base}/search?term=a`, MENU_BAR),
@@ -324,7 +336,7 @@ async function firstProcessUrl(page) {
 test("design: corporate tokens apply in light and dark mode", async ({ page }) => {
   skipUnlessServiceEnabled("design");
   await gotoOnion(page, `${base}/users/sign_in`);
-  await shown(SIGN_IN_EMAIL)(page);
+  await shown(SIGN_IN_READY)(page);
   await assertDesignTokens(page, "decidim");
 });
 
@@ -336,18 +348,24 @@ test("design: the public pages take surfaces, text, actions and frames from the 
   for (const mode of MODES) {
     await page.emulateMedia({ colorScheme: mode });
     await gotoOnion(page, `${base}/users/sign_in`);
-    await shown(SIGN_IN_EMAIL)(page);
+    await shown(SIGN_IN_READY)(page);
     await assertToken(page, HEADER, "background-color", "--design-surface-1", `header ${mode}`);
     await assertToken(page, HEADING, "color", "--design-text", `heading ${mode}`);
-    await assertToken(page, SIGN_IN_EMAIL, "background-color", "--design-surface-2", `field ${mode}`);
-    await assertToken(page, SIGN_IN_EMAIL, "border-top-color", "--design-border-strong", `field ${mode}`);
-    await assertTokenPixel(page, SIGN_IN_LINK, "color", "--design-link", `link ${mode}`);
+    if (login.loginMethodNative) {
+      await assertToken(page, SIGN_IN_EMAIL, "background-color", "--design-surface-2", `field ${mode}`);
+      await assertToken(page, SIGN_IN_EMAIL, "border-top-color", "--design-border-strong", `field ${mode}`);
+    }
+    if (SIGN_UP_SHOWN) {
+      await assertTokenPixel(page, SIGN_IN_LINK, "color", "--design-link", `link ${mode}`);
+    }
     await assertToken(page, SEARCH_ICON, "fill", "--design-text-muted", `search icon ${mode}`);
-    await assertToken(page, SIGN_IN_SUBMIT, "background-color", "--design-primary", `primary action ${mode}`);
-    await assertToken(page, SIGN_IN_SUBMIT, "color", "--design-on-primary", `primary action ${mode}`);
-    await page.locator(SIGN_IN_SUBMIT).hover();
-    await assertToken(page, SIGN_IN_SUBMIT, "background-color", "--design-primary-hover", `hovered action ${mode}`);
-    await assertToken(page, SIGN_IN_SUBMIT, "color", "--design-on-primary", `hovered action ${mode}`);
+    if (login.loginMethodNative) {
+      await assertToken(page, SIGN_IN_SUBMIT, "background-color", "--design-primary", `primary action ${mode}`);
+      await assertToken(page, SIGN_IN_SUBMIT, "color", "--design-on-primary", `primary action ${mode}`);
+      await page.locator(SIGN_IN_SUBMIT).hover();
+      await assertToken(page, SIGN_IN_SUBMIT, "background-color", "--design-primary-hover", `hovered action ${mode}`);
+      await assertToken(page, SIGN_IN_SUBMIT, "color", "--design-on-primary", `hovered action ${mode}`);
+    }
     await page.locator(HEADING).first().hover();
     await assertToken(page, MENU_BAR, "background-color", "--design-frame", `menu bar ${mode}`);
     await assertToken(page, MENU_BAR_ENTRY, "color", "--design-on-frame", `menu bar ${mode}`);
@@ -356,19 +374,27 @@ test("design: the public pages take surfaces, text, actions and frames from the 
   }
   await page.emulateMedia({ colorScheme: null });
   await gotoOnion(page, `${base}/users/sign_in`);
-  await shown(SIGN_IN_EMAIL)(page);
+  await shown(SIGN_IN_READY)(page);
   await assertLightAndDark(page, HEADING, "decidim sign-in");
   await assertReadable(
     page,
-    [HEADING, SIGN_IN_SUBMIT, SIGN_IN_LABEL, SIGN_IN_LINK, MENU_BAR_ENTRY, FOOTER_LINK],
+    [
+      HEADING,
+      ...(login.loginMethodNative ? [SIGN_IN_SUBMIT, SIGN_IN_LABEL] : []),
+      ...(SIGN_UP_SHOWN ? [SIGN_IN_LINK] : []),
+      MENU_BAR_ENTRY,
+      FOOTER_LINK,
+    ],
     "decidim sign-in",
   );
-  await page.locator(SIGN_IN_EMAIL).fill("design-showcase@example.org");
-  await page.locator(SIGN_IN_PASSWORD).fill("not-a-real-password");
-  await page.locator(SIGN_IN_SUBMIT).click();
-  await shown(FLASH)(page);
-  await assertToken(page, FLASH, "background-color", "--design-danger-subtle", "sign-in error");
-  await assertReadable(page, [FLASH_MESSAGE], "decidim sign-in error");
+  if (login.loginMethodNative) {
+    await page.locator(SIGN_IN_EMAIL).fill("design-showcase@example.org");
+    await page.locator(SIGN_IN_PASSWORD).fill("not-a-real-password");
+    await page.locator(SIGN_IN_SUBMIT).click();
+    await shown(FLASH)(page);
+    await assertToken(page, FLASH, "background-color", "--design-danger-subtle", "sign-in error");
+    await assertReadable(page, [FLASH_MESSAGE], "decidim sign-in error");
+  }
   await gotoOnion(page, `${base}/pages`);
   await shown(MENU_BAR)(page);
   const stops = await assertFrameFocus(page, MENU_BAR, 25, "public menu bar");
@@ -449,7 +475,7 @@ test("design: organization name, colors, logo and favicon are the configured one
   test.setTimeout(resolveTimeout(240_000));
   await page.emulateMedia({ colorScheme: "light" });
   await gotoOnion(page, `${base}/users/sign_in`);
-  await shown(SIGN_IN_EMAIL)(page);
+  await shown(SIGN_IN_READY)(page);
   const themeColor = await page.locator("meta[name='theme-color']").getAttribute("content");
   const stored = await page.evaluate((value) => {
     const probe = document.createElement("span");

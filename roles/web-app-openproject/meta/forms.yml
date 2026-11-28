@@ -1,0 +1,38 @@
+---
+general:
+  path: /admin/settings/general
+  native: true
+  sinks: [OPENPROJECT_GENERAL]
+  fields:
+    app_title:
+      source: services.openproject.app_title
+      when: services.design.enabled
+      mode: enforced
+      selector: '[name="settings[app_title]"]'
+      type: text
+      label: Application title
+    host_name:
+      source: services.openproject.host_name
+      mode: enforced
+      selector: '[name="settings[host_name]"]'
+      type: text
+      label: Host name
+    https:
+      source: services.openproject.https
+      mode: enforced
+      selector: '[name="settings[https]"]'
+      type: checkbox
+      map: { true: true, false: false }
+      label: HTTPS
+users:
+  path: /admin/settings/users
+  native: true
+  sinks: [OPENPROJECT_USERS]
+  fields:
+    user_default_theme:
+      source: services.openproject.user_default_theme
+      when: services.design.enabled
+      mode: enforced
+      selector: '[name="settings[user_default_theme]"]'
+      type: text
+      label: Default theme

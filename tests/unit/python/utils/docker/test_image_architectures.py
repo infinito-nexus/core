@@ -10,11 +10,17 @@ from __future__ import annotations
 
 import unittest
 
-from utils.docker.image.architectures import role_capability, runnable_architectures
+from utils.docker.image.architectures import (
+    role_capability,
+    runnable_architectures,
+    service_platforms,
+)
 
 BOTH = {"linux/amd64", "linux/arm64"}
 AMD64 = {"linux/amd64"}
 ARM64 = {"linux/arm64"}
+PINNED = ""
+REWRITTEN = "arm64"
 
 
 class TestRunnableArchitectures(unittest.TestCase):
@@ -92,6 +98,39 @@ class TestRoleCapability(unittest.TestCase):
 
     def test_a_role_without_images_has_no_capability(self) -> None:
         self.assertEqual((None, {}, []), role_capability({}))
+
+
+class TestServicePlatforms(unittest.TestCase):
+    def test_a_derived_arm64_tag_completes_an_amd64_only_pin(self) -> None:
+        merged = service_platforms([(PINNED, AMD64), (REWRITTEN, ARM64)])
+        capability, blame, _unread = role_capability({"speech": merged})
+
+        self.assertEqual({"amd64", "arm64"}, capability)
+        self.assertEqual({}, blame)
+
+    def test_an_amd64_only_pin_without_a_derived_tag_stays_amd64(self) -> None:
+        capability, blame, _unread = role_capability(
+            {"speech": service_platforms([(PINNED, AMD64)])}
+        )
+
+        self.assertEqual({"amd64"}, capability)
+        self.assertEqual({"arm64": ["speech"]}, blame)
+
+    def test_a_derived_tag_counts_only_on_its_own_architecture(self) -> None:
+        merged = service_platforms([(PINNED, AMD64), (REWRITTEN, AMD64)])
+
+        self.assertEqual(
+            AMD64,
+            merged,
+            "an arm64 tag that publishes amd64 only must not make the service "
+            "look arm64-capable",
+        )
+
+    def test_the_pin_no_longer_counts_for_a_rewritten_architecture(self) -> None:
+        self.assertEqual(AMD64, service_platforms([(PINNED, BOTH), (REWRITTEN, set())]))
+
+    def test_one_unread_tag_leaves_the_service_unread(self) -> None:
+        self.assertIsNone(service_platforms([(PINNED, AMD64), (REWRITTEN, None)]))
 
 
 if __name__ == "__main__":

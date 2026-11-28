@@ -10,6 +10,6 @@ agnt_claude_gateway_url: "{{ lookup('config', application_id, 'services.claude.g
 agnt_claude_anthropic_base_url: "{{ agnt_claude_gateway_url | regex_replace('/v1/?$', '') }}"
 agnt_claude_model: "{{ lookup('config', application_id, 'services.claude.model') or (LITELLM_CHAT_MODEL if LITELLM_USABLE | bool else '') }}"
 agnt_claude_background_model: "{{ lookup('config', application_id, 'services.claude.background_model') }}"
-agnt_claude_gateway_key: "{{ lookup('config', application_id, 'secrets.credentials.gateway_key') or (lookup('config', application_id, 'secrets.credentials.litellm_api_key')
-  if LITELLM_USABLE | bool else '') }}"
+agnt_claude_gateway_key: "{{ lookup('config', application_id, 'secrets.credentials.gateway_key') or (lookup('litellm_api_key', application_id) if LITELLM_USABLE |
+  bool else '') }}"
 agnt_claude_configured: "{{ (agnt_claude_gateway_url | length > 0) and (agnt_claude_gateway_key | length > 0) }}"

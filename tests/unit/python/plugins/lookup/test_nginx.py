@@ -99,6 +99,32 @@ class TestNginxPathsLookup(unittest.TestCase):
         self.assertEqual(out["global"], "/opt/mock/www/global/")
         self.assertEqual(out["well_known"], "/usr/share/nginx/well-known/")
 
+    def test_paused_directories_live_below_the_mounted_www_tree(self):
+        out = self._run(["directories.data"])
+        self.assertEqual(out["paused_apps"], "/opt/mock/www/paused/apps/")
+        self.assertEqual(out["paused_pages"], "/opt/mock/www/paused/pages/")
+
+    def test_paused_directories_are_ensured_world_readable(self):
+        ensure = self._run(["directories.ensure"])
+        for path in (
+            "/opt/mock/www/paused/",
+            "/opt/mock/www/paused/apps/",
+            "/opt/mock/www/paused/pages/",
+        ):
+            self.assertIn({"path": path, "mode": "0755"}, ensure)
+
+    def test_health_status_file_lives_in_an_ensured_world_readable_directory(self):
+        self.assertEqual(
+            self._run(["files.health_status"]), "/opt/mock/www/health/status.json"
+        )
+        self.assertEqual(
+            self._run(["directories.data"])["health"], "/opt/mock/www/health/"
+        )
+        self.assertIn(
+            {"path": "/opt/mock/www/health/", "mode": "0755"},
+            self._run(["directories.ensure"]),
+        )
+
     def test_directories_cache_projection(self):
         out = self._run(["directories.cache"])
         self.assertEqual(out["general"], "/tmp/cache_nginx_general/")

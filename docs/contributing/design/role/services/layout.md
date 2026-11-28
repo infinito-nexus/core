@@ -52,7 +52,7 @@ same file-root rule as every other `meta/<topic>.yml`.
 
 All non-compose top-level keys (everything except `compose:`, `server:`, `rbac:`, and `credentials:`) MUST be inlined into `meta/services.yml` under `<primary_entity>.<key>`, where `<primary_entity>` is the value returned by `entity_name(role_name)`.
 
-Inlined keys observed today (non-exhaustive): `plugins`, `plugins_enabled`, `email`, `ldap`, `accounts`, `scopes`, `alerting`, `languages`, `company`, `default_quota`, `legacy_login_mask`, `site_name`, `token`, `modules`, `network`, `performance`, `preload_models`, `provision`, `features`.
+Inlined keys observed today (non-exhaustive): `plugins`, `plugins_enabled`, `email`, `ldap`, `accounts`, `scopes`, `alerting`, `languages`, `company`, `default_quota`, `login`, `site_name`, `token`, `modules`, `network`, `performance`, `preload_models`, `provision`, `features`, `garbage_collector` (see [garbage_collector.sh.md](../../../artefact/files/role/garbage_collector.sh.md)).
 
 `addons` is **not inlined** under the primary entity: role-level extensions are a first-class, per-file topic under `meta/addons/` (see [Unified Addons](#unified-addons-metaaddons-)).
 The same applies to a role that spells the concept `plugins`/`extensions`/`modules`/`mu_plugins`: those declarations live under `meta/addons/`.
@@ -75,6 +75,28 @@ matomo:
 # roles/web-app-matomo/meta/volumes.yml  (file root IS the volumes map)
 data: matomo_data
 ```
+
+## Mode Switches: `debug` and `validate` 🎚️
+
+A role never reads the global modes `DEBUG` or `VALIDATE` from [01_modes.yml](../../../../../group_vars/all/01_modes.yml) itself.
+Its code calls `lookup('debug')` or `lookup('validate')` instead.
+The lookup resolves the role from `application_id`, reads `services.<entity>.<switch>.enabled` of the role's primary entity, and falls back to the global mode when that key is unset.
+It always returns a real boolean, so a string extra-var such as `-e DEBUG=false` stays false.
+A role without `application_id`, and any file that runs in another role's context (handlers, `meta/addons/`, tasks included by other roles), names the role literally: `lookup('debug', 'sys-svc-sshd')`.
+
+A role needs no declaration for either switch.
+A `debug` or `validate` block on the primary entity is an optional override that holds exactly `enabled`, with a literal or a template that does not read the global:
+
+```yaml
+# roles/web-app-joomla/meta/services.yml
+joomla:
+  debug:
+    enabled: false
+```
+
+A host overrides one role in the inventory at `applications.<role>.services.<entity>.debug.enabled`, which wins over `meta/services.yml`.
+An override for a switch whose lookup the role never calls is dead config and fails the lint.
+[test_role_mode_switches.py](../../../../../tests/lint/ansible/variables/test_role_mode_switches.py) enforces the rule, and the lookups live in [debug.py](../../../../../plugins/lookup/debug.py) and [validate.py](../../../../../plugins/lookup/validate.py).
 
 ## Schema Format: `meta/secrets.yml` 🗝️
 
@@ -142,13 +164,15 @@ credentials:
     description: "OpenAI API key; empty leaves the openai/* models unpublished"
     type:        "string"
     regex:       "\\S{20,}"
-    default:     "{{ API.openai.api_key }}"
+    default:     "{{ lookup('api', 'openai.api_key') }}"
 ```
 
-The `default:` points at the central `API` block in
-[group_vars/all/18_api.yml](../../../../../group_vars/all/18_api.yml), so an
-operator fills the provider in one place while the role keeps the shape the
-value must have.
+The `default:` resolves the inventory's central `API` mapping through the API
+lookup. Provider declarations live under `API_DECLARATIONS` in
+[group_vars/all/18_api.yml](../../../../../group_vars/all/18_api.yml). Keeping
+these mappings separate prevents playbook group variables from overwriting
+inventory credentials with empty values. The operator fills each provider once
+while the role keeps the shape the value must have.
 
 ### Write a pattern for the paste, not for the vendor 🚫
 
@@ -224,7 +248,7 @@ All port data lives under `<entity>.ports` in `meta/services.yml` (no `ports:` s
 | Slot       | Meaning                                                                                                       |
 |------------|---------------------------------------------------------------------------------------------------------------|
 | `internal` | **Internal container port.** Lives inside the container's network namespace, addressed by other containers on the same role-local network. NOT a host-bound port. Multiple roles MAY legitimately declare the same value (e.g. several nginx-based apps with `internal: { http: 80 }`). |
-| `local`    | **Localhost-bound host port.** Bound on `127.0.0.1` and only reachable through the front-proxy / SSH tunnels. The OS-level binding namespace is shared across all roles, so `local` values MUST be unique across the whole repo. |
+| `local`    | **Localhost-bound host port.** Bound on `127.0.0.1` and only reachable through the front-proxy / SSH tunnels. The OS-level binding namespace is shared across all roles, so `local` values MUST be unique across the whole repo. In swarm it is not published, except a port the node onion forwards (`exposed: true` or `ports.onion`) of an application `svc-net-tor` is deployed for: that one is published in `mode: host` when it is in `SWARM_ONION_HOST_BACKENDS`, its service is pinned to the stack host, and the swarm node baseline, loaded from that list before the first stack deploy of the run, drops every packet to it that does not arrive on `lo` until no service publishes it in host mode any more. |
 | `public`   | **Public-facing host port.** Bound on `0.0.0.0` and exposed to the public internet (or to whatever the operator's firewall allows). Same uniqueness rule as `local`. |
 | `onion`    | **Onion opt-in, not a port.** A category-keyed map of booleans naming which of the entity's own categories get a `HiddenServicePort` on the node onion. It declares no numbers: the port is read from `local` when the category is declared there and from `public` otherwise, matching what `container_ports` publishes. Collision detection ignores it. |
 
@@ -359,6 +383,27 @@ The helper module `utils/roles/meta_lookup.py` exposes `get_role_run_after(role)
 All consumers of these fields use the helper instead of hand-rolled derivations.
 The helper returns `[]` / `None` gracefully when `meta/services.yml` is absent or when the field is not set.
 
+## Host Devices: `requires_devices` 🔌
+
+A role whose deploy needs a device node on the host names it on its primary entity in `meta/services.yml`:
+
+```yaml
+# roles/svc-virt-incus/meta/services.yml
+incus:
+  requires_devices:
+    - /dev/kvm
+```
+
+- The value is a non-empty list of distinct, normalised paths below `/dev`.
+  Omit the key when the role needs no device.
+  A malformed value, or the key on any entity but the primary one, fails [test_requires_devices.py](../../../../../tests/lint/ansible/roles/meta/test_requires_devices.py).
+- `get_role_requires_devices(role)` in `utils/roles/meta_lookup.py` reads the key and raises on a malformed value.
+- The development deploy, which `make compose-deploy` and the compose and host CI deploy rows run, checks each device the roles of a round declare on the deploy target before that round starts.
+  When one is missing, that round and every later one are declined, not failed: the runner prints `requires-devices: status=declined` with the device and the roles that need it, adds a **not run** line to the job summary and exits 0.
+  See [devices.py](../../../../../cli/administration/deploy/development/deploy/devices.py).
+- The declaration does not replace the role's own refusal.
+  A role that cannot run without the device still asserts it at deploy time, so a deploy outside the development runner stops with the role's message.
+
 ## Descriptive Role-Level Metadata: `meta/info.yml` 📝
 
 Project-internal descriptive metadata (icon, upstream homepage, demo video) lives in an OPTIONAL `meta/info.yml`, not nested inside `galaxy_info:`.
@@ -395,7 +440,7 @@ Consumers MUST treat a missing file or missing field as absent / default.
 applications.<role>.info.{logo,homepage,video}
 ```
 
-The dashboard's `web-app-dashboard/lookup_plugins/docker_cards.py` reads `logo.class` from this location, while `description` and `galaxy_tags` continue to come from `galaxy_info` (Galaxy-spec fields).
+The dashboard's `plugins/lookup/docker_cards.py` reads `logo.class` from this location, while `description` and `galaxy_tags` continue to come from `galaxy_info` (Galaxy-spec fields).
 
 ## Unified Addons: `meta/addons/` 🧩
 
@@ -435,7 +480,8 @@ config: {}                  # optional, opaque, role-interpreted runtime payload
 | `version` | no | string | `""` | A pin MUST be a quoted string, never an unquoted number. `""` tracks the app default. |
 | `group` | no | string | — | Free grouping label (e.g. Odoo `core`/`optional`). MUST NOT affect enablement. |
 | `update` | no | map | — | `monitored` (bool, default `false`), `catalog` (a supported adapter), `upstream_id` (defaults to the addon id). A `version` pin MUST also name its version source here, or carry `# nocheck: unwatched-version` with a reason: either `type` with its fields, or `monitored: true` with `catalog: github-releases` and the `owner/repository` as `upstream_id`. See [Declared version sources](../../../../../cli/contributing/update/README.md#declared-version-sources). |
-| `config` | no | map | — | Opaque, role-interpreted runtime payload. Lint does not constrain its inner shape beyond requiring a mapping. Secrets inside `config` MUST resolve through `lookup('config', application_id, 'secrets.credentials.<name>')` and MUST NOT be inlined literally. |
+| `config` | no | map | — | Opaque, role-interpreted runtime payload. Lint does not constrain its inner shape beyond requiring a mapping. Secrets inside `config` MUST resolve through `lookup('config', application_id, 'secrets.credentials.<name>')` and MUST NOT be inlined literally. A `config.tier` (or `config.*_tier`) of `paid` or `enterprise` marks a commercial-tier integration: it MUST stay disabled and optional, and the role README MUST name the addon and the tier ([test_addons_paid_tier.py](../../../../../tests/lint/ansible/services/test_addons_paid_tier.py)). |
+| `skipped` | no | string | — | The reason a surveyed integration is deliberately not wired. A skipped addon MUST stay disabled, MUST NOT be `required: true` and MUST NOT declare `bridges` ([test_addons_skipped.py](../../../../../tests/lint/ansible/services/test_addons_skipped.py)). |
 
 Any credential an addon needs is declared in `meta/secrets.yml` `credentials:`
 and read via `lookup('config', application_id, 'secrets.credentials.<name>')`. There
@@ -458,6 +504,11 @@ Two distinct meanings of "bridge" MUST NOT be conflated:
 
 A single addon MAY be both: a `mechanism: bridge` addon MAY also declare a
 `bridges:` dependency on an in-repo service it relies on.
+
+An OIDC or SAML client addon MUST bridge the role's `sso` service, which the
+shared Keycloak realm serves centrally; a `keycloak`, `oidc`, `openid` or
+`saml` bridge key fails
+[test_addons_sso_central.py](../../../../../tests/lint/ansible/services/test_addons_sso_central.py).
 
 Front-door auth gates (e.g. an oauth2-proxy `sso` service in front of the
 vhost) are NOT addon bridges unless the addon itself talks to that service;

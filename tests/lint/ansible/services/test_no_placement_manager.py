@@ -103,7 +103,7 @@ def _format(findings: list[tuple[str, int, str]]) -> str:
 
 
 class TestNoDefaultPlacementManager(unittest.TestCase):
-    def test_no_placement_without_explicit_opt_out(self) -> None:
+    def test_no_placement_without_explicit_opt_out(self) -> None:  # nocheck: test.text-presence -- policy lint over every role meta/services.yml  # fmt: skip
         findings = [
             (rel, line_no, text)
             for rel, line_no, text, _value, suppressed in _placements()
@@ -132,7 +132,7 @@ class TestNoDefaultPlacementManager(unittest.TestCase):
                 f"Offending lines:\n{_format(findings)}"
             )
 
-    def test_placement_names_a_swarm_node_role(self) -> None:
+    def test_placement_names_a_swarm_node_role(self) -> None:  # nocheck: test.text-presence -- policy lint over every role meta/services.yml  # fmt: skip
         findings = [
             (rel, line_no, text)
             for rel, line_no, text, value, _suppressed in _placements()

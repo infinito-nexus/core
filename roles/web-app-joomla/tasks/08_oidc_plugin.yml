@@ -91,3 +91,28 @@
     - plugin_enable.rc != 0
     - plugin_enable.stdout | default('') is not search('already')
   delegate_to: "{{ JOOMLA_HOST_NODE }}"
+
+- name: "🪪 Enable plg_user_profile with the fields plg_system_keycloak syncs"
+  ansible.builtin.shell: >
+    container exec -i
+    --user {{ JOOMLA_WEB_USER | quote }}
+    -e J_ROOT={{ JOOMLA_DOCROOT | quote }}
+    -e J_PROFILE_FIELDS={{ JOOMLA_PROFILE_FIELDS | to_json | quote }}
+    -e J_PROFILE_SHOWN={{ JOOMLA_PROFILE_SHOWN | to_json | quote }}
+    {{ JOOMLA_LOCAL_CID | quote }} php --
+  args:
+    stdin: "{{ lookup('file', role_path ~ '/files/php/profile_plugin.php') }}"
+  register: joomla_profile_plugin
+  changed_when: (joomla_profile_plugin.stdout | trim) == "changed"
+  failed_when: joomla_profile_plugin.rc != 0 or (joomla_profile_plugin.stdout | trim) not in ['changed', 'ok']
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"
+
+- name: "🧹 Clear the Joomla cache after a plg_user_profile change"
+  ansible.builtin.shell: >
+    container exec
+    --user {{ JOOMLA_WEB_USER | quote }}
+    {{ JOOMLA_LOCAL_CID | quote }}
+    php {{ JOOMLA_CLI_FILE | quote }} cache:clean
+  when: joomla_profile_plugin is changed
+  changed_when: true
+  delegate_to: "{{ JOOMLA_HOST_NODE }}"

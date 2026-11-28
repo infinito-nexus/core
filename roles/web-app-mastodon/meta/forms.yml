@@ -1,0 +1,24 @@
+---
+registrations:
+  path: /admin/settings/registrations
+  sinks: [MASTODON_REGISTRATIONS]
+  fields:
+    registrations_mode:
+      source: services.mastodon.login.method.registration.enabled
+      mode: enforced
+      selector: '[name="form_admin_settings[registrations_mode]"]'
+      type: select
+      enum: [open, approved, none]
+      map: { true: open, false: none }
+      label: Registrations mode
+branding:
+  path: /admin/settings/branding
+  sinks: [MASTODON_BRANDING]
+  fields:
+    site_title:
+      source: services.mastodon.site_title
+      when: services.design.enabled
+      mode: enforced
+      selector: '[name="form_admin_settings[site_title]"]'
+      type: text
+      label: Site title

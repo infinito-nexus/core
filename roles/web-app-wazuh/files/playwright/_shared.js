@@ -16,7 +16,35 @@ const env = {
   keycloakAdminRealm: decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_REALM),
   keycloakAdminCliClientId: decodeDotenvQuotedValue(process.env.KEYCLOAK_ADMIN_CLI_CLIENT_ID),
   rbacGroupPathPrefix: decodeDotenvQuotedValue(process.env.RBAC_GROUP_PATH_PREFIX),
+  apiHostId: decodeDotenvQuotedValue(process.env.WAZUH_API_HOST_ID),
 };
+
+/**
+ * Return the Wazuh API policies the dashboard obtains for the signed-in
+ * user through run_as, as raw text plus the HTTP statuses on the way.
+ *
+ * Args:
+ *   page: a Playwright page whose context carries the dashboard session.
+ */
+async function wazuhApiPolicies(page) {
+  const headers = { "osd-xsrf": "kibana", "Content-Type": "application/json" };
+  const login = await page.request.post(`${env.appBaseUrl}/api/login`, {
+    headers,
+    data: { idHost: env.apiHostId, force: true },
+    failOnStatusCode: false,
+    timeout: resolveTimeout(60_000),
+  });
+  if (!login.ok()) {
+    return { loginStatus: login.status(), status: 0, text: (await login.text()).slice(0, 1000) };
+  }
+  const response = await page.request.post(`${env.appBaseUrl}/api/request`, {
+    headers,
+    data: { method: "GET", path: "/security/users/me/policies", body: {}, id: env.apiHostId },
+    failOnStatusCode: false,
+    timeout: resolveTimeout(60_000),
+  });
+  return { loginStatus: login.status(), status: response.status(), text: await response.text() };
+}
 
 function attachDiagnostics(page) {
   const consoleErrors = [];
@@ -121,6 +149,7 @@ async function withBiberInGroup(browser, groupPath, fn) {
 module.exports = {
   env,
   attachDiagnostics,
+  wazuhApiPolicies,
   wazuhLoginViaOidc,
   withBiberInGroup,
 };

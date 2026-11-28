@@ -78,7 +78,7 @@ def _candidate_paths() -> list[Path]:
 
 
 class TestEnvBaseInclude(unittest.TestCase):
-    def test_env_files_include_base(self) -> None:
+    def test_env_files_include_base(self) -> None:  # nocheck: test.text-presence -- policy lint over every env template  # fmt: skip
         offenders: list[str] = []
         for path in _candidate_paths():
             try:

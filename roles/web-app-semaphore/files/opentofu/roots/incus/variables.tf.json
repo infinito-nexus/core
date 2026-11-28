@@ -1,0 +1,10 @@
+{
+  "variable": {
+    "name": {"type": "string", "nullable": false, "description": "State key name: <sales order>-<line>."},
+    "flavor": {"type": "string", "nullable": false, "description": "Order flavor; selects the catalog."},
+    "size": {"type": "string", "nullable": false, "description": "Catalog size."},
+    "region": {"type": "string", "nullable": false, "description": "Catalog region."},
+    "ssh_public_key": {"type": "string", "nullable": false, "description": "Workspace public key for the first login."},
+    "dns_label": {"type": "string", "nullable": false, "description": "Label of the per-deploy record."}
+  }
+}

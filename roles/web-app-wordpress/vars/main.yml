@@ -64,9 +64,6 @@ WORDPRESS_S3_UPLOADS_VERSION: >-
   {{ lookup('config', application_id, 'addons.s3-uploads.version')
   if (lookup('config', application_id, 'addons.s3-uploads.enabled') | bool) else '' }}
 WORDPRESS_TRANSLATE_ENABLED: "{{ lookup('config', application_id, 'addons.freedomtranslate-wp.enabled') | bool }}"
-WORDPRESS_TRANSLATE_OPTIONS: >-
-  {{ (lookup('config', application_id, 'addons.freedomtranslate-wp.config.options') if WORDPRESS_TRANSLATE_ENABLED | bool else [])
-  | items2dict(key_name='name', value_name='value') }}
 WORDPRESS_TRANSLATE_ENDPOINT: "{{ WORDPRESS_OPTIONS.freedomtranslate_api_url }}"
 WORDPRESS_S3_UPLOADS_SRC: "/usr/src/s3-uploads"
 WORDPRESS_S3_UPLOADS_DIR: "{{ [WORDPRESS_PLUGINS_DIR, 's3-uploads'] | path_join }}"
@@ -74,17 +71,56 @@ WORDPRESS_OPTIONS_OWNED_ELSEWHERE: >-
   {{ ['home', 'siteurl', 'active_plugins', 'rewrite_rules', 'openid_connect_generic_settings', 'mwai_options']
   + (lookup('config', application_id, 'addons.wp-discourse.config.discourse_settings') | map(attribute='name') | list)
   + (WORDPRESS_DESIGN_LOGOS.keys() | list) }}
-WORDPRESS_OPTIONS_CONTRIBUTED: >-
-  {{ {'admin_email': WORDPRESS_ADMIN_EMAIL}
-  | combine({'blogname': WORDPRESS_DESIGN.title} if (WORDPRESS_DESIGN_ENABLED | bool and WORDPRESS_DESIGN.title is string and WORDPRESS_DESIGN.title) else {})
-  | combine(WORDPRESS_TRANSLATE_OPTIONS) }}
 WORDPRESS_OPTIONS: >-
-  {{ WORDPRESS_OPTIONS_CONTRIBUTED | combine(lookup('config', application_id, 'services.' ~ entity_name ~ '.options'))
-  | wordpress_options_checked(WORDPRESS_OPTIONS_OWNED_ELSEWHERE) }}
+  {{ lookup('form_values', application_id, 'general')
+  | combine(lookup('form_values', application_id, 'permalink'))
+  | combine(lookup('form_values', application_id, 'translate')) }}
+WORDPRESS_NETWORK_OPTIONS: "{{ lookup('form_values', application_id, 'network') }}"
+WORDPRESS_ADDRESS: "{{ lookup('form_values', application_id, 'address') }}"
+WORDPRESS_MANAGED_OPTIONS_FILE: "{{ [WORDPRESS_DOCKER_HTML_PATH, 'wp-content/infinito-managed-options.php'] | path_join }}"
+WORDPRESS_OPTIONS_CHECKED: "{{ WORDPRESS_OPTIONS | wordpress_options_checked(WORDPRESS_OPTIONS_OWNED_ELSEWHERE) }}"
+WORDPRESS_AI_ENGINE: "{{ lookup('form_values', application_id, 'ai_engine') }}"
+WORDPRESS_AI_ENGINE_ENVIRONMENT: >-
+  {{ lookup('config', application_id, 'addons.ai-engine.config.environment')
+  | combine({'id': WORDPRESS_AI_ENGINE.ai_default_env, 'endpoint': WORDPRESS_AI_ENGINE.endpoint, 'apikey': WORDPRESS_AI_ENGINE.apikey}) }}
+WORDPRESS_MANAGED_OPTIONS:
+  option: "{{ WORDPRESS_OPTIONS_CHECKED | combine(WORDPRESS_ADDRESS) }}"
+  site_option: "{{ WORDPRESS_NETWORK_OPTIONS }}"
+  merge: >-
+    {{ {'mwai_options': {
+         'keys': {'ai_default_env': WORDPRESS_AI_ENGINE.ai_default_env, 'ai_default_model': WORDPRESS_AI_ENGINE.ai_default_model},
+         'records': {'ai_envs': WORDPRESS_AI_ENGINE_ENVIRONMENT}}}
+       if WORDPRESS_AI_ENGINE else {} }}
+WORDPRESS_OPTION_PINS_UNREAD: >-
+  {{ lookup('config', application_id, 'services.' ~ entity_name ~ '.options')
+  | wordpress_options_unread(lookup('config', application_id, 'forms')) }}
 
+WORDPRESS_RBAC_SITE_ROLES: ["administrator", "editor", "author", "contributor", "subscriber"]
+WORDPRESS_RBAC_NETWORK_ADMIN_ROLE: "network-administrator"
+WORDPRESS_RBAC_SITE_OWNER_ROLE: "site-owner"
+WORDPRESS_RBAC_CONFIG: "{{ lookup('config', application_id, 'rbac') }}"
+WORDPRESS_RBAC_DOMAIN_TENANCY: "{{ 'tenancy' in WORDPRESS_RBAC_CONFIG and WORDPRESS_RBAC_CONFIG.tenancy.axis == 'domain' }}"
+WORDPRESS_DOMAINS_CONFIG: "{{ lookup('config', application_id, 'domains') }}"
+WORDPRESS_SITE_OWNER_DECLARATIONS: "{{ (WORDPRESS_DOMAINS_CONFIG.served if 'served' in WORDPRESS_DOMAINS_CONFIG else []) | selectattr('role', 'equalto', WORDPRESS_RBAC_SITE_OWNER_ROLE)
+  | list }}"
+WORDPRESS_SITE_OWNER_ENABLED: "{{ (WORDPRESS_MULTISITE_ENABLED | bool) and (WORDPRESS_SITE_OWNER_DECLARATIONS | length > 0) }}"
+WORDPRESS_SITE_OWNER_RESOLVED: "{{ lookup('served_domains', application_ids=[application_id]) }}"
+WORDPRESS_SITE_OWNER_PARENT_DOMAIN: "{{ (WORDPRESS_SITE_OWNER_RESOLVED.parents | selectattr('role', 'equalto', WORDPRESS_RBAC_SITE_OWNER_ROLE) | first).parent }}"
+WORDPRESS_SITE_OWNER_BASE_URL: "{{ lookup('tls', application_id, 'protocols.web') }}://{{ WORDPRESS_SITE_OWNER_PARENT_DOMAIN }}"
+WORDPRESS_SITE_OWNER_SERVED: "{{ CURRENT_PLAY_SERVED_DOMAINS | selectattr('application_id', 'equalto', application_id) | list }}"
+WORDPRESS_SITE_OWNER_DOMAINS: "{{ WORDPRESS_SITE_OWNER_SERVED | map(attribute='name') | list }}"
+WORDPRESS_SITE_OWNER_LOGINS: "{{ WORDPRESS_SITE_OWNER_SERVED | rejectattr('name', 'match', '[*][.]') | map(attribute='members') | flatten | list }}"
+WORDPRESS_SITE_OWNER_MEMBERS: "{{ WORDPRESS_SITE_OWNER_SERVED | map(attribute='members') | flatten | unique | list }}"
+WORDPRESS_SITE_OWNER_PROBLEMS: "{{ WORDPRESS_SITE_OWNER_RESOLVED.problems }}"
+WORDPRESS_OIDC_SETTINGS: "{{ lookup('config', application_id, 'addons.daggerhart-openid-connect-generic.config.oidc_settings') }}"
+WORDPRESS_RBAC_GROUP_MAP: "{{ lookup('template', lookup('path_absolute', 'roles', application_id, 'templates/rbac_group_map.json.j2')) | from_json }}"
 WORDPRESS_ADMIN_EMAIL: "{{ lookup('config', application_id, 'users.platform_administrator.email') }}"
 WORDPRESS_ADMIN_USER: "{{ lookup('users', 'platform_administrator').username }}"
 WORDPRESS_ADMIN_PASSWORD: "{{ lookup('users', 'platform_administrator').password }}"
+
+WORDPRESS_LOGIN_SSO: "{{ lookup('config', application_id, 'services.wordpress.login.method.sso.enabled') | bool }}"
+WORDPRESS_LOGIN_NATIVE: "{{ lookup('config', application_id, 'services.wordpress.login.method.native.enabled') | bool }}"
+WORDPRESS_LOGIN_REGISTRATION: "{{ lookup('config', application_id, 'services.wordpress.login.method.registration.enabled') | bool }}"
 
 WORDPRESS_DESIGN: "{{ lookup('design', application_id) }}"
 WORDPRESS_DESIGN_ENABLED: "{{ lookup('config', application_id, 'services.design.enabled') | bool }}"

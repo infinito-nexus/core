@@ -9,6 +9,6 @@
       - "MAIL_RECIPIENT={{ lookup('mail_recipient') }}"
       - "MAIL_TIMEOUT={{ lookup('email', key='timeout') }}"
 
-    system_service_force_flush_instant: "{{ MODE_DEBUG | bool }}"
+    system_service_force_flush_instant: "{{ lookup('debug', 'sys-ctl-hlth-msmtp') | bool }}"
     system_service_force_flush_final: false
 - include_tasks: utils/once/flag.yml

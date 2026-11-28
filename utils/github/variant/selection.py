@@ -12,9 +12,10 @@ the architecture on both lines.
 Two spellings are accepted, so an operator can either type the token or paste
 back the job title of the run they want repeated:
 
-* the job label CI emits (``🐝🧅🚇🌀🦓🦾𓏴𓏛Nextcloud#2``) -- the glyphs carry
+* the job label CI emits (``🐝🧅🚇🌀🦓🦾🔺𓏛Nextcloud#2``) -- the glyphs carry
   mode, network mode, mesh state, distro, filesystem and architecture, the
-  ``#`` shard the variants;
+  ``#`` shard the variants; the engine glyph is dropped, since the engine
+  rotates and no token pins it;
 * an ASCII form (``web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64&vpn``).
 
 The network mode spells out as ``+clearnet``/``+tor``/``+multi`` rather than
@@ -34,6 +35,7 @@ import re
 from typing import TYPE_CHECKING, NamedTuple
 
 from utils.github.variant.axes import ARCHITECTURES, DISTROS, FILESYSTEMS, MODES
+from utils.github.variant.pools import ENGINES
 from utils.networks.reachability import NODE_MODES
 from utils.roles.display import VARIANT_SEPARATOR, display_names
 from utils.symbol_glossary import to_emoji
@@ -58,7 +60,7 @@ NETWORK_WORDS = tuple(NODE_MODES)
 
 VPN_WORDS = {"vpn": True, "direct": False}
 
-_STRIPPED_GLYPHS = ("priority", "test_host")
+_STRIPPED_GLYPHS = ("priority", "test_host", *ENGINES)
 
 _VARIATION = re.compile("[︎️]")
 
@@ -160,11 +162,16 @@ def describe(pin: Pin) -> str:
     )
 
 
+def _bare(word: str) -> str:
+    """The glyph of *word* without the variation selector :func:`parse` strips."""
+    return _VARIATION.sub("", to_emoji(word))
+
+
 def _word_glyph(text: str, words: Iterable[str]) -> tuple[str, str | None]:
     """Strip whichever of *words* the text carries as a glyph, and name it."""
     found: str | None = None
     for word in words:
-        glyph = to_emoji(word)
+        glyph = _bare(word)
         if glyph in text:
             found, text = word, text.replace(glyph, "")
     return text, found
@@ -183,7 +190,7 @@ def _glyphs(
     text, architecture = _word_glyph(text, ARCHITECTURES)
     text, mesh = _word_glyph(text, VPN_WORDS)
     for word in _STRIPPED_GLYPHS:
-        text = text.replace(to_emoji(word), "")
+        text = text.replace(_bare(word), "")
     return (
         text.strip(),
         mode,

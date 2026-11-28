@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+# Param keep_label: <key>=<value> of the image label whose images survive the image prune.
+keep_label="${1:?usage: prune.sh <keep label key=value>}"
 floor_mib="${PRUNE_FREE_FLOOR_MIB:?Missing PRUNE_FREE_FLOOR_MIB}"
 repeat_below_percent="${PRUNE_REPEAT_BELOW_PERCENT:?Missing PRUNE_REPEAT_BELOW_PERCENT}"
 last_free_mib="${PRUNE_LAST_FREE_MIB?Missing PRUNE_LAST_FREE_MIB}"
@@ -28,7 +30,7 @@ echo "Docker disk usage before cleanup:"
 container system df || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 container container prune -f || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
-container image prune -af || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
+container image prune -af --filter "label!=${keep_label}" || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 container volume prune -f || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 
 container buildx prune -af || true  # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error

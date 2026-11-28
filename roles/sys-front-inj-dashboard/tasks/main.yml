@@ -10,10 +10,10 @@
   set_fact:
     iframe_init_code_one_liner: "{{ iframe_init_code | to_one_liner }}"
 
-- name: "➕ Append iFrame init CSP hash for '{{ application_id }}'"
+- name: "➕ Append iFrame init CSP hash for '{{ domain }}'"
   set_fact:
-    webserver_csp_hashes_extra_by_app: >-
-      {{ webserver_csp_hashes_extra_by_app | default({})
-         | add_csp_hash(application_id, 'script-src-elem', iframe_init_code_one_liner) }}
+    webserver_csp_hashes_extra_by_vhost: >-
+      {{ webserver_csp_hashes_extra_by_vhost
+         | add_csp_hash(domain, 'script-src-elem', iframe_init_code_one_liner) }}
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: false

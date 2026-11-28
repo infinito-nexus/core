@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: seaweedfs-required - Jellyfin stores its library on a dedicated media volume and metadata in internal SQLite under {{ lookup('volume', 'web-app-jellyfin', 'jellyfin_config').target }}; it has no S3/object-store surface.
 sso:
   bond: 1
@@ -37,6 +38,12 @@ prometheus:
   bond: 1
   enabled: "{{ 'web-app-prometheus' in group_names }}"
   shared: "{{ 'web-app-prometheus' in group_names }}"
+# nocheck: dynamic-flag
+# nocheck: playwright-service-flag
+javascript:
+  bond: 1
+  enabled: true
+  shared: true
 # nocheck: playwright-service-flag  self-provider
 jellyfin:
   enabled: true
@@ -52,6 +59,7 @@ jellyfin:
   mem_limit: 3g
   pids_limit: 4096
   min_storage: 890MB
+  server_name: "{{ lookup('design', 'web-app-jellyfin').title }}"
   image: jellyfin/jellyfin
   version: "10.11.11"
   backup:
@@ -71,6 +79,14 @@ jellyfin:
     - web-app-keycloak
     - svc-db-openldap
   lifecycle: beta
+  login:
+    method:
+      sso:
+        enabled: "{{ lookup('login_method', 'web-app-jellyfin', 'sso') }}"
+      ldap:
+        enabled: "{{ lookup('login_method', 'web-app-jellyfin', 'ldap') }}"
+      native:
+        enabled: "{{ lookup('login_method', 'web-app-jellyfin', 'native') }}"
   security:
     suppressions:
       # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
@@ -96,8 +112,8 @@ jellyfinmcp:
   enabled: "{{ lookup('config', 'web-app-jellyfin', 'mcp.enabled') | bool }}"
   shared: false
   image: python
-  # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
-  version: "3.13.15-slim"
+  version: "3.13.18-slim"
+  follow: requires-python
   custom: true
   name: jellyfinmcp
   cpus: "0.25"
@@ -107,11 +123,6 @@ jellyfinmcp:
   ports:
     internal:
       http: 8080
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "3.13.15-slim"
-        until: 2026-11-30
 # nocheck: playwright-service-flag  MCP pairing is proven by the role's own MCP spec, not by a per-consumer gate
 openwebui:
   bond: 0.5
@@ -138,3 +149,24 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  flush: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

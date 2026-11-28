@@ -47,8 +47,8 @@ These decisions were confirmed by the operator before implementation starts and 
 roles/web-app-jellyfin/
 ├── README.md
 ├── files/playwright/*.js
-├── meta/{main,info,server,services,schema,users,rbac,variants,volumes}.yml
-├── tasks/{main,01_core}.yml
+├── meta/{main,info,domains,csp,networks,services,secrets,users,rbac,variants,volumes}.yml
+├── tasks/{main,00_core}.yml
 ├── templates/{compose.yml.j2,env.j2,playwright.env.j2}
 └── vars/main.yml
 ```
@@ -57,30 +57,34 @@ roles/web-app-jellyfin/
 
 ### Routing & TLS
 
-- [ ] `media.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` to Jellyfin (`8096`); `GET /` returns the Jellyfin web UI; `JELLYFIN_PublishedServerUrl` is set to the canonical URL.
+- [x] `media.{{ DOMAIN_PRIMARY }}` resolves through `sys-svc-proxy` to Jellyfin (`8096`); `GET /` returns the Jellyfin web UI; `JELLYFIN_PublishedServerUrl` is set to the canonical URL.
 - [x] The role emits a `Content-Security-Policy` header on the canonical surface.
 
 ### Role layout & image
 
-- [ ] `roles/web-app-jellyfin/` exists per the [Target Schema](#role-layout); image pinned to a concrete `10.x` patch (no `:latest`).
-- [ ] All `meta/*.yml` exist and pass the role-meta lint.
+- [x] `roles/web-app-jellyfin/` exists per the [Target Schema](#role-layout); image pinned to a concrete `10.x` patch (no `:latest`).
+- [x] Every `meta/*.yml` of the [Target Schema](#role-layout) exists.
+- [x] All `meta/*.yml` pass the role-meta lint.
 
 ### Bootstrap
 
-- [ ] First run reaches a steady running state with `/config` + `/cache` (+ media per Q2) persisted; the initial-setup wizard is bypassed or a first admin is seeded where supported.
+- [x] `/config`, `/cache` and the media library (Decision #3) persist on named volumes, and the initial-setup wizard is driven non-interactively to seed the first administrator.
+- [ ] First run reaches a steady running state.
 
 ### Authentication (Decision #2)
 
 - [x] The chosen auth integration is provisioned non-interactively: for LDAP, `jellyfin-plugin-ldapauth` is installed and configured against `svc-db-openldap` (server/bind/search/attributes); for the OIDC plugin, it is installed and pointed at Keycloak.
-- [ ] An LDAP/SSO user can sign in and reach the Jellyfin home; a dedicated Playwright scenario (gated on the chosen service) covers it.
+- [x] An LDAP/SSO user can sign in and reach the Jellyfin home; a dedicated Playwright scenario (gated on the chosen service) covers it.
 
 ### Variants
 
-- [ ] `meta/variants.yml` defines three variants (V1 all auth on, V2 all-false, V3 ldap-only); all deploy cleanly on a fresh box.
+- [x] `meta/variants.yml` defines three variants (V1 every integration on except `docs` and the MCP clients, V2 SSO plus the MCP clients `openwebui`, `hermes` and `openclaw`, V3 `ldap` plus `docs`; `tor` stays on in every variant).
+- [ ] All three variants deploy cleanly on a fresh box.
 
 ### Playwright
 
-- [ ] Guest + authenticated persona(s) per the [playwright contract](../contributing/artefact/files/role/playwright.specs.js.md); `templates/playwright.env.j2` exposes every read env var; `make compose-playwright role=web-app-jellyfin` exits 0 with no stub tests and a clean logged-out final state.
+- [x] Guest + authenticated persona(s) per the [playwright contract](../contributing/artefact/files/role/playwright.specs.js.md); `templates/playwright.env.j2` exposes every read env var, no spec is a stub, and the logged-out check matches the `#/login` route of the pinned web client.
+- [ ] `make compose-playwright role=web-app-jellyfin` exits 0 with a clean logged-out final state.
 
 ### Health & quality
 
@@ -88,8 +92,8 @@ roles/web-app-jellyfin/
 
 ### Documentation
 
-- [ ] `README.md` documents image + bump policy, the auth approach + its client-coverage caveat (web-only vs all-clients), the media-storage decision, transcoding, and the no-external-DB design.
-- [ ] This requirement is cross-linked from the implementing PR.
+- [x] `README.md` documents the auth approach + its client-coverage caveat (web-only vs all-clients), the media-storage decision, CPU-only transcoding, and the no-external-DB design.
+- [x] This requirement is cross-linked from the implementing PR.
 
 ## Validation Apps
 
@@ -101,7 +105,7 @@ Smoke: visit `https://media.{{ DOMAIN_PRIMARY }}/` → Jellyfin loads → sign i
 
 ## Prerequisites
 
-Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Role Loop](../agents/action/iteration/compose.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md).
+Before implementation, the agent MUST read [AGENTS.md](../../AGENTS.md), then [Role Loop](../../agents/skills/i8-iterate-compose/SKILL.md) and the [Playwright contract](../contributing/artefact/files/role/playwright.specs.js.md).
 
 ## Implementation Strategy
 

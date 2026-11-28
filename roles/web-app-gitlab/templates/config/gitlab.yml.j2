@@ -60,12 +60,15 @@ production:
     enabled: false
   kerberos:
     enabled: false
-{% if GITLAB_OIDC_ENABLED %}
+{% if GITLAB_OIDC_ENABLED | bool and GITLAB_LOGIN_SSO | bool %}
   omniauth:
     enabled: true
     allow_single_sign_on: ["openid_connect"]
+    allow_bypass_two_factor: {{ ([] if GITLAB_LOGIN_2FA | bool else ['openid_connect']) | to_json }}
     block_auto_created_users: false
-    auto_link_user: ["openid_connect"]
+    auto_link_user: false
+    sync_profile_from_provider: ["openid_connect"]
+    sync_profile_attributes: ["name", "email"]
     providers:
       - name: "openid_connect"
         label: {{ GITLAB_OIDC_LABEL | to_json }}

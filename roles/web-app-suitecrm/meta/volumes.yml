@@ -38,6 +38,22 @@ ldap_config:
     - service: suitecrm
       target: "{{ ['/var/www/html/extensions', SOFTWARE_DOMAIN | replace('.', '-'), 'config/services/ldap/ldap.yaml'] | path_join }}"
       when: "{{ lookup('config', 'web-app-suitecrm', 'services.ldap.enabled') | bool }}"
+iam_saml_directory_sync:
+  type: config
+  source: "{{ [lookup('container', 'web-app-suitecrm', 'directories.config'), 'SamlDirectorySync.php'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: suitecrm
+      target: /var/www/html/extensions/Iam/backend/Security/SamlDirectorySync.php
+
+iam_profile_ldap_user_provider:
+  type: config
+  source: "{{ [lookup('container', 'web-app-suitecrm', 'directories.config'), 'ProfileLdapUserProvider.php'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: suitecrm
+      target: /var/www/html/extensions/Iam/backend/Security/ProfileLdapUserProvider.php
+
 php_hardening:
   type: config
   source: "{{ FILE_PHP_HARDENING_INI }}"

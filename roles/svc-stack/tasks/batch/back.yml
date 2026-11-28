@@ -1,0 +1,34 @@
+---
+# Param: stack_batch_consumer - application_id of the consumer whose backend this unit loads, bound as a loop item or an include param.
+- name: "🛑 Refuse a stack run outside a consumer role"
+  ansible.builtin.assert:
+    that:
+      - stack_batch_consumer != 'svc-stack'
+    fail_msg: "svc-stack resolved no consumer: include it from the consumer role's own tasks."
+    quiet: true
+
+- name: "🔐 For '{{ stack_batch_consumer }}': verify the gateway contract"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
+  vars:
+    application_id: "{{ stack_batch_consumer }}"
+  when:
+    - (stack_batch_consumer | entity_name) != 'litellm'
+    - lookup('config', stack_batch_consumer, 'services.litellm.enabled', false) | bool
+
+- name: "🧩 For '{{ stack_batch_consumer }}': load docker and db"
+  ansible.builtin.include_tasks: backend.yml
+  loop: "{{ [database_consumer_id | default(stack_batch_consumer)] }}"
+  loop_control:
+    loop_var: stack_backend_database_consumer_id
+  vars:
+    application_id: "{{ stack_batch_consumer }}"
+    stack_consumer_id: "{{ stack_batch_consumer }}"
+    stack_backend_database_enabled: "{{ lookup('database', stack_batch_consumer, 'enabled') | bool }}"
+    stack_backend_flush: "{{ lookup('config', stack_batch_consumer, 'services.stack.flush', false) | bool }}"
+    stack_backend_checkout_url: "{{ lookup('config', stack_batch_consumer, 'services.stack.checkout.url', '') }}"
+    stack_backend_checkout_recursive: "{{ lookup('config', stack_batch_consumer, 'services.stack.checkout.recursive', true) | bool }}"
+    stack_backend_checkout_bases: "{{ lookup('config', stack_batch_consumer, 'services.stack.checkout.build.bases', {}) }}"
+    stack_backend_checkout_dockerfiles: "{{ lookup('config', stack_batch_consumer, 'services.stack.checkout.build.dockerfiles', {}) }}"
+  when: >-
+    (lookup('fileglob', (stack_batch_consumer | abs_role_path_by_application_id) ~ '/templates/compose.yml.j2', wantlist=True) | length > 0)
+    or (lookup('config', stack_batch_consumer, 'services.stack.checkout.url', '') | length > 0)

@@ -1,0 +1,45 @@
+(function () {
+  var hideForm = {{ (not (PEERTUBE_LOGIN_NATIVE | bool)) | to_json }};
+  var hideSso = {{ (not (PEERTUBE_LOGIN_SSO | bool)) | to_json }};
+  var hideTwoFactor = {{ (not (PEERTUBE_LOGIN_2FA | bool)) | to_json }};
+
+  if (!hideForm && !hideSso && !hideTwoFactor) {
+    return;
+  }
+
+  function fallbackRequested() {
+    return new URLSearchParams(window.location.search).get("fallback") === "local";
+  }
+
+  function hide(element) {
+    if (element) {
+      element.style.setProperty("display", "none", "important");
+    }
+  }
+
+  function run() {
+    if (hideForm && !fallbackRequested()) {
+      document.querySelectorAll("my-login .login-form-and-externals > form").forEach(hide);
+      document.querySelectorAll("my-login .external-login-blocks > .fw-semibold").forEach(hide);
+    }
+    if (hideSso) {
+      document.querySelectorAll("my-login .external-login-blocks").forEach(hide);
+    }
+    if (hideTwoFactor) {
+      document.querySelectorAll("my-account-two-factor-button").forEach(function (button) {
+        hide(button.closest(".pt-two-cols"));
+      });
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run, { once: true });
+  } else {
+    run();
+  }
+
+  new MutationObserver(run).observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+})();

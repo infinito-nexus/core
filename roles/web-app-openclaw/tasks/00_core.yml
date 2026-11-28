@@ -1,10 +1,6 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🔐 Verify the gateway contract for {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-litellm/tasks/utils/consumer_contract.yml') }}"
-  when: OPENCLAW_LITELLM_ENABLED | bool
-
 - name: "🤖 Admit embodied mode for {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-robot/tasks/utils/admit.yml') }}"
   vars:
@@ -13,7 +9,8 @@
 
 - name: "🧩 load docker and db for {{ application_id }}"
   include_role:
-    name: sys-stk-full
+    name: svc-stack
+    tasks_from: consumer.yml
 
 - name: "🎨 Stage the corporate logo set of {{ application_id }}"
   ansible.builtin.include_tasks: utils/design.yml
@@ -23,7 +20,7 @@
   ansible.builtin.include_tasks: utils/mcp.yml
 
 - name: "🛡️ Prove the isolation {{ application_id }} promises"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/assert_isolated.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-virt-kata/tasks/utils/assert/isolated.yml') }}"
   vars:
     assert_isolated_container: "{{ OPENCLAW_CONTAINER }}"
   when:

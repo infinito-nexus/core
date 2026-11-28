@@ -1,0 +1,39 @@
+---
+# Param WORKSPACE: the workspace id, a lowercase UUID that workspace.sh validated.
+# Param WORKSPACE_ACTION: apply creates the bridge, the project ws-<id> and its restricted client certificate; destroy removes them.
+- name: "🛑 Refuse a workspace call svc-virt-incus cannot serve"
+  ansible.builtin.assert:
+    that:
+      - WORKSPACE is match('^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+      - WORKSPACE_ACTION in ['apply', 'destroy']
+      - INCUS_WORKSPACES.enabled | bool
+      - INCUS_WORKSPACES.subnet.ipv4 | length > 0
+      - INCUS_WORKSPACES.subnet.ipv6 | length > 0
+    fail_msg: >-
+      svc-virt-incus serves workspace apply and destroy for a lowercase UUID only,
+      with services.incus.workspaces.enabled on and both routed subnets named,
+      and got {{ WORKSPACE_ACTION }} for {{ WORKSPACE }}.
+    quiet: true
+
+- name: "🔍 Read the networks, projects and trust entries of {{ inventory_hostname }}"
+  ansible.builtin.command:
+    argv: [incus, query, "{{ item }}"]
+  loop:
+    - /1.0/networks?recursion=1
+    - /1.0/projects?recursion=1
+    - /1.0/certificates?recursion=1
+  register: svc_virt_incus_state
+  changed_when: false
+  become: true
+
+- name: "🧾 Name what ws-{{ WORKSPACE }} holds on {{ inventory_hostname }}"
+  ansible.builtin.set_fact:
+    svc_virt_incus_ws_project: "ws-{{ WORKSPACE }}"
+    svc_virt_incus_ws_projects: "{{ svc_virt_incus_state.results[1].stdout | from_json }}"
+    svc_virt_incus_ws_trust: >-
+      {{ svc_virt_incus_state.results[2].stdout | from_json
+         | selectattr('name', 'equalto', 'ws-' ~ WORKSPACE) | list }}
+    svc_virt_incus_ws_bridges: "{{ WORKSPACE | incus_workspace_bridges(svc_virt_incus_state.results[0].stdout | from_json) }}"
+
+- name: "🧱 {{ WORKSPACE_ACTION | capitalize }} the workspace on {{ inventory_hostname }}"
+  ansible.builtin.include_tasks: "workspace/{{ WORKSPACE_ACTION }}.yml"

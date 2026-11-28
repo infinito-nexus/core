@@ -26,4 +26,6 @@ def _runtimes() -> str:
 
 
 def apply(eb: EnvBuilder, ctx: BuildContext) -> None:
-    eb.setdefault(KEY, "all" if "nvidia" in _runtimes() else "0", comment=COMMENT)
+    pinned = eb.get(KEY).strip()
+    detected = pinned or ("all" if "nvidia" in _runtimes() else "0")
+    eb.setdefault(KEY, detected, comment=COMMENT)

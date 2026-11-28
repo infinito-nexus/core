@@ -1,10 +1,4 @@
 ---
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: false
-
 - name: "🖥️ Configure {{ application_id }} on the stack host"
   when: IS_STACK_HOST | bool
   block:
@@ -14,5 +8,8 @@
         dest: "{{ mobilizon_host_conf_exs_file }}"
       notify: compose-up
 
-    - name: "🎨 Mobilizon administrator and corporate design"
+    - name: "🎨 Mobilizon accounts and corporate design"
       ansible.builtin.include_tasks: 01_design.yml
+
+- name: "🛂 Mobilizon roles of the Keycloak accounts"
+  ansible.builtin.include_tasks: 03_rbac.yml

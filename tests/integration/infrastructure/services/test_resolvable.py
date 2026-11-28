@@ -18,6 +18,32 @@ class TestServicesResolvable(unittest.TestCase):
         cls.roles_dir = cls.repo_root / "roles"
         cls.applications = load_applications_from_roles_dir(cls.roles_dir)
         cls.service_registry = build_service_registry_from_roles_dir(cls.roles_dir)
+        cls.resolved = {}
+        for key, entry in cls.service_registry.items():
+            cls._resolve_once(key)
+            role = entry.get("role")
+            if role and "canonical" not in entry:
+                cls._resolve_once(role)
+
+    @classmethod
+    def _resolve_once(cls, term):
+        if term in cls.resolved:
+            return
+        try:
+            outcome = (
+                LookupModule().run(
+                    [term],
+                    variables={
+                        "applications": cls.applications,
+                        "group_names": [],
+                    },
+                    service_registry=cls.service_registry,
+                )[0],
+                None,
+            )
+        except Exception as exc:
+            outcome = (None, exc)
+        cls.resolved[term] = outcome
 
     def setUp(self):
         self.assertGreater(
@@ -27,14 +53,10 @@ class TestServicesResolvable(unittest.TestCase):
         )
 
     def _run(self, term):
-        return LookupModule().run(
-            [term],
-            variables={
-                "applications": self.applications,
-                "group_names": [],
-            },
-            service_registry=self.service_registry,
-        )[0]
+        result, error = self.resolved[term]
+        if error is not None:
+            raise error
+        return result
 
     def test_all_keys_resolvable(self):
         for key in self.service_registry:

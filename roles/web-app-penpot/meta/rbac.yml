@@ -1,0 +1,6 @@
+---
+roles:
+  editor:
+    description: Edits the files of the shared platform team
+  viewer:
+    description: Views and comments on the files of the shared platform team without editing them

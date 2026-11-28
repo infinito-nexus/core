@@ -15,9 +15,12 @@ FRIENDICA_CONFIG_DIR: "{{ [ FRIENDICA_APPLICATION_DIR,          'config' ] | pat
 FRIENDICA_CONFIG_FILE: "{{ [ FRIENDICA_CONFIG_DIR,               'local.config.php' ] | path_join }}"
 FRIENDICA_USER: "www-data"
 FRIENDICA_ADMIN_USERNAME: "{{ lookup('users', 'platform_administrator').username }}"
+FRIENDICA_ADMIN_EMAILS: "{{ ([lookup('users', 'platform_administrator').email] + (friendica_rbac_administrators | map(attribute='email') | select | list)) | unique
+  | join(',') }}"
 FRIENDICA_ADDONS: "{{ lookup('config', application_id, 'addons') }}"
 
 FRIENDICA_OIDC_ENABLED: "{{ lookup('config', application_id, 'services.sso.enabled') }}"
+FRIENDICA_LOG_SETTINGS: "{{ lookup('form_values', application_id, 'logs') }}"
 FRIENDICA_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') }}"
 FRIENDICA_LDAP_CONFIG_DOCKER: "{{ [ FRIENDICA_APPLICATION_DIR,         'config/ldapauth.config.php' ] | path_join }}"
 FRIENDICA_LDAP_CONFIG_HOST: "{{ [ lookup('container', application_id, 'directories.volumes'), 'ldapauth.config.php' ] | path_join }}"

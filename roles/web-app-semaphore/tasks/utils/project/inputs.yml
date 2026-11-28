@@ -1,0 +1,34 @@
+---
+- name: "🔎 Find the app-control records of this host"
+  ansible.builtin.find:
+    paths: "{{ DIR_COMPOSITIONS }}"
+    patterns: "{{ APP_CONTROL_REGISTRY_FILE }}"
+    hidden: true
+    recurse: true
+    depth: 2
+  register: semaphore_project_records
+
+- name: "📖 Read the app-control records of this host"
+  ansible.builtin.slurp:
+    src: "{{ semaphore_project_record }}"
+  loop: "{{ semaphore_project_records.files | map(attribute='path') | sort }}"
+  loop_control:
+    loop_var: semaphore_project_record
+  register: semaphore_project_record_contents
+
+- name: "📂 Include dependency 'sys-svc-sshd'"
+  ansible.builtin.include_role:
+    name: sys-svc-sshd
+  when: run_once_sys_svc_sshd is not defined
+
+- name: "🔑 Read the SSH host key the runner pins"
+  ansible.builtin.slurp:
+    src: "{{ SEMAPHORE_APP_CONTROL_HOST_KEY_FILE }}"
+  register: semaphore_project_host_key
+
+- name: "🎯 Prepare the inventory repository and the shared target for the deploy test"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/project/fixture.yml"
+  when: SEMAPHORE_DEPLOY_FIXTURE_ENABLED | bool
+
+- name: "🔐 Give the fixture key root on this host only while the fixture is on"
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/project/fixture/root.yml"

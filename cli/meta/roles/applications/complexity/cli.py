@@ -340,10 +340,18 @@ def _mark_covered(
         return index == 0 or index >= counts.get(provider, 1)
 
     def deploys_at_zero(coverer: ComplexityRow, row: ComplexityRow) -> bool:
-        return (
+        theirs = planner.runs(coverer)
+        if not (
             planner.modes(row) <= planner.modes(coverer)
             and planner.networks(row) <= planner.networks(coverer)
-            and planner.runs(coverer).get(row.name) == 0
+            and theirs.get(row.name) == 0
+        ):
+            return False
+        mine = planner.runs(row)
+        return all(
+            theirs[provider] == mine[provider]
+            for provider in row.services_direct
+            if provider in theirs and provider in mine
         )
 
     green: list[tuple[int, ComplexityRow, set[str]]] = []

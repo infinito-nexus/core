@@ -182,7 +182,7 @@ def _scan_shell_block(
 
 
 class TestPasswordQuoteInShellTasks(unittest.TestCase):
-    def test_passwords_are_quoted_in_shell_tasks(self) -> None:
+    def test_passwords_are_quoted_in_shell_tasks(self) -> None:  # nocheck: test.text-presence -- repository-wide lint over every role shell task  # fmt: skip
         repo_root = PROJECT_ROOT
 
         all_findings: list[Finding] = []

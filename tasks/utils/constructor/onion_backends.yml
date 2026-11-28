@@ -1,0 +1,7 @@
+---
+- name: "🧅 Evaluate the onion backends swarm publishes in host mode, on the stack host"
+  ansible.builtin.set_fact:
+    swarm_onion_host_backends: "{{ lookup('tor_ports', host_mode=true) }}"
+  when:
+    - IS_SWARM_MODE | bool
+    - inventory_hostname == STACK_HOST

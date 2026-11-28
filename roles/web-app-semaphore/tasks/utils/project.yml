@@ -1,0 +1,14 @@
+---
+- name: "🗂️ Converge the app-control project of Semaphore"
+  when: IS_STACK_HOST | bool
+  block:
+    - name: "🔍 Check whether Semaphore is deployed on this host"
+      ansible.builtin.stat:
+        path: "{{ lookup('container', application_id, 'files.compose') }}"
+      register: semaphore_project_instance
+
+    - name: "🗂️ Converge project, key, inventory, repository and templates"
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/project/converge.yml"
+      when:
+        - IS_STACK_HOST | bool
+        - semaphore_project_instance.stat.exists

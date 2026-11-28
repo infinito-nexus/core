@@ -1,0 +1,4 @@
+---
+canonical:
+  proxmox: proxmox.{{ DOMAIN_PRIMARY }}
+aliases: []

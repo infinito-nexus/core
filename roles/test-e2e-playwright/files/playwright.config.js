@@ -1,5 +1,6 @@
 const fs = require("fs");
 const { defineConfig } = require("@playwright/test");
+const { torOrigins } = require("./tests/personas/utils/network");
 
 // nocheck: env-default  a role may export its own base variable and no APP_BASE_URL
 const baseURL = process.env.APP_BASE_URL || "http://127.0.0.1";
@@ -31,22 +32,7 @@ if (captureOff) {
   }
 }
 
-function onionSecureOrigins() {
-  const origins = new Set();
-  for (const value of Object.values(process.env)) {
-    if (typeof value !== "string") continue;
-    for (const match of value.match(/https?:\/\/[^/,\s"']+\.onion/gi) || []) {
-      try {
-        origins.add(new URL(match).origin);
-      } catch {
-        /* not a parseable URL — skip */
-      }
-    }
-  }
-  return [...origins];
-}
-
-const onionSecure = onionSecureOrigins();
+const onionSecure = torOrigins(Object.values(process.env));
 
 const proxy = process.env.PLAYWRIGHT_PROXY
   ? {
@@ -105,9 +91,14 @@ module.exports = defineConfig({
     // targets, which Chromium cannot resolve over normal DNS). Empty/unset =
     // direct connection (unchanged default for clearnet targets).
     proxy,
-    launchOptions: onionSecure.length
-      ? { args: [`--unsafely-treat-insecure-origin-as-secure=${onionSecure.join(",")}`] }
-      : undefined,
+    ...(onionSecure.length
+      ? {
+          channel: "chromium",
+          launchOptions: {
+            args: [`--unsafely-treat-insecure-origin-as-secure=${onionSecure.join(",")}`],
+          },
+        }
+      : {}),
     // Fail fast instead of hanging until the per-test timeout when a target is
     // unreachable (e.g. an onion service that is not yet published).
     navigationTimeout: requiredTimeout("PLAYWRIGHT_NAVIGATION_TIMEOUT"),

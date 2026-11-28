@@ -1,44 +1,17 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
-  vars:
-    mcp_adapter_instance_dir: "{{ LIBRETRANSLATE_MCP_INSTANCE_DIR }}"
-  when: LIBRETRANSLATE_MCP_ENABLED | bool
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-
-- name: "📦 Stage the model prefetch and worker-exit hook of {{ application_id }}"
-  stack_host_copy:
-    src: "python/{{ item }}"
-    dest: "{{ [lookup('container', application_id, 'directories.instance'), item] | path_join }}"
-    mode: "0644"
-  loop:
-    - prefetch_models.py
-    - gunicorn_worker_exit.py
-  notify:
-    - compose-build
-    - compose-up
-
-- name: "🔐 Stage the package-cache CA into the build context of {{ application_id }}"
-  stack_host_copy:
-    content: "{{ lookup('file', LIBRETRANSLATE_CACHE_CA_FILE) if LIBRETRANSLATE_CACHE_CA_FILE is file else '' }}"
-    dest: "{{ [lookup('container', application_id, 'directories.instance'), 'package-frontend-ca.crt'] | path_join }}"
-    mode: "0644"
-  notify:
-    - compose-build
-    - compose-up
-
-- name: "🔐 Stage the package-cache CA installer of {{ application_id }}"
-  stack_host_copy:
-    src: "{{ lookup('path_absolute', LIBRETRANSLATE_CACHE_CA_INSTALLER) }}"
-    dest: "{{ [lookup('container', application_id, 'directories.instance'), 'package-frontend-ca.sh'] | path_join }}"
+- name: "📁 Create the volumes directory of {{ application_id }}"
+  ansible.builtin.file:
+    path: "{{ lookup('container', application_id, 'directories.volumes') }}"
+    state: directory
     mode: "0755"
-  notify:
-    - compose-build
-    - compose-up
+
+- name: "📄 Render the engine forwarder of {{ application_id }}"
+  stack_host_template:
+    src: nginx.conf.j2
+    dest: "{{ LIBRETRANSLATE_NGINX_CONF_PATH }}"
+  notify: compose-up
 
 - name: "🧱 Rebuild the MCP adapter of {{ application_id }}"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/rebuild.yml') }}"
@@ -46,9 +19,3 @@
 
 - name: "🚿 Flush compose handlers for {{ application_id }}"
   ansible.builtin.meta: flush_handlers
-
-- name: "🎮 Verify the GPU reached {{ application_id }}"
-  ansible.builtin.include_tasks: utils/assert_gpu.yml
-  when:
-    - IS_STACK_HOST | bool
-    - LIBRETRANSLATE_GPU | bool

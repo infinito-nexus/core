@@ -1,0 +1,5 @@
+{% set logout_origins = namespace(list=[]) %}
+{% for logout_domain in lookup('applications') | logout_domains(group_names, lookup('domains')) | unique | sort %}
+{% set logout_origins.list = logout_origins.list + [lookup('tls', logout_domain, 'url.origin')] %}
+{% endfor %}
+connect-src: {{ logout_origins.list | to_json }}

@@ -1,0 +1,27 @@
+---
+- name: 📦 Build runner container image
+  ansible.builtin.command: # nocheck: stack-host-consumer (include is IS_STACK_HOST-gated)
+    argv:
+      - container
+      - build
+      - -t
+      - "{{ RUNNER_IMAGE_REF }}"
+      - --build-arg
+      - "RUNNER_BASE_IMAGE={{ RUNNER_BASE_IMAGE }}"
+      - --build-arg
+      - "RUNNER_UID={{ RUNNER_UID }}"
+      - --build-arg
+      - "RUNNER_GID={{ RUNNER_GID }}"
+      - --build-arg
+      - "RUNNER_USER={{ RUNNER_USER }}"
+      - "{{ lookup('container', application_id, 'directories.instance') }}"
+  changed_when: true
+
+- name: 📤 Push runner image to swarm registry
+  ansible.builtin.command:
+    argv:
+      - container
+      - push
+      - "{{ RUNNER_IMAGE_REF }}"
+  changed_when: true
+  when: SWARM_REGISTRY_PREFIX | length > 0

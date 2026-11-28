@@ -1,10 +1,4 @@
 ---
-- name: "✅ Ensure dockerd is installed before swarm bootstrap"
-  ansible.builtin.include_role:
-    name: sys-svc-container
-    public: false
-  when: run_once_sys_svc_container is not defined
-
 - name: "✅ Assert at least one host is in svc-swarm-manager"
   ansible.builtin.assert:
     that:

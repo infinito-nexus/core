@@ -1,7 +1,8 @@
 {% set _network = domain | network_of %}
 {% set _onion = namespace(host='') %}
 {% for _sibling in lookup('network_siblings', domain) if (_sibling | network_of) == 'tor' %}{% set _onion.host = _sibling %}{% endfor %}
-set $csp "{{ lookup('applications') | build_csp_header(application_id, lookup('domains'), ('https' if TLS_ENABLED | bool else 'http'), (webserver_csp_whitelist_extra_by_app | default({})).get(application_id, {}), (webserver_csp_hashes_extra_by_app | default({})).get(application_id, {}), DOMAIN_PRIMARY, domain) | replace('\"','\\\"') }}";
+{% set _csp_extras = lookup('path_absolute', 'roles', application_id, 'templates/csp/extras.yml.j2') %}
+set $csp "{{ lookup('applications') | build_csp_header(application_id, lookup('domains'), ('https' if TLS_ENABLED | bool else 'http'), ((lookup('template', _csp_extras) | from_yaml) if _csp_extras is file else {}), webserver_csp_hashes_extra_by_vhost, DOMAIN_PRIMARY, domain) | replace('\"','\\\"') }}";
 
 header_filter_by_lua_block {
     local ct   = ngx.header.content_type or ngx.header["Content-Type"] or ""

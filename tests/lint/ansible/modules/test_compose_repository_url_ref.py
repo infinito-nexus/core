@@ -1,20 +1,3 @@
-"""Enforce contract for ``sys-svc-compose`` repository-clone variables.
-
-Every ``include_role: { name: sys-stk-* }`` that drives a git clone via
-``compose_repository_url`` must:
-
-1. Pass the URL as a Jinja expression (no inline literal URLs in task
-   files — keeps repo coordinates in ``vars/main.yml`` or inventory).
-2. Pair the URL with a ``compose_repository_ref`` in the same vars
-   block — pinning a clone source without pinning the ref leaves
-   deploys non-reproducible (clones drift with upstream HEAD).
-3. Pass the ref as a Jinja expression too, for the same SPOT reason.
-
-The lint walks every dict in every .yml/.yaml file rather than only
-``include_role`` task shapes, so the rule holds wherever the variables
-appear (defaults, vars files, host_vars, …).
-"""
-
 from __future__ import annotations
 
 import unittest
@@ -31,6 +14,9 @@ if TYPE_CHECKING:
 
 URL_KEY = "compose_repository_url"
 REF_KEY = "compose_repository_ref"
+STACK_KEY = "stack"
+CHECKOUT_KEY = "checkout"
+CHECKOUT_KEYS = {"url": URL_KEY, "ref": REF_KEY}
 
 
 def _is_jinja_expression(value: object) -> bool:
@@ -48,6 +34,36 @@ def _walk_dicts(node: object) -> Iterator[dict]:
     elif isinstance(node, list):
         for item in node:
             yield from _walk_dicts(item)
+
+
+def _clone_dicts(node: object) -> Iterator[dict]:
+    for found in _walk_dicts(node):
+        yield found
+        stack = found.get(STACK_KEY)
+        checkout = stack.get(CHECKOUT_KEY) if isinstance(stack, dict) else None
+        if isinstance(checkout, dict):
+            yield {
+                CHECKOUT_KEYS[key]: value
+                for key, value in checkout.items()
+                if key in CHECKOUT_KEYS
+            }
+
+
+def _problems(data: object) -> tuple[list[object], list[object], list[object]]:
+    url_literals: list[object] = []
+    ref_literals: list[object] = []
+    missing_ref: list[object] = []
+    for node in _clone_dicts(data):
+        url = node.get(URL_KEY)
+        ref = node.get(REF_KEY)
+        if url is not None:
+            if not _is_jinja_expression(url):
+                url_literals.append(url)
+            if ref is None:
+                missing_ref.append(url)
+        if ref is not None and not _is_jinja_expression(ref):
+            ref_literals.append(ref)
+    return url_literals, ref_literals, missing_ref
 
 
 class TestComposeRepositoryUrlRef(unittest.TestCase):
@@ -69,17 +85,10 @@ class TestComposeRepositoryUrlRef(unittest.TestCase):
                 continue
 
             rel = yml_file.relative_to(PROJECT_ROOT).as_posix()
-
-            for node in _walk_dicts(data):
-                url = node.get(URL_KEY)
-                ref = node.get(REF_KEY)
-                if url is not None:
-                    if not _is_jinja_expression(url):
-                        url_literals.append((rel, url))
-                    if ref is None:
-                        missing_ref.append((rel, url))
-                if ref is not None and not _is_jinja_expression(ref):
-                    ref_literals.append((rel, ref))
+            urls, refs, missing = _problems(data)
+            url_literals += [(rel, url) for url in urls]
+            ref_literals += [(rel, ref) for ref in refs]
+            missing_ref += [(rel, url) for url in missing]
 
         errors: list[str] = []
         if url_literals:
@@ -110,6 +119,25 @@ class TestComposeRepositoryUrlRef(unittest.TestCase):
 
         if errors:
             self.fail("\n\n".join(errors))
+
+    def test_a_stack_checkout_is_judged_like_a_clone_include(self):
+        literal = "https://example.test/app.git"
+        self.assertEqual(
+            _problems(
+                {STACK_KEY: {CHECKOUT_KEY: {"url": literal, "recursive": False}}}
+            ),
+            ([literal], [], [literal]),
+        )
+        self.assertEqual(
+            _problems({STACK_KEY: {CHECKOUT_KEY: {"url": "{{ U }}", "ref": "v1"}}}),
+            ([], ["v1"], []),
+        )
+        self.assertEqual(
+            _problems(
+                {STACK_KEY: {CHECKOUT_KEY: {"url": "{{ U }}", "ref": "{{ R }}"}}}
+            ),
+            ([], [], []),
+        )
 
 
 if __name__ == "__main__":

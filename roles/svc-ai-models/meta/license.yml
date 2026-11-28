@@ -1,0 +1,2 @@
+# nocheck: license-declared installs no software; it stores model files whose licences belong to the engine roles that load them.
+---

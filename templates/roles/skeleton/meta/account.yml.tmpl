@@ -1,0 +1,8 @@
+[% if login == "oidc" %]
+---
+account_policy:
+  username_max_length: [[ username_max_length ]]
+  username_pattern: .+
+  source: [[ homepage | yaml ]]
+  agent_reachable: false
+[% endif %]

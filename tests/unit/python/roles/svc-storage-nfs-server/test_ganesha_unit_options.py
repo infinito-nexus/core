@@ -48,7 +48,7 @@ def _options() -> list[str]:
 
 
 class TestGaneshaUnitOptions(unittest.TestCase):
-    def test_the_drop_in_resets_the_distro_environment_files(self):
+    def test_the_drop_in_resets_the_distro_environment_files(self):  # nocheck: test.text-presence -- parses the drop-in's [Service] assignments  # fmt: skip
         self.assertIn(
             ("EnvironmentFile", ""),
             _service_settings(),
@@ -58,7 +58,7 @@ class TestGaneshaUnitOptions(unittest.TestCase):
             "filled the swarm runner disk in CI run 40625679270 (odoo#1, debian)",
         )
 
-    def test_ganesha_logs_to_syslog(self):
+    def test_ganesha_logs_to_syslog(self):  # nocheck: test.text-presence -- parses the drop-in and shlex-splits the OPTIONS ganesha.nfsd receives  # fmt: skip
         options = _options()
         self.assertIn("-L", options, "OPTIONS must name ganesha's log target")
         self.assertEqual(
@@ -68,12 +68,12 @@ class TestGaneshaUnitOptions(unittest.TestCase):
             "under /var/log/ganesha grows without bound",
         )
 
-    def test_ganesha_keeps_the_event_default_level(self):
+    def test_ganesha_keeps_the_event_default_level(self):  # nocheck: test.text-presence -- parses the drop-in and shlex-splits the OPTIONS ganesha.nfsd receives  # fmt: skip
         options = _options()
         self.assertIn("-N", options, "OPTIONS must state ganesha's default level")
         self.assertEqual(options[options.index("-N") + 1], "NIV_EVENT")
 
-    def test_ganesha_reads_the_role_config(self):
+    def test_ganesha_reads_the_role_config(self):  # nocheck: test.text-presence -- parses the drop-in and shlex-splits the OPTIONS ganesha.nfsd receives  # fmt: skip
         options = _options()
         self.assertIn("-f", options, "OPTIONS must name the config ganesha reads")
         self.assertEqual(options[options.index("-f") + 1], "/etc/ganesha/ganesha.conf")

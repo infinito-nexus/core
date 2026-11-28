@@ -12,6 +12,7 @@ Modules in `utils/roles/applications/services/` MUST NOT take over wider applica
 
 - [registry.py](registry.py) builds the service registry from roles and resolves shared-service auto-include edges (`services.<X>.enabled` AND `services.<X>.shared`) to provider role names.
 - [database.py](database.py) resolves the active database backend for an application (`mariadb`, `postgres`, ...) from its services map.
+- [preload.py](preload.py) decides whether the service loader preloads a shared service on a host. The loader's `load_service.yml` (filter `service_preloaded`) and the front batch plan (lookup `stack_batch`) share it.
 
 ## Example Import ✍️
 

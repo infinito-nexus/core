@@ -137,7 +137,7 @@ def _check_readme_shape(readme_path: Path, project_files: set[Path]) -> str | No
 
 
 class TestCliCategoryReadme(unittest.TestCase):
-    def test_every_category_folder_has_a_conformant_readme(self) -> None:
+    def test_every_category_folder_has_a_conformant_readme(self) -> None:  # nocheck: test.text-presence -- policy lint over the README of every cli category folder  # fmt: skip
         self.assertTrue(CLI_DIR.is_dir(), f"cli/ directory not found at: {CLI_DIR}")
 
         all_files = _project_files()

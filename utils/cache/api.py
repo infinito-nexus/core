@@ -25,18 +25,22 @@ _API_SPOT_FILE = str(PROJECT_ROOT / "group_vars" / "all" / "18_api.yml")
 
 
 def declared_api() -> dict[str, Any]:
-    """The ``API`` mapping as declared in the group_vars SPOT.
+    """The ``API_DECLARATIONS`` mapping declared in the group_vars SPOT.
 
     Returns:
         Provider name to credential mapping, every value a plain string.
 
     Raises:
-        TypeError: the SPOT does not declare ``API`` as a mapping.
+        TypeError: the SPOT does not declare ``API_DECLARATIONS`` as a mapping.
     """
     document = load_yaml_any(_API_SPOT_FILE, default_if_missing={}) or {}
-    declared = document.get("API") if isinstance(document, Mapping) else None
+    declared = (
+        document.get("API_DECLARATIONS") if isinstance(document, Mapping) else None
+    )
     if not isinstance(declared, Mapping):
-        raise TypeError(f"{_API_SPOT_FILE} does not declare 'API' as a mapping.")
+        raise TypeError(
+            f"{_API_SPOT_FILE} does not declare 'API_DECLARATIONS' as a mapping."
+        )
     return dict(declared)
 
 
@@ -104,7 +108,7 @@ def provider_enabled(api: Mapping[str, Any], provider: str) -> bool:
     credentials = api.get(provider)
     if not isinstance(credentials, Mapping):
         raise KeyError(
-            f"unknown API provider {provider!r}; declare it under 'API' in "
+            f"unknown API provider {provider!r}; declare it under 'API_DECLARATIONS' in "
             f"{_API_SPOT_FILE}."
         )
     if not credentials:

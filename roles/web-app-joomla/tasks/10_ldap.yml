@@ -1,0 +1,56 @@
+---
+- name: "🔎 Read the stored LDAP plugin settings meta/forms.yml manages"
+  ansible.builtin.shell: >
+    IFS= read -r J_LDAP_BIND_PASSWORD && export J_LDAP_BIND_PASSWORD &&
+    container exec -i
+    --user {{ JOOMLA_WEB_USER | quote }}
+    -e J_ROOT={{ JOOMLA_DOCROOT | quote }}
+    -e J_LDAP_MODE=read
+    -e J_LDAP_ENABLED={{ JOOMLA_LDAP_ENABLED | bool | ternary('1', '0') }}
+    -e J_LDAP_PARAMS={{ JOOMLA_LDAP_PARAMS | to_json | quote }}
+    -e J_LDAP_BIND_PASSWORD
+    {{ JOOMLA_LOCAL_CID | quote }} php --
+  args:
+    stdin: |-
+      {{ LDAP.BIND_CREDENTIAL if JOOMLA_LDAP_ENABLED | bool else '' }}
+      {{ lookup('file', role_path ~ '/files/php/ldap_plugin.php') }}
+  register: joomla_ldap_stored
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📣 Report the managed LDAP plugin settings the write reverts"
+  include_tasks: "{{ lookup('path_absolute', 'tasks/utils/forms/drift.yml') }}"
+  vars:
+    forms_drift_current: "{{ {'ldap': (joomla_ldap_stored.stdout_lines | last | from_json).settings} }}"
+
+- name: "🔐 Converge the core LDAP authentication plugin of {{ application_id }}"
+  ansible.builtin.shell: >
+    IFS= read -r J_LDAP_BIND_PASSWORD && export J_LDAP_BIND_PASSWORD &&
+    container exec -i
+    --user {{ JOOMLA_WEB_USER | quote }}
+    -e J_ROOT={{ JOOMLA_DOCROOT | quote }}
+    -e J_LDAP_MODE=write
+    -e J_LDAP_ENABLED={{ JOOMLA_LDAP_ENABLED | bool | ternary('1', '0') }}
+    -e J_LDAP_PARAMS={{ JOOMLA_LDAP_PARAMS | to_json | quote }}
+    -e J_LDAP_BIND_PASSWORD
+    {{ JOOMLA_LOCAL_CID | quote }} php --
+  args:
+    stdin: |-
+      {{ LDAP.BIND_CREDENTIAL if JOOMLA_LDAP_ENABLED | bool else '' }}
+      {{ lookup('file', role_path ~ '/files/php/ldap_plugin.php') }}
+  register: joomla_ldap_plugin
+  changed_when: (joomla_ldap_plugin.stdout | trim) == "changed"
+  failed_when: joomla_ldap_plugin.rc != 0 or (joomla_ldap_plugin.stdout | trim) not in ['changed', 'ok']
+  when: >-
+    (joomla_ldap_stored.stdout_lines | last | from_json).settings | length > 0
+    or (joomla_ldap_stored.stdout_lines | last | from_json).hidden > 0
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🧹 Clear the Joomla cache after an LDAP plugin change"
+  ansible.builtin.shell: >
+    container exec
+    --user {{ JOOMLA_WEB_USER | quote }}
+    {{ JOOMLA_LOCAL_CID | quote }}
+    php {{ JOOMLA_CLI_FILE | quote }} cache:clean
+  when: joomla_ldap_plugin is changed
+  changed_when: true

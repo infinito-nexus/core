@@ -1,10 +1,5 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "📂 Include role sys-stk-front-proxy for '{{ application_id }}'"
-  include_role:
-    name: sys-stk-front-proxy
-  vars:
-    domain: "{{ lookup('domain', application_id) }}"
-    http_port: "{{ lookup('config', 'svc-ai-litellm', 'services.litellm.ports.local.http') }}"
-    proxy_internal_port: "{{ lookup('config', 'svc-ai-litellm', 'services.litellm.ports.internal.http') }}"
+- name: "👥 Map the administrator role group onto LiteLLM's proxy_admin role"
+  include_tasks: 01_rbac.yml

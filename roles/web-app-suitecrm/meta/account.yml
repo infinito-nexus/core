@@ -1,0 +1,6 @@
+---
+account_policy:
+  username_max_length: 60
+  username_pattern: .+
+  source: https://github.com/salesagility/SuiteCRM-Core/blob/v8.10.2/public/legacy/modules/Users/vardefs.php#L59
+  agent_reachable: true

@@ -23,6 +23,8 @@ require("./test-csp").register(shared);
 require("./test-login-admin-oidc").register(shared);
 require("./test-login-biber-oidc").register(shared);
 require("./test-login-admin-native").register(shared);
+require("./test-login-methods").register(shared);
+require("./test-rbac-profile").register(shared);
 require("./test-dm-admin-biber").register(shared);
 require("./test-guest-persona").register(shared);
 require("./test-element-call").register(shared);

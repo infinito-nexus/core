@@ -1,0 +1,25 @@
+---
+- name: "🛂 Converge the Pixelfed admin flag on the administrator role group"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'tasks/utils/rbac/sync.yml') }}"
+  vars:
+    rbac_sync_application_id: "{{ application_id }}"
+    rbac_sync_enabled: true
+    rbac_sync_mode: "{{ DEPLOYMENT_MODE }}"
+    rbac_sync_skip_unchanged: true
+    rbac_sync_roles: [administrator]
+    rbac_sync_service_key: mariadb
+    rbac_sync_service_name: "{{ lookup('database', application_id, 'service_name') }}"
+    rbac_sync_container: "{{ lookup('database', application_id, 'container') }}"
+    rbac_sync_kind: host
+    rbac_sync_user: ""
+    rbac_sync_argv: []
+    rbac_sync_script: "{{ lookup('file', role_path ~ '/files/python/rbac_sync.py') }}"
+    rbac_sync_modules: []
+    rbac_sync_env:
+      MYSQL_PWD: "{{ lookup('database', application_id, 'password') }}"
+      PIXELFED_DB_USER: "{{ lookup('database', application_id, 'username') }}"
+      PIXELFED_DB_NAME: "{{ PIXELFED_DB_NAME }}"
+      PIXELFED_RBAC_KEPT: "{{ [PIXELFED_ADMIN_USERNAME] | to_json }}"
+    rbac_sync_attributes: []
+    rbac_sync_members_env:
+      - { name: RBAC_ADMINISTRATORS, role: administrator, field: "" }

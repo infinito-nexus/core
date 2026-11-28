@@ -1,0 +1,90 @@
+auth_enabled: true
+
+server:
+  http_listen_port: {{ LOKI_INTERNAL_PORT }}
+  grpc_listen_port: 9095
+  log_level: warn
+
+common:
+  path_prefix: /loki
+  replication_factor: 1
+  instance_addr: 127.0.0.1
+  ring:
+    kvstore:
+      store: inmemory
+  storage:
+{% if LOKI_OBJSTORE_ENABLED | bool %}
+    s3:
+      endpoint: {{ lookup('objstore', application_id, 'endpoint') | to_json }}
+      bucketnames: {{ lookup('objstore', application_id, 'bucket') | to_json }}
+      region: {{ lookup('objstore', application_id, 'region') | to_json }}
+      access_key_id: ${LOKI_S3_ACCESS_KEY_ID}
+      secret_access_key: ${LOKI_S3_SECRET_ACCESS_KEY}
+      s3forcepathstyle: true
+      insecure: true
+{% else %}
+    filesystem:
+      chunks_directory: /loki/chunks
+      rules_directory: /loki/rules
+{% endif %}
+
+ingester:
+  wal:
+    disk_full_threshold: {{ LOKI_WAL_DISK_FULL_THRESHOLD }}
+
+schema_config:
+  configs:
+    - from: "2026-01-01"
+      store: tsdb
+      object_store: {{ LOKI_STORE }}
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  tsdb_shipper:
+    active_index_directory: /loki/tsdb-index
+    cache_location: /loki/tsdb-cache
+
+compactor:
+  working_directory: /loki/compactor
+  compaction_interval: 10m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 50
+  delete_request_store: {{ LOKI_STORE }}
+
+limits_config:
+  retention_period: {{ LOKI_RETENTION.period }}
+  retention_stream:
+{% for stream in LOKI_RETENTION.streams %}
+    - selector: {{ stream.selector | to_json }}
+      priority: {{ stream.priority }}
+      period: {{ stream.period }}
+{% endfor %}
+  reject_old_samples: true
+  reject_old_samples_max_age: {{ LOKI_RETENTION.period }}
+  ingestion_rate_mb: {{ LOKI_INGESTION_RATE_MB | int }}
+  ingestion_burst_size_mb: {{ LOKI_INGESTION_BURST_MB | int }}
+  per_stream_rate_limit: {{ LOKI_INGESTION_RATE_MB | int }}MB
+  per_stream_rate_limit_burst: {{ LOKI_INGESTION_BURST_MB | int }}MB
+  allow_structured_metadata: true
+  volume_enabled: true
+
+ruler:
+  storage:
+    type: local
+    local:
+      directory: /etc/loki/rules
+  rule_path: /loki/rules-temp
+  enable_api: true
+  ring:
+    kvstore:
+      store: inmemory
+{% if LOKI_ALERTMANAGER_ENABLED | bool %}
+  alertmanager_url: {{ LOKI_ALERTMANAGER_URL | to_json }}
+{% endif %}
+
+analytics:
+  reporting_enabled: false

@@ -59,7 +59,7 @@ def _is_manager_pinned(role_name: str) -> bool:
 
 
 class TestNfsFalseRequiresDataLossJustification(unittest.TestCase):
-    def test_nfs_false_is_justified(self) -> None:
+    def test_nfs_false_is_justified(self) -> None:  # nocheck: test.text-presence -- policy lint over every role meta/volumes.yml  # fmt: skip
         findings: list[tuple[str, int, str]] = []
         roles_dir = PROJECT_ROOT / "roles"
         for role_dir in sorted(p for p in roles_dir.iterdir() if p.is_dir()):

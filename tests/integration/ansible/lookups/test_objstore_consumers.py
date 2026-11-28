@@ -16,13 +16,11 @@ from plugins.filter.seaweedfs import VOLUME_GROW_BATCH, volume_slots
 from plugins.lookup.applications import (
     LookupModule as ApplicationsLookup,
 )
-from plugins.lookup.applications import (
-    _reset_cache_for_tests,
-)
 from plugins.lookup.objstore_consumers import LookupModule as ObjstoreConsumersLookup
 from utils.cache.files import read_text
 from utils.domains.default_primary import default_domain_primary
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
+from utils.tests.caches import reset_caches
 
 from . import PROJECT_ROOT
 
@@ -61,7 +59,7 @@ def _consumers(applications: dict, group_names: list[str]) -> list[str]:
 class TestObjstoreConsumersIntegration(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
         applications = ApplicationsLookup()
         applications._templar = Templar(loader=DataLoader())
         merged = applications.run(
@@ -72,7 +70,7 @@ class TestObjstoreConsumersIntegration(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        _reset_cache_for_tests()
+        reset_caches(files_changed=False)
 
     def test_multi_domain_consumer_is_the_only_declared_one(self) -> None:
         self.assertEqual(
@@ -117,7 +115,7 @@ class TestObjstoreConsumersIntegration(unittest.TestCase):
         ):
             with self.subTest(scenario=label):
                 self.assertGreater(
-                    volume_slots(len(consumers)),
+                    volume_slots(len(consumers), 0),
                     VOLUME_GROW_BATCH,
                     "The first grow batch goes to the unnamed default "
                     "collection, so a budget of one batch leaves no volume for "

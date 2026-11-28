@@ -71,10 +71,16 @@ def _fake_modules(manager: _Manager) -> dict[str, ModuleType]:
 
 class TestDesignPreferences(unittest.TestCase):
     def _run(
-        self, values: dict, *, state: str = "present", logo: bytes = LOGO
+        self,
+        values: dict,
+        *,
+        state: str = "present",
+        logo: bytes = LOGO,
+        mode: str = "converge",
     ) -> tuple[str, _Manager]:
         manager = _Manager(values)
         env = {
+            "FUNKWHALE_DESIGN_MODE": mode,
             "FUNKWHALE_DESIGN_STATE": state,
             "FUNKWHALE_DESIGN_MARK": MARK,
             "FUNKWHALE_DESIGN_STRINGS": json.dumps(STRINGS),
@@ -114,7 +120,7 @@ class TestDesignPreferences(unittest.TestCase):
         self.assertEqual(out, "FUNKWHALE_DESIGN=UNCHANGED")
         self.assertEqual(manager.writes, [])
 
-    def test_leaves_a_pod_with_foreign_custom_css_alone(self) -> None:
+    def test_enforces_the_name_but_leaves_foreign_custom_css_alone(self) -> None:
         out, manager = self._run(
             {
                 "instance__name": "Mine",
@@ -122,8 +128,56 @@ class TestDesignPreferences(unittest.TestCase):
                 "ui__logo": None,
             }
         )
+        self.assertEqual(out, "FUNKWHALE_DESIGN=CHANGED instance__name")
+        self.assertEqual(manager.writes, ["instance__name"])
+        self.assertEqual(manager["instance__name"], STRINGS["instance__name"])
+        self.assertEqual(manager["ui__custom_css"], "body{color:red}")
+
+    def test_reports_foreign_once_the_name_is_converged(self) -> None:
+        out, manager = self._run(
+            {
+                "instance__name": STRINGS["instance__name"],
+                "ui__custom_css": "body{color:red}",
+                "ui__logo": None,
+            }
+        )
         self.assertEqual(out, "FUNKWHALE_DESIGN=FOREIGN")
         self.assertEqual(manager.writes, [])
+
+    def test_read_reports_the_stored_name_and_pending_writes_without_writing(
+        self,
+    ) -> None:
+        out, manager = self._run(
+            {
+                "instance__name": "Mine",
+                "ui__custom_css": "body{color:red}",
+                "ui__logo": None,
+            },
+            mode="read",
+        )
+        self.assertEqual(json.loads(out), {"pending": True, "instance_name": "Mine"})
+        self.assertEqual(manager.writes, [])
+
+    def test_read_reports_nothing_pending_once_converged(self) -> None:
+        values = dict(
+            STRINGS,
+            ui__logo=_file(
+                "dynamic_preferences/ui__logo/infinito-design-ui__logo.png", LOGO
+            ),
+        )
+        out, manager = self._run(values, mode="read")
+        self.assertEqual(
+            json.loads(out),
+            {"pending": False, "instance_name": STRINGS["instance__name"]},
+        )
+        self.assertEqual(manager.writes, [])
+
+    def test_an_unknown_mode_fails_before_any_write(self) -> None:
+        with self.assertRaises(ValueError):
+            self._run(
+                {"instance__name": "", "ui__custom_css": "", "ui__logo": None},
+                mode="apply",
+            )
 
     def test_absent_state_removes_only_what_the_role_wrote(self) -> None:
         own_logo = _file(

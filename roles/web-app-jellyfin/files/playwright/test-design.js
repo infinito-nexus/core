@@ -10,6 +10,7 @@ const {
   tokenValue,
 } = require("./design");
 const { apiGetOnion, decodeDotenvQuotedValue, gotoOnion } = require("./personas");
+const { assertSky } = require("./cosmos-sky");
 const { isServiceEnabled, skipUnlessServiceEnabled } = require("./service-gating");
 const { resolveTimeout } = require("./timeouts");
 
@@ -23,9 +24,23 @@ const title = decodeDotenvQuotedValue(process.env.DESIGN_TITLE || "");
 const touchIconUrl = decodeDotenvQuotedValue(process.env.DESIGN_TOUCH_ICON_URL || "");
 
 const MODES = ["light", "dark"];
+const SKY_CLEARED = ["html", "body", ".backgroundContainer"];
+const SKY_LEGIBLE_BLOCKS = [".mainAnimatedPages"];
+
+async function assertPageSurface(page, cleared, blocks, label) {
+  if (isServiceEnabled("cosmos")) {
+    await assertSky(page, cleared, blocks, label);
+    return;
+  }
+  await assertToken(page, "html", "background-color", "--design-surface-1", label);
+}
+
 const PICKED_THEME = "light";
 const BLOCK = /\/\*infinito-design\*\/[\s\S]*?\/\*\/infinito-design\*\//g;
 const ADD_ON_RULE = ".disclaimerContainer";
+const FORM_HIDE_RULE = "#loginPage .manualLoginForm";
+const SIGN_IN_DISCLAIMER = "#loginPage .loginDisclaimer";
+const SIGN_IN_SSO = `${SIGN_IN_DISCLAIMER} .button-submit`;
 const SIGN_IN_NAME = "#loginPage #txtManualName";
 const SIGN_IN_SUBMIT = "#loginPage .manualLoginForm .button-submit";
 const SIGN_IN_SECONDARY = "#loginPage .btnForgotPassword";
@@ -286,10 +301,12 @@ async function pickTheme(page, theme) {
 exports.register = function (shared) {
   const base = shared.env.jellyfinBaseUrl;
   const route = (name, hash) => `${base}/web/?view=${name}#/${hash}`;
-  const signIn = (page) => shared.signInViaLocal(page, shared.env.adminUsername, shared.env.adminNativePassword, "design");
+  const formShown = shared.env.loginFormShown;
+  const signInEntry = formShown ? SIGN_IN_NAME : SIGN_IN_SSO;
+  const signIn = (page) => shared.signInAsLocalAdministrator(page, "design");
   const signInPage = async (page) => {
     await gotoOnion(page, route("sign-in", "login"));
-    await shown(page, SIGN_IN_NAME);
+    await shown(page, signInEntry);
   };
   const view = (name, hash, selector, extra) => ({
     name,
@@ -308,14 +325,17 @@ exports.register = function (shared) {
       await opened(page, target);
     },
   });
-  const visitorViews = () => [
-    view("sign-in", "login", SIGN_IN_NAME),
-    view("sign-in-focus", "login", SIGN_IN_NAME, async (page) => {
-      await page.locator(SIGN_IN_NAME).fill(shared.env.adminUsername);
-      await page.keyboard.press("Tab");
-      await settled(page);
-    }),
-  ];
+  const visitorViews = () =>
+    formShown
+      ? [
+          view("sign-in", "login", SIGN_IN_NAME),
+          view("sign-in-focus", "login", SIGN_IN_NAME, async (page) => {
+            await page.locator(SIGN_IN_NAME).fill(shared.env.adminUsername);
+            await page.keyboard.press("Tab");
+            await settled(page);
+          }),
+        ]
+      : [view("sign-in", "login", SIGN_IN_SSO)];
   const memberViews = () => [
     view("home", "home", HOME_MESSAGE),
     view("navigation", "home", HOME_MESSAGE, async (page) => {
@@ -362,7 +382,12 @@ exports.register = function (shared) {
       await signInPage(page);
       await expect(page.locator("html")).toHaveAttribute("data-theme", corporateTheme);
       await expect(page.locator("html")).toHaveAttribute("data-design-palette", "");
-      await assertToken(page, "html", "background-color", "--design-surface-1", `sign-in ${mode}`);
+      await assertPageSurface(page, SKY_CLEARED, SKY_LEGIBLE_BLOCKS, `sign-in ${mode}`);
+      if (!formShown) {
+        await assertToken(page, SIGN_IN_SSO, "background-color", "--design-primary", `SSO entry ${mode}`);
+        await assertToken(page, SIGN_IN_SSO, "color", "--design-on-primary", `SSO entry ${mode}`);
+        continue;
+      }
       await assertToken(page, SIGN_IN_HEADING, "color", "--design-text", `sign-in ${mode}`);
       await assertToken(page, SIGN_IN_NAME, "background-color", "--design-surface-2", `field ${mode}`);
       await assertToken(page, SIGN_IN_SUBMIT, "background-color", "--design-primary", `primary action ${mode}`);
@@ -374,8 +399,18 @@ exports.register = function (shared) {
     }
     await page.emulateMedia({ colorScheme: null });
     await signInPage(page);
-    await assertLightAndDark(page, SIGN_IN_HEADING, "jellyfin sign-in");
-    await assertReadable(page, [SIGN_IN_HEADING, SIGN_IN_NAME, SIGN_IN_LABEL, SIGN_IN_SUBMIT, SIGN_IN_SECONDARY], "jellyfin sign-in");
+    const sky = isServiceEnabled("cosmos");
+    if (!formShown) {
+      if (!sky) await assertLightAndDark(page, SIGN_IN_DISCLAIMER, "jellyfin sign-in");
+      await assertReadable(page, [SIGN_IN_SSO], "jellyfin sign-in");
+      return;
+    }
+    await assertLightAndDark(page, sky ? SIGN_IN_NAME : SIGN_IN_HEADING, "jellyfin sign-in");
+    await assertReadable(
+      page,
+      sky ? [SIGN_IN_NAME, SIGN_IN_SUBMIT, SIGN_IN_SECONDARY] : [SIGN_IN_HEADING, SIGN_IN_NAME, SIGN_IN_LABEL, SIGN_IN_SUBMIT, SIGN_IN_SECONDARY],
+      "jellyfin sign-in",
+    );
   });
 
   test("design: header, navigation and their states follow the palette", async ({ page }) => {
@@ -388,6 +423,7 @@ exports.register = function (shared) {
       await page.emulateMedia({ colorScheme: mode });
       await gotoOnion(page, route(`home-${mode}`, "home"));
       await shown(page, HOME_MESSAGE);
+      if (isServiceEnabled("cosmos")) await assertSky(page, SKY_CLEARED, SKY_LEGIBLE_BLOCKS, `home ${mode}`);
       await assertToken(page, HEADER, "background-color", "--design-frame", `header ${mode}`);
       await assertToken(page, HEADER, "color", "--design-on-frame", `header ${mode}`);
       await assertToken(page, HOME_MESSAGE, "color", "--design-text", `empty library state ${mode}`);
@@ -419,7 +455,8 @@ exports.register = function (shared) {
     await shown(page, HOME_MESSAGE);
     await navigationOpened(page);
     await assertLightAndDark(page, DRAWER, "jellyfin navigation");
-    await assertReadable(page, [HOME_MESSAGE, HOME_LINK, NAV_ENTRY, `${HEADER_TAB}.emby-tab-button-active`, `${HEADER_TAB}:not(.emby-tab-button-active)`], "jellyfin shell");
+    const shell = [NAV_ENTRY, `${HEADER_TAB}.emby-tab-button-active`, `${HEADER_TAB}:not(.emby-tab-button-active)`];
+    await assertReadable(page, isServiceEnabled("cosmos") ? shell : [HOME_MESSAGE, HOME_LINK, ...shell], "jellyfin shell");
   });
 
   test("design: the selection bar is a frame that draws focus in the on-frame color", async ({ page }) => {
@@ -454,7 +491,7 @@ exports.register = function (shared) {
       await page.emulateMedia({ colorScheme: mode });
       await gotoOnion(page, route("admin-dashboard", "dashboard"));
       await shown(page, ADMIN_PRIMARY);
-      await assertToken(page, "html", "background-color", "--design-surface-1", `administration ${mode}`);
+      await assertPageSurface(page, ["html", "body"], [], `administration ${mode}`);
       await assertToken(page, ADMIN_BAR, "color", "--design-text", `app bar ${mode}`);
       await assertToken(page, ADMIN_DRAWER, "background-color", "--design-surface-2", `drawer ${mode}`);
       await assertToken(page, ADMIN_PAPER, "background-color", "--design-surface-2", `card ${mode}`);
@@ -522,7 +559,7 @@ exports.register = function (shared) {
     }
     await expect(html).toHaveAttribute("data-design-palette", "");
     await expect(html, "the default theme follows the browser preference").not.toHaveAttribute("data-design-theme");
-    await assertToken(page, "html", "background-color", "--design-surface-1", "default theme restored");
+    await assertPageSurface(page, ["html", "body"], [], "default theme restored");
     expect(await surface(), "the default theme must show the dark tokens while the browser prefers dark").toBe(darkSurface);
   });
 
@@ -575,6 +612,10 @@ exports.register = function (shared) {
       await page.emulateMedia({ colorScheme: mode });
       await gotoOnion(page, `${base}/web/`);
       await expect(page.locator(".splashLogo")).toHaveCSS("background-image", `url("${url}")`);
+      if (isServiceEnabled("cosmos")) {
+        await assertSky(page, ["html"], [], `start screen ${mode}`);
+        continue;
+      }
       await assertToken(page, "html", "background-color", "--design-surface-1", `start screen ${mode}`);
       await assertLockupTitle(page, url, token, "html", mode, 3, `start screen lockup ${mode}`);
     }
@@ -600,9 +641,14 @@ exports.register = function (shared) {
     const blocks = css.match(BLOCK) || [];
     expect(blocks, "the custom CSS of the server must carry exactly one corporate block").toHaveLength(1);
     const foreign = css.replace(BLOCK, "").trim();
-    if (isServiceEnabled("sso")) {
+    const ssoEntry = isServiceEnabled("sso") && shared.env.loginMethodSso;
+    if (ssoEntry) {
       expect(foreign, "the rules of the single sign-on add-on must survive next to the corporate block").toContain(ADD_ON_RULE);
-    } else {
+    }
+    if (!formShown) {
+      expect(foreign, "the rules hiding the disabled sign-in entries must survive next to the corporate block").toContain(FORM_HIDE_RULE);
+    }
+    if (!ssoEntry && formShown) {
       expect(foreign, "nothing but the corporate block belongs into the custom CSS of this deployment").toBe("");
     }
 

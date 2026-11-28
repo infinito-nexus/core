@@ -28,66 +28,76 @@
     design_assets_dest: "{{ XWIKI_DESIGN_DIR }}"
 
 - name: "📄 XWIKI | Create the corporate theme page"
-  uri_retry:
-    url: "{{ XWIKI_REST_THEME_PAGE }}"
-    method: PUT
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [201]
-    headers: "{{ xwiki_rest_headers_write }}"
-    body: "{{ lookup('template', 'xml/design/theme/page.xml.j2') }}"
+  include_tasks: ../utils/http.yml
+  vars:
+    xwiki_http_method: PUT
+    xwiki_http_url: "{{ XWIKI_REST_THEME_PAGE }}"
+    xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+    xwiki_http_body: "{{ lookup('template', 'xml/design/theme/page.xml.j2') }}"
+    xwiki_http_status: [201]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_design_page_created
   when: _xwiki_design_page.status == 404
-  changed_when: true
 
 - name: "💾 XWIKI | Remember the preferences the wiki had"
-  uri_retry:
-    url: "{{ [XWIKI_REST_THEME_PAGE, 'objects'] | url_join }}"
-    method: POST
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [201]
-    headers: "{{ xwiki_rest_headers_write }}"
-    body: "{{ lookup('template', 'xml/design/previous_preferences_object.xml.j2') }}"
+  include_tasks: ../utils/http.yml
+  vars:
+    xwiki_http_method: POST
+    xwiki_http_url: "{{ [XWIKI_REST_THEME_PAGE, 'objects'] | url_join }}"
+    xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+    xwiki_http_body: "{{ lookup('template', 'xml/design/previous_preferences_object.xml.j2') }}"
+    xwiki_http_status: [201]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_design_previous_stored
   when: _xwiki_design_previous.status == 404
-  changed_when: true
 
 - name: "📂 XWIKI | Write the theme object"
   include_tasks: theme.yml
 
 - name: "📂 XWIKI | Attach the navbar lockup"
   include_tasks: logo.yml
-  when: design_branding.logo is string
+  when: lookup('design', application_id).logo is string
 
 - name: "📌 XWIKI | Make the corporate theme the wiki default"
-  uri_retry:
-    url: "{{ [XWIKI_REST_PREFERENCES, 'colorTheme'] | url_join }}"
-    method: PUT
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [202]
-    headers: "{{ xwiki_rest_headers_write }}"
-    body: "{{ lookup('template', 'xml/property.xml.j2') }}"
+  include_tasks: ../utils/http.yml
   vars:
     xwiki_property_value: "{{ XWIKI_DESIGN_THEME_REFERENCE }}"
-  when: _xwiki_design_color_theme.json.value != XWIKI_DESIGN_THEME_REFERENCE
-  changed_when: true
+    xwiki_http_method: PUT
+    xwiki_http_url: "{{ [XWIKI_REST_PREFERENCES, 'colorTheme'] | url_join }}"
+    xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+    xwiki_http_body: "{{ lookup('template', 'xml/property.xml.j2') }}"
+    xwiki_http_status: [202]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_design_color_theme_set
+  when: (_xwiki_design_color_theme.content | from_json).value != XWIKI_DESIGN_THEME_REFERENCE
 
 - name: "🏷️ XWIKI | Set the wiki title"
-  uri_retry:
-    url: "{{ [XWIKI_REST_PREFERENCES, 'title'] | url_join }}"
-    method: PUT
-    url_username: "{{ XWIKI_SUPERADMIN_USERNAME }}"
-    url_password: "{{ XWIKI_SUPERADMIN_PASSWORD }}"
-    force_basic_auth: true
-    status_code: [202]
-    headers: "{{ xwiki_rest_headers_write }}"
-    body: "{{ lookup('template', 'xml/property.xml.j2') }}"
+  include_tasks: ../utils/http.yml
   vars:
     xwiki_property_value: "{{ XWIKI_DESIGN_TITLE }}"
+    xwiki_http_method: PUT
+    xwiki_http_url: "{{ [XWIKI_REST_PREFERENCES, 'title'] | url_join }}"
+    xwiki_http_headers: "{{ xwiki_rest_headers_write }}"
+    xwiki_http_body: "{{ lookup('template', 'xml/property.xml.j2') }}"
+    xwiki_http_status: [202]
+    xwiki_http_retry_markers: []
+    xwiki_http_retries: 30
+    xwiki_http_delay: 2
+    xwiki_http_timeout: 30
+    xwiki_http_follow_redirects: "safe"
+    xwiki_http_result: _xwiki_design_title_set
   when:
-    - design_branding.title is string
-    - _xwiki_design_title.json.value != XWIKI_DESIGN_TITLE
-  changed_when: true
+    - lookup('design', application_id).title is string
+    - (_xwiki_design_title.content | from_json).value != XWIKI_DESIGN_TITLE

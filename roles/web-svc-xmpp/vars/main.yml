@@ -5,3 +5,6 @@ entity_name: "{{ application_id | entity_name }}"
 EJABBERD_CONTAINER: "{{ lookup('config', application_id, 'services.xmpp.name') }}"
 XMPP_DOMAIN: "{{ (lookup('applications', application_id).domains.canonical | first) }}"
 XMPP_CONFIG_FILE: "{{ [ lookup('container', application_id, 'directories.instance'), 'ejabberd.yml' ] | path_join }}"
+XMPP_LDAP_ENABLED: "{{ lookup('config', application_id, 'services.ldap.enabled') | bool }}"
+XMPP_ADMIN_USERNAMES: "{{ ([lookup('users', 'platform_administrator').username] + (rbac_members | map(attribute='username') | list)) | map('lower') | unique | list
+  }}"

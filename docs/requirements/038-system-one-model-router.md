@@ -6,13 +6,13 @@ As a consumer of the Infinito.Nexus LLM gateway, I want to send a prompt to one 
 
 ## Background
 
-[031](031-llm-gateway-model-backends.md) made [`svc-ai-litellm`](../../roles/svc-ai-litellm/) the single place model backends are wired, and consumers now carry a gateway URL plus a model alias. That moved the wiring, not the choice: every consumer still names one alias, and `LITELLM_CHAT_MODEL` in [16_ai.yml](../../group_vars/all/16_ai.yml) resolves it once per deploy for everyone.
+[052](052-llm-gateway-model-backends.md) made [`svc-ai-litellm`](../../roles/svc-ai-litellm/) the single place model backends are wired, and consumers now carry a gateway URL plus a model alias. That moved the wiring, not the choice: every consumer still names one alias, and `LITELLM_CHAT_MODEL` in [16_ai.yml](../../group_vars/all/16_ai.yml) resolves it once per deploy for everyone.
 
 That choice is wrong in two directions at once. A prompt that needs a large context window reaches a model that cannot hold it, which is how [`web-app-hermes`](../../roles/web-app-hermes/) answers HTTP 500 when the agent model declares fewer than 64000 tokens. And a one-line factual question reaches whatever the deploy happened to pick, which is usually the largest model available.
 
 Daniel Kahneman's split names the shape. The models behind the gateway are System II: slow, general, token-generating. What is missing is System I: fast, typed, no generation, deciding which System II model answers. TypeSafe released [Jev](https://en.wikipedia.org/wiki/Jev_(AI_model)) on 2026-09-15 as a model of exactly that kind, and [jev-router](https://github.com/prismhq/jev-router) wires one into LiteLLM as a pre-call hook. This requirement takes that shape and keeps the decision deterministic; decision 8 records why.
 
-This is the **routing plane**. The model plane is [031](031-llm-gateway-model-backends.md), the tool plane is [025](025-mcp-role-integration.md), and the agent fleet that benefits most is [032](032-agent-employees-firecracker.md).
+This is the **routing plane**. The model plane is [052](052-llm-gateway-model-backends.md), the tool plane is [050](050-mcp-role-integration.md), and the agent fleet that benefits most is [032](032-agent-employees-firecracker.md).
 
 ## Confirmed Decisions
 
@@ -26,7 +26,7 @@ These choices are settled at requirement creation time and bound the implementat
 
    Every path that cannot route rejects the request with its reason instead of answering. The hook returns a string when the proxy has no router or when no served model can take the request, and the proxy turns that into a `RejectedRequestError` carrying the text. The alias's own `model_list` entry exists only so the name is listable and carries `mock_response: litellm.InternalServerError`, so reaching it at all raises. Both halves matter, because a router that silently served whatever was first would hide its own failure behind a plausible reply, and the alias exists precisely so callers do not have to know which model answered.
 
-4. **The alias is the switch.** `services.litellm.router_alias` defaults to `auto`; setting it empty publishes no route and renders no `callbacks` entry, so the hook is not even a condition of starting the proxy. One knob, because a separate enable flag would let `services.yml` read as on while the router is off.
+4. **The alias is the switch.** `services.litellm.router.alias` defaults to `auto`; setting it empty publishes no route and renders no `callbacks` entry, so the hook is not even a condition of starting the proxy. One knob, because a separate enable flag would let `services.yml` read as on while the router is off.
 
 5. **Eligibility is read from LiteLLM's own catalog; a declaration is the override.** The image ships `model_prices_and_context_window_backup.json`, 1595 models deep, carrying `max_input_tokens`, `supports_vision`, `supports_function_calling` and `input_cost_per_token`. The hook reads a route's capabilities from `litellm.model_cost`, keyed on the route's own `litellm_params.model` and then on that name without its first segment, because `ollama/llama3` is filed prefixed while `openai/gpt-4o-mini` is filed as `gpt-4o-mini`. It never probes a backend at request time.
 
@@ -48,7 +48,7 @@ These choices are settled at requirement creation time and bound the implementat
 
    Variant 0 preloads nothing and the gateway serves its mock, so none of this costs anything in the rounds that are not about serving.
 
-7. **A request stays inside the deployment while a local model can serve it.** A prompt can carry a credential, so locality is its own rank above price rather than a consequence of local models happening to be free. `services.litellm.router_remote_fallback` defaults to `false`: while any local route is deployed, a request no local model can take is refused with its reason instead of reaching a third party, and the refusal names the switch that would allow it. With no local route deployed the rule does not apply, because there would be nothing to hold the request on.
+7. **A request stays inside the deployment while a local model can serve it.** A prompt can carry a credential, so locality is its own rank above price rather than a consequence of local models happening to be free. `services.litellm.router.remote_fallback` defaults to `false`: while any local route is deployed, a request no local model can take is refused with its reason instead of reaching a third party, and the refusal names the switch that would allow it. With no local route deployed the rule does not apply, because there would be nothing to hold the request on.
 
    A structured secret in the prompt forces the same restriction even when the switch is on. Only unambiguous shapes count (PEM headers, `sk-`, `ghp_`, `github_pat_`, `AKIA`, `xox[bapsr]-`, `AIza`); a pattern like `password=` would match prose and teach callers to click past the refusal. This is a second lock and not the guarantee, because any such pattern has false negatives. The guarantee is that this restriction is a filter applied before any ranking: a restricted request has no remote candidate left to rank, whatever weight locality carries in decision 9.
 
@@ -62,7 +62,7 @@ These choices are settled at requirement creation time and bound the implementat
 
    The remaining reproductions of Jev, [open-alternative-jev](https://github.com/ikermoel/open-alternative-jev) on any open-weights model and OpenJev on DiffusionGemma 26B-A4B, are not used.
 
-9. **How much each factor counts is a number in `services.yml`, between 0 and 1.** `services.litellm.router_weights` carries one weight per factor: `locality`, `cost` and `speed`. Each factor is scaled to 0..1 *inside the candidate set* before its weight applies, because the raw units do not compare - a per-token price is a millionth of a cent and a rate is tens of tokens per second. A factor whose value is identical across the set scores every route 1 and therefore decides nothing, rather than ranking on a rounding artefact.
+9. **How much each factor counts is a number in `services.yml`, between 0 and 1.** `services.litellm.router.weights` carries one weight per factor: `locality`, `cost` and `speed`. Each factor is scaled to 0..1 *inside the candidate set* before its weight applies, because the raw units do not compare - a per-token price is a millionth of a cent and a rate is tens of tokens per second. A factor whose value is identical across the set scores every route 1 and therefore decides nothing, rather than ranking on a rounding artefact.
 
    The factors are `locality`, `cost`, `speed`, `caching` and `throughput`. `cost` is the expected bill for this request, input price times estimated input tokens plus output price times requested output, because ranking on the input price alone reads the cheaper half: an output token commonly costs several times an input one, and a short prompt with a long answer inverts the order the input price suggests. `caching` prefers a route that can reuse a cached prefix, which is the largest real saving for an agent with a stable system prompt. `throughput` reads the catalogued `tpm`, the only quota the catalog carries.
 
@@ -70,25 +70,27 @@ These choices are settled at requirement creation time and bound the implementat
 
    Weights are a preference because the operator is the only one who knows what this deployment is for. A cluster whose local models are toys wants `speed` high; a cluster billing a provider per token wants `cost` high; a cluster handling client data leaves `locality` where it is. Encoding one of those as the rule would be this project guessing.
 
-10. **Speed is measured at deploy time, not declared, and only for a model that has no rate yet.** A rate is a property of this machine under this load, not of the model, so no catalogue carries one and a hand-written number in `services.yml` would be a guess that rots. After the gateway is warm, [measure_speed.py](../../roles/svc-ai-litellm/files/python/measure_speed.py) asks it which models it serves and sends one warm-up request plus `services.litellm.router_speed_samples` (12) measured requests to each unranked one, taking their median as output tokens per second. The warm-up is discarded at every setting, including a one-sample run: a rate that still carries the model load time ranks a small model below a larger one, and the router then routes on that inversion.
+10. **Speed is measured at deploy time, not declared, and only for a model that has no rate yet.** A rate is a property of this machine under this load, not of the model, so no catalogue carries one and a hand-written number in `services.yml` would be a guess that rots. After the gateway is warm, [measure_speed.py](../../roles/svc-ai-litellm/files/python/measure_speed.py) asks it which models it serves and sends one warm-up request plus `services.litellm.router.speed.samples` (12) measured requests to each unranked one, taking their median as output tokens per second. The warm-up is discarded at every setting, including a one-sample run: a rate that still carries the model load time ranks a small model below a larger one, and the router then routes on that inversion.
 
-    A model that already carries a rate is not measured at all. Re-measuring everything on every deploy would send traffic whose result the tolerance below discards anyway, and that traffic is the entire live surface of this step: it is what can hang, what can fail the deploy, and what the deploy waits for. `services.litellm.router_speed_remeasure` discards the stored numbers once, for the case where the hardware under them changed.
+    A model that already carries a rate is not measured at all. Re-measuring everything on every deploy would send traffic whose result the tolerance below discards anyway, and that traffic is the entire live surface of this step: it is what can hang, what can fail the deploy, and what the deploy waits for. `services.litellm.router.speed.remeasure` discards the stored numbers once, for the case where the hardware under them changed.
 
     The result is stored on the stack host and rendered back into `model_info.traits.speed` on the same deploy, so the gateway restarts once with the numbers it just produced. A re-measured rate that moved less than 10% keeps its stored value, because no two runs measure the same machine and an unclamped result would restart the gateway for nothing. A model the measurement could not reach keeps its stored rate rather than losing it, so one bad minute does not unrank a model against its peers.
 
-    Two budgets bound the step. A measured request may take `services.litellm.router_speed_timeout` (60s); the discarded first request gets `services.litellm.upstream_timeout` instead, because it pays the model load and holding it to the sample budget would time out exactly the models worth measuring. A request that exceeds its budget raises, which abandons that model rather than the deploy.
+    Two budgets bound the step. A measured request may take `services.litellm.router.speed.timeout` (60s); the discarded first request gets `services.litellm.upstream_timeout` instead, because it pays the model load and holding it to the sample budget would time out exactly the models worth measuring. A request that exceeds its budget raises, which abandons that model rather than the deploy.
 
     Every matrix variant overrides the sample count to 1. At that setting the single sample is kept rather than discarded as cold, because what a CI round proves is that the measurement, the store and the re-render ran, not what the rate was on a shared runner.
 
     A declared `traits.speed` still wins, because a declaration is the operator overriding the measurement and the next deploy must not overwrite it back.
 
-11. **Two strategies decide among the survivors, and `services.litellm.router_strategy` picks one.** Both run behind the same filter and behind decision 7's locality restriction; they differ only in what ranks the routes that are left.
+11. **Two strategies decide among the survivors, and `services.litellm.router.strategy` picks one.** Both run behind the same filter and behind decision 7's locality restriction; they differ only in what ranks the routes that are left.
 
-    `weighted` is decision 9's score. It ranks on standing preferences and, once the filter has run, ignores the prompt entirely: the same candidate set returns the same winner whatever was asked. The name is the mechanism, and it names its own configuration: `router_strategy: weighted` is the strategy that reads `router_weights`, which `system_one` ignores.
+    `weighted` is decision 9's score. It ranks on standing preferences and, once the filter has run, ignores the prompt entirely: the same candidate set returns the same winner whatever was asked. The name is the mechanism, and it names its own configuration: `router.strategy: weighted` is the strategy that reads `router.weights`, which `system_one` ignores.
 
     `system_one` puts the choice to [`svc-ai-s1`](../../roles/svc-ai-s1/). The surviving candidates become the options of a single `choice` question and the prompt becomes the state it classifies, so the decision reads what the request is about rather than only how large it is. An option the router did not offer is refused rather than routed to, because the filter excluded the others for a reason.
 
-    Neither strategy is chosen by hand. `services.litellm.router_strategy` derives from `services.jeff.enabled`: with the System One service deployed the gateway asks it, and without it there is nothing to ask, so the gateway falls to the strategy it can compute itself. Reading the service flag rather than `group_names` keeps one path from the deployment to the behaviour.
+    Neither strategy is chosen by hand. `services.litellm.router.strategy` derives from `services.s1.enabled`: with the System One service deployed the gateway asks it, and without it there is nothing to ask, so the gateway falls to `weighted`, the strategy it can compute itself. Reading the service flag rather than `group_names` keeps one path from the deployment to the behaviour.
+
+    Superseded by [089](089-agents-restructuring.md#superseded-criteria): `router_strategy` derives from `services.s1.enabled`, no longer from `services.jeff.enabled`.
 
     A jeff that cannot be reached rejects the request. It is not routed around, because the caller named an alias precisely so it would not have to know which model answered, and substituting a different decider would make that answer mean something else.
 
@@ -96,13 +98,13 @@ These choices are settled at requirement creation time and bound the implementat
 
     The order of those mocks is load-bearing and the router is not what reads it. `AI_AGENT_MODEL` takes `AI_MOCK_ALIASES | first`, so the mock declared first becomes the agent broker's model and its window becomes the context the broker gates platforms on. Declaring the 4096 mock first withheld `hermes`, whose `min_context` is 64000, and the broker's CLI test failed with the reason spelled out. The widest mock therefore leads. A sharper fix would be to have `AI_AGENT_MODEL` pick the mock with the largest declared context instead of the first one, which would make the order irrelevant.
 
-    Variant 2 also pins `services.jeff.enabled` true, which is what selects the strategy and what `test_bond_baseline` requires of a loose-bond partner: a service nothing ever enables is a service nothing ever tests. Variant 1 keeps `weighted` with three real models, so each strategy owns one observable round.
+    Variant 2 also pins `services.s1.enabled` true, which is what selects the strategy and what `test_bond_baseline` requires of a loose-bond partner: a service nothing ever enables is a service nothing ever tests. Variant 1 keeps `weighted` with three real models, so each strategy owns one observable round.
 
     A fourth variant was built first and then withdrawn: `tests/integration/roles/meta/variants/test_limit.py` caps a role at three, on the stated ground that variants exercise dynamic-flag polarities rather than enumerate features, and the `# nocheck: variant-limit` escape would have been a suppression bought to keep a design that fits in three anyway.
 
 13. **A declared window is an upper bound the backend honours, and the token demand is a floor.** Two numbers guard the same decision from opposite sides, and each was wrong in the direction that hid the other. `smollm2:135m` was declared at 16384 against a trained `max_position_embeddings` of 8192 with no rope scaling, so Ollama clamped `num_ctx` and then truncated the prompt to half the window, which is the `n_left=4091` recorded in `8dbdd31b22`. Meanwhile `CHARS_PER_TOKEN = 3` was justified as erring high, but the router's own probe builds its oversized prompt from `"x "`, which tokenizes at two characters per token: 16384 characters are 8193 real tokens on all three served tokenizers against an estimate of 5461.
 
-    Neither correction works alone, which is why both ship. Declaring 8192 while still estimating 5461 leaves the model eligible; estimating 8192 while still declaring 16384 does the same. Together the demand becomes 8192 plus the 16 output tokens, which exceeds the honest window and excludes the route. The constant is therefore `services.litellm.router_min_chars_per_token`, named as a floor rather than an average, and it is rendered into both the hook and the probe so the two cannot drift.
+    Neither correction works alone, which is why both ship. Declaring 8192 while still estimating 5461 leaves the model eligible; estimating 8192 while still declaring 16384 does the same. Together the demand becomes 8192 plus the 16 output tokens, which exceeds the honest window and excludes the route. The constant is therefore `services.litellm.router.min_chars_per_token`, named as a floor rather than an average, and it is rendered into both the hook and the probe so the two cannot drift.
 
     The probe's own check was vacuous beside this: it compared a declared window against an estimated demand, both produced by this deployment, so it structurally could not observe a declaration the backend does not honour. It now also reads `usage.prompt_tokens` from the answer, the one number in the exchange that the backend produced.
 
@@ -128,7 +130,7 @@ flowchart TB
         keep["local_reason()<br/>drop remote when it must stay in"]
         dec["decide()<br/>weighted score or system_one choice"]
         jeff["svc-ai-s1<br/>typed choice, no generation"]
-        weights["router_strategy + router_weights<br/>locality, cost, speed, caching, throughput"]
+        weights["router.strategy + router.weights<br/>locality, cost, speed, caching, throughput"]
         rates["measure_speed.py<br/>1 warm-up + 12 measured per model at deploy"]
     end
 
@@ -183,20 +185,20 @@ flowchart TB
 
 - [x] `svc-ai-litellm` publishes an additional `auto` alias, and every alias that resolved before this change still resolves after it.
 - [x] The pre-call hook is a Python file the role renders next to `config.yaml` and LiteLLM imports by `module.instance`; `services.litellm.image` and its pinned version are unchanged.
-- [x] A gateway that publishes no router alias renders no `callbacks` entry and does not load the hook, and `services.litellm.router_alias` is the only switch.
+- [x] A gateway that publishes no router alias renders no `callbacks` entry and does not load the hook, and `services.litellm.router.alias` is the only switch.
 - [x] A request the router cannot serve is rejected with the reason, and the alias's own route raises rather than answering from a default.
 - [x] The hook excludes a candidate whose capabilities cannot serve the request (context window, vision, tools, output length), reading them from LiteLLM's catalog and letting a declared `traits` mapping override it.
 - [x] A model entry declares none of what the catalog already states, and a route's price follows from whether it is local, mocked or keyed.
 - [x] The same request picks the same model twice, with no inference and no download on any path.
-- [x] Every routing factor carries a 0..1 weight in `services.litellm.router_weights`, a zero weight removes the factor, and no weighting lets a restricted request reach a remote model.
+- [x] Every routing factor carries a 0..1 weight in `services.litellm.router.weights`, a zero weight removes the factor, and no weighting lets a restricted request reach a remote model.
 - [x] The hook reads every catalogued field a request can act on, a demanded capability is proven before use, and a disqualifier fires only on explicit evidence.
-- [x] `services.litellm.router_strategy` derives from `services.jeff.enabled` and selects `weighted` or `system_one`, and the two return different models for the same candidate set.
+- [x] `services.litellm.router.strategy` derives from `services.s1.enabled` and selects `weighted` or `system_one`, and the two return different models for the same candidate set.
 - [ ] `svc-ai-s1` builds, serves `/healthz`, and answers the gateway's choice question with an alias the router offered.
 - [ ] Variant 2 deploys with three mocks of distinct windows and `system_one`, and the routing probe shows the choice following the prompt.
-- [ ] The deploy sends `services.litellm.router_speed_samples` requests to each served model, and the measured rates reach `model_info.traits.speed` in the rendered config on the same deploy.
+- [x] The deploy sends `services.litellm.router.speed.samples` requests to each served model without a stored rate, excluding mocks and the router alias, and the measured rates reach `model_info.traits.speed` in the rendered config on the same deploy.
 - [x] The routing probe treats the alias as served rather than as a route without a backend, and fails when the gateway withholds it.
 - [ ] A request naming `auto` returns a completion whose served model is one of the eligible candidates, verified through the gateway with a consumer virtual key. The CLI probe sends a prompt the smallest declared window cannot hold and fails when the answer names the alias itself or a model whose window is too small.
-- [ ] A Playwright spec verifies that selecting `auto` in Open WebUI returns an answer.
+- [x] A Playwright spec verifies that selecting `auto` in Open WebUI returns an answer.
 - [ ] The routing path comes up green in both compose and swarm modes.
 
 ## Cross-linking
@@ -205,7 +207,7 @@ flowchart TB
 
 ## See Also
 
-- Model plane this builds on: [031-llm-gateway-model-backends.md](031-llm-gateway-model-backends.md)
+- Model plane this builds on: [052-llm-gateway-model-backends.md](052-llm-gateway-model-backends.md)
 - Agent fleet that consumes the gateway: [032-agent-employees-firecracker.md](032-agent-employees-firecracker.md)
-- MCP tool plane: [025-mcp-role-integration.md](025-mcp-role-integration.md)
+- MCP tool plane: [050-mcp-role-integration.md](050-mcp-role-integration.md)
 - Upstream shape this follows: [jev-router](https://github.com/prismhq/jev-router)

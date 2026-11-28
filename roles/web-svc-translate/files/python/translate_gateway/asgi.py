@@ -21,6 +21,7 @@ from translate_gateway.engines import (
 from translate_gateway.failures import FailureLog
 from translate_gateway.gateway import Gateway
 from translate_gateway.memory import WeblateClient, WeblateGlossary, WeblateMemory
+from translate_gateway.rejections import RejectionLog
 from translate_gateway.router import Router
 
 
@@ -109,6 +110,7 @@ def build():
     dsn = _dsn()
     database = Database(dsn) if dsn else None
     memory, glossary = _weblate()
+    trigger = os.environ.get("TRANSLATE_SAMPLE_TRIGGER") or "requests"
     router = Router(
         engines,
         decider=_decider(),
@@ -127,10 +129,11 @@ def build():
             if database
             else None
         ),
+        rejections=RejectionLog(database) if database else None,
         sampler=Sampler(
-            os.environ.get("TRANSLATE_SAMPLE_TRIGGER") or "requests",
-            int(os.environ.get("TRANSLATE_SAMPLE_INTERVAL") or 20),
+            trigger, int(os.environ.get("TRANSLATE_SAMPLE_INTERVAL") or 20)
         ),
+        resampler=Sampler(trigger, int(os.environ["TRANSLATE_RESAMPLE_INTERVAL"])),
         order=[
             name
             for name in (os.environ.get("TRANSLATE_ROUTER_ORDER") or "").split(",")
@@ -141,7 +144,7 @@ def build():
             int(os.environ.get("TRANSLATE_SATURATION_MINIMUM") or 10),
             float(os.environ.get("TRANSLATE_SATURATION_SHARE") or 0.8),
         ),
-        strategy=os.environ.get("TRANSLATE_ROUTER_STRATEGY") or "preference",
+        strategy=os.environ["TRANSLATE_ROUTER_STRATEGY"],
         failure_threshold=int(os.environ.get("TRANSLATE_FAILURE_THRESHOLD") or 3),
         pairs={name: engine.pairs for name, engine in engines.items()},
     )

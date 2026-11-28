@@ -8,13 +8,14 @@ Env:
     LDAP_COMPONENT_ID: LDAP user storage component id, parent of the group mappers.
     RBAC_ROOT_PATH: path of the RBAC root group, e.g. ``/roles``.
     DEPLOYED_APP_IDS: space-separated application ids whose groups stay under the root.
-    PAYLOADS_FILE: one ``<app_id> <mapper_name> <base64 mapper JSON> <fingerprint>`` line per app.
-    WORKERS: apps reconciled in parallel.
-    SYNC_ATTEMPTS: mapper sync attempts per app.
+    PAYLOADS_FILE: one ``<group path> <mapper_name> <base64 mapper JSON> <fingerprint>`` line per app
+        (``<app_id>``) and per tenant (``<app_id>/<tenant>``), the path relative to the RBAC root.
+    WORKERS: groups reconciled in parallel.
+    SYNC_ATTEMPTS: mapper sync attempts per group.
     SYNC_DELAY: seconds between two sync attempts.
     SYNC_TIMEOUT: seconds one sync attempt may take.
 
-Output: one ``<step>-failed <app_id>`` line per failed app, then one ``summary`` line.
+Output: one ``<step>-failed <group path>`` line per failed group, then one ``summary`` line.
 Exit: 0 every app reconciled, 2 only mapper syncs failed, 1 otherwise.
 """
 
@@ -45,30 +46,45 @@ class StepError(Exception):
 
 @dataclass
 class App:
-    app_id: str
+    group_path: str
     mapper_name: str
     payload: str
     fingerprint: str
 
 
 def read_payloads(path: str) -> list[App]:
-    """Return the apps of a payloads file.
+    """Return the apps and tenants of a payloads file.
 
     Args:
-        path: file with one ``<app_id> <mapper_name> <base64 JSON> <fingerprint>`` line per app.
+        path: file with one ``<group path> <mapper_name> <base64 JSON> <fingerprint>`` line per app and tenant.
     """
     with Path(path).open(encoding="utf-8") as handle:
         lines = handle.read().splitlines()
     apps = []
     for line in lines:
         if line.strip():
-            app_id, mapper_name, encoded, fingerprint = line.split()
+            group_path, mapper_name, encoded, fingerprint = line.split()
             apps.append(
                 App(
-                    app_id, mapper_name, base64.b64decode(encoded).decode(), fingerprint
+                    group_path,
+                    mapper_name,
+                    base64.b64decode(encoded).decode(),
+                    fingerprint,
                 )
             )
     return apps
+
+
+def in_phases(apps: list[App]) -> list[list[App]]:
+    """Return the app groups, then the tenant groups below them.
+
+    Args:
+        apps: the apps and tenants of a payloads file.
+    """
+    return [
+        [app for app in apps if "/" not in app.group_path],
+        [app for app in apps if "/" in app.group_path],
+    ]
 
 
 def ldap_mappers(kc: Keycloak, ldap_id: str) -> dict[str, dict]:
@@ -148,13 +164,13 @@ def config_matches(current: dict, desired: dict) -> bool:
 
 
 class Reconciler:
-    """Bring one app's group, mapper and LDAP group import up to date.
+    """Bring one app's or tenant's group, mapper and LDAP group import up to date.
 
     Args:
         kc: client.
         ldap_id: LDAP user storage component id.
         root_id: RBAC root group id.
-        groups: existing app group ids by name.
+        groups: existing app group ids by name, extended by every app group this run creates.
         mappers: existing LDAP group mappers by name.
         sync_attempts: mapper sync attempts.
         sync_delay: seconds between two attempts.
@@ -188,14 +204,21 @@ class Reconciler:
             raise StepError(step, error) from None
 
     def _ensure_group(self, app: App) -> tuple[str, bool]:
-        group_id = self.groups.get(app.app_id)
-        if group_id:
-            return group_id, False
+        parent_path, _, name = app.group_path.rpartition("/")
+        if parent_path:
+            parent_id = self.groups[parent_path]
+            existing = {g["name"]: g["id"] for g in self.kc.children(parent_id)}
+        else:
+            parent_id, existing = self.root_id, self.groups
+        if name in existing:
+            return existing[name], False
         _, group_id = self.kc.call(
-            "POST", f"groups/{self.root_id}/children", {"name": app.app_id}
+            "POST", f"groups/{parent_id}/children", {"name": name}
         )
         if not group_id:
             raise KeycloakError("created group carries no id")
+        if not parent_path:
+            self.groups[name] = group_id
         return group_id, True
 
     def _upsert_mapper(self, app: App) -> tuple[str, bool]:
@@ -230,10 +253,10 @@ class Reconciler:
         self.kc.call("PUT", f"groups/{group_id}", {**group, "attributes": attributes})
 
     def run(self, app: App) -> str:
-        """Return ``synced`` or ``unchanged`` for an app.
+        """Return ``synced`` or ``unchanged`` for an app or tenant.
 
         Args:
-            app: the app to reconcile.
+            app: the app or tenant to reconcile.
         """
         group_id, created = self._step("ensure", self._ensure_group, app)
         mapper_id, changed = self._step("upsert", self._upsert_mapper, app)
@@ -285,15 +308,17 @@ def main() -> int:
         try:
             return app, reconciler.run(app)
         except StepError as error:
-            print(f"{app.app_id}: {error}", file=sys.stderr)
+            print(f"{app.group_path}: {error}", file=sys.stderr)
             return app, f"{error.step}-failed"
 
+    results = []
     with ThreadPoolExecutor(max_workers=workers) as pool:
-        results = list(pool.map(run, read_payloads(env["PAYLOADS_FILE"])))
+        for phase in in_phases(read_payloads(env["PAYLOADS_FILE"])):
+            results += pool.map(run, phase)
 
     failed = [(app, outcome) for app, outcome in results if outcome.endswith("-failed")]
     for app, outcome in failed:
-        print(f"{outcome} {app.app_id}")
+        print(f"{outcome} {app.group_path}")
     counts = {
         key: sum(1 for _, o in results if o == key) for key in ("synced", "unchanged")
     }

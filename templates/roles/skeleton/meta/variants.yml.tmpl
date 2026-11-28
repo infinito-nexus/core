@@ -1,0 +1,106 @@
+---
+- services:
+    docs:
+      enabled: false
+      shared: false
+[% if volumes %]
+    container_backup:
+      enabled: true
+[% endif %]
+    dashboard:
+      enabled: true
+      shared: true
+[% if "email" in features %]
+    email:
+      enabled: true
+      shared: true
+[% endif %]
+[% if login == "oidc" %]
+    logout:
+      enabled: true
+      shared: true
+[% endif %]
+    matomo:
+      enabled: true
+      shared: true
+[% if login == "oidc" %]
+    sso:
+      enabled: true
+      shared: true
+[% endif %]
+[% if login == "ldap" %]
+    ldap:
+      enabled: true
+      shared: true
+[% endif %]
+[% if database != "none" %]
+    [[ database ]]:
+      shared: true
+[% endif %]
+[% if "redis" in features %]
+    redis:
+      shared: true
+[% endif %]
+    prometheus:
+      enabled: true
+      shared: true
+[% if kind == "container" %]
+    design:
+      enabled: true
+      shared: true
+[% endif %]
+    tor:
+      enabled: true
+- services:
+    docs:
+      enabled: true
+      shared: true
+[% if volumes %]
+    container_backup:
+      enabled: false
+      shared: false # nocheck: variants-static-override backup shared stays literally true
+[% endif %]
+    dashboard:
+      enabled: false
+      shared: false
+[% if "email" in features %]
+    email:
+      enabled: false
+      shared: false
+[% endif %]
+[% if login == "oidc" %]
+    logout:
+      enabled: false
+      shared: false
+[% endif %]
+    matomo:
+      enabled: false
+      shared: false
+[% if login == "oidc" %]
+    sso:
+      enabled: false
+      shared: false
+[% endif %]
+[% if login == "ldap" %]
+    ldap:
+      enabled: false
+      shared: false
+[% endif %]
+[% if database != "none" %]
+    [[ database ]]:
+      shared: false
+[% endif %]
+[% if "redis" in features %]
+    redis:
+      shared: false
+[% endif %]
+    prometheus:
+      enabled: false
+      shared: false
+[% if kind == "container" %]
+    design:
+      enabled: false
+      shared: false
+[% endif %]
+    tor:
+      enabled: true

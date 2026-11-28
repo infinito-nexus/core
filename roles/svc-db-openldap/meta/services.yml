@@ -1,4 +1,5 @@
 ---
+# nocheck: garbage-collector-required  database engine; the rows belong to the consuming applications, which expire their own data
 openldap:
   backup:
     stop_required: true
@@ -58,3 +59,10 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, dynamic-flag, semaphore-contract  control plane: Semaphore resolves its accounts and roles through this directory, so a run that paused it would lock out every operator
+semaphore:
+  enabled: false
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false
+  status: started

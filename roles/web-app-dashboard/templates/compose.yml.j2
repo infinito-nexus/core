@@ -16,6 +16,7 @@
     {{ lookup('container_ports', ['dashboard', 'http' | labelled(dashboard_instance.label, '_'), DOCKER_BIND_HOST]) | indent(4) }}
     {{ lookup('container_volumes', service_name) | indent(4) }}
     {{ lookup('compose_restart') }}
+    {{ lookup('template', 'roles/sys-svc-container/templates/logging.yml.j2') | indent(4) }}
     {{ lookup('container_networks') | indent(4) }}
     {{ lookup('container_healthcheck', 'dashboard') | indent(4) }}
 

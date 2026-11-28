@@ -1,0 +1,32 @@
+loki.source.api "ingest" {
+  http {
+    listen_address = "0.0.0.0"
+    listen_port    = {{ LOKI_GATEWAY_INTERNAL_PORT | int }}
+  }
+
+  grpc {
+    listen_address = "127.0.0.1"
+    listen_port    = 9095
+  }
+
+  use_incoming_timestamp = true
+  forward_to             = [loki.process.redact.receiver]
+}
+
+loki.process "redact" {
+{% for rule in LOG_REDACTION_RULES %}
+  stage.replace {
+    expression = `{{ rule.pattern }}`
+    replace    = {{ LOG_REDACTION_REPLACEMENT | to_json }}
+  }
+
+{% endfor %}
+  forward_to = [loki.write.store.receiver]
+}
+
+loki.write "store" {
+  endpoint {
+    url       = {{ LOKI_STORE_PUSH_URL | to_json }}
+    tenant_id = {{ LOKI_TENANT | to_json }}
+  }
+}

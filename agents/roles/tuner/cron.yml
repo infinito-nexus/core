@@ -1,0 +1,5 @@
+---
+- name: weekly-perf-sweep
+  schedule: "0 1 * * 6"
+  routine: perf_sweep
+  action: start

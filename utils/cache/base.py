@@ -15,11 +15,13 @@ only when actually invoked.
 
 from __future__ import annotations
 
+import contextlib
 import copy
 import hashlib
 import os
+import re
 import threading
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
 from pathlib import Path
 from typing import Any
 
@@ -84,12 +86,11 @@ def _fingerprint_mapping(obj: Any) -> str:
     recycles the address of a freed mapping and serves its digest for an
     unrelated live one — measured at 398/400 wrong digests for short-lived
     mappings, which silently defeats every cache keyed on this function.
+    `_scoped_fingerprint` is the sound reuse: it holds the mapping itself.
     """
     if obj is None:
         return "0"
     try:
-        import hashlib
-
         data = repr(sorted(obj.items())) if isinstance(obj, Mapping) else repr(obj)
         return hashlib.md5(
             data.encode("utf-8", errors="replace"),
@@ -97,6 +98,59 @@ def _fingerprint_mapping(obj: Any) -> str:
         ).hexdigest()
     except Exception:
         return "unhashable"
+
+
+class ScopedFingerprintMutatedError(RuntimeError):
+    pass
+
+
+@contextlib.contextmanager
+def _fingerprint_scope() -> Iterator[None]:
+    """Let `_scoped_fingerprint` reuse digests until the outermost scope exits.
+
+    Raises:
+        ScopedFingerprintMutatedError: a render that finished normally reused
+            a mapping that no longer matches the digest it was served under.
+            A render that raised keeps its own error unchecked.
+    """
+    if getattr(_RENDER_GUARD, "fingerprints", None) is not None:
+        yield
+        return
+    memo: dict[int, list[Any]] = {}
+    _RENDER_GUARD.fingerprints = memo
+    try:
+        yield
+        stale = sum(
+            1
+            for held, digest, hits in memo.values()
+            if hits and _fingerprint_mapping(held) != digest
+        )
+    finally:
+        _RENDER_GUARD.fingerprints = None
+        memo.clear()
+    if stale:
+        raise ScopedFingerprintMutatedError(
+            f"{stale} mapping(s) changed in place during one render, "
+            "after their fingerprint keyed the applications/users caches"
+        )
+
+
+def _scoped_fingerprint(obj: Any) -> str:
+    """Return `_fingerprint_mapping(obj)`, once per mapping and open scope.
+
+    Args:
+        obj: the ``applications`` or ``users`` value of a variables scope.
+    """
+    memo = getattr(_RENDER_GUARD, "fingerprints", None)
+    if memo is None or obj is None:
+        return _fingerprint_mapping(obj)
+    entry = memo.get(id(obj))
+    if entry is not None and entry[0] is obj:
+        entry[2] += 1
+        return entry[1]
+    digest = _fingerprint_mapping(obj)
+    memo[id(obj)] = [obj, digest, 0]
+    return digest
 
 
 def _stable_variables_signature(variables: Mapping[str, Any] | None) -> tuple:
@@ -116,8 +170,8 @@ def _stable_variables_signature(variables: Mapping[str, Any] | None) -> tuple:
         return ("0", "0", "", "", "")
     groups = variables.get("group_names")
     return (
-        _fingerprint_mapping(variables.get("applications")),
-        _fingerprint_mapping(variables.get("users")),
+        _scoped_fingerprint(variables.get("applications")),
+        _scoped_fingerprint(variables.get("users")),
         str(variables.get("DOMAIN_PRIMARY") or ""),
         str(variables.get("SYSTEM_EMAIL_DOMAIN") or ""),
         ",".join(sorted(str(group) for group in groups)) if groups else "",
@@ -222,6 +276,34 @@ def _resolve_override_mapping(
     return {}
 
 
+_GROUP_MEMBERSHIP = re.compile(
+    r"\{\{\s*'[\w.-]+'\s+in\s+group_names"
+    r"(?:\s+or\s+'[\w.-]+'\s+in\s+group_names)*\s*\}\}"
+)
+_GROUP_MEMBERSHIP_NAME = re.compile(r"'([\w.-]+)'")
+
+
+def _group_membership(text: str, variables: Mapping[str, Any]) -> bool | None:
+    """
+    Args:
+        text: the scalar being rendered, unstripped, so a padded template
+            keeps the string the templar returns for it.
+        variables: the scope the templar would render it in.
+
+    Returns:
+        The membership result, or ``None`` when *text* is not such a
+        disjunction or ``group_names`` is not a list of strings.
+    """
+    if not _GROUP_MEMBERSHIP.fullmatch(text):
+        return None
+    groups = variables.get("group_names")
+    if type(groups) not in (list, tuple) or not all(
+        type(group) is str for group in groups
+    ):
+        return None
+    return any(name in groups for name in _GROUP_MEMBERSHIP_NAME.findall(text))
+
+
 def _render_with_templar(
     value: Any,
     *,
@@ -253,6 +335,9 @@ def _render_with_templar(
         data = copy.deepcopy(raw)
         if isinstance(data, str):
             stripped = data.strip()
+            member = _group_membership(data, base_variables)
+            if member is not None:
+                return member
             if (
                 stripped.startswith("{{")
                 and stripped.endswith("}}")
@@ -308,13 +393,14 @@ def _render_with_templar(
             return tuple(_render_deep(item) for item in raw)
         return _render_scalar(raw)
 
-    try:
-        if hasattr(templar, "available_variables"):
-            templar.available_variables = base_variables
-        data = _render_deep(value)
-    finally:
-        if hasattr(templar, "available_variables"):
-            templar.available_variables = prev_templar_avail
+    with _fingerprint_scope():
+        try:
+            if hasattr(templar, "available_variables"):
+                templar.available_variables = base_variables
+            data = _render_deep(value)
+        finally:
+            if hasattr(templar, "available_variables"):
+                templar.available_variables = prev_templar_avail
 
     return _decrypt_ansible_encrypted_strings(data)
 

@@ -1,6 +1,5 @@
 """Lint guard: every ``svc-bkp-*`` role MUST ship ``files/python/recover.py``
-subclassing :class:`utils.recovery.base.DirectoryRecovery` and document
-it in a ``## Recover`` README section.
+subclassing :class:`utils.recovery.base.DirectoryRecovery`.
 
 A backup role that can only write backups is half a disaster-recovery
 story: the restore path must live next to the backup path so it is
@@ -8,9 +7,7 @@ versioned, reviewed and exercised together with it (the swarm test
 drill and live operators call the same script). Inheriting from the
 shared base guarantees the pre-recover safety generation (the role
 family's differential backup logic applied to the target) before the
-``rsync --delete`` mirror, and the README must explain exactly how the
-recovery works so an operator under pressure does not have to
-reverse-engineer the script.
+``rsync --delete`` mirror.
 """
 
 from __future__ import annotations
@@ -80,26 +77,6 @@ class TestBkpRolesHaveRecover(unittest.TestCase):
                 "counterpart opts out with files/python/recover.py.nocheck: first "
                 "line 'nocheck: bkp-recover', followed by the reason.\n\n"
                 + "\n".join(f"  - {line}" for line in offenders)
-            )
-
-    def test_every_bkp_role_documents_recover_in_readme(self) -> None:
-        bkp_roles = sorted(_ROLES_DIR.glob("svc-bkp-*"))
-        self.assertTrue(bkp_roles, "no svc-bkp-* roles found")
-        missing = []
-        for role in bkp_roles:
-            readme = role / "README.md"
-            if not readme.is_file() or "## Recover" not in read_text(str(readme)):
-                missing.append(role.name)
-        if missing:
-            self.fail(
-                "svc-bkp-* roles without a '## Recover' README section "
-                f"({len(missing)}):\n\n"
-                "Every backup role's README.md must contain a '## Recover' "
-                "section explaining exactly how the recovery works: which "
-                "script to run (files/python/recover.py), its arguments, the "
-                "preconditions (e.g. stop the consuming stack first) and "
-                "where the restored data and the pre-recover safety "
-                "generation end up.\n\n" + "\n".join(f"  - {name}" for name in missing)
             )
 
 

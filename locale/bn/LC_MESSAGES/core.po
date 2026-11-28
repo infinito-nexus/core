@@ -19,6 +19,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
+msgctxt "paused:illustration"
+msgid "A beaver sleeping behind a pause sign"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-svc-certbot:description"
 msgid "ACME client for automated Let's Encrypt SSL/TLS certificate issuance and renewal via webroot or DNS-01 challenges"
@@ -39,15 +43,39 @@ msgctxt "role:dsk-gnt-cursor:description"
 msgid "AI-first code editor installed on the workstation, whose endpoint override stays an operator step"
 msgstr "AI-প্রথম কোড ওয়ার্কস্টেশনে ইনস্টল করা হয়েছে, যার শেষাংশ অপারেটরের ধাপ অপরিবর্তিত থাকবে"
 
-# translated-by: libretranslate
+#, python-brace-format
+msgctxt "access_request:mail_request_subject"
+msgid "Access request for {application} by {requester}"
+msgstr ""
+
+msgctxt "rbac:web-app-weblate:manager:description"
+msgid "Administers every project through Weblate's Managers team, without site-wide superuser rights"
+msgstr ""
+
+msgctxt "menu:Administration:title"
+msgid "Administration"
+msgstr ""
+
 msgctxt "menu:Server Administration:description"
-msgid "Administration Tools für servers"
-msgstr "প্রশাসনিক সরঞ্জাম সার্ভার"
+msgid "Administration tools for servers"
+msgstr ""
+
+msgctxt "access_request:form_administrator"
+msgid "Administrator role"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:dsk.gnt:title"
 msgid "Agents"
 msgstr "এজেন্ট"
+
+msgctxt "role:svc-ai-agent-orchestrator:description"
+msgid "Agents control plane: LangGraph routine runner with webhook and poll intake, cron, channels and a hashed audit trail"
+msgstr ""
+
+msgctxt "role:svc-ai-agent-provisioner:description"
+msgid "Agents control plane: instance API, IAM account provisioner and lease reaper for detached instances"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-all:description"
@@ -80,6 +108,10 @@ msgctxt "role:sys-token-store:description"
 msgid "Ansible helper role for idempotent persistence and lookup of per-user application tokens in a local YAML store"
 msgstr "স্থানীয় YamL- এর স্টোরের জন্য নমনীয় সাহায্যকারী ভূমিকা এবং প্রতিটা ব্যবহারকারীর জন্য অনুসন্ধান করুন"
 
+msgctxt "access_request:form_application"
+msgid "Application"
+msgstr ""
+
 msgctxt "category:web.app.cst:description"
 msgid "Application roles an inventory pulls from their own repositories into roles/; core never tracks them."
 msgstr ""
@@ -89,10 +121,9 @@ msgctxt "category:web.app:title"
 msgid "Applications"
 msgstr "অ্যাপ্লিকেশন"
 
-# translated-by: libretranslate
-msgctxt "menu:Sales:description"
-msgid "Applications for e-commerce, ticketing, and sales management."
-msgstr "ই-কমার্স, টিকেট এবং বিক্রয় ব্যবস্থাপনার জন্য অ্যাপ্লিকেশন।"
+msgctxt "menu:Other:description"
+msgid "Applications without a matching folder."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:drv-epson-multiprinter:description"
@@ -108,6 +139,14 @@ msgstr "কৃতিম মেধা"
 msgctxt "menu:Asset Management:title"
 msgid "Asset Management"
 msgstr "পরিচালনা"
+
+msgctxt "rbac:web-app-joomla:author:description"
+msgid "Author in Joomla, maps onto the built-in `Author` user group (id 3) and may create and edit own articles in the frontend."
+msgstr ""
+
+msgctxt "role:svc-dns-knot:description"
+msgid "Authoritative Knot DNS for the Semaphore workspace subzone, a DNSSEC-signing primary with TSIG-fed secondaries"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-rpr-container-soft:description"
@@ -149,10 +188,38 @@ msgctxt "role:dsk-blender:description"
 msgid "Blender workstation installation wired to the agents on the host through the Model Context Protocol"
 msgstr "ব্লেন্ডার ওয়ার্কস্টেশন ইনস্টলেশনের মাধ্যমে হোস্টের সাথে সংযোগ স্থাপন করুন"
 
+msgctxt "rbac:web-app-bookwyrm:editor:description"
+msgid "BookWyrm editor (edits book, author and edition data)"
+msgstr ""
+
+msgctxt "rbac:web-app-bookwyrm:moderator:description"
+msgid "BookWyrm moderator (moderates users, posts, federation and invites)"
+msgstr ""
+
+msgctxt "rbac:web-app-bookwyrm:owner:description"
+msgid "BookWyrm owner (edits the instance settings and moderates users, federation and invites)"
+msgstr ""
+
+msgctxt "rbac:web-app-mailu:bot:description"
+msgid "Bot/service account with an API token (e.g. email send/receive)"
+msgstr ""
+
+msgctxt "rbac:web-app-stalwart:bot:description"
+msgid "Bot/service account with an API token (e.g. email send/receive)"
+msgstr ""
+
+msgctxt "role:web-app-workspace:description"
+msgid "Browser IDE (openvscode-server) with the Claude Code extension, one per agent and user, sandboxed by svc-virt-kata"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:web-app-seaweedfs:description"
 msgid "Browser administration interface for the SeaweedFS object store, serving the filer and master consoles behind SSO"
 msgstr "প্রাপ্ত করার জন্য ব্রাউজারের প্রশাসন ইন্টারফেস SeaweedFS বস্তু সংরক্ষণ করো, ফাইল এবং মাস্টার কনসোল এস.এস.ও এর পিছনে রেখে দাও"
+
+msgctxt "role:web-app-map-animator:description"
+msgid "Browser editor for keyframe camera animations on a VersaTiles map, with a render server that turns them into videos"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-roulette-wheel:description"
@@ -170,10 +237,174 @@ msgctxt "role:dev-fakeroot:description"
 msgid "Build-time tool for simulating root-owned file operations without elevated privileges during package builds"
 msgstr "প্যাকেজ বিল্ড করার সময় root- মালিকানাধীন ফাইল পরিচালনার জন্য টুল"
 
+msgctxt "menu:Business:title"
+msgid "Business"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.runner:title"
 msgid "CI Runner"
 msgstr "CI Runner"
+
+msgctxt "rbac:web-app-jenkins:developer:description"
+msgid "Can create, configure, build and delete jobs, without access to the Jenkins management pages"
+msgstr ""
+
+msgctxt "rbac:svc-db-qdrant:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-baserow:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-checkmk:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-fider:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-gitea:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-gitlab:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-homeassistant:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-jellyfin:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-jenkins:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-listmonk:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-mattermost:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-moodle:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-n8n:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-nextcloud:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-pretix:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-prometheus:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-snipe-it:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-wordpress:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-zammad:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-svc-libretranslate:mcp:description"
+msgid "Can drive this application through an MCP client, which acts with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-mediawiki:interface-admin:description"
+msgid "Can edit the sitewide CSS and JavaScript pages of the wiki"
+msgstr ""
+
+msgctxt "rbac:web-app-mediawiki:bureaucrat:description"
+msgid "Can grant and revoke the wiki's user groups and rename accounts"
+msgstr ""
+
+msgctxt "rbac:web-app-mastodon:moderator:description"
+msgid "Can handle reports, limit and suspend accounts and moderate posts without access to the server settings"
+msgstr ""
+
+msgctxt "rbac:web-app-matomo:admin:description"
+msgid "Can manage the settings and the access of other users on every tracked website"
+msgstr ""
+
+msgctxt "rbac:web-app-discourse:moderator:description"
+msgid "Can moderate topics, posts and users without access to the site settings"
+msgstr ""
+
+msgctxt "rbac:web-app-semaphore:operator:description"
+msgid "Can pause and resume the deployed applications through the stop and start templates of the Infinito.Nexus project"
+msgstr ""
+
+msgctxt "rbac:web-app-wordpress:editor:description"
+msgid "Can publish and manage all posts, including those by other users"
+msgstr ""
+
+msgctxt "rbac:web-app-jenkins:viewer:description"
+msgid "Can read jobs, builds and their logs"
+msgstr ""
+
+msgctxt "rbac:web-app-wordpress:subscriber:description"
+msgid "Can read posts and leave comments but cannot write or manage content"
+msgstr ""
+
+msgctxt "rbac:web-app-matomo:write:description"
+msgid "Can read the reports and manage goals, segments and annotations of every tracked website"
+msgstr ""
+
+msgctxt "rbac:web-app-matomo:view:description"
+msgid "Can read the reports of every tracked website"
+msgstr ""
+
+msgctxt "rbac:web-app-baserow:user:description"
+msgid "Can sign in to Baserow and work in their own and shared workspaces, without instance administration"
+msgstr ""
+
+msgctxt "rbac:web-app-openproject:user:description"
+msgid "Can sign in to OpenProject and work in the projects they are a member of"
+msgstr ""
+
+msgctxt "rbac:web-app-semaphore:user:description"
+msgid "Can sign in to Semaphore through LDAP and work in the projects they are a member of"
+msgstr ""
+
+msgctxt "rbac:web-app-snipe-it:user:description"
+msgid "Can sign in to Snipe-IT and view assets, licenses, accessories, consumables and components without administrative rights"
+msgstr ""
+
+msgctxt "rbac:web-app-taiga:user:description"
+msgid "Can sign in to Taiga and work in the projects that invite them, without instance administration"
+msgstr ""
+
+msgctxt "rbac:web-app-homeassistant:user:description"
+msgid "Can sign in to the hub through the directory and use it without administrator rights"
+msgstr ""
+
+msgctxt "rbac:web-app-wordpress:author:description"
+msgid "Can write and manage own posts"
+msgstr ""
+
+msgctxt "rbac:web-app-wordpress:contributor:description"
+msgid "Can write and submit posts for review but cannot publish"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-db-typesense:description"
@@ -240,9 +471,21 @@ msgctxt "role:sys-svc-certs:description"
 msgid "Certbot-driven ACME service for Let's Encrypt single-domain and wildcard TLS certificates on NGINX domains"
 msgstr "NGIN ডোমেইনের মধ্যে একটি একক-domain এবং ওয়াইল্ড-কার্ড সার্টিফিকেট এনক্রিপ্ট করুন"
 
+msgctxt "menu:Chat & Messaging:title"
+msgid "Chat & Messaging"
+msgstr ""
+
+msgctxt "menu:Communication & Collaboration:description"
+msgid "Chat, mail, meetings, shared files and project work."
+msgstr ""
+
 msgctxt "logout:checking"
 msgid "Checking your other sessions…"
 msgstr "আপনার অন্যান্য সেশন যাচাই করা হচ্ছে…"
+
+msgctxt "rbac:web-app-pretix:checkin:description"
+msgid "Checks attendees in at every event of each Pretix organizer through the \"Check-in (SSO)\" team, without access to orders or settings"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.cln:title"
@@ -269,10 +512,9 @@ msgctxt "role:dsk-copyq:description"
 msgid "Clipboard manager with editable history, custom actions, and scripting support"
 msgstr "ক্লিপবোর্ড ইতিহাস, স্বনির্বাচিত কাজ এবং স্ক্রিপ্ট সমর্থন দ্বারা ক্লিপবোর্ড ব্যবস্থাপক"
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:title"
-msgid "Cloud"
-msgstr "ক্লাউড"
+msgctxt "menu:Cloud & Office:title"
+msgid "Cloud & Office"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-dns:description"
@@ -314,15 +556,18 @@ msgctxt "menu:Commerce:title"
 msgid "Commerce"
 msgstr "মন্তব্য"
 
-# translated-by: libretranslate
-msgctxt "menu:Communication:title"
-msgid "Communication"
-msgstr "যোগাযোগ ব্যবস্থা"
+msgctxt "menu:Communication & Collaboration:title"
+msgid "Communication & Collaboration"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Community:title"
 msgid "Community"
 msgstr "সম্প্রদায়"
+
+msgctxt "menu:Community & Social:title"
+msgid "Community & Social"
+msgstr ""
 
 # এনজিক্স/ এর জন্যOpenResty %s দ্বারা sub_filter- CDN-REDe-র মাধ্যমে লুকা।.
 # translated-by: ollama
@@ -330,10 +575,9 @@ msgctxt "category:sys.front.inj:description"
 msgid "Composable HTML injection roles (CSS, JS, logout interceptor, analytics, dashboard iframe) for Nginx/OpenResty via sub_filter/Lua with CDN-backed assets."
 msgstr ""
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-full:description"
-msgid "Composite stack role bundling a containerized database backend with an HTTP reverse-proxy frontend for web access"
-msgstr "ওয়েবের প্রাপ্তির জন্য HTTP-proxy-র সাহায্যে একটি কনটেইনারd ডাটাবেসের ব্যাক-এন্ড"
+msgctxt "access_request:review_confirm"
+msgid "Confirm grant"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:title"
@@ -390,6 +634,10 @@ msgctxt "role:web-app-wordpress:description"
 msgid "Content management system for building and managing websites, blogs, and multisite networks with themes and plugins"
 msgstr "থিম এবং প্লাগ-ইন এর জন্য বিষয়বস্তু ব্যবস্থাপনা সিস্টেম"
 
+msgctxt "role:svc-ai-models:description"
+msgid "Content-addressed store that holds every pinned model artefact of a host once"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:sys.ctl:title"
 msgid "Control"
@@ -428,6 +676,10 @@ msgctxt "logout:stalled"
 msgid "Could not confirm every sign-out."
 msgstr "প্রতিটি লগআউট নিশ্চিত করা যায়নি।"
 
+msgctxt "rbac:web-app-fusiondirectory:user-manager:description"
+msgid "Creates, edits, moves and deletes user accounts and their POSIX settings (FusionDirectory user-manager ACL role)"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:dev-nix:description"
 msgid "Cross-distribution installer for the Nix package manager with checksum-verified, reproducible multi-user setup"
@@ -437,6 +689,10 @@ msgstr "চেকসাম, পুনরাবৃত্তিযোগ্য এ
 msgctxt "role:sys-cleanup:description"
 msgid "Cross-distribution maintenance routine for disk reclamation across CI, container, and build environments"
 msgstr "CI, কন্টেইনার, এবং পরিবেশ নির্মানের জন্য ক্রস-ডিথ্রিশন রক্ষণাবেক্ষণ তালিকা"
+
+msgctxt "access_request:review_current_groups"
+msgid "Current groups"
+msgstr ""
 
 msgctxt "category:web.app.cst:title"
 msgid "Custom Applications"
@@ -451,6 +707,10 @@ msgstr "গ্রাহক সম্পর্ক"
 msgctxt "menu:Customer Relationship:description"
 msgid "Customer Relationship Management (CRM) software for managing customer relationships, sales pipelines, marketing, and support activities."
 msgstr "গ্রাহক সম্পর্ক পরিচালনা (CRCM) ক্রেতার সম্পর্ক, বিক্রয় লাইন, মার্কেটিং এবং সমর্থনের জন্য সফটওয়্যার।"
+
+msgctxt "menu:Business:description"
+msgid "Customers, finance, sales and assets of your organization."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.dns:title"
@@ -467,10 +727,9 @@ msgctxt "category:sys.dns:description"
 msgid "DNS providers, records, and rDNS management (Cloudflare, Hetzner, etc.)."
 msgstr "DNS প্রদানকারী, রেকর্ড এবং RDNS ব্যবস্থাপনা (মেঘেরে, হেটনার, ইত্যাদি।). ."
 
-# translated-by: libretranslate
 msgctxt "role:sys-dns-cloudflare-records:description"
-msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, TXT, SRV) across apps and environments"
-msgstr "মেঘপুঞ্জ DNS রেকর্ড পরিচালনার জন্য উপাত্ত-অভিজ্ঞ ভূমিকা (AAAA, CM,MeX, স্ট্রিName) টুল-টিপ ও ডেস্কটপের মধ্যে অন্তর্ভুক্ত করুন"
+msgid "Data-driven role for managing Cloudflare DNS records (A/AAAA, CNAME, MX, NS, TXT, SRV, DS) across apps and environments"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.db:description"
@@ -497,6 +756,10 @@ msgctxt "role:web-app-friendica:description"
 msgid "Decentralized, federated social-networking platform for peer-to-peer communication and community building"
 msgstr "পড-আপিত সামাজিক যোগাযোগ এবং কমিউনিটির জন্য বিকেন্দ্রিত সামাজিক যোগাযোগের প্লাটফর্ম।"
 
+msgctxt "rbac:web-app-decidim:user-manager:description"
+msgid "Decidim user manager (manages participants, impersonations and verifications without full administrator rights)"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:user-administrator:description"
 msgid "Dedicated administrator account with SSH key access and password-authenticated sudo for secure privilege escalation"
@@ -511,6 +774,10 @@ msgstr "SSH-requot;-র জন্য অনুমোদিত কমান্ড
 msgctxt "role:sys-service-terminator:description"
 msgid "Deferred-start orchestrator for enabling and starting collected systemd services once a play completes"
 msgstr "পুনরুদ্ধারের জন্য কনফিগার করুন এবং একবার একটি খেলা সম্পূর্ণ করার পর সংগ্রহ করুন"
+
+msgctxt "role:web-app-agent-fixture:description"
+msgid "Deliberately vulnerable fixture web app with seeded security and legal findings for the agents scenarios"
+msgstr ""
 
 # translated-by: libretranslate
 # Mastodon; ইত্যাদি.)
@@ -573,6 +840,10 @@ msgctxt "menu:Development:description"
 msgid "Development and CI/CD tools"
 msgstr "ডেভেলপমেন্ট এবং CI/CD টুল"
 
+msgctxt "role:sys-ctl-cln-apps:description"
+msgid "Dispatcher for the garbage collectors of deployed application roles, daily and under disc pressure"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
@@ -587,11 +858,6 @@ msgstr "উৎস কোড পরিবর্তনের এবং ডিভ�
 msgctxt "role:dev-base-devel:description"
 msgid "Distro-specific base build toolchain (compilers, linkers, make) for compiling software from source"
 msgstr "MDotro-নির্দিষ্ট বেস গঠন সরঞ্জাম (কম্পাইলার, লিঙ্কার, তৈরি করুন) উৎস থেকে সফটওয়্যার কম্পাইল করার প্রণালী"
-
-# translated-by: libretranslate
-msgctxt "role:sys-stk-backend:description"
-msgid "Docker Compose stack for containerized relational databases with backup, user, and permission management"
-msgstr "ব্যাকআপ, ব্যবহারকারী এবং অনুমতি ব্যবস্থাপনার জন্য অঙ্কিত কনটেন্ট রেকর্ডার স্ট্যাকল"
 
 # translated-by: libretranslate
 msgctxt "category:svc.swarm:description"
@@ -623,10 +889,42 @@ msgctxt "category:drv:title"
 msgid "Drivers"
 msgstr "ড্রাইভার"
 
+msgctxt "rbac:web-app-erpnext:administrator:description"
+msgid "ERPNext System Manager (full admin desk + role profile management)"
+msgstr ""
+
+msgctxt "rbac:web-app-erpnext:manager:description"
+msgid "ERPNext business operations manager (Sales + Purchase + Stock + Accounts roles)"
+msgstr ""
+
+msgctxt "rbac:web-app-erpnext:customer:description"
+msgid "ERPNext customer (portal access, can view own quotes/orders)"
+msgstr ""
+
+msgctxt "rbac:web-app-joomla:editor:description"
+msgid "Editor in Joomla, maps onto the built-in `Editor` user group (id 4) and may edit every article in the frontend."
+msgstr ""
+
+msgctxt "rbac:web-app-penpot:editor:description"
+msgid "Edits the files of the shared platform team"
+msgstr ""
+
+msgctxt "rbac:web-app-fusiondirectory:self-service:description"
+msgid "Edits the own user account and its POSIX settings (FusionDirectory self-service ACL role)"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "menu:Education:title"
 msgid "Education"
 msgstr "শিক্ষাবিষয়ক বস্তু"
+
+msgctxt "paused:channel_email"
+msgid "Email"
+msgstr ""
+
+msgctxt "menu:Mail:description"
+msgid "Email servers and webmail."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-robot:description"
@@ -647,6 +945,14 @@ msgstr "শেয়ার করা ক্যাশে, লাইন, অনু
 msgctxt "role:web-app-confluence:description"
 msgid "Enterprise wiki and team collaboration platform for creating, organizing, and sharing content"
 msgstr "উইকি এবং দলগত সহযোগিতার প্লাটফর্ম তৈরি, আয়োজন এবং বিষয়বস্তু শেয়ার করার জন্য।"
+
+msgctxt "rbac:web-app-espocrm:manager:description"
+msgid "EspoCRM manager (Managers team, full access to every CRM record, export and mass update)"
+msgstr ""
+
+msgctxt "rbac:web-app-espocrm:user:description"
+msgid "EspoCRM user (Users team, reads team records, edits own records)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Events:description"
@@ -682,6 +988,10 @@ msgstr "বিভিন্ন সম্প্রদায় এবং দল �
 msgctxt "role:web-app-bridgy-fed:description"
 msgid "Federation bridge connecting ActivityPub (Fediverse), the AT Protocol (Bluesky), and the IndieWeb"
 msgstr "ফেডারেশনের সঙ্গে সংযোগ স্থাপন করুন (ফডিউস), প্রোটোকল (Bluesky)এবং ইন্ডি ওয়েব"
+
+msgctxt "rbac:web-app-fider:collaborator:description"
+msgid "Fider collaborator (moderates posts and comments, changes post status and manages tags)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "menu:Finance & Accounting:title"
@@ -723,15 +1033,29 @@ msgctxt "category:sys.front:description"
 msgid "Frontend helpers for reverse-proxied apps (injection, shared assets, CDN plumbing)."
 msgstr "বিপরীত-প্রজেক্ট অ্যাপ্লিকেশনের জন্য সম্মুখপ্রান্ত (ইঞ্জেকশন, শেয়ার করার সম্পদ, CDNoopy). ."
 
-# translated-by: libretranslate
-msgctxt "menu:Games:title"
-msgid "Games"
-msgstr "খেলা"
+msgctxt "rbac:web-app-minio:readwrite:description"
+msgid "Full S3 access to every bucket and object, without MinIO administration"
+msgstr ""
 
-# translated-by: libretranslate
-msgctxt "menu:Games:description"
+msgctxt "rbac:web-app-wazuh:administrator:description"
+msgid "Full administrative access: agents, rules, and security configuration."
+msgstr ""
+
+msgctxt "rbac:web-app-funkwhale:librarian:description"
+msgid "Funkwhale librarian (manages the library, uploads, artists and albums of the instance)"
+msgstr ""
+
+msgctxt "rbac:web-app-funkwhale:moderator:description"
+msgid "Funkwhale moderator (handles reports, domain and account moderation)"
+msgstr ""
+
+msgctxt "rbac:web-app-funkwhale:settings-manager:description"
+msgid "Funkwhale settings manager (edits the instance settings)"
+msgstr ""
+
+msgctxt "menu:Leisure:description"
 msgid "Gaming platforms and entertainment applications."
-msgstr "গেমিং প্লাটফর্ম এবং বিনোদন অ্যাপ্লিকেশন।"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:gen:title"
@@ -753,6 +1077,14 @@ msgctxt "role:sys-front-inj-javascript:description"
 msgid "Global JavaScript injection layer for NGINX HTML responses via sub_filter, with CSP hashing"
 msgstr "NGINX এর জন্য গ্লোবাল জাভাস্ক্রিপ্ট কন্ট্রোল স্তর sub_filter, এবং প ্ রতিশ ্ রুত দিবসের ,"
 
+msgctxt "access_request:forbidden_back"
+msgid "Go back"
+msgstr ""
+
+msgctxt "access_request:review_added_groups"
+msgid "Groups this grant adds"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-svc-sshd:description"
 msgid "Hardened OpenSSH daemon configuration for key-based remote access with root login and password authentication disabled"
@@ -762,6 +1094,10 @@ msgstr "root লগ-ইন ও অনুমোদন ব্যবস্থার
 msgctxt "role:dsk-chromium:description"
 msgid "Hardened desktop web browser with enforced privacy and password-manager extensions via Enterprise Policies"
 msgstr "এন্টারপ্রাইজ পলিসির মাধ্যমে বাধ্যতামূলক গোপনীয়তা এবং পাসওয়ার্ড পরিবর্তনকারী এক্সটেনশনসহ ডেস্কটপ ওয়েব ব্রাউজার"
+
+msgctxt "rbac:web-app-wordpress:administrator:description"
+msgid "Has full administrative access: manage themes, plugins, settings, and users"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:svc-ai-lmstudio:description"
@@ -778,6 +1114,10 @@ msgctxt "menu:Help:title"
 msgid "Help"
 msgstr "সাহায্য"
 
+msgctxt "role:web-svc-assistant:description"
+msgid "Help assistant answering from the deployment's own documentation, with sources"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-svc-compose-ca:description"
 msgid "Helper role installing CA-trust injection assets for Docker Compose stacks and validating the project CA certificate"
@@ -793,9 +1133,16 @@ msgctxt "menu:Tools:description"
 msgid "Helpful Tools"
 msgstr "সহায়তা টুল"
 
-# translated-by: libretranslate
 msgctxt "menu:Storage:description"
-msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data — including object storage compatible with Amazon S3 APIs."
+msgid "High-performance, self-hosted storage solutions for managing, scaling, and accessing unstructured data, including object storage compatible with Amazon S3 APIs."
+msgstr ""
+
+msgctxt "rbac:web-app-moodle:coursecreator:description"
+msgid "Holds Moodle's Course creator role in the system context and can create new courses"
+msgstr ""
+
+msgctxt "rbac:web-app-moodle:manager:description"
+msgid "Holds Moodle's Manager role in the system context and can manage every course, category and enrolment of the site"
 msgstr ""
 
 # translated-by: libretranslate
@@ -808,6 +1155,10 @@ msgctxt "role:dev-shell:description"
 msgid "Host-level configuration linking Bash and Zsh login shells to a shared .profile for consistent environment loading"
 msgstr "হোস্ট- লেভেল কনফিগারেশন ও Zshs লগ-ইনের সাথে একটি শেয়ার করার সুবিধা উপলব্ধ করা হয়। সুনির্দিষ্ট পরিবেশ লোড করার উদ্দেশ্যে একটি পৃথক প্লাগ-ইন নির্বাচন করুন।"
 
+msgctxt "role:sys-svc-log-collector:description"
+msgid "Host-level journal collector that ships the redacted logs of every server host to Loki"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-version:description"
 msgid "Host-level provisioning for exposing the project's pyproject.toml version system-wide via /etc/environment"
@@ -818,6 +1169,10 @@ msgctxt "role:user-root:description"
 msgid "Host-level role provisioning a root RSA 4096-bit SSH key pair for secure automated administrative access"
 msgstr "হোস্ট- লেভেল ভূমিকার একটি root RSAি স্থাপন করা হচ্ছে 4096- নিরাপদ প্রশাসনিক ব্যবহারের জন্য SSH কি-র স্কিমা"
 
+msgctxt "role:sys-svc-app-control:description"
+msgid "Host-side pause and resume of Semaphore-controlled applications with their state marker, SSH account and paused page"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:web-app-openbao:description"
 msgid "Identity-based secrets, PKI and encryption manager with OIDC login, group-mapped policies and static-seal auto-unseal"
@@ -827,6 +1182,14 @@ msgstr "পরিচয়-ভিত্তিক গোপন তথ্য, প�
 msgctxt "role:svc-db-redis:description"
 msgid "In-memory key-value cache and store, shared centrally with per-consumer ACL isolation or embedded as a sidecar"
 msgstr "Gnome-কি-র মালিকানার মধ্যে উপস্থিত মান ও স্টোরের মধ্যে মধ্য দিয়ে কেন্দ্রীয়ভাবে বিভক্ত"
+
+msgctxt "role:svc-virt-incus:description"
+msgid "Incus VM host for agent workspaces with a copy-on-write storage pool, an agent bridge and a restricted project"
+msgstr ""
+
+msgctxt "role:svc-virt-showroom:description"
+msgid "Incus showroom host that runs one isolated server per customer demo project behind the host's reverse proxy"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-docs:description"
@@ -863,6 +1226,10 @@ msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr "প্রবেশ"
 
+msgctxt "menu:Chat & Messaging:description"
+msgid "Instant messaging and team chat."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:drv-intel:description"
 msgid "Intel VA-API media driver for hardware-accelerated video decode and encode across Linux distributions"
@@ -883,6 +1250,10 @@ msgctxt "role:dev-nodejs:description"
 msgid "JavaScript runtime for building and running server-side applications and developer tooling"
 msgstr "নির্মাণ ও পরিচালনার অ্যাপ্লিকেশন এবং ডেভেলপার টুলের জন্য JavaScript টুল"
 
+msgctxt "rbac:web-app-kix:user:description"
+msgid "KIX agent who signs in to the agent portal and works on tickets with the Ticket Agent role, without system administration"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-net-wireguard:description"
 msgid "Kernel WireGuard tunnels, hub-and-spoke meshes under a swarm manager and full meshes between Compose hosts"
@@ -892,6 +1263,10 @@ msgstr "কার্নেল WireGuard টানেল, দুর-এবং-আ
 msgctxt "role:svc-ai-jupyter:description"
 msgid "Kernel backend that runs the code a chat writes, in a container instead of in the browser sandbox"
 msgstr "ব্রাউজার স্যান্ডবক্সের পরিবর্তে কনটেইনারে একটি কনটেইনারে লেখার সুবিধা উপলব্ধ করা হয়"
+
+msgctxt "role:sys-sysctl:description"
+msgid "Kernel parameters in one sysctl.d drop-in per owner, applied at once, host-global ones never from a container"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-hermes:description"
@@ -913,6 +1288,22 @@ msgctxt "role:svc-storage-nfs-server:description"
 msgid "Kernel-level NFS server for exporting a shared directory tree with IP-restricted access for swarm-node hosts"
 msgstr "দূরবর্তী হোস্ট- নেম সার্ভারের সাথে শেয়ার করার জন্য ডি. এন. এস. সার্ভার"
 
+msgctxt "rbac:web-app-keycloak:auditor:description"
+msgid "Keycloak auditor (read-only view of the application realm, its users and events)"
+msgstr ""
+
+msgctxt "rbac:web-app-keycloak:impersonator:description"
+msgid "Keycloak impersonator (signs in as another user of the application realm)"
+msgstr ""
+
+msgctxt "rbac:web-app-keycloak:user-manager:description"
+msgid "Keycloak user manager (create, edit and assign groups to users in the application realm)"
+msgstr ""
+
+msgctxt "menu:Knowledge & Content:title"
+msgid "Knowledge & Content"
+msgstr ""
+
 # API♪ পাইপের লাইন যেন সরাসরি কল হয় ♪
 # translated-by: ollama
 msgctxt "role:svc-ai-ltengine:description"
@@ -923,6 +1314,10 @@ msgstr "LLM-সুগमতার টেলিভিশন ইনসট্যা
 msgctxt "menu:Education:description"
 msgid "Learning platforms, classroom collaboration tools, and digital education environments."
 msgstr "শিক্ষা কেন্দ্র, শ্রেণীভিত্তিক টুলস এবং ডিজিটাল শিক্ষা পরিবেশ।"
+
+msgctxt "menu:Leisure:title"
+msgid "Leisure"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-front-tls-letsencrypt:description"
@@ -943,6 +1338,18 @@ msgstr "HTML SMTP সার্ভারের মাধ্যমে মেইল
 msgctxt "role:web-app-gitea:description"
 msgid "Lightweight self-hosted Git service for code collaboration, version control, and repository management"
 msgstr "লাইটওয়েট স্ব-পরীক্ষণ সঞ্চালিত হয়েছে Git কোড সহায়তা, সংস্করণ নিয়ন্ত্রণ, এবং রিপোজিটরি ব্যবস্থাপনার জন্য সার্ভিস"
+
+msgctxt "rbac:web-app-listmonk:manager:description"
+msgid "Listmonk manager (lists, subscribers, campaigns, templates, media and bounces)"
+msgstr ""
+
+msgctxt "rbac:web-app-listmonk:viewer:description"
+msgid "Listmonk viewer (read-only lists, subscribers, campaigns and analytics)"
+msgstr ""
+
+msgctxt "role:dsk-agentbox:description"
+msgid "Local agent workspace, a per-project dev-container sandbox that runs coding agents and the editor off the host"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-svc-nss:description"
@@ -969,6 +1376,22 @@ msgctxt "role:sys-lock:description"
 msgid "Locking mechanism for gating maintenance tasks until critical services stop, with configurable retry and timeout"
 msgstr "বন্ধ না করা পর্যন্ত কাজ স্থগিত রাখার জন্য কর্ম স্থগিত রাখা পদ্ধতি লক করা হচ্ছে, পুনরায় চেষ্টা করুন"
 
+msgctxt "role:web-app-grafana:description"
+msgid "Log and metrics explorer behind Keycloak with the complete logs of every application and alerts on log content"
+msgstr ""
+
+msgctxt "logout:choice_everywhere"
+msgid "Log out everywhere"
+msgstr "সব জায়গা থেকে লগ আউট করুন"
+
+msgctxt "logout:choice_device"
+msgid "Log out on this device"
+msgstr "এই ডিভাইসে লগ আউট করুন"
+
+msgctxt "role:web-svc-loki:description"
+msgid "Log store with an authenticated, redacting ingest gateway, retention per log class and a ruler for log alerts"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-svc-mail-smtp:description"
 msgid "Loopback-only Postfix relay for lightweight outbound mail delivery via localhost when no central mail stack runs"
@@ -984,6 +1407,18 @@ msgctxt "role:svc-ai-libretranslate-engine:description"
 msgid "Machine translation engine without a web surface, for pipelines that call it directly"
 msgstr "ওয়েব পৃষ্ঠ ছাড়া মেশিন অনুবাদ ইঞ্জিন, যে পাইপগুলো সরাসরি কল করে"
 
+msgctxt "menu:Mail:title"
+msgid "Mail"
+msgstr ""
+
+msgctxt "role:web-app-email:description"
+msgid "Mail server wrapper that consumers depend on, dispatching to the configured mail provider role"
+msgstr ""
+
+msgctxt "rbac:web-app-mailu:domain-manager:description"
+msgid "Mailu domain manager of the mail domain (manages its users, aliases and relays)"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.mtn:title"
 msgid "Maintenance"
@@ -993,6 +1428,30 @@ msgstr "রক্ষণাবেক্ষণকারী"
 msgctxt "category:sys.ctl.mtn:description"
 msgid "Maintenance roles for certificates, system upkeep, and recurring operational tasks."
 msgstr "সার্টিফিকেটের জন্য দায়ী ভূমিকা, সিস্টেমের জন্য রাখা এবং ধারাবাহিক কাজ করা।"
+
+msgctxt "profile_lock:managed"
+msgid "Managed by the deployment, which overwrites changes made here. Change it in the inventory at"
+msgstr ""
+
+msgctxt "profile_lock:locked"
+msgid "Managed by your central account. Change it there, because your next sign-in overwrites changes made here."
+msgstr ""
+
+msgctxt "rbac:web-app-joomla:manager:description"
+msgid "Manager in Joomla, maps onto the built-in `Manager` user group (id 6) and may sign in to the administrator backend to manage content."
+msgstr ""
+
+msgctxt "rbac:web-app-pretix:organizer:description"
+msgid "Manages every event and the settings of each Pretix organizer through the \"Organizers (SSO)\" team"
+msgstr ""
+
+msgctxt "rbac:web-app-opencloud:spaceadmin:description"
+msgid "Manages every project space in OpenCloud, including its members and quota"
+msgstr ""
+
+msgctxt "rbac:web-app-proxmox:administrator:description"
+msgid "Manages the Proxmox VE node and every agent VM through the web UI"
+msgstr ""
 
 # নোড, “%s”-এর মাধ্যমে মুদ্রণের ক্ষমতা সম্পন্ন হয়েছে svc-swarm-node
 # translated-by: ollama
@@ -1005,6 +1464,34 @@ msgctxt "menu:Marketing:title"
 msgid "Marketing"
 msgstr "ব্যবসায়িক"
 
+msgctxt "rbac:web-app-hermes:mcp:description"
+msgid "May drive this agent's MCP clients, which reach every admitted provider with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-openclaw:mcp:description"
+msgid "May drive this agent's MCP clients, which reach every admitted provider with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-flowise:mcp:description"
+msgid "May drive this application's MCP clients, which reach every admitted provider with the credentials the deployment issued rather than the caller's own"
+msgstr ""
+
+msgctxt "rbac:web-app-hermes:agent-user:description"
+msgid "May start a personal Hermes agent from Open WebUI through svc-ai-agent-broker"
+msgstr ""
+
+msgctxt "rbac:web-app-openclaw:agent-user:description"
+msgid "May start a personal OpenClaw agent from Open WebUI through svc-ai-agent-broker"
+msgstr ""
+
+msgctxt "rbac:web-app-workspace:agent-user:description"
+msgid "May start a personal workspace IDE instance through svc-ai-agent-broker"
+msgstr ""
+
+msgctxt "menu:Meetings:title"
+msgid "Meetings"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-searxng:description"
 msgid "Metasearch engine the platform queries for web results without handing a user's query to a tracking search provider"
@@ -1014,6 +1501,10 @@ msgstr "ওয়েব ফলাফল অনুসন্ধানের জন
 msgctxt "role:dsk-gnt-pi:description"
 msgid "Minimal terminal coding agent with a lazy-loading skill system, wired to the platform's own model gateway"
 msgstr "একটি অলস-র মাধ্যমে কাজ করার জন্য সর্বনিম্ন টার্মিনাল কোড এজেন্ট, প্ল্যাটফর্মের নিজস্ব মডেল গেটওয়েতে অবস্থিত"
+
+msgctxt "rbac:web-app-mobilizon:moderator:description"
+msgid "Mobilizon moderator (handles reports, suspends profiles and groups, and reviews the instance moderation log)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.hlth:title"
@@ -1080,6 +1571,10 @@ msgctxt "role:web-app-pihole:description"
 msgid "Network-wide DNS sinkhole for blocking ads and trackers across all devices, with DHCP and a web admin dashboard"
 msgstr "DHCP এবং একটি ওয়েব প্রশাসক ড্যাশবোর্ড দ্বারা সমস্ত ডিভাইস জুড়ে একটি বিজ্ঞাপন এবং ট্র্যাকার বন্ধ করার জন্য নেটওয়ার্ক DNS-সমার্গ"
 
+msgctxt "paused:channel_newsletter"
+msgid "Newsletter"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-front-inj-logout:description"
 msgid "Nginx sub_filter JavaScript injection redirecting all logout actions to a centralized OIDC single sign-out endpoint"
@@ -1121,6 +1616,18 @@ msgctxt "role:sys-svc-objstore:description"
 msgid "Object-storage layer for SeaweedFS/MinIO backend resolution and per-consumer bucket and credential provisioning"
 msgstr "বস্তুর স্তর SeaweedFS/MinIO ব্যাক- এন্ডের জন্য ব্যবহৃত ব্যাক-এন্ড ও সূচনার পরিমাণ"
 
+msgctxt "rbac:web-app-odoo:manager:description"
+msgid "Odoo business manager (internal user with the Sales, Accounting, Inventory and Project administrator rights)"
+msgstr ""
+
+msgctxt "rbac:web-app-odoo:user:description"
+msgid "Odoo internal user (backend access with the default rights of the installed apps)"
+msgstr ""
+
+msgctxt "rbac:web-app-odoo:portal:description"
+msgid "Odoo portal user (customer portal only, no backend access)"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-opt-swapfile:description"
 msgid "On-target automation for creating and activating swap space via a cloned swapfile script"
@@ -1138,6 +1645,10 @@ msgstr "লগআউট পৃষ্ঠা খুলুন"
 msgctxt "logout:no_check_hint"
 msgid "Open the logout page and sign out of the remaining services yourself."
 msgstr "লগআউট পৃষ্ঠা খুলুন এবং বাকি পরিষেবাগুলি থেকে নিজে লগ আউট করুন।"
+
+msgctxt "access_request:review_console"
+msgid "Open the user's groups in the Keycloak admin console"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-espocrm:description"
@@ -1239,6 +1750,18 @@ msgctxt "role:svc-ai-litellm:description"
 msgid "OpenAI-compatible LLM gateway routing a single /v1 endpoint to local and hosted model backends with per-consumer keys"
 msgstr ""
 
+msgctxt "rbac:web-app-openbao:administrator:description"
+msgid "OpenBao administrator (policy, auth-method and mount management)"
+msgstr ""
+
+msgctxt "rbac:web-app-openbao:operator:description"
+msgid "OpenBao operator (read/write on the application secret paths)"
+msgstr ""
+
+msgctxt "rbac:web-app-openbao:reader:description"
+msgid "OpenBao reader (read-only on the application secret paths)"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:dev-java:description"
 msgid "OpenJDK 11 runtime and development kit for Java applications on Pacman-based systems"
@@ -1259,9 +1782,8 @@ msgctxt "role:dev-gcc:description"
 msgid "Optimizing compiler toolchain for building C, C++, and other native-language programs"
 msgstr "C, C+ এবং অন্যান্য স্থানীয় ভাষার প্রোগ্রামের জন্য কম্পাইলার টুলার গঠন করুন"
 
-# translated-by: libretranslate
-msgctxt "role:sys-stk-front-proxy:description"
-msgid "Orchestration wrapper for per-domain NGINX provisioning with TLS certificates, vHost templates, and optional OAuth2"
+msgctxt "menu:Other:title"
+msgid "Other"
 msgstr ""
 
 msgctxt "logout:pace_tor"
@@ -1283,6 +1805,10 @@ msgctxt "role:sys-pip:description"
 msgid "Package manager for installing and managing Python packages on the target host"
 msgstr "টার্গেট হোস্ট ইনস্টল এবং পরিচালনার জন্য প্যাকেজ পরিচালন ব্যবস্থা"
 
+msgctxt "rbac:web-app-peertube:moderator:description"
+msgid "PeerTube moderator (manages abuse reports, blocklists, comments and video blacklisting, but not the instance configuration)"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-ai-agent-broker:description"
 msgid "Per-user Hermes and OpenClaw agents started on demand behind an OpenAI-compatible endpoint"
@@ -1298,6 +1824,10 @@ msgctxt "role:dsk-ssh:description"
 msgid "Persistent systemd user-service SSH agent for Wayland desktops, with the .ssh config synced from Git"
 msgstr "Sonnetal-পরিশীল ব্যবহারকারীর জন্য SSH এজেন্ট, ডেস্কটপের সাথে সুসংগতভাবে কনফিগার করা হয়। Git"
 
+msgctxt "paused:channel_phone"
+msgid "Phone"
+msgstr ""
+
 msgctxt "role:sys-os:description"
 msgid "Pins the upstream operating system images the development environment boots each distribution from"
 msgstr ""
@@ -1307,10 +1837,9 @@ msgctxt "role:web-svc-xmpp:description"
 msgid "Placeholder stub role for a future XMPP server/container deployment, implementation pending"
 msgstr "ভবিষ্যতে XMPP/কনফিগারেশন সার্ভার সার্ভারের জন্য একটি স্থায়ী ভূমিকা স্থাপন করা হবে, বাস্তবায়নের বৈশিষ্ট্য"
 
-# translated-by: libretranslate
 msgctxt "menu:Commerce:description"
-msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels — including payment, inventory, and customer features."
-msgstr "অনলাইন দোকান নির্মাণের জন্য প্লাটফর্ম, পণ্যের ক্যাটালগ এবং ডিজিটাল বিক্রয় চ্যানেল - যার মধ্যে রয়েছে অর্থ, আবিষ্কারক এবং গ্রাহকের বৈশিষ্ট্য।"
+msgid "Platforms for building and managing online shops, product catalogs, and digital sales channels, including payment, inventory, and customer features."
+msgstr ""
 
 msgctxt "logout:keep_closed"
 msgid "Please do not close this page yet."
@@ -1346,6 +1875,10 @@ msgctxt "role:sys-sudo:description"
 msgid "Privilege-escalation package and hardened sudoers configuration with /etc/sudoers.d drop-in support"
 msgstr "অনুমোদন সংক্রান্ত প্যাকেজ ও কঠিন কনফিগারেশনের সাথে কাজ করা হয়েছে। /etc/sus/su.com-র সাথে কাজ করা হয়েছে।"
 
+msgctxt "role:sys-preflight:description"
+msgid "Probes that stop a deploy before it changes a host that cannot take it"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "menu:Project Management:title"
 msgid "Project Management"
@@ -1360,6 +1893,10 @@ msgstr "প্রজেক্ট পরিচালনার সামগ্র�
 msgctxt "role:drv-non-free:description"
 msgid "Proprietary GPU driver installer for Arch-based systems via mhwd nonfree hardware detection"
 msgstr "প্রত্নতত্ত্ব ভিত্তিক সিস্টেমের জন্য GPU ড্রাইভার ইনস্টলার"
+
+msgctxt "role:svc-stack:description"
+msgid "Provider of the shared stack service that every application with a compose project or a vhost declares"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-dns-wildcards:description"
@@ -1376,6 +1913,10 @@ msgctxt "role:user:description"
 msgid "Provisioning role for per-user environment setup, managing shell dotfiles and SSH authorized_keys"
 msgstr "প্রতিটি ব্যবহারকারীর জন্য বৈশিষ্ট্য নির্ধারণ, শেল ডট ও SSH-কির ব্যবস্থাপনার জন্য সহায়তা ব্যবস্থা authorized_keys"
 
+msgctxt "role:web-app-proxmox:description"
+msgid "Proxmox VE in a Docker container as the hypervisor for agent VMs, behind the front proxy and a Keycloak group gate"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.prx:title"
 msgid "Proxy Servers"
@@ -1391,6 +1932,10 @@ msgctxt "role:web-svc-s1:description"
 msgid "Public vhost that exposes the System One decision API of svc-ai-s1"
 msgstr "পাবলিক voice যে উন্মোচন করে System One সিদ্ধান্ত API এর svc-ai-s1"
 
+msgctxt "rbac:web-app-joomla:publisher:description"
+msgid "Publisher in Joomla, maps onto the built-in `Publisher` user group (id 5) and may publish and unpublish articles."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.cache:description"
 msgid "Pull-through caches for package upstreams - proxy repositories and the TLS frontend that answers for them."
@@ -1400,6 +1945,38 @@ msgstr "প্যাকেজ স্ট্রিম স্ট্রিমিং 
 msgctxt "role:pkgmgr:description"
 msgid "Python CLI package manager for cloning multiple code repositories and automating common Git operations"
 msgstr "একাধিক কোড সংগ্রহস্থলের জন্য পাইথন CLI প্যাকেজ ব্যবস্থাপক এবং স্বয়ংক্রিয় ভাবে ব্যবহারযোগ্য Git কর্ম"
+
+msgctxt "paused:contact"
+msgid "Questions? Reach the operator here:"
+msgstr ""
+
+msgctxt "rbac:web-app-wazuh:readonly-auditor:description"
+msgid "Read-only access to dashboards and alerts. No agent, rule, or configuration actions."
+msgstr ""
+
+msgctxt "rbac:web-app-wazuh:security-analyst:description"
+msgid "Reads alerts, logs, and dashboards. No security-configuration or RBAC-management access."
+msgstr ""
+
+msgctxt "rbac:web-app-minio:readonly:description"
+msgid "Reads objects and bucket locations in every bucket"
+msgstr ""
+
+msgctxt "role:web-app-worldmonitor:description"
+msgid "Real-time global intelligence dashboard that maps public data feeds, self-hosted behind the platform SSO gate"
+msgstr ""
+
+msgctxt "access_request:form_reason"
+msgid "Reason"
+msgstr ""
+
+msgctxt "rbac:web-app-joomla:registered:description"
+msgid "Registered user in Joomla, maps onto the built-in `Registered` user group (id 2) that every signed-in user holds without a higher role."
+msgstr ""
+
+msgctxt "access_request:review_reject"
+msgid "Reject"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-lint:description"
@@ -1415,6 +1992,18 @@ msgstr "সংশোধন করুন"
 msgctxt "category:sys.ctl.rpr:description"
 msgid "Repair and recovery roles—handling hard/soft recovery of Docker, Btrfs balancers, and other low-level system fixes."
 msgstr "ডকার, BRTfs ভারসাম্য এবং নিম্ন পর্যায়ের সিস্টেম মেরামত করা।"
+
+msgctxt "access_request:forbidden_action"
+msgid "Request access"
+msgstr ""
+
+msgctxt "access_request:form_title"
+msgid "Request access"
+msgstr ""
+
+msgctxt "access_request:review_requester"
+msgid "Requester"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-util-git-pull:description"
@@ -1440,6 +2029,18 @@ msgstr "বিপরীত-py নির্বাচনী ব্যবস্থ�
 msgctxt "category:svc.prx:description"
 msgid "Reverse-proxy roles for routing and load-balancing traffic to backend services"
 msgstr "ব্যাক- এন্ডিং ও লোডিং সার্ভিসের জন্য বিপরীত-proxy ভূমিকা"
+
+msgctxt "access_request:review_title"
+msgid "Review access request"
+msgstr ""
+
+msgctxt "rbac:web-app-weblate:reviewer:description"
+msgid "Reviews and approves translations in every project through Weblate's Reviewers team"
+msgstr ""
+
+msgctxt "access_request:form_roles"
+msgid "Roles"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.ctl.cln:description"
@@ -1470,11 +2071,6 @@ msgstr "সম্মুখ-proxy TLSয়ের জন্য Synet সার্
 msgctxt "role:svc-net-tor-smtp:description"
 msgid "SMTP gateway that relays .onion recipients through Tor's SOCKS listener"
 msgstr "Seternet conles reternet'র মাধ্যমে SMTP গেটওয়ে"
-
-# translated-by: libretranslate
-msgctxt "menu:Sales:title"
-msgid "Sales"
-msgstr "বিক্রয়"
 
 # translated-by: libretranslate
 msgctxt "category:svc.virt:title"
@@ -1556,6 +2152,10 @@ msgctxt "role:sys-ctl-mtn-cert-renew:description"
 msgid "Scheduled systemd-timer job renewing Let's Encrypt SSL/TLS certificates via Certbot and reloading NGINX afterward"
 msgstr "বাতিল করা হয়েছে ও প্রবেশকৃত সিস্টেমের মধ্যে কর্ম পুনরায় স্থাপন করুন Certbot এর পরে পুনরায় লোড করুন"
 
+msgctxt "role:svc-ai-freellmapi:description"
+msgid "Selectable FreeLLMAPI gateway for provider routing with OpenAI and Anthropic compatible APIs"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:svc-runner:description"
 msgid "Self-hosted CI runner infrastructure for executing GitHub Actions workflow jobs in ephemeral Docker containers"
@@ -1606,25 +2206,27 @@ msgctxt "role:web-app-jitsi:description"
 msgid "Self-hosted WebRTC platform for end-to-end-encryptable video conferencing with federated authentication"
 msgstr "হ্রাসকৃত অনুমোদনযুক্ত ভিডিও-র সাথে যুক্ত ওয়েব-আরটিসি প্ল্যাটফর্ম"
 
+msgctxt "role:web-app-atmo:description"
+msgid "Self-hosted atmo.rsvp appview for AT Protocol calendar events and RSVPs, with an optional mirror into Mobilizon"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:web-app-mini-qr:description"
 msgid "Self-hosted browser tool for generating QR codes from text or URLs with privacy-friendly local rendering"
 msgstr "টেক্সট থেকে CR অথবা গোপনীয়তা-র মাধ্যমে নিরাপদ বার্তা পাঠের উদ্দেশ্যে ব্যবহৃত স্বতন্ত্র ব্রাউজার টুল"
 
-# translated-by: libretranslate
 msgctxt "role:web-app-openwebui:description"
-msgid "Self-hosted chat interface for interacting with local and private AI models via backends such as Ollama"
-msgstr "স্থানীয় ও ব্যক্তিগত AI মডেলের সাথে যোগাযোগ করার জন্য স্ব-পরীক্ষণ ইন্টারফেস Ollama"
+msgid "Self-hosted chat interface for interacting with local and private AI models through the platform's model gateway"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-nextcloud:description"
 msgid "Self-hosted cloud platform for file sync, sharing, real-time collaboration, and team workspaces under your own domain"
 msgstr "সিঙ্ক, ফাইল শেয়ার, প্রকৃত সময় ভিত্তিক সহযোগিতা, এবং আপনার নিজস্ব ডোমেইনের অধীনে দলের কর্মক্ষেত্রের জন্য স্ব-পরীক্ষণ করুন"
 
-# translated-by: libretranslate
-msgctxt "menu:Cloud:description"
+msgctxt "menu:Cloud & Office:description"
 msgid "Self-hosted cloud solutions for file synchronization, collaboration, and data sharing."
-msgstr "ফাইল সুসংগতি, সহযোগিতা এবং তথ্য শেয়ার করার উদ্দেশ্যে স্ব-পরীক্ষণ দ্বারা স্ব-পরীক্ষণযোগ্য মেঘের সমাধান।"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-bluesky:description"
@@ -1755,6 +2357,14 @@ msgctxt "role:web-app-matomo:description"
 msgid "Self-hosted, privacy-first web analytics platform for real-time visitor tracking and site metrics"
 msgstr "স্ব-বিশ্লেষণ, ব্যক্তিগত-প্রথমে ওয়েবের স্বাতন্ত্র্য প্লাটফর্ম"
 
+msgctxt "role:web-svc-access-request:description"
+msgid "Self-service requests for application roles that administrators grant with their own Keycloak rights"
+msgstr ""
+
+msgctxt "access_request:form_submit"
+msgid "Send request"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "menu:Server Administration:title"
 msgid "Server Administration"
@@ -1764,6 +2374,10 @@ msgstr "সার্ভার সংক্রান্ত প্রশাসন�
 msgctxt "category:svc.opt:title"
 msgid "Service Optimation"
 msgstr "সেবা ওপ্টিমেশন"
+
+msgctxt "paused:title"
+msgid "Service paused"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:svc.bkp:description"
@@ -1815,9 +2429,29 @@ msgctxt "role:svc-db-mariadb:description"
 msgid "Shared relational database server for applications needing central SQL storage, run in Docker"
 msgstr "ডকারে চলমান অ্যাপ্লিকেশনগুলির জন্য শেয়ার ডাটাবেস সার্ভার"
 
-msgctxt "logout:all_done"
+msgctxt "rbac:web-app-shopware:editor:description"
+msgid "Shopware catalogue and content editor (products, categories, media and shopping experiences through the Editor ACL role)"
+msgstr ""
+
+msgctxt "access_request:signin_action"
+msgid "Sign in"
+msgstr ""
+
+msgctxt "access_request:signin_title"
+msgid "Sign in again"
+msgstr ""
+
+msgctxt "logout:everywhere_done"
 msgid "Signed out everywhere."
-msgstr "সব পরিষেবা থেকে লগ আউট হয়েছে।"
+msgstr "সব জায়গা থেকে লগ আউট হয়েছে।"
+
+msgctxt "logout:all_done"
+msgid "Signed out on this device."
+msgstr "এই ডিভাইসে লগ আউট হয়েছে।"
+
+msgctxt "logout:everywhere_partial"
+msgid "Signed out on this device. Other devices may still be signed in."
+msgstr "এই ডিভাইসে লগ আউট হয়েছে। অন্য ডিভাইসে এখনও লগ ইন থাকতে পারে।"
 
 #, python-brace-format
 msgctxt "logout:partial"
@@ -1827,6 +2461,34 @@ msgstr "লগ আউট হয়েছে, {total}টির মধ্যে {f
 msgctxt "logout:running"
 msgid "Signing you out of your services…"
 msgstr "আপনাকে পরিষেবাগুলি থেকে লগ আউট করা হচ্ছে…"
+
+msgctxt "rbac:web-app-gitlab:external:description"
+msgid "Signs in as a GitLab external user who sees only the projects and groups they are a member of and cannot create projects or groups"
+msgstr ""
+
+msgctxt "rbac:web-app-gitea:restricted:description"
+msgid "Signs in as a restricted Gitea user who sees only the organizations and repositories shared with them explicitly"
+msgstr ""
+
+msgctxt "rbac:web-app-checkmk:user:description"
+msgid "Signs in to Checkmk with the Normal monitoring user role and may use Setup for the hosts it is a contact for"
+msgstr ""
+
+msgctxt "rbac:web-app-checkmk:guest:description"
+msgid "Signs in to Checkmk with the read-only Guest user role"
+msgstr ""
+
+msgctxt "rbac:web-app-grafana:auditor:description"
+msgid "Signs in to Grafana with the Viewer role, reads logs, metrics and dashboards, and cannot change datasources, dashboards or alert rules"
+msgstr ""
+
+msgctxt "rbac:web-app-opencloud:guest:description"
+msgid "Signs in to OpenCloud as a guest without a personal space, working only in the spaces and shares opened to them"
+msgstr ""
+
+msgctxt "rbac:web-app-pgadmin:user:description"
+msgid "Signs in to pgAdmin through Keycloak with the pgAdmin User role and manages only the servers it registers itself"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:web-app-postmarks:description"
@@ -1848,6 +2510,10 @@ msgctxt "menu:Social Media:description"
 msgid "Social Media Tools"
 msgstr "সামাজিক মিডিয়া টুল"
 
+msgctxt "menu:Community & Social:description"
+msgid "Social networks, forums and events for your community."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:dev:title"
 msgid "Software Development Utilties"
@@ -1857,6 +2523,10 @@ msgstr "সফ্টওয়্যার ডেভেলপমেন্ট"
 msgctxt "role:web-app-opentalk:description"
 msgid "Sovereign open-source video conferencing platform for audio/video calls, screen sharing, breakout rooms, and SSO"
 msgstr "অডিও/ভিডিও কলের জন্য মাউসের খোলা ভিডিও কনফারেন্সিং প্ল্যাটফর্ম, স্ক্রিন-আউট রুম, এবং SO।"
+
+msgctxt "role:svc-ai-speech:description"
+msgid "Speech-to-text engine with an OpenAI-compatible transcription endpoint, for consumers that call it directly"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys.stk:title"
@@ -1887,6 +2557,10 @@ msgstr "অরিজিনেশন সাইট থেকে এইচ- টি-
 msgctxt "menu:Storage:title"
 msgid "Storage"
 msgstr "সংগ্রহস্থল"
+
+msgctxt "rbac:web-app-suitecrm:user:description"
+msgid "SuiteCRM user (signs in through the directory as a regular, non-administrator user)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "category:sys:title"
@@ -1933,6 +2607,10 @@ msgctxt "role:sys-ctl-mtn-cert-deploy:description"
 msgid "Systemd service and timer for syncing Let's Encrypt certificates into Docker Compose NGINX stacks with hot-reload"
 msgstr "সুসংগত করার উদ্দেশ্যে সিস্টেম পরিসেবা ও টাইমার দ্বারা সার্টিফিকেটের মধ্যে এনক্রিপ্ট করা হবে Docker Compose হট-লোড দ্বারা NGINX স্ট্যাক আঁকা হয়"
 
+msgctxt "role:sys-ctl-mtn-rbac-sync:description"
+msgid "Systemd timer that reconciles each application's role mapping with the current members of its role groups"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:sys-timer:description"
 msgid "Systemd timer unit for starting a service on a recurring calendar schedule for automated task execution"
@@ -1942,11 +2620,6 @@ msgstr "স্বয়ংক্রিয়ভাবে কর্ম সঞ্�
 msgctxt "role:sys-ctl-cln-docker:description"
 msgid "Systemd-driven cleanup service pruning anonymous Docker volumes plus images, containers, networks, and build cache"
 msgstr "সিস্টেম তৈরি করা বিষয়বস্তু পরিশোধনকারী সার্ভিস বেনামী ডকার ভলিউম এবং ছবি, কন্টেইন, নেটওয়ার্ক এবং তৈরি করুন"
-
-# translated-by: libretranslate
-msgctxt "role:sys-ctl-rpr-container-hard:description"
-msgid "Systemd-scheduled maintenance role for full Docker Compose stack restarts, with hard restarts for stacks like Mailu"
-msgstr "পুরো ব্যবস্থার জন্য সিস্টেমের নিরাপত্তামূলক ভূমিকা Docker Compose স্ট্যাক চিহ্নের মত কঠিন ভাবে পুনরায় আরম্ভ করা হবে Mailu"
 
 # translated-by: libretranslate
 msgctxt "role:sys-ctl-hlth-container:description"
@@ -1966,6 +2639,10 @@ msgstr "পর্যবেক্ষণ সার্ভিস ব্যর্থ 
 msgctxt "role:sys-ctl-alm-telegram:description"
 msgid "Systemd-triggered notifier for delivering service-failure alerts to a Telegram chat"
 msgstr "টেলিগ্রাম আড্ডার ক্ষেত্রে সেবা প্রদানের জন্য সিস্টেম-প্রধীপক ব্যবস্থা প্রয়োগ করা হয়নি"
+
+msgctxt "access_request:form_reason_required"
+msgid "Tell the approvers why you need these roles."
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-gnt-claude:description"
@@ -1992,6 +2669,34 @@ msgctxt "role:test-e2e-cli:description"
 msgid "Test-harness role running end-to-end CLI test scripts for roles that declare a test environment template"
 msgstr "একটি পরীক্ষামূলক পরিবেশ টেমপ্লেট ঘোষণা করার জন্য CLI পরীক্ষামূলক স্ক্রিপ্ট প্রয়োগ করা হচ্ছে"
 
+msgctxt "profile_lock:banner"
+msgid "The deployment manages these fields of this page:"
+msgstr ""
+
+msgctxt "profile_lock:unlock"
+msgid "The deployment manages this field and writes the inventory value back on its next run. Edit it here anyway?"
+msgstr ""
+
+msgctxt "paused:notice"
+msgid "The operator has paused this service. It will be back as soon as it is resumed."
+msgstr ""
+
+msgctxt "access_request:review_rejected"
+msgid "The request was rejected."
+msgstr ""
+
+msgctxt "access_request:review_granted"
+msgid "The selected roles were granted."
+msgstr ""
+
+msgctxt "access_request:form_unknown_application"
+msgid "This application offers no roles to request."
+msgstr ""
+
+msgctxt "paused:heading"
+msgid "This service is taking a break"
+msgstr ""
+
 msgctxt "logout:pace"
 msgid "This usually takes a few seconds."
 msgstr "সাধারণত কয়েক সেকেন্ড লাগে।"
@@ -2015,11 +2720,6 @@ msgstr "সরঞ্জাম"
 msgctxt "menu:User Management:description"
 msgid "Tools for Identity and Access Management, including authentication, user provisioning, and secure access control."
 msgstr "অনুমোদন এবং ব্যবস্থাপনার জন্য বিভিন্ন উপাদান, যার মধ্যে রয়েছে অনুমোদন, ব্যবহারকারী ব্যবস্থা এবং নিয়ন্ত্রণ।"
-
-# translated-by: libretranslate
-msgctxt "menu:Communication:description"
-msgid "Tools for communication"
-msgstr "যোগাযোগের জন্য টুল"
 
 # translated-by: libretranslate
 msgctxt "menu:Marketing:description"
@@ -2099,6 +2799,10 @@ msgctxt "category:user:title"
 msgid "Users & Access"
 msgstr "ব্যবহারকারীদের অধিকার"
 
+msgctxt "menu:Administration:description"
+msgid "Users, servers, infrastructure and development."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:dsk-git:description"
 msgid "Version-control client for personal workstations, preconfigured with identity, signing, and merge defaults"
@@ -2108,6 +2812,14 @@ msgstr "ব্যক্তিগত ওয়ার্ক-স্টেশনে�
 msgctxt "role:sys-svc-cdn:description"
 msgid "Versioned asset-tree layout for CDN delivery with shared, vendor, and per-role release directories"
 msgstr "CD-র সাথে শেয়ার করার, বিক্রেতার সাথে শেয়ার, বিক্রেতা এবং প্রতি- ফরম্যাটের ডিরেক্টরি নির্মাণ করুন"
+
+msgctxt "menu:Meetings:description"
+msgid "Video conferences and live events."
+msgstr ""
+
+msgctxt "rbac:web-app-penpot:viewer:description"
+msgid "Views and comments on the files of the shared platform team without editing them"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dsk-code:description"
@@ -2154,6 +2866,10 @@ msgctxt "category:web.opt:title"
 msgid "Webserver Optimation"
 msgstr "ওয়েব সার্ভার ভেন্ডরন"
 
+msgctxt "menu:Knowledge & Content:description"
+msgid "Websites, documentation and learning."
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "role:dsk-docker:description"
 msgid "Workstation setup for Docker and Docker Compose with the local user in the docker group for rootless development use"
@@ -2169,9 +2885,68 @@ msgctxt "role:pkgmgr-install:description"
 msgid "Wrapper role for idempotent package installation and updates through the pkgmgr universal package manager"
 msgstr "ফেম্পোপারেন্ট প্যাকেজ ইনস্টলেশনের জন্য র‌্যাপ ব্যবস্থা এবং pickggজি এর সার্বজনীন প্যাকেজ ম্যানেজারের মাধ্যমে আপডেটের প্রয়োজন"
 
+msgctxt "access_request:review_same_approver"
+msgid "You already confirmed this request. A different approver must confirm it."
+msgstr ""
+
 msgctxt "logout:may_close"
 msgid "You can close this page now."
 msgstr "আপনি এখন এই পৃষ্ঠা বন্ধ করতে পারেন।"
+
+msgctxt "access_request:forbidden_title"
+msgid "You do not have access to this application"
+msgstr ""
+
+msgctxt "access_request:review_not_allowed"
+msgid "You may not approve roles of this application."
+msgstr ""
+
+#, python-brace-format
+msgctxt "access_request:mail_granted_subject"
+msgid "Your access request for {application} was granted"
+msgstr ""
+
+#, python-brace-format
+msgctxt "access_request:mail_partial_subject"
+msgid "Your access request for {application} was partly granted"
+msgstr ""
+
+#, python-brace-format
+msgctxt "access_request:mail_rejected_subject"
+msgid "Your access request for {application} was rejected"
+msgstr ""
+
+msgctxt "access_request:forbidden_text"
+msgid "Your account holds none of the roles this application requires."
+msgstr ""
+
+msgctxt "access_request:review_waiting_second"
+msgid "Your approval is recorded. A second approver must confirm before the roles take effect."
+msgstr ""
+
+msgctxt "access_request:form_updated"
+msgid "Your open request for this application was updated."
+msgstr ""
+
+msgctxt "access_request:form_created"
+msgid "Your request was sent to the approvers."
+msgstr ""
+
+msgctxt "access_request:signin_text"
+msgid "Your session expired. Sign in again to continue."
+msgstr ""
+
+msgctxt "rbac:web-app-zammad:administrator:description"
+msgid "Zammad administrator (full admin panel access)"
+msgstr ""
+
+msgctxt "rbac:web-app-zammad:agent:description"
+msgid "Zammad agent (helpdesk staff, can answer tickets)"
+msgstr ""
+
+msgctxt "rbac:web-app-zammad:customer:description"
+msgid "Zammad customer (end user, can open tickets)"
+msgstr ""
 
 msgctxt "logout:st_failed"
 msgid "failed"

@@ -1,6 +1,6 @@
 """Per: subnets declared per-role under
-``meta/networks.yml.local.subnet`` MUST be valid, unique, and
-non-overlapping across the role tree."""
+``meta/networks.yml.local.subnet`` and ``overlay.stream_relay.subnet`` MUST
+be valid, unique, and non-overlapping across the role tree."""
 
 from __future__ import annotations
 
@@ -8,6 +8,8 @@ import ipaddress
 import unittest
 
 from utils.cache.yaml import load_yaml_any
+from utils.meta.scan import iter_subnets
+from utils.networks.attachments import STREAM_RELAY
 from utils.roles.mapping import ROLE_FILE_META_NETWORKS
 
 
@@ -27,20 +29,29 @@ class TestNetworksUniqueValidAndMapped(unittest.TestCase):
             if not networks_file.is_file():
                 continue
             networks_data = load_yaml_any(str(networks_file)) or {}
-            local = networks_data.get("local")
-            if not isinstance(local, dict):
-                continue
-            subnet = local.get("subnet")
-            if not isinstance(subnet, str):
-                continue
-            try:
-                cls.role_to_subnet[role_path.name] = ipaddress.IPv4Network(
-                    subnet.strip()
-                )
-            except (ValueError, ipaddress.AddressValueError) as exc:
-                raise AssertionError(
-                    f"Invalid subnet for role '{role_path.name}': {subnet!r} ({exc})"
-                ) from exc
+            overlay = networks_data.get("overlay")
+            relay = overlay.get(STREAM_RELAY) if isinstance(overlay, dict) else None
+            pinned = (
+                (role_path.name, networks_data.get("local")),
+                (f"{role_path.name}:{STREAM_RELAY}", relay),
+            )
+            for owner, block in pinned:
+                if not isinstance(block, dict):
+                    continue
+                subnet = block.get("subnet")
+                if not isinstance(subnet, str):
+                    continue
+                try:
+                    cls.role_to_subnet[owner] = ipaddress.IPv4Network(subnet.strip())
+                except (ValueError, ipaddress.AddressValueError) as exc:
+                    raise AssertionError(
+                        f"Invalid subnet for '{owner}': {subnet!r} ({exc})"
+                    ) from exc
+
+    def test_a_stream_relay_subnet_is_checked_and_allocated_like_a_role_subnet(self):
+        owner = f"svc-db-openldap:{STREAM_RELAY}"
+        self.assertIn(owner, self.role_to_subnet)
+        self.assertEqual(dict(iter_subnets())[owner], self.role_to_subnet[owner])
 
     def test_unique_subnets(self):
         seen: dict[ipaddress.IPv4Network, str] = {}

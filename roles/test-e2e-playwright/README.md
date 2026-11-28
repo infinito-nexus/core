@@ -32,6 +32,7 @@ This role:
 - Injects CA trust automatically for `TLS_MODE=self_signed` (via `CA_TRUST.*`), so Playwright accepts self-signed cert chains
 - Runs Playwright in Docker with stable browser settings (`--ipc=host`, `--shm-size=1g`) and without core dumps (`--ulimit=core=0`), so a crashing browser cannot fill the container's disk
 - Runs the suite once per role on one network it is served on (`lookup('network_siblings', ...)`), picked at random when there are several and kept for the flake retry, with the `.env` rendered for that network's vhost
+- Runs a role without a domain (`application_id not in lookup('domains')`) once on no network: no network pick, no readiness wait, no onion probe, and its reports under `<application_id>`
 - Stores per-role reports/artifacts under `TEST_E2E_PLAYWRIGHT_REPORTS_BASE_DIR/<application_id>`, or under `<application_id>+<network>` when the pick is not the canonical network
 
 ## Features
@@ -57,7 +58,9 @@ roles/<application_id>/
     files/playwright/playwright.spec.js
 ```
 
-For the file-level contract, use [Contributing `playwright.env.j2`](../../docs/agents/files/role/playwright.env.j2.md) and [Contributing `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md).
+For the file-level contract, use [Contributing `playwright.env.j2`](../../agents/skills/i8-file-role-playwright-env/SKILL.md) and [Contributing `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md).
+
+A role may also ship `tasks/utils/playwright_post_pass.yml` (`TEST_E2E_PLAYWRIGHT_POST_PASS_CHECK`), a check of what its pass left behind outside the browser. The runner includes it after every pass of the role that recorded a start, serial and parallel alike, with one input: `playwright_pass_started`, the Unix time the pass started on the stack host clock. The serial runner reads that clock right before the Playwright container starts, and the parallel scheduler's result gives it as `ended_at` minus `seconds`. The check reports by failing. The runner then prints the failed task's message and records the role in `_playwright_failures` once, so the flake retry reruns the pass with a new start, and the play fails when the retry fails too. The check reads only `playwright_pass_started` and lookups. It does not read its role's `vars/main.yml`, because during the parallel report the loaded application vars belong to the last staged role. In a parallel round, its window runs to the end of the round.
 
 `package.json` and `playwright.config.js` are provided centrally by this role:
 
@@ -138,6 +141,7 @@ All three are used as central defaults for every app role.
 - `playwright.version` in `meta/services.yml` is the single source of truth for the default Playwright version; the central `templates/package.json.j2` pins it via the `image_version` filter.
 - `templates/playwright.env.j2` acts as the stable marker for discovery and as the source of environment configuration.
 - Playwright is executed in Docker for reproducibility and consistent browser dependencies.
+- While the specs of a role with an RBAC hook (`TEST_E2E_PLAYWRIGHT_RBAC_HOOK_DIR`) run, the transient systemd timer `TEST_E2E_PLAYWRIGHT_RBAC_SYNC_UNIT` starts the `sys-ctl-mtn-rbac-sync` service every `TEST_E2E_PLAYWRIGHT_RBAC_SYNC_INTERVAL` seconds; the timer stops when the run ends, whatever its result.
 - In `TLS_MODE=self_signed`, the role requires `CA_TRUST.cert_host`, `CA_TRUST.wrapper_host`, and `CA_TRUST.trust_name` and fails early if cert/wrapper files are missing.
 
 ## How to use
@@ -145,7 +149,7 @@ All three are used as central defaults for every app role.
 1. Add the two app-specific files:
    - `roles/<application_id>/templates/playwright.env.j2`
    - `roles/<application_id>/files/playwright/playwright.spec.js`
-   Follow [Contributing `playwright.env.j2`](../../docs/agents/files/role/playwright.env.j2.md) and [Contributing `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md) while creating them.
+   Follow [Contributing `playwright.env.j2`](../../agents/skills/i8-file-role-playwright-env/SKILL.md) and [Contributing `playwright.spec.js`](../../docs/contributing/artefact/files/role/playwright.specs.js.md) while creating them.
 2. Deploy a round that includes your app (e.g. `make compose-deploy apps=<application_id>`); its specs run with those of every other role the round deploys.
 3. Keep `package.json` and `playwright.config.js` centralized in `roles/test-e2e-playwright/` (`templates/package.json.j2` and `files/playwright.config.js`).
 

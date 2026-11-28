@@ -4,12 +4,16 @@ entity_name: "{{ application_id | entity_name }}"
 
 CACHE_PACKAGE_CONTAINER: "{{ lookup('config', application_id, 'services.package.name') }}"
 CACHE_PACKAGE_BOOTSTRAP_CONTAINER: "{{ lookup('config', application_id, 'services.bootstrap.name') }}"
+CACHE_PACKAGE_BOOTSTRAP_ENABLED: "{{ lookup('config', application_id, 'services.bootstrap.enabled') | bool }}"
 CACHE_PACKAGE_FRONTEND_CONTAINER: "{{ lookup('config', application_id, 'services.frontend.name') }}"
 CACHE_PACKAGE_PORT: "{{ lookup('config', application_id, 'services.package.ports.internal.http') }}"
+CACHE_PACKAGE_DATA_PATH: "{{ lookup('config', application_id, 'services.package.data_path') }}"
+CACHE_PACKAGE_DOCKER_USER_ID: 200
 
 CACHE_PACKAGE_FRONTEND_CONF_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'upstreams.conf'] | path_join }}"
-CACHE_PACKAGE_CA_DIR_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'ca'] | path_join }}"
-CACHE_PACKAGE_CERTS_DIR_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'certs'] | path_join }}"
+CACHE_PACKAGE_CA_DIR_HOST: "{{ lookup('config', application_id, 'services.frontend.ca_path') }}"
+CACHE_PACKAGE_CERTS_DIR_HOST: "{{ lookup('config', application_id, 'services.frontend.certs_path') }}"
+CACHE_PACKAGE_FRONTEND_PORTS: "{{ ['frontend'] | product(lookup('config', application_id, 'services.frontend.ports.local')) | list }}"
 CACHE_PACKAGE_SHELL_DIR: "{{ [role_path, 'files', 'shell'] | path_join }}"
 CACHE_PACKAGE_BOOTSTRAP_SCRIPT_HOST: "{{ [lookup('container', application_id, 'directories.config'), 'bootstrap.sh'] | path_join }}"
 CACHE_PACKAGE_BOOTSTRAP_SCRIPT_TARGET: "{{ lookup('volume', application_id, 'bootstrap_script').target }}"
@@ -21,11 +25,13 @@ CACHE_PACKAGE_UPSTREAM_RECORDS: "{{ lookup('cache_records') }}"
 
 CACHE_PACKAGE_INIT_IMAGE: "{{ lookup('image', application_id, 'frontend') }}"
 CACHE_PACKAGE_BLOBSTORE_MAX: "{{ lookup('config', application_id, 'services.package.blobstore_max') }}"
+CACHE_PACKAGE_MAX_IDLE_DAYS: "{{ lookup('config', application_id, 'services.package.max_idle_days') }}"
 CACHE_PACKAGE_MAX_AGE_MIN: "{{ lookup('config', application_id, 'services.package.content_max_age_min') }}"
 CACHE_PACKAGE_METADATA_MAX_AGE_MIN: "{{ lookup('config', application_id, 'services.package.metadata_max_age_min') }}"
 CACHE_PACKAGE_ADMIN_PASSWORD: "{{ lookup('config', application_id, 'secrets.credentials.admin_password') }}"
 
 CACHE_PACKAGE_BACKEND: "http://{{ CACHE_PACKAGE_CONTAINER }}:{{ CACHE_PACKAGE_PORT }}"
+CACHE_PACKAGE_BACKEND_MARKER: X-Cache-Backend-Header-Time
 CACHE_PACKAGE_CERTS_DIR: "{{ lookup('volume', application_id, 'frontend_certs').target }}"
 CACHE_PACKAGE_RESOLVER: 127.0.0.11
 CACHE_PACKAGE_READ_TIMEOUT: 300s

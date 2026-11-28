@@ -1,0 +1,104 @@
+---
+- name: ✅ Require an explicit editor data directory
+  ansible.builtin.assert:
+    that:
+      - code_addons['claude-code'].config.user_data_dir.startswith('/')
+    fail_msg: Set addons.claude-code.config.user_data_dir to the absolute editor data directory.
+
+- name: 🔍 Check whether the editor holds its profile registry open
+  ansible.builtin.stat:
+    path: "{{ code_addons['claude-code'].config.user_data_dir }}/SingletonLock"
+    follow: false
+  register: code_claude_editor_lock
+
+- name: ✅ Require Code to be closed before changing profiles
+  ansible.builtin.assert:
+    that:
+      - not code_claude_editor_lock.stat.exists
+    fail_msg: Close all Code windows before deploying editor profiles, then rerun the deploy.
+
+- name: 🔐 Create the configured Claude editor profiles
+  ansible.builtin.command:
+    argv:
+      - "{{ ansible_facts.python.executable }}"
+      - -c
+      - "{{ lookup('file', lookup('path_absolute', 'roles/dsk-code/files/python/claude_profiles.py')) }}"
+      - --user-data-dir
+      - "{{ code_addons['claude-code'].config.user_data_dir }}"
+    stdin: >-
+      {{ {
+        'gateway_url': code_addons['claude-code'].config.gateway_url,
+        'gateway_key': (lookup('config', 'dsk-gnt-claude', 'secrets.credentials.gateway_key')
+          or lookup('litellm_api_key', 'dsk-gnt-claude')),
+        'profiles': code_addons['claude-code'].config.profiles,
+        'unified': code_addons['claude-code'].config.unified,
+        'extensions': (code_addons | dict2items | selectattr('value.enabled', 'equalto', true)
+          | selectattr('value.mechanism', 'equalto', 'extension')
+          | map(attribute='value.config.extension_id') | list),
+        'code_settings': code_settings
+      } | to_json }}
+  become: true
+  become_user: "{{ lookup('users', WORKSTATION_USER).username }}"
+  register: code_claude_profiles_result
+  changed_when: "(code_claude_profiles_result.stdout | trim) == 'CHANGED'"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: 🔀 Install the managed Claude connection switch
+  ansible.builtin.copy:
+    src: python/claude_profiles.py
+    dest: /usr/local/bin/claude-mode
+    owner: root
+    group: root
+    mode: "0755"
+  when: code_addons['claude-code'].config.unified | length > 0
+
+- name: 🧩 Install enabled agent extensions into each requested editor profile
+  ansible.builtin.command:
+    argv:
+      - "{{ code_binary }}"
+      - --user-data-dir
+      - "{{ code_addons['claude-code'].config.user_data_dir }}"
+      - --profile
+      - "{{ item.0 }}"
+      - --install-extension
+      - "{{ item.1 }}"
+      - --force
+  become: true
+  become_user: "{{ lookup('users', WORKSTATION_USER).username }}"
+  loop: >-
+    {{ ([code_addons['claude-code'].config.unified] if code_addons['claude-code'].config.unified
+      else code_addons['claude-code'].config.profiles) | map(attribute='name')
+      | product(code_addons | dict2items | selectattr('value.enabled', 'equalto', true)
+        | selectattr('value.mechanism', 'equalto', 'extension')
+        | map(attribute='value.config.extension_id') | list) | list }}
+  register: code_claude_profile_extension
+  changed_when: "'successfully installed' in (code_claude_profile_extension.stdout | lower)"
+
+- name: 🧪 Validate the unified Claude connection
+  when: code_addons['claude-code'].config.unified | length > 0
+  block:
+    - name: 🧪 Install the persistent Claude CLI regression tests
+      ansible.builtin.copy:
+        src: test/
+        dest: /usr/local/lib/infinito/tests/dsk-code/
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: ✅ Verify the deployed CLI, profile and connection switch
+      ansible.builtin.command:
+        argv:
+          - timeout
+          - "{{ lookup('role_tests', 'dsk-code', 'cli.timeout') | string }}"
+          - bash
+          - /usr/local/lib/infinito/tests/dsk-code/test.sh
+      environment:
+        TEST_UNIFIED_ENABLED: "1"
+        CLAUDE_MODE_PROGRAM: /usr/local/bin/claude-mode
+        CLAUDE_BINARY: claude
+        CODE_BINARY: "{{ code_binary }}"
+        TEST_CONFIG_PATH: "/home/{{ lookup('users', WORKSTATION_USER).username }}/.config/infinito/claude.json"
+        TEST_PYTHON: "{{ ansible_facts.python.executable }}"
+      become: true
+      become_user: "{{ lookup('users', WORKSTATION_USER).username }}"
+      changed_when: false

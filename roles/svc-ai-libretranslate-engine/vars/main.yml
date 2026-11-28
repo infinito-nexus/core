@@ -13,13 +13,22 @@ LIBRETRANSLATE_ENGINE_DIRECTIONS: "{{ lookup('config', application_id, 'services
 LIBRETRANSLATE_ENGINE_PREFETCH_TIMEOUT: "{{ lookup('config', application_id, 'services.libretranslate-engine.prefetch_timeout_seconds') }}"
 LIBRETRANSLATE_ENGINE_PREFETCH_RETRIES: "{{ lookup('config', application_id, 'services.libretranslate-engine.prefetch_retries') }}"
 LIBRETRANSLATE_ENGINE_APP_USER: "{{ 'root' if LIBRETRANSLATE_ENGINE_GPU | bool else 'libretranslate' }}"
-LIBRETRANSLATE_ENGINE_LOADING_MODEL: "{{ lookup('config', application_id, 'services.libretranslate-engine.loading_model') }}"
+LIBRETRANSLATE_ENGINE_ARTEFACTS: "{{ lookup('cache_artefacts', application_id).values() | list }}"
+LIBRETRANSLATE_ENGINE_HOME: "{{ '/root' if LIBRETRANSLATE_ENGINE_APP_USER == 'root' else ['/home', LIBRETRANSLATE_ENGINE_APP_USER] | path_join }}"
+LIBRETRANSLATE_ENGINE_MODEL_STORE: "{{ lookup('config', application_id, 'services.libretranslate-engine.model_store') | bool }}"
+LIBRETRANSLATE_ENGINE_STORE: "{{ LIBRETRANSLATE_ENGINE_ARTEFACTS | libretranslate_store(AI_MODELS_STORE_PATH, LIBRETRANSLATE_ENGINE_HOME, LIBRETRANSLATE_ENGINE_DIRECTIONS,
+  LIBRETRANSLATE_ENGINE_LOAD_ONLY, LIBRETRANSLATE_ENGINE_MODEL_STORE | bool) }}"
+LIBRETRANSLATE_ENGINE_STORED: "{{ LIBRETRANSLATE_ENGINE_STORE.stored }}"
+LIBRETRANSLATE_ENGINE_STORE_MOUNTS: "{{ LIBRETRANSLATE_ENGINE_STORE.mounts }}"
+LIBRETRANSLATE_ENGINE_LOADING_MODEL: "{{ 'store' if (LIBRETRANSLATE_ENGINE_STORED | bool) else lookup('config', application_id, 'services.libretranslate-engine.loading_model')
+  }}"
 LIBRETRANSLATE_ENGINE_CA_BUNDLE: "{{ CA_BUNDLE_CANDIDATES | first }}"
 LIBRETRANSLATE_ENGINE_MODELS_DIR: "{{ lookup('config', application_id, 'services.libretranslate-engine.models_dir') }}"
 LIBRETRANSLATE_ENGINE_UID: "{{ 0 if LIBRETRANSLATE_ENGINE_APP_USER == 'root' else 1032 }}"
 LIBRETRANSLATE_ENGINE_THREADS: "{{ [(lookup('cpus', application_id, 'libretranslate-engine') | float) | round(0, 'ceil') | int, 1] | max }}"
 LIBRETRANSLATE_ENGINE_CONTAINER_ADDRESS: "{{ lookup('container_address', application_id, 'libretranslate-engine') }}"
 LIBRETRANSLATE_ENGINE_PORT: "{{ lookup('config', application_id, 'services.libretranslate-engine.ports.internal.http') }}"
+LIBRETRANSLATE_ENGINE_FRONT_ID: web-svc-libretranslate
 
 LIBRETRANSLATE_ENGINE_CACHE_CA_FILE: /opt/package-frontend-ca.crt
 LIBRETRANSLATE_ENGINE_CACHE_CA_INSTALLER: roles/svc-cache-package/files/shell/ca.sh

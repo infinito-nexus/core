@@ -19,7 +19,7 @@ set -euo pipefail
 #   INFINITO_DISTROS               distro pool the rows are spread over; empty: all
 #   INFINITO_DOCKER_FILESYSTEM_ALLOWED  filesystem pool; empty: all
 #   INFINITO_ARCHITECTURES         architecture pool; empty: amd64 and arm64
-#   INFINITO_LIFECYCLES            lifecycle envelope for discovery
+#   INFINITO_LIFECYCLES            lifecycle envelope for discovery; default from the run's context in meta/lifecycle.yml
 #   INFINITO_DISCOVERY_SORT        complexity --sort spec (coverage-first)
 #   INFINITO_REQUIRED_STORAGE      per-runner CI storage budget
 #   INFINITO_APP_DISCOVERY_RUNNER  host|docker
@@ -36,6 +36,8 @@ if [[ -f "scripts/meta/env/load.sh" ]]; then
 	# shellcheck source=scripts/meta/env/load.sh
 	source "scripts/meta/env/load.sh"
 fi
+# shellcheck source=scripts/meta/compose.sh
+source scripts/meta/compose.sh
 
 json_compact_array() {
 	jq -c 'if type=="array" then . else [] end'
@@ -49,7 +51,7 @@ run_meta_cli() {
 	docker)
 		NIX_CONFIG="${NIX_CONFIG:-}" \
 			INFINITO_DISTRO="${INFINITO_DISTRO}" \
-			docker compose exec -T infinito "${PYTHON}" "$@"
+			infinito_compose exec -T infinito "${PYTHON}" "$@"
 		;;
 	*)
 		echo "apps.sh: unknown INFINITO_APP_DISCOVERY_RUNNER='${INFINITO_APP_DISCOVERY_RUNNER}' (expected: host|docker)" >&2

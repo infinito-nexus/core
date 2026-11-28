@@ -25,17 +25,9 @@
     fail_msg: >-
       Matomo bootstrap did not yield a valid token.
       stdout={{ (matomo_bootstrap_compose.stdout if IS_COMPOSE_MODE else matomo_bootstrap_swarm.stdout) | default('') | trim }}
-  when: MODE_ASSERT_LOCAL | bool
-
-- name: "💾 Matomo | Persist + inject token via sys-token-store (store + runtime users)"
-  ansible.builtin.include_role:
-    name: sys-token-store
-    tasks_from: write.yml
-  vars:
-    sys_token_store_user_key: "{{ IAM_PLATFORM_ADMIN_USER_KEY }}"
-    sys_token_store_app: "{{ application_id }}"
-    sys_token_store_token: "{{ matomo_token_value }}"
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   when:
-    - matomo_token_value is defined
-    - matomo_token_value | length > 0
+    - lookup('validate') | bool
+    - IS_STACK_HOST | bool
+
+- name: "💾 Matomo bootstrap | Persist the token"
+  ansible.builtin.include_tasks: utils/store_token.yml

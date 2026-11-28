@@ -36,6 +36,13 @@ CI_LINE = (
     "CVE-2026-111497 CRITICAL github.com/andybalholm/brotli v1.2.6 (fixed in 1.2.7)"
 )
 ENGINE_ERROR = "❌ osv sbom: no OSV database for Wolfi"
+NEW_NUMBER = 99
+OLD_NGINX = "docker.io/library/nginx:1.30-alpine"
+OLD_NGINX_TITLE = f"🛡️ {OLD_NGINX}"
+SWARM_NGINX_TITLE = (
+    "🛡️ web-app-x-swarm-mgr-01:5000/ghcr.io/infinito-nexus/core/mirror/"
+    "docker.io/nginx:1.30-alpine"
+)
 
 
 def target(key, label, owner):
@@ -157,10 +164,21 @@ def write_bundle(
         path.write_text(text, encoding="utf-8")
 
 
+def write_unsummarized(root, name):
+    text = "".join(
+        line
+        for line in journal().splitlines(keepends=True)
+        if "hlth_runtime.summary" not in line
+    )
+    path = Path(root) / name / "debian" / "svc-y" / "svc-y-1" / "journal.txt"
+    path.parent.mkdir(parents=True)
+    path.write_text(text, encoding="utf-8")
+
+
 def collected(engine_errors=0):
     with tempfile.TemporaryDirectory() as root:
         write_bundle(root, engine_errors=engine_errors)
-        return rv.collect(Path(root), PREFIX)
+        return {**rv.collect(Path(root), PREFIX), "pinned": []}
 
 
 def rows_of(report, title):
@@ -183,6 +201,8 @@ class FakeGh:
             return json.dumps(
                 [issue for issue in self.issues if label in issue["labels"]]
             )
+        if args[:2] == ["issue", "create"]:
+            return f"https://github.com/o/r/issues/{NEW_NUMBER}\n"
         return ""
 
     def writes(self):
@@ -307,7 +327,9 @@ class TestLabels(unittest.TestCase):
 
     def test_negative_control_the_mirror_sync_does_close_its_own_issue(self):
         gh = FakeGh([self.mirror_issue()])
-        issues_main.sync({"findings": [], "errors": []}, "o/r", gh, issues_main.MIRROR)
+        issues_main.sync(
+            {"findings": [], "errors": [], "pinned": []}, "o/r", gh, issues_main.MIRROR
+        )
         self.assertEqual([call[1] for call in gh.touched(1)], ["close"])
 
     def test_a_mirror_sync_never_touches_a_runtime_issue(self):
@@ -318,7 +340,9 @@ class TestLabels(unittest.TestCase):
             "labels": [rv.RUNTIME.label],
         }
         gh = FakeGh([runtime])
-        issues_main.sync({"findings": [], "errors": []}, "o/r", gh, issues_main.MIRROR)
+        issues_main.sync(
+            {"findings": [], "errors": [], "pinned": []}, "o/r", gh, issues_main.MIRROR
+        )
         self.assertEqual(gh.touched(3), [])
 
 
@@ -352,12 +376,133 @@ class TestClose(unittest.TestCase):
         self.assertTrue(report["errors"])
 
 
+class TestSuperseded(unittest.TestCase):
+    def issue(self, number, title):
+        return {
+            "number": number,
+            "title": title,
+            "body": "old",
+            "labels": [rv.RUNTIME.label],
+        }
+
+    def comment(self, gh, number):
+        close = next(call for call in gh.touched(number) if call[1] == "close")
+        return close[close.index("--comment") + 1]
+
+    def test_a_filed_tag_closes_the_issue_of_a_tag_no_journal_names(self):
+        gh = FakeGh([self.issue(8, OLD_NGINX_TITLE)])
+        actions = issues_main.sync(collected(), "o/r", gh, rv.RUNTIME)
+        self.assertEqual(
+            self.comment(gh, 8),
+            f"Superseded by #{NEW_NUMBER} {NGINX_TITLE}: "
+            "this run no longer scans this tag.",
+        )
+        self.assertIn(f"closed superseded #8 {OLD_NGINX_TITLE}", actions)
+
+    def test_negative_control_a_tag_a_role_still_pins_stays_open(self):
+        gh = FakeGh([self.issue(8, OLD_NGINX_TITLE)])
+        issues_main.sync({**collected(), "pinned": [OLD_NGINX]}, "o/r", gh, rv.RUNTIME)
+        self.assertEqual(gh.touched(8), [])
+
+    def test_negative_control_a_tag_a_journal_with_engine_errors_names_stays_open(
+        self,
+    ):
+        failed = collected(engine_errors=1)
+        self.assertEqual(failed["scanned"], [])
+        self.assertIn(NGINX_TITLE, failed["running"])
+        report = collected()
+        report["running"] = [*report["running"], OLD_NGINX_TITLE]
+        gh = FakeGh([self.issue(8, OLD_NGINX_TITLE)])
+        issues_main.sync(report, "o/r", gh, rv.RUNTIME)
+        self.assertEqual(gh.touched(8), [])
+
+    def test_negative_control_a_run_that_never_ran_the_repository_closes_nothing(
+        self,
+    ):
+        titles = ("🛡️ docker.io/library/mariadb:11.0", "🛡️ host ubuntu")
+        gh = FakeGh([self.issue(8 + index, name) for index, name in enumerate(titles)])
+        issues_main.sync(collected(), "o/r", gh, rv.RUNTIME)
+        self.assertEqual((gh.touched(8), gh.touched(9)), ([], []))
+
+    def test_negative_control_a_swarm_registry_copy_waits_for_its_own_cluster(self):
+        gh = FakeGh([self.issue(8, SWARM_NGINX_TITLE)])
+        issues_main.sync(collected(), "o/r", gh, rv.RUNTIME)
+        self.assertEqual(gh.touched(8), [])
+
+
+class TestIncompleteRun(unittest.TestCase):
+    UNSUMMARIZED = "rescue-diagnostics-compose-svc-y"
+
+    def test_a_journal_without_a_summary_blocks_its_targets(self):
+        with tempfile.TemporaryDirectory() as root:
+            write_unsummarized(root, self.UNSUMMARIZED)
+            report = rv.collect(Path(root), PREFIX)
+        self.assertEqual((report["scanned"], report["complete"]), ([], False))
+        self.assertIn(NGINX_TITLE, report["running"])
+
+    def test_an_artifact_without_a_journal_marks_the_run_incomplete(self):
+        with tempfile.TemporaryDirectory() as root:
+            write_bundle(root)
+            (Path(root) / "rescue-diagnostics-compose-svc-z" / "debian").mkdir(
+                parents=True
+            )
+            report = rv.collect(Path(root), PREFIX)
+        self.assertEqual(
+            (report["complete"], report["errors"]),
+            (
+                False,
+                [
+                    "rescue-diagnostics-compose-svc-z: no journal with a hlth-runtime summary"
+                ],
+            ),
+        )
+
+    def test_an_unfinished_journal_beside_a_summarized_one_marks_the_run_incomplete(
+        self,
+    ):
+        name = "rescue-diagnostics-compose-svc-x-0-debian-ext4-amd64"
+        with tempfile.TemporaryDirectory() as root:
+            write_bundle(root, name=name)
+            self.assertTrue(rv.collect(Path(root), PREFIX)["complete"])
+            write_unsummarized(root, name)
+            report = rv.collect(Path(root), PREFIX)
+        self.assertFalse(report["complete"])
+        self.assertIn(
+            f"{name}: a journal names targets without a hlth-runtime summary",
+            report["errors"],
+        )
+
+    def test_negative_control_an_incomplete_run_supersedes_nothing(self):
+        with tempfile.TemporaryDirectory() as root:
+            write_bundle(root)
+            write_unsummarized(root, self.UNSUMMARIZED)
+            report = {**rv.collect(Path(root), PREFIX), "pinned": []}
+        gh = FakeGh(
+            [
+                {
+                    "number": 8,
+                    "title": OLD_NGINX_TITLE,
+                    "body": "old",
+                    "labels": [rv.RUNTIME.label],
+                }
+            ]
+        )
+        issues_main.sync(report, "o/r", gh, rv.RUNTIME)
+        self.assertEqual(gh.touched(8), [])
+
+
 class TestMainGuard(unittest.TestCase):
     def run_report(self, ref):
         gh = FakeGh(bundle=write_bundle)
         with tempfile.TemporaryDirectory() as dest:
             actions = rv.report(
-                run_id="9", repo="o/r", ref=ref, dest=Path(dest), prefix=PREFIX, gh=gh
+                run_id="9",
+                repo="o/r",
+                ref=ref,
+                dest=Path(dest),
+                prefix=PREFIX,
+                pinned=[],
+                gh=gh,
             )
         return gh, actions
 

@@ -14,12 +14,17 @@ from . import PROJECT_ROOT
 MODULE_PATH = PROJECT_ROOT / "roles/web-app-baserow/files/sso/infinito_sso.py"
 DOMAIN = default_domain_primary()
 HOSTNAME = f"baserow.{DOMAIN}"
-SSO_ON = {"PROXY_HEADER_SSO": "true"}
+BOOTSTRAP_EMAIL = f"platformadmin@{DOMAIN}"
+SSO_ON = {
+    "PROXY_HEADER_SSO": "true",
+    "PROXY_HEADER_SSO_BOOTSTRAP_ADMIN_EMAIL": BOOTSTRAP_EMAIL,
+}
 IDENTITY = {
     "username": "alice",
     "email": f"alice@baserow.{DOMAIN}",
     "name": "Alice Smith",
     "is_admin": False,
+    "language": None,
 }
 
 
@@ -91,6 +96,10 @@ def _load_module(hostname=HOSTNAME):
             "baserow.core.user.utils": {
                 "normalize_email_address": _normalize_email_address
             },
+            "baserow.infinito_sso_subject": {},
+            "baserow.infinito_sso_subject.models": {
+                "SsoSubject": MagicMock(name="SsoSubject")
+            },
             "django": {},
             "django.conf": {
                 "settings": SimpleNamespace(
@@ -148,9 +157,15 @@ def _fake_user(**overrides):
     )
 
 
-def _wire_orm(mod, *, existing, workspace_user="already-owned"):
-    lookup = mod.User.objects.select_for_update.return_value.filter.return_value
-    lookup.order_by.return_value.first.return_value = existing
+def _subject_lookup(mod):
+    return mod.SsoSubject.objects.select_for_update.return_value.select_related.return_value.filter
+
+
+def _wire_orm(mod, *, existing, email_taken=False, workspace_user="already-owned"):
+    _subject_lookup(mod).return_value.first.return_value = (
+        None if existing is None else SimpleNamespace(user=existing)
+    )
+    mod.User.objects.filter.return_value.exists.return_value = email_taken
     mod.UserHandler.return_value.force_create_user.return_value = _fake_user()
     mod.UserProfile.objects.get_or_create.return_value = (
         SimpleNamespace(
@@ -195,20 +210,25 @@ class TestFirstHeader(unittest.TestCase):
         self.mod = _load_module()
 
     def test_returns_the_first_populated_candidate(self):
-        meta = {
-            "HTTP_X_FORWARDED_PREFERRED_USERNAME": "alice",
-            "HTTP_X_FORWARDED_USER": "bob",
-        }
-        self.assertEqual(
-            self.mod._first_header(meta, self.mod.USERNAME_HEADERS), "alice"
-        )
+        meta = {"HTTP_A": "alice", "HTTP_B": "bob"}
+        self.assertEqual(self.mod._first_header(meta, ("HTTP_A", "HTTP_B")), "alice")
 
     def test_skips_blank_and_whitespace_only_values(self):
-        meta = {
-            "HTTP_X_FORWARDED_PREFERRED_USERNAME": "   ",
-            "HTTP_X_FORWARDED_USER": "  bob  ",
-        }
-        self.assertEqual(self.mod._first_header(meta, self.mod.USERNAME_HEADERS), "bob")
+        meta = {"HTTP_A": "   ", "HTTP_B": "  bob  "}
+        self.assertEqual(self.mod._first_header(meta, ("HTTP_A", "HTTP_B")), "bob")
+
+    def test_reads_the_username_from_the_preferred_username_header_only(self):
+        self.assertEqual(
+            self.mod.USERNAME_HEADERS, ("HTTP_X_FORWARDED_PREFERRED_USERNAME",)
+        )
+        self.assertIsNone(
+            self.mod._first_header(
+                {"HTTP_X_FORWARDED_USER": "alice@example.com"},
+                self.mod.USERNAME_HEADERS,
+            ),
+            "oauth2-proxy fills X-Forwarded-User from the email claim "
+            "(userIDClaim: email), so reading it would key the account on an address",
+        )
 
     def test_returns_none_when_no_candidate_is_present(self):
         self.assertIsNone(self.mod._first_header({}, self.mod.USERNAME_HEADERS))
@@ -219,11 +239,12 @@ class TestFirstHeader(unittest.TestCase):
             "HTTP_X_AUTH_REQUEST_PREFERRED_USERNAME": "attacker",
             "HTTP_X_AUTH_REQUEST_EMAIL": "attacker@example.com",
             "HTTP_REMOTE_USER": "attacker",
-            "HTTP_X_FORWARDED_NAME": "attacker",
+            "HTTP_X_AUTH_REQUEST_NAME": "attacker",
         }
         self.assertIsNone(self.mod._first_header(meta, self.mod.USERNAME_HEADERS))
         self.assertIsNone(self.mod._first_header(meta, self.mod.EMAIL_HEADERS))
         self.assertIsNone(self.mod._first_header(meta, self.mod.NAME_HEADERS))
+        self.assertIsNone(self.mod._first_header(meta, self.mod.LOCALE_HEADERS))
 
 
 class TestFallbackDomain(unittest.TestCase):
@@ -307,6 +328,12 @@ class TestDisplayName(unittest.TestCase):
             "Alice Smith",
         )
 
+    def test_keeps_dots_in_a_forwarded_name(self):
+        self.assertEqual(
+            self.mod._display_name("alice", "alice@example.com", " Dr.  Alice_Smith "),
+            "Dr. Alice_Smith",
+        )
+
     def test_turns_dots_and_underscores_into_spaces(self):
         self.assertEqual(
             self.mod._display_name("alice_the.great", "alice@example.com", None),
@@ -374,11 +401,19 @@ class TestIdentityFromRequest(unittest.TestCase):
 
     def test_raises_http404_when_sso_is_disabled(self):
         with self.assertRaises(_Http404Error):
-            self._identity({"HTTP_X_FORWARDED_USER": "alice"}, env={})
+            self._identity({"HTTP_X_FORWARDED_PREFERRED_USERNAME": "alice"}, env={})
 
     def test_raises_permission_denied_without_any_identity_header(self):
         with self.assertRaises(_PermissionDeniedError):
             self._identity({})
+
+    def test_raises_permission_denied_without_the_preferred_username(self):
+        for meta in (
+            {"HTTP_X_FORWARDED_EMAIL": "alice@example.com"},
+            {"HTTP_X_FORWARDED_USER": "alice@example.com"},
+        ):
+            with self.subTest(meta=meta), self.assertRaises(_PermissionDeniedError):
+                self._identity(meta)
 
     def test_raises_permission_denied_for_proxy_uncontrolled_headers_only(self):
         with self.assertRaises(_PermissionDeniedError):
@@ -404,17 +439,41 @@ class TestIdentityFromRequest(unittest.TestCase):
                 "email": "alice@example.com",
                 "name": "alice smith",
                 "is_admin": False,
+                "language": None,
             },
         )
 
+    def test_reads_the_forwarded_name_and_a_supported_locale(self):
+        self.mod.settings.LANGUAGES = [("en", "English"), ("de", "Deutsch")]
+        identity = self._identity(
+            {
+                "HTTP_X_FORWARDED_PREFERRED_USERNAME": "biber",
+                "HTTP_X_FORWARDED_NAME": "Harry Beaver",
+                "HTTP_X_FORWARDED_LOCALE": "de-DE",
+            }
+        )
+        self.assertEqual(
+            (identity["name"], identity["language"]), ("Harry Beaver", "de")
+        )
+
+    def test_drops_an_unsupported_locale(self):
+        self.mod.settings.LANGUAGES = [("en", "English")]
+        identity = self._identity(
+            {
+                "HTTP_X_FORWARDED_PREFERRED_USERNAME": "biber",
+                "HTTP_X_FORWARDED_LOCALE": "xx",
+            }
+        )
+        self.assertIsNone(identity["language"])
+
     def test_synthesises_the_email_when_only_a_username_is_forwarded(self):
-        identity = self._identity({"HTTP_X_FORWARDED_USER": "alice"})
+        identity = self._identity({"HTTP_X_FORWARDED_PREFERRED_USERNAME": "alice"})
         self.assertEqual(identity["email"], f"alice@{HOSTNAME}")
 
     def test_marks_the_user_as_admin_when_the_admin_group_is_forwarded(self):
         identity = self._identity(
             {
-                "HTTP_X_FORWARDED_USER": "alice",
+                "HTTP_X_FORWARDED_PREFERRED_USERNAME": "alice",
                 "HTTP_X_FORWARDED_GROUPS": "users,/admins",
             },
             env={**SSO_ON, "PROXY_HEADER_SSO_ADMIN_GROUP": "admins"},
@@ -425,6 +484,9 @@ class TestIdentityFromRequest(unittest.TestCase):
 class TestGetOrCreateUser(unittest.TestCase):
     def setUp(self):
         self.mod = _load_module()
+        env = patch.dict(os.environ, SSO_ON, clear=True)
+        env.start()
+        self.addCleanup(env.stop)
 
     def test_creates_a_local_user_when_no_account_matches(self):
         _wire_orm(self.mod, existing=None)
@@ -438,6 +500,9 @@ class TestGetOrCreateUser(unittest.TestCase):
         )
         user.set_unusable_password.assert_called_once_with()
         user.save.assert_any_call(update_fields=["password"])
+        self.mod.SsoSubject.objects.create.assert_called_once_with(
+            user=user, username=IDENTITY["username"]
+        )
 
     def test_creates_the_user_as_staff_and_superuser_for_an_admin_identity(self):
         _wire_orm(self.mod, existing=None)
@@ -451,20 +516,28 @@ class TestGetOrCreateUser(unittest.TestCase):
         _wire_orm(self.mod, existing=existing)
         self.assertIs(self.mod._get_or_create_user(dict(IDENTITY)), existing)
         self.mod.UserHandler.return_value.force_create_user.assert_not_called()
+        self.mod.SsoSubject.objects.create.assert_not_called()
         existing.save.assert_not_called()
 
-    def test_matches_the_account_by_email_and_by_username(self):
+    def test_resolves_the_account_by_its_sso_subject_never_by_email(self):
         _wire_orm(self.mod, existing=_fake_user())
         self.mod._get_or_create_user(dict(IDENTITY))
-        query = self.mod.User.objects.select_for_update.return_value.filter.call_args
+        _subject_lookup(self.mod).assert_called_once_with(username=IDENTITY["username"])
+        self.mod.User.objects.filter.assert_not_called()
+
+    def test_refuses_an_unbound_login_whose_email_belongs_to_an_account(self):
+        _wire_orm(self.mod, existing=None, email_taken=True)
+        with self.assertRaises(_PermissionDeniedError):
+            self.mod._get_or_create_user(dict(IDENTITY))
         self.assertEqual(
-            query.args[0].terms,
+            self.mod.User.objects.filter.call_args.args[0].terms,
             [
                 {"email__iexact": IDENTITY["email"]},
                 {"username__iexact": IDENTITY["email"]},
-                {"username__iexact": IDENTITY["username"]},
             ],
         )
+        self.mod.UserHandler.return_value.force_create_user.assert_not_called()
+        self.mod.SsoSubject.objects.create.assert_not_called()
 
     def test_repairs_an_inactive_or_incomplete_existing_account(self):
         existing = _fake_user(is_active=False, email="", first_name="A")
@@ -487,12 +560,38 @@ class TestGetOrCreateUser(unittest.TestCase):
             update_fields=["is_staff", "is_superuser"]
         )
 
-    def test_never_demotes_an_existing_admin(self):
+    def test_demotes_an_existing_admin_outside_the_admin_group(self):
         existing = _fake_user(is_staff=True, is_superuser=True)
         _wire_orm(self.mod, existing=existing)
         self.mod._get_or_create_user(dict(IDENTITY))
+        self.assertFalse(existing.is_staff)
+        self.assertFalse(existing.is_superuser)
+        existing.save.assert_called_once_with(
+            update_fields=["is_staff", "is_superuser"]
+        )
+
+    def test_never_demotes_the_bootstrap_admin(self):
+        existing = _fake_user(
+            email=BOOTSTRAP_EMAIL.upper(), is_staff=True, is_superuser=True
+        )
+        _wire_orm(self.mod, existing=existing)
+        self.mod._get_or_create_user({**IDENTITY, "email": BOOTSTRAP_EMAIL})
         self.assertTrue(existing.is_staff)
         self.assertTrue(existing.is_superuser)
+        existing.save.assert_not_called()
+
+    def test_overwrites_a_stale_first_name_with_the_identity_name(self):
+        existing = _fake_user(first_name="Ally")
+        _wire_orm(self.mod, existing=existing)
+        self.mod._get_or_create_user(dict(IDENTITY))
+        self.assertEqual(existing.first_name, IDENTITY["name"])
+        existing.save.assert_called_once_with(update_fields=["first_name"])
+
+    def test_keeps_a_current_first_name_without_saving(self):
+        existing = _fake_user()
+        _wire_orm(self.mod, existing=existing)
+        self.mod._get_or_create_user(dict(IDENTITY))
+        existing.save.assert_not_called()
 
 
 class TestEnsureProfile(unittest.TestCase):
@@ -513,14 +612,28 @@ class TestEnsureProfile(unittest.TestCase):
     def test_creates_the_profile_with_the_configured_language(self):
         self._profile()
         user = _fake_user()
-        self.mod._ensure_profile(user)
+        self.mod._ensure_profile(user, None)
         self.mod.UserProfile.objects.get_or_create.assert_called_once_with(
             user=user, defaults={"language": "en"}
         )
 
+    def test_creates_the_profile_with_the_forwarded_language(self):
+        self._profile(language="de")
+        user = _fake_user()
+        self.mod._ensure_profile(user, "de")
+        self.mod.UserProfile.objects.get_or_create.assert_called_once_with(
+            user=user, defaults={"language": "de"}
+        )
+
+    def test_updates_the_language_of_an_existing_profile(self):
+        profile = self._profile(language="en")
+        self.mod._ensure_profile(_fake_user(), "de")
+        self.assertEqual(profile.language, "de")
+        profile.save.assert_called_once_with(update_fields=["language"])
+
     def test_leaves_a_complete_profile_untouched(self):
         profile = self._profile()
-        self.mod._ensure_profile(_fake_user())
+        self.mod._ensure_profile(_fake_user(), None)
         profile.save.assert_not_called()
 
     def test_repairs_an_unverified_and_unonboarded_profile(self):
@@ -529,7 +642,7 @@ class TestEnsureProfile(unittest.TestCase):
             completed_onboarding=False,
             completed_guided_tours=None,
         )
-        self.mod._ensure_profile(_fake_user())
+        self.mod._ensure_profile(_fake_user(), None)
         self.assertTrue(profile.email_verified)
         self.assertTrue(profile.completed_onboarding)
         self.assertEqual(profile.completed_guided_tours, [])
@@ -641,7 +754,7 @@ class TestViews(unittest.TestCase):
         )
 
     def test_the_login_payload_provisions_the_user_from_the_request_identity(self):
-        request = SimpleNamespace(META={"HTTP_X_FORWARDED_USER": "alice"})
+        request = SimpleNamespace(META={"HTTP_X_FORWARDED_PREFERRED_USERNAME": "alice"})
         _wire_orm(self.mod, existing=_fake_user())
         with patch.dict(os.environ, SSO_ON, clear=True):
             payload = self.mod._login_payload(request)

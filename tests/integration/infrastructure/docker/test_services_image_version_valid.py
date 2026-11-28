@@ -5,6 +5,7 @@ import unittest
 from typing import TYPE_CHECKING, Any
 
 from utils.cache.yaml import load_yaml_str
+from utils.docker.image.pin import DIGEST_PREFIX
 from utils.docker.image.ref import is_valid_image_name
 from utils.roles.custom import resolve_role_version
 from utils.roles.mapping import ROLE_FILE_META_SERVICES
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 TAG_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$")
+DIGEST_RE = re.compile(rf"^{re.escape(DIGEST_PREFIX)}[0-9a-f]{{64}}$")
 
 
 def _safe_mapping(obj: Any) -> dict[str, Any]:
@@ -52,16 +54,46 @@ def _is_valid_image(image: Any) -> bool:
 
 
 def _is_valid_version(version: Any) -> bool:
+    """
+    Args:
+        version: the ``version:`` value of a service.
+
+    Returns:
+        Whether it is a tag or a ``sha256`` digest, the two pins
+        :mod:`utils.docker.image.pin` joins to an image name.
+    """
     if not isinstance(version, str):
         return False
     version = version.strip()
     if not version or " " in version:
         return False
-    return TAG_RE.fullmatch(version) is not None
+    return (
+        TAG_RE.fullmatch(version) is not None
+        or DIGEST_RE.fullmatch(version) is not None
+    )
+
+
+class TestVersionShapes(unittest.TestCase):
+    def test_a_tag_and_a_digest_are_valid_pins(self) -> None:
+        for version in ("24-alpine", "v1.2.3", f"{DIGEST_PREFIX}{'a' * 64}"):
+            with self.subTest(version=version):
+                self.assertTrue(_is_valid_version(version))
+
+    def test_negative_control_a_malformed_pin_is_invalid(self) -> None:
+        for version in (
+            f"{DIGEST_PREFIX}{'a' * 63}",
+            f"{DIGEST_PREFIX}{'A' * 64}",
+            f"{DIGEST_PREFIX}xyz",
+            "sha512:" + "a" * 128,
+            "1.2 3",
+            "",
+        ):
+            with self.subTest(version=version):
+                self.assertFalse(_is_valid_version(version))
 
 
 class TestDockerServicesImageVersionValid(unittest.TestCase):
-    def test_declared_docker_service_image_and_version_are_valid(self) -> None:
+    def test_declared_docker_service_image_and_version_are_valid(self) -> None:  # nocheck: test.text-presence -- parses every meta/services.yml and validates its image and version  # fmt: skip
         """
         Rules:
         - `image` is OPTIONAL → only validated if present

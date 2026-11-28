@@ -1,3 +1,4 @@
+import copy
 import sys
 import unittest
 from pathlib import Path
@@ -14,13 +15,25 @@ sys.path.insert(
     ),
 )
 
+from ansible.plugins.filter.core import from_yaml
 from compose_mods import compose_mods
 
-from utils.cache.yaml import load_yaml_str
+from utils.cache.yaml import dump_yaml_str, load_yaml_str
 from utils.domains.default_primary import default_domain_primary
 
 DOMAIN = default_domain_primary()
 PUBLISH_HOST = "10.7.7.1"
+
+CONTAINER_LOGGING = {
+    "labels": {"infinito.application": "web-app-bigbluebutton"},
+    "logging": {
+        "driver": "journald",
+        "options": {
+            "tag": "web-app-bigbluebutton",
+            "labels": "infinito.application",
+        },
+    },
+}
 
 
 def sort_dict(obj):
@@ -126,10 +139,13 @@ services:
                 self.original,
                 self.compose_repository_path,
                 self.env_file,
+                CONTAINER_LOGGING,
                 PUBLISH_HOST,
             )
         )
         expected_data = load_yaml_str(self.expected)
+        for svc in expected_data["services"].values():
+            svc.update(copy.deepcopy(CONTAINER_LOGGING))
         for key in expected_data:
             self.assertIn(key, actual_data)
             self.assertEqual(sort_dict(actual_data[key]), sort_dict(expected_data[key]))
@@ -155,6 +171,7 @@ services:
                 original,
                 self.compose_repository_path,
                 self.env_file,
+                CONTAINER_LOGGING,
                 PUBLISH_HOST,
                 extra_hosts=[f"auth.{DOMAIN}:host-gateway"],
             )
@@ -179,6 +196,7 @@ services:
                 self.original,
                 self.compose_repository_path,
                 self.env_file,
+                CONTAINER_LOGGING,
                 PUBLISH_HOST,
             )
         )
@@ -206,6 +224,7 @@ services:
                 original,
                 self.compose_repository_path,
                 self.env_file,
+                CONTAINER_LOGGING,
                 PUBLISH_HOST,
             )
         )["services"]
@@ -231,12 +250,85 @@ services:
                 original,
                 self.compose_repository_path,
                 self.env_file,
+                CONTAINER_LOGGING,
                 PUBLISH_HOST,
                 pinned=["bbb-shared-notes-server"],
             )
         )["services"]
         self.assertNotIn("build", services["bbb-shared-notes-server"])
         self.assertIn("build", services["html5-dev"])
+
+    def test_upstream_json_file_logging_is_replaced_by_the_contract(self):
+        original = """services:
+  bbb-web:
+    image: bbb/web
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+"""
+        services = load_yaml_str(
+            compose_mods(
+                original,
+                self.compose_repository_path,
+                self.env_file,
+                CONTAINER_LOGGING,
+                PUBLISH_HOST,
+            )
+        )["services"]
+        self.assertEqual(services["bbb-web"]["logging"], CONTAINER_LOGGING["logging"])
+
+    def test_upstream_list_labels_keep_their_entries_beside_the_application_label(
+        self,
+    ):
+        original = """services:
+  nginx:
+    image: bbb/nginx
+    labels:
+      - com.example.role=edge
+      - com.example.flag
+"""
+        services = load_yaml_str(
+            compose_mods(
+                original,
+                self.compose_repository_path,
+                self.env_file,
+                CONTAINER_LOGGING,
+                PUBLISH_HOST,
+            )
+        )["services"]
+        self.assertEqual(
+            services["nginx"]["labels"],
+            {
+                "com.example.role": "edge",
+                "com.example.flag": "",
+                "infinito.application": "web-app-bigbluebutton",
+            },
+        )
+
+    def test_contract_parsed_by_ansible_from_yaml_dumps_as_plain_yaml(self):
+        contract = from_yaml(dump_yaml_str(CONTAINER_LOGGING))
+        services = load_yaml_str(
+            compose_mods(
+                "services:\n  redis:\n    image: redis:7.2-alpine\n",
+                self.compose_repository_path,
+                self.env_file,
+                contract,
+                PUBLISH_HOST,
+            )
+        )["services"]
+        self.assertEqual(services["redis"]["labels"], CONTAINER_LOGGING["labels"])
+        self.assertEqual(services["redis"]["logging"], CONTAINER_LOGGING["logging"])
+
+    def test_missing_logging_contract_fails_loudly(self):
+        with self.assertRaises(KeyError):
+            compose_mods(
+                self.original,
+                self.compose_repository_path,
+                self.env_file,
+                {"labels": {}},
+                PUBLISH_HOST,
+            )
 
     def test_each_container_port_published_once_on_the_publish_host(self):
         original = """services:
@@ -257,6 +349,7 @@ services:
                 original,
                 self.compose_repository_path,
                 self.env_file,
+                CONTAINER_LOGGING,
                 PUBLISH_HOST,
             )
         )["services"]

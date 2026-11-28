@@ -25,6 +25,7 @@ set -e
 : "${XWIKI_PROPERTIES_SOURCE:?set from meta/volumes.yml by the compose environment}"
 
 XWIKI_CFG_NAME=xwiki.cfg
+XWIKI_LDAP_AUTHCLASS=org.xwiki.contrib.ldap.XWikiLDAPAuthServiceImpl
 XWIKI_DATA_DIR=/usr/local/xwiki/data
 XWIKI_WEBINF_DIR="/usr/local/tomcat/webapps/${CONTEXT_PATH:-ROOT}/WEB-INF"
 
@@ -47,23 +48,25 @@ if [ -n "${XWIKI_SUPERADMIN_PASSWORD:-}" ]; then
 	done
 fi
 
-if [ -n "${XWIKI_CFG_LDAP_SERVER:-}" ]; then
-	for cfg in "${XWIKI_DATA_CFG}" "${XWIKI_WEBINF_CFG}"; do
-		[ -f "${cfg}" ] || continue
-		sed -i -E '/^#? ?xwiki\.authentication\.ldap\./d' "${cfg}"
-		printf '%s\n' \
-			"xwiki.authentication.ldap.server=${XWIKI_CFG_LDAP_SERVER}" \
-			"xwiki.authentication.ldap.port=${XWIKI_CFG_LDAP_PORT}" \
-			"xwiki.authentication.ldap.base_DN=${XWIKI_CFG_LDAP_BASE_DN}" \
-			"xwiki.authentication.ldap.bind_DN=${XWIKI_CFG_LDAP_BIND_DN}" \
-			"xwiki.authentication.ldap.bind_pass=${XWIKI_CFG_LDAP_BIND_PASS}" \
-			"xwiki.authentication.ldap.fields_mapping=${XWIKI_CFG_LDAP_FIELDS_MAPPING}" \
-			"xwiki.authentication.ldap.group_mapping=${XWIKI_CFG_LDAP_GROUP_MAPPING}" \
-			"xwiki.authentication.ldap.mode_group_sync=always" \
-			"xwiki.authentication.ldap.trylocal=${XWIKI_CFG_LDAP_TRYLOCAL}" \
-			"xwiki.authentication.ldap.update_user=1" \
-			>>"${cfg}"
-	done
-fi
+for cfg in "${XWIKI_DATA_CFG}" "${XWIKI_WEBINF_CFG}"; do
+	[ -f "${cfg}" ] || continue
+	sed -i -E '/^#? ?xwiki\.authentication\.(authclass ?=|ldap( ?=|\.))/d' "${cfg}"
+	[ -n "${XWIKI_CFG_LDAP_SERVER:-}" ] || continue
+	printf '%s\n' \
+		"xwiki.authentication.authclass=${XWIKI_LDAP_AUTHCLASS}" \
+		'xwiki.authentication.ldap=1' \
+		"xwiki.authentication.ldap.server=${XWIKI_CFG_LDAP_SERVER}" \
+		"xwiki.authentication.ldap.port=${XWIKI_CFG_LDAP_PORT}" \
+		"xwiki.authentication.ldap.base_DN=${XWIKI_CFG_LDAP_BASE_DN}" \
+		"xwiki.authentication.ldap.bind_DN=${XWIKI_CFG_LDAP_BIND_DN}" \
+		"xwiki.authentication.ldap.bind_pass=${XWIKI_CFG_LDAP_BIND_PASS}" \
+		"xwiki.authentication.ldap.fields_mapping=${XWIKI_CFG_LDAP_FIELDS_MAPPING}" \
+		"xwiki.authentication.ldap.group_mapping=${XWIKI_CFG_LDAP_GROUP_MAPPING}" \
+		"xwiki.authentication.ldap.mode_group_sync=always" \
+		"xwiki.authentication.ldap.trylocal=${XWIKI_CFG_LDAP_TRYLOCAL}" \
+		"xwiki.authentication.ldap.UID_attr=${XWIKI_CFG_LDAP_UID_ATTR}" \
+		"xwiki.authentication.ldap.update_user=1" \
+		>>"${cfg}"
+done
 
 exec docker-entrypoint.sh "$@"

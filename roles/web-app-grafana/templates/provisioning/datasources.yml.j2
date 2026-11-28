@@ -1,0 +1,32 @@
+apiVersion: 1
+prune: true
+{% if not (GRAFANA_LOKI_ENABLED | bool) and not (GRAFANA_PROMETHEUS_ENABLED | bool) %}
+datasources: []
+{% else %}
+datasources:
+{% if GRAFANA_LOKI_ENABLED | bool %}
+  - name: Loki
+    uid: {{ GRAFANA_LOKI_DATASOURCE_UID | to_json }}
+    type: loki
+    access: proxy
+    url: {{ GRAFANA_DATASOURCES.loki_url | to_json }}
+    isDefault: true
+    editable: false
+    jsonData:
+      maxLines: 1000
+      httpHeaderName1: X-Scope-OrgID
+    secureJsonData:
+      httpHeaderValue1: {{ GRAFANA_DATASOURCES.loki_tenant | to_json }}
+{% endif %}
+{% if GRAFANA_PROMETHEUS_ENABLED | bool %}
+  - name: Prometheus
+    uid: {{ GRAFANA_PROMETHEUS_DATASOURCE_UID | to_json }}
+    type: prometheus
+    access: proxy
+    url: {{ GRAFANA_DATASOURCES.prometheus_url | to_json }}
+    isDefault: {{ (not (GRAFANA_LOKI_ENABLED | bool)) | lower }}
+    editable: false
+    jsonData:
+      httpMethod: POST
+{% endif %}
+{% endif %}

@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import re
 import unittest
 
-from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.files import PROJECT_ROOT
 from utils.cache.yaml import load_yaml_any
 from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
@@ -11,9 +10,6 @@ ROLE = PROJECT_ROOT / "roles" / "web-app-nextcloud"
 VARS = ROLE / ROLE_FILE_VARS_MAIN
 PROVISION = ROLE / "tasks" / "addons" / "integration_openproject_provision.yml"
 STATE = ROLE / "tasks" / "addons" / "integration_openproject_state.yml"
-SCRIPT = (
-    ROLE / "files" / "ruby" / "addons" / "openproject" / "ensure_nextcloud_storage.rb"
-)
 
 BUILD_INPUT = "🔎 Build the OpenProject provisioning input"
 DIGEST = "🧮 Digest the provisioning sources, inputs and coupling state"
@@ -64,20 +60,6 @@ class TestOpenProjectRedirectUris(unittest.TestCase):
             "'nextcloud_base_urls': NEXTCLOUD_NETWORK_BASE_URLS", provision_input
         )
         self.assertIn("'nextcloud_host': NEXTCLOUD_URL", provision_input)
-
-    def test_redirect_uris_are_registered_for_every_network_base_url(self):
-        script = read_text(str(SCRIPT))
-        self.assertIn('PROVISION_INPUT.fetch("nextcloud_base_urls")', script)
-        registration = re.search(
-            r"^redirect_uri = (.*?)\.join\(\"\\n\"\)$",
-            script,
-            re.MULTILINE | re.DOTALL,
-        )
-        self.assertIsNotNone(
-            registration, "ensure_nextcloud_storage.rb must assign redirect_uri"
-        )
-        self.assertIn("base_urls.flat_map", registration.group(1))
-        self.assertNotIn("File.join(host,", registration.group(1))
 
     def test_converge_digest_tracks_the_network_base_urls(self):
         digest = _task(STATE, DIGEST)["set_fact"]["nextcloud_op_digest"]

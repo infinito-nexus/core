@@ -8,7 +8,7 @@
       timeout=LITELLM_UPSTREAM_TIMEOUT,
       mock_provider=AI_MOCK_PROVIDER,
       router_alias=LITELLM_ROUTER_ALIAS) %}
-model_list:{{ ' []' if not _routes else '' }}
+model_list:{{ ' []' if not (_routes or LITELLM_AUDIO_ROUTES) else '' }}
 {% for _route in _routes %}
 {% set _traits = _route.traits or {} %}
 {% set _speed = _route.alias in LITELLM_MEASURED_SPEED and 'speed' not in _traits %}
@@ -33,6 +33,15 @@ model_list:{{ ' []' if not _routes else '' }}
 {% endif %}
 {% endif %}
 {% endfor %}
+{% for _route in LITELLM_AUDIO_ROUTES %}
+  - model_name: {{ _route.alias | to_json }}
+    litellm_params:
+{% for _key, _value in _route.params.items() %}
+      {{ _key }}: {{ _value | to_json }}
+{% endfor %}
+    model_info:
+      mode: {{ _route.mode | to_json }}
+{% endfor %}
 
 litellm_settings:
   drop_params: true
@@ -47,3 +56,10 @@ litellm_settings:
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY
   database_url: os.environ/DATABASE_URL
+  store_prompts_in_spend_logs: false
+{% if LITELLM_UI_SSO | bool %}
+  ui_access_mode:
+    type: restricted_sso_group
+    restricted_sso_group: {{ LITELLM_UI_SSO_GROUP | to_json }}
+    sso_group_jwt_field: {{ RBAC.GROUP.CLAIM | to_json }}
+{% endif %}

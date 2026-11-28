@@ -31,7 +31,7 @@ def _targets_in(path: Path) -> list[_Target]:
 
 
 class TestMakefileTargetsAlphabetical(unittest.TestCase):
-    def test_makefile_targets_sorted_ascending(self) -> None:
+    def test_makefile_targets_sorted_ascending(self) -> None:  # nocheck: test.text-presence -- policy lint on the order of every Makefile target  # fmt: skip
         path = PROJECT_ROOT / "Makefile"
         self.assertTrue(path.is_file(), "Makefile not found at project root")
 

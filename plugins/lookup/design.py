@@ -8,6 +8,10 @@ from ansible.plugins.loader import lookup_loader
 from ansible.plugins.lookup import LookupBase
 
 from utils.design.branding import asset_urls, resolve_branding
+from utils.design.cosmos import FLAVOR_FULL, cosmos_flavor, cosmos_provider
+from utils.roles.applications.services.registry import (
+    build_service_registry_from_roles_dir,
+)
 
 ASSET_DIR = "design"
 
@@ -26,6 +30,10 @@ class LookupModule(LookupBase):
       dest   CDN directory the generated assets are written to
       urls   {"favicon_ico": url, "<slot>": {"png": url, "svg": url}}
       relative_urls  the same tree as host-relative URLs every vhost serves
+      cosmos the role drawing the cosmos sky behind this role, or ""
+      cosmos_flavor  the sky's flavor (full or colors), or "" without a provider
+      cosmos_sheet   whether the role's templates/cosmos.css.j2 applies: the
+                     flavor is full
     """
 
     def _sub(self, name: str, terms: list, variables: dict[str, Any]) -> Any:
@@ -46,8 +54,10 @@ class LookupModule(LookupBase):
             raise AnsibleError("design: 'playbook_dir' is unavailable")
 
         applications = self._sub("applications", [], variables)
+        registry = build_service_registry_from_roles_dir(Path(str(root)) / "roles")
         try:
             branding = resolve_branding(applications, application_id, Path(str(root)))
+            flavor = cosmos_flavor(applications, application_id, registry)
         except (KeyError, ValueError) as exc:
             raise AnsibleError(f"design: {exc}") from exc
 
@@ -64,5 +74,8 @@ class LookupModule(LookupBase):
                 "dest": str(Path(cdn["role"]["release"]["img"]) / ASSET_DIR),
                 "urls": asset_urls(base_url, branding["slots"]),
                 "relative_urls": asset_urls(relative_base, branding["slots"]),
+                "cosmos": cosmos_provider(applications, application_id, registry),
+                "cosmos_flavor": flavor,
+                "cosmos_sheet": flavor == FLAVOR_FULL,
             }
         ]

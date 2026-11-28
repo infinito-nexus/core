@@ -1,0 +1,49 @@
+<svg viewBox="0 0 1080 1350" width="1080" height="1350" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <radialGradient id="bg" cx="540" cy="330" r="900" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="{{ACCENT}}" stop-opacity=".7"/>
+      <stop offset=".5" stop-color="{{BG2}}"/>
+      <stop offset="1" stop-color="{{BG}}"/>
+    </radialGradient>
+    <linearGradient id="title" x1="200" y1="0" x2="880" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="{{ACCENT}}"/>
+      <stop offset="1" stop-color="{{ACCENT2}}"/>
+    </linearGradient>
+    <clipPath id="logo"><circle cx="540" cy="300" r="150"/></clipPath>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="22"/></filter>
+  </defs>
+
+  <rect width="1080" height="1350" fill="url(#bg)"/>
+
+  <circle cx="540" cy="300" r="166" fill="{{ACCENT}}" opacity=".6" filter="url(#soft)"/>
+  <circle cx="540" cy="300" r="156" fill="{{INK}}"/>
+  <image href="{{LOGO}}" xlink:href="{{LOGO}}" x="386" y="146" width="308" height="308" preserveAspectRatio="xMidYMid slice" clip-path="url(#logo)"/>
+  <circle cx="540" cy="300" r="156" fill="none" stroke="{{ACCENT2}}" stroke-width="5"/>
+
+  <rect x="400" y="510" width="280" height="56" rx="28" fill="{{ACCENT2}}" fill-opacity=".08" stroke="{{ACCENT2}}" stroke-width="2"/>
+  <text x="540" y="547" text-anchor="middle" font-family="{{SANS}}" font-size="24" font-weight="700" letter-spacing="4" fill="{{ACCENT2}}">RELEASE {{VERSION}}</text>
+
+  <text x="540" y="660" text-anchor="middle" font-family="{{SANS}}" font-size="84" font-weight="800" letter-spacing="-2" fill="{{INK}}">Infinito.Nexus <tspan fill="url(#title)">{{VERSION}}</tspan></text>
+  <g font-family="{{SANS}}" font-size="50" font-weight="800" fill="{{INK}}" text-anchor="middle">
+    <text x="540" y="760">{{HEADLINE_1}}</text>
+    <text x="540" y="822">{{HEADLINE_2}}</text>
+  </g>
+
+  <g fill="{{BG2}}" stroke="{{INK3}}" stroke-width="2">
+    <rect x="120" y="890" width="840" height="92" rx="18"/>
+    <rect x="120" y="1000" width="840" height="92" rx="18"/>
+    <rect x="120" y="1110" width="840" height="92" rx="18"/>
+  </g>
+  <g fill="none" stroke="{{ACCENT2}}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="translate(150 906) scale(2.5)">{{ICON_1}}</g>
+    <g transform="translate(150 1016) scale(2.5)">{{ICON_2}}</g>
+    <g transform="translate(150 1126) scale(2.5)">{{ICON_3}}</g>
+  </g>
+  <g font-family="{{SANS}}" font-size="36" font-weight="700" fill="{{INK}}">
+    <text x="240" y="949">{{BENEFIT_1}}</text>
+    <text x="240" y="1059">{{BENEFIT_2}}</text>
+    <text x="240" y="1169">{{BENEFIT_3}}</text>
+  </g>
+
+  <text x="540" y="1290" text-anchor="middle" font-family="{{MONO}}" font-size="30" font-weight="600" fill="{{INK2}}">{{LINK}}</text>
+</svg>

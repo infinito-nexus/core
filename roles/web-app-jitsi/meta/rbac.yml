@@ -1,6 +1,2 @@
 ---
-roles:
-  administrator:
-    description: Jitsi administrator (moderator on every room, JWT `moderator=true`)
-  user:
-    description: Jitsi authenticated user (can create rooms, JWT `affiliation=user`)
+roles: {}

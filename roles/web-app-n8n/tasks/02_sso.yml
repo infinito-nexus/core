@@ -1,0 +1,33 @@
+---
+- name: "🔑 Read the Keycloak directory users"
+  ansible.builtin.include_role:
+    name: web-app-keycloak
+    tasks_from: utils/directory_users.yml
+  vars:
+    keycloak_directory_usernames: []
+
+- name: "🔗 Write an oidc identity for each account matching a verified Keycloak email"
+  ansible.builtin.command:
+    argv:
+      - container
+      - exec
+      - -i
+      - -e
+      - "NODE_PATH={{ N8N_NODE_MODULES }}"
+      - -e
+      - N8N_SSO_DIRECTORY_USERS
+      - "{{ N8N_LOCAL_CID }}" # nocheck: container-exec-resolver
+      - node
+      - "-"
+    stdin: "{{ lookup('file', 'javascript/reconcile/sso_identities.js') }}"
+  environment:
+    N8N_SSO_DIRECTORY_USERS: "{{ keycloak_directory_users | to_json }}"
+  register: n8n_sso_identities
+  changed_when: n8n_sso_identities.stdout_lines | last == 'CHANGED'
+  delegate_to: "{{ N8N_HOST_NODE }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📋 Report the accounts left unbound"
+  ansible.builtin.debug:
+    msg: "{{ n8n_sso_identities.stdout_lines | select('match', '^skipped ') | list }}"
+  when: n8n_sso_identities.stdout_lines | select('match', '^skipped ') | list | length > 0

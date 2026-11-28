@@ -36,5 +36,7 @@ gateway only ever accepts `.onion` recipients; it is not an open relay.
   so the Tor hop lives in a separate service that only the `.onion` route uses.
 - **`proxy_rdns` is on.** A `.onion` has no DNS entry, so Tor must resolve it —
   the name is never resolved locally.
-- **Co-located with `svc-net-tor`.** It dials that role's SOCKS listener, so it
-  is manager-pinned like the Tor daemon.
+- **Manager-placed with its mail edge.** Stalwart, its only client, is pinned to
+  the managers, so the mail the gateway carries stays on the manager tier. Tor
+  does not pin it: every node runs Tor, and the gateway dials the SOCKS listener
+  of its own node through `host.docker.internal`.

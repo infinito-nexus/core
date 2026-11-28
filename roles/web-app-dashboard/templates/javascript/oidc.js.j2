@@ -1,17 +1,8 @@
-/* ==========================================================================================
-   Purpose: Hide "Login" and show "Account" when a Keycloak SSO session exists,
-            wire login/logout clicks to the Keycloak adapter, and keep state fresh.
-   NOTE: Ensure CSP allows {{ OIDC.URL }} for script-src-elem, connect-src, and frame-src.
-   ========================================================================================== */
-
-/* =======================
-   1) Configuration (filled by Jinja/Ansible)
-   ======================= */
 const KC_CONFIG = {
-  url: "{{ OIDC.URL }}",                 // e.g. https://auth.{{ SOFTWARE_DOMAIN }}
-  realm: "{{ OIDC.CLIENT.REALM }}",      // e.g. cymais.cloud
-  clientId: "{{ OIDC.CLIENT.ID }}",      // e.g. cymais.cloud
-  redirectUri: "{{ DASHBOARD_APP_BASE_URL }}",   // canonical app URL for login/logout round-trips
+  url: "{{ OIDC.URL }}",
+  realm: "{{ OIDC.CLIENT.REALM }}",
+  clientId: "{{ DASHBOARD_OIDC_CLIENT_ID }}",
+  redirectUri: "{{ DASHBOARD_APP_BASE_URL }}",
   silentCheckSsoRedirectUri: "{{ lookup('tls', DASHBOARD_APPLICATION_ID, 'url.origin') ~ DASHBOARD_LOCATION_SILENT_CHECK }}"
 };
 
@@ -22,19 +13,22 @@ const KC_MIRROR_BASE = null;
 {% endif %}
 const KC_JS_ASSET_URL = "{{ lookup('asset', application_id, 'keycloak-js', 'lib/keycloak.js') }}";
 
-const DEBUG = {{ MODE_DEBUG | string | lower }};
-// Keycloak's hidden session-status iframe is noisy on newer Chromium builds and
-// collides with dashboard-embedded OIDC flows. We keep explicit init/redirect
-// handling plus token refresh below, so hidden iframe polling can stay off.
+const DEBUG = {{ lookup('debug') | string | lower }};
 const KEYCLOAK_IFRAME_POLLING_ENABLED = false;
 
-/* ==============================================
-   2) Helpers for menu manipulation
-   ============================================== */
-function normalizedLabel(el) {
-  return (el?.getAttribute?.("data-label") || el?.ariaLabel || el?.title || el?.textContent || "")
-    .replace(/\s+/g, " ").trim().toLowerCase();
-}
+const ACCOUNT_API = `${KC_CONFIG.url}/realms/${encodeURIComponent(KC_CONFIG.realm)}/account`;
+const ACCOUNT_REQUEST_TIMEOUT_MS = 10000;
+const LOGOUT_EVERYWHERE_MARKER = {{ DASHBOARD_LOGOUT_EVERYWHERE_MARKER | to_json }};
+const LOGOUT_EVERYWHERE_CLASS = {{ DASHBOARD_LOGOUT_EVERYWHERE_CLASS | to_json }};
+const LOGOUT_PENDING_KEY = "infinito-logout-pending";
+const LOGOUT_RESULT_PARAM = "logout-result";
+const LOGOUT_RESULTS = ["everywhere", "partial"];
+const LOGOUT_RESULT_ID = "infinito-logout-result";
+const LOGOUT_I18N = {
+{% for code, entry in DASHBOARD_LOGOUT_I18N.items() %}
+  {{ code | to_json }}: {{ {'everywhere_done': entry.everywhere_done, 'everywhere_partial': entry.everywhere_partial, 'dir': entry.dir} | to_json }}{{ '' if loop.last else ',' }}
+{% endfor %}
+};
 
 function findMenuItemByText(label) {
   const wanted = (label || "").trim().toLowerCase();
@@ -59,7 +53,6 @@ function findMenuItemByText(label) {
   return null;
 }
 
-
 function setItemVisible(el, visible) {
   if (!el) return;
   el.style.display = visible ? "" : "none";
@@ -67,9 +60,6 @@ function setItemVisible(el, visible) {
   el.setAttribute?.("aria-hidden", visible ? "false" : "true");
 }
 
-/* ==============================================
-   3) Dynamically load the Keycloak.js adapter
-   ============================================== */
 async function loadKeycloakAdapter(src) {
   const mod = await import(src);
   if (typeof mod.default !== "function") {
@@ -78,9 +68,6 @@ async function loadKeycloakAdapter(src) {
   return mod.default;
 }
 
-/* ==============================================
-   4) UI logic: toggle Account/Login visibility
-   ============================================== */
 let keycloak = null;
 let authenticated = false;
 
@@ -101,13 +88,135 @@ function syncAuthMenuVisibility(nextAuthenticated) {
   applyAuthMenuVisibility(authenticated);
 }
 
+function remember(key, value) {
+  try {
+    sessionStorage.setItem(key, value);
+  } catch (e) {
+    console.warn("[oidc] session storage refused " + key + ":", e);
+  }
+}
+
+function recall(key) {
+  try {
+    const value = sessionStorage.getItem(key);
+    sessionStorage.removeItem(key);
+    return value;
+  } catch (e) {
+    console.warn("[oidc] session storage refused " + key + ":", e);
+    return null;
+  }
+}
+
+function logoutMessages() {
+  const tags = [document.documentElement.lang, navigator.language];
+  for (const raw of tags) {
+    const tag = String(raw || "").toLowerCase();
+    if (LOGOUT_I18N[tag]) return LOGOUT_I18N[tag];
+    const base = tag.split("-")[0];
+    if (LOGOUT_I18N[base]) return LOGOUT_I18N[base];
+  }
+  return LOGOUT_I18N.en;
+}
+
+function logoutResultUri(result) {
+  const target = new URL(KC_CONFIG.redirectUri);
+  target.searchParams.set(LOGOUT_RESULT_PARAM, result);
+  return target.toString();
+}
+
+function takeLogoutResult() {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has(LOGOUT_RESULT_PARAM)) return null;
+  const result = params.get(LOGOUT_RESULT_PARAM);
+  params.delete(LOGOUT_RESULT_PARAM);
+  const query = params.toString();
+  history.replaceState(null, "", window.location.pathname + (query ? "?" + query : "") + window.location.hash);
+  return result;
+}
+
+function showLogoutResult() {
+  const result = takeLogoutResult();
+  if (!LOGOUT_RESULTS.includes(result)) return;
+  const messages = logoutMessages();
+  const box = document.createElement("div");
+  box.id = LOGOUT_RESULT_ID;
+  box.className = "alert m-2 " + (result === "everywhere" ? "alert-success" : "alert-warning");
+  box.setAttribute("role", result === "everywhere" ? "status" : "alert");
+  box.setAttribute("dir", messages.dir);
+  box.textContent = result === "everywhere" ? messages.everywhere_done : messages.everywhere_partial;
+  document.body.prepend(box);
+}
+
+async function accountRequest(method, path) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ACCOUNT_REQUEST_TIMEOUT_MS);
+  try {
+    const response = await fetch(ACCOUNT_API + path, {
+      method,
+      credentials: "omit",
+      headers: { Accept: "application/json", Authorization: "Bearer " + keycloak.token },
+      signal: controller.signal
+    });
+    if (!response.ok) {
+      throw new Error(method + " " + path + " answered " + response.status);
+    }
+    return method === "GET" ? response.json() : null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function endEveryOtherSession() {
+  await keycloak.updateToken(30);
+  const applications = await accountRequest("GET", "/applications");
+  for (const application of applications.filter((entry) => entry.offlineAccess === true)) {
+    await accountRequest("DELETE", "/applications/" + encodeURIComponent(application.clientId) + "/consent");
+  }
+  await accountRequest("DELETE", "/sessions");
+}
+
+async function logoutEverywhere() {
+  let result = "partial";
+  try {
+    await endEveryOtherSession();
+    result = "everywhere";
+  } catch (e) {
+    console.warn("[oidc] logout everywhere left sessions behind:", e);
+  } finally {
+    keycloak.logout({ redirectUri: logoutResultUri(result) });
+  }
+}
+
+function requestLogoutEverywhere() {
+  if (authenticated) {
+    logoutEverywhere();
+    return;
+  }
+  remember(LOGOUT_PENDING_KEY, "everywhere");
+  keycloak.login({ redirectUri: KC_CONFIG.redirectUri });
+}
+
+function takeLogoutEverywhereMarker() {
+  if (window.location.hash !== LOGOUT_EVERYWHERE_MARKER) return false;
+  history.replaceState(null, "", window.location.pathname + window.location.search);
+  return true;
+}
+
+function choosesLogoutEverywhere(link) {
+  return !!link?.querySelector("." + LOGOUT_EVERYWHERE_CLASS);
+}
+
+function onLogoutEverywhere(ev) {
+  if (!keycloak || !choosesLogoutEverywhere(ev.target?.closest?.("a"))) return;
+  ev.preventDefault();
+  ev.stopPropagation();
+  requestLogoutEverywhere();
+}
+
 function wireLoginLogoutClicks() {
   const loginItem  = findMenuItemByText("Login");
-  const logoutItem = findMenuItemByText("Logout"); // child under "Account"
   const loginA     = loginItem?.querySelector("a,button");
-  const logoutA    = logoutItem?.querySelector("a,button");
 
-  // Intercept login click to use the adapter (gracefully falls back to href if adapter failed)
   loginA?.addEventListener("click", (ev) => {
     try {
       if (keycloak) {
@@ -120,26 +229,35 @@ function wireLoginLogoutClicks() {
     }
   }, { capture: true });
 
-  // Intercept logout click
-  logoutA?.addEventListener("click", (ev) => {
-    try {
-      if (keycloak) {
-        ev.preventDefault();
-        keycloak.logout({ redirectUri: KC_CONFIG.redirectUri });
-        if (DEBUG) console.log("[oidc] logout clicked → keycloak.logout()");
-      }
-    } catch (e) {
-      console.warn("[oidc] logout handler error:", e);
-    }
-  }, { capture: true });
+  document.addEventListener(LOGIN_EVENT, () => {
+    if (keycloak) keycloak.login({ redirectUri: KC_CONFIG.redirectUri });
+  });
+  window.addEventListener("click", onLogoutEverywhere, { capture: true });
+  window.addEventListener("hashchange", () => {
+    if (keycloak && takeLogoutEverywhereMarker()) requestLogoutEverywhere();
+  });
 }
 
-/* ==============================================
-   5) Initialize Keycloak with silent SSO check
-   ============================================== */
+const IDENTITY_EVENT = "dashboard:identity";
+const LOGIN_EVENT = "dashboard:login";
+const GROUPS_CLAIM = {{ RBAC.GROUP.CLAIM | to_json }};
+
+function shareGroups() {
+  const claim = keycloak?.tokenParsed?.[GROUPS_CLAIM];
+  const groups = keycloak?.authenticated
+    ? (Array.isArray(claim) ? claim.filter((group) => typeof group === "string") : [])
+    : null;
+  document.dispatchEvent(new CustomEvent(IDENTITY_EVENT, { detail: { groups } }));
+}
+
+function forgetGroups() {
+  document.dispatchEvent(new CustomEvent(IDENTITY_EVENT, { detail: { groups: null } }));
+}
+
 async function initAuthUI() {
-  // Default UI state until we know better
   syncAuthMenuVisibility(false);
+  showLogoutResult();
+  const wantsLogoutEverywhere = takeLogoutEverywhereMarker() || recall(LOGOUT_PENDING_KEY) === "everywhere";
 
   const kcJsUrl = (KC_MIRROR_BASE && KC_JS_ASSET_URL.startsWith("https://"))
     ? KC_MIRROR_BASE + "/" + KC_JS_ASSET_URL.replace(/^https:\/\//, "")
@@ -149,17 +267,16 @@ async function initAuthUI() {
     Keycloak = await loadKeycloakAdapter(kcJsUrl);
   } catch (e) {
     console.error("[oidc] Failed to load adapter:", e);
-    return; // nothing else to do
+    return;
   }
 
-  // Initialize the Keycloak instance
   try {
     keycloak = new Keycloak({ url: KC_CONFIG.url, realm: KC_CONFIG.realm, clientId: KC_CONFIG.clientId });
     keycloak.onReady = (nextAuthenticated) => syncAuthMenuVisibility(nextAuthenticated);
     keycloak.onAuthSuccess = () => syncAuthMenuVisibility(true);
-    keycloak.onAuthLogout = () => syncAuthMenuVisibility(false);
+    keycloak.onAuthLogout = () => { syncAuthMenuVisibility(false); forgetGroups(); };
     keycloak.onAuthRefreshSuccess = () => syncAuthMenuVisibility(true);
-    keycloak.onAuthRefreshError = () => syncAuthMenuVisibility(false);
+    keycloak.onAuthRefreshError = () => { syncAuthMenuVisibility(false); forgetGroups(); };
 
     const hasAuthCode = /\bcode=/.test(window.location.search);
     const onLoadMode = hasAuthCode ? "login-required" : "check-sso";
@@ -176,14 +293,15 @@ async function initAuthUI() {
   }
 
   syncAuthMenuVisibility(authenticated);
+  shareGroups();
   wireLoginLogoutClicks();
-  // Persona-helper readiness contract — flag name SPOT is
-  // `OIDC_LOGIN_READY_FLAG` in
-  // `roles/test-e2e-playwright/files/personas/utils/keycloak.js`.
-  // Must stay in sync with that constant.
   window.__oidcLoginReady = true;
 
-  // Schedule token refresh only if we are authenticated
+  if (wantsLogoutEverywhere && keycloak) {
+    requestLogoutEverywhere();
+    return;
+  }
+
   async function scheduleRefresh() {
     if (!keycloak?.tokenParsed?.exp) return;
     const now = Math.floor(Date.now() / 1000);
@@ -192,19 +310,20 @@ async function initAuthUI() {
 
     setTimeout(async () => {
       try {
-        const ok = await keycloak.updateToken(60); // refresh if <60s valid
+        const ok = await keycloak.updateToken(60);
         syncAuthMenuVisibility(!!ok || !!keycloak?.authenticated);
+        shareGroups();
         if (DEBUG) console.log("[oidc] token refresh → ok:", ok);
       } catch (e) {
         console.warn("[oidc] token refresh failed:", e);
         syncAuthMenuVisibility(false);
+        forgetGroups();
       }
       scheduleRefresh();
     }, refreshInMs);
   }
   if (authenticated) scheduleRefresh();
 
-  // Re-apply if the navbar is re-rendered dynamically
   const navbar = document.querySelector("nav.navbar") || document.querySelector(".navbar") || document.querySelector("nav");
   if (navbar && "MutationObserver" in window) {
     new MutationObserver(() => syncAuthMenuVisibility(!!keycloak?.authenticated || authenticated))
@@ -221,21 +340,8 @@ async function initAuthUI() {
   }
 }
 
-/* ==============================================
-   6) Start when DOM is ready
-   ============================================== */
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initAuthUI, { once: true });
 } else {
-  // If script is injected after DOMContentLoaded (e.g., via runtime loader), run immediately
   initAuthUI();
 }
-
-/* ==========================================================================================
-   NOTE: You must provide a file {{ DASHBOARD_LOCATION_SILENT_CHECK }} at your web root, e.g.:
-
-   <!DOCTYPE html><html><body>Silent SSO</body></html>
-
-   This file is loaded in an invisible iframe by Keycloak to check login state.
-   Also ensure CSP allows {{ OIDC.URL }} in script-src-elem, connect-src, and frame-src.
-   ========================================================================================== */

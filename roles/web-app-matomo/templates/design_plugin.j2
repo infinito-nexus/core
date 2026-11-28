@@ -1,4 +1,4 @@
-plugin.json {{ lookup('file', 'design/plugin.json') | from_json | combine({'require': {'matomo': MATOMO_DESIGN_REQUIRE}}) | to_json | b64encode }}
+plugin.json {{ lookup('file', 'design/plugin.json') | from_json | combine({'require': {'matomo': MATOMO_PLUGIN_REQUIRE}}) | to_json | b64encode }}
 InfinitoDesign.php {{ lookup('file', 'php/InfinitoDesign.php') | b64encode }}
 stylesheets/theme.less {{ lookup('file', 'design/theme.less') | b64encode }}
 {% for asset in matomo_design_assets.results %}

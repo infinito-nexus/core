@@ -14,6 +14,8 @@ import unittest
 import unittest.mock as mock
 
 from ansible.errors import AnsibleError
+from ansible.parsing.dataloader import DataLoader
+from ansible.template import Templar
 
 from . import PROJECT_ROOT
 
@@ -52,6 +54,7 @@ def _apps(
     oauth2_acl=None,
     oauth2_allowed_groups=None,
     oauth2_pass_access_token=None,
+    oauth2_allow_all_users=None,
     include_app=True,
 ):
     if not include_app:
@@ -71,6 +74,8 @@ def _apps(
         oauth2_sub["allowed_groups"] = oauth2_allowed_groups
     if oauth2_pass_access_token is not None:
         oauth2_sub["pass_access_token"] = oauth2_pass_access_token
+    if oauth2_allow_all_users is not None:
+        oauth2_sub["allow_all_users"] = oauth2_allow_all_users
     if oauth2_sub:
         sso["oauth2"] = oauth2_sub
     return {"web-app-x": {"services": {"sso": sso}}}
@@ -94,7 +99,12 @@ class SsoLookupTests(unittest.TestCase):
         applications = {
             **_apps(enabled=True, flavor="oauth2"),
             "web-app-keycloak": {
-                "services": {"sso_proxy": {"configuration_file": "proxy.cfg"}}
+                "services": {
+                    "sso_proxy": {
+                        "configuration_file": "proxy.cfg",
+                        "alpha_configuration_file": "proxy-alpha.yml",
+                    }
+                }
             },
         }
         domains = {"web-app-x": ["x.example.org", "x." + "a" * 56 + ".onion"]}
@@ -109,10 +119,18 @@ class SsoLookupTests(unittest.TestCase):
                 variables={"applications": applications},
             )
         self.assertEqual(
-            [(i["service"], i["port_key"], i["config_file"]) for i in result[0]],
             [
-                ("sso-proxy", "sso", "proxy.cfg"),
-                ("sso-proxy-onion", "sso_onion", "proxy-onion.cfg"),
+                (i["service"], i["port_key"], i["config_file"], i["alpha_config_file"])
+                for i in result[0]
+            ],
+            [
+                ("sso-proxy", "sso", "proxy.cfg", "proxy-alpha.yml"),
+                (
+                    "sso-proxy-onion",
+                    "sso_onion",
+                    "proxy-onion.cfg",
+                    "proxy-alpha-onion.yml",
+                ),
             ],
         )
 
@@ -184,6 +202,33 @@ class SsoLookupTests(unittest.TestCase):
         )
         self.assertEqual(result, [False])
 
+    def test_allow_all_users_defaults_to_false(self):
+        result = self._run(
+            _apps(enabled=True, flavor="oauth2"),
+            ["web-app-x", "oauth2_allow_all_users"],
+        )
+        self.assertEqual(result, [False])
+
+    def test_allow_all_users_reads_the_declared_opt_in(self):
+        result = self._run(
+            _apps(enabled=True, flavor="oauth2", oauth2_allow_all_users="True"),
+            ["web-app-x", "oauth2_allow_all_users"],
+        )
+        self.assertEqual(result, [True])
+
+    def test_allow_all_users_with_allowed_groups_fails_the_lookup(self):
+        with self.assertRaises(AnsibleError) as ctx:
+            self._run(
+                _apps(
+                    enabled=True,
+                    flavor="oauth2",
+                    oauth2_allowed_groups=["/roles/web-app-x/admin"],
+                    oauth2_allow_all_users=True,
+                ),
+                ["web-app-x", "oauth2_allowed_groups"],
+            )
+        self.assertIn("web-app-x", str(ctx.exception))
+
     def test_is_proxy_gated_false_for_oidc(self):
         result = self._run(
             _apps(enabled=True, flavor="oidc"), ["web-app-x", "is_proxy_gated"]
@@ -240,6 +285,37 @@ class SsoLookupTests(unittest.TestCase):
         result = self._run(_apps(enabled=True), ["web-app-x", "  "])
         self.assertEqual(len(result), 1)
         self.assertIsInstance(result[0], dict)
+
+
+class SsoLookupInsideTheApplicationsRenderTests(unittest.TestCase):
+    GATED = "{{ 'web-app-keycloak' in group_names }}"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load_module("plugins/lookup/sso.py", "sso")
+
+    def _gated(self, applications, group_names):
+        variables = {"group_names": group_names}
+        lk = self.mod.LookupModule()
+        lk._loader = DataLoader()
+        lk._templar = Templar(loader=lk._loader, variables=variables)
+        with mock.patch.object(self.mod, "lookup_loader") as loader_mock:
+            loader_mock.get.return_value = mock.MagicMock(
+                run=lambda *_a, **_k: [applications]
+            )
+            return lk.run(["web-app-x", "is_proxy_gated"], variables=variables)
+
+    def test_an_unrendered_flag_counts_only_once_rendered(self):
+        applications = _apps(enabled=self.GATED, shared=self.GATED, flavor="oauth2")
+        self.assertEqual([False], self._gated(applications, []))
+        self.assertEqual([True], self._gated(applications, ["web-app-keycloak"]))
+
+    def test_a_templated_flavor_renders_before_it_is_checked(self):
+        applications = _apps(
+            enabled=True, flavor="{{ 'oauth2' if group_names else 'oidc' }}"
+        )
+        self.assertEqual([False], self._gated(applications, []))
+        self.assertEqual([True], self._gated(applications, ["web-app-x"]))
 
 
 if __name__ == "__main__":

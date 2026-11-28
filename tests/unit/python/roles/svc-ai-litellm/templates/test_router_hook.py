@@ -12,9 +12,11 @@ cases state which facts they rely on instead of inheriting 1595 of them.
 
 from __future__ import annotations
 
+import asyncio
 import contextlib
 import json
 import sys
+import threading
 import types
 import unittest
 import unittest.mock
@@ -31,6 +33,7 @@ from . import PROJECT_ROOT
 
 TEMPLATE = PROJECT_ROOT / "roles/svc-ai-litellm/templates/router_hook.py.j2"
 ALIAS = "auto"
+RAW_MODEL_NAME_KEY = "_complexity_router_return_raw_model_name"
 TODAY = "2026-09-24"
 S1_URL = "http://s1:8000"
 
@@ -86,6 +89,7 @@ def _stub_litellm():
     if "litellm" in sys.modules:
         return
     package = types.ModuleType("litellm")
+    constants = types.ModuleType("litellm.constants")
     integrations = types.ModuleType("litellm.integrations")
     custom_logger = types.ModuleType("litellm.integrations.custom_logger")
 
@@ -93,8 +97,10 @@ def _stub_litellm():
         pass
 
     custom_logger.CustomLogger = CustomLogger
+    constants.RETURN_RAW_MODEL_NAME_METADATA_KEY = RAW_MODEL_NAME_KEY
     package.model_cost = {}
     sys.modules["litellm"] = package
+    sys.modules["litellm.constants"] = constants
     sys.modules["litellm.integrations"] = integrations
     sys.modules["litellm.integrations.custom_logger"] = custom_logger
 
@@ -183,6 +189,12 @@ def mock(alias, *, context=None, traits=None):
     """A route that answers from its own declared response."""
     params = {"model": f"openai/{alias}", "mock_response": "pong"}
     return _route(alias, params, context, traits)
+
+
+def transcription(alias):
+    entry = local(alias, model="openai/speech")
+    entry["model_info"] = {"mode": "audio_transcription"}
+    return entry
 
 
 def _route(alias, params, context, traits):
@@ -335,6 +347,13 @@ class TestCapabilities(HookCase, unittest.TestCase):
             self.caps(remote("e", model="text-embedding-3-small"))["servable"]
         )
 
+    def test_a_declared_non_chat_mode_is_not_servable(self) -> None:
+        self.assertFalse(
+            self.caps(transcription("whisper-1"))["servable"],
+            "the speech route names a model no catalog holds, so only its own "
+            "model_info.mode tells the router it answers no chat request",
+        )
+
     def test_system_messages_are_assumed_unless_denied(self) -> None:
         self.assertTrue(self.caps(remote("m", model="claude-sonnet-4-5"))["system"])
         self.assertFalse(self.caps(remote("m", model="no-system"))["system"])
@@ -436,6 +455,11 @@ class TestEligible(HookCase, unittest.TestCase):
             self.aliases([remote("r", model="retired"), local("ok")]), ["ok"]
         )
 
+    def test_a_transcription_route_never_answers_a_chat_request(self) -> None:
+        self.assertEqual(
+            self.aliases([transcription("whisper-1"), local("ok")]), ["ok"]
+        )
+
 
 class TestExpectedCost(HookCase, unittest.TestCase):
     """Ranking on the input price alone reads the cheaper half of the bill."""
@@ -515,6 +539,21 @@ class TestLocalOnly(HookCase, unittest.TestCase):
         routes = [local("home", context=99999), remote("big", context=99999)]
         self.assertEqual(self.route(self.hook, self.SECRET, routes)["model"], "home")
 
+    def test_remote_openai_endpoint_does_not_bypass_local_only_routing(self) -> None:
+        external = local(
+            "openrouter/free",
+            model="openai/openrouter/free",
+            context=99999,
+            traits={"local": False},
+        )
+        external["litellm_params"]["api_base"] = (
+            "https://openrouter.ai/api/v1"  # nocheck: url
+        )
+        routes = [local("tiny", context=10), external]
+        verdict = self.route(load(remote_fallback=True), self.SECRET, routes)
+        self.assertIsInstance(verdict, str)
+        self.assertIn("structured secret", verdict)
+
     def test_by_default_a_big_prompt_does_not_leave_the_cluster(self) -> None:
         routes = [local("tiny", context=10), remote("big", context=99999)]
         verdict = self.route(self.hook, self.BIG, routes)
@@ -532,6 +571,82 @@ class TestLocalOnly(HookCase, unittest.TestCase):
         verdict = self.route(hook, self.SECRET, routes)
         self.assertIsInstance(verdict, str)
         self.assertIn("structured secret", verdict)
+
+    def test_a_transcription_route_does_not_hold_chat_on_the_cluster(self) -> None:
+        routes = [transcription("whisper-1"), remote("big", context=99999)]
+        verdict = self.route(
+            self.hook, {"model": ALIAS, "messages": [{"content": "hello"}]}, routes
+        )
+        self.assertEqual(
+            verdict["model"],
+            "big",
+            "the speech server is local but answers no chat request, so counting "
+            "it as a local route refuses every request of a gateway whose only "
+            "chat models are remote",
+        )
+
+    def test_a_secret_stays_local_beside_a_transcription_route(self) -> None:
+        routes = [
+            transcription("whisper-1"),
+            local("home", context=99999),
+            remote("big", context=99999),
+        ]
+        self.assertEqual(self.route(self.hook, self.SECRET, routes)["model"], "home")
+
+
+class TestDeciderWait(HookCase, unittest.TestCase):
+    """A slow decider delays 'auto' alone, within a budget sized for its cold path."""
+
+    COLD_DECISION_SECONDS = 40
+
+    def route(self, data, routes):
+        seen = {}
+
+        def decide(candidates, *_args, **_kwargs):
+            seen["thread"] = threading.get_ident()
+            return candidates[0]["model_name"]
+
+        async def call():
+            seen["loop"] = threading.get_ident()
+            return await self.hook.instance.async_pre_call_hook(
+                None, None, dict(data), "completion"
+            )
+
+        proxy = types.ModuleType("litellm.proxy.proxy_server")
+        proxy.llm_router = types.SimpleNamespace(model_list=routes)
+        sys.modules["litellm.proxy"] = types.ModuleType("litellm.proxy")
+        sys.modules["litellm.proxy.proxy_server"] = proxy
+        with unittest.mock.patch.object(self.hook, "decide", decide):
+            verdict = asyncio.run(call())
+        return verdict, seen
+
+    def test_the_decider_is_asked_off_the_proxy_event_loop(self) -> None:
+        verdict, seen = self.route(
+            {"model": ALIAS, "messages": [{"content": "hi"}]},
+            [local("big", context=99999)],
+        )
+        self.assertEqual(verdict["model"], "big")
+        self.assertNotEqual(
+            seen["thread"],
+            seen["loop"],
+            "a blocking decider call on the loop stalls every request the proxy serves",
+        )
+
+    def test_a_request_for_another_model_never_reaches_the_decider(self) -> None:
+        verdict, seen = self.route({"model": "x"}, [local("x")])
+        self.assertIsNone(verdict)
+        self.assertNotIn("thread", seen)
+
+    def test_the_shipped_budget_covers_a_cold_decision(self) -> None:
+        self.assertGreaterEqual(
+            int(SHIPPED_ROUTER["decider_timeout"]), self.COLD_DECISION_SECONDS
+        )
+
+    def test_the_old_shared_budget_would_not(self) -> None:
+        shared = load_yaml(PROJECT_ROOT / "roles/svc-ai-s1" / ROLE_FILE_META_SERVICES)
+        self.assertLess(
+            int(shared["s1"]["request_timeout"]), self.COLD_DECISION_SECONDS
+        )
 
 
 class TestLoudFailure(HookCase, unittest.TestCase):
@@ -565,6 +680,35 @@ class TestLoudFailure(HookCase, unittest.TestCase):
             {"model": ALIAS, "messages": [{"content": "hi"}]},
         )
         self.assertEqual(verdict["model"], "big")
+
+    def test_a_routed_answer_keeps_the_name_of_the_route_it_came_from(self) -> None:
+        verdict = self.route(
+            [local("big", context=99999)],
+            {
+                "model": ALIAS,
+                "messages": [{"content": "hi"}],
+                "metadata": {"user": "u"},
+            },
+        )
+        self.assertEqual(verdict["metadata"], {"user": "u", RAW_MODEL_NAME_KEY: True})
+
+    def test_the_flag_stays_out_of_the_metadata_a_provider_receives(self) -> None:
+        verdict = self.route(
+            [local("big", context=99999)],
+            {
+                "model": ALIAS,
+                "messages": [{"content": "hi"}],
+                "metadata": {"user": "u"},
+                "litellm_metadata": {},
+            },
+        )
+        self.assertEqual(verdict["litellm_metadata"], {RAW_MODEL_NAME_KEY: True})
+        self.assertEqual(verdict["metadata"], {"user": "u"})
+
+    def test_a_rejected_request_carries_no_flag(self) -> None:
+        data = {"model": ALIAS, "messages": [{"content": "x" * 9000}], "metadata": {}}
+        self.route([local("tiny", context=1)], data)
+        self.assertNotIn(RAW_MODEL_NAME_KEY, data["metadata"])
 
 
 class TestConventionalStrategy(HookCase, unittest.TestCase):
@@ -785,9 +929,18 @@ class TestShippedConfiguration(HookCase, unittest.TestCase):
         self.assertEqual(self.hook.ROUTER_WEIGHTS, SHIPPED_WEIGHTS)
 
     def test_the_shipped_strategy_reads_the_decider_service_flag(self) -> None:
-        self.assertIn(
-            "services.s1.enabled",
-            SHIPPED_ROUTER["strategy"],
+        asked: list[tuple] = []
+        env = Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
+        )
+        env.filters["bool"] = bool
+        env.from_string(SHIPPED_ROUTER["strategy"]).render(
+            lookup=lambda *terms: asked.append(terms) or True
+        )
+        self.assertEqual(
+            asked,
+            [("config", "svc-ai-litellm", "services.s1.enabled")],
             "the strategy follows whether the System One service is deployed, "
             "and it reads that from the one flag that decides it",
         )

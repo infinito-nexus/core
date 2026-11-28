@@ -15,24 +15,28 @@
   register: peertube_design_marks
 
 - name: "🗑️ PEERTUBE | Delete the logos that are still the ones the role uploaded"
-  uri_retry:
-    url: "{{ PEERTUBE_INTERNAL_URL }}/api/v1/config/instance-logo/{{ item.0.type }}"
-    method: DELETE
-    headers:
-      Host: "{{ PEERTUBE_HOSTNAME }}"
-      Authorization: "Bearer {{ peertube_design_token.json.access_token }}"
-    status_code: [204]
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/netns_request.yml') }}"
   vars:
-    _served: "{{ peertube_design_config.json.instance.logo | selectattr('type', 'equalto', item.0.type) | first }}"
+    _served: "{{ peertube_design_served | selectattr('type', 'equalto', peertube_design_logo.0.type) | first }}"
+    netns_request_argv: "{{ PEERTUBE_NETNS_PYTHON }}"
+    netns_request_host: "{{ PEERTUBE_HOST_NODE }}"
+    netns_request_method: DELETE
+    netns_request_url: "{{ PEERTUBE_NETNS_URL }}/api/v1/config/instance-logo/{{ peertube_design_logo.0.type }}"
+    netns_request_headers: "{{ peertube_design_headers }}"
+    netns_request_status: [204]
+    netns_request_retries: 30
+    netns_request_delay: 2
+    netns_request_changed: [204]
+    netns_request_skip: >-
+      {{ peertube_design_logo.1 is skipped
+         or _served.isFallback
+         or (peertube_design_logo.1.content | b64decode).split()[0] != (_served.fileUrl | urlsplit('path')) }}
+    netns_request_no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    netns_request_result: peertube_design_deleted
   loop: "{{ PEERTUBE_DESIGN_LOGOS | zip(peertube_design_marks.results) | list }}"
   loop_control:
-    label: "{{ item.0.type }}"
-  when:
-    - item.1 is not skipped
-    - not _served.isFallback
-    - (item.1.content | b64decode).split()[0] == (_served.fileUrl | urlsplit('path'))
-  changed_when: true
-  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+    loop_var: peertube_design_logo
+    label: "{{ peertube_design_logo.0.type }}"
 
 - name: "🧹 PEERTUBE | Remove the rendered logos and their marks"
   ansible.builtin.file:

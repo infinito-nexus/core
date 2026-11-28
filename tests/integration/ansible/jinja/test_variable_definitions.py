@@ -13,6 +13,23 @@ from utils.cache.yaml import load_yaml_any, load_yaml_str
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
+PARAM_HEADER = re.compile(r"^#\s*Param:?\s+([A-Za-z_]\w*)", re.MULTILINE)
+VARS_BLOCK = re.compile(r"^(?:\s*[-]\s*)?vars\s*:\s*(?:&[\w-]+\s*)?$")
+RESULT_NAME = re.compile(r"^\s*(?:register|netns_request_result)\s*:\s*([a-zA-Z_]\w*)")
+
+
+def param_names(content: str) -> set[str]:
+    """
+    Args:
+        content: text of one Ansible YAML file.
+
+    Returns:
+        The inputs its ``# Param:`` header declares. A playbook or task file
+        documents there what its caller hands over as an extra variable or an
+        include variable, so the name is defined for the file that reads it.
+    """
+    return set(PARAM_HEADER.findall(content))
+
 
 class TestVariableDefinitions(unittest.TestCase):
     """
@@ -37,6 +54,7 @@ class TestVariableDefinitions(unittest.TestCase):
         roles_prefix = str(Path(self.project_root) / "roles") + "/"
         group_vars_prefix = str(Path(self.project_root) / "group_vars" / "all") + "/"
         inventory_prefix = str(Path(self.project_root) / "inventories") + "/"
+        self.github_prefix = str(Path(self.project_root) / ".github") + "/"
 
         def _is_role_var_file(p: str) -> bool:
             if not p.startswith(roles_prefix):
@@ -69,7 +87,7 @@ class TestVariableDefinitions(unittest.TestCase):
         self.jinja_set_block_def = re.compile(r"{%\s*-?\s*set\s+([a-zA-Z_]\w*)\s*-?%}")
 
         self.jinja_for_def = re.compile(
-            r"{%\s*-?\s*for\s+([a-zA-Z_]\w*)(?:\s*,\s*([a-zA-Z_]\w*))?\s+in"
+            r"{%\s*-?\s*for\s+([a-zA-Z_]\w*(?:\s*,\s*[a-zA-Z_]\w*)*)\s+in"
         )
 
         self.jinja_macro_def = re.compile(
@@ -79,10 +97,10 @@ class TestVariableDefinitions(unittest.TestCase):
         self.ansible_set_fact = re.compile(
             r"^(?:\s*-\s*)?(?:ansible\.builtin\.)?set_fact\s*:\s*(\{[^}]*\})?\s*$"
         )
-        self.ansible_vars_block = re.compile(r"^(?:\s*[-]\s*)?vars\s*:\s*$")
+        self.ansible_vars_block = VARS_BLOCK
         self.ansible_loop_var = re.compile(r"^\s*loop_var\s*:\s*([a-zA-Z_]\w*)")
         self.mapping_key = re.compile(r"^\s*([a-zA-Z_]\w*)\s*:\s*")
-        self.register_pat = re.compile(r"^\s*register\s*:\s*([a-zA-Z_]\w*)")
+        self.register_pat = RESULT_NAME
 
         self.templated_mapping_key = re.compile(r'^\s*(["\'])(.*?\{\{.*?\}\}.*?)\1\s*:')
 
@@ -103,13 +121,14 @@ class TestVariableDefinitions(unittest.TestCase):
                     exc,
                 )
 
-        for path, content in iter_project_files_with_content(
-            extensions=tuple(self.scan_extensions)
-        ):
+        for path, content in self._ansible_templates():
             in_set_fact = False
             set_fact_indent = 0
             in_vars_block = False
             vars_block_indent = 0
+
+            if path.endswith(".yml"):
+                self.defined |= param_names(content)
 
             try:
                 for line in content.splitlines(keepends=True):
@@ -170,9 +189,9 @@ class TestVariableDefinitions(unittest.TestCase):
                         self.defined.add(m.group(1))
 
                     for m in self.jinja_for_def.finditer(line):
-                        self.defined.add(m.group(1))
-                        if m.group(2):
-                            self.defined.add(m.group(2))
+                        self.defined.update(
+                            name.strip() for name in m.group(1).split(",")
+                        )
 
                     for m in self.jinja_macro_def.finditer(line):
                         params_blob = m.group(1)
@@ -196,6 +215,14 @@ class TestVariableDefinitions(unittest.TestCase):
             except Exception:
                 logger.warning("Failed to parse file: %s", path, exc_info=True)
 
+    def _ansible_templates(self):
+        for path, content in iter_project_files_with_content(
+            extensions=tuple(self.scan_extensions)
+        ):
+            if path.startswith(self.github_prefix) and path.endswith(".j2"):
+                continue
+            yield path, content
+
     def _add_dynamic_pattern(self, key_text: str) -> None:
         """Turn a templated fact key like '{{ prefix }}_HOST_NODE' into a name
         pattern '^[A-Za-z0-9_]+_HOST_NODE$' so every concrete fact it sets counts
@@ -209,16 +236,14 @@ class TestVariableDefinitions(unittest.TestCase):
         with contextlib.suppress(re.error):
             self.dynamic_defined_patterns.append(re.compile("^" + regex + "$"))
 
-    def test_all_used_vars_are_defined(self):
+    def test_all_used_vars_are_defined(self):  # nocheck: test.text-presence -- repository-wide lint that every used variable is defined  # fmt: skip
         """
         Scan all template/YAML files for {{ var }} usage and fail if a variable
         is not known as defined and has no fallback keys (default_<var>/defaults_<var>).
         """
         undefined_uses = []
 
-        for path, content in iter_project_files_with_content(
-            extensions=tuple(self.scan_extensions)
-        ):
+        for path, content in self._ansible_templates():
             try:
                 # Mask {% raw %} ... {% endraw %} blocks
                 def _mask_raw(m):
@@ -238,6 +263,7 @@ class TestVariableDefinitions(unittest.TestCase):
                             "item",
                             "inventory_hostname",
                             "ansible_play_hosts",
+                            "ansible_play_hosts_all",
                             "role_path",
                             "playbook_dir",
                             "ansible_playbook_python",
@@ -287,6 +313,7 @@ class TestVariableDefinitions(unittest.TestCase):
                                 "item",
                                 "inventory_hostname",
                                 "ansible_play_hosts",
+                                "ansible_play_hosts_all",
                                 "role_path",
                                 "playbook_dir",
                                 "ansible_playbook_python",
@@ -331,6 +358,49 @@ class TestVariableDefinitions(unittest.TestCase):
                 "Undefined Jinja2 variables found (no fallback 'default_' or 'defaults_' key):\n"
                 + "\n".join(undefined_uses)
             )
+
+
+class TestDefinitionSources(unittest.TestCase):
+    def test_a_param_header_declares_its_input(self) -> None:
+        content = (
+            "---\n"
+            "# Param: usage_result_dir - the directory the count lands in\n"
+            "# Param openbao_kv_state: present, absent or read\n"
+            "- name: Count\n"
+        )
+        self.assertEqual(param_names(content), {"usage_result_dir", "openbao_kv_state"})
+
+    def test_negative_control_other_comments_declare_nothing(self) -> None:
+        content = (
+            "---\n"
+            "# Output forms_drift_lines: the drift report\n"
+            "# Parameters below come from workspace.sh\n"
+            "- name: Report\n"
+            "  # Param: indented_name\n"
+            "  ansible.builtin.debug:\n"
+            '    msg: "# Param: quoted_name"\n'
+        )
+        self.assertEqual(param_names(content), set())
+
+    def test_an_anchored_vars_block_opens_a_block(self) -> None:
+        for line in ("vars:", "vars: &openbao_kv_session", "- vars:"):
+            with self.subTest(line=line):
+                self.assertIsNotNone(VARS_BLOCK.match(line))
+
+    def test_negative_control_an_alias_or_inline_vars_opens_no_block(self) -> None:
+        for line in ("vars: *openbao_kv_session", "vars: {a: 1}", "vars_files:"):
+            with self.subTest(line=line):
+                self.assertIsNone(VARS_BLOCK.match(line))
+
+    def test_a_register_or_netns_request_result_names_its_output(self) -> None:
+        for line in ("  register: app_answer", "    netns_request_result: app_answer"):
+            with self.subTest(line=line):
+                self.assertEqual(RESULT_NAME.match(line).group(1), "app_answer")
+
+    def test_negative_control_other_netns_request_keys_name_no_output(self) -> None:
+        for line in ("    netns_request_url: app_answer", "    result: app_answer"):
+            with self.subTest(line=line):
+                self.assertIsNone(RESULT_NAME.match(line))
 
 
 if __name__ == "__main__":

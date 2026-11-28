@@ -26,6 +26,7 @@ ALLOWED_HOSTS = (CLEARNET, ONION, "weblate")
 CALLBACK = "/accounts/complete/oidc/"
 UPSTREAM_PROXY = "weblate.middleware.ProxyMiddleware"
 UPSTREAM_STRATEGY = "weblate.accounts.strategy.WeblateStrategy"
+UPSTREAM_APPS = ["customize", "weblate.addons", "weblate.auth", "weblate.checks"]
 UPSTREAM_MIDDLEWARE = [
     "weblate.middleware.RedirectMiddleware",
     UPSTREAM_PROXY,
@@ -40,6 +41,34 @@ UPSTREAM_MIDDLEWARE = [
     "weblate.api.middleware.ThrottlingMiddleware",
     "weblate.middleware.SecurityMiddleware",
     "weblate.wladmin.middleware.ManageMiddleware",
+]
+ASSOCIATE_BY_EMAIL = "social_core.pipeline.social_auth.associate_by_email"
+UPSTREAM_PIPELINE_SOURCE = "https://github.com/WeblateOrg/weblate/blob/weblate-2026.9/weblate/settings_docker.py#L639-L664"
+UPSTREAM_PIPELINE = [
+    "social_core.pipeline.social_auth.social_details",
+    "social_core.pipeline.social_auth.social_uid",
+    "social_core.pipeline.social_auth.auth_allowed",
+    "social_core.pipeline.social_auth.social_user",
+    "weblate.accounts.pipeline.store_params",
+    "weblate.accounts.pipeline.verify_open",
+    "social_core.pipeline.user.get_username",
+    "weblate.accounts.pipeline.require_email",
+    "social_core.pipeline.mail.mail_validation",
+    "weblate.accounts.pipeline.revoke_mail_code",
+    "weblate.accounts.pipeline.ensure_valid",
+    "weblate.accounts.pipeline.remove_account",
+    ASSOCIATE_BY_EMAIL,
+    "weblate.accounts.pipeline.reauthenticate",
+    "weblate.accounts.pipeline.verify_username",
+    "social_core.pipeline.user.create_user",
+    "social_core.pipeline.social_auth.associate_user",
+    "weblate.accounts.pipeline.handle_invite",
+    "social_core.pipeline.social_auth.load_extra_data",
+    "weblate.accounts.pipeline.second_factor",
+    "weblate.accounts.pipeline.user_full_name",
+    "weblate.accounts.pipeline.store_email",
+    "weblate.accounts.pipeline.notify_connect",
+    "weblate.accounts.pipeline.password_reset",
 ]
 
 
@@ -117,11 +146,13 @@ class UpstreamStrategy:
 def upstream_settings() -> dict:
     """Return the settings_docker.py values of weblate-2026.9 the override reads or replaces."""
     return {
+        "INSTALLED_APPS": list(UPSTREAM_APPS),
         "MIDDLEWARE": list(UPSTREAM_MIDDLEWARE),
         "SOCIAL_AUTH_STRATEGY": UPSTREAM_STRATEGY,
         "SOCIAL_AUTH_REDIRECT_IS_HTTPS": True,
         "SECURE_SSL_REDIRECT": True,
         "LANGUAGE_COOKIE_SAMESITE": "None",
+        "SOCIAL_AUTH_PIPELINE": list(UPSTREAM_PIPELINE),
     }
 
 

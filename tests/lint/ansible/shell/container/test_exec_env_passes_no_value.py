@@ -189,7 +189,8 @@ _ARGV_SOURCE = re.compile(
 _NOT_A_SECRET_SUFFIX = re.compile(
     r"(?i)(?:_name|_names|_email|_user|_username|_owner|_id|_ids|_uuid|_uuids"
     r"|_url|_uri|_host|_port|_path|_file|_dir|_days|_length|_enabled|_type"
-    r"|_header|_endpoint|_scope|_scopes|_description|_hash|_policy|_ttl)$"
+    r"|_header|_endpoint|_scope|_scopes|_description|_hash|_policy|_ttl"
+    r"|_mount|_mounts)$"
 )
 _DESCRIBES_A_SECRET = re.compile(r"\|\s*(?:hash|password_hash)\b|\.(?:id|name)\b")
 _LITERAL = re.compile(r"'(?!password')[^']*'|\"(?!password\")[^\"]*\"")
@@ -451,6 +452,26 @@ class TestExecArgvSecret(unittest.TestCase):
         self.assertFalse(_expression_carries_secret("existing_token.id", {}, 0))
         self.assertFalse(
             _expression_carries_secret("pw | password_hash('bcrypt')", {}, 0)
+        )
+
+    def test_a_mount_path_is_no_secret_but_a_jwt_or_token_beside_it_is(self) -> None:
+        self.assertFalse(_expression_carries_secret("X_JWT_MOUNT", {}, 0))
+        self.assertFalse(_expression_carries_secret("X_JWT_EXPORT_MOUNTS", {}, 0))
+        self.assertEqual(
+            scan_exec_argv(
+                "- shell: >\n"
+                "    container exec {{ CID }} bao write auth/{{ X_JWT_MOUNT }}/role\n"
+            ),
+            [],
+        )
+        self.assertTrue(_expression_carries_secret("X_JWT", {}, 0))
+        self.assertTrue(_expression_carries_secret("X_JWT_MOUNT_TOKEN", {}, 0))
+        self.assertEqual(
+            scan_exec_argv(
+                "- shell: >\n"
+                "    container exec {{ CID }} bao login {{ X_MOUNT_TOKEN }}\n"
+            ),
+            [(1, "X_MOUNT_TOKEN")],
         )
 
     def test_a_neutral_var_carrying_a_secret_is_followed_one_level(self) -> None:

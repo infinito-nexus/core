@@ -50,9 +50,9 @@ The effective networks of a role are the node's networks that the role allows, w
 ## Domains and Vhosts 🌍
 
 1. `get_merged_domains` in [domains.py](../../../utils/cache/domains.py) expands every canonical domain of a role into one sibling per effective network, canonical network first. Lists gain the sibling after the clearnet entry; named dicts gain a `<key>_onion` entry.
-2. `lookup('network_siblings', domain)` returns the vhosts one domain is served under. [sys-stk-front-proxy](../../../roles/sys-stk-front-proxy/tasks/vhost.yml) renders one vhost per sibling, and a non-canonical sibling handed in directly renders nothing, so no vhost is rendered twice.
+2. `lookup('network_siblings', domain)` returns the vhosts one domain is served under. [svc-stack](../../../roles/svc-stack/tasks/proxy/domain.yml) renders one vhost per sibling, and a non-canonical sibling handed in directly renders nothing, so no vhost is rendered twice.
 3. TLS is decided per vhost with `lookup('tls', domain, ...)`: onion vhosts listen on port 80 in plain HTTP, clearnet vhosts follow `TLS_MODE`.
-4. Every app-id term of the `tls` lookup is aligned to the network of the vhost being rendered (`align_domain_to_consumer` in [tls_common.py](../../../utils/tls_common.py)), in both directions. The SSO provider is never aligned: the node publishes one issuer, the canonical one.
+4. Every app-id term of the `tls` lookup is aligned to the network of the vhost being rendered (`align_domain_to_consumer` in [tls/common.py](../../../utils/tls/common.py)), in both directions. The SSO provider is never aligned: the node publishes one issuer, the canonical one.
 5. Injected snippets ([sys-front-inj-all](../../../roles/sys-front-inj-all/)) and the CSP header ([content_security_policy.conf.j2](../../../roles/sys-svc-proxy/templates/headers/content_security_policy.conf.j2)) are rendered per vhost. Clearnet vhosts of a role served on more than one network send `Onion-Location`.
 6. Redirect vhosts redirect inside the network of their source domain.
 

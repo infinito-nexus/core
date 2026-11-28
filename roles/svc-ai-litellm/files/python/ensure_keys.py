@@ -6,6 +6,8 @@ import urllib.error
 import urllib.request
 
 TIMEOUT = 30
+HOST_ALIAS_PREFIX = "host:"
+PAGE_SIZE = 100
 
 
 def ensure_key(entry, call):
@@ -17,18 +19,68 @@ def ensure_key(entry, call):
 
     Args:
         entry: mapping with an ``alias`` and the ``key`` it must carry.
-        call: ``(method, path, body=None)`` performing one HTTP request.
+        call: ``(method, path, body=None)`` performing one HTTP request and
+            returning a readable JSON response.
 
     Returns:
         True when the key had to be created, False when it already existed.
+
+    Raises:
+        urllib.error.HTTPError: the lookup or ``/key/generate`` failed.
+        urllib.error.URLError: the proxy could not be reached at all.
     """
-    with contextlib.suppress(urllib.error.HTTPError):
-        call("GET", "/key/info?key=" + entry["key"])
+    found = json.load(call("POST", "/v2/key/info", {"keys": [entry["key"]]}))
+    if found.get("info"):
         return False
     with contextlib.suppress(urllib.error.HTTPError):
         call("POST", "/key/delete", {"key_aliases": [entry["alias"]]})
     call("POST", "/key/generate", {"key": entry["key"], "key_alias": entry["alias"]})
     return True
+
+
+def held_host_aliases(call):
+    """Return every consuming-host alias the proxy holds a key under.
+
+    Args:
+        call: ``(method, path, body=None)`` performing one HTTP request and
+            returning a readable JSON response.
+    """
+    held = set()
+    page = 1
+    while True:
+        listing = json.load(
+            call(
+                "GET",
+                f"/key/list?return_full_object=true&size={PAGE_SIZE}&page={page}",
+            )
+        )
+        for key in listing.get("keys") or []:
+            alias = key.get("key_alias") if isinstance(key, dict) else None
+            if isinstance(alias, str) and alias.startswith(HOST_ALIAS_PREFIX):
+                held.add(alias)
+        if page >= int(listing.get("total_pages") or 1):
+            return held
+        page += 1
+
+
+def revoke_stale_host_keys(wanted, call):
+    """Delete the key of every consuming host the inventory no longer names.
+
+    A host whose gateway value was removed keeps a working key in the proxy
+    database until something deletes it, because ``ensure_key`` only ever
+    adds. Local consumer aliases are never touched here.
+
+    Args:
+        wanted: every alias this deploy registers.
+        call: ``(method, path, body=None)`` performing one HTTP request.
+
+    Returns:
+        The aliases whose key was deleted, sorted.
+    """
+    stale = sorted(held_host_aliases(call) - set(wanted))
+    if stale:
+        call("POST", "/key/delete", {"key_aliases": stale})
+    return stale
 
 
 def http_call(base, headers):
@@ -59,9 +111,12 @@ def main():
             "Content-Type": "application/json",
         },
     )
-    for entry in json.load(sys.stdin):
+    entries = json.load(sys.stdin)
+    for entry in entries:
         if ensure_key(entry, call):
             print("CHANGED " + entry["alias"])
+    for alias in revoke_stale_host_keys([entry["alias"] for entry in entries], call):
+        print("REVOKED " + alias)
 
 
 if __name__ == "__main__":

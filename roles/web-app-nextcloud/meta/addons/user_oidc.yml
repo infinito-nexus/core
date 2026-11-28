@@ -8,3 +8,8 @@ config:
   incompatible_plugins:
     - oidc_login
     - sociallogin
+  plugin_configuration:
+    - appid: "user_oidc"
+      configkey: "allow_insecure_http"
+      type: boolean
+      configvalue: "{{ '1' if NEXTCLOUD_USER_OIDC_ALLOW_INSECURE_HTTP | bool else '0' }}"

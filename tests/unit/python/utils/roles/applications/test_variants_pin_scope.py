@@ -13,7 +13,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
-from utils.roles.applications.variant_pins import VariantPinError
+from utils.roles.applications.variant.pins import VariantPinError
 from utils.roles.applications.variants import active_variants_for_round
 
 CARRIER = "web-app-carrier"

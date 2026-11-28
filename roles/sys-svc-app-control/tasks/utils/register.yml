@@ -1,0 +1,26 @@
+---
+# Param application_id: the application whose compose instance this deploy prepares.
+# Param compose_mode: its effective deploy mode, compose or swarm.
+
+- name: "🧾 Record how app-control pauses and resumes '{{ application_id }}'"
+  stack_host_copy:
+    content: "{{ app_control_registry | to_nice_json }}\n"
+    dest: "{{ [ lookup('container', application_id, 'directories.instance'), APP_CONTROL_REGISTRY_FILE ] | path_join }}"
+    owner: root
+    group: root
+    mode: "0600"
+  vars:
+    app_control_registry:
+      application_id: "{{ application_id }}"
+      project: "{{ application_id | entity_name }}"
+      instance: "{{ lookup('container', application_id, 'directories.instance') }}"
+      control: "{{ lookup('config', application_id, 'services.semaphore.control') | bool }}"
+      status: "{{ lookup('config', application_id, 'services.semaphore.status') }}"
+      mode: "{{ compose_mode }}"
+      stack_files: "{{ lookup('compose_file_args', application_id) | split(' ') | reject('equalto', '-f') | list }}"
+      timer: "{{ lookup('unit_name', application_id, suffix='.timer') }}"
+
+- name: "▶️ Serve '{{ application_id }}' while this deploy brings it up"
+  ansible.builtin.file:
+    path: "{{ [ lookup('nginx', 'directories.data.paused_apps'), application_id | entity_name ] | path_join }}"
+    state: absent

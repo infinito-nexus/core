@@ -30,10 +30,15 @@ drops back under the cap, so an entry cannot outlive its cause.
 
 The collection/aggregation is the single shared implementation in
 ``utils.roles.applications.services.resources`` (also used by the ``ressources``
-CLI), so this guard and the CLI never drift."""
+CLI), so this guard and the CLI never drift.
+
+The same measurement also keeps the heavy translation backends apart: no
+variant may pull in both ``svc-ai-ltengine`` and ``svc-ai-ollama``, because
+each pulls models and reserves memory on its own, so they get a round each."""
 
 from __future__ import annotations
 
+import functools
 import textwrap
 import unittest
 from dataclasses import dataclass
@@ -55,7 +60,7 @@ from utils.roles.applications.services.resources import (
     aggregate,
     collect_role_resources,
 )
-from utils.roles.applications.variant_pins import RECIPROCAL
+from utils.roles.applications.variant.pins import RECIPROCAL
 from utils.roles.applications.variants import active_variants_for_round
 from utils.roles.mapping import (
     ROLE_FILE_META_SERVICES,
@@ -74,6 +79,9 @@ MEM_LIMIT_RULE = "mem-limit-budget"
 PIN_SUBJECT = "web-app-budget-subject"
 PIN_PARTNER = "web-app-budget-partner"
 
+HEAVY_BACKENDS = frozenset({"svc-ai-ltengine", "svc-ai-ollama"})
+HEAVY_SUBJECT = "web-app-heavy-subject"
+
 
 @dataclass(frozen=True)
 class BudgetMeasurement:
@@ -81,6 +89,7 @@ class BudgetMeasurement:
     variant: int
     mem_reservation: int
     mem_limit: int
+    roles: frozenset[str]
 
     @property
     def over_reservation(self) -> bool:
@@ -149,6 +158,7 @@ def _mem_limit_reason(role: str, variant: int) -> str:
     return body.lstrip(" :—-").strip()
 
 
+@functools.cache
 def _measure(root: Path) -> list[BudgetMeasurement]:
     roles_dir = root / "roles"
     applications = load_applications_from_roles_dir(roles_dir)
@@ -186,9 +196,19 @@ def _measure(root: Path) -> list[BudgetMeasurement]:
                     index,
                     totals["mem_reservation_bytes"] or 0,
                     totals["mem_limit_bytes"] or 0,
+                    frozenset(row["role"] for row in rows),
                 )
             )
     return measurements
+
+
+def _heavy_backends_together(root: Path) -> list[tuple[str, int]]:
+    """Every ``(role, variant)`` whose round pulls in both heavy backends."""
+    return [
+        (measurement.role, measurement.variant)
+        for measurement in _measure(root)
+        if measurement.roles >= HEAVY_BACKENDS
+    ]
 
 
 def _collect_findings(root: Path) -> list[BudgetMeasurement]:
@@ -261,6 +281,61 @@ def _write_pinned_partner_tree(root: Path, pin: str) -> None:
             - {}
             """),
     }
+    _write_roles(root, files)
+
+
+def _write_heavy_backends_tree(root: Path) -> None:
+    """Write a roles tree whose subject pulls in LTEngine alone in variant 0
+    and LTEngine beside Ollama in variant 1.
+
+    Args:
+        root: directory the ``roles/`` tree is written under.
+    """
+    backends = {"svc-ai-ltengine": "ltengine", "svc-ai-ollama": "ollama"}
+    files = {
+        f"{HEAVY_SUBJECT}/{ROLE_FILE_VARS_MAIN}": f"application_id: {HEAVY_SUBJECT}\n",
+        f"{HEAVY_SUBJECT}/{ROLE_FILE_META_SERVICES}": textwrap.dedent("""\
+            heavy-subject:
+              image: subject
+              mem_reservation: 1GB
+              mem_limit: 2GB
+            ltengine:
+              enabled: false
+              shared: true
+            ollama:
+              enabled: false
+              shared: true
+            """),
+        f"{HEAVY_SUBJECT}/{ROLE_FILE_META_VARIANTS}": textwrap.dedent("""\
+            - services:
+                ltengine:
+                  enabled: true
+            - services:
+                ltengine:
+                  enabled: true
+                ollama:
+                  enabled: true
+            """),
+    }
+    for role, entity in backends.items():
+        files[f"{role}/{ROLE_FILE_VARS_MAIN}"] = f"application_id: {role}\n"
+        files[f"{role}/{ROLE_FILE_META_SERVICES}"] = textwrap.dedent(f"""\
+            {entity}:
+              image: {entity}
+              shared: true
+              mem_reservation: 1GB
+              mem_limit: 2GB
+            """)
+    _write_roles(root, files)
+
+
+def _write_roles(root: Path, files: dict[str, str]) -> None:
+    """Write ``{path below roles/: body}`` under *root*.
+
+    Args:
+        root: directory the ``roles/`` tree is written under.
+        files: the files to write.
+    """
     for relative, body in files.items():
         path = root / "roles" / relative
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -302,17 +377,49 @@ class TestVariantResourceBudget(unittest.TestCase):
                 "cap guards the variant again:\n" + "\n".join(stale)
             )
 
+    def test_no_variant_deploys_both_heavy_translation_backends(self) -> None:
+        together = _heavy_backends_together(PROJECT_ROOT)
+        self.assertEqual(
+            together,
+            [],
+            f"{len(together)} variant(s) pull in {sorted(HEAVY_BACKENDS)} at once; "
+            "each pulls its own models and reserves memory, so they belong in "
+            "separate rounds: "
+            + ", ".join(f"{role} variant {variant}" for role, variant in together),
+        )
+
+    def test_the_scan_reaches_both_heavy_backends(self) -> None:
+        """Without this the rule would pass on a measurement that never saw them."""
+        reached = set().union(*(m.roles for m in _measure(PROJECT_ROOT)))
+        self.assertLessEqual(HEAVY_BACKENDS, reached)
+
+
+def _fixture_root(test: unittest.TestCase, write) -> Path:
+    """A temporary roles tree the resolver reads as the repository.
+
+    Args:
+        test: the test case that owns the tree and its cleanup.
+        write: writes the tree under the root it is handed.
+    """
+    tmp = TemporaryDirectory()
+    test.addCleanup(tmp.cleanup)
+    root = Path(tmp.name)
+    write(root)
+    resolver_root = patch.object(repo_paths, "PROJECT_ROOT", root)
+    resolver_root.start()
+    test.addCleanup(resolver_root.stop)
+    return root
+
+
+class TestHeavyBackendsApart(unittest.TestCase):
+    def test_a_variant_pulling_in_both_heavy_backends_is_reported(self) -> None:
+        root = _fixture_root(self, _write_heavy_backends_tree)
+        self.assertEqual(_heavy_backends_together(root), [(HEAVY_SUBJECT, 1)])
+
 
 class TestPinnedPartnerBudget(unittest.TestCase):
     def _tree(self, pin: str) -> Path:
-        tmp = TemporaryDirectory()
-        self.addCleanup(tmp.cleanup)
-        root = Path(tmp.name)
-        _write_pinned_partner_tree(root, pin)
-        resolver_root = patch.object(repo_paths, "PROJECT_ROOT", root)
-        resolver_root.start()
-        self.addCleanup(resolver_root.stop)
-        return root
+        return _fixture_root(self, lambda root: _write_pinned_partner_tree(root, pin))
 
     def test_a_pin_moving_a_partner_over_the_cap_is_reported(self) -> None:
         for target in ("0", RECIPROCAL):

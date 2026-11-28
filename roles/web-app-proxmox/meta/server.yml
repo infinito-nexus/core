@@ -1,0 +1,6 @@
+---
+status_codes:
+  default: [200, 301, 302]
+vhosts:
+  default:
+    extra_template: nginx/api_token_refusal.conf.j2

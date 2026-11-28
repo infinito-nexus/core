@@ -70,7 +70,7 @@ def _tasks(node):
 
 
 class TestRowCountNeedsFailure(unittest.TestCase):
-    def test_a_row_count_test_states_what_other_counts_mean(self) -> None:
+    def test_a_row_count_test_states_what_other_counts_mean(self) -> None:  # nocheck: test.text-presence -- parses every role task file  # fmt: skip
         findings: list[tuple[str, int, str]] = []
         for path_str, content in iter_project_files_with_content(
             extensions=_EXTENSIONS

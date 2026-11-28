@@ -1,15 +1,23 @@
 ---
 application_id: svc-runner
-RUNNER_USER: "{{ lookup('users', 'github-runner').username }}"
-RUNNER_UID: "{{ lookup('users', 'github-runner').uid }}"
-RUNNER_GID: "{{ lookup('users', 'github-runner').gid }}"
+compose_mode_force: compose
+RUNNER_ACCOUNT: "{{ lookup('users', 'github-runner') }}"
+RUNNER_USER: "{{ RUNNER_ACCOUNT.username }}"
+RUNNER_UID: "{{ RUNNER_ACCOUNT.uid }}"
+RUNNER_GID: "{{ RUNNER_ACCOUNT.gid }}"
 RUNNER_DOCKER_BASE: "{{ lookup('config', application_id, 'services.runner.docker_base') }}"
 RUNNER_PROJECT_PREFIX: "{{ lookup('config', application_id, 'services.runner.project_prefix') }}"
-RUNNER_SYSCTL_CONF: "{{ lookup('config', application_id, 'services.runner.sysctl_conf') }}"
+RUNNER_SYSCTL_OWNER: "{{ application_id | entity_name }}"
+RUNNER_SYSCTL_PARAMETERS:
+  fs.inotify.max_user_instances: "8192"
+  fs.inotify.max_user_watches: "524288"
+  fs.inotify.max_queued_events: "65536"
+  vm.max_map_count: "262144"
 RUNNER_IMAGE_NAME: "{{ lookup('config', application_id, 'services.runner.image_name') }}"
 RUNNER_IMAGE_TAG: "{{ lookup('config', application_id, 'services.runner.image_tag') }}"
 RUNNER_IMAGE_REF: "{{ SWARM_REGISTRY_PREFIX }}{{ RUNNER_IMAGE_NAME }}:{{ RUNNER_IMAGE_TAG }}"
 RUNNER_INSTALL_DIR: "{{ lookup('config', application_id, 'services.runner.install_dir') }}"
+RUNNER_COMPOSE_UP_PENDING_MARKER: "{{ [lookup('container', application_id, 'directories.instance'), '.compose-up-pending'] | path_join }}"
 RUNNER_CPUS: "{{ lookup('cpus', application_id, 'runner') | int }}"
 RUNNER_BASE_IMAGE: "{{ lookup('config', application_id, 'services.runner.image') }}:{{ lookup('config', application_id, 'services.runner.version') }}"
 RUNNER_DOCKER_GID_FALLBACK: "{{ lookup('config', application_id, 'services.runner.docker_gid_fallback') }}"
@@ -18,3 +26,46 @@ RUNNER_GITHUB_REPO: "{{ (lookup('env', 'GITHUB_REPOSITORY') | split('/') | last)
   }}"
 RUNNER_API_TOKEN: "{{ lookup('env', 'GH_TOKEN') | default(lookup('env', 'GITHUB_TOKEN'), true) }}"
 RUNNER_GIT_REF: "{{ lookup('env', 'GITHUB_REF_NAME') | default('main', true) }}"
+RUNNER_FLAVOR: "{{ lookup('config', application_id, 'services.runner.flavor') }}"
+RUNNER_FLAVORS:
+  github:
+    entrypoint: shell/entrypoint.sh
+    registers_with_github: true
+    mounts_worktrees: false
+    takes_local_jobs: false
+  local:
+    entrypoint: shell/entrypoint-local.sh
+    registers_with_github: false
+    mounts_worktrees: true
+    takes_local_jobs: true
+RUNNER_ENTRYPOINT: "{{ RUNNER_FLAVORS[RUNNER_FLAVOR].entrypoint }}"
+RUNNER_REGISTERS_WITH_GITHUB: "{{ RUNNER_FLAVORS[RUNNER_FLAVOR].registers_with_github }}"
+RUNNER_MOUNTS_WORKTREES: "{{ RUNNER_FLAVORS[RUNNER_FLAVOR].mounts_worktrees }}"
+RUNNER_TAKES_LOCAL_JOBS: "{{ RUNNER_FLAVORS[RUNNER_FLAVOR].takes_local_jobs }}"
+RUNNER_WORKTREE_ROOTS: "{{ lookup('config', application_id, 'services.runner.worktree_roots') }}"
+RUNNER_QUEUE_DIR: "{{ lookup('config', application_id, 'services.runner.queue_dir') }}"
+RUNNER_TOOLCHAIN_IMAGE: "{{ lookup('config', application_id, 'services.runner.toolchain_image') }}"
+RUNNER_OPERATOR_UID: "{{ lookup('config', application_id, 'services.runner.operator_uid') }}"
+RUNNER_OPERATOR_GID: "{{ lookup('config', application_id, 'services.runner.operator_gid') }}"
+RUNNER_RUN_OWNER: "{{ RUNNER_OPERATOR_UID if RUNNER_TAKES_LOCAL_JOBS | bool else RUNNER_USER }}"
+RUNNER_RUN_GROUP: "{{ RUNNER_OPERATOR_GID if RUNNER_TAKES_LOCAL_JOBS | bool else RUNNER_USER }}"
+RUNNER_QUEUE_GROUP: "{{ lookup('users', 'runner-queue').username }}"
+RUNNER_QUEUE_GID: "{{ lookup('users', 'runner-queue').gid }}"
+RUNNER_QUEUE_SOCKET: "{{ [RUNNER_QUEUE_DIR, 'docker.sock'] | path_join }}"
+RUNNER_QUEUE_SOCKET_UNIT: runner-queue-docker.socket
+RUNNER_QUEUE_SOCKET_UNIT_FILE: "{{ [DIR_SYSTEM_SERVICE, RUNNER_QUEUE_SOCKET_UNIT] | path_join }}"
+RUNNER_DOCKER_DROPIN: "{{ [DIR_SYSTEM_SERVICE, 'docker.service.d', 'runner-queue-socket.conf'] | path_join }}"
+RUNNER_SEMAPHORE_ENABLED: "{{ 'web-app-semaphore' in group_names and RUNNER_TAKES_LOCAL_JOBS | bool }}"
+RUNNER_SEMAPHORE_IMAGE: >-
+  {{ lookup('config', 'web-app-semaphore', 'services.semaphore.image') }}:{{ lookup('config', 'web-app-semaphore', 'services.semaphore.version') }}
+RUNNER_SEMAPHORE_URL: "http://host.docker.internal:{{ lookup('config', 'web-app-semaphore', 'services.semaphore.ports.local.http') }}"
+RUNNER_SEMAPHORE_SECRET: "{{ lookup('config', 'web-app-semaphore', 'secrets.credentials.pool_runner_token') }}"
+RUNNER_SEMAPHORE_TOKEN_FILE: /run/semaphore/token
+RUNNER_SEMAPHORE_FILES:
+  - src: runner/semaphore/env.j2
+    dest: semaphore.env
+    mode: "0600"
+  - src: runner/semaphore/token.j2
+    dest: semaphore.token
+    mode: "0400"
+RUNNER_SEMAPHORE_WORK_DIR: semaphore

@@ -125,4 +125,13 @@ def domain_languages(languages: dict[str, dict], domain: str) -> list[str]:
     """
     if domain not in DOMAINS:
         raise ValueError(f"unknown domain: {domain}")
+    return catalog_languages(languages)
+
+
+def catalog_languages(languages: dict[str, dict]) -> list[str]:
+    """Return the codes that carry a catalog of any domain, core's or a role's.
+
+    Args:
+        languages: the mapping returned by ``load_languages``.
+    """
     return sorted(code for code in languages if code != SOURCE_LANGUAGE)

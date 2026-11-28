@@ -1,23 +1,22 @@
 ---
 - include_tasks: utils/once/flag.yml
 
-- name: "🔌 Stage the MCP adapter instance for {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-ai-mcp-adapter/tasks/instance.yml') }}"
-  vars:
-    mcp_adapter_instance_dir: "{{ PRETIX_MCP_INSTANCE_DIR }}"
-  when: PRETIX_MCP_ENABLED | bool
+- name: "🐳 Stage the build recipe beside the pretix sources"
+  ansible.builtin.copy:
+    src: Dockerfile
+    dest: "{{ [compose_repository_path, PRETIX_SOURCE_DOCKERFILE_NAME] | path_join }}"
+    mode: "0644"
+  notify: compose-build
+  when: IS_STACK_HOST | bool
 
-- name: "⬇️ Stage the pretix sources for '{{ application_id }}'"
-  ansible.builtin.include_tasks: utils/source.yml
-
-- name: "🧩 load docker, db and proxy for {{ application_id }}"
-  include_role:
-    name: sys-stk-full
-  vars:
-    compose_handlers_flush: true
+- name: "🐳 Finalize compose deploy for '{{ application_id }}'"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/finalize.yml') }}"
 
 - name: "👤 Converge the platform administrator of {{ application_id }}"
   ansible.builtin.include_tasks: utils/administrator.yml
+
+- name: "👥 Converge the RBAC teams of {{ application_id }}"
+  ansible.builtin.include_tasks: utils/rbac_teams.yml
 
 - name: "🎨 Converge the corporate shop colors of {{ application_id }}"
   ansible.builtin.include_tasks: utils/design.yml

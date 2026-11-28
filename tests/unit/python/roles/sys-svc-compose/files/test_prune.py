@@ -34,6 +34,8 @@ HANDLERS = DataLoader().load_from_file(
 PRUNE_HANDLER = next(h for h in HANDLERS if "ansible.builtin.script" in h)
 RECORD_HANDLER = next(h for h in HANDLERS if "ansible.builtin.set_fact" in h)
 
+KEEP_LABEL = "nexus.infinito.prune=keep"
+
 CONTAINER_STUB = """#!/usr/bin/env bash
 printf '%s\\n' "$*" >> "$STUB_CALLS"
 if [ "$1" = "info" ]; then
@@ -71,7 +73,13 @@ def handler_env(last_free_mib):
 
 class TestPruneScript(unittest.TestCase):
     def run_script(
-        self, *, free_mib, free_after_mib="", root="/var/lib/docker", **overrides
+        self,
+        *,
+        free_mib,
+        free_after_mib="",
+        root="/var/lib/docker",
+        keep_label=KEEP_LABEL,
+        **overrides,
     ):
         """
         Args:
@@ -81,6 +89,7 @@ class TestPruneScript(unittest.TestCase):
             root: the Docker data root ``container info`` reports; empty fails
                 it. Omitted, Docker's stock root, since the ``df`` stub ignores
                 the path and only its presence matters.
+            keep_label: the label argument, None to pass none.
             overrides: PRUNE_* variables replacing the prune handler's
                 environment under the role defaults; None leaves one unset.
 
@@ -110,8 +119,9 @@ class TestPruneScript(unittest.TestCase):
                     env.pop(key, None)
                 else:
                     env[key] = value
+            args = [] if keep_label is None else [keep_label]
             proc = subprocess.run(
-                ["bash", str(SCRIPT)],
+                ["bash", str(SCRIPT), *args],
                 check=False,
                 env=env,
                 capture_output=True,
@@ -121,7 +131,7 @@ class TestPruneScript(unittest.TestCase):
             return proc, logged.splitlines()
 
     def prunes(self, calls):
-        return [call for call in calls if call.endswith(("prune -f", "prune -af"))]
+        return [call for call in calls if "prune" in call.split()]
 
     def flush(self, *, free_mib, free_after_mib, last_free_mib):
         """
@@ -183,7 +193,7 @@ class TestPruneScript(unittest.TestCase):
             self.prunes(calls),
             [
                 "container prune -f",
-                "image prune -af",
+                f"image prune -af --filter label!={KEEP_LABEL}",
                 "volume prune -f",
                 "buildx prune -af",
                 "builder prune -af",
@@ -205,6 +215,19 @@ class TestPruneScript(unittest.TestCase):
         self.assertNotEqual(proc.returncode, 0)
         self.assertIn("PRUNE_FREE_FLOOR_MIB", proc.stderr)
         self.assertEqual(self.prunes(calls), [])
+
+    def test_the_image_prune_spares_images_with_the_keep_label(self):
+        proc, calls = self.run_script(free_mib="0")
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        image_prunes = [call for call in calls if call.startswith("image prune")]
+        self.assertEqual(
+            image_prunes, [f"image prune -af --filter label!={KEEP_LABEL}"]
+        )
+
+    def test_a_missing_keep_label_stops_before_anything_is_pruned(self):
+        proc, calls = self.run_script(free_mib="0", keep_label=None)
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertEqual(calls, [])
 
     def test_missing_repeat_share_fails_before_any_prune(self):
         proc, calls = self.run_script(free_mib="1000", PRUNE_REPEAT_BELOW_PERCENT=None)

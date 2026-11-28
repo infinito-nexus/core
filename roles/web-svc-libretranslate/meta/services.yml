@@ -1,11 +1,11 @@
 ---
+# nocheck: garbage-collector-required  no app-specific leftovers known; not yet audited for native housekeeping
 # nocheck: playwright-service-flag — self-provider
 libretranslate:
   name: libretranslate
   healthcheck:
-    test: ["CMD-SHELL", "./venv/bin/python scripts/healthcheck.py"]
-    # nocheck: healthcheck-timing-override  the probe starts a venv interpreter, which does not finish inside the 5s default
-    timeout: 10s
+    flavor: http
+    path: languages
   modes:
     compose:
       enabled: true
@@ -14,14 +14,9 @@ libretranslate:
   bond: 1
   enabled: true
   shared: true
-  image: libretranslate/libretranslate
-  version: v1.10.0
-  version_variants:
-    - "-cuda"
-  custom: true
-  min_storage: 402MB
-  load_only: []
-  directions: both
+  image: nginx
+  version: 1.31.9-alpine
+  min_storage: 128MB
   ports:
     local:
       http: 8045
@@ -31,12 +26,18 @@ libretranslate:
       http: 5000
   proxy:
     service_key: libretranslate
+  guide_companions:
+    - svc-ai-libretranslate-engine
   lifecycle: beta
-  cpus: "1.0"
-  mem_reservation: 256m
-  mem_limit: 1g
-  pids_limit: 512
-  gpu: true
+  cpus: "0.2"
+  mem_reservation: 64m
+  mem_limit: 128m
+  pids_limit: 128
+libretranslate-engine:
+  bond: 1
+  mandatory: true
+  enabled: "{{ 'svc-ai-libretranslate-engine' in group_names }}"
+  shared: "{{ 'svc-ai-libretranslate-engine' in group_names }}"
 sso:
   bond: 1
   enabled: "{{ 'web-app-keycloak' in group_names }}"
@@ -104,8 +105,8 @@ libretranslatemcp:
   enabled: "{{ lookup('config', 'web-svc-libretranslate', 'mcp.enabled') | bool }}"
   shared: false
   image: python
-  # nocheck: docker-version  base of the self-built stdlib adapter, not the served application
-  version: "3.13.15-slim"
+  version: "3.13.18-slim"
+  follow: requires-python
   custom: true
   name: libretranslatemcp
   cpus: "0.25"
@@ -115,11 +116,6 @@ libretranslatemcp:
   ports:
     internal:
       http: 8080
-  security:
-    suppressions:
-      # nocheck: cve upstream tag ships fixable CRITICAL CVEs; lift it once a rebuilt tag lands
-      - image_tag: "3.13.15-slim"
-        until: 2026-11-30
 
 # nocheck: playwright-service-flag
 # nocheck: variants-coverage — sso-variant-tor requires the onion on in every variant, so the false polarity has no variant left to live in
@@ -153,3 +149,23 @@ docs:
   bond: 0.5
   enabled: "{{ 'web-app-docs' in group_names }}"
   shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: true
+  status: started
+
+# nocheck: dynamic-flag, playwright-service-flag  every role with a compose project or a vhost declares the stack literally (045 decision 2); no spec gates on it
+stack:
+  bond: 1
+  enabled: true
+  shared: true
+
+# nocheck: dynamic-flag, playwright-service-flag  the role serves a vhost and declares it literally (045 decision 3); no spec gates on it
+openresty:
+  bond: 1
+  enabled: true
+  shared: true

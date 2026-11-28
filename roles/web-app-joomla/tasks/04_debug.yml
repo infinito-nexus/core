@@ -3,8 +3,8 @@
   shell: >
     container exec -i
     -e J_CONFIG_FILE={{ JOOMLA_CONFIG_FILE | quote }}
-    -e J_MODE_DEBUG={{ MODE_DEBUG | bool | ternary('1','0') }}
-    -e J_ERR_LEVEL={{ MODE_DEBUG | bool | ternary('maximum','default') }}
+    -e J_MODE_DEBUG={{ lookup('debug') | bool | ternary('1','0') }}
+    -e J_ERR_LEVEL={{ lookup('debug') | bool | ternary('maximum','default') }}
     {{ JOOMLA_LOCAL_CID | quote }} php --
   args:
     stdin: "{{ lookup('file', role_path ~ '/files/php/toggle_debug.php') }}"

@@ -43,6 +43,7 @@ GHCR, or other external services. Run them with `make test-external`.
   [`utils.annotations.message`](../../../../utils/annotations/message.py).
 - The URL reachability check treats read and connect timeouts as warnings.
 - All other `4xx`/`5xx` codes and connection errors (DNS, SSL) fail the test.
+- [test_upstream_references.py](../../../../tests/external/repository/test_upstream_references.py) fails when an issue or pull request an `upstream:` directive names is closed, missing or cannot be asked, and skips an item behind an exhausted rate limit. See [upstream.md](upstream.md).
 
 ## Suppression Comments 🚫
 
@@ -66,7 +67,7 @@ make test-external INFINITO_TEST_PATTERN=test_image_versions.py
 
 ## CI Workflow 🤖
 
-External tests run inside `.github/workflows/call-test.yml` via `make test`.
+External tests run inside `.github/workflows/call-test.yml` via `make test targets="test-external test-lint"` in its `lint-external` job.
 It MAY be triggered manually and is intentionally separate from the default
 `make test` flow. It is also wired into the orchestrated code-testing gate in
 CI so the live check can run there without changing local default validation.

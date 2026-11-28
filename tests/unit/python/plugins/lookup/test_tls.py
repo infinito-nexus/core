@@ -3,8 +3,10 @@ import unittest
 import unittest.mock as mock
 
 from ansible.errors import AnsibleError
+from ansible.parsing.dataloader import DataLoader
+from ansible.template import Templar
 
-import utils.tls_common as _tls_common
+import utils.tls.common as _tls_common
 from plugins.lookup.tls import LookupModule
 
 sys.modules.setdefault("ansible.module_utils.tls_common", _tls_common)
@@ -222,6 +224,45 @@ class TestTlsResolveLookup(unittest.TestCase):
         self.assertEqual(out["application_id"], "web-app-a")
         self.assertEqual(out["domain"], "a.example")
         self.assertIn("{{ MY_DOMAIN }}", fake.calls)
+
+    def _templated(self, tls: dict, **scope) -> dict:
+        v = dict(self.base_vars)
+        v["domains"] = {**self.domains, "web-app-t": "t.example"}
+        v["applications"] = {**self.applications, "web-app-t": {"server": {"tls": tls}}}
+        return self.lookup.run(["web-app-t"], variables={**v, **scope}, mode="app")[0]
+
+    def test_a_templated_enabled_override_that_renders_false_serves_plaintext(self):
+        self.lookup._templar = Templar(loader=DataLoader())
+        out = self._templated({"enabled": "{{ T_TLS }}"}, T_TLS=False)
+        self.assertFalse(out["enabled"])
+        self.assertEqual(out["url"]["base"], "http://t.example/")
+
+    def test_a_templated_mode_override_renders_to_its_flavor(self):
+        self.lookup._templar = Templar(loader=DataLoader())
+        for key in ("mode", "flavor"):
+            with self.subTest(key=key):
+                out = self._templated({key: "{{ T_MODE }}"}, T_MODE="self_signed")
+                self.assertEqual(out["mode"], "self_signed")
+
+    def test_an_override_that_stays_template_text_raises(self):
+        for tls in ({"enabled": "{{ T_TLS }}"}, {"mode": "{{ T_MODE }}"}):
+            with self.subTest(tls=tls), self.assertRaises(AnsibleError):
+                self._templated(tls)
+
+    def test_a_rendered_override_is_never_rendered_again(self):
+        class _Templar:
+            def __init__(self):
+                self.calls = []
+
+            def template(self, value):
+                self.calls.append(value)
+                return value
+
+        templar = _Templar()
+        self.lookup._templar = templar
+        out = self._templated({"enabled": False, "mode": "self_signed"})
+        self.assertFalse(out["enabled"])
+        self.assertEqual(templar.calls, ["web-app-t"])
 
 
 if __name__ == "__main__":
