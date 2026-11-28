@@ -43,6 +43,7 @@ from its procedure file. Run `make install-skills` to (re)install them; `INFINIT
 | A branch is ready to be opened as a pull request | `i8-pull-request` |
 | Pushing a branch through the manual-CI draft → ready-for-review cycle | `i8-push-trigger-pull` |
 | Leading a CI run with a priority line that verifies the branch's open questions | `i8-ci-trigger-priority` |
+| Retriggering what a finished run did not pass: one pasteable selection line, then push and trigger on the operator's pick | `i8-ci-retrigger` |
 | Verifying from both ends at once: the CI run on a triage loop plus local iteration | `i8-verify-parallel` |
 | Writing every announcement of a release from one brief | `i8-release` |
 | Writing a release's changelog entry on deterministic version jumps and contributors | `i8-release-changelog` |

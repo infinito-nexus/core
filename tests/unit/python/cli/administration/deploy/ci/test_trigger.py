@@ -346,6 +346,36 @@ class TestTriggerMain(unittest.TestCase):
         fetch.assert_called_once_with("55", repo="o/r")
         find_last.assert_not_called()
 
+    def test_print_writes_the_retrigger_line_and_dispatches_nothing(self) -> None:
+        out = io.StringIO()
+        with (
+            mock.patch.object(gh, "current_branch", return_value="feature/x"),
+            mock.patch.object(gh, "resolve_repo", return_value="o/r"),
+            mock.patch.object(gh, "fetch_run", return_value=_SOURCE_RUN),
+            mock.patch.object(
+                runs,
+                "inputs_from_jobs",
+                return_value={"priority": "web-app-x web-app-never"},
+            ),
+            mock.patch.object(matrix, "entries_of", return_value=[]),
+            mock.patch.object(runs, "dispatch_workflow") as dispatch,
+            redirect_stdout(out),
+        ):
+            rc = trigger.main(["--failed", "--run", _RUN_URL, "--print"])
+        self.assertEqual(rc, 0)
+        dispatch.assert_not_called()
+        self.assertEqual(out.getvalue(), f"web-app-never {_FAILED_TOKENS}\n")
+
+    def test_print_without_failed_is_refused(self) -> None:
+        with (
+            mock.patch.object(runs, "dispatch_workflow") as dispatch,
+            self.assertRaises(SystemExit) as ctx,
+            redirect_stderr(io.StringIO()),
+        ):
+            trigger.main(["--print"])
+        self.assertEqual(ctx.exception.code, 2)
+        dispatch.assert_not_called()
+
     def test_apps_with_a_run_reproduces_its_configuration(self) -> None:
         calls: list = []
         with (
