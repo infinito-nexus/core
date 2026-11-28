@@ -58,6 +58,11 @@ on:
           - "clearnet"
           - "tor"
           - "multi"
+      db_topology:
+        description: "🔱 Alternate Swarm rows between standalone and HA databases"
+        required: false
+        default: false
+        type: boolean
       vpn:
         description: "🚇 WireGuard axis for swarm; auto rotates, the others hold every row"
         required: false
@@ -138,6 +143,7 @@ jobs:
       workspace: ${{ inputs.workspace }}
       workspace_track: ${{ inputs.workspace_track }}
       network: ${{ inputs.network }}
+      db_topology: ${{ inputs.db_topology && 'true' || '' }}
       vpn: ${{ inputs.vpn }}
       meshes: ${{ inputs.meshes }}
     secrets: inherit

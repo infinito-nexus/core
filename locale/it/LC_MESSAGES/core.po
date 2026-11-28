@@ -398,6 +398,10 @@ msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
 msgstr "Strato di controllo per la gestione del ciclo di vita del sistema: pulizia, monitoraggio, backup, avvisi, manutenzione e attività di riparazione."
 
+msgctxt "category:svc.dcs:title"
+msgid "Coordination Stores"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
@@ -574,6 +578,10 @@ msgstr "Strumenti di sviluppo e CI/CD"
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
 msgstr "Distribuito S3- negozio di oggetti compatibile per la fornitura di secchi per consumo condiviso attraverso ruoli web-app"
+
+msgctxt "category:svc.dcs:description"
+msgid "Distributed coordination stores for leader election of database clusters (etcd)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -1782,6 +1790,10 @@ msgstr "Ini di indurimento PHP condiviso e il drop-in piscina PHP-FPM che i serv
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
 msgstr "Stoccaggio condiviso"
+
+msgctxt "role:svc-dcs-etcd:description"
+msgid "Shared etcd coordination store for leader election of the central database clusters on Docker Swarm"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-openssl:description"

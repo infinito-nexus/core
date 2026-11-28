@@ -4,7 +4,7 @@
     kc_update_max_attempts: 5
   block:
     - name: "🔍 Keycloak updates | Resolve live hosting node (swarm may reschedule)"
-      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
       vars:
         resolve_service_key: "{{ entity_name }}"
         resolve_output_prefix: KEYCLOAK

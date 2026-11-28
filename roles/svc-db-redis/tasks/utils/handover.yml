@@ -1,0 +1,32 @@
+---
+# Param: handover_primary - Redis instance that is master before the roll
+- name: "🔀 Redis | SENTINEL FAILOVER away from {{ handover_primary }}"
+  ansible.builtin.shell: |
+    set -eu
+    container exec {{ lookup('container_address', application_id, 'sentinel', instance=_handover_instance) }} {{ REDIS_SENTINEL_CLI }} FAILOVER {{ REDIS_HA_MASTER_NAME | quote }}
+  vars:
+    _handover_instance: "{{ REDIS_HA.instances | selectattr('service', 'equalto', handover_primary) | first }}"
+  register: _redis_handover_failover
+  until: _redis_handover_failover.rc == 0 and (_redis_handover_failover.stdout | trim) == 'OK'
+  retries: 15
+  delay: 2
+  delegate_to: "{{ DB_HA_ROLL_PRIMARY_NODE }}"
+  run_once: true
+  changed_when: true
+
+- name: "⏳ Redis | Wait until Sentinel names a master other than {{ handover_primary }}"
+  ansible.builtin.shell: |
+    set -eu
+    container exec {{ lookup('container_address', application_id, 'sentinel', instance=_handover_instance) }} {{ REDIS_SENTINEL_CLI }} get-master-addr-by-name {{ REDIS_HA_MASTER_NAME | quote }} | head -1 | awk -F. '!/^[0-9.]+$/ && !/:/ { print $1 }'
+  vars:
+    _handover_instance: "{{ REDIS_HA.instances | selectattr('service', 'equalto', handover_primary) | first }}"
+  register: _redis_handover_master
+  until: >-
+    _redis_handover_master.rc == 0
+    and (_redis_handover_master.stdout | trim) | length > 0
+    and (_redis_handover_master.stdout | trim) != handover_primary
+  retries: 30
+  delay: 2
+  changed_when: false
+  delegate_to: "{{ DB_HA_ROLL_PRIMARY_NODE }}"
+  run_once: true

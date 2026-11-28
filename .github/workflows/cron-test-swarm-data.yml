@@ -1,0 +1,58 @@
+name: "🗄️ Swarm failover"
+run-name: "${{ github.event_name == 'schedule' && '⏰ ' || '' }}🗄️ Test: Swarm data failover"
+
+on:
+  schedule:
+    - cron: "30 2 * * *"
+  workflow_dispatch:
+    inputs:
+      engine:
+        description: "🗄️ Engine whose failover suite runs; all runs every engine"
+        type: choice
+        default: all
+        options:
+          - all
+          - postgres
+          - mariadb
+          - redis
+          - openldap
+
+permissions:
+  contents: read
+
+concurrency:
+  group: swarm-data-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'schedule' }}
+
+jobs:
+  build-ci-images:
+    if: ${{ github.event_name != 'schedule' || (vars.INFINITO_CI_SWARM_DATA_NIGHTLY == 'true' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)) }}
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/call-images-build-ci.yml
+    with:
+      distros: "debian"
+      concurrency_channel: swarm-data-build
+    secrets: inherit
+
+  images-mirror-missing:
+    if: ${{ github.event_name != 'schedule' || (vars.INFINITO_CI_SWARM_DATA_NIGHTLY == 'true' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)) }}
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/call-images-mirror-missing.yml
+    with:
+      concurrency_channel: swarm-data-mirror
+    secrets: inherit
+
+  failover:
+    needs:
+      - build-ci-images
+      - images-mirror-missing
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/call-test-swarm-data.yml
+    with:
+      engine: ${{ inputs.engine || 'all' }}

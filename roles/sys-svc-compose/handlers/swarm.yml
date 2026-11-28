@@ -144,6 +144,13 @@
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
 
+- name: "🔁 swarm: roll HA database members one at a time before the stack deploy"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/db_ha_rolling.yml') }}"
+  listen:
+    - compose-up
+    - swarm-deploy
+  when: lookup('db_instances', application_id).ha.capable
+
 - name: "🚀 swarm: docker stack deploy"
   ansible.builtin.shell: |
     set -euo pipefail
@@ -172,6 +179,7 @@
     FATAL_GRACE: "{{ swarm_stack_fatal_grace }}"
     DEPLOY_SINCE: "{{ swarm_deploy_result.stdout_lines | default([]) | first | default('') }}"
     DEPLOYED_SERVICES: "{{ swarm_deploy_result | swarm_deployed_services | join(' ') }}"
+    SEED_WAIT_LABEL: "{{ SWARM_SERVICE_LABEL_SEED_WAIT }}"
   register: _swarm_stack_ready_handler
   retries: "{{ swarm_stack_converge_retries }}"
   delay: 2
@@ -183,6 +191,13 @@
     - swarm-deploy
   run_once: true
   delegate_to: "{{ STACK_HOST }}"
+
+- name: "🛡️ swarm: fail when an HA database member kept its old spec after the deploy"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/db_ha_rolling_drift_guard.yml') }}"
+  listen:
+    - compose-up
+    - swarm-deploy
+  when: lookup('db_instances', application_id).ha.capable
 
 - name: "🛡️ swarm: bound the ports the routing mesh now publishes on every node"
   ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/svc-swarm-node/tasks/utils/ingress_guard/refresh.yml') }}"

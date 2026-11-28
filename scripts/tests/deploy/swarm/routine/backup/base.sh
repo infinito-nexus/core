@@ -82,7 +82,8 @@ UNIT_DUMPS="${INFINITO_RESCUE_DIAGNOSTICS_DIR:?INFINITO_RESCUE_DIAGNOSTICS_DIR i
 DRILL_START_TS="$(docker exec "${MGR}" date +%Y%m%d%H%M%S)"
 
 echo "==> [0/9] disarm the backup calendar timers for the duration of the drill"
-for _node in "${MGR}" "${WRK1}" "${WRK2}" "${NFS_SERVER}"; do
+# shellcheck disable=SC2086  # the lab node lists are space-separated words
+for _node in ${SWARM_LAB_MANAGERS} ${SWARM_LAB_WORKERS} "${NFS_SERVER}"; do
 	docker exec "${_node}" timeout 660 sh -c \
 		"systemctl stop 'svc-bkp-*.timer' 2>/dev/null; while systemctl list-units --state=active --no-legend 'svc-bkp-*.service' 2>/dev/null | grep -q .; do sleep 5; done" # nocheck: shell-or-true -- a node without the timers installed has nothing to stop
 done
@@ -148,8 +149,8 @@ if [ "${VOLUME_TRIGGERED}" -eq 1 ]; then
 		echo "FAILURE: the volume unit ran but left no generation from this drill under ${DIR_BACKUPS}/${MGR_MID}/${VOLUME_REPO} (latest: '${VOL_GEN_LATEST:-none}', drill started ${DRILL_START_TS})"
 		exit 1
 	fi
-	if ! docker exec "${MGR}" sh -c "find '${DIR_BACKUPS}/${MGR_MID}/${VOLUME_REPO}/${VOL_GEN_LATEST}' -path '*/files/*' -type f -size +0c 2>/dev/null | head -n1 | grep -q ."; then
-		echo "FAILURE: generation ${VOL_GEN_LATEST} of the volume repo holds no non-empty volume file - the unit captured nothing, so the backup exclusion swallowed every volume"
+	if ! docker exec "${MGR}" sh -c "find '${DIR_BACKUPS}/${MGR_MID}/${VOLUME_REPO}/${VOL_GEN_LATEST}' \\( -path '*/files/*' -o -path '*/sql/*' \\) -type f -size +0c 2>/dev/null | head -n1 | grep -q ."; then
+		echo "FAILURE: generation ${VOL_GEN_LATEST} of the volume repo holds no non-empty volume file or SQL dump - the unit captured nothing, so the backup exclusion swallowed every volume"
 		exit 1
 	fi
 	echo "    volume repo generation ${VOL_GEN_LATEST} is fresh and holds data"
@@ -229,7 +230,8 @@ echo "==> [6/9] tear the stack down completely (full disaster) before recovery"
 if has_swarm_service; then
 	docker exec "${MGR}" bash "${BKP_IN_NODE}/04_stack_rm_wait.sh" "${STACK_NAME}"
 else
-	for _node in "${MGR}" "${WRK1}" "${WRK2}"; do
+	# shellcheck disable=SC2086  # the lab node lists are space-separated words
+	for _node in ${SWARM_LAB_MANAGERS} ${SWARM_LAB_WORKERS}; do
 		docker exec "${_node}" sh -c \
 			"ids=\$(docker ps -q --filter label=com.docker.compose.project=${ENTITY}); [ -z \"\$ids\" ] || docker stop \$ids"
 	done
@@ -281,7 +283,8 @@ for _i in $(seq 1 24); do
 	fi
 	sleep 5
 done
-for _node in "${MGR}" "${WRK1}" "${WRK2}"; do
+# shellcheck disable=SC2086  # the lab node lists are space-separated words
+for _node in ${SWARM_LAB_MANAGERS} ${SWARM_LAB_WORKERS}; do
 	docker exec "${_node}" timeout 180 sh -c \
 		"umount -l '${DIR_VAR_LIB}' 2>/dev/null || true; mount '${DIR_VAR_LIB}' && mount '${DIR_BACKUPS}'" # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 done

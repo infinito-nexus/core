@@ -74,3 +74,36 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   # todo: add flock to baudolo-seed upstream, then async seeding becomes safe again.
   throttle: 1
+
+- name: "🔱 Copy databases.csv to every database HA instance host"
+  when: bkp_seed_ha_hosts | length > 0
+  vars:
+    bkp_seed_ha_hosts: "{{ lookup('db_backup', 'hosts') }}"
+  block:
+    - name: "📥 Read databases.csv for the database HA instance hosts"
+      ansible.builtin.slurp:
+        src: "{{ FILE_DATABASE_SECRETS }}"
+      register: bkp_volume_2_local_databases_csv
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+    - name: "✅ Ensure the secrets directory exists on every database HA instance host"
+      ansible.builtin.file:
+        path: "{{ DIR_SECRETS }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+      delegate_to: "{{ item }}"
+      loop: "{{ bkp_seed_ha_hosts | difference([inventory_hostname]) }}"
+
+    - name: "📤 Seed databases.csv on every database HA instance host"
+      ansible.builtin.copy:
+        content: "{{ bkp_volume_2_local_databases_csv.content | b64decode }}"
+        dest: "{{ FILE_DATABASE_SECRETS }}"
+        owner: root
+        group: root
+        mode: "0600"
+      delegate_to: "{{ item }}"
+      loop: "{{ bkp_seed_ha_hosts | difference([inventory_hostname]) }}"
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      throttle: 1

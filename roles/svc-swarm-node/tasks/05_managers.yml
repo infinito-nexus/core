@@ -1,0 +1,42 @@
+---
+- name: "🔍 Read the swarm role of every listed manager"
+  ansible.builtin.command: >-
+    docker node inspect --format '{{ "{{" }}.Spec.Role{{ "}}" }}'
+    {{ hostvars[item].ansible_facts.hostname | default(item) }}
+  loop: "{{ groups['svc-swarm-manager'] }}"
+  register: svc_swarm_manager_roles
+  changed_when: false
+
+- name: "⬆️ Promote listed managers that joined as workers"
+  ansible.builtin.command: >-
+    docker node promote
+    {{ hostvars[item.item].ansible_facts.hostname | default(item.item) }}
+  loop: "{{ svc_swarm_manager_roles.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: item.stdout | trim != 'manager'
+  changed_when: true
+
+- name: "🗳️ Assert every listed manager is a reachable Raft member"
+  ansible.builtin.shell: >-
+    set -o pipefail &&
+    docker node ls --filter role=manager
+    --format '{{ "{{" }}.ManagerStatus{{ "}}" }}'
+    | grep -cE '^(Leader|Reachable)$'
+  args:
+    executable: /bin/bash
+  register: svc_swarm_reachable_managers
+  changed_when: false
+  failed_when: false
+  until: (svc_swarm_reachable_managers.stdout | trim | int) == (groups['svc-swarm-manager'] | length)
+  retries: 30
+  delay: 2
+
+- name: "✅ Fail when the Raft member count differs from svc-swarm-manager"
+  ansible.builtin.assert:
+    that:
+      - (svc_swarm_reachable_managers.stdout | trim | int) == (groups['svc-swarm-manager'] | length)
+    fail_msg: >-
+      Swarm reports {{ svc_swarm_reachable_managers.stdout | trim }} reachable
+      managers, but svc-swarm-manager lists {{ groups['svc-swarm-manager'] | length }}.
+      No run demotes or removes a manager; use `make swarm-forget-node` for a dead one.

@@ -1,0 +1,32 @@
+---
+# Param: application_id - central engine role that just rendered its form
+- name: "🩺 db_ha_health_gate | HA form health"
+  when:
+    - lookup('db_instances', application_id).form == 'ha'
+    - IS_SWARM_MODE | bool
+  block:
+    - name: "⏳ db_ha_health_gate | wait for the write endpoint of '{{ application_id }}'"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml') }}"
+      vars:
+        wait_service_key: "{{ application_id | entity_name }}"
+        wait_service_name: "{{ (application_id | entity_name) ~ '_' ~ (application_id | entity_name) }}"
+        wait_retries: 150
+        wait_delay: 2
+
+    - name: "🔍 db_ha_health_gate | exactly one primary or writer answers"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/primary.yml') }}"
+      vars:
+        primary_application_id: "{{ application_id }}"
+        primary_output_prefix: DB_HA_HEALTH
+
+    - name: "🛡️ db_ha_health_gate | the primary is one of this engine's instances"
+      ansible.builtin.assert:
+        that:
+          - DB_HA_HEALTH_PRIMARY_INSTANCE in (lookup('db_instances', application_id).instances | map(attribute='service') | list)
+          - DB_HA_HEALTH_PRIMARY_CID | length > 0
+        fail_msg: >-
+          {{ application_id }} has no single reachable primary after the deploy.
+          Before the new instances joined, remove the added hosts from the engine group and re-run to return
+          to standalone on the untouched legacy volume; damaged data is restored from the pre-change backup.
+        quiet: true
+      run_once: true

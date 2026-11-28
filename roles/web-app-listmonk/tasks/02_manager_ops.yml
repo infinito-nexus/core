@@ -14,6 +14,8 @@
   ansible.builtin.shell:
     cmd: "{{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1 -tAq"
     stdin: "{{ lookup('file', 'sql/admin_accounts.sql') }}"
+  environment: "{{ LISTMONK_EXEC_DATABASE_ENV }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: listmonk_admin_accounts
   changed_when: false
 
@@ -33,6 +35,7 @@
     EOSQL
   args:
     executable: /bin/bash
+  environment: "{{ LISTMONK_EXEC_DATABASE_ENV }}"
 
 - name: 🔑 Ensure the Listmonk Super Admin exists and accepts the declared password
   ansible.builtin.shell:
@@ -42,9 +45,10 @@
       -v email={{ LISTMONK_ADMIN_EMAIL | quote }}
       -v password_login={{ 'false' if LISTMONK_OIDC_ENABLED | bool else 'true' }}
       -v create={{ 'true' if listmonk_admin_plan == 'create' else 'false' }}
-    stdin: "{{ lookup('file', 'sql/realign_admin_credential.sql') }}"
-  environment:
-    LISTMONK_REALIGN_PASSWORD: "{{ LISTMONK_ADMIN_PASSWORD }}"
+    stdin: |-
+      \set pw '{{ LISTMONK_ADMIN_PASSWORD | replace('\\', '\\\\') | replace("'", "''") }}'
+      {{ lookup('file', 'sql/realign_admin_credential.sql') }}
+  environment: "{{ LISTMONK_EXEC_DATABASE_ENV }}"
   register: listmonk_admin_password
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   changed_when: listmonk_admin_password.stdout is search('\[CHANGED\]')
@@ -56,6 +60,8 @@
   ansible.builtin.shell:
     cmd: "{{ LISTMONK_EXEC_DATABASE }} -v ON_ERROR_STOP=1"
     stdin: "{{ lookup('template', 'sql/apply_settings.sql.j2') }}"
+    executable: /bin/bash
+  environment: "{{ LISTMONK_EXEC_DATABASE_ENV }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
   register: listmonk_settings
   changed_when: "'UPDATE 0' not in listmonk_settings.stdout"

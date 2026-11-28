@@ -1,0 +1,78 @@
+---
+# Param: mariadb_rotate_instance - instance model entry (`service`, `host`) of a running, seeded instance
+- name: "🔍 MariaDB HA | Try the new root on {{ mariadb_rotate_instance.service }}"
+  ansible.builtin.shell: |
+    container exec -i {{ lookup('container_address', application_id, entity_name, instance=mariadb_rotate_instance) }} {{ MARIADB_HA_SQL }}
+  args:
+    stdin: "SELECT 1;"
+  environment:
+    CONTAINER_EXEC_TIMEOUT: "{{ lookup('timeout', 60) }}"
+  register: _mariadb_rotate_login
+  until: _mariadb_rotate_login.rc == 0 or '1045' in _mariadb_rotate_login.stderr
+  retries: 10
+  delay: 3
+  changed_when: false
+  failed_when: false
+
+- name: "🔑 MariaDB HA | Rotate passwords on {{ mariadb_rotate_instance.service }}"
+  ansible.builtin.shell: |
+    container exec -i -e MYSQL_PWD {{ lookup('container_address', application_id, entity_name, instance=mariadb_rotate_instance) }} mariadb -uroot -N -B
+  args:
+    stdin: |
+      SET @root_pwd := {{ MARIADB_ROOT_PWD | mariadb_sql_literal }};
+      SET @replication_pwd := {{ MARIADB_REPLICATION_PWD | mariadb_sql_literal }};
+      SET @elector_pwd := {{ MARIADB_ELECTOR_PWD | mariadb_sql_literal }};
+      {{ lookup('template', role_path ~ '/templates/sql/ha/root.sql.j2') }}
+      {{ lookup('template', role_path ~ '/templates/sql/ha/users.sql.j2') }}
+  environment:
+    MYSQL_PWD: "{{ _mariadb_previous_root_pwd }}"
+    CONTAINER_EXEC_TIMEOUT: "{{ lookup('timeout', 120) }}"
+  register: _mariadb_rotate_apply
+  until: _mariadb_rotate_apply.rc == 0
+  retries: 5
+  delay: 10
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when:
+    - (_mariadb_previous_root_pwd | default('')) | length > 0
+    - _mariadb_rotate_login.rc != 0
+    - "'1045' in _mariadb_rotate_login.stderr"
+
+- name: "👤 MariaDB HA | Reconcile HA users on {{ mariadb_rotate_instance.service }}"
+  ansible.builtin.shell: |
+    container exec -i {{ lookup('container_address', application_id, entity_name, instance=mariadb_rotate_instance) }} {{ MARIADB_HA_SQL }}
+  args:
+    stdin: |
+      SET SESSION sql_log_bin = 0;
+      SET @replication_pwd := {{ MARIADB_REPLICATION_PWD | mariadb_sql_literal }};
+      SET @elector_pwd := {{ MARIADB_ELECTOR_PWD | mariadb_sql_literal }};
+      {{ lookup('template', role_path ~ '/templates/sql/ha/users_digest.sql.j2', template_vars={'users_digest_phase': 'before'}) }}
+      {{ lookup('template', role_path ~ '/templates/sql/ha/users.sql.j2') }}
+      {{ lookup('template', role_path ~ '/templates/sql/ha/users_digest.sql.j2', template_vars={'users_digest_phase': 'after'}) }}
+  environment:
+    CONTAINER_EXEC_TIMEOUT: "{{ lookup('timeout', 120) }}"
+  register: _mariadb_rotate_users
+  changed_when: _mariadb_rotate_users.stdout_lines | last == 'users changed'
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: _mariadb_rotate_login.rc == 0
+
+- name: "🔗 MariaDB HA | Re-point {{ mariadb_rotate_instance.service }} replication"
+  ansible.builtin.shell: |
+    set -o pipefail
+    if [ -z "$(printf 'SHOW SLAVE STATUS;\n' | container exec -i {{ lookup('container_address', application_id, entity_name, instance=mariadb_rotate_instance) }} {{ MARIADB_HA_SQL }})" ]; then
+      echo "no replication to re-point"
+      exit 0
+    fi
+    container exec -i {{ lookup('container_address', application_id, entity_name, instance=mariadb_rotate_instance) }} {{ MARIADB_HA_SQL }}
+  args:
+    executable: /bin/bash
+    stdin: |
+      STOP SLAVE;
+      CHANGE MASTER TO MASTER_PASSWORD = {{ MARIADB_REPLICATION_PWD | mariadb_sql_literal }};
+      START SLAVE;
+  environment:
+    CONTAINER_EXEC_TIMEOUT: "{{ lookup('timeout', 120) }}"
+  register: _mariadb_rotate_repoint
+  changed_when: _mariadb_rotate_repoint.stdout is not search('no replication to re-point')
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  when: _mariadb_rotate_apply is changed

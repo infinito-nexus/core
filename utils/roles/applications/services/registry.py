@@ -37,6 +37,13 @@ this kind MUST be listed here or the roles referencing it silently drop their
 provider from the static closure.
 """
 
+TOPOLOGY_GATED_LOOKUPS: tuple[str, ...] = ("lookup('db_instances'",)
+"""Lookups whose result depends on the deploy-time instance count, so a flag
+calling one MAY be true on some inventory (an HA-capable engine's coordination
+store) and its provider belongs in the static closure. Without this, inventory
+provisioning skips the provider's credentials while the deploy still loads it.
+"""
+
 GATED_LOOKUPS: tuple[str, ...] = ("lookup('network_served'",)
 """Lookup calls whose answer depends on the node shape, so a flag built on
 one is dynamic even without an ``in group_names`` test."""
@@ -46,7 +53,7 @@ def is_explicit_truth(value: Any) -> bool:
     """A services.<key> flag (``enabled`` / ``shared``) MAY be true if it
     is the literal Python ``True``, any string containing the substring
     ``in group_names``, or a string referencing a `GROUP_GATED_CONSTANTS`
-    or `GATED_LOOKUPS` entry. Negated and compound predicates
+    or `GATED_LOOKUPS` / `TOPOLOGY_GATED_LOOKUPS` entry. Negated and compound predicates
     (``"{{ 'X' not in group_names }}"``) match on purpose: they are true
     on some node shape, and the static closure is the co-deploy superset.
     Mirrors the substring test at
@@ -65,7 +72,8 @@ def is_explicit_truth(value: Any) -> bool:
     if not isinstance(value, str):
         return False
     return "in group_names" in value or any(
-        token in value for token in (*GROUP_GATED_CONSTANTS, *GATED_LOOKUPS)
+        token in value
+        for token in (*GROUP_GATED_CONSTANTS, *GATED_LOOKUPS, *TOPOLOGY_GATED_LOOKUPS)
     )
 
 

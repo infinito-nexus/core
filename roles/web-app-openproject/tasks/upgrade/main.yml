@@ -7,7 +7,7 @@
       - ps
       - -q
       - --filter
-      - "name=^{{ lookup('database', application_id, 'container') }}$"
+      - "name=^{{ lookup('database', application_id, 'address') }}$"
       - --filter
       - status=running
   register: openproject_upgrade_engine

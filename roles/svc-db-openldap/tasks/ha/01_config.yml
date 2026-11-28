@@ -1,0 +1,34 @@
+---
+- name: "🛡️ Validate olcServerID uniqueness across the OpenLDAP group"
+  ansible.builtin.set_fact:
+    openldap_ha_server_ids: "{{ OPENLDAP_HA_HOST_IDS | openldap_server_ids }}"
+
+- name: "📁 Ensure {{ OPENLDAP_HA_CN_CONFIG_DIR }} exists"
+  ansible.builtin.file:
+    path: "{{ OPENLDAP_HA_CN_CONFIG_DIR }}"
+    state: directory
+    mode: "0755"
+
+- name: "📄 Render cn=config LDIF per instance"
+  ansible.builtin.copy:
+    content: >-
+      {{ item | openldap_cn_config(
+           OPENLDAP_HA_HOST_IDS,
+           'ldap://' ~ OPENLDAP_HA_PEER_TEMPLATE,
+           LDAP.DN.ROOT,
+           OPENLDAP_BIND_DN,
+           OPENLDAP_SCHEMAS,
+           IAM_USERNAME_MAX_LENGTH) }}
+    dest: "{{ OPENLDAP_HA_CN_CONFIG_SOURCE | replace('{host_id}', item) }}"
+    mode: "0644"
+  loop: "{{ OPENLDAP_HA_HOST_IDS }}"
+
+- name: "🔐 Write the elector's etcd password for its Docker secret"
+  ansible.builtin.copy:
+    content: "{{ OPENLDAP_HA_ETCD_PASSWORD }}"
+    dest: "{{ OPENLDAP_HA_ETCD_PASSWORD_FILE }}"
+    mode: "0600"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛡️ Guard the standalone-to-HA migration"
+  ansible.builtin.include_tasks: ha/02_migration_guard.yml

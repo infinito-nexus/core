@@ -20,7 +20,7 @@
       {{
         [
           lookup('database', database_consumer_id, 'service_name'),
-          lookup('database', database_consumer_id, 'container'),
+          lookup('database', database_consumer_id, 'address'),
           POSTGRES_PORT
         ] | join('|')
       }}

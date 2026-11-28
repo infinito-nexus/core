@@ -1,0 +1,41 @@
+---
+- name: "🔍 POSTGRES | Resolve the standalone container"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ entity_name }}"
+    resolve_service_name: "{{ entity_name }}_{{ entity_name }}"
+    resolve_output_prefix: POSTGRES_LEGACY
+    resolve_compose_cid: "{{ POSTGRES_CONTAINER }}"
+
+- name: "👤 POSTGRES | Create the replication and rewind roles while still standalone"
+  ansible.builtin.include_tasks: utils/psql_primary.yml
+  vars:
+    psql_template: ha_roles.sql.j2
+    psql_database: postgres
+    psql_node: "{{ POSTGRES_LEGACY_HOST_NODE }}"
+    psql_cid: "{{ POSTGRES_LEGACY_LOCAL_CID }}"
+
+- name: "🛑 POSTGRES | Stop the standalone service so only Patroni opens the legacy volume"
+  ansible.builtin.command:
+    argv:
+      - container
+      - service
+      - scale
+      - --detach=false
+      - "{{ entity_name }}_{{ entity_name }}=0"
+  delegate_to: "{{ STACK_HOST }}"
+  run_once: true
+
+- name: "🔧 POSTGRES | Patroni key prefix of this cluster"
+  ansible.builtin.set_fact:
+    postgres_dcs_prefix: "{{ (lookup('config', application_id, 'services.etcd.prefix') | regex_replace('/+$', '')) ~ '/' ~ entity_name ~ '/' }}"
+
+- name: "🗑️ POSTGRES | Drop Patroni state left from an earlier HA cluster"
+  ansible.builtin.include_role:
+    name: svc-dcs-etcd
+    tasks_from: delete_prefix.yml
+    apply:
+      run_once: true
+  vars:
+    application_id: svc-dcs-etcd
+    etcd_delete_prefix: "{{ postgres_dcs_prefix }}"

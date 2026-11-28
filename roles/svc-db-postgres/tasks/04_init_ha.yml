@@ -1,0 +1,20 @@
+---
+- name: "✅ Assert correct context"
+  ansible.builtin.assert:
+    that:
+      - application_id == 'svc-db-postgres'
+      - database_consumer_id != 'svc-db-postgres'
+
+- name: "🔍 POSTGRES | Resolve the Patroni primary"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/primary.yml') }}"
+  vars:
+    primary_application_id: "{{ application_id }}"
+    primary_output_prefix: POSTGRES
+
+- name: "📁 POSTGRES | Provision {{ database_name }} for {{ database_consumer_id }}"
+  ansible.builtin.include_tasks: utils/psql_primary.yml
+  vars:
+    psql_template: provision.sql.j2
+    psql_database: postgres
+    psql_node: "{{ POSTGRES_PRIMARY_NODE }}"
+    psql_cid: "{{ POSTGRES_PRIMARY_CID }}"

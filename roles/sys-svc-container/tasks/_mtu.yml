@@ -55,7 +55,20 @@
       - (automtu_mtu.stdout | int) <= 9000
     fail_msg: "automtu returned unexpected MTU output: egress '{{ automtu_egress.stdout }}', effective '{{ automtu_mtu.stdout }}'"
 
+- name: 🔍 Read the MTU the daemon already runs with
+  ansible.builtin.slurp:
+    src: "{{ SYS_SVC_DOCKER_DAEMON }}"
+  register: sys_svc_container_daemon_current
+  failed_when: false
+
 - name: 🔧 Set docker daemon MTU fact
   ansible.builtin.set_fact:
-    SYS_DOCKER_DAEMONM_MTU: "{{ automtu_mtu.stdout | int }}"
+    SYS_DOCKER_DAEMONM_MTU: >-
+      {{ _current
+         if (_current > 0 and (automtu_mtu.stdout | int) > _current - SYS_SVC_DOCKER_MTU_STICKY_MARGIN)
+         else (automtu_mtu.stdout | int) }}
+  vars:
+    _current: >-
+      {{ ((sys_svc_container_daemon_current.content | b64decode | from_json).get('mtu', 0) | int)
+         if (sys_svc_container_daemon_current.content is defined) else 0 }}
   changed_when: false

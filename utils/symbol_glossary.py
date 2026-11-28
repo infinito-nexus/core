@@ -45,6 +45,8 @@ SYMBOLS: dict[str, str] = {
     "grype": "🍇",
     "osv": "🐙",
     "stack": "🥞",
+    "ha": "🔱",
+    "standalone": "☝️",
     "host": "💻",
     "row": "🔢",
     "id": "🆔",

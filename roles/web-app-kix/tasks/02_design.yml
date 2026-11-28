@@ -54,7 +54,7 @@
   when: (KIX_DESIGN_LOGO_ENABLED | bool) or (kix_design_marked.stdout_lines | length > 0)
 
 - name: "🔍 Resolve the cache node and container of {{ application_id }}"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: redis
     resolve_output_prefix: KIX_REDIS

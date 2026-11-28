@@ -43,7 +43,15 @@ from cli.administration.deploy.development.inventory.planner import (
 from cli.meta.ci import chunks, query, slots
 from utils.cache.applications import get_variants
 from utils.cache.files import PROJECT_ROOT
-from utils.github.variant import axes, instructions, network, pools, selection, vpn
+from utils.github.variant import (
+    axes,
+    instructions,
+    network,
+    pools,
+    selection,
+    topology,
+    vpn,
+)
 from utils.roles.display import display_names
 
 DROPPED = ("priority", "id", "covered", "clone")
@@ -172,6 +180,7 @@ def assigned(
         filesystems=filesystems,
         architectures=architectures,
         variants_per_app=get_variants(),
+        db_topology=topology.resolve_db_topology(),
     )
 
 

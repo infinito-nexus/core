@@ -1,0 +1,54 @@
+---
+# Param: primary_application_id - HA-capable engine role whose meta declares ha.primary_probe
+# Param: primary_output_prefix  - fact prefix; sets <prefix>_PRIMARY_INSTANCE / <prefix>_PRIMARY_NODE / <prefix>_PRIMARY_CID
+- name: "🔧 resolve_primary | load instance model of '{{ primary_application_id }}'"
+  ansible.builtin.set_fact:
+    _primary_engine: "{{ primary_application_id | entity_name }}"
+    _primary_model: "{{ lookup('db_instances', primary_application_id) }}"
+
+- name: "🔍 resolve_primary | find the one primary of '{{ primary_application_id }}'"
+  when: _primary_model.form == 'ha'
+  block:
+    - name: "🔍 resolve_primary | probe each instance"
+      ansible.builtin.command:
+        argv:
+          - "{{ [DIR_BIN, _primary_model.ha.probe] | path_join }}"
+          - "{{ _primary_engine }}"
+          - "{{ item.service }}"
+      register: _primary_probe
+      changed_when: false
+      failed_when: false
+      delegate_to: "{{ item.host }}"
+      loop: "{{ _primary_model.instances }}"
+      loop_control:
+        label: "{{ item.service }}"
+
+    - name: "🛡️ resolve_primary | exactly one primary of '{{ primary_application_id }}'"
+      ansible.builtin.assert:
+        that:
+          - (_primary_answered | length) == 1
+        fail_msg: >-
+          expected exactly one primary among
+          {{ _primary_model.instances | map(attribute='service') | join(', ') }},
+          the probe confirmed {{ _primary_answered | join(', ') }}
+      vars:
+        _primary_answered: "{{ _primary_probe.results | selectattr('rc', 'equalto', 0) | map(attribute='item.service') | list }}"
+
+- name: "🔧 resolve_primary | set {{ primary_output_prefix }}_PRIMARY_INSTANCE"
+  ansible.builtin.set_fact:
+    "{{ primary_output_prefix }}_PRIMARY_INSTANCE": >-
+      {{ (_primary_probe.results | selectattr('rc', 'equalto', 0) | map(attribute='item.service') | first)
+         if _primary_model.form == 'ha' else _primary_engine }}
+
+- name: "🔍 resolve_primary | resolve node and container of the primary"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
+  vars:
+    resolve_service_key: "{{ lookup('vars', primary_output_prefix ~ '_PRIMARY_INSTANCE') }}"
+    resolve_service_name: "{{ (_primary_engine ~ '_' ~ lookup('vars', primary_output_prefix ~ '_PRIMARY_INSTANCE')) if IS_SWARM_MODE | bool else '' }}"
+    resolve_output_prefix: "_{{ primary_output_prefix }}_PRIMARY_RESOLVED"
+    resolve_compose_cid: "{{ _primary_engine }}"
+
+- name: "🔧 resolve_primary | set {{ primary_output_prefix }}_PRIMARY_NODE / _PRIMARY_CID"
+  ansible.builtin.set_fact:
+    "{{ primary_output_prefix }}_PRIMARY_NODE": "{{ lookup('vars', '_' ~ primary_output_prefix ~ '_PRIMARY_RESOLVED_HOST_NODE') }}"
+    "{{ primary_output_prefix }}_PRIMARY_CID": "{{ lookup('vars', '_' ~ primary_output_prefix ~ '_PRIMARY_RESOLVED_LOCAL_CID') }}"

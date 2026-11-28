@@ -5,17 +5,19 @@
     public: false
   when: run_once_sys_svc_container is not defined
 
-- name: "✅ Assert at least one host is in svc-swarm-manager"
+- name: "✅ Assert svc-swarm-manager holds 1 host or an odd number of at least 3"
   ansible.builtin.assert:
     that:
-      - (groups['svc-swarm-manager'] | default([]) | length) >= 1
+      - _svc_swarm_manager_count | int > 0
+      - _svc_swarm_manager_count | swarm_quorum_size_valid
     fail_msg: |
-      svc-swarm-node requires AT LEAST ONE host in the
-      `svc-swarm-manager` group. Multi-manager (Raft-quorum HA) is
-      supported: list every manager host in this group, the first becomes
-      the bootstrap manager that runs `docker swarm init`, the rest join
-      as managers via the manager token.
-      Found: {{ groups['svc-swarm-manager'] | default([]) | length }} members.
+      svc-swarm-node requires 1 host, or an odd number of at least 3, in the
+      `svc-swarm-manager` group, because Raft needs a majority. The first
+      host becomes the bootstrap manager and STACK_HOST, the rest join as
+      managers via the manager token.
+      Found: {{ _svc_swarm_manager_count }} members.
+  vars:
+    _svc_swarm_manager_count: "{{ groups['svc-swarm-manager'] | default([]) | length }}"
   run_once: true
 
 - name: "✅ Assert every svc-swarm-manager member is also in svc-swarm-node"
@@ -27,6 +29,12 @@
       svc-swarm-node. A manager MUST also be a regular cluster member.
   loop: "{{ groups['svc-swarm-manager'] | default([]) }}"
   run_once: true
+
+- name: "🪦 Forget a permanently lost node before the cluster is reconciled"
+  ansible.builtin.include_tasks: forget_node.yml
+  when:
+    - SWARM_FORGET_NODE | length > 0
+    - inventory_hostname == (groups['svc-swarm-manager'] | first)
 
 - name: "🥾 Bootstrap manager: init swarm + publish join tokens (first manager only)"
   ansible.builtin.include_tasks: 01_manager.yml
@@ -44,6 +52,11 @@
     - "'svc-swarm-node' in group_names"
     - "'svc-swarm-manager' not in group_names"
 
-- name: "📌 Apply node labels (bootstrap manager dispatches to all nodes)"
-  ansible.builtin.include_tasks: 04_labels.yml
+- name: "🏷️ Bootstrap manager: label nodes and settle the managers"
   when: inventory_hostname == (groups['svc-swarm-manager'] | first)
+  block:
+    - name: "📌 Apply node labels (bootstrap manager dispatches to all nodes)"
+      ansible.builtin.include_tasks: 04_labels.yml
+
+    - name: "🗳️ Promote listed managers and check Raft membership"
+      ansible.builtin.include_tasks: 05_managers.yml

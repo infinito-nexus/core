@@ -21,14 +21,33 @@ from __future__ import annotations
 import smtplib
 import ssl
 import sys
+import time
 from pathlib import Path
+from typing import TYPE_CHECKING, TypeVar
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 SMTP_PORT = 25
 SMTPS_PORT = 465
 TIMEOUT = 60
+RETRY_INTERVAL = 2
 
 EXTERNAL_RECIPIENT = "relay-probe@example.org"
 RELAY_DENIED = 550
+
+Session = TypeVar("Session")
+
+
+def connect(open_session: Callable[[], Session]) -> Session:
+    deadline = time.monotonic() + TIMEOUT
+    while True:
+        try:
+            return open_session()
+        except ConnectionRefusedError:
+            if time.monotonic() >= deadline:
+                raise
+            time.sleep(RETRY_INTERVAL)
 
 
 def unverified_context() -> ssl.SSLContext:
@@ -40,13 +59,13 @@ def unverified_context() -> ssl.SSLContext:
 
 def send(host: str, sender: str, recipient: str, eml_path: str) -> int:
     message = Path(eml_path).read_bytes()
-    with smtplib.SMTP(host, SMTP_PORT, timeout=TIMEOUT) as smtp:
+    with connect(lambda: smtplib.SMTP(host, SMTP_PORT, timeout=TIMEOUT)) as smtp:
         smtp.sendmail(sender, [recipient], message)
     return 0
 
 
 def relay(host: str, sender: str, password: str) -> int:
-    with smtplib.SMTP(host, SMTP_PORT, timeout=TIMEOUT) as smtp:
+    with connect(lambda: smtplib.SMTP(host, SMTP_PORT, timeout=TIMEOUT)) as smtp:
         smtp.ehlo()
         smtp.mail(sender)
         anonymous, _ = smtp.rcpt(EXTERNAL_RECIPIENT)
@@ -58,8 +77,10 @@ def relay(host: str, sender: str, password: str) -> int:
         )
         return 1
 
-    with smtplib.SMTP_SSL(
-        host, SMTPS_PORT, timeout=TIMEOUT, context=unverified_context()
+    with connect(
+        lambda: smtplib.SMTP_SSL(
+            host, SMTPS_PORT, timeout=TIMEOUT, context=unverified_context()
+        )
     ) as smtp:
         try:
             smtp.login(sender, password)

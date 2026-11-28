@@ -38,7 +38,7 @@
     CLI_LOCAL_CID: ""
 
 - name: "🔍 Resolve the node that holds {{ application_id }}'s test container"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: "{{ _cli_service_key }}"
     resolve_output_prefix: CLI
@@ -46,6 +46,20 @@
     resolve_converge_retries: 30
     resolve_converge_delay: 2
   when: _cli_service_key | length > 0
+
+- name: "🔍 Resolve the primary of {{ application_id }} in its HA form"
+  when: lookup('db_instances', application_id).form == 'ha'
+  block:
+    - name: "🔍 Probe the instances of {{ application_id }}"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/primary.yml') }}"
+      vars:
+        primary_application_id: "{{ application_id }}"
+        primary_output_prefix: CLI
+
+    - name: "🧭 Run the CLI test of {{ application_id }} next to its primary"
+      ansible.builtin.set_fact:
+        CLI_HOST_NODE: "{{ CLI_PRIMARY_NODE }}"
+        CLI_LOCAL_CID: "{{ CLI_PRIMARY_CID }}"
 
 - name: 🧭 Claim this host's CLI node for {{ application_id }}
   ansible.builtin.set_fact:

@@ -52,6 +52,7 @@ class TestStage(unittest.TestCase):
                 "drv",
                 "gen",
                 "svc-net",
+                "svc-dcs",
                 "svc-db",
                 "svc-dns",
                 "svc-prx",

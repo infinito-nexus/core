@@ -162,6 +162,7 @@ def problems(
                     pin_filesystem=pin.filesystem,
                     pin_architecture=pin.architecture,
                     pin_vpn=pin.vpn,
+                    pin_topology=pin.topology,
                     states=states_of(pin.app, variant),
                     network_input=network_input,
                     vpn_mode=vpn_mode,

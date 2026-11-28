@@ -1,0 +1,23 @@
+---
+# Param: etcd_delete_prefix - key prefix to remove from the coordination store, e.g. /service/postgres/
+- name: "🗑️ ETCD | Remove every key under {{ etcd_delete_prefix }}"
+  ansible.builtin.shell: >
+    container exec -e ETCDCTL_USER
+    {{ lookup('container_address', application_id, entity_name, instance=item) }}
+    {{ ETCDCTL }} del --prefix {{ etcd_delete_prefix | quote }}
+  environment:
+    ETCDCTL_USER: "root:{{ ETCD_ROOT_PASSWORD }}"
+  register: etcd_delete_prefix_result
+  delegate_to: "{{ item.host }}"
+  loop: "{{ ETCD_INSTANCES.instances }}"
+  loop_control:
+    label: "{{ item.service }}"
+  changed_when: (etcd_delete_prefix_result.stdout | trim) not in ['', '0']
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛡️ ETCD | At least one member removed {{ etcd_delete_prefix }}"
+  ansible.builtin.assert:
+    that:
+      - etcd_delete_prefix_result.results | selectattr('rc', 'equalto', 0) | list | length > 0
+    fail_msg: "no etcd member answered the delete of {{ etcd_delete_prefix }}"

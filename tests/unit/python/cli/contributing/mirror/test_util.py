@@ -71,6 +71,22 @@ class TestIterRoleImagesMetaServices(unittest.TestCase):
         self.assertEqual(ref.source, "ghcr.io/matrixgpt/matrix-chatgpt-bot:latest")
         self.assertEqual(ref.source_file, ROLE_FILE_META_SERVICES)
 
+    def test_gcr_image_is_discovered(self):
+        refs = self._run(
+            {
+                f"roles/svc-dcs-etcd/{ROLE_FILE_META_SERVICES}": """
+                etcd:
+                  image: gcr.io/etcd-development/etcd
+                  version: v3.6.15
+            """,
+            }
+        )
+        self.assertEqual(len(refs), 1)
+        ref = refs[0]
+        self.assertEqual(ref.name, "etcd-development/etcd")
+        self.assertEqual(ref.registry, "gcr.io")
+        self.assertEqual(ref.source, "gcr.io/etcd-development/etcd:v3.6.15")
+
     def test_missing_image_or_version_is_skipped(self):
         refs = self._run(
             {

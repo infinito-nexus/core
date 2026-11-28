@@ -1,6 +1,6 @@
 ---
 - name: "🔍 Resolve {{ application_id }} hosting node + container id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: "{{ BASEROW_SERVICE_NAME }}"
     resolve_output_prefix: BASEROW
@@ -42,14 +42,14 @@
       when: IS_COMPOSE_MODE
 
     - name: "🔄 Restart Baserow application after applying migrations (swarm mode)"
-      ansible.builtin.command: "container service update --force {{ lookup('container_service', application_id, BASEROW_SERVICE_NAME) }}"
+      ansible.builtin.command: "container service update --detach --force {{ lookup('container_service', application_id, BASEROW_SERVICE_NAME) }}"
       register: baserow_swarm_restart
       changed_when: baserow_swarm_restart.rc == 0
       timeout: "{{ lookup('timeout', 600) | int }}"
       when: IS_SWARM_MODE
 
     - name: "🔍 Re-resolve the container the restart replaced"
-      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+      ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
       vars:
         resolve_service_key: "{{ BASEROW_SERVICE_NAME }}"
         resolve_output_prefix: BASEROW

@@ -1,0 +1,107 @@
+---
+- name: "⏳ Wait until exactly one OpenLDAP elector holds the writer lease"
+  ansible.builtin.script: >-
+    {{ lookup('path_absolute', 'roles/sys-svc-compose/files/shell/wait_single_writer.sh') }}
+    {{ entity_name | quote }} {{ _local.service | quote }}
+    {% for instance in OPENLDAP_DB.instances %}http://{{ instance.service }}:{{ OPENLDAP_HA_WRITER_PORT }}/writer {% endfor %}
+  environment:
+    BIN_RESOLVE_CONTAINER_ID: "{{ BIN_RESOLVE_CONTAINER_ID }}"
+  vars:
+    _local: "{{ OPENLDAP_DB.instances | selectattr('legacy') | first }}"
+  register: openldap_ha_writer_wait
+  changed_when: false
+  retries: 60
+  delay: 3
+  until: openldap_ha_writer_wait.rc == 0
+  delegate_to: "{{ _local.host }}"
+  run_once: true
+
+- name: "🔍 Resolve the current OpenLDAP writer"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/primary.yml') }}"
+  vars:
+    primary_application_id: "{{ application_id }}"
+    primary_output_prefix: OPENLDAP
+
+- name: "🔍 Read the writer's cn=config"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  OPENLDAP_PRIMARY_CID is the elected writer resolved at runtime
+    container exec {{ OPENLDAP_PRIMARY_CID }}
+    ldapsearch -Q -LLL -o ldif-wrap=no -Y EXTERNAL -H ldapi:/// -b cn=config
+  register: openldap_ha_live_config
+  changed_when: false
+  delegate_to: "{{ OPENLDAP_PRIMARY_NODE }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛡️ Forbid ppolicy and olcLastBind while more than one instance serves"
+  ansible.builtin.assert:
+    that: (openldap_ha_live_config.stdout | openldap_forbidden_bind_writes) | length == 0
+    fail_msg: >-
+      {{ openldap_ha_live_config.stdout | openldap_forbidden_bind_writes | join(', ') }}
+      turn binds into writes that bypass olcReadOnly and are forbidden in the HA form.
+  run_once: true
+
+- name: "🔎 List LDAP users that exist before this run"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  OPENLDAP_PRIMARY_CID is the elected writer resolved at runtime
+    container exec {{ OPENLDAP_PRIMARY_CID }}
+    ldapsearch -Q -LLL -o ldif-wrap=no -Y EXTERNAL -H ldapi:///
+    -s one -b {{ LDAP.DN.OU.USERS | quote }} dn
+  register: openldap_ha_users_before
+  changed_when: false
+  failed_when: openldap_ha_users_before.rc not in [0, 32]
+  delegate_to: "{{ OPENLDAP_PRIMARY_NODE }}"
+  run_once: true
+
+- name: "📥 Import base tree, users and groups into the writer"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  OPENLDAP_PRIMARY_CID is the elected writer resolved at runtime
+    container exec -i {{ OPENLDAP_PRIMARY_CID }}
+    ldapadd -c -Q -Y EXTERNAL -H ldapi:///
+  args:
+    stdin: "{{ lookup('template', 'ldif/ha/data.ldif.j2') }}"
+  register: openldap_ha_data
+  changed_when: >-
+    (openldap_ha_data.stdout | regex_findall('adding new entry') | length)
+    > (openldap_ha_data.stderr | openldap_batch_result_codes | select('equalto', 68) | list | length)
+  failed_when: >-
+    openldap_ha_data.rc not in [0, 68]
+    or (openldap_ha_data.stderr | openldap_batch_result_codes | reject('equalto', 68) | list | length > 0)
+  delegate_to: "{{ OPENLDAP_PRIMARY_NODE }}"
+  run_once: true
+  when: OPENLDAP_PROVISION_USERS | bool or OPENLDAP_PROVISION_GROUPS | bool
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔧 Set LDAP user passwords (per-user update policy)"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  OPENLDAP_PRIMARY_CID is the elected writer resolved at runtime
+    container exec -i {{ OPENLDAP_PRIMARY_CID }}
+    ldappasswd -Q -Y EXTERNAL -H ldapi:/// -T /dev/stdin
+    {{ (LDAP.USER.ATTRIBUTES.ID ~ '=' ~ item.key ~ ',' ~ LDAP.DN.OU.USERS) | quote }}
+  args:
+    stdin: "{{ item.value.password }}"
+    stdin_add_newline: false
+  changed_when: true
+  delegate_to: "{{ OPENLDAP_PRIMARY_NODE }}"
+  run_once: true
+  loop: "{{ OPENLDAP_USERS | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  when:
+    - OPENLDAP_PROVISION_USERS | bool
+    - >-
+      (item.value.password_update | default(true) | bool)
+      or ('dn: ' ~ LDAP.USER.ATTRIBUTES.ID ~ '=' ~ item.key ~ ',' ~ LDAP.DN.OU.USERS)
+         not in openldap_ha_users_before.stdout_lines
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "➕ Keep mail and objectClass values of LDAP users current"
+  ansible.builtin.shell: >- # nocheck: container-exec-resolver  OPENLDAP_PRIMARY_CID is the elected writer resolved at runtime
+    container exec -i {{ OPENLDAP_PRIMARY_CID }}
+    ldapmodify -c -Q -Y EXTERNAL -H ldapi:///
+  args:
+    stdin: "{{ lookup('template', 'ldif/ha/update.ldif.j2') }}"
+  register: openldap_ha_update
+  changed_when: false
+  failed_when: >-
+    openldap_ha_update.rc not in [0, 20]
+    or (openldap_ha_update.stderr | openldap_batch_result_codes | reject('equalto', 20) | list | length > 0)
+  delegate_to: "{{ OPENLDAP_PRIMARY_NODE }}"
+  run_once: true
+  when: OPENLDAP_PROVISION_UPDATE | bool or OPENLDAP_PROVISION_USERS | bool

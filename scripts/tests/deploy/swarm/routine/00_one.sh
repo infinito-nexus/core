@@ -187,5 +187,6 @@ fi
 bash "${SCRIPT_DIR}/05_seed_content.sh"
 bash "${SCRIPT_DIR}/06_drain_worker.sh"
 bash "${SCRIPT_DIR}/07_assert_state.sh"
+bash "${SCRIPT_DIR}/08_kill_primary.sh"
 
 echo "==> swarm drill complete: app=${APP_ID} distro=${INFINITO_DISTRO}"

@@ -17,7 +17,7 @@
     {{ lookup('database', application_id, 'service_name') | quote }}
     {% else %}
     container ps -q --filter status=running
-    --filter name=^{{ lookup('database', application_id, 'container') }}$
+    --filter name=^{{ lookup('database', application_id, 'address') }}$
     {% endif %}
   register: _peertube_db_running
   changed_when: false

@@ -14,6 +14,7 @@ import io
 import itertools
 import signal
 import subprocess
+import threading
 import unittest
 import unittest.mock as mock
 from collections.abc import Callable
@@ -149,6 +150,11 @@ class TestRunWatched(unittest.TestCase):
             mock.patch.object(
                 watchdog, "uninterruptible_switches", side_effect=_switches(blocked)
             ),
+            mock.patch.object(watchdog, "runner_pids", return_value=["11"]),
+            mock.patch.object(watchdog, "protect_from_oom", return_value=["11"]),
+            mock.patch.object(watchdog, "oom_kills", return_value=0),
+            mock.patch.object(watchdog, "_netwire"),
+            mock.patch.object(watchdog, "journalwire"),
             contextlib.redirect_stdout(buffer),
         ):
             returned = watchdog.run_watched(["true"], env={})
@@ -291,6 +297,223 @@ class TestRunWatched(unittest.TestCase):
         self._watch(timeouts=1, rc=0, io_stall=0.0)
         touched = sorted(call.args[0] for call in self.handlers.call_args_list)
         self.assertEqual(touched, sorted([signal.SIGINT, signal.SIGTERM] * 2))
+
+
+class TestTripwire(unittest.TestCase):
+    def test_a_drop_below_the_spike_size_is_no_spike(self) -> None:
+        previous = (40_000, 6_000)
+        current = (40_000 - watchdog.SPIKE_MB + 1, 6_000 - watchdog.SPIKE_MB + 1)
+        self.assertIsNone(watchdog.spike_kind(previous, current))
+
+    def test_a_disk_or_memory_drop_of_the_spike_size_is_a_spike(self) -> None:
+        self.assertEqual(
+            watchdog.spike_kind((40_000, 6_000), (40_000 - watchdog.SPIKE_MB, 6_000)),
+            (watchdog.SPIKE_MB, 0),
+        )
+        self.assertEqual(
+            watchdog.spike_kind((40_000, 6_000), (40_000, 6_000 - watchdog.SPIKE_MB)),
+            (0, watchdog.SPIKE_MB),
+        )
+
+    def test_the_floor_eta_ends_only_a_run_about_to_reach_the_floor(self) -> None:
+        rate = 2 * watchdog.SPIKE_MB
+        near = watchdog.DISK_FLOOR_MB + rate * watchdog.FLOOR_ETA_S
+        self.assertTrue(watchdog.floor_within_eta(near, rate))
+        self.assertFalse(watchdog.floor_within_eta(near + 1, rate))
+        self.assertFalse(watchdog.floor_within_eta(watchdog.DISK_FLOOR_MB, 0))
+
+    def _trip(
+        self, disks: list[int], mems: list[int], kills: list[int | None]
+    ) -> tuple[threading.Event, str, _FakeProc]:
+        proc = _FakeProc(timeouts=0, rc=0)
+        stop = mock.Mock()
+        stop.wait.side_effect = [False] * len(disks) + [True]
+        tripped = threading.Event()
+        buffer = io.StringIO()
+        with (
+            mock.patch.object(
+                watchdog, "lowest_free_mb", side_effect=[(d, "/") for d in disks]
+            ),
+            mock.patch.object(watchdog, "mem_available_mb", side_effect=mems),
+            mock.patch.object(watchdog, "oom_kills", side_effect=kills),
+            mock.patch.object(
+                watchdog,
+                "oom_victims",
+                return_value=["Killed process 42 (ruby) total-vm:9G"],
+            ),
+            mock.patch.object(
+                watchdog, "memory_line", return_value="=== top memory x ==="
+            ),
+            mock.patch.object(
+                watchdog, "spike_report", return_value=["=== top writers/s x ==="]
+            ) as report,
+            mock.patch.object(
+                watchdog.os,
+                "killpg",
+                side_effect=lambda _pgid, sig: proc.signals.append(sig),
+            ),
+            mock.patch.object(watchdog.subprocess, "run"),
+            contextlib.redirect_stdout(buffer),
+        ):
+            watchdog._tripwire(proc, stop, tripped)
+        self.report = report
+        return tripped, buffer.getvalue(), proc
+
+    def test_a_steady_host_prints_nothing(self) -> None:
+        tripped, output, proc = self._trip([40_000] * 3, [6_000] * 3, [5] * 4)
+        self.assertFalse(tripped.is_set())
+        self.assertEqual(output, "")
+        self.assertFalse(proc.terminated)
+
+    def test_a_memory_spike_is_named_but_does_not_end_the_step(self) -> None:
+        tripped, output, proc = self._trip([40_000] * 2, [6_000, 3_000], [5] * 3)
+        self.assertFalse(tripped.is_set())
+        self.assertIn("SPIKE disk -0M (40000M free on /), mem -3000M", output)
+        self.assertIn("top writers/s", output)
+        self.assertFalse(proc.terminated)
+
+    def test_a_disk_racing_to_the_floor_ends_the_step(self) -> None:
+        start = watchdog.DISK_FLOOR_MB + 30 * watchdog.SPIKE_MB
+        tripped, output, proc = self._trip(
+            [start, start - 10 * watchdog.SPIKE_MB], [6_000] * 2, [5] * 3
+        )
+        self.assertTrue(tripped.is_set())
+        self.assertIn("DISK EXHAUSTION IMMINENT", output)
+        self.assertTrue(proc.terminated)
+
+    def test_repeated_spikes_are_reported_once_per_cooldown(self) -> None:
+        self._trip([40_000] * 4, [9_000, 7_000, 5_000, 3_000], [5] * 5)
+        self.assertEqual(self.report.call_count, 1)
+
+    def test_an_oom_kill_names_its_victim_and_the_memory_holders(self) -> None:
+        tripped, output, proc = self._trip([40_000] * 2, [6_000] * 2, [5, 5, 7])
+        self.assertIn("OOM KILL x2 (7 since boot)", output)
+        self.assertIn("kernel: Killed process 42 (ruby)", output)
+        self.assertIn("top memory x", output)
+        self.assertFalse(tripped.is_set())
+        self.assertFalse(proc.terminated)
+
+    def test_an_unreadable_oom_counter_reports_nothing(self) -> None:
+        _, output, _ = self._trip([40_000] * 2, [6_000] * 2, [None, None, 3])
+        self.assertNotIn("OOM KILL", output)
+
+    def test_run_watched_returns_the_abort_code_when_the_tripwire_fired(
+        self,
+    ) -> None:
+        proc = _FakeProc(timeouts=0, rc=0)
+
+        def fire(_proc: object, _stop: object, tripped: threading.Event) -> None:
+            tripped.set()
+
+        with (
+            mock.patch.object(watchdog.subprocess, "Popen", return_value=proc),
+            mock.patch.object(watchdog.signal, "signal", return_value=signal.SIG_DFL),
+            mock.patch.object(watchdog, "_tripwire", side_effect=fire),
+            mock.patch.object(watchdog, "_netwire"),
+            mock.patch.object(watchdog, "journalwire"),
+            mock.patch.object(watchdog, "runner_pids", return_value=[]),
+            mock.patch.object(watchdog, "protect_from_oom", return_value=[]),
+        ):
+            self.assertEqual(watchdog.run_watched(["true"], env={}), watchdog.ABORT_RC)
+
+    def test_run_watched_exempts_the_runner_agent_before_the_step_starts(
+        self,
+    ) -> None:
+        proc = _FakeProc(timeouts=0, rc=0)
+        order: list[str] = []
+        buffer = io.StringIO()
+        with (
+            mock.patch.object(
+                watchdog.subprocess,
+                "Popen",
+                side_effect=lambda *_a, **_k: order.append("step") or proc,
+            ),
+            mock.patch.object(watchdog.signal, "signal", return_value=signal.SIG_DFL),
+            mock.patch.object(watchdog, "_tripwire"),
+            mock.patch.object(watchdog, "_netwire"),
+            mock.patch.object(watchdog, "journalwire"),
+            mock.patch.object(watchdog, "runner_pids", return_value=["7", "8"]),
+            mock.patch.object(
+                watchdog,
+                "protect_from_oom",
+                side_effect=lambda pids: order.append("protect") or pids,
+            ) as protect,
+            contextlib.redirect_stdout(buffer),
+        ):
+            watchdog.run_watched(["true"], env={})
+        protect.assert_called_once_with(["7", "8"])
+        self.assertEqual(order, ["protect", "step"])
+        self.assertIn("exempt from the OOM killer: 7, 8", buffer.getvalue())
+
+
+class TestNetwire(unittest.TestCase):
+    def _net(self, answers: list[bool]) -> tuple[threading.Event, str, _FakeProc]:
+        proc = _FakeProc(timeouts=0, rc=0)
+        stop = mock.Mock()
+        stop.wait.side_effect = [False] * len(answers) + [True]
+        tripped = threading.Event()
+        buffer = io.StringIO()
+        with (
+            mock.patch.object(watchdog, "reachable", side_effect=answers),
+            mock.patch.object(
+                watchdog, "network_report", return_value=["=== network x ==="]
+            ),
+            mock.patch.object(
+                watchdog, "memory_line", return_value="=== top memory x ==="
+            ),
+            mock.patch.object(
+                watchdog.os,
+                "killpg",
+                side_effect=lambda _pgid, sig: proc.signals.append(sig),
+            ),
+            mock.patch.object(watchdog.subprocess, "run"),
+            contextlib.redirect_stdout(buffer),
+        ):
+            watchdog._netwire(proc, stop, tripped)
+        return tripped, buffer.getvalue(), proc
+
+    def test_a_reachable_github_prints_nothing(self) -> None:
+        tripped, output, proc = self._net([True] * 6)
+        self.assertEqual(output, "")
+        self.assertFalse(tripped.is_set())
+        self.assertFalse(proc.terminated)
+
+    def test_failures_below_the_limit_only_warn(self) -> None:
+        answers = [False] * (watchdog.NET_LOST_PROBES - 1) + [True, False]
+        tripped, output, proc = self._net(answers)
+        self.assertIn(f"unreachable (1/{watchdog.NET_LOST_PROBES})", output)
+        self.assertNotIn("NETWORK LOST", output)
+        self.assertFalse(tripped.is_set())
+        self.assertFalse(proc.terminated)
+
+    def test_a_lost_network_is_reported_and_ends_the_step(self) -> None:
+        tripped, output, proc = self._net([False] * watchdog.NET_LOST_PROBES)
+        self.assertIn("network x", output)
+        self.assertIn("top memory x", output)
+        self.assertIn("NETWORK LOST", output)
+        self.assertTrue(tripped.is_set())
+        self.assertTrue(proc.terminated)
+
+    def test_only_a_hosted_runner_probes_the_network(self) -> None:
+        proc = _FakeProc(timeouts=0, rc=0)
+        for value, expected in (("true", 1), ("", 0)):
+            with (
+                self.subTest(GITHUB_ACTIONS=value),
+                mock.patch.dict(watchdog.os.environ, {"GITHUB_ACTIONS": value}),
+                mock.patch.object(watchdog.subprocess, "Popen", return_value=proc),
+                mock.patch.object(
+                    watchdog.signal, "signal", return_value=signal.SIG_DFL
+                ),
+                mock.patch.object(watchdog, "_tripwire"),
+                mock.patch.object(watchdog, "_netwire") as netwire,
+                mock.patch.object(watchdog, "journalwire") as journal,
+                mock.patch.object(watchdog, "runner_pids", return_value=[]),
+                mock.patch.object(watchdog, "protect_from_oom", return_value=[]),
+                contextlib.redirect_stdout(io.StringIO()),
+            ):
+                watchdog.run_watched(["true"], env={})
+                self.assertEqual(netwire.call_count, expected)
+                self.assertEqual(journal.call_count, expected)
 
 
 class TestBlockedStreaks(unittest.TestCase):

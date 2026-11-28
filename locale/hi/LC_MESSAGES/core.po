@@ -397,6 +397,10 @@ msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
 msgstr "सिस्टम जीवनचक्र प्रबंधन के लिए नियंत्रण परत - सफाई, निगरानी, बैकअप, अलर्टिंग, रखरखाव और मरम्मत कार्य।"
 
+msgctxt "category:svc.dcs:title"
+msgid "Coordination Stores"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
@@ -572,6 +576,10 @@ msgstr "विकास और CI/CD उपकरण"
 # translated-by: libretranslate
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
+msgstr ""
+
+msgctxt "category:svc.dcs:description"
+msgid "Distributed coordination stores for leader election of database clusters (etcd)"
 msgstr ""
 
 # translated-by: libretranslate
@@ -1782,6 +1790,10 @@ msgstr "साझा PHP सख्त ini और PHP-FPM पूल ड्रॉ�
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
 msgstr "साझा भंडारण"
+
+msgctxt "role:svc-dcs-etcd:description"
+msgid "Shared etcd coordination store for leader election of the central database clusters on Docker Swarm"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-openssl:description"

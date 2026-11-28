@@ -5,6 +5,7 @@ import unittest.mock as mock
 from typing import ClassVar
 
 from utils.github.variant import axes, network, pins, pools
+from utils.github.variant import topology as topology_axis
 from utils.packages.schema import PackagesShapeError
 from utils.roles.display import display_names
 from utils.roles.mapping import (
@@ -1178,6 +1179,234 @@ class TestArchitectureAxis(unittest.TestCase):
         for architecture in pools.ARCHITECTURES:
             with self.subTest(architecture=architecture):
                 self.assertTrue(pools.runner_of(architecture))
+
+
+_TOPOLOGY_ROWS = [
+    _row(f"web-app-t{index}", 0, ("compose", "swarm")) for index in range(20)
+]
+
+_TOPOLOGY_VARIANTS = {
+    **_VARIANTS,
+    **{
+        row["name"]: [{"services": {"tor": {"enabled": _REACTIVE}}}]
+        for row in _TOPOLOGY_ROWS
+    },
+}
+
+
+def _assign_topology(rows, **kwargs) -> list[dict[str, str]]:
+    return _assign(rows, variants_per_app=_TOPOLOGY_VARIANTS, **kwargs)
+
+
+class TestDbTopologyAxis(unittest.TestCase):
+    def test_off_by_default(self) -> None:
+        with mock.patch.dict("os.environ", {}, clear=False) as env:
+            env.pop("INFINITO_CI_DB_TOPOLOGY", None)
+            self.assertFalse(topology_axis.resolve_db_topology())
+
+    def test_enabled_by_the_environment(self) -> None:
+        with mock.patch.dict("os.environ", {"INFINITO_CI_DB_TOPOLOGY": "true"}):
+            self.assertTrue(topology_axis.resolve_db_topology())
+
+    def test_explicit_values(self) -> None:
+        for raw in ("true", "on", "1", "enabled", " TRUE "):
+            self.assertTrue(topology_axis.resolve_db_topology(raw), raw)
+        for raw in ("", "false", "off", "0", "nonsense"):
+            self.assertFalse(topology_axis.resolve_db_topology(raw), raw)
+
+    def test_off_keeps_the_pre_existing_keys_unchanged(self) -> None:
+        for sweep in range(8):
+            off = _assign_topology(
+                _TOPOLOGY_ROWS, sweep=sweep, network_input="auto", db_topology=False
+            )
+            for entry in off:
+                self.assertEqual(entry["db_topology"], "")
+                self.assertEqual(entry["kill_primary"], "false")
+                self.assertNotIn(to_emoji("ha"), entry["label"])
+                self.assertFalse(entry["artifact"].endswith(("-ha", "-standalone")))
+
+    def test_only_swarm_rows_carry_a_topology(self) -> None:
+        for sweep in range(8):
+            for entry in _assign_topology(
+                _TOPOLOGY_ROWS, sweep=sweep, network_input="auto", db_topology=True
+            ):
+                if entry["mode"] == "swarm":
+                    self.assertIn(entry["db_topology"], topology_axis.TOPOLOGIES)
+                else:
+                    self.assertEqual(entry["db_topology"], "")
+                    self.assertEqual(entry["kill_primary"], "false")
+
+    def test_ha_rows_flag_the_kill_primary_probe(self) -> None:
+        for sweep in range(8):
+            for entry in _assign_topology(
+                _TOPOLOGY_ROWS, sweep=sweep, network_input="auto", db_topology=True
+            ):
+                self.assertEqual(
+                    entry["kill_primary"],
+                    "true" if entry["db_topology"] == "ha" else "false",
+                )
+
+    def test_one_sweep_mixes_topologies_across_rows_of_one_parity(self) -> None:
+        for parity in (0, 1):
+            picks = {
+                topology_axis.pick_topology(position, 0)
+                for position in range(parity, 16, 2)
+            }
+            self.assertEqual(
+                picks,
+                set(topology_axis.TOPOLOGIES),
+                "the mode rotation leaves every swarm row of a sweep on one "
+                "position parity, so the topology must not read that parity",
+            )
+
+    def test_topology_does_not_follow_the_vpn_rotation(self) -> None:
+        pairs = {
+            (topology_axis.pick_topology(position, 0), (position // 2) % 2)
+            for position in range(0, 16, 2)
+        }
+        self.assertEqual(len(pairs), 4)
+
+    def test_a_pinned_topology_overrides_the_rotation(self) -> None:
+        for topology in topology_axis.TOPOLOGIES:
+            rows = [
+                _row(
+                    "web-app-t0", 0, ("swarm",), pin_mode="swarm", pin_topology=topology
+                )
+            ]
+            for sweep in range(8):
+                (entry,) = _assign_topology(
+                    rows, sweep=sweep, network_input="auto", db_topology=True
+                )
+                self.assertEqual(entry["db_topology"], topology)
+
+    def test_a_mesh_pin_on_an_ha_row_aborts(self) -> None:
+        rows = [
+            _row(
+                "web-app-t0",
+                0,
+                ("swarm",),
+                pin_mode="swarm",
+                pin_vpn=True,
+                pin_topology="ha",
+            )
+        ]
+        with self.assertRaises(SystemExit):
+            _assign_topology(rows, sweep=0, network_input="auto", db_topology=True)
+
+    def test_a_topology_pin_without_the_axis_aborts(self) -> None:
+        rows = [_row("web-app-t0", 0, ("swarm",), pin_topology="ha")]
+        with self.assertRaises(SystemExit):
+            _assign_topology(rows, sweep=0, network_input="auto", db_topology=False)
+
+    def test_rotates_on_its_own_divisor(self) -> None:
+        self.assertEqual(
+            topology_axis.pick_topology(0, 0), topology_axis.pick_topology(0, 3)
+        )
+        self.assertNotEqual(
+            topology_axis.pick_topology(0, 3), topology_axis.pick_topology(0, 4)
+        )
+
+    def test_every_pairing_is_covered_within_eight_sweeps(self) -> None:
+        seen: dict[str, set] = {
+            axis: set() for axis in ("network", "mode", "distro", "filesystem")
+        }
+        for sweep in range(8):
+            for entry in _assign_topology(
+                _TOPOLOGY_ROWS, sweep=sweep, network_input="auto", db_topology=True
+            ):
+                if entry["mode"] != "swarm":
+                    continue
+                topology = entry["db_topology"]
+                for axis in seen:
+                    seen[axis].add((topology, entry[axis]))
+        networks = {state for _, state in seen["network"]}
+        self.assertGreater(len(networks), 1)
+        for topology in topology_axis.TOPOLOGIES:
+            for state in networks:
+                self.assertIn((topology, state), seen["network"])
+            self.assertIn((topology, "swarm"), seen["mode"])
+            for distro in axes.DISTROS:
+                self.assertIn((topology, distro), seen["distro"])
+            for filesystem in axes.FILESYSTEMS:
+                self.assertIn((topology, filesystem), seen["filesystem"])
+
+    def test_mode_network_topology_cover_every_combination_per_row(self) -> None:
+        row = [_row("web-app-t0", 0, ("compose", "swarm"))]
+        combos = set()
+        for sweep in range(24):
+            for entry in _assign_topology(
+                row, sweep=sweep, network_input="auto", db_topology=True
+            ):
+                combos.add((entry["mode"], entry["network"], entry["db_topology"]))
+        swarm = {combo for combo in combos if combo[0] == "swarm"}
+        networks = {combo[1] for combo in swarm}
+        self.assertGreater(len(networks), 1)
+        self.assertEqual(
+            swarm,
+            {
+                ("swarm", state, topology)
+                for state in networks
+                for topology in topology_axis.TOPOLOGIES
+            },
+        )
+
+    def test_every_application_gets_an_ha_row(self) -> None:
+        ha = set()
+        for sweep in range(8):
+            for entry in _assign_topology(
+                _TOPOLOGY_ROWS, sweep=sweep, network_input="auto", db_topology=True
+            ):
+                if entry["db_topology"] == "ha":
+                    ha.add(entry["apps"])
+        self.assertEqual(ha, {row["name"] for row in _TOPOLOGY_ROWS})
+
+    def test_priority_swarm_rows_deploy_both_topologies(self) -> None:
+        rows = [_row("web-app-b", 0, ("swarm",), priority=True)]
+        entries = _assign_topology(
+            rows,
+            sweep=0,
+            network_input="clearnet",
+            vpn_mode="disabled",
+            db_topology=True,
+        )
+        self.assertEqual(
+            sorted(entry["db_topology"] for entry in entries), ["ha", "standalone"]
+        )
+        self.assertEqual(len({entry["artifact"] for entry in entries}), 2)
+
+    def test_an_ha_row_is_never_meshed(self) -> None:
+        ha_rows = [
+            entry
+            for sweep in range(8)
+            for entry in _assign_topology(
+                _TOPOLOGY_ROWS,
+                sweep=sweep,
+                network_input="auto",
+                vpn_mode="enforced",
+                db_topology=True,
+            )
+            if entry["db_topology"] == "ha"
+        ]
+        self.assertTrue(ha_rows)
+        for entry in ha_rows:
+            self.assertEqual(entry["vpn"], "false", entry["label"])
+
+    def test_label_carries_and_parses_the_topology_glyph(self) -> None:
+        for sweep in range(8):
+            for entry in _assign_topology(
+                _TOPOLOGY_ROWS, sweep=sweep, network_input="auto", db_topology=True
+            ):
+                label = axes.parse_label(entry["label"])
+                self.assertIsNotNone(label)
+                self.assertEqual(label.db_topology, entry["db_topology"])
+                self.assertEqual(label.distro, entry["distro"])
+                self.assertEqual(label.filesystem, entry["filesystem"])
+                if entry["db_topology"]:
+                    self.assertIn(to_emoji(entry["db_topology"]), entry["label"])
+
+    def test_glyphs_are_registered(self) -> None:
+        self.assertEqual(to_emoji("ha"), "🔱")
+        self.assertEqual(to_emoji("standalone"), "☝️")
 
 
 if __name__ == "__main__":

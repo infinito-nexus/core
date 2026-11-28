@@ -1,0 +1,35 @@
+---
+# Param: backup_application_id - central engine role (svc-db-postgres, svc-db-mariadb, svc-db-openldap)
+# Param: backup_reason         - why the deploy takes the backup; printed when it fails
+# Param: backup_on_stack_host  - true while the engine still runs standalone (default false)
+- name: "🔍 db_pre_change_backup | resolve the primary of '{{ backup_application_id }}'"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/primary.yml') }}"
+  vars:
+    primary_application_id: "{{ backup_application_id }}"
+    primary_output_prefix: DB_PRE_CHANGE_BACKUP
+  when: not (backup_on_stack_host | default(false) | bool)
+
+- name: "💾 db_pre_change_backup | run the backup unit on the primary's host"
+  ansible.builtin.command:
+    argv:
+      - systemctl
+      - start
+      - "{{ SYS_SERVICE_BACKUP_VOLUME_2_LOCAL }}"
+  register: db_pre_change_backup_run
+  changed_when: true
+  failed_when: false
+  delegate_to: >-
+    {{ STACK_HOST if (backup_on_stack_host | default(false) | bool) else DB_PRE_CHANGE_BACKUP_PRIMARY_NODE }}
+  run_once: true
+
+- name: "🛡️ db_pre_change_backup | abort the deploy when the backup failed"
+  ansible.builtin.assert:
+    that:
+      - db_pre_change_backup_run.rc == 0
+    fail_msg: >-
+      The pre-change backup of {{ backup_application_id }} failed ({{ backup_reason }}):
+      {{ db_pre_change_backup_run.stderr | default('') | trim }}.
+      Nothing was changed. Check `journalctl -u {{ SYS_SERVICE_BACKUP_VOLUME_2_LOCAL }}`
+      on the primary's host, fix the backup and re-run.
+    quiet: true
+  run_once: true

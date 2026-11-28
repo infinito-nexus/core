@@ -31,7 +31,7 @@ One central role per engine, mirroring `svc-db-postgres`:
 | --- | --- | --- |
 | `svc-db-postgres` (exists) | PostgreSQL | a database |
 | `svc-db-mariadb` (exists) | MariaDB | a database |
-| `svc-db-redis` (convert) | Redis | ACL user + key-prefix `{entity}:*` |
+| `svc-db-redis` (exists) | Redis | none enforced: every consumer authenticates as the shared `default` user; `lookup('engine', 'redis', …)` hands it the key prefix `{entity}` |
 | `svc-db-memcached` (convert) | Memcached | key-prefix only (no native ACL) |
 | `svc-db-rabbitmq` (new) | RabbitMQ | a vhost + user |
 | `svc-db-elasticsearch` (new) | Elasticsearch | index/alias namespace |

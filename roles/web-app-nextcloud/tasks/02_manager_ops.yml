@@ -6,7 +6,7 @@
   meta: flush_handlers
 
 - name: 🔍 Resolve the Nextcloud hosting node and container id
-  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: "{{ NEXTCLOUD_SERVICE }}"
     resolve_output_prefix: NEXTCLOUD
@@ -28,7 +28,7 @@
       delegate_to: "{{ NEXTCLOUD_HOST_NODE }}"
 
 - name: 🔍 Re-resolve the hosting node after the upgrade
-  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: "{{ NEXTCLOUD_SERVICE }}"
     resolve_output_prefix: NEXTCLOUD

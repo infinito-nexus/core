@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 ROLE = PROJECT_ROOT / "roles" / "web-app-homeassistant"
 REALIGN = ROLE / "tasks" / "utils" / "owner" / "realign.yml"
-RESOLVER = "roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml"
+RESOLVER = "roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml"
 PREFIX = "HOMEASSISTANT"
 
 

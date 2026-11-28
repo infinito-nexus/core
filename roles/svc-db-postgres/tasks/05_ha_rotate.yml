@@ -1,0 +1,24 @@
+---
+- name: "🔍 POSTGRES | Ask the running instances which one is primary"
+  ansible.builtin.command:
+    argv:
+      - "{{ [DIR_BIN, POSTGRES_INSTANCES.ha.probe] | path_join }}"
+      - "{{ entity_name }}"
+      - "{{ item.service }}"
+  register: postgres_rotate_probe
+  changed_when: false
+  failed_when: false
+  delegate_to: "{{ item.host }}"
+  loop: "{{ POSTGRES_INSTANCES.instances }}"
+  loop_control:
+    label: "{{ item.service }}"
+
+- name: "🔧 POSTGRES | Remember the running primary"
+  ansible.builtin.set_fact:
+    postgres_rotate_primary: "{{ postgres_rotate_probe.results | selectattr('rc', 'equalto', 0) | map(attribute='item') | list }}"
+
+- name: "🔑 POSTGRES | Write the inventory's role passwords into the running primary"
+  ansible.builtin.include_tasks: 05_ha_rotate/apply.yml
+  vars:
+    postgres_rotate_target: "{{ postgres_rotate_primary[0] }}"
+  when: postgres_rotate_primary | length > 0

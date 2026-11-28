@@ -7,8 +7,10 @@ IS_SWARM_MODE: "{{ DEPLOYMENT_MODE == 'swarm' }}"
 swarm_stack_converge_retries: 600
 
 IS_STACK_HOST: >-
-  {{ IS_COMPOSE_MODE
-     or inventory_hostname in (groups['svc-swarm-manager'] | default([])) }}
+  {{ IS_COMPOSE_MODE or inventory_hostname == STACK_HOST }}
+
+IS_SWARM_MANAGER: >-
+  {{ inventory_hostname in (groups['svc-swarm-manager'] | default([])) }}
 
 IS_BACKUP_HOST: >-
   {{ group_names | select('match', '^svc-bkp-') | list | length > 0 }}
@@ -17,6 +19,21 @@ STACK_HOST: >-
   {{ (groups['svc-swarm-manager'] | default([]))[0] | default(inventory_hostname) }}
 
 swarm_stack_fatal_grace: 180
+
+# Param: db_instance - HA instance the compose template loop pins a service to; null renders the standalone placement
+db_instance:
+# Param: DB_HA_MIGRATING - application_id -> true while a standalone engine migrates to its HA form; filled by sys-svc-compose tasks/utils/db/ha/prepare.yml
+DB_HA_MIGRATING: {}
+
+SWARM_NODE_LABEL_STACK_HOST: infinito.stack_host
+SWARM_NODE_LABEL_HOST_ID: infinito.host_id
+SWARM_SERVICE_LABEL_SEED_WAIT: infinito.seed_wait
+SWARM_SERVICE_LABEL_DB_ENDPOINT: infinito.db_endpoint
+
+DB_ELECTOR_DIR: /opt/db-elector
+
+# Param: swarm_node_labels - extra node labels an inventory host pushes onto its swarm node
+swarm_node_labels: {}
 
 SWARM_INGRESS_GUARDED: "{{ (swarm_ingress_read.stdout_lines | swarm_ingress_sections)['port'] | swarm_ingress_published | swarm_ingress_guarded(lookup('applications')
   | swarm_public_ports) }}"

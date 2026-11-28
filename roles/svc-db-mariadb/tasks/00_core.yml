@@ -13,6 +13,29 @@
     tasks_from: 00_core.yml
   when: run_once_sys_svc_compose is not defined
 
+- include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/db/ha/prepare.yml') }}"
+
+- name: "📄 Render the HAProxy write endpoint config"
+  include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/db/endpoint.yml') }}"
+  vars:
+    application_id: "svc-db-mariadb"
+
+- name: "🔱 MariaDB HA | Prepare the stack host"
+  when:
+    - MARIADB_HA | bool
+    - IS_STACK_HOST | bool
+  block:
+    - name: "📖 MariaDB HA | Remember the root password the running cluster holds"
+      include_tasks:
+        file: ha/01_rotate.yml
+        apply:
+          run_once: true
+          no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      when: not (DB_HA_MIGRATING[application_id] | bool)
+
+    - name: "📄 MariaDB HA | Render option files and the image build context"
+      include_tasks: ha/02_files.yml
+
 - name: "📄 Lay down the MariaDB health identity init file on the stack host"
   when: IS_STACK_HOST | bool
   block:
@@ -79,7 +102,7 @@
         - mariadb_login_desired.rc != 0
         - "'No such container' not in (mariadb_login_desired.stderr | default(''))"
 
-  when: MARIADB_ALLOW_RESET_WITHOUT_PREVIOUS | bool
+  when: MARIADB_ALLOW_RESET_WITHOUT_PREVIOUS | bool and not (MARIADB_HA | bool)
 
 - name: "⏳ Wait until MariaDB accepts root credentials (inside container)"
   ansible.builtin.shell:
@@ -96,6 +119,7 @@
   retries: 30
   delay: 5
   until: mariadb_cli.rc == 0
+  when: not (MARIADB_HA | bool)
 
 - name: "⏳ Wait until MariaDB accepts root credentials (via mariadb_db)"
   ansible.mariadb.mariadb_db:
@@ -112,3 +136,11 @@
   until: mariadb_ready is succeeded
   changed_when: false
   when: MARIADB_EXPOSE_LOCAL | bool
+
+- name: "🔱 MariaDB HA | Bootstrap, seed and provision the instances"
+  include_tasks: ha/03_instances.yml
+  when:
+    - MARIADB_HA | bool
+    - IS_STACK_HOST | bool
+
+- include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/db/ha/health_gate.yml') }}"

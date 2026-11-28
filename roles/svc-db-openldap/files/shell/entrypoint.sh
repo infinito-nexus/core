@@ -147,6 +147,129 @@ EOF
   log "MDB files initialized"
 }
 
+render_ha_cn_config() {
+  local source="/etc/ldap/cn-config.ldif"
+  local target="/run/slapd/cn-config.ldif"
+  [ -f "${source}" ] || fatal "HA form needs ${source} (the per-instance cn=config)"
+  OPENLDAP_UID="$(id -u openldap)" OPENLDAP_GID="$(id -g openldap)" \
+  ROOT_PW_HASH="$(slappasswd -s "${LDAP_ROOT_PW}")" \
+  python3 - "${source}" "${target}" <<'PY'
+import os
+import sys
+
+text = open(sys.argv[1], encoding="utf-8").read()
+for token in ("ROOT_PW_HASH", "OPENLDAP_UID", "OPENLDAP_GID"):
+    text = text.replace(f"@{token}@", os.environ[token])
+text = text.replace("@ROOT_PW@", os.environ["LDAP_ROOT_PW"])
+fd = os.open(sys.argv[2], os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+with os.fdopen(fd, "w", encoding="utf-8") as handle:
+    handle.write(text)
+PY
+  rm -rf "${SLAPD_D_DIR:?}/"*
+  log "HA: rebuilding slapd.d from the rendered cn=config (data database read-only)"
+  slapadd -n 0 -F "${SLAPD_D_DIR}" -l "${target}"
+  rm -f "${target}"
+  chown -R openldap:openldap "${SLAPD_D_DIR}"
+}
+
+stage_ha_credentials() {
+  install -m 0400 -o openldap -g openldap /dev/null /run/slapd/peer-bind-pw
+  printf '%s' "${LDAP_ROOT_PW}" > /run/slapd/peer-bind-pw
+  install -m 0400 -o openldap -g openldap \
+    /run/secrets/elector-etcd-password /run/slapd/elector-etcd-password
+}
+
+peer_has_data() {
+  local peer url
+  for peer in ${ELECTOR_PEERS//,/ }; do
+    [ "${peer}" = "${ELECTOR_HOST_ID}" ] && continue
+    url="ldap://${ELECTOR_PEER_TEMPLATE//\{host\}/${peer}}"
+    if ldapsearch -x -o nettimeout=3 -H "${url}" -D "${LDAP_ROOT_DN}" -y /run/slapd/peer-bind-pw \
+        -s base -b "${LDAP_SUFFIX}" dn >/dev/null 2>&1; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+wait_for_ldapi() {
+  local attempt
+  for attempt in $(seq 1 60); do
+    if ldapsearch -Q -Y EXTERNAL -H ldapi:/// -s base -b cn=config dn >/dev/null 2>&1; then
+      return 0
+    fi
+    log "HA: waiting for ldapi (${attempt}/60)"
+    sleep 1
+  done
+  return 1
+}
+
+run_ha() {
+  : "${LDAP_PORT:?LDAP_PORT must be set in HA form}"
+  : "${ELECTOR_HOST_ID:?ELECTOR_HOST_ID must be set in HA form}"
+
+  mkdir -p /run/slapd "${DB_DIR}" "${SLAPD_D_DIR}"
+  chown -R openldap:openldap /run/slapd "${DB_DIR}" "${SLAPD_D_DIR}"
+
+  exec 9>"${DB_DIR}/.instance.lock"
+  if ! flock -x -n 9; then
+    log "HA: waiting for the previous instance to release ${DB_DIR}"
+    flock -x 9
+  fi
+
+  render_ha_cn_config
+  stage_ha_credentials
+  if [ "${OPENLDAP_HA_SEED:-false}" = "true" ]; then
+    if ! has_mdb_files && peer_has_data; then
+      log "HA: a peer already serves ${LDAP_SUFFIX}; replicating instead of seeding"
+    else
+      init_mdb_files_if_needed
+    fi
+  fi
+  chown -R openldap:openldap "${DB_DIR}"
+
+  log "HA: starting slapd on ${LDAP_PORT} as openldap (read-only until elected)"
+  /usr/sbin/slapd -F "${SLAPD_D_DIR}" -d "${LDAP_LOG_LEVEL}" \
+    -h "ldap://:${LDAP_PORT}/ ldapi:///" -u openldap -g openldap &
+  local slapd_pid=$!
+
+  wait_for_ldapi || fatal "slapd did not open ldapi"
+
+  log "HA: starting writer elector for ${ELECTOR_HOST_ID}"
+  ELECTOR_ETCD_CA_FILE=/etc/ssl/etcd/ca.crt \
+  ELECTOR_ENGINE=openldap \
+  ELECTOR_LDAP_SUFFIX="${LDAP_SUFFIX}" \
+  ELECTOR_LDAP_BIND_DN="${LDAP_ROOT_DN}" \
+  ELECTOR_LDAP_BIND_PASSWORD_FILE=/run/slapd/peer-bind-pw \
+  ELECTOR_ETCD_PASSWORD_FILE=/run/slapd/elector-etcd-password \
+    setpriv --reuid=openldap --regid=openldap --init-groups \
+    python3 -m infinito_elector &
+  local elector_pid=$!
+
+  set +e
+  # shellcheck disable=SC2317,SC2329  # invoked through the TERM/INT trap
+  shutdown() {
+    log "HA: stopping elector first so it turns read-only and releases the lease"
+    kill -TERM "${elector_pid}" 2>/dev/null
+    wait "${elector_pid}"
+    kill -TERM "${slapd_pid}" 2>/dev/null
+    wait "${slapd_pid}"
+    exit 143
+  }
+  trap shutdown TERM INT
+
+  wait -n "${slapd_pid}" "${elector_pid}"
+  local status=$?
+  log "HA: slapd or the elector exited (${status}); stopping the instance"
+  kill -TERM "${elector_pid}" "${slapd_pid}" 2>/dev/null
+  wait
+  exit $(( status == 0 ? 1 : status ))
+}
+
+if [ "${OPENLDAP_HA:-false}" = "true" ]; then
+  run_ha
+fi
+
 log "starting entrypoint (suffix=${LDAP_SUFFIX}, rootdn=${LDAP_ROOT_DN})"
 
 mkdir -p /run/slapd "${DB_DIR}" "${SLAPD_D_DIR}"

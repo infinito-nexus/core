@@ -69,6 +69,11 @@ on:
         required: false
         type: string
         default: auto
+      db_topology:
+        description: "🔱 'true' turns on the db topology axis (standalone/HA swarm databases). Empty: the INFINITO_CI_DB_TOPOLOGY repository variable decides."
+        required: false
+        type: string
+        default: ""
       vpn:
         required: false
         type: string
@@ -136,6 +141,11 @@ on:
         type: choice
         default: auto
         options: [auto, clearnet, tor, multi]
+      db_topology:
+        description: "🔱 Rotate swarm rows over standalone and HA databases (needs the larger lab)"
+        required: false
+        type: boolean
+        default: false
       vpn:
         description: "🚇 WireGuard axis; see .github/workflows/README.md for what each value does"
         required: false
@@ -159,6 +169,7 @@ permissions:
 
 env:
   INFINITO_DISTROS: ${{ inputs.distros }}
+  INFINITO_CI_DB_TOPOLOGY: ${{ (inputs.db_topology == true || inputs.db_topology == 'true') && 'true' || vars.INFINITO_CI_DB_TOPOLOGY }}
   NIX_CONFIG: |
     access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
   INFINITO_IMAGE_TAG: ci-${{ github.sha }}
@@ -367,7 +378,7 @@ jobs:
     # TODO: verify in a CI deploy that a cancel drops queued jobs from this
     # group and that an identical row of a second run queues behind it.
     concurrency:
-      group: "infinito-deploy-${{ matrix.mode }}-${{ matrix.network }}-${{ matrix.distro }}-${{ matrix.filesystem }}-${{ matrix.apps }}#${{ matrix.variant }}"
+      group: "infinito-deploy-${{ matrix.mode }}-${{ matrix.network }}-${{ matrix.distro }}-${{ matrix.filesystem }}-${{ matrix.db_topology }}-${{ matrix.apps }}#${{ matrix.variant }}"
       cancel-in-progress: false
       queue: max
 
@@ -380,6 +391,8 @@ jobs:
       APP_ID: ${{ matrix.apps }}
       INFINITO_DEPLOY_MODE: ${{ matrix.mode }}
       INFINITO_DISTROS: ${{ matrix.distro }}
+      INFINITO_SWARM_DB_TOPOLOGY: ${{ matrix.db_topology || 'standalone' }}
+      INFINITO_CI_KILL_PRIMARY: ${{ matrix.kill_primary || 'false' }}
       INFINITO_DOCKER_FILESYSTEM_ALLOWED: ${{ inputs.filesystem }}
       INFINITO_DOCKER_FILESYSTEM_PICK: ${{ matrix.filesystem }}
       INFINITO_DOCKER_FILESYSTEM_ENFORCED: ${{ matrix.enforce_filesystem }}
@@ -518,6 +531,11 @@ jobs:
           source scripts/meta/env/load.sh
           echo "${VENV}/bin" >> "${GITHUB_PATH}"
 
+      - name: "📈 Record runner load during the drill"
+        if: ${{ matrix.mode == 'swarm' }}
+        shell: bash
+        run: ./scripts/tests/deploy/ci/runner-load.sh start /tmp/runner-load.log
+
       - name: "🚀 Drill ${{ matrix.apps }} on ${{ matrix.distro }}/${{ matrix.filesystem }}"
         if: ${{ matrix.mode == 'swarm' }}
         timeout-minutes: 350
@@ -546,6 +564,11 @@ jobs:
         if: ${{ always() && matrix.mode != 'swarm' }}
         shell: bash
         run: ./scripts/tests/deploy/ci/assert_no_deprecation_warnings.sh "/tmp/ansible-${{ matrix.apps }}.log"
+
+      - name: "📈 Runner load during the drill"
+        if: ${{ always() && matrix.mode == 'swarm' }}
+        shell: bash
+        run: ./scripts/tests/deploy/ci/runner-load.sh report /tmp/runner-load.log | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: "🗄️ Effective node filesystems"
         if: ${{ always() && matrix.mode == 'swarm' }}

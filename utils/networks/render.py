@@ -141,7 +141,14 @@ def render_compose_networks(
     lookup_database: Callable[[str, str], Any],
     swarm_encrypted: bool = True,
     node_local: bool = False,
+    internal: bool = False,
 ) -> str:
+    """Top-level ``networks:`` block.
+
+    Args:
+        internal: also declare the stack-scoped, non-attachable engine-internal
+            overlay ``internal`` on ``networks.internal.subnet`` (swarm only).
+    """
     if node_local:
         deployment_mode = "compose"
     attachments, _ = _compute_attachments(
@@ -187,6 +194,21 @@ def render_compose_networks(
                 lines.append("      config:")
                 lines.append(f"        - subnet: {subnet}")
 
+    if internal and deployment_mode == "swarm":
+        subnet = lookup_config(application_id, "networks.internal.subnet", "")
+        if not subnet:
+            raise ValueError(
+                f"{application_id}: the internal overlay needs networks.internal.subnet"
+            )
+        lines.append("  internal:")
+        lines.append("    driver: overlay")
+        lines.append("    driver_opts:")
+        lines.append(f'      encrypted: "{"true" if swarm_encrypted else "false"}"')
+        lines.append("    ipam:")
+        lines.append("      driver: default")
+        lines.append("      config:")
+        lines.append(f"        - subnet: {subnet}")
+
     if len(lines) == 1:
         return ""
 
@@ -204,8 +226,21 @@ def render_container_networks(
     provider_self_alias: bool = True,
     node_local: bool = False,
     own_network_only: bool = False,
+    internal: bool = False,
+    roles_only: list[str] | None = None,
+    roles_exclude: list[str] | None = None,
+    include_default: bool = True,
     aliases: list[str] | None = None,
 ) -> str:
+    """Per-service ``networks:`` attachment.
+
+    Args:
+        internal: also attach the engine-internal overlay ``internal`` (swarm only).
+        roles_only: keep only attachments to these provider roles.
+        roles_exclude: drop attachments to these provider roles.
+        include_default: attach the stack ``default`` network when it is rendered.
+        aliases: extra aliases on the stack ``default`` network.
+    """
     if node_local:
         deployment_mode = "compose"
     attachments, default_aliases = _compute_attachments(
@@ -214,10 +249,17 @@ def render_container_networks(
     if aliases:
         default_aliases = list(dict.fromkeys([*default_aliases, *aliases]))
     lines: list[str] = ["networks:"]
+    if internal and deployment_mode == "swarm":
+        lines.append("  internal:")
+        lines.append("    {}")
     for att in attachments:
         if att["is_provider"] and att["topology"] == "default_net":
             continue
         if own_network_only and not att["is_provider"]:
+            continue
+        if roles_only is not None and att["role"] not in roles_only:
+            continue
+        if roles_exclude and att["role"] in roles_exclude:
             continue
         lines.append(f"  {entity_name(att['role'])}:")
         aliases = att["aliases"]
@@ -234,7 +276,9 @@ def render_container_networks(
             return ""
         return "\n" + "\n".join(lines)
 
-    if not _drops_default(application_id, attachments, lookup_database):
+    if include_default and not _drops_default(
+        application_id, attachments, lookup_database
+    ):
         if default_aliases:
             lines.append("  default:")
             lines.append("    aliases:")

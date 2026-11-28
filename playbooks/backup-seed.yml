@@ -1,0 +1,30 @@
+---
+# Run with --limit set to the engine role, whose inventory group lists the instance hosts.
+# Param: failover.engine            postgres | mariadb (extra var)
+# Param: failover.backup_instance   database instance name baudolo matches containers by (extra var)
+# Param: failover.backup_database   database holding the suite's marker table (extra var)
+- name: "🌱 Register the failover marker database in databases.csv"
+  hosts: all
+  gather_facts: false
+  vars:
+    backup_logins:
+      postgres:
+        user: postgres
+        password: "{{ lookup('config', 'svc-db-postgres', 'secrets.credentials.POSTGRES_PASSWORD') }}"
+      mariadb:
+        user: root
+        password: "{{ lookup('config', 'svc-db-mariadb', 'secrets.credentials.root_password') }}"
+  tasks:
+    - name: "🌱 Seed the marker database through baudolo-seed"
+      command:
+        argv:
+          - baudolo-seed
+          - "{{ FILE_DATABASE_SECRETS }}"
+          - "{{ failover.backup_instance }}"
+          - "{{ failover.backup_database }}"
+          - "{{ backup_logins[failover.engine].user }}"
+          - "{{ backup_logins[failover.engine].password }}"
+      changed_when: true
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      throttle: 1
+      timeout: 120

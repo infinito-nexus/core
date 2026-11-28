@@ -390,6 +390,10 @@ msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
 msgstr "Control estrato per la gestione della vita dei sistemi – gestione del pulimento, monitoraggio, riprese di sicurezza, notifiche, manutenzione e riparazioni."
 
+msgctxt "category:svc.dcs:title"
+msgid "Coordination Stores"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
@@ -564,6 +568,10 @@ msgstr "Desenvolvimento y herramientas de CI/CD"
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
 msgstr "Distribuíti S3-compatible object store para proviçon del bucket compartit per coneixement d'usuari a roles d'app web"
+
+msgctxt "category:svc.dcs:description"
+msgid "Distributed coordination stores for leader election of database clusters (etcd)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -1724,6 +1732,10 @@ msgstr ""
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
 msgstr "Casca Almacenes"
+
+msgctxt "role:svc-dcs-etcd:description"
+msgid "Shared etcd coordination store for leader election of the central database clusters on Docker Swarm"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-openssl:description"

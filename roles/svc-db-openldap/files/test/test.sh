@@ -15,7 +15,8 @@
 #   TOR_SOCKS       SOCKS proxy       (set in test.env.j2)
 #   ONION_HOST      node onion host   (svc-net-tor services.tor.node)
 #   DB_PORT         onion-forwarded LDAP port
-#   DB_CONTAINER    LDAP container name
+#   DB_CONTAINER    LDAP container name (the primary's in HA form)
+#   DB_LOCAL_PORT   LDAP port inside that container
 #   BIND_DN_B64     base64 administrator bind DN
 #   DB_PASSWORD_B64 base64 bind password
 #   RETRIES         attempts          (default 20)
@@ -34,7 +35,7 @@ DB_PASSWORD="$(printf '%s' "${DB_PASSWORD_B64}" | base64 -d 2>/dev/null)"
 # Local: bind inside the container over TCP — a genuine credential check.
 auth_local() {
 	printf '%s' "${DB_PASSWORD}" | container exec -i "${DB_CONTAINER}" \
-		ldapwhoami -x -H ldap://127.0.0.1:389 -D "${BIND_DN}" -y /dev/stdin \
+		ldapwhoami -x -H "ldap://127.0.0.1:${DB_LOCAL_PORT}" -D "${BIND_DN}" -y /dev/stdin \
 		>/dev/null 2>&1
 }
 
@@ -161,6 +162,7 @@ if [ "${TOR_ENABLED}" = "true" ]; then
 	mode="over Tor"
 else
 	[ -n "${DB_CONTAINER}" ] || { echo "[FATAL] DB_CONTAINER unset for local auth" >&2; exit 2; }
+	[ -n "${DB_LOCAL_PORT}" ] || { echo "[FATAL] DB_LOCAL_PORT unset for local auth" >&2; exit 2; }
 	mode="local"
 fi
 

@@ -400,6 +400,10 @@ msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
 msgstr "시스템 수명주기 관리를위한 제어 층 - 청소, 모니터링, 백업, 경고, 유지 보수 및 수리 작업."
 
+msgctxt "category:svc.dcs:title"
+msgid "Coordination Stores"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
@@ -579,6 +583,10 @@ msgstr "개발 및 CI/CD 도구"
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
 msgstr "분산 S3- 웹앱 역할 전반에 걸쳐 공유, per-consumer Bucket 프로비저닝에 적합한 오브젝트 저장소"
+
+msgctxt "category:svc.dcs:description"
+msgid "Distributed coordination stores for leader election of database clusters (etcd)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -1798,6 +1806,10 @@ msgstr "PHP는 ini와 PHP-FPM 풀 드롭 인을 공유하여 PHP는 작곡 및 s
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
 msgstr "공유 저장소"
+
+msgctxt "role:svc-dcs-etcd:description"
+msgid "Shared etcd coordination store for leader election of the central database clusters on Docker Swarm"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-openssl:description"

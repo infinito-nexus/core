@@ -21,7 +21,9 @@
     deploy:
       placement:
         constraints:
-          - node.role == manager
+{% for _constraint in 'manager' | swarm_placement_constraints(groups['svc-swarm-manager'] | default([]), SWARM_NODE_LABEL_STACK_HOST) %}
+          - {{ _constraint }}
+{% endfor %}
       update_config:
         failure_action: continue
 {% endif %}

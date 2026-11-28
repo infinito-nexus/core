@@ -1,20 +1,20 @@
 ---
 - name: "🔍 Resolve the Nextcloud hosting node + container id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: "{{ NEXTCLOUD_SERVICE }}"
     resolve_output_prefix: NEXTCLOUD
     resolve_compose_cid: "{{ NEXTCLOUD_CONTAINER }}"
 
 - name: "🔍 Resolve the proxy hosting node + container id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: "{{ NEXTCLOUD_PROXY_SERVICE }}"
     resolve_output_prefix: NEXTCLOUD_PROXY
     resolve_compose_cid: "{{ NEXTCLOUD_PROXY_CONTAINER }}"
 
 - name: "🔍 Resolve the Context Agent hosting node + container id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: "{{ NEXTCLOUD_CONTEXT_AGENT_SERVICE }}"
     resolve_output_prefix: NEXTCLOUD_CONTEXT_AGENT

@@ -1,0 +1,132 @@
+---
+# Param: mariadb_seed  one `_mariadb_ha_state` result: `.item` is the instance, `.stdout` its state (`empty` or `data`)
+- name: "🔧 MariaDB HA | Pick the seed donor for {{ mariadb_seed.item.service }}"
+  ansible.builtin.set_fact:
+    _mariadb_seed_target: "{{ mariadb_seed.item }}"
+    _mariadb_seed_primary: "{{ MARIADB_INSTANCES.instances | selectattr('service', 'equalto', MARIADB_PRIMARY_INSTANCE) | first }}"
+    _mariadb_seed_donor: >-
+      {{ (_mariadb_ha_ready
+          | rejectattr('service', 'equalto', MARIADB_PRIMARY_INSTANCE)
+          | rejectattr('service', 'equalto', mariadb_seed.item.service)
+          | list
+          + [MARIADB_INSTANCES.instances | selectattr('service', 'equalto', MARIADB_PRIMARY_INSTANCE) | first])
+         | first }}
+
+- name: "📤 MariaDB HA | Seed the empty {{ mariadb_seed.item.service }}"
+  when: mariadb_seed.stdout == 'empty'
+  block:
+    - name: "🔍 MariaDB HA | Internal address of {{ mariadb_seed.item.service }}"
+      ansible.builtin.shell: |
+        set -o pipefail
+        container inspect --type container {{ lookup('container_address', application_id, entity_name, instance=_mariadb_seed_target) }} \
+          --format {{ ('{{ (index .NetworkSettings.Networks "' ~ entity_name ~ '_internal").IPAddress }}') | quote }}
+      args:
+        executable: /bin/bash
+      register: _mariadb_seed_address
+      changed_when: false
+      failed_when: _mariadb_seed_address.rc != 0 or (_mariadb_seed_address.stdout | trim | length) == 0
+      delegate_to: "{{ _mariadb_seed_target.host }}"
+
+    - name: "📤 MariaDB HA | Stream a mariadb-backup seed"
+      ansible.builtin.shell: |
+        set -o pipefail
+        container exec {{ lookup('container_address', application_id, entity_name, instance=_mariadb_seed_donor) }} bash -o pipefail -c '
+          rm -rf /tmp/infinito-seed
+          mkdir -p /tmp/infinito-seed
+          mariadb-backup --defaults-extra-file={{ MARIADB_HA_ROOT_CNF }} --backup --stream=xbstream \
+            --target-dir=/tmp/infinito-seed {{ "--slave-info --safe-slave-backup" if _mariadb_seed_donor.service != MARIADB_PRIMARY_INSTANCE else "" }} \
+            | python3 {{ MARIADB_SEED_RELAY | quote }} send {{ _mariadb_seed_address.stdout | trim }} {{ MARIADB_SEED_PORT }} {{ MARIADB_SEED_SECRET_FILE }}'
+      args:
+        executable: /bin/bash
+      # rationale: async; a large seed outlives the SSH timeout, and poll blocks the play until it ends
+      async: "{{ MARIADB_HA_PRIMARY_SEED_TIMEOUT }}"
+      poll: 10
+      delegate_to: "{{ _mariadb_seed_donor.host }}"
+      changed_when: true
+
+- name: "⏳ MariaDB HA | Wait until the seeded instance accepts root"
+  ansible.builtin.shell: |
+    container exec -i {{ lookup('container_address', application_id, entity_name, instance=_mariadb_seed_target) }} {{ MARIADB_HA_SQL }}
+  args:
+    stdin: "{{ lookup('file', role_path ~ '/files/sql/health_probe.sql') }}"
+  register: _mariadb_seed_up
+  until: _mariadb_seed_up.rc == 0
+  retries: 120
+  delay: 5
+  changed_when: false
+  delegate_to: "{{ _mariadb_seed_target.host }}"
+
+- name: "🔍 MariaDB HA | Read the seed's GTID position"
+  ansible.builtin.shell: |
+    container exec {{ lookup('container_address', application_id, entity_name, instance=_mariadb_seed_target) }} cat {{ [MARIADB_HA_DATADIR, 'mariadb_backup_binlog_info'] | path_join | quote }}
+  register: _mariadb_seed_binlog_info
+  changed_when: false
+  delegate_to: "{{ _mariadb_seed_target.host }}"
+  when: mariadb_seed.stdout == 'empty'
+
+- name: "🔗 MariaDB HA | Point the seeded instance at the writer"
+  ansible.builtin.shell: |
+    container exec -i {{ lookup('container_address', application_id, entity_name, instance=_mariadb_seed_target) }} {{ MARIADB_HA_SQL }}
+  args:
+    stdin: |
+      STOP SLAVE;
+      {% if mariadb_seed.stdout == 'empty' %}
+      SET GLOBAL gtid_slave_pos = '{{ (_mariadb_seed_binlog_info.stdout.split() | last) if (_mariadb_seed_binlog_info.stdout.split() | length) >= 3 else '' }}';
+      {% endif %}
+      CHANGE MASTER TO
+        MASTER_HOST = '{{ _mariadb_seed_primary.service }}',
+        MASTER_USER = {{ MARIADB_REPLICATION_USER | mariadb_sql_literal }},
+        MASTER_PASSWORD = {{ MARIADB_REPLICATION_PWD | mariadb_sql_literal }},
+        MASTER_USE_GTID = slave_pos,
+        MASTER_CONNECT_RETRY = 1;
+      START SLAVE;
+  delegate_to: "{{ _mariadb_seed_target.host }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+  changed_when: true
+
+- name: "🔍 MariaDB HA | Read the writer's binlog position"
+  ansible.builtin.shell: >
+    container exec -i {{ MARIADB_PRIMARY_CID | quote }}
+    {{ MARIADB_HA_SQL }}
+  args:
+    stdin: "SELECT @@GLOBAL.gtid_binlog_pos;"
+  register: _mariadb_seed_writer_pos
+  changed_when: false
+  delegate_to: "{{ MARIADB_PRIMARY_NODE }}"
+
+- name: "⏳ MariaDB HA | Wait until {{ _mariadb_seed_target.service }} has caught up"
+  ansible.builtin.shell: |
+    container exec -i {{ lookup('container_address', application_id, entity_name, instance=_mariadb_seed_target) }} {{ MARIADB_HA_SQL }}
+  args:
+    stdin: "SELECT MASTER_GTID_WAIT('{{ _mariadb_seed_writer_pos.stdout | trim }}', 600);"
+  register: _mariadb_seed_caught_up
+  failed_when: false
+  changed_when: false
+  delegate_to: "{{ _mariadb_seed_target.host }}"
+
+- name: "🛑 MariaDB HA | Report {{ _mariadb_seed_target.service }} that did not catch up"
+  when: (_mariadb_seed_caught_up.stdout | trim) != '0'
+  block:
+    - name: "🔍 MariaDB HA | Replication errors of {{ _mariadb_seed_target.service }}"
+      ansible.builtin.shell: |
+        set -o pipefail
+        printf 'SHOW SLAVE STATUS\\G\n' | container exec -i {{ lookup('container_address', application_id, entity_name, instance=_mariadb_seed_target) }} {{ MARIADB_HA_SQL }} | grep -E '_Running:|Last_(IO|SQL)_Error:' || true
+      args:
+        executable: /bin/bash
+      register: _mariadb_seed_replica_errors
+      changed_when: false
+      delegate_to: "{{ _mariadb_seed_target.host }}"
+
+    - name: "🛑 MariaDB HA | {{ _mariadb_seed_target.service }} did not catch up"
+      ansible.builtin.fail:
+        msg: "MASTER_GTID_WAIT returned {{ _mariadb_seed_caught_up.stdout | trim }}: {{ _mariadb_seed_replica_errors.stdout | default('') }}"
+
+- name: "🏁 MariaDB HA | Let {{ _mariadb_seed_target.service }}'s elector compete"
+  ansible.builtin.shell: |
+    container exec {{ lookup('container_address', application_id, entity_name, instance=_mariadb_seed_target) }} touch {{ MARIADB_HA_READY_MARKER | quote }}
+  delegate_to: "{{ _mariadb_seed_target.host }}"
+  changed_when: true
+
+- name: "🔧 MariaDB HA | Count {{ _mariadb_seed_target.service }} as a ready donor"
+  ansible.builtin.set_fact:
+    _mariadb_ha_ready: "{{ _mariadb_ha_ready + [_mariadb_seed_target] }}"

@@ -398,6 +398,10 @@ msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
 msgstr "क्रिन्हल कोण्ड कम्प्युट्रेशनल जीवनावली लाइफसाइपल मनेजमेंट—चुनूक, मॉनिटरिंग, बैकअप, एलाइटिंग, मिनीटेट, और रिवर्स टास्क્સ."
 
+msgctxt "category:svc.dcs:title"
+msgid "Coordination Stores"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
@@ -576,6 +580,10 @@ msgstr "निर्माण और CI/CD मामले"
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
 msgstr "डिस्ट्रिब्यूटेड S3-संबंधित ऑ�्जेक्ट बॉस लकड़ी के उपयोगकर्ताओं के बाकी कुंकुम की कंप्यूटरिंग संयोजन के वेब-आप्लाइब्ले रॉल के बीच"
+
+msgctxt "category:svc.dcs:description"
+msgid "Distributed coordination stores for leader election of database clusters (etcd)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -1783,6 +1791,10 @@ msgstr ""
 
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
+msgstr ""
+
+msgctxt "role:svc-dcs-etcd:description"
+msgid "Shared etcd coordination store for leader election of the central database clusters on Docker Swarm"
 msgstr ""
 
 # translated-by: libretranslate

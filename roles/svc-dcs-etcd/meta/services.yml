@@ -1,0 +1,49 @@
+---
+etcd:
+  modes:
+    compose:
+      enabled: false
+    swarm:
+      enabled: true
+  # nocheck: default-placement-manager  coordination store members are pinned per host by the instance model; the managers are the default member group
+  placement: manager
+  bond: 1
+  enabled: true
+  shared: true
+  healthcheck:
+    test:
+      - "NONE"
+  image: gcr.io/etcd-development/etcd
+  custom: true
+  name: etcd
+  version: v3.6.15
+  update:
+    type: registry_tags
+    image: gcr.io/etcd-development/etcd
+  min_storage: 64MB
+  backup:
+    disabled: true
+  cpus: "0.5"
+  mem_reservation: "256m"
+  mem_limit: "512m"
+  pids_limit: 512
+  ports:
+    internal:
+      client: 2379
+      peer: 2380
+  ha:
+    capable: true
+    coordination_store: true
+    host_group: svc-swarm-manager
+  lifecycle: alpha
+
+# nocheck: dynamic-flag - etcd holds no source data; the disaster-recovery path is bootstrapping an empty store and re-running the deploy
+container_backup:
+  enabled: false
+  shared: true
+
+# nocheck: variants-coverage the role has a single variant, and the guide edge is not a dimension of it: a second round would differ only by the README replay
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"

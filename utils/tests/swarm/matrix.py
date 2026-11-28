@@ -13,6 +13,7 @@ from plugins.filter.merge.with_defaults import merge_with_defaults
 from utils import PROJECT_ROOT
 from utils.security.deploy import deploy_inventory_overrides
 from utils.storage.constrained import host_storage_constrained
+from utils.tests.swarm import lab, sbom_seed
 from utils.tests.swarm.derive_includes import derive_includes, variant_scope
 from utils.tests.swarm.extend_inventory import drop_backup_network_mode, mesh_enabled
 from utils.tests.swarm.extra_vars import with_extra_vars
@@ -272,11 +273,9 @@ def _backup_phase(
 
 
 def _verify_recovered_marker(*, app_id: str) -> int:
-    env = os.environ.copy()
-    env["APP_ID"] = app_id
     return _run(
         ["bash", str(_SWARM_SCRIPTS / "backup" / "verify_recovered_marker.sh")],
-        env=env,
+        env={**os.environ, "APP_ID": app_id},
         label="verify recovered marker (post update pass)",
     )
 
@@ -310,11 +309,9 @@ def _mesh_prologue(*, app_id: str, inv_dir: str, round_variants: dict[str, int])
 def _purge(*, purge_set: tuple[str, ...]) -> int:
     if not purge_set:
         return 0
-    env = os.environ.copy()
-    env["apps"] = ",".join(purge_set)
     return _run(
         ["bash", str(_SWARM_DIR / "utils" / "clean" / "purge_stacks.sh")],
-        env=env,
+        env={**os.environ, "apps": ",".join(purge_set)},
         label=f"purge prior-round stacks ({', '.join(purge_set)})",
     )
 
@@ -399,6 +396,7 @@ def main(argv: list[str] | None = None) -> int:
             include=variant_scope(app_id, variants=round_variants),
             active_variants=round_variants,
         )
+        variant_payloads = lab.without_engine_exposure(variant_payloads)
         from utils.tests.swarm.backup_repos import backup_provider_ips
         from utils.tests.swarm.write.extras import backup_applications_overrides
 
@@ -414,7 +412,9 @@ def main(argv: list[str] | None = None) -> int:
             flush=True,
         )
         pubkeys = ensure_swarm_keypairs()
-        applications = backup_applications_overrides(providers)
+        applications = lab.application_overrides(
+            backup_applications_overrides(providers)
+        )
         if meshed:
             applications = merge_with_defaults(applications, layout_applications())
         applications = merge_with_defaults(applications, scan_pin)
@@ -497,4 +497,4 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main(sys.argv[1:]))
+    raise SystemExit(sbom_seed.seeding(main)(sys.argv[1:]))

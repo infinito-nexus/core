@@ -64,7 +64,8 @@ def _is_scan_target(rel_path: str) -> bool:
 
 
 def _targets_approved_variable(token: str, approved: set[str]) -> bool:
-    return _classify_target(token, approved).startswith("ok-")
+    verdict = _classify_target(token, approved)
+    return verdict.startswith("ok-") and verdict != "ok-resolved-cid"
 
 
 class TestArgvExecNeedsShell(unittest.TestCase):

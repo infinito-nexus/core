@@ -31,6 +31,7 @@ class Failure(NamedTuple):
     filesystem: str
     architecture: str
     vpn: bool = False
+    db_topology: str = ""
 
 
 def failed_roles(jobs: list[dict]) -> dict[str, list[Failure]]:
@@ -64,6 +65,7 @@ def failed_roles(jobs: list[dict]) -> dict[str, list[Failure]]:
                 label.filesystem,
                 label.architecture,
                 label.vpn,
+                label.db_topology,
             )
         )
     return out
@@ -85,6 +87,7 @@ def artifact_name(role: str, failure: Failure) -> str:
         failure.filesystem,
         failure.architecture,
         failure.vpn,
+        failure.db_topology,
     )
 
 

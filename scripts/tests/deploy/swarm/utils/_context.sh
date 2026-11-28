@@ -45,6 +45,16 @@ if [ -f "${ROLE_DIR}/meta/services.yml" ]; then
 	fi
 fi
 
+HA_DEPS=""
+if [ -f "${ROLE_DIR}/meta/services.yml" ]; then
+	HA_DEPS="$(awk '
+		/^postgres:/ { print "postgres" }
+		/^mariadb:/ { print "mariadb" }
+		/^redis:/ { print "redis" }
+		/^ldap:/ { print "openldap" }
+	' "${ROLE_DIR}/meta/services.yml" | paste -sd' ' -)"
+fi
+
 DEFAULT_PLACEMENT_MANAGER="$(PYTHONPATH="${_REPO_ROOT}" "${PYTHON}" -c "
 from utils.roles.meta_lookup import get_role_placement
 placement = get_role_placement('${ROLE_DIR}', role_name='${APP_ID}') or ''
@@ -99,7 +109,7 @@ BACKUP_NFS_VOLUME="${BACKUP_NFS_VOLUMES%%$'\n'*}"
 
 NFS_CHECK_MOUNTPOINT="/mnt/nfs-check"
 
-export APP_ID ENTITY STACK_NAME SERVICE_NAME PRIMARY_SERVICE_KEY CUSTOM_IMAGE_REPO DB_DEP NFS_VOLUMES PRIMARY_NFS_VOLUME BACKUP_NFS_VOLUME DEFAULT_PLACEMENT_MANAGER PROBE_PORT NFS_CHECK_MOUNTPOINT
+export APP_ID ENTITY STACK_NAME SERVICE_NAME PRIMARY_SERVICE_KEY CUSTOM_IMAGE_REPO DB_DEP HA_DEPS NFS_VOLUMES PRIMARY_NFS_VOLUME BACKUP_NFS_VOLUME DEFAULT_PLACEMENT_MANAGER PROBE_PORT NFS_CHECK_MOUNTPOINT
 
 # Exits the calling chaos step (09/10/11) with success when the role is
 # manager-pinned (no worker task exists to drain).

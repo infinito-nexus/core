@@ -15,6 +15,7 @@
     -f -
   args:
     stdin: "{{ lookup('file', 'sql/mcp_identity.sql') }}"
+  environment: "{{ LISTMONK_EXEC_DATABASE_ENV }}"
   register: listmonk_mcp_identity
   changed_when: "'INSERT 0 1' in listmonk_mcp_identity.stdout_lines or 'UPDATE 1' in listmonk_mcp_identity.stdout_lines"
   failed_when: >-
@@ -25,7 +26,7 @@
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
 - name: "🔍 Resolve {{ application_id }} hosting node + container id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: "listmonk"
     resolve_output_prefix: LISTMONK_IDENTITY

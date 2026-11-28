@@ -49,7 +49,7 @@ A row's position is its index in the uncapped discovery order, not its index
 inside a chunk, so slicing the list into chunks never changes what a row is
 assigned. A priority row, which deploys several mode/network combinations at
 once, walks the distro and filesystem rotations across those combinations
-rather than repeating one pair.
+rather than repeating one pair. The db topology axis lives in :mod:`.topology`.
 """
 
 from __future__ import annotations
@@ -86,6 +86,10 @@ from utils.github.variant.pools import (
     MODES,
     rotate,
     runner_of,
+)
+from utils.github.variant.topology import (
+    matrix_keys,
+    topologies,
 )
 from utils.github.variant.vpn import (
     VPN_DEPLOY_MODES,
@@ -175,6 +179,7 @@ def assign(
     architectures: Sequence[str] = ARCHITECTURES,
     vpn_mode: str = "auto",
     variants_per_app: Mapping[str, Sequence[Mapping[str, Any]]] | None = None,
+    db_topology: bool = False,
 ) -> list[dict[str, str]]:
     """Turn ordered discovery rows into CI matrix entries.
 
@@ -198,9 +203,14 @@ def assign(
             instead of substituting one. A wider pool leaves the kind a
             preference, because the matrix narrows every row to one anyway.
         vpn_mode: ``enforced`` meshes every swarm row, ``disabled`` none,
-            ``auto`` rotates.
+            ``auto`` rotates. An ``ha`` row is never meshed: the mesh hangs
+            off one ``svc-swarm-manager`` hub, and an HA lab runs three.
         variants_per_app: rendered variant configs per app, so a variant that
             switches the tor gate off is never offered a Tor network mode.
+        db_topology: whether the db topology axis is on
+            (:func:`resolve_db_topology`). Every entry carries
+            ``db_topology`` (empty off the axis or outside swarm) and
+            ``kill_primary``.
 
     Returns:
         one entry per (row, mode, network) the run deploys, each stamped with
@@ -235,6 +245,7 @@ def assign(
         pin_filesystem = row.get("pin_filesystem")
         pin_architecture = row.get("pin_architecture")
         pin_vpn = row.get("pin_vpn")
+        pin_topology = row.get("pin_topology")
         offered_architectures = row_architectures(
             app, architectures, row.get("services", ())
         )
@@ -249,6 +260,7 @@ def assign(
             pin_filesystem=pin_filesystem,
             pin_architecture=pin_architecture,
             pin_vpn=pin_vpn,
+            pin_topology=pin_topology,
             states=states,
             network_input=network_input,
             vpn_mode=vpn_mode,
@@ -298,7 +310,19 @@ def assign(
                 )
             ]
         label = codec.encode(app, variant_csv)
-        for step, (mode, state, meshed) in enumerate(picked):
+        staged = [
+            (mode, state, meshed and topology != "ha", topology)
+            for mode, state, meshed in picked
+            for topology in topologies(
+                mode,
+                enabled=db_topology,
+                priority=priority,
+                position=position,
+                sweep=sweep,
+                pin=pin_topology,
+            )
+        ]
+        for step, (mode, state, meshed, topology) in enumerate(staged):
             distro, architecture = draw_pair(
                 pairs,
                 distros,
@@ -325,10 +349,12 @@ def assign(
                 + to_emoji(distro)
                 + to_emoji(filesystem)
                 + to_emoji(architecture)
+                + (to_emoji(topology) if topology else "")
                 + to_emoji(engine)
             )
             entries.append(
                 {
+                    **matrix_keys(topology),
                     "apps": app,
                     "variant": variant_csv,
                     "mode": mode,
@@ -357,6 +383,7 @@ def assign(
                         filesystem,
                         architecture,
                         meshed,
+                        topology,
                     ),
                     "label": f"{glyphs}{label}",
                 }

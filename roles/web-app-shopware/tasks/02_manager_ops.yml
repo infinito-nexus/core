@@ -38,7 +38,7 @@
   meta: flush_handlers
 
 - name: "🔍 Resolve Shopware web hosting node + container id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: web
     resolve_output_prefix: SHOPWARE_WEB

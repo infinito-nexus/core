@@ -5,6 +5,7 @@ set -euo pipefail
 : "${FATAL_GRACE:?FATAL_GRACE env var is required}"
 : "${DEPLOY_SINCE:=}"
 : "${DEPLOYED_SERVICES:=}"
+: "${SEED_WAIT_LABEL:=}"
 
 is_completed_oneshot() {
 	local ps
@@ -111,6 +112,34 @@ running_current_spec() {
 	printf '%s\n' "$states" | awk '/^Running/ { n++ } END { print n + 0 }'
 }
 
+waits_for_seed() {
+	local label
+	[ -n "${SEED_WAIT_LABEL}" ] || return 1
+	label=$(timeout 15 docker service inspect \
+		--format "{{index .Spec.Labels \"${SEED_WAIT_LABEL}\"}}" "$1" 2>/dev/null) || return 1
+	[ "$label" = "true" ]
+}
+
+# Param: $1 service
+oneshot_in_flight() {
+	local condition
+	condition=$(timeout 15 docker service inspect \
+		--format '{{.Spec.TaskTemplate.RestartPolicy.Condition}}' "$1" 2>/dev/null) || return 1
+	case "$condition" in
+	on-failure | none) ;;
+	*) return 1 ;;
+	esac
+	! is_completed_oneshot "$1" && ! has_fatal_task "$1"
+}
+
+started_awaiting_seed() {
+	local states
+	states=$(timeout 15 docker service ps "$1" \
+		--filter desired-state=running \
+		--format '{{.CurrentState}}' 2>/dev/null) || return 1
+	printf '%s\n' "$states" | awk '/^(Running|Starting)/ { n++ } END { print n + 0 }'
+}
+
 if ! services=$(timeout 15 docker stack services --format '{{.Name}} {{.Replicas}}' "$STACK"); then
 	echo "not converged: docker stack services failed or timed out for ${STACK}" >&2
 	exit 1
@@ -176,9 +205,14 @@ fi
 not_running=""
 while read -r name reps; do
 	[ -n "$name" ] || continue
+	reps="${reps%% *}"
 	if awk -v r="$reps" 'BEGIN { split(r, a, "/"); exit (a[1] == a[2]) ? 0 : 1 }'; then
 		desired=$(awk -v r="$reps" 'BEGIN { split(r, a, "/"); print a[2] }')
 		[ "$(running_current_spec "$name")" = "$desired" ] && continue
+	fi
+	if waits_for_seed "$name"; then
+		desired=$(awk -v r="$reps" 'BEGIN { split(r, a, "/"); print a[2] }')
+		[ "$(started_awaiting_seed "$name")" = "$desired" ] && continue
 	fi
 	is_completed_oneshot "$name" && continue
 	not_running="$not_running $name"
@@ -186,11 +220,21 @@ done <<<"$services"
 
 if [ -n "$not_running" ]; then
 	echo "not converged:$not_running" >&2
+	busy_oneshot=""
+	for svc in "${service_names[@]}"; do
+		if oneshot_in_flight "$svc"; then
+			busy_oneshot="$svc"
+			break
+		fi
+	done
 	fatal=0
 	for svc in $not_running; do
 		report_tasks "$svc"
-		if has_fatal_task "$svc"; then
+		if [ -n "$busy_oneshot" ] && [ "$svc" != "$busy_oneshot" ]; then
+			echo "waiting: $svc until the one-shot $busy_oneshot completes" >&2
+		elif has_fatal_task "$svc"; then
 			echo "stuck: $svc" >&2
+			timeout 15 docker service logs --no-task-ids --tail 15 "$svc" 2>&1 | sed 's/^/    log: /' >&2 || true # nocheck: shell-or-true -- the log tail is diagnostics only
 			fatal=1
 		fi
 	done

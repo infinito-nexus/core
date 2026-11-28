@@ -187,6 +187,79 @@ def get_role_provides(role: PathLike, *, role_name: str | None = None) -> str | 
     return raw.strip() if isinstance(raw, str) and raw.strip() else None
 
 
+def get_role_ha(role: PathLike, *, role_name: str | None = None) -> dict:
+    """Return the role's primary-entity ``ha`` block, or ``{}`` when absent.
+
+    Args:
+        role: role name (relative to ``roles/``) or absolute role directory.
+        role_name: canonical role name when ``role`` is an arbitrary path.
+    """
+    role_dir, name = _resolve_role(role, role_name)
+    primary = _primary_entry(name, _read_meta_services(role_dir))
+    if primary is None:
+        return {}
+    raw = primary.get("ha")
+    if raw is None:
+        return {}
+    if not isinstance(raw, dict):
+        raise MetaServicesShapeError(
+            f"Invalid ha type in meta/services.yml for role '{name}': "
+            f"expected mapping, got {type(raw).__name__}."
+        )
+    return raw
+
+
+def get_role_service_keys(
+    role: PathLike, *, role_name: str | None = None
+) -> frozenset[str]:
+    """Return the top-level entity keys of the role's ``meta/services.yml``.
+
+    Args:
+        role: role name (relative to ``roles/``) or absolute role directory.
+        role_name: canonical role name when ``role`` is an arbitrary path.
+    """
+    role_dir, _name = _resolve_role(role, role_name)
+    return frozenset(_read_meta_services(role_dir) or {})
+
+
+def get_role_ports(role: PathLike, scope: str, *, role_name: str | None = None) -> dict:
+    """Return ``ports.<scope>`` of the role's primary entity, or ``{}``.
+
+    Args:
+        role: role name (relative to ``roles/``) or absolute role directory.
+        scope: port scope, e.g. ``internal``.
+        role_name: canonical role name when ``role`` is an arbitrary path.
+    """
+    role_dir, name = _resolve_role(role, role_name)
+    primary = _primary_entry(name, _read_meta_services(role_dir))
+    ports = (primary or {}).get("ports") or {}
+    scoped = ports.get(scope) if isinstance(ports, dict) else None
+    return scoped if isinstance(scoped, dict) else {}
+
+
+@functools.cache
+def _roles_with_ha(base_key: str) -> tuple[str, ...]:
+    matches: list[str] = []
+    for role_dir in sorted(Path(base_key).iterdir()):
+        if not role_dir.is_dir():
+            continue
+        try:
+            block = get_role_ha(role_dir, role_name=role_dir.name)
+        except MetaServicesShapeError:
+            continue
+        if block.get("capable") is True:
+            matches.append(role_dir.name)
+    return tuple(matches)
+
+
+def iter_roles_with_ha(*, roles_dir: PathLike | None = None) -> list[str]:
+    """Sorted role names whose primary entity declares ``ha.capable: true``."""
+    base = Path(roles_dir) if roles_dir is not None else PROJECT_ROOT / "roles"
+    if not base.is_dir():
+        return []
+    return list(_roles_with_ha(str(base.resolve())))
+
+
 MODES: tuple[str, ...] = ("compose", "swarm", "host")
 """Every deploy mode a role's primary entity may toggle. ``compose``/``swarm``
 target stack roles (own container stack); ``host`` targets invokable roles that

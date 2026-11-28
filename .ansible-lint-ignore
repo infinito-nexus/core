@@ -35,14 +35,14 @@ roles/svc-db-redis/tasks/roles/sys-svc-compose/tasks/utils/network/routine.yml l
 roles/svc-db-typesense/tasks/roles/sys-svc-compose/tasks/utils/network/routine.yml load-failure[filenotfounderror]
 roles/svc-dns-unbound/tasks/roles/sys-svc-compose/tasks/utils/network/routine.yml load-failure[filenotfounderror]
 roles/sys-svc-compose/tasks/utils/swarm/roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml load-failure[filenotfounderror]
-roles/web-app-decidim/tasks/roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml load-failure[filenotfounderror]
+roles/web-app-decidim/tasks/roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml load-failure[filenotfounderror]
 roles/web-app-discourse/tasks/roles/sys-svc-compose/tasks/utils/network/create.yml load-failure[filenotfounderror]
-roles/web-app-fider/tasks/roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml load-failure[filenotfounderror]
-roles/web-app-keycloak/tasks/04_realm_import/roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml load-failure[filenotfounderror]
-roles/web-app-keycloak/tasks/utils/roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml load-failure[filenotfounderror]
+roles/web-app-fider/tasks/roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml load-failure[filenotfounderror]
+roles/web-app-keycloak/tasks/04_realm_import/roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml load-failure[filenotfounderror]
+roles/web-app-keycloak/tasks/utils/roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml load-failure[filenotfounderror]
 roles/web-app-listmonk/tasks/roles/sys-svc-compose/tasks/utils/swarm/wait_converged.yml load-failure[filenotfounderror]
-roles/web-app-matomo/tasks/utils/roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml load-failure[filenotfounderror]
-roles/web-app-pixelfed/tasks/roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml load-failure[filenotfounderror]
+roles/web-app-matomo/tasks/utils/roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml load-failure[filenotfounderror]
+roles/web-app-pixelfed/tasks/roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml load-failure[filenotfounderror]
 
 # syntax-check ----------------------------------------------------------
 # `keycloak_kcadm_update` is a role-local module shipped at

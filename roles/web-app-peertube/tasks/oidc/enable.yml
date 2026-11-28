@@ -4,7 +4,7 @@
   changed_when: false
 
 - name: "🧭 Resolve PeerTube host node + local container id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: "{{ entity_name }}"
     resolve_output_prefix: PEERTUBE
@@ -82,7 +82,7 @@
   meta: flush_handlers
 
 - name: "🧭 Re-resolve PeerTube host node + local container id after the recreation"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: "{{ entity_name }}"
     resolve_output_prefix: PEERTUBE

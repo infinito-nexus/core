@@ -1,0 +1,96 @@
+name: "📦 Test: Swarm data failover"
+
+on:
+  workflow_call:
+    inputs:
+      engine:
+        description: "🗄️ Engine whose failover suite runs; all runs every engine"
+        type: string
+        default: all
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  INFINITO_IMAGE_TAG: ci-${{ github.sha }}
+  INFINITO_GHCR_MIRROR_PREFIX: mirror
+
+jobs:
+  failover:
+    name: "🗄️ Failover ${{ matrix.engine }} ${{ matrix.part }}"
+    runs-on: ubuntu-26.04
+    timeout-minutes: 355
+
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: ${{ fromJSON((inputs.engine == 'all' || inputs.engine == '') && '["postgres","mariadb","redis","openldap"]' || format('["{0}"]', inputs.engine)) }}
+        part: [in-place, rebuild]
+
+    env:
+      SWARM_NAME: data-${{ matrix.engine }}
+      INFINITO_SWARM_DB_TOPOLOGY: ha
+      FAILOVER_JUNIT: /tmp/failover-${{ matrix.engine }}-${{ matrix.part }}.xml
+
+    steps:
+      - name: 🧹 Free disk space
+        if: ${{ !env.ACT }}
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: "⬇️ Checkout"
+        if: ${{ !env.ACT }}
+        uses: actions/checkout@v7.0.0
+
+      - name: 💾 Enlarge swap space
+        if: ${{ !env.ACT }}
+        shell: bash
+        run: ./scripts/github/runner/enlarge_swap.sh
+
+      - name: 🔍 Resolve repository owner
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "GITHUB_REPOSITORY_OWNER=$(scripts/meta/resolve/repository/owner.sh)" >> "$GITHUB_ENV"
+
+      - name: "📥 Load swarm topology SPOT into job env"
+        shell: bash
+        run: scripts/tests/deploy/swarm/utils/topology/export.sh
+
+      - name: 🔧 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: 📦 Install project (host venv)
+        shell: bash
+        run: |
+          make install-force
+          # shellcheck source=/dev/null
+          source scripts/meta/env/load.sh
+          echo "${VENV}/bin" >> "${GITHUB_PATH}"
+
+      - name: "🗄️ Failover suite: ${{ matrix.engine }} ${{ matrix.part }}"
+        shell: bash
+        timeout-minutes: 350
+        run: make test-swarm-data engine=${{ matrix.engine }} part=${{ matrix.part }} junit="${FAILOVER_JUNIT}" 2>&1 | tee "/tmp/failover-${{ matrix.engine }}.log"
+
+      - name: "⬆️ Upload JUnit report"
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: failover-junit-${{ matrix.engine }}-${{ matrix.part }}
+          path: |
+            ${{ env.FAILOVER_JUNIT }}
+            /tmp/failover-${{ matrix.engine }}.log
+          if-no-files-found: warn

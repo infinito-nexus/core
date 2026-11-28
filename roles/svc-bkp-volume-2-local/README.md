@@ -163,6 +163,21 @@ per swarm run: it mounts the export at the volume's mountpoint with
 the volume's own driver options, restores through it, and asserts the
 marker on the server's disk.
 
+## Database HA on Swarm
+
+When a database engine lists more than one host in its inventory group, every host holding one of its instances runs this unit, and `databases.csv` is copied from `STACK_HOST` to each of them. The unit starts baudolo through `baudolo-ha-gate`:
+
+- It asks each local Postgres instance (Patroni `GET /primary`) and each local MariaDB or OpenLDAP instance (elector `GET /writer`) whether it is the primary or writer.
+- The data volume of every local instance that is not is passed to `--volumes-no-backup-required`, so replicas are neither dumped nor copied. A failover moves the backup with the primary.
+- When a Postgres or MariaDB primary's volume carries no SQL dump in the new generation, the unit fails and the file copy baudolo fell back to is deleted. A live file copy of a database volume is not a backup. OpenLDAP has no baudolo dump, so its writer's volume is copied as files, as in the standalone form.
+- Redis and etcd are not backed up.
+
+`svc-bkp-remote-2-local` pulls from every instance host in addition to its configured `backup_providers`.
+
+Before migrating an engine from standalone to HA, the deploy starts this unit on `STACK_HOST`, waits for it and aborts when it fails. A restart-requiring change in the HA form does the same on the primary's host through `roles/sys-svc-compose/tasks/utils/db/pre_change_backup.yml`.
+
+After a migration, a health gate requires exactly one reachable primary or writer behind the write endpoint. If it fails before the new instances have joined, remove the added hosts from the engine group and re-run: the engine returns to standalone on the untouched legacy volume. Restore damaged data from the pre-migration backup. Going back from HA to standalone in place is not supported; restore a backup into the standalone form instead.
+
 ## Recover
 
 ### The databases of a generation

@@ -87,6 +87,11 @@ on:
         required: false
         type: string
         default: "auto"
+      db_topology:
+        description: "🔱 'true' turns on the db topology axis of the deploy matrix. Empty: the INFINITO_CI_DB_TOPOLOGY repository variable decides."
+        required: false
+        type: string
+        default: ""
       vpn:
         description: "WireGuard axis of the deploy matrix: 'auto' rotates the mesh over the swarm rows, 'enforced' meshes all of them, 'disabled' meshes none."
         required: false
@@ -204,6 +209,7 @@ jobs:
       filesystem: ${{ inputs.filesystem }}
       architectures: ${{ inputs.architectures }}
       network: ${{ inputs.network }}
+      db_topology: ${{ inputs.db_topology }}
       vpn: ${{ inputs.vpn }}
       meshes: ${{ inputs.meshes }}
 
@@ -261,6 +267,7 @@ jobs:
       filesystem: ${{ inputs.filesystem }}
       architectures: ${{ inputs.architectures }}
       network: ${{ inputs.network }}
+      db_topology: ${{ inputs.db_topology }}
       vpn: ${{ inputs.vpn }}
       meshes: ${{ inputs.meshes }}
 
@@ -302,6 +309,7 @@ jobs:
       filesystem: ${{ inputs.filesystem }}
       architectures: ${{ inputs.architectures }}
       network: ${{ inputs.network }}
+      db_topology: ${{ inputs.db_topology }}
       vpn: ${{ inputs.vpn }}
       meshes: ${{ inputs.meshes }}
 
@@ -345,6 +353,7 @@ jobs:
       filesystem: ${{ inputs.filesystem }}
       architectures: ${{ inputs.architectures }}
       network: ${{ inputs.network }}
+      db_topology: ${{ inputs.db_topology }}
       vpn: ${{ inputs.vpn }}
       meshes: ${{ inputs.meshes }}
 
@@ -356,6 +365,21 @@ jobs:
     with:
       ref: ${{ github.sha }}
     secrets: inherit
+
+  test-swarm-data:
+    needs:
+      - validate-selection
+      - build-ci-images
+      - images-mirror-missing
+    if: >-
+      ${{ !cancelled()
+          && vars.INFINITO_CI_SWARM_DATA == 'true'
+          && needs.build-ci-images.result == 'success'
+          && needs.images-mirror-missing.result == 'success' }}
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/call-test-swarm-data.yml
 
   test-install:
     needs: validate-selection
@@ -415,6 +439,7 @@ jobs:
       - test-deploy-chunk-2
       - test-deploy-chunk-3
       - test-runner-smoke
+      - test-swarm-data
       - test-workspace
       - test
       - lint

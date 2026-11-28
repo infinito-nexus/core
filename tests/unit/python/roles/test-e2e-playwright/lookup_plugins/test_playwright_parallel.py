@@ -172,8 +172,19 @@ class TestPlaywrightParallelLookup(unittest.TestCase):
         self.assertEqual(self._cap(["web-app-wordpress"], 1, PROJECT_ROOT), 1)
         self.assertEqual(self._cap(["web-app-wordpress"], 2, PROJECT_ROOT), 1)
 
+    def test_gitlab_opts_in_its_onion_ai_row_only(self):
+        self.assertEqual(
+            [
+                self._cap(["web-app-gitlab"], variant, PROJECT_ROOT)
+                for variant in range(4)
+            ],
+            [1, 1, 1, 3],
+        )
+
     def test_every_other_role_keeps_the_serial_runner(self):
-        self.assertEqual(sorted(declared_caps()), ["web-app-wordpress"])
+        self.assertEqual(
+            sorted(declared_caps()), ["web-app-gitlab", "web-app-wordpress"]
+        )
 
 
 if __name__ == "__main__":

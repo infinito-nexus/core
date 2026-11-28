@@ -398,6 +398,10 @@ msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
 msgstr "Kontrolotavolo por sistemsavadministrado - manĝanta postpurigo, monitorado, rezervaĵoj, alarmado, prizorgado, kaj riparotaskoj."
 
+msgctxt "category:svc.dcs:title"
+msgid "Coordination Stores"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
@@ -576,6 +580,10 @@ msgstr "Evoluo kaj CI/CD-iloj"
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
 msgstr "Distributed S3-kongrua objektobutiko por komunaj, per-konsumanta sitelo provianta trans interret-app roloj"
+
+msgctxt "category:svc.dcs:description"
+msgid "Distributed coordination stores for leader election of database clusters (etcd)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -1790,6 +1798,10 @@ msgstr "Shared PHP hardanta ini kaj PHP-FPM naĝejo guto-en tiu PHP servoj de ko
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
 msgstr "Ŝarĝita Storage"
+
+msgctxt "role:svc-dcs-etcd:description"
+msgid "Shared etcd coordination store for leader election of the central database clusters on Docker Swarm"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-openssl:description"

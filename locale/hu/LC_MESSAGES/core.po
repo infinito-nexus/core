@@ -398,6 +398,10 @@ msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
 msgstr "Ellenőrzési réteg a rendszer életciklus menedzsment - kezelése tisztítás, nyomon követés, mentések, figyelmeztetés, karbantartás és javítási feladatok."
 
+msgctxt "category:svc.dcs:title"
+msgid "Coordination Stores"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
@@ -576,6 +580,10 @@ msgstr "Fejlesztési és CI / CD eszközök"
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
 msgstr "Elosztott S3-kompatibilis objektum bolt megosztott, per- fogyasztó vödör ellátás a web- app szerepek"
+
+msgctxt "category:svc.dcs:description"
+msgid "Distributed coordination stores for leader election of database clusters (etcd)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -1792,6 +1800,10 @@ msgstr "Megosztott PHP keményítő ini és PHP- FPM pool drop - abban a PHP szo
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
 msgstr "Közös tárolás"
+
+msgctxt "role:svc-dcs-etcd:description"
+msgid "Shared etcd coordination store for leader election of the central database clusters on Docker Swarm"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-openssl:description"

@@ -1,0 +1,12 @@
+---
+- name: "📖 MariaDB HA | Read the root option file the running cluster was given"
+  ansible.builtin.slurp: # nocheck: stack-host-consumer (00_core includes this file only when IS_STACK_HOST)
+    src: "{{ lookup('volume', application_id, 'ha_root_cnf', field='source') }}"
+  register: _mariadb_previous_root_cnf
+  failed_when: false
+
+- name: "🔧 MariaDB HA | Remember its root password for carrying a rotation"
+  ansible.builtin.set_fact:
+    _mariadb_previous_root_pwd: >-
+      {{ ((_mariadb_previous_root_cnf.content | default('') | b64decode)
+          | regex_search('password = "(.*)"', '\1') | default([''], true) | first) }}

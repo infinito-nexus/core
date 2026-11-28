@@ -1,0 +1,39 @@
+---
+applications:
+  svc-db-postgres:
+    services:
+      postgres:
+        mem_reservation: 768m
+        mem_limit: 768m
+      haproxy:
+        mem_reservation: 64m
+        mem_limit: 64m
+  svc-db-mariadb:
+    services:
+      mariadb:
+        mem_reservation: 512m
+        mem_limit: 512m
+      haproxy:
+        mem_reservation: 64m
+        mem_limit: 64m
+  svc-db-openldap:
+    services:
+      openldap:
+        mem_reservation: 256m
+        mem_limit: 256m
+      haproxy:
+        mem_reservation: 64m
+        mem_limit: 64m
+  svc-db-redis:
+    services:
+      redis:
+        mem_reservation: 128m
+        mem_limit: 128m
+      haproxy:
+        mem_reservation: 64m
+        mem_limit: 64m
+  svc-dcs-etcd:
+    services:
+      etcd:
+        mem_reservation: 256m
+        mem_limit: 256m

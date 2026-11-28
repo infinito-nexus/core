@@ -1,9 +1,9 @@
 ---
 - name: "🔎 Check if Snipe-IT admin user already exists (by username)"
-  ansible.builtin.shell: |
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  SNIPE_IT_LOCAL_CID is resolved on SNIPE_IT_HOST_NODE
     IFS= read -r APP_KEY && export APP_KEY && container exec -i \
       -e APP_KEY \
-      {{ SNIPE_IT_CONTAINER_ADDRESS }} \
+      {{ SNIPE_IT_LOCAL_CID | quote }} \
       php -r '
         require "vendor/autoload.php";
         $app = require "bootstrap/app.php";
@@ -20,9 +20,9 @@
   failed_when: false
 
 - name: "📁 Create Snipe-IT administrator account"
-  ansible.builtin.shell: |
+  ansible.builtin.shell: | # nocheck: container-exec-resolver  SNIPE_IT_LOCAL_CID is resolved on SNIPE_IT_HOST_NODE
     IFS= read -r APP_KEY && IFS= read -r SNIPE_IT_REALIGN_PASSWORD && export APP_KEY SNIPE_IT_REALIGN_PASSWORD && container exec -i -e APP_KEY -e SNIPE_IT_REALIGN_PASSWORD \
-      {{ SNIPE_IT_CONTAINER_ADDRESS }} sh -lc '
+      {{ SNIPE_IT_LOCAL_CID | quote }} sh -lc '
         php artisan snipeit:create-admin \
           --first_name "{{ lookup('users', 'platform_administrator').firstname }}" \
           --last_name "{{ lookup('users', 'platform_administrator').lastname }}" \
@@ -48,11 +48,11 @@
 
 - name: "🔑 Realign the administrator password Snipe-IT persisted at install"
   ansible.builtin.shell:
-    cmd: >
+    cmd: > # nocheck: container-exec-resolver  SNIPE_IT_LOCAL_CID is resolved on SNIPE_IT_HOST_NODE
       IFS= read -r APP_KEY && IFS= read -r SNIPE_IT_REALIGN_PASSWORD && export APP_KEY SNIPE_IT_REALIGN_PASSWORD &&
       container exec -i
       -e APP_KEY -e SNIPE_IT_REALIGN_USERNAME -e SNIPE_IT_REALIGN_PASSWORD
-      {{ SNIPE_IT_CONTAINER_ADDRESS }} php
+      {{ SNIPE_IT_LOCAL_CID | quote }} php
     stdin: |-
       {{ SNIPE_IT_APP_KEY }}
       {{ lookup('users', 'platform_administrator').password }}

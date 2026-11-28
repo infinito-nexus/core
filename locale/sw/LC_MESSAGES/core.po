@@ -406,6 +406,10 @@ msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
 msgstr "Udhibiti safu ya usimamizi wa mfumo wa maisha-kushughulikia kusafisha, ufuatiliaji, backups, alerting, matengenezo, na ukarabati kazi."
 
+msgctxt "category:svc.dcs:title"
+msgid "Coordination Stores"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
@@ -587,6 +591,10 @@ msgstr "Maendeleo ya CI / CD"
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
 msgstr "Imetolewa na S3-kifaa cha kitu cha kawaida kwa ndoo iliyoshirikiwa, kwa kila mteja utoaji katika majukumu ya programu ya mtandao"
+
+msgctxt "category:svc.dcs:description"
+msgid "Distributed coordination stores for leader election of database clusters (etcd)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -1801,6 +1809,10 @@ msgstr "Parte de PHP hardsení ini i pool drop-in PHP-FPM peşepişmen care moun
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
 msgstr "Uhifadhi wa Uhifadhi"
+
+msgctxt "role:svc-dcs-etcd:description"
+msgid "Shared etcd coordination store for leader election of the central database clusters on Docker Swarm"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-openssl:description"

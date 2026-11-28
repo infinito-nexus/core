@@ -555,6 +555,71 @@ class DatabaseLookupTests(unittest.TestCase):
         )
         self.assertEqual(out["service_name"], "postgres_postgres")
 
+    def _ha_vars(self, hosts=("m1", "m2", "m3"), **extra):
+        return self._mode_vars(
+            True,
+            DEPLOYMENT_MODE="swarm",
+            BIN_RESOLVE_DB_PRIMARY="/usr/bin/resolve-db-primary",
+            groups={"svc-db-postgres": list(hosts), "svc-swarm-node": list(hosts)},
+            **extra,
+        )
+
+    def _resolve_want(self, vars_, want):
+        lookup = self._make_lookup(vars_)
+        with mock.patch.object(
+            self.db_lookup_mod,
+            "entity_name",
+            side_effect=self._fake_entity_name,
+        ):
+            return lookup.run(["web-app-foo", want], variables=vars_)[0]
+
+    def test_ha_host_keeps_todays_endpoint_name(self):
+        out = self._resolve(self._ha_vars())
+        self.assertEqual(out["host"], "postgres")
+
+    def test_ha_service_name_never_names_the_endpoint(self):
+        out = self._resolve(self._ha_vars())
+        self.assertNotEqual(out["service_name"], "postgres_postgres")
+
+    def test_ha_service_name_raises_when_asked_directly(self):
+        with self.assertRaises(AnsibleError):
+            self._resolve_want(self._ha_vars(), "service_name")
+
+    def test_ha_address_resolves_the_primary_at_call_time(self):
+        out = self._resolve(self._ha_vars())
+        self.assertEqual(
+            out["address"], '"$(/usr/bin/resolve-db-primary postgres postgres)"'
+        )
+        self.assertEqual(out["container"], "")
+
+    def test_ha_container_raises_when_asked_directly(self):
+        with self.assertRaises(AnsibleError):
+            self._resolve_want(self._ha_vars(), "container")
+
+    def test_ha_reach_host_raises(self):
+        with self.assertRaises(AnsibleError):
+            self._resolve_want(self._ha_vars(), "reach_host")
+
+    def test_single_host_swarm_keeps_standalone_values(self):
+        ha_off = self._resolve(self._ha_vars(hosts=("m1",)))
+        plain = self._resolve(self._mode_vars(True, DEPLOYMENT_MODE="swarm"))
+        self.assertEqual(ha_off, plain)
+        self.assertEqual(ha_off["reach_host"], "127.0.0.1")
+        self.assertIn("resolve-container-id", ha_off["address"])
+
+    def test_ha_does_not_touch_a_dedicated_database(self):
+        vars_ = self._dedicated_vars(
+            DEPLOYMENT_MODE="swarm",
+            groups={
+                "svc-db-postgres": ["m1", "m2", "m3"],
+                "svc-swarm-node": ["m1", "m2", "m3"],
+            },
+        )
+        out = self._resolve(vars_)
+        self.assertEqual(out["service_name"], "foo_database")
+        self.assertEqual(out["container"], "foo-database")
+        self.assertEqual(self._resolve_want(vars_, "reach_host"), "127.0.0.1")
+
 
 if __name__ == "__main__":
     unittest.main()

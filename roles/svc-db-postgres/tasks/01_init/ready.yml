@@ -1,11 +1,11 @@
 ---
 - name: "🔍 Postgres | Resolve hosting node + container id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: "{{ entity_name }}"
     resolve_service_name: "{{ lookup('database', database_consumer_id, 'service_name') }}"
     resolve_output_prefix: POSTGRES
-    resolve_compose_cid: "{{ lookup('database', database_consumer_id, 'container') }}"
+    resolve_compose_cid: "{{ lookup('database', database_consumer_id, 'address') }}"
 
 - name: ⏳ Wait until postgres TCP auth works
   block:

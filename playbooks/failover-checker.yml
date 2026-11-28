@@ -1,0 +1,52 @@
+---
+# Param: engine            postgres | mariadb | redis | openldap (extra var)
+# Param: failover_secret   docker secret name the checker service mounts (derived from engine)
+- name: "🔐 Render the failover checker connection secret"
+  hosts: svc-swarm-manager[0]
+  gather_facts: false
+  vars:
+    failover_secret: "{{ 'failover-checker-' ~ engine }}"
+    failover_connections:
+      postgres:
+        HOST: postgres
+        PORT: 5432
+        USER: postgres
+        PASSWORD: "{{ lookup('config', 'svc-db-postgres', 'secrets.credentials.POSTGRES_PASSWORD') }}"
+        DATABASE: postgres
+      mariadb:
+        HOST: mariadb
+        PORT: 3306
+        USER: root
+        PASSWORD: "{{ lookup('config', 'svc-db-mariadb', 'secrets.credentials.root_password') }}"
+        DATABASE: failover
+      redis:
+        HOST: redis
+        PORT: 6379
+        USER: default
+        PASSWORD: "{{ lookup('config', 'svc-db-redis', 'secrets.credentials.REDIS_PASSWORD') }}"
+      openldap:
+        HOST: openldap
+        PORT: 389
+        USER: "{{ LDAP.DN.ADMINISTRATOR.DATA }}"
+        PASSWORD: "{{ LDAP.BIND_CREDENTIAL }}"
+        BASE_DN: "{{ LDAP_DN_BASE }}"
+    failover_connection: "{{ failover_connections[engine] }}"
+  tasks:
+    - name: "🧹 Drop the previous checker secret"
+      command:
+        argv: [docker, secret, rm, "{{ failover_secret }}"]
+      register: failover_secret_rm
+      failed_when: failover_secret_rm.rc != 0 and 'not found' not in failover_secret_rm.stderr
+      changed_when: failover_secret_rm.rc == 0
+      timeout: 60
+
+    - name: "🔐 Create the checker secret"
+      command:
+        argv: [docker, secret, create, "{{ failover_secret }}", "-"]
+        stdin: |
+          {% for key, value in failover_connection.items() %}
+          {{ key }}='{{ value | string | replace("'", "'\\''") }}'
+          {% endfor %}
+      no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+      changed_when: true
+      timeout: 60

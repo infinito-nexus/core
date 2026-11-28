@@ -5,3 +5,38 @@ data:
   mounts:
     - service: postgres
       target: /var/lib/postgresql
+
+patroni_cfg:
+  type: secret
+  source: "{{ [lookup('container', 'svc-db-postgres', 'directories.volumes'), 'patroni.yml'] | path_join }}"
+  mode: "0400"
+  mounts:
+    - service: postgres
+      target: /run/secrets/patroni.yml
+      when: "{{ lookup('db_instances', 'svc-db-postgres').form == 'ha' }}"
+
+etcd_ca: # nocheck: config-volume-producer  svc-dcs-etcd tasks/01_tls.yml writes the etcd CA this entry mounts
+  type: config
+  source: "{{ [lookup('container', 'svc-dcs-etcd', 'directories.config'), 'tls', 'ca.crt'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: postgres
+      target: /etc/patroni/etcd-ca.crt
+      when: "{{ lookup('db_instances', 'svc-db-postgres').form == 'ha' }}"
+
+haproxy_cfg:
+  type: secret
+  source: "{{ [lookup('container', 'svc-db-postgres', 'directories.volumes'), 'haproxy.cfg'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: haproxy
+      target: /usr/local/etc/haproxy/haproxy.cfg
+      when: "{{ lookup('db_instances', 'svc-db-postgres').form == 'ha' }}"
+
+haproxy_tmp:
+  type: tmpfs
+  mounts:
+    - service: haproxy
+      target: /tmp
+      size: 1m
+      when: "{{ lookup('db_instances', 'svc-db-postgres').form == 'ha' }}"

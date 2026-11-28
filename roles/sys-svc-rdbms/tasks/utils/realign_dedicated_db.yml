@@ -20,7 +20,7 @@
         - name: "🔍 Find the running engine of '{{ application_id }}'"
           ansible.builtin.command: >-
             container ps -q
-            --filter name=^{{ lookup('database', application_id, 'container') }}$
+            --filter name=^{{ lookup('database', application_id, 'address') }}$
             --filter status=running
           register: _app_db_engine
           changed_when: false
@@ -32,7 +32,7 @@
               - -c
               - "{{ lookup('file', lookup('path_absolute', 'roles/svc-db-postgres/files/shell/set_postgres_superuser_password.sh')) }}"
               - set_postgres_superuser_password.sh
-              - "{{ lookup('database', application_id, 'container') }}"
+              - "{{ lookup('database', application_id, 'address') }}"
               - "{{ lookup('database', application_id, 'username') }}"
             stdin: "{{ lookup('database', application_id, 'password') }}"
             expand_argument_vars: false

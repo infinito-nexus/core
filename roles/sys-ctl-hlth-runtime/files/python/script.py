@@ -64,11 +64,13 @@ WORK = "/work"
 SBOM = "/sbom"
 CACHE = "/cache"
 DOCKER_SOCKET = "/var/run/docker.sock"
-SOCKET_RUNTIME = "runc"
+SHARED_KERNEL_RUNTIME = "runc"
 JOB_TIMEOUT_SECONDS = 4 * 3600
 RUN_PREFIX = "run-"
 DB_ATTEMPTS = 3
 DB_RETRY_SECONDS = 30
+CACHED_REPORTS = ("trivy", "grype", "runtime.grype", "osv")
+SBOM_SEED = "sbom-seed"
 DB_MARKERS = {
     "trivy": ("db/trivy.db", "java-db/trivy-java.db"),
     "grype": ("6/vulnerability.db",),
@@ -257,7 +259,8 @@ class Step:
         accept: exit codes that mean success.
         scratch: the run's temporary directory, a name under the work
             directory; consecutive steps of a lane naming the same one share it.
-        exports: whether the run exports a local image into it.
+        exports: whether the run takes the export slot: it exports a local
+            image into its scratch, or it is the OSV-Scanner SBOM run.
     """
 
     label: str
@@ -1361,8 +1364,8 @@ def run_argv(
         image: the engine image.
         args: the engine's arguments.
         target: the target, which picks the host or Docker socket mount;
-            ``None`` for a run that reads neither. A run with the Docker
-            socket runs on :data:`SOCKET_RUNTIME`, every other run on the
+            ``None`` for a run that reads neither. A run with either mount
+            runs on :data:`SHARED_KERNEL_RUNTIME`, every other run on the
             daemon's default runtime.
         extra_env: environment on top of the engine's own.
         scratch: :attr:`Step.scratch` of the run, its ``TMPDIR`` under
@@ -1375,10 +1378,11 @@ def run_argv(
     mounts = ["-v", f"{layout.sbom}:{SBOM}", "-v", f"{layout.work}:{WORK}"]
     if engine in SCANNERS:
         mounts += ["-v", f"{layout.databases / engine}:{CACHE}"]
+    if target is not None:
+        options += ["--runtime", SHARED_KERNEL_RUNTIME]
     if target is not None and target.kind == "host":
         mounts += ["-v", f"/:{HOST_ROOT}:ro"]
     if target is not None and target.kind == "container":
-        options += ["--runtime", SOCKET_RUNTIME]
         mounts += ["-v", f"{DOCKER_SOCKET}:{DOCKER_SOCKET}:ro"]
     environment = {"TMPDIR": f"{WORK}/{scratch}", **ENGINE_ENV[engine], **extra_env}
     return (*layout.runtime, *options, *mounts, *_env(environment), image, *args)
@@ -1463,6 +1467,79 @@ def sbom_paths(layout: Layout, target: Target) -> tuple[Path, Path]:
         layout.sbom / f"{target.key}.syft.json",
         layout.sbom / f"{target.key}.cdx.json",
     )
+
+
+def layer_key(layers: Sequence[str]) -> str:
+    """
+    Returns:
+        The SHA-256 of an image's ordered layer digests, the name its SBOM
+        carries in the SBOM seed.
+    """
+    return hashlib.sha256(json.dumps(list(layers)).encode()).hexdigest()
+
+
+def image_layers(layout: Layout, image: str, runner: Runner) -> list[str] | None:
+    """
+    Returns:
+        The ordered layer digests of a local image, ``None`` when they cannot
+        be read.
+    """
+    try:
+        result = runner(
+            (
+                layout.runtime[0],
+                "image",
+                "inspect",
+                "--format",
+                "{{json .RootFS.Layers}}",
+                image,
+            )
+        )
+    except subprocess.TimeoutExpired:
+        return None
+    if result.returncode != 0:
+        return None
+    try:
+        layers = json.loads(result.stdout)
+    except ValueError:
+        return None
+    return layers if isinstance(layers, list) and layers else None
+
+
+def seed_sbom(layout: Layout, target: Target, runner: Runner) -> str | None:
+    """Take the SBOM of a container target from the SBOM seed.
+
+    The seed directory beside the databases holds SBOMs built elsewhere, each
+    named by the :func:`layer_key` of its image. One is taken only when the
+    layers it records are the local image's own.
+
+    Returns:
+        The layer key when both SBOM files of *target* now come from the
+        seed, ``None`` otherwise.
+    """
+    seed = layout.databases / SBOM_SEED
+    if target.kind != "container" or not seed.is_dir():
+        return None
+    layers = image_layers(layout, target.ref, runner)
+    if layers is None:
+        return None
+    key = layer_key(layers)
+    try:
+        syft_text = (seed / f"{key}.syft.json").read_text(encoding="utf-8")
+        cyclonedx_text = (seed / f"{key}.cdx.json").read_text(encoding="utf-8")
+        recorded = [
+            layer["digest"]
+            for layer in json.loads(syft_text)["source"]["metadata"]["layers"]
+        ]
+        json.loads(cyclonedx_text)
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+    if recorded != layers:
+        return None
+    syft_json, cyclonedx = sbom_paths(layout, target)
+    write_atomic(cyclonedx, cyclonedx_text)
+    write_atomic(syft_json, syft_text)
+    return key
 
 
 def sbom_step(layout: Layout, image: str, target: Target) -> Step:
@@ -1596,7 +1673,7 @@ def trivy_args_step(
     )
 
 
-def engine_image_id(layout: Layout, image: str, runner: Runner) -> str | None:
+def engine_identity(layout: Layout, image: str, runner: Runner) -> str | None:
     """
     Args:
         layout: where the run keeps its files, its runtime among them.
@@ -1604,17 +1681,14 @@ def engine_image_id(layout: Layout, image: str, runner: Runner) -> str | None:
         runner: runs one command.
 
     Returns:
-        The local image id the reference resolves to, ``None`` when it does
-        not resolve.
+        The :func:`layer_key` of the layers the reference resolves to,
+        ``None`` when it does not resolve. Not the image id: a runtime on the
+        containerd image store reports the digest of the multi-platform index
+        as the id, one on a graph driver the digest of the platform config,
+        so only the layers name the same engine on both.
     """
-    try:
-        result = runner(
-            (layout.runtime[0], "image", "inspect", "--format", "{{.Id}}", image)
-        )
-    except subprocess.TimeoutExpired:
-        return None
-    resolved = result.stdout.strip()
-    return resolved if result.returncode == 0 and resolved else None
+    layers = image_layers(layout, image, runner)
+    return None if layers is None else layer_key(layers)
 
 
 def trivy_fingerprint(
@@ -1623,14 +1697,13 @@ def trivy_fingerprint(
     """
     Args:
         layout: where the run keeps its files, the Trivy database among them.
-        image_id: the resolved id of the Trivy image, see
-            :func:`engine_image_id`.
+        image_id: the :func:`engine_identity` of the Trivy image.
         args: the Trivy arguments of one container target.
 
     Returns:
-        A digest of the engine image id, its arguments and the size and
+        A digest of the engine identity, its arguments and the size and
         modification time of every Trivy database file, ``None`` when the
-        image id or a database file is missing.
+        identity or a database file is missing.
     """
     if image_id is None:
         return None
@@ -1668,7 +1741,196 @@ def cached_trivy_report(
     return cached.get("report")
 
 
-def grype_step(layout: Layout, image: str, target: Target, config: ScanConfig) -> Step:
+def database_stamps(layout: Layout, engine: str) -> list[str] | None:
+    """
+    Args:
+        layout: where the run keeps its files, the databases among them.
+        engine: the engine whose ``DB_MARKERS`` are stamped.
+
+    Returns:
+        The path, size and modification time of every file under the
+        engine's database markers, ``None`` when a marker holds no file or
+        a file cannot be read.
+    """
+    stamps = []
+    try:
+        for marker in DB_MARKERS[engine]:
+            path = layout.databases / engine / marker
+            files = (
+                [path]
+                if path.is_file()
+                else sorted(p for p in path.rglob("*") if p.is_file())
+            )
+            if not files:
+                return None
+            for file in files:
+                stat = file.stat()
+                stamps.append(
+                    f"{file.relative_to(layout.databases)}:{stat.st_size}:{stat.st_mtime_ns}"
+                )
+    except OSError:
+        return None
+    return stamps
+
+
+def syft_identity(document: Mapping) -> bytes:
+    """
+    Returns:
+        What Grype matches in a Syft JSON document, its artifacts and its
+        distro, without the descriptor and source data of one Syft run.
+    """
+    artifacts = sorted(
+        json.dumps(artifact, sort_keys=True)
+        for artifact in document.get("artifacts") or []
+    )
+    return json.dumps([artifacts, document.get("distro")], sort_keys=True).encode()
+
+
+def osv_identity(document: Mapping) -> bytes:
+    """
+    Returns:
+        What OSV-Scanner matches in a CycloneDX document, the type, name,
+        version and purl of every component, without the serial number,
+        timestamps and references of one Syft run.
+    """
+    components = sorted(
+        [str(component.get(key) or "") for key in ("type", "name", "version", "purl")]
+        for component in document.get("components") or []
+    )
+    return json.dumps(components).encode()
+
+
+def sbom_report_fingerprint(
+    layout: Layout,
+    engine: str,
+    image_id: str | None,
+    args: Sequence[str],
+    identity: bytes | None,
+) -> str | None:
+    """
+    Args:
+        layout: where the run keeps its files, the databases among them.
+        engine: the engine that reads the SBOM.
+        image_id: the :func:`engine_identity` of the engine image.
+        args: the engine arguments that do not name a file of this run.
+        identity: what the engine matches in the SBOM, see
+            :func:`syft_identity` and :func:`osv_identity`; ``None`` when the
+            SBOM could not be read.
+
+    Returns:
+        A digest of the engine identity, its arguments, its database stamps
+        and *identity*, ``None`` when one of them is missing.
+    """
+    stamps = database_stamps(layout, engine)
+    if image_id is None or stamps is None or identity is None:
+        return None
+    digest = hashlib.sha256(json.dumps([image_id, list(args), stamps]).encode())
+    digest.update(identity)
+    return digest.hexdigest()
+
+
+def read_syft_identity(path: Path) -> bytes | None:
+    """Return the :func:`syft_identity` of a Syft JSON file, ``None`` when unreadable."""
+    try:
+        return syft_identity(_read_json(path))
+    except (OSError, ValueError, AttributeError):
+        return None
+
+
+def report_cache_path(layout: Layout, target: Target, name: str) -> Path:
+    return layout.sbom / f"{target.key}.{name}.json"
+
+
+def seed_report_file(layer: str, name: str) -> str:
+    """Return the file name of the seeded *name* report of the :func:`layer_key` *layer*."""
+    return f"{layer}.{name}.json"
+
+
+def seed_report_path(layout: Layout, layer: str, name: str) -> Path:
+    return layout.databases / SBOM_SEED / seed_report_file(layer, name)
+
+
+def _report_with(path: Path, fingerprint: str | None) -> dict | None:
+    if fingerprint is None or not path.is_file():
+        return None
+    try:
+        cached = _read_json(path)
+    except (OSError, ValueError):
+        return None
+    if not isinstance(cached, dict) or cached.get("fingerprint") != fingerprint:
+        return None
+    return cached.get("report")
+
+
+def cached_report(
+    layout: Layout, target: Target, name: str, fingerprint: str | None
+) -> dict | None:
+    """
+    Returns:
+        The *name* report of an earlier run with the same fingerprint,
+        ``None`` when there is none.
+    """
+    return _report_with(report_cache_path(layout, target, name), fingerprint)
+
+
+def reuse_seed_report(
+    layout: Layout,
+    target: Target,
+    name: str,
+    fingerprint: str | None,
+    layer: str | None,
+) -> bool:
+    """Take the *name* report of a seeded target from the SBOM seed.
+
+    The seed holds the report an engine run elsewhere wrote for the same
+    SBOM, stored under the :func:`layer_key` *layer* with the fingerprint
+    that run computed; it is taken only when that fingerprint is this
+    run's, and then also cached here like a report of this node.
+
+    Returns:
+        ``True`` when the seeded report is now where the engine run would
+        have written it.
+    """
+    if layer is None or fingerprint is None:
+        return False
+    report = _report_with(seed_report_path(layout, layer, name), fingerprint)
+    if report is None:
+        return False
+    (layout.work / f"{target.key}.{name}.json").write_text(
+        json.dumps(report), encoding="utf-8"
+    )
+    store_report(layout, target, name, fingerprint, report)
+    return True
+
+
+def reuse_report(
+    layout: Layout, target: Target, name: str, fingerprint: str | None
+) -> bool:
+    """Write the cached *name* report of *target* into the run's work directory.
+
+    Returns:
+        ``True`` when a report with *fingerprint* was cached and is now
+        where the engine run would have written it.
+    """
+    report = cached_report(layout, target, name, fingerprint)
+    if report is None:
+        return False
+    (layout.work / f"{target.key}.{name}.json").write_text(
+        json.dumps(report), encoding="utf-8"
+    )
+    return True
+
+
+def store_report(
+    layout: Layout, target: Target, name: str, fingerprint: str, report: Mapping
+) -> None:
+    write_atomic(
+        report_cache_path(layout, target, name),
+        json.dumps({"fingerprint": fingerprint, "report": report}),
+    )
+
+
+def grype_args(layout: Layout, target: Target, config: ScanConfig) -> list[str]:
     if config.reads_sbom("grype"):
         source = [f"sbom:{SBOM}/{target.key}.syft.json"]
     elif target.kind == "host":
@@ -1677,7 +1939,11 @@ def grype_step(layout: Layout, image: str, target: Target, config: ScanConfig) -
             source += ["--exclude", path]
     else:
         source = [f"docker:{target.ref}"]
-    args = [*source, "-o", "json", "--file", f"{WORK}/{target.key}.grype.json", "-q"]
+    return [*source, "-o", "json", "--file", f"{WORK}/{target.key}.grype.json", "-q"]
+
+
+def grype_step(layout: Layout, image: str, target: Target, config: ScanConfig) -> Step:
+    args = grype_args(layout, target, config)
     scratch = scratch_of("grype", target.key)
     return Step(
         f"grype {target.kind} {target.label}",
@@ -1706,7 +1972,12 @@ def osv_args(config: ScanConfig, output: str) -> list[str]:
 def osv_sbom_step(
     layout: Layout, image: str, targets: Sequence[Target], config: ScanConfig
 ) -> Step:
-    """Scan every target's rewritten CycloneDX in one OSV run."""
+    """Scan every target's rewritten CycloneDX in one OSV run.
+
+    The run takes the export slot: OSV-Scanner loads the offline database of
+    every ecosystem the SBOMs name into memory, and the scans that share the
+    slot share the host's memory too.
+    """
     args = ["scan", "source", *osv_args(config, f"{WORK}/osv.json")]
     for target in targets:
         args += ["-L", f"{WORK}/{target.key}.osv.cdx.json"]
@@ -1718,7 +1989,7 @@ def osv_sbom_step(
         ),
         OSV_ACCEPTED_EXIT_CODES,
         scratch,
-        False,
+        True,
     )
 
 
@@ -1977,9 +2248,27 @@ def pause(seconds: float) -> None:
     time.sleep(seconds)
 
 
-def runtime_step(layout: Layout, image: str, target: Target) -> Step:
-    """Scan the binary-classified packages of one SBOM with Grype."""
-    args = [
+def match_args(args: Sequence[str]) -> list[str]:
+    """Return a Grype argument list without the files of one run.
+
+    The SBOM source and the ``--file`` output are named after the target's
+    image id, which differs between the node that pushed a multi-platform
+    image and the nodes that pulled its single-platform copy.
+    """
+    kept: list[str] = []
+    skip = False
+    for arg in args:
+        if skip:
+            skip = False
+        elif arg == "--file":
+            skip = True
+        elif not arg.startswith("sbom:"):
+            kept.append(arg)
+    return kept
+
+
+def runtime_args(target: Target) -> list[str]:
+    return [
         f"sbom:{WORK}/{target.key}.runtime.syft.json",
         "-o",
         "json",
@@ -1987,6 +2276,11 @@ def runtime_step(layout: Layout, image: str, target: Target) -> Step:
         f"{WORK}/{target.key}.runtime.grype.json",
         "-q",
     ]
+
+
+def runtime_step(layout: Layout, image: str, target: Target) -> Step:
+    """Scan the binary-classified packages of one SBOM with Grype."""
+    args = runtime_args(target)
     scratch = scratch_of(RUNTIME_ENGINE, f"runtime-{target.key}")
     return Step(
         f"grype runtime {target.kind} {target.label}",
@@ -2025,6 +2319,7 @@ def scan(
     runtime = config.runtime_pass() and RUNTIME_ENGINE in usable
 
     sbom_ready = list(targets)
+    seeded: dict[str, str] = {}
     if runtime or any(config.reads_sbom(engine) for engine in scanners):
         pending = [
             target
@@ -2032,6 +2327,13 @@ def scan(
             if target.kind == "host"
             or not all(path.is_file() for path in sbom_paths(layout, target))
         ]
+        for target in pending:
+            layer = seed_sbom(layout, target, runner)
+            if layer is not None:
+                seeded[target.key] = layer
+        if seeded:
+            print(f"ℹ️ syft: {len(seeded)} SBOM(s) taken from the SBOM seed")
+        pending = [target for target in pending if target.key not in seeded]
         results = run_lanes(
             [[sbom_step(layout, images[SBOM_BUILDER], target)] for target in pending],
             runner,
@@ -2052,7 +2354,7 @@ def scan(
         steps = []
         reused = 0
         trivy_id = (
-            engine_image_id(layout, images["trivy"], runner)
+            engine_identity(layout, images["trivy"], runner)
             if any(target.kind == "container" for target in targets)
             else None
         )
@@ -2088,28 +2390,90 @@ def scan(
         if steps:
             trivy_lane = len(lanes)
             lanes.append(steps)
+    fresh: list[tuple[int, Target, str, str]] = []
+    reused_sbom: Counter[str] = Counter()
+    seeded_reports: Counter[str] = Counter()
+    grype_id = (
+        engine_identity(layout, images["grype"], runner)
+        if runtime or ("grype" in scanners and config.reads_sbom("grype"))
+        else None
+    )
     if "grype" in scanners:
-        lanes.extend(
-            [grype_step(layout, images["grype"], target, config)]
-            for target in targets
-            if not config.reads_sbom("grype") or target in sbom_ready
-        )
+        for target in targets:
+            if config.reads_sbom("grype") and target not in sbom_ready:
+                continue
+            fingerprint = (
+                sbom_report_fingerprint(
+                    layout,
+                    "grype",
+                    grype_id,
+                    match_args(grype_args(layout, target, config)),
+                    read_syft_identity(sbom_paths(layout, target)[0]),
+                )
+                if config.reads_sbom("grype")
+                else None
+            )
+            if reuse_report(layout, target, "grype", fingerprint):
+                reused_sbom["grype"] += 1
+                continue
+            if reuse_seed_report(
+                layout, target, "grype", fingerprint, seeded.get(target.key)
+            ):
+                seeded_reports["grype"] += 1
+                continue
+            if fingerprint is not None:
+                fresh.append((len(lanes), target, "grype", fingerprint))
+            lanes.append([grype_step(layout, images["grype"], target, config)])
     for target in sbom_ready if runtime else ():
         reduced = runtime_sbom(_read_json(sbom_paths(layout, target)[0]))
         if reduced is None:
             continue
-        (layout.work / f"{target.key}.runtime.syft.json").write_text(
-            json.dumps(reduced), encoding="utf-8"
+        source = layout.work / f"{target.key}.runtime.syft.json"
+        source.write_text(json.dumps(reduced), encoding="utf-8")
+        fingerprint = sbom_report_fingerprint(
+            layout,
+            RUNTIME_ENGINE,
+            grype_id,
+            match_args(runtime_args(target)),
+            syft_identity(reduced),
         )
+        if reuse_report(layout, target, "runtime.grype", fingerprint):
+            reused_sbom["runtime.grype"] += 1
+            continue
+        if reuse_seed_report(
+            layout, target, "runtime.grype", fingerprint, seeded.get(target.key)
+        ):
+            seeded_reports["runtime.grype"] += 1
+            continue
+        if fingerprint is not None:
+            fresh.append((len(lanes), target, "runtime.grype", fingerprint))
         lanes.append([runtime_step(layout, images[RUNTIME_ENGINE], target)])
+    osv_lane: int | None = None
+    osv_fresh: dict[str, tuple[Target, str]] = {}
     if "osv" in scanners and config.reads_sbom("osv"):
+        osv_id = engine_identity(layout, images["osv"], runner) if sbom_ready else None
+        queued = []
         for target in sbom_ready:
-            cdx = sbom_paths(layout, target)[1]
-            (layout.work / f"{target.key}.osv.cdx.json").write_text(
-                json.dumps(osv_sbom(_read_json(cdx))), encoding="utf-8"
+            source = layout.work / f"{target.key}.osv.cdx.json"
+            rewritten = osv_sbom(_read_json(sbom_paths(layout, target)[1]))
+            source.write_text(json.dumps(rewritten), encoding="utf-8")
+            fingerprint = sbom_report_fingerprint(
+                layout, "osv", osv_id, osv_args(config, ""), osv_identity(rewritten)
             )
-        if sbom_ready:
-            lanes.append([osv_sbom_step(layout, images["osv"], sbom_ready, config)])
+            if reuse_report(layout, target, "osv", fingerprint):
+                reused_sbom["osv"] += 1
+                continue
+            if reuse_seed_report(
+                layout, target, "osv", fingerprint, seeded.get(target.key)
+            ):
+                seeded_reports["osv"] += 1
+                continue
+            if fingerprint is not None:
+                osv_fresh[f"{WORK}/{target.key}.osv.cdx.json"] = (target, fingerprint)
+            queued.append(target)
+        if queued:
+            osv_lane = len(lanes)
+            lanes.append([osv_sbom_step(layout, images["osv"], queued, config)])
     elif "osv" in scanners:
         lanes.append(
             [
@@ -2127,6 +2491,26 @@ def scan(
                 trivy_cache_path(layout, target),
                 json.dumps({"fingerprint": fingerprint, "report": _read_json(report)}),
             )
+    for lane, target, name, fingerprint in fresh:
+        report = layout.work / f"{target.key}.{name}.json"
+        if not results[lane] and report.is_file():
+            store_report(layout, target, name, fingerprint, _read_json(report))
+    batched = layout.work / "osv.json"
+    if osv_lane is not None and not results[osv_lane] and batched.is_file():
+        by_source: dict[str, list] = {path: [] for path in osv_fresh}
+        for result in _read_json(batched).get("results") or []:
+            by_source.get(result["source"]["path"], []).append(result)
+        for path, (target, fingerprint) in osv_fresh.items():
+            store_report(
+                layout, target, "osv", fingerprint, {"results": by_source[path]}
+            )
+    for name, count in sorted(reused_sbom.items()):
+        print(
+            f"ℹ️ {name}: {count} report(s) of unchanged SBOMs reused "
+            "against the unchanged database"
+        )
+    for name, count in sorted(seeded_reports.items()):
+        print(f"ℹ️ {name}: {count} report(s) taken from the SBOM seed")
 
     findings: list[Finding] = []
     for target in targets:
@@ -2141,7 +2525,6 @@ def scan(
         report = layout.work / f"{target.key}.osv.json"
         if report.is_file():
             findings += parse_osv(_read_json(report), lambda _path, key=target.key: key)
-    batched = layout.work / "osv.json"
     if batched.is_file():
         by_file = {
             f"{WORK}/{target.key}.osv.cdx.json": target.key for target in sbom_ready
@@ -2151,11 +2534,14 @@ def scan(
 
 
 def prune_sboms(layout: Layout, targets: Iterable[Target]) -> None:
-    """Drop the cached SBOMs of images no container runs any more."""
+    """Drop the cached SBOMs and reports of images no container runs any more."""
     keep = {
         path
         for target in targets
-        for path in (*sbom_paths(layout, target), trivy_cache_path(layout, target))
+        for path in (
+            *sbom_paths(layout, target),
+            *(report_cache_path(layout, target, name) for name in CACHED_REPORTS),
+        )
     }
     for path in layout.sbom.glob("*.json"):
         if path not in keep:

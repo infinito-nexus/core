@@ -1,0 +1,131 @@
+---
+- name: "⏳ ETCD | Wait until the cluster answers"
+  ansible.builtin.shell: >
+    container exec {{ ETCD_EXEC_ADDRESS }} {{ ETCDCTL }} auth status
+  register: etcd_auth_status
+  delegate_to: "{{ ETCD_EXEC_HOST }}"
+  retries: "{{ ETCD_RETRIES }}"
+  delay: "{{ ETCD_DELAY }}"
+  until: etcd_auth_status.rc == 0 or etcd_auth_status.stderr is search(ETCD_AUTH_REQUIRED_ERROR)
+  failed_when: etcd_auth_status.rc != 0 and etcd_auth_status.stderr is not search(ETCD_AUTH_REQUIRED_ERROR)
+  changed_when: false
+
+- name: "🤔 ETCD | Remember whether authentication is already on"
+  ansible.builtin.set_fact:
+    etcd_auth_enabled: "{{ etcd_auth_status.stdout is search('Authentication Status: true') or etcd_auth_status.stderr is search(ETCD_AUTH_REQUIRED_ERROR) }}"
+
+- name: "🔑 ETCD | Authenticate as root with the password the cluster holds"
+  ansible.builtin.set_fact:
+    etcd_admin_env: "{{ {'ETCDCTL_USER': 'root:' ~ etcd_cluster_root_password} if (etcd_auth_enabled | bool) else {} }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📖 ETCD | Read users"
+  ansible.builtin.shell: >
+    container exec -e ETCDCTL_USER {{ ETCD_EXEC_ADDRESS }} {{ ETCDCTL }} user list
+  environment: "{{ etcd_admin_env }}"
+  register: etcd_users
+  delegate_to: "{{ ETCD_EXEC_HOST }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "📖 ETCD | Read roles"
+  ansible.builtin.shell: >
+    container exec -e ETCDCTL_USER {{ ETCD_EXEC_ADDRESS }} {{ ETCDCTL }} role list
+  environment: "{{ etcd_admin_env }}"
+  register: etcd_roles
+  delegate_to: "{{ ETCD_EXEC_HOST }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔧 ETCD | Create root and consumer roles"
+  ansible.builtin.shell: >
+    container exec -e ETCDCTL_USER {{ ETCD_EXEC_ADDRESS }} {{ ETCDCTL }} role add {{ item | quote }}
+  environment: "{{ etcd_admin_env }}"
+  loop: "{{ ['root'] + (ETCD_CONSUMERS | map(attribute='user') | list) }}"
+  when: item not in etcd_roles.stdout_lines
+  delegate_to: "{{ ETCD_EXEC_HOST }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔧 ETCD | Restrict each consumer role to its key prefix"
+  ansible.builtin.shell: >
+    container exec -e ETCDCTL_USER {{ ETCD_EXEC_ADDRESS }} {{ ETCDCTL }}
+    role grant-permission --prefix=true {{ item.user | quote }} readwrite {{ item.prefix | quote }}
+  environment: "{{ etcd_admin_env }}"
+  loop: "{{ ETCD_CONSUMERS }}"
+  loop_control:
+    label: "{{ item.user }} -> {{ item.prefix }}"
+  delegate_to: "{{ ETCD_EXEC_HOST }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "👤 ETCD | Create missing users"
+  ansible.builtin.shell: >
+    container exec -i -e ETCDCTL_USER {{ ETCD_EXEC_ADDRESS }} {{ ETCDCTL }}
+    user add {{ item.user | quote }} --interactive=false
+  args:
+    stdin: "{{ item.password }}"
+  environment: "{{ etcd_admin_env }}"
+  loop: "{{ [{'user': 'root', 'password': ETCD_ROOT_PASSWORD}] + ETCD_CONSUMERS }}"
+  loop_control:
+    label: "{{ item.user }}"
+  when: item.user not in etcd_users.stdout_lines
+  delegate_to: "{{ ETCD_EXEC_HOST }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔍 ETCD | Check which existing users still log in with their declared password"
+  ansible.builtin.shell: >
+    IFS= read -r ETCDCTL_USER && export ETCDCTL_USER &&
+    container exec -e ETCDCTL_USER {{ ETCD_EXEC_ADDRESS }} {{ ETCDCTL }}
+    get --keys-only --limit 1 /
+  args:
+    stdin: "{{ item.user }}:{{ item.password }}"
+    executable: /bin/bash
+  register: etcd_password_probe
+  loop: "{{ ETCD_CONSUMERS + [{'user': 'root', 'password': ETCD_ROOT_PASSWORD}] }}"
+  loop_control:
+    label: "{{ item.user }}"
+  when:
+    - etcd_auth_enabled | bool
+    - item.user in etcd_users.stdout_lines
+  delegate_to: "{{ ETCD_EXEC_HOST }}"
+  changed_when: false
+  failed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 ETCD | Reconcile passwords of existing users"
+  ansible.builtin.shell: >
+    container exec -i -e ETCDCTL_USER {{ ETCD_EXEC_ADDRESS }} {{ ETCDCTL }}
+    user passwd {{ item.item.user | quote }} --interactive=false
+  args:
+    stdin: "{{ item.item.password }}"
+  environment: "{{ etcd_admin_env }}"
+  loop: "{{ etcd_password_probe.results }}"
+  loop_control:
+    label: "{{ item.item.user }}"
+  when:
+    - item.item.user in etcd_users.stdout_lines
+    - not (etcd_auth_enabled | bool) or item.stderr is search(ETCD_AUTH_FAILED_ERROR)
+  delegate_to: "{{ ETCD_EXEC_HOST }}"
+  changed_when: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔑 ETCD | Authenticate as root with the reconciled password"
+  ansible.builtin.set_fact:
+    etcd_admin_env: "{{ {'ETCDCTL_USER': 'root:' ~ ETCD_ROOT_PASSWORD} if (etcd_auth_enabled | bool) else {} }}"
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔗 ETCD | Grant each user its role"
+  ansible.builtin.shell: >
+    container exec -e ETCDCTL_USER {{ ETCD_EXEC_ADDRESS }} {{ ETCDCTL }}
+    user grant-role {{ item | quote }} {{ item | quote }}
+  environment: "{{ etcd_admin_env }}"
+  loop: "{{ ['root'] + (ETCD_CONSUMERS | map(attribute='user') | list) }}"
+  delegate_to: "{{ ETCD_EXEC_HOST }}"
+  changed_when: false
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🔒 ETCD | Enable authentication"
+  ansible.builtin.shell: >
+    container exec {{ ETCD_EXEC_ADDRESS }} {{ ETCDCTL }} auth enable
+  when: not (etcd_auth_enabled | bool)
+  delegate_to: "{{ ETCD_EXEC_HOST }}"

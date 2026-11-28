@@ -19,6 +19,8 @@ import os
 import shutil
 import signal
 import subprocess
+import threading
+import time
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -31,6 +33,18 @@ from utils.env.runtime import (
     mem_total_mb,
     uninterruptible_switches,
 )
+from utils.tests.swarm.journalwire import journalwire
+from utils.tests.swarm.probes import (
+    memory_line,
+    network_line,
+    network_report,
+    oom_kills,
+    oom_victims,
+    protect_from_oom,
+    reachable,
+    runner_pids,
+    spike_report,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -40,9 +54,22 @@ STORAGE_ROOTS = ("/", "/var/lib/containerd")
 MEM_FLOOR_RATIO = 0.06
 IO_STALL_CEILING_PCT = 50.0
 SAMPLE_INTERVAL_S = 10
+TOP_ROWS = 12
+TOP_EVERY_SAMPLES = 60
 STALL_WINDOW_S = 60
 HUNG_TASK_S = 30
 WEDGE_SAMPLES = 2
+FAST_INTERVAL_S = 1
+SPIKE_MB = 2**10
+SPIKE_COOLDOWN_S = 30
+FLOOR_ETA_S = 5
+OOM_LINES = 4
+PROC_ROOT = Path("/proc")
+NET_PROBE_HOST = "github.com"
+NET_PROBE_PORT = 443
+NET_PROBE_EVERY_S = 15
+NET_PROBE_TIMEOUT_S = 5.0
+NET_LOST_PROBES = 4
 ABORT_RC = 75
 _FORWARDED_SIGNALS = (signal.SIGINT, signal.SIGTERM)
 
@@ -161,6 +188,113 @@ def sample_line(
     )
 
 
+def spike_kind(
+    previous: tuple[int, int], current: tuple[int, int]
+) -> tuple[int, int] | None:
+    """
+    Args:
+        previous: ``(free disk MB, available memory MB)`` of the last sample.
+        current: the same pair FAST_INTERVAL_S later.
+
+    Returns:
+        ``(disk drop MB, memory drop MB)`` when either reached SPIKE_MB,
+        else ``None``.
+    """
+    disk_drop = previous[0] - current[0]
+    mem_drop = previous[1] - current[1]
+    if disk_drop >= SPIKE_MB or mem_drop >= SPIKE_MB:
+        return disk_drop, mem_drop
+    return None
+
+
+def floor_within_eta(free_mb: int, disk_drop_mb: int) -> bool:
+    """
+    Args:
+        free_mb: free MB on the fullest storage root now.
+        disk_drop_mb: MB that root lost over the last FAST_INTERVAL_S.
+
+    Returns:
+        Whether that rate reaches DISK_FLOOR_MB within FLOOR_ETA_S.
+    """
+    return disk_drop_mb > 0 and free_mb - DISK_FLOOR_MB <= disk_drop_mb * FLOOR_ETA_S
+
+
+def _tripwire(
+    proc: subprocess.Popen[bytes], stop: threading.Event, tripped: threading.Event
+) -> None:
+    previous: tuple[int, int] | None = None
+    reported = -float(SPIKE_COOLDOWN_S)
+    kills = oom_kills(PROC_ROOT)
+    while not stop.wait(FAST_INTERVAL_S):
+        counted = oom_kills(PROC_ROOT)
+        if kills is not None and counted is not None and counted > kills:
+            print(
+                f"=== swarm-matrix: OOM KILL x{counted - kills} "
+                f"({counted} since boot) ===",
+                flush=True,
+            )
+            for line in oom_victims(OOM_LINES):
+                print(f"=== swarm-matrix: kernel: {line} ===", flush=True)
+            print(memory_line(TOP_ROWS), flush=True)
+        if counted is not None:
+            kills = counted
+        free_mb, root = lowest_free_mb()
+        current = (free_mb, mem_available_mb())
+        drop = spike_kind(previous, current) if previous else None
+        previous = current
+        if drop is None:
+            continue
+        now = time.monotonic()
+        if now - reported >= SPIKE_COOLDOWN_S:
+            reported = now
+            print(
+                f"=== swarm-matrix: SPIKE disk -{drop[0]}M ({free_mb}M free on "
+                f"{root}), mem -{drop[1]}M ({current[1]}M available) in "
+                f"{FAST_INTERVAL_S}s ===",
+                flush=True,
+            )
+            for line in spike_report(TOP_ROWS, FAST_INTERVAL_S):
+                print(line, flush=True)
+        if floor_within_eta(free_mb, drop[0]):
+            tripped.set()
+            _abort(
+                proc,
+                f"=== swarm-matrix: DISK EXHAUSTION IMMINENT ({free_mb}M free on "
+                f"{root}, -{drop[0]}M in {FAST_INTERVAL_S}s) - aborting step ===",
+                ["df", "-h", *STORAGE_ROOTS],
+            )
+            return
+
+
+def _netwire(
+    proc: subprocess.Popen[bytes], stop: threading.Event, tripped: threading.Event
+) -> None:
+    failures = 0
+    while not stop.wait(NET_PROBE_EVERY_S):
+        if reachable(NET_PROBE_HOST, NET_PROBE_PORT, NET_PROBE_TIMEOUT_S):
+            failures = 0
+            continue
+        failures += 1
+        print(
+            f"=== swarm-matrix: {NET_PROBE_HOST}:{NET_PROBE_PORT} unreachable "
+            f"({failures}/{NET_LOST_PROBES}) ===",
+            flush=True,
+        )
+        if failures < NET_LOST_PROBES:
+            continue
+        for line in network_report(PROC_ROOT):
+            print(line, flush=True)
+        print(memory_line(TOP_ROWS), flush=True)
+        tripped.set()
+        _abort(
+            proc,
+            f"=== swarm-matrix: NETWORK LOST ({NET_PROBE_HOST}:{NET_PROBE_PORT} "
+            f"unreachable for {failures * NET_PROBE_EVERY_S}s) - aborting step ===",
+            ["ip", "-brief", "addr"],
+        )
+        return
+
+
 def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
     """Run a step, aborting visibly before the runner disk, RAM or I/O wedges.
 
@@ -174,7 +308,17 @@ def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
     state on the same sample, WEDGE_SAMPLES breaches in a row, and a step old
     enough to own a whole STALL_WINDOW_S of the trailing average. Without the
     last one an I/O-heavy predecessor aborts its successor before that step
-    has issued a single read.
+    has issued a single read. A side thread samples every FAST_INTERVAL_S,
+    because a runner that went from a healthy sample to silence within one
+    SAMPLE_INTERVAL_S left nothing to attribute the loss to: it names the
+    largest and the busiest-writing processes of a spike, and ends the step
+    when the disk would reach DISK_FLOOR_MB before the next slow sample. On a
+    hosted runner a second thread probes GitHub: a runner that keeps its RAM
+    and disk but loses its network is declared lost hours later with no log
+    tail, so NET_LOST_PROBES failures in a row print the network state and end
+    the step, and the teardown that follows can give the network back. A third
+    thread streams the runner journal, so a death between two samples still
+    leaves the kernel and host-unit records of its last seconds in the log.
 
     Args:
         cmd: argv of the step.
@@ -183,9 +327,72 @@ def run_watched(cmd: list[str], *, env: dict[str, str]) -> int:
     Returns:
         The step's exit code, or ABORT_RC when a floor was hit.
     """
+    protected = protect_from_oom(runner_pids(PROC_ROOT))
+    print(
+        "=== swarm-matrix: runner agent exempt from the OOM killer: "
+        f"{', '.join(protected) or 'none'} ===",
+        flush=True,
+    )
     proc = subprocess.Popen(cmd, cwd=str(PROJECT_ROOT), env=env, process_group=0)
+    stop = threading.Event()
+    tripped = threading.Event()
+    wires = [
+        threading.Thread(target=_tripwire, args=(proc, stop, tripped), daemon=True)
+    ]
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        wires.append(
+            threading.Thread(target=_netwire, args=(proc, stop, tripped), daemon=True)
+        )
+        wires.append(threading.Thread(target=journalwire, args=(stop,), daemon=True))
     with _forwarding(proc):
-        return _watch(proc)
+        for wire in wires:
+            wire.start()
+        try:
+            returned = _watch(proc)
+        finally:
+            stop.set()
+            for wire in wires:
+                wire.join()
+    return ABORT_RC if tripped.is_set() else returned
+
+
+def top_processes(rows: int) -> list[str]:
+    """Return the busiest processes of the runner over a 3 s window.
+
+    The lab nodes are containers on the runner's kernel, so this sees every
+    nested container process too. The first ``top`` frame averages over each
+    process's lifetime; only the second frame covers the window.
+
+    Args:
+        rows: how many process lines to return.
+
+    Returns:
+        ``"<%CPU> <command>"`` lines, busiest first; empty when ``top`` fails.
+    """
+    try:
+        out = subprocess.run(
+            ["top", "-b", "-n", "2", "-d", "3", "-o", "%CPU", "-w", "200"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        ).stdout
+    except (OSError, subprocess.TimeoutExpired):
+        return []
+    frame = out.rsplit("\n\n", 2)[-1].splitlines()
+    header = next((i for i, line in enumerate(frame) if "%CPU" in line), None)
+    if header is None:
+        return []
+    columns = frame[header].split()
+    cpu, command = columns.index("%CPU"), columns.index("COMMAND")
+    lines = []
+    for line in frame[header + 1 :]:
+        fields = line.split(None, command)
+        if len(fields) > command:
+            lines.append(f"{fields[cpu]} {fields[command]}")
+        if len(lines) == rows:
+            break
+    return lines
 
 
 def _watch(proc: subprocess.Popen[bytes]) -> int:
@@ -225,7 +432,17 @@ def _watch(proc: subprocess.Popen[bytes]) -> int:
                 ),
                 flush=True,
             )
+            if samples % TOP_EVERY_SAMPLES == 0:
+                print(
+                    "=== swarm-matrix: top cpu "
+                    + " | ".join(top_processes(TOP_ROWS))
+                    + " ===",
+                    flush=True,
+                )
+                print(memory_line(TOP_ROWS), flush=True)
+                print(network_line(PROC_ROOT), flush=True)
             if total and avail < total * MEM_FLOOR_RATIO:
+                print(memory_line(TOP_ROWS), flush=True)
                 return _abort(
                     proc,
                     "=== swarm-matrix: MEMORY EXHAUSTION IMMINENT "

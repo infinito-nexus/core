@@ -48,6 +48,7 @@ for app_id in "${app_list[@]}"; do
 	done
 done
 
-for node in "${MGR}" "${WRK1}" "${WRK2}"; do
+# shellcheck disable=SC2086  # the lab node lists are space-separated words
+for node in ${SWARM_LAB_MANAGERS} ${SWARM_LAB_WORKERS}; do
 	docker exec "${node}" docker volume prune -a -f >/dev/null 2>&1 || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 done

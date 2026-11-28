@@ -411,6 +411,10 @@ msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
 msgstr "ciseal rialaithe do bhainistíocht saolré córas-lámhaigh cleanup, monatóireacht, cúltacaí, foláirimh, cothabháil, agus tascanna a dheisiú."
 
+msgctxt "category:svc.dcs:title"
+msgid "Coordination Stores"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
@@ -589,6 +593,10 @@ msgstr "Forbairt agus uirlisí CI/CD"
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
 msgstr "Dáileadh S3-compatible siopa réad do roinnte, buicéad in aghaidh an-tomhaltóir ar fáil ar fud róil gréasáin-app"
+
+msgctxt "category:svc.dcs:description"
+msgid "Distributed coordination stores for leader election of database clusters (etcd)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -1802,6 +1810,10 @@ msgstr "PHP cruaite ini agus PHP-FPM titim linn snámha isteach go seirbhísí P
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
 msgstr "Stóráil roinnte"
+
+msgctxt "role:svc-dcs-etcd:description"
+msgid "Shared etcd coordination store for leader election of the central database clusters on Docker Swarm"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-openssl:description"

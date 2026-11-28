@@ -398,6 +398,10 @@ msgctxt "category:sys.ctl:description"
 msgid "Control layer for system lifecycle management—handling cleanup, monitoring, backups, alerting, maintenance, and repair tasks."
 msgstr "Στρώμα ελέγχου για τη διαχείριση του κύκλου ζωής του συστήματος— χειρισμό καθαρισμού, παρακολούθησης, αντιγράφων ασφαλείας, συναγερμού, συντήρησης, και επισκευών εργασίες."
 
+msgctxt "category:svc.dcs:title"
+msgid "Coordination Stores"
+msgstr ""
+
 # translated-by: libretranslate
 msgctxt "category:svc.ai:description"
 msgid "Core AI building blocks—model serving, OpenAI-compatible gateways, vector databases, orchestration, and chat UIs."
@@ -576,6 +580,10 @@ msgstr "Ανάπτυξη και εργαλεία CI/CD"
 msgctxt "role:web-svc-seaweedfs:description"
 msgid "Distributed S3-compatible object store for shared, per-consumer bucket provisioning across web-app roles"
 msgstr "Διανεμημένο S3-συμβατό κατάστημα αντικειμένων για κοινή, ανά καταναλωτή κουβά παροχή σε όλους τους ρόλους web-app"
+
+msgctxt "category:svc.dcs:description"
+msgid "Distributed coordination stores for leader election of database clusters (etcd)"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:dev-git:description"
@@ -1796,6 +1804,10 @@ msgstr "Κοινή PHP σκλήρυνση ini και PHP-FPM πισίνα πτώ
 msgctxt "category:svc.storage:title"
 msgid "Shared Storage"
 msgstr "Κοινή αποθήκευση"
+
+msgctxt "role:svc-dcs-etcd:description"
+msgid "Shared etcd coordination store for leader election of the central database clusters on Docker Swarm"
+msgstr ""
 
 # translated-by: libretranslate
 msgctxt "role:sys-openssl:description"

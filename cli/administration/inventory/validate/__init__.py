@@ -6,6 +6,7 @@ Split by concern (DRY/SPOT/KISS):
 - ``applications``: applications-vs-defaults+variants validation
 - ``users``: user-vs-defaults validation
 - ``hosts``: ``all.children`` host-group validation
+- ``topology``: Swarm manager quorum size and engine-group eligibility
 - ``api``: API credential validation
 - ``variables``: top-level inventory variables core never reads
 - ``__main__``: argparse + orchestration
@@ -23,6 +24,7 @@ from .applications import compare_application_keys  # noqa: E402
 from .hosts import validate_host_keys  # noqa: E402
 from .keys import recursive_keys  # noqa: E402
 from .loaders import load_inventory_files, load_yaml_file  # noqa: E402
+from .topology import validate_swarm_topology  # noqa: E402
 from .users import compare_user_keys  # noqa: E402
 from .variables import validate_inventory_variables  # noqa: E402
 
@@ -37,4 +39,5 @@ __all__ = [
     "validate_api_keys",
     "validate_host_keys",
     "validate_inventory_variables",
+    "validate_swarm_topology",
 ]

@@ -27,6 +27,7 @@ def _daemon_json(**overrides):
     variables = {
         "DEPLOYMENT_MODE": "compose",
         "IS_STACK_HOST": True,
+        "IS_SWARM_MANAGER": False,
         "DOCKER_IN_CONTAINER": False,
         "DOMAIN_PRIMARY": "infinito.test",
         "KATA_SHIM_BINARY": "/usr/bin/containerd-shim-kata-v2",

@@ -214,6 +214,14 @@ roles:
       glyph: "𓎼"
       description: "Database applications (DBMS, LDAP, Redis, etc.)"
       icon: "fas fa-database"
+      run_after: [svc-net, svc-dcs]
+      invokable: true
+
+    dcs:
+      title: "Coordination Stores"
+      glyph: "𓍝"
+      description: "Distributed coordination stores for leader election of database clusters (etcd)"
+      icon: "fas fa-network-wired"
       run_after: [svc-net]
       invokable: true
 

@@ -38,6 +38,7 @@ def _lookup(name, *_args, **_kwargs):
 BASE = {
     "DEPLOYMENT_MODE": "swarm",
     "IS_STACK_HOST": False,
+    "IS_SWARM_MANAGER": False,
     "DOCKER_IN_CONTAINER": True,
     "DOMAIN_PRIMARY": DOMAIN,
     "KATA_SHIM_BINARY": "/usr/bin/containerd-shim-kata-v2",
@@ -46,7 +47,11 @@ BASE = {
     "SANDBOX_RUNTIME": "runsc",
     "SYS_SVC_CONTAINER_DATA_ROOT": "",
     "swarm": {"registry": {"host": "reg", "port": 5000}},
-    "groups": {"svc-registry-cache": []},
+    "inventory_hostname": "wrk-01",
+    "groups": {
+        "svc-registry-cache": [],
+        "svc-swarm-manager": ["mgr-01", "mgr-02", "mgr-03"],
+    },
     "group_names": ["svc-virt-kata"],
     "ansible_facts": {"os_family": "Debian"},
     "SYS_SVC_CONTAINER_DOCKER_FIREWALL_BACKEND_BY_OS_FAMILY": {"Debian": "iptables"},
@@ -56,6 +61,7 @@ BASE = {
     "sys_svc_container_kata_shim": _shim(False),
     "sys_svc_container_runsc_shim": _shim(False),
     "sys_svc_container_nvidia_shim": _shim(False),
+    "sys_svc_container_cgroup_driver": SimpleNamespace(stdout="cgroupfs\n"),
 }
 
 
@@ -101,12 +107,16 @@ class TestSandboxRuntimeRegistration(unittest.TestCase):
         self.assertEqual(sorted(parsed["runtimes"]), ["runsc"])
         self.assertEqual(parsed["default-runtime"], "runsc")
 
-    def test_stack_host_keeps_the_shared_kernel(self):
-        parsed = self._render(
-            IS_STACK_HOST=True, sys_svc_container_runsc_shim=_shim(True)
-        )
-        self.assertIn("runsc", parsed["runtimes"])
-        self.assertNotIn("default-runtime", parsed)
+    def test_every_manager_keeps_the_shared_kernel(self):
+        for host in ("mgr-01", "mgr-03"):
+            with self.subTest(host=host):
+                parsed = self._render(
+                    inventory_hostname=host,
+                    IS_SWARM_MANAGER=True,
+                    sys_svc_container_runsc_shim=_shim(True),
+                )
+                self.assertIn("runsc", parsed["runtimes"])
+                self.assertNotIn("default-runtime", parsed)
 
     def test_compose_mode_never_sets_a_default_runtime(self):
         parsed = self._render(
@@ -132,6 +142,46 @@ class TestSandboxRuntimeRegistration(unittest.TestCase):
         )
         self.assertEqual(sorted(parsed["runtimes"]), ["runsc"])
         self.assertEqual(parsed["default-runtime"], "runsc")
+
+    def test_runsc_keeps_the_container_limits_under_systemd_cgroups(self):
+        parsed = self._render(
+            sys_svc_container_runsc_shim=_shim(True),
+            sys_svc_container_cgroup_driver=SimpleNamespace(stdout="systemd\n"),
+        )
+        self.assertEqual(
+            parsed["runtimes"]["runsc"]["runtimeArgs"],
+            ["--network=host", "--systemd-cgroup"],
+        )
+
+    def test_a_bare_systemd_host_passes_only_the_cgroup_flag(self):
+        parsed = self._render(
+            DOCKER_IN_CONTAINER=False,
+            sys_svc_container_runsc_shim=_shim(True),
+            sys_svc_container_cgroup_driver=SimpleNamespace(stdout="systemd"),
+        )
+        self.assertEqual(
+            parsed["runtimes"]["runsc"]["runtimeArgs"], ["--systemd-cgroup"]
+        )
+
+    def test_cgroupfs_never_gets_the_systemd_flag(self):
+        parsed = self._render(sys_svc_container_runsc_shim=_shim(True))
+        self.assertEqual(parsed["runtimes"]["runsc"]["runtimeArgs"], ["--network=host"])
+
+    def test_an_unreadable_driver_adds_no_flag(self):
+        parsed = self._render(
+            DOCKER_IN_CONTAINER=False,
+            sys_svc_container_runsc_shim=_shim(True),
+            sys_svc_container_cgroup_driver=SimpleNamespace(stdout=""),
+        )
+        self.assertNotIn("runtimeArgs", parsed["runtimes"]["runsc"])
+
+    def test_only_runsc_gets_the_cgroup_flag(self):
+        parsed = self._render(
+            sys_svc_container_runsc_shim=_shim(True),
+            sys_svc_container_nvidia_shim=_shim(True),
+            sys_svc_container_cgroup_driver=SimpleNamespace(stdout="systemd"),
+        )
+        self.assertNotIn("runtimeArgs", parsed["runtimes"]["nvidia"])
 
     def test_a_default_runtime_is_always_a_registered_one(self):
         for kata, runsc in ((False, False), (False, True), (True, True)):

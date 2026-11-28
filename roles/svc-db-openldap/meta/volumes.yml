@@ -20,3 +20,48 @@ ldif:
   mounts:
     - service: openldap
       target: /tmp/ldif
+      when: "{{ lookup('db_instances', 'svc-db-openldap').form != 'ha' }}"
+
+cn_config:
+  type: config
+  per_instance: true
+  source: "{{ [lookup('container', 'svc-db-openldap', 'directories.volumes'), 'cn-config', '{host_id}.ldif'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: openldap
+      target: /etc/ldap/cn-config.ldif
+
+elector_etcd_password:
+  type: secret
+  source: "{{ [lookup('container', 'svc-db-openldap', 'directories.volumes'), 'elector-etcd-password'] | path_join }}"
+  mode: "0400"
+  mounts:
+    - service: openldap
+      target: /run/secrets/elector-etcd-password
+      when: "{{ lookup('db_instances', 'svc-db-openldap').form == 'ha' }}"
+
+etcd_ca: # nocheck: config-volume-producer  svc-dcs-etcd tasks/01_tls.yml writes the etcd CA this entry mounts
+  type: config
+  source: "{{ [lookup('container', 'svc-dcs-etcd', 'directories.config'), 'tls', 'ca.crt'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: openldap
+      target: /etc/ssl/etcd/ca.crt
+      when: "{{ lookup('db_instances', 'svc-db-openldap').form == 'ha' }}"
+
+haproxy_cfg:
+  type: secret
+  source: "{{ [lookup('container', 'svc-db-openldap', 'directories.volumes'), 'haproxy.cfg'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: haproxy
+      target: /usr/local/etc/haproxy/haproxy.cfg
+      when: "{{ lookup('db_instances', 'svc-db-openldap').form == 'ha' }}"
+
+haproxy_tmp:
+  type: tmpfs
+  mounts:
+    - service: haproxy
+      target: /tmp
+      size: 1m
+      when: "{{ lookup('db_instances', 'svc-db-openldap').form == 'ha' }}"

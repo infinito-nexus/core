@@ -1,6 +1,6 @@
 ---
 - name: "🔍 Resolve the node that holds the Penpot backend and its local id"
-  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve/host_cid.yml') }}"
   vars:
     resolve_service_key: "{{ PENPOT_BACKEND_SERVICE }}"
     resolve_output_prefix: PENPOT_BACKEND

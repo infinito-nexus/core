@@ -1,10 +1,12 @@
 ---
-- name: "🔧 Manage container backups on STACK_HOST only"
-  when: IS_STACK_HOST | bool
+- name: "🔧 Manage container backups on STACK_HOST and every database HA instance host"
+  when: (IS_STACK_HOST | bool) or (inventory_hostname in BKP_VOLUME_2_LOCAL_HA_HOSTS)
   block:
     - include_tasks: 00_core.yml
       when: run_once_svc_bkp_volume_2_local is not defined
 
     - name: "📂 include 03_seed-database-to-backup.yml"
       include_tasks: 03_seed-database-to-backup.yml
-      when: BKP_VOLUME_2_LOCAL_DB_ENABLED | bool
+      when:
+        - BKP_VOLUME_2_LOCAL_DB_ENABLED | bool
+        - IS_STACK_HOST | bool

@@ -1,0 +1,10 @@
+{#
+  Param: users_digest_phase  "before" stores the digest of the HA users, "after" prints whether it moved.
+#}
+{% set _digest %}SELECT COALESCE(MD5(GROUP_CONCAT(CONCAT(User, '@', Host, '=', Priv) ORDER BY User, Host SEPARATOR ';')), '') FROM mysql.global_priv WHERE User IN ('{{ MARIADB_REPLICATION_USER }}', '{{ MARIADB_ELECTOR_USER }}', '{{ MARIADB_ELECTOR_LOCAL_USER }}'){% endset %}
+{% if users_digest_phase == 'before' %}
+SET SESSION group_concat_max_len = 1048576;
+SET @users_before := ({{ _digest }});
+{% else %}
+SELECT IF(@users_before = ({{ _digest }}), 'users unchanged', 'users changed');
+{% endif %}

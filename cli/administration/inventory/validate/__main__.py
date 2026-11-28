@@ -28,6 +28,9 @@ from cli.administration.inventory.validate.open_subtrees import (  # noqa: E402
 from cli.administration.inventory.validate.pinned_passwords import (  # noqa: E402
     validate_pinned_passwords,
 )
+from cli.administration.inventory.validate.topology import (  # noqa: E402
+    validate_swarm_topology,
+)
 from cli.administration.inventory.validate.users import compare_user_keys  # noqa: E402
 from cli.administration.inventory.validate.variables import (  # noqa: E402
     read_variables,
@@ -84,6 +87,7 @@ def main() -> None:
 
     host_errs = validate_host_keys(set(application_defaults), args.inventory_dir)
     app_errs.extend(host_errs)
+    app_errs.extend(validate_swarm_topology(args.inventory_dir))
     known = read_variables()
     app_errs.extend(
         validate_inventory_variables(args.inventory_dir, known, legacy_api_keys(known))

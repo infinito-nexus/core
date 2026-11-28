@@ -1,0 +1,19 @@
+---
+# Param: postgres_rotate_target  instance model entry (`service`, `host`) of the running primary
+- name: "🔍 POSTGRES | Resolve the running primary's container"
+  ansible.builtin.command:
+    argv:
+      - "{{ BIN_RESOLVE_CONTAINER_ID }}"
+      - "{{ entity_name }}"
+      - "{{ postgres_rotate_target.service }}"
+  register: postgres_rotate_cid
+  changed_when: false
+  delegate_to: "{{ postgres_rotate_target.host }}"
+
+- name: "👤 POSTGRES | Reconcile superuser, replication and rewind roles"
+  ansible.builtin.include_tasks: utils/psql_primary.yml
+  vars:
+    psql_template: ha_roles.sql.j2
+    psql_database: postgres
+    psql_node: "{{ postgres_rotate_target.host }}"
+    psql_cid: "{{ postgres_rotate_cid.stdout | trim }}"

@@ -103,6 +103,16 @@ class TestWithCaTrust(unittest.TestCase):
             combined = Path(path).read_text()  # nocheck: cache-read
             self.assertTrue(combined.endswith("ROOT-CA\n"))
 
+    def test_trust_tool_output_stays_off_the_payload_stdout(self):
+        stub = self.bin_dir / "update-ca-certificates"
+        stub.write_text('#!/bin/sh\necho "1 added, 0 removed; done."\n')
+        stub.chmod(0o755)
+
+        path, mode = self.run_wrapper()
+
+        self.assertTrue(path.startswith("/"))
+        self.assertTrue(mode.isdigit())
+
 
 if __name__ == "__main__":
     unittest.main()

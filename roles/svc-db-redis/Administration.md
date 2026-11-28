@@ -15,7 +15,7 @@ docker exec -it redis sh -c 'REDISCLI_AUTH="$REDIS_PASSWORD" exec redis-cli'
 docker exec -it redis sh -c 'REDISCLI_AUTH="$REDIS_PASSWORD" exec redis-cli ACL LIST'
 ```
 
-Every shared consumer authenticates as `default`, so this is the only user. Its rule line carries one `#<sha256>` per accepted password: more than one means a deploy rotated `REDIS_PASSWORD` and has not retired the replaced password yet.
+Every shared consumer authenticates as `default`. The HA form adds only the `sentinel` and `haproxy-check` users. The `default` rule line carries one `#<sha256>` per accepted password: more than one means a deploy rotated `REDIS_PASSWORD` and has not retired the replaced password yet.
 
 ## Retire a replaced password by hand
 

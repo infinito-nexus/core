@@ -5,4 +5,68 @@ data:
   name: redis_data
   mounts:
     - service: redis
-      target: /data
+      target: &data_target /data
+
+sentinel:
+  type: volume
+  name: redis_sentinel
+  mounts:
+    - service: sentinel
+      target: *data_target
+      when: "{{ lookup('db_instances', 'svc-db-redis').form == 'ha' }}"
+
+ha_include:
+  type: secret
+  source: "{{ [lookup('container', 'svc-db-redis', 'directories.volumes'), 'infinito.conf'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: redis
+      target: /usr/local/etc/redis/infinito.conf
+      when: "{{ lookup('db_instances', 'svc-db-redis').form == 'ha' }}"
+
+ha_start:
+  type: config
+  source: "{{ [lookup('container', 'svc-db-redis', 'directories.volumes'), 'ha_start.sh'] | path_join }}"
+  mode: "0555"
+  mounts:
+    - service: redis
+      target: /usr/local/bin/infinito-ha-start
+      when: "{{ lookup('db_instances', 'svc-db-redis').form == 'ha' }}"
+
+sentinel_start:
+  type: config
+  source: "{{ [lookup('container', 'svc-db-redis', 'directories.volumes'), 'sentinel_start.sh'] | path_join }}"
+  mode: "0555"
+  mounts:
+    - service: sentinel
+      target: /usr/local/bin/infinito-sentinel-start
+      when: "{{ lookup('db_instances', 'svc-db-redis').form == 'ha' }}"
+
+sentinel_password:
+  type: secret
+  source: "{{ [lookup('container', 'svc-db-redis', 'directories.volumes'), 'sentinel.pass'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: sentinel
+      target: &sentinel_password_target /run/secrets/sentinel_password
+      when: "{{ lookup('db_instances', 'svc-db-redis').form == 'ha' }}"
+    - service: redis
+      target: *sentinel_password_target
+      when: "{{ lookup('db_instances', 'svc-db-redis').form == 'ha' }}"
+
+haproxy_cfg:
+  type: secret
+  source: "{{ [lookup('container', 'svc-db-redis', 'directories.volumes'), 'haproxy.cfg'] | path_join }}"
+  mode: "0444"
+  mounts:
+    - service: haproxy
+      target: /usr/local/etc/haproxy/haproxy.cfg
+      when: "{{ lookup('db_instances', 'svc-db-redis').form == 'ha' }}"
+
+haproxy_tmp:
+  type: tmpfs
+  mounts:
+    - service: haproxy
+      target: /tmp
+      size: 1m
+      when: "{{ lookup('db_instances', 'svc-db-redis').form == 'ha' }}"

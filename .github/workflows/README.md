@@ -46,10 +46,12 @@ flowchart TB
         chain --> report["report-main-failures"]
 
         install["call-test-install.yml"]
+        swarmdata["test-swarm-data: call-test-swarm-data.yml (INFINITO_CI_SWARM_DATA)"]
         mirror --> devenv["test-workspace: call-test-workspace.yml"]
 
         chain --> donegate["done"]
         smoke --> donegate
+        swarmdata --> donegate
         install --> donegate
         devenv --> donegate
     end
@@ -151,7 +153,7 @@ row would otherwise be assigned. Two spellings are accepted:
 
 | Form | Example |
 |---|---|
-| ASCII | `web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64` |
+| ASCII | `web-app-nextcloud#0,2@swarm+tor%debian/zfs:arm64&direct~ha` |
 | the job label, pasted back out of the failed run | `🐳🧅🌀🦓🦾𓏴𓏛Nextcloud#0` |
 
 | Separator | Axis | Values |
@@ -162,6 +164,8 @@ row would otherwise be assigned. Two spellings are accepted:
 | `%` | distro | `arch`, `debian`, `ubuntu`, `fedora`, `centos` |
 | `/` | filesystem | `zfs`, `btrfs`, `ext4` |
 | `:` | architecture | `amd64`, `arm64` |
+| `&` | mesh | `vpn`, `direct` |
+| `~` | db topology (needs the axis on) | `standalone`, `ha` |
 
 The network mode is a `+` suffix rather than a `-tor` suffix because a role id
 may itself end in `-tor`.
@@ -296,6 +300,22 @@ reproduces by re-running the same sweep:
 | filesystem | `(position // len(distro pool) + sweep) % len(filesystem pool)` |
 | architecture | `(position + sweep) % len(architecture pool)` |
 | 🔬 vulnerability engine | `(position // (len(distro pool) * len(filesystem pool)) + sweep) % 3` over 🔺 trivy, 🍇 grype, 🐙 osv |
+| db topology (swarm rows, opt-in) | `(position // 4 + sweep // 4) % 2` over `standalone`, `ha` |
+
+The db topology axis is off by default because the HA lab (3 managers, 1 worker, 1 backup host) needs more runner resources than the 1+2 lab.
+Enable it with the `db_topology` dispatch input of `call-test-deploy.yml` or the `INFINITO_CI_DB_TOPOLOGY` repository variable.
+While it is off, the rows, rotations and labels are those of a run without the axis, and every entry still carries `db_topology` (empty) and `kill_primary` (`false`), because the deploy workflow reads both keys.
+While it is on, every swarm row carries `db_topology` (exported to the deploy as `INFINITO_SWARM_DB_TOPOLOGY`) and its glyph (`🔱` HA, `☝️` standalone) after the architecture glyph.
+Priority swarm rows deploy both topologies, and HA rows set `kill_primary` (`INFINITO_CI_KILL_PRIMARY`) for the kill-the-primary probe: it kills the node that holds the database primary. When that node also runs the manager-pinned application, the drill first kills the primary's container there to move the primary to another node and then kills that node; only a primary that stays put, or a node kill that would cost the Raft quorum, ends in a container kill, and the drill log says which.
+An HA row is never meshed, whatever the vpn axis picks: the WireGuard mesh hangs off one `svc-swarm-manager` hub, and the HA lab runs three managers.
+On `sweep // 4` the axis never moves in lockstep with the mode or the network mode, so a row walks every mode/network/topology combination over its sweeps.
+It reads `position // 4` because the mode rotation puts every swarm row of a sweep on one position parity and the vpn axis reads `position // 2`, so one sweep deploys both topologies across its swarm rows.
+
+The HA database stack has its own gate, `call-test-swarm-data.yml`, which injects real faults (primary container kill, node crash, node hang, node partition) into each engine's HA form and checks the write gap and acknowledged-write loss against the failover budget.
+The orchestrator runs it on every pull request, push and manual sweep when the `INFINITO_CI_SWARM_DATA` repository variable is `true`, so it inherits the entry's draft gating, job budget and superseded-run cancellation.
+It is off by default because it runs two jobs per engine, an `in-place` and a `rebuild` part, and each holds a runner for three to four hours.
+`cron-test-swarm-data.yml` runs the same suite nightly on the default branch when `INFINITO_CI_SWARM_DATA_NIGHTLY` is `true`, and on manual dispatch.
+Image bumps of the HA database stack (the engine images and the `haproxy`, `sentinel` and `etcd` pins in `svc-db-*` and `svc-dcs-etcd` `meta/services.yml`) arrive through `cron-update.yml` like any other bump and pass that gate whenever it is switched on.
 
 A role offers at most two modes in practice — swarm needs its own stack, host
 needs the absence of one — so a row flips between its two modes on consecutive
@@ -379,7 +399,7 @@ one, so a run whose only live job is theirs stays outside the entry's group and
 waits for the fallback.
 
 The `deploy` job of `call-test-deploy.yml` holds a job-level group keyed on every
-matrix axis: `mode`, `tor`, `distro`, `filesystem`, `apps` and `variant`. One
+matrix axis: `mode`, `network`, `distro`, `filesystem`, `db_topology`, `apps` and `variant`. One
 deployment runs at a time across all branches; an identical one from another
 run queues behind it (`queue: max`), and a cancel removes a queued one.
 
@@ -402,6 +422,8 @@ flowchart TB
     weekly["schedule: weekly Sat 00:00 UTC"] --> updatewf["cron-update.yml"]
     weekly --> cleanupci["cron-images-cleanup-ci.yml"]
     weeklymon["schedule: weekly Mon 00:00 UTC"] --> scorecard["cron-security-scorecard.yml"]
+    nightly["schedule: daily 02:30 UTC (INFINITO_CI_SWARM_DATA_NIGHTLY)"] --> cronswarm["cron-test-swarm-data.yml"]
+    cronswarm --> callswarm["call-test-swarm-data.yml"]
     branchprot["branch_protection_rule"] --> scorecard
     pushmain["push: main"] --> updatewf
     prtarget["pull_request_target: opened, reopened"] --> depclose["entry-pr-open-dependabot-close.yml"]
@@ -412,6 +434,6 @@ flowchart TB
 ```
 
 Also manually dispatchable: `cron-images-mirror-all.yml`, `cron-images-cleanup-ci.yml`,
-`cron-cleanup-stale.yml`, `cron-update.yml`, `cron-release-highest.yml`, `call-release-version.yml`,
+`cron-cleanup-stale.yml`, `cron-update.yml`, `cron-release-highest.yml`, `cron-test-swarm-data.yml`, `call-release-version.yml`,
 `call-lint.yml`, `call-test.yml`, `call-test-dns.yml`,
 `call-test-workspace.yml`, `call-test-runner-smoke.yml`.

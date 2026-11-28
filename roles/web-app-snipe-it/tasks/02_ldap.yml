@@ -2,7 +2,7 @@
 ---
 - name: "⏳ snipe-it: wait until settings table is seeded"
   ansible.builtin.shell:
-    cmd: "container exec -i {{ SNIPE_IT_CONTAINER_ADDRESS }} php"
+    cmd: "container exec -i {{ SNIPE_IT_LOCAL_CID | quote }} php" # nocheck: container-exec-resolver  SNIPE_IT_LOCAL_CID is resolved on SNIPE_IT_HOST_NODE
     stdin: "{{ lookup('file', 'php/wait_settings.php') }}"
   register: snipe_settings_ready
   retries: 60
@@ -13,7 +13,7 @@
 
 - name: "📌 snipe-it: apply LDAP configuration via Setting model"
   ansible.builtin.shell:
-    cmd: >-
+    cmd: >- # nocheck: container-exec-resolver  SNIPE_IT_LOCAL_CID is resolved on SNIPE_IT_HOST_NODE
       IFS= read -r APP_KEY && IFS= read -r LDAP_BIND_PASSWORD_B64 && export APP_KEY LDAP_BIND_PASSWORD_B64 && container exec -i
       -e APP_KEY
       -e LDAP_SERVER_URI={{ LDAP.SERVER.URI | quote }}
@@ -28,7 +28,7 @@
       -e LDAP_USER_MAIL_ATTR={{ LDAP.USER.ATTRIBUTES.MAIL | quote }}
       -e LDAP_AUTH_FILTER_QUERY={{ SNIPE_IT_LDAP_AUTH_FILTER_QUERY | quote }}
       -e OIDC_RESET_URL={{ OIDC.CLIENT.RESET_CREDENTIALS | quote }}
-      {{ SNIPE_IT_CONTAINER_ADDRESS }} php
+      {{ SNIPE_IT_LOCAL_CID | quote }} php
     stdin: |-
       {{ SNIPE_IT_APP_KEY }}
       {{ LDAP.BIND_CREDENTIAL | b64encode }}
@@ -38,5 +38,5 @@
 
 - name: "🧹 snipe-it: clear Laravel caches"
   ansible.builtin.shell:
-    cmd: "container exec -i {{ SNIPE_IT_CONTAINER_ADDRESS }} php artisan optimize:clear"
+    cmd: "container exec -i {{ SNIPE_IT_LOCAL_CID | quote }} php artisan optimize:clear" # nocheck: container-exec-resolver  SNIPE_IT_LOCAL_CID is resolved on SNIPE_IT_HOST_NODE
   changed_when: true

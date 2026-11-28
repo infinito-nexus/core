@@ -134,5 +134,64 @@ class TestSandboxWorkerLabelling(unittest.TestCase):
             self.assertEqual(ei._sandbox_workers("absent"), ei._WORKERS[-1:])
 
 
+class TestLabShape(unittest.TestCase):
+    def test_standalone_keeps_one_manager_and_two_workers(self):
+        managers, workers = ei.lab_shape("standalone", prefix="t-")
+        self.assertEqual(managers, ("t-swarm-mgr-01",))
+        self.assertEqual(workers, ("t-swarm-wrk-01", "t-swarm-wrk-02"))
+
+    def test_ha_has_three_managers_and_one_spare_worker(self):
+        managers, workers = ei.lab_shape("ha", prefix="t-")
+        self.assertEqual(
+            managers, ("t-swarm-mgr-01", "t-swarm-mgr-02", "t-swarm-mgr-03")
+        )
+        self.assertEqual(workers, ("t-swarm-wrk-01",))
+
+    def test_unknown_shape_fails(self):
+        with self.assertRaises(SystemExit):
+            ei.lab_shape("five", prefix="")
+
+
+class TestHaTopology(unittest.TestCase):
+    managers = ("m1", "m2", "m3")
+    workers = ("w1",)
+
+    def _hosts(self, group: str, pairs: list[tuple[str, str]]) -> set[str]:
+        return {host for g, host in pairs if g == group}
+
+    def test_every_manager_joins_the_manager_group(self):
+        with mock.patch.object(ei, "get_role_placement", return_value=""):
+            pairs = ei._host_topology("web-app-x", self.managers, self.workers)
+        self.assertEqual(self._hosts("svc-swarm-manager", pairs), set(self.managers))
+        self.assertEqual(
+            self._hosts("svc-swarm-node", pairs), {*self.managers, *self.workers}
+        )
+        self.assertEqual(self._hosts("web-app-x", pairs), {"m1", "m2", "m3", "w1"})
+
+    def test_a_manager_placed_app_stays_on_the_stack_host(self):
+        with mock.patch.object(ei, "get_role_placement", return_value="manager"):
+            pairs = ei._host_topology("web-app-x", self.managers, self.workers)
+        self.assertEqual(self._hosts("web-app-x", pairs), {"m1"})
+
+    def test_ha_engines_land_on_every_manager(self):
+        with (
+            mock.patch.object(
+                ei, "derive_includes", return_value=["svc-db-postgres", "svc-x"]
+            ),
+            mock.patch.object(ei, "get_role_placement", return_value="manager"),
+        ):
+            pairs = ei._placement_dep_groups("web-app-x", self.managers)
+        self.assertEqual(self._hosts("svc-db-postgres", pairs), set(self.managers))
+        self.assertEqual(self._hosts("svc-x", pairs), {"m1"})
+
+    def test_standalone_engines_stay_on_the_first_manager(self):
+        with (
+            mock.patch.object(ei, "derive_includes", return_value=["svc-db-postgres"]),
+            mock.patch.object(ei, "get_role_placement", return_value="manager"),
+        ):
+            pairs = ei._placement_dep_groups("web-app-x", ("m1",))
+        self.assertEqual(self._hosts("svc-db-postgres", pairs), {"m1"})
+
+
 if __name__ == "__main__":
     unittest.main()

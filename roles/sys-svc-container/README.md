@@ -26,9 +26,13 @@ When enabled via `MODE_CLEANUP` or `MODE_RESET`, it will automatically prune unu
 - **Handler Integration**  
   Restart handler ensures the Docker daemon is reloaded when necessary.
 
+- **Sticky MTU**  
+  `automtu` probes the path MTU on every run, and a probe on a busy line reads low. Rewriting `daemon.json` for such a reading restarts the daemon and every container on the host, so the MTU already in use is kept unless a probe comes in more than `SYS_SVC_DOCKER_MTU_STICKY_MARGIN` (200) below it.
+
 - **Image Pre-Pull**  
   [start.yml](tasks/utils/prepull/start.yml) pulls the images the deploy of the host runs, as listed by the `update_pull_images` filter, that the host does not hold yet under the pinned reference ([pull.yml](tasks/utils/prepull/pull.yml)), three at a time in a background job right before the shared services load; with nothing missing no job starts.
   It runs whatever `ASYNC_ENABLED` says, when `STORAGE_CONSTRAINED` and `MODE_RESET` are false and the host is a stack host, so never on a swarm worker.
+  On swarm it also leaves out what the swarm registry already serves: the registry sync drops the local copy after the push, so a later pass would pull it all again and hold every image twice.
   [reap.yml](tasks/utils/prepull/reap.yml) collects the job before the E2E run, or at the start of the destructor on a host without a server stage, and prints the pulls that failed.
   A failed pull or the time limit of `SYS_SVC_CONTAINER_PREPULL_ASYNC_TIME` does not fail the deploy, and each app still pulls its images itself.
 

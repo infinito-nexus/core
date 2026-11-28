@@ -30,7 +30,7 @@ STUB = (
     '  mountpoint) [ "$2" = /mnt/docker-fs ] && [ -e "${STUB_LOG}.mounted" ] ;;\n'
     '  zpool) [ "$1" != list ] ;;\n'
     '  systemctl) [ "$1" != cat ] ;;\n'
-    "  python3) cat >/dev/null ;;\n"
+    "  python3|tee) cat >/dev/null ;;\n"
     "esac\n"
 )
 STUBBED = (
@@ -51,6 +51,8 @@ STUBBED = (
     "mkdir",
     "rm",
     "truncate",
+    "install",
+    "tee",
 )
 
 
@@ -100,8 +102,22 @@ class TestDockerDatarootZfs(unittest.TestCase):
         self.assertEqual(len(creates), 1, calls)
         self.assertIn(("-o", "autotrim=on"), list(pairwise(creates[0])))
 
+    def test_the_throwaway_pool_skips_sync_writes_and_access_times(self) -> None:
+        _, calls = apply("zfs")
+        creates = [argv for argv in calls if argv[:2] == ["zpool", "create"]]
+        self.assertEqual(len(creates), 1, calls)
+        pairs = list(pairwise(creates[0]))
+        for option in (
+            ("-o", "ashift=12"),
+            ("-O", "atime=off"),
+            ("-O", "sync=disabled"),
+            ("-O", "dnodesize=auto"),
+        ):
+            with self.subTest(option=option):
+                self.assertIn(option, pairs)
 
-DISCARD = {"ext4": "discard", "btrfs": "discard=async"}
+
+DISCARD = {"ext4": "discard,noatime", "btrfs": "discard=async,noatime"}
 
 
 class TestDockerDatarootLoopMount(unittest.TestCase):

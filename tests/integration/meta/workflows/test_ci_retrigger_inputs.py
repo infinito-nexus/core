@@ -43,6 +43,7 @@ _VALUES = {
     "filesystem": "btrfs",
     "architectures": "arm64",
     "network": "tor",
+    "db_topology": "true",
     "vpn": "enforced",
     "meshes": "inventories/examples/wireguard-three-meshes/wireguard.yml",
     "offset": "40",

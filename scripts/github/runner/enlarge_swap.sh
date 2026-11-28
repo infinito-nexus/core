@@ -13,6 +13,13 @@
 # on a 145 GB root, leaving so little headroom that later Docker layer
 # writes (Playwright test image pull) failed with ENOSPC. See #162.
 #
+# A zram device comes first: compressed swap in RAM, without the swapfile's
+# blocks on the runner's one disk and without the disk thrash that cost a
+# heavy swarm HA row its runner. Its compressed pages live in RAM, so it is
+# sized at twice the RAM, with a cap on the RAM it may take, to hold more
+# than the swapfile did. The swapfile below stays the fallback when the
+# runner's kernel offers no zram module.
+#
 # Usage: enlarge_swap.sh [size-gb]
 # Default: 16 GB (empirically sufficient for the peertube spike).
 #
@@ -37,6 +44,44 @@ MIN_FREE_GB=$((SWAP_GB + 4)) # need the target size plus a little slack
 
 sudo swapoff -a || true # nocheck: shell-or-true -- grandfathered: worked in practice; TODO: sharpen to catch only the exact tolerated error
 sudo rm -f /mnt/swapfile /swapfile
+
+zram_module() {
+	sudo modprobe zram && return 0
+	sudo apt-get update -qq &&
+		sudo apt-get install -y "linux-modules-extra-$(uname -r)" &&
+		sudo modprobe zram
+}
+
+ram_mib="$(awk '/^MemTotal:/ {print int($2 / 1024)}' /proc/meminfo)"
+zram_mib=$((ram_mib * 2))
+zram_ram_cap_mib=$((ram_mib * 6 / 10))
+
+# Hot-add a zram device instead of reusing one: a runner image can hand over /dev/zram0 already held ("failed to reset: Device or resource busy").
+zram_fresh_device() {
+	local index
+	index="$(sudo cat /sys/class/zram-control/hot_add)" || return 1
+	[ -n "$index" ] || return 1
+	sudo zramctl --size "${zram_mib}M" --algorithm zstd "/dev/zram${index}" || return 1
+	echo "/dev/zram${index}"
+}
+
+if zram_module; then
+	zram_dev="$(zram_fresh_device)" ||
+		zram_dev="$(sudo zramctl --find --size "${zram_mib}M" --algorithm zstd)" ||
+		zram_dev=""
+	if [ -n "$zram_dev" ] &&
+		echo "${zram_ram_cap_mib}M" | sudo tee "/sys/block/${zram_dev#/dev/}/mem_limit" >/dev/null &&
+		sudo mkswap "$zram_dev" && sudo swapon --priority 100 "$zram_dev"; then
+		"$DUMP" "after swap resize → ${zram_mib}M zram at ${zram_dev}, RAM cap ${zram_ram_cap_mib}M"
+		exit 0
+	fi
+	echo "zram swap could not be set up; falling back to a swapfile" >&2
+	if [ -n "$zram_dev" ]; then
+		sudo zramctl --reset "$zram_dev" || echo "zramctl --reset ${zram_dev} failed" >&2
+	fi
+else
+	echo "no zram module on this runner kernel; falling back to a swapfile" >&2
+fi
 
 if mountpoint -q /mnt 2>/dev/null; then
 	mnt_free=$(df --output=avail -B1G /mnt | tail -n1 | tr -d ' ')

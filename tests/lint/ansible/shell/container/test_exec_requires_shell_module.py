@@ -63,6 +63,7 @@ _ADDRESS_SOURCE = re.compile(
     r"lookup\(\s*'container_address'"
     r"|lookup\(\s*'database'\s*,[^)]*,\s*'address'\s*\)"
 )
+_CLIENT_SOURCE = re.compile(r"lookup\(\s*'database'\s*,[^)]*,\s*'client'\s*\)")
 
 
 def _variable_values() -> dict[str, str]:
@@ -88,7 +89,8 @@ def _shell_variables(values: dict[str, str]) -> tuple[frozenset[str], frozenset[
         The address vars, whose value is a lookup emitting ``$(...)`` and
         which oblige ``shell`` only when a container verb uses them, and the
         exec vars, whose value already is a ``container exec`` of such an
-        address and which oblige ``shell`` wherever a ``command:`` names them.
+        address or a ``database`` ``client`` prefix, and which oblige
+        ``shell`` wherever a ``command:`` names them.
     """
     address = frozenset(
         name
@@ -98,8 +100,11 @@ def _shell_variables(values: dict[str, str]) -> tuple[frozenset[str], frozenset[
     exec_ = frozenset(
         name
         for name, value in values.items()
-        if _EXEC.search(value)
-        and (_ADDRESS_SOURCE.search(value) or any(a in value for a in address))
+        if _CLIENT_SOURCE.search(value)
+        or (
+            _EXEC.search(value)
+            and (_ADDRESS_SOURCE.search(value) or any(a in value for a in address))
+        )
     )
     return address, exec_
 

@@ -32,6 +32,11 @@ from utils.roles.applications.services.database import (
     resolve_database_service_key,
 )
 from utils.roles.applications.services.sso import get_sso_config
+from utils.roles.db.instances import (
+    FORM_HA,
+    ha_engines,
+    instance_volume_name,
+)
 from utils.storage.nfs import swarm_nfs_backed, volume_dir
 from utils.templating.ansible import _trust_as_template, to_plain
 
@@ -106,6 +111,7 @@ def compose_volumes(
     storage: dict[str, Any] | None = None,
     dir_var_lib: str,
     render_jinja: Any = None,
+    instances: list[dict[str, Any]] | None = None,
 ) -> str:
     """Render the top-level ``volumes:`` / ``configs:`` / ``secrets:`` block.
 
@@ -121,6 +127,11 @@ def compose_volumes(
     repository storage, which upstream forbids on NFS). Any other
     ``nfs`` value (absent, ``true``, or the uid/gid/mode dict consumed
     by the NFS subdir pre-creation) keeps the rewrite.
+
+    ``instances`` (the HA instance list from ``db_instances``) replaces
+    every ``type: volume`` entry with one node-local volume per instance,
+    keyed ``<semantic>_<host_id>``; ``container_volumes(instance=...)``
+    mounts the matching key.
     """
 
     if applications is None:
@@ -217,6 +228,15 @@ def compose_volumes(
 
     for semantic_name, entry in canonical_entries.items():
         vtype = entry.get("type", "volume")
+        if vtype == "volume" and instances:
+            for instance in instances:
+                volumes[f"{semantic_name}_{instance['host_id']}"] = {
+                    "name": instance_volume_name(
+                        entry.get("name") or semantic_name, instance
+                    ),
+                    "nfs": False,
+                }
+            continue
 
         if vtype == "volume":
             if semantic_name in volumes:
@@ -238,6 +258,18 @@ def compose_volumes(
             for mount in entry.get("mounts") or []
             if isinstance(mount, dict)
         ):
+            continue
+
+        if vtype in ("config", "secret") and entry.get("per_instance"):
+            section = configs if vtype == "config" else secrets
+            template = _maybe_render(entry.get("source", ""), render_jinja)
+            for instance in instances or []:
+                key = f"{semantic_name}_{instance['host_id']}"
+                source = str(template).replace("{host_id}", instance["host_id"])
+                section[key] = {
+                    "name": _config_secret_name(role_entity, key, source),
+                    "file": source,
+                }
             continue
 
         if vtype == "config":
@@ -397,9 +429,18 @@ class LookupModule(LookupBase):
                     fail_on_undefined=False,
                 )
 
+        instances = kwargs.get("instances")
+        if instances is None and application_id in ha_engines():
+            db = lookup_loader.get(
+                "db_instances", loader=self._loader, templar=templar
+            ).run([application_id], variables=vars_)[0]
+            if db["form"] == FORM_HA:
+                instances = db["instances"]
+
         rendered = compose_volumes(
             applications,
             application_id,
+            instances=instances,
             extra_volumes=kwargs.get("extra_volumes"),
             extra_configs=self._with_database_realign(
                 applications, application_id, vars_, kwargs.get("extra_configs")
