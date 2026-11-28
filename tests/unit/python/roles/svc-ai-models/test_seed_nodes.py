@@ -13,7 +13,8 @@ from jinja2.nativetypes import NativeEnvironment
 
 from utils import PROJECT_ROOT
 from utils.cache.yaml import load_yaml, load_yaml_any
-from utils.roles.mapping import ROLE_FILE_VARS_MAIN
+from utils.roles.mapping import ROLE_FILE_META_SERVICES, ROLE_FILE_VARS_MAIN
+from utils.storage.constrained import store_consumers
 
 if TYPE_CHECKING:
     from types import ModuleType
@@ -34,10 +35,29 @@ RECORD = {
 BARRIER_SECONDS = 30
 
 
+SANDBOXED = {**GROUPS, "svc-virt-kata": ["manager", "worker-2"]}
+UNPLACED_SEED_NODES = (
+    "{{ ((groups['svc-swarm-manager'] | default([])) + (groups['svc-swarm-node']"
+    " | default([]))) | unique | list if IS_SWARM_MODE else [inventory_hostname] }}"
+)
+
+
 def _seed_nodes(**context: object) -> list[str]:
     variables = load_yaml(str(ROLE / ROLE_FILE_VARS_MAIN))
-    template = NativeEnvironment().from_string(variables["MODELS_SEED_NODES"])
-    return template.render(**context)
+    environment = NativeEnvironment()
+    sandbox = environment.from_string(variables["MODELS_SANDBOX_NODES"]).render(
+        **context
+    )
+    template = environment.from_string(variables["MODELS_SEED_NODES"])
+    return template.render(MODELS_SANDBOX_NODES=sandbox, **context)
+
+
+def _kata_enabled(role_dir: Path) -> bool:
+    services = load_yaml_any(
+        str(role_dir / ROLE_FILE_META_SERVICES), default_if_missing={}
+    )
+    kata = services.get("kata") if isinstance(services, dict) else None
+    return isinstance(kata, dict) and kata.get("enabled") is True
 
 
 def _store_module() -> ModuleType:
@@ -96,6 +116,28 @@ class TestSeedNodes(unittest.TestCase):
             groups=GROUPS, IS_SWARM_MODE=True, inventory_hostname="manager"
         )
         self.assertEqual(nodes, ["manager", "worker-1", "worker-2"])
+
+    def test_a_sandbox_worker_is_not_seeded(self) -> None:
+        nodes = _seed_nodes(
+            groups=SANDBOXED, IS_SWARM_MODE=True, inventory_hostname="manager"
+        )
+        self.assertEqual(nodes, ["manager", "worker-1"])
+
+    def test_the_unplaced_seed_set_fills_the_sandbox_worker(self) -> None:
+        nodes = (
+            NativeEnvironment()
+            .from_string(UNPLACED_SEED_NODES)
+            .render(groups=SANDBOXED, IS_SWARM_MODE=True, inventory_hostname="manager")
+        )
+        self.assertIn("worker-2", nodes)
+
+    def test_no_store_consumer_is_sandboxed(self) -> None:
+        consumers = store_consumers(PROJECT_ROOT / "roles")
+        self.assertTrue(consumers)
+        sandboxed = sorted(
+            role for role in consumers if _kata_enabled(PROJECT_ROOT / "roles" / role)
+        )
+        self.assertEqual(sandboxed, [])
 
     def test_compose_seeds_only_the_deploy_host(self) -> None:
         nodes = _seed_nodes(

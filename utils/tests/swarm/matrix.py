@@ -19,7 +19,7 @@ from utils.tests.swarm.deploy import (
     deploy_round,
 )
 from utils.tests.swarm.derive_includes import derive_includes, variant_scope
-from utils.tests.swarm.extend_inventory import mesh_enabled
+from utils.tests.swarm.extend_inventory import SWARM_NODES, mesh_enabled
 from utils.tests.swarm.extra_vars import with_extra_vars
 from utils.tests.swarm.lab_ports import lab_port_overrides
 from utils.tests.swarm.mesh import (
@@ -361,7 +361,10 @@ def main(argv: list[str] | None = None) -> int:
                 name: {"authorized_keys": [key]} for name, key in pubkeys.items()
             },
             "STORAGE_CONSTRAINED": host_storage_constrained(
-                [app_id], round_variants, local_vantage="/"
+                [app_id],
+                round_variants,
+                local_vantage="/",
+                store_nodes=len(SWARM_NODES),
             ),
         }
         vars_payload = _bake_overrides(

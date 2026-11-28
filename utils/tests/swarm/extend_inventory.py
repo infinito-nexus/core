@@ -61,6 +61,7 @@ _WORKERS = (
     f"{_PREFIX}{_NAMES['INFINITO_SWARM_WRK1_NAME']}",
     f"{_PREFIX}{_NAMES['INFINITO_SWARM_WRK2_NAME']}",
 )
+SWARM_NODES = (_MANAGER, *_WORKERS)
 _NFS_SERVER = f"{_PREFIX}{_NAMES['INFINITO_SWARM_NFS_NAME']}"
 _BACKUP = f"{_PREFIX}{_NAMES['INFINITO_SWARM_BACKUP_NAME']}"
 PROXMOX_HOST = f"{_PREFIX}{_NAMES['INFINITO_SWARM_PROXMOX_NAME']}"
@@ -90,8 +91,7 @@ def _host_topology(app_id: str) -> list[tuple[str, str]]:
             ("svc-net-wireguard", _NFS_SERVER),
         ]
     return [
-        ("svc-swarm-node", _MANAGER),
-        *[("svc-swarm-node", w) for w in _WORKERS],
+        *[("svc-swarm-node", node) for node in SWARM_NODES],
         ("svc-swarm-manager", _MANAGER),
         ("svc-storage-nfs-client", _MANAGER),
         *[("svc-storage-nfs-client", w) for w in _WORKERS],

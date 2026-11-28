@@ -10,6 +10,7 @@ than a guess about disk sizes.
 
 from __future__ import annotations
 
+import functools
 import shutil
 import subprocess
 from pathlib import Path
@@ -28,6 +29,8 @@ from utils.cache.artefacts import (
     store_bytes,
     unpacked_bytes,
 )
+from utils.cache.files import read_text
+from utils.cache.yaml import load_yaml_any
 from utils.roles.applications.services.registry import (
     build_service_registry_from_applications,
     load_applications_from_roles_dir,
@@ -41,6 +44,12 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Mapping
 
 DOCKER_INFO_TIMEOUT_S = 30
+STORE_ROLE = "svc-ai-models"
+ROLE_INCLUDES = tuple(
+    f"{prefix}{action}"
+    for prefix in ("", "ansible.builtin.")
+    for action in ("include_role", "import_role")
+)
 
 
 class StorageDeclarationError(ValueError):
@@ -113,21 +122,43 @@ def _service(applications: Mapping[str, Any], row: dict) -> tuple[str, Any]:
     return row["role"], service
 
 
-def required_storage_bytes(
-    app_ids: list[str], variants: dict[str, int] | None = None
-) -> int:
-    """Return the summed min_storage of app_ids and their transitive dependencies.
+def _includes_store(node: object) -> bool:
+    if isinstance(node, list):
+        return any(_includes_store(item) for item in node)
+    if not isinstance(node, dict):
+        return False
+    for key in ROLE_INCLUDES:
+        target = node.get(key)
+        if isinstance(target, dict) and target.get("name") == STORE_ROLE:
+            return True
+    return any(_includes_store(value) for value in node.values())
 
-    Args:
-        app_ids: applications the deploy installs; dependencies are walked.
-        variants: per-app variant index whose `meta/variants.yml` overlay decides
-            which services are enabled and what a LibreTranslate service
-            selects. Without it the base configuration counts, which
-            over-states a deploy that a variant trims down.
 
-    Services that declare no min_storage contribute nothing, so an entirely
-    undeclared deploy yields 0 and is never treated as constrained.
+@functools.cache
+def store_consumers(roles_dir: Path) -> frozenset[str]:
     """
+    Args:
+        roles_dir: the roles tree whose task files are read.
+
+    Returns:
+        The roles whose tasks include or import STORE_ROLE, so a deploy of
+        any of them seeds the model store on every node it seeds.
+    """
+    consumers: set[str] = set()
+    for path in roles_dir.glob("*/tasks/**/*.yml"):
+        role = path.relative_to(roles_dir).parts[0]
+        if role == STORE_ROLE or role in consumers:
+            continue
+        if STORE_ROLE in read_text(str(path)) and _includes_store(
+            load_yaml_any(str(path))
+        ):
+            consumers.add(role)
+    return frozenset(consumers)
+
+
+def _walk(
+    app_ids: list[str], variants: dict[str, int] | None
+) -> tuple[dict, dict, list[dict]]:
     roles_dir = PROJECT_ROOT / "roles"
     applications = load_applications_from_roles_dir(roles_dir)
 
@@ -149,9 +180,61 @@ def required_storage_bytes(
             rows=rows,
             warnings=[],
         )
+    return applications, service_registry, rows
+
+
+def _store_bytes(applications: dict, service_registry: dict, rows: list[dict]) -> int:
+    walked = {row["role"] for row in rows}
+    if STORE_ROLE in walked or not walked & store_consumers(PROJECT_ROOT / "roles"):
+        return 0
+    store_rows: list[dict] = []
+    collect_role_resources(
+        role_name=STORE_ROLE,
+        applications=applications,
+        service_registry=service_registry,
+        visited=set(),
+        rows=store_rows,
+        warnings=[],
+        max_depth=1,
+    )
+    return aggregate(store_rows, ["min_storage"]).get("min_storage_bytes") or 0
+
+
+def model_store_bytes(app_ids: list[str], variants: dict[str, int] | None) -> int:
+    """
+    Args:
+        app_ids: applications the deploy installs; dependencies are walked.
+        variants: per-app variant index, as in required_storage_bytes.
+
+    Returns:
+        The min_storage of STORE_ROLE when a walked role seeds the model store
+        through it, the bytes one node's store takes; 0 when no walked role
+        reads the store or STORE_ROLE is walked itself and so already counted.
+    """
+    return _store_bytes(*_walk(app_ids, variants))
+
+
+def required_storage_bytes(
+    app_ids: list[str], variants: dict[str, int] | None = None
+) -> int:
+    """Return the summed min_storage of app_ids and their transitive dependencies.
+
+    Args:
+        app_ids: applications the deploy installs; dependencies are walked.
+        variants: per-app variant index whose `meta/variants.yml` overlay decides
+            which services are enabled and what a LibreTranslate service
+            selects. Without it the base configuration counts, which
+            over-states a deploy that a variant trims down.
+
+    Services that declare no min_storage contribute nothing, so an entirely
+    undeclared deploy yields 0 and is never treated as constrained.
+    """
+    applications, service_registry, rows = _walk(app_ids, variants)
     declared = aggregate(rows, ["min_storage"]).get("min_storage_bytes") or 0
-    return declared + selection_storage_bytes(
-        _service(applications, row) for row in rows
+    return (
+        declared
+        + selection_storage_bytes(_service(applications, row) for row in rows)
+        + _store_bytes(applications, service_registry, rows)
     )
 
 
@@ -294,11 +377,32 @@ def resolved_docker_root_free_bytes() -> int:
         ) from exc
 
 
+def shared_disk_storage_bytes(
+    app_ids: list[str], variants: dict[str, int] | None, *, store_nodes: int
+) -> int:
+    """
+    Args:
+        app_ids: applications the deploy installs; dependencies are walked.
+        variants: per-app variant index, as in required_storage_bytes.
+        store_nodes: the nodes whose model stores lie on the measured disk,
+            1 for a host with a disk of its own, every seeded node for a lab
+            whose nodes share one host disk.
+
+    Returns:
+        required_storage_bytes plus one further model store per node beyond
+        the first, since every seeded node holds a full copy.
+    """
+    return required_storage_bytes(app_ids, variants) + (
+        store_nodes - 1
+    ) * model_store_bytes(app_ids, variants)
+
+
 def host_storage_constrained(
     app_ids: list[str],
     variants: dict[str, int] | None = None,
     *,
     local_vantage: str,
+    store_nodes: int,
 ) -> bool:
     """Return True when the deploy's declared storage need exceeds the free space.
 
@@ -307,8 +411,11 @@ def host_storage_constrained(
         variants: per-app variant index, as in required_storage_bytes.
         local_vantage: measurement point when the daemon's data root does not
             resolve in this mount namespace, as in docker_root_free_bytes.
+        store_nodes: as in shared_disk_storage_bytes.
     """
     return is_constrained(
         free_bytes=docker_root_free_bytes(local_vantage=local_vantage),
-        required_bytes=required_storage_bytes(app_ids, variants),
+        required_bytes=shared_disk_storage_bytes(
+            app_ids, variants, store_nodes=store_nodes
+        ),
     )
