@@ -2211,14 +2211,18 @@ class TestSandboxNode(TestCase):
         self.assertEqual(errors, [])
         self.assertTrue(any(SandboxNodeEngines.SOCKET in call for call in runner.calls))
 
-    def test_only_runs_with_the_docker_socket_leave_the_sandbox(self):
+    def test_only_runs_with_the_docker_socket_or_the_host_root_leave_the_sandbox(
+        self,
+    ):
         runner, _errors = self._check([_container("a", image="sha256:a")])
         runs = [call for call in runner.calls if call[:2] == ["container", "run"]]
         socket = [call for call in runs if SandboxNodeEngines.SOCKET in call]
-        others = [call for call in runs if SandboxNodeEngines.SOCKET not in call]
+        host = [call for call in runs if "/:/host:ro" in call]
+        others = [call for call in runs if call not in socket and call not in host]
         self.assertTrue(socket)
-        self.assertTrue(any("/:/host:ro" in call for call in others))
-        for call in socket:
+        self.assertTrue(host)
+        self.assertTrue(others)
+        for call in socket + host:
             self.assertIn("--runtime", call)
             self.assertEqual(call[call.index("--runtime") + 1], "runc")
         for call in others:

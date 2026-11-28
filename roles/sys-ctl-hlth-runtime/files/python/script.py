@@ -64,7 +64,7 @@ WORK = "/work"
 SBOM = "/sbom"
 CACHE = "/cache"
 DOCKER_SOCKET = "/var/run/docker.sock"
-SOCKET_RUNTIME = "runc"
+SHARED_KERNEL_RUNTIME = "runc"
 JOB_TIMEOUT_SECONDS = 4 * 3600
 RUN_PREFIX = "run-"
 DB_ATTEMPTS = 3
@@ -1364,8 +1364,8 @@ def run_argv(
         image: the engine image.
         args: the engine's arguments.
         target: the target, which picks the host or Docker socket mount;
-            ``None`` for a run that reads neither. A run with the Docker
-            socket runs on :data:`SOCKET_RUNTIME`, every other run on the
+            ``None`` for a run that reads neither. A run with either mount
+            runs on :data:`SHARED_KERNEL_RUNTIME`, every other run on the
             daemon's default runtime.
         extra_env: environment on top of the engine's own.
         scratch: :attr:`Step.scratch` of the run, its ``TMPDIR`` under
@@ -1378,10 +1378,11 @@ def run_argv(
     mounts = ["-v", f"{layout.sbom}:{SBOM}", "-v", f"{layout.work}:{WORK}"]
     if engine in SCANNERS:
         mounts += ["-v", f"{layout.databases / engine}:{CACHE}"]
+    if target is not None:
+        options += ["--runtime", SHARED_KERNEL_RUNTIME]
     if target is not None and target.kind == "host":
         mounts += ["-v", f"/:{HOST_ROOT}:ro"]
     if target is not None and target.kind == "container":
-        options += ["--runtime", SOCKET_RUNTIME]
         mounts += ["-v", f"{DOCKER_SOCKET}:{DOCKER_SOCKET}:ro"]
     environment = {"TMPDIR": f"{WORK}/{scratch}", **ENGINE_ENV[engine], **extra_env}
     return (*layout.runtime, *options, *mounts, *_env(environment), image, *args)
