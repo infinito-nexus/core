@@ -5,7 +5,7 @@
 #   JITSI_REALIGN_JVB_PASSWORD     declared password of jvb@<auth domain>
 #   JITSI_REALIGN_JIGASI_PASSWORD  declared password of jigasi@<auth domain>
 #   JITSI_REALIGN_JIBRI_PASSWORD   declared password of jibri@<auth domain>
-# Output: one [CHANGED] line per account on stdout, [FAIL] plus the prosody error on stderr.
+# Output: one [CHANGED] line per rewritten or registered account on stdout, [FAIL] plus the prosody error on stderr.
 # Exit: 0 when every account carries the declared password, 1 otherwise.
 set -eu
 
@@ -15,6 +15,16 @@ prosody_shell() {
     prosodyctl --config "$PROSODY_CFG" shell "$@" 2>&1
 }
 
+lua_string() {
+    printf '(("%s"):gsub("..", function(h) return string.char(tonumber(h, 16)) end))' \
+        "$(printf '%s' "$1" | od -An -v -tx1 | tr -d ' \n')"
+}
+
+carries_password() {
+    output=$(prosody_shell "> prosody.hosts[$(lua_string "$JITSI_REALIGN_AUTH_DOMAIN")].users.test_password($(lua_string "$1"), $(lua_string "$2"))") || return 1
+    [ "$(printf '%s' "$output" | tail -n 1)" = "Result: true" ]
+}
+
 realign() {
     user="$1"
     password="$2"
@@ -22,6 +32,9 @@ realign() {
     if [ -z "$password" ]; then
         echo "[FAIL] ${jid}: no password supplied" >&2
         return 1
+    fi
+    if carries_password "$user" "$password"; then
+        return 0
     fi
     if output=$(prosody_shell user password "$jid" "$password"); then
         echo "[CHANGED] ${jid} now carries the declared password"
