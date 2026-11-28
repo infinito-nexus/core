@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import io
 import json
 import os
@@ -12,7 +13,14 @@ import unittest.mock as mock
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import ed25519
+from jinja2 import Environment, StrictUndefined, select_autoescape
+
+from plugins.filter.ssh_public_key import ssh_public_key
 from utils.cache.files import PROJECT_ROOT, read_text
+from utils.cache.yaml import load_yaml_any
+from utils.roles.mapping import ROLE_FILE_VARS_MAIN
 
 from ._semaphore_fake import (
     ALIAS,
@@ -31,6 +39,8 @@ from ._semaphore_fake import (
 REQUIREMENT = (
     PROJECT_ROOT / "docs" / "requirements" / "102-one-semaphore-runner-per-workspace.md"
 )
+OPERATION = PROJECT_ROOT / "roles/web-app-semaphore/tasks/utils/workspace/operation.yml"
+RUNNER_UP = PROJECT_ROOT / "roles/web-app-semaphore/tasks/utils/workspace/runner/up.yml"
 FIXTURE = re.compile(
     r"reads from here as its fixture:\n\n\s*```json\n\s*(\{[^\n]*\})\n"
 )
@@ -651,7 +661,7 @@ class ApplyResultTests(unittest.TestCase):
         self.assertEqual(code, 0, stderr)
         identity = json.loads(stdout)
         names = [e["name"] for e in self.mod.WORKSPACES_TEMPLATES]
-        self.assertEqual(names, ["workspace", "members", "user"])
+        self.assertEqual(names, ["workspace", "members", "user", "monitoring"])
         self.assertEqual(identity["project_id"], self.api.project_id(WORKSPACES))
         self.assertEqual(
             identity["templates"], {n: result["templates"][n] for n in names}
@@ -687,13 +697,13 @@ class ApplyResultTests(unittest.TestCase):
         ]
         self.assertEqual(keys, [f"read {result['read_key']}"])
 
-    def reapply_with_a_fresh_candidate(self):
+    def reapply(self, candidate):
         """Returns:
-        The result of a second apply whose candidate pair differs from the
-        first, and every body that apply wrote.
+        The result of a second apply with ``candidate`` as its read key, and
+        every body that apply wrote.
         """
-        spec = workspace_spec(public=SECOND_READ_KEY["public"])
-        spec["read_key"] = dict(SECOND_READ_KEY)
+        spec = workspace_spec(public=candidate["public"])
+        spec["read_key"] = dict(candidate)
         written = len(self.api.bodies)
         result = self.mod.run_workspace(self.api, spec, lambda seconds: None)[1]
         return result["result"], self.api.bodies[written:]
@@ -705,21 +715,23 @@ class ApplyResultTests(unittest.TestCase):
             if k["name"].startswith("read ")
         ]
 
-    def test_apply_keeps_the_read_key(self):
+    def held_copy(self):
+        return workspace_spec()["read_key"]
+
+    def test_an_apply_with_the_openbao_copy_keeps_the_read_key(self):
         first = apply(self.mod, self.api)
-        second, written = self.reapply_with_a_fresh_candidate()
+        second, written = self.reapply(self.held_copy())
         self.assertEqual(second["read_key"], first["read_key"])
         self.assertEqual(
             {name: e["ssh_key_id"] for name, e in second["templates"].items()},
             {name: e["ssh_key_id"] for name, e in first["templates"].items()},
         )
         self.assertEqual([path for _, path, _ in written if "/keys" in path], [])
-        self.assertNotIn(SECOND_READ_KEY["private"], json.dumps(written))
         self.assertEqual(
             self.read_keys(second["project_id"]), [f"read {first['read_key']}"]
         )
 
-    def test_negative_control_a_lost_read_key_takes_the_candidate(self):
+    def test_a_lost_semaphore_key_is_restored_from_the_openbao_copy(self):
         first = apply(self.mod, self.api)
         held = next(
             k
@@ -727,9 +739,223 @@ class ApplyResultTests(unittest.TestCase):
             if k["name"] == f"read {first['read_key']}"
         )
         self.api.call("DELETE", f"/project/{first['project_id']}/keys/{held['id']}")
-        second, _ = self.reapply_with_a_fresh_candidate()
+        second, written = self.reapply(self.held_copy())
+        self.assertEqual(second["read_key"], first["read_key"])
+        self.assertEqual(
+            self.read_keys(second["project_id"]), [f"read {first['read_key']}"]
+        )
+        (created,) = [
+            body
+            for method, path, body in written
+            if method == "POST" and "/keys" in path
+        ]
+        self.assertEqual(
+            created["ssh"]["private_key"], self.held_copy()["private"] + "\n"
+        )
+
+    def test_a_fresh_pair_replaces_the_key_only_while_openbao_holds_none(self):
+        first = apply(self.mod, self.api)
+        second, _ = self.reapply(SECOND_READ_KEY)
         self.assertEqual(second["read_key"], SECOND_READ_KEY["public"])
         self.assertNotEqual(second["read_key"], first["read_key"])
+        self.assertEqual(
+            self.read_keys(second["project_id"]),
+            [f"read {SECOND_READ_KEY['public']}"],
+        )
+
+    def test_operation_hands_the_openbao_copy_and_a_fresh_pair_only_without_one(self):
+        tasks = load_yaml_any(str(OPERATION))
+        converge = next(
+            t for t in tasks if "vars" in t and "semaphore_workspace_spec" in t["vars"]
+        )
+        template = converge["vars"]["semaphore_workspace_spec"]["read_key"]
+        env = Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
+        )
+        env.filters["ssh_public_key"] = ssh_public_key
+        env.filters["bool"] = bool
+        held = (
+            ed25519.Ed25519PrivateKey.generate()
+            .private_bytes(
+                serialization.Encoding.PEM,
+                serialization.PrivateFormat.OpenSSH,
+                serialization.NoEncryption(),
+            )
+            .decode()
+        )
+        fresh = {"private": "p", "public": "ssh-ed25519 AAAAc"}
+        restored = {"private": held, "public": ssh_public_key(held)}
+        for action, monitored, copy, expected in (
+            ("apply", True, {}, fresh),
+            ("apply", True, {"private_key": held}, restored),
+            ("apply", False, {"private_key": held}, fresh),
+            ("destroy", True, {"private_key": held}, fresh),
+        ):
+            with self.subTest(action=action, monitored=monitored, copy=bool(copy)):
+                rendered = env.from_string(template).render(
+                    semaphore_workspace_read_key=fresh,
+                    WORKSPACE_ACTION=action,
+                    SEMAPHORE_MONITORING=monitored,
+                    openbao_kv_current=copy,
+                )
+                self.assertEqual(ast.literal_eval(rendered.strip()), expected)
+
+    def test_only_a_monitored_platform_touches_the_monitoring_inventory_record(self):
+        tasks = load_yaml_any(str(OPERATION))
+        reader = next(
+            t for t in tasks if t.get("vars", {}).get("openbao_kv_state") == "read"
+        )
+        self.assertEqual(
+            reader["when"],
+            "WORKSPACE_ACTION == 'apply' and SEMAPHORE_MONITORING | bool",
+        )
+        agent = next(
+            t for t in tasks if t.get("register") == "semaphore_monitoring_agent"
+        )
+        self.assertIn("SEMAPHORE_MONITORING_CHECKMK | bool", agent["when"])
+        applied = next(
+            t
+            for t in tasks
+            if "block" in t and t.get("when") == "WORKSPACE_ACTION == 'apply'"
+        )
+        writer = next(
+            t for t in applied["block"] if "openbao_kv_data" in t.get("vars", {})
+        )
+        self.assertEqual(writer["when"], "SEMAPHORE_MONITORING | bool")
+        up = load_yaml_any(str(RUNNER_UP))
+        digest = next(
+            t for t in up if t.get("register") == "semaphore_workspace_digest_file"
+        )
+        self.assertEqual(digest["when"], "SEMAPHORE_MONITORING | bool")
+        role_vars = load_yaml_any(
+            str(PROJECT_ROOT / "roles/web-app-semaphore" / ROLE_FILE_VARS_MAIN)
+        )
+        self.assertEqual(
+            role_vars["SEMAPHORE_MONITORING"],
+            "{{ SEMAPHORE_MONITORING_CHECKMK | bool or SEMAPHORE_MONITORING_PROMETHEUS | bool }}",
+        )
+
+    def test_every_apply_hands_the_platform_dns_zone_beside_the_read_key(self):
+        tasks = load_yaml_any(str(OPERATION))
+        applied = next(
+            t
+            for t in tasks
+            if "block" in t and t.get("when") == "WORKSPACE_ACTION == 'apply'"
+        )
+        handoff = next(
+            t for t in applied["block"] if "openbao_kv_data" in t.get("vars", {})
+        )
+        data = handoff["vars"]["openbao_kv_data"]
+        env = Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
+        )
+        fresh = {"private": "FRESH", "public": "ssh-ed25519 AAAAf comment"}
+        for applied_key, copy, expected in (
+            ("ssh-ed25519 AAAAf", {}, "FRESH"),
+            ("ssh-ed25519 AAAAh", {"private_key": "HELD"}, "HELD"),
+        ):
+            with self.subTest(expected=expected):
+                values = {
+                    "semaphore_workspace_read_key": fresh,
+                    "semaphore_workspace_applied": {"read_key": applied_key},
+                    "openbao_kv_current": copy,
+                    "workspace_dns": {"zone": "ws.example.org"},
+                    "semaphore_workspace_digest_file": {
+                        "stdout": "/srv/ws-core/conf.d/federate.sha256\n"
+                    },
+                }
+                self.assertEqual(
+                    {
+                        name: env.from_string(value).render(**values).strip()
+                        for name, value in data.items()
+                    },
+                    {
+                        "private_key": expected,
+                        "dns_zone": "ws.example.org",
+                        "digest_file": "/srv/ws-core/conf.d/federate.sha256",
+                    },
+                )
+
+    def test_the_digest_file_comes_from_the_workspace_runner_image_core(self):
+        up = load_yaml_any(str(RUNNER_UP))
+        reader = next(
+            t for t in up if t.get("register") == "semaphore_workspace_digest_file"
+        )
+        argv = reader["ansible.builtin.command"]["argv"]
+        self.assertEqual(
+            argv[-1], "/usr/local/share/semaphore-runner/federation-digest-file"
+        )
+        self.assertIn("version=SEMAPHORE_WORKSPACE_RUNNER_IMAGE_TAG", argv[-2])
+        dockerfile = read_text(
+            str(PROJECT_ROOT / "roles/web-app-semaphore/files/runner/Dockerfile")
+        )
+        self.assertIn(
+            'python3 -I "${INFINITO_SRC_DIR}/utils/platform_monitoring.py" digest-file'
+            ' "${INFINITO_SRC_DIR}" \\\n'
+            "        > /usr/local/share/semaphore-runner/federation-digest-file",
+            dockerfile,
+        )
+
+    def digest_file_step(self, share):
+        """Args:
+        share: the text of the core's ``utils/platform_monitoring.py``, None
+            for a core without it.
+
+        Returns:
+            The exit code of the Dockerfile's digest file step on that core
+            and the file it wrote, None when it wrote none.
+        """
+        dockerfile = read_text(
+            str(PROJECT_ROOT / "roles/web-app-semaphore/files/runner/Dockerfile")
+        )
+        start = dockerfile.index("if grep -qs")
+        script = dockerfile[start : dockerfile.index("fi \\", start) + 2]
+        with tempfile.TemporaryDirectory() as tmp:
+            core = Path(tmp) / "core"
+            (core / "utils").mkdir(parents=True)
+            if share is not None:
+                (core / "utils/platform_monitoring.py").write_text(
+                    share, encoding="utf-8"
+                )
+            out = Path(tmp) / "federation-digest-file"
+            rendered = (
+                script.replace("\\\n", " ")
+                .replace(
+                    "/usr/local/share/semaphore-runner/federation-digest-file", str(out)
+                )
+                .replace("python3 -I", f"{sys.executable} -I")
+            )
+            done = subprocess.run(
+                ["bash", "-euc", rendered],
+                env={"INFINITO_SRC_DIR": str(core), "PATH": os.environ["PATH"]},
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if not out.exists():
+                return done.returncode, None
+            written = out.read_text(encoding="utf-8")  # nocheck: cache-read tempdir
+            return done.returncode, written
+
+    def test_a_core_without_the_digest_file_command_builds_with_an_empty_one(self):
+        self.assertEqual(self.digest_file_step(None), (0, ""))
+        self.assertEqual(self.digest_file_step("print('no command')\n"), (0, ""))
+
+    def test_a_core_with_the_command_writes_its_digest_file(self):
+        share = 'import sys\nif sys.argv[1] == "digest-file":\n    print("/x/federate.sha256")\n'
+        self.assertEqual(self.digest_file_step(share), (0, "/x/federate.sha256\n"))
+        real = read_text(str(PROJECT_ROOT / "utils/platform_monitoring.py"))
+        self.assertIn('"digest-file"', real)
+
+    def test_negative_control_a_failing_command_fails_the_build(self):
+        for share in (
+            'import sys\nif sys.argv[1] == "digest-file":\n    sys.exit(1)\n',
+            'import sys\nif sys.argv[1] == "digest-file":\n    pass\n',
+        ):
+            with self.subTest(share=share):
+                self.assertNotEqual(self.digest_file_step(share)[0], 0)
 
 
 def export_source_findings(api, result):

@@ -47,6 +47,17 @@ require() {
 	fi
 }
 
+# Param: DNS_LABEL           the label the store sends for the host
+# Param: WORKSPACE           the bare workspace id
+# Param: WORKSPACE_DNS_ZONE  the zone workspace apply placed the workspace in, never store-written
+# Param: stdout              the instance's DOMAIN_PRIMARY, the one source deploy, update, monitoring and release read
+deploy_domain() {
+	require DNS_LABEL "${DNS_LABEL_PATTERN}"
+	require WORKSPACE "${WORKSPACE_PATTERN}"
+	require WORKSPACE_DNS_ZONE "${ZONE_PATTERN}"
+	printf '%s\n' "${DNS_LABEL}.ws-${WORKSPACE}.${WORKSPACE_DNS_ZONE}"
+}
+
 # Param: $@  the variables the action does not take
 refuse_set() {
 	local name
@@ -106,7 +117,7 @@ guard_workspace_inventory() {
 	fi
 	export ANSIBLE_CONFIG="${config}" ANSIBLE_INVENTORY_ENABLED=yaml ANSIBLE_INVENTORY_UNPARSED_FAILED=true
 	if ! ansible-inventory -i "$1" --list | python3 -I "${INFINITO_SRC_DIR}/${HELPERS_DIR}/inventory_guard.py" "${INFINITO_SRC_DIR}"; then
-		refuse "the inventory is no plain YAML inventory, holds Jinja the runner would render or shadows a core setting"
+		refuse "the inventory is no plain YAML inventory, holds Jinja the runner would render, shadows a core setting or holds an invalid platform_monitoring"
 	fi
 }
 

@@ -620,6 +620,7 @@ class LockedTemplateTests(unittest.TestCase):
                     "dns",
                     "export",
                     "members",
+                    "monitoring",
                     "prune",
                     "release",
                     "restart",

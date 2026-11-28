@@ -1,0 +1,5 @@
+---
+# nocheck: info-media self-written instance side of the platform share; the homepage is the Checkmk agent guide and no demo video of this integration exists
+logo:
+  class: fa-solid fa-satellite-dish
+homepage: https://docs.checkmk.com/latest/en/agent_linux.html

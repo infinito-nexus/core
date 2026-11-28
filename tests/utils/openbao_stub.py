@@ -98,13 +98,20 @@ class OpenBaoStub:
             writes; any other path answers 403.
         logins: per ``(role, jwt)`` of an accepted task token login, the token
             it yields.
+        create_only: the ``<mount>/<path>`` prefixes whose tokens hold
+            ``create`` but no ``update``, so a write to an existing secret
+            below one answers 403 as OpenBao does, whatever its ``cas``.
     """
 
     def __init__(
-        self, tokens: dict[str, list[str]], logins: dict[tuple[str, str], str]
+        self,
+        tokens: dict[str, list[str]],
+        logins: dict[tuple[str, str], str],
+        create_only: tuple[str, ...] = (),
     ) -> None:
         self.tokens = tokens
         self.logins = logins
+        self.create_only = create_only
         self.kv: dict[str, list[dict[str, Any]]] = {}
         self.requests: list[tuple[str, str, str]] = []
         self.login_count = 0
@@ -148,6 +155,9 @@ class OpenBaoStub:
 
             def do_POST(self) -> None:
                 stub.handle(self, "POST", self._body())
+
+            def do_DELETE(self) -> None:
+                stub.handle(self, "DELETE", {})
 
         self.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         self.server.socket = context.wrap_socket(self.server.socket, server_side=True)
@@ -198,7 +208,18 @@ class OpenBaoStub:
                 return
             handler._answer(200, {"auth": {"client_token": issued}})
             return
-        if method == "GET" and "/metadata/" in path:
+        if "/metadata/" in path and method in ("GET", "DELETE"):
+            mount, _, key = path.partition("/metadata/")
+            secret = f"{mount}/{key}"
+            if method == "DELETE" or secret in self.kv:
+                if not self._allowed(token, secret):
+                    handler._answer(403, {"errors": ["permission denied"]})
+                elif method == "DELETE":
+                    self.kv.pop(secret, None)
+                    handler._answer(204, {})
+                else:
+                    handler._answer(200, {"data": {"versions": len(self.kv[secret])}})
+                return
             self._list(handler, token, path)
             return
         mount, _, rest = path.partition("/data/")
@@ -220,6 +241,9 @@ class OpenBaoStub:
                     }
                 },
             )
+            return
+        if secret in self.kv and secret.startswith(self.create_only):
+            handler._answer(403, {"errors": ["permission denied"]})
             return
         cas = (body.get("options") or {}).get("cas")
         if cas is not None and cas != len(self.kv.get(secret, [])):

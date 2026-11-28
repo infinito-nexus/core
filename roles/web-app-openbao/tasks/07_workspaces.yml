@@ -144,6 +144,34 @@
       register: openbao_task_entities_role
       changed_when: "'OPENBAO_CHANGED' in openbao_task_entities_role.stdout"
 
+- name: "🎫 Bind the monitoring template once Semaphore reports its ids"
+  when: semaphore_workspaces_identity is defined
+  block:
+    - name: "✅ Require integer Semaphore ids of the monitoring template"
+      ansible.builtin.assert:
+        that:
+          - semaphore_workspaces_identity.project_id is integer
+          - semaphore_workspaces_identity.templates[OPENBAO_MONITORING_TEMPLATE].template_id is integer
+        fail_msg: >-
+          The task token role of the monitoring template needs project_id and
+          template_id as integers, since a jwt role matches a numeric claim only
+          against a JSON number.
+        quiet: true
+
+    - name: "🎫 Bind the task token role of the monitoring template to its template"
+      ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+        container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+        sh -c 'set -e;
+        p=auth/{{ OPENBAO_JWT_MOUNT }}/role/{{ OPENBAO_MONITORING_ROLE }};
+        before=$(bao read -format=json $p 2>/dev/null | grep -v request_id || true);
+        bao write $p - >/dev/null;
+        after=$(bao read -format=json $p | grep -v request_id);
+        [ "$before" = "$after" ] || echo OPENBAO_CHANGED'
+      args:
+        stdin: "{{ lookup('template', 'monitoring_role.json.j2') | from_json | to_json }}"
+      register: openbao_monitoring_role
+      changed_when: "'OPENBAO_CHANGED' in openbao_monitoring_role.stdout"
+
 - name: "🧪 Bind the read-only fixture reader while Semaphore builds the fixture"
   when: semaphore_fixture_reader_identity is defined
   block:

@@ -17,7 +17,7 @@ CAN_RUN_PROJECT_TASKS = 1
 CAN_MANAGE_PROJECT_RESOURCES = 4
 CAN_READ_PROJECT = 128
 RUN_AND_READ = CAN_RUN_PROJECT_TASKS | CAN_READ_PROJECT
-STARTED = ("members", "user", "workspace")
+STARTED = ("members", "monitoring", "user", "workspace")
 ROTATION = "rotate store credentials"
 
 
@@ -65,7 +65,7 @@ class StoreGrantTests(unittest.TestCase):
             {"role_slug": "guest", "permissions": permissions},
         )
 
-    def test_the_workspaces_project_grants_the_store_three_templates(self):
+    def test_the_workspaces_project_grants_the_store_four_templates(self):
         self.assertIn(ROTATION, self.templates)
         for name in sorted(self.templates):
             with self.subTest(name):

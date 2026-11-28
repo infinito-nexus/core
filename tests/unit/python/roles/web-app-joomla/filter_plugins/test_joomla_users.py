@@ -7,7 +7,7 @@ import unittest
 
 from ansible.errors import AnsibleFilterError
 
-from plugins.filter.platform_admin import platform_admin_plan
+from plugins.filter.platform.admin import platform_admin_plan
 
 from . import PROJECT_ROOT
 

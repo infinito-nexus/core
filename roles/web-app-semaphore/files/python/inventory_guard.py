@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import json
 import sys
+from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
 SCRIPT = "inventory_guard.py"
+SHARE_SCHEMA = ("utils", "platform_monitoring.py")
 MARKERS = ("{{", "{%", "{#")
 CORE_VARS = ("group_vars", "all")
 INVENTORY_SETTINGS = frozenset({"DEPLOYMENT_MODE", "DOMAIN_PRIMARY", "TLS_ENABLED"})
@@ -87,6 +89,36 @@ def shadowing(inventory, settings):
     return found
 
 
+def monitoring_shares(inventory, core):
+    """Args:
+    inventory: the inventory as ``ansible-inventory --list`` prints it.
+    core: the core tree of the runner image.
+
+    Returns:
+        Every finding of ``inventory_refusals`` of ``utils.platform_monitoring``
+        on a host's or group's variables (``platform_monitoring``,
+        ``ssh_host_key`` and the store's
+        ``applications.svc-net-platform-monitoring``), which a deploy or the
+        ``monitoring`` template would otherwise only refuse later. The schema
+        loads from its file in ``core``, since an installed ``utils`` package
+        of another core release can shadow the core tree's own.
+    """
+    schema = core.joinpath(*SHARE_SCHEMA)
+    spec = spec_from_file_location("platform_monitoring", schema)
+    module = module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    found = []
+    for host, variables in sorted(
+        inventory.get("_meta", {}).get("hostvars", {}).items()
+    ):
+        found += module.inventory_refusals(variables, f"_meta.hostvars.{host}")
+    for group, entry in sorted(inventory.items()):
+        if isinstance(entry, dict):
+            found += module.inventory_refusals(entry.get("vars"), f"{group}.vars")
+    return found
+
+
 def main(stdin, stderr, core):
     """Args:
     stdin: the inventory as ``ansible-inventory --list`` prints it.
@@ -94,8 +126,8 @@ def main(stdin, stderr, core):
     core: the core tree of the runner image.
 
     Returns:
-        0 when the inventory holds no Jinja marker and shadows no core
-        setting, 1 on a refusal.
+        0 when the inventory holds no Jinja marker, shadows no core setting
+        and holds only valid ``platform_monitoring`` shares, 1 on a refusal.
     """
     try:
         inventory = json.load(stdin)
@@ -103,7 +135,11 @@ def main(stdin, stderr, core):
         found = [f"the inventory is no JSON: {error}"]
     else:
         if isinstance(inventory, dict):
-            found = templates(inventory) + shadowing(inventory, core_settings(core))
+            found = (
+                templates(inventory)
+                + shadowing(inventory, core_settings(core))
+                + monitoring_shares(inventory, core)
+            )
         else:
             found = ["the inventory is no mapping"]
     if found:

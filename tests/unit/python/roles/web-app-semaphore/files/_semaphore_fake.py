@@ -463,8 +463,17 @@ def workspace_spec(
         },
         "scripts": dict(SCRIPTS),
         "environment": {
+            "BAO_ADDR": "https://openbao.example.org",
+            "BAO_CACERT": "/etc/infinito.nexus/ca.pem",
+            "BAO_ROLE": ALIAS,
+            "PLATFORM_CHECKMK_ADDRESS": "198.51.100.7",
+            "PLATFORM_CHECKMK_AGENT_SHA256": "0" * 64,
+            "PLATFORM_CHECKMK_SERVER": "checkmk.example.org",
+            "PLATFORM_CHECKMK_SITE": "cmk",
+            "PLATFORM_PROMETHEUS_ADDRESS": "198.51.100.8",
             "WORKSPACE": WORKSPACE_ID,
             "WORKSPACE_DNS_ZONE": "ws.example.org",
+            "WORKSPACE_INVENTORY_FILE": "devices.yml",
             "WORKSPACE_TARGETS": "203.0.113.10:22",
         },
         "provision": {

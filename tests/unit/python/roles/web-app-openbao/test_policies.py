@@ -383,6 +383,18 @@ class TestTheTenantPolicy(unittest.TestCase):
             parse(render("tenant")),
             {
                 f"tenant/data/{role}/*": {"read"},
+                f"monitoring/data/{role}/*": {"read"},
+                f"monitoring/metadata/{role}/federation/+": {"read", "delete"},
+                f"monitoring/data/{role}/released/+": {"create", "read"},
+                f"monitoring/metadata/{role}/released/+": {"read"},
+                f"monitoring/data/{role}/releasing/+": {"create", "read"},
+                f"monitoring/metadata/{role}/releasing/+": {"read"},
+                f"monitoring/metadata/{role}/agent/+": {"read", "delete"},
+                f"platform/data/monitoring/inventory/{role}/hosts/+": {"read"},
+                f"platform/metadata/monitoring/federation/{role}/+": {
+                    "read",
+                    "delete",
+                },
                 f"transit/datakey/plaintext/{role}": {"update"},
                 f"transit/decrypt/{role}": {"update"},
             },

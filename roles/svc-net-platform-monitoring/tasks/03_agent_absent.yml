@@ -1,0 +1,17 @@
+---
+- name: "🔑 Platform monitoring | Drop the platform's key line"
+  ansible.builtin.lineinfile:
+    path: "{{ CHECKMK_AGENT_KEYS_FILE }}"
+    regexp: "{{ CHECKMK_AGENT_KEY_PATTERN }}"
+    state: absent
+
+- name: "🗑️ Platform monitoring | Remove the agent script this role installed"
+  ansible.builtin.file:
+    path: "{{ CHECKMK_AGENT_SCRIPT }}"
+    state: absent
+  when: CHECKMK_AGENT_OURS | bool
+
+- name: "🏷️ Platform monitoring | Drop the marker after its agent script"
+  ansible.builtin.file:
+    path: "{{ CHECKMK_AGENT_MARKER }}"
+    state: absent

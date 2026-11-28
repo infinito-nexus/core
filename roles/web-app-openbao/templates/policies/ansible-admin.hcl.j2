@@ -130,6 +130,22 @@ path "{{ OPENBAO_PLATFORM_MOUNT }}/metadata/{{ OPENBAO_DNS_SCOPE_PREFIX }}/*" {
   capabilities = ["read", "delete"]
 }
 
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/{{ OPENBAO_MONITORING_PREFIX }}/checkmk" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/{{ OPENBAO_MONITORING_PREFIX }}/inventory/+" {
+  capabilities = ["create", "read", "update"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/metadata/{{ OPENBAO_MONITORING_PREFIX }}/inventory/+" {
+  capabilities = ["read", "delete"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/{{ OPENBAO_MONITORING_PREFIX }}/agent-key" {
+  capabilities = ["create", "read", "update"]
+}
+
 path "{{ OPENBAO_PLATFORM_MOUNT }}/data/playwright/*" {
   capabilities = ["create", "read", "update"]
 }

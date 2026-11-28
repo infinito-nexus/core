@@ -9,6 +9,12 @@
   ansible.builtin.include_tasks: utils/mcp.yml
   when: CHECKMK_MCP_ENABLED | bool
 
+- name: "🔭 Give the monitoring template of the Workspaces project its Checkmk identity"
+  ansible.builtin.include_tasks: utils/monitoring.yml
+  when:
+    - CHECKMK_MONITORING_ENABLED | bool
+    - IS_STACK_HOST | bool
+
 - name: "📊 Monitor the runner pool of the infra runner from {{ application_id }}"
   ansible.builtin.include_tasks: utils/pool.yml
   when:

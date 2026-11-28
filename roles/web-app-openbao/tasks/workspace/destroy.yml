@@ -78,6 +78,22 @@
   register: openbao_workspace_erase
   changed_when: "'OPENBAO_CHANGED' in openbao_workspace_erase.stdout"
 
+- name: "🧹 Erase the monitoring tree of ws-{{ WORKSPACE }} with tombstones and hosts"
+  ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
+    container exec -i {{ OPENBAO_LOCAL_CID | quote }}
+    sh -s -- {{ item.mount | quote }} {{ item.prefix | quote }}
+  args:
+    stdin: "{{ lookup('file', 'shell/erase-tree.sh') }}"
+  loop:
+    - mount: "{{ OPENBAO_MONITORING_MOUNT }}"
+      prefix: "ws-{{ WORKSPACE }}/"
+    - mount: "{{ OPENBAO_PLATFORM_MOUNT }}"
+      prefix: "{{ OPENBAO_MONITORING_PREFIX }}/federation/ws-{{ WORKSPACE }}/"
+    - mount: "{{ OPENBAO_PLATFORM_MOUNT }}"
+      prefix: "{{ OPENBAO_MONITORING_PREFIX }}/inventory/ws-{{ WORKSPACE }}/"
+  register: openbao_workspace_monitoring_erase
+  changed_when: "'OPENBAO_CHANGED' in openbao_workspace_monitoring_erase.stdout"
+
 - name: "🔐 Delete the transit key ws-{{ WORKSPACE }}-provision after its states"
   ansible.builtin.shell: > # nocheck: container-exec-resolver  runtime-resolved CID, delegated to the hosting node
     container exec {{ OPENBAO_LOCAL_CID | quote }}

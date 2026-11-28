@@ -54,8 +54,14 @@ def probed_groups(
     def lookup(name, *terms, **_kwargs):
         if name == "domains":
             return DOMAINS
+        if name == "volume":
+            assert terms == ("web-app-prometheus", "instances")
+            return {"target": "/etc/prometheus/instances"}
         if name == "config":
             app, key = terms
+            if key == "secrets.credentials.metricz_bearer":
+                assert app == "web-app-prometheus"
+                return "metricz-bearer"
             assert key == "services"
             return services.get(app, {})
         if name == "roles_with_service":

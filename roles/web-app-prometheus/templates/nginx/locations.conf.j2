@@ -34,6 +34,8 @@
   {% include 'roles/web-app-prometheus/templates/nginx/healthz.conf.j2' %}
   {% include 'roles/web-app-prometheus/templates/nginx/location.conf.j2' %}
   {% if application_id == 'web-app-prometheus' %}
+  set $metricz_bearer_sha256 "{{ lookup('config', 'web-app-prometheus', 'secrets.credentials.metricz_bearer') | hash('sha256') }}";
   {% include 'roles/web-app-prometheus/files/nginx/metricz.conf' %}
+  {% include 'roles/web-app-prometheus/templates/nginx/federate.conf.j2' %}
   {% endif %}
   {% endif %}

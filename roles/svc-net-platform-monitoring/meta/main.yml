@@ -1,0 +1,27 @@
+---
+galaxy_info:
+  author: Kevin Veen-Birkenbach
+  description: "Instance side of the share with the platform's Checkmk and Prometheus: the agent over SSH and the federation digest"
+  company: |
+    Kevin Veen-Birkenbach
+    https://www.veen.world
+  license: Infinito.Nexus Community License (Non-Commercial)
+  min_ansible_version: "2.9"
+  galaxy_tags:
+    - monitoring
+    - checkmk
+    - prometheus
+    - federation
+  issue_tracker_url: https://s.infinito.nexus/issues
+  platforms:
+    - name: ArchLinux
+      versions: [all]
+    - name: Debian
+      versions: [all]
+    - name: EL
+      versions: [all]
+    - name: Fedora
+      versions: [all]
+    - name: Ubuntu
+      versions: [all]
+dependencies: []

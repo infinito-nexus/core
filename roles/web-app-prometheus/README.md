@@ -14,6 +14,8 @@ This role deploys Prometheus as part of the Infinito.Nexus stack using Docker Co
 - **PromQL interface:** Query and explore metrics via the Prometheus web UI.
 - **SSO authentication:** Access is protected by Keycloak via oauth2-proxy.
 - **Universal logout:** Integrated session termination across the stack.
+- **Customer instances:** `scrape_config_files` reads one file per customer instance from the bind volume `instances`, which the Semaphore template `monitoring` writes (requirement 138); each file scrapes the instance's `/federate` with its bearer token and labels every series `workspace` and `instance`, and the template reloads Prometheus through `/-/reload` only when a file changed.
+- **`/metricz` bearer:** every deploy, with or without platform monitoring, admits only `credentials.metricz_bearer` at `/metricz`. Its one consumer in the stack is the role's own `nginx-metricz` job, which presents it (`templates/configuration/prometheus.yml.j2`); an outside scraper of `/metricz` needs that credential or reads the traffic series through `/federate`.
 
 ## Further Resources
 

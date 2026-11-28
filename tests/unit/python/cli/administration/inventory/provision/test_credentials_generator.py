@@ -217,6 +217,53 @@ ansible_become_password: !vault |
             cmd = spr.call_args.args[0]
             self.assertNotIn("--variant", cmd)
 
+    def test_a_reprovision_adds_a_new_monitoring_credential_and_keeps_the_held(self):
+        yaml_rt = YAML(typ="rt")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            role_path = tmp / "roles" / "web-app-prometheus"
+            (role_path / "meta").mkdir(parents=True)
+            host_vars_file = tmp / "host_vars.yml"
+            host_vars_file.write_text(
+                "applications:\n  web-app-prometheus:\n    secrets:\n"
+                "      credentials:\n        mcp_bearer: held\n",
+                encoding="utf-8",
+            )
+            snippet = (
+                "applications:\n  web-app-prometheus:\n    secrets:\n"
+                "      credentials:\n        mcp_bearer: regenerated\n"
+                "        metricz_bearer: generated\n"
+            )
+            with (
+                patch(
+                    "cli.administration.inventory.provision.credentials_generator.resolve_role_path",
+                    return_value=role_path,
+                ),
+                patch(
+                    "cli.administration.inventory.provision.credentials_generator.subprocess.run"
+                ) as spr,
+            ):
+                spr.return_value.returncode = 0
+                spr.return_value.stdout = snippet
+                spr.return_value.stderr = ""
+                generate_credentials_for_roles(
+                    application_ids=["web-app-prometheus"],
+                    roles_dir=tmp / "roles",
+                    host_vars_file=host_vars_file,
+                    vault_password_file=tmp / ".password",
+                    project_root=tmp,
+                    env=None,
+                    workers=1,
+                )
+            with host_vars_file.open("r", encoding="utf-8") as f:
+                doc = yaml_rt.load(f)
+            self.assertEqual(
+                dict(
+                    doc["applications"]["web-app-prometheus"]["secrets"]["credentials"]
+                ),
+                {"mcp_bearer": "held", "metricz_bearer": "generated"},
+            )
+
     def test_generate_credentials_replaces_empty_existing_value(self):
         yaml_rt = YAML(typ="rt")
         yaml_rt.preserve_quotes = True

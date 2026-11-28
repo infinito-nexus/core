@@ -197,9 +197,11 @@ SEMAPHORE_RUNNER_SOURCE_GLOBS:
   - "shell/opentofu/*"
   - "python/*"
   - "python/bao/*"
+  - "python/monitoring/*"
   - "python/provision/*"
   - "python/provision/dns/*"
   - "python/prune/*"
+  - "python/release/*"
   - "python/sandbox/*"
   - "opentofu/*"
   - "opentofu/records/*"
@@ -366,6 +368,27 @@ SEMAPHORE_WORKSPACES_MEMBERS_CLIENT_ID: "workspace-members"
 SEMAPHORE_WORKSPACES_BAO_ROLE: "members"
 SEMAPHORE_STORE_CREDENTIALS_BAO_ROLE: "store-credentials"
 SEMAPHORE_TASK_ENTITIES_BAO_ROLE: "task-entities"
+SEMAPHORE_MONITORING_BAO_ROLE: "monitoring"
+SEMAPHORE_WORKSPACE_REPOSITORY_PATTERN: >-
+  ssh://git@{{ lookup('domain', 'web-app-gitea') }}:{{ lookup('config', 'web-app-gitea', 'services.gitea.ports.public.ssh') }}/{{ SEMAPHORE_WORKSPACES_GITEA_OWNER
+  }}/{workspace}.git
+SEMAPHORE_MONITORING_CHECKMK: "{{ 'web-app-checkmk' in groups and groups['web-app-checkmk'] | length > 0 }}"
+SEMAPHORE_MONITORING_PROMETHEUS: "{{ 'web-app-prometheus' in groups and groups['web-app-prometheus'] | length > 0 }}"
+SEMAPHORE_MONITORING: "{{ SEMAPHORE_MONITORING_CHECKMK | bool or SEMAPHORE_MONITORING_PROMETHEUS | bool }}"
+SEMAPHORE_MONITORING_CHECKMK_SITE: "{{ lookup('config', 'web-app-checkmk', 'services.checkmk.site') if SEMAPHORE_MONITORING_CHECKMK | bool else '' }}"
+SEMAPHORE_MONITORING_AGENT_URL: >-
+  {{ (lookup('tls', 'web-app-checkmk', 'url.origin') ~ '/' ~ SEMAPHORE_MONITORING_CHECKMK_SITE ~ '/check_mk/agents/check_mk_agent.linux')
+     if SEMAPHORE_MONITORING_CHECKMK | bool else '' }}
+SEMAPHORE_MONITORING_PLATFORM_CHECKMK:
+  PLATFORM_CHECKMK_SERVER: "{{ lookup('domain', 'web-app-checkmk') if SEMAPHORE_MONITORING_CHECKMK | bool else '' }}"
+  PLATFORM_CHECKMK_SITE: "{{ SEMAPHORE_MONITORING_CHECKMK_SITE }}"
+  PLATFORM_CHECKMK_ADDRESS: "{{ hostvars[groups['web-app-checkmk'] | first].networks.internet.ip4 if SEMAPHORE_MONITORING_CHECKMK | bool else '' }}"
+  PLATFORM_CHECKMK_AGENT_SHA256: "{{ '' if semaphore_monitoring_agent is skipped else semaphore_monitoring_agent.content | hash('sha256') }}"
+SEMAPHORE_MONITORING_PLATFORM_PROMETHEUS_ADDRESS: "{{ hostvars[groups['web-app-prometheus'] | first].networks.internet.ip4 if SEMAPHORE_MONITORING_PROMETHEUS | bool else '' }}"
+# nocheck: swarm-loopback-port open  the monitoring template reloads the platform Prometheus from its host on this published local port, which swarm drops; 074 :27 tracks it
+SEMAPHORE_MONITORING_PROMETHEUS_LOCAL_PORT: "{{ lookup('config', 'web-app-prometheus', 'services.prometheus.ports.local.http') if SEMAPHORE_MONITORING_PROMETHEUS | bool else '' }}"
+SEMAPHORE_MONITORING_BAO_MOUNT: "platform"
+SEMAPHORE_MONITORING_INVENTORY_KEY_PREFIX: "monitoring/inventory"
 SEMAPHORE_WORKSPACES_FIXTURE_BAO_ROLE: "workspace-fixture"
 SEMAPHORE_DEPLOY_FIXTURE_BAO_MOUNT: "platform"
 SEMAPHORE_DEPLOY_FIXTURE_BAO_ROOT: "fixture/{{ SEMAPHORE_DEPLOY_FIXTURE_PLATFORM_HOST }}"
@@ -406,6 +429,16 @@ SEMAPHORE_WORKSPACES_VARIABLES:
   BAO_ROLE: "{{ SEMAPHORE_WORKSPACES_BAO_ROLE }}"
   BAO_STORE_CREDENTIALS_ROLE: "{{ SEMAPHORE_STORE_CREDENTIALS_BAO_ROLE }}"
   BAO_TASK_ENTITIES_ROLE: "{{ SEMAPHORE_TASK_ENTITIES_BAO_ROLE }}"
+  BAO_MONITORING_ROLE: "{{ SEMAPHORE_MONITORING_BAO_ROLE }}"
+  MONITOR_INVENTORY_REPOSITORY: "{{ SEMAPHORE_WORKSPACE_REPOSITORY_PATTERN }}"
+  MONITOR_INVENTORY_FILE: "{{ SEMAPHORE_DEPLOY_INVENTORY_FILE }}"
+  MONITOR_CHECKMK_API: "{{ (lookup('tls', 'web-app-checkmk', 'url.origin') ~ '/' ~ lookup('config', 'web-app-checkmk', 'services.checkmk.site') ~ '/check_mk/api/1.0') if SEMAPHORE_MONITORING_CHECKMK | bool else '' }}"
+  MONITOR_CHECKMK_SITE: "{{ SEMAPHORE_MONITORING_CHECKMK_SITE }}"
+  MONITOR_CACERT: "{{ CA_TRUST_CERT_CONTAINER_SELFSIGNED }}"
+  MONITOR_TLS_WARN_DAYS: "{{ (lookup('config', 'web-app-checkmk', 'services.checkmk.monitoring.tls_expiry.warn_days') | string) if SEMAPHORE_MONITORING_CHECKMK | bool else '' }}"
+  MONITOR_TLS_CRIT_DAYS: "{{ (lookup('config', 'web-app-checkmk', 'services.checkmk.monitoring.tls_expiry.crit_days') | string) if SEMAPHORE_MONITORING_CHECKMK | bool else '' }}"
+  MONITOR_PROMETHEUS_DIR: "{{ lookup('volume', 'web-app-prometheus', 'instances').source if SEMAPHORE_MONITORING_PROMETHEUS | bool else '' }}"
+  MONITOR_PROMETHEUS_RELOAD_URL: "{{ ('http://127.0.0.1:' ~ SEMAPHORE_MONITORING_PROMETHEUS_LOCAL_PORT ~ '/-/reload') if SEMAPHORE_MONITORING_PROMETHEUS | bool else '' }}"
   BAO_JWT_TOKEN_TTLS: "{{ lookup('config', 'web-app-openbao', 'services.openbao.workspaces.token_ttl') | to_json }}"
   BAO_FIXTURE_ROLE: "{{ SEMAPHORE_WORKSPACES_FIXTURE_BAO_ROLE if SEMAPHORE_DEPLOY_FIXTURE_ENABLED | bool else '' }}"
   BAO_CACERT: "{{ CA_TRUST_CERT_CONTAINER_SELFSIGNED }}"
@@ -478,9 +511,7 @@ SEMAPHORE_WORKSPACES_SKIP: >-
      else 'SSO is off, and every workspace signs in through it' if not SEMAPHORE_OIDC_ENABLED | bool
      else '' }}
 SEMAPHORE_WORKSPACE_ALIAS: "ws-{{ WORKSPACE }}"
-SEMAPHORE_WORKSPACE_REPOSITORY_URL: >-
-  ssh://git@{{ lookup('domain', 'web-app-gitea') }}:{{ lookup('config', 'web-app-gitea', 'services.gitea.ports.public.ssh') }}/{{ SEMAPHORE_WORKSPACES_GITEA_OWNER
-  }}/{{ SEMAPHORE_WORKSPACE_ALIAS }}.git
+SEMAPHORE_WORKSPACE_REPOSITORY_URL: "{{ SEMAPHORE_WORKSPACE_REPOSITORY_PATTERN | replace('{workspace}', SEMAPHORE_WORKSPACE_ALIAS) }}"
 SEMAPHORE_WORKSPACE_CORE_FLOOR: ""
 SEMAPHORE_RUNNER_CHANGELOG_FILE: "/usr/local/share/semaphore-runner/CHANGELOG.md"
 SEMAPHORE_WORKSPACE_CORE_RELEASES: "{{ semaphore_runner_changelog.stdout | semaphore_workspace_releases(SEMAPHORE_WORKSPACE_CORE_FLOOR) }}"

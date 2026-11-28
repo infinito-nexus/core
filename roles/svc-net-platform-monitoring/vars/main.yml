@@ -1,0 +1,30 @@
+---
+application_id: svc-net-platform-monitoring
+
+PLATFORM_MONITORING_SHARE: "{{ hostvars[inventory_hostname].get('platform_monitoring') | platform_monitoring_share }}"
+PLATFORM_MONITORING_FEDERATED: "{{ PLATFORM_MONITORING_SHARE | platform_monitoring_federate | length > 0 }}"
+PLATFORM_MONITORING_DIGEST_FILE: "{{ lookup('nginx', 'directories.configuration.base') | platform_monitoring_digest }}"
+PLATFORM_MONITORING_DIGEST: >-
+  {{ PLATFORM_MONITORING_DIGEST_REFERENCE | platform_monitoring_resolve('federation_token_sha256')
+     if PLATFORM_MONITORING_WORKSPACE | length > 0
+     else lookup('config', application_id, 'secrets.credentials.federation_token_sha256') }}
+PLATFORM_MONITORING_WORKSPACE: "{{ lookup('env', 'WORKSPACE') }}"
+PLATFORM_MONITORING_AGENT: "{{ (PLATFORM_MONITORING_SHARE.agent | bool) and PLATFORM_MONITORING_WORKSPACE | length > 0 }}"
+PLATFORM_MONITORING_DIGEST_REFERENCE: "{{ PLATFORM_MONITORING_WORKSPACE | platform_monitoring_digest_reference(inventory_hostname) }}"
+
+CHECKMK_AGENT_SERVER: "{{ lookup('env', 'PLATFORM_CHECKMK_SERVER') }}"
+CHECKMK_AGENT_SITE: "{{ lookup('env', 'PLATFORM_CHECKMK_SITE') }}"
+CHECKMK_AGENT_ADDRESS: "{{ lookup('env', 'PLATFORM_CHECKMK_ADDRESS') }}"
+CHECKMK_AGENT_SHA256: "{{ lookup('env', 'PLATFORM_CHECKMK_AGENT_SHA256') }}"
+CHECKMK_AGENT_KEY_REFERENCE: "{{ PLATFORM_MONITORING_WORKSPACE | platform_monitoring_agent_key_reference(inventory_hostname) }}"
+CHECKMK_AGENT_PUBLIC_KEY: "{{ CHECKMK_AGENT_KEY_REFERENCE | platform_monitoring_resolve('agent_public_key') }}"
+CHECKMK_AGENT_KEY_LINE: "{{ CHECKMK_AGENT_PUBLIC_KEY | platform_monitoring_agent_key_line(CHECKMK_AGENT_ADDRESS, PLATFORM_MONITORING_WORKSPACE) }}"
+CHECKMK_AGENT_KEY_PATTERN: '^command="(?:echo ''<<<infinito_workspace>>>''; echo ws-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}; exec )?check_mk_agent",restrict,.* infinito-platform-monitoring$'
+CHECKMK_AGENT_KEYS_FILE: "~{{ ansible_user }}/.ssh/authorized_keys"
+CHECKMK_AGENT_SCRIPT: "/usr/bin/check_mk_agent"
+CHECKMK_AGENT_MARKER: "/etc/infinito.nexus/platform-monitoring-agent"
+CHECKMK_AGENT_OURS: >-
+  {{ platform_monitoring_agent_script.stat.exists
+     and platform_monitoring_agent_marker.stat.exists
+     and platform_monitoring_agent_script.stat.checksum == (platform_monitoring_agent_record.content | b64decode | trim) }}
+CHECKMK_AGENT_SCRIPT_URL: "{{ CHECKMK_AGENT_SERVER | platform_monitoring_agent_url(CHECKMK_AGENT_SITE, CHECKMK_AGENT_SHA256) }}"

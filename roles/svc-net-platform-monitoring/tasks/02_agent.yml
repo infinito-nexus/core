@@ -1,0 +1,65 @@
+---
+- name: "⛔ Platform monitoring | Refuse to replace an agent this role did not install"
+  ansible.builtin.fail:
+    msg: >-
+      {{ CHECKMK_AGENT_SCRIPT }} holds a Checkmk agent this role did not install (no {{ CHECKMK_AGENT_MARKER }}
+      recording its SHA-256): remove that agent or set platform_monitoring.agent to false, then deploy again.
+  when: platform_monitoring_agent_script.stat.exists and not (CHECKMK_AGENT_OURS | bool)
+
+- name: "📁 Platform monitoring | Hold the directory of the agent marker"
+  become: true
+  ansible.builtin.file:
+    path: "{{ CHECKMK_AGENT_MARKER | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: "📦 Platform monitoring | Install the site's agent script, verified by its digest"
+  become: true
+  block:
+    - name: "📦 Platform monitoring | Fetch the agent script"
+      get_url_retry:
+        url: "{{ CHECKMK_AGENT_SCRIPT_URL }}"
+        dest: "{{ CHECKMK_AGENT_SCRIPT }}"
+        checksum: "sha256:{{ CHECKMK_AGENT_SHA256 }}"
+        validate_certs: true
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: "🏷️ Platform monitoring | Mark the agent script as ours once it landed"
+      ansible.builtin.copy:
+        dest: "{{ CHECKMK_AGENT_MARKER }}"
+        content: "{{ CHECKMK_AGENT_SHA256 }}\n"
+        owner: root
+        group: root
+        mode: "0644"
+  rescue:
+    - name: "🗑️ Platform monitoring | Undo the agent install of this run" # nocheck: rescue-recovery a script left without its marker reads as a foreign agent that every later deploy refuses to replace, so the rescue removes what this run wrote and the fail task below re-raises
+      when: not (CHECKMK_AGENT_OURS | bool)
+      block:
+        - name: "🗑️ Platform monitoring | Drop the agent script this run fetched"
+          ansible.builtin.file:
+            path: "{{ CHECKMK_AGENT_SCRIPT }}"
+            state: absent
+
+        - name: "🏷️ Platform monitoring | Drop a marker this run wrote"
+          ansible.builtin.file:
+            path: "{{ CHECKMK_AGENT_MARKER }}"
+            state: absent
+
+    - name: "⛔ Platform monitoring | Name the fix of an agent off its digest"
+      ansible.builtin.fail:
+        msg: >-
+          Fetching {{ CHECKMK_AGENT_SCRIPT_URL }} failed: {{ ansible_failed_result.msg }}.
+          On a checksum mismatch the platform's Checkmk serves another agent than workspace apply took the digest of:
+          re-apply the workspace after a Checkmk upgrade, then deploy again.
+
+- name: "🔑 Platform monitoring | Let the platform's key run the agent and nothing else"
+  become: true
+  ansible.builtin.lineinfile:
+    path: "{{ CHECKMK_AGENT_KEYS_FILE }}"
+    regexp: "{{ CHECKMK_AGENT_KEY_PATTERN }}"
+    line: "{{ CHECKMK_AGENT_KEY_LINE }}"
+    create: false

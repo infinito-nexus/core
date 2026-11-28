@@ -75,6 +75,13 @@ RUN install -d -m 0755 /usr/local/share/semaphore-runner \
     && awk -F '"' '/^\[/ { section = $0 } section == "[project]" && /^version[[:space:]]*=/ { print $2; exit }' \
         "${INFINITO_SRC_DIR}/pyproject.toml" > /usr/local/share/semaphore-runner/core-version \
     && test -s /usr/local/share/semaphore-runner/core-version \
+    && if grep -qs '"digest-file"' "${INFINITO_SRC_DIR}/utils/platform_monitoring.py"; then \
+        python3 -I "${INFINITO_SRC_DIR}/utils/platform_monitoring.py" digest-file "${INFINITO_SRC_DIR}" \
+        > /usr/local/share/semaphore-runner/federation-digest-file \
+        && test -s /usr/local/share/semaphore-runner/federation-digest-file; \
+    else \
+        : > /usr/local/share/semaphore-runner/federation-digest-file; \
+    fi \
     && install -m 0644 "${INFINITO_SRC_DIR}/CHANGELOG.md" /usr/local/share/semaphore-runner/CHANGELOG.md
 
 ARG SEMAPHORE_SANDBOX_ENTRYPOINT

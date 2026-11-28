@@ -84,6 +84,7 @@ HOST_KEY = "HOST_KEY"
 NONE_KEY = "None"
 WORKSPACE_RESOURCE = "workspace"
 MEMBERS_TEMPLATE = "members"
+MONITORING_TEMPLATE = "monitoring"
 IDENTITY_COMMAND = "workspaces-identity"
 ROTATION_COMMAND = "store-rotation-identity"
 EXPORT_SCHEDULE_COMMAND = "export-schedule-identity"
@@ -95,6 +96,8 @@ CHECKOUT_KINDS = ("provision",)
 ORDER_SURVEY = (("SALES_ORDER", True), ("LINE", True))
 HOST_SURVEY = (("HOST", True), (HOST_KEY, True))
 COMMIT_SURVEY = (("INVENTORY_COMMIT", True),)
+LABEL_SURVEY = (("DNS_LABEL", True),)
+OPTIONAL_LABEL_SURVEY = (("DNS_LABEL", False),)
 POOL_SURVEY = (("APPS", True),)
 WORKSPACE_TEMPLATES = (
     {
@@ -102,14 +105,15 @@ WORKSPACE_TEMPLATES = (
         "script": "deploy.sh",
         "survey": ORDER_SURVEY
         + HOST_SURVEY
-        + (("ROLES", True), ("DNS_LABEL", True))
+        + (("ROLES", True),)
+        + LABEL_SURVEY
         + COMMIT_SURVEY,
     },
     {
         "name": "update",
         "script": "host.sh",
         "arguments": ["update"],
-        "survey": HOST_SURVEY + COMMIT_SURVEY,
+        "survey": HOST_SURVEY + OPTIONAL_LABEL_SURVEY + COMMIT_SURVEY,
     },
     {
         "name": "backup",
@@ -179,6 +183,18 @@ WORKSPACES_TEMPLATES = (
         "script": "user.sh",
         "repository": "scripts",
         "survey": (("USER_ACTION", True), ("USER_ID", True)),
+    },
+    {
+        "name": MONITORING_TEMPLATE,
+        "script": "monitoring.sh",
+        "repository": "inventory",
+        "survey": (
+            ("WORKSPACE", True),
+            ("MONITOR_ACTION", True),
+            ("MONITOR_HOST", True),
+            ("INVENTORY_COMMIT", False),
+            ("DNS_LABEL", False),
+        ),
     },
 )
 WORKSPACES_SCHEDULED_TEMPLATES = (
@@ -1546,14 +1562,15 @@ def ensure_read_key(api, project_ids, candidate, changes):
     """Args:
     api: the client.
     project_ids: the projects that clone the workspace repository.
-    candidate: ``private`` and ``public`` of a fresh pair, stored only when
-        a project lacks the workspace's key.
+    candidate: ``private`` and ``public`` of the pair every project ends
+        with: ``operation.yml`` hands the copy OpenBao holds, so ``apply``
+        restores it, and a fresh pair only while OpenBao holds none.
     changes: the change log this call appends to.
 
     Returns:
         ``(public, ids, stale)``: the public half the key's name carries, the
-        key id per project, and ``(project_id, key)`` of every key the caller
-        removes once no repository uses it.
+        key id per project, and ``(project_id, key)`` of every other read key
+        the caller removes once no repository uses it.
     """
     held = {
         project_id: [
@@ -1563,14 +1580,6 @@ def ensure_read_key(api, project_ids, candidate, changes):
         ]
         for project_id in project_ids
     }
-    names = {key["name"] for keys in held.values() for key in keys}
-    if len(names) == 1 and all(len(keys) == 1 for keys in held.values()):
-        name = next(iter(names))
-        return (
-            name[len(READ_KEY_PREFIX) :],
-            {project_id: keys[0]["id"] for project_id, keys in held.items()},
-            [],
-        )
     public = " ".join(candidate["public"].split()[:2])
     key = {
         "name": READ_KEY_PREFIX + public,

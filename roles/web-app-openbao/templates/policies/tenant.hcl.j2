@@ -10,3 +10,39 @@ path "{{ OPENBAO_TRANSIT_MOUNT }}/datakey/plaintext/{{ openbao_role }}" {
 path "{{ OPENBAO_TRANSIT_MOUNT }}/decrypt/{{ openbao_role }}" {
   capabilities = ["update"]
 }
+
+path "{{ OPENBAO_MONITORING_MOUNT }}/data/{{ openbao_role }}/*" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_MONITORING_MOUNT }}/metadata/{{ openbao_role }}/federation/+" {
+  capabilities = ["read", "delete"]
+}
+
+path "{{ OPENBAO_MONITORING_MOUNT }}/data/{{ openbao_role }}/released/+" {
+  capabilities = ["create", "read"]
+}
+
+path "{{ OPENBAO_MONITORING_MOUNT }}/metadata/{{ openbao_role }}/released/+" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_MONITORING_MOUNT }}/data/{{ openbao_role }}/releasing/+" {
+  capabilities = ["create", "read"]
+}
+
+path "{{ OPENBAO_MONITORING_MOUNT }}/metadata/{{ openbao_role }}/releasing/+" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_MONITORING_MOUNT }}/metadata/{{ openbao_role }}/agent/+" {
+  capabilities = ["read", "delete"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/data/{{ OPENBAO_MONITORING_PREFIX }}/inventory/{{ openbao_role }}/hosts/+" {
+  capabilities = ["read"]
+}
+
+path "{{ OPENBAO_PLATFORM_MOUNT }}/metadata/{{ OPENBAO_MONITORING_PREFIX }}/federation/{{ openbao_role }}/+" {
+  capabilities = ["read", "delete"]
+}

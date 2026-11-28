@@ -18,6 +18,8 @@ const adminUsername      = decodeDotenvQuotedValue(process.env.ADMIN_USERNAME);
 const adminPassword      = decodeDotenvQuotedValue(process.env.ADMIN_PASSWORD);
 const biberUsername      = decodeDotenvQuotedValue(process.env.BIBER_USERNAME);
 const biberPassword      = decodeDotenvQuotedValue(process.env.BIBER_PASSWORD);
+const metriczBearer      = decodeDotenvQuotedValue(process.env.METRICZ_BEARER || "");
+const metriczAuth        = { Authorization: `Bearer ${metriczBearer}` };
 
 test.beforeEach(() => {
   expect(oidcIssuerUrl,     "OIDC_ISSUER_URL must be set in the Playwright env file").toBeTruthy();
@@ -29,12 +31,23 @@ test.beforeEach(() => {
   expect(biberPassword,     "BIBER_PASSWORD must be set in the Playwright env file").toBeTruthy();
 });
 
-// Scenario I: /metricz exposes prometheus-format metrics — no auth required.
+// Scenario I: /metricz exposes prometheus-format metrics to the instance's own scrape bearer.
 //
 // /metricz is the central nginx metrics endpoint scraped by prometheus once for all apps.
-// It must be accessible without authentication (prometheus scrapes it without bearer tokens).
-// If this returns 401/403 the nginx ACL whitelist for /metricz is misconfigured.
+// If this returns 401 with the bearer, locations.conf.j2 and prometheus.yml.j2 disagree on it.
 // If it returns HTML the location = /metricz block is missing from the nginx vhost config.
+test("metricz refuses a caller without the scrape bearer", async ({ request }) => {
+  const metriczUrl = `${prometheusBaseUrl.replace(/\/$/, "")}/metricz`;
+  const anonymous = await apiGetOnion(request, metriczUrl, { timeout: resolveTimeout(30_000) });
+  expect(anonymous.status(), "/metricz must refuse a caller without a bearer").toBe(401);
+  const forged = await apiGetOnion(request, metriczUrl, {
+    timeout: resolveTimeout(30_000),
+    headers: { Authorization: "Bearer not-the-scrape-bearer" },
+  });
+  expect(forged.status(), "/metricz must refuse a wrong bearer").toBe(401);
+  expect(await forged.text(), "a refused /metricz must carry no series").not.toContain("nginx_http_requests_total");
+});
+
 //
 // The body is also asserted to carry an `app="<role_id>"` label for every consumer role
 // declared in `roles_with_service('prometheus')`. lua-resty-prometheus tags each request
@@ -50,12 +63,13 @@ test("metricz endpoint is accessible and returns prometheus text format", async 
     await request.get(`${base}/healthz/ready`, { failOnStatusCode: false, timeout: resolveTimeout(30_000) }).catch(() => {});
   }
 
-  const response = await apiGetOnion(request, metriczUrl, { timeout: resolveTimeout(30_000) });
+  expect(metriczBearer, "METRICZ_BEARER must be set in the Playwright env file").toBeTruthy();
+  const response = await apiGetOnion(request, metriczUrl, { timeout: resolveTimeout(30_000), headers: metriczAuth });
 
   expect(
     response.status(),
-    `/metricz must return 200 without auth — got ${response.status()}. ` +
-    "If 401/403 the nginx ACL whitelist is misconfigured. If 200 with HTML, the location block is missing."
+    `/metricz must return 200 to the scrape bearer, got ${response.status()}. ` +
+    "If 401 the bearer digest of the vhost is wrong. If 200 with HTML, the location block is missing."
   ).toBe(200);
 
   const body = await response.text();
@@ -78,7 +92,7 @@ test("metricz endpoint is accessible and returns prometheus text format", async 
           if (base) {
             await request.get(`${base}/healthz/ready`, { failOnStatusCode: false, timeout: resolveTimeout(30_000) }).catch(() => {});
           }
-          const scrape = await request.get(metriczUrl, { timeout: resolveTimeout(30_000) });
+          const scrape = await request.get(metriczUrl, { timeout: resolveTimeout(30_000), headers: metriczAuth });
           return (await scrape.text()).includes(`app="${target.id}"`);
         },
         {
@@ -96,7 +110,7 @@ test("metricz endpoint is accessible and returns prometheus text format", async 
   await expect
     .poll(
       async () => {
-        const scrape = await apiGetOnion(request, metriczUrl, { timeout: resolveTimeout(30_000) });
+        const scrape = await apiGetOnion(request, metriczUrl, { timeout: resolveTimeout(30_000), headers: metriczAuth });
         const text = await scrape.text();
         const entries = text.match(/^nginx_docker_health_entries (\S+)$/m);
         const stackUp = [...text.matchAll(/^nginx_stack_up\{host="([^"]*)",app="([^"]*)"\} (\S+)$/gm)];

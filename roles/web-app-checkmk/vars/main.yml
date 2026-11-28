@@ -71,3 +71,20 @@ CHECKMK_POOL_ENABLED: "{{ lookup('config', application_id, 'services.checkmk.loc
 CHECKMK_POOL_HOST: "infinito-infra"
 CHECKMK_POOL_FILE: "{{ [lookup('volume', application_id, 'checkmk_pool').target, 'pool.txt'] | path_join }}"
 CHECKMK_POOL_API: "http://localhost:{{ container_port }}/{{ CHECKMK_SITE }}/check_mk/api/1.0"
+CHECKMK_MONITORING_ENABLED: "{{ 'web-app-semaphore' in groups and groups['web-app-semaphore'] | length > 0 and 'web-app-openbao' in groups and groups['web-app-openbao'] | length > 0 }}"
+CHECKMK_MONITORING_USER: "monitoring"
+CHECKMK_MONITORING_ROLE: "workspaces"
+CHECKMK_MONITORING_GROUP: "workspaces"
+CHECKMK_MONITORING_FOLDER: "workspaces"
+CHECKMK_MONITORING_SECRET: "{{ lookup('config', application_id, 'secrets.credentials.monitoring_automation_secret') }}"
+CHECKMK_MONITORING_LOGIN:
+  mount: platform
+  path: monitoring/checkmk
+  data:
+    username: "{{ CHECKMK_MONITORING_USER }}"
+    secret: "{{ CHECKMK_MONITORING_SECRET }}"
+CHECKMK_AGENT_KEY_FILE: "/omd/sites/{{ CHECKMK_SITE }}/.ssh/infinito_monitoring"
+CHECKMK_AGENT_SSH: "/omd/sites/{{ CHECKMK_SITE }}/local/bin/infinito_agent_ssh"
+CHECKMK_AGENT_KEY_RECORD:
+  mount: platform
+  path: monitoring/agent-key

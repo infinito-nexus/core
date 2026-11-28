@@ -1238,6 +1238,10 @@ msgctxt "category:sys.front.inj:title"
 msgid "Injection"
 msgstr "Instealladh Instealladh"
 
+msgctxt "role:svc-net-platform-monitoring:description"
+msgid "Instance side of the share with the platform's Checkmk and Prometheus: the agent over SSH and the federation digest"
+msgstr ""
+
 msgctxt "menu:Chat & Messaging:description"
 msgid "Instant messaging and team chat."
 msgstr ""

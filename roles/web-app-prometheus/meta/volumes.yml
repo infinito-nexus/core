@@ -21,6 +21,14 @@ prometheus_config:
     - service: prometheus
       target: /etc/prometheus/prometheus.yml
 
+instances:
+  type: bind
+  source: "{{ [lookup('container', 'web-app-prometheus', 'directories.instance'), 'instances'] | path_join }}"
+  read_only: true
+  mounts:
+    - service: prometheus
+      target: /etc/prometheus/instances
+
 alert_rules:
   type: config
   source: "{{ [lookup('container', 'web-app-prometheus', 'directories.config'), 'alert_rules.yml'] | path_join }}"

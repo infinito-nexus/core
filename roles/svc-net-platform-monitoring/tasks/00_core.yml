@@ -1,0 +1,19 @@
+---
+- include_tasks: utils/once/flag.yml
+
+- name: "🔎 Platform monitoring | Read the agent script and the digest its marker recorded"
+  ansible.builtin.include_tasks: 01_agent_state.yml
+
+- name: "📡 Platform monitoring | Share the agent with the platform's Checkmk"
+  ansible.builtin.include_tasks: 02_agent.yml
+  when: PLATFORM_MONITORING_AGENT | bool
+
+- name: "🧹 Platform monitoring | Withdraw the agent from the platform's Checkmk"
+  ansible.builtin.include_tasks:
+    file: 03_agent_absent.yml
+    apply:
+      become: true
+  when: not (PLATFORM_MONITORING_AGENT | bool)
+
+- name: "🔑 Platform monitoring | Converge the federation token digest"
+  ansible.builtin.include_tasks: 04_federation.yml

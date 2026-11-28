@@ -53,7 +53,7 @@ if [ -n "${WORKSPACE:-}" ]; then
 	done
 	checkout_commit
 	inventory="$(workspace_inventory "$1")"
-	domain="${DNS_LABEL}.ws-${WORKSPACE}.${WORKSPACE_DNS_ZONE}"
+	domain="$(deploy_domain)"
 	pin_host_key "${workdir}"
 	load_workspace_key "${inventory}"
 	echo "${SCRIPT}: deploying ${ROLES} of ${SALES_ORDER}/${LINE} to ${HOST} as ${domain}"

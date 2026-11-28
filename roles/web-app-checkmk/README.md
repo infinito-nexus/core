@@ -29,13 +29,19 @@ Checkmk Raw bundles its own monitoring core (Nagios), RRD storage, and an Apache
   Self-contained on a single persistent volume.
 
 - **Agent receiver:**
-  Container port 8000 is mapped to a host port (`local.agent`); external proxying for remote-host TLS agent registration is a follow-up.
+  Container port 8000 is mapped to a host port (`local.agent`); customer hosts register no agent, Checkmk pulls theirs over SSH (see below).
 
 - **Break-glass `cmkadmin`:**
   Seeded on first run via `CMK_PASSWORD` and re-converged onto the running site on every deploy; reachable via the local login form only when the SSO gate is absent.
 
 - **Runner pool host:**
   Only the infra inventory sets `services.checkmk.local_check_dir`, with `INFINITO_INFRA_CHECKMK=true`, to the directory the infra runner's `infinito-pool-checkmk` timer rewrites `pool.txt` in every minute. The role mounts it read-only at `/etc/infinito/pool` and [register_pool_host.py](./files/python/register_pool_host.py) converges host `infinito-infra` with a `datasource_programs` rule that runs `cat /etc/infinito/pool/pool.txt`, then a `fix_all` service discovery: one service per pool runner (critical when `failed`), per held job, per cache and for the disk floor.
+
+- **Workspace monitoring user:**
+  With Semaphore and OpenBao in the inventory, [provision/monitoring_identity.py](./files/python/provision/monitoring_identity.py) converges the automation user `monitoring` of the Semaphore template `monitoring` (requirement 138). Its role `workspaces` may manage hosts, folders, services and rules, run service discovery and activate its own changes; every other permission, the ones inherited from `user` and `wato.add_or_modify_executables` included, is an explicit `no`, so it can never write a rule that runs a program. The folder `/workspaces` alone grants its contact group write access, recursively. The deploy writes the user's login to OpenBao at `platform/monitoring/checkmk`, which only that template's task token reads.
+
+- **Workspace agents over SSH (requirement 138 Decision 6):**
+  The deploy generates the platform monitoring key once inside the site ([monitoring_agent.sh](./files/shell/monitoring_agent.sh)); the private half stays at `~/.ssh/infinito_monitoring` of the site user, and only the public half is written to OpenBao at `platform/monitoring/agent-key` (`public_key`). It installs [infinito_agent_ssh.py](./files/python/infinito_agent_ssh.py) as `~/local/bin/infinito_agent_ssh` and keeps one `datasource_programs` rule on `/workspaces` that calls it with `$HOSTNAME$ $HOSTADDRESS$`. The program reads the host's labels `infinito/ssh_user`, `infinito/ssh_port`, `infinito/ssh_host_key_type` and `infinito/ssh_host_key`, which the template sets from the workspace inventory, checks each again and runs ssh without a shell, with that key, `StrictHostKeyChecking=yes`, no known_hosts file and the inventory's host key pinned through `KnownHostsCommand`. It passes the agent output on only when it starts with the `<<<infinito_workspace>>>` section naming the workspace of the host's `workspace` label, which only the template sets; otherwise it prints nothing and exits non-zero. `services.checkmk.monitoring.tls_expiry` holds the warn and crit days of the TLS expiry check the template sets up per instance domain.
 
 ## Biber coverage
 

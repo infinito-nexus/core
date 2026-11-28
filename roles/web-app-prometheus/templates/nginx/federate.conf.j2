@@ -1,0 +1,57 @@
+{% if 'svc-net-platform-monitoring' in group_names %}
+{% set federate_share = hostvars[inventory_hostname].get('platform_monitoring') | platform_monitoring_share %}
+{% set federate_selectors = federate_share | platform_monitoring_federate %}
+{% if federate_selectors | length > 0 %}
+{% set federate_args = federate_selectors | map('urlencode') | map('regex_replace', '^', 'match%5B%5D=') | join('&') %}
+{% set federate_sources = lookup('env', 'WORKSPACE') | platform_monitoring_federate_sources(lookup('env', 'PLATFORM_PROMETHEUS_ADDRESS')) %}
+  location = /federate {
+    access_log off;
+{% for federate_source in federate_sources %}
+    allow {{ federate_source }};
+{% endfor %}
+{% if federate_sources | length > 0 %}
+    deny all;
+{% endif %}
+    limit_except GET {
+      deny all;
+    }
+    access_by_lua_block {
+      local handle = io.open("{{ lookup('nginx', 'directories.configuration.base') | platform_monitoring_digest }}", "r")
+      if not handle then
+        return ngx.exit(ngx.HTTP_UNAUTHORIZED)
+      end
+      local token = (ngx.var.http_authorization or ""):match("^Bearer%s+(%S+)$")
+      if not token then
+        handle:close()
+        return ngx.exit(ngx.HTTP_UNAUTHORIZED)
+      end
+      local sha256 = require("resty.sha256").new()
+      sha256:update(token)
+      local presented = require("resty.string").to_hex(sha256:final())
+      local admitted = false
+      for line in handle:lines() do
+        local expected = line:match("^%S+ (%x+)$")
+        if expected and #expected == 64 and expected:lower() == presented then
+          admitted = true
+        end
+      end
+      handle:close()
+      if not admitted then
+        return ngx.exit(ngx.HTTP_UNAUTHORIZED)
+      end
+    }
+    {# Exception: without an empty $args nginx appends the caller's query to a proxy_pass URI in compose; in swarm the variable upstream sends the URI as written. #}
+    set $args "";
+    {{ lookup('proxy_pass', 'web-app-prometheus', 'prometheus', 'http', tail='/federate?' ~ federate_args, local_port=lookup('config', 'web-app-prometheus', 'services.prometheus.ports.local.http')) }}
+    {% include 'roles/sys-svc-proxy/templates/headers/identity_request_strips.conf.j2' %}
+    {% include 'roles/sys-svc-proxy/templates/headers/upstream_strips.conf.j2' %}
+    proxy_set_header Authorization "";
+    proxy_connect_timeout 2s;
+    proxy_read_timeout 30s;
+  }
+{% else %}
+  location = /federate {
+    return 404;
+  }
+{% endif %}
+{% endif %}

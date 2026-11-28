@@ -91,6 +91,10 @@ checkmk:
     stop_required: false
   name: checkmk
   local_check_dir: ""
+  monitoring:
+    tls_expiry:
+      warn_days: 30
+      crit_days: 14
   ports:
     internal:
       http: 5000
@@ -106,6 +110,7 @@ checkmk:
   run_after:
     - web-app-keycloak
     - svc-db-openldap
+    - web-app-openbao
   lifecycle: beta
 
 # nocheck: playwright-service-flag

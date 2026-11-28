@@ -10,6 +10,26 @@
   register: semaphore_workspace_build
   changed_when: false
 
+- name: "🔎 Read the federation digest file of the {{ semaphore_workspace_alias }} runner"
+  ansible.builtin.command:
+    argv:
+      - container
+      - run
+      - --rm
+      - --pull
+      - never
+      - --network
+      - none
+      - --entrypoint
+      - cat
+      - "{{ lookup('image', application_id, SEMAPHORE_RUNNER_SERVICE, version=SEMAPHORE_WORKSPACE_RUNNER_IMAGE_TAG) }}"
+      - /usr/local/share/semaphore-runner/federation-digest-file
+  environment:
+    CA_CONTAINER_ENABLED: "0"
+  register: semaphore_workspace_digest_file
+  changed_when: false
+  when: SEMAPHORE_MONITORING | bool
+
 - name: "🔎 Read the core version of the {{ semaphore_workspace_alias }} runner image"
   ansible.builtin.command:
     argv:

@@ -12,17 +12,19 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519
 
 from tests.utils.openbao_stub import OpenBaoStub
+from utils.roles.mapping import ROLE_FILE_META_VOLUMES
 
 from . import PROJECT_ROOT
 from ._semaphore_fake import SCRIPTS_DIR, WORKSPACE_ID
 
 COMMIT = "0123456789abcdef0123456789abcdef01234567"
 HOST = "203.0.113.10"
+DOMAIN_PRIMARY = "target.example.org"
 HOST_KEY = (
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ2bWvH4yR8xq3k6m0sT9cUeLwPzA1nB5dF7gK2hQ4jX"
 )
 SHIM = """#!/usr/bin/env python3
-import json, os, re, subprocess, sys
+import json, os, re, subprocess, sys, time
 from pathlib import Path
 name = Path(sys.argv[0]).name
 args = sys.argv[1:]
@@ -58,20 +60,38 @@ with open(os.environ["SHIM_RECORD"], "a") as record:
         "agent_keys": listed.stdout.splitlines() if listed and listed.returncode == 0 else [],
         "private_key": Path(key_file).read_text() if key_file else None,
     }) + "\\n")
+block = os.environ.get("SHIM_BLOCK")
+if block and "-t" in args and not Path(block).exists():
+    Path(block).touch()
+    time.sleep(2)
 if "-t" in args:
-    result = json.loads(os.environ.get("SHIM_RESULTS", "{}")).get(args[args.index("-m") + 1])
+    results = json.loads(os.environ.get("SHIM_RESULTS", "{}"))
+    module = args[args.index("-m") + 1]
+    tree = Path(args[args.index("-t") + 1])
+    result = results.get(f"{module}:{tree.name}", results.get(module))
     if result is not None:
-        tree = Path(args[args.index("-t") + 1])
         tree.mkdir(parents=True, exist_ok=True)
         (tree / args[0]).write_text(json.dumps(result))
 """
 HELPERS = (
     "roles/web-app-semaphore/files/python/workspace_ssh_key.py",
     "roles/web-app-semaphore/files/python/lockout_guard.py",
-    "roles/web-app-semaphore/files/python/release_host.py",
+    "roles/web-app-semaphore/files/python/release/__init__.py",
+    "roles/web-app-semaphore/files/python/release/host.py",
+    "roles/web-app-semaphore/files/python/release/federation.py",
     "roles/web-app-semaphore/files/python/proof_of_release.py",
     "roles/web-app-semaphore/files/python/transport_guard.py",
     "roles/web-app-semaphore/files/python/inventory_guard.py",
+    "utils/__init__.py",
+    "utils/platform_monitoring.py",
+    "utils/monitoring/__init__.py",
+    "utils/monitoring/addresses.py",
+    "utils/monitoring/agent.py",
+    "utils/monitoring/federation.py",
+    "utils/monitoring/hosts.py",
+    "utils/monitoring/paths.py",
+    "utils/monitoring/share.py",
+    f"roles/svc-prx-openresty/{ROLE_FILE_META_VOLUMES}",
 )
 PERMIT_KEYS = "prohibit-password"
 BAO_ROLE = f"ws-{WORKSPACE_ID}"
@@ -83,9 +103,6 @@ AGENT_GONE_SECONDS = 5
 KILL_LINE = '\t\tkill "${TASK_AGENT_PID}" 2>/dev/null || stopped=$?\n'
 GUARD_CALL = 'python3 -I "${helpers}/lockout_guard.py"'
 TRANSPORT_CALL = 'python3 -I "${helpers}/transport_guard.py"'
-# Exception: a stand-in that exits without reading its stdin (true) lets
-# printf die of SIGPIPE under host.sh's pipefail, so the guard refuses after
-# all, under load.
 DRAIN = "cat >/dev/null"
 
 
@@ -122,6 +139,7 @@ def host_vars(reference, public, permit=PERMIT_KEYS):
     """
     variables = {
         "ansible_user": "root",
+        "DOMAIN_PRIMARY": DOMAIN_PRIMARY,
         "WORKSPACE_SSH_KEY": reference,
         "users": {"root": {"authorized_keys": [public] if public else []}},
     }
@@ -132,7 +150,8 @@ def host_vars(reference, public, permit=PERMIT_KEYS):
 
 def workspace_login(case):
     """Args:
-    case: the running test case; the OpenBao stub closes with it.
+    case: the running test case; the OpenBao stub closes with it and is
+        kept as ``case.bao``.
 
     Returns:
         ``(env, private_key, public_key)``: the workspace, its OpenBao login
@@ -141,10 +160,25 @@ def workspace_login(case):
     """
     private, public = key_pair()
     bao = OpenBaoStub(
-        {BAO_TOKEN: [f"tenant/ws-{WORKSPACE_ID}/"]},
+        {
+            BAO_TOKEN: [
+                f"tenant/ws-{WORKSPACE_ID}/",
+                f"platform/monitoring/federation/ws-{WORKSPACE_ID}/",
+                f"monitoring/ws-{WORKSPACE_ID}/federation/",
+                f"monitoring/ws-{WORKSPACE_ID}/released/",
+                f"monitoring/ws-{WORKSPACE_ID}/releasing/",
+                f"monitoring/ws-{WORKSPACE_ID}/agent/",
+                f"platform/monitoring/inventory/ws-{WORKSPACE_ID}/hosts/",
+            ]
+        },
         {(BAO_ROLE, TASK_JWT): BAO_TOKEN},
+        create_only=(
+            f"monitoring/ws-{WORKSPACE_ID}/released/",
+            f"monitoring/ws-{WORKSPACE_ID}/releasing/",
+        ),
     )
     case.addCleanup(bao.close)
+    case.bao = bao
     bao.put(f"tenant/{KEY_PATH}", {"private_key": private})
     env = {
         "WORKSPACE": WORKSPACE_ID,
@@ -278,6 +312,24 @@ class ScriptRunner:
         Returns:
             The completed process.
         """
+        process = self.start(script, env, args, directory)
+        stdout, stderr = process.communicate()
+        return subprocess.CompletedProcess(
+            process.args, process.returncode, stdout, stderr
+        )
+
+    def start(self, script, env, args=(), directory=SCRIPTS_DIR):
+        """Args:
+        script: the script name under ``directory``.
+        env: the task environment beside PATH and HOME; ``SHIM_BLOCK``
+            names a file the first ansible call with a tree creates before
+            it sleeps two seconds.
+        args: the command line.
+        directory: the folder holding the script.
+
+        Returns:
+            The running process, its stdout and stderr piped as text.
+        """
         self.record.unlink(missing_ok=True)
         self.git_record.unlink(missing_ok=True)
         full = {
@@ -289,13 +341,13 @@ class ScriptRunner:
             "SHIM_HEAD": env.get("INVENTORY_COMMIT", COMMIT),
             **env,
         }
-        return subprocess.run(
+        return subprocess.Popen(
             ["bash", str(directory / script), *args],
             cwd=self.checkout,
             env=full,
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
-            check=False,
         )
 
     def calls(self):
@@ -349,6 +401,7 @@ def host_env(**overrides):
     """
     env = {
         "WORKSPACE_TARGETS": f"{HOST}:22",
+        "WORKSPACE_DNS_ZONE": "ws.example.org",
         "HOST": HOST,
         "HOST_KEY": HOST_KEY,
         "INVENTORY_COMMIT": COMMIT,

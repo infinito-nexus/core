@@ -219,6 +219,64 @@ class TestDestroyErasesTheWorkspaceSecrets(unittest.TestCase):
         self.assertEqual(completed.returncode, 64)
         self.assertEqual(read_state(self.scratch)["deleted"], [])
 
+    def test_destroy_erases_the_monitoring_tree_with_its_tombstones_and_hosts(
+        self,
+    ) -> None:
+        write_state(
+            self.scratch,
+            {
+                "monitoring": {
+                    f"{A}/released/203.0.113.10": ["v1"],
+                    f"{A}/federation/203.0.113.10": ["v1"],
+                    f"{A}/labels/wiki": ["v1"],
+                    f"{B}/released/203.0.113.11": ["v1"],
+                },
+                "platform": {
+                    f"monitoring/federation/{A}/203.0.113.10": ["v1"],
+                    f"monitoring/federation/{B}/203.0.113.11": ["v1"],
+                    f"monitoring/inventory/{A}/hosts/203.0.113.10": ["v1"],
+                    f"monitoring/inventory/{B}/hosts/203.0.113.11": ["v1"],
+                    f"monitoring/inventory/{A}": ["v1"],
+                },
+            },
+        )
+        task = task_of(destroy_tasks(), "openbao_workspace_monitoring_erase")
+        self.assertEqual(
+            task["args"]["stdin"], "{{ lookup('file', 'shell/erase-tree.sh') }}"
+        )
+        self.assertIn(
+            "{{ item.mount | quote }} {{ item.prefix | quote }}",
+            task["ansible.builtin.shell"],
+        )
+        variables = {
+            "OPENBAO_MONITORING_MOUNT": "monitoring",
+            "OPENBAO_PLATFORM_MOUNT": "platform",
+            "OPENBAO_MONITORING_PREFIX": "monitoring",
+            "WORKSPACE": A.removeprefix("ws-"),
+        }
+        environment = Environment(
+            undefined=StrictUndefined,
+            autoescape=select_autoescape(default_for_string=False),
+        )
+        for item in task["loop"]:
+            mount, prefix = (
+                environment.from_string(item[name]).render(variables)
+                for name in ("mount", "prefix")
+            )
+            completed = run(["sh", str(SCRIPT), mount, prefix], install(self.scratch))
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(
+            read_state(self.scratch)["kv"],
+            {
+                "monitoring": {f"{B}/released/203.0.113.11": ["v1"]},
+                "platform": {
+                    f"monitoring/federation/{B}/203.0.113.11": ["v1"],
+                    f"monitoring/inventory/{B}/hosts/203.0.113.11": ["v1"],
+                    f"monitoring/inventory/{A}": ["v1"],
+                },
+            },
+        )
+
     def test_no_secret_value_reaches_the_output(self) -> None:
         completed = erase(self.scratch, f"{A}/")
         for version in ("v1", "v2", "v3"):

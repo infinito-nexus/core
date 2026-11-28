@@ -29,7 +29,7 @@
     stdin: |-
       {{ CHECKMK_ADMIN_PASSWORD }}
       {{ CHECKMK_MCP_UPSTREAM_KEY }}
-      {{ lookup('file', 'python/provision_mcp_identity.py') }}
+      {{ lookup('file', 'python/provision/mcp_identity.py') }}
   register: checkmk_mcp_identity
   retries: 30
   delay: 10

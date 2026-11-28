@@ -1,0 +1,40 @@
+---
+- name: "🔎 Platform monitoring | Look for an agent script on the host"
+  become: true
+  ansible.builtin.stat:
+    path: "{{ CHECKMK_AGENT_SCRIPT }}"
+    get_checksum: true
+    checksum_algorithm: sha256
+  register: platform_monitoring_agent_script
+
+- name: "🔎 Platform monitoring | Look for the marker of the role's agent script"
+  become: true
+  ansible.builtin.stat:
+    path: "{{ CHECKMK_AGENT_MARKER }}"
+  register: platform_monitoring_agent_marker
+
+- name: "🏷️ Platform monitoring | Check the marker against its agent script"
+  when: platform_monitoring_agent_marker.stat.exists
+  block:
+    - name: "🔎 Platform monitoring | Read the digest the marker recorded"
+      become: true
+      ansible.builtin.slurp:
+        src: "{{ CHECKMK_AGENT_MARKER }}"
+      register: platform_monitoring_agent_record
+
+    - name: "🏷️ Platform monitoring | Unmark an agent script another install changed"
+      when:
+        - platform_monitoring_agent_script.stat.exists
+        - not (CHECKMK_AGENT_OURS | bool)
+      block:
+        - name: "🏷️ Platform monitoring | Drop the marker of a changed agent script"
+          become: true
+          ansible.builtin.file:
+            path: "{{ CHECKMK_AGENT_MARKER }}"
+            state: absent
+
+        - name: "⚠️ Platform monitoring | Report the foreign agent script that stays"
+          ansible.builtin.debug:
+            msg: >-
+              {{ CHECKMK_AGENT_SCRIPT }} no longer holds the agent this role installed: it stays,
+              and the marker {{ CHECKMK_AGENT_MARKER }} is dropped.

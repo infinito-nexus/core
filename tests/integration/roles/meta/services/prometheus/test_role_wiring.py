@@ -48,7 +48,10 @@ _GROUP_NAMES = (
     "web-app-matrix",
     "svc-prx-openresty",
 )
-_INVENTORY_CREDENTIALS = {"logout_gate_key": "fixture-logout-gate-key"}
+_INVENTORY_CREDENTIALS = {
+    "logout_gate_key": "fixture-logout-gate-key",
+    "metricz_bearer": "fixture-metricz-bearer",
+}
 _INJ_OFF = {
     "logout": False,
     "dashboard": False,

@@ -1,0 +1,82 @@
+---
+- name: "🔍 Resolve {{ application_id }} node and container id for the monitoring user"
+  ansible.builtin.include_tasks: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/swarm/resolve_host_cid.yml') }}"
+  vars:
+    resolve_service_key: checkmk
+    resolve_output_prefix: CHECKMK_MONITORING
+    resolve_compose_cid: "{{ CHECKMK_NAME }}"
+
+- name: "🗝️ Converge the monitoring SSH key and agent datasource in {{ CHECKMK_SITE }}"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      container exec -i --user {{ CHECKMK_SITE | quote }} {{ CHECKMK_MONITORING_LOCAL_CID | quote }}
+      sh -c {{ lookup('file', 'shell/monitoring_agent.sh') | quote }} monitoring_agent
+      {{ CHECKMK_AGENT_KEY_FILE | quote }}
+      {{ CHECKMK_AGENT_SSH | quote }}
+    stdin: "{{ lookup('file', 'python/infinito_agent_ssh.py') }}"
+  register: checkmk_monitoring_agent
+  changed_when: checkmk_monitoring_agent.stdout_lines[-1] == 'CHANGED'
+  delegate_to: "{{ CHECKMK_MONITORING_HOST_NODE }}"
+  run_once: true
+
+- name: "🛑 Refuse a platform monitoring key that is no OpenSSH ed25519 public key"
+  ansible.builtin.assert:
+    that:
+      - checkmk_monitoring_agent.stdout_lines | length == 2
+      - checkmk_monitoring_agent.stdout_lines[0] is match('^ssh-ed25519 [A-Za-z0-9+/]+={0,3}$')
+    fail_msg: "{{ application_id }} produced no platform monitoring public key"
+
+- name: "🔑 Converge the monitoring automation user and the agent datasource rule"
+  ansible.builtin.shell:
+    cmd: >- # nocheck: container-exec-resolver  runtime-resolved CID, run_once delegated to the hosting node
+      IFS= read -r CHECKMK_ADMIN_PASSWORD && IFS= read -r MONITORING_SECRET &&
+      : "${CHECKMK_ADMIN_PASSWORD:?arrived empty on stdin}" && : "${MONITORING_SECRET:?arrived empty on stdin}" &&
+      export CHECKMK_ADMIN_PASSWORD MONITORING_SECRET && container exec -i
+      -e CHECKMK_API={{ CHECKMK_POOL_API | quote }}
+      -e CHECKMK_ADMIN_USER=cmkadmin
+      -e CHECKMK_ADMIN_PASSWORD
+      -e CHECKMK_SITE={{ CHECKMK_SITE | quote }}
+      -e MONITORING_USER={{ CHECKMK_MONITORING_USER | quote }}
+      -e MONITORING_SECRET
+      -e MONITORING_FOLDER={{ CHECKMK_MONITORING_FOLDER | quote }}
+      -e MONITORING_GROUP={{ CHECKMK_MONITORING_GROUP | quote }}
+      -e MONITORING_ROLE={{ CHECKMK_MONITORING_ROLE | quote }}
+      -e AGENT_PROGRAM={{ CHECKMK_AGENT_SSH | quote }}
+      {{ CHECKMK_MONITORING_LOCAL_CID | quote }}
+      python3 -
+    stdin: |-
+      {{ CHECKMK_ADMIN_PASSWORD }}
+      {{ CHECKMK_MONITORING_SECRET }}
+      {{ lookup('file', 'python/provision/monitoring_identity.py') }}
+  register: checkmk_monitoring_identity
+  retries: 30
+  delay: 10
+  until: checkmk_monitoring_identity.rc == 0 or 'REJECTED' in checkmk_monitoring_identity.stderr
+  changed_when: checkmk_monitoring_identity.stdout == 'CHANGED'
+  delegate_to: "{{ CHECKMK_MONITORING_HOST_NODE }}"
+  run_once: true
+  no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
+
+- name: "🛑 Refuse a monitoring user that did not converge"
+  ansible.builtin.assert:
+    that:
+      - checkmk_monitoring_identity.rc == 0
+    fail_msg: >-
+      {{ application_id }} could not give the monitoring template its identity:
+      {{ checkmk_monitoring_identity.stderr }}
+
+- name: "🔐 Hand the monitoring login and public key to OpenBao"
+  ansible.builtin.include_role:
+    name: web-app-openbao
+    tasks_from: utils/kv.yml
+  vars:
+    openbao_kv_state: present
+    openbao_kv_mount: "{{ checkmk_record.mount }}"
+    openbao_kv_path: "{{ checkmk_record.path }}"
+    openbao_kv_data: "{{ checkmk_record.data }}"
+  loop:
+    - "{{ CHECKMK_MONITORING_LOGIN }}"
+    - "{{ CHECKMK_AGENT_KEY_RECORD | combine({'data': {'public_key': checkmk_monitoring_agent.stdout_lines[0]}}) }}"
+  loop_control:
+    loop_var: checkmk_record
+    label: "{{ checkmk_record.mount }}/{{ checkmk_record.path }}"

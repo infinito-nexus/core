@@ -1,0 +1,24 @@
+---
+- name: "⛔ Platform monitoring | Refuse federated kinds on a workspace worker"
+  ansible.builtin.fail:
+    msg: >-
+      {{ inventory_hostname }} is a worker of {{ STACK_HOST }}: share health, system and traffic
+      on {{ STACK_HOST }}, whose /federate serves the stack.
+  when:
+    - PLATFORM_MONITORING_FEDERATED | bool
+    - PLATFORM_MONITORING_WORKSPACE | length > 0
+    - inventory_hostname != STACK_HOST
+
+- name: "🔑 Platform monitoring | Converge this host's digest line under its lock"
+  become: true
+  ansible.builtin.script:
+    cmd: >-
+      python/digest_line.py {{ PLATFORM_MONITORING_DIGEST_FILE | quote }}
+      {{ inventory_hostname | platform_monitoring_host_segment | quote }}
+      {{ (PLATFORM_MONITORING_DIGEST | platform_monitoring_digest_entry(inventory_hostname) | quote)
+         if PLATFORM_MONITORING_FEDERATED | bool else '' }}
+    executable: python3
+  register: platform_monitoring_digest_line
+  changed_when: platform_monitoring_digest_line.stdout is search('^changed')
+  delegate_to: "{{ STACK_HOST }}"
+  when: PLATFORM_MONITORING_WORKSPACE | length == 0 or inventory_hostname == STACK_HOST

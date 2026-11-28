@@ -24,6 +24,14 @@
     state: directory
     mode: "0755"
 
+- name: "📁 Ensure the customer instance scrape file directory exists"
+  ansible.builtin.file:
+    path: "{{ lookup('volume', application_id, 'instances').source }}"
+    state: directory
+    owner: root
+    group: "65534"
+    mode: "0750"
+
 - name: "📄 Render Prometheus config files (local + swarm peers)"
   ansible.builtin.include_tasks:
     file: "{{ lookup('path_absolute', 'roles/sys-svc-compose/tasks/utils/render_replicated_templates.yml') }}"

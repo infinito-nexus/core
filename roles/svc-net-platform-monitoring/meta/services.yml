@@ -1,0 +1,34 @@
+---
+# nocheck: garbage-collector-required  host agent and one digest file; holds no growing application data
+# nocheck: playwright-service-flag  host agent script and one key line, no container and no web surface of its own
+platform-monitoring:
+  modes:
+    host:
+      enabled: true
+    compose:
+      enabled: false
+    swarm:
+      enabled: false
+  lifecycle: alpha
+  enabled: true
+  shared: true
+  bond: 1
+  min_storage: "50MB"
+  cpus: "0.1"
+  mem_reservation: "32m"
+  mem_limit: "64m"
+  pids_limit: 64
+
+# nocheck: variants-coverage the role has a single variant, and the guide edge is not a dimension of it: a second round would differ only by the README replay
+docs:
+  bond: 0.5
+  enabled: "{{ 'web-app-docs' in group_names }}"
+  shared: "{{ 'web-app-docs' in group_names }}"
+
+# nocheck: bond-baseline, variants-coverage  Semaphore controls the role from outside the variant topology and no task of the role branches on this flag, so no variant round has a polarity to exercise
+semaphore:
+  bond: 0.5
+  enabled: "{{ 'web-app-semaphore' in group_names }}"
+  shared: "{{ 'web-app-semaphore' in group_names }}"
+  control: false # nocheck: semaphore-contract  the role runs no container, so Semaphore has nothing to pause
+  status: started

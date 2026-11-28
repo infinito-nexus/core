@@ -875,5 +875,41 @@ class TestProviderKeyPattern(TestCase):
                 validate_supplied_value("credentials.openai_api_key", value, schema)
 
 
+class TestMonitoringCredentialsOfAnExistingInventory(TestCase):
+    CREDENTIALS: ClassVar[tuple[tuple[str, str, str], ...]] = (
+        ("web-app-prometheus", "metricz_bearer", "mcp_bearer"),
+        ("web-app-checkmk", "monitoring_automation_secret", "mcp_upstream_token"),
+    )
+
+    def test_a_rerun_adds_the_new_credential_and_keeps_the_held_ones(self):
+        for role, new, held in self.CREDENTIALS:
+            with self.subTest(role=role), tempfile.TemporaryDirectory() as tmp:
+                inventory = Path(tmp) / "host_vars.yml"
+                inventory.write_text(
+                    f"applications:\n  {role}:\n    secrets:\n      credentials:\n"
+                    f'        {held}: "$ANSIBLE_VAULT;1.1;AES256\\nHELD"\n',
+                    encoding="utf-8",
+                )
+                with mock.patch("utils.manager.inventory.VaultHandler") as vault:
+                    vault.return_value.encrypt_string.side_effect = lambda _plain, key: (
+                        f"!vault |\n  $ANSIBLE_VAULT;1.1;AES256\n    {key}"
+                    )
+                    credentials = InventoryManager(
+                        role_path=PROJECT_ROOT / "roles" / role,
+                        inventory_path=inventory,
+                        vault_pw="dummy",
+                        overrides={},
+                        allow_empty_plain=True,
+                    ).apply_schema()["applications"][role]["secrets"]["credentials"]
+                self.assertIsInstance(credentials[held], VaultScalar)
+                self.assertIn("HELD", str(credentials[held]))
+                self.assertIsInstance(credentials[new], VaultScalar)
+                generated = {
+                    call.args[1]: call.args[0]
+                    for call in vault.return_value.encrypt_string.call_args_list
+                }
+                self.assertRegex(generated[new], r"^[A-Za-z0-9]{32,}$")
+
+
 if __name__ == "__main__":
     main()

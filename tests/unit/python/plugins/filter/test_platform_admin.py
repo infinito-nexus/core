@@ -2,7 +2,7 @@ import unittest
 
 from ansible.errors import AnsibleFilterError
 
-from plugins.filter.platform_admin import FilterModule
+from plugins.filter.platform.admin import FilterModule
 
 LOGIN = "platformadmin"
 EMAIL = "platformadmin@example.org"

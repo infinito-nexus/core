@@ -8,6 +8,25 @@
     semaphore_workspace_read_key: "{{ semaphore_workspace_alias | semaphore_ssh_keypair }}"
   no_log: "{{ MASK_CREDENTIALS_IN_LOGS | bool }}"
 
+- name: "🔍 Read the monitoring inventory read key of {{ semaphore_workspace_alias }}"
+  ansible.builtin.include_role:
+    name: web-app-openbao
+    tasks_from: utils/kv.yml
+  vars:
+    openbao_kv_state: read
+    openbao_kv_mount: "{{ SEMAPHORE_MONITORING_BAO_MOUNT }}"
+    openbao_kv_path: "{{ SEMAPHORE_MONITORING_INVENTORY_KEY_PREFIX }}/{{ semaphore_workspace_alias }}"
+    openbao_kv_data: {}
+  when: WORKSPACE_ACTION == 'apply' and SEMAPHORE_MONITORING | bool
+
+- name: "🔍 Read the platform Checkmk agent script the workspace deploy verifies"
+  uri_retry:
+    url: "{{ SEMAPHORE_MONITORING_AGENT_URL }}"
+    return_content: true
+    validate_certs: true
+  register: semaphore_monitoring_agent
+  when: WORKSPACE_ACTION == 'apply' and SEMAPHORE_MONITORING_CHECKMK | bool
+
 - name: "🗂️ {{ WORKSPACE_ACTION | capitalize }} {{ semaphore_workspace_alias }} projects"
   ansible.builtin.command:
     argv:
@@ -40,7 +59,10 @@
       repository:
         url: "{{ SEMAPHORE_WORKSPACE_REPOSITORY_URL }}"
         branch: "{{ SEMAPHORE_WORKSPACES_REPOSITORY_BRANCH }}"
-      read_key: "{{ semaphore_workspace_read_key }}"
+      read_key: >-
+        {{ {'private': openbao_kv_current.private_key, 'public': openbao_kv_current.private_key | ssh_public_key}
+           if WORKSPACE_ACTION == 'apply' and SEMAPHORE_MONITORING | bool and (openbao_kv_current.private_key | default('')) | length > 0
+           else semaphore_workspace_read_key }}
       scripts:
         name: "{{ SEMAPHORE_WORKSPACES_SCRIPTS_NAME }}"
         path: "{{ SEMAPHORE_RUNNER_REPOSITORY }}"
@@ -56,6 +78,11 @@
         WORKSPACE_DNS_ZONE: "{{ workspace_dns.zone if WORKSPACE_ACTION == 'apply' else '' }}"
         WORKSPACE_TARGETS: "{{ semaphore_workspace_targets }}"
         WORKSPACE_INVENTORY_FILE: "{{ SEMAPHORE_DEPLOY_INVENTORY_FILE }}"
+        PLATFORM_CHECKMK_SERVER: "{{ SEMAPHORE_MONITORING_PLATFORM_CHECKMK.PLATFORM_CHECKMK_SERVER }}"
+        PLATFORM_CHECKMK_SITE: "{{ SEMAPHORE_MONITORING_PLATFORM_CHECKMK.PLATFORM_CHECKMK_SITE }}"
+        PLATFORM_CHECKMK_ADDRESS: "{{ SEMAPHORE_MONITORING_PLATFORM_CHECKMK.PLATFORM_CHECKMK_ADDRESS }}"
+        PLATFORM_CHECKMK_AGENT_SHA256: "{{ SEMAPHORE_MONITORING_PLATFORM_CHECKMK.PLATFORM_CHECKMK_AGENT_SHA256 }}"
+        PLATFORM_PROMETHEUS_ADDRESS: "{{ SEMAPHORE_MONITORING_PLATFORM_PROMETHEUS_ADDRESS }}"
       workspaces:
         project: "{{ SEMAPHORE_WORKSPACES_PROJECT_NAME }}"
       provision:
@@ -82,6 +109,16 @@
     - name: "🛑 Remove the runner of {{ semaphore_workspace_alias }}"
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/workspace/runner.yml"
 
+    - name: "🗑️ Drop the monitoring inventory read key of {{ semaphore_workspace_alias }}"
+      ansible.builtin.include_role:
+        name: web-app-openbao
+        tasks_from: utils/kv.yml
+      vars:
+        openbao_kv_state: absent
+        openbao_kv_mount: "{{ SEMAPHORE_MONITORING_BAO_MOUNT }}"
+        openbao_kv_path: "{{ SEMAPHORE_MONITORING_INVENTORY_KEY_PREFIX }}/{{ semaphore_workspace_alias }}"
+        openbao_kv_data: {}
+
 - name: "🏃 Run the runner the applied workspace returned"
   when: WORKSPACE_ACTION == 'apply'
   block:
@@ -92,3 +129,20 @@
 
     - name: "🏃 Run the runner of {{ semaphore_workspace_alias }}"
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/utils/workspace/runner.yml"
+
+    - name: "🔐 Hand the read key and DNS zone of {{ semaphore_workspace_alias }} to OpenBao"
+      ansible.builtin.include_role:
+        name: web-app-openbao
+        tasks_from: utils/kv.yml
+      vars:
+        openbao_kv_state: present
+        openbao_kv_mount: "{{ SEMAPHORE_MONITORING_BAO_MOUNT }}"
+        openbao_kv_path: "{{ SEMAPHORE_MONITORING_INVENTORY_KEY_PREFIX }}/{{ semaphore_workspace_alias }}"
+        openbao_kv_data:
+          private_key: >-
+            {{ semaphore_workspace_read_key.private
+               if semaphore_workspace_applied.read_key == (semaphore_workspace_read_key.public.split()[:2] | join(' '))
+               else openbao_kv_current.private_key }}
+          dns_zone: "{{ workspace_dns.zone }}"
+          digest_file: "{{ semaphore_workspace_digest_file.stdout | trim }}"
+      when: SEMAPHORE_MONITORING | bool

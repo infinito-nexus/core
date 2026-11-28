@@ -8,15 +8,15 @@ from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import ed25519, rsa
 
-from . import PROJECT_ROOT
-from ._script_shims import key_pair
+from utils.cache.files import PROJECT_ROOT
 
-HELPER = PROJECT_ROOT / "roles/web-app-semaphore/files/python/release_host.py"
+HELPER = PROJECT_ROOT / "roles/web-app-semaphore/files/python/release/host.py"
 GUARD = PROJECT_ROOT / "roles/web-app-semaphore/files/python/lockout_guard.py"
 LOGIN = "admin"
 ACCOUNTS = (LOGIN, "root", "app-control", "backup")
+DIGEST = "/etc/infinito.nexus/federation.sha256"
 
 
 def load(path, name):
@@ -38,7 +38,14 @@ def public_key():
     """Returns:
     A fresh ``<type> <base64>`` public key line.
     """
-    return key_pair()[1]
+    return (
+        ed25519.Ed25519PrivateKey.generate()
+        .public_key()
+        .public_bytes(
+            serialization.Encoding.OpenSSH, serialization.PublicFormat.OpenSSH
+        )
+        .decode()
+    )
 
 
 def blob(line):
@@ -112,6 +119,9 @@ class ReleaseHostTests(unittest.TestCase):
                 "backup",
                 "--agent-key",
                 *blob(self.agent),
+                "--federation-digest",
+                DIGEST,
+                "--monitoring",
             ]
         )
         code = self.mod.release(
@@ -120,6 +130,7 @@ class ReleaseHostTests(unittest.TestCase):
             self.host.home,
             str(self.host.sudoers),
             self.mod.keygen_accepts,
+            self.mod.Monitoring(self.host.root / "rootfs", arguments.federation_digest),
         )
         return code, json.loads(stdout.getvalue().splitlines()[-1])
 
@@ -170,6 +181,9 @@ class ReleaseHostTests(unittest.TestCase):
                     "app_control_sudoers": 1,
                     "backup_keys": 1,
                     "backup_sudoers": 1,
+                    "federation_token": 0,
+                    "monitoring_agent": 0,
+                    "monitoring_key": 0,
                 },
             },
         )

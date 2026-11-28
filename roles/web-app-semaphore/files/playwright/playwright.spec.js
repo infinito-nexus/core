@@ -22,6 +22,7 @@ require("./test-foreign-deploy").register(shared);
 require("./test-workspace-runners").register(shared);
 require("./test-workspace-export").register(shared);
 require("./test-workspace-usage").register(shared);
+require("./test-workspace-monitoring").register(shared);
 require("./test-provision").register(shared);
 require("./test-task-token").register(shared);
 require("./test-workspace-logins").register(shared);
