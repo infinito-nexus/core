@@ -1528,7 +1528,7 @@ def trivy_os_args(
         ``until`` has not passed, else ``[]``.
     """
     cyclonedx = sbom_paths(layout, target)[1]
-    if "grype" not in scanners or not cyclonedx.is_file():
+    if "grype" not in scanners or not _readable_json(cyclonedx):
         return []
     release = sbom_os(_read_json(cyclonedx))
     for entry in config.trivy_unmatched_os:
